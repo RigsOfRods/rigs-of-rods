@@ -1,0 +1,22 @@
+material default
+{
+	technique
+	{
+		pass
+		{
+		}
+	}
+}
+material truckshop
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture truckshopdiffuse.dds
+			}
+		}
+	}
+}

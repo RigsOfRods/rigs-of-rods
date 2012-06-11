@@ -1,0 +1,14 @@
+material marina
+{
+	technique
+    {
+        pass
+        {
+			cull_hardware none
+            texture_unit diffuseMap
+            {
+                texture marinaskindiffuse.dds
+            }
+        }
+    }
+}
