@@ -9,3 +9,4 @@ CPackSourceConfig.cmake
 CMakeTmp
 build_x86
 build_x64
+dependencies/
