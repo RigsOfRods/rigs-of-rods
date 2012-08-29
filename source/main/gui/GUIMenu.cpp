@@ -67,14 +67,15 @@ GUI_MainMenu::GUI_MainMenu() :
 
 	
 	p->addItem(_L("get new Vehicle"), MyGUI::MenuItemType::Normal);
+	p->addItem(_L("reload current Vehicle"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("remove current Vehicle"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("activate all Vehicles"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("send all Vehicles to sleep"), MyGUI::MenuItemType::Normal);
 	p->addItem("-", MyGUI::MenuItemType::Separator);
 	p->addItem(_L("Save Scenery"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Load Scenery"), MyGUI::MenuItemType::Normal);
-	p->addItem("-", MyGUI::MenuItemType::Separator);
-	p->addItem(_L("Terrain Editor Mode"), MyGUI::MenuItemType::Normal);
+	//p->addItem("-", MyGUI::MenuItemType::Separator);
+	//p->addItem(_L("Terrain Editor Mode"), MyGUI::MenuItemType::Normal);
 	p->addItem("-", MyGUI::MenuItemType::Separator);
 	p->addItem(_L("Exit"), MyGUI::MenuItemType::Normal);
 	pop.push_back(p);
@@ -323,6 +324,13 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		gEnv->frameListener->loading_state = RELOADING;
 		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
 
+	} else if (miname == _L("reload current Vehicle") && gEnv->player)
+	{
+		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
+		{
+			gEnv->frameListener->reloadCurrentTruck();
+			GUIManager::getSingleton().unfocus();
+		}
 	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
 	{
 		if (gEnv->frameListener->loading_state != ALL_LOADED)
@@ -361,14 +369,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 			BeamFactory::getSingleton().setCurrentTruck(-1);
 		BeamFactory::getSingleton().sendAllTrucksSleeping();
-
-	} else if (miname == _L("reload Truck from File"))
-	{
-		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
-		{
-			gEnv->frameListener->reloadCurrentTruck();
-			GUIManager::getSingleton().unfocus();
-		}
 
 	} else if (miname == _L("Friction Settings"))
 	{
