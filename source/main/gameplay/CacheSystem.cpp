@@ -113,6 +113,7 @@ void CacheSystem::startup(bool forcecheck)
 	if (entries.empty())
 	{
 		showOgreWebError(_L("No content installed"), _L("You have no content installed"), _L("http://www.rigsofrods.com/wiki/pages/Install_Content"));
+		showStoredOgreWebErrors();
 		exit(1337);
 	}
 

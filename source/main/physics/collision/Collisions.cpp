@@ -218,6 +218,7 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
 		// message box
 		String url = "http://wiki.rigsofrods.com/index.php?title=Error_Old_ground_model#"+TOSTRING(this->collision_version)+"to"+TOSTRING(LATEST_GROUND_MODEL_VERSION);
 		showOgreWebError(_L("Configuration error"), _L("Your ground configuration is too old, please copy skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"), url);
+		showStoredOgreWebErrors();
 		exit(124);
 	}
 	return 0;
