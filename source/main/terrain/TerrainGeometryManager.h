@@ -103,7 +103,7 @@ protected:
 	bool loadTerrainConfig(Ogre::String filename);
 	void configureTerrainDefaults();
 	void defineTerrain(int x, int y, bool flat=false);
-	void getTerrainImage(int x, int y, Ogre::Image& img);
+	bool getTerrainImage(int x, int y, Ogre::Image& img);
 	void initBlendMaps( Ogre::Terrain* t );
 	void initTerrain();
 };

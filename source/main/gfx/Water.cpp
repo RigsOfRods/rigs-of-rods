@@ -80,6 +80,9 @@ ReflectionTextureListener mReflectionListener;
 
 Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 {
+	bool hasWater = Ogre::StringConverter::parseBool("Water", false);
+	if(!hasWater) return;
+
 	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
 	vRtt1 = vRtt2 = 0;
 	mScale = 1.0f;
@@ -98,6 +101,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 
 	// parse height
 	float wheight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));
+	float wbheight = PARSEREAL(mTerrainConfig.getSetting("WaterBottomLine", "General"));
 
 	// and the type
 	String waterSettingsString = SSETTING("Water effects", "Reflection + refraction (speed optimized)");
@@ -282,7 +286,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 	}
 	//bottom
 	bottomPlane.normal = Vector3::UNIT_Y;
-	bottomPlane.d = -wheight+30.0; //30m below waterline
+	bottomPlane.d = -wbheight; //30m below waterline
 	MeshManager::getSingleton().createPlane("BottomPlane",
 		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 		bottomPlane,

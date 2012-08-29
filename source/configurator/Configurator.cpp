@@ -1298,6 +1298,8 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	shadow->AppendValueItem(wxT("No shadows (fastest)"), _("No shadows (fastest)"));
 	shadow->AppendValueItem(wxT("Texture shadows"), _("Texture shadows"));
 	shadow->AppendValueItem(wxT("Stencil shadows (best looking)"), _("Stencil shadows (best looking)"));
+	// XXX: SHADOWS broken :(
+	//shadow->Disable();
 #if OGRE_VERSION>0x010602
 	shadow->AppendValueItem(wxT("Parallel-split Shadow Maps"), _("Parallel-split Shadow Maps"));
 #endif //OGRE_VERSION
@@ -2109,7 +2111,7 @@ void MyDialog::SetDefaults()
 	replaymode->SetValue(false);
 	screenShotFormat->SetSelection(0);
 	selfcollisions->SetValue(true);
-	shadow->SetSelection(1);             // texture shadows
+	shadow->SetSelection(0);             // no shadows
 	shadowOptimizations->SetValue(true);
 	sightRange->SetValue(5000);          // 5k = unlimited
 	skidmarks->SetValue(false);

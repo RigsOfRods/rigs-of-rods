@@ -81,6 +81,7 @@ void TerrainGeometryManager::initTerrain()
 	pageMaxX = PARSEINT(terrainConfig.getSetting("Pages_X"));
 	pageMaxY = PARSEINT(terrainConfig.getSetting("Pages_Y"));
 
+	bool is_flat = Ogre::StringConverter::parseBool(terrainConfig.getSetting("Flat"));
 
 	terrainPos = Vector3(mapsizex / 2.0f, 0.0f, mapsizez / 2.0f);
 
@@ -94,7 +95,7 @@ void TerrainGeometryManager::initTerrain()
 	String filename = mTerrainGroup->generateFilename(0, 0);
 	for (long x = pageMinX; x <= pageMaxX; ++x)
 		for (long y = pageMinY; y <= pageMaxY; ++y)
-			defineTerrain(x, y);
+			defineTerrain(x, y, is_flat);
 
 	// sync load since we want everything in place when we start
 	mTerrainGroup->loadAllTerrains(true);
@@ -290,11 +291,17 @@ void TerrainGeometryManager::initBlendMaps( Ogre::Terrain* terrain )
 	}
 }
 
-void TerrainGeometryManager::getTerrainImage(int x, int y, Image& img)
+bool TerrainGeometryManager::getTerrainImage(int x, int y, Image& img)
 {
 	// create new from image
 	String heightmapString = "HeightmapImage." + TOSTRING(x) + "." + TOSTRING(y);
 	String heightmapFilename = terrainConfig.getSetting(heightmapString);
+
+	if(heightmapFilename.empty())
+	{
+		LOG("empty Heightmap provided, please use 'Flat=1' instead");
+		return false;
+	}
 
 	if (heightmapFilename.find(".raw") != String::npos)
 	{
@@ -320,6 +327,7 @@ void TerrainGeometryManager::getTerrainImage(int x, int y, Image& img)
 	//	img.flipAroundY();
 	//if (flipY)
 	//	img.flipAroundX();
+	return true;
 }
 
 void TerrainGeometryManager::defineTerrain( int x, int y, bool flat )
@@ -339,9 +347,15 @@ void TerrainGeometryManager::defineTerrain( int x, int y, bool flat )
 	else
 	{
 		Image img;
-		getTerrainImage(x, y, img);
-		mTerrainGroup->defineTerrain(x, y, &img);
-		mTerrainsImported = true;
+		if(getTerrainImage(x, y, img))
+		{
+			mTerrainGroup->defineTerrain(x, y, &img);
+			mTerrainsImported = true;
+		} else
+		{
+			// fall back to no heightmap
+			mTerrainGroup->defineTerrain(x, y, 0.0f);
+		}
 	}
 }
 
