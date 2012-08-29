@@ -267,6 +267,9 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectType("BeamClass", sizeof(Beam), AngelScript::asOBJ_REF); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", AngelScript::asMETHOD(Beam,scaleTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", AngelScript::asMETHOD(Beam,getTruckName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", AngelScript::asMETHOD(Beam,getTruckFileName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("BeamClass", "string getTruckHash()", AngelScript::asMETHOD(Beam,getTruckHash), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", AngelScript::asMETHOD(Beam,getTruckType), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asMETHOD(Beam,reset), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "void setDetailLevel(int)", AngelScript::asMETHOD(Beam,setDetailLevel), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "void showSkeleton(bool, bool)", AngelScript::asMETHOD(Beam,showSkeleton), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
@@ -496,6 +499,14 @@ void ScriptEngine::init()
 	result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", NETWORKED); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("truckStates", "TS_RECYCLE", RECYCLE); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("truckStates", "TS_DELETED", DELETED); MYASSERT(result>=0);
+
+	result = engine->RegisterEnum("truckTypes"); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckTypes", "TT_NOT_DRIVEABLE", NOT_DRIVEABLE); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckTypes", "TT_TRUCK", TRUCK); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckTypes", "TT_AIRPLANE", AIRPLANE); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckTypes", "TT_BOAT", BOAT); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckTypes", "TT_MACHINE", MACHINE); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckTypes", "TT_AI", AI); MYASSERT(result>=0);
 
 	// now the global instances
 	GameScript *gamescript = new GameScript(this);

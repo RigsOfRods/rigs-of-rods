@@ -251,6 +251,7 @@ public:
 	std::string getTruckName();
 	std::string getTruckFileName();
 	std::string getTruckHash();
+	int getTruckType();
 
 	
 	std::vector<authorinfo_t> getAuthors();
@@ -507,6 +508,12 @@ inline std::string Beam::getTruckFileName()
 {
 	return realtruckfilename;
 }
+
+inline int Beam::getTruckType()
+{
+	return driveable;
+}
+
 
 inline std::string Beam::getTruckHash()
 {
