@@ -913,6 +913,8 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 					event_filter=EVENT_TRUCK;
 				else if (!strncmp(ts, "airplane", 8))
 					event_filter=EVENT_AIRPLANE;
+				else if (!strncmp(ts, "boat", 8))
+					event_filter=EVENT_BOAT;
 				else if (!strncmp(ts, "delete", 8))
 					event_filter=EVENT_DELETE;
 

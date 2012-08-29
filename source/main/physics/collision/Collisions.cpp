@@ -1014,6 +1014,8 @@ bool Collisions::permitEvent(int filter)
 		return true;
 	else if (filter == EVENT_AIRPLANE && b && b->driveable == AIRPLANE)
 		return true;
+	else if (filter == EVENT_BOAT && b && b->driveable == BOAT)
+		return true;
 	else if (filter == EVENT_DELETE && !b)
 		return true;
 	return false;
