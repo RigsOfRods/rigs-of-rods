@@ -46,6 +46,11 @@ particle_system tracks/particles/water1
 			rotation_speed_range_end    	1
 	}
 
+	affector FireExtinguisher
+	{
+		effectiveness 	1
+	}
+
 }
 
 particle_system tracks/particles/waterRed
