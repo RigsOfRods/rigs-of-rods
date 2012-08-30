@@ -408,7 +408,6 @@ bool Settings::setupPaths()
 	char tmppp[1024] = "";
 	strcpy(tmppp, resources_path);	
 	strcat(tmppp, "plugins.cfg");
-	printf(">> exists? %s\n", tmppp);
 	if(fileExists(tmppp))
 	{
 		strcpy(plugins_fname, resources_path);
@@ -416,7 +415,6 @@ bool Settings::setupPaths()
 	{
 		strcpy(tmppp, program_path);	
 		strcat(tmppp, "plugins.cfg");
-		printf(">> exists? %s\n", tmppp);
 		if(fileExists(tmppp))
 			strcpy(plugins_fname, program_path);
 	}
