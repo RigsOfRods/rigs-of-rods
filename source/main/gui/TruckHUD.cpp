@@ -362,7 +362,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		int filledCommands = 0;
 		for (int i=1; i < MAX_COMMANDS && filledCommands < COMMANDS_VISIBLE; i += 2)
 		{
-			if (truck->commandkey[i].description.size() == 0) continue;
+			if(truck->commandkey[i].beams.empty() || truck->commandkey[i].description == "hide") continue;
 
 			filledCommands++;
 			char commandID[256] = {};
@@ -382,7 +382,14 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 			keyStr = keya + "/" + keyb;
 
 			overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/Command" + TOSTRING(filledCommands));
-			overlayElement->setCaption(keyStr + ": " + truck->commandkey[i].description);
+			
+			if (truck->commandkey[i].description.empty())
+			{
+				overlayElement->setCaption(keyStr + ": " + _L("unknown function"));
+			} else
+			{
+				overlayElement->setCaption(keyStr + ": " + truck->commandkey[i].description);
+			}
 			checkOverflow(overlayElement);
 		}
 
