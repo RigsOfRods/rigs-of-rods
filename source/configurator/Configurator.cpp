@@ -2544,7 +2544,10 @@ void MyDialog::OnButPlay(wxCommandEvent& event)
 #endif
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	execl("./RoR.bin", "", (char *) 0);
+	char tmp[4096] = "";
+	strcpy(tmp, SSETTING("Program Path", "").c_str());
+	strcat(tmp, "RoR");
+	execl(tmp, "", (char *) 0);
 #endif
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 	FSRef ref;
