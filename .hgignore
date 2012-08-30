@@ -10,3 +10,6 @@ CMakeTmp
 build_x86
 build_x64
 dependencies/
+bin/Release/
+bin/RelWithDebInfo/
+ror-dependencies-*.zip
