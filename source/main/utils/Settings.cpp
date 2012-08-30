@@ -404,7 +404,23 @@ bool Settings::setupPaths()
 	strcpy(plugins_fname, program_path);
 #else
 	// under linux, the plugins.cfg is somewhere in /usr/share/rigsofrods/resources
-	strcpy(plugins_fname, resources_path);
+	// we will test both locations: program and resource path
+	char tmppp[1024] = "";
+	strcpy(tmppp, resources_path);	
+	strcat(tmppp, "plugins.cfg");
+	printf(">> exists? %s\n", tmppp);
+	if(fileExists(tmppp))
+	{
+		strcpy(plugins_fname, resources_path);
+	} else
+	{
+		strcpy(tmppp, program_path);	
+		strcat(tmppp, "plugins.cfg");
+		printf(">> exists? %s\n", tmppp);
+		if(fileExists(tmppp))
+			strcpy(plugins_fname, program_path);
+	}
+	
 #endif // WIN32
 
 
