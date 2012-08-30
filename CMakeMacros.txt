@@ -21,13 +21,21 @@ macro(copy_files_for_target TRGT SRC)
 if (WIN32) 
 	STRING(REGEX REPLACE "/" "\\\\" mysrc ${mysrc}) 
 	STRING(REGEX REPLACE "/" "\\\\" mydst ${mydst}) 
-endif() 
 	add_custom_command(
 	  TARGET ${TRGT}
 	  POST_BUILD
 	  COMMAND xcopy /S /Y ${mysrc} ${mydst}
 	  COMMENT "Copying ${mysrc} to ${mydst}"
 	  )
+else()
+	set(mydst ${EXECUTABLE_OUTPUT_PATH}/)
+	add_custom_command(
+	  TARGET ${TRGT}
+	  POST_BUILD
+	  COMMAND cp -r ${mysrc} ${mydst}
+	  COMMENT "Copying ${mysrc} to ${mydst}"
+	  )
+endif() 
 endmacro(copy_files_for_target)
 
 macro(copy_lib_files_for_target TRGT SRC)
