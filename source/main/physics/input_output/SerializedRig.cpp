@@ -2476,7 +2476,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 
 				braked     = PARSEINT (args[6]);
 				propulsed  = PARSEINT (args[7]);
-				torquenode = parse_node_number(c, args[8]);
+				torquenode = parse_node_number(c, args[8], 0, true);
 				mass       = PARSEREAL(args[9]);
 				spring     = PARSEREAL(args[10]);
 				damp       = PARSEREAL(args[11]);
@@ -6750,7 +6750,7 @@ int SerializedRig::parse_args(parsecontext_t &context, Ogre::StringVector &args,
 	return n;
 }
 
-int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, std::vector<int> *special_numbers)
+int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, std::vector<int> *special_numbers, bool ignoreError)
 {
 	if (free_node == 0)
 	{
@@ -6774,7 +6774,10 @@ int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, st
 		if (id >= free_node)
 		{
 			parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
-			throw(ParseException());
+			if(ignoreError)
+				return 0;
+			else
+				throw(ParseException());
 		}
 		else if (id < 0)
 		{
@@ -6783,7 +6786,10 @@ int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, st
 			if (id >= free_node)
 			{
 				parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
-				throw(ParseException());
+				if(ignoreError)
+					return 0;
+				else
+					throw(ParseException());
 			}
 			return id;
 		}
@@ -6812,12 +6818,18 @@ int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, st
 		if (id >= free_node)
 		{
 			parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
-			throw(ParseException());
+			if(ignoreError)
+				return 0;
+			else
+				throw(ParseException());
 		}
 		else if (id < 0)
 		{
 			parser_warning(context, "Error: invalid node number "+s+", less than zero", PARSER_ERROR);
-			throw(ParseException());
+			if(ignoreError)
+				return 0;
+			else
+				throw(ParseException());
 		}
 		// we assume its a normal node number then
 		return id;
