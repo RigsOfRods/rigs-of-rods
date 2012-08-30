@@ -156,7 +156,8 @@ if(WIN32)
   if(ROR_USE_CRASHRPT)
 	#copy_lib_files_for_target(${BINNAME} CrashRpt)
   endif()
-
+else()
+  copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
 endif()
 	
 endmacro(add_ror_project)
