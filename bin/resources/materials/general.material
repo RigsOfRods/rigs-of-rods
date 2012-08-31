@@ -1,0 +1,441 @@
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_shadow			// per pixel  with pssm shadow
+{
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $cull "clockwise"
+ 
+	technique
+	{
+		pass
+		{
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			cull_hardware $cull
+			depth_bias $depthBias
+ 
+			vertex_program_ref diffuse_sh_vs  {  }
+			fragment_program_ref diffuse_sh_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit normalMap
+			{
+				//texture flat_n.png
+				texture roadSavannah_n.png
+			}
+
+			texture_unit shadow_tex0
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex1
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex2
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_shadow_a		// per pixel  with pssm shadow and  alpha texture
+{
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $cull "clockwise"
+ 
+	technique
+	{
+		pass
+		{
+			scene_blend  alpha_blend
+			transparent_sorting on
+			depth_write off
+
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			cull_hardware $cull
+			depth_bias $depthBias
+ 
+			vertex_program_ref diffuse_sh_vs  {  }
+			fragment_program_ref diffuse_sh_a_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit diffuseAlpha
+			{
+				//texture white.png
+				texture roadAlpha.png
+			}
+			texture_unit normalMap
+			{
+				//texture flat_n.png
+				texture roadSavannah_n.png
+			}
+
+			texture_unit shadow_tex0
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex1
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex2
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_shadow_sel		// per pixel  with pssm shadow  +  selected pass add
+{
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $cull "clockwise"
+ 
+	technique
+	{
+		pass
+		{
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			cull_hardware $cull
+			depth_bias $depthBias
+ 
+			vertex_program_ref diffuse_sh_vs  {  }
+			fragment_program_ref diffuse_sh_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit normalMap
+			{
+				texture flat_n.png
+			}
+
+			texture_unit shadow_tex0
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex1
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex2
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+		}
+		pass	//  sel pass
+		{
+			scene_blend  add
+
+			diffuse 0.3 0.4 0.4 0
+
+			cull_hardware $cull
+			depth_bias $depthBias
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_diffuse		// per pixel  diffuse only
+{
+	receive_shadows off
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	//set $depthCheck "on"
+	set $cull "clockwise"
+ 
+	technique
+	{
+		pass
+		{
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			cull_hardware $cull
+			depth_bias $depthBias
+			//depth_check $depthCheck
+ 
+			vertex_program_ref diffuse_vs  {  }
+			fragment_program_ref diffuse_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit normalMap
+			{
+				texture flat_n.png
+			}
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_render			// per pixel  colored and normal only
+{
+	receive_shadows off
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $cull "none"  //"clockwise"
+ 
+	technique
+	{
+		pass
+		{
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			cull_hardware $cull
+			depth_bias $depthBias
+
+			vertex_program_ref render_vs  {  }
+			fragment_program_ref render_ps  {  }
+ 		}
+	}
+}
+
+material ppx_render_gr		// per pixel  for grass
+{
+	receive_shadows off
+	set $depthBias "0"
+	set $cull "clockwise"
+ 
+	technique
+	{
+		pass
+		{
+			cull_hardware $cull
+			depth_bias $depthBias
+			scene_blend  alpha_blend
+			transparent_sorting on
+			//depth_write off
+			depth_check off
+
+			vertex_program_ref render_vs  {  }
+			fragment_program_ref render_gr_ps {  }
+ 		}
+	}
+}
+ 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_env			// per pixel  with cubic reflection
+{
+	receive_shadows off
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $cull "clockwise"
+	set $envParsM "0.9 0.1 0 0"
+ 
+	technique
+	{
+		pass
+		{
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+			
+			cull_hardware $cull
+			depth_bias $depthBias
+ 
+			vertex_program_ref diffuse_vs  {  }
+			fragment_program_ref diffuse_ps_env
+			{
+				param_named envPars float4 $envParsM
+			}
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit normalMap
+			{
+				texture flat_n.png
+			}
+			texture_unit envMap
+			{
+				env_map cubic_reflection
+				cubic_texture ReflectionCube combinedUVW
+			}
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_glass_env		// per pixel  with cubic reflection  glass (alpha)
+{
+	receive_shadows off
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $envParsM "0.8 0.2 0 0"
+ 
+	technique
+	{
+		pass
+		{
+			scene_blend  alpha_blend
+			cull_hardware none
+			transparent_sorting on
+			depth_bias $depthBias
+			depth_write off
+ 
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			vertex_program_ref ambient_vs  {  }
+			fragment_program_ref ambient_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 0
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			scene_blend  add
+			cull_hardware none
+			transparent_sorting on
+			depth_bias $depthBias
+			depth_write off
+ 
+			vertex_program_ref diffuse_vs  {  }
+			fragment_program_ref diffuse_ps_env
+			{
+				param_named envPars float4 $envParsM
+			}
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit normalMap
+			{
+				texture flat_n.png
+			}
+			texture_unit envMap
+			{
+				env_map cubic_reflection
+				cubic_texture ReflectionCube combinedUVW
+			}
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+material ppx_glass			// per pixel  glass (alpha)
+{
+	receive_shadows off
+	set $ambientCol "1 1 1 1"
+	set $diffuseCol "1 1 1 1"
+	set $specularCol "1 1 1"
+	set $shininess "32"
+	set $depthBias "0"
+	set $envParsM "0.8 0.2 0 0"
+ 
+	technique
+	{
+		pass
+		{
+			scene_blend  alpha_blend
+			cull_hardware none
+			transparent_sorting on
+			depth_bias $depthBias
+			depth_write off
+ 
+			ambient $ambientCol
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			vertex_program_ref ambient_vs  {  }
+			fragment_program_ref ambient_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 0
+			diffuse $diffuseCol
+			specular $specularCol $shininess
+ 
+			scene_blend  add
+			//scene_blend  src_alpha  one_minus_src_alpha
+			cull_hardware none
+			transparent_sorting on
+			depth_bias $depthBias
+			depth_write off
+ 
+			vertex_program_ref diffuse_vs  {  }
+			fragment_program_ref diffuse_ps  {  }
+ 
+			texture_unit diffuseMap
+			{
+				texture white.png
+			}
+			texture_unit normalMap
+			{
+				texture flat_n.png
+			}
+		}
+	}
+}

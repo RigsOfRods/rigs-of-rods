@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCSX" position="40 85 585 430" layer="Overlapped" name="_Main">
+        <Property key="Caption" value="TextureTool"/>
+        <Property key="MinSize" value="300 250"/>
+        <Controller type="ControllerEdgeHide">
+            <Property key="RemainPixels" value="16"/>
+            <Property key="ShadowSize" value="16"/>
+            <Property key="Time" value="0.8"/>
+        </Controller>		
+        <Widget type="ComboBox" skin="ComboBox" position="5 360 350 30" align="HStretch Bottom" name="cboTextures">
+            <Property key="ModeDrop" value="true"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="5 5 350 350" align="Left VStretch" name="imgTexture"/>
+        <Widget type="TextBox" skin="TextBox" position="360 5 210 315" align="Stretch" name="txtInfo">
+            <Property key="Caption" value="Info Text"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="360 325 100 30" align="Right Bottom" name="btnSavePNG">
+            <Property key="Caption" value="Save as PNG"/>
+        </Widget>
+        <Widget type="Button" skin="CheckBox" position="365 365 210 30" align="Right Bottom" name="chkDynamic">
+            <Property key="Caption" value="Dynamic Textures Only"/>
+            <Property key="StateSelected" value="false"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="470 325 100 30" align="Right Bottom" name="btnSaveRAW">
+            <Property key="Caption" value="Save Raw"/>
+        </Widget>
+    </Widget>
+</MyGUI>
