@@ -102,6 +102,18 @@ void GameScript::movePerson(const Vector3 &vec)
 	if (gEnv->player) gEnv->player->move(vec);
 }
 
+void GameScript::setPersonRotation(const Radian &rot)
+{
+	if (gEnv->player) gEnv->player->setRotation(rot);
+}
+
+Radian GameScript::getPersonRotation()
+{
+	Radian result(0);
+	if (gEnv->player) result = gEnv->player->getRotation();
+	return result;
+}
+
 String GameScript::getCaelumTime()
 {
 	String result = "";
@@ -477,6 +489,11 @@ void GameScript::setCameraDirection(const Vector3 &rot)
 	if (gEnv->mainCamera) gEnv->mainCamera->setDirection(Vector3(rot.x, rot.y, rot.z));
 }
 
+void GameScript::setCameraOrientation(const Quaternion &q)
+{
+	if (gEnv->mainCamera) gEnv->mainCamera->setOrientation(Quaternion(q.w, q.x, q.y, q.z));
+}
+
 void GameScript::setCameraYaw(float rotX)
 {
 	if (gEnv->mainCamera) gEnv->mainCamera->yaw(Degree(rotX));
@@ -503,6 +520,13 @@ Vector3 GameScript::getCameraDirection()
 {
 	Vector3 result(Vector3::ZERO);
 	if (gEnv->mainCamera) result = gEnv->mainCamera->getDirection();
+	return result;
+}
+
+Quaternion GameScript::getCameraOrientation()
+{
+	Quaternion result(Quaternion::ZERO);
+	if (gEnv->mainCamera) result = gEnv->mainCamera->getOrientation();
 	return result;
 }
 

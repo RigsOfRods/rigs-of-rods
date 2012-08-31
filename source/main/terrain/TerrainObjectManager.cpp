@@ -931,8 +931,8 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 			{
 				if (enable_collisions)
 				{
-					const String eventname = eventname;
-					int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventname, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
+					const String eventnameStr = eventname;					
+					int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventnameStr, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
 					obj->collBoxes.push_back((boxnum));
 				}
 				continue;

@@ -67,20 +67,28 @@ public:
 
 	/**
 	 * sets the character position
-	 * @param x X position on the terrain
-	 * @param y Y position on the terrain
-	 * @param z Z position on the terrain
+	 * @param vec position vector on the terrain
 	 */
 	void setPersonPosition(const Ogre::Vector3 &vec);
 
 	void loadTerrain(const Ogre::String &terrain);
 	/**
 	 * moves the person relative
-	 * @param x X translation
-	 * @param y Y translation
-	 * @param z Z translation
+	 * @param vec translation vector
 	 */
 	void movePerson(const Ogre::Vector3 &vec);
+
+	/**
+	 * sets the character rotation
+	 * @param rot the character rotation
+	 */
+	void setPersonRotation(const Ogre::Radian &rot);
+
+	/**
+	 * gets the character rotation
+	 * @return character rotation
+	 */
+	Ogre::Radian getPersonRotation();
 
 	/**
 	 * gets the time of the day in seconds
@@ -193,6 +201,12 @@ public:
 	void setCameraDirection(const Ogre::Vector3 &vec);
 	
 	/**
+	 * Sets the camera's orientation.
+	 * @param vec A vector representing the direction of the vector.
+	 */
+	void setCameraOrientation(const Ogre::Quaternion &q);
+	
+	/**
 	 * Rolls the camera anticlockwise, around its local z axis.
 	 * @param angle The roll-angle
 	 */
@@ -221,6 +235,12 @@ public:
 	 * @return A vector representing the direction of the camera
 	 */
 	Ogre::Vector3 getCameraDirection();
+	
+	/**
+	 * Gets the camera's orientation.
+	 * @return A quaternion representing the orientation of the camera
+	 */
+	Ogre::Quaternion getCameraOrientation();
 	
 	/**
 	 * Points the camera at a location in worldspace.
