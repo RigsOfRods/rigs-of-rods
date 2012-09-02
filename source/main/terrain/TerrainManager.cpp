@@ -43,7 +43,19 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-TerrainManager::TerrainManager()
+TerrainManager::TerrainManager() : 
+	  geometry_manager(0)
+	, object_manager(0)
+	, sky_manager(0)
+	, shadow_manager(0)
+	, survey_map(0)
+	, hdr_listener(0)
+	, envmap(0)
+	, dashboard(0)
+	, collisions(0)
+	, character(0)
+	, water(0)
+
 {
 	gravity = DEFAULT_GRAVITY;
 }
@@ -56,9 +68,9 @@ TerrainManager::~TerrainManager()
 // some shortcut to remove ugly code
 #ifdef USE_MYGUI
 #include "LoadingWindow.h"
-#define PROGRESS_WINDOW(x, y) LoadingWindow::getSingleton().setProgress(x, y);
+#define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); LoadingWindow::getSingleton().setProgress(x, y); }
 #else
-#define PROGRESS_WINDOW(x, y)
+#define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
 #endif //USE_MYGUI
 
 void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
@@ -110,6 +122,8 @@ void TerrainManager::loadTerrain(String filename)
 
 	PROGRESS_WINDOW(10, _L("Loading Terrain Configuration"));
 
+	LOG(" ===== LOADING TERRAIN " + filename);
+
 	loadTerrainConfigBasics(ds);
 
 	// then, init the subsystems, order is important :)
@@ -117,12 +131,17 @@ void TerrainManager::loadTerrain(String filename)
 
 	fixCompositorClearColor();
 
+	LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
+
 	// load the terrain geometry
 	PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
 	geometry_manager->loadOgreTerrainConfig(ogre_terrain_config_filename);
 
+	LOG(" ===== LOADING TERRAIN WATER " + filename);
 	// must happen here
 	initWater();
+
+	LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
 
 	PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
 	loadTerrainObjects();
@@ -135,6 +154,7 @@ void TerrainManager::loadTerrain(String filename)
 	//finishTerrainDecal();
 
 	collisions->finishLoadingTerrain();
+	LOG(" ===== TERRAIN LOADING DONE " + filename);
 }
 
 void TerrainManager::initSubSystems()
@@ -487,16 +507,22 @@ void TerrainManager::initShadows()
 
 void TerrainManager::loadTerrainObjects()
 {
-	ConfigFile::SettingsIterator objectsIterator = mTerrainConfig.getSettingsIterator("Objects");
-	String svalue, sname;
-	while (objectsIterator.hasMoreElements())
+	try
 	{
-		sname = objectsIterator.peekNextKey();
-		StringUtil::trim(sname);
-		svalue = objectsIterator.getNext();
-		StringUtil::trim(svalue);
+		ConfigFile::SettingsIterator objectsIterator = mTerrainConfig.getSettingsIterator("Objects");
+		String svalue, sname;
+		while (objectsIterator.hasMoreElements())
+		{
+			sname = objectsIterator.peekNextKey();
+			StringUtil::trim(sname);
+			svalue = objectsIterator.getNext();
+			StringUtil::trim(svalue);
 
-		object_manager->loadObjectConfigFile(sname);
+			object_manager->loadObjectConfigFile(sname);
+		}
+	} catch(...)
+	{
+		// no objects found
 	}
 
 	// bakes the geometry and things
@@ -548,9 +574,10 @@ void TerrainManager::initScripting()
 				if(!ScriptEngine::getSingleton().loadScript(sname))
 					loaded = true;
 			}
-		} catch(Exception &e)
+		} catch(...)
 		{
-			LOG("Exception while trying load script: " + e.getFullDescription());
+			// simply no script section
+			//LOG("Exception while trying load script: " + e.getFullDescription());
 		}
 	}
 	
