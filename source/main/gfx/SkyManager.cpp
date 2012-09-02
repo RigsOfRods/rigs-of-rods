@@ -72,7 +72,8 @@ void SkyManager::detectUpdate()
 
 	if(c - lc > 0.001f)
 	{
-		gEnv->terrainManager->getGeometryManager()->updateLightMap();
+		TerrainGeometryManager *gm = gEnv->terrainManager->getGeometryManager();
+		if(gm) gm->updateLightMap();
 	}
 
 	lc = c;

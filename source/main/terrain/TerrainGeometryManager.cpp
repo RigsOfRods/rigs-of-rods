@@ -24,6 +24,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
+#define HASOPTION(X) !terrainConfig.getSetting(X).empty()
+#define IOPTION(X)   PARSEINT(terrainConfig.getSetting(X))
+#define BOPTION(X)   StringConverter::parseBool(terrainConfig.getSetting(X))
+#define FOPTION(X)   PARSEREAL(terrainConfig.getSetting(X))
+#define IOPT(X, Y)   (HASOPTION(X)?IOPTION(X):Y)
+#define FOPT(X, Y)   (HASOPTION(X)?FOPTION(X):Y)
+#define BOPT(X, Y)   (HASOPTION(X)?BOPTION(X):Y)
+
 TerrainGeometryManager::TerrainGeometryManager(TerrainManager *terrainManager) :
 	  terrainManager(terrainManager)
 	, disableCaching(false)
@@ -43,8 +51,7 @@ void TerrainGeometryManager::loadOgreTerrainConfig(String filename)
 
 	loadTerrainConfig(filename);
 
-	if (!terrainConfig.getSetting("disableCaching").empty())
-		disableCaching = StringConverter::parseBool(terrainConfig.getSetting("disableCaching"));
+	disableCaching = BOPT("disableCaching", false);
 
 	initTerrain();
 }
@@ -66,22 +73,22 @@ bool TerrainGeometryManager::loadTerrainConfig(String filename)
 void TerrainGeometryManager::initTerrain()
 {
 	// X, Y and Z scale
-	mapsizex = PARSEINT(terrainConfig.getSetting("WorldSizeX"));
-	mapsizey = PARSEINT(terrainConfig.getSetting("WorldSizeY"));
-	mapsizez = PARSEINT(terrainConfig.getSetting("WorldSizeZ"));
-	terrainSize = mapsizex+1;
+	mapsizex = IOPT("WorldSizeX", 1000);
+	mapsizey = IOPT("WorldSizeY", 50);
+	mapsizez = IOPT("WorldSizeZ", 1000);
+	terrainSize = IOPT("PageSize", 1025);
+
+
 	worldSize = std::max(mapsizex, mapsizez);
 
 	String filenameSuffix = "mapbin";
 	pageMinX = 0;
-	pageMaxX = 0;
+	pageMaxX = IOPT("Pages_X", 0);
 	pageMinY = 0;
-	pageMaxY = 0;
+	pageMaxY = IOPT("Pages_Y", 0);;
+	
 
-	pageMaxX = PARSEINT(terrainConfig.getSetting("Pages_X"));
-	pageMaxY = PARSEINT(terrainConfig.getSetting("Pages_Y"));
-
-	bool is_flat = Ogre::StringConverter::parseBool(terrainConfig.getSetting("Flat"));
+	bool is_flat = BOPT("Flat", false);
 
 	terrainPos = Vector3(mapsizex / 2.0f, 0.0f, mapsizez / 2.0f);
 
@@ -108,6 +115,7 @@ void TerrainGeometryManager::initTerrain()
 		while(ti.hasMoreElements())
 		{
 			Terrain *terrain = ti.getNext()->instance;
+			if(!terrain) continue;
 			//ShadowManager::getSingleton().updatePSSM(terrain);
 			initBlendMaps(terrain);
 		}
@@ -128,6 +136,7 @@ void TerrainGeometryManager::updateLightMap()
 	while(ti.hasMoreElements())
 	{
 		Terrain *terrain = ti.getNext()->instance;
+		if(!terrain) continue;
 		//ShadowManager::getSingleton().updatePSSM(terrain);
 		if(!terrain->isDerivedDataUpdateInProgress())
 		{
@@ -159,7 +168,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	Light *light = gEnv->terrainManager->getMainLight();
 	TerrainGlobalOptions *terrainOptions = TerrainGlobalOptions::getSingletonPtr();
 	// Configure global
-	terrainOptions->setMaxPixelError(PARSEINT(terrainConfig.getSetting("MaxPixelError")));
+	terrainOptions->setMaxPixelError(IOPT("MaxPixelError", 5));
 
 	// Important to set these so that the terrain knows what to use for derived (non-realtime) data
 	if (light)
@@ -174,50 +183,53 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	defaultimp.terrainSize  = terrainSize; // the heightmap size
 	defaultimp.worldSize    = worldSize; // this is the scaled up size, like 12km
 	defaultimp.inputScale   = mapsizey;
-	defaultimp.minBatchSize = 33;
-	defaultimp.maxBatchSize = 65;
-
-	if (!terrainConfig.getSetting("minBatchSize").empty())
-		defaultimp.minBatchSize = PARSEINT(terrainConfig.getSetting("minBatchSize"));
-
-	if (!terrainConfig.getSetting("maxBatchSize").empty())
-		defaultimp.maxBatchSize = PARSEINT(terrainConfig.getSetting("maxBatchSize"));
+	defaultimp.minBatchSize = IOPT("minBatchSize", 33);
+	defaultimp.maxBatchSize = IOPT("maxBatchSize", 65);
 
 	// optimizations
 	TerrainMaterialGeneratorA::SM2Profile* matProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
-	matProfile->setLightmapEnabled(StringConverter::parseBool(terrainConfig.getSetting("LightmapEnabled")));
-	matProfile->setLayerNormalMappingEnabled(StringConverter::parseBool(terrainConfig.getSetting("NormalMappingEnabled")));
-	matProfile->setLayerSpecularMappingEnabled(StringConverter::parseBool(terrainConfig.getSetting("SpecularMappingEnabled")));
-	matProfile->setLayerParallaxMappingEnabled(StringConverter::parseBool(terrainConfig.getSetting("ParallaxMappingEnabled")));
-	matProfile->setGlobalColourMapEnabled(StringConverter::parseBool(terrainConfig.getSetting("GlobalColourMapEnabled")));
-	matProfile->setReceiveDynamicShadowsDepth(StringConverter::parseBool(terrainConfig.getSetting("ReceiveDynamicShadowsDepth")));
 
-	terrainOptions->setLayerBlendMapSize(PARSEINT(terrainConfig.getSetting("LayerBlendMapSize")));
-	terrainOptions->setCompositeMapSize(PARSEINT(terrainConfig.getSetting("CompositeMapSize")));
-	terrainOptions->setCompositeMapDistance(PARSEINT(terrainConfig.getSetting("CompositeMapDistance")));
-	terrainOptions->setSkirtSize(PARSEINT(terrainConfig.getSetting("SkirtSize")));
-	terrainOptions->setLightMapSize(PARSEINT(terrainConfig.getSetting("LightMapSize")));
-	terrainOptions->setCastsDynamicShadows(StringConverter::parseBool(terrainConfig.getSetting("CastsDynamicShadows")));
+	matProfile->setLightmapEnabled(BOPT("LightmapEnabled", false));
+	matProfile->setLayerNormalMappingEnabled(BOPT("NormalMappingEnabled", false));
+	matProfile->setLayerSpecularMappingEnabled(BOPT("SpecularMappingEnabled", false));
+	matProfile->setLayerParallaxMappingEnabled(BOPT("ParallaxMappingEnabled", false));
+	matProfile->setGlobalColourMapEnabled(BOPT("GlobalColourMapEnabled", false));
+	matProfile->setReceiveDynamicShadowsDepth(BOPT("ReceiveDynamicShadowsDepth", false));
+
+	terrainOptions->setLayerBlendMapSize(IOPT("LayerBlendMapSize", 1024));
+	terrainOptions->setCompositeMapSize(IOPT("CompositeMapSize", 1024));
+	terrainOptions->setCompositeMapDistance(IOPT("CompositeMapDistance", 4000));
+	terrainOptions->setSkirtSize(IOPT("SkirtSize", 30));
+	terrainOptions->setLightMapSize(IOPT("LightMapSize", 1024));
+	terrainOptions->setCastsDynamicShadows(BOPT("CastsDynamicShadows", false));
 
 	terrainOptions->setUseRayBoxDistanceCalculation(false);
 
 	// load the textures and blendmaps into our data structures
 	blendInfo.clear();
-	terrainLayers = StringConverter::parseInt(terrainConfig.getSetting("Layers.count"));
+	terrainLayers = IOPT("Layers.count", 0);
 	if (terrainLayers > 0)
 	{
 		defaultimp.layerList.resize(terrainLayers);
 		blendInfo.resize(terrainLayers);
 		for (int i = 0; i < terrainLayers; i++)
 		{
-			defaultimp.layerList[i].worldSize = PARSEINT(terrainConfig.getSetting("Layers."+TOSTRING(i)+".size"));
-			defaultimp.layerList[i].textureNames.push_back(terrainConfig.getSetting("Layers."+TOSTRING(i)+".diffusespecular"));
-			defaultimp.layerList[i].textureNames.push_back(terrainConfig.getSetting("Layers."+TOSTRING(i)+".normalheight"));
+			defaultimp.layerList[i].worldSize = IOPT("Layers."+TOSTRING(i)+".size", 32);
+			if(HASOPTION("Layers."+TOSTRING(i)+".diffusespecular"))
+				defaultimp.layerList[i].textureNames.push_back(terrainConfig.getSetting("Layers."+TOSTRING(i)+".diffusespecular"));
+			if(HASOPTION("Layers."+TOSTRING(i)+".normalheight"))
+				defaultimp.layerList[i].textureNames.push_back(terrainConfig.getSetting("Layers."+TOSTRING(i)+".normalheight"));
 
 			blendLayerInfo_t &bi = blendInfo[i];
-			bi.blendMapTextureFilename = terrainConfig.getSetting("Layers."+TOSTRING(i)+".blendmap");
-			bi.blendMode = *terrainConfig.getSetting("Layers."+TOSTRING(i)+".blendmapmode").c_str();
-			bi.alpha = Ogre::StringConverter::parseReal(terrainConfig.getSetting("Layers."+TOSTRING(i)+".alpha"));
+			bi.blendMapTextureFilename = "";
+			if(HASOPTION("Layers."+TOSTRING(i)+".blendmap"))
+				bi.blendMapTextureFilename = terrainConfig.getSetting("Layers."+TOSTRING(i)+".blendmap");
+			bi.blendMode = 'R';
+			if(HASOPTION("Layers."+TOSTRING(i)+".blendmapmode"))
+				bi.blendMode = *terrainConfig.getSetting("Layers."+TOSTRING(i)+".blendmapmode").c_str();
+			bi.alpha = 1;
+			if(HASOPTION("Layers."+TOSTRING(i)+".alpha"))
+				bi.alpha = Ogre::StringConverter::parseReal(terrainConfig.getSetting("Layers."+TOSTRING(i)+".alpha"));
 		}
 	}
 }
@@ -303,10 +315,11 @@ bool TerrainGeometryManager::getTerrainImage(int x, int y, Image& img)
 		return false;
 	}
 
+
 	if (heightmapFilename.find(".raw") != String::npos)
 	{
-		int rawSize = StringConverter::parseInt(terrainConfig.getSetting("Heightmap.raw.size"));
-		int bpp = StringConverter::parseInt(terrainConfig.getSetting("Heightmap.raw.bpp"));
+		int rawSize = IOPT(heightmapString+".raw.size", 1025);
+		int bpp     = IOPT(heightmapString+".raw.bpp", 2);
 
 		// load raw data
 		DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(heightmapFilename);
@@ -320,13 +333,11 @@ bool TerrainGeometryManager::getTerrainImage(int x, int y, Image& img)
 		img.load(heightmapFilename, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	}
 
-	if (!terrainConfig.getSetting("Heightmap.flip").empty()  && StringConverter::parseBool(terrainConfig.getSetting("Heightmap.flip")))
+	if(BOPT(heightmapString + ".flipX", false))
 		img.flipAroundX();
+	if(BOPT(heightmapString + ".flipY", false))
+		img.flipAroundY();
 
-	//if (flipX)
-	//	img.flipAroundY();
-	//if (flipY)
-	//	img.flipAroundX();
 	return true;
 }
 
@@ -386,6 +397,7 @@ Ogre::String TerrainGeometryManager::getCompositeMaterialName()
 	while(ti.hasMoreElements())
 	{
 		Terrain *terrain = ti.getNext()->instance;
+		if(!terrain) continue;
 		MaterialPtr mat = terrain->getCompositeMapMaterial();
 		if(!mat.isNull())
 			return mat->getName();
