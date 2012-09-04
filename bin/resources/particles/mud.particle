@@ -1,0 +1,110 @@
+// Mud
+particle_system tracks/Mud
+{
+	quota	3001
+	material	Particles/mud
+	particle_width	0.5
+	particle_height	0.5
+	cull_each	true
+	sorted	true
+	local_space	false
+	iteration_interval	0
+	nonvisible_update_timeout	0
+	billboard_type	point
+	billboard_origin	center
+	billboard_rotation_type	texcoord
+	common_up_vector	0 1 0
+	point_rendering	false
+	accurate_facing	false
+
+	emitter Box
+	{
+		angle	47
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 1
+		direction	0 0.617382 0.786664
+		emission_rate	150
+		position	0 0 2
+		velocity	7
+		velocity_min	7
+		velocity_max	12
+		time_to_live	5
+		time_to_live_min	5
+		time_to_live_max	5
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		width	3
+		height	1
+		depth	1
+	}
+
+	emitter Box
+	{
+		angle	29
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 1
+		direction	0.611132 0.791466 -0.0100186
+		emission_rate	100
+		position	1 0 0
+		velocity	4
+		velocity_min	4
+		velocity_max	9
+		time_to_live	5
+		time_to_live_min	5
+		time_to_live_max	5
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		width	1
+		height	3
+		depth	1
+	}
+
+	emitter Box
+	{
+		angle	11
+		colour	1 1 1 1
+		colour_range_start	1 1 1 1
+		colour_range_end	1 1 1 1
+		direction	-0.731685 0.681569 0.0100231
+		emission_rate	100
+		position	-1 0 0
+		velocity	5
+		velocity_min	5
+		velocity_max	9
+		time_to_live	5
+		time_to_live_min	5
+		time_to_live_max	5
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+		width	1
+		height	3
+		depth	1
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	0 0 0
+		plane_normal	0 1 0
+		bounce	0.1
+	}
+
+	affector LinearForce
+	{
+		force_vector	0 -15 0
+		force_application	add
+	}
+}

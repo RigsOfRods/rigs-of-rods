@@ -1,0 +1,10 @@
+persontrigger.mesh
+3.0, 3.0, 3.0
+
+beginbox
+boxcoords -0.15, 0.15, -0.15, 1, -0.15, 0.15
+virtual
+event trigger avatar
+endbox
+
+end
