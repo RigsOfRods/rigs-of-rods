@@ -188,13 +188,15 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
 	// optimizations
 	TerrainMaterialGeneratorA::SM2Profile* matProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
-
-	matProfile->setLightmapEnabled(BOPT("LightmapEnabled", false));
-	matProfile->setLayerNormalMappingEnabled(BOPT("NormalMappingEnabled", false));
-	matProfile->setLayerSpecularMappingEnabled(BOPT("SpecularMappingEnabled", false));
-	matProfile->setLayerParallaxMappingEnabled(BOPT("ParallaxMappingEnabled", false));
-	matProfile->setGlobalColourMapEnabled(BOPT("GlobalColourMapEnabled", false));
-	matProfile->setReceiveDynamicShadowsDepth(BOPT("ReceiveDynamicShadowsDepth", false));
+	if(matProfile)
+	{
+		matProfile->setLightmapEnabled(BOPT("LightmapEnabled", false));
+		matProfile->setLayerNormalMappingEnabled(BOPT("NormalMappingEnabled", false));
+		matProfile->setLayerSpecularMappingEnabled(BOPT("SpecularMappingEnabled", false));
+		matProfile->setLayerParallaxMappingEnabled(BOPT("ParallaxMappingEnabled", false));
+		matProfile->setGlobalColourMapEnabled(BOPT("GlobalColourMapEnabled", false));
+		matProfile->setReceiveDynamicShadowsDepth(BOPT("ReceiveDynamicShadowsDepth", false));
+	}
 
 	terrainOptions->setLayerBlendMapSize(IOPT("LayerBlendMapSize", 1024));
 	terrainOptions->setCompositeMapSize(IOPT("CompositeMapSize", 1024));

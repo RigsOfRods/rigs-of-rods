@@ -123,7 +123,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 	}
 	catch(...)
 	{
-		LOG("Error openeing object configuration: " + odefname);
+		LOG("Error opening object configuration: " + odefname);
+		return;
 	}
 
 	int &mapsizex = terrainManager->geometry_manager->mapsizex;
