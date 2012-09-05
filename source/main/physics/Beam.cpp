@@ -5073,9 +5073,14 @@ void Beam::beaconsToggle()
 			props[i].light[0]->setVisible(beacon && enableLight);
 			props[i].bbsnode[0]->setVisible(beacon);
 			if (props[i].bbs[0] && beacon && !props[i].bbsnode[0]->numAttachedObjects())
+			{
+				props[i].bbs[0]->setVisible(true);
 				props[i].bbsnode[0]->attachObject(props[i].bbs[0]);
-			else if (props[i].bbs[0] && !beacon)
+			} else if (props[i].bbs[0] && !beacon)
+			{
 				props[i].bbsnode[0]->detachAllObjects();
+				props[i].bbs[0]->setVisible(false);
+			}
 		}
 		else if (props[i].beacontype=='R' || props[i].beacontype=='L')
 		{
