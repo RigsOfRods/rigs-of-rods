@@ -450,7 +450,7 @@ public:
 	void smoothValue(float &ref, float value, float rate);
 	bool saveMapping(std::string outfile=CONFIGFILENAME, Ogre::String hwnd=0, int joyNum=-10);
 	bool appendLineToConfig(std::string line, std::string outfile=CONFIGFILENAME);
-	bool loadMapping(std::string outfile=CONFIGFILENAME, bool append=false);
+	bool loadMapping(std::string outfile=CONFIGFILENAME, bool append=false, int deviceID=-1);
 
 	void destroy();
 
@@ -507,6 +507,7 @@ protected:
 	OIS::JoyStick* mJoy[MAX_JOYSTICKS];
 	int free_joysticks;
 	OIS::ForceFeedback* mForceFeedback;
+	int uniqueCounter;
 
 	// JoyStickListener
 	bool buttonPressed( const OIS::JoyStickEvent &arg, int button );
@@ -534,7 +535,7 @@ protected:
 	std::map<int, float > event_times;
 
 
-	bool processLine(char *line);
+	bool processLine(char *line, int deviceID = -1);
 	bool captureMode;
 
 	//RoRFrameListener *mefl;
