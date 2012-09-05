@@ -929,7 +929,7 @@ struct rig
 	int trucknum;
 	Skin *usedSkin;
 	Buoyance *buoyance;
-	//Water *water;
+
 	int driveable;
 	BeamEngine *engine;
 	int hascommands;
