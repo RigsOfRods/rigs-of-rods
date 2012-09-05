@@ -1354,6 +1354,18 @@ bool RoRFrameListener::updateEvents(float dt)
 		reloadCurrentTruck();
 		return true;
 	}
+
+	if (INPUTENGINE.getEventBoolValueBounce(EV_GETNEWVEHICLE, 0.5f) && loading_state != NONE_LOADED)
+	{
+		// get out first
+		if (curr_truck) BeamFactory::getSingleton().setCurrentTruck(-1);
+		reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
+		freeTruckPosition = true;
+		loading_state = RELOADING;
+		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
+		return true;
+	}
+	
 /* -- disabled for now ... why we should check for this if it does not call anything?
    -- enable this again when truckToolGUI is available again
 
