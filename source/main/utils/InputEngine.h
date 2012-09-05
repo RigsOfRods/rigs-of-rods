@@ -254,8 +254,7 @@ enum events
 	EV_TERRAINEDITOR_SELECTROAD, //!< switch to road laying mode
 	EV_TERRAINEDITOR_TOGGLEOBJECT, //!< toggle between available objects
 	EV_TERRAINEDITOR_TOGGLEROADTYPE, //!< toggle between available road types
-	EV_TOGGLESHADERS,
-	EV_TRUCKEDIT_RELOAD,
+
 	EV_TRUCK_ACCELERATE, //!< accelerate the truck
 	EV_TRUCK_ANTILOCK_BRAKE, //!< toggle antilockbrake system
 	EV_TRUCK_AUTOSHIFT_DOWN, //!< shift automatic transmission one gear down
@@ -351,6 +350,11 @@ enum events
 	EV_DOF_DEBUG_APERTURE_LESS,
 	EV_DOF_DEBUG_FOCUS_IN,
 	EV_DOF_DEBUG_FOCUS_OUT,
+
+	EV_TRUCKEDIT_RELOAD,
+	EV_TOGGLESHADERS,
+	EV_GETNEWVEHICLE,
+
 
 	// the end, DO NOT MODIFY
 	EV_MODE_BEFORELAST,

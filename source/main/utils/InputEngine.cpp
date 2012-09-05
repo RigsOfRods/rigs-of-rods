@@ -1504,6 +1504,9 @@ eventInfo_t eventInfo[] = {
 	
 	{ "TOGGLESHADERS", EV_TOGGLESHADERS, "Keyboard EXPL+SHIFT+CTRL+S", _L("toggle shader usage") },
 
+	{ "GETNEWVEHICLE", EV_GETNEWVEHICLE, "Keyboard EXPL+CTRL+G", _L("get new vehicle") },
+
+
 	// the end, DO NOT MODIFY
 	{"", -1, "", ""},
 };
