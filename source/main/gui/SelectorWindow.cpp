@@ -70,6 +70,10 @@ SelectorWindow::SelectorWindow() :
 	  mSelectedTruck(0)
 	, mSelectedSkin(0)
 	, visibleCounter(0)
+	, ready(false)
+	, keysBound(false)
+	, readytime(1.0f)
+	, dtsum(0)
 {
 	initialiseByAttributes(this);
 	mMainWidget->setVisible(false);
@@ -85,19 +89,15 @@ SelectorWindow::SelectorWindow() :
 	mMainWidget->setRealPosition(0.1, 0.1);
 	mMainWidget->setRealSize(0.8, 0.8);
 
-	mMainWidget->eventKeyButtonPressed      += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
 
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowChangeCoord             += MyGUI::newDelegate(this, &SelectorWindow::notifyWindowChangeCoord);
 
 	mTypeComboBox->eventComboChangePosition += MyGUI::newDelegate(this, &SelectorWindow::eventComboChangePositionTypeComboBox);
-	mTypeComboBox->eventKeyButtonPressed    += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
 	
 	mModelList->eventListSelectAccept       += MyGUI::newDelegate(this, &SelectorWindow::eventListChangePositionModelListAccept);
 	mModelList->eventListChangePosition     += MyGUI::newDelegate(this, &SelectorWindow::eventListChangePositionModelList);
-	//mModelList->eventKeyButtonPressed       += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
 	mConfigComboBox->eventComboAccept       += MyGUI::newDelegate(this, &SelectorWindow::eventComboAcceptConfigComboBox);
-	//mConfigComboBox->eventKeyButtonPressed  += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
 	mOkButton->eventMouseButtonClick        += MyGUI::newDelegate(this, &SelectorWindow::eventMouseButtonClickOkButton);
 	mCancelButton->eventMouseButtonClick    += MyGUI::newDelegate(this, &SelectorWindow::eventMouseButtonClickCancelButton);
 
@@ -105,7 +105,43 @@ SelectorWindow::SelectorWindow() :
 	mSearchLineEdit->eventEditTextChange    += MyGUI::newDelegate(this, &SelectorWindow::eventSearchTextChange);
 	mSearchLineEdit->eventMouseSetFocus     += MyGUI::newDelegate(this, &SelectorWindow::eventSearchTextGotFocus);
 	mSearchLineEdit->eventKeySetFocus       += MyGUI::newDelegate(this, &SelectorWindow::eventSearchTextGotFocus);
-	mSearchLineEdit->eventKeyButtonPressed  += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+
+	readytime = 0.5f;
+}
+
+void SelectorWindow::frameEntered(float dt)
+{
+	if(dtsum < readytime)
+	{
+		dtsum += dt;
+	} else
+	{
+		readytime = 0;
+		dtsum = 0;
+		ready = true;
+		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate( this, &SelectorWindow::frameEntered );
+	}
+}
+
+void SelectorWindow::bindKeys(bool bind)
+{
+	if(bind && !keysBound)
+	{
+		mMainWidget->eventKeyButtonPressed      += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		mTypeComboBox->eventKeyButtonPressed    += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		mSearchLineEdit->eventKeyButtonPressed  += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		//mModelList->eventKeyButtonPressed       += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		//mConfigComboBox->eventKeyButtonPressed  += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		keysBound = true;
+	} else if(!bind && keysBound)
+	{
+		mMainWidget->eventKeyButtonPressed      -= MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		mTypeComboBox->eventKeyButtonPressed    -= MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		mSearchLineEdit->eventKeyButtonPressed  -= MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		//mModelList->eventKeyButtonPressed       -= MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		//mConfigComboBox->eventKeyButtonPressed  -= MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
+		keysBound = false;
+	}
 }
 
 SelectorWindow::~SelectorWindow()
@@ -119,6 +155,7 @@ void SelectorWindow::notifyWindowChangeCoord(MyGUI::Window* _sender)
 
 void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
+	if(!ready) return;
 	if (!mMainWidget->getVisible()) return;
 	int cid = (int)mTypeComboBox->getIndexSelected();
 	int iid = (int)mModelList->getIndexSelected();
@@ -205,8 +242,9 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 	{
 		selectionDone();
 
-	} else if (mLoaderType == LT_SKIN && _key == MyGUI::KeyCode::Return && mSelectedSkin)
+	} else if (mLoaderType == LT_SKIN && _key == MyGUI::KeyCode::Return)
 	{
+		// mSelectedSkin can be 0, for the default
 		selectionDone();
 	}
 
@@ -214,11 +252,13 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 
 void SelectorWindow::eventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
 {
+	if(!ready) return;
 	selectionDone();
 }
 
 void SelectorWindow::eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 {
+	if(!ready) return;
 	mSelectedTruck = nullptr;
 	mSelectionDone = true;
 	hide();
@@ -571,6 +611,7 @@ void SelectorWindow::onEntrySelected(int entryID)
 
 void SelectorWindow::selectionDone()
 {
+	if(!ready) return;
 	if (!mSelectedTruck || mSelectionDone)
 		return;
 	
@@ -587,6 +628,8 @@ void SelectorWindow::selectionDone()
 		int res = SkinManager::getSingleton().getUsableSkins(mSelectedTruck->guid, this->mCurrentSkins);
 		if (!res && this->mCurrentSkins.size()>0)
 		{
+			// hide first
+			hide();
 			// show skin selection dialog!
 			this->show(LT_SKIN);
 			mSelectionDone = false;
@@ -842,6 +885,11 @@ void SelectorWindow::show(LoaderType type)
 	mSelectionDone = false;
 	getData();
 	visibleCounter++;
+
+	// so want to sleep 0.5 before the controls start working
+	readytime = 0.5f;
+	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate( this, &SelectorWindow::frameEntered );
+	bindKeys();
 }
 
 void SelectorWindow::hide()
@@ -849,6 +897,8 @@ void SelectorWindow::hide()
 	GUIManager::getSingleton().unfocus();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
+	ready=false;
+	bindKeys(false);
 }
 
 void SelectorWindow::setEnableCancel(bool enabled)
