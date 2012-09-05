@@ -33,6 +33,8 @@ material Examples/FresnelReflectionRefraction
 	{
 		pass 
 		{
+		   cull_hardware none
+		   cull_software none
 //			scene_blend alpha_blend
 			
 			vertex_program_ref Examples/FresnelRefractReflectVP
@@ -94,6 +96,8 @@ material Examples/FresnelReflectionRefractioninverted
 	{
 		pass 
 		{
+		   cull_hardware none
+		   cull_software none
 //			scene_blend alpha_blend
 			
 			vertex_program_ref Examples/FresnelRefractReflectVP
