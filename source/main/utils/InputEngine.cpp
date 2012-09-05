@@ -169,13 +169,13 @@ eventInfo_t eventInfo[] = {
 	{
 		"BOAT_CENTER_RUDDER",
 		EV_BOAT_CENTER_RUDDER,
-		"Keyboard DOWN",
+		"Keyboard PGDOWN",
 		_L("center the rudder")
 	},
 	{
 		"BOAT_REVERSE",
 		EV_BOAT_REVERSE,
-		"Keyboard UP",
+		"Keyboard PGUP",
 		_L("no thrust")
 	},
 	{
@@ -211,13 +211,13 @@ eventInfo_t eventInfo[] = {
 	{
 		"BOAT_THROTTLE_DOWN",
 		EV_BOAT_THROTTLE_DOWN,
-		"Keyboard PGDOWN",
+		"Keyboard DOWN",
 		_L("decrease throttle")
 	},
 	{
 		"BOAT_THROTTLE_UP",
 		EV_BOAT_THROTTLE_UP,
-		"Keyboard PGUP",
+		"Keyboard UP",
 		_L("increase throttle")
 	},
 	{
@@ -2578,7 +2578,11 @@ bool InputEngine::processLine(char *line)
 				key = allit->second;
 			}
 			int eventID = resolveEventName(String(eventName));
-			if (eventID == -1) return false;
+			if (eventID == -1)
+			{
+				LOG("Error while processing input config: Unknown Event: "+String(eventName));
+				return false;
+			}
 			event_trigger_t t_key = newEvent();
 			//memset(&t_key, 0, sizeof(event_trigger_t));
 			t_key.eventtype = ET_Keyboard;
