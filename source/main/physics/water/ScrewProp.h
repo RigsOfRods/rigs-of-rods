@@ -39,7 +39,6 @@ public:
 private:
 
 	DustPool *splashp, *ripplep;
-	Water* water;
 	bool reverse;
 	float fullpower; //in HP
 	float rudder;
