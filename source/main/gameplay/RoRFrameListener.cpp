@@ -2169,7 +2169,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					float tmp_steer_left = INPUTENGINE.getEventValue(EV_BOAT_STEER_LEFT);
 					float tmp_steer_right = INPUTENGINE.getEventValue(EV_BOAT_STEER_RIGHT);
 					float stime = INPUTENGINE.getEventBounceTime(EV_BOAT_STEER_LEFT) + INPUTENGINE.getEventBounceTime(EV_BOAT_STEER_RIGHT);
-					float sum_steer = (tmp_steer_left - tmp_steer_right) * 0.06;
+					float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
 					// do not center the rudder!
 					if (fabs(sum_steer)>0 && stime <= 0)
 					{
