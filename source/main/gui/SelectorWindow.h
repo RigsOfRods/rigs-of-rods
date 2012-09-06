@@ -61,6 +61,7 @@ private:
 	void eventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget);
 	void notifyWindowChangeCoord(MyGUI::Window* _sender);
 	void resizePreviewImage();
+	void bindKeys(bool bind=true);
 
 	// other functions
 	void getData();
@@ -71,13 +72,14 @@ private:
 
 	void updateControls(CacheEntry *entry);
 	void setPreviewImage(Ogre::String texture);
-
+	void frameEntered(float dt);
 	CacheEntry *mSelectedTruck;
 	LoaderType mLoaderType;
 	Ogre::Camera *mCamera;
 	Ogre::String lastImageTextureName;
 	Skin *mSelectedSkin;
 	bool mSelectionDone;
+	bool ready;
 	int visibleCounter;
 	std::vector<CacheEntry> mEntries;
 	std::vector<Ogre::String> mTruckConfigs;
@@ -103,6 +105,9 @@ private:
 	MyGUI::EditBox* mSearchLineEdit;
 	ATTRIBUTE_FIELD_WIDGET_NAME(SelectorWindow, mPreviewStaticImagePanel, "PreviewBox");
 	MyGUI::Widget* mPreviewStaticImagePanel;
+	bool keysBound;
+	float readytime;
+	float dtsum;
 };
 
 #endif // __SELECTOR_WINDOW_H_

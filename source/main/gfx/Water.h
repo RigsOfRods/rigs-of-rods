@@ -49,6 +49,7 @@ public:
 	void showWave(Ogre::Vector3 refpos);
 	void update();
 	void updateReflectionPlane(float h);
+	bool isCameraUnderWater();
 
 	enum water_quality {WATER_FULL_QUALITY, WATER_FULL_SPEED, WATER_REFLECT, WATER_BASIC};
 

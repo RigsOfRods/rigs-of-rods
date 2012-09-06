@@ -1354,6 +1354,18 @@ bool RoRFrameListener::updateEvents(float dt)
 		reloadCurrentTruck();
 		return true;
 	}
+
+	if (INPUTENGINE.getEventBoolValueBounce(EV_GETNEWVEHICLE, 0.5f) && loading_state != NONE_LOADED)
+	{
+		// get out first
+		if (curr_truck) BeamFactory::getSingleton().setCurrentTruck(-1);
+		reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
+		freeTruckPosition = true;
+		loading_state = RELOADING;
+		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
+		return true;
+	}
+	
 /* -- disabled for now ... why we should check for this if it does not call anything?
    -- enable this again when truckToolGUI is available again
 
@@ -2169,7 +2181,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					float tmp_steer_left = INPUTENGINE.getEventValue(EV_BOAT_STEER_LEFT);
 					float tmp_steer_right = INPUTENGINE.getEventValue(EV_BOAT_STEER_RIGHT);
 					float stime = INPUTENGINE.getEventBounceTime(EV_BOAT_STEER_LEFT) + INPUTENGINE.getEventBounceTime(EV_BOAT_STEER_RIGHT);
-					float sum_steer = (tmp_steer_left - tmp_steer_right) * 0.06;
+					float sum_steer = (tmp_steer_left - tmp_steer_right) * dt;
 					// do not center the rudder!
 					if (fabs(sum_steer)>0 && stime <= 0)
 					{

@@ -40,7 +40,8 @@ DustPool::DustPool(const char* dname, int dsize) :
 			sns[i]->attachObject(pss[i]);
 			pss[i]->setCastShadows(false);
 			pss[i]->setVisibilityFlags(DEPTHMAP_DISABLED);
-
+			if(pss[i]->getNumEmitters() > 0)
+				pss[i]->getEmitter(0)->setEnabled(false);
 			//can't do this
 //				if (w) ((DeflectorPlaneAffector*)(pss[i]->getAffector(0)))->setPlanePoint(Vector3(0, w->getHeight(), 0));
 		}
