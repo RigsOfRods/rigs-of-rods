@@ -169,13 +169,13 @@ eventInfo_t eventInfo[] = {
 	{
 		"BOAT_CENTER_RUDDER",
 		EV_BOAT_CENTER_RUDDER,
-		"Keyboard DOWN",
+		"Keyboard PGDOWN",
 		_L("center the rudder")
 	},
 	{
 		"BOAT_REVERSE",
 		EV_BOAT_REVERSE,
-		"Keyboard UP",
+		"Keyboard PGUP",
 		_L("no thrust")
 	},
 	{
@@ -211,13 +211,13 @@ eventInfo_t eventInfo[] = {
 	{
 		"BOAT_THROTTLE_DOWN",
 		EV_BOAT_THROTTLE_DOWN,
-		"Keyboard PGDOWN",
+		"Keyboard DOWN",
 		_L("decrease throttle")
 	},
 	{
 		"BOAT_THROTTLE_UP",
 		EV_BOAT_THROTTLE_UP,
-		"Keyboard PGUP",
+		"Keyboard UP",
 		_L("increase throttle")
 	},
 	{
@@ -1504,6 +1504,9 @@ eventInfo_t eventInfo[] = {
 	
 	{ "TOGGLESHADERS", EV_TOGGLESHADERS, "Keyboard EXPL+SHIFT+CTRL+S", _L("toggle shader usage") },
 
+	{ "GETNEWVEHICLE", EV_GETNEWVEHICLE, "Keyboard EXPL+CTRL+G", _L("get new vehicle") },
+
+
 	// the end, DO NOT MODIFY
 	{"", -1, "", ""},
 };
@@ -1541,6 +1544,7 @@ InputEngine::InputEngine() :
 	, mKeyboard(0)
 	, mMouse(0)
 	, mappingLoaded(false)
+	, uniqueCounter(0)
 {
 	for (int i=0;i<MAX_JOYSTICKS;i++) mJoy[i]=0;
 #ifndef NOOGRE
@@ -1658,8 +1662,8 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 		LOG("+ Total JoySticks: " + TOSTRING(mInputManager->getNumberOfDevices(OISJoyStick)));
 
 		//List all devices
-		OIS::DeviceList list = mInputManager->listFreeDevices();
-		for (OIS::DeviceList::iterator i = list.begin(); i != list.end(); ++i )
+		OIS::DeviceList deviceList = mInputManager->listFreeDevices();
+		for (OIS::DeviceList::iterator i = deviceList.begin(); i != deviceList.end(); ++i )
 			LOG("* Device: " + String(mOISDeviceType[i->first]) + String(" Vendor: ") + i->second);
 #endif //NOOGRE
 
@@ -1760,8 +1764,30 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 #else //NOOGRE
 	if (!mappingLoaded)
 	{
-		if (!loadMapping())
-			return false;
+		// load default one
+		loadMapping(CONFIGFILENAME);
+
+#ifndef NOOGRE
+		// then load device specific ones
+		for (int i = 0; i < free_joysticks; ++i)
+		{
+			String deviceStr = mJoy[i]->vendor();
+			
+			// care about unsuitable chars
+			String repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
+			for(unsigned int c = 0; c < repl.size(); c++)
+			{
+				deviceStr = StringUtil::replaceAll(deviceStr, repl.substr(c,1), "_");
+			}
+			deviceStr += ".map";
+			
+			loadMapping(deviceStr, false, i);
+		}
+#endif //NOOGRE
+		mappingLoaded = true;
+		completeMissingEvents();
+
+		return false;
 	}
 #endif //NOOGRE
 	return true;
@@ -2479,9 +2505,8 @@ String InputEngine::getEventTypeName(int type)
 
 void InputEngine::addEvent(int eventID, event_trigger_t t)
  {
-	static int counter=0;
-	counter++;
-	t.suid = counter;
+	uniqueCounter++;
+	t.suid = uniqueCounter;
 
 	if (eventID == -1)
 		//unknown event, discard
@@ -2494,7 +2519,7 @@ void InputEngine::addEvent(int eventID, event_trigger_t t)
 	events[eventID].push_back(t);
 }
 
-bool InputEngine::processLine(char *line)
+bool InputEngine::processLine(char *line, int deviceID)
 {
 	static String cur_comment = "";
 
@@ -2578,7 +2603,11 @@ bool InputEngine::processLine(char *line)
 				key = allit->second;
 			}
 			int eventID = resolveEventName(String(eventName));
-			if (eventID == -1) return false;
+			if (eventID == -1)
+			{
+				LOG("Error while processing input config: Unknown Event: "+String(eventName));
+				return false;
+			}
 			event_trigger_t t_key = newEvent();
 			//memset(&t_key, 0, sizeof(event_trigger_t));
 			t_key.eventtype = ET_Keyboard;
@@ -2607,7 +2636,7 @@ bool InputEngine::processLine(char *line)
 			int eventID = resolveEventName(String(eventName));
 			if (eventID == -1) return false;
 			t_joy.eventtype = ET_JoystickButton;
-			t_joy.joystickNumber = joyNo;
+			t_joy.joystickNumber = (deviceID==-1?joyNo:deviceID);
 			t_joy.joystickButtonNumber = buttonNo;
 			if (!strcmp(tmp2, "!NEW!"))
 			{
@@ -2694,7 +2723,7 @@ bool InputEngine::processLine(char *line)
 			t_joy.joystickAxisLinearity = linearity;
 			t_joy.joystickAxisReverse = reverse;
 			t_joy.joystickAxisNumber = axisNo;
-			t_joy.joystickNumber = joyNo;
+			t_joy.joystickNumber = (deviceID==-1?joyNo:deviceID);
 			strncpy(t_joy.configline, options, 128);
 			strncpy(t_joy.group, getEventGroup(eventName).c_str(), 128);
 			strncpy(t_joy.tmp_eventname, eventName, 128);
@@ -2744,7 +2773,7 @@ bool InputEngine::processLine(char *line)
 
 			event_trigger_t t_pov = newEvent();
 			t_pov.eventtype = eventtype;
-			t_pov.joystickNumber = joyNo;
+			t_pov.joystickNumber = (deviceID==-1?joyNo:deviceID);
 			t_pov.joystickPovNumber = povNumber;
 			t_pov.joystickPovDirection = direction;
 
@@ -2787,7 +2816,7 @@ bool InputEngine::processLine(char *line)
 				eventtype = ET_JoystickSliderX;
 
 			t_slider.eventtype = eventtype;
-			t_slider.joystickNumber = joyNo;
+			t_slider.joystickNumber = (deviceID==-1?joyNo:deviceID);
 			t_slider.joystickSliderNumber = sliderNumber;
 			t_slider.joystickSliderReverse = reverse;
 			// TODO: add region support to sliders!
@@ -3164,21 +3193,22 @@ void InputEngine::completeMissingEvents()
 		{
 			if (eventInfo[i].defaultKey.empty()) continue;
 			if (eventInfo[i].defaultKey == "None") continue;
-#ifndef NOOGRE
-			LOG("event mapping not existing, using default: " + eventInfo[i].name);
-#endif
 			// not existing, insert default
 			char tmp[256] = "";
 			sprintf(tmp, "%s %s", eventInfo[i].name.c_str(), eventInfo[i].defaultKey.c_str());
+#ifndef NOOGRE
+			//LOG("event mapping not existing, using default: '" + String(tmp) + "'");
+#endif
 			processLine(tmp);
 		}
 	}
 }
 
 
-bool InputEngine::loadMapping(String outfile, bool append)
+bool InputEngine::loadMapping(String outfile, bool append, int deviceID)
 {
 	char line[1025] = "";
+	int oldState = uniqueCounter;
 
 	if (!append)
 	{
@@ -3188,9 +3218,16 @@ bool InputEngine::loadMapping(String outfile, bool append)
 	}
 
 #ifndef NOOGRE
-	LOG("Loading input mapping...");
+	LOG(" * Loading input mapping " + outfile);
 	{
-		DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(outfile, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		DataStreamPtr ds;
+		try
+		{
+			ds = ResourceGroupManager::getSingleton().openResource(outfile, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		} catch(...)
+		{
+			return false;
+		}
 		while (!ds->eof())
 		{
 			size_t size = 1024;
@@ -3200,7 +3237,7 @@ bool InputEngine::loadMapping(String outfile, bool append)
 				break;
 			size_t readnum = ds->readLine(line, size);
 			if (readnum > 5)
-				processLine(line);
+				processLine(line, deviceID);
 		}
 	}
 #else
@@ -3216,12 +3253,10 @@ bool InputEngine::loadMapping(String outfile, bool append)
 
 #endif
 
-	mappingLoaded = true;
-
+	int newEvents = uniqueCounter - oldState;
 #ifndef NOOGRE
-	LOG("key map successfully loaded!");
+	LOG(" * Input map successfully loaded: " + TOSTRING(newEvents) + " entries");
 #endif
-	completeMissingEvents();
 	return true;
 }
 

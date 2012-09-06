@@ -11,7 +11,7 @@ build_x86
 build_x64
 dependencies/
 bin/RoR
-bin/rorconfig
+bin/RoRConfig
 bin/libangelscript_addons.a
 bin/Release/
 bin/plugins.cfg

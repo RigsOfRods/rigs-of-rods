@@ -43,7 +43,7 @@ Screwprop::Screwprop(node_t *nodes, int noderef, int nodeback, int nodeup, float
 
 void Screwprop::updateForces(int update)
 {
-	if (!water) return;
+	if (!gEnv->terrainManager->getWater()) return;
 	float depth=gEnv->terrainManager->getWater()->getHeightWaves(nodes[noderef].AbsPosition)-nodes[noderef].AbsPosition.y;
 	if (depth<0) return; //out of water!
 	Vector3 dir=nodes[nodeback].RelPosition-nodes[noderef].RelPosition;
@@ -52,10 +52,14 @@ void Screwprop::updateForces(int update)
 	if (reverse) dir=-dir;
 	rudaxis.normalise();
 	dir=(throtle*fullpower)*(Quaternion(Degree(rudder),rudaxis)*dir);
-	nodes[noderef].Forces+=dir;
+	nodes[noderef].Forces += dir;
+	
 	if (update && splashp && throtle>0.1)
 	{
-		if (depth<0.2) splashp->allocSplash(nodes[noderef].AbsPosition, 10.0*dir/fullpower);
+		if (depth<0.2)
+			splashp->allocSplash(nodes[noderef].AbsPosition, 10.0*dir/fullpower);
+		else
+			splashp->allocSplash(nodes[noderef].AbsPosition, 5.0*dir/fullpower);
 		ripplep->allocRipple(nodes[noderef].AbsPosition, 10.0*dir/fullpower);
 	}
 }

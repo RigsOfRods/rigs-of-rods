@@ -212,6 +212,9 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 				MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
 				mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
 
+				mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefractioninverted");
+				mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
+
 				vRtt1->setOverlaysEnabled(false);
 
 				rttTex1->addListener(&mRefractionListener);
@@ -241,9 +244,19 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 
 
 			MaterialPtr mat ;
-			if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED) mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
-			else mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflection");
-			mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
+			if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED)
+			{
+				mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
+				mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
+
+				mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefractioninverted");
+				mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
+			} else
+			{
+				mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflection");
+				mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
+			}
+
 
 			vRtt2->setOverlaysEnabled(false);
 
@@ -263,8 +276,10 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 			waterPlane,
 			mapsize.x * mScale,mapsize.z * mScale,WAVEREZ,WAVEREZ,true,1,50,50,Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 		pPlaneEnt = gEnv->sceneManager->createEntity( "plane", "ReflectPlane" );
-		if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED) pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
-		else pPlaneEnt->setMaterialName("Examples/FresnelReflection");
+		if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED)
+			pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
+		else
+			pPlaneEnt->setMaterialName("Examples/FresnelReflection");
 		//        gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 		//position
 		pTestNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("WaterPlane");
@@ -350,7 +365,8 @@ void Water::moveTo(Camera *cam, float centerheight)
 		pTestNode->setPosition(pos);
 		pBottomNode->setPosition(pos);
 		if (haswaves) showWave(pos);
-		if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED || mType==WATER_REFLECT) updateReflectionPlane(centerheight);
+		if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED || mType==WATER_REFLECT)
+			updateReflectionPlane(centerheight);
 	}
 }
 
@@ -388,10 +404,47 @@ void Water::showWave(Vector3 refpos)
 //		wbuf->unlock();
 }
 
+bool Water::isCameraUnderWater()
+{
+	float wh = getHeightWaves(gEnv->mainCamera->getPosition());
+	return (wh > gEnv->mainCamera->getPosition().y);
+}
+
 void Water::update()
 {
 	if (!visible)
 		return;
+
+	bool underwater = isCameraUnderWater();
+	static bool lastWaterMode = false;
+	bool underWaterModeChanged = false;
+	if(underwater != lastWaterMode)
+	{
+		underWaterModeChanged = true;
+		lastWaterMode = underwater;
+	}
+
+	static ColourValue savedFogColor;
+	static int savedFogMode=0;
+	static float savedFogStart, savedFogEnd, savedFogDensity;
+	if(underwater && underWaterModeChanged)
+	{
+		/*
+		// TODO!
+		savedFogColor = gEnv->sceneManager->getFogColour();
+		savedFogMode  = gEnv->sceneManager->getFogMode();
+		savedFogStart = gEnv->sceneManager->getFogStart();
+		savedFogEnd   = gEnv->sceneManager->getFogEnd();
+		savedFogDensity = gEnv->sceneManager->getFogDensity();
+		ColourValue fogColour = ColourValue(0.2,0.28,0.8);
+		gEnv->sceneManager->setFog(FOG_LINEAR, fogColour, 0, 5, 10);
+		*/
+	} else if(!underwater && underWaterModeChanged)
+	{
+		// TODO!
+		//gEnv->sceneManager->setFog((FogMode)savedFogMode, savedFogColor, savedFogDensity, savedFogStart, savedFogEnd);
+	}
+
 	framecounter++;
 	if (mType==WATER_FULL_SPEED)
 	{
@@ -409,6 +462,11 @@ void Water::update()
 			mRefractCam->setFOVy(gEnv->mainCamera->getFOVy());
 			rttTex1->update();
 		}
+
+		//if(underwater && underWaterModeChanged)
+		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefractioninverted");
+		//else if(!underwater && underWaterModeChanged)
+		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
 	} else if (mType==WATER_FULL_QUALITY)
 	{
 		mReflectCam->setOrientation(gEnv->mainCamera->getOrientation());
@@ -419,6 +477,12 @@ void Water::update()
 		mRefractCam->setPosition(gEnv->mainCamera->getPosition());
 		mRefractCam->setFOVy(gEnv->mainCamera->getFOVy());
 		rttTex1->update();
+
+		//if(underwater && underWaterModeChanged)
+		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefractioninverted");
+		//else if(!underwater && underWaterModeChanged)
+		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
+
 	}
 	else if (mType==WATER_REFLECT)
 	{
@@ -513,9 +577,24 @@ void Water::updateReflectionPlane(float h)
 	//Ray ra=gEnv->ogreCamera->getCameraToViewportRay(0.5,0.5);
 	//std::pair<bool, Real> mpair=ra.intersects(Plane(Vector3::UNIT_Y, -height));
 	//if (mpair.first) h=ra.getPoint(mpair.second).y;
-	reflectionPlane.d = -h+0.15;
-	refractionPlane.d = h+0.15;
-	waterPlane.d = -h;
+
+	bool underwater = isCameraUnderWater();
+	if(underwater)
+	{
+		reflectionPlane.normal = -Vector3::UNIT_Y;
+		refractionPlane.normal = Vector3::UNIT_Y;
+		reflectionPlane.d = h+0.15;
+		refractionPlane.d = -h+0.15;
+		waterPlane.d = -h;
+	} else
+	{
+		reflectionPlane.normal = Vector3::UNIT_Y;
+		refractionPlane.normal = -Vector3::UNIT_Y;
+		reflectionPlane.d = -h+0.15;
+		refractionPlane.d = h+0.15;
+		waterPlane.d = -h;
+	}
+
 	if (mRefractCam) mRefractCam->enableCustomNearClipPlane(refractionPlane);
 	if (mReflectCam)
 	{

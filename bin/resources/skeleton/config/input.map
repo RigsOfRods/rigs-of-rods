@@ -26,12 +26,12 @@ AIRPLANE_TOGGLE_ENGINES        Keyboard             CTRL+HOME
 
 ; BOAT
 BOAT_CENTER_RUDDER             Keyboard             DOWN 
-BOAT_REVERSE                   Keyboard             UP 
+BOAT_REVERSE                   Keyboard             PGDOWN 
 BOAT_STEER_LEFT                Keyboard             LEFT 
 BOAT_STEER_RIGHT               Keyboard             RIGHT 
 BOAT_THROTTLE_AXIS             None                 
-BOAT_THROTTLE_DOWN             Keyboard             PGDOWN 
-BOAT_THROTTLE_UP               Keyboard             PGUP 
+BOAT_THROTTLE_UP               Keyboard             UP 
+BOAT_THROTTLE_DOWN             Keyboard             DOWN
 
 ; CAELUM
 CAELUM_DECREASE_TIME           Keyboard             EXPL+SUBTRACT 
@@ -122,7 +122,6 @@ COMMANDS_48                    Keyboard             EXPL+CTRL+ALT+F12
 ; COMMON
 COMMON_CONSOLEDISPLAY          Keyboard             EXPL+GRAVE 
 COMMON_CONSOLEMODE             Keyboard             EXPL+CTRL+GRAVE 
-COMMON_ENTER_CHAT              Keyboard             RETURN 
 COMMON_ENTER_OR_EXIT_TRUCK     Keyboard             RETURN 
 COMMON_FULLSCREEN_TOGGLE       Keyboard             EXPL+ALT+RETURN 
 COMMON_HIDE_GUI                Keyboard             U 
@@ -163,25 +162,6 @@ GRASS_MOST                     Keyboard             8
 GRASS_NONE                     Keyboard             5 
 GRASS_SAVE                     Keyboard             9 
 
-; INGAMEEDITOR
-INGAMEEDITOR_BACKWARD          Keyboard             PGUP 
-INGAMEEDITOR_BEAM_TYPE         Keyboard             G 
-INGAMEEDITOR_CHANGE_NODE_TYPE  Keyboard             N 
-INGAMEEDITOR_DOWN              Keyboard             DOWN 
-INGAMEEDITOR_FORWARD           Keyboard             PGDOWN 
-INGAMEEDITOR_KEY_INFO          Keyboard             SHIFT+I 
-INGAMEEDITOR_LEFT              Keyboard             LEFT 
-INGAMEEDITOR_MODE_FLARE        Keyboard             2 
-INGAMEEDITOR_MODE_GEO          Keyboard             1 
-INGAMEEDITOR_MOVE_NODE         Keyboard             M 
-INGAMEEDITOR_PLACE_BEAM        Keyboard             EXPL+SPACE 
-INGAMEEDITOR_RESET             Keyboard             R 
-INGAMEEDITOR_RIGHT             Keyboard             RIGHT 
-INGAMEEDITOR_SHOW              Keyboard             Y 
-INGAMEEDITOR_SHOW_COORDS       Keyboard             H 
-INGAMEEDITOR_TRANS_FRONT       Keyboard             NUMPAD7 
-INGAMEEDITOR_UP                Keyboard             UP 
-
 ; MAP
 SURVEY_MAP_ZOOM_IN             Keyboard             EXPL+SHIFT+CTRL+TAB 
 SURVEY_MAP_ZOOM_OUT            Keyboard             EXPL+SHIFT+TAB 
@@ -190,7 +170,6 @@ SURVEY_MAP_TOGGLE_ALPHA        Keyboard             EXPL+CTRL+TAB
 
 ; MENU
 MENU_DOWN                      Keyboard             DOWN 
-MENU_FAST                      Keyboard             LSHIFT 
 MENU_LEFT                      Keyboard             LEFT 
 MENU_RIGHT                     Keyboard             RIGHT 
 MENU_SELECT                    Keyboard             EXPL+RETURN 
@@ -205,15 +184,6 @@ TERRAINEDITOR_ROTATERIGHT      Keyboard             HOME
 TERRAINEDITOR_SELECTROAD       Keyboard             B 
 TERRAINEDITOR_TOGGLEOBJECT     Keyboard             V 
 TERRAINEDITOR_TOGGLEROADTYPE   Keyboard             EXPL+CTRL+T 
-
-; TERRAIN
-TERRAIN_LOWER                  Keyboard             EXPL+2 
-TERRAIN_PAINT                  Keyboard             EXPL+3 
-TERRAIN_PAINT_SWITCH           Keyboard             EXPL+CTRL+3 
-TERRAIN_RAISE                  Keyboard             EXPL+1 
-TERRAIN_SAVE                   Keyboard             EXPL+6 
-TERRAIN_SMOOTH                 Keyboard             EXPL+4 
-TERRAIN_UPDATE_LIGHTMAP        Keyboard             EXPL+5 
 
 ; TRUCK
 TRUCK_ACCELERATE               Keyboard             UP 

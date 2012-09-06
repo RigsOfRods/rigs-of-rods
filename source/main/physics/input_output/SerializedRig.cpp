@@ -3583,8 +3583,9 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 							props[free_prop].bbs[0]->setMaterialName(matname);
 							props[free_prop].bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
 						}
-						if (props[free_prop].bbs[0])
-							props[free_prop].bbsnode[0]->attachObject(props[free_prop].bbs[0]);
+						//if (props[free_prop].bbs[0])
+						//	props[free_prop].bbsnode[0]->attachObject(props[free_prop].bbs[0]);
+						props[free_prop].bbs[0]->setVisible(false);
 						props[free_prop].bbsnode[0]->setVisible(false);
 					}
 					if (!strncmp("redbeacon", meshname, 9) && flaresMode>0)
