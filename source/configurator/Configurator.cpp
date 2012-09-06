@@ -1091,11 +1091,12 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Network Protocol version: %s"), wxString(RORNET_VERSION, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));
 	y += dText->GetSize().GetHeight() + 2;
 
-	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Revision: %s"), wxT(SVN_REVISION)), wxPoint(x_row1 + 15, y));
-	y += dText->GetSize().GetHeight() + 2;
+	// those required SVN Keyword to work properly, broken since the switch to HG
+	//dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Revision: %s"), wxT(SVN_REVISION)), wxPoint(x_row1 + 15, y));
+	//y += dText->GetSize().GetHeight() + 2;
 
-	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Full revision: %s"), wxT(SVN_ID)), wxPoint(x_row1 + 15, y));
-	y += dText->GetSize().GetHeight() + 2;
+	//dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Full revision: %s"), wxT(SVN_ID)), wxPoint(x_row1 + 15, y));
+	//y += dText->GetSize().GetHeight() + 2;
 
 	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Build time: %s, %s"), wxT(__DATE__), wxT(__TIME__)), wxPoint(x_row1 + 15, y));
 	y += dText->GetSize().GetHeight() + 2;
