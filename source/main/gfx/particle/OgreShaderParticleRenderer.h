@@ -224,7 +224,7 @@ namespace Ogre {
 
 		/// add particle to vertex buffer
 		void addParticle(uint8* pDataVB, const Particle& particle) const;
-
+		void setRenderQueueGroupAndPriority(Ogre::uint8,Ogre::ushort);
     protected:
         static CmdVertexFormatColour		msVertexFmtColour;
         static CmdVertexFormatTexture		msVertexFmtTexture;

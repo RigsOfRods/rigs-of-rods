@@ -599,6 +599,9 @@ namespace Ogre {
         static_cast<ShaderParticleRenderer*>(target)->setVertexFormatColour(
             StringConverter::parseBool(val));
     }
+	void ShaderParticleRenderer::setRenderQueueGroupAndPriority(Ogre::uint8,Ogre::ushort)
+	{
+	}
 
 	//////////////////////////////////////////////////////////////////////////
     String ShaderParticleRenderer::CmdVertexFormatTexture::doGet(const void* target) const
