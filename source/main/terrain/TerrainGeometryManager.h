@@ -91,6 +91,7 @@ protected:
 	Ogre::TerrainGroup *mTerrainGroup;
 	Ogre::TerrainPaging* mTerrainPaging;
 	Ogre::PageManager* mPageManager;
+	
 
 	typedef struct blendLayerInfo_t {
 		Ogre::String blendMapTextureFilename;
@@ -104,7 +105,8 @@ protected:
 	void configureTerrainDefaults();
 	void defineTerrain(int x, int y, bool flat=false);
 	bool getTerrainImage(int x, int y, Ogre::Image& img);
-	void initBlendMaps( Ogre::Terrain* t );
+	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
+	void initBlendMaps(int x, int y, Ogre::Terrain* t );
 	void initTerrain();
 };
 

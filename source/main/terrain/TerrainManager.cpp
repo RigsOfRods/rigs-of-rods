@@ -179,12 +179,12 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(21, _L("Initializing Shadow Subsystem"));
 	initShadows();
 
-	// sky
-	PROGRESS_WINDOW(23, _L("Initializing Sky Subsystem"));
-	initSkySubSystem();
-
 	PROGRESS_WINDOW(25, _L("Initializing Camera Subsystem"));
 	initCamera();
+
+	// sky, must come after camera due to farclip
+	PROGRESS_WINDOW(23, _L("Initializing Sky Subsystem"));
+	initSkySubSystem();
 
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
@@ -240,7 +240,15 @@ void TerrainManager::initCamera()
 {
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 
-	//gEnv->ogreCamera->setFarClipDistance(0);
+	farclip = FSETTING("SightRange", 4500);
+	if(farclip == 5000)
+	{
+		gEnv->mainCamera->setFarClipDistance(0);
+	} else
+	{
+		gEnv->mainCamera->setFarClipDistance(farclip);
+	}
+
 
 	gEnv->mainCamera->setPosition(start_position);
 }
@@ -308,7 +316,10 @@ void TerrainManager::initLight()
 
 void TerrainManager::initFog()
 {
-	gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color,  0, farclip * 0.7, farclip * 0.9);
+	if(farclip == 5000)
+		gEnv->sceneManager->setFog(FOG_NONE);
+	else
+		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color,  0, farclip * 0.7, farclip * 0.9);
 }
 
 void TerrainManager::initVegetation()
