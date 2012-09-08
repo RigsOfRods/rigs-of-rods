@@ -334,8 +334,13 @@ void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 			StringUtil::trim(args[3]);
 			bi.blendMapTextureFilename = args[3];
 		}
-		if(args.size() > 4) bi.blendMode = *args[4].c_str();
-		if(args.size() > 5) bi.alpha = PARSEREAL(args[5]);
+		if(args.size() > 4)
+		{
+			StringUtil::trim(args[4]);
+			bi.blendMode = args[4][0];
+		}
+		if(args.size() > 5)
+			bi.alpha = PARSEREAL(args[5]);
 
 		layer++;
 		if(layer >= terrainLayers)
