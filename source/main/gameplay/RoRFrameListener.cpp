@@ -20,7 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRFrameListener.h"
 
 #include <OgreFontManager.h>
-#include <OgrePrerequisites.h>
+
 #include <OgreRTShaderSystem.h>
 #include <OgreTerrain.h>
 #include <OgreTerrainMaterialGeneratorA.h>
