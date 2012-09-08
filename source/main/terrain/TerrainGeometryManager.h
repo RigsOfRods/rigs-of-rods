@@ -82,8 +82,10 @@ protected:
 	bool mTerrainsImported;
 
 	int mapsizex, mapsizey, mapsizez, pageSize, terrainSize, worldSize;
-	int pageMinX, pageMaxX, pageMinY, pageMaxY;
+	int pageMinX, pageMaxX, pageMinZ, pageMaxZ;
 	int terrainLayers;
+
+	Ogre::String pageConfigFormat;
 
 	Ogre::Vector3 terrainPos;
 
@@ -108,6 +110,7 @@ protected:
 	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
 	void initBlendMaps(int x, int y, Ogre::Terrain* t );
 	void initTerrain();
+	Ogre::String getPageHeightmap(int x, int y);
 };
 
 #endif // __TerrainGeometryManager_H_

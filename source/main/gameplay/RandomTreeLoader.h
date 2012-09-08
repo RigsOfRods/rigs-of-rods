@@ -25,7 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PropertyMaps.h"
 #include "TreeLoader2D.h"
 
-#include <OgrePrerequisites.h>
+
 
 
 namespace Forests {

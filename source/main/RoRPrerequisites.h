@@ -29,7 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //#endif //WIN32
 
 // add some ogre headers
-#include <OgrePrerequisites.h>
+#include <OgreHeaderPrefix.h>
 #include <OgreString.h>
 #include <OgreStringConverter.h>
 #include <OgreLogManager.h>
