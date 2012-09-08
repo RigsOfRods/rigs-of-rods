@@ -159,7 +159,7 @@ void TerrainGeometryManager::initTerrain()
 				if(!terrain) continue;
 				//ShadowManager::getSingleton().updatePSSM(terrain);
 				LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page layers ") + XZSTR(x,z));
-				loadLayers(x, z);
+				loadLayers(x, z, terrain);
 				LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page blend maps ") + XZSTR(x,z));
 				initBlendMaps(x, z, terrain);
 
@@ -265,10 +265,6 @@ void TerrainGeometryManager::configureTerrainDefaults()
 // if terrain is set, we operate on the already loaded terrain
 void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 {
-	// load the textures and blendmaps into our data structures
-	blendInfo.clear();
-
-	// we override this variable in here: quick hack
 	String cfg = pageConfigFormat;
 	cfg = StringUtil::replaceAll(cfg, "{X}", TOSTRING(x));
 	cfg = StringUtil::replaceAll(cfg, "{Z}", TOSTRING(z));
@@ -333,12 +329,16 @@ void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 		bi.blendMode = 'R';
 		bi.alpha = 'R';
 
-		if(args.size() > 3) { StringUtil::trim(args[3]); bi.blendMapTextureFilename = args[3]; }
+		if(args.size() > 3)
+		{
+			StringUtil::trim(args[3]);
+			bi.blendMapTextureFilename = args[3];
+		}
 		if(args.size() > 4) bi.blendMode = *args[4].c_str();
 		if(args.size() > 5) bi.alpha = PARSEREAL(args[5]);
 
 		layer++;
-		if(layer > terrainLayers)
+		if(layer >= terrainLayers)
 			break;
 	}
 	LOG("done loading page: loaded " + TOSTRING(layer) + " layers");
@@ -352,6 +352,9 @@ void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain 
 	for (int i = 1; i < layerCount; i++)
 	{
 		blendLayerInfo_t &bi = blendInfo[i];
+
+		if(bi.blendMapTextureFilename.empty()) continue;
+
 		Ogre::Image img;
 		//std::pair<uint8,uint8> textureIndex = terrain->getLayerBlendTextureIndex(i);
 		//uint8 bti = terrain->getBlendTextureIndex(i);
