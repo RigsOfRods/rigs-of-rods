@@ -30,7 +30,7 @@ using namespace Ogre;
 
 ShadowManager::ShadowManager() : mPSSMSetup()
 {
-	mDepthShadows = true;
+	mDepthShadows = false;
 }
 
 ShadowManager::~ShadowManager()
@@ -40,9 +40,14 @@ ShadowManager::~ShadowManager()
 void ShadowManager::loadConfiguration()
 {
 	Ogre::String s = SSETTING("Shadow technique", "Parallel-split Shadow Maps");
-	if (s == "Stencil shadows")            changeShadowTechnique(Ogre::SHADOWTYPE_STENCIL_MODULATIVE);
-	if (s == "Texture shadows")            changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
-	if (s == "Parallel-split Shadow Maps") changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
+	if (s == "Stencil shadows")
+		changeShadowTechnique(Ogre::SHADOWTYPE_STENCIL_MODULATIVE);
+	else if (s == "Texture shadows")
+		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
+	else if (s == "Parallel-split Shadow Maps")
+		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
+	else 
+		changeShadowTechnique(Ogre::SHADOWTYPE_NONE);
 }
 
 int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)

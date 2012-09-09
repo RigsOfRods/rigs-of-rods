@@ -36,31 +36,36 @@ HydraxWater::HydraxWater() :
 
 int HydraxWater::loadConfig(Ogre::String configfile)
 {
-	waternoise = new Hydrax::Noise::Perlin(/*Generic one*/);
+	waternoise = new Hydrax::Noise::Real(/*Generic one*/);
 
 	// Create our projected grid module  
-	Hydrax::Module::RadialGrid *module 
-		= new Hydrax::Module::RadialGrid(// Hydrax parent pointer
-		mHydrax,
-		// Noise module
-		waternoise,
-		//Ogre::Plane(Ogre::Vector3(0,1,0), Ogre::Vector3(0,0,0)),
-		// Normal mode
-		Hydrax::MaterialManager::NM_VERTEX);
-
-		/*
+	Hydrax::Module::ProjectedGrid *module 
 		= new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer
 		mHydrax,
 		// Noise module
 		waternoise,
 		// Base plane
-		Ogre::Plane(Ogre::Vector3::UNIT_Y, Ogre::Real(0.0f)),
+		Ogre::Plane(Ogre::Vector3(0,1,0), Ogre::Vector3(0,0,0)),
 		//Ogre::Plane(Ogre::Vector3(0,1,0), Ogre::Vector3(0,0,0)),
 		// Normal mode
 		Hydrax::MaterialManager::NM_VERTEX,
 		// Projected grid options
-		Hydrax::Module::ProjectedGrid::Options(264));
-		*/
+		Hydrax::Module::ProjectedGrid::Options());
+
+	// Add some waves
+	waternoise->addWave(
+		Ogre::Vector2(1.f,0.f),
+		0.3f,
+		10.f);
+	waternoise->addWave(
+		Ogre::Vector2(0.85f,0.15f),
+		0.15f,
+		8.f);
+	waternoise->addWave(
+		Ogre::Vector2(0.95f,0.1f),
+		0.1f,
+		7.f);
+		
 	// Set our module
 	mHydrax->setModule(static_cast<Hydrax::Module::Module*>(module));
 
@@ -68,24 +73,24 @@ int HydraxWater::loadConfig(Ogre::String configfile)
 	// Remarks: The config file must be in Hydrax resource group.
 	// All parameters can be set/updated directly by code(Like previous versions),
 	// but due to the high number of customizable parameters, Hydrax 0.4 allows save/load config files.
-	mHydrax->loadCfg(configfile);
+	mHydrax->setComponents(
+		static_cast<Hydrax::HydraxComponent>(Hydrax::HYDRAX_COMPONENT_SUN        |
+		Hydrax::HYDRAX_COMPONENT_FOAM       |
+		Hydrax::HYDRAX_COMPONENT_DEPTH      |
+		Hydrax::HYDRAX_COMPONENT_SMOOTH     |
+		Hydrax::HYDRAX_COMPONENT_CAUSTICS   |
+		Hydrax::HYDRAX_COMPONENT_UNDERWATER |
+		Hydrax::HYDRAX_COMPONENT_UNDERWATER_REFLECTIONS |
+		Hydrax::HYDRAX_COMPONENT_UNDERWATER_GODRAYS));
+
+	//mHydrax->loadCfg(configfile);
 
 	// Set our shader mode
+	mHydrax->setShaderMode(Hydrax::MaterialManager::SM_HLSL);
 	//mHydrax->setShaderMode(Hydrax::MaterialManager::SM_CG);
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// directx
-	mHydrax->setShaderMode(Hydrax::MaterialManager::SM_HLSL);
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	// opengl
-	mHydrax->setShaderMode(Hydrax::MaterialManager::SM_CG);
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	// opengl
-	mHydrax->setShaderMode(Hydrax::MaterialManager::SM_CG);
-#endif
-
 	// water height is always overwritten
-	mHydrax->setPosition(Ogre::Vector3(0, wheight, 0));
+	//mHydrax->setPosition(Ogre::Vector3(0, wheight, 0));
 
 	// Create water
     mHydrax->create();

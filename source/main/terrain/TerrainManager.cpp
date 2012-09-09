@@ -505,7 +505,7 @@ void TerrainManager::initWater()
 	if (waterSettingsString == "Hydrax")
 	{
 		HydraxWater *hw = new HydraxWater();
-		hw->loadConfig("hydrax_default.hdx");
+		hw->loadConfig("HydraxDemo.hdx");
 		water = hw;		
 	} else if (waterSettingsString != "None")
 	{
