@@ -27,7 +27,6 @@ class IWater
 {
 public:
 	IWater() {};
-	IWater(int type, float wHeight, float *MapSizeX, float *MapSizeZ, bool useWaves);
 	virtual ~IWater() {};
 
 	virtual float getHeight() = 0;

@@ -63,6 +63,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define TOUTFSTRING(x)  ANSI_TO_UTF(Ogre::StringConverter::toString(x))
 #define PARSEINT(x)  Ogre::StringConverter::parseInt(x)
 #define PARSEREAL(x) Ogre::StringConverter::parseReal(x)
+#define HydraxLOG(msg) Ogre::LogManager::getSingleton().logMessage("[Hydrax] " + Ogre::String(msg));
 
 #define OGREFUNCTIONSTRING  Ogre::String(__FUNCTION__)+" @ "+Ogre::String(__FILE__)+":"+TOSTRING(__LINE__)
 

@@ -58,7 +58,7 @@ public:
 	SkyManager *getSkyManager() { return sky_manager; };
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };
-	Water *getWater() { return water; };
+	IWater *getWater() { return water; };
 	bool getTrucksLoaded() { return trucksLoaded; };
 
 	size_t getMemoryUsage();
@@ -79,7 +79,7 @@ protected:
 	SkyManager *sky_manager;
 	TerrainGeometryManager *geometry_manager;
 	TerrainObjectManager *object_manager;
-	Water *water;	
+	IWater *water;	
 
 	// properties
 	Ogre::ColourValue ambient_color;
@@ -103,6 +103,7 @@ protected:
 	// internal methods
 	void initCamera();
 	void initCollisions();
+	void initTerrainCollisions();
 	void initDashboards();
 	void initEnvironmentMap();
 	void initFog();

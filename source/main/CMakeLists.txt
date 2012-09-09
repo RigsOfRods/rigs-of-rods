@@ -13,7 +13,7 @@ macro(add_ror_project BINNAME folder useWxWidgets)
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
-    add_definitions("/wd4305 /wd4244 -DNOMINMAX")
+    add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
 	
     # enable mumble on the windows platform for now only, has no dependencies as its only using shared memory and URLs
     add_definitions("-DUSE_MUMBLE")	
@@ -79,6 +79,7 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   add_sub_dir(${BINNAME} gfx/camera)
   add_sub_dir(${BINNAME} gfx/dof)
   add_sub_dir(${BINNAME} gfx/particle)
+  add_sub_dir(${BINNAME} gfx/hydrax)
   add_sub_dir(${BINNAME} gui)
   add_sub_dir(${BINNAME} gui/mygui)
   add_sub_dir(${BINNAME} physics)
