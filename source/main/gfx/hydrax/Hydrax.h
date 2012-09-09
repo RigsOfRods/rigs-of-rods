@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _Hydrax_Hydrax_H_
 #define _Hydrax_Hydrax_H_
 
+#include "Prerequisites.h"
 #include "RoRPrerequisites.h"
 
 #include "Enums.h"
@@ -212,6 +213,11 @@ namespace Hydrax
             @param DepthLimit Depth limit
          */
         void setDepthLimit(const Ogre::Real &DepthLimit);
+
+        /** Set distance limit underwater (occlusion)
+            @param DistLimit Distance limit
+         */
+        void setDistLimit(const Ogre::Real &DistLimit);
 
         /** Set smooth power
             @param SmoothPower Smooth power
@@ -545,6 +551,14 @@ namespace Hydrax
             return mDepthLimit;
         }
 
+        /** Get distance limit (viewable underwater)
+            @return Distance limit
+         */
+        inline const Ogre::Real& getDistLimit() const
+        {
+            return mDistLimit;
+        }
+
         /** Get smooth power
             @return Smooth power
          */
@@ -690,6 +704,8 @@ namespace Hydrax
 
         /// Depth limit param
         Ogre::Real mDepthLimit;
+		/// Distance limit param (viewable underwater)
+		Ogre::Real mDistLimit;
 
         /// Smooth power param
         Ogre::Real mSmoothPower;

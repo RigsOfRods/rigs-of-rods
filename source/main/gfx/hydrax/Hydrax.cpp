@@ -1067,6 +1067,25 @@ namespace Hydrax
 			"uDepthLimit", 1/mDepthLimit);
     }
 
+	void Hydrax::setDistLimit(const Ogre::Real &DistLimit)
+	{
+		if (!isComponent(HYDRAX_COMPONENT_DEPTH))
+		{
+			return;
+		}
+
+		mDistLimit = DistLimit;
+
+		if (mDistLimit <= 0)
+		{
+			mDistLimit = 1;
+		}
+
+		mMaterialManager->setGpuProgramParameter(
+			MaterialManager::GPUP_FRAGMENT, MaterialManager::MAT_DEPTH,
+			"uDistLimit", 1/mDistLimit);
+	}
+
     void Hydrax::setSmoothPower(const Ogre::Real &SmoothPower)
     {
         if (!isComponent(HYDRAX_COMPONENT_SMOOTH))

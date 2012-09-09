@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _Hydrax_Noise_FFT_H_
 #define _Hydrax_Noise_FFT_H_
 
+
+
 #include "Noise.h"
 
 #include <complex>

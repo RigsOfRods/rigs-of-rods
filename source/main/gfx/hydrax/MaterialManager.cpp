@@ -377,13 +377,14 @@ namespace Hydrax
 							   "out float4 oPosition_     : TEXCOORD0,\n" +
                                "out float2 oUvNoise       : TEXCOORD1,\n" +
                                "out float4 oUvProjection  : TEXCOORD2,\n";
+                               // UNIFORM
 						       if (cFoam)
 							   {
-							       VertexProgramData += "out float4 oWorldPosition : TEXCOORD3,\n uniform float4x4         uWorld,\n";
+                                    VertexProgramData += Ogre::String(
+                                    "out float4 oWorldPosition : TEXCOORD3,\n") +
+                                    "uniform float4x4         uWorld,\n";
 							   }
-					    VertexProgramData +=
-				        Ogre::String(
-                               // UNIFORM
+							   VertexProgramData += Ogre::String(
                                "uniform float4x4         uWorldViewProj)\n") +
                	        "{\n" +
                   	        "oPosition_  = iPosition;\n";
@@ -391,8 +392,8 @@ namespace Hydrax
 							{
 							    VertexProgramData += "oWorldPosition = mul(uWorld, iPosition);\n";
 							}
-						VertexProgramData +=
-				        Ogre::String(
+                            VertexProgramData +=
+                            Ogre::String(
 	              	        "oPosition = mul(uWorldViewProj, iPosition);\n") +
 	               	        // Projective texture coordinates, adjust for mapping
 	                	    "float4x4 scalemat = float4x4(0.5,   0,   0, 0.5,"+
@@ -432,7 +433,7 @@ namespace Hydrax
                                 VertexProgramData += "WorldPosition = uWorld * gl_Vertex;\n";
                             }
                             VertexProgramData += Ogre::String(
-                            "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n") +
+                            "gl_Position = ftransform();\n") +
                             "mat4 scalemat = mat4(  1.0,  0.0,  0.0,  0.0,\n" +
                                                 "   0.0, -1.0,  0.0,  0.0,\n" +
                                                 "   0.0,  0.0,  1.0,  0.0,\n" +
@@ -519,7 +520,7 @@ namespace Hydrax
                                 VertexProgramData += "WorldPosition = uWorld * gl_Vertex;\n";
                             }
                             VertexProgramData += Ogre::String(
-                            "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n") +
+                            "gl_Position = ftransform();\n") +
                             "mat4 scalemat = mat4(  1.0,  0.0,  0.0,  0.0,\n" +
                                                 "   0.0, -1.0,  0.0,  0.0,\n" +
                                                 "   0.0,  0.0,  1.0,  0.0,\n" +
@@ -602,7 +603,7 @@ namespace Hydrax
                                 VertexProgramData += "WorldPosition = uWorld * gl_Vertex;\n";
                             }
                             VertexProgramData += Ogre::String(
-                            "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n") +
+                            "gl_Position = ftransform();\n") +
                             "mat4 scalemat = mat4(  1.0,  0.0,  0.0,  0.0,\n" +
                                                 "   0.0, -1.0,  0.0,  0.0,\n" +
                                                 "   0.0,  0.0,  1.0,  0.0,\n" +
@@ -724,8 +725,11 @@ namespace Hydrax
 						}
 
 						FragmentProgramData +=
-								// "uniform sampler1D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
-								"uniform sampler2D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
+                                #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+                                    "uniform sampler1D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
+								#else
+                                    "uniform sampler2D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
+                                #endif
 						TexNum++;
 
 						if (cFoam)
@@ -786,8 +790,11 @@ namespace Hydrax
 						FragmentProgramData +=
 							Ogre::String(
 								"dotProduct=saturate(dotProduct);\n") +
-								//"float fresnel = tex1D(uFresnelMap,dotProduct);\n" +
-								"float fresnel = tex2D(uFresnelMap,float2(dotProduct,dotProduct));\n" +
+								#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+                                    "float fresnel = tex1D(uFresnelMap,dotProduct);\n" +
+                                #else
+                                    "float fresnel = tex2D(uFresnelMap,float2(dotProduct,dotProduct));\n" +
+                                #endif
 								// Add additional reflection and saturate
 								"fresnel+=additionalReflection;\n" +
 								"fresnel=saturate(fresnel);\n" +
@@ -861,13 +868,9 @@ namespace Hydrax
                             "uniform vec3  uEyePosition;\n" +
                             "uniform float uFullReflectionDistance;\n" +
                             "uniform float uGlobalTransparency;\n" +
-                            "uniform float uNormalDistortion;\n";
+                            "uniform float uNormalDistortion;\n" +
+                            "uniform vec3  uWaterColor;\n";
 
-                            if (cDepth)
-                            {
-                                FragmentProgramData +=
-                                "uniform vec3  uWaterColor;\n";
-                            }
                             if (cSmooth)
                             {
                                 FragmentProgramData +=
@@ -1007,21 +1010,17 @@ namespace Hydrax
                                 }
                                 FragmentProgramData += Ogre::String(
 								"dotProduct=clamp(dotProduct, 0.0, 1.0);\n") +
-								//"float fresnel = tex1D(uFresnelMap,dotProduct);\n" +
-								"float fresnel = texture2D(uFresnelMap,vec2(dotProduct,dotProduct)).x;\n" +
+                                #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+                                    "float fresnel = texture1D(uFresnelMap,dotProduct).x;\n" +
+                                #else
+                                    "float fresnel = texture2D(uFresnelMap,vec2(dotProduct,dotProduct)).x;\n" +
+                                #endif
 								// Add additional reflection and saturate
 								"fresnel +=additionalReflection;\n" +
 								"fresnel = clamp(fresnel, 0.0, 1.0);\n" +
 								// Decrease the transparency and saturate
 								"fresnel -= uGlobalTransparency;\n" +
                                 "fresnel =  clamp(fresnel*fresnel, 0.0, 1.0);\n" +
-                                #if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
-                                    // Reversing projection if underwater
-                                    "if(uEyePosition.y < 0.0)\n" +
-                                    "{\n" +
-                                        "ProjectionCoord.y = 1.0 - ProjectionCoord.y;\n" +
-                                    "}\n" +
-                                #endif
 								// Get the reflection/refraction pixels. Make sure to disturb the texcoords by pixelnormal
 								"vec3 reflection=texture2D(uReflectionMap,ProjectionCoord.xy+pixelNormalModified).xyz;\n" +
 								"vec3 refraction=texture2D(uRefractionMap,ProjectionCoord.xy-pixelNormalModified).xyz;\n";
@@ -1041,8 +1040,9 @@ namespace Hydrax
                                         "refraction = mix(uWaterColor,refraction,depth);\n";
                                     }
                                 }
-                                FragmentProgramData +=
-								"gl_FragColor = vec4(mix(refraction,reflection,fresnel),1.0);\n";
+                                FragmentProgramData += Ogre::String(
+								"gl_FragColor = vec4(mix(refraction,reflection,fresnel),1.0);\n") +
+								"gl_FragColor.xyz = mix(gl_FragColor.xyz, uWaterColor, uGlobalTransparency);\n";
                                 if (cSun)
                                 {
                                     FragmentProgramData += Ogre::String(
@@ -1063,7 +1063,7 @@ namespace Hydrax
                                 if (cSmooth)
                                 {
                                     FragmentProgramData +=
-                                        "gl_FragColor.xyz = mix(texture2D(uRefractionMap,ProjectionCoord.xy).xyz,gl_FragColor.xyz,clamp((1-texture2D(uDepthMap,ProjectionCoord.xy).x)*uSmoothPower, 0.0, 1.0));\n";
+                                        "gl_FragColor.xyz = mix(texture2D(uRefractionMap,ProjectionCoord.xy).xyz,gl_FragColor.xyz,clamp((1.0-texture2D(uDepthMap,ProjectionCoord.xy).x)*uSmoothPower, 0.0, 1.0));\n";
                                 }
                             FragmentProgramData +=
 							"}\n";
@@ -1117,10 +1117,7 @@ namespace Hydrax
 		FP_Parameters->setNamedConstant("uGlobalTransparency",     mHydrax->getGlobalTransparency());
 		FP_Parameters->setNamedConstant("uNormalDistortion",       mHydrax->getNormalDistortion());
 
-		if (cDepth)
-		{
-			FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
-		}
+        FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
 		if (cSmooth)
 		{
 			FP_Parameters->setNamedConstant("uSmoothPower", mHydrax->getSmoothPower());
@@ -1184,7 +1181,7 @@ namespace Hydrax
             FP_Parameters->setNamedConstant("uFresnelMap", GLSLTextUnit);
             GLSLTextUnit++;
         }
-		WM_Technique0_Pass0->createTextureUnitState("Fresnel.dds")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		WM_Technique0_Pass0->createTextureUnitState("Fresnel.bmp")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
 
 		if (cFoam)
 		{
@@ -1193,7 +1190,7 @@ namespace Hydrax
                 FP_Parameters->setNamedConstant("uFoamMap", GLSLTextUnit);
                 GLSLTextUnit++;
             }
-			WM_Technique0_Pass0->createTextureUnitState("Foam.dds")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
+			WM_Technique0_Pass0->createTextureUnitState("Foam.png")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
 		}
 
 		WaterMaterial->setReceiveShadows(false);
@@ -1225,14 +1222,32 @@ namespace Hydrax
 						    // OUT
 						    "out float4 oPosition     : POSITION,\n" +
 						    "out float  oPosition_    : TEXCOORD0,\n" +
+						    "out float2 oDistance     : TEXCOORD1,\n" +
 						    // UNIFORM
 						    "uniform float            uPlaneYPos,\n" +
+                            "uniform float            uPlanesError,\n" +
+						    "uniform float3           uCameraPos,\n" +
                             "uniform float4x4         uWorld,\n" +
+                            "uniform float4x4         uWorldView,\n" +
                             "uniform float4x4         uWorldViewProj)\n" +
 					    "{\n" +
-					       "oPosition = mul(uWorldViewProj, iPosition);\n" +
-						   "oPosition_ = mul(uWorld, iPosition).y;\n" +
-						   "oPosition_-=uPlaneYPos;\n" +
+                            "oPosition = mul(uWorldViewProj, iPosition);\n" +
+                            "float3 wPos = mul(uWorld, iPosition).xyz;\n" +
+                            "float3 wCam = uCameraPos;\n" +
+                            "wPos.y    -= uPlaneYPos;\n" +
+                            "wCam.y    -= uPlaneYPos;\n" +
+                            "oPosition_ = wPos.y;\n" +
+                            // Distance
+                            "oDistance.x  = distance(wPos, wCam);\n" +
+                            "oDistance.y  = 1.0;\n" +
+                            // If exist water plane between points, occlusion effect must be changed.
+                            "if(wCam.y > 0.0) {\n" +
+                                "oDistance.x *= 1.0 - wCam.y/(wCam.y + abs(wPos.y));\n" +
+                            "}\n" +
+                            "if(wPos.y > uPlanesError) {\n" +
+                                "oDistance.x *= abs(wCam.y)/(abs(wCam.y) + wPos.y);\n" +
+                                "oDistance.y = 0.0;\n" +
+                            "}\n" +
 						"}\n";
 				}
 				else // Caustics
@@ -1245,17 +1260,33 @@ namespace Hydrax
 						    // OUT
 						    "out float4 oPosition     : POSITION,\n" +
 						    "out float  oPosition_    : TEXCOORD0,\n" +
-							"out float2 oUvWorld      : TEXCOORD1,\n" +
+						    "out float2 oDistance     : TEXCOORD1,\n" +
+							"out float2 oUvWorld      : TEXCOORD2,\n" +
 						    // UNIFORM
 						    "uniform float            uPlaneYPos,\n" +
+                            "uniform float            uPlanesError,\n" +
+						    "uniform float3           uCameraPos,\n" +
                             "uniform float4x4         uWorld,\n" +
                             "uniform float4x4         uWorldViewProj)\n" +
 					    "{\n" +
-					       "oPosition = mul(uWorldViewProj, iPosition);\n" +
-						   "float3 wPos = mul(uWorld, iPosition);\n" +
-						   "oPosition_ = wPos.y;\n" +
-						   "oPosition_-=uPlaneYPos;\n" +
-						   "oUvWorld = wPos.xz;\n" +
+                            "oPosition = mul(uWorldViewProj, iPosition);\n" +
+                            "float3 wPos = mul(uWorld, iPosition).xyz;\n" +
+                            "float3 wCam = uCameraPos;\n" +
+                            "wPos.y    -= uPlaneYPos;\n" +
+                            "wCam.y    -= uPlaneYPos;\n" +
+                            "oPosition_ = wPos.y;\n" +
+                            // Distance
+                            "oDistance.x  = distance(wPos, wCam);\n" +
+                            "oDistance.y  = 1.0;\n" +
+                            // If exist water plane between points, occlusion effect must be changed.
+                            "if(wCam.y > 0.0) {\n" +
+                                "oDistance.x *= 1.0 - wCam.y/(wCam.y + abs(wPos.y));\n" +
+                            "}\n" +
+                            "if(wPos.y > uPlanesError) {\n" +
+                                "oDistance.x *= abs(wCam.y)/(abs(wCam.y) + wPos.y);\n" +
+                                "oDistance.y = 0.0;\n" +
+                            "}\n" +
+                            "oUvWorld = wPos.xz;\n" +
 						"}\n";
 				}
 			}
@@ -1268,16 +1299,33 @@ namespace Hydrax
 				    VertexProgramData += Ogre::String( "\n" ) +
                         // UNIFORMS
                         "uniform float uPlaneYPos;\n" +
+                        "uniform float uPlanesError;\n" +
                         "uniform mat4  uWorld;\n" +
                         // IN
                         // OUT
                         "varying float Position_;\n" +
+                        "varying vec2  Distance_;\n" +
                         // main function
 					    "void main()\n" +
 					    "{\n" +
-					       "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n" +
-						   "Position_ =  vec3(uWorld * gl_Vertex.y);\n" +
-						   "Position_ -= uPlaneYPos;\n" +
+                            // Point and camera position
+						    "vec3 wPos =  ( uWorld * gl_Vertex ).xyz;\n" +
+                            "vec3 wCam  = ( uWorld * gl_ModelViewMatrixInverse * vec4(0.0, 0.0, 0.0, 1.0) ).xyz;\n" +
+                            "wPos.y    -= uPlaneYPos;\n" +
+                            "wCam.y    -= uPlaneYPos;\n" +
+                            "Position_  = wPos.y;\n" +
+                            // Distance
+                            "vec4 mwPos = gl_ModelViewMatrix * gl_Vertex;\n" +
+                            "Distance_.x  = abs(mwPos.z);\n" +
+                            "Distance_.y  = 1.0;\n" +
+                            // If exist water plane between points, occlusion effect must be changed.
+                            "if(wCam.y > 0.0) {\n" +
+                                "Distance_.x *= 1.0 - wCam.y/(wCam.y + abs(wPos.y));\n" +
+                            "}\n" +
+                            "if(wPos.y > uPlanesError) {\n" +
+                                "Distance_.x *= abs(wCam.y)/(abs(wCam.y) + wPos.y);\n" +
+                                "Distance_.y = 0.0;\n" +
+                            "}\n" +
 						"}\n";
 				}
 				else // Caustics
@@ -1285,26 +1333,48 @@ namespace Hydrax
 				    VertexProgramData += Ogre::String( "\n" ) +
                         // UNIFORMS
                         "uniform float uPlaneYPos;\n" +
+                        "uniform float uPlanesError;\n" +
                         "uniform mat4  uWorld;\n" +
                         // IN
                         // OUT
                         "varying float Position_;\n" +
+                        "varying vec2  Distance_;\n" +
                         "varying vec2  UVWorld;\n" +
                         // main function
 					    "void main()\n" +
 					    "{\n" +
-					       "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n" +
-						   "vec3 wPos =  vec3(uWorld * gl_Vertex);\n" +
-						   "Position_  = wPos.y;\n" +
-						   "Position_ -= uPlaneYPos;\n" +
-						   "UVWorld    = wPos.xz;\n" +
+                            "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n" +
+                            // Point and camera position
+						    "vec3 wPos =  ( uWorld * gl_Vertex ).xyz;\n" +
+                            "vec3 wCam  = ( uWorld * gl_ModelViewMatrixInverse * vec4(0.0, 0.0, 0.0, 1.0) ).xyz;\n" +
+                            "wPos.y    -= uPlaneYPos;\n" +
+                            "wCam.y    -= uPlaneYPos;\n" +
+                            "Position_  = wPos.y;\n" +
+                            // Distance
+                            "vec4 mwPos = gl_ModelViewMatrix * gl_Vertex;\n" +
+                            "Distance_.x  = abs(mwPos.z);\n" +
+                            "Distance_.y  = 1.0;\n" +
+                            // If exist water plane between points, occlusion effect must be changed.
+                            "if(wCam.y > 0.0) {\n" +
+                                "Distance_.x *= 1.0 - wCam.y/(wCam.y + abs(wPos.y));\n" +
+                            "}\n" +
+                            "if(wPos.y > uPlanesError) {\n" +
+                                /*
+                                "vec3 wFocus = ( uWorld * gl_ModelViewMatrixInverse * vec4(0.0, 0.0, 0.1, 1.0) ).xyz;\n" +
+                                "vec3 CamToFreeSurface = wFocus - wCam;\n" +
+                                "CamToFreeSurface *= wCam.y / CamToFreeSurface.y;\n" +
+                                "Distance_.x = length(CamToFreeSurface);\n" +
+                                */
+                                "Distance_.x *= abs(wCam.y)/(abs(wCam.y) + wPos.y);\n" +
+                                "Distance_.y = 0.0;\n" +
+                            "}\n" +
+                            "UVWorld    = wPos.xz;\n" +
 						"}\n";
 				}
 			break;
 		}
 
 		// Fragment program
-
 		switch (Options.SM)
 		{
 		    case SM_HLSL: case SM_CG:
@@ -1317,14 +1387,17 @@ namespace Hydrax
 						"void main_fp(\n") +
 						    // IN
 						    "float  iPosition     : TEXCOORD0,\n" +
+						    "float2 iDistance     : TEXCOORD1,\n" +
 							// OUT
 							"out float4 oColor    : COLOR,\n" +
 							// UNIFORM
-							"uniform float        uDepthLimit)\n" +
+							"uniform float        uDepthLimit,\n" +
+							"uniform float        uDistLimit)\n" +
 						"{\n" +
-						    "float pixelYDepth = (iPosition*uDepthLimit+1);\n" +
-							"pixelYDepth = saturate(pixelYDepth);\n" +
-							"oColor = float4(pixelYDepth,0,0,0);\n" +
+						    "float pixelYDepth = saturate(iPosition*uDepthLimit + 1.0);\n" +
+						    "float pixelDepth  = saturate(1.0 - iDistance.x*uDistLimit);\n" +
+							"pixelDepth = min(pixelYDepth, pixelDepth);\n" +
+							"oColor = float4(pixelDepth,0,0,0);\n" +
 						"}\n";
 				}
 				else // Caustics
@@ -1334,19 +1407,23 @@ namespace Hydrax
 						"void main_fp(\n") +
 						    // IN
 						    "float  iPosition     : TEXCOORD0,\n" +
-                            "float2 iUvWorld      : TEXCOORD1,\n" +
+						    "float2 iDistance     : TEXCOORD1,\n" +
+                            "float2 iUvWorld      : TEXCOORD2,\n" +
 							// OUT
 							"out float4 oColor    : COLOR,\n" +
 							// UNIFORM
 							"uniform float        uDepthLimit,\n" +
+							"uniform float        uDistLimit,\n" +
 							"uniform float        uCausticsScale,\n" +
 	                        "uniform float        uCausticsEnd,\n" +
 							"uniform sampler2D    uCaustics : register(s0))\n" +
 						"{\n" +
-						    "float pixelYDepth = (iPosition*uDepthLimit+1);\n" +
-							"pixelYDepth = saturate(pixelYDepth);\n" +
-							"oColor = float4(pixelYDepth,0,0,0);\n" +
-							"oColor.g = saturate(uCausticsEnd-pixelYDepth)*tex2D(uCaustics, iUvWorld/uCausticsScale).r;\n" +
+						    "float pixelYDepth = saturate(iPosition*uDepthLimit + 1.0);\n" +
+						    // "float pixelDepth  = saturate(1.0 - iDistance.x*uDistLimit);\n" +
+						    "float pixelDepth  = saturate(1.0 - iDistance.x*uDistLimit);\n" +
+							"pixelDepth = min(pixelYDepth, pixelDepth);\n" +
+							"oColor = float4(pixelDepth,0.0,0.0,0.0);\n" +
+							"oColor.g = iDistance.y*saturate((pixelYDepth-uCausticsEnd)/(1.0-uCausticsEnd))*tex2D(uCaustics, iUvWorld/uCausticsScale).x;\n" +
 						"}\n";
 				}
 			}
@@ -1359,15 +1436,18 @@ namespace Hydrax
 					FragmentProgramData += Ogre::String( "\n" ) +
                         // UNIFORMS
                         "uniform float uDepthLimit;\n" +
+                        "uniform float uDistLimit;\n" +
                         // IN
                         "varying float Position_;\n" +
+                        "varying float Distance_;\n" +
                         // OUT
                         // main function
                         "void main()" +
 						"{\n" +
-						    "float pixelYDepth = Position_*uDepthLimit + 1.0;\n" +
-							"pixelYDepth       = clamp(pixelYDepth, 0.0, 1.0);\n" +
-							"gl_FragColor      = vec4(pixelYDepth,0,0,0);\n" +
+						    "float pixelYDepth = clamp(1.0 + Position_*uDepthLimit, 0.0, 1.0);\n" +
+						    "float pixelDepth  = clamp(1.0 - Distance_.x*uDistLimit, 0.0, 1.0);\n" +
+							"pixelDepth        = min(pixelYDepth,pixelDepth);\n" +
+							"gl_FragColor      = vec4(pixelDepth,0.0,0.0,1.0);\n" +
 						"}\n";
 				}
 				else // Caustics
@@ -1375,20 +1455,23 @@ namespace Hydrax
 					FragmentProgramData += Ogre::String( "\n" ) +
                         // UNIFORMS
                         "uniform float     uDepthLimit;\n" +
+                        "uniform float     uDistLimit;\n" +
                         "uniform float     uCausticsScale;\n" +
                         "uniform float     uCausticsEnd;\n" +
                         "uniform sampler2D uCaustics;\n" +
                         // IN
                         "varying float Position_;\n" +
+                        "varying vec2  Distance_;\n" +
                         "varying vec2  UVWorld;\n" +
                         // OUT
                         // main function
                         "void main()" +
 						"{\n" +
-						    "float pixelYDepth = Position_*uDepthLimit + 1.0;\n" +
-							"pixelYDepth       = clamp(pixelYDepth, 0.0, 1.0);\n" +
-							"gl_FragColor      = vec4(pixelYDepth,0,0,0);\n" +
-							"gl_FragColor.g    = clamp(uCausticsEnd-pixelYDepth, 0.0, 1.0)*texture2D(uCaustics, UVWorld/uCausticsScale).x;\n" +
+						    "float pixelYDepth = clamp(1.0 + Position_*uDepthLimit, 0.0, 1.0);\n" +
+						    "float pixelDepth  = clamp(1.0 - Distance_.x*uDistLimit, 0.0, 1.0);\n" +
+							"pixelDepth        = min(pixelYDepth,pixelDepth);\n" +
+							"gl_FragColor      = vec4(pixelDepth,0.0,0.0,1.0);\n" +
+							"gl_FragColor.y    = Distance_.y*clamp((pixelYDepth-uCausticsEnd)/(1.0-uCausticsEnd), 0.0, 1.0)*texture2D(uCaustics, UVWorld/uCausticsScale).x;\n" +
 						"}\n";
 				}
 			break;
@@ -1426,24 +1509,28 @@ namespace Hydrax
         if(Options.SM != SM_GLSL)
         {
             VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            // VP_Parameters->setNamedAutoConstant("uWorldView", Ogre::GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+            VP_Parameters->setNamedAutoConstant("uCameraPos", Ogre::GpuProgramParameters::ACT_CAMERA_POSITION);
         }
-		VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
+        VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
 		VP_Parameters->setNamedConstant("uPlaneYPos", mHydrax->getPosition().y);
+		VP_Parameters->setNamedConstant("uPlanesError", (float) mHydrax->getPlanesError());
 
-		FP_Parameters->setNamedConstant("uDepthLimit", 1/mHydrax->getDepthLimit());
+		FP_Parameters->setNamedConstant("uDepthLimit", 1.f/mHydrax->getDepthLimit());
+		FP_Parameters->setNamedConstant("uDistLimit", 1.f/mHydrax->getDistLimit());
 
 		if (cCaustics)
 		{
 			FP_Parameters->setNamedConstant("uCausticsScale", mHydrax->getCausticsScale());
-			FP_Parameters->setNamedConstant("uCausticsEnd",   mHydrax->getCausticsEnd());
+			FP_Parameters->setNamedConstant("uCausticsEnd",   1.f - mHydrax->getCausticsEnd());
 
             if(Options.SM == SM_GLSL)
             {
                 FP_Parameters->setNamedConstant("uCaustics", 0);
             }
-			Ogre::TextureUnitState *TUS_Caustics = DM_Technique0_Pass0->createTextureUnitState("Caustics.dds");
+			Ogre::TextureUnitState *TUS_Caustics = DM_Technique0_Pass0->createTextureUnitState("Caustics.bmp");
 			TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-			TUS_Caustics->setAnimatedTextureName("Caustics.dds", 32, 1.5);
+			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32, 1.5);
 		}
 
 		DepthMaterial->setReceiveShadows(false);
@@ -1625,6 +1712,7 @@ namespace Hydrax
 					FragmentProgramData += Ogre::String( "\n" ) +
 						// UNIFORMS
                         "uniform float     uDepthLimit;\n" +
+                        "uniform float     uDistLimit;\n" +
                         "uniform sampler2D uAlphaTex;\n" +
 						// IN
 						"variying vec3 Position_UV;\n" +
@@ -1633,7 +1721,7 @@ namespace Hydrax
 						"void main()\n" +
 						"{\n" +
 						    "float pixelYDepth = clamp(Position_UV.x*uDepthLimit + 1.0, 0.0, 1.0);\n" +
-							"gl_FragColor      = vec4(pixelYDepth,0,0,0);\n" +
+							"gl_FragColor      = vec4(pixelYDepth,0.0,0.0,0.0);\n" +
 							"gl_FragColor.w    = texture2D(uAlphaTex, iPosition_UV.yz)."+AlphaChannelGLSL+";" +
 						"}\n";
 				}
@@ -1641,7 +1729,7 @@ namespace Hydrax
 				{
 					FragmentProgramData += Ogre::String( "\n" ) +
 						// UNIFORMS
-                        "uniform float     uDepthLimit;\n" +
+                        "uniform float     uDistLimit;\n" +
                         "uniform float     uCausticsScale;\n" +
                         "uniform float     uCausticsEnd;\n" +
                         "uniform sampler2D uCaustics;\n" +
@@ -1654,7 +1742,7 @@ namespace Hydrax
 						"void main()\n" +
 						"{\n" +
 						    "float pixelYDepth = clamp(Position_UV.x*uDepthLimit + 1.0, 0.0, 1.0);\n" +
-							"gl_FragColor      = vec4(pixelYDepth,0,0,0);\n" +
+							"gl_FragColor      = vec4(pixelYDepth,0.0,0.0,0.0);\n" +
 							"gl_FragColor.y    = clamp(uCausticsEnd-pixelYDepth, 0.0, 1.0)*texture2D(uCaustics, UVWorld/uCausticsScale).x;\n" +
 							"gl_FragColor.w    = texture2D(uAlphaTex, iPosition_UV.yz)."+AlphaChannelGLSL+";" +
 						"}\n";
@@ -1714,39 +1802,51 @@ namespace Hydrax
 						VertexProgramData +=
 						Ogre::String(
 						"void main_vp(\n") +
-						       // IN
-                          	   "float4 iPosition         : POSITION,\n" +
-                           	   "float2 iUv               : TEXCOORD0,\n" +
-                           	   // OUT
-                           	   "out float4 oPosition      : POSITION,\n" +
-							   "out float4 oPosition_     : TEXCOORD0,\n" +
-                               "out float2 oUvNoise       : TEXCOORD1,\n" +
-                               "out float4 oUvProjection  : TEXCOORD2,\n";
-						       if (cFoam)
-							   {
-							       VertexProgramData += "out float4 oWorldPosition : TEXCOORD3,\n uniform float4x4         uWorld,\n";
-							   }
-					    VertexProgramData +=
-				        Ogre::String(
-                               // UNIFORM
-                               "uniform float4x4         uWorldViewProj)\n") +
-               	        "{\n" +
-                  	        "oPosition_  = iPosition;\n";
-							if (cFoam)
-							{
-							    VertexProgramData += "oWorldPosition = mul(uWorld, iPosition);\n";
-							}
-						VertexProgramData +=
-				        Ogre::String(
-	              	        "oPosition = mul(uWorldViewProj, iPosition);\n") +
-	               	        // Projective texture coordinates, adjust for mapping
-	                	    "float4x4 scalemat = float4x4(0.5,   0,   0, 0.5,"+
-	                                              	     "0,-0.5,   0, 0.5,"+
-	                							  	     "0,   0, 0.5, 0.5,"+
-	                							  	     "0,   0,   0,   1);\n" +
-	               	        "oUvProjection = mul(scalemat, oPosition);\n" +
-	               	        "oUvNoise = iUv;\n" +
-               	         "}\n";
+                                // IN
+                                "float4 iPosition         : POSITION,\n" +
+                                "float2 iUv               : TEXCOORD0,\n" +
+                                // OUT
+                                "out float4 oPosition      : POSITION,\n" +
+                                "out float4 oPosition_     : TEXCOORD0,\n" +
+                                "out float2 oUvNoise       : TEXCOORD1,\n" +
+                                "out float4 oUvProjection  : TEXCOORD2,\n" +
+                                "out float2 oDistance      : TEXCOORD3,\n";
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    VertexProgramData +=
+                                    "out float4 oWorldPosition : TEXCOORD4,\n";
+                                }
+                                */
+                                VertexProgramData += Ogre::String(
+                                // UNIFORM
+                                "uniform float4x4         uWorldViewProj,\n") +
+                                "uniform float4x4         uWorldView,\n" +
+                                "uniform float4x4         uWorld,\n" +
+                                "uniform float3           uCameraPos)\n" +
+                        "{\n" +
+                            "oPosition_  = iPosition;\n";
+                            /* Foam is not visible underwater
+                            if (cFoam)
+                            {
+                                VertexProgramData +=
+                                "oWorldPosition = mul(uWorld, iPosition);\n";
+                            }
+                            */
+                            VertexProgramData += Ogre::String(
+                            "oPosition = mul(uWorldViewProj, iPosition);\n") +
+                            // Projective texture coordinates, adjust for mapping
+                            "float4x4 scalemat = float4x4(0.5,   0,   0, 0.5,"+
+                                                         "0,-0.5,   0, 0.5,"+
+                                                         "0,   0, 0.5, 0.5,"+
+                                                         "0,   0,   0,   1);\n" +
+                            "oUvProjection = mul(scalemat, oPosition);\n" +
+                            "oUvNoise = iUv;\n" +
+                            // Distance
+                            "float4 mwPos = mul(uWorldView, iPosition);\n" +
+                            "oDistance.x  = abs(mwPos.z);\n" +
+                            "oDistance.y  = -mul( uWorld, float4(uCameraPos, 1.0) ).y;\n" +
+                         "}\n";
 					}
 					break;
 
@@ -1754,28 +1854,30 @@ namespace Hydrax
 					{
                         VertexProgramData += Ogre::String( "\n" );
                         // UNIFORMS
-                        if (cFoam)
-                        {
-                            VertexProgramData += "uniform mat4 uWorld;\n";
-                        }
+                        VertexProgramData += "uniform mat4 uWorld;\n";
                         // IN
                         // OUT
                         VertexProgramData += Ogre::String(
-                        "varying vec4 Position_;") +
-                        "varying vec4 UVProjection;";
+                        "varying vec4 Position_;\n") +
+                        "varying vec4 UVProjection;\n" +
+                        "varying vec2 Distance_;\n";
+                        /* Foam is not visible underwater
                         if (cFoam)
                         {
                             VertexProgramData += "varying vec4 WorldPosition;\n";
                         }
+                        */
                         // main function
                         VertexProgramData += Ogre::String(
                         "void main()\n") +
                         "{\n" +
                   	        "Position_  = gl_Vertex;\n";
+                            /* Foam is not visible underwater
 							if (cFoam)
 							{
 							    VertexProgramData += "WorldPosition = uWorld * gl_Vertex;\n";
 							}
+							*/
                             VertexProgramData += Ogre::String(
 	               	        // Projective texture coordinates, adjust for mapping
                             "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n") +
@@ -1785,6 +1887,10 @@ namespace Hydrax
                                                 "   0.0,  0.0,  0.0,  1.0);\n" +
                             "UVProjection = scalemat * gl_Position;\n" +
                             "gl_TexCoord[0]  = gl_MultiTexCoord0;\n" +
+                            // Distance
+                            "vec4 mwPos = gl_ModelViewMatrix * gl_Vertex;\n" +
+                            "Distance_.x  = abs(mwPos.z);\n" +
+                            "Distance_.y  = -( uWorld * gl_ModelViewMatrixInverse * vec4(0.0, 0.0, 0.0, 1.0) ).y;\n" +
                         "}\n";
 					}
 					break;
@@ -1801,30 +1907,37 @@ namespace Hydrax
 						VertexProgramData +=
 						Ogre::String(
 						"void main_vp(\n") +
-						       // IN
-                          	   "float4 iPosition         : POSITION,\n" +
-							   "float3 iNormal           : NORMAL,\n"+
-                           	   // OUT
-                           	   "out float4 oPosition     : POSITION,\n" +
-                               "out float4 oPosition_    : TEXCOORD0,\n" +
-                               "out float4 oUvProjection : TEXCOORD1,\n" +
-							   "out float3 oNormal       : TEXCOORD2,\n";
-						       if (cFoam)
-							   {
-							       VertexProgramData += "out float4 oWorldPosition : TEXCOORD3,\n uniform float4x4         uWorld,\n";
-							   }
-					    VertexProgramData +=
-				        Ogre::String(
-                               // UNIFORM
-                               "uniform float4x4         uWorldViewProj)\n") +
+                                // IN
+                                "float4 iPosition         : POSITION,\n" +
+                                "float3 iNormal           : NORMAL,\n"+
+                                // OUT
+                                "out float4 oPosition     : POSITION,\n" +
+                                "out float4 oPosition_    : TEXCOORD0,\n" +
+                                "out float4 oUvProjection : TEXCOORD1,\n" +
+                                "out float3 oNormal       : TEXCOORD2,\n" +
+                                "out float2 oDistance     : TEXCOORD3,\n";
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    VertexProgramData +=
+                                    "out float4 oWorldPosition : TEXCOORD4,\n";
+                                }
+                                */
+                                VertexProgramData += Ogre::String(
+                                // UNIFORM
+                                "uniform float4x4         uWorldViewProj,\n") +
+                                "uniform float4x4         uWorldView,\n" +
+                                "uniform float4x4         uWorld,\n" +
+                                "uniform float3           uCameraPos)\n" +
                	        "{\n" +
                   	        "oPosition_  = iPosition;\n";
+                  	        /* Foam is not visible underwater
 							if (cFoam)
 							{
 							    VertexProgramData += "oWorldPosition = mul(uWorld, iPosition);\n";
 							}
-						VertexProgramData +=
-				        Ogre::String(
+							*/
+                            VertexProgramData += Ogre::String(
 	              	        "oPosition = mul(uWorldViewProj, iPosition);\n") +
 	               	        // Projective texture coordinates, adjust for mapping
 	                	    "float4x4 scalemat = float4x4(0.5,   0,   0, 0.5,"+
@@ -1833,6 +1946,10 @@ namespace Hydrax
 	                							  	     "0,   0,   0,   1);\n" +
 	               	        "oUvProjection = mul(scalemat, oPosition);\n" +
 							"oNormal = normalize(iNormal);\n"+
+                            // Distance
+                            "float4 mwPos = mul(uWorldView, iPosition);\n" +
+                            "oDistance.x  = abs(mwPos.z);\n" +
+                            "oDistance.y  = -mul( uWorld, float4(uCameraPos, 1.0) ).y;\n" +
                	         "}\n";
 					}
 					break;
@@ -1841,29 +1958,31 @@ namespace Hydrax
 					{
 						VertexProgramData += Ogre::String( "\n");
                         // UNIFORMS
-                        if(cFoam)
-                        {
-                            VertexProgramData += "uniform mat4 uWorld;\n";
-                        }
+                        VertexProgramData += "uniform mat4 uWorld;\n";
                         // IN
                         // OUT
                         VertexProgramData += Ogre::String(
                         "varying vec4 Position_;\n") +
                         "varying vec4 UVProjection;\n" +
-                        "varying vec3 Normal;\n";
+                        "varying vec3 Normal;\n" +
+                        "varying vec2 Distance_;\n";
+                        /* Foam is not visible underwater
                         if(cFoam)
                         {
                             VertexProgramData += "varying vec4 WorldPosition;\n";
                         }
+                        */
                         // PROGRAM
                         VertexProgramData += Ogre::String(
                         "void main()\n") +
                         "{\n" +
                             "Position_ = gl_Vertex;\n";
+                            /* Foam is not visible underwater
                             if(cFoam)
                             {
                                 VertexProgramData += "WorldPosition = uWorld * gl_Vertex;\n";
                             }
+                            */
                             VertexProgramData += Ogre::String(
                             "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n") +
                             "mat4 scalemat = mat4(  1.0,  0.0,  0.0,  0.0,\n" +
@@ -1872,6 +1991,10 @@ namespace Hydrax
                                                 "   0.0,  0.0,  0.0,  1.0);\n" +
                             "UVProjection = scalemat * gl_Position;\n" +
                             "Normal = normalize(gl_Normal);\n" +
+                            // Distance
+                            "vec4 mwPos = gl_ModelViewMatrix * gl_Vertex;\n" +
+                            "Distance_.x  = abs(mwPos.z);\n" +
+                            "Distance_.y  = -( uWorld * gl_ModelViewMatrixInverse * vec4(0.0, 0.0, 0.0, 1.0) ).y;\n" +
                         "}\n";
                     }
 					break;
@@ -1888,28 +2011,35 @@ namespace Hydrax
 						VertexProgramData +=
 						Ogre::String(
 						"void main_vp(\n") +
-						       // IN
-                          	   "float4 iPosition         : POSITION,\n" +
-                           	   // OUT
-                           	   "out float4 oPosition     : POSITION,\n" +
-                               "out float4 oPosition_    : TEXCOORD0,\n" +
-                               "out float4 oUvProjection : TEXCOORD1,\n";
-						       if (cFoam)
-							   {
-							       VertexProgramData += "out float4 oWorldPosition : TEXCOORD2,\n uniform float4x4         uWorld,\n";
-							   }
-					    VertexProgramData +=
-				        Ogre::String(
-                               // UNIFORM
-                               "uniform float4x4         uWorldViewProj)\n") +
+                                // IN
+                                "float4 iPosition         : POSITION,\n" +
+                                // OUT
+                                "out float4 oPosition     : POSITION,\n" +
+                                "out float4 oPosition_    : TEXCOORD0,\n" +
+                                "out float4 oUvProjection : TEXCOORD1,\n" +
+                                "out float2 oDistance     : TEXCOORD2,\n";
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    VertexProgramData +=
+                                    "out float4 oWorldPosition : TEXCOORD3,\n";
+                                }
+                                */
+                                VertexProgramData += Ogre::String(
+                                // UNIFORM
+                                "uniform float4x4         uWorldViewProj,\n") +
+                                "uniform float4x4         uWorldView,\n" +
+                                "uniform float4x4         uWorld,\n" +
+                                "uniform float3           uCameraPos)\n" +
                	        "{\n" +
-                  	        "oPosition_  = iPosition;\n";
+                  	        "oPosition_ = iPosition;\n";
+                  	        /* Foam is not visible underwater
 							if (cFoam)
 							{
 							    VertexProgramData += "oWorldPosition = mul(uWorld, iPosition);\n";
 							}
-						VertexProgramData +=
-				        Ogre::String(
+							*/
+                            VertexProgramData += Ogre::String(
 	              	        "oPosition = mul(uWorldViewProj, iPosition);\n") +
 	               	        // Projective texture coordinates, adjust for mapping
 	                	    "float4x4 scalemat = float4x4(0.5,   0,   0, 0.5,"+
@@ -1917,6 +2047,10 @@ namespace Hydrax
 	                							  	     "0,   0, 0.5, 0.5,"+
 	                							  	     "0,   0,   0,   1);\n" +
 	               	        "oUvProjection = mul(scalemat, oPosition);\n" +
+                            // Distance
+                            "float4 mwPos = mul(uWorldView, iPosition);\n" +
+                            "oDistance.x  = abs(mwPos.z);\n" +
+                            "oDistance.y  = -mul( uWorld, float4(uCameraPos, 1.0) ).y;\n" +
                	         "}\n";
 					}
 					break;
@@ -1925,28 +2059,30 @@ namespace Hydrax
 					{
 						VertexProgramData += Ogre::String( "\n");
                         // UNIFORMS
-                        if(cFoam)
-                        {
-                            VertexProgramData += "uniform mat4 uWorld;\n";
-                        }
+                        VertexProgramData += "uniform mat4 uWorld;\n";
                         // IN
                         // OUT
                         VertexProgramData += Ogre::String(
                         "varying vec4 Position_;\n") +
-                        "varying vec4 UVProjection;\n";
+                        "varying vec4 UVProjection;\n" +
+                        "varying vec2 Distance_;\n";
+                        /* Foam is not visible underwater
                         if(cFoam)
                         {
                             VertexProgramData += "varying vec4 WorldPosition;\n";
                         }
+                        */
                         // PROGRAM
                         VertexProgramData +=Ogre::String(
                         "void main()\n") +
                         "{\n" +
                             "Position_ = gl_Vertex;\n";
+                            /* Foam is not visible underwater
                             if(cFoam)
                             {
                                 VertexProgramData += "WorldPosition = uWorld * gl_Vertex;\n";
                             }
+                            */
                             VertexProgramData += Ogre::String(
                             "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n") +
                             "mat4 scalemat = mat4(  1.0,  0.0,  0.0,  0.0,\n" +
@@ -1954,6 +2090,10 @@ namespace Hydrax
                                                 "   0.0,  0.0,  1.0,  0.0,\n" +
                                                 "   0.0,  0.0,  0.0,  1.0);\n" +
                             "UVProjection = scalemat * gl_Position;\n" +
+                            // Distance
+                            "vec4 mwPos = gl_ModelViewMatrix * gl_Vertex;\n" +
+                            "Distance_.x  = abs(mwPos.z);\n" +
+                            "Distance_.y  = -( uWorld * gl_ModelViewMatrixInverse * vec4(0.0, 0.0, 0.0, 1.0) ).y;\n" +
                         "}\n";
                     }
 					break;
@@ -1972,7 +2112,7 @@ namespace Hydrax
 				{
 				    case SM_HLSL: case SM_CG:
 					{
-						FragmentProgramData +=
+                            FragmentProgramData +=
 							Ogre::String("float3 expand(float3 v)\n") +
 						    "{\n" +
 	                            "return (v - 0.5) * 2;\n" +
@@ -1981,163 +2121,175 @@ namespace Hydrax
 							"void main_fp(" +
 							    // IN
                                 "float4 iPosition     : TEXCOORD0,\n";
-						int TEXCOORDNUM = 1;
-						if (Options.NM == NM_TEXTURE)
-						{
-							FragmentProgramData +=
-								"float2 iUvNoise      : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
-							TEXCOORDNUM++;
-						}
-						FragmentProgramData +=
+                                int TEXCOORDNUM = 1;
+                                if (Options.NM == NM_TEXTURE)
+                                {
+                                    FragmentProgramData +=
+                                    "float2 iUvNoise      : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
+                                    TEXCOORDNUM++;
+                                }
+                                FragmentProgramData +=
                                 "float4 iUvProjection : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
-						TEXCOORDNUM++;
-						if (Options.NM == NM_VERTEX)
-						{
-							FragmentProgramData +=
-							    "float4 iNormal       : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
-							TEXCOORDNUM++;
-						}
-						if (cFoam)
-						{
-							FragmentProgramData +=
-							    "float4 iWorldPosition  : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
-						}
-						FragmentProgramData +=
-							Ogre::String(
-	                            // OUT
-	                            "out float4 oColor    : COLOR,\n") +
-	                            // UNIFORM
-	                            "uniform float3       uEyePosition,\n" +
-	                            "uniform float        uFullReflectionDistance,\n" +
-	                            "uniform float        uGlobalTransparency,\n" +
-	                            "uniform float        uNormalDistortion,\n";
+                                TEXCOORDNUM++;
+                                if (Options.NM == NM_VERTEX)
+                                {
+                                    FragmentProgramData +=
+                                    "float3 iNormal       : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
+                                    TEXCOORDNUM++;
+                                }
+                                FragmentProgramData +=
+                                "float2 iDistance       : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
+                                TEXCOORDNUM++;
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    FragmentProgramData +=
+                                    "float4 iWorldPosition  : TEXCOORD" + Ogre::StringConverter::toString(TEXCOORDNUM) + ",\n";
+                                }
+                                */
 
-						if ((cDepth && cUReflections) || (!cUReflections))
-						{
-							FragmentProgramData +=
-								"uniform float3       uWaterColor,\n";
-						}
-						if (cSun)
-						{
-							FragmentProgramData += Ogre::String(
-							    "uniform float3       uSunPosition,\n") +
-	                            "uniform float        uSunStrength,\n" +
-	                            "uniform float        uSunArea,\n" +
-	                            "uniform float3       uSunColor,\n";
-						}
-						if (cFoam)
-						{
-							FragmentProgramData += Ogre::String(
-							    "uniform float        uFoamRange,\n") +
-							    "uniform float        uFoamMaxDistance,\n" +
-	                            "uniform float        uFoamScale,\n" +
-	                            "uniform float        uFoamStart,\n" +
-	                            "uniform float        uFoamTransparency,\n";
-						}
-						if (cCaustics && cUReflections)
-						{
-							FragmentProgramData +=
-							   "uniform float        uCausticsPower,\n";
-						}
+                                FragmentProgramData += Ogre::String(
+                                // OUT
+                                "out float4 oColor    : COLOR,\n") +
+                                // UNIFORM
+                                "uniform float3       uEyePosition,\n" +
+                                "uniform float        uFullReflectionDistance,\n" +
+                                "uniform float        uGlobalTransparency,\n" +
+                                "uniform float        uNormalDistortion,\n" +
+                                "uniform float        uDistLimit,\n" +
+                                "uniform float3       uWaterColor,\n";
+                                if (cSun)
+                                {
+                                    FragmentProgramData += Ogre::String(
+                                    "uniform float3       uSunPosition,\n") +
+                                    "uniform float        uSunStrength,\n" +
+                                    "uniform float        uSunArea,\n" +
+                                    "uniform float3       uSunColor,\n" +
+                                    "uniform float        uDepthLimit,\n";
+                                }
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    FragmentProgramData += Ogre::String(
+                                    "uniform float        uFoamRange,\n") +
+                                    "uniform float        uFoamMaxDistance,\n" +
+                                    "uniform float        uFoamScale,\n" +
+                                    "uniform float        uFoamStart,\n" +
+                                    "uniform float        uFoamTransparency,\n";
+                                }
+                                */
+                                if (cCaustics && cUReflections)
+                                {
+                                    FragmentProgramData +=
+                                    "uniform float        uCausticsPower,\n";
+                                }
 
-						int TexNum = 0;
+                                int TexNum = 0;
 
-						if (Options.NM == NM_TEXTURE || Options.NM == NM_RTT)
-						{
-						    FragmentProgramData +=
-							   "uniform sampler2D    uNormalMap       : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
-							TexNum++;
-						}
+                                if (Options.NM == NM_TEXTURE || Options.NM == NM_RTT)
+                                {
+                                    FragmentProgramData +=
+                                    "uniform sampler2D    uNormalMap       : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
+                                    TexNum++;
+                                }
+                                if (cUReflections)
+                                {
+                                    FragmentProgramData +=
+                                    "uniform sampler2D    uReflectionMap   : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
+                                    TexNum++;
+                                }
 
-						if (cUReflections)
-						{
-							FragmentProgramData +=
-								"uniform sampler2D    uReflectionMap   : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
-							TexNum++;
-						}
+                                FragmentProgramData +=
+                                "uniform sampler2D    uRefractionMap   : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
+                                TexNum++;
 
-						FragmentProgramData +=
-	                        "uniform sampler2D    uRefractionMap   : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
-						TexNum++;
+                                if (cDepth && cUReflections)
+                                {
+                                    FragmentProgramData +=
+                                    "uniform sampler2D    uDepthReflectionMap : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
+                                    TexNum++;
+                                }
 
-						if (cDepth && cUReflections)
-						{
-							FragmentProgramData +=
-								"uniform sampler2D    uDepthReflectionMap : register(s" + Ogre::StringConverter::toString(TexNum) + "),\n";
-							TexNum++;
-						}
+                                FragmentProgramData +=
+                                #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+                                    "uniform sampler1D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
+                                #else
+                                    "uniform sampler2D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
+                                #endif
+                                TexNum++;
 
-						FragmentProgramData +=
-								// "uniform sampler1D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
-								"uniform sampler2D    uFresnelMap      : register(s" + Ogre::StringConverter::toString(TexNum) + ")";
-						TexNum++;
-
-						if (cFoam)
-						{
-							FragmentProgramData += Ogre::String(
-							 ",\nuniform sampler2D    uFoamMap         : register(s" + Ogre::StringConverter::toString(TexNum) + ")\n");
-						}
-
-						FragmentProgramData +=
-							Ogre::String(                                            ")\n") +
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    FragmentProgramData += Ogre::String(
+                                     ",\nuniform sampler2D    uFoamMap         : register(s" + Ogre::StringConverter::toString(TexNum) + ")\n");
+                                }
+                                */
+                                FragmentProgramData += Ogre::String(
+                                ")\n") +
 							"{\n"     +
 							    "float2 ProjectionCoord = iUvProjection.xy / iUvProjection.w;\n" +
                                 "float3 camToSurface = iPosition.xyz - uEyePosition;\n" +
                                 "float additionalReflection=camToSurface.x*camToSurface.x+camToSurface.z*camToSurface.z;\n";
 
-						if (cFoam)
-						{
-							// Calculate the foam visibility as a function fo distance specified by user
-							FragmentProgramData +=
-								"float foamVisibility=1.0f-saturate(additionalReflection/uFoamMaxDistance);\n";
-						}
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    // Calculate the foam visibility as a function fo distance specified by user
+                                    FragmentProgramData +=
+                                    "float foamVisibility=1.0f-saturate(additionalReflection/uFoamMaxDistance);\n";
+                                }
+                                */
 
-						FragmentProgramData +=
-							Ogre::String(
+                                FragmentProgramData += Ogre::String(
 							    "additionalReflection/=uFullReflectionDistance;\n") +
 								"camToSurface=normalize(-camToSurface);\n";
-						if (Options.NM == NM_TEXTURE)
-						{
-							FragmentProgramData += Ogre::String(
-								"float3 pixelNormal = tex2D(uNormalMap,iUvNoise);\n") +
-								// Inverte y with z, because at creation our local normal to the plane was z
-								"pixelNormal.yz=pixelNormal.zy;\n" +
-								// Remap from [0,1] to [-1,1]
-								"pixelNormal.xyz=-expand(pixelNormal.xyz);\n";
-						}
-						else if (Options.NM == NM_VERTEX)
-						{
-							FragmentProgramData +=
-								"float3 pixelNormal = -iNormal;\n";
-						}
-						else // NM_RTT
-						{
-							FragmentProgramData +=
-								"float3 pixelNormal = -(2.0*tex2D(uNormalMap, ProjectionCoord.xy) - 1.0);\n";
-						}
-						FragmentProgramData +=
+                                if (Options.NM == NM_TEXTURE)
+                                {
+                                    FragmentProgramData += Ogre::String(
+                                    "float3 pixelNormal = tex2D(uNormalMap,iUvNoise).xyz;\n") +
+                                    // Inverte y with z, because at creation our local normal to the plane was z
+                                    "pixelNormal.yz=pixelNormal.zy;\n" +
+                                    // Remap from [0,1] to [-1,1]
+                                    "pixelNormal.xyz=-expand(pixelNormal.xyz);\n";
+                                }
+                                else if (Options.NM == NM_VERTEX)
+                                {
+                                    FragmentProgramData +=
+                                    "float3 pixelNormal = -iNormal;\n";
+                                }
+                                else // NM_RTT
+                                {
+                                    FragmentProgramData +=
+                                    "float3 pixelNormal = -(2.0*tex2D(uNormalMap, ProjectionCoord.xy).xyz - 1.0);\n";
+                                }
+                                FragmentProgramData +=
 								"float2 pixelNormalModified = uNormalDistortion*pixelNormal.zx;\n";
-						if (Options.NM == NM_TEXTURE || Options.NM == NM_RTT)
-						{
-							FragmentProgramData +=
-								"float dotProduct=dot(camToSurface,pixelNormal);\n";
-						}
-						else
-						{
-							FragmentProgramData +=
-								"float dotProduct=dot(-camToSurface,pixelNormal);\n";
-						}
-						FragmentProgramData +=
-							Ogre::String(
+
+                                if (Options.NM == NM_TEXTURE || Options.NM == NM_RTT)
+                                {
+                                    FragmentProgramData +=
+                                    "float dotProduct=dot(camToSurface,pixelNormal);\n";
+                                }
+                                else
+                                {
+                                    FragmentProgramData +=
+                                    "float dotProduct=dot(-camToSurface,pixelNormal);\n";
+                                }
+                                FragmentProgramData += Ogre::String(
 								"dotProduct=saturate(dotProduct);\n") +
-								//"float fresnel = tex1D(uFresnelMap,dotProduct);\n" +
-								"float fresnel = tex2D(uFresnelMap,float2(dotProduct,dotProduct));\n" +
+								#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+                                    "float fresnel = tex1D(uFresnelMap,dotProduct);\n" +
+                                #else
+                                    "float fresnel = tex2D(uFresnelMap,float2(dotProduct,dotProduct));\n" +
+                                #endif
 								// Add additional reflection and saturate
 								"fresnel+=additionalReflection;\n" +
 								"fresnel=saturate(fresnel);\n" +
 								// Decrease the transparency and saturate
 								"fresnel-=uGlobalTransparency;\n" +
                                 "fresnel=saturate(fresnel);\n" +
+                                "float3 reflection;\n" +
                                 #if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
                                     // Reversing projection if underwater
                                     "if(uEyePosition.y < 0.0)\n" +
@@ -2146,60 +2298,65 @@ namespace Hydrax
                                     "}\n" +
                                 #endif
 								// Get the reflection/refraction pixels. Make sure to disturb the texcoords by pixelnormal
-								"float3 refraction=tex2D(uRefractionMap,ProjectionCoord.xy-pixelNormalModified);\n";
-						if (cUReflections)
-						{
-							FragmentProgramData +=
-								"float3 reflection=tex2D(uReflectionMap,ProjectionCoord.xy+pixelNormalModified);\n";
-						}
-						else
-						{
-							FragmentProgramData +=
-								"float3 reflection=uWaterColor;\n";
-						}
+								"float3 refraction=tex2D(uRefractionMap,ProjectionCoord.xy-pixelNormalModified).xyz;\n";
+                                if (cUReflections)
+                                {
+                                    FragmentProgramData +=
+                                    "reflection=tex2D(uReflectionMap,ProjectionCoord.xy+pixelNormalModified).xyz;\n";
+                                }
+                                else
+                                {
+                                    FragmentProgramData +=
+                                    "reflection=uWaterColor;\n";
+                                }
 
-						if (cDepth && cUReflections)
-						{
-							if (cCaustics)
-						    {
-								FragmentProgramData += Ogre::String(
-								"float2 depth = tex2D(uDepthReflectionMap,ProjectionCoord.xy+pixelNormalModified).rg;\n") +
-								"reflection *= 1+depth.y*uCausticsPower;\n" +
-								"reflection = lerp(uWaterColor,reflection,depth.x);\n";
-						    }
-							else
-							{
-								FragmentProgramData += Ogre::String(
-								"float depth = tex2D(uDepthReflectionMap,ProjectionCoord.xy-pixelNormalModified).r;\n") +
-								"reflection = lerp(uWaterColor,reflection,depth);\n";
-							}
-						}
+                                if (cDepth && cUReflections)
+                                {
+                                    if (cCaustics)
+                                    {
+                                        FragmentProgramData += Ogre::String(
+                                        "float2 depth = tex2D(uDepthReflectionMap,ProjectionCoord.xy+pixelNormalModified).rg;\n") +
+                                        "reflection *= 1+depth.y*uCausticsPower;\n" +
+                                        "reflection = lerp(uWaterColor,reflection,depth.x);\n";
+                                    }
+                                    else
+                                    {
+                                        FragmentProgramData += Ogre::String(
+                                        "float depth = tex2D(uDepthReflectionMap,ProjectionCoord.xy-pixelNormalModified).r;\n") +
+                                        "reflection = lerp(uWaterColor,reflection,depth);\n";
+                                    }
+                                }
+                                FragmentProgramData += Ogre::String(
+								"float4 Color = float4(lerp(refraction,reflection,fresnel),1);\n" ) +
+								"float Distance = saturate(1.0 - iDistance.x*uDistLimit);\n" +
+								"Color.xyz = lerp(uWaterColor, Color.xyz, Distance);\n" +
+								"Color.xyz = lerp(Color.xyz, uWaterColor, uGlobalTransparency);\n";
 
-						FragmentProgramData +=
-								"oColor = float4(lerp(refraction,reflection,fresnel),1);\n";
+                                if (cSun)
+                                {
+                                    FragmentProgramData += Ogre::String(
+                                    "float3 refractedVector = normalize(reflect(camToSurface, pixelNormal.xyz));\n") +
+                                    "float3 surfaceToSun=normalize(uSunPosition-iPosition.xyz);\n" +
+                                    // Temporally solution, fix this
+                                    "surfaceToSun.xz = -surfaceToSun.xz;" +
+                                    "float3 sunlight = uSunStrength*pow(saturate(dot(refractedVector,surfaceToSun)),uSunArea)*uSunColor;\n" +
+                                    "Distance  = saturate(1.0 - iDistance.y*uDepthLimit);\n" +
+                                    "Color.xyz+=Distance*sunlight*saturate(1.0-additionalReflection);\n";
+                                }
 
-						if (cSun)
-						{
-							FragmentProgramData += Ogre::String(
-							    "float3 refractedVector = normalize(reflect(camToSurface, pixelNormal.xyz));\n") +
-								"float3 surfaceToSun=normalize(uSunPosition-iPosition.xyz);\n" +
-								// Temporally solution, fix this
-								"surfaceToSun.xz = -surfaceToSun.xz;" +
-								"float3 sunlight = uSunStrength*pow(saturate(dot(refractedVector,surfaceToSun)),uSunArea)*uSunColor;\n" +
-								"oColor.xyz+=sunlight*saturate(1-additionalReflection);\n";
-						}
-
-						if (cFoam)
-						{
-							FragmentProgramData += Ogre::String(
-							    "float hmap = iPosition.y/uFoamRange*foamVisibility;\n") +
-								"float2 foamTex=iWorldPosition.xz*uFoamScale+pixelNormalModified;\n" +
-								"float foam=tex2D(uFoamMap,foamTex).r;\n" +
-								"float foamTransparency=saturate(hmap-uFoamStart)*uFoamTransparency;\n" +
-								"oColor.xyz=lerp(oColor.xyz,1,foamTransparency*foam);\n";
-						}
-
-						FragmentProgramData +=
+                                /* Foam is not visible underwater
+                                if (cFoam)
+                                {
+                                    FragmentProgramData += Ogre::String(
+                                    "float hmap = iPosition.y/uFoamRange*foamVisibility;\n") +
+                                    "float2 foamTex=iWorldPosition.xz*uFoamScale+pixelNormalModified;\n" +
+                                    "float foam=tex2D(uFoamMap,foamTex).r;\n" +
+                                    "float foamTransparency=saturate(hmap-uFoamStart)*uFoamTransparency;\n" +
+                                    "Color.xyz=lerp(Color.xyz,1,foamTransparency*foam);\n";
+                                }
+                                */
+                            FragmentProgramData += Ogre::String(
+                                "oColor = Color;\n") +
 							"}\n";
 					}
 					break;
@@ -2210,21 +2367,20 @@ namespace Hydrax
                             "uniform vec3  uEyePosition;\n" +
                             "uniform float uFullReflectionDistance;\n" +
                             "uniform float uGlobalTransparency;\n" +
-                            "uniform float uNormalDistortion;\n";
+                            "uniform float uNormalDistortion;\n" +
+                            "uniform float uDistLimit;\n" +
+                            "uniform vec3  uWaterColor;\n";
 
-                            if ((cDepth && cUReflections) || (!cUReflections))
-                            {
-                                FragmentProgramData +=
-                                "uniform vec3  uWaterColor;\n";
-                            }
                             if (cSun)
                             {
                                 FragmentProgramData += Ogre::String(
                                 "uniform vec3  uSunPosition;\n") +
                                 "uniform float uSunStrength;\n" +
                                 "uniform float uSunArea;\n" +
-                                "uniform vec3  uSunColor;\n";
+                                "uniform vec3  uSunColor;\n" +
+                                "uniform float uDepthLimit;\n";
                             }
+                            /* Foam is not visible underwater
                             if (cFoam)
                             {
                                 FragmentProgramData += Ogre::String(
@@ -2234,6 +2390,7 @@ namespace Hydrax
 	                            "uniform float uFoamStart;\n" +
 	                            "uniform float uFoamTransparency;\n";
                             }
+                            */
                             if (cCaustics && cUReflections)
                             {
                                 FragmentProgramData +=
@@ -2273,11 +2430,13 @@ namespace Hydrax
                             #endif
                             TexNum++;
 
+                            /* Foam is not visible underwater
                             if (cFoam)
                             {
                                 FragmentProgramData +=
                                 "uniform sampler2D uFoamMap;\n";
                             }
+                            */
                             // IN
                             FragmentProgramData +=
                                 "varying vec4 Position_;\n";
@@ -2295,11 +2454,15 @@ namespace Hydrax
                                 "varying vec3 Normal;\n";
                                 TEXCOORDNUM++;
                             }
+                            /* Foam is not visible underwater
                             if (cFoam)
                             {
                                 FragmentProgramData +=
                                 "varying vec4 WorldPosition;\n";
                             }
+                            */
+                            FragmentProgramData +=
+                            "varying vec2 Distance_;\n";
                             // Expand function
                             FragmentProgramData += Ogre::String(
 							"vec3 expand(vec3 v)\n") +
@@ -2314,12 +2477,14 @@ namespace Hydrax
 							    "ProjectionCoord *= 0.5;\n" +
                                 "vec3 camToSurface = Position_.xyz - uEyePosition;\n" +
                                 "float additionalReflection=camToSurface.x*camToSurface.x+camToSurface.z*camToSurface.z;\n";
+                                /* Must not view foam underwater
                                 if (cFoam)
                                 {
                                     // Calculate the foam visibility as a function fo distance specified by user
                                     FragmentProgramData +=
                                     "float foamVisibility=1.0-clamp(additionalReflection/uFoamMaxDistance, 0.0, 1.0);\n";
                                 }
+                                */
                                 FragmentProgramData += Ogre::String(
                                 "additionalReflection/=uFullReflectionDistance;\n") +
                                 "camToSurface=normalize(-camToSurface);\n";
@@ -2356,8 +2521,11 @@ namespace Hydrax
                                 }
                                 FragmentProgramData += Ogre::String(
 								"dotProduct=clamp(dotProduct, 0.0, 1.0);\n") +
-								//"float fresnel = tex1D(uFresnelMap,dotProduct);\n" +
-								"float fresnel = texture2D(uFresnelMap,vec2(dotProduct,dotProduct)).x;\n" +
+                                #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+                                    "float fresnel = texture1D(uFresnelMap,dotProduct).x;\n" +
+                                #else
+                                    "float fresnel = texture2D(uFresnelMap,vec2(dotProduct,dotProduct)).x;\n" +
+                                #endif
 								// Add additional reflection and saturate
 								"fresnel +=additionalReflection;\n" +
 								"fresnel = clamp(fresnel, 0.0, 1.0);\n" +
@@ -2365,7 +2533,7 @@ namespace Hydrax
 								"fresnel -= uGlobalTransparency;\n" +
                                 "fresnel =  clamp(fresnel, 0.0, 1.0);\n" +
 								// Get the reflection/refraction pixels. Make sure to disturb the texcoords by pixelnormal
-								"vec3 reflection = vec3(0.0,0.0,0.0);\n" +
+								"vec3 reflection;\n" +
                                 #if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
                                     // Reversing projection if underwater
                                     "if(uEyePosition.y < 0.0)\n" +
@@ -2389,19 +2557,22 @@ namespace Hydrax
                                     if (cCaustics)
                                     {
                                         FragmentProgramData += Ogre::String(
-                                        "vec2 depth = texture2D(uDepthReflectionMap,ProjectionCoord.xy-pixelNormalModified).xy;\n") +
+                                        "vec2 depth = texture2D(uDepthReflectionMap,ProjectionCoord.xy+pixelNormalModified).xy;\n") +
                                         "reflection *= 1.0 + depth.y*uCausticsPower;\n" +
                                         "reflection = mix(uWaterColor,reflection,depth.x);\n";
                                     }
                                     else
                                     {
                                         FragmentProgramData += Ogre::String(
-                                        "float depth = texture2D(uDepthReflectionMap,ProjectionCoord.xy-pixelNormalModified).x;\n") +
+                                        "float depth = texture2D(uDepthReflectionMap,ProjectionCoord.xy+pixelNormalModified).x;\n") +
                                         "reflection = mix(uWaterColor,reflection,depth);\n";
                                     }
                                 }
-                                FragmentProgramData +=
-								"gl_FragColor = vec4(mix(refraction,reflection,fresnel),1.0);\n";
+                                FragmentProgramData += Ogre::String(
+								"gl_FragColor = vec4(mix(refraction,reflection,fresnel),1.0);\n") +
+								"float Distance  = clamp(1.0 - Distance_.x*uDistLimit, 0.0, 1.0);\n" +
+								"gl_FragColor.xyz = mix(uWaterColor, gl_FragColor.xyz, Distance);\n" +
+								"gl_FragColor.xyz = mix(gl_FragColor.xyz, uWaterColor, uGlobalTransparency);\n";
                                 if (cSun)
                                 {
                                     FragmentProgramData += Ogre::String(
@@ -2410,8 +2581,10 @@ namespace Hydrax
                                     // Temporally solution, fix this
                                     "surfaceToSun.xz = -surfaceToSun.xz;" +
                                     "vec3 sunlight = uSunStrength*pow(clamp(dot(refractedVector,surfaceToSun),0.0,1.0),uSunArea)*uSunColor;\n" +
-                                    "gl_FragColor.xyz+=sunlight*clamp(1.0 - additionalReflection, 0.0, 1.0);\n";
+                                    "Distance  = clamp(1.0 - Distance_.y*uDepthLimit, 0.0, 1.0);\n";
+                                    "gl_FragColor.xyz+=Distance*sunlight*clamp(1.0 - additionalReflection, 0.0, 1.0);\n";
                                 }
+                                /* Must not view foam underwater
                                 if (cFoam)
                                 {
                                     FragmentProgramData += Ogre::String(
@@ -2421,6 +2594,7 @@ namespace Hydrax
                                     "float foamTransparency=clamp(hmap-uFoamStart, 0.0, 1.0)*uFoamTransparency;\n" +
                                     "gl_FragColor.xyz=mix(gl_FragColor.xyz,vec3(1.0,1.0,1.0),foamTransparency*foam);\n";
                                 }
+                                */
                             FragmentProgramData +=
 							"}\n";
 					break;
@@ -2462,21 +2636,20 @@ namespace Hydrax
         if(Options.SM != SM_GLSL)
         {
             VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            VP_Parameters->setNamedAutoConstant("uWorldView", Ogre::GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+            VP_Parameters->setNamedAutoConstant("uCameraPos", Ogre::GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE);
         }
-		if (cFoam)
-		{
-		    VP_Parameters->setNamedAutoConstant("uWorld",     Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
-		}
+        VP_Parameters->setNamedAutoConstant("uWorld",     Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
 		FP_Parameters->setNamedAutoConstant("uEyePosition",   Ogre::GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE);
 
 		FP_Parameters->setNamedConstant("uFullReflectionDistance", mHydrax->getFullReflectionDistance());
 		FP_Parameters->setNamedConstant("uGlobalTransparency",     mHydrax->getGlobalTransparency());
 		FP_Parameters->setNamedConstant("uNormalDistortion",       mHydrax->getNormalDistortion());
-
-		if ((cDepth && cUReflections) || (!cUReflections))
-		{
-		    FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
-		}
+		FP_Parameters->setNamedConstant("uDistLimit",              1.f/mHydrax->getDistLimit());
+        if (cSun)
+        {
+        }
+        FP_Parameters->setNamedConstant("uWaterColor",             mHydrax->getWaterColor());
 
 		if (cSun)
 		{
@@ -2484,7 +2657,9 @@ namespace Hydrax
 			FP_Parameters->setNamedConstant("uSunStrength", mHydrax->getSunStrength());
 			FP_Parameters->setNamedConstant("uSunArea",     mHydrax->getSunArea());
 			FP_Parameters->setNamedConstant("uSunColor",    mHydrax->getSunColor());
+            FP_Parameters->setNamedConstant("uDepthLimit",  1.f/mHydrax->getDepthLimit());
 		}
+		/* Foam is not visible underwater
 		if (cFoam)
 		{
 			FP_Parameters->setNamedConstant("uFoamRange",        mHydrax->getMesh()->getOptions().MeshStrength);
@@ -2493,6 +2668,7 @@ namespace Hydrax
 			FP_Parameters->setNamedConstant("uFoamStart",        mHydrax->getFoamStart());
 			FP_Parameters->setNamedConstant("uFoamTransparency", mHydrax->getFoamTransparency());
 		}
+		*/
 		if (cCaustics && cDepth && cUReflections)
 		{
 			FP_Parameters->setNamedConstant("uCausticsPower", mHydrax->getCausticsPower());
@@ -2541,8 +2717,9 @@ namespace Hydrax
             FP_Parameters->setNamedConstant("uFresnelMap", GLSLTextUnit);
             GLSLTextUnit++;
         }
-		UM_Technique0_Pass0->createTextureUnitState("Fresnel.dds")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		UM_Technique0_Pass0->createTextureUnitState("Fresnel.bmp")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
 
+        /* Foam is not visible underwater
 		if (cFoam)
 		{
             if(Options.SM == SM_GLSL)
@@ -2550,8 +2727,9 @@ namespace Hydrax
                 FP_Parameters->setNamedConstant("uFoamMap", GLSLTextUnit);
                 GLSLTextUnit++;
             }
-			UM_Technique0_Pass0->createTextureUnitState("Foam.dds")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
+			UM_Technique0_Pass0->createTextureUnitState("Foam.png")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
 		}
+        */
 
 		UnderwaterMaterial->setReceiveShadows(false);
 		UnderwaterMaterial->load();
@@ -2568,7 +2746,6 @@ namespace Hydrax
 		Ogre::String VertexProgramData, FragmentProgramData;
 
 		// Vertex program
-
 		switch (Options.SM)
 		{
 		    case SM_HLSL: case SM_CG:
@@ -2600,11 +2777,10 @@ namespace Hydrax
 						"oUV = (float2(iPosition.x, -iPosition.y) + 1.0f) * 0.5f;";
 						if (cGodRays)
 						{
-							VertexProgramData +=
-								Ogre::String(
-						"uCorner01 *= oUV.x;\n")+
-	                    "uCorner02 *= oUV.y;\n"+
-	                    "oPosition_ = uCorner0+uCorner01+uCorner02;";
+							VertexProgramData += Ogre::String(
+                            "uCorner01 *= oUV.x;\n")+
+                            "uCorner02 *= oUV.y;\n"+
+                            "oPosition_ = uCorner0+uCorner01+uCorner02;";
 						}
 						VertexProgramData +=
 					"}\n";
@@ -2630,7 +2806,7 @@ namespace Hydrax
                     // main function
 					"void main()\n" +
 					"{\n" +
-					    "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n" +
+					    "gl_Position = ftransform();\n" +
 						"vec2 iPosition = sign(gl_Vertex.xy);\n"+
 						"UV = (vec2(iPosition.x, -iPosition.y) + 1.0) * 0.5;\n";
 						if (cGodRays)
@@ -2647,7 +2823,6 @@ namespace Hydrax
 		}
 
 		// Fragment program
-
 		switch (Options.SM)
 		{
 		    case SM_HLSL: case SM_CG:
@@ -2661,82 +2836,74 @@ namespace Hydrax
 					    // OUT
 						"out float4 oColor    : COLOR,\n";
 						// UNIFORM
-					if (cDepth)
-					{
-					FragmentProgramData +=
-						"uniform float3       uWaterColor,\n";
-					}
-					if (cCaustics)
-					{
-					FragmentProgramData +=
-						"uniform float        uCausticsPower,\n";
-					}
-					if (cGodRays)
-					{
-					FragmentProgramData +=
-						Ogre::String(
-						"uniform float3  uSunColor,\n") +
-						"uniform float3  uLightDirection,\n"+
-                        "uniform float   uIntensity,\n"+
-	                    "uniform float3  uHGg,\n"+
-	                    "uniform float3  uCameraPos,\n";
-					}
-					FragmentProgramData +=
-						Ogre::String(
-						"uniform float        uTime,\n") +
-						"uniform sampler2D    uOriginalMap   : register(s0),\n"  +
-						"uniform sampler2D    uDistortMap    : register(s1)\n";
-					if (cDepth)
-					{
-					FragmentProgramData +=
-					    ",\nuniform sampler2D    uDepthMap      : register(s2)";
-					}
-					FragmentProgramData +=
-						Ogre::String
-					(")\n{\n") +
-					    "float2 distortUV = (tex2D(uDistortMap, float2(iUV.x + uTime, iUV.y + uTime)).xy - 0.5)/50;\n";
-					if (cCaustics) // Depth, caustics
-					{
-					FragmentProgramData +=
-						Ogre::String(
-						"float2 depth = tex2D(uDepthMap, iUV+distortUV).xy;\n") +
-						"oColor = float4(lerp(uWaterColor,tex2D(uOriginalMap, iUV+distortUV)*(1+depth.y*uCausticsPower), depth.x),1);\n";
-						if (cGodRays)
-						{
-						FragmentProgramData +=
-							Ogre::String(
-					        "float3 view_vector = normalize(iPosition-uCameraPos);") +
-							"float dot_product = dot(view_vector, -uLightDirection);"+
-                        	"float num = uHGg.x;"+
-                        	"float den = (uHGg.y - uHGg.z*dot_product); "+
-                       	    "den = rsqrt(den); "+
-                       	    "float phase = num * (den*den*den);"+
-							"oColor.xyz += (0.15 + uIntensity*tex2D(uDepthMap, iUV).z)*phase*uSunColor;";
-						}
-					}
-					else if (cDepth) // Depth, no caustics
-					{
-				    FragmentProgramData +=
-						"oColor = float4(lerp(uWaterColor,tex2D(uOriginalMap, iUV+distortUV).xyz,tex2D(uDepthMap, iUV+distortUV).r),1);\n";
-					    if (cGodRays)
-						{
-						FragmentProgramData +=
-							Ogre::String(
-							"float3 view_vector = normalize(iPosition-uCameraPos);") +
-							"float dot_product = dot(view_vector, -uLightDirection);"+
-                        	"float num = uHGg.x;"+
-                        	"float den = (uHGg.y - uHGg.z*dot_product); "+
-                       	    "den = rsqrt(den); "+
-                       	    "float phase = num * (den*den*den);"+
-							"oColor.xyz += (0.15 + uIntensity*tex2D(uDepthMap, iUV).y)*phase*uSunColor;";
-						}
-					}
-					else // No depth, no caustics
-					{
-					FragmentProgramData +=
-						"oColor = tex2D(uOriginalMap, iUV+distortUV);";
-					}
-					FragmentProgramData +=
+                        if (cCaustics)
+                        {
+                            FragmentProgramData +=
+                            "uniform float        uCausticsPower,\n";
+                        }
+                        if (cGodRays)
+                        {
+                            FragmentProgramData += Ogre::String(
+                            "uniform float3  uSunColor,\n") +
+                            "uniform float3  uLightDirection,\n"+
+                            "uniform float   uIntensity,\n"+
+                            "uniform float3  uHGg,\n"+
+                            "uniform float3  uCameraPos,\n";
+                        }
+                        FragmentProgramData += Ogre::String(
+                        "uniform float        uTime,\n") +
+                        "uniform float3       uWaterColor,\n" +
+                        "uniform sampler2D    uOriginalMap   : register(s0),\n"  +
+                        "uniform sampler2D    uDistortMap    : register(s1)\n";
+                        if (cDepth)
+                        {
+                            FragmentProgramData +=
+                            ",\nuniform sampler2D    uDepthMap      : register(s2)";
+                        }
+                        FragmentProgramData += Ogre::String(
+                        ")\n" ) +
+                    "{\n" +
+					    "float2 distortUV = (tex2D(uDistortMap, float2(iUV.x + uTime, iUV.y + uTime)).xy - 0.5)/50.0;\n";
+                        if (cCaustics) // Depth, caustics
+                        {
+                            FragmentProgramData += Ogre::String(
+                            "float2 depth = tex2D(uDepthMap, iUV+distortUV).xy;\n") +
+                            "float4 Color = float4(lerp(uWaterColor,tex2D(uOriginalMap, iUV+distortUV)*(1.0+depth.y*uCausticsPower), depth.x),1.0);\n";
+                            if (cGodRays)
+                            {
+                                FragmentProgramData += Ogre::String(
+                                "float3 view_vector = normalize(iPosition-uCameraPos);\n") +
+                                "float dot_product = dot(view_vector, -uLightDirection);\n"+
+                                "float num = uHGg.x;\n"+
+                                "float den = (uHGg.y - uHGg.z*dot_product);\n"+
+                                "den = rsqrt(den);\n"+
+                                "float phase = num * (den*den*den);\n" +
+                                "Color.xyz += (0.15 + uIntensity*tex2D(uDepthMap, iUV).z)*phase*uSunColor;\n";
+                            }
+                        }
+                        else if (cDepth) // Depth, no caustics
+                        {
+                            FragmentProgramData +=
+                            "float4 Color = float4(lerp(uWaterColor,tex2D(uOriginalMap, iUV+distortUV).xyz,tex2D(uDepthMap, iUV+distortUV).r),1.0);\n";
+                            if (cGodRays)
+                            {
+                                FragmentProgramData += Ogre::String(
+                                "float3 view_vector = normalize(iPosition-uCameraPos);") +
+                                "float dot_product = dot(view_vector, -uLightDirection);"+
+                                "float num = uHGg.x;"+
+                                "float den = (uHGg.y - uHGg.z*dot_product); "+
+                                "den = rsqrt(den); "+
+                                "float phase = num * (den*den*den);"+
+                                "Color.xyz += (0.15 + uIntensity*tex2D(uDepthMap, iUV).y)*phase*uSunColor;";
+                            }
+                        }
+                        else // No depth, no caustics
+                        {
+                            FragmentProgramData +=
+                            "float4 Color = tex2D(uOriginalMap, iUV+distortUV);";
+                        }
+					FragmentProgramData += Ogre::String(
+                        "oColor = Color;\n") +
 					"}\n";
 			}
 			break;
@@ -2745,11 +2912,6 @@ namespace Hydrax
 			{
 				FragmentProgramData += Ogre::String( "\n" );
                     // UNIFORM
-					if (cDepth)
-					{
-                        FragmentProgramData +=
-						"uniform vec3  uWaterColor;\n";
-					}
 					if (cCaustics)
 					{
                         FragmentProgramData +=
@@ -2766,6 +2928,8 @@ namespace Hydrax
 					}
                     FragmentProgramData += Ogre::String(
                     "uniform float        uTime;\n") +
+                    "uniform float        uGlobalTransparency;\n" +
+                    "uniform vec3         uWaterColor;\n" +
                     "uniform sampler2D    uOriginalMap;\n"  +
                     "uniform sampler2D    uDistortMap;\n";
 					if (cDepth)
@@ -2782,6 +2946,7 @@ namespace Hydrax
 				    "void main()\n" +
 					"{\n" +
                         "vec2 distortUV = (texture2D(uDistortMap, vec2(UV.x + uTime, UV.y + uTime)).xy - 0.5)*0.02;\n";
+                        // "vec2 distortUV = vec2(0.0,0.0);\n";
                         if (cCaustics) // Depth, caustics
                         {
                             FragmentProgramData += Ogre::String(
@@ -2861,11 +3026,8 @@ namespace Hydrax
             VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
         }
 
-		if (cDepth)
-		{
-		    FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
-		}
 		FP_Parameters->setNamedConstantFromTime("uTime", 0.1f);
+        FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
 
 		if (cCaustics)
 		{
@@ -2897,7 +3059,7 @@ namespace Hydrax
             FP_Parameters->setNamedConstant("uDistortMap", GLSLTextUnit);
             GLSLTextUnit++;
         }
-		DM_Technique0_Pass0->createTextureUnitState("UnderwaterDistortion.dds")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
+		DM_Technique0_Pass0->createTextureUnitState("UnderwaterDistortion.jpg")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
 		if (cDepth)
 		{
             if(Options.SM == SM_GLSL)
@@ -2906,6 +3068,7 @@ namespace Hydrax
                 GLSLTextUnit++;
             }
 		    DM_Technique0_Pass0->createTextureUnitState("HydraxDepthMap")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+            Ogre::Viewport *Viewport = mHydrax->getCamera()->getViewport();
 		}
 
 		UnderwaterCompositorMaterial->setReceiveShadows(false);
@@ -3044,10 +3207,7 @@ namespace Hydrax
 				FP_Parameters->setNamedConstant("uGlobalTransparency",     mHydrax->getGlobalTransparency());
 				FP_Parameters->setNamedConstant("uNormalDistortion",       mHydrax->getNormalDistortion());
 
-				if (cDepth)
-				{
-					FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
-				}
+                FP_Parameters->setNamedConstant("uWaterColor", mHydrax->getWaterColor());
 				if (cSmooth)
 				{
 					FP_Parameters->setNamedConstant("uSmoothPower", mHydrax->getSmoothPower());
@@ -3084,11 +3244,15 @@ namespace Hydrax
                 if(mOptions.SM != SM_GLSL)
                 {
                     VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+                    // VP_Parameters->setNamedAutoConstant("uWorldView", Ogre::GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+                    VP_Parameters->setNamedAutoConstant("uCameraPos", Ogre::GpuProgramParameters::ACT_CAMERA_POSITION);
                 }
-				VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
+                VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
 				VP_Parameters->setNamedConstant("uPlaneYPos", mHydrax->getPosition().y);
+                VP_Parameters->setNamedConstant("uPlanesError", (float) mHydrax->getPlanesError());
 
-				FP_Parameters->setNamedConstant("uDepthLimit", 1/mHydrax->getDepthLimit());
+				FP_Parameters->setNamedConstant("uDepthLimit", 1.f/mHydrax->getDepthLimit());
+				FP_Parameters->setNamedConstant("uDistLimit", 1.f/mHydrax->getDistLimit());
 
 				if (cCaustics)
 				{
@@ -3146,16 +3310,16 @@ namespace Hydrax
                 if(mOptions.SM != SM_GLSL)
                 {
                     VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+                    VP_Parameters->setNamedAutoConstant("uWorldView", Ogre::GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+                    VP_Parameters->setNamedAutoConstant("uCameraPos", Ogre::GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE);
                 }
-				if (cFoam)
-				{
-		            VP_Parameters->setNamedAutoConstant("uWorld",     Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
-		        }
+                VP_Parameters->setNamedAutoConstant("uWorld",     Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
 				FP_Parameters->setNamedAutoConstant("uEyePosition",   Ogre::GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE);
 
 				FP_Parameters->setNamedConstant("uFullReflectionDistance", mHydrax->getFullReflectionDistance());
 				FP_Parameters->setNamedConstant("uGlobalTransparency",     mHydrax->getGlobalTransparency());
 				FP_Parameters->setNamedConstant("uNormalDistortion",       mHydrax->getNormalDistortion());
+                FP_Parameters->setNamedConstant("uDistLimit",              1.f/mHydrax->getDistLimit());
 
 				if ((cDepth && cUReflections) || (!cUReflections))
 		        {
@@ -3168,7 +3332,9 @@ namespace Hydrax
 					FP_Parameters->setNamedConstant("uSunStrength", mHydrax->getSunStrength());
 					FP_Parameters->setNamedConstant("uSunArea",     mHydrax->getSunArea());
 					FP_Parameters->setNamedConstant("uSunColor",    mHydrax->getSunColor());
+                    FP_Parameters->setNamedConstant("uDepthLimit",  1.f/mHydrax->getDistLimit());
 				}
+				/* Foam is not visible underwater
 				if (cFoam)
 				{
 			        FP_Parameters->setNamedConstant("uFoamRange",        mHydrax->getMesh()->getOptions().MeshStrength);
@@ -3177,6 +3343,7 @@ namespace Hydrax
 					FP_Parameters->setNamedConstant("uFoamStart",        mHydrax->getFoamStart());
 					FP_Parameters->setNamedConstant("uFoamTransparency", mHydrax->getFoamTransparency());
 				}
+				*/
 				if (cCaustics && cDepth && cUReflections)
 				{
 					FP_Parameters->setNamedConstant("uCausticsPower",    mHydrax->getCausticsPower());
@@ -3224,11 +3391,14 @@ namespace Hydrax
         if(mOptions.SM != SM_GLSL)
         {
             VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            VP_Parameters->setNamedAutoConstant("uCameraPos", Ogre::GpuProgramParameters::ACT_CAMERA_POSITION);
         }
-		VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
-		VP_Parameters->setNamedConstant("uPlaneYPos", mHydrax->getPosition().y);
+        VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
+        VP_Parameters->setNamedConstant("uPlaneYPos", mHydrax->getPosition().y);
+        VP_Parameters->setNamedConstant("uPlanesError", (float) mHydrax->getPlanesError());
 
 		FP_Parameters->setNamedConstant("uDepthLimit", 1/mHydrax->getDepthLimit());
+		FP_Parameters->setNamedConstant("uDistLimit", 1/mHydrax->getDistLimit());
 
 		if (_isComponent(mComponents, HYDRAX_COMPONENT_CAUSTICS))
 		{
@@ -3239,10 +3409,10 @@ namespace Hydrax
             {
                 FP_Parameters->setNamedConstant("uCaustics", 0);
             }
-			Ogre::TextureUnitState *TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.dds");
+			Ogre::TextureUnitState *TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.bmp");
 			TUS_Caustics->setName("Caustics");
 			TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-			TUS_Caustics->setAnimatedTextureName("Caustics.dds", 32, 1.5);
+			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32, 1.5);
 		}
 
 		if (AutoUpdate)
@@ -3281,11 +3451,14 @@ namespace Hydrax
         if(mOptions.SM != SM_GLSL)
         {
             VP_Parameters->setNamedAutoConstant("uWorldViewProj", Ogre::GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            VP_Parameters->setNamedAutoConstant("uCameraPos", Ogre::GpuProgramParameters::ACT_CAMERA_POSITION);
         }
-		VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
-		VP_Parameters->setNamedConstant("uPlaneYPos", mHydrax->getPosition().y);
+        VP_Parameters->setNamedAutoConstant("uWorld", Ogre::GpuProgramParameters::ACT_WORLD_MATRIX);
+        VP_Parameters->setNamedConstant("uPlaneYPos", mHydrax->getPosition().y);
+        VP_Parameters->setNamedConstant("uPlanesError", (float) mHydrax->getPlanesError());
 
 		FP_Parameters->setNamedConstant("uDepthLimit", 1/mHydrax->getDepthLimit());
+		FP_Parameters->setNamedConstant("uDistLimit", 1/mHydrax->getDistLimit());
 
 		if (_isComponent(mComponents, HYDRAX_COMPONENT_CAUSTICS))
 		{
@@ -3296,10 +3469,10 @@ namespace Hydrax
             {
                 FP_Parameters->setNamedConstant("uCaustics", 0);
             }
-			Ogre::TextureUnitState *TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.dds");
+			Ogre::TextureUnitState *TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.bmp");
 			TUS_Caustics->setName("Caustics");
 			TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-			TUS_Caustics->setAnimatedTextureName("Caustics.dds", 32, 1.5);
+			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32, 1.5);
 		}
 
         if(mOptions.SM == SM_GLSL)
@@ -3579,6 +3752,11 @@ namespace Hydrax
 		    VP_Parameters->
 			    setNamedConstant( "uCorner02",  mMaterialManager->mHydrax->getCamera()->getWorldSpaceCorners()[6] - mMaterialManager->mHydrax->getCamera()->getWorldSpaceCorners()[5]);
 		}
+
+        if (mMaterialManager->_isComponent(mMaterialManager->mComponents, HYDRAX_COMPONENT_DEPTH))
+        {
+            Ogre::Viewport *Viewport = mMaterialManager->mHydrax->getCamera()->getViewport();
+        }
 
 		if (mMaterialManager->mCompositorsNeedToBeReloaded[COMP_UNDERWATER])
 		{

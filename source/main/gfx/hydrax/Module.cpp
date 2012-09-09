@@ -22,8 +22,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 --------------------------------------------------------------------------------
 */
 
-#include <RoRPrerequisites.h>
-#include <Module.h>
+#include"Module.h"
 
 namespace Hydrax{namespace Module
 {
@@ -107,9 +106,11 @@ namespace Hydrax{namespace Module
 	{
 		if (CfgFile.getSetting("Module") == mName)
 		{
+		    HydraxLOG(mName + " options entry found.");
 			return true;
 		}
 
+        HydraxLOG("Error (Module::loadCfg):\t" + mName + " options entry can not be found.");
 		return false;
 	}
 
