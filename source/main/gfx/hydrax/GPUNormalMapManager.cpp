@@ -81,7 +81,7 @@ namespace Hydrax
 
 		Ogre::MaterialManager::getSingleton().remove(mNormalMapMaterial->getName());
 		mNormalMapMaterial.setNull();
-		
+
 		mCreated = false;
 	}
 }

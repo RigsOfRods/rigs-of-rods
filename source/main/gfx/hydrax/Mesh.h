@@ -129,7 +129,7 @@ namespace Hydrax
 			Size MeshSize;
 			/// Water strength
 			float MeshStrength;
-			/// Vertex type 
+			/// Vertex type
 			VertexType MeshVertexType;
 		};
 
@@ -218,7 +218,7 @@ namespace Hydrax
         }
 
         /** Get options
-		    @return Mesh options 
+		    @return Mesh options
 		 */
 		inline const Options& getOptions() const
 		{
@@ -232,7 +232,7 @@ namespace Hydrax
 		{
 			return mOptions.MeshSize;
 		}
-		 
+
 		/** Get vertex type
 		    return Mesh vertex type
 		 */

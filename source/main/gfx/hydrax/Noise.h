@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Hydrax{ namespace Noise
 {
-	/** Base noise class, 
+	/** Base noise class,
 	    Override it for create different ways of create water noise.
 	 */
 	class Noise
@@ -70,12 +70,12 @@ namespace Hydrax{ namespace Noise
 		virtual void update(const Ogre::Real &timeSinceLastFrame) = 0;
 
 		/** Save config
-		    @param Data String reference 
+		    @param Data String reference
 		 */
 		virtual void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference 
+		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct noise config
 		 */
 		virtual bool loadCfg(Ogre::ConfigFile &CfgFile);
@@ -111,7 +111,7 @@ namespace Hydrax{ namespace Noise
 		{
 			return mGPUNormalMapResourcesCreated;
 		}
-	
+
 		/** Get the especified x/y noise value
 		    @param x X Coord
 			@param y Y Coord

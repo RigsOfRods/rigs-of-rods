@@ -62,8 +62,8 @@ namespace Hydrax
 			x < 0 || x > mSize.Width ||
 			y < 0 || y > mSize.Height)
 		{
-			HydraxLOG("Error in Image::getValue, x = " + Ogre::StringConverter::toString(x) 
-				                             + " y = " + Ogre::StringConverter::toString(y) 
+			HydraxLOG("Error in Image::getValue, x = " + Ogre::StringConverter::toString(x)
+				                             + " y = " + Ogre::StringConverter::toString(y)
 											 + " Channel = " + Ogre::StringConverter::toString(c));
 
 			return 0;
@@ -80,8 +80,8 @@ namespace Hydrax
 			x < 0 || x > mSize.Width ||
 			y < 0 || y > mSize.Height)
 		{
-			HydraxLOG("Error in Image::getValue, x = " + Ogre::StringConverter::toString(x) 
-				                             + " y = " + Ogre::StringConverter::toString(y) 
+			HydraxLOG("Error in Image::getValue, x = " + Ogre::StringConverter::toString(x)
+				                             + " y = " + Ogre::StringConverter::toString(y)
 											 + " Channel = " + Ogre::StringConverter::toString(c));
 
 			return 0;
@@ -117,7 +117,7 @@ namespace Hydrax
 		if (x < 0 || x > mSize.Width ||
 			y < 0 || y > mSize.Height)
 		{
-			HydraxLOG("Error in Image::getPixel, x = " + Ogre::StringConverter::toString(x) 
+			HydraxLOG("Error in Image::getPixel, x = " + Ogre::StringConverter::toString(x)
 				                             + " y = " + Ogre::StringConverter::toString(y));
 
 			return Pixel(0);
@@ -147,7 +147,7 @@ namespace Hydrax
 		if (x < 0 || x > mSize.Width ||
 			y < 0 || y > mSize.Height)
 		{
-			HydraxLOG("Error in Image::getPixel, x = " + Ogre::StringConverter::toString(x) 
+			HydraxLOG("Error in Image::getPixel, x = " + Ogre::StringConverter::toString(x)
 				                             + " y = " + Ogre::StringConverter::toString(y));
 
 			return Pixel(0);
@@ -178,8 +178,8 @@ namespace Hydrax
 			x < 0 || x > mSize.Width ||
 			y < 0 || y > mSize.Height)
 		{
-			HydraxLOG("Error in Image::setValue, x = " + Ogre::StringConverter::toString(x) 
-				                             + " y = " + Ogre::StringConverter::toString(y) 
+			HydraxLOG("Error in Image::setValue, x = " + Ogre::StringConverter::toString(x)
+				                             + " y = " + Ogre::StringConverter::toString(y)
 											 + " Channel = " + Ogre::StringConverter::toString(c));
 
 			return;
@@ -195,7 +195,7 @@ namespace Hydrax
 		if (x < 0 || x > mSize.Width ||
 			y < 0 || y > mSize.Height)
 		{
-			HydraxLOG("Error in Image::setPixel, x = " + Ogre::StringConverter::toString(x) 
+			HydraxLOG("Error in Image::setPixel, x = " + Ogre::StringConverter::toString(x)
 				                             + " y = " + Ogre::StringConverter::toString(y));
 
 			return;
@@ -204,7 +204,7 @@ namespace Hydrax
 
 		switch(mChannels)
 		{
-		    case 1: 
+		    case 1:
 			{
 				setValue(x, y, 0, p.red);
 			}
@@ -238,8 +238,8 @@ namespace Hydrax
 
 	void Image::_Initialize(const float &v)
 	{
-		mData = new float[(mSize.Width)  * 
-			              (mSize.Height) * 
+		mData = new float[(mSize.Width)  *
+			              (mSize.Height) *
 						  mChannels];
 
 		int x,y,c;

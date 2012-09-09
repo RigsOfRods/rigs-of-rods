@@ -106,7 +106,7 @@ namespace Hydrax
 		    @param Texture Our Ogre::TexturePtr
 		    @param Name Texture's name
 			@param Size Texture's size
-			@return false if there is a problem. 
+			@return false if there is a problem.
 		 */
 		bool _createTexture(Ogre::TexturePtr &Texture, const Ogre::String &Name, const Size &Size);
 

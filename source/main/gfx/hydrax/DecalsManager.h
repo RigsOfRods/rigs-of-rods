@@ -216,7 +216,7 @@ namespace Hydrax
 		 */
 		Decal* add(const Ogre::String& TextureName);
 
-		/** Get decal 
+		/** Get decal
 		    @param Id Decal Id
 			@return Hydrax::Decal*
 		 */
@@ -283,7 +283,7 @@ namespace Hydrax
 		Ogre::Quaternion mLastOrientation;
 		bool mLastUnderwater;
 		bool mForceToUpdate;
-		
+
 		/// Hydrax parent pointer
 		Hydrax *mHydrax;
 	};

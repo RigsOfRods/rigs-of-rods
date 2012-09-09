@@ -203,7 +203,7 @@ namespace Hydrax
 		    @return true if it's the same version, false if not.
 		 */
 		const bool _checkVersion(Ogre::ConfigFile& CfgFile) const;
-		    
+
 		/// Hydrax parent pointer
 		Hydrax* mHydrax;
 	};

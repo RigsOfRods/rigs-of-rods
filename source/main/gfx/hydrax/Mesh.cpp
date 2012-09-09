@@ -54,7 +54,7 @@ namespace Hydrax
 		{
 			return;
 		}
-		
+
 		mSceneNode->detachAllObjects();
 		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode->getName());
 		mSceneNode = 0;
@@ -70,7 +70,7 @@ namespace Hydrax
 		mVertexBuffer.setNull();
 		mIndexBuffer.setNull();
 		mMaterialName = "_NULL_";
-		
+
 		mCreated = false;
 	}
 
@@ -236,7 +236,7 @@ namespace Hydrax
 			}
 			break;
 		}
-		
+
 		vbind->setBinding(0, mVertexBuffer);
 
 		unsigned int *indexbuffer = new unsigned int[numEle];
@@ -314,14 +314,14 @@ namespace Hydrax
 
 		// Transform all corners to Ogre::Vector2 array
 		Ogre::Vector2 Corners2D[4] =
-		   {Ogre::Vector2(a.x, a.z), 
-		    Ogre::Vector2(b.x, b.z), 
-		    Ogre::Vector2(c.x, c.z), 
+		   {Ogre::Vector2(a.x, a.z),
+		    Ogre::Vector2(b.x, b.z),
+		    Ogre::Vector2(c.x, c.z),
 		    Ogre::Vector2(d.x, d.z)};
 
 		// Determinate if Position is into our rectangle, we use a line intersection detection
 		// because our mesh rectangle can be rotated, if the number of collisions with the four
-		// segments AB, BC, CD, DA is one, the Position point is into the rectangle, else(if number 
+		// segments AB, BC, CD, DA is one, the Position point is into the rectangle, else(if number
 		// of collisions are 0 or 2, the Position point is outside the rectangle.
 		int NumberOfCollisions = 0;
 		// Find a point wich isn't be inside the rectangle
@@ -365,9 +365,9 @@ namespace Hydrax
 
 		// Get our mesh grid rectangle: (Only a,b,c corners)
 		// c
-		// |           
-		// |           
-		// |           
+		// |
+		// |
+		// |
 		// a-----------b
 		Ogre::Vector3
 			a = WordMeshBox.getCorner(Ogre::AxisAlignedBox::FAR_LEFT_BOTTOM),
@@ -376,8 +376,8 @@ namespace Hydrax
 
 		// Transform all corners to Ogre::Vector2 array
 		Ogre::Vector2 Corners2D[3] =
-		   {Ogre::Vector2(a.x, a.z), 
-		    Ogre::Vector2(b.x, b.z), 
+		   {Ogre::Vector2(a.x, a.z),
+		    Ogre::Vector2(b.x, b.z),
 		    Ogre::Vector2(c.x, c.z)};
 
 		// Get segments AB and AC
@@ -391,7 +391,7 @@ namespace Hydrax
 		// Fint the intersections points
 		Ogre::Vector2 XPoint = Math::intersectionOfTwoLines(Corners2D[0],Corners2D[1],Position,XProjectedPoint),
 			          YPoint = Math::intersectionOfTwoLines(Corners2D[0],Corners2D[2],Position,YProjectedPoint);
-		
+
 		// Find lengths
 		Ogre::Real ABLength = AB.length(),
 			       ACLength = AC.length(),

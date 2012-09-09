@@ -36,7 +36,7 @@ namespace Hydrax
 		{
 			mTextures[k].setNull();
 		}
-		
+
 		mTextureNames[0] = "HydraxNormalMap";
 	}
 
@@ -94,7 +94,7 @@ namespace Hydrax
 		Ogre::TexturePtr &Texture = getTexture(TEX_NORMAL_ID);
 
 		Size ImageSize = Image.getSize();
-		
+
 		if (Texture->getWidth()  != ImageSize.Width ||
 			Texture->getHeight() != ImageSize.Height)
 		{
@@ -136,7 +136,7 @@ namespace Hydrax
 
 			Texture = Ogre::TextureManager::getSingleton().
 				createManual(Name,
-				Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+				Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 				Ogre::TEX_TYPE_2D,
 				Size.Width, Size.Height,
 				0,

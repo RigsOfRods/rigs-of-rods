@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Hydrax
 {
-	Ogre::Vector2 Math::intersectionOfTwoLines(const Ogre::Vector2 &a, const Ogre::Vector2 &b, 
+	Ogre::Vector2 Math::intersectionOfTwoLines(const Ogre::Vector2 &a, const Ogre::Vector2 &b,
 		const Ogre::Vector2 &c, const Ogre::Vector2 &d)
 	{
 		float r, s, denominator = (b.x - a.x) * (d.y - c.y) - (b.y - a.y) * (d.x - c.x);
@@ -39,7 +39,7 @@ namespace Hydrax
 
 		float numeratorR = (a.y - c.y) * (d.x - c.x) - (a.x - c.x) * (d.y - c.y);
 		//  If the numerator above is also zero, AB & CD are collinear.
-		//  If they are collinear, then the segments may be projected to the x- 
+		//  If they are collinear, then the segments may be projected to the x-
 		//  or y-axis, and overlap of the projected intervals checked.
 
 		r = numeratorR / denominator;

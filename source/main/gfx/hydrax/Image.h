@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Hydrax
 {
-	/** Class for store variable channels of an image 
+	/** Class for store variable channels of an image
 	 */
 	class Image
 	{
@@ -169,7 +169,7 @@ namespace Hydrax
 		 */
 		inline const float& getValue(const int &x, const int &y, const Channel &c) const
 		{
-			return getValue(x, y, static_cast<int>(c)); 
+			return getValue(x, y, static_cast<int>(c));
 		}
 
 		/** Get a pixel value with linear interpolation,
@@ -181,7 +181,7 @@ namespace Hydrax
 		 */
 		inline float getValueLI(const float &x, const float &y, const Channel &c) const
 		{
-			return getValueLI(x, y, static_cast<int>(c)); 
+			return getValueLI(x, y, static_cast<int>(c));
 		}
 
 		/** Get a pixel
@@ -215,7 +215,7 @@ namespace Hydrax
 		 */
 		inline void setValue(const int &x, const int &y, const Channel &c, const float &v)
 		{
-			setValue(x, y, static_cast<int>(c), v); 
+			setValue(x, y, static_cast<int>(c), v);
 		}
 
 		/** Set a pixel

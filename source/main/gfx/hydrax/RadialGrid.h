@@ -82,7 +82,7 @@ namespace Hydrax{ namespace Module
 				@param _Circles Number of circles
 				@param _Radius Mesh radius
 			 */
-			Options(const int &_Steps, 
+			Options(const int &_Steps,
 				    const int &_Circles,
 					const float &_Radius)
 				: Steps(_Steps)
@@ -110,7 +110,7 @@ namespace Hydrax{ namespace Module
 				@param _StepSizeLin Step lin size
 				@param _Strength Water strength
 			 */
-			Options(const int &_Steps, 
+			Options(const int &_Steps,
 				    const int &_Circles,
 					const float &_Radius,
 					const bool  &_Smooth,
@@ -172,12 +172,12 @@ namespace Hydrax{ namespace Module
 		void setOptions(const Options &Options);
 
 		/** Save config
-		    @param Data String reference 
+		    @param Data String reference
 		 */
 		void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference 
+		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct module config
 		 */
 		bool loadCfg(Ogre::ConfigFile &CfgFile);

@@ -110,7 +110,7 @@ namespace Hydrax
 			@param d First line final
 			@return Ogre::Vector2::ZERO if there isn't intersection, intersection point
 		 */
-		static Ogre::Vector2 intersectionOfTwoLines(const Ogre::Vector2 &a, const Ogre::Vector2 &b, 
+		static Ogre::Vector2 intersectionOfTwoLines(const Ogre::Vector2 &a, const Ogre::Vector2 &b,
 			                                        const Ogre::Vector2 &c, const Ogre::Vector2 &d);
 	};
 }

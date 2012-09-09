@@ -60,7 +60,7 @@ namespace Hydrax{ namespace Noise
 		     */
 			/// Representes the strength of the normals (i.e. Amplitude)
 			float GPU_Strength;
-			/** LOD Parameters, in order to obtain a smooth normal map we need to 
+			/** LOD Parameters, in order to obtain a smooth normal map we need to
                 decrease the detail level when the pixel is far to the camera.
 				This parameters are stored in an Ogre::Vector3:
 				x -> Initial LOD value (Bigger values -> less detail)
@@ -178,12 +178,12 @@ namespace Hydrax{ namespace Noise
 		void update(const Ogre::Real &timeSinceLastFrame);
 
 		/** Save config
-		    @param Data String reference 
+		    @param Data String reference
 		 */
 		void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference 
+		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct noise config
 		 */
 		bool loadCfg(Ogre::ConfigFile &CfgFile);

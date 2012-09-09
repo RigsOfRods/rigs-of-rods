@@ -40,12 +40,12 @@ namespace Hydrax
 		, mVisible(true)
 	{
 		mProjector = new Ogre::Frustum();
-		mProjector->setProjectionType(Ogre::PT_ORTHOGRAPHIC); 
-		
+		mProjector->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
+
 		mSceneNode = mHydrax->getSceneManager()->getRootSceneNode()->createChildSceneNode();
         mSceneNode->attachObject(mProjector);
 		mSceneNode->setPosition(Ogre::Vector3(0,0,0));
-        mSceneNode->setOrientation(Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::NEGATIVE_UNIT_X)); 
+        mSceneNode->setOrientation(Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::NEGATIVE_UNIT_X));
 
 		setPosition(mPosition);
 		setSize(mSize);
@@ -55,7 +55,7 @@ namespace Hydrax
 	Decal::~Decal()
 	{
 		unregister();
-	
+
 		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode->getName());
 
 		delete mProjector;
@@ -75,7 +75,7 @@ namespace Hydrax
         DecalTexture->setProjectiveTexturing(true, mProjector);
 		DecalTexture->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
 		DecalTexture->setTextureFiltering(Ogre::FO_LINEAR, Ogre::FO_LINEAR, Ogre::FO_NONE);
-		DecalTexture->setAlphaOperation(Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL, 1.0, mTransparency); 
+		DecalTexture->setAlphaOperation(Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL, 1.0, mTransparency);
 
 		mRegisteredPass = _Pass;
 	}
@@ -157,7 +157,7 @@ namespace Hydrax
 	void DecalsManager::update()
 	{
 		if (mHydrax->getCamera()->getDerivedPosition()    == mLastPosition &&
-			mHydrax->getCamera()->getDerivedOrientation() == mLastOrientation && 
+			mHydrax->getCamera()->getDerivedOrientation() == mLastOrientation &&
 			!mForceToUpdate)
 		{
 			return;
@@ -239,7 +239,7 @@ namespace Hydrax
 				(*DecalIt)->unregister();
 			}
 		}
-		
+
 		mLastPosition    = mHydrax->getCamera()->getDerivedPosition();
 		mLastOrientation = mHydrax->getCamera()->getDerivedOrientation();
 		mLastUnderwater  = mHydrax->_isCurrentFrameUnderwater();

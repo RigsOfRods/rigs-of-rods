@@ -69,7 +69,7 @@ namespace Hydrax{ namespace Module
 			    @param _Complexity Projected grid complexity
 				@param _MeshSize Water mesh size
 			 */
-			Options(const int &_Complexity, 
+			Options(const int &_Complexity,
 				    const Size &_MeshSize)
 				: Complexity(_Complexity)
 				, MeshSize(_MeshSize)
@@ -142,12 +142,12 @@ namespace Hydrax{ namespace Module
 		void setOptions(const Options &Options);
 
 		/** Save config
-		    @param Data String reference 
+		    @param Data String reference
 		 */
 		void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference 
+		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct module config
 		 */
 		bool loadCfg(Ogre::ConfigFile &CfgFile);
