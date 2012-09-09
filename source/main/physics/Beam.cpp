@@ -1677,7 +1677,7 @@ void Beam::resetAngle(float rot)
 void Beam::resetPosition(float px, float pz, bool setI, float miny)
 {
 	if (!gEnv->terrainManager->getHeightFinder()) return;
-	Water *water = gEnv->terrainManager->getWater();
+	IWater *water = gEnv->terrainManager->getWater();
 	// horizontal displacement
 	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
 	for (int i=0; i<free_node; i++)

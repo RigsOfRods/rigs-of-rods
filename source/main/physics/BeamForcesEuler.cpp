@@ -47,7 +47,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 {
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-	Water *water = 0;
+	IWater *water = 0;
 	if(gEnv->terrainManager)
 		water = gEnv->terrainManager->getWater();
 

@@ -40,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "HydraxWater.h"
 
 using namespace Ogre;
 
@@ -152,6 +153,17 @@ void TerrainManager::loadTerrain(String filename)
 	
 	// bake the decals
 	//finishTerrainDecal();
+	
+	// init things after loading the terrain
+	initTerrainCollisions();
+	// init the map
+	if (!BSETTING("disableOverViewMap", false))
+	{
+		PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
+		initSurveyMap();
+	}
+
+
 
 	collisions->finishLoadingTerrain();
 	LOG(" ===== TERRAIN LOADING DONE " + filename);
@@ -224,12 +236,6 @@ void TerrainManager::initSubSystems()
 	{
 		PROGRESS_WINDOW(43, _L("Initializing Environment Map Subsystem"));
 		initEnvironmentMap();
-	}
-	// init the map
-	if (!BSETTING("disableOverViewMap", false))
-	{
-		PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
-		initSurveyMap();
 	}
 
 	PROGRESS_WINDOW(47, _L("Initializing Dashboards Subsystem"));
@@ -495,9 +501,16 @@ void TerrainManager::fixCompositorClearColor()
 
 void TerrainManager::initWater()
 {
-	String waterSettingsString = SSETTING("Water effects", "Reflection + refraction (speed optimized)");
-	if (waterSettingsString != "None")
+	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+	if (waterSettingsString == "Hydrax")
+	{
+		HydraxWater *hw = new HydraxWater();
+		hw->loadConfig("hydrax_default.hdx");
+		water = hw;		
+	} else if (waterSettingsString != "None")
+	{
 		water = new Water(mTerrainConfig);
+	}
 }
 
 void TerrainManager::initEnvironmentMap()
@@ -544,7 +557,11 @@ void TerrainManager::initCollisions()
 {
 	collisions = new Collisions();
 	gEnv->collisions = collisions;
+}
 
+
+void TerrainManager::initTerrainCollisions()
+{
 	String tractionMapConfig = mTerrainConfig.getSetting("TractionMap", "General");
 	if (!tractionMapConfig.empty())
 	{

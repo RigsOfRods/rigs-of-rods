@@ -1325,6 +1325,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	water->AppendValueItem(wxT("Reflection"), _("Reflection"));
 	water->AppendValueItem(wxT("Reflection + refraction (speed optimized)"), _("Reflection + refraction (speed optimized)"));
 	water->AppendValueItem(wxT("Reflection + refraction (quality optimized)"), _("Reflection + refraction (quality optimized)"));
+	water->AppendValueItem(wxT("Hydrax"), _("Hydrax"));
 	water->SetToolTip(_("Water reflection is slower, and requires a good GPU. In speed optimized mode you may experience excessive camera shaking."));
 	y+=25;
 

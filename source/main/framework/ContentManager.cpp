@@ -161,8 +161,7 @@ bool ContentManager::init(void)
 	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
 		loadMainResource("caelum");
 
-	//if (BSETTING("Hydrax", false))
-	//	loadMainResource("hydrax", "Hydrax"); // special resource group required!
+	loadMainResource("hydrax");
 
 	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
 		loadMainResource("paged");

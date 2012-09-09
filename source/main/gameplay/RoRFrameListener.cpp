@@ -3181,7 +3181,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		// water
-		Water *water = gEnv->terrainManager->getWater();
+		IWater *water = gEnv->terrainManager->getWater();
 		if (water)
 		{
 			if (curr_truck)
