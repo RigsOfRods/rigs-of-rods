@@ -117,7 +117,7 @@ namespace Hydrax{namespace Noise
 
 		maximalValue = 2;
 		time = 10;
- 
+
 		Noise::remove();
 	}
 
@@ -181,7 +181,7 @@ namespace Hydrax{namespace Noise
 		mGPUNormalMapManager = g;
 
 		// Create our FFT texture
-		Ogre::TexturePtr mFFTTexture 
+		Ogre::TexturePtr mFFTTexture
 			= Ogre::TextureManager::getSingleton().
 			createManual("_Hydrax_FFT_Noise",
 			             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
@@ -256,11 +256,11 @@ namespace Hydrax{namespace Noise
 						"float4 iWorldCoord   : TEXCOORD1,\n" +
 						"float  iScale        : TEXCOORD2,\n" +
 						"float3 iCameraPos    : TEXCOORD3,\n" +
-						"float3 iCameraToPixel : TEXCOORD4,\n" + 
+						"float3 iCameraToPixel : TEXCOORD4,\n" +
 					    // OUT
 						"out float4 oColor    : COLOR,\n" +
 						// UNIFORM
-						"uniform float     uStrength,\n" + 
+						"uniform float     uStrength,\n" +
 						"uniform float3    uLODParameters,\n" +  // x: Initial derivation, y: Final derivation, z: Step
 						"uniform float3    uCameraPos,\n" +
 						"uniform sampler2D uFFT : register(s0))\n" +
@@ -279,7 +279,7 @@ namespace Hydrax{namespace Noise
 
 						"float3 p_dx, m_dx, p_dy, m_dy;\n" +
 
-						"p_dx = float3(\n" + 
+						"p_dx = float3(\n" +
 						              // x+
 						              "iPosition.x+uLODParameters.x,\n" +
 									  // y+
@@ -287,7 +287,7 @@ namespace Hydrax{namespace Noise
 									  // z
 									  "iPosition.z);\n" +
 
-					    "m_dx = float3(\n" + 
+					    "m_dx = float3(\n" +
 						              // x-
 						              "iPosition.x-uLODParameters.x,\n" +
 									  // y-
@@ -295,7 +295,7 @@ namespace Hydrax{namespace Noise
 									  // z
 									  "iPosition.z);\n" +
 
-                       "p_dy = float3(\n" + 
+                       "p_dy = float3(\n" +
 						              // x
 						              "iPosition.x,\n" +
 									  // y+
@@ -303,7 +303,7 @@ namespace Hydrax{namespace Noise
 									  // z+
 									  "iPosition.z+uLODParameters.x);\n" +
 
-					   "m_dy = float3(\n" + 
+					   "m_dy = float3(\n" +
 						              // x
 						              "iPosition.x,\n" +
 									  // y-
@@ -359,7 +359,7 @@ namespace Hydrax{namespace Noise
 
 		Technique0_Pass0->createTextureUnitState(mGPUNormalMapManager->getTexture(0)->getName(), 0)
 			->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-		
+
 		mNormalMapMaterial->load();
 
 		mGPUNormalMapManager->create();
@@ -374,7 +374,7 @@ namespace Hydrax{namespace Noise
 			= mGPUNormalMapManager->getTexture(0)->getBuffer();
 
 		PixelBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
-		
+
 		const Ogre::PixelBox& PixelBox = PixelBuffer->getCurrentLock();
 
 		Data = static_cast<unsigned short*>(PixelBox.data);
@@ -497,7 +497,7 @@ namespace Hydrax{namespace Noise
 				*pData++ = std::complex<float>(realVal, imagVal);
 			}
 		}
-		
+
 		_executeInverseFFT();
 		_normalizeFFTData(0);
 	}
@@ -506,7 +506,7 @@ namespace Hydrax{namespace Noise
 	{
 		float x1, x2, w, y1;
 
-		do 
+		do
 		{
 			x1 = 2.0f * uniform_deviate() - 1.0f;
 			x2 = 2.0f * uniform_deviate() - 1.0f;
@@ -527,7 +527,7 @@ namespace Hydrax{namespace Noise
 		float k = waveVector.length();
 
 		// To avoid division by 0
-		if (k < 0.0000001f) 
+		if (k < 0.0000001f)
 		{
 			return 0;
 		}
@@ -545,29 +545,29 @@ namespace Hydrax{namespace Noise
 
 	void FFT::_executeInverseFFT()
 	{
-		int l2n = 0, p = 1; 
-		while (p < resolution) 
+		int l2n = 0, p = 1;
+		while (p < resolution)
 		{
 			p *= 2; l2n++;
 		}
-		int l2m = 0; p = 1; 
-		while (p < resolution) 
+		int l2m = 0; p = 1;
+		while (p < resolution)
 		{
 			p *= 2; l2m++;
 		}
 
-		resolution = 1<<l2m; 
-		resolution = 1<<l2n; 
+		resolution = 1<<l2m;
+		resolution = 1<<l2n;
 
 		int x, y, i;
 
 		for(x = 0; x <resolution; x++)
 		{
-			for(y = 0; y <resolution; y++) 
+			for(y = 0; y <resolution; y++)
 			{
 				re[resolution * x + y] = currentWaves[resolution * x + y].real();
 				img[resolution * x + y] = currentWaves[resolution * x + y].imag();
-			} 
+			}
 		}
 
 		//Bit reversal of each row
@@ -581,9 +581,9 @@ namespace Hydrax{namespace Noise
 				img[resolution * i + y] = currentWaves[resolution * j + y].imag();
 
 				k = resolution / 2;
-				while (k <= j) 
+				while (k <= j)
 				{
-					j -= k; 
+					j -= k;
 					k/= 2;
 				}
 
@@ -592,7 +592,7 @@ namespace Hydrax{namespace Noise
 		}
 
 		//Bit reversal of each column
-		float tx = 0, ty = 0; 
+		float tx = 0, ty = 0;
 		for(x = 0; x < resolution; x++) //for each column
 		{
 			j = 0;
@@ -605,17 +605,17 @@ namespace Hydrax{namespace Noise
 					re[resolution * x + i] = re[resolution * x + j];
 					img[resolution * x + i] = img[resolution * x + j];
 					re[resolution * x + j] = tx;
-					img[resolution * x + j] = ty;                      
-				}  
+					img[resolution * x + j] = ty;
+				}
 				k = resolution / 2;
-				while (k <= j) 
+				while (k <= j)
 				{
-					j -= k; 
+					j -= k;
 					k/= 2;
 				}
 				j += k;
 			}
-		}       
+		}
 
 		//Calculate the FFT of the columns
 		float ca, sa,
@@ -627,7 +627,7 @@ namespace Hydrax{namespace Noise
 			l,  i1;
 
 		for(x = 0; x < resolution; x++) //for each column
-		{  
+		{
 			//This is the 1D FFT:
 			ca = -1.0;
 			sa = 0.0;
@@ -661,7 +661,7 @@ namespace Hydrax{namespace Noise
 		}
 		//Calculate the FFT of the rows
 		for(y = 0; y < resolution; y++) //for each row
-		{  
+		{
 			//This is the 1D FFT:
 			ca = -1.0;
 			sa = 0.0;
@@ -737,7 +737,7 @@ namespace Hydrax{namespace Noise
 			scaleCoef += maximalValue;
 		}
 		else
-		{	// User defined scale		
+		{	// User defined scale
 			scaleCoef=scale;
 		}
 
@@ -748,7 +748,7 @@ namespace Hydrax{namespace Noise
 			for(y=0;y<resolution;y++)
 			{
 				i=x*resolution+y;
-				re[i]=(re[i]+scaleCoef)/(scaleCoef*2);			
+				re[i]=(re[i]+scaleCoef)/(scaleCoef*2);
 			}
 		}
 	}
@@ -782,7 +782,7 @@ namespace Hydrax{namespace Noise
 			yys = (ys==resolution-1) ? -1 : ys;
 
 		//   A      B
-		//     
+		//
 		//
 		//   C      D
 		float A = re[(ys*resolution+xs)],

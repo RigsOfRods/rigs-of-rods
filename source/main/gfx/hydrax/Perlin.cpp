@@ -133,7 +133,7 @@ namespace Hydrax{namespace Noise
 		mGPUNormalMapManager = g;
 
 		// Create our perlin textures
-		Ogre::TexturePtr mPerlinTexture0 
+		Ogre::TexturePtr mPerlinTexture0
 			= Ogre::TextureManager::getSingleton().
 			createManual("_Hydrax_Perlin_Noise0",
 			             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
@@ -142,7 +142,7 @@ namespace Hydrax{namespace Noise
 						 Ogre::PF_L16,
 						 Ogre::TU_DYNAMIC_WRITE_ONLY);
 
-		Ogre::TexturePtr mPerlinTexture1 
+		Ogre::TexturePtr mPerlinTexture1
 			= Ogre::TextureManager::getSingleton().
 			createManual("_Hydrax_Perlin_Noise1",
 			             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
@@ -218,11 +218,11 @@ namespace Hydrax{namespace Noise
 						"float4 iWorldCoord   : TEXCOORD1,\n" +
 						"float  iScale        : TEXCOORD2,\n" +
 						"float3 iCameraPos    : TEXCOORD3,\n" +
-						"float3 iCameraToPixel : TEXCOORD4,\n" + 
+						"float3 iCameraToPixel : TEXCOORD4,\n" +
 					    // OUT
 						"out float4 oColor    : COLOR,\n" +
 						// UNIFORM
-						"uniform float     uStrength,\n" + 
+						"uniform float     uStrength,\n" +
 						"uniform float3    uLODParameters,\n" +  // x: Initial derivation, y: Final derivation, z: Step
 						"uniform float3    uCameraPos,\n" +
 						"uniform sampler2D uNoise0 : register(s0),\n" +
@@ -242,7 +242,7 @@ namespace Hydrax{namespace Noise
 
 						"float3 p_dx, m_dx, p_dy, m_dy;\n" +
 
-						"p_dx = float3(\n" + 
+						"p_dx = float3(\n" +
 						              // x+
 						              "iPosition.x+uLODParameters.x,\n" +
 									  // y+
@@ -250,7 +250,7 @@ namespace Hydrax{namespace Noise
 									  // z
 									  "iPosition.z);\n" +
 
-					    "m_dx = float3(\n" + 
+					    "m_dx = float3(\n" +
 						              // x-
 						              "iPosition.x-uLODParameters.x,\n" +
 									  // y-
@@ -258,7 +258,7 @@ namespace Hydrax{namespace Noise
 									  // z
 									  "iPosition.z);\n" +
 
-                       "p_dy = float3(\n" + 
+                       "p_dy = float3(\n" +
 						              // x
 						              "iPosition.x,\n" +
 									  // y+
@@ -266,7 +266,7 @@ namespace Hydrax{namespace Noise
 									  // z+
 									  "iPosition.z+uLODParameters.x);\n" +
 
-					   "m_dy = float3(\n" + 
+					   "m_dy = float3(\n" +
 						              // x
 						              "iPosition.x,\n" +
 									  // y-
@@ -324,7 +324,7 @@ namespace Hydrax{namespace Noise
 			->setTextureAddressingMode(Ogre::TextureUnitState::TAM_MIRROR);
 		Technique0_Pass0->createTextureUnitState(mGPUNormalMapManager->getTexture(1)->getName(), 1)
 			->setTextureAddressingMode(Ogre::TextureUnitState::TAM_MIRROR);
-		
+
 		mNormalMapMaterial->load();
 
 		mGPUNormalMapManager->create();
@@ -406,31 +406,31 @@ namespace Hydrax{namespace Noise
 	}
 
 	void Perlin::_initNoise()
-	{	
+	{
 		// Create noise (uniform)
 		float tempnoise[n_size_sq*noise_frames], temp;
 
-		int i, frame, v, u, 
+		int i, frame, v, u,
             v0, v1, v2, u0, u1, u2, f;
 
 		for(i=0; i<(n_size_sq*noise_frames); i++)
 		{
-			temp = static_cast<float>(rand())/RAND_MAX;		
-			tempnoise[i] = 4*(temp - 0.5f);	
-		}	
+			temp = static_cast<float>(rand())/RAND_MAX;
+			tempnoise[i] = 4*(temp - 0.5f);
+		}
 
 		for(frame=0; frame<noise_frames; frame++)
 		{
 			for(v=0; v<n_size; v++)
 			{
 				for(u=0; u<n_size; u++)
-				{	
+				{
 					v0 = ((v-1)&n_size_m1)*n_size;
 					v1 = v*n_size;
 					v2 = ((v+1)&n_size_m1)*n_size;
 					u0 = ((u-1)&n_size_m1);
 					u1 = u;
-					u2 = ((u+1)&n_size_m1);				
+					u2 = ((u+1)&n_size_m1);
 					f  = frame*n_size_sq;
 
 					temp = (1.0f/14.0f) *
@@ -441,7 +441,7 @@ namespace Hydrax{namespace Noise
 					noise[frame*n_size_sq + v*n_size + u] = noise_magnitude*temp;
 				}
 			}
-		}	
+		}
 	}
 
 	void Perlin::_calculeNoise()
@@ -456,7 +456,7 @@ namespace Hydrax{namespace Noise
 		float sum = 0.0f,
 			  f_multitable[max_octaves];
 
-		double dImage, fraction;	
+		double dImage, fraction;
 
 		// calculate the strength of each octave
 		for(i=0; i<mOptions.Octaves; i++)
@@ -469,17 +469,17 @@ namespace Hydrax{namespace Noise
 		{
 			f_multitable[i] /= sum;
 		}
-		
+
 		for(i=0; i<mOptions.Octaves; i++)
 		{
 			multitable[i] = scale_magnitude*f_multitable[i];
 		}
-	
+
 		double r_timemulti = 1.0;
 		const float PI_3 = Ogre::Math::PI/3;
 
 		for(o=0; o<mOptions.Octaves; o++)
-		{		
+		{
 			fraction = modf(time*r_timemulti,&dImage);
 			iImage = static_cast<int>(dImage);
 
@@ -490,15 +490,15 @@ namespace Hydrax{namespace Noise
 			image[0] = (iImage  ) & noise_frames_m1;
 			image[1] = (iImage+1) & noise_frames_m1;
 			image[2] = (iImage+2) & noise_frames_m1;
-			
+
 			for (i=0; i<n_size_sq; i++)
 			{
-			    o_noise[i + n_size_sq*o] = (	
-				   ((amount[0] * noise[i + n_size_sq * image[0]])>>scale_decimalbits) + 
-				   ((amount[1] * noise[i + n_size_sq * image[1]])>>scale_decimalbits) + 
+			    o_noise[i + n_size_sq*o] = (
+				   ((amount[0] * noise[i + n_size_sq * image[0]])>>scale_decimalbits) +
+				   ((amount[1] * noise[i + n_size_sq * image[1]])>>scale_decimalbits) +
 				   ((amount[2] * noise[i + n_size_sq * image[2]])>>scale_decimalbits));
 			}
-			
+
 			r_timemulti *= mOptions.Timemulti;
 		}
 
@@ -514,7 +514,7 @@ namespace Hydrax{namespace Noise
 						p_noise[v*np_size+u+octavepack*np_size_sq]  = o_noise[(o+3)*n_size_sq + (v&n_size_m1)*n_size + (u&n_size_m1)];
 						p_noise[v*np_size+u+octavepack*np_size_sq] += _mapSample( u, v, 3, o);
 						p_noise[v*np_size+u+octavepack*np_size_sq] += _mapSample( u, v, 2, o+1);
-						p_noise[v*np_size+u+octavepack*np_size_sq] += _mapSample( u, v, 1, o+2);		
+						p_noise[v*np_size+u+octavepack*np_size_sq] += _mapSample( u, v, 1, o+2);
 					}
 				}
 
@@ -545,23 +545,23 @@ namespace Hydrax{namespace Noise
 	}
 
 	float Perlin::_getHeigthDual(float u, float v)
-	{	
-		// Pointer to the current noise source octave	
-		r_noise = p_noise;	
+	{
+		// Pointer to the current noise source octave
+		r_noise = p_noise;
 
 		int ui = u*magnitude,
 		    vi = v*magnitude,
-			i, 
+			i,
 			value = 0,
 			hoct = mOptions.Octaves / n_packsize;
 
 		for(i=0; i<hoct; i++)
-		{		
+		{
 			value += _readTexelLinearDual(ui,vi,0);
 			ui = ui << n_packsize;
 			vi = vi << n_packsize;
 			r_noise += np_size_sq;
-		}		
+		}
 
 		return static_cast<float>(value)/noise_magnitude;
 	}

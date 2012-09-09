@@ -42,7 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Hydrax
 {
-    /** Main Hydrax class. 
+    /** Main Hydrax class.
 	    Hydrax is a plugin for the Ogre3D engine whose aim is rendering realistic water scenes.
 		Do not use two instances of the Hydrax class.
      */
@@ -269,7 +269,7 @@ namespace Hydrax
 
 		/** Show/Hide hydrax water
 		    @param Visible true to show, false to hide
-			@remarks Resources aren't going to be realeased(Use remove() for this), 
+			@remarks Resources aren't going to be realeased(Use remove() for this),
 			         only RTT's are going to be stopped.
 		 */
 		void setVisible(const bool& Visible);

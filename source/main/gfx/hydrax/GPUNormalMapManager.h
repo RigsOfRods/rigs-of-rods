@@ -81,7 +81,7 @@ namespace Hydrax
 		}
 
 		/** Get the Hydrax parent pointer
-		    @remarks Needed by noise module in order to acced to the 
+		    @remarks Needed by noise module in order to acced to the
 			         MaterialManager to create vertex/fragment programs
 					 and more if needed.
 		 */

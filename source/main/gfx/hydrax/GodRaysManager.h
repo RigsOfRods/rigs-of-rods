@@ -35,7 +35,7 @@ namespace Hydrax
 	class Hydrax;
 
 	/** Underwater god rays manager class
-	    God rays 
+	    God rays
 	 */
 	class GodRaysManager
 	{
@@ -88,7 +88,7 @@ namespace Hydrax
 
 			         The technique will be automatically updated when god rays parameters change if parameter AutoUpdate == true
 			         Add depth technique when a material is not an Ogre::Entity, such terrains, PLSM2 materials, etc.
-					 This depth technique will be added with "HydraxGodRaysDepth" scheme in ordeto can use it in the G.R. depth RTT. 
+					 This depth technique will be added with "HydraxGodRaysDepth" scheme in ordeto can use it in the G.R. depth RTT.
 		 */
 		void addDepthTechnique(Ogre::Technique *Technique, const bool& AutoUpdate = true);
 
@@ -181,7 +181,7 @@ namespace Hydrax
 		    @param Enable true for yes, false for not
 		 */
 		void setObjectIntersectionsEnabled(const bool& Enable);
-	
+
 		/** Are rays objects intersections enabled?
 		    @return true if yes, false if not
 		 */
@@ -205,7 +205,7 @@ namespace Hydrax
 								 mNoiseNormalMultiplier);
 		}
 
-		/** Set noise params 
+		/** Set noise params
 		    @param Params:  x-> Noise derivation
 			                y-> Position multiplier
 							z-> Y normal component multiplier

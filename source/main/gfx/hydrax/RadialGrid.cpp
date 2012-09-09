@@ -117,15 +117,15 @@ namespace Hydrax{namespace Module
 			    Vertices[0].z = mOptions.Radius;
 
 				float r_scale = mOptions.Radius/
-					(mOptions.StepSizeLin  * mOptions.Circles + 
-					 mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) + 
+					(mOptions.StepSizeLin  * mOptions.Circles +
+					 mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) +
 				     mOptions.StepSizeFive * Ogre::Math::Pow(mOptions.Circles, 5));
 
-				for(y=0;y<mOptions.Circles;y++) 
+				for(y=0;y<mOptions.Circles;y++)
 				{
 					float r = r_scale*(mOptions.StepSizeLin * (y+1) + mOptions.StepSizeCube * Ogre::Math::Pow(y+1, 3) + mOptions.StepSizeFive * Ogre::Math::Pow(y+1, 5));
-				
-					for(x=0;x<mOptions.Steps;x++) 
+
+					for(x=0;x<mOptions.Steps;x++)
 					{
 						Vertices[1+y*mOptions.Steps + x].x = mOptions.Radius + r * Ogre::Math::Cos(Ogre::Math::TWO_PI * x / mOptions.Steps);
 						Vertices[1+y*mOptions.Steps + x].z = mOptions.Radius + r * Ogre::Math::Sin(Ogre::Math::TWO_PI * x / mOptions.Steps);
@@ -148,24 +148,24 @@ namespace Hydrax{namespace Module
 			    Vertices[0].z = mOptions.Radius;
 
                 float r_scale = mOptions.Radius/
-					(mOptions.StepSizeLin  * mOptions.Circles + 
-					 mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) + 
+					(mOptions.StepSizeLin  * mOptions.Circles +
+					 mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) +
 				     mOptions.StepSizeFive * Ogre::Math::Pow(mOptions.Circles, 5));
 
-				for(y=0;y<mOptions.Circles;y++) 
+				for(y=0;y<mOptions.Circles;y++)
 				{
 					float r = r_scale*(mOptions.StepSizeLin * (y+1) + mOptions.StepSizeCube * Ogre::Math::Pow(y+1, 3) + mOptions.StepSizeFive * Ogre::Math::Pow(y+1, 5));
 
-					for(x=0;x<mOptions.Steps;x++) 
+					for(x=0;x<mOptions.Steps;x++)
 					{
 						Vertices[1+y*mOptions.Steps + x].x = mOptions.Radius + r * Ogre::Math::Cos(Ogre::Math::TWO_PI * x / mOptions.Steps);
 						Vertices[1+y*mOptions.Steps + x].z = mOptions.Radius + r * Ogre::Math::Sin(Ogre::Math::TWO_PI * x / mOptions.Steps);
 					}
 				}
 			}
-			
+
 			return;
-		} 
+		}
 
 		mOptions = Options;
 	}
@@ -179,7 +179,7 @@ namespace Hydrax{namespace Module
 		int x, y;
 		if (getNormalMode() == MaterialManager::NM_VERTEX)
 		{
-			mVertices = new Mesh::POS_NORM_VERTEX[1+mOptions.Steps * mOptions.Circles];	
+			mVertices = new Mesh::POS_NORM_VERTEX[1+mOptions.Steps * mOptions.Circles];
 			Mesh::POS_NORM_VERTEX* Vertices = static_cast<Mesh::POS_NORM_VERTEX*>(mVertices);
 
 			Vertices[0].x = mOptions.Radius;
@@ -191,15 +191,15 @@ namespace Hydrax{namespace Module
 			Vertices[0].nz = 0;
 
             float r_scale = mOptions.Radius/
-				           (mOptions.StepSizeLin  * mOptions.Circles + 
-				            mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) + 
+				           (mOptions.StepSizeLin  * mOptions.Circles +
+				            mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) +
 				            mOptions.StepSizeFive * Ogre::Math::Pow(mOptions.Circles, 5));
 
-			for(y=0;y<mOptions.Circles;y++) 
+			for(y=0;y<mOptions.Circles;y++)
 			{
 				float r = r_scale*(mOptions.StepSizeLin * (y+1) + mOptions.StepSizeCube * Ogre::Math::Pow(y+1, 3) + mOptions.StepSizeFive * Ogre::Math::Pow(y+1, 5));
 
-				for(x=0;x<mOptions.Steps;x++) 
+				for(x=0;x<mOptions.Steps;x++)
 				{
 					Vertices[1+y*mOptions.Steps + x].x = mOptions.Radius + r * Ogre::Math::Cos(Ogre::Math::TWO_PI * x / mOptions.Steps);
 					Vertices[1+y*mOptions.Steps + x].y = 0;
@@ -223,7 +223,7 @@ namespace Hydrax{namespace Module
 		}
 		else if (getNormalMode() == MaterialManager::NM_RTT)
 		{
-			mVertices = new Mesh::POS_VERTEX[1+mOptions.Steps * mOptions.Circles];	
+			mVertices = new Mesh::POS_VERTEX[1+mOptions.Steps * mOptions.Circles];
 			Mesh::POS_VERTEX* Vertices = static_cast<Mesh::POS_VERTEX*>(mVertices);
 
 			Vertices[0].x = mOptions.Radius;
@@ -231,15 +231,15 @@ namespace Hydrax{namespace Module
 			Vertices[0].z = mOptions.Radius;
 
             float r_scale = mOptions.Radius/
-				           (mOptions.StepSizeLin  * mOptions.Circles + 
-				            mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) + 
+				           (mOptions.StepSizeLin  * mOptions.Circles +
+				            mOptions.StepSizeCube * Ogre::Math::Pow(mOptions.Circles, 3) +
 				            mOptions.StepSizeFive * Ogre::Math::Pow(mOptions.Circles, 5));
 
-			for(y=0;y<mOptions.Circles;y++) 
+			for(y=0;y<mOptions.Circles;y++)
 			{
 				float r = r_scale*(mOptions.StepSizeLin * (y+1) + mOptions.StepSizeCube * Ogre::Math::Pow(y+1, 3) + mOptions.StepSizeFive * Ogre::Math::Pow(y+1, 5));
 
-				for(x=0;x<mOptions.Steps;x++) 
+				for(x=0;x<mOptions.Steps;x++)
 				{
 					Vertices[1+y*mOptions.Steps + x].x = mOptions.Radius + r * Ogre::Math::Cos(Ogre::Math::TWO_PI * x / mOptions.Steps);
 					Vertices[1+y*mOptions.Steps + x].y = 0;
@@ -312,9 +312,9 @@ namespace Hydrax{namespace Module
 			}
 		}
 
-		for(int y=0; y<mOptions.Circles-1; y++) 
+		for(int y=0; y<mOptions.Circles-1; y++)
 		{
-		    for(int x=0; x<mOptions.Steps; x++) 
+		    for(int x=0; x<mOptions.Steps; x++)
 			{
 			    unsigned int *twoface = indexbuffer + (y*mOptions.Steps+x)*6 + 3 * mOptions.Steps;
 
@@ -481,17 +481,17 @@ namespace Hydrax{namespace Module
 			{
 				Mesh::POS_NORM_VERTEX* Vertices = static_cast<Mesh::POS_NORM_VERTEX*>(mVertices);
 
-				for(y=1;y<mOptions.Circles-1;y++) 
+				for(y=1;y<mOptions.Circles-1;y++)
 				{
 					for(x=1;x<mOptions.Steps-1;x++)
 					{
-						Vertices[y*mOptions.Steps + x].y =	
+						Vertices[y*mOptions.Steps + x].y =
 							0.2f *
 						   (Vertices[y*mOptions.Steps + x    ].y +
-							Vertices[y*mOptions.Steps + x + 1].y + 
-							Vertices[y*mOptions.Steps + x - 1].y + 
-							Vertices[(y+1)*mOptions.Steps + x].y + 
-							Vertices[(y-1)*mOptions.Steps + x].y);															
+							Vertices[y*mOptions.Steps + x + 1].y +
+							Vertices[y*mOptions.Steps + x - 1].y +
+							Vertices[(y+1)*mOptions.Steps + x].y +
+							Vertices[(y-1)*mOptions.Steps + x].y);
 					}
 				}
 			}
@@ -499,22 +499,22 @@ namespace Hydrax{namespace Module
 			{
 				Mesh::POS_VERTEX* Vertices = static_cast<Mesh::POS_VERTEX*>(mVertices);
 
-				for(y=1;y<mOptions.Circles-1;y++) 
+				for(y=1;y<mOptions.Circles-1;y++)
 				{
 					for(x=1;x<mOptions.Steps-1;x++)
 					{
-						Vertices[y*mOptions.Steps + x].y =	
+						Vertices[y*mOptions.Steps + x].y =
 							0.2f *
 						   (Vertices[y*mOptions.Steps + x    ].y +
-							Vertices[y*mOptions.Steps + x + 1].y + 
-							Vertices[y*mOptions.Steps + x - 1].y + 
-							Vertices[(y+1)*mOptions.Steps + x].y + 
-							Vertices[(y-1)*mOptions.Steps + x].y);															
+							Vertices[y*mOptions.Steps + x + 1].y +
+							Vertices[y*mOptions.Steps + x - 1].y +
+							Vertices[(y+1)*mOptions.Steps + x].y +
+							Vertices[(y-1)*mOptions.Steps + x].y);
 					}
 				}
 			}
 		}
-		
+
 		// Update normals
 		_calculeNormals();
 
@@ -542,7 +542,7 @@ namespace Hydrax{namespace Module
 		// Calculate the normal of the center grid point
         vec2 = Ogre::Vector3(
 					Vertices[1].x-Vertices[1+Steps_4*2].x,
-					Vertices[1].y-Vertices[1+Steps_4*2].y, 
+					Vertices[1].y-Vertices[1+Steps_4*2].y,
 					Vertices[1].z-Vertices[1+Steps_4*2].z);
 
 		vec1 = Ogre::Vector3(
@@ -561,7 +561,7 @@ namespace Hydrax{namespace Module
 		{
 			vec2 = Ogre::Vector3(
 				Vertices[x + 2].x-Vertices[x].x,
-				Vertices[x + 2].y-Vertices[x].y, 
+				Vertices[x + 2].y-Vertices[x].y,
 				Vertices[x + 2].z-Vertices[x].z);
 
 			vec1 = Ogre::Vector3(
@@ -577,13 +577,13 @@ namespace Hydrax{namespace Module
 		}
 
 		// Calculate all the other vertex normals
-		for(y=1;y<mOptions.Circles-1;y++) 
+		for(y=1;y<mOptions.Circles-1;y++)
 		{
 			for(x=0;x<mOptions.Steps;x++)
 			{
 				vec2 = Ogre::Vector3(
 					Vertices[y*mOptions.Steps + x + 2].x-Vertices[y*mOptions.Steps + x].x,
-					Vertices[y*mOptions.Steps + x + 2].y-Vertices[y*mOptions.Steps + x].y, 
+					Vertices[y*mOptions.Steps + x + 2].y-Vertices[y*mOptions.Steps + x].y,
 					Vertices[y*mOptions.Steps + x + 2].z-Vertices[y*mOptions.Steps + x].z);
 
 				vec1 = Ogre::Vector3(
@@ -651,7 +651,7 @@ namespace Hydrax{namespace Module
 					   Vertices[1+y*mOptions.Steps + x].ny,
 			           Vertices[1+y*mOptions.Steps + x].nz).normalisedCopy();
 
-				Norm2 = Ogre::Vector2(Norm.x, Norm.z)  * 
+				Norm2 = Ogre::Vector2(Norm.x, Norm.z)  *
 					          ( (Dir  * Proportion.x)   +
 					            (Perp * Proportion.y))  *
 				 			  mOptions.ChoppyStrength;

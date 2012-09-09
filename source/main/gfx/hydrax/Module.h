@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Hydrax{ namespace Module
 {
-	/** Base module class, 
+	/** Base module class,
 	    Override it for create different ways of create water noise.
 	 */
 	class Module
@@ -45,11 +45,11 @@ namespace Hydrax{ namespace Module
 			@param MeshOptions Mesh options
 			@param NormalMode Normal generation mode
 		 */
-		Module(const Ogre::String                &Name, 
+		Module(const Ogre::String                &Name,
 			   Noise::Noise                      *n,
 			   const Mesh::Options               &MeshOptions,
 			   const MaterialManager::NormalMode &NormalMode);
-		
+
 		/** Destructor
 		 */
 		virtual ~Module();
@@ -77,12 +77,12 @@ namespace Hydrax{ namespace Module
 		virtual void update(const Ogre::Real &timeSinceLastFrame);
 
 		/** Save config
-		    @param Data String reference 
+		    @param Data String reference
 		 */
 		virtual void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference 
+		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct module config
 		 */
 		virtual bool loadCfg(Ogre::ConfigFile &CfgFile);

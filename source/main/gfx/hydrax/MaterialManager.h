@@ -130,7 +130,7 @@ namespace Hydrax
 			NormalMode NM;
 		};
 
-		/** Underwater compositor listener 
+		/** Underwater compositor listener
 		 */
 		class UnderwaterCompositorListener : public Ogre::CompositorInstance::Listener
 		{
@@ -184,7 +184,7 @@ namespace Hydrax
 		bool fillGpuProgramsToPass(Ogre::Pass* Pass,
 							       const Ogre::String GpuProgramNames[2],
 							       const ShaderMode& SM,
-							       const Ogre::String EntryPoints[2], 
+							       const Ogre::String EntryPoints[2],
 							       const Ogre::String Data[2]);
 
 		/** Create GPU program
@@ -195,9 +195,9 @@ namespace Hydrax
 			@param Data
 		 */
 		bool createGpuProgram(const Ogre::String &Name,
-			                  const ShaderMode& SM, 
-							  const GpuProgram& GPUP, 
-							  const Ogre::String& EntryPoint, 
+			                  const ShaderMode& SM,
+							  const GpuProgram& GPUP,
+							  const Ogre::String& EntryPoint,
 							  const Ogre::String& Data);
 
 		/** Is createMaterials() already called?
@@ -256,7 +256,7 @@ namespace Hydrax
 
 			         The technique will be automatically updated when water parameters change if parameter AutoUpdate == true
 			         Add depth technique when a material is not an Ogre::Entity, such terrains, PLSM2 materials, etc.
-					 This depth technique will be added with "HydraxDepth" scheme in ordeto can use it in the Depth RTT. 
+					 This depth technique will be added with "HydraxDepth" scheme in ordeto can use it in the Depth RTT.
 		 */
 		void addDepthTechnique(Ogre::Technique *Technique, const bool& AutoUpdate = true);
 
@@ -269,7 +269,7 @@ namespace Hydrax
 
 			         The technique will be automatically updated when water parameters change if parameter AutoUpdate == true
 			         Add depth technique when a material is not an Ogre::Entity, such terrains, PLSM2 materials, etc.
-					 This depth technique will be added with "HydraxDepth" scheme in ordeto can use it in the Depth RTT. 
+					 This depth technique will be added with "HydraxDepth" scheme in ordeto can use it in the Depth RTT.
 		 */
 		void addDepthTextureTechnique(Ogre::Technique *Technique, const Ogre::String& TextureName, const Ogre::String& AlphaChannel = "w", const bool& AutoUpdate = true);
 
@@ -295,7 +295,7 @@ namespace Hydrax
 			@param Name param name
 			@param Value value
 		 */
-		void setGpuProgramParameter(const GpuProgram &GpuP, const MaterialType &MType, const Ogre::String &Name, const Ogre::Vector2 &Value); 
+		void setGpuProgramParameter(const GpuProgram &GpuP, const MaterialType &MType, const Ogre::String &Name, const Ogre::Vector2 &Value);
 
 		/** Set gpu program Ogre::Vector3 parameter
 		    @param GpuP Gpu program type (Vertex/Fragment)
@@ -303,9 +303,9 @@ namespace Hydrax
 			@param Name param name
 			@param Value value
 		 */
-		void setGpuProgramParameter(const GpuProgram &GpuP, const MaterialType &MType, const Ogre::String &Name, const Ogre::Vector3 &Value); 
+		void setGpuProgramParameter(const GpuProgram &GpuP, const MaterialType &MType, const Ogre::String &Name, const Ogre::Vector3 &Value);
 
-	private: 
+	private:
 		/** Is component in the given list?
 		    @param List Components list
 			@param ToCheck Component to check

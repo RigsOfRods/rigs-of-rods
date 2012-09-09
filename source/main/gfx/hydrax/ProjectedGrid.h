@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 Based on the Projected Grid concept from Claes Johanson thesis:
 http://graphics.cs.lth.se/theses/projects/projgrid/
 and Ren Cheng Ogre3D implementation:
-http://www.cnblogs.com/ArenAK/archive/2007/11/07/951713.html 
+http://www.cnblogs.com/ArenAK/archive/2007/11/07/951713.html
 --------------------------------------------------------------------------------
 */
 
@@ -50,7 +50,7 @@ namespace Hydrax{ namespace Module
 			int Complexity;
 			/// Strength
 			float Strength;
-			/// Elevation 
+			/// Elevation
 			float Elevation;
 			/// Smooth
 			bool Smooth;
@@ -175,12 +175,12 @@ namespace Hydrax{ namespace Module
 		void setOptions(const Options &Options);
 
 		/** Save config
-		    @param Data String reference 
+		    @param Data String reference
 		 */
 		void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference 
+		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct module config
 		 */
 		bool loadCfg(Ogre::ConfigFile &CfgFile);
@@ -220,10 +220,10 @@ namespace Hydrax{ namespace Module
 		    @param uv uv
 			@param m Range
 			@param _viewMat View matrix
-			@return The position in homogenous coordinates 
+			@return The position in homogenous coordinates
 		 */
 		Ogre::Vector4 _calculeWorldPosition(const Ogre::Vector2 &uv, const Ogre::Matrix4& m,const Ogre::Matrix4& _viewMat);
-	
+
 		/** Get min/max
 		    @param range Range
 			@return true if it's in min/max
@@ -248,14 +248,14 @@ namespace Hydrax{ namespace Module
 		Ogre::Matrix4 mRange;
 
 		/// Planes
-	    Ogre::Plane	mBasePlane, 
-			        mUpperBoundPlane, 
+	    Ogre::Plane	mBasePlane,
+			        mUpperBoundPlane,
 					mLowerBoundPlane;
 
 		/// Cameras
 	    Ogre::Camera *mProjectingCamera,	// The camera that does the actual projection
 		             *mRenderingCamera,		// The camera whose frustum the projection is created for
-					 *mTmpRndrngCamera;     // Used to allow cameras with any inherited from a node or nodes 
+					 *mTmpRndrngCamera;     // Used to allow cameras with any inherited from a node or nodes
 
 		/// Normal and position
 	    Ogre::Vector3 mNormal, mPos;

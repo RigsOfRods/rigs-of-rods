@@ -27,11 +27,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Hydrax{namespace Module
 {
-	Module::Module(const Ogre::String &Name, 
+	Module::Module(const Ogre::String &Name,
 		           Noise::Noise *n,
 				   const Mesh::Options &MeshOptions,
 				   const MaterialManager::NormalMode &NormalMode)
-		: mName(Name) 
+		: mName(Name)
 		, mNoise(n)
 		, mMeshOptions(MeshOptions)
 		, mNormalMode(NormalMode)
