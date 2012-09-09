@@ -23,15 +23,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define HYDRAXWATER_H_
 
 // this is a workaround for fixing compilation/linking issues in conjunction with caelum
-#undef DllExport
 #include "Prerequisites.h"
 #include "Hydrax.h"
 #include "MaterialManager.h"
 #include "Noise.h"
 #include "Perlin.h"
+#include "rEAL.h"
 #include "ProjectedGrid.h"
 #include "SimpleGrid.h"
-#undef DllExport
 
 #include "Ogre.h"
 #include "water.h"
@@ -42,7 +41,7 @@ class HydraxWater : public IWater
 {
 protected:
 	Hydrax::Hydrax *mHydrax;
-	Hydrax::Noise::Noise *waternoise;
+	Hydrax::Noise::Real *waternoise;
 	float wheight;
 	float waveStrength;
 
