@@ -45,7 +45,7 @@ int HydraxWater::loadConfig(Ogre::String configfile)
 		// Noise module
 		waternoise,
 		// Base plane
-		Ogre::Plane(Ogre::Vector3(0,1,0), Ogre::Vector3(0,0,0)),
+		Ogre::Plane(Ogre::Vector3::UNIT_Y, 0),
 		//Ogre::Plane(Ogre::Vector3(0,1,0), Ogre::Vector3(0,0,0)),
 		// Normal mode
 		Hydrax::MaterialManager::NM_VERTEX,
