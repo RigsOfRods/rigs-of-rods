@@ -25,7 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _Hydrax_Module_H_
 #define _Hydrax_Module_H_
 
-
+#include "Prerequisites.h"
+#include "RoRPrerequisites.h"
 #include "Noise.h"
 #include "Mesh.h"
 #include "MaterialManager.h"

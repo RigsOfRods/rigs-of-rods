@@ -704,7 +704,7 @@ namespace Hydrax
 					"void main()\n" +
 					"{\n" +
                         "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"+
-                        "vec4 wPos = uWorld * gl_Vertex);\n"+
+                        "vec4 wPos = uWorld * gl_Vertex;\n"+
                         "Position_  = wPos.xyz;\n"+
 					"}\n";
             }
@@ -746,7 +746,7 @@ namespace Hydrax
                     // main function
 					"void main()\n" +
 					"{\n" +
-					    "float depth = clamp( length(iPosition-uLightPosition) / uLightFarClipDistance , 0.0, 1.0);\n"+
+					    "float depth = clamp( length(Position_-uLightPosition) / uLightFarClipDistance , 0.0, 1.0);\n"+
 						"gl_FragColor = vec4(depth, 0.0, 0.0, 0.0);\n"+
 					"}\n";
             }

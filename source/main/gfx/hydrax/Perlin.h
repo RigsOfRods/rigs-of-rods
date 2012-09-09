@@ -29,6 +29,8 @@ http://graphics.cs.lth.se/theses/projects/projgrid/
 #ifndef _Hydrax_Noise_Perlin_H_
 #define _Hydrax_Noise_Perlin_H_
 
+
+
 #include "Noise.h"
 
 #define n_bits				5

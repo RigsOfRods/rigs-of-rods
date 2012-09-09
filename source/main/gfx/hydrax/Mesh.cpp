@@ -411,23 +411,24 @@ namespace Hydrax
 
 		if (mCreated)
 		{
-#if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
-			mWorldMatrix = mEntity->getParentSceneNode()->_getFullTransform();
-#else
-			mEntity->getParentSceneNode()->getWorldTransforms(&mWorldMatrix);
-#endif
-		}
+            #if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
+                mWorldMatrix = mEntity->getParentSceneNode()->_getFullTransform();
+            #else
+                mEntity->getParentSceneNode()->getWorldTransforms(&mWorldMatrix);
+            #endif
+        }
 		else
 		{
 			Ogre::SceneNode *mTmpSN = new Ogre::SceneNode(0);
-			mTmpSN->setPosition(mHydrax->getPosition());
+		    mTmpSN->setPosition(mHydrax->getPosition());
 
-#if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
-			mWorldMatrix = mTmpSN->_getFullTransform();
-#else
-			mTmpSN->getWorldTransforms(&mWorldMatrix);
-#endif
-			delete mTmpSN;
+            #if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
+                mWorldMatrix = mTmpSN->_getFullTransform();
+            #else
+                mTmpSN->getWorldTransforms(&mWorldMatrix);
+            #endif
+
+		    delete mTmpSN;
 		}
 
 		return mWorldMatrix.inverseAffine().transformAffine(WorldSpacePosition);
@@ -439,22 +440,24 @@ namespace Hydrax
 
 		if (mCreated)
 		{
-#if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
-			mWorldMatrix = mEntity->getParentSceneNode()->_getFullTransform();
-#else
-			mEntity->getParentSceneNode()->getWorldTransforms(&mWorldMatrix);
-#endif
-		}
+            #if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
+                mWorldMatrix = mEntity->getParentSceneNode()->_getFullTransform();
+            #else
+                mEntity->getParentSceneNode()->getWorldTransforms(&mWorldMatrix);
+            #endif
+        }
 		else
 		{
 			Ogre::SceneNode *mTmpSN = new Ogre::SceneNode(0);
-			mTmpSN->setPosition(mHydrax->getPosition());
-#if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
-			mWorldMatrix = mTmpSN->_getFullTransform();
-#else
-			mTmpSN->getWorldTransforms(&mWorldMatrix);
-#endif
-			delete mTmpSN;
+		    mTmpSN->setPosition(mHydrax->getPosition());
+
+            #if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 7
+                mWorldMatrix = mTmpSN->_getFullTransform();
+            #else
+                mTmpSN->getWorldTransforms(&mWorldMatrix);
+            #endif
+
+		    delete mTmpSN;
 		}
 
 		return mWorldMatrix.transformAffine(ObjectSpacePosition);

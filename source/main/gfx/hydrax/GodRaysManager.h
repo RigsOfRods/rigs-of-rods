@@ -60,7 +60,7 @@ namespace Hydrax
 		~GodRaysManager();
 
 		/** Create
-		    @HC Current Hydrax components
+		    @param HC Current Hydrax components
 		 */
 		void create(const HydraxComponent& HC);
 
@@ -255,7 +255,7 @@ namespace Hydrax
 		void _createGodRays();
 
 		/** Create materials that we need(God rays depth too if it's needed)
-		    @HC Current Hydrax components
+		    @param HC Current Hydrax components
 		 */
 		void _createMaterials(const HydraxComponent& HC);
 

@@ -22,7 +22,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 --------------------------------------------------------------------------------
 */
 
-#include <Noise.h>
+#include "Noise.h"
+#include "RoRPrerequisites.h"
 
 namespace Hydrax{namespace Noise
 {
@@ -87,9 +88,11 @@ namespace Hydrax{namespace Noise
 	{
 		if (CfgFile.getSetting("Noise") == mName)
 		{
+		    HydraxLOG(mName + " options entry found.");
 			return true;
 		}
 
+        HydraxLOG("Error (Noise::loadCfg):\t" + mName + " options entry can not be found.");
 		return false;
 	}
 }}

@@ -22,7 +22,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 --------------------------------------------------------------------------------
 */
 
-#include <FFT.h>
+#include "FFT.h"
 
 #include <Hydrax.h>
 

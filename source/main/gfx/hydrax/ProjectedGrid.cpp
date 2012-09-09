@@ -226,6 +226,7 @@ namespace Hydrax{namespace Module
 			return false;
 		}
 
+        HydraxLOG("\tReading options...");
 		setOptions(
 			Options(CfgFileManager::_getIntValue(CfgFile,   "PG_Complexity"),
 			        CfgFileManager::_getFloatValue(CfgFile, "PG_Strength"),
@@ -234,6 +235,8 @@ namespace Hydrax{namespace Module
 					CfgFileManager::_getBoolValue(CfgFile,  "PG_ForceRecalculateGeometry"),
 					CfgFileManager::_getBoolValue(CfgFile,  "PG_ChoppyWaves"),
 					CfgFileManager::_getFloatValue(CfgFile, "PG_ChoopyStrength")));
+
+        HydraxLOG("\tOptions readed.");
 
 		return true;
 	}

@@ -23,7 +23,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include <CfgFileManager.h>
-
 #include <Hydrax.h>
 
 namespace Hydrax
@@ -354,6 +353,7 @@ namespace Hydrax
 		if (_isStringInList(Cmpnts, "Depth"))
 		{
 			mHydrax->setDepthLimit(_getFloatValue(CfgFile,"DepthLimit"));
+			mHydrax->setDistLimit(_getFloatValue(CfgFile,"DistLimit"));
 		}
 
 		if (_isStringInList(Cmpnts, "Smooth"))
@@ -412,6 +412,20 @@ namespace Hydrax
 	const bool CfgFileManager::_checkVersion(Ogre::ConfigFile& CfgFile) const
 	{
 		// accept any
+#if 0
+		if(CfgFile.getSetting("HydraxVersion") != (
+			    // Major
+				Ogre::StringConverter::toString(HYDRAX_VERSION_MAJOR)+"."+
+				// Minor
+				Ogre::StringConverter::toString(HYDRAX_VERSION_MINOR)+"."+
+				// Patch
+				Ogre::StringConverter::toString(HYDRAX_VERSION_PATCH)))
+		{
+			HydraxLOG("Config file version doesn't correspond with Hydrax version.");
+
+			return false;
+		}
+#endif // 0
 		return true;
 	}
 
