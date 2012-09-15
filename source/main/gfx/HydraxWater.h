@@ -28,12 +28,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MaterialManager.h"
 #include "Noise.h"
 #include "Perlin.h"
-#include "rEAL.h"
+#include "Real.h"
 #include "ProjectedGrid.h"
 #include "SimpleGrid.h"
 
 #include "Ogre.h"
-#include "water.h"
+#include "Water.h"
 #include "IWater.h"
 using namespace Ogre;
 
