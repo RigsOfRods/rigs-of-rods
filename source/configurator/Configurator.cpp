@@ -2825,7 +2825,10 @@ void MyDialog::OnButRegenCache(wxCommandEvent& event)
 	CloseHandle( pi.hThread );	
 #endif
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	execl("./RoR.bin -checkcache", "", (char *) 0);
+	char tmp[4096] = "";
+	strcpy(tmp, SSETTING("Program Path", "").c_str());
+	strcat(tmp, "RoR -checkcache");
+	execl(tmp, "", (char *) 0);
 #endif
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 	FSRef ref;
