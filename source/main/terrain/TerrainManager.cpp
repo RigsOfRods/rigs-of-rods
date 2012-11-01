@@ -97,8 +97,13 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 		exit(125);
 	}
 
-	ambient_color = StringConverter::parseColourValue(mTerrainConfig.getSetting("AmbientColor", "General"));
-	start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"));
+	ambient_color = ColourValue();
+	if(!mTerrainConfig.getSetting("AmbientColor", "General").empty())
+		ambient_color = StringConverter::parseColourValue(mTerrainConfig.getSetting("AmbientColor", "General"));
+
+	start_position = Vector3::ZERO;
+	if(!mTerrainConfig.getSetting("StartPosition", "General").empty())
+		start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"));
 
 	guid = mTerrainConfig.getSetting("GUID", "General");
 	categoryID = StringConverter::parseInt(mTerrainConfig.getSetting("CategoryID", "General"));
@@ -435,7 +440,7 @@ void TerrainManager::initMotionBlur()
 			tp->setOutputName("temp");
 			{ CompositionPass *pass = tp->createPass();
 			pass->setType(CompositionPass::PT_RENDERQUAD);
-			pass->setMaterialName("Ogre/Compositor/Combine");
+			pass->setMaterialName("Compositor/Combine");
 			pass->setInput(0, "scene");
 			pass->setInput(1, "sum");
 			}
@@ -447,7 +452,7 @@ void TerrainManager::initMotionBlur()
 			tp->setOutputName("sum");
 			{ CompositionPass *pass = tp->createPass();
 			pass->setType(CompositionPass::PT_RENDERQUAD);
-			pass->setMaterialName("Ogre/Compositor/Copyback");
+			pass->setMaterialName("Compositor/Copyback");
 			pass->setInput(0, "temp");
 			}
 		}
@@ -457,7 +462,7 @@ void TerrainManager::initMotionBlur()
 			tp->setInputMode(CompositionTargetPass::IM_NONE);
 			{ CompositionPass *pass = tp->createPass();
 			pass->setType(CompositionPass::PT_RENDERQUAD);
-			pass->setMaterialName("Ogre/Compositor/MotionBlur");
+			pass->setMaterialName("Compositor/MotionBlur");
 			pass->setInput(0, "sum");
 			}
 		}

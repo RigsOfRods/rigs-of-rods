@@ -54,6 +54,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SurveyMapManager.h"
 #include "SurveyMapEntity.h"
+//#include "Procedural.h"
+#include "ErrorUtils.h"
 
 
 using namespace Ogre;
@@ -96,6 +98,36 @@ TerrainObjectManager::~TerrainObjectManager()
 		}
 	}
 #endif //USE_PAGED
+}
+
+void TerrainObjectManager::proceduralTests()
+{
+#if 0
+	// TODO: it crashes, get this working!
+	try
+	{
+		Procedural::MultiShape out;
+		Procedural::SvgLoader svg;
+		svg.parseSvgFile(out, "test.svg");
+		Procedural::Path p = out.getShape(0).convertToPath();
+		Procedural::Shape s = out.getShape(1);
+		
+		Procedural::Track textureTrack = Procedural::Track(Procedural::Track::AM_POINT).addKeyFrame(0,0).addKeyFrame(2,.2f).addKeyFrame(3,.8f).addKeyFrame(5,1);
+		// The extruder actually creates the road mesh from all parameters
+		Procedural::Extruder().setExtrusionPath(&p).setShapeToExtrude(&s).setShapeTextureTrack(&textureTrack).setUTile(20.f).realizeMesh("extrudedMesh");
+
+		Entity* ent2 = gEnv->sceneManager->createEntity("svg");
+		SceneNode* sn = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+		sn->attachObject(ent2);
+		sn->setPosition(Vector3(0,0,0));
+		ent2->setMaterialName("Examples/Road");
+		ent2->setCastShadows(true);
+
+	} catch(Exception &e)
+	{
+		showError("Error within procedural tests", e.what());
+	}
+#endif //0
 }
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)

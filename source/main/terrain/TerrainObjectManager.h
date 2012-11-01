@@ -129,6 +129,7 @@ protected:
 	virtual size_t getMemoryUsage();
 
 	virtual void freeResources();
+	void proceduralTests();
 };
 
 #endif // __TerrainObjectManager_H_
