@@ -26,17 +26,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-#define HASOPTION(X) !terrainConfig.getSetting(X).empty()
-#define IOPTION(X)   PARSEINT(terrainConfig.getSetting(X))
-#define BOPTION(X)   StringConverter::parseBool(terrainConfig.getSetting(X))
-#define FOPTION(X)   PARSEREAL(terrainConfig.getSetting(X))
-#define SOPTION(X)   terrainConfig.getSetting(X)
-#define IOPT(X, Y)   (HASOPTION(X)?IOPTION(X):Y)
-#define FOPT(X, Y)   (HASOPTION(X)?FOPTION(X):Y)
-#define BOPT(X, Y)   (HASOPTION(X)?BOPTION(X):Y)
-#define SOPT(X)      (SOPTION(X))
 
-#define XZSTR(X,Z)   String("[") + TOSTRING(X) + String(",") + TOSTRING(Z) + String("]")
 
 TerrainGeometryManager::TerrainGeometryManager(TerrainManager *terrainManager) :
 	  terrainManager(terrainManager)
@@ -265,6 +255,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
 // if terrain is set, we operate on the already loaded terrain
 void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 {
+	if(pageConfigFormat.empty()) return;
 	String cfg = pageConfigFormat;
 	cfg = StringUtil::replaceAll(cfg, "{X}", TOSTRING(x));
 	cfg = StringUtil::replaceAll(cfg, "{Z}", TOSTRING(z));
