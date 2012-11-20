@@ -30,7 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "HDRListener.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
-#include "ScriptEngine.h"
+#include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
 #include "SkyManager.h"
