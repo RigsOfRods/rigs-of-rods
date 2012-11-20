@@ -1,0 +1,95 @@
+2009-01-03 Georgy Yunaev
+   * libircclient 1.3 released.
+   * Added IPv6 support (thanks Lothar May)
+   * Now provides more information about ACTION (thx chromerium)
+   * Updated contact info and copyrights.
+   * Removed ircmud sample as it never worked anyway.
+
+2006-08-29 Georgy Yunaev
+   * libircclient 1.2 released.
+   * Windows: added missed expored functions from .def file.
+
+2005-03-10 Georgy Yunaev
+   * libircclient 1.1 released.
+   * Fixed DCC buffer size which resulted extra callback on DCC tranfers 
+     (thanks flohimself).
+
+2004-11-12 Georgy Yunaev
+   * libircclient 1.0 released.
+   * Fixed compilation on FreeBSD.
+
+2004-10-31 Georgy Yunaev
+   * When more than one DCC chat sessions were active, only the latest 
+     generated callbacks.
+   * libircclient 0.8 released.
+
+2004-10-17 Georgy Yunaev
+   * libircclient 0.7 released.
+   * Fixed DCC chat lockup in multithread programs (thanks olifozzy).
+
+2004-10-15 Georgy Yunaev
+   * Win32 static library does not have dllmain anymore (thanks olifozzy).
+   * DCC chat crashed if there were several DCC session, and one of them was 
+     closed (thanks olifozzy).
+   * DCC chat speed increased when several messages are stored in buffer.
+
+2004-10-10 Georgy Yunaev
+   * libircclient 0.6 released.
+   * Added color support.
+
+2004-10-07 Georgy Yunaev
+   * CTCP TIME reply was malformed on some platforms with buggy locales.
+   * Socket stuff rewritten to be signal-safe and more portable.
+   * Data and commands are now sent faster to IRC server.
+   * event_umode now works.
+
+2004-10-06 Georgy Yunaev
+   * CHANGED BEHAVIOR: the built-in CTCP handler is used if not set. 
+     Therefore, irc_event_ctcp_internal() is not public anymore.
+   * Added a small (as yet) FAQ.
+   * Add extra numeric codes from RFC2812.
+
+2004-10-03 Georgy Yunaev
+   * Libircclient error codes are now well-documented.
+   * Modules documentation is extended.
+   * Added new methods: irc_cmd_part, irc_cmd_invite, irc_cmd_names, 
+     irc_cmd_list, irc_cmd_topic, irc_cmd_channel_mode, irc_cmd_user_mode,
+     irc_cmd_nick, irc_cmd_whois.
+   * Added the improved error handling for NULL pointers to all the irc_cmd* 
+     methods.
+   * Fixed the nickname tracking bug (after the nickname changing, all 
+     privmsgs were treaten as channel messages).
+   * All the numeric reply codes from RFC1459 are now documented. 
+   * Numeric reply codes for every command are now described.
+
+2004-09-30 Georgy Yunaev
+   * libircclient 0.4 released
+   * exported an irc_is_connected method.
+   * fixed error output in examples.
+   * fixed several errors in Win32 build (there were no multithread support)
+   * add a Win32 dsp/dsw to build the library from VC6/7
+   * add a .dsp for an example.
+
+2004-09-14 Georgy Yunaev
+   * libircclient 0.3 released
+   * Fix CTCP time bug.
+   * Added working Win32 Visual Studio build, and libs.
+   * Added ircmud example, which allows people to play MUD through IRC client.
+   * Some stuff rewritten in more portable way.
+
+2004-09-13 Georgy Yunaev
+   * Fix solaris x86/sparc compilation.
+
+2004-09-12 Georgy Yunaev
+   * libircclient 0.2 released
+   * select() timeout decreased to 0.25sec (was 1 sec). The reason: when
+     the output buffer is empty, and server doesn't send anything, but a
+     command was asynchronously added, it will be processed only after 
+     select() timeout.
+   * Fixed bug in DCC sessions - all DCC sessions requested by bots were
+     terminated in 60 secs with TIMEOUT error.
+   * Add DCC error description in irctest example.
+
+
+2004-09-08 Georgy Yunaev
+   * libircclient 0.1 released

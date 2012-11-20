@@ -1,0 +1,45 @@
+material hangarskin
+{
+	technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture hangarskindiffuse.dds
+			}
+        }
+    }
+}
+material hangarskintrans
+{
+	technique
+    {
+        pass
+        {
+ 
+			alpha_rejection greater 0
+			alpha_to_coverage
+			cull_hardware none
+
+            texture_unit diffuseMap
+            {
+                texture hangarskindiffuse.dds
+            }
+        }
+    }
+}
+
+material hangarskin2
+{
+	technique
+    {
+		pass
+		{
+			texture_unit
+            {
+                texture hangarskindiffuse.dds
+            }
+		}
+	}
+}
