@@ -41,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Water.h"
 #include "HydraxWater.h"
+#include "Collisions.h"
 
 using namespace Ogre;
 

@@ -22,6 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Airfoil.h"
 #include "Scripting.h"
 #include "SoundScriptManager.h"
+#include "BeamData.h"
+#include "Ogre.h"
 
 using namespace Ogre;
 
