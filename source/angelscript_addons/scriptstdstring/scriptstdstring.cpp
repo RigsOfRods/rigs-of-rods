@@ -704,9 +704,11 @@ void RegisterStdString_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("string", "string &opAssign(const string &in)", asMETHODPR(string, operator =, (const string&), string&), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asMETHODPR(string, operator+=, (const string&), string&), asCALL_THISCALL); assert( r >= 0 );
 
+#ifdef WIN32
 	r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTIONPR(operator ==, (const string &, const string &), bool), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmp), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "string opAdd(const string &in) const", asFUNCTIONPR(operator +, (const string &, const string &), string), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+#endif // WIN32
 
 	// The string length can be accessed through methods or through virtual property
 	r = engine->RegisterObjectMethod("string", "uint length() const", asFUNCTION(StringLength), asCALL_CDECL_OBJLAST); assert( r >= 0 );
@@ -763,10 +765,14 @@ void RegisterStdString_Native(asIScriptEngine *engine)
 
 void RegisterStdString(asIScriptEngine * engine)
 {
+#ifdef WIN32
 	if (strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY"))
 		RegisterStdString_Generic(engine);
 	else
 		RegisterStdString_Native(engine);
+#else
+	RegisterStdString_Generic(engine);
+#endif
 }
 
 END_AS_NAMESPACE
