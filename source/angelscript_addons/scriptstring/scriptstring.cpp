@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <string.h> // strstr
 #include <stdio.h>  // sprintf
+#include <unistd.h>
 #include "scriptstring.h"
 using namespace std;
 
