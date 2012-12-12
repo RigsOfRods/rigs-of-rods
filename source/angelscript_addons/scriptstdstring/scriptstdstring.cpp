@@ -5,6 +5,7 @@
 #include <stdio.h>	// sprintf()
 #include <stdlib.h> // strtod()
 #include <locale.h> // setlocale()
+#include <unistd.h>
 
 using namespace std;
 
