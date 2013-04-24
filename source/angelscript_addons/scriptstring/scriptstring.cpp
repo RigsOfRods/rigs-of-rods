@@ -1,8 +1,11 @@
 #include <assert.h>
 #include <string.h> // strstr
 #include <stdio.h>  // sprintf
+#ifdef __UNIX__
 #include <unistd.h>
+#endif
 #include "scriptstring.h"
+
 using namespace std;
 
 BEGIN_AS_NAMESPACE

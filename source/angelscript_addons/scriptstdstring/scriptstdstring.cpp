@@ -5,7 +5,9 @@
 #include <stdio.h>	// sprintf()
 #include <stdlib.h> // strtod()
 #include <locale.h> // setlocale()
+#ifdef __UNIX__
 #include <unistd.h>
+#endif
 
 using namespace std;
 
