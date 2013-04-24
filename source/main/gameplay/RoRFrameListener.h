@@ -79,7 +79,6 @@ protected:
 	ForceFeedback *forcefeedback;
 	HeatHaze *heathaze;
 	SurveyMapManager *surveyMap;
-	Network *net;
 
 	Ogre::Quaternion reload_dir;
 	Ogre::Real distgrabbed;
@@ -153,8 +152,6 @@ protected:
 	void windowFocusChange(Ogre::RenderWindow* rw);
 
 public: // public methods
-
-	Network *getNetwork() { return net; };
 
 	OverlayWrapper *getOverlayWrapper() { return ow; };
 

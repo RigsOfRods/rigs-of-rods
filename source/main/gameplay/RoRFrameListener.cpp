@@ -680,7 +680,6 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	mStatsOn(0),
 	mTimeUntilNextToggle(0),
 	mTruckInfoOn(false),
-	net(0),
 	netChat(0),
 	netPointToUID(-1),
 	netcheckGUITimer(0),
@@ -961,14 +960,14 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 		// important note: all new network code is written in order to allow also the old network protocol to further exist.
 		// at some point you need to decide with what type of server you communicate below and choose the correct class
 
-		net = new Network(sname, sport, this);
+		gEnv->network = new Network(sname, sport, this);
 
-		bool connres = net->connect();
+		bool connres = gEnv->network->connect();
 #ifdef USE_MYGUI
 		LoadingWindow::getSingleton().hide();
 
 #ifdef USE_SOCKETW
-		new GUI_Multiplayer(net);
+		new GUI_Multiplayer(gEnv->network);
 		GUI_Multiplayer::getSingleton().update();
 #endif //USE_SOCKETW
 
@@ -980,7 +979,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 			//fatal
 			exit(1);
 		}
-		char *terrn = net->getTerrainName();
+		char *terrn = gEnv->network->getTerrainName();
 		bool isAnyTerrain = (terrn && !strcmp(terrn, "any"));
 		if (preselected_map.empty() && isAnyTerrain)
 		{
@@ -993,7 +992,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 		// create player _AFTER_ network, important
 		int colourNum = 0;
-		if (net->getLocalUserData()) colourNum = net->getLocalUserData()->colournum;
+		if (gEnv->network->getLocalUserData()) colourNum = gEnv->network->getLocalUserData()->colournum;
 		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
 
 		// network chat stuff
@@ -1033,8 +1032,8 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	// load guy
 	int source=-1;
 #ifdef USE_SOCKETW
-	if (net)
-		source = net->getUserID();
+	if (gEnv->network)
+		source = gEnv->network->getUserID();
 #endif //SOCKETW
 
 	// new beam factory
@@ -1112,7 +1111,7 @@ RoRFrameListener::~RoRFrameListener()
 //	if (joy) delete (joy);
 
 #ifdef USE_SOCKETW
-	if (net) delete (net);
+	if (gEnv->network) delete (gEnv->network);
 #endif //SOCKETW
 	//we should destroy OIS here
 	//we could also try to destroy SoundScriptManager, but we don't care!
@@ -1273,10 +1272,10 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 #endif //USE_MYGUI
 	// update characters
-	if (loading_state==ALL_LOADED && net)
+	if (loading_state==ALL_LOADED && gEnv->network)
 	{
 		CharacterFactory::getSingleton().updateCharacters(dt);
-	} else if (loading_state==ALL_LOADED && !net)
+	} else if (loading_state==ALL_LOADED && !gEnv->network)
 	{
 		gEnv->player->update(dt);
 	}
@@ -2719,7 +2718,7 @@ void RoRFrameListener::shutdown_final()
 	LOG(" ** Shutdown preparation");
 	//GUIManager::getSingleton().shutdown();
 #ifdef USE_SOCKETW
-	if (net) net->disconnect();
+	if (gEnv->network) gEnv->network->disconnect();
 #endif //SOCKETW
 	loading_state=EXITING;
 #ifdef USE_OPENAL
@@ -3110,7 +3109,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	//	BeamFactory::getSingleton().setCurrentTruck(-1);
 
 	// update network gui if required, at most every 2 seconds
-	if (net)
+	if (gEnv->network)
 	{
 		netcheckGUITimer += dt;
 		if (netcheckGUITimer > 2)
@@ -3272,7 +3271,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif
 
 	// update network labels
-	if (net)
+	if (gEnv->network)
 	{
 		CharacterFactory::getSingleton().updateLabels();
 	}
@@ -3297,7 +3296,7 @@ bool RoRFrameListener::frameEnded(const FrameEvent& evt)
 	}
 
 #ifdef USE_SOCKETW
-	if (net)
+	if (gEnv->network)
 	{
 		// process all packets and streams received
 		NetworkStreamManager::getSingleton().update();
@@ -3313,7 +3312,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	Beam **trucks     = BeamFactory::getSingleton().getTrucks();
 
 	// first, test if the place if clear, BUT NOT IN MULTIPLAYER
-	if (!net)
+	if (!gEnv->network)
 	{
 		collision_box_t *spawnbox = gEnv->collisions->getBox(instance, box);
 		for (int t=0; t < free_truck; t++)
@@ -3453,7 +3452,7 @@ void RoRFrameListener::hideGUI(bool visible)
 		//if (bigMap) bigMap->setVisibility(false);
 #ifdef USE_MYGUI
 #ifdef USE_SOCKETW
-		if (net) GUI_Multiplayer::getSingleton().setVisible(false);
+		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(false);
 #endif // USE_SOCKETW
 #endif // USE_MYGUI
 	}
@@ -3469,7 +3468,7 @@ void RoRFrameListener::hideGUI(bool visible)
 		}
 #ifdef USE_SOCKETW
 #ifdef USE_MYGUI
-		if (net) GUI_Multiplayer::getSingleton().setVisible(true);
+		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(true);
 #endif // USE_MYGUI
 #endif // USE_SOCKETW
 	}

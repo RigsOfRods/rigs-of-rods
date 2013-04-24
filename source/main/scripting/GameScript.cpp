@@ -843,7 +843,7 @@ int GameScript::deleteScriptVariable(const String &arg)
 
 int GameScript::sendGameCmd(const String& message)
 {
-	Network *net = gEnv->frameListener->getNetwork();
+	Network *net = gEnv->network;
 	if (!net) return -11;
 	else return net->sendScriptMessage(const_cast<char*>(message.c_str()), (unsigned int)message.size());
 }
