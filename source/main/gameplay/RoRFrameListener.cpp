@@ -2734,9 +2734,9 @@ void RoRFrameListener::shutdown_final()
 #endif //OIS_G27
 
 	LOG(" ** Shutdown final");
-	if (gEnv->terrainManager && gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
+	if (gEnv && gEnv->terrainManager && gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
 	if (dashboard) dashboard->prepareShutdown();
-	if (gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
+	if (gEnv && gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
 	if (heathaze) heathaze->prepareShutdown();
 
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();

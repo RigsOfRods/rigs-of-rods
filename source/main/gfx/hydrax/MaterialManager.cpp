@@ -335,7 +335,7 @@ namespace Hydrax
 			Ogre::HighLevelGpuProgramManager::getSingleton().
 			      createProgram(Name,
 			                    Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-					  		    ShaderModesStr[static_cast<int>(SM)],
+					  		    ShaderModesStr[SM],
 			                    GpuPType);
 
 	    HLGpuProgram->setSource(Data);

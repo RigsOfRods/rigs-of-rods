@@ -542,13 +542,15 @@ static size_t curlWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void
 {
   size_t realsize = size * nmemb;
   struct curlMemoryStruct *mem = (struct curlMemoryStruct *)data;
+  char* new_mem;
 
-  mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
-  if (mem->memory == NULL) {
-    /* out of memory! */
-    printf("not enough memory (realloc returned NULL)\n");
+  new_mem = (char *)realloc(mem->memory, mem->size + realsize + 1);
+  if (new_mem == NULL) {
+	free(mem->memory);
+    printf("Error (re)allocating memory\n");
     exit(EXIT_FAILURE);
   }
+  mem->memory = new_mem;
 
   memcpy(&(mem->memory[mem->size]), ptr, realsize);
   mem->size += realsize;

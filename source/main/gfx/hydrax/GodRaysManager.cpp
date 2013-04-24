@@ -134,10 +134,10 @@ namespace Hydrax
 		mManualGodRays->begin(_def_GodRays_Material_Name, Ogre::RenderOperation::OT_TRIANGLE_LIST);
 		mManualGodRays->setRenderQueueGroup(Ogre::RENDER_QUEUE_9+1);
 
-		for(int k = 0; k < mNumberOfRays; k++)
+		for(int r = 0; r < mNumberOfRays; r++)
 		{
-			// Rays are modeled as piramids, 12 vertex each ray
-			for (int k = 0; k < 12; k ++)
+			// Rays are modeled as pyramids, 12 vertex each ray
+			for (int k = 0; k < 12; k++)
 			{
 				mManualGodRays->position(0, 0, 0);
 			    mManualGodRays->index(k);
