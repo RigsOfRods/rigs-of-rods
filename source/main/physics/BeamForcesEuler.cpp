@@ -1289,7 +1289,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 	if (driveable == TRUCK && engine)
 		currentAcc = engine->getAcc();
 
-	for (unsigned int i=0; i<free_wheel; i++)
+	for (int i=0; i<free_wheel; i++)
 	{
 		Real speedacc=0.0;
 
