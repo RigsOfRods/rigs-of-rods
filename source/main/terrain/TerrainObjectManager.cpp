@@ -61,7 +61,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 #ifdef USE_PAGED
-//using namespace Forests;
+using namespace Forests;
 #endif //USE_PAGED
 
 
