@@ -316,10 +316,10 @@ void BeamEngine::update(float dt, int doUpdate)
 		}
 	}
 
-	if (doUpdate)
+	if (doUpdate && !shifting && !postshifting)
 	{
 		// gear hack
-		if (automode == AUTOMATIC && curGear >= 0 && !shifting && !postshifting && (autoselect == DRIVE || autoselect == TWO))
+		if (automode == AUTOMATIC && curGear >= 0 && (autoselect == DRIVE || autoselect == TWO))
 		{
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
@@ -334,7 +334,7 @@ void BeamEngine::update(float dt, int doUpdate)
 		}
 
 		// gear hack++
-		if (automode == AUTOMATIC && autoselect == DRIVE && curGear > 0 && !shifting && !postshifting)
+		if (automode == AUTOMATIC && autoselect == DRIVE && curGear > 0)
 		{
 			static float oneThirdRPMRange = (maxRPM - idleRPM) / 3.0f;
 			static float halfRPMRange = (maxRPM - idleRPM) / 2.0f;
@@ -450,17 +450,13 @@ void BeamEngine::updateAudio(int doUpdate)
 	{
 		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM);
 	}
-#endif // USE_OPENAL
 
 	if (doUpdate)
 	{
-#ifdef USE_OPENAL
 		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, curEngineRPM);
 		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TORQUE, curClutchTorque);
 		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_GEARBOX, curWheelRevolutions);
-#endif // USE_OPENAL
 	}
-#ifdef USE_OPENAL
 	// reverse gear beep
 	if (curGear == -1 && running)
 	{
@@ -855,7 +851,6 @@ void BeamEngine::setManualClutch(float val)
 BeamEngine::~BeamEngine()
 {
 	// delete NULL is safe
-	//delete gearsRatio; gearsRatio = NULL;
 	delete torqueCurve;
 	torqueCurve = NULL;
 }
