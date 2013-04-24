@@ -61,7 +61,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 #ifdef USE_PAGED
-using namespace Forests;
+//using namespace Forests;
 #endif //USE_PAGED
 
 
@@ -135,12 +135,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 	objcounter = 0;
 	free_localizer = 0;
-
-#ifdef USE_PAGED
-	Forests::TreeLoader2D *treeLoader = 0;
-	Entity *curTree = 0;
-	String treename = "";
-#endif // USE_PAGED
 
 	ProceduralObject po;
 	po.loadingState = -1;
@@ -313,7 +307,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 				treeLoader->setColorMap(ColorMap);
 			}
 
-			curTree = gEnv->sceneManager->createEntity(String("paged_")+treemesh+TOSTRING(pagedGeometry.size()), treemesh);
+			Entity *curTree = gEnv->sceneManager->createEntity(String("paged_")+treemesh+TOSTRING(pagedGeometry.size()), treemesh);
 
 			if (gridspacing > 0)
 			{
