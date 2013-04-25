@@ -967,7 +967,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 		LoadingWindow::getSingleton().hide();
 
 #ifdef USE_SOCKETW
-		new GUI_Multiplayer(gEnv->network);
+		new GUI_Multiplayer();
 		GUI_Multiplayer::getSingleton().update();
 #endif //USE_SOCKETW
 

@@ -49,7 +49,7 @@ const UTFString Console::wordDelimiters = " \\\"\'|.,`!;<>~{}()+&%$@";
 const char *builtInCommands[] = {"/help", "/log", "/pos", "/goto", "/terrainheight", "/ver", "/save", "/whisper", "/as", NULL};
 
 // class
-Console::Console() : net(0), netChat(0), top_border(20), bottom_border(100), message_counter(0), mHistory(), mHistoryPosition(0), inputMode(false), linesChanged(false), scrollOffset(0), autoCompleteIndex(-1), linecount(10), scroll_size(5), angelscriptMode(false)
+Console::Console() : netChat(0), top_border(20), bottom_border(100), message_counter(0), mHistory(), mHistoryPosition(0), inputMode(false), linesChanged(false), scrollOffset(0), autoCompleteIndex(-1), linecount(10), scroll_size(5), angelscriptMode(false)
 {
 	setSingleton(this);
 	mMainWidget = MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("default", 0, 0, 400, 300,  MyGUI::Align::Center, "Back", "Console");
@@ -160,9 +160,9 @@ void Console::select(UTFString start)
 
 void Console::startPrivateChat(int target_uid)
 {
-	if (!net) return;
+	if (!gEnv->network) return;
 
-	client_t *c = net->getClientInfo(target_uid);
+	client_t *c = gEnv->network->getClientInfo(target_uid);
 	if (!c) return;
 
 	Console::getSingleton().setVisible(true);
@@ -341,7 +341,7 @@ void Console::initOrWalkAutoCompletion()
 		//mAutoCompleteList->addItem(autoCompletionWord);
 
 		// Auto-completion for the network usernames
-		if (net && netChat)
+		if (gEnv->network && netChat)
 		{
 			std::vector<UTFString> names;
 			int res = netChat->getChatUserNames(names);
@@ -514,7 +514,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/terrainheight#000000  - get height of terrain at current position"), "world.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/save#000000 - saves the chat history to a file"), "table_save.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/log#000000  - toggles log output on the console"), "table_save.png");
-			if (net)
+			if (gEnv->network)
 				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/whisper <username> <message>#000000 - send someone a private message"), "script_key.png");
 	#ifdef USE_ANGELSCRIPT
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/as#000000 - toggle AngelScript Mode: no need to put the backslash before script commands"), "script_go.png");
@@ -524,7 +524,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, ChatSystem::commandColour + _L("tips:"), "help.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use #dd0000Arrow Up/Down Keys#000000 in the InputBox to reuse old messages"), "information.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use #dd0000Page Up/Down Keys#000000 in the InputBox to scroll through the history"), "information.png");
-			if (net)
+			if (gEnv->network)
 				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- click on a username in the vehicle menu to start a private chat"), "information.png");
 	#ifdef USE_ANGELSCRIPT
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use #dd0000\\game.log(\"hello world!\");#000000 - if first character of a line is as backslash, the line is interpreted as AngelScript code"), "information.png");
@@ -650,17 +650,12 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 #endif //ANGELSCRIPT
 
 	// normal network chat as last chance to use this message
-	if (net && netChat)
+	if (gEnv->network && netChat)
 	{
 		// TODO: trim it before sending ...
 		netChat->sendChat(msg.c_str());
 		return;
 	}
-}
-
-void Console::setNetwork(Network *n)
-{
-	net = n;
 }
 
 void Console::setNetChat(ChatSystem *c)

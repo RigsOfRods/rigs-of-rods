@@ -354,7 +354,6 @@ protected:
 	Ogre::Real replayTimer;
 	Ogre::Real replayPrecision;
 
-	Network *net;
 	ground_model_t *lastFuzzyGroundModel;
 
 	// this is for managing the blinkers on the truck:

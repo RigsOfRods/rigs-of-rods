@@ -155,9 +155,9 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 
 #ifdef USE_SOCKTEW
 	// log a message about this
-	if (net)
+	if (gEnv->network)
 	{
-		client_t *c = net->getClientInfo(reg->sourceid);
+		client_t *c = gEnv->network->getClientInfo(reg->sourceid);
 		if (c)
 		{
 			UTFString username = ChatSystem::getColouredName(*c);

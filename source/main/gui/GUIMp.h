@@ -34,7 +34,7 @@ class GUI_Multiplayer : public RoRSingletonNoCreation< GUI_Multiplayer >
 {
 public:
 
-	GUI_Multiplayer(Network *net);
+	GUI_Multiplayer();
 	~GUI_Multiplayer();
 
 	int update();
@@ -56,7 +56,6 @@ protected:
 	MyGUI::StaticTextPtr tooltipText;
 	MyGUI::WidgetPtr tooltipPanel, mpPanel;
 	MyGUI::WindowPtr msgwin;
-	Network *net;
 
 	player_row_t player_rows[MAX_PEERS + 1];
 

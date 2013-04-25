@@ -32,9 +32,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-GUI_Multiplayer::GUI_Multiplayer(Network *_net) :
-	  net(_net)
-	, clients(0)
+GUI_Multiplayer::GUI_Multiplayer() :
+	  clients(0)
 	, lineheight(16)
 	, msgwin(0)
 {
@@ -318,12 +317,12 @@ int GUI_Multiplayer::update()
 	mpPanel->setPosition(x,y);
 
 	// add local player to first slot always
-	user_info_t *lu = net->getLocalUserData();
+	user_info_t *lu = gEnv->network->getLocalUserData();
 	updateSlot(&player_rows[slotid], lu, true);
 	slotid++;
 
 	// add remote players
-	int res = net->getClientInfos(clients);
+	int res = gEnv->network->getClientInfos(clients);
 	if (res) return 1;
 	for (int i = 0; i < MAX_PEERS; i++)
 	{
