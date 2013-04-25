@@ -47,6 +47,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, colourNumber(colourNumber)
 	, last_net_time(0)
 	, mAnimState(0)
+	, mCamera(gEnv->mainCamera)
 	, mCharacterNode(0)
 	, mLastPosition(Vector3::ZERO)
 	, mMoveableText(0)
