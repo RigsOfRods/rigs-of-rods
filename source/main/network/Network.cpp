@@ -90,9 +90,6 @@ Network::Network(String servername, long sport, RoRFrameListener *efl) :
 
 	// update factories network objects
 
-	NetworkStreamManager::getSingleton().net = this;
-
-	//
 	memset(&server_settings, 0, sizeof(server_info_t));
 	memset(&userdata, 0, sizeof(user_info_t));
 	shutdown=false;
@@ -635,12 +632,6 @@ void Network::receivethreadstart()
 				SETTINGS.setUTFSetting(L"Nickname", nickname);
 				// update auth status
 				myauthlevel = userdata.authstatus;
-
-				// now join the chat and so forth
-#ifdef USE_MYGUI
-				Console::getSingleton().setNetwork(this);
-#endif // USE_MYGUI
-
 			} else
 			{
 				user_info_t *cinfo = (user_info_t*) buffer;

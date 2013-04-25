@@ -63,7 +63,6 @@ public:
 	void unselect();
 	void select(Ogre::UTFString start = "");
 
-	void setNetwork(Network *net);
 	void setNetChat(ChatSystem *net);
 
 	void startPrivateChat(int target_uid);
@@ -146,7 +145,6 @@ protected:
 	void findCurrentWord();
 	/// Auto-completion things end
 
-	Network *net;
 	ChatSystem *netChat;
 
 	typedef struct mygui_console_line_t {

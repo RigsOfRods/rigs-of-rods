@@ -137,7 +137,6 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, mousemoveforce(0.0f)
 	, mousenode(-1)
 	, mousepos(Vector3::ZERO)
-	, net(0)
 	, netBrakeLight(false)
 	, netLabelNode(0)
 	, netMT(0)
@@ -283,7 +282,7 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	statistics_gfx = BES.getClient(tnum, BES_GFX);
 #endif
 
-	if (net) networking = true; // enable networking if some network class is existing
+	if (gEnv->network) networking = true; // enable networking if some network class is existing
 
 	for (int i=0; i<MAX_SUBMESHES; i++)
 	{
@@ -2280,7 +2279,7 @@ void Beam::_waitForSync()
 
 void Beam::sendStreamSetup()
 {
-	if (!net || state == NETWORKED ) return;
+	if (!gEnv->network || state == NETWORKED ) return;
 	// only init stream if its local.
 	// the stream is local when networking=true and networked=false
 
@@ -5342,17 +5341,17 @@ void Beam::updateNetworkInfo()
 {
 	BES_GFX_START(BES_GFX_updateNetworkInfo);
 #ifdef USE_SOCKETW
-	if (!net) return;
+	if (!gEnv->network) return;
 	bool remote = (state == NETWORKED);
 	if (remote)
 	{
-		client_t *c = net->getClientInfo(sourceid);
+		client_t *c = gEnv->network->getClientInfo(sourceid);
 		if (!c) return;
 		networkUsername = UTFString(c->user.username);
 		networkAuthlevel = c->user.authstatus;
 	} else
 	{
-		user_info_t *info = net->getLocalUserData();
+		user_info_t *info = gEnv->network->getLocalUserData();
 		if (!info) return;
 		if (UTFString(info->username).empty()) return;
 		networkUsername = UTFString(info->username);

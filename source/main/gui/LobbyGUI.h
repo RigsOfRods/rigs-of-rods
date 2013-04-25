@@ -43,8 +43,6 @@ public:
 
 	void select();
 
-	void setNetwork(Network *net);
-
 	// print waiting messages
 	void frameEntered(float _frame);
 

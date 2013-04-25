@@ -45,7 +45,7 @@ void NetworkStreamManager::addLocalStream(Streamable *stream, stream_register_t 
 #ifdef USE_SOCKETW
 	MUTEX_LOCK(&stream_mutex);
 	// for own streams: count stream id up ...
-	int mysourceid = net->getUserID();
+	int mysourceid = gEnv->network->getUserID();
 
 	// use counting streamid
 	stream->setSourceID(mysourceid);
@@ -86,7 +86,7 @@ void NetworkStreamManager::addRemoteStream(Streamable *stream, int rsource, int 
 void NetworkStreamManager::removeStream(int sourceid, int streamid)
 {
 #ifdef USE_SOCKETW
-	int mysourceid = net->getUserID();
+	int mysourceid = gEnv->network->getUserID();
 
 	if (sourceid == -1)
 	{

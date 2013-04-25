@@ -35,6 +35,7 @@ class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public Zeroe
 {
 	friend class Network;
 	friend class RoRFrameListener;
+
 public:
 	BeamFactory();
 	~BeamFactory();

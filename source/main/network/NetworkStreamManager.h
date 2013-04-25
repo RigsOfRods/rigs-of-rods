@@ -72,7 +72,6 @@ protected:
 	pthread_mutex_t stream_mutex;
 	pthread_mutex_t send_work_mutex;
 	pthread_cond_t send_work_cv;
-	Network *net;
 
 	std::map < int, std::map < unsigned int, Streamable *> > streams;
 	std::vector < StreamableFactoryInterface * > factories;
