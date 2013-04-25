@@ -92,7 +92,7 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 			pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
 			pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance());
 			for (int i=0; i < num; ++i)
-			{	int size = i==0 ? 2048 : 1024;
+			{	//int size = i==0 ? 2048 : 1024;
 				const Ogre::Real cAdjfA[5] = {2, 1, 0.5, 0.25, 0.125};
 				pssmSetup->setOptimalAdjustFactor(i, cAdjfA[std::min(i, 4)]);
 			}

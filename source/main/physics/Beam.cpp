@@ -6028,7 +6028,7 @@ void Beam::updateDashBoards(float &dt)
 
 			//tropospheric model valid up to 11.000m (33.000ft)
 			float altitude              = nodes[0].AbsPosition.y;
-			float sea_level_temperature = 273.15 + 15.0; //in Kelvin // MAGICs D:
+			//float sea_level_temperature = 273.15 + 15.0; //in Kelvin // MAGICs D:
 			float sea_level_pressure    = 101325; //in Pa
 			//float airtemperature        = sea_level_temperature - altitude * 0.0065f; //in Kelvin
 			float airpressure           = sea_level_pressure * pow(1.0f - 0.0065f * altitude / 288.15f, 5.24947f); //in Pa

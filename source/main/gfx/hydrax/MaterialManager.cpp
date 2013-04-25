@@ -1781,9 +1781,9 @@ namespace Hydrax
 	bool MaterialManager::_createUnderwaterMaterial(const HydraxComponent &Components, const Options &Options)
 	{
 		const bool cDepth    = _isComponent(Components, HYDRAX_COMPONENT_DEPTH   );
-		// const bool cSmooth   = _isComponent(Components, HYDRAX_COMPONENT_SMOOTH  );      // cSmooth uneeded underwater
+		//const bool cSmooth   = _isComponent(Components, HYDRAX_COMPONENT_SMOOTH  );      // cSmooth uneeded underwater
 		const bool cSun      = _isComponent(Components, HYDRAX_COMPONENT_SUN     );
-		const bool cFoam     = _isComponent(Components, HYDRAX_COMPONENT_FOAM    );
+		//const bool cFoam     = _isComponent(Components, HYDRAX_COMPONENT_FOAM    );
 		const bool cCaustics = _isComponent(Components, HYDRAX_COMPONENT_CAUSTICS);
 		const bool cUReflections = _isComponent(Components, HYDRAX_COMPONENT_UNDERWATER_REFLECTIONS);
 
@@ -3068,7 +3068,7 @@ namespace Hydrax
                 GLSLTextUnit++;
             }
 		    DM_Technique0_Pass0->createTextureUnitState("HydraxDepthMap")->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
-            Ogre::Viewport *Viewport = mHydrax->getCamera()->getViewport();
+            //Ogre::Viewport *Viewport = mHydrax->getCamera()->getViewport();
 		}
 
 		UnderwaterCompositorMaterial->setReceiveShadows(false);
@@ -3753,10 +3753,12 @@ namespace Hydrax
 			    setNamedConstant( "uCorner02",  mMaterialManager->mHydrax->getCamera()->getWorldSpaceCorners()[6] - mMaterialManager->mHydrax->getCamera()->getWorldSpaceCorners()[5]);
 		}
 
+		/*
         if (mMaterialManager->_isComponent(mMaterialManager->mComponents, HYDRAX_COMPONENT_DEPTH))
         {
             Ogre::Viewport *Viewport = mMaterialManager->mHydrax->getCamera()->getViewport();
         }
+		*/
 
 		if (mMaterialManager->mCompositorsNeedToBeReloaded[COMP_UNDERWATER])
 		{

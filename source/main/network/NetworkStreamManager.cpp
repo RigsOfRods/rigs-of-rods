@@ -191,8 +191,8 @@ void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 	MUTEX_UNLOCK(&send_work_mutex);
 
 	MUTEX_LOCK(&stream_mutex);
-	char *buffer = 0;
-	int bufferSize=0;
+	//char *buffer = 0;
+	//int bufferSize=0;
 
 	std::map < int, std::map < unsigned int, Streamable *> >::iterator it;
 	for (it=streams.begin(); it!=streams.end(); it++)
@@ -255,8 +255,8 @@ void NetworkStreamManager::syncRemoteStreams()
 void NetworkStreamManager::receiveStreams()
 {
 	MUTEX_LOCK(&stream_mutex);
-	char *buffer = 0;
-	int bufferSize=0;
+	//char *buffer = 0;
+	//int bufferSize=0;
 	std::map < int, std::map < unsigned int, Streamable *> >::iterator it;
 	for (it=streams.begin(); it!=streams.end(); it++)
 	{

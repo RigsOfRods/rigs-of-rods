@@ -119,7 +119,7 @@ int Savegame::save(Ogre::String &filename)
 		{
 			struct savegame_entry_header dh;
 			memset(&dh, 0, sizeof(dh));
-			dh.magic = entry_magic;
+			dh.magic = entry_magic; // conversion from 'const int' to 'unsigned int', signed/unsigned mismatch!
 			dh.free_nodes = t->free_node;
 			dh.free_beams = t->free_beam;
 			dh.free_shock = t->free_shock;

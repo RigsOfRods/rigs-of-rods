@@ -717,7 +717,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 	if (name.empty()) return;
 
 	//FILE *fd;
-	char oname[1024] = {};
+	//char oname[1024] = {};
 	char mesh[1024] = {};
 	char line[1024] = {};
 	char collmesh[1024] = {};

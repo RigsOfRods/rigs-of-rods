@@ -642,7 +642,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 	if (!airneedlesOverlay->isVisible()) return false;
 	bool res = false;
 	const OIS::MouseState ms = _arg.state;
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
+	//Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 
 	if (!curr_truck) return res;

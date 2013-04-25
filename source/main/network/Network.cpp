@@ -355,7 +355,7 @@ int Network::sendmessage(SWInetSocket *socket, int type, unsigned int streamid, 
 	head.source=myuid;
 	head.size=len;
 	head.streamid=streamid;
-	int hlen=0;
+	//int hlen=0;
 
 	// construct buffer
 	const int msgsize = sizeof(header_t) + len;
@@ -498,7 +498,7 @@ void Network::receivethreadstart()
 	header_t header;
 
 	char *buffer=(char*)malloc(MAX_MESSAGE_LENGTH);
-	bool autoDl = (BSETTING("AutoDownload", false));
+	//bool autoDl = (BSETTING("AutoDownload", false));
 	std::deque < stream_reg_t > streamCreationResults;
 	LOG("Receivethread starting");
 	// unlimited timeout, important!

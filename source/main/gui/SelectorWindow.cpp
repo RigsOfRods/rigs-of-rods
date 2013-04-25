@@ -651,7 +651,7 @@ void SelectorWindow::selectionDone()
 
 void SelectorWindow::updateControls(CacheEntry *entry)
 {
-	int modnumber = entry->number;
+	//int modnumber = entry->number;
 	String minitype = entry->minitype;
 
 	String outBasename = "";
