@@ -982,7 +982,7 @@ void Beam::pushNetwork(char* data, int size)
 	{
 		// TODO: show the user the problem in the GUI
 		LOG("WRONG network size: we expected " + TOSTRING(netbuffersize+sizeof(oob_t)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
-		state = SLEEPING;
+		state = NETWORKED_INVALID;
 		return;
 	}
 	//okay, the big switch
