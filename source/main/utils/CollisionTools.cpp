@@ -545,7 +545,7 @@ void CollisionTools::getStaticGeometry(
 	// iterate regions
 	std::vector<Ogre::Vector3> vertices;
 	std::vector<unsigned int> indices;
-	size_t next_offset = 0;
+	//size_t next_offset = 0;
 
 	Ogre::Vector3 center = rg->getCentre();
 	Ogre::StaticGeometry::Region::LODIterator lit(rg->getLODIterator());

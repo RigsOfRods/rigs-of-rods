@@ -274,7 +274,6 @@ namespace Hydrax{namespace Module
 		Module::update(timeSinceLastFrame);
 
 		// Update heigths
-		int i = 0, v, u;
 
 		if (getNormalMode() == MaterialManager::NM_VERTEX)
 		{
@@ -329,9 +328,9 @@ namespace Hydrax{namespace Module
 			{
 				Mesh::POS_NORM_VERTEX* Vertices = static_cast<Mesh::POS_NORM_VERTEX*>(mVertices);
 
-				for(v=1; v<(mOptions.Complexity-1); v++)
+				for(int v=1; v<(mOptions.Complexity-1); v++)
 				{
-					for(u=1; u<(mOptions.Complexity-1); u++)
+					for(int u=1; u<(mOptions.Complexity-1); u++)
 					{
 						Vertices[v*mOptions.Complexity + u].y =
 							 0.2f *
@@ -347,9 +346,9 @@ namespace Hydrax{namespace Module
 			{
 				Mesh::POS_VERTEX* Vertices = static_cast<Mesh::POS_VERTEX*>(mVertices);
 
-				for(v=1; v<(mOptions.Complexity-1); v++)
+				for(int v=1; v<(mOptions.Complexity-1); v++)
 				{
-					for(u=1; u<(mOptions.Complexity-1); u++)
+					for(int u=1; u<(mOptions.Complexity-1); u++)
 					{
 						Vertices[v*mOptions.Complexity + u].y =
 							 0.2f *

@@ -278,7 +278,6 @@ SoundScriptTemplate* SoundScriptManager::createTemplate(String name, String grou
 	if (templates.find(name) != templates.end())
 	{
 		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "SoundScript with the name " + name + " already exists.", "SoundScriptManager::createTemplate");
-		return NULL;
 	}
 
 	SoundScriptTemplate *ssi = new SoundScriptTemplate(name, groupname, filename, loading_base);

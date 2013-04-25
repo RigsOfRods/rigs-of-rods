@@ -452,7 +452,7 @@ void RoRFrameListener::updateGUI(float dt)
 		float altitude=curr_truck->nodes[0].AbsPosition.y;
 		float sea_level_temperature=273.15+15.0; //in Kelvin
 		float sea_level_pressure=101325; //in Pa
-		float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
+		//float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
 		float airpressure=sea_level_pressure*pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
 		float airdensity=airpressure*0.0000120896;//1.225 at sea level
 
@@ -1029,16 +1029,8 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 		gEnv->player->setVisible(false);
 	}
 
-	// load guy
-	int source=-1;
-#ifdef USE_SOCKETW
-	if (gEnv->network)
-		source = gEnv->network->getUserID();
-#endif //SOCKETW
-
 	// new beam factory
 	new BeamFactory();
-
 
 	// now continue to load everything...
 	if (!preselected_map.empty())
@@ -1063,7 +1055,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 		if (preselected_truck.empty())
 		{
-			if (!gEnv->terrainManager->getTrucksLoaded() && (!netmode || false/*!terrainHasTruckShop*/))
+			if (!gEnv->terrainManager->getTrucksLoaded() && (!netmode /*|| !terrainHasTruckShop*/))
 			{
 #ifdef USE_MYGUI
 				// show truck selector

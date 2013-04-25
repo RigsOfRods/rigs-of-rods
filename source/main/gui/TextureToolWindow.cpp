@@ -205,7 +205,7 @@ void TextureToolWindow::eventClickDynamicButton( MyGUI::WidgetPtr _sender )
 
 void TextureToolWindow::notifyWindowPressed(MyGUI::Window* _widget, const std::string& _name)
 {
-	MyGUI::WindowPtr window = _widget->castType<MyGUI::Window>();
+	//MyGUI::WindowPtr window = _widget->castType<MyGUI::Window>();
 	if (_name == "close")
 		hide();
 }

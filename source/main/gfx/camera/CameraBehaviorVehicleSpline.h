@@ -51,7 +51,7 @@ protected:
 	bool autoTracking;
 
 	std::deque<node*> splineNodes;
-	int numLinkedBeams;
+	unsigned int numLinkedBeams;
 
 	static const int splineDrawResolution = 200;
 };

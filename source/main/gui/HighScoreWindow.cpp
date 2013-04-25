@@ -66,7 +66,7 @@ void HighScoreWindow::hide()
 
 void HighScoreWindow::notifyWindowPressed(MyGUI::Window* _widget, const std::string& _name)
 {
-	MyGUI::WindowPtr window = _widget->castType<MyGUI::Window>();
+	//MyGUI::WindowPtr window = _widget->castType<MyGUI::Window>();
 	if (_name == "close")
 		hide();
 }

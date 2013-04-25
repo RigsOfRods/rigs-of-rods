@@ -678,7 +678,7 @@ int ScriptEngine::envokeCallback(int functionPtr, eventsource_t *source, node_t 
 	if (node)
 		context->SetArgDWord (3, node->id);
 	else
-		context->SetArgDWord (3, -1);
+		context->SetArgDWord (3, -1); // conversion from 'int' to 'AngelScript::asDWORD', signed/unsigned mismatch!
 
 	int r = context->Execute();
 	if ( r == AngelScript::asEXECUTION_FINISHED )

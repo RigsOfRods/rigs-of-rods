@@ -133,7 +133,7 @@ Collisions::Collisions() :
 
 	for (int i=0; i < HASH_SIZE; i++)
 	{
-		hashtable[i].cellid = UNUSED_CELLID;
+		hashtable[i].cellid = UNUSED_CELLID; // conversion from 'const int' to 'unsigned int', signed/unsigned mismatch!
 	}
 
 	collision_tris = (collision_tri_t*)malloc(sizeof(collision_tri_t) * MAX_COLLISION_TRIS);
