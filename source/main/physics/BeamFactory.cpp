@@ -617,6 +617,10 @@ void BeamFactory::calcPhysics(float dt)
 			{
 				break;
 			}
+			case NETWORKED_INVALID:
+			{
+				break;
+			}
 			default:
 			{
 				if (t != current_truck && trucks[t]->engine)
