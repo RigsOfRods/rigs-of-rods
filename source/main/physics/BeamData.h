@@ -399,7 +399,9 @@ struct node
 	bool disable_sparks;
 	Ogre::Vector3 buoyanceForce;
 	int id;
-	float colltesttimer;
+	int collisionBoundingBoxID;
+	float collRadius;
+	float collTestTimer;
 	Ogre::Vector3 iPosition; //!< initial position, absolute
 	Ogre::Real    iDistance; //!< initial distance from node0 during loading - used to check for loose parts
 	Ogre::Vector3 smoothpos; //!< absolute, per-frame smooth, must be used for visual effects only
@@ -408,7 +410,6 @@ struct node
 	bool contacter;
 	int mouseGrabMode;
 	int pos;
-	float collRadius;
 	Ogre::SceneNode *mSceneNode; //!< visual
 };
 
@@ -1006,9 +1007,10 @@ struct rig
 	int hasEmissivePass;
 	FlexObj *cabMesh;
 	Ogre::SceneNode *cabNode;
-	float minx, maxx, miny, maxy, minz, maxz;
+	Ogre::AxisAlignedBox boundingBox; // standard bounding box (surrounds all nodes of a truck)
+	std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; // smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
 	bool freePositioned;
-	int lowestnode;
+	int lowestnode; // never updated after truck init!?!
 
 	float default_spring;
 	float default_spring_scale;
@@ -1038,7 +1040,7 @@ struct rig
 	float odometerTotal;
 	float odometerUser;
 
-	std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
+	std::vector<std::pair<Ogre::String, bool>> dashBoardLayouts;
 	Ogre::String beamHash;
 };
 

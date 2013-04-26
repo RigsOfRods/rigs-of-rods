@@ -1395,6 +1395,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 			{
 				//parse nodes
 				int id = 0;
+				int collBoxID = -1;
 				float x=0, y=0, z=0, mass=0;
 				char options[256] = "n";
 				int n = parse_args(c, args, 4);
@@ -1416,6 +1417,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				z  = PARSEREAL(args[3]);
 				if (n > 4) strncpy(options, args[4].c_str(), 255);
 				if (n > 5) mass = PARSEREAL(args[5]);
+				if (n > 6) collBoxID = PARSEINT(args[6]);
 
 				if (id != free_node)
 				{
@@ -1435,14 +1437,15 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				}
 				Vector3 npos = pos + rot * Vector3(x,y,z);
 				init_node(id, npos.x, npos.y, npos.z, NODE_NORMAL, 10, 0, 0, free_node, -1, default_node_friction, default_node_volume, default_node_surface, default_node_loadweight);
-				nodes[id].iIsSkin=true;
+				nodes[id].collisionBoundingBoxID = collBoxID;
+				nodes[id].iIsSkin = true;
 				nodes[id].lockgroup = lockgroup_default;
 
 				if 	(default_node_loadweight >= 0.0f)
 				{
-					nodes[id].masstype=NODE_LOADED;
-					nodes[id].overrideMass=true;
-					nodes[id].mass=default_node_loadweight;
+					nodes[id].mass = default_node_loadweight;
+					nodes[id].masstype = NODE_LOADED;
+					nodes[id].overrideMass = true;
 				}
 
 				// merge options and default_node_options
@@ -5436,18 +5439,16 @@ void SerializedRig::serialize(Ogre::String targetFilename, ScopeLog *scope_log)
 		if (!virtuallyLoaded) // && mSceneNode)
 		{
 	 		// now calculate the bounds with respect of the nodes and beams
-			//AxisAlignedBox aab = getWorldAABB(mSceneNode);
-			calcBox();
-			AxisAlignedBox aab = AxisAlignedBox(minx, miny, minz, maxx, maxy, maxz);
-			//aab.merge(truckaab);
+			calcBoundingBoxes();
+			calcLowestNode();
 
-			root[L"minx"]     = new JSONValue(TOSTRING(aab.getMinimum().x).c_str());
-			root[L"miny"]     = new JSONValue(TOSTRING(aab.getMinimum().y).c_str());
-			root[L"minz"]     = new JSONValue(TOSTRING(aab.getMinimum().z).c_str());
+			root[L"minx"]     = new JSONValue(TOSTRING(boundingBox.getMinimum().x).c_str());
+			root[L"miny"]     = new JSONValue(TOSTRING(boundingBox.getMinimum().y).c_str());
+			root[L"minz"]     = new JSONValue(TOSTRING(boundingBox.getMinimum().z).c_str());
 
-			root[L"maxx"]     = new JSONValue(TOSTRING(aab.getMaximum().x).c_str());
-			root[L"maxy"]     = new JSONValue(TOSTRING(aab.getMaximum().y).c_str());
-			root[L"maxz"]     = new JSONValue(TOSTRING(aab.getMaximum().z).c_str());
+			root[L"maxx"]     = new JSONValue(TOSTRING(boundingBox.getMaximum().x).c_str());
+			root[L"maxy"]     = new JSONValue(TOSTRING(boundingBox.getMaximum().y).c_str());
+			root[L"maxz"]     = new JSONValue(TOSTRING(boundingBox.getMaximum().z).c_str());
 		}
 
 		if (scope_log)
@@ -5543,9 +5544,10 @@ void SerializedRig::init_node(int pos, Real x, Real y, Real z, int type, Real m,
 	nodes[pos].wetstate=DRY;
 	nodes[pos].isHot=false;
 	nodes[pos].overrideMass=false;
-	nodes[pos].id = id;
-	nodes[pos].collRadius = 0;
-	nodes[pos].colltesttimer=0;
+	nodes[pos].id=id;
+	nodes[pos].collisionBoundingBoxID=-1;
+	nodes[pos].collRadius=0;
+	nodes[pos].collTestTimer=0;
 	nodes[pos].iIsSkin=false;
 	nodes[pos].isSkin=nodes[pos].iIsSkin;
 	nodes[pos].pos=pos;
@@ -6649,38 +6651,47 @@ void SerializedRig::wash_calculator(Quaternion rot, parsecontext_t c)
 	}
 }
 
-void SerializedRig::calcBox()
+void SerializedRig::calcBoundingBoxes()
 {
 	//BES_GFX_START(BES_GFX_calcBox);
 
-	minx=nodes[0].AbsPosition.x;
-	maxx=nodes[0].AbsPosition.x;
-	miny=nodes[0].AbsPosition.y;
-	maxy=nodes[0].AbsPosition.y;
-	minz=nodes[0].AbsPosition.z;
-	maxz=nodes[0].AbsPosition.z;
-	lowestnode=0;
-	for (int i=1; i < free_node; i++)
+	boundingBox.setExtents(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+	collisionBoundingBoxes.clear();
+
+	for (int i=0; i < free_node; i++)
 	{
-		if (nodes[i].AbsPosition.x>maxx) maxx=nodes[i].AbsPosition.x;
-		if (nodes[i].AbsPosition.x<minx) minx=nodes[i].AbsPosition.x;
-		if (nodes[i].AbsPosition.y>maxy) maxy=nodes[i].AbsPosition.y;
-		if (nodes[i].AbsPosition.y<miny)
+		boundingBox.merge(Ogre::Vector3(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z));
+		if (nodes[i].collisionBoundingBoxID >= 0)
 		{
-			miny=nodes[i].AbsPosition.y;
-			lowestnode=i;
+			if ((unsigned int) nodes[i].collisionBoundingBoxID >= collisionBoundingBoxes.size())
+			{
+				collisionBoundingBoxes.push_back(Ogre::AxisAlignedBox(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z));
+			} else
+			{
+				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
+			}
 		}
-		if (nodes[i].AbsPosition.z>maxz) maxz=nodes[i].AbsPosition.z;
-		if (nodes[i].AbsPosition.z<minz) minz=nodes[i].AbsPosition.z;
 	}
-	minx-=0.3;
-	maxx+=0.3;
-	miny-=0.3;
-	maxy+=0.3;
-	minz-=0.3;
-	maxz+=0.3;
+
+	boundingBox.setMinimum(boundingBox.getMinimum() - Ogre::Vector3(0.3f, 0.3f, 0.3f));
+	boundingBox.setMaximum(boundingBox.getMaximum() + Ogre::Vector3(0.3f, 0.3f, 0.3f));
 
 	//BES_GFX_STOP(BES_GFX_calcBox);
+}
+
+void SerializedRig::calcLowestNode()
+{
+	lowestnode = 0;
+	float miny = nodes[0].AbsPosition.y;
+
+	for (int i=0; i < free_node; i++)
+	{
+		if (nodes[i].AbsPosition.y < miny)
+		{
+			miny = nodes[i].AbsPosition.y;
+			lowestnode = i;
+		}
+	}
 }
 
 void SerializedRig::parser_warning(parsecontext_t &context, Ogre::String text, int errlvl)

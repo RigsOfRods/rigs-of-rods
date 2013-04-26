@@ -131,6 +131,8 @@ int Savegame::save(Ogre::String &filename)
 
 			if (t->engine) dh.engine = 1;
 
+			dh.collisionBoundingBoxeses = t->collisionBoundingBoxes.size();
+
 			// write entry header to file
 			fwrite(&dh, sizeof(dh), 1, f);
 		}
@@ -188,12 +190,24 @@ int Savegame::save(Ogre::String &filename)
 			WRITEVAR(t->state);
 			WRITEVAR(t->cparticle_enabled);
 			WRITEVAR(t->origin);
-			WRITEVAR(t->minx);
-			WRITEVAR(t->miny);
-			WRITEVAR(t->minz);
-			WRITEVAR(t->maxx);
-			WRITEVAR(t->maxy);
-			WRITEVAR(t->maxz);
+			WRITEVAR(t->boundingBox.getMinimum().x);
+			WRITEVAR(t->boundingBox.getMinimum().y);
+			WRITEVAR(t->boundingBox.getMinimum().z);
+			WRITEVAR(t->boundingBox.getMaximum().x);
+			WRITEVAR(t->boundingBox.getMaximum().y);
+			WRITEVAR(t->boundingBox.getMaximum().z);
+
+			// bounding boxes
+			for(unsigned int i=0; i < t->collisionBoundingBoxes.size(); i++)
+			{
+				WRITEVAR(t->collisionBoundingBoxes[i].getMinimum().x);
+				WRITEVAR(t->collisionBoundingBoxes[i].getMinimum().y);
+				WRITEVAR(t->collisionBoundingBoxes[i].getMinimum().z);
+
+				WRITEVAR(t->collisionBoundingBoxes[i].getMaximum().x);
+				WRITEVAR(t->collisionBoundingBoxes[i].getMaximum().y);
+				WRITEVAR(t->collisionBoundingBoxes[i].getMaximum().z);
+			}
 
 			// TODO: commandkey, Skin, engine, slidenodes, flexbodies (damage texture)
 		}
@@ -456,12 +470,26 @@ int Savegame::load(Ogre::String &filename)
 		READVAR(t->state);
 		READVAR(t->cparticle_enabled);
 		READVAR(t->origin);
-		READVAR(t->minx);
-		READVAR(t->miny);
-		READVAR(t->minz);
-		READVAR(t->maxx);
-		READVAR(t->maxy);
-		READVAR(t->maxz);
+		READVAR(t->boundingBox.getMinimum().x);
+		READVAR(t->boundingBox.getMinimum().y);
+		READVAR(t->boundingBox.getMinimum().z);
+		READVAR(t->boundingBox.getMaximum().x);
+		READVAR(t->boundingBox.getMaximum().y);
+		READVAR(t->boundingBox.getMaximum().z);
+
+		// bounding boxes
+		t->collisionBoundingBoxes.clear();
+		t->collisionBoundingBoxes.resize(dh.collisionBoundingBoxeses);
+		for(unsigned int i=0; i < dh.collisionBoundingBoxeses; i++)
+		{
+			READVAR(t->collisionBoundingBoxes[i].getMinimum().x);
+			READVAR(t->collisionBoundingBoxes[i].getMinimum().y);
+			READVAR(t->collisionBoundingBoxes[i].getMinimum().z);
+
+			READVAR(t->collisionBoundingBoxes[i].getMaximum().x);
+			READVAR(t->collisionBoundingBoxes[i].getMaximum().y);
+			READVAR(t->collisionBoundingBoxes[i].getMaximum().z);
+		}
 
 		// important: active all vehicles upon loading!
 		// they will go sleeping automatically

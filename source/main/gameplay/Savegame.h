@@ -61,6 +61,7 @@ protected:
 		float lastPosition[3];
 		int cameramode, lastcameramode;
 	};
+
 	struct savegame_entry_header {
 		unsigned int magic;
 		char filename[1024];
@@ -72,6 +73,7 @@ protected:
 		unsigned int free_rotator;
 		unsigned int state;
 		unsigned int engine;
+		unsigned int collisionBoundingBoxeses;
 		float origin[3];
 	};
 };

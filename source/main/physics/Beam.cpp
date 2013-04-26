@@ -1676,38 +1676,40 @@ void Beam::resetAngle(float rot)
 void Beam::resetPosition(float px, float pz, bool setI, float miny)
 {
 	if (!gEnv->terrainManager->getHeightFinder()) return;
-	IWater *water = gEnv->terrainManager->getWater();
+
 	// horizontal displacement
 	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
-	for (int i=0; i<free_node; i++)
+	for (int i=0; i < free_node; i++)
 	{
-		nodes[i].AbsPosition+=offset;
+		nodes[i].AbsPosition += offset;
 	}
-	//vertical
-	float minoffset=0.0;
-	if (miny<-9000)
-	{
-		minoffset=nodes[0].AbsPosition.y-gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[0].AbsPosition.x, nodes[0].AbsPosition.z);
-		for (int i=1; i<free_node; i++)
-		{
-			Vector3 pos=Vector3(nodes[i].AbsPosition.x,gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z),nodes[i].AbsPosition.z);
-			//if (water && pos.y<water->getHeight()) pos.y=water->getHeight();
-			collisions->collisionCorrect(&pos);
-			float offset=nodes[i].AbsPosition.y-pos.y;
-			if (offset<minoffset) minoffset=offset;
-		}
-	}
-	else
-	{
-		minoffset=nodes[0].AbsPosition.y-miny;
-		for (int i=1; i<free_node; i++)
-		{
-			float offset=nodes[i].AbsPosition.y-miny;
-			if (offset<minoffset) minoffset=offset;
-		}
-	}
-	if (water && -minoffset<water->getHeight()) minoffset=-water->getHeight();
 
+	//vertical
+	float minoffset = 0.0;
+	if (miny < -9000)
+	{
+		minoffset = nodes[0].AbsPosition.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[0].AbsPosition.x, nodes[0].AbsPosition.z);
+		for (int i=1; i < free_node; i++)
+		{
+			Vector3 pos = Vector3(nodes[i].AbsPosition.x, gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z), nodes[i].AbsPosition.z);
+			//if (gEnv->terrainManager->getWater() && pos.y < gEnv->terrainManager->getWater()->getHeight()) pos.y = gEnv->terrainManager->getWater()->getHeight();
+			collisions->collisionCorrect(&pos);
+			minoffset = std::min(nodes[i].AbsPosition.y - pos.y, minoffset);
+		}
+	} else
+	{
+		minoffset = nodes[0].AbsPosition.y - miny;
+		for (int i=1; i < free_node; i++)
+		{
+			minoffset = std::min(nodes[i].AbsPosition.y - miny, minoffset);
+		}
+	}
+
+	if (gEnv->terrainManager->getWater())
+	{
+		minoffset = std::min(-gEnv->terrainManager->getWater()->getHeight(), minoffset);
+	}
+	
 	// calculate average position
 	Vector3 apos=Vector3::ZERO;
 	for (int i=0; i<free_node; i++)
@@ -1889,8 +1891,6 @@ void Beam::SyncReset()
 	origin=Vector3::ZERO;
 	if (pointCD) pointCD->reset();
 
-	float yPos = nodes[lowestnode].AbsPosition.y;
-
 	Vector3 cur_position = nodes[0].AbsPosition;
 	Vector3 cur_dir = nodes[0].AbsPosition;
 	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
@@ -1959,9 +1959,9 @@ void Beam::SyncReset()
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 	}
 
-	for (i=0; i<free_contacter; i++) contacters[i].contacted=0;
-	for (std::vector <rope_t>::iterator it = ropes.begin(); it!=ropes.end(); it++) it->lockedto=0;
-	for (std::vector <tie_t>::iterator it = ties.begin(); it!=ties.end(); it++)
+	for (i=0; i<free_contacter; i++) contacters[i].contacted = 0;
+	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++) it->lockedto=0;
+	for (std::vector <tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
 	{
 		it->beam->disabled = true;
 		it->beam->p2       = &nodes[0];
@@ -1969,12 +1969,12 @@ void Beam::SyncReset()
 	}
 	for (i=0; i<free_aeroengine; i++) aeroengines[i]->reset();
 	for (i=0; i<free_screwprop; i++) screwprops[i]->reset();
-	for (i=0; i<free_rotator; i++) rotators[i].angle=0;
-	for (i=0; i<free_wing; i++) wings[i].fa->broken=false;
-	for (i=0; i<free_wheel; i++) wheels[i].speed=0.0;
+	for (i=0; i<free_rotator; i++) rotators[i].angle = 0.0;
+	for (i=0; i<free_wing; i++) wings[i].fa->broken = false;
+	for (i=0; i<free_wheel; i++) wheels[i].speed = 0.0;
 	if (buoyance) buoyance->setsink(0);
-	refpressure=50.0;
-	addPressure(0);
+	refpressure = 50.0;
+	addPressure(0.0);
 	if (autopilot) resetAutopilot();
 	for (i=0; i<free_flexbody; i++) flexbodies[i]->reset();
 
@@ -1983,21 +1983,22 @@ void Beam::SyncReset()
 	{
 		resetAngle(cur_rot);
 
+		float yPos = nodes[lowestnode].AbsPosition.y;
+
 		if (yPos != 0)
 			resetPosition(cur_position.x, cur_position.z, false, yPos + 0.02f);
 		else
 			resetPosition(cur_position.x, cur_position.z, false);
-
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
-	for (int i=0;i<MAX_COMMANDS;i++)
+	for (int i=0; i<MAX_COMMANDS; i++)
 	{
-		commandkey[i].commandValue=0;
+		commandkey[i].commandValue = 0.0;
 	}
 
 	resetSlideNodes();
-	reset_requested=0;
+	reset_requested = 0;
 }
 
 //this is called by the threads
@@ -4033,21 +4034,20 @@ void Beam::updateLabels(float dt)
 	if (netLabelNode && netMT && netMT->isVisible())
 	{
 		// this ensures that the nickname is always in a readable size
-		netLabelNode->setPosition(position+Vector3(0, (maxy-miny), 0));
-		Vector3 vdir=(position)-mCamera->getPosition();
-		float vlen=vdir.length();
-		float h = vlen/30.0;
-		if (h<0.6)
-			h=0.6;
+		netLabelNode->setPosition(position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
+		Vector3 vdir = position - mCamera->getPosition();
+		float vlen = vdir.length();
+		float h = std::max(0.6, vlen / 30.0);
+
 		netMT->setCharacterHeight(h);
-		if (vlen>1000)
-			netMT->setCaption(networkUsername + "  (" + TOSTRING( (float)(ceil(vlen/100)/10.0) )+ " km)");
-		else if (vlen>20 && vlen <= 1000)
-			netMT->setCaption(networkUsername + "  (" + TOSTRING((int)vlen)+ " m)");
-		else
+		if (vlen > 1000) // 1000 ... vlen
+			netMT->setCaption(networkUsername + "  (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
+		else if (vlen > 20) // 20 ... vlen ... 1000
+			netMT->setCaption(networkUsername + "  (" + TOSTRING((int)vlen) + " m)");
+		else // 0 ... vlen ... 20
 			netMT->setCaption(networkUsername);
 
-		//netMT->setAdditionalHeight((maxy-miny)+h+0.1);
+		//netMT->setAdditionalHeight((boundingBox.getMaximum().y - boundingBox.getMinimum().y) + h + 0.1);
 		netMT->setVisible(true);
 	}
 }
@@ -5557,13 +5557,15 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 	if (!hasfixes)
 	{
 		//check if oversized
-		calcBox();
-		//px=px-(maxx-minx)/2.0;
-		pos.x-=(maxx+minx)/2.0-pos.x;
-		//pz=pz-(maxz-minz)/2.0;
-		pos.z-=(maxz+minz)/2.0-pos.z;
-		float miny=-9999.0;
-		if (spawnbox) miny=spawnbox->relo.y+spawnbox->center.y+0.01;
+		calcBoundingBoxes();
+		//px = px - (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0;
+		pos.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - pos.x;
+		//pz = pz - (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0;
+		pos.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - pos.z;
+		
+		float miny = -9999.0;
+		if (spawnbox) miny = spawnbox->relo.y + spawnbox->center.y + 0.01;
+
 		if (freePositioned)
 			resetPosition(pos, true);
 		else
@@ -5575,8 +5577,8 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 			for (int i=0; i<free_node; i++) inside=inside && collisions->isInside(nodes[i].AbsPosition, spawnbox, 0.2f);
 			if (!inside)
 			{
-				Vector3 gpos=Vector3(pos.x, 0, pos.z);
-				gpos-=rot*Vector3((spawnbox->hi.x-spawnbox->lo.x+maxx-minx)*0.6, 0, 0);
+				Vector3 gpos = Vector3(pos.x, 0.0, pos.z);
+				gpos -= rot * Vector3((spawnbox->hi.x - spawnbox->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6, 0.0, 0.0);
 				resetPosition(gpos.x, gpos.z, true, miny);
 			}
 		}
@@ -5588,8 +5590,12 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 	calc_masses2(truckmass);
 	//setup default sounds
 	if (!disable_default_sounds) setupDefaultSoundSources();
+
 	//compute collision box
-	calcBox();
+	calcBoundingBoxes();
+
+	//compute lowest node
+	calcLowestNode();
 
 	//compute node connectivity graph
 	calcNodeConnectivityGraph();

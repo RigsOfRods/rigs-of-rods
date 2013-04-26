@@ -830,9 +830,9 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 	BES_STOP(BES_CORE_Ropes);
 
 	//mouse stuff
-	if (mousenode!=-1)
+	if (mousenode != -1)
 	{
-		Vector3 dir=mousepos-nodes[mousenode].AbsPosition;
+		Vector3 dir = mousepos - nodes[mousenode].AbsPosition;
 		nodes[mousenode].Forces += mousemoveforce * dir;
 	}
 
@@ -845,12 +845,13 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 	BES_START(BES_CORE_Nodes);
 
-	float tminx=nodes[0].AbsPosition.x;
-	float tmaxx=tminx;
-	float tminy=nodes[0].AbsPosition.y;
-	float tmaxy=tminy;
-	float tminz=nodes[0].AbsPosition.z;
-	float tmaxz=tminz;
+	Ogre::AxisAlignedBox tBoundingBox(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+
+	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
+	{
+		collisionBoundingBoxes[i].scale(Ogre::Vector3(0.0));
+	}
+
 	for (int i=0; i<free_node; i++)
 	{
 		//if (_isnan(nodes[i].Position.length())) LOG("Node is NaN "+TOSTRING(i));
@@ -877,15 +878,15 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 		//COLLISION
 		if (!nodes[i].contactless)
 		{
-			nodes[i].colltesttimer+=dt;
-			if (nodes[i].contacted || nodes[i].colltesttimer>0.005 || (nodes[i].iswheel && nodes[i].colltesttimer>0.0025) || increased_accuracy )
+			nodes[i].collTestTimer+=dt;
+			if (nodes[i].contacted || nodes[i].collTestTimer>0.005 || (nodes[i].iswheel && nodes[i].collTestTimer>0.0025) || increased_accuracy )
 			{
 				int contacted=0;
 				float ns=0;
 				ground_model_t *gm = 0; // this is used as result storage, so we can use it later on
 				int handlernum = -1;
 				// reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
-				if ((contacted=collisions->groundCollision(&nodes[i], nodes[i].colltesttimer, &gm, &ns)) | collisions->nodeCollision(&nodes[i], i==cinecameranodepos[currentcamera], contacted, nodes[i].colltesttimer, &ns, &gm, &handlernum))
+				if ((contacted=collisions->groundCollision(&nodes[i], nodes[i].collTestTimer, &gm, &ns)) | collisions->nodeCollision(&nodes[i], i==cinecameranodepos[currentcamera], contacted, nodes[i].collTestTimer, &ns, &gm, &handlernum))
 				{
 					//FX
 					if (gm && doUpdate && dustp)
@@ -935,7 +936,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 					// note last ground model
 					lastFuzzyGroundModel = gm;
 				}
-				nodes[i].colltesttimer=0.0;
+				nodes[i].collTestTimer=0.0;
 			}
 		}
 
@@ -954,12 +955,17 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 			nodes[i].AbsPosition=origin;
 			nodes[i].AbsPosition+=nodes[i].RelPosition;
 		}
-		if (nodes[i].AbsPosition.x>tmaxx) tmaxx=nodes[i].AbsPosition.x;
-		else if (nodes[i].AbsPosition.x<tminx) tminx=nodes[i].AbsPosition.x;
-		if (nodes[i].AbsPosition.y>tmaxy) tmaxy=nodes[i].AbsPosition.y;
-		else if (nodes[i].AbsPosition.y<tminy) tminy=nodes[i].AbsPosition.y;
-		if (nodes[i].AbsPosition.z>tmaxz) tmaxz=nodes[i].AbsPosition.z;
-		else if (nodes[i].AbsPosition.z<tminz) tminz=nodes[i].AbsPosition.z;
+		tBoundingBox.merge(nodes[i].AbsPosition);
+		if (nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
+		{
+			if (collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getSize().length() == 0.0 && collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getMinimum().length() == 0.0)
+			{
+				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].setExtents(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+			} else
+			{
+				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
+			}
+		}
 
 		//prepare next loop (optimisation)
 		//we start forces from zero
@@ -1056,15 +1062,16 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 	// - 1e9 may be reachable only by a vehicle that is 1000 times bigger than a typical RoR vehicle, and it will be a loooong trip
 	// to be able to travel such long distances will require switching physics calculations to higher precision numbers
 	// or taking a different approach to the simulation (truck-local coordinate system?)
-	if (!inRange(tminx+tmaxx+tminy+tmaxy+tminz+tmaxz, -1e9, 1e9))
+	if (!inRange(tBoundingBox.getMinimum().x + tBoundingBox.getMaximum().x +
+				 tBoundingBox.getMinimum().y + tBoundingBox.getMaximum().y +
+				 tBoundingBox.getMinimum().z + tBoundingBox.getMaximum().z, -1e9, 1e9))
 	{
 		reset_requested=1; // truck exploded, schedule reset
 		return; // return early to avoid propagating invalid values
 	}
 
-	minx=tminx-0.3;maxx=tmaxx+0.3;
-	miny=tminy-0.3;maxy=tmaxy+0.3;
-	minz=tminz-0.3;maxz=tmaxz+0.3;
+	boundingBox.setMinimum(tBoundingBox.getMinimum() - Ogre::Vector3(0.3f, 0.3f, 0.3f));
+	boundingBox.setMaximum(tBoundingBox.getMaximum() + Ogre::Vector3(0.3f, 0.3f, 0.3f));
 
 	BES_STOP(BES_CORE_Nodes);
 	BES_START(BES_CORE_Turboprop);
