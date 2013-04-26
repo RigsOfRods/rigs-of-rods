@@ -58,7 +58,8 @@ public:
 
 
 protected:
-  // NOTE: All units must be the same, eg mm, cm or m etc
+
+  // NOTE: All units must be the same, e.g. mm, cm or m etc
   // Primary attributes
   Ogre::Real mFrameSize;                // Film stock/sensor size, arbitrarily selected to help mimic the properties of film, eg 35mm, 3.5cm, 0.035m etc
   Ogre::Real mCircleOfConfusion;        // The area within which the depth of field is clear, it's tied to frame size, eg 0.03mm, 0.003cm, 0.0003m etc
@@ -69,7 +70,6 @@ protected:
   // Secondary attributes
   Ogre::Real mHyperfocalLength;         // The hyperfocal length is the point at which far depth of field is infinite, ie if mFocalDistance is >= to this value everythig will be clear to infinity
   Ogre::Radian mFieldOfView;            // Field of view of the lens, directly related to focal length
-
 
 private:
 

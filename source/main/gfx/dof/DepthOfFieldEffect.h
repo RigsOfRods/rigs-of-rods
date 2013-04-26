@@ -101,6 +101,7 @@ private:
 class DOFManager : public Ogre::FrameListener, public ZeroedMemoryAllocator
 {
 public:
+
 	DOFManager();
 	~DOFManager();
 
@@ -110,15 +111,16 @@ public:
 
 	// controls
 	enum FocusMode {Auto, Manual, Pinhole};
-	void setFocusMode(int mode) {mFocusMode = (FocusMode)mode;}
-	void setAutoSpeed(float f);
-	void zoomView(float delta);
+
 	void Aperture(float delta);
 	void moveFocus(float delta);
-	void setZoom(float f);
-	void setLensFOV(Ogre::Radian fov);
 	void setAperture(float f);
+	void setAutoSpeed(float f);
 	void setFocus(float f);
+	void setFocusMode(int mode) {mFocusMode = (FocusMode)mode;}
+	void setLensFOV(Ogre::Radian fov);
+	void setZoom(float f);
+	void zoomView(float delta);
 
 protected:
 
@@ -126,15 +128,14 @@ protected:
 
 	void cleanup();
 
-
-	Ogre::RaySceneQuery *mRaySceneQuery;
 	DepthOfFieldEffect* mDepthOfFieldEffect;
-	Lens* mLens;
 	FocusMode mFocusMode;
-	float mAutoSpeed;
-	float mAutoTime;
+	Lens* mLens;
+	Ogre::RaySceneQuery *mRaySceneQuery;
 	Ogre::Real targetFocalDistance;
 	Ogre::SceneNode *debugNode;
+	float mAutoSpeed;
+	float mAutoTime;
 };
 
 #endif // __DepthOfFieldEffect_H_
