@@ -72,6 +72,8 @@ public:
 
 	int updateSimulation(float dt);
 
+	/* Returns whether or not the bounding boxes of truck a and truck b intersect. */
+	bool checkTruckIntersection(int a, int b);
 	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
 	void activateAllTrucks();
 	void recursiveActivation(int j);

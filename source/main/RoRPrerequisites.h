@@ -29,15 +29,16 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //#endif //WIN32
 
 // add some ogre headers
+#include <OgreAxisAlignedBox.h>
+#include <OgreColourValue.h>
 #include <OgreHeaderPrefix.h>
+#include <OgreLogManager.h>
+#include <OgreQuaternion.h>
 #include <OgreString.h>
 #include <OgreStringConverter.h>
-#include <OgreLogManager.h>
-#include <OgreVector3.h>
-#include <OgreVector2.h>
-#include <OgreColourValue.h>
-#include <OgreQuaternion.h>
 #include <OgreUTFString.h>
+#include <OgreVector2.h>
+#include <OgreVector3.h>
 
 #include "GlobalEnvironment.h"
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already

@@ -311,16 +311,29 @@ void BeamFactory::updateGUI()
 #endif // USE_MYGUI	
 }
 
+bool BeamFactory::checkTruckIntersection(int a, int b)
+{
+	std::vector<Ogre::AxisAlignedBox> tempBoundingBox_a(trucks[a]->collisionBoundingBoxes);
+	if (tempBoundingBox_a.empty()) tempBoundingBox_a.push_back(trucks[a]->boundingBox);
+
+	std::vector<Ogre::AxisAlignedBox> tempBoundingBox_b(trucks[b]->collisionBoundingBoxes);
+	if (tempBoundingBox_b.empty()) tempBoundingBox_b.push_back(trucks[b]->boundingBox);
+
+	for (std::vector<Ogre::AxisAlignedBox>::iterator it_a = tempBoundingBox_a.begin(); it_a != tempBoundingBox_a.end(); ++it_a)
+		for (std::vector<Ogre::AxisAlignedBox>::iterator it_b = tempBoundingBox_b.begin(); it_b != tempBoundingBox_b.end(); ++it_b)
+			if (it_a->intersects(*it_b))
+				return true;
+
+	return false;
+}
+
 // j is the index of a MAYSLEEP truck, returns true if one active was found in the set
 bool BeamFactory::checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
 {
 	sleepy.set(j, true);
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && !sleepy[t] &&
-			((trucks[j]->minx<trucks[t]->minx && trucks[t]->minx<trucks[j]->maxx) || (trucks[j]->minx<trucks[t]->maxx && trucks[t]->maxx<trucks[j]->maxx) || (trucks[t]->minx<trucks[j]->maxx && trucks[j]->maxx<trucks[t]->maxx)) &&
-			((trucks[j]->miny<trucks[t]->miny && trucks[t]->miny<trucks[j]->maxy) || (trucks[j]->miny<trucks[t]->maxy && trucks[t]->maxy<trucks[j]->maxy) || (trucks[t]->miny<trucks[j]->maxy && trucks[j]->maxy<trucks[t]->maxy)) &&
-			((trucks[j]->minz<trucks[t]->minz && trucks[t]->minz<trucks[j]->maxz) || (trucks[j]->minz<trucks[t]->maxz && trucks[t]->maxz<trucks[j]->maxz) || (trucks[t]->minz<trucks[j]->maxz && trucks[j]->maxz<trucks[t]->maxz)))
+		if (trucks[t] && !sleepy[t] && checkTruckIntersection(t, j))
 		{
 			if (trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5))
 				return checkForActive(t, sleepy);
@@ -337,9 +350,7 @@ void BeamFactory::recursiveActivation(int j)
 	{
 		if (!trucks[t]) continue;
 		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5)) &&
-			((trucks[j]->minx<trucks[t]->minx && trucks[t]->minx<trucks[j]->maxx) || (trucks[j]->minx<trucks[t]->maxx && trucks[t]->maxx<trucks[j]->maxx) || (trucks[t]->minx<trucks[j]->maxx && trucks[j]->maxx<trucks[t]->maxx)) &&
-			((trucks[j]->miny<trucks[t]->miny && trucks[t]->miny<trucks[j]->maxy) || (trucks[j]->miny<trucks[t]->maxy && trucks[t]->maxy<trucks[j]->maxy) || (trucks[t]->miny<trucks[j]->maxy && trucks[j]->maxy<trucks[t]->maxy)) &&
-			((trucks[j]->minz<trucks[t]->minz && trucks[t]->minz<trucks[j]->maxz) || (trucks[j]->minz<trucks[t]->maxz && trucks[t]->maxz<trucks[j]->maxz) || (trucks[t]->minz<trucks[j]->maxz && trucks[j]->maxz<trucks[t]->maxz)))
+			checkTruckIntersection(t, j))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
 			trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;

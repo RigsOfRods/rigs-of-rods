@@ -253,7 +253,8 @@ protected:
 	node_t* getNode(unsigned int id);
 
 	void wash_calculator(Ogre::Quaternion rot, parsecontext_t c);
-	void calcBox();	
+	void calcBoundingBoxes();
+	void calcLowestNode();
 };
 
 

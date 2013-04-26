@@ -123,10 +123,9 @@ void PreviewRenderer::render()
 	// calculate the camera-distance
 	float fov = 60;
 
-	// now calculate the bounds with respct of the nodes and beams
+	// now calculate the bounds with respect of the nodes and beams
 	AxisAlignedBox aab = getWorldAABB(truck->getSceneNode());
-	AxisAlignedBox truckaab = AxisAlignedBox(truck->minx, truck->miny, truck->minz, truck->maxx, truck->maxy, truck->maxz);
-	aab.merge(truckaab);
+	aab.merge(truck->boundingBox);
 
 	Vector3 maxVector = aab.getMaximum();
 	Vector3 minVector = aab.getMinimum();
