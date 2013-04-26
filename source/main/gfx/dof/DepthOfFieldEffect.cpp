@@ -242,10 +242,8 @@ DOFManager::DOFManager()
 	targetFocalDistance = 5;
 
 	mDepthOfFieldEffect = new DepthOfFieldEffect();
-	mLens = new Lens(gEnv->mainCamera->getFOVy(), 1);
-	mLens->setFocalDistance(5);
-	//mLens->setFStop(10);
-//	mDepthOfFieldEffect->setEnabled(false);
+	mLens = new Lens(gEnv->mainCamera->getFOVy(), 2.8f);
+
 	gEnv->ogreRoot->addFrameListener(this);
 
 	mRaySceneQuery = gEnv->sceneManager->createRayQuery(Ogre::Ray());
@@ -290,9 +288,6 @@ void DOFManager::setAutoSpeed(float f)
 
 void DOFManager::setEnabled(bool enabled)
 {
-	mDepthOfFieldEffect->setEnabled(enabled);
-	/*
-	// crashes for some reason
 	if (enabled && !mDepthOfFieldEffect->getEnabled())
 	{
 		// turn on
@@ -304,7 +299,6 @@ void DOFManager::setEnabled(bool enabled)
 		mDepthOfFieldEffect->setEnabled(false);
 		gEnv->ogreRoot->removeFrameListener(this);
 	}
-	*/
 }
 
 bool DOFManager::getEnabled()
@@ -323,11 +317,10 @@ void DOFManager::zoomView(float delta)
 
 void DOFManager::Aperture(float delta)
 {
-	if (mFocusMode == Pinhole)
-		return;
+	if (mFocusMode == Pinhole) return;
 	Real fStop = mLens->getFStop();
 	fStop += delta;
-	fStop = std::max<Real>(0.5, std::min<Real>(fStop, 12.0));
+	fStop = std::max(1.0f, std::min(fStop, 22.0f));
 	mLens->setFStop(fStop);
 }
 
@@ -351,11 +344,9 @@ void  DOFManager::setLensFOV(Radian fov)
 
 void  DOFManager::setAperture(float f)
 {
-	if (mFocusMode == Pinhole)
-		return;
-	Real fStop = f;
-	fStop = std::max<Real>(0.5, std::min<Real>(fStop, 12.0));
-	mLens->setFStop(fStop);
+	if (mFocusMode == Pinhole) return;
+	f = std::max(0.5f, std::min(f, 12.0f));
+	mLens->setFStop(f);
 }
 
 void  DOFManager::setFocus(float f)
@@ -374,7 +365,7 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 			// TODO: Replace with accurate ray/triangle collision detection
 			Real currentFocalDistance = mLens->getFocalDistance();
 
-			// TODO: Continous AF / triggered
+			// TODO: Continuous AF / triggered
 			mAutoTime -= evt.timeSinceLastFrame;
 			if (mAutoTime <= 0.0f)
 			{
@@ -414,13 +405,10 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 			// Slowly adjust the focal distance (emulate auto focus motor)
 			if (currentFocalDistance < targetFocalDistance)
 			{
-				mLens->setFocalDistance(
-					std::min<Real>(currentFocalDistance + mAutoSpeed * evt.timeSinceLastFrame, targetFocalDistance));
-			}
-			else if (currentFocalDistance > targetFocalDistance)
+				mLens->setFocalDistance(std::min(currentFocalDistance + mAutoSpeed * evt.timeSinceLastFrame, targetFocalDistance));
+			} else if (currentFocalDistance > targetFocalDistance)
 			{
-				mLens->setFocalDistance(
-					std::max<Real>(currentFocalDistance - mAutoSpeed * evt.timeSinceLastFrame, targetFocalDistance));
+				mLens->setFocalDistance(std::max(currentFocalDistance - mAutoSpeed * evt.timeSinceLastFrame, targetFocalDistance));
 			}
 
 			break;

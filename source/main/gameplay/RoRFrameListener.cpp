@@ -830,7 +830,6 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	if (BSETTING("DOF", false))
 	{
 		dof = new DOFManager();
-		dof->setEnabled(true);
 	}
 
 	// force feedback
