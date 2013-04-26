@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Beam.h"
 #include "Character.h"
-#include "DepthOfFieldEffect.h"
 #include "IHeightFinder.h"
 #include "Ogre.h"
 #include "TerrainManager.h"
@@ -60,30 +59,14 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext &ctx)
 	gEnv->mainCamera->setPosition(camPosition);
 	gEnv->mainCamera->lookAt(lookAt);
 	gEnv->mainCamera->setFOVy(Radian(fov));
-
-	if ( ctx.mDof )
-	{
-		ctx.mDof->setFocus(camDist);
-		ctx.mDof->setLensFOV(Radian(fov));
-	}
 }
 
 void CameraBehaviorStatic::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
 	fovPreviously = gEnv->mainCamera->getFOVy();
-
-	if ( ctx.mDof )
-	{
-		ctx.mDof->setFocusMode(DOFManager::Manual);
-	}
 }
 
 void CameraBehaviorStatic::deactivate(const CameraManager::CameraContext &ctx)
 {
 	gEnv->mainCamera->setFOVy(fovPreviously);
-
-	if ( ctx.mDof )
-	{
-		ctx.mDof->setFocusMode(DOFManager::Auto);
-	}
 }

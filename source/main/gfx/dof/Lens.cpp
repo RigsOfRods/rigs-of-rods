@@ -58,6 +58,11 @@ void Lens::setFrameSize(const Real& _frameSize) {
   recalculateFieldOfView();
 }
 
+void Lens::setCircleOfConfusion(const Real& _circleOfConfusion) {
+  mCircleOfConfusion = _circleOfConfusion;
+  recalculateHyperfocalLength();
+}
+
 void Lens::setFocalDistance(const Real& _focalDistance) {
   mFocalDistance = std::max(_focalDistance, 0.0f);
 }

@@ -37,17 +37,17 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 	Vector3 mTrans(Vector3::ZERO);
 	Real mTransScale(ctx.mTransScale * 0.25f);
 
-	if (INPUTENGINE.isKeyDown(OIS::KC_LSHIFT) || INPUTENGINE.isKeyDown(OIS::KC_RSHIFT))
+	if ( INPUTENGINE.isKeyDown(OIS::KC_LSHIFT) || INPUTENGINE.isKeyDown(OIS::KC_RSHIFT) )
 	{
 		mRotScale   *= 3.0f;
 		mTransScale *= 3.0f;
 	}
-	if (INPUTENGINE.isKeyDown(OIS::KC_LCONTROL))
+	if ( INPUTENGINE.isKeyDown(OIS::KC_LCONTROL) )
 	{
 		mRotScale   *= 20.0f;
 		mTransScale *= 20.0f;
 	}
-	if (INPUTENGINE.isKeyDown(OIS::KC_LMENU))
+	if ( INPUTENGINE.isKeyDown(OIS::KC_LMENU) )
 	{
 		mRotScale   *= 0.1f;
 		mTransScale *= 0.1f;

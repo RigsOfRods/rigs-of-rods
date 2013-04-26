@@ -42,20 +42,22 @@ public:
   void init(const Ogre::Radian& _fieldOfView, const Ogre::Real& _fStop, const Ogre::Real& _frameSize = 3.5, const Ogre::Real& _circleOfConfusion = 0.003);
 
   void setFrameSize(const Ogre::Real& _frameSize);
+  void setCircleOfConfusion(const Ogre::Real& _circleOfConfusion);
   void setFocalDistance(const Ogre::Real& _focalDistance);
   void setFocalLength(const Ogre::Real& _focalLength);
   void setFieldOfView(const Ogre::Radian& _fieldOfView);
   void setFStop(const Ogre::Real& _fStop);
 
   const Ogre::Real& getFrameSize(void)            { return mFrameSize; }
+  const Ogre::Real& getCircleOfConfusion(void)    { return mCircleOfConfusion; }
   const Ogre::Real& getFocalDistance(void)        { return mFocalDistance; }
   const Ogre::Real& getFocalLength(void)          { return mFocalLength; }
-  const Ogre::Radian& getFieldOfView(void)        { return mFieldOfView; }
   const Ogre::Real& getFStop(void)                { return mFStop; }
-  const Ogre::Real& getHyperfocalLength(void)     { return mHyperfocalLength; }
+  
+  const Ogre::Radian& getFieldOfView(void)        { return mFieldOfView; }
+  const Ogre::Real&   getHyperfocalLength(void)   { return mHyperfocalLength; }
 
   void recalculateDepthOfField(Ogre::Real& _nearDepth, Ogre::Real& _focalDepth, Ogre::Real& _farDepth);
-
 
 protected:
 
@@ -68,8 +70,8 @@ protected:
   Ogre::Real mFStop;                    // FStop number, ie aperture, changing the aperture of a lens has an effect of depth of field, the narrower the aperture/higher the fstop number, the greater the depth of field/clearer the picture is.
 
   // Secondary attributes
-  Ogre::Real mHyperfocalLength;         // The hyperfocal length is the point at which far depth of field is infinite, ie if mFocalDistance is >= to this value everythig will be clear to infinity
   Ogre::Radian mFieldOfView;            // Field of view of the lens, directly related to focal length
+  Ogre::Real   mHyperfocalLength;       // The hyperfocal length is the point at which far depth of field is infinite, ie if mFocalDistance is >= to this value everythig will be clear to infinity
 
 private:
 

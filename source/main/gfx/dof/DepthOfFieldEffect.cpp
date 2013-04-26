@@ -25,6 +25,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "DepthOfFieldEffect.h"
 
 #include "Lens.h"
+#include "BeamFactory.h"
+#include "Character.h"
 #include "Ogre.h"
 #include "Settings.h"
 
@@ -239,7 +241,7 @@ DOFManager::DOFManager()
 	mFocusMode = Manual;
 	mAutoSpeed = 30;
 	mAutoTime = 0.5f;
-	targetFocalDistance = 5;
+	targetFocalDistance = 5.0f;
 
 	mDepthOfFieldEffect = new DepthOfFieldEffect();
 	mLens = new Lens(gEnv->mainCamera->getFOVy(), 2.8f);
@@ -310,7 +312,7 @@ void DOFManager::zoomView(float delta)
 {
 	Real fieldOfView = mLens->getFieldOfView().valueRadians();
 	fieldOfView += delta;
-	fieldOfView = std::max<Real>(0.1, std::min<Real>(fieldOfView, 2.0));
+	fieldOfView = std::max(0.1f, std::min(fieldOfView, 2.0f));
 	mLens->setFieldOfView(Radian(fieldOfView));
 	gEnv->mainCamera->setFOVy(Radian(fieldOfView));
 }
@@ -331,8 +333,8 @@ void DOFManager::moveFocus(float delta)
 
 void  DOFManager::setZoom(float f)
 {
-	Real fieldOfView = Degree(Real(f)).valueRadians();
-	fieldOfView = std::max<Real>(0.1, std::min<Real>(fieldOfView, 2.0));
+	Real fieldOfView = Degree(f).valueRadians();
+	fieldOfView = std::max(0.1f, std::min(fieldOfView, 2.0f));
 	mLens->setFieldOfView(Radian(fieldOfView));
 	gEnv->mainCamera->setFOVy(Radian(fieldOfView));
 }
@@ -356,7 +358,6 @@ void  DOFManager::setFocus(float f)
 
 bool DOFManager::frameStarted(const FrameEvent& evt)
 {
-	Camera *camera = gEnv->mainCamera;
 	// Focusing
 	switch (mFocusMode)
 	{
@@ -371,6 +372,22 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 			{
 				mAutoTime = 0.5f;
 
+				Vector3 lookAt(Vector3::ZERO);
+
+				Beam* currTruck = BeamFactory::getSingleton().getCurrentTruck();
+				if ( currTruck )
+				{
+					lookAt = currTruck->getPosition();
+				} else
+				{
+					lookAt = gEnv->player->getPosition();
+				}
+
+				targetFocalDistance = gEnv->mainCamera->getPosition().distance(lookAt) / 2.0f; // Needs further investigation
+
+				setLensFOV(Radian(gEnv->mainCamera->getFOVy()));
+
+				/*
 				targetFocalDistance = currentFocalDistance;
 
 				// Ryan Booker's (eyevee99) ray scene query auto focus
@@ -391,15 +408,14 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 						break;
 					} else
 					{
-						/*
 						// this wont work since we would need to go down to the polygon level :(
-						if (debugNode) debugNode->setPosition(focusRay.getPoint(it->distance));
-						targetFocalDistance = it->distance;
-						break;
-						*/
+						//if (debugNode) debugNode->setPosition(focusRay.getPoint(it->distance));
+						//targetFocalDistance = it->distance;
+						//break;
 					}
 
 				}
+				//*/
 			}
 
 			// Slowly adjust the focal distance (emulate auto focus motor)
@@ -428,8 +444,7 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 		float nearDepth, focalDepth, farDepth;
 		mLens->recalculateDepthOfField(nearDepth, focalDepth, farDepth);
 		mDepthOfFieldEffect->setFocalDepths(nearDepth, focalDepth, farDepth);
-	}
-	else
+	} else
 	{
 		mDepthOfFieldEffect->setEnabled(false);
 	}
