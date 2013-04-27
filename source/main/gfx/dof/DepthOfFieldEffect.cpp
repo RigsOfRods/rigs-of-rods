@@ -248,8 +248,8 @@ DOFManager::DOFManager()
 
 	gEnv->ogreRoot->addFrameListener(this);
 
-	mRaySceneQuery = gEnv->sceneManager->createRayQuery(Ogre::Ray());
-	mRaySceneQuery->setSortByDistance(true);
+	//mRaySceneQuery = gEnv->sceneManager->createRayQuery(Ogre::Ray());
+	//mRaySceneQuery->setSortByDistance(true);
 	//mRaySceneQuery->setQueryMask(queryMask);
 
 	debugNode = 0;
