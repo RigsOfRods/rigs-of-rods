@@ -1,0 +1,20 @@
+syntax: glob
+CMakeFiles
+cmake_install.cmake
+Makefile
+CMakeCache.txt
+CPackConfig.cmake
+EnabledFeatures.txt
+CPackSourceConfig.cmake
+CMakeTmp
+build_x86
+build_x64
+dependencies/
+bin/RoR
+bin/RoRConfig
+bin/libangelscript_addons.a
+bin/Release/
+bin/plugins.cfg
+bin/RelWithDebInfo/
+ror-dependencies-*.zip
+dependencies-*.zip
