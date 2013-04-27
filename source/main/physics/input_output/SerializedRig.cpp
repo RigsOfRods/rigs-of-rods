@@ -119,7 +119,7 @@ trucksection_t truck_sections[] = {
 	{BTS_TRIGGER, "triggers", false},
 	{BTS_RAILGROUPS, "railgroups", false},
 	{BTS_SLIDENODES, "slidenodes", false},
-	{BTS_COLLISONBOXES, "collisionboxes", false},
+	{BTS_COLLISIONBOXES, "collisionboxes", false},
 	{BTS_FLARES2, "flares2", false},
 	{BTS_ANIMATORS, "animators", false},
 	{BTS_NODECOLLISION, "nodecollision", false},
@@ -5125,7 +5125,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 
 			else if (c.mode == BTS_RAILGROUPS) parseRailGroupLine(c);
 			else if (c.mode == BTS_SLIDENODES) parseSlideNodeLine(c);
-			else if (c.mode == BTS_COLLISONBOXES) parseCollisionBoxLine(c);
+			else if (c.mode == BTS_COLLISIONBOXES) parseCollisionBoxLine(c);
 			else if (c.mode == BTS_NODECOLLISION)
 			{
 				// parse nodecollision
