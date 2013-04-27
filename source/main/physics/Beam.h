@@ -78,7 +78,8 @@ public:
 	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 	Ogre::Vector3 getPosition();
 	void resetAngle(float rot);
-	void resetPosition(float px, float pz, bool setInitPosition, float miny=-9999.0);
+	void resetPosition(float px, float pz, bool setInitPosition, float miny);
+	void resetPosition(float px, float pz, bool setInitPosition);
 	void resetPosition(Ogre::Vector3 translation, bool setInitPosition);
 	void reset(bool keepPosition = false); //call this one to reset a truck from any context
 	void SyncReset(); //this one should be called only synchronously (without physics running in background)
