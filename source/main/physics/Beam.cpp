@@ -1673,9 +1673,14 @@ void Beam::resetAngle(float rot)
 	resetSlideNodePositions();
 }
 
-void Beam::resetPosition(float px, float pz, bool setI, float miny)
+void Beam::resetPosition(float px, float pz, bool setInitPosition)
 {
-	if (!gEnv->terrainManager->getHeightFinder()) return;
+	if (!gEnv->terrainManager->getHeightFinder())
+	{
+		// fallback in case we don't have a height finder
+		resetPosition(px, pz, false, nodes[lowestnode].AbsPosition.y + 0.02f);
+		return;
+	}
 
 	// horizontal displacement
 	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
@@ -1684,48 +1689,89 @@ void Beam::resetPosition(float px, float pz, bool setI, float miny)
 		nodes[i].AbsPosition += offset;
 	}
 
-	//vertical
-	float minoffset = 0.0;
-	if (miny < -9000)
+	// vertical displacement
+	float minoffset = nodes[0].AbsPosition.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[0].AbsPosition.x, nodes[0].AbsPosition.z);
+
+	for (int i=1; i < free_node; i++)
 	{
-		minoffset = nodes[0].AbsPosition.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[0].AbsPosition.x, nodes[0].AbsPosition.z);
-		for (int i=1; i < free_node; i++)
-		{
-			Vector3 pos = Vector3(nodes[i].AbsPosition.x, gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z), nodes[i].AbsPosition.z);
-			//if (gEnv->terrainManager->getWater() && pos.y < gEnv->terrainManager->getWater()->getHeight()) pos.y = gEnv->terrainManager->getWater()->getHeight();
-			collisions->collisionCorrect(&pos);
-			minoffset = std::min(nodes[i].AbsPosition.y - pos.y, minoffset);
-		}
-	} else
-	{
-		minoffset = nodes[0].AbsPosition.y - miny;
-		for (int i=1; i < free_node; i++)
-		{
-			minoffset = std::min(nodes[i].AbsPosition.y - miny, minoffset);
-		}
+		Vector3 pos = Vector3(nodes[i].AbsPosition.x, gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z), nodes[i].AbsPosition.z);
+		collisions->collisionCorrect(&pos);
+		minoffset = std::min(nodes[i].AbsPosition.y - pos.y, minoffset);
 	}
 
 	if (gEnv->terrainManager->getWater())
 	{
 		minoffset = std::min(-gEnv->terrainManager->getWater()->getHeight(), minoffset);
 	}
-	
-	// calculate average position
-	Vector3 apos=Vector3::ZERO;
+
 	for (int i=0; i<free_node; i++)
 	{
-		nodes[i].AbsPosition.y-=minoffset;
-		if (setI) nodes[i].iPosition=nodes[i].AbsPosition;
-		//		if (setI) nodes[i].iPosition.y-=minoffset;
-		nodes[i].smoothpos=nodes[i].AbsPosition;
-		nodes[i].RelPosition=nodes[i].AbsPosition-origin;
-		apos+=nodes[i].AbsPosition;
+		nodes[i].AbsPosition.y -= minoffset;
 	}
 
-	position=apos/free_node;
+	resetPosition(Vector3::ZERO, setInitPosition);
+}
+
+void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
+{
+	// horizontal displacement
+	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
+	for (int i=0; i < free_node; i++)
+	{
+		nodes[i].AbsPosition += offset;
+	}
+
+	// TODO: Fix the vertical displacement, since it's not working
+
+	// vertical displacement
+	float minoffset = nodes[0].AbsPosition.y - miny;
+
+	for (int i=1; i < free_node; i++)
+	{
+		minoffset = std::min(nodes[i].AbsPosition.y - miny, minoffset);
+	}
+
+	if (gEnv->terrainManager->getWater())
+	{
+		minoffset = std::min(-gEnv->terrainManager->getWater()->getHeight(), minoffset);
+	}
+
+	for (int i=0; i<free_node; i++)
+	{
+		nodes[i].AbsPosition.y -= minoffset;
+	}
+
+	resetPosition(Vector3::ZERO, setInitPosition);
+}
+
+void Beam::resetPosition(Vector3 translation, bool setInitPosition)
+{
+	// total displacement
+	if (translation != Vector3::ZERO)
+	{
+		Vector3 offset = translation - nodes[0].AbsPosition;
+		for (int i=0; i<free_node; i++)
+		{
+			nodes[i].AbsPosition += offset;
+		}
+	}
+
+	// calculate average position
+	Vector3 apos(Vector3::ZERO);
+	for (int i=0; i<free_node; i++)
+	{
+		if (setInitPosition)
+		{
+			nodes[i].iPosition = nodes[i].AbsPosition;
+		}
+		nodes[i].smoothpos   = nodes[i].AbsPosition;
+		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+		apos += nodes[i].AbsPosition;
+	}
+	position = apos / free_node;
 
 	// calculate min camera radius for truck
-	if (minCameraRadius<0.01)
+	if (minCameraRadius < 0.01f)
 	{
 		// recalc
 		for (int i=0; i<free_node; i++)
@@ -1742,50 +1788,6 @@ void Beam::resetPosition(float px, float pz, bool setI, float miny)
 	//if (netLabelNode) netLabelNode->setPosition(nodes[0].Position);
 
 	resetSlideNodePositions();
-}
-
-void Beam::resetPosition(Vector3 translation, bool setInitPosition)
-{
-	int i;
-	// total displacement
-	if (translation != Vector3::ZERO)
-	{
-		Vector3 offset = translation - nodes[0].AbsPosition;
-		for (i=0; i<free_node; i++)
-			nodes[i].AbsPosition += offset;
-	}
-
-	// calculate average position
-	Vector3 apos=Vector3::ZERO;
-	for (i=0; i<free_node; i++)
-	{
-		if (setInitPosition)
-			nodes[i].iPosition=nodes[i].AbsPosition;
-		nodes[i].smoothpos = nodes[i].AbsPosition;
-		nodes[i].RelPosition = nodes[i].AbsPosition-origin;
-		apos += nodes[i].AbsPosition;
-	}
-	position = apos / free_node;
-
-	// calculate min camera radius for truck
-	if (minCameraRadius < 0.01f)
-	{
-		// recalc
-		for (i=0; i<free_node; i++)
-		{
-			Real dist = nodes[i].AbsPosition.distance(position);
-			if (dist > minCameraRadius)
-			{
-				minCameraRadius = dist;
-			}
-		}
-		minCameraRadius *= 1.2f; // ten percent buffer
-	}
-
-	//if (netLabelNode) netLabelNode->setPosition(nodes[0].Position);
-
-	resetSlideNodePositions();
-
 }
 
 void Beam::mouseMove(int node, Vector3 pos, float force)
@@ -1983,12 +1985,7 @@ void Beam::SyncReset()
 	{
 		resetAngle(cur_rot);
 
-		float yPos = nodes[lowestnode].AbsPosition.y;
-
-		if (yPos != 0)
-			resetPosition(cur_position.x, cur_position.z, false, yPos + 0.02f);
-		else
-			resetPosition(cur_position.x, cur_position.z, false);
+		resetPosition(cur_position.x, cur_position.z, false);
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
