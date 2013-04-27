@@ -960,7 +960,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 		{
 			if (collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getSize().length() == 0.0 && collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getMinimum().length() == 0.0)
 			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].setExtents(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].setExtents(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z);
 			} else
 			{
 				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
