@@ -119,6 +119,7 @@ trucksection_t truck_sections[] = {
 	{BTS_TRIGGER, "triggers", false},
 	{BTS_RAILGROUPS, "railgroups", false},
 	{BTS_SLIDENODES, "slidenodes", false},
+	{BTS_COLLISONBOXES, "collisionboxes", false},
 	{BTS_FLARES2, "flares2", false},
 	{BTS_ANIMATORS, "animators", false},
 	{BTS_NODECOLLISION, "nodecollision", false},
@@ -1395,7 +1396,6 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 			{
 				//parse nodes
 				int id = 0;
-				int collBoxID = -1;
 				float x=0, y=0, z=0, mass=0;
 				char options[256] = "n";
 				int n = parse_args(c, args, 4);
@@ -1417,7 +1417,6 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				z  = PARSEREAL(args[3]);
 				if (n > 4) strncpy(options, args[4].c_str(), 255);
 				if (n > 5) mass = PARSEREAL(args[5]);
-				if (n > 6) collBoxID = PARSEINT(args[6]);
 
 				if (id != free_node)
 				{
@@ -1437,7 +1436,6 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				}
 				Vector3 npos = pos + rot * Vector3(x,y,z);
 				init_node(id, npos.x, npos.y, npos.z, NODE_NORMAL, 10, 0, 0, free_node, -1, default_node_friction, default_node_volume, default_node_surface, default_node_loadweight);
-				nodes[id].collisionBoundingBoxID = collBoxID;
 				nodes[id].iIsSkin = true;
 				nodes[id].lockgroup = lockgroup_default;
 
@@ -5127,6 +5125,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 
 			else if (c.mode == BTS_RAILGROUPS) parseRailGroupLine(c);
 			else if (c.mode == BTS_SLIDENODES) parseSlideNodeLine(c);
+			else if (c.mode == BTS_COLLISONBOXES) parseCollisionBoxLine(c);
 			else if (c.mode == BTS_NODECOLLISION)
 			{
 				// parse nodecollision
@@ -6479,6 +6478,34 @@ bool SerializedRig::parseSlideNodeLine(parsecontext_t c)
 
 	//parser_warning(c, "SLIDENODE: Adding Slide Rail", PARSER_INFO);
 	mSlideNodes.push_back( newSlideNode );
+	return true;
+}
+
+bool SerializedRig::parseCollisionBoxLine(parsecontext_t c)
+{
+	Ogre::StringVector nodeList = Ogre::StringUtil::split(c.line, ", ");
+	
+	if (nodeList.size() < 2)
+	{
+		parser_warning(c, "COLLISIONBOX: not enough nodes provided: " + String(c.line), PARSER_ERROR);
+		return false;
+	}
+
+	for (Ogre::StringVector::iterator it = nodeList.begin(); it != nodeList.end(); ++it)
+	{
+		int nodeid = StringConverter::parseInt(*it);
+
+		if (!getNode(nodeid))
+		{
+			parser_warning(c, "COLLISIONBOX: invalid node id: " + TOSTRING(nodeid) , PARSER_ERROR);
+			continue;
+		}
+
+		nodes[nodeid].collisionBoundingBoxID = collisionBoundingBoxes.size();
+	}
+
+	collisionBoundingBoxes.resize(collisionBoundingBoxes.size() + 1);
+
 	return true;
 }
 

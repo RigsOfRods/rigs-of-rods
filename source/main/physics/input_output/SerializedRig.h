@@ -206,6 +206,12 @@ protected:
 	 */
 	bool parseSlideNodeLine(parsecontext_t c);
 
+	/**
+	 * @param line line in configuration file
+	 * @return true if line was successfully parsed, false if not
+	 */
+	bool parseCollisionBoxLine(parsecontext_t c);
+
 	// utility methods /////////////////////////////////////////////////////////
 
 	/**
