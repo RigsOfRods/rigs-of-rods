@@ -523,13 +523,14 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (r < 6) continue;
 		if ((!strcmp(oname, "truck")) || (!strcmp(oname, "load") || (!strcmp(oname, "machine")) || (!strcmp(oname, "boat")) || (!strcmp(oname, "truck2")) ))
 		{
-			bool newFormat = (!strcmp(oname, "truck2"));
-
 			if (!strcmp(oname, "boat") && !terrainManager->water)
+			{
 				// no water so do not load boats!
 				continue;
-			String group="";
-			String truckname=String(type);
+			}
+			String group = "";
+			String truckname(type);
+
 			if (!CACHE.checkResourceLoaded(truckname, group))
 			{
 				LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
@@ -541,15 +542,12 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 			tempTruckPreload.px = pos.x;
 			tempTruckPreload.py = pos.y;
 			tempTruckPreload.pz = pos.z;
-			tempTruckPreload.freePosition = newFormat;
-			tempTruckPreload.ismachine=(!strcmp(oname, "machine"));
-			tempTruckPreload.rotation=Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-			//tempTruckPreload.ry=ry;
+			tempTruckPreload.freePosition = (!strcmp(oname, "truck2"));
+			tempTruckPreload.ismachine = (!strcmp(oname, "machine"));
+			tempTruckPreload.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 			strcpy(tempTruckPreload.name, truckname.c_str());
-			
 			truck_preload.push_back(tempTruckPreload);
 
-			terrainManager->trucksLoaded = true;
 			continue;
 		}
 		if (   !strcmp(oname, "road")

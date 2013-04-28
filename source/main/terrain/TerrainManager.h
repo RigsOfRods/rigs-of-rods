@@ -71,7 +71,7 @@ public:
 	TerrainObjectManager *getObjectManager() { return object_manager; };
 	IWater *getWater() { return water; };
 	void loadPreloadedTrucks();
-	bool getTrucksLoaded() { return trucksLoaded; };
+	bool hasPreloadedTrucks();
 
 	size_t getMemoryUsage();
 	void freeResources();
@@ -102,7 +102,6 @@ protected:
 	Ogre::String ogre_terrain_config_filename;
 	Ogre::String terrain_name;
 	Ogre::Vector3 start_position;
-	bool trucksLoaded;
 	bool use_caelum;
 	float gravity;
 	float pagedDetailFactor;
