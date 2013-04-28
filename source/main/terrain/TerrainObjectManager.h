@@ -78,7 +78,6 @@ protected:
 		float px;
 		float py;
 		float pz;
-		//float ry;
 		Ogre::Quaternion rotation;
 		char name[256];
 		bool ismachine;

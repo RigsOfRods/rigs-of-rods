@@ -577,10 +577,10 @@ void TerrainManager::initTerrainCollisions()
 
 bool TerrainManager::update(float dt)
 {
-	if(object_manager)
+	if (object_manager)
 		object_manager->update(dt);
 
-	if(geometry_manager)
+	if (geometry_manager)
 		geometry_manager->update(dt);
 
 	return true;
@@ -648,7 +648,7 @@ void TerrainManager::initObjects()
 
 Ogre::Vector3 TerrainManager::getMaxTerrainSize()
 {
-	if(!geometry_manager)
+	if (!geometry_manager)
 		return Vector3::ZERO;
 	return geometry_manager->getMaxTerrainSize();
 }
@@ -671,5 +671,13 @@ void TerrainManager::freeResources()
 
 void TerrainManager::loadPreloadedTrucks()
 {
-	object_manager->loadPreloadedTrucks();
+	if (object_manager)
+		object_manager->loadPreloadedTrucks();
+}
+
+bool TerrainManager::hasPreloadedTrucks()
+{
+	if (object_manager)
+		return !object_manager->truck_preload.empty();
+	return false;
 }

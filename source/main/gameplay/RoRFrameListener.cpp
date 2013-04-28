@@ -1054,7 +1054,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 		if (preselected_truck.empty())
 		{
-			if (!gEnv->terrainManager->getTrucksLoaded() && (!netmode /*|| !terrainHasTruckShop*/))
+			if (!gEnv->terrainManager->hasPreloadedTrucks() && (!netmode /*|| !terrainHasTruckShop*/))
 			{
 #ifdef USE_MYGUI
 				// show truck selector
@@ -2546,7 +2546,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					loadTerrain(sel->fname);
 
 					// no trucks loaded?
-					if (!gEnv->terrainManager->getTrucksLoaded())
+					if (!gEnv->terrainManager->hasPreloadedTrucks())
 					{
 						// show truck selector
 						if (gEnv->terrainManager->getWater())
