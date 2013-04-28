@@ -2825,19 +2825,16 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 		}
 
 #ifdef USE_MYGUI
-		if (b && surveyMap)
+		if (b && gEnv->surveyMap)
 		{
-			/*
-			// TODO: FIX
-			MapEntity *e = surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), MapControl::getTypeByDriveable(b->driveable));
+			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
 			if (e)
 			{
 				e->setState(DESACTIVATED);
 				e->setVisibility(true);
-				e->setPosition(truckx, truckz);
+				e->setPosition(spawnpos.x, spawnpos.z);
 				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
 			}
-			*/
 		}
 #endif //USE_MYGUI
 
