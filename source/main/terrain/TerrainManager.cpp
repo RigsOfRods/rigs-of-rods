@@ -668,3 +668,8 @@ void TerrainManager::freeResources()
 {
 	// TODO
 }
+
+void TerrainManager::loadPreloadedTrucks()
+{
+	object_manager->loadPreloadedTrucks();
+}

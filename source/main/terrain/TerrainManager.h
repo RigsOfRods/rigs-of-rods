@@ -70,6 +70,7 @@ public:
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };
 	IWater *getWater() { return water; };
+	void loadPreloadedTrucks();
 	bool getTrucksLoaded() { return trucksLoaded; };
 
 	size_t getMemoryUsage();

@@ -2847,6 +2847,8 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 		}
 	}
 	
+	gEnv->terrainManager->loadPreloadedTrucks();
+
 	LOG("EFL: beam instanciated");
 
 	if (!enterTruck)
