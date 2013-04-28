@@ -85,9 +85,7 @@ protected:
 		bool freePosition;
 	} truck_prepare_t;
 
-
-	int truck_preload_num;
-	truck_prepare_t truck_preload[100];
+	std::vector<truck_prepare_t> truck_preload;
 
 
 #ifdef USE_PAGED
