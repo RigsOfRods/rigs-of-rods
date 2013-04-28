@@ -535,16 +535,19 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 				LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
 				continue;
 			}
+
+			truck_prepare_t tempTruckPreload;
 			//this is a truck or load declaration
-			truck_preload[truck_preload_num].px = pos.x;
-			truck_preload[truck_preload_num].py = pos.y;
-			truck_preload[truck_preload_num].pz = pos.z;
-			truck_preload[truck_preload_num].freePosition = newFormat;
-			truck_preload[truck_preload_num].ismachine=(!strcmp(oname, "machine"));
-			truck_preload[truck_preload_num].rotation=Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-			//truck_preload[truck_preload_num].ry=ry;
-			strcpy(truck_preload[truck_preload_num].name, truckname.c_str());
-			truck_preload_num++;
+			tempTruckPreload.px = pos.x;
+			tempTruckPreload.py = pos.y;
+			tempTruckPreload.pz = pos.z;
+			tempTruckPreload.freePosition = newFormat;
+			tempTruckPreload.ismachine=(!strcmp(oname, "machine"));
+			tempTruckPreload.rotation=Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+			//tempTruckPreload.ry=ry;
+			strcpy(tempTruckPreload.name, truckname.c_str());
+			
+			truck_preload.push_back(tempTruckPreload);
 
 			terrainManager->trucksLoaded = true;
 			continue;
@@ -1219,7 +1222,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
 	// in netmode, don't load other trucks!
 	if (!gEnv->network)
 	{
-		for (int i=0; i<truck_preload_num; i++)
+		for (unsigned int i=0; i<truck_preload.size(); i++)
 		{
 			Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
 			Beam *b = BeamFactory::getSingleton().createLocal(pos, truck_preload[i].rotation, truck_preload[i].name, 0, truck_preload[i].ismachine, flaresMode, 0, 0, truck_preload[i].freePosition);
