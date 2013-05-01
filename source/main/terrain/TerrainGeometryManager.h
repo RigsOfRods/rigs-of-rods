@@ -85,15 +85,12 @@ protected:
 	int pageMinX, pageMaxX, pageMinZ, pageMaxZ;
 	int terrainLayers;
 
-	Ogre::String pageConfigFormat;
-
 	Ogre::Vector3 terrainPos;
 
 	// terrain engine specific
 	Ogre::TerrainGroup *mTerrainGroup;
 	Ogre::TerrainPaging* mTerrainPaging;
 	Ogre::PageManager* mPageManager;
-	
 
 	typedef struct blendLayerInfo_t {
 		Ogre::String blendMapTextureFilename;
@@ -110,7 +107,7 @@ protected:
 	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
 	void initBlendMaps(int x, int y, Ogre::Terrain* t );
 	void initTerrain();
-	Ogre::String getPageHeightmap(int x, int y);
+	Ogre::String getPageHeightmapCfg(int x, int z);
 };
 
 #endif // __TerrainGeometryManager_H_
