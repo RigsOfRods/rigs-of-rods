@@ -67,22 +67,13 @@ bool TerrainGeometryManager::loadTerrainConfig(String filename)
 	return false;
 }
 
-Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
+Ogre::String TerrainGeometryManager::getPageHeightmapCfg(int x, int z)
 {
-	String cfg = pageConfigFormat;
+	String cfg = "HeightmapImage.{X}.{Z}";
 	cfg = StringUtil::replaceAll(cfg, "{X}", TOSTRING(x));
 	cfg = StringUtil::replaceAll(cfg, "{Z}", TOSTRING(z));
-	try
-	{
-		LOG("loading page config for page " + XZSTR(x,z) + " : " + cfg);
-		DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(cfg, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-		char buf[4096];
-		ds->readLine(buf, 4096);
-		return String(buf);
-	}catch(...)
-	{
-	}
-	return String();
+
+	return cfg;
 }
 
 void TerrainGeometryManager::initTerrain()
@@ -102,8 +93,6 @@ void TerrainGeometryManager::initTerrain()
 	pageMinZ = 0;
 	pageMaxZ = IOPT("PagesZ", 0);
 
-	pageConfigFormat = SOPT("PageFileFormat");
-
 	bool is_flat = BOPT("Flat", false);
 
 	terrainPos = Vector3(mapsizex / 2.0f, 0.0f, mapsizez / 2.0f);
@@ -114,8 +103,6 @@ void TerrainGeometryManager::initTerrain()
 	mTerrainGroup->setResourceGroup("cache");
 
 	configureTerrainDefaults();
-
-	String filename = mTerrainGroup->generateFilename(0, 0);
 
 	for (long x = pageMinX; x <= pageMaxX; ++x)
 	{
@@ -137,7 +124,6 @@ void TerrainGeometryManager::initTerrain()
 	LoadingWindow::getSingleton().setProgress(23, _L("loading terrain pages"));
 	mTerrainGroup->loadAllTerrains(true);
 
-
 	// update the blend maps
 	if (mTerrainsImported)
 	{
@@ -146,19 +132,16 @@ void TerrainGeometryManager::initTerrain()
 			for (long z = pageMinZ; z <= pageMaxZ; ++z)
 			{
 				Terrain *terrain = mTerrainGroup->getTerrain(x, z);
-				if(!terrain) continue;
+				if (!terrain) continue;
 				//ShadowManager::getSingleton().updatePSSM(terrain);
 				LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page layers ") + XZSTR(x,z));
 				loadLayers(x, z, terrain);
 				LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page blend maps ") + XZSTR(x,z));
 				initBlendMaps(x, z, terrain);
-
-
 			}
 		}
-		
 		// always save the results when it was imported
-		if(!disableCaching)
+		if (!disableCaching)
 		{
 			LoadingWindow::getSingleton().setProgress(23, _L("saving all terrain pages ..."));
 			mTerrainGroup->saveAllTerrains(false);
@@ -252,92 +235,60 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	loadLayers(0, 0, 0);
 }
 
-// if terrain is set, we operate on the already loaded terrain
-void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
+void TerrainGeometryManager::loadLayers(int x, int y, Terrain *terrain)
 {
-	if(pageConfigFormat.empty()) return;
-	String cfg = pageConfigFormat;
-	cfg = StringUtil::replaceAll(cfg, "{X}", TOSTRING(x));
-	cfg = StringUtil::replaceAll(cfg, "{Z}", TOSTRING(z));
-	DataStreamPtr ds;
-	try
-	{
-		LOG("loading page config for page " + XZSTR(x,z) + " : " + cfg);
-		ds = ResourceGroupManager::getSingleton().openResource(cfg, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-	}catch(...)
-	{
-	}
-	if(!ds->isReadable())
-	{
-		LOG("error loading layers for page " + XZSTR(x,z));
-		return;
-	}
-
-	char line[4096];
-	ds->readLine(line, 4096);
-	String heightmapImage = String(line);
-	ds->readLine(line, 4096);
-	terrainLayers = PARSEINT(String(line));
+	// load the textures and blendmaps into our data structures
+	blendInfo.clear();
+	terrainLayers = IOPT("Layers.count", 0);
 
 	Ogre::Terrain::ImportData &defaultimp = mTerrainGroup->getDefaultImportSettings();
-	if (terrainLayers == 0)
-		return;
-	if(!terrain)
-		defaultimp.layerList.resize(terrainLayers);
-	blendInfo.clear();
-	blendInfo.resize(terrainLayers);
 
-	int layer = 0;
-	while (!ds->eof())
+	if (terrainLayers > 0)
 	{
-		size_t ll = ds->readLine(line, 4096);
-		if (ll==0 || line[0]=='/' || line[0]==';') continue;
-
-		StringVector args = StringUtil::split(String(line), ",");
-		if(args.size() < 3)
+		if (!terrain)
 		{
-			LOG("invalid page config line: '" + String(line) + "'");
-			continue;
+			defaultimp.layerList.resize(terrainLayers);
 		}
 
-		StringUtil::trim(args[1]);
-		StringUtil::trim(args[2]);
+		blendInfo.resize(terrainLayers);
 
-		float worldSize = PARSEREAL(args[0]);
-		if(!terrain)
+		for (int i = 0; i < terrainLayers; i++)
 		{
-			defaultimp.layerList[layer].worldSize = worldSize;
-			defaultimp.layerList[layer].textureNames.push_back(args[1]);
-			defaultimp.layerList[layer].textureNames.push_back(args[2]);
-		} else
-		{
-			terrain->setLayerWorldSize(layer, worldSize);
-			terrain->setLayerTextureName(layer, 0, args[1]);
-			terrain->setLayerTextureName(layer, 1, args[2]);
-		}
-			
-		blendLayerInfo_t &bi = blendInfo[layer];
-		bi.blendMode = 'R';
-		bi.alpha = 'R';
+			String thisLayer = "Layers." + TOSTRING(i);
 
-		if(args.size() > 3)
-		{
-			StringUtil::trim(args[3]);
-			bi.blendMapTextureFilename = args[3];
-		}
-		if(args.size() > 4)
-		{
-			StringUtil::trim(args[4]);
-			bi.blendMode = args[4][0];
-		}
-		if(args.size() > 5)
-			bi.alpha = PARSEREAL(args[5]);
+			if (terrain)
+			{
+				terrain->setLayerWorldSize(i, IOPT(thisLayer+".size", 32));
 
-		layer++;
-		if(layer >= terrainLayers)
-			break;
+				if (HASOPTION(thisLayer+".diffusespecular"))
+					terrain->setLayerTextureName(i, 0, terrainConfig.getSetting(thisLayer+".diffusespecular"));
+				if (HASOPTION(thisLayer+".normalheight"))
+					terrain->setLayerTextureName(i, 1, terrainConfig.getSetting(thisLayer+".normalheight"));
+			} else
+			{
+				defaultimp.layerList[i].worldSize = IOPT(thisLayer+".size", 32);
+
+				if (HASOPTION(thisLayer+".diffusespecular"))
+					defaultimp.layerList[i].textureNames.push_back(terrainConfig.getSetting(thisLayer+".diffusespecular"));
+				if (HASOPTION(thisLayer+".normalheight"))
+					defaultimp.layerList[i].textureNames.push_back(terrainConfig.getSetting(thisLayer+".normalheight"));
+			}
+
+			blendLayerInfo_t &bi = blendInfo[i];
+
+			bi.blendMapTextureFilename = "";
+			if (HASOPTION(thisLayer+".blendmap"))
+				bi.blendMapTextureFilename = terrainConfig.getSetting(thisLayer+".blendmap");
+
+			bi.blendMode = 'R';
+			if (HASOPTION(thisLayer+".blendmapmode"))
+				bi.blendMode = *terrainConfig.getSetting(thisLayer+".blendmapmode").c_str();
+
+			bi.alpha = 1;
+			if (HASOPTION(thisLayer+".alpha"))
+				bi.alpha = Ogre::StringConverter::parseReal(terrainConfig.getSetting(thisLayer+".alpha"));
+		}
 	}
-	LOG("done loading page: loaded " + TOSTRING(layer) + " layers");
 }
 
 void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain )
@@ -349,7 +300,7 @@ void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain 
 	{
 		blendLayerInfo_t &bi = blendInfo[i];
 
-		if(bi.blendMapTextureFilename.empty()) continue;
+		if (bi.blendMapTextureFilename.empty()) continue;
 
 		Ogre::Image img;
 		//std::pair<uint8,uint8> textureIndex = terrain->getLayerBlendTextureIndex(i);
@@ -414,16 +365,16 @@ void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain 
 
 bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 {
-	String heightmapString = "HeightmapImage";
-	String heightmapFilename = getPageHeightmap(x, z);
+	String heightmapString = getPageHeightmapCfg(x, z);
+	String heightmapFilename = SOPTION(heightmapString);
+
 	StringUtil::trim(heightmapFilename);
 
-	if(heightmapFilename.empty())
+	if (heightmapFilename.empty())
 	{
 		LOG("empty Heightmap provided, please use 'Flat=1' instead");
 		return false;
 	}
-
 
 	if (heightmapFilename.find(".raw") != String::npos)
 	{
@@ -442,9 +393,9 @@ bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 		img.load(heightmapFilename, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	}
 
-	if(BOPT(heightmapString + ".flipX", false))
+	if (BOPT(heightmapString + ".flipX", false))
 		img.flipAroundX();
-	if(BOPT(heightmapString + ".flipY", false))
+	if (BOPT(heightmapString + ".flipY", false))
 		img.flipAroundY();
 
 	return true;
@@ -463,11 +414,10 @@ void TerrainGeometryManager::defineTerrain( int x, int z, bool flat )
 	{
 		// load from cache
 		mTerrainGroup->defineTerrain(x, z);
-	}
-	else
+	} else
 	{
 		Image img;
-		if(getTerrainImage(x, z, img))
+		if (getTerrainImage(x, z, img))
 		{
 			mTerrainGroup->defineTerrain(x, z, &img);
 			mTerrainsImported = true;

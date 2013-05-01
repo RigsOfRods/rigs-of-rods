@@ -28,7 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define IOPT(X, Y)   (HASOPTION(X)?IOPTION(X):Y)
 #define FOPT(X, Y)   (HASOPTION(X)?FOPTION(X):Y)
 #define BOPT(X, Y)   (HASOPTION(X)?BOPTION(X):Y)
-#define SOPT(X)      (SOPTION(X))
+#define SOPT(X, Y)   (HASOPTION(X)?SOPTION(X):Y)
 #define XZSTR(X,Z)   String("[") + TOSTRING(X) + String(",") + TOSTRING(Z) + String("]")
 
 #include "RoRPrerequisites.h"
