@@ -199,7 +199,7 @@ SerializedRig::SerializedRig()
 	this->realtruckname=String();
 	patchEngineTorque=false;
 	loading_finished=false;
-	forwardcommands=0;
+	forwardcommands=false;
 
 	wheel_contact_requested = false;
 	rescuer = false;
@@ -572,8 +572,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 			}
 
 			// check for commands (one line sections)
-			if (c.line == "forwardcommands") {forwardcommands=1;continue;};
-			if (c.line == "importcommands") {importcommands=1;continue;};
+			if (c.line == "forwardcommands") {forwardcommands=true;continue;};
+			if (c.line == "importcommands") {importcommands=true;continue;};
 			if (c.line == "rollon") {wheel_contact_requested=true;continue;};
 			if (c.line == "rescuer") {rescuer=true;continue;};
 			if (c.line == "comment") {savedmode=c.mode; c.mode=BTS_COMMENT; continue;};

@@ -1235,7 +1235,6 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
 
 void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
-
 	SerializedRig r;
 
 	r.loadTruckVirtual(fname, true);
@@ -1246,20 +1245,19 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds,
 	for (unsigned int i=0; i<r.authors.size(); i++)        entry.authors.push_back(r.authors[i]);
 	for (unsigned int i=0; i<r.sectionconfigs.size(); i++) entry.sectionconfigs.push_back(r.sectionconfigs[i]);
 
-
 	if (r.engine)
 	{
-		entry.numgears = (int)r.engine->getNumGears();
-		entry.minrpm  = r.engine->getIdleRPM();
-		entry.maxrpm  = r.engine->getMaxRPM();
-		entry.torque  = r.engine->getEngineTorque();
+		entry.numgears   = (int)r.engine->getNumGears();
+		entry.minrpm     = r.engine->getIdleRPM();
+		entry.maxrpm     = r.engine->getMaxRPM();
+		entry.torque     = r.engine->getEngineTorque();
 		entry.enginetype = r.engine->getType();
 	}
 	entry.uniqueid   = r.uniquetruckid;
 	entry.categoryid = r.categoryid;
 	entry.version    = r.truckversion;
-	entry.forwardcommands = (r.forwardcommands==1);
-	entry.importcommands  = (r.importcommands==1);
+	entry.forwardcommands = r.forwardcommands;
+	entry.importcommands  = r.importcommands;
 	entry.rollon = r.wheel_contact_requested;
 	entry.rescuer = r.rescuer;
 	entry.guid = String(r.guid);
@@ -1280,14 +1278,13 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds,
 	entry.turbopropscount = r.free_aeroengine;
 	entry.rotatorscount = r.free_rotator;
 	entry.exhaustscount = (int)r.exhausts.size();
-	entry.custom_particles = (r.free_cparticle==1);
+	entry.custom_particles = (r.free_cparticle > 0);
 	entry.turbojetcount = r.free_aeroengine;
 	entry.flexbodiescount = r.free_flexbody;
 	entry.soundsourcescount = r.free_soundsource;
 	//entry.managedmaterialscount++;
 	//entry.customtach=true;
 	//entry.materialflarebindingscount++;
-
 }
 
 int CacheSystem::addUniqueString(std::set<Ogre::String> &list, Ogre::String str)
