@@ -67,13 +67,14 @@ _L("Hidden");
 using namespace Ogre;
 
 SelectorWindow::SelectorWindow() :
-	  mSelectedTruck(0)
-	, mSelectedSkin(0)
-	, visibleCounter(0)
-	, ready(false)
+	  dtsum(0)
 	, keysBound(false)
+	, mSelectedSkin(0)
+	, mSelectedTruck(0)
+	, mSelectionDone(true)
+	, ready(false)
 	, readytime(1.0f)
-	, dtsum(0)
+	, visibleCounter(0)
 {
 	initialiseByAttributes(this);
 	mMainWidget->setVisible(false);
@@ -155,8 +156,7 @@ void SelectorWindow::notifyWindowChangeCoord(MyGUI::Window* _sender)
 
 void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
-	if(!ready) return;
-	if (!mMainWidget->getVisible()) return;
+	if (!ready || !mMainWidget->getVisible()) return;
 	int cid = (int)mTypeComboBox->getIndexSelected();
 	int iid = (int)mModelList->getIndexSelected();
 
@@ -252,13 +252,13 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 
 void SelectorWindow::eventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
 {
-	if(!ready) return;
+	if (!ready) return;
 	selectionDone();
 }
 
 void SelectorWindow::eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 {
-	if(!ready) return;
+	if (!ready) return;
 	mSelectedTruck = nullptr;
 	mSelectionDone = true;
 	hide();
@@ -611,8 +611,7 @@ void SelectorWindow::onEntrySelected(int entryID)
 
 void SelectorWindow::selectionDone()
 {
-	if(!ready) return;
-	if (!mSelectedTruck || mSelectionDone)
+	if (!ready || !mSelectedTruck || mSelectionDone)
 		return;
 	
 	mSelectedTruck->usagecounter++;
@@ -864,6 +863,7 @@ bool SelectorWindow::isFinishedSelecting()
 
 void SelectorWindow::show(LoaderType type)
 {
+	if (!mSelectionDone) return;
 	mSelectedSkin=0;
 	mSearchLineEdit->setCaption(_L("Search ..."));
 	mSelectionDone=false;
