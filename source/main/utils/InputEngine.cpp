@@ -1313,6 +1313,18 @@ eventInfo_t eventInfo[] = {
 		"Keyboard X",
 		_L("toggle ignition")
 	},
+	{
+		"TRUCK_TOGGLE_FORWARDCOMMANDS",
+			EV_TRUCK_TOGGLE_FORWARDCOMMANDS,
+			"Keyboard EXPL+CTRL+SHIFT+F",
+			_L("toggle forwardcommands")
+	},
+	{
+		"TRUCK_TOGGLE_IMPORTCOMMANDS",
+			EV_TRUCK_TOGGLE_IMPORTCOMMANDS,
+			"Keyboard EXPL+CTRL+SHIFT+I",
+			_L("toggle importcommands")
+	},
 
 	// "new" commands
 	{

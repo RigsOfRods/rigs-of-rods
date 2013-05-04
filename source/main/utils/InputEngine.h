@@ -315,6 +315,8 @@ enum events
 	EV_TRUCK_SWITCH_SHIFT_MODES, //!< toggle between transmission modes
 	EV_TRUCK_TOGGLE_AXLE_LOCK,
 	EV_TRUCK_TOGGLE_CONTACT, //!< toggle ignition
+	EV_TRUCK_TOGGLE_FORWARDCOMMANDS, //!< toggle forwardcommands
+	EV_TRUCK_TOGGLE_IMPORTCOMMANDS, //!< toggle importcommands
 	EV_TRUCK_TRACTION_CONTROL, //!< toggle antilockbrake system
 
 	// position storage now
