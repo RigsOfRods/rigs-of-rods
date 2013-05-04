@@ -99,7 +99,6 @@ protected:
 	bool hidegui;
 	bool initialized;
 	bool mTruckInfoOn;
-	bool netmode;
 	bool pressure_pressed;
 
 	char screenshotformat[256];
