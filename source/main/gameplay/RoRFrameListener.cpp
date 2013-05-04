@@ -1514,7 +1514,15 @@ bool RoRFrameListener::updateEvents(float dt)
 						// just stopped
 						curr_truck->commandkey[i].commandValueState = -1;
 					}
+				}
 
+				if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
+				{
+					curr_truck->forwardcommands = !curr_truck->forwardcommands;
+				}
+				if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
+				{
+					curr_truck->importcommands = !curr_truck->importcommands;
 				}
 
 				// replay mode
