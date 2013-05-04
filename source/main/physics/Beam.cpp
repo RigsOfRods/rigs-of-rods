@@ -282,7 +282,7 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	statistics_gfx = BES.getClient(tnum, BES_GFX);
 #endif
 
-	if (gEnv->network) networking = true; // enable networking if some network class is existing
+	this->networking = networking;
 
 	for (int i=0; i<MAX_SUBMESHES; i++)
 	{
