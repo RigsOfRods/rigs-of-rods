@@ -78,128 +78,102 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 	//springs
 	Vector3 dis;
-	Vector3 v;
 	for (int i=0; i<free_beam; i++)
 	{
 		//trick for exploding stuff
 		if (!beams[i].disabled)
 		{
 			//Calculate beam length
-			if (!beams[i].p2truck) {
-				dis=beams[i].p1->RelPosition;
-				dis-=beams[i].p2->RelPosition;
-			}
+			if (!beams[i].p2truck)
+				dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
 			else
-			{
-				dis=beams[i].p1->AbsPosition;
-				dis-=beams[i].p2->AbsPosition;
-			}
+				dis = beams[i].p1->AbsPosition - beams[i].p2->AbsPosition;
 
-			Real dislen=dis.squaredLength();
-
-			Real inverted_dislen=fast_invSqrt(dislen);
-			dislen=dislen*inverted_dislen;
+			Real dislen = dis.squaredLength();
+			Real inverted_dislen = fast_invSqrt(dislen);
+			
+			dislen *= inverted_dislen;
 
 			//Calculate beam's deviation from normal
 			Real difftoBeamL = dislen - beams[i].L;
 
-			Real k=beams[i].k;
-			Real d=beams[i].d;
+			Real k = beams[i].k;
+			Real d = beams[i].d;
 
-			if (beams[i].bounded)
+			switch (beams[i].bounded)
 			{
-				// We do a binary search in bounded's values to lessen the number of ifs
-				if (beams[i].bounded<=SHOCK2)
+			case SHOCK1:
 				{
-					// hard (normal) shock bump
-					if (beams[i].bounded==SHOCK1)
+					float interp_ratio;
+
+					// Following code interpolates between defined beam parameters and default beam parameters
+					if (difftoBeamL > beams[i].longbound * beams[i].L)
+						interp_ratio =  difftoBeamL - beams[i].longbound  * beams[i].L;
+					else if (difftoBeamL < -beams[i].shortbound * beams[i].L)
+						interp_ratio = -difftoBeamL - beams[i].shortbound * beams[i].L;
+
+					// Hard (normal) shock bump
+					float tspring = DEFAULT_SPRING;
+					float tdamp   = DEFAULT_DAMP;
+
+					// Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
+					if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_INVISIBLE_HYDRO)
 					{
-						if (difftoBeamL > beams[i].longbound*beams[i].L)
-						{
-							// Following code interpolates between defined beam parameters and default beam parameters
-							float interp_ratio=difftoBeamL-beams[i].longbound*beams[i].L;
-
-							// hard (normal) shock bump
-							float tspring = DEFAULT_SPRING;
-							float tdamp = DEFAULT_DAMP;
-
-							//skip camera, wheels or any other shocks wich are not generated in a shocks or shocks2 section
-							if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_INVISIBLE_HYDRO)
-							{
-								tspring = beams[i].shock->sbd_spring;
-								tdamp = beams[i].shock->sbd_damp;
-							}
-							k=k+(tspring - k)*interp_ratio;
-							d=d+(tdamp - d)*interp_ratio;
-						}
-						else if (difftoBeamL < -beams[i].shortbound*beams[i].L)
-						{
-							// Following code interpolates between defined beam parameters and default beam parameters
-							float interp_ratio=-beams[i].shortbound*beams[i].L-difftoBeamL;
-
-							// hard (normal) shock bump
-							float tspring = DEFAULT_SPRING;
-							float tdamp = DEFAULT_DAMP;
-							//skip camera, wheels or any other shocks wich are not generated in a shocks section
-							if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_INVISIBLE_HYDRO)
-							{
-								tspring = beams[i].shock->sbd_spring;
-								tdamp = beams[i].shock->sbd_damp;
-							}
-							k=k+(tspring - k)*interp_ratio;
-							d=d+(tdamp - d)*interp_ratio;	
-						}
+						tspring = beams[i].shock->sbd_spring;
+						tdamp   = beams[i].shock->sbd_damp;
 					}
-					else if (beams[i].bounded==SHOCK2)       // bounded=SHOCK2 case ( skip NOSHOCK )
-					{
- 						calcShocks2(i, difftoBeamL, k, d, dt, doUpdate);
-					}
+
+					k += (tspring - k) * interp_ratio;
+					d += (tdamp   - d) * interp_ratio;
 				}
-				else
-				{
-					if (beams[i].bounded==ROPE)
-					{
-						if  (difftoBeamL<0.0f)
-						{
-							k=0.0f;
-							d=d*0.1f;
-						}
-					}
-					else // We assume bounded=SUPPORTBEAM
-					{
-						if (difftoBeamL>0.0f)
-						{
-							k=0.0f;
-							d=d*0.1f;
-							float break_limit = SUPPORT_BEAM_LIMIT_DEFAULT;
-							if (beams[i].longbound > 0.0f)
-								//this is a supportbeam with a user set break limit, get the user set limit
-								break_limit = beams[i].longbound;
+				break;
 
-							// If support beam is extended the originallength * break_limit, break and disable it
-							if (difftoBeamL > beams[i].L*break_limit)
-							{
-								beams[i].broken=1;
-								beams[i].disabled=true;
-								if (beambreakdebug)
-								{
-									LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) + " / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
-								}
-							}
+			case SHOCK2:
+				calcShocks2(i, difftoBeamL, k, d, dt, doUpdate);
+				break;
+
+			case SUPPORTBEAM:
+				if (difftoBeamL > 0.0f)
+				{
+					k  = 0.0f;
+					d *= 0.1f;
+					float break_limit = SUPPORT_BEAM_LIMIT_DEFAULT;
+					if (beams[i].longbound > 0.0f)
+						//this is a supportbeam with a user set break limit, get the user set limit
+						break_limit = beams[i].longbound;
+
+					// If support beam is extended the originallength * break_limit, break and disable it
+					if (difftoBeamL > beams[i].L * break_limit)
+					{
+						beams[i].broken = true;
+						beams[i].disabled = true;
+						if (beambreakdebug)
+						{
+							LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) + " / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
 					}
 				}
+				break;
+
+			case ROPE:
+				if (difftoBeamL < 0.0f)
+				{
+					k  = 0.0f;
+					d *= 0.1f;
+				}
+				break;
+
+			default:
+				break;
 			}
 
 			//Calculate beam's rate of change
-			v=beams[i].p1->Velocity;
-			v-=beams[i].p2->Velocity;
+			Vector3 v = beams[i].p1->Velocity - beams[i].p2->Velocity;
 
-			float flen;
-			flen = -k*(difftoBeamL)-d*v.dotProduct(dis)*inverted_dislen;
-			float sflen=flen;
-			beams[i].stress=flen;
-			flen=fabs(flen);
+			float flen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
+			float sflen = flen;
+			beams[i].stress = flen;
+			flen = fabs(flen);
 
 			// Fast test for deformation
 			if (flen > beams[i].minmaxposnegstress)
@@ -243,35 +217,37 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with compression force " + TOSTRING(flen) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
 					} else	// For expansion
-					if (sflen<beams[i].maxnegstress && difftoBeamL>0.0f)
 					{
-						increased_accuracy=1;
-						Real yield_length=beams[i].maxnegstress/k;
-						Real deform=difftoBeamL+yield_length*(1.0f-beams[i].plastic_coef);
-						Real Lold=beams[i].L;
-						beams[i].L+=deform;
-						sflen=sflen-(sflen-beams[i].maxnegstress)*0.5f;
-						flen=-sflen;
-						if (Lold>0.0f && beams[i].L>Lold)
+						if (sflen<beams[i].maxnegstress && difftoBeamL>0.0f)
 						{
-							beams[i].maxnegstress*=beams[i].L/Lold;
-						}
-						beams[i].strength=beams[i].strength-deform*k;
+							increased_accuracy=1;
+							Real yield_length=beams[i].maxnegstress/k;
+							Real deform=difftoBeamL+yield_length*(1.0f-beams[i].plastic_coef);
+							Real Lold=beams[i].L;
+							beams[i].L+=deform;
+							sflen=sflen-(sflen-beams[i].maxnegstress)*0.5f;
+							flen=-sflen;
+							if (Lold>0.0f && beams[i].L>Lold)
+							{
+								beams[i].maxnegstress*=beams[i].L/Lold;
+							}
+							beams[i].strength=beams[i].strength-deform*k;
 
-#ifdef USE_OPENAL
-						//Sound effect
-						//Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
-						/*
-						SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
-						SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
-						*/
-#endif  //USE_OPENAL
+	#ifdef USE_OPENAL
+							//Sound effect
+							//Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
+							/*
+							SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
+							SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
+							*/
+	#endif  //USE_OPENAL
 
-						beams[i].minmaxposnegstress=std::min(beams[i].maxposstress, -beams[i].maxnegstress);
-						beams[i].minmaxposnegstress=std::min(beams[i].minmaxposnegstress, beams[i].strength);
-						if (beamdeformdebug)
-						{
-							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(flen) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							beams[i].minmaxposnegstress=std::min(beams[i].maxposstress, -beams[i].maxnegstress);
+							beams[i].minmaxposnegstress=std::min(beams[i].minmaxposnegstress, beams[i].strength);
+							if (beamdeformdebug)
+							{
+								LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(flen) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							}
 						}
 					}
 				}
@@ -800,7 +776,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 								it->beam->p2       = &nodes[0];
 								it->beam->p2truck  = 0;
 								it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-								it->beam->disabled = 1;
+								it->beam->disabled = true;
 							}
 						}
 					}

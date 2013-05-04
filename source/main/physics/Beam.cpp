@@ -4682,7 +4682,7 @@ void Beam::tieToggle(int group)
 			// disable the ties beam
 			it->beam->p2 = &nodes[0];
 			it->beam->p2truck = 0;
-			it->beam->disabled = 1;
+			it->beam->disabled = true;
 			it->beam->mSceneNode->detachAllObjects();
 			istied = true;
 		}
@@ -4737,7 +4737,7 @@ void Beam::tieToggle(int group)
 					//okay, we have found a rope to tie
 
 					// enable the beam and visually display the beam
-					it->beam->disabled = 0;
+					it->beam->disabled = false;
 					if (it->beam->mSceneNode->numAttachedObjects() == 0)
 						it->beam->mSceneNode->attachObject(it->beam->mEntity);
 

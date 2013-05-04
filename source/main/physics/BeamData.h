@@ -862,8 +862,8 @@ struct rig
 	bool patchEngineTorque;
 	bool loading_finished;
 
-	int forwardcommands;
-	int importcommands;
+	bool forwardcommands;
+	bool importcommands;
 	bool wheel_contact_requested;
 	bool rescuer;
 	bool disable_default_sounds;
