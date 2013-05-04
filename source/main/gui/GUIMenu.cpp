@@ -241,9 +241,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 {
 	vehiclesMenu->removeAllItems();
 	
-	bool netmode = (gEnv->network != 0);
-
-	if (!netmode)
+	if (!gEnv->network)
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();

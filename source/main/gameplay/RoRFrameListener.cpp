@@ -759,7 +759,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	gameStartTime = getTimeStamp();
 
 	//network
-	netmode = BSETTING("Network enable", false);
+	bool enableNetwork = BSETTING("Network enable", false);
 
 	if (ow)
 	{
@@ -907,8 +907,8 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	}
 
 	// check if we enable netmode based on cmdline
-	if (!netmode && cmdAction == "joinserver")
-		netmode = true;
+	if (!enableNetwork && cmdAction == "joinserver")
+		enableNetwork = true;
 
 	// preselected map or truck?
 	String preselected_map = SSETTING("Preselected Map", "");
@@ -934,7 +934,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 	// notice: all factories must be available before starting the network!
 #ifdef USE_SOCKETW
-	if (netmode)
+	if (enableNetwork)
 	{
 		// cmdline overrides config
 		std::string sname = SSETTING("Server name", "").c_str();
@@ -1054,7 +1054,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 		if (preselected_truck.empty())
 		{
-			if (!gEnv->terrainManager->hasPreloadedTrucks() && (!netmode /*|| !terrainHasTruckShop*/))
+			if (!gEnv->terrainManager->hasPreloadedTrucks() && (!enableNetwork /*|| !terrainHasTruckShop*/))
 			{
 #ifdef USE_MYGUI
 				// show truck selector
@@ -2305,7 +2305,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					if (ow) ow->showPressureOverlay(false);
 				}
 
-				if (INPUTENGINE.getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !netmode && curr_truck->driveable != AIRPLANE)
+				if (INPUTENGINE.getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->network && curr_truck->driveable != AIRPLANE)
 				{
 					if (!BeamFactory::getSingleton().enterRescueTruck())
 					{
