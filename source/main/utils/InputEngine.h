@@ -190,6 +190,42 @@ enum events
 	EV_COMMANDS_46, //!< Command 46
 	EV_COMMANDS_47, //!< Command 47
 	EV_COMMANDS_48, //!< Command 48
+	EV_COMMANDS_49, //!< Command 49
+	EV_COMMANDS_50, //!< Command 50
+	EV_COMMANDS_51, //!< Command 51
+	EV_COMMANDS_52, //!< Command 52
+	EV_COMMANDS_53, //!< Command 53
+	EV_COMMANDS_54, //!< Command 54
+	EV_COMMANDS_55, //!< Command 55
+	EV_COMMANDS_56, //!< Command 56
+	EV_COMMANDS_57, //!< Command 57
+	EV_COMMANDS_58, //!< Command 58
+	EV_COMMANDS_59, //!< Command 59
+	EV_COMMANDS_60, //!< Command 50
+	EV_COMMANDS_61, //!< Command 61
+	EV_COMMANDS_62, //!< Command 62
+	EV_COMMANDS_63, //!< Command 63
+	EV_COMMANDS_64, //!< Command 64
+	EV_COMMANDS_65, //!< Command 65
+	EV_COMMANDS_66, //!< Command 66
+	EV_COMMANDS_67, //!< Command 67
+	EV_COMMANDS_68, //!< Command 68
+	EV_COMMANDS_69, //!< Command 69
+	EV_COMMANDS_70, //!< Command 70
+	EV_COMMANDS_71, //!< Command 71
+	EV_COMMANDS_72, //!< Command 72
+	EV_COMMANDS_73, //!< Command 73
+	EV_COMMANDS_74, //!< Command 74
+	EV_COMMANDS_75, //!< Command 75
+	EV_COMMANDS_76, //!< Command 76
+	EV_COMMANDS_77, //!< Command 77
+	EV_COMMANDS_78, //!< Command 78
+	EV_COMMANDS_79, //!< Command 79
+	EV_COMMANDS_80, //!< Command 80
+	EV_COMMANDS_81, //!< Command 81
+	EV_COMMANDS_82, //!< Command 82
+	EV_COMMANDS_83, //!< Command 83
+	EV_COMMANDS_84, //!< Command 84
 	EV_COMMON_AUTOLOCK, //!< unlock autolock hook node
 	EV_COMMON_CONSOLEDISPLAY, //!< show / hide the console
 	EV_COMMON_CONSOLEMODE, //!< toggle appearance of console
