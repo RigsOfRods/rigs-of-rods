@@ -505,146 +505,362 @@ eventInfo_t eventInfo[] = {
 	{
 		"COMMANDS_25",
 		EV_COMMANDS_25,
-		"Keyboard EXPL+ALT+F1",
+		"Keyboard EXPL+SHIFT+F1",
 		_L("Command 25")
 	},
 	{
 		"COMMANDS_26",
 		EV_COMMANDS_26,
-		"Keyboard EXPL+ALT+F2",
+		"Keyboard EXPL+SHIFT+F2",
 		_L("Command 26")
 	},
 	{
 		"COMMANDS_27",
 		EV_COMMANDS_27,
-		"Keyboard EXPL+ALT+F3",
+		"Keyboard EXPL+SHIFT+F3",
 		_L("Command 27")
 	},
 	{
 		"COMMANDS_28",
 		EV_COMMANDS_28,
-		"Keyboard EXPL+ALT+F4",
+		"Keyboard EXPL+SHIFT+F4",
 		_L("Command 28")
 	},
 	{
 		"COMMANDS_29",
 		EV_COMMANDS_29,
-		"Keyboard EXPL+ALT+F5",
+		"Keyboard EXPL+SHIFT+F5",
 		_L("Command 29")
 	},
 	{
 		"COMMANDS_30",
 		EV_COMMANDS_30,
-		"Keyboard EXPL+ALT+F6",
+		"Keyboard EXPL+SHIFT+F6",
 		_L("Command 30")
 	},
 	{
 		"COMMANDS_31",
 		EV_COMMANDS_31,
-		"Keyboard EXPL+ALT+F7",
+		"Keyboard EXPL+SHIFT+F7",
 		_L("Command 31")
 	},
 	{
 		"COMMANDS_32",
 		EV_COMMANDS_32,
-		"Keyboard EXPL+ALT+F8",
+		"Keyboard EXPL+SHIFT+F8",
 		_L("Command 32")
 	},
 	{
 		"COMMANDS_33",
 		EV_COMMANDS_33,
-		"Keyboard EXPL+ALT+F9",
+		"Keyboard EXPL+SHIFT+F9",
 		_L("Command 33")
 	},
 	{
 		"COMMANDS_34",
 		EV_COMMANDS_34,
-		"Keyboard EXPL+ALT+F10",
+		"Keyboard EXPL+SHIFT+F10",
 		_L("Command 34")
 	},
 	{
 		"COMMANDS_35",
 		EV_COMMANDS_35,
-		"Keyboard EXPL+ALT+F11",
+		"Keyboard EXPL+SHIFT+F11",
 		_L("Command 35")
 	},
 	{
 		"COMMANDS_36",
 		EV_COMMANDS_36,
-		"Keyboard EXPL+ALT+F12",
+		"Keyboard EXPL+SHIFT+F12",
 		_L("Command 36")
 	},
 	{
 		"COMMANDS_37",
 		EV_COMMANDS_37,
-		"Keyboard EXPL+CTRL+ALT+F1",
+		"Keyboard EXPL+ALT+F1",
 		_L("Command 37")
 	},
 	{
 		"COMMANDS_38",
 		EV_COMMANDS_38,
-		"Keyboard EXPL+CTRL+ALT+F2",
+		"Keyboard EXPL+ALT+F2",
 		_L("Command 38")
 	},
 	{
 		"COMMANDS_39",
 		EV_COMMANDS_39,
-		"Keyboard EXPL+CTRL+ALT+F3",
+		"Keyboard EXPL+ALT+F3",
 		_L("Command 39")
 	},
 	{
 		"COMMANDS_40",
 		EV_COMMANDS_40,
-		"Keyboard EXPL+CTRL+ALT+F4",
+		"Keyboard EXPL+ALT+F4",
 		_L("Command 40")
 	},
 	{
 		"COMMANDS_41",
 		EV_COMMANDS_41,
-		"Keyboard EXPL+CTRL+ALT+F5",
+		"Keyboard EXPL+ALT+F5",
 		_L("Command 41")
 	},
 	{
 		"COMMANDS_42",
 		EV_COMMANDS_42,
-		"Keyboard EXPL+CTRL+ALT+F6",
+		"Keyboard EXPL+ALT+F6",
 		_L("Command 42")
 	},
 	{
 		"COMMANDS_43",
 		EV_COMMANDS_43,
-		"Keyboard EXPL+CTRL+ALT+F7",
+		"Keyboard EXPL+ALT+F7",
 		_L("Command 43")
 	},
 	{
 		"COMMANDS_44",
 		EV_COMMANDS_44,
-		"Keyboard EXPL+CTRL+ALT+F8",
+		"Keyboard EXPL+ALT+F8",
 		_L("Command 44")
 	},
 	{
 		"COMMANDS_45",
 		EV_COMMANDS_45,
-		"Keyboard EXPL+CTRL+ALT+F9",
+		"Keyboard EXPL+ALT+F9",
 		_L("Command 45")
 	},
 	{
 		"COMMANDS_46",
 		EV_COMMANDS_46,
-		"Keyboard EXPL+CTRL+ALT+F10",
+		"Keyboard EXPL+ALT+F10",
 		_L("Command 46")
 	},
 	{
 		"COMMANDS_47",
 		EV_COMMANDS_47,
-		"Keyboard EXPL+CTRL+ALT+F11",
+		"Keyboard EXPL+ALT+F11",
 		_L("Command 47")
 	},
 	{
 		"COMMANDS_48",
 		EV_COMMANDS_48,
-		"Keyboard EXPL+CTRL+ALT+F12",
+		"Keyboard EXPL+ALT+F12",
 		_L("Command 48")
+	},
+	{
+		"COMMANDS_49",
+		EV_COMMANDS_49,
+		"Keyboard EXPL+CTRL+SHIFT+F1",
+		_L("Command 49")
+	},
+	{
+		"COMMANDS_50",
+		EV_COMMANDS_50,
+		"Keyboard EXPL+CTRL+SHIFT+F2",
+		_L("Command 50")
+	},
+	{
+		"COMMANDS_51",
+		EV_COMMANDS_51,
+		"Keyboard EXPL+CTRL+SHIFT+F3",
+		_L("Command 51")
+	},
+	{
+		"COMMANDS_52",
+		EV_COMMANDS_52,
+		"Keyboard EXPL+CTRL+SHIFT+F4",
+		_L("Command 52")
+	},
+	{
+		"COMMANDS_53",
+		EV_COMMANDS_53,
+		"Keyboard EXPL+CTRL+SHIFT+F5",
+		_L("Command 53")
+	},
+	{
+		"COMMANDS_54",
+		EV_COMMANDS_54,
+		"Keyboard EXPL+CTRL+SHIFT+F6",
+		_L("Command 54")
+	},
+	{
+		"COMMANDS_55",
+		EV_COMMANDS_55,
+		"Keyboard EXPL+CTRL+SHIFT+F7",
+		_L("Command 55")
+	},
+	{
+		"COMMANDS_56",
+		EV_COMMANDS_56,
+		"Keyboard EXPL+CTRL+SHIFT+F8",
+		_L("Command 56")
+	},
+	{
+		"COMMANDS_57",
+		EV_COMMANDS_57,
+		"Keyboard EXPL+CTRL+SHIFT+F9",
+		_L("Command 57")
+	},
+	{
+		"COMMANDS_58",
+		EV_COMMANDS_58,
+		"Keyboard EXPL+CTRL+SHIFT+F10",
+		_L("Command 58")
+	},
+	{
+		"COMMANDS_59",
+		EV_COMMANDS_59,
+		"Keyboard EXPL+CTRL+SHIFT+F11",
+		_L("Command 59")
+	},
+	{
+		"COMMANDS_60",
+		EV_COMMANDS_60,
+		"Keyboard EXPL+CTRL+SHIFT+F12",
+		_L("Command 60")
+	},
+	{
+		"COMMANDS_61",
+		EV_COMMANDS_61,
+		"Keyboard EXPL+CTRL+ALT+F1",
+		_L("Command 61")
+	},
+	{
+		"COMMANDS_62",
+		EV_COMMANDS_62,
+		"Keyboard EXPL+CTRL+ALT+F2",
+		_L("Command 62")
+	},
+	{
+		"COMMANDS_63",
+		EV_COMMANDS_63,
+		"Keyboard EXPL+CTRL+ALT+F3",
+		_L("Command 63")
+	},
+	{
+		"COMMANDS_64",
+		EV_COMMANDS_64,
+		"Keyboard EXPL+CTRL+ALT+F4",
+		_L("Command 64")
+	},
+	{
+		"COMMANDS_65",
+		EV_COMMANDS_65,
+		"Keyboard EXPL+CTRL+ALT+F5",
+		_L("Command 65")
+	},
+	{
+		"COMMANDS_66",
+		EV_COMMANDS_66,
+		"Keyboard EXPL+CTRL+ALT+F6",
+		_L("Command 66")
+	},
+	{
+		"COMMANDS_67",
+		EV_COMMANDS_67,
+		"Keyboard EXPL+CTRL+ALT+F7",
+		_L("Command 67")
+	},
+	{
+		"COMMANDS_68",
+		EV_COMMANDS_68,
+		"Keyboard EXPL+CTRL+ALT+F8",
+		_L("Command 68")
+	},
+	{
+		"COMMANDS_69",
+		EV_COMMANDS_69,
+		"Keyboard EXPL+CTRL+ALT+F9",
+		_L("Command 69")
+	},
+	{
+		"COMMANDS_70",
+		EV_COMMANDS_70,
+		"Keyboard EXPL+CTRL+ALT+F10",
+		_L("Command 70")
+	},
+	{
+		"COMMANDS_71",
+		EV_COMMANDS_71,
+		"Keyboard EXPL+CTRL+ALT+F11",
+		_L("Command 71")
+	},
+	{
+		"COMMANDS_72",
+		EV_COMMANDS_72,
+		"Keyboard EXPL+CTRL+ALT+F12",
+		_L("Command 72")
+	},
+	{
+		"COMMANDS_73",
+		EV_COMMANDS_73,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F1",
+		_L("Command 73")
+	},
+	{
+		"COMMANDS_74",
+		EV_COMMANDS_74,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F2",
+		_L("Command 74")
+	},
+	{
+		"COMMANDS_75",
+		EV_COMMANDS_75,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F3",
+		_L("Command 75")
+	},
+	{
+		"COMMANDS_76",
+		EV_COMMANDS_76,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F4",
+		_L("Command 76")
+	},
+	{
+		"COMMANDS_77",
+		EV_COMMANDS_77,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F5",
+		_L("Command 77")
+	},
+	{
+		"COMMANDS_78",
+		EV_COMMANDS_78,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F6",
+		_L("Command 78")
+	},
+	{
+		"COMMANDS_79",
+		EV_COMMANDS_79,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F7",
+		_L("Command 79")
+	},
+	{
+		"COMMANDS_80",
+		EV_COMMANDS_80,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F8",
+		_L("Command 80")
+	},
+	{
+		"COMMANDS_81",
+		EV_COMMANDS_81,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F9",
+		_L("Command 81")
+	},
+	{
+		"COMMANDS_88",
+		EV_COMMANDS_82,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F10",
+		_L("Command 82")
+	},
+	{
+		"COMMANDS_83",
+		EV_COMMANDS_83,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F11",
+		_L("Command 83")
+	},
+	{
+		"COMMANDS_84",
+		EV_COMMANDS_84,
+		"Keyboard EXPL+CTRL+SHIFT+ALT+F12",
+		_L("Command 84")
 	},
 	{
 		"COMMON_CONSOLEDISPLAY",
