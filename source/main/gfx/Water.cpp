@@ -80,12 +80,6 @@ ReflectionTextureListener mReflectionListener;
 
 Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 {
-	bool hasWater = false;
-	if(!mTerrainConfig.getSetting("Water", "General").empty())
-		hasWater = Ogre::StringConverter::parseBool(mTerrainConfig.getSetting("Water", "General"));
-	
-	if(!hasWater) return;
-
 	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
 	vRtt1 = vRtt2 = 0;
 	mScale = 1.0f;
