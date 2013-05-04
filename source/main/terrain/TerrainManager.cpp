@@ -515,7 +515,8 @@ void TerrainManager::initWater()
 		water = hw;		
 	} else if (waterSettingsString != "None")
 	{
-		water = new Water(mTerrainConfig);
+		if (!mTerrainConfig.getSetting("Water", "General").empty() && StringConverter::parseBool(mTerrainConfig.getSetting("Water", "General")))
+			water = new Water(mTerrainConfig);
 	}
 }
 
