@@ -35,7 +35,6 @@ class Beam :
 	public Streamable,
 	public ZeroedMemoryAllocator
 {
-friend class PreviewRenderer;
 public:
 	Beam() {}; // for wrapper, DO NOT USE!
 	~Beam();
@@ -140,6 +139,7 @@ public:
 	void setDetailLevel(int v);
 	void showSkeleton(bool meshes=true, bool newMode=false, bool linked=true);
 	void hideSkeleton(bool newMode=false, bool linked=true);
+	void updateSimpleSkeleton();
 	void resetAutopilot();
 	void disconnectAutopilot();
 	void scaleTruck(float value);
@@ -342,7 +342,6 @@ public:
 
 protected:
 	void updateDashBoards(float &dt);
-	void updateSimpleSkeleton();
 	Ogre::SceneNode *simpleSkeletonNode;
 
 	Ogre::Vector3 position;
