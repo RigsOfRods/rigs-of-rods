@@ -36,7 +36,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class TerrainObjectManager : public IManager
 {
 	friend class TerrainManager;
-	friend class GameScript;
 
 public:
 

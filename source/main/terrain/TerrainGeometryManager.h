@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "IHeightFinder.h"
+#include "IManager.h"
 
 #include <OgreTerrain.h>
 #include <OgreTerrainMaterialGeneratorA.h>
@@ -31,13 +32,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrainGroup.h>
 
 #include <OgreConfigFile.h>
-#include "IManager.h"
 
 // this class handles all interactions with the Ogre Terrain system
-class TerrainGeometryManager : public IHeightFinder, public IManager
+class TerrainGeometryManager : public IManager, public IHeightFinder
 {
 	friend class TerrainObjectManager;
+
 public:
+
 	TerrainGeometryManager(TerrainManager *terrainManager);
 	~TerrainGeometryManager();
 
@@ -100,13 +102,13 @@ protected:
 
 	std::vector<blendLayerInfo_t> blendInfo;
 
+	bool getTerrainImage(int x, int y, Ogre::Image& img);
 	bool loadTerrainConfig(Ogre::String filename);
 	void configureTerrainDefaults();
 	void defineTerrain(int x, int y, bool flat=false);
-	bool getTerrainImage(int x, int y, Ogre::Image& img);
-	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
 	void initBlendMaps(int x, int y, Ogre::Terrain* t );
 	void initTerrain();
+	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
 	Ogre::String getPageHeightmapCfg(int x, int z);
 };
 
