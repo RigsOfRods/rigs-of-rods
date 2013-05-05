@@ -38,8 +38,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class TerrainManager : public IManager
 {
-	friend class TerrainObjectManager;
-
 public:
 
 	TerrainManager();
@@ -53,9 +51,12 @@ public:
 	void setGravity(float value);
 	float getGravity() { return gravity; };
 
-	Ogre::String getTerrainName() { return terrain_name; };
 	Ogre::String getGUID() { return guid; };
+	Ogre::String getTerrainName() { return terrain_name; };
+	float getPagedDetailFactor() { return paged_detail_factor; };
 	int getCategoryID() { return category_id; };
+	int getFarClip() { return far_clip; };
+	int getPagedMode() { return paged_mode; };
 	int getVersion() { return version; };
 	std::vector<authorinfo_t> getAuthors();
 
@@ -94,7 +95,7 @@ protected:
 	SkyManager *sky_manager;
 	TerrainGeometryManager *geometry_manager;
 	TerrainObjectManager *object_manager;
-	IWater *water;	
+	IWater *water;
 
 	// properties
 	Ogre::ColourValue ambient_color;

@@ -450,14 +450,15 @@ void TerrainGeometryManager::freeResources()
 Ogre::String TerrainGeometryManager::getCompositeMaterialName()
 {
 	TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
-	while(ti.hasMoreElements())
+
+	while (ti.hasMoreElements())
 	{
 		Terrain *terrain = ti.getNext()->instance;
-		if(!terrain) continue;
+		if (!terrain) continue;
 		MaterialPtr mat = terrain->getCompositeMapMaterial();
-		if(!mat.isNull())
+		if (!mat.isNull())
 			return mat->getName();
 	}
+
 	return String();
 }
-

@@ -540,15 +540,20 @@ void TerrainManager::fixCompositorClearColor()
 void TerrainManager::initWater()
 {
 	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+
+	// disabled in global config
+	if (waterSettingsString == "None") return;
+	// disabled in map config
+	if (!StringConverter::parseBool(mTerrainConfig.getSetting("Water", "General"))) return;
+
 	if (waterSettingsString == "Hydrax")
 	{
 		HydraxWater *hw = new HydraxWater();
 		hw->loadConfig("HydraxDemo.hdx");
-		water = hw;		
-	} else if (waterSettingsString != "None")
+		water = hw;
+	} else
 	{
-		if (!mTerrainConfig.getSetting("Water", "General").empty() && StringConverter::parseBool(mTerrainConfig.getSetting("Water", "General")))
-			water = new Water(mTerrainConfig);
+		water = new Water(mTerrainConfig);
 	}
 }
 
@@ -598,7 +603,6 @@ void TerrainManager::initCollisions()
 	gEnv->collisions = collisions;
 }
 
-
 void TerrainManager::initTerrainCollisions()
 {
 	String tractionMapConfig = mTerrainConfig.getSetting("TractionMap", "General");
@@ -618,7 +622,6 @@ bool TerrainManager::update(float dt)
 
 	return true;
 }
-
 
 void TerrainManager::initScripting()
 {
@@ -711,7 +714,7 @@ void TerrainManager::loadPreloadedTrucks()
 bool TerrainManager::hasPreloadedTrucks()
 {
 	if (object_manager)
-		return !object_manager->truck_preload.empty();
+		return !object_manager->hasPreloadedTrucks();
 	return false;
 }
 
