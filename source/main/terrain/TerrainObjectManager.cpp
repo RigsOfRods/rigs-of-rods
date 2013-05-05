@@ -137,8 +137,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		return;
 	}
 
-	int &mapsizex = terrainManager->geometry_manager->mapsizex;
-	int &mapsizez = terrainManager->geometry_manager->mapsizex;
+	int mapsizex = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
+	int mapsizez = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
 
 	Vector3 r2lastpos=Vector3::ZERO;
 	Quaternion r2lastrot=Quaternion::IDENTITY;
@@ -236,7 +236,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		//ugly stuff to parse trees :)
 		if (!strncmp("trees", line, 5))
 		{
-			if (terrainManager->paged_mode == 0) continue;
+			if (terrainManager->getPagedMode() == 0) continue;
 			char ColorMap[256] = {};
 			char DensityMap[256] = {};
 			char treemesh[256] = {};
@@ -277,10 +277,10 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 			//Set up LODs
 			//trees->addDetailLevel<EntityPage>(50);
-			float min = minDist * terrainManager->paged_detail_factor;
+			float min = minDist * terrainManager->getPagedDetailFactor();
 			if (min<10) min = 10;
 			paged.geom->addDetailLevel<BatchPage>(min, min/2);
-			float max = maxDist * terrainManager->paged_detail_factor;
+			float max = maxDist * terrainManager->getPagedDetailFactor();
 			if (max<10) max = 10;
 			paged.geom->addDetailLevel<ImpostorPage>(max, max/10);
 			TreeLoader2D *treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, mapsizex, mapsizez));
@@ -332,7 +332,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 					{
 						if (highdens < 0) hd = Math::RangeRandom(0, -highdens);
 						float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-						int numTreesToPlace = (int)((float)(hd) * density * terrainManager->paged_detail_factor);
+						int numTreesToPlace = (int)((float)(hd) * density * terrainManager->getPagedDetailFactor());
 						float nx=0, nz=0;
 						while(numTreesToPlace-->0)
 						{
@@ -359,7 +359,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (!strncmp("grass", line, 5) || !strncmp("grass2", line, 6))
 		{
 			// is paged geometry disabled by configuration?
-			if (terrainManager->paged_mode == 0) continue;
+			if (terrainManager->getPagedMode() == 0) continue;
 			int range = 80;
 			float SwaySpeed=0.5, SwayLength=0.05, SwayDistribution=10.0, minx=0.2, miny=0.2, maxx=1, maxy=0.6, Density=0.6, minH=-9999, maxH=9999;
 			char grassmat[256]="";
@@ -379,7 +379,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 				PagedGeometry *grass = new PagedGeometry(gEnv->mainCamera, 30);
 				//Set up LODs
 
-				grass->addDetailLevel<GrassPage>(range * terrainManager->paged_detail_factor); // original value: 80
+				grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80
 
 				//Set up a GrassLoader for easy use
 				GrassLoader *grassLoader = new GrassLoader(grass);
@@ -400,7 +400,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 				//String grassdensityTextureFilename = String(DensityMap);
 
-				grassLayer->setDensity(Density * terrainManager->paged_detail_factor);
+				grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
 				if (techn>10)
 					grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
 				else
@@ -507,7 +507,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (r < 6) continue;
 		if ((!strcmp(oname, "truck")) || (!strcmp(oname, "load") || (!strcmp(oname, "machine")) || (!strcmp(oname, "boat")) || (!strcmp(oname, "truck2")) ))
 		{
-			if (!strcmp(oname, "boat") && !terrainManager->water)
+			if (!strcmp(oname, "boat") && !terrainManager->getWater())
 			{
 				// no water so do not load boats!
 				continue;
@@ -627,15 +627,15 @@ void TerrainObjectManager::postLoad()
 	bakesg = gEnv->sceneManager->createStaticGeometry("bakeSG");
 	bakesg->setCastShadows(true);
 	bakesg->addSceneNode(bakeNode);
-	bakesg->setRegionDimensions(Vector3(terrainManager->far_clip/2.0, 10000.0, terrainManager->far_clip/2.0));
-	bakesg->setRenderingDistance(terrainManager->far_clip);
+	bakesg->setRegionDimensions(Vector3(terrainManager->getFarClip() / 2.0f, 10000.0, terrainManager->getFarClip() / 2.0f));
+	bakesg->setRenderingDistance(terrainManager->getFarClip());
 	try
 	{
 		bakesg->build();
 		bakeNode->detachAllObjects();
 		// crash under linux:
 		//bakeNode->removeAndDestroyAllChildren();
-	}catch(...)
+	} catch(...)
 	{
 		LOG("error while baking roads. ignoring.");
 

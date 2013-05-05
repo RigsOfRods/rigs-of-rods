@@ -35,8 +35,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class TerrainObjectManager : public IManager
 {
-	friend class TerrainManager;
-
 public:
 
 	TerrainObjectManager(TerrainManager *terrainManager);
@@ -44,6 +42,15 @@ public:
 
 	void loadObjectConfigFile(Ogre::String filename);
 
+	void loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+	void unloadObject(const Ogre::String &instancename);
+
+	void loadPreloadedTrucks();
+	bool hasPreloadedTrucks() { return !truck_preload.empty(); };
+
+	void postLoad();
+
+	bool updateAnimatedObjects(float dt);
 
 	typedef struct localizer_t
 	{
@@ -114,13 +121,6 @@ protected:
 		std::vector <int> collTris;
 	} loadedObject_t;
 	std::map< std::string, loadedObject_t> loadedObjects;
-
-	void loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
-	void unloadObject(const Ogre::String &instancename);
-
-	void loadPreloadedTrucks();
-	bool updateAnimatedObjects(float dt);
-	void postLoad();
 
 	virtual size_t getMemoryUsage();
 

@@ -36,8 +36,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public IManager, public IHeightFinder
 {
-	friend class TerrainObjectManager;
-
 public:
 
 	TerrainGeometryManager(TerrainManager *terrainManager);
