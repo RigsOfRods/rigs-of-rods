@@ -22,8 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "AdvancedOgreFramework.h"
 #include "Beam.h"
 #include "BeamFactory.h"
-#include "CameraManager.h"
-#include "RoRFrameListener.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 #include "SkyManager.h"
@@ -108,7 +106,7 @@ void PreviewRenderer::render()
 	float minCameraRadius = 0;
 	for (int i=0; i < truck->free_node; i++)
 	{
-		Real dist = truck->nodes[i].AbsPosition.distance(truck->position);
+		Real dist = truck->nodes[i].AbsPosition.distance(truck->getPosition());
 		if (dist > minCameraRadius)
 			minCameraRadius = dist;
 	}
@@ -134,7 +132,7 @@ void PreviewRenderer::render()
 	int z1 = (maxVector.z-minVector.z)/2 + (((maxVector.x-minVector.x)/2) / tan(fov / 2));
 	int z2 = (maxVector.z-minVector.z)/2 + (((maxVector.y-minVector.y)/2) / tan(fov / 2));
 	
-	//camNode->setPosition(truck->position);
+	//camNode->setPosition(truckPos);
 	camNode->setPosition(aab.getCenter());
 	camNode->attachObject(cam);
 
@@ -164,8 +162,9 @@ void PreviewRenderer::render()
 void PreviewRenderer::render2dviews(Beam *truck, Camera *cam, float minCameraRadius)
 {
 	float ominCameraRadius = minCameraRadius;
+	Vector3 truckPos = truck->getPosition();
 
-	for (int o=0;o<2;o++)
+	for (int o=0; o<2; o++)
 	{
 		String oext = "ortho.";
 		if     (o == 0)
@@ -180,7 +179,7 @@ void PreviewRenderer::render2dviews(Beam *truck, Camera *cam, float minCameraRad
 			minCameraRadius = ominCameraRadius * 2.4f;
 		}
 
-		for (int i=0;i<2;i++)
+		for (int i=0; i<2; i++)
 		{
 			String ext = "normal.";
 			if (i == 0)
@@ -196,38 +195,38 @@ void PreviewRenderer::render2dviews(Beam *truck, Camera *cam, float minCameraRad
 			ext = oext + ext;
 
 			// 3d first :)
-			cam->setPosition(Vector3(truck->position.x - minCameraRadius, truck->position.y * 1.5f, truck->position.z - minCameraRadius));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x - minCameraRadius, truckPos.y * 1.5f, truckPos.z - minCameraRadius));
+			cam->lookAt(truckPos);
 			render(ext + "perspective");
 
 			// right
-			cam->setPosition(Vector3(truck->position.x, truck->position.y, truck->position.z - minCameraRadius));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x, truckPos.y, truckPos.z - minCameraRadius));
+			cam->lookAt(truckPos);
 			render(ext + "right");
 
 			// left
-			cam->setPosition(Vector3(truck->position.x, truck->position.y, truck->position.z + minCameraRadius));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x, truckPos.y, truckPos.z + minCameraRadius));
+			cam->lookAt(truckPos);
 			render(ext + "left");
 
 			// front
-			cam->setPosition(Vector3(truck->position.x - minCameraRadius, truck->position.y, truck->position.z));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x - minCameraRadius, truckPos.y, truckPos.z));
+			cam->lookAt(truckPos);
 			render(ext + "front");
 
 			// back
-			cam->setPosition(Vector3(truck->position.x + minCameraRadius, truck->position.y, truck->position.z));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x + minCameraRadius, truckPos.y, truckPos.z));
+			cam->lookAt(truckPos);
 			render(ext + "back");
 
 			// top
-			cam->setPosition(Vector3(truck->position.x, truck->position.y + minCameraRadius, truck->position.z + 0.01f));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x, truckPos.y + minCameraRadius, truckPos.z + 0.01f));
+			cam->lookAt(truckPos);
 			render(ext + "top");
 
 			// bottom
-			cam->setPosition(Vector3(truck->position.x, truck->position.y - minCameraRadius, truck->position.z + 0.01f));
-			cam->lookAt(truck->position);
+			cam->setPosition(Vector3(truckPos.x, truckPos.y - minCameraRadius, truckPos.z + 0.01f));
+			cam->lookAt(truckPos);
 			render(ext + "bottom");
 
 		}
