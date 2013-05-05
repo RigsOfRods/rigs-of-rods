@@ -188,7 +188,7 @@ namespace Hydrax
 
 		Size TSize = mRttOptions[Rtt].Size_;
 
-		if (TSize.Width == 0 && TSize.Width == 0)
+		if (TSize.Width == 0 || TSize.Height == 0)
 		{
 			TSize.Width = mHydrax->getViewport()->getActualWidth();
 			TSize.Height = mHydrax->getViewport()->getActualHeight();
