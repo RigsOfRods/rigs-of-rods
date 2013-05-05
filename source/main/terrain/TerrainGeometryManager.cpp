@@ -19,14 +19,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TerrainGeometryManager.h"
 
-#include "SkyManager.h"
-#include "TerrainManager.h"
-#include "LoadingWindow.h"
 #include "Language.h"
+#include "LoadingWindow.h"
+#include "TerrainManager.h"
 
 using namespace Ogre;
-
-
 
 TerrainGeometryManager::TerrainGeometryManager(TerrainManager *terrainManager) :
 	  terrainManager(terrainManager)

@@ -21,26 +21,23 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __TerrainManager_H_
 
 #define HASOPTION(X) !terrainConfig.getSetting(X).empty()
-#define IOPTION(X)   PARSEINT(terrainConfig.getSetting(X))
 #define BOPTION(X)   StringConverter::parseBool(terrainConfig.getSetting(X))
 #define FOPTION(X)   PARSEREAL(terrainConfig.getSetting(X))
+#define IOPTION(X)   PARSEINT(terrainConfig.getSetting(X))
 #define SOPTION(X)   terrainConfig.getSetting(X)
-#define IOPT(X, Y)   (HASOPTION(X)?IOPTION(X):Y)
-#define FOPT(X, Y)   (HASOPTION(X)?FOPTION(X):Y)
 #define BOPT(X, Y)   (HASOPTION(X)?BOPTION(X):Y)
+#define FOPT(X, Y)   (HASOPTION(X)?FOPTION(X):Y)
+#define IOPT(X, Y)   (HASOPTION(X)?IOPTION(X):Y)
 #define SOPT(X, Y)   (HASOPTION(X)?SOPTION(X):Y)
 #define XZSTR(X,Z)   String("[") + TOSTRING(X) + String(",") + TOSTRING(Z) + String("]")
 
 #include "RoRPrerequisites.h"
 
-#include "CacheSystem.h"
-
-#include <OgreConfigFile.h>
 #include "IManager.h"
+#include <OgreConfigFile.h>
 
 class TerrainManager : public IManager
 {
-	friend class CacheSystem;
 	friend class TerrainObjectManager;
 
 public:
@@ -50,7 +47,6 @@ public:
 
 	void loadTerrain(Ogre::String filename);
 	void loadTerrainConfigBasics(Ogre::DataStreamPtr &ds);
-	
 
 	bool update(float dt);
 
@@ -58,18 +54,25 @@ public:
 	float getGravity() { return gravity; };
 
 	Ogre::String getTerrainName() { return terrain_name; };
+	Ogre::String getGUID() { return guid; };
+	int getCategoryID() { return category_id; };
+	int getVersion() { return version; };
+	std::vector<authorinfo_t> getAuthors();
+
 	Ogre::Vector3 getMaxTerrainSize();
 
 	// some getters
 	Collisions *getCollisions() { return collisions; };
 	Envmap *getEnvmap() { return envmap; };
 	IHeightFinder *getHeightFinder();
+	IWater *getWater() { return water; };
 	Ogre::Light *getMainLight() { return main_light; };
 	Ogre::Vector3 getSpawnPos() { return start_position; };
 	SkyManager *getSkyManager() { return sky_manager; };
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };
-	IWater *getWater() { return water; };
+
+	// preloaded trucks
 	void loadPreloadedTrucks();
 	bool hasPreloadedTrucks();
 
@@ -77,7 +80,7 @@ public:
 	void freeResources();
 
 protected:
-	// members
+
 	Ogre::ConfigFile mTerrainConfig;
 
 	// subsystems
@@ -97,18 +100,19 @@ protected:
 	Ogre::ColourValue ambient_color;
 	Ogre::ColourValue fade_color;
 	Ogre::Light *main_light;
-	Ogre::String fileHash;
+	Ogre::String file_hash;
 	Ogre::String guid;
 	Ogre::String ogre_terrain_config_filename;
 	Ogre::String terrain_name;
 	Ogre::Vector3 start_position;
+	std::vector<authorinfo_t> authors;
 	bool use_caelum;
 	float gravity;
-	float pagedDetailFactor;
+	float paged_detail_factor;
 	float water_line;
-	int categoryID;
-	int farclip;
-	int pagedMode;
+	int category_id;
+	int far_clip;
+	int paged_mode;
 	int version;
 
 	// internal methods

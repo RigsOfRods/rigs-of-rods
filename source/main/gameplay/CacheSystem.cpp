@@ -1669,11 +1669,11 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr d
 	tm.loadTerrainConfigBasics(ds);
 
 	//parsing the current file
-	entry.authors.clear();
-	entry.dname      = tm.terrain_name;
-	entry.categoryid = tm.categoryID;
-	entry.uniqueid   = tm.guid;
-	entry.version    = tm.version;
+	entry.authors	 = tm.getAuthors();
+	entry.dname      = tm.getTerrainName();
+	entry.categoryid = tm.getCategoryID();
+	entry.uniqueid   = tm.getGUID();
+	entry.version    = tm.getVersion();
 }
 
 int CacheSystem::getCategoryUsage(int category)

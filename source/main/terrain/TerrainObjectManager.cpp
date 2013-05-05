@@ -19,44 +19,28 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TerrainObjectManager.h"
 
+#include "AutoPilot.h"
 #include "BeamFactory.h"
-#include "CameraManager.h"
+#include "Collisions.h"
+#include "ErrorUtils.h"
+#include "ExtinguishableFireAffector.h"
 #include "Language.h"
 #include "LoadingWindow.h"
-#include "Ogre.h"
-#include "ProceduralManager.h"
-#include "RoRFrameListener.h"
-#include "SkyManager.h"
-
-#include "Collisions.h"
-
 #include "MeshObject.h"
-
-#include "SoundScriptManager.h"
-#include "TerrainManager.h"
-#include "TerrainGeometryManager.h"
-#include "Settings.h"
-
-#include "ExtinguishableFireAffector.h"
-
-#include "ScopeLog.h"
-
-#include "AutoPilot.h"
-
+#include "ProceduralManager.h"
+#include "ResourceBuffer.h"
 #include "Road2.h"
+#include "ScopeLog.h"
+#include "Settings.h"
+#include "SoundScriptManager.h"
+#include "SurveyMapEntity.h"
+#include "SurveyMapManager.h"
+#include "TerrainGeometryManager.h"
+#include "TerrainManager.h"
+#include "WriteTextToTexture.h"
 
 #include <OgreRTShaderSystem.h>
 #include <OgreFontManager.h>
-
-#include "WriteTextToTexture.h"
-
-#include "ResourceBuffer.h"
-
-#include "SurveyMapManager.h"
-#include "SurveyMapEntity.h"
-//#include "Procedural.h"
-#include "ErrorUtils.h"
-
 
 using namespace Ogre;
 
@@ -252,7 +236,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		//ugly stuff to parse trees :)
 		if (!strncmp("trees", line, 5))
 		{
-			if (terrainManager->pagedMode == 0) continue;
+			if (terrainManager->paged_mode == 0) continue;
 			char ColorMap[256] = {};
 			char DensityMap[256] = {};
 			char treemesh[256] = {};
@@ -293,10 +277,10 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 			//Set up LODs
 			//trees->addDetailLevel<EntityPage>(50);
-			float min = minDist * terrainManager->pagedDetailFactor;
+			float min = minDist * terrainManager->paged_detail_factor;
 			if (min<10) min = 10;
 			paged.geom->addDetailLevel<BatchPage>(min, min/2);
-			float max = maxDist * terrainManager->pagedDetailFactor;
+			float max = maxDist * terrainManager->paged_detail_factor;
 			if (max<10) max = 10;
 			paged.geom->addDetailLevel<ImpostorPage>(max, max/10);
 			TreeLoader2D *treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, mapsizex, mapsizez));
@@ -348,7 +332,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 					{
 						if (highdens < 0) hd = Math::RangeRandom(0, -highdens);
 						float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-						int numTreesToPlace = (int)((float)(hd) * density * terrainManager->pagedDetailFactor);
+						int numTreesToPlace = (int)((float)(hd) * density * terrainManager->paged_detail_factor);
 						float nx=0, nz=0;
 						while(numTreesToPlace-->0)
 						{
@@ -375,7 +359,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (!strncmp("grass", line, 5) || !strncmp("grass2", line, 6))
 		{
 			// is paged geometry disabled by configuration?
-			if (terrainManager->pagedMode == 0) continue;
+			if (terrainManager->paged_mode == 0) continue;
 			int range = 80;
 			float SwaySpeed=0.5, SwayLength=0.05, SwayDistribution=10.0, minx=0.2, miny=0.2, maxx=1, maxy=0.6, Density=0.6, minH=-9999, maxH=9999;
 			char grassmat[256]="";
@@ -395,7 +379,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 				PagedGeometry *grass = new PagedGeometry(gEnv->mainCamera, 30);
 				//Set up LODs
 
-				grass->addDetailLevel<GrassPage>(range * terrainManager->pagedDetailFactor); // original value: 80
+				grass->addDetailLevel<GrassPage>(range * terrainManager->paged_detail_factor); // original value: 80
 
 				//Set up a GrassLoader for easy use
 				GrassLoader *grassLoader = new GrassLoader(grass);
@@ -416,7 +400,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 				//String grassdensityTextureFilename = String(DensityMap);
 
-				grassLayer->setDensity(Density * terrainManager->pagedDetailFactor);
+				grassLayer->setDensity(Density * terrainManager->paged_detail_factor);
 				if (techn>10)
 					grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
 				else
@@ -643,8 +627,8 @@ void TerrainObjectManager::postLoad()
 	bakesg = gEnv->sceneManager->createStaticGeometry("bakeSG");
 	bakesg->setCastShadows(true);
 	bakesg->addSceneNode(bakeNode);
-	bakesg->setRegionDimensions(Vector3(terrainManager->farclip/2.0, 10000.0, terrainManager->farclip/2.0));
-	bakesg->setRenderingDistance(terrainManager->farclip);
+	bakesg->setRegionDimensions(Vector3(terrainManager->far_clip/2.0, 10000.0, terrainManager->far_clip/2.0));
+	bakesg->setRenderingDistance(terrainManager->far_clip);
 	try
 	{
 		bakesg->build();

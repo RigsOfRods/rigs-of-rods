@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamData.h"
 #include "BeamFactory.h"
+#include "Collisions.h"
 #include "Dashboard.h"
 #include "DustManager.h"
 #include "EnvironmentMap.h"
@@ -28,6 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIFriction.h"
 #include "GlowMaterialListener.h"
 #include "HDRListener.h"
+#include "HydraxWater.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
@@ -40,24 +42,39 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
-#include "HydraxWater.h"
-#include "Collisions.h"
 
 using namespace Ogre;
 
 TerrainManager::TerrainManager() : 
-	  geometry_manager(0)
-	, object_manager(0)
-	, sky_manager(0)
-	, shadow_manager(0)
-	, survey_map(0)
-	, hdr_listener(0)
-	, envmap(0)
-	, dashboard(0)
-	, collisions(0)
+	  mTerrainConfig()
 	, character(0)
+	, collisions(0)
+	, dashboard(0)
+	, envmap(0)
+	, geometry_manager(0)
+	, hdr_listener(0)
+	, object_manager(0)
+	, shadow_manager(0)
+	, sky_manager(0)
+	, survey_map(0)
 	, water(0)
-
+	, authors()
+	, ambient_color(ColourValue::White)
+	, category_id(0)
+	, fade_color(ColourValue::Black)
+	, far_clip(1000)
+	, file_hash("")
+	, gravity(9.81)
+	, guid("")
+	, main_light(0)
+	, ogre_terrain_config_filename("")
+	, paged_detail_factor(0.0f)
+	, paged_mode(0)
+	, start_position(Vector3::ZERO)
+	, terrain_name("")
+	, use_caelum(false)
+	, version(1)
+	, water_line(0.0f)
 {
 	gravity = DEFAULT_GRAVITY;
 }
@@ -78,7 +95,7 @@ TerrainManager::~TerrainManager()
 void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 {
 	// now generate the hash of it
-	generateHashFromDataStream(ds, fileHash);
+	generateHashFromDataStream(ds, file_hash);
 
 	mTerrainConfig.load(ds, "\t:=", true);
 
@@ -98,18 +115,11 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 		exit(125);
 	}
 
-	ambient_color = ColourValue();
-	if(!mTerrainConfig.getSetting("AmbientColor", "General").empty())
-		ambient_color = StringConverter::parseColourValue(mTerrainConfig.getSetting("AmbientColor", "General"));
-
-	start_position = Vector3::ZERO;
-	if(!mTerrainConfig.getSetting("StartPosition", "General").empty())
-		start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"));
-
+	ambient_color = StringConverter::parseColourValue(mTerrainConfig.getSetting("AmbientColor", "General"), ColourValue::White);
+	category_id = StringConverter::parseInt(mTerrainConfig.getSetting("CategoryID", "General"), 129);
 	guid = mTerrainConfig.getSetting("GUID", "General");
-	categoryID = StringConverter::parseInt(mTerrainConfig.getSetting("CategoryID", "General"));
-	version = StringConverter::parseInt(mTerrainConfig.getSetting("Version", "General"));
-
+	start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"));
+	version = StringConverter::parseInt(mTerrainConfig.getSetting("Version", "General"), 1);
 }
 
 void TerrainManager::loadTerrain(String filename)
@@ -252,13 +262,13 @@ void TerrainManager::initCamera()
 {
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 
-	farclip = FSETTING("SightRange", 4500);
-	if(farclip == 5000)
+	far_clip = FSETTING("SightRange", 4500);
+	if(far_clip == 5000)
 	{
 		gEnv->mainCamera->setFarClipDistance(0);
 	} else
 	{
-		gEnv->mainCamera->setFarClipDistance(farclip);
+		gEnv->mainCamera->setFarClipDistance(far_clip);
 	}
 
 
@@ -328,37 +338,36 @@ void TerrainManager::initLight()
 
 void TerrainManager::initFog()
 {
-	if(farclip == 5000)
+	if(far_clip == 5000)
 		gEnv->sceneManager->setFog(FOG_NONE);
 	else
-		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color,  0, farclip * 0.7, farclip * 0.9);
+		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color,  0, far_clip * 0.7, far_clip * 0.9);
 }
 
 void TerrainManager::initVegetation()
 {
 	// get vegetation mode
-	pagedMode = 0; //None
-	pagedDetailFactor = 0;
 	String vegetationMode = SSETTING("Vegetation", "None (fastest)");
-	if     (vegetationMode == "None (fastest)")
+
+	paged_mode = 0;
+	paged_detail_factor = 0.0f;
+
+	if        (vegetationMode == "None (fastest)")
 	{
-		pagedMode = 0;
-		pagedDetailFactor = 0.001;
-	}
-	else if (vegetationMode == "20%")
+		paged_mode = 0;
+		paged_detail_factor = 0.001f;
+	} else if (vegetationMode == "20%")
 	{
-		pagedMode = 1;
-		pagedDetailFactor = 0.2;
-	}
-	else if (vegetationMode == "50%")
+		paged_mode = 1;
+		paged_detail_factor = 0.2f;
+	} else if (vegetationMode == "50%")
 	{
-		pagedMode = 2;
-		pagedDetailFactor = 0.5;
-	}
-	else if (vegetationMode == "Full (best looking, slower)")
+		paged_mode = 2;
+		paged_detail_factor = 0.5f;
+	} else if (vegetationMode == "Full (best looking, slower)")
 	{
-		pagedMode = 3;
-		pagedDetailFactor = 1;
+		paged_mode = 3;
+		paged_detail_factor = 1.0f;
 	}
 }
 
@@ -681,4 +690,9 @@ bool TerrainManager::hasPreloadedTrucks()
 	if (object_manager)
 		return !object_manager->truck_preload.empty();
 	return false;
+}
+
+std::vector<authorinfo_t> TerrainManager::getAuthors()
+{
+	return authors;
 }
