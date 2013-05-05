@@ -120,6 +120,29 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	guid = mTerrainConfig.getSetting("GUID", "General");
 	start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"));
 	version = StringConverter::parseInt(mTerrainConfig.getSetting("Version", "General"), 1);
+
+	// parse author info
+	ConfigFile::SettingsIterator it = mTerrainConfig.getSettingsIterator("Authors");
+
+	authors.clear();
+
+	while (it.hasMoreElements())
+	{
+		String type = it.peekNextKey();   // e.g. terrain
+		String name = it.peekNextValue(); // e.g. john doe
+
+		if (!name.empty())
+		{
+			authorinfo_t author;
+
+			author.type = type;
+			author.name = name;
+
+			authors.push_back(author);
+		}
+
+		it.moveNext();
+	}
 }
 
 void TerrainManager::loadTerrain(String filename)
