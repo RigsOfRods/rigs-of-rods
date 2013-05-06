@@ -37,9 +37,6 @@ SurveyMapManager::SurveyMapManager(Vector3 worldSize) :
 	, mMapMode(SURVEY_MAP_NONE)
 	, mMapSize(Vector3::ZERO)
 	, mMapZoom(0.0f)
-	, mScale(1.0f)
-	, mX(0)
-	, mY(0)
 {
 	initialiseByAttributes(this);
 	setVisibility(false);
@@ -80,10 +77,12 @@ bool SurveyMapManager::getVisibility()
 	return mMainWidget->getVisible();
 }
 
-void SurveyMapManager::setAlpha(float value)
+void SurveyMapManager::setAlpha(float alpha, bool permanent /*= true*/)
 {
-	mAlpha = value;
-	mMainWidget->setAlpha(value);
+	mMainWidget->setAlpha(alpha);
+
+	if (permanent)
+		mAlpha = alpha;
 }
 
 void SurveyMapManager::setEntitiesVisibility(bool value)
@@ -144,10 +143,6 @@ void SurveyMapManager::setMapCenter(Vector3 position)
 void SurveyMapManager::setPosition(int x, int y, float size)
 {
 	int realx, realy, realw, realh;
-
-	mScale = size;
-	mX = x;
-	mY = y;
 
 	updateRenderMetrics();
 
@@ -222,7 +217,7 @@ void SurveyMapManager::update( Ogre::Real dt )
 			mMapMode = SURVEY_MAP_SMALL;
 		} else
 		{
-			setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)));
+			setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)), false);
 		}
 	}
 
