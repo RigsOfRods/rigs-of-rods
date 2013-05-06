@@ -51,13 +51,13 @@ public:
 	void setGravity(float value);
 	float getGravity() { return gravity; };
 
-	Ogre::String getGUID() { return guid; };
 	Ogre::String getTerrainName() { return terrain_name; };
-	float getPagedDetailFactor() { return paged_detail_factor; };
+	Ogre::String getGUID() { return guid; };
 	int getCategoryID() { return category_id; };
-	int getFarClip() { return far_clip; };
-	int getPagedMode() { return paged_mode; };
 	int getVersion() { return version; };
+	int getFarClip() { return far_clip; }
+	int getPagedMode() { return paged_mode; };
+	float getPagedDetailFactor() { return paged_detail_factor; };
 	std::vector<authorinfo_t> getAuthors();
 
 	Ogre::Vector3 getMaxTerrainSize();
@@ -79,6 +79,8 @@ public:
 
 	size_t getMemoryUsage();
 	void freeResources();
+
+	static const int UNLIMITED_SIGHTRANGE = 5000;
 
 protected:
 
