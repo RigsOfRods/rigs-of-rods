@@ -39,7 +39,7 @@ public:
 	SurveyMapEntity *getEntityByName(Ogre::String name);
 	void deleteMapEntity(SurveyMapEntity *entity);
 
-	void setAlpha(float alpha);
+	void setAlpha(float alpha, bool permanent = true);
 	float getAlpha() { return mAlpha; }
 
 	void setVisibility(bool value);
@@ -71,8 +71,7 @@ public:
 
 protected:
 
-	Ogre::Real mAlpha, mMapZoom, mScale;
-	int mX, mY;
+	Ogre::Real mAlpha, mMapZoom;
 
 	Ogre::Vector3 mMapCenter;
 	Ogre::Vector3 mMapSize;
