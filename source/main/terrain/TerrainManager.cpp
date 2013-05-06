@@ -64,7 +64,7 @@ TerrainManager::TerrainManager() :
 	, fade_color(ColourValue::Black)
 	, far_clip(1000)
 	, file_hash("")
-	, gravity(9.81)
+	, gravity(DEFAULT_GRAVITY)
 	, guid("")
 	, main_light(0)
 	, ogre_terrain_config_filename("")
@@ -76,12 +76,10 @@ TerrainManager::TerrainManager() :
 	, version(1)
 	, water_line(0.0f)
 {
-	gravity = DEFAULT_GRAVITY;
 }
 
 TerrainManager::~TerrainManager()
 {
-
 }
 
 // some shortcut to remove ugly code
@@ -195,14 +193,13 @@ void TerrainManager::loadTerrain(String filename)
 	
 	// init things after loading the terrain
 	initTerrainCollisions();
-	// init the map
+
+	// init the survey map
 	if (!BSETTING("disableOverViewMap", false))
 	{
 		PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
 		initSurveyMap();
 	}
-
-
 
 	collisions->finishLoadingTerrain();
 	LOG(" ===== TERRAIN LOADING DONE " + filename);
@@ -218,22 +215,19 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(17, _L("Initializing Object Subsystem"));
 	initObjects();
 	
-	// collisions
 	PROGRESS_WINDOW(19, _L("Initializing Collision Subsystem"));
 	initCollisions();
 
-	// scripting
 	PROGRESS_WINDOW(19, _L("Initializing Script Subsystem"));
 	initScripting();
 
-	// shadows
 	PROGRESS_WINDOW(21, _L("Initializing Shadow Subsystem"));
 	initShadows();
 
 	PROGRESS_WINDOW(25, _L("Initializing Camera Subsystem"));
 	initCamera();
 
-	// sky, must come after camera due to farclip
+	// sky, must come after camera due to far_clip
 	PROGRESS_WINDOW(23, _L("Initializing Sky Subsystem"));
 	initSkySubSystem();
 
@@ -270,7 +264,6 @@ void TerrainManager::initSubSystems()
 		PROGRESS_WINDOW(41, _L("Initializing Sunburn Subsystem"));
 		initSunburn();
 	}
-	// environment map
 	if (!BSETTING("Envmapdisable", false))
 	{
 		PROGRESS_WINDOW(43, _L("Initializing Environment Map Subsystem"));
@@ -284,18 +277,13 @@ void TerrainManager::initSubSystems()
 void TerrainManager::initCamera()
 {
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
+	gEnv->mainCamera->setPosition(start_position);
+	gEnv->mainCamera->setFarClipDistance(0);
 
 	far_clip = FSETTING("SightRange", 4500);
-	if(far_clip == 5000)
-	{
-		gEnv->mainCamera->setFarClipDistance(0);
-	} else
-	{
+
+	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
-	}
-
-
-	gEnv->mainCamera->setPosition(start_position);
 }
 
 void TerrainManager::initSkySubSystem()
@@ -361,10 +349,10 @@ void TerrainManager::initLight()
 
 void TerrainManager::initFog()
 {
-	if(far_clip == 5000)
+	if (far_clip >= UNLIMITED_SIGHTRANGE)
 		gEnv->sceneManager->setFog(FOG_NONE);
 	else
-		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color,  0, far_clip * 0.7, far_clip * 0.9);
+		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.0f, far_clip * 0.7f, far_clip * 0.9f);
 }
 
 void TerrainManager::initVegetation()
@@ -417,10 +405,8 @@ void TerrainManager::initGlow()
 
 void TerrainManager::initMotionBlur()
 {
-	/// Motion blur effect
-	CompositorPtr comp3 = CompositorManager::getSingleton().create(
-		"MotionBlur", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-		);
+	// Motion blur effect
+	CompositorPtr comp3 = CompositorManager::getSingleton().create("MotionBlur", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	{
 		CompositionTechnique *t = comp3->createTechnique();
 		{
@@ -453,50 +439,53 @@ void TerrainManager::initMotionBlur()
 			def->format = PF_R8G8B8;
 #endif //OGRE_VERSION
 		}
-		/// Render scene
+		// Render scene
 		{
 			CompositionTargetPass *tp = t->createTargetPass();
 			tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
 			tp->setOutputName("scene");
 		}
-		/// Initialisation pass for sum texture
+		// Initialization pass for sum texture
 		{
 			CompositionTargetPass *tp = t->createTargetPass();
 			tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
 			tp->setOutputName("sum");
 			tp->setOnlyInitial(true);
 		}
-		/// Do the motion blur
+		// Do the motion blur
 		{
 			CompositionTargetPass *tp = t->createTargetPass();
 			tp->setInputMode(CompositionTargetPass::IM_NONE);
 			tp->setOutputName("temp");
-			{ CompositionPass *pass = tp->createPass();
-			pass->setType(CompositionPass::PT_RENDERQUAD);
-			pass->setMaterialName("Compositor/Combine");
-			pass->setInput(0, "scene");
-			pass->setInput(1, "sum");
+			{
+				CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("Compositor/Combine");
+				pass->setInput(0, "scene");
+				pass->setInput(1, "sum");
 			}
 		}
-		/// Copy back sum texture
+		// Copy back sum texture
 		{
 			CompositionTargetPass *tp = t->createTargetPass();
 			tp->setInputMode(CompositionTargetPass::IM_NONE);
 			tp->setOutputName("sum");
-			{ CompositionPass *pass = tp->createPass();
-			pass->setType(CompositionPass::PT_RENDERQUAD);
-			pass->setMaterialName("Compositor/Copyback");
-			pass->setInput(0, "temp");
+			{
+				CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("Compositor/Copyback");
+				pass->setInput(0, "temp");
 			}
 		}
-		/// Display result
+		// Display result
 		{
 			CompositionTargetPass *tp = t->getOutputTargetPass();
 			tp->setInputMode(CompositionTargetPass::IM_NONE);
-			{ CompositionPass *pass = tp->createPass();
-			pass->setType(CompositionPass::PT_RENDERQUAD);
-			pass->setMaterialName("Compositor/MotionBlur");
-			pass->setInput(0, "sum");
+			{
+				CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("Compositor/MotionBlur");
+				pass->setInput(0, "sum");
 			}
 		}
 	}
@@ -512,7 +501,7 @@ void TerrainManager::initSunburn()
 
 void TerrainManager::fixCompositorClearColor()
 {
-	//hack
+	// hack
 	// now with extensive error checking
 	if (CompositorManager::getSingleton().hasCompositorChain(gEnv->mainCamera->getViewport()))
 	{
@@ -569,7 +558,7 @@ void TerrainManager::initDashboards()
 
 void TerrainManager::initShadows()
 {
-	shadow_manager   = new ShadowManager();
+	shadow_manager = new ShadowManager();
 	shadow_manager->loadConfiguration();
 }
 
@@ -578,15 +567,14 @@ void TerrainManager::loadTerrainObjects()
 	try
 	{
 		ConfigFile::SettingsIterator objectsIterator = mTerrainConfig.getSettingsIterator("Objects");
-		String svalue, sname;
+
 		while (objectsIterator.hasMoreElements())
 		{
-			sname = objectsIterator.peekNextKey();
+			String sname = objectsIterator.peekNextKey();
 			StringUtil::trim(sname);
-			svalue = objectsIterator.getNext();
-			StringUtil::trim(svalue);
 
 			object_manager->loadObjectConfigFile(sname);
+			objectsIterator.moveNext();
 		}
 	} catch(...)
 	{
@@ -714,7 +702,7 @@ void TerrainManager::loadPreloadedTrucks()
 bool TerrainManager::hasPreloadedTrucks()
 {
 	if (object_manager)
-		return !object_manager->hasPreloadedTrucks();
+		return object_manager->hasPreloadedTrucks();
 	return false;
 }
 
