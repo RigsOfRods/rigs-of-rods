@@ -59,7 +59,6 @@ public:
 	int loading_state;
 
 	enum LoadingStatuses { NONE_LOADED, TERRAIN_LOADED, ALL_LOADED, EXITING, EDITING, RELOADING, PAUSE, TERRAIN_EDITOR };
-	enum SurveyMapTypes { SURVEY_MAP_NONE, SURVEY_MAP_SMALL, SURVEY_MAP_BIG, SURVEY_MAP_END};
 	
 	Ogre::Vector3 reload_pos;
 
@@ -78,7 +77,6 @@ protected:
 	DOFManager *dof;
 	ForceFeedback *forcefeedback;
 	HeatHaze *heathaze;
-	SurveyMapManager *surveyMap;
 
 	Ogre::Quaternion reload_dir;
 	Ogre::Real distgrabbed;
@@ -118,7 +116,6 @@ protected:
 	int inputGrabMode;
 	int joyshiftlock;
 	int mStatsOn;
-	int surveyMapMode;
 	int mouseGrabState;
 	int netPointToUID;
 	int nodegrabbed;

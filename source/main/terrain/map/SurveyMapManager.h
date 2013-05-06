@@ -36,8 +36,8 @@ public:
 
 	SurveyMapEntity *createMapEntity(Ogre::String type);
 	SurveyMapEntity *createNamedMapEntity(Ogre::String name, Ogre::String type);
-	void deleteMapEntity(SurveyMapEntity *entity);
 	SurveyMapEntity *getEntityByName(Ogre::String name);
+	void deleteMapEntity(SurveyMapEntity *entity);
 
 	void setAlpha(float alpha);
 	float getAlpha() { return mAlpha; }
@@ -50,6 +50,7 @@ public:
 	Ogre::Real getMapZoom() { return mMapZoom; }
 
 	void setMapCenter(Ogre::Vector3 position);
+	void setPosition(int x, int y, float size);
 
 	void setEntitiesVisibility(bool visibility);
 	void setMapTexture(Ogre::String name);
@@ -59,13 +60,19 @@ public:
 
 	void windowResized();
 
+	void toggleMapView();
+	void toggleMapAlpha();
+
 	void update(Ogre::Real dt);
 
 	static Ogre::String getTypeByDriveable(int driveable);
 
+	enum SurveyMapTypes { SURVEY_MAP_NONE, SURVEY_MAP_SMALL, SURVEY_MAP_BIG, SURVEY_MAP_END};
+
 protected:
 
-	Ogre::Real mAlpha, mMapZoom;
+	Ogre::Real mAlpha, mMapZoom, mScale;
+	int mX, mY;
 
 	Ogre::Vector3 mMapCenter;
 	Ogre::Vector3 mMapSize;
@@ -79,10 +86,13 @@ protected:
 
 	void updateEntityPositions();
 
+	int mMapMode;
+	float mVelocity;
+
 	int rWinLeft, rWinTop;
 	unsigned int rWinWidth, rWinHeight, rWinDepth;
 
-	void updateRenderMetrics(Ogre::RenderWindow* win);
+	void updateRenderMetrics();
 };
 
 #endif // __MAP_CONTROL_H_

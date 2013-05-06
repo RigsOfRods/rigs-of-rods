@@ -692,8 +692,6 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	reload_box(0),
 	rtime(0),
 	shaderSchemeMode(1),
-	surveyMap(0),
-	surveyMapMode(SURVEY_MAP_NONE),
 	terrainUID("")
 {
 	// we don't use overlays in embedded mode
@@ -2401,81 +2399,6 @@ bool RoRFrameListener::updateEvents(float dt)
 				break;
 			}
 		}
-
-#ifdef USE_MYGUI
-		if (surveyMap)
-		{
-			// TODO: Create Survey Map Behaviors. Implement SurveyMapManager : public IManager ...
-#if 0
-			static float alphaValue = 1.0f;
-			float velocity = 0.0f;
-			if (curr_truck)
-			{
-				velocity = curr_truck->nodes[0].Velocity.length();
-			}
-			if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
-			{
-				surveyMapMode = (surveyMapMode + 1) % SURVEY_MAP_END;
-
-				if (surveyMapMode == SURVEY_MAP_BIG && (velocity > 5.0f ||
-					(gEnv->cameraManager &&
-					gEnv->cameraManager->hasActiveBehavior() &&
-					gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)))
-				{
-					surveyMapMode = (surveyMapMode + 1) % SURVEY_MAP_END;
-				}
-
-				if (surveyMapMode == SURVEY_MAP_NONE)
-				{
-					surveyMap->setVisibility(false);
-				} else
-				{
-					if (surveyMapMode == SURVEY_MAP_SMALL)
-					{
-						surveyMap->setPosition(-1, 1, 0.3f);
-					} else if (surveyMapMode == SURVEY_MAP_BIG)
-					{
-						surveyMap->setPosition(0, 0, 0.98f);
-					}
-					surveyMap->setAlpha(alphaValue);
-					surveyMap->setVisibility(true);
-				}
-			}
-			if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
-			{
-				if (surveyMap->getAlpha() > 0.51f)
-				{
-					surveyMap->setAlpha(0.5f);
-				}
-				else if (surveyMap->getAlpha() >= 0.21f && surveyMap->getAlpha() <= 0.51f)
-				{
-					surveyMap->setAlpha(0.2f);
-				}
-				else if (surveyMap->getAlpha() < 0.21f)
-				{
-					surveyMap->setAlpha(1.0f);
-				}
-				alphaValue = surveyMap->getAlpha();
-			}
-			if (curr_truck &&
-				surveyMapMode == SURVEY_MAP_BIG &&
-				gEnv->cameraManager &&
-				gEnv->cameraManager->hasActiveBehavior() &&
-				!gEnv->cameraManager->gameControlsLocked())
-			{
-				if (velocity > 7.5f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-				{
-					surveyMap->setPosition(-1, 1, 0.3f);
-					surveyMap->setAlpha(alphaValue);
-					surveyMapMode = SURVEY_MAP_SMALL;
-				} else
-				{
-					surveyMap->setAlpha(1.0f / sqrt(std::max(1.0f, velocity - 1.0f)));
-				}
-			}
-#endif
-		}
-#endif //USE_MYGUI
 		
 		if (INPUTENGINE.getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) && mTimeUntilNextToggle <= 0)
 		{
@@ -2602,9 +2525,9 @@ bool RoRFrameListener::updateEvents(float dt)
 					freeTruckPosition=false; // reset this, only to be used once
 				}
 
-				if (surveyMap && localTruck)
+				if (gEnv->surveyMap && localTruck)
 				{
-					SurveyMapEntity *e = surveyMap->createNamedMapEntity("Truck"+TOSTRING(localTruck->trucknum), SurveyMapManager::getTypeByDriveable(localTruck->driveable));
+					SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(localTruck->trucknum), SurveyMapManager::getTypeByDriveable(localTruck->driveable));
 					if (e)
 					{
 						e->setState(DESACTIVATED);
@@ -2715,14 +2638,19 @@ bool RoRFrameListener::updateEvents(float dt)
 void RoRFrameListener::shutdown_final()
 {
 	LOG(" ** Shutdown preparation");
+	
+	loading_state = EXITING;
+
 	//GUIManager::getSingleton().shutdown();
+
 #ifdef USE_SOCKETW
 	if (gEnv->network) gEnv->network->disconnect();
 #endif //SOCKETW
-	loading_state=EXITING;
+	
 #ifdef USE_OPENAL
 	SoundScriptManager::getSingleton().setEnabled(false);
-#endif // OPENAL
+#endif //OPENAL
+
 #ifdef USE_OIS_G27
 	//logitech G27 LEDs tachometer
 	if (leds)
@@ -2732,32 +2660,32 @@ void RoRFrameListener::shutdown_final()
 #endif //OIS_G27
 
 	LOG(" ** Shutdown final");
-	if (gEnv && gEnv->terrainManager && gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
+
+	if (gEnv && gEnv->terrainManager)
+	{
+		if (gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
+		if (gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
+	}
 	if (dashboard) dashboard->prepareShutdown();
-	if (gEnv && gEnv->terrainManager && gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
 	if (heathaze) heathaze->prepareShutdown();
 
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 	if (curr_truck) curr_truck->prepareShutdown();
+
 	INPUTENGINE.prepareShutdown();
 
 	RigsOfRods *ror = RigsOfRods::getSingletonPtr();
 	if (ror) ror->tryShutdown();
 
-	shutdownall=true;
-	//terrainmaterial->getBestTechnique()->getPass(0)->getTextureUnitState(0)->setTextureName(terrainoriginalmaterial);
+	shutdownall = true;
 }
 
 void RoRFrameListener::hideMap()
 {
 #ifdef USE_MYGUI
-	if (surveyMap)
-		surveyMap->setVisibility(false);
+	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #endif //USE_MYGUI
 }
-
-
-
 
 void RoRFrameListener::loadTerrain(String terrainfile)
 {
@@ -3140,6 +3068,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		gEnv->cameraManager->update(dt);
 	}
 
+	if (gEnv->surveyMap && (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR))
+	{
+		gEnv->surveyMap->update(dt);
+	}
+
 	// update mirrors after moving the camera as we use the camera position in mirrors
 	updateTruckMirrors(dt);
 
@@ -3368,15 +3301,14 @@ void RoRFrameListener::netDisconnectTruck(int number)
 	// TODO: fix that below!
 	//removeTruck(number);
 #ifdef USE_MYGUI
-	if (surveyMap)
+	if (gEnv->surveyMap)
 	{
-		SurveyMapEntity *e = surveyMap->getEntityByName("Truck"+TOSTRING(number));
+		SurveyMapEntity *e = gEnv->surveyMap->getEntityByName("Truck"+TOSTRING(number));
 		if (e)
 			e->setVisibility(false);
 	}
 #endif //USE_MYGUI
 }
-
 
 /* --- Window Events ------------------------------------------ */
 void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
@@ -3392,7 +3324,7 @@ void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
 	screenHeight = height;
 
 	if (ow) ow->windowResized();
-	if (surveyMap) surveyMap->windowResized();
+	if (gEnv->surveyMap) gEnv->surveyMap->windowResized();
 
 	//update mouse area
 	INPUTENGINE.windowResized(rw);
