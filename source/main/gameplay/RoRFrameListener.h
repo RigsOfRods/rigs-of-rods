@@ -52,7 +52,7 @@ public:
 
 	ChatSystem *netChat;
 
-	bool freeTruckPosition;
+	bool freeTruckPosition; // Do we still need this mess?
 
 	float netcheckGUITimer;
 

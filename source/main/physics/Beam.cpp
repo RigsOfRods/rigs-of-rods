@@ -5550,32 +5550,32 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 	int res = loadTruck(filename, parent, pos, rot, spawnbox);
 	if (res) return res;
 
-	//place correctly
+	// place correctly
 	if (!hasfixes)
 	{
-		//check if oversized
+		// check if over-sized
 		calcBoundingBoxes();
 		//px = px - (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0;
 		pos.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - pos.x;
 		//pz = pz - (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0;
 		pos.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - pos.z;
 		
-		float miny = -9999.0;
-		if (spawnbox) miny = spawnbox->relo.y + spawnbox->center.y + 0.01;
-
-		if (freePositioned)
-			resetPosition(pos, true);
-		else
-			resetPosition(pos.x, pos.z, true, miny);
+		resetPosition(pos, true);
 
 		if (spawnbox)
 		{
-			bool inside=true;
-			for (int i=0; i<free_node; i++) inside=inside && collisions->isInside(nodes[i].AbsPosition, spawnbox, 0.2f);
+			bool inside = true;
+
+			for (int i=0; i < free_node; i++)
+				inside = (inside && collisions->isInside(nodes[i].AbsPosition, spawnbox, 0.2f));
+
 			if (!inside)
 			{
-				Vector3 gpos = Vector3(pos.x, 0.0, pos.z);
-				gpos -= rot * Vector3((spawnbox->hi.x - spawnbox->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6, 0.0, 0.0);
+				float miny = spawnbox->relo.y + spawnbox->center.y + 0.01f;
+				Vector3 gpos = Vector3(pos.x, 0.0f, pos.z);
+
+				gpos -= rot * Vector3((spawnbox->hi.x - spawnbox->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6f, 0.0f, 0.0f);
+				
 				resetPosition(gpos.x, gpos.z, true, miny);
 			}
 		}
@@ -5583,6 +5583,7 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 	{
 		resetPosition(pos, true);
 	}
+
 	//compute final mass
 	calc_masses2(truckmass);
 	//setup default sounds
@@ -5606,8 +5607,6 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 		submesh_ground_model = collisions->getGroundModelByString(subMeshGroundModelName);
 		if (!submesh_ground_model) collisions->defaultgm;
 	}
-
-
 
 	// print some truck memory stats
 	int mem = 0, memr = 0, tmpmem = 0;
@@ -5660,7 +5659,7 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 			}
 		} else
 		{
-			// load all dashs
+			// load all dashes
 			for (unsigned int i=0; i < dashBoardLayouts.size(); i++)
 				dash->loadDashBoard(dashBoardLayouts[i].first, dashBoardLayouts[i].second);
 		}
