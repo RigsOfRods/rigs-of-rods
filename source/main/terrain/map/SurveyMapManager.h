@@ -26,13 +26,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "mygui/BaseLayout.h"
 
+class SurveyMapTextureCreator;
+
 ATTRIBUTE_CLASS_LAYOUT(SurveyMapManager, "MapControl.layout");
 
 class SurveyMapManager : public wraps::BaseLayout // TODO: public IManager ...
 {
 public:
 
-	SurveyMapManager(Ogre::Vector3 worldSize);
+	SurveyMapManager();
 
 	SurveyMapEntity *createMapEntity(Ogre::String type);
 	SurveyMapEntity *createNamedMapEntity(Ogre::String name, Ogre::String type);
@@ -40,25 +42,25 @@ public:
 	void deleteMapEntity(SurveyMapEntity *entity);
 
 	void setAlpha(float alpha, bool permanent = true);
-	float getAlpha() { return mAlpha; }
+	float getAlpha() { return mMainWidget->getAlpha(); }
 
 	void setVisibility(bool value);
 	bool getVisibility();
 
-	void setMapZoom(Ogre::Real zoomValue);
-	void setMapZoomRelative(Ogre::Real zoomDelta);
+	void setMapZoom(Ogre::Real zoomValue, bool update = true);
+	void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true);
 	Ogre::Real getMapZoom() { return mMapZoom; }
 
-	void setMapCenter(Ogre::Vector3 position);
-	void setPosition(int x, int y, float size);
+	void setMapCenter(Ogre::Vector3 position, bool update = true);
+	Ogre::Vector3 getMapCenter() { return mMapCenter; };
 
 	void setEntitiesVisibility(bool visibility);
 	void setMapTexture(Ogre::String name);
 
 	Ogre::Vector3 getMapSize() { return mMapSize; };
-	Ogre::Vector3 getWorldSize() { return mWorldSize; };
 
 	void windowResized();
+	void setWindowPosition(int x, int y, float size);
 
 	void toggleMapView();
 	void toggleMapAlpha();
@@ -71,14 +73,17 @@ public:
 
 protected:
 
+	void init();
+
 	Ogre::Real mAlpha, mMapZoom;
 
 	Ogre::Vector3 mMapCenter;
 	Ogre::Vector3 mMapSize;
-	Ogre::Vector3 mWorldSize;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
 	MyGUI::StaticImage* mMapTexture;
+
+	SurveyMapTextureCreator* mMapTextureCreator;
 
 	std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
 	std::set<SurveyMapEntity *> mMapEntities;

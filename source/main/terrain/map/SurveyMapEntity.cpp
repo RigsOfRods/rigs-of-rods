@@ -20,9 +20,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_MYGUI
 
 #include "Beam.h"
+#include "Ogre.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
-#include "Ogre.h"
+#include "TerrainManager.h"
 
 using namespace Ogre;
 
@@ -154,11 +155,12 @@ int SurveyMapEntity::getState()
 
 void SurveyMapEntity::update()
 {
-	float wscale = 1.0f - mMapControl->getMapSize().length() / mMapControl->getWorldSize().length();
+	float wscale = 1.0f - mMapControl->getMapSize().length() / gEnv->terrainManager->getMaxTerrainSize().length();
 
 	mCaption->setVisible(wscale > 0.5f);
 
 	Vector3 mapSize = mMapControl->getMapSize();
+
 	mMainWidget->setPosition(
 		mX / mapSize.x * mParent->getWidth() - mMainWidget->getWidth() / 2,
 		mZ / mapSize.z * mParent->getHeight() - mMainWidget->getHeight() / 2
@@ -169,6 +171,7 @@ void SurveyMapEntity::update()
 		mIconSize.width * wscale,
 		mIconSize.height * wscale
 	);
+
 	mIcon->setVisible(true);
 }
 

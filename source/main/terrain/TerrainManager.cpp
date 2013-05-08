@@ -657,9 +657,13 @@ void TerrainManager::setGravity(float value)
 
 void TerrainManager::initSurveyMap()
 {
-	survey_map = new SurveyMapManager(getMaxTerrainSize());
+	survey_map = new SurveyMapManager();
+
+	// Uses the terrain composite material as survey map background image
+#if 0
 	if (geometry_manager)
 		survey_map->setMapTexture(geometry_manager->getCompositeMaterialName());
+#endif
 }
 
 void TerrainManager::initGeometry()
