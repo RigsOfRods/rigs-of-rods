@@ -283,7 +283,7 @@ void SurveyMapManager::update(Ogre::Real dt)
 		{
 			if (mVelocity > 7.5f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
 			{
-				setWindowPosition(-1, 1, 0.3f);
+				setWindowPosition(1, -1, 0.3f);
 				setAlpha(mAlpha);
 				mMapMode = SURVEY_MAP_SMALL;
 			} else
