@@ -47,12 +47,15 @@ public:
 	void setVisibility(bool value);
 	bool getVisibility();
 
-	void setMapZoom(Ogre::Real zoomValue, bool update = true);
+	void setMapZoom(Ogre::Real zoomValue, bool update = true, bool permanent = true);
 	void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true);
 	Ogre::Real getMapZoom() { return mMapZoom; }
 
+	void setMapCenter(Ogre::Vector2 position, bool update = true);
 	void setMapCenter(Ogre::Vector3 position, bool update = true);
-	Ogre::Vector3 getMapCenter() { return mMapCenter; };
+	void setMapCenter(Ogre::Vector2 position, float maxOffset, bool update = true);
+	void setMapCenter(Ogre::Vector3 position, float maxOffset, bool update = true);
+	Ogre::Vector2 getMapCenter() { return mMapCenter; };
 
 	void setEntitiesVisibility(bool visibility);
 	void setMapTexture(Ogre::String name);
@@ -77,7 +80,7 @@ protected:
 
 	Ogre::Real mAlpha, mMapZoom;
 
-	Ogre::Vector3 mMapCenter;
+	Ogre::Vector2 mMapCenter;
 	Ogre::Vector3 mMapSize;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
@@ -92,6 +95,8 @@ protected:
 
 	int mMapMode;
 	float mVelocity;
+
+	float mMapCenterThreshold;
 
 	int rWinLeft, rWinTop;
 	unsigned int rWinWidth, rWinHeight, rWinDepth;

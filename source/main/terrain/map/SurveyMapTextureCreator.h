@@ -53,7 +53,7 @@ protected:
 	Ogre::Viewport *mViewport;
 
 	Ogre::Real mMapZoom;
-	Ogre::Vector3 mMapCenter;
+	Ogre::Vector2 mMapCenter;
 	Ogre::Vector3 mMapSize;
 
 	static int mCounter;

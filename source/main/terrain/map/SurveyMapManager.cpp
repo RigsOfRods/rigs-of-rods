@@ -27,6 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Character.h"
 #include "InputEngine.h"
 #include "Ogre.h"
+#include "Settings.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
 #include "TerrainManager.h"
@@ -37,9 +38,10 @@ SurveyMapManager::SurveyMapManager() :
 	  mAlpha(1.0f)
 	, mMapMode(SURVEY_MAP_NONE)
 	, mMapTextureCreator(0)
-	, mMapCenter(Vector3::ZERO)
+	, mMapCenter(Vector2::ZERO)
 	, mMapSize(Vector3::ZERO)
 	, mMapZoom(0.0f)
+	, mMapCenterThreshold(5.0f)
 {
 	initialiseByAttributes(this);
 	setVisibility(false);
@@ -52,11 +54,13 @@ SurveyMapManager::SurveyMapManager() :
 void SurveyMapManager::init()
 {
 	mMapSize = gEnv->terrainManager->getMaxTerrainSize();
-	mMapCenter = Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f);
+	mMapCenter = Vector2(mMapSize.x / 2.0f, mMapSize.z / 2.0f);
 
 	mMapTextureCreator = new SurveyMapTextureCreator();
 	mMapTextureCreator->update();
 	setMapTexture(mMapTextureCreator->getTextureName());
+
+	mMapCenterThreshold = FSETTING("SurveyMapCenterThreshold", 5.0f);
 }
 
 SurveyMapEntity *SurveyMapManager::createMapEntity(String type)
@@ -137,9 +141,11 @@ void SurveyMapManager::updateRenderMetrics()
 		gEnv->renderWindow->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
 }
 
-void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/)
+void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/, bool permanent /*= true*/)
 {
 	if (mMapZoom == zoomValue) return;
+
+	Real oldZoomValue = mMapZoom;
 
 	mMapZoom = zoomValue;
 	mMapZoom = std::max(0.0f, mMapZoom);
@@ -147,6 +153,9 @@ void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/)
 
 	if (update)
 		mMapTextureCreator->update();
+
+	if (!permanent)
+		mMapZoom = oldZoomValue;
 }
 
 void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool update /*= true*/)
@@ -154,15 +163,30 @@ void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool update /*= true*/
 	setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f, update);
 }
 
-void SurveyMapManager::setMapCenter(Vector3 position, bool update /*= true*/)
+void SurveyMapManager::setMapCenter(Vector2 position, bool update /*= true*/)
 {
-	if (mMapCenter.x == position.x && mMapCenter.z == position.z) return;
+	if (mMapCenter == position) return;
 
 	mMapCenter = position;
-	mMapCenter.y = 0.0f;
 
 	if (update)
 		mMapTextureCreator->update();
+}
+
+void SurveyMapManager::setMapCenter(Ogre::Vector2 position, float maxOffset,  bool update /*= true*/)
+{
+	if (mMapCenter.distance(position) > std::abs(maxOffset))
+		setMapCenter(position, update);
+}
+
+void SurveyMapManager::setMapCenter(Vector3 position, bool update /*= true*/)
+{
+	setMapCenter(Vector2(position.x, position.z), update);
+}
+
+void SurveyMapManager::setMapCenter(Ogre::Vector3 position, float maxOffset,  bool update /*= true*/)
+{
+	setMapCenter(Vector2(position.x, position.z), maxOffset, update);
 }
 
 void SurveyMapManager::setWindowPosition(int x, int y, float size)
@@ -257,10 +281,10 @@ void SurveyMapManager::update(Ogre::Real dt)
 		{
 			if (curr_truck)
 			{
-				setMapCenter(curr_truck->getPosition());
+				setMapCenter(curr_truck->getPosition(), mMapCenterThreshold * (1 - mMapZoom));
 			} else
 			{
-				setMapCenter(gEnv->player->getPosition());
+				setMapCenter(gEnv->player->getPosition(), mMapCenterThreshold * (1 - mMapZoom));
 			}
 		} else
 		{
@@ -271,7 +295,7 @@ void SurveyMapManager::update(Ogre::Real dt)
 	case SURVEY_MAP_BIG:
 		if (getMapZoom() > 0.0f)
 		{
-			setMapZoom(0.0f);
+			setMapZoom(0.0f, true, false);
 		}
 
 		setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
