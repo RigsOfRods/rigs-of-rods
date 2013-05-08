@@ -35,7 +35,7 @@ SurveyMapTextureCreator::SurveyMapTextureCreator() :
 	, mStatics(NULL)
 	, mTextureUnitState(NULL)
 	, mViewport(NULL)
-	, mMapCenter(Vector3::ZERO)
+	, mMapCenter(Vector2::ZERO)
 	, mMapSize(Vector3::ZERO)
 	, mMapZoom(0.0f)
 {
@@ -88,7 +88,7 @@ void SurveyMapTextureCreator::update()
 	if ( !mRttTex ) return;
 
 	mMapSize = Vector3::ZERO;
-	mMapCenter = Vector3::ZERO;
+	mMapCenter = Vector2::ZERO;
 	mMapZoom = 0.0f;
 
 	if (gEnv->terrainManager)
@@ -105,8 +105,8 @@ void SurveyMapTextureCreator::update()
 
 	mCamera->setFarClipDistance(mMapSize.y + 3.0f);
 	mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);
-	mCamera->setPosition(mMapCenter + Vector3(0.0f, mMapSize.y + 2.0f, 0.0f));
-	mCamera->lookAt(mMapCenter);
+	mCamera->setPosition(Vector3(mMapCenter.x, mMapSize.y + 2.0f, mMapCenter.y));
+	mCamera->lookAt(Vector3(mMapCenter.x, 0.0f, mMapCenter.y));
 
 	preRenderTargetUpdate();
 
