@@ -24,17 +24,20 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
+#include "Character.h"
 #include "InputEngine.h"
 #include "Ogre.h"
 #include "SurveyMapEntity.h"
+#include "SurveyMapTextureCreator.h"
+#include "TerrainManager.h"
 
 using namespace Ogre;
 
-SurveyMapManager::SurveyMapManager(Vector3 worldSize) :
-	  mWorldSize(worldSize)
-	, mAlpha(1.0f)
-	, mMapCenter(Vector3::ZERO)
+SurveyMapManager::SurveyMapManager() :
+	  mAlpha(1.0f)
 	, mMapMode(SURVEY_MAP_NONE)
+	, mMapTextureCreator(0)
+	, mMapCenter(Vector3::ZERO)
 	, mMapSize(Vector3::ZERO)
 	, mMapZoom(0.0f)
 {
@@ -42,6 +45,18 @@ SurveyMapManager::SurveyMapManager(Vector3 worldSize) :
 	setVisibility(false);
 
 	gEnv->surveyMap = this;
+
+	init();
+}
+
+void SurveyMapManager::init()
+{
+	mMapSize = gEnv->terrainManager->getMaxTerrainSize();
+	mMapCenter = Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f);
+
+	mMapTextureCreator = new SurveyMapTextureCreator();
+	mMapTextureCreator->update();
+	setMapTexture(mMapTextureCreator->getTextureName());
 }
 
 SurveyMapEntity *SurveyMapManager::createMapEntity(String type)
@@ -122,25 +137,35 @@ void SurveyMapManager::updateRenderMetrics()
 		gEnv->renderWindow->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
 }
 
-void SurveyMapManager::setMapZoom(Real zoomValue)
+void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/)
 {
+	if (mMapZoom == zoomValue) return;
+
 	mMapZoom = zoomValue;
 	mMapZoom = std::max(0.0f, mMapZoom);
 	mMapZoom = std::min(mMapZoom, 1.0f);
+
+	if (update)
+		mMapTextureCreator->update();
 }
 
-void SurveyMapManager::setMapZoomRelative(Real zoomDelta)
+void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool update /*= true*/)
 {
-	setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f);
+	setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f, update);
 }
 
-void SurveyMapManager::setMapCenter(Vector3 position)
+void SurveyMapManager::setMapCenter(Vector3 position, bool update /*= true*/)
 {
+	if (mMapCenter.x == position.x && mMapCenter.z == position.z) return;
+
 	mMapCenter = position;
 	mMapCenter.y = 0.0f;
+
+	if (update)
+		mMapTextureCreator->update();
 }
 
-void SurveyMapManager::setPosition(int x, int y, float size)
+void SurveyMapManager::setWindowPosition(int x, int y, float size)
 {
 	int realx, realy, realw, realh;
 
@@ -194,8 +219,10 @@ Ogre::String SurveyMapManager::getTypeByDriveable( int driveable )
 	}
 }
 
-void SurveyMapManager::update( Ogre::Real dt )
+void SurveyMapManager::update(Ogre::Real dt)
 {
+	if ( dt == 0 ) return;
+
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 	mVelocity = 0.0f;
 
@@ -204,30 +231,81 @@ void SurveyMapManager::update( Ogre::Real dt )
 		mVelocity = curr_truck->nodes[0].Velocity.length();
 	}
 
-	if (curr_truck &&
-		mMapMode == SURVEY_MAP_BIG &&
-		gEnv->cameraManager &&
-		gEnv->cameraManager->hasActiveBehavior() &&
-		!gEnv->cameraManager->gameControlsLocked())
-	{
-		if (mVelocity > 7.5f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-		{
-			setPosition(-1, 1, 0.3f);
-			setAlpha(mAlpha);
-			mMapMode = SURVEY_MAP_SMALL;
-		} else
-		{
-			setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)), false);
-		}
-	}
-
 	if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
 	{
 		toggleMapView();
 	}
-	if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+
+	if (mMapMode == SURVEY_MAP_NONE) return;
+
+	switch (mMapMode)
 	{
-		toggleMapAlpha();
+	case SURVEY_MAP_SMALL:
+		if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+		{
+			toggleMapAlpha();
+		}
+		if (INPUTENGINE.getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
+		{
+			setMapZoomRelative(1.0f);
+		}
+		if (INPUTENGINE.getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
+		{
+			setMapZoomRelative(-1.0f);
+		}
+		if (getMapZoom() > 0.0f)
+		{
+			if (curr_truck)
+			{
+				setMapCenter(curr_truck->getPosition());
+			} else
+			{
+				setMapCenter(gEnv->player->getPosition());
+			}
+		} else
+		{
+			setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
+		}
+		break;
+
+	case SURVEY_MAP_BIG:
+		if (getMapZoom() > 0.0f)
+		{
+			setMapZoom(0.0f);
+		}
+
+		setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
+
+		if (curr_truck &&
+			gEnv->cameraManager &&
+			gEnv->cameraManager->hasActiveBehavior() &&
+		   !gEnv->cameraManager->gameControlsLocked())
+		{
+			if (mVelocity > 7.5f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+			{
+				setWindowPosition(-1, 1, 0.3f);
+				setAlpha(mAlpha);
+				mMapMode = SURVEY_MAP_SMALL;
+			} else
+			{
+				setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)), false);
+			}
+		} else
+		{
+			if (getAlpha() != mAlpha)
+			{
+				setAlpha(mAlpha);
+			}
+
+			if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+			{
+				toggleMapAlpha();
+			}
+		}
+		break;
+
+	default:
+		break;
 	}
 }
 
@@ -250,10 +328,10 @@ void SurveyMapManager::toggleMapView()
 	{
 		if (mMapMode == SURVEY_MAP_SMALL)
 		{
-			setPosition(-1, 1, 0.3f);
+			setWindowPosition(1, -1, 0.3f);
 		} else if (mMapMode == SURVEY_MAP_BIG)
 		{
-			setPosition(0, 0, 0.98f);
+			setWindowPosition(0, 0, 0.98f);
 		}
 		setAlpha(mAlpha);
 		setVisibility(true);
@@ -262,15 +340,15 @@ void SurveyMapManager::toggleMapView()
 
 void SurveyMapManager::toggleMapAlpha()
 {
-	if (getAlpha() > 0.51f)
+	if (getAlpha() > 0.61f)
 	{
-		setAlpha(0.5f);
+		setAlpha(0.6f);
 	}
-	else if (getAlpha() >= 0.21f && getAlpha() <= 0.51f)
+	else if (getAlpha() >= 0.31f && getAlpha() <= 0.61f)
 	{
-		setAlpha(0.2f);
+		setAlpha(0.3f);
 	}
-	else if (getAlpha() < 0.21f)
+	else if (getAlpha() < 0.31f)
 	{
 		setAlpha(1.0f);
 	}
