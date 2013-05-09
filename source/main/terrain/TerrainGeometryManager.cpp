@@ -420,7 +420,7 @@ void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain 
 
 bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 {
-	String heightmapString = "HeightmapImage";
+	String heightmapString = "HeightmapImage."+TOSTRING(x)+"."+TOSTRING(z);
 	String heightmapFilename = getPageHeightmap(x, z);
 	StringUtil::trim(heightmapFilename);
 
@@ -432,8 +432,8 @@ bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 
 	if (heightmapFilename.find(".raw") != String::npos)
 	{
-		int rawSize = IOPT(heightmapString+".raw.size", 1025);
-		int bpp     = IOPT(heightmapString+".raw.bpp", 2);
+		int rawSize = IOPT(heightmapString + ".raw.size", 1025);
+		int bpp     = IOPT(heightmapString + ".raw.bpp", 2);
 
 		// load raw data
 		DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(heightmapFilename);
