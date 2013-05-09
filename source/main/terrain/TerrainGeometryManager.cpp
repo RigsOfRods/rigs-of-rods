@@ -420,7 +420,7 @@ void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain 
 
 bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 {
-	String heightmapString = "HeightmapImage."+TOSTRING(x)+"."+TOSTRING(z);
+	String heightmapString = "Heightmap."+TOSTRING(x)+"."+TOSTRING(z);
 	String heightmapFilename = getPageHeightmap(x, z);
 	StringUtil::trim(heightmapFilename);
 
