@@ -111,6 +111,8 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 						interp_ratio =  difftoBeamL - beams[i].longbound  * beams[i].L;
 					else if (difftoBeamL < -beams[i].shortbound * beams[i].L)
 						interp_ratio = -difftoBeamL - beams[i].shortbound * beams[i].L;
+					else
+						break;
 
 					// Hard (normal) shock bump
 					float tspring = DEFAULT_SPRING;
