@@ -346,14 +346,19 @@ bool BeamFactory::checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
 
 void BeamFactory::recursiveActivation(int j)
 {
+	if (!trucks[j] || trucks[j]->state > DESACTIVATED) return;
+
 	for (int t=0; t < free_truck; t++)
 	{
-		if (!trucks[t]) continue;
+		if (t == j || !trucks[t]) continue;
 		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5)) &&
 			checkTruckIntersection(t, j))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
-			trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;
+
+			if (current_truck >= 0)
+				trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;
+
 			recursiveActivation(t);
 		}
 	}
@@ -426,8 +431,9 @@ void BeamFactory::activateAllTrucks()
 		if (trucks[t] && (trucks[t]->state >= DESACTIVATED || trucks[t]->state <= SLEEPING))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
-			trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;
-			recursiveActivation(t);
+
+			if (current_truck >= 0)
+				trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;
 		}
 	}
 }
