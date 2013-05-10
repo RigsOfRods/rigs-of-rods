@@ -52,7 +52,7 @@ public:
 
 	ChatSystem *netChat;
 
-	bool freeTruckPosition; // Do we still need this mess?
+	bool freeTruckPosition; // Used for initial truck loading
 
 	float netcheckGUITimer;
 
