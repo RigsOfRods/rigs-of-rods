@@ -3,21 +3,25 @@
 # update trunk first
 BASE=/var/svn-co/trunk
 WEBDIR=/var/www/docs.rigsofrods.com/htdocs
+WEBUSER=lighttpd
+WEBGROUP=lighttpd
 INDEX=${WEBDIR}/index.html
 INDEX2=${WEBDIR}/index2.html
 ZIPFN=ror-doc.zip
 ZIP=${WEBDIR}/${ZIPFN}
+CONFIGDIR=$BASE/doc
 # we need to cd, since doxygen paths work locally
 cd $BASE
 
-/usr/bin/svn up $BASE #2>&1 >>/dev/null
+/usr/bin/hg pull -R $BASE #2>&1 >>/dev/null
+/usr/bin/hg update -R $BASE #2>&1 >>/dev/null
 
 echo "the documentation is currently being updated, please check back in some minutes" > $INDEX
 
 echo "<html><body><h2>Rigs of Rods Documentation overview</h2><ul>" > $INDEX2
-chown lighttpd:lighttpd $INDEX $INDEX2
+chown ${WEBUSER}:${WEBGROUP} $INDEX $INDEX2
 
-CONFIGS=$(ls $BASE/doc/*.conf | grep ".linux.")
+CONFIGS=$(ls ${CONFIGDIR}/*.conf | grep ".linux.")
 for CONFIG in $CONFIGS
 do
  CONFIGFILE=$(basename $CONFIG)
@@ -25,7 +29,7 @@ do
  NAME=$(echo $CONFIG | awk -F. '{ print $2 }')
  PROJECT=$(cat $CONFIG | grep "PROJECT_NAME" | grep -v "#" | awk -F= '{ print $2 }' | sed "s/\"//g" | sed -e 's/^[ \t]*//')
  OUTDIR=$(cat $CONFIG | grep "OUTPUT_DIRECTORY" | grep -v "#" | awk -F= '{ print $2 }' | sed -e 's/^[ \t]*//')
- if [[ "$NAME" == "" ]]
+ if [ "$NAME" = "" ]
  then
   # do not allow to delete the root dir ...
   continue
@@ -54,15 +58,17 @@ echo "</ul>" >> $INDEX2
 
 
 # finish the index html site
-LASTCHANGE=$(svn info ${BASE} | grep Last)
-REV=$(svn info ${BASE} | grep Revision)
+LASTCHANGE=$(hg log -l 1 ${BASE} | grep date)
+LASTUSER=$(hg log -l 1 ${BASE} | grep user | sed -e 's/<[^@>]*@[^>]*>$//g') # (also strips mail address)
+REV=$(hg log -l 1 ${BASE} | grep changeset)
 DATET=$(date)
 
 echo "
 download zipped version of this documentation: <a href='${ZIPFN}'>${ZIPFN}</a><br/>
 <pre>last update: $DATET
-svn trunk ${REV}
-${LASTCHANGE}
+hg ${REV}
+by ${LASTUSER}
+Last changed ${LASTCHANGE}
 </pre>
 
 (this updates automatically daily)</body></html>" >> $INDEX2
@@ -75,5 +81,5 @@ cd ${WEBDIR}
 
 
 # fix permissions
-chown -R lighttpd:lighttpd $WEBDIR/*
+chown -R ${WEBUSER}:${WEBGROUP} $WEBDIR/*
 
