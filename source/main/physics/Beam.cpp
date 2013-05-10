@@ -5560,7 +5560,10 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 		//pz = pz - (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0;
 		pos.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - pos.z;
 		
-		resetPosition(pos, true);
+		if (freePositioned)
+			resetPosition(pos, true);
+		else
+			resetPosition(pos.x, pos.z, true);
 
 		if (spawnbox)
 		{
