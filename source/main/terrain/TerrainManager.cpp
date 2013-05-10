@@ -116,7 +116,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	ambient_color = StringConverter::parseColourValue(mTerrainConfig.getSetting("AmbientColor", "General"), ColourValue::White);
 	category_id = StringConverter::parseInt(mTerrainConfig.getSetting("CategoryID", "General"), 129);
 	guid = mTerrainConfig.getSetting("GUID", "General");
-	start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"));
+	start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
 	version = StringConverter::parseInt(mTerrainConfig.getSetting("Version", "General"), 1);
 
 	// parse author info
