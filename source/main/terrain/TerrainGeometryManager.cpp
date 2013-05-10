@@ -86,6 +86,7 @@ Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
 		return String(buf);
 	} catch(...)
 	{
+		LOG("error loading page config for page " + XZSTR(x,z) + " : " + cfg);
 	}
 
 	return String();
@@ -268,10 +269,12 @@ void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 		ds = ResourceGroupManager::getSingleton().openResource(cfg, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 	} catch(...)
 	{
+		LOG("error loading page config for page " + XZSTR(x,z) + " : " + cfg);
 	}
-	if (!ds->isReadable())
+
+	if (ds.isNull() || !ds->isReadable())
 	{
-		LOG("error loading layers for page " + XZSTR(x,z));
+		LOG("error loading layers for page " + XZSTR(x,z) + " : " + cfg);
 		return;
 	}
 
