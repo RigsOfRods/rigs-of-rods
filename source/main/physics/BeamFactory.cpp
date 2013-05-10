@@ -428,7 +428,7 @@ void BeamFactory::activateAllTrucks()
 {
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && (trucks[t]->state >= DESACTIVATED || trucks[t]->state <= SLEEPING))
+		if (trucks[t] && trucks[t]->state >= DESACTIVATED && trucks[t]->state <= SLEEPING)
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
 
