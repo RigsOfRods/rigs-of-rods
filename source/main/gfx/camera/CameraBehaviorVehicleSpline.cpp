@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "InputEngine.h"
 #include "Language.h"
 #include "Ogre.h"
+#include "Settings.h"
 
 using namespace Ogre;
 
@@ -250,7 +251,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
 
 	splineLength /= 2.0f;
 
-	if ( !splineObject )
+	if ( !splineObject && BSETTING("CameraRailDebug", false))
 	{
 		splineObject = gEnv->sceneManager->createManualObject();
 		SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -276,6 +277,8 @@ void CameraBehaviorVehicleSpline::updateSpline()
 
 void CameraBehaviorVehicleSpline::updateSplineDisplay()
 {
+	if (!splineObject) return;
+
 	splineObject->beginUpdate(0);
 	for (int i = 0; i < splineDrawResolution; i++)
 	{
