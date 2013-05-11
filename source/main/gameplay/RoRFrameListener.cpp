@@ -2881,8 +2881,7 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 				position=previousTruck->nodes[previousTruck->cinecameranodepos[0]].AbsPosition;
 				position+=-2.0*((previousTruck->nodes[previousTruck->cameranodepos[0]].RelPosition-previousTruck->nodes[previousTruck->cameranoderoll[0]].RelPosition).normalisedCopy());
 				position+=Vector3(0.0, -1.0, 0.0);
-			}
-			else
+			} else
 			{
 				// truck has no cinecam
 				position=previousTruck->nodes[0].AbsPosition;
@@ -2901,18 +2900,20 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 		SoundScriptManager::getSingleton().trigStop(previousTruck, SS_TRIG_PUMP);
 #endif // OPENAL
 
-		int free_truck = BeamFactory::getSingleton().getTruckCount();
-		Beam **trucks =  BeamFactory::getSingleton().getTrucks();
-		int t;
-		for (t=0; t<free_truck; t++)
+		if (!BeamFactory::getSingleton().allTrucksActivated())
 		{
-			if (!trucks[t]) continue;
-			trucks[t]->sleepcount=9;
-		} //make trucks synchronous
+			int free_truck = BeamFactory::getSingleton().getTruckCount();
+			Beam **trucks =  BeamFactory::getSingleton().getTrucks();
+
+			for (int t = 0; t < free_truck; t++)
+			{
+				if (!trucks[t]) continue;
+				trucks[t]->sleepcount = 9;
+			} // make trucks synchronous
+		}
 
 		TRIGGER_EVENT(SE_TRUCK_EXIT, previousTruck?previousTruck->trucknum:-1);
-	}
-	else
+	} else
 	{
 		//getting inside
 		currentTruck->desactivate();
@@ -3178,7 +3179,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// one of the input modes is immediate, so update the movement vector
-	if (loading_state==ALL_LOADED || loading_state == TERRAIN_EDITOR)
+	if (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR)
 	{
 
 		

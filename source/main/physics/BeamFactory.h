@@ -49,6 +49,7 @@ public:
 	Beam *getCurrentTruck() { return (current_truck<0)?0:trucks[current_truck]; };
 	Beam *getTruck(int number) { return trucks[number]; };
 	Beam **getTrucks() { return trucks; };
+	int getPreviousTruckNumber() { return previous_truck; };
 	int getCurrentTruckNumber() { return current_truck; };
 	int getTruckCount() { return free_truck; };
 	bool allTrucksActivated() { return allActivated; };
@@ -75,11 +76,9 @@ public:
 
 	/* Returns whether or not the bounding boxes of truck a and truck b intersect. */
 	bool checkTruckIntersection(int a, int b);
-	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
 	void activateAllTrucks();
-	void recursiveActivation(int j);
-	void sendAllTrucksSleeping();
 	void checkSleepingState();
+	void sendAllTrucksSleeping();
 
 	void windowResized();
 
@@ -88,6 +87,7 @@ protected:
 	
 	Beam *trucks[MAX_TRUCKS];
 	int free_truck;
+	int previous_truck;
 	int current_truck;
 
 	// set by "activate all vehicles"
@@ -96,6 +96,9 @@ protected:
 	TwoDReplay *tdr;
 
 	unsigned long physFrame;
+
+	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
+	void recursiveActivation(int j);
 
 	int getFreeTruckSlot();
 	int findTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
