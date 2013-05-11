@@ -1327,19 +1327,19 @@ eventInfo_t eventInfo[] = {
 	{
 		"TRUCK_CRUISE_CONTROL_READJUST",
 		EV_TRUCK_CRUISE_CONTROL_READJUST,
-		"Keyboard EXPL+SHIFT+SPACE",
+		"Keyboard EXPL+CTRL+SPACE",
 		_L("match target speed / rpm with current truck speed / rpm")
 	},
 	{
 		"TRUCK_CRUISE_CONTROL_ACCL",
 		EV_TRUCK_CRUISE_CONTROL_ACCL,
-		"Keyboard EXPL+SHIFT+R",
+		"Keyboard EXPL+CTRL+R",
 		_L("increase target speed / rpm")
 	},
 	{
 		"TRUCK_CRUISE_CONTROL_DECL",
 		EV_TRUCK_CRUISE_CONTROL_DECL,
-		"Keyboard EXPL+SHIFT+F",
+		"Keyboard EXPL+CTRL+F",
 		_L("decrease target speed / rpm")
 	},
 	{
