@@ -433,6 +433,8 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 		if (pthread_create(&thread, NULL, threadstart, (void*)(free_tb-1)))
 		{
 			LOG("BEAM: Can not start a thread");
+			showError(_L("Beam loading error"), _L("Too many beam objects") + UTFString(" (") + TOSTRING(free_tb) + UTFString(")"));
+			exit(1);
 		}
 		_waitForSync();
 	}
