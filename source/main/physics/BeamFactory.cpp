@@ -41,7 +41,7 @@ using namespace Ogre;
 template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
 BeamFactory::BeamFactory() :
-	  allActivated(false)
+	  forcedActive(false)
 	, current_truck(-1)
 	, free_truck(0)
 	, physFrame(0)
@@ -347,7 +347,7 @@ bool BeamFactory::checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
 
 void BeamFactory::recursiveActivation(int j)
 {
-	if (allActivated || !trucks[j] || trucks[j]->state > DESACTIVATED) return;
+	if (!trucks[j] || trucks[j]->state > DESACTIVATED) return;
 
 	for (int t=0; t < free_truck; t++)
 	{
@@ -428,7 +428,6 @@ int BeamFactory::getFreeTruckSlot()
 
 void BeamFactory::activateAllTrucks()
 {
-	allActivated = true;
 	for (int t=0; t < free_truck; t++)
 	{
 		if (trucks[t] && trucks[t]->state >= DESACTIVATED && trucks[t]->state <= SLEEPING)
@@ -443,7 +442,7 @@ void BeamFactory::activateAllTrucks()
 
 void BeamFactory::sendAllTrucksSleeping()
 {
-	allActivated = false;
+	forcedActive = false;
 	for (int t=0; t < free_truck; t++)
 	{
 		if (trucks[t] && trucks[t]->state < GOSLEEP)
@@ -503,12 +502,7 @@ void BeamFactory::repairTruck(Collisions *collisions, const Ogre::String &inst, 
 
 void BeamFactory::removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box)
 {
-	int rtruck = findTruckInsideBox(collisions, inst, box);
-
-	if (rtruck >= 0)
-	{
-		removeTruck(rtruck);
-	}
+	removeTruck(findTruckInsideBox(collisions, inst, box));
 }
 
 void BeamFactory::removeTruck(int truck)
@@ -616,20 +610,23 @@ void BeamFactory::calcPhysics(float dt)
 	int simulatedTruck = current_truck;
 	static int lastSimulatedTruck = -1;
 
-	if (allActivated)
-	{	
-		if (simulatedTruck == -1)
+	if (simulatedTruck == -1)
+	{
+		for (int t=0; t < free_truck; t++)
 		{
-			for (int t=0; t < free_truck; t++)
+			if (!trucks[t]) continue;
+
+			if (trucks[t]->state <= DESACTIVATED)
 			{
-				if (!trucks[t]) continue;
 				simulatedTruck = t;
 				break;
 			}
 		}
-		
-		if (lastSimulatedTruck != simulatedTruck && (lastSimulatedTruck >= 0 && lastSimulatedTruck < free_truck))
-			trucks[lastSimulatedTruck]->_waitForSync();
+	}
+	
+	if (lastSimulatedTruck != simulatedTruck && (lastSimulatedTruck >= 0 && lastSimulatedTruck < free_truck))
+	{
+		trucks[lastSimulatedTruck]->_waitForSync();
 	}
 
 	if (simulatedTruck >= 0 && simulatedTruck < free_truck)

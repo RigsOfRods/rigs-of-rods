@@ -2900,7 +2900,7 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 		SoundScriptManager::getSingleton().trigStop(previousTruck, SS_TRIG_PUMP);
 #endif // OPENAL
 
-		if (!BeamFactory::getSingleton().allTrucksActivated())
+		if (!BeamFactory::getSingleton().allTrucksForcedActive())
 		{
 			int free_truck = BeamFactory::getSingleton().getTruckCount();
 			Beam **trucks =  BeamFactory::getSingleton().getTrucks();
