@@ -2232,7 +2232,7 @@ bool Beam::frameStep(Real dt)
 			// synchronous sleep
 			if (trucks[t]->state == GOSLEEP) trucks[t]->state = SLEEPING;
 
-			if (!BeamFactory::getSingleton().allTrucksActivated() && trucks[t]->state == DESACTIVATED)
+			if (!BeamFactory::getSingleton().allTrucksForcedActive() && trucks[t]->state == DESACTIVATED)
 			{
 				trucks[t]->sleepcount++;
 				if ((trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)

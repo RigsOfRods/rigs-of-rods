@@ -52,7 +52,7 @@ public:
 	int getPreviousTruckNumber() { return previous_truck; };
 	int getCurrentTruckNumber() { return current_truck; };
 	int getTruckCount() { return free_truck; };
-	bool allTrucksActivated() { return allActivated; };
+	bool allTrucksForcedActive() { return forcedActive; };
 
 	void setCurrentTruck(int new_truck);
 
@@ -79,6 +79,7 @@ public:
 	void activateAllTrucks();
 	void checkSleepingState();
 	void sendAllTrucksSleeping();
+	void setTrucksForcedActive(bool forced) { forcedActive = forced; };
 
 	void windowResized();
 
@@ -90,8 +91,7 @@ protected:
 	int previous_truck;
 	int current_truck;
 
-	// set by "activate all vehicles"
-	bool allActivated;
+	bool forcedActive; // disables sleepcount
 
 	TwoDReplay *tdr;
 

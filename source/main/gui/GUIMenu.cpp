@@ -70,6 +70,7 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("reload current Vehicle"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("remove current Vehicle"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("activate all Vehicles"), MyGUI::MenuItemType::Normal);
+	p->addItem(_L("activated Vehicles never sleep"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("send all Vehicles to sleep"), MyGUI::MenuItemType::Normal);
 	p->addItem("-", MyGUI::MenuItemType::Separator);
 	p->addItem(_L("Save Scenery"), MyGUI::MenuItemType::Normal);
@@ -360,15 +361,23 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("activate all Vehicles"))
 	{
 		BeamFactory::getSingleton().activateAllTrucks();
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("All vehicles activated.") + UTFString(" ") + _L("Use 'send to sleep' to reverse it."), "infromation.png", 5000);
-		
+
+	} else if (miname == _L("activated Vehicles never sleep")) 
+	{
+		BeamFactory::getSingleton().setTrucksForcedActive(true);
+		_item->setCaption(_L("activated Vehicles can sleep"));
+
+	} else if (miname == _L("activated Vehicles can sleep")) 
+	{
+		BeamFactory::getSingleton().setTrucksForcedActive(false);
+		_item->setCaption(_L("activated Vehicles never sleep"));
+
 	} else if (miname == _L("send all Vehicles to sleep"))
 	{
 		// get out first
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 			BeamFactory::getSingleton().setCurrentTruck(-1);
 		BeamFactory::getSingleton().sendAllTrucksSleeping();
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("All vehicles sent to sleep."), "infromation.png", 3000);
 
 	} else if (miname == _L("Friction Settings"))
 	{
