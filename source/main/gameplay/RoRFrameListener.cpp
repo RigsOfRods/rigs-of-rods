@@ -3181,12 +3181,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	// one of the input modes is immediate, so update the movement vector
 	if (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR)
 	{
-
-		
 		BeamFactory::getSingleton().checkSleepingState();
 
-		//we simulate one truck, it will take care of the others (except networked ones)
-
+		// we simulate one truck, it will take care of the others (except networked ones)
 		BeamFactory::getSingleton().calcPhysics(dt);
 
 		updateIO(dt);

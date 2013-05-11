@@ -1195,8 +1195,6 @@ void Beam::calcNetwork()
 
 #ifdef USE_MYGUI
 	updateDashBoards(tratio);
-	if (dash)
-		dash->update(tratio);
 #endif // USE_MYGUI
 
 	BES_GFX_STOP(BES_GFX_calcNetwork);
@@ -2051,15 +2049,13 @@ bool Beam::frameStep(Real dt)
 		abs_timer = 0.0f;
 	}
 
-	int i;
-	int steps=(int)(2000.0*dt);
-	if (steps>100) steps=100;
-	if (dt>1.0/20.0)
+	int steps = (int)(2000.0 * dt);
+	if (steps > 100) steps = 100;
+	if (dt > 1.0 / 20.0)
 	{
-		dt=1.0/20.0;
+		dt = 1.0 / 20.0;
 		debugText="RT - Fasttrack: "+TOSTRING(fasted*100/(fasted+slowed))+"% "+TOSTRING(steps)+" steps";
-	}
-	else
+	} else
 	{
 		debugText="SL - Fasttrack: "+TOSTRING(fasted*100/(fasted+slowed))+"% "+TOSTRING(steps)+" steps";
 	}
@@ -2069,11 +2065,9 @@ bool Beam::frameStep(Real dt)
 
 #ifdef USE_MYGUI
 	updateDashBoards(dt);
-	if (dash)
-		dash->update(dt);
 #endif // USE_MYGUI
 
-	//update visual - antishaking
+	// update visual - antishaking
 	//	int t;
 	//	for (t=0; t<numtrucks; t++)
 	//	{
@@ -2121,7 +2115,7 @@ bool Beam::frameStep(Real dt)
 			if (nbuff)
 			{
 				Vector3 pos = Vector3::ZERO;
-				for (i=0; i<free_node; i++)
+				for (int i=0; i<free_node; i++)
 				{
 					nodes[i].AbsPosition = nbuff[i].pos;
 					nodes[i].RelPosition = nbuff[i].pos - origin;
@@ -2133,7 +2127,7 @@ bool Beam::frameStep(Real dt)
 				position=pos/(float)(free_node);
 				// now beams
 				beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
-				for (i=0; i<free_beam; i++)
+				for (int i=0; i<free_beam; i++)
 				{
 					beams[i].scale = bbuff[i].scale;
 					beams[i].broken = bbuff[i].broken;
@@ -2143,8 +2137,7 @@ bool Beam::frameStep(Real dt)
 				oldreplaypos = replaypos;
 			}
 		}
-	}
-	else
+	} else
 	{
 		// simulation update
 		if (thread_mode == THREAD_SINGLE)
@@ -2230,29 +2223,26 @@ bool Beam::frameStep(Real dt)
 		if (statistics)     statistics->frameStep(dt);
 		if (statistics_gfx) statistics_gfx->frameStep(dt);
 #endif // FEAT_TIMING
-
-		if (!BeamFactory::getSingleton().allTrucksActivated())
+		
+		// we must take care of this
+		for (int t=0; t<numtrucks; t++)
 		{
-			// we must take care of this
-			for (int t=0; t<numtrucks; t++)
+			if (!trucks[t]) continue;
+
+			// synchronous sleep
+			if (trucks[t]->state == GOSLEEP) trucks[t]->state = SLEEPING;
+
+			if (!BeamFactory::getSingleton().allTrucksActivated() && trucks[t]->state == DESACTIVATED)
 			{
-				if (!trucks[t]) continue;
-
-				// synchronous sleep
-				if (trucks[t]->state == GOSLEEP) trucks[t]->state = SLEEPING;
-
-				if (trucks[t]->state == DESACTIVATED)
+				trucks[t]->sleepcount++;
+				if ((trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)
 				{
-					trucks[t]->sleepcount++;
-					if ((trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)
-					{
-						trucks[t]->sleepcount = 7;
-					}
-					if (trucks[t]->sleepcount > 10)
-					{
-						trucks[t]->state = MAYSLEEP;
-						trucks[t]->sleepcount = 0;
-					}
+					trucks[t]->sleepcount = 7;
+				}
+				if (trucks[t]->sleepcount > 10)
+				{
+					trucks[t]->state = MAYSLEEP;
+					trucks[t]->sleepcount = 0;
 				}
 			}
 		}
@@ -6064,7 +6054,6 @@ void Beam::updateDashBoards(float &dt)
 	dash->setFloat(DD_ODOMETER_TOTAL, odometerTotal);
 	dash->setFloat(DD_ODOMETER_USER, odometerUser);
 
-
 	// set the features of this vehicle once
 	if (!GUIFeaturesChanged)
 	{
@@ -6104,8 +6093,6 @@ void Beam::updateDashBoards(float &dt)
 	// TODO: compass value
 
 #if 0
-
-
 	// ADI - attitude director indicator
 	//roll
 	Vector3 rollv=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranoderoll[0]].RelPosition;
@@ -6211,7 +6198,7 @@ void Beam::updateDashBoards(float &dt)
 }
 
 #endif //0
-
+	dash->update(dt);
 #endif // USE_MYGUI
 }
 
