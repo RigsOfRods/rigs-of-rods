@@ -1179,11 +1179,11 @@ void RoRFrameListener::updateCruiseControl(Beam* curr_truck, float dt)
 	}
 	if (INPUTENGINE.getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
 	{
+		curr_truck->cc_target_speed = std::max(curr_truck->WheelSpeed, curr_truck->cc_target_speed);
 		if (curr_truck->sl_enabled)
 		{
-			curr_truck->cc_target_speed = std::min(curr_truck->WheelSpeed, curr_truck->sl_speed_limit);
+			curr_truck->cc_target_speed = std::min(curr_truck->cc_target_speed, curr_truck->sl_speed_limit);
 		}
-		curr_truck->cc_target_speed = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
 		curr_truck->cc_target_rpm   = curr_truck->engine->getRPM();
 	}
 
