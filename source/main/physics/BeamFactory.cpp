@@ -446,7 +446,7 @@ void BeamFactory::sendAllTrucksSleeping()
 	allActivated = false;
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && trucks[t]->state == ACTIVATED)
+		if (trucks[t] && trucks[t]->state < GOSLEEP)
 		{
 			trucks[t]->state = GOSLEEP;
 		}
@@ -613,18 +613,29 @@ void BeamFactory::calcPhysics(float dt)
 {
 	physFrame++;
 
-	if (allActivated)
-	{
-		for (int t=0; t < free_truck; t++)
-		{
-			if (!trucks[t]) continue;
+	int simulatedTruck = current_truck;
+	static int lastSimulatedTruck = -1;
 
-			trucks[t]->frameStep(dt);
-			break;
+	if (allActivated)
+	{	
+		if (simulatedTruck == -1)
+		{
+			for (int t=0; t < free_truck; t++)
+			{
+				if (!trucks[t]) continue;
+				simulatedTruck = t;
+				break;
+			}
 		}
-	} else if (current_truck >= 0 && current_truck < free_truck)
+		
+		if (lastSimulatedTruck != simulatedTruck && (lastSimulatedTruck >= 0 && lastSimulatedTruck < free_truck))
+			trucks[lastSimulatedTruck]->_waitForSync();
+	}
+
+	if (simulatedTruck >= 0 && simulatedTruck < free_truck)
 	{
-		trucks[current_truck]->frameStep(dt);
+		trucks[simulatedTruck]->frameStep(dt);
+		lastSimulatedTruck = simulatedTruck;
 	}
 
 	// update 2D replay if activated
