@@ -2009,7 +2009,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 			}
 			deviceStr += ".map";
 			
-			loadMapping(deviceStr, false, i);
+			loadMapping(deviceStr, true, i);
 		}
 #endif //NOOGRE
 		mappingLoaded = true;
@@ -3413,14 +3413,14 @@ bool InputEngine::saveMapping(String outfile, String hwnd, int joyNum)
 void InputEngine::completeMissingEvents()
 {
 	if (!mappingLoaded) return;
-	int i=-1;
-	while(i!=EV_MODE_LAST)
+	
+	for (int i = 0; i < EV_MODE_LAST; i++)
 	{
-		i++;
 		if (events.find(eventInfo[i].eventID) == events.end())
 		{
 			if (eventInfo[i].defaultKey.empty()) continue;
 			if (eventInfo[i].defaultKey == "None") continue;
+
 			// not existing, insert default
 			char tmp[256] = "";
 			sprintf(tmp, "%s %s", eventInfo[i].name.c_str(), eventInfo[i].defaultKey.c_str());
