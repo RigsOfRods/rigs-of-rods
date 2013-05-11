@@ -901,7 +901,7 @@ void Beam::activate()
 {
 	if (state < NETWORKED)
 	{
-		state=ACTIVATED;
+		state = ACTIVATED;
 	}
 }
 
@@ -909,8 +909,8 @@ void Beam::desactivate()
 {
 	if (state < NETWORKED)
 	{
-		state=DESACTIVATED;
-		sleepcount=0;
+		state = DESACTIVATED;
+		sleepcount = 0;
 	}
 }
 
@@ -2231,25 +2231,28 @@ bool Beam::frameStep(Real dt)
 		if (statistics_gfx) statistics_gfx->frameStep(dt);
 #endif // FEAT_TIMING
 
-		// we must take care of this
-		for (int t=0; t<numtrucks; t++)
+		if (!BeamFactory::getSingleton().allTrucksActivated())
 		{
-			if (!trucks[t]) continue;
-
-			// synchronous sleep
-			if (trucks[t]->state==GOSLEEP) trucks[t]->state = SLEEPING;
-
-			if (trucks[t]->state==DESACTIVATED)
+			// we must take care of this
+			for (int t=0; t<numtrucks; t++)
 			{
-				trucks[t]->sleepcount++;
-				if (BeamFactory::getSingleton().allTrucksActivated() || (trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)
+				if (!trucks[t]) continue;
+
+				// synchronous sleep
+				if (trucks[t]->state == GOSLEEP) trucks[t]->state = SLEEPING;
+
+				if (trucks[t]->state == DESACTIVATED)
 				{
-					trucks[t]->sleepcount = 7;
-				}
-				if (trucks[t]->sleepcount > 10)
-				{
-					trucks[t]->state = MAYSLEEP;
-					trucks[t]->sleepcount = 0;
+					trucks[t]->sleepcount++;
+					if ((trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)
+					{
+						trucks[t]->sleepcount = 7;
+					}
+					if (trucks[t]->sleepcount > 10)
+					{
+						trucks[t]->state = MAYSLEEP;
+						trucks[t]->sleepcount = 0;
+					}
 				}
 			}
 		}

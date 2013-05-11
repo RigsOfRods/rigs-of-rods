@@ -41,10 +41,11 @@ using namespace Ogre;
 template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
 BeamFactory::BeamFactory() :
-	  current_truck(-1)
-	, allActivated(false)
+	  allActivated(false)
+	, current_truck(-1)
 	, free_truck(0)
 	, physFrame(0)
+	, previous_truck(-1)
 	, tdr(0)
 {
 	for (int t=0; t < MAX_TRUCKS; t++)
@@ -346,7 +347,7 @@ bool BeamFactory::checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
 
 void BeamFactory::recursiveActivation(int j)
 {
-	if (!trucks[j] || trucks[j]->state > DESACTIVATED) return;
+	if (allActivated || !trucks[j] || trucks[j]->state > DESACTIVATED) return;
 
 	for (int t=0; t < free_truck; t++)
 	{
@@ -370,8 +371,10 @@ void BeamFactory::checkSleepingState()
 	{
 		trucks[current_truck]->disableDrag = false;
 		recursiveActivation(current_truck);
-		//if its grabbed, its moving
+
+		// if its grabbed, its moving
 		//if (isnodegrabbed && trucks[truckgrabbed]->state==SLEEPING) trucks[truckgrabbed]->desactivate();
+
 		// put to sleep
 		for (int t=0; t < free_truck; t++)
 		{
@@ -385,18 +388,17 @@ void BeamFactory::checkSleepingState()
 					{
 						if (trucks[i] && sleepy[i])
 						{
-							trucks[i]->state=GOSLEEP;
+							trucks[i]->state = GOSLEEP;
 						}
 					}
 				}
 			}
 		}
 
-		/* obsolete for now
+#if 0   // obsolete for now
 		// special stuff for rollable gear
-		int t;
-		bool rollmode=false;
-		for (t=0; t < free_truck; t++)
+		bool rollmode = false;
+		for (int t=0; t < free_truck; t++)
 		{
 			if (!trucks[t]) continue;
 			if (trucks[t]->state != SLEEPING)
@@ -404,7 +406,7 @@ void BeamFactory::checkSleepingState()
 			
 			trucks[t]->requires_wheel_contact = rollmode;// && !trucks[t]->wheel_contact_requested;
 		}
-		//*/
+#endif
 	}
 }
 
@@ -545,7 +547,7 @@ void BeamFactory::setCurrentTruck(int new_truck)
 	if (current_truck >= 0 && current_truck < free_truck && trucks[current_truck])
 		trucks[current_truck]->desactivate();
 
-	int previous_truck = current_truck;
+	previous_truck = current_truck;
 	current_truck = new_truck;
 
 	if (gEnv->frameListener)
@@ -607,15 +609,11 @@ void BeamFactory::updateAI(float dt)
 	}
 }
 
-
 void BeamFactory::calcPhysics(float dt)
 {
 	physFrame++;
 
-	if (current_truck >= 0 && current_truck < free_truck)
-	{
-		trucks[current_truck]->frameStep(dt);
-	} else if (allActivated)
+	if (allActivated)
 	{
 		for (int t=0; t < free_truck; t++)
 		{
@@ -624,6 +622,9 @@ void BeamFactory::calcPhysics(float dt)
 			trucks[t]->frameStep(dt);
 			break;
 		}
+	} else if (current_truck >= 0 && current_truck < free_truck)
+	{
+		trucks[current_truck]->frameStep(dt);
 	}
 
 	// update 2D replay if activated
