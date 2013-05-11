@@ -51,6 +51,7 @@ public:
 	Beam **getTrucks() { return trucks; };
 	int getCurrentTruckNumber() { return current_truck; };
 	int getTruckCount() { return free_truck; };
+	bool allTrucksActivated() { return allActivated; };
 
 	void setCurrentTruck(int new_truck);
 
@@ -88,6 +89,9 @@ protected:
 	Beam *trucks[MAX_TRUCKS];
 	int free_truck;
 	int current_truck;
+
+	// set by "activate all vehicles"
+	bool allActivated;
 
 	TwoDReplay *tdr;
 

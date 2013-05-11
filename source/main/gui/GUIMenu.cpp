@@ -360,6 +360,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("activate all Vehicles"))
 	{
 		BeamFactory::getSingleton().activateAllTrucks();
+		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("All vehicles activated.") + UTFString(" ") + _L("Use 'send to sleep' to reverse it."), "infromation.png", 5000);
 		
 	} else if (miname == _L("send all Vehicles to sleep"))
 	{
@@ -367,6 +368,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 			BeamFactory::getSingleton().setCurrentTruck(-1);
 		BeamFactory::getSingleton().sendAllTrucksSleeping();
+		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("All vehicles sent to sleep."), "infromation.png", 3000);
 
 	} else if (miname == _L("Friction Settings"))
 	{

@@ -42,6 +42,7 @@ template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
 BeamFactory::BeamFactory() :
 	  current_truck(-1)
+	, allActivated(false)
 	, free_truck(0)
 	, physFrame(0)
 	, tdr(0)
@@ -83,15 +84,14 @@ bool BeamFactory::removeBeam(Beam *b)
 				_deleteTruck(it2->second);
 				it1->second.erase(it2);
 				unlockStreams();
+#ifdef USE_MYGUI
+				GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+#endif // USE_MYGUI
 				return true;
 			}
 		}
 	}
 	unlockStreams();
-
-#ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
-#endif // USE_MYGUI
 
 	return false;
 }
@@ -426,6 +426,7 @@ int BeamFactory::getFreeTruckSlot()
 
 void BeamFactory::activateAllTrucks()
 {
+	allActivated = true;
 	for (int t=0; t < free_truck; t++)
 	{
 		if (trucks[t] && trucks[t]->state >= DESACTIVATED && trucks[t]->state <= SLEEPING)
@@ -440,6 +441,7 @@ void BeamFactory::activateAllTrucks()
 
 void BeamFactory::sendAllTrucksSleeping()
 {
+	allActivated = false;
 	for (int t=0; t < free_truck; t++)
 	{
 		if (trucks[t] && trucks[t]->state == ACTIVATED)
@@ -527,7 +529,6 @@ void BeamFactory::_deleteTruck(Beam *b)
 
 	trucks[b->trucknum] = 0;
 	delete b;
-	b = 0;
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
@@ -612,7 +613,18 @@ void BeamFactory::calcPhysics(float dt)
 	physFrame++;
 
 	if (current_truck >= 0 && current_truck < free_truck)
+	{
 		trucks[current_truck]->frameStep(dt);
+	} else if (allActivated)
+	{
+		for (int t=0; t < free_truck; t++)
+		{
+			if (!trucks[t]) continue;
+
+			trucks[t]->frameStep(dt);
+			break;
+		}
+	}
 
 	// update 2D replay if activated
 	if (tdr) tdr->update(dt);
@@ -626,26 +638,21 @@ void BeamFactory::calcPhysics(float dt)
 		switch(trucks[t]->state)
 		{
 			case NETWORKED:
-			{
 				trucks[t]->calcNetwork();
 				break;
-			}
+
 			case RECYCLE:
-			{
 				break;
-			}
+
 			case NETWORKED_INVALID:
-			{
 				break;
-			}
+
 			default:
-			{
 				if (t != current_truck && trucks[t]->engine)
 					trucks[t]->engine->update(dt, 1);
 				if (trucks[t]->networking)
 					trucks[t]->sendStreamData();
-			}
-			break;
+				break;
 		}
 	}
 }

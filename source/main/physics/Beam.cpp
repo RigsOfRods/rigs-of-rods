@@ -2242,14 +2242,14 @@ bool Beam::frameStep(Real dt)
 			if (trucks[t]->state==DESACTIVATED)
 			{
 				trucks[t]->sleepcount++;
-				if ((trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt>0.1)
+				if (BeamFactory::getSingleton().allTrucksActivated() || (trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)
 				{
 					trucks[t]->sleepcount = 7;
 				}
 				if (trucks[t]->sleepcount > 10)
 				{
 					trucks[t]->state = MAYSLEEP;
-					trucks[t]->sleepcount=0;
+					trucks[t]->sleepcount = 0;
 				}
 			}
 		}
