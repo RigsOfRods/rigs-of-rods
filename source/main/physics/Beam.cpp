@@ -1675,13 +1675,6 @@ void Beam::resetAngle(float rot)
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition)
 {
-	if (!gEnv->terrainManager->getHeightFinder())
-	{
-		// fallback in case we don't have a height finder
-		resetPosition(px, pz, false, nodes[lowestnode].AbsPosition.y + 0.02f);
-		return;
-	}
-
 	// horizontal displacement
 	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
 	for (int i=0; i < free_node; i++)
@@ -1720,8 +1713,6 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	{
 		nodes[i].AbsPosition += offset;
 	}
-
-	// TODO: Fix the vertical displacement, since it's not working
 
 	// vertical displacement
 	float minoffset = nodes[0].AbsPosition.y - miny;
@@ -1893,6 +1884,8 @@ void Beam::SyncReset()
 	origin=Vector3::ZERO;
 	if (pointCD) pointCD->reset();
 
+	float yPos = nodes[lowestnode].AbsPosition.y;
+
 	Vector3 cur_position = nodes[0].AbsPosition;
 	Vector3 cur_dir = nodes[0].AbsPosition;
 	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
@@ -1985,7 +1978,10 @@ void Beam::SyncReset()
 	{
 		resetAngle(cur_rot);
 
-		resetPosition(cur_position.x, cur_position.z, false);
+		if (yPos != 0)
+			resetPosition(cur_position.x, cur_position.z, false, yPos + 0.02f);
+		else
+			resetPosition(cur_position.x, cur_position.z, false);
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
