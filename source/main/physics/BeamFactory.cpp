@@ -445,9 +445,9 @@ void BeamFactory::sendAllTrucksSleeping()
 	forcedActive = false;
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && trucks[t]->state < GOSLEEP)
+		if (trucks[t] && trucks[t]->state < SLEEPING)
 		{
-			trucks[t]->state = GOSLEEP;
+			trucks[t]->state = SLEEPING;
 		}
 	}
 }
