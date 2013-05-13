@@ -3545,9 +3545,6 @@ void RoRFrameListener::reloadCurrentTruck()
 	// remove the old truck
 	curr_truck->state = RECYCLE;
 
-	// enter the new truck
-	BeamFactory::getSingleton().setCurrentTruck(newBeam->trucknum);
-
 	// copy over the most basic info
 	if (curr_truck->free_node == newBeam->free_node)
 	{
@@ -3578,4 +3575,7 @@ void RoRFrameListener::reloadCurrentTruck()
 	curr_truck->resetPosition(100000, 100000, false, 100000);
 	// note: in some point in the future we would delete the truck here,
 	// but since this function is buggy we don't do it yet.
+
+	// enter the new truck
+	BeamFactory::getSingleton().setCurrentTruck(newBeam->trucknum);
 }
