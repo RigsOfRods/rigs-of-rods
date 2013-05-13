@@ -24,6 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamEngine.h"
 #include "Collisions.h"
+#include "ErrorUtils.h"
+#include "InputEngine.h"
+#include "Language.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -35,31 +38,62 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "DashBoardManager.h"
 #endif // USE_MYGUI
 
-using namespace Ogre;
+#ifdef USE_CRASHRPT
+# include "crashrpt.h"
+#endif
 
+using namespace Ogre;
 
 template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
+int simulatedTruck;
+void* threadstart(void* vid);
+
 BeamFactory::BeamFactory() :
-	  forcedActive(false)
-	, current_truck(-1)
+	  current_truck(-1)
+	, forcedActive(false)
 	, free_truck(0)
 	, physFrame(0)
 	, previous_truck(-1)
 	, tdr(0)
+	, thread_mode(THREAD_SINGLE)
 {
 	for (int t=0; t < MAX_TRUCKS; t++)
 		trucks[t] = 0;
 
 	if (BSETTING("Multi-threading", true))
-		Beam::thread_mode = THREAD_MULTI;
+		thread_mode = THREAD_MULTI;
 
 	if (BSETTING("2DReplay", false))
 		tdr = new TwoDReplay();
+
+	asyncPhysics = BSETTING("AsynchronousPhysics", false);
+
+	// Create worker thread (used for physics calculations)
+	if (thread_mode == THREAD_MULTI)
+	{
+		pthread_cond_init(&done_cv, NULL);
+		pthread_cond_init(&work_cv, NULL);
+		pthread_mutex_init(&done_mutex, NULL);
+		pthread_mutex_init(&work_mutex, NULL);
+
+		if (pthread_create(&worker_thread, NULL, threadstart, this))
+		{
+			LOG("BEAMFACTORY: Can not start a thread");
+			showError(UTFString("Error"), _L("Failed to start a thread."));
+			exit(1);
+		}
+
+		_WorkerWaitForSync();
+	}
 }
 
 BeamFactory::~BeamFactory()
 {
+	pthread_cond_destroy(&done_cv);
+	pthread_cond_destroy(&work_cv);
+	pthread_mutex_destroy(&done_mutex);
+	pthread_mutex_destroy(&work_mutex);
 }
 
 Beam *BeamFactory::createLocal(int slotid)
@@ -607,7 +641,7 @@ void BeamFactory::calcPhysics(float dt)
 {
 	physFrame++;
 
-	int simulatedTruck = current_truck;
+	simulatedTruck = current_truck;
 	static int lastSimulatedTruck = -1;
 
 	if (simulatedTruck == -1)
@@ -622,11 +656,6 @@ void BeamFactory::calcPhysics(float dt)
 				break;
 			}
 		}
-	}
-	
-	if (lastSimulatedTruck != simulatedTruck && (lastSimulatedTruck >= 0 && lastSimulatedTruck < free_truck))
-	{
-		trucks[lastSimulatedTruck]->_waitForSync();
 	}
 
 	if (simulatedTruck >= 0 && simulatedTruck < free_truck)
@@ -713,4 +742,55 @@ void BeamFactory::windowResized()
 		}
 	}
 #endif // USE_MYGUI
+}
+
+void BeamFactory::_WorkerWaitForSync()
+{
+	if (thread_mode == THREAD_MULTI)
+	{
+		MUTEX_LOCK(&work_mutex);
+		MUTEX_UNLOCK(&work_mutex);
+	}
+}
+
+void BeamFactory::_WorkerSignalStart()
+{
+	if (thread_mode == THREAD_MULTI)
+	{
+		MUTEX_LOCK(&done_mutex);
+		pthread_cond_signal(&done_cv);
+		MUTEX_UNLOCK(&done_mutex);
+	}
+}
+
+void* threadstart(void* vid)
+{
+	#ifdef USE_CRASHRPT
+		if (SSETTING("NoCrashRpt").empty())
+		{
+			// add the crash handler for this thread
+			CrThreadAutoInstallHelper cr_thread_install_helper;
+			MYASSERT(cr_thread_install_helper.m_nInstallStatus==0);
+		}
+	#endif // USE_CRASHRPT
+
+	BeamFactory *bf = static_cast<BeamFactory*>(vid);
+	Beam** trucks = bf->getTrucks();
+
+	while (1)
+	{
+		MUTEX_LOCK(&bf->done_mutex);
+		pthread_cond_wait(&bf->done_cv, &bf->done_mutex);
+		MUTEX_UNLOCK(&bf->done_mutex);
+
+		if (simulatedTruck >= 0 && simulatedTruck < bf->getTruckCount() && trucks[simulatedTruck])
+		{
+			MUTEX_LOCK(&bf->work_mutex);
+			trucks[simulatedTruck]->threadentry();
+			MUTEX_UNLOCK(&bf->work_mutex);
+		}
+	}
+
+	pthread_exit(NULL);
+	return NULL;
 }

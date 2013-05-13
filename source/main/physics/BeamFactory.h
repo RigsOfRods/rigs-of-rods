@@ -44,6 +44,12 @@ public:
 	Beam *createLocal(Ogre::Vector3 pos, Ogre::Quaternion rot, Ogre::String fname, collision_box_t *spawnbox = NULL, bool ismachine = false, int flareMode = 0, const std::vector<Ogre::String> *truckconfig = 0, Skin *skin = 0, bool freePosition = false);
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
+	int getThreadingMode() { return thread_mode; };
+	void _WorkerWaitForSync(); // Blocks the worker thread
+	void _WorkerSignalStart(); // Releases the worker thread
+
+	bool asynchronousPhysics() { return asyncPhysics; };
+
 	Beam *getBeam(int source_id, int stream_id); // used by character
 
 	Beam *getCurrentTruck() { return (current_truck<0)?0:trucks[current_truck]; };
@@ -83,9 +89,18 @@ public:
 
 	void windowResized();
 
+	pthread_cond_t done_cv;
+	pthread_mutex_t done_mutex;
+	pthread_cond_t work_cv;
+	pthread_mutex_t work_mutex;
+	pthread_t worker_thread;
+
 protected:
 	Ogre::SceneNode *parent;
 	
+	int thread_mode;
+	bool asyncPhysics;
+
 	Beam *trucks[MAX_TRUCKS];
 	int free_truck;
 	int previous_truck;
