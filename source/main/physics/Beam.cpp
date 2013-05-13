@@ -67,20 +67,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif //OGRE_PLATFORM_LINUX
 
-#ifdef USE_CRASHRPT
-# include "crashrpt.h"
-#endif
-
 // time of birth
 float mrtime;
 
 using namespace Ogre;
-
-
-void *threadstart(void* vid);
-Beam* Beam::threadbeam[MAX_TRUCKS];
-int Beam::thread_mode = THREAD_SINGLE;
-int Beam::free_tb = 0;
 
 Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fname , bool networked /* = false  */, bool networking /* = false  */, collision_box_t *spawnbox /* = NULL  */, bool ismachine/* =false  */, int flareMode /* = 0  */, const std::vector<Ogre::String> *truckconfig /* = 0  */, Skin *skin /* = 0  */, bool freeposition /* = false */) :
 	  deleting(false)
@@ -416,29 +406,6 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 
 	checkBeamMaterial();
 
-	// start thread stuff
-	if (thread_mode == THREAD_MULTI)
-	{
-		// init mutexes
-		pthread_mutex_init(&work_mutex, NULL);
-		pthread_cond_init(&work_cv, NULL);
-		
-		pthread_mutex_init(&done_count_mutex, NULL);
-		pthread_cond_init(&done_count_cv, NULL);
-
-		threadbeam[free_tb] = this;
-		done_count = 1;
-		free_tb++;
-
-		if (pthread_create(&thread, NULL, threadstart, (void*)(free_tb-1)))
-		{
-			LOG("BEAM: Can not start a thread");
-			showError(_L("Beam loading error"), _L("Too many beam objects") + UTFString(" (") + TOSTRING(free_tb) + UTFString(")"));
-			exit(1);
-		}
-		_waitForSync();
-	}
-
 	// start network stuff
 	if (networked)
 	{
@@ -477,8 +444,6 @@ Beam::~Beam()
 	// hide everything, prevents deleting stuff while drawing
 	this->setBeamVisibility(false);
 	this->setMeshVisibility(false);
-
-	_waitForSync();
 
 	// delete all classes we might have constructed
 #ifdef USE_MYGUI
@@ -1994,27 +1959,24 @@ void Beam::SyncReset()
 	reset_requested = 0;
 }
 
-//this is called by the threads
-void Beam::threadentry(int id)
+// this is called by the beamfactory worker thread
+void Beam::threadentry()
 {
-	Beam **trucks=ttrucks;
-	int steps=tsteps;
-	int numtrucks=tnumtrucks;
-	float dt=tdt;
-	float dtperstep = dt / (Real)steps;
+	Beam **trucks = ttrucks;
+	float dtperstep = tdt / (Real)tsteps;
 
-	for (int i=0; i<steps; i++)
+	for (int i=0; i<tsteps; i++)
 	{
-		for (int t=0; t<numtrucks; t++)
+		for (int t=0; t<tnumtrucks; t++)
 		{
 			if (trucks[t] && trucks[t]->state < SLEEPING)
-				trucks[t]->calcForcesEuler(i==0, dtperstep, i, steps);
+				trucks[t]->calcForcesEuler(i==0, dtperstep, i, tsteps);
 		}
 		truckTruckCollisions(dtperstep);
 	}
 
-	ffforce = affforce / steps;
-	ffhydro = affhydro / steps;
+	ffforce = affforce / tsteps;
+	ffhydro = affhydro / tsteps;
 	if (free_hydro) ffhydro = ffhydro / free_hydro;
 }
 
@@ -2138,11 +2100,12 @@ bool Beam::frameStep(Real dt)
 	} else
 	{
 		// simulation update
-		if (thread_mode == THREAD_SINGLE)
+		ttdt = tdt;
+		tdt = dt;
+
+		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
-			ttdt=tdt;
-			tdt=dt;
-			float dtperstep=dt/(Real)steps;
+			float dtperstep = dt / (Real)steps;
 
 			for (int i=0; i<steps; i++)
 			{
@@ -2154,67 +2117,40 @@ bool Beam::frameStep(Real dt)
 				truckTruckCollisions(dtperstep);
 			}
 
-			for (int t=0; t<numtrucks; t++)
-			{
-				if (!trucks[t]) continue;
-
-				if (trucks[t]->reset_requested)
-				{
-					trucks[t]->SyncReset();
-				}
-				if (trucks[t]->state < SLEEPING)
-				{
-					trucks[t]->lastlastposition=trucks[t]->lastposition;
-					trucks[t]->lastposition=trucks[t]->position;
-					trucks[t]->updateTruckPosition();
-				}
-				if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.length()>100.0)
-				{
-					trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
-				}
-			}
-
 			ffforce = affforce / steps;
 			ffhydro = affhydro / steps;
 			if (free_hydro) ffhydro = ffhydro / free_hydro;
-		} else
+		} else if (!BeamFactory::getSingleton().asynchronousPhysics())
 		{
-			_waitForSync();
-			
-			for (int t=0; t<numtrucks; t++)
+			BeamFactory::getSingleton()._WorkerWaitForSync();
+		}
+		
+		for (int t=0; t<numtrucks; t++)
+		{
+			if (!trucks[t]) continue;
+
+			if (trucks[t]->reset_requested)
 			{
-				if (!trucks[t]) continue;
-
-				if (trucks[t]->reset_requested)
-				{
-					trucks[t]->SyncReset();
-				}
-				if (trucks[t]->state < SLEEPING)
-				{
-					trucks[t]->lastlastposition=trucks[t]->lastposition;
-					trucks[t]->lastposition=trucks[t]->position;
-					trucks[t]->updateTruckPosition();
-				}
-				if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.length()>100.0)
-				{
-					trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
-				}
+				trucks[t]->SyncReset();
 			}
-
-			tsteps=steps;
-			ttdt=tdt;
-			tdt=dt;
-			ttrucks=trucks;
-			tnumtrucks=numtrucks;
-			// preparing workdone
-			MUTEX_LOCK(&done_count_mutex);
-			done_count=1;
-			MUTEX_UNLOCK(&done_count_mutex);
-
-			// unblock threads
-			MUTEX_LOCK(&work_mutex);
-			pthread_cond_broadcast(&work_cv);
-			MUTEX_UNLOCK(&work_mutex);
+			if (trucks[t]->state < SLEEPING)
+			{
+				trucks[t]->lastlastposition=trucks[t]->lastposition;
+				trucks[t]->lastposition=trucks[t]->position;
+				trucks[t]->updateTruckPosition();
+			}
+			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.length()>100.0)
+			{
+				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
+			}
+		}
+		
+		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
+		{
+			tsteps = steps;
+			ttrucks = trucks;
+			tnumtrucks = numtrucks;
+			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
 
 #ifdef FEAT_TIMING
@@ -2250,20 +2186,7 @@ bool Beam::frameStep(Real dt)
 
 void Beam::prepareShutdown()
 {
-	_waitForSync();
-}
-
-void Beam::_waitForSync()
-{
-	if (thread_mode == THREAD_MULTI)
-	{
-		MUTEX_LOCK(&done_count_mutex);
-		while (done_count > 0)
-		{
-			pthread_cond_wait(&done_count_cv, &done_count_mutex);
-		}
-		MUTEX_UNLOCK(&done_count_mutex);
-	}
+	BeamFactory::getSingleton()._WorkerWaitForSync();
 }
 
 void Beam::sendStreamSetup()
@@ -5413,54 +5336,6 @@ void Beam::deleteNetTruck()
 	resetPosition(100000, 100000, false, 100000);
 	netLabelNode->setVisible(false);
 	updateVisual();
-}
-
-void *threadstart(void* vid)
-{
-#ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
-	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper;
-		MYASSERT(cr_thread_install_helper.m_nInstallStatus==0);
-	}
-#endif // USE_CRASHRPT
-
-	// 64 bit systems do have longer addresses!
-	long int id;
-	id = (long int)vid;
-	Beam *beam = Beam::threadbeam[id];
-
-	try
-	{
-		// additional exception handler required, otherwise RoR just crashes upon exception
-		while (1)
-		{
-			// wait signal
-			MUTEX_LOCK(&beam->work_mutex);
-
-			// signal end
-			MUTEX_LOCK(&beam->done_count_mutex);
-			beam->done_count--;
-			pthread_cond_signal(&beam->done_count_cv);
-			MUTEX_UNLOCK(&beam->done_count_mutex);
-
-			pthread_cond_wait(&beam->work_cv, &beam->work_mutex);
-			MUTEX_UNLOCK(&beam->work_mutex);
-			// do work
-			beam->threadentry(id);
-		}
-	} catch(Exception& e)
-	{
-		// try to shutdown input system upon an error
-		if (InputEngine::getSingletonPtrNoCreation())
-			INPUTENGINE.prepareShutdown();
-
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
-		showOgreWebError("An exception has occured!", e.getFullDescription(), url);
-	}
-	pthread_exit(NULL);
-	return NULL;
 }
 
 float Beam::getHeadingDirectionAngle()

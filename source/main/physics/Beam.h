@@ -28,8 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SerializedRig.h"
 #include "Streamable.h"
 
-#include <pthread.h>
-
 class Beam :
 	public SerializedRig,
 	public Streamable,
@@ -82,8 +80,8 @@ public:
 	void resetPosition(Ogre::Vector3 translation, bool setInitPosition);
 	void reset(bool keepPosition = false); //call this one to reset a truck from any context
 	void SyncReset(); //this one should be called only synchronously (without physics running in background)
-	//this is called by the threads
-	void threadentry(int id);
+	//this is called by the beamfactory worker thread
+	void threadentry();
 	//integration loop
 	//bool frameStarted(const FrameEvent& evt)
 	//this will be called once by frame and is responsible for animation of all the trucks!
@@ -210,22 +208,6 @@ public:
 	float rightMirrorAngle;
 	float refpressure;
 	PointColDetector *pointCD;
-
-	pthread_mutex_t work_mutex;
-	pthread_cond_t work_cv;
-	pthread_mutex_t done_count_mutex;
-	pthread_cond_t done_count_cv;
-	pthread_t thread;
-	int done_count;
-
-	/**
-	 * Blocks until all threads are done.
-	 */
-	void _waitForSync();
-
-	static Beam* threadbeam[MAX_TRUCKS];
-	static int thread_mode;
-	static int free_tb;
 
 	bool hasDriverSeat();
 	int calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
