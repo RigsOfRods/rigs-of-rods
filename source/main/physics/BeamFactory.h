@@ -45,8 +45,9 @@ public:
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
 	int getThreadingMode() { return thread_mode; };
-	void _WorkerWaitForSync(); // Blocks the worker thread
-	void _WorkerSignalStart(); // Releases the worker thread
+	void _WorkerWaitForSync();  // Waits until work is done
+	void _WorkerPrepareStart(); // Prepare to start working
+	void _WorkerSignalStart();  // Signals to start working
 
 	bool asynchronousPhysics() { return asyncPhysics; };
 
@@ -89,8 +90,9 @@ public:
 
 	void windowResized();
 
-	pthread_cond_t done_cv;
-	pthread_mutex_t done_mutex;
+	int done_count;
+	pthread_cond_t done_count_cv;
+	pthread_mutex_t done_count_mutex;
 	pthread_cond_t work_cv;
 	pthread_mutex_t work_mutex;
 	pthread_t worker_thread;

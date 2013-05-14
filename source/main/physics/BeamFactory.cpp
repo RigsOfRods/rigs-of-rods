@@ -51,6 +51,7 @@ void* threadstart(void* vid);
 
 BeamFactory::BeamFactory() :
 	  current_truck(-1)
+	, done_count(0)
 	, forcedActive(false)
 	, free_truck(0)
 	, physFrame(0)
@@ -72,9 +73,9 @@ BeamFactory::BeamFactory() :
 	// Create worker thread (used for physics calculations)
 	if (thread_mode == THREAD_MULTI)
 	{
-		pthread_cond_init(&done_cv, NULL);
+		pthread_cond_init(&done_count_cv, NULL);
 		pthread_cond_init(&work_cv, NULL);
-		pthread_mutex_init(&done_mutex, NULL);
+		pthread_mutex_init(&done_count_mutex, NULL);
 		pthread_mutex_init(&work_mutex, NULL);
 
 		if (pthread_create(&worker_thread, NULL, threadstart, this))
@@ -83,16 +84,14 @@ BeamFactory::BeamFactory() :
 			showError(UTFString("Error"), _L("Failed to start a thread."));
 			exit(1);
 		}
-
-		_WorkerWaitForSync();
 	}
 }
 
 BeamFactory::~BeamFactory()
 {
-	pthread_cond_destroy(&done_cv);
+	pthread_cond_destroy(&done_count_cv);
 	pthread_cond_destroy(&work_cv);
-	pthread_mutex_destroy(&done_mutex);
+	pthread_mutex_destroy(&done_count_mutex);
 	pthread_mutex_destroy(&work_mutex);
 }
 
@@ -748,8 +747,22 @@ void BeamFactory::_WorkerWaitForSync()
 {
 	if (thread_mode == THREAD_MULTI)
 	{
-		MUTEX_LOCK(&work_mutex);
-		MUTEX_UNLOCK(&work_mutex);
+		MUTEX_LOCK(&done_count_mutex);
+		while (done_count > 0)
+		{
+			pthread_cond_wait(&done_count_cv, &done_count_mutex);
+		}
+		MUTEX_UNLOCK(&done_count_mutex);
+	}
+}
+
+void BeamFactory::_WorkerPrepareStart()
+{
+	if (thread_mode == THREAD_MULTI)
+	{
+		MUTEX_LOCK(&done_count_mutex);
+		done_count = 1;
+		MUTEX_UNLOCK(&done_count_mutex);
 	}
 }
 
@@ -757,9 +770,9 @@ void BeamFactory::_WorkerSignalStart()
 {
 	if (thread_mode == THREAD_MULTI)
 	{
-		MUTEX_LOCK(&done_mutex);
-		pthread_cond_signal(&done_cv);
-		MUTEX_UNLOCK(&done_mutex);
+		MUTEX_LOCK(&work_mutex);
+		pthread_cond_signal(&work_cv);
+		MUTEX_UNLOCK(&work_mutex);
 	}
 }
 
@@ -775,19 +788,22 @@ void* threadstart(void* vid)
 	#endif // USE_CRASHRPT
 
 	BeamFactory *bf = static_cast<BeamFactory*>(vid);
-	Beam** trucks = bf->getTrucks();
 
 	while (1)
 	{
-		MUTEX_LOCK(&bf->done_mutex);
-		pthread_cond_wait(&bf->done_cv, &bf->done_mutex);
-		MUTEX_UNLOCK(&bf->done_mutex);
+		MUTEX_LOCK(&bf->work_mutex);
 
-		if (simulatedTruck >= 0 && simulatedTruck < bf->getTruckCount() && trucks[simulatedTruck])
+		MUTEX_LOCK(&bf->done_count_mutex);
+		bf->done_count--;
+		pthread_cond_signal(&bf->done_count_cv);
+		MUTEX_UNLOCK(&bf->done_count_mutex);
+
+		pthread_cond_wait(&bf->work_cv, &bf->work_mutex);
+		MUTEX_UNLOCK(&bf->work_mutex);
+
+		if (simulatedTruck >= 0 && simulatedTruck < bf->getTruckCount() && bf->getTruck(simulatedTruck))
 		{
-			MUTEX_LOCK(&bf->work_mutex);
-			trucks[simulatedTruck]->threadentry();
-			MUTEX_UNLOCK(&bf->work_mutex);
+			bf->getTruck(simulatedTruck)->threadentry();
 		}
 	}
 
