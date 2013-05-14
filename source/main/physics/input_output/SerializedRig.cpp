@@ -6366,7 +6366,7 @@ bool SerializedRig::parseSlideNodeLine(parsecontext_t c)
 
 	
 	// find node ///////////////////////////////////////////////////////////////
-	int nodeid = StringConverter::parseReal( options.front() );
+	int nodeid = parse_node_number( c, options.front());
 	node_t* node = getNode( nodeid );
 	options.erase(options.begin()); // remove front element
 
@@ -6561,9 +6561,9 @@ Rail* SerializedRig::parseRailString( const Ogre::StringVector & railStrings, pa
 			size_t pos = railStrings[i].find("-");
     		
 			// from start to '-'
-			const int start = StringConverter::parseInt(railStrings[i].substr(0, pos) );
+			const int start = parse_node_number(c, railStrings[i].substr(0, pos) );
 			// from character after '-' to end
-			const int end = StringConverter::parseInt( railStrings[i].substr(++pos) );
+			const int end = parse_node_number(c, railStrings[i].substr(++pos) );
     		
 			// if start is a lower value than the end, we need to start at the
 			// higher value and decrement to the lower value. to avoid duplicate
@@ -6586,7 +6586,7 @@ Rail* SerializedRig::parseRailString( const Ogre::StringVector & railStrings, pa
 			continue;		
 		}
     	
-		nodeids.push_back(StringConverter::parseInt(railStrings[i]));
+		nodeids.push_back(parse_node_number(c, railStrings[i]));
 	}
 
 	return getRails( nodeids,  c);
