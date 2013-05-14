@@ -1974,10 +1974,6 @@ void Beam::threadentry()
 		}
 		truckTruckCollisions(dtperstep);
 	}
-
-	ffforce = affforce / tsteps;
-	ffhydro = affhydro / tsteps;
-	if (free_hydro) ffhydro = ffhydro / free_hydro;
 }
 
 //integration loop
@@ -2116,15 +2112,15 @@ bool Beam::frameStep(Real dt)
 				}
 				truckTruckCollisions(dtperstep);
 			}
-
-			ffforce = affforce / steps;
-			ffhydro = affhydro / steps;
-			if (free_hydro) ffhydro = ffhydro / free_hydro;
 		} else if (!BeamFactory::getSingleton().asynchronousPhysics())
 		{
 			BeamFactory::getSingleton()._WorkerWaitForSync();
 		}
 		
+		ffforce = affforce / steps;
+		ffhydro = affhydro / steps;
+		if (free_hydro) ffhydro = ffhydro / free_hydro;
+
 		for (int t=0; t<numtrucks; t++)
 		{
 			if (!trucks[t]) continue;
@@ -2143,14 +2139,6 @@ bool Beam::frameStep(Real dt)
 			{
 				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
 			}
-		}
-		
-		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
-		{
-			tsteps = steps;
-			ttrucks = trucks;
-			tnumtrucks = numtrucks;
-			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
 
 #ifdef FEAT_TIMING
@@ -2179,6 +2167,15 @@ bool Beam::frameStep(Real dt)
 					trucks[t]->sleepcount = 0;
 				}
 			}
+		}
+
+		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
+		{
+			tsteps = steps;
+			ttrucks = trucks;
+			tnumtrucks = numtrucks;
+			BeamFactory::getSingleton()._WorkerPrepareStart();
+			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
 	}
 	return true;
