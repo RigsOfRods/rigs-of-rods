@@ -585,7 +585,7 @@ void BeamEngine::setSpin(float rpm)
 // for hydros acceleration
 float BeamEngine::getCrankFactor()
 {
-	return 1.0f + 4.0f * (curEngineRPM - 800.0f) / (maxRPM - 800.0f);
+	return 1.0f + 4.0f * std::max(0.0f, curEngineRPM - 800.0f) / (maxRPM - 800.0f);
 }
 
 void BeamEngine::setClutch(float clutch)
