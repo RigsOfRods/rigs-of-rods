@@ -48,6 +48,7 @@ public:
 		Ogre::Real mTransScale;
 		Ogre::Radian fovInternal;
 		Ogre::Radian fovExternal;
+		bool mDebug;
 	};
 
 	enum CameraBehaviors {

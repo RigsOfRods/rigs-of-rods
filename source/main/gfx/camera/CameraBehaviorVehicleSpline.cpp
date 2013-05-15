@@ -251,7 +251,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
 
 	splineLength /= 2.0f;
 
-	if ( !splineObject && BSETTING("CameraRailDebug", false))
+	if ( !splineObject && ctx.mDebug)
 	{
 		splineObject = gEnv->sceneManager->createManualObject();
 		SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
