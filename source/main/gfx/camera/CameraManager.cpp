@@ -54,6 +54,7 @@ CameraManager::CameraManager(OverlayWrapper *ow, DOFManager *dof) :
 	ctx.mCurrTruck = 0;
 	ctx.mDof = dof;
 	ctx.mOverlayWrapper = ow;
+	ctx.mDebug = BSETTING("Camera Debug", false);
 
 	if ( ctx.mDof )
 	{
