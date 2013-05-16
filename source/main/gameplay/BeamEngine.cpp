@@ -218,9 +218,9 @@ void BeamEngine::update(float dt, int doUpdate)
 	curEngineRPM = std::max(0.0f, curEngineRPM);
 
 	// TODO: Add stallRPM and idle mixture settings to the .truck file format
-	float idleMixture = std::max(0.1f * engineTorque / 2000, 0.06f);
+	float idleMixture = std::max(0.1f * engineTorque / 3000, 0.06f);
 	
-	idleMixture = std::min(idleMixture, 0.1f);
+	idleMixture = std::min(idleMixture, 0.2f);
 
 	if (curEngineRPM < std::min(idleRPM, 800.0f) + 5.0f)
 	{
