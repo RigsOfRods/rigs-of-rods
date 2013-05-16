@@ -126,7 +126,6 @@ public:
 	//! @{ graphical display things */
 	void updateSkidmarks();
 	void updateAI(float dt);
-	Ogre::String debugText;
 	void prepareInside(bool inside);
 	void updateFlares(float dt, bool isCurrent=false);
 	void updateProps();

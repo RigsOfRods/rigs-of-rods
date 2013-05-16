@@ -640,6 +640,9 @@ void BeamFactory::calcPhysics(float dt)
 {
 	physFrame++;
 
+	// do not allow dt > 1/20
+	dt = std::min(dt, 1.0f / 20.0f);
+
 	simulatedTruck = current_truck;
 	static int lastSimulatedTruck = -1;
 

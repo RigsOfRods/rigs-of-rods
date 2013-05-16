@@ -1983,18 +1983,10 @@ void Beam::threadentry()
 bool Beam::frameStep(Real dt)
 {
 	BES_GFX_START(BES_GFX_framestep);
-	/*LOG("BEAM: frame starting dt="+TOSTRING(dt)
-	+"minx"+TOSTRING(minx)
-	+"maxx"+TOSTRING(maxx)
-	+"miny"+TOSTRING(miny)
-	+"maxy"+TOSTRING(maxy)
-	+"minz"+TOSTRING(minz)
-	+"maxz"+TOSTRING(maxz)
-	);
-	*/
+
+	if (dt==0) return true;
 	if (!loading_finished) return true;
 	if (state >= SLEEPING) return true;
-	if (dt==0) return true;
 	if (mTimeUntilNextToggle>-1)
 		mTimeUntilNextToggle-= dt;
 
@@ -2004,17 +1996,8 @@ bool Beam::frameStep(Real dt)
 		abs_state = !abs_state;
 		abs_timer = 0.0f;
 	}
-
-	int steps = (int)(2000.0 * dt);
-	if (steps > 100) steps = 100;
-	if (dt > 1.0 / 20.0)
-	{
-		dt = 1.0 / 20.0;
-		debugText="RT - Fasttrack: "+TOSTRING(fasted*100/(fasted+slowed))+"% "+TOSTRING(steps)+" steps";
-	} else
-	{
-		debugText="SL - Fasttrack: "+TOSTRING(fasted*100/(fasted+slowed))+"% "+TOSTRING(steps)+" steps";
-	}
+	
+	int steps = 2000.0 * dt;
 
 	// TODO: move this to the correct spot
 	// update all dashboards
@@ -2028,12 +2011,9 @@ bool Beam::frameStep(Real dt)
 	//	for (t=0; t<numtrucks; t++)
 	//	{
 	//		if (trucks[t]->state!=SLEEPING) trucks[t]->updateVisual();
-	//trucks[t]->updateFlares();
+	//			trucks[t]->updateFlares();
 	//	}
-
-//if (free_aeroengine) debugText=String(aeroengines[0]->debug);
-//debugText="Origin: "+TOSTRING(origin.x)+", "+TOSTRING(origin.y)+", "+TOSTRING(origin.z);
-
+	
 	// some scripting stuff:
 #ifdef USE_ANGELSCRIPT
 #if 0
@@ -2178,6 +2158,7 @@ bool Beam::frameStep(Real dt)
 			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
 	}
+
 	return true;
 }
 
