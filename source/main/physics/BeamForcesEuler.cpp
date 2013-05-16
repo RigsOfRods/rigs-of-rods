@@ -1753,7 +1753,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 		// canwork
 		if (engine)
-			canwork = engine->getRPM() > 800.0f;
+			canwork = (engine->getRPM() > std::min(800.0f, engine->idleRPM));
 		else
 			canwork = 1.0f;
 
@@ -1900,7 +1900,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 						if (!canwork) continue;
 
-						if (v > 0.5)
+						if (v > 0.5 && beams[bbeam].commandEngineCoupling > 0)
 							requestpower = true;
 
 #ifdef USE_OPENAL
