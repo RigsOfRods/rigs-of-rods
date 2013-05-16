@@ -2881,14 +2881,17 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 			}
 		}
 
+		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER))
+		{
+			// reset the command values here, otherwise they stay active while the trigger is outside of his boundaries
+			commandkey[beams[i].shock->trigger_cmdshort].commandValue = 0;
+			commandkey[beams[i].shock->trigger_cmdlong].commandValue = 0;
+		}
+
 		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && beams[i].shock->trigger_enabled)  // this is a trigger and its enabled
 		{
 			if (difftoBeamL > beams[i].longbound*beams[i].L || difftoBeamL < -beams[i].shortbound*beams[i].L) // that has hit boundary
 			{
-				// reset the command values here, otherwise they stay active while the trigger is outside of his boundaries
-				commandkey[beams[i].shock->trigger_cmdshort].commandValue = 0;
-				commandkey[beams[i].shock->trigger_cmdlong].commandValue = 0;
-
 				beams[i].shock->trigger_switch_state -= dt;
 				if (beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for deadswitched trigger
 					beams[i].shock->trigger_switch_state = 0.0f;
