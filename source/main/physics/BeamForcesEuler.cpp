@@ -1155,7 +1155,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 	// calculate torque per wheel
 	if (state == ACTIVATED && engine && proped_wheels != 0)
-		engine_torque = engine->getTorque()/proped_wheels;
+		engine_torque = engine->getTorque() / proped_wheels;
 
 	int propcounter=0;
 	float torques[MAX_WHEELS]; // not used
@@ -1747,15 +1747,20 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 	// commands
 	if (hascommands)
 	{
-		int active=0;
-		int requested=0;
-		float work=0.0;
+		int active = 0;
+		int requested = 0;
+		float work = 0.0;
+
+		// canwork
 		if (engine)
-			canwork=(engine->getRPM()>800.0);
+			canwork = engine->getRPM() > 800.0f;
 		else
-			canwork=1;
-		float crankfactor=1;
-		if (engine) crankfactor=engine->getCrankFactor();
+			canwork = 1.0f;
+
+		// crankfactor
+		float crankfactor = 1.0f;
+		if (engine)
+			crankfactor = engine->getCrankFactor();
 
 		// speed up machines
 		if (driveable==MACHINE)
@@ -1765,26 +1770,15 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 		{
 			for (int j=0; j < (int)commandkey[i].beams.size(); j++)
 			{
-				int k = abs(commandkey[i].beams[j]);
-				if (k>=0 && k < free_beam)
-					beams[k].autoMoveLock=false;
-			}
-		}
-
-		for (int i=0; i<=MAX_COMMANDS; i++)
-		{
-			for (int j=0; j < (int)commandkey[i].beams.size(); j++)
-			{
-				if (commandkey[i].commandValue >= 0.5)
+				int k = commandkey[i].beams[j];
+				if (k >= 0 && k < free_beam)
 				{
-					int k = abs(commandkey[i].beams[j]);
-					if (k>=0 && k < free_beam)
-						beams[k].autoMoveLock=true;
+					beams[k].autoMoveLock = (commandkey[i].commandValue >= 0.5);
 				}
 			}
 		}
 
-		// only process ties if there is enough force available
+		// only process ties if there is enough force available <- why are ties related to engine rpm?
 		if (canwork)
 		{
 			bool requestpower = false;
@@ -1826,276 +1820,141 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 			bool requestpower = false;
 			for (int j=0; j < (int)commandkey[i].beams.size(); j++)
 			{
-				int bbeam=commandkey[i].beams[j];
-				int bbeam_abs=abs(bbeam);
-				if (bbeam_abs<0 || bbeam_abs > free_beam) continue;
+				int bbeam_dir = (commandkey[i].beams[j] > 0) ? 1 : -1;
+				int bbeam = std::abs(commandkey[i].beams[j]);
+
+				if (bbeam > free_beam) continue;
 
 				// restrict forces
-				if (beams[bbeam_abs].isforcerestricted && crankfactor > 1)
-					crankfactor=1;
+				if (beams[bbeam].isforcerestricted)
+					crankfactor = std::min(crankfactor, 1.0f);
 
 				float v  = commandkey[i].commandValue;
 				int &vst = commandkey[i].commandValueState;
 
-
-				/*
-				if (i==1)
-				LOG(TOSTRING(v) + "/" + TOSTRING(beams[bbeam].autoMovingMode));
-				*/
-
 				// self centering
-				if (beams[bbeam_abs].iscentering && !beams[bbeam_abs].autoMoveLock)
+				if (beams[bbeam].iscentering && !beams[bbeam].autoMoveLock)
 				{
 					// check for some error
-					if (beams[bbeam_abs].refL == 0 || beams[bbeam_abs].L == 0)
+					if (beams[bbeam].refL == 0 || beams[bbeam].L == 0)
 						continue;
 
-					float current = (beams[bbeam_abs].L/beams[bbeam_abs].refL);
-					/*
-					if (i==1)
-					LOG("centering: "+ \
-					TOSTRING(current)+" / "+ \
-					TOSTRING(beams[bbeam_abs].centerLength)+ " / " + \
-					TOSTRING(v)+" / ");
-					*/
+					float current = (beams[bbeam].L / beams[bbeam].refL);
 
-					// hold condition
-					if (fabs(current-beams[bbeam_abs].centerLength) < 0.0001)
+					if (fabs(current-beams[bbeam].centerLength) < 0.0001)
 					{
-						beams[bbeam_abs].autoMovingMode = 0;
-						/*
-						if (i==1)
-						LOG("centering complete");
-						*/
-					}
-					else
+						// hold condition
+						beams[bbeam].autoMovingMode = 0;
+					} else
 					{
 						// determine direction
-						if (current > beams[bbeam_abs].centerLength)
-							beams[bbeam_abs].autoMovingMode = -1;
+						if (current > beams[bbeam].centerLength)
+							beams[bbeam].autoMovingMode = -1;
 						else
-							beams[bbeam_abs].autoMovingMode = 1;
+							beams[bbeam].autoMovingMode = 1;
 					}
 				}
 
-				if (beams[bbeam_abs].refL != 0 && beams[bbeam_abs].L != 0)
+				if (beams[bbeam].refL != 0 && beams[bbeam].L != 0)
 				{
-					if (bbeam>0)
+					float clen = beams[bbeam].L / beams[bbeam].refL;
+					if ((bbeam_dir > 0 && clen < beams[bbeam].commandLong) || (bbeam_dir < 0 && clen > beams[bbeam].commandShort))
 					{
-						float clen = beams[bbeam].L/beams[bbeam].refL;
-						if (clen<beams[bbeam].commandLong)
+						float dl=beams[bbeam].L;
+
+						if (beams[bbeam].isOnePressMode==2)
 						{
-							float dl=beams[bbeam].L;
-
-							if (beams[bbeam].isOnePressMode==2)
+							// one press + centering
+							if (bbeam_dir*beams[bbeam].autoMovingMode > 0 && bbeam_dir*clen > bbeam_dir*beams[bbeam].centerLength && !beams[bbeam].pressedCenterMode)
 							{
-								// one press + centering
-								//String sMode = (beams[bbeam].pressedCenterMode?"YES":"NO");
-								//LOG(sMode+"|"+TOSTRING(clen)+" / "+TOSTRING(beams[bbeam].centerLength));
-								if (beams[bbeam].autoMovingMode > 0 && clen > beams[bbeam].centerLength && !beams[bbeam].pressedCenterMode)
-								{
-									beams[bbeam].pressedCenterMode = true;
-									beams[bbeam].autoMovingMode=0;
-								}
-								else if (beams[bbeam].autoMovingMode < 0 && clen > beams[bbeam].centerLength && beams[bbeam].pressedCenterMode)
-									beams[bbeam].pressedCenterMode = false;
-							}
-							if (beams[bbeam].isOnePressMode>0)
+								beams[bbeam].pressedCenterMode = true;
+								beams[bbeam].autoMovingMode = 0;
+							} else if (bbeam_dir*beams[bbeam].autoMovingMode < 0 && bbeam_dir*clen > bbeam_dir*beams[bbeam].centerLength && beams[bbeam].pressedCenterMode)
 							{
-								bool key = (v > 0.5);
-								if (beams[bbeam].autoMovingMode <= 0 && key)
-								{
-									//LOG("LONG auto-moving-start!");
-									beams[bbeam].autoMovingMode=1;
-								}
-								else if (beams[bbeam].autoMovingMode==1 && !key)
-								{
-									//LOG("LONG auto-moving step2!");
-									beams[bbeam].autoMovingMode=2;
-								}
-								else if (beams[bbeam].autoMovingMode==2 && key)
-								{
-									//LOG("LONG auto-moving-end step1!");
-									beams[bbeam].autoMovingMode=3;
-								}
-								else if (beams[bbeam].autoMovingMode==3 && !key)
-								{
-									//LOG("LONG auto-moving-end step2!");
-									beams[bbeam].autoMovingMode=0;
-								}
+								beams[bbeam].pressedCenterMode = false;
 							}
+						}
+						if (beams[bbeam].isOnePressMode > 0)
+						{
+							bool key = (v > 0.5);
+							if (bbeam_dir*beams[bbeam].autoMovingMode <= 0 && key)
+							{
+								beams[bbeam].autoMovingMode = bbeam_dir*1;
+							} else if (beams[bbeam].autoMovingMode == bbeam_dir*1 && !key)
+							{
+								beams[bbeam].autoMovingMode = bbeam_dir*2;
+							} else if (beams[bbeam].autoMovingMode == bbeam_dir*2 && key)
+							{
+								beams[bbeam].autoMovingMode = bbeam_dir*3;
+							} else if (beams[bbeam].autoMovingMode == bbeam_dir*3 && !key)
+							{
+								beams[bbeam].autoMovingMode = 0;
+							}
+						}
 
-							if (cmdInertia)
-								v=cmdInertia->calcCmdKeyDelay(v,i,dt);
+						if (cmdInertia)
+							v = cmdInertia->calcCmdKeyDelay(v, i, dt);
 
-							if (beams[bbeam].autoMovingMode > 0)
-								v = 1;
+						if (bbeam_dir*beams[bbeam].autoMovingMode > 0)
+							v = 1;
 
-							if (v>0.5)
-								requestpower=true;
+						if (!canwork) continue;
 
-							if (!canwork)
-								continue;
+						if (v > 0.5)
+							requestpower = true;
 
 #ifdef USE_OPENAL
-							// command sounds
-							if (vst == 1)
-							{
-								// just started
-								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-								SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-								vst = 0;
-
-							} else if (vst == -1)
-							{
-								// just stopped
-								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-								vst = 0;
-							} else if (vst == 0)
-							{
-								// already running, modulate
-								SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
-							}
+						// command sounds
+						if (vst == 1)
+						{
+							// just started
+							SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
+							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+							vst = 0;
+						} else if (vst == -1)
+						{
+							// just stopped
+							SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+							vst = 0;
+						} else if (vst == 0)
+						{
+							// already running, modulate
+							SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+						}
 #endif //USE_OPENAL
+						if (bbeam_dir > 0)
 							beams[bbeam].L *= (1.0 + beams[bbeam].commandRatioLong * v * crankfactor * dt / beams[bbeam].L);
-							dl=fabs(dl-beams[bbeam].L);
-							if (v>0.5)
-							{
-								active++;
-								work+=fabs(beams[bbeam].stress)*dl*beams[bbeam].commandEngineCoupling;
-							}
-						} else
-						{
-							// beyond lenght
-							if (beams[bbeam].isOnePressMode>0 && beams[bbeam].autoMovingMode > 0)
-							{
-								//LOG("LONG auto-moving-end!");
-								beams[bbeam].autoMovingMode=0;
-							}
-						}
-					} else
-					{
-						bbeam=-bbeam;
-						float clen = beams[bbeam].L/beams[bbeam].refL;
-						if (clen>beams[bbeam].commandShort)
-						{
-							float dl=beams[bbeam].L;
-
-							if (beams[bbeam].isOnePressMode==2)
-							{
-								// one press + centering
-								//String sMode = (beams[bbeam].pressedCenterMode?"YES":"NO");
-								//LOG(sMode+"|"+TOSTRING(clen)+" / "+TOSTRING(beams[bbeam].centerLength));
-								if (beams[bbeam].autoMovingMode < 0 && clen < beams[bbeam].centerLength && !beams[bbeam].pressedCenterMode)
-								{
-									beams[bbeam].pressedCenterMode = true;
-									beams[bbeam].autoMovingMode=0;
-								}
-								else if (beams[bbeam].autoMovingMode > 0 && clen < beams[bbeam].centerLength && beams[bbeam].pressedCenterMode)
-									beams[bbeam].pressedCenterMode = false;
-							}
-							if (beams[bbeam].isOnePressMode>0)
-							{
-								bool key = (v > 0.5);
-								if (beams[bbeam].autoMovingMode >=0 && key)
-								{
-									//LOG("SHORT auto-moving-start!");
-									beams[bbeam].autoMovingMode=-1;
-								}
-								else if (beams[bbeam].autoMovingMode==-1 && !key)
-								{
-									//LOG("SHORT auto-moving step2!");
-									beams[bbeam].autoMovingMode=-2;
-								}
-								else if (beams[bbeam].autoMovingMode==-2 && key)
-								{
-									//LOG("SHORT auto-moving-end step1!");
-									beams[bbeam].autoMovingMode=-3;
-								}
-								else if (beams[bbeam].autoMovingMode==-3 && !key)
-								{
-									//LOG("SHORT auto-moving-end step2!");
-									beams[bbeam].autoMovingMode=0;
-								}
-							}
-
-							if (cmdInertia)
-								v=cmdInertia->calcCmdKeyDelay(v,i,dt);
-
-							if (beams[bbeam].autoMovingMode < 0)
-								v = 1;
-
-							if (v>0.5)
-								requestpower=true;
-
-							if (!canwork)
-								continue;
-#ifdef USE_OPENAL
-							// command sounds
-							if (vst == 1)
-							{
-								// just started
-								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-								SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-								vst = 0;
-
-							} else if (vst == -1)
-							{
-								// just stopped
-								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-								vst = 0;
-							} else if (vst == 0)
-							{
-								// already running, modulate
-								SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, -i);
-							}
-#endif //USE_OPENAL
+						else
 							beams[bbeam].L *= (1.0 - beams[bbeam].commandRatioShort * v * crankfactor * dt / beams[bbeam].L);
-							dl=fabs(dl-beams[bbeam].L);
-							if (v>0.5)
-							{
-								active++;
-								work+=fabs(beams[bbeam].stress)*dl*beams[bbeam].commandEngineCoupling;
-							}
-						} else
+						
+						dl = fabs(dl - beams[bbeam].L);
+						if (v > 0.5)
 						{
-							// beyond lenght
-							if (beams[bbeam].isOnePressMode>0 && beams[bbeam].autoMovingMode < 0)
-							{
-								//LOG("SHORT auto-moving-end!");
-								beams[bbeam].autoMovingMode=0;
-							}
+							active++;
+							work += fabs(beams[bbeam].stress) * dl * beams[bbeam].commandEngineCoupling;
 						}
-					};
+					} else if (beams[bbeam].isOnePressMode > 0 && bbeam_dir*beams[bbeam].autoMovingMode > 0)
+					{
+						// beyond length
+						beams[bbeam].autoMovingMode = 0;
+					}
 				}
 			}
 			// also for rotators
 			for (int j=0; j < (int)commandkey[i].rotators.size(); j++)
 			{
-				if ((commandkey[i].rotators[j])>0)
+				float value = 0.0f;
+				if (rotaInertia)
 				{
-					int rota = commandkey[i].rotators[j] - 1;
-					float value=0;
-					if (rotaInertia)
-					{
-						value=rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue,i,dt);
-					}
-					if (value>0.5f)
+					value = rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
+					if (value > 0.5f)
 						requestpower=true;
+				}
+				int rota = std::abs(commandkey[i].rotators[j]) - 1;
+				if (commandkey[i].rotators[j] > 0)
 					rotators[rota].angle += rotators[rota].rate * value * crankfactor * dt;
-				}
 				else
-				{
-					int rota =- (commandkey[i].rotators[j]) - 1;
-					float value=0;
-					if (rotaInertia)
-					{
-						value=rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue,i,dt);
-					}
-					if (value>0.5f)
-						requestpower=true;
 					rotators[rota].angle -= rotators[rota].rate * value * crankfactor * dt;
-				}
 			}
 			if (requestpower)
 				requested++;
@@ -2103,16 +1962,16 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 		if (engine)
 		{
-			engine->hydropump=work;
-			engine->prime=requested;
+			engine->hydropump = work;
+			engine->prime     = requested;
 		}
 		if (doUpdate && state==ACTIVATED)
 		{
 #ifdef USE_OPENAL
-			if (active)
+			if (active > 0)
 			{
 				SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_PUMP);
-				float pump_rpm=660.0f*(1.0f-(work/(float)active)/100.0f);
+				float pump_rpm = 660.0f * (1.0f - (work / (float)active) / 100.0f);
 				SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_PUMP, pump_rpm);
 			} else
 			{
