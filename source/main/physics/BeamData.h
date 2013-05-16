@@ -476,6 +476,7 @@ struct beam
 	Ogre::Real commandEngineCoupling;
 	Ogre::Real maxtiestress;
 	Ogre::Real diameter;
+	bool commandNeedsEngine;
 	int detacher_group;	// detacher group number (integer)
 	Ogre::Vector3 lastforce;
 	bool iscentering;

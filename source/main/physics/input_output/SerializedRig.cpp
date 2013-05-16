@@ -2850,7 +2850,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				Real stopDelay=0;
 				char startFunction[256]="";
 				char stopFunction[256]="";
-				float commandCoupling = 1;
+				float engineCoupling = 1;
+				bool needsEngine = true;
 				if (c.mode == BTS_COMMANDS)
 				{
 					char opt='n';
@@ -2890,7 +2891,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					if (n > 11) stopDelay  = PARSEREAL(args[11]);
 					if (n > 12) strncpy(startFunction, args[12].c_str(), 255);
 					if (n > 13) strncpy(stopFunction,  args[13].c_str(), 255);
-					if (n > 14) commandCoupling = PARSEREAL(args[14]);
+					if (n > 14) engineCoupling = PARSEREAL(args[14]);
+					if (n > 15) needsEngine = StringConverter::parseBool(args[15]);
 				}
 
 				//verify array limits so we don't overflow
@@ -2996,7 +2998,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				beams[pos].commandRatioLong=rateLong;
 				beams[pos].commandShort=shortl;
 				beams[pos].commandLong=longl;
-				beams[pos].commandEngineCoupling=commandCoupling;
+				beams[pos].commandEngineCoupling=engineCoupling;
+				beams[pos].commandNeedsEngine=needsEngine;
 
 				// set the middle of the command, so its not required to recalculate this everytime ...
 				if (beams[pos].commandLong > beams[pos].commandShort)
