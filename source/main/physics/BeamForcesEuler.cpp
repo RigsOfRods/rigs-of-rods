@@ -1898,7 +1898,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 						if (bbeam_dir*beams[bbeam].autoMovingMode > 0)
 							v = 1;
 
-						if (!canwork) continue;
+						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
 
 						if (v > 0.5 && beams[bbeam].commandEngineCoupling > 0)
 							requestpower = true;
@@ -1928,7 +1928,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 							beams[bbeam].L *= (1.0 - beams[bbeam].commandRatioShort * v * crankfactor * dt / beams[bbeam].L);
 						
 						dl = fabs(dl - beams[bbeam].L);
-						if (v > 0.5)
+						if (beams[bbeam].commandNeedsEngine && v > 0.5)
 						{
 							active++;
 							work += fabs(beams[bbeam].stress) * dl * beams[bbeam].commandEngineCoupling;
