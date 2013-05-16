@@ -1174,7 +1174,7 @@ void RoRFrameListener::updateCruiseControl(Beam* curr_truck, float dt)
 		} else if (curr_truck->engine->getGear() == 0) // out of gear
 		{
 			curr_truck->cc_target_rpm -= 1000.0f * dt;
-			curr_truck->cc_target_rpm  = std::max(curr_truck->engine->getIdleRPM(), curr_truck->cc_target_rpm);
+			curr_truck->cc_target_rpm  = std::max(curr_truck->engine->getMinRPM(), curr_truck->cc_target_rpm);
 		}
 	}
 	if (INPUTENGINE.getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))

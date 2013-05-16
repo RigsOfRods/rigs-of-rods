@@ -1248,7 +1248,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds,
 	if (r.engine)
 	{
 		entry.numgears   = (int)r.engine->getNumGears();
-		entry.minrpm     = r.engine->getIdleRPM();
+		entry.minrpm     = r.engine->getMinRPM();
 		entry.maxrpm     = r.engine->getMaxRPM();
 		entry.torque     = r.engine->getEngineTorque();
 		entry.enginetype = r.engine->getType();

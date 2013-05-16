@@ -28,7 +28,7 @@ class BeamEngine : public ZeroedMemoryAllocator
 
 public:
 
-	BeamEngine(float idleRPM, float maxRPM, float torque, std::vector<float> gears, float diff, int trucknum);
+	BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float diff, int trucknum);
 	~BeamEngine();
 
 	float getAcc();
@@ -75,7 +75,9 @@ public:
 	char getType() { return type; };
 	float getEngineTorque() { return engineTorque; };
 	float getIdleRPM() { return idleRPM; };
+	float getMinRPM() { return minRPM; };
 	float getMaxRPM() { return maxRPM; };
+	float getIdleMixture();
 	int getAutoShift();
 	size_t getNumGears() { return gearsRatio.size() - 2; };
 	size_t getNumGearsRanges() { return getNumGears() / 6 + 1; };
@@ -97,6 +99,8 @@ public:
 
 protected:
 
+	float getEnginePower();
+
 	// gear stuff
 	float curWheelRevolutions;
 	int curGear;
@@ -106,7 +110,7 @@ protected:
 
 	// clutch
 	float clutchForce;
-	float clutch_time;
+	float clutchTime;
 	float curClutch;
 	float curClutchTorque;
 
@@ -125,6 +129,7 @@ protected:
 	float idleRPM;
 	float inertia;
 	float maxRPM;
+	float minRPM;
 	float stallRPM;
 	int prime;
 
