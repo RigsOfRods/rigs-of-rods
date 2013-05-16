@@ -28,7 +28,7 @@ class BeamEngine : public ZeroedMemoryAllocator
 
 public:
 
-	BeamEngine(float iddle, float max, float torque, std::vector<float> gears, float diff, int trucknum);
+	BeamEngine(float idleRPM, float maxRPM, float torque, std::vector<float> gears, float diff, int trucknum);
 	~BeamEngine();
 
 	float getAcc();

@@ -23,7 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "TorqueCurve.h"
 
-BeamEngine::BeamEngine( float iddle, float max, float torque, std::vector<float> gears, float diff, int trucknum) :
+BeamEngine::BeamEngine(float idleRPM, float maxRPM, float torque, std::vector<float> gears, float diff, int trucknum) :
 	  apressure(0.0f)
 	, autocurAcc(0.0f)
 	, automode(AUTOMATIC)
@@ -45,9 +45,9 @@ BeamEngine::BeamEngine( float iddle, float max, float torque, std::vector<float>
 	, hasair(true)
 	, hasturbo(true)
 	, hydropump(0.0f)
-	, idleRPM(iddle)
+	, idleRPM(std::abs(idleRPM))
 	, inertia(10.0f)
-	, maxRPM(max)
+	, maxRPM(std::abs(maxRPM))
 	, numGears((int)gears.size() - 2)
 	, post_shift_time(0.2f)
 	, postshiftclock(0.0f)
@@ -216,6 +216,19 @@ void BeamEngine::update(float dt, int doUpdate)
 	}
 
 	curEngineRPM = std::max(0.0f, curEngineRPM);
+
+	// TODO: Add stallRPM and idle mixture settings to the .truck file format
+	float idleMixture = std::max(0.1f * engineTorque / 2000, 0.06f);
+	
+	idleMixture = std::min(idleMixture, 0.1f);
+
+	if (curEngineRPM < std::min(idleRPM, 800.0f) + 5.0f)
+	{
+		curAcc = std::max(idleMixture, curAcc);
+	} else if (curAcc <= idleMixture)
+	{
+		curAcc = 0.0f;
+	}
 
 	if (automode < MANUAL)
 	{
@@ -520,7 +533,7 @@ void BeamEngine::setAcc(float val)
 #ifdef USE_OPENAL
 	SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_INJECTOR, val);
 #endif // USE_OPENAL
-	curAcc = val * 0.94f + 0.06f;
+	curAcc = val;
 }
 
 void BeamEngine::setBrake(float val)
