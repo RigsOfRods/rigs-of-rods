@@ -2883,7 +2883,6 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 
 		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER))
 		{
-			// reset the command values here, otherwise they stay active while the trigger is outside of his boundaries
 			commandkey[beams[i].shock->trigger_cmdshort].commandValue = 0;
 			commandkey[beams[i].shock->trigger_cmdlong].commandValue = 0;
 		}

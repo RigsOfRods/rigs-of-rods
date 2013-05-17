@@ -111,7 +111,17 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 
 void BeamEngine::update(float dt, int doUpdate)
 {
-	float acc = std::max(getIdleMixture(), curAcc);
+	float acc = curAcc;
+	
+	acc = std::max(getIdleMixture(), acc);
+	acc = std::max(getPrimeMixture(), acc);
+
+	if (doUpdate)
+	{
+#ifdef USE_OPENAL
+		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_INJECTOR, acc);
+#endif // USE_OPENAL
+	}
 
 	if (hasair)
 	{
@@ -503,21 +513,6 @@ void BeamEngine::setAutoMode(int mode)
 
 void BeamEngine::setAcc(float val)
 {
-	if (prime)
-	{
-		if (curEngineRPM < 850.0f)
-		{
-			val = 1.0f;
-		} else if (curEngineRPM < 900.0f)
-		{
-			float t = (900.0f - curEngineRPM) / 50.0f;
-
-			val = std::max(val, t);
-		}
-	}
-#ifdef USE_OPENAL
-	SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_INJECTOR, val);
-#endif // USE_OPENAL
 	curAcc = val;
 }
 
@@ -583,7 +578,7 @@ void BeamEngine::setSpin(float rpm)
 // for hydros acceleration
 float BeamEngine::getCrankFactor()
 {
-	return 1.0f + 4.0f * std::max(0.0f, curEngineRPM - 800.0f) / (maxRPM - 800.0f);
+	return 1.0f + 4.0f * std::max(0.0f, curEngineRPM - idleRPM) / (maxRPM - idleRPM);
 }
 
 void BeamEngine::setClutch(float clutch)
@@ -865,20 +860,34 @@ float BeamEngine::getEnginePower()
 
 float BeamEngine::getIdleMixture()
 {
-	float targetRPM = idleRPM * 1.1f;
-
-	if (curEngineRPM < targetRPM)
+	if (curEngineRPM < idleRPM)
 	{
 		// determine the fuel injection needed to counter the engine braking force
 		float idleMixture = (-brakingTorque * curEngineRPM / maxRPM) / getEnginePower();
 
 		idleMixture = std::max(0.06f, idleMixture);
 
-		idleMixture = idleMixture * (1.0f + 2.0f * (targetRPM - curEngineRPM) / targetRPM);
+		idleMixture = idleMixture * (1.0f + (idleRPM - curEngineRPM) / 100.0f);
 
 		idleMixture = std::min(idleMixture, 0.2f);
 
 		return idleMixture;
+	}
+
+	return 0.0f;
+}
+
+float BeamEngine::getPrimeMixture()
+{
+	if (prime)
+	{
+		if (curEngineRPM < idleRPM + 100.0f)
+		{
+			return 1.0f;
+		} else if (curEngineRPM < idleRPM + 200.0f)
+		{
+			return (idleRPM + 200.0f - curEngineRPM) / 100.0f;
+		}
 	}
 
 	return 0.0f;
