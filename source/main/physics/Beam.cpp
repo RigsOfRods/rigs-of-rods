@@ -2881,14 +2881,16 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 			}
 		}
 
-		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER))
-		{
-			commandkey[beams[i].shock->trigger_cmdshort].commandValue = 0;
-			commandkey[beams[i].shock->trigger_cmdlong].commandValue = 0;
-		}
-
 		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && beams[i].shock->trigger_enabled)  // this is a trigger and its enabled
 		{
+			if (commandkey[beams[i].shock->trigger_cmdshort].commandValue > 0.01f)
+				commandkey[beams[i].shock->trigger_cmdshort].commandValueState = -1;
+			if (commandkey[beams[i].shock->trigger_cmdlong].commandValue > 0.01f)
+				commandkey[beams[i].shock->trigger_cmdlong].commandValueState = -1;
+
+			commandkey[beams[i].shock->trigger_cmdshort].commandValue = 0.0f;
+			commandkey[beams[i].shock->trigger_cmdlong].commandValue = 0.0f;
+
 			if (difftoBeamL > beams[i].longbound*beams[i].L || difftoBeamL < -beams[i].shortbound*beams[i].L) // that has hit boundary
 			{
 				beams[i].shock->trigger_switch_state -= dt;
@@ -2977,14 +2979,17 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 						{
 							//just a trigger
 							if (!commandkey[beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state)	// related cmdkey is not blocked
-							 {
-								 commandkey[beams[i].shock->trigger_cmdlong].commandValue = 1;
-								 if (triggerdebug && beams[i].shock->last_debug_state != 4)
-								 {
-									 LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdlong));
-									 beams[i].shock->last_debug_state = 4;
-								 }
-							 }
+							{
+								if (commandkey[beams[i].shock->trigger_cmdlong].commandValue < 0.01f)
+									commandkey[beams[i].shock->trigger_cmdlong].commandValueState = 1;
+
+								commandkey[beams[i].shock->trigger_cmdlong].commandValue = 1;
+								if (triggerdebug && beams[i].shock->last_debug_state != 4)
+								{
+									LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdlong));
+									beams[i].shock->last_debug_state = 4;
+								}
+							}
 						}
 					} else // trigger past short bound
 					{
@@ -3007,6 +3012,9 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 							//just a trigger
 							if (!commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state)	// related cmdkey is not blocked
 							{
+								if (commandkey[beams[i].shock->trigger_cmdshort].commandValue < 0.01f)
+									commandkey[beams[i].shock->trigger_cmdshort].commandValueState = 1;
+
 								commandkey[beams[i].shock->trigger_cmdshort].commandValue = 1;
 								if (triggerdebug  && beams[i].shock->last_debug_state != 5)
 								{
