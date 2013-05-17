@@ -1768,6 +1768,20 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 		for (int i=0; i<=MAX_COMMANDS; i++)
 		{
+			float oldValue = commandkey[i].commandValue;
+				
+			commandkey[i].commandValue = std::max(commandkey[i].playerInputValue, commandkey[i].triggerInputValue);
+
+			if (commandkey[i].commandValue > 0.01f && oldValue < 0.01f)
+			{
+				// just started
+				commandkey[i].commandValueState = 1;
+			} else if (commandkey[i].commandValue < 0.01f && oldValue > 0.01f)
+			{
+				// just stopped
+				commandkey[i].commandValueState = -1;
+			}
+
 			for (int j=0; j < (int)commandkey[i].beams.size(); j++)
 			{
 				int k = commandkey[i].beams[j];
@@ -1900,7 +1914,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
 
-						if (v > 0.5 && beams[bbeam].commandEngineCoupling > 0)
+						if (v > 0.0f && beams[bbeam].commandEngineCoupling > 0.0f)
 							requestpower = true;
 
 #ifdef USE_OPENAL
@@ -1956,13 +1970,14 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 				if (rotaInertia)
 				{
 					v = rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
-					if (v > 0.5 && rotators[rota].rotatorEngineCoupling > 0)
+
+					if (v > 0.0f && rotators[rota].rotatorEngineCoupling > 0.0f)
 						requestpower = true;
 				}
 				
 				float cf = 1.0f;
 
-				if (rotators[rota].rotatorEngineCoupling > 0)
+				if (rotators[rota].rotatorEngineCoupling > 0.0f)
 					cf = crankfactor;
 
 				if (commandkey[i].rotators[j] > 0)

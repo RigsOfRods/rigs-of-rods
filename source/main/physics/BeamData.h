@@ -632,8 +632,10 @@ struct wing
 
 struct command
 {
-	float commandValue;
 	int commandValueState;
+	float commandValue;
+	float triggerInputValue;
+	float playerInputValue;
 	bool trigger_cmdkeyblock_state;  //identifies blocked F-commands for triggers
 	std::vector<int> beams;
 	std::vector<int> rotators;
