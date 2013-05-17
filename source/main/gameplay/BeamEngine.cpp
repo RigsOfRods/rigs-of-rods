@@ -578,7 +578,15 @@ void BeamEngine::setSpin(float rpm)
 // for hydros acceleration
 float BeamEngine::getCrankFactor()
 {
-	return 1.0f + 4.0f * std::max(0.0f, curEngineRPM - idleRPM) / (maxRPM - idleRPM);
+	float minWorkingRPM = idleRPM * 1.1f; // minWorkingRPM > idleRPM avoids commands deadlocking the engine
+
+	float rpmRatio = (curEngineRPM - minWorkingRPM) / (maxRPM - minWorkingRPM);
+	rpmRatio = std::max(0.0f, rpmRatio); // Avoids a negative rpmRatio when curEngineRPM < minWorkingRPM
+	rpmRatio = std::min(rpmRatio, 1.0f); // Avoids a rpmRatio > 1.0f when curEngineRPM > maxRPM
+	
+	float crankfactor = 5.0f * rpmRatio;
+
+	return crankfactor;
 }
 
 void BeamEngine::setClutch(float clutch)
@@ -881,12 +889,16 @@ float BeamEngine::getPrimeMixture()
 {
 	if (prime)
 	{
-		if (curEngineRPM < idleRPM + 100.0f)
+		float crankfactor = getCrankFactor();
+
+		if (crankfactor < 0.9f)
 		{
+			// crankfactor is between 0.0f and 0.9f
 			return 1.0f;
-		} else if (curEngineRPM < idleRPM + 200.0f)
+		} else if (crankfactor < 1.0f)
 		{
-			return (idleRPM + 200.0f - curEngineRPM) / 100.0f;
+			// crankfactor is between 0.9f and 1.0f
+			return 10.0f * (1.0f - crankfactor);
 		}
 	}
 
