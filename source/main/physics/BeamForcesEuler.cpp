@@ -1753,7 +1753,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 		// canwork
 		if (engine)
-			canwork = engine->getRPM() > engine->getIdleRPM();
+			canwork = engine->getRPM() > engine->getIdleRPM() * 0.95f;
 		else
 			canwork = 1.0f;
 

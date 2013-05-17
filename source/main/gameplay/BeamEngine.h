@@ -78,6 +78,7 @@ public:
 	float getMinRPM() { return minRPM; };
 	float getMaxRPM() { return maxRPM; };
 	float getIdleMixture();
+	float getPrimeMixture();
 	int getAutoShift();
 	size_t getNumGears() { return gearsRatio.size() - 2; };
 	size_t getNumGearsRanges() { return getNumGears() / 6 + 1; };
