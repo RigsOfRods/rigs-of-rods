@@ -69,11 +69,11 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 	{
 		mTrans.z += mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_UP) )
+	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_UP) )
 	{
 		mTrans.y += mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_DOWN) )
+	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_DOWN) )
 	{
 		mTrans.y -= mTransScale;
 	}

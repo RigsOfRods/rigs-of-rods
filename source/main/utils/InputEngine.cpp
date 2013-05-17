@@ -1682,16 +1682,16 @@ eventInfo_t eventInfo[] = {
 		_L("rotate view down")
 	},
 	{
-		"CHARACTER_UP",
-		EV_CHARACTER_UP,
-		"Keyboard PGUP",
-		_L("move character up")
+		"CAMERA_UP",
+		EV_CAMERA_UP,
+		"Keyboard Q",
+		_L("move camera up")
 	},
 	{
 		"CHARACTER_DOWN",
-		EV_CHARACTER_DOWN,
-		"Keyboard PGDOWN",
-		_L("move character down")
+		EV_CAMERA_DOWN,
+		"Keyboard Z",
+		_L("move camera down")
 	},
 
 	// now position storage
