@@ -2869,6 +2869,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					if (n > 10) stopDelay  = PARSEREAL(args[10]);
 					if (n > 11) strncpy(startFunction, args[11].c_str(), 255);
 					if (n > 12) strncpy(stopFunction,  args[12].c_str(), 255);
+					if (n > 13) engineCoupling = PARSEREAL(args[13]);
+					if (n > 14) needsEngine = StringConverter::parseBool(args[14]);
 
 					options[0] = opt;
 					options[1] = 0;
@@ -4099,6 +4101,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				char startFunction[50] = {};
 				char stopFunction[50]  = {};
 				char description[50]   = {};
+				float engineCoupling = 1;
+				bool needsEngine = false;
 				int n = parse_args(c, args, 13);
 				axis1 = parse_node_number(c, args[0]);
 				axis2 = parse_node_number(c, args[1]);
@@ -4120,6 +4124,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					if (n > 14) stopDelay = PARSEREAL(args[14]);
 					if (n > 15) strncpy(startFunction, args[15].c_str(), 50);
 					if (n > 16) strncpy(stopFunction, args[16].c_str(), 50);
+					if (n > 17) engineCoupling = PARSEREAL(args[17]);
+					if (n > 18) needsEngine = StringConverter::parseBool(args[18]);
 				} else
 				if (c.mode == BTS_ROTATORS2)
 				{
@@ -4130,6 +4136,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					if (n > 17) stopDelay = PARSEREAL(args[17]);
 					if (n > 18) strncpy(startFunction, args[18].c_str(), 50);
 					if (n > 19) strncpy(stopFunction, args[19].c_str(), 50);
+					if (n > 20) engineCoupling = PARSEREAL(args[20]);
+					if (n > 21) needsEngine = StringConverter::parseBool(args[21]);
 				}
 
 				if (free_rotator >= MAX_ROTATORS)
@@ -4143,8 +4151,9 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				rotators[free_rotator].axis2=axis2;
 				rotators[free_rotator].force=force;
 				rotators[free_rotator].tolerance=tolerance;
-				int i;
-				for (i=0; i<4; i++)
+				rotators[free_rotator].rotatorEngineCoupling=engineCoupling;
+				rotators[free_rotator].rotatorNeedsEngine=needsEngine;
+				for (int i=0; i<4; i++)
 				{
 					rotators[free_rotator].nodes1[i]=p1[i];
 					rotators[free_rotator].nodes2[i]=p2[i];

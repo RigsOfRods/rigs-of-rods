@@ -650,6 +650,8 @@ struct rotator
 	float rate;
 	float force;
 	float tolerance;
+	float rotatorEngineCoupling;
+	bool rotatorNeedsEngine;
 };
 
 struct flare

@@ -1948,18 +1948,27 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 			// also for rotators
 			for (int j=0; j < (int)commandkey[i].rotators.size(); j++)
 			{
-				float value = 0.0f;
+				float v = 0.0f;
+				int rota = std::abs(commandkey[i].rotators[j]) - 1;
+
+				if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
+
 				if (rotaInertia)
 				{
-					value = rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
-					if (value > 0.5f)
-						requestpower=true;
+					v = rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
+					if (v > 0.5 && rotators[rota].rotatorEngineCoupling > 0)
+						requestpower = true;
 				}
-				int rota = std::abs(commandkey[i].rotators[j]) - 1;
+				
+				float cf = 1.0f;
+
+				if (rotators[rota].rotatorEngineCoupling > 0)
+					cf = crankfactor;
+
 				if (commandkey[i].rotators[j] > 0)
-					rotators[rota].angle += rotators[rota].rate * value * crankfactor * dt;
+					rotators[rota].angle += rotators[rota].rate * v * cf * dt;
 				else
-					rotators[rota].angle -= rotators[rota].rate * value * crankfactor * dt;
+					rotators[rota].angle -= rotators[rota].rate * v * cf * dt;
 			}
 			if (requestpower)
 				requested++;
