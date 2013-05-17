@@ -2883,13 +2883,8 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 
 		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && beams[i].shock->trigger_enabled)  // this is a trigger and its enabled
 		{
-			if (commandkey[beams[i].shock->trigger_cmdshort].commandValue > 0.01f)
-				commandkey[beams[i].shock->trigger_cmdshort].commandValueState = -1;
-			if (commandkey[beams[i].shock->trigger_cmdlong].commandValue > 0.01f)
-				commandkey[beams[i].shock->trigger_cmdlong].commandValueState = -1;
-
-			commandkey[beams[i].shock->trigger_cmdshort].commandValue = 0.0f;
-			commandkey[beams[i].shock->trigger_cmdlong].commandValue = 0.0f;
+			commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 0.0f;
+			commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = 0.0f;
 
 			if (difftoBeamL > beams[i].longbound*beams[i].L || difftoBeamL < -beams[i].shortbound*beams[i].L) // that has hit boundary
 			{
@@ -2980,10 +2975,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 							//just a trigger
 							if (!commandkey[beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state)	// related cmdkey is not blocked
 							{
-								if (commandkey[beams[i].shock->trigger_cmdlong].commandValue < 0.01f)
-									commandkey[beams[i].shock->trigger_cmdlong].commandValueState = 1;
-
-								commandkey[beams[i].shock->trigger_cmdlong].commandValue = 1;
+								commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
 								if (triggerdebug && beams[i].shock->last_debug_state != 4)
 								{
 									LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdlong));
@@ -3012,10 +3004,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 							//just a trigger
 							if (!commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state)	// related cmdkey is not blocked
 							{
-								if (commandkey[beams[i].shock->trigger_cmdshort].commandValue < 0.01f)
-									commandkey[beams[i].shock->trigger_cmdshort].commandValueState = 1;
-
-								commandkey[beams[i].shock->trigger_cmdshort].commandValue = 1;
+								commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
 								if (triggerdebug  && beams[i].shock->last_debug_state != 5)
 								{
 									LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdshort));
