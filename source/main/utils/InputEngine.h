@@ -118,6 +118,7 @@ enum events
 	EV_CAELUM_INCREASE_TIME, //!< increase day-time
 	EV_CAELUM_INCREASE_TIME_FAST, //!< increase day-time a lot faster
 	EV_CAMERA_CHANGE, //!< change camera mode
+	EV_CAMERA_DOWN,
 	EV_CAMERA_FREE_MODE,
 	EV_CAMERA_FREE_MODE_FIX,
 	EV_CAMERA_LOOKBACK, //!< look back (toggles between normal and lookback)
@@ -126,12 +127,12 @@ enum events
 	EV_CAMERA_ROTATE_LEFT, //!< rotate camera left
 	EV_CAMERA_ROTATE_RIGHT, //!< rotate camera right
 	EV_CAMERA_ROTATE_UP, //!< rotate camera up
+	EV_CAMERA_UP,
 	EV_CAMERA_ZOOM_IN, //!< zoom camera in
 	EV_CAMERA_ZOOM_IN_FAST, //!< zoom camera in faster
 	EV_CAMERA_ZOOM_OUT, //!< zoom camera out
 	EV_CAMERA_ZOOM_OUT_FAST, //!< zoom camera out faster
 	EV_CHARACTER_BACKWARDS, //!< step backwards with the character
-	EV_CHARACTER_DOWN,
 	EV_CHARACTER_FORWARD, //!< step forward with the character
 	EV_CHARACTER_JUMP, //!< let the character jump
 	EV_CHARACTER_LEFT, //!< rotate character left
@@ -141,7 +142,6 @@ enum events
 	EV_CHARACTER_RUN, //!< let the character run
 	EV_CHARACTER_SIDESTEP_LEFT, //!< sidestep to the left
 	EV_CHARACTER_SIDESTEP_RIGHT, //!< sidestep to the right
-	EV_CHARACTER_UP,
 	EV_COMMANDS_01, //!< Command 1
 	EV_COMMANDS_02, //!< Command 2
 	EV_COMMANDS_03, //!< Command 3
