@@ -1922,13 +1922,18 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 							SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
 						}
 #endif //USE_OPENAL
+						float cf = 1.0f;
+
+						if (beams[bbeam].commandEngineCoupling > 0)
+							cf = crankfactor;
+
 						if (bbeam_dir > 0)
-							beams[bbeam].L *= (1.0 + beams[bbeam].commandRatioLong * v * crankfactor * dt / beams[bbeam].L);
+							beams[bbeam].L *= (1.0 + beams[bbeam].commandRatioLong * v * cf * dt / beams[bbeam].L);
 						else
-							beams[bbeam].L *= (1.0 - beams[bbeam].commandRatioShort * v * crankfactor * dt / beams[bbeam].L);
+							beams[bbeam].L *= (1.0 - beams[bbeam].commandRatioShort * v * cf * dt / beams[bbeam].L);
 						
 						dl = fabs(dl - beams[bbeam].L);
-						if (beams[bbeam].commandNeedsEngine && v > 0.5)
+						if (requestpower)
 						{
 							active++;
 							work += fabs(beams[bbeam].stress) * dl * beams[bbeam].commandEngineCoupling;
