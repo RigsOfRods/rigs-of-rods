@@ -2883,19 +2883,16 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 
 		if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && beams[i].shock->trigger_enabled)  // this is a trigger and its enabled
 		{
-			commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 0.0f;
-			commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = 0.0f;
-
 			if (difftoBeamL > beams[i].longbound*beams[i].L || difftoBeamL < -beams[i].shortbound*beams[i].L) // that has hit boundary
 			{
 				beams[i].shock->trigger_switch_state -= dt;
-				if (beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for deadswitched trigger
+				if (beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for dead-switched trigger
 					beams[i].shock->trigger_switch_state = 0.0f;
 				if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and past boundary
 				{
-					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdshort; scount++)   // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
+					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdshort; scount++)   // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
 					{
-						if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER))  // dont mess anything up if the user set the number too big
+						if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER))  // don't mess anything up if the user set the number too big
 						{
 							if (triggerdebug && !beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 1)
 							{
@@ -2907,9 +2904,9 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 					}
 				} else if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled inverted blocker and inside boundary
 				{
-					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++)   // (cylce blockerbeamID + 1) to (blockerbeamID + beams to release)
+					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++)   // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
 					{
-						if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER))  // dont mess anything up if the user set the number too big
+						if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER))  // don't mess anything up if the user set the number too big
 						{
 							if (triggerdebug && beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 9)
 							{
@@ -2927,7 +2924,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 						LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(beams[i].shock->trigger_cmdshort));
 						beams[i].shock->last_debug_state = 2;
 					}
-				} else if (beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) // this is an enabled cmdkey swictch and past a boundary
+				} else if (beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) // this is an enabled cmdkey switch and past a boundary
 				{
 					if (!beams[i].shock->trigger_switch_state)// this switch is triggered first time in this boundary
 					{
@@ -3018,9 +3015,9 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 			{
 				if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
 				{
-					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++)   // (cylce blockerbeamID + 1) to (blockerbeamID + beams to release)
+					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++)   // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
 					{
-						if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER))  // dont mess anything up if the user set the number too big
+						if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER))  // don't mess anything up if the user set the number too big
 						{
 							if (triggerdebug && beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 6)
 							{
@@ -3049,7 +3046,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 					beams[i].shock->trigger_switch_state = 0.0f;  //trigger_switch resetted
 					if (triggerdebug && beams[i].shock->last_debug_state != 7)
 					{
-						LOG(" Trigger switch resetted. Switch BeamID " + TOSTRING(i));
+						LOG(" Trigger switch reset. Switch BeamID " + TOSTRING(i));
 						beams[i].shock->last_debug_state = 7;
 					}
 				} else if ((beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
@@ -3064,7 +3061,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 			}
 		}
 	}
-	// save beam position for next sim cycle
+	// save beam position for next simulation cycle
 	beams[i].shock->lastpos=difftoBeamL;
 }
 
