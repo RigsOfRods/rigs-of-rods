@@ -1772,7 +1772,6 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 			commandkey[i].commandValue = std::max(commandkey[i].playerInputValue, commandkey[i].triggerInputValue);
 
-			commandkey[i].playerInputValue = 0.0f;
 			commandkey[i].triggerInputValue = 0.0f;
 
 			if (commandkey[i].commandValue > 0.01f && oldValue < 0.01f)
