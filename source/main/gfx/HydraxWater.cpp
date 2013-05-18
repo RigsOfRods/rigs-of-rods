@@ -32,6 +32,7 @@ HydraxWater::HydraxWater() :
 	LOG("* loading Hydrax...");
 	waveStrength = 30.5f;
 	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, gEnv->mainCamera, gEnv->viewPort);
+	mRenderCamera = gEnv->mainCamera;
 }
 
 int HydraxWater::loadConfig(Ogre::String configfile)
@@ -153,7 +154,7 @@ void HydraxWater::registerDust(DustPool* dp)
 {
 }
 
-void HydraxWater::moveTo(Camera *cam, float centerheight)
+void HydraxWater::moveTo(float centerheight)
 {
 }
 
@@ -230,5 +231,10 @@ void HydraxWater::framestep(float dt)
 {
 	if(mHydrax)
 		mHydrax->update(dt);
+}
+
+void HydraxWater::setCamera(Ogre::Camera *cam)
+{
+	mRenderCamera = cam;
 }
 

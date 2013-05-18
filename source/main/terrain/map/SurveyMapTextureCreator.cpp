@@ -163,4 +163,12 @@ void SurveyMapTextureCreator::postRenderTargetUpdate()
 
 	if (mStatics)
 		mStatics->setRenderingDistance(1000);
+
+	IWater* water = gEnv->terrainManager->getWater();
+	if (water)
+	{
+		water->setCamera(gEnv->mainCamera);
+		water->moveTo(water->getHeight());
+		water->update();
+	}
 }

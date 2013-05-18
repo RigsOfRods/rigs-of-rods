@@ -3097,22 +3097,21 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		// water
-		IWater *water = gEnv->terrainManager->getWater();
-		if (water)
+		if (loading_state==ALL_LOADED || loading_state == TERRAIN_EDITOR)
 		{
-			if (curr_truck)
+			IWater *water = gEnv->terrainManager->getWater();
+			if (water)
 			{
-				water->moveTo(gEnv->mainCamera, water->getHeightWaves(curr_truck->getPosition()));
-			} else
-			{
-				water->moveTo(gEnv->mainCamera, water->getHeight());
+				water->setCamera(gEnv->mainCamera);
+				if (curr_truck)
+				{
+					water->moveTo(water->getHeightWaves(curr_truck->getPosition()));
+				} else
+				{
+					water->moveTo(water->getHeight());
+				}
+				water->framestep(dt);
 			}
-		}
-
-		// update water after the camera!
-		if ((loading_state==ALL_LOADED || loading_state == TERRAIN_EDITOR) && gEnv->terrainManager->getWater())
-		{
-			gEnv->terrainManager->getWater()->framestep(dt);
 		}
 
 		// trigger updating of shadows etc

@@ -153,7 +153,13 @@ void GameScript::startTimer()
 
 void GameScript::setWaterHeight(float value)
 {
-	if (gEnv->terrainManager && gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->setHeight(value);
+	if (gEnv->terrainManager && gEnv->terrainManager->getWater())
+	{
+		IWater* water = gEnv->terrainManager->getWater();
+		water->setCamera(gEnv->mainCamera);
+		water->setHeight(value);
+		water->update();
+	}
 }
 
 float GameScript::getGroundHeight(Vector3 &v)
