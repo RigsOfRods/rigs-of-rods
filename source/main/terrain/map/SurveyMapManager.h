@@ -48,7 +48,7 @@ public:
 	bool getVisibility();
 
 	void setMapZoom(Ogre::Real zoomValue, bool update = true, bool permanent = true);
-	void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true);
+	void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true, bool permanent = true);
 	Ogre::Real getMapZoom() { return mMapZoom; }
 
 	void setMapCenter(Ogre::Vector2 position, bool update = true);
@@ -87,6 +87,7 @@ protected:
 	MyGUI::StaticImage* mMapTexture;
 
 	SurveyMapTextureCreator* mMapTextureCreator;
+	bool mMapTextureNeedsUpdate;
 
 	std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
 	std::set<SurveyMapEntity *> mMapEntities;

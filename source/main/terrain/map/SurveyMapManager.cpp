@@ -36,12 +36,13 @@ using namespace Ogre;
 
 SurveyMapManager::SurveyMapManager() :
 	  mAlpha(1.0f)
-	, mMapMode(SURVEY_MAP_NONE)
-	, mMapTextureCreator(0)
 	, mMapCenter(Vector2::ZERO)
-	, mMapSize(Vector3::ZERO)
-	, mMapZoom(0.0f)
 	, mMapCenterThreshold(5.0f)
+	, mMapMode(SURVEY_MAP_NONE)
+	, mMapSize(Vector3::ZERO)
+	, mMapTextureCreator(0)
+	, mMapTextureNeedsUpdate(true)
+	, mMapZoom(0.0f)
 {
 	initialiseByAttributes(this);
 	setVisibility(false);
@@ -152,15 +153,19 @@ void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/, bool p
 	mMapZoom = std::min(mMapZoom, 1.0f);
 
 	if (update)
+	{
 		mMapTextureCreator->update();
+		if (permanent)
+			mMapTextureNeedsUpdate = true;
+	}
 
 	if (!permanent)
 		mMapZoom = oldZoomValue;
 }
 
-void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool update /*= true*/)
+void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool update /*= true*/, bool permanent /*= true*/)
 {
-	setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f, update);
+	setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f, update, permanent);
 }
 
 void SurveyMapManager::setMapCenter(Vector2 position, bool update /*= true*/)
@@ -170,7 +175,10 @@ void SurveyMapManager::setMapCenter(Vector2 position, bool update /*= true*/)
 	mMapCenter = position;
 
 	if (update)
+	{
 		mMapTextureCreator->update();
+		mMapTextureNeedsUpdate = true;
+	}
 }
 
 void SurveyMapManager::setMapCenter(Ogre::Vector2 position, float maxOffset,  bool update /*= true*/)
@@ -262,6 +270,7 @@ void SurveyMapManager::update(Ogre::Real dt)
 
 	if (mMapMode == SURVEY_MAP_NONE) return;
 
+	static bool needsUpdate = true;
 	switch (mMapMode)
 	{
 	case SURVEY_MAP_SMALL:
@@ -293,12 +302,13 @@ void SurveyMapManager::update(Ogre::Real dt)
 		break;
 
 	case SURVEY_MAP_BIG:
+		setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
+
 		if (getMapZoom() > 0.0f)
 		{
-			setMapZoom(0.0f, true, false);
+			setMapZoom(0.0f, mMapTextureNeedsUpdate, false);
+			mMapTextureNeedsUpdate = false;
 		}
-
-		setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
 
 		if (curr_truck &&
 			gEnv->cameraManager &&
