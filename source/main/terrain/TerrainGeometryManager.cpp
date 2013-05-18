@@ -381,9 +381,9 @@ void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain 
 
 		// now to the ugly part
 		float* ptr = blendmap->getBlendPointer();
-		for (Ogre::uint32 x = 0; x != blendmapSize; x++)
+		for (Ogre::uint32 z = 0; z != blendmapSize; z++)
 		{
-			for (Ogre::uint32 z = 0; z != blendmapSize; z++)
+			for (Ogre::uint32 x = 0; x != blendmapSize; x++)
 			{
 				Ogre::ColourValue c = img.getColourAt(x, z, 0);
 				float alpha = bi.alpha;
