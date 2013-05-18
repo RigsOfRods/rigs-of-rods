@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SurveyMapTextureCreator.h"
 
 #include "BeamFactory.h"
+#include "IWater.h"
 #include "ResourceBuffer.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
@@ -142,6 +143,14 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
 
 	if (mStatics)
 		mStatics->setRenderingDistance(0);
+
+	IWater* water = gEnv->terrainManager->getWater();
+	if (water)
+	{
+		water->setCamera(mCamera);
+		water->moveTo(water->getHeight());
+		water->update();
+	}
 }
 
 void SurveyMapTextureCreator::postRenderTargetUpdate()
