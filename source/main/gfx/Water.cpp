@@ -81,9 +81,10 @@ ReflectionTextureListener mReflectionListener;
 Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 {
 	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
+	mRenderCamera = gEnv->mainCamera;
 	vRtt1 = vRtt2 = 0;
 	mScale = 1.0f;
-	if (mapsize.x < 1500)
+	if (mapsize.x < 1500 && mapsize.z < 1500)
 		mScale = 1.5f;
 	//reading wavefield
 	visible=true;
@@ -191,8 +192,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 			rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
 			{
 				mRefractCam = gEnv->sceneManager->createCamera("RefractCam");
-				mRefractCam->setNearClipDistance(gEnv->mainCamera->getNearClipDistance());
-				mRefractCam->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
+				mRefractCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
+				mRefractCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 				mRefractCam->setAspectRatio(
 					(Real)gEnv->renderWindow->getViewport(0)->getActualWidth() /
 					(Real)gEnv->renderWindow->getViewport(0)->getActualHeight());
@@ -225,8 +226,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 		rttTex2 = rttTex2Ptr->getBuffer()->getRenderTarget();
 		{
 			mReflectCam = gEnv->sceneManager->createCamera("ReflectCam");
-			mReflectCam->setNearClipDistance(gEnv->mainCamera->getNearClipDistance());
-			mReflectCam->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
+			mReflectCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
+			mReflectCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 			mReflectCam->setAspectRatio(
 				(Real)gEnv->renderWindow->getViewport(0)->getActualWidth() /
 				(Real)gEnv->renderWindow->getViewport(0)->getActualHeight());
@@ -343,25 +344,10 @@ void Water::setFadeColour(ColourValue ambient)
 }
 
 
-void Water::moveTo(Camera *cam, float centerheight)
+void Water::moveTo(float centerheight)
 {
-	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
-	if (pTestNode)
-	{
-		Vector3 pos=cam->getPosition();
-		Vector3 offset=cam->getDirection();
-		offset.y=0;
-		offset.normalise();
-		pos = pos + offset * mapsize.x * mScale * 0.46666;
-		pos.y=orgheight - height;
-		pos.x=((int)pos.x/60)*60;
-		pos.z=((int)pos.z/60)*60;
-		pTestNode->setPosition(pos);
-		pBottomNode->setPosition(pos);
-		if (haswaves) showWave(pos);
-		if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED || mType==WATER_REFLECT)
-			updateReflectionPlane(centerheight);
-	}
+	if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED || mType==WATER_REFLECT)
+		updateReflectionPlane(centerheight);
 }
 
 void Water::showWave(Vector3 refpos)
@@ -400,19 +386,49 @@ void Water::showWave(Vector3 refpos)
 
 bool Water::isCameraUnderWater()
 {
-	float wh = getHeightWaves(gEnv->mainCamera->getPosition());
-	return (wh > gEnv->mainCamera->getPosition().y);
+	if (mRenderCamera)
+	{
+		float wh = getHeightWaves(mRenderCamera->getPosition());
+		return (wh > mRenderCamera->getPosition().y);
+	}
+	return false;
 }
 
 void Water::update()
 {
-	if (!visible)
+	if (!visible || !mRenderCamera)
 		return;
+	
+	if (pTestNode)
+	{
+		Vector3 mapSize = gEnv->terrainManager->getMaxTerrainSize();
+		Vector3 cameraPos(mRenderCamera->getPosition().x, orgheight - height, mRenderCamera->getPosition().z);
+		Vector3 sightPos(cameraPos);
+
+		Ray lineOfSight(mRenderCamera->getPosition(), mRenderCamera->getDirection());
+		Plane waterPlane(Vector3::UNIT_Y, Vector3::UNIT_Y * (orgheight - height));
+
+		std::pair< bool, Real > intersection = lineOfSight.intersects(waterPlane);
+
+		if (intersection.first && intersection.second > 0.0f)
+			sightPos = lineOfSight.getPoint(intersection.second);
+
+		Real offset = std::min(cameraPos.distance(sightPos), std::min(mapSize.x, mapSize.z) / 2.0f);
+		
+		Vector3 waterPos = cameraPos + (sightPos - cameraPos).normalisedCopy() * offset;
+
+		if (waterPos.distance(pTestNode->getPosition()) > 50.0f)
+		{
+			pTestNode->setPosition(waterPos);
+			pBottomNode->setPosition(waterPos);
+			if (haswaves) showWave(waterPos);
+		}
+	}
 
 	bool underwater = isCameraUnderWater();
 	static bool lastWaterMode = false;
 	bool underWaterModeChanged = false;
-	if(underwater != lastWaterMode)
+	if (underwater != lastWaterMode)
 	{
 		underWaterModeChanged = true;
 		lastWaterMode = underwater;
@@ -421,7 +437,7 @@ void Water::update()
 	static ColourValue savedFogColor;
 	static int savedFogMode=0;
 	static float savedFogStart, savedFogEnd, savedFogDensity;
-	if(underwater && underWaterModeChanged)
+	if (underwater && underWaterModeChanged)
 	{
 		/*
 		// TODO!
@@ -444,16 +460,16 @@ void Water::update()
 	{
 		if (framecounter%2)
 		{
-			mReflectCam->setOrientation(gEnv->mainCamera->getOrientation());
-			mReflectCam->setPosition(gEnv->mainCamera->getPosition());
-			mReflectCam->setFOVy(gEnv->mainCamera->getFOVy());
+			mReflectCam->setOrientation(mRenderCamera->getOrientation());
+			mReflectCam->setPosition(mRenderCamera->getPosition());
+			mReflectCam->setFOVy(mRenderCamera->getFOVy());
 			rttTex2->update();
 		}
 		else
 		{
-			mRefractCam->setOrientation(gEnv->mainCamera->getOrientation());
-			mRefractCam->setPosition(gEnv->mainCamera->getPosition());
-			mRefractCam->setFOVy(gEnv->mainCamera->getFOVy());
+			mRefractCam->setOrientation(mRenderCamera->getOrientation());
+			mRefractCam->setPosition(mRenderCamera->getPosition());
+			mRefractCam->setFOVy(mRenderCamera->getFOVy());
 			rttTex1->update();
 		}
 
@@ -463,13 +479,13 @@ void Water::update()
 		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
 	} else if (mType==WATER_FULL_QUALITY)
 	{
-		mReflectCam->setOrientation(gEnv->mainCamera->getOrientation());
-		mReflectCam->setPosition(gEnv->mainCamera->getPosition());
-		mReflectCam->setFOVy(gEnv->mainCamera->getFOVy());
+		mReflectCam->setOrientation(mRenderCamera->getOrientation());
+		mReflectCam->setPosition(mRenderCamera->getPosition());
+		mReflectCam->setFOVy(mRenderCamera->getFOVy());
 		rttTex2->update();
-		mRefractCam->setOrientation(gEnv->mainCamera->getOrientation());
-		mRefractCam->setPosition(gEnv->mainCamera->getPosition());
-		mRefractCam->setFOVy(gEnv->mainCamera->getFOVy());
+		mRefractCam->setOrientation(mRenderCamera->getOrientation());
+		mRefractCam->setPosition(mRenderCamera->getPosition());
+		mRefractCam->setFOVy(mRenderCamera->getFOVy());
 		rttTex1->update();
 
 		//if(underwater && underWaterModeChanged)
@@ -480,9 +496,9 @@ void Water::update()
 	}
 	else if (mType==WATER_REFLECT)
 	{
-		mReflectCam->setOrientation(gEnv->mainCamera->getOrientation());
-		mReflectCam->setPosition(gEnv->mainCamera->getPosition());
-		mReflectCam->setFOVy(gEnv->mainCamera->getFOVy());
+		mReflectCam->setOrientation(mRenderCamera->getOrientation());
+		mReflectCam->setPosition(mRenderCamera->getPosition());
+		mReflectCam->setFOVy(mRenderCamera->getFOVy());
 		rttTex2->update();
 	}
 }
@@ -493,12 +509,14 @@ void Water::prepareShutdown()
 	if (rttTex2) rttTex2->removeListener(&mReflectionListener);
 }
 
-float Water::getHeight() {return height;};
+float Water::getHeight()
+{
+	return height;
+};
 
 void Water::setHeight(float value)
 {
 	height = value;
-	update();
 }
 
 float Water::getHeightWaves(Vector3 pos)
@@ -564,8 +582,6 @@ Vector3 Water::getVelocity(Vector3 pos)
 	return result;
 }
 
-
-
 void Water::updateReflectionPlane(float h)
 {
 	//Ray ra=gEnv->ogreCamera->getCameraToViewportRay(0.5,0.5);
@@ -598,13 +614,18 @@ void Water::updateReflectionPlane(float h)
 
 }
 
-
 void Water::setSunPosition(Vector3)
 {
 	// not used here!
 }
 
+void Water::setCamera(Ogre::Camera *cam)
+{
+	mRenderCamera = cam;
+}
+
 void Water::framestep(float dt)
 {
-	update();
+	if (dt)
+		update();
 }

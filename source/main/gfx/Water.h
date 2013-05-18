@@ -37,17 +37,18 @@ public:
 	float getHeightWaves(Ogre::Vector3 pos);
 	Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
 
+	void setCamera(Ogre::Camera *cam);
 	void setFadeColour(Ogre::ColourValue ambient);
 	void setHeight(float value);
 	void setSunPosition(Ogre::Vector3);
 	void setVisible(bool value);
 
 	bool allowUnderWater();
-	void framestep(float dt);
-	void moveTo(Ogre::Camera *cam, float centerheight);
+	void moveTo(float centerheight);
 	void prepareShutdown();
 	void showWave(Ogre::Vector3 refpos);
 	void update();
+	void framestep(float dt);
 	void updateReflectionPlane(float h);
 	bool isCameraUnderWater();
 
@@ -77,6 +78,7 @@ private:
 	int framecounter;
 	int free_wavetrain;
 	int mType;
+	Ogre::Camera *mRenderCamera;
 	Ogre::Camera *mReflectCam;
 	Ogre::Camera *mRefractCam;
 	Ogre::HardwareVertexBufferSharedPtr wbuf;
