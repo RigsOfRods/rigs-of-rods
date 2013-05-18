@@ -1330,8 +1330,8 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
 bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, float *nso)
 {
 	if (!hFinder) return false;
-	//if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
-	// when landuse fails or we dont have it, use the default value
+	if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
+	// when landuse fails or we don't have it, use the default value
 	if (!*ogm) *ogm = defaultgroundgm;
 	last_used_ground_model = *ogm;
 
