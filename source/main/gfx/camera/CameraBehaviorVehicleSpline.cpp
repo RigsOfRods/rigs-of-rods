@@ -72,10 +72,10 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 #ifdef USE_MYGUI
 		if ( autoTracking )
 		{
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("auto tracking") + U(" ") + _L("enabled"), "camera_go.png", 3000);
+			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
 		} else
 		{
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("auto tracking") + U(" ") + _L("disabled"), "camera_go.png", 3000);
+			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
 		}
 #endif // USE_MYGUI
 	}

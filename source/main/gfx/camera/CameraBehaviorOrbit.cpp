@@ -21,8 +21,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Beam.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
+#include "Language.h"
 #include "Ogre.h"
 #include "TerrainManager.h"
 
@@ -36,6 +38,7 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	, camRatio(11.0f)
 	, camRotX(0.0f)
 	, camRotY(0.3f)
+	, limitMinCamDist(true)
 	, targetDirection(0.0f)
 	, targetPitch(0.0f)
 {
@@ -93,11 +96,25 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		reset(ctx);
 	}
 
-	if ( camDistMin > 0.0f )
+	if ( INPUTENGINE.isKeyDown(OIS::KC_RSHIFT) && INPUTENGINE.isKeyDownValueBounce(OIS::KC_SPACE) )
+	{
+		limitMinCamDist = !limitMinCamDist;
+#ifdef USE_MYGUI
+		if ( limitMinCamDist )
+		{
+			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom enabled"), "camera_go.png", 3000);
+		} else
+		{
+			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom disabled"), "camera_go.png", 3000);
+		}
+#endif // USE_MYGUI
+	}
+
+	if ( limitMinCamDist && camDistMin > 0.0f )
 	{
 		camDist = std::max(camDistMin, camDist);
 	}
-	if ( camDistMax > 0.0f )
+	if ( limitMinCamDist && camDistMax > 0.0f )
 	{
 		camDist = std::min(camDist, camDistMax);
 	}

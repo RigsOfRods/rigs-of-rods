@@ -47,6 +47,8 @@ protected:
 	Ogre::Radian targetDirection, targetPitch;
 	Ogre::Real camDist, camDistMin, camDistMax, camRatio;
 	Ogre::Vector3 camLookAt;
+
+	bool limitMinCamDist;
 };
 
 #endif // __CAMERA_BEHAVIOR_ORBIT_H_
