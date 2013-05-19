@@ -88,6 +88,8 @@ public:
 	void sendAllTrucksSleeping();
 	void setTrucksForcedActive(bool forced) { forcedActive = forced; };
 
+	void prepareShutdown();
+
 	void windowResized();
 
 	int done_count;

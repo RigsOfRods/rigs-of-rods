@@ -144,12 +144,6 @@ public:
 	void updateDebugOverlay();
 	void setDebugOverlayState(int mode);
 
-	//! @}
-
-	//! @{ startup / shutdown
-	void prepareShutdown();
-	//! @}
-
 	//! @{ dynamic physical properties
 	Ogre::Real brake;
 	Ogre::Vector3 affforce;

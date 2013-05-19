@@ -2653,8 +2653,7 @@ void RoRFrameListener::shutdown_final()
 	if (dashboard) dashboard->prepareShutdown();
 	if (heathaze) heathaze->prepareShutdown();
 
-	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	if (curr_truck) curr_truck->prepareShutdown();
+	BeamFactory::getSingleton().prepareShutdown();
 
 	INPUTENGINE.prepareShutdown();
 
@@ -2982,6 +2981,12 @@ bool RoRFrameListener::updateTruckMirrors(float dt)
 // Override frameStarted event to process that (don't care about frameEnded)
 bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 {
+	if (shutdownall) // shortcut: press ESC in credits
+	{
+		parentState->exit();
+		return false;
+	}
+
 	float dt=evt.timeSinceLastFrame;
 	if (dt==0) return true;
 	if (dt>1.0/20.0) dt=1.0/20.0;
@@ -3003,12 +3008,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		return true;
 	}
 #endif //MYGUI
-
-	if (shutdownall) // shortcut: press ESC in credits
-	{
-		parentState->exit();
-		return false;
-	}
 
 	// update OutProtocol
 	if (OutProtocol::getSingletonPtr())

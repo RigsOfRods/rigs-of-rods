@@ -2162,11 +2162,6 @@ bool Beam::frameStep(Real dt)
 	return true;
 }
 
-void Beam::prepareShutdown()
-{
-	BeamFactory::getSingleton()._WorkerWaitForSync();
-}
-
 void Beam::sendStreamSetup()
 {
 	if (!gEnv->network || state == NETWORKED ) return;

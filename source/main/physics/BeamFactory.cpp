@@ -779,6 +779,11 @@ void BeamFactory::_WorkerSignalStart()
 	}
 }
 
+void BeamFactory::prepareShutdown()
+{
+	_WorkerWaitForSync();
+}
+
 void* threadstart(void* vid)
 {
 	#ifdef USE_CRASHRPT
