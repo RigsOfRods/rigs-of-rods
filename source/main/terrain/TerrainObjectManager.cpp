@@ -116,6 +116,7 @@ void TerrainObjectManager::proceduralTests()
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 {
+	proceduralManager = new ProceduralManager();
 
 	objcounter = 0;
 	free_localizer = 0;
