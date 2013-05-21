@@ -1768,6 +1768,18 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 		for (int i=0; i<=MAX_COMMANDS; i++)
 		{
+			for (int j=0; j < (int)commandkey[i].beams.size(); j++)
+			{
+				int k = abs(commandkey[i].beams[j]);
+				if (k >= 0 && k < free_beam)
+				{
+					beams[k].autoMoveLock = false;
+				}
+			}
+		}
+
+		for (int i=0; i<=MAX_COMMANDS; i++)
+		{
 			float oldValue = commandkey[i].commandValue;
 
 			commandkey[i].commandValue = std::max(commandkey[i].playerInputValue, commandkey[i].triggerInputValue);
@@ -1786,10 +1798,13 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 
 			for (int j=0; j < (int)commandkey[i].beams.size(); j++)
 			{
-				int k = abs(commandkey[i].beams[j]);
-				if (k >= 0 && k < free_beam)
+				if (commandkey[i].commandValue >= 0.5)
 				{
-					beams[k].autoMoveLock = (commandkey[i].commandValue >= 0.5);
+					int k = abs(commandkey[i].beams[j]);
+					if (k >= 0 && k < free_beam)
+					{
+						beams[k].autoMoveLock = true;
+					}
 				}
 			}
 		}
