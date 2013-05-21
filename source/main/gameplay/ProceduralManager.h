@@ -20,14 +20,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // thomas, 17th of June 2008
 
-#ifndef __ProceduralManager_H__
-#define __ProceduralManager_H__
-
+#ifndef __ProceduralManager_H_
+#define __ProceduralManager_H_
 
 #include "RoRPrerequisites.h"
-#include <Ogre.h>
-#include <vector>
-
 
 class ProceduralPoint : public ZeroedMemoryAllocator
 {
@@ -44,7 +40,7 @@ public:
 class ProceduralObject : public ZeroedMemoryAllocator
 {
 public:
-	ProceduralObject() : loadingState(-1), name(std::string("")), road(0)
+	ProceduralObject() : loadingState(-1), name(""), road(0)
 	{
 	}
 	int loadingState;
@@ -64,6 +60,7 @@ protected:
 public:
 	ProceduralManager();
 	~ProceduralManager();
+
 	int addObject(ProceduralObject &po);
 
 	int updateAllObjects();
@@ -76,4 +73,4 @@ public:
 	std::vector<ProceduralObject> &getObjects();
 };
 
-#endif
+#endif // __ProceduralManager_H_
