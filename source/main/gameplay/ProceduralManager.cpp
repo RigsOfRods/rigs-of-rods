@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ProceduralManager.h"
 #include "Road2.h"
 
-using namespace std;
 using namespace Ogre;
 
 ProceduralManager::ProceduralManager()
@@ -51,7 +50,6 @@ std::vector<ProceduralObject> &ProceduralManager::getObjects()
 {
 	return pObjects;
 }
-
 
 int ProceduralManager::updateObject(ProceduralObject &po)
 {
