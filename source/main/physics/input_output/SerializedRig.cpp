@@ -4067,6 +4067,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				//parse engoption
 				float inertia;
 				char type;
+				float idlerpm = -1.0f, stallrpm = -1.0f, idlemixture = -1.0f;
 				float clutch = -1.0f, shifttime = -1.0f, clutchtime = -1.0f, postshifttime = -1.0f;
 				int n = parse_args(c, args, 1);
 				inertia = PARSEREAL(args[0]);
@@ -4075,8 +4076,11 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				if (n > 3) shifttime = PARSEREAL(args[3]);
 				if (n > 4) clutchtime = PARSEREAL(args[4]);
 				if (n > 5) postshifttime = PARSEREAL(args[5]);
+				if (n > 6) idlerpm = PARSEREAL(args[6]);
+				if (n > 7) stallrpm = PARSEREAL(args[7]);
+				if (n > 8) idlemixture = PARSEREAL(args[8]);
 
-				if (engine) engine->setOptions(inertia, type, clutch, shifttime, clutchtime, postshifttime);
+				if (engine) engine->setOptions(inertia, type, clutch, shifttime, clutchtime, postshifttime, idlerpm, stallrpm, idlemixture);
 			}
 			else if (c.mode == BTS_BRAKES)
 			{
