@@ -199,7 +199,7 @@ void SurveyMapManager::setMapCenter(Ogre::Vector3 position, float maxOffset,  bo
 
 void SurveyMapManager::setWindowPosition(int x, int y, float size)
 {
-	int realx, realy, realw, realh;
+	int realx, realy;
 
 	updateRenderMetrics();
 
@@ -315,14 +315,15 @@ void SurveyMapManager::update(Ogre::Real dt)
 			gEnv->cameraManager->hasActiveBehavior() &&
 		   !gEnv->cameraManager->gameControlsLocked())
 		{
-			if (mVelocity > 7.5f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+			if (mVelocity > 5.0f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
 			{
 				setWindowPosition(1, -1, 0.3f);
 				setAlpha(mAlpha);
 				mMapMode = SURVEY_MAP_SMALL;
 			} else
 			{
-				setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)), false);
+				// Soft cross-fade into small map
+				//setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)), false);
 			}
 		} else
 		{

@@ -77,17 +77,17 @@ void SurveyMapEntity::setPosition(Vector3 pos)
 
 void SurveyMapEntity::setPosition(float x, float z)
 {
-	bool needUpdate = false;
+	bool needsUpdate = false;
 
 	if (fabs(x - mX) > 0.00001f || fabs(z - mZ) > 0.00001f)
 	{
-		needUpdate = true;
+		needsUpdate = true;
 	}
 
 	mX = x;
 	mZ = z;
 
-	if (needUpdate)
+	if (needsUpdate)
 	{
 		update();
 	}
@@ -95,14 +95,22 @@ void SurveyMapEntity::setPosition(float x, float z)
 
 void SurveyMapEntity::setRotation(Quaternion q)
 {
-	mRotation = q.getYaw().valueRadians() - Math::HALF_PI;
-	if (mIconRotating) mIconRotating->setAngle(-mRotation);
+	setRotation(Math::HALF_PI - q.getYaw().valueRadians());
 }
 
-void SurveyMapEntity::setRotation(Radian _r)
+void SurveyMapEntity::setRotation(Radian r)
 {
-	mRotation = _r.valueRadians();
-	if (mIconRotating) mIconRotating->setAngle(-mRotation);
+	setRotation(r.valueRadians());
+}
+
+void SurveyMapEntity::setRotation(Real r)
+{
+	mRotation = r;
+	if (mIconRotating)
+	{
+		mIconRotating->setAngle(-r);
+	}
+	updateIcon();
 }
 
 bool SurveyMapEntity::getVisibility()
@@ -144,6 +152,7 @@ void SurveyMapEntity::setState(int truckstate)
 	if (mState != mapstate)
 	{
 		mState = mapstate;
+		updateIcon();
 		update();
 	}
 }
@@ -155,11 +164,14 @@ int SurveyMapEntity::getState()
 
 void SurveyMapEntity::update()
 {
-	float wscale = 1.0f - mMapControl->getMapSize().length() / gEnv->terrainManager->getMaxTerrainSize().length();
+	Vector2 terrainSize = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
+	float wscale = mMapControl->getWindowSize().length() / terrainSize.length();
 
 	mCaption->setVisible(wscale > 0.5f);
 
 	Vector3 mapSize = mMapControl->getMapSize();
+
+	// TODO: Fix Icon positions based on the overview map size and zoom value
 
 	mMainWidget->setPosition(
 		mX / mapSize.x * mParent->getWidth() - mMainWidget->getWidth() / 2,
@@ -173,6 +185,9 @@ void SurveyMapEntity::update()
 	);
 
 	mIcon->setVisible(true);
+
+	if (mMainWidget->getVisible())
+		mMainWidget->setVisible(wscale > 0.5f);// || (wscale > 0.2f && mMapControl->getMapZoom() < 0.66f));
 }
 
 void SurveyMapEntity::setDescription(String s)

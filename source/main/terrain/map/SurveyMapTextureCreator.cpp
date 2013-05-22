@@ -93,7 +93,7 @@ void SurveyMapTextureCreator::update()
 	mMapZoom = 0.0f;
 
 	if (gEnv->terrainManager)
-		mMapSize = gEnv->terrainManager->getMaxTerrainSize();
+		mMapSize = gEnv->surveyMap->getMapSize();
 
 	if (gEnv->surveyMap)
 	{

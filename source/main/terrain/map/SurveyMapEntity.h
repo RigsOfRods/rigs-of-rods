@@ -50,6 +50,8 @@ public:
 
 private:
 
+	void setRotation(Ogre::Real);
+
 	MyGUI::StaticImagePtr mParent;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mCaption, "mCaption");
