@@ -67,7 +67,6 @@ int Landusemap::loadConfig(Ogre::String filename)
 {
 	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
 	std::map<unsigned int, String> usemap;
-	int version = 1;
 	String textureFilename = "";
 
 	LOG("Parsing landuse config: '"+filename+"'");
@@ -116,8 +115,6 @@ int Landusemap::loadConfig(Ogre::String filename)
 					gEnv->collisions->loadGroundModelsConfigFile(kvalue);
 				else if (kname == "defaultuse")
 					default_ground_model = gEnv->collisions->getGroundModelByString(kvalue);
-				else if (kname == "version")
-					version = StringConverter::parseInt(kvalue);
 
 			} else if (secName == "use-map")
 			{
@@ -135,47 +132,55 @@ int Landusemap::loadConfig(Ogre::String filename)
 
 #ifdef USE_PAGED
 	// process the config data and load the buffers finally
-	Forests::ColorMap *colourMap = Forests::ColorMap::load(textureFilename, Forests::CHANNEL_COLOR);
-	colourMap->setFilter(Forests::MAPFILTER_NONE);
-	Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, mapsize.x, mapsize.z);
-
-	/*
-	// debug things below
-	printf("found ground use definitions:\n");
-	for (std::map < uint32, String >::iterator it=usemap.begin(); it!=usemap.end(); it++)
+	try
 	{
-		printf(" 0x%Lx : %s\n", it->first, it->second.c_str());
-	}
-	*/
+		Forests::ColorMap *colourMap = Forests::ColorMap::load(textureFilename, Forests::CHANNEL_COLOR);
+		colourMap->setFilter(Forests::MAPFILTER_NONE);
 
-	bool bgr = colourMap->getPixelBox().format == PF_A8B8G8R8;
-
-	// now allocate the data buffer to hold pointers to ground models
-	data = new ground_model_t*[(int)(mapsize.x * mapsize.z)];
-	ground_model_t **ptr = data;
-	//std::map < String, int > counters;
-	for (int z=0; z<mapsize.z; z++)
-	{
-		for (int x=0; x<mapsize.x; x++)
+		/*
+		// debug things below
+		printf("found ground use definitions:\n");
+		for (std::map < uint32, String >::iterator it=usemap.begin(); it!=usemap.end(); it++)
 		{
-			unsigned int col = colourMap->getColorAt(x, z, bounds);
-			if (bgr)
-			{
-				// Swap red and blue values
-				unsigned int cols = col & 0xFF00FF00;
-				cols |= (col & 0xFF) << 16;
-				cols |= (col & 0xFF0000) >> 16;
-				col = cols;
-			}
-			String use = usemap[col];
-			//if (use!="")
-			//	counters[use]++;
-
-			// store the pointer to the ground model in the data slot
-			*ptr = gEnv->collisions->getGroundModelByString(use);
-			ptr++;
+			printf(" 0x%Lx : %s\n", it->first, it->second.c_str());
 		}
-	}
+		*/
+
+		bool bgr = colourMap->getPixelBox().format == PF_A8B8G8R8;
+
+		Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, mapsize.x, mapsize.z);
+
+		// now allocate the data buffer to hold pointers to ground models
+		data = new ground_model_t*[(int)(mapsize.x * mapsize.z)];
+		ground_model_t **ptr = data;
+		//std::map < String, int > counters;
+		for (int z=0; z<mapsize.z; z++)
+		{
+			for (int x=0; x<mapsize.x; x++)
+			{
+				unsigned int col = colourMap->getColorAt(x, z, bounds);
+				if (bgr)
+				{
+					// Swap red and blue values
+					unsigned int cols = col & 0xFF00FF00;
+					cols |= (col & 0xFF) << 16;
+					cols |= (col & 0xFF0000) >> 16;
+					col = cols;
+				}
+				String use = usemap[col];
+				//if (use!="")
+				//	counters[use]++;
+
+				// store the pointer to the ground model in the data slot
+				*ptr = gEnv->collisions->getGroundModelByString(use);
+				ptr++;
+			}
+		}
+	} catch (...)
+	{
+		Log("Landuse: Failed to load texture: " + textureFilename);
+	}	
 #endif // USE_PAGED
+
 	return 0;
 }
