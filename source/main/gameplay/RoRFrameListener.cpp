@@ -229,7 +229,7 @@ void RoRFrameListener::updateGUI(float dt)
 		for (int t=0; t<numtrucks; t++)
 		{
 			if (!trucks[t]) continue;	
-			SurveyMapEntity *e = gEnv->surveyMap->getEntityByName("Truck"+TOSTRING(trucks[t]->trucknum));
+			SurveyMapEntity *e = gEnv->surveyMap->getMapEntityByName("Truck"+TOSTRING(trucks[t]->trucknum));
 			if (e)
 			{
 				e->setState(DESACTIVATED);
@@ -3320,7 +3320,7 @@ void RoRFrameListener::netDisconnectTruck(int number)
 #ifdef USE_MYGUI
 	if (gEnv->surveyMap)
 	{
-		SurveyMapEntity *e = gEnv->surveyMap->getEntityByName("Truck"+TOSTRING(number));
+		SurveyMapEntity *e = gEnv->surveyMap->getMapEntityByName("Truck"+TOSTRING(number));
 		if (e)
 			e->setVisibility(false);
 	}
