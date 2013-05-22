@@ -77,17 +77,6 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	mCharacterNode->setScale(0.02f, 0.02f, 0.02f);
 	mAnimState = entity->getAllAnimationStates();
 
-#ifdef USE_MYGUI
-	if (gEnv->surveyMap)
-	{
-		mapEntity = gEnv->surveyMap->createNamedMapEntity(myName, "person");
-		mapEntity->setState(0);
-		mapEntity->setVisibility(true);
-		mapEntity->setPosition(mCharacterNode->getPosition());
-		mapEntity->setRotation(mCharacterNode->getOrientation());
-	}
-#endif // USE_MYGUI
-
 	if (gEnv->network)
 	{
 		sendStreamSetup();
@@ -506,10 +495,16 @@ void Character::update(float dt)
 void Character::updateMapIcon()
 {
 #ifdef USE_MYGUI
-	if (gEnv->surveyMap && gEnv->surveyMap->getEntityByName(myName))
+	if (!gEnv->surveyMap) return;
+	SurveyMapEntity* e = gEnv->surveyMap->getEntityByName(myName);
+	if (e)
 	{
-		gEnv->surveyMap->getEntityByName(myName)->setPosition(mCharacterNode->getPosition());
-		gEnv->surveyMap->getEntityByName(myName)->setRotation(mCharacterNode->getOrientation());
+		e->setPosition(mCharacterNode->getPosition());
+		e->setRotation(mCharacterNode->getOrientation());
+		e->setVisibility(!beamCoupling);
+	} else
+	{
+		createMapEntity();
 	}
 #endif // USE_MYGUI
 }
@@ -665,4 +660,18 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		// cast shadows when using it on the outside
 		mCharacterNode->getAttachedObject(0)->setCastShadows(true);
 	}
+}
+
+void Character::createMapEntity()
+{
+#ifdef USE_MYGUI
+	if (gEnv->surveyMap)
+	{
+		mapEntity = gEnv->surveyMap->createNamedMapEntity(myName, "person");
+		mapEntity->setState(0);
+		mapEntity->setVisibility(true);
+		mapEntity->setPosition(mCharacterNode->getPosition());
+		mapEntity->setRotation(mCharacterNode->getOrientation());
+	}
+#endif // USE_MYGUI
 }

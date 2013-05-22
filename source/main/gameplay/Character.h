@@ -62,6 +62,8 @@ public:
 
 protected:
 
+	void createMapEntity();
+
 	Beam *beamCoupling;
 	SurveyMapEntity *mapEntity;
 

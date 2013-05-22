@@ -57,13 +57,14 @@ public:
 	void setMapCenter(Ogre::Vector3 position, float maxOffset, bool update = true);
 	Ogre::Vector2 getMapCenter() { return mMapCenter; };
 
-	void setEntitiesVisibility(bool visibility);
 	void setMapTexture(Ogre::String name);
 
 	Ogre::Vector3 getMapSize() { return mMapSize; };
+	int getMapMode() { return mMapMode; };
 
 	void windowResized();
 	void setWindowPosition(int x, int y, float size);
+	Ogre::Vector2 getWindowSize() { return Ogre::Vector2(realw, realh); };
 
 	void toggleMapView();
 	void toggleMapAlpha();
@@ -93,12 +94,14 @@ protected:
 	std::set<SurveyMapEntity *> mMapEntities;
 
 	void updateEntityPositions();
+	void setEntitiesVisibility(bool visibility);
 
 	int mMapMode;
 	float mVelocity;
 
 	float mMapCenterThreshold;
 
+	int realw, realh;
 	int rWinLeft, rWinTop;
 	unsigned int rWinWidth, rWinHeight, rWinDepth;
 
