@@ -102,10 +102,10 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 #ifdef USE_MYGUI
 		if ( limitMinCamDist )
 		{
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom enabled"), "camera_go.png", 3000);
+			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom enabled"), "camera_go.png", 3000);
 		} else
 		{
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom disabled"), "camera_go.png", 3000);
+			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom disabled"), "camera_go.png", 3000);
 		}
 #endif // USE_MYGUI
 	}
