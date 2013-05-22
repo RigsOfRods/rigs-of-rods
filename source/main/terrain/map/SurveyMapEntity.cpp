@@ -164,18 +164,24 @@ int SurveyMapEntity::getState()
 
 void SurveyMapEntity::update()
 {
+	if (!mMainWidget->getVisible()) return;
+
+	if (!mMapControl->getMapEntitiesVisible())
+	{
+		mMainWidget->setVisible(false);
+		mIcon->setVisible(false);
+		return;
+	}
+
 	Vector2 terrainSize = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
 	float wscale = mMapControl->getWindowSize().length() / terrainSize.length();
 
-	mCaption->setVisible(wscale > 0.5f);
-
-	Vector3 mapSize = mMapControl->getMapSize();
-
-	// TODO: Fix Icon positions based on the overview map size and zoom value
-
+	// TODO: Fix the icon positions based on the overview map size and zoom value
+	// TODO: Split visibility calculation and position update into two functions
+	
 	mMainWidget->setPosition(
-		mX / mapSize.x * mParent->getWidth() - mMainWidget->getWidth() / 2,
-		mZ / mapSize.z * mParent->getHeight() - mMainWidget->getHeight() / 2
+		mX / mMapControl->getMapSize().x * mParent->getWidth() - mMainWidget->getWidth() / 2,
+		mZ / mMapControl->getMapSize().z * mParent->getHeight() - mMainWidget->getHeight() / 2
 	);
 	mIcon->setCoord(
 		mMainWidget->getWidth() / 2 - mIconSize.width * wscale / 2,
@@ -185,9 +191,8 @@ void SurveyMapEntity::update()
 	);
 
 	mIcon->setVisible(true);
-
-	if (mMainWidget->getVisible())
-		mMainWidget->setVisible(wscale > 0.5f);// || (wscale > 0.2f && mMapControl->getMapZoom() < 0.66f));
+	mCaption->setVisible(wscale > 0.5f);
+	mMainWidget->setVisible(wscale > 0.5f);
 }
 
 void SurveyMapEntity::setDescription(String s)

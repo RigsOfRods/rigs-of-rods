@@ -38,6 +38,7 @@ SurveyMapManager::SurveyMapManager() :
 	  mAlpha(1.0f)
 	, mMapCenter(Vector2::ZERO)
 	, mMapCenterThreshold(5.0f)
+	, mMapEntitiesVisible(false)
 	, mMapMode(SURVEY_MAP_NONE)
 	, mMapSize(Vector3::ZERO)
 	, mMapTextureCreator(0)
@@ -83,7 +84,7 @@ void SurveyMapManager::deleteMapEntity(SurveyMapEntity *entity)
 	mMapEntities.erase(entity);
 }
 
-SurveyMapEntity *SurveyMapManager::getEntityByName(String name)
+SurveyMapEntity *SurveyMapManager::getMapEntityByName(String name)
 {
 	if (mNamedEntities.find(name) != mNamedEntities.end())
 	{
@@ -105,7 +106,7 @@ void SurveyMapManager::setAlpha(float alpha, bool permanent /*= true*/)
 		mAlpha = alpha;
 }
 
-void SurveyMapManager::setEntitiesVisibility(bool value)
+void SurveyMapManager::setMapEntitiesVisibility(bool value)
 {
 	for (std::set<SurveyMapEntity *>::iterator it = mMapEntities.begin(); it != mMapEntities.end(); it++)
 	{
@@ -128,7 +129,7 @@ void SurveyMapManager::windowResized()
 	// TODO
 }
 
-void SurveyMapManager::updateEntityPositions()
+void SurveyMapManager::updateMapEntityPositions()
 {
 	for (std::set<SurveyMapEntity *>::iterator it = mMapEntities.begin(); it != mMapEntities.end(); it++)
 	{
@@ -228,8 +229,6 @@ void SurveyMapManager::setWindowPosition(int x, int y, float size)
 	}
 
 	mMainWidget->setCoord(realx, realy, realw, realh);
-
-	updateEntityPositions();
 }
 
 Ogre::String SurveyMapManager::getTypeByDriveable( int driveable )
@@ -266,6 +265,11 @@ void SurveyMapManager::update(Ogre::Real dt)
 	if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
 	{
 		toggleMapView();
+	}
+
+	if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
+	{
+		mMapEntitiesVisible = !mMapEntitiesVisible;
 	}
 
 	if (mMapMode == SURVEY_MAP_NONE) return;
@@ -342,6 +346,8 @@ void SurveyMapManager::update(Ogre::Real dt)
 	default:
 		break;
 	}
+
+	updateMapEntityPositions();
 }
 
 void SurveyMapManager::toggleMapView()

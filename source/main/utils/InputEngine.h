@@ -279,6 +279,7 @@ enum events
 	EV_MENU_SELECT, //!< select focussed item and close menu
 	EV_MENU_UP, //!< select previous element in current category
 	EV_SURVEY_MAP_ALPHA, //!< toggle translucency of overview-map
+	EV_SURVEY_MAP_TOGGLE_ICONS, //!< toggle map icons
 	EV_SURVEY_MAP_TOGGLE_VIEW, //!< toggle map modes
 	EV_SURVEY_MAP_ZOOM_IN, //!< increase survey map scale
 	EV_SURVEY_MAP_ZOOM_OUT, //!< decrease survey map scale

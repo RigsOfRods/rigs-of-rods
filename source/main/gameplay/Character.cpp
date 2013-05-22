@@ -196,9 +196,9 @@ void Character::setPosition(Vector3 position)
 {
 	mCharacterNode->setPosition(position);
 #ifdef USE_MYGUI
-	if (gEnv->surveyMap && gEnv->surveyMap->getEntityByName(myName))
+	if (gEnv->surveyMap && gEnv->surveyMap->getMapEntityByName(myName))
 	{
-		gEnv->surveyMap->getEntityByName(myName)->setPosition(position);
+		gEnv->surveyMap->getMapEntityByName(myName)->setPosition(position);
 	}
 #endif // USE_MYGUI
 }
@@ -207,9 +207,9 @@ void Character::setVisible(bool visible)
 {
 	mCharacterNode->setVisible(visible);
 #ifdef USE_MYGUI
-	if (gEnv->surveyMap && gEnv->surveyMap->getEntityByName(myName))
+	if (gEnv->surveyMap && gEnv->surveyMap->getMapEntityByName(myName))
 	{
-		gEnv->surveyMap->getEntityByName(myName)->setVisibility(visible);
+		gEnv->surveyMap->getMapEntityByName(myName)->setVisibility(visible);
 	}	
 #endif // USE_MYGUI
 }
@@ -496,7 +496,7 @@ void Character::updateMapIcon()
 {
 #ifdef USE_MYGUI
 	if (!gEnv->surveyMap) return;
-	SurveyMapEntity* e = gEnv->surveyMap->getEntityByName(myName);
+	SurveyMapEntity* e = gEnv->surveyMap->getMapEntityByName(myName);
 	if (e)
 	{
 		e->setPosition(mCharacterNode->getPosition());

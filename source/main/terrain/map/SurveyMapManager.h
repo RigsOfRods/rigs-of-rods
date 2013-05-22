@@ -38,8 +38,9 @@ public:
 
 	SurveyMapEntity *createMapEntity(Ogre::String type);
 	SurveyMapEntity *createNamedMapEntity(Ogre::String name, Ogre::String type);
-	SurveyMapEntity *getEntityByName(Ogre::String name);
+	SurveyMapEntity *getMapEntityByName(Ogre::String name);
 	void deleteMapEntity(SurveyMapEntity *entity);
+	bool getMapEntitiesVisible() { return mMapEntitiesVisible; };
 
 	void setAlpha(float alpha, bool permanent = true);
 	float getAlpha() { return mMainWidget->getAlpha(); }
@@ -92,9 +93,10 @@ protected:
 
 	std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
 	std::set<SurveyMapEntity *> mMapEntities;
+	bool mMapEntitiesVisible;
 
-	void updateEntityPositions();
-	void setEntitiesVisibility(bool visibility);
+	void updateMapEntityPositions();
+	void setMapEntitiesVisibility(bool visibility);
 
 	int mMapMode;
 	float mVelocity;
