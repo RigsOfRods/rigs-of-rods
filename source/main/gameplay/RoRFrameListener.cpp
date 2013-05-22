@@ -220,6 +220,27 @@ void RoRFrameListener::updateGUI(float dt)
 	if (!ow) return; // no gui, then skip this
 
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
+	Beam **trucks = BeamFactory::getSingleton().getTrucks();
+	int numtrucks = BeamFactory::getSingleton().getTruckCount();
+
+#ifdef USE_MYGUI
+	if (gEnv->surveyMap && gEnv->surveyMap->getVisibility())
+	{
+		for (int t=0; t<numtrucks; t++)
+		{
+			if (!trucks[t]) continue;	
+			SurveyMapEntity *e = gEnv->surveyMap->getEntityByName("Truck"+TOSTRING(trucks[t]->trucknum));
+			if (e)
+			{
+				e->setState(DESACTIVATED);
+				e->setVisibility(true);
+				e->setPosition(trucks[t]->getPosition().x, trucks[t]->getPosition().z);
+				e->setRotation(Radian(trucks[t]->getHeadingDirectionAngle()));
+			}
+		}
+	}
+#endif //USE_MYGUI
+
 	if (!curr_truck) return;
 
 	//update the truck info gui (also if not displayed!)
@@ -1501,10 +1522,28 @@ bool RoRFrameListener::updateEvents(float dt)
 				if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
 				{
 					curr_truck->forwardcommands = !curr_truck->forwardcommands;
+#ifdef USE_MYGUI
+					if ( curr_truck->forwardcommands )
+					{
+						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png", 3000);
+					} else
+					{
+						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands disabled"), "information.png", 3000);
+					}
+#endif // USE_MYGUI
 				}
 				if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
 				{
 					curr_truck->importcommands = !curr_truck->importcommands;
+#ifdef USE_MYGUI
+					if ( curr_truck->importcommands )
+					{
+						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png", 3000);
+					} else
+					{
+						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands disabled"), "information.png", 3000);
+					}
+#endif // USE_MYGUI
 				}
 
 				// replay mode
@@ -2518,8 +2557,6 @@ bool RoRFrameListener::updateEvents(float dt)
 						e->setVisibility(true);
 						e->setPosition(reload_pos);
 						e->setRotation(-Radian(localTruck->getHeadingDirectionAngle()));
-						// create a map icon
-						//createNamedMapEntity();
 					}
 				}
 
@@ -3359,7 +3396,7 @@ void RoRFrameListener::hideGUI(bool visible)
 	{
 		if (ow) ow->showDashboardOverlays(false, curr_truck);
 		if (ow) ow->truckhud->show(false);
-		//if (bigMap) bigMap->setVisibility(false);
+		if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #ifdef USE_MYGUI
 #ifdef USE_SOCKETW
 		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(false);
@@ -3374,7 +3411,7 @@ void RoRFrameListener::hideGUI(bool visible)
 			&& gEnv->cameraManager->getCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
 		{
 			if (ow) ow->showDashboardOverlays(true, curr_truck);
-			//if (bigMap) bigMap->setVisibility(true);
+			if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(true);
 		}
 #ifdef USE_SOCKETW
 #ifdef USE_MYGUI
