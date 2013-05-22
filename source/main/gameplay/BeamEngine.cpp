@@ -45,7 +45,8 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, hasair(true)
 	, hasturbo(true)
 	, hydropump(0.0f)
-	, idleRPM(std::min(minRPM, 800.0f)) // TODO: Read this from the .truck file
+	, idleMixture(0.2f)
+	, idleRPM(std::min(minRPM, 800.0f))
 	, inertia(10.0f)
 	, maxRPM(std::abs(maxRPM))
 	, minRPM(std::abs(minRPM))
@@ -59,7 +60,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, shiftclock(0.0f)
 	, shifting(0)
 	, shiftval(0)
-	, stallRPM(300.0f) // TODO: Read this from the .truck file
+	, stallRPM(300.0f)
 	, starter(0)
 	, torqueCurve(new TorqueCurve())
 	, trucknum(trucknum)
@@ -79,7 +80,7 @@ BeamEngine::~BeamEngine()
 	torqueCurve = NULL;
 }
 
-void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime)
+void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float imix)
 {
 	inertia = einertia;
 	type = etype;
@@ -88,6 +89,9 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	if (ctime > 0)  clutchTime = ctime;
 	if (pstime > 0) post_shift_time = pstime;
 	if (stime > 0)  shift_time = stime;
+	if (irpm > 0) idleRPM = irpm;
+	if (srpm > 0) idleRPM = srpm;
+	if (imix > 0) idleMixture = imix;
 
 	if (etype == 'c')
 	{
@@ -866,20 +870,25 @@ float BeamEngine::getEnginePower()
 	return engineTorque * tqValue;
 }
 
+float BeamEngine::getAccToHoldRPM(float rpm)
+{
+	return (-brakingTorque * rpm / maxRPM) / getEnginePower();
+}
+
 float BeamEngine::getIdleMixture()
 {
 	if (curEngineRPM < idleRPM)
 	{
 		// determine the fuel injection needed to counter the engine braking force
-		float idleMixture = (-brakingTorque * curEngineRPM / maxRPM) / getEnginePower();
+		float idleMix = getAccToHoldRPM(curEngineRPM);
 
-		idleMixture = std::max(0.06f, idleMixture);
+		idleMix = std::max(0.06f, idleMix);
 
-		idleMixture = idleMixture * (1.0f + (idleRPM - curEngineRPM) / 100.0f);
+		idleMix = idleMix * (1.0f + (idleRPM - curEngineRPM) / 100.0f);
 
-		idleMixture = std::min(idleMixture, 0.2f);
+		idleMix = std::min(idleMix, this->idleMixture);
 
-		return idleMixture;
+		return idleMix;
 	}
 
 	return 0.0f;
