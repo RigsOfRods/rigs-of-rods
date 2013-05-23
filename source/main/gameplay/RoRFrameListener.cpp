@@ -1055,7 +1055,9 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	{
 		if (!CACHE.checkResourceLoaded(preselected_map))
 		{
-			preselected_map  = preselected_map + ".terrn2";
+			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn2", "");
+			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn", "");
+			preselected_map = preselected_map + ".terrn2";
 			// fallback to old terrain name with .terrn
 			if (!CACHE.checkResourceLoaded(preselected_map))
 			{
@@ -2715,7 +2717,9 @@ void RoRFrameListener::loadTerrain(String terrainfile)
 	if (!CACHE.checkResourceLoaded(terrainfile))
 	{
 		// fallback for terrains, add .terrn if not found and retry
-		terrainfile  = terrainfile + ".terrn2";
+		terrainfile = Ogre::StringUtil::replaceAll(terrainfile, ".terrn2", "");
+		terrainfile = Ogre::StringUtil::replaceAll(terrainfile, ".terrn", "");
+		terrainfile = terrainfile + ".terrn2";
 		if (!CACHE.checkResourceLoaded(terrainfile))
 		{
 			LOG("Terrain not found: " + terrainfile);
