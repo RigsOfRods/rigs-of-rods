@@ -356,6 +356,17 @@ enum {
 	SHOCK_FLAG_TRG_BLOCKER_A	= BITMASK(11),
 	SHOCK_FLAG_TRG_HOOK_UNLOCK 	= BITMASK(12),
 	SHOCK_FLAG_TRG_HOOK_LOCK   	= BITMASK(13),
+	SHOCK_FLAG_TRG_CONTINUOUS	= BITMASK(14),
+	SHOCK_FLAG_TRG_ENGINE		= BITMASK(15)
+};
+
+enum {
+	TRG_ENGINE_CLUTCH    = 0,
+	TRG_ENGINE_BRAKE     = 1,
+	TRG_ENGINE_ACC       = 2,
+	TRG_ENGINE_RPM       = 3,
+	TRG_ENGINE_SHIFTUP   = 4,
+	TRG_ENGINE_SHIFTDOWN = 5 
 };
 
 enum {
@@ -479,9 +490,9 @@ struct beam
 	bool commandNeedsEngine;
 	int detacher_group;	// detacher group number (integer)
 	Ogre::Vector3 lastforce;
-	bool iscentering;
+	bool isCentering;
 	int isOnePressMode;
-	bool isforcerestricted;
+	bool isForceRestricted;
 	float iStrength; //!< initial strength
 	Ogre::Real default_deform;
 	Ogre::Real default_plastic_coef;

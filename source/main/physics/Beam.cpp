@@ -2962,12 +2962,18 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 								//autolock hooktoggle lock
 								hookToggle(beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
 							}
+						} else if(beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
+						{
+							engineTriggerHelper(beams[i].shock->trigger_cmdshort, beams[i].shock->trigger_cmdlong, 1.0f);
 						} else
 						{
 							//just a trigger
 							if (!commandkey[beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state)	// related cmdkey is not blocked
 							{
-								commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
+								if (beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
+									commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
+								else
+									commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
 								if (triggerdebug && beams[i].shock->last_debug_state != 4)
 								{
 									LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdlong));
@@ -2991,12 +2997,21 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 								//autolock hooktoggle lock
 								hookToggle(beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
 							}
+						} else if(beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
+						{
+							bool triggerValue = !(beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
+
+							engineTriggerHelper(beams[i].shock->trigger_cmdshort, beams[i].shock->trigger_cmdlong, triggerValue);
 						} else
 						{
 							//just a trigger
-							if (!commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state)	// related cmdkey is not blocked
+							if (!commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
 							{
-								commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
+								if (beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
+									commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
+								else
+									commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
+
 								if (triggerdebug  && beams[i].shock->last_debug_state != 5)
 								{
 									LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdshort));
@@ -3008,7 +3023,24 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 				}
 			} else // this is a trigger inside boundaries and its enabled
 			{
-				if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
+				if (beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS) // this is an enabled continuous trigger
+				{					
+					if (beams[i].longbound - beams[i].shortbound > 0.0f)
+					{
+						float diffPercentage = difftoBeamL / beams[i].L;
+						float triggerValue = (1.0f - diffPercentage - beams[i].shortbound) / (beams[i].longbound - beams[i].shortbound);
+
+						if (beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
+						{
+							engineTriggerHelper(beams[i].shock->trigger_cmdshort, beams[i].shock->trigger_cmdlong, triggerValue);
+						} else
+						{
+							// normal trigger
+							commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
+							commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
+						}
+					}
+				} else if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
 				{
 					for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++)   // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
 					{
@@ -3038,7 +3070,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 					}
 				} else if ((beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) && beams[i].shock->trigger_switch_state) // this is a switch that was activated and is back inside boundaries again
 				{
-					beams[i].shock->trigger_switch_state = 0.0f;  //trigger_switch resetted
+					beams[i].shock->trigger_switch_state = 0.0f;  //trigger_switch reset
 					if (triggerdebug && beams[i].shock->last_debug_state != 7)
 					{
 						LOG(" Trigger switch reset. Switch BeamID " + TOSTRING(i));
@@ -6072,4 +6104,37 @@ Vector3 Beam::getGForces()
 void Beam::triggerGUIFeaturesChanged()
 {
 	GUIFeaturesChanged = true;
+}
+
+void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
+{
+	// engineNumber tells us which engine
+	BeamEngine* e = engine; // placeholder: trucks do not have multiple engines yet
+
+	if (e)
+	{
+		switch (type)
+		{
+		case TRG_ENGINE_CLUTCH:
+			e->setClutch(triggerValue);
+			break;
+		case TRG_ENGINE_BRAKE:
+			e->setBrake(triggerValue);
+			break;
+		case TRG_ENGINE_ACC:
+			e->setAcc(triggerValue);
+			break;
+		case TRG_ENGINE_RPM:
+			// TODO: Implement setTargetRPM in the BeamEngine.cpp
+			break;
+		case TRG_ENGINE_SHIFTUP:
+			e->shift(1);
+			break;
+		case TRG_ENGINE_SHIFTDOWN:
+			e->shift(-1);
+			break;
+		default:
+			break;
+		}
+	}
 }
