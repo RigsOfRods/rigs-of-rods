@@ -1871,6 +1871,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				bool triggerblocker_inverted = false;
 				bool cmdkeyblock = false;
 				bool hooktoggle = false;
+				bool enginetrigger = false;
 				commandkey[triggershort].trigger_cmdkeyblock_state = false;
 				if (triggerlong != -1) commandkey[triggerlong].trigger_cmdkeyblock_state = false;
 
@@ -1881,7 +1882,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					switch (*options_pointer)
 					{
 						case 'i':	// invisible
-							htype=BEAM_INVISIBLE_HYDRO;
+							htype = BEAM_INVISIBLE_HYDRO;
 							shockflag |= SHOCK_FLAG_INVISIBLE;
 							break;
 						case 'x':	// this trigger is disabled on startup, default is enabled
@@ -1913,19 +1914,26 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 							shockflag |= SHOCK_FLAG_TRG_HOOK_LOCK;
 							hooktoggle = true;
 							break;
+						case 't': // this trigger sends values between 0 and 1
+							shockflag |= SHOCK_FLAG_TRG_CONTINUOUS;
+							break;
+						case 'E': // this trigger is used to control an engine
+							shockflag |= SHOCK_FLAG_TRG_ENGINE;
+							enginetrigger = true;
+							break;
 					}
 					options_pointer++;
 				}
 
-				if (!triggerblocker && !triggerblocker_inverted && !hooktoggle)
+				if (!triggerblocker && !triggerblocker_inverted && !hooktoggle && !enginetrigger)
 				{
-					// this is no Trigger-Blocker, make the full check
-					if ((triggershort < 1 || triggershort > MAX_COMMANDS) || ((triggerlong < 1 || triggerlong > MAX_COMMANDS) && triggerlong != -1 && triggerlong != 0))
+					// make the full check
+					if (triggershort < 1 || triggershort > MAX_COMMANDS)
 					{
 						parser_warning(c, "Error: Wrong command-eventnumber (Triggers). Trigger deactivated.", PARSER_ERROR);
 						continue;
 					}
-				} else if (!hooktoggle)
+				} else if (!hooktoggle && !enginetrigger)
 				{
 					// this is a Trigger-Blocker, make special check
 					if (triggershort < 0 || triggerlong < 0)
@@ -1933,10 +1941,17 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						parser_warning(c, "Error: Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.", PARSER_ERROR);
 						continue;
 					}
+				} else if (enginetrigger)
+				{
+					if (triggerblocker || triggerblocker_inverted || hooktoggle || (shockflag & SHOCK_FLAG_TRG_CMD_SWITCH))
+					{
+						parser_warning(c, "Error: Wrong command-eventnumber (Triggers). Engine trigger deactivated.", PARSER_ERROR);
+						continue;
+					}
 				}
 
-				int pos=add_beam(parent, &nodes[id1], &nodes[id2], htype, default_break,    0.0f, 0.0f, detacher_group_state, -1.0, sbound, lbound, 1.0f);
-				beams[pos].bounded=SHOCK2;
+				int pos = add_beam(parent, &nodes[id1], &nodes[id2], htype, default_break, 0.0f, 0.0f, detacher_group_state, -1.0, sbound, lbound, 1.0f);
+				beams[pos].bounded = SHOCK2;
 
 				if (triggerdebug)
 					parser_warning(c, "Trigger added. BeamID " + TOSTRING(pos), PARSER_INFO);
@@ -2942,12 +2957,12 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 								parser_warning(c, "Command cannot be one-pressed and self centering at the same time!", PARSER_ERROR);
 								break;
 							}
-							beams[pos].iscentering=true;
+							beams[pos].isCentering=true;
 							break;
 						}
 						case 'p':
 						{
-							if (beams[pos].iscentering)
+							if (beams[pos].isCentering)
 							{
 								parser_warning(c, "Command cannot be one-pressed and self centering at the same time!", PARSER_ERROR);
 								break;
@@ -2962,7 +2977,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						}
 						case 'o':
 						{
-							if (beams[pos].iscentering)
+							if (beams[pos].isCentering)
 							{
 								parser_warning(c, "Command cannot be one-pressed and self centering at the same time!", PARSER_ERROR);
 								break;
@@ -2977,7 +2992,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						}
 						case 'f':
 						{
-							beams[pos].isforcerestricted=true;
+							beams[pos].isForceRestricted=true;
 							break;
 						}
 					}
@@ -5602,9 +5617,9 @@ int SerializedRig::add_beam(Ogre::SceneNode* parent, node_t *p1 , node_t *p2 , i
 	beams[pos].animFlags=0;
 	beams[pos].stress=0.0;
 	beams[pos].lastforce=Vector3(0,0,0);
-	beams[pos].iscentering=false;
+	beams[pos].isCentering=false;
 	beams[pos].isOnePressMode=0;
-	beams[pos].isforcerestricted=false;
+	beams[pos].isForceRestricted=false;
 	beams[pos].autoMovingMode=0;
 	beams[pos].autoMoveLock=false;
 	beams[pos].pressedCenterMode=false;

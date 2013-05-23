@@ -77,9 +77,9 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 	BES_START(BES_CORE_Beams);
 
 	//springs
-	Vector3 dis;
 	for (int i=0; i<free_beam; i++)
 	{
+		Vector3 dis(Vector3::ZERO);
 		//trick for exploding stuff
 		if (!beams[i].disabled)
 		{
@@ -1857,14 +1857,14 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 				if (bbeam > free_beam) continue;
 
 				// restrict forces
-				if (beams[bbeam].isforcerestricted)
+				if (beams[bbeam].isForceRestricted)
 					crankfactor = std::min(crankfactor, 1.0f);
 
 				float v  = commandkey[i].commandValue;
 				int &vst = commandkey[i].commandValueState;
 
 				// self centering
-				if (beams[bbeam].iscentering && !beams[bbeam].autoMoveLock)
+				if (beams[bbeam].isCentering && !beams[bbeam].autoMoveLock)
 				{
 					// check for some error
 					if (beams[bbeam].refL == 0 || beams[bbeam].L == 0)
