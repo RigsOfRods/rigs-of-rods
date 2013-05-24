@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BeamEngine.h"
 
+#include "BeamFactory.h"
 #include "Scripting.h"
 #include "SoundScriptManager.h"
 #include "TorqueCurve.h"
@@ -117,6 +118,8 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 
 void BeamEngine::update(float dt, int doUpdate)
 {
+	Beam* truck = BeamFactory::getSingleton().getTruck(trucknum);
+
 	float acc = curAcc;
 	
 	acc = std::max(getIdleMixture(), acc);
@@ -356,9 +359,14 @@ void BeamEngine::update(float dt, int doUpdate)
 			static std::deque<float> accs;
 			static std::deque<float> brakes;
 
+			float brake = 0.0f;
+
+			if (truck && truck->brakeforce > 0.0f)
+				brake = truck->brake / truck->brakeforce;
+
 			rpms.push_front(curEngineRPM);
 			accs.push_front(acc);
-			brakes.push_front(curBrake);
+			brakes.push_front(brake);
 
 			float avgRPM = 0.0f;
 			float avgAcc = 0.0f;
@@ -520,11 +528,6 @@ void BeamEngine::setAutoMode(int mode)
 void BeamEngine::setAcc(float val)
 {
 	curAcc = val;
-}
-
-void BeamEngine::setBrake(float val)
-{
-	curBrake = val;
 }
 
 float BeamEngine::getTurboPSI()

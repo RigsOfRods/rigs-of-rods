@@ -6114,30 +6114,27 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	// engineNumber tells us which engine
 	BeamEngine* e = engine; // placeholder: trucks do not have multiple engines yet
 
-	if (e)
+	switch (type)
 	{
-		switch (type)
-		{
-		case TRG_ENGINE_CLUTCH:
-			e->setClutch(triggerValue);
-			break;
-		case TRG_ENGINE_BRAKE:
-			e->setBrake(triggerValue);
-			break;
-		case TRG_ENGINE_ACC:
-			e->setAcc(triggerValue);
-			break;
-		case TRG_ENGINE_RPM:
-			// TODO: Implement setTargetRPM in the BeamEngine.cpp
-			break;
-		case TRG_ENGINE_SHIFTUP:
-			e->shift(1);
-			break;
-		case TRG_ENGINE_SHIFTDOWN:
-			e->shift(-1);
-			break;
-		default:
-			break;
-		}
+	case TRG_ENGINE_CLUTCH:
+		if (e) e->setClutch(triggerValue);
+		break;
+	case TRG_ENGINE_BRAKE:
+		brake = triggerValue * brakeforce;
+		break;
+	case TRG_ENGINE_ACC:
+		if (e) e->setAcc(triggerValue);
+		break;
+	case TRG_ENGINE_RPM:
+		// TODO: Implement setTargetRPM in the BeamEngine.cpp
+		break;
+	case TRG_ENGINE_SHIFTUP:
+		if (e) e->shift(1);
+		break;
+	case TRG_ENGINE_SHIFTDOWN:
+		if (e) e->shift(-1);
+		break;
+	default:
+		break;
 	}
 }
