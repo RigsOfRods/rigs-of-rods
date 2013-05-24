@@ -45,10 +45,11 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, hasair(true)
 	, hasturbo(true)
 	, hydropump(0.0f)
-	, idleMixture(0.2f)
 	, idleRPM(std::min(minRPM, 800.0f))
 	, inertia(10.0f)
+	, maxIdleMixture(0.2f)
 	, maxRPM(std::abs(maxRPM))
+	, minIdleMixture(0.0f)
 	, minRPM(std::abs(minRPM))
 	, numGears((int)gears.size() - 2)
 	, post_shift_time(0.2f)
@@ -80,7 +81,7 @@ BeamEngine::~BeamEngine()
 	torqueCurve = NULL;
 }
 
-void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float imix)
+void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
 {
 	inertia = einertia;
 	type = etype;
@@ -91,7 +92,8 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	if (stime > 0)  shift_time = stime;
 	if (irpm > 0) idleRPM = irpm;
 	if (srpm > 0) idleRPM = srpm;
-	if (imix > 0) idleMixture = imix;
+	if (maximix > 0) maxIdleMixture = maximix;
+	if (minimix > 0) minIdleMixture = minimix;
 
 	if (etype == 'c')
 	{
@@ -886,7 +888,8 @@ float BeamEngine::getIdleMixture()
 
 		idleMix = idleMix * (1.0f + (idleRPM - curEngineRPM) / 100.0f);
 
-		idleMix = std::min(idleMix, this->idleMixture);
+		idleMix = std::max(minIdleMixture, idleMix);
+		idleMix = std::min(idleMix, maxIdleMixture);
 
 		return idleMix;
 	}
