@@ -3389,25 +3389,20 @@ void RoRFrameListener::pauseSim(bool value)
 
 void RoRFrameListener::hideGUI(bool visible)
 {
-	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	
 #ifdef USE_MYGUI
+	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 	Console *c = Console::getSingletonPtrNoCreation();
 	if (c) c->setVisible(!visible);
-#endif // USE_MYGUI
 
 	if (visible)
 	{
 		if (ow) ow->showDashboardOverlays(false, curr_truck);
 		if (ow) ow->truckhud->show(false);
 		if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
-#ifdef USE_MYGUI
 #ifdef USE_SOCKETW
 		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(false);
 #endif // USE_SOCKETW
-#endif // USE_MYGUI
-	}
-	else
+	} else
 	{
 		if (curr_truck
 			&& gEnv->cameraManager
@@ -3415,14 +3410,12 @@ void RoRFrameListener::hideGUI(bool visible)
 			&& gEnv->cameraManager->getCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
 		{
 			if (ow) ow->showDashboardOverlays(true, curr_truck);
-			if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(true);
 		}
 #ifdef USE_SOCKETW
-#ifdef USE_MYGUI
 		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(true);
-#endif // USE_MYGUI
 #endif // USE_SOCKETW
 	}
+#endif // USE_MYGUI
 }
 
 // show/hide all particle systems
