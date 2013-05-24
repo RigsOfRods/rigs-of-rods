@@ -3028,7 +3028,10 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 					if (beams[i].longbound - beams[i].shortbound > 0.0f)
 					{
 						float diffPercentage = difftoBeamL / beams[i].L;
-						float triggerValue = (1.0f - diffPercentage - beams[i].shortbound) / (beams[i].longbound - beams[i].shortbound);
+						float triggerValue = (diffPercentage - beams[i].shortbound) / (beams[i].longbound - beams[i].shortbound);
+
+						triggerValue = std::max(0.0f, triggerValue);
+						triggerValue = std::min(triggerValue, 1.0f);
 
 						if (beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
 						{
