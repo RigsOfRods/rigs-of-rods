@@ -47,7 +47,7 @@ public:
 	void setAutoMode(int mode);
 	void setBrake(float val);
 	void setClutch(float clutch);
-	void setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float imix);
+	void setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
 	void setRPM(float rpm);
 	void setSpin(float rpm);
 
@@ -129,7 +129,8 @@ protected:
 	float engineTorque;
 	float hydropump;
 	float idleRPM;
-	float idleMixture;
+	float minIdleMixture;
+	float maxIdleMixture;
 	float inertia;
 	float maxRPM;
 	float minRPM;
