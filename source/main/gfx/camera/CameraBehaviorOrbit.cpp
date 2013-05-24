@@ -46,6 +46,9 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 
 void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 {
+	Degree mRotX(0.0f);
+	Degree mRotY(0.0f);
+
 	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_LOOKBACK) )
 	{
 		if ( camRotX > Degree(0) )
@@ -56,23 +59,18 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 			camRotX = Degree(180);
 		}
 	}
+	
+	mRotX -= ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_LEFT);
+	mRotX += ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_RIGHT);
+	
+	mRotY += ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_UP);
+	mRotY -= ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_DOWN);
 
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ROTATE_LEFT) )
-	{
-		camRotX -= ctx.mRotScale;
-	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ROTATE_RIGHT) )
-	{
-		camRotX += ctx.mRotScale;
-	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ROTATE_UP) && camRotY < Degree(88) )
-	{
-		camRotY += ctx.mRotScale;
-	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ROTATE_DOWN) && camRotY > Degree(-80) )
-	{
-		camRotY -= ctx.mRotScale;
-	}
+	camRotX += mRotX;
+	camRotY += mRotY;
+
+	camRotY = std::max(Radian(Degree(-80)), camRotY);
+	camRotY = std::min(camRotY, Radian(Degree(88)));
 
 	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
 	{
@@ -118,6 +116,8 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	{
 		camDist = std::min(camDist, camDistMax);
 	}
+
+	camDist = std::max(0.0f, camDist);
 
 	Vector3 desiredPosition = camLookAt + camDist * 0.5f * Vector3(
 			  sin(targetDirection.valueRadians() + camRotX.valueRadians()) * cos(targetPitch.valueRadians() + camRotY.valueRadians())
