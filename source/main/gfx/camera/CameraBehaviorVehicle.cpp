@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraBehaviorVehicle.h"
 
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "Settings.h"
 
 using namespace Ogre;
@@ -47,7 +48,10 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	camRatio = 1.0f / (ctx.mCurrTruck->ttdt * 4.0f);
+	if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
+		camRatio = 1.0f / (ctx.mCurrTruck->ttdt * 4.0f);
+	else
+		camRatio = 1.0f / (ctx.mCurrTruck->tdt * 4.0f);
 
 	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
 
