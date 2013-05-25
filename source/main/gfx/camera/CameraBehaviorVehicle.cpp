@@ -47,7 +47,7 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	camRatio = 1.0f / (ctx.mCurrTruck->tdt * 4.0f);
+	camRatio = 1.0f / (ctx.mCurrTruck->ttdt * 4.0f);
 
 	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
 
