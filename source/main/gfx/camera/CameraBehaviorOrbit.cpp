@@ -69,8 +69,17 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	camRotX += mRotX;
 	camRotY += mRotY;
 
-	camRotY = std::max(Radian(Degree(-80)), camRotY);
-	camRotY = std::min(camRotY, Radian(Degree(88)));
+	Radian rotXWithSwivel = camRotX;
+	Radian rotYWithSwivel = camRotY;
+
+	rotXWithSwivel -= INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_LEFT)  * Degree(90);
+	rotXWithSwivel += INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_RIGHT) * Degree(90);
+
+	rotYWithSwivel += INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_UP)   * Degree(60);
+	rotYWithSwivel -= INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_DOWN) * Degree(60);
+
+	rotYWithSwivel = std::max((Radian)Degree(-80), rotYWithSwivel);
+	rotYWithSwivel = std::min(rotYWithSwivel, (Radian)Degree(88));
 
 	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
 	{
@@ -120,9 +129,9 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	camDist = std::max(0.0f, camDist);
 
 	Vector3 desiredPosition = camLookAt + camDist * 0.5f * Vector3(
-			  sin(targetDirection.valueRadians() + camRotX.valueRadians()) * cos(targetPitch.valueRadians() + camRotY.valueRadians())
-			, sin(targetPitch.valueRadians()     + camRotY.valueRadians())
-			, cos(targetDirection.valueRadians() + camRotX.valueRadians()) * cos(targetPitch.valueRadians() + camRotY.valueRadians())
+			  sin(targetDirection.valueRadians() + rotXWithSwivel.valueRadians()) * cos(targetPitch.valueRadians() + rotYWithSwivel.valueRadians())
+			, sin(targetPitch.valueRadians()     + rotYWithSwivel.valueRadians())
+			, cos(targetDirection.valueRadians() + rotXWithSwivel.valueRadians()) * cos(targetPitch.valueRadians() + rotYWithSwivel.valueRadians())
 			);
 
 	if ( gEnv->terrainManager && gEnv->terrainManager->getHeightFinder() )
