@@ -226,7 +226,7 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (curGear)
 	{
 		float gearboxspinner = curEngineRPM / gearsRatio[curGear + 1];
-		curClutchTorque = (gearboxspinner - curWheelRevolutions) * curClutch * clutchForce;
+		curClutchTorque = (gearboxspinner - curWheelRevolutions) * curClutch * curClutch * clutchForce;
 	} else
 	{
 		curClutchTorque = 0.0f;
