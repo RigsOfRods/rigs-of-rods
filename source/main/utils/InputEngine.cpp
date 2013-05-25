@@ -286,6 +286,30 @@ eventInfo_t eventInfo[] = {
 		"Keyboard NUMPAD8",
 		_L("rotate camera up")
 	},
+		{
+		"CAMERA_SWIVEL_DOWN",
+		EV_CAMERA_SWIVEL_DOWN,
+		"Keyboard CTRL+NUMPAD2",
+		_L("swivel camera down")
+	},
+	{
+		"CAMERA_SWIVEL_LEFT",
+		EV_CAMERA_SWIVEL_LEFT,
+		"Keyboard CTRL+NUMPAD4",
+		_L("swivel camera left")
+	},
+	{
+		"CAMERA_SWIVEL_RIGHT",
+		EV_CAMERA_SWIVEL_RIGHT,
+		"Keyboard CTRL+NUMPAD6",
+		_L("swivel camera right")
+	},
+	{
+		"CAMERA_SWIVEL_UP",
+		EV_CAMERA_SWIVEL_UP,
+		"Keyboard CTRL+NUMPAD8",
+		_L("swivel camera up")
+	},
 	{
 		"CAMERA_ZOOM_IN",
 		EV_CAMERA_ZOOM_IN,
