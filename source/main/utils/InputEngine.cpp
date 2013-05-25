@@ -286,7 +286,7 @@ eventInfo_t eventInfo[] = {
 		"Keyboard NUMPAD8",
 		_L("rotate camera up")
 	},
-		{
+	{
 		"CAMERA_SWIVEL_DOWN",
 		EV_CAMERA_SWIVEL_DOWN,
 		"Keyboard CTRL+NUMPAD2",
