@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraBehaviorOrbit.h"
 
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "Collisions.h"
 #include "Console.h"
 #include "IHeightFinder.h"
@@ -145,7 +146,10 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	
 	if ( ctx.mCurrTruck )
 	{
-		precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->ttdt;
+		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
+			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->ttdt;
+		else
+			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->tdt;
 	}
 
 	Vector3 camPosition = (1.0f / (camRatio + 1.0f)) * desiredPosition + (camRatio / (camRatio + 1.0f)) * precedingPosition;
