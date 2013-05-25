@@ -50,7 +50,7 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
 	roll = up.crossProduct(dir);
 
-	Quaternion orientation = Quaternion(camRotX, up) * Quaternion(Degree(180.0) + camRotY, roll) * Quaternion(roll, up, dir);
+	Quaternion orientation = Quaternion(camRotX + camRotXSwivel, up) * Quaternion(Degree(180.0) + camRotY + camRotYSwivel, roll) * Quaternion(roll, up, dir);
 
 	gEnv->mainCamera->setPosition(ctx.mCurrTruck->nodes[ctx.mCurrTruck->cinecameranodepos[ctx.mCurrTruck->currentcamera]].smoothpos);
 	gEnv->mainCamera->setOrientation(orientation);

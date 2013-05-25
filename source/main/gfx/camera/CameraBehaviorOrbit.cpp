@@ -38,7 +38,9 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	, camLookAt(Vector3::ZERO)
 	, camRatio(11.0f)
 	, camRotX(0.0f)
+	, camRotXSwivel(0.0f)
 	, camRotY(0.3f)
+	, camRotYSwivel(0.0f)
 	, limitMinCamDist(true)
 	, targetDirection(0.0f)
 	, targetPitch(0.0f)
@@ -47,9 +49,6 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 
 void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 {
-	Degree mRotX(0.0f);
-	Degree mRotY(0.0f);
-
 	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_LOOKBACK) )
 	{
 		if ( camRotX > Degree(0) )
@@ -60,27 +59,18 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 			camRotX = Degree(180);
 		}
 	}
-	
-	mRotX -= ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_LEFT);
-	mRotX += ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_RIGHT);
-	
-	mRotY += ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_UP);
-	mRotY -= ctx.mRotScale * INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_DOWN);
 
-	camRotX += mRotX;
-	camRotY += mRotY;
+	camRotX += (INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_RIGHT) - INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
+	camRotY += (INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_UP)   - INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_DOWN))  * ctx.mRotScale;
 
-	Radian rotXWithSwivel = camRotX;
-	Radian rotYWithSwivel = camRotY;
+	camRotY = std::max((Radian)Degree(-80), camRotY);
+	camRotY = std::min(camRotY, (Radian)Degree(88));
 
-	rotXWithSwivel -= INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_LEFT)  * Degree(90);
-	rotXWithSwivel += INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_RIGHT) * Degree(90);
+	camRotXSwivel = (INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_RIGHT) - INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
+	camRotYSwivel = (INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_UP)   - INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_DOWN))  * Degree(60);
 
-	rotYWithSwivel += INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_UP)   * Degree(60);
-	rotYWithSwivel -= INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_DOWN) * Degree(60);
-
-	rotYWithSwivel = std::max((Radian)Degree(-80), rotYWithSwivel);
-	rotYWithSwivel = std::min(rotYWithSwivel, (Radian)Degree(88));
+	camRotYSwivel = std::max((Radian)Degree(-80) - camRotY, camRotYSwivel);
+	camRotYSwivel = std::min(camRotYSwivel, (Radian)Degree(88) - camRotY);
 
 	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
 	{
@@ -130,9 +120,9 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	camDist = std::max(0.0f, camDist);
 
 	Vector3 desiredPosition = camLookAt + camDist * 0.5f * Vector3(
-			  sin(targetDirection.valueRadians() + rotXWithSwivel.valueRadians()) * cos(targetPitch.valueRadians() + rotYWithSwivel.valueRadians())
-			, sin(targetPitch.valueRadians()     + rotYWithSwivel.valueRadians())
-			, cos(targetDirection.valueRadians() + rotXWithSwivel.valueRadians()) * cos(targetPitch.valueRadians() + rotYWithSwivel.valueRadians())
+			  sin(targetDirection.valueRadians() + (camRotX + camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY + camRotYSwivel).valueRadians())
+			, sin(targetPitch.valueRadians()     + (camRotY + camRotYSwivel).valueRadians())
+			, cos(targetDirection.valueRadians() + (camRotX + camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY + camRotYSwivel).valueRadians())
 			);
 
 	if ( gEnv->terrainManager && gEnv->terrainManager->getHeightFinder() )
@@ -184,6 +174,8 @@ bool CameraBehaviorOrbit::mouseMoved(const CameraManager::CameraContext &ctx, co
 void CameraBehaviorOrbit::reset(const CameraManager::CameraContext &ctx)
 {
 	camRotX = 0.0f;
+	camRotXSwivel = 0.0f;
 	camRotY = 0.3f;
+	camRotYSwivel = 0.0f;
 	gEnv->mainCamera->setFOVy(ctx.fovExternal);
 }

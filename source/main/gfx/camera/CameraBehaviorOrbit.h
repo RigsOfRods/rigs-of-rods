@@ -44,6 +44,7 @@ public:
 protected:
 
 	Ogre::Radian camRotX, camRotY;
+	Ogre::Radian camRotXSwivel, camRotYSwivel;
 	Ogre::Radian targetDirection, targetPitch;
 	Ogre::Real camDist, camDistMin, camDistMax, camRatio;
 	Ogre::Vector3 camLookAt;
