@@ -337,34 +337,29 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (doUpdate && !shifting && !postshifting)
 	{
 		// gear hack
-		int newGear = curGear;
-
-		if (automode == AUTOMATIC && curGear > 0 && (autoselect == DRIVE || autoselect == TWO))
+		if (automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
 		{
+			static float oneThirdRPMRange = (maxRPM - minRPM) / 3.0f;
+			static float halfRPMRange = (maxRPM - minRPM) / 2.0f;
+			static float shiftBehaviour = 0.0f;
+			static int upShiftDelayCounter = 0;
+			static std::deque<float> rpms;
+			static std::deque<float> accs;
+			static std::deque<float> brakes;
+
+			int newGear = curGear;
+
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
 				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < 2))
 				{
 					newGear++;
 				}
-			} else if (curGear > 1 && curEngineRPM < minRPM)
+			} else if (curGear > 1 && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * oneThirdRPMRange &&
+				getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))))
 			{
 				newGear--;
 			}
-			if (autoselect == TWO)
-			{
-				shiftTo(newGear);
-			}
-		}
-
-		// gear hack++
-		if (automode == AUTOMATIC && autoselect == DRIVE && curGear > 0)
-		{
-			static float oneThirdRPMRange = (maxRPM - minRPM) / 3.0f;
-			static float halfRPMRange = (maxRPM - minRPM) / 2.0f;
-			static std::deque<float> rpms;
-			static std::deque<float> accs;
-			static std::deque<float> brakes;
 
 			float brake = 0.0f;
 
@@ -377,62 +372,98 @@ void BeamEngine::update(float dt, int doUpdate)
 			accs.push_front(acc);
 			brakes.push_front(brake);
 
-			float avgRPM = 0.0f;
-			float avgAcc = 0.0f;
-			float avgBrake = 0.0f;
+			float avgRPM50 = 0.0f;
+			float avgRPM200 = 0.0f;
+			float avgAcc50 = 0.0f;
+			float avgAcc200 = 0.0f;
+			float avgBrake50 = 0.0f;
+			float avgBrake200 = 0.0f;
 
 			for (unsigned int i=0; i < accs.size(); i++)
 			{
-				avgRPM += rpms[i];
-				avgAcc += accs[i];
-				avgBrake += brakes[i];
+				if (i < 50)
+				{
+					avgRPM50 += rpms[i];
+					avgAcc50 += accs[i];
+					avgBrake50 += brakes[i];
+				}
+
+				avgRPM200 += rpms[i];
+				avgAcc200 += accs[i];
+				avgBrake200 += brakes[i];
 			}
 
-			avgRPM /= rpms.size();
-			avgAcc /= accs.size();
-			avgBrake /= brakes.size();
+			avgRPM50 /= std::min(rpms.size(), (unsigned int)50);
+			avgAcc50 /= std::min(accs.size(), (unsigned int)50);
+			avgBrake50 /= std::min(brakes.size(), (unsigned int)50);
 
-			if (avgAcc > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
+			avgRPM200 /= rpms.size();
+			avgAcc200 /= accs.size();
+			avgBrake200 /= brakes.size();
+
+			if (avgAcc50 > 0.8f || avgAcc200 > 0.8f)
+			{
+				shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
+			} else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f)
+			{
+				shiftBehaviour /= 1.01;
+			}
+
+			if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
 			{
 				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
 					   getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
-			} else if (avgAcc > 0.6f && acc < 0.8f && acc > avgAcc + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+			} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
 				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
 					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
-			} else if (avgAcc > 0.4f && acc < 0.8f && acc > avgAcc + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+			} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
 				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
 					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
+
 				}
-			} else if (avgBrake < 0.2f && acc < std::min(avgAcc + 0.1f, 1.0f) && curEngineRPM > avgRPM - halfRPMRange / 10.0f)
+			} else if (((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < 2)) &&
+				avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - halfRPMRange / 10.0f)
 			{
-				if (avgAcc < 0.6f && avgAcc > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
+				if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
 				{
-					if (newGear < numGears && curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
 					{
 						newGear++;
 					}
-				} else if (avgAcc < 0.4f && avgAcc > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
+				} else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
 				{
-					if (newGear < numGears && curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
 					{
 						newGear++;
 					}
-				} else if (avgAcc < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
+				} else if (avgAcc200 < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
 				{
-					if (newGear < numGears && curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
 					{
 						newGear++;
 					}
+				}
+
+				if (newGear > curGear)
+				{
+					upShiftDelayCounter++;
+					if (upShiftDelayCounter <= 100 * shiftBehaviour)
+					{
+						newGear = curGear;
+					}
+				} else
+				{
+					upShiftDelayCounter = 0;
 				}
 			}
 
@@ -442,7 +473,7 @@ void BeamEngine::update(float dt, int doUpdate)
 				shiftTo(newGear);
 			}
 
-			if (accs.size() > 50)
+			if (accs.size() > 200)
 			{
 				rpms.pop_back();
 				accs.pop_back();
