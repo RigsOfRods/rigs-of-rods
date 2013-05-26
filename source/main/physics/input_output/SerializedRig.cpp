@@ -197,7 +197,6 @@ SerializedRig::SerializedRig()
 	wingstart=-1;
 	
 	this->realtruckname=String();
-	patchEngineTorque=false;
 	loading_finished=false;
 	forwardcommands=false;
 
@@ -483,12 +482,6 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				c.modeString = "end";
 				loading_finished = 1;
 				break;
-			}
-
-			if (c.line == "patchEngineTorque")
-			{
-				patchEngineTorque = true;
-				continue;
 			}
 
 			if (c.line == "end_description" && c.mode == BTS_DESCRIPTION)
