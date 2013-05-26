@@ -355,7 +355,7 @@ void BeamEngine::update(float dt, int doUpdate)
 				{
 					newGear++;
 				}
-			} else if (curGear > 1 && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * oneThirdRPMRange &&
+			} else if (curGear > 1 && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
 				getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))))
 			{
 				newGear--;
