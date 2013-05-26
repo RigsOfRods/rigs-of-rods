@@ -112,6 +112,7 @@ bool ContentManager::init(void)
 	// main game resources
 	LOG("Loading main resources");
 	loadMainResource("airfoils");
+	loadMainResource("beamobjects");
 	loadMainResource("materials");
 	loadMainResource("meshes");
 	loadMainResource("overlays");
