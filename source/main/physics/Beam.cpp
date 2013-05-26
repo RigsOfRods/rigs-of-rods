@@ -117,7 +117,6 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, last_net_time(0)
 	, lastlastposition(pos)
 	, lastposition(pos)
-	, lastwspeed(0.0)
 	, leftMirrorAngle(0.52)
 	, lights(1)
 	, lockSkeletonchange(false)

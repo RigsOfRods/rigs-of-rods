@@ -24,7 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "TorqueCurve.h"
 
-BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float diff, int trucknum) :
+BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, int trucknum) :
 	  apressure(0.0f)
 	, autocurAcc(0.0f)
 	, automode(AUTOMATIC)
@@ -41,6 +41,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, curGearRange(0)
 	, curTurboRPM(0.0f)
 	, curWheelRevolutions(0.0f)
+	, diffRatio(dratio)
 	, engineTorque(torque - brakingTorque)
 	, gearsRatio(gears)
 	, hasair(true)
@@ -71,7 +72,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	gearsRatio[0] = -gearsRatio[0];
 	for (std::vector< float >::iterator it = gearsRatio.begin(); it != gearsRatio.end(); ++it)
 	{
-		(*it) *= diff;
+		(*it) *= diffRatio;
 	}
 }
 
@@ -119,7 +120,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 void BeamEngine::update(float dt, int doUpdate)
 {
 	Beam* truck = BeamFactory::getSingleton().getTruck(trucknum);
-
+	
 	float acc = curAcc;
 	
 	acc = std::max(getIdleMixture(), acc);
@@ -187,7 +188,7 @@ void BeamEngine::update(float dt, int doUpdate)
 
 	if (running && contact && curEngineRPM < (maxRPM * 1.25f) && curEngineRPM > stallRPM)
 	{
-		totaltorque += getEnginePower() * acc;
+		totaltorque += getEnginePower(curEngineRPM) * acc;
 	}
 
 	if (running && curEngineRPM < stallRPM)
@@ -321,7 +322,7 @@ void BeamEngine::update(float dt, int doUpdate)
 			// 1st gear : special
 			if (curEngineRPM > minRPM)
 			{
-				curClutch = ((curEngineRPM - minRPM) / (maxRPM - minRPM));
+				curClutch = (curEngineRPM - minRPM) / (maxRPM - minRPM);
 				curClutch = std::min(curClutch, 1.0f);
 			} else
 			{
@@ -336,17 +337,23 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (doUpdate && !shifting && !postshifting)
 	{
 		// gear hack
-		if (automode == AUTOMATIC && curGear >= 0 && (autoselect == DRIVE || autoselect == TWO))
+		int newGear = curGear;
+
+		if (automode == AUTOMATIC && curGear > 0 && (autoselect == DRIVE || autoselect == TWO))
 		{
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
 				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < 2))
 				{
-					shift(1);
+					newGear++;
 				}
 			} else if (curGear > 1 && curEngineRPM < minRPM)
 			{
-				shift(-1);
+				newGear--;
+			}
+			if (autoselect == TWO)
+			{
+				shiftTo(newGear);
 			}
 		}
 
@@ -362,7 +369,9 @@ void BeamEngine::update(float dt, int doUpdate)
 			float brake = 0.0f;
 
 			if (truck && truck->brakeforce > 0.0f)
+			{
 				brake = truck->brake / truck->brakeforce;
+			}
 
 			rpms.push_front(curEngineRPM);
 			accs.push_front(acc);
@@ -383,27 +392,28 @@ void BeamEngine::update(float dt, int doUpdate)
 			avgAcc /= accs.size();
 			avgBrake /= brakes.size();
 
-			int newGear = curGear;
-
 			if (avgAcc > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
 			{
-				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange)
+				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
+					   getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
-			} else if (avgAcc > 0.6f && acc < 0.8f && acc > avgAcc + 0.3f && curEngineRPM < minRPM + halfRPMRange)
+			} else if (avgAcc > 0.6f && acc < 0.8f && acc > avgAcc + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
-				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange)
+				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
 			} else if (avgAcc > 0.4f && acc < 0.8f && acc > avgAcc + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
-				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange)
+				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
-			} else if (avgBrake < 0.2f && acc < avgAcc + 0.1f && curEngineRPM > avgRPM - halfRPMRange / 10.0f)
+			} else if (avgBrake < 0.2f && acc < std::min(avgAcc + 0.1f, 1.0f) && curEngineRPM > avgRPM - halfRPMRange / 10.0f)
 			{
 				if (avgAcc < 0.6f && avgAcc > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
 				{
@@ -439,30 +449,25 @@ void BeamEngine::update(float dt, int doUpdate)
 				brakes.pop_back();
 			}
 		}
-#if 0
-		// engine speed limiter
-		if (curEngineRPM > maxRPM + 500.0f) // significantly lowers the top speed of most vehicles
-			setAcc(0.0f);
-	}
-#endif
-	// avoid over-revving
-	if (automode <= SEMIAUTO && curGear != 0)
-	{
-		if (std::abs(curWheelRevolutions * gearsRatio[curGear + 1]) > maxRPM * 1.25f)
-		{
-			float clutch = 0.0f + 1.0f / (1.0f + std::abs(curWheelRevolutions * gearsRatio[curGear + 1] - maxRPM * 1.25f) / 2.0f);
-			curClutch = std::min(clutch, curClutch);
-		}
-		if (curGear * curWheelRevolutions < -10.0f)
-		{
-			float clutch = 0.0f + 1.0f / (1.0f + std::abs(-10.0f - curGear * curWheelRevolutions) / 2.0f);
-			curClutch = std::min(clutch, curClutch);
-		}
-	}
-}
 
-// audio stuff
-updateAudio(doUpdate);
+		// avoid over-revving
+		if (automode <= SEMIAUTO && curGear != 0)
+		{
+			if (std::abs(curWheelRevolutions * gearsRatio[curGear + 1]) > maxRPM * 1.25f)
+			{
+				float clutch = 0.0f + 1.0f / (1.0f + std::abs(curWheelRevolutions * gearsRatio[curGear + 1] - maxRPM * 1.25f) / 2.0f);
+				curClutch = std::min(clutch, curClutch);
+			}
+			if (curGear * curWheelRevolutions < -10.0f)
+			{
+				float clutch = 0.0f + 1.0f / (1.0f + std::abs(-10.0f - curGear * curWheelRevolutions) / 2.0f);
+				curClutch = std::min(clutch, curClutch);
+			}
+		}
+	}
+
+	// audio stuff
+	updateAudio(doUpdate);
 }
 
 void BeamEngine::updateAudio(int doUpdate)
@@ -858,12 +863,12 @@ void BeamEngine::setManualClutch(float val)
 	}
 }
 
-float BeamEngine::getEnginePower()
+float BeamEngine::getEnginePower(float rpm)
 {
 	// engine power with limiter
 	float tqValue = 1.0f;
 
-	float rpmRatio = curEngineRPM / (maxRPM * 1.25f);
+	float rpmRatio = rpm / (maxRPM * 1.25f);
 
 	rpmRatio = std::min(rpmRatio, 1.0f);
 
@@ -877,7 +882,11 @@ float BeamEngine::getEnginePower()
 
 float BeamEngine::getAccToHoldRPM(float rpm)
 {
-	return (-brakingTorque * rpm / maxRPM) / getEnginePower();
+	float rpmRatio = rpm / (maxRPM * 1.25f);
+
+	rpmRatio = std::min(rpmRatio, 1.0f);
+
+	return (-brakingTorque * rpmRatio) / getEnginePower(curEngineRPM);
 }
 
 float BeamEngine::getIdleMixture()

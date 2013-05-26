@@ -28,7 +28,7 @@ class BeamEngine : public ZeroedMemoryAllocator
 
 public:
 
-	BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float diff, int trucknum);
+	BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, int trucknum);
 	~BeamEngine();
 
 	float getAcc();
@@ -72,12 +72,13 @@ public:
 	bool hasTurbo() { return hasturbo; };
 	bool isRunning() { return running; };
 	char getType() { return type; };
-	float getEngineTorque() { return engineTorque; };
-	float getIdleRPM() { return idleRPM; };
-	float getMinRPM() { return minRPM; };
-	float getMaxRPM() { return maxRPM; };
 	float getAccToHoldRPM(float rpm);
+	float getEnginePower(float rpm);
+	float getEngineTorque() { return engineTorque; };
 	float getIdleMixture();
+	float getIdleRPM() { return idleRPM; };
+	float getMaxRPM() { return maxRPM; };
+	float getMinRPM() { return minRPM; };
 	float getPrimeMixture();
 	int getAutoShift();
 	size_t getNumGears() { return gearsRatio.size() - 2; };
@@ -99,8 +100,6 @@ public:
 	enum autoswitch {REAR, NEUTRAL, DRIVE, TWO, ONE, MANUALMODE};
 
 protected:
-
-	float getEnginePower();
 
 	// gear stuff
 	float curWheelRevolutions;
@@ -124,6 +123,7 @@ protected:
 	float brakingTorque;
 	float curAcc;
 	float curEngineRPM;
+	float diffRatio;
 	float engineTorque;
 	float hydropump;
 	float idleRPM;

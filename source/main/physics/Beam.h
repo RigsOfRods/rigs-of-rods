@@ -163,6 +163,7 @@ public:
 	std::vector< std::vector< int > > nodebeamconnections;
 	int label;
 
+	// wheel speed in m/s
 	float WheelSpeed;
 	float getWheelSpeed() { return WheelSpeed; }
 	Ogre::Vector3 getGForces();
@@ -339,9 +340,6 @@ protected:
 	
 	Ogre::Real hydrolen;
 	
-	//number of torque points
-	//    int torquenum;
-	Ogre::Real lastwspeed;
 	Ogre::SceneNode *smokeNode;
 	Ogre::ParticleSystem* smoker;
 	float stabsleep;

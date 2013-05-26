@@ -875,7 +875,6 @@ struct rig
 	int wingstart;
 	
 	Ogre::String realtruckname;
-	bool patchEngineTorque;
 	bool loading_finished;
 
 	bool forwardcommands;

@@ -1500,30 +1500,25 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 		}
 	}
 
-	//LOG("torque "+TOSTRING(torques[0])+" "+TOSTRING(torques[1])+" "+TOSTRING(torques[2])+" "+TOSTRING(torques[3])+" speed "+TOSTRING(newspeeds[0])+" "+TOSTRING(newspeeds[1])+" "+TOSTRING(newspeeds[2])+" "+TOSTRING(newspeeds[3]));
-	for (int i=0; i<free_wheel; i++) wheels[i].speed=newspeeds[i];
-	//wheel speed
-	if (proped_wheels) wspeed/=(float)proped_wheels;
-	lastwspeed=wspeed;
-	WheelSpeed=wspeed;
+	for (int i=0; i<free_wheel; i++)
+	{
+		wheels[i].speed = newspeeds[i];
+	}
+	if (proped_wheels)
+	{
+		wspeed /= (float)proped_wheels;
+	}
 
-	if (patchEngineTorque)
+	// wheel speed  in m/s !
+	WheelSpeed = wspeed;
+
+	if (wheels[0].radius > 0.0f)
 	{
-		if (engine && free_wheel)
-		{
-			engine->setSpin(wspeed * RAD_PER_SEC_TO_RPM);
-		}
-	} else
-	{
-		if (engine && free_wheel && wheels[0].radius != 0)
-		{
-			engine->setSpin(wspeed * RAD_PER_SEC_TO_RPM / wheels[0].radius);
-		}
+		engine->setSpin(wspeed / (2.0f * Math::PI * wheels[0].radius) * 60);
 	}
 
 	// calculate driven distance
-	// distance [in meter/second] = speed [radians/second] * (2 * PI * radius [in meter]);
-	float distance_driven = fabs(((wspeed * RAD_PER_SEC_TO_RPM) * (2.0f * Math::PI * wheels[0].radius) * dt) / 60);
+	float distance_driven = fabs(wspeed * dt);
 	odometerTotal += distance_driven;
 	odometerUser  += distance_driven;
 
