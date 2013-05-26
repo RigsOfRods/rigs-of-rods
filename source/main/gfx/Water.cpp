@@ -417,7 +417,7 @@ void Water::update()
 		
 		Vector3 waterPos = cameraPos + (sightPos - cameraPos).normalisedCopy() * offset;
 
-		if (waterPos.distance(pTestNode->getPosition()) > 50.0f)
+		if (waterPos.distance(pTestNode->getPosition()) > 200.0f)
 		{
 			pTestNode->setPosition(waterPos);
 			pBottomNode->setPosition(waterPos);
