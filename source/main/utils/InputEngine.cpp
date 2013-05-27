@@ -869,7 +869,7 @@ eventInfo_t eventInfo[] = {
 		_L("Command 81")
 	},
 	{
-		"COMMANDS_88",
+		"COMMANDS_82",
 		EV_COMMANDS_82,
 		"Keyboard EXPL+CTRL+SHIFT+ALT+F10",
 		_L("Command 82")
