@@ -6823,42 +6823,8 @@ int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, st
 		parser_warning(context, "Error: using node '"+s+"' before actually declaring that node. Please move this section ("+context.modeString+") after the nodes/nodes2 section.", PARSER_ERROR);
 		return PARSEINT(s);
 	}
-	// big switch between using nodes and nodes2
-	if (node_names.empty())
-	{
-		// used classic nodes, all int's
-		int id = PARSEINT(s);
-		// fix special case
-		if (special_numbers && std::find(special_numbers->begin(), special_numbers->end(), id) != special_numbers->end())
-		{
-			// in there, valid
-			return id;
-		}
-		// check if the number is roughly correct
-		if (id >= free_node)
-		{
-			parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
-			if(ignoreError)
-				return 0;
-			else
-				throw(ParseException());
-		}
-		else if (id < 0)
-		{
-			id = -id;
-			parser_warning(context, "Error: invalid node number "+s+", less than zero, using positive number, please fix", PARSER_OBSOLETE);
-			if (id >= free_node)
-			{
-				parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
-				if(ignoreError)
-					return 0;
-				else
-					throw(ParseException());
-			}
-			return id;
-		}
-		return id;
-	} else
+
+	if (!node_names.empty())
 	{
 		// whooo, named nodes (nodes2)
 		std::map<Ogre::String, int>::iterator it = node_names.find(s);
@@ -6867,38 +6833,37 @@ int SerializedRig::parse_node_number(parsecontext_t &context, Ogre::String s, st
 			// found it, return integer node number value
 			return it->second;
 		}
+	}
 
-		// compare with numbers now
-		int id = PARSEINT(s);
+	int id = PARSEINT(s);
 
-		// no match, try to match with the special numbers
-		if (special_numbers && std::find(special_numbers->begin(), special_numbers->end(), id) != special_numbers->end())
-		{
-			//special, return
-			return id;
-		}
-		// still no match, is it a normal node number maybe?
-		// check if the number is roughly correct
-		if (id >= free_node)
-		{
-			parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
-			if(ignoreError)
-				return 0;
-			else
-				throw(ParseException());
-		}
-		else if (id < 0)
-		{
-			parser_warning(context, "Error: invalid node number "+s+", less than zero", PARSER_ERROR);
-			if(ignoreError)
-				return 0;
-			else
-				throw(ParseException());
-		}
-		// we assume its a normal node number then
+	// fix special case
+	if (special_numbers && std::find(special_numbers->begin(), special_numbers->end(), id) != special_numbers->end())
+	{
+		// in there, valid
 		return id;
 	}
 
-	parser_warning(context, "Error: invalid node "+s+", not found. You may not use nodes and nodes2 at the same time.", PARSER_ERROR);
-	return -1;
+
+	if (id < 0)
+	{
+		id = -id;
+		parser_warning(context, "Error: invalid node number "+s+", less than zero, using positive number, please fix", PARSER_OBSOLETE);
+	}
+
+	// check if the number is roughly correct
+	if (id < free_node)
+	{
+		return id;
+	} else
+	{
+		parser_warning(context, "Error: invalid node number "+s+", bigger than existing nodes ("+TOSTRING(free_node)+")", PARSER_ERROR);
+	}
+
+	if (!ignoreError)
+	{
+		throw(ParseException());
+	}
+
+	return 0;
 }
