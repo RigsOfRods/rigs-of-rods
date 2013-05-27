@@ -1718,7 +1718,7 @@ eventInfo_t eventInfo[] = {
 		_L("move camera up")
 	},
 	{
-		"CHARACTER_DOWN",
+		"CAMERA_DOWN",
 		EV_CAMERA_DOWN,
 		"Keyboard Z",
 		_L("move camera down")
