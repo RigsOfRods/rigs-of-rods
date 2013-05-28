@@ -1836,7 +1836,6 @@ void Beam::reset(bool keepPosition)
 
 void Beam::SyncReset()
 {
-	int i;
 	hydrodirstate=0.0;
 	hydroaileronstate=0.0;
 	hydrorudderstate=0.0;
@@ -1844,6 +1843,7 @@ void Beam::SyncReset()
 	hydrodirwheeldisplay=0.0;
 	if (hydroInertia) hydroInertia->resetCmdKeyDelay();
 	parkingbrake=0;
+	cc_mode = false;
 	fusedrag=Vector3::ZERO;
 	origin=Vector3::ZERO;
 	if (pointCD) pointCD->reset();
@@ -1858,7 +1858,7 @@ void Beam::SyncReset()
 	}
 	float cur_rot = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 	if (engine) engine->start();
-	for (i=0; i<free_node; i++)
+	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition=nodes[i].iPosition;
 		nodes[i].RelPosition=nodes[i].iPosition-origin;
@@ -1873,7 +1873,7 @@ void Beam::SyncReset()
 		nodes[i].isSkin=nodes[i].iIsSkin;
 	}
 
-	for (i=0; i<free_beam; i++)
+	for (int i=0; i<free_beam; i++)
 	{
 		beams[i].broken=0;
 		beams[i].maxposstress=beams[i].default_deform;
@@ -1918,7 +1918,7 @@ void Beam::SyncReset()
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 	}
 
-	for (i=0; i<free_contacter; i++) contacters[i].contacted = 0;
+	for (int i=0; i<free_contacter; i++) contacters[i].contacted = 0;
 	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++) it->lockedto=0;
 	for (std::vector <tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
 	{
@@ -1926,16 +1926,16 @@ void Beam::SyncReset()
 		it->beam->p2       = &nodes[0];
 		it->beam->mSceneNode->detachAllObjects();
 	}
-	for (i=0; i<free_aeroengine; i++) aeroengines[i]->reset();
-	for (i=0; i<free_screwprop; i++) screwprops[i]->reset();
-	for (i=0; i<free_rotator; i++) rotators[i].angle = 0.0;
-	for (i=0; i<free_wing; i++) wings[i].fa->broken = false;
-	for (i=0; i<free_wheel; i++) wheels[i].speed = 0.0;
+	for (int i=0; i<free_aeroengine; i++) aeroengines[i]->reset();
+	for (int i=0; i<free_screwprop; i++) screwprops[i]->reset();
+	for (int i=0; i<free_rotator; i++) rotators[i].angle = 0.0;
+	for (int i=0; i<free_wing; i++) wings[i].fa->broken = false;
+	for (int i=0; i<free_wheel; i++) wheels[i].speed = 0.0;
 	if (buoyance) buoyance->setsink(0);
 	refpressure = 50.0;
 	addPressure(0.0);
 	if (autopilot) resetAutopilot();
-	for (i=0; i<free_flexbody; i++) flexbodies[i]->reset();
+	for (int i=0; i<free_flexbody; i++) flexbodies[i]->reset();
 
 	// reset on spot with backspace
 	if (reset_requested == 2)
@@ -1952,6 +1952,8 @@ void Beam::SyncReset()
 	for (int i=0; i<MAX_COMMANDS; i++)
 	{
 		commandkey[i].commandValue = 0.0;
+		commandkey[i].triggerInputValue = 0.0f;
+		commandkey[i].playerInputValue = 0.0f;
 	}
 
 	resetSlideNodes();
