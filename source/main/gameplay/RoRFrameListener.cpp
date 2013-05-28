@@ -1176,7 +1176,7 @@ void RoRFrameListener::updateCruiseControl(Beam* curr_truck, float dt)
 	{
 		if (curr_truck->engine->getGear() > 0)
 		{
-			curr_truck->cc_target_speed += 5.0f * dt;
+			curr_truck->cc_target_speed += 2.5f * dt;
 			curr_truck->cc_target_speed  = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
 			if (curr_truck->sl_enabled)
 			{
@@ -1192,7 +1192,7 @@ void RoRFrameListener::updateCruiseControl(Beam* curr_truck, float dt)
 	{
 		if (curr_truck->engine->getGear() > 0)
 		{
-			curr_truck->cc_target_speed -= 5.0f * dt;
+			curr_truck->cc_target_speed -= 2.5f * dt;
 			curr_truck->cc_target_speed  = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
 		} else if (curr_truck->engine->getGear() == 0) // out of gear
 		{
