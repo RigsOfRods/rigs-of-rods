@@ -353,12 +353,12 @@ void BeamEngine::update(float dt, int doUpdate)
 			{
 				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < 2))
 				{
-					newGear++;
+					shift(1);
 				}
 			} else if (curGear > 1 && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
 				getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))))
 			{
-				newGear--;
+				shift(-1);
 			}
 
 			float brake = 0.0f;
