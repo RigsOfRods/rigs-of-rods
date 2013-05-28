@@ -110,6 +110,7 @@ protected:
 	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
 	Ogre::String getPageConfigFilename(int x, int z);
 	Ogre::String getPageHeightmap(int x, int z);
+	Ogre::DataStreamPtr getPageConfig(int x, int z);
 };
 
 #endif // __TerrainGeometryManager_H_

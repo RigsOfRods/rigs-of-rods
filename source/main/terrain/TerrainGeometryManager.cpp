@@ -73,7 +73,7 @@ Ogre::String TerrainGeometryManager::getPageConfigFilename(int x, int z)
 	return cfg;
 }
 
-Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
+Ogre::DataStreamPtr TerrainGeometryManager::getPageConfig(int x, int z)
 {
 	String cfg = getPageConfigFilename(x, z);
 
@@ -81,15 +81,37 @@ Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
 	{
 		LOG("loading page config for page " + XZSTR(x,z) + " : " + cfg);
 		DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(cfg, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-		char buf[4096];
-		ds->readLine(buf, 4096);
-		return String(buf);
-	} catch(...)
+
+		if (!ds.isNull() && ds->isReadable())
+		{
+			return ds;
+		}
+	} catch (...)
 	{
-		LOG("error loading page config for page " + XZSTR(x,z) + " : " + cfg);
+
 	}
 
-	return String();
+	LOG("error loading page config for page " + XZSTR(x,z) + " : " + cfg);
+
+	if (x != 0 || z != 0)
+	{
+		LOG("loading default page config: " + cfg + " instead");
+		return getPageConfig(0, 0);
+	}
+
+	return DataStreamPtr();
+}
+
+Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
+{
+	DataStreamPtr ds = getPageConfig(x, z);
+
+	if (ds.isNull())
+		return "";
+
+	char buf[4096];
+	ds->readLine(buf, 4096);
+	return String(buf);
 }
 
 void TerrainGeometryManager::initTerrain()
@@ -259,24 +281,11 @@ void TerrainGeometryManager::configureTerrainDefaults()
 void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 {
 	if (pageConfigFormat.empty()) return;
+	
+	DataStreamPtr ds = getPageConfig(x, z);
 
-	String cfg = getPageConfigFilename(x, z);
-
-	DataStreamPtr ds;
-	try
-	{
-		LOG("loading page config for page " + XZSTR(x,z) + " : " + cfg);
-		ds = ResourceGroupManager::getSingleton().openResource(cfg, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-	} catch(...)
-	{
-		LOG("error loading page config for page " + XZSTR(x,z) + " : " + cfg);
-	}
-
-	if (ds.isNull() || !ds->isReadable())
-	{
-		LOG("error loading layers for page " + XZSTR(x,z) + " : " + cfg);
+	if (ds.isNull())
 		return;
-	}
 
 	char line[4096];
 	ds->readLine(line, 4096);
