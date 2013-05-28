@@ -54,6 +54,7 @@ BeamFactory::BeamFactory() :
 	, done_count(0)
 	, forcedActive(false)
 	, free_truck(0)
+	, num_cpu_cores(1)
 	, physFrame(0)
 	, previous_truck(-1)
 	, tdr(0)
@@ -68,7 +69,18 @@ BeamFactory::BeamFactory() :
 	if (BSETTING("2DReplay", false))
 		tdr = new TwoDReplay();
 
-	asyncPhysics = BSETTING("AsynchronousPhysics", false);
+	async_physics = BSETTING("AsynchronousPhysics", false);
+
+#ifdef __UNIX__
+	num_cpu_cores = sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+
+#ifdef WIN32
+	SYSTEM_INFO sysinfo;
+	GetSystemInfo(&sysinfo);
+
+	num_cpu_cores = sysinfo.dwNumberOfProcessors;
+#endif
 
 	// Create worker thread (used for physics calculations)
 	if (thread_mode == THREAD_MULTI)
