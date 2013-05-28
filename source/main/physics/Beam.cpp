@@ -2077,9 +2077,6 @@ bool Beam::frameStep(Real dt)
 	} else
 	{
 		// simulation update
-		ttdt = tdt;
-		tdt = dt;
-
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
 			float dtperstep = dt / (Real)steps;
@@ -2098,6 +2095,9 @@ bool Beam::frameStep(Real dt)
 			BeamFactory::getSingleton()._WorkerWaitForSync();
 		}
 		
+		ttdt = tdt;
+		tdt = dt;
+
 		ffforce = affforce / steps;
 		ffhydro = affhydro / steps;
 		if (free_hydro) ffhydro = ffhydro / free_hydro;
