@@ -44,12 +44,12 @@ public:
 	Beam *createLocal(Ogre::Vector3 pos, Ogre::Quaternion rot, Ogre::String fname, collision_box_t *spawnbox = NULL, bool ismachine = false, int flareMode = 0, const std::vector<Ogre::String> *truckconfig = 0, Skin *skin = 0, bool freePosition = false);
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
-	int getThreadingMode() { return thread_mode; };
+	bool getThreadingMode() { return thread_mode; };
 	void _WorkerWaitForSync();  // Waits until work is done
 	void _WorkerPrepareStart(); // Prepare to start working
 	void _WorkerSignalStart();  // Signals to start working
 
-	bool asynchronousPhysics() { return asyncPhysics; };
+	bool asynchronousPhysics() { return async_physics; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
 
@@ -102,8 +102,9 @@ public:
 protected:
 	Ogre::SceneNode *parent;
 	
-	int thread_mode;
-	bool asyncPhysics;
+	bool async_physics;
+	bool thread_mode;
+	int num_cpu_cores;
 
 	Beam *trucks[MAX_TRUCKS];
 	int free_truck;
