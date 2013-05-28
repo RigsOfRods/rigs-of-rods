@@ -401,10 +401,10 @@ void BeamEngine::update(float dt, int doUpdate)
 			avgAcc200 /= accs.size();
 			avgBrake200 /= brakes.size();
 
-			if (avgAcc50 > 0.8f || avgAcc200 > 0.8f)
+			if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
 			{
 				shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
-			} else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f)
+			} else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5)
 			{
 				shiftBehaviour /= 1.01;
 			}
