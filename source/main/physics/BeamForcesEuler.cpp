@@ -1512,7 +1512,7 @@ void Beam::calcForcesEuler(int doUpdate, Real dt, int step, int maxstep)
 	// wheel speed  in m/s !
 	WheelSpeed = wspeed;
 
-	if (wheels[0].radius > 0.0f)
+	if (engine && wheels[0].radius > 0.0f)
 	{
 		engine->setSpin(wspeed / (2.0f * Math::PI * wheels[0].radius) * 60);
 	}
