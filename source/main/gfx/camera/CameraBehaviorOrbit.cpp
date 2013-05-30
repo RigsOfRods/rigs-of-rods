@@ -120,9 +120,9 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	camDist = std::max(0.0f, camDist);
 
 	Vector3 desiredPosition = camLookAt + camDist * 0.5f * Vector3(
-			  sin(targetDirection.valueRadians() + (camRotX + camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY + camRotYSwivel).valueRadians())
-			, sin(targetPitch.valueRadians()     + (camRotY + camRotYSwivel).valueRadians())
-			, cos(targetDirection.valueRadians() + (camRotX + camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY + camRotYSwivel).valueRadians())
+			  sin(targetDirection.valueRadians() + (camRotX - camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
+			, sin(targetPitch.valueRadians()     + (camRotY - camRotYSwivel).valueRadians())
+			, cos(targetDirection.valueRadians() + (camRotX - camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
 			);
 
 	if ( gEnv->terrainManager && gEnv->terrainManager->getHeightFinder() )
