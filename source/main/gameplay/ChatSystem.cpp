@@ -173,14 +173,16 @@ void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int
 		{
 			UTFString msg = username + normalColour + ": " + tryConvertUTF(buffer);
 			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "user_comment.png");
-		} else if (source == (int)gEnv->network->getUID())
+		}
+#ifdef USE_SOCKETW
+		else if (source == (int)gEnv->network->getUID())
 		{
 			// our message bounced back :D
 			UTFString msg = gEnv->network->getNickname(true) + normalColour + ": " + tryConvertUTF(buffer);
 			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "user_comment.png");
 		}
-	}
-	else if (type == MSG2_UTF_PRIVCHAT)
+#endif // USE_SOCKETW
+	} else if (type == MSG2_UTF_PRIVCHAT)
 	{
 		// some private chat message
 		if (source == -1)

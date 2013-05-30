@@ -393,9 +393,9 @@ void BeamEngine::update(float dt, int doUpdate)
 				avgBrake200 += brakes[i];
 			}
 
-			avgRPM50 /= std::min(rpms.size(), (unsigned int)50);
-			avgAcc50 /= std::min(accs.size(), (unsigned int)50);
-			avgBrake50 /= std::min(brakes.size(), (unsigned int)50);
+			avgRPM50 /= std::min(rpms.size(), (std::deque<float>::size_type)50);
+			avgAcc50 /= std::min(accs.size(), (std::deque<float>::size_type)50);
+			avgBrake50 /= std::min(brakes.size(), (std::deque<float>::size_type)50);
 
 			avgRPM200 /= rpms.size();
 			avgAcc200 /= accs.size();
