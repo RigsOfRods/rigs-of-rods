@@ -1056,7 +1056,7 @@ struct rig
 	float odometerTotal;
 	float odometerUser;
 
-	std::vector<std::pair<Ogre::String, bool>> dashBoardLayouts;
+	std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
 	Ogre::String beamHash;
 };
 
