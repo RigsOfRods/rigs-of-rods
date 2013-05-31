@@ -1667,10 +1667,18 @@ bool RoRFrameListener::updateEvents(float dt)
 								}
 
 								// only when the truck really is not moving anymore
-								if (fabs(curr_truck->WheelSpeed) <= 0.1f)
+								if (fabs(curr_truck->WheelSpeed) <= 1.0f)
 								{
+									float velocity = 0.0f;
+
+									if (curr_truck->cameranodepos[0] >= 0 && curr_truck->cameranodedir[0] >= 0)
+									{
+										Vector3 hdir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
+										velocity = hdir.dotProduct(curr_truck->nodes[0].Velocity);
+									}
+
 									// switching point, does the user want to drive forward from backward or the other way round? change gears?
-									if (brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() >= 0)
+									if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() > 0)
 									{
 										// we are on the brake, jump to reverse gear
 										if (curr_truck->engine->getAutoMode() == BeamEngine::AUTOMATIC)
@@ -1680,7 +1688,7 @@ bool RoRFrameListener::updateEvents(float dt)
 										{
 											curr_truck->engine->setGear(-1);
 										}
-									} else if (brake < 0.5f && accl > 0.5f && curr_truck->engine->getGear() < 0)
+									} else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && curr_truck->engine->getGear() < 0)
 									{
 										// we are on the gas pedal, jump to first gear when we were in rear gear
 										if (curr_truck->engine->getAutoMode() == BeamEngine::AUTOMATIC)
