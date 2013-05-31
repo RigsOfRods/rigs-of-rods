@@ -294,7 +294,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		float velocityKMH = (velocity * 3.6f);
 		float velocityMPH = (velocity * 2.23693629f);
 		// apply a deadzone ==> no flickering +/-
-		if (fabs(truck->WheelSpeed) < 1.0f)
+		if (velocity < 1.0f)
 		{
 			velocityKMH = velocityMPH = 0.0f;
 		}
