@@ -777,7 +777,7 @@ void BeamEngine::autoSetAcc(float val)
 
 void BeamEngine::shift(int val)
 {
-	if (curGear + val < -1 || curGear + val > getNumGears()) return;
+	if (!val || curGear + val < -1 || curGear + val > getNumGears()) return;
 	if (automode < MANUAL)
 	{
 #ifdef USE_OPENAL
