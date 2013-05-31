@@ -148,18 +148,9 @@ bool OutProtocol::update(float dt)
 		{
 			gd.Flags |= OG_TURBO;
 		}
-
-		float velocity = truck->nodes[0].Velocity.length();
-
-		if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >=0)
-		{
-			Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
-			velocity = hdir.dotProduct(truck->nodes[0].Velocity);
-		}
-
 		gd.Gear        = std::max(0, truck->engine->getGear() + 1); // we only support one reverse gear
 		gd.PLID        = 0;
-		gd.Speed       = fabs(velocity);
+		gd.Speed       = fabs(truck->WheelSpeed);
 		gd.RPM         = truck->engine->getRPM();
 		gd.Turbo       = truck->engine->getTurboPSI() * 0.0689475729f;
 		gd.EngTemp     = 0; // TODO

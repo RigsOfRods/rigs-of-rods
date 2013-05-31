@@ -331,10 +331,8 @@ void RoRFrameListener::updateGUI(float dt)
 		ow->guipedacc->setTop(-0.05*(1.0-curr_truck->engine->getAcc())-0.01);
 
 		// speedo / calculate speed
-		Vector3 dir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
-		float velocity = dir.dotProduct(curr_truck->nodes[0].Velocity);
 		Real guiSpeedFactor = 7.0 * (140.0 / curr_truck->speedoMax);
-		Real angle = 140 - fabs(velocity * guiSpeedFactor);
+		Real angle = 140 - fabs(curr_truck->WheelSpeed * guiSpeedFactor);
 		angle = std::max(-140.0f, angle);
 		ow->speedotexture->setTextureRotate(Degree(angle));
 
@@ -373,6 +371,7 @@ void RoRFrameListener::updateGUI(float dt)
 
 		// pitch
 		//pitch_node->resetOrientation();
+		Vector3 dir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
 		angle = asin(dir.dotProduct(Vector3::UNIT_Y));
 		angle = std::max(-1.0f, angle);
 		angle = std::min(angle, 1.0f);
