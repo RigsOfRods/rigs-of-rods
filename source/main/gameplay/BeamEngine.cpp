@@ -366,7 +366,7 @@ void BeamEngine::update(float dt, int doUpdate)
 				{
 					shift(1);
 				}
-			} else if (curGear > 1 && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
+			} else if (curGear > 1 && refWheelRevolutions * gearsRatio[curGear] < maxRPM && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
 				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear+1]))))
 			{
 				shift(-1);
@@ -483,7 +483,8 @@ void BeamEngine::update(float dt, int doUpdate)
 			if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
 				newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f)
 			{
-				shiftTo(newGear);
+				if (absVelocity - relVelocity < 0.5f)
+					shiftTo(newGear);
 			}
 
 			if (accs.size() > 200)
