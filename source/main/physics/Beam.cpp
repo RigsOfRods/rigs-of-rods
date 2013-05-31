@@ -5329,7 +5329,7 @@ void Beam::deleteNetTruck()
 {
 	// TODO: properly delete things ...
 	//park and recycle vehicle
-	state=RECYCLE;
+	state = RECYCLE;
 	netMT->setVisible(false);
 	resetPosition(100000, 100000, false, 100000);
 	netLabelNode->setVisible(false);
@@ -5338,22 +5338,24 @@ void Beam::deleteNetTruck()
 
 float Beam::getHeadingDirectionAngle()
 {
-	int refnode = cameranodepos[0];
-	int dirnode = cameranodedir[0];
-	if (refnode==-1 || dirnode == -1)
-		return 0;
-	Vector3 idir=nodes[refnode].RelPosition - nodes[dirnode].RelPosition;
-	return atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
+	if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
+	{
+		Vector3 idir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		return atan2(idir.dotProduct(Vector3::UNIT_X), (idir).dotProduct(-Vector3::UNIT_Z));
+	}
+
+	return 0.0f;
 }
 
 bool Beam::getReverseLightVisible()
 {
-	if (state==NETWORKED)
+	if (state == NETWORKED)
 		return netReverseLight;
-	if (!engine && !reverselight) return 0;
-	if (engine) return (engine->getGear() < 0);
-	if (reverselight) return true;
-	return false;
+
+	if (engine)
+		return (engine->getGear() < 0);
+
+	return reverselight;
 }
 
 void Beam::changedCamera()
@@ -5729,9 +5731,16 @@ void Beam::updateDashBoards(float &dt)
 	dash->setFloat(DD_BRAKE, dash_brake);
 
 	// speedo
-	float speed_kph = WheelSpeed * 3.6f; // m/s to mk/h
+	float velocity = nodes[0].Velocity.length();
+
+	if (cameranodepos[0] >= 0 && cameranodedir[0] >=0)
+	{
+		Vector3 hdir = (nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy();
+		velocity = hdir.dotProduct(nodes[0].Velocity);
+	}
+	float speed_kph = velocity * 3.6f;
 	dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
-	float speed_mph = speed_kph * 0.621371192f; // 1 kph = 0.621371192 mph
+	float speed_mph = velocity * 2.23693629f;
 	dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
 	// roll
@@ -6075,7 +6084,7 @@ void Beam::updateDashBoards(float &dt)
 
 Vector3 Beam::getGForces()
 {
-	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES && cameranoderoll[0] >= 0 && cameranoderoll[0] < MAX_NODES)
 	{
 		Vector3 acc      = cameranodeacc / cameranodecount;
 		cameranodeacc    = Vector3::ZERO;

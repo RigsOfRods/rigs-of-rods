@@ -81,8 +81,8 @@ public:
 	float getMinRPM() { return minRPM; };
 	float getPrimeMixture();
 	int getAutoShift();
-	size_t getNumGears() { return gearsRatio.size() - 2; };
-	size_t getNumGearsRanges() { return getNumGears() / 6 + 1; };
+	int getNumGears() { return gearsRatio.size() - 2; };
+	int getNumGearsRanges() { return getNumGears() / 6 + 1; };
 	TorqueCurve *getTorqueCurve() { return torqueCurve; };
 	void autoSetAcc(float val);
 	void autoShiftDown();
@@ -102,13 +102,18 @@ public:
 protected:
 
 	// gear stuff
-	float curWheelRevolutions;
+	float refWheelRevolutions; // estimated wheel revolutions based on current vehicle speed along the long axis
+	float curWheelRevolutions; // measured wheel revolutions
 	int curGear;
 	int curGearRange;
 	int numGears;
 	std::vector<float> gearsRatio;
 
-	// clutch
+	// truck stuff
+	float absVelocity; // current velocity of the vehicle
+	float relVelocity; // current velocity of the vehicle along the long axis
+
+	// clutch stuff
 	float clutchForce;
 	float clutchTime;
 	float curClutch;

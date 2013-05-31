@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "TorqueCurve.h"
 
+using namespace Ogre;
+
 BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, int trucknum) :
 	  apressure(0.0f)
 	, autocurAcc(0.0f)
@@ -120,9 +122,11 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 void BeamEngine::update(float dt, int doUpdate)
 {
 	Beam* truck = BeamFactory::getSingleton().getTruck(trucknum);
-	
+
+	if (!truck) return;
+
 	float acc = curAcc;
-	
+
 	acc = std::max(getIdleMixture(), acc);
 	acc = std::max(getPrimeMixture(), acc);
 
@@ -261,13 +265,6 @@ void BeamEngine::update(float dt, int doUpdate)
 				SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
 				curGear += shiftval;
-				if (automode == AUTOMATIC)
-				{
-					while (curGear > 2 && curWheelRevolutions * gearsRatio[curGear + 1] < minRPM)
-					{
-						curGear -= 2;
-					}
-				}
 				curGear = std::max(-1, curGear);
 				curGear = std::min(curGear, numGears);
 				shiftval = 0;
@@ -337,17 +334,31 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (doUpdate && !shifting && !postshifting)
 	{
 		// gear hack
+		absVelocity = truck->nodes[0].Velocity.length();
+		float velocity = absVelocity;
+
+		if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >=0)
+		{
+			Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+			velocity = hdir.dotProduct(truck->nodes[0].Velocity);
+		}
+		relVelocity = std::abs(velocity);
+
+		if (truck->wheels[0].radius != 0)
+		{
+			refWheelRevolutions = velocity / truck->wheels[0].radius * RAD_PER_SEC_TO_RPM;
+		}
+
 		if (automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
 		{
-			static float oneThirdRPMRange = (maxRPM - minRPM) / 3.0f;
-			static float halfRPMRange = (maxRPM - minRPM) / 2.0f;
+			static float fullRPMRange = (maxRPM - minRPM);
+			static float oneThirdRPMRange = fullRPMRange / 3.0f;
+			static float halfRPMRange = fullRPMRange / 2.0f;
 			static float shiftBehaviour = 0.0f;
 			static int upShiftDelayCounter = 0;
 			static std::deque<float> rpms;
 			static std::deque<float> accs;
 			static std::deque<float> brakes;
-
-			int newGear = curGear;
 
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
@@ -356,14 +367,16 @@ void BeamEngine::update(float dt, int doUpdate)
 					shift(1);
 				}
 			} else if (curGear > 1 && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
-				getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))))
+				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear+1]))))
 			{
 				shift(-1);
 			}
 
+			int newGear = curGear;
+			
 			float brake = 0.0f;
 
-			if (truck && truck->brakeforce > 0.0f)
+			if (truck->brakeforce > 0.0f)
 			{
 				brake = truck->brake / truck->brakeforce;
 			}
@@ -412,7 +425,7 @@ void BeamEngine::update(float dt, int doUpdate)
 			if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
 			{
 				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
-					   getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
@@ -628,7 +641,7 @@ float BeamEngine::getCrankFactor()
 	float rpmRatio = (curEngineRPM - minWorkingRPM) / (maxRPM - minWorkingRPM);
 	rpmRatio = std::max(0.0f, rpmRatio); // Avoids a negative rpmRatio when curEngineRPM < minWorkingRPM
 	rpmRatio = std::min(rpmRatio, 1.0f); // Avoids a rpmRatio > 1.0f when curEngineRPM > maxRPM
-	
+
 	float crankfactor = 5.0f * rpmRatio;
 
 	return crankfactor;
@@ -763,6 +776,7 @@ void BeamEngine::autoSetAcc(float val)
 
 void BeamEngine::shift(int val)
 {
+	if (curGear + val < -1 || curGear + val > getNumGears()) return;
 	if (automode < MANUAL)
 	{
 #ifdef USE_OPENAL
@@ -785,38 +799,13 @@ void BeamEngine::shift(int val)
 			SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
 			curGear += val;
-			curGear  = std::max(-1, curGear);
-			curGear  = std::min(curGear, numGears);
 		}
 	}
 }
 
 void BeamEngine::shiftTo(int newGear)
 {
-	if (newGear == curGear || newGear > (int)getNumGears()) return;
-	if (automode < MANUAL)
-	{
-		shiftval = newGear - curGear;
-		shifting = 1;
-		shiftclock = 0.0f;
-		setAcc(0.0f);
-	} else
-	{
-		if (curClutch > 0.25f)
-		{
-#ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_GEARSLIDE);
-#endif // USE_OPENAL
-		} else
-		{
-#ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
-			curGear = newGear;
-			curGear = std::max(-1, curGear);
-			curGear = std::min(curGear, numGears);
-		}
-	}
+	shift(newGear - curGear);
 }
 
 void BeamEngine::updateShifts()
@@ -846,12 +835,11 @@ void BeamEngine::updateShifts()
 			newGear++;
 		}
 
-		if (autoselect == DRIVE)
+		curGear = newGear;
+		
+		if (autoselect == TWO)
 		{
-			curGear = newGear;
-		} else if (autoselect == TWO)
-		{
-			curGear = std::min(newGear, 2);
+			curGear = std::min(curGear, 2);
 		}
 	}
 }

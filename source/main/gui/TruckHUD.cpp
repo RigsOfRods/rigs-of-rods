@@ -282,8 +282,17 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		minVelos[truck->driveable] = std::min(truck->WheelSpeed, minVelos[truck->driveable]);
 
 		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CurrentVelocity");
-		float velocityKMH = (truck->WheelSpeed * 3.6f);
-		float velocityMPH = (truck->WheelSpeed * 2.23693629f);
+		
+		float velocity = truck->nodes[0].Velocity.length();
+
+		if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >=0)
+		{
+			Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+			velocity = hdir.dotProduct(truck->nodes[0].Velocity);
+		}
+
+		float velocityKMH = (velocity * 3.6f);
+		float velocityMPH = (velocity * 2.23693629f);
 		// apply a deadzone ==> no flickering +/-
 		if (fabs(truck->WheelSpeed) < 1.0f)
 		{
@@ -306,7 +315,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 	{
 		float velocity = truck->nodes[0].Velocity.length();
 		
-		if (truck->driveable == BOAT)
+		if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] && truck->driveable == BOAT)
 		{
 			hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
 			velocity = hdir.dotProduct(truck->nodes[truck->cameranodepos[0]].Velocity);
