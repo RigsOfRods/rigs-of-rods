@@ -666,8 +666,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						if (ratio)
 						{
 							alb_ratio = ratio;
-							if (alb_ratio < 0.0f) alb_ratio = 0.0f;
-							if (alb_ratio > 20.0f) alb_ratio = 20.0f;
+							alb_ratio = std::max(0.0f, alb_ratio);
+							alb_ratio = std::min(alb_ratio, 20.0f);
 						} else
 						{
 							parser_warning(c, "Error parsing File " + filename +" line " + StringConverter::toString(c.linecounter) + ". Mode not parsed, trying to continue....");
@@ -676,20 +676,17 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					} else if (i == 1)
 					{
 						// wheelspeed adaption: 60 sec * 60 mins / 1000(kilometer) = 3.6 to get meter per sec
-						alb_minspeed = (StringConverter::parseReal(options[i])/3.6f);
-						if (alb_minspeed < 0.5f) alb_minspeed = 0.5f;
-
+						alb_minspeed = StringConverter::parseReal(options[i]) / 3.6f;
+						alb_minspeed = std::max(0.5f, alb_minspeed);
 					} else if (i == 2)
 					{
-						float pulse = (StringConverter::parseReal(options[i]));
-						if (!pulse)
-							alb_pulse=1.0f;
-						else
+						float pulse = StringConverter::parseReal(options[i]);
+						if (pulse <= 1.0f || pulse >= 2000.0f)
 						{
-							//determine how many simcycles to skip before activation (simcycles per second = 2k, fix: create a default var for this ?)
-							alb_pulse = int(2000.0f / fabs(pulse));
-							if (alb_pulse < 1)
-								alb_pulse = 1;
+							alb_pulse = 1;
+						} else
+						{
+							alb_pulse = (int)(2000.0f / fabs(pulse));
 						}
 					} else
 					{
@@ -716,23 +713,18 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 								{
 									alb_mode = 1;
 									alb_present = true;
-								}
-								else if (sourceStr == "OFF" || sourceStr == "off")
+								} else if (sourceStr == "OFF" || sourceStr == "off")
 								{
 									alb_mode = 0;
 									alb_present = true;
-								}
-								else if (sourceStr == "NODASH" || sourceStr == "nodash" || sourceStr == "Nodash" || sourceStr == "NoDash")
+								} else if (sourceStr == "NODASH" || sourceStr == "nodash" || sourceStr == "Nodash" || sourceStr == "NoDash")
 								{
 									alb_present = false;
-								}
-								else if (sourceStr == "NOTOGGLE" || sourceStr == "notoggle" || sourceStr == "Notoggle" || sourceStr == "NoToggle")
+								} else if (sourceStr == "NOTOGGLE" || sourceStr == "notoggle" || sourceStr == "Notoggle" || sourceStr == "NoToggle")
 								{
 									alb_notoggle = true;
 								}
-
 							}
-
 						} else
 						{
 							parser_warning(c, "Antilockbrakes Mode: missing " + filename +" line " + StringConverter::toString(c.linecounter) + ". Antilockbrakes Mode = ON.", PARSER_ERROR);
@@ -756,7 +748,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					continue;
 				}
 
-				for (unsigned int i=0;i<options.size();i++)
+				for (unsigned int i=0; i<options.size(); i++)
 				{
 					if (i == 0)
 					{
@@ -765,31 +757,30 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						if (ratio)
 						{
 							tc_ratio = ratio;
-							if (tc_ratio < 0.0f) tc_ratio = 0.0f;
-							if (tc_ratio > 20.0f) tc_ratio = 20.0f;
-						}
-						else
+							tc_ratio = std::max(0.0f, tc_ratio);
+							tc_ratio = std::min(tc_ratio, 20.0f);
+						} else
+						{
 							parser_warning(c,"Error parsing File (TractionControl) " + filename +" line " + StringConverter::toString(c.linecounter) + ". TractionControl disabeld.", PARSER_ERROR);
+							continue;
+						}
 					} else if (i == 1)
 					{
-						tc_wheelslip = (StringConverter::parseReal(options[i]));
-						if (tc_wheelslip < 0.0f) tc_wheelslip = 0.0f;
+						tc_wheelslip = StringConverter::parseReal(options[i]);
+						tc_wheelslip = std::max(0.0f, tc_wheelslip);
 					} else if (i == 2)
 					{
-						// wheelspeed adaption
-						tc_fade = (StringConverter::parseReal(options[i]));
-						if (tc_fade <= 0.1f) tc_fade = 0.1f;
-
+						tc_fade = StringConverter::parseReal(options[i]);
+						tc_fade = std::max(0.1f, tc_fade);
 					} else if (i == 3)
 					{
-						float pulse = (StringConverter::parseReal(options[i]));
-						if (!pulse)
-							tc_pulse=1;
-						else
+						float pulse = StringConverter::parseReal(options[i]);
+						if (pulse <= 1.0f || pulse >= 2000.0f)
 						{
-							tc_pulse = int( 2000.0f / fabs(pulse));
-							if (tc_pulse < 1)
-								tc_pulse = 1;
+							tc_pulse = 1;
+						} else
+						{
+							tc_pulse = (int)(2000.0f / fabs(pulse));
 						}
 					} else
 					{
@@ -800,8 +791,6 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 							parser_warning(c,"Error parsing File (TractionControl) " + filename +" line " + StringConverter::toString(c.linecounter) + ". Mode not parsed, trying to continue....", PARSER_ERROR);
 							continue;
 						}
-
-					
 						// trim spaces from the entry
 						Ogre::StringUtil::trim(args2[0]);
 						if (args2.size() >= 2) Ogre::StringUtil::trim(args2[1]);
@@ -818,22 +807,18 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 								{
 									tc_mode = 1;
 									tc_present = true;
-								}
-								else if (sourceStr == "OFF" || sourceStr == "off" || sourceStr == "Off")
+								} else if (sourceStr == "OFF" || sourceStr == "off" || sourceStr == "Off")
 								{
 									tc_mode = 0;
 									tc_present = true;
-								}
-								else if (sourceStr == "NODASH" || sourceStr == "nodash" || sourceStr == "Nodash" || sourceStr == "NoDash")
+								} else if (sourceStr == "NODASH" || sourceStr == "nodash" || sourceStr == "Nodash" || sourceStr == "NoDash")
 								{
 									tc_present = false;
-								}
-								else if (sourceStr == "NOTOGGLE" || sourceStr == "notoggle" || sourceStr == "Notoggle" || sourceStr == "NoToggle")
+								} else if (sourceStr == "NOTOGGLE" || sourceStr == "notoggle" || sourceStr == "Notoggle" || sourceStr == "NoToggle")
 								{
 									tc_notoggle = true;
 								}
 							}
-
 						} else
 						{
 							parser_warning(c, "TractionControl Mode: missing " + filename +" line " + StringConverter::toString(c.linecounter) + ". TractionControl Mode = ON.", PARSER_ERROR);

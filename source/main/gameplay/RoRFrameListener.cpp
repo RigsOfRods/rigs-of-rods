@@ -331,37 +331,39 @@ void RoRFrameListener::updateGUI(float dt)
 		ow->guipedacc->setTop(-0.05*(1.0-curr_truck->engine->getAcc())-0.01);
 
 		// speedo / calculate speed
+		Vector3 dir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
+		float velocity = dir.dotProduct(curr_truck->nodes[0].Velocity);
 		Real guiSpeedFactor = 7.0 * (140.0 / curr_truck->speedoMax);
-		Real angle = 140 - fabs(curr_truck->WheelSpeed * guiSpeedFactor);
-		if (angle < -140)
-			angle = -140;
+		Real angle = 140 - fabs(velocity * guiSpeedFactor);
+		angle = std::max(-140.0f, angle);
 		ow->speedotexture->setTextureRotate(Degree(angle));
 
 		// calculate tach stuff
 		Real tachoFactor = 0.072;
 		if (curr_truck->useMaxRPMforGUI)
+		{
 			tachoFactor = 0.072 * (3500 / curr_truck->engine->getMaxRPM());
-		angle=126.0-fabs(curr_truck->engine->getRPM() * tachoFactor);
-		if (angle<-120.0) angle=-120.0;
-		if (angle>121.0) angle=121.0;
+		}
+		angle = 126.0 - fabs(curr_truck->engine->getRPM() * tachoFactor);
+		angle = std::max(-120.0f, angle);
+		angle = std::min(angle, 121.0f);
 		ow->tachotexture->setTextureRotate(Degree(angle));
 
 		// roll
-		Vector3 dir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranoderoll[0]].RelPosition;
-		dir.normalise();
-		//	roll_node->resetOrientation();
-		angle=asin(dir.dotProduct(Vector3::UNIT_Y));
-		if (angle<-1) angle=-1;
-		if (angle>1) angle=1;
+		Vector3 rdir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranoderoll[0]].RelPosition).normalisedCopy();
+		//roll_node->resetOrientation();
+		angle = asin(rdir.dotProduct(Vector3::UNIT_Y));
+		angle = std::max(-1.0f, angle);
+		angle = std::min(angle, 1.0f);
 		//float jroll=angle*1.67;
 		ow->rolltexture->setTextureRotate(Radian(angle));
-		//	roll_node->roll(Radian(angle));
+		//roll_node->roll(Radian(angle));
 
 		// rollcorr
 		if (curr_truck->free_active_shock && ow && ow->guiRoll && ow->rollcortexture)
 		{
-			//		rollcorr_node->resetOrientation();
-			//		rollcorr_node->roll(Radian(-curr_truck->stabratio*5.0));
+			//rollcorr_node->resetOrientation();
+			//rollcorr_node->roll(Radian(-curr_truck->stabratio*5.0));
 			ow->rollcortexture->setTextureRotate(Radian(-curr_truck->stabratio*10.0));
 			if (curr_truck->stabcommand)
 				ow->guiRoll->setMaterialName("tracks/rollmaskblink");
@@ -370,14 +372,12 @@ void RoRFrameListener::updateGUI(float dt)
 		}
 
 		// pitch
-		dir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
-		dir.normalise();
-		//	pitch_node->resetOrientation();
-		angle=asin(dir.dotProduct(Vector3::UNIT_Y));
-		if (angle<-1) angle=-1;
-		if (angle>1) angle=1;
+		//pitch_node->resetOrientation();
+		angle = asin(dir.dotProduct(Vector3::UNIT_Y));
+		angle = std::max(-1.0f, angle);
+		angle = std::min(angle, 1.0f);
 		ow->pitchtexture->setTextureRotate(Radian(angle));
-		//	pitch_node->roll(Radian(angle));
+		//pitch_node->roll(Radian(angle));
 
 		// turbo
 		angle=40.0-curr_truck->engine->getTurboPSI()*3.34;
@@ -395,14 +395,12 @@ void RoRFrameListener::updateGUI(float dt)
 		if (curr_truck->tc_present)
 		{
 			if (curr_truck->tc_mode)
+			{
 				if (curr_truck->tractioncontrol)
-				{
-							ow->tcontrolo->setMaterialName(String("tracks/tcontrol-act"));
-					} else
-				{
+					ow->tcontrolo->setMaterialName(String("tracks/tcontrol-act"));
+				else
 					ow->tcontrolo->setMaterialName(String("tracks/tcontrol-on"));
-				}
-			else
+			} else
 			{
 				ow->tcontrolo->setMaterialName(String("tracks/tcontrol-off"));
 			}
@@ -414,14 +412,12 @@ void RoRFrameListener::updateGUI(float dt)
 		if (curr_truck->alb_present)
 		{
 			if (curr_truck->alb_mode)
+			{
 				if (curr_truck->antilockbrake)
-				{
-							ow->antilocko->setMaterialName(String("tracks/antilock-act"));
-				} else
-				{
+					ow->antilocko->setMaterialName(String("tracks/antilock-act"));
+				else
 					ow->antilocko->setMaterialName(String("tracks/antilock-on"));
-				}
-			else
+			} else
 			{
 				ow->antilocko->setMaterialName(String("tracks/antilock-off"));
 			}

@@ -78,7 +78,7 @@ static const int   MAX_CPARTICLES             = 10;              //!< maximum nu
 static const int   MAX_PRESSURE_BEAMS         = 4000;            //!< maximum number of pressure beams per truck
 static const int   MAX_CAMERARAIL             = 50;              //!< maximum number of camera rail points
 
-static const float RAD_PER_SEC_TO_RPM         = 9.54929659643f;  //!< Convert radian/second to RPM (60/2*PI)
+static const float RAD_PER_SEC_TO_RPM         = 9.5492965855137; //!< Convert radian/second to RPM (60/2*PI)
 
 /* other global static definitions */
 static const int   TRUCKFILEFORMATVERSION     = 3;               //!< truck file format version number
