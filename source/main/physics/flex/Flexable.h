@@ -29,7 +29,7 @@ class Flexable : public IThreadTask
 public:
 
 	// Flexable
-	bool flexitPrepare(Beam* b);
+	virtual bool flexitPrepare(Beam* b);
 	virtual void flexitCompute() = 0;
 	virtual Ogre::Vector3 flexitFinal() = 0;
 
