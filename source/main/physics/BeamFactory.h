@@ -37,6 +37,7 @@ class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public Zeroe
 	friend class RoRFrameListener;
 
 public:
+
 	BeamFactory();
 	~BeamFactory();
 
@@ -50,6 +51,7 @@ public:
 	void _WorkerSignalStart();  // Signals to start working
 
 	bool asynchronousPhysics() { return async_physics; };
+	int getNumCpuCores() { return num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
 
@@ -92,14 +94,16 @@ public:
 
 	void windowResized();
 
-	int done_count;
-	pthread_cond_t done_count_cv;
-	pthread_mutex_t done_count_mutex;
-	pthread_cond_t work_cv;
-	pthread_mutex_t work_mutex;
+	bool thread_done;
+	pthread_cond_t thread_done_cv;
+	pthread_mutex_t thread_done_mutex;
+	bool work_done;
+	pthread_cond_t work_done_cv;
+	pthread_mutex_t work_done_mutex;
 	pthread_t worker_thread;
 
 protected:
+
 	Ogre::SceneNode *parent;
 	
 	bool async_physics;

@@ -51,14 +51,15 @@ void* threadstart(void* vid);
 
 BeamFactory::BeamFactory() :
 	  current_truck(-1)
-	, done_count(0)
 	, forcedActive(false)
 	, free_truck(0)
 	, num_cpu_cores(1)
 	, physFrame(0)
 	, previous_truck(-1)
 	, tdr(0)
+	, thread_done(true)
 	, thread_mode(THREAD_SINGLE)
+	, work_done(false)
 {
 	for (int t=0; t < MAX_TRUCKS; t++)
 		trucks[t] = 0;
@@ -82,13 +83,15 @@ BeamFactory::BeamFactory() :
 	num_cpu_cores = sysinfo.dwNumberOfProcessors;
 #endif
 
+	LOG("BEAMFACTORY: " + TOSTRING(num_cpu_cores) + " CPU Cores found");
+
 	// Create worker thread (used for physics calculations)
 	if (thread_mode == THREAD_MULTI)
 	{
-		pthread_cond_init(&done_count_cv, NULL);
-		pthread_cond_init(&work_cv, NULL);
-		pthread_mutex_init(&done_count_mutex, NULL);
-		pthread_mutex_init(&work_mutex, NULL);
+		pthread_cond_init(&thread_done_cv, NULL);
+		pthread_cond_init(&work_done_cv, NULL);
+		pthread_mutex_init(&thread_done_mutex, NULL);
+		pthread_mutex_init(&work_done_mutex, NULL);
 
 		if (pthread_create(&worker_thread, NULL, threadstart, this))
 		{
@@ -101,10 +104,10 @@ BeamFactory::BeamFactory() :
 
 BeamFactory::~BeamFactory()
 {
-	pthread_cond_destroy(&done_count_cv);
-	pthread_cond_destroy(&work_cv);
-	pthread_mutex_destroy(&done_count_mutex);
-	pthread_mutex_destroy(&work_mutex);
+	pthread_cond_destroy(&thread_done_cv);
+	pthread_cond_destroy(&work_done_cv);
+	pthread_mutex_destroy(&thread_done_mutex);
+	pthread_mutex_destroy(&work_done_mutex);
 }
 
 Beam *BeamFactory::createLocal(int slotid)
@@ -762,12 +765,12 @@ void BeamFactory::_WorkerWaitForSync()
 {
 	if (thread_mode == THREAD_MULTI)
 	{
-		MUTEX_LOCK(&done_count_mutex);
-		while (done_count > 0)
+		MUTEX_LOCK(&thread_done_mutex);
+		while (!thread_done)
 		{
-			pthread_cond_wait(&done_count_cv, &done_count_mutex);
+			pthread_cond_wait(&thread_done_cv, &thread_done_mutex);
 		}
-		MUTEX_UNLOCK(&done_count_mutex);
+		MUTEX_UNLOCK(&thread_done_mutex);
 	}
 }
 
@@ -775,9 +778,9 @@ void BeamFactory::_WorkerPrepareStart()
 {
 	if (thread_mode == THREAD_MULTI)
 	{
-		MUTEX_LOCK(&done_count_mutex);
-		done_count = 1;
-		MUTEX_UNLOCK(&done_count_mutex);
+		MUTEX_LOCK(&thread_done_mutex);
+		thread_done = false;
+		MUTEX_UNLOCK(&thread_done_mutex);
 	}
 }
 
@@ -785,9 +788,10 @@ void BeamFactory::_WorkerSignalStart()
 {
 	if (thread_mode == THREAD_MULTI)
 	{
-		MUTEX_LOCK(&work_mutex);
-		pthread_cond_signal(&work_cv);
-		MUTEX_UNLOCK(&work_mutex);
+		MUTEX_LOCK(&work_done_mutex);
+		work_done = true;
+		MUTEX_UNLOCK(&work_done_mutex);
+		pthread_cond_signal(&work_done_cv);
 	}
 }
 
@@ -811,15 +815,19 @@ void* threadstart(void* vid)
 
 	while (1)
 	{
-		MUTEX_LOCK(&bf->work_mutex);
+		MUTEX_LOCK(&bf->work_done_mutex);
 
-		MUTEX_LOCK(&bf->done_count_mutex);
-		bf->done_count--;
-		pthread_cond_signal(&bf->done_count_cv);
-		MUTEX_UNLOCK(&bf->done_count_mutex);
+		MUTEX_LOCK(&bf->thread_done_mutex);
+		bf->thread_done = true;
+		MUTEX_UNLOCK(&bf->thread_done_mutex);
+		pthread_cond_signal(&bf->thread_done_cv);
 
-		pthread_cond_wait(&bf->work_cv, &bf->work_mutex);
-		MUTEX_UNLOCK(&bf->work_mutex);
+		while (!bf->work_done)
+		{
+			pthread_cond_wait(&bf->work_done_cv, &bf->work_done_mutex);
+		}
+		bf->work_done = false;
+		MUTEX_UNLOCK(&bf->work_done_mutex);
 
 		if (simulatedTruck >= 0 && simulatedTruck < bf->getTruckCount() && bf->getTruck(simulatedTruck))
 		{
