@@ -58,6 +58,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
+#include "ThreadPool.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
@@ -170,6 +171,12 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, pointCD(0)
 	, GUIFeaturesChanged(false)
 {
+	if (gEnv->threadPool)
+	{
+		pthread_cond_init(&task_count_cv, NULL);
+		pthread_mutex_init(&task_count_mutex, NULL);
+	}
+
 	mCamera = gEnv->mainCamera;
 	airbrakeval = 0;
 	alb_minspeed = 0.0f;
@@ -3968,8 +3975,8 @@ void Beam::updateLabels(float dt)
 void Beam::updateVisual(float dt)
 {
 	BES_GFX_START(BES_GFX_updateVisual);
-	int i;
-	Vector3 ref=Vector3(0.0,1.0,0.0);
+
+	Vector3 ref(Vector3::UNIT_Y);
 	autoBlinkReset();
 	//sounds too
 	updateSoundSources();
@@ -3994,7 +4001,6 @@ void Beam::updateVisual(float dt)
 		}
 	}
 #endif //openAL
-
 
 	//update custom particle systems
 	for (int i=0; i<free_cparticle; i++)
@@ -4027,8 +4033,7 @@ void Beam::updateVisual(float dt)
 				emit->setEnabled(true);
 				emit->setColour(ColourValue(0.0,0.0,0.0,0.02+engine->getSmoke()*0.06));
 				emit->setTimeToLive((0.02+engine->getSmoke()*0.06)/0.04);
-			}
-			else
+			} else
 			{
 				emit->setEnabled(false);
 			}
@@ -4038,7 +4043,7 @@ void Beam::updateVisual(float dt)
 
 	updateProps();
 
-	for (i=0; i<free_aeroengine; i++) aeroengines[i]->updateVisuals();
+	for (int i=0; i<free_aeroengine; i++) aeroengines[i]->updateVisuals();
 
 	//wings
 	float autoaileron=0;
@@ -4060,7 +4065,7 @@ void Beam::updateVisual(float dt)
 	if (autorudder>1.0) autorudder=1.0;
 	if (autoelevator<-1.0) autoelevator=-1.0;
 	if (autoelevator>1.0) autoelevator=1.0;
-	for (i=0; i<free_wing; i++)
+	for (int i=0; i<free_wing; i++)
 	{
 		if (wings[i].fa->type=='a') wings[i].fa->setControlDeflection(autoaileron);
 		if (wings[i].fa->type=='b') wings[i].fa->setControlDeflection(-autoaileron);
@@ -4088,8 +4093,7 @@ void Beam::updateVisual(float dt)
 		{
 			cabFadeMode=0;
 			cabFade(0.4);
-		}
-		else if (cabFadeTimer < 0.1 && cabFadeMode == 2)
+		} else if (cabFadeTimer < 0.1 && cabFadeMode == 2)
 		{
 			cabFadeMode=0;
 			cabFade(1);
@@ -4101,64 +4105,108 @@ void Beam::updateVisual(float dt)
 			cabFade(1 - 0.6 * cabFadeTimer/cabFadeTime);
 	}
 
-	if (!skeleton)
+	for (int i=0; i<free_beam; i++)
 	{
-		for (i=0; i<free_beam; i++)
+		if (!skeleton)
 		{
-			if (beams[i].broken==1 && beams[i].mSceneNode) {beams[i].mSceneNode->detachAllObjects();beams[i].broken=2;}
-			if (beams[i].mSceneNode!=0 && beams[i].type!=BEAM_INVISIBLE && beams[i].type!=BEAM_INVISIBLE_HYDRO && beams[i].type!=BEAM_VIRTUAL && !beams[i].disabled)
+			if (beams[i].broken==1 && beams[i].mSceneNode)
+			{
+				beams[i].mSceneNode->detachAllObjects();
+				beams[i].broken = 2;
+			}
+
+			if (beams[i].mSceneNode!=0 && !beams[i].disabled && beams[i].type!=BEAM_INVISIBLE && beams[i].type!=BEAM_INVISIBLE_HYDRO && beams[i].type!=BEAM_VIRTUAL)
 			{
 				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref,beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-				//					beams[i].mSceneNode->setScale(default_beam_diameter/100.0,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length()/100.0,default_beam_diameter/100.0);
+				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
+				//beams[i].mSceneNode->setScale(default_beam_diameter/100.0,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length()/100.0,default_beam_diameter/100.0);
 				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), beams[i].diameter);
 			}
-		}
-		for (i=0; i<free_wheel; i++)
+		} else if (beams[i].mSceneNode!=0 && !beams[i].disabled)
 		{
-			if (vwheels[i].cnode) vwheels[i].cnode->setPosition(vwheels[i].fm->flexit());
+			beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
+			beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
+			//beams[i].mSceneNode->setScale(default_beam_diameter/100.0,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length()/100.0,default_beam_diameter/100.0);
+			beams[i].mSceneNode->setScale(skeleton_beam_diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), skeleton_beam_diameter);
 		}
-		if (cabMesh) cabNode->setPosition(cabMesh->flexit());
-	}
-	else
-	{
-		if (skeleton)
-		{
-			for (i=0; i<free_beam; i++)
-			{
-				if (beams[i].mSceneNode!=0 && !beams[i].disabled)
-				{
-					beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-					beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref,beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-					beams[i].mSceneNode->setScale(skeleton_beam_diameter,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(),skeleton_beam_diameter);
-					//					beams[i].mSceneNode->setScale(default_beam_diameter/100.0,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length()/100.0,default_beam_diameter/100.0);
-				}
-			}
-			for (i=0; i<free_wheel; i++)
-			{
-				vwheels[i].cnode->setPosition(vwheels[i].fm->flexit());
-			}
-			if (cabMesh) cabNode->setPosition(cabMesh->flexit());
-		}
-		if (skeleton == 2)
-			updateSimpleSkeleton();
-		//updateDebugOverlay();
+
 	}
 
-	//Flex body
+	if (skeleton == 2)
+		updateSimpleSkeleton();
+
 	BES_GFX_START(BES_GFX_updateFlexBodies);
-	// if we are 100 times the size of the truck away from the truck, we will not calculate flexbodies anymore
-	// maybe a bit hacky solution
-	//bool tooFarAway = (position - mCamera->getPosition()).length() > minCameraRadius * 100;
-	//if (!tooFarAway)
-	//{
-	// disabled optimization for now since its buggy :-/
-	for (i=0; i<free_flexbody; i++) flexbodies[i]->flexit();
-	//}
+	if (cabMesh) cabNode->setPosition(cabMesh->flexit());
+
+	if (gEnv->threadPool)
+	{
+		std::bitset<MAX_WHEELS> flexmesh_prepare;
+		for (int i=0; i<free_wheel; i++)
+		{
+			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
+		}
+
+		std::bitset<MAX_FLEXBODIES> flexbody_prepare;
+		for (int i=0; i<free_flexbody; i++)
+		{
+			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
+		}
+
+		task_count = flexmesh_prepare.count() + flexbody_prepare.count();
+
+		// Push tasks into thread pool
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+				gEnv->threadPool->enqueue(vwheels[i].fm);
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbody_prepare[i])
+				gEnv->threadPool->enqueue(flexbodies[i]);
+		}
+
+		// Wait for all tasks to complete
+		MUTEX_LOCK(&task_count_mutex);
+		while (task_count > 0)
+		{
+			pthread_cond_wait(&task_count_cv, &task_count_mutex);
+		}
+		MUTEX_UNLOCK(&task_count_mutex);
+
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbody_prepare[i])
+				flexbodies[i]->flexitFinal();
+		}
+	} else
+	{
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this))
+			{
+				vwheels[i].fm->flexitCompute();
+				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+			}
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbodies[i]->flexitPrepare(this))
+			{
+				flexbodies[i]->flexitCompute();
+				flexbodies[i]->flexitFinal();
+			}
+		}
+	}
 	BES_GFX_STOP(BES_GFX_updateFlexBodies);
+
 	BES_GFX_STOP(BES_GFX_updateVisual);
 }
-
 
 //v=0: full detail
 //v=1: no beams
@@ -5362,7 +5410,7 @@ void Beam::changedCamera()
 {
 	// change sound setup
 #ifdef USE_OPENAL
-	for (int i=0; i<free_soundsource; i++)
+	for (int i=0; i < free_soundsource; i++)
 	{
 		bool enabled = (soundsources[i].type == -2 || soundsources[i].type == currentcamera);
 		soundsources[i].ssi->setEnabled(enabled);
@@ -5374,7 +5422,7 @@ void Beam::changedCamera()
 	// VideoCamera *v = VideoCamera::setActive(state);
 
 	// look for props
-	for (int i=0; i< free_prop; i++)
+	for (int i=0; i < free_prop; i++)
 	{
 		bool enabled = (props[i].cameramode == -2 || props[i].cameramode == currentcamera);
 		if (props[i].mo) props[i].mo->setMeshEnabled(enabled);
@@ -5383,7 +5431,7 @@ void Beam::changedCamera()
 	// look for flexbodies
 	for (int i=0; i < free_flexbody; i++)
 	{
-		bool enabled = (flexbodies[i]->cameramode == -2 || flexbodies[i]->cameramode == currentcamera);
+		bool enabled = (flexbodies[i]->getCameraMode() == -2 || flexbodies[i]->getCameraMode() == currentcamera);
 		flexbodies[i]->setEnabled(enabled);
 	}
 }

@@ -27,9 +27,26 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MaterialFunctionMapper.h"
 #include "Ogre.h"
 
-class FlexMeshWheel: public Flexable, public ZeroedMemoryAllocator
+class FlexMeshWheel: public Flexable
 {
+public:
+
+	FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* meshname, char* texband, float rimradius, bool rimreverse, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr);
+
+	Ogre::Entity *getRimEntity() { return rimEnt; };
+
+	Ogre::Vector3 updateVertices();
+	Ogre::Vector3 updateShadowVertices();
+
+	// Flexable
+	bool flexitPrepare(Beam* b);
+	void flexitCompute();
+	Ogre::Vector3 flexitFinal();
+
+	void setVisible(bool visible);
+
 private:
+
 	MaterialReplacer *mr;
 	
 	typedef struct
@@ -92,14 +109,6 @@ private:
 	float normy;
 	bool revrim;
 	Ogre::Entity *rimEnt;
-public:
-	FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* meshname, char* texband, float rimradius, bool rimreverse, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr);
-
-	Ogre::Vector3 updateVertices();
-	Ogre::Vector3 updateShadowVertices();
-	Ogre::Vector3 flexit();
-	Ogre::Entity *getRimEntity() { return rimEnt; };
-	void setVisible(bool visible);
 };
 
 #endif // __FlexMeshWheel_H__

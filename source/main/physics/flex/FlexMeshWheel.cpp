@@ -174,27 +174,15 @@ FlexMeshWheel::FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart
 			//msh->buildEdgeList();
 }
 
-
 Vector3 FlexMeshWheel::updateVertices()
 {
-	 int i;
-	Vector3 center;
-	center=(nodes[id0].smoothpos+nodes[id1].smoothpos)/2.0;
-	Vector3 axis=nodes[id0].smoothpos-nodes[id1].smoothpos;
+	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
+	Vector3 ray = nodes[idstart].smoothpos - nodes[id0].smoothpos;
+	Vector3 axis = nodes[id0].smoothpos - nodes[id1].smoothpos;
+
 	axis.normalise();
-
-	rnode->setPosition(center);
-
-	Vector3 raxis=axis;
-	if (revrim) raxis=-raxis;
-	Vector3 ray=nodes[idstart].smoothpos-nodes[id0].smoothpos;
-	Vector3 onormal=raxis.crossProduct(ray);
-	onormal.normalise();
-	ray=raxis.crossProduct(onormal);
-	rnode->setOrientation(Quaternion(raxis, onormal, ray));
-
-
-	for (i=0; i<nbrays; i++)
+	
+	for (int i=0; i<nbrays; i++)
 	{
 		Plane pl=Plane(axis, nodes[id0].smoothpos);
 		ray=nodes[idstart+i*2].smoothpos-nodes[id0].smoothpos;
@@ -221,7 +209,7 @@ Vector3 FlexMeshWheel::updateVertices()
 		covertices[i*6+4].normal=(covertices[i*6+4].vertex-covertices[i*6+5].vertex).crossProduct(covertices[i*6+4].vertex-covertices[((i+1)%nbrays)*6+4].vertex)/normy;
 		covertices[i*6+5].normal=-axis;
 	}
-	for (i=0; i<6; i++)
+	for (int i=0; i<6; i++)
 	{
 		covertices[nbrays*6+i].vertex=covertices[i].vertex;
 		covertices[nbrays*6+i].normal=covertices[i].normal;
@@ -232,24 +220,13 @@ Vector3 FlexMeshWheel::updateVertices()
 
 Vector3 FlexMeshWheel::updateShadowVertices()
 {
-	 int i;
-	Vector3 center;
-	center=(nodes[id0].smoothpos+nodes[id1].smoothpos)/2.0;
-	Vector3 axis=nodes[id0].smoothpos-nodes[id1].smoothpos;
+	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
+	Vector3 ray = nodes[idstart].smoothpos - nodes[id0].smoothpos;
+	Vector3 axis = nodes[id0].smoothpos - nodes[id1].smoothpos;
+	
 	axis.normalise();
 
-	rnode->setPosition(center);
-
-	Vector3 raxis=axis;
-	if (revrim) raxis=-raxis;
-	Vector3 ray=nodes[idstart].smoothpos-nodes[id0].smoothpos;
-	Vector3 onormal=raxis.crossProduct(ray);
-	onormal.normalise();
-	ray=raxis.crossProduct(onormal);
-	rnode->setOrientation(Quaternion(raxis, onormal, ray));
-
-
-	for (i=0; i<nbrays; i++)
+	for (int i=0; i<nbrays; i++)
 	{
 		Plane pl=Plane(axis, nodes[id0].smoothpos);
 		ray=nodes[idstart+i*2].smoothpos-nodes[id0].smoothpos;
@@ -284,7 +261,7 @@ Vector3 FlexMeshWheel::updateShadowVertices()
 		coshadownorvertices[i*6+5].texcoord=covertices[i*6+5].texcoord;
 
 	}
-	for (i=0; i<6; i++)
+	for (int i=0; i<6; i++)
 	{
 		coshadowposvertices[nbrays*6+i].vertex=coshadowposvertices[i].vertex;
 		coshadownorvertices[nbrays*6+i].normal=coshadownorvertices[i].normal;
@@ -299,35 +276,61 @@ void FlexMeshWheel::setVisible(bool visible)
 	if (rnode) rnode->setVisible(visible);
 }
 
-Vector3 FlexMeshWheel::flexit()
+bool FlexMeshWheel::flexitPrepare(Beam* b)
 {
-	Vector3 center;
+	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
+	rnode->setPosition(center);
+
+	Vector3 axis = nodes[id0].smoothpos - nodes[id1].smoothpos;
+	axis.normalise();
+
+	if (revrim) axis = -axis;
+	Vector3 ray = nodes[idstart].smoothpos - nodes[id0].smoothpos;
+	Vector3 onormal = axis.crossProduct(ray);
+	onormal.normalise();
+	ray = axis.crossProduct(onormal);
+	rnode->setOrientation(Quaternion(axis, onormal, ray));
+
+	return Flexable::flexitPrepare(b);
+}
+
+void FlexMeshWheel::flexitCompute()
+{
 	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
 	{
-		center=updateShadowVertices();
+		flexit_center = updateShadowVertices();
+	} else
+	{
+		flexit_center = updateVertices();
+	}
+}
+
+Vector3 FlexMeshWheel::flexitFinal()
+{
+	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
+	{
 		//find the binding
-		unsigned posbinding=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		unsigned posbinding = msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
 		HardwareVertexBufferSharedPtr pbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(posbinding);
 		//pbuf->lock(HardwareBuffer::HBL_NORMAL);
 		pbuf->writeData(0, pbuf->getSizeInBytes(), shadowposvertices, true);
 		//pbuf->unlock();
 		//find the binding
-		unsigned norbinding=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+		unsigned norbinding = msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
 		HardwareVertexBufferSharedPtr nbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(norbinding);
 		//nbuf->lock(HardwareBuffer::HBL_NORMAL);
 		nbuf->writeData(0, nbuf->getSizeInBytes(), shadownorvertices, true);
 		//nbuf->unlock();
 
-		EdgeData * 	ed=msh->getEdgeList();
+		EdgeData* ed = msh->getEdgeList();
 		ed->updateFaceNormals(0, pbuf);
-	}
-		else
+	} else
 	{
-		center=updateVertices();
 		//vbuf->lock(HardwareBuffer::HBL_NORMAL);
 		vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 		//vbuf->unlock();
 		//msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 	}
-	return center;
+
+	return flexit_center;
 }

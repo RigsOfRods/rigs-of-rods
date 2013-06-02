@@ -317,6 +317,10 @@ public:
 	DashBoardManager *dash;
 #endif // USE_MYGUI
 
+	int task_count;
+	pthread_cond_t task_count_cv;
+	pthread_mutex_t task_count_mutex;
+
 protected:
 	void updateDashBoards(float &dt);
 	Ogre::SceneNode *simpleSkeletonNode;
@@ -430,7 +434,6 @@ protected:
     DustPool *clumpp;
     DustPool *splashp;
     DustPool *ripplep;
-
 
 	// SLIDE NODES /////////////////////////////////////////////////////////////
 	//! true if SlideNodes are locked, false if not

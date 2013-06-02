@@ -68,8 +68,7 @@ FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nray
 			//face2 (outer)
 			nodeIDs[2+4*nrays+i*2]=nstart+2*nrays+i*2;
 			nodeIDs[2+4*nrays+i*2+1]=nstart+2*nrays+i*2+1;
-		}
-		else
+		} else
 		{
 			//band
 			nodeIDs[2+2*nrays+i*2]=nstart+i*2;
@@ -98,8 +97,7 @@ FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nray
 			covertices[2+i*2+1].texcoord=covertices[2+i*2].texcoord;
 			covertices[2+4*nrays+i*2].texcoord=Vector2(0.5+0.5*sin(((float)i+0.5)*2.0*3.14159/nrays), 0.5+0.5*cos(((float)i+0.5)*2.0*3.14159/nrays));
 			covertices[2+4*nrays+i*2+1].texcoord=covertices[2+4*nrays+i*2].texcoord;
-		}
-		else
+		} else
 		{
 			covertices[2+i*2].texcoord=Vector2(0.5+0.5*sin(i*2.0*3.14159/nrays), 0.5+0.5*cos(i*2.0*3.14159/nrays));
 			covertices[2+i*2+1].texcoord=covertices[2+i*2].texcoord;
@@ -134,8 +132,6 @@ FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nray
 
 	//update coords
 	updateVertices();
-
-
 
 	/// Create vertex data structure for 8 vertices shared between submeshes
 	msh->sharedVertexData = new VertexData();
@@ -221,12 +217,9 @@ FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nray
 	//msh->buildEdgeList();
 }
 
-
 Vector3 FlexMesh::updateVertices()
 {
-		int i;
-	Vector3 center;
-	center=(nodes[nodeIDs[0]].smoothpos+nodes[nodeIDs[1]].smoothpos)/2.0;
+	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
 	//optimization possible here : just copy bands on face
 	covertices[0].vertex=nodes[nodeIDs[0]].smoothpos-center;
 		//normals
@@ -237,7 +230,7 @@ Vector3 FlexMesh::updateVertices()
 		//normals
 	covertices[1].normal=-covertices[0].normal;
 //	covertices[1].normal.normalise();
-	for (i=0; i<nbrays*2; i++)
+	for (int i=0; i<nbrays*2; i++)
 	{
 		covertices[2+i].vertex=nodes[nodeIDs[2+i]].smoothpos-center;
 		//normals
@@ -245,7 +238,10 @@ Vector3 FlexMesh::updateVertices()
 		{
 			covertices[2+i].normal=nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos;
 			covertices[2+i].normal.normalise();
-		} else covertices[2+i].normal=-covertices[2+i-1].normal;
+		} else
+		{
+			covertices[2+i].normal=-covertices[2+i-1].normal;
+		}
 		if (is_rimmed)
 		{
 			covertices[2+4*nbrays+i].vertex=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center;
@@ -254,13 +250,15 @@ Vector3 FlexMesh::updateVertices()
 			{
 				covertices[2+4*nbrays+i].normal=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos;
 				covertices[2+4*nbrays+i].normal.normalise();
-			} else covertices[2+4*nbrays+i].normal=-covertices[2+4*nbrays+i-1].normal;
+			} else
+			{
+				covertices[2+4*nbrays+i].normal=-covertices[2+4*nbrays+i-1].normal;
+			}
 			//bands
 			covertices[2+2*nbrays+i].vertex=covertices[2+4*nbrays+i].vertex;
 			covertices[2+2*nbrays+i].normal=covertices[2+4*nbrays+i].vertex;
 			covertices[2+2*nbrays+i].normal.normalise();
-		}
-		else
+		} else
 		{
 			//bands
 			covertices[2+2*nbrays+i].vertex=covertices[2+i].vertex;
@@ -271,13 +269,10 @@ Vector3 FlexMesh::updateVertices()
 	return center;
 }
 
-
 Vector3 FlexMesh::updateShadowVertices()
 {
-		int i;
-	Vector3 center;
-//msh->buildEdgeList();
-	center=(nodes[nodeIDs[0]].smoothpos+nodes[nodeIDs[1]].smoothpos)/2.0;
+	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+//	msh->buildEdgeList();
 
 	coshadowposvertices[0].vertex=nodes[nodeIDs[0]].smoothpos-center;
 	//normals
@@ -291,7 +286,7 @@ Vector3 FlexMesh::updateShadowVertices()
 //	coshadownorvertices[1].normal=nodes[nodeIDs[1]].smoothpos-center;
 //	coshadownorvertices[1].normal.normalise();
 
-	for (i=0; i<nbrays*2; i++)
+	for (int i=0; i<nbrays*2; i++)
 	{
 		coshadowposvertices[2+i].vertex=nodes[nodeIDs[2+i]].smoothpos-center;
 
@@ -332,8 +327,7 @@ Vector3 FlexMesh::updateShadowVertices()
 			};
 	//		coshadownorvertices[2+2*nbrays+i].normal=coshadowposvertices[2+i].vertex;
 			coshadownorvertices[2+2*nbrays+i].normal.normalise();
-		}
-		else
+		} else
 		{
 			//bands
 			coshadowposvertices[2+2*nbrays+i].vertex=coshadowposvertices[2+i].vertex;
@@ -352,15 +346,14 @@ Vector3 FlexMesh::updateShadowVertices()
 
 	if (is_rimmed)
 	{
-		for (i=0; i<2+nbrays*6; i++)
+		for (int i=0; i<2+nbrays*6; i++)
 		{
 			coshadowposvertices[i+2+nbrays*6].vertex=coshadowposvertices[i].vertex;
 			coshadownorvertices[i].texcoord=covertices[i].texcoord;
 		}
-	}
-	else
+	} else
 	{
-		for (i=0; i<2+nbrays*4; i++)
+		for (int i=0; i<2+nbrays*4; i++)
 		{
 			coshadowposvertices[i+2+nbrays*4].vertex=coshadowposvertices[i].vertex;
 			coshadownorvertices[i].texcoord=covertices[i].texcoord;
@@ -407,40 +400,48 @@ Vector3 FlexMesh::updateShadowVertices()
 }
 */
 
-Vector3 FlexMesh::flexit()
+void FlexMesh::setVisible(bool visible)
 {
-	Vector3 center;
+	// nothing to do here?
+}
+
+void FlexMesh::flexitCompute()
+{
 	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
 	{
-		center=updateShadowVertices();
+		flexit_center = updateShadowVertices();
+	} else
+	{
+		flexit_center = updateVertices();
+	}
+}
+
+Vector3 FlexMesh::flexitFinal()
+{
+	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
+	{
 		//find the binding
-		unsigned posbinding=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		unsigned posbinding = msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
 		HardwareVertexBufferSharedPtr pbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(posbinding);
 		//pbuf->lock(HardwareBuffer::HBL_NORMAL);
 		pbuf->writeData(0, pbuf->getSizeInBytes(), shadowposvertices, true);
 		//pbuf->unlock();
 		//find the binding
-		unsigned norbinding=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+		unsigned norbinding = msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
 		HardwareVertexBufferSharedPtr nbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(norbinding);
 		//nbuf->lock(HardwareBuffer::HBL_NORMAL);
 		nbuf->writeData(0, nbuf->getSizeInBytes(), shadownorvertices, true);
 		//nbuf->unlock();
 
-		EdgeData * 	ed=msh->getEdgeList();
+		EdgeData* ed = msh->getEdgeList();
 		ed->updateFaceNormals(0, pbuf);
-	}
-		else
+	} else
 	{
-		center=updateVertices();
 		//vbuf->lock(HardwareBuffer::HBL_NORMAL);
 		vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 		//vbuf->unlock();
 		//msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 	}
-	return center;
-}
 
-void FlexMesh::setVisible(bool visible)
-{
-	// nothing to do here?
+	return flexit_center;
 }
