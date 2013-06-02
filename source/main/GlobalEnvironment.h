@@ -29,6 +29,7 @@ class Network;
 class RoRFrameListener;
 class SkyManager;
 class TerrainManager;
+class ThreadPool;
 class Water;
 
 class GlobalEnvironment
@@ -37,6 +38,7 @@ public:
 
 	GlobalEnvironment() :
 		  cameraManager(0)
+		, collisions(0)
 		, embeddedMode(false)
 		, frameListener(0)
 		, mainCamera(0)
@@ -48,8 +50,8 @@ public:
 		, sky(0)
 		, surveyMap(0)
 		, terrainManager(0)
+		, threadPool(0)
 		, viewPort(0)
-	    , collisions(0)
 	{
 	}
 
@@ -67,6 +69,7 @@ public:
 	RoRFrameListener *frameListener;
 	SkyManager *sky;
 	TerrainManager *terrainManager;
+	ThreadPool *threadPool;
 
 	bool embeddedMode;
 };
