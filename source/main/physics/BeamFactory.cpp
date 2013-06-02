@@ -31,6 +31,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
+#include "ThreadPool.h"
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"
@@ -88,6 +89,11 @@ BeamFactory::BeamFactory() :
 	// Create worker thread (used for physics calculations)
 	if (thread_mode == THREAD_MULTI)
 	{
+		if (num_cpu_cores > 2)
+		{
+			gEnv->threadPool = new ThreadPool(num_cpu_cores);
+		}
+
 		pthread_cond_init(&thread_done_cv, NULL);
 		pthread_cond_init(&work_done_cv, NULL);
 		pthread_mutex_init(&thread_done_mutex, NULL);
