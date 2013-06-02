@@ -425,21 +425,21 @@ void BeamEngine::update(float dt, int doUpdate)
 			if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
 			{
 				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
-					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) >= getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
 			} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
 				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
-					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) >= getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 				}
 			} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
 				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
-					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) > getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) >= getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
 				{
 					newGear--;
 
