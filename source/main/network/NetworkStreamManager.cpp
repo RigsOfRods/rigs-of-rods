@@ -28,16 +28,20 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-NetworkStreamManager::NetworkStreamManager()
+NetworkStreamManager::NetworkStreamManager() : 
+	  send_start(false)
+	, streamid(10)
 {
-	streamid=10;
-	pthread_mutex_init(&stream_mutex, NULL);
-	pthread_mutex_init(&send_work_mutex, NULL);
 	pthread_cond_init(&send_work_cv, NULL);
+	pthread_mutex_init(&send_work_mutex, NULL);
+	pthread_mutex_init(&stream_mutex, NULL);
 }
 
 NetworkStreamManager::~NetworkStreamManager()
 {
+	pthread_cond_destroy(&send_work_cv);
+	pthread_mutex_destroy(&send_work_mutex);
+	pthread_mutex_destroy(&stream_mutex);
 }
 
 void NetworkStreamManager::addLocalStream(Streamable *stream, stream_register_t *reg, unsigned int size)
@@ -179,6 +183,7 @@ void NetworkStreamManager::pushReceivedStreamMessage(header_t header, char *buff
 void NetworkStreamManager::triggerSend()
 {
 	MUTEX_LOCK(&send_work_mutex);
+	send_start = true;
 	pthread_cond_broadcast(&send_work_cv);
 	MUTEX_UNLOCK(&send_work_mutex);
 }
@@ -187,7 +192,11 @@ void NetworkStreamManager::triggerSend()
 void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 {
 	MUTEX_LOCK(&send_work_mutex);
-	pthread_cond_wait(&send_work_cv, &send_work_mutex);
+	while (!send_start)
+	{
+		pthread_cond_wait(&send_work_cv, &send_work_mutex);
+	}
+	send_start = false;
 	MUTEX_UNLOCK(&send_work_mutex);
 
 	MUTEX_LOCK(&stream_mutex);

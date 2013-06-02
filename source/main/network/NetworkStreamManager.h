@@ -73,6 +73,8 @@ protected:
 	pthread_mutex_t send_work_mutex;
 	pthread_cond_t send_work_cv;
 
+	bool send_start;
+
 	std::map < int, std::map < unsigned int, Streamable *> > streams;
 	std::vector < StreamableFactoryInterface * > factories;
 
