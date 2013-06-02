@@ -298,10 +298,9 @@ Vector3 FlexObj::updateVertices()
 //with normals
 Vector3 FlexObj::updateShadowVertices()
 {
-	unsigned int i;
-	Vector3 center;
-	center=(nodes[nodeIDs[0]].smoothpos+nodes[nodeIDs[1]].smoothpos)/2.0;
-	for (i=0; i<nVertices; i++)
+	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+
+	for (unsigned int i=0; i<nVertices; i++)
 	{
 		//set position
 		coshadowposvertices[i].vertex=nodes[nodeIDs[i]].smoothpos-center;
@@ -310,7 +309,7 @@ Vector3 FlexObj::updateShadowVertices()
 		coshadownorvertices[i].normal=Vector3::ZERO;
 	}
 	//accumulate normals per triangle
-	for (i=0; i<ibufCount/3; i++)
+	for (unsigned int i=0; i<ibufCount/3; i++)
 	{
 		Vector3 v1, v2;
 		v1=nodes[nodeIDs[faces[i*3+1]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
@@ -335,7 +334,7 @@ Vector3 FlexObj::updateShadowVertices()
 		coshadownorvertices[faces[i*3+2]].normal+=v1;
 	}
 	//normalize
-	for (i=0; i<nVertices; i++)
+	for (unsigned int i=0; i<nVertices; i++)
 	{
 		coshadownorvertices[i].normal.normalise();
 		//texcoords
@@ -347,7 +346,7 @@ Vector3 FlexObj::updateShadowVertices()
 
 Vector3 FlexObj::flexit()
 {
-	Vector3 center;
+	Vector3 center(Vector3::ZERO);
 	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
 	{
 		center=updateShadowVertices();
@@ -364,9 +363,7 @@ Vector3 FlexObj::flexit()
 		nbuf->writeData(0, nbuf->getSizeInBytes(), shadownorvertices, true);
 		//nbuf->unlock();
 		msh->getEdgeList()->updateFaceNormals(0, pbuf);
-
-	}
-		else
+	} else
 	{
 		center=updateVertices();
 		//vbuf->lock(HardwareBuffer::HBL_NORMAL);

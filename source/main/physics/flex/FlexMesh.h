@@ -23,38 +23,45 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "BeamData.h"
+#include "Flexable.h"
 #include "Ogre.h"
 
-class Flexable
+class FlexMesh: public Flexable
 {
 public:
-	virtual Ogre::Vector3 flexit()=0;
-	virtual void setVisible(bool visible) = 0;
 
-};
+	FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* texface, char* texband, bool rimmed=false, float rimratio=1.0);
 
-class FlexMesh: public Flexable, public ZeroedMemoryAllocator
-{
+	Ogre::Vector3 updateVertices();
+	Ogre::Vector3 updateShadowVertices();
+
+	// Flexable
+	void flexitCompute();
+	Ogre::Vector3 flexitFinal();
+
+	void setVisible(bool visible);
+
 private:
-typedef struct
-{
-	Ogre::Vector3 vertex;
-	Ogre::Vector3 normal;
-//	Ogre::Vector3 color;
-	Ogre::Vector2 texcoord;
-} CoVertice_t;
 
-typedef struct
-{
-	Ogre::Vector3 vertex;
-} posVertice_t;
+	typedef struct
+	{
+		Ogre::Vector3 vertex;
+		Ogre::Vector3 normal;
+		//	Ogre::Vector3 color;
+		Ogre::Vector2 texcoord;
+	} CoVertice_t;
 
-typedef struct
-{
-	Ogre::Vector3 normal;
-//	Ogre::Vector3 color;
-	Ogre::Vector2 texcoord;
-} norVertice_t;
+	typedef struct
+	{
+		Ogre::Vector3 vertex;
+	} posVertice_t;
+
+	typedef struct
+	{
+		Ogre::Vector3 normal;
+		//	Ogre::Vector3 color;
+		Ogre::Vector2 texcoord;
+	} norVertice_t;
 
 	Ogre::MeshPtr msh;
 	Ogre::SubMesh* subface;
@@ -67,18 +74,18 @@ typedef struct
 	//shadow
 	union
 	{
-	float *shadowposvertices;
-	posVertice_t *coshadowposvertices;
+		float *shadowposvertices;
+		posVertice_t *coshadowposvertices;
 	};
 	union
 	{
-	float *shadownorvertices;
-	norVertice_t *coshadownorvertices;
+		float *shadownorvertices;
+		norVertice_t *coshadownorvertices;
 	};
 	union
 	{
-	float *vertices;
-	CoVertice_t *covertices;
+		float *vertices;
+		CoVertice_t *covertices;
 	};
 	//nodes
 	int *nodeIDs;
@@ -91,13 +98,7 @@ typedef struct
 	int nbrays;
 	bool is_rimmed;
 	float rim_ratio;
-
-public:
-	FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* texface, char* texband, bool rimmed=false, float rimratio=1.0);
-	Ogre::Vector3 updateVertices();
-	Ogre::Vector3 updateShadowVertices();
-	Ogre::Vector3 flexit();
-	void setVisible(bool visible);
 };
 
 #endif // __FlexMesh_H_
+

@@ -27,7 +27,43 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
+public:
+
+	FlexAirfoil(char* name, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, char* texband, Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb, char mtype, float controlratio, float mind, float maxd, char* afname, float lift_coef, AeroEngine** tps, bool break_able);
+	~FlexAirfoil();
+
+	Ogre::Vector3 updateVertices();
+	Ogre::Vector3 updateShadowVertices();
+	void setControlDeflection(float val);
+
+	Ogre::Vector3 flexit();
+
+	void enableInducedDrag(float span, float area, bool l);
+
+	void addwash(int propid, float ratio);
+
+	void updateForces();
+
+	float aoa;
+	char type;
+	int nfld;
+	int nfrd;
+	int nflu;
+	int nfru;
+	int nbld;
+	int nbrd;
+	int nblu;
+	int nbru;
+
+	//	int innan;
+	bool broken;
+	bool breakable;
+	float liftcoef;
+
+	char debug[256];
+
 private:
+
 	float airfoilpos[90];
 	typedef struct
 	{
@@ -112,40 +148,6 @@ private:
 	int free_wash;
 	int washpropnum[MAX_AEROENGINES];
 	float washpropratio[MAX_AEROENGINES];
-
-public:
-	float aoa;
-	char type;
-	int nfld;
-	int nfrd;
-	int nflu;
-	int nfru;
-	int nbld;
-	int nbrd;
-	int nblu;
-	int nbru;
-
-//	int innan;
-	bool broken;
-	bool breakable;
-	float liftcoef;
-
-	char debug[256];
-
-	FlexAirfoil(char* name, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, char* texband, Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb, char mtype, float controlratio, float mind, float maxd, char* afname, float lift_coef, AeroEngine** tps, bool break_able);
-	~FlexAirfoil();
-
-	Ogre::Vector3 updateVertices();
-	Ogre::Vector3 updateShadowVertices();
-	void setControlDeflection(float val);
-
-	Ogre::Vector3 flexit();
-
-	void enableInducedDrag(float span, float area, bool l);
-
-	void addwash(int propid, float ratio);
-
-	void updateForces();
 };
 
 #endif // __FlexAirfoil_H__

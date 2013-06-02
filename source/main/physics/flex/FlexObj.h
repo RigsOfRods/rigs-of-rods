@@ -27,7 +27,22 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class FlexObj : public ZeroedMemoryAllocator
 {
+public:
+
+	FlexObj(node_t *nds, int numtexcoords, Ogre::Vector3* texcoords, int numtriangles, int* triangles, int numsubmeshes, int* subtexindex, int* subtriindex, char* texname, char* name, int* subisback, char* backtexname, char* transtexname);
+	~FlexObj();
+
+	//find the zeroed id of the node v in the context of the tidx triangle
+	int findID(int tidx, int v, int numsubmeshes, int* subtexindex, int* subtriindex);
+	//with normals
+	Ogre::Vector3 updateVertices();
+	//with normals
+	Ogre::Vector3 updateShadowVertices();
+	Ogre::Vector3 flexit();
+	void scale(float factor);
+
 private:
+
 	typedef struct
 	{
 		Ogre::Vector3 vertex;
@@ -82,20 +97,6 @@ private:
 
 	float *sref;
 	int triangleCount;
-
-public:
-
-	FlexObj(node_t *nds, int numtexcoords, Ogre::Vector3* texcoords, int numtriangles, int* triangles, int numsubmeshes, int* subtexindex, int* subtriindex, char* texname, char* name, int* subisback, char* backtexname, char* transtexname);
-	~FlexObj();
-
-	//find the zeroed id of the node v in the context of the tidx triangle
-	int findID(int tidx, int v, int numsubmeshes, int* subtexindex, int* subtriindex);
-	//with normals
-	Ogre::Vector3 updateVertices();
-	//with normals
-	Ogre::Vector3 updateShadowVertices();
-	Ogre::Vector3 flexit();
-	void scale(float factor);
 };
 
 #endif // __FlexObj_H__

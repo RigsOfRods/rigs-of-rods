@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ApproxMath.h"
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
-#include "Settings.h"
 #include "Skin.h"
 
 using namespace Ogre;
@@ -263,11 +262,13 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 		hasshared=true;
 	}
 	for (int i=0; i<msh->getNumSubMeshes(); i++)
+	{
 		if (!msh->getSubMesh(i)->useSharedVertices)
 		{
 			vertex_count+=msh->getSubMesh(i)->vertexData->vertexCount;
 			numsubmeshbuf++;
 		}
+	}
 
 	LOG("FLEXBODY Vertices in mesh "+String(meshname)+": "+ TOSTRING(vertex_count));
 	//LOG("Triangles in mesh: %u",index_count / 3);
@@ -613,30 +614,34 @@ bool FlexBody::isinset(int n)
 	return false;
 }
 
-Vector3 FlexBody::flexit()
+bool FlexBody::flexitPrepare(Beam* b)
 {
-	if (faulty) return Vector3::ZERO;
-	if (!enabled) return Vector3::ZERO;
+	if (faulty) return false;
+	if (!enabled) return false;
 	if (hasblend) updateBlend();
 	
 	// compute the local center
-	Vector3 normal;
-	Vector3 center;
+	Ogre::Vector3 flexit_normal;
 
 	if (cref >= 0)
 	{
-		Vector3 diffX = nodes[cx].smoothpos-nodes[cref].smoothpos;
-		Vector3 diffY = nodes[cy].smoothpos-nodes[cref].smoothpos;
-		normal = diffY.crossProduct(diffX).normalisedCopy();
+		Vector3 diffX = nodes[cx].smoothpos - nodes[cref].smoothpos;
+		Vector3 diffY = nodes[cy].smoothpos - nodes[cref].smoothpos;
+		flexit_normal = diffY.crossProduct(diffX).normalisedCopy();
 
-		center = nodes[cref].smoothpos + coffset.x*diffX + coffset.y*diffY;
-		center = center + coffset.z*normal;
+		flexit_center = nodes[cref].smoothpos + coffset.x*diffX + coffset.y*diffY;
+		flexit_center += coffset.z*flexit_normal;
 	} else
 	{
-		normal = Vector3::UNIT_Y;
-		center = nodes[0].smoothpos;
+		flexit_normal = Vector3::UNIT_Y;
+		flexit_center = nodes[0].smoothpos;
 	}
 
+	return Flexable::flexitPrepare(b);
+}
+
+void FlexBody::flexitCompute()
+{
 	// If something unexpected happens here, then
 	// replace fast_normalise(a) with a.normalisedCopy()
 	for (int i=0; i<(int)vertex_count; i++)
@@ -649,29 +654,33 @@ Vector3 FlexBody::flexit()
 		mat.SetColumn(1, diffY);
 		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].smoothpos-nodes[loc.ref].smoothpos);
 
-		dstpos[i] = mat * locs[i].coords + nodes[locs[i].ref].smoothpos - center;
+		dstpos[i] = mat * locs[i].coords + nodes[locs[i].ref].smoothpos - flexit_center;
 		dstnormals[i] = fast_normalise(mat * srcnormals[i]);
 	}
-	
-	Vector3 *ppt=dstpos;
-	Vector3 *npt=dstnormals;
+}
+
+Vector3 FlexBody::flexitFinal()
+{
+	Vector3 *ppt = dstpos;
+	Vector3 *npt = dstnormals;
 	if (hasshared)
 	{
 		sharedpbuf->writeData(0, sharedcount*sizeof(Vector3), ppt, true);
-		ppt+=sharedcount;
+		ppt += sharedcount;
 		sharednbuf->writeData(0, sharedcount*sizeof(Vector3), npt, true);
-		npt+=sharedcount;
+		npt += sharedcount;
 	}
 	for (int i=0; i<numsubmeshbuf; i++)
 	{
 		subpbufs[i]->writeData(0, subnodecounts[i]*sizeof(Vector3), ppt, true);
-		ppt+=subnodecounts[i];
+		ppt += subnodecounts[i];
 		subnbufs[i]->writeData(0, subnodecounts[i]*sizeof(Vector3), npt, true);
-		npt+=subnodecounts[i];
+		npt += subnodecounts[i];
 	}
 
-	snode->setPosition(center);
-	return center;
+	snode->setPosition(flexit_center);
+
+	return flexit_center;
 }
 
 void FlexBody::reset()
@@ -688,7 +697,7 @@ void FlexBody::writeBlend()
 {
 	if (!enabled) return;
 	if (!hasblend) return;
-	ARGB *cpt=srccolors;
+	ARGB *cpt = srccolors;
 	if (hasshared)
 	{
 		sharedcbuf->writeData(0, sharedcount*sizeof(ARGB), (void*)cpt, true);
@@ -704,20 +713,20 @@ void FlexBody::writeBlend()
 void FlexBody::updateBlend() //so easy!
 {
 	if (!enabled) return;
-	bool changed=false;
+	bool changed = false;
 	for (int i=0; i<(int)vertex_count; i++)
 	{
-		node_t *nd=&nodes[locs[i].ref];
-		ARGB col=srccolors[i];
+		node_t *nd = &nodes[locs[i].ref];
+		ARGB col = srccolors[i];
 		if (nd->contacted && !(col&0xFF000000))
 		{
 			srccolors[i]=col|0xFF000000;
-			changed=true;
+			changed = true;
 		}
 		if ((nd->wetstate!=DRY) ^ ((col&0x000000FF)>0))
 		{
 			srccolors[i]=(col&0xFFFFFF00)+0x000000FF*(nd->wetstate!=DRY);
-			changed=true;
+			changed = true;
 		}
 	}
 	if (changed) writeBlend();

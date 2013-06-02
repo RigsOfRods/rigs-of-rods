@@ -927,7 +927,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 
 				// always use the last flexbody
 				FlexBody *flex = flexbodies[free_flexbody-1];
-				if (flex) flex->cameramode = pmode;
+				if (flex) flex->setCameraMode(pmode);
 				continue;
 			}
 

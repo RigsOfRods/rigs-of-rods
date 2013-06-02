@@ -23,12 +23,38 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "BeamData.h"
+#include "Flexable.h"
 #include "MaterialFunctionMapper.h"
 #include "Ogre.h"
 
-class FlexBody : public ZeroedMemoryAllocator
+class FlexBody : public Flexable
 {
+public:
+
+	FlexBody(node_t *nds, int numnodes, char* meshname, char* uname, int ref, int nx, int ny, Ogre::Vector3 offset, Ogre::Quaternion rot, char* setdef, MaterialFunctionMapper *mfm, Skin *usedSkin, bool forceNoShadows, MaterialReplacer *mr);
+
+	void addinterval(int from, int to);
+	bool isinset(int n);
+	void printMeshInfo(Ogre::Mesh* mesh);
+	void reset();
+	void updateBlend();
+	void writeBlend();
+	Ogre::SceneNode *getSceneNode() { return snode; };
+
+	void setEnabled(bool e);
+
+	void setCameraMode(int mode) { cameramode = mode; };
+	int getCameraMode() { return cameramode; };
+
+	// Flexable
+	bool flexitPrepare(Beam* b);
+	void flexitCompute();
+	Ogre::Vector3 flexitFinal();
+
+	void setVisible(bool visible);
+
 private:
+
 	MaterialReplacer *mr;
 
 	typedef struct
@@ -80,6 +106,8 @@ private:
 
 	bool enabled;
 
+	int cameramode;
+
 	bool hasshared;
 	bool hasshadows;
 	bool hastangents;
@@ -88,22 +116,6 @@ private:
 	bool faulty;
 
 	Ogre::MeshPtr msh;
-
-public:
-	FlexBody(node_t *nds, int numnodes, char* meshname, char* uname, int ref, int nx, int ny, Ogre::Vector3 offset, Ogre::Quaternion rot, char* setdef, MaterialFunctionMapper *mfm, Skin *usedSkin, bool forceNoShadows, MaterialReplacer *mr);
-
-	void addinterval(int from, int to);
-	bool isinset(int n);
-	void printMeshInfo(Ogre::Mesh* mesh);
-	void setVisible(bool visible);
-	Ogre::Vector3 flexit();
-	void reset();
-	void updateBlend();
-	void writeBlend();
-	Ogre::SceneNode *getSceneNode() { return snode; };
-
-	int cameramode;
-	void setEnabled(bool e);
 };
 
 #endif // __FlexBody_H__
