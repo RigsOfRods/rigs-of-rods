@@ -425,27 +425,29 @@ void BeamEngine::update(float dt, int doUpdate)
 			if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
 			{
 				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
-					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) >= getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
 				{
 					newGear--;
 				}
 			} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
 				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
-					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) >= getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
 				{
 					newGear--;
 				}
 			} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
 			{
 				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
-					getEnginePower(curWheelRevolutions * gearsRatio[newGear]) >= getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]))
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
 				{
 					newGear--;
-
 				}
-			} else if (((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < 2)) &&
-				avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - halfRPMRange / 10.0f)
+			} else if (curGear < (autoselect == TWO ? 2 : numGears) &&
+				avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
 			{
 				if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
 				{
