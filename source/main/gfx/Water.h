@@ -43,6 +43,7 @@ public:
 	void setSunPosition(Ogre::Vector3);
 	void setVisible(bool value);
 
+	bool isUnderWater(Ogre::Vector3 pos);
 	bool allowUnderWater();
 	void moveTo(float centerheight);
 	void prepareShutdown();
@@ -55,6 +56,8 @@ public:
 	enum water_quality {WATER_FULL_QUALITY, WATER_FULL_SPEED, WATER_REFLECT, WATER_BASIC};
 
 private:
+
+	float getWaveHeight(Ogre::Vector3 pos);
 
 	typedef struct
 	{
@@ -78,6 +81,7 @@ private:
 	int framecounter;
 	int free_wavetrain;
 	int mType;
+	Ogre::Vector3 mapSize;
 	Ogre::Camera *mRenderCamera;
 	Ogre::Camera *mReflectCam;
 	Ogre::Camera *mRefractCam;

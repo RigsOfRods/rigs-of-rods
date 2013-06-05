@@ -151,6 +151,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 	MeshPtr mprt;
 	mReflectCam=0;
 	mRefractCam=0;
+	mapsize = gEnv->terrainManager->getMaxTerrainSize();
 	//wbuf=0;
 	//ColourValue fade=camera->getViewport()->getBackgroundColour();
 	ColourValue fade=gEnv->sceneManager->getFogColour();
@@ -388,8 +389,7 @@ bool Water::isCameraUnderWater()
 {
 	if (mRenderCamera)
 	{
-		float wh = getHeightWaves(mRenderCamera->getPosition());
-		return (wh > mRenderCamera->getPosition().y);
+		return (mRenderCamera->getPosition().y < getHeightWaves(mRenderCamera->getPosition()));
 	}
 	return false;
 }
@@ -532,12 +532,7 @@ float Water::getHeightWaves(Vector3 pos)
 	if (pos.y > height + maxampl)
 		return height;
 
-	// calculate how high the waves should be at this point
-	//  (mapsize.x * mScale) / 2 = terrain width / 2
-	//  (mapsize.z * mScale) / 2 = terrain height / 2
-	// calculates the distance to the center of the terrain and dives it through 3.000.000
-	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
-	float waveheight = (pos - Vector3((mapsize.x * mScale) / 2, height, (mapsize.z * mScale) / 2)).squaredLength() / 3000000.0;
+	float waveheight = getWaveHeight(pos);
 	// we will store the result in this variable, init it with the default height
 	float result = height;
 	// now walk through all the wave trains. One 'train' is one sin/cos set that will generate once wave. All the trains together will sum up, so that they generate a 'rough' sea
@@ -562,16 +557,34 @@ float Water::getHeightWaves(Vector3 pos)
 	return result;
 }
 
+bool Water::isUnderWater(Vector3 pos)
+{
+	float waterheight = height;
+
+	if (haswaves)
+	{
+		float waveheight = getWaveHeight(pos);
+
+		if (pos.y > height + maxampl * waveheight || pos.y > height + maxampl)
+			return false;
+
+		waterheight = getWaveHeight(pos);
+	}
+
+	return pos.y < waterheight;
+}
+
 Vector3 Water::getVelocity(Vector3 pos)
 {
 	if (!haswaves) return Vector3::ZERO;
 
-	if (pos.y>height+maxampl) return Vector3::ZERO;
-	int i;
-	Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
-	float waveheight=(pos-Vector3((mapsize.x * mScale)/2, height, (mapsize.z * mScale)/2)).squaredLength()/3000000.0;
-	Vector3 result=Vector3::ZERO;
-	for (i=0; i<free_wavetrain; i++)
+	float waveheight = getWaveHeight(pos);
+
+	if (pos.y > height + maxampl) return Vector3::ZERO;
+	
+	Vector3 result(Vector3::ZERO);
+
+	for (int i=0; i<free_wavetrain; i++)
 	{
 		float amp=wavetrains[i].amplitude*waveheight;
 		if (amp>wavetrains[i].maxheight) amp=wavetrains[i].maxheight;
@@ -579,6 +592,7 @@ Vector3 Water::getVelocity(Vector3 pos)
 		result.y+=speed*cos(6.28318*((mrtime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
 		result+=Vector3(sin(wavetrains[i].direction), 0, cos(wavetrains[i].direction))*speed*sin(6.28318*((mrtime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
 	}
+
 	return result;
 }
 
@@ -628,4 +642,15 @@ void Water::framestep(float dt)
 {
 	if (dt)
 		update();
+}
+
+float Water::getWaveHeight(Vector3 pos)
+{
+	// calculate how high the waves should be at this point
+	//  (mapsize.x * mScale) / 2 = terrain width / 2
+	//  (mapsize.z * mScale) / 2 = terrain height / 2
+	// calculates the distance to the center of the terrain and dives it through 3.000.000
+	float waveheight = (pos - Vector3((mapSize.x * mScale) / 2, height, (mapSize.z * mScale) / 2)).squaredLength() / 3000000.0;
+	
+	return waveheight;
 }
