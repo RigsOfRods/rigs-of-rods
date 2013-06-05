@@ -568,7 +568,7 @@ bool Water::isUnderWater(Vector3 pos)
 		if (pos.y > height + maxampl * waveheight || pos.y > height + maxampl)
 			return false;
 
-		waterheight = getWaveHeight(pos);
+		waterheight = getHeightWaves(pos);
 	}
 
 	return pos.y < waterheight;
