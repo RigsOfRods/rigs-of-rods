@@ -35,7 +35,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Ogre.h"
 #include "Water.h"
 #include "IWater.h"
-using namespace Ogre;
 
 class HydraxWater : public IWater
 {
@@ -44,20 +43,21 @@ public:
 	HydraxWater();
 
 	float getHeight();
-	float getHeightWaves(Vector3 pos);
-	Vector3 getVelocity(Vector3 pos);
+	float getHeightWaves(Ogre::Vector3 pos);
+	Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
 
 	void setCamera(Ogre::Camera *cam);
-	void setFadeColour(ColourValue ambient);
+	void setFadeColour(Ogre::ColourValue ambient);
 	void setHeight(float value);
 	void setSunPosition(Ogre::Vector3);
 	void setVisible(bool value);
 
+	bool isUnderWater(Ogre::Vector3 pos);
 	bool allowUnderWater();
 	void framestep(float dt);
 	void moveTo(float centerheight);
 	void prepareShutdown();
-	void showWave(Vector3 refpos);
+	void showWave(Ogre::Vector3 refpos);
 	void update();
 	void updateReflectionPlane(float h);
 	

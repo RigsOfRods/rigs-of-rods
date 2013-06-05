@@ -23,6 +23,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //#include "OgreTerrainSceneManager.h" // for some cast in order to get the terrain material = ILLEGAL to link to a plugin!
 #include "RadialGrid.h"
 
+using namespace Ogre;
+
 HydraxWater::HydraxWater() :
 	  waternoise(0)
 	, mHydrax(0)
@@ -202,6 +204,18 @@ float HydraxWater::getHeightWaves(Vector3 pos)
 	}
 	*/
 	return wheight;
+}
+
+bool HydraxWater::isUnderWater(Vector3 pos)
+{
+	float waterheight = wheight;
+
+	if (waternoise)
+	{
+		waterheight = getHeightWaves(pos);
+	}
+
+	return pos.y < waterheight;
 }
 
 Vector3 HydraxWater::getVelocity(Vector3 pos)
