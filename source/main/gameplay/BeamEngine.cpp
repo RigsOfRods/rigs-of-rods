@@ -362,7 +362,7 @@ void BeamEngine::update(float dt, int doUpdate)
 
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
-				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < 2))
+				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears))
 				{
 					shift(1);
 				}
@@ -446,7 +446,7 @@ void BeamEngine::update(float dt, int doUpdate)
 				{
 					newGear--;
 				}
-			} else if (curGear < (autoselect == TWO ? 2 : numGears) &&
+			} else if (curGear < (autoselect == TWO ? std::min(2, numGears) : numGears) &&
 				avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
 			{
 				if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)

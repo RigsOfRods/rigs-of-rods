@@ -2742,9 +2742,9 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					if ( tmpf <= 0.0f ) break;
 					gears.push_back(tmpf);
 				}
-				if (gears.size() < 4) // 5 -2 = 3, 2 extra gears that don't count, one for reverse and one for neutral
+				if (gears.size() < 3) // 2 extra gears that don't count, one for reverse and one for neutral
 				{
-					parser_warning(c, "Trucks with less than 2 gears are not supported!", PARSER_ERROR);
+					parser_warning(c, "Trucks with less than one forward gear are not supported!", PARSER_ERROR);
 					continue;
 				}
 				//if (audio) audio->setupEngine();
