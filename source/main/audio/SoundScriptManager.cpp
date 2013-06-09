@@ -111,7 +111,7 @@ void SoundScriptManager::trigOnce(int truck, int trig, int linkType, int linkIte
 		// cycle through all instance groups
 		SoundScriptInstance* inst = trigs[trig+i*SS_MAX_TRIG];
 
-		if (inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+		if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
 		{
 			inst->runOnce();
 		}
@@ -137,9 +137,9 @@ void SoundScriptManager::trigStart(int truck, int trig, int linkType, int linkIt
 
 	for (int i=0; i < free_trigs[trig]; i++)
 	{
-		SoundScriptInstance* inst=trigs[trig+i*SS_MAX_TRIG];
+		SoundScriptInstance* inst = trigs[trig+i*SS_MAX_TRIG];
 
-		if (inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+		if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
 		{
 			inst->start();
 		}
@@ -165,9 +165,9 @@ void SoundScriptManager::trigStop(int truck, int trig, int linkType, int linkIte
 
 	for (int i=0; i < free_trigs[trig]; i++)
 	{
-		SoundScriptInstance* inst=trigs[trig+i*SS_MAX_TRIG];
+		SoundScriptInstance* inst = trigs[trig+i*SS_MAX_TRIG];
 
-		if (inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+		if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
 		{
 			inst->stop();
 		}
@@ -230,8 +230,7 @@ void SoundScriptManager::modulate(int truck, int mod, float value, int linkType,
 	for (int i=0; i < free_gains[mod]; i++)
 	{
 		SoundScriptInstance* inst = gains[mod + i * SS_MAX_MOD];
-		if (!inst) continue;
-		if (inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+		if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
 		{
 			// this one requires modulation
 			float gain=value*value*inst->templ->gain_square+value*inst->templ->gain_multiplier+inst->templ->gain_offset;
@@ -244,8 +243,7 @@ void SoundScriptManager::modulate(int truck, int mod, float value, int linkType,
 	for (int i=0; i < free_pitches[mod]; i++)
 	{
 		SoundScriptInstance* inst = pitches[mod + i * SS_MAX_MOD];
-		if (!inst) continue;
-		if (inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+		if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
 		{
 			// this one requires modulation
 			float pitch=value*value*inst->templ->pitch_square+value*inst->templ->pitch_multiplier+inst->templ->pitch_offset;
