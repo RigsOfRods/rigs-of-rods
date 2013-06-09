@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "DustPool.h"
 
+#include "Ogre.h"
 #include "RoRPrerequisites.h"
 #include "TerrainManager.h"
 #include "Water.h"
@@ -27,7 +28,7 @@ using namespace Ogre;
 
 DustPool::DustPool(const char* dname, int dsize) : 
 	  allocated(0)
-	, size(dsize)
+	, size(std::min(dsize, MAX_DUSTS))
 {
 	for (int i=0; i<size; i++)
 	{
@@ -40,21 +41,29 @@ DustPool::DustPool(const char* dname, int dsize) :
 			sns[i]->attachObject(pss[i]);
 			pss[i]->setCastShadows(false);
 			pss[i]->setVisibilityFlags(DEPTHMAP_DISABLED);
-			if(pss[i]->getNumEmitters() > 0)
+			if (pss[i]->getNumEmitters() > 0)
+			{
 				pss[i]->getEmitter(0)->setEnabled(false);
+			}
 			//can't do this
-//				if (w) ((DeflectorPlaneAffector*)(pss[i]->getAffector(0)))->setPlanePoint(Vector3(0, w->getHeight(), 0));
+			//if (w) ((DeflectorPlaneAffector*)(pss[i]->getAffector(0)))->setPlanePoint(Vector3(0, w->getHeight(), 0));
 		}
 	}
 
 	// hide after creation
 	//setVisible(false);
-};
+	
+	pthread_mutex_init(&allocation_mutex, NULL);
+}
+
+DustPool::~DustPool()
+{
+	pthread_mutex_destroy(&allocation_mutex);
+}
 
 void DustPool::setVisible(bool s)
 {
-	int i;
-	for (i=0; i<size; i++)
+	for (int i=0; i<size; i++)
 	{
 		//visible[i] = s;
 		pss[i]->setVisible(s);
@@ -66,98 +75,129 @@ void DustPool::setVisible(bool s)
 //Dust
 void DustPool::malloc(Vector3 pos, Vector3 vel, ColourValue col)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	colours[allocated]=col;
-	types[allocated]=DUST_NORMAL;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		colours[allocated]=col;
+		types[allocated]=DUST_NORMAL;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 //Clumps
 void DustPool::allocClump(Vector3 pos, Vector3 vel, ColourValue col)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	colours[allocated]=col;
-	types[allocated]=DUST_CLUMP;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		colours[allocated]=col;
+		types[allocated]=DUST_CLUMP;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 //Rubber smoke
 void DustPool::allocSmoke(Vector3 pos, Vector3 vel)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	types[allocated]=DUST_RUBBER;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		types[allocated]=DUST_RUBBER;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 //
 void DustPool::allocSparks(Vector3 pos, Vector3 vel)
 {
 	if (vel.length() < 0.1) return; // try to prevent emitting sparks while standing
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	types[allocated]=DUST_SPARKS;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		types[allocated]=DUST_SPARKS;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 //Water vapour
 void DustPool::allocVapour(Vector3 pos, Vector3 vel, float time)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	types[allocated]=DUST_VAPOUR;
-	rates[allocated]=5.0-time;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		types[allocated]=DUST_VAPOUR;
+		rates[allocated]=5.0-time;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 void DustPool::allocDrip(Vector3 pos, Vector3 vel, float time)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	types[allocated]=DUST_DRIP;
-	rates[allocated]=5.0-time;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		types[allocated]=DUST_DRIP;
+		rates[allocated]=5.0-time;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 void DustPool::allocSplash(Vector3 pos, Vector3 vel)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	types[allocated]=DUST_SPLASH;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		types[allocated]=DUST_SPLASH;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 void DustPool::allocRipple(Vector3 pos, Vector3 vel)
 {
-	if (allocated==size) return;
-	positions[allocated]=pos;
-	velocities[allocated]=vel;
-	types[allocated]=DUST_RIPPLE;
-	//visible[allocated]=true;
-	allocated++;
+	MUTEX_LOCK(&allocation_mutex);
+	if (allocated < size)
+	{
+		positions[allocated]=pos;
+		velocities[allocated]=vel;
+		types[allocated]=DUST_RIPPLE;
+		//visible[allocated]=true;
+		allocated++;
+	}
+	MUTEX_UNLOCK(&allocation_mutex);
 }
 
 void DustPool::update(float gspeed)
 {
-	int i;
 	gspeed=fabs(gspeed);
-	for (i=0; i<allocated; i++)
+	for (int i=0; i<allocated; i++)
 	{
 		/*
 		// show particle if requested
@@ -209,8 +249,7 @@ void DustPool::update(float gspeed)
 			ColourValue col=colours[i];
 			col.a=1.0;
 			emit->setColour(col);
-		}
-		else if (types[i]==DUST_RUBBER)
+		} else if (types[i]==DUST_RUBBER)
 		{
 			ParticleEmitter *emit=pss[i]->getEmitter(0);
 			Vector3 ndir=velocities[i];
@@ -227,8 +266,7 @@ void DustPool::update(float gspeed)
 			emit->setParticleVelocity(vel);
 			emit->setColour(ColourValue(0.9, 0.9, 0.9,vel*0.05));
 			emit->setTimeToLive(vel*0.05/0.1);
-		}
-		else if (types[i]==DUST_SPARKS)
+		} else if (types[i]==DUST_SPARKS)
 		{
 			ParticleEmitter *emit=pss[i]->getEmitter(0);
 			Vector3 ndir=-velocities[i];
@@ -241,8 +279,7 @@ void DustPool::update(float gspeed)
 			sns[i]->setPosition(positions[i]);
 			emit->setDirection(ndir);
 			emit->setParticleVelocity(vel);
-		}
-		else if (types[i]==DUST_VAPOUR)
+		} else if (types[i]==DUST_VAPOUR)
 		{
 			ParticleEmitter *emit=pss[i]->getEmitter(0);
 			Vector3 ndir=velocities[i];
@@ -256,8 +293,7 @@ void DustPool::update(float gspeed)
 			emit->setParticleVelocity(vel/2.0);
 			emit->setColour(ColourValue(0.9, 0.9, 0.9,rates[i]*0.03));
 			emit->setTimeToLive(rates[i]*0.03/0.1);
-		}
-		else if (types[i]==DUST_DRIP)
+		} else if (types[i]==DUST_DRIP)
 		{
 			ParticleEmitter *emit=pss[i]->getEmitter(0);
 			Vector3 ndir=velocities[i];
@@ -270,8 +306,7 @@ void DustPool::update(float gspeed)
 			emit->setDirection(ndir);
 			emit->setParticleVelocity(vel);
 			emit->setEmissionRate(rates[i]);
-		}
-		else if (types[i]==DUST_SPLASH)
+		} else if (types[i]==DUST_SPLASH)
 		{
 			ParticleEmitter *emit=pss[i]->getEmitter(0);
 			Vector3 ndir=velocities[i];
@@ -287,8 +322,7 @@ void DustPool::update(float gspeed)
 			emit->setParticleVelocity(vel);
 			emit->setColour(ColourValue(0.9, 0.9, 0.9,vel*0.05));
 			emit->setTimeToLive(vel*0.05/0.1);
-		}
-		else if (types[i]==DUST_RIPPLE)
+		} else if (types[i]==DUST_RIPPLE)
 		{
 			ParticleEmitter *emit=pss[i]->getEmitter(0);
 			Real vel=velocities[i].length();
@@ -299,15 +333,9 @@ void DustPool::update(float gspeed)
 			emit->setTimeToLive(vel*0.04/0.1);
 		}
 	}
-	for (i=allocated; i<size; i++)
+	for (int i=allocated; i<size; i++)
 	{
 		pss[i]->getEmitter(0)->setEnabled(false);
 	}
 	allocated=0;
 }
-
-
-DustPool::~DustPool()
-{
-}
-
