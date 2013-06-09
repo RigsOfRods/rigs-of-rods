@@ -22,6 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
+#include <pthread.h>
+
 class DustPool : public ZeroedMemoryAllocator
 {
 public:
@@ -65,10 +67,8 @@ protected:
 	int allocated;
 	int size;
 	int types[MAX_DUSTS];
+
+	pthread_mutex_t allocation_mutex;
 };
 
-extern int numdust;
-extern DustPool* dusts[10];
-
 #endif // __DustPool_H_
-
