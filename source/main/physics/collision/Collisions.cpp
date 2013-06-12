@@ -147,10 +147,13 @@ Collisions::Collisions() :
 		debugmo = gEnv->sceneManager->createManualObject();
 		debugmo->begin("tracks/debug/collision/triangle", RenderOperation::OT_TRIANGLE_LIST);
 	}
+
+	pthread_mutex_init(&scriptcallback_mutex, NULL);
 }
 
 Collisions::~Collisions()
 {
+	pthread_mutex_destroy(&scriptcallback_mutex);
 }
 
 void Collisions::resizeMemory(long newSize)
@@ -861,6 +864,7 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 	if (!eventsources[cbox->eventsourcenum].enabled)
 		return false;
 	
+	MUTEX_LOCK(&scriptcallback_mutex);
 	// this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
 	if (last_called_cbox != cbox)
 	{
@@ -870,6 +874,7 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 #endif //USE_ANGELSCRIPT
 		last_called_cbox = cbox;
 	}
+	MUTEX_UNLOCK(&scriptcallback_mutex);
 
 	return handled;
 }

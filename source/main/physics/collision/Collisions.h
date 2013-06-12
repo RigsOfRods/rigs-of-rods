@@ -26,6 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h" // for collision_box_t
 #include "Ogre.h"
 
+#include <pthread.h>
+
 typedef struct _eventsource
 {
 	char instancename[256];
@@ -138,6 +140,8 @@ private:
 	void parseGroundConfig(Ogre::ConfigFile *cfg, Ogre::String groundModel = "");
 
 	Ogre::Vector3 calcCollidedSide(const Ogre::Vector3& pos, const Ogre::Vector3& lo, const Ogre::Vector3& hi);
+
+	pthread_mutex_t scriptcallback_mutex;
 
 public:
 
