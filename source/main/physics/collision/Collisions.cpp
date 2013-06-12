@@ -149,6 +149,10 @@ Collisions::Collisions() :
 	}
 }
 
+Collisions::~Collisions()
+{
+}
+
 void Collisions::resizeMemory(long newSize)
 {
 	if (collision_tris)
@@ -465,14 +469,12 @@ void Collisions::hash_add(int cell_x, int cell_z, int value)
 			collision_count++;
 		}
 		largest_cellcount = std::max(largest_cellcount, (int)newcell->size());
-	}
-	else if (hashtable[pos].cellid == cellid)
+	} else if (hashtable[pos].cellid == cellid)
 	{
 		// there is already a cell ready
 		hashtable[pos].cell->push_back(value);
 		largest_cellcount = std::max(largest_cellcount, (int)hashtable[pos].cell->size());
-	}
-	else
+	} else
 	{
 		LOG("COLL: The hashtable is full.");
 	}
@@ -618,8 +620,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 			// set absolute coords
 			coll_box.lo += pos;
 			coll_box.hi += pos;
-	}
-	else
+	} else
 	{
 		// unrefined box
 		coll_box.lo = pos + coll_box.relo;
@@ -864,12 +865,10 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 	if (last_called_cbox != cbox)
 	{
 #ifdef USE_ANGELSCRIPT
-		int ret = ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node);
-		if (ret == 0)
+		if (!ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
 			handled = true;
-
-		last_called_cbox = cbox;
 #endif //USE_ANGELSCRIPT
+		last_called_cbox = cbox;
 	}
 
 	return handled;
@@ -968,8 +967,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 					(*refpos) = calcCollidedSide((*refpos), cbox->lo, cbox->hi);
 				}
 			}
-		}
-		else
+		} else
 		{
 			collision_tri_t *ctri=&collision_tris[(*cell)[k]-MAX_COLLISION_BOXES];
 			if (!ctri->enabled)
@@ -1006,43 +1004,50 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 bool Collisions::permitEvent(int filter)
 {
 	Beam *b = BeamFactory::getSingleton().getCurrentTruck();
-	if (filter == EVENT_ALL)
+
+	switch (filter)
+	{
+	case EVENT_ALL:
 		return true;
-	else if (filter == EVENT_AVATAR && !b)
-		return true;
-	else if (filter == EVENT_TRUCK && b && b->driveable == TRUCK)
-		return true;
-	else if (filter == EVENT_AIRPLANE && b && b->driveable == AIRPLANE)
-		return true;
-	else if (filter == EVENT_BOAT && b && b->driveable == BOAT)
-		return true;
-	else if (filter == EVENT_DELETE && !b)
-		return true;
-	return false;
+	case EVENT_AVATAR:
+		return !b;
+	case EVENT_TRUCK:
+		return b && b->driveable == TRUCK;
+	case EVENT_AIRPLANE:
+		return b && b->driveable == AIRPLANE;
+	case EVENT_BOAT:
+		return b && b->driveable == BOAT;
+	case EVENT_DELETE:
+		return !b;
+	default:
+		return false;
+	}
 }
 
 int Collisions::enableCollisionTri(int number, bool enable)
 {
-	if (number > free_collision_tri) return -1;
-	collision_tris[number].enabled=enable;
+	if (number > free_collision_tri) 
+		return -1;
+
+	collision_tris[number].enabled = enable;
+	
 	return 0;
 }
 
 bool Collisions::nodeCollision(node_t *node, bool iscinecam, int contacted, float dt, float* nso, ground_model_t** ogm, int *handlernum)
 {
-	bool smoky=false;
+	bool smoky = false;
 	// float corrf=1.0;
-	Vector3 oripos=node->AbsPosition;
+	Vector3 oripos = node->AbsPosition;
 	unsigned int k;
 	// find the correct cell
-	int refx, refz;
-	refx=(int)(node->AbsPosition.x/CELL_SIZE);
-	refz=(int)(node->AbsPosition.z/CELL_SIZE);
-	cell_t *cell=hash_find(refx, refz);
+	int refx = (int)(node->AbsPosition.x/CELL_SIZE);
+	int refz = (int)(node->AbsPosition.z/CELL_SIZE);
+	cell_t *cell = hash_find(refx, refz);
 	//LOG("Checking cell "+TOSTRING(refx)+" "+TOSTRING(refz)+" total indexes: "+TOSTRING(num_cboxes_index[refp]));
 
-	collision_tri_t *minctri=0;
-	float minctridist=100.0;
+	collision_tri_t *minctri = 0;
+	float minctridist = 100.0;
 	Vector3 minctripoint;
 
 	if (cell)
@@ -1057,8 +1062,8 @@ bool Collisions::nodeCollision(node_t *node, bool iscinecam, int contacted, floa
 					if (cbox->refined || cbox->selfrotated)
 					{
 						// we may have a collision, do a change of repere
-						Vector3 Pos=node->AbsPosition-cbox->center;
-						if (cbox->refined) Pos=cbox->unrot*Pos;
+						Vector3 Pos = node->AbsPosition-cbox->center;
+						if (cbox->refined) Pos = cbox->unrot*Pos;
 						if (cbox->selfrotated)
 						{
 							Pos=Pos-cbox->selfcenter;
@@ -1288,6 +1293,7 @@ eventsource_t *Collisions::isTruckInEventBox(Beam *truck)
 bool Collisions::isInside(Vector3 pos, const Ogre::String &inst, const Ogre::String &box, float border)
 {
 	collision_box_t *cbox = getBox(inst, box);
+
 	return isInside(pos, cbox, border);
 }
 
@@ -1336,10 +1342,9 @@ bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, f
 	last_used_ground_model = *ogm;
 
 	// new ground collision code
-	Real v=hFinder->getHeightAt(node->AbsPosition.x, node->AbsPosition.z);
-	if (v>node->AbsPosition.y)
+	Real v = hFinder->getHeightAt(node->AbsPosition.x, node->AbsPosition.z);
+	if (v > node->AbsPosition.y)
 	{
-
 		// collision!
 		Ogre::Vector3 normal = hFinder->getNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
 		primitiveCollision(node, node->Forces, node->Velocity, normal, dt, *ogm, nso, v-node->AbsPosition.y);
@@ -1404,8 +1409,7 @@ void Collisions::primitiveCollision(node_t *node, Vector3 &force, Vector3 &veloc
 			float invslipv = fast_invSqrt(slipv);
 			slip = slip*invslipv;
 			slipv = slipv*invslipv;
-		}
-		else
+		} else
 		{
 			slipv = sqrt(slipv);
 		}
@@ -1430,8 +1434,7 @@ void Collisions::primitiveCollision(node_t *node, Vector3 &force, Vector3 &veloc
 				Freaction += -Vnormal * node->mass / dt; // Newton's second law
 			}
 			if (Freaction < 0) Freaction = 0.0f;
-		}
-		else
+		} else
 		{
 			Freaction = reaction;
 			Fnormal = 0.0f;
@@ -1448,8 +1451,7 @@ void Collisions::primitiveCollision(node_t *node, Vector3 &force, Vector3 &veloc
 			// Static friction model (with a little smoothing to help the integrator deal with it)
 			ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
 			force = (Fnormal + Freaction) * normal + ff*slip;
-		}
-		else
+		} else
 		{
 			// Stribek model. It also comes directly from textbooks.
 			float g = gm->mc + (gm->ms - gm->mc) * std::min(1.0f, approx_exp(-approx_pow(slipv / gm->vs, gm->alpha)));
@@ -1675,8 +1677,7 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &ve
 				vertex_count += vertex_data->vertexCount;
 				added_shared = true;
 			}
-		}
-		else
+		} else
 		{
 			VertexData* vertex_data = submesh->vertexData;
 			vertex_count += vertex_data->vertexCount;
@@ -1738,9 +1739,13 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &ve
 		unsigned short* pShort = 0;
 		unsigned int* pInt = 0;
 		Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
+		
 		bool use32bitindexes = (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
-		if (use32bitindexes) pInt = static_cast<unsigned int*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
-		else pShort = static_cast<unsigned short*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+
+		if (use32bitindexes)
+			pInt = static_cast<unsigned int*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+		else
+			pShort = static_cast<unsigned short*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
 
 		for (size_t k = 0; k < numTris; ++k)
 		{

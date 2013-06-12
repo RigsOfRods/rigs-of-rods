@@ -148,6 +148,7 @@ public:
 	eventsource_t *getEvent(int eventID) { return &eventsources[eventID]; };
 
 	Collisions();
+	~Collisions();
 
 	Ogre::Vector3 getPosition(const Ogre::String &inst, const Ogre::String &box);
 	Ogre::Quaternion getDirection(const Ogre::String &inst, const Ogre::String &box);
