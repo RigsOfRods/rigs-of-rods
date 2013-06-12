@@ -421,8 +421,8 @@ void Water::update()
 		{
 			pTestNode->setPosition(waterPos);
 			pBottomNode->setPosition(waterPos);
-			if (haswaves) showWave(waterPos);
 		}
+		if (haswaves) showWave(pTestNode->getPosition());
 	}
 
 	bool underwater = isCameraUnderWater();
