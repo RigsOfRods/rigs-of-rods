@@ -390,7 +390,7 @@ bool BeamFactory::checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
 	{
 		if (trucks[t] && !sleepy[t] && checkTruckIntersection(t, j))
 		{
-			if (trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5))
+			if (trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && !forcedActive && trucks[t]->sleepcount >= 5))
 				return checkForActive(t, sleepy);
 			else
 				return true;
@@ -406,7 +406,7 @@ void BeamFactory::recursiveActivation(int j)
 	for (int t=0; t < free_truck; t++)
 	{
 		if (t == j || !trucks[t]) continue;
-		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5)) &&
+		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && !forcedActive && trucks[t]->sleepcount >= 5)) &&
 			checkTruckIntersection(t, j))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
