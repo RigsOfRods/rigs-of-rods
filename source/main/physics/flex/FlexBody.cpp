@@ -652,10 +652,10 @@ void FlexBody::flexitCompute()
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].smoothpos-nodes[loc.ref].smoothpos);
+		mat.SetColumn(2, approx_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].smoothpos-nodes[loc.ref].smoothpos);
 
 		dstpos[i] = mat * locs[i].coords + nodes[locs[i].ref].smoothpos - flexit_center;
-		dstnormals[i] = fast_normalise(mat * srcnormals[i]);
+		dstnormals[i] = approx_normalise(mat * srcnormals[i]);
 	}
 }
 

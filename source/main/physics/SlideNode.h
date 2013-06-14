@@ -44,6 +44,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __SLIDENODE_H_
 
 #include "RoRPrerequisites.h"
+
+#include "ApproxMath.h"
 #include "BeamData.h"
 
 /**
@@ -68,35 +70,22 @@ static inline Ogre::Vector3 nearestPoint(const Ogre::Vector3& pt1,
 		const Ogre::Vector3& pt2,
 		const Ogre::Vector3& tp)
 {	
-	//optimized to reduce number of temporary variables
-	Ogre::Vector3 a = tp;
-	Ogre::Vector3 b = pt2;
-	a -= pt1;
-	b -= pt1;
-	
-	Ogre::Real len = b.length();
-	b.normalise();
-	len = a.dotProduct(b);	
-	b *= len;
-	
-	a = pt1;
-	a += b;
-	return a;
+	const Ogre::Vector3 a = tp - pt1;
+	const Ogre::Vector3 b = fast_normalise(pt2-pt1);
+
+	return pt1 + (a.dotProduct(b)) * b;
 }
 
 static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
 		const Ogre::Vector3& pt2,
 		const Ogre::Vector3& tp)
 {	
-	//optimized to reduce number of temporary variables
-	Ogre::Vector3 a = tp;
-	Ogre::Vector3 b = pt2;
-	a -= pt1;
-	b -= pt1;
-	
-	Ogre::Real len = b.length();
-	b.normalise();
-	len = std::max(0.0f, std::min( a.dotProduct(b), len ) );	
+	Ogre::Vector3 a = tp - pt1;
+	Ogre::Vector3 b = pt2 - pt1;
+	Ogre::Real len = fast_length(b);
+
+	b = fast_normalise(b);
+	len = std::max(0.0f, std::min(a.dotProduct(b), len));	
 	b *= len;
 	
 	a = pt1;
@@ -440,7 +429,7 @@ public:
     {
     	if ( !beam ) return std::numeric_limits<Ogre::Real>::infinity();
     	
-    	return ( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point ).length();	
+    	return fast_length( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point );	
     }
 
 
