@@ -112,7 +112,7 @@ inline float approx_sqrt(const float y)
 // Calculates approximate 1/square_root(x)
 // it is faster than fast_invSqrt BUT
 // use it in code not requiring precision
-inline float approx_invsqrt(const float y)
+inline float approx_invSqrt(const float y)
 {
     float f = y;
     int i = 0x5f3759df - ( (*(int *)&f) >> 1);
@@ -145,11 +145,20 @@ inline float sign(const float x)
 	return (x > 0.0f) ? 1.0f : (x < 0.0f) ? -1.0f : 0.0f;
 }
 
-
 // Ogre3 specific helpers
+inline Ogre::Vector3 approx_normalise(Ogre::Vector3 v)
+{
+	return v*approx_invSqrt(v.squaredLength());
+}
+
 inline Ogre::Vector3 fast_normalise(Ogre::Vector3 v)
 {
 	return v*fast_invSqrt(v.squaredLength());
+}
+
+inline float approx_length(Ogre::Vector3 v)
+{
+	return approx_sqrt(v.squaredLength());
 }
 
 inline float fast_length(Ogre::Vector3 v)
