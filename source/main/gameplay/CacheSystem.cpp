@@ -1235,56 +1235,57 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
 
 void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
-	SerializedRig r;
+	SerializedRig* r = new SerializedRig();
 
-	r.loadTruckVirtual(fname, true);
+	r->loadTruckVirtual(fname, true);
 
 	// copy over some values
 
-	for (unsigned int i=0; i<r.description.size(); i++)    entry.description += r.description[i] + "\n";
-	for (unsigned int i=0; i<r.authors.size(); i++)        entry.authors.push_back(r.authors[i]);
-	for (unsigned int i=0; i<r.sectionconfigs.size(); i++) entry.sectionconfigs.push_back(r.sectionconfigs[i]);
+	for (unsigned int i=0; i<r->description.size(); i++)    entry.description += r->description[i] + "\n";
+	for (unsigned int i=0; i<r->authors.size(); i++)        entry.authors.push_back(r->authors[i]);
+	for (unsigned int i=0; i<r->sectionconfigs.size(); i++) entry.sectionconfigs.push_back(r->sectionconfigs[i]);
 
-	if (r.engine)
+	if (r->engine)
 	{
-		entry.numgears   = r.engine->getNumGears();
-		entry.minrpm     = r.engine->getMinRPM();
-		entry.maxrpm     = r.engine->getMaxRPM();
-		entry.torque     = r.engine->getEngineTorque();
-		entry.enginetype = r.engine->getType();
+		entry.numgears   = r->engine->getNumGears();
+		entry.minrpm     = r->engine->getMinRPM();
+		entry.maxrpm     = r->engine->getMaxRPM();
+		entry.torque     = r->engine->getEngineTorque();
+		entry.enginetype = r->engine->getType();
 	}
-	entry.uniqueid   = r.uniquetruckid;
-	entry.categoryid = r.categoryid;
-	entry.version    = r.truckversion;
-	entry.forwardcommands = r.forwardcommands;
-	entry.importcommands  = r.importcommands;
-	entry.rollon = r.wheel_contact_requested;
-	entry.rescuer = r.rescuer;
-	entry.guid = String(r.guid);
-	entry.fileformatversion = r.fileformatversion;
-	entry.hasSubmeshs = (r.free_sub > 0);
-	entry.nodecount   = r.free_node;
-	entry.beamcount   = r.free_beam;
-	entry.shockcount  = r.free_shock;
-	entry.fixescount  = r.free_fixes;
-	entry.hydroscount = r.free_hydro;
-	entry.wheelcount  = r.free_wheel;
-	entry.propwheelcount = r.propwheelcount;
-	entry.driveable   = r.driveable;
-	entry.commandscount = r.free_commands;
-	entry.flarescount = r.free_flare;
-	entry.propscount = r.free_prop;
-	entry.wingscount = r.free_wing;
-	entry.turbopropscount = r.free_aeroengine;
-	entry.rotatorscount = r.free_rotator;
-	entry.exhaustscount = (int)r.exhausts.size();
-	entry.custom_particles = (r.free_cparticle > 0);
-	entry.turbojetcount = r.free_aeroengine;
-	entry.flexbodiescount = r.free_flexbody;
-	entry.soundsourcescount = r.free_soundsource;
+	entry.uniqueid   = r->uniquetruckid;
+	entry.categoryid = r->categoryid;
+	entry.version    = r->truckversion;
+	entry.forwardcommands = r->forwardcommands;
+	entry.importcommands  = r->importcommands;
+	entry.rollon = r->wheel_contact_requested;
+	entry.rescuer = r->rescuer;
+	entry.guid = String(r->guid);
+	entry.fileformatversion = r->fileformatversion;
+	entry.hasSubmeshs = (r->free_sub > 0);
+	entry.nodecount   = r->free_node;
+	entry.beamcount   = r->free_beam;
+	entry.shockcount  = r->free_shock;
+	entry.fixescount  = r->free_fixes;
+	entry.hydroscount = r->free_hydro;
+	entry.wheelcount  = r->free_wheel;
+	entry.propwheelcount = r->propwheelcount;
+	entry.driveable   = r->driveable;
+	entry.commandscount = r->free_commands;
+	entry.flarescount = r->free_flare;
+	entry.propscount = r->free_prop;
+	entry.wingscount = r->free_wing;
+	entry.turbopropscount = r->free_aeroengine;
+	entry.rotatorscount = r->free_rotator;
+	entry.exhaustscount = (int)r->exhausts.size();
+	entry.custom_particles = (r->free_cparticle > 0);
+	entry.turbojetcount = r->free_aeroengine;
+	entry.flexbodiescount = r->free_flexbody;
+	entry.soundsourcescount = r->free_soundsource;
 	//entry.managedmaterialscount++;
 	//entry.customtach=true;
 	//entry.materialflarebindingscount++;
+	delete r;
 }
 
 int CacheSystem::addUniqueString(std::set<Ogre::String> &list, Ogre::String str)
