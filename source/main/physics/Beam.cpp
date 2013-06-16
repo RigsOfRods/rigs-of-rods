@@ -850,7 +850,7 @@ beam_t *Beam::addBeam(int id1, int id2)
 {
 	int type = BEAM_NORMAL;
 
-	if (id1 >= free_node || id2 >= free_node)
+	if (id1 < 0 || id1 >= free_node || id2 < 0 || id2 >= free_node)
 	{
 		LOG("Error: unknown node number in beams section ("
 			+TOSTRING(id1)+","+TOSTRING(id2)+")");

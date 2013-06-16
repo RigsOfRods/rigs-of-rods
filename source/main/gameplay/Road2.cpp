@@ -543,7 +543,7 @@ void Road2::addCollisionQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, gro
 
 void Road2::createMesh()
 {
-	AxisAlignedBox *aab=new AxisAlignedBox();
+	AxisAlignedBox aab;
 	union
 	{
 		float *vertices;
@@ -567,7 +567,7 @@ void Road2::createMesh()
 		covertices[i].vertex=vertex[i];
 		//normals are computed later
 		covertices[i].normal=Vector3::ZERO;
-		aab->merge(vertex[i]);
+		aab.merge(vertex[i]);
 	}
 
 	/// Define triangles
@@ -637,12 +637,11 @@ void Road2::createMesh()
 
 	/// Set bounding information (for culling)
 //		msh->_setBounds(AxisAlignedBox(0,0,0,3000,500,3000));
-	msh->_setBounds(*aab, true);
+	msh->_setBounds(aab, true);
 	//msh->_setBoundingSphereRadius((aab->getMaximum()-aab->getMinimum()).length()/2.0);
 
 	/// Notify Mesh object that it has been loaded
 	msh->buildEdgeList();
 	msh->prepareForShadowVolume();
 	msh->load();
-	delete aab;
 };
