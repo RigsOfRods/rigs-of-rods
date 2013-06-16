@@ -452,6 +452,8 @@ struct collcab_rate
 {
 	int rate;
 	int distance;
+	bool update;
+	bool calcforward;
 };
 
 struct beam
@@ -845,7 +847,8 @@ struct rig
 
 	int collcabs[MAX_CABS];
 	int collcabstype[MAX_CABS];
-	collcab_rate_t collcabrate[MAX_CABS];
+	collcab_rate_t inter_collcabrate[MAX_CABS];
+	collcab_rate_t intra_collcabrate[MAX_CABS];
 	int free_collcab;
 
 	int buoycabs[MAX_CABS];
@@ -966,6 +969,7 @@ struct rig
 	bool driversseatfound;
 	bool ispolice;
 	int state;
+	bool collisionRelevant;
 	bool hasposlights;
 	bool heathaze;
 	Autopilot *autopilot;
@@ -1024,7 +1028,9 @@ struct rig
 	FlexObj *cabMesh;
 	Ogre::SceneNode *cabNode;
 	Ogre::AxisAlignedBox boundingBox; // standard bounding box (surrounds all nodes of a truck)
+	Ogre::AxisAlignedBox predictedBoundingBox;
 	std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; // smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
+	std::vector<Ogre::AxisAlignedBox> predictedCollisionBoundingBoxes;
 	bool freePositioned;
 	int lowestnode; // never updated after truck init!?!
 

@@ -180,7 +180,8 @@ SerializedRig::SerializedRig()
 	memset(this->subcabs, 0, sizeof(int) * MAX_SUBMESHES);
 	memset(this->collcabs, 0, sizeof(int) * MAX_CABS);
 	memset(this->collcabstype, 0, sizeof(int) * MAX_CABS);
-	memset(this->collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS); free_collcab = 0;
+	memset(this->inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS); free_collcab = 0;
+	memset(this->intra_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
 	memset(this->buoycabs, 0, sizeof(int) * MAX_CABS); free_buoycab = 0;
 	memset(this->buoycabtypes, 0, sizeof(int) * MAX_CABS);
 	memset(this->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES); free_airbrake = 0;
@@ -240,7 +241,7 @@ SerializedRig::SerializedRig()
 	memset(helpmat, 0, 255);
 	
 	fadeDist=150.0;
-	collrange=0.02f;
+	collrange=DEFAULT_COLLISION_RANGE;
 	masscount=0;
 	disable_smoke = !SETTINGS.getBooleanSetting("Particles", true);
 	smokeId=0;
@@ -6710,9 +6711,17 @@ void SerializedRig::calcBoundingBoxes()
 		}
 	}
 
-	boundingBox.setMinimum(boundingBox.getMinimum() - Ogre::Vector3(0.3f, 0.3f, 0.3f));
-	boundingBox.setMaximum(boundingBox.getMaximum() + Ogre::Vector3(0.3f, 0.3f, 0.3f));
+	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
+	{
+		collisionBoundingBoxes[i].setMinimum(collisionBoundingBoxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+		collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+	}
 
+	boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+	boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+
+	predictedBoundingBox = boundingBox;
+	predictedCollisionBoundingBoxes = collisionBoundingBoxes;
 	//BES_GFX_STOP(BES_GFX_calcBox);
 }
 

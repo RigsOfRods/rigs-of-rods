@@ -643,7 +643,7 @@ bool FlexBody::flexitPrepare(Beam* b)
 void FlexBody::flexitCompute()
 {
 	// If something unexpected happens here, then
-	// replace fast_normalise(a) with a.normalisedCopy()
+	// replace approx_normalise(a) with a.normalisedCopy()
 	for (int i=0; i<(int)vertex_count; i++)
 	{
 		Matrix3 mat;

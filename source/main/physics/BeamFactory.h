@@ -81,10 +81,15 @@ public:
 	void calcPhysics(float dt);
 	void recalcGravityMasses();
 
-	int updateSimulation(float dt);
+	/* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.*/
+	bool truckIntersectionAABB(int a, int b);
+	/* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.*/
+	bool predictTruckIntersectionAABB(int a, int b);
+	/* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.*/
+	bool truckIntersectionCollAABB(int a, int b);
+	/* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.*/
+	bool predictTruckIntersectionCollAABB(int a, int b);
 
-	/* Returns whether or not the bounding boxes of truck a and truck b intersect. */
-	bool checkTruckIntersection(int a, int b);
 	void activateAllTrucks();
 	void checkSleepingState();
 	void sendAllTrucksSleeping();
@@ -101,6 +106,8 @@ public:
 	pthread_cond_t work_done_cv;
 	pthread_mutex_t work_done_mutex;
 	pthread_t worker_thread;
+
+	ThreadPool *beamThreadPool;
 
 protected:
 

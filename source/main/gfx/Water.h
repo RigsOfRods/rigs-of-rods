@@ -25,8 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Ogre.h"
 #include "IWater.h"
 
-extern float mrtime;
-
 class Water : public IWater, public ZeroedMemoryAllocator
 {
 public:
