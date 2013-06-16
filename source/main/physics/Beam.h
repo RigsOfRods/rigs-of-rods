@@ -25,13 +25,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamData.h"
 #include "CacheSystem.h"
+#include "IThreadTask.h"
 #include "SerializedRig.h"
 #include "Streamable.h"
 
 class Beam :
+	public IThreadTask,
 	public SerializedRig,
-	public Streamable,
-	public ZeroedMemoryAllocator
+	public Streamable
 {
 public:
 	Beam() {}; // for wrapper, DO NOT USE!
@@ -68,30 +69,17 @@ public:
 	void desactivate();
 	void addPressure(float v);
 	float getPressure();
-	void calc_masses2(Ogre::Real total, bool reCalc=false);
-	void calcNodeConnectivityGraph();
-	void updateContacterNodes();
-	void moveOrigin(Ogre::Vector3 offset); //move physics origin
-	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 	Ogre::Vector3 getPosition();
 	void resetAngle(float rot);
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
 	void resetPosition(float px, float pz, bool setInitPosition);
 	void resetPosition(Ogre::Vector3 translation, bool setInitPosition);
 	void reset(bool keepPosition = false); //call this one to reset a truck from any context
-	void SyncReset(); //this one should be called only synchronously (without physics running in background)
 	//this is called by the beamfactory worker thread
 	void threadentry();
-	//integration loop
-	//bool frameStarted(const FrameEvent& evt)
 	//this will be called once by frame and is responsible for animation of all the trucks!
 	//the instance called is the one of the current ACTIVATED truck
 	bool frameStep(Ogre::Real dt);
-	int truckSteps;
-	void calcForcesEuler(int doUpdate, Ogre::Real dt, int step, int maxsteps);
-	void truckTruckCollisions(Ogre::Real dt);
-	void calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
-	void calcAnimators(int flagstate, float &cstate, int &div, float timer, float opt1, float opt2, float opt3);
 	//! @}
 
 	//! @{ audio related functions
@@ -114,6 +102,7 @@ public:
 	void tractioncontrolToggle();
 	void cruisecontrolToggle();
 	void beaconsToggle();
+	void forwardCommands();
 	void setReplayMode(bool rm);
 	int savePosition(int position);
 	int loadPosition(int position);
@@ -138,6 +127,7 @@ public:
 	void showSkeleton(bool meshes=true, bool newMode=false, bool linked=true);
 	void hideSkeleton(bool newMode=false, bool linked=true);
 	void updateSimpleSkeleton();
+	void updateSkeletonColouring(int doUpdate);
 	void resetAutopilot();
 	void disconnectAutopilot();
 	void scaleTruck(float value);
@@ -184,13 +174,15 @@ public:
 	float hydroelevatorcommand;
 	float hydroelevatorstate;
 
+	bool canwork;
 	bool replaymode;
+	bool watercontact;
+	bool watercontactold;
+	int locked;
+	int lockedold;
+	int oldreplaypos;
 	int replaylen;
 	int replaypos;
-	int oldreplaypos;
-	int watercontact;
-	int watercontactold;
-	int canwork;
 	int sleepcount;
 	//can this be driven?
 	int previousGear;
@@ -202,7 +194,6 @@ public:
 	float leftMirrorAngle;
 	float rightMirrorAngle;
 	float refpressure;
-	PointColDetector *pointCD;
 
 	bool hasDriverSeat();
 	int calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
@@ -230,7 +221,6 @@ public:
 	std::string getTruckFileName();
 	std::string getTruckHash();
 	int getTruckType();
-
 	
 	std::vector<authorinfo_t> getAuthors();
 	std::vector<std::string> getDescription();
@@ -242,7 +232,6 @@ public:
 	int getNodeCount();
 	node_t *getNodes();
 	int nodeBeamConnections(int nodeid);
-
 
 	void changedCamera();
 
@@ -260,8 +249,6 @@ public:
 	 *@return Returns a list of all connected (hooked) beams 
 	 */
 	std::list<Beam*> getAllLinkedBeams() { return linkedBeams; };
-	std::list<Beam*> linkedBeams;
-	void determineLinkedBeams();
 
 	// this must be in the header as the network stuff is using it...
 	bool getBrakeLightVisible();
@@ -277,7 +264,6 @@ public:
 	blinktype getBlinkType();
 	void deleteNetTruck();
 	
-	
 	float getHeadingDirectionAngle();
 	bool getCustomParticleMode();
 	int getLowestNode();
@@ -285,6 +271,7 @@ public:
 	
 	float tdt;
 	float ttdt;
+	bool simulated;
 	int airbrakeval;
 	Ogre::Vector3 cameranodeacc;
 	int cameranodecount;
@@ -301,15 +288,12 @@ public:
 	int getNetTruckTimeOffset();
 	Ogre::Real getMinimalCameraRadius();
 
-
 	Replay *getReplay();
 
 	bool getSlideNodesLockInstant();
 	void sendStreamData();
 	bool isTied();
 	bool isLocked();
-	int tsteps;
-	float avichatter_timer;
 
 	Ogre::SceneNode *getSceneNode() { return beamsRoot; }
 
@@ -317,20 +301,87 @@ public:
 	DashBoardManager *dash;
 #endif // USE_MYGUI
 
-	int task_count;
-	pthread_cond_t task_count_cv;
-	pthread_mutex_t task_count_mutex;
+	Beam* calledby;
+
+	// IThreadTask
+	void run();
+	void onComplete();
+
+	// flexable pthread stuff
+	int flexable_task_count;
+	pthread_cond_t flexable_task_count_cv;
+	pthread_mutex_t flexable_task_count_mutex;
 
 protected:
-	void updateDashBoards(float &dt);
-	Ogre::SceneNode *simpleSkeletonNode;
 
+	enum ThreadTask {
+		THREAD_BEAMFORCESEULER,
+		THREAD_BEAMS,
+		THREAD_INTER_TRUCK_COLLISIONS,
+		THREAD_INTRA_TRUCK_COLLISIONS,
+		THREAD_NODES,
+		THREAD_MAX
+	};
+
+	//! @{ physic related functions
+	bool calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
+	void calcForcesEulerCompute(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
+	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
+	void intraTruckCollisionsPrepare(Ogre::Real dt);
+	void intraTruckCollisionsCompute(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
+	void intraTruckCollisionsFinal(Ogre::Real dt);
+	void interTruckCollisionsPrepare(Ogre::Real dt);
+	void interTruckCollisionsCompute(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
+	void interTruckCollisionsFinal(Ogre::Real dt);
+	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+	void calcHooks();
+	void calcRopes();
+	void calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
+	void calcAnimators(int flagstate, float &cstate, int &div, float timer, float opt1, float opt2, float opt3);
+
+	void SyncReset(); //this one should be called only synchronously (without physics running in background)
+
+	float dtperstep;
+	int curtstep;
+	int tsteps;
+	float avichatter_timer;
+
+	// pthread stuff
+	int task_count[THREAD_MAX];
+	pthread_cond_t task_count_cv[THREAD_MAX];
+	pthread_mutex_t task_count_mutex[THREAD_MAX];
+	pthread_mutex_t task_index_mutex[THREAD_MAX];
+
+	ThreadTask thread_task;
+	int thread_index;
+	int thread_number;
+
+	void runThreadTask(Beam* truck, ThreadTask task);
+	
+	// inter-/intra truck collision stuff
+	pthread_mutex_t itc_node_access_mutex;
+
+	std::vector<PointColDetector*> interPointCD;
+	std::vector<PointColDetector*> intraPointCD;
+
+	// linked beams (hooks)
+	std::list<Beam*> linkedBeams;
+	void determineLinkedBeams();
+
+	void calc_masses2(Ogre::Real total, bool reCalc=false);
+	void calcNodeConnectivityGraph();
+	void updateContacterNodes();
+	void moveOrigin(Ogre::Vector3 offset); //move physics origin
+	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
+
+	void updateDashBoards(float &dt);
+	
 	Ogre::Vector3 position;
 	Ogre::Vector3 iPosition; // initial position
 	Ogre::Vector3 lastposition;
 	Ogre::Vector3 lastlastposition;
 	Ogre::Real minCameraRadius;
-
 
 	Ogre::Real replayTimer;
 	Ogre::Real replayPrecision;
@@ -347,18 +398,14 @@ protected:
 	Ogre::SceneNode *smokeNode;
 	Ogre::ParticleSystem* smoker;
 	float stabsleep;
-	//	float lastdt;
-	Collisions *collisions;
-	int fasted;
-	int slowed;
 	Replay *replay;
 	PositionStorage *posStorage;
-
 
 	bool cparticle_mode;
 	Beam** ttrucks;
 	int tnumtrucks;
 	int detailLevel;
+	int increased_accuracy;
 	bool isInside;
 	bool beacon;
 	float totalmass;
@@ -405,6 +452,7 @@ protected:
 	bool floating_origin_enable;
 
 	Ogre::ManualObject *simpleSkeletonManualObject;
+	Ogre::SceneNode *simpleSkeletonNode;
 	bool simpleSkeletonInitiated;
 	void initSimpleSkeleton();
 

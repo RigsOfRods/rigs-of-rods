@@ -92,6 +92,7 @@ BeamFactory::BeamFactory() :
 		if (num_cpu_cores > 2)
 		{
 			gEnv->threadPool = new ThreadPool(num_cpu_cores);
+			beamThreadPool   = new ThreadPool(num_cpu_cores);
 		}
 
 		pthread_cond_init(&thread_done_cv, NULL);
@@ -317,7 +318,7 @@ void BeamFactory::netUserAttributesChanged(int source_id, int stream_id)
 	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
 	std::map < int, std::map < unsigned int, Beam *> >::iterator it_source = streamables.find(source_id);
 	std::map < unsigned int, Beam *>::iterator it_stream;
-	
+
 	if (it_source != streamables.end() && !it_source->second.empty())
 	{
 		it_stream = it_source->second.find(stream_id);
@@ -350,7 +351,7 @@ bool BeamFactory::syncRemoteStreams()
 	// we override this here, so we know if something changed and could update the player list
 	// we delete and add trucks in there, so be sure that nothing runs as we delete them ...
 	bool changes = StreamableFactory <BeamFactory, Beam>::syncRemoteStreams();
-	
+
 	if (changes)
 		updateGUI();
 
@@ -366,18 +367,64 @@ void BeamFactory::updateGUI()
 #endif // USE_MYGUI	
 }
 
-bool BeamFactory::checkTruckIntersection(int a, int b)
+bool BeamFactory::truckIntersectionAABB(int a, int b)
 {
-	std::vector<Ogre::AxisAlignedBox> tempBoundingBox_a(trucks[a]->collisionBoundingBoxes);
-	if (tempBoundingBox_a.empty()) tempBoundingBox_a.push_back(trucks[a]->boundingBox);
+	return trucks[a]->boundingBox.intersects(trucks[b]->boundingBox);
+}
 
-	std::vector<Ogre::AxisAlignedBox> tempBoundingBox_b(trucks[b]->collisionBoundingBoxes);
-	if (tempBoundingBox_b.empty()) tempBoundingBox_b.push_back(trucks[b]->boundingBox);
+bool BeamFactory::predictTruckIntersectionAABB(int a, int b)
+{
+	return trucks[a]->predictedBoundingBox.intersects(trucks[b]->predictedBoundingBox);
+}
 
-	for (std::vector<Ogre::AxisAlignedBox>::iterator it_a = tempBoundingBox_a.begin(); it_a != tempBoundingBox_a.end(); ++it_a)
-		for (std::vector<Ogre::AxisAlignedBox>::iterator it_b = tempBoundingBox_b.begin(); it_b != tempBoundingBox_b.end(); ++it_b)
-			if (it_a->intersects(*it_b))
+bool BeamFactory::truckIntersectionCollAABB(int a, int b)
+{
+	if (trucks[a]->collisionBoundingBoxes.empty() && trucks[b]->collisionBoundingBoxes.empty())
+	{
+		return truckIntersectionAABB(a, b);
+	} else if (trucks[a]->collisionBoundingBoxes.empty())
+	{
+		for (std::vector<AxisAlignedBox>::iterator it = trucks[b]->collisionBoundingBoxes.begin(); it != trucks[b]->collisionBoundingBoxes.end(); ++it)
+			if (it->intersects(trucks[a]->boundingBox))
 				return true;
+	} else if (trucks[b]->collisionBoundingBoxes.empty())
+	{
+		for (std::vector<AxisAlignedBox>::iterator it = trucks[a]->collisionBoundingBoxes.begin(); it != trucks[a]->collisionBoundingBoxes.end(); ++it)
+			if (it->intersects(trucks[b]->boundingBox))
+				return true;
+	} else
+	{
+		for (std::vector<AxisAlignedBox>::iterator it_a = trucks[a]->collisionBoundingBoxes.begin(); it_a != trucks[a]->collisionBoundingBoxes.end(); ++it_a)
+			for (std::vector<AxisAlignedBox>::iterator it_b = trucks[b]->collisionBoundingBoxes.begin(); it_b != trucks[b]->collisionBoundingBoxes.end(); ++it_b)
+				if (it_a->intersects(*it_b))
+					return true;
+	}
+
+	return false;
+}
+
+bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b)
+{
+	if (trucks[a]->predictedCollisionBoundingBoxes.empty() && trucks[b]->predictedCollisionBoundingBoxes.empty())
+	{
+		return predictTruckIntersectionAABB(a, b);
+	} else if (trucks[a]->predictedCollisionBoundingBoxes.empty())
+	{
+		for (std::vector<AxisAlignedBox>::iterator it = trucks[b]->predictedCollisionBoundingBoxes.begin(); it != trucks[b]->predictedCollisionBoundingBoxes.end(); ++it)
+			if (it->intersects(trucks[a]->predictedBoundingBox))
+				return true;
+	} else if (trucks[b]->predictedCollisionBoundingBoxes.empty())
+	{
+		for (std::vector<AxisAlignedBox>::iterator it = trucks[a]->predictedCollisionBoundingBoxes.begin(); it != trucks[a]->predictedCollisionBoundingBoxes.end(); ++it)
+			if (it->intersects(trucks[b]->predictedBoundingBox))
+				return true;
+	} else
+	{
+		for (std::vector<AxisAlignedBox>::iterator it_a = trucks[a]->predictedCollisionBoundingBoxes.begin(); it_a != trucks[a]->predictedCollisionBoundingBoxes.end(); ++it_a)
+			for (std::vector<AxisAlignedBox>::iterator it_b = trucks[b]->predictedCollisionBoundingBoxes.begin(); it_b != trucks[b]->predictedCollisionBoundingBoxes.end(); ++it_b)
+				if (it_a->intersects(*it_b))
+					return true;
+	}
 
 	return false;
 }
@@ -388,9 +435,9 @@ bool BeamFactory::checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
 	sleepy.set(j, true);
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && !sleepy[t] && checkTruckIntersection(t, j))
+		if (trucks[t] && !sleepy[t] && predictTruckIntersectionCollAABB(t, j))
 		{
-			if (trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && !forcedActive && trucks[t]->sleepcount >= 5))
+			if (trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5))
 				return checkForActive(t, sleepy);
 			else
 				return true;
@@ -407,7 +454,7 @@ void BeamFactory::recursiveActivation(int j)
 	{
 		if (t == j || !trucks[t]) continue;
 		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && !forcedActive && trucks[t]->sleepcount >= 5)) &&
-			checkTruckIntersection(t, j))
+			predictTruckIntersectionCollAABB(t, j))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
 
@@ -429,20 +476,23 @@ void BeamFactory::checkSleepingState()
 		// if its grabbed, its moving
 		//if (isnodegrabbed && trucks[truckgrabbed]->state==SLEEPING) trucks[truckgrabbed]->desactivate();
 
-		// put to sleep
-		for (int t=0; t < free_truck; t++)
+		if (!forcedActive)
 		{
-			if (trucks[t] && trucks[t]->state == MAYSLEEP)
+			// put to sleep
+			for (int t=0; t < free_truck; t++)
 			{
-				std::bitset<MAX_TRUCKS> sleepy;
-				if (!checkForActive(t, sleepy))
+				if (trucks[t] && trucks[t]->state == MAYSLEEP)
 				{
-					// no active truck in the set, put everybody to sleep
-					for (int i=0; i < free_truck; i++)
+					std::bitset<MAX_TRUCKS> sleepy;
+					if (!checkForActive(t, sleepy))
 					{
-						if (trucks[i] && sleepy[i])
+						// no active truck in the set, put everybody to sleep
+						for (int i=0; i < free_truck; i++)
 						{
-							trucks[i]->state = GOSLEEP;
+							if (trucks[i] && sleepy[i])
+							{
+								trucks[i]->state = GOSLEEP;
+							}
 						}
 					}
 				}
@@ -457,7 +507,7 @@ void BeamFactory::checkSleepingState()
 			if (!trucks[t]) continue;
 			if (trucks[t]->state != SLEEPING)
 				rollmode = rollmode || trucks[t]->wheel_contact_requested;
-			
+
 			trucks[t]->requires_wheel_contact = rollmode;// && !trucks[t]->wheel_contact_requested;
 		}
 #endif
@@ -633,7 +683,7 @@ void BeamFactory::updateVisual(float dt)
 	for (int t=0; t < free_truck; t++)
 	{
 		if (!trucks[t]) continue;
-		
+
 		// always update the labels
 		trucks[t]->updateLabels(dt);
 
@@ -665,7 +715,6 @@ void BeamFactory::calcPhysics(float dt)
 	dt = std::min(dt, 1.0f / 20.0f);
 
 	simulatedTruck = current_truck;
-	static int lastSimulatedTruck = -1;
 
 	if (simulatedTruck == -1)
 	{
@@ -684,7 +733,9 @@ void BeamFactory::calcPhysics(float dt)
 	if (simulatedTruck >= 0 && simulatedTruck < free_truck)
 	{
 		trucks[simulatedTruck]->frameStep(dt);
-		lastSimulatedTruck = simulatedTruck;
+	} else
+	{
+		gEnv->mrTime += dt;
 	}
 
 	// update 2D replay if activated
@@ -698,22 +749,22 @@ void BeamFactory::calcPhysics(float dt)
 		// networked trucks must be taken care of
 		switch(trucks[t]->state)
 		{
-			case NETWORKED:
-				trucks[t]->calcNetwork();
-				break;
+		case NETWORKED:
+			trucks[t]->calcNetwork();
+			break;
 
-			case RECYCLE:
-				break;
+		case RECYCLE:
+			break;
 
-			case NETWORKED_INVALID:
-				break;
+		case NETWORKED_INVALID:
+			break;
 
-			default:
-				if (trucks[t]->state != ACTIVATED && trucks[t]->engine)
-					trucks[t]->engine->update(dt, 1);
-				if (trucks[t]->networking)
-					trucks[t]->sendStreamData();
-				break;
+		default:
+			if (trucks[t]->state != ACTIVATED && trucks[t]->engine)
+				trucks[t]->engine->update(dt, 1);
+			if (trucks[t]->networking)
+				trucks[t]->sendStreamData();
+			break;
 		}
 	}
 }
@@ -808,14 +859,14 @@ void BeamFactory::prepareShutdown()
 
 void* threadstart(void* vid)
 {
-	#ifdef USE_CRASHRPT
-		if (SSETTING("NoCrashRpt").empty())
-		{
-			// add the crash handler for this thread
-			CrThreadAutoInstallHelper cr_thread_install_helper;
-			MYASSERT(cr_thread_install_helper.m_nInstallStatus==0);
-		}
-	#endif // USE_CRASHRPT
+#ifdef USE_CRASHRPT
+	if (SSETTING("NoCrashRpt").empty())
+	{
+		// add the crash handler for this thread
+		CrThreadAutoInstallHelper cr_thread_install_helper;
+		MYASSERT(cr_thread_install_helper.m_nInstallStatus==0);
+	}
+#endif // USE_CRASHRPT
 
 	BeamFactory *bf = static_cast<BeamFactory*>(vid);
 

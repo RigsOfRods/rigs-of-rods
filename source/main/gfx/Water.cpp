@@ -546,7 +546,7 @@ float Water::getHeightWaves(Vector3 pos)
 		// now the main thing:
 		// calculate the sinus with the values of the config file and add it to the result
 		result += amp * sin(Math::TWO_PI * ( \
-											(mrtime * wavetrains[i].wavespeed \
+											(gEnv->mrTime * wavetrains[i].wavespeed \
 											+ sin(wavetrains[i].direction) * pos.x \
 											+ cos(wavetrains[i].direction) * pos.z \
 											) \
@@ -589,8 +589,8 @@ Vector3 Water::getVelocity(Vector3 pos)
 		float amp=wavetrains[i].amplitude*waveheight;
 		if (amp>wavetrains[i].maxheight) amp=wavetrains[i].maxheight;
 		float speed=6.28318*amp/(wavetrains[i].wavelength/wavetrains[i].wavespeed);
-		result.y+=speed*cos(6.28318*((mrtime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
-		result+=Vector3(sin(wavetrains[i].direction), 0, cos(wavetrains[i].direction))*speed*sin(6.28318*((mrtime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
+		result.y+=speed*cos(6.28318*((gEnv->mrTime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
+		result+=Vector3(sin(wavetrains[i].direction), 0, cos(wavetrains[i].direction))*speed*sin(6.28318*((gEnv->mrTime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
 	}
 
 	return result;

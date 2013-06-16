@@ -17,7 +17,9 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PointColDetector.h"
+
 #include "Beam.h"
+#include "BeamFactory.h"
 
 using namespace Ogre;
 
@@ -26,6 +28,7 @@ PointColDetector::PointColDetector(std::vector < Vector3 > &o_list) :
 {
 	ref_list=new refelem_t[1];
 	pointid_list=new pointid_t[1];
+
 	update();
 }
 
@@ -61,6 +64,25 @@ void PointColDetector::update()
 	//build_kdtree(0, object_list_size, 0, 0);
 }
 
+void PointColDetector::update(Beam* truck)
+{
+	int contacters_size=0;
+
+	if (truck && truck->state < SLEEPING)
+		contacters_size+=truck->free_contacter;
+
+	//If the contacter number has changed, its time to update the kdtree structures
+	if (truck->free_contacter!=object_list_size)
+	{
+		object_list_size = contacters_size;
+		update_structures_for_contacters(truck);
+	}
+
+	kdtree[0].ref=NULL;
+	kdtree[0].begin=0;
+	kdtree[0].end=-object_list_size;
+}
+
 void PointColDetector::update(Beam** trucks, const int numtrucks)
 {
 	int t, contacters_size=0;
@@ -69,6 +91,20 @@ void PointColDetector::update(Beam** trucks, const int numtrucks)
 	for (t=0; t<numtrucks; t++)
 	{
 		if (!trucks[t] || trucks[t]->state >= SLEEPING) continue;
+
+		//Sweep & prune
+		trucks[t]->collisionRelevant=false;
+		bool skipIt=true;
+		for (int j=0; j<numtrucks; j++)
+		{
+			if (j!=t && trucks[j] && trucks[j]->state < SLEEPING && BeamFactory::getSingleton().truckIntersectionAABB(t, j))
+			{
+				trucks[t]->collisionRelevant=true;
+				skipIt=false;
+				break;
+			}
+		}
+		if (skipIt) continue;
 
 		contacters_size+=trucks[t]->free_contacter;
 	}
@@ -98,6 +134,34 @@ void PointColDetector::update_structures()
 	kdtree.resize(1<<(int) (ceil(log((float) object_list_size)/log(2.0f))+1), kdelem);
 }
 
+void PointColDetector::update_structures_for_contacters(Beam* truck)
+{
+	kdnode_t kdelem={0.0f, 0, 0.0f, NULL, 0.0f, 0};
+	hit_list.resize(object_list_size, NULL);
+
+	delete [] ref_list;
+	delete [] pointid_list;
+	ref_list=new refelem_t[object_list_size];
+	pointid_list=new pointid_t[object_list_size];
+
+	int refi=0;
+
+	//Insert all contacters, into the list of points to consider when building the kdtree
+	if (truck && truck->state < SLEEPING)
+	{
+		for (int i=0;i<truck->free_contacter;++i)
+		{
+			ref_list[refi].pidref=&pointid_list[refi];
+			pointid_list[refi].truckid=truck->trucknum;
+			pointid_list[refi].nodeid=truck->contacters[i].nodeid;
+			ref_list[refi].point=&(truck->nodes[pointid_list[refi].nodeid].AbsPosition.x);
+			refi++;
+		}
+	}
+
+	kdtree.resize(1<<(int) (ceil(log((float) object_list_size)/log(2.0f))+1), kdelem);
+}
+
 void PointColDetector::update_structures_for_contacters(Beam** trucks, const int numtrucks)
 {
 	kdnode_t kdelem={0.0f, 0, 0.0f, NULL, 0.0f, 0};
@@ -113,7 +177,7 @@ void PointColDetector::update_structures_for_contacters(Beam** trucks, const int
 	//Insert all contacters, into the list of points to consider when building the kdtree
 	for (t=0; t<numtrucks; t++)
 	{
-		if (!trucks[t] || trucks[t]->state >= SLEEPING) continue;
+		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) continue;
 
 		for (int i=0;i<trucks[t]->free_contacter;++i)
 		{
@@ -226,7 +290,9 @@ inline void PointColDetector::queryrec(int kdindex, int axis)
 {
 tail_cut:
 	if (kdtree[kdindex].end<0)
+	{
 		build_kdtree_incr(axis, kdindex);
+	}
 
 	if (kdtree[kdindex].ref!=NULL)
 	{
@@ -235,7 +301,7 @@ tail_cut:
 		    && point[1]>=bbmin.y && point[1]<=bbmax.y
 		    && point[2]>=bbmin.z && point[2]<=bbmax.z )
 	    {
-		    hit_list[hit_count]=kdtree[kdindex].ref->pidref;
+			hit_list[hit_count]=kdtree[kdindex].ref->pidref;
 		    hit_count++;
 	    }
 	    return;
@@ -379,7 +445,7 @@ void PointColDetector::partintwo(const int start, const int median, const int en
 	l = start;
 	m = end - 1;
 
-	float x= ref_list[k].point[axis];
+	float x = ref_list[k].point[axis];
 	while (l < m) {
 		i = l;
 		j = m;

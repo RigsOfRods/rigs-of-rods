@@ -68,13 +68,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif //OGRE_PLATFORM_LINUX
 
-// time of birth
-float mrtime;
-
 using namespace Ogre;
 
 Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fname , bool networked /* = false  */, bool networking /* = false  */, collision_box_t *spawnbox /* = NULL  */, bool ismachine/* =false  */, int flareMode /* = 0  */, const std::vector<Ogre::String> *truckconfig /* = 0  */, Skin *skin /* = 0  */, bool freeposition /* = false */) :
 	  deleting(false)
+	, GUIFeaturesChanged(false)
 	, abs_state(false)
 	, abs_timer(0.0)
 	, aileron(0)
@@ -89,16 +87,16 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, cabFadeTimer(0)
 	, cameranodeacc(Vector3::ZERO)
 	, cameranodecount(0)
-	, canwork(1)
-	, collisions(gEnv->collisions)
+	, canwork(true)
 	, cparticle_mode(false)
 	, currentScale(1)
 	, currentcamera(-1) // -1 = external
 	, dash(nullptr)
 	, detailLevel(0)
 	, disableDrag(false)
+	, disableTruckTruckCollisions(false)
+	, disableTruckTruckSelfCollisions(false)
 	, elevator(0)
-	, fasted(1)
 	, flap(0)
 	, floating_origin_enable(true)
 	, fusedrag(Vector3::ZERO)
@@ -112,15 +110,19 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, hydroruddercommand(0)
 	, hydrorudderstate(0)
 	, iPosition(pos)
+	, increased_accuracy(0)
+	, interPointCD()
+	, intraPointCD()
 	, isInside(false)
 	, label(tnum) // convenient, but set overwise elsewhere for a good cause
-	, lastFuzzyGroundModel(0)
 	, last_net_time(0)
 	, lastlastposition(pos)
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)
 	, lockSkeletonchange(false)
+	, locked(0)
+	, lockedold(0)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
 	, minCameraRadius(0)
@@ -152,30 +154,34 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, rudder(0)
 	, simpleSkeletonInitiated(false)
 	, simpleSkeletonManualObject(0)
+	, simulated(false)
 	, skeleton(0)
 	, sleepcount(0)
-	, slowed(1)
 	, smokeNode(NULL)
 	, smoker(NULL)
 	, stabcommand(0)
 	, stabratio(0.0)
 	, stabsleep(0.0)
 	, tdt(0.1)
+	, thread_index(0)
+	, thread_number(0)
+	, thread_task(THREAD_BEAMFORCESEULER)
 	, totalmass(0)
 	, tsteps(100)
 	, ttdt(0.1)
-	, watercontact(0)
-	, watercontactold(0)
-	, disableTruckTruckCollisions(false)
-	, disableTruckTruckSelfCollisions(false)
-	, pointCD(0)
-	, GUIFeaturesChanged(false)
+	, watercontact(false)
+	, watercontactold(false)
 {
-	if (gEnv->threadPool)
+	pthread_cond_init(&flexable_task_count_cv, NULL);
+	pthread_mutex_init(&flexable_task_count_mutex, NULL);
+	for (int task=0; task < THREAD_MAX; task++)
 	{
-		pthread_cond_init(&task_count_cv, NULL);
-		pthread_mutex_init(&task_count_mutex, NULL);
+		task_count[task] = 0;
+		pthread_cond_init(&task_count_cv[task], NULL);
+		pthread_mutex_init(&task_count_mutex[task], NULL);
+		pthread_mutex_init(&task_index_mutex[task], NULL);
 	}
+	pthread_mutex_init(&itc_node_access_mutex, NULL);
 
 	mCamera = gEnv->mainCamera;
 	airbrakeval = 0;
@@ -199,6 +205,8 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	cc_target_rpm = 0.0f;
 	cc_target_speed = 0.0f;
 	cc_target_speed_lower_limit = 0.0f;
+
+	collisionRelevant = false;
 
 	debugVisuals = 0;
 
@@ -242,8 +250,6 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 
 	heathaze = !disable_smoke && BSETTING("HeatHaze", false);
 	hideInChooser = false;
-
-	mrtime = 0.0;
 
 	origin = Vector3::ZERO;
 
@@ -318,19 +324,33 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	
 	beamsRoot=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	deletion_sceneNodes.push_back(netLabelNode);
+
 	// skidmark stuff
 	useSkidmarks = BSETTING("Skidmarks", false);
 
-	// always init skidmarks with 0
-	for (int i=0; i<MAX_WHEELS*2; i++)
-	{
-		skidtrails[i] = 0;
-	}	
-
 	// you could disable the collision code here:
 	if (!disableTruckTruckCollisions)
-		pointCD = new PointColDetector();
-	
+	{
+		interPointCD.emplace_back(new PointColDetector());
+
+		if (gEnv->threadPool)
+		{
+			for (int i=1; i<gEnv->threadPool->getSize(); i++)
+				interPointCD.emplace_back(new PointColDetector());
+		}
+	}
+
+	if (!disableTruckTruckSelfCollisions)
+	{
+		intraPointCD.emplace_back(new PointColDetector());
+
+		if (gEnv->threadPool)
+		{
+			for (int i=1; i<gEnv->threadPool->getSize(); i++)
+				intraPointCD.emplace_back(new PointColDetector());
+		}
+	}
+
 	dustp   = DustManager::getSingleton().getDustPool("dust");
 	dripp   = DustManager::getSingleton().getDustPool("dripp");
 	sparksp = DustManager::getSingleton().getDustPool("sparks");
@@ -650,6 +670,18 @@ Beam::~Beam()
 		delete netMT;
 		netMT = 0;
 	}
+
+	pthread_mutex_destroy(&net_mutex);
+
+	pthread_cond_destroy(&flexable_task_count_cv);
+	pthread_mutex_destroy(&flexable_task_count_mutex);
+	for (int task=0; task < THREAD_MAX; task++)
+	{
+		pthread_cond_destroy(&task_count_cv[task]);
+		pthread_mutex_destroy(&task_count_mutex[task]);
+		pthread_mutex_destroy(&task_index_mutex[task]);
+	}
+	pthread_mutex_destroy(&itc_node_access_mutex);
 }
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
@@ -886,42 +918,6 @@ void Beam::desactivate()
 		sleepcount = 0;
 	}
 }
-
-#if 0
-// old netforce code
-void Beam::pushNetForce(int node_id, Vector3 force)
-{
-	for (int i=0; i<MAX_NETFORCE; i++)
-	{
-		if (netforces[i].used && netforces[i].node==node_id)
-		{
-			netforces[i].force=force;
-			netforces[i].birthdate=mrtime;
-			return;
-		}
-	}
-	//its a new one
-	for (int i=0; i<MAX_NETFORCE; i++)
-	{
-		if (!netforces[i].used)
-		{
-			netforces[i].used=true;
-			netforces[i].node=node_id;
-			netforces[i].force=force;
-			netforces[i].birthdate=mrtime;
-			return;
-		}
-	}
-}
-
-void Beam::expireNetForce()
-{
-	for (int i=0; i<MAX_NETFORCE; i++)
-	{
-		if (netforces[i].used && mrtime-netforces[i].birthdate>0.5) netforces[i].used=false;
-	}
-}
-#endif //0
 
 //called by the network thread
 void Beam::pushNetwork(char* data, int size)
@@ -1525,10 +1521,10 @@ void Beam::updateContacterNodes()
 {
 	for (int i=0; i<free_collcab; i++)
 	{
-		int tmpv=collcabs[i]*3;
-		nodes[cabs[tmpv]].contacter=true;
-		nodes[cabs[tmpv+1]].contacter=true;
-		nodes[cabs[tmpv+2]].contacter=true;
+		int tmpv = collcabs[i] * 3;
+		nodes[cabs[tmpv]].contacter = true;
+		nodes[cabs[tmpv+1]].contacter = true;
+		nodes[cabs[tmpv+2]].contacter = true;
 	}
 }
 
@@ -1659,7 +1655,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition)
 	for (int i=1; i < free_node; i++)
 	{
 		Vector3 pos = Vector3(nodes[i].AbsPosition.x, gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z), nodes[i].AbsPosition.z);
-		collisions->collisionCorrect(&pos);
+		gEnv->collisions->collisionCorrect(&pos);
 		minoffset = std::min(nodes[i].AbsPosition.y - pos.y, minoffset);
 	}
 
@@ -1853,8 +1849,14 @@ void Beam::SyncReset()
 	cc_mode = false;
 	fusedrag=Vector3::ZERO;
 	origin=Vector3::ZERO;
-	if (pointCD) pointCD->reset();
-
+	for (unsigned int i=0; i<interPointCD.size(); i++)
+	{
+		interPointCD[i]->reset();
+	}
+	for (unsigned int i=0; i<intraPointCD.size(); i++)
+	{
+		intraPointCD[i]->reset();
+	}
 	float yPos = nodes[lowestnode].AbsPosition.y;
 
 	Vector3 cur_position = nodes[0].AbsPosition;
@@ -1967,20 +1969,75 @@ void Beam::SyncReset()
 	reset_requested = 0;
 }
 
+// TODO: Move this to beamfactory
 // this is called by the beamfactory worker thread
 void Beam::threadentry()
 {
 	Beam **trucks = ttrucks;
-	float dtperstep = tdt / (Real)tsteps;
+	dtperstep = tdt / (Real)tsteps;
 
-	for (int i=0; i<tsteps; i++)
+	for (curtstep=0; curtstep<tsteps; curtstep++)
 	{
+		int num_simulated_trucks = 0;
+		gEnv->mrTime += dtperstep;
+
 		for (int t=0; t<tnumtrucks; t++)
 		{
-			if (trucks[t] && trucks[t]->state < SLEEPING)
-				trucks[t]->calcForcesEuler(i==0, dtperstep, i, tsteps);
+			if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(curtstep==0, dtperstep, curtstep, tsteps)))
+			{
+				num_simulated_trucks++;
+				trucks[t]->calledby    = this;
+				trucks[t]->curtstep    = this->curtstep;
+				trucks[t]->tsteps      = this->tsteps;
+				trucks[t]->dtperstep   = this->dtperstep;
+				trucks[t]->thread_task = THREAD_BEAMFORCESEULER;
+			}
 		}
-		truckTruckCollisions(dtperstep);
+		if (num_simulated_trucks < 2 || !BeamFactory::getSingleton().beamThreadPool)
+		{
+			for (int t=0; t<tnumtrucks; t++)
+			{
+				if (trucks[t] && trucks[t]->simulated)
+				{
+					trucks[t]->calcForcesEulerCompute(curtstep==0, dtperstep, curtstep, tsteps);
+					trucks[t]->intraTruckCollisionsPrepare(dtperstep);
+					runThreadTask(trucks[t], THREAD_INTRA_TRUCK_COLLISIONS);
+					trucks[t]->intraTruckCollisionsFinal(dtperstep);
+				}
+			}
+		} else
+		{
+			task_count[THREAD_BEAMFORCESEULER] = num_simulated_trucks;
+
+			// Push tasks into thread pool
+			for (int t=0; t<tnumtrucks; t++)
+			{
+				if (trucks[t] && trucks[t]->simulated)
+					BeamFactory::getSingleton().beamThreadPool->enqueue(trucks[t]);
+			}
+
+			// Wait for all tasks to complete
+			MUTEX_LOCK(&task_count_mutex[THREAD_BEAMFORCESEULER]);
+			while (task_count[THREAD_BEAMFORCESEULER] > 0)
+			{
+				pthread_cond_wait(&task_count_cv[THREAD_BEAMFORCESEULER], &task_count_mutex[THREAD_BEAMFORCESEULER]);
+			}
+			MUTEX_UNLOCK(&task_count_mutex[THREAD_BEAMFORCESEULER]);
+		}
+		for (int t=0; t<tnumtrucks; t++)
+		{
+			if (trucks[t] && trucks[t]->simulated)
+				trucks[t]->calcForcesEulerFinal(curtstep==0, dtperstep, curtstep, tsteps);
+		}
+
+		if (num_simulated_trucks > 1)
+		{
+			BES_START(BES_CORE_Contacters);
+			interTruckCollisionsPrepare(dtperstep);
+			runThreadTask(this, THREAD_INTER_TRUCK_COLLISIONS);
+			interTruckCollisionsFinal(dtperstep);
+			BES_STOP(BES_CORE_Contacters);
+		}
 	}
 }
 
@@ -2009,35 +2066,36 @@ bool Beam::frameStep(Real dt)
 
 	// TODO: move this to the correct spot
 	// update all dashboards
-
 #ifdef USE_MYGUI
 	updateDashBoards(dt);
 #endif // USE_MYGUI
 
 	// update visual - antishaking
-	//	int t;
-	//	for (t=0; t<numtrucks; t++)
-	//	{
-	//		if (trucks[t]->state!=SLEEPING) trucks[t]->updateVisual();
-	//			trucks[t]->updateFlares();
-	//	}
-	
+#if 0
+	for (int t=0; t<numtrucks; t++)
+	{
+		if (trucks[t]->state < SLEEPING)
+		{
+			trucks[t]->updateVisual();
+		}
+		trucks[t]->updateFlares();
+	}
+#endif
+
 	// some scripting stuff:
 #ifdef USE_ANGELSCRIPT
-#if 0
-	// XXX: TO BE FIXED
-	if (lockedold != locked)
+	// TODO: Update locked
+	if (locked != lockedold)
 	{
 		if (locked == LOCKED) ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_LOCKED, trucknum);
 		if (locked == UNLOCKED) ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_UNLOCKED, trucknum);
-		lockedold=locked;
+		lockedold = locked;
 	}
-	if (watercontact != watercontactold)
+	if (watercontact && !watercontactold)
 	{
 		ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, trucknum);
-		watercontactold = watercontact;
 	}
-#endif //0
+	watercontactold = watercontact;
 #endif
 
 	BES_GFX_STOP(BES_GFX_framestep);
@@ -2045,9 +2103,7 @@ bool Beam::frameStep(Real dt)
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
-	fasted=1;
-	slowed=1;
-	stabsleep-=dt;
+	stabsleep -= dt;
 	if (replaymode && replay && replay->isValid())
 	{
 		// no replay update needed if position was not changed
@@ -2086,16 +2142,33 @@ bool Beam::frameStep(Real dt)
 		// simulation update
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
-			float dtperstep = dt / (Real)steps;
-
+			dtperstep = dt / (Real)steps;
+			
 			for (int i=0; i<steps; i++)
 			{
+				int num_simulated_trucks = 0;
+				gEnv->mrTime += dtperstep;
+
 				for (int t=0; t<numtrucks; t++)
 				{
-					if (trucks[t] && trucks[t]->state < SLEEPING)
-						trucks[t]->calcForcesEuler(i==0, dtperstep, i, steps);
+					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, dtperstep, i, steps)))
+					{
+						num_simulated_trucks++;
+						trucks[t]->calcForcesEulerCompute(i==0, dtperstep, i, steps);
+						trucks[t]->calcForcesEulerFinal(i==0, dtperstep, i, steps);
+						trucks[t]->intraTruckCollisionsPrepare(dtperstep);
+						trucks[t]->intraTruckCollisionsCompute(dtperstep);
+						trucks[t]->intraTruckCollisionsFinal(dtperstep);
+					}
 				}
-				truckTruckCollisions(dtperstep);
+				if (num_simulated_trucks > 1)
+				{
+					BES_START(BES_CORE_Contacters);
+					interTruckCollisionsPrepare(dtperstep);
+					interTruckCollisionsCompute(dtperstep);
+					interTruckCollisionsFinal(dtperstep);
+					BES_STOP(BES_CORE_Contacters);
+				}
 			}
 		} else if (!BeamFactory::getSingleton().asynchronousPhysics())
 		{
@@ -2117,13 +2190,13 @@ bool Beam::frameStep(Real dt)
 			{
 				trucks[t]->SyncReset();
 			}
-			if (trucks[t]->state < SLEEPING)
+			if (trucks[t]->simulated)
 			{
-				trucks[t]->lastlastposition=trucks[t]->lastposition;
-				trucks[t]->lastposition=trucks[t]->position;
+				trucks[t]->lastlastposition = trucks[t]->lastposition;
+				trucks[t]->lastposition = trucks[t]->position;
 				trucks[t]->updateTruckPosition();
 			}
-			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.length()>100.0)
+			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.length() > 100.0)
 			{
 				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
 			}
@@ -2494,7 +2567,7 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	if ((flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
 	{
 		int shifter=engine->getGear();
-		int numgears= (int)engine->getNumGears();
+		int numgears=engine->getNumGears();
 		cstate -= (shifter + 2.0) / (numgears + 2.0);
 		div++;
 	}
@@ -3100,36 +3173,32 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 		}
 	}
 	// save beam position for next simulation cycle
-	beams[i].shock->lastpos=difftoBeamL;
+	beams[i].shock->lastpos = difftoBeamL;
 }
 
-//truck-truck collisions
-void Beam::truckTruckCollisions(Real dt)
+// truck a - truck b collisions
+void Beam::interTruckCollisionsPrepare(Real dt)
 {
-	if (!pointCD) return;
-
-	BES_START(BES_CORE_Contacters);
+	if (interPointCD.empty()) return;
 
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
-	int num_trucks = 0;
-	int num_active_trucks = 0;
-
-	for (int t=0; t<numtrucks; t++)
+	for (unsigned int i=0; i<interPointCD.size(); i++)
 	{
-		if (trucks[t] && trucks[t]->state <= SLEEPING) num_trucks++;
-		if (trucks[t] && trucks[t]->state <  SLEEPING) num_active_trucks++;	
+		interPointCD[i]->update(trucks, numtrucks);
 	}
+}
 
-	if (disableTruckTruckSelfCollisions && num_trucks < 2) return;
+void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chunk_number /*= 1*/)
+{
+	if (interPointCD.empty()) return;
 
-	pointCD->update(trucks, numtrucks);
-
-	if (disableTruckTruckSelfCollisions && num_active_trucks < 2) return;
+	Beam** trucks = BeamFactory::getSingleton().getTrucks();
+	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
 	float inverted_dt = 1.0f / dt;
-	
+
 	Beam* hittruck;
 	Matrix3 forward;
 	Vector3 bx;
@@ -3139,7 +3208,6 @@ void Beam::truckTruckCollisions(Real dt)
 	Vector3 plnormal;
 	Vector3 point;
 	Vector3 vecrelVel;
-	bool calcforward;
 	float trwidth;
 	int hitnodeid;
 	int hittruckid;
@@ -3155,51 +3223,56 @@ void Beam::truckTruckCollisions(Real dt)
 		//also consider changing the parallel "ifs" inside PointColDetector
 		//see "pointCD" above.
 		//Performance some times forces ugly architectural designs....
-		if (!trucks[t] || trucks[t]->state >= SLEEPING) continue;
+		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) continue;
 
 		trwidth=trucks[t]->collrange;
 
-		for (int i=0; i<trucks[t]->free_collcab; i++)
+		int chunk_size = trucks[t]->free_collcab / chunk_number;
+		int end_index = (chunk_index+1)*chunk_size;
+
+		if (chunk_index+1 == chunk_number)
 		{
-			if (trucks[t]->collcabrate[i].rate>0)
+			end_index = trucks[t]->free_collcab;
+		}
+
+		for (int i=chunk_index*chunk_size; i<end_index; i++)
+		{
+			trucks[t]->inter_collcabrate[i].update=true;
+			if (trucks[t]->inter_collcabrate[i].rate>0)
 			{
-				trucks[t]->collcabrate[i].rate--;
+				trucks[t]->inter_collcabrate[i].rate--;
+				trucks[t]->inter_collcabrate[i].update=false;
 				continue;
 			}
-
-			if (trucks[t]->collcabrate[i].distance<1) trucks[t]->collcabrate[i].distance=1;
 
 			tmpv=trucks[t]->collcabs[i]*3;
 			no=&trucks[t]->nodes[trucks[t]->cabs[tmpv]];
 			na=&trucks[t]->nodes[trucks[t]->cabs[tmpv+1]];
 			nb=&trucks[t]->nodes[trucks[t]->cabs[tmpv+2]];
 
-			pointCD->query(no->AbsPosition
-				, na->AbsPosition
-				, nb->AbsPosition, trwidth*trucks[t]->collcabrate[i].distance);
+			int distance = trucks[t]->inter_collcabrate[i].distance + std::min(12.0f * no->Velocity.length() / 55.5f, 12.0f);
+			distance = std::max(1, distance);
 
-			calcforward=true;
-			for (int h=0; h<pointCD->hit_count;h++)
+			interPointCD[chunk_index]->query(no->AbsPosition
+				, na->AbsPosition
+				, nb->AbsPosition, trwidth*distance);
+
+			trucks[t]->inter_collcabrate[i].calcforward=true;
+			for (int h=0; h<interPointCD[chunk_index]->hit_count; h++)
 			{
-				hitnodeid=pointCD->hit_list[h]->nodeid;
-				hittruckid=pointCD->hit_list[h]->truckid;
+				hitnodeid=interPointCD[chunk_index]->hit_list[h]->nodeid;
+				hittruckid=interPointCD[chunk_index]->hit_list[h]->truckid;
 				hitnode=&trucks[hittruckid]->nodes[hitnodeid];
 
-				//ignore self-contact
-				if (hittruckid==t)
-				{
-					//ignore wheel/chassis self contact
-					//if (hitnode->iswheel && !(trucks[t]->requires_wheel_contact)) continue;
-					if (hitnode->iswheel) continue;
-					if (no==hitnode || na==hitnode || nb==hitnode) continue;
-				}
+				//ignore self-contact here
+				if (hittruckid==t) continue;
 
 				hittruck=trucks[hittruckid];
 
 				//calculate transform matrices
-				if (calcforward)
+				if (trucks[t]->inter_collcabrate[i].calcforward)
 				{
-					calcforward=false;
+					trucks[t]->inter_collcabrate[i].calcforward=false;
 					bx=na->RelPosition;
 					by=nb->RelPosition;
 					bx-=no->RelPosition;
@@ -3214,7 +3287,7 @@ void Beam::truckTruckCollisions(Real dt)
 				}
 
 				//change coordinates
-				point=forward * (hitnode->AbsPosition - no->AbsPosition);
+				point=forward*(hitnode->AbsPosition-no->AbsPosition);
 
 				//test
 				if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<=trwidth && point.z>=-trwidth)
@@ -3228,7 +3301,7 @@ void Beam::truckTruckCollisions(Real dt)
 					float penetration=0.0f;
 
 					//Find which side most of the connected nodes (through beams) are
-					if (hittruckid!=t && hittruck->nodetonodeconnections[hitnodeid].size()>3)
+					if (hittruck->nodetonodeconnections[hitnodeid].size()>3)
 					{
 						//float sumofdistances=0.0f;
 						int posside=0;
@@ -3253,8 +3326,7 @@ void Beam::truckTruckCollisions(Real dt)
 						}
 
 						penetration=(trwidth-tmppz);
-					}
-					else
+					} else
 					{
 						//If we are on the other side of the triangle invert the triangle's normal
 						if (point.z<0) plnormal=-plnormal;
@@ -3263,7 +3335,7 @@ void Beam::truckTruckCollisions(Real dt)
 
 					//Find the point's velocity relative to the triangle
 					vecrelVel=(hitnode->Velocity-
-					(no->Velocity*(-point.x-point.y+1.0f)+na->Velocity*point.x
+						(no->Velocity*(-point.x-point.y+1.0f)+na->Velocity*point.x
 						+nb->Velocity*point.y));
 
 					//Find the velocity perpendicular to the triangle
@@ -3275,6 +3347,7 @@ void Beam::truckTruckCollisions(Real dt)
 					//Velocity impulse
 					float vi=hitnode->mass*inverted_dt*(velForce+inverted_dt*penetration)*0.5f;
 
+					//MUTEX_LOCK(&itc_node_access_mutex);
 					//The force that the triangle puts on the point
 					float trfnormal=(no->Forces*(-point.x-point.y+1.0f)+na->Forces*point.x
 						+nb->Forces*point.y).dotProduct(plnormal);
@@ -3282,6 +3355,7 @@ void Beam::truckTruckCollisions(Real dt)
 					if (trfnormal<0.0f) trfnormal=0.0f;
 
 					//The force that the point puts on the triangle
+					
 					float pfnormal=hitnode->Forces.dotProduct(plnormal);
 					//(applied only when it is towards the triangle)
 					if (pfnormal>0.0f) pfnormal=0.0f;
@@ -3292,40 +3366,239 @@ void Beam::truckTruckCollisions(Real dt)
 					float nso;
 
 					//Calculate the collision forces
-					collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), trucks[t]->submesh_ground_model, &nso, penetration, fl);
+					gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), trucks[t]->submesh_ground_model, &nso, penetration, fl);
 
 					hitnode->Forces+=forcevec;
-
 					// no network special case for now
 					//if (trucks[t]->state==NETWORKED)
 
 					no->Forces-=(-point.x-point.y+1.0f)*forcevec;
 					na->Forces-=(point.x)*forcevec;
 					nb->Forces-=(point.y)*forcevec;
+					//MUTEX_UNLOCK(&itc_node_access_mutex);
 				}
-			}
-
-			if (calcforward)
-			{
-				trucks[t]->collcabrate[i].rate=((trucks[t]->collcabrate[i].distance)-1);
-				if (trucks[t]->collcabrate[i].distance<13) trucks[t]->collcabrate[i].distance++;
-			} else
-			{
-				trucks[t]->collcabrate[i].distance/=2;
-				trucks[t]->collcabrate[i].rate=0;
 			}
 		}
 	}
+}
 
-	BES_STOP(BES_CORE_Contacters);
+void Beam::interTruckCollisionsFinal(Real dt)
+{
+	if (interPointCD.empty()) return;
+
+	Beam** trucks = BeamFactory::getSingleton().getTrucks();
+	int numtrucks = BeamFactory::getSingleton().getTruckCount();
+
+	for (int t=0; t<numtrucks; t++)
+	{
+		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) continue;
+
+		for (int i=0; i<trucks[t]->free_collcab; i++)
+		{
+			if (!trucks[t]->inter_collcabrate[i].update) continue;
+			if (trucks[t]->inter_collcabrate[i].calcforward)
+			{
+				trucks[t]->inter_collcabrate[i].rate = trucks[t]->inter_collcabrate[i].distance - 1;
+				if (trucks[t]->inter_collcabrate[i].distance < 13)
+				{
+					trucks[t]->inter_collcabrate[i].distance++;
+				}
+			} else
+			{
+				trucks[t]->inter_collcabrate[i].distance /= 2;
+				trucks[t]->inter_collcabrate[i].rate = 0;
+			}
+		}
+	}
+}
+
+// truck a - truck a collisions
+void Beam::intraTruckCollisionsPrepare(Real dt)
+{
+	if (intraPointCD.empty()) return;
+
+	for (unsigned int i=0; i<intraPointCD.size(); i++)
+	{
+		intraPointCD[i]->update(this);
+	}
+}
+
+void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chunk_number /*= 1*/)
+{
+	if (intraPointCD.empty()) return;
+
+	float inverted_dt = 1.0f / dt;
+
+	Matrix3 forward;
+	Vector3 bx;
+	Vector3 by;
+	Vector3 bz;
+	Vector3 forcevec;
+	Vector3 plnormal;
+	Vector3 point;
+	Vector3 vecrelVel;
+	float trwidth;
+	int hitnodeid;
+	int tmpv;
+	node_t* hitnode;
+	node_t* na;
+	node_t* nb;
+	node_t* no;
+
+	trwidth=collrange;
+
+	int chunk_size = free_collcab / chunk_number;
+	int end_index = (chunk_index+1)*chunk_size;
+
+	if (chunk_index+1 == chunk_number)
+	{
+		end_index = free_collcab;
+	}
+
+	for (int i=chunk_index*chunk_size; i<end_index; i++)
+	{
+		intra_collcabrate[i].update=true;
+		if (intra_collcabrate[i].rate>0)
+		{
+			intra_collcabrate[i].rate--;
+			intra_collcabrate[i].update=false;
+			continue;
+		}
+
+		tmpv=collcabs[i]*3;
+		no=&nodes[cabs[tmpv]];
+		na=&nodes[cabs[tmpv+1]];
+		nb=&nodes[cabs[tmpv+2]];
+
+		intraPointCD[chunk_index]->query(no->AbsPosition
+			, na->AbsPosition
+			, nb->AbsPosition, trwidth);
+
+		bool calcforward=true;
+		intra_collcabrate[i].calcforward=true;
+		for (int h=0; h<intraPointCD[chunk_index]->hit_count;h++)
+		{
+			hitnodeid=intraPointCD[chunk_index]->hit_list[h]->nodeid;
+			hitnode=&nodes[hitnodeid];
+
+			//ignore wheel/chassis self contact
+			//if (hitnode->iswheel && !(trucks[t]->requires_wheel_contact)) continue;
+			if (hitnode->iswheel) continue;
+			if (no==hitnode || na==hitnode || nb==hitnode) continue;
+
+			//calculate transform matrices
+			if (calcforward)
+			{
+				calcforward=false;
+				bx=na->RelPosition;
+				by=nb->RelPosition;
+				bx-=no->RelPosition;
+				by-=no->RelPosition;
+				bz=bx.crossProduct(by);
+				bz=fast_normalise(bz);
+				//coordinates change matrix
+				forward.SetColumn(0, bx);
+				forward.SetColumn(1, by);
+				forward.SetColumn(2, bz);
+				forward=forward.Inverse();
+			}
+
+			//change coordinates
+			point = forward * (hitnode->AbsPosition - no->AbsPosition);
+
+			//test
+			if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<=trwidth && point.z>=-trwidth)
+			{
+				//collision
+				intra_collcabrate[i].calcforward=false;
+				plnormal=bz;
+
+				//some more accuracy for the normal
+				plnormal.normalise();
+
+				float penetration=0.0f;
+
+				if (point.z<0) plnormal=-plnormal;
+				penetration=(trwidth-fabs(point.z));
+
+				//Find the point's velocity relative to the triangle
+				vecrelVel=(hitnode->Velocity-
+					(no->Velocity*(-point.x-point.y+1.0f)+na->Velocity*point.x
+					+nb->Velocity*point.y));
+
+				//Find the velocity perpendicular to the triangle
+				float velForce=vecrelVel.dotProduct(plnormal);
+				//if it points away from the triangle the ignore it (set it to 0)
+				if (velForce<0.0f) velForce=-velForce;
+				else velForce=0.0f;
+
+				//Velocity impulse
+				float vi=hitnode->mass*inverted_dt*(velForce+inverted_dt*penetration)*0.5f;
+
+				//MUTEX_LOCK(&itc_node_access_mutex);
+				//The force that the triangle puts on the point
+				float trfnormal=(no->Forces*(-point.x-point.y+1.0f)+na->Forces*point.x
+					+nb->Forces*point.y).dotProduct(plnormal);
+				//(applied only when it is towards the point)
+				if (trfnormal<0.0f) trfnormal=0.0f;
+
+				//The force that the point puts on the triangle
+				float pfnormal=hitnode->Forces.dotProduct(plnormal);
+				//(applied only when it is towards the triangle)
+				if (pfnormal>0.0f) pfnormal=0.0f;
+
+				float fl=(vi+trfnormal-pfnormal)*0.5f;
+
+				forcevec=Vector3::ZERO;
+				float nso;
+
+				//Calculate the collision forces
+				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+
+				hitnode->Forces+=forcevec;
+
+				// no network special case for now
+				//if (trucks[t]->state==NETWORKED)
+
+				no->Forces-=(-point.x-point.y+1.0f)*forcevec;
+				na->Forces-=(point.x)*forcevec;
+				nb->Forces-=(point.y)*forcevec;
+				//MUTEX_UNLOCK(&itc_node_access_mutex);
+			}
+		}
+	}
+}
+
+void Beam::intraTruckCollisionsFinal(Real dt)
+{
+	if (intraPointCD.empty()) return;
+
+	for (int i=0; i<free_collcab; i++)
+	{
+		if (!intra_collcabrate[i].update) continue;
+		if (intra_collcabrate[i].calcforward)
+		{
+			intra_collcabrate[i].rate = intra_collcabrate[i].distance - 1;
+			if (intra_collcabrate[i].distance < 13)
+			{
+				intra_collcabrate[i].distance++;
+			}
+		} else
+		{
+			intra_collcabrate[i].distance /= 2;
+			intra_collcabrate[i].rate = 0;
+		}
+	}
 }
 
 // call this once per frame in order to update the skidmarks
 void Beam::updateSkidmarks()
 {
+	if (!useSkidmarks) return;
+
 	BES_START(BES_CORE_Skidmarks);
 
-	for (int i=0;i<free_wheel;i++)
+	for (int i=0; i<free_wheel; i++)
 	{
 		// ignore wheels without data
 		if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO) continue;
@@ -3339,8 +3612,10 @@ void Beam::updateSkidmarks()
 	}
 
 	//LOG("updating skidmark visuals");
-	for (int i=0;i<free_wheel;i++)
+	for (int i=0; i<free_wheel; i++)
+	{
 		if (skidtrails[i]) skidtrails[i]->update();
+	}
 
 	BES_STOP(BES_CORE_Skidmarks);
 }
@@ -4005,15 +4280,15 @@ void Beam::updateVisual(float dt)
 	//update custom particle systems
 	for (int i=0; i<free_cparticle; i++)
 	{
-			Vector3 pos=nodes[cparticles[i].emitterNode].smoothpos;
-			Vector3 dir=pos-nodes[cparticles[i].directionNode].smoothpos;
+		Vector3 pos=nodes[cparticles[i].emitterNode].smoothpos;
+		Vector3 dir=pos-nodes[cparticles[i].directionNode].smoothpos;
 		//dir.normalise();
 		dir=fast_normalise(dir);
-			cparticles[i].snode->setPosition(pos);
-			for (int j=0; j<cparticles[i].psys->getNumEmitters(); j++)
-			{
-				cparticles[i].psys->getEmitter(j)->setDirection(dir);
-			}
+		cparticles[i].snode->setPosition(pos);
+		for (int j=0; j<cparticles[i].psys->getNumEmitters(); j++)
+		{
+			cparticles[i].psys->getEmitter(j)->setDirection(dir);
+		}
 	}
 	// update exhausts
 	if (!disable_smoke && engine && exhausts.size() > 0)
@@ -4152,7 +4427,7 @@ void Beam::updateVisual(float dt)
 			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
 		}
 
-		task_count = flexmesh_prepare.count() + flexbody_prepare.count();
+		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
 
 		// Push tasks into thread pool
 		for (int i=0; i<free_wheel; i++)
@@ -4167,12 +4442,12 @@ void Beam::updateVisual(float dt)
 		}
 
 		// Wait for all tasks to complete
-		MUTEX_LOCK(&task_count_mutex);
-		while (task_count > 0)
+		MUTEX_LOCK(&flexable_task_count_mutex);
+		while (flexable_task_count > 0)
 		{
-			pthread_cond_wait(&task_count_cv, &task_count_mutex);
+			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
 		}
-		MUTEX_UNLOCK(&task_count_mutex);
+		MUTEX_UNLOCK(&flexable_task_count_mutex);
 
 		for (int i=0; i<free_wheel; i++)
 		{
@@ -5488,7 +5763,7 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 			bool inside = true;
 
 			for (int i=0; i < free_node; i++)
-				inside = (inside && collisions->isInside(nodes[i].AbsPosition, spawnbox, 0.2f));
+				inside = (inside && gEnv->collisions->isInside(nodes[i].AbsPosition, spawnbox, 0.2f));
 
 			if (!inside)
 			{
@@ -5525,8 +5800,8 @@ int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion
 	// fix up submesh collision model
 	if (!subMeshGroundModelName.empty())
 	{
-		submesh_ground_model = collisions->getGroundModelByString(subMeshGroundModelName);
-		if (!submesh_ground_model) collisions->defaultgm;
+		submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
+		if (!submesh_ground_model) gEnv->collisions->defaultgm;
 	}
 
 	// print some truck memory stats
@@ -5675,10 +5950,8 @@ void Beam::updateAI(float dt)
 			engine->autoSetAcc(0);
 			brake = brakeforce;
 
-			mrtime += dt;
-			if (mrtime>0.5)
+			if (!(int(gEnv->mrTime * 4.0f) % 2)) 
 			{
-				mrtime = 0;
 				lightsToggle();
 			}
 		}
@@ -5837,7 +6110,7 @@ void Beam::updateDashBoards(float &dt)
 	dash->setBool(DD_LOCKED, locked);
 
 	// low pressure lamp
-	bool low_pres = (canwork == 0);
+	bool low_pres = !canwork;
 	dash->setBool(DD_LOW_PRESSURE, low_pres);
 
 	// lights
@@ -6194,5 +6467,95 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 		break;
 	default:
 		break;
+	}
+}
+
+void Beam::runThreadTask(Beam* truck, ThreadTask task)
+{
+	ThreadTask old_thread_task = truck->thread_task;
+
+	truck->thread_index = 0;
+	truck->thread_number = 1;
+	truck->thread_task = task;
+
+	if (gEnv->threadPool)
+	{
+		truck->thread_number = gEnv->threadPool->getSize();
+		truck->task_count[task] = truck->thread_number;
+
+		// Push tasks into thread pool
+		for (int i=0; i< truck->thread_number; i++)
+		{
+			gEnv->threadPool->enqueue(truck);
+		}
+
+		// Spin a bit
+		for (int i=0; i<1000; i++)
+		{
+			if (truck->task_count[task] == 0) break;
+		}
+
+		// Wait for all tasks to complete
+		MUTEX_LOCK(&truck->task_count_mutex[task]);
+		while (truck->task_count[task] > 0)
+		{
+			pthread_cond_wait(&truck->task_count_cv[task], &truck->task_count_mutex[task]);
+		}
+		MUTEX_UNLOCK(&truck->task_count_mutex[task]);
+	} else
+	{
+		truck->run();
+	}
+
+	truck->thread_task = old_thread_task;
+}
+
+void Beam::run()
+{
+	if (thread_task == THREAD_BEAMFORCESEULER)
+	{
+		calcForcesEulerCompute(curtstep==0, dtperstep, curtstep, tsteps);
+		intraTruckCollisionsPrepare(dtperstep);
+		runThreadTask(this, THREAD_INTRA_TRUCK_COLLISIONS);
+		intraTruckCollisionsFinal(dtperstep);
+	} else
+	{
+		MUTEX_LOCK(&task_index_mutex[thread_task]);
+		int index = thread_index;
+		thread_index++;
+		MUTEX_UNLOCK(&task_index_mutex[thread_task]);
+
+		switch (thread_task)
+		{
+		case THREAD_BEAMS:
+			calcBeams(curtstep==0, dtperstep, curtstep, tsteps, index, thread_number);
+			break;
+		case THREAD_INTRA_TRUCK_COLLISIONS:
+			intraTruckCollisionsCompute(dtperstep, index, thread_number);
+			break;
+		case THREAD_INTER_TRUCK_COLLISIONS:
+			interTruckCollisionsCompute(dtperstep, index, thread_number);
+			break;
+		case THREAD_NODES:
+			calcNodes(curtstep==0, dtperstep, curtstep, tsteps, index, thread_number);
+			break;
+		}
+	}
+}
+
+void Beam::onComplete()
+{
+	if (thread_task == THREAD_BEAMFORCESEULER)
+	{
+		MUTEX_LOCK(&calledby->task_count_mutex[thread_task]);
+		calledby->task_count[thread_task]--;
+		MUTEX_UNLOCK(&calledby->task_count_mutex[thread_task]);
+		pthread_cond_signal(&calledby->task_count_cv[thread_task]);
+	} else
+	{
+		MUTEX_LOCK(&task_count_mutex[thread_task]);
+		task_count[thread_task]--;
+		MUTEX_UNLOCK(&task_count_mutex[thread_task]);
+		pthread_cond_signal(&task_count_cv[thread_task]);
 	}
 }

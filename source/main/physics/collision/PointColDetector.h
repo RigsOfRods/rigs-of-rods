@@ -40,8 +40,10 @@ public:
 
 	void reset();
 	void update();
+	void update(Beam* truck);
 	void update(Beam** trucks, const int numtrucks);
 	void update_structures();
+	void update_structures_for_contacters(Beam* truck);
 	void update_structures_for_contacters(Beam** trucks, const int numtrucks);
 	void querybb(const Ogre::Vector3 &bmin, const Ogre::Vector3 &bmax);
 	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, float enlargeBB=0.0f);

@@ -42,6 +42,7 @@ public:
 		, embeddedMode(false)
 		, frameListener(0)
 		, mainCamera(0)
+		, mrTime(0)
 		, network(0)
 		, ogreRoot(0)
 		, player(0)
@@ -72,6 +73,7 @@ public:
 	ThreadPool *threadPool;
 
 	bool embeddedMode;
+	float mrTime;
 };
 
 #endif // __GlobalEnvironment_H_

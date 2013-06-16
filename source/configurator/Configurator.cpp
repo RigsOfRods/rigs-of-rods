@@ -1562,15 +1562,15 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y+=15;
 
 	thread=new wxCheckBox(advancedPanel, -1, _("Disable multi-threading"), wxPoint(x_row1, y));
-	thread->SetToolTip(_("Disables the separate physics thread (might be an option to avoid camera stuttering)."));
+	thread->SetToolTip(_("Disables all separate physics threads (might be an option to avoid camera stuttering)."));
 	y+=15;
 
 	collisions=new wxCheckBox(advancedPanel, -1, _("Disable inter-vehicle collisions"), wxPoint(x_row1, y));
-	collisions->SetToolTip(_("Disables the inter-vehicle collision completely."));
+	collisions->SetToolTip(_("Disables the collision detection between multiple trucks."));
 	y+=15;
 
-	selfcollisions=new wxCheckBox(advancedPanel, -1, _("Adaptive inter-vehicle collisions"), wxPoint(x_row1, y));
-	selfcollisions->SetToolTip(_("Disables self-collision with only one activated vehicle (up to 100% FPS increase in single threading mode)."));
+	selfcollisions=new wxCheckBox(advancedPanel, -1, _("Disable intra-vehicle collisions"), wxPoint(x_row1, y));
+	selfcollisions->SetToolTip(_("Disables the collision detection within one truck (no self-collisions)."));
 	y+=15;
 
 	// controls settings panel
@@ -2112,7 +2112,7 @@ void MyDialog::SetDefaults()
 	presel_truck->SetValue(wxString());
 	replaymode->SetValue(false);
 	screenShotFormat->SetSelection(0);
-	selfcollisions->SetValue(true);
+	selfcollisions->SetValue(false);
 	shadow->SetSelection(0);             // no shadows
 	shadowOptimizations->SetValue(true);
 	sightRange->SetValue(5000);          // 5k = unlimited
