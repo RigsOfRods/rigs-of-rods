@@ -62,6 +62,9 @@ BeamFactory::BeamFactory() :
 	, thread_mode(THREAD_SINGLE)
 	, work_done(false)
 {
+	bool disableThreadPool = BSETTING("DisableThreadPool", false);
+	int numThreadsInPool   = ISETTING("NumThreadsInThreadPool", 0);
+
 	for (int t=0; t < MAX_TRUCKS; t++)
 		trucks[t] = 0;
 
@@ -84,15 +87,24 @@ BeamFactory::BeamFactory() :
 	num_cpu_cores = sysinfo.dwNumberOfProcessors;
 #endif
 
-	LOG("BEAMFACTORY: " + TOSTRING(num_cpu_cores) + " CPU Cores found");
+	LOG("BEAMFACTORY: " + TOSTRING(num_cpu_cores) + " CPU Core" + ((num_cpu_cores != 1) ? "s" : "") + " found");
 
 	// Create worker thread (used for physics calculations)
 	if (thread_mode == THREAD_MULTI)
 	{
-		if (num_cpu_cores > 2)
+		if (!disableThreadPool)
 		{
-			gEnv->threadPool = new ThreadPool(num_cpu_cores);
-			beamThreadPool   = new ThreadPool(num_cpu_cores);
+			if (numThreadsInPool > 1 && num_cpu_cores > 1)
+			{
+				// Use custom settings from RoR.cfg
+				gEnv->threadPool = new ThreadPool(numThreadsInPool);
+				beamThreadPool   = new ThreadPool(numThreadsInPool);
+			} else if (num_cpu_cores > 2)
+			{
+				// Use default settings
+				gEnv->threadPool = new ThreadPool(num_cpu_cores);
+				beamThreadPool   = new ThreadPool(num_cpu_cores);
+			}
 		}
 
 		pthread_cond_init(&thread_done_cv, NULL);
