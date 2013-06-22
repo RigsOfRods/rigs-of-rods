@@ -6540,12 +6540,18 @@ void Beam::onComplete()
 		MUTEX_LOCK(&calledby->task_count_mutex[thread_task]);
 		calledby->task_count[thread_task]--;
 		MUTEX_UNLOCK(&calledby->task_count_mutex[thread_task]);
-		pthread_cond_signal(&calledby->task_count_cv[thread_task]);
+		if (!calledby->task_count[thread_task])
+		{
+			pthread_cond_signal(&calledby->task_count_cv[thread_task]);
+		}
 	} else
 	{
 		MUTEX_LOCK(&task_count_mutex[thread_task]);
 		task_count[thread_task]--;
 		MUTEX_UNLOCK(&task_count_mutex[thread_task]);
-		pthread_cond_signal(&task_count_cv[thread_task]);
+		if (!task_count[thread_task])
+		{
+			pthread_cond_signal(&task_count_cv[thread_task]);
+		}
 	}
 }
