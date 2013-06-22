@@ -54,7 +54,7 @@ BeamFactory::BeamFactory() :
 	  current_truck(-1)
 	, forcedActive(false)
 	, free_truck(0)
-	, num_cpu_cores(1)
+	, num_cpu_cores(pthread_num_processors_np())
 	, physFrame(0)
 	, previous_truck(-1)
 	, tdr(0)
@@ -75,17 +75,6 @@ BeamFactory::BeamFactory() :
 		tdr = new TwoDReplay();
 
 	async_physics = BSETTING("AsynchronousPhysics", false);
-
-#ifdef __UNIX__
-	num_cpu_cores = sysconf(_SC_NPROCESSORS_ONLN);
-#endif
-
-#ifdef WIN32
-	SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-
-	num_cpu_cores = sysinfo.dwNumberOfProcessors;
-#endif
 
 	LOG("BEAMFACTORY: " + TOSTRING(num_cpu_cores) + " CPU Core" + ((num_cpu_cores != 1) ? "s" : "") + " found");
 
