@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FlexMesh.h"
 
+#include "ApproxMath.h"
 #include "Ogre.h"
 #include "ResourceBuffer.h"
 
@@ -220,24 +221,24 @@ FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nray
 Vector3 FlexMesh::updateVertices()
 {
 	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+
 	//optimization possible here : just copy bands on face
+
 	covertices[0].vertex=nodes[nodeIDs[0]].smoothpos-center;
-		//normals
-	covertices[0].normal=nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos;
-	covertices[0].normal.normalise();
+	//normals
+	covertices[0].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
 
 	covertices[1].vertex=nodes[nodeIDs[1]].smoothpos-center;
-		//normals
+	//normals
 	covertices[1].normal=-covertices[0].normal;
-//	covertices[1].normal.normalise();
+
 	for (int i=0; i<nbrays*2; i++)
 	{
 		covertices[2+i].vertex=nodes[nodeIDs[2+i]].smoothpos-center;
 		//normals
 		if ((i%2)==0)
 		{
-			covertices[2+i].normal=nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos;
-			covertices[2+i].normal.normalise();
+			covertices[2+i].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
 		} else
 		{
 			covertices[2+i].normal=-covertices[2+i-1].normal;
@@ -248,22 +249,19 @@ Vector3 FlexMesh::updateVertices()
 			//normals
 			if ((i%2)==0)
 			{
-				covertices[2+4*nbrays+i].normal=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos;
-				covertices[2+4*nbrays+i].normal.normalise();
+				covertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos);
 			} else
 			{
 				covertices[2+4*nbrays+i].normal=-covertices[2+4*nbrays+i-1].normal;
 			}
 			//bands
 			covertices[2+2*nbrays+i].vertex=covertices[2+4*nbrays+i].vertex;
-			covertices[2+2*nbrays+i].normal=covertices[2+4*nbrays+i].vertex;
-			covertices[2+2*nbrays+i].normal.normalise();
+			covertices[2+2*nbrays+i].normal=approx_normalise(covertices[2+4*nbrays+i].vertex);
 		} else
 		{
 			//bands
 			covertices[2+2*nbrays+i].vertex=covertices[2+i].vertex;
-			covertices[2+2*nbrays+i].normal=covertices[2+i].vertex;
-			covertices[2+2*nbrays+i].normal.normalise();
+			covertices[2+2*nbrays+i].normal=approx_normalise(covertices[2+i].vertex);
 		}
 	}
 	return center;
@@ -272,31 +270,24 @@ Vector3 FlexMesh::updateVertices()
 Vector3 FlexMesh::updateShadowVertices()
 {
 	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
-//	msh->buildEdgeList();
 
 	coshadowposvertices[0].vertex=nodes[nodeIDs[0]].smoothpos-center;
 	//normals
-	coshadownorvertices[0].normal=nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos;
-//	coshadownorvertices[0].normal=nodes[nodeIDs[0]].smoothpos-center;
-	coshadownorvertices[0].normal.normalise();
+	coshadownorvertices[0].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
 
 	coshadowposvertices[1].vertex=nodes[nodeIDs[1]].smoothpos-center;
 	//normals
 	coshadownorvertices[1].normal=-coshadownorvertices[0].normal;
-//	coshadownorvertices[1].normal=nodes[nodeIDs[1]].smoothpos-center;
-//	coshadownorvertices[1].normal.normalise();
 
 	for (int i=0; i<nbrays*2; i++)
 	{
 		coshadowposvertices[2+i].vertex=nodes[nodeIDs[2+i]].smoothpos-center;
 
-		coshadownorvertices[2+i].normal=nodes[nodeIDs[2+i]].smoothpos-center;
-		coshadownorvertices[2+i].normal.normalise();
+		coshadownorvertices[2+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-center);
 		//normals
 		if ((i%2)==0)
 		{
-			coshadownorvertices[2+i].normal=nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos;
-			coshadownorvertices[2+i].normal.normalise();
+			coshadownorvertices[2+i].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
 		} else
 		{
 			coshadownorvertices[2+i].normal=-coshadownorvertices[2+i-1].normal;
@@ -305,13 +296,11 @@ Vector3 FlexMesh::updateShadowVertices()
 		{
 			coshadowposvertices[2+4*nbrays+i].vertex=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center;
 
-			coshadownorvertices[2+4*nbrays+i].normal=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center;
-			coshadownorvertices[2+4*nbrays+i].normal.normalise();
+			coshadownorvertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center);
 			//normals
 			if ((i%2)==0)
 			{
-				coshadownorvertices[2+4*nbrays+i].normal=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos;
-				coshadownorvertices[2+4*nbrays+i].normal.normalise();
+				coshadownorvertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos);
 			} else
 			{
 				coshadownorvertices[2+4*nbrays+i].normal=-coshadownorvertices[2+4*nbrays+i-1].normal;
@@ -320,26 +309,22 @@ Vector3 FlexMesh::updateShadowVertices()
 			coshadowposvertices[2+2*nbrays+i].vertex=coshadowposvertices[2+4*nbrays+i].vertex;
 			if ((i%2)==0)
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[0]].smoothpos;
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[0]].smoothpos);
 			} else
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[1]].smoothpos;
-			};
-	//		coshadownorvertices[2+2*nbrays+i].normal=coshadowposvertices[2+i].vertex;
-			coshadownorvertices[2+2*nbrays+i].normal.normalise();
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+			}
 		} else
 		{
 			//bands
 			coshadowposvertices[2+2*nbrays+i].vertex=coshadowposvertices[2+i].vertex;
 			if ((i%2)==0)
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[0]].smoothpos;
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[0]].smoothpos);
 			} else
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[1]].smoothpos;
-			};
-	//		coshadownorvertices[2+2*nbrays+i].normal=coshadowposvertices[2+i].vertex;
-			coshadownorvertices[2+2*nbrays+i].normal.normalise();
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+			}
 		}
 
 	}
@@ -359,7 +344,7 @@ Vector3 FlexMesh::updateShadowVertices()
 			coshadownorvertices[i].texcoord=covertices[i].texcoord;
 		}
 	}
-//msh->touch();
+
 	return center;
 }
 
