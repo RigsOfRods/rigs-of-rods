@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FlexObj.h"
+
+#include "ApproxMath.h"
 #include "ResourceBuffer.h"
 
 // some gcc fixes
@@ -289,7 +291,7 @@ Vector3 FlexObj::updateVertices()
 	//normalize
 	for (i=0; i<nVertices; i++)
 	{
-		covertices[i].normal.normalise();
+		covertices[i].normal = approx_normalise(covertices[i].normal);
 	}
 
 	return center;
@@ -336,7 +338,7 @@ Vector3 FlexObj::updateShadowVertices()
 	//normalize
 	for (unsigned int i=0; i<nVertices; i++)
 	{
-		coshadownorvertices[i].normal.normalise();
+		coshadownorvertices[i].normal = approx_normalise(coshadownorvertices[i].normal);
 		//texcoords
 		coshadownorvertices[i].texcoord=covertices[i].texcoord;
 	}
