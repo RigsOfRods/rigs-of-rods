@@ -628,6 +628,8 @@ void BeamFactory::_deleteTruck(Beam *b)
 {
 	if (b == 0)	return;
 
+	_WorkerWaitForSync();
+
 	trucks[b->trucknum] = 0;
 	delete b;
 
