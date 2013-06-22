@@ -151,7 +151,6 @@ public:
 	int getAxleLockCount();
 	std::vector< std::vector< int > > nodetonodeconnections;
 	std::vector< std::vector< int > > nodebeamconnections;
-	int label;
 
 	// wheel speed in m/s
 	float WheelSpeed;

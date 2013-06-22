@@ -70,7 +70,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fname , bool networked /* = false  */, bool networking /* = false  */, collision_box_t *spawnbox /* = NULL  */, bool ismachine/* =false  */, int flareMode /* = 0  */, const std::vector<Ogre::String> *truckconfig /* = 0  */, Skin *skin /* = 0  */, bool freeposition /* = false */) :
+Beam::Beam(int tnum, Ogre::Vector3 pos, Ogre::Quaternion rot, const char* fname, bool networked /* = false  */, bool networking /* = false  */, collision_box_t *spawnbox /* = NULL  */, bool ismachine/* =false  */, int flareMode /* = 0  */, const std::vector<Ogre::String> *truckconfig /* = 0  */, Skin *skin /* = 0  */, bool freeposition /* = false */) :
 	  deleting(false)
 	, GUIFeaturesChanged(false)
 	, abs_state(false)
@@ -114,7 +114,6 @@ Beam::Beam(int tnum , Ogre::Vector3 pos , Ogre::Quaternion rot , const char* fna
 	, interPointCD()
 	, intraPointCD()
 	, isInside(false)
-	, label(tnum) // convenient, but set overwise elsewhere for a good cause
 	, last_net_time(0)
 	, lastlastposition(pos)
 	, lastposition(pos)
@@ -2000,9 +1999,12 @@ void Beam::threadentry()
 				if (trucks[t] && trucks[t]->simulated)
 				{
 					trucks[t]->calcForcesEulerCompute(curtstep==0, dtperstep, curtstep, tsteps);
-					trucks[t]->intraTruckCollisionsPrepare(dtperstep);
-					runThreadTask(trucks[t], THREAD_INTRA_TRUCK_COLLISIONS);
-					trucks[t]->intraTruckCollisionsFinal(dtperstep);
+					if (!disableTruckTruckSelfCollisions)
+					{
+						trucks[t]->intraTruckCollisionsPrepare(dtperstep);
+						runThreadTask(trucks[t], THREAD_INTRA_TRUCK_COLLISIONS);
+						trucks[t]->intraTruckCollisionsFinal(dtperstep);
+					}
 				}
 			}
 		} else
@@ -2030,7 +2032,7 @@ void Beam::threadentry()
 				trucks[t]->calcForcesEulerFinal(curtstep==0, dtperstep, curtstep, tsteps);
 		}
 
-		if (num_simulated_trucks > 1)
+		if (!disableTruckTruckCollisions && num_simulated_trucks > 1)
 		{
 			BES_START(BES_CORE_Contacters);
 			interTruckCollisionsPrepare(dtperstep);
@@ -2156,12 +2158,15 @@ bool Beam::frameStep(Real dt)
 						num_simulated_trucks++;
 						trucks[t]->calcForcesEulerCompute(i==0, dtperstep, i, steps);
 						trucks[t]->calcForcesEulerFinal(i==0, dtperstep, i, steps);
-						trucks[t]->intraTruckCollisionsPrepare(dtperstep);
-						trucks[t]->intraTruckCollisionsCompute(dtperstep);
-						trucks[t]->intraTruckCollisionsFinal(dtperstep);
+						if (!disableTruckTruckSelfCollisions)
+						{
+							trucks[t]->intraTruckCollisionsPrepare(dtperstep);
+							trucks[t]->intraTruckCollisionsCompute(dtperstep);
+							trucks[t]->intraTruckCollisionsFinal(dtperstep);
+						}
 					}
 				}
-				if (num_simulated_trucks > 1)
+				if (!disableTruckTruckCollisions && num_simulated_trucks > 1)
 				{
 					BES_START(BES_CORE_Contacters);
 					interTruckCollisionsPrepare(dtperstep);
@@ -3179,8 +3184,6 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 // truck a - truck b collisions
 void Beam::interTruckCollisionsPrepare(Real dt)
 {
-	if (interPointCD.empty()) return;
-
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
@@ -3192,8 +3195,6 @@ void Beam::interTruckCollisionsPrepare(Real dt)
 
 void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chunk_number /*= 1*/)
 {
-	if (interPointCD.empty()) return;
-
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
@@ -3384,8 +3385,6 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 
 void Beam::interTruckCollisionsFinal(Real dt)
 {
-	if (interPointCD.empty()) return;
-
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
@@ -3415,8 +3414,6 @@ void Beam::interTruckCollisionsFinal(Real dt)
 // truck a - truck a collisions
 void Beam::intraTruckCollisionsPrepare(Real dt)
 {
-	if (intraPointCD.empty()) return;
-
 	for (unsigned int i=0; i<intraPointCD.size(); i++)
 	{
 		intraPointCD[i]->update(this);
@@ -3425,8 +3422,6 @@ void Beam::intraTruckCollisionsPrepare(Real dt)
 
 void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chunk_number /*= 1*/)
 {
-	if (intraPointCD.empty()) return;
-
 	float inverted_dt = 1.0f / dt;
 
 	Matrix3 forward;
@@ -3571,8 +3566,6 @@ void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 
 void Beam::intraTruckCollisionsFinal(Real dt)
 {
-	if (intraPointCD.empty()) return;
-
 	for (int i=0; i<free_collcab; i++)
 	{
 		if (!intra_collcabrate[i].update) continue;
@@ -6489,12 +6482,6 @@ void Beam::runThreadTask(Beam* truck, ThreadTask task)
 			gEnv->threadPool->enqueue(truck);
 		}
 
-		// Spin a bit
-		for (int i=0; i<1000; i++)
-		{
-			if (truck->task_count[task] == 0) break;
-		}
-
 		// Wait for all tasks to complete
 		MUTEX_LOCK(&truck->task_count_mutex[task]);
 		while (truck->task_count[task] > 0)
@@ -6515,9 +6502,12 @@ void Beam::run()
 	if (thread_task == THREAD_BEAMFORCESEULER)
 	{
 		calcForcesEulerCompute(curtstep==0, dtperstep, curtstep, tsteps);
-		intraTruckCollisionsPrepare(dtperstep);
-		runThreadTask(this, THREAD_INTRA_TRUCK_COLLISIONS);
-		intraTruckCollisionsFinal(dtperstep);
+		if (!disableTruckTruckSelfCollisions)
+		{
+			intraTruckCollisionsPrepare(dtperstep);
+			runThreadTask(this, THREAD_INTRA_TRUCK_COLLISIONS);
+			intraTruckCollisionsFinal(dtperstep);
+		}
 	} else
 	{
 		MUTEX_LOCK(&task_index_mutex[thread_task]);
