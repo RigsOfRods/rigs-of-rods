@@ -38,5 +38,8 @@ void Flexable::onComplete()
 	MUTEX_LOCK(&beamid->flexable_task_count_mutex);
 	beamid->flexable_task_count--;
 	MUTEX_UNLOCK(&beamid->flexable_task_count_mutex);
-	pthread_cond_signal(&beamid->flexable_task_count_cv);
+	if (!beamid->flexable_task_count)
+	{
+		pthread_cond_signal(&beamid->flexable_task_count_cv);
+	}
 }
