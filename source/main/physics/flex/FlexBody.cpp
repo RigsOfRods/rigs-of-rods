@@ -355,14 +355,17 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 	for (int i=0; i<(int)vertex_count; i++)
 	{
 		//search nearest node as the local origin
-		float mindist=100000.0;
+		float mindist=1000000.0;
 		int minnode=-1;
 		for (int k=0; k<numnodes; k++)
 		{
-			if (!isinset(k)) continue;
 			//if (nodes[k].iswheel) continue;
-			float dist=(vertices[i]-nodes[k].smoothpos).length();
-			if (dist<mindist) {mindist=dist;minnode=k;};
+			float dist = vertices[i].squaredDistance(nodes[k].smoothpos);
+			if (dist < mindist && isinset(k))
+			{
+				mindist = dist;
+				minnode = k;
+			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
 		locs[i].ref=minnode;
@@ -371,39 +374,41 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 //	LOG("FLEXBODY distance to "+TOSTRING(minnode)+" "+TOSTRING(mindist));
 
 		//search the second nearest node as the X vector
-		mindist=100000.0;
+		mindist=1000000.0;
 		minnode=-1;
 		for (int k=0; k<numnodes; k++)
 		{
-			if (!isinset(k)) continue;
 			//if (nodes[k].iswheel) continue;
 			if (k==locs[i].ref) continue;
-			float dist=(vertices[i]-nodes[k].smoothpos).length();
-			if (dist<mindist) {mindist=dist;minnode=k;};
+			float dist = vertices[i].squaredDistance(nodes[k].smoothpos);
+			if (dist < mindist && isinset(k))
+			{
+				mindist = dist;
+				minnode = k;
+			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
 		locs[i].nx=minnode;
 		nodes[minnode].iIsSkin=true;
 
 		//search another close, orthogonal node as the Y vector
-		mindist=100000.0;
+		mindist=1000000.0;
 		minnode=-1;
 		Vector3 vx = fast_normalise(nodes[locs[i].nx].smoothpos - nodes[locs[i].ref].smoothpos);
 		for (int k=0; k<numnodes; k++)
 		{
-			if (!isinset(k)) continue;
 			//if (nodes[k].iswheel) continue;
 			if (k==locs[i].ref) continue;
 			if (k==locs[i].nx) continue;
-			Vector3 vt = fast_normalise(nodes[k].smoothpos - nodes[locs[i].ref].smoothpos);
-			float cost = vx.dotProduct(vt);
-			if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
-			float dist = (vertices[i] - nodes[k].smoothpos).length();
-			if (dist < mindist)
+			float dist = vertices[i].squaredDistance(nodes[k].smoothpos);
+			if (dist < mindist && isinset(k))
 			{
+				Vector3 vt = fast_normalise(nodes[k].smoothpos - nodes[locs[i].ref].smoothpos);
+				float cost = vx.dotProduct(vt);
+				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
 				mindist = dist;
 				minnode = k;
-			};
+			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
 		locs[i].ny=minnode;
@@ -411,24 +416,27 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 
 #if 0
 		//search the final close, orthogonal node as the Z vector
-		mindist=100000.0;
+		mindist=1000000.0;
 		minnode=-1;
 		Vector3 vy=nodes[locs[i].ny].smoothpos-nodes[locs[i].ref].smoothpos;
 		vy.normalise();
 		for (int k=0; k<numnodes; k++)
 		{
-			if (nodes[k].iswheel) continue;
+			//if (nodes[k].iswheel) continue;
 			if (k==locs[i].ref) continue;
 			if (k==locs[i].nx) continue;
 			if (k==locs[i].ny) continue;
-			Vector3 vt=nodes[k].smoothpos-nodes[locs[i].ref].smoothpos;
-			vt.normalise();
-			float cost=vx.dotProduct(vt);
-			if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
-			cost=vy.dotProduct(vt);
-			if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
-			float dist=(vertices[i]-nodes[k].smoothpos).length();
-			if (dist<mindist) {mindist=dist;minnode=k;};
+			float dist=vertices[i].squaredDistance(nodes[k].smoothpos);
+			if (dist < mindist)
+			{
+				Vector3 vt=approx_normalise(nodes[k].smoothpos-nodes[locs[i].ref].smoothpos);
+				float cost=vx.dotProduct(vt);
+				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
+				cost=vy.dotProduct(vt);
+				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
+				mindist = dist;
+				minnode = k;
+			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VZ node not found");
 		locs[i].nz=minnode;
