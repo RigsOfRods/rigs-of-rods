@@ -1755,9 +1755,6 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					d *= 0.1f;
 				}
 				break;
-
-			default:
-				break;
 			}
 
 			//Calculate beam's rate of change
@@ -1766,7 +1763,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 			float flen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
 			float sflen = flen;
 			beams[i].stress = flen;
-			flen = fabs(flen);
+			if (flen < 0.0f) 
+				flen = -flen;
 
 			// Fast test for deformation
 			if (flen > beams[i].minmaxposnegstress)
@@ -1931,6 +1929,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 		end_index = free_node;
 	}
 
+	doUpdate = (step == chunk_index * (maxsteps / chunk_number));
+
 	for (int i=chunk_index*chunk_size; i<end_index; i++)
 	{
 		//if (_isnan(nodes[i].Position.length())) LOG("Node is NaN "+TOSTRING(i));
@@ -2056,62 +2056,56 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 		{
 			// aerodynamics on steroids!
 			nodes[i].Forces += fusedrag;
-		} else
+		} else if (!disableDrag)
 		{
-			if (!disableDrag)
+			// add viscous drag (turbulent model)
+			if ((step&7) && !increased_accuracy)
 			{
-				// add viscous drag (turbulent model)
-				if ((step&7) && !increased_accuracy)
-				{
-					// fasttrack drag
-					nodes[i].Forces += nodes[i].lastdrag;
-				} else
-				{
-					Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-					// plus: turbulences
-					Real defdragxspeed = DEFAULT_DRAG * speed;
-					//Real maxtur=defdragxspeed*speed*0.01f;
-					nodes[i].lastdrag =- defdragxspeed * nodes[i].Velocity;
-					Real maxtur = defdragxspeed * speed * 0.005f;
-					nodes[i].lastdrag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
-					nodes[i].Forces += nodes[i].lastdrag;
-				}
+				// fasttrack drag
+				nodes[i].Forces += nodes[i].lastdrag;
+			} else
+			{
+				Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
+				// plus: turbulences
+				Real defdragxspeed = DEFAULT_DRAG * speed;
+				//Real maxtur=defdragxspeed*speed*0.01f;
+				nodes[i].lastdrag =- defdragxspeed * nodes[i].Velocity;
+				Real maxtur = defdragxspeed * speed * 0.005f;
+				nodes[i].lastdrag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
+				nodes[i].Forces += nodes[i].lastdrag;
 			}
 		}
 
 		//if in water
-		if (water)
+		if (water && water->isUnderWater(nodes[i].AbsPosition))
 		{
 			//basic buoyance
-			if (water->isUnderWater(nodes[i].AbsPosition))
-			{
-				watercontact = true;
+			watercontact = true;
 
-				if (free_buoycab == 0)
-				{
-					// water drag (turbulent)
-					Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-					nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * nodes[i].Velocity;
-					nodes[i].Forces += nodes[i].buoyancy * Vector3::UNIT_Y;
-					// basic splashing
-					if (doUpdate && water->getHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
-					{
-						if (splashp) splashp->allocSplash(nodes[i].AbsPosition, nodes[i].Velocity);
-						if (ripplep) ripplep->allocRipple(nodes[i].AbsPosition, nodes[i].Velocity);
-					}
-				}
-				// engine stall
-				if (i == cinecameranodepos[0] && engine)
-				{
-					engine->stop();
-				}
-				// wetness
-				nodes[i].wetstate = WET;
-			} else if (nodes[i].wetstate == WET)
+			if (free_buoycab == 0)
 			{
-				nodes[i].wetstate = DRIPPING;
-				nodes[i].wettime = 0;
+				// water drag (turbulent)
+				Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
+				nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * nodes[i].Velocity;
+				nodes[i].Forces += nodes[i].buoyancy * Vector3::UNIT_Y;
+				// basic splashing
+				if (doUpdate && water->getHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
+				{
+					if (splashp) splashp->allocSplash(nodes[i].AbsPosition, nodes[i].Velocity);
+					if (ripplep) ripplep->allocRipple(nodes[i].AbsPosition, nodes[i].Velocity);
+				}
 			}
+			// engine stall
+			if (i == cinecameranodepos[0] && engine)
+			{
+				engine->stop();
+			}
+			// wetness
+			nodes[i].wetstate = WET;
+		} else if (nodes[i].wetstate == WET)
+		{
+			nodes[i].wetstate = DRIPPING;
+			nodes[i].wettime = 0;
 		}
 	}
 }
