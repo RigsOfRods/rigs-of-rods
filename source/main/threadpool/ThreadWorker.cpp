@@ -64,7 +64,10 @@ void* ThreadWorker::threadstart(void* vid)
 		}
 
 		if (thread_pool->stop && thread_pool->tasks.empty())
+		{
+			MUTEX_UNLOCK(&thread_pool->queue_mutex);
 			break;
+		}
 
 		IThreadTask *task = thread_pool->tasks.front();
 		thread_pool->tasks.pop_front();
