@@ -464,11 +464,9 @@ void PointColDetector::partintwo(const int start, const int median, const int en
 		x = ref_list[k].point[axis];
 	}
 
-	float min=x, max=x;
+	minex = maxex = x;
 	for (i = start; i < median; ++i)
-		if (ref_list[i].point[axis] < min) min = ref_list[i].point[axis];
+		if (ref_list[i].point[axis] < minex) minex = ref_list[i].point[axis];
 	for (i = median+1; i < end; ++i)
-		if (ref_list[i].point[axis] > max) max = ref_list[i].point[axis];
-
-	minex=min; maxex=max;
+		if (ref_list[i].point[axis] > maxex) maxex = ref_list[i].point[axis];
 }
