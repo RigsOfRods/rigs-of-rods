@@ -39,10 +39,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 #include "SlideNode.h"
-#include "OgreVector3.h"
-#include "OgrePrerequisites.h"
 
 // RAIL GROUP IMPLEMENTATION ///////////////////////////////////////////////////
 unsigned int RailGroup::nextId = 7000000;
@@ -59,7 +56,6 @@ Rail::Rail( Rail& o) : prev(o.prev), curBeam(o.curBeam), next(o.next)
 	o.curBeam = NULL;
 	o.next = NULL;
 }
-
 
 // RAIL BUILDER IMPLEMENTATION /////////////////////////////////////////////////
 
@@ -310,5 +306,4 @@ void SlideNode::UpdatePosition()
 	// calculate(cache) the ratio between the the two end points,
 	// if bLen = 0.0f it means the beam is zero length so pick an end point
 	mRatio = (bLen > 0.0f) ? len/bLen : 0.0f;
-	
 }

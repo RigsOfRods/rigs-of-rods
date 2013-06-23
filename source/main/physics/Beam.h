@@ -274,8 +274,6 @@ public:
 	int airbrakeval;
 	Ogre::Vector3 cameranodeacc;
 	int cameranodecount;
-	bool abs_state;
-	float abs_timer;
 
 	void setBeamVisibility(bool visible, bool linked=true);
 	bool beamsVisible;
