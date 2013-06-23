@@ -39,13 +39,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "SlideNode.h"
 
-#include "RoRPrerequisites.h"
-#include "Ogre.h"
 #include "Beam.h"
 #include "BeamFactory.h"
-#include "SlideNode.h"
-#include <vector>
 
 // ug... BAD PERFORMNCE, BAD!!
 void Beam::toggleSlideNodeLock()
@@ -72,8 +69,8 @@ void Beam::toggleSlideNodeLock()
 		for ( unsigned int i = 0; i < (unsigned int) trucksnum; ++i)
 		{
 			// make sure this truck is allowed
-			if ( !( ( curTruck != i && itNode->getAttachRule(ATTACH_FOREIGN) ) ||
-				  ( curTruck == i && itNode->getAttachRule(ATTACH_SELF) ) ) )
+			if (!((curTruck != i && itNode->getAttachRule(ATTACH_FOREIGN) ) ||
+				  (curTruck == i && itNode->getAttachRule(ATTACH_SELF) ) ) )
 				continue;
 			
 			current = getClosestRailOnTruck( BeamFactory::getSingleton().getTruck(i), (*itNode) );
@@ -84,7 +81,6 @@ void Beam::toggleSlideNodeLock()
 		itNode->attachToRail(closest.first);
 	} // nests
 	
-	// flip boolean
 	SlideNodesLocked = !SlideNodesLocked;
 } // is ugly....
 
@@ -161,4 +157,3 @@ void Beam::updateSlideNodePositions()
 		it->UpdatePosition();
 	}
 }
-

@@ -73,8 +73,6 @@ using namespace Ogre;
 Beam::Beam(int tnum, Ogre::Vector3 pos, Ogre::Quaternion rot, const char* fname, bool networked /* = false  */, bool networking /* = false  */, collision_box_t *spawnbox /* = NULL  */, bool ismachine/* =false  */, int flareMode /* = 0  */, const std::vector<Ogre::String> *truckconfig /* = 0  */, Skin *skin /* = 0  */, bool freeposition /* = false */) :
 	  deleting(false)
 	, GUIFeaturesChanged(false)
-	, abs_state(false)
-	, abs_timer(0.0)
 	, aileron(0)
 	, avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
 	, beacon(false)
@@ -819,17 +817,16 @@ void Beam::updateSimpleSkeleton()
 
 void Beam::moveOrigin(Vector3 offset)
 {
-	changeOrigin(origin+offset);
-}
-//beware in multithreaded mode!
-void Beam::changeOrigin(Vector3 newOrigin)
-{
-	Vector3 odiff=origin-newOrigin;
-	origin=newOrigin;
+	origin += offset;
 	for (int i=0; i<free_node; i++)
 	{
-		nodes[i].RelPosition+=odiff;
+		nodes[i].RelPosition -= offset;
 	}
+}
+
+void Beam::changeOrigin(Vector3 newOrigin)
+{
+	moveOrigin(newOrigin - origin);
 }
 
 Vector3 Beam::getPosition()
@@ -1192,58 +1189,53 @@ void Beam::calc_masses2(Real total, bool reCalc)
 {
 	BES_GFX_START(BES_GFX_calc_masses2);
 
-	bool debugMass=BSETTING("Debug Truck Mass", false);
+	bool debugMass = BSETTING("Debug Truck Mass", false);
 
-
-	int i;
-	Real len=0.0;
 	//reset
-	for (i=0; i<free_node; i++)
+	for (int i=0; i<free_node; i++)
 	{
 		if (!nodes[i].iswheel)
 		{
-			if (!nodes[i].masstype==NODE_LOADED)
-				nodes[i].mass=0;
-			else
+			if (!nodes[i].masstype == NODE_LOADED)
 			{
-				if (nodes[i].overrideMass)
-					// we set the mass before already!
-					continue;
-				else
-					nodes[i].mass=loadmass/(float)masscount;
+				nodes[i].mass = 0;
+			} else if (!nodes[i].overrideMass)
+			{
+				nodes[i].mass = loadmass / (float)masscount;
 			}
 		}
 	}
 	//average linear density
-	for (i=0; i<free_beam; i++)
+	Real len = 0.0f;
+	for (int i=0; i<free_beam; i++)
 	{
 		if (beams[i].type!=BEAM_VIRTUAL)
 		{
-			Real newlen=beams[i].L;
-			if (!(beams[i].p1->iswheel)) len+=newlen/2.0;
-			if (!(beams[i].p2->iswheel)) len+=newlen/2.0;
+			Real half_newlen = beams[i].L / 2.0;
+			if (!(beams[i].p1->iswheel)) len += half_newlen;
+			if (!(beams[i].p2->iswheel)) len += half_newlen;
 		}
 	}
 	if (!reCalc)
 	{
-		for (i=0; i<free_beam; i++)
+		for (int i=0; i<free_beam; i++)
 		{
 			if (beams[i].type!=BEAM_VIRTUAL)
 			{
-				Real mass=beams[i].L*total/len;
-				if (!(beams[i].p1->iswheel)) beams[i].p1->mass+=mass/2;
-				if (!(beams[i].p2->iswheel)) beams[i].p2->mass+=mass/2;
+				Real half_mass = beams[i].L * total / len / 2.0f;
+				if (!(beams[i].p1->iswheel)) beams[i].p1->mass += half_mass;
+				if (!(beams[i].p2->iswheel)) beams[i].p2->mass += half_mass;
 			}
 		}
 	}
 	//fix rope masses
 	for (std::vector <rope_t>::iterator it = ropes.begin(); it!=ropes.end(); it++)
 	{
-		it->beam->p2->mass=100.0;
+		it->beam->p2->mass = 100.0f;
 	}
 	//fix camera mass
-	for (i=0; i<freecinecamera; i++)
-		nodes[cinecameranodepos[i]].mass=20;
+	for (int i=0; i<freecinecamera; i++)
+		nodes[cinecameranodepos[i]].mass = 20.0f;
 
 	//hooks must be heavy
 	//for (std::vector<hook_t>::iterator it=hooks.begin(); it!=hooks.end(); it++)
@@ -1251,58 +1243,58 @@ void Beam::calc_masses2(Real total, bool reCalc)
 	//		it->hookNode->mass = 500.0f;
 
 	//update gravimass
-	for (i=0; i<free_node; i++)
+	for (int i=0; i<free_node; i++)
 	{
 		//LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(nodes[i].mass));
 		//for stability
-		if (!nodes[i].iswheel && nodes[i].mass<minimass)
+		if (!nodes[i].iswheel && nodes[i].mass < minimass)
 		{
 			if (debugMass)
 				LOG("Node " + TOSTRING(i) +" mass ("+TOSTRING(nodes[i].mass)+"kg) too light. Resetting to minimass ("+ TOSTRING(minimass) +"kg).");
-			nodes[i].mass=minimass;
+			nodes[i].mass = minimass;
 		}
-		nodes[i].gravimass=Vector3(0, gEnv->terrainManager->getGravity() * nodes[i].mass, 0);
+		nodes[i].gravimass = Vector3(0.0f, gEnv->terrainManager->getGravity() * nodes[i].mass, 0.0f);
 	}
 
     // update inverted mass cache
-	for (i=0; i<free_node; i++)
+	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].inverted_mass=1.0f/nodes[i].mass;
     }
 
 	//update minendmass
-	for (i=0; i<free_beam; i++)
+	for (int i=0; i<free_beam; i++)
 	{
-		beams[i].minendmass=beams[i].p1->mass;
+		beams[i].minendmass = beams[i].p1->mass;
 		if (beams[i].p2->mass < beams[i].minendmass)
-			beams[i].minendmass=beams[i].p2->mass;
+			beams[i].minendmass = beams[i].p2->mass;
 	}
-	totalmass=0;
-	for (i=0; i<free_node; i++)
+	totalmass = 0;
+	for (int i=0; i<free_node; i++)
 	{
 		if (debugMass)
 		{
 			String msg = "Node " + TOSTRING(i) +" : "+ TOSTRING((int)nodes[i].mass) +" kg";
-			if (nodes[i].masstype==NODE_LOADED)
+			if (nodes[i].masstype == NODE_LOADED)
 			{
 				if (nodes[i].overrideMass)
-					msg +=  " (overriden by node mass)";
+					msg += " (overriden by node mass)";
 				else
-					msg +=  " (normal load node: "+TOSTRING(loadmass)+" kg / "+TOSTRING(masscount)+" nodes)";
+					msg += " (normal load node: "+TOSTRING(loadmass)+" kg / "+TOSTRING(masscount)+" nodes)";
 			}
 			LOG(msg);
 		}
-		totalmass+=nodes[i].mass;
+		totalmass += nodes[i].mass;
 	}
 	LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)totalmass) +" kg");
 	//now a special stuff
-	int unst=0;
-	int st=0;
-	int wunst=0;
-	for (i=0; i<free_beam; i++)
+	int unst = 0;
+	int st = 0;
+	int wunst = 0;
+	for (int i=0; i<free_beam; i++)
 	{
-		float mass=beams[i].p1->mass;
-		if (beams[i].p2->mass<mass) mass=beams[i].p2->mass;
+		float mass = beams[i].p1->mass;
+		if (beams[i].p2->mass<mass) mass = beams[i].p2->mass;
 	}
 	LOG("Beams status: unstable:"+TOSTRING(unst)+" wheel:"+TOSTRING(wunst)+" normal:"+TOSTRING(free_beam-unst-wunst-st)+" superstable:"+TOSTRING(st));
 
@@ -1530,7 +1522,6 @@ void Beam::updateContacterNodes()
 	}
 }
 
-
 int Beam::savePosition(int indexPosition)
 {
 	if (!posStorage) return -1;
@@ -1573,6 +1564,7 @@ int Beam::loadPosition(int indexPosition)
 
 	return 0;
 }
+
 void Beam::updateTruckPosition()
 {
 	// calculate average position (and smooth)
@@ -2057,15 +2049,8 @@ bool Beam::frameStep(Real dt)
 	if (dt==0) return true;
 	if (!loading_finished) return true;
 	if (state >= SLEEPING) return true;
-	if (mTimeUntilNextToggle>-1)
-		mTimeUntilNextToggle-= dt;
-
-	abs_timer += dt;
-	if (abs_timer > 0.5f)
-	{
-		abs_state = !abs_state;
-		abs_timer = 0.0f;
-	}
+	if (mTimeUntilNextToggle > -1)
+		mTimeUntilNextToggle -= dt;
 	
 	int steps = 2000.0 * dt;
 
@@ -2074,18 +2059,6 @@ bool Beam::frameStep(Real dt)
 #ifdef USE_MYGUI
 	updateDashBoards(dt);
 #endif // USE_MYGUI
-
-	// update visual - antishaking
-#if 0
-	for (int t=0; t<numtrucks; t++)
-	{
-		if (trucks[t]->state < SLEEPING)
-		{
-			trucks[t]->updateVisual();
-		}
-		trucks[t]->updateFlares();
-	}
-#endif
 
 	// some scripting stuff:
 #ifdef USE_ANGELSCRIPT
@@ -2204,7 +2177,7 @@ bool Beam::frameStep(Real dt)
 				trucks[t]->lastposition = trucks[t]->position;
 				trucks[t]->updateTruckPosition();
 			}
-			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.length() > 100.0)
+			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
 			{
 				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
 			}
