@@ -28,6 +28,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <iconv.h>
 #endif //WIN32
 
+#include <boost/algorithm/string.hpp>
+
 using namespace Ogre;
 
 String hexdump(void *pAddressIn, long  lSize)
@@ -219,10 +221,7 @@ String stripNonASCII(String s)
 
 bool compareCaseInsensitive(std::string strFirst, std::string strSecond)
 {
-	// Convert both strings to upper case by transfrom() before compare.
-	transform(strFirst.begin(), strFirst.end(), strFirst.begin(), toupper);
-	transform(strSecond.begin(), strSecond.end(), strSecond.begin(), toupper);
-	return (strFirst == strSecond);
+	return boost::iequals(strFirst, strSecond);
 }
 
 
