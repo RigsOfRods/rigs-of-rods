@@ -2006,12 +2006,18 @@ void Beam::threadentry()
 		{
 			task_count[THREAD_BEAMFORCESEULER] = num_simulated_trucks;
 
+			std::list<IThreadTask*> tasks;
+
 			// Push tasks into thread pool
 			for (int t=0; t<tnumtrucks; t++)
 			{
 				if (trucks[t] && trucks[t]->simulated)
-					BeamFactory::getSingleton().beamThreadPool->enqueue(trucks[t]);
+				{
+					tasks.emplace_back(trucks[t]);
+				}
 			}
+
+			BeamFactory::getSingleton().beamThreadPool->enqueue(tasks);
 
 			// Wait for all tasks to complete
 			MUTEX_LOCK(&task_count_mutex[THREAD_BEAMFORCESEULER]);
@@ -4398,17 +4404,21 @@ void Beam::updateVisual(float dt)
 
 		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
 
+		std::list<IThreadTask*> tasks;
+
 		// Push tasks into thread pool
 		for (int i=0; i<free_wheel; i++)
 		{
 			if (flexmesh_prepare[i])
-				gEnv->threadPool->enqueue(vwheels[i].fm);
+				tasks.emplace_back(vwheels[i].fm);
 		}
 		for (int i=0; i<free_flexbody; i++)
 		{
 			if (flexbody_prepare[i])
-				gEnv->threadPool->enqueue(flexbodies[i]);
+				tasks.emplace_back(flexbodies[i]);
 		}
+
+		gEnv->threadPool->enqueue(tasks);
 
 		// Wait for all tasks to complete
 		MUTEX_LOCK(&flexable_task_count_mutex);
@@ -6452,11 +6462,15 @@ void Beam::runThreadTask(Beam* truck, ThreadTask task)
 		truck->thread_number = gEnv->threadPool->getSize();
 		truck->task_count[task] = truck->thread_number;
 
+		std::list<IThreadTask*> tasks;
+
 		// Push tasks into thread pool
 		for (int i=0; i< truck->thread_number; i++)
 		{
-			gEnv->threadPool->enqueue(truck);
+			tasks.emplace_back(truck);
 		}
+
+		gEnv->threadPool->enqueue(tasks);
 
 		// Wait for all tasks to complete
 		MUTEX_LOCK(&truck->task_count_mutex[task]);
@@ -6481,7 +6495,7 @@ void Beam::run()
 		if (!disableTruckTruckSelfCollisions)
 		{
 			intraTruckCollisionsPrepare(dtperstep);
-			runThreadTask(this, THREAD_INTRA_TRUCK_COLLISIONS);
+			intraTruckCollisionsCompute(dtperstep);
 			intraTruckCollisionsFinal(dtperstep);
 		}
 	} else
