@@ -61,6 +61,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, postshifting(0)
 	, prime(0)
 	, running(false)
+	, shiftBehaviour(0.0f)
 	, shift_time(0.5f)
 	, shiftclock(0.0f)
 	, shifting(0)
@@ -70,7 +71,12 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, torqueCurve(new TorqueCurve())
 	, trucknum(trucknum)
 	, type('t')
+	, upShiftDelayCounter(0)
 {
+	fullRPMRange = (maxRPM - minRPM);
+	oneThirdRPMRange = fullRPMRange / 3.0f;
+	halfRPMRange = fullRPMRange / 2.0f;
+
 	gearsRatio[0] = -gearsRatio[0];
 	for (std::vector< float >::iterator it = gearsRatio.begin(); it != gearsRatio.end(); ++it)
 	{
@@ -351,15 +357,6 @@ void BeamEngine::update(float dt, int doUpdate)
 
 		if (automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
 		{
-			static float fullRPMRange = (maxRPM - minRPM);
-			static float oneThirdRPMRange = fullRPMRange / 3.0f;
-			static float halfRPMRange = fullRPMRange / 2.0f;
-			static float shiftBehaviour = 0.0f;
-			static int upShiftDelayCounter = 0;
-			static std::deque<float> rpms;
-			static std::deque<float> accs;
-			static std::deque<float> brakes;
-
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
 				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears)))
