@@ -37,7 +37,7 @@ public:
 	void setActive(bool state);
 	//static VideoCamera *setActive(bool state);
 	
-	static VideoCamera *parseLine(SerializedRig *truck, parsecontext_t &c);
+	static VideoCamera *parseLine(SerializedRig *truck, SerializedRig::parsecontext_t &c);
 
 	int camNode, lookat, switchoff;
 	float fov, minclip, maxclip;
