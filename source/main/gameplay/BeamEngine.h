@@ -154,6 +154,16 @@ protected:
 	float autocurAcc;
 	int starter;
 
+	// auto transmission
+	float fullRPMRange;
+	float oneThirdRPMRange;
+	float halfRPMRange;
+	float shiftBehaviour;
+	int upShiftDelayCounter;
+	std::deque<float> rpms;
+	std::deque<float> accs;
+	std::deque<float> brakes;
+
 	// turbo
 	float curTurboRPM;
 
