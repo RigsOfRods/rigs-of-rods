@@ -247,7 +247,7 @@ void VideoCamera::update(float dt)
 	mVidCam->setPosition(pos);
 }
 
-VideoCamera *VideoCamera::parseLine(SerializedRig *truck, parsecontext_t &c)
+VideoCamera *VideoCamera::parseLine(SerializedRig *truck, SerializedRig::parsecontext_t &c)
 {
 	try
 	{

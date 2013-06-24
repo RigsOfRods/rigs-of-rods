@@ -18,33 +18,14 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created by thomas fischer thomas{AT}thomasfischer{DOT}biz on the fifth of March 2011
-
 #ifndef SERIALIZEDRIG_H__
 #define SERIALIZEDRIG_H__
 
 #include "RoRPrerequisites.h"
+
 #include "BeamData.h" // for rig_t
 
 #include <OgreStringVector.h>
-
-// parser specific helping structs, no need to export those for the whole sources
-typedef struct trucksection_t
-{
-	int sectionID;
-	const char *name;
-	bool titleContainsInfo;
-} trucksection_t;
-
-typedef struct parsecontext_t
-{
-	Ogre::String filename;
-	Ogre::String modeString;
-	Ogre::String warningText;
-	int warningLvl;
-	unsigned int linecounter;
-	Ogre::String line;
-	int mode;
-} parsecontext_t;
 
 struct ParseException : std::exception { char const* what() const throw() { return "ParserException"; }; };
 
@@ -59,6 +40,18 @@ enum {
 class SerializedRig : public rig_t
 {
 public:
+
+	// parser specific helping struct
+	typedef struct parsecontext_t
+	{
+		Ogre::String filename;
+		Ogre::String modeString;
+		Ogre::String warningText;
+		int warningLvl;
+		unsigned int linecounter;
+		Ogre::String line;
+		int mode;
+	} parsecontext_t;
 
 	SerializedRig();
 	~SerializedRig();
@@ -79,6 +72,9 @@ public:
 	std::vector <parsecontext_t> &getWarnings() { return warnings; };
 
 protected:
+
+	static const std::map<std::string, int> truck_sections;
+	static const std::map<std::string, int> init_truck_sections();
 
 	bool virtuallyLoaded;
 	bool ignoreProblems;
@@ -262,6 +258,5 @@ protected:
 	void calcBoundingBoxes();
 	void calcLowestNode();
 };
-
 
 #endif //SERIALIZEDRIG_H__

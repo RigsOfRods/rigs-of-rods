@@ -28,8 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <iconv.h>
 #endif //WIN32
 
-#include <boost/algorithm/string.hpp>
-
 using namespace Ogre;
 
 String hexdump(void *pAddressIn, long  lSize)
@@ -216,12 +214,6 @@ String stripNonASCII(String s)
 			filename[i]='_';
 	}
 	return String(filename);
-}
-	
-
-bool compareCaseInsensitive(std::string strFirst, std::string strSecond)
-{
-	return boost::iequals(strFirst, strSecond);
 }
 
 

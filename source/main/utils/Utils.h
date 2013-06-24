@@ -59,8 +59,6 @@ int isPowerOfTwo(unsigned int x);
 
 Ogre::String stripNonASCII(Ogre::String s);
 
-bool compareCaseInsensitive(std::string strFirst, std::string strSecond);
-
 Ogre::AxisAlignedBox getWorldAABB(Ogre::SceneNode* node);
 
 void fixRenderWindowIcon (Ogre::RenderWindow* rw);

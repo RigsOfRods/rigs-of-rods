@@ -159,7 +159,6 @@ enum TRUCK_SECTIONS {
 	BTS_HOOKS,
 	BTS_LOCKGROUPS,
 	BTS_CAMERARAIL,
-	BTS_END,
 };
 
 enum event_types {

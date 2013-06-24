@@ -17,7 +17,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 #include "SerializedRig.h"
 
 #include "AirBrake.h"
@@ -51,88 +50,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TorqueCurve.h"
 #include "TurboProp.h"
 #include "TurboJet.h"
-#include "Utils.h"
 #include "VideoCamera.h"
 
 using namespace Ogre;
 
-// important: keep this in sync with TRUCK_SECTIONS enum as we iterate through this until we reach BTS_END
-trucksection_t truck_sections[] = {
-	{BTS_NONE, "NONE", false},
-	{BTS_NODES, "nodes", false},
-	{BTS_NODES2, "nodes2", false},
-	{BTS_BEAMS, "beams", false},
-	{BTS_FIXES, "fixes", false},
-	{BTS_SHOCKS, "shocks", false},
-	{BTS_HYDROS, "hydros", false},
-	{BTS_WHEELS, "wheels", false},
-	{BTS_WHEELS2, "wheels2", false},
-	{BTS_GLOBALS, "globals", false},
-	{BTS_CAMERAS, "cameras", false},
-	{BTS_ENGINE, "engine", false},
-	{BTS_TEXCOORDS, "texcoords", false},
-	{BTS_CAB, "cab", false},
-	{BTS_COMMANDS, "commands", false},
-	{BTS_COMMANDS2, "commands2", false},
-	{BTS_CONTACTERS, "contacters", false},
-	{BTS_ROPES, "ropes", false},
-	{BTS_ROPABLES, "ropables", false},
-	{BTS_TIES, "ties", false},
-	{BTS_HELP, "help", false},
-	{BTS_CINECAM, "cinecam", false},
-	{BTS_FLARES, "flares", false},
-	{BTS_PROPS, "props", false},
-	{BTS_GLOBEAMS, "globeams", false},
-	{BTS_WINGS, "wings", false},
-	{BTS_TURBOPROPS, "turboprops", false},
-	{BTS_TURBOPROPS2, "turboprops2", false},
-	{BTS_PISTONPROPS, "pistonprops", false},
-	{BTS_FUSEDRAG, "fusedrag", false},
-	{BTS_ENGOPTION, "engoption", false},
-	{BTS_BRAKES, "brakes", false},
-	{BTS_ROTATORS, "rotators", false},
-	{BTS_ROTATORS2, "rotators2", false},
-	{BTS_SCREWPROPS, "screwprops", false},
-	{BTS_GUISETTINGS, "guisettings", false},
-	{BTS_MINIMASS, "minimass", false},
-	{BTS_EXHAUSTS, "exhausts", false},
-	{BTS_PARTICLES, "particles", false},
-	{BTS_TURBOJETS, "turbojets", false},
-	{BTS_RIGIDIFIERS, "rigidifiers", false},
-	{BTS_AIRBRAKES, "airbrakes", false},
-	{BTS_MESHWHEELS, "meshwheels", false},
-	{BTS_MESHWHEELS2, "meshwheels2", false},
-	{BTS_FLEXBODYWHEELS, "flexbodywheels", false},
-	{BTS_FLEXBODIES, "flexbodies", false},
-	{BTS_HOOKGROUP, "hookgroup", false},
-	{BTS_MATERIALFLAREBINDINGS, "materialflarebindings", false},
-	{BTS_SOUNDSOURCES, "soundsources", false},
-	{BTS_SOUNDSOURCES2, "soundsources2", false},
-	{BTS_SOUNDSOURCES3, "soundsources3", false},
-	{BTS_ENVMAP, "envmap", false},
-	{BTS_MANAGEDMATERIALS, "managedmaterials", false},
-	{BTS_SECTIONCONFIG, "BTS_SECTIONCONFIG", false},
-	{BTS_TORQUECURVE, "torquecurve", false},
-	{BTS_ADVANCEDDRAG, "advdrag", false},
-	{BTS_AXLES, "axles", false},
-	{BTS_SHOCKS2, "shocks2", false},
-	{BTS_TRIGGER, "triggers", false},
-	{BTS_RAILGROUPS, "railgroups", false},
-	{BTS_SLIDENODES, "slidenodes", false},
-	{BTS_COLLISIONBOXES, "collisionboxes", false},
-	{BTS_FLARES2, "flares2", false},
-	{BTS_ANIMATORS, "animators", false},
-	{BTS_NODECOLLISION, "nodecollision", false},
-	{BTS_DESCRIPTION, "description", false},
-	{BTS_COMMENT, "BTS_COMMENT", false}, // NOT TO BE PARSED
-	{BTS_SECTION, "BTS_SECTION", false}, // NOT TO BE PARSED
-	{BTS_IN_SECTION, "BTS_IN_SECTION", false}, // NOT TO BE PARSED
-	{BTS_VIDCAM, "videocamera", false},
-	{BTS_HOOKS, "hooks", false},
-	{BTS_LOCKGROUPS, "lockgroups", false},
-	{BTS_CAMERARAIL, "camerarail", false},
-	{BTS_END, "end", false},
-};
+const std::map<std::string, int> SerializedRig::truck_sections = init_truck_sections();
 
 SerializedRig::SerializedRig()
 {
@@ -365,6 +287,82 @@ SerializedRig::~SerializedRig()
 	}
 }
 
+const std::map<std::string, int> SerializedRig::init_truck_sections()
+{
+	std::map<std::string, int> truckSections;
+
+	truckSections.emplace(std::pair<std::string, int>("advdrag", BTS_ADVANCEDDRAG));
+	truckSections.emplace(std::pair<std::string, int>("airbrakes", BTS_AIRBRAKES));
+	truckSections.emplace(std::pair<std::string, int>("animators", BTS_ANIMATORS));
+	truckSections.emplace(std::pair<std::string, int>("axles", BTS_AXLES));
+	truckSections.emplace(std::pair<std::string, int>("beams", BTS_BEAMS));
+	truckSections.emplace(std::pair<std::string, int>("brakes", BTS_BRAKES));
+	truckSections.emplace(std::pair<std::string, int>("cab", BTS_CAB));
+	truckSections.emplace(std::pair<std::string, int>("camerarail", BTS_CAMERARAIL));
+	truckSections.emplace(std::pair<std::string, int>("cameras", BTS_CAMERAS));
+	truckSections.emplace(std::pair<std::string, int>("cinecam", BTS_CINECAM));
+	truckSections.emplace(std::pair<std::string, int>("collisionboxes", BTS_COLLISIONBOXES));
+	truckSections.emplace(std::pair<std::string, int>("commands", BTS_COMMANDS));
+	truckSections.emplace(std::pair<std::string, int>("commands2", BTS_COMMANDS2));
+	truckSections.emplace(std::pair<std::string, int>("contacters", BTS_CONTACTERS));
+	truckSections.emplace(std::pair<std::string, int>("description", BTS_DESCRIPTION));
+	truckSections.emplace(std::pair<std::string, int>("engine", BTS_ENGINE));
+	truckSections.emplace(std::pair<std::string, int>("engoption", BTS_ENGOPTION));
+	truckSections.emplace(std::pair<std::string, int>("envmap", BTS_ENVMAP));
+	truckSections.emplace(std::pair<std::string, int>("exhausts", BTS_EXHAUSTS));
+	truckSections.emplace(std::pair<std::string, int>("fixes", BTS_FIXES));
+	truckSections.emplace(std::pair<std::string, int>("flares", BTS_FLARES));
+	truckSections.emplace(std::pair<std::string, int>("flares2", BTS_FLARES2));
+	truckSections.emplace(std::pair<std::string, int>("flexbodies", BTS_FLEXBODIES));
+	truckSections.emplace(std::pair<std::string, int>("flexbodywheels", BTS_FLEXBODYWHEELS));
+	truckSections.emplace(std::pair<std::string, int>("fusedrag", BTS_FUSEDRAG));
+	truckSections.emplace(std::pair<std::string, int>("globals", BTS_GLOBALS));
+	truckSections.emplace(std::pair<std::string, int>("globeams", BTS_GLOBEAMS));
+	truckSections.emplace(std::pair<std::string, int>("guisettings", BTS_GUISETTINGS));
+	truckSections.emplace(std::pair<std::string, int>("help", BTS_HELP));
+	truckSections.emplace(std::pair<std::string, int>("hookgroup", BTS_HOOKGROUP));
+	truckSections.emplace(std::pair<std::string, int>("hooks", BTS_HOOKS));
+	truckSections.emplace(std::pair<std::string, int>("hydros", BTS_HYDROS));
+	truckSections.emplace(std::pair<std::string, int>("lockgroups", BTS_LOCKGROUPS));
+	truckSections.emplace(std::pair<std::string, int>("managedmaterials", BTS_MANAGEDMATERIALS));
+	truckSections.emplace(std::pair<std::string, int>("materialflarebindings", BTS_MATERIALFLAREBINDINGS));
+	truckSections.emplace(std::pair<std::string, int>("meshwheels", BTS_MESHWHEELS));
+	truckSections.emplace(std::pair<std::string, int>("meshwheels2", BTS_MESHWHEELS2));
+	truckSections.emplace(std::pair<std::string, int>("minimass", BTS_MINIMASS));
+	truckSections.emplace(std::pair<std::string, int>("nodecollision", BTS_NODECOLLISION));
+	truckSections.emplace(std::pair<std::string, int>("nodes", BTS_NODES));
+	truckSections.emplace(std::pair<std::string, int>("nodes2", BTS_NODES2));
+	truckSections.emplace(std::pair<std::string, int>("particles", BTS_PARTICLES));
+	truckSections.emplace(std::pair<std::string, int>("pistonprops", BTS_PISTONPROPS));
+	truckSections.emplace(std::pair<std::string, int>("props", BTS_PROPS));
+	truckSections.emplace(std::pair<std::string, int>("railgroups", BTS_RAILGROUPS));
+	truckSections.emplace(std::pair<std::string, int>("rigidifiers", BTS_RIGIDIFIERS));
+	truckSections.emplace(std::pair<std::string, int>("ropables", BTS_ROPABLES));
+	truckSections.emplace(std::pair<std::string, int>("ropes", BTS_ROPES));
+	truckSections.emplace(std::pair<std::string, int>("rotators", BTS_ROTATORS));
+	truckSections.emplace(std::pair<std::string, int>("rotators2", BTS_ROTATORS2));
+	truckSections.emplace(std::pair<std::string, int>("screwprops", BTS_SCREWPROPS));
+	truckSections.emplace(std::pair<std::string, int>("shocks", BTS_SHOCKS));
+	truckSections.emplace(std::pair<std::string, int>("shocks2", BTS_SHOCKS2));
+	truckSections.emplace(std::pair<std::string, int>("slidenodes", BTS_SLIDENODES));
+	truckSections.emplace(std::pair<std::string, int>("soundsources", BTS_SOUNDSOURCES));
+	truckSections.emplace(std::pair<std::string, int>("soundsources2", BTS_SOUNDSOURCES2));
+	truckSections.emplace(std::pair<std::string, int>("soundsources3", BTS_SOUNDSOURCES3));
+	truckSections.emplace(std::pair<std::string, int>("texcoords", BTS_TEXCOORDS));
+	truckSections.emplace(std::pair<std::string, int>("ties", BTS_TIES));
+	truckSections.emplace(std::pair<std::string, int>("torquecurve", BTS_TORQUECURVE));
+	truckSections.emplace(std::pair<std::string, int>("triggers", BTS_TRIGGER));
+	truckSections.emplace(std::pair<std::string, int>("turbojets", BTS_TURBOJETS));
+	truckSections.emplace(std::pair<std::string, int>("turboprops", BTS_TURBOPROPS));
+	truckSections.emplace(std::pair<std::string, int>("turboprops2", BTS_TURBOPROPS2));
+	truckSections.emplace(std::pair<std::string, int>("videocamera", BTS_VIDCAM));
+	truckSections.emplace(std::pair<std::string, int>("wheels", BTS_WHEELS));
+	truckSections.emplace(std::pair<std::string, int>("wheels2", BTS_WHEELS2));
+	truckSections.emplace(std::pair<std::string, int>("wings", BTS_WINGS));
+
+	return truckSections;
+}
+
 int SerializedRig::loadTruckVirtual(String fname, bool ignorep)
 {
 	virtuallyLoaded = true;
@@ -531,38 +529,19 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 			}
 
 			// now check if we are in a new section
-			trucksection_t *foundSection = 0;
-			for (int i=0; i < BTS_END; i++)
-			{
-				// check for classical sections
-				if (c.line == truck_sections[i].name)
-				{
-					foundSection = &truck_sections[i];
-					break;
-				}
-				else if (compareCaseInsensitive(c.line, truck_sections[i].name))
-				{
-					parser_warning(c, "section has wrong character case, section names are case sensitive", PARSER_ERROR);
-					foundSection = &truck_sections[i];
-					break;
-				}
-				else
-				{
-					if (c.line[0] == ' ' || c.line[c.line.size()-1] == ' ')
-						parser_warning(c, "spaces in section declarations not allowed", PARSER_ERROR);
-				}
-			}
+			std::map<std::string, int>::const_iterator it_ts = truck_sections.find(c.line);
 
-			if (foundSection)
+			if (it_ts != truck_sections.end())
 			{
 				// save the current mode in the history
 				modehistory.push_back(c);
 				// then set the new one
-				c.mode = foundSection->sectionID;
-				c.modeString = String(foundSection->name);
-				if (!foundSection->titleContainsInfo)
-					continue;
-
+				c.mode = it_ts->second;
+				c.modeString = it_ts->first;
+				continue;
+			} else if (c.line[0] == ' ' || c.line[c.line.size()-1] == ' ')
+			{
+				parser_warning(c, "spaces in section declarations not allowed", PARSER_ERROR);
 			}
 
 			// check for commands (one line sections)
