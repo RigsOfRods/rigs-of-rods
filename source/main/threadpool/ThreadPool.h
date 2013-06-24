@@ -39,6 +39,7 @@ public:
 	int getSize() { return size; };
 
 	void enqueue(IThreadTask* task);
+	void enqueue(const std::list<IThreadTask*>& tasks);
 
 protected:
 

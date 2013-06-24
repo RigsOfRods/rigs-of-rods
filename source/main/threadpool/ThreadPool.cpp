@@ -53,9 +53,27 @@ void ThreadPool::enqueue(IThreadTask* task)
 	if (task)
 	{
 		MUTEX_LOCK(&queue_mutex);
-		tasks.push_back(task);
+		this->tasks.push_back(task);
 		MUTEX_UNLOCK(&queue_mutex);
 
 		pthread_cond_signal(&queue_cv);
+	}
+}
+
+void ThreadPool::enqueue(const std::list<IThreadTask*>& tasks)
+{
+	if (!tasks.empty())
+	{
+		MUTEX_LOCK(&queue_mutex);
+		for (std::list<IThreadTask*>::const_iterator it = tasks.begin(); it != tasks.end(); ++it)
+		{
+			if (*it)
+			{
+				this->tasks.push_back(*it);
+			}
+		}
+		MUTEX_UNLOCK(&queue_mutex);
+
+		pthread_cond_broadcast(&queue_cv);
 	}
 }
