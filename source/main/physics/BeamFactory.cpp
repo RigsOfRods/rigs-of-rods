@@ -685,6 +685,14 @@ void BeamFactory::updateVisual(float dt)
 {
 	for (int t=0; t < free_truck; t++)
 	{
+		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
+		{
+			trucks[t]->updateVisualPrepare(dt);
+		}
+	}
+
+	for (int t=0; t < free_truck; t++)
+	{
 		if (!trucks[t]) continue;
 
 		// always update the labels
@@ -693,8 +701,15 @@ void BeamFactory::updateVisual(float dt)
 		if (trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
 		{
 			trucks[t]->updateSkidmarks();
-			trucks[t]->updateVisual(dt);
-			trucks[t]->updateFlares(dt, (t==current_truck) );
+			trucks[t]->updateFlares(dt, (t==current_truck));
+		}
+	}
+
+	for (int t=0; t < free_truck; t++)
+	{
+		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
+		{
+			trucks[t]->updateVisualFinal(dt);
 		}
 	}
 }

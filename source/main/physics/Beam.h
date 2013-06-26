@@ -120,6 +120,8 @@ public:
 	void updateFlares(float dt, bool isCurrent=false);
 	void updateProps();
 	void updateVisual(float dt=0);
+	void updateVisualPrepare(float dt=0);
+	void updateVisualFinal(float dt=0);
 	void updateLabels(float dt=0);
 	//v=0: full detail
 	//v=1: no beams
@@ -342,6 +344,7 @@ protected:
 	float dtperstep;
 	int curtstep;
 	int tsteps;
+	int num_simulated_trucks;
 	float avichatter_timer;
 
 	// pthread stuff
@@ -354,13 +357,17 @@ protected:
 	int thread_index;
 	int thread_number;
 
-	void runThreadTask(Beam* truck, ThreadTask task);
+	void runThreadTask(Beam* truck, ThreadTask task, bool shared = false);
 	
 	// inter-/intra truck collision stuff
 	pthread_mutex_t itc_node_access_mutex;
 
 	std::vector<PointColDetector*> interPointCD;
 	std::vector<PointColDetector*> intraPointCD;
+
+	// flexable stuff
+	std::bitset<MAX_WHEELS> flexmesh_prepare;
+	std::bitset<MAX_FLEXBODIES> flexbody_prepare;
 
 	// linked beams (hooks)
 	std::list<Beam*> linkedBeams;

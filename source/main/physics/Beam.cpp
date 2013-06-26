@@ -1972,7 +1972,7 @@ void Beam::threadentry()
 
 	for (curtstep=0; curtstep<tsteps; curtstep++)
 	{
-		int num_simulated_trucks = 0;
+		num_simulated_trucks = 0;
 		gEnv->mrTime += dtperstep;
 
 		for (int t=0; t<tnumtrucks; t++)
@@ -1987,6 +1987,10 @@ void Beam::threadentry()
 				trucks[t]->thread_task = THREAD_BEAMFORCESEULER;
 			}
 		}
+		for (int t=0; t<tnumtrucks; t++)
+		{
+			trucks[t]->num_simulated_trucks = this->num_simulated_trucks;
+		}
 		if (num_simulated_trucks < 2 || !BeamFactory::getSingleton().beamThreadPool)
 		{
 			for (int t=0; t<tnumtrucks; t++)
@@ -2000,6 +2004,7 @@ void Beam::threadentry()
 						runThreadTask(trucks[t], THREAD_INTRA_TRUCK_COLLISIONS);
 						trucks[t]->intraTruckCollisionsFinal(dtperstep);
 					}
+					break;
 				}
 			}
 		} else
@@ -4222,7 +4227,7 @@ void Beam::updateLabels(float dt)
 	}
 }
 
-void Beam::updateVisual(float dt)
+void Beam::updateVisualPrepare(float dt)
 {
 	BES_GFX_START(BES_GFX_updateVisual);
 
@@ -4390,13 +4395,13 @@ void Beam::updateVisual(float dt)
 
 	if (gEnv->threadPool)
 	{
-		std::bitset<MAX_WHEELS> flexmesh_prepare;
+		flexmesh_prepare.reset();
 		for (int i=0; i<free_wheel; i++)
 		{
 			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
 		}
 
-		std::bitset<MAX_FLEXBODIES> flexbody_prepare;
+		flexbody_prepare.reset();
 		for (int i=0; i<free_flexbody; i++)
 		{
 			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
@@ -4419,25 +4424,6 @@ void Beam::updateVisual(float dt)
 		}
 
 		gEnv->threadPool->enqueue(tasks);
-
-		// Wait for all tasks to complete
-		MUTEX_LOCK(&flexable_task_count_mutex);
-		while (flexable_task_count > 0)
-		{
-			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
-		}
-		MUTEX_UNLOCK(&flexable_task_count_mutex);
-
-		for (int i=0; i<free_wheel; i++)
-		{
-			if (flexmesh_prepare[i])
-				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
-		}
-		for (int i=0; i<free_flexbody; i++)
-		{
-			if (flexbody_prepare[i])
-				flexbodies[i]->flexitFinal();
-		}
 	} else
 	{
 		for (int i=0; i<free_wheel; i++)
@@ -4460,6 +4446,41 @@ void Beam::updateVisual(float dt)
 	BES_GFX_STOP(BES_GFX_updateFlexBodies);
 
 	BES_GFX_STOP(BES_GFX_updateVisual);
+}
+
+void Beam::updateVisualFinal(float dt)
+{
+	if (gEnv->threadPool)
+	{
+		// Wait for all tasks to complete
+		MUTEX_LOCK(&flexable_task_count_mutex);
+		while (flexable_task_count > 0)
+		{
+			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
+		}
+		MUTEX_UNLOCK(&flexable_task_count_mutex);
+
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbody_prepare[i])
+				flexbodies[i]->flexitFinal();
+		}
+	} 
+
+	BES_GFX_STOP(BES_GFX_updateFlexBodies);
+
+	BES_GFX_STOP(BES_GFX_updateVisual);
+}
+
+void Beam::updateVisual(float dt)
+{
+	updateVisualPrepare(dt);
+	updateVisualFinal(dt);
 }
 
 //v=0: full detail
@@ -6449,7 +6470,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	}
 }
 
-void Beam::runThreadTask(Beam* truck, ThreadTask task)
+void Beam::runThreadTask(Beam* truck, ThreadTask task, bool shared /*= false*/)
 {
 	ThreadTask old_thread_task = truck->thread_task;
 
@@ -6457,15 +6478,19 @@ void Beam::runThreadTask(Beam* truck, ThreadTask task)
 	truck->thread_number = 1;
 	truck->thread_task = task;
 
-	if (gEnv->threadPool)
+	if (gEnv->threadPool && (!shared || gEnv->threadPool->getSize() / truck->num_simulated_trucks > 1))
 	{
 		truck->thread_number = gEnv->threadPool->getSize();
+		if (shared)
+		{
+			truck->thread_number /= truck->num_simulated_trucks;
+		}
 		truck->task_count[task] = truck->thread_number;
 
 		std::list<IThreadTask*> tasks;
 
 		// Push tasks into thread pool
-		for (int i=0; i< truck->thread_number; i++)
+		for (int i=0; i<truck->thread_number; i++)
 		{
 			tasks.emplace_back(truck);
 		}
@@ -6500,10 +6525,14 @@ void Beam::run()
 		}
 	} else
 	{
-		MUTEX_LOCK(&task_index_mutex[thread_task]);
-		int index = thread_index;
-		thread_index++;
-		MUTEX_UNLOCK(&task_index_mutex[thread_task]);
+		int index = 0;
+		if (thread_number > 1)
+		{
+			MUTEX_LOCK(&task_index_mutex[thread_task]);
+			index = thread_index;
+			thread_index++;
+			MUTEX_UNLOCK(&task_index_mutex[thread_task]);
+		}
 
 		switch (thread_task)
 		{
