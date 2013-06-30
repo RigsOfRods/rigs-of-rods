@@ -654,9 +654,28 @@ void FlexBody::flexitCompute()
 	// replace approx_normalise(a) with a.normalisedCopy()
 	for (int i=0; i<(int)vertex_count; i++)
 	{
+		Vector3 diffX = nodes[locs[i].nx].smoothpos - nodes[locs[i].ref].smoothpos;
+		Vector3 diffY = nodes[locs[i].ny].smoothpos - nodes[locs[i].ref].smoothpos;
+		Vector3 nCross = approx_normalise(diffX.crossProduct(diffY));
+
+		dstpos[i].x = diffX.x * locs[i].coords.x + diffY.x * locs[i].coords.y + nCross.x * locs[i].coords.z;
+		dstpos[i].y = diffX.y * locs[i].coords.x + diffY.y * locs[i].coords.y + nCross.y * locs[i].coords.z;
+		dstpos[i].z = diffX.z * locs[i].coords.x + diffY.z * locs[i].coords.y + nCross.z * locs[i].coords.z;
+
+		dstpos[i] += nodes[locs[i].ref].smoothpos - flexit_center;
+
+		dstnormals[i].x = diffX.x * srcnormals[i].x + diffY.x * srcnormals[i].y + nCross.x * srcnormals[i].z;
+		dstnormals[i].y = diffX.y * srcnormals[i].x + diffY.y * srcnormals[i].y + nCross.y * srcnormals[i].z;
+		dstnormals[i].z = diffX.z * srcnormals[i].x + diffY.z * srcnormals[i].y + nCross.z * srcnormals[i].z;
+
+		dstnormals[i] = approx_normalise(dstnormals[i]);
+	}
+#if 0
+	for (int i=0; i<(int)vertex_count; i++)
+	{
 		Matrix3 mat;
-		Vector3 diffX = nodes[locs[i].nx].smoothpos-nodes[locs[i].ref].smoothpos;
-		Vector3 diffY = nodes[locs[i].ny].smoothpos-nodes[locs[i].ref].smoothpos;
+		Vector3 diffX = nodes[locs[i].nx].smoothpos - nodes[locs[i].ref].smoothpos;
+		Vector3 diffY = nodes[locs[i].ny].smoothpos - nodes[locs[i].ref].smoothpos;
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
@@ -665,6 +684,7 @@ void FlexBody::flexitCompute()
 		dstpos[i] = mat * locs[i].coords + nodes[locs[i].ref].smoothpos - flexit_center;
 		dstnormals[i] = approx_normalise(mat * srcnormals[i]);
 	}
+#endif
 }
 
 Vector3 FlexBody::flexitFinal()
