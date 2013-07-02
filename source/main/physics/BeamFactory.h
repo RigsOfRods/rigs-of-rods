@@ -55,8 +55,8 @@ public:
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
 
-	Beam *getCurrentTruck() { return (current_truck<0)?0:trucks[current_truck]; };
-	Beam *getTruck(int number) { return trucks[number]; };
+	Beam *getCurrentTruck();
+	Beam *getTruck(int number);
 	Beam **getTrucks() { return trucks; };
 	int getPreviousTruckNumber() { return previous_truck; };
 	int getCurrentTruckNumber() { return current_truck; };
