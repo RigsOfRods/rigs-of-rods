@@ -317,10 +317,10 @@ Beam::Beam(int tnum, Ogre::Vector3 pos, Ogre::Quaternion rot, const char* fname,
 	strcpy(uniquetruckid,"-1");
 
 	simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	deletion_sceneNodes.push_back(simpleSkeletonNode);
+	deletion_sceneNodes.emplace_back(simpleSkeletonNode);
 	
 	beamsRoot=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	deletion_sceneNodes.push_back(netLabelNode);
+	deletion_sceneNodes.emplace_back(netLabelNode);
 
 	// skidmark stuff
 	useSkidmarks = BSETTING("Skidmarks", false);
@@ -491,22 +491,30 @@ Beam::~Beam()
 	if (materialFunctionMapper) delete materialFunctionMapper;
 	if (replay) delete replay;
 
-	std::vector<SceneNode*> deletion_sceneNodes;
-	std::vector<Entity *> deletion_Entities;
-
+	// TODO: Make sure we catch everything here
 	// remove all scene nodes
 	if (deletion_sceneNodes.size() > 0)
 	{
-		int size = (int)deletion_sceneNodes.size();
-		for (int i=0;i<size; i++)
+		for (unsigned int i=0; i<deletion_sceneNodes.size(); i++)
 		{
 			if (!deletion_sceneNodes[i]) continue;
 			deletion_sceneNodes[i]->removeAndDestroyAllChildren();
 			gEnv->sceneManager->destroySceneNode(deletion_sceneNodes[i]);
-
-			deletion_sceneNodes[i]=0;
 		}
+		deletion_sceneNodes.clear();
 	}
+	// remove all entities
+	if (deletion_Entities.size() > 0)
+	{
+		for (unsigned int i=0; i<deletion_Entities.size(); i++)
+		{
+			if (!deletion_Entities[i]) continue;
+			deletion_Entities[i]->detachAllObjectsFromBone();
+			gEnv->sceneManager->destroyEntity(deletion_Entities[i]->getName());
+		}
+		deletion_Entities.clear();
+	}
+	
 	// delete skidmarks as well?!
 
 	// delete wings
@@ -558,6 +566,9 @@ Beam::~Beam()
 		}
 	}
 
+	// delete cablight
+	if (cablight) gEnv->sceneManager->destroyLight(cablight);
+
 	// delete props
 	for (int i=0; i<free_prop;i++)
 	{
@@ -605,8 +616,8 @@ Beam::~Beam()
 			flares[i].snode->removeAndDestroyAllChildren();
 			gEnv->sceneManager->destroySceneNode(flares[i].snode);
 		}
+		if (flares[i].bbs) gEnv->sceneManager->destroyBillboardSet(flares[i].bbs);
 		if (flares[i].light) gEnv->sceneManager->destroyLight(flares[i].light);
-
 	}
 
 	// delete exhausts
@@ -639,17 +650,15 @@ Beam::~Beam()
 			cparticles[free_cparticle].psys->removeAllEmitters();
 			gEnv->sceneManager->destroyParticleSystem(cparticles[free_cparticle].psys);
 		}
-
 	}
 
 	// delete beams
 	for (int i=0; i<free_beam; i++)
 	{
-		if (beams[i].mEntity)    beams[i].mEntity->setVisible(false);
 		if (beams[i].mSceneNode)
 		{
 			beams[i].mSceneNode->removeAndDestroyAllChildren();
-			//gEnv->ogreSceneManager->destroySceneNode(beams[i].mSceneNode);
+			gEnv->sceneManager->destroySceneNode(beams[i].mSceneNode);
 		}
 	}
 
@@ -5406,13 +5415,16 @@ void Beam::setDebugOverlayState(int mode)
 			t.txt->setRenderingDistance(2);
 
 			t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+			deletion_sceneNodes.emplace_back(t.node);
 			t.node->attachObject(t.txt);
 			t.node->setPosition(nodes[i].smoothpos);
 			t.node->setScale(Vector3(0.5,0.5,0.5));
 
 			// collision nodes debug, also mimics as node visual
 			SceneNode *s = t.node->createChildSceneNode();
+			deletion_sceneNodes.emplace_back(s);
 			Entity *b = gEnv->sceneManager->createEntity(entName, "sphere.mesh");
+			deletion_Entities.emplace_back(b);
 			b->setMaterialName("tracks/transgreen");
 			s->attachObject(b);
 			float f = 0.005f;
@@ -5450,6 +5462,7 @@ void Beam::setDebugOverlayState(int mode)
 			t.txt->setRenderingDistance(2);
 
 			t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+			deletion_sceneNodes.emplace_back(t.node);
 			t.node->attachObject(t.txt);
 
 			Vector3 pos = beams[i].p1->smoothpos - (beams[i].p1->smoothpos - beams[i].p2->smoothpos)/2;
@@ -5642,8 +5655,8 @@ void Beam::updateNetworkInfo()
 		netLabelNode->attachObject(netMT);
 		netLabelNode->setPosition(position);
 		netLabelNode->setVisible(true);
-		deletion_sceneNodes.push_back(netLabelNode);
-		deletion_Objects.push_back(netMT);
+		deletion_sceneNodes.emplace_back(netLabelNode);
+		deletion_Objects.emplace_back(netMT);
 	}
 #endif //SOCKETW
 	BES_GFX_STOP(BES_GFX_updateNetworkInfo);
@@ -5889,18 +5902,20 @@ void Beam::updateAI(float dt)
 	Quaternion mAgentOrientation  = Quaternion(Radian(getHeadingDirectionAngle()), Vector3::NEGATIVE_UNIT_Y);
 	mAgentOrientation.normalise();
 
-	/*
+#if 0
 	// this is for debugging purposes
 	static SceneNode *n = 0;
 	if (!n)
 	{
-		Entity *e = gEnv->ogreSceneManager->createEntity("axes.mesh");
-		n = gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode();
+		Entity *e = gEnv->sceneManager->createEntity("axes.mesh");
+		deletion_Entities.emplace_back(e);
+		n = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+		deletion_sceneNodes.emplace_back(n);
 		n->attachObject(e);
 	}
 	n->setPosition(mAgentPosition);
 	n->setOrientation(mAgentOrientation);
-	*/
+#endif
 
 	Vector3 mVectorToTarget       = TargetPosition - mAgentPosition; // A-B = B->A
 	mAgentPosition.normalise();
