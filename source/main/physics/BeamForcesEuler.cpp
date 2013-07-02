@@ -61,7 +61,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	float inverted_dt = 1.0f / dt;
 
 	//engine callback
-	if (state==ACTIVATED && engine)
+	if (engine)
 	{
 		BES_START(BES_CORE_TruckEngine);
 		engine->update(dt, doUpdate);
@@ -600,7 +600,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	float engine_torque = 0.0;
 
 	// calculate torque per wheel
-	if (state == ACTIVATED && engine && proped_wheels != 0)
+	if (engine && proped_wheels != 0)
 		engine_torque = engine->getTorque() / proped_wheels;
 
 	int propcounter = 0;
