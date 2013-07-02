@@ -1989,7 +1989,8 @@ void Beam::threadentry()
 		}
 		for (int t=0; t<tnumtrucks; t++)
 		{
-			trucks[t]->num_simulated_trucks = this->num_simulated_trucks;
+			if (trucks[t])
+				trucks[t]->num_simulated_trucks = this->num_simulated_trucks;
 		}
 		if (num_simulated_trucks < 2 || !BeamFactory::getSingleton().beamThreadPool)
 		{
