@@ -108,7 +108,7 @@ Beam::Beam(int tnum, Ogre::Vector3 pos, Ogre::Quaternion rot, const char* fname,
 	, hydroruddercommand(0)
 	, hydrorudderstate(0)
 	, iPosition(pos)
-	, increased_accuracy(0)
+	, increased_accuracy(false)
 	, interPointCD()
 	, intraPointCD()
 	, isInside(false)

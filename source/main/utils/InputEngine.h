@@ -246,7 +246,6 @@ enum events
 	EV_COMMON_PRESSURE_LESS, //!< decrease tire pressure (note: only very few trucks support this)
 	EV_COMMON_PRESSURE_MORE, //!< increase tire pressure (note: only very few trucks support this)
 	EV_COMMON_QUIT_GAME, //!< exit the game
-	EV_COMMON_RELOAD_ROADS,
 	EV_COMMON_REPAIR_TRUCK, //!< repair truck to original condition
 	EV_COMMON_REPLAY_BACKWARD,
 	EV_COMMON_REPLAY_FAST_BACKWARD,
@@ -260,7 +259,6 @@ enum events
 	EV_COMMON_SCREENSHOT_BIG, //!< take a BIG screenshot
 	EV_COMMON_SECURE_LOAD, //!< tie a load to the truck
 	EV_COMMON_SEND_CHAT, //!< send the chat text
-	EV_COMMON_SHOWTRUCKTOOL,
 	EV_COMMON_SHOW_SKELETON, //!< toggle skeleton display mode
 	EV_COMMON_START_TRUCK_EDITOR, //!< start the old truck editor
 	EV_COMMON_TOGGLE_CUSTOM_PARTICLES, //!< toggle particle cannon
