@@ -960,8 +960,9 @@ struct rig
 	int flaresMode;
 	Ogre::Light *cablight;
 	Ogre::SceneNode *cablightNode;
-	std::vector<Ogre::SceneNode*> deletion_sceneNodes;
+	std::vector<Ogre::Entity*> deletion_Entities;
 	std::vector<Ogre::MovableObject *> deletion_Objects;
+	std::vector<Ogre::SceneNode*> deletion_sceneNodes;
 	int netCustomLightArray[4];
 	unsigned char netCustomLightArray_counter;
 	MaterialFunctionMapper *materialFunctionMapper;

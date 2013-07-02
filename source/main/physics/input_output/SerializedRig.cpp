@@ -3185,7 +3185,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 					sprintf(flarename, "cabinglight-%s", truckname);
 					if (!virtuallyLoaded)
 					{
-						cablight=gEnv->sceneManager->createLight(flarename);
+						cablight = gEnv->sceneManager->createLight(flarename);
 						cablight->setType(Light::LT_POINT);
 						cablight->setDiffuseColour( ColourValue(0.4, 0.4, 0.3));
 						cablight->setSpecularColour( ColourValue(0.4, 0.4, 0.3));
@@ -3193,9 +3193,8 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						cablight->setCastShadows(false);
 						cablight->setVisible(true);
 						cablightNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-						deletion_sceneNodes.push_back(cablightNode);
-						if (cablight)
-							cablightNode->attachObject(cablight);
+						deletion_sceneNodes.emplace_back(cablightNode);
+						cablightNode->attachObject(cablight);
 						cablightNode->setVisible(false);
 					}
 				}
@@ -3706,6 +3705,7 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 						parser_warning(c, "error loading mesh: "+String(wname), PARSER_ERROR);
 						continue;
 					}
+					deletion_Entities.emplace_back(ec);
 					MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, ColourValue(0.5, 1, 0));
 					if (materialFunctionMapper) materialFunctionMapper->replaceMeshMaterials(ec);
 					if (materialReplacer) materialReplacer->replaceMeshMaterials(ec);
@@ -5313,7 +5313,10 @@ int SerializedRig::loadTruck(Ogre::String filename, Ogre::SceneNode *parent, Ogr
 				//		ec->setRenderQueueGroup(RENDER_QUEUE_6);
 				parser_warning(c, "attaching cab", PARSER_INFO);
 				if (ec)
+				{
+					deletion_Entities.emplace_back(ec);
 					cabNode->attachObject(ec);
+				}
 			} catch(...)
 			{
 				parser_warning(c, "error loading mesh: "+String(wname));
@@ -5626,7 +5629,7 @@ int SerializedRig::add_beam(Ogre::SceneNode* parent, node_t *p1 , node_t *p2 , i
 		}
 		// no materialmapping for beams!
 		//		ec->setCastShadows(false);
-
+		deletion_Entities.emplace_back(beams[pos].mEntity);
 		if (beams[pos].mEntity && (type==BEAM_HYDRO || type==BEAM_MARKED))
 			beams[pos].mEntity->setMaterialName("tracks/Chrome");
 		else if (beams[pos].mEntity)
@@ -5842,7 +5845,10 @@ void SerializedRig::addWheel(Ogre::SceneNode* parent, float radius , float width
 				Entity *ec = gEnv->sceneManager->createEntity(wnamei, wname);
 				vwheels[free_wheel].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 				if (ec)
+				{
+					deletion_Entities.emplace_back(ec);
 					vwheels[free_wheel].cnode->attachObject(ec);
+				}
 				MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, ColourValue(0, 0.5, 0.5));
 				if (materialFunctionMapper) materialFunctionMapper->replaceMeshMaterials(ec);
 				if (materialReplacer) materialReplacer->replaceMeshMaterials(ec);
@@ -5864,7 +5870,10 @@ void SerializedRig::addWheel(Ogre::SceneNode* parent, float radius , float width
 				if (usedSkin) usedSkin->replaceMeshMaterials(ec);
 				vwheels[free_wheel].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 				if (ec)
+				{
+					deletion_Entities.emplace_back(ec);
 					vwheels[free_wheel].cnode->attachObject(ec);
+				}
 			} catch(...)
 			{
 				parser_warning(c, "error loading mesh: "+String(wname), PARSER_ERROR);
@@ -6068,7 +6077,10 @@ void SerializedRig::addWheel2(Ogre::SceneNode* parent, float radius , float radi
 			//ec->setMaterialName("Test/ColourTest");
 			vwheels[free_wheel].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 			if (ec)
+			{
+				deletion_Entities.emplace_back(ec);
 				vwheels[free_wheel].cnode->attachObject(ec);
+			}
 			//	cnode->setPosition(1000,2,940);
 			free_wheel++;
 		} catch(...)
@@ -6294,7 +6306,10 @@ void SerializedRig::addWheel3(Ogre::SceneNode* parent, float radius , float radi
 			Entity *ec = gEnv->sceneManager->createEntity(wnamei, wname);
 			vwheels[free_wheel].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 			if (ec)
+			{
+				deletion_Entities.emplace_back(ec);
 				vwheels[free_wheel].cnode->attachObject(ec);
+			}
 			MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, ColourValue(0, 0.5, 0.5));
 			if (materialFunctionMapper) materialFunctionMapper->replaceMeshMaterials(ec);
 			if (materialReplacer) materialReplacer->replaceMeshMaterials(ec);
