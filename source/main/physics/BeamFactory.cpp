@@ -875,6 +875,20 @@ void BeamFactory::prepareShutdown()
 	_WorkerWaitForSync();
 }
 
+Beam* BeamFactory::getCurrentTruck()
+{
+	return getTruck(current_truck);
+}
+
+Beam* BeamFactory::getTruck(int number)
+{
+	if (number >= 0 && number < free_truck)
+	{
+		return trucks[number];
+	}
+	return 0;
+}
+
 void* threadstart(void* vid)
 {
 #ifdef USE_CRASHRPT
@@ -887,6 +901,7 @@ void* threadstart(void* vid)
 #endif // USE_CRASHRPT
 
 	BeamFactory *bf = static_cast<BeamFactory*>(vid);
+	Beam *truck = 0;
 
 	while (1)
 	{
@@ -904,9 +919,11 @@ void* threadstart(void* vid)
 		bf->work_done = false;
 		MUTEX_UNLOCK(&bf->work_done_mutex);
 
-		if (simulatedTruck >= 0 && simulatedTruck < bf->getTruckCount() && bf->getTruck(simulatedTruck))
+		truck = bf->getTruck(simulatedTruck);
+
+		if (truck)
 		{
-			bf->getTruck(simulatedTruck)->threadentry();
+			truck->threadentry();
 		}
 	}
 
