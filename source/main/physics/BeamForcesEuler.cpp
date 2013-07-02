@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "RoRPrerequisites.h"
+
 #include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
@@ -56,7 +57,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	if (gEnv->terrainManager)
 		water = gEnv->terrainManager->getWater();
 
-	increased_accuracy = 0;
+	increased_accuracy = false;
 	float inverted_dt = 1.0f / dt;
 
 	//engine callback
@@ -72,7 +73,13 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 #if !BEAMS_INTRA_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps);
 #else
-	runThreadTask(this, THREAD_BEAMS);
+	if (free_beam < 100)
+	{
+		calcBeams(doUpdate, dt, step, maxsteps);
+	} else
+	{
+		runThreadTask(this, THREAD_BEAMS, true);
+	}
 #endif
 	if (doUpdate)
 	{
@@ -430,7 +437,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		calcNodes(doUpdate, dt, step, maxsteps);
 	} else
 	{
-		runThreadTask(this, THREAD_NODES);
+		runThreadTask(this, THREAD_NODES, true);
 	}
 #endif
 
@@ -1560,7 +1567,13 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 #if !BEAMS_INTRA_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps);
 #else
-	runThreadTask(this, THREAD_BEAMS);
+	if (free_beam < 100)
+	{
+		calcBeams(doUpdate, dt, step, maxsteps);
+	} else
+	{
+		runThreadTask(this, THREAD_BEAMS, true);
+	}
 #endif
 
 	if (doUpdate)
@@ -1592,7 +1605,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	#if !NODES_INTRA_TRUCK_PARALLEL
 		calcNodes(doUpdate, dt, step, maxsteps);
 	#else
-		runThreadTask(this, THREAD_NODES);
+		runThreadTask(this, THREAD_NODES, true);
 	#endif
 
 	for (int i=0; i<free_node; i++)
@@ -1659,7 +1672,7 @@ void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxst
 void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number)
 {
 	BES_START(BES_CORE_Beams);
-	//springs
+	// Springs
 	int chunk_size = free_beam / chunk_number;
 	int end_index = (chunk_index+1)*chunk_size;
 
@@ -1671,10 +1684,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 	for (int i=chunk_index*chunk_size; i<end_index; i++)
 	{
 		Vector3 dis(Vector3::ZERO);
-		//trick for exploding stuff
+		// Trick for exploding stuff
 		if (!beams[i].disabled)
 		{
-			//Calculate beam length
+			// Calculate beam length
 			if (!beams[i].p2truck)
 				dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
 			else
@@ -1685,7 +1698,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 			
 			dislen *= inverted_dislen;
 
-			//Calculate beam's deviation from normal
+			// Calculate beam's deviation from normal
 			Real difftoBeamL = dislen - beams[i].L;
 
 			Real k = beams[i].k;
@@ -1732,8 +1745,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					d *= 0.1f;
 					float break_limit = SUPPORT_BEAM_LIMIT_DEFAULT;
 					if (beams[i].longbound > 0.0f)
-						//this is a supportbeam with a user set break limit, get the user set limit
+					{
+						// This is a supportbeam with a user set break limit, get the user set limit
 						break_limit = beams[i].longbound;
+					}
 
 					// If support beam is extended the originallength * break_limit, break and disable it
 					if (difftoBeamL > beams[i].L * break_limit)
@@ -1757,94 +1772,73 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 				break;
 			}
 
-			//Calculate beam's rate of change
+			// Calculate beam's rate of change
 			Vector3 v = beams[i].p1->Velocity - beams[i].p2->Velocity;
 
-			float flen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
-			float sflen = flen;
-			beams[i].stress = flen;
-			if (flen < 0.0f) 
-				flen = -flen;
+			float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
+			float len = slen;
+			beams[i].stress = slen;
+			if (len < 0.0f)
+			{
+				len = -len;
+			}
 
 			// Fast test for deformation
-			if (flen > beams[i].minmaxposnegstress)
+			if (len > beams[i].minmaxposnegstress)
 			{
 				if ((beams[i].type==BEAM_NORMAL || beams[i].type==BEAM_INVISIBLE) && beams[i].bounded!=SHOCK1 && k!=0.0f)
 				{
 					// Actual deformation tests
-					// For compression
-					if (sflen>beams[i].maxposstress && difftoBeamL<0.0f)
+					if (slen > beams[i].maxposstress && difftoBeamL < 0.0f) // compression
 					{
-						increased_accuracy=1;
-						Real yield_length=beams[i].maxposstress/k;
-						Real deform=difftoBeamL+yield_length*(1.0f-beams[i].plastic_coef);
-						Real Lold=beams[i].L;
-						beams[i].L+=deform;
-						if (beams[i].L < MIN_BEAM_LENGTH) beams[i].L=MIN_BEAM_LENGTH;
-						sflen=sflen-(sflen-beams[i].maxposstress)*0.5f;
-						flen=sflen;
-						if (beams[i].L>0.0f && beams[i].L<Lold)
+						increased_accuracy = true;
+						Real yield_length = beams[i].maxposstress / k;
+						Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
+						Real Lold = beams[i].L;
+						beams[i].L += deform;
+						beams[i].L = std::max(MIN_BEAM_LENGTH, beams[i].L);
+						slen = slen - (slen - beams[i].maxposstress) * 0.5f;
+						len = slen;
+						if (beams[i].L > 0.0f && Lold > beams[i].L)
 						{
-							beams[i].maxposstress*=Lold/beams[i].L;
+							beams[i].maxposstress *= Lold / beams[i].L;
 						}
-
-						//For the compression case we do not remove any of the beam's
-						//strength for structure stability reasons
-						//beams[i].strength=beams[i].strength+deform*k*0.5f;
-
+						// For the compression case we do not remove any of the beam's
+						// strength for structure stability reasons
+						//beams[i].strength += deform * k * 0.5f;
+					} else if (slen < beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
+					{
+						increased_accuracy = true;
+						Real yield_length = beams[i].maxnegstress / k;
+						Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
+						Real Lold = beams[i].L;
+						beams[i].L += deform;
+						slen = slen - (slen - beams[i].maxnegstress) * 0.5f;
+						len = -slen;
+						if (Lold > 0.0f && beams[i].L > Lold)
+						{
+							beams[i].maxnegstress *= beams[i].L / Lold;
+						}
+						beams[i].strength -= deform * k;
+					}
 #ifdef USE_OPENAL
-						//Sound effect
-						//Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
-						/*
-						SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
-						SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
-						*/
-#endif //USE_OPENAL
-
-						beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
-						beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
-						if (beamdeformdebug)
-						{
-							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with compression force " + TOSTRING(flen) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
-						}
-					} else	// For expansion
+					// Sound effect
+					// Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
+					/*
+					SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
+					SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
+					*/
+#endif  //USE_OPENAL
+					beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
+					beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
+					if (beamdeformdebug)
 					{
-						if (sflen<beams[i].maxnegstress && difftoBeamL>0.0f)
-						{
-							increased_accuracy=1;
-							Real yield_length=beams[i].maxnegstress/k;
-							Real deform=difftoBeamL+yield_length*(1.0f-beams[i].plastic_coef);
-							Real Lold=beams[i].L;
-							beams[i].L+=deform;
-							sflen=sflen-(sflen-beams[i].maxnegstress)*0.5f;
-							flen=-sflen;
-							if (Lold>0.0f && beams[i].L>Lold)
-							{
-								beams[i].maxnegstress*=beams[i].L/Lold;
-							}
-							beams[i].strength=beams[i].strength-deform*k;
-
-	#ifdef USE_OPENAL
-							//Sound effect
-							//Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
-							/*
-							SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
-							SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
-							*/
-	#endif  //USE_OPENAL
-
-							beams[i].minmaxposnegstress=std::min(beams[i].maxposstress, -beams[i].maxnegstress);
-							beams[i].minmaxposnegstress=std::min(beams[i].minmaxposnegstress, beams[i].strength);
-							if (beamdeformdebug)
-							{
-								LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(flen) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
-							}
-						}
+						LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 					}
 				}
 
 				// Test if the beam should break
-				if (flen > beams[i].strength)
+				if (len > beams[i].strength)
 				{
 					// Sound effect.
 					// Sound volume depends on springs stored energy
@@ -1852,14 +1846,14 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_BREAK, 0.5*k*difftoBeamL*difftoBeamL);
 					SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_BREAK);
 #endif //OPENAL
-					increased_accuracy=1;
+					increased_accuracy = true;
 
 					//Break the beam only when it is not connected to a node
 					//which is a part of a collision triangle and has 2 "live" beams or less
 					//connected to it.
 					if (!((beams[i].p1->contacter && nodeBeamConnections(beams[i].p1->pos)<3) || (beams[i].p2->contacter && nodeBeamConnections(beams[i].p2->pos)<3)))
 					{
-						sflen = 0.0f;
+						slen = 0.0f;
 						beams[i].broken     = true;
 						beams[i].disabled   = true;
 						beams[i].p1->isSkin = true;
@@ -1867,17 +1861,18 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 
 						if (beambreakdebug)
 						{
-							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(flen) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
-						//detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
-						//only perform this check if this is a master detacher beams (positive detacher group id > 0)
+
+						// detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
+						// only perform this check if this is a master detacher beams (positive detacher group id > 0)
 						if (beams[i].detacher_group > 0)
 						{
-							//cycle once through the other beams
+							// cycle once through the other beams
 							for (int j = 0; j < free_beam; j++)
 							{
-								//beam[i] detacher group# == checked beams detacher group# -> delete & disable checked beam
-								//do this with all master)positive id) and minor(negative id) beams of this detacher group
+								// beam[i] detacher group# == checked beams detacher group# -> delete & disable checked beam
+								// do this with all master(positive id) and minor(negative id) beams of this detacher group
 								if (abs(beams[j].detacher_group) == beams[i].detacher_group)
 								{
 									beams[j].broken     = true;
@@ -1891,23 +1886,28 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 								}
 							}
 						}
-					} else beams[i].strength=2.0f*beams[i].minmaxposnegstress;
+					} else
+					{
+						beams[i].strength = 2.0f * beams[i].minmaxposnegstress;
+					}
 
-					//something broke, check buoyant hull
+					// something broke, check buoyant hull
 					for (int mk=0; mk<free_buoycab; mk++)
 					{
 						int tmpv = buoycabs[mk] * 3;
 						if (buoycabtypes[mk] == Buoyance::BUOY_DRAGONLY) continue;
 						if ((beams[i].p1==&nodes[cabs[tmpv]] || beams[i].p1==&nodes[cabs[tmpv+1]] || beams[i].p1==&nodes[cabs[tmpv+2]]) &&
 							(beams[i].p2==&nodes[cabs[tmpv]] || beams[i].p2==&nodes[cabs[tmpv+1]] || beams[i].p2==&nodes[cabs[tmpv+2]]))
+						{
 							buoyance->setsink(1);
+						}
 					}
 				}
 			}
 
 			// At last update the beam forces
 			Vector3 f = dis;
-			f *= (sflen * inverted_dislen);
+			f *= (slen * inverted_dislen);
 			beams[i].p1->Forces += f;
 			beams[i].p2->Forces -= f;
 		}

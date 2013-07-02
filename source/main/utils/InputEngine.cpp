@@ -1574,18 +1574,6 @@ eventInfo_t eventInfo[] = {
 
 	// "new" commands
 	{
-		"COMMON_SHOWTRUCKTOOL",
-		EV_COMMON_SHOWTRUCKTOOL,
-		"Keyboard EXPL+SHIFT+T",
-		_L("show truck tool")
-	},
-	{
-		"COMMON_RELOAD_ROADS",
-		EV_COMMON_RELOAD_ROADS,
-		"",
-		_L("reloads the roads (experimental)")
-	},
-	{
 		"COMMON_FULLSCREEN_TOGGLE",
 		EV_COMMON_FULLSCREEN_TOGGLE,
 		"Keyboard EXPL+ALT+RETURN",

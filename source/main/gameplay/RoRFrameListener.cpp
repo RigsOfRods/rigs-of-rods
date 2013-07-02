@@ -1371,26 +1371,6 @@ bool RoRFrameListener::updateEvents(float dt)
 		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
 		return true;
 	}
-	
-/* -- disabled for now ... why we should check for this if it does not call anything?
-   -- enable this again when truckToolGUI is available again
-
-	if (INPUTENGINE.getEventBoolValueBounce(EV_COMMON_SHOWTRUCKTOOL, 0.5f) && current_truck != -1)
-	{
-		//if (truckToolGUI)
-		//	truckToolGUI->show();
-	}
-*/
-	
-	if (INPUTENGINE.getEventBoolValueBounce(EV_COMMON_RELOAD_ROADS, 0.5f))
-	{
-		//if (proceduralManager)
-		{
-			//proceduralManager->deleteAllObjects();
-			//proceduralManager->updateAllObjects();
-		}
-	}
-
 
 	// position storage
 	if (enablePosStor && curr_truck)
@@ -1959,8 +1939,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						{
 							SoundScriptManager::getSingleton().trigToggle(curr_truck, SS_TRIG_HORN);
 						}
-					}
-					else
+					} else
 					{
 						if (INPUTENGINE.getEventBoolValue(EV_TRUCK_HORN) && !curr_truck->replaymode)
 						{
@@ -1968,7 +1947,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						} else
 						{
 							SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_HORN);
-						};
+						}
 					}
 #endif // OPENAL
 
@@ -2058,7 +2037,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						curr_truck->brake=0.0;
 						float brakevalue = INPUTENGINE.getEventValue(EV_AIRPLANE_BRAKE);
 						curr_truck->brake=curr_truck->brakeforce*0.66*brakevalue;
-					};
+					}
 					if (INPUTENGINE.getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
 					{
 						curr_truck->parkingbrakeToggle();
@@ -2131,9 +2110,10 @@ bool RoRFrameListener::updateEvents(float dt)
 					//throttle
 					float tmp_throttle = INPUTENGINE.getEventBoolValue(EV_AIRPLANE_THROTTLE);
 					if (tmp_throttle > 0)
+					{
 						for (int i=0; i<curr_truck->free_aeroengine; i++)
 							curr_truck->aeroengines[i]->setThrottle(tmp_throttle);
-
+					}
 					if (INPUTENGINE.isEventDefined(EV_AIRPLANE_THROTTLE_AXIS))
 					{
 						float f = INPUTENGINE.getEventValue(EV_AIRPLANE_THROTTLE_AXIS);
@@ -2170,15 +2150,12 @@ bool RoRFrameListener::updateEvents(float dt)
 						for (int i=0; i<curr_truck->free_aeroengine; i++)
 							curr_truck->aeroengines[i]->setThrottle(curr_truck->autopilot->getThrottle(curr_truck->aeroengines[i]->getThrottle(), dt));
 					}
-
-
 				}
 				if (curr_truck->driveable==BOAT)
 				{
 					//BOAT SPECIFICS
 
 					//throttle
-
 					if (INPUTENGINE.isEventDefined(EV_BOAT_THROTTLE_AXIS))
 					{
 						float f = INPUTENGINE.getEventValue(EV_BOAT_THROTTLE_AXIS);
@@ -2313,8 +2290,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif // OPENAL
 					curr_truck->addPressure(-dt*10.0);
 					pressure_pressed=true;
-				}
-				else if (INPUTENGINE.getEventBoolValue(EV_COMMON_PRESSURE_MORE))
+				} else if (INPUTENGINE.getEventBoolValue(EV_COMMON_PRESSURE_MORE))
 				{
 					if (ow) ow->showPressureOverlay(true);
 #ifdef USE_OPENAL
@@ -2430,21 +2406,21 @@ bool RoRFrameListener::updateEvents(float dt)
 		
 		if (INPUTENGINE.getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK) && mTimeUntilNextToggle <= 0)
 		{
-			mTimeUntilNextToggle = 0.5; //Some delay before trying to re-enter(exit) truck
-			//perso in/out
+			mTimeUntilNextToggle = 0.5; // Some delay before trying to re-enter(exit) truck
+			// perso in/out
 			int current_truck = BeamFactory::getSingleton().getCurrentTruckNumber();
 			int free_truck    = BeamFactory::getSingleton().getTruckCount();
 			Beam **trucks     = BeamFactory::getSingleton().getTrucks();
 			if (current_truck == -1)
 			{
-				//find the nearest truck
+				// find the nearest truck
 				float mindist   =  1000.0;
 				int   minindex  = -1;
 				for (int i=0; i<free_truck; i++)
 				{
 					if (!trucks[i]) continue;
 					if (!trucks[i]->driveable) continue;
-					if (trucks[i]->cinecameranodepos[0]==-1)
+					if (trucks[i]->cinecameranodepos[0] == -1)
 					{
 						LOG("cinecam missing, cannot enter truck!");
 						continue;
@@ -2452,27 +2428,25 @@ bool RoRFrameListener::updateEvents(float dt)
 					float len = 0.0f;
 					if (gEnv->player)
 					{
-						len = trucks[i]->nodes[trucks[i]->cinecameranodepos[0]].AbsPosition.distance(gEnv->player->getPosition()+Vector3(0.0, 2.0, 0.0));
+						len = trucks[i]->nodes[trucks[i]->cinecameranodepos[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
 					}
 					if (len < mindist)
 					{
-						mindist=len;
-						minindex=i;
+						mindist = len;
+						minindex = i;
 					}
 				}
 				if (mindist < 20.0)
 				{
 					BeamFactory::getSingleton().setCurrentTruck(minindex);
 				}
-			}
-			else if (curr_truck->nodes[curr_truck->cinecameranodepos[0]].Velocity.length()<1)
+			} else if (curr_truck->nodes[curr_truck->cinecameranodepos[0]].Velocity.length() < 1.0f)
 			{
 				BeamFactory::getSingleton().setCurrentTruck(-1);
-			}
-			else
+			} else
 			{
 				curr_truck->brake    = curr_truck->brakeforce * 0.66;
-				mTimeUntilNextToggle = 0.0; //No delay in this case: the truck must brake like braking normally
+				mTimeUntilNextToggle = 0.0; // No delay in this case: the truck must brake like braking normally
 			}
 		}
 	} else

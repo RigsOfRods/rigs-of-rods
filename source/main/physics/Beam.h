@@ -409,7 +409,7 @@ protected:
 	Beam** ttrucks;
 	int tnumtrucks;
 	int detailLevel;
-	int increased_accuracy;
+	bool increased_accuracy;
 	bool isInside;
 	bool beacon;
 	float totalmass;
