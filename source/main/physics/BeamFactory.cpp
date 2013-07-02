@@ -454,13 +454,15 @@ void BeamFactory::recursiveActivation(int j)
 	for (int t=0; t < free_truck; t++)
 	{
 		if (t == j || !trucks[t]) continue;
-		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && !forcedActive && trucks[t]->sleepcount >= 5)) &&
+		if ((trucks[t]->state == SLEEPING || trucks[t]->state == MAYSLEEP || trucks[t]->state == GOSLEEP || (trucks[t]->state == DESACTIVATED && trucks[t]->sleepcount >= 5)) &&
 			predictTruckIntersectionCollAABB(t, j))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
 
-			if (current_truck >= 0)
-				trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;
+			if (getTruck(simulatedTruck))
+			{
+				trucks[t]->disableDrag = getTruck(simulatedTruck)->driveable==AIRPLANE;
+			}
 
 			recursiveActivation(t);
 		}
@@ -469,50 +471,54 @@ void BeamFactory::recursiveActivation(int j)
 
 void BeamFactory::checkSleepingState()
 {
-	if (current_truck >= 0 && trucks[current_truck])
+	if (getTruck(simulatedTruck))
 	{
-		trucks[current_truck]->disableDrag = false;
-		recursiveActivation(current_truck);
+		getTruck(simulatedTruck)->disableDrag = false;
+	}
 
-		// if its grabbed, its moving
-		//if (isnodegrabbed && trucks[truckgrabbed]->state==SLEEPING) trucks[truckgrabbed]->desactivate();
-
-		if (!forcedActive)
+	for (int t=0; t < free_truck; t++)
+	{
+		if (trucks[t] && trucks[t]->state <= DESACTIVATED && (t == simulatedTruck || trucks[t]->sleepcount <= 7))
 		{
-			// put to sleep
-			for (int t=0; t < free_truck; t++)
+			recursiveActivation(t);
+		}
+	}
+
+	if (!forcedActive)
+	{
+		// put to sleep
+		for (int t=0; t < free_truck; t++)
+		{
+			if (trucks[t] && trucks[t]->state == MAYSLEEP)
 			{
-				if (trucks[t] && trucks[t]->state == MAYSLEEP)
+				std::bitset<MAX_TRUCKS> sleepy;
+				if (!checkForActive(t, sleepy))
 				{
-					std::bitset<MAX_TRUCKS> sleepy;
-					if (!checkForActive(t, sleepy))
+					// no active truck in the set, put everybody to sleep
+					for (int i=0; i < free_truck; i++)
 					{
-						// no active truck in the set, put everybody to sleep
-						for (int i=0; i < free_truck; i++)
+						if (trucks[i] && sleepy[i])
 						{
-							if (trucks[i] && sleepy[i])
-							{
-								trucks[i]->state = GOSLEEP;
-							}
+							trucks[i]->state = GOSLEEP;
 						}
 					}
 				}
 			}
 		}
+	}
 
 #if 0   // obsolete for now
-		// special stuff for rollable gear
-		bool rollmode = false;
-		for (int t=0; t < free_truck; t++)
-		{
-			if (!trucks[t]) continue;
-			if (trucks[t]->state != SLEEPING)
-				rollmode = rollmode || trucks[t]->wheel_contact_requested;
+	// special stuff for rollable gear
+	bool rollmode = false;
+	for (int t=0; t < free_truck; t++)
+	{
+		if (!trucks[t]) continue;
+		if (trucks[t]->state != SLEEPING)
+			rollmode = rollmode || trucks[t]->wheel_contact_requested;
 
-			trucks[t]->requires_wheel_contact = rollmode;// && !trucks[t]->wheel_contact_requested;
-		}
-#endif
+		trucks[t]->requires_wheel_contact = rollmode;// && !trucks[t]->wheel_contact_requested;
 	}
+#endif
 }
 
 int BeamFactory::getFreeTruckSlot()
@@ -539,8 +545,10 @@ void BeamFactory::activateAllTrucks()
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
 
-			if (current_truck >= 0)
-				trucks[t]->disableDrag = trucks[current_truck]->driveable==AIRPLANE;
+			if (getTruck(simulatedTruck))
+			{
+				trucks[t]->disableDrag = getTruck(simulatedTruck)->driveable==AIRPLANE;
+			}
 		}
 	}
 }
