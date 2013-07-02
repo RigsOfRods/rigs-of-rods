@@ -2440,7 +2440,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				{
 					BeamFactory::getSingleton().setCurrentTruck(minindex);
 				}
-			} else if (curr_truck->nodes[curr_truck->cinecameranodepos[0]].Velocity.length() < 1.0f)
+			} else if (curr_truck->nodes[0].Velocity.length() < 1.0f)
 			{
 				BeamFactory::getSingleton().setCurrentTruck(-1);
 			} else
