@@ -2125,8 +2125,9 @@ void Beam::forwardCommands()
 			{
 				// forward commands
 				for (int j=1; j<=MAX_COMMANDS; j++)
-					trucks[i]->commandkey[j].playerInputValue = commandkey[j].commandValue;
-
+				{
+					trucks[i]->commandkey[j].playerInputValue = std::max(commandkey[j].playerInputValue, commandkey[j].commandValue);
+				}
 				// just send brake and lights to the connected truck, and no one else :)
 				for (std::vector<hook_t>::iterator it=hooks.begin(); it!=hooks.end(); it++)
 				{
