@@ -1982,7 +1982,6 @@ void Beam::threadentry()
 	for (curtstep=0; curtstep<tsteps; curtstep++)
 	{
 		num_simulated_trucks = 0;
-		gEnv->mrTime += dtperstep;
 
 		for (int t=0; t<tnumtrucks; t++)
 		{
@@ -2146,7 +2145,6 @@ bool Beam::frameStep(Real dt)
 			for (int i=0; i<steps; i++)
 			{
 				int num_simulated_trucks = 0;
-				gEnv->mrTime += dtperstep;
 
 				for (int t=0; t<numtrucks; t++)
 				{
@@ -5074,7 +5072,7 @@ void Beam::ropeToggle(int group)
 	}
 }
 
-void Beam::hookToggle(int group, int mode, int node_number)
+void Beam::hookToggle(int group, hook_states mode, int node_number)
 {
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	int trucksnum = BeamFactory::getSingleton().getTruckCount();
@@ -5083,19 +5081,19 @@ void Beam::hookToggle(int group, int mode, int node_number)
 	for (std::vector <hook_t>::iterator it = hooks.begin(); it!=hooks.end(); it++)
 	{
 		if (mode == MOUSE_HOOK_TOGGLE && it->hookNode->id != node_number)
+		{
 			//skip all other nodes except the one manually toggled by mouse
 			continue;
-
+		}
 		if (mode == HOOK_TOGGLE && group == -1)
 		{
 			//manually triggerd (EV_COMMON_LOCK). Toggle all hooks groups with group#: -1, 0, 1 ++
 			if (it->group <= -2)
-					continue;
+				continue;
 		}
-
 		if (mode == HOOK_LOCK && group == -2)
 		{
-			//automatic lock attempt (cyclic with doupdate). Toggle all hooks groups with group#: -2, -3, -4 --, skip the ones wiwhich are not autlock ( triggered only )
+			//automatic lock attempt (cyclic with doupdate). Toggle all hooks groups with group#: -2, -3, -4 --, skip the ones which are not autolock (triggered only)
 			if (it->group >= -1 || !it->autolock)
 				continue;
 		}
@@ -5112,7 +5110,9 @@ void Beam::hookToggle(int group, int mode, int node_number)
 				continue;
 		}
 		if ((mode == HOOK_LOCK || mode == HOOK_UNLOCK) && group >= -1)
+		{
 			continue;
+		}
 		if (mode == HOOK_LOCK && it->timer > 0.0f)
 		{
 			//check relock delay timer for autolock nodes and skip if not 0
@@ -5128,12 +5128,15 @@ void Beam::hookToggle(int group, int mode, int node_number)
 			it->locked = UNLOCKED;
 			// remove node locking
 			if (it->lockNode)
-				it->lockNode->lockednode=0;
+			{
+				it->lockNode->lockednode = 0;
+			}
+			if (it->group <= -2)
+			{
+				it->timer = it->timer_preset;	//timer reset for autolock nodes
+			}
 			it->lockNode  = 0;
 			it->lockTruck = 0;
-			if (it->group <= -2)
-				it->timer = it->timer_preset;	//timer reset for autolock nodes
-
 			//disable hook-assistance beam
 			it->beam->mSceneNode->detachAllObjects();
 			it->beam->p2       = &nodes[0];
@@ -5153,19 +5156,19 @@ void Beam::hookToggle(int group, int mode, int node_number)
 			// iterate over all trucks
 			for (int t=0; t<trucksnum; t++)
 			{
-				if (t == this->trucknum && !it->selflock) continue; // dont lock to self
 				if (!trucks[t]) continue;
-				if (trucks[t]->state==SLEEPING) continue;
+				if (trucks[t]->state >= SLEEPING) continue;
+				if (t == this->trucknum && !it->selflock) continue; // don't lock to self
 
 				// do we lock against all nodes or just against ropables?
 				bool found = false;
 				if (it->lockNodes)
 				{
-					int last_node=0; // nodenumber storage
+					int last_node = 0; // node number storage
 					// all nodes, so walk them
 					for (int i=0; i<trucks[t]->free_node; i++)
 					{
-						//skip all nodes with lockgroup 9999 (denylock)
+						// skip all nodes with lockgroup 9999 (deny lock)
 						if (trucks[t]->nodes[i].lockgroup == 9999)
 							continue;
 
@@ -5183,10 +5186,10 @@ void Beam::hookToggle(int group, int mode, int node_number)
 						{
 							if (distance >= n2n_distance)
 							{
-								//lockated a node that is closer
-								distance = n2n_distance;
-								last_node=i;
-								found = true;
+								// located a node that is closer
+								distance  = n2n_distance;
+								last_node = i;
+								found     = true;
 							}
 						}
 					}
@@ -5196,7 +5199,6 @@ void Beam::hookToggle(int group, int mode, int node_number)
 						it->lockNode  = &(trucks[t]->nodes[last_node]);
 						it->lockTruck = trucks[t];
 						it->locked    = PRELOCK;
-						found     = true; // dont check the other trucks
 					}
 				} else
 				{
@@ -5226,13 +5228,7 @@ void Beam::hookToggle(int group, int mode, int node_number)
 					it->lockNode  = shorter;
 					it->lockTruck = shtruck;
 					it->locked    = PRELOCK;
-					found         = true; // dont check the other trucks
 				}
-
-				//removed since we want to lock to the nearest node in distance
-				//if (found)
-					// if we found some lock, we wont check all other trucks
-					//break;
 			}
 		}
 

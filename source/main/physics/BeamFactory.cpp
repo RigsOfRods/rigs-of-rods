@@ -739,6 +739,7 @@ void BeamFactory::calcPhysics(float dt)
 
 	// do not allow dt > 1/20
 	dt = std::min(dt, 1.0f / 20.0f);
+	gEnv->mrTime += dt;
 
 	simulatedTruck = current_truck;
 
@@ -759,9 +760,6 @@ void BeamFactory::calcPhysics(float dt)
 	if (simulatedTruck >= 0 && simulatedTruck < free_truck)
 	{
 		trucks[simulatedTruck]->frameStep(dt);
-	} else
-	{
-		gEnv->mrTime += dt;
 	}
 
 	// update 2D replay if activated

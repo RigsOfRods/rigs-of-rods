@@ -563,7 +563,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	BES_START(BES_CORE_Buoyance);
 
 	//water buoyance
-	gEnv->mrTime += dt;
 	if (free_buoycab && water)
 	{
 		if (!(step%20))
