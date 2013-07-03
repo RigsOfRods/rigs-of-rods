@@ -92,7 +92,7 @@ public:
 	void lightsToggle();
 	void tieToggle(int group=-1);
 	void ropeToggle(int group=-1);
-	void hookToggle(int group=-1, int mode=HOOK_TOGGLE, int node_number=-1);
+	void hookToggle(int group=-1, hook_states mode=HOOK_TOGGLE, int node_number=-1);
 	void engineTriggerHelper(int engineNumber, int type, float triggerValue);
 	void toggleSlideNodeLock();
 	void toggleCustomParticles();
