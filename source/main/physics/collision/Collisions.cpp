@@ -161,13 +161,21 @@ void Collisions::resizeMemory(long newSize)
 	if (collision_tris)
 	{
 		free(collision_tris);
-		collision_tris = 0;
 	}
-	
-	// reset
+
 	free_collision_tri = 0;
 	max_col_tris = newSize;
 	collision_tris = (collision_tri_t*)malloc(sizeof(collision_tri_t) * newSize);
+
+	if (collision_tris==NULL)
+	{
+		LOG("COLL: Failed to allocate " + TOSTRING(sizeof(collision_tri_t) * newSize) + "bytes of memory");
+		if (newSize > Collisions::MAX_COLLISION_TRIS)
+		{
+			// Try to restore the default memory size
+			resizeMemory(MAX_COLLISION_TRIS);
+		}
+	}
 }
 
 int Collisions::loadDefaultModels()
