@@ -17,46 +17,29 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "OgreStableHeaders.h"
-
 #include "SkinManager.h"
-#include "OgreLogManager.h"
-#include "OgreStringConverter.h"
-#include "OgreStringVector.h"
-#include "OgreException.h"
-#include "OgreResourceGroupManager.h"
-#include "CacheSystem.h"
 
 using namespace Ogre;
 
-//---------------------------------------------------------------------
 SkinManager::SkinManager() : ResourceManager()
 {
-	// Loading order
 	mLoadOrder = 200.0f;
-	// Scripting is supported by this manager
+
 	mScriptPatterns.push_back("*.skin");
-	// Register scripting with resource group manager
+
 	ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 
-	// Resource type
 	mResourceType = "RoRVehicleSkins";
 
-	// Register with resource group manager
 	ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
-
-
 }
-//---------------------------------------------------------------------
+
 SkinManager::~SkinManager()
 {
-	// Unregister with resource group manager
 	ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
-	// Unegister scripting with resource group manager
 	ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
-
 }
-//---------------------------------------------------------------------
+
 Resource* SkinManager::createImpl(const String& name, ResourceHandle handle,
 	const String& group, bool isManual, ManualResourceLoader* loader,
 	const NameValuePairList* params)
@@ -73,68 +56,63 @@ Resource* SkinManager::createImpl(const String& name, ResourceHandle handle,
 		return mResources[name].getPointer();
 	}
 }
-//---------------------------------------------------------------------
+
 void SkinManager::parseScript(DataStreamPtr& stream, const String& groupName)
 {
 	try
 	{
-		String line;
-		Skin *pSkin=0;
-		//LOG("SkinManager::parseScript");
+		String line = "";
+		Skin *pSkin = 0;
 
-		while( !stream->eof() )
+		while(!stream->eof())
 		{
 			line = stream->getLine();
+
 			// Ignore blanks & comments
-			if ( !line.length() || line.substr( 0, 2 ) == "//" )
+			if (!line.length() || line.substr(0, 2) == "//")
 			{
 				continue;
 			}
-			else
-			{
-				if (!pSkin)
-				{
-					// No current skin
-					// So first valid data should be skin name
-					pSkin = (Skin *)create(line, groupName).getPointer();
-					pSkin->_notifyOrigin(stream->getName());
 
-					// Skip to and over next {
+			if (!pSkin)
+			{
+				// No current skin
+				// So first valid data should be skin name
+				pSkin = (Skin *)create(line, groupName).getPointer();
+				if (pSkin)
+				{
+					pSkin->_notifyOrigin(stream->getName());
 					stream->skipLine("{");
 				}
-				else
+			} else
+			{
+				// Already in skin
+				if (line == "}")
 				{
-					// Already in skin
-					if (line == "}")
-					{
-						// Finished
-						//this->addImpl((Ogre::ResourcePtr)pSkin);
-						pSkin=0;
-						// NB skin isn't loaded until required
-					}
-					else
-					{
-						parseAttribute(line, pSkin);
-					}
+					// Finished
+					//addImpl((Ogre::ResourcePtr)pSkin);
+					pSkin = 0;
+					// NB skin isn't loaded until required
+				} else
+				{
+					parseAttribute(line, pSkin);
 				}
 			}
 		}
 	} catch(Ogre::ItemIdentityException e)
 	{
 		// this catches duplicates -> to be ignored
-		// this happens since we load the full skin data off the cache, so we dont need
-		// to re-add it to the skinmanager
+		// this happens since we load the full skin data off the cache, so we don't need
+		// to re-add it to the SkinManager
 		return;
 	}
 }
 
-//---------------------------------------------------------------------
 void SkinManager::parseAttribute(const String& line, Skin *pSkin)
 {
 	Ogre::StringVector params = StringUtil::split(line, "\t=,;\n");
 	for (unsigned int i=0; i < params.size(); i++)
 	{
-		// trim all parameters
 		StringUtil::trim(params[i]);
 	}
 	String& attrib = params[0];
@@ -147,37 +125,35 @@ void SkinManager::parseAttribute(const String& line, Skin *pSkin)
 	else if (attrib == "authorname"         && params.size() >= 2) pSkin->authorName = params[1];
 	else if (attrib == "authorid"           && params.size() == 2) pSkin->authorID = PARSEINT(params[1]);
 	else if (attrib == "guid"               && params.size() >= 2) pSkin->guid = params[1];
-	else if (attrib == "name"               && params.size() >= 2)
-	{
-		pSkin->name = params[1];
-		StringUtil::trim(pSkin->name);
-	}
+	else if (attrib == "name"               && params.size() >= 2) pSkin->name = params[1];
+
+	StringUtil::trim(pSkin->name);
 }
 
-//---------------------------------------------------------------------
 void SkinManager::logBadAttrib(const String& line, Skin *pSkin)
 {
 	LOG("Bad attribute line: " + line + " in skin " + pSkin->getName());
-
 }
 
 bool SkinManager::hasSkinForGUID(Ogre::String guid)
 {
-	Ogre::ResourceManager::ResourceMapIterator it = SkinManager::getSingleton().getResourceIterator();
+	Ogre::ResourceManager::ResourceMapIterator it = getResourceIterator();
 	while (it.hasMoreElements())
 	{
 		Skin *skin = (Skin *)it.getNext().getPointer();
 
 		if (skin->guid == guid)
+		{
 			return true;
+		}
 	}
 	return false;
 }
 
 
-int SkinManager::getMaterialAlternatives(Ogre::String materialName, std::vector<Skin *> &skinVector)
+void SkinManager::getMaterialAlternatives(Ogre::String materialName, std::vector<Skin *> &skinVector)
 {
-	Ogre::ResourceManager::ResourceMapIterator it = SkinManager::getSingleton().getResourceIterator();
+	Ogre::ResourceManager::ResourceMapIterator it = getResourceIterator();
 	while (it.hasMoreElements())
 	{
 		Skin *skin = (Skin *)it.getNext().getPointer();
@@ -187,13 +163,11 @@ int SkinManager::getMaterialAlternatives(Ogre::String materialName, std::vector<
 			skinVector.push_back(skin);
 		}
 	}
-	return 0; // no errors
 }
 
-
-int SkinManager::getUsableSkins(String guid, std::vector<Skin *> &skins)
+void SkinManager::getUsableSkins(String guid, std::vector<Skin *> &skins)
 {
-	Ogre::ResourceManager::ResourceMapIterator it = SkinManager::getSingleton().getResourceIterator();
+	Ogre::ResourceManager::ResourceMapIterator it = getResourceIterator();
 	while (it.hasMoreElements())
 	{
 		Skin *skin = (Skin *)it.getNext().getPointer();
@@ -210,20 +184,20 @@ int SkinManager::getUsableSkins(String guid, std::vector<Skin *> &skins)
 
 		// then compare
 		if (g1 == g2)
+		{
 			skins.push_back(skin);
+		}
 	}
-	return 0;
 }
 
 int SkinManager::getSkinCount()
 {
-	return (int)mResourcesByHandle.size();
+	return mResourcesByHandle.size();
 }
 
-int SkinManager::clear()
+void SkinManager::clear()
 {
 	mResourcesByHandle.clear();
-	return 0;
 }
 
 //we wont unload skins once loaded!

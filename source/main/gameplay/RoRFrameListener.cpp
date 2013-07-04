@@ -2486,8 +2486,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						{
 							hideMap();
 							SelectorWindow::getSingleton().show(SelectorWindow::LT_NetworkWithBoat);
-						}
-						else
+						} else
 						{
 							hideMap();
 							SelectorWindow::getSingleton().show(SelectorWindow::LT_Network);
