@@ -599,6 +599,8 @@ void SelectorWindow::selectionDone()
 	if (!ready || !mSelectedTruck || mSelectionDone)
 		return;
 
+	mSelectionDone = true;
+
 	mSelectedTruck->usagecounter++;
 	// TODO: Save the modified value of the usagecounter
 
@@ -613,18 +615,15 @@ void SelectorWindow::selectionDone()
 		{
 			hide();
 			show(LT_SKIN);
-			mSelectionDone = false;
 		} else
 		{
 			mSelectedSkin = 0;
-			mSelectionDone = true;
 			hide();
 		}
 	} else
 	{
 		// we show the skin loader, set final skin and exit!
 		// mSelectedSkin should be set already!
-		mSelectionDone = true;
 		hide();
 	}
 }
