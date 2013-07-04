@@ -26,7 +26,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "InputEngine.h"
 #include "Language.h"
 #include "LoadingWindow.h"
-#include "Settings.h"
 #include "SkinManager.h"
 #include "Utils.h"
 
@@ -112,7 +111,7 @@ SelectorWindow::SelectorWindow() :
 
 void SelectorWindow::frameEntered(float dt)
 {
-	if(dtsum < readytime)
+	if (dtsum < readytime)
 	{
 		dtsum += dt;
 	} else
@@ -126,7 +125,7 @@ void SelectorWindow::frameEntered(float dt)
 
 void SelectorWindow::bindKeys(bool bind)
 {
-	if(bind && !keysBound)
+	if (bind && !keysBound)
 	{
 		mMainWidget->eventKeyButtonPressed      += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
 		mTypeComboBox->eventKeyButtonPressed    += MyGUI::newDelegate(this, &SelectorWindow::eventKeyButtonPressed_Main);
@@ -167,15 +166,30 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 	{
 		MyGUI::InputManager::getInstance().setKeyFocusWidget(mSearchLineEdit);
 		mSearchLineEdit->setCaption("");
-		searching=true;
+		searching = true;
 	}
 
 	// category
-	if (_key == MyGUI::KeyCode::ArrowLeft && !searching)
+	if (!searching && (_key == MyGUI::KeyCode::ArrowLeft || _key == MyGUI::KeyCode::ArrowRight))
 	{
-		int newitem = cid - 1;
-		if (cid == 0)
-			newitem = (int)mTypeComboBox->getItemCount() - 1;
+		int newitem = cid;
+
+		if (_key == MyGUI::KeyCode::ArrowLeft)
+		{
+			newitem--;
+			if (cid == 0)
+			{
+				newitem = (int)mTypeComboBox->getItemCount() - 1;
+			}
+		} else
+		{
+			newitem++;
+			if (cid == (int)mTypeComboBox->getItemCount() - 1)
+			{
+				newitem = 0;
+			}
+		}
+
 		try
 		{
 			mTypeComboBox->setIndexSelected(newitem);
@@ -185,29 +199,19 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 			return;
 		}
 		eventComboChangePositionTypeComboBox(mTypeComboBox, newitem);
-
-	} else if (_key == MyGUI::KeyCode::ArrowRight && !searching)
+	} else if (_key == MyGUI::KeyCode::ArrowUp || _key == MyGUI::KeyCode::ArrowDown)
 	{
-		int newitem = cid + 1;
-		if (cid == (int)mTypeComboBox->getItemCount() - 1)
-			newitem = 0;
-		try
-		{
-			mTypeComboBox->setIndexSelected(newitem);
-			mTypeComboBox->beginToItemSelected();
-		} catch(...)
-		{
-			return;
-		}
-		eventComboChangePositionTypeComboBox(mTypeComboBox, newitem);
-	}
+		int newitem = iid;
 
-	// items
-	else if (_key == MyGUI::KeyCode::ArrowUp)
-	{
-		int newitem = iid - 1;
+		if (_key == MyGUI::KeyCode::ArrowUp)
+			newitem--;
+		else
+			newitem++;
+
 		if (iid == 0)
+		{
 			newitem = (int)mModelList->getItemCount() - 1;
+		}
 		try
 		{
 			mModelList->setIndexSelected(newitem);
@@ -218,36 +222,17 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 		}
 		eventListChangePositionModelList(mModelList, newitem);
 		// fix cursor position
-		if (searching) mSearchLineEdit->setTextCursor(mSearchLineEdit->getTextLength());
-	} else if (_key == MyGUI::KeyCode::ArrowDown)
-	{
-		int newitem = iid + 1;
-		if (iid == (int)mModelList->getItemCount() - 1)
-			newitem = 0;
-		try
+		if (searching)
 		{
-			mModelList->setIndexSelected(newitem);
-			mModelList->beginToItemSelected();
-		} catch(...)
-		{
-			return;
+			mSearchLineEdit->setTextCursor(mSearchLineEdit->getTextLength());
 		}
-		eventListChangePositionModelList(mModelList, newitem);
-		// fix cursor position
-		if (searching) mSearchLineEdit->setTextCursor(mSearchLineEdit->getTextLength());
-	}
-
-	// select key
-	else if (mLoaderType != LT_SKIN && _key == MyGUI::KeyCode::Return && mSelectedTruck)
+	} else if (_key == MyGUI::KeyCode::Return)
 	{
-		selectionDone();
-
-	} else if (mLoaderType == LT_SKIN && _key == MyGUI::KeyCode::Return)
-	{
-		// mSelectedSkin can be 0, for the default
-		selectionDone();
+		if (mLoaderType == LT_SKIN || (mLoaderType != LT_SKIN && mSelectedTruck))
+		{
+			selectionDone();
+		}
 	}
-
 }
 
 void SelectorWindow::eventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
@@ -613,26 +598,22 @@ void SelectorWindow::selectionDone()
 {
 	if (!ready || !mSelectedTruck || mSelectionDone)
 		return;
-	
+
 	mSelectedTruck->usagecounter++;
 	// TODO: Save the modified value of the usagecounter
 
 	if (mLoaderType != LT_SKIN)
 	{
 		// we show the normal loader
-		// check if the resource is loaded
 		CACHE.checkResourceLoaded(*mSelectedTruck);
 
-		this->mCurrentSkins.clear();
-		int res = SkinManager::getSingleton().getUsableSkins(mSelectedTruck->guid, this->mCurrentSkins);
-		if (!res && this->mCurrentSkins.size()>0)
+		mCurrentSkins.clear();
+		SkinManager::getSingleton().getUsableSkins(mSelectedTruck->guid, this->mCurrentSkins);
+		if (!mCurrentSkins.empty())
 		{
-			// hide first
 			hide();
-			// show skin selection dialog!
-			this->show(LT_SKIN);
+			show(LT_SKIN);
 			mSelectionDone = false;
-			// just let the user select a skin as well
 		} else
 		{
 			mSelectedSkin = 0;
@@ -793,11 +774,11 @@ void SelectorWindow::setPreviewImage(String texture)
 		return;
 	}
 
-	String group="";
+	String group = "";
 	try
 	{
 		group = ResourceGroupManager::getSingleton().findGroupContainingResource(texture);
-	}catch(...)
+	} catch(...)
 	{
 	}
 	if (group == "")
@@ -864,25 +845,26 @@ bool SelectorWindow::isFinishedSelecting()
 void SelectorWindow::show(LoaderType type)
 {
 	if (!mSelectionDone) return;
-	mSelectedSkin=0;
+	mSelectionDone = false;
+
+	mSelectedSkin = 0;
 	mSearchLineEdit->setCaption(_L("Search ..."));
-	mSelectionDone=false;
-	// reset all keys
 	INPUTENGINE.resetKeys();
 	LoadingWindow::getSingleton().hide();
 	// focus main mMainWidget (for key input)
 	mTruckConfigs.clear();
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
 	mMainWidget->setEnabledSilent(true);
+
 	// first time fast
 	if (!visibleCounter)
 		mMainWidget->castType<MyGUI::Window>()->setVisible(true);
 	else
 		mMainWidget->castType<MyGUI::Window>()->setVisibleSmooth(true);
-	if (type != LT_SKIN) mSelectedTruck = nullptr; // when in skin, we still need the info
+
+	if (type != LT_SKIN) mSelectedTruck = 0; // when in skin, we still need the info
 
 	mLoaderType = type;
-	mSelectionDone = false;
 	getData();
 	visibleCounter++;
 
@@ -897,7 +879,7 @@ void SelectorWindow::hide()
 	GUIManager::getSingleton().unfocus();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
-	ready=false;
+	ready = false;
 	bindKeys(false);
 }
 
@@ -918,7 +900,9 @@ void SelectorWindow::eventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::Wi
 	if (!mMainWidget->getVisible()) return;
 	
 	if (mSearchLineEdit->getCaption() == _L("Search ..."))
+	{
 		mSearchLineEdit->setCaption("");
+	}
 }
 
 #endif // USE_MYGUI

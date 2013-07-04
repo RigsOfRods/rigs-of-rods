@@ -21,9 +21,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define _SkinManager_H__
 
 #include "RoRPrerequisites.h"
-#include "OgrePrerequisites.h"
-#include "Singleton.h"
+
 #include "OgreResourceManager.h"
+#include "Singleton.h"
 #include "Skin.h"
 
 /** Manages Skin resources, parsing .skin files and generally organizing them. */
@@ -35,13 +35,13 @@ public:
 
 	void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName);
 
-	int getMaterialAlternatives(Ogre::String materialName, std::vector<Skin *> &skin);
-	int getUsableSkins(Ogre::String guid, std::vector<Skin *> &skins);
+	void getMaterialAlternatives(Ogre::String materialName, std::vector<Skin *> &skin);
+	void getUsableSkins(Ogre::String guid, std::vector<Skin *> &skins);
 	bool hasSkinForGUID(Ogre::String guid);
 
 	int getSkinCount();
 	int serialize(Ogre::String &dst);
-	int clear();
+	void clear();
 
 	void parseAttribute(const Ogre::String& line, Skin *pSkin);
 	void unload(const Ogre::String& name);
