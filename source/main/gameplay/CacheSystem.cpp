@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CacheSystem.h"
 
-#include "BeamData.h" // for authorinfo_t
 #include "BeamEngine.h"
 #include "ErrorUtils.h"
 #include "ImprovedConfigFile.h"
@@ -32,12 +31,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "Utils.h"
 #include "TerrainManager.h"
-
+	
 #ifdef USE_MYGUI
 #include "LoadingWindow.h"
 #endif // USE_MYGUI
 
-//using namespace RoR; // CSHA1
+#include <OgreFileSystem.h>
+
 using namespace Ogre;
 
 CacheSystem::CacheSystem() :
@@ -130,7 +130,6 @@ std::vector<CacheEntry> *CacheSystem::getEntries()
 	return &entries;
 }
 
-
 void CacheSystem::unloadUselessResourceGroups()
 {
 	StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
@@ -157,7 +156,6 @@ void CacheSystem::unloadUselessResourceGroups()
 		}
 	}
 }
-
 
 String CacheSystem::getCacheConfigFilename(bool full)
 {
@@ -213,7 +211,6 @@ int CacheSystem::isCacheValid()
 	LOG("* mod cache is valid, using it.");
 	return 0;
 }
-
 
 void CacheSystem::logBadTruckAttrib(const String& line, CacheEntry& t)
 {
@@ -355,7 +352,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 			return;
 		}
 		// Set
-		t.filetime = params[1];
+		t.filetime = Ogre::StringConverter::parseLong(params[1]);
 	}
 	else if (attrib == "dname")
 	{
@@ -612,30 +609,6 @@ bool CacheSystem::loadCache()
 	return true;
 }
 
-Ogre::String CacheSystem::fileTime(String filename)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	HANDLE hFile = CreateFileA(filename.c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	// Set the file time on the file
-	FILETIME ftCreate, ftAccess, ftWrite;
-	SYSTEMTIME st;
-	if (!GetFileTime(hFile, &ftCreate, &ftAccess, &ftWrite))
-		return "";
-
-	if (!FileTimeToSystemTime(&ftWrite, &st))
-		return "";
-
-	char tmp[256] = "";
-	memset(tmp, 0, 256);
-	sprintf(tmp, "%d/%d/%d/%d/%d/%d/%d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-	return String(tmp);
-#else
-	// XXX TODO: implement linux filetime!
-	// not yet implemented for other platforms
-	return "";
-#endif
-}
 String CacheSystem::getRealPath(String path)
 {
 	// this shall convert the path names to fit the operating system's flavor
@@ -705,8 +678,8 @@ int CacheSystem::incrementalCacheUpdate()
 		{
 			// check file time, if that fails, fall back to sha1 (needed for platforms where filetime is not yet implemented!
 			bool check = false;
-			String ft = fileTime(fn);
-			if (ft.empty() || it->filetime.empty() || it->filetime == "unknown")
+			std::time_t ft = fileTime(fn);
+			if (!ft)
 			{
 				// slow sha1 check
 				char hash[256] = {};
@@ -872,7 +845,7 @@ CacheEntry *CacheSystem::getEntry(int modid)
 	for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
 	{
 		if (modid == it->number)
-			return (CacheEntry *)&*it;
+			return &(*it);
 	}
 	return 0;
 }
@@ -908,8 +881,6 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
 			t.fname = "unknown";
 		if (t.fext.empty())
 			t.fext = "unknown";
-		if (t.filetime.empty())
-			t.filetime = "unknown";
 		if (t.dname.empty())
 			t.dname = "unknown";
 		if (t.hash.empty())
@@ -931,7 +902,7 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
 		result += "\tfname="+t.fname+"\n";
 		result += "\tfname_without_uid="+t.fname_without_uid+"\n";
 		result += "\tfext="+t.fext+"\n";
-		result += "\tfiletime="+t.filetime+"\n";
+		result += "\tfiletime="+TOSTRING((long)t.filetime)+"\n";
 		result += "\tdname="+t.dname+"\n";
 		result += "\thash="+t.hash+"\n";
 		result += "\tcategoryid="+TOSTRING(t.categoryid)+"\n";
@@ -1009,7 +980,6 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
 		}
 	}
 
-
 	return result;
 }
 
@@ -1070,7 +1040,6 @@ void CacheSystem::writeGeneratedCache()
 	fclose(f);
 	LOG("...done!");
 }
-
 
 void CacheSystem::writeStreamCache()
 {
@@ -1332,40 +1301,36 @@ int CacheSystem::getTimeStamp()
 
 void CacheSystem::deleteFileCache(char *filename)
 {
-	int res = remove(filename);
-	if (res!=0)
+	if (remove(filename))
+	{
 		LOG("error deleting file '"+String(filename)+"'");
+	}
 }
 
 Ogre::String CacheSystem::detectFilesMiniType(String filename)
 {
-	//search if mini picture exists
-	if (!resourceExistsInAllGroups(filename+".dds"))
-	{
-		if (!resourceExistsInAllGroups(filename+".png"))
-			return "none";
-		else
-			return "png";
-	}
-	return "dds";
+	if (resourceExistsInAllGroups(filename+".dds"))
+		return "dds";
+
+	if (resourceExistsInAllGroups(filename+".png"))
+		return "png";
+
+	return "none";
 }
 
 void CacheSystem::removeFileFromFileCache(std::vector<CacheEntry>::iterator iter)
 {
-	//LOG("removing file cache number "+TOSTRING(iter->number));
 	if (iter->minitype != "none")
 	{
 		String fn = location + iter->filecachename;
 		deleteFileCache(const_cast<char*>(fn.c_str()));
 	}
-
 }
 
 void CacheSystem::generateFileCache(CacheEntry &entry, Ogre::String directory)
 {
 	try
 	{
-
 		if (directory.empty() && !entry.changedornew)
 			return;
 
@@ -1484,32 +1449,27 @@ void CacheSystem::parseKnownFilesOneRG(Ogre::String rg)
 
 void CacheSystem::parseKnownFilesOneRGDirectory(Ogre::String rg, Ogre::String dir)
 {
-	String dirb = dir;
-	getVirtualPath(dirb);
-	for (std::vector<Ogre::String>::iterator sit=known_extensions.begin();sit!=known_extensions.end();sit++)
+	String dirb = getVirtualPath(dir);
+	
+	for (std::vector<Ogre::String>::iterator it=known_extensions.begin(); it != known_extensions.end(); ++it)
 	{
-		FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, String("*.")+*sit);
+		FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, "*." + *it);
 		for (FileInfoList::iterator iterFiles = files->begin(); iterFiles!= files->end(); ++iterFiles)
 		{
 			if (!iterFiles->archive) continue;
 
-			String dira = iterFiles->archive->getName();
-			getVirtualPath(dira);
+			String dira = getVirtualPath(iterFiles->archive->getName());
 
 			if (dira == dirb)
-				addFile(*iterFiles, *sit);
+				addFile(*iterFiles, *it);
 		}
 	}
 }
 
 void CacheSystem::parseFilesOneRG(Ogre::String ext, Ogre::String rg)
 {
-	//LOG("* parsing files ... (" + ext + ")");
-	FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, String("*.")+ext);
-	FileInfoList::iterator iterFiles = files->begin();
-	int i=0;
-	//, size=files->end() - files->begin();
-	for (; iterFiles!= files->end(); ++iterFiles, i++)
+	FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, "*." + ext);
+	for (FileInfoList::iterator iterFiles = files->begin(); iterFiles!= files->end(); ++iterFiles)
 	{
 		addFile(*iterFiles, ext);
 	}
@@ -1517,20 +1477,20 @@ void CacheSystem::parseFilesOneRG(Ogre::String ext, Ogre::String rg)
 
 bool CacheSystem::isFileInEntries(Ogre::String filename)
 {
-	for (std::vector<CacheEntry>::iterator it = entries.begin(); it!=entries.end(); it++)
+	for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); ++it)
 	{
 		if (it->fname == filename)
 			return true;
 	}
 	return false;
 }
+
 void CacheSystem::generateZipList()
 {
 	zipCacheList.clear();
-	for (std::vector<CacheEntry>::iterator it = entries.begin(); it!=entries.end(); it++)
+	for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
 	{
 		zipCacheList.insert(getVirtualPath(it->dirname));
-		//LOG("zip path added: "+getVirtualPath(it->dirname));
 	}
 }
 
@@ -1538,7 +1498,6 @@ bool CacheSystem::isZipUsedInEntries(Ogre::String filename)
 {
 	if (zipCacheList.empty())
 		generateZipList();
-	//LOG("isZipUsedInEntries: "+getVirtualPath(filename));
 
 	return (zipCacheList.find(getVirtualPath(filename)) != zipCacheList.end());
 }
@@ -1548,15 +1507,13 @@ bool CacheSystem::isDirectoryUsedInEntries(Ogre::String directory)
 	String dira = directory;
 	dira = getVirtualPath(dira);
 
-	std::vector<CacheEntry>::iterator it;
-	for (it = entries.begin(); it!=entries.end(); it++)
+	for (std::vector<CacheEntry>::iterator it = entries.begin(); it!=entries.end(); it++)
 	{
 		if (it->type != "FileSystem") continue;
-		String dirb = it->dirname;
-		dirb = getVirtualPath(dirb);
+		String dirb = getVirtualPath(it->dirname);
 		if (dira == dirb)
 			return true;
-		if (dira.substr(0,dirb.size()) == dirb) //check if its a subdirectory
+		if (dira.substr(0, dirb.size()) == dirb) // check if it is a subdirectory
 			return true;
 	}
 	return false;
@@ -1564,8 +1521,8 @@ bool CacheSystem::isDirectoryUsedInEntries(Ogre::String directory)
 
 void CacheSystem::checkForNewKnownFiles()
 {
-	for (std::vector<Ogre::String>::iterator sit=known_extensions.begin();sit!=known_extensions.end();sit++)
-		checkForNewFiles(*sit);
+	for (std::vector<Ogre::String>::iterator it=known_extensions.begin(); it != known_extensions.end(); ++it)
+		checkForNewFiles(*it);
 }
 
 void CacheSystem::checkForNewFiles(Ogre::String ext)
@@ -1574,14 +1531,10 @@ void CacheSystem::checkForNewFiles(Ogre::String ext)
 	sprintf(fname, "*.%s", ext.c_str());
 
 	StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-	StringVector::iterator it;
-	int rcounter=0;
-	for (it = sv.begin(); it!=sv.end(); it++,rcounter++)
+	for (StringVector::iterator it = sv.begin(); it != sv.end(); ++it)
 	{
 		FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(*it, fname);
-		FileInfoList::iterator iterFiles = files->begin();
-		int i=0;
-		for (; iterFiles!= files->end(); ++iterFiles, i++)
+		for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
 		{
 			String fn = iterFiles->filename.c_str();
 			if (!isFileInEntries(fn))
@@ -1620,9 +1573,9 @@ String CacheSystem::filenamesSHA1()
 
 	// and we use all folders and files for the hash
 	String restype[3] = {"Packs", "TerrainFolders", "VehicleFolders"};
-	for (int i=0;i<3;i++)
+	for (int i=0; i<3; i++)
 	{
-		for (int b=0;b<2;b++)
+		for (int b=0 ;b<2; b++)
 		{
 			FileInfoListPtr list = ResourceGroupManager::getSingleton().listResourceFileInfo(restype[i], (b==1));
 			for (FileInfoList::iterator iterFiles = list->begin(); iterFiles!=list->end(); iterFiles++)
@@ -1633,15 +1586,13 @@ String CacheSystem::filenamesSHA1()
 				if (b==0)
 				{
 					// special file handling, only add important files!
-					bool vipfile=false;
+					bool vipfile = false;
 					for (std::vector<Ogre::String>::iterator sit=known_extensions.begin();sit!=known_extensions.end();sit++)
 					{
-						if (
-							(iterFiles->filename.find("."+*sit) != String::npos && iterFiles->filename.find(".dds") == String::npos && iterFiles->filename.find(".png") == String::npos)
-							|| (iterFiles->filename.find(".zip") != String::npos)
-						  )
+						if ((iterFiles->filename.find("."+*sit) != String::npos && iterFiles->filename.find(".dds") == String::npos && iterFiles->filename.find(".png") == String::npos)
+						 || (iterFiles->filename.find(".zip") != String::npos))
 						{
-							vipfile=true;
+							vipfile = true;
 							break;
 						}
 					}
@@ -1653,15 +1604,14 @@ String CacheSystem::filenamesSHA1()
 		}
 	}
 
-	//LOG("hash string: "+filenames);
-	char result[256]="";
+	char result[256] = {};
 
 	RoR::CSHA1 sha1;
 	char *data = const_cast<char*>(filenames.c_str());
 	sha1.UpdateHash((uint8_t *)data, (uint32_t)strlen(data));
 	sha1.Final();
 	sha1.ReportHash(result, RoR::CSHA1::REPORT_HEX_SHORT);
-	return String(result);
+	return result;
 }
 
 void CacheSystem::fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname)
@@ -1877,25 +1827,22 @@ void CacheSystem::loadSingleDirectory(String dirname, String group, bool already
 
 void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool ownGroup)
 {
-
-	/*
+#if 0
 	// good for debugging:
 	String outfn;
 	String outpath;
 	StringUtil::splitFilename(zippath, outfn, outpath);
 	ScopeLog log("cache_loadzip_"+outfn);
-	*/
+#endif
 
 	String realzipPath = getRealPath(zippath);
-	char hash[256];
-	memset(hash, 0, 255);
+	char hash[256] = {};
 
 	RoR::CSHA1 sha1;
 	sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
 	sha1.Final();
 	sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
-	zipHashes[getVirtualPath(zippath)] = String(hash);
-
+	zipHashes[getVirtualPath(zippath)] = hash;
 
 	String compr = "";
 	if (cfactor > 99)
@@ -1909,7 +1856,9 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 
 	// use general group?
 	if (!ownGroup)
+	{
 		rgname = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
+	}
 
 	try
 	{
@@ -1943,7 +1892,7 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 			LOG(" *** error opening archive '"+realzipPath+"': some files are duplicates of existing files. The archive will be ignored.");
 			LOG("error while opening resource: " + e.getFullDescription());
 
-		}else
+		} else
 		{
 			LOG("error while loading single Zip: " + e.getFullDescription());
 			LOG("error opening archive '"+realzipPath+"'. Is it corrupt? Ignoring that archive ...");
@@ -1951,7 +1900,6 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 		}
 	}
 }
-
 
 void CacheSystem::loadAllZipsInResourceGroup(String group)
 {
@@ -2095,4 +2043,16 @@ void CacheSystem::checkForNewContent()
 
 	checkForNewDirectoriesInResourceGroup("VehicleFolders");
 	checkForNewDirectoriesInResourceGroup("TerrainFolders");
+}
+
+std::time_t CacheSystem::fileTime(Ogre::String filename)
+{
+	FileSystemArchiveFactory FSAF;
+	Archive *fsa = FSAF.createInstance(filename);
+
+	std::time_t ft = fsa->getModifiedTime(filename);
+
+	FSAF.destroyInstance(fsa);
+
+	return ft;
 }

@@ -35,11 +35,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "FlexObj.h"
 #include "InputEngine.h"
 #include "JSON.h"
-#include "MaterialReplacer.h"
 #include "MaterialFunctionMapper.h"
+#include "MaterialReplacer.h"
 #include "MeshObject.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
+#include "SHA1.h"
 #include "ScopeLog.h"
 #include "ScrewProp.h"
 #include "Settings.h"
@@ -48,8 +49,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TorqueCurve.h"
-#include "TurboProp.h"
 #include "TurboJet.h"
+#include "TurboProp.h"
 #include "VideoCamera.h"
 
 using namespace Ogre;
