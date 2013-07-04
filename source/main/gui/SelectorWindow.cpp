@@ -773,60 +773,50 @@ void SelectorWindow::setPreviewImage(String texture)
 		return;
 	}
 
-	String group = "";
+	mPreviewImageTexture = texture;
+
 	try
 	{
-		group = ResourceGroupManager::getSingleton().findGroupContainingResource(texture);
-	} catch(...)
+		mPreviewStaticImage->setImageTexture(texture);
+		resizePreviewImage();
+		mPreviewStaticImage->setVisible(true);
+	} catch (...)
 	{
-	}
-	if (group == "")
-	{
-		// texture not found, hide widget
 		mPreviewStaticImage->setVisible(false);
-		return;
 	}
-	mPreviewStaticImage->setVisible(true);
-
-	mPreviewStaticImage->setImageTexture(texture);
-	lastImageTextureName = texture;
-
-	resizePreviewImage();
 }
 
 void SelectorWindow::resizePreviewImage()
 {
-	// now get the texture size
-	MyGUI::IntSize imgSize(0,0);
-	TexturePtr t = TextureManager::getSingleton().load(lastImageTextureName,ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+	MyGUI::IntSize imgSize(0, 0);
+	TexturePtr t = TextureManager::getSingleton().load(mPreviewImageTexture, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 	if (!t.isNull())
 	{
 		imgSize.width  = (int)t->getWidth() * 10;
 		imgSize.height = (int)t->getHeight() * 10;
 	}
 
-	if (imgSize.width != 0)
+	if (imgSize.width != 0 && imgSize.height != 0)
 	{
 		MyGUI::IntSize maxSize = mPreviewStaticImagePanel->getSize();
 
 		float imgRatio = imgSize.width / (float)imgSize.height;
 		float maxRatio = maxSize.width / (float)maxSize.height;
 
-		MyGUI::IntSize newSize;
-		MyGUI::IntPoint newPosition;
+		MyGUI::IntSize newSize(0, 0);
+		MyGUI::IntPoint newPosition(0, 0);
 
-		// now scale with aspect ratio
+		// scale with aspect ratio
 		if (imgRatio > maxRatio)
 		{
-			newSize.width  = maxSize.width;
-			newSize.height = maxSize.width / imgRatio;
+			newSize.width    = maxSize.width;
+			newSize.height   = maxSize.width / imgRatio;
 			newPosition.left = 0;
 			newPosition.top  = maxSize.height - newSize.height;
-		}
-		else
+		} else
 		{
-			newSize.width  = maxSize.height * imgRatio;
-			newSize.height = maxSize.height;
+			newSize.width    = maxSize.height * imgRatio;
+			newSize.height   = maxSize.height;
 			newPosition.left = maxSize.width - newSize.width;
 			newPosition.top  = 0;
 		}

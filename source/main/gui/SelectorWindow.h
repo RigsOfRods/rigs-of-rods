@@ -76,7 +76,7 @@ private:
 	CacheEntry *mSelectedTruck;
 	LoaderType mLoaderType;
 	Ogre::Camera *mCamera;
-	Ogre::String lastImageTextureName;
+	Ogre::String mPreviewImageTexture;
 	Skin *mSelectedSkin;
 	bool mSelectionDone;
 	bool ready;
