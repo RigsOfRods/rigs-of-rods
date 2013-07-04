@@ -777,8 +777,8 @@ void SelectorWindow::setPreviewImage(String texture)
 
 	try
 	{
-		mPreviewStaticImage->setImageTexture(texture);
 		resizePreviewImage();
+		mPreviewStaticImage->setImageTexture(texture);
 		mPreviewStaticImage->setVisible(true);
 	} catch (...)
 	{
