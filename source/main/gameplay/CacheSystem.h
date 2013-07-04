@@ -24,8 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "BeamData.h"
-#include "SHA1.h"
+#include "BeamData.h" // for authorinfo_t
 #include "Singleton.h"
 
 #include <Ogre.h>
@@ -60,14 +59,13 @@ public:
 	Ogre::String uniqueid;				// file's unique id
 	Ogre::String guid;                  // global unique id
 	int version;						// file's version
-	
 	Ogre::String fext;					// file's extension
 	Ogre::String type;					// Resource Type, FileSystem or Zip
 	Ogre::String dirname;				// mostly, archive name
 	Ogre::String hash;					// file's hash
 	bool resourceLoaded;				// loaded?
 	int number;							// mod number
-	Ogre::String filetime;				// NOT OS INDEPENDENT filetime
+	std::time_t filetime;				// filetime
 	bool changedornew;					// is it added or changed during this runtime?
 	bool deleted;						// is this mod deleted?
 	int usagecounter;					// how much it was used already
@@ -119,65 +117,65 @@ public:
 
 	// default constructor resets the data.
 	CacheEntry() :
-		minitype(""),
-		fname(""),
-		fname_without_uid(""),
-		dname(""),
+		//authors
+		addtimestamp(0),
+		beamcount(0),
 		categoryid(0),
 		categoryname(""),
-		addtimestamp(0),
-		uniqueid(""),
-		version(0),
-		fext(""),
-		type(""),
-		dirname(""),
-		hash(""),
-		resourceLoaded(false),
-		number(0),
-		filetime(""),
 		changedornew(false),
-		deleted(false),
-		usagecounter(0),
-		//authors
-		filecachename(""),
-		description(""),
-		tags(""),
-		fileformatversion(0),
-		hasSubmeshs(false),
-		nodecount(0),
-		beamcount(0),
-		shockcount(0),
-		fixescount(0),
-		hydroscount(0),
-		wheelcount(0),
-		propwheelcount(0),
 		commandscount(0),
-		flarescount(0),
-		propscount(0),
-		wingscount(0),
-		turbopropscount(0),
-		turbojetcount(0),
-		rotatorscount(0),
-		exhaustscount(0),
-		flexbodiescount(0),
-		materialflarebindingscount(0),
-		soundsourcescount(0),
-		managedmaterialscount(0),
-		truckmass(0),
-		loadmass(0),
-		minrpm(0),
-		maxrpm(0),
-		torque(0),
-		customtach(false),
 		custom_particles(false),
-		forwardcommands(false),
-		importcommands(false),
-		rollon(false),
-		rescuer(false),
+		customtach(false),
+		deleted(false),
+		description(""),
+		dirname(""),
+		dname(""),
 		driveable(0),
-		numgears(0),
 		enginetype('t'),
-		materials()
+		exhaustscount(0),
+		fext(""),
+		filecachename(""),
+		fileformatversion(0),
+		filetime(0),
+		fixescount(0),
+		flarescount(0),
+		flexbodiescount(0),
+		fname(""),
+		fname_without_uid(""),
+		forwardcommands(false),
+		hasSubmeshs(false),
+		hash(""),
+		hydroscount(0),
+		importcommands(false),
+		loadmass(0),
+		managedmaterialscount(0),
+		materialflarebindingscount(0),
+		materials(),
+		maxrpm(0),
+		minitype(""),
+		minrpm(0),
+		nodecount(0),
+		number(0),
+		numgears(0),
+		propscount(0),
+		propwheelcount(0),
+		rescuer(false),
+		resourceLoaded(false),
+		rollon(false),
+		rotatorscount(0),
+		shockcount(0),
+		soundsourcescount(0),
+		tags(""),
+		torque(0),
+		truckmass(0),
+		turbojetcount(0),
+		turbopropscount(0),
+		type(""),
+		uniqueid(""),
+		usagecounter(0),
+		version(0),
+		wheelcount(0),
+		wingscount(0)
 	{
 		// driveable = 0 = NOT_DRIVEABLE
 		// enginetype = t = truck is default
@@ -303,7 +301,7 @@ protected:
 	char *replacesSpaces(char *str);
 	char *restoreSpaces(char *str);
 	
-	Ogre::String fileTime(Ogre::String);
+	std::time_t fileTime(Ogre::String filename);
 
 	Ogre::String getRealPath(Ogre::String path);
 	Ogre::String getVirtualPath(Ogre::String path);
