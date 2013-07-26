@@ -79,7 +79,7 @@ void SkyManager::detectUpdate()
 	lc = c;
 }
 
-void SkyManager::loadScript(String script)
+void SkyManager::loadScript(String script, bool customFog)
 {
 	// load the caelum config
 	try
@@ -89,17 +89,20 @@ void SkyManager::loadScript(String script)
 		// overwrite some settings
 #ifdef CAELUM_VERSION_SEC
 		// important: overwrite fog setings if not using infinite farclip
-		if (gEnv->mainCamera->getFarClipDistance() > 0)
+		if (!customFog)
 		{
-			// non infinite farclip
-			Real farclip = gEnv->mainCamera->getFarClipDistance();
-			mCaelumSystem->setManageSceneFog(FOG_LINEAR);
-			mCaelumSystem->setManageSceneFogStart(farclip * 0.7f);
-			mCaelumSystem->setManageSceneFogEnd(farclip * 0.9f);
-		} else
-		{
-			// no fog in infinite farclip
-			mCaelumSystem->setManageSceneFog(FOG_NONE);
+			if (gEnv->mainCamera->getFarClipDistance() > 0)
+			{
+				// non infinite farclip
+				Real farclip = gEnv->mainCamera->getFarClipDistance();
+				mCaelumSystem->setManageSceneFog(FOG_LINEAR);
+				mCaelumSystem->setManageSceneFogStart(farclip * 0.7f);
+				mCaelumSystem->setManageSceneFogEnd(farclip * 0.9f);
+			} else
+			{
+				// no fog in infinite farclip
+				mCaelumSystem->setManageSceneFog(FOG_NONE);
+			}
 		}
 #else
 #error please use a recent Caelum version, see http://www.rigsofrods.com/wiki/pages/Compiling_3rd_party_libraries#Caelum
