@@ -303,7 +303,8 @@ void TerrainManager::initSkySubSystem()
 		if (!caelumConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(caelumConfig))
 		{
 			// config provided and existing, use it :)
-			sky_manager->loadScript(caelumConfig);
+			bool customCaelumFog = StringConverter::parseBool(mTerrainConfig.getSetting("CaelumCustomFog", "General"));
+			sky_manager->loadScript(caelumConfig, customCaelumFog);
 		} else
 		{
 			// no config provided, fall back to the default one
