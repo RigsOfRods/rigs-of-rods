@@ -34,7 +34,7 @@ public:
 	SkyManager();
 	~SkyManager();
 
-	void loadScript(Ogre::String script, bool customFog = false);
+	void loadScript(Ogre::String script, int fogStart=-1, int fogEnd=-1);
 	
 	/// change the time scale
 	void setTimeFactor(Ogre::Real f);

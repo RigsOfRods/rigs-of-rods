@@ -79,7 +79,7 @@ void SkyManager::detectUpdate()
 	lc = c;
 }
 
-void SkyManager::loadScript(String script, bool customFog)
+void SkyManager::loadScript(String script, int fogStart, int fogEnd)
 {
 	// load the caelum config
 	try
@@ -88,21 +88,31 @@ void SkyManager::loadScript(String script, bool customFog)
 
 		// overwrite some settings
 #ifdef CAELUM_VERSION_SEC
-		// important: overwrite fog setings if not using infinite farclip
-		if (!customFog)
+		// important: overwrite fog settings if not using infinite farclip
+		if (fogStart != -1 && fogEnd != -1 && fogStart < fogEnd)
 		{
-			if (gEnv->mainCamera->getFarClipDistance() > 0)
-			{
-				// non infinite farclip
-				Real farclip = gEnv->mainCamera->getFarClipDistance();
-				mCaelumSystem->setManageSceneFog(FOG_LINEAR);
-				mCaelumSystem->setManageSceneFogStart(farclip * 0.7f);
-				mCaelumSystem->setManageSceneFogEnd(farclip * 0.9f);
-			} else
-			{
-				// no fog in infinite farclip
-				mCaelumSystem->setManageSceneFog(FOG_NONE);
-			}
+			// setting farclip (hacky)
+			Settings::getSingleton().setSetting("SightRange", StringConverter::toString((float)(fogEnd/0.8)));
+			float far_clip = FSETTING("SightRange",4500);
+			gEnv->mainCamera->setFarClipDistance(far_clip);
+			// custom boundaries
+			mCaelumSystem->setManageSceneFog(FOG_LINEAR);
+			mCaelumSystem->setManageSceneFogStart(fogStart);
+			mCaelumSystem->setManageSceneFogEnd(fogEnd);
+		}
+		else if (gEnv->mainCamera->getFarClipDistance() > 0)
+		{
+			if(fogStart != -1 && fogEnd != -1){ LOG("CaelumFogStart must be smaller then CaelumFogEnd. Ignoring boundaries.");} 
+			else if(fogStart != -1 || fogEnd != -1){ LOG("You always need to define both boundaries (CaelumFogStart AND CaelumFogEnd). Ignoring boundaries.");}
+			// non infinite farclip
+			Real farclip = gEnv->mainCamera->getFarClipDistance();
+			mCaelumSystem->setManageSceneFog(FOG_LINEAR);
+			mCaelumSystem->setManageSceneFogStart(farclip*0.7);
+			mCaelumSystem->setManageSceneFogEnd(farclip*0.9);
+		} else
+		{
+			// no fog in infinite farclip
+			mCaelumSystem->setManageSceneFog(FOG_NONE);
 		}
 #else
 #error please use a recent Caelum version, see http://www.rigsofrods.com/wiki/pages/Compiling_3rd_party_libraries#Caelum
