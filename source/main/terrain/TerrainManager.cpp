@@ -234,8 +234,8 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
 
-	PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
-	initFog();
+//	PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem")); // Not needed / overrides Settings in Skysubsystem !
+//	initFog();
 
 	PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
 	initVegetation();
@@ -303,8 +303,9 @@ void TerrainManager::initSkySubSystem()
 		if (!caelumConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(caelumConfig))
 		{
 			// config provided and existing, use it :)
-			bool customCaelumFog = StringConverter::parseBool(mTerrainConfig.getSetting("CaelumCustomFog", "General"));
-			sky_manager->loadScript(caelumConfig, customCaelumFog);
+			int caelumFogStart = StringConverter::parseInt(mTerrainConfig.getSetting("CaelumFogStart", "General"),-1);
+			int caelumFogEnd = StringConverter::parseInt(mTerrainConfig.getSetting("CaelumFogEnd", "General"),-1);
+			sky_manager->loadScript(caelumConfig, caelumFogStart, caelumFogEnd);
 		} else
 		{
 			// no config provided, fall back to the default one
