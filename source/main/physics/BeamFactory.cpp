@@ -32,6 +32,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
+#include "ChatSystem.h"
+#include "Console.h"
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"
@@ -210,7 +212,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 
 	LOG(" new beam truck for " + TOSTRING(reg->sourceid) + ":" + TOSTRING(reg->streamid));
 
-#ifdef USE_SOCKTEW
+#ifdef USE_SOCKETW
 	// log a message about this
 	if (gEnv->network)
 	{
