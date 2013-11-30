@@ -780,13 +780,15 @@ void Beam::initSimpleSkeleton()
 	simpleSkeletonManualObject->setCastShadows(false);
 	simpleSkeletonManualObject->setDynamic(true);
 	simpleSkeletonManualObject->setRenderingDistance(300);
+	simpleSkeletonManualObject->begin("mat-beam-0", RenderOperation::OT_LINE_LIST);
 	for (int i=0; i < free_beam; i++)
 	{
-		simpleSkeletonManualObject->begin("mat-beam-0", RenderOperation::OT_LINE_LIST);
 		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
+		simpleSkeletonManualObject->colour(1.0f,1.0f,1.0f);
 		simpleSkeletonManualObject->position(beams[i].p2->smoothpos);
-		simpleSkeletonManualObject->end();
+		simpleSkeletonManualObject->colour(0.0f,0.0f,0.0f);
 	}
+	simpleSkeletonManualObject->end();
 	simpleSkeletonNode->attachObject(simpleSkeletonManualObject);
 	simpleSkeletonNode->setVisible(false);
 	simpleSkeletonInitiated=true;
@@ -795,31 +797,36 @@ void Beam::initSimpleSkeleton()
 void Beam::updateSimpleSkeleton()
 {
 	BES_GFX_START(BES_GFX_UpdateSkeleton);
+	ColourValue color;
 
 	if (!simpleSkeletonInitiated)
 		initSimpleSkeleton();
+	simpleSkeletonManualObject->beginUpdate(0);
 	// just update
-	for (int i=0; i < (int)simpleSkeletonManualObject->getNumSections(); i++)
+	for (int i=0; i < free_beam; i++)
 	{
-		if (i >= free_beam)
-			break;
-
-		int scale=(int)(beams[i].scale * 100);
-		if (scale>100) scale=100;
-		if (scale<-100) scale=-100;
-		char bname[256];
-		sprintf(bname, "mat-beam-%d", scale);
-
-		simpleSkeletonManualObject->setMaterialName(i, bname);
-		simpleSkeletonManualObject->beginUpdate(i);
+		// calculating colour
+		float scale=beams[i].scale;
+		if (scale>1) scale=1;
+		if (scale<-1) scale=-1;
+		float scaleabs = fabs(scale);
+		if (scale<=0)
+			color = ColourValue(0.2f, 2.0f*(1.0f-scaleabs), 2.0f*scaleabs, 0.8f);
+		else
+			color = ColourValue(2.0f*scaleabs, 2.0f*(1.0f-scaleabs), 0.2f, 0.8f);
+		
+		// updating position & color
 		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
+		simpleSkeletonManualObject->colour(color);
+
 		// remove broken beams
 		if (beams[i].broken || beams[i].disabled)
 			simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
 		else
 			simpleSkeletonManualObject->position(beams[i].p2->smoothpos);
-		simpleSkeletonManualObject->end();
+		simpleSkeletonManualObject->colour(color);
 	}
+	simpleSkeletonManualObject->end();
 
 	BES_GFX_STOP(BES_GFX_UpdateSkeleton);
 }
@@ -890,23 +897,16 @@ void Beam::checkBeamMaterial()
 	BES_GFX_START(BES_GFX_checkBeamMaterial);
 	if (MaterialManager::getSingleton().resourceExists("mat-beam-0"))
 		return;
-	int i = 0;
-	char bname[256];
-	for (i=-100;i<=100;i++)
-	{
-		//register a material for skeleton view
-		sprintf(bname, "mat-beam-%d", i);
-		MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
-		float f = fabs(((float)i)/100);
-		if (i<=0)
-			mat->getTechnique(0)->getPass(0)->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(0.2f, 2.0f*(1.0f-f), f*2.0f, 0.8f));
-		else
-			mat->getTechnique(0)->getPass(0)->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(f*2.0f, 2.0f*(1.0f-f), 0.2f, 0.8f));
+
+		MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create("mat-beam-0", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+
+		mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(TFO_ANISOTROPIC);
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
 		mat->setLightingEnabled(false);
 		mat->setReceiveShadows(false);
-	}
+
 	BES_GFX_STOP(BES_GFX_checkBeamMaterial);
 }
 
