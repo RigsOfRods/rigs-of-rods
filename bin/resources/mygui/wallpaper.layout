@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout">
+    <Widget type="Window" skin="" position_real="0 0 1 1" align="Stretch" layer="Wallpaper" name="wallpaper">
+		<Widget type="ImageBox" skin="ImageBox" position_real="0 0 1 1" align="Stretch" layer="Wallpaper" name="imagebackground">
+			<Property key="ImageTexture" value="wallpaper.jpg"/>
+		</Widget>
+    </Widget>
+</MyGUI>

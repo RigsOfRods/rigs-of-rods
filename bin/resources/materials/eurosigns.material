@@ -1,0 +1,1517 @@
+material levelcrossingmedium
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture levelcrossingmedium.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-slippery
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-slippery.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-rocks
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-rocks.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-autostrasse
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-autostasse.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed50
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed50.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-bluebuslane
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-bluebuslanes.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material signcircle
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture circlediffuse.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-parkingzoneend
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-parkingzoneend.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-novehicles
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-novehicles.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-nohazmat
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-nohazmat.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-Scurveright
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-Scurveright.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-rightturn
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-rightturn.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed110
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed110.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed80
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed80.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-pulloff
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-pulloff.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material levelcrossingnear
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture levelcrossingnear.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-trafficlight
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-trafficlight.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed130
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed130.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-roadnarrowsright
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-roadnarrowsright.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-roadnarrowsleft
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-roadnarrowsleft.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-blueYright
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-blueYright.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-nocars
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-nocars.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-bump
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-bump.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed20
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed20.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-hospital
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-hospital.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-leftturn
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-leftturn.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-noparking
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-noparking.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-nopedestrians
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-nopedestrians.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-twowaytraffic
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-twowaytraffic.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-blueleftturn
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-blueleftturn.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-noentry
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-noentry.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-railway
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-railway.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed60
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed60.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material levelcrossingdistant
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture levelcrossingdistant.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-parkingzones
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-parkingzonestart.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-autostrasseend
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-autostasseend.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed40
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed40.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-crosswinds
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-crosswinds.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-blueYleft
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-blueYleft.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-protectedrailway
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-protectedrailway.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-derestriction
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-derestriction.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-rightpriority
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-leftpriority.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-roadnarrows
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-roadnarrows.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-Scurveleft
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-Scurveleft.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-autobahn
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-autobahn.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-autobahnend
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-autobahnend.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-menatwork
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-menatwork.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-stop
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-stop.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-warning
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-warning.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-priorityintersec
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-priorityintersectiondds.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed100
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed100.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed120
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed120.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed90
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed90.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-roundabout
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-roundabout.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-descent10
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-descent10.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-blueroundabout
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-blueroundabout.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-tunnel
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-tunnel.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-nostopping
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-nostopping.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-deer
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-deer.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-bluerightturn
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-bluerightturn.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-parking
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-parking.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-crossing
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-crossing.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed30
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed30.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-fall
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-fall.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-crosswalk
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-crosswalk.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-leftpriority
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-rightpriority.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed10
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed10.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-bluearrow
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-bluearrow.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-nouturn
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-nouturn.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-maxspeed70
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-maxspeed70.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-notrucks
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-notrucks.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material stopsign
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture stopdiffuse.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material signsquare
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture squarediffuse.dds	
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-yield
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture sign-yield.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material signtriangle
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+						
+			
+			
+			texture_unit
+			{
+				texture trianglediffuse.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material sign-redstripes1
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture sign-redstripes1.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout">
+    <Widget type="Widget" skin="PanelSkin" position="0 0 800 400" align="HStretch Top" layer="Back" name="_Main">
+        <Property key="Alpha" value="0.4"/>
+        <Controller type="ControllerEdgeHide">
+            <Property key="RemainPixels" value="0"/>
+            <Property key="ShadowSize" value="0"/>
+            <Property key="Time" value="1"/>
+        </Controller>
+        <Widget type="EditBox" skin="EditBoxStretch" position="0 0 800 372" align="Stretch" name="Log">
+            <Property key="WordWrap" value="true"/>
+            <Property key="TextAlign" value="Left Bottom"/>
+            <Property key="ReadOnly" value="true"/>
+            <Property key="OverflowToTheLeft" value="true"/>
+            <Property key="MaxTextLength" value="8192"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBoxStretch" position="0 372 800 28" align="HStretch Bottom" name="Command">
+            <Property key="MultiLine" value="false"/>
+        </Widget>
+    </Widget>
+</MyGUI>

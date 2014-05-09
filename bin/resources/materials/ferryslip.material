@@ -1,0 +1,18 @@
+material Material
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			texture_unit
+			{
+				texture ferryslipdiffuse.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}

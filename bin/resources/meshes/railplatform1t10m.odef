@@ -1,0 +1,7 @@
+railplatform1t10m.mesh
+1,1,1
+beginmesh
+mesh railplatform1t10m.mesh
+stdfriction concrete
+endmesh
+end
