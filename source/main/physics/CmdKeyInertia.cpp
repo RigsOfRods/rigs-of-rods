@@ -97,7 +97,7 @@ int CmdKeyInertia::setCmdKeyDelay(int cmdKey,Real startDelay,Real stopDelay, Str
 	if (splines.find(stopFunction) != splines.end())
 		cmdKeyInertia[cmdKey].stopSpline=&splines.find(stopFunction)->second;
 	else
-		LOG("Inertia| Start Function "+stopFunction +" not found");
+		LOG("Inertia| Stop Function "+stopFunction +" not found");
 
 	return 0;
 }
