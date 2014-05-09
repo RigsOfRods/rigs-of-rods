@@ -1345,29 +1345,29 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
 	E_CAPTURE(
 		E_CAPTURE(
 			E_CAPTURE(
-				E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER 
-				E_COMMA_SPACES
+				E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER ) 
+				E_CAPTURE( E_COMMA_SPACES ) "+" /* Tolerate multiple commas for backwards compatibility */
 			)
-			"|"
+			E_OR
 			E_CAPTURE(
-				E_NODE_ID 
-				E_COMMA_SPACES
+				E_CAPTURE( E_NODE_ID ) 
+				E_CAPTURE( E_COMMA_SPACES ) "+" /* Tolerate multiple commas for backwards compatibility */
 			)
-			"|"
+			E_OR
 			E_CAPTURE(
-				E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID
-				E_COMMA_SPACES
+				E_CAPTURE( E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID )
+				E_CAPTURE( E_COMMA_SPACES ) "+" /* Tolerate multiple commas for backwards compatibility */
 			)
 		) "*"
-	E_CAPTURE(
+		E_CAPTURE_OPTIONAL( /* OPTIONAL = Tolerate comma after last element, for backwards compatibility */
 			E_CAPTURE(
 				E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER 
 			)
-			"|"
+			E_OR
 			E_CAPTURE(
 				E_NODE_ID 
 			)
-			"|"
+			E_OR
 			E_CAPTURE(
 				E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID
 			)
