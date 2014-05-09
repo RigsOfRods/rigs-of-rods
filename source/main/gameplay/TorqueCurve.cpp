@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "TorqueCurve.h"
 #include "Ogre.h"
 
@@ -88,11 +89,6 @@ int TorqueCurve::loadDefaultTorqueModels()
 	return 0;
 }
 
-int TorqueCurve::processLine(String line, String model)
-{
-	return processLine(StringUtil::split(line, ","), model);
-}
-
 int TorqueCurve::processLine(Ogre::StringVector args, String model)
 {
 	// if its just one arguments, it must be a known model
@@ -121,6 +117,28 @@ int TorqueCurve::processLine(Ogre::StringVector args, String model)
 		setTorqueModel(TorqueCurve::customModel);
 
 	return 0;
+}
+
+bool TorqueCurve::CreateNewCurve(Ogre::String const & name)
+{
+	if (splines.find(name) != splines.end())
+	{
+		return false;
+	}
+	splines[name] = Ogre::SimpleSpline();
+
+	/* special case for custom model: we set it as active curve as well! */
+	if (name == TorqueCurve::customModel)
+	{
+		setTorqueModel(TorqueCurve::customModel);
+	}
+	return true;
+}
+
+void TorqueCurve::AddCurveSample(float rpm, float progress, Ogre::String const & model)
+{
+	/* attach the points to the spline */
+	splines[model].addPoint(Ogre::Vector3(rpm, progress, 0));
 }
 
 int TorqueCurve::setTorqueModel(String name)

@@ -17,13 +17,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "VideoCamera.h"
 
+#include "Beam.h"
+#include "BeamData.h"
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
+#include "RigDefFile.h"
+#include "RigSpawner.h"
 #include "Settings.h"
 #include "SkyManager.h"
 #include "Utils.h"
+
 
 using namespace Ogre;
 
@@ -247,122 +253,78 @@ void VideoCamera::update(float dt)
 	mVidCam->setPosition(pos);
 }
 
-VideoCamera *VideoCamera::parseLine(SerializedRig *truck, SerializedRig::parsecontext_t &c)
+VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & def) 
 {
 	try
 	{
-		int nz=-1, ny=-1, nref=-1, ncam=-1, lookto=-1, texx=256, texy=256, crole=-1, cmode=-1;
-		float fov=-1.0f, minclip=-1.0f, maxclip=-1.0f, offx=0.0f, offy=0.0f, offz=0.0f, rotx=0.0f, roty=0.0f, rotz=0.0f;
-		char materialname[256] = {};
-		char vidCamName[256] = {};
-		
-		Ogre::StringVector args;
-		int n = truck->parse_args(c, args, 19);
-		nref    = truck->parse_node_number(c, args[0]);
-		nz      = truck->parse_node_number(c, args[1]);
-		ny      = truck->parse_node_number(c, args[2]);
-		ncam    = PARSEINT(args[3]);
-		lookto  = PARSEINT(args[4]);
-		offx    = PARSEREAL(args[5]);
-		offy    = PARSEREAL(args[6]);
-		offz    = PARSEREAL(args[7]);
-		rotx    = PARSEREAL(args[8]);
-		roty    = PARSEREAL(args[9]);
-		rotz    = PARSEREAL(args[10]);
-		fov     = PARSEREAL(args[11]);
-		texx    = PARSEINT (args[12]);
-		texy    = PARSEINT (args[13]);
-		minclip = PARSEREAL(args[14]);
-		maxclip = PARSEREAL(args[15]);
-		crole   = PARSEINT (args[16]);
-		cmode   = PARSEINT (args[17]);
-		strncpy(materialname, args[18].c_str(), 255);
-		materialname[255] = '\0';
-		if (n > 19)
-			strncpy(vidCamName, args[19].c_str(), 255);
-		else
-			strncpy(vidCamName, materialname, 255); // fallback, use materialname
-		
-		//if (texx <= 0 || !isPowerOfTwo(texx) || texy <= 0 || !isPowerOfTwo(texy))
-		// disabled isPowerOfTwo, as it can be a renderwindow now with custom resolution
-		if (texx <= 0 || texy <= 0)
-		{
-			truck->parser_warning(c, "Wrong texture size definition. trying to continue ...");
-			return 0;
-		}
-
-		if (minclip < 0 || minclip > maxclip || maxclip < 0)
-		{
-			truck->parser_warning(c, "Wrong clipping definition. trying to continue ...");
-			return 0;
-		}
-
-		if (cmode < -2 )
-		{
-			truck->parser_warning(c, "Camera Mode setting incorrect, trying to continue ...");
-			return 0;
-		}
-
-		if (crole < -1 || crole >1)
-		{
-			truck->parser_warning(c, "Camera Role (camera, trace, mirror) setting incorrect, trying to continue ...");
-			return 0;
-		}
-
-		MaterialPtr mat = MaterialManager::getSingleton().getByName(materialname);
-		if (mat.isNull())
-		{
-			truck->parser_warning(c, "unknown material: '"+String(materialname)+"', trying to continue ...");
-			return 0;
-		}
+		Beam *rig = rig_spawner->GetRig();
 
 		// clone the material to stay unique
-		String newMaterialName = String(truck->truckname) + materialname + "_" + TOSTRING(counter++);
-		MaterialPtr matNew = mat->clone(newMaterialName);
+		std::stringstream mat_clone_name;
+		mat_clone_name << rig->truckname << def.material_name << "_" << counter;
+		counter++;
 
-		// we need to find and replace any materials that could come afterwards
-		if (truck && truck->materialReplacer)
-			truck->materialReplacer->addMaterialReplace(mat->getName(), newMaterialName);
+		MaterialPtr mat_clone = rig_spawner->CloneMaterial(def.material_name, mat_clone_name.str());
 
-		VideoCamera *v  = new VideoCamera(truck);
-		v->fov          = fov;
-		v->minclip      = minclip;
-		v->maxclip      = maxclip;
-		v->nz           = nz;
-		v->ny           = ny;
-		v->nref         = nref;
-		v->offset       = Vector3(offx, offy, offz);
-		v->switchoff    = cmode;            // add performance switch off  ->meeds fix, only "always on" supported yet
-		v->materialName = newMaterialName;
-		v->vidCamName   = vidCamName;
-		v->mirrorSize   = Vector2(texx, texy);
-
-		if (crole != 1)                     //rotate camera picture 180°, skip for mirrors
-			rotz += 180;
-
-		v->rotation     = Quaternion(Degree(rotz), Vector3::UNIT_Z) * Quaternion(Degree(roty), Vector3::UNIT_Y) * Quaternion(Degree(rotx), Vector3::UNIT_X);
-
-		if (ncam >= 0)                     // set alternative camposition (optional)
-			v->camNode  = ncam;
-		else
-			v->camNode  = nref;
-
-		if (lookto >= 0)                   // set alternative lookat position (optional)
+		/* we need to find and replace any materials that could come afterwards */
+		if (rig->materialReplacer != nullptr)
 		{
-			v->lookat   = lookto;
-			crole       = 0;               // this is a tracecam, overwrite mode setting
+			rig->materialReplacer->addMaterialReplace(def.material_name, mat_clone_name.str());
+		}
+
+		Ogre::String camera_name;
+		if (! def.camera_name.empty())
+		{
+			camera_name = def.camera_name;
 		}
 		else
-			v->lookat   = -1;
+		{
+			camera_name = def.material_name; /* Fallback */
+		}
 
-		v->camRole      = crole;	        // -1= camera, 0 = trackcam, 1 = mirror
+		VideoCamera *v  = new VideoCamera(rig);
+		v->fov          = def.field_of_view;
+		v->minclip      = def.min_clip_distance;
+		v->maxclip      = def.max_clip_distance;
+		v->nz           = rig_spawner->GetNodeIndexOrThrow(def.left_node);//nz;
+		v->ny           = rig_spawner->GetNodeIndexOrThrow(def.bottom_node);//ny;
+		v->nref         = rig_spawner->GetNodeIndexOrThrow(def.reference_node);//nref;
+		v->offset       = def.offset;
+		v->switchoff    = def.camera_mode; // add performance switch off  ->meeds fix, only "always on" supported yet
+		v->materialName = mat_clone_name.str();
+		v->vidCamName   = def.camera_name;
+		v->mirrorSize   = Vector2(def.texture_width, def.texture_height);
+
+		//rotate camera picture 180°, skip for mirrors
+		float rotation_z = (def.camera_role != 1) ? def.rotation.z + 180 : def.rotation.z;
+		v->rotation 
+			= Ogre::Quaternion(Ogre::Degree(rotation_z), Ogre::Vector3::UNIT_Z) 
+			* Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y) 
+			* Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
+
+		// set alternative camposition (optional)
+		v->camNode = rig_spawner->GetNodeIndexOrThrow(def.alt_reference_node.IsValid() ? def.alt_reference_node : def.reference_node);
+
+		 // set alternative lookat position (optional)
+		int camera_role = def.camera_role;
+		if (def.alt_orientation_node.IsValid())
+		{
+			v->lookat = rig_spawner->GetNodeIndexOrThrow(def.alt_orientation_node);
+			camera_role = 0; // this is a tracecam, overwrite mode setting
+		}
+		else
+		{
+			v->lookat = -1;
+		}
+		v->camRole = camera_role; // -1= camera, 0 = trackcam, 1 = mirror
 
 		v->init();
-
+		
 		return v;
-	} catch(ParseException &)
+	}
+	catch(...)
 	{
-		return 0;
+		return nullptr;
 	}
 }
 

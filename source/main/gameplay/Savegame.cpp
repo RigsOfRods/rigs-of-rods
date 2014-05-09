@@ -182,7 +182,6 @@ int Savegame::save(Ogre::String &filename)
 			WRITEVAR(t->antilockbrake);
 			WRITEVAR(t->tractioncontrol);
 			WRITEVAR(t->animTimer);
-			WRITEVAR(t->beam_creak);
 			WRITEVAR(t->enable_wheel2);
 			WRITEVAR(t->truckmass);
 			WRITEVAR(t->loadmass);
@@ -462,7 +461,6 @@ int Savegame::load(Ogre::String &filename)
 		READVAR(t->antilockbrake);
 		READVAR(t->tractioncontrol);
 		READVAR(t->animTimer);
-		READVAR(t->beam_creak);
 		READVAR(t->enable_wheel2);
 		READVAR(t->truckmass);
 		READVAR(t->loadmass);

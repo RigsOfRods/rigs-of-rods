@@ -21,8 +21,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __VidCam_H_
 
 #include "RoRPrerequisites.h"
+#include "RigDefPrerequisites.h"
 
-#include "SerializedRig.h"
 #include <OgreMaterial.h>
 
 class VideoCamera : public ZeroedMemoryAllocator
@@ -37,7 +37,7 @@ public:
 	void setActive(bool state);
 	//static VideoCamera *setActive(bool state);
 	
-	static VideoCamera *parseLine(SerializedRig *truck, SerializedRig::parsecontext_t &c);
+	static VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & def);
 
 	int camNode, lookat, switchoff;
 	float fov, minclip, maxclip;

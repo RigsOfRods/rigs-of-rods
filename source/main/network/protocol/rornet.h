@@ -16,8 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef RORNETPROTOCOL_H__
-#define RORNETPROTOCOL_H__
+
+#pragma once
+
+#include "BitFlags.h"
 
 // fix unused variable warning
 // see http://stackoverflow.com/questions/386220/hide-defined-but-not-used-warning-with-gcc
@@ -26,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #else
 #define VARIABLE_IS_NOT_USED
 #endif
-
-#define BITMASK(x) (1 << (x-1))
 
 // protocol settings
 static const int   MAX_PEERS = 64;             //!< maximum clients connected at the same time
@@ -50,8 +50,8 @@ static const char VARIABLE_IS_NOT_USED *NEWS_HTML_PAGE = "http://api.rigsofrods.
 
 // ENUMs
 
-/*
- * commands
+/**
+ * RoRNet; commands
  */
 enum {
 	MSG2_HELLO  = 1000,                //!< client sends its version as first message
@@ -100,8 +100,8 @@ enum {
 	MSG2_UTF_PRIVCHAT,                  //!< private chat line in UTF encoding
 };
 
-/*
- * user authentication flags on the server
+/**
+ * RoRNet; user authentication flags on the server
  */
 enum {
 	AUTH_NONE   = 0,                   //!< no authentication
@@ -113,8 +113,8 @@ enum {
 };
 
 
-/*
- * used to transport truck states across
+/**
+ * RoRNet; used to transport truck states across
  */
 enum {
 	NETMASK_HORN        = BITMASK(1),  //!< horn is in use
@@ -146,10 +146,10 @@ enum {
 
 // structs
 
-/*
- * this structure defines the header every RoR paket uses
+/**
+ * RoRNet; this structure defines the header every RoR paket uses
  */
-typedef struct
+typedef struct header_t
 {
 	unsigned int command;     //!< the command of this packet: MSG2_*
 	int source;               //!< source of this command: 0 = server
@@ -157,10 +157,10 @@ typedef struct
 	unsigned int size;        //!< size of the attached data block
 } header_t;
 
-/*
- * structure that is send from the client to server and vice versa, to broadcast a new stream
+/**
+ * RoRNet; structure that is send from the client to server and vice versa, to broadcast a new stream
  */
-typedef struct
+typedef struct stream_register_t
 {
 	char name[128];           //!< the truck filename
 	int type;                 //!< stream type
@@ -170,10 +170,10 @@ typedef struct
 	char data[8000];          //!< data used for stream setup
 } stream_register_t;
 
-/*
- * specialization of stream_register_t for truck registrations
+/**
+ * RoRNet; specialization of stream_register_t for truck registrations
  */
-typedef struct
+typedef struct stream_register_trucks_t
 {
 	char name[128];            //!< the truck filename
 	int type;                  //!< stream type
@@ -184,18 +184,18 @@ typedef struct
 	char truckconfig[10][60];  //!< truck section configuration
 } stream_register_trucks_t;
 
-/*
- * structure sent to remove a stream
+/**
+ * RoRNet; structure sent to remove a stream
  */
-typedef struct
+typedef struct stream_unregister_t
 {
 	int sid;                   //!< the unique id of the stream
 } stream_unregister_t;
 
-/*
- * general user information structure
+/**
+ * RoRNet; general user information structure
  */
-typedef struct
+typedef struct user_info_t
 {
 	unsigned int uniqueid;     //!< user unique id
 	char username[MAX_USERNAME_LEN];      //!< the nickname of the user WIDE CHAR!
@@ -214,10 +214,10 @@ typedef struct
 } user_info_t;
 
 
-/*
- * net force structure
+/**
+ * RoRNet; net force structure
  */
-typedef struct
+typedef struct netforce_t
 {
 	unsigned int target_uid;   //!< target UID
 	unsigned int node_id;      //!< node of target
@@ -226,10 +226,10 @@ typedef struct
 	float fz;                  //!< force z
 } netforce_t;
 
-/*
- * truck property structure
+/**
+ * RoRNet; truck property structure
  */
-typedef struct
+typedef struct oob_t
 {
 	int time;                  //!< time data
 	float engine_speed;        //!< engine RPM
@@ -242,11 +242,10 @@ typedef struct
 	unsigned int flagmask;     //!< flagmask: NETMASK_*
 } oob_t;
 
-
-/*
- * server settings struct
+/**
+ * RoRNet; server settings struct
  */
-typedef struct
+typedef struct server_info_t
 {
 	char protocolversion[20];  //!< protocol version being used
 	char terrain[128];         //!< terrain name
@@ -254,6 +253,3 @@ typedef struct
 	bool password;             //!< passworded server?
 	char info[4096];           //!< info text
 } server_info_t;
-
-
-#endif //RORNETPROTOCOL_H__

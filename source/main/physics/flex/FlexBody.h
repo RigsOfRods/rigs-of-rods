@@ -17,21 +17,39 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __FlexBody_H__
-#define __FlexBody_H__
+
+#pragma once
 
 #include "RoRPrerequisites.h"
-
 #include "BeamData.h"
 #include "Flexable.h"
 #include "MaterialFunctionMapper.h"
-#include "Ogre.h"
+
+#include <OgreVector3.h>
+#include <OgreQuaternion.h>
+#include <OgreHardwareVertexBuffer.h>
+#include <OgreMesh.h>
 
 class FlexBody : public Flexable
 {
 public:
 
-	FlexBody(node_t *nds, int numnodes, char* meshname, char* uname, int ref, int nx, int ny, Ogre::Vector3 offset, Ogre::Quaternion rot, char* setdef, MaterialFunctionMapper *mfm, Skin *usedSkin, bool forceNoShadows, MaterialReplacer *mr);
+	FlexBody(
+		node_t *nds, 
+		int numnodes, 
+		Ogre::String const & meshname, 
+		Ogre::String const & uname, 
+		int ref, 
+		int nx, 
+		int ny, 
+		Ogre::Vector3 const & offset, 
+		Ogre::Quaternion const & rot, 
+		std::vector<unsigned int> & node_indices, 
+		MaterialFunctionMapper *mfm, 
+		Skin *usedSkin, 
+		bool forceNoShadows, 
+		MaterialReplacer *mr
+	);
 
 	void addinterval(int from, int to);
 	bool isinset(int n);
@@ -43,6 +61,10 @@ public:
 
 	void setEnabled(bool e);
 
+	/**
+	* Visibility control 
+	* @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
+	*/
 	void setCameraMode(int mode) { cameramode = mode; };
 	int getCameraMode() { return cameramode; };
 
@@ -82,7 +104,7 @@ private:
 	Ogre::Vector3* srcnormals;
 	Ogre::Vector3* dstnormals;
 	Ogre::ARGB* srccolors;
-	Locator_t *locs; //1 loc per vertex
+	Locator_t *locs; //!< 1 loc per vertex
 
 	int cref;
 	int cx;
@@ -100,13 +122,13 @@ private:
 	int numsubmeshbuf;
 	int *submeshnums;
 	int *subnodecounts;
-	Ogre::HardwareVertexBufferSharedPtr subpbufs[16];//positions
-	Ogre::HardwareVertexBufferSharedPtr subnbufs[16];//normals
-	Ogre::HardwareVertexBufferSharedPtr subcbufs[16];//colors
+	Ogre::HardwareVertexBufferSharedPtr subpbufs[16]; //!< positions
+	Ogre::HardwareVertexBufferSharedPtr subnbufs[16]; //!< normals
+	Ogre::HardwareVertexBufferSharedPtr subcbufs[16]; //!< colors
 
 	bool enabled;
 
-	int cameramode;
+	int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 
 	bool hasshared;
 	bool hasshadows;
@@ -117,5 +139,3 @@ private:
 
 	Ogre::MeshPtr msh;
 };
-
-#endif // __FlexBody_H__

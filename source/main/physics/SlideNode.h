@@ -43,10 +43,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SLIDENODE_H_
 #define __SLIDENODE_H_
 
+#include "ApproxMath.h"
 #include "RoRPrerequisites.h"
 
-#include "ApproxMath.h"
-#include "BeamData.h"
+#include <OgreVector3.h>
 
 /**
  * Find the point on a line defined by pt1 and pt2 that
@@ -295,17 +295,17 @@ public:
     /**
      * @return The current position of the SlideNode
      */
-    const Ogre::Vector3& getNodePosition() const  { return mSlidingNode->AbsPosition; }
+    const Ogre::Vector3& getNodePosition() const;
 
     /**
      * @return The position where the SlideNode should be location on the slide beam
      */
-    const Ogre::Vector3& getIdealPosition() const { return mIdealPosition; }
+    const Ogre::Vector3& getIdealPosition() const;
 
     /**
      * @return Id of the SlideNode
      */
-    unsigned int getNodeID() const  { return mSlidingNode->id; }
+    unsigned int getNodeID() const;
 
     /**
      * @return Id of the rail this SlideNode is on, returns infinity if no rail
@@ -330,12 +330,7 @@ public:
     /**
      * Recalculates the closest position for this SlideNode
      */
-    void ResetPositions()
-    {
-    	mSlidingRail = getClosestRailAll(mCurRailGroup, mSlidingNode->AbsPosition);
-    	mSlidingBeam = (mSlidingRail ? mSlidingRail->curBeam : NULL );
-    	UpdatePosition();
-    }
+    void ResetPositions();
 
     /**
      * @param toAttach Which Rail this SLideNode starts sliding on when reset
@@ -401,65 +396,41 @@ public:
 	 * @param point
 	 * @return value is always positive, if group is null return infinity.
 	 */
-    static Ogre::Real getLenTo( const RailGroup* group, const Ogre::Vector3& point )
-    {
-    	if ( !group ) return std::numeric_limits<Ogre::Real>::infinity();
-    	
-    	return getLenTo( group->getStartRail(), point);	
-    }
+    static Ogre::Real getLenTo( const RailGroup* group, const Ogre::Vector3& point );
 
     /**
      * @param rail
      * @param point
      * @return value is always positive, if rail is null return infinity.
      */
-    static Ogre::Real getLenTo( const Rail* rail, const Ogre::Vector3& point )
-    {
-    	if ( !rail ) return std::numeric_limits<Ogre::Real>::infinity();
-    	
-    	return getLenTo( rail->curBeam, point);	
-    }
+    static Ogre::Real getLenTo( const Rail* rail, const Ogre::Vector3& point );
 
     /**
      * @param beam
      * @param point
      * @return value is always positive, if beam is null return infinity
      */
-    static Ogre::Real getLenTo( const beam_t* beam, const Ogre::Vector3& point )
-    {
-    	if ( !beam ) return std::numeric_limits<Ogre::Real>::infinity();
-    	
-    	return fast_length( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point );	
-    }
+    static Ogre::Real getLenTo( const beam_t* beam, const Ogre::Vector3& point );
 
 
     /**
      * @param group
      * @return value is always positive, if group is null return infinity.
      */
-    Ogre::Real getLenTo( const RailGroup* group ) const
-    {
-    	return getLenTo( group, mSlidingNode->AbsPosition );	
-    }
+    Ogre::Real getLenTo( const RailGroup* group ) const;
 
     /**
      * @param rail
      * @return value is always positive, if rail is null return infinity.
      */
-    Ogre::Real getLenTo( const Rail* rail ) const
-    {
-    	return getLenTo( rail, mSlidingNode->AbsPosition );	
-    }
+    Ogre::Real getLenTo( const Rail* rail ) const;
 
     /**
      *
      * @param beam
      * @return value is always positive, if beam is null return infinity
      */
-    Ogre::Real getLenTo( const beam_t* beam) const
-    {
-    	return getLenTo( beam,  mSlidingNode->AbsPosition );
-    }
+    Ogre::Real getLenTo( const beam_t* beam) const;
 
     /**
      * Finds the closest rail to the point, non-incremental version.
@@ -507,13 +478,7 @@ private:
      * slide beam.
      * @return forces between the ideal position and the slide node
      */
-    Ogre::Vector3 getCorrectiveForces()
-    {
-		const Ogre::Vector3 force = (mIdealPosition - mSlidingNode->AbsPosition);
-		const Ogre::Real  beamLen = std::max( 0.0f, force.length() - mCurThreshold );
-		const Ogre::Real forceLen = -mSpringRate * beamLen;
-		return (force.normalisedCopy() * forceLen);
-    }
+    Ogre::Vector3 getCorrectiveForces();
 
     /**
      *  sets a specific bit or bits to 1

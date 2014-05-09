@@ -25,12 +25,17 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
+#include "RigDefParser.h"
+#include "RigSpawner.h"
 #include "Beam.h"
 #include "StreamableFactory.h"
 #include "TwoDReplay.h"
 
 #include <pthread.h>
 
+/**
+* Builds and manages vehicles; Manages multithreading.
+*/
 class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public ZeroedMemoryAllocator
 {
 	friend class Network;
@@ -41,14 +46,30 @@ public:
 	BeamFactory();
 	~BeamFactory();
 
-	Beam *createLocal(int slotid);
+	/**
+	* Does nothing; empty implementation of interface function.
+	*/
+	Beam *createLocal(int slotid) { return 0; }
+
 	Beam *createLocal(Ogre::Vector3 pos, Ogre::Quaternion rot, Ogre::String fname, collision_box_t *spawnbox = NULL, bool ismachine = false, int flareMode = 0, const std::vector<Ogre::String> *truckconfig = 0, Skin *skin = 0, bool freePosition = false);
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
 	bool getThreadingMode() { return thread_mode; };
-	void _WorkerWaitForSync();  // Waits until work is done
-	void _WorkerPrepareStart(); // Prepare to start working
-	void _WorkerSignalStart();  // Signals to start working
+
+	/**
+	* Threading; Waits until work is done
+	*/
+	void _WorkerWaitForSync();
+	
+	/**
+	* Threading; Prepare to start working
+	*/
+	void _WorkerPrepareStart(); 
+
+	/**
+	* Threading; Signals to start working
+	*/
+	void _WorkerSignalStart(); 
 
 	bool asynchronousPhysics() { return async_physics; };
 	int getNumCpuCores() { return num_cpu_cores; };
@@ -73,6 +94,9 @@ public:
 	bool enterRescueTruck();
 	void repairTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box, bool keepPosition=false);
 
+	/**
+	* TIGHT-LOOP; Logic: display, particles, sound; 
+	*/
 	void updateVisual(float dt);
 	void updateAI(float dt);
 
@@ -81,13 +105,24 @@ public:
 	void calcPhysics(float dt);
 	void recalcGravityMasses();
 
-	/* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.*/
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
+	*/
 	bool truckIntersectionAABB(int a, int b);
-	/* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.*/
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
+	*/
 	bool predictTruckIntersectionAABB(int a, int b);
-	/* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.*/
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
+	*/
 	bool truckIntersectionCollAABB(int a, int b);
-	/* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.*/
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
+	*/
 	bool predictTruckIntersectionCollAABB(int a, int b);
 
 	void activateAllTrucks();
@@ -127,6 +162,9 @@ protected:
 	TwoDReplay *tdr;
 
 	unsigned long physFrame;
+
+	void LogParserMessages();
+	void LogSpawnerMessages();
 
 	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
 	void recursiveActivation(int j);

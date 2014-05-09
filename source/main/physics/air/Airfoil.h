@@ -17,16 +17,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __Airfoil_H_
-#define __Airfoil_H_
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 
+/**
+* Represents an airfoil http://en.wikipedia.org/wiki/Airfoil
+*/
 class Airfoil : public ZeroedMemoryAllocator
 {
 public:
 
-	Airfoil(char* fname);
+	/**
+	* Parses the airfoil from file.
+	* @param fname File name (X-Plane's .AFL file format)
+	*/
+	Airfoil(Ogre::String const & fname);
 	~Airfoil();
 
 	void getparams(float a, float cratio, float cdef, float* ocl, float* ocd, float* ocm);
@@ -37,5 +44,3 @@ private:
 	float cd[3601];
 	float cm[3601];
 };
-
-#endif // __Airfoil_H_

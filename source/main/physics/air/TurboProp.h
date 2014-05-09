@@ -33,7 +33,25 @@ public:
 	float indicated_torque;
 	float max_torque;
 
-	Turboprop(char* propname, node_t *nd, int nr, int nb, int np1, int np2, int np3, int np4, int tqn, float power, char* propfoilname, int mnumber, int trucknum, bool disable_smoke, bool ispiston, float fpitch, bool heathaze);
+	Turboprop(
+		char* propname, 
+		node_t *nd, 
+		int nr, 
+		int nb, 
+		int np1, 
+		int np2, 
+		int np3, 
+		int np4, 
+		int tqn, 
+		float power, 
+		Ogre::String const & propfoilname, 
+		int mnumber, 
+		int trucknum, 
+		bool disable_smoke, 
+		bool ispiston, 
+		float fpitch, 
+		bool heathaze
+	);
 
 	void updateVisuals();
 	void updateForces(float dt, int doUpdate);

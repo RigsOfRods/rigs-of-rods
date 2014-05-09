@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 30th of April 2010 by Thomas Fischer
-#ifndef __RoRPrerequisites_H_
-#define __RoRPrerequisites_H_
+
+#pragma once
 
 // Defines whether Checked Iterators are enabled. If defined as 1, unsafe iterator use causes a runtime error. If defined as 0, checked iterators are disabled.
 // TBD - tdev
@@ -40,8 +40,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 
+#include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
+#include <BitFlags.h>
 
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
@@ -105,134 +107,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //CAUTION, do not try to use normal free on nedmalloc'ed memory and the other way round
 // if you are not sure that this replacement is consistent, better leave it out.
 
-// some tool to define the bitmasks. We use this, as it it far better readable (prevents errors)
-#define BITMASK(x) (1 << (x-1))
-// BITMASK(1) = 0x00000001 = 0b00....0001
-// BITMASK(2) = 0x00000002 = 0b00....0010
-
-class AeroEngine;
-class Airbrake;
-class Airfoil;
-class AppState;
-class Autopilot;
-class Axle;
-class Beam;
-class BeamEngine;
-class BeamThreadStats;
-class Buoyance;
-class CacheEntry;
-class Character;
-class ChatSystem;
-class CmdKeyInertia;
-class Collisions;
-class ColoredTextAreaOverlayElement;
-class Dashboard;
-class DashBoard;
-class DashBoardManager;
-class DOFManager;
-class DotSceneLoader;
-class DustPool;
-class Editor;
-class Envmap;
-class Flexable;
-class FlexAirfoil;
-class FlexBody;
-class FlexMesh;
-class FlexObj;
-class HDRListener;
-class ICameraBehavior;
-class IWater;
-class HeatHaze;
-class HeightFinder;
-class SurveyMapManager;
-class SurveyMapEntity;
-class MapTextureCreator;
-class MaterialFunctionMapper;
-class MaterialReplacer;
-class MeshObject;
-class Mirrors;
-class Network;
-class OverlayWrapper;
-class PointColDetector;
-class PositionStorage;
-class ProceduralManager;
-class Rail;
-class RailGroup;
-class Replay;
-class RigsOfRods;
-class Road2;
-class Road;
-class RoRFrameListener;
-class ScopeLog;
-class Screwprop;
-class Skidmark;
-class Skin;
-class SkyManager;
-class SlideNode;
-class ShadowManager;
-class SoundManager;
-class SoundScriptInstance;
-class SoundScriptManager;
-class TerrainGeometryManager;
-class TerrainHeightFinder;
-class TerrainManager;
-class TerrainObjectManager;
-class ThreadPool;
-class IThreadTask;
-class TorqueCurve;
-class TruckEditor;
-class TruckHUD;
-class Turboprop;
-class VideoCamera;
-class Water;
-
-namespace Ogre
-{
-	class MovableText;
-};
-
-#ifdef USE_SOCKETW
-class SWBaseSocket;
-#endif //USE_SOCKETW
 
 // some platform fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #define strnlen(str,len) strlen(str)
 #endif
-
-// forward typedefs for structs
-
-// little helper macro that should prevent typos and increase readability
-// "FWDCLSTRUCT(node)" will be "typedef struct node node_t"
-#define FWDCLSTRUCT(x) typedef struct x x##_t
-
-
-FWDCLSTRUCT(node);
-FWDCLSTRUCT(beam);
-FWDCLSTRUCT(shock);
-FWDCLSTRUCT(collcab_rate);
-FWDCLSTRUCT(soundsource);
-FWDCLSTRUCT(contacter);
-FWDCLSTRUCT(rigidifier);
-FWDCLSTRUCT(wheel);
-FWDCLSTRUCT(vwheel);
-FWDCLSTRUCT(ropable);
-FWDCLSTRUCT(wing);
-FWDCLSTRUCT(command);
-FWDCLSTRUCT(rotator);
-FWDCLSTRUCT(flare);
-FWDCLSTRUCT(prop);
-FWDCLSTRUCT(rope);
-FWDCLSTRUCT(exhaust);
-FWDCLSTRUCT(cparticle);
-FWDCLSTRUCT(debugtext);
-FWDCLSTRUCT(rig);
-FWDCLSTRUCT(collision_box);
-FWDCLSTRUCT(tie);
-FWDCLSTRUCT(hook);
-FWDCLSTRUCT(ground_model);
-FWDCLSTRUCT(client);
-FWDCLSTRUCT(authorinfo);
 
 enum VisibilityMasks {
 	DEPTHMAP_ENABLED  = BITMASK(1),
@@ -241,5 +120,3 @@ enum VisibilityMasks {
 };
 
 extern GlobalEnvironment *gEnv;
-
-#endif // __RoRPrerequisites_H_

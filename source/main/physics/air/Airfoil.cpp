@@ -23,7 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Airfoil::Airfoil(char* fname)
+Airfoil::Airfoil(Ogre::String const & fname)
 {
 	for (int i=0; i<3601; i++) //init in case of bad things
 	{

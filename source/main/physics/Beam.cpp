@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "Beam.h"
 
 #include "AirBrake.h"
@@ -31,6 +32,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraManager.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DustManager.h"
@@ -63,399 +65,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboProp.h"
 #include "Water.h"
 
+#include "RigDefParser.h"
+#include "RigDefValidator.h"
+
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif //OGRE_PLATFORM_LINUX
 
 using namespace Ogre;
-
-Beam::Beam(int tnum, Ogre::Vector3 pos, Ogre::Quaternion rot, const char* fname, bool networked /* = false  */, bool networking /* = false  */, collision_box_t *spawnbox /* = NULL  */, bool ismachine/* =false  */, int flareMode /* = 0  */, const std::vector<Ogre::String> *truckconfig /* = 0  */, Skin *skin /* = 0  */, bool freeposition /* = false */) :
-	  deleting(false)
-	, GUIFeaturesChanged(false)
-	, aileron(0)
-	, avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
-	, beacon(false)
-	, beamsVisible(true)
-	, blinkingtype(BLINK_NONE)
-	, blinktreshpassed(false)
-	, brake(0.0)
-	, cabFadeMode(0)
-	, cabFadeTime(0.3)
-	, cabFadeTimer(0)
-	, cameranodeacc(Vector3::ZERO)
-	, cameranodecount(0)
-	, canwork(true)
-	, cparticle_mode(false)
-	, currentScale(1)
-	, currentcamera(-1) // -1 = external
-	, dash(nullptr)
-	, detailLevel(0)
-	, disableDrag(false)
-	, disableTruckTruckCollisions(false)
-	, disableTruckTruckSelfCollisions(false)
-	, elevator(0)
-	, flap(0)
-	, floating_origin_enable(true)
-	, fusedrag(Vector3::ZERO)
-	, hydroaileroncommand(0)
-	, hydroaileronstate(0)
-	, hydrodircommand(0)
-	, hydrodirstate(0)
-	, hydrodirwheeldisplay(0.0)
-	, hydroelevatorcommand(0)
-	, hydroelevatorstate(0)
-	, hydroruddercommand(0)
-	, hydrorudderstate(0)
-	, iPosition(pos)
-	, increased_accuracy(false)
-	, interPointCD()
-	, intraPointCD()
-	, isInside(false)
-	, last_net_time(0)
-	, lastlastposition(pos)
-	, lastposition(pos)
-	, leftMirrorAngle(0.52)
-	, lights(1)
-	, lockSkeletonchange(false)
-	, locked(0)
-	, lockedold(0)
-	, mTimeUntilNextToggle(0)
-	, meshesVisible(true)
-	, minCameraRadius(0)
-	, mousemoveforce(0.0f)
-	, mousenode(-1)
-	, mousepos(Vector3::ZERO)
-	, netBrakeLight(false)
-	, netLabelNode(0)
-	, netMT(0)
-	, netReverseLight(false)
-	, networkAuthlevel(0)
-	, networkUsername("")
-	, oldreplaypos(-1)
-	, parkingbrake(0)
-	, posStorage(0)
-	, position(pos)
-	, previousGear(0)
-	, refpressure(50.0)
-	, replay(0)
-	, replayPrecision(0)
-	, replayTimer(0)
-	, replaylen(10000)
-	, replaymode(false)
-	, replaypos(0)
-	, requires_wheel_contact(false)
-	, reset_requested(0)
-	, reverselight(false)
-	, rightMirrorAngle(-0.52)
-	, rudder(0)
-	, simpleSkeletonInitiated(false)
-	, simpleSkeletonManualObject(0)
-	, simulated(false)
-	, skeleton(0)
-	, sleepcount(0)
-	, smokeNode(NULL)
-	, smoker(NULL)
-	, stabcommand(0)
-	, stabratio(0.0)
-	, stabsleep(0.0)
-	, tdt(0.1)
-	, thread_index(0)
-	, thread_number(0)
-	, thread_task(THREAD_BEAMFORCESEULER)
-	, totalmass(0)
-	, tsteps(100)
-	, ttdt(0.1)
-	, watercontact(false)
-	, watercontactold(false)
-{
-	pthread_cond_init(&flexable_task_count_cv, NULL);
-	pthread_mutex_init(&flexable_task_count_mutex, NULL);
-	for (int task=0; task < THREAD_MAX; task++)
-	{
-		task_count[task] = 0;
-		pthread_cond_init(&task_count_cv[task], NULL);
-		pthread_mutex_init(&task_count_mutex[task], NULL);
-		pthread_mutex_init(&task_index_mutex[task], NULL);
-	}
-	pthread_mutex_init(&itc_node_access_mutex, NULL);
-
-	mCamera = gEnv->mainCamera;
-	airbrakeval = 0;
-	alb_minspeed = 0.0f;
-	alb_mode = 0;
-	alb_notoggle = false;
-	alb_notoggle = false;
-	alb_present = false;
-	alb_pulse = 1;
-	alb_pulse_state = false;
-	alb_ratio = 0.0f;
-	animTimer = 0.0f;
-	antilockbrake = 0;
-
-	cabMesh = NULL;
-	cablight = 0;
-	cablightNode = 0;
-
-	cc_mode = false;
-	cc_can_brake = false;
-	cc_target_rpm = 0.0f;
-	cc_target_speed = 0.0f;
-	cc_target_speed_lower_limit = 0.0f;
-
-	collisionRelevant = false;
-
-	debugVisuals = 0;
-
-	driveable = NOT_DRIVEABLE;
-	driverSeat = 0;
-
-	enable_wheel2 = true; // since 0.38 enabled wheels2 by default
-	engine = 0;
-
-	flaresMode = flaresMode;
-
-	freePositioned = freeposition;
-	free_aeroengine = 0;
-	free_airbrake = 0;
-	free_axle = 0;
-	free_beam = 0;
-	free_buoycab = 0;
-	free_cab = 0;
-	free_camerarail = 0;
-	free_collcab = 0;
-	free_contacter = 0;
-	free_cparticle = 0;
-	free_flare = 0;
-	free_flexbody = 0;
-	free_hydro = 0;
-	free_node = 0;
-	free_pressure_beam = 0;
-	free_prop = 0;
-	free_rigidifier = 0;
-	free_rotator = 0;
-	free_screwprop = 0;
-	free_shock = 0;
-	free_soundsource = 0;
-	free_sub = 0;
-	free_texcoord = 0;
-	free_wheel = 0;
-	free_wing = 0;
-
-	disableTruckTruckCollisions = BSETTING("DisableCollisions", false);
-	disableTruckTruckSelfCollisions = BSETTING("DisableSelfCollisions", false);
-
-	heathaze = !disable_smoke && BSETTING("HeatHaze", false);
-	hideInChooser = false;
-
-	origin = Vector3::ZERO;
-
-	previousCrank = 0.0f;
-
-	sl_enabled = false;
-	sl_speed_limit = 0.0f;
-
-	state = SLEEPING;
-
-	tc_fade = 0.0f;
-	tc_mode = 0;
-	tc_present = false;
-	tc_pulse = 1;
-	tc_pulse_state = false;
-	tc_ratio = 0.0f;
-	tc_wheelslip = 0.0f;
-	tcalb_timer = 0.0f;
-
-	tractioncontrol = 0;
-	trucknum = tnum;
-
-	usedSkin = skin;
-
-#ifdef USE_MYGUI
-	dash = new DashBoardManager();
-#endif // USE_MYGUI
-
-#ifdef FEAT_TIMING
-	// this enables beam engine timing statistics
-	statistics = BES.getClient(tnum, BES_CORE);
-	statistics_gfx = BES.getClient(tnum, BES_GFX);
-#endif
-
-	this->networking = networking;
-
-	for (int i=0; i<MAX_SUBMESHES; i++)
-	{
-		subisback[i] = 0;
-	}	
-
-	LOG("BEAM: loading new truck: " + String(fname));
-
-	if (ismachine)
-	{
-		driveable = MACHINE;
-	}
-
-	// copy truck config
-	if (truckconfig && truckconfig->size())
-	{
-		for (std::vector<String>::const_iterator it = truckconfig->begin(); it != truckconfig->end(); ++it)
-		{
-			this->truckconfig.push_back(*it);
-		}
-	}
-
-	materialFunctionMapper = new MaterialFunctionMapper();
-	cmdInertia   = new CmdKeyInertia();
-	hydroInertia = new CmdKeyInertia();
-	rotaInertia  = new CmdKeyInertia();
-
-	submesh_ground_model = gEnv->collisions->defaultgm;
-
-	realtruckfilename = String(fname);
-	sprintf(truckname, "t%i", tnum);
-	
-	strcpy(uniquetruckid,"-1");
-
-	simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	deletion_sceneNodes.emplace_back(simpleSkeletonNode);
-	
-	beamsRoot=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	deletion_sceneNodes.emplace_back(netLabelNode);
-
-	// skidmark stuff
-	useSkidmarks = BSETTING("Skidmarks", false);
-
-	// you could disable the collision code here:
-	if (!disableTruckTruckCollisions)
-	{
-		interPointCD.emplace_back(new PointColDetector());
-
-		if (gEnv->threadPool)
-		{
-			for (int i=1; i<gEnv->threadPool->getSize(); i++)
-				interPointCD.emplace_back(new PointColDetector());
-		}
-	}
-
-	if (!disableTruckTruckSelfCollisions)
-	{
-		intraPointCD.emplace_back(new PointColDetector());
-
-		if (gEnv->threadPool)
-		{
-			for (int i=1; i<gEnv->threadPool->getSize(); i++)
-				intraPointCD.emplace_back(new PointColDetector());
-		}
-	}
-
-	dustp   = DustManager::getSingleton().getDustPool("dust");
-	dripp   = DustManager::getSingleton().getDustPool("dripp");
-	sparksp = DustManager::getSingleton().getDustPool("sparks");
-	clumpp  = DustManager::getSingleton().getDustPool("clump");
-	splashp = DustManager::getSingleton().getDustPool("splash");
-	ripplep = DustManager::getSingleton().getDustPool("ripple");
-	
-	if (networked || networking)
-	{
-		enable_wheel2 = false;
-	}
-
-	cparticle_enabled = BSETTING("Particles", true);
-	if (strnlen(fname, 200) > 0)
-	{
-		if (loadTruck2(String(fname), beamsRoot, pos, rot, spawnbox))
-		{
-	   		return;
-		}
-	}
-
-	// setup sounds properly
-	changedCamera();
-
-	// setup replay mode
-	bool enablereplay = BSETTING("Replay mode", false);
-
-	if (enablereplay && !networked && !networking)
-	{
-		replaylen = ISETTING("Replay length", 10000);
-		replay = new Replay(this, replaylen);
-
-		int steps = ISETTING("Replay Steps per second", 240);
-
-		if (steps <= 0)
-			replayPrecision = 0.0f;
-		else
-			replayPrecision = 1.0f / ((float)steps);
-	}
-
-	// add storage
-	bool enablePosStor = BSETTING("Position Storage", false);
-	if (enablePosStor)
-	{
-		posStorage = new PositionStorage(free_node, 10);
-	}
-
-	//search first_wheel_node
-	first_wheel_node=free_node;
-	for (int i=0; i<free_node; i++)
-	{
-		if (nodes[i].iswheel)
-		{
-			first_wheel_node=i;
-			break;
-		}
-	}
-
-	// network buffer layout (without oob_t):
-	//
-	//  - 3 floats (x,y,z) for the reference node 0
-	//  - free_node - 1 times 3 short ints (compressed position info)
-	//  - free_wheel times a float for the wheel rotation
-	//
-	nodebuffersize = sizeof(float) * 3 + (first_wheel_node-1) * sizeof(short int) * 3;
-	netbuffersize  = nodebuffersize + free_wheel * sizeof(float);
-	updateVisual();
-	// stop lights
-	lightsToggle();
-
-	updateFlares(0);
-	updateProps();
-	if (engine)
-	{
-		engine->offstart();
-	}
-	// pressurize tires
-	addPressure(0.0);
-
-	checkBeamMaterial();
-
-	// start network stuff
-	if (networked)
-	{
-		state = NETWORKED;
-		// malloc memory
-		oob1=(oob_t*)malloc(sizeof(oob_t));
-		oob2=(oob_t*)malloc(sizeof(oob_t));
-		oob3=(oob_t*)malloc(sizeof(oob_t));
-		netb1=(char*)malloc(netbuffersize);
-		netb2=(char*)malloc(netbuffersize);
-		netb3=(char*)malloc(netbuffersize);
-		nettimer = new Timer();
-		net_toffset = 0;
-		netcounter = 0;
-		// init mutex
-		pthread_mutex_init(&net_mutex, NULL);
-		if (engine)
-		{
-			engine->start();
-		}
-	}
-
-	if (networking)
-	{
-		sendStreamSetup();
-	}
-}
 
 Beam::~Beam()
 {
@@ -850,63 +468,28 @@ Vector3 Beam::getPosition()
 	return position; //the position is already in absolute position
 }
 
-node_t *Beam::addNode(Vector3 pos)
-{
-	init_node(free_node, pos.x, pos.y, pos.z, NODE_NORMAL, 100, 0, 0, free_node);
-	node_t *n = &nodes[free_node];
-
-	// we must map the actual poitition back to init position
-	n->iPosition = nodes[0].iPosition + (pos - nodes[0].AbsPosition);;
-	free_node++;
-	return n;
-}
-
-beam_t *Beam::addBeam(int id1, int id2)
-{
-	int type = BEAM_NORMAL;
-
-	if (id1 < 0 || id1 >= free_node || id2 < 0 || id2 >= free_node)
-	{
-		LOG("Error: unknown node number in beams section ("
-			+TOSTRING(id1)+","+TOSTRING(id2)+")");
-		exit(3);
-	}
-	//skip if a beam already exists
-	LOG(TOSTRING(nodes[id1].AbsPosition)+" -> "+TOSTRING(nodes[id2].AbsPosition));
-
-	for (int i=0; i<free_beam; i++)
-	{
-		if ((beams[i].p1==&nodes[id1] && beams[i].p2==&nodes[id2]) || (beams[i].p1==&nodes[id2] && beams[i].p2==&nodes[id1]))
-		{
-			LOG("Skipping duplicate beams: from node "+TOSTRING(id1)+" to node "+TOSTRING(id2));
-			return NULL;
-		}
-	}
-
-	int pos=add_beam(beamsRoot, &nodes[id1], &nodes[id2], \
-			type, default_break * default_break_scale, default_spring * default_spring_scale, \
-			default_damp * default_damp_scale, detacher_group_state,-1, -1, -1, 1, \
-			default_beam_diameter);
-
-	beams[pos].type=BEAM_NORMAL;
-	return &beams[pos];
-}
-
 void Beam::checkBeamMaterial()
 {
 	BES_GFX_START(BES_GFX_checkBeamMaterial);
 	if (MaterialManager::getSingleton().resourceExists("mat-beam-0"))
 		return;
-
-		MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create("mat-beam-0", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
-
-		mat->getTechnique(0)->getPass(0)->createTextureUnitState();
-
+	int i = 0;
+	char bname[256];
+	for (i=-100;i<=100;i++)
+	{
+		//register a material for skeleton view
+		sprintf(bname, "mat-beam-%d", i);
+		MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+		float f = fabs(((float)i)/100);
+		if (i<=0)
+			mat->getTechnique(0)->getPass(0)->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(0.2f, 2.0f*(1.0f-f), f*2.0f, 0.8f));
+		else
+			mat->getTechnique(0)->getPass(0)->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(f*2.0f, 2.0f*(1.0f-f), 0.2f, 0.8f));
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(TFO_ANISOTROPIC);
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
 		mat->setLightingEnabled(false);
 		mat->setReceiveShadows(false);
-
+	}
 	BES_GFX_STOP(BES_GFX_checkBeamMaterial);
 }
 
@@ -1218,6 +801,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 	Real len = 0.0f;
 	for (int i=0; i<free_beam; i++)
 	{
+		float dbg_old_len = len;
 		if (beams[i].type!=BEAM_VIRTUAL)
 		{
 			Real half_newlen = beams[i].L / 2.0;
@@ -1225,6 +809,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 			if (!(beams[i].p2->iswheel)) len += half_newlen;
 		}
 	}
+
 	if (!reCalc)
 	{
 		for (int i=0; i<free_beam; i++)
@@ -1369,134 +954,6 @@ void Beam::determineLinkedBeams()
 int Beam::getWheelNodeCount()
 {
 	return free_node-first_wheel_node;
-}
-
-void Beam::setupDefaultSoundSources()
-{
-#ifdef USE_OPENAL
-	if (SoundScriptManager::getSingleton().isDisabled()) return;
-	//engine
-	if (engine)
-	{
-		if (engine->type=='t')
-		{
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_diesel", trucknum, NULL), smokeId);
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_force", trucknum, NULL), smokeId);
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_brakes", trucknum, NULL), 0);
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_parkbrakes", trucknum, NULL), 0);
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_reverse_beep", trucknum, NULL), 0);
-		}
-		if (engine->type=='c')
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_car", trucknum, NULL), smokeId);
-		if (engine->hasturbo)
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_turbo", trucknum, NULL), smokeId);
-		if (engine->hasair)
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_air_purge", trucknum, NULL), 0);
-		//starter
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_starter", trucknum, NULL), 0);
-		// turn signals
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_turn_signal", trucknum, NULL), 0);
-	}
-	if (driveable==TRUCK)
-	{
-		//horn
-		if (ispolice)
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_police", trucknum, NULL), 0);
-		else
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_horn", trucknum, NULL), 0);
-		//shift
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_shift", trucknum, NULL), 0);
-	}
-	//pump
-	if (hascommands)
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_pump", trucknum, NULL), 0);
-	//antilock brake
-	if (alb_present)
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_antilock", trucknum, NULL), 0);
-	//tractioncontrol
-	if (tc_present)
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_tractioncontrol", trucknum, NULL), 0);
-	//screetch
-	if ((driveable==TRUCK || driveable==AIRPLANE) && free_wheel)
-		addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_screetch", trucknum, NULL), 0);
-	//break & creak
-	addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_break", trucknum, NULL), 0);
-	addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_creak", trucknum, NULL), 0);
-	//boat engine
-	if (driveable==BOAT)
-	{
-		if (totalmass>50000.0)
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_marine_large", trucknum, NULL), smokeId);
-		else
-			addSoundSource(SoundScriptManager::getSingleton().createInstance("tracks/default_marine_small", trucknum, NULL), smokeId);
-		//no start/stop engine for boats, so set sound always on!
-		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, 0.5);
-	}
-	//airplane warnings
-	if (driveable==AIRPLANE)
-	{
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_10"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_20"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_30"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_40"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_50"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_100"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_pullup"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_minimums"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_gpws_apdisconnect"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aoa_warning"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat01"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat02"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat03"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat04"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat05"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat06"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat07"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat08"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat09"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat10"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat11"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat12"), trucknum, NULL), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_aivionic_chat13"), trucknum, NULL), 0);
-	}
-	//airplane engines
-	for (int i=0; i<free_aeroengine && i<8; i++)
-	{
-		if (aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOJET)
-		{
-			addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turbojet_start")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-			addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turbojet_lopower")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-			addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turbojet_hipower")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-			if (((Turbojet*)(aeroengines[i]))->afterburnable)
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turbojet_afterburner")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-		}
-		else if (aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
-		{
-			if (((Turboprop*)aeroengines[i])->is_piston)
-			{
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_pistonprop_start")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_pistonprop_lopower")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_pistonprop_hipower")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-			}
-			else
-			{
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turboprop_start")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turboprop_lopower")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-				addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/default_turboprop_hipower")+TOSTRING(i+1), trucknum, NULL), aeroengines[i]->getNoderef());
-			}
-		}
-	}
-
-
-	// linked sounds
-	for (int i=0; i<free_commands; i++)
-	{
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/linked/default_command/extend"), trucknum, NULL, SL_COMMAND, i), 0);
-		addSoundSource(SoundScriptManager::getSingleton().createInstance(String("tracks/linked/default_command/retract"), trucknum, NULL, SL_COMMAND, -i), 0);
-	}
-
-#endif //OPENAL
 }
 
 void Beam::calcNodeConnectivityGraph()
@@ -2256,11 +1713,11 @@ void Beam::sendStreamSetup()
 	reg.type   = 0; // 0 = truck
 	reg.bufferSize = netbuffersize;
 	strncpy(reg.name, realtruckfilename.c_str(), 128);
-	if (!truckconfig.empty())
+	if (!m_truck_config.empty())
 	{
 		// insert section config
-		for (int i = 0; i < std::min<int>((int)truckconfig.size(), 10); i++)
-			strncpy(reg.truckconfig[i], truckconfig[i].c_str(), 60);
+		for (int i = 0; i < std::min<int>((int)m_truck_config.size(), 10); i++)
+			strncpy(reg.truckconfig[i], m_truck_config[i].c_str(), 60);
 	}
 
 	NetworkStreamManager::getSingleton().addLocalStream(this, (stream_register_t *)&reg, sizeof(reg));
@@ -5748,134 +5205,6 @@ bool Beam::isLocked()
 	return false;
 }
 
-int Beam::loadTruck2(String filename, SceneNode *parent, Vector3 pos, Quaternion rot, collision_box_t *spawnbox)
-{
-	int res = loadTruck(filename, parent, pos, rot, spawnbox);
-	if (res) return res;
-
-	// place correctly
-	if (!hasfixes)
-	{
-		// check if over-sized
-		calcBoundingBoxes();
-		//px = px - (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0;
-		pos.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - pos.x;
-		//pz = pz - (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0;
-		pos.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - pos.z;
-		
-		if (freePositioned)
-			resetPosition(pos, true);
-		else
-			resetPosition(pos.x, pos.z, true);
-
-		if (spawnbox)
-		{
-			bool inside = true;
-
-			for (int i=0; i < free_node; i++)
-				inside = (inside && gEnv->collisions->isInside(nodes[i].AbsPosition, spawnbox, 0.2f));
-
-			if (!inside)
-			{
-				float miny = spawnbox->relo.y + spawnbox->center.y + 0.01f;
-				Vector3 gpos = Vector3(pos.x, 0.0f, pos.z);
-
-				gpos -= rot * Vector3((spawnbox->hi.x - spawnbox->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6f, 0.0f, 0.0f);
-				
-				resetPosition(gpos.x, gpos.z, true, miny);
-			}
-		}
-	} else
-	{
-		resetPosition(pos, true);
-	}
-
-	//compute final mass
-	calc_masses2(truckmass);
-	//setup default sounds
-	if (!disable_default_sounds) setupDefaultSoundSources();
-
-	//compute collision box
-	calcBoundingBoxes();
-
-	//compute lowest node
-	calcLowestNode();
-
-	//compute node connectivity graph
-	calcNodeConnectivityGraph();
-
-	//update contacter nodes
-	updateContacterNodes();
-
-	// fix up submesh collision model
-	if (!subMeshGroundModelName.empty())
-	{
-		submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
-		if (!submesh_ground_model) gEnv->collisions->defaultgm;
-	}
-
-	// print some truck memory stats
-	int mem = 0, memr = 0, tmpmem = 0;
-	LOG("BEAM: memory stats following");
-
-	tmpmem = free_beam * sizeof(beam_t); mem += tmpmem;
-	memr += MAX_BEAMS * sizeof(beam_t);
-	LOG("BEAM: beam memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_beam) + " x " + TOSTRING(sizeof(beam_t)) + " B) / " + TOSTRING(MAX_BEAMS * sizeof(beam_t)));
-
-	tmpmem = free_node * sizeof(node_t); mem += tmpmem;
-	memr += MAX_NODES * sizeof(beam_t);
-	LOG("BEAM: node memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_node) + " x " + TOSTRING(sizeof(node_t)) + " B) / " + TOSTRING(MAX_NODES * sizeof(node_t)));
-
-	tmpmem = free_shock * sizeof(shock_t); mem += tmpmem;
-	memr += MAX_SHOCKS * sizeof(beam_t);
-	LOG("BEAM: shock memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_shock) + " x " + TOSTRING(sizeof(shock_t)) + " B) / " + TOSTRING(MAX_SHOCKS * sizeof(shock_t)));
-
-	tmpmem = free_prop * sizeof(prop_t); mem += tmpmem;
-	memr += MAX_PROPS * sizeof(beam_t);
-	LOG("BEAM: prop memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_prop) + " x " + TOSTRING(sizeof(prop_t)) + " B) / " + TOSTRING(MAX_PROPS * sizeof(prop_t)));
-
-	tmpmem = free_wheel * sizeof(wheel_t); mem += tmpmem;
-	memr += MAX_WHEELS * sizeof(beam_t);
-	LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_wheel) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
-
-	tmpmem = free_rigidifier * sizeof(rigidifier_t); mem += tmpmem;
-	memr += MAX_RIGIDIFIERS * sizeof(beam_t);
-	LOG("BEAM: rigidifier memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_rigidifier) + " x " + TOSTRING(sizeof(rigidifier_t)) + " B) / " + TOSTRING(MAX_RIGIDIFIERS * sizeof(rigidifier_t)));
-
-	tmpmem = free_flare * sizeof(flare_t); mem += tmpmem;
-	memr += free_flare * sizeof(beam_t);
-	LOG("BEAM: flare memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_flare) + " x " + TOSTRING(sizeof(flare_t)) + " B)");
-
-	LOG("BEAM: truck memory used: " + TOSTRING(mem)  + " B (" + TOSTRING(mem/1024)  + " kB)");
-	LOG("BEAM: truck memory allocated: " + TOSTRING(memr)  + " B (" + TOSTRING(memr/1024)  + " kB)");
-
-
-#ifdef USE_MYGUI
-	// now load any dashboards
-	if (dash)
-	{
-		if (dashBoardLayouts.empty())
-		{
-			// load default for a truck
-			if (driveable == TRUCK)
-			{
-				dash->loadDashBoard("default_dashboard.layout", false);
-				// TODO: load texture dashboard by default as well
-				dash->loadDashBoard("default_dashboard.layout", true);
-			}
-		} else
-		{
-			// load all dashes
-			for (unsigned int i=0; i < dashBoardLayouts.size(); i++)
-				dash->loadDashBoard(dashBoardLayouts[i].first, dashBoardLayouts[i].second);
-		}
-		dash->setVisible(false);
-	}
-#endif // USE_MYGUI
-
-	return res;
-}
-
 void Beam::updateAI(float dt)
 {
 	if (driveable != TRUCK ||
@@ -6585,4 +5914,643 @@ void Beam::onComplete()
 			pthread_cond_signal(&task_count_cv[thread_task]);
 		}
 	}
+}
+
+
+void LogParserMessages(RigDef::Parser & parser)
+{
+	if (parser.GetMessages().size() == 0)
+	{
+		LOG(" == Parsing done OK");
+		return;
+	}
+
+	std::stringstream report;
+	report << " == Parsing done, report:" << std::endl <<std::endl;
+
+	std::list<RigDef::Parser::Message>::const_iterator iter = parser.GetMessages().begin();
+	for (; iter != parser.GetMessages().end(); iter++)
+	{
+		switch (iter->type)
+		{
+			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
+				report << "FATAL_ERROR"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_ERROR): 
+				report << "ERROR"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_WARNING): 
+				report << "WARNING"; 
+				break;
+
+			default:
+				report << "INFO"; 
+				break;
+		}
+		report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
+		report << "\tLine (# " << iter->line_number << "): " << iter->line << std::endl;
+		report << "\tMessage: " << iter->message << std::endl;
+	}
+
+	Ogre::LogManager::getSingleton().logMessage(report.str());
+}
+
+void LogSpawnerMessages(RigSpawner & spawner)
+{
+	std::stringstream report;
+
+	std::list<RigSpawner::Message>::const_iterator iter = spawner.GetMessages().begin();
+	for (; iter != spawner.GetMessages().end(); iter++)
+	{
+		switch (iter->type)
+		{
+			case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
+				report << "INTERNAL ERROR"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_ERROR): 
+				report << "ERROR"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_WARNING): 
+				report << "WARNING"; 
+				break;
+
+			default:
+				report << "INFO"; 
+				break;
+		}
+		report << "(Keyword " << RigDef::File::KeywordToString(iter->keyword) << ")" << std::endl;
+		report << "\t" << iter->text << std::endl;
+	}
+
+	Ogre::LogManager::getSingleton().logMessage(report.str());
+}
+
+void LogValidatorMessages(RigDef::Validator & validator)
+{
+	if (validator.GetMessages().empty())
+	{
+		Ogre::LogManager::getSingleton().logMessage(" == Validating done OK");
+		return;
+	}
+
+	std::stringstream report;
+	report << " == Validating done, report:" <<std::endl << std::endl;
+
+	std::list<RigDef::Validator::Message>::iterator itor = validator.GetMessages().begin();
+	for( ; itor != validator.GetMessages().end(); itor++)
+	{
+		switch (itor->type)
+		{
+			case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
+				report << "FATAL ERROR";
+				break;
+			case (RigDef::Validator::Message::TYPE_ERROR):
+				report << "ERROR";
+				break;
+			case (RigDef::Validator::Message::TYPE_WARNING):
+				report << "WARNING";
+				break;
+			default:
+				report << "INFO";
+		}
+
+		report << ": " << itor->text << std::endl;
+	}
+
+	Ogre::LogManager::getSingleton().logMessage(report.str());
+}
+
+Beam::Beam(
+	int truck_number, 
+	Ogre::Vector3 pos, 
+	Ogre::Quaternion rot, 
+	const char* fname, 
+	bool networked, /* = false  */
+	bool networking, /* = false  */ 
+	collision_box_t *spawnbox, /* = NULL  */
+	bool ismachine, /* =false  */ 
+	int flareMode, /* = 0  */
+	const std::vector<Ogre::String> *truckconfig, /* = 0  */
+	Skin *skin, /* = 0  */
+	bool freeposition /* = false */
+) :
+
+	  deleting(false)
+	, GUIFeaturesChanged(false)
+	, aileron(0)
+	, avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
+	, beacon(false)
+	, beamsVisible(true)
+	, blinkingtype(BLINK_NONE)
+	, blinktreshpassed(false)
+	, brake(0.0)
+	, cabFadeMode(0)
+	, cabFadeTime(0.3)
+	, cabFadeTimer(0)
+	, cameranodeacc(Ogre::Vector3::ZERO)
+	, cameranodecount(0)
+	, canwork(true)
+	, cparticle_mode(false)
+	, currentScale(1)
+	, currentcamera(-1) // -1 = external
+	, dash(nullptr)
+	, detailLevel(0)
+	, disableDrag(false)
+	, disableTruckTruckCollisions(false)
+	, disableTruckTruckSelfCollisions(false)
+	, elevator(0)
+	, flap(0)
+	, floating_origin_enable(true)
+	, fusedrag(Ogre::Vector3::ZERO)
+	, hydroaileroncommand(0)
+	, hydroaileronstate(0)
+	, hydrodircommand(0)
+	, hydrodirstate(0)
+	, hydrodirwheeldisplay(0.0)
+	, hydroelevatorcommand(0)
+	, hydroelevatorstate(0)
+	, hydroruddercommand(0)
+	, hydrorudderstate(0)
+	, iPosition(pos)
+	, increased_accuracy(false)
+	, interPointCD()
+	, intraPointCD()
+	, isInside(false)
+	, last_net_time(0)
+	, lastlastposition(pos)
+	, lastposition(pos)
+	, leftMirrorAngle(0.52)
+	, lights(1)
+	, lockSkeletonchange(false)
+	, locked(0)
+	, lockedold(0)
+	, mTimeUntilNextToggle(0)
+	, meshesVisible(true)
+	, minCameraRadius(0)
+	, mousemoveforce(0.0f)
+	, mousenode(-1)
+	, mousepos(Ogre::Vector3::ZERO)
+	, netBrakeLight(false)
+	, netLabelNode(0)
+	, netMT(0)
+	, netReverseLight(false)
+	, networkAuthlevel(0)
+	, networkUsername("")
+	, oldreplaypos(-1)
+	, parkingbrake(0)
+	, posStorage(0)
+	, position(pos)
+	, previousGear(0)
+	, refpressure(50.0)
+	, replay(0)
+	, replayPrecision(0)
+	, replayTimer(0)
+	, replaylen(10000)
+	, replaymode(false)
+	, replaypos(0)
+	, requires_wheel_contact(false)
+	, reset_requested(0)
+	, reverselight(false)
+	, rightMirrorAngle(-0.52)
+	, rudder(0)
+	, simpleSkeletonInitiated(false)
+	, simpleSkeletonManualObject(0)
+	, simulated(false)
+	, skeleton(0)
+	, sleepcount(0)
+	, smokeNode(NULL)
+	, smoker(NULL)
+	, stabcommand(0)
+	, stabratio(0.0)
+	, stabsleep(0.0)
+	, tdt(0.1)
+	, thread_index(0)
+	, thread_number(0)
+	, thread_task(THREAD_BEAMFORCESEULER)
+	, totalmass(0)
+	, tsteps(100)
+	, ttdt(0.1)
+	, watercontact(false)
+	, watercontactold(false)
+{
+	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
+
+	/* class <Beam> mutexes */
+
+	pthread_cond_init(&flexable_task_count_cv, NULL);
+	pthread_mutex_init(&flexable_task_count_mutex, NULL);
+	for (int task=0; task < THREAD_MAX; task++)
+	{
+		task_count[task] = 0;
+		pthread_cond_init(&task_count_cv[task], NULL);
+		pthread_mutex_init(&task_count_mutex[task], NULL);
+		pthread_mutex_init(&task_index_mutex[task], NULL);
+	}
+	pthread_mutex_init(&itc_node_access_mutex, NULL);
+
+	/* struct <rig_t> parameters */
+	
+	trucknum = truck_number;
+	freePositioned = freeposition;
+	usedSkin = skin;
+	networking = networking;
+	memset(truckname, 0, 256);
+	sprintf(truckname, "t%i", truck_number);
+	memset(uniquetruckid, 0, 256);
+	strcpy(uniquetruckid,"-1");
+	driveable=NOT_DRIVEABLE;
+	if (ismachine)
+	{
+		driveable = MACHINE;
+	}
+	enable_wheel2 = true; // since 0.38 enabled wheels2 by default
+	if (networked || networking)
+	{
+		enable_wheel2 = false;
+	}
+
+	/* class <Beam> parameters */
+	realtruckfilename = Ogre::String(fname);
+
+	// copy truck config
+	if (truckconfig != nullptr && truckconfig->size() > 0u)
+	{
+		for (std::vector<Ogre::String>::const_iterator it = truckconfig->begin(); it != truckconfig->end(); ++it)
+		{
+			m_truck_config.push_back(*it);
+		}
+	}
+
+	Ogre::SceneNode *beams_parent = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+	
+	if (strnlen(fname, 200) > 0)
+	{
+		if(! LoadTruck(fname, beams_parent, pos, rot, spawnbox))
+		{
+			return;
+		}
+	}
+
+	// setup sounds properly
+	changedCamera();
+
+	// setup replay mode
+	bool enablereplay = BSETTING("Replay mode", false);
+
+	if (enablereplay && !networked && !networking)
+	{
+		replaylen = ISETTING("Replay length", 10000);
+		replay = new Replay(this, replaylen);
+
+		int steps = ISETTING("Replay Steps per second", 240);
+
+		if (steps <= 0)
+			replayPrecision = 0.0f;
+		else
+			replayPrecision = 1.0f / ((float)steps);
+	}
+
+	// add storage
+	bool enablePosStor = BSETTING("Position Storage", false);
+	if (enablePosStor)
+	{
+		posStorage = new PositionStorage(free_node, 10);
+	}
+
+	//search first_wheel_node
+	first_wheel_node=free_node;
+	for (int i=0; i<free_node; i++)
+	{
+		if (nodes[i].iswheel)
+		{
+			first_wheel_node=i;
+			break;
+		}
+	}
+
+	// network buffer layout (without oob_t):
+	//
+	//  - 3 floats (x,y,z) for the reference node 0
+	//  - free_node - 1 times 3 short ints (compressed position info)
+	//  - free_wheel times a float for the wheel rotation
+	//
+	nodebuffersize = sizeof(float) * 3 + (first_wheel_node-1) * sizeof(short int) * 3;
+	netbuffersize  = nodebuffersize + free_wheel * sizeof(float);
+	updateVisual();
+	// stop lights
+	lightsToggle();
+
+	mCamera = gEnv->mainCamera;
+	updateFlares(0);
+	updateProps();
+	if (engine)
+	{
+		engine->offstart();
+	}
+	// pressurize tires
+	addPressure(0.0);
+
+	checkBeamMaterial();
+
+	// start network stuff
+	if (networked)
+	{
+		state = NETWORKED;
+		// malloc memory
+		oob1=(oob_t*)malloc(sizeof(oob_t));
+		oob2=(oob_t*)malloc(sizeof(oob_t));
+		oob3=(oob_t*)malloc(sizeof(oob_t));
+		netb1=(char*)malloc(netbuffersize);
+		netb2=(char*)malloc(netbuffersize);
+		netb3=(char*)malloc(netbuffersize);
+		nettimer = new Ogre::Timer();
+		net_toffset = 0;
+		netcounter = 0;
+		// init mutex
+		pthread_mutex_init(&net_mutex, NULL);
+		if (engine)
+		{
+			engine->start();
+		}
+	}
+
+	if (networking)
+	{
+		sendStreamSetup();
+	}
+
+	mCamera = gEnv->mainCamera;
+
+	LOG(" ===== DONE LOADING VEHICLE");
+}
+
+bool Beam::LoadTruck(
+	Ogre::String const & file_name, 
+	Ogre::SceneNode *parent_scene_node, 
+	Ogre::Vector3 const & spawn_position,
+	Ogre::Quaternion & spawn_rotation,
+	collision_box_t *spawn_box
+)
+{
+	/* add custom include path */
+	if (!SSETTING("resourceIncludePath", "").empty())
+	{
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("resourceIncludePath", ""), "FileSystem", "customInclude");
+	}
+
+	//ScopeLog scope_log("beam_"+filename);
+
+	/* initialize custom include path */
+	if (!SSETTING("resourceIncludePath", "").empty())
+	{
+		Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
+	}
+
+	Ogre::DataStreamPtr ds = Ogre::DataStreamPtr();
+	Ogre::String fixed_file_name = file_name;
+	Ogre::String found_resource_group;
+	Ogre::String errorStr;
+
+	try
+	{
+		CACHE.checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
+
+		// error on ds open lower
+		// open the stream and start reading :)
+		ds = Ogre::ResourceGroupManager::getSingleton().openResource(fixed_file_name, found_resource_group);
+	} catch(Ogre::Exception& e)
+	{
+		errorStr = Ogre::String(e.what());
+		return false;
+	}
+
+	//this->cacheEntryInfo = CACHE.getResourceInfo(filename);
+	if (ds.isNull() || !ds->isReadable())
+	{
+#ifdef USE_MYGUI
+		Console *console = Console::getSingletonPtrNoCreation();
+		if (console != nullptr) 
+		{
+			console->putMessage(
+				Console::CONSOLE_MSGTYPE_INFO, 
+				Console::CONSOLE_SYSTEM_ERROR, 
+				"unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr, 
+				"error.png", 
+				30000, 
+				true
+			);
+		}
+#endif // USE_MYGUI
+		return false;
+	}
+
+	/* PARSING */
+
+	LOG(" == Parsing vehicle file: " + file_name);
+
+	RigDef::Parser parser;
+	parser.Prepare();
+	while(! ds->eof())
+	{
+		parser.ParseLine(ds->getLine());
+	}
+	parser.Finalize();
+
+	LogParserMessages(parser);
+
+	/* VALIDATING */
+
+	LOG(" == Validating vehicle: " + parser.GetFile()->name);
+
+	RigDef::Validator validator;
+	validator.Setup(parser.GetFile());
+	bool valid = validator.Validate();
+
+	LogValidatorMessages(validator);
+
+	if (! valid)
+	{
+		return false;
+	}
+
+	/* PROCESSING */
+
+	LOG(" == Spawning vehicle: " + parser.GetFile()->name);
+
+	RigSpawner spawner;
+	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation);
+
+	/* Setup modules */
+	spawner.AddModule(parser.GetFile()->root_module);
+	if (parser.GetFile()->modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
+	{
+		std::vector<Ogre::String>::iterator itor = m_truck_config.begin();
+		for( ; itor != m_truck_config.end(); itor++ )
+		{
+			spawner.AddModule(*itor);
+		}
+	}
+
+	spawner.SpawnRig();
+
+	/* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
+
+	/* Place correctly */
+	if (! this->hasfixes)
+	{
+		Ogre::Vector3 vehicle_position = spawn_position;
+
+		// check if over-sized
+		RecalculateBoundingBoxes();
+		vehicle_position.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - vehicle_position.x;
+		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - vehicle_position.z;
+		
+		if (freePositioned)
+			resetPosition(vehicle_position, true);
+		else
+			resetPosition(vehicle_position.x, vehicle_position.z, true);
+
+		if (spawn_box != nullptr)
+		{
+			bool inside = true;
+
+			for (int i=0; i < free_node; i++)
+				inside = (inside && gEnv->collisions->isInside(nodes[i].AbsPosition, spawn_box, 0.2f));
+
+			if (!inside)
+			{
+				float miny = spawn_box->relo.y + spawn_box->center.y + 0.01f;
+				Vector3 gpos = Vector3(vehicle_position.x, 0.0f, vehicle_position.z);
+
+				gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6f, 0.0f, 0.0f);
+				
+				resetPosition(gpos.x, gpos.z, true, miny);
+			}
+		}
+	} 
+	else
+	{
+		resetPosition(spawn_position, true);
+	}
+
+	//compute final mass
+	calc_masses2(truckmass);
+	//setup default sounds
+	if (!disable_default_sounds)
+	{
+		//setupDefaultSoundSources();
+		RigSpawner::SetupDefaultSoundSources(this);
+	}
+
+	//compute node connectivity graph
+	calcNodeConnectivityGraph();
+
+	//update contacter nodes
+	updateContacterNodes();
+
+	// fix up submesh collision model
+	if (!subMeshGroundModelName.empty())
+	{
+		submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
+		if (!submesh_ground_model) gEnv->collisions->defaultgm;
+	}
+
+	// print some truck memory stats
+	int mem = 0, memr = 0, tmpmem = 0;
+	LOG("BEAM: memory stats following");
+
+	tmpmem = free_beam * sizeof(beam_t); mem += tmpmem;
+	memr += MAX_BEAMS * sizeof(beam_t);
+	LOG("BEAM: beam memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_beam) + " x " + TOSTRING(sizeof(beam_t)) + " B) / " + TOSTRING(MAX_BEAMS * sizeof(beam_t)));
+
+	tmpmem = free_node * sizeof(node_t); mem += tmpmem;
+	memr += MAX_NODES * sizeof(beam_t);
+	LOG("BEAM: node memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_node) + " x " + TOSTRING(sizeof(node_t)) + " B) / " + TOSTRING(MAX_NODES * sizeof(node_t)));
+
+	tmpmem = free_shock * sizeof(shock_t); mem += tmpmem;
+	memr += MAX_SHOCKS * sizeof(beam_t);
+	LOG("BEAM: shock memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_shock) + " x " + TOSTRING(sizeof(shock_t)) + " B) / " + TOSTRING(MAX_SHOCKS * sizeof(shock_t)));
+
+	tmpmem = free_prop * sizeof(prop_t); mem += tmpmem;
+	memr += MAX_PROPS * sizeof(beam_t);
+	LOG("BEAM: prop memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_prop) + " x " + TOSTRING(sizeof(prop_t)) + " B) / " + TOSTRING(MAX_PROPS * sizeof(prop_t)));
+
+	tmpmem = free_wheel * sizeof(wheel_t); mem += tmpmem;
+	memr += MAX_WHEELS * sizeof(beam_t);
+	LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_wheel) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
+
+	tmpmem = free_rigidifier * sizeof(rigidifier_t); mem += tmpmem;
+	memr += MAX_RIGIDIFIERS * sizeof(beam_t);
+	LOG("BEAM: rigidifier memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_rigidifier) + " x " + TOSTRING(sizeof(rigidifier_t)) + " B) / " + TOSTRING(MAX_RIGIDIFIERS * sizeof(rigidifier_t)));
+
+	tmpmem = free_flare * sizeof(flare_t); mem += tmpmem;
+	memr += free_flare * sizeof(beam_t);
+	LOG("BEAM: flare memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_flare) + " x " + TOSTRING(sizeof(flare_t)) + " B)");
+
+	LOG("BEAM: truck memory used: " + TOSTRING(mem)  + " B (" + TOSTRING(mem/1024)  + " kB)");
+	LOG("BEAM: truck memory allocated: " + TOSTRING(memr)  + " B (" + TOSTRING(memr/1024)  + " kB)");
+
+
+#ifdef USE_MYGUI
+	// now load any dashboards
+	if (dash)
+	{
+		if (dashBoardLayouts.empty())
+		{
+			// load default for a truck
+			if (driveable == TRUCK)
+			{
+				dash->loadDashBoard("default_dashboard.layout", false);
+				// TODO: load texture dashboard by default as well
+				dash->loadDashBoard("default_dashboard.layout", true);
+			}
+		} else
+		{
+			// load all dashes
+			for (unsigned int i=0; i < dashBoardLayouts.size(); i++)
+				dash->loadDashBoard(dashBoardLayouts[i].first, dashBoardLayouts[i].second);
+		}
+		dash->setVisible(false);
+	}
+#endif // USE_MYGUI
+
+	return true;
+}
+
+void Beam::RecalculateBoundingBoxes()
+{
+	boundingBox.setExtents(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+	collisionBoundingBoxes.clear();
+
+	for (int i=0; i < free_node; i++)
+	{
+		boundingBox.merge(Ogre::Vector3(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z));
+		if (nodes[i].collisionBoundingBoxID >= 0)
+		{
+			if ((unsigned int) nodes[i].collisionBoundingBoxID >= collisionBoundingBoxes.size())
+			{
+				collisionBoundingBoxes.push_back(Ogre::AxisAlignedBox(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z));
+			} 
+			else
+			{
+				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
+			}
+		}
+	}
+
+	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
+	{
+		collisionBoundingBoxes[i].setMinimum(collisionBoundingBoxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+		collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+	}
+
+	boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+	boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+
+	predictedBoundingBox = boundingBox;
+	predictedCollisionBoundingBoxes = collisionBoundingBoxes;
 }

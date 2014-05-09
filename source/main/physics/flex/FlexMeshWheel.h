@@ -31,7 +31,21 @@ class FlexMeshWheel: public Flexable
 {
 public:
 
-	FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* meshname, char* texband, float rimradius, bool rimreverse, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr);
+	FlexMeshWheel::FlexMeshWheel(
+		Ogre::String const & name,
+		node_t *nds, 
+		int axis_node_1_index, 
+		int axis_node_2_index, 
+		int nstart, 
+		int nrays, 
+		Ogre::String const & mesh_name,
+		Ogre::String const & material_name,
+		float rimradius, 
+		bool rimreverse, 
+		MaterialFunctionMapper *material_function_mapper,
+		Skin *used_skin,
+		MaterialReplacer *material_replacer
+	);
 
 	Ogre::Entity *getRimEntity() { return rimEnt; };
 

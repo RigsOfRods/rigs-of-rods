@@ -17,8 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __TorqueCurve_H_
-#define __TorqueCurve_H_
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 #include "OgrePrerequisites.h"
@@ -59,12 +59,17 @@ public:
 	int setTorqueModel(Ogre::String name);
 
 	/**
-	 * Processes a line of a torque curve.
-	 * @param line Line of the file.
+	* Creates new torque curve.
+	* @return True if created, false if already existed.
+	*/
+	bool CreateNewCurve(Ogre::String const & name = customModel);
+
+	/**
+	 * Adds a point to the torque curve graph.
+	 * @param progress 0 - 1
 	 * @param model Torque model name (i.e. 'turbodiesel').
-	 * @return 0 on success, everything else on error
 	 */
-	int processLine(Ogre::String line, Ogre::String model = customModel);
+	void AddCurveSample(float rpm, float progress, Ogre::String const & model = customModel);
 
 	/**
 	 * Returns the used spline.
@@ -105,5 +110,3 @@ protected:
 	 */
 	int processLine(Ogre::StringVector args, Ogre::String model);
 };
-
-#endif // __TorqueCurve_H_

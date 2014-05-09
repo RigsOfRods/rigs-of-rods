@@ -22,14 +22,29 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
 #include "Skin.h"
+#include <sstream>
 
 using namespace Ogre;
 
-FlexMeshWheel::FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* meshname, char* texband, float rimradius, bool rimreverse, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr) :
-	  id0(n1)
-	, id1(n2)
+FlexMeshWheel::FlexMeshWheel(
+	Ogre::String const & name,
+	node_t *nds, 
+	int axis_node_1_index, 
+	int axis_node_2_index, 
+	int nstart, 
+	int nrays, 
+	Ogre::String const & mesh_name,
+	Ogre::String const & material_name,//char* texband, 
+	float rimradius, 
+	bool rimreverse, 
+	MaterialFunctionMapper *material_function_mapper, // *mfm
+	Skin *used_skin, // *usedSkin, 
+	MaterialReplacer *material_replacer // *mr
+) :
+	  id0(axis_node_1_index)
+	, id1(axis_node_2_index)
 	, idstart(nstart)
-	, mr(mr)
+	, mr(material_replacer)
 	, nbrays(nrays)
 	, nodes(nds)
 	, revrim(rimreverse)
@@ -37,13 +52,22 @@ FlexMeshWheel::FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart
 {
 
 	//the rim object
-	char rimname[256];
-	sprintf(rimname, "rim-%s", name);
-	rimEnt = gEnv->sceneManager->createEntity(rimname, meshname);
+	std::stringstream rim_name;
+	rim_name << "rim-" << name;
+	rimEnt = gEnv->sceneManager->createEntity(rim_name.str(), mesh_name);
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(rimEnt, ColourValue(0, 0.5, 0.8));
-	if (mfm) mfm->replaceMeshMaterials(rimEnt);
-	if (mr) mr->replaceMeshMaterials(rimEnt);
-	if (usedSkin) usedSkin->replaceMeshMaterials(rimEnt);
+	if (material_function_mapper != nullptr)
+	{
+		material_function_mapper->replaceMeshMaterials(rimEnt);
+	}
+	if (material_replacer != nullptr)
+	{
+		material_replacer->replaceMeshMaterials(rimEnt);
+	}
+	if (used_skin != nullptr)
+	{
+		used_skin->replaceMeshMaterials(rimEnt);
+	}
 	rnode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	rnode->attachObject(rimEnt);
 
@@ -54,7 +78,7 @@ FlexMeshWheel::FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart
 	sub = msh->createSubMesh();
 
 	//materials
-	sub->setMaterialName(texband);
+	sub->setMaterialName(material_name);
 
 	/// Define the vertices
 	nVertices = 6*(nrays+1);
@@ -68,12 +92,12 @@ FlexMeshWheel::FlexMeshWheel(char* name, node_t *nds, int n1, int n2, int nstart
 	//textures coordinates
 	for (i=0; i<nrays+1; i++)
 	{
-		covertices[i*6   ].texcoord=Vector2((float)i/(float)nrays, 0.00);
-		covertices[i*6+1 ].texcoord=Vector2((float)i/(float)nrays, 0.23);
-		covertices[i*6+2 ].texcoord=Vector2((float)i/(float)nrays, 0.27);
-		covertices[i*6+3 ].texcoord=Vector2((float)i/(float)nrays, 0.73);
-		covertices[i*6+4 ].texcoord=Vector2((float)i/(float)nrays, 0.77);
-		covertices[i*6+5 ].texcoord=Vector2((float)i/(float)nrays, 1.00);
+		covertices[i*6   ].texcoord=Vector2((float)i/(float)nrays, 0.00f);
+		covertices[i*6+1 ].texcoord=Vector2((float)i/(float)nrays, 0.23f);
+		covertices[i*6+2 ].texcoord=Vector2((float)i/(float)nrays, 0.27f);
+		covertices[i*6+3 ].texcoord=Vector2((float)i/(float)nrays, 0.73f);
+		covertices[i*6+4 ].texcoord=Vector2((float)i/(float)nrays, 0.77f);
+		covertices[i*6+5 ].texcoord=Vector2((float)i/(float)nrays, 1.00f);
 	}
 
 	/// Define triangles

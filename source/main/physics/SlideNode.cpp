@@ -41,6 +41,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SlideNode.h"
 
+#include "BeamData.h"
+
 // RAIL GROUP IMPLEMENTATION ///////////////////////////////////////////////////
 unsigned int RailGroup::nextId = 7000000;
 
@@ -121,6 +123,7 @@ void RailBuilder::pushBack(beam_t* next)
 	}
 	
 }
+
 void RailBuilder::pushFront(beam_t* prev)
 {
 	if ( !mStart )
@@ -307,3 +310,70 @@ void SlideNode::UpdatePosition()
 	// if bLen = 0.0f it means the beam is zero length so pick an end point
 	mRatio = (bLen > 0.0f) ? len/bLen : 0.0f;
 }
+
+const Ogre::Vector3& SlideNode::getNodePosition() const  
+{ 
+	return mSlidingNode->AbsPosition; 
+}
+
+const Ogre::Vector3& SlideNode::getIdealPosition() const 
+{ 
+	return mIdealPosition; 
+}
+
+unsigned int SlideNode::getNodeID() const  
+{ 
+	return mSlidingNode->id; 
+}
+
+void SlideNode::ResetPositions()
+{
+    mSlidingRail = getClosestRailAll(mCurRailGroup, mSlidingNode->AbsPosition);
+    mSlidingBeam = (mSlidingRail ? mSlidingRail->curBeam : NULL );
+    UpdatePosition();
+}
+
+Ogre::Real SlideNode::getLenTo( const RailGroup* group, const Ogre::Vector3& point )
+{
+    if ( !group ) return std::numeric_limits<Ogre::Real>::infinity();
+    	
+    return getLenTo( group->getStartRail(), point);	
+}
+
+Ogre::Real SlideNode::getLenTo( const Rail* rail, const Ogre::Vector3& point )
+{
+    if ( !rail ) return std::numeric_limits<Ogre::Real>::infinity();
+    	
+    return getLenTo( rail->curBeam, point);	
+}
+
+Ogre::Real SlideNode::getLenTo( const beam_t* beam, const Ogre::Vector3& point )
+{
+    if ( !beam ) return std::numeric_limits<Ogre::Real>::infinity();
+    	
+    return fast_length( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point );	
+}
+
+Ogre::Real SlideNode::getLenTo( const RailGroup* group ) const
+{
+    return getLenTo( group, mSlidingNode->AbsPosition );	
+}
+
+Ogre::Real SlideNode::getLenTo( const Rail* rail ) const
+{
+    return getLenTo( rail, mSlidingNode->AbsPosition );	
+}
+
+Ogre::Real SlideNode::getLenTo( const beam_t* beam) const
+{
+    return getLenTo( beam,  mSlidingNode->AbsPosition );
+}
+
+ Ogre::Vector3 SlideNode::getCorrectiveForces()
+{
+	const Ogre::Vector3 force = (mIdealPosition - mSlidingNode->AbsPosition);
+	const Ogre::Real  beamLen = std::max( 0.0f, force.length() - mCurThreshold );
+	const Ogre::Real forceLen = -mSpringRate * beamLen;
+	return (force.normalisedCopy() * forceLen);
+}
+

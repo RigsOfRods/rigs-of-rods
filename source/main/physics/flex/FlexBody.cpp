@@ -26,7 +26,22 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref, int nx, int ny, Vector3 offset, Quaternion rot, char* setdef, MaterialFunctionMapper *mfm, Skin *usedSkin, bool enableShadows, MaterialReplacer *mr) :
+FlexBody::FlexBody(
+	node_t *nds, 
+	int numnodes, 
+	Ogre::String const & meshname, 
+	Ogre::String const & uname, 
+	int ref, 
+	int nx, 
+	int ny, 
+	Ogre::Vector3 const & offset, 
+	Ogre::Quaternion const & rot, 
+	std::vector<unsigned int> & node_indices, 
+	MaterialFunctionMapper *mfm, 
+	Skin *usedSkin, 
+	bool forceNoShadows, 
+	MaterialReplacer *mr
+):
 	  cameramode(-2)	
 	, coffset(offset)
 	, cref(ref)
@@ -39,7 +54,7 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 	, hastangents(false)
 	, mr(mr)
 	, nodes(nds)
-	, numnodes(numnds)
+	, numnodes(numnodes)
 	, snode(0)
 {
 	nodes[cref].iIsSkin=true;
@@ -48,37 +63,12 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 
 	hasshadows=(gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE);
 
-	//parsing set definition
-	char* pos=setdef;
-	char* end=pos;
-	char endwas='G';
-	while (endwas!=0)
+	/* Add nodes */
+	std::vector<unsigned int>::iterator node_itor = node_indices.begin();
+	for ( ; node_itor != node_indices.end(); node_itor++)
 	{
-		unsigned int val1, val2;
-		end=pos;
-		while (*end!='-' && *end!=',' && *end!=0) end++;
-		endwas=*end;
-		*end=0;
-		val1=strtoul(pos, 0, 10);
-		if (endwas=='-')
-		{
-			pos=end+1;
-			end=pos;
-			while (*end!=',' && *end!=0) end++;
-			endwas=*end;
-			*end=0;
-			val2=strtoul(pos, 0, 10);
-			addinterval(val1, val2);
-		}
-		else addinterval(val1, val1);
-		pos=end+1;
+		addinterval(*node_itor, *node_itor);
 	}
-
-	/*
-	// too verbose, removed
-	for (int i=0; i < freenodeset; i++)
-		LOG("FLEXBODY node interval "+TOSTRING(i)+": "+TOSTRING(nodeset[i].from)+"-"+TOSTRING(nodeset[i].to));
-	*/
 
 	Vector3 normal = Vector3::UNIT_Y;
 	Vector3 position = Vector3::ZERO;
@@ -124,7 +114,7 @@ FlexBody::FlexBody(node_t *nds, int numnds, char* meshname, char* uname, int ref
 	}
 	// build new unique mesh name
 	char uname_mesh[256] = {};
-	strncpy(uname_mesh, uname, 250);
+	strncpy(uname_mesh, uname.c_str(), 250);
 	uname_mesh[250] = '\0';
 	strcat(uname_mesh, "_mesh");
 	MeshPtr mesh = MeshManager::getSingleton().load(meshname, groupname);

@@ -50,7 +50,7 @@ protected:
 	bool splineClosed;
 	bool autoTracking;
 
-	std::deque<node*> splineNodes;
+	std::deque<node_t*> splineNodes;
 	unsigned int numLinkedBeams;
 
 	static const int splineDrawResolution = 200;

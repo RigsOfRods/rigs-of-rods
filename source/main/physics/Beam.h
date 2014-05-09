@@ -17,23 +17,29 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __BEAM_H_
-#define __BEAM_H_
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 #include "OgrePrerequisites.h"
+#include "RigDefPrerequisites.h"
 
 #include "BeamData.h"
 #include "CacheSystem.h"
 #include "IThreadTask.h"
-#include "SerializedRig.h"
 #include "Streamable.h"
 
+/** 
+* Represents an entire rig (any vehicle type)
+* Contains logic related to physics, network, sound, threading, rendering. It's a bit of a monster class :(
+*/
 class Beam :
 	public IThreadTask,
-	public SerializedRig,
+	public rig_t,
 	public Streamable
 {
+	friend class RigSpawner;
+
 public:
 	Beam() {}; // for wrapper, DO NOT USE!
 	~Beam();
@@ -44,8 +50,19 @@ public:
 	void release(){};
 #endif
 
-	//constructor
-	Beam( int tnum
+	/**
+	* Constructor
+	*
+	* @param tnum Vehicle number (alias Truck Number)
+	* @param pos
+	* @param rot
+	* @param fname Rig file name.
+	* @param ismachine (see BeamData.h)
+	* @param flareMode IGNORED
+	* @param truckconfig Networking related.
+	*/
+	Beam( 
+		  int tnum
 		, Ogre::Vector3 pos
 		, Ogre::Quaternion rot
 		, const char* fname
@@ -58,13 +75,15 @@ public:
 		, Skin *skin = 0
 		, bool freeposition = false);
 
-	//! @{ network related functions
+	/**
+	* Parses network data; fills truck data buffers and flips them. Called by the network thread.
+	*/
 	void pushNetwork(char* data, int size);
 	void calcNetwork();
-	void updateNetworkInfo();
-	//! @}
 
-	//! @{ physic related functions
+	void updateNetworkInfo();
+
+	
 	void activate();
 	void desactivate();
 	void addPressure(float v);
@@ -73,67 +92,190 @@ public:
 	void resetAngle(float rot);
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
 	void resetPosition(float px, float pz, bool setInitPosition);
+
+	/**
+	* Moves vehicle.
+	* @param translation Offset to move vehicle.
+	* @param setInitPosition Set initial positions of nodes to current position?
+	*/
 	void resetPosition(Ogre::Vector3 translation, bool setInitPosition);
-	void reset(bool keepPosition = false); //call this one to reset a truck from any context
-	//this is called by the beamfactory worker thread
+
+	/**
+	* Call this one to reset a truck from any context
+	*/
+	void reset(bool keepPosition = false); 
+
+	/**
+	* this is called by the beamfactory worker thread
+	*/
 	void threadentry();
-	//this will be called once by frame and is responsible for animation of all the trucks!
-	//the instance called is the one of the current ACTIVATED truck
+
+	/**
+	* Spawns vehicle.
+	*/
+	bool LoadTruck(
+		Ogre::String const & file_name, 
+		Ogre::SceneNode *parent_scene_node, 
+		Ogre::Vector3 const & spawn_position,
+		Ogre::Quaternion & spawn_rotation,
+		collision_box_t *spawn_box
+	);
+
+	/**
+	* TIGHT-LOOP; Called once by frame and is responsible for animation of all the trucks!
+	* the instance called is the one of the current ACTIVATED truck
+	*/
 	bool frameStep(Ogre::Real dt);
-	//! @}
 
-	//! @{ audio related functions
 	void setupDefaultSoundSources();
-	void updateSoundSources();
-	//! @}
 
-	//! @{ user interaction functions
+	void updateSoundSources();
+
+	/**
+	* Event handler
+	*/
 	void mouseMove(int node, Ogre::Vector3 pos, float force);
+
+	/**
+	* Event handler
+	*/
 	void lightsToggle();
+
+	/**
+	* Event handler
+	*/
 	void tieToggle(int group=-1);
+
+	/**
+	* Event handler
+	*/
 	void ropeToggle(int group=-1);
+
+	/**
+	* Event handler
+	*/
 	void hookToggle(int group=-1, hook_states mode=HOOK_TOGGLE, int node_number=-1);
 	void engineTriggerHelper(int engineNumber, int type, float triggerValue);
 	void toggleSlideNodeLock();
 	void toggleCustomParticles();
 	void toggleAxleLock();	//! diff lock on or off
+
+	/**
+	* Event handler
+	*/
 	void parkingbrakeToggle();
+
+	/**
+	* Event handler
+	*/
 	void antilockbrakeToggle();
+
+	/**
+	* Event handler
+	*/
 	void tractioncontrolToggle();
+
+	/**
+	* Event handler
+	*/
 	void cruisecontrolToggle();
+
+	/**
+	* Event handler
+	*/
 	void beaconsToggle();
 	void forwardCommands();
+	
+	/**
+	* Event handler; toggle replay mode.
+	*/
 	void setReplayMode(bool rm);
 	int savePosition(int position);
 	int loadPosition(int position);
 	void updateTruckPosition();
-	//! @}
 
-	//! @{ ground
+	/**
+	* Ground.
+	*/
 	ground_model_t *getLastFuzzyGroundModel();
-	//! @}
 
-	//! @{ graphical display things */
+	/**
+	* Creates or updates skidmarks. No side effects.
+	*/
 	void updateSkidmarks();
 	void updateAI(float dt);
+
+	/**
+	* Prepares vehicle for in-cabin camera use.
+	*/
 	void prepareInside(bool inside);
+	
+	/**
+	* Display.
+	*/
 	void updateFlares(float dt, bool isCurrent=false);
+
+	/**
+	* TIGHT-LOOP; Display; updates positions of props.
+	* Each prop has scene node parented to root-node (only_a_ptr 11/2013).
+	*/
 	void updateProps();
+
+	/**
+	* TIGHT-LOOP; Logic: display, sound, particles
+	* @see updateVisualPrepare
+	* @see updateVisualFinal
+	*/
 	void updateVisual(float dt=0);
+
+	/**
+	* TIGHT-LOOP; Logic: display (+flexbodies +overlays +particles), sound, threading
+	* Does a mixture of tasks:
+	* - Sound: updates sound sources; plays aircraft radio chatter; 
+	* - Particles: updates particles (dust, exhausts, custom)
+	* - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates flexbodies; updates debug overlay
+	*/
 	void updateVisualPrepare(float dt=0);
+
+	/**
+	* TIGHT-LOOP; Logic: display (+flexbodies), threading
+	*/
 	void updateVisualFinal(float dt=0);
 	void updateLabels(float dt=0);
-	//v=0: full detail
-	//v=1: no beams
+
+	/**
+	* Display
+	* @param v 0 = full detail, 1 = no beams
+	*/
 	void setDetailLevel(int v);
+
+	/** 
+	* Display; displays "skeleton" (visual rig) mesh.
+	*/
 	void showSkeleton(bool meshes=true, bool newMode=false, bool linked=true);
+
+	/** 
+	* Display; hides "skeleton" (visual rig) mesh.
+	*/
 	void hideSkeleton(bool newMode=false, bool linked=true);
+
+	/** 
+	* Display; updates the "skeleton" (visual rig) mesh.
+	*/
 	void updateSimpleSkeleton();
+
+	/** 
+	* TIGHT-LOOP; Display; changes coloring of the "skeleton" (visual rig) mesh.
+	*/
 	void updateSkeletonColouring(int doUpdate);
 	void resetAutopilot();
 	void disconnectAutopilot();
 	void scaleTruck(float value);
 	float currentScale;
+
+	/**
+	* TIGHT-LOOP (optional); 
+	*/
 	void updateDebugOverlay();
 	void setDebugOverlayState(int mode);
 
@@ -159,8 +301,8 @@ public:
 	float getWheelSpeed() { return WheelSpeed; }
 	Ogre::Vector3 getGForces();
 
-	int stabcommand;
-	int skeleton;
+	int stabcommand; //!< Stabilization; values: { -1, 0, 1 }
+	int skeleton; //!< Visibility of "skeleton" (visual rig) { 0 = not visible, 1 = visible, 2 = visible in "newMode" }
 	float stabratio;
 	//direction
 	float hydrodircommand;
@@ -232,8 +374,15 @@ public:
 
 	int getNodeCount();
 	node_t *getNodes();
+
+	/**
+	* Returns the number of active (non bounded) beams connected to a node
+	*/
 	int nodeBeamConnections(int nodeid);
 
+	/**
+	* Logic: sound, display; Notify this vehicle that camera changed; 
+	*/
 	void changedCamera();
 
 	float getTotalMass(bool withLocked=true);
@@ -241,19 +390,21 @@ public:
 	int getWheelNodeCount();
 	void setMass(float m);
 
-	beam_t *addBeam(int id1, int id2);
-	node_t *addNode(Ogre::Vector3 pos);
-
 	Ogre::String realtruckfilename;
 
-	/*
-	 *@return Returns a list of all connected (hooked) beams 
+	/**
+	 * @return Returns a list of all connected (hooked) beams 
 	 */
 	std::list<Beam*> getAllLinkedBeams() { return linkedBeams; };
 
-	// this must be in the header as the network stuff is using it...
+	/** 
+	* This must be in the header as the network stuff is using it...
+	*/
 	bool getBrakeLightVisible();
 
+	/**
+	* Tells if the reverse-light is currently lit.
+	*/
 	bool getReverseLightVisible();
 
 	bool getCustomLightVisible(int number);
@@ -277,10 +428,24 @@ public:
 	Ogre::Vector3 cameranodeacc;
 	int cameranodecount;
 
+	/**
+	* Sets visibility of all beams on this vehicle
+	* @param visible Toggle
+	* @param linked Apply to linked vehicles also?
+	*/
 	void setBeamVisibility(bool visible, bool linked=true);
-	bool beamsVisible;
+
+	bool beamsVisible; //!< Are beams visible? @see setBeamVisibility
+
+	/**
+	* Sets visibility of all meshes on this vehicle
+	* @param visible Toggle
+	* @param linked Apply to linked vehicles also?
+	*/
 	void setMeshVisibility(bool visible, bool linked=true);
-	bool meshesVisible;
+
+	bool meshesVisible; //!< Are meshes visible? @see setMeshVisibility
+
 	bool inRange(float num, float min, float max);
 
 	int getTruckTime();
@@ -302,7 +467,9 @@ public:
 
 	Beam* calledby;
 
-	// IThreadTask
+	/**
+	* Overrides IThreadTask::run()
+	*/
 	void run();
 	void onComplete();
 
@@ -324,7 +491,15 @@ protected:
 
 	//! @{ physic related functions
 	bool calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
+
+	/**
+	* TIGHT LOOP; Physics; 
+	*/
 	void calcForcesEulerCompute(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
+
+	/**
+	* TIGHT LOOP; Physics; 
+	*/
 	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 	void intraTruckCollisionsPrepare(Ogre::Real dt);
 	void intraTruckCollisionsCompute(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
@@ -332,9 +507,27 @@ protected:
 	void interTruckCollisionsPrepare(Ogre::Real dt);
 	void interTruckCollisionsCompute(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
 	void interTruckCollisionsFinal(Ogre::Real dt);
+
+	/**
+	* TIGHT LOOP; Physics & sound; 
+	* @param doUpdate Only passed to Beam::calcShocks2()
+	*/
 	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+
+	/**
+	* TIGHT LOOP; Physics; 
+	* @param doUpdate Unused (overwritten in function)
+	*/
 	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+
+	/**
+	* TIGHT LOOP; Physics; 
+	*/
 	void calcHooks();
+
+	/**
+	* TIGHT LOOP; Physics; 
+	*/
 	void calcRopes();
 	void calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
 	void calcAnimators(int flagstate, float &cstate, int &div, float timer, float opt1, float opt2, float opt3);
@@ -372,6 +565,11 @@ protected:
 	// linked beams (hooks)
 	std::list<Beam*> linkedBeams;
 	void determineLinkedBeams();
+
+	/**
+	* Re-calculates collison-bounding-boxes and vehicle's main bounding box.
+	*/
+	void RecalculateBoundingBoxes();
 
 	void calc_masses2(Ogre::Real total, bool reCalc=false);
 	void calcNodeConnectivityGraph();
@@ -419,14 +617,14 @@ protected:
 	float mousemoveforce;
 	int reset_requested;
 
-	std::vector<Ogre::String> truckconfig;
+	std::vector<Ogre::String> m_truck_config;
 
-	oob_t *oob1;
-	oob_t *oob2;
-	oob_t *oob3;
-	char *netb1;
-	char *netb2;
-	char *netb3;
+	oob_t *oob1; //!< Network; Triple buffer for incoming data (truck properties)
+	oob_t *oob2; //!< Network; Triple buffer for incoming data (truck properties)
+	oob_t *oob3; //!< Network; Triple buffer for incoming data (truck properties)
+	char *netb1; //!< Network; Triple buffer for incoming data
+	char *netb2; //!< Network; Triple buffer for incoming data
+	char *netb3; //!< Network; Triple buffer for incoming data
 	pthread_mutex_t net_mutex;
 	Ogre::Timer *nettimer;
 	int net_toffset;
@@ -450,17 +648,18 @@ protected:
 	void setAlphaRejection(Ogre::SceneNode *node, float amount);
 	float cabFadeTimer;
 	float cabFadeTime;
-	int cabFadeMode;
+	int cabFadeMode; //<! Cab fading effect; values { -1, 0, 1, 2 }
 	// cab fading stuff - end
 	bool lockSkeletonchange;
 	bool floating_origin_enable;
 
 	Ogre::ManualObject *simpleSkeletonManualObject;
 	Ogre::SceneNode *simpleSkeletonNode;
-	bool simpleSkeletonInitiated;
+	bool simpleSkeletonInitiated; //!< Was the rig-skeleton mesh built?
+	/** 
+	* Builds the rig-skeleton mesh.
+	*/
 	void initSimpleSkeleton();
-
-	int loadTruck2(Ogre::String filename, Ogre::SceneNode *parent, Ogre::Vector3 pos, Ogre::Quaternion rot, collision_box_t *spawnbox);
 
 	/**
 	 * Resets the turn signal when the steering wheel is turned back.
@@ -661,5 +860,3 @@ inline bool Beam::inRange(float num, float min, float max)
 {
 	return (num <= max && num >= min);
 }
-
-#endif // __BEAM_H_

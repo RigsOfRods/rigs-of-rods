@@ -197,6 +197,13 @@ public:
 
 	bool checkResourceLoaded(CacheEntry t);
 	bool checkResourceLoaded(Ogre::String &filename);
+
+	/**
+	* Finds given resource and returns it's name/group.
+	* @param filename Input-output!
+	* @param group Input-output!
+	* @return True if resource was found.
+	*/
 	bool checkResourceLoaded(Ogre::String &filename, Ogre::String &group);
 	CacheEntry getResourceInfo(Ogre::String &filename);
 	Ogre::String addMeshMaterials(CacheEntry &entry, Ogre::Entity *e);

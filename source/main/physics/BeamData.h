@@ -18,10 +18,12 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// created on 30th of April 2010 by Thomas Fischer
+/** 
+* @file Core data structures for simulation.
+* @author created on 30th of April 2010 by Thomas Fischer 
+*/
 
-#ifndef BEAMDATA_H__
-#define BEAMDATA_H__
+#pragma once
 
 /*
 
@@ -44,9 +46,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
  the order of the structs in here is important as well.
 */
 
-// The RoR required includes (should be included already
+// The RoR required includes (should be included already)
 #include "RoRPrerequisites.h"
 #include "rornet.h"
+#include "SlideNode.h"
 
 /* maximum limits */
 static const int   MAX_TRUCKS                 = 5000;            //!< maximum number of trucks for the engine
@@ -78,88 +81,10 @@ static const int   MAX_CPARTICLES             = 10;              //!< maximum nu
 static const int   MAX_PRESSURE_BEAMS         = 4000;            //!< maximum number of pressure beams per truck
 static const int   MAX_CAMERARAIL             = 50;              //!< maximum number of camera rail points
 
-static const float RAD_PER_SEC_TO_RPM         = 9.5492965855137; //!< Convert radian/second to RPM (60/2*PI)
+static const float RAD_PER_SEC_TO_RPM         = 9.5492965855137f; //!< Convert radian/second to RPM (60/2*PI)
 
 /* other global static definitions */
 static const int   TRUCKFILEFORMATVERSION     = 3;               //!< truck file format version number
-
-
-// warning, we iterate through this, no jumps in the numbers allowed!
-enum TRUCK_SECTIONS {
-	BTS_NONE=0, // beam truck section nodes
-	BTS_NODES,
-	BTS_NODES2,
-	BTS_BEAMS,
-	BTS_FIXES,
-	BTS_SHOCKS,
-	BTS_HYDROS,
-	BTS_WHEELS,
-	BTS_WHEELS2,
-	BTS_GLOBALS,
-	BTS_CAMERAS,
-	BTS_ENGINE,
-	BTS_TEXCOORDS,
-	BTS_CAB,
-	BTS_COMMANDS,
-	BTS_COMMANDS2,
-	BTS_CONTACTERS,
-	BTS_ROPES,
-	BTS_ROPABLES,
-	BTS_TIES,
-	BTS_HELP,
-	BTS_CINECAM,
-	BTS_FLARES,
-	BTS_PROPS,
-	BTS_GLOBEAMS,
-	BTS_WINGS,
-	BTS_TURBOPROPS,
-	BTS_TURBOPROPS2,
-	BTS_PISTONPROPS,
-	BTS_FUSEDRAG,
-	BTS_ENGOPTION,
-	BTS_BRAKES,
-	BTS_ROTATORS,
-	BTS_ROTATORS2,
-	BTS_SCREWPROPS,
-	BTS_GUISETTINGS,
-	BTS_MINIMASS,
-	BTS_EXHAUSTS,
-	BTS_PARTICLES,
-	BTS_TURBOJETS,
-	BTS_RIGIDIFIERS,
-	BTS_AIRBRAKES,
-	BTS_MESHWHEELS,
-	BTS_MESHWHEELS2,
-	BTS_FLEXBODYWHEELS,
-	BTS_FLEXBODIES,
-	BTS_HOOKGROUP,
-	BTS_MATERIALFLAREBINDINGS,
-	BTS_SOUNDSOURCES,
-	BTS_SOUNDSOURCES2,
-	BTS_SOUNDSOURCES3,
-	BTS_ENVMAP,
-	BTS_MANAGEDMATERIALS,
-	BTS_SECTIONCONFIG,
-	BTS_TORQUECURVE,
-	BTS_ADVANCEDDRAG,
-	BTS_AXLES,
-	BTS_SHOCKS2,
-	BTS_TRIGGER,
-	BTS_RAILGROUPS,
-	BTS_SLIDENODES,
-	BTS_COLLISIONBOXES,
-	BTS_FLARES2,
-	BTS_ANIMATORS,
-	BTS_NODECOLLISION,
-	BTS_DESCRIPTION,
-	BTS_COMMENT,
-	BTS_SECTION,
-	BTS_IN_SECTION,
-	BTS_VIDCAM,
-	BTS_HOOKS,
-	BTS_LOCKGROUPS,
-	BTS_CAMERARAIL,
-};
 
 enum event_types {
 	EVENT_NONE=0,
@@ -373,10 +298,14 @@ enum {
 };
 
 /* some info holding arrays */
-static const float flapangles[6] = {0.0, -0.07, -0.17, -0.33, -0.67, -1.0};
+static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 
 /* basic structures */
-struct node
+
+/**
+* SIM-CORE; Node.
+*/
+struct node_t
 {
 	Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per truck) (shaky)
 	Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
@@ -387,29 +316,29 @@ struct node
 	Ogre::Vector3 lastNormal;
 	int locked;
 	int iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
-	int wheelid;
-	int masstype;
-	int wetstate;
-	int contactless;
+	int wheelid; //!< Wheel index
+	int masstype; //!< Loaded (by vehicle cargo)? {0/1}
+	int wetstate; //!< {DRY | DRIPPING | WET}
+	int contactless; //!< Bool{0/1}
 	int lockednode;
 	int lockgroup;
 	Ogre::Vector3 lockedPosition; //!< absolute
 	Ogre::Vector3 lockedForces;
 	Ogre::Vector3 lockedVelocity;
-	int contacted;
+	int contacted; //!< Boolean
 	Ogre::Real friction_coef;
 	Ogre::Real buoyancy;
 	Ogre::Real volume_coef;
 	Ogre::Real surface_coef;
 	Ogre::Vector3 lastdrag;
 	Ogre::Vector3 gravimass;
-	float wettime;
-	bool isHot;
+	float wettime; //!< Cumulative time this node has been in contact with water. When wet, produces dripping particles.
+	bool isHot; //!< Makes this node emit vapour particles when in contact with water.
 	bool overrideMass;
 	bool disable_particles;
 	bool disable_sparks;
 	Ogre::Vector3 buoyanceForce;
-	int id;
+	int id; //!< Numeric identifier assigned in rig-definition file (if used), or -1 if the node was generated dynamically.
 	int collisionBoundingBoxID;
 	float collRadius;
 	float collTestTimer;
@@ -419,12 +348,17 @@ struct node
 	bool iIsSkin;
 	bool isSkin;
 	bool contacter;
-	int mouseGrabMode;
-	int pos;
-	Ogre::SceneNode *mSceneNode; //!< visual
+	int mouseGrabMode;           //!< { 0=Mouse grab, 1=No mouse grab, 2=Mouse grab with force display}
+	int pos;                     //!< This node's index in rig_t::nodes array.
+	Ogre::SceneNode *mSceneNode; //!< visual  
+	Ogre::String id_str;         //!< String identifier assigned in rig-definition file (if used).
 };
 
-struct shock
+
+/**
+* SIM-CORE; Shock.
+*/
+struct shock_t
 {
 	int beamid;
 	int flags;
@@ -437,17 +371,17 @@ struct shock
 	float dampout;
 	float sprogout;
 	float dprogout;
-	float sbd_spring;               // set beam default for spring
-	float sbd_damp;                 // set beam default for damping
-	int trigger_cmdlong;            // F-key for trigger injection longbound-check
-	int trigger_cmdshort;           // F-key for trigger injection shortbound-check
-	bool trigger_enabled;           // general trigger,switch and blocker state
-	float trigger_switch_state;     // needed to avoid doubleswitch, bool and timer in one
-	float trigger_boundary_t;       // optional value to tune trigger_switch_state autorelease
-	int last_debug_state;           // smart debug output
+	float sbd_spring;               //!< set beam default for spring
+	float sbd_damp;                 //!< set beam default for damping
+	int trigger_cmdlong;            //!< F-key for trigger injection longbound-check
+	int trigger_cmdshort;           //!< F-key for trigger injection shortbound-check
+	bool trigger_enabled;           //!< general trigger,switch and blocker state
+	float trigger_switch_state;     //!< needed to avoid doubleswitch, bool and timer in one
+	float trigger_boundary_t;       //!< optional value to tune trigger_switch_state autorelease
+	int last_debug_state;           //!< smart debug output
 };
 
-struct collcab_rate
+struct collcab_rate_t
 {
 	int rate;
 	int distance;
@@ -455,7 +389,10 @@ struct collcab_rate
 	bool calcforward;
 };
 
-struct beam
+/**
+* SIM-CORE; Beam data.
+*/
+struct beam_t
 {
 	node_t *p1;
 	node_t *p2;
@@ -465,31 +402,37 @@ struct beam
 	Ogre::Real d; //!< damping factor
 	Ogre::Real L; //!< length
 	Ogre::Real minmaxposnegstress;
+
+	//! Beam type (unnamed enum) { BEAM_NORMAL=0, BEAM_HYDRO=1, BEAM_VIRTUAL=2, BEAM_MARKED=3, BEAM_INVISIBLE=4, BEAM_INVISIBLE_HYDRO=5 }
 	int type;
+
 	Ogre::Real maxposstress;
 	Ogre::Real maxnegstress;
 	Ogre::Real shortbound;
 	Ogre::Real longbound;
 	Ogre::Real strength;
 	Ogre::Real stress;
-	int bounded;
+
+	//! Values (unnamed enum) { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 } 
+	int bounded; 
+
 	bool broken;
 	Ogre::Real plastic_coef;
-	Ogre::Real refL; //!< reference length
-	Ogre::Real Lhydro;//!< hydro reference len
-	Ogre::Real hydroRatio;//!< hydro rotation ratio
+	Ogre::Real refL;       //!< reference length
+	Ogre::Real Lhydro;     //!< hydro reference len
+	Ogre::Real hydroRatio; //!< hydro rotation ratio
 	int hydroFlags;
 	int animFlags;
 	float animOption;
 	Ogre::Real commandRatioLong;
 	Ogre::Real commandRatioShort;
-	Ogre::Real commandShort;
-	Ogre::Real commandLong;
+	Ogre::Real commandShort; //<! Max. contraction; proportional to orig. length
+	Ogre::Real commandLong;  //<! Max. extension; proportional to orig. length
 	Ogre::Real commandEngineCoupling;
 	Ogre::Real maxtiestress;
 	Ogre::Real diameter;
 	bool commandNeedsEngine;
-	int detacher_group;	// detacher group number (integer)
+	int detacher_group;	//!< Attribute: detacher group number (integer)
 	Ogre::Vector3 lastforce;
 	bool isCentering;
 	int isOnePressMode;
@@ -508,21 +451,21 @@ struct beam
 	Ogre::Entity *mEntity; //!< visual
 };
 
-struct soundsource
+struct soundsource_t
 {
 	SoundScriptInstance* ssi;
 	int nodenum;
 	int type;
 };
 
-struct contacter
+struct contacter_t
 {
 	int nodeid;
 	int contacted;
 	int opticontact;
 };
 
-struct rigidifier
+struct rigidifier_t
 {
 	node_t* a;
 	node_t* b;
@@ -535,7 +478,10 @@ struct rigidifier
 	beam_t *beamc;
 };
 
-struct wheel
+/**
+* SIM-CORE; Wheel.
+*/
+struct wheel_t
 {
 	int nbnodes;
 	node_t* nodes[50];
@@ -556,11 +502,11 @@ struct wheel
 	int propulsed;
 	Ogre::Real radius;
 	Ogre::Real speed;
-	Ogre::Real delta_rotation; //!<  difference in wheel position
+	Ogre::Real delta_rotation; //!< Difference in wheel position
 	float rp;
-	float rp1;
-	float rp2;
-	float rp3;
+	float rp1; //<! Networking; triple buffer
+	float rp2; //<! Networking; triple buffer
+	float rp3; //<! Networking; triple buffer
 	float width;
 
 	// for skidmarks
@@ -576,7 +522,10 @@ struct wheel
 	int lastEventHandler;
 };
 
-struct vwheel
+/**
+* SIM-CORE; Visual wheel.
+*/
+struct vwheel_t
 {
 	node_t *p1;
 	node_t *p2;
@@ -585,7 +534,7 @@ struct vwheel
 	bool meshwheel;
 };
 
-struct hook
+struct hook_t
 {
 	int locked;
 	int group;
@@ -606,7 +555,7 @@ struct hook
 	Beam *lockTruck;
 };
 
-struct ropable
+struct ropable_t
 {
 	node_t *node;
 	int group;
@@ -614,7 +563,7 @@ struct ropable
 	int used;
 };
 
-struct rope
+struct rope_t
 {
 	int locked;
 	int group;
@@ -625,7 +574,7 @@ struct rope
 };
 
 
-struct tie
+struct tie_t
 {
 	beam_t *beam;
 	ropable_t *lockedto;
@@ -636,29 +585,29 @@ struct tie
 };
 
 
-struct wing
+struct wing_t
 {
 	FlexAirfoil *fa;
 	Ogre::SceneNode *cnode;
 };
 
-struct command
+struct command_t
 {
 	int commandValueState;
 	float commandValue;
 	float triggerInputValue;
 	float playerInputValue;
-	bool trigger_cmdkeyblock_state;  //identifies blocked F-commands for triggers
+	bool trigger_cmdkeyblock_state;  //!< identifies blocked F-commands for triggers
 	std::vector<int> beams;
 	std::vector<int> rotators;
 	Ogre::String description;
 };
 
-struct rotator
+struct rotator_t
 {
 	int nodes1[4];
 	int nodes2[4];
-	int axis1; //rot axis
+	int axis1; //!< rot axis
 	int axis2;
 	float angle;
 	float rate;
@@ -668,7 +617,7 @@ struct rotator
 	bool rotatorNeedsEngine;
 };
 
-struct flare
+struct flare_t
 {
 	int noderef;
 	int nodex;
@@ -689,7 +638,10 @@ struct flare
 	bool isVisible;
 };
 
-struct prop
+/**
+* SIM-CORE; Prop = an object mounted on vehicle chassis.
+*/
+struct prop_t
 {
 	int noderef;
 	int nodex;
@@ -704,18 +656,18 @@ struct prop
 	float orgoffsetY;
 	float orgoffsetZ;
 	Ogre::Quaternion rot;
-	Ogre::SceneNode *snode;
-	Ogre::SceneNode *wheel;
-	Ogre::Vector3 wheelpos;
-	int mirror;
-	char beacontype;
+	Ogre::SceneNode *snode; //!< The pivot scene node (parented to root-node).
+	Ogre::SceneNode *wheel; //!< Special prop: custom steering wheel for dashboard
+	Ogre::Vector3 wheelpos; //!< Special prop: custom steering wheel for dashboard
+	int mirror;             //<! Special prop: rear view mirror {0 = disabled, -1 = right, 1 = left}
+	char beacontype;        //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
 	Ogre::BillboardSet *bbs[4];
 	Ogre::SceneNode *bbsnode[4];
 	Ogre::Light *light[4];
 	float brate[4];
 	float bpos[4];
-	int pale;
-	int spinner;
+	int pale;               //!< Is this a pale? (Boolean {0/1})
+	int spinner;            //!< Is this a spinprop? (Boolean {0/1})
 	bool animated;
 	float anim_x_Rot;
 	float anim_y_Rot;
@@ -723,35 +675,35 @@ struct prop
 	float anim_x_Off;
 	float anim_y_Off;
 	float anim_z_Off;
-	float animratio[10];
+	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset. 
 	int animFlags[10];
 	int animMode[10];
-	float animOpt1[10];
-	float animOpt2[10];
-	float animOpt3[10];
-	float animOpt4[10];
+	float animOpt1[10]; //!< The lower limit for the animation
+	float animOpt2[10]; //!< The upper limit for the animation
+	float animOpt3[10]; //!< Various purposes
+	float animOpt4[10]; 
 	float animOpt5[10];
 	int animKey[10];
 	int animKeyState[10];
 	int lastanimKS[10];
 	Ogre::Real wheelrotdegree;
-	int cameramode;
+	int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 	MeshObject *mo;
 };
 
-struct exhaust
+struct exhaust_t
 {
 	int emitterNode;
 	int directionNode;
 	char material[256];
 	float factor;
-	bool isOldFormat;
+	bool isOldFormat; //!< False if defined in 'exhausts' section, true if defined in 'nodes' by 'x'/'y' flag.
 	Ogre::SceneNode *smokeNode;
 	Ogre::ParticleSystem* smoker;
 };
 
 
-struct cparticle
+struct cparticle_t
 {
 	int emitterNode;
 	int directionNode;
@@ -761,14 +713,17 @@ struct cparticle
 };
 
 
-struct debugtext
+struct debugtext_t
 {
 	int id;
 	Ogre::MovableText *txt;
 	Ogre::SceneNode *node;
 };
 
-struct rig
+/**
+* SIM-CORE; Represents a vehicle.
+*/
+struct rig_t
 {
 	// TODO: sort these a bit more ...
 	node_t nodes[MAX_NODES];
@@ -809,7 +764,7 @@ struct rig
 	
 	shock_t shocks[MAX_SHOCKS];
 	int free_shock;
-	int free_active_shock; // this has no array associated with it. its just to determine if there are active shocks!
+	int free_active_shock; //!< this has no array associated with it. its just to determine if there are active shocks!
 
 	std::vector < exhaust_t > exhausts;
 
@@ -831,7 +786,7 @@ struct rig
 	int free_screwprop;
 
 	int cabs[MAX_CABS*3];
-	int subisback[MAX_SUBMESHES];
+	int subisback[MAX_SUBMESHES]; //!< Submesh; {0, 1, 2}
 	int free_cab;
 
 	int hydro[MAX_HYDROS];
@@ -884,7 +839,7 @@ struct rig
 	bool wheel_contact_requested;
 	bool rescuer;
 	bool disable_default_sounds;
-	int detacher_group_state; // current detacher group for the next beam generated
+	int detacher_group_state; //!< current detacher group for the next beam generated
 
 	// Antilockbrake + Tractioncontrol
 	bool slopeBrake;
@@ -892,21 +847,21 @@ struct rig
 	float slopeBrakeAttAngle;
 	float slopeBrakeRelAngle;
 	float previousCrank;
-	float alb_ratio;
-	float alb_minspeed;
-	int alb_mode;
-	unsigned int alb_pulse;
-	bool alb_pulse_state;
-	bool alb_present;
-	bool alb_notoggle;
+	float alb_ratio;        //!< Anti-lock brake attribute: Regulating force
+	float alb_minspeed;     //!< Anti-lock brake attribute;
+	int alb_mode;           //!< Anti-lock brake status; Enabled? {1/0}
+	unsigned int alb_pulse; //!< Anti-lock brake attribute;
+	bool alb_pulse_state;   //!< Anti-lock brake status;
+	bool alb_present;       //!< Anti-lock brake attribute: Display the dashboard indicator?
+	bool alb_notoggle;      //!< Anti-lock brake attribute: Disable in-game toggle?
 	float tc_ratio;
 	float tc_wheelslip;
 	float tc_fade;
-	int tc_mode;
-	unsigned int tc_pulse;
+	int tc_mode;           //!< Traction control status; Enabled? {1/0}
+	unsigned int tc_pulse; //!< Traction control attribute;
 	bool tc_pulse_state;
-	bool tc_present;
-	bool tc_notoggle;
+	bool tc_present;       //!< Traction control attribute; Display the dashboard indicator?
+	bool tc_notoggle;      //!< Traction control attribute; Disable in-game toggle?
 	float tcalb_timer;
 	int antilockbrake;
 	int tractioncontrol;
@@ -920,10 +875,9 @@ struct rig
 	float cc_target_speed_lower_limit;
 
 	// Speed Limiter
-	bool sl_enabled;
-	float sl_speed_limit;
+	bool sl_enabled; //!< Speed limiter;
+	float sl_speed_limit; //!< Speed limiter;
 
-	float beam_creak;
 	char uniquetruckid[256];
 	int categoryid;
 	int truckversion;
@@ -931,10 +885,10 @@ struct rig
 	std::vector<authorinfo_t> authors;
 	float fadeDist;
 	float collrange;
-	int masscount;
+	int masscount; //!< Number of nodes loaded with l option
 	bool disable_smoke;
-	int smokeId;
-	int smokeRef;
+	int smokeId;  //!< Old-format exhaust (one per vehicle) emitter node
+	int smokeRef; //!< Old-format exhaust (one per vehicle) backwards direction node
 	char truckname[256];
 	bool networking;
 	int editorId;
@@ -942,10 +896,10 @@ struct rig
 	CmdKeyInertia *rotaInertia;
 	CmdKeyInertia *hydroInertia;
 	CmdKeyInertia *cmdInertia;
-	bool enable_wheel2;
+	bool enable_wheel2; //!< If false, wheels2 are downgraded to wheels1 (needed for multiplayer)
 	float truckmass;
 	float loadmass;
-	char texname[1024];
+	char texname[1024]; //!< Material name
 	int trucknum;
 	Skin *usedSkin;
 	Buoyance *buoyance;
@@ -955,14 +909,14 @@ struct rig
 	int hascommands;
 	int hashelp;
 	char helpmat[256];
-	int cinecameranodepos[MAX_CAMERAS];
-	int freecinecamera;
+	int cinecameranodepos[MAX_CAMERAS]; //!< Cine-camera node indexes
+	int freecinecamera; //!< Number of cine-cameras (lowest free index)
 	int flaresMode;
 	Ogre::Light *cablight;
 	Ogre::SceneNode *cablightNode;
-	std::vector<Ogre::Entity*> deletion_Entities;
-	std::vector<Ogre::MovableObject *> deletion_Objects;
-	std::vector<Ogre::SceneNode*> deletion_sceneNodes;
+	std::vector<Ogre::Entity*> deletion_Entities; //!< For unloading vehicle; filled at spawn.
+	std::vector<Ogre::MovableObject *> deletion_Objects; //!< For unloading vehicle; filled at spawn.
+	std::vector<Ogre::SceneNode*> deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
 	int netCustomLightArray[4];
 	unsigned char netCustomLightArray_counter;
 	MaterialFunctionMapper *materialFunctionMapper;
@@ -980,13 +934,14 @@ struct rig
 	float fuseWidth;
 	float brakeforce;
 	float hbrakeforce;
+	//! Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
 	int debugVisuals;
+	
 	Ogre::String speedomat, tachomat;
 	float speedoMax;
 	bool useMaxRPMforGUI;
 	float minimass;
 	bool cparticle_enabled;
-	std::vector<Ogre::String> truckconfig;
 	bool advanced_drag;
 	float advanced_node_drag;
 	float advanced_total_drag;
@@ -1006,10 +961,10 @@ struct rig
 	//! Stores all the SlideNodes available on this truck
 	std::vector< SlideNode > mSlideNodes;
 
-	int proped_wheels;
-	int braked_wheels;
-	//for inter-differential locking
-	int proppairs[MAX_WHEELS];
+	int proped_wheels; //!< Number of propelled wheels.
+	int braked_wheels; //!< Number of braked wheels.
+	
+	int proppairs[MAX_WHEELS]; //!< For inter-differential locking
 
 	//! try to connect slide-nodes directly after spawning
 	bool slideNodesConnectInstantly;
@@ -1027,15 +982,15 @@ struct rig
 	int hasEmissivePass;
 	FlexObj *cabMesh;
 	Ogre::SceneNode *cabNode;
-	Ogre::AxisAlignedBox boundingBox; // standard bounding box (surrounds all nodes of a truck)
+	Ogre::AxisAlignedBox boundingBox; //!< standard bounding box (surrounds all nodes of a truck)
 	Ogre::AxisAlignedBox predictedBoundingBox;
-	std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; // smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
+	std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
 	std::vector<Ogre::AxisAlignedBox> predictedCollisionBoundingBoxes;
 	bool freePositioned;
-	int lowestnode; // never updated after truck init!?!
+	int lowestnode; //!< never updated after truck init!?!
 
-	float default_spring;
-	float default_spring_scale;
+	float default_spring; //!< TODO: REMOVE! (parser context only)
+	float default_spring_scale; //!< TODO: REMOVE! (parser context only)
 	float default_damp;
 	float default_damp_scale;
 	float default_deform;
@@ -1048,11 +1003,11 @@ struct rig
 	float skeleton_beam_diameter;
 
 	char default_beam_material[256];
-	float default_node_friction;
-	float default_node_volume;
-	float default_node_surface;
-	float default_node_loadweight;
-	char default_node_options[50];
+	float default_node_friction; //!< TODO: REMOVE! (parser context only)
+	float default_node_volume; //!< TODO: REMOVE! (parser context only)
+	float default_node_surface; //!< TODO: REMOVE! (parser context only)
+	float default_node_loadweight; //!< TODO: REMOVE! (parser context only)
+	char default_node_options[50]; //!< TODO: REMOVE! (parser context only)
 
 	float posnode_spawn_height;
 
@@ -1063,24 +1018,26 @@ struct rig
 	float odometerUser;
 
 	std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
-	Ogre::String beamHash;
+	Ogre::String beamHash; //!< Unused
 };
 
 // some non-beam structs
-struct collision_box
+
+
+struct collision_box_t
 {
 	//absolute collision box
-	Ogre::Vector3 lo;
-	Ogre::Vector3 hi;
+	Ogre::Vector3 lo; //!< absolute collision box
+	Ogre::Vector3 hi; //!< absolute collision box
 	bool refined;
 	//rotation
-	Ogre::Quaternion rot;
-	Ogre::Quaternion unrot;
+	Ogre::Quaternion rot; //!< rotation
+	Ogre::Quaternion unrot; //!< rotation
 	//center of rotation
-	Ogre::Vector3 center;
+	Ogre::Vector3 center; //!< center of rotation
 	//relative collision box
-	Ogre::Vector3 relo;
-	Ogre::Vector3 rehi;
+	Ogre::Vector3 relo; //!< relative collision box
+	Ogre::Vector3 rehi; //!< relative collision box
 	//self rotation
 	bool selfrotated;
 	Ogre::Vector3 selfcenter;
@@ -1095,7 +1052,7 @@ struct collision_box
 	Ogre::Vector3 ilo, ihi;
 };
 
-struct ground_model
+struct ground_model_t
 {
 	float va;                       //!< adhesion velocity
 	float ms;                       //!< static friction coefficient
@@ -1133,18 +1090,16 @@ struct ground_model
 	float fx_particle_ttl;
 };
 
-struct client
+struct client_t
 {
 	user_info_t   user;                 //!< user struct
 	bool          used;                 //!< if this slot is used already
 };
 
-struct authorinfo
+struct authorinfo_t
 {
 	int id;
 	Ogre::String type;
 	Ogre::String name;
 	Ogre::String email;
 };
-
-#endif //BEAMDATA_H__

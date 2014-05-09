@@ -120,12 +120,6 @@ BeamFactory::~BeamFactory()
 	pthread_mutex_destroy(&work_done_mutex);
 }
 
-Beam *BeamFactory::createLocal(int slotid)
-{
-	// do not use this ...
-	return 0;
-}
-
 bool BeamFactory::removeBeam(Beam *b)
 {
 	lockStreams();

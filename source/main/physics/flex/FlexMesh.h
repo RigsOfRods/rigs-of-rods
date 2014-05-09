@@ -30,7 +30,18 @@ class FlexMesh: public Flexable
 {
 public:
 
-	FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* texface, char* texband, bool rimmed=false, float rimratio=1.0);
+	FlexMesh::FlexMesh(
+		Ogre::String const & name, 
+		node_t *nds, 
+		int n1, 
+		int n2, 
+		int nstart, 
+		int nrays,
+		Ogre::String const & face_material_name, 
+		Ogre::String const & band_material_name, 
+		bool rimmed = false, 
+		float rimratio = 1.f
+	);
 
 	Ogre::Vector3 updateVertices();
 	Ogre::Vector3 updateShadowVertices();

@@ -27,7 +27,25 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Turboprop::Turboprop(char* propname, node_t *nd, int nr, int nb, int np1, int np2, int np3, int np4, int tqn, float power, char* propfoilname, int mnumber, int trucknum, bool disable_smoke, bool ispiston, float fpitch, bool _heathaze)
+Turboprop::Turboprop(
+	char* propname, 
+	node_t *nd, 
+	int nr, 
+	int nb, 
+	int np1, 
+	int np2, 
+	int np3, 
+	int np4, 
+	int tqn, 
+	float power, 
+	Ogre::String const & propfoilname, 
+	int mnumber, 
+	int trucknum, 
+	bool disable_smoke, 
+	bool ispiston, 
+	float fpitch, 
+	bool _heathaze
+)
 {
 	failed=false;
 	failedold=false;

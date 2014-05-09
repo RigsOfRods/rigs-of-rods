@@ -25,12 +25,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ErrorUtils.h"
 #include "ImprovedConfigFile.h"
 #include "Language.h"
-#include "SerializedRig.h"
 #include "Settings.h"
 #include "SHA1.h"
 #include "SoundScriptManager.h"
 #include "Utils.h"
 #include "TerrainManager.h"
+#include "RigDefParser.h"
 	
 #ifdef USE_MYGUI
 #include "LoadingWindow.h"
@@ -1202,59 +1202,184 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
 	}
 }
 
-void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname)
+void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr stream, Ogre::String file_name)
 {
-	SerializedRig* r = new SerializedRig();
-
-	r->loadTruckVirtual(fname, true);
-
-	// copy over some values
-
-	for (unsigned int i=0; i<r->description.size(); i++)    entry.description += r->description[i] + "\n";
-	for (unsigned int i=0; i<r->authors.size(); i++)        entry.authors.push_back(r->authors[i]);
-	for (unsigned int i=0; i<r->sectionconfigs.size(); i++) entry.sectionconfigs.push_back(r->sectionconfigs[i]);
-
-	if (r->engine)
+	/* LOAD AND PARSE THE VEHICLE */
+	RigDef::Parser parser;
+	parser.Prepare();
+	while(! stream->eof())
 	{
-		entry.numgears   = r->engine->getNumGears();
-		entry.minrpm     = r->engine->getMinRPM();
-		entry.maxrpm     = r->engine->getMaxRPM();
-		entry.torque     = r->engine->getEngineTorque();
-		entry.enginetype = r->engine->getType();
+		parser.ParseLine(stream->getLine());
 	}
-	entry.uniqueid   = r->uniquetruckid;
-	entry.categoryid = r->categoryid;
-	entry.version    = r->truckversion;
-	entry.forwardcommands = r->forwardcommands;
-	entry.importcommands  = r->importcommands;
-	entry.rollon = r->wheel_contact_requested;
-	entry.rescuer = r->rescuer;
-	entry.guid = String(r->guid);
-	entry.fileformatversion = r->fileformatversion;
-	entry.hasSubmeshs = (r->free_sub > 0);
-	entry.nodecount   = r->free_node;
-	entry.beamcount   = r->free_beam;
-	entry.shockcount  = r->free_shock;
-	entry.fixescount  = r->free_fixes;
-	entry.hydroscount = r->free_hydro;
-	entry.wheelcount  = r->free_wheel;
-	entry.propwheelcount = r->propwheelcount;
-	entry.driveable   = r->driveable;
-	entry.commandscount = r->free_commands;
-	entry.flarescount = r->free_flare;
-	entry.propscount = r->free_prop;
-	entry.wingscount = r->free_wing;
-	entry.turbopropscount = r->free_aeroengine;
-	entry.rotatorscount = r->free_rotator;
-	entry.exhaustscount = (int)r->exhausts.size();
-	entry.custom_particles = (r->free_cparticle > 0);
-	entry.turbojetcount = r->free_aeroengine;
-	entry.flexbodiescount = r->free_flexbody;
-	entry.soundsourcescount = r->free_soundsource;
-	//entry.managedmaterialscount++;
-	//entry.customtach=true;
-	//entry.materialflarebindingscount++;
-	delete r;
+	parser.Finalize();
+
+	/* Report messages */
+	if (parser.GetMessages().size() > 0)
+	{
+		std::stringstream report;
+		report << "Cache: Parsing vehicle '" << file_name << "' yielded following messages:" << std::endl <<std::endl;
+
+		std::list<RigDef::Parser::Message>::const_iterator iter = parser.GetMessages().begin();
+		for (; iter != parser.GetMessages().end(); iter++)
+		{
+			switch (iter->type)
+			{
+				case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
+					report << "FATAL_ERROR";
+					break;
+
+				case (RigDef::Parser::Message::TYPE_ERROR): 
+					report << "ERROR";
+					break;
+
+				case (RigDef::Parser::Message::TYPE_WARNING):
+					report << "WARNING";
+					break;
+
+				default:
+					report << "INFO";
+					break;
+			}
+			report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
+			report << "\tLine (# " << iter->line_number << "): " << iter->line << std::endl;
+			report << "\tMessage: " << iter->message << std::endl;
+		}
+
+		Ogre::LogManager::getSingleton().logMessage(report.str());
+	}
+
+	/* RETRIEVE DATA */
+
+	boost::shared_ptr<RigDef::File> def = parser.GetFile();
+
+	/* Description */
+	std::vector<Ogre::String>::iterator desc_itor = def->description.begin();
+	for ( ; desc_itor != def->description.end(); desc_itor++)
+	{
+		entry.description += *desc_itor + "\n";
+	}
+
+	/* Authors */
+	std::vector<RigDef::Author>::iterator author_itor = def->authors.begin();
+	for ( ; author_itor != def->authors.end(); author_itor++)
+	{
+		authorinfo_t author;
+		author.email = author_itor->email;
+		author.id    = (author_itor->_has_forum_account) ? static_cast<int>( author_itor->forum_account_id ) : -1;
+		author.name  = author_itor->name;
+		author.type  = author_itor->type;
+
+		entry.authors.push_back(author);
+	}
+
+	/* Modules (previously called "sections") */
+	std::map<Ogre::String, boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->modules.begin();
+	for ( ; module_itor != def->modules.end(); module_itor++ )
+	{
+		entry.sectionconfigs.push_back(module_itor->second->name);
+	}
+
+	/* Engine */
+	/* TODO: Handle engines in modules */
+	if (def->root_module->engine != nullptr)
+	{
+		boost::shared_ptr<RigDef::Engine> engine = def->root_module->engine;
+		entry.numgears   = engine->gear_ratios.size();
+		entry.minrpm     = engine->shift_down_rpm;
+		entry.maxrpm     = engine->shift_up_rpm;
+		entry.torque     = engine->torque;
+		entry.enginetype = 't'; /* Truck (default) */
+		if (def->root_module->engoption != nullptr
+			&& def->root_module->engoption->type == RigDef::Engoption::ENGINE_TYPE_c_CAR)
+		{
+			entry.enginetype = 'c';
+		}
+	}
+
+	/* File info */
+	if (def->file_info != nullptr)
+	{
+		entry.uniqueid   = def->file_info->unique_id;
+		entry.categoryid = static_cast<int>( def->file_info->category_id );
+		entry.version    = static_cast<int>( def->file_info->file_version );
+	}
+	else
+	{
+		entry.uniqueid   = "-1";
+		entry.categoryid = -1;
+		entry.version    = -1;
+	}
+
+	/* Vehicle type */
+	/* NOTE: TruckParser2013 allows modularization of vehicle type. Cache only supports single type. 
+		This is a temporary solution which has undefined results for mixed-type vehicles.
+	*/
+	int vehicle_type = NOT_DRIVEABLE;
+	module_itor = def->modules.begin();
+	for ( ; module_itor != def->modules.end(); module_itor++ )
+	{
+		if (module_itor->second->engine != nullptr)
+		{
+			vehicle_type = TRUCK;
+		}
+		else if (module_itor->second->screwprops.size() > 0)
+		{
+			vehicle_type = BOAT;
+		}
+		/* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
+		else if (module_itor->second->turbojets.size() > 0 || module_itor->second->pistonprops.size() > 0 || module_itor->second->turboprops_2.size() > 0)
+		{
+			vehicle_type = AIRPLANE;
+		}
+	}
+	/* Root module */
+	if (def->root_module->engine != nullptr)
+	{
+		vehicle_type = TRUCK;
+	}
+	else if (def->root_module->screwprops.size() > 0)
+	{
+		vehicle_type = BOAT;
+	}
+	/* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
+	else if (def->root_module->turbojets.size() > 0 || def->root_module->pistonprops.size() > 0 || def->root_module->turboprops_2.size() > 0)
+	{
+		vehicle_type = AIRPLANE;
+	}
+
+	entry.forwardcommands   = def->forward_commands;
+	entry.importcommands    = def->import_commands;
+	entry.rollon            = def->rollon;
+	entry.rescuer           = def->rescuer;
+	entry.guid              = def->guid;
+	entry.fileformatversion = def->file_format_version;
+	entry.hasSubmeshs       = static_cast<int>( def->root_module->submeshes.size() > 0 );
+	entry.nodecount         = static_cast<int>( def->root_module->nodes.size() );
+	entry.beamcount         = static_cast<int>( def->root_module->beams.size() );
+	entry.shockcount        = static_cast<int>( def->root_module->shocks.size() + def->root_module->shocks_2.size() );
+	entry.fixescount        = static_cast<int>( def->root_module->fixes.size() );
+	entry.hydroscount       = static_cast<int>( def->root_module->hydros.size() );
+	entry.propwheelcount    = -1; /* TODO: Count propelled wheels */
+	entry.driveable         = vehicle_type;
+	entry.commandscount     = static_cast<int>( def->root_module->commands_2.size() );
+	entry.flarescount       = static_cast<int>( def->root_module->flares_2.size() );
+	entry.propscount        = static_cast<int>( def->root_module->props.size() );
+	entry.wingscount        = static_cast<int>( def->root_module->wings.size() );
+	entry.turbopropscount   = static_cast<int>( def->root_module->turboprops_2.size() );
+	entry.rotatorscount     = static_cast<int>( def->root_module->rotators.size() + def->root_module->rotators_2.size() );
+	entry.exhaustscount     = static_cast<int>( def->root_module->exhausts.size() );
+	entry.custom_particles  = def->root_module->particles.size() > 0;
+	entry.turbojetcount     = static_cast<int>( def->root_module->turbojets.size() );
+	entry.flexbodiescount   = static_cast<int>( def->root_module->flexbodies.size() );
+	entry.soundsourcescount = static_cast<int>( def->root_module->soundsources.size() + def->root_module->soundsources.size() );
+	entry.wheelcount        = static_cast<int>( 
+		  def->root_module->wheels.size() 
+		+ def->root_module->wheels_2.size() 
+		+ def->root_module->mesh_wheels.size() 
+		+ def->root_module->mesh_wheels_2.size() 
+		);
+
+	/* NOTE: boost::shared_ptr cleans everything up. */
 }
 
 int CacheSystem::addUniqueString(std::set<Ogre::String> &list, Ogre::String str)

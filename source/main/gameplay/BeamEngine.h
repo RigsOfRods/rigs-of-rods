@@ -22,9 +22,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
+/**
+* Represents a virtual engine of a vehicle (not "engine" as in "physics engine").
+*/
 class BeamEngine : public ZeroedMemoryAllocator
 {
 	friend class Beam;
+	friend class RigSpawner;
 
 public:
 
@@ -41,21 +45,64 @@ public:
 	float getTurboPSI();
 	int getAutoMode();
 
+	/**
+	* Sets current engine state; Needed mainly for smoke.
+	* @param rpm Current engine RPM
+	* @param force Current acceleration force
+	* @param clutch 
+	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...15 = forward}
+	* @param running
+	* @param contact
+	* @param automode
+	*/
 	void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
 
 	void setAcc(float val);
 	void setAutoMode(int mode);
 	void setClutch(float clutch);
+
+	/**
+	* Sets engine options.
+	* @param einertia Engine inertia
+	* @param etype Engine type {'t' = truck (default), 'c' = car}
+	* @param eclutch
+	* @param ctime Clutch time
+	* @param stime Shift time
+	* @param pstime Post-shift time
+	* @param irpm Idle RPM
+	* @param srpm Stall RPM
+	* @param maximix Max. idle mixture
+	* @param minimix Min. idle mixture
+	*/
 	void setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
+
+	/**
+	* Set current engine RPM.
+	*/
 	void setRPM(float rpm);
+
+	/**
+	* Set current wheel spinning speed.
+	*/
 	void setSpin(float rpm);
 
 	void toggleAutoMode();
 	void toggleContact();
 
-	// quick start
+	/**
+	* Quick start of vehicle engine. Plays sounds.
+	*/
 	void offstart();
+
+	/**
+	* Controls vehicle starter. No side effects.
+	* @param v 1 to run starter, 0 to stop it.
+	*/
 	void setstarter(int v);
+
+	/**
+	* Quick engine start. Plays sounds.
+	*/
 	void start();
 
 	// low level gear changing
@@ -89,11 +136,28 @@ public:
 	void autoShiftSet(int mode);
 	void autoShiftUp();
 	void setManualClutch(float val);
+
+	/**
+	* Changes gear by a relative offset. Plays sounds.
+	*/
 	void shift(int val);
+	
+	/**
+	* Changes gear to given value. Plays sounds.
+	* @see BeamEngine::shift
+	*/
 	void shiftTo(int val);
+
+	/**
+	* Changes gears. Plays sounds.
+	*/
 	void updateShifts();
 
 	void update(float dt, int doUpdate);
+
+	/**
+	* Updates sound effects (engine/turbo/clutch/etc...)
+	*/
 	void updateAudio(int doUpdate);
 
 	enum shiftmodes {AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES};
@@ -102,48 +166,48 @@ public:
 protected:
 
 	// gear stuff
-	float refWheelRevolutions; // estimated wheel revolutions based on current vehicle speed along the long axis
-	float curWheelRevolutions; // measured wheel revolutions
-	int curGear;
-	int curGearRange;
-	int numGears;
-	std::vector<float> gearsRatio;
+	float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
+	float curWheelRevolutions; //!< Gears; measured wheel revolutions
+	int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...15 = forward} 
+	int curGearRange; //!< Gears
+	int numGears; //!< Gears
+	std::vector<float> gearsRatio; //!< Gears
 
 	// truck stuff
-	float absVelocity; // current velocity of the vehicle
-	float relVelocity; // current velocity of the vehicle along the long axis
+	float absVelocity; // Vehicle; current velocity of the vehicle
+	float relVelocity; // Vehicle; current velocity of the vehicle along the long axis
 
 	// clutch stuff
-	float clutchForce;
-	float clutchTime;
+	float clutchForce; //!< Clutch attribute
+	float clutchTime; //!< Clutch attribute
 	float curClutch;
 	float curClutchTorque;
 
 	// engine stuff
-	bool contact;
-	bool hasair;
-	bool hasturbo;
-	bool running;
-	char type;
-	float brakingTorque;
-	float curAcc;
-	float curEngineRPM;
-	float diffRatio;
-	float engineTorque;
-	float hydropump;
-	float idleRPM;
-	float minIdleMixture;
-	float maxIdleMixture;
-	float inertia;
-	float maxRPM;
-	float minRPM;
-	float stallRPM;
-	int prime;
+	bool contact; //!< Engine
+	bool hasair; //!< Engine attribute
+	bool hasturbo; //!< Engine attribute
+	bool running; //!< Engine state
+	char type; //!< Engine attribute {'t' = truck (default), 'c' = car}
+	float brakingTorque; //!< Engine
+	float curAcc; //!< Engine
+	float curEngineRPM; //!< Engine
+	float diffRatio; //!< Engine
+	float engineTorque; //!< Engine
+	float hydropump; //!< Engine
+	float idleRPM; //!< Engine attribute
+	float minIdleMixture; //!< Engine attribute
+	float maxIdleMixture; //!< Engine attribute
+	float inertia; //!< Engine attribute
+	float maxRPM; //!< Engine attribute
+	float minRPM; //!< Engine attribute
+	float stallRPM; //!< Engine
+	int prime; //!< Engine
 
 	// shifting
-	float post_shift_time;
+	float post_shift_time; //!< Shift attribute
 	float postshiftclock;
-	float shift_time;
+	float shift_time; //!< Shift attribute
 	float shiftclock;
 	int postshifting;
 	int shifting;
@@ -170,7 +234,7 @@ protected:
 	// air pressure
 	TorqueCurve *torqueCurve;
 	float apressure;
-	int automode;
+	int automode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
 
 	int trucknum;
 };

@@ -2509,52 +2509,57 @@ bool RoRFrameListener::updateEvents(float dt)
 				else
 					initTrucks(false, "");
 
-			} else if (loading_state==RELOADING)
+			} 
+			else if (loading_state == RELOADING)
 			{
 				CacheEntry *selection = SelectorWindow::getSingleton().getSelection();
 				Skin *skin = SelectorWindow::getSingleton().getSelectedSkin();
-				Beam *localTruck = 0;
-				if (selection)
+				Beam *local_truck = nullptr;
+				if (selection != nullptr)
 				{
-					//we load an extra truck
-					String selected = selection->fname;
+					/* We load an extra truck */
+					std::vector<String> *config_ptr = nullptr;
 					std::vector<String> config = SelectorWindow::getSingleton().getTruckConfig();
-					std::vector<String> *configptr = &config;
-					if (config.size() == 0) configptr = 0;
+					if (config.size() > 0)
+					{
+						config_ptr = & config;
+					}
 
-					localTruck = BeamFactory::getSingleton().createLocal(reload_pos, reload_dir, selected, reload_box, false, flaresMode, configptr, skin, freeTruckPosition);
-					freeTruckPosition=false; // reset this, only to be used once
+					local_truck = BeamFactory::getSingleton().createLocal(reload_pos, reload_dir, selection->fname, reload_box, false, flaresMode, config_ptr, skin, freeTruckPosition);
+					freeTruckPosition = false; // reset this, only to be used once
 				}
 
-				if (gEnv->surveyMap && localTruck)
+				if (gEnv->surveyMap && local_truck)
 				{
-					SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(localTruck->trucknum), SurveyMapManager::getTypeByDriveable(localTruck->driveable));
+					SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
 					if (e)
 					{
 						e->setState(DESACTIVATED);
 						e->setVisibility(true);
 						e->setPosition(reload_pos);
-						e->setRotation(-Radian(localTruck->getHeadingDirectionAngle()));
+						e->setRotation(-Radian(local_truck->getHeadingDirectionAngle()));
 					}
 				}
 
 				SelectorWindow::getSingleton().hide();
-				loading_state=ALL_LOADED;
+				loading_state = ALL_LOADED;
 
 				GUIManager::getSingleton().unfocus();
 
-				if (localTruck && localTruck->driveable)
+				if (local_truck != nullptr && local_truck->driveable != NOT_DRIVEABLE)
 				{
-					//we are supposed to be in this truck, if it is a truck
-					if (localTruck->engine)
-						localTruck->engine->start();
-					BeamFactory::getSingleton().setCurrentTruck(localTruck->trucknum);
-				} else if (gEnv->player)
+					/* We are supposed to be in this truck, if it is a truck */
+					if (local_truck->engine != nullptr)
+					{
+						local_truck->engine->start();
+					}
+					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
+				} 
+				else if (gEnv->player != nullptr)
 				{
-					// if it is a load or trailer, than stay in player mode
+					// if it is a load or trailer, then stay in player mode
 					// but relocate to the new position, so we don't spawn the dialog again
-					gEnv->player->move(Vector3(3.0, 0.2, 0.0)); //bad, but better
-					//BeamFactory::getSingleton().setCurrentTruck(-1);
+					gEnv->player->move(Vector3(3.0, 0.2, 0.0));
 				}
 			}
 		}

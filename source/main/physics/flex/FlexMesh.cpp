@@ -25,7 +25,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nrays, char* texface, char* texband, bool rimmed, float rimratio) :
+FlexMesh::FlexMesh(
+	Ogre::String const & name, 
+	node_t *nds, 
+	int n1, 
+	int n2, 
+	int nstart, 
+	int nrays,
+	Ogre::String const & face_material_name, 
+	Ogre::String const & band_material_name, 
+	bool rimmed, 
+	float rimratio
+) :
 	  is_rimmed(rimmed)
 	, nbrays(nrays)
 	, nodes(nds)
@@ -39,8 +50,8 @@ FlexMesh::FlexMesh(char* name, node_t *nds, int n1, int n2, int nstart, int nray
 	subband = msh->createSubMesh();
 
 	//materials
-	subface->setMaterialName(texface);
-	subband->setMaterialName(texband);
+	subface->setMaterialName(face_material_name);
+	subband->setMaterialName(band_material_name);
 
 	/// Define the vertices
 	nVertices = 4*nrays+2;
