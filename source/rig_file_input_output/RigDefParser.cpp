@@ -3271,7 +3271,25 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 		{
 			command2.description = results[result_index];
 
-			result_index += 3;
+			/* Backwards-compatibility: if there are 1-2 extra strings behind the description and no proper arguments follow, tolerate the extra strings */
+			bool more_params_ahead = results[result_index + 3].matched;
+			if (! more_params_ahead && format_version == 2 && results[result_index + 1].matched)
+			{
+				std::stringstream msg;
+				msg << "Invalid string after parameter 'description': '" << results[result_index + 1] << "', please remove. Ignoring..."; 
+				AddMessage(line, Message::TYPE_WARNING, msg.str());
+
+				/* Even worse, there are 2 misplaced strings */
+				if (! more_params_ahead && results[result_index + 2].matched)
+				{
+					std::stringstream msg;
+					msg << "Another invalid string after parameter 'description': '" << results[result_index + 1] << "'!! Please remove. Ignoring..."; 
+					AddMessage(line, Message::TYPE_WARNING, msg.str());
+				}
+				return;
+			}
+
+			result_index += 5;
 			if (_ParseOptionalInertia(command2.inertia, results, result_index))
 			{
 				result_index += 12;

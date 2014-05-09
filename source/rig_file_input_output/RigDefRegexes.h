@@ -81,6 +81,8 @@ namespace Regexes
 
 #define E_STRING_NO_SPACES "[[:alnum:]" E_BACKSLASH E_SLASH "@.{}()+,;_\\-]+"
 
+#define E_STRING_NO_LEADING_DIGIT "[^[:blank:][:digit:]]+[^[:blank:]]*"
+
 #define E_STRING_ANYTHING_BUT_WHITESPACE "[^[:blank:]]+"
 
 #define E_STRING_ALNUM_COMMAS_USCORES_ONLY "[[:alnum:]_-]+"
@@ -952,8 +954,17 @@ DEFINE_REGEX( SECTION_COMMANDS_2,
 		E_CAPTURE_OPTIONAL(                 /* #19 */
 			E_CAPTURE( E_DELIMITER_SPACE E_OR E_COMMA_SPACES )
 			E_CAPTURE( E_STRING_NO_SPACES ) /* #21 Description */
-			E_CAPTURE_OPTIONAL( E_DELIMITER_SPACE E_OR E_COMMA_SPACES ) /* #22 */
-			E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART
+			/*	
+				Illegal description with spaces. 
+				However, for backwards compatibility, we must silently pass	up to 2 extra strings 
+				as long as they don't start with a digit and there's nothing after them.
+			*/
+			E_CAPTURE_OPTIONAL( E_DELIMITER_SPACE E_STRING_NO_LEADING_DIGIT ) /* #22 Error */
+			E_CAPTURE_OPTIONAL( E_DELIMITER_SPACE E_STRING_NO_LEADING_DIGIT ) /* #23 Error */
+			E_CAPTURE_OPTIONAL( /* #24 */
+				E_CAPTURE( E_DELIMITER_SPACE E_OR E_COMMA_SPACES ) /* #25 */
+				E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART
+			)
 		)
 	)
 	E_TRAILING_WHITESPACE
