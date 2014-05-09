@@ -3286,7 +3286,6 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 					msg << "Another invalid string after parameter 'description': '" << results[result_index + 1] << "'!! Please remove. Ignoring..."; 
 					AddMessage(line, Message::TYPE_WARNING, msg.str());
 				}
-				return;
 			}
 
 			result_index += 5;
