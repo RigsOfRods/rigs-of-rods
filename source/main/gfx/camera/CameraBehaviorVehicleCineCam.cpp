@@ -88,8 +88,7 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
 
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
-	// Do not use ctx.mCurrTruck in here (could be null)
-	if ( !currTruck )
+	if ( currTruck == nullptr )
 	{
 		return;
 	}
@@ -98,7 +97,8 @@ void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext
 		
 	currTruck->prepareInside(false);
 
-	if ( ctx.mOverlayWrapper )
+	/* IF (player is in vehicle && OverlayWrapper object exists) */
+	if ( ctx.mCurrTruck != nullptr && ctx.mOverlayWrapper != nullptr )
 	{
 		ctx.mOverlayWrapper->showDashboardOverlays(true, currTruck);
 	}
@@ -107,7 +107,7 @@ void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext
 
 	currTruck->currentcamera = -1;
 	currTruck->changedCamera();
-	currTruck = 0;
+	currTruck = nullptr;
 }
 
 void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx)
