@@ -712,7 +712,6 @@ void RigSpawner::InitializeRig()
 	m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
 	
 	m_rig->beamsRoot = m_parent_scene_node;
-	m_rig->deletion_sceneNodes.emplace_back(m_parent_scene_node);
 
 	m_rig->useSkidmarks = BSETTING("Skidmarks", false);
 
