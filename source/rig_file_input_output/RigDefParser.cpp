@@ -4026,6 +4026,13 @@ void Parser::ParseShocks(Ogre::String const & line)
 		}
 	}
 
+	if (results[10].matched) /* Invalid trailing text */
+	{
+		std::stringstream msg;
+		msg << "Invalid text after parameters: '" << results[10] << "'. Please remove. Ignoring...";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
+
 	m_current_module->shocks.push_back(shock);
 }
 
