@@ -398,7 +398,7 @@ void Beam::initSimpleSkeleton()
 	simpleSkeletonManualObject->setCastShadows(false);
 	simpleSkeletonManualObject->setDynamic(true);
 	simpleSkeletonManualObject->setRenderingDistance(300);
-	simpleSkeletonManualObject->begin("mat-beam-0", RenderOperation::OT_LINE_LIST);
+	simpleSkeletonManualObject->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
 	for (int i=0; i < free_beam; i++)
 	{
 		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
@@ -468,29 +468,20 @@ Vector3 Beam::getPosition()
 	return position; //the position is already in absolute position
 }
 
-void Beam::checkBeamMaterial()
+void Beam::CreateSimpleSkeletonMaterial()
 {
-	BES_GFX_START(BES_GFX_checkBeamMaterial);
-	if (MaterialManager::getSingleton().resourceExists("mat-beam-0"))
-		return;
-	int i = 0;
-	char bname[256];
-	for (i=-100;i<=100;i++)
+	if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
 	{
-		//register a material for skeleton view
-		sprintf(bname, "mat-beam-%d", i);
-		MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
-		float f = fabs(((float)i)/100);
-		if (i<=0)
-			mat->getTechnique(0)->getPass(0)->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(0.2f, 2.0f*(1.0f-f), f*2.0f, 0.8f));
-		else
-			mat->getTechnique(0)->getPass(0)->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(f*2.0f, 2.0f*(1.0f-f), 0.2f, 0.8f));
-		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(TFO_ANISOTROPIC);
-		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
-		mat->setLightingEnabled(false);
-		mat->setReceiveShadows(false);
+		return;
 	}
-	BES_GFX_STOP(BES_GFX_checkBeamMaterial);
+
+	MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create("vehicle-skeletonview-material", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+
+	mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+	mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(TFO_ANISOTROPIC);
+	mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+	mat->setLightingEnabled(false);
+	mat->setReceiveShadows(false);
 }
 
 void Beam::activate()
@@ -4030,7 +4021,7 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 				if (!beams[i].broken && beams[i].mSceneNode->numAttachedObjects()==0)
 					beams[i].mSceneNode->attachObject(beams[i].mEntity);
 				//material
-				beams[i].mEntity->setMaterialName("mat-beam-0");
+				beams[i].mEntity->setMaterialName("vehicle-skeletonview-material");
 				beams[i].mEntity->setCastShadows(false);
 			}
 		}
@@ -6254,7 +6245,7 @@ Beam::Beam(
 	// pressurize tires
 	addPressure(0.0);
 
-	checkBeamMaterial();
+	CreateSimpleSkeletonMaterial();
 
 	// start network stuff
 	if (networked)

@@ -70,7 +70,6 @@ BeamEngineStats::BeamEngineStats()
 
 	typeDescriptions_gfx[BES_GFX_UpdateSkeleton]            = "UpdateSkeleton";
 	typeDescriptions_gfx[BES_GFX_ScaleTruck]                = "ScaleTruck";
-	typeDescriptions_gfx[BES_GFX_checkBeamMaterial]         = "checkBeamMaterial";
 	typeDescriptions_gfx[BES_GFX_pushNetwork]               = "pushNetwork";
 	typeDescriptions_gfx[BES_GFX_calcNetwork]               = "calcNetwork";
 	typeDescriptions_gfx[BES_GFX_calc_masses2]              = "calc_masses2";
