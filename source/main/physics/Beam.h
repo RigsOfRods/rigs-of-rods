@@ -638,7 +638,7 @@ protected:
 	bool netBrakeLight, netReverseLight;
 	Ogre::Real mTimeUntilNextToggle;
 
-	void checkBeamMaterial();
+	void CreateSimpleSkeletonMaterial();
 
 	// cab fading stuff - begin
 	void cabFade(float amount);
