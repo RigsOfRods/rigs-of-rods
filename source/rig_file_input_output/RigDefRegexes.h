@@ -2287,7 +2287,7 @@ DEFINE_REGEX( SUBMESH_SUBSECTION_CAB,
 	E_CAPTURE( E_NODE_ID ) /* Vertex 3 */
 	E_CAPTURE_OPTIONAL( 
 		E_DELIMITER_COMMA
-		E_CAPTURE( "[cbDpuFS]*" ) /* Options */
+		E_CAPTURE( "[[:alpha:]]*" ) /* Options */
 	)
 	E_TRAILING_WHITESPACE
 	);
