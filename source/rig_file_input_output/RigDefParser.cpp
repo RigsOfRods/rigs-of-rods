@@ -4085,9 +4085,9 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 
 	float start_delay = STR_PARSE_REAL(results[1]);
 	float stop_delay = 0;
-	if (results[3].matched)
+	if (results[4].matched)
 	{
-		stop_delay = STR_PARSE_REAL(results[3]);
+		stop_delay = STR_PARSE_REAL(results[4]);
 	}
 	if (start_delay < 0 || stop_delay < 0)
 	{
@@ -4103,15 +4103,22 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 		m_user_default_inertia->start_delay_factor = start_delay;
 		m_user_default_inertia->stop_delay_factor = stop_delay;
 
-		if (results[5].matched)
+		if (results[7].matched)
 		{
-			m_user_default_inertia->start_function = results[5];
+			m_user_default_inertia->start_function = results[7];
 
-			if (results[7].matched)
+			if (results[10].matched)
 			{
-				m_user_default_inertia->stop_function = results[7];
+				m_user_default_inertia->stop_function = results[10];
 			}
 		}
+	}
+
+	if (results[11].matched)
+	{
+		std::stringstream msg;
+		msg << "Illegal text after parameters: \"" << results[11] << "\", ignoring...";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 }
 
