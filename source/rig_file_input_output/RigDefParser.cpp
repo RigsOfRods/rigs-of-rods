@@ -2282,8 +2282,11 @@ void Parser::ParseSubmesh(Ogre::String const & line)
 					case 'S':
 						cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT);
 						break;
+					case 'n':
+						break ; /* Placeholder, does nothing */
 
-					default: /* No check needed, regex takes care of that */
+					default:
+						AddMessage(line, Message::TYPE_WARNING, "Subsection 'submesh/cab': Invalid option '" + options_str.at(i) + std::string("', ignoring..."));
 						break;
 				}
 			}
