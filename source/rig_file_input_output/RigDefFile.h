@@ -1153,12 +1153,7 @@ struct FlexBodyWheel: MeshWheel2
 
 struct Fusedrag
 {
-	Fusedrag():
-		autocalc(false),
-		approximate_width(0),
-		area_coefficient(0),
-		_area_coefficient_set(false)
-	{}
+	Fusedrag();
 
 	bool autocalc;
 	Node::Id front_node;

@@ -71,6 +71,14 @@ Engoption::Engoption():
 	min_idle_mixture(0.f) /* This is a default */
 {}
 
+Fusedrag::Fusedrag():
+	autocalc(false),
+	approximate_width(0),
+	area_coefficient(0),
+	_area_coefficient_set(false),
+	airfoil_name("NACA0009.afl")
+{}
+
 Hook::Hook():
 	flags(0),
 	option_hook_range(0.4f),
