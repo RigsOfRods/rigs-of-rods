@@ -2139,6 +2139,13 @@ void Parser::ParseGlobals(Ogre::String const & line)
 		globals.material_name = results[4];
 	}
 
+	if (results[5].matched)
+	{
+		std::stringstream msg;
+		msg << "Illegal characters at the end of input: '" << results[5] << "', ignoring...";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
+
 	m_current_module->globals = boost::shared_ptr<Globals>( new Globals(globals) );
 }
 
