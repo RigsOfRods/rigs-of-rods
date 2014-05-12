@@ -75,6 +75,8 @@ namespace Regexes
 
 #define E_COLON_SPACES "[[:blank:]]*:[[:blank:]]*"
 
+#define E_ILLEGAL_TRAILING_STRING "[^[:blank:]]+.*"
+
 #define E_TRAILING_WHITESPACE "[[:blank:]]*$"
 
 #define E_LEADING_WHITESPACE "^[[:blank:]]*"
@@ -600,19 +602,20 @@ DEFINE_REGEX( DIRECTIVE_SET_INERTIA_DEFAULTS,
 	E_DELIMITER_SPACE
 	E_CAPTURE( E_REAL_NUMBER ) /* #1 Start delay OR -1 */
 	E_CAPTURE_OPTIONAL( 
-		E_COMMA_SPACES
-		E_CAPTURE( E_REAL_NUMBER ) /* #3 Stop delay */
+		E_CAPTURE( E_COMMA_SPACES E_OR E_DELIMITER_SPACE ) /* #3 Delimiter */
+		E_CAPTURE( E_REAL_NUMBER ) /* #4 Stop delay */
 
 		E_CAPTURE_OPTIONAL( 
-			E_COMMA_SPACES
-			E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION ) /* #5 Start function */
+			E_CAPTURE( E_COMMA_SPACES E_OR E_DELIMITER_SPACE ) /* #6 Delimiter */
+			E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION ) /* #7 Start function */
 
 			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_SPACE
-				E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION ) /* #7 Stop function */
+				E_CAPTURE( E_COMMA_SPACES E_OR E_DELIMITER_SPACE ) /* #9 Delimiter */
+				E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION ) /* #10 Stop function */
 			)
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #11 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 
