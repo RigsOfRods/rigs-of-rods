@@ -286,11 +286,20 @@ rig_t *RigSpawner::SpawnRig()
 	/* Sections 'flares' and 'flares2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
 
-	/* Section 'props' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
-
 	/* Section 'cameras' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
+
+	/* Section 'videocamera' */
+	/* 
+		Videocameras must be processed before "props" otherwise they won't work. Reason unknown.
+		Tested on:
+			Gavril MZ2 [http://www.rigsofrods.com/threads/74698]
+			Sisu SA-150 [http://www.rigsofrods.com/repository/view/3986]
+	*/
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_VIDEOCAMERA, RigDef::VideoCamera, videocameras, ProcessVideoCamera);
+
+	/* Section 'props' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
 
 	/* Section 'engine' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
@@ -384,9 +393,6 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'extcamera' */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_EXTCAMERA, RigDef::ExtCamera, ext_camera, ProcessExtCamera);
-
-	/* Section 'videocamera' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_VIDEOCAMERA, RigDef::VideoCamera, videocameras, ProcessVideoCamera);
 
 	/* Section 'camerarail' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERARAIL, RigDef::CameraRail, camera_rails, ProcessCameraRail);	

@@ -51,6 +51,8 @@
 */
 class RigSpawner
 {
+	friend class VideoCamera; /* Needs to add log messages */
+
 public:
 
 	struct Message

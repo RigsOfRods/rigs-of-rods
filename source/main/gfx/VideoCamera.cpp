@@ -253,47 +253,54 @@ void VideoCamera::update(float dt)
 	mVidCam->setPosition(pos);
 }
 
-VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & def) 
+VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & def)
 {
 	try
 	{
+		Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(def.material_name);
+		if (mat.isNull())
+		{
+			std::stringstream msg;
+			msg << "Unknown material: '" << def.material_name << "', trying to continue...";
+			rig_spawner->AddMessage(RigSpawner::Message::TYPE_ERROR, msg.str());
+			return nullptr;
+		}
+
 		Beam *rig = rig_spawner->GetRig();
 
 		// clone the material to stay unique
 		std::stringstream mat_clone_name;
 		mat_clone_name << rig->truckname << def.material_name << "_" << counter;
 		counter++;
-
 		MaterialPtr mat_clone = rig_spawner->CloneMaterial(def.material_name, mat_clone_name.str());
 
 		/* we need to find and replace any materials that could come afterwards */
 		if (rig->materialReplacer != nullptr)
 		{
-			rig->materialReplacer->addMaterialReplace(def.material_name, mat_clone_name.str());
-		}
-
-		Ogre::String camera_name;
-		if (! def.camera_name.empty())
-		{
-			camera_name = def.camera_name;
-		}
-		else
-		{
-			camera_name = def.material_name; /* Fallback */
+			rig->materialReplacer->addMaterialReplace(mat->getName(), mat_clone_name.str());
 		}
 
 		VideoCamera *v  = new VideoCamera(rig);
 		v->fov          = def.field_of_view;
 		v->minclip      = def.min_clip_distance;
 		v->maxclip      = def.max_clip_distance;
-		v->nz           = rig_spawner->GetNodeIndexOrThrow(def.left_node);//nz;
-		v->ny           = rig_spawner->GetNodeIndexOrThrow(def.bottom_node);//ny;
-		v->nref         = rig_spawner->GetNodeIndexOrThrow(def.reference_node);//nref;
+		v->nz           = rig_spawner->GetNodeIndexOrThrow(def.left_node);
+		v->ny           = rig_spawner->GetNodeIndexOrThrow(def.bottom_node);
+		v->nref         = rig_spawner->GetNodeIndexOrThrow(def.reference_node);
 		v->offset       = def.offset;
 		v->switchoff    = def.camera_mode; // add performance switch off  ->meeds fix, only "always on" supported yet
 		v->materialName = mat_clone_name.str();
-		v->vidCamName   = def.camera_name;
 		v->mirrorSize   = Vector2(def.texture_width, def.texture_height);
+
+		/* camera name */
+		if (! def.camera_name.empty())
+		{
+			v->vidCamName = def.camera_name;
+		}
+		else
+		{
+			v->vidCamName = def.material_name; /* Fallback */
+		}
 
 		//rotate camera picture 180°, skip for mirrors
 		float rotation_z = (def.camera_role != 1) ? def.rotation.z + 180 : def.rotation.z;
