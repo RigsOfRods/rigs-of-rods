@@ -3527,13 +3527,13 @@ void Parser::ParseVideoCamera(Ogre::String const & line)
 	std::string param_4 = results[4];
 	if (! boost::regex_match(param_4, Regexes::MINUS_ONE_REAL))
 	{
-		videocamera.alt_reference_node   = _ParseNodeId(param_4);
+		videocamera.alt_reference_node = _ParseNodeId(param_4);
 	}
 
 	std::string param_5 = results[5];
-	if (! boost::regex_match(param_4, Regexes::MINUS_ONE_REAL))
+	if (! boost::regex_match(param_5, Regexes::MINUS_ONE_REAL))
 	{
-		videocamera.alt_orientation_node   = _ParseNodeId(param_5);
+		videocamera.alt_orientation_node = _ParseNodeId(param_5);
 	}
 
 	videocamera.offset.x = STR_PARSE_REAL(results[6]);
