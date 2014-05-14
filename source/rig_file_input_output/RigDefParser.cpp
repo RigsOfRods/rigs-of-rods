@@ -4383,11 +4383,9 @@ void Parser::ParseRailGroups(Ogre::String const & line)
 	/* Node list */
 	/* Just use the split/trim/compare method */
 	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2].str(), ",");
-	Ogre::StringVector::iterator iter = tokens.begin();
-	unsigned int index = 0;
-	while (iter != tokens.end())
+	for (auto itor = tokens.begin(); itor != tokens.end(); itor++)
 	{
-		railgroup.node_list.push_back( _ParseNodeId(*iter));
+		railgroup.node_list.push_back( _ParseNodeId(*itor));
 	}
 
 	m_current_module->railgroups.push_back(railgroup);
