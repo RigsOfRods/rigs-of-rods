@@ -4405,26 +4405,18 @@ void Parser::ParseProps(Ogre::String const & line)
 
 	Prop prop;
 	prop.reference_node = _ParseNodeId(results[1]);
-	prop.x_axis_node = _ParseNodeId(results[2]);
-	prop.y_axis_node = _ParseNodeId(results[3]);
+	prop.x_axis_node = _ParseNodeId(results[3]);
+	prop.y_axis_node = _ParseNodeId(results[5]);
 
-	prop.offset.x = STR_PARSE_REAL(results[4]);
-	prop.offset.y = STR_PARSE_REAL(results[5]);
-	prop.offset.z = STR_PARSE_REAL(results[6]);
+	prop.offset.x = STR_PARSE_REAL(results[7]);
+	prop.offset.y = STR_PARSE_REAL(results[9]);
+	prop.offset.z = STR_PARSE_REAL(results[11]);
 
-	prop.rotation.x = STR_PARSE_REAL(results[7]);
-	prop.rotation.y = STR_PARSE_REAL(results[8]);
-	prop.rotation.z = STR_PARSE_REAL(results[9]);
+	prop.rotation.x = STR_PARSE_REAL(results[13]);
+	prop.rotation.y = STR_PARSE_REAL(results[15]);
+	prop.rotation.z = STR_PARSE_REAL(results[17]);
 
-	/* Syntax check */
-	if (results[12].matched)
-	{
-		std::stringstream msg;
-		msg << "Parameters #9 '" << results[9] << "' (Z rotation) and #10 '" << results[13] << "' (Mesh name) should be delimited by comma ',' but space ' ' found...";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
-	}
-
-	std::string mesh_name_input = results[13];
+	std::string mesh_name_input = results[19];
 
 	/* Special props */
 	boost::smatch special_results;

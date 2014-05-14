@@ -99,6 +99,8 @@ namespace Regexes
 
 /* DELIMITERS */
 
+#define E_OR "|"
+
 #define E_TRAILING_WHITESPACE "[[:blank:]]*$"
 
 #define E_LEADING_WHITESPACE "^[[:blank:]]*"
@@ -109,7 +111,7 @@ namespace Regexes
 
 #define E_DELIMITER_COLON "[[:blank:]]*:[[:blank:]]*"
 
-#define E_OR "|"
+#define E_DELIMITER E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE /* Uses |, MUST be enclosed in E_CAPTURE() */
 
 /* VALUE TYPES */
 
@@ -1856,35 +1858,27 @@ DEFINE_REGEX( SECTION_PISTONPROPS,
 
 DEFINE_REGEX( SECTION_PROPS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID )     /* #1 Ref. node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID )     /* X axis node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID )     /* Y axis node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* X offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #5 Y offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Z offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* rot. X */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* rot. Y */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #9 rot. Z */
-	E_CAPTURE(                         /* #10 Delimiter wrapper */
-		E_CAPTURE( E_DELIMITER_COMMA )    /* #11 Correct delimiter */
-		E_OR
-		E_CAPTURE( E_DELIMITER_SPACE ) /* #12 Bad delimiter (backwards compatibility) */
-	)
-	E_CAPTURE( E_STRING_NO_SPACES )    /* #13 Mesh name */
-	E_CAPTURE_OPTIONAL(                /* #14 Delimiter */
-		E_DELIMITER_COMMA
-		E_OR
-		E_DELIMITER_SPACE
-	)
-	E_CAPTURE( ".*$" )                 /* #15 Special mesh options part */
+	E_CAPTURE( E_NODE_ID )             /* #1 Ref. node */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )             /* #3 X axis node */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )             /* #5 Y axis node */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )         /* #7 X offset */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )         /* #9 Y offset */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )         /* #11 Z offset */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )         /* #13 rot. X */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )         /* #15 rot. Y */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )         /* #17 rot. Z */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_NO_SPACES )    /* #19 Mesh name */
+	E_CAPTURE_OPTIONAL( E_DELIMITER )
+	E_CAPTURE( ".*$" )                 /* #21 Special mesh options part */
 	);
 
 /* IMPORTANT! Result indexes must match values from RigDef::Prop::Special enum */
