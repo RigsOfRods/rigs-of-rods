@@ -2296,6 +2296,10 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		m_rig->driversseatfound = true;
 		m_rig->driverSeat = & prop;
 	}
+	else if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED || def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_RIGHT_HANDED)
+	{
+		prop.wheelrotdegree = def.special_prop_steering_wheel.rotation_angle;
+	}
 	else if (m_rig->flaresMode > 0)
 	{
 		if(def.special == RigDef::Prop::SPECIAL_BEACON)

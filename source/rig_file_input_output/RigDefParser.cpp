@@ -4416,11 +4416,11 @@ void Parser::ParseProps(Ogre::String const & line)
 	prop.rotation.y = STR_PARSE_REAL(results[15]);
 	prop.rotation.z = STR_PARSE_REAL(results[17]);
 
-	std::string mesh_name_input = results[19];
+	prop.mesh_name = results[19];
 
 	/* Special props */
 	boost::smatch special_results;
-	if (boost::regex_search(mesh_name_input, special_results, Regexes::SPECIAL_PROPS))
+	if (boost::regex_search(prop.mesh_name, special_results, Regexes::SPECIAL_PROPS))
 	{
 		for (int i = 1; i <= 11; i++)
 		{
@@ -4429,12 +4429,8 @@ void Parser::ParseProps(Ogre::String const & line)
 				if (i == 3 || i == 4) /* Custom steering wheel */
 				{
 					prop.special = Prop::Special(i);
-					if (i == 4)
-					{
-						prop.special_prop_steering_wheel._is_right_side = true;
-					}
 
-					std::string special_params = results[15];
+					std::string special_params = results[21];
 					boost::smatch dashboard_results;
 					if (boost::regex_search(special_params, dashboard_results, Regexes::SPECIAL_PROP_DASHBOARD))
 					{
@@ -4486,10 +4482,6 @@ void Parser::ParseProps(Ogre::String const & line)
 				break;
 			}
 		}
-	}
-	else
-	{
-		prop.mesh_name = mesh_name_input;
 	}
 
 	m_current_module->props.push_back(prop);

@@ -1626,13 +1626,11 @@ struct Prop
 		SteeringWheelSpecial():
 			offset(Ogre::Vector3::ZERO), /* This is default */
 			rotation_angle(160.f),
-			_is_right_side(false),
 			_offset_is_set(false),
 			mesh_name("dirwheel.mesh")
 		{}
 
 		Ogre::Vector3 offset;
-		bool _is_right_side;
 		bool _offset_is_set;
 		float rotation_angle;
 		Ogre::String mesh_name;
