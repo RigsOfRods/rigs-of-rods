@@ -280,9 +280,6 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'contacters' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
 
-	/* Section 'slidenodes'*/
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, RigDef::SlideNode, slidenodes, ProcessSlidenode);
-
 	/* Sections 'flares' and 'flares2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
 
@@ -351,6 +348,9 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'railgroups'*/
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_RAILGROUPS, RigDef::RailGroup, railgroups, ProcessRailGroup);
+
+	/* Section 'slidenodes'*/
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, RigDef::SlideNode, slidenodes, ProcessSlidenode);
 
 	/* Section 'ropes'*/
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPES, RigDef::Rope, ropes, ProcessRope);
@@ -3299,7 +3299,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 		std::vector<RailGroup*>::iterator itor = m_rig->mRailGroups.begin();
 		for ( ; itor != m_rig->mRailGroups.end(); itor++)
 		{
-			if ((*itor)->getID() == node.pos)
+			if ((*itor)->getID() == def.railgroup_id)
 			{
 				rail_group = *itor;
 				break;
@@ -3322,6 +3322,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 			return;
 		}
 		rail_group = new RailGroup(rail);
+		m_rig->mRailGroups.push_back(rail_group);
 	}
 	else
 	{
@@ -3329,7 +3330,6 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 	}
 
 	slide_node.setDefaultRail(rail_group);
-	m_rig->mRailGroups.push_back(rail_group);
 	m_rig->mSlideNodes.push_back(slide_node);
 }
 
