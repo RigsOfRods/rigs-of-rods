@@ -2123,9 +2123,6 @@ struct File
 		std::vector<Hydro>                 hydros;
 		std::vector<Lockgroup>             lockgroups;
 		std::vector<ManagedMaterial>       managed_materials;
-		boost::shared_ptr<
-			ManagedMaterialsOptions
-		>                                  managed_materials_options;
 		std::vector<MaterialFlareBinding>  material_flare_bindings;
 		std::vector<MeshWheel>             mesh_wheels;
 		std::vector<MeshWheel2>            mesh_wheels_2;

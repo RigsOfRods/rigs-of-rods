@@ -299,11 +299,6 @@ protected:
 	void ProcessManagedMaterial(RigDef::ManagedMaterial & def);
 
 	/**
-	* Inline-section 'set_managedmaterials_options'
-	*/
-	void RigSpawner::ProcessManagedMaterialsOptions(RigDef::ManagedMaterialsOptions & def);
-
-	/**
 	* Section 'materialflarebindings'.
 	*/
 	void ProcessMaterialFlareBinding(RigDef::MaterialFlareBinding & def);
@@ -976,7 +971,6 @@ protected:
 	void InitializeRig();
 
 	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
-	RigDef::ManagedMaterialsOptions m_managed_materials_options; //!< Settings from "set_managedmaterials_options"
 	Beam *m_rig; //!< The output rig.
 	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	std::map<Ogre::String, unsigned int> m_named_nodes;
