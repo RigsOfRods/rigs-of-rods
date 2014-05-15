@@ -376,9 +376,6 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'collisionboxes' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COLLISIONBOXES, RigDef::CollisionBox, collision_boxes, ProcessCollisionBox);
 
-	/* Inline-section 'set_managedmaterials_options' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SET_MANAGEDMATERIALS_OPTIONS, RigDef::ManagedMaterialsOptions, managed_materials_options, ProcessManagedMaterialsOptions);
-
 	/* Section 'materialflarebindings' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, RigDef::MaterialFlareBinding, material_flare_bindings, ProcessMaterialFlareBinding);
 
@@ -2872,11 +2869,6 @@ Ogre::MaterialPtr RigSpawner::CloneMaterial(Ogre::String const & source_name, Og
 	return src_mat->clone(clone_name);
 }
 
-void RigSpawner::ProcessManagedMaterialsOptions(RigDef::ManagedMaterialsOptions & def)
-{
-	m_managed_materials_options = def;
-}
-
 void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 {
 	Ogre::MaterialPtr test = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(def.name));
@@ -2886,9 +2878,6 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 		msg << "Managed material '" << def.name << "' already exists (probably because the vehicle was already spawned before)";
 		AddMessage(Message::TYPE_WARNING, msg.str());
 	}
-
-	bool double_sided = false;
-	double_sided = m_managed_materials_options.double_sided;
 
 	Ogre::MaterialPtr material;
 	if (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT)
@@ -2983,7 +2972,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 	}
 
 	/* Finalize */
-	if (double_sided)
+	if (def.options.double_sided)
 	{
 		material->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
 		if (def.HasSpecularMap())
