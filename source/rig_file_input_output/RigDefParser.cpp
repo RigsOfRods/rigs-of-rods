@@ -3880,6 +3880,7 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 			else if (token_results[9].matched)
 			{
 				slidenode.railgroup_id = STR_PARSE_INT(token_results[10]);
+				slidenode._railgroup_id_set = true;
 			}
 			else if (token_results[11].matched)
 			{
