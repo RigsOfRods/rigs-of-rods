@@ -2190,6 +2190,32 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 	m_rig->free_flexbody++;
 }
 
+int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id)
+{
+	int index = FindNodeIndex(node_id, true);
+	if (index != -1)
+	{
+		return index;
+	}
+
+	if (node_id.Str().empty()) /* Is defined by number? */
+	{
+		std::stringstream msg;
+		msg << "Node with number '" << node_id.Num() << "' doesn't exist (searched in definition and generated nodes). "
+			<< "Accepting it anyway for backwars compatibility. "
+			<< "Please fix as soon as possible.";
+		AddMessage(Message::TYPE_WARNING, msg.str());
+		return static_cast<int>(node_id.Num());
+	}
+	else
+	{
+		std::stringstream msg;
+		msg << "Node named '" << node_id.Str() < "' doesn't exist (searched in definition and generated nodes).";
+		AddMessage(Message::TYPE_ERROR, msg.str());
+		return -1;
+	}
+}
+
 void RigSpawner::ProcessProp(RigDef::Prop & def)
 {
 	if (! CheckPropLimit(1))
@@ -2202,8 +2228,12 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	memset(&prop, 0, sizeof(prop_t)); /* Initialize prop memory to avoid invalid pointers. */
 
 	prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
-	prop.nodex           = GetNodeIndexOrThrow(def.x_axis_node);
-	prop.nodey           = GetNodeIndexOrThrow(def.y_axis_node);
+	prop.nodex           = FindNodeIndex_AcceptNonExistentNumbered(def.x_axis_node);
+	prop.nodey           = FindNodeIndex_AcceptNonExistentNumbered(def.y_axis_node);
+	if (prop.nodex == -1 || prop.nodey == -1)
+	{
+		return;
+	}
 	prop.offsetx         = def.offset.x;
 	prop.offsety         = def.offset.y;
 	prop.offsetz         = def.offset.z;
