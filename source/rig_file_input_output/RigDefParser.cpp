@@ -3027,59 +3027,67 @@ void Parser::ParseEngoption(Ogre::String const & line)
 	Engoption engoption;
 	engoption.inertia = STR_PARSE_REAL(results[i]);
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.type = Engoption::EngineType(results[i].str().at(0));	
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.clutch_force = STR_PARSE_REAL(results[i]);	
 		engoption._clutch_force_use_default = false;
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.shift_time = STR_PARSE_REAL(results[i]);	
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.clutch_time = STR_PARSE_REAL(results[i]);	
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.post_shift_time = STR_PARSE_REAL(results[i]);	
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.idle_rpm = STR_PARSE_REAL(results[i]);
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.stall_rpm = STR_PARSE_REAL(results[i]);	
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.max_idle_mixture = STR_PARSE_REAL(results[i]);	
 	}
 	
-	i +=2;
+	i += 3;
 	if (results[i].matched)
 	{
 		engoption.min_idle_mixture = STR_PARSE_REAL(results[i]);	
+	}
+
+	i += 1;
+	if (results[i].matched)
+	{
+		std::stringstream msg;
+		msg << "Illegal text after parameters: \"" << results[i] << "\", please remove.";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 	
 	m_current_module->engoption = boost::shared_ptr<Engoption>( new Engoption(engoption) );
