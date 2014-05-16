@@ -655,6 +655,12 @@ protected:
 	int RigSpawner::FindNodeIndex(RigDef::Node::Id & id, bool silent = false);
 
 	/**
+	* Seeks node in both RigDef::File definition and rig_t generated rig. Tolerates numbered nodes which weren't found (backwards compatibility)
+	* @return Node index or -1 if the node was named and not found (not found numbered nodes pass through, for compatibility).
+	*/
+	int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id);
+
+	/**
 	* Finds a generated node in rig.
 	* @return Pointer to node, or nullptr if node doesn't exist.
 	*/
