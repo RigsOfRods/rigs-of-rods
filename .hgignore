@@ -18,3 +18,4 @@ bin/plugins.cfg
 bin/RelWithDebInfo/
 ror-dependencies-*.zip
 dependencies-*.zip
+_build
