@@ -1664,11 +1664,12 @@ float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const
 
 void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 {
+	int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
 	AddSoundSource(
 			m_rig,
 			SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
 			GetNodeIndexOrThrow(def.node),
-			def.mode
+			mode
 		);
 }
 
