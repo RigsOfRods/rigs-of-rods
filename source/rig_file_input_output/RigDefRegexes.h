@@ -1089,40 +1089,40 @@ DEFINE_REGEX( SECTION_ENGOPTION,
 	E_LEADING_WHITESPACE
 	E_CAPTURE( E_REAL_NUMBER ) /* #1 Inertia */
 	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA 
-		E_CAPTURE( "[ct]" ) /* #3 Type */
+		E_CAPTURE( E_DELIMITER ) 
+		E_CAPTURE( "[ct]" ) /* #4 Type */
 
 		E_CAPTURE_OPTIONAL( 
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* #5 Clutch force */
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER ) /* #7 Clutch force */
 
 			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_REAL_NUMBER ) /* #7 Shift time */
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_REAL_NUMBER ) /* #10 Shift time */
 
 				E_CAPTURE_OPTIONAL( 
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_REAL_NUMBER ) /* #9 Clutch time */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_REAL_NUMBER ) /* #13 Clutch time */
 
 					E_CAPTURE_OPTIONAL( 
-						E_DELIMITER_COMMA
-						E_CAPTURE( E_REAL_NUMBER ) /* #11 Post shift time */
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_REAL_NUMBER ) /* #16 Post shift time */
 
 						E_CAPTURE_OPTIONAL( 
-							E_DELIMITER_COMMA
-							E_CAPTURE( E_REAL_NUMBER ) /* #13 Idle RPM */
+							E_CAPTURE( E_DELIMITER )
+							E_CAPTURE( E_REAL_NUMBER ) /* #19 Idle RPM */
 
 							E_CAPTURE_OPTIONAL( 
-								E_DELIMITER_COMMA
-								E_CAPTURE( E_REAL_NUMBER ) /* #15 Stall RMP */
+								E_CAPTURE( E_DELIMITER )
+								E_CAPTURE( E_REAL_NUMBER ) /* #22 Stall RMP */
 
 								E_CAPTURE_OPTIONAL( 
-									E_DELIMITER_COMMA
-									E_CAPTURE( E_REAL_NUMBER ) /* #17 Max idle mixture */
+									E_CAPTURE( E_DELIMITER )
+									E_CAPTURE( E_REAL_NUMBER ) /* #25 Max idle mixture */
 
 									E_CAPTURE_OPTIONAL( 
-										E_DELIMITER_COMMA
-										E_CAPTURE_OPTIONAL( E_REAL_NUMBER ) /* #19 Min idle mixture */
+										E_CAPTURE( E_DELIMITER )
+										E_CAPTURE_OPTIONAL( E_REAL_NUMBER ) /* #28 Min idle mixture */
 									)
 								)
 							)
@@ -1132,6 +1132,7 @@ DEFINE_REGEX( SECTION_ENGOPTION,
 			)
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #29 Illegal text */ 
 	E_TRAILING_WHITESPACE
 	);
 
