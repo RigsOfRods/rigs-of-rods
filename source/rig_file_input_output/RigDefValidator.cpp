@@ -40,6 +40,10 @@
 			if (! _FUNCTION_(*section_itor))\
 			{ \
 				section_itor = module_itor->get()->_FIELD_.erase(section_itor); \
+				if (section_itor == module_itor->get()->_FIELD_.end()) \
+				{ \
+					break; \
+				} \
 			} \
 		} \
 	} \
