@@ -73,7 +73,7 @@ namespace Regexes
 
 /* NUMBERS */
 
-#define E_REAL_NUMBER "-?[[:digit:]]*\\.[[:digit:]]+|-?[[:digit:]]+" /* Uses |, MUST be enclosed in E_CAPTURE() */
+#define E_REAL_NUMBER "-?[[:digit:]]*\\.[[:digit:]]*|-?[[:digit:]]+" /* Uses |, MUST be enclosed in E_CAPTURE() */
 
 #define E_DECIMAL_NUMBER "-?[[:digit:]]+"
 
@@ -81,7 +81,7 @@ namespace Regexes
 
 #define E_NEGATIVE_DECIMAL_NUMBER "-[[:digit:]]+"
 
-#define E_MINUS_ONE_REAL "-1\\.[0]+|-1"   /* Uses |, MUST be enclosed in E_CAPTURE() */
+#define E_MINUS_ONE_REAL "-1\\.[0]*|-1"   /* Uses |, MUST be enclosed in E_CAPTURE() */
 
 /* STRINGS */
 
