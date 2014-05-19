@@ -88,6 +88,11 @@ public:
 		return m_messages;
 	}
 
+	void SetCheckBeams(bool check_beams)
+	{
+		m_check_beams = check_beams;
+	}
+
 private:
 
 	/**
@@ -136,9 +141,14 @@ private:
 
 	bool Validator::CheckFlare2(RigDef::Flare2 & def);
 
+/* -------------------------------------------------------------------------- */
+/* Properties
+/* -------------------------------------------------------------------------- */
+
 	std::list<Message> m_messages;
 	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
 	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
+	bool m_check_beams;
 
 };
 

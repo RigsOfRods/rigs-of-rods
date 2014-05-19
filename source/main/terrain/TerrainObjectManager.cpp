@@ -1208,7 +1208,18 @@ void TerrainObjectManager::loadPreloadedTrucks()
 		for (unsigned int i=0; i<truck_preload.size(); i++)
 		{
 			Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
-			Beam *b = BeamFactory::getSingleton().createLocal(pos, truck_preload[i].rotation, truck_preload[i].name, 0, truck_preload[i].ismachine, flaresMode, 0, 0, truck_preload[i].freePosition);
+			Beam *b = BeamFactory::getSingleton().createLocal(
+				pos, 
+				truck_preload[i].rotation, 
+				truck_preload[i].name, 
+				nullptr, /* spawnbox */ 
+				truck_preload[i].ismachine, 
+				flaresMode, 
+				nullptr, /* truckconfig */ 
+				nullptr, /* skin */
+				truck_preload[i].freePosition, 
+				true /* preloaded_with_terrain */
+			);
 #ifdef USE_MYGUI
 			if (b && gEnv->surveyMap)
 			{

@@ -60,6 +60,7 @@ public:
 	* @param ismachine (see BeamData.h)
 	* @param flareMode IGNORED
 	* @param truckconfig Networking related.
+	* @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
 	*/
 	Beam( 
 		  int tnum
@@ -68,12 +69,14 @@ public:
 		, const char* fname
 		, bool networked = false
 		, bool networking = false
-		, collision_box_t *spawnbox = NULL
-		, bool ismachine=false
+		, collision_box_t *spawnbox = nullptr
+		, bool ismachine = false
 		, int flareMode = 0
-		, const std::vector<Ogre::String> *truckconfig = 0
-		, Skin *skin = 0
-		, bool freeposition = false);
+		, const std::vector<Ogre::String> *truckconfig = nullptr
+		, Skin *skin = nullptr
+		, bool freeposition = false
+		, bool preloaded_with_terrain = false
+		);
 
 	/**
 	* Parses network data; fills truck data buffers and flips them. Called by the network thread.
@@ -118,7 +121,8 @@ public:
 		Ogre::SceneNode *parent_scene_node, 
 		Ogre::Vector3 const & spawn_position,
 		Ogre::Quaternion & spawn_rotation,
-		collision_box_t *spawn_box
+		collision_box_t *spawn_box,
+		bool preloaded_with_terrain = false
 	);
 
 	/**
