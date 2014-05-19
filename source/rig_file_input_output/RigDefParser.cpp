@@ -1492,6 +1492,11 @@ void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
+	if (m_current_module->skeleton_settings == nullptr)
+	{
+		m_current_module->skeleton_settings = boost::shared_ptr<RigDef::SkeletonSettings>(new SkeletonSettings());
+	}
+
 	float visibility_meters = STR_PARSE_REAL(results[1]);
 	if (visibility_meters < 0)
 	{
