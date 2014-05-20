@@ -240,9 +240,7 @@ AxisAlignedBox getWorldAABB(SceneNode* node)
 
 void fixRenderWindowIcon (RenderWindow *rw)
 {
-#ifndef ROR_EMBEDDED
 #ifdef WIN32
-	// only in non-embedded mode
 	size_t hWnd = 0;
 	rw->getCustomAttribute("WINDOW", &hWnd);
 
@@ -257,7 +255,6 @@ void fixRenderWindowIcon (RenderWindow *rw)
 		::SendMessageA((HWND)hWnd, WM_SETICON, 0, (LPARAM)hIcon);
 	}
 #endif // WIN32
-#endif //ROR_EMBEDDED
 }
 
 UTFString ANSI_TO_UTF(const String source)

@@ -710,11 +710,8 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	shaderSchemeMode(1),
 	terrainUID("")
 {
-	// we don't use overlays in embedded mode
-	if (!gEnv->embeddedMode)
-	{
-		ow = new OverlayWrapper();
-	}
+
+	ow = new OverlayWrapper();
 
 	enablePosStor = BSETTING("Position Storage", false);
 
@@ -727,12 +724,10 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 	LoadingWindow::getSingleton();
 	SelectorWindow::getSingleton();
+
 	// create main menu :D
-	if (!gEnv->embeddedMode)
-	{
-		new GUI_MainMenu();
-		GUI_Friction::getSingleton();
-	}
+	new GUI_MainMenu();
+	GUI_Friction::getSingleton();
 
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	// load random image in the wallpaper
@@ -2450,19 +2445,6 @@ bool RoRFrameListener::updateEvents(float dt)
 	} else
 	{
 		//no terrain or truck loaded
-
-		// in embedded mode we wont show that loading stuff
-		/*
-		if (gEnv->embeddedMode)
-		{
-			loading_state=ALL_LOADED;
-#ifdef USE_MYGUI
-			LoadingWindow::getSingleton().hide();
-#endif //USE_MYGUI
-		}
-		*/
-		//uiloader->updateEvents(dt);
-
 
 #ifdef USE_MYGUI
 		if (SelectorWindow::getSingleton().isFinishedSelecting())

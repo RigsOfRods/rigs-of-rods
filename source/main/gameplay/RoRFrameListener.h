@@ -185,7 +185,7 @@ public: // public methods
 	void startTimer();
 	void updateCruiseControl(Beam* curr_truck, float dt);
 	void updateRacingGUI();
-	void windowResized(Ogre::RenderWindow* rw); // this needs to be public so we can call it manually in embedded mode
+	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 };
 
 #endif // __RoRFrameListener_H_

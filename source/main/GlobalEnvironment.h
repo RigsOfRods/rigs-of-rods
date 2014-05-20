@@ -39,7 +39,6 @@ public:
 	GlobalEnvironment() :
 		  cameraManager(0)
 		, collisions(0)
-		, embeddedMode(false)
 		, frameListener(0)
 		, mainCamera(0)
 		, mrTime(0)
@@ -72,7 +71,6 @@ public:
 	TerrainManager *terrainManager;
 	ThreadPool *threadPool;
 
-	bool embeddedMode;
 	float mrTime;
 };
 
