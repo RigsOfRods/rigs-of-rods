@@ -71,8 +71,6 @@ Ogre::UTFString stored_title, stored_err, stored_url;
 int showOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString url)
 {
 #ifndef NOOGRE
-	// this only works in non-embedded mode
-	// make no sense in embedded mode anyways ...
 
 	storederror = true;
 	stored_title = title;

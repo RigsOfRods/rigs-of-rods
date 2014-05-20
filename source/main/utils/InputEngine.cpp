@@ -1843,15 +1843,6 @@ void InputEngine::destroy()
 bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabMode, bool captureKbd)
 {
 	grabMode = _grabMode;
-
-	// grab mode override in embedded mode
-	if (gEnv->embeddedMode)
-	{
-		grabMode = GRAB_DYNAMICALLY;
-#ifndef NOOGRE
-		LOG("*** EMBEDDED INPUT MODE ***");
-#endif
-	}
 	
 #ifndef NOOGRE
 	LOG("*** Initializing OIS ***");
@@ -3695,27 +3686,12 @@ void InputEngine::setupDefault(Ogre::String inputhwnd /* = "" */)
 	else if (inputGrabSetting == "None")
 		inputGrabMode = GRAB_NONE;
 
-	if (!gEnv->embeddedMode)
-	{
+	// start input engine
+	size_t hWnd = 0;
+	gEnv->renderWindow->getCustomAttribute("WINDOW", &hWnd);
 
-		// start input engine
-		size_t hWnd = 0;
-		gEnv->renderWindow->getCustomAttribute("WINDOW", &hWnd);
+	INPUTENGINE.setup(TOSTRING(hWnd), true, true, inputGrabMode);
 
-		INPUTENGINE.setup(TOSTRING(hWnd), true, true, inputGrabMode);
-	} else
-	{
-	#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-		size_t windowHnd = 0;
-		std::ostringstream windowHndStr;
-		gEnv->renderWindow->getCustomAttribute("GLXWINDOW", &windowHnd );
-		windowHndStr << windowHnd;
-		printf("#### GLXWINDOW = %s\n", windowHndStr.str().c_str());
-		INPUTENGINE.setup(windowHndStr.str(), true, true, GRAB_NONE);
-	#else
-		INPUTENGINE.setup(inputhwnd, true, true, GRAB_NONE);
-	#endif
-	}
 }
 
 String InputEngine::getKeyForCommand( int eventID )

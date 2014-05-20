@@ -34,7 +34,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class RigsOfRods : public RoRSingletonNoCreation<RigsOfRods>, public ZeroedMemoryAllocator
 {
 public:
-	RigsOfRods(Ogre::String name = Ogre::String("RoR"), Ogre::String hwnd=Ogre::String(), Ogre::String mainhwnd=Ogre::String(), bool embedded = false);
+	RigsOfRods(Ogre::String name = Ogre::String("RoR"), Ogre::String hwnd=Ogre::String(), Ogre::String mainhwnd=Ogre::String());
 	~RigsOfRods();
 
 	void go();
@@ -47,7 +47,6 @@ protected:
 	AppStateManager *stateManager;
 	Ogre::String hwnd, mainhwnd;
 	Ogre::String name;
-	bool embedded;
 };
 
 #endif //RIGSOFRODS_H__

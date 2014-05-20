@@ -17,7 +17,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef ROR_EMBEDDED
 
 #include "RoRPrerequisites.h"
 #include "RigsOfRods.h"
@@ -359,5 +358,3 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #ifdef __cplusplus
 }
 #endif
-
-#endif //ROR_EMBEDDED

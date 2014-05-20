@@ -29,12 +29,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-RigsOfRods::RigsOfRods(Ogre::String name, Ogre::String hwnd, Ogre::String mainhwnd, bool embedded) :
+RigsOfRods::RigsOfRods(Ogre::String name, Ogre::String hwnd, Ogre::String mainhwnd) :
 	stateManager(0),
 	hwnd(hwnd),
 	mainhwnd(mainhwnd),
-	name(name),
-	embedded(embedded)
+	name(name)
 {
 	setSingleton(this);
 }
@@ -51,7 +50,7 @@ void RigsOfRods::go(void)
 {
 	// init ogre
 	new OgreFramework();
-	if (!OgreFramework::getSingletonPtr()->initOgre(name, hwnd, mainhwnd, embedded))
+	if (!OgreFramework::getSingletonPtr()->initOgre(name, hwnd, mainhwnd))
 		return;
 
 	// now add the states
@@ -75,15 +74,9 @@ void RigsOfRods::go(void)
 	LobbyState::create(stateManager, "LobbyState");
 
 	// select the first one
-	if (embedded)
-	{
-		LOG("Rigs of Rods embedded initialized!");
-		stateManager->changeAppState(stateManager->findByName(startState));
-	} else
-	{
-		LOG("Rigs of Rods main loop starting ...");
-		stateManager->start(stateManager->findByName(startState));
-	}
+	LOG("Rigs of Rods main loop starting ...");
+	stateManager->start(stateManager->findByName(startState));
+	
 }
 
 void RigsOfRods::update(double dt)

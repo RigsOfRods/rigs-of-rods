@@ -18,7 +18,10 @@ GlobalEnvironment *gEnv = new GlobalEnvironment();
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-OgreFramework::OgreFramework() : hwnd(Ogre::String()), mainhwnd(Ogre::String()), name(), embedded(false)
+OgreFramework::OgreFramework() : 
+	hwnd(Ogre::String()), 
+	mainhwnd(Ogre::String()), 
+	name()
 {
     m_pRoot			    = 0;
     m_pRenderWnd		= 0;
@@ -41,52 +44,33 @@ bool OgreFramework::configure(void)
 	// You can skip this and use root.restoreConfig() to load configuration
 	// settings if you were sure there are valid ones saved in ogre.cfg
 	bool useogreconfig = BSETTING("USE_OGRE_CONFIG", false);
-	if (hwnd.empty())
+
+	bool ok = false;
+	if (useogreconfig)
 	{
-		//default mode
-		bool ok = false;
-		if (useogreconfig)
-			ok = m_pRoot->showConfigDialog();
-		else
-			ok = m_pRoot->restoreConfig();
-		if (ok)
-		{
-			// If returned true, user clicked OK so initialise
-			// Here we choose to let the system create a default rendering window by passing 'true'
-			m_pRenderWnd = m_pRoot->initialise(true, "Rigs of Rods version " + String(ROR_VERSION_STRING));
-
-			// set window icon correctly
-			fixRenderWindowIcon(m_pRenderWnd);
-
-			return true;
-		}
-		else
-		{
-			showError(_L("Configuration error"), _L("Run the RoRconfig program first."));
-			exit(1);
-		}
-	} else
+		ok = m_pRoot->showConfigDialog();
+	}
+	else
 	{
-		// embedded mode
-		if (!m_pRoot->restoreConfig())
-		{
-			showError(_L("Configuration error"), _L("Run the RoRconfig program first."));
-			exit(1);
-		}
+		ok = m_pRoot->restoreConfig();
+	}
+	if (ok)
+	{
+		// If returned true, user clicked OK so initialise
+		// Here we choose to let the system create a default rendering window by passing 'true'
+		m_pRenderWnd = m_pRoot->initialise(true, "Rigs of Rods version " + String(ROR_VERSION_STRING));
 
-		m_pRoot->initialise(false);
+		// set window icon correctly
+		fixRenderWindowIcon(m_pRenderWnd);
 
-		Ogre::NameValuePairList param;
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-		param["externalWindowHandle"] = hwnd;
-#else
-		param["parentWindowHandle"] = hwnd;
-		printf("### parentWindowHandle =  %s\n", hwnd.c_str());
-#endif
-		m_pRenderWnd = m_pRoot->createRenderWindow(name, 320, 240, false, &param);
 		return true;
 	}
+	else
+	{
+		showError(_L("Configuration error"), _L("Run the RoRconfig program first."));
+		exit(1);
+	}
+	return true;
 }
 
 
@@ -141,12 +125,11 @@ bool OgreFramework::loadOgrePlugins(Ogre::String pluginsfile)
 	return true;
 }
 
-bool OgreFramework::initOgre(Ogre::String name, Ogre::String hwnd, Ogre::String mainhwnd, bool embedded)
+bool OgreFramework::initOgre(Ogre::String name, Ogre::String hwnd, Ogre::String mainhwnd)
 {
 	this->name     = name;
 	this->hwnd     = hwnd;
 	this->mainhwnd = mainhwnd;
-	this->embedded = embedded;
 
 	if (!SETTINGS.setupPaths())
 		return false;
@@ -180,23 +163,13 @@ bool OgreFramework::initOgre(Ogre::String name, Ogre::String hwnd, Ogre::String 
 	gEnv->ogreRoot         = m_pRoot;
 	gEnv->viewPort     = m_pViewport;
 	gEnv->renderWindow = m_pRenderWnd;
-	gEnv->embeddedMode     = embedded;
 	
     m_pViewport->setBackgroundColour(ColourValue(0.5f, 0.5f, 0.5f, 1.0f));
 
     m_pViewport->setCamera(0);
 	m_pViewport->setBackgroundColour(ColourValue::Black);
 
-	// smooth over two frames
-	// this will break the physics engine for some reason:
-	//m_pRoot->setFrameSmoothingPeriod(0.5f);
-
-	// init inputsystem
-
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-    //Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
-    //m_pTrayMgr = new OgreBites::SdkTrayManager("AOFTrayMgr", m_pRenderWnd, m_pMouse, 0);
 
     m_pTimer = new Ogre::Timer();
     m_pTimer->reset();
