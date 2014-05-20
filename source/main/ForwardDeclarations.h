@@ -30,9 +30,10 @@
 
 namespace RoR
 {
-	class OgreSubsystem;
 	class Application;
+	class ContentManager;
 	class MainThread;
+	class OgreSubsystem;
 }
 
 struct node_t;

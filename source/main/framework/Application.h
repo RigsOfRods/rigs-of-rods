@@ -58,6 +58,11 @@ public:
 		return ms_app_state_manager;
 	}
 
+	static ContentManager* GetContentManager()
+	{
+		return ms_content_manager;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -68,9 +73,15 @@ private:
 
 	static void DestroyAppStateManager();
 
-	static OgreSubsystem* ms_ogre_subsystem;
+	static void CreateContentManager();
 
+	static void DestroyContentManager();
+
+	/* Properties */
+
+	static OgreSubsystem*   ms_ogre_subsystem;
 	static AppStateManager* ms_app_state_manager;
+	static ContentManager*  ms_content_manager;
 };
 
 } // namespace RoR

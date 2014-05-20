@@ -28,6 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrainQuadTreeNode.h>
 
 #include "AdvancedScreen.h"
+#include "AppState.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
