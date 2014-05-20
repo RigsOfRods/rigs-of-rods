@@ -1,0 +1,706 @@
+material runwayheading09
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+		depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading90.dds
+			}
+		}
+	}
+}
+material runwaytouchdown
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytouchdown.dds
+			}
+		}
+	}
+}
+material runwaythreshold
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaythreshold.dds
+			}
+		}
+	}
+}
+material runwaybase
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaybase.dds
+			}
+		}
+	}
+}
+material runwayfixeddistance
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayfixeddistance.dds
+			}
+		}
+	}
+}
+material runwayedge
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture runwayedge2.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayblastpad
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayblastpad.dds
+				tex_address_mode wrap
+				filtering trilinear
+
+			}
+		}
+	}
+}
+material runwaytaxient1
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance1.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaydispthresh
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaydisplacedthreshold.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material taxiwayedge
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture taxiwayedge.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material taxiwaylines
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture taxiwaylines.dds
+			}
+		}
+	}
+}
+material taxiwayconcrete
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture taxiwaybase.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material taxiway
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture taxiwaybase.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaycross1
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance4.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaytee1
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance3.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit1
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance5.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit2
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance7.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit3
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance6.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxient3
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance13.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaycross2
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance12.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaytee2
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance11.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit4
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance8.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit5
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance10.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit6
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance9.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxient4
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance2.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxitee3
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance17.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit7
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance14.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit8
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance16.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit9
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance15.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxitee3.001
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwaytaxiwayentrance18.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material airportgrass
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airportgrass.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading05
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading05.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading23
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading23.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading27
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading27.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading36
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading36.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading18
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading18.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading03
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading03.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading21
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading21.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading29
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading29.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading11
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				texture Runwayheading11.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}

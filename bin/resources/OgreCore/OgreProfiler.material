@@ -1,0 +1,69 @@
+
+material Core/ProfilerCurrent
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture ProfileCurrentBar.png
+			}
+		}
+	}
+}
+material Core/ProfilerAvg
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture ProfileAvgBar.png
+			}
+		}
+	}
+}
+material Core/ProfilerMin
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture ProfileMinBar.png
+			}
+		}
+	}
+}
+material Core/ProfilerMax
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture ProfileMaxBar.png
+			}
+		}
+	}
+}

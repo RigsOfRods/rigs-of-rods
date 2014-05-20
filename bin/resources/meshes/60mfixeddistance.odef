@@ -1,0 +1,6 @@
+60mfixeddistance.mesh
+1,1,1
+beginmesh
+mesh 60mfixeddistance.mesh
+endmesh
+end
