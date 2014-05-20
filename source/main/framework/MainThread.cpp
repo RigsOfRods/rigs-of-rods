@@ -56,10 +56,18 @@ void MainThread::go()
 
 	Application::CreateAppStateManager();
 
+	Application::CreateContentManager();
+
 	// Continue with the old application class
 
 	RigsOfRods old_app;
 	old_app.go();
+
+	// Cleanup
+
+	Application::DestroyContentManager();
+
+	Application::DestroyAppStateManager();
 }
 
 } // namespace RoR

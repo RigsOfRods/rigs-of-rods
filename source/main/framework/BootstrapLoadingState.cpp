@@ -17,7 +17,7 @@ void BootstrapLoadingState::enter()
 	m_pCamera = m_pSceneMgr->createCamera("PlayerCam");
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 
-	ContentManager::getSingleton().initBootstrap();
+	RoR::Application::GetContentManager()->initBootstrap();
 
 	LOG("creating loading bar");
 	// load all resources now, so the zip files are also initiated

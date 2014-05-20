@@ -40,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 using namespace std;
+using namespace RoR;
 
 ContentManager::ContentManager()
 {

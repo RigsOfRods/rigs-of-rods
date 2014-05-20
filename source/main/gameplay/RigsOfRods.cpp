@@ -42,16 +42,12 @@ RigsOfRods::~RigsOfRods()
 
 void RigsOfRods::go(void)
 {
-	
-	
-	new ContentManager(); // TODO: delete contentmanager on cleanup
-
 	// dummy state to display the progress bar
 	BootstrapLoadingState::create(RoR::Application::GetAppStateManager(),  "BootstrapLoadingState");
 	RoR::Application::GetAppStateManager()->changeAppState(RoR::Application::GetAppStateManager()->findByName("BootstrapLoadingState"));
 
 	// then the base content setup
-	ContentManager::getSingleton().init();
+	RoR::Application::GetContentManager()->init();
 
 	// thats the default state it chooses to start
 	// GameState = default state, classic

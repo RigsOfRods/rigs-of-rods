@@ -28,6 +28,7 @@
 #include "Application.h"
 
 #include "AppStateManager.h"
+#include "ContentManager.h"
 #include "OgreSubsystem.h"
 
 #include <OgreException.h>
@@ -35,9 +36,11 @@
 namespace RoR
 {
 
-// Init static members
+/* Init static members */
+
 OgreSubsystem*   Application::ms_ogre_subsystem    = nullptr;
 AppStateManager* Application::ms_app_state_manager = nullptr;
+ContentManager*  Application::ms_content_manager   = nullptr;
 
 void Application::StartOgreSubsystem()
 {
@@ -70,6 +73,18 @@ void Application::DestroyAppStateManager()
 	assert(ms_app_state_manager != nullptr && "Application::DestroyAppStateManager(): AppStateManager never created");
 	delete ms_app_state_manager;
 	ms_app_state_manager = nullptr;
+}
+
+void Application::CreateContentManager()
+{
+	ms_content_manager = new ContentManager();
+}
+
+void Application::DestroyContentManager()
+{
+	assert(ms_content_manager != nullptr && "Application::DestroyContentManager(): ContentManager never created");
+	delete ms_content_manager;
+	ms_content_manager = nullptr;
 }
 
 } // namespace RoR
