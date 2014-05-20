@@ -21,6 +21,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <Ogre.h>
 
+#include "Application.h"
+#include "AppStateManager.h"
 #include "BootstrapLoadingState.h"
 #include "GameState.h"
 #include "LobbyState.h"
@@ -29,29 +31,24 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-RigsOfRods::RigsOfRods() :
-	stateManager(nullptr)
+RigsOfRods::RigsOfRods()
 {
 	setSingleton(this);
 }
 
 RigsOfRods::~RigsOfRods()
 {
-	delete stateManager;
-	//delete OgreFramework::getSingletonPtr();
-	// TODO: delete contentmanager
-	
 }
 
 void RigsOfRods::go(void)
 {
-	// now add the states
-	stateManager = new AppStateManager();
-	new ContentManager();
+	
+	
+	new ContentManager(); // TODO: delete contentmanager on cleanup
 
 	// dummy state to display the progress bar
-	BootstrapLoadingState::create(stateManager,  "BootstrapLoadingState");
-	stateManager->changeAppState(stateManager->findByName("BootstrapLoadingState"));
+	BootstrapLoadingState::create(RoR::Application::GetAppStateManager(),  "BootstrapLoadingState");
+	RoR::Application::GetAppStateManager()->changeAppState(RoR::Application::GetAppStateManager()->findByName("BootstrapLoadingState"));
 
 	// then the base content setup
 	ContentManager::getSingleton().init();
@@ -62,26 +59,27 @@ void RigsOfRods::go(void)
 
 	String startState = SSETTING("StartState", "GameState");
 
-	GameState::create(stateManager,  "GameState");
-	LobbyState::create(stateManager, "LobbyState");
+	GameState::create(RoR::Application::GetAppStateManager(),  "GameState");
+	LobbyState::create(RoR::Application::GetAppStateManager(), "LobbyState");
 
 	// select the first one
 	LOG("Rigs of Rods main loop starting ...");
-	stateManager->start(stateManager->findByName(startState));
+	RoR::Application::GetAppStateManager()->start(RoR::Application::GetAppStateManager()->findByName(startState));
 	
 }
 
 void RigsOfRods::update(double dt)
 {
-	stateManager->update(dt);
+	RoR::Application::GetAppStateManager()->update(dt);
 }
 
 void RigsOfRods::shutdown()
 {
-	if (stateManager)
+	if (RoR::Application::GetAppStateManager() != nullptr)
 	{
-		stateManager->shutdown();
-	} else
+		RoR::Application::GetAppStateManager()->shutdown();
+	} 
+	else
 	{
 		printf("shutdown failed, no statemanager instance!\n");
 	}
@@ -89,11 +87,13 @@ void RigsOfRods::shutdown()
 
 void RigsOfRods::tryShutdown()
 {
-	if (stateManager)
-		stateManager->tryShutdown();
+	if (RoR::Application::GetAppStateManager() != nullptr)
+	{
+		RoR::Application::GetAppStateManager()->tryShutdown();
+	}
 }
 
 void RigsOfRods::pauseRendering()
 {
-	stateManager->pauseRendering();
+	RoR::Application::GetAppStateManager()->pauseRendering();
 }

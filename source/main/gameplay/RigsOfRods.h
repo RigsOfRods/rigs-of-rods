@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
-#include "AppStateManager.h"
 
 class RigsOfRods : public RoRSingletonNoCreation<RigsOfRods>, public ZeroedMemoryAllocator
 {
@@ -42,8 +41,6 @@ public:
 	void tryShutdown(void);
 
 	void update(double dt);
-protected:
-	AppStateManager *stateManager;
 };
 
 #endif //RIGSOFRODS_H__
