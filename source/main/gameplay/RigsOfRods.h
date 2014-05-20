@@ -27,14 +27,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define RIGSOFRODS_H__
 
 #include "RoRPrerequisites.h"
-
-#include "AdvancedOgreFramework.h"
+#include "Singleton.h"
 #include "AppStateManager.h"
 
 class RigsOfRods : public RoRSingletonNoCreation<RigsOfRods>, public ZeroedMemoryAllocator
 {
 public:
-	RigsOfRods(Ogre::String name = Ogre::String("RoR"), Ogre::String hwnd=Ogre::String(), Ogre::String mainhwnd=Ogre::String());
+	RigsOfRods();
 	~RigsOfRods();
 
 	void go();
@@ -45,8 +44,6 @@ public:
 	void update(double dt);
 protected:
 	AppStateManager *stateManager;
-	Ogre::String hwnd, mainhwnd;
-	Ogre::String name;
 };
 
 #endif //RIGSOFRODS_H__

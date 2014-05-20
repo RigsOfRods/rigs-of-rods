@@ -1,31 +1,34 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RoRPrerequisites.h"
-#include "RigsOfRods.h"
+#include "MainThread.h"
 #include "Language.h"
 #include "ErrorUtils.h"
 #include "Utils.h"
 #include "Settings.h"
 #include "rornet.h"
 #include "RoRVersion.h"
+
+#include <OgreException.h>
 
 using namespace Ogre;
 
@@ -245,8 +248,7 @@ int main(int argc, char *argv[])
 	printf("GETWD=%s\n", str);
 #endif
 
-	// Create application object
-	RigsOfRods app;
+	RoR::MainThread main_thread_object;
 
 //MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE
@@ -309,7 +311,9 @@ int main(int argc, char *argv[])
 				showVersion();
 				return 0;
 			}
-		} else {
+		} 
+		else 
+		{
 			showUsage();
 			return 1;
 		}
@@ -324,8 +328,9 @@ int main(int argc, char *argv[])
 #endif //USE_CRASHRPT
 
 	try {
-		app.go();
-	} catch(Ogre::Exception& e)
+		main_thread_object.go();
+	} 
+	catch(Ogre::Exception& e)
 	{
 
 		// try to shutdown input system upon an error

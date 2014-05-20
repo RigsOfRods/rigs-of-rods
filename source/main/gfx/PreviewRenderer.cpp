@@ -19,13 +19,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PreviewRenderer.h"
 
-#include "AdvancedOgreFramework.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 #include "SkyManager.h"
 #include "Utils.h"
+#include "Application.h"
+#include "OgreSubsystem.h"
 
 using namespace Ogre;
 
@@ -333,6 +334,6 @@ void PreviewRenderer::render(String ext)
 	// create some screenshot
 	RoRWindowEventUtilities::messagePump();
 	Root::getSingleton().renderOneFrame();
-	OgreFramework::getSingletonPtr()->m_pRenderWnd->update();
-	OgreFramework::getSingletonPtr()->m_pRenderWnd->writeContentsToFile(fn+"."+ext+".jpg");
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(fn+"."+ext+".jpg");
 }

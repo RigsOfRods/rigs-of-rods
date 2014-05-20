@@ -1,9 +1,13 @@
 #include "LobbyState.h"
 
-#include "SceneMouse.h"
+#include "Application.h"
+#include "OgreSubsystem.h"
 #include "GUIManager.h"
 #include "LobbyGUI.h"
 #include "InputEngine.h"
+#include "SceneMouse.h"
+
+#include <OgreRoot.h>
 
 using namespace Ogre;
 
@@ -15,7 +19,7 @@ void LobbyState::enter()
 {
 	LOG("Entering LobbyState...");
 
-	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_INTERIOR);
+	m_pSceneMgr = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(ST_INTERIOR);
 
 	INPUTENGINE.setupDefault();
 
@@ -31,14 +35,14 @@ void LobbyState::enter()
 	m_pCamera->setFarClipDistance( 1000.0*1.733 );
 	m_pCamera->setFOVy(Degree(60));
 	m_pCamera->setAutoAspectRatio(true);
-	OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
+	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 
 #ifdef USE_MYGUI
 	new GUIManager();
 
 	LobbyGUI::getSingleton().setVisible(true);
 
-	resized(OgreFramework::getSingleton().m_pRenderWnd);
+	resized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 #endif //USE_MYGUI
 }
 

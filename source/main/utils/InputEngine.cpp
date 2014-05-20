@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreStringConverter.h>
 #include <OgreException.h>
 
-#include "AdvancedOgreFramework.h"
 #include "ErrorUtils.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"

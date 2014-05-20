@@ -2,13 +2,17 @@
 
 #include "AppStateManager.h"
 
-#include "RoRWindowEventUtilities.h"
+#include "Application.h"
 #include "Language.h"
-
-#include <OgreLogManager.h>
-
+#include "OgreSubsystem.h"
+#include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 #include "Utils.h"
+
+#include <OgreLogManager.h>
+#include <OgreException.h>
+#include <OgreRenderWindow.h>
+#include <OgreRoot.h>
 
 using namespace Ogre;
 
@@ -81,7 +85,7 @@ void AppStateManager::update(double dt)
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	RoRWindowEventUtilities::messagePump();
 #endif
-	Ogre::RenderWindow* rw = OgreFramework::getSingletonPtr()->m_pRenderWnd;
+	Ogre::RenderWindow* rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 	if (rw->isClosed())
 	{
 		// unlock before shutdown
@@ -92,7 +96,8 @@ void AppStateManager::update(double dt)
 	}
 
 	m_ActiveStateStack.back()->update(dt);
-	OgreFramework::getSingletonPtr()->m_pRoot->renderOneFrame();
+
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
 	if (!rw->isActive() && rw->isVisible())
 		rw->update(); // update even when in background !
@@ -121,7 +126,7 @@ void AppStateManager::start(AppState* state)
 
 	while(!m_bShutdown)
 	{
-		startTime = OgreFramework::getSingletonPtr()->m_pTimer->getMilliseconds();
+		startTime = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
 		// no more actual rendering?
 		if (m_bNoRendering)
@@ -139,7 +144,7 @@ void AppStateManager::start(AppState* state)
 		}
 
 
-		timeSinceLastFrame = OgreFramework::getSingletonPtr()->m_pTimer->getMilliseconds() - startTime;
+		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
 	LOG("Main loop quit");
 }
@@ -260,7 +265,7 @@ void AppStateManager::pauseRendering()
 void AppStateManager::init(AppState* state)
 {
 
-	OgreFramework::getSingletonPtr()->m_pRenderWnd->resetStatistics();
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->resetStatistics();
 }
 
 void AppStateManager::resized(Ogre::RenderWindow* rw)

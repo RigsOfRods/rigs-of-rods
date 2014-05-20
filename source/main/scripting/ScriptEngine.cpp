@@ -38,13 +38,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <curl/easy.h>
 #endif //USE_CURL
 
-#include "AdvancedOgreFramework.h"
 #include "OgreAngelscript.h"
 #include "Beam.h"
 #include "Console.h"
 #include "LocalStorage.h"
 #include "Settings.h"
-
+#include "Application.h"
+#include "OgreSubsystem.h"
 #include "GameScript.h"
 #include "OgreScriptBuilder.h"
 #include "CBytecodeStream.h"
@@ -158,8 +158,10 @@ void ScriptEngine::exploreScripts()
 void ScriptEngine::LineCallback(AngelScript::asIScriptContext *ctx, unsigned long *timeOut)
 {
 	// If the time out is reached we abort the script
-	if (OgreFramework::getSingleton().getTimeSinceStartup() > *timeOut)
+	if (RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() > *timeOut)
+	{
 		ctx->Abort();
+	}
 
 	// It would also be possible to only suspend the script,
 	// instead of aborting it. That would allow the application
@@ -1027,7 +1029,7 @@ int ScriptEngine::loadScript(String _scriptName)
 
 	// Set the timeout before executing the function. Give the function 1 sec
 	// to return before we'll abort it.
-	timeOut = OgreFramework::getSingleton().getTimeSinceStartup() + 1000;
+	timeOut = RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
 
 	SLOG("Executing main()");
 	result = context->Execute();

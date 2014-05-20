@@ -29,11 +29,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-RigsOfRods::RigsOfRods(Ogre::String name, Ogre::String hwnd, Ogre::String mainhwnd) :
-	stateManager(0),
-	hwnd(hwnd),
-	mainhwnd(mainhwnd),
-	name(name)
+RigsOfRods::RigsOfRods() :
+	stateManager(nullptr)
 {
 	setSingleton(this);
 }
@@ -41,18 +38,13 @@ RigsOfRods::RigsOfRods(Ogre::String name, Ogre::String hwnd, Ogre::String mainhw
 RigsOfRods::~RigsOfRods()
 {
 	delete stateManager;
-	delete OgreFramework::getSingletonPtr();
+	//delete OgreFramework::getSingletonPtr();
 	// TODO: delete contentmanager
 	
 }
 
 void RigsOfRods::go(void)
 {
-	// init ogre
-	new OgreFramework();
-	if (!OgreFramework::getSingletonPtr()->initOgre(name, hwnd, mainhwnd))
-		return;
-
 	// now add the states
 	stateManager = new AppStateManager();
 	new ContentManager();
