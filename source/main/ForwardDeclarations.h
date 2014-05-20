@@ -28,6 +28,13 @@
 
 #pragma once
 
+namespace RoR
+{
+	class OgreSubsystem;
+	class Application;
+	class MainThread;
+}
+
 struct node_t;
 struct beam_t;
 struct shock_t;

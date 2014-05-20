@@ -1,5 +1,8 @@
 #include "BootstrapLoadingState.h"
+
 #include "ContentManager.h"
+#include "Application.h"
+#include "OgreSubsystem.h"
 
 using namespace Ogre;
 
@@ -10,9 +13,9 @@ BootstrapLoadingState::BootstrapLoadingState() : mLoadingBar(0)
 void BootstrapLoadingState::enter()
 {
     LOG("Entering DummyState...");
-	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_EXTERIOR_CLOSE);
+	m_pSceneMgr = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(ST_EXTERIOR_CLOSE);
 	m_pCamera = m_pSceneMgr->createCamera("PlayerCam");
-	OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
+	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 
 	ContentManager::getSingleton().initBootstrap();
 
@@ -21,7 +24,7 @@ void BootstrapLoadingState::enter()
 	mLoadingBar = new ExampleLoadingBar();
 	if (mLoadingBar)
 	{
-		RenderWindow *win = OgreFramework::getSingleton().m_pRenderWnd;
+		RenderWindow *win = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 		mLoadingBar->start(win, 8, 8, 0.75);
 	}
 	m_pSceneMgr->clearSpecialCaseRenderQueues();
@@ -40,7 +43,7 @@ void BootstrapLoadingState::resume()
 {
     LOG("Resuming DummyState...");
 
-    OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
+    RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 }
 
 void BootstrapLoadingState::exit()
@@ -62,7 +65,7 @@ void BootstrapLoadingState::exit()
 		m_pSceneMgr->destroyCamera(m_pCamera);
 
     if (m_pSceneMgr)
-        OgreFramework::getSingletonPtr()->m_pRoot->destroySceneManager(m_pSceneMgr);
+        RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(m_pSceneMgr);
 
 }
 

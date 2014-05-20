@@ -39,6 +39,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreUTFString.h>
 #include <OgreVector2.h>
 #include <OgreVector3.h>
+#include <OgrePrerequisites.h>
 
 #include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"

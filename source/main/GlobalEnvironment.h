@@ -20,17 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __GlobalEnvironment_H_
 #define __GlobalEnvironment_H_
 
-class CameraManager;
-class Character;
-class Collisions;
-class IHeightFinder;
-class SurveyMapManager;
-class Network;
-class RoRFrameListener;
-class SkyManager;
-class TerrainManager;
-class ThreadPool;
-class Water;
+#include "ForwardDeclarations.h"
 
 class GlobalEnvironment
 {

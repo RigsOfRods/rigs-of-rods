@@ -7,8 +7,7 @@
 
 #include "RoRPrerequisites.h"
 
-#include "AdvancedOgreFramework.h"
-
+#include <OgreFrameListener.h>
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 

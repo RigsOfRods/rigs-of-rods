@@ -1,7 +1,11 @@
 #include "GameState.h"
 
+#include "Application.h"
+#include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
+
+#include <OgreRoot.h>
 
 using namespace Ogre;
 
@@ -15,7 +19,7 @@ void GameState::enter()
 {
     LOG("Entering GameState...");
 
-	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_EXTERIOR_CLOSE);
+	m_pSceneMgr = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(ST_EXTERIOR_CLOSE);
 	gEnv->sceneManager = m_pSceneMgr;
 
 	//CREATE CAMERA
@@ -32,17 +36,17 @@ void GameState::enter()
 	m_pCamera->setFarClipDistance( 1000.0*1.733 );
 	m_pCamera->setFOVy(Degree(60));
 	m_pCamera->setAutoAspectRatio(true);
-	OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
+	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 	
 	// TO BE DONE:
 	//m_pSceneMgr->setCameraRelativeRendering(true);
 
 	LOG("Adding Frame Listener");
 
-	mFrameListener = new RoRFrameListener(this,	OgreFramework::getSingleton().getMainHWND());
+	mFrameListener = new RoRFrameListener(this,	RoR::Application::GetOgreSubsystem()->GetMainHWND());
 	gEnv->frameListener = mFrameListener;
 
-	OgreFramework::getSingleton().m_pRoot->addFrameListener(mFrameListener);
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(mFrameListener);
 }
 
 bool GameState::pause()
@@ -56,7 +60,7 @@ void GameState::resume()
 {
     LOG("Resuming GameState...");
 
-    OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
+    RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 }
 
 void GameState::exit()
@@ -65,13 +69,13 @@ void GameState::exit()
 
 	if (mFrameListener)
 	{
-		OgreFramework::getSingleton().m_pRoot->removeFrameListener(mFrameListener);
+		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(mFrameListener);
 		delete mFrameListener;
 	}
 
     m_pSceneMgr->destroyCamera(m_pCamera);
     if (m_pSceneMgr)
-        OgreFramework::getSingletonPtr()->m_pRoot->destroySceneManager(m_pSceneMgr);
+        RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(m_pSceneMgr);
 }
 
 void GameState::createScene()
