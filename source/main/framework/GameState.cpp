@@ -61,11 +61,6 @@ void GameState::resume()
 
 void GameState::exit()
 {
-	if (BSETTING("REPO_MODE", false))
-	{
-		std::exit(1);
-	}
-
     LOG("Leaving GameState...");
 
 	if (mFrameListener)

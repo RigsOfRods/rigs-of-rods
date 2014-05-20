@@ -195,7 +195,6 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_STATE,          ("-state"),     SO_REQ_SEP    },
 	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP    },
 	{ OPT_LOGPATH,        ("-logpath"),       SO_REQ_SEP },
-	{ OPT_REPOMODE,       ("-repomode"),       SO_NONE },
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
@@ -305,8 +304,6 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("Enter Preselected Truck", "Yes");
 			} else if (args.OptionId() == OPT_SETUP) {
 				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-			} else if (args.OptionId() == OPT_REPOMODE) {
-				SETTINGS.setSetting("REPO_MODE", "Yes");
 			} else if (args.OptionId() == OPT_VEHICLEOUT) {
 				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
 			} else if (args.OptionId() == OPT_VER) {
@@ -331,12 +328,6 @@ int main(int argc, char *argv[])
 		app.go();
 	} catch(Ogre::Exception& e)
 	{
-
- 		if (BSETTING("REPO_MODE", false))
-		{
-			LOG("FATAL ERROR, EXITING: "+e.getFullDescription());
-			std::exit(1);
-		}
 
 		// try to shutdown input system upon an error
 		//if (InputEngine::singletonExists()) // this prevents the creating of it, if not existing

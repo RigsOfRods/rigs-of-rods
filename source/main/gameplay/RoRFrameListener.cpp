@@ -734,21 +734,19 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 		GUI_Friction::getSingleton();
 	}
 
-	if (!BSETTING("REPO_MODE", false))
+	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
+	// load random image in the wallpaper
+	String randomWallpaper = GUIManager::getRandomWallpaperImage();
+	if (!v.empty() && !randomWallpaper.empty())
 	{
-		MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
-		// load random image in the wallpaper
-		String randomWallpaper = GUIManager::getRandomWallpaperImage();
-		if (!v.empty() && !randomWallpaper.empty())
+		MyGUI::Widget *mainw = v.at(0);
+		if (mainw)
 		{
-			MyGUI::Widget *mainw = v.at(0);
-			if (mainw)
-			{
-				MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-				if (img) img->setImageTexture(randomWallpaper);
-			}
+			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
+			if (img) img->setImageTexture(randomWallpaper);
 		}
 	}
+	
 #endif //MYGUI
 
 #ifdef USE_OIS_G27
@@ -2733,14 +2731,13 @@ void RoRFrameListener::loadTerrain(String terrainfile)
 	}
 
 #ifdef USE_MYGUI
-	if (!BSETTING("REPO_MODE", false))
-	{
-			// hide loading window
-			LoadingWindow::getSingleton().hide();
-			// hide wallpaper
-			MyGUI::Window *w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
-			if (w) w->setVisibleSmooth(false);
-	}
+
+	// hide loading window
+	LoadingWindow::getSingleton().hide();
+	// hide wallpaper
+	MyGUI::Window *w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
+	if (w) w->setVisibleSmooth(false);
+
 #endif //USE_MYGUI
 }
 
@@ -2820,13 +2817,6 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 #ifdef USE_MYGUI
 	GUIManager::getSingleton().unfocus();
 #endif //USE_MYGUI
-		
-	if (BSETTING("REPO_MODE", false))
-	{
-		PreviewRenderer r;
-		r.render();
-		exit(0);
-	}
 }
 
 void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTruck)
