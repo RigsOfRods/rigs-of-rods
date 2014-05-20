@@ -16,7 +16,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
@@ -27,6 +27,7 @@
 
 #include "Application.h"
 
+#include "AppStateManager.h"
 #include "OgreSubsystem.h"
 
 #include <OgreException.h>
@@ -35,7 +36,8 @@ namespace RoR
 {
 
 // Init static members
-OgreSubsystem* Application::ms_ogre_subsystem = nullptr;
+OgreSubsystem*   Application::ms_ogre_subsystem    = nullptr;
+AppStateManager* Application::ms_app_state_manager = nullptr;
 
 void Application::StartOgreSubsystem()
 {
@@ -55,6 +57,19 @@ void Application::ShutdownOgreSubsystem()
 {
 	assert(ms_ogre_subsystem != nullptr && "Application::ShutdownOgreSubsystem(): Ogre subsystem was not started");
 	delete ms_ogre_subsystem;
+	ms_ogre_subsystem = nullptr;
+}
+
+void Application::CreateAppStateManager()
+{
+	ms_app_state_manager = new AppStateManager();
+}
+
+void Application::DestroyAppStateManager()
+{
+	assert(ms_app_state_manager != nullptr && "Application::DestroyAppStateManager(): AppStateManager never created");
+	delete ms_app_state_manager;
+	ms_app_state_manager = nullptr;
 }
 
 } // namespace RoR

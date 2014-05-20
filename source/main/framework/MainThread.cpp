@@ -54,6 +54,8 @@ void MainThread::go()
 	gEnv->viewPort     = Application::GetOgreSubsystem()->GetViewport();
 	gEnv->renderWindow = Application::GetOgreSubsystem()->GetRenderWindow();
 
+	Application::CreateAppStateManager();
+
 	// Continue with the old application class
 
 	RigsOfRods old_app;

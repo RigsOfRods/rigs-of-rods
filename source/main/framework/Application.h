@@ -16,7 +16,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
@@ -53,13 +53,24 @@ public:
 		return Settings::getSingleton(); // Temporary solution
 	};
 
+	static AppStateManager* GetAppStateManager()
+	{
+		return ms_app_state_manager;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
 
 	static void ShutdownOgreSubsystem();
 
-	static OgreSubsystem * ms_ogre_subsystem;
+	static void CreateAppStateManager();
+
+	static void DestroyAppStateManager();
+
+	static OgreSubsystem* ms_ogre_subsystem;
+
+	static AppStateManager* ms_app_state_manager;
 };
 
 } // namespace RoR

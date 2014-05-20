@@ -1,32 +1,50 @@
-//|||||||||||||||||||||||||||||||||||||||||||||||
+/*
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-#ifndef APP_STATE_MANAGER_HPP
-#define APP_STATE_MANAGER_HPP
+	For more information, see http://www.rigsofrods.com/
 
-//|||||||||||||||||||||||||||||||||||||||||||||||
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
+
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/** 
+	@file   AppStateManager.h
+*/
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 #include "AppState.h"
-#include <pthread.h>
 
-//|||||||||||||||||||||||||||||||||||||||||||||||
+#include <pthread.h>
 
 class AppStateManager : public AppStateListener
 {
+	friend class RoR::Application; // Manages lifecycle of this class.
+
 public:
-	typedef struct
+
+	struct state_info
 	{
 		Ogre::String name;
 		AppState* state;
-	} state_info;
-
-	AppStateManager();
-	~AppStateManager();
+	};	
 
 	void manageAppState(Ogre::String stateName, AppState* state);
 
 	AppState* findByName(Ogre::String stateName);
-
 
 	void update(double dt);
 
@@ -42,6 +60,10 @@ public:
     void popAllAndPushAppState(AppState* state);
 
 protected:
+
+	AppStateManager();
+	~AppStateManager();
+
 	void init(AppState *state);
 	pthread_mutex_t lock;
 
@@ -50,9 +72,3 @@ protected:
 	bool						m_bShutdown; // exits the program
 	bool                        m_bNoRendering; // no more rendering in the main loop
 };
-
-//|||||||||||||||||||||||||||||||||||||||||||||||
-
-#endif
-
-//|||||||||||||||||||||||||||||||||||||||||||||||
