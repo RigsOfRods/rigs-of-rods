@@ -35,6 +35,7 @@
 #include "Language.h"
 #include "LobbyState.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 
 #include <OgreRoot.h>
@@ -87,9 +88,8 @@ void MainThread::go()
 	// GameState = default state, classic
 	// LobbyState = experimental Multiplayer Lobby
 	GameState::create(Application::GetAppStateManager(),  "GameState");
-	//LobbyState::create(Application::GetAppStateManager(), "LobbyState");
-	
-	//Ogre::String start_state = SSETTING("StartState", "GameState");
+	GameState* legacy_game_state = static_cast<GameState*>(Application::GetAppStateManager()->findByName("GameState"));
+
 	bootstrap_screen.HideAndRemove();
 
 	// --------------------------------------------------------------------------------
@@ -108,10 +108,15 @@ void MainThread::go()
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
 
+	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state, RoR::Application::GetOgreSubsystem()->GetMainHWND());
+	gEnv->frameListener = ror_frame_listener;
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(ror_frame_listener);
+
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState
-
-	Application::GetAppStateManager()->start(Application::GetAppStateManager()->findByName("GameState"));
+	
+	legacy_game_state->Setup(camera, scene_manager, ror_frame_listener);
+	Application::GetAppStateManager()->start(legacy_game_state);
 
 	// ================================================================================
 	// Cleanup

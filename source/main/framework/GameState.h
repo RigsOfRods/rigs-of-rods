@@ -36,8 +36,18 @@ public:
 	bool pause();
 	void resume();
 
+	void Setup(Ogre::Camera* camera, Ogre::SceneManager* scene_mgr, RoRFrameListener* frame_listener)
+	{
+		m_pSceneMgr = scene_mgr;
+		m_pCamera = camera;
+		mFrameListener = frame_listener;
+	}
+
 	void update(double timeSinceLastFrame);
 	void resized(Ogre::RenderWindow* rw);
+
+protected:
+	RoRFrameListener *mFrameListener;
 };
 
 #endif // __GameState_H_
