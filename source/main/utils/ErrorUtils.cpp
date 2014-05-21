@@ -41,7 +41,6 @@
 #endif
 
 #ifndef NOOGRE
-#include "RigsOfRods.h"
 #endif //NOOGRE
 
 using namespace Ogre;
