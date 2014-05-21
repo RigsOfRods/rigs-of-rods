@@ -27,7 +27,10 @@
 
 #include "ErrorUtils.h"
 
-#include "Ogre.h"
+#include "Application.h"
+#include "AppStateManager.h"
+
+#include <OgrePrerequisites.h>
 
 #define _L
 
@@ -82,8 +85,10 @@ int ErrorUtils::ShowOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogr
 	stored_err = err;
 	stored_url = url;
 
-	RigsOfRods *ror = RigsOfRods::getSingletonPtr();
-	if (ror) ror->tryShutdown();
+	if (RoR::Application::GetAppStateManager() != nullptr)
+	{
+		RoR::Application::GetAppStateManager()->tryShutdown();
+	}
 	
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	printf("\n\n%s: %s / url: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str(), url.asUTF8_c_str());

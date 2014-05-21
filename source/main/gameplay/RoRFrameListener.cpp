@@ -28,7 +28,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrainQuadTreeNode.h>
 
 #include "AdvancedScreen.h"
+#include "Application.h"
 #include "AppState.h"
+#include "AppStateManager.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
@@ -2658,8 +2660,10 @@ void RoRFrameListener::shutdown_final()
 
 	INPUTENGINE.prepareShutdown();
 
-	RigsOfRods *ror = RigsOfRods::getSingletonPtr();
-	if (ror) ror->tryShutdown();
+	if (RoR::Application::GetAppStateManager() != nullptr)
+	{
+		RoR::Application::GetAppStateManager()->tryShutdown();
+	}
 
 	shutdownall = true;
 }
