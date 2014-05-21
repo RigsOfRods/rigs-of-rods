@@ -71,12 +71,11 @@ void ContentManager::loadMainResource(String name, String group)
 
 void ContentManager::initBootstrap(void)
 {
-	LanguageEngine::getSingleton().setup();
-
 	LOG("Loading Bootstrap");
 	loadMainResource("OgreCore", "Bootstrap");
+	loadMainResource("gui_startup_screen", "Bootstrap");
 	LOG("Loading Wallpapers");
-	loadMainResource("wallpapers", "Wallpapers");
+	loadMainResource("gui_menu_wallpapers", "Wallpapers");
 }
 
 bool ContentManager::init(void)

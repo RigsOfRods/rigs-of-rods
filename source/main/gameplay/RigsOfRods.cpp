@@ -23,9 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "AppStateManager.h"
-#include "BootstrapLoadingState.h"
-#include "GameState.h"
-#include "LobbyState.h"
 #include "Settings.h"
 #include "ContentManager.h"
 
@@ -42,26 +39,7 @@ RigsOfRods::~RigsOfRods()
 
 void RigsOfRods::go(void)
 {
-	// dummy state to display the progress bar
-	BootstrapLoadingState::create(RoR::Application::GetAppStateManager(),  "BootstrapLoadingState");
-	RoR::Application::GetAppStateManager()->changeAppState(RoR::Application::GetAppStateManager()->findByName("BootstrapLoadingState"));
 
-	// then the base content setup
-	RoR::Application::GetContentManager()->init();
-
-	// thats the default state it chooses to start
-	// GameState = default state, classic
-	// LobbyState = experimental Multiplayer Lobby
-
-	String startState = SSETTING("StartState", "GameState");
-
-	GameState::create(RoR::Application::GetAppStateManager(),  "GameState");
-	LobbyState::create(RoR::Application::GetAppStateManager(), "LobbyState");
-
-	// select the first one
-	LOG("Rigs of Rods main loop starting ...");
-	RoR::Application::GetAppStateManager()->start(RoR::Application::GetAppStateManager()->findByName(startState));
-	
 }
 
 void RigsOfRods::update(double dt)
