@@ -35,7 +35,6 @@
 #include "Language.h"
 #include "LobbyState.h"
 #include "OgreSubsystem.h"
-#include "RigsOfRods.h"
 #include "Settings.h"
 
 #include <OgreRoot.h>
@@ -79,8 +78,6 @@ void MainThread::go()
 	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
 
 	Application::GetContentManager()->init(); // Load all resource packs
-
-	RigsOfRods* legacy_app_class = new RigsOfRods(); // Init legacy application-class (singleton)
 
 	// Create application states and launch the default one
 	// GameState = default state, classic
