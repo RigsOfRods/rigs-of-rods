@@ -215,7 +215,7 @@ int Settings::generateBinaryHash()
 	// note: we enforce usage of the non-UNICODE interfaces (since its easier to integrate here)
 	if (!GetModuleFileNameA(NULL, program_path, 512))
 	{
-		showError(_L("Startup error"), _L("Error while retrieving program space path"));
+		ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program space path"));
 		return 1;
 	}
 	GetShortPathNameA(program_path, program_path, 512); //this is legal
@@ -254,7 +254,7 @@ bool Settings::get_system_paths(char *program_path, char *user_path)
 	// note: we enforce usage of the non-UNICODE interfaces (since its easier to integrate here)
 	if (!GetModuleFileNameA(NULL, program_path, 512))
 	{
-		showError(_L("Startup error"), _L("Error while retrieving program space path"));
+		ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program space path"));
 		return false;
 	}
 	GetShortPathNameA(program_path, program_path, 512); //this is legal
@@ -264,7 +264,7 @@ bool Settings::get_system_paths(char *program_path, char *user_path)
 	{
 		if (SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, user_path)!=S_OK)
 		{
-			showError(_L("Startup error"), _L("Error while retrieving user space path"));
+			ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user space path"));
 			return false;
 		}
 		GetShortPathNameA(user_path, user_path, 512); //this is legal
@@ -385,7 +385,7 @@ bool Settings::setupPaths()
 
 			if (!folderExists(resources_path))
 			{
-				showError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
+				ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
 				exit(1);
 			}
 		}

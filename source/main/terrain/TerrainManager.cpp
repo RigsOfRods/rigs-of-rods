@@ -101,7 +101,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	terrain_name = mTerrainConfig.getSetting("Name", "General");
 	if (terrain_name.empty())
 	{
-		showError(_L("Terrain loading error"), _L("the terrain name cannot be empty"));
+		ErrorUtils::ShowError(_L("Terrain loading error"), _L("the terrain name cannot be empty"));
 		exit(125);
 	}
 
@@ -109,7 +109,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	// otc = ogre terrain config
 	if (ogre_terrain_config_filename.find(".otc") == String::npos)
 	{
-		showError(_L("Terrain loading error"), _L("the new terrain mode only supports .otc configurations"));
+		ErrorUtils::ShowError(_L("Terrain loading error"), _L("the new terrain mode only supports .otc configurations"));
 		exit(125);
 	}
 
@@ -154,7 +154,7 @@ void TerrainManager::loadTerrain(String filename)
 	} catch(...)
 	{
 		LOG("Terrain not found: " + String(filename));
-		showError(_L("Terrain loading error"), _L("Terrain not found: ") + filename);
+		ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + filename);
 		exit(125);
 	}
 

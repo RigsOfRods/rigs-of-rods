@@ -115,7 +115,7 @@ void install_crashrpt()
 		printf("%s\n", szErrorMsg);
 
 
-		showError(_L("Exception handling registration problem"), String(szErrorMsg));
+		ErrorUtils::ShowError(_L("Exception handling registration problem"), String(szErrorMsg));
 
 		assert(nInstResult==0);
 	}
@@ -221,12 +221,12 @@ extern "C" {
 
 void showUsage()
 {
-	showInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
+	ErrorUtils::ShowInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
 }
 
 void showVersion()
 {
-	showInfo(_L("Version Information"), getVersionString());
+	ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__
 	printf(" * built with gcc %d.%d.%d\n", __GNUC_MINOR__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif //__GNUC__
@@ -327,10 +327,11 @@ int main(int argc, char *argv[])
 	//test_crashrpt();
 #endif //USE_CRASHRPT
 
-	try {
+	try 
+	{
 		main_thread_object.go();
 	} 
-	catch(Ogre::Exception& e)
+	catch (Ogre::Exception& e)
 	{
 
 		// try to shutdown input system upon an error
@@ -338,7 +339,11 @@ int main(int argc, char *argv[])
 		//	INPUTENGINE.prepareShutdown();
 
 		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
-		showOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
+		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
+	}
+	catch (std::runtime_error& e)
+	{
+		ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
 	}
 
 #ifdef USE_CRASHRPT
@@ -347,7 +352,7 @@ int main(int argc, char *argv[])
 #endif //USE_CRASHRPT
 
 	// show errors before we give up
-	showStoredOgreWebErrors();
+	ErrorUtils::ShowStoredOgreWebErrors();
 
 	return 0;
 }

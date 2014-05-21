@@ -106,7 +106,7 @@ BeamFactory::BeamFactory() :
 		if (pthread_create(&worker_thread, NULL, threadstart, this))
 		{
 			LOG("BEAMFACTORY: Can not start a thread");
-			showError(UTFString("Error"), _L("Failed to start a thread."));
+			ErrorUtils::ShowError(UTFString("Error"), _L("Failed to start a thread."));
 			exit(1);
 		}
 	}

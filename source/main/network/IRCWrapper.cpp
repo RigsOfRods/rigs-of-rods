@@ -308,7 +308,7 @@ int IRCWrapper::processAuthenticationResults(String &results)
 	// fatal error?
 	if (cfg.hasSetting("fatalError"))
 	{
-		showOgreWebError(cfg.getSetting("fatalErrorTitle"), cfg.getSetting("fatalError"), cfg.getSetting("fatalErrorURL"));
+		ErrorUtils::ShowOgreWebError(cfg.getSetting("fatalErrorTitle"), cfg.getSetting("fatalError"), cfg.getSetting("fatalErrorURL"));
 		return 1;
 	}
 

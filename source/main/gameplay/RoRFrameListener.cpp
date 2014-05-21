@@ -802,7 +802,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 		if (CACHE.deletedFiles > 0) str = str + TOUTFSTRING(CACHE.deletedFiles) + _L(" deleted files\n");
 		if (CACHE.newFiles + CACHE.changedFiles + CACHE.deletedFiles == 0) str = str + _L("no changes");
 		str = str + _L("\n(These stats can be imprecise)");
-		showError(_L("Cache regeneration done"), str);
+		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
 		exit(0);
 	}
 
@@ -955,7 +955,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 
 		if (sport==0)
 		{
-			showError(_L("A network error occured"), _L("Bad server port"));
+			ErrorUtils::ShowError(_L("A network error occured"), _L("Bad server port"));
 			exit(123);
 			return;
 		}
@@ -982,7 +982,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 		if (!connres)
 		{
 			LOG("connection failed. server down?");
-			showError(_L("Unable to connect to server"), _L("Unable to connect to the server. It is certainly down or you have network problems."));
+			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It is certainly down or you have network problems."));
 			//fatal
 			exit(1);
 		}
@@ -1051,7 +1051,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 			if (!CACHE.checkResourceLoaded(preselected_map))
 			{
 				LOG("Terrain not found: " + preselected_map);
-				showError(_L("Terrain loading error"), _L("Terrain not found: ") + preselected_map);
+				ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + preselected_map);
 				exit(123);
 			}
 		}
@@ -2685,7 +2685,7 @@ void RoRFrameListener::loadTerrain(String terrainfile)
 		if (!CACHE.checkResourceLoaded(terrainfile))
 		{
 			LOG("Terrain not found: " + terrainfile);
-			showError(_L("Terrain loading error"), _L("Terrain not found: ") + terrainfile);
+			ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + terrainfile);
 			exit(123);
 		}
 	}

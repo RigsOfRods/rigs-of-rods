@@ -1728,7 +1728,7 @@ void Beam::sendStreamData()
 	int final_packet_size = sizeof(oob_t) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
 	if (final_packet_size > (int)maxPacketLen)
 	{
-		showError(_L("Truck is too big to be send over the net."), _L("Network error!"));
+		ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
 		exit(126);
 	}
 

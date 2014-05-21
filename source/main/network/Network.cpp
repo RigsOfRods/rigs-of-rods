@@ -144,7 +144,7 @@ void Network::netFatalError(UTFString errormsg, bool exitProgram)
 	SWBaseSocket::SWBaseError error;
 	socket.set_timeout(1, 1000);
 	socket.disconnect(&error);
-	showError(_L("Network Connection Problem"), _L("Network fatal error: ") + errormsg);
+	ErrorUtils::ShowError(_L("Network Connection Problem"), _L("Network fatal error: ") + errormsg);
 	if (exitProgram)
 		exit(124);
 }

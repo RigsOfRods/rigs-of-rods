@@ -204,7 +204,7 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
 			cfg.load(filename, group, "\x09:=", true);
 	} catch(Ogre::Exception& e)
 	{
-		showError("Error while loading ground model", e.getFullDescription());
+		ErrorUtils::ShowError("Error while loading ground model", e.getFullDescription());
 		return 1;
 	}
 
@@ -232,8 +232,8 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
 	{
 		// message box
 		String url = "http://wiki.rigsofrods.com/index.php?title=Error_Old_ground_model#"+TOSTRING(this->collision_version)+"to"+TOSTRING(LATEST_GROUND_MODEL_VERSION);
-		showOgreWebError(_L("Configuration error"), _L("Your ground configuration is too old, please copy skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"), url);
-		showStoredOgreWebErrors();
+		ErrorUtils::ShowOgreWebError(_L("Configuration error"), _L("Your ground configuration is too old, please copy skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"), url);
+		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(124);
 	}
 	return 0;
