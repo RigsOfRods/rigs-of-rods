@@ -87,15 +87,38 @@ void MainThread::go()
 	// GameState = default state, classic
 	// LobbyState = experimental Multiplayer Lobby
 	GameState::create(Application::GetAppStateManager(),  "GameState");
-	LobbyState::create(Application::GetAppStateManager(), "LobbyState");
+	//LobbyState::create(Application::GetAppStateManager(), "LobbyState");
 	
-	Ogre::String start_state = SSETTING("StartState", "GameState");
+	//Ogre::String start_state = SSETTING("StartState", "GameState");
 	bootstrap_screen.HideAndRemove();
-	Application::GetAppStateManager()->start(Application::GetAppStateManager()->findByName(start_state));
+
+	// --------------------------------------------------------------------------------
+	// Ported GameState logic
+
+	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+	gEnv->sceneManager = scene_manager;
+
+	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
+	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
+	camera->lookAt(Ogre::Vector3(0,0,-300)); // Look back along -Z
+	camera->setNearClipDistance( 0.5 );
+	camera->setFarClipDistance( 1000.0*1.733 );
+	camera->setFOVy(Ogre::Degree(60));
+	camera->setAutoAspectRatio(true);
+	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
+	gEnv->mainCamera = camera;
+
+	// --------------------------------------------------------------------------------
+	// Continue with legacy GameState
+
+	Application::GetAppStateManager()->start(Application::GetAppStateManager()->findByName("GameState"));
 
 	// ================================================================================
 	// Cleanup
 	// ================================================================================
+
+	scene_manager->destroyCamera(camera);
+    RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
 	Application::DestroyContentManager();
 
