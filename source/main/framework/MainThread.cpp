@@ -69,8 +69,12 @@ void MainThread::go()
 
 	LanguageEngine::getSingleton().setup(); // TODO: Manage by class Application
 
-	Application::GetContentManager()->initBootstrap(); // Add 'bootstrap' resource group.
-	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap"); // Init 'bootstrap' resource group.
+	// Add startup resources
+	Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
+	Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
+	Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
 	StartupScreen bootstrap_screen;
 	bootstrap_screen.InitAndShow();

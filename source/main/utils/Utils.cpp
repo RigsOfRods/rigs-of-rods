@@ -172,27 +172,6 @@ String getVersionString(bool multiline)
 	return String(tmp);
 }
 
-bool fileExists(const char *filename)
-{
-	// be careful about what you use here...
-	FILE *f = fopen(filename, "r");
-	if (!f)
-		return false;
-	fclose(f);
-	return true;
-}
-
-bool folderExists(const char *pathname)
-{
-#ifdef WIN32
-	DWORD dwAttrib = GetFileAttributesA(pathname);
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&  (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-	struct stat st;
-	return (stat(pathname, &st) == 0);
-#endif
-}
-
 int isPowerOfTwo (unsigned int x)
 {
   return ((x != 0) && ((x & (~x + 1)) == x));

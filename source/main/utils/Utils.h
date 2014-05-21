@@ -52,9 +52,6 @@ int getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
 
-bool fileExists(const char *filename);
-bool folderExists(const char *pathname);
-
 int isPowerOfTwo(unsigned int x);
 
 Ogre::String stripNonASCII(Ogre::String s);

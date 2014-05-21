@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "BitFlags.h"
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
 
@@ -38,8 +39,27 @@ class ContentManager : public Ogre::ResourceLoadingListener, public ZeroedMemory
 	friend class RoR::Application; // Manages lifecycle of this class
 
 public:
+
+	struct ResourcePack
+	{
+		ResourcePack(Ogre::uint64 mask, const char * name, const char * resource_group_name):
+			mask(mask),
+			name(name),
+			resource_group_name(resource_group_name)
+		{}
+
+		static const ResourcePack OGRE_CORE;
+		static const ResourcePack GUI_MENU_WALLPAPERS;
+		static const ResourcePack GUI_STARTUP_SCREEN;
+
+		Ogre::uint64 mask;
+		const char * name;
+		const char * resource_group_name;
+	};
+
+	void AddResourcePack(ResourcePack const & resource_pack);
 	
-	void initBootstrap(void);
+	//void initBootstrap(void);
 	bool init(void);
 
 	void loadMainResource(Ogre::String name, Ogre::String group=Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -56,6 +76,8 @@ protected:
 	Ogre::DataStreamPtr resourceLoading(const Ogre::String &name, const Ogre::String &group, Ogre::Resource *resource);
 	void resourceStreamOpened(const Ogre::String &name, const Ogre::String &group, Ogre::Resource *resource, Ogre::DataStreamPtr& dataStream);
 	bool resourceCollision(Ogre::Resource *resource, Ogre::ResourceManager *resourceManager);
+
+	Ogre::uint64 m_loaded_resource_packs;
 
 };
 

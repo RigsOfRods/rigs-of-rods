@@ -25,12 +25,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ErrorUtils.h"
 #include "ImprovedConfigFile.h"
 #include "Language.h"
+#include "PlatformUtils.h"
+#include "RigDefParser.h"
 #include "Settings.h"
 #include "SHA1.h"
 #include "SoundScriptManager.h"
-#include "Utils.h"
 #include "TerrainManager.h"
-#include "RigDefParser.h"
+#include "Utils.h"
 	
 #ifdef USE_MYGUI
 #include "LoadingWindow.h"
@@ -660,7 +661,7 @@ int CacheSystem::incrementalCacheUpdate()
 		else if (it->type == "FileSystem")
 			fn = getRealPath(it->dirname + "/" + it->fname);
 
-		if ((it->type == "FileSystem" || it->type == "Zip") && !fileExists(fn.c_str()))
+		if ((it->type == "FileSystem" || it->type == "Zip") && ! RoR::PlatformUtils::FileExists(fn.c_str()))
 		{
 			LOG("- "+fn+" is not existing");
 #ifdef USE_MYGUI
