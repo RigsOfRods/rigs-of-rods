@@ -62,6 +62,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Network.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
+#include "PlatformUtils.h"
 #include "PlayerColours.h"
 #include "PreviewRenderer.h"
 #include "Replay.h"
@@ -1291,8 +1292,10 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		int mNumScreenShots=0;
 		String tmpfn = SSETTING("User Path", "") + String("screenshot_") + TOSTRING(++mNumScreenShots) + String(".") + String(screenshotformat);
-		while(fileExists(tmpfn.c_str()))
+		while(RoR::PlatformUtils::FileExists(tmpfn.c_str()))
+		{
 			tmpfn = SSETTING("User Path", "") + String("screenshot_") + TOSTRING(++mNumScreenShots) + String(".") + String(screenshotformat);
+		}
 
 #ifdef USE_MYGUI
 		MyGUI::PointerManager::getInstance().setVisible(false);

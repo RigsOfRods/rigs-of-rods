@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "PlatformUtils.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 #include "SkyManager.h"
@@ -296,7 +297,7 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 				sprintf(tmp, "%03d_%03d.jpg", i, o); // use .png for transparancy
 				String ifn = fn + skelmode + SSETTING("dirsep", "\\") + String(tmp);
     			
-				if (fileExists(ifn.c_str()))
+				if (RoR::PlatformUtils::FileExists(ifn.c_str()))
 				{
 					LOG("rending skipped - already existing [" + TOSTRING(yaw) + String(" / ") + TOSTRING(pitch) + String(" / ") + TOSTRING(radius) + String("] ") + ifn);
 					continue;

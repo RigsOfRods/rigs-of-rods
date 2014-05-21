@@ -29,6 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ErrorUtils.h"
 #include "Ogre.h"
+#include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
 #include "Utils.h"
@@ -360,7 +361,7 @@ bool Settings::setupPaths()
 		return false;
 
 	String local_config = String(program_path) + String(dsStr) + String("config");
-	if (folderExists(local_config.c_str()))
+	if (RoR::PlatformUtils::FolderExists(local_config.c_str()))
 	{
 		sprintf(user_path, "%s%sconfig%s",program_path, dsStr, dsStr);
 	}
@@ -368,13 +369,13 @@ bool Settings::setupPaths()
 	// check for resource folder: first the normal version (in the executables directory)
 	strcpy(resources_path, program_path);
 	path_add(resources_path, "resources");
-	if (!folderExists(resources_path))
+	if (! RoR::PlatformUtils::FolderExists(resources_path))
 	{
 		// if not existing: check one dir up (dev version)
 		strcpy(resources_path, program_path);
 		path_descend(resources_path);
 		path_add(resources_path, "resources");
-		if (!folderExists(resources_path))
+		if (! RoR::PlatformUtils::FolderExists(resources_path))
 		{
 			// 3rd fallback: check the installation path
 #ifndef WIN32
@@ -383,7 +384,7 @@ bool Settings::setupPaths()
 			strcpy(resources_path, "/usr/share/rigsofrods/resources/");
 #endif // WIN32
 
-			if (!folderExists(resources_path))
+			if (! RoR::PlatformUtils::FolderExists(resources_path))
 			{
 				ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
 				exit(1);
@@ -408,14 +409,14 @@ bool Settings::setupPaths()
 	char tmppp[1024] = "";
 	strcpy(tmppp, resources_path);	
 	strcat(tmppp, "plugins.cfg");
-	if(fileExists(tmppp))
+	if(RoR::PlatformUtils::FileExists(tmppp))
 	{
 		strcpy(plugins_fname, resources_path);
 	} else
 	{
 		strcpy(tmppp, program_path);	
 		strcat(tmppp, "plugins.cfg");
-		if(fileExists(tmppp))
+		if(RoR::PlatformUtils::FileExists(tmppp))
 			strcpy(plugins_fname, program_path);
 	}
 	
@@ -467,7 +468,7 @@ bool Settings::setupPaths()
 	StringUtil::toLowerCase(settings["Program Path"]);
 #endif
 	// now enable the user to override that:
-	if (fileExists("config.cfg"))
+	if (RoR::PlatformUtils::FileExists("config.cfg"))
 	{
 		loadSettings("config.cfg", true);
 

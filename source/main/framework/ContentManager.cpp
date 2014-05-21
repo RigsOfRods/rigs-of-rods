@@ -25,6 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "SkinManager.h"
 #include "Language.h"
+#include "PlatformUtils.h"
 
 #include "CacheSystem.h"
 
@@ -42,13 +43,58 @@ using namespace Ogre;
 using namespace std;
 using namespace RoR;
 
-ContentManager::ContentManager()
+// ================================================================================
+// Static variables
+// ================================================================================
+
+const ContentManager::ResourcePack ContentManager::ResourcePack::OGRE_CORE             (BITMASK_64(1),              "OgreCore",   "Bootstrap");
+const ContentManager::ResourcePack ContentManager::ResourcePack::GUI_MENU_WALLPAPERS   (BITMASK_64(2),   "gui_menu_wallpapers",  "Wallpapers");
+const ContentManager::ResourcePack ContentManager::ResourcePack::GUI_STARTUP_SCREEN    (BITMASK_64(3),    "gui_startup_screen",   "Bootstrap");
+
+// ================================================================================
+// Functions
+// ================================================================================
+
+ContentManager::ContentManager():
+	m_loaded_resource_packs(0)
 {
 }
 
 ContentManager::~ContentManager()
 {
 }
+
+void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
+{
+	std::stringstream log_msg;
+	log_msg << "[RoR|ContentManager] Loading resource pack '" << resource_pack.name << "' from group '" << resource_pack.resource_group_name << "'";
+	Ogre::String resources_dir = SSETTING("Resources Path", "resources" + PlatformUtils::DIRECTORY_SEPARATOR);
+	Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
+	if (PlatformUtils::FileExists(zip_path))
+	{
+		log_msg << " (ZIP archive)";
+		LOG(log_msg.str());
+		ResourceGroupManager::getSingleton().addResourceLocation(zip_path, "Zip", resource_pack.resource_group_name);
+		BITMASK_64_SET_1(m_loaded_resource_packs, resource_pack.mask);
+	}
+	else
+	{
+		Ogre::String dir_path = resources_dir + resource_pack.name;
+		if (PlatformUtils::FolderExists(dir_path))
+		{
+			log_msg << " (directory)";
+			LOG(log_msg.str());
+			ResourceGroupManager::getSingleton().addResourceLocation(dir_path, "FileSystem", resource_pack.resource_group_name);
+			BITMASK_64_SET_1(m_loaded_resource_packs, resource_pack.mask);
+		}
+		else
+		{
+			log_msg << " failed, data not found.";
+			throw std::runtime_error(log_msg.str());
+		}
+	}
+}
+
 
 void ContentManager::loadMainResource(String name, String group)
 {
@@ -58,7 +104,7 @@ void ContentManager::loadMainResource(String name, String group)
 #endif
 
 	String zipFilename = SSETTING("Resources Path", "resources\\")+name+".zip";
-	if (fileExists(zipFilename.c_str()))
+	if (PlatformUtils::FileExists(zipFilename.c_str()))
 	{
 		ResourceGroupManager::getSingleton().addResourceLocation(zipFilename, "Zip", group);
 	} else
@@ -68,7 +114,7 @@ void ContentManager::loadMainResource(String name, String group)
 		ResourceGroupManager::getSingleton().addResourceLocation(dirname, "FileSystem", group);
 	}
 }
-
+/*
 void ContentManager::initBootstrap(void)
 {
 	LOG("Loading Bootstrap");
@@ -76,7 +122,7 @@ void ContentManager::initBootstrap(void)
 	loadMainResource("gui_startup_screen", "Bootstrap");
 	LOG("Loading Wallpapers");
 	loadMainResource("gui_menu_wallpapers", "Wallpapers");
-}
+}*/
 
 bool ContentManager::init(void)
 {
