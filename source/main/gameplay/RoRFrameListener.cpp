@@ -65,7 +65,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlayerColours.h"
 #include "PreviewRenderer.h"
 #include "Replay.h"
-#include "RigsOfRods.h"
 #include "Road.h"
 #include "Road2.h"
 #include "RoRVersion.h"
