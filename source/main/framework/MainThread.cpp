@@ -28,9 +28,17 @@
 #include "MainThread.h"
 
 #include "Application.h"
+#include "StartupScreen.h"
+#include "AppStateManager.h"
+#include "ContentManager.h"
+#include "GameState.h"
+#include "Language.h"
+#include "LobbyState.h"
 #include "OgreSubsystem.h"
 #include "RigsOfRods.h"
 #include "Settings.h"
+
+#include <OgreRoot.h>
 
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
@@ -40,8 +48,11 @@ namespace RoR
 
 void MainThread::go()
 {
-	// Instantiate global environment
-	gEnv = new GlobalEnvironment();
+	// ================================================================================
+	// Bootstrap
+	// ================================================================================
+
+	gEnv = new GlobalEnvironment(); // Instantiate global environment
 
 	if (! Application::GetSettings().setupPaths() )
 	{
@@ -49,7 +60,6 @@ void MainThread::go()
 	}
 
 	Application::StartOgreSubsystem();
-
 	gEnv->ogreRoot     = Application::GetOgreSubsystem()->GetOgreRoot();
 	gEnv->viewPort     = Application::GetOgreSubsystem()->GetViewport();
 	gEnv->renderWindow = Application::GetOgreSubsystem()->GetRenderWindow();
@@ -58,12 +68,33 @@ void MainThread::go()
 
 	Application::CreateContentManager();
 
-	// Continue with the old application class
+	LanguageEngine::getSingleton().setup(); // TODO: Manage by class Application
 
-	RigsOfRods old_app;
-	old_app.go();
+	Application::GetContentManager()->initBootstrap(); // Add 'bootstrap' resource group.
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap"); // Init 'bootstrap' resource group.
 
+	StartupScreen bootstrap_screen;
+	bootstrap_screen.InitAndShow();
+
+	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
+
+	Application::GetContentManager()->init(); // Load all resource packs
+
+	RigsOfRods* legacy_app_class = new RigsOfRods(); // Init legacy application-class (singleton)
+
+	// Create application states and launch the default one
+	// GameState = default state, classic
+	// LobbyState = experimental Multiplayer Lobby
+	GameState::create(Application::GetAppStateManager(),  "GameState");
+	LobbyState::create(Application::GetAppStateManager(), "LobbyState");
+	
+	Ogre::String start_state = SSETTING("StartState", "GameState");
+	bootstrap_screen.HideAndRemove();
+	Application::GetAppStateManager()->start(Application::GetAppStateManager()->findByName(start_state));
+
+	// ================================================================================
 	// Cleanup
+	// ================================================================================
 
 	Application::DestroyContentManager();
 
