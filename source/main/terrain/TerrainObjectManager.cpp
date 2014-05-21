@@ -109,7 +109,7 @@ void TerrainObjectManager::proceduralTests()
 
 	} catch(Exception &e)
 	{
-		showError("Error within procedural tests", e.what());
+		ErrorUtils::ShowError("Error within procedural tests", e.what());
 	}
 #endif //0
 }

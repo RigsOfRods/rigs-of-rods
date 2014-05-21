@@ -112,8 +112,8 @@ void CacheSystem::startup(bool forcecheck)
 	// show error on zero content
 	if (entries.empty())
 	{
-		showOgreWebError(_L("No content installed"), _L("You have no content installed"), _L("http://www.rigsofrods.com/wiki/pages/Install_Content"));
-		showStoredOgreWebErrors();
+		ErrorUtils::ShowOgreWebError(_L("No content installed"), _L("You have no content installed"), _L("http://www.rigsofrods.com/wiki/pages/Install_Content"));
+		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(1337);
 	}
 
@@ -1019,7 +1019,7 @@ void CacheSystem::writeGeneratedCache()
 	FILE *f = fopen(path.c_str(), "w");
 	if (!f)
 	{
-		showError(_L("Fatal Error: Unable to write cache to disk"), _L("Unable to write file.\nPlease ensure the parent directories exists and that you have write access to this location:\n") + path);
+		ErrorUtils::ShowError(_L("Fatal Error: Unable to write cache to disk"), _L("Unable to write file.\nPlease ensure the parent directories exists and that you have write access to this location:\n") + path);
 		exit(1337);
 	}
 	fprintf(f, "shaone=%s\n", const_cast<char*>(currentSHA1.c_str()));

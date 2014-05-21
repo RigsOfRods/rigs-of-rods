@@ -83,7 +83,7 @@ bool OgreSubsystem::Configure()
 	}
 	else
 	{
-		showError(_L("Configuration error"), _L("Run the RoRconfig program first."));
+		ErrorUtils::ShowError(_L("Configuration error"), _L("Run the RoRconfig program first."));
 		exit(1);
 	}
 	return true;
@@ -155,8 +155,8 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
 	catch(Ogre::Exception& e)
 	{
 		Ogre::String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
-		showOgreWebError(_L("A fatal exception has occured!"), ANSI_TO_UTF(e.getFullDescription()), ANSI_TO_UTF(url));
-		showStoredOgreWebErrors();
+		ErrorUtils::ShowOgreWebError(_L("A fatal exception has occured!"), ANSI_TO_UTF(e.getFullDescription()), ANSI_TO_UTF(url));
+		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(1);
 	}
 

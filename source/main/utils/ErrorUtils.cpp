@@ -1,30 +1,35 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-//created by thomas fischer 3rd of October 2009
+
+/** 
+	@file   ErrorUtils.cpp
+	@author Thomas Fischer
+	@date   3rd October 2009
+*/
 
 #include "ErrorUtils.h"
+
 #include "Ogre.h"
-//#include "Language.h"
 
 #define _L
-
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <windows.h>
@@ -38,19 +43,19 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-int showError(Ogre::UTFString title, Ogre::UTFString err)
+int ErrorUtils::ShowError(Ogre::UTFString title, Ogre::UTFString err)
 {
-	return showMsgBox(title, err, 0);
+	return ErrorUtils::ShowMsgBox(title, err, 0);
 }
 
-int showInfo(Ogre::UTFString title, Ogre::UTFString err)
+int ErrorUtils::ShowInfo(Ogre::UTFString title, Ogre::UTFString err)
 {
-	return showMsgBox(title, err, 1);
+	return ErrorUtils::ShowMsgBox(title, err, 1);
 }
 
-int showMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
+int ErrorUtils::ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
 {
-	// we might call the showMsgBox without having ogre created yet!
+	// we might call the ErrorUtils::ShowMsgBox without having ogre created yet!
 	//LOG("message box: " + title + ": " + err);
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	int mtype = MB_ICONERROR;
@@ -68,7 +73,7 @@ int showMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
 
 bool storederror = false;
 Ogre::UTFString stored_title, stored_err, stored_url;
-int showOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString url)
+int ErrorUtils::ShowOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString url)
 {
 #ifndef NOOGRE
 
@@ -85,17 +90,17 @@ int showOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString
 #endif	
 	return 0;
 #else
-	return showWebError(Ogre::UTFString("Rigs of Rods: ") + title, err, url);
+	return ErrorUtils::ShowWebError(Ogre::UTFString("Rigs of Rods: ") + title, err, url);
 #endif //NOOGRE
 }
 
-void showStoredOgreWebErrors()
+void ErrorUtils::ShowStoredOgreWebErrors()
 {
 	if (!storederror) return;
-	showWebError(stored_title, stored_err, stored_url);
+	ErrorUtils::ShowWebError(stored_title, stored_err, stored_url);
 }
 
-int showWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString url)
+int ErrorUtils::ShowWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString url)
 {
 	// NO logmanager use, because it could be that its not initialized yet!
 	//LOG("web message box: " + title + ": " + err + " / url: " + url);
