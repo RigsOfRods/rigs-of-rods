@@ -65,8 +65,8 @@ void logString(const std::string &str)
 
 // the class implementation
 
-ScriptEngine::ScriptEngine(RoRFrameListener *efl, Collisions *coll) :
-	  mefl(efl)
+ScriptEngine::ScriptEngine(Collisions *coll) :
+	  mefl(nullptr)
 	, coll(coll)
 	, context(0)
 	, defaultEventCallbackFunctionPtr(-1)

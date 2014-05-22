@@ -32,10 +32,15 @@
 #include "AppStateManager.h"
 #include "ContentManager.h"
 #include "GameState.h"
+#include "GUIFriction.h"
+#include "GUIManager.h"
+#include "GUIMenu.h"
 #include "Language.h"
-#include "LobbyState.h"
+#include "LoadingWindow.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
+#include "ScriptEngine.h"
+#include "SelectorWindow.h"
 #include "Settings.h"
 
 #include <OgreRoot.h>
@@ -121,13 +126,39 @@ void MainThread::go()
 	// create console, must be done early
 	Application::CreateConsoleIfNotExists();
 
+	// Init singletons. TODO: Move under Application
+	LoadingWindow::getSingleton();
+	SelectorWindow::getSingleton();
+	new GUI_MainMenu();
+	GUI_Friction::getSingleton();
+
+	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
+	// load random image in the wallpaper
+	Ogre::String randomWallpaper = RoR::GUIManager::getRandomWallpaperImage();
+	if (!v.empty() && !randomWallpaper.empty())
+	{
+		MyGUI::Widget *mainw = v.at(0);
+		if (mainw)
+		{
+			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
+			if (img) img->setImageTexture(randomWallpaper);
+		}
+	}
+
 #endif // USE_MYGUI
+
+#ifdef USE_ANGELSCRIPT
+
+	new ScriptEngine(); // Init singleton. TODO: Move under Application
+
+#endif
 
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener
 
 	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state, RoR::Application::GetOgreSubsystem()->GetMainHWND());
 	gEnv->frameListener = ror_frame_listener;
+	ScriptEngine::getSingleton().SetFrameListener(ror_frame_listener);
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(ror_frame_listener);
 	
 	legacy_game_state->Setup(camera, scene_manager, ror_frame_listener);
