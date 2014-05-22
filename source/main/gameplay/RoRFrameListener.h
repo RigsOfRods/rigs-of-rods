@@ -40,8 +40,6 @@ public:
 	float netcheckGUITimer;
 
 	int loading_state;
-
-	enum LoadingStatuses { NONE_LOADED, TERRAIN_LOADED, ALL_LOADED, EXITING, EDITING, RELOADING, PAUSE, TERRAIN_EDITOR };
 	
 	Ogre::Vector3 reload_pos;
 

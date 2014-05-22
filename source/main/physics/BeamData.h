@@ -96,16 +96,6 @@ enum event_types {
 	EVENT_DELETE
 };
 
-enum game_states {
-	NONE_LOADED=0,
-	TERRAIN_LOADED,
-	ALL_LOADED,
-	EXITING,
-	EDITING,
-	RELOADING,
-	EDITOR_PAUSE,
-};
-
 enum hook_states {
 	HOOK_LOCK=0,
 	HOOK_UNLOCK,

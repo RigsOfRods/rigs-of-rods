@@ -352,7 +352,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 
 	} else if (miname == _L("Terrain Editor Mode"))
 	{
-		gEnv->frameListener->loading_state = RoRFrameListener::TERRAIN_EDITOR;
+		gEnv->frameListener->loading_state = TERRAIN_EDITOR;
 		gEnv->cameraManager->switchBehavior(CameraManager::CAMERA_BEHAVIOR_ISOMETRIC, true);
 		
 
