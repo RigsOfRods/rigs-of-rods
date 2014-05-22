@@ -255,7 +255,7 @@ void RoRFrameListener::updateGUI(float dt)
 
 #ifdef USE_MYGUI
 	// update mouse picking lines, etc
-	SceneMouse::getSingleton().update(dt);
+	RoR::Application::GetSceneMouse()->update(dt);
 #endif //USE_MYGUI
 
 	if (pressure_pressed)
@@ -723,7 +723,6 @@ RoRFrameListener::RoRFrameListener(
 
 #ifdef USE_MYGUI
 	// init GUI
-	new SceneMouse();
 	new GUIManager();
 	// create console, must be done early
 	new Console();

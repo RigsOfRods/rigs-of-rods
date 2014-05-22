@@ -35,6 +35,7 @@ namespace RoR
 	class  MainThread;
 	class  OgreSubsystem;
 	struct PlatformUtils;
+	class  SceneMouse;
 }
 
 struct node_t;

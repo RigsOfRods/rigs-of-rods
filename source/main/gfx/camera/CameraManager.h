@@ -29,7 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class CameraManager : public IBehaviorManager
 {
-	friend class SceneMouse;
+	friend class RoR::SceneMouse;
 
 public:
 
