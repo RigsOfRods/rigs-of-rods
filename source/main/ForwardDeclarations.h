@@ -120,6 +120,7 @@ class HeatHaze;
 class HeightFinder;
 class ICameraBehavior;
 class IHeightFinder;
+class InputEngine;
 class IThreadTask;
 class IWater;
 class Landusemap;

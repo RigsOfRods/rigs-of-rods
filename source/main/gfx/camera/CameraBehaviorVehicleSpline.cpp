@@ -68,7 +68,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 
 	camLookAt = spline->interpolate(splinePos);
 
-	if ( INPUTENGINE.isKeyDown(OIS::KC_LSHIFT) && INPUTENGINE.isKeyDownValueBounce(OIS::KC_SPACE) )
+	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
 	{
 		autoTracking = !autoTracking;
 #ifdef USE_MYGUI
@@ -104,16 +104,16 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext 
 {
 	const OIS::MouseState ms = _arg.state;
 
-	if ( INPUTENGINE.isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right) )
+	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right) )
 	{
 		Real splinePosDiff = ms.X.rel * std::max(0.00005f, splineLength * 0.0000001f);
 
-		if ( INPUTENGINE.isKeyDown(OIS::KC_LSHIFT) || INPUTENGINE.isKeyDown(OIS::KC_RSHIFT) )
+		if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
 		{
 			splinePosDiff *= 3.0f;
 		}
 
-		if ( INPUTENGINE.isKeyDown(OIS::KC_LMENU) )
+		if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
 		{
 			splinePosDiff *= 0.1f;
 		}

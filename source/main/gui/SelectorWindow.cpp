@@ -836,7 +836,7 @@ void SelectorWindow::show(LoaderType type)
 
 	mSelectedSkin = 0;
 	mSearchLineEdit->setCaption(_L("Search ..."));
-	INPUTENGINE.resetKeys();
+	RoR::Application::GetInputEngine()->resetKeys();
 	LoadingWindow::getSingleton().hide();
 	// focus main mMainWidget (for key input)
 	mTruckConfigs.clear();

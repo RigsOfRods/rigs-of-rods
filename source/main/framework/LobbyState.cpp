@@ -21,7 +21,7 @@ void LobbyState::enter()
 
 	m_pSceneMgr = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(ST_INTERIOR);
 
-	INPUTENGINE.setupDefault();
+	RoR::Application::GetInputEngine()->setupDefault();
 
 	//CREATE CAMERA
 	LOG("Creating camera");
@@ -69,7 +69,7 @@ void LobbyState::createScene()
 
 void LobbyState::update(double dt)
 {
-	INPUTENGINE.Capture();
+	RoR::Application::GetInputEngine()->Capture();
 
 #ifdef USE_MYGUI
 	LobbyGUI::getSingleton().update(dt);
@@ -78,5 +78,5 @@ void LobbyState::update(double dt)
 
 void LobbyState::resized(Ogre::RenderWindow* rw)
 {
-	INPUTENGINE.windowResized(rw);
+	RoR::Application::GetInputEngine()->windowResized(rw);
 }

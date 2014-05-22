@@ -35,6 +35,7 @@
 #include "GUIFriction.h"
 #include "GUIManager.h"
 #include "GUIMenu.h"
+#include "InputEngine.h"
 #include "Language.h"
 #include "LoadingWindow.h"
 #include "OgreSubsystem.h"
@@ -158,6 +159,9 @@ void MainThread::go()
 	Application::GetOverlayWrapper()->SetupDirectionArrow();
 
 	new DustManager(); // setup particle manager singleton. TODO: Move under Application
+
+	RoR::Application::CreateInputEngine();
+	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
 
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener

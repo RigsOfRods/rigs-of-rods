@@ -51,7 +51,7 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 
 void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 {
-	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_LOOKBACK) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK) )
 	{
 		if ( camRotX > Degree(0) )
 		{
@@ -62,41 +62,41 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		}
 	}
 
-	camRotX += (INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_RIGHT) - INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
-	camRotY += (INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_UP)   - INPUTENGINE.getEventValue(EV_CAMERA_ROTATE_DOWN))  * ctx.mRotScale;
+	camRotX += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
+	camRotY += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP)   - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN))  * ctx.mRotScale;
 
 	camRotY = std::max((Radian)Degree(-80), camRotY);
 	camRotY = std::min(camRotY, (Radian)Degree(88));
 
-	camRotXSwivel = (INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_RIGHT) - INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-	camRotYSwivel = (INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_UP)   - INPUTENGINE.getEventValue(EV_CAMERA_SWIVEL_DOWN))  * Degree(60);
+	camRotXSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
+	camRotYSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP)   - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN))  * Degree(60);
 
 	camRotYSwivel = std::max((Radian)Degree(-80) - camRotY, camRotYSwivel);
 	camRotYSwivel = std::min(camRotYSwivel, (Radian)Degree(88) - camRotY);
 
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
 	{
 		camDist -= ctx.mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && camDist > 1 )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && camDist > 1 )
 	{
 		camDist -= ctx.mTransScale * 10;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_OUT) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT) )
 	{
 		camDist += ctx.mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST) )
 	{
 		camDist += ctx.mTransScale * 10;
 	}
 
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_RESET) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET) )
 	{
 		reset(ctx);
 	}
 
-	if ( INPUTENGINE.isKeyDown(OIS::KC_RSHIFT) && INPUTENGINE.isKeyDownValueBounce(OIS::KC_SPACE) )
+	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
 	{
 		limitMinCamDist = !limitMinCamDist;
 #ifdef USE_MYGUI

@@ -51,10 +51,6 @@ protected:
 	MPlatform_Base *mplatform;
 #endif //USE_MPLATFORM
 
-#ifdef USE_OIS_G27
-	OIS::Win32LogitechLEDs *leds;
-#endif //USE_OIS_G27
-
 	AppState *parentState;
 	Dashboard *dashboard;
 	DOFManager *dof;

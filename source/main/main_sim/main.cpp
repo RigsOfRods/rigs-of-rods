@@ -333,11 +333,6 @@ int main(int argc, char *argv[])
 	} 
 	catch (Ogre::Exception& e)
 	{
-
-		// try to shutdown input system upon an error
-		//if (InputEngine::singletonExists()) // this prevents the creating of it, if not existing
-		//	INPUTENGINE.prepareShutdown();
-
 		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
 		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
 	}
