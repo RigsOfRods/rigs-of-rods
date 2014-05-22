@@ -69,6 +69,14 @@ public:
 
 	void ShowDirectionOverlay(Ogre::String const & caption);
 
+	void UpdatePressureTexture(float pressure);
+
+	void UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop);
+
+	void UpdateAerialHUD(Beam * vehicle);
+
+	void UpdateMarineHUD(Beam * vehicle);
+
 protected:
 
 	OverlayWrapper();

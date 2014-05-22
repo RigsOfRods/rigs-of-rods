@@ -115,7 +115,6 @@ protected:
 
 	void initSoftShadows();
 	void initializeCompontents();
-	void updateGUI(float dt); // update engine panel
 	void updateIO(float dt);
 	void updateStats(void);
 
