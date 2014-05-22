@@ -27,7 +27,6 @@
 
 #include "Application.h"
 
-#include "AppStateManager.h"
 #include "CacheSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
@@ -47,7 +46,6 @@ namespace RoR
 // ================================================================================
 
 OgreSubsystem*   Application::ms_ogre_subsystem    = nullptr;
-AppStateManager* Application::ms_app_state_manager = nullptr;
 ContentManager*  Application::ms_content_manager   = nullptr;
 OverlayWrapper*  Application::ms_overlay_wrapper   = nullptr;
 SceneMouse*      Application::ms_scene_mouse       = nullptr;
@@ -79,18 +77,6 @@ void Application::ShutdownOgreSubsystem()
 	assert(ms_ogre_subsystem != nullptr && "Application::ShutdownOgreSubsystem(): Ogre subsystem was not started");
 	delete ms_ogre_subsystem;
 	ms_ogre_subsystem = nullptr;
-}
-
-void Application::CreateAppStateManager()
-{
-	ms_app_state_manager = new AppStateManager();
-}
-
-void Application::DestroyAppStateManager()
-{
-	assert(ms_app_state_manager != nullptr && "Application::DestroyAppStateManager(): AppStateManager never created");
-	delete ms_app_state_manager;
-	ms_app_state_manager = nullptr;
 }
 
 void Application::CreateContentManager()

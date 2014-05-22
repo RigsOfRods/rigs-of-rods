@@ -53,11 +53,6 @@ public:
 		return Settings::getSingleton(); // Temporary solution
 	};
 
-	static AppStateManager* GetAppStateManager()
-	{
-		return ms_app_state_manager;
-	}
-
 	static ContentManager* GetContentManager()
 	{
 		return ms_content_manager;
@@ -99,10 +94,6 @@ private:
 
 	static void ShutdownOgreSubsystem();
 
-	static void CreateAppStateManager();
-
-	static void DestroyAppStateManager();
-
 	static void CreateContentManager();
 
 	static void DestroyContentManager();
@@ -142,7 +133,6 @@ private:
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
-	static AppStateManager* ms_app_state_manager;
 	static ContentManager*  ms_content_manager;
 	static OverlayWrapper*  ms_overlay_wrapper;
 	static SceneMouse*      ms_scene_mouse;

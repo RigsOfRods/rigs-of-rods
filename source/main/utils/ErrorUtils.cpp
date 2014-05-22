@@ -28,7 +28,6 @@
 #include "ErrorUtils.h"
 
 #include "Application.h"
-#include "AppStateManager.h"
 
 
 #include <OgrePrerequisites.h>
@@ -84,11 +83,6 @@ int ErrorUtils::ShowOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogr
 	stored_title = title;
 	stored_err = err;
 	stored_url = url;
-
-	if (RoR::Application::GetAppStateManager() != nullptr)
-	{
-		RoR::Application::GetAppStateManager()->tryShutdown();
-	}
 	
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	printf("\n\n%s: %s / url: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str(), url.asUTF8_c_str());

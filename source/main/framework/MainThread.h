@@ -28,6 +28,10 @@
 
 #pragma once
 
+#include "RoRPrerequisites.h"
+
+#include <pthread.h>
+
 namespace RoR
 {
 
@@ -35,8 +39,25 @@ class MainThread
 {
 
 public:
+
+	MainThread();
 	
-	void go();
+	void Go();
+
+	void Exit();
+
+	void Shutdown();
+
+	void ShutdownSynced();
+
+protected:
+
+	void EnterMainLoop();
+
+	bool               m_no_rendering;
+	bool               m_shutdown;
+	pthread_mutex_t    m_lock;
+	RoRFrameListener*  m_ror_frame_listener;
 };
 
 } // namespace RoR

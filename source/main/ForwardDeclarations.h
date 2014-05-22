@@ -86,8 +86,6 @@ namespace MyGUI
 class AeroEngine;
 class Airbrake;
 class Airfoil;
-class AppState;
-class AppStateManager;
 class Autopilot;
 class Axle;
 class Beam;

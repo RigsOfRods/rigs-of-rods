@@ -30,7 +30,7 @@ class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventList
 {
 public:
 	// Constructor takes a RenderWindow because it uses that to determine input context
-	RoRFrameListener(AppState *parent);
+	RoRFrameListener(RoR::MainThread * main_thread_control);
 	virtual ~RoRFrameListener();
 
 	ChatSystem *netChat;
@@ -51,7 +51,7 @@ protected:
 	MPlatform_Base *mplatform;
 #endif //USE_MPLATFORM
 
-	AppState *parentState;
+	RoR::MainThread * m_main_thread_control;
 	Dashboard *dashboard;
 	DOFManager *dof;
 	ForceFeedback *forcefeedback;
