@@ -28,10 +28,13 @@
 #include "OverlayWrapper.h"
 
 #include "AeroEngine.h"
+#include "Application.h"
 #include "AutoPilot.h"
 #include "BeamFactory.h"
+#include "Character.h"
 #include "DashBoardManager.h"
 #include "ErrorUtils.h"
+#include "GlobalEnvironment.h"
 #include "Language.h"
 #include "OgreFontManager.h"
 #include "RoRVersion.h"
@@ -40,12 +43,12 @@
 
 using namespace Ogre;
 
-OverlayWrapper::OverlayWrapper()
+OverlayWrapper::OverlayWrapper():
+	m_direction_arrow_node(nullptr),
+	mTimeUntilNextToggle(0)
 {
 	win = gEnv->renderWindow;
 	init();
-	mTimeUntilNextToggle=0;
-
 }
 
 OverlayWrapper::~OverlayWrapper()
@@ -845,4 +848,56 @@ bool OverlayWrapper::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonI
 bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
 	return mouseMoved(_arg);
+}
+
+void OverlayWrapper::SetupDirectionArrow()
+{
+	if (RoR::Application::GetOverlayWrapper() != nullptr)
+	{
+		// setup direction arrow
+		Ogre::Entity *arrow_entity = gEnv->sceneManager->createEntity("dirArrowEntity", "arrow2.mesh");
+	#if OGRE_VERSION<0x010602
+		arrow_entity->setNormaliseNormals(true);
+	#endif //OGRE_VERSION
+
+		// Add entity to the scene node
+		m_direction_arrow_node = new SceneNode(gEnv->sceneManager);
+		m_direction_arrow_node->attachObject(arrow_entity);
+		m_direction_arrow_node->setVisible(false);
+		m_direction_arrow_node->setScale(0.1, 0.1, 0.1);
+		m_direction_arrow_node->setPosition(Vector3(-0.6, +0.4, -1));
+		m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
+		RoR::Application::GetOverlayWrapper()->directionOverlay->add3D(m_direction_arrow_node);
+	}
+}
+
+void OverlayWrapper::UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & point_to)
+{
+	m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD,Vector3::UNIT_Y);
+	Real distance = 0.0f;
+	if (vehicle != nullptr && vehicle->state == ACTIVATED)
+	{
+		distance = vehicle->getPosition().distance(point_to);
+	} 
+	else if (gEnv->player)
+	{
+		distance = gEnv->player->getPosition().distance(point_to);
+	}
+	char tmp[256];
+	sprintf(tmp,"%0.1f meter", distance);
+	this->directionArrowDistance->setCaption(tmp);
+}
+
+void OverlayWrapper::HideDirectionOverlay()
+{
+	directionOverlay->hide();
+	m_direction_arrow_node->setVisible(false);
+}
+
+void OverlayWrapper::ShowDirectionOverlay(Ogre::String const & caption)
+{
+	directionOverlay->show();
+	directionArrowText->setCaption(caption);
+	directionArrowDistance->setCaption("");
+	m_direction_arrow_node->setVisible(true);
 }

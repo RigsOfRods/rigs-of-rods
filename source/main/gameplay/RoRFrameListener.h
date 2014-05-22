@@ -21,27 +21,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __RoRFrameListener_H_
 
 #include "RoRPrerequisites.h"
-
 #include "BeamData.h"
-#include "Ogre.h"
 
+#include <Ogre.h>
 #include <pthread.h>
-
-// Forward declarations
-class Character;
-class Envmap;
-class ForceFeedback;
-
-namespace MOC
-{
-	class CollisionTools;
-}
-
-namespace Ogre
-{
-	class TerrainGroup;
-}
-
 
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
@@ -81,7 +64,6 @@ protected:
 	Ogre::Quaternion reload_dir;
 	Ogre::Real distgrabbed;
 	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
-	Ogre::SceneNode *dirArrowNode;
 	Ogre::SceneNode *pointerDestination;
 	Ogre::String inputhwnd;
 	Ogre::String terrainUID;

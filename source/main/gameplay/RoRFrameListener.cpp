@@ -739,24 +739,9 @@ RoRFrameListener::RoRFrameListener(
 	//network
 	bool enableNetwork = BSETTING("Network enable", false);
 
-	if (ow)
-	{
-		// setup direction arrow
-		Entity *arrent = gEnv->sceneManager->createEntity("dirArrowEntity", "arrow2.mesh");
-	#if OGRE_VERSION<0x010602
-		arrent->setNormaliseNormals(true);
-	#endif //OGRE_VERSION
-		// Add entity to the scene node
-		dirArrowNode= new SceneNode(gEnv->sceneManager);
-		dirArrowNode->attachObject(arrent);
-		dirArrowNode->setVisible(false);
-		dirArrowNode->setScale(0.1, 0.1, 0.1);
-		dirArrowNode->setPosition(Vector3(-0.6, +0.4, -1));
-		dirArrowNode->setFixedYawAxis(true, Vector3::UNIT_Y);
-		dirvisible = false;
-		dirArrowPointed = Vector3::ZERO;
-		ow->directionOverlay->add3D(dirArrowNode);
-	}
+	// setup direction arrow overlay
+	dirvisible = false;
+	dirArrowPointed = Vector3::ZERO;
 
 	INPUTENGINE.setupDefault(inputhwnd);
 
@@ -3109,18 +3094,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	// update gui 3d arrow
 	if (ow && dirvisible && loading_state==ALL_LOADED)
 	{
-		dirArrowNode->lookAt(dirArrowPointed, Node::TS_WORLD,Vector3::UNIT_Y);
-		char tmp[256];
-		Real distance = 0.0f;
-		if (curr_truck && curr_truck->state == ACTIVATED)
-		{
-			distance = curr_truck->getPosition().distance(dirArrowPointed);
-		} else if (gEnv->player)
-		{
-			distance = gEnv->player->getPosition().distance(dirArrowPointed);
-		}
-		sprintf(tmp,"%0.1f meter", distance);
-		ow->directionArrowDistance->setCaption(tmp);
+		ow->UpdateDirectionArrow(curr_truck, dirArrowPointed);
 	}
 
 	// one of the input modes is immediate, so setup what is needed for immediate mouse/key movement
@@ -3223,23 +3197,19 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 
 void RoRFrameListener::setDirectionArrow(char *text, Vector3 position)
 {
-	if (!ow) return;
-	if (!text)
+	if (ow == nullptr) return;
+
+	if (text == nullptr)
 	{
-		dirArrowNode->setVisible(false);
+		ow->HideDirectionOverlay();
 		dirvisible = false;
 		dirArrowPointed = Vector3::ZERO;
-		ow->directionOverlay->hide();
 	}
 	else
 	{
-		ow->directionOverlay->show();
-		ow->directionArrowText->setCaption(String(text));
-		//LOG("*** new pointed position: " + TOSTRING(position));
-		ow->directionArrowDistance->setCaption("");
+		ow->ShowDirectionOverlay(text);
 		dirvisible = true;
 		dirArrowPointed = position;
-		dirArrowNode->setVisible(true);
 	}
 
 }
