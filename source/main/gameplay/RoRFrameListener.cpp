@@ -745,9 +745,6 @@ RoRFrameListener::RoRFrameListener(
 
 	INPUTENGINE.setupDefault(inputhwnd);
 
-	// setup particle manager
-	new DustManager();
-
 	if (BSETTING("regen-cache-only", false))
 	{
 		CACHE.startup(true);

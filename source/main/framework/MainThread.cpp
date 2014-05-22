@@ -28,9 +28,9 @@
 #include "MainThread.h"
 
 #include "Application.h"
-#include "StartupScreen.h"
 #include "AppStateManager.h"
 #include "ContentManager.h"
+#include "DustManager.h"
 #include "GameState.h"
 #include "GUIFriction.h"
 #include "GUIManager.h"
@@ -43,6 +43,7 @@
 #include "ScriptEngine.h"
 #include "SelectorWindow.h"
 #include "Settings.h"
+#include "StartupScreen.h"
 
 #include <OgreRoot.h>
 
@@ -155,6 +156,8 @@ void MainThread::go()
 #endif
 
 	Application::GetOverlayWrapper()->SetupDirectionArrow();
+
+	new DustManager(); // setup particle manager singleton. TODO: Move under Application
 
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener
