@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ContentManager.h"
 
+#include "Application.h"
 #include "Settings.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
 #include "SoundScriptManager.h"
@@ -139,8 +140,6 @@ bool ContentManager::init(void)
 
 	// by default, display everything in the depth map
 	Ogre::MovableObject::setDefaultVisibilityFlags(DEPTHMAP_ENABLED);
-
-	CACHE.setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
 
 	ColoredTextAreaOverlayElementFactory *cef = new ColoredTextAreaOverlayElementFactory();
 	OverlayManager::getSingleton().addOverlayElementFactory(cef);

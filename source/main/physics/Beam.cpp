@@ -6310,7 +6310,7 @@ bool Beam::LoadTruck(
 
 	try
 	{
-		CACHE.checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
+		RoR::Application::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
 
 		// error on ds open lower
 		// open the stream and start reading :)
@@ -6321,7 +6321,7 @@ bool Beam::LoadTruck(
 		return false;
 	}
 
-	//this->cacheEntryInfo = CACHE.getResourceInfo(filename);
+	//this->cacheEntryInfo = RoR::Application::GetCacheSystem()->getResourceInfo(filename);
 	if (ds.isNull() || !ds->isReadable())
 	{
 #ifdef USE_MYGUI

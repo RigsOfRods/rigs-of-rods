@@ -1,31 +1,36 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created on 21th of May 2008 by Thomas
 
-#ifndef __CacheSystem_H_
-#define __CacheSystem_H_
+/** 
+	@file   CacheSystem.h
+	@author Thomas Fischer
+	@date   21th of May 2008
+	@brief  Caches information about installed mods (vehicles, terrains...)
+*/
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 
 #include "BeamData.h" // for authorinfo_t
-#include "Singleton.h"
 
 #include <Ogre.h>
 
@@ -35,8 +40,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // 60*60*24 = one day
 #define CACHE_FILE_FRESHNESS 86400
 
-#define CACHE CacheSystem::getSingleton()
-
 typedef struct
 {
 	Ogre::String title;					// Category title
@@ -45,7 +48,9 @@ typedef struct
 
 class CacheEntry
 {
+
 public:
+
 	Ogre::String minitype;				// type of preview picture, either png or dds
 	Ogre::String fname;					// filename
 	Ogre::String fname_without_uid;		// filename
@@ -182,10 +187,12 @@ public:
 	}
 };
 
-class CacheSystem : public RoRSingleton<CacheSystem>, public ZeroedMemoryAllocator
+class CacheSystem : public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<CacheSystem>;
+	friend class RoR::Application;
+
 public:	
+
 	void startup(bool forcecheck=false);
 	void loadAllZips();
 	
@@ -233,7 +240,6 @@ protected:
 	~CacheSystem();
 	CacheSystem(const CacheSystem&);
 	CacheSystem& operator= (const CacheSystem&);
-	static CacheSystem* myInstance;
 	Ogre::String location;
 	Ogre::String configlocation;
 
@@ -332,5 +338,3 @@ protected:
 	void loadAllDirectoriesInResourceGroup(Ogre::String group);
 
 };
-
-#endif // __CacheSystem_H_

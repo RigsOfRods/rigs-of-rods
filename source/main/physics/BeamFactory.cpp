@@ -228,7 +228,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 	// check if we got this truck installed
 	String filename = String(treg->name);
 	String group = "";
-	if (!CACHE.checkResourceLoaded(filename, group))
+	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(filename, group))
 	{
 		LOG("wont add remote stream (truck not existing): '"+filename+"'");
 

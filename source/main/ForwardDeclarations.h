@@ -95,6 +95,7 @@ class BeamEngine;
 class BeamThreadStats;
 class Buoyance;
 class CacheEntry;
+class CacheSystem;
 class CameraManager;
 class Character;
 class ChatSystem;

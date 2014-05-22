@@ -29,8 +29,10 @@
 
 #include "Application.h"
 #include "AppStateManager.h"
+#include "CacheSystem.h"
 #include "ContentManager.h"
 #include "DustManager.h"
+#include "ErrorUtils.h"
 #include "GameState.h"
 #include "GUIFriction.h"
 #include "GUIManager.h"
@@ -45,6 +47,7 @@
 #include "SelectorWindow.h"
 #include "Settings.h"
 #include "StartupScreen.h"
+#include "Utils.h"
 
 #include <OgreRoot.h>
 
@@ -89,6 +92,10 @@ void MainThread::go()
 	bootstrap_screen.InitAndShow();
 
 	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
+
+	RoR::Application::CreateCacheSystem();
+
+	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
 
 	Application::GetContentManager()->init(); // Load all resource packs
 
@@ -162,6 +169,41 @@ void MainThread::go()
 
 	RoR::Application::CreateInputEngine();
 	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
+
+	if (BSETTING("regen-cache-only", false))
+	{
+		RoR::Application::GetCacheSystem()->startup(true); // true = force regeneration
+		
+		// Get stats
+		int num_new     = RoR::Application::GetCacheSystem()->newFiles;
+		int num_changed = RoR::Application::GetCacheSystem()->changedFiles;
+		int num_deleted = RoR::Application::GetCacheSystem()->deletedFiles;
+		
+		// Report
+		Ogre::UTFString str = _L("Cache regeneration done.\n");
+		if (num_new > 0)
+		{
+			str = str + TOUTFSTRING(num_new) + _L(" new files\n");
+		}
+		if (num_changed > 0)
+		{
+			str = str + TOUTFSTRING(num_changed) + _L(" changed files\n");
+		}
+		if (num_deleted > 0)
+		{
+			str = str + TOUTFSTRING(num_deleted) + _L(" deleted files\n");
+		}
+		if (num_new + num_changed + num_deleted == 0)
+		{
+			str = str + _L("no changes");
+		}
+		str = str + _L("\n(These stats can be imprecise)");
+		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
+
+		exit(0);
+	}
+
+	RoR::Application::GetCacheSystem()->startup();
 
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener
