@@ -105,10 +105,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamStats.h"
 #endif //FEAT_TIMING
 
-#ifdef USE_OIS_G27
-#include "win32/Win32LogitechLEDs.h"
-#endif //USE_OIS_G27
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <Windows.h>
 #else
@@ -180,15 +176,7 @@ void RoRFrameListener::updateIO(float dt)
 	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 	if (current_truck && current_truck->driveable == TRUCK)
 	{
-#ifdef USE_OIS_G27
-		// logitech G27 LEDs tachometer
-		if (leds)
-		{
-			leds->play(current_truck->engine->getRPM(),
-				current_truck->engine->getMaxRPM()*0.75,
-				current_truck->engine->getMaxRPM());
-		}
-#endif //OIS_G27
+
 
 		// force feedback
 		if (forcefeedback)
@@ -2564,14 +2552,6 @@ void RoRFrameListener::shutdown_final()
 	SoundScriptManager::getSingleton().setEnabled(false);
 #endif //OPENAL
 
-#ifdef USE_OIS_G27
-	//logitech G27 LEDs tachometer
-	if (leds)
-	{
-		leds->play(0, 10, 20);//stop the LEDs
-	}
-#endif //OIS_G27
-
 	LOG(" ** Shutdown final");
 
 	if (gEnv && gEnv->terrainManager)
@@ -2761,14 +2741,8 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 
 		//force feedback
 		if (forcefeedback) forcefeedback->setEnabled(false);
-		//LEDs
-#ifdef USE_OIS_G27
-		//logitech G27 LEDs tachometer
-		if (leds)
-		{
-			leds->play(0, 10, 20);//stop the LEDs
-		}
-#endif //OIS_G27
+
+
 
 		// hide truckhud
 		if (ow) ow->truckhud->show(false);
@@ -2840,14 +2814,7 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 		//help panel
 		//force feedback
 		if (forcefeedback) forcefeedback->setEnabled(currentTruck->driveable==TRUCK); //only for trucks so far
-		//LEDs
-#ifdef USE_OIS_G27
-		//logitech G27 LEDs tachometer
-		if (leds && currentTruck->driveable!=TRUCK)
-		{
-			leds->play(0, 10, 20);//stop the LEDs
-		}
-#endif //OIS_G27
+
 
 
 		// attach player to truck
