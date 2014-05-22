@@ -113,6 +113,10 @@ void MainThread::go()
 
 	Application::CreateOverlayWrapper();
 
+#ifdef USE_MYGUI
+	Application::CreateSceneMouseIfNotExists();
+#endif // USE_MYGUI
+
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener
 

@@ -68,6 +68,11 @@ public:
 		return ms_overlay_wrapper;
 	}
 
+	static SceneMouse* GetSceneMouse()
+	{
+		return ms_scene_mouse;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -86,12 +91,21 @@ private:
 
 	static void DestroyOverlayWrapper();
 
+	/** Creates scene mouse if it doesn't already exist.
+	*/
+	static void CreateSceneMouseIfNotExists();
+
+	/** Destroys instance if it exists.
+	*/
+	static void DeleteSceneMouseIfExists();
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
 	static AppStateManager* ms_app_state_manager;
 	static ContentManager*  ms_content_manager;
 	static OverlayWrapper*  ms_overlay_wrapper;
+	static SceneMouse*      ms_scene_mouse;
 };
 
 } // namespace RoR

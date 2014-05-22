@@ -31,6 +31,7 @@
 #include "ContentManager.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
+#include "SceneMouse.h"
 
 #include <OgreException.h>
 
@@ -43,6 +44,7 @@ OgreSubsystem*   Application::ms_ogre_subsystem    = nullptr;
 AppStateManager* Application::ms_app_state_manager = nullptr;
 ContentManager*  Application::ms_content_manager   = nullptr;
 OverlayWrapper*  Application::ms_overlay_wrapper   = nullptr;
+SceneMouse*      Application::ms_scene_mouse       = nullptr;
 
 void Application::StartOgreSubsystem()
 {
@@ -103,6 +105,23 @@ void Application::DestroyOverlayWrapper()
 	assert(ms_overlay_wrapper != nullptr && "Application::DestroyOverlayWrapper(): OverlayWrapper never created");
 	delete ms_overlay_wrapper;
 	ms_overlay_wrapper = nullptr;
+}
+
+void Application::CreateSceneMouseIfNotExists()
+{
+	if (ms_scene_mouse == nullptr)
+	{
+		ms_scene_mouse = new SceneMouse();
+	}
+}
+
+void Application::DeleteSceneMouseIfExists()
+{
+	if (ms_scene_mouse != nullptr)
+	{
+		delete ms_scene_mouse;
+		ms_scene_mouse = nullptr;
+	}
 }
 
 } // namespace RoR
