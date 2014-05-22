@@ -115,6 +115,7 @@ void MainThread::go()
 
 #ifdef USE_MYGUI
 	Application::CreateSceneMouseIfNotExists();
+	Application::CreateGuiManagerIfNotExists();
 #endif // USE_MYGUI
 
 	// --------------------------------------------------------------------------------

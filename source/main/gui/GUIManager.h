@@ -1,49 +1,54 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef USE_MYGUI
-#ifndef __GUI_Manager_H_
-#define __GUI_Manager_H_
 
-#include "RoRPrerequisites.h"
+/** 
+	@file   GUIManager.h
+	@author based on the basemanager code from mygui common
+*/
+
+#pragma once
+
+#ifdef USE_MYGUI
 
 #include "GUIInputManager.h"
-#include "Ogre.h"
-#include "Singleton.h"
+#include "RoRPrerequisites.h"
 
 #include <MyGUI.h>
+#include <OgreFrameListener.h>
+#include <OgreWindowEventUtilities.h>
 
-#define GETMYGUI GUIManager::getSingleton().getGUI()
 
-namespace MyGUI { class OgrePlatform; }
+namespace RoR
+{
 
 class GUIManager :
-	  public RoRSingletonNoCreation<GUIManager>
-	, public GUIInputManager
+	  public GUIInputManager
 	, public Ogre::FrameListener
 	, public Ogre::WindowEventListener
 	, public ZeroedMemoryAllocator
 {
-public:
 
-	GUIManager();
-	virtual ~GUIManager();
+	friend class RoR::Application; // Manages lifecycle of this class
+
+public:
 
 	void destroy();
 
@@ -56,6 +61,9 @@ public:
 	void windowResized(Ogre::RenderWindow* rw);
 
 private:
+
+	GUIManager();
+	virtual ~GUIManager();
 
 	bool create();
 	void createGui();
@@ -73,5 +81,6 @@ private:
 	bool mExit;
 };
 
-#endif // __GUI_Manager_H_
+} // namespace RoR
+
 #endif // USE_MYGUI

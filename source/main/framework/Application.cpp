@@ -29,6 +29,7 @@
 
 #include "AppStateManager.h"
 #include "ContentManager.h"
+#include "GUIManager.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
@@ -38,13 +39,20 @@
 namespace RoR
 {
 
-/* Init static members */
+// ================================================================================
+// Static variables
+// ================================================================================
 
 OgreSubsystem*   Application::ms_ogre_subsystem    = nullptr;
 AppStateManager* Application::ms_app_state_manager = nullptr;
 ContentManager*  Application::ms_content_manager   = nullptr;
 OverlayWrapper*  Application::ms_overlay_wrapper   = nullptr;
 SceneMouse*      Application::ms_scene_mouse       = nullptr;
+GUIManager*      Application::ms_gui_manager       = nullptr;
+
+// ================================================================================
+// Functions
+// ================================================================================
 
 void Application::StartOgreSubsystem()
 {
@@ -121,6 +129,23 @@ void Application::DeleteSceneMouseIfExists()
 	{
 		delete ms_scene_mouse;
 		ms_scene_mouse = nullptr;
+	}
+}
+
+void Application::CreateGuiManagerIfNotExists()
+{
+	if (ms_gui_manager == nullptr)
+	{
+		ms_gui_manager = new GUIManager();
+	}
+}
+
+void Application::DeleteGuiManagerIfExists()
+{
+	if (ms_gui_manager != nullptr)
+	{
+		delete ms_gui_manager;
+		ms_gui_manager = nullptr;
 	}
 }
 

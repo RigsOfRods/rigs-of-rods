@@ -38,7 +38,7 @@ void LobbyState::enter()
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_pCamera);
 
 #ifdef USE_MYGUI
-	new GUIManager();
+	
 
 	LobbyGUI::getSingleton().setVisible(true);
 

@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SelectorWindow.h"
 
+#include "Application.h"
 #include "CacheSystem.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -862,7 +863,7 @@ void SelectorWindow::show(LoaderType type)
 
 void SelectorWindow::hide()
 {
-	GUIManager::getSingleton().unfocus();
+	RoR::Application::GetGuiManager()->unfocus();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
 	ready = false;

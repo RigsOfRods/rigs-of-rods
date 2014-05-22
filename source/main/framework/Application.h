@@ -73,6 +73,11 @@ public:
 		return ms_scene_mouse;
 	}
 
+	static GUIManager* GetGuiManager()
+	{
+		return ms_gui_manager;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -99,6 +104,14 @@ private:
 	*/
 	static void DeleteSceneMouseIfExists();
 
+	/** Creates instance if it doesn't already exist.
+	*/
+	static void CreateGuiManagerIfNotExists();
+
+	/** Destroys instance if it exists.
+	*/
+	static void DeleteGuiManagerIfExists();
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
@@ -106,6 +119,7 @@ private:
 	static ContentManager*  ms_content_manager;
 	static OverlayWrapper*  ms_overlay_wrapper;
 	static SceneMouse*      ms_scene_mouse;
+	static GUIManager*      ms_gui_manager;
 };
 
 } // namespace RoR

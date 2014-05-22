@@ -24,13 +24,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif //OGRE_PLATFORM_LINUX
 
-#include <Ogre.h>
-#include <OgreStringConverter.h>
-#include <OgreException.h>
-
+#include "Application.h"
 #include "ErrorUtils.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"
+
+#include <Ogre.h>
+#include <OgreStringConverter.h>
+#include <OgreException.h>
 
 #ifndef NOOGRE
 #include "Console.h"
@@ -2151,7 +2152,7 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
 	ms.width = width;
 	ms.height = height;
 #ifdef USE_MYGUI
-	GUIManager::getSingleton().windowResized(rw);
+	RoR::Application::GetGuiManager()->windowResized(rw);
 #endif //MYGUI
 }
 
@@ -2210,7 +2211,7 @@ bool InputEngine::povMoved( const OIS::JoyStickEvent &arg, int )
 bool InputEngine::keyPressed( const OIS::KeyEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().keyPressed(arg))
+	if (RoR::Application::GetGuiManager()->keyPressed(arg))
 		return true;
 #endif //MYGUI
 
@@ -2225,7 +2226,7 @@ bool InputEngine::keyPressed( const OIS::KeyEvent &arg )
 bool InputEngine::keyReleased( const OIS::KeyEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().keyReleased(arg))
+	if (RoR::Application::GetGuiManager()->keyReleased(arg))
 		return true;
 #endif //MYGUI
 	//LOG("*** keyReleased");
@@ -2239,7 +2240,7 @@ bool InputEngine::keyReleased( const OIS::KeyEvent &arg )
 bool InputEngine::mouseMoved( const OIS::MouseEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().mouseMoved(arg))
+	if (RoR::Application::GetGuiManager()->mouseMoved(arg))
 		return true;
 #endif //MYGUI
 	//LOG("*** mouseMoved");
@@ -2251,7 +2252,7 @@ bool InputEngine::mouseMoved( const OIS::MouseEvent &arg )
 bool InputEngine::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().mousePressed(arg, id))
+	if (RoR::Application::GetGuiManager()->mousePressed(arg, id))
 		return true;
 #endif //MYGUI
 	//LOG("*** mousePressed");
@@ -2263,7 +2264,7 @@ bool InputEngine::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID i
 bool InputEngine::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().mouseReleased(arg, id))
+	if (RoR::Application::GetGuiManager()->mouseReleased(arg, id))
 		return true;
 #endif //MYGUI
 	//LOG("*** mouseReleased");

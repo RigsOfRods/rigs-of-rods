@@ -173,7 +173,7 @@ void Console::startPrivateChat(int target_uid)
 void Console::unselect()
 {
 	MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-	GUIManager::getSingleton().unfocus();
+	RoR::Application::GetGuiManager()->unfocus();
 }
 
 

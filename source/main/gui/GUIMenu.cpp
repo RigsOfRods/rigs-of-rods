@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "GUIMenu.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "Character.h"
 #include "ChatSystem.h"
@@ -328,7 +329,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 		{
 			gEnv->frameListener->reloadCurrentTruck();
-			GUIManager::getSingleton().unfocus();
+			RoR::Application::GetGuiManager()->unfocus();
 		}
 	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
 	{
@@ -451,7 +452,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 void GUI_MainMenu::setVisible(bool value)
 {
 	mainmenu->setVisible(value);
-	if (!value) GUIManager::getSingleton().unfocus();
+	if (!value) RoR::Application::GetGuiManager()->unfocus();
 	//MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
