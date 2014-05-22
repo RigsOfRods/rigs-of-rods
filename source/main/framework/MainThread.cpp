@@ -166,7 +166,7 @@ void MainThread::go()
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener
 
-	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state, RoR::Application::GetOgreSubsystem()->GetMainHWND());
+	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state);
 	gEnv->frameListener = ror_frame_listener;
 	ScriptEngine::getSingleton().SetFrameListener(ror_frame_listener);
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(ror_frame_listener);

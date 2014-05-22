@@ -685,8 +685,7 @@ void RoRFrameListener::updateGUI(float dt)
 
 // Constructor takes a RenderWindow because it uses that to determine input context
 RoRFrameListener::RoRFrameListener(
-	AppState *parentState, 
-	String inputhwnd
+	AppState *parentState
 ) :
 	clutch(0),
 	dashboard(0),
@@ -697,7 +696,6 @@ RoRFrameListener::RoRFrameListener(
 	heathaze(0),
 	hidegui(false),
 	initialized(false),
-	inputhwnd(inputhwnd),
 	joyshiftlock(0),
 	loading_state(NONE_LOADED),
 	mStatsOn(0),
