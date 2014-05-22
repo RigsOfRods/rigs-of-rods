@@ -30,7 +30,7 @@ class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventList
 {
 public:
 	// Constructor takes a RenderWindow because it uses that to determine input context
-	RoRFrameListener(AppState *parent, Ogre::String inputhwnd=0);
+	RoRFrameListener(AppState *parent);
 	virtual ~RoRFrameListener();
 
 	ChatSystem *netChat;
@@ -61,7 +61,6 @@ protected:
 	Ogre::Real distgrabbed;
 	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
 	Ogre::SceneNode *pointerDestination;
-	Ogre::String inputhwnd;
 	Ogre::String terrainUID;
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
