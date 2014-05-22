@@ -121,3 +121,14 @@ enum VisibilityMasks {
 };
 
 extern GlobalEnvironment *gEnv;
+
+enum GameStates
+{
+	NONE_LOADED    = 0,
+	TERRAIN_LOADED = 1,
+	ALL_LOADED     = 2,
+	EXITING        = 3,
+	RELOADING      = 5,
+	PAUSE          = 6,
+	TERRAIN_EDITOR = 7
+};
