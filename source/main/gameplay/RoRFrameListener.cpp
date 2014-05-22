@@ -722,30 +722,6 @@ RoRFrameListener::RoRFrameListener(
 
 	enablePosStor = BSETTING("Position Storage", false);
 
-#ifdef USE_MYGUI
-
-	LoadingWindow::getSingleton();
-	SelectorWindow::getSingleton();
-
-	// create main menu :D
-	new GUI_MainMenu();
-	GUI_Friction::getSingleton();
-
-	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
-	// load random image in the wallpaper
-	String randomWallpaper = RoR::GUIManager::getRandomWallpaperImage();
-	if (!v.empty() && !randomWallpaper.empty())
-	{
-		MyGUI::Widget *mainw = v.at(0);
-		if (mainw)
-		{
-			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			if (img) img->setImageTexture(randomWallpaper);
-		}
-	}
-	
-#endif //MYGUI
-
 #ifdef USE_OIS_G27
 	leds = 0;
 #endif // USE_OIS_G27
@@ -757,13 +733,6 @@ RoRFrameListener::RoRFrameListener(
 	mplatform = new MPlatform_FD();
 	if (mplatform) mplatform->connect();
 #endif
-
-#ifdef USE_ANGELSCRIPT
-	new ScriptEngine(this, 0);
-	// print some log message so we know angelscript is alive :)
-	ScriptEngine::getSingleton().scriptLog->logMessage("ScriptEngine running");
-#endif
-
 
 	gameStartTime = getTimeStamp();
 
