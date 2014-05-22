@@ -47,6 +47,7 @@
 
 #include "AirBrake.h"
 #include "Airfoil.h"
+#include "Application.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
@@ -85,6 +86,8 @@
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
+
+using namespace RoR;
 
 /* -------------------------------------------------------------------------- */
 /* Prepare for loading
@@ -885,7 +888,7 @@ void RigSpawner::FinalizeRig()
 		{
 			
 #ifdef USE_MYGUI
-			Console *console = Console::getSingletonPtrNoCreation();
+			RoR::Console *console = RoR::Application::GetConsole();
 			if (console) console->putMessage(
 				Console::CONSOLE_MSGTYPE_INFO, 
 				Console::CONSOLE_SYSTEM_ERROR, 

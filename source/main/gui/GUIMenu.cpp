@@ -41,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 GUI_MainMenu::GUI_MainMenu() :
 	  menuWidth(800)
@@ -309,7 +310,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		// cannot whisper with self...
 		if (user_uid == gEnv->network->getUID()) return;
 
-		Console::getSingleton().startPrivateChat(user_uid);
+		RoR::Application::GetConsole()->startPrivateChat(user_uid);
 	}
 	
 	if (!gEnv->frameListener) return;
@@ -389,7 +390,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		gEnv->frameListener->shutdown_final();
 	} else if (miname == _L("Show Console"))
 	{
-		Console *c = Console::getSingletonPtrNoCreation();
+		Console *c = RoR::Application::GetConsole();
 		if (c) c->setVisible(!c->getVisible());
 	}
 	// the debug menu

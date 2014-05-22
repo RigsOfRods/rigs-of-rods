@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorFree.h"
 
+#include "Application.h"
 #include "Console.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
@@ -28,6 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 {
@@ -127,6 +129,6 @@ bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext &ctx, con
 void CameraBehaviorFree::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("free camera"), "camera_go.png", 3000);
+	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("free camera"), "camera_go.png", 3000);
 #endif // USE_MYGUI
 }

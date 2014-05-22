@@ -28,6 +28,7 @@
 #include "Application.h"
 
 #include "AppStateManager.h"
+#include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "OgreSubsystem.h"
@@ -49,6 +50,7 @@ ContentManager*  Application::ms_content_manager   = nullptr;
 OverlayWrapper*  Application::ms_overlay_wrapper   = nullptr;
 SceneMouse*      Application::ms_scene_mouse       = nullptr;
 GUIManager*      Application::ms_gui_manager       = nullptr;
+Console*         Application::ms_console           = nullptr;
 
 // ================================================================================
 // Functions
@@ -146,6 +148,23 @@ void Application::DeleteGuiManagerIfExists()
 	{
 		delete ms_gui_manager;
 		ms_gui_manager = nullptr;
+	}
+}
+
+void Application::CreateConsoleIfNotExists()
+{
+	if (ms_console == nullptr)
+	{
+		ms_console = new Console();
+	}
+}
+
+void Application::DeleteConsoleIfExists()
+{
+	if (ms_console != nullptr)
+	{
+		delete ms_console;
+		ms_console = nullptr;
 	}
 }
 

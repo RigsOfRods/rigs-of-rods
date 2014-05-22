@@ -28,6 +28,7 @@
 
 #include "GUIManager.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
 #include "Language.h"
@@ -118,7 +119,7 @@ void GUIManager::createGui()
 
 	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
 	MyGUI::PointerManager::getInstance().setVisible(true);
-	Console *c = Console::getSingletonPtrNoCreation();
+	Console *c = RoR::Application::GetConsole();
 	if (c) c->resized();
 }
 
@@ -169,7 +170,7 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
 	BeamFactory *bf = BeamFactory::getSingletonPtr();
 	if (bf) bf->windowResized();
 
-	Console *c = Console::getSingletonPtrNoCreation();
+	Console *c = RoR::Application::GetConsole();
 	if (c) c->resized();
 }
 

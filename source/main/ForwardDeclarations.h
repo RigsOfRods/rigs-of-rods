@@ -31,6 +31,7 @@
 namespace RoR
 {
 	class  Application;
+	class  Console;
 	class  ContentManager;
 	class  GUIManager;
 	class  MainThread;

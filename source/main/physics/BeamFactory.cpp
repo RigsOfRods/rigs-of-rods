@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamFactory.h"
 
+#include "Application.h"
 #include "BeamEngine.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
@@ -46,6 +47,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using namespace Ogre;
+using namespace RoR;
 
 template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
@@ -216,7 +218,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 			UTFString username = ChatSystem::getColouredName(*c);
 			UTFString message = username + ChatSystem::commandColour + _L(" spawned a new vehicle: ") + ChatSystem::normalColour + treg->name;
 #ifdef USE_MYGUI
-			Console *console = Console::getSingletonPtrNoCreation();
+			Console *console = RoR::Application::GetConsole();
 			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_VEHILCE_ADD, message, "car_add.png");
 #endif // USE_MYGUI
 		}

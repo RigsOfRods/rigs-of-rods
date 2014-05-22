@@ -114,8 +114,13 @@ void MainThread::go()
 	Application::CreateOverlayWrapper();
 
 #ifdef USE_MYGUI
+	
 	Application::CreateSceneMouseIfNotExists();
 	Application::CreateGuiManagerIfNotExists();
+
+	// create console, must be done early
+	Application::CreateConsoleIfNotExists();
+
 #endif // USE_MYGUI
 
 	// --------------------------------------------------------------------------------
