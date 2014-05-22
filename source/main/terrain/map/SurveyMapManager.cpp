@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SurveyMapManager.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
@@ -262,12 +263,12 @@ void SurveyMapManager::update(Ogre::Real dt)
 		mVelocity = curr_truck->nodes[0].Velocity.length();
 	}
 
-	if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
 	{
 		toggleMapView();
 	}
 
-	if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
 	{
 		mMapEntitiesVisible = !mMapEntitiesVisible;
 	}
@@ -278,15 +279,15 @@ void SurveyMapManager::update(Ogre::Real dt)
 	switch (mMapMode)
 	{
 	case SURVEY_MAP_SMALL:
-		if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
 		{
 			toggleMapAlpha();
 		}
-		if (INPUTENGINE.getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
+		if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
 		{
 			setMapZoomRelative(1.0f);
 		}
-		if (INPUTENGINE.getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
+		if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
 		{
 			setMapZoomRelative(-1.0f);
 		}
@@ -336,7 +337,7 @@ void SurveyMapManager::update(Ogre::Real dt)
 				setAlpha(mAlpha);
 			}
 
-			if (INPUTENGINE.getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+			if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
 			{
 				toggleMapAlpha();
 			}

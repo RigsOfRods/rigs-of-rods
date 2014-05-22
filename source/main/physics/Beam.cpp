@@ -3452,7 +3452,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (state==ACTIVATED) // no network!!
 			{
 				// networked customs are set directly, so skip this
-				if (INPUTENGINE.getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
+				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
 				{
 					flares[i].controltoggle_status = ! flares[i].controltoggle_status;
 					keysleep = true;

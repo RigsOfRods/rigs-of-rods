@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraManager.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "DepthOfFieldEffect.h"
 #include "InputEngine.h"
@@ -88,17 +89,17 @@ bool CameraManager::update(float dt)
 	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f));
 	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f));
 
-	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
 	{
 		switchToNextBehavior(false);
 	}
 
-	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FIXED);
 	}
 
-	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FREE);
 	}

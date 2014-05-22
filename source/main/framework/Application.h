@@ -83,6 +83,11 @@ public:
 		return ms_console;
 	}
 
+	static InputEngine* GetInputEngine()
+	{
+		return ms_input_engine;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -125,6 +130,8 @@ private:
 	*/
 	static void DeleteConsoleIfExists();
 
+	static void CreateInputEngine();
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
@@ -134,6 +141,7 @@ private:
 	static SceneMouse*      ms_scene_mouse;
 	static GUIManager*      ms_gui_manager;
 	static Console*         ms_console;
+	static InputEngine*     ms_input_engine;
 };
 
 } // namespace RoR

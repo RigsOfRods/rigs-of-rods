@@ -31,6 +31,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
+#include "InputEngine.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
@@ -51,6 +52,7 @@ OverlayWrapper*  Application::ms_overlay_wrapper   = nullptr;
 SceneMouse*      Application::ms_scene_mouse       = nullptr;
 GUIManager*      Application::ms_gui_manager       = nullptr;
 Console*         Application::ms_console           = nullptr;
+InputEngine*     Application::ms_input_engine      = nullptr;
 
 // ================================================================================
 // Functions
@@ -166,6 +168,12 @@ void Application::DeleteConsoleIfExists()
 		delete ms_console;
 		ms_console = nullptr;
 	}
+}
+
+void Application::CreateInputEngine()
+{
+	assert(ms_input_engine == nullptr);
+	ms_input_engine = new InputEngine();
 }
 
 } // namespace RoR

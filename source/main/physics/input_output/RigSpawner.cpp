@@ -2687,7 +2687,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			// we are using keys as source
 			prop.animFlags[anim_index] |= ANIM_FLAG_EVENT;
 
-			int event_id = INPUTENGINE.resolveEventName(anim_itor->event);
+			int event_id = RoR::Application::GetInputEngine()->resolveEventName(anim_itor->event);
 			if (event_id == -1)
 			{
 				AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_itor->event);

@@ -1,52 +1,41 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __InputEngine_H_
-#define __InputEngine_H_
+
+/** 
+	@file   InputEngine.h
+	@brief  Input logic.
+*/
+
+#pragma once
 
 #include "RoRPrerequisites.h"
-
+#include "RoRWindowEventUtilities.h"
 
 #include <OgreUTFString.h>
-
 #include "OISEvents.h"
 #include "OISForceFeedback.h"
 #include "OISInputManager.h"
 #include "OISJoyStick.h"
 #include "OISKeyboard.h"
 #include "OISMouse.h"
-
-#include "RoRWindowEventUtilities.h"
-#include "Singleton.h"
-
-#ifdef USE_OIS_G27
-namespace OIS
-{
-class Win32LogitechLEDs;
-};
-#include "win32/Win32LogitechLEDs.h"
-#endif
-
-
-//class RoRFrameListener;
-// some shortcut
-#define INPUTENGINE InputEngine::getSingleton()
 
 // config filename
 #define CONFIGFILENAME "input.map"
@@ -412,7 +401,7 @@ struct eventInfo_t
 
 extern eventInfo_t eventInfo[];
 
-typedef struct
+struct event_trigger_t
 {
 	// general
 	enum eventtypes eventtype;
@@ -452,17 +441,19 @@ typedef struct
 	char tmp_eventname[128];
 	char comments[1024];
 	int suid; //session unique id
-} event_trigger_t;
+};
 
 class InputEngine :
-	public RoRSingleton<InputEngine>,
 	public OIS::MouseListener,
 	public OIS::KeyListener,
 	public OIS::JoyStickListener,
 	public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<InputEngine>;
+	
+	friend class RoR::Application; // Manages lifecycle of this class
+
 public:
+
 	void Capture();
 
 	enum {ET_ANY, ET_DIGITAL, ET_ANALOG};
@@ -528,14 +519,6 @@ public:
 	void completeMissingEvents();
 	int getNumJoysticks() { return free_joysticks; };
 	OIS::ForceFeedback* getForceFeedbackDevice() {return mForceFeedback;};
-#ifdef USE_OIS_G27
-	OIS::Win32LogitechLEDs* getLogitechLEDsDevice()
-	{
-		if (free_joysticks > 0 && mJoy[0])
-			return (OIS::Win32LogitechLEDs*)mJoy[0]->queryInterface(OIS::Interface::LogitechLEDs);
-		return 0;
-	}
-#endif // USE_OIS_G27
 
 protected:
 
@@ -543,7 +526,6 @@ protected:
 	~InputEngine();
 	InputEngine(const InputEngine&);
 	InputEngine& operator= (const InputEngine&);
-	static InputEngine* myInstance;
 
 	//OIS Input devices
 	OIS::InputManager* mInputManager;
@@ -601,5 +583,3 @@ protected:
 
 	event_trigger_t newEvent();
 };
-
-#endif // __InputEngine_H_

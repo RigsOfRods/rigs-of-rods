@@ -39,60 +39,60 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 	Vector3 mTrans(Vector3::ZERO);
 	Real mTransScale(ctx.mTransScale * 0.25f);
 
-	if ( INPUTENGINE.isKeyDown(OIS::KC_LSHIFT) || INPUTENGINE.isKeyDown(OIS::KC_RSHIFT) )
+	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
 	{
 		mRotScale   *= 3.0f;
 		mTransScale *= 3.0f;
 	}
-	if ( INPUTENGINE.isKeyDown(OIS::KC_LCONTROL) )
+	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) )
 	{
 		mRotScale   *= 20.0f;
 		mTransScale *= 20.0f;
 	}
-	if ( INPUTENGINE.isKeyDown(OIS::KC_LMENU) )
+	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
 	{
 		mRotScale   *= 0.1f;
 		mTransScale *= 0.1f;
 	}
 
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT) )
 	{
 		mTrans.x -= mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT) )
 	{
 		mTrans.x += mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_FORWARD) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD) )
 	{
 		mTrans.z -= mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_BACKWARDS) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS) )
 	{
 		mTrans.z += mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_UP) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP) )
 	{
 		mTrans.y += mTransScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CAMERA_DOWN) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN) )
 	{
 		mTrans.y -= mTransScale;
 	}
 
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_RIGHT) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT) )
 	{
 		mRotX -= mRotScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_LEFT) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT) )
 	{
 		mRotX += mRotScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_ROT_UP) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP) )
 	{
 		mRotY += mRotScale;
 	}
-	if ( INPUTENGINE.getEventBoolValue(EV_CHARACTER_ROT_DOWN) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN) )
 	{
 		mRotY -= mRotScale;
 	}
