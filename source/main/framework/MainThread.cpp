@@ -38,6 +38,7 @@
 #include "Language.h"
 #include "LoadingWindow.h"
 #include "OgreSubsystem.h"
+#include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "SelectorWindow.h"
@@ -152,6 +153,8 @@ void MainThread::go()
 	new ScriptEngine(); // Init singleton. TODO: Move under Application
 
 #endif
+
+	Application::GetOverlayWrapper()->SetupDirectionArrow();
 
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener

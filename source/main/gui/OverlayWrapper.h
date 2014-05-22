@@ -61,6 +61,14 @@ public:
 	bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 	float mTimeUntilNextToggle;
 
+	void SetupDirectionArrow();
+
+	void UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & point_to);
+
+	void HideDirectionOverlay();
+
+	void ShowDirectionOverlay(Ogre::String const & caption);
+
 protected:
 
 	OverlayWrapper();
@@ -179,6 +187,8 @@ protected:
 	float thrtop;
 	float thrheight;
 	float throffset;
+
+	Ogre::SceneNode* m_direction_arrow_node;
 
 protected:
 
