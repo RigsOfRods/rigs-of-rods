@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AirBrake.h"
 #include "Airfoil.h"
+#include "Application.h"
 #include "ApproxMath.h"
 #include "AutoPilot.h"
 #include "BeamData.h"
@@ -74,6 +75,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif //OGRE_PLATFORM_LINUX
 
 using namespace Ogre;
+using namespace RoR;
 
 Beam::~Beam()
 {
@@ -6323,7 +6325,7 @@ bool Beam::LoadTruck(
 	if (ds.isNull() || !ds->isReadable())
 	{
 #ifdef USE_MYGUI
-		Console *console = Console::getSingletonPtrNoCreation();
+		Console *console = RoR::Application::GetConsole();
 		if (console != nullptr) 
 		{
 			console->putMessage(

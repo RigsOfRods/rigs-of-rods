@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorOrbit.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
@@ -30,6 +31,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	  camDist(5.0f)
@@ -100,10 +102,10 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 #ifdef USE_MYGUI
 		if ( limitMinCamDist )
 		{
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom enabled"), "camera_go.png", 3000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom enabled"), "camera_go.png", 3000);
 		} else
 		{
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom disabled"), "camera_go.png", 3000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom disabled"), "camera_go.png", 3000);
 		}
 #endif // USE_MYGUI
 	}

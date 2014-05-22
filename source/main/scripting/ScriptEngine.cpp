@@ -38,6 +38,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <curl/easy.h>
 #endif //USE_CURL
 
+#include "Application.h"
 #include "OgreAngelscript.h"
 #include "Beam.h"
 #include "Console.h"
@@ -53,6 +54,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 const char *ScriptEngine::moduleName = "RoRScript";
 
 using namespace Ogre;
+using namespace RoR;
 
 // some hacky functions
 
@@ -108,7 +110,7 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
 #endif // OGRE_VERSION
 {
 #ifdef USE_MYGUI
-	Console *c = Console::getSingletonPtrNoCreation();
+	Console *c = RoR::Application::GetConsole();
 	if (c) c->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_LOGMESSAGE_SCRIPT, message, "page_white_code.png");
 #endif // USE_MYGUI
 }

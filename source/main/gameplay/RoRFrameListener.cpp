@@ -126,6 +126,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using namespace Ogre;
+using namespace RoR;
 
 bool shutdownall=false;
 
@@ -723,9 +724,6 @@ RoRFrameListener::RoRFrameListener(
 
 #ifdef USE_MYGUI
 
-	// create console, must be done early
-	new Console();
-
 	LoadingWindow::getSingleton();
 	SelectorWindow::getSingleton();
 
@@ -1009,7 +1007,7 @@ RoRFrameListener::RoRFrameListener(
 		netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
 #ifdef USE_MYGUI
-		Console *c = Console::getSingletonPtrNoCreation();
+		Console *c = RoR::Application::GetConsole();
 		if (c)
 		{
 			c->setVisible(true);
@@ -1266,7 +1264,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 	if (INPUTENGINE.getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !hidegui)
 	{
-		Console *c = Console::getSingletonPtrNoCreation();
+		Console *c = RoR::Application::GetConsole();
 		if (c)
 		{
 			INPUTENGINE.resetKeys();
@@ -1350,7 +1348,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		String ssmsg = _L("wrote screenshot:") + TOSTRING(mNumScreenShots);
 		LOG(ssmsg);
 #ifdef USE_MYGUI
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
 #endif //USE_MYGUI
 	}
 
@@ -1387,9 +1385,9 @@ bool RoRFrameListener::updateEvents(float dt)
 		if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_SAVE_POS10, 0.5f)) { slot=9; res = curr_truck->savePosition(slot); };
 #ifdef USE_MYGUI
 		if (slot != -1 && !res)
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Position saved under slot ") + TOSTRING(slot+1), "infromation.png");
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Position saved under slot ") + TOSTRING(slot+1), "infromation.png");
 		else if (slot != -1 && res)
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Error while saving position saved under slot ") + TOSTRING(slot+1), "error.png");
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Error while saving position saved under slot ") + TOSTRING(slot+1), "error.png");
 #endif //USE_MYGUI
 
 		if (res == -10)
@@ -1406,9 +1404,9 @@ bool RoRFrameListener::updateEvents(float dt)
 			if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_LOAD_POS10, 0.5f)) { slot=9; res = curr_truck->loadPosition(slot); };
 #ifdef USE_MYGUI
 			if (slot != -1 && res==0)
-				Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Loaded position from slot ") + TOSTRING(slot+1), "infromation.png");
+				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Loaded position from slot ") + TOSTRING(slot+1), "infromation.png");
 			else if (slot != -1 && res!=0)
-				Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Could not load position from slot ") + TOSTRING(slot+1), "error.png");
+				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Could not load position from slot ") + TOSTRING(slot+1), "error.png");
 #endif // USE_MYGUI
 		}
 	}
@@ -1428,7 +1426,7 @@ bool RoRFrameListener::updateEvents(float dt)
 			gEnv->mainCamera->setFOVy(Degree(fov));
 
 	#ifdef USE_MYGUI
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
 	#endif // USE_MYGUI
 
 			// save the settings
@@ -1444,7 +1442,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		} else
 		{
 #ifdef USE_MYGUI
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
 #endif // USE_MYGUI
 		}
 	}
@@ -1501,10 +1499,10 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 					if ( curr_truck->forwardcommands )
 					{
-						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png", 3000);
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png", 3000);
 					} else
 					{
-						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands disabled"), "information.png", 3000);
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands disabled"), "information.png", 3000);
 					}
 #endif // USE_MYGUI
 				}
@@ -1514,10 +1512,10 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 					if ( curr_truck->importcommands )
 					{
-						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png", 3000);
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png", 3000);
 					} else
 					{
-						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands disabled"), "information.png", 3000);
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands disabled"), "information.png", 3000);
 					}
 #endif // USE_MYGUI
 				}
@@ -1721,19 +1719,19 @@ bool RoRFrameListener::updateEvents(float dt)
 								switch(curr_truck->engine->getAutoMode())
 								{
 									case BeamEngine::AUTOMATIC:
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Automatic shift"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Automatic shift"), "cog.png", 3000);
 										break;
 									case BeamEngine::SEMIAUTO:
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Manual shift - Auto clutch"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Manual shift - Auto clutch"), "cog.png", 3000);
 										break;
 									case BeamEngine::MANUAL:
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully Manual: sequential shift"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully Manual: sequential shift"), "cog.png", 3000);
 										break;
 									case BeamEngine::MANUAL_STICK:
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully manual: stick shift"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully manual: stick shift"), "cog.png", 3000);
 										break;
 									case BeamEngine::MANUAL_RANGES:
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully Manual: stick shift with ranges"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully Manual: stick shift with ranges"), "cog.png", 3000);
 										break;
 								}
 #endif //USE_MYGUI
@@ -1786,21 +1784,21 @@ bool RoRFrameListener::updateEvents(float dt)
 										curr_truck->engine->setGearRange(0);
 										gear_changed = true;
 #ifdef USE_MYGUI
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png", 3000);
 #endif //USE_MYGUI
 									} else if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE)  && curgearrange != 1 && curr_truck->engine->getNumGearsRanges()>1)
 									{
 										curr_truck->engine->setGearRange(1);
 										gear_changed = true;
 #ifdef USE_MYGUI
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png", 3000);
 #endif //USE_MYGUI
 									} else if (INPUTENGINE.getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && curr_truck->engine->getNumGearsRanges()>2)
 									{
 										curr_truck->engine->setGearRange(2);
 										gear_changed = true;
 #ifdef USE_MYGUI
-										Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png", 3000);
+										RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png", 3000);
 #endif // USE_MYGUI
 									}
 								}
@@ -1920,13 +1918,13 @@ bool RoRFrameListener::updateEvents(float dt)
 						if (!curr_truck->getAxleLockCount())
 						{
 #ifdef USE_MYGUI
-							Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No differential installed on current vehicle!"), "warning.png", 3000);
+							RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No differential installed on current vehicle!"), "warning.png", 3000);
 #endif // USE_MYGUI
 						} else
 						{
 							curr_truck->toggleAxleLock();
 #ifdef USE_MYGUI
-							Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Differentials switched to: ") + curr_truck->getAxleLockName(), "cog.png", 3000);
+							RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Differentials switched to: ") + curr_truck->getAxleLockName(), "cog.png", 3000);
 #endif // USE_MYGUI
 						}
 					}
@@ -2311,7 +2309,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					if (!BeamFactory::getSingleton().enterRescueTruck())
 					{
 #ifdef USE_MYGUI
-						Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
 #endif // USE_MYGUI
 					}
 				}
@@ -2379,7 +2377,7 @@ bool RoRFrameListener::updateEvents(float dt)
 			{
 				gEnv->terrainManager->getSkyManager()->setTimeFactor(time_factor);
 #ifdef USE_MYGUI
-				Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime(), "weather_sun.png", 1000);
+				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime(), "weather_sun.png", 1000);
 #endif // USE_MYGUI
 			}
 		}
@@ -3236,7 +3234,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 				if (gEnv->collisions->isInside(trucks[t]->nodes[i].AbsPosition, spawnbox))
 				{
 #ifdef USE_MYGUI
-					Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
+					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
 #endif // USE_MYGUI
 					gEnv->collisions->clearEventCache();
 					return;
@@ -3352,7 +3350,7 @@ void RoRFrameListener::hideGUI(bool visible)
 {
 #ifdef USE_MYGUI
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	Console *c = Console::getSingletonPtrNoCreation();
+	Console *c = RoR::Application::GetConsole();
 	if (c) c->setVisible(!visible);
 
 	if (visible)
@@ -3514,7 +3512,7 @@ void RoRFrameListener::reloadCurrentTruck()
 	if (!newBeam)
 	{
 #ifdef USE_MYGUI
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("unable to load new truck: limit reached. Please restart RoR"), "error.png");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("unable to load new truck: limit reached. Please restart RoR"), "error.png");
 #endif // USE_MYGUI
 		return;
 	}
@@ -3545,7 +3543,7 @@ void RoRFrameListener::reloadCurrentTruck()
 	// notice the user about the amount of possible reloads
 	String msg = TOSTRING(newBeam->trucknum) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
+	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
 #endif //USE_MYGUI
 
 	// dislocate the old truck, so its out of sight

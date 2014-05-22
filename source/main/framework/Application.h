@@ -78,6 +78,11 @@ public:
 		return ms_gui_manager;
 	}
 
+	static Console* GetConsole()
+	{
+		return ms_console;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -112,6 +117,14 @@ private:
 	*/
 	static void DeleteGuiManagerIfExists();
 
+	/** Creates instance if it doesn't already exist.
+	*/
+	static void CreateConsoleIfNotExists();
+
+	/** Destroys instance if it exists.
+	*/
+	static void DeleteConsoleIfExists();
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
@@ -120,6 +133,7 @@ private:
 	static OverlayWrapper*  ms_overlay_wrapper;
 	static SceneMouse*      ms_scene_mouse;
 	static GUIManager*      ms_gui_manager;
+	static Console*         ms_console;
 };
 
 } // namespace RoR
