@@ -722,8 +722,7 @@ RoRFrameListener::RoRFrameListener(
 	enablePosStor = BSETTING("Position Storage", false);
 
 #ifdef USE_MYGUI
-	// init GUI
-	new GUIManager();
+
 	// create console, must be done early
 	new Console();
 
@@ -736,7 +735,7 @@ RoRFrameListener::RoRFrameListener(
 
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	// load random image in the wallpaper
-	String randomWallpaper = GUIManager::getRandomWallpaperImage();
+	String randomWallpaper = RoR::GUIManager::getRandomWallpaperImage();
 	if (!v.empty() && !randomWallpaper.empty())
 	{
 		MyGUI::Widget *mainw = v.at(0);
@@ -2531,7 +2530,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				SelectorWindow::getSingleton().hide();
 				loading_state = ALL_LOADED;
 
-				GUIManager::getSingleton().unfocus();
+				RoR::Application::GetGuiManager()->unfocus();
 
 				if (local_truck != nullptr && local_truck->driveable != NOT_DRIVEABLE)
 				{
@@ -2632,7 +2631,7 @@ void RoRFrameListener::shutdown_final()
 	
 	loading_state = EXITING;
 
-	//GUIManager::getSingleton().shutdown();
+	//RoR::Application::GetGuiManager()->shutdown();
 
 #ifdef USE_SOCKETW
 	if (gEnv->network) gEnv->network->disconnect();
@@ -2806,7 +2805,7 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 	LOG("initTrucks done");
 
 #ifdef USE_MYGUI
-	GUIManager::getSingleton().unfocus();
+	RoR::Application::GetGuiManager()->unfocus();
 #endif //USE_MYGUI
 }
 

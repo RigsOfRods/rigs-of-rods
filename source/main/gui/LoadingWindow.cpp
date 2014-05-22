@@ -20,14 +20,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_MYGUI
 
 #include "LoadingWindow.h"
+
+#include "Application.h"
 #include "GUIManager.h"
-#include "RoRWindowEventUtilities.h"
-
-#include "Settings.h"
-
-#include "Utils.h"
-
 #include "Language.h"
+#include "RoRWindowEventUtilities.h"
+#include "Settings.h"
+#include "Utils.h"
 
 LoadingWindow::LoadingWindow() :
 	mFrameForced(false)
@@ -83,7 +82,7 @@ void LoadingWindow::setAutotrack(const Ogre::UTFString& _text, bool _updateRende
 
 void LoadingWindow::hide()
 {
-	GUIManager::getSingleton().unfocus();
+	RoR::Application::GetGuiManager()->unfocus();
 	mMainWidget->setVisible(false);
 }
 

@@ -32,6 +32,7 @@ namespace RoR
 {
 	class  Application;
 	class  ContentManager;
+	class  GUIManager;
 	class  MainThread;
 	class  OgreSubsystem;
 	struct PlatformUtils;
@@ -74,6 +75,11 @@ namespace Ogre
 {
 	class MovableText;
 	class TerrainGroup;
+}
+
+namespace MyGUI
+{
+	class OgrePlatform;
 }
 
 class AeroEngine;
