@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
 
 	try 
 	{
-		main_thread_object.go();
+		main_thread_object.Go();
 	} 
 	catch (Ogre::Exception& e)
 	{

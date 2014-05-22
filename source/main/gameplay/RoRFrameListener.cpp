@@ -29,8 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AdvancedScreen.h"
 #include "Application.h"
-#include "AppState.h"
-#include "AppStateManager.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
@@ -57,6 +55,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "InputEngine.h"
 #include "IWater.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "MeshObject.h"
 #include "MumbleIntegration.h"
 #include "Network.h"
@@ -209,7 +208,7 @@ void RoRFrameListener::updateIO(float dt)
 
 // Constructor takes a RenderWindow because it uses that to determine input context
 RoRFrameListener::RoRFrameListener(
-	AppState *parentState
+	RoR::MainThread * main_thread_control
 ) :
 	clutch(0),
 	dashboard(0),
@@ -230,7 +229,7 @@ RoRFrameListener::RoRFrameListener(
 	netcheckGUITimer(0),
 	objectCounter(0),
 	ow(0),
-	parentState(parentState),
+	m_main_thread_control(main_thread_control),
 	persostart(Vector3(0,0,0)),
 	pressure_pressed(false),
 	raceStartTime(-1),
@@ -2102,10 +2101,9 @@ void RoRFrameListener::shutdown_final()
 
 	RoR::Application::GetInputEngine()->prepareShutdown();
 
-	if (RoR::Application::GetAppStateManager() != nullptr)
-	{
-		RoR::Application::GetAppStateManager()->tryShutdown();
-	}
+	// RoRFrameListener::shutdown_final() is allways called by main thread.
+	// Therefore we need no syncing here.
+	m_main_thread_control->Shutdown();
 
 	shutdownall = true;
 }
@@ -2411,7 +2409,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 {
 	if (shutdownall) // shortcut: press ESC in credits
 	{
-		parentState->exit();
+		m_main_thread_control->Exit();
 		return false;
 	}
 

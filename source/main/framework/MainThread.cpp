@@ -28,12 +28,10 @@
 #include "MainThread.h"
 
 #include "Application.h"
-#include "AppStateManager.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
-#include "GameState.h"
 #include "GUIFriction.h"
 #include "GUIManager.h"
 #include "GUIMenu.h"
@@ -54,10 +52,17 @@
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
 
-namespace RoR
-{
+using namespace RoR;
 
-void MainThread::go()
+MainThread::MainThread():
+	m_no_rendering(false),
+	m_shutdown(false),
+	m_ror_frame_listener(nullptr)
+{
+	pthread_mutex_init(&m_lock, nullptr);
+}
+
+void MainThread::Go()
 {
 	// ================================================================================
 	// Bootstrap
@@ -74,8 +79,6 @@ void MainThread::go()
 	gEnv->ogreRoot     = Application::GetOgreSubsystem()->GetOgreRoot();
 	gEnv->viewPort     = Application::GetOgreSubsystem()->GetViewport();
 	gEnv->renderWindow = Application::GetOgreSubsystem()->GetRenderWindow();
-
-	Application::CreateAppStateManager();
 
 	Application::CreateContentManager();
 
@@ -98,12 +101,6 @@ void MainThread::go()
 	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
 
 	Application::GetContentManager()->init(); // Load all resource packs
-
-	// Create application states and launch the default one
-	// GameState = default state, classic
-	// LobbyState = experimental Multiplayer Lobby
-	GameState::create(Application::GetAppStateManager(),  "GameState");
-	GameState* legacy_game_state = static_cast<GameState*>(Application::GetAppStateManager()->findByName("GameState"));
 
 	bootstrap_screen.HideAndRemove();
 
@@ -208,13 +205,12 @@ void MainThread::go()
 	// --------------------------------------------------------------------------------
 	// Continue with legacy GameState + RoRFrameListener
 
-	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state);
-	gEnv->frameListener = ror_frame_listener;
-	ScriptEngine::getSingleton().SetFrameListener(ror_frame_listener);
-	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(ror_frame_listener);
-	
-	legacy_game_state->Setup(camera, scene_manager, ror_frame_listener);
-	Application::GetAppStateManager()->start(legacy_game_state);
+	m_ror_frame_listener = new RoRFrameListener(this);
+	gEnv->frameListener = m_ror_frame_listener;
+	ScriptEngine::getSingleton().SetFrameListener(m_ror_frame_listener);
+	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(m_ror_frame_listener);
+
+	EnterMainLoop();
 
 	// ================================================================================
 	// Cleanup
@@ -224,8 +220,84 @@ void MainThread::go()
     RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
 	Application::DestroyContentManager();
-
-	Application::DestroyAppStateManager();
 }
 
-} // namespace RoR
+void MainThread::EnterMainLoop()
+{
+	unsigned long timeSinceLastFrame = 1;
+	unsigned long startTime          = 0;
+	unsigned long minTimePerFrame    = 0;
+	unsigned long fpsLimit           = ISETTING("FPS-Limiter", 0);
+
+	if (fpsLimit < 10 || fpsLimit >= 200)
+	{
+		fpsLimit = 0;
+	}
+
+	if (fpsLimit)
+	{
+		minTimePerFrame = 1000 / fpsLimit;
+	}
+
+	while(!m_shutdown)
+	{
+		startTime = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+
+		// no more actual rendering?
+		if (m_no_rendering)
+		{
+			sleepMilliSeconds(100);
+			continue;
+		}
+
+		////update(timeSinceLastFrame);
+		MUTEX_LOCK(&m_lock);
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+		RoRWindowEventUtilities::messagePump();
+#endif
+		Ogre::RenderWindow* rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
+		if (rw->isClosed())
+		{
+			// TODO: is this locking circus needed?
+
+			// unlock before shutdown
+			MUTEX_UNLOCK(&m_lock);
+			// shutdown locks the mutex itself
+			
+			// shutdown needs to be synced
+			MUTEX_LOCK(&m_lock);
+			m_shutdown = true;
+			printf(">SH\n");
+			MUTEX_UNLOCK(&m_lock);
+			return;
+		}
+
+		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+
+		if (!rw->isActive() && rw->isVisible())
+			rw->update(); // update even when in background !
+
+		MUTEX_UNLOCK(&m_lock);
+
+		if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
+		{
+			// Sleep twice as long as we were too fast.
+			sleepMilliSeconds((minTimePerFrame - timeSinceLastFrame) << 1);
+		}
+
+
+		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
+	}
+}
+
+void MainThread::Exit()
+{
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(m_ror_frame_listener);
+	delete m_ror_frame_listener;
+	m_ror_frame_listener = nullptr;
+}
+
+void MainThread::Shutdown()
+{
+	m_shutdown = true;
+}
