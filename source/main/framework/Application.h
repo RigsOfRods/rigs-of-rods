@@ -88,6 +88,11 @@ public:
 		return ms_input_engine;
 	}
 
+	static CacheSystem* GetCacheSystem()
+	{
+		return ms_cache_system;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -132,6 +137,8 @@ private:
 
 	static void CreateInputEngine();
 
+	static void CreateCacheSystem();
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
@@ -142,6 +149,7 @@ private:
 	static GUIManager*      ms_gui_manager;
 	static Console*         ms_console;
 	static InputEngine*     ms_input_engine;
+	static CacheSystem*     ms_cache_system;
 };
 
 } // namespace RoR

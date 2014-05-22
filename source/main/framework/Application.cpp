@@ -28,6 +28,7 @@
 #include "Application.h"
 
 #include "AppStateManager.h"
+#include "CacheSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
@@ -53,6 +54,7 @@ SceneMouse*      Application::ms_scene_mouse       = nullptr;
 GUIManager*      Application::ms_gui_manager       = nullptr;
 Console*         Application::ms_console           = nullptr;
 InputEngine*     Application::ms_input_engine      = nullptr;
+CacheSystem*     Application::ms_cache_system      = nullptr;
 
 // ================================================================================
 // Functions
@@ -174,6 +176,12 @@ void Application::CreateInputEngine()
 {
 	assert(ms_input_engine == nullptr);
 	ms_input_engine = new InputEngine();
+}
+
+void Application::CreateCacheSystem()
+{
+	assert(ms_cache_system == nullptr);
+	ms_cache_system = new CacheSystem();
 }
 
 } // namespace RoR

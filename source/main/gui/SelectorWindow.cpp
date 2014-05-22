@@ -330,7 +330,7 @@ void SelectorWindow::getData()
 	}
 
 	int ts = getTimeStamp();
-	std::vector<CacheEntry> *entries = CACHE.getEntries();
+	std::vector<CacheEntry> *entries = RoR::Application::GetCacheSystem()->getEntries();
 	for (std::vector<CacheEntry>::iterator it = entries->begin(); it!=entries->end(); it++)
 	{
 		// category hidden
@@ -379,7 +379,7 @@ void SelectorWindow::getData()
 		mEntries.push_back(*it);
 	}
 	int tally_categories = 0, current_category = 0;
-	std::map<int, Category_Entry> *cats = CACHE.getCategories();
+	std::map<int, Category_Entry> *cats = RoR::Application::GetCacheSystem()->getCategories();
 	for (std::map<int, Category_Entry>::iterator itc = cats->begin(); itc!=cats->end(); itc++)
 	{
 		if (mCategoryUsage[itc->second.number] > 0)
@@ -589,7 +589,7 @@ void SelectorWindow::onEntrySelected(int entryID)
 		}
 		return;
 	}
-	CacheEntry *entry = CACHE.getEntry(entryID);
+	CacheEntry *entry = RoR::Application::GetCacheSystem()->getEntry(entryID);
 	if (!entry) return;
 	mSelectedTruck = entry;
 	updateControls(mSelectedTruck);
@@ -608,7 +608,7 @@ void SelectorWindow::selectionDone()
 	if (mLoaderType != LT_SKIN)
 	{
 		// we show the normal loader
-		CACHE.checkResourceLoaded(*mSelectedTruck);
+		RoR::Application::GetCacheSystem()->checkResourceLoaded(*mSelectedTruck);
 
 		mCurrentSkins.clear();
 		SkinManager::getSingleton().getUsableSkins(mSelectedTruck->guid, this->mCurrentSkins);

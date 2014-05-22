@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TerrainObjectManager.h"
 
+#include "Application.h"
 #include "AutoPilot.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
@@ -516,7 +517,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 			String group = "";
 			String truckname(type);
 
-			if (!CACHE.checkResourceLoaded(truckname, group))
+			if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(truckname, group))
 			{
 				LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
 				continue;
@@ -733,7 +734,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		odefFound = true;
 	}
 	
-	if (!CACHE.checkResourceLoaded(odefname, odefgroup))
+	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
 		if (!odefFound)
 		{
 			LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");

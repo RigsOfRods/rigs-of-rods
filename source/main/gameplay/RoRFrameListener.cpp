@@ -734,21 +734,6 @@ RoRFrameListener::RoRFrameListener(
 	dirvisible = false;
 	dirArrowPointed = Vector3::ZERO;
 
-	if (BSETTING("regen-cache-only", false))
-	{
-		CACHE.startup(true);
-		UTFString str = _L("Cache regeneration done.\n");
-		if (CACHE.newFiles > 0)     str = str + TOUTFSTRING(CACHE.newFiles) + _L(" new files\n");
-		if (CACHE.changedFiles > 0) str = str + TOUTFSTRING(CACHE.changedFiles) + _L(" changed files\n");
-		if (CACHE.deletedFiles > 0) str = str + TOUTFSTRING(CACHE.deletedFiles) + _L(" deleted files\n");
-		if (CACHE.newFiles + CACHE.changedFiles + CACHE.deletedFiles == 0) str = str + _L("no changes");
-		str = str + _L("\n(These stats can be imprecise)");
-		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
-		exit(0);
-	}
-
-	CACHE.startup();
-
 	screenWidth=gEnv->renderWindow->getWidth();
 	screenHeight=gEnv->renderWindow->getHeight();
 
@@ -983,13 +968,13 @@ RoRFrameListener::RoRFrameListener(
 	// now continue to load everything...
 	if (!preselected_map.empty())
 	{
-		if (!CACHE.checkResourceLoaded(preselected_map))
+		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
 		{
 			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn2", "");
 			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn", "");
 			preselected_map = preselected_map + ".terrn2";
 			// fallback to old terrain name with .terrn
-			if (!CACHE.checkResourceLoaded(preselected_map))
+			if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
 			{
 				LOG("Terrain not found: " + preselected_map);
 				ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + preselected_map);
@@ -998,7 +983,7 @@ RoRFrameListener::RoRFrameListener(
 		}
 
 		// set the terrain cache entry
-		CacheEntry ce = CACHE.getResourceInfo(preselected_map);
+		CacheEntry ce = RoR::Application::GetCacheSystem()->getResourceInfo(preselected_map);
 		terrainUID = ce.uniqueid;
 
 		loadTerrain(preselected_map);
@@ -2621,13 +2606,13 @@ void RoRFrameListener::loadTerrain(String terrainfile)
 	ScopeLog log("terrain_"+terrainfile);
 
 	// check if the resource is loaded
-	if (!CACHE.checkResourceLoaded(terrainfile))
+	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(terrainfile))
 	{
 		// fallback for terrains, add .terrn if not found and retry
 		terrainfile = Ogre::StringUtil::replaceAll(terrainfile, ".terrn2", "");
 		terrainfile = Ogre::StringUtil::replaceAll(terrainfile, ".terrn", "");
 		terrainfile = terrainfile + ".terrn2";
-		if (!CACHE.checkResourceLoaded(terrainfile))
+		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(terrainfile))
 		{
 			LOG("Terrain not found: " + terrainfile);
 			ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + terrainfile);
