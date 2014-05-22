@@ -30,6 +30,7 @@
 #include "AppStateManager.h"
 #include "ContentManager.h"
 #include "OgreSubsystem.h"
+#include "OverlayWrapper.h"
 
 #include <OgreException.h>
 
@@ -41,6 +42,7 @@ namespace RoR
 OgreSubsystem*   Application::ms_ogre_subsystem    = nullptr;
 AppStateManager* Application::ms_app_state_manager = nullptr;
 ContentManager*  Application::ms_content_manager   = nullptr;
+OverlayWrapper*  Application::ms_overlay_wrapper   = nullptr;
 
 void Application::StartOgreSubsystem()
 {
@@ -85,6 +87,22 @@ void Application::DestroyContentManager()
 	assert(ms_content_manager != nullptr && "Application::DestroyContentManager(): ContentManager never created");
 	delete ms_content_manager;
 	ms_content_manager = nullptr;
+}
+
+void Application::CreateOverlayWrapper()
+{
+	ms_overlay_wrapper = new OverlayWrapper();
+	if (ms_overlay_wrapper == nullptr)
+	{
+		throw std::runtime_error("[RoR] Failed to create OverlayWrapper");
+	}
+}
+
+void Application::DestroyOverlayWrapper()
+{
+	assert(ms_overlay_wrapper != nullptr && "Application::DestroyOverlayWrapper(): OverlayWrapper never created");
+	delete ms_overlay_wrapper;
+	ms_overlay_wrapper = nullptr;
 }
 
 } // namespace RoR

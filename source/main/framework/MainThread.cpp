@@ -108,12 +108,17 @@ void MainThread::go()
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
 
-	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state, RoR::Application::GetOgreSubsystem()->GetMainHWND());
-	gEnv->frameListener = ror_frame_listener;
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(ror_frame_listener);
+	// --------------------------------------------------------------------------------
+	// Ported RoRFrameListener logic
+
+	Application::CreateOverlayWrapper();
 
 	// --------------------------------------------------------------------------------
-	// Continue with legacy GameState
+	// Continue with legacy GameState + RoRFrameListener
+
+	RoRFrameListener* ror_frame_listener = new RoRFrameListener(legacy_game_state, RoR::Application::GetOgreSubsystem()->GetMainHWND());
+	gEnv->frameListener = ror_frame_listener;
+	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(ror_frame_listener);
 	
 	legacy_game_state->Setup(camera, scene_manager, ror_frame_listener);
 	Application::GetAppStateManager()->start(legacy_game_state);

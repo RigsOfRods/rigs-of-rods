@@ -63,6 +63,11 @@ public:
 		return ms_content_manager;
 	}
 
+	static OverlayWrapper* GetOverlayWrapper()
+	{
+		return ms_overlay_wrapper;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -77,11 +82,16 @@ private:
 
 	static void DestroyContentManager();
 
+	static void CreateOverlayWrapper();
+
+	static void DestroyOverlayWrapper();
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
 	static AppStateManager* ms_app_state_manager;
 	static ContentManager*  ms_content_manager;
+	static OverlayWrapper*  ms_overlay_wrapper;
 };
 
 } // namespace RoR
