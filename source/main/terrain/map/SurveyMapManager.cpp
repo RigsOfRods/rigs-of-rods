@@ -396,4 +396,20 @@ void SurveyMapManager::toggleMapAlpha()
 	}
 }
 
+void SurveyMapManager::Update(Beam ** vehicles, int num_vehicles)
+{	
+	for (int t=0; t<num_vehicles; t++)
+	{
+		if (!vehicles[t]) continue;	
+		SurveyMapEntity *e = getMapEntityByName("Truck"+TOSTRING(vehicles[t]->trucknum));
+		if (e)
+		{
+			e->setState(DESACTIVATED);
+			e->setVisibility(true);
+			e->setPosition(vehicles[t]->getPosition().x, vehicles[t]->getPosition().z);
+			e->setRotation(Radian(vehicles[t]->getHeadingDirectionAngle()));
+		}
+	}
+}
+
 #endif // USE_MYGUI

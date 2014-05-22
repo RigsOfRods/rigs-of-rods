@@ -207,470 +207,6 @@ void RoRFrameListener::updateIO(float dt)
 	}
 }
 
-void RoRFrameListener::updateGUI(float dt)
-{
-	if (!ow) return; // no gui, then skip this
-
-	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-
-#ifdef USE_MYGUI
-	if (gEnv->surveyMap && gEnv->surveyMap->getVisibility())
-	{
-		for (int t=0; t<numtrucks; t++)
-		{
-			if (!trucks[t]) continue;	
-			SurveyMapEntity *e = gEnv->surveyMap->getMapEntityByName("Truck"+TOSTRING(trucks[t]->trucknum));
-			if (e)
-			{
-				e->setState(DESACTIVATED);
-				e->setVisibility(true);
-				e->setPosition(trucks[t]->getPosition().x, trucks[t]->getPosition().z);
-				e->setRotation(Radian(trucks[t]->getHeadingDirectionAngle()));
-			}
-		}
-	}
-#endif //USE_MYGUI
-
-	if (!curr_truck) return;
-
-	//update the truck info gui (also if not displayed!)
-	ow->truckhud->update(dt, curr_truck, mTruckInfoOn);
-
-#ifdef FEAT_TIMING
-	BES.updateGUI(dt);
-#endif
-
-#ifdef USE_MYGUI
-	// update mouse picking lines, etc
-	RoR::Application::GetSceneMouse()->update(dt);
-#endif //USE_MYGUI
-
-	if (pressure_pressed)
-	{
-		Real angle = 135.0 - curr_truck->getPressure() * 2.7;
-		ow->pressuretexture->setTextureRotate(Degree(angle));
-	}
-
-	// racing gui
-	if (raceStartTime > 0)
-		updateRacingGUI();
-
-	if (curr_truck->driveable == TRUCK)
-	{
-		//TRUCK
-		if (!curr_truck->engine) return;
-
-		// gears
-		int truck_getgear = curr_truck->engine->getGear();
-		if (truck_getgear>0)
-		{
-			size_t numgears = curr_truck->engine->getNumGears();
-			String gearstr = TOSTRING(truck_getgear) + "/" + TOSTRING(numgears);
-			ow->guiGear->setCaption(gearstr);
-			ow->guiGear3D->setCaption(gearstr);
-		} else if (truck_getgear==0)
-		{
-			ow->guiGear->setCaption("N");
-			ow->guiGear3D->setCaption("N");
-		} else
-		{
-			ow->guiGear->setCaption("R");
-			ow->guiGear3D->setCaption("R");
-		}
-		//autogears
-		int cg = curr_truck->engine->getAutoShift();
-		for (int i=0; i<5; i++)
-		{
-			if (i==cg)
-			{
-				if (i==1)
-				{
-					ow->guiAuto[i]->setColourTop(ColourValue(1.0, 0.2, 0.2, 1.0));
-					ow->guiAuto[i]->setColourBottom(ColourValue(0.8, 0.1, 0.1, 1.0));
-					ow->guiAuto3D[i]->setColourTop(ColourValue(1.0, 0.2, 0.2, 1.0));
-					ow->guiAuto3D[i]->setColourBottom(ColourValue(0.8, 0.1, 0.1, 1.0));
-				} else
-				{
-					ow->guiAuto[i]->setColourTop(ColourValue(1.0, 1.0, 1.0, 1.0));
-					ow->guiAuto[i]->setColourBottom(ColourValue(0.8, 0.8, 0.8, 1.0));
-					ow->guiAuto3D[i]->setColourTop(ColourValue(1.0, 1.0, 1.0, 1.0));
-					ow->guiAuto3D[i]->setColourBottom(ColourValue(0.8, 0.8, 0.8, 1.0));
-				}
-			} else
-			{
-				if (i==1)
-				{
-					ow->guiAuto[i]->setColourTop(ColourValue(0.4, 0.05, 0.05, 1.0));
-					ow->guiAuto[i]->setColourBottom(ColourValue(0.3, 0.02, 0.2, 1.0));
-					ow->guiAuto3D[i]->setColourTop(ColourValue(0.4, 0.05, 0.05, 1.0));
-					ow->guiAuto3D[i]->setColourBottom(ColourValue(0.3, 0.02, 0.2, 1.0));
-				} else
-				{
-					ow->guiAuto[i]->setColourTop(ColourValue(0.4, 0.4, 0.4, 1.0));
-					ow->guiAuto[i]->setColourBottom(ColourValue(0.3, 0.3, 0.3, 1.0));
-					ow->guiAuto3D[i]->setColourTop(ColourValue(0.4, 0.4, 0.4, 1.0));
-					ow->guiAuto3D[i]->setColourBottom(ColourValue(0.3, 0.3, 0.3, 1.0));
-				}
-			}
-
-		}
-
-		// pedals
-		ow->guipedclutch->setTop(-0.05*curr_truck->engine->getClutch()-0.01);
-		ow->guipedbrake->setTop(-0.05*(1.0-curr_truck->brake/curr_truck->brakeforce)-0.01);
-		ow->guipedacc->setTop(-0.05*(1.0-curr_truck->engine->getAcc())-0.01);
-
-		// speedo / calculate speed
-		Real guiSpeedFactor = 7.0 * (140.0 / curr_truck->speedoMax);
-		Real angle = 140 - fabs(curr_truck->WheelSpeed * guiSpeedFactor);
-		angle = std::max(-140.0f, angle);
-		ow->speedotexture->setTextureRotate(Degree(angle));
-
-		// calculate tach stuff
-		Real tachoFactor = 0.072;
-		if (curr_truck->useMaxRPMforGUI)
-		{
-			tachoFactor = 0.072 * (3500 / curr_truck->engine->getMaxRPM());
-		}
-		angle = 126.0 - fabs(curr_truck->engine->getRPM() * tachoFactor);
-		angle = std::max(-120.0f, angle);
-		angle = std::min(angle, 121.0f);
-		ow->tachotexture->setTextureRotate(Degree(angle));
-
-		// roll
-		Vector3 rdir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranoderoll[0]].RelPosition).normalisedCopy();
-		//roll_node->resetOrientation();
-		angle = asin(rdir.dotProduct(Vector3::UNIT_Y));
-		angle = std::max(-1.0f, angle);
-		angle = std::min(angle, 1.0f);
-		//float jroll=angle*1.67;
-		ow->rolltexture->setTextureRotate(Radian(angle));
-		//roll_node->roll(Radian(angle));
-
-		// rollcorr
-		if (curr_truck->free_active_shock && ow && ow->guiRoll && ow->rollcortexture)
-		{
-			//rollcorr_node->resetOrientation();
-			//rollcorr_node->roll(Radian(-curr_truck->stabratio*5.0));
-			ow->rollcortexture->setTextureRotate(Radian(-curr_truck->stabratio*10.0));
-			if (curr_truck->stabcommand)
-				ow->guiRoll->setMaterialName("tracks/rollmaskblink");
-			else
-				ow->guiRoll->setMaterialName("tracks/rollmask");
-		}
-
-		// pitch
-		//pitch_node->resetOrientation();
-		Vector3 dir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
-		angle = asin(dir.dotProduct(Vector3::UNIT_Y));
-		angle = std::max(-1.0f, angle);
-		angle = std::min(angle, 1.0f);
-		ow->pitchtexture->setTextureRotate(Radian(angle));
-		//pitch_node->roll(Radian(angle));
-
-		// turbo
-		angle=40.0-curr_truck->engine->getTurboPSI()*3.34;
-		ow->turbotexture->setTextureRotate(Degree(angle));
-
-		// indicators
-		ow->igno->setMaterialName(String("tracks/ign-")         + ((curr_truck->engine->hasContact())?"on":"off"));
-		ow->batto->setMaterialName(String("tracks/batt-")       + ((curr_truck->engine->hasContact() && !curr_truck->engine->isRunning())?"on":"off"));
-		ow->pbrakeo->setMaterialName(String("tracks/pbrake-")   + ((curr_truck->parkingbrake)?"on":"off"));
-		ow->lockedo->setMaterialName(String("tracks/locked-")   + ((curr_truck->isLocked())?"on":"off"));
-		ow->lopresso->setMaterialName(String("tracks/lopress-") + ((!curr_truck->canwork)?"on":"off"));
-		ow->clutcho->setMaterialName(String("tracks/clutch-")   + ((fabs(curr_truck->engine->getTorque())>=curr_truck->engine->getClutchForce()*10.0f)?"on":"off"));
-		ow->lightso->setMaterialName(String("tracks/lights-")   + ((curr_truck->lights)?"on":"off"));
-
-		if (curr_truck->tc_present)
-		{
-			if (curr_truck->tc_mode)
-			{
-				if (curr_truck->tractioncontrol)
-					ow->tcontrolo->setMaterialName(String("tracks/tcontrol-act"));
-				else
-					ow->tcontrolo->setMaterialName(String("tracks/tcontrol-on"));
-			} else
-			{
-				ow->tcontrolo->setMaterialName(String("tracks/tcontrol-off"));
-			}
-		} else
-		{
-			ow->tcontrolo->setMaterialName(String("tracks/trans"));
-		}
-
-		if (curr_truck->alb_present)
-		{
-			if (curr_truck->alb_mode)
-			{
-				if (curr_truck->antilockbrake)
-					ow->antilocko->setMaterialName(String("tracks/antilock-act"));
-				else
-					ow->antilocko->setMaterialName(String("tracks/antilock-on"));
-			} else
-			{
-				ow->antilocko->setMaterialName(String("tracks/antilock-off"));
-			}
-		} else
-		{
-			ow->antilocko->setMaterialName(String("tracks/trans"));
-		}
-
-		if (curr_truck->isTied())
-		{
-			if (fabs(curr_truck->commandkey[0].commandValue) > 0.000001f)
-			{
-				flipflop = !flipflop;
-				if (flipflop)
-					ow->securedo->setMaterialName("tracks/secured-on");
-				else
-					ow->securedo->setMaterialName("tracks/secured-off");
-			} else
-			{
-				ow->securedo->setMaterialName("tracks/secured-on");
-			}
-		} else
-		{
-			ow->securedo->setMaterialName("tracks/secured-off");
-		}
-
-	} else if (ow && curr_truck->driveable == AIRPLANE)
-	{
-		//AIRPLANE GUI
-		int ftp = curr_truck->free_aeroengine;
-
-		//throttles
-		ow->thro1->setTop(ow->thrtop+ow->thrheight*(1.0-curr_truck->aeroengines[0]->getThrottle())-1.0);
-		if (ftp>1) ow->thro2->setTop(ow->thrtop+ow->thrheight*(1.0-curr_truck->aeroengines[1]->getThrottle())-1.0);
-		if (ftp>2) ow->thro3->setTop(ow->thrtop+ow->thrheight*(1.0-curr_truck->aeroengines[2]->getThrottle())-1.0);
-		if (ftp>3) ow->thro4->setTop(ow->thrtop+ow->thrheight*(1.0-curr_truck->aeroengines[3]->getThrottle())-1.0);
-
-		//fire
-		if (curr_truck->aeroengines[0]->isFailed()) ow->engfireo1->setMaterialName("tracks/engfire-on"); else ow->engfireo1->setMaterialName("tracks/engfire-off");
-		if (ftp > 1 && curr_truck->aeroengines[1]->isFailed()) ow->engfireo2->setMaterialName("tracks/engfire-on"); else ow->engfireo2->setMaterialName("tracks/engfire-off");
-		if (ftp > 2 && curr_truck->aeroengines[2]->isFailed()) ow->engfireo3->setMaterialName("tracks/engfire-on"); else ow->engfireo3->setMaterialName("tracks/engfire-off");
-		if (ftp > 3 && curr_truck->aeroengines[3]->isFailed()) ow->engfireo4->setMaterialName("tracks/engfire-on"); else ow->engfireo4->setMaterialName("tracks/engfire-off");
-
-		//airspeed
-		float angle=0.0;
-		float ground_speed_kt=curr_truck->nodes[0].Velocity.length()*1.9438; // 1.943 = m/s in knots/s
-
-		//tropospheric model valid up to 11.000m (33.000ft)
-		float altitude=curr_truck->nodes[0].AbsPosition.y;
-		float sea_level_temperature=273.15+15.0; //in Kelvin
-		float sea_level_pressure=101325; //in Pa
-		//float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
-		float airpressure=sea_level_pressure*pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
-		float airdensity=airpressure*0.0000120896;//1.225 at sea level
-
-		float kt = ground_speed_kt*sqrt(airdensity/1.225); //KIAS
-		if (kt>23.0)
-		{
-			if (kt<50.0)
-				angle=((kt-23.0)/1.111);
-			else if (kt<100.0)
-				angle=(24.0+(kt-50.0)/0.8621);
-			else if (kt<300.0)
-				angle=(82.0+(kt-100.0)/0.8065);
-			else
-				angle=329.0;
-		}
-		ow->airspeedtexture->setTextureRotate(Degree(-angle));
-
-		// AOA
-		angle=0;
-		if (curr_truck->free_wing>4)
-			angle=curr_truck->wings[4].fa->aoa;
-		if (kt<10.0) angle=0;
-		float absangle=angle;
-		if (absangle<0) absangle=-absangle;
-#ifdef USE_OPENAL
-		SoundScriptManager::getSingleton().modulate(curr_truck, SS_MOD_AOA, absangle);
-		if (absangle > 18.0) // TODO: magicccc
-			SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AOA);
-		else
-			SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_AOA);
-#endif // OPENAL
-		if (angle>25.0) angle=25.0;
-		if (angle<-25.0) angle=-25.0;
-		ow->aoatexture->setTextureRotate(Degree(-angle*4.7+90.0));
-
-		// altimeter
-		angle=curr_truck->nodes[0].AbsPosition.y*1.1811;
-		ow->altimetertexture->setTextureRotate(Degree(-angle));
-		char altc[10];
-		sprintf(altc, "%03u", (int)(curr_truck->nodes[0].AbsPosition.y/30.48));
-		ow->alt_value_taoe->setCaption(altc);
-
-		//adi
-		//roll
-		Vector3 rollv=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranoderoll[0]].RelPosition;
-		rollv.normalise();
-		float rollangle=asin(rollv.dotProduct(Vector3::UNIT_Y));
-
-		//pitch
-		Vector3 dirv=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
-		dirv.normalise();
-		float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
-		Vector3 upv=dirv.crossProduct(-rollv);
-		if (upv.y<0) rollangle=3.14159-rollangle;
-		ow->adibugstexture->setTextureRotate(Radian(-rollangle));
-		ow->aditapetexture->setTextureVScroll(-pitchangle*0.25);
-		ow->aditapetexture->setTextureRotate(Radian(-rollangle));
-
-		//hsi
-		Vector3 idir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
-		//			idir.normalise();
-		float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
-		ow->hsirosetexture->setTextureRotate(Radian(dirangle));
-		if (curr_truck->autopilot)
-		{
-			ow->hsibugtexture->setTextureRotate(Radian(dirangle)-Degree(curr_truck->autopilot->heading));
-			float vdev=0;
-			float hdev=0;
-			// TODO: FIXME
-			//curr_truck->autopilot->getRadioFix(localizers, free_localizer, &vdev, &hdev);
-			if (hdev>15) hdev=15;
-			if (hdev<-15) hdev=-15;
-			ow->hsivtexture->setTextureUScroll(-hdev*0.02);
-			if (vdev>15) vdev=15;
-			if (vdev<-15) vdev=-15;
-			ow->hsihtexture->setTextureVScroll(-vdev*0.02);
-		}
-
-		//vvi
-		float vvi=curr_truck->nodes[0].Velocity.y*196.85;
-		if (vvi<1000.0 && vvi>-1000.0) angle=vvi*0.047;
-		if (vvi>1000.0 && vvi<6000.0) angle=47.0+(vvi-1000.0)*0.01175;
-		if (vvi>6000.0) angle=105.75;
-		if (vvi<-1000.0 && vvi>-6000.0) angle=-47.0+(vvi+1000.0)*0.01175;
-		if (vvi<-6000.0) angle=-105.75;
-		ow->vvitexture->setTextureRotate(Degree(-angle+90.0));
-
-		//rpm
-		float pcent=curr_truck->aeroengines[0]->getRPMpc();
-		if (pcent<60.0) angle=-5.0+pcent*1.9167;
-		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-		else angle=314.0;
-		ow->airrpm1texture->setTextureRotate(Degree(-angle));
-
-		if (ftp>1) pcent=curr_truck->aeroengines[1]->getRPMpc(); else pcent=0;
-		if (pcent<60.0) angle=-5.0+pcent*1.9167;
-		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-		else angle=314.0;
-		ow->airrpm2texture->setTextureRotate(Degree(-angle));
-
-		if (ftp>2) pcent=curr_truck->aeroengines[2]->getRPMpc(); else pcent=0;
-		if (pcent<60.0) angle=-5.0+pcent*1.9167;
-		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-		else angle=314.0;
-		ow->airrpm3texture->setTextureRotate(Degree(-angle));
-
-		if (ftp>3) pcent=curr_truck->aeroengines[3]->getRPMpc(); else pcent=0;
-		if (pcent<60.0) angle=-5.0+pcent*1.9167;
-		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-		else angle=314.0;
-		ow->airrpm4texture->setTextureRotate(Degree(-angle));
-
-		if (curr_truck->aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
-		{
-			Turboprop *tp=(Turboprop*)curr_truck->aeroengines[0];
-			//pitch
-			ow->airpitch1texture->setTextureRotate(Degree(-tp->pitch*2.0));
-			//torque
-			pcent=100.0*tp->indicated_torque/tp->max_torque;
-			if (pcent<60.0) angle=-5.0+pcent*1.9167;
-			else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-			else angle=314.0;
-			ow->airtorque1texture->setTextureRotate(Degree(-angle));
-		}
-
-		if (ftp>1 && curr_truck->aeroengines[1]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
-		{
-			Turboprop *tp=(Turboprop*)curr_truck->aeroengines[1];
-			//pitch
-			ow->airpitch2texture->setTextureRotate(Degree(-tp->pitch*2.0));
-			//torque
-			pcent=100.0*tp->indicated_torque/tp->max_torque;
-			if (pcent<60.0) angle=-5.0+pcent*1.9167;
-			else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-			else angle=314.0;
-			ow->airtorque2texture->setTextureRotate(Degree(-angle));
-		}
-
-		if (ftp>2 && curr_truck->aeroengines[2]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
-		{
-			Turboprop *tp=(Turboprop*)curr_truck->aeroengines[2];
-			//pitch
-			ow->airpitch3texture->setTextureRotate(Degree(-tp->pitch*2.0));
-			//torque
-			pcent=100.0*tp->indicated_torque/tp->max_torque;
-			if (pcent<60.0) angle=-5.0+pcent*1.9167;
-			else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-			else angle=314.0;
-			ow->airtorque3texture->setTextureRotate(Degree(-angle));
-		}
-
-		if (ftp>3 && curr_truck->aeroengines[3]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
-		{
-			Turboprop *tp=(Turboprop*)curr_truck->aeroengines[3];
-			//pitch
-			ow->airpitch4texture->setTextureRotate(Degree(-tp->pitch*2.0));
-			//torque
-			pcent=100.0*tp->indicated_torque/tp->max_torque;
-			if (pcent<60.0) angle=-5.0+pcent*1.9167;
-			else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
-			else angle=314.0;
-			ow->airtorque4texture->setTextureRotate(Degree(-angle));
-		}
-
-		//starters
-		if (curr_truck->aeroengines[0]->getIgnition()) ow->engstarto1->setMaterialName("tracks/engstart-on"); else ow->engstarto1->setMaterialName("tracks/engstart-off");
-		if (ftp>1 && curr_truck->aeroengines[1]->getIgnition()) ow->engstarto2->setMaterialName("tracks/engstart-on"); else ow->engstarto2->setMaterialName("tracks/engstart-off");
-		if (ftp>2 && curr_truck->aeroengines[2]->getIgnition()) ow->engstarto3->setMaterialName("tracks/engstart-on"); else ow->engstarto3->setMaterialName("tracks/engstart-off");
-		if (ftp>3 && curr_truck->aeroengines[3]->getIgnition()) ow->engstarto4->setMaterialName("tracks/engstart-on"); else ow->engstarto4->setMaterialName("tracks/engstart-off");
-	} else if (curr_truck->driveable==BOAT)
-	{
-		//BOAT GUI
-		int fsp = curr_truck->free_screwprop;
-		//throttles
-		ow->bthro1->setTop(ow->thrtop+ow->thrheight*(0.5-curr_truck->screwprops[0]->getThrottle()/2.0)-1.0);
-		if (fsp>1)
-			ow->bthro2->setTop(ow->thrtop+ow->thrheight*(0.5-curr_truck->screwprops[1]->getThrottle()/2.0)-1.0);
-
-		//position
-		Vector3 dir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
-		dir.normalise();
-		//moveBoatMapDot(curr_truck->position.x/mapsizex, curr_truck->position.z/mapsizez);
-		//position
-
-		char tmp[50]="";
-		if (curr_truck->getLowestNode() != -1)
-		{
-			Vector3 pos = curr_truck->nodes[curr_truck->getLowestNode()].AbsPosition;
-			float height =  pos.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
-			if (height>0.1 && height < 99.9)
-			{
-				sprintf(tmp, "%2.1f", height);
-				ow->boat_depth_value_taoe->setCaption(tmp);
-			} else
-			{
-				ow->boat_depth_value_taoe->setCaption("--.-");
-			}
-		}
-
-		//waterspeed
-		float angle=0.0;
-		Vector3 hdir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
-		hdir.normalise();
-		float kt=hdir.dotProduct(curr_truck->nodes[curr_truck->cameranodepos[0]].Velocity)*1.9438;
-		angle=kt*4.2;
-		ow->boatspeedtexture->setTextureRotate(Degree(-angle));
-		ow->boatsteertexture->setTextureRotate(Degree(curr_truck->screwprops[0]->getRudder() * 170));
-	}
-}
-
 // Constructor takes a RenderWindow because it uses that to determine input context
 RoRFrameListener::RoRFrameListener(
 	AppState *parentState
@@ -3051,7 +2587,59 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 		updateIO(dt);
 
-		updateGUI(dt);
+		//// updateGUI(dt); (refactored into pieces)
+
+		if (ow != nullptr)
+		{
+
+#ifdef USE_MYGUI
+
+			Beam** vehicles  = BeamFactory::getSingleton().getTrucks();
+			int num_vehicles = BeamFactory::getSingleton().getTruckCount();
+
+			// Update survey map
+			if (gEnv->surveyMap != nullptr && gEnv->surveyMap->getVisibility())
+			{
+				gEnv->surveyMap->Update(vehicles, num_vehicles);
+			}
+
+#endif // USE_MYGUI
+
+			Beam* vehicle = BeamFactory::getSingleton().getCurrentTruck();
+			if (vehicle != nullptr)
+			{
+				//update the truck info gui (also if not displayed!)
+				ow->truckhud->update(dt, vehicle, mTruckInfoOn);
+
+#ifdef FEAT_TIMING
+				BES.updateGUI(dt);
+#endif // FEAT_TIMING
+
+#ifdef USE_MYGUI
+				// update mouse picking lines, etc
+				RoR::Application::GetSceneMouse()->update(dt);
+#endif //USE_MYGUI
+
+				if (pressure_pressed)
+				{
+					ow->UpdatePressureTexture(vehicle->getPressure());
+				}
+
+				if (raceStartTime > 0)
+				{
+					updateRacingGUI(); // TODO: Move to OverlayWrapper
+				}
+
+				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)
+				{
+					ow->UpdateLandVehicleHUD(vehicle, flipflop);
+				}
+				else if (vehicle->driveable == AIRPLANE)
+				{
+					ow->UpdateAerialHUD(vehicle);
+				}
+			}
+		}
 	}
 
 
