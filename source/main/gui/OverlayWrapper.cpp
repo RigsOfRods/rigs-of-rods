@@ -1,23 +1,30 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 6th of May 2010
+
+/** 
+	@file   OverlayWrapper.cpp
+	@author Thomas Fischer
+	@date   6th of May 2010
+*/
+
 #include "OverlayWrapper.h"
 
 #include "AeroEngine.h"
@@ -35,7 +42,6 @@ using namespace Ogre;
 
 OverlayWrapper::OverlayWrapper()
 {
-	setSingleton(this);
 	win = gEnv->renderWindow;
 	init();
 	mTimeUntilNextToggle=0;
@@ -71,18 +77,18 @@ Overlay *OverlayWrapper::loadOverlay(String name, bool autoResizeRation)
 
 	if (autoResizeRation)
 	{
-		struct loadedOverlay_t lo;
+		struct LoadedOverlay lo;
 		lo.o = o;
 		lo.orgScaleX = o->getScaleX();
 		lo.orgScaleY = o->getScaleY();
 
-		overlays.push_back(lo);
+		m_loaded_overlays.push_back(lo);
 		resizeOverlay(lo);
 	}
 	return o;
 }
 
-void OverlayWrapper::resizeOverlay(struct loadedOverlay_t lo)
+void OverlayWrapper::resizeOverlay(LoadedOverlay & lo)
 {
 	// enforce 4:3 for overlays
 	float w = win->getWidth();
@@ -104,7 +110,7 @@ void OverlayWrapper::resizeOverlay(struct loadedOverlay_t lo)
 
 void OverlayWrapper::windowResized()
 {
-	for (std::vector<struct loadedOverlay_t>::iterator it = overlays.begin(); it != overlays.end(); it++)
+	for (auto it = m_loaded_overlays.begin(); it != m_loaded_overlays.end(); it++)
 	{
 		resizeOverlay(*it);
 	}

@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Console.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
@@ -698,7 +699,7 @@ void Console::resized()
 	MyGUI::IntSize size = MyGUI::RenderManager::getInstance().getViewSize();
 	
 	// 15% of the window height is the overlay
-	OverlayWrapper *ow = OverlayWrapper::getSingletonPtr();
+	OverlayWrapper *ow = RoR::Application::GetOverlayWrapper();
 	if (ow) bottom_border = size.height - ow->getDashBoardHeight() + 20;
 
 	int height = size.height - bottom_border - top_border;

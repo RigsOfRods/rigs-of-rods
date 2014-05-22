@@ -683,7 +683,10 @@ void RoRFrameListener::updateGUI(float dt)
 }
 
 // Constructor takes a RenderWindow because it uses that to determine input context
-RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
+RoRFrameListener::RoRFrameListener(
+	AppState *parentState, 
+	String inputhwnd
+) :
 	clutch(0),
 	dashboard(0),
 	dof(0),
@@ -714,7 +717,7 @@ RoRFrameListener::RoRFrameListener(AppState *parentState, String inputhwnd) :
 	terrainUID("")
 {
 
-	ow = new OverlayWrapper();
+	ow = RoR::Application::GetOverlayWrapper();
 
 	enablePosStor = BSETTING("Position Storage", false);
 

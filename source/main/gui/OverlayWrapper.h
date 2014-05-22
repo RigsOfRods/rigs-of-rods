@@ -1,57 +1,58 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 6th of May 2010
-#ifndef __OverlayWrapper_H_
-#define __OverlayWrapper_H_
+
+/** 
+	@file   OverlayWrapper.h
+	@author Thomas Fischer
+	@date   6th of May 2010
+*/
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 
-#include "Singleton.h"
-
-#include "OgreTextAreaOverlayElement.h"
+#include <OgreTextAreaOverlayElement.h>
 #include <OIS.h>
 
-struct loadedOverlay_t
-{
-	float orgScaleX;
-	float orgScaleY;
-	Ogre::Overlay *o;
-};
-
-class OverlayWrapper : public RoRSingletonNoCreation<OverlayWrapper>, public ZeroedMemoryAllocator
+class OverlayWrapper : public ZeroedMemoryAllocator
 {
 	friend class RoRFrameListener;
+	friend class RoR::Application;
 
 public:
 
-	OverlayWrapper();
-	~OverlayWrapper();
+	struct LoadedOverlay
+	{
+		float orgScaleX;
+		float orgScaleY;
+		Ogre::Overlay *o;
+	};
 
-	// functions
 	void showDashboardOverlays(bool show, Beam *truck);
 	void showDebugOverlay(int mode);
 	void showPressureOverlay(bool show);
 	void showEditorOverlay(bool show);
 
 	void windowResized();
-	void resizeOverlay(struct loadedOverlay_t);
+	void resizeOverlay(LoadedOverlay & overlay);
 
 	int getDashBoardHeight();
 
@@ -61,6 +62,9 @@ public:
 	float mTimeUntilNextToggle;
 
 protected:
+
+	OverlayWrapper();
+	~OverlayWrapper();
 
 	int init();
 	void update(float dt);
@@ -178,7 +182,5 @@ protected:
 
 protected:
 
-	std::vector<struct loadedOverlay_t> overlays;
+	std::vector<LoadedOverlay> m_loaded_overlays;
 };
-
-#endif // __OverlayWrapper_H_
