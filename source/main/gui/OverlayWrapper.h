@@ -36,6 +36,7 @@ class OverlayWrapper : public ZeroedMemoryAllocator
 {
 	friend class RoRFrameListener;
 	friend class RoR::Application;
+	friend class RoR::MainThread;
 
 public:
 

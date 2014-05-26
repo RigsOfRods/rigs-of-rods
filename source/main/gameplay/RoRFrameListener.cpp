@@ -367,15 +367,7 @@ RoRFrameListener::RoRFrameListener(
 	if (!enableNetwork && cmdAction == "joinserver")
 		enableNetwork = true;
 
-	// preselected map or truck?
-	String preselected_map = SSETTING("Preselected Map", "");
-	String preselected_truck = SSETTING("Preselected Truck", "");
-	String preselected_truckConfig = SSETTING("Preselected TruckConfig", "");
-	bool enterTruck = (BSETTING("Enter Preselected Truck", false));
-
-	if (preselected_map != "") LOG("Preselected Map: " + (preselected_map));
-	if (preselected_truck != "") LOG("Preselected Truck: " + (preselected_truck));
-	if (preselected_truckConfig != "") LOG("Preselected Truck Config: " + (preselected_truckConfig));
+	String preselected_map;
 
 	//LOG("huette debug 1");
 
@@ -488,67 +480,7 @@ RoRFrameListener::RoRFrameListener(
 	// new beam factory
 	new BeamFactory();
 
-	// now continue to load everything...
-	if (!preselected_map.empty())
-	{
-		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
-		{
-			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn2", "");
-			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn", "");
-			preselected_map = preselected_map + ".terrn2";
-			// fallback to old terrain name with .terrn
-			if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
-			{
-				LOG("Terrain not found: " + preselected_map);
-				ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + preselected_map);
-				exit(123);
-			}
-		}
-
-		// set the terrain cache entry
-		CacheEntry ce = RoR::Application::GetCacheSystem()->getResourceInfo(preselected_map);
-		terrainUID = ce.uniqueid;
-
-		loadTerrain(preselected_map);
-
-		if (preselected_truck.empty())
-		{
-			if (!gEnv->terrainManager->hasPreloadedTrucks() && (!enableNetwork /*|| !terrainHasTruckShop*/))
-			{
-#ifdef USE_MYGUI
-				// show truck selector
-				if (gEnv->terrainManager->getWater())
-				{
-					hideMap();
-					SelectorWindow::getSingleton().show(SelectorWindow::LT_NetworkWithBoat);
-				} else
-				{
-					hideMap();
-					SelectorWindow::getSingleton().show(SelectorWindow::LT_Network);
-				}
-#endif // USE_MYGUI
-			} else
-			{
-				// init no trucks
-				initTrucks(false, preselected_map);
-			}
-		} else if (!preselected_truck.empty() && preselected_truck != "none")
-		{
-			// load preselected truck
-			const std::vector<String> truckConfig = std::vector<String>(1, preselected_truckConfig);
-			loading_state = TERRAIN_LOADED;
-			initTrucks(true, preselected_truck, "", &truckConfig, enterTruck);
-		}
-	} else
-	{
-#ifdef USE_MYGUI
-		// show terrain selector
-		hideMap();
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
-#endif // USE_MYGUI
-	}
-
-	initialized=true;
+	
 }
 
 RoRFrameListener::~RoRFrameListener()
@@ -1901,35 +1833,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 		if (SelectorWindow::getSingleton().isFinishedSelecting())
 		{
-			if (loading_state==NONE_LOADED)
-			{
-				CacheEntry *sel = SelectorWindow::getSingleton().getSelection();
-				Skin *skin = SelectorWindow::getSingleton().getSelectedSkin();
-				if (sel)
-				{
-					terrainUID = sel->uniqueid;
-					loadTerrain(sel->fname);
-
-					// no trucks loaded?
-					if (!gEnv->terrainManager->hasPreloadedTrucks())
-					{
-						// show truck selector
-						if (gEnv->terrainManager->getWater())
-						{
-							hideMap();
-							SelectorWindow::getSingleton().show(SelectorWindow::LT_NetworkWithBoat);
-						} else
-						{
-							hideMap();
-							SelectorWindow::getSingleton().show(SelectorWindow::LT_Network);
-						}
-					} else
-					{
-						// init no trucks
-						initTrucks(false, sel->fname, "", 0, false, skin);
-					}
-				}
-			} else if (loading_state==TERRAIN_LOADED)
+			if (loading_state==TERRAIN_LOADED)
 			{
 				CacheEntry *selection = SelectorWindow::getSingleton().getSelection();
 				Skin *skin = SelectorWindow::getSingleton().getSelectedSkin();
@@ -2103,7 +2007,7 @@ void RoRFrameListener::shutdown_final()
 
 	// RoRFrameListener::shutdown_final() is allways called by main thread.
 	// Therefore we need no syncing here.
-	m_main_thread_control->Shutdown();
+	m_main_thread_control->RequestShutdown();
 
 	shutdownall = true;
 }
@@ -2115,58 +2019,7 @@ void RoRFrameListener::hideMap()
 #endif //USE_MYGUI
 }
 
-void RoRFrameListener::loadTerrain(String terrainfile)
-{
-	ScopeLog log("terrain_"+terrainfile);
 
-	// check if the resource is loaded
-	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(terrainfile))
-	{
-		// fallback for terrains, add .terrn if not found and retry
-		terrainfile = Ogre::StringUtil::replaceAll(terrainfile, ".terrn2", "");
-		terrainfile = Ogre::StringUtil::replaceAll(terrainfile, ".terrn", "");
-		terrainfile = terrainfile + ".terrn2";
-		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(terrainfile))
-		{
-			LOG("Terrain not found: " + terrainfile);
-			ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + terrainfile);
-			exit(123);
-		}
-	}
-
-#ifdef USE_MYGUI
-	LoadingWindow::getSingleton().setProgress(0, _L("Loading Terrain"));
-#endif //USE_MYGUI
-
-	LOG("Loading new terrain format: " + terrainfile);
-
-	if (gEnv->terrainManager)
-	{
-		// remove old terrain
-		delete(gEnv->terrainManager);
-	}
-
-	gEnv->terrainManager = new TerrainManager();
-	gEnv->terrainManager->loadTerrain(terrainfile);
-
-	loading_state=TERRAIN_LOADED;
-	
-	if (gEnv->player)
-	{
-		gEnv->player->setVisible(true);
-		gEnv->player->setPosition(gEnv->terrainManager->getSpawnPos());
-	}
-
-#ifdef USE_MYGUI
-
-	// hide loading window
-	LoadingWindow::getSingleton().hide();
-	// hide wallpaper
-	MyGUI::Window *w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
-	if (w) w->setVisibleSmooth(false);
-
-#endif //USE_MYGUI
-}
 
 void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::String selectedExtension /* = "" */, const std::vector<Ogre::String> *truckconfig /* = 0 */, bool enterTruck /* = false */, Skin *skin /* = NULL */)
 {

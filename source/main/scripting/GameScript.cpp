@@ -45,6 +45,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Console.h"
 #include "IHeightFinder.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
@@ -89,7 +90,7 @@ void GameScript::setPersonPosition(const Vector3 &vec)
 
 void GameScript::loadTerrain(const String &terrain)
 {
-	if (gEnv->frameListener) gEnv->frameListener->loadTerrain(terrain);
+	if (gEnv->frameListener) gEnv->main_thread_control->LoadTerrain(terrain);
 }
 
 Vector3 GameScript::getPersonPosition()
