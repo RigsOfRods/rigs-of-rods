@@ -37,6 +37,7 @@ namespace RoR
 
 class MainThread
 {
+	friend class GameScript; // Needs LoadTerrain()
 
 public:
 
@@ -46,18 +47,30 @@ public:
 
 	void Exit();
 
-	void Shutdown();
+	void RequestShutdown();
 
-	void ShutdownSynced();
+	void RequestExitCurrentLoop();
 
 protected:
 
-	void EnterMainLoop();
+	void EnterMenuLoop();
+
+	void MenuLoopUpdate(float seconds_since_last_frame);
+
+	void MenuLoopUpdateEvents(float seconds_since_last_frame);
+
+	void EnterGameplayLoop();
+
+	void LoadTerrain(Ogre::String const & terrain_file);
+
+	void ShowSurveyMap(bool hide);
 
 	bool               m_no_rendering;
-	bool               m_shutdown;
+	bool               m_exit_loop_requested;
+	bool               m_shutdown_requested;
 	pthread_mutex_t    m_lock;
 	RoRFrameListener*  m_ror_frame_listener;
+	unsigned long      m_start_time;
 };
 
 } // namespace RoR

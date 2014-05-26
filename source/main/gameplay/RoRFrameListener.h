@@ -28,6 +28,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
+	friend class RoR::MainThread; // Temporary hack
+
 public:
 	// Constructor takes a RenderWindow because it uses that to determine input context
 	RoRFrameListener(RoR::MainThread * main_thread_control);
@@ -141,8 +143,6 @@ public: // public methods
 	void hideGUI(bool visible);
 	void hideMap();
 	void initTrucks(bool loadmanual, Ogre::String selected, Ogre::String selectedExtension = "", const std::vector<Ogre::String> *truckconfig = 0, bool enterTruck = false, Skin *skin = NULL);
-	
-	void loadTerrain(Ogre::String terrainfile);
 
 	void checkSpeedlimit(Beam* curr_truck, float dt);
 	void netDisconnectTruck(int number);
