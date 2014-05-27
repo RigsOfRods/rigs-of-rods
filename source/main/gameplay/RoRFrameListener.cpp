@@ -54,6 +54,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "IWater.h"
+#include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MainThread.h"
 #include "MeshObject.h"
@@ -200,101 +201,6 @@ RoRFrameListener::~RoRFrameListener()
 }
 
 
-
-void RoRFrameListener::updateCruiseControl(Beam* curr_truck, float dt)
-{
-	if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f ||
-		RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f ||
-		(curr_truck->cc_target_speed < curr_truck->cc_target_speed_lower_limit) ||
-		(curr_truck->parkingbrake && curr_truck->engine->getGear() > 0) ||
-		!curr_truck->engine->isRunning() ||
-		!curr_truck->engine->hasContact())
-	{
-		curr_truck->cruisecontrolToggle();
-		return;
-	}
-
-	if (curr_truck->engine->getGear() > 0)
-	{
-		// Try to maintain the target speed
-		if (curr_truck->cc_target_speed > curr_truck->WheelSpeed)
-		{
-			float accl = (curr_truck->cc_target_speed - curr_truck->WheelSpeed) * 2.0f;
-			accl = std::max(curr_truck->engine->getAcc(), accl);
-			accl = std::min(accl, 1.0f);
-			curr_truck->engine->setAcc(accl);
-		}
-	} else if (curr_truck->engine->getGear() == 0) // out of gear
-	{
-		// Try to maintain the target rpm
-		if (curr_truck->cc_target_rpm > curr_truck->engine->getRPM())
-		{
-			float accl = (curr_truck->cc_target_rpm - curr_truck->engine->getRPM()) * 0.01f;
-			accl = std::max(curr_truck->engine->getAcc(), accl);
-			accl = std::min(accl, 1.0f);
-			curr_truck->engine->setAcc(accl);
-		}
-	}
-
-	if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_ACCL))
-	{
-		if (curr_truck->engine->getGear() > 0)
-		{
-			curr_truck->cc_target_speed += 2.5f * dt;
-			curr_truck->cc_target_speed  = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
-			if (curr_truck->sl_enabled)
-			{
-				curr_truck->cc_target_speed  = std::min(curr_truck->cc_target_speed, curr_truck->sl_speed_limit);
-			}
-		} else if (curr_truck->engine->getGear() == 0) // out of gear
-		{
-			curr_truck->cc_target_rpm += 1000.0f * dt;
-			curr_truck->cc_target_rpm  = std::min(curr_truck->cc_target_rpm, curr_truck->engine->getMaxRPM());
-		}
-	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_DECL))
-	{
-		if (curr_truck->engine->getGear() > 0)
-		{
-			curr_truck->cc_target_speed -= 2.5f * dt;
-			curr_truck->cc_target_speed  = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
-		} else if (curr_truck->engine->getGear() == 0) // out of gear
-		{
-			curr_truck->cc_target_rpm -= 1000.0f * dt;
-			curr_truck->cc_target_rpm  = std::max(curr_truck->engine->getMinRPM(), curr_truck->cc_target_rpm);
-		}
-	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
-	{
-		curr_truck->cc_target_speed = std::max(curr_truck->WheelSpeed, curr_truck->cc_target_speed);
-		if (curr_truck->sl_enabled)
-		{
-			curr_truck->cc_target_speed = std::min(curr_truck->cc_target_speed, curr_truck->sl_speed_limit);
-		}
-		curr_truck->cc_target_rpm   = curr_truck->engine->getRPM();
-	}
-
-	if (curr_truck->cc_can_brake)
-	{
-		if (curr_truck->WheelSpeed > curr_truck->cc_target_speed + 0.5f && !RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
-		{
-			float brake = (curr_truck->WheelSpeed - curr_truck->cc_target_speed) * 0.5f;
-			brake = std::min(brake, 1.0f);
-			curr_truck->brake = curr_truck->brakeforce * brake;
-		}
-	}
-}
-
-void RoRFrameListener::checkSpeedlimit(Beam* curr_truck, float dt)
-{
-	if (curr_truck->sl_enabled && curr_truck->engine->getGear() != 0)
-	{
-		float accl = (curr_truck->sl_speed_limit - std::abs(curr_truck->WheelSpeed)) * 2.0f;
-		accl = std::max(0.0f, accl);
-		accl = std::min(accl, curr_truck->engine->getAcc());
-		curr_truck->engine->setAcc(accl);
-	}
-}
 
 bool RoRFrameListener::updateEvents(float dt)
 {
@@ -1046,10 +952,9 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 					if (curr_truck->cc_mode)
 					{
-
-						updateCruiseControl(curr_truck, dt);
+						LandVehicleSimulation::UpdateCruiseControl(curr_truck, dt);
 					}
-					checkSpeedlimit(curr_truck, dt);
+					LandVehicleSimulation::CheckSpeedLimit(curr_truck, dt);
 				}
 				if (curr_truck->driveable==AIRPLANE)
 				{

@@ -124,7 +124,6 @@ public: // public methods
 	void hideMap();
 	void initTrucks(bool loadmanual, Ogre::String selected, Ogre::String selectedExtension = "", const std::vector<Ogre::String> *truckconfig = 0, bool enterTruck = false, Skin *skin = NULL);
 
-	void checkSpeedlimit(Beam* curr_truck, float dt);
 	void netDisconnectTruck(int number);
 	void pauseSim(bool value);
 	void reloadCurrentTruck();
@@ -136,7 +135,6 @@ public: // public methods
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void showspray(bool s);
 	void shutdown_final();
-	void updateCruiseControl(Beam* curr_truck, float dt);
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 };
 
