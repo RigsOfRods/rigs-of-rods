@@ -77,7 +77,6 @@ using namespace Ogre; // The _L() macro won't compile without.
 MainThread::MainThread():
 	m_no_rendering(false),
 	m_shutdown_requested(false),
-	m_ror_frame_listener(nullptr),
 	m_start_time(0),
 	m_race_start_time(0),
 	m_race_in_progress(false),
@@ -230,10 +229,9 @@ void MainThread::Go()
 	// --------------------------------------------------------------------------------
 	// Create legacy RoRFrameListener
 
-	m_ror_frame_listener = new RoRFrameListener(this);
-	gEnv->frameListener = m_ror_frame_listener;
-	ScriptEngine::getSingleton().SetFrameListener(m_ror_frame_listener);
-	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(m_ror_frame_listener);
+	gEnv->frameListener = new RoRFrameListener(this);
+	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
 	// --------------------------------------------------------------------------------
 	// Ported from legacy RoRFrameListener
@@ -386,7 +384,7 @@ void MainThread::Go()
 		// important note: all new network code is written in order to allow also the old network protocol to further exist.
 		// at some point you need to decide with what type of server you communicate below and choose the correct class
 
-		gEnv->network = new Network(server_name, server_port, m_ror_frame_listener);
+		gEnv->network = new Network(server_name, server_port, gEnv->frameListener);
 
 		bool connres = gEnv->network->connect();
 #ifdef USE_MYGUI
@@ -422,14 +420,14 @@ void MainThread::Go()
 		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
 
 		// network chat stuff
-		m_ror_frame_listener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
+		gEnv->frameListener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
 #ifdef USE_MYGUI
 		Console *c = RoR::Application::GetConsole();
 		if (c)
 		{
 			c->setVisible(true);
-			c->setNetChat(m_ror_frame_listener->netChat);
+			c->setNetChat(gEnv->frameListener->netChat);
 			wchar_t tmp[255] = L"";
 			UTFString format = _L("Press %ls to start chatting");
 			swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
@@ -452,11 +450,11 @@ void MainThread::Go()
 	// depth of field effect
 	if (BSETTING("DOF", false))
 	{
-		m_ror_frame_listener->dof = new DOFManager();
+		gEnv->frameListener->dof = new DOFManager();
 	}
 
 	// init camera manager after mygui and after we have a character
-	new CameraManager(RoR::Application::GetOverlayWrapper(), m_ror_frame_listener->dof);
+	new CameraManager(RoR::Application::GetOverlayWrapper(), gEnv->frameListener->dof);
 
 	if (gEnv->player)
 	{
@@ -544,13 +542,13 @@ void MainThread::Go()
 
 				// load preselected truck
 				const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truckConfig);
-				m_ror_frame_listener->loading_state = TERRAIN_LOADED;
-				m_ror_frame_listener->initTrucks(true, preselected_truck, "", &truckConfig, enterTruck);
+				gEnv->frameListener->loading_state = TERRAIN_LOADED;
+				gEnv->frameListener->initTrucks(true, preselected_truck, "", &truckConfig, enterTruck);
 			}
 			else if (gEnv->terrainManager->hasPreloadedTrucks())
 			{
 				Skin* selected_skin = SelectorWindow::getSingleton().getSelectedSkin();
-				m_ror_frame_listener->initTrucks(false, map_file_name, "", 0, false, selected_skin);
+				gEnv->frameListener->initTrucks(false, map_file_name, "", 0, false, selected_skin);
 			}
 			else
 			{
@@ -573,7 +571,7 @@ void MainThread::Go()
 			// Game loop
 			// ========================================================================
 
-			m_ror_frame_listener->initialized=true;
+			gEnv->frameListener->initialized=true;
 
 			EnterGameplayLoop();
 		}	
@@ -755,9 +753,9 @@ void MainThread::EnterGameplayLoop()
 
 void MainThread::Exit()
 {
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(m_ror_frame_listener);
-	delete m_ror_frame_listener;
-	m_ror_frame_listener = nullptr;
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
+	delete gEnv->frameListener;
+	gEnv->frameListener = nullptr;
 }
 
 void MainThread::RequestShutdown()
@@ -799,8 +797,8 @@ void MainThread::MenuLoopUpdate(float seconds_since_last_frame)
 	// update network gui if required, at most every 2 seconds
 	if (gEnv->network)
 	{
-		m_ror_frame_listener->netcheckGUITimer += seconds_since_last_frame;
-		if (m_ror_frame_listener->netcheckGUITimer > 2)
+		gEnv->frameListener->netcheckGUITimer += seconds_since_last_frame;
+		if (gEnv->frameListener->netcheckGUITimer > 2)
 		{
 			//// RoRFrameListener::checkRemoteStreamResultsChanged()
 
@@ -812,7 +810,7 @@ void MainThread::MenuLoopUpdate(float seconds_since_last_frame)
 			}
 #endif // USE_SOCKETW
 #endif // USE_MYGUI
-			m_ror_frame_listener->netcheckGUITimer=0;
+			gEnv->frameListener->netcheckGUITimer=0;
 		}
 
 #ifdef USE_SOCKETW
@@ -870,7 +868,7 @@ void MainThread::MenuLoopUpdateEvents(float seconds_since_last_frame)
 	}
 
 #ifdef USE_MYGUI
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_ror_frame_listener->hidegui)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !gEnv->frameListener->hidegui)
 	{
 		Console *c = RoR::Application::GetConsole();
 		if (c)
@@ -938,7 +936,7 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 	gEnv->terrainManager = new TerrainManager();
 	gEnv->terrainManager->loadTerrain(terrain_file);
 
-	m_ror_frame_listener->loading_state=TERRAIN_LOADED;
+	gEnv->frameListener->loading_state=TERRAIN_LOADED;
 	
 	if (gEnv->player != nullptr)
 	{

@@ -80,7 +80,6 @@ protected:
 	bool               m_exit_loop_requested;
 	bool               m_shutdown_requested;
 	pthread_mutex_t    m_lock;
-	RoRFrameListener*  m_ror_frame_listener;
 	unsigned long      m_start_time;
 	unsigned long      m_race_start_time;
 	bool               m_race_in_progress;
