@@ -996,74 +996,74 @@ DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
 
 DEFINE_REGEX( SECTION_ENGINE,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_REAL_NUMBER ) /* Min RPM */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Max RPM */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Torque */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Differential */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Reverse */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Neutral */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #7 1st gear */
+	E_CAPTURE( E_REAL_NUMBER ) /* #1 Min RPM */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #3 Max RPM */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #5 Torque */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #7 Differential */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #9 Reverse */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #11 Neutral */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #13 1st gear */
 	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_REAL_NUMBER ) /* #9 2nd gear ... */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_REAL_NUMBER ) /* #16 2nd gear ... */
 
 		E_CAPTURE_OPTIONAL( 
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER )
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER ) /* #19 */
 
 			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_REAL_NUMBER )
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_REAL_NUMBER ) /* #22*/
 
 				E_CAPTURE_OPTIONAL( 
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_REAL_NUMBER ) /* #15 */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_REAL_NUMBER ) /* #25 */
 
 					E_CAPTURE_OPTIONAL( 
-						E_DELIMITER_COMMA
-						E_CAPTURE( E_REAL_NUMBER )
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_REAL_NUMBER ) /* #28 */
 
 						E_CAPTURE_OPTIONAL( 
-							E_DELIMITER_COMMA
-							E_CAPTURE( E_REAL_NUMBER )
+							E_CAPTURE( E_DELIMITER )
+							E_CAPTURE( E_REAL_NUMBER ) /* #31 */
 
 							E_CAPTURE_OPTIONAL( 
-								E_DELIMITER_COMMA
-								E_CAPTURE( E_REAL_NUMBER )
+								E_CAPTURE( E_DELIMITER )
+								E_CAPTURE( E_REAL_NUMBER ) /* #34 */
 
 								E_CAPTURE_OPTIONAL( 
-									E_DELIMITER_COMMA
-									E_CAPTURE( E_REAL_NUMBER )
+									E_CAPTURE( E_DELIMITER )
+									E_CAPTURE( E_REAL_NUMBER ) /* #37 */
 
 									E_CAPTURE_OPTIONAL( 
-										E_DELIMITER_COMMA
-										E_CAPTURE( E_REAL_NUMBER ) /* #25 */
+										E_CAPTURE( E_DELIMITER )
+										E_CAPTURE( E_REAL_NUMBER ) /* #40 */
 
 										E_CAPTURE_OPTIONAL( 
-											E_DELIMITER_COMMA
-											E_CAPTURE( E_REAL_NUMBER )
+											E_CAPTURE( E_DELIMITER )
+											E_CAPTURE( E_REAL_NUMBER ) /* #43 */
 
 											E_CAPTURE_OPTIONAL( 
-												E_DELIMITER_COMMA
-												E_CAPTURE( E_REAL_NUMBER )
+												E_CAPTURE( E_DELIMITER )
+												E_CAPTURE( E_REAL_NUMBER ) /* #46 */
 
 												E_CAPTURE_OPTIONAL( 
-													E_DELIMITER_COMMA
-													E_CAPTURE( E_REAL_NUMBER )
+													E_CAPTURE( E_DELIMITER )
+													E_CAPTURE( E_REAL_NUMBER ) /* #49 */
 
 													E_CAPTURE_OPTIONAL( 
-														E_DELIMITER_COMMA
-														E_CAPTURE( E_REAL_NUMBER )
+														E_CAPTURE( E_DELIMITER )
+														E_CAPTURE( E_REAL_NUMBER ) /* #52 */
 
 														E_CAPTURE_OPTIONAL( 
-															E_DELIMITER_COMMA
-															E_CAPTURE( E_REAL_NUMBER ) /* #35 15th gear, max */
+															E_CAPTURE( E_DELIMITER )
+															E_CAPTURE( E_REAL_NUMBER ) /* #55 15th gear, max */
 														)
 													)
 												)
@@ -1078,10 +1078,11 @@ DEFINE_REGEX( SECTION_ENGINE,
 			)
 		)
 	) 
-	E_CAPTURE_OPTIONAL( /* #36 Terminator (optional for backwards compatibility) */
-		E_DELIMITER_COMMA
+	E_CAPTURE_OPTIONAL( /* #56 Terminator (optional for backwards compatibility) */
+		E_CAPTURE( E_DELIMITER )
 		E_MINUS_ONE_REAL 
 	) 
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #57 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 
