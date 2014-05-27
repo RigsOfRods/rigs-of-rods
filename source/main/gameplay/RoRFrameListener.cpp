@@ -219,7 +219,6 @@ RoRFrameListener::RoRFrameListener(
 	heathaze(0),
 	hidegui(false),
 	initialized(false),
-	joyshiftlock(0),
 	loading_state(NONE_LOADED),
 	mStatsOn(0),
 	mTimeUntilNextToggle(0),
@@ -227,16 +226,13 @@ RoRFrameListener::RoRFrameListener(
 	netChat(0),
 	netPointToUID(-1),
 	netcheckGUITimer(0),
-	objectCounter(0),
 	ow(0),
 	m_main_thread_control(main_thread_control),
 	persostart(Vector3(0,0,0)),
 	pressure_pressed(false),
 	raceStartTime(-1),
 	reload_box(0),
-	rtime(0),
-	shaderSchemeMode(1),
-	terrainUID("")
+	rtime(0)
 {
 
 	ow = RoR::Application::GetOverlayWrapper();
@@ -248,17 +244,12 @@ RoRFrameListener::RoRFrameListener(
 	if (mplatform) mplatform->connect();
 #endif
 
-	gameStartTime = getTimeStamp();
-
 	//network
 	bool enableNetwork = BSETTING("Network enable", false);
 
 	// setup direction arrow overlay
 	dirvisible = false;
 	dirArrowPointed = Vector3::ZERO;
-
-	screenWidth=gEnv->renderWindow->getWidth();
-	screenHeight=gEnv->renderWindow->getHeight();
 
 	windowResized(gEnv->renderWindow);
 	RoRWindowEventUtilities::addWindowEventListener(gEnv->renderWindow, this);
@@ -2616,8 +2607,6 @@ void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
 	unsigned int width, height, depth;
 	int left, top;
 	rw->getMetrics(width, height, depth, left, top);
-	screenWidth = width;
-	screenHeight = height;
 
 	if (ow) ow->windowResized();
 	if (gEnv->surveyMap) gEnv->surveyMap->windowResized();
