@@ -2210,7 +2210,7 @@ int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_
 	else
 	{
 		std::stringstream msg;
-		msg << "Node named '" << node_id.Str() < "' doesn't exist (searched in definition and generated nodes).";
+		msg << "Node named '" << node_id.Str() << "' doesn't exist (searched in definition and generated nodes).";
 		AddMessage(Message::TYPE_ERROR, msg.str());
 		return -1;
 	}
