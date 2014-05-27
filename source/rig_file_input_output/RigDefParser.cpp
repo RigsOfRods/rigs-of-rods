@@ -2122,11 +2122,6 @@ void Parser::ParseGuid(Ogre::String const & line)
 
 void Parser::ParseGlobals(Ogre::String const & line)
 {
-	if (m_current_module->globals != nullptr)
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'globals' in one module, using the first one defined...");
-	}
-
 	boost::smatch results;
 	const boost::regex & regex = Regexes::SECTION_GLOBALS;
 	if (! boost::regex_search(line, results, Regexes::SECTION_GLOBALS))
@@ -2134,6 +2129,13 @@ void Parser::ParseGlobals(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
+
+	if (m_current_module->globals != nullptr)
+	{
+		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'globals' in one module, using the first one found.");
+		return;
+	}
+
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Globals globals;
