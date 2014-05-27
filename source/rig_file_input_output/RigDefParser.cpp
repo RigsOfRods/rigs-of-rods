@@ -4899,13 +4899,13 @@ void Parser::ParseHydros(Ogre::String const & line)
 	hydro.detacher_group     = m_current_detacher_group;
 	hydro.beam_defaults      = m_user_beam_defaults;
 	hydro.nodes[0]           = _ParseNodeId(results[1]);
-	hydro.nodes[1]           = _ParseNodeId(results[2]);
-	hydro.lenghtening_factor = STR_PARSE_REAL(results[3]);
+	hydro.nodes[1]           = _ParseNodeId(results[3]);
+	hydro.lenghtening_factor = STR_PARSE_REAL(results[5]);
 
 	/* Flags */
-	if (results[5].matched)
+	if (results[8].matched)
 	{
-		std::string const & flags_str = results[5];
+		std::string const & flags_str = results[8];
 		for (unsigned int i = 0; i < flags_str.length(); i++)
 		{
 			switch (flags_str.at(i))
@@ -4950,7 +4950,7 @@ void Parser::ParseHydros(Ogre::String const & line)
 	}
 
 	/* Inertia part */
-	_ParseOptionalInertia(hydro.inertia, results, 6);
+	_ParseOptionalInertia(hydro.inertia, results, 11);
 
 	m_current_module->hydros.push_back(hydro);
 }
