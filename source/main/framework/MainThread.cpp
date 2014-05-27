@@ -39,11 +39,13 @@
 #include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
+#include "ForceFeedback.h"
 #include "GlobalEnvironment.h"
 #include "GUIFriction.h"
 #include "GUIManager.h"
 #include "GUIMenu.h"
 #include "GUIMp.h"
+#include "Heathaze.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "LoadingWindow.h"
@@ -233,6 +235,71 @@ void MainThread::Go()
 
 	// --------------------------------------------------------------------------------
 	// Ported from legacy RoRFrameListener
+
+	gEnv->frameListener->ow = RoR::Application::GetOverlayWrapper();
+
+	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
+
+#ifdef USE_MPLATFORM
+	gEnv->frameListener->mplatform = new MPlatform_FD();
+	if (gEnv->frameListener->mplatform) 
+	{
+		mplatform->connect();
+	}
+#endif
+
+	// setup direction arrow overlay
+	gEnv->frameListener->dirvisible = false;
+	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
+
+	gEnv->frameListener->windowResized(gEnv->renderWindow);
+	RoRWindowEventUtilities::addWindowEventListener(gEnv->renderWindow, gEnv->frameListener);
+
+	// get lights mode
+	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
+	if (lightsMode == "None (fastest)")
+		gEnv->frameListener->flaresMode = 0;
+	else if (lightsMode == "No light sources")
+		gEnv->frameListener->flaresMode = 1;
+	else if (lightsMode == "Only current vehicle, main lights")
+		gEnv->frameListener->flaresMode = 2;
+	else if (lightsMode == "All vehicles, main lights")
+		gEnv->frameListener->flaresMode = 3;
+	else if (lightsMode == "All vehicles, all lights")
+		gEnv->frameListener->flaresMode = 4;
+
+	// heathaze effect
+	if (BSETTING("HeatHaze", false))
+	{
+		gEnv->frameListener->heathaze = new HeatHaze();
+		gEnv->frameListener->heathaze->setEnable(true);
+	}
+
+
+
+	// force feedback
+	if (BSETTING("Force Feedback", true))
+	{
+		//check if a device has been detected
+		if (RoR::Application::GetInputEngine()->getForceFeedbackDevice())
+		{
+			//retrieve gain values
+			float ogain   = FSETTING("Force Feedback Gain",      100) / 100.0f;
+			float stressg = FSETTING("Force Feedback Stress",    100) / 100.0f;
+			float centg   = FSETTING("Force Feedback Centering", 0  ) / 100.0f;
+			float camg    = FSETTING("Force Feedback Camera",    100) / 100.0f;
+
+			gEnv->frameListener->forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
+		}
+	}
+
+	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
+	if     (screenshotFormatString == "jpg (smaller, default)")
+		strcpy(gEnv->frameListener->screenshotformat, "jpg");
+	else if (screenshotFormatString =="png (bigger, no quality loss)")
+		strcpy(gEnv->frameListener->screenshotformat, "png");
+	else
+		strncpy(gEnv->frameListener->screenshotformat, screenshotFormatString.c_str(), 10);
 
 	// check command line args
 	String cmd = SSETTING("cmdline CMD", "");
@@ -514,10 +581,39 @@ void MainThread::Go()
 	// Cleanup
 	// ================================================================================
 
+#ifdef USE_MYGUI
+	LoadingWindow::freeSingleton();
+	SelectorWindow::freeSingleton();
+#endif //MYGUI
+
+#ifdef USE_SOCKETW
+	if (gEnv->network) delete (gEnv->network);
+#endif //SOCKETW
+
+	//TODO: we should destroy OIS here
+	//TODO: we could also try to destroy SoundScriptManager, but we don't care!
+
+#ifdef USE_MPLATFORM
+	if (gEnv->frameListener->mplatform != nullptr)
+	{
+		if (gEnv->frameListener->mplatform->disconnect())
+		{
+			delete(gEnv->frameListener->mplatform);
+			gEnv->frameListener->mplatform = nullptr;
+		}
+	}
+#endif
+
 	scene_manager->destroyCamera(camera);
     RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
 	Application::DestroyContentManager();
+
+	delete gEnv->frameListener;
+	gEnv->frameListener = nullptr;
+
+	delete gEnv;
+	gEnv = nullptr;
 }
 
 void MainThread::EnterMenuLoop()
