@@ -58,16 +58,11 @@ protected:
 	HeatHaze *heathaze;
 
 	Ogre::Quaternion reload_dir;
-	Ogre::Real distgrabbed;
 	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
-	Ogre::SceneNode *pointerDestination;
-	Ogre::String terrainUID;
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
 
 	OverlayWrapper *ow;
-	bool benchmarking;
-	bool chatlock;
 	bool dirvisible;
 	bool enablePosStor;
 	bool flipflop;
@@ -77,33 +72,19 @@ protected:
 	bool pressure_pressed;
 
 	char screenshotformat[256];
-	char terrainmap[1024];
 	
 	collision_box_t *reload_box;
 	double rtime;
 
 	float clutch;
-	float mouseGrabForce;
 	float terrainxsize;
 	float terrainzsize;
 	//float truckx, trucky, truckz;
 
 	int flaresMode;
-	int gameStartTime;
-	int inputGrabMode;
-	int joyshiftlock;
 	int mStatsOn;
-	int mouseGrabState;
 	int netPointToUID;
-	int nodegrabbed;
-	int objectCounter;
 	int raceStartTime;
-	int screenHeight;
-	int screenWidth;
-	int shaderSchemeMode;
-	int truckgrabbed;
-	
-
 
 	unsigned int mNumScreenShots;
 	

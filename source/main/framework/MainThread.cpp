@@ -262,7 +262,6 @@ void MainThread::Go()
 			CacheEntry* selected_map = SelectorWindow::getSingleton().getSelection();
 			if (selected_map != nullptr)
 			{
-				m_ror_frame_listener->terrainUID = selected_map->uniqueid;
 				map_file_name = selected_map->fname;
 			}
 		}
@@ -283,7 +282,6 @@ void MainThread::Go()
 			}
 			// set the terrain cache entry
 			CacheEntry ce = RoR::Application::GetCacheSystem()->getResourceInfo(preselected_map);
-			m_ror_frame_listener->terrainUID = ce.uniqueid;
 			map_file_name = preselected_map;
 		}
 		
