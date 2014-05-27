@@ -30,10 +30,13 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "CacheSystem.h"
+#include "CameraManager.h"
 #include "Character.h"
 #include "CharacterFactory.h"
+#include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
 #include "GlobalEnvironment.h"
@@ -49,6 +52,7 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
+#include "PlayerColours.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "SelectorWindow.h"
@@ -220,18 +224,183 @@ void MainThread::Go()
 	RoR::Application::GetCacheSystem()->startup();
 
 	// --------------------------------------------------------------------------------
-	// Continue with legacy GameState + RoRFrameListener
+	// Create legacy RoRFrameListener
 
 	m_ror_frame_listener = new RoRFrameListener(this);
 	gEnv->frameListener = m_ror_frame_listener;
 	ScriptEngine::getSingleton().SetFrameListener(m_ror_frame_listener);
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(m_ror_frame_listener);
 
+	// --------------------------------------------------------------------------------
+	// Ported from legacy RoRFrameListener
+
+	// check command line args
+	String cmd = SSETTING("cmdline CMD", "");
+	String cmdAction = "";
+	String cmdServerIP = "";
+	String modName = "";
+	long cmdServerPort = 0;
+	Vector3 spawnLocation = Vector3::ZERO;
+	if (!cmd.empty())
+	{
+		StringVector str = StringUtil::split(cmd, "/");
+		// process args now
+		for (StringVector::iterator it = str.begin(); it!=str.end(); it++)
+		{
+
+			String argstr = *it;
+			StringVector args = StringUtil::split(argstr, ":");
+			if (args.size()<2) continue;
+			if (args[0] == "action" && args.size() == 2) cmdAction = args[1];
+			if (args[0] == "serverpass" && args.size() == 2) SETTINGS.setSetting("Server password", args[1]);
+			if (args[0] == "modname" && args.size() == 2) modName = args[1];
+			if (args[0] == "ipport" && args.size() == 3)
+			{
+				cmdServerIP = args[1];
+				cmdServerPort = StringConverter::parseLong(args[2]);
+			}
+			if (args[0] == "loc" && args.size() == 4)
+			{
+				spawnLocation = Vector3(StringConverter::parseInt(args[1]), StringConverter::parseInt(args[2]), StringConverter::parseInt(args[3]));
+				SETTINGS.setSetting("net spawn location", TOSTRING(spawnLocation));
+			}
+		}
+	}
+
+	if (cmdAction == "regencache") SETTINGS.setSetting("regen-cache-only", "Yes");
+	if (cmdAction == "installmod")
+	{
+		// use modname!
+	}
+	bool enable_network = BSETTING("Network enable", false);
+	// check if we enable netmode based on cmdline
+	if (!enable_network && cmdAction == "joinserver")
+		enable_network = true;
+
+	String preselected_map = SSETTING("Preselected Map", "");
+
+	// initiate player colours
+	PlayerColours::getSingleton();
+
+	// you always need that, even if you are not using the network
+	NetworkStreamManager::getSingleton();
+
+	// new factory for characters, net is INVALID, will be set later
+	new CharacterFactory();
+	new ChatSystemFactory();
+
+	// notice: all factories must be available before starting the network!
+#ifdef USE_SOCKETW
+	
+	if (enable_network)
+	{
+		// cmdline overrides config
+		std::string server_name = SSETTING("Server name", "").c_str();
+		if (cmdAction == "joinserver" && !cmdServerIP.empty())
+			server_name = cmdServerIP;
+
+		long server_port = ISETTING("Server port", 1337);
+		if (cmdAction == "joinserver" && cmdServerPort)
+			server_port = cmdServerPort;
+
+		if (server_port==0)
+		{
+			ErrorUtils::ShowError(_L("A network error occured"), _L("Bad server port"));
+			exit(123);
+			return;
+		}
+		LOG("trying to join server '" + String(server_name) + "' on port " + TOSTRING(server_port) + "'...");
+
+#ifdef USE_MYGUI
+		LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
+#endif // USE_MYGUI
+		// important note: all new network code is written in order to allow also the old network protocol to further exist.
+		// at some point you need to decide with what type of server you communicate below and choose the correct class
+
+		gEnv->network = new Network(server_name, server_port, m_ror_frame_listener);
+
+		bool connres = gEnv->network->connect();
+#ifdef USE_MYGUI
+		LoadingWindow::getSingleton().hide();
+
+#ifdef USE_SOCKETW
+		new GUI_Multiplayer();
+		GUI_Multiplayer::getSingleton().update();
+#endif //USE_SOCKETW
+
+#endif //USE_MYGUI
+		if (!connres)
+		{
+			LOG("connection failed. server down?");
+			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It is certainly down or you have network problems."));
+			//fatal
+			exit(1);
+		}
+		char *terrn = gEnv->network->getTerrainName();
+		bool isAnyTerrain = (terrn && !strcmp(terrn, "any"));
+		if (preselected_map.empty() && isAnyTerrain)
+		{
+			// so show the terrain selection
+			preselected_map = "";
+		} else if (!isAnyTerrain)
+		{
+			preselected_map = getASCIIFromCharString(terrn, 255);
+		}
+
+		// create player _AFTER_ network, important
+		int colourNum = 0;
+		if (gEnv->network->getLocalUserData()) colourNum = gEnv->network->getLocalUserData()->colournum;
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+
+		// network chat stuff
+		m_ror_frame_listener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
+
+#ifdef USE_MYGUI
+		Console *c = RoR::Application::GetConsole();
+		if (c)
+		{
+			c->setVisible(true);
+			c->setNetChat(m_ror_frame_listener->netChat);
+			wchar_t tmp[255] = L"";
+			UTFString format = _L("Press %ls to start chatting");
+			swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
+			c->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, UTFString(tmp), "information.png");
+		}
+#endif //USE_MYGUI
+
+#ifdef USE_MUMBLE
+		new MumbleIntegration();
+#endif // USE_MUMBLE
+
+	} 
+	else
+#endif //SOCKETW
+	{
+		// no network
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+	}
+
+	// depth of field effect
+	if (BSETTING("DOF", false))
+	{
+		m_ror_frame_listener->dof = new DOFManager();
+	}
+
+	// init camera manager after mygui and after we have a character
+	new CameraManager(RoR::Application::GetOverlayWrapper(), m_ror_frame_listener->dof);
+
+	if (gEnv->player)
+	{
+		gEnv->player->setVisible(false);
+	}
+
+	// new beam factory
+	new BeamFactory();
+
 	// ================================================================================
 	// Terrain selection
 	// ================================================================================
 	
-	Ogre::String preselected_map = SSETTING("Preselected Map", "");
 	if (preselected_map.empty())
 	{
 #ifdef USE_MYGUI
