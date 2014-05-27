@@ -114,7 +114,6 @@ public: // public methods
 
 	bool updateEvents(float dt);
 	double getTime() { return rtime; };
-	float stopTimer();
 
 	int getLoadingState() { return loading_state; };
 	int getNetPointToUID() { return netPointToUID; };
@@ -137,9 +136,7 @@ public: // public methods
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void showspray(bool s);
 	void shutdown_final();
-	void startTimer();
 	void updateCruiseControl(Beam* curr_truck, float dt);
-	void updateRacingGUI();
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 };
 

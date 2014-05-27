@@ -79,6 +79,8 @@ MainThread::MainThread():
 	m_shutdown_requested(false),
 	m_ror_frame_listener(nullptr),
 	m_start_time(0),
+	m_race_start_time(0),
+	m_race_in_progress(false),
 	m_exit_loop_requested(false)
 {
 	pthread_mutex_init(&m_lock, nullptr);
@@ -966,4 +968,54 @@ void MainThread::ShowSurveyMap(bool be_visible)
 		gEnv->surveyMap->setVisibility(be_visible);
 	}
 #endif //USE_MYGUI
+}
+
+void MainThread::StartRaceTimer()
+{
+	m_race_start_time = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+	m_race_in_progress = true;
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
+	if (ow)
+	{
+		ow->racing->show();
+		ow->laptimes->show();
+		ow->laptimems->show();
+		ow->laptimemin->show();
+	}
+}
+
+float MainThread::StopRaceTimer()
+{
+	float time = static_cast<float>(RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - m_race_start_time);
+	// let the display on
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
+	if (ow)
+	{
+		wchar_t txt[256] = L"";
+		UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
+		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(time))/60,((int)(time))%60, ((int)(time*100.0))%100);
+		ow->lasttime->setCaption(UTFString(txt));
+		//ow->racing->hide();
+		ow->laptimes->hide();
+		ow->laptimems->hide();
+		ow->laptimemin->hide();
+	}
+	m_race_start_time = 0;
+	m_race_in_progress = false;
+	return time;
+}
+
+void MainThread::UpdateRacingGui()
+{
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
+	if (!ow) return;
+	// update racing gui if required
+	float time = static_cast<float>(RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - m_race_start_time);
+	wchar_t txt[10];
+	swprintf(txt, 10, L"%.2i", ((int)(time*100.0))%100);
+	ow->laptimems->setCaption(txt);
+	swprintf(txt, 10, L"%.2i", ((int)(time))%60);
+	ow->laptimes->setCaption(txt);
+	swprintf(txt, 10, L"%.2i'", ((int)(time))/60);
+	ow->laptimemin->setCaption(UTFString(txt));
 }

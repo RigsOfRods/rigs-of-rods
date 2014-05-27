@@ -125,50 +125,7 @@ using namespace RoR;
 
 bool shutdownall=false;
 
-void RoRFrameListener::startTimer()
-{
-	raceStartTime = (int)rtime;
-	if (ow)
-	{
-		ow->racing->show();
-		ow->laptimes->show();
-		ow->laptimems->show();
-		ow->laptimemin->show();
-	}
-}
 
-float RoRFrameListener::stopTimer()
-{
-	float time=rtime - raceStartTime;
-	// let the display on
-	if (ow)
-	{
-		wchar_t txt[256] = L"";
-		UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
-		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(time))/60,((int)(time))%60, ((int)(time*100.0))%100);
-		ow->lasttime->setCaption(UTFString(txt));
-		//ow->racing->hide();
-		ow->laptimes->hide();
-		ow->laptimems->hide();
-		ow->laptimemin->hide();
-	}
-	raceStartTime = -1;
-	return time;
-}
-
-void RoRFrameListener::updateRacingGUI()
-{
-	if (!ow) return;
-	// update racing gui if required
-	float time=rtime - raceStartTime;
-	wchar_t txt[10];
-	swprintf(txt, 10, L"%.2i", ((int)(time*100.0))%100);
-	ow->laptimems->setCaption(txt);
-	swprintf(txt, 10, L"%.2i", ((int)(time))%60);
-	ow->laptimes->setCaption(txt);
-	swprintf(txt, 10, L"%.2i'", ((int)(time))/60);
-	ow->laptimemin->setCaption(UTFString(txt));
-}
 
 void RoRFrameListener::updateIO(float dt)
 {
@@ -1352,7 +1309,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !curr_truck->replaymode)
 				{
 					// stop any races
-					stopTimer();
+					gEnv->main_thread_control->StopRaceTimer();
 					// init
 					curr_truck->reset();
 				}
@@ -1366,7 +1323,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				//replay mode
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
 				{
-					stopTimer();
+					gEnv->main_thread_control->StopRaceTimer();
 					curr_truck->setReplayMode(!curr_truck->replaymode);
 				}
 
@@ -2213,9 +2170,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					ow->UpdatePressureTexture(vehicle->getPressure());
 				}
 
-				if (raceStartTime > 0)
+				if (gEnv->main_thread_control->IsRaceInProgress())
 				{
-					updateRacingGUI(); // TODO: Move to OverlayWrapper
+					gEnv->main_thread_control->UpdateRacingGui();
 				}
 
 				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)
