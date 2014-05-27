@@ -3110,17 +3110,17 @@ void Parser::ParseEngine(Ogre::String const & line)
 
 	Engine engine;
 	engine.shift_down_rpm = STR_PARSE_REAL(results[1]);
-	engine.shift_up_rpm = STR_PARSE_REAL(results[2]);
-	engine.torque = STR_PARSE_REAL(results[3]);
-	engine.global_gear_ratio = STR_PARSE_REAL(results[4]);
-	engine.reverse_gear_ratio = STR_PARSE_REAL(results[5]);
-	engine.neutral_gear_ratio = STR_PARSE_REAL(results[6]);
+	engine.shift_up_rpm = STR_PARSE_REAL(results[3]);
+	engine.torque = STR_PARSE_REAL(results[5]);
+	engine.global_gear_ratio = STR_PARSE_REAL(results[7]);
+	engine.reverse_gear_ratio = STR_PARSE_REAL(results[9]);
+	engine.neutral_gear_ratio = STR_PARSE_REAL(results[11]);
 
 	/* Forward gears */
 	bool terminator_found = false;
-	for (unsigned int gear_index = 0; gear_index < 15; gear_index++)
+	for (unsigned int gear_index = 0; gear_index < 15; ++gear_index)
 	{
-		unsigned int result_index = 7 + (gear_index * 2);
+		unsigned int result_index = 13 + (gear_index * 3);
 
 		if (results[result_index].matched)
 		{
