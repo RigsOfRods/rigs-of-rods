@@ -235,94 +235,11 @@ RoRFrameListener::RoRFrameListener(
 	rtime(0)
 {
 
-	ow = RoR::Application::GetOverlayWrapper();
-
-	enablePosStor = BSETTING("Position Storage", false);
-
-#ifdef USE_MPLATFORM
-	mplatform = new MPlatform_FD();
-	if (mplatform) mplatform->connect();
-#endif
-
-	//network
-	bool enableNetwork = BSETTING("Network enable", false);
-
-	// setup direction arrow overlay
-	dirvisible = false;
-	dirArrowPointed = Vector3::ZERO;
-
-	windowResized(gEnv->renderWindow);
-	RoRWindowEventUtilities::addWindowEventListener(gEnv->renderWindow, this);
-
-	// get lights mode
-	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (lightsMode == "None (fastest)")
-		flaresMode = 0;
-	else if (lightsMode == "No light sources")
-		flaresMode = 1;
-	else if (lightsMode == "Only current vehicle, main lights")
-		flaresMode = 2;
-	else if (lightsMode == "All vehicles, main lights")
-		flaresMode = 3;
-	else if (lightsMode == "All vehicles, all lights")
-		flaresMode = 4;
-
-	// heathaze effect
-	if (BSETTING("HeatHaze", false))
-	{
-		heathaze = new HeatHaze();
-		heathaze->setEnable(true);
-	}
-
-
-
-	// force feedback
-	if (BSETTING("Force Feedback", true))
-	{
-		//check if a device has been detected
-		if (RoR::Application::GetInputEngine()->getForceFeedbackDevice())
-		{
-			//retrieve gain values
-			float ogain   = FSETTING("Force Feedback Gain",      100) / 100.0f;
-			float stressg = FSETTING("Force Feedback Stress",    100) / 100.0f;
-			float centg   = FSETTING("Force Feedback Centering", 0  ) / 100.0f;
-			float camg    = FSETTING("Force Feedback Camera",    100) / 100.0f;
-
-			forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
-		}
-	}
-
-	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
-	if     (screenshotFormatString == "jpg (smaller, default)")
-		strcpy(screenshotformat, "jpg");
-	else if (screenshotFormatString =="png (bigger, no quality loss)")
-		strcpy(screenshotformat, "png");
-	else
-		strncpy(screenshotformat, screenshotFormatString.c_str(), 10);
-
-
 }
 
 RoRFrameListener::~RoRFrameListener()
 {
-#ifdef USE_MYGUI
-	LoadingWindow::freeSingleton();
-	SelectorWindow::freeSingleton();
-#endif //MYGUI
 
-//	if (joy) delete (joy);
-
-#ifdef USE_SOCKETW
-	if (gEnv->network) delete (gEnv->network);
-#endif //SOCKETW
-	//we should destroy OIS here
-	//we could also try to destroy SoundScriptManager, but we don't care!
-	#ifdef USE_MPLATFORM
-	if (mplatform)
-	{
-		if (mplatform->disconnect()) delete(mplatform);
-	}
-	#endif
 }
 
 
