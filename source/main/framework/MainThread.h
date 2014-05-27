@@ -51,6 +51,17 @@ public:
 
 	void RequestExitCurrentLoop();
 
+	void StartRaceTimer();
+
+	float StopRaceTimer();
+
+	void UpdateRacingGui();
+
+	bool IsRaceInProgress()
+	{
+		return m_race_in_progress;
+	}
+
 protected:
 
 	void EnterMenuLoop();
@@ -71,6 +82,8 @@ protected:
 	pthread_mutex_t    m_lock;
 	RoRFrameListener*  m_ror_frame_listener;
 	unsigned long      m_start_time;
+	unsigned long      m_race_start_time;
+	bool               m_race_in_progress;
 };
 
 } // namespace RoR

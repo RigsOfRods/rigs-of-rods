@@ -145,13 +145,19 @@ bool GameScript::getCaelumAvailable()
 float GameScript::stopTimer()
 {
 	float result = 0.0f;
-	if (gEnv->frameListener) result = gEnv->frameListener->stopTimer();
+	if (gEnv->main_thread_control != nullptr)
+	{
+		result = gEnv->main_thread_control->StopRaceTimer();
+	}
 	return result;
 }
 
 void GameScript::startTimer()
 {
-	if (gEnv->frameListener) gEnv->frameListener->startTimer();
+	if (gEnv->main_thread_control != nullptr)
+	{
+		gEnv->main_thread_control->StartRaceTimer();
+	}
 }
 
 void GameScript::setWaterHeight(float value)
