@@ -1652,35 +1652,36 @@ DEFINE_REGEX( HOOKS_OPTIONS,
 
 DEFINE_REGEX( SECTION_HYDROS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Lengthening factor */
+	E_CAPTURE( E_NODE_ID ) /* #1 Node 1 */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID ) /* #3 Node 2 */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #5 Lengthening factor */
 	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( "[areuvxyghis]*" ) /* #5 Flags */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( "[areuvxyghis]*" ) /* #8 Flags */
 
 		E_CAPTURE_OPTIONAL(
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* #7 Inertia: start delay */
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER ) /* #11 Inertia: start delay */
 
 			E_CAPTURE_OPTIONAL(
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_REAL_NUMBER ) /* #9 Inertia: stop delay */
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_REAL_NUMBER ) /* #14 Inertia: stop delay */
 
 				E_CAPTURE_OPTIONAL(
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_STRING_NO_SPACES ) /* #11 Inertia: start function */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_STRING_NO_SPACES ) /* #17 Inertia: start function */
 
 					E_CAPTURE_OPTIONAL(
-						E_DELIMITER_COMMA
-						E_CAPTURE( E_STRING_NO_SPACES ) /* #13 Inertia: stop function */
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_STRING_NO_SPACES ) /* #20 Inertia: stop function */
 					)
 				)
 			)
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #21 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 
