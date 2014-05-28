@@ -58,12 +58,8 @@ COMPATIBILITY NOTES:
     Sections 'commands' & 'commands2' are unified; the only difference is in compress & expand ratios.
         Both support the same flags and can use multiple flags at once.
 
-    Subsection 'flexbodies'/'forset' supports named nodes, including ranges.
-        However, to avoid a range of named nodes being parsed as a single node,
-        there must be spaces around the period:
-            "forset 1234-5678"     -> OK, parses as range (1234 - 5678)
-            "forset NodeA-NodeB"   -> BAD, parses as single node named "NodeA-NodeB"
-            "forset NodeA - NodeB" -> OK, parses as range (NodeA - NodeB)
+    Subsection 'flexbodies'/'forset' supports named nodes.
+        However, ranges are only supported for nubered nodes.
 
     The 'end' keyword is no longer needed. Parser silently ignores it.
 

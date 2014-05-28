@@ -2366,31 +2366,29 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 			return;
 		}
 
-		Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[1], ",");
+		Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
+		/* NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated. */
 		Ogre::StringVector::iterator iter = tokens.begin();
 		for ( ; iter != tokens.end(); iter++)
 		{
 			boost::smatch results;
 			if (! boost::regex_search(*iter, results, Regexes::FORSET_ELEMENT))
 			{
-				AddMessage(*iter, Message::TYPE_ERROR, "Invalid element of 'forset', ignoring...");
-				return;
+				/* Invalid element, attempt to parse as node number for backwards compatibility */
+				unsigned int result = strtoul((*iter).c_str(), nullptr, 10);
+				std::stringstream msg;
+				msg << "Subsection 'forset': Invalid element '" << *iter << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
+				AddMessage(line, Message::TYPE_WARNING, msg.str());
+				m_last_flexbody->forset.push_back(Node::Range(result));
 			}
-
-			if (results[1].matched) /* Range of numbered nodes */
+			else if (results[1].matched) /* Range of numbered nodes */
 			{
 				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[2]), _ParseNodeId(results[3])));
 			}
 			else if(results[4].matched) /* Single node */
 			{
 				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[4])));
-			}
-			else if(results[5].matched)
-			{
-				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[6]), _ParseNodeId(results[7])));
-			}
-
-			
+			}			
 		}
 
 		/* Switch subsection */

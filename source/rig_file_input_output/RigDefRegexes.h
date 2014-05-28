@@ -1358,64 +1358,22 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
 	"^forset"
-	E_DELIMITER_SPACE
-	E_CAPTURE(
-		E_CAPTURE(
-			E_CAPTURE(
-				E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER ) 
-				E_CAPTURE( E_DELIMITER_COMMA ) "+" /* Tolerate multiple commas for backwards compatibility */
-			)
-			E_OR
-			E_CAPTURE(
-				E_CAPTURE( E_NODE_ID ) 
-				E_CAPTURE( E_DELIMITER_COMMA ) "+" /* Tolerate multiple commas for backwards compatibility */
-			)
-			E_OR
-			E_CAPTURE(
-				E_CAPTURE( E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID )
-				E_CAPTURE( E_DELIMITER_COMMA ) "+" /* Tolerate multiple commas for backwards compatibility */
-			)
-		) "*"
-		E_CAPTURE_OPTIONAL( /* OPTIONAL = Tolerate comma after last element, for backwards compatibility */
-			E_CAPTURE(
-				E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER 
-			)
-			E_OR
-			E_CAPTURE(
-				E_NODE_ID 
-			)
-			E_OR
-			E_CAPTURE(
-				E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID
-			)
-		)
-	)
-	E_TRAILING_WHITESPACE
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( ".*$" ) /* #2 Entire line */
 	);
 
 DEFINE_REGEX( FORSET_ELEMENT,
-	
-	E_CAPTURE_OPTIONAL( /* #1 Range with numbered nodes */
+	E_CAPTURE( /* #1 Range with numbered nodes */
 		E_LEADING_WHITESPACE
 		E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #2 Range start */
 		"[[:blank:]]*-[[:blank:]]*"
 		E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #3 Range end */
 		E_TRAILING_WHITESPACE
 	)
-
-	E_CAPTURE_OPTIONAL( /* #4 Solitary node */
+	E_OR
+	E_CAPTURE( /* #4 Solitary node (numbered or named) */
 		E_LEADING_WHITESPACE
 		E_NODE_ID
-		E_TRAILING_WHITESPACE
-	) 
-
-	E_CAPTURE_OPTIONAL( /* #5 Range with named node(s) */
-		E_LEADING_WHITESPACE
-		E_CAPTURE( E_NODE_ID ) /* #6 Range start */
-		E_DELIMITER_SPACE
-		"-"
-		E_DELIMITER_SPACE
-		E_CAPTURE( E_NODE_ID ) /* #7 Range end */
 		E_TRAILING_WHITESPACE
 	)
 	);
