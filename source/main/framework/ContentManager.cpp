@@ -48,9 +48,38 @@ using namespace RoR;
 // Static variables
 // ================================================================================
 
-const ContentManager::ResourcePack ContentManager::ResourcePack::OGRE_CORE             (BITMASK_64(1),              "OgreCore",   "Bootstrap");
-const ContentManager::ResourcePack ContentManager::ResourcePack::GUI_MENU_WALLPAPERS   (BITMASK_64(2),   "gui_menu_wallpapers",  "Wallpapers");
-const ContentManager::ResourcePack ContentManager::ResourcePack::GUI_STARTUP_SCREEN    (BITMASK_64(3),    "gui_startup_screen",   "Bootstrap");
+#define DECLARE_RESOURCE_PACK(_NUMBER_, _FIELD_, _NAME_, _RESOURCE_GROUP_) \
+	const ContentManager::ResourcePack ContentManager::ResourcePack::_FIELD_(BITMASK_64(_NUMBER_), _NAME_, _RESOURCE_GROUP_);
+
+DECLARE_RESOURCE_PACK(  1, OGRE_CORE,             "OgreCore",             "Bootstrap");
+DECLARE_RESOURCE_PACK(  2, GUI_MENU_WALLPAPERS,   "gui_menu_wallpapers",  "Wallpapers");
+DECLARE_RESOURCE_PACK(  3, GUI_STARTUP_SCREEN,    "gui_startup_screen",   "Bootstrap");
+DECLARE_RESOURCE_PACK(  4, AIRFOILS,              "airfoils",             "General");
+DECLARE_RESOURCE_PACK(  5, BEAM_OBJECTS,          "beamobjects",          "General");
+DECLARE_RESOURCE_PACK(  6, BLUR,                  "blur",                 "General");
+DECLARE_RESOURCE_PACK(  7, CAELUM,                "caelum",               "General");
+DECLARE_RESOURCE_PACK(  8, CUBEMAPS,              "cubemaps",             "General");
+DECLARE_RESOURCE_PACK(  9, DASHBOARDS,            "dashboards",           "General");
+DECLARE_RESOURCE_PACK( 10, DEPTH_OF_FIELD,        "dof",                  "General");
+DECLARE_RESOURCE_PACK( 11, FAMICONS,              "famicons",             "General");
+DECLARE_RESOURCE_PACK( 12, FLAGS,                 "flags",                "General");
+DECLARE_RESOURCE_PACK( 13, GLOW,                  "glow",                 "General");
+DECLARE_RESOURCE_PACK( 14, HDR,                   "hdr",                  "General");
+DECLARE_RESOURCE_PACK( 15, HEATHAZE,              "heathaze",             "General");
+DECLARE_RESOURCE_PACK( 16, HYDRAX,                "hydrax",               "General");
+DECLARE_RESOURCE_PACK( 17, ICONS,                 "icons",                "General");
+DECLARE_RESOURCE_PACK( 18, MATERIALS,             "materials",            "General");
+DECLARE_RESOURCE_PACK( 19, MESHES,                "meshes",               "General");
+DECLARE_RESOURCE_PACK( 20, MYGUI,                 "mygui",                "General");
+DECLARE_RESOURCE_PACK( 21, OVERLAYS,              "overlays",             "General");
+DECLARE_RESOURCE_PACK( 22, PAGED,                 "paged",                "General");
+DECLARE_RESOURCE_PACK( 23, PARTICLES,             "particles",            "General");
+DECLARE_RESOURCE_PACK( 24, PSSM,                  "pssm",                 "General");
+DECLARE_RESOURCE_PACK( 25, RTSHADER,              "rtshader",             "General");
+DECLARE_RESOURCE_PACK( 26, SCRIPTS,               "scripts",              "General");
+DECLARE_RESOURCE_PACK( 27, SOUNDS,                "sounds",               "General");
+DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "General");
+DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "General");
 
 // ================================================================================
 // Functions
@@ -96,35 +125,6 @@ void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
 	}
 }
 
-
-void ContentManager::loadMainResource(String name, String group)
-{
-	String dirsep="/";
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	dirsep="\\";
-#endif
-
-	String zipFilename = SSETTING("Resources Path", "resources\\")+name+".zip";
-	if (PlatformUtils::FileExists(zipFilename.c_str()))
-	{
-		ResourceGroupManager::getSingleton().addResourceLocation(zipFilename, "Zip", group);
-	} else
-	{
-		String dirname = SSETTING("Resources Path", "resources\\")+name;
-		LOG("resource zip '"+zipFilename+"' not existing, using directory instead: " + dirname);
-		ResourceGroupManager::getSingleton().addResourceLocation(dirname, "FileSystem", group);
-	}
-}
-/*
-void ContentManager::initBootstrap(void)
-{
-	LOG("Loading Bootstrap");
-	loadMainResource("OgreCore", "Bootstrap");
-	loadMainResource("gui_startup_screen", "Bootstrap");
-	LOG("Loading Wallpapers");
-	loadMainResource("gui_menu_wallpapers", "Wallpapers");
-}*/
-
 bool ContentManager::init(void)
 {
     // set listener if none has already been set
@@ -156,21 +156,21 @@ bool ContentManager::init(void)
 
 	// main game resources
 	LOG("Loading main resources");
-	loadMainResource("airfoils");
-	loadMainResource("beamobjects");
-	loadMainResource("materials");
-	loadMainResource("meshes");
-	loadMainResource("overlays");
-	loadMainResource("particles");
+	AddResourcePack(ResourcePack::AIRFOILS);
+	AddResourcePack(ResourcePack::BEAM_OBJECTS);
+	AddResourcePack(ResourcePack::MATERIALS);
+	AddResourcePack(ResourcePack::MESHES);
+	AddResourcePack(ResourcePack::OVERLAYS);
+	AddResourcePack(ResourcePack::PARTICLES);
 #ifdef USE_MYGUI
-	loadMainResource("mygui");
-	loadMainResource("dashboards");
+	AddResourcePack(ResourcePack::MYGUI);
+	AddResourcePack(ResourcePack::DASHBOARDS);
 #endif // USE_MYGUI
-	loadMainResource("scripts");
-	loadMainResource("textures");
-	loadMainResource("flags");
-	loadMainResource("icons");
-	loadMainResource("famicons");
+	AddResourcePack(ResourcePack::SCRIPTS);
+	AddResourcePack(ResourcePack::TEXTURES);
+	AddResourcePack(ResourcePack::FLAGS);
+	AddResourcePack(ResourcePack::ICONS);
+	AddResourcePack(ResourcePack::FAMICONS);
 
 
 #ifdef WIN32
@@ -202,36 +202,36 @@ bool ContentManager::init(void)
 #endif // USE_OPENAL
 
 	if (SSETTING("AudioDevice", "") != "No Output")
-		loadMainResource("sounds");
+		AddResourcePack(ResourcePack::SOUNDS);
 
 	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
-		loadMainResource("caelum");
+		AddResourcePack(ResourcePack::CAELUM);
 
-	loadMainResource("hydrax");
+	AddResourcePack(ResourcePack::HYDRAX);
 
 	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
-		loadMainResource("paged");
+		AddResourcePack(ResourcePack::PAGED);
 
 	if (BSETTING("HDR", false))
-		loadMainResource("hdr");
+		AddResourcePack(ResourcePack::HDR);
 
 	if (BSETTING("DOF", false))
-		loadMainResource("dof");
+		AddResourcePack(ResourcePack::DEPTH_OF_FIELD);
 
 	if (BSETTING("Glow", false))
-		loadMainResource("glow");
+		AddResourcePack(ResourcePack::GLOW);
 
 	if (BSETTING("Motion blur", false))
-		loadMainResource("blur");
+		AddResourcePack(ResourcePack::BLUR);
 
 	if (BSETTING("HeatHaze", false))
-		loadMainResource("heathaze");
+		AddResourcePack(ResourcePack::HEATHAZE);
 
 	if (BSETTING("Sunburn", false))
-		loadMainResource("sunburn");
+		AddResourcePack(ResourcePack::SUNBURN);
 
 	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps")
-		loadMainResource("pssm");
+		AddResourcePack(ResourcePack::PSSM);
 
 	// streams path, to be processed later by the cache system
 	LOG("Loading filesystems");

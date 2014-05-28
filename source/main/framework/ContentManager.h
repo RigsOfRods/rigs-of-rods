@@ -51,6 +51,33 @@ public:
 		static const ResourcePack OGRE_CORE;
 		static const ResourcePack GUI_MENU_WALLPAPERS;
 		static const ResourcePack GUI_STARTUP_SCREEN;
+		static const ResourcePack AIRFOILS;
+		static const ResourcePack BEAM_OBJECTS;
+		static const ResourcePack BLUR;
+		static const ResourcePack CAELUM;
+		static const ResourcePack CUBEMAPS;
+		static const ResourcePack DASHBOARDS;
+		static const ResourcePack DEPTH_OF_FIELD;
+		static const ResourcePack FAMICONS;
+		static const ResourcePack FLAGS;
+		static const ResourcePack GLOW;
+		static const ResourcePack HDR;
+		static const ResourcePack HEATHAZE;
+		static const ResourcePack HYDRAX;
+		static const ResourcePack ICONS;
+		static const ResourcePack MATERIALS;
+		static const ResourcePack MESHES;
+		static const ResourcePack MYGUI;
+		static const ResourcePack OVERLAYS;
+		static const ResourcePack PAGED;
+		static const ResourcePack PARTICLES;
+		static const ResourcePack PSSM;
+		static const ResourcePack RTSHADER;
+		static const ResourcePack SCRIPTS;
+		static const ResourcePack SOUNDS;
+		static const ResourcePack SUNBURN;
+		static const ResourcePack TEXTURES;
+
 
 		Ogre::uint64 mask;
 		const char * name;
@@ -59,10 +86,7 @@ public:
 
 	void AddResourcePack(ResourcePack const & resource_pack);
 	
-	//void initBootstrap(void);
 	bool init(void);
-
-	void loadMainResource(Ogre::String name, Ogre::String group=Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 protected:
 
