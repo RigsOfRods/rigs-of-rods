@@ -6012,19 +6012,36 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
 	m_rig->freecamera++;
 };
 
+node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Id & id)
+{
+	node_t* node = GetNodePointer(id);
+	if (node != nullptr)
+	{
+		return node;
+	}	
+	if (id.Str().empty()) /* Is this numbered node? */
+	{
+		std::stringstream msg;
+		msg << "Beam defined with non-existent node '" << id.ToString() << "'. Using it anyway for backwards compatibility. Please fix.";
+		AddMessage(Message::TYPE_WARNING, msg.str());
+		return & m_rig->nodes[id.Num()]; /* Backwards compatibility */
+	}
+	return nullptr;
+}
+
 void RigSpawner::ProcessBeam(RigDef::Beam & def)
 {
 	beam_t beam;
 	memset(&beam, 0, sizeof(beam_t));
 
 	/* Nodes */
-	beam.p1 = GetNodePointer(def.nodes[0]);
+	beam.p1 = GetBeamNodePointer(def.nodes[0]);
 	if (beam.p1 == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
 		return;
 	}
-	beam.p2 = GetNodePointer(def.nodes[1]);
+	beam.p2 = GetBeamNodePointer(def.nodes[1]);
 	if (beam.p2 == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");

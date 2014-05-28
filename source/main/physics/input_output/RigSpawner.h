@@ -649,6 +649,12 @@ protected:
 /* -------------------------------------------------------------------------- */
 
 	/**
+	* Seeks node. Tolerates non-existent numbered-nodes (backwards compatibility)
+	* @return Pointer to node. If node is indexed and doesn't exist, returns pointer to un-initialised object. Returns nullptr if node is named and doesn't exist.
+	*/
+	node_t* GetBeamNodePointer(RigDef::Node::Id & id);
+
+	/**
 	* Seeks node in both RigDef::File definition and rig_t generated rig.
 	* @return Node index or -1 if the node was not found.
 	*/
