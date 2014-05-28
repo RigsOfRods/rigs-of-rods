@@ -288,6 +288,11 @@ struct Node
 			end(single)
 		{}
 
+		Range(unsigned int single_number):
+			start(Node::Id(single_number)),
+			end(Node::Id(single_number))
+		{}
+
 		bool IsRange()
 		{
 			return start != end;
