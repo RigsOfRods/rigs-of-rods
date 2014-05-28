@@ -96,42 +96,45 @@ protected:
 	Ogre::RenderWindow* win;
 	TruckHUD *truckhud;
 
-	//members
-	Ogre::Overlay *directionOverlay;
+	// Misc
+	Ogre::Overlay *directionOverlay;        //!< truck (racing)
 	Ogre::Overlay *mDebugOverlay;
 	Ogre::Overlay *mTimingDebugOverlay;
-	Ogre::Overlay *dashboardOverlay;
-	Ogre::Overlay *machinedashboardOverlay;
-	Ogre::Overlay *airdashboardOverlay;
-	Ogre::Overlay *boatdashboardOverlay;
-	Ogre::Overlay *needlesOverlay;
-	Ogre::Overlay *airneedlesOverlay;
-	Ogre::Overlay *boatneedlesOverlay;
-	Ogre::Overlay *needlesMaskOverlay;
-	Ogre::Overlay *pressureOverlay;
-	Ogre::Overlay *pressureNeedleOverlay;
-	Ogre::Overlay *editorOverlay;
-	Ogre::Overlay *truckeditorOverlay;
-	Ogre::Overlay *mouseOverlay;
-	Ogre::Overlay *racing;
+	Ogre::Overlay *dashboardOverlay;        //!< truck
+	Ogre::Overlay *machinedashboardOverlay; 
+	Ogre::Overlay *airdashboardOverlay;     //!< aerial
+	Ogre::Overlay *boatdashboardOverlay;    //!< marine
+	Ogre::Overlay *needlesOverlay;          //!< truck
+	Ogre::Overlay *airneedlesOverlay;       //!< aerial
+	Ogre::Overlay *boatneedlesOverlay;      //!< marine
+	Ogre::Overlay *needlesMaskOverlay;      //!< truck
+	Ogre::Overlay *pressureOverlay;         //!< truck
+	Ogre::Overlay *pressureNeedleOverlay;   //!< truck
+	Ogre::Overlay *editorOverlay;           //!< UNUSED
+	Ogre::Overlay *truckeditorOverlay;      //!< UNUSED
+	Ogre::Overlay *mouseOverlay;            //!< UNUSED (aerial)
+	Ogre::Overlay *racing;                  //!< truck (racing)
 
-	Ogre::OverlayElement* guiGear;
-	Ogre::OverlayElement* guiGear3D;
-	Ogre::OverlayElement* guiRoll;
-	Ogre::OverlayElement* guipedclutch;
-	Ogre::OverlayElement* guipedbrake;
-	Ogre::OverlayElement* guipedacc;
-	Ogre::OverlayElement* mouseElement;
-	Ogre::OverlayElement *pbrakeo;
-	Ogre::OverlayElement *tcontrolo;
-	Ogre::OverlayElement *antilocko;
-	Ogre::OverlayElement *lockedo;
-	Ogre::OverlayElement *securedo;
-	Ogre::OverlayElement *lopresso;
-	Ogre::OverlayElement *clutcho;
-	Ogre::OverlayElement *lightso;
-	Ogre::OverlayElement *batto;
-	Ogre::OverlayElement *igno;
+	// Truck
+	Ogre::OverlayElement* guiGear;      //!< truck
+	Ogre::OverlayElement* guiGear3D;    //!< truck
+	Ogre::OverlayElement* guiRoll;      //!< truck
+	Ogre::OverlayElement* guipedclutch; //!< truck
+	Ogre::OverlayElement* guipedbrake;  //!< truck
+	Ogre::OverlayElement* guipedacc;    //!< truck
+	Ogre::OverlayElement* mouseElement; //!< UNUSED
+	Ogre::OverlayElement *pbrakeo;      //!< truck
+	Ogre::OverlayElement *tcontrolo;    //!< truck
+	Ogre::OverlayElement *antilocko;    //!< truck
+	Ogre::OverlayElement *lockedo;      //!< truck
+	Ogre::OverlayElement *securedo;     //!< truck
+	Ogre::OverlayElement *lopresso;     //!< truck
+	Ogre::OverlayElement *clutcho;      //!< truck
+	Ogre::OverlayElement *lightso;      //!< truck
+	Ogre::OverlayElement *batto;        //!< truck
+	Ogre::OverlayElement *igno;         //!< truck
+
+	// Aerial overlay elements
 	Ogre::OverlayElement *thro1;
 	Ogre::OverlayElement *thro2;
 	Ogre::OverlayElement *thro3;
@@ -144,42 +147,60 @@ protected:
 	Ogre::OverlayElement *engstarto2;
 	Ogre::OverlayElement *engstarto3;
 	Ogre::OverlayElement *engstarto4;
+
+	// Marine overlay elements
 	Ogre::OverlayElement *bthro1;
 	Ogre::OverlayElement *bthro2;
 	Ogre::OverlayElement *editor_pos;
 	Ogre::OverlayElement *editor_angles;
 	Ogre::OverlayElement *editor_object;
 
+	// Truck
 	Ogre::TextAreaOverlayElement* guiAuto[5];
 	Ogre::TextAreaOverlayElement* guiAuto3D[5];
+
+	// Truck (racing)
 	Ogre::TextAreaOverlayElement* laptimemin;
 	Ogre::TextAreaOverlayElement* laptimes;
 	Ogre::TextAreaOverlayElement* laptimems;
 	Ogre::TextAreaOverlayElement* lasttime;
 	Ogre::TextAreaOverlayElement* directionArrowText;
 	Ogre::TextAreaOverlayElement* directionArrowDistance;
-	Ogre::TextAreaOverlayElement* alt_value_taoe;
-	Ogre::TextAreaOverlayElement* boat_depth_value_taoe;
 
+	Ogre::TextAreaOverlayElement* alt_value_taoe; //!!< Aerial
+
+	Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
+
+	// Aerial
 	Ogre::TextureUnitState *adibugstexture;
 	Ogre::TextureUnitState *aditapetexture;
 	Ogre::TextureUnitState *hsirosetexture;
 	Ogre::TextureUnitState *hsibugtexture;
 	Ogre::TextureUnitState *hsivtexture;
 	Ogre::TextureUnitState *hsihtexture;
+
+	// truck
 	Ogre::TextureUnitState *speedotexture;
 	Ogre::TextureUnitState *tachotexture;
 	Ogre::TextureUnitState *rolltexture;
 	Ogre::TextureUnitState *pitchtexture;
 	Ogre::TextureUnitState *rollcortexture;
 	Ogre::TextureUnitState *turbotexture;
+
+	// Aerial
 	Ogre::TextureUnitState *airspeedtexture;
 	Ogre::TextureUnitState *altimetertexture;
 	Ogre::TextureUnitState *vvitexture;
 	Ogre::TextureUnitState *aoatexture;
+
+	// Marine
 	Ogre::TextureUnitState *boatspeedtexture;
 	Ogre::TextureUnitState *boatsteertexture;
+
+	// Truck
 	Ogre::TextureUnitState *pressuretexture;
+	
+	// Aerial
 	Ogre::TextureUnitState *airrpm1texture;
 	Ogre::TextureUnitState *airrpm2texture;
 	Ogre::TextureUnitState *airrpm3texture;
@@ -193,10 +214,12 @@ protected:
 	Ogre::TextureUnitState *airtorque3texture;
 	Ogre::TextureUnitState *airtorque4texture;
 
+	// Aerial + Marine: Written in init(), read-only in simulation.
 	float thrtop;
 	float thrheight;
 	float throffset;
 
+	// Truck racing overlay
 	Ogre::SceneNode* m_direction_arrow_node;
 
 protected:
