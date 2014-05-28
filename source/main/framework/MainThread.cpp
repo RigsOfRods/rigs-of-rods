@@ -229,7 +229,7 @@ void MainThread::Go()
 	// --------------------------------------------------------------------------------
 	// Create legacy RoRFrameListener
 
-	gEnv->frameListener = new RoRFrameListener(this);
+	gEnv->frameListener = new RoRFrameListener();
 	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 

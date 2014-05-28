@@ -31,8 +31,8 @@ class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventList
 	friend class RoR::MainThread; // Temporary hack
 
 public:
-	// Constructor takes a RenderWindow because it uses that to determine input context
-	RoRFrameListener(RoR::MainThread * main_thread_control);
+
+	RoRFrameListener();
 	virtual ~RoRFrameListener();
 
 	ChatSystem *netChat;
@@ -51,7 +51,6 @@ protected:
 	MPlatform_Base *mplatform;
 #endif //USE_MPLATFORM
 
-	RoR::MainThread * m_main_thread_control;
 	Dashboard *dashboard;
 	DOFManager *dof;
 	ForceFeedback *forcefeedback;
