@@ -164,10 +164,7 @@ void RoRFrameListener::updateIO(float dt)
 	}
 }
 
-// Constructor takes a RenderWindow because it uses that to determine input context
-RoRFrameListener::RoRFrameListener(
-	RoR::MainThread * main_thread_control
-) :
+RoRFrameListener::RoRFrameListener() :
 	clutch(0),
 	dashboard(0),
 	dof(0),
@@ -185,7 +182,6 @@ RoRFrameListener::RoRFrameListener(
 	netPointToUID(-1),
 	netcheckGUITimer(0),
 	ow(0),
-	m_main_thread_control(main_thread_control),
 	persostart(Vector3(0,0,0)),
 	pressure_pressed(false),
 	raceStartTime(-1),
@@ -1606,7 +1602,7 @@ void RoRFrameListener::shutdown_final()
 
 	// RoRFrameListener::shutdown_final() is allways called by main thread.
 	// Therefore we need no syncing here.
-	m_main_thread_control->RequestShutdown();
+	gEnv->main_thread_control->RequestShutdown();
 
 	shutdownall = true;
 }
@@ -1861,7 +1857,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 {
 	if (shutdownall) // shortcut: press ESC in credits
 	{
-		m_main_thread_control->Exit();
+		gEnv->main_thread_control->Exit();
 		return false;
 	}
 
