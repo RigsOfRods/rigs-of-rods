@@ -60,12 +60,12 @@ void StartupScreen::InitAndShow()
 	// Set random wallpaper image
 #ifdef USE_MYGUI
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
-	Ogre::String wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
-	if (! wallpaper_texture_name.empty() && ! mat.isNull())
+	m_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
+	if (! m_wallpaper_texture_name.empty() && ! mat.isNull())
 	{
 		if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
 		{
-			mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(wallpaper_texture_name);
+			mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(m_wallpaper_texture_name);
 		}
 	}
 #endif // USE_MYGUI

@@ -54,32 +54,32 @@ using namespace RoR;
 DECLARE_RESOURCE_PACK(  1, OGRE_CORE,             "OgreCore",             "Bootstrap");
 DECLARE_RESOURCE_PACK(  2, GUI_MENU_WALLPAPERS,   "gui_menu_wallpapers",  "Wallpapers");
 DECLARE_RESOURCE_PACK(  3, GUI_STARTUP_SCREEN,    "gui_startup_screen",   "Bootstrap");
-DECLARE_RESOURCE_PACK(  4, AIRFOILS,              "airfoils",             "General");
-DECLARE_RESOURCE_PACK(  5, BEAM_OBJECTS,          "beamobjects",          "General");
-DECLARE_RESOURCE_PACK(  6, BLUR,                  "blur",                 "General");
-DECLARE_RESOURCE_PACK(  7, CAELUM,                "caelum",               "General");
+DECLARE_RESOURCE_PACK(  4, AIRFOILS,              "airfoils",             "LoadBeforeMap");
+DECLARE_RESOURCE_PACK(  5, BEAM_OBJECTS,          "beamobjects",          "LoadBeforeMap");
+DECLARE_RESOURCE_PACK(  6, BLUR,                  "blur",                 "LoadBeforeMap");
+DECLARE_RESOURCE_PACK(  7, CAELUM,                "caelum",               "LoadBeforeMap");
 DECLARE_RESOURCE_PACK(  8, CUBEMAPS,              "cubemaps",             "General");
 DECLARE_RESOURCE_PACK(  9, DASHBOARDS,            "dashboards",           "General");
-DECLARE_RESOURCE_PACK( 10, DEPTH_OF_FIELD,        "dof",                  "General");
-DECLARE_RESOURCE_PACK( 11, FAMICONS,              "famicons",             "General");
-DECLARE_RESOURCE_PACK( 12, FLAGS,                 "flags",                "General");
-DECLARE_RESOURCE_PACK( 13, GLOW,                  "glow",                 "General");
-DECLARE_RESOURCE_PACK( 14, HDR,                   "hdr",                  "General");
-DECLARE_RESOURCE_PACK( 15, HEATHAZE,              "heathaze",             "General");
-DECLARE_RESOURCE_PACK( 16, HYDRAX,                "hydrax",               "General");
-DECLARE_RESOURCE_PACK( 17, ICONS,                 "icons",                "General");
-DECLARE_RESOURCE_PACK( 18, MATERIALS,             "materials",            "General");
-DECLARE_RESOURCE_PACK( 19, MESHES,                "meshes",               "General");
+DECLARE_RESOURCE_PACK( 10, DEPTH_OF_FIELD,        "dof",                  "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 11, FAMICONS,              "famicons",             "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 12, FLAGS,                 "flags",                "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 13, GLOW,                  "glow",                 "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 14, HDR,                   "hdr",                  "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 15, HEATHAZE,              "heathaze",             "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 16, HYDRAX,                "hydrax",               "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 17, ICONS,                 "icons",                "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 18, MATERIALS,             "materials",            "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 19, MESHES,                "meshes",               "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 20, MYGUI,                 "mygui",                "General");
-DECLARE_RESOURCE_PACK( 21, OVERLAYS,              "overlays",             "General");
-DECLARE_RESOURCE_PACK( 22, PAGED,                 "paged",                "General");
-DECLARE_RESOURCE_PACK( 23, PARTICLES,             "particles",            "General");
-DECLARE_RESOURCE_PACK( 24, PSSM,                  "pssm",                 "General");
+DECLARE_RESOURCE_PACK( 21, OVERLAYS,              "overlays",             "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 22, PAGED,                 "paged",                "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 23, PARTICLES,             "particles",            "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 24, PSSM,                  "pssm",                 "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 25, RTSHADER,              "rtshader",             "General");
-DECLARE_RESOURCE_PACK( 26, SCRIPTS,               "scripts",              "General");
+DECLARE_RESOURCE_PACK( 26, SCRIPTS,               "scripts",              "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 27, SOUNDS,                "sounds",               "General");
-DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "General");
-DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "General");
+DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "LoadBeforeMap");
 
 // ================================================================================
 // Functions
@@ -144,34 +144,10 @@ bool ContentManager::init(void)
 	ColoredTextAreaOverlayElementFactory *cef = new ColoredTextAreaOverlayElementFactory();
 	OverlayManager::getSingleton().addOverlayElementFactory(cef);
 
-
-
-	// load bootstrap and main resources
-	String dirsep="/";
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	dirsep="\\";
-#endif
-	// bootstrap
-	// we load the bootstrap before already
-
-	// main game resources
-	LOG("Loading main resources");
-	AddResourcePack(ResourcePack::AIRFOILS);
-	AddResourcePack(ResourcePack::BEAM_OBJECTS);
-	AddResourcePack(ResourcePack::MATERIALS);
-	AddResourcePack(ResourcePack::MESHES);
-	AddResourcePack(ResourcePack::OVERLAYS);
-	AddResourcePack(ResourcePack::PARTICLES);
 #ifdef USE_MYGUI
 	AddResourcePack(ResourcePack::MYGUI);
 	AddResourcePack(ResourcePack::DASHBOARDS);
 #endif // USE_MYGUI
-	AddResourcePack(ResourcePack::SCRIPTS);
-	AddResourcePack(ResourcePack::TEXTURES);
-	AddResourcePack(ResourcePack::FLAGS);
-	AddResourcePack(ResourcePack::ICONS);
-	AddResourcePack(ResourcePack::FAMICONS);
-
 
 #ifdef WIN32
 	// TODO: FIX UNDER LINUX!
@@ -193,8 +169,6 @@ bool ContentManager::init(void)
 	ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
 #endif // USE_ANGELSCRIPT
 
-	// optional ones
-
 	// sound is a bit special as we mark the base sounds so we don't clear them accidentally later on
 #ifdef USE_OPENAL
 	LOG("Creating Sound Manager");
@@ -204,34 +178,7 @@ bool ContentManager::init(void)
 	if (SSETTING("AudioDevice", "") != "No Output")
 		AddResourcePack(ResourcePack::SOUNDS);
 
-	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
-		AddResourcePack(ResourcePack::CAELUM);
 
-	AddResourcePack(ResourcePack::HYDRAX);
-
-	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
-		AddResourcePack(ResourcePack::PAGED);
-
-	if (BSETTING("HDR", false))
-		AddResourcePack(ResourcePack::HDR);
-
-	if (BSETTING("DOF", false))
-		AddResourcePack(ResourcePack::DEPTH_OF_FIELD);
-
-	if (BSETTING("Glow", false))
-		AddResourcePack(ResourcePack::GLOW);
-
-	if (BSETTING("Motion blur", false))
-		AddResourcePack(ResourcePack::BLUR);
-
-	if (BSETTING("HeatHaze", false))
-		AddResourcePack(ResourcePack::HEATHAZE);
-
-	if (BSETTING("Sunburn", false))
-		AddResourcePack(ResourcePack::SUNBURN);
-
-	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps")
-		AddResourcePack(ResourcePack::PSSM);
 
 	// streams path, to be processed later by the cache system
 	LOG("Loading filesystems");
