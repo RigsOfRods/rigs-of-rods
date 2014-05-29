@@ -109,9 +109,9 @@ void MainThread::Go()
 	LanguageEngine::getSingleton().setup(); // TODO: Manage by class Application
 
 	// Add startup resources
-	Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
-	Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
-	Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
@@ -128,9 +128,6 @@ void MainThread::Go()
 
 	bootstrap_screen.HideAndRemove();
 
-	// --------------------------------------------------------------------------------
-	// Ported GameState logic
-
 	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
 	gEnv->sceneManager = scene_manager;
 
@@ -143,11 +140,6 @@ void MainThread::Go()
 	camera->setAutoAspectRatio(true);
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
-
-	// --------------------------------------------------------------------------------
-	// Ported RoRFrameListener logic
-
-	Application::CreateOverlayWrapper();
 
 #ifdef USE_MYGUI
 	
@@ -164,15 +156,13 @@ void MainThread::Go()
 	GUI_Friction::getSingleton();
 
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
-	// load random image in the wallpaper
-	Ogre::String randomWallpaper = RoR::GUIManager::getRandomWallpaperImage();
-	if (!v.empty() && !randomWallpaper.empty())
+	if (!v.empty())
 	{
 		MyGUI::Widget *mainw = v.at(0);
 		if (mainw)
 		{
 			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			if (img) img->setImageTexture(randomWallpaper);
+			if (img) img->setImageTexture(bootstrap_screen.GetWallpaperTextureName());
 		}
 	}
 
@@ -183,10 +173,6 @@ void MainThread::Go()
 	new ScriptEngine(); // Init singleton. TODO: Move under Application
 
 #endif
-
-	Application::GetOverlayWrapper()->SetupDirectionArrow();
-
-	new DustManager(); // setup particle manager singleton. TODO: Move under Application
 
 	RoR::Application::CreateInputEngine();
 	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
@@ -226,17 +212,11 @@ void MainThread::Go()
 
 	RoR::Application::GetCacheSystem()->startup();
 
-	// --------------------------------------------------------------------------------
 	// Create legacy RoRFrameListener
 
 	gEnv->frameListener = new RoRFrameListener();
 	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
-
-	// --------------------------------------------------------------------------------
-	// Ported from legacy RoRFrameListener
-
-	gEnv->frameListener->ow = RoR::Application::GetOverlayWrapper();
 
 	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
 
@@ -267,15 +247,6 @@ void MainThread::Go()
 		gEnv->frameListener->flaresMode = 3;
 	else if (lightsMode == "All vehicles, all lights")
 		gEnv->frameListener->flaresMode = 4;
-
-	// heathaze effect
-	if (BSETTING("HeatHaze", false))
-	{
-		gEnv->frameListener->heathaze = new HeatHaze();
-		gEnv->frameListener->heathaze->setEnable(true);
-	}
-
-
 
 	// force feedback
 	if (BSETTING("Force Feedback", true))
@@ -440,26 +411,7 @@ void MainThread::Go()
 #endif // USE_MUMBLE
 
 	} 
-	else
-#endif //SOCKETW
-	{
-		// no network
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-	}
-
-	// depth of field effect
-	if (BSETTING("DOF", false))
-	{
-		gEnv->frameListener->dof = new DOFManager();
-	}
-
-	// init camera manager after mygui and after we have a character
-	new CameraManager(RoR::Application::GetOverlayWrapper(), gEnv->frameListener->dof);
-
-	if (gEnv->player)
-	{
-		gEnv->player->setVisible(false);
-	}
+#endif //SOCKETW	
 
 	// new beam factory
 	new BeamFactory();
@@ -475,11 +427,17 @@ void MainThread::Go()
 		ShowSurveyMap(false);
 		SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
 #endif // USE_MYGUI
-		EnterMenuLoop(); // TODO: Ddoesn't really make sense without USE_MYGUI
+		EnterMenuLoop(); // TODO: Doesn't really make sense without USE_MYGUI
 	}
 	else
 	{
 		LOG("Preselected Map: " + (preselected_map));
+	}
+
+	CacheEntry* selected_map = SelectorWindow::getSingleton().getSelection();
+	if (selected_map == nullptr)
+	{
+		RequestShutdown();
 	}
 
 	// ================================================================================
@@ -488,6 +446,89 @@ void MainThread::Go()
 
 	if (! m_shutdown_requested)
 	{
+		// ============================================================================
+		// Loading base resources
+		// ============================================================================
+
+		LoadingWindow::getSingleton().setProgress(0, _L("Loading base resources"));
+
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
+
+		if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+
+		if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
+
+		if (BSETTING("HDR", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
+
+		if (BSETTING("DOF", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
+
+		if (BSETTING("Glow", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
+
+		if (BSETTING("Motion blur", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
+
+		if (BSETTING("HeatHaze", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
+
+		if (BSETTING("Sunburn", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
+
+		if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps")
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
+
+		Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
+
+		// ============================================================================
+		// Setup
+		// ============================================================================
+
+		Application::CreateOverlayWrapper();
+		Application::GetOverlayWrapper()->SetupDirectionArrow();
+		gEnv->frameListener->ow = RoR::Application::GetOverlayWrapper();
+
+		new DustManager(); // setup particle manager singleton. TODO: Move under Application
+
+		if (! enable_network)
+		{
+			gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+			if (gEnv->player != nullptr)
+			{
+				gEnv->player->setVisible(false);
+			}
+		}
+
+		// heathaze effect
+		if (BSETTING("HeatHaze", false))
+		{
+			gEnv->frameListener->heathaze = new HeatHaze();
+			gEnv->frameListener->heathaze->setEnable(true);
+		}
+
+		// depth of field effect
+		if (BSETTING("DOF", false))
+		{
+			gEnv->frameListener->dof = new DOFManager();
+		}
+
+		// init camera manager after mygui and after we have a character
+		new CameraManager(RoR::Application::GetOverlayWrapper(), gEnv->frameListener->dof);
+
 		// ============================================================================
 		// Loading map
 		// ============================================================================

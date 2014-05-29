@@ -41,14 +41,22 @@ class StartupScreen
 public:
 
 	StartupScreen();
+
 	void InitAndShow();
+
 	void HideAndRemove();
+
+	Ogre::String const & GetWallpaperTextureName()
+	{
+		return m_wallpaper_texture_name;
+	}
 
 protected:
 
 	Ogre::SceneManager* m_scene_manager;
 	Ogre::Camera*       m_camera;
 	Ogre::Overlay*      m_overlay;
+	Ogre::String        m_wallpaper_texture_name;
 };
 
 } // namespace RoR
