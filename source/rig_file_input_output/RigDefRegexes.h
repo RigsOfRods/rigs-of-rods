@@ -1662,36 +1662,28 @@ DEFINE_REGEX( SECTION_LOCKGROUPS,
 DEFINE_REGEX( SECTION_MANAGEDMATERIALS,
 	E_LEADING_WHITESPACE
 	E_CAPTURE( E_STRING_NO_SPACES ) /* #1 Material name */
-	E_DELIMITER_SPACE
-	E_CAPTURE( /* #2 Wrapper */
-		E_CAPTURE( /* #3 2-param branch wrapper */
-			E_CAPTURE( /* #4 Type wrapper */
-				E_CAPTURE( "mesh_standard" ) /* #5 */
-				E_OR
-				E_CAPTURE( "mesh_transparent" ) /* #6 */
-			)
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #7 Diffuse map filename */
-			E_CAPTURE_OPTIONAL( /* #8 Specular map (filename or placeholder) (optional for backwards compatibility) */
-				E_DELIMITER_SPACE 
-				E_STRING_NO_SPACES 
-			)
-		)
+	E_CAPTURE( E_DELIMITER )        /* #2 */
+	E_CAPTURE(                      /* #3 Type wrapper */
+		E_CAPTURE( "mesh_standard" )        /* #4 */
 		E_OR
-		E_CAPTURE( /* #9 3-param branch wrapper */
-			E_CAPTURE( /* #10 Type wrapper */
-				E_CAPTURE( "flexmesh_standard" ) /* #11 */
-				E_OR
-				E_CAPTURE( "flexmesh_transparent" ) /* #12 */
-			)
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #13 Diffuse map filename */
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #14 Damaged diffuse map (filename or placeholder) */ 
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #15 Specular map (filename or placeholder) */ 
+		E_CAPTURE( "mesh_transparent" )     /* #5 */
+		E_OR
+		E_CAPTURE( "flexmesh_standard" )    /* #6 */
+		E_OR
+		E_CAPTURE( "flexmesh_transparent" ) /* #7 */
+	)
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_NO_SPACES )         /* #9 Diffuse map filename */
+	E_CAPTURE_OPTIONAL( 
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_STRING_NO_SPACES )     /* #12 */
+		E_CAPTURE_OPTIONAL( 
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_STRING_NO_SPACES ) /* #15 */
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING )
+	E_TRAILING_WHITESPACE
 	);
 
 DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
