@@ -2200,11 +2200,14 @@ DEFINE_REGEX( SECTION_SOUNDSOURCES,
 
 DEFINE_REGEX( SECTION_SOUNDSOURCES2,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Node which makes the sound */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* Mode/Cinecam ID, decimal number (accept anything for backward compatibility) */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_STRING_NO_SPACES ) /* Sound script name */
+
+	E_CAPTURE( E_NODE_ID ) /* #1 Node which makes the sound */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #3 Mode/Cinecam ID, decimal number (accept anything for backward compatibility) */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_NO_SPACES ) /* #5 Sound script name */
+
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #6 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 

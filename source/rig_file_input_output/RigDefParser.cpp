@@ -3820,18 +3820,18 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 
 	SoundSource2 soundsource2;
 	soundsource2.node = _ParseNodeId(results[1]);
-	soundsource2.sound_script_name = results[3];
+	soundsource2.sound_script_name = results[5];
 
 	/* Mode */
 	int mode = 0;
-	Ogre::String mode_str = results[2];
+	Ogre::String mode_str = results[3];
 	if (! boost::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
 	{
-		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter #2 'mode': '" + results[2] + "', parsing as '0' for backwards compatibility. Please fix.");
+		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter #2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
 	}
 	else
 	{
-		mode = STR_PARSE_INT(results[2]);
+		mode = STR_PARSE_INT(mode_str);
 	}
 	if (mode < 0)
 	{
@@ -3847,6 +3847,8 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 		soundsource2.mode = SoundSource2::MODE_CINECAM;
 		soundsource2.cinecam_index = mode;
 	}
+
+	_CheckInvalidTrailingText(line, results, 6);
 
 	m_current_module->soundsources2.push_back(soundsource2);
 }
@@ -4058,6 +4060,16 @@ void Parser::ParseShocks(Ogre::String const & line)
 	}
 
 	m_current_module->shocks.push_back(shock);
+}
+
+void Parser::_CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index)
+{
+	if (results[index].matched) /* Invalid trailing text */
+	{
+		std::stringstream msg;
+		msg << "Invalid text after parameters: '" << results[index] << "'. Please remove. Ignoring...";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
 }
 
 Node::Id Parser::_ParseNodeId(std::string const & node_id_str)

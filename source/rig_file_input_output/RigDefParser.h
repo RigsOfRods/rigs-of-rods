@@ -300,6 +300,8 @@ protected:
 /*	Utilities */
 /* -------------------------------------------------------------------------- */
 
+	void Parser::_CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index);
+
 	/** Keyword scan function. 
 	*/
 	File::Keyword IdentifyKeyword(Ogre::String const & line);
