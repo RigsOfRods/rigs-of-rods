@@ -3652,6 +3652,8 @@ void Parser::ParseTriggers(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Trigger trigger;
+	trigger.beam_defaults = m_user_beam_defaults;
+	trigger.detacher_group = m_current_detacher_group;
 	trigger.nodes[0] = _ParseNodeId(results[1]);
 	trigger.nodes[1] = _ParseNodeId(results[2]);
 	trigger.contraction_trigger_limit = STR_PARSE_REAL(results[3]);

@@ -1499,6 +1499,8 @@ struct Trigger
 	float boundary_timer;
 	unsigned int _engine_trigger_motor_index;
 	EngineTriggerFunction _engine_trigger_function;
+	boost::shared_ptr<BeamDefaults> beam_defaults;
+	int detacher_group;
 };
 
 /* -------------------------------------------------------------------------- */
