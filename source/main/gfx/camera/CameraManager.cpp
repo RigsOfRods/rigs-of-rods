@@ -40,7 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-CameraManager::CameraManager(OverlayWrapper *ow, DOFManager *dof) : 
+CameraManager::CameraManager(DOFManager *dof) : 
 	  currentBehavior(0)
 	, currentBehaviorID(-1)
 	, mTransScale(1.0f)
@@ -54,7 +54,6 @@ CameraManager::CameraManager(OverlayWrapper *ow, DOFManager *dof) :
 
 	ctx.mCurrTruck = 0;
 	ctx.mDof = dof;
-	ctx.mOverlayWrapper = ow;
 	ctx.mDebug = BSETTING("Camera Debug", false);
 
 	if ( ctx.mDof )

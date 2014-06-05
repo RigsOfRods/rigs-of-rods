@@ -181,7 +181,6 @@ RoRFrameListener::RoRFrameListener() :
 	netChat(0),
 	netPointToUID(-1),
 	netcheckGUITimer(0),
-	ow(0),
 	persostart(Vector3(0,0,0)),
 	pressure_pressed(false),
 	raceStartTime(-1),
@@ -223,7 +222,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	*/
 
 	// update overlays if enabled
-	if (ow) ow->update(dt);
+	if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->update(dt);
 
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 
@@ -1013,7 +1012,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
 					{
 						curr_truck->parkingbrakeToggle();
-						if (ow)
+						if (RoR::Application::GetOverlayWrapper())
 						{
 							if (curr_truck->parkingbrake)
 								OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-on");
@@ -1256,7 +1255,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				//camera mode
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS) && curr_truck)
 				{
-					if (ow) ow->showPressureOverlay(true);
+					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
 #ifdef USE_OPENAL
 					SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
@@ -1264,7 +1263,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					pressure_pressed=true;
 				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
 				{
-					if (ow) ow->showPressureOverlay(true);
+					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
 #ifdef USE_OPENAL
 					SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
@@ -1276,7 +1275,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
 					pressure_pressed=false;
-					if (ow) ow->showPressureOverlay(false);
+					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
 				}
 
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->network && curr_truck->driveable != AIRPLANE)
@@ -1503,7 +1502,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		mTruckInfoOn = ! mTruckInfoOn;
 		dirty=true;
-		if (ow) ow->truckhud->show(mTruckInfoOn);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(mTruckInfoOn);
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
@@ -1523,7 +1522,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		else if (mStatsOn==2)
 			mStatsOn=0;
 
-		if (ow) ow->showDebugOverlay(mStatsOn);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDebugOverlay(mStatsOn);
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_MAT_DEBUG))
@@ -1535,7 +1534,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		else if (mStatsOn==2)
 			mStatsOn=0;
 		dirty=true;
-		if (ow) ow->showDebugOverlay(mStatsOn);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDebugOverlay(mStatsOn);
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION) && loading_state == ALL_LOADED)
@@ -1727,7 +1726,7 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 
 
 		// hide truckhud
-		if (ow) ow->truckhud->show(false);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
 
 		//getting outside
 		Vector3 position = Vector3::ZERO;
@@ -1758,7 +1757,7 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 			gEnv->player->updateCharacterRotation();
 			//gEnv->player->setVisible(true);
 		}
-		if (ow) ow->showDashboardOverlays(false, currentTruck);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, currentTruck);
 #ifdef USE_OPENAL
 		SoundScriptManager::getSingleton().trigStop(previousTruck, SS_TRIG_AIR);
 		SoundScriptManager::getSingleton().trigStop(previousTruck, SS_TRIG_PUMP);
@@ -1782,15 +1781,15 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 		//getting inside
 		currentTruck->desactivate();
 
-		if (ow &&!hidegui)
+		if (RoR::Application::GetOverlayWrapper() &&!hidegui)
 		{
-			ow->showDashboardOverlays(true, currentTruck);
+			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, currentTruck);
 		}
 
 		currentTruck->activate();
 		//if (trucks[current_truck]->engine->running) trucks[current_truck]->audio->playStart();
 		//hide unused items
-		if (ow && currentTruck->free_active_shock==0)
+		if (RoR::Application::GetOverlayWrapper() && currentTruck->free_active_shock==0)
 			(OverlayManager::getSingleton().getOverlayElement("tracks/rollcorneedle"))->hide();
 		//					rollcorr_node->setVisible((trucks[current_truck]->free_active_shock>0));
 		//help panel
@@ -1805,7 +1804,7 @@ void RoRFrameListener::changedCurrentTruck(Beam *previousTruck, Beam *currentTru
 			gEnv->player->setBeamCoupling(true, currentTruck);
 		}
 
-		if (ow)
+		if (RoR::Application::GetOverlayWrapper())
 		{
 			try
 			{
@@ -2012,9 +2011,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// update gui 3d arrow
-	if (ow && dirvisible && loading_state==ALL_LOADED)
+	if (RoR::Application::GetOverlayWrapper() && dirvisible && loading_state==ALL_LOADED)
 	{
-		ow->UpdateDirectionArrow(curr_truck, dirArrowPointed);
+		RoR::Application::GetOverlayWrapper()->UpdateDirectionArrow(curr_truck, dirArrowPointed);
 	}
 
 	// one of the input modes is immediate, so setup what is needed for immediate mouse/key movement
@@ -2035,7 +2034,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 		//// updateGUI(dt); (refactored into pieces)
 
-		if (ow != nullptr)
+		if (RoR::Application::GetOverlayWrapper() != nullptr)
 		{
 
 #ifdef USE_MYGUI
@@ -2055,7 +2054,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 			if (vehicle != nullptr)
 			{
 				//update the truck info gui (also if not displayed!)
-				ow->truckhud->update(dt, vehicle, mTruckInfoOn);
+				RoR::Application::GetOverlayWrapper()->truckhud->update(dt, vehicle, mTruckInfoOn);
 
 #ifdef FEAT_TIMING
 				BES.updateGUI(dt);
@@ -2068,7 +2067,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 				if (pressure_pressed)
 				{
-					ow->UpdatePressureTexture(vehicle->getPressure());
+					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(vehicle->getPressure());
 				}
 
 				if (gEnv->main_thread_control->IsRaceInProgress())
@@ -2078,11 +2077,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)
 				{
-					ow->UpdateLandVehicleHUD(vehicle, flipflop);
+					RoR::Application::GetOverlayWrapper()->UpdateLandVehicleHUD(vehicle, flipflop);
 				}
 				else if (vehicle->driveable == AIRPLANE)
 				{
-					ow->UpdateAerialHUD(vehicle);
+					RoR::Application::GetOverlayWrapper()->UpdateAerialHUD(vehicle);
 				}
 			}
 		}
@@ -2108,7 +2107,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 bool RoRFrameListener::frameEnded(const FrameEvent& evt)
 {
 	// TODO: IMPROVE STATS
-	if (ow && mStatsOn) ow->updateStats();
+	if (RoR::Application::GetOverlayWrapper() && mStatsOn) RoR::Application::GetOverlayWrapper()->updateStats();
 
 	//		moveCamera();
 
@@ -2169,17 +2168,17 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 
 void RoRFrameListener::setDirectionArrow(char *text, Vector3 position)
 {
-	if (ow == nullptr) return;
+	if (RoR::Application::GetOverlayWrapper() == nullptr) return;
 
 	if (text == nullptr)
 	{
-		ow->HideDirectionOverlay();
+		RoR::Application::GetOverlayWrapper()->HideDirectionOverlay();
 		dirvisible = false;
 		dirArrowPointed = Vector3::ZERO;
 	}
 	else
 	{
-		ow->ShowDirectionOverlay(text);
+		RoR::Application::GetOverlayWrapper()->ShowDirectionOverlay(text);
 		dirvisible = true;
 		dirArrowPointed = position;
 	}
@@ -2212,7 +2211,7 @@ void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
 	int left, top;
 	rw->getMetrics(width, height, depth, left, top);
 
-	if (ow) ow->windowResized();
+	if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->windowResized();
 	if (gEnv->surveyMap) gEnv->surveyMap->windowResized();
 
 	//update mouse area
@@ -2264,8 +2263,8 @@ void RoRFrameListener::hideGUI(bool visible)
 
 	if (visible)
 	{
-		if (ow) ow->showDashboardOverlays(false, curr_truck);
-		if (ow) ow->truckhud->show(false);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, curr_truck);
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
 		if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #ifdef USE_SOCKETW
 		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(false);
@@ -2277,7 +2276,7 @@ void RoRFrameListener::hideGUI(bool visible)
 			&& gEnv->cameraManager->hasActiveBehavior()
 			&& gEnv->cameraManager->getCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
 		{
-			if (ow) ow->showDashboardOverlays(true, curr_truck);
+			if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, curr_truck);
 		}
 #ifdef USE_SOCKETW
 		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(true);
