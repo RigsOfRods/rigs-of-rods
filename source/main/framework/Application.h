@@ -102,13 +102,9 @@ private:
 
 	static void DestroyOverlayWrapper();
 
-	/** Creates scene mouse if it doesn't already exist.
-	*/
-	static void CreateSceneMouseIfNotExists();
+	static void CreateSceneMouse();
 
-	/** Destroys instance if it exists.
-	*/
-	static void DeleteSceneMouseIfExists();
+	static void DeleteSceneMouse();
 
 	/** Creates instance if it doesn't already exist.
 	*/

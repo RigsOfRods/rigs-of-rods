@@ -143,7 +143,6 @@ void MainThread::Go()
 
 #ifdef USE_MYGUI
 	
-	Application::CreateSceneMouseIfNotExists();
 	Application::CreateGuiManagerIfNotExists();
 
 	// create console, must be done early
@@ -216,7 +215,6 @@ void MainThread::Go()
 
 	gEnv->frameListener = new RoRFrameListener();
 	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
-	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
 	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
 
@@ -427,6 +425,7 @@ void MainThread::Go()
 		ShowSurveyMap(false);
 		SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
 #endif // USE_MYGUI
+
 		EnterMenuLoop(); // TODO: Doesn't really make sense without USE_MYGUI
 	}
 	else
@@ -612,7 +611,9 @@ void MainThread::Go()
 			// Game loop
 			// ========================================================================
 
-			gEnv->frameListener->initialized=true;
+			Application::CreateSceneMouse();
+			gEnv->frameListener->initialized = true;
+			Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
 			EnterGameplayLoop();
 		}	
