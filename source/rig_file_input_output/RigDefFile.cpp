@@ -239,6 +239,8 @@ const char * File::SectionToString(File::Section section)
 			return "help";
 		case (File::SECTION_HOOKS):
 			return "hooks";
+		case (File::SECTION_LOCKGROUPS):
+			return "lockgroups";
 		case (File::SECTION_MANAGED_MATERIALS):
 			return "managedmaterials";
 		case (File::SECTION_MATERIAL_FLARE_BINDINGS):
