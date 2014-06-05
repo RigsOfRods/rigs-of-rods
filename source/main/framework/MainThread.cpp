@@ -906,7 +906,7 @@ void MainThread::MenuLoopUpdateEvents(float seconds_since_last_frame)
 
 	if (RoR::Application::GetOverlayWrapper() != nullptr)
 	{
-		RoR::Application::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer.
+		RoR::Application::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
 	}
 
 #ifdef USE_MYGUI
@@ -935,14 +935,6 @@ void MainThread::MenuLoopUpdateEvents(float seconds_since_last_frame)
 
 	// FIXME: full screen/windowed screen switching
 	//if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f)) {}
-
-	#ifdef USE_MYGUI
-		if (SelectorWindow::getSingleton().isFinishedSelecting())
-		{
-			
-		}
-#endif //MYGUI
-
 }
 
 void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
