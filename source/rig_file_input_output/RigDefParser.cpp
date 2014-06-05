@@ -2953,8 +2953,9 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 		{
 			AddMessage(line, Message::TYPE_ERROR, "[Internal error] Directive 'add_animation': Token '" + *itor + "' passed syntax check, but wasn't recognized....");
 		}
-		
 	}
+
+	m_current_module->props.back().animations.push_back(animation);
 }
 
 void Parser::ParseAntiLockBrakes(Ogre::String const & line)
