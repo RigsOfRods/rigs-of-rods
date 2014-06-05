@@ -4880,6 +4880,8 @@ void Parser::ParseLockgroups(Ogre::String const & line)
 		Ogre::String token = *iter;
 		lockgroup.nodes.push_back(_ParseNodeId(token));
 	}
+
+	_CheckInvalidTrailingText(line, results, 5);
 	
 	m_current_module->lockgroups.push_back(lockgroup);
 }
