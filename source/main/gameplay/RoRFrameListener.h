@@ -61,7 +61,6 @@ protected:
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
 
-	OverlayWrapper *ow;
 	bool dirvisible;
 	bool enablePosStor;
 	bool flipflop;
@@ -104,8 +103,6 @@ protected:
 	void windowFocusChange(Ogre::RenderWindow* rw);
 
 public: // public methods
-
-	OverlayWrapper *getOverlayWrapper() { return ow; };
 
 	bool RTSSgenerateShadersForMaterial(Ogre::String curMaterialName, Ogre::String normalTextureName);
 	bool frameEnded(const Ogre::FrameEvent& evt);

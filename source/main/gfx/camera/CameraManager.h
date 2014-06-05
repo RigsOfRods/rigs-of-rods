@@ -33,7 +33,7 @@ class CameraManager : public IBehaviorManager
 
 public:
 
-	CameraManager(OverlayWrapper *ow, DOFManager *dof);
+	CameraManager(DOFManager *dof);
 	~CameraManager();
 
 	class CameraContext
@@ -43,7 +43,6 @@ public:
 		Beam *mCurrTruck;
 		DOFManager *mDof;
 		Ogre::Degree mRotScale;
-		OverlayWrapper *mOverlayWrapper;
 		Ogre::Real mDt;
 		Ogre::Real mTransScale;
 		Ogre::Radian fovInternal;

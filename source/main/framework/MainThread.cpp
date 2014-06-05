@@ -499,7 +499,6 @@ void MainThread::Go()
 
 		Application::CreateOverlayWrapper();
 		Application::GetOverlayWrapper()->SetupDirectionArrow();
-		gEnv->frameListener->ow = RoR::Application::GetOverlayWrapper();
 
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
 
@@ -526,7 +525,7 @@ void MainThread::Go()
 		}
 
 		// init camera manager after mygui and after we have a character
-		new CameraManager(RoR::Application::GetOverlayWrapper(), gEnv->frameListener->dof);
+		new CameraManager(gEnv->frameListener->dof);
 
 		// ============================================================================
 		// Loading map

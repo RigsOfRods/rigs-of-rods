@@ -701,8 +701,10 @@ void Console::resized()
 	MyGUI::IntSize size = MyGUI::RenderManager::getInstance().getViewSize();
 	
 	// 15% of the window height is the overlay
-	OverlayWrapper *ow = RoR::Application::GetOverlayWrapper();
-	if (ow) bottom_border = size.height - ow->getDashBoardHeight() + 20;
+	if (RoR::Application::GetOverlayWrapper() != nullptr)
+	{
+		bottom_border = size.height - RoR::Application::GetOverlayWrapper()->getDashBoardHeight() + 20;
+	}
 
 	int height = size.height - bottom_border - top_border;
 	int width  = size.width;
