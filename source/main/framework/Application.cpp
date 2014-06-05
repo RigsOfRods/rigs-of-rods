@@ -107,21 +107,17 @@ void Application::DestroyOverlayWrapper()
 	ms_overlay_wrapper = nullptr;
 }
 
-void Application::CreateSceneMouseIfNotExists()
+void Application::CreateSceneMouse()
 {
-	if (ms_scene_mouse == nullptr)
-	{
-		ms_scene_mouse = new SceneMouse();
-	}
+	assert (ms_scene_mouse == nullptr);
+	ms_scene_mouse = new SceneMouse();
 }
 
-void Application::DeleteSceneMouseIfExists()
+void Application::DeleteSceneMouse()
 {
-	if (ms_scene_mouse != nullptr)
-	{
-		delete ms_scene_mouse;
-		ms_scene_mouse = nullptr;
-	}
+	assert (ms_scene_mouse != nullptr);
+	delete ms_scene_mouse;
+	ms_scene_mouse = nullptr;
 }
 
 void Application::CreateGuiManagerIfNotExists()
