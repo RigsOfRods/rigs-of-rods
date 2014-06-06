@@ -1864,14 +1864,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	//if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
 
-	// exit frame started method when just displaying the GUI
-#ifdef USE_MYGUI
-	if (LoadingWindow::getSingleton().getFrameForced())
-	{
-		return true;
-	}
-#endif //MYGUI
-
 	// update OutProtocol
 	if (OutProtocol::getSingletonPtr())
 	{
