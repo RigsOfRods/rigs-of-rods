@@ -129,6 +129,5 @@ enum GameStates
 	ALL_LOADED     = 2,
 	EXITING        = 3,
 	RELOADING      = 5,
-	PAUSE          = 6,
-	TERRAIN_EDITOR = 7
+	PAUSE          = 6
 };

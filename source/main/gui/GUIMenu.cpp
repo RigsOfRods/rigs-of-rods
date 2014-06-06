@@ -78,7 +78,6 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("Save Scenery"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Load Scenery"), MyGUI::MenuItemType::Normal);
 	//p->addItem("-", MyGUI::MenuItemType::Separator);
-	//p->addItem(_L("Terrain Editor Mode"), MyGUI::MenuItemType::Normal);
 	p->addItem("-", MyGUI::MenuItemType::Separator);
 	p->addItem(_L("Exit"), MyGUI::MenuItemType::Normal);
 	pop.push_back(p);
@@ -350,13 +349,8 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 			//s.load(fname);
 		}
 
-	} else if (miname == _L("Terrain Editor Mode"))
-	{
-		gEnv->frameListener->loading_state = TERRAIN_EDITOR;
-		gEnv->cameraManager->switchBehavior(CameraManager::CAMERA_BEHAVIOR_ISOMETRIC, true);
-		
-
-	} else if (miname == _L("remove current Vehicle"))
+	} 
+	else if (miname == _L("remove current Vehicle"))
 	{
 		BeamFactory::getSingleton().removeCurrentTruck();
 

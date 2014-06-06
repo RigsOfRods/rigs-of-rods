@@ -443,7 +443,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 
-	if (loading_state==ALL_LOADED || loading_state == TERRAIN_EDITOR)
+	if (loading_state==ALL_LOADED)
 	{
 		if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
 		{
@@ -1509,7 +1509,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		dirty=true;
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS) && (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR))
+	if (loading_state == ALL_LOADED && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
 	{
 		dirty=true;
 		if (mStatsOn==0)
@@ -1898,14 +1898,16 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif // USE_MUMBLE
 	}
 
-	if (gEnv->cameraManager && (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR))
+	if (loading_state == ALL_LOADED)
 	{
-		gEnv->cameraManager->update(dt);
-	}
-
-	if (gEnv->surveyMap && (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR))
-	{
-		gEnv->surveyMap->update(dt);
+		if (gEnv->cameraManager != nullptr)
+		{
+			gEnv->cameraManager->update(dt);
+		}
+		if (gEnv->surveyMap != nullptr)
+		{
+			gEnv->surveyMap->update(dt);
+		}
 	}
 
 	// update mirrors after moving the camera as we use the camera position in mirrors
@@ -1947,7 +1949,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		// water
-		if (loading_state==ALL_LOADED || loading_state == TERRAIN_EDITOR)
+		if (loading_state == ALL_LOADED)
 		{
 			IWater *water = gEnv->terrainManager->getWater();
 			if (water)
@@ -1972,7 +1974,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	//update visual - antishaking
-	if (loading_state==ALL_LOADED || loading_state == TERRAIN_EDITOR)
+	if (loading_state == ALL_LOADED)
 	{
 		BeamFactory::getSingleton().updateVisual(dt);
 
@@ -2001,7 +2003,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// one of the input modes is immediate, so update the movement vector
-	if (loading_state == ALL_LOADED || loading_state == TERRAIN_EDITOR)
+	if (loading_state == ALL_LOADED)
 	{
 		BeamFactory::getSingleton().checkSleepingState();
 
