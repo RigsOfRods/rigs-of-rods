@@ -41,7 +41,6 @@ public:
 		, surveyMap(0)
 		, terrainManager(0)
 		, threadPool(0)
-		, viewPort(0)
 		, main_thread_control(nullptr)
 	{
 	}
@@ -49,7 +48,6 @@ public:
 	Ogre::Camera *mainCamera;
 	Ogre::RenderWindow *renderWindow;
 	Ogre::SceneManager *sceneManager;
-	Ogre::Viewport *viewPort;
 
 	CameraManager *cameraManager;
 	Character *player;

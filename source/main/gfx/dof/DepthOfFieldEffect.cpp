@@ -47,8 +47,8 @@ DepthOfFieldEffect::DepthOfFieldEffect() :
 	, mFocalDepth(100.0)
 	, mNearDepth(10.0)
 {
-	mWidth = gEnv->viewPort->getActualWidth();
-	mHeight = gEnv->viewPort->getActualHeight();
+	mWidth = RoR::Application::GetOgreSubsystem()->GetViewport()->getActualWidth();
+	mHeight = RoR::Application::GetOgreSubsystem()->GetViewport()->getActualHeight();
 	
 	mDepthTexture.setNull();
 	mDepthMaterial.setNull();
@@ -146,7 +146,7 @@ void DepthOfFieldEffect::destroyDepthRenderTexture()
 
 void DepthOfFieldEffect::addCompositor()
 {
-	mCompositor = CompositorManager::getSingleton().addCompositor(gEnv->viewPort, "DoF_Compositor_test");
+	mCompositor = CompositorManager::getSingleton().addCompositor(RoR::Application::GetOgreSubsystem()->GetViewport(), "DoF_Compositor_test");
 	mCompositor->addListener(this);
 
 	mCompositor->setEnabled(true);
@@ -157,7 +157,7 @@ void DepthOfFieldEffect::removeCompositor()
 	mCompositor->setEnabled(false);
 
 	mCompositor->removeListener(this);
-	CompositorManager::getSingleton().removeCompositor(gEnv->viewPort, "DoF_Compositor_test");
+	CompositorManager::getSingleton().removeCompositor(RoR::Application::GetOgreSubsystem()->GetViewport(), "DoF_Compositor_test");
 }
 
 void DepthOfFieldEffect::notifyMaterialSetup(uint32 passId, MaterialPtr& material)
