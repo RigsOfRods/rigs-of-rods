@@ -125,10 +125,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 using namespace RoR;
 
-bool shutdownall=false;
-
-
-
 void RoRFrameListener::updateIO(float dt)
 {
 	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
@@ -1603,8 +1599,7 @@ void RoRFrameListener::shutdown_final()
 	// RoRFrameListener::shutdown_final() is allways called by main thread.
 	// Therefore we need no syncing here.
 	gEnv->main_thread_control->RequestShutdown();
-
-	shutdownall = true;
+	gEnv->main_thread_control->RequestExitCurrentLoop();
 }
 
 void RoRFrameListener::hideMap()
@@ -1855,12 +1850,6 @@ bool RoRFrameListener::updateTruckMirrors(float dt)
 // Override frameStarted event to process that (don't care about frameEnded)
 bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 {
-	if (shutdownall) // shortcut: press ESC in credits
-	{
-		gEnv->main_thread_control->Exit();
-		return false;
-	}
-
 	float dt=evt.timeSinceLastFrame;
 	if (dt==0) return true;
 	if (dt>1.0/20.0) dt=1.0/20.0;
