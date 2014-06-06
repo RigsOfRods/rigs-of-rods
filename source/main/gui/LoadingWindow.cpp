@@ -28,8 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "Utils.h"
 
-LoadingWindow::LoadingWindow() :
-	mFrameForced(false)
+LoadingWindow::LoadingWindow()
 {
 	initialiseByAttributes(this);
 
@@ -44,13 +43,6 @@ LoadingWindow::~LoadingWindow()
 {
 	delete(t);
 	t=NULL;
-}
-
-bool LoadingWindow::getFrameForced()
-{
-	if (!mFrameForced) return false;
-	mFrameForced = false;
-	return true;
 }
 
 void LoadingWindow::setProgress(int _percent, const Ogre::UTFString& _text, bool _updateRenderFrame)
@@ -90,7 +82,6 @@ void LoadingWindow::renderOneFrame(bool force)
 {
 	if (t->getMilliseconds() > 200 || force)
 	{
-		mFrameForced=true;
 		// we must pump the window messages, otherwise the window will get white on Vista ...
 		RoRWindowEventUtilities::messagePump();
 		Ogre::Root::getSingleton().renderOneFrame();

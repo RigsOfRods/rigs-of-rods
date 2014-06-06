@@ -44,8 +44,6 @@ public:
 
 	void hide();
 
-	bool getFrameForced();
-
 private:
 
 	void renderOneFrame(bool force = false);
@@ -56,7 +54,6 @@ private:
 	ATTRIBUTE_FIELD_WIDGET_NAME(LoadingWindow, mInfoStaticText, "Info");
 	MyGUI::TextBox* mInfoStaticText;
 
-	bool mFrameForced;
 	Ogre::Timer *t;
 };
 
