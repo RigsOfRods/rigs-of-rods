@@ -1854,10 +1854,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	if (dt==0) return true;
 	if (dt>1.0/20.0) dt=1.0/20.0;
 	rtime+=dt; //real time
-	if (RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isClosed())
-	{
-		return false;
-	}
 
 	// update GUI
 	RoR::Application::GetInputEngine()->Capture();
