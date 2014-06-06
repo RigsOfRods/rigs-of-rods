@@ -40,6 +40,7 @@
 #include "IHeightFinder.h"
 #include "Language.h"
 #include "OgreFontManager.h"
+#include "OgreSubsystem.h"
 #include "RoRVersion.h"
 #include "Screwprop.h"
 #include "SoundScriptManager.h"
@@ -54,7 +55,7 @@ OverlayWrapper::OverlayWrapper():
 	m_direction_arrow_node(nullptr),
 	mTimeUntilNextToggle(0)
 {
-	win = gEnv->renderWindow;
+	win = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 	init();
 }
 

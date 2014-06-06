@@ -60,6 +60,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MeshObject.h"
 #include "MumbleIntegration.h"
 #include "Network.h"
+#include "OgreSubsystem.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
@@ -279,7 +280,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 
 			// add some more data into the image
-			AdvancedScreen *as = new AdvancedScreen(gEnv->renderWindow, tmpfn);
+			AdvancedScreen *as = new AdvancedScreen(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
 			//as->addData("terrain_Name", loadedTerrain);
 			//as->addData("terrain_ModHash", terrainModHash);
 			//as->addData("terrain_FileHash", terrainFileHash);
@@ -304,15 +305,15 @@ bool RoRFrameListener::updateEvents(float dt)
 			as->addData("Camera_Mode", gEnv->cameraManager ? TOSTRING(gEnv->cameraManager->getCurrentBehavior()) : "None");
 			as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
-			const RenderTarget::FrameStats& stats = gEnv->renderWindow->getStatistics();
+			const RenderTarget::FrameStats& stats = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
 			as->addData("AVGFPS", TOSTRING(stats.avgFPS));
 
 			as->write();
 			delete(as);
 		} else
 		{
-			gEnv->renderWindow->update();
-			gEnv->renderWindow->writeContentsToFile(tmpfn);
+			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
+			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(tmpfn);
 		}
 
 #ifdef USE_MYGUI
@@ -426,21 +427,21 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f))
 	{
 		static int org_width = -1, org_height = -1;
-		int width = gEnv->renderWindow->getWidth();
-		int height = gEnv->renderWindow->getHeight();
+		int width = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth();
+		int height = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight();
 		if (org_width == -1)
 			org_width = width;
 		if (org_height == -1)
 			org_height = height;
-		bool mode = gEnv->renderWindow->isFullScreen();
+		bool mode = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isFullScreen();
 		if (!mode)
 		{
-			gEnv->renderWindow->setFullscreen(true, org_width, org_height);
+			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(true, org_width, org_height);
 			LOG(" ** switched to fullscreen: "+TOSTRING(width)+"x"+TOSTRING(height));
 		} else
 		{
-			gEnv->renderWindow->setFullscreen(false, 640, 480);
-			gEnv->renderWindow->setFullscreen(false, org_width, org_height);
+			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, 640, 480);
+			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
 			LOG(" ** switched to windowed mode: ");
 		}
 	}
@@ -1558,10 +1559,10 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 	//update window
-	if (!gEnv->renderWindow->isAutoUpdated())
+	if (!RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isAutoUpdated())
 	{
 		if (dirty)
-			gEnv->renderWindow->update();
+			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
 		else
 			sleepMilliSeconds(10);
 	}
@@ -1864,7 +1865,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	if (dt==0) return true;
 	if (dt>1.0/20.0) dt=1.0/20.0;
 	rtime+=dt; //real time
-	if (gEnv->renderWindow->isClosed())
+	if (RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isClosed())
 	{
 		return false;
 	}

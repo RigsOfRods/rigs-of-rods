@@ -28,6 +28,7 @@
 
 #include "Application.h"
 #include "ErrorUtils.h"
+#include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 
@@ -1989,11 +1990,11 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 		// set the mouse to the middle of the screen, hackish!
 #if WIN32
 		// under linux, this will not work and the cursor will never reach (0,0)
-		if (mMouse && gEnv->renderWindow)
+		if (mMouse && RoR::Application::GetOgreSubsystem()->GetRenderWindow())
 		{
 			OIS::MouseState &mutableMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-			mutableMouseState.X.abs = gEnv->renderWindow->getWidth()  * 0.5f;
-			mutableMouseState.Y.abs = gEnv->renderWindow->getHeight() * 0.5f;
+			mutableMouseState.X.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()  * 0.5f;
+			mutableMouseState.Y.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
 		}
 #endif // WIN32
 	}
@@ -3690,7 +3691,7 @@ void InputEngine::setupDefault(Ogre::String inputhwnd /* = "" */)
 
 	// start input engine
 	size_t hWnd = 0;
-	gEnv->renderWindow->getCustomAttribute("WINDOW", &hWnd);
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
 
 	this->setup(TOSTRING(hWnd), true, true, inputGrabMode);
 

@@ -53,7 +53,7 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 	*/
 
 	// Register caelum as a listener.
-	gEnv->renderWindow->addListener (mCaelumSystem);
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->addListener (mCaelumSystem);
 	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(mCaelumSystem);
 }
 
