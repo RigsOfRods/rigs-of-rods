@@ -32,6 +32,7 @@
 #include "BeamFactory.h"
 #include "Console.h"
 #include "Language.h"
+#include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
 #include "RTTLayer.h"
 #include "Settings.h"
@@ -57,7 +58,7 @@ GUIManager::~GUIManager()
 
 bool GUIManager::create()
 {
-	gEnv->ogreRoot->addFrameListener(this);
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
 	RoRWindowEventUtilities::addWindowEventListener(gEnv->renderWindow, this);
 
 	windowResized(gEnv->renderWindow);

@@ -100,7 +100,6 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
-	gEnv->ogreRoot     = Application::GetOgreSubsystem()->GetOgreRoot();
 	gEnv->viewPort     = Application::GetOgreSubsystem()->GetViewport();
 	gEnv->renderWindow = Application::GetOgreSubsystem()->GetRenderWindow();
 
