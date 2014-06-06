@@ -18,8 +18,11 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "HydraxWater.h"
+#include "OgreSubsystem.h"
+#include "RoRPrerequisites.h"
+
 //#include "OgreTerrainSceneManager.h" // for some cast in order to get the terrain material = ILLEGAL to link to a plugin!
 #include "RadialGrid.h"
 
@@ -33,7 +36,7 @@ HydraxWater::HydraxWater() :
 	//Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
 	LOG("* loading Hydrax...");
 	waveStrength = 30.5f;
-	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, gEnv->mainCamera, gEnv->viewPort);
+	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, gEnv->mainCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
 	mRenderCamera = gEnv->mainCamera;
 }
 

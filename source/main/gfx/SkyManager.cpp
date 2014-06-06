@@ -42,7 +42,7 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 		gEnv->sceneManager, 
 		Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE
 	);
-	mCaelumSystem->attachViewport(gEnv->viewPort);
+	mCaelumSystem->attachViewport(RoR::Application::GetOgreSubsystem()->GetViewport());
 
 	/*
 	// TODO: set real time, and let the user select his true location

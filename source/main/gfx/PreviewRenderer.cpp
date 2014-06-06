@@ -49,7 +49,7 @@ void PreviewRenderer::render()
 	LOG("starting previewRenderer...");
 	Beam *truck = BeamFactory::getSingleton().getCurrentTruck();
 	SceneManager *sceneMgr = gEnv->sceneManager;
-	Viewport *vp = gEnv->viewPort;
+	Viewport *vp = RoR::Application::GetOgreSubsystem()->GetViewport();
 
 	// disable skybox
 	//sceneMgr->setSkyBox(false, "");
