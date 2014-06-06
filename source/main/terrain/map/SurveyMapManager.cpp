@@ -27,11 +27,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraManager.h"
 #include "Character.h"
 #include "InputEngine.h"
-#include "Ogre.h"
+#include "OgreSubsystem.h"
 #include "Settings.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
 #include "TerrainManager.h"
+
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -140,8 +142,8 @@ void SurveyMapManager::updateMapEntityPositions()
 
 void SurveyMapManager::updateRenderMetrics()
 {
-	if (gEnv->renderWindow)
-		gEnv->renderWindow->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
+	if (RoR::Application::GetOgreSubsystem()->GetRenderWindow())
+		RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
 }
 
 void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/, bool permanent /*= true*/)

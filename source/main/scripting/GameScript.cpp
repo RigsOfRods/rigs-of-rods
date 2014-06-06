@@ -47,6 +47,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
+#include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "SelectorWindow.h"
@@ -684,7 +685,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count",     CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);
 	}
 
-	const RenderTarget::FrameStats& stats = gEnv->renderWindow->getStatistics();
+	const RenderTarget::FrameStats& stats = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "AVG_FPS", CURLFORM_COPYCONTENTS, TOSTRING(stats.avgFPS).c_str(), CURLFORM_END);
 
 

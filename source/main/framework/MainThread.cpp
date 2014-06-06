@@ -100,7 +100,6 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
-	gEnv->renderWindow = Application::GetOgreSubsystem()->GetRenderWindow();
 
 	Application::CreateContentManager();
 
@@ -228,8 +227,8 @@ void MainThread::Go()
 	gEnv->frameListener->dirvisible = false;
 	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
-	gEnv->frameListener->windowResized(gEnv->renderWindow);
-	RoRWindowEventUtilities::addWindowEventListener(gEnv->renderWindow, gEnv->frameListener);
+	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
+	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
 	// get lights mode
 	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
@@ -818,7 +817,7 @@ void MainThread::MenuLoopUpdate(float seconds_since_last_frame)
 		seconds_since_last_frame=1.0/20.0; 
 	}
 
-	if (gEnv->renderWindow->isClosed())
+	if (RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isClosed())
 	{
 		RequestExitCurrentLoop();
 		RequestShutdown();

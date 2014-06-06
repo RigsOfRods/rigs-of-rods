@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Water.h"
 
+#include "Application.h"
+#include "OgreSubsystem.h"
 #include "ResourceBuffer.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -196,8 +198,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 				mRefractCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
 				mRefractCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 				mRefractCam->setAspectRatio(
-					(Real)gEnv->renderWindow->getViewport(0)->getActualWidth() /
-					(Real)gEnv->renderWindow->getViewport(0)->getActualHeight());
+					(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+					(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
 				vRtt1 = rttTex1->addViewport( mRefractCam );
 				vRtt1->setClearEveryFrame( true );
@@ -230,8 +232,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 			mReflectCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
 			mReflectCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 			mReflectCam->setAspectRatio(
-				(Real)gEnv->renderWindow->getViewport(0)->getActualWidth() /
-				(Real)gEnv->renderWindow->getViewport(0)->getActualHeight());
+				(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+				(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
 			vRtt2 = rttTex2->addViewport( mReflectCam );
 			vRtt2->setClearEveryFrame( true );

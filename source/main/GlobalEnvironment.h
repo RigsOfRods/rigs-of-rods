@@ -35,7 +35,6 @@ public:
 		, mrTime(0)
 		, network(0)
 		, player(0)
-		, renderWindow(0)
 		, sceneManager(0)
 		, sky(0)
 		, surveyMap(0)
@@ -46,7 +45,6 @@ public:
 	}
 
 	Ogre::Camera *mainCamera;
-	Ogre::RenderWindow *renderWindow;
 	Ogre::SceneManager *sceneManager;
 
 	CameraManager *cameraManager;
