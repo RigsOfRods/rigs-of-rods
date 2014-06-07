@@ -104,7 +104,7 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   add_sub_dir(${BINNAME} network/protocol)
   add_sub_dir(${BINNAME} network/IRC)
   add_sub_dir(${BINNAME} sqlite)
-  add_sub_dir(${BINNAME} framework)
+  add_sub_dir(${BINNAME} resources)
   add_sub_dir(${BINNAME} ${folder})
   add_main_dir(${BINNAME})
   
