@@ -158,7 +158,8 @@ Trigger::Trigger():
 	options(0),
 	boundary_timer(1.f), /* Default */
 	_engine_trigger_motor_index(0),
-	_engine_trigger_function(ENGINE_TRIGGER_FUNCTION_INVALID)
+	_engine_trigger_function(ENGINE_TRIGGER_FUNCTION_INVALID),
+	detacher_group(0)
 {}
 
 VideoCamera::VideoCamera():
@@ -239,6 +240,8 @@ const char * File::SectionToString(File::Section section)
 			return "help";
 		case (File::SECTION_HOOKS):
 			return "hooks";
+		case (File::SECTION_LOCKGROUPS):
+			return "lockgroups";
 		case (File::SECTION_MANAGED_MATERIALS):
 			return "managedmaterials";
 		case (File::SECTION_MATERIAL_FLARE_BINDINGS):

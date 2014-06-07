@@ -288,6 +288,11 @@ struct Node
 			end(single)
 		{}
 
+		Range(unsigned int single_number):
+			start(Node::Id(single_number)),
+			end(Node::Id(single_number))
+		{}
+
 		bool IsRange()
 		{
 			return start != end;
@@ -1494,6 +1499,8 @@ struct Trigger
 	float boundary_timer;
 	unsigned int _engine_trigger_motor_index;
 	EngineTriggerFunction _engine_trigger_function;
+	boost::shared_ptr<BeamDefaults> beam_defaults;
+	int detacher_group;
 };
 
 /* -------------------------------------------------------------------------- */

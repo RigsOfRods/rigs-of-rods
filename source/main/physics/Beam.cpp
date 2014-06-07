@@ -6024,12 +6024,13 @@ Beam::Beam(
 	const char* fname, 
 	bool networked, /* = false  */
 	bool networking, /* = false  */ 
-	collision_box_t *spawnbox, /* = NULL  */
-	bool ismachine, /* =false  */ 
-	int flareMode, /* = 0  */
-	const std::vector<Ogre::String> *truckconfig, /* = 0  */
-	Skin *skin, /* = 0  */
-	bool freeposition /* = false */
+	collision_box_t *spawnbox, /* = nullptr */
+	bool ismachine, /* = false  */ 
+	int flareMode, /* = nullptr */
+	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
+	Skin *skin, /* = nullptr */
+	bool freeposition, /* = false */
+	bool preloaded_with_terrain /* = false */
 ) :
 
 	  deleting(false)
@@ -6182,7 +6183,7 @@ Beam::Beam(
 	
 	if (strnlen(fname, 200) > 0)
 	{
-		if(! LoadTruck(fname, beams_parent, pos, rot, spawnbox))
+		if(! LoadTruck(fname, beams_parent, pos, rot, spawnbox, preloaded_with_terrain))
 		{
 			return;
 		}
@@ -6286,7 +6287,8 @@ bool Beam::LoadTruck(
 	Ogre::SceneNode *parent_scene_node, 
 	Ogre::Vector3 const & spawn_position,
 	Ogre::Quaternion & spawn_rotation,
-	collision_box_t *spawn_box
+	collision_box_t *spawn_box,
+	bool preloaded_with_terrain /* = false */
 )
 {
 	/* add custom include path */
@@ -6361,6 +6363,16 @@ bool Beam::LoadTruck(
 
 	RigDef::Validator validator;
 	validator.Setup(parser.GetFile());
+
+	// Workaround: Some terrains pre-load .load files with no beams.
+	// Observed in: "Northern-Isles" [http://www.rigsofrods.com/repository/view/5315]
+	Ogre::String file_extension = file_name.substr(file_name.size() - 5);
+	Ogre::StringUtil::toLowerCase(file_extension);
+	bool is_load = (file_extension == ".load");
+	if (preloaded_with_terrain && is_load)
+	{
+		validator.SetCheckBeams(false);
+	}
 	bool valid = validator.Validate();
 
 	LogValidatorMessages(validator);

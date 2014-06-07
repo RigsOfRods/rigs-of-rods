@@ -64,7 +64,10 @@ bool Validator::Validate()
 
 	valid &= CheckSection(RigDef::File::KEYWORD_NODES, false, true); /* Required; sections nodes/nodes2 are unified here. */
 
-	valid &= CheckSection(RigDef::File::KEYWORD_BEAMS, false, true); /* Required */
+	if (m_check_beams)
+	{
+		valid &= CheckSection(RigDef::File::KEYWORD_BEAMS, false, true); /* Required */
+	}
 
 	valid &= CheckSection(RigDef::File::KEYWORD_ENGINE, true, false); /* Unique */
 
@@ -108,6 +111,7 @@ void Validator::Setup(boost::shared_ptr<RigDef::File> file)
 	m_file = file;
 	m_selected_modules.push_back(file->root_module);
 	m_messages.clear();
+	m_check_beams = true;
 }
 
 void Validator::AddMessage(Validator::Message::Type type, Ogre::String const & text)

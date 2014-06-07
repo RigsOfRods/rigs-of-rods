@@ -996,74 +996,74 @@ DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
 
 DEFINE_REGEX( SECTION_ENGINE,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_REAL_NUMBER ) /* Min RPM */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Max RPM */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Torque */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Differential */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Reverse */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Neutral */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #7 1st gear */
+	E_CAPTURE( E_REAL_NUMBER ) /* #1 Min RPM */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #3 Max RPM */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #5 Torque */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #7 Differential */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #9 Reverse */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #11 Neutral */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #13 1st gear */
 	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_REAL_NUMBER ) /* #9 2nd gear ... */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_REAL_NUMBER ) /* #16 2nd gear ... */
 
 		E_CAPTURE_OPTIONAL( 
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER )
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER ) /* #19 */
 
 			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_REAL_NUMBER )
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_REAL_NUMBER ) /* #22*/
 
 				E_CAPTURE_OPTIONAL( 
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_REAL_NUMBER ) /* #15 */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_REAL_NUMBER ) /* #25 */
 
 					E_CAPTURE_OPTIONAL( 
-						E_DELIMITER_COMMA
-						E_CAPTURE( E_REAL_NUMBER )
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_REAL_NUMBER ) /* #28 */
 
 						E_CAPTURE_OPTIONAL( 
-							E_DELIMITER_COMMA
-							E_CAPTURE( E_REAL_NUMBER )
+							E_CAPTURE( E_DELIMITER )
+							E_CAPTURE( E_REAL_NUMBER ) /* #31 */
 
 							E_CAPTURE_OPTIONAL( 
-								E_DELIMITER_COMMA
-								E_CAPTURE( E_REAL_NUMBER )
+								E_CAPTURE( E_DELIMITER )
+								E_CAPTURE( E_REAL_NUMBER ) /* #34 */
 
 								E_CAPTURE_OPTIONAL( 
-									E_DELIMITER_COMMA
-									E_CAPTURE( E_REAL_NUMBER )
+									E_CAPTURE( E_DELIMITER )
+									E_CAPTURE( E_REAL_NUMBER ) /* #37 */
 
 									E_CAPTURE_OPTIONAL( 
-										E_DELIMITER_COMMA
-										E_CAPTURE( E_REAL_NUMBER ) /* #25 */
+										E_CAPTURE( E_DELIMITER )
+										E_CAPTURE( E_REAL_NUMBER ) /* #40 */
 
 										E_CAPTURE_OPTIONAL( 
-											E_DELIMITER_COMMA
-											E_CAPTURE( E_REAL_NUMBER )
+											E_CAPTURE( E_DELIMITER )
+											E_CAPTURE( E_REAL_NUMBER ) /* #43 */
 
 											E_CAPTURE_OPTIONAL( 
-												E_DELIMITER_COMMA
-												E_CAPTURE( E_REAL_NUMBER )
+												E_CAPTURE( E_DELIMITER )
+												E_CAPTURE( E_REAL_NUMBER ) /* #46 */
 
 												E_CAPTURE_OPTIONAL( 
-													E_DELIMITER_COMMA
-													E_CAPTURE( E_REAL_NUMBER )
+													E_CAPTURE( E_DELIMITER )
+													E_CAPTURE( E_REAL_NUMBER ) /* #49 */
 
 													E_CAPTURE_OPTIONAL( 
-														E_DELIMITER_COMMA
-														E_CAPTURE( E_REAL_NUMBER )
+														E_CAPTURE( E_DELIMITER )
+														E_CAPTURE( E_REAL_NUMBER ) /* #52 */
 
 														E_CAPTURE_OPTIONAL( 
-															E_DELIMITER_COMMA
-															E_CAPTURE( E_REAL_NUMBER ) /* #35 15th gear, max */
+															E_CAPTURE( E_DELIMITER )
+															E_CAPTURE( E_REAL_NUMBER ) /* #55 15th gear, max */
 														)
 													)
 												)
@@ -1078,10 +1078,11 @@ DEFINE_REGEX( SECTION_ENGINE,
 			)
 		)
 	) 
-	E_CAPTURE_OPTIONAL( /* #36 Terminator (optional for backwards compatibility) */
-		E_DELIMITER_COMMA
+	E_CAPTURE_OPTIONAL( /* #56 Terminator (optional for backwards compatibility) */
+		E_CAPTURE( E_DELIMITER )
 		E_MINUS_ONE_REAL 
 	) 
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #57 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 
@@ -1357,64 +1358,22 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
 	"^forset"
-	E_DELIMITER_SPACE
-	E_CAPTURE(
-		E_CAPTURE(
-			E_CAPTURE(
-				E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER ) 
-				E_CAPTURE( E_DELIMITER_COMMA ) "+" /* Tolerate multiple commas for backwards compatibility */
-			)
-			E_OR
-			E_CAPTURE(
-				E_CAPTURE( E_NODE_ID ) 
-				E_CAPTURE( E_DELIMITER_COMMA ) "+" /* Tolerate multiple commas for backwards compatibility */
-			)
-			E_OR
-			E_CAPTURE(
-				E_CAPTURE( E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID )
-				E_CAPTURE( E_DELIMITER_COMMA ) "+" /* Tolerate multiple commas for backwards compatibility */
-			)
-		) "*"
-		E_CAPTURE_OPTIONAL( /* OPTIONAL = Tolerate comma after last element, for backwards compatibility */
-			E_CAPTURE(
-				E_POSITIVE_DECIMAL_NUMBER "[[:blank:]]*-[[:blank:]]*" E_POSITIVE_DECIMAL_NUMBER 
-			)
-			E_OR
-			E_CAPTURE(
-				E_NODE_ID 
-			)
-			E_OR
-			E_CAPTURE(
-				E_NODE_ID "[[:blank:]]+-[[:blank:]]+" E_NODE_ID
-			)
-		)
-	)
-	E_TRAILING_WHITESPACE
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( ".*$" ) /* #2 Entire line */
 	);
 
 DEFINE_REGEX( FORSET_ELEMENT,
-	
-	E_CAPTURE_OPTIONAL( /* #1 Range with numbered nodes */
+	E_CAPTURE( /* #1 Range with numbered nodes */
 		E_LEADING_WHITESPACE
 		E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #2 Range start */
 		"[[:blank:]]*-[[:blank:]]*"
 		E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #3 Range end */
 		E_TRAILING_WHITESPACE
 	)
-
-	E_CAPTURE_OPTIONAL( /* #4 Solitary node */
+	E_OR
+	E_CAPTURE( /* #4 Solitary node (numbered or named) */
 		E_LEADING_WHITESPACE
 		E_NODE_ID
-		E_TRAILING_WHITESPACE
-	) 
-
-	E_CAPTURE_OPTIONAL( /* #5 Range with named node(s) */
-		E_LEADING_WHITESPACE
-		E_CAPTURE( E_NODE_ID ) /* #6 Range start */
-		E_DELIMITER_SPACE
-		"-"
-		E_DELIMITER_SPACE
-		E_CAPTURE( E_NODE_ID ) /* #7 Range end */
 		E_TRAILING_WHITESPACE
 	)
 	);
@@ -1651,87 +1610,81 @@ DEFINE_REGEX( HOOKS_OPTIONS,
 
 DEFINE_REGEX( SECTION_HYDROS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Lengthening factor */
+	E_CAPTURE( E_NODE_ID ) /* #1 Node 1 */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID ) /* #3 Node 2 */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #5 Lengthening factor */
 	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( "[areuvxyghis]*" ) /* #5 Flags */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( "[areuvxyghis]*" ) /* #8 Flags */
 
 		E_CAPTURE_OPTIONAL(
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* #7 Inertia: start delay */
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER ) /* #11 Inertia: start delay */
 
 			E_CAPTURE_OPTIONAL(
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_REAL_NUMBER ) /* #9 Inertia: stop delay */
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_REAL_NUMBER ) /* #14 Inertia: stop delay */
 
 				E_CAPTURE_OPTIONAL(
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_STRING_NO_SPACES ) /* #11 Inertia: start function */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_STRING_NO_SPACES ) /* #17 Inertia: start function */
 
 					E_CAPTURE_OPTIONAL(
-						E_DELIMITER_COMMA
-						E_CAPTURE( E_STRING_NO_SPACES ) /* #13 Inertia: stop function */
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_STRING_NO_SPACES ) /* #20 Inertia: stop function */
 					)
 				)
 			)
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #21 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 
 DEFINE_REGEX( SECTION_LOCKGROUPS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_DECIMAL_NUMBER ) /* Group number */
+	E_CAPTURE( E_DECIMAL_NUMBER ) /* #1 Group number */
 	E_DELIMITER_COMMA
-	E_CAPTURE( /* Node list */
+	E_CAPTURE( /* #2 Node list */
 		E_CAPTURE(
 			E_NODE_ID
 			E_DELIMITER_COMMA		
 		) "*"
 		E_CAPTURE(
 			E_NODE_ID
-			E_TRAILING_WHITESPACE
-		) 
-	) 
+		)
+	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #5 Invalid text */
+	E_TRAILING_WHITESPACE
 	);
 
 DEFINE_REGEX( SECTION_MANAGEDMATERIALS,
 	E_LEADING_WHITESPACE
 	E_CAPTURE( E_STRING_NO_SPACES ) /* #1 Material name */
-	E_DELIMITER_SPACE
-	E_CAPTURE( /* #2 Wrapper */
-		E_CAPTURE( /* #3 2-param branch wrapper */
-			E_CAPTURE( /* #4 Type wrapper */
-				E_CAPTURE( "mesh_standard" ) /* #5 */
-				E_OR
-				E_CAPTURE( "mesh_transparent" ) /* #6 */
-			)
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #7 Diffuse map filename */
-			E_CAPTURE_OPTIONAL( /* #8 Specular map (filename or placeholder) (optional for backwards compatibility) */
-				E_DELIMITER_SPACE 
-				E_STRING_NO_SPACES 
-			)
-		)
+	E_CAPTURE( E_DELIMITER )        /* #2 */
+	E_CAPTURE(                      /* #3 Type wrapper */
+		E_CAPTURE( "mesh_standard" )        /* #4 */
 		E_OR
-		E_CAPTURE( /* #9 3-param branch wrapper */
-			E_CAPTURE( /* #10 Type wrapper */
-				E_CAPTURE( "flexmesh_standard" ) /* #11 */
-				E_OR
-				E_CAPTURE( "flexmesh_transparent" ) /* #12 */
-			)
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #13 Diffuse map filename */
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #14 Damaged diffuse map (filename or placeholder) */ 
-			E_DELIMITER_SPACE
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #15 Specular map (filename or placeholder) */ 
+		E_CAPTURE( "mesh_transparent" )     /* #5 */
+		E_OR
+		E_CAPTURE( "flexmesh_standard" )    /* #6 */
+		E_OR
+		E_CAPTURE( "flexmesh_transparent" ) /* #7 */
+	)
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_NO_SPACES )         /* #9 Diffuse map filename */
+	E_CAPTURE_OPTIONAL( 
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_STRING_NO_SPACES )     /* #12 */
+		E_CAPTURE_OPTIONAL( 
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_STRING_NO_SPACES ) /* #15 */
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING )
+	E_TRAILING_WHITESPACE
 	);
 
 DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
@@ -2248,11 +2201,14 @@ DEFINE_REGEX( SECTION_SOUNDSOURCES,
 
 DEFINE_REGEX( SECTION_SOUNDSOURCES2,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Node which makes the sound */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* Mode/Cinecam ID, decimal number (accept anything for backward compatibility) */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_STRING_NO_SPACES ) /* Sound script name */
+
+	E_CAPTURE( E_NODE_ID ) /* #1 Node which makes the sound */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #3 Mode/Cinecam ID, decimal number (accept anything for backward compatibility) */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_NO_SPACES ) /* #5 Sound script name */
+
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #6 Invalid text */
 	E_TRAILING_WHITESPACE
 	);
 
