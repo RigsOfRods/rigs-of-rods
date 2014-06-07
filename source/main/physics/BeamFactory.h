@@ -51,7 +51,19 @@ public:
 	*/
 	Beam *createLocal(int slotid) { return 0; }
 
-	Beam *createLocal(Ogre::Vector3 pos, Ogre::Quaternion rot, Ogre::String fname, collision_box_t *spawnbox = NULL, bool ismachine = false, int flareMode = 0, const std::vector<Ogre::String> *truckconfig = 0, Skin *skin = 0, bool freePosition = false);
+	Beam *createLocal(
+		Ogre::Vector3 pos, 
+		Ogre::Quaternion rot, 
+		Ogre::String fname, 
+		collision_box_t *spawnbox = NULL, 
+		bool ismachine = false, 
+		int flareMode = 0, 
+		const std::vector<Ogre::String> *truckconfig = nullptr, 
+		Skin *skin = nullptr, 
+		bool freePosition = false,
+		bool preloaded_with_terrain = false
+		);
+	
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
 	bool getThreadingMode() { return thread_mode; };

@@ -151,7 +151,18 @@ bool BeamFactory::removeBeam(Beam *b)
 	return false;
 }
 
-Beam *BeamFactory::createLocal(Ogre::Vector3 pos, Ogre::Quaternion rot, Ogre::String fname, collision_box_t *spawnbox /* = NULL */, bool ismachine /* = false */, int flareMode /* = 0 */, const std::vector<Ogre::String> *truckconfig /* = 0 */, Skin *skin /* = 0 */, bool freePosition /* = false */)
+Beam *BeamFactory::createLocal(
+	Ogre::Vector3 pos, 
+	Ogre::Quaternion rot, 
+	Ogre::String fname, 
+	collision_box_t *spawnbox /* = nullptr */, 
+	bool ismachine /* = false */, 
+	int flareMode /* = 0 */, 
+	const std::vector<Ogre::String> *truckconfig /* = nullptr */, 
+	Skin *skin /* = nullptr */, 
+	bool freePosition, /* = false */
+	bool preloaded_with_terrain /* = false */
+)
 {
 	int truck_num = getFreeTruckSlot();
 	if (truck_num == -1)
@@ -166,13 +177,15 @@ Beam *BeamFactory::createLocal(Ogre::Vector3 pos, Ogre::Quaternion rot, Ogre::St
 		rot,
 		fname.c_str(),
 		false, // networked
-		gEnv->network!=0, // networking
+		gEnv->network != nullptr, // networking
 		spawnbox,
 		ismachine,
 		flareMode,
 		truckconfig,
 		skin,
-		freePosition);
+		freePosition,
+		preloaded_with_terrain
+		);
 
 	trucks[truck_num] = b;
 

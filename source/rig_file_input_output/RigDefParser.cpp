@@ -1492,6 +1492,11 @@ void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
+	if (m_current_module->skeleton_settings == nullptr)
+	{
+		m_current_module->skeleton_settings = boost::shared_ptr<RigDef::SkeletonSettings>(new SkeletonSettings());
+	}
+
 	float visibility_meters = STR_PARSE_REAL(results[1]);
 	if (visibility_meters < 0)
 	{
@@ -2117,11 +2122,6 @@ void Parser::ParseGuid(Ogre::String const & line)
 
 void Parser::ParseGlobals(Ogre::String const & line)
 {
-	if (m_current_module->globals != nullptr)
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'globals' in one module, using the first one defined...");
-	}
-
 	boost::smatch results;
 	const boost::regex & regex = Regexes::SECTION_GLOBALS;
 	if (! boost::regex_search(line, results, Regexes::SECTION_GLOBALS))
@@ -2129,6 +2129,13 @@ void Parser::ParseGlobals(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
+
+	if (m_current_module->globals != nullptr)
+	{
+		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'globals' in one module, using the first one found.");
+		return;
+	}
+
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Globals globals;
@@ -2359,31 +2366,29 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 			return;
 		}
 
-		Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[1], ",");
+		Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
+		/* NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated. */
 		Ogre::StringVector::iterator iter = tokens.begin();
 		for ( ; iter != tokens.end(); iter++)
 		{
 			boost::smatch results;
 			if (! boost::regex_search(*iter, results, Regexes::FORSET_ELEMENT))
 			{
-				AddMessage(*iter, Message::TYPE_ERROR, "Invalid element of 'forset', ignoring...");
-				return;
+				/* Invalid element, attempt to parse as node number for backwards compatibility */
+				unsigned int result = strtoul((*iter).c_str(), nullptr, 10);
+				std::stringstream msg;
+				msg << "Subsection 'forset': Invalid element '" << *iter << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
+				AddMessage(line, Message::TYPE_WARNING, msg.str());
+				m_last_flexbody->forset.push_back(Node::Range(result));
 			}
-
-			if (results[1].matched) /* Range of numbered nodes */
+			else if (results[1].matched) /* Range of numbered nodes */
 			{
 				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[2]), _ParseNodeId(results[3])));
 			}
 			else if(results[4].matched) /* Single node */
 			{
 				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[4])));
-			}
-			else if(results[5].matched)
-			{
-				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[6]), _ParseNodeId(results[7])));
-			}
-
-			
+			}			
 		}
 
 		/* Switch subsection */
@@ -2948,8 +2953,9 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 		{
 			AddMessage(line, Message::TYPE_ERROR, "[Internal error] Directive 'add_animation': Token '" + *itor + "' passed syntax check, but wasn't recognized....");
 		}
-		
 	}
+
+	m_current_module->props.back().animations.push_back(animation);
 }
 
 void Parser::ParseAntiLockBrakes(Ogre::String const & line)
@@ -3105,17 +3111,17 @@ void Parser::ParseEngine(Ogre::String const & line)
 
 	Engine engine;
 	engine.shift_down_rpm = STR_PARSE_REAL(results[1]);
-	engine.shift_up_rpm = STR_PARSE_REAL(results[2]);
-	engine.torque = STR_PARSE_REAL(results[3]);
-	engine.global_gear_ratio = STR_PARSE_REAL(results[4]);
-	engine.reverse_gear_ratio = STR_PARSE_REAL(results[5]);
-	engine.neutral_gear_ratio = STR_PARSE_REAL(results[6]);
+	engine.shift_up_rpm = STR_PARSE_REAL(results[3]);
+	engine.torque = STR_PARSE_REAL(results[5]);
+	engine.global_gear_ratio = STR_PARSE_REAL(results[7]);
+	engine.reverse_gear_ratio = STR_PARSE_REAL(results[9]);
+	engine.neutral_gear_ratio = STR_PARSE_REAL(results[11]);
 
 	/* Forward gears */
 	bool terminator_found = false;
-	for (unsigned int gear_index = 0; gear_index < 15; gear_index++)
+	for (unsigned int gear_index = 0; gear_index < 15; ++gear_index)
 	{
-		unsigned int result_index = 7 + (gear_index * 2);
+		unsigned int result_index = 13 + (gear_index * 3);
 
 		if (results[result_index].matched)
 		{
@@ -3647,6 +3653,8 @@ void Parser::ParseTriggers(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Trigger trigger;
+	trigger.beam_defaults = m_user_beam_defaults;
+	trigger.detacher_group = m_current_detacher_group;
 	trigger.nodes[0] = _ParseNodeId(results[1]);
 	trigger.nodes[1] = _ParseNodeId(results[2]);
 	trigger.contraction_trigger_limit = STR_PARSE_REAL(results[3]);
@@ -3815,18 +3823,18 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 
 	SoundSource2 soundsource2;
 	soundsource2.node = _ParseNodeId(results[1]);
-	soundsource2.sound_script_name = results[3];
+	soundsource2.sound_script_name = results[5];
 
 	/* Mode */
 	int mode = 0;
-	Ogre::String mode_str = results[2];
+	Ogre::String mode_str = results[3];
 	if (! boost::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
 	{
-		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter #2 'mode': '" + results[2] + "', parsing as '0' for backwards compatibility. Please fix.");
+		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter #2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
 	}
 	else
 	{
-		mode = STR_PARSE_INT(results[2]);
+		mode = STR_PARSE_INT(mode_str);
 	}
 	if (mode < 0)
 	{
@@ -3842,6 +3850,8 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 		soundsource2.mode = SoundSource2::MODE_CINECAM;
 		soundsource2.cinecam_index = mode;
 	}
+
+	_CheckInvalidTrailingText(line, results, 6);
 
 	m_current_module->soundsources2.push_back(soundsource2);
 }
@@ -4053,6 +4063,16 @@ void Parser::ParseShocks(Ogre::String const & line)
 	}
 
 	m_current_module->shocks.push_back(shock);
+}
+
+void Parser::_CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index)
+{
+	if (results[index].matched) /* Invalid trailing text */
+	{
+		std::stringstream msg;
+		msg << "Invalid text after parameters: '" << results[index] << "'. Please remove. Ignoring...";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
 }
 
 Node::Id Parser::_ParseNodeId(std::string const & node_id_str)
@@ -4784,20 +4804,19 @@ void Parser::ParseManagedMaterials(Ogre::String const & line)
 	managed_material.options = m_current_managed_material_options;
 	managed_material.name = results[1].str();
 
-	if (results[3].matched) /* 2-param branch */
+	managed_material.type = (results[4].matched) ? ManagedMaterial::TYPE_MESH_STANDARD        : managed_material.type;
+	managed_material.type = (results[5].matched) ? ManagedMaterial::TYPE_MESH_TRANSPARENT     : managed_material.type;
+	managed_material.type = (results[6].matched) ? ManagedMaterial::TYPE_FLEXMESH_STANDARD    : managed_material.type;
+	managed_material.type = (results[7].matched) ? ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT : managed_material.type;
+
+	managed_material.diffuse_map = results[9];
+
+	if	(	managed_material.type == ManagedMaterial::TYPE_MESH_STANDARD
+		||	managed_material.type == ManagedMaterial::TYPE_MESH_TRANSPARENT)
 	{
-		if (results[5].matched)
+		if (results[12].matched)
 		{
-			managed_material.type = ManagedMaterial::TYPE_MESH_STANDARD;
-		}
-		else
-		{
-			managed_material.type = ManagedMaterial::TYPE_MESH_TRANSPARENT;
-		}
-		managed_material.diffuse_map = results[7];
-		if (results[8].matched)
-		{
-			Ogre::String input = results[8];
+			Ogre::String input = results[12];
 			Ogre::StringUtil::trim(input);
 
 			/*
@@ -4810,20 +4829,11 @@ void Parser::ParseManagedMaterials(Ogre::String const & line)
 			}
 		}
 	}
-	else if (results[9].matched) /* 3-param branch */
+	else
 	{
-		if (results[11].matched)
+		if (results[12].matched)
 		{
-			managed_material.type = ManagedMaterial::TYPE_FLEXMESH_STANDARD;
-		}
-		else
-		{
-			managed_material.type = ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT;
-		}
-		managed_material.diffuse_map = results[13];
-		if (results[14].matched)
-		{
-			Ogre::String input = results[14];
+			Ogre::String input = results[12];
 
 			/*
 				According to documentation, '-' is a placeholder for no texture.
@@ -4873,6 +4883,8 @@ void Parser::ParseLockgroups(Ogre::String const & line)
 		Ogre::String token = *iter;
 		lockgroup.nodes.push_back(_ParseNodeId(token));
 	}
+
+	_CheckInvalidTrailingText(line, results, 5);
 	
 	m_current_module->lockgroups.push_back(lockgroup);
 }
@@ -4892,13 +4904,13 @@ void Parser::ParseHydros(Ogre::String const & line)
 	hydro.detacher_group     = m_current_detacher_group;
 	hydro.beam_defaults      = m_user_beam_defaults;
 	hydro.nodes[0]           = _ParseNodeId(results[1]);
-	hydro.nodes[1]           = _ParseNodeId(results[2]);
-	hydro.lenghtening_factor = STR_PARSE_REAL(results[3]);
+	hydro.nodes[1]           = _ParseNodeId(results[3]);
+	hydro.lenghtening_factor = STR_PARSE_REAL(results[5]);
 
 	/* Flags */
-	if (results[5].matched)
+	if (results[8].matched)
 	{
-		std::string const & flags_str = results[5];
+		std::string const & flags_str = results[8];
 		for (unsigned int i = 0; i < flags_str.length(); i++)
 		{
 			switch (flags_str.at(i))
@@ -4943,7 +4955,7 @@ void Parser::ParseHydros(Ogre::String const & line)
 	}
 
 	/* Inertia part */
-	_ParseOptionalInertia(hydro.inertia, results, 6);
+	_ParseOptionalInertia(hydro.inertia, results, 11);
 
 	m_current_module->hydros.push_back(hydro);
 }

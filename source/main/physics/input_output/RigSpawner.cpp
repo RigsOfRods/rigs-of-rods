@@ -1668,10 +1668,15 @@ float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const
 void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 {
 	int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
+	int node_index = FindNodeIndex_AcceptNonExistentNumbered(def.node);
+	if (node_index == -1)
+	{
+		return;
+	}
 	AddSoundSource(
 			m_rig,
 			SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
-			GetNodeIndexOrThrow(def.node),
+			node_index,
 			mode
 		);
 }
@@ -2205,7 +2210,7 @@ int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_
 	{
 		std::stringstream msg;
 		msg << "Node with number '" << node_id.Num() << "' doesn't exist (searched in definition and generated nodes). "
-			<< "Accepting it anyway for backwars compatibility. "
+			<< "Accepting it anyway for backwards compatibility. "
 			<< "Please fix as soon as possible.";
 		AddMessage(Message::TYPE_WARNING, msg.str());
 		return static_cast<int>(node_id.Num());
@@ -3606,8 +3611,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		return;
 	}
 
-	shock_t shock = m_rig->shocks[m_rig->free_shock];
-	m_rig->free_shock++;
+	shock_t shock;
 	/* Disable trigger on startup? (default enabled) */
 	shock.trigger_enabled = ! BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_x_START_OFF);
 
@@ -3679,6 +3683,121 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		hook_toggle = true;
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CONTINUOUS);
 	}
+
+	bool is_engine_trigger = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER);
+
+	if	(	! trigger_blocker 
+		&&	! inverted_trigger_blocker
+		&&	! hook_toggle 
+		&&	! is_engine_trigger
+		)
+	{
+		// make the full check
+		if (shortbound_trigger_key < 1 || shortbound_trigger_key > MAX_COMMANDS)
+		{
+			std::stringstream msg;
+			msg << "Invalid value of 'shortbound trigger key': '" << shortbound_trigger_key << "'. Must be between 1 and 84. Ignoring trigger...";
+			AddMessage(Message::TYPE_ERROR, msg.str());
+			return;
+		}
+	} 
+	else if (! hook_toggle && ! is_engine_trigger)
+	{
+		// this is a Trigger-Blocker, make special check
+		if (shortbound_trigger_key < 0 || longbound_trigger_key < 0)
+		{
+			AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.");
+			return;
+		}
+	} 
+	else if (is_engine_trigger)
+	{
+		if (trigger_blocker || inverted_trigger_blocker || hook_toggle || (shock_flags & SHOCK_FLAG_TRG_CMD_SWITCH))
+		{
+			AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
+			return;
+		}
+	}
+
+	int node_1_index = FindNodeIndex_AcceptNonExistentNumbered(def.nodes[0]);
+	int node_2_index = FindNodeIndex_AcceptNonExistentNumbered(def.nodes[1]);
+	if (node_1_index == -1 || node_2_index == -1 )
+	{
+		return;
+	}
+	int beam_index = m_rig->free_beam;
+	beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
+	beam.type = hydro_type;
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant);
+	SetBeamSpring(beam, 0.f);
+	SetBeamDamping(beam, 0.f);
+	CalculateBeamLength(beam);
+	beam.shortbound = def.contraction_trigger_limit;
+	beam.longbound = def.expansion_trigger_limit;
+	beam.bounded = SHOCK2;
+
+	CreateBeamVisuals(beam, beam_index, hydro_type != BEAM_INVISIBLE_HYDRO);
+
+	if (m_rig->triggerdebug)
+	{
+		LOG("Trigger added. BeamID " + TOSTRING(beam_index));
+	}
+
+	shock.beamid = beam_index;
+	shock.trigger_switch_state = 0.0f;   // used as bool and countdowntimer, dont touch!
+	if (!trigger_blocker && !inverted_trigger_blocker) // this is no trigger_blocker (A/B)
+	{
+		shock.trigger_cmdshort = shortbound_trigger_key;
+		if (longbound_trigger_key != -1 || (longbound_trigger_key == -1 && hook_toggle))
+		{
+			// this is a trigger or a hook_toggle
+			shock.trigger_cmdlong = longbound_trigger_key;
+		}
+		else
+		{
+			// this is a commandkeyblocker
+			shock_flags |= SHOCK_FLAG_TRG_CMD_BLOCKER;
+		}
+	} 
+	else 
+	{
+		// this is a trigger_blocker
+		if (!inverted_trigger_blocker)
+		{
+			//normal BLOCKER
+			shock_flags |= SHOCK_FLAG_TRG_BLOCKER;
+			shock.trigger_cmdshort = shortbound_trigger_key;
+			shock.trigger_cmdlong  = longbound_trigger_key;
+		} 
+		else
+		{
+			//inverted BLOCKER
+			shock_flags |= SHOCK_FLAG_TRG_BLOCKER_A;
+			shock.trigger_cmdshort = shortbound_trigger_key;
+			shock.trigger_cmdlong  = longbound_trigger_key;
+		}
+	}
+
+	if (cmd_key_block && !trigger_blocker)
+	{
+		m_rig->commandkey[shortbound_trigger_key].trigger_cmdkeyblock_state = true;
+		if (longbound_trigger_key != -1)
+		{
+			m_rig->commandkey[longbound_trigger_key].trigger_cmdkeyblock_state = true;
+		}
+	}
+	
+	shock.trigger_boundary_t = def.boundary_timer;
+	shock.flags              = shock_flags;
+	shock.sbd_spring         = def.beam_defaults->springiness;
+	shock.sbd_damp           = def.beam_defaults->damping_constant;
+	shock.last_debug_state   = 0;
+
+	/* Commit data to <rig_t> */
+	
+	m_rig->shocks[m_rig->free_shock] = shock;
+	beam.shock = & m_rig->shocks[m_rig->free_shock];
+	m_rig->free_shock++;
 }
 
 void RigSpawner::ProcessContacter(RigDef::Node::Id & node)
@@ -6015,19 +6134,36 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
 	m_rig->freecamera++;
 };
 
+node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Id & id)
+{
+	node_t* node = GetNodePointer(id);
+	if (node != nullptr)
+	{
+		return node;
+	}	
+	if (id.Str().empty()) /* Is this numbered node? */
+	{
+		std::stringstream msg;
+		msg << "Beam defined with non-existent node '" << id.ToString() << "'. Using it anyway for backwards compatibility. Please fix.";
+		AddMessage(Message::TYPE_WARNING, msg.str());
+		return & m_rig->nodes[id.Num()]; /* Backwards compatibility */
+	}
+	return nullptr;
+}
+
 void RigSpawner::ProcessBeam(RigDef::Beam & def)
 {
 	beam_t beam;
 	memset(&beam, 0, sizeof(beam_t));
 
 	/* Nodes */
-	beam.p1 = GetNodePointer(def.nodes[0]);
+	beam.p1 = GetBeamNodePointer(def.nodes[0]);
 	if (beam.p1 == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
 		return;
 	}
-	beam.p2 = GetNodePointer(def.nodes[1]);
+	beam.p2 = GetBeamNodePointer(def.nodes[1]);
 	if (beam.p2 == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
