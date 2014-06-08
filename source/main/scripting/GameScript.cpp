@@ -91,7 +91,7 @@ void GameScript::setPersonPosition(const Vector3 &vec)
 
 void GameScript::loadTerrain(const String &terrain)
 {
-	if (gEnv->frameListener) gEnv->main_thread_control->LoadTerrain(terrain);
+	if (gEnv->frameListener) RoR::Application::GetMainThreadLogic()->LoadTerrain(terrain);
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -146,18 +146,18 @@ bool GameScript::getCaelumAvailable()
 float GameScript::stopTimer()
 {
 	float result = 0.0f;
-	if (gEnv->main_thread_control != nullptr)
+	if (RoR::Application::GetMainThreadLogic() != nullptr)
 	{
-		result = gEnv->main_thread_control->StopRaceTimer();
+		result = RoR::Application::GetMainThreadLogic()->StopRaceTimer();
 	}
 	return result;
 }
 
 void GameScript::startTimer()
 {
-	if (gEnv->main_thread_control != nullptr)
+	if (RoR::Application::GetMainThreadLogic() != nullptr)
 	{
-		gEnv->main_thread_control->StartRaceTimer();
+		RoR::Application::GetMainThreadLogic()->StartRaceTimer();
 	}
 }
 

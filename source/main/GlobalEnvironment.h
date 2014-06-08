@@ -40,7 +40,6 @@ public:
 		, surveyMap(0)
 		, terrainManager(0)
 		, threadPool(0)
-		, main_thread_control(nullptr)
 	{
 	}
 
@@ -56,7 +55,6 @@ public:
 	SkyManager *sky;
 	TerrainManager *terrainManager;
 	ThreadPool *threadPool;
-	RoR::MainThread* main_thread_control;
 
 	float mrTime;
 };

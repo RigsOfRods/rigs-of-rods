@@ -83,6 +83,7 @@ MainThread::MainThread():
 	m_exit_loop_requested(false)
 {
 	pthread_mutex_init(&m_lock, nullptr);
+	RoR::Application::SetMainThreadLogic(this);
 }
 
 void MainThread::Go()
@@ -92,7 +93,6 @@ void MainThread::Go()
 	// ================================================================================
 
 	gEnv = new GlobalEnvironment(); // Instantiate global environment
-	gEnv->main_thread_control = this;
 
 	if (! Application::GetSettings().setupPaths() )
 	{

@@ -1206,7 +1206,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !curr_truck->replaymode)
 				{
 					// stop any races
-					gEnv->main_thread_control->StopRaceTimer();
+					RoR::Application::GetMainThreadLogic()->StopRaceTimer();
 					// init
 					curr_truck->reset();
 				}
@@ -1220,7 +1220,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				//replay mode
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
 				{
-					gEnv->main_thread_control->StopRaceTimer();
+					RoR::Application::GetMainThreadLogic()->StopRaceTimer();
 					curr_truck->setReplayMode(!curr_truck->replaymode);
 				}
 
@@ -1598,8 +1598,8 @@ void RoRFrameListener::shutdown_final()
 
 	// RoRFrameListener::shutdown_final() is allways called by main thread.
 	// Therefore we need no syncing here.
-	gEnv->main_thread_control->RequestShutdown();
-	gEnv->main_thread_control->RequestExitCurrentLoop();
+	RoR::Application::GetMainThreadLogic()->RequestShutdown();
+	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
 void RoRFrameListener::hideMap()
@@ -2050,9 +2050,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(vehicle->getPressure());
 				}
 
-				if (gEnv->main_thread_control->IsRaceInProgress())
+				if (RoR::Application::GetMainThreadLogic()->IsRaceInProgress())
 				{
-					gEnv->main_thread_control->UpdateRacingGui();
+					RoR::Application::GetMainThreadLogic()->UpdateRacingGui();
 				}
 
 				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)

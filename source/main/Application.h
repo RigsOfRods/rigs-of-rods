@@ -88,6 +88,11 @@ public:
 		return ms_cache_system;
 	}
 
+	static MainThread* GetMainThreadLogic()
+	{
+		return ms_main_thread_logic;
+	}
+
 private:
 
 	static void StartOgreSubsystem();
@@ -126,6 +131,11 @@ private:
 
 	static void CreateCacheSystem();
 
+	static void SetMainThreadLogic(MainThread* main_thread_logic)
+	{
+		ms_main_thread_logic = main_thread_logic;
+	}
+
 	/* Properties */
 
 	static OgreSubsystem*   ms_ogre_subsystem;
@@ -136,6 +146,7 @@ private:
 	static Console*         ms_console;
 	static InputEngine*     ms_input_engine;
 	static CacheSystem*     ms_cache_system;
+	static MainThread*      ms_main_thread_logic;
 };
 
 } // namespace RoR

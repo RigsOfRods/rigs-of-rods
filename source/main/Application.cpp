@@ -53,6 +53,7 @@ GUIManager*      Application::ms_gui_manager       = nullptr;
 Console*         Application::ms_console           = nullptr;
 InputEngine*     Application::ms_input_engine      = nullptr;
 CacheSystem*     Application::ms_cache_system      = nullptr;
+MainThread*      Application::ms_main_thread_logic = nullptr;
 
 // ================================================================================
 // Functions
