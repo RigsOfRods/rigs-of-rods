@@ -1,0 +1,14 @@
+material largedocks
+{
+ 
+    technique
+    {
+        pass
+        {
+            texture_unit diffuseMap
+            {
+                texture largedocksdiffuse.dds
+            }
+        }
+    }
+}

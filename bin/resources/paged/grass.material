@@ -1,0 +1,158 @@
+material grass1
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass1.png
+			}
+		}
+	}
+}
+
+material grass2
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass2.png
+			}
+		}
+	}
+}
+material grass3
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass3.png
+			}
+		}
+	}
+}
+material grass4
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass4.png
+			}
+		}
+	}
+}
+material grass5
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass5.png
+			}
+		}
+	}
+}
+
+material grass6
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass6.png
+			}
+		}
+	}
+}
+
+material grass7
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture grass7.png
+			}
+		}
+	}
+}
+
+material tumbleweed
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture tumbleweed.png
+			}
+		}
+	}
+}
+
+material seaweed
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture seaweed.png
+			}
+		}
+	}
+}
