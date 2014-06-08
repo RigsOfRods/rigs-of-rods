@@ -125,9 +125,9 @@ extern GlobalEnvironment *gEnv;
 enum GameStates
 {
 	NONE_LOADED    = 0,
-	TERRAIN_LOADED = 1,
-	ALL_LOADED     = 2,
-	EXITING        = 3,
-	RELOADING      = 5,
+	TERRAIN_LOADED = 1, //!< Simulate terrain & wait for user to select vehicle.
+	ALL_LOADED     = 2, //!< Run simulation.
+	EXITING        = 3, //!< No effect, filled at exit, never checked.
+	RELOADING      = 5, //!< Loading new rig.
 	PAUSE          = 6
 };
