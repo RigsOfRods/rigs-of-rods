@@ -103,7 +103,7 @@ void MainThread::Go()
 
 	Application::CreateContentManager();
 
-	LanguageEngine::getSingleton().setup(); // TODO: Manage by class Application
+	LanguageEngine::getSingleton().setup();
 
 	// Add startup resources
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
