@@ -28,6 +28,7 @@
 #include "MainThread.h"
 
 #include "Application.h"
+#include "Beam.h"
 #include "BeamFactory.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
@@ -36,6 +37,7 @@
 #include "ChatSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
+#include "DashBoardManager.h"
 #include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
@@ -57,12 +59,15 @@
 #include "PlayerColours.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
+#include "Scripting.h"
 #include "SelectorWindow.h"
 #include "Settings.h"
 #include "Skin.h"
+#include "SoundScriptManager.h"
 #include "StartupScreen.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
+#include "TruckHUD.h"
 #include "Utils.h"
 
 #include <OgreRoot.h>
@@ -1046,4 +1051,172 @@ void MainThread::UpdateRacingGui()
 	ow->laptimes->setCaption(txt);
 	swprintf(txt, 10, L"%.2i'", ((int)(time))/60);
 	ow->laptimemin->setCaption(UTFString(txt));
+}
+
+void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle)
+{
+	// hide any old dashes
+	if (previous_vehicle && previous_vehicle->dash)
+	{
+		previous_vehicle->dash->setVisible3d(false);
+	}
+	// show new
+	if (current_vehicle && current_vehicle->dash)
+	{
+		current_vehicle->dash->setVisible3d(true);
+	}
+	
+	// normal workflow
+	if (current_vehicle == nullptr)
+	{
+		// get player out of the vehicle
+		if (previous_vehicle && gEnv->player)
+		{
+			// detach from truck
+			gEnv->player->setBeamCoupling(false);
+			// update position
+			gEnv->player->setPosition(previous_vehicle->getPosition());
+			// update rotation
+			gEnv->player->updateCharacterRotation();
+		}
+
+		//force feedback
+		if (gEnv->frameListener->forcefeedback)
+		{
+			gEnv->frameListener->forcefeedback->setEnabled(false);
+		}
+
+		// hide truckhud
+		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
+
+		//getting outside
+		Vector3 position = Vector3::ZERO;
+		if (previous_vehicle)
+		{
+			previous_vehicle->prepareInside(false);
+
+			if (previous_vehicle->dash)
+			{
+				previous_vehicle->dash->setVisible(false);
+			}
+
+			// this workaround enables trucks to spawn that have no cinecam. required for cmdline options
+			if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->cameranodepos[0] != -1 && previous_vehicle->cameranoderoll[0] != -1)
+			{
+				// truck has a cinecam
+				position=previous_vehicle->nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
+				position+=-2.0*((previous_vehicle->nodes[previous_vehicle->cameranodepos[0]].RelPosition-previous_vehicle->nodes[previous_vehicle->cameranoderoll[0]].RelPosition).normalisedCopy());
+				position+=Vector3(0.0, -1.0, 0.0);
+			} 
+			else
+			{
+				// truck has no cinecam
+				position=previous_vehicle->nodes[0].AbsPosition;
+			}
+		}
+
+		if (gEnv->player && position != Vector3::ZERO)
+		{
+			gEnv->player->setPosition(position);
+			gEnv->player->updateCharacterRotation();
+		}
+		if (RoR::Application::GetOverlayWrapper())
+		{
+			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, current_vehicle);
+		}
+
+#ifdef USE_OPENAL
+		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_AIR);
+		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_PUMP);
+#endif // OPENAL
+
+		if (!BeamFactory::getSingleton().allTrucksForcedActive())
+		{
+			int free_truck = BeamFactory::getSingleton().getTruckCount();
+			Beam **trucks =  BeamFactory::getSingleton().getTrucks();
+
+			for (int t = 0; t < free_truck; t++)
+			{
+				if (!trucks[t]) continue;
+				trucks[t]->sleepcount = 9;
+			} // make trucks synchronous
+		}
+
+		TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
+	} 
+	else
+	{
+		//getting inside
+		current_vehicle->desactivate();
+
+		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->hidegui)
+		{
+			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
+		}
+
+		current_vehicle->activate();
+		
+		//hide unused items
+		if (RoR::Application::GetOverlayWrapper() && current_vehicle->free_active_shock==0)
+		{
+			(OverlayManager::getSingleton().getOverlayElement("tracks/rollcorneedle"))->hide();
+		}
+		
+		//force feedback
+		if (gEnv->frameListener->forcefeedback)
+		{
+			gEnv->frameListener->forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
+		}
+
+		// attach player to truck
+		if (gEnv->player)
+		{
+			gEnv->player->setBeamCoupling(true, current_vehicle);
+		}
+
+		if (RoR::Application::GetOverlayWrapper())
+		{
+			try
+			{
+				// we wont crash for help panels ...
+				if (current_vehicle->hashelp)
+				{
+					OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName(current_vehicle->helpmat);
+					OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(current_vehicle->helpmat);
+				}
+				else
+				{
+					OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName("tracks/black");
+					OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
+				}
+			} 
+			catch(std::runtime_error ex)
+			{
+				std::stringstream msg;
+				msg << "Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
+				LOG(msg.str());
+			}
+
+			// enable gui mods
+			if (! current_vehicle->speedomat.empty())
+			{
+				OverlayManager::getSingleton().getOverlayElement("tracks/speedo")->setMaterialName(current_vehicle->speedomat);
+			}
+			else
+			{
+				OverlayManager::getSingleton().getOverlayElement("tracks/speedo")->setMaterialName("tracks/Speedo");
+			}
+
+			if (! current_vehicle->tachomat.empty())
+			{
+				OverlayManager::getSingleton().getOverlayElement("tracks/tacho")->setMaterialName(current_vehicle->tachomat);
+			}
+			else
+			{
+				OverlayManager::getSingleton().getOverlayElement("tracks/tacho")->setMaterialName("tracks/Tacho");
+			}
+		}
+		
+		TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->trucknum:-1);
+	}
 }

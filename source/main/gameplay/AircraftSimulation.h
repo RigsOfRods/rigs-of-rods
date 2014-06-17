@@ -20,8 +20,8 @@
 */
 
 /** 
-	@file   LandVehicleSimulation.h
-	@date   05/2014
+	@file   AircraftSimulation.h
+	@date   06/2014
 */
 
 #pragma once
@@ -34,22 +34,12 @@ namespace RoR
 /**
 * Stateless class which provides simulation logic.
 */
-struct LandVehicleSimulation
+struct AircraftSimulation
 {
 	/**
-	* @param dt Delta time in seconds.
+	* SIM-CORE: 1x per frame. Logic: input, GUI, vehicle state.
 	*/
-	static void UpdateCruiseControl(Beam* curr_truck, float dt);
-
-	/**
-	* @param dt Delta time in seconds.
-	*/
-	static void CheckSpeedLimit(Beam* curr_truck, float dt);
-
-	/**
-	* Logic: input, sound, vehicle state
-	*/
-	static void UpdateVehicle(Beam* curr_truck, float seconds_since_last_frame);
+	static void UpdateVehicle(Beam* vehicle, float seconds_since_last_frame);
 };
 
 } // namespace RoR
