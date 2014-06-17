@@ -62,6 +62,9 @@ public:
 		CAMERA_BEHAVIOR_ISOMETRIC
 	};
 
+	/**
+	* TIGHT-LOOP; Called once per frame.
+	*/
 	bool update(float dt);
 
 	void switchBehavior(int newBehavior, bool reset = true);

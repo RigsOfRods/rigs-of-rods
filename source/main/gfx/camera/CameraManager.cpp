@@ -72,7 +72,7 @@ CameraManager::~CameraManager()
 	globalBehaviors.clear();
 }
 
-bool CameraManager::update(float dt)
+bool CameraManager::update(float dt) // Called every frame
 {
 	static std::stack<int> precedingBehaviors;
 
@@ -85,8 +85,8 @@ bool CameraManager::update(float dt)
 	ctx.mDt         = dt;
 	ctx.mRotScale   = Degree(mRotScale);
 	ctx.mTransScale = mTransScale;
-	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f));
-	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f));
+	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f)); // FIXME: No reason for this to be done per frame.
+	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f)); // FIXME: No reason for this to be done per frame.
 
 	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
 	{
