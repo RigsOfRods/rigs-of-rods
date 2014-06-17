@@ -28,6 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ErrorUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -665,7 +666,9 @@ void BeamFactory::removeCurrentTruck()
 void BeamFactory::setCurrentTruck(int new_truck)
 {
 	if (current_truck >= 0 && current_truck < free_truck && trucks[current_truck])
+	{
 		trucks[current_truck]->desactivate();
+	}
 
 	previous_truck = current_truck;
 	current_truck = new_truck;
@@ -673,13 +676,21 @@ void BeamFactory::setCurrentTruck(int new_truck)
 	if (gEnv->frameListener)
 	{
 		if (previous_truck >= 0 && current_truck >= 0)
-			gEnv->frameListener->changedCurrentTruck(trucks[previous_truck], trucks[current_truck]);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(trucks[previous_truck], trucks[current_truck]);
+		}
 		else if (previous_truck >= 0)
-			gEnv->frameListener->changedCurrentTruck(trucks[previous_truck], 0);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(trucks[previous_truck], nullptr);
+		}
 		else if (current_truck >= 0)
-			gEnv->frameListener->changedCurrentTruck(0, trucks[current_truck]);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(nullptr, trucks[current_truck]);
+		}
 		else
-			gEnv->frameListener->changedCurrentTruck(0, 0);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(nullptr, nullptr);
+		}
 	}
 }
 

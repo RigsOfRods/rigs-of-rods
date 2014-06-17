@@ -114,7 +114,6 @@ public: // public methods
 	int getLoadingState() { return loading_state; };
 	int getNetPointToUID() { return netPointToUID; };
 
-	void changedCurrentTruck(Beam *previousTruck, Beam *currentTruck);
 	void checkRemoteStreamResultsChanged();
 	void hideGUI(bool visible);
 	void hideMap();

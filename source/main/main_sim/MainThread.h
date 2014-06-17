@@ -62,6 +62,8 @@ public:
 		return m_race_in_progress;
 	}
 
+	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
+
 protected:
 
 	void EnterMenuLoop();
