@@ -1,23 +1,30 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 13th of August 2009
+
+/** 
+	@file   GUIMenu.h
+	@date   13th of August 2009
+	@author Thomas Fischer thomas{AT}thomasfischer{DOT}biz
+*/
+
 #ifdef USE_MYGUI
 
 #include "GUIMenu.h"
@@ -51,38 +58,37 @@ GUI_MainMenu::GUI_MainMenu() :
 	setSingleton(this);
 	pthread_mutex_init(&updateLock, NULL);
 
-	//MyGUI::WidgetPtr back = createWidget<MyGUI::Widget>("Panel", 0, 0, 912, 652,MyGUI::Align::Default, "Back");
+	/* -------------------------------------------------------------------------------- */
+	/* MENU BAR */
+
 	mainmenu = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, menuWidth, menuHeight,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Back");
 	mainmenu->setCoord(0, 0, menuWidth, menuHeight);
 	
-	// === Simulation menu
+	/* -------------------------------------------------------------------------------- */
+	/* SIMULATION POPUP MENU */
+
 	MyGUI::MenuItemPtr mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
 	MyGUI::PopupMenuPtr p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption(_L("Simulation"));
 	p->setPopupAccept(true);
-	//mi->setPopupAccept(true);
-
-	MyGUI::IntSize s = mi->getTextSize();
-	menuHeight = s.height + 6;
-	mainmenu->setCoord(0, 0, menuWidth, menuHeight);
-
 	
-	p->addItem(_L("get new Vehicle"), MyGUI::MenuItemType::Normal);
-	p->addItem(_L("reload current Vehicle"), MyGUI::MenuItemType::Normal);
-	p->addItem(_L("remove current Vehicle"), MyGUI::MenuItemType::Normal);
-	p->addItem(_L("activate all Vehicles"), MyGUI::MenuItemType::Normal);
-	p->addItem(_L("activated Vehicles never sleep"), MyGUI::MenuItemType::Normal);
-	p->addItem(_L("send all Vehicles to sleep"), MyGUI::MenuItemType::Normal);
-	p->addItem("-", MyGUI::MenuItemType::Separator);
-	p->addItem(_L("Save Scenery"), MyGUI::MenuItemType::Normal);
-	p->addItem(_L("Load Scenery"), MyGUI::MenuItemType::Normal);
-	//p->addItem("-", MyGUI::MenuItemType::Separator);
-	p->addItem("-", MyGUI::MenuItemType::Separator);
-	p->addItem(_L("Exit"), MyGUI::MenuItemType::Normal);
+	p->addItem(_L("get new Vehicle"),                 MyGUI::MenuItemType::Normal);
+	p->addItem(_L("reload current Vehicle"),          MyGUI::MenuItemType::Normal);
+	p->addItem(_L("remove current Vehicle"),          MyGUI::MenuItemType::Normal);
+	p->addItem(_L("activate all Vehicles"),           MyGUI::MenuItemType::Normal);
+	p->addItem(_L("activated Vehicles never sleep"),  MyGUI::MenuItemType::Normal);
+	p->addItem(_L("send all Vehicles to sleep"),      MyGUI::MenuItemType::Normal);
+	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
+	p->addItem(_L("Save Scenery"),                    MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Load Scenery"),                    MyGUI::MenuItemType::Normal);
+	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
+	p->addItem(_L("Exit"),                            MyGUI::MenuItemType::Normal);
 	pop.push_back(p);
 
-	// === vehicles
+	/* -------------------------------------------------------------------------------- */
+	/* VEHICLES POPUP MENU */
+
 	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
 	vehiclesMenu = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu", MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	p = vehiclesMenu;
@@ -90,69 +96,48 @@ GUI_MainMenu::GUI_MainMenu() :
 	mi->setCaption("Vehicles");
 	pop.push_back(p);
 
-	// this is not working :(
-	//vehiclesMenu->setPopupAccept(true);
-	//vehiclesMenu->eventMenuCtrlAccept += MyGUI::newDelegate(this, &GUI_MainMenu::onVehicleMenu);
+	/* -------------------------------------------------------------------------------- */
+	/* WINDOWS POPUP MENU */
 
-
-	/*
-	// === view
-	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
-	p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
-	mi->setItemType(MyGUI::MenuItemType::Popup);
-	mi->setCaption(_L("View"));
-	MyGUI::MenuItemPtr mi2 = p->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
-	mi2->setItemType(MyGUI::MenuItemType::Popup);
-	mi2->setCaption(_L("Camera Mode"));
-
-	p = mi2->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
-	p->addItem(_L("First Person"), MyGUI::MenuItemType::Normal, "camera_first_person");
-	p->addItem(_L("External"), MyGUI::MenuItemType::Normal, "camera_external");
-	p->addItem(_L("Free Mode"), MyGUI::MenuItemType::Normal, "camera_free");
-	p->addItem(_L("Free fixed mode"), MyGUI::MenuItemType::Normal, "camera_freefixed");
-	p->addItem("-", MyGUI::MenuItemType::Separator);
-
-	mi2 = p->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
-	mi2->setItemType(MyGUI::MenuItemType::Popup);
-	mi2->setCaption(_L("Truck Camera"));
-
-	p = mi2->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
-	p->addItem(_L("1. Camera"), MyGUI::MenuItemType::Normal, "camera_truck_1");
-	p->addItem(_L("2. Camera"), MyGUI::MenuItemType::Normal, "camera_truck_2");
-	p->addItem(_L("3. Camera"), MyGUI::MenuItemType::Normal, "camera_truck_3");
-	*/
-
-	// === windows
 	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
 	p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption("Windows");
-	//p->addItem(_L("Camera Control"), MyGUI::MenuItemType::Normal, "cameratool");
-	p->addItem(_L("Friction Settings"), MyGUI::MenuItemType::Normal, "frictiongui");
-	p->addItem(_L("Show Console"), MyGUI::MenuItemType::Normal, "showConsole");
-	p->addItem(_L("Texture Tool"), MyGUI::MenuItemType::Normal, "texturetool");
+	
+	p->addItem(_L("Friction Settings"),  MyGUI::MenuItemType::Normal, "frictiongui");
+	p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
+	p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
 	pop.push_back(p);
 
-	// === debug
+	/* -------------------------------------------------------------------------------- */
+	/* DEBUG POPUP MENU */
+
 	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
 	p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption("Debug");
-	p->addItem(_L("no visual debug"), MyGUI::MenuItemType::Normal, "debug-none");
-	p->addItem(_L("show Node numbers"), MyGUI::MenuItemType::Normal, "debug-node-numbers");
-	p->addItem(_L("show Beam numbers"), MyGUI::MenuItemType::Normal, "debug-beam-numbers");
-	p->addItem(_L("show Node&Beam numbers"), MyGUI::MenuItemType::Normal, "debug-nodenbeam-numbers");
-	p->addItem(_L("show Node mass"), MyGUI::MenuItemType::Normal, "debug-node-mass");
-	p->addItem(_L("show Node locked"), MyGUI::MenuItemType::Normal, "debug-node-locked");
-	p->addItem(_L("show Beam compression"), MyGUI::MenuItemType::Normal, "debug-beam-compression");
-	p->addItem(_L("show Beam broken"), MyGUI::MenuItemType::Normal, "debug-beam-broken");
-	p->addItem(_L("show Beam stress"), MyGUI::MenuItemType::Normal, "debug-beam-stress");
-	p->addItem(_L("show Beam strength"), MyGUI::MenuItemType::Normal, "debug-beam-strength");
-	p->addItem(_L("show Beam hydros"), MyGUI::MenuItemType::Normal, "debug-beam-hydros");
-	p->addItem(_L("show Beam commands"), MyGUI::MenuItemType::Normal, "debug-beam-commands");
+	p->addItem(_L("no visual debug"),         MyGUI::MenuItemType::Normal, "debug-none");
+	p->addItem(_L("show Node numbers"),       MyGUI::MenuItemType::Normal, "debug-node-numbers");
+	p->addItem(_L("show Beam numbers"),       MyGUI::MenuItemType::Normal, "debug-beam-numbers");
+	p->addItem(_L("show Node&Beam numbers"),  MyGUI::MenuItemType::Normal, "debug-nodenbeam-numbers");
+	p->addItem(_L("show Node mass"),          MyGUI::MenuItemType::Normal, "debug-node-mass");
+	p->addItem(_L("show Node locked"),        MyGUI::MenuItemType::Normal, "debug-node-locked");
+	p->addItem(_L("show Beam compression"),   MyGUI::MenuItemType::Normal, "debug-beam-compression");
+	p->addItem(_L("show Beam broken"),        MyGUI::MenuItemType::Normal, "debug-beam-broken");
+	p->addItem(_L("show Beam stress"),        MyGUI::MenuItemType::Normal, "debug-beam-stress");
+	p->addItem(_L("show Beam strength"),      MyGUI::MenuItemType::Normal, "debug-beam-strength");
+	p->addItem(_L("show Beam hydros"),        MyGUI::MenuItemType::Normal, "debug-beam-hydros");
+	p->addItem(_L("show Beam commands"),      MyGUI::MenuItemType::Normal, "debug-beam-commands");
 	pop.push_back(p);
 
-	
+	/* -------------------------------------------------------------------------------- */
+	/* MENU BAR POSITION */
+
+	MyGUI::IntSize s = mi->getTextSize();
+	menuHeight = s.height + 6;
+	mainmenu->setCoord(0, 0, menuWidth, menuHeight);
+
+	/* -------------------------------------------------------------------------------- */
 
 	// event callbacks
 	mainmenu->eventMenuCtrlAccept += MyGUI::newDelegate(this, &GUI_MainMenu::onMenuBtn);
