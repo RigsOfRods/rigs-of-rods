@@ -51,7 +51,7 @@ public:
 
 	int getMenuHeight()
 	{ 
-		return menuHeight; 
+		return m_menu_height; 
 	};
 
 	void updatePositionUponMousePosition(int x, int y);
@@ -70,13 +70,13 @@ protected:
 
 	void vehiclesListUpdate();
 
-	std::vector<MyGUI::PopupMenuPtr> pop;
-	MyGUI::PopupMenuPtr              vehiclesMenu;
-	MyGUI::MenuBarPtr                mainmenu;
-	int                              menuWidth;
-	int                              menuHeight;
-	pthread_mutex_t                  updateLock;
-	bool                             vehicleListNeedsUpdate;
+	std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
+	MyGUI::PopupMenuPtr              m_vehicles_menu_widget;
+	MyGUI::MenuBarPtr                m_menubar_widget;
+	int                              m_menu_width;
+	int                              m_menu_height;
+	pthread_mutex_t                  m_update_lock;
+	bool                             m_vehicle_list_needs_update;
 };
 
 #endif // USE_MYGUI

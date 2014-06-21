@@ -51,23 +51,23 @@ using namespace Ogre;
 using namespace RoR;
 
 GUI_MainMenu::GUI_MainMenu() :
-	  menuWidth(800)
-	, menuHeight(20)
-	, vehicleListNeedsUpdate(false)
+	  m_menu_width(800)
+	, m_menu_height(20)
+	, m_vehicle_list_needs_update(false)
 {
 	setSingleton(this);
-	pthread_mutex_init(&updateLock, NULL);
+	pthread_mutex_init(&m_update_lock, NULL);
 
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR */
 
-	mainmenu = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, menuWidth, menuHeight,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Back");
-	mainmenu->setCoord(0, 0, menuWidth, menuHeight);
+	m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Back");
+	m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
 	
 	/* -------------------------------------------------------------------------------- */
 	/* SIMULATION POPUP MENU */
 
-	MyGUI::MenuItemPtr mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
+	MyGUI::MenuItemPtr mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
 	MyGUI::PopupMenuPtr p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption(_L("Simulation"));
@@ -84,22 +84,22 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("Load Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
 	p->addItem(_L("Exit"),                            MyGUI::MenuItemType::Normal);
-	pop.push_back(p);
+	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
 	/* VEHICLES POPUP MENU */
 
-	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
-	vehiclesMenu = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu", MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
-	p = vehiclesMenu;
+	mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
+	m_vehicles_menu_widget = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu", MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
+	p = m_vehicles_menu_widget;
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption("Vehicles");
-	pop.push_back(p);
+	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
 	/* WINDOWS POPUP MENU */
 
-	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
+	mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
 	p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption("Windows");
@@ -107,12 +107,12 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("Friction Settings"),  MyGUI::MenuItemType::Normal, "frictiongui");
 	p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
 	p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
-	pop.push_back(p);
+	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
 	/* DEBUG POPUP MENU */
 
-	mi = mainmenu->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, menuHeight,  MyGUI::Align::Default);
+	mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
 	p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption("Debug");
@@ -128,19 +128,19 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("show Beam strength"),      MyGUI::MenuItemType::Normal, "debug-beam-strength");
 	p->addItem(_L("show Beam hydros"),        MyGUI::MenuItemType::Normal, "debug-beam-hydros");
 	p->addItem(_L("show Beam commands"),      MyGUI::MenuItemType::Normal, "debug-beam-commands");
-	pop.push_back(p);
+	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR POSITION */
 
 	MyGUI::IntSize s = mi->getTextSize();
-	menuHeight = s.height + 6;
-	mainmenu->setCoord(0, 0, menuWidth, menuHeight);
+	m_menu_height = s.height + 6;
+	m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
 
 	/* -------------------------------------------------------------------------------- */
 
 	// event callbacks
-	mainmenu->eventMenuCtrlAccept += MyGUI::newDelegate(this, &GUI_MainMenu::onMenuBtn);
+	m_menubar_widget->eventMenuCtrlAccept += MyGUI::newDelegate(this, &GUI_MainMenu::onMenuBtn);
 
 	// initial mouse position somewhere so the menu is hidden
 	updatePositionUponMousePosition(500, 500);
@@ -208,7 +208,7 @@ void GUI_MainMenu::addUserToMenu(user_info_t &user)
 	{
 		MyGUI::UString userStr = "- " + convertToMyGUIString(getUserString(user, (int)matches.size()));
 		// finally add the user line
-		vehiclesMenu->addItem(userStr, MyGUI::MenuItemType::Normal, "USER_"+TOSTRING(user.uniqueid));
+		m_vehicles_menu_widget->addItem(userStr, MyGUI::MenuItemType::Normal, "USER_"+TOSTRING(user.uniqueid));
 
 		// and add the vehicles below the user name
 		if (!matches.empty())
@@ -218,7 +218,7 @@ void GUI_MainMenu::addUserToMenu(user_info_t &user)
 				char tmp[512] = "";
 				sprintf(tmp, "  + %s (%s)", trucks[matches[j]]->realtruckname.c_str(),  trucks[matches[j]]->realtruckfilename.c_str());
 				MyGUI::UString vehName = convertToMyGUIString(ANSI_TO_UTF(tmp));
-				vehiclesMenu->addItem(vehName, MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(matches[j]));
+				m_vehicles_menu_widget->addItem(vehName, MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(matches[j]));
 			}
 		}
 	}
@@ -226,7 +226,7 @@ void GUI_MainMenu::addUserToMenu(user_info_t &user)
 
 void GUI_MainMenu::vehiclesListUpdate()
 {
-	vehiclesMenu->removeAllItems();
+	m_vehicles_menu_widget->removeAllItems();
 	
 	if (!gEnv->network)
 	{
@@ -244,7 +244,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 			char tmp[255] = {};
 			sprintf(tmp, "[%d] %s", i, trucks[i]->realtruckname.c_str());
 
-			vehiclesMenu->addItem(String(tmp), MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(i));
+			m_vehicles_menu_widget->addItem(String(tmp), MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(i));
 		}
 	} else
 	{
@@ -431,50 +431,50 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 
 void GUI_MainMenu::setVisible(bool value)
 {
-	mainmenu->setVisible(value);
+	m_menubar_widget->setVisible(value);
 	if (!value) RoR::Application::GetGuiManager()->unfocus();
 	//MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
 bool GUI_MainMenu::getVisible()
 {
-	return mainmenu->getVisible();
+	return m_menubar_widget->getVisible();
 }
 
 void GUI_MainMenu::updatePositionUponMousePosition(int x, int y)
 {
-	int h = mainmenu->getHeight();
+	int h = m_menubar_widget->getHeight();
 	bool focused = false;
-	for (unsigned int i=0;i<pop.size(); i++)
-		focused |= pop[i]->getVisible();
+	for (unsigned int i=0;i<m_popup_menus.size(); i++)
+		focused |= m_popup_menus[i]->getVisible();
 
 	if (focused)
 	{
-		mainmenu->setPosition(0, 0);
+		m_menubar_widget->setPosition(0, 0);
 	} else
 	{
 		if (y > 2*h)
-			mainmenu->setPosition(0, -h);
+			m_menubar_widget->setPosition(0, -h);
 
 		else
-			mainmenu->setPosition(0, std::min(0, -y+10));
+			m_menubar_widget->setPosition(0, std::min(0, -y+10));
 	}
 
 	// this is hacky, but needed as the click callback is not working
-	if (vehicleListNeedsUpdate)
+	if (m_vehicle_list_needs_update)
 	{
 		vehiclesListUpdate();
-		MUTEX_LOCK(&updateLock);
-		vehicleListNeedsUpdate = false;
-		MUTEX_UNLOCK(&updateLock);
+		MUTEX_LOCK(&m_update_lock);
+		m_vehicle_list_needs_update = false;
+		MUTEX_UNLOCK(&m_update_lock);
 	}
 }
 
 void GUI_MainMenu::triggerUpdateVehicleList()
 {
-	MUTEX_LOCK(&updateLock);
-	vehicleListNeedsUpdate = true;
-	MUTEX_UNLOCK(&updateLock);
+	MUTEX_LOCK(&m_update_lock);
+	m_vehicle_list_needs_update = true;
+	MUTEX_UNLOCK(&m_update_lock);
 }
 
 #endif // USE_MYGUI
