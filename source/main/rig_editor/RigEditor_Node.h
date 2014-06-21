@@ -20,30 +20,38 @@
 */
 
 /** 
-	@file   ConfigFile.cpp
+	@file   RigEditor_Node.h
 	@date   06/2014
 	@author Petr Ohlidal
 */
 
-#include "ConfigFile.h"
+#pragma once
 
-#include <OgreString.h>
-#include <OgreStringConverter.h>
+#include "RigDefPrerequisites.h"
+#include "RoRPrerequisites.h"
 
-using namespace RoR;
-
-float ConfigFile::GetFloat(Ogre::String const & key)
+namespace RoR
 {
-	return Ogre::StringConverter::parseReal(getSetting(key));
-}
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key)
+namespace RigEditor
 {
-	std::stringstream value(getSetting(key));
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-	float a = 1.f;
-	value >> r >> g >> b >> a;
-	return Ogre::ColourValue(r, g, b, a);
-}
+
+class Node
+{
+public:
+	Node(RigDef::Node & node):
+		m_def_node(node)
+	{}
+
+	Ogre::Vector3 const & GetPosition()
+	{
+		return m_def_node.position;
+	}
+
+private:
+	RigDef::Node & m_def_node;
+};
+
+} // namespace RigEditor
+
+} // namespace RoR

@@ -20,30 +20,39 @@
 */
 
 /** 
-	@file   ConfigFile.cpp
+	@file   RigEditor_RigFactory.h
 	@date   06/2014
 	@author Petr Ohlidal
 */
 
-#include "ConfigFile.h"
+#pragma once
 
-#include <OgreString.h>
-#include <OgreStringConverter.h>
+#include "RigDefPrerequisites.h"
+#include "RoRPrerequisites.h"
+#include "RigDefFile.h"
 
-using namespace RoR;
-
-float ConfigFile::GetFloat(Ogre::String const & key)
+namespace RoR
 {
-	return Ogre::StringConverter::parseReal(getSetting(key));
-}
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key)
+namespace RigEditor
 {
-	std::stringstream value(getSetting(key));
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-	float a = 1.f;
-	value >> r >> g >> b >> a;
-	return Ogre::ColourValue(r, g, b, a);
-}
+
+class RigFactory
+{
+public:
+
+	RigFactory()
+	{}
+
+	Rig* BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Module*> & selected_modules, RigEditor::Main* rig_editor);
+
+private:
+
+	void AddMessage(RigDef::File::Module* module, std::string const & text);
+
+	std::vector<Ogre::String> m_messages;
+};
+
+} // namespace RigEditor
+
+} // namespace RoR

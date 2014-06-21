@@ -20,30 +20,48 @@
 */
 
 /** 
-	@file   ConfigFile.cpp
+	@file   RigEditor_Beam.h
 	@date   06/2014
 	@author Petr Ohlidal
 */
 
-#include "ConfigFile.h"
+#pragma once
 
-#include <OgreString.h>
-#include <OgreStringConverter.h>
+#include "RigDefFile.h"
+#include "RigDefPrerequisites.h"
+#include "RigEditor_Beam.h"
+#include "RoRPrerequisites.h"
 
-using namespace RoR;
-
-float ConfigFile::GetFloat(Ogre::String const & key)
+namespace RoR
 {
-	return Ogre::StringConverter::parseReal(getSetting(key));
-}
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key)
+namespace RigEditor
 {
-	std::stringstream value(getSetting(key));
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-	float a = 1.f;
-	value >> r >> g >> b >> a;
-	return Ogre::ColourValue(r, g, b, a);
-}
+
+class Beam
+{
+public:
+	Beam(RigDef::Beam & beam, RigEditor::Node* node_0, RigEditor::Node* node_1):
+		m_def_beam(beam)
+	{
+		m_nodes[0] = node_0;
+		m_nodes[1] = node_1;
+	}
+
+	RigEditor::Node* GetNodeA()
+	{
+		return m_nodes[0];
+	}
+
+	RigEditor::Node* GetNodeB()
+	{
+		return m_nodes[1];
+	}
+
+	RigDef::Beam & m_def_beam;
+	RigEditor::Node* m_nodes[2];
+};
+
+} // namespace RigEditor
+
+} // namespace RoR

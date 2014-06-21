@@ -20,19 +20,25 @@
 */
 
 /** 
-	@file   RigEditor.h
+	@file   RigEditor_Main.cpp
 	@date   06/2014
 	@author Petr Ohlidal
 */
 
-#include "RigEditorMain.h"
+#include "RigEditor_Main.h"
 
 #include "Application.h"
+#include "GlobalEnvironment.h"
+#include "InputEngine.h"
+#include "MainThread.h"
 #include "OgreSubsystem.h"
+#include "RigEditor_InputHandler.h"
 #include "Settings.h"
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
+#include <OgreMaterialManager.h>
+#include <OgreMaterial.h>
 
 using namespace RoR;
 using namespace RoR::RigEditor;
@@ -42,61 +48,51 @@ Main::Main():
 	m_camera(nullptr),
 	m_viewport(nullptr),
 	m_rig_entity(nullptr),
-	m_exit_loop_requested(false)
+	m_exit_loop_requested(false),
+	m_input_handler(nullptr)
 {
 	/* Load config */
 	m_config_file.load(SSETTING("Config Root", "") + "rig_editor.cfg");
 
 	/* Parse config */
-	m_config.viewport_background_color = m_config_file.GetColourValue("viewport_background_color_rgba");
+	m_config.viewport_background_color = m_config_file.GetColourValue("viewport_background_color_rgb");
+	m_config.beam_generic_color        = m_config_file.GetColourValue("beam_generic_color_rgb");
 
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
 	m_scene_manager = ror_ogre_subsystem->GetOgreRoot()->createSceneManager(Ogre::ST_GENERIC);
 	m_camera = m_scene_manager->createCamera("rig_editor_camera");	
-}
 
-void Main::Enter()
-{
-	/* Setup 3D engine */
-	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
-	assert(ror_ogre_subsystem != nullptr);
-	ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
-	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(m_camera);
-	m_viewport->setBackgroundColour(m_config.viewport_background_color);
-	m_camera->setAspectRatio(m_viewport->getActualHeight() / m_viewport->getActualWidth());
-}
-
-void Main::Exit(Ogre::Camera* camera)
-{
-	/* Restore 3D engine settings */
-	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
-	assert(ror_ogre_subsystem != nullptr);
-	ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
-	Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(camera);
-	viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
-	camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
+	/* Setup input */
+	m_input_handler = new InputHandler();
 }
 
 void Main::EnterMainLoop()
 {
+	/* Setup 3D engine */
+	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+	assert(ror_ogre_subsystem != nullptr);
+	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(m_camera);
+	m_viewport->setBackgroundColour(m_config.viewport_background_color);
+	m_camera->setAspectRatio(m_viewport->getActualHeight() / m_viewport->getActualWidth());
+
+	/* Setup input */
+	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
+	RoR::Application::GetInputEngine()->SetMouseListener(m_input_handler);
+
 	while (! m_exit_loop_requested)
 	{
-		// Process window events
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-		RoRWindowEventUtilities::messagePump();
-#endif
-
-		// Update input devices
-		RoR::Application::GetInputEngine()->Capture();
+		UpdateMainLoop();
 
 		Ogre::RenderWindow* rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 		if (rw->isClosed())
 		{
-			gEnv->main_thread_control->RequestShutdown();
+			RoR::Application::GetMainThreadLogic()->RequestShutdown();
+			break;
 		}
 
+		/* Render */
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
 		if (!rw->isActive() && rw->isVisible())
@@ -104,9 +100,24 @@ void Main::EnterMainLoop()
 			rw->update(); // update even when in background !
 		}
 	}
+
+	m_exit_loop_requested = false;
 }
 
-void Main::Load(RigDef::File* rig_def)
+void Main::UpdateMainLoop()
 {
-	
+	/* Process window events */
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+	RoRWindowEventUtilities::messagePump();
+#endif
+
+	/* Update input devices */
+	RoR::Application::GetInputEngine()->Capture();
+
+	if (m_input_handler->WasEventFired(InputHandler::Event::QUIT_RIG_EDITOR))
+	{
+		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_SIMULATION);
+		m_exit_loop_requested = true;
+		return;
+	}
 }

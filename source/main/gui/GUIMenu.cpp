@@ -37,6 +37,7 @@
 #include "GUIFriction.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Savegame.h"
@@ -94,6 +95,17 @@ GUI_MainMenu::GUI_MainMenu() :
 	p = m_vehicles_menu_widget;
 	mi->setItemType(MyGUI::MenuItemType::Popup);
 	mi->setCaption("Vehicles");
+	m_popup_menus.push_back(p);
+
+	/* -------------------------------------------------------------------------------- */
+	/* EDITOR POPUP MENU */
+
+	mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
+	p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
+	mi->setItemType(MyGUI::MenuItemType::Popup);
+	mi->setCaption("Editor");
+	
+	p->addItem(_L("Open rig editor"), MyGUI::MenuItemType::Normal, "rig-editor-enter");
 	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
@@ -424,6 +436,11 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("Texture Tool"))
 	{
 		TextureToolWindow::getSingleton().show();
+	}
+	else if (id == "rig-editor-enter")
+	{
+		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
+		RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 	}
 
 	//LOG(" menu button pressed: " + _item->getCaption());
