@@ -65,6 +65,11 @@ public:
 		return m_viewport;
 	}
 
+	void SetViewport(Ogre::Viewport* viewport)
+	{
+		m_viewport = viewport;
+	}
+
 	Ogre::Timer* GetTimer()
 	{
 		return m_timer;

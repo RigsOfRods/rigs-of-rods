@@ -20,15 +20,16 @@
 */
 
 /** 
-	@file   RigEditor.h
+	@file   RigEditor_Rig.h
 	@date   06/2014
 	@author Petr Ohlidal
 */
 
 #pragma once
 
-#include "ConfigFile.h"
+#include "RigDefFile.h"
 #include "RigDefPrerequisites.h"
+#include "RoRPrerequisites.h"
 
 namespace RoR
 {
@@ -36,37 +37,24 @@ namespace RoR
 namespace RigEditor
 {
 
-class Main
+class Rig
 {
-	public:
+	friend class RigFactory;
 
-	struct Config
-	{
-		Ogre::ColourValue viewport_background_color;
-	};
+	/** Constructed by RigEditor::RigFactory */
+	Rig()
+	{}
 
-	Main::Main();
-	~Main();
+	/* STRUCTURE */
+	std::unordered_map<RigDef::Node::Id, Node*, RigDef::Node::Id::Hasher> m_nodes;
+	std::vector<Beam*> m_beams;
 
-	void PrepareToEnter();
-	
-	void RestoreGameAfterExit(Ogre::Camera* next_camera);
+	/* VISUALS */
+	Ogre::ManualObject*  m_beams_dynamic_mesh;
 
-	void EnterMainLoop();
-
-	void Load(RigDef::File* rig_def);
-
-	private:
-
-	RoR::ConfigFile      m_config_file;
-	Config               m_config;
-	Ogre::SceneManager*  m_scene_manager;
-	Ogre::Viewport*      m_viewport;
-	Ogre::Camera*        m_camera;
-	Ogre::Entity*        m_rig_entity;
-
-	bool                 m_exit_loop_requested;
-
+	/* UTILITY */
+	std::vector<Ogre::String> m_messages;
+	bool                      m_loaded_ok;
 };
 
 } // namespace RigEditor

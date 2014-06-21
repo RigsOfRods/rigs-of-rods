@@ -189,6 +189,18 @@ struct Node
 
 	public:
 
+		struct Hasher: public std::hash<Id>
+		{
+			size_t operator()(Id const & id) const
+			{
+				// Only one member has a non-zero value at any time.
+				// FIXME: Not an ideal solution
+				std::hash<unsigned int> UintHasher;
+				std::hash<Ogre::String> StringHasher;
+				return UintHasher(id.m_id_num) + StringHasher(id.m_id_str);
+			}
+		};
+
 		Id():
 			m_id_num(INVALID_ID_VALUE)
 		{}
@@ -236,7 +248,7 @@ struct Node
 			return m_id_num;
 		}
 
-		bool Compare(Id const & rhs)
+		bool Compare(Id const & rhs) const
 		{
 			if (m_id_str.empty() && rhs.m_id_str.empty())
 			{
@@ -254,6 +266,11 @@ struct Node
 		}
 
 		bool operator==(Id const & rhs)
+		{
+			return Compare(rhs);
+		}
+
+		bool operator==(Id const & rhs) const
 		{
 			return Compare(rhs);
 		}

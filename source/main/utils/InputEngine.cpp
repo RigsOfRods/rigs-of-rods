@@ -2159,6 +2159,35 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
 #endif //MYGUI
 }
 
+void InputEngine::SetKeyboardListener(OIS::KeyListener* keyboard_listener)
+{
+	assert (mKeyboard != nullptr);
+	mKeyboard->setEventCallback(keyboard_listener);
+}
+
+OIS::MouseState InputEngine::SetMouseListener(OIS::MouseListener* mouse_listener)
+{
+	assert (mMouse != nullptr);
+	mMouse->setEventCallback(mouse_listener);
+	return mMouse->getMouseState();
+}
+
+void InputEngine::RestoreMouseListener()
+{
+	if (mMouse)
+	{
+		mMouse->setEventCallback(this);
+
+		// init states (not required for keyboard)
+		mouseState = mMouse->getMouseState();
+	}
+}
+
+void InputEngine::RestoreKeyboardListener()
+{
+	SetKeyboardListener(this);
+}
+
 /* --- Joystik Events ------------------------------------------ */
 bool InputEngine::buttonPressed( const OIS::JoyStickEvent &arg, int button )
 {

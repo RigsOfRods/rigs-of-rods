@@ -57,6 +57,7 @@
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
 #include "PlayerColours.h"
+#include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "Scripting.h"
@@ -85,7 +86,10 @@ MainThread::MainThread():
 	m_start_time(0),
 	m_race_start_time(0),
 	m_race_in_progress(false),
-	m_exit_loop_requested(false)
+	m_exit_loop_requested(false),
+	m_application_state(Application::STATE_NONE),
+	m_next_application_state(Application::STATE_NONE),
+	m_rig_editor(nullptr)
 {
 	pthread_mutex_init(&m_lock, nullptr);
 	RoR::Application::SetMainThreadLogic(this);
@@ -447,6 +451,8 @@ void MainThread::Go()
 
 	if (! m_shutdown_requested)
 	{
+		m_next_application_state = Application::STATE_SIMULATION;
+
 		// ============================================================================
 		// Loading base resources
 		// ============================================================================
@@ -608,15 +614,65 @@ void MainThread::Go()
 #endif // USE_MYGUI
 			}
 
-			// ========================================================================
-			// Game loop
-			// ========================================================================
-
 			Application::CreateSceneMouse();
 			gEnv->frameListener->initialized = true;
-			Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
-			EnterGameplayLoop();
+			// ========================================================================
+			// Main loop (switches application states)
+			// ========================================================================
+
+			Application::State previous_application_state(Application::STATE_NONE);
+
+			while (! m_shutdown_requested)
+			{
+				if (m_next_application_state == Application::STATE_SIMULATION)
+				{
+					// ================================================================
+					// Simulation
+					// ================================================================
+
+					if (previous_application_state == Application::STATE_RIG_EDITOR)
+					{
+						/* Restore 3D engine settings */
+						OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+						assert(ror_ogre_subsystem != nullptr);
+						ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
+						Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(gEnv->mainCamera);
+						viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
+						camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
+						ror_ogre_subsystem->SetViewport(viewport);
+
+						/* Restore input */
+						RoR::Application::GetInputEngine()->RestoreKeyboardListener();
+						RoR::Application::GetInputEngine()->RestoreMouseListener();
+					}
+
+					EnterGameplayLoop();
+
+					previous_application_state = Application::STATE_SIMULATION;
+				}
+				else if (m_next_application_state == Application::STATE_RIG_EDITOR)
+				{
+					// ================================================================
+					// Rig editor
+					// ================================================================
+
+					if (m_rig_editor == nullptr)
+					{
+						m_rig_editor = new RigEditor::Main();
+						assert(m_rig_editor != nullptr);
+					}
+					if (previous_application_state == Application::STATE_SIMULATION)
+					{
+						assert(RoR::Application::GetOgreSubsystem() != nullptr);
+						RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+					}
+
+					m_rig_editor->EnterMainLoop();
+
+					previous_application_state = Application::STATE_RIG_EDITOR;
+				}
+			}	
 		}	
 	}
 
@@ -728,6 +784,10 @@ void MainThread::EnterMenuLoop()
 
 void MainThread::EnterGameplayLoop()
 {
+	/* SETUP */
+
+	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
+
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
 	unsigned long minTimePerFrame    = 0;
@@ -743,7 +803,9 @@ void MainThread::EnterGameplayLoop()
 		minTimePerFrame = 1000 / fpsLimit;
 	}
 
-	while(!m_shutdown_requested)
+	/* LOOP */
+
+	while(! m_exit_loop_requested)
 	{
 		startTime = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
@@ -792,6 +854,11 @@ void MainThread::EnterGameplayLoop()
 
 		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
+
+	/* RESTORE ENVIRONMENT */
+
+	m_exit_loop_requested = false;
+	Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
 }
 
 void MainThread::Exit()

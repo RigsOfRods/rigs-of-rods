@@ -42,6 +42,13 @@ class Application
 
 public:
 
+	enum State
+	{
+		STATE_NONE,
+		STATE_SIMULATION,
+		STATE_RIG_EDITOR
+	};
+
 	static OgreSubsystem* GetOgreSubsystem()
 	{
 		assert(ms_ogre_subsystem != nullptr && "OgreSubsystem not created");

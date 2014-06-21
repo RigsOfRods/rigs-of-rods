@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 
 #include <pthread.h>
@@ -62,6 +63,11 @@ public:
 		return m_race_in_progress;
 	}
 
+	void SetNextApplicationState(Application::State next_app_state)
+	{
+		m_next_application_state = next_app_state;
+	}
+
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
 
 protected:
@@ -85,6 +91,9 @@ protected:
 	unsigned long      m_start_time;
 	unsigned long      m_race_start_time;
 	bool               m_race_in_progress;
+	Application::State m_next_application_state;
+	Application::State m_application_state;
+	RigEditor::Main*   m_rig_editor;
 };
 
 } // namespace RoR
