@@ -20,14 +20,14 @@
 */
 
 /**
-	@file   RigDefValidator.cpp
+	@file   RigDef_Validator.cpp
 	@author Petr Ohlidal
 	@date   12/2013
 */
 
-#include "RigDefValidator.h"
+#include "RigDef_Validator.h"
 
-#include "RigDefLimits.h"
+#include "RigDef_Limits.h"
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \

@@ -24,7 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
-#include "RigDefFile.h"
+#include "RigDef_File.h"
 #include "RigSpawner.h"
 #include "Settings.h"
 #include "SkyManager.h"

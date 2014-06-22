@@ -28,7 +28,7 @@
 #pragma once
 
 #include "ConfigFile.h"
-#include "RigDefPrerequisites.h"
+#include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR

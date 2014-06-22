@@ -27,7 +27,7 @@
 
 #include "RigEditor_RigFactory.h"
 
-#include "RigDefFile.h"
+#include "RigDef_File.h"
 #include "RigEditor_Beam.h"
 #include "RigEditor_Main.h"
 #include "RigEditor_Node.h"

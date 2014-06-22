@@ -19,21 +19,39 @@
 	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-	@file  RigDefLimits.h 
-	@brief Limits and constants 
+/**
+	@file   RigDef_Prerequisites.h
+	@author Petr Ohlidal
+	@date   12/2013
 */
-
-#pragma once
 
 namespace RigDef
 {
 
-namespace Limits
-{
+/* File structures declarations */
+/* TODO: Complete list */
 
-static const unsigned int MAX_COMMANDS = 84;
+struct Airbrake;
+struct Animation;
+struct Axle;
+struct Beam;
+struct BeamDefaults;
+struct BeamDefaultsScale;
+struct CameraSettings;
+struct File;
+struct Globals;
+struct GuiSettings;
+struct Inertia;
+struct ManagedMaterialsOptions;
+struct Node;
+struct NodeDefaults;
+struct OptionalInertia;
+struct ShadowOptions;
+struct VideoCamera;
 
-} // namespace Limits
+/* Parser classes */
 
-} // namespace RigDef
+class Parser;
+class Validator;
+
+} /* namespace RigDef */

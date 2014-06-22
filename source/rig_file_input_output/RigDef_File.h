@@ -20,7 +20,7 @@
 */
 
 /** 
-	@file RigDefFile.h
+	@file   RigDef_File.h
 	@author Petr Ohlidal
 	@date   12/2013
 	@brief Structures which represent a rig-definition file (1:1 match) 
