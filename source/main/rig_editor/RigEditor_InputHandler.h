@@ -72,6 +72,8 @@ public:
 
 	bool WasEventFired(Event const & event);
 
+	void ResetEvents();
+
 	/* OIS::KeyListener */
 	bool keyPressed( const OIS::KeyEvent &arg );
 	bool keyReleased( const OIS::KeyEvent &arg );
