@@ -28,6 +28,7 @@
 #include "RigEditor_InputHandler.h"
 
 #include "Application.h"
+#include "GUIManager.h"
 #include "InputEngine.h"
 
 using namespace RoR;
@@ -82,6 +83,11 @@ void InputHandler::ResetEvents()
 
 bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
 {
+	if (RoR::Application::GetGuiManager()->keyPressed(arg))
+	{
+		return true;
+	}
+
 	const Event* event_ptr = m_key_mappings[arg.key];
 	assert(event_ptr != nullptr);
 	unsigned int event_index = event_ptr->index;
@@ -91,6 +97,11 @@ bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
 
 bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
 {
+	if (RoR::Application::GetGuiManager()->keyReleased(arg))
+	{
+		return true;
+	}
+
 	return true;
 }
 
@@ -100,15 +111,30 @@ bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
 
 bool InputHandler::mouseMoved( const OIS::MouseEvent &arg )
 {
+	if (RoR::Application::GetGuiManager()->mouseMoved(arg))
+	{
+		return true;
+	}
+
 	return true;
 } // Stub!
 
 bool InputHandler::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
+	if (RoR::Application::GetGuiManager()->mousePressed(arg, id))
+	{
+		return true;
+	}
+
 	return true;
 } // Stub!
 
 bool InputHandler::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
+	if (RoR::Application::GetGuiManager()->mouseReleased(arg, id))
+	{
+		return true;
+	}
+
 	return true;
 } // Stub!

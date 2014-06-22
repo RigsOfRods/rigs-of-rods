@@ -58,6 +58,9 @@ public:
 
 	void windowResized(Ogre::RenderWindow* rw);
 
+	/** Set scene manager where GUI will be rendered */
+	void SetSceneManager(Ogre::SceneManager* scene_manager);
+
 private:
 
 	GUIManager();
