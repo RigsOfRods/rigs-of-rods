@@ -43,7 +43,7 @@ StartupScreen::StartupScreen():
 void StartupScreen::InitAndShow()
 {
 	// Setup rendering
-	m_scene_manager = Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+	m_scene_manager = Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "bootstrap_screen_scene_manager");
 	assert(m_scene_manager != nullptr);
 	m_camera = m_scene_manager->createCamera("PlayerCam");
 	assert(m_camera != nullptr);
