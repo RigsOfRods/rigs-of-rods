@@ -112,6 +112,7 @@ void Main::UpdateMainLoop()
 #endif
 
 	/* Update input devices */
+	m_input_handler->ResetEvents();
 	RoR::Application::GetInputEngine()->Capture();
 
 	if (m_input_handler->WasEventFired(InputHandler::Event::QUIT_RIG_EDITOR))

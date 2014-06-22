@@ -71,6 +71,11 @@ bool InputHandler::WasEventFired(Event const & event)
 	return m_events_fired.test(event.index);
 }
 
+void InputHandler::ResetEvents()
+{
+	m_events_fired.reset();
+}
+
 // ================================================================================
 // OIS Keyboard listener
 // ================================================================================
