@@ -52,8 +52,6 @@ public:
 
 	void destroy();
 
-	MyGUI::Gui* getGUI() { return mGUI; }
-
 	void unfocus();
 
 	static Ogre::String getRandomWallpaperImage();
