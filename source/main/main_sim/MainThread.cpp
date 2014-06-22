@@ -134,7 +134,7 @@ void MainThread::Go()
 
 	bootstrap_screen.HideAndRemove();
 
-	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
 
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
