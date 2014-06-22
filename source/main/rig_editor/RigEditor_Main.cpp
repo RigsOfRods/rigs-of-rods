@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "GlobalEnvironment.h"
+#include "GUIManager.h"
 #include "InputEngine.h"
 #include "MainThread.h"
 #include "OgreSubsystem.h"
@@ -77,6 +78,9 @@ void Main::EnterMainLoop()
 	m_viewport->setBackgroundColour(m_config.viewport_background_color);
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / m_viewport->getActualWidth());
 
+	/* Setup GUI */
+	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
+
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
 	RoR::Application::GetInputEngine()->SetMouseListener(m_input_handler);
@@ -111,9 +115,9 @@ void Main::UpdateMainLoop()
 	RoRWindowEventUtilities::messagePump();
 #endif
 
-	/* Update input devices */
+	/* Update input events */
 	m_input_handler->ResetEvents();
-	RoR::Application::GetInputEngine()->Capture();
+	RoR::Application::GetInputEngine()->Capture(); // Also injects input to GUI
 
 	if (m_input_handler->WasEventFired(InputHandler::Event::QUIT_RIG_EDITOR))
 	{

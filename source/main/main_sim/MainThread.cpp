@@ -642,6 +642,9 @@ void MainThread::Go()
 						camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
 						ror_ogre_subsystem->SetViewport(viewport);
 
+						/* Restore GUI */
+						RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+
 						/* Restore input */
 						RoR::Application::GetInputEngine()->RestoreKeyboardListener();
 						RoR::Application::GetInputEngine()->RestoreMouseListener();
