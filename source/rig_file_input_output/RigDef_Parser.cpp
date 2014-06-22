@@ -20,15 +20,15 @@
 */
 
 /**
-	@file   RigDefParser.cpp
+	@file   RigDef_Parser.cpp
 	@author Petr Ohlidal
 	@date   12/2013
 */
 
-#include "RigDefParser.h"
+#include "RigDef_Parser.h"
 
-#include "RigDefFile.h"
-#include "RigDefRegexes.h"
+#include "RigDef_File.h"
+#include "RigDef_Regexes.h"
 #include "BitFlags.h"
 
 #include <OgreString.h>

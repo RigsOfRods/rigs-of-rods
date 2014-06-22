@@ -20,7 +20,7 @@
 */
 
 /**
-	@file   RigDefRegexes.h
+	@file   RigDef_Regexes.h
 	@author Petr Ohlidal
 	@date   12/2013
 

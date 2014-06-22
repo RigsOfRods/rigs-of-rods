@@ -20,12 +20,12 @@
 */
 
 /*
-	@file   RigDefFile.cpp
+	@file   RigDef_File.cpp
 	@author Petr Ohlidal
 	@date   12/2013
 */
 
-#include "RigDefFile.h"
+#include "RigDef_File.h"
 
 namespace RigDef
 {

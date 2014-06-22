@@ -20,7 +20,7 @@
 */
 
 /** 
-	@file   RigDefValidator.cpp
+	@file   RigDef_Validator.h
 	@author Petr Ohlidal
 	@date   12/2013
 	@brief  .truck format validator 
@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "RigDefFile.h"
+#include "RigDef_File.h"
 
 #include <OgreString.h>
 #include <boost/shared_ptr.hpp>
