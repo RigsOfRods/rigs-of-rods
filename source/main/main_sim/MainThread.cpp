@@ -709,7 +709,7 @@ void MainThread::Go()
 						assert(RoR::Application::GetOverlayWrapper() != nullptr);
 
 						/* Hide overlays */
-						RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays();
+						RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays( BeamFactory::getSingleton().getCurrentTruck() );
 					}
 
 					m_rig_editor->EnterMainLoop();
