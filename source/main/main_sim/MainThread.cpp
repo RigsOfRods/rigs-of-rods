@@ -670,10 +670,11 @@ void MainThread::Go()
 						OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 						assert(ror_ogre_subsystem != nullptr);
 						ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
-						Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(gEnv->mainCamera);
+						Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 						viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
 						camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
 						ror_ogre_subsystem->SetViewport(viewport);
+						viewport->setCamera(gEnv->mainCamera);
 
 						/* Restore GUI */
 						RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
