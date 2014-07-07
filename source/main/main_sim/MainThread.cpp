@@ -682,6 +682,9 @@ void MainThread::Go()
 						/* Restore input */
 						RoR::Application::GetInputEngine()->RestoreKeyboardListener();
 						RoR::Application::GetInputEngine()->RestoreMouseListener();
+
+						/* Restore overlays */
+						RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
 					}
 
 					EnterGameplayLoop();
@@ -703,6 +706,10 @@ void MainThread::Go()
 					{
 						assert(RoR::Application::GetOgreSubsystem() != nullptr);
 						RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+						assert(RoR::Application::GetOverlayWrapper() != nullptr);
+
+						/* Hide overlays */
+						RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays();
 					}
 
 					m_rig_editor->EnterMainLoop();
@@ -1114,7 +1121,7 @@ void MainThread::StartRaceTimer()
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
 	if (ow)
 	{
-		ow->racing->show();
+		ow->ShowRacingOverlay();
 		ow->laptimes->show();
 		ow->laptimems->show();
 		ow->laptimemin->show();
@@ -1132,7 +1139,7 @@ float MainThread::StopRaceTimer()
 		UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
 		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(time))/60,((int)(time))%60, ((int)(time*100.0))%100);
 		ow->lasttime->setCaption(UTFString(txt));
-		//ow->racing->hide();
+		//ow->m_racing_overlay->hide();
 		ow->laptimes->hide();
 		ow->laptimems->hide();
 		ow->laptimemin->hide();
@@ -1146,7 +1153,7 @@ void MainThread::UpdateRacingGui()
 {
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
 	if (!ow) return;
-	// update racing gui if required
+	// update m_racing_overlay gui if required
 	float time = static_cast<float>(RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - m_race_start_time);
 	wchar_t txt[10];
 	swprintf(txt, 10, L"%.2i", ((int)(time*100.0))%100);
