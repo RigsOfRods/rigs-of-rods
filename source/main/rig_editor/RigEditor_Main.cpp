@@ -74,9 +74,10 @@ void Main::EnterMainLoop()
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
-	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(m_camera);
+	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 	m_viewport->setBackgroundColour(m_config.viewport_background_color);
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / m_viewport->getActualWidth());
+	m_viewport->setCamera(m_camera);
 
 	/* Setup GUI */
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
