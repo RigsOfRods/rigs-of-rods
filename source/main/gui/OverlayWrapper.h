@@ -83,7 +83,7 @@ public:
 
 	/** Hides all overlays, but doesn't change visibility flags (for further restoring).
 	*/
-	void TemporarilyHideAllOverlays();
+	void TemporarilyHideAllOverlays(Beam *current_vehicle);
 
 	/** Shows all overlays flagged as "visible".
 	*/

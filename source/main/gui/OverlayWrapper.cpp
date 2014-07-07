@@ -1304,14 +1304,14 @@ void OverlayWrapper::HideRacingOverlay()
 	BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
 }
 
-void OverlayWrapper::TemporarilyHideAllOverlays()
+void OverlayWrapper::TemporarilyHideAllOverlays(Beam *current_vehicle)
 {
 	m_racing_overlay->hide();
 	m_direction_arrow_overlay->hide();
 	m_debug_fps_memory_overlay->hide();
 	m_debug_beam_timing_overlay->hide();
 
-	showDashboardOverlays(false, nullptr);
+	showDashboardOverlays(false, current_vehicle);
 }
 
 void OverlayWrapper::RestoreOverlaysVisibility(Beam *current_vehicle)
