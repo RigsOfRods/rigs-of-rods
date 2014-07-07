@@ -65,7 +65,6 @@
 #include "Settings.h"
 #include "Skin.h"
 #include "SoundScriptManager.h"
-#include "StartupScreen.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "TruckHUD.h"
@@ -121,19 +120,7 @@ void MainThread::Go()
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
-	StartupScreen bootstrap_screen;
-	bootstrap_screen.InitAndShow();
-
-	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
-
-	RoR::Application::CreateCacheSystem();
-
-	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
-
-	Application::GetContentManager()->init(); // Load all resource packs
-
-	bootstrap_screen.HideAndRemove();
-
+	// Setup rendering (menu + simulation)
 	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
 
@@ -146,6 +133,51 @@ void MainThread::Go()
 	camera->setAutoAspectRatio(true);
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
+
+	// SHOW BOOTSTRAP SCREEN
+
+	// Create rendering overlay
+	Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
+	Ogre::Overlay* startup_screen_overlay = static_cast<Ogre::Overlay*>( overlay_manager.getByName("RoR/StartupScreen") );
+	if (!startup_screen_overlay)
+	{
+		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "MainThread::Go");
+	}
+
+	// Set random wallpaper image
+#ifdef USE_MYGUI
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
+	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
+	if (! menu_wallpaper_texture_name.empty() && ! mat.isNull())
+	{
+		if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
+		{
+			mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(menu_wallpaper_texture_name);
+		}
+	}
+#endif // USE_MYGUI
+
+	startup_screen_overlay->show();
+	
+	scene_manager->clearSpecialCaseRenderQueues();
+	scene_manager->addSpecialCaseRenderQueue(Ogre::RENDER_QUEUE_OVERLAY);
+	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_INCLUDE);
+
+	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
+
+	RoR::Application::CreateCacheSystem();
+
+	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
+
+	Application::GetContentManager()->init();
+
+	// HIDE BOOTSTRAP SCREEN
+
+	startup_screen_overlay->hide();
+
+	// Back to full rendering
+	scene_manager->clearSpecialCaseRenderQueues();
+	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_EXCLUDE);
 
 #ifdef USE_MYGUI
 	
@@ -160,6 +192,7 @@ void MainThread::Go()
 	new GUI_MainMenu();
 	GUI_Friction::getSingleton();
 
+	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	if (!v.empty())
 	{
@@ -167,7 +200,7 @@ void MainThread::Go()
 		if (mainw)
 		{
 			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			if (img) img->setImageTexture(bootstrap_screen.GetWallpaperTextureName());
+			if (img) img->setImageTexture(menu_wallpaper_texture_name);
 		}
 	}
 
