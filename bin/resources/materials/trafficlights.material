@@ -1,0 +1,53 @@
+material trafficlightsequence2
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				anim_texture signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds signalgreen.dds signalgreen.dds signalgreen.dds signalamber.dds 40
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material trafficlightmain
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture trafficlightsdiffuse.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material trafficlightsequence1
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				anim_texture signalred.dds signalgreen.dds signalgreen.dds signalgreen.dds signalamber.dds signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds 40
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}

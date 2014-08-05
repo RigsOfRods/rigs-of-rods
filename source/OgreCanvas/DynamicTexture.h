@@ -1,0 +1,52 @@
+/*
+	Copyright (c) 2010 ASTRE Henri (http://www.visual-experiments.com)
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+*/
+
+#pragma once
+
+#include <string>
+#include <OgreTexture.h>
+#include <OgreResource.h>
+#include "CanvasPrerequisites.h"
+
+class _OgreCanvasExport DynamicTexture : public Ogre::ManualResourceLoader
+{
+	public:
+		DynamicTexture(const std::string& _textureName, unsigned int _width, unsigned int _height, bool _enableAlpha = true, int _mipmaps = 0);
+		virtual ~DynamicTexture();
+		
+		virtual void loadResource(Ogre::Resource* resource) = 0;
+		void update(const Ogre::PixelBox& _box);		
+
+		const std::string getName() const { return mName; }
+		Ogre::TexturePtr getTexture() { return mTexture; }
+		Ogre::PixelFormat getPixelFormat() { return mFormat; }
+
+	protected:
+		void createTexture(void);
+						
+		unsigned int      mWidth;
+		unsigned int      mHeight;
+		std::string       mName;
+		Ogre::PixelFormat mFormat;
+		int               mMipMaps;
+		Ogre::TexturePtr  mTexture;
+};
