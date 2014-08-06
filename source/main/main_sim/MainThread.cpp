@@ -60,6 +60,7 @@
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "Scripting.h"
+#include "MenuWindow.h"
 #include "SelectorWindow.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -152,6 +153,7 @@ void MainThread::Go()
 
 	// Init singletons. TODO: Move under Application
 	LoadingWindow::getSingleton();
+	MenuWindow::getSingleton();
 	SelectorWindow::getSingleton();
 	new GUI_MainMenu();
 	GUI_Friction::getSingleton();
@@ -417,7 +419,7 @@ void MainThread::Go()
 	new BeamFactory();
 
 	// ================================================================================
-	// Terrain selection
+	// Terrain selection EDIT MENU TIME
 	// ================================================================================
 	
 	if (preselected_map.empty())
@@ -425,7 +427,8 @@ void MainThread::Go()
 #ifdef USE_MYGUI
 		// show terrain selector
 		ShowSurveyMap(false);
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
+		MenuWindow::getSingleton().Show();
+		//Just for the request thingy
 #endif // USE_MYGUI
 
 		EnterMenuLoop(); // TODO: Doesn't really make sense without USE_MYGUI

@@ -92,6 +92,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIMenu.h"
 #include "GUIFriction.h"
 #include "GUIMp.h"
+#include "MenuWindow.h"
 #include "SelectorWindow.h"
 #include "LoadingWindow.h"
 #include "Console.h"

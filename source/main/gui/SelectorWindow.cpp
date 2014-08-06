@@ -29,6 +29,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "LoadingWindow.h"
 #include "SkinManager.h"
 #include "Utils.h"
+#include "RoRFrameListener.h"
+#include "MenuWindow.h"
 
 #if 0
 // translation help for category entries, should be commented at all times
@@ -246,8 +248,9 @@ void SelectorWindow::eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 {
 	if (!ready) return;
 	mSelectedTruck = nullptr;
-	mSelectionDone = true;
-	hide();
+	//mSelectionDone = true;
+	BackToMenu();
+	//TODO
 }
 
 void SelectorWindow::eventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
@@ -863,11 +866,23 @@ void SelectorWindow::show(LoaderType type)
 
 void SelectorWindow::hide()
 {
+	mSelectionDone = true;
 	RoR::Application::GetGuiManager()->unfocus();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
 	ready = false;
 	bindKeys(false);
+}
+
+void SelectorWindow::BackToMenu()
+{
+	RoR::Application::GetGuiManager()->unfocus();
+	mMainWidget->setVisible(false);
+	if (! gEnv->frameListener->loading_state == TERRAIN_LOADED)
+	{
+		//Return to the menu
+		MenuWindow::getSingleton().Show();
+	}
 }
 
 void SelectorWindow::setEnableCancel(bool enabled)

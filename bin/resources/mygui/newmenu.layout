@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCS" position="435 240 200 245" align="Center" layer="Back" name="_Main">
+        <Property key="Caption" value="Menu"/>
+        <Property key="Show" value="true"/>
+        <Property key="Enabled" value="true"/>
+        <Widget type="Button" skin="Button" position_real="0.0526316 0.115385 0.894737 0.115385" align="ALIGN_HCENTER ALIGN_TOP" name="Select_Terrain">
+            <Property key="Caption" value="Select Terrain"/>
+            <UserString key="" value=""/>
+        </Widget>
+        <Widget type="Button" skin="ButtonSmall" position="11 70 168 26" align="ALIGN_HCENTER ALIGN_TOP" name="settings">
+            <Property key="Caption" value="Settings"/>
+        </Widget>
+        <Widget type="Button" skin="ButtonSmall" position="11 115 168 26" align="ALIGN_HCENTER ALIGN_TOP" name="about">
+            <Property key="Caption" value="About"/>
+            <Property key="Show" value="true"/>
+        </Widget>
+        <Widget type="Button" skin="ButtonSmall" position="11 160 168 26" align="HCenter Top" name="exit">
+            <Property key="Caption" value="Quit "/>
+        </Widget>
+    </Widget>
+</MyGUI>
