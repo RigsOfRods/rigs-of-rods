@@ -246,7 +246,7 @@ DEFINE_REGEX( IDENTIFY_KEYWORD,
 	E_KEYWORD_BLOCK("ropables")
 	E_KEYWORD_BLOCK("ropes")
 	E_KEYWORD_BLOCK("rotators")
-	E_KEYWORD_BLOCK("rotators_2")
+	E_KEYWORD_BLOCK("rotators2")
 	E_KEYWORD_BLOCK("screwprops")
 	E_KEYWORD_INLINE("section")
 	E_KEYWORD_INLINE("sectionconfig")
