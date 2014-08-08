@@ -1,0 +1,8 @@
+CyberbitEnglish
+{
+	type 		truetype
+	source 		Cyberbit.ttf
+	size 		32
+	resolution 	55
+	code_points   33-289
+}

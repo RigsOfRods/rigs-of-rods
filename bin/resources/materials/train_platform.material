@@ -1,0 +1,39 @@
+material platform
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.640000 0.640000 0.640000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture train_platform.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+
+material platformedge
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.240000 0.240000 0.240000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture train_platformedge.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="Window" position="240 280 554 222" align="Center" layer="Overlapped" name="_Main">
+        <Property key="Caption" value="Loading..."/>
+        <Property key="MinSize" value="580 200"/>
+        <Widget type="ProgressBar" skin="ProgressBar" position="10 160 528 18" align="HStretch Bottom" layer="Back" name="Bar">
+            <Property key="Range" value="100"/>
+            <Property key="RangePosition" value="0"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position="8 8 528 142" align="Stretch" layer="Back" name="Info">
+            <Property key="FontName" value="DefaultBig"/>
+        </Widget>
+    </Widget>
+</MyGUI>

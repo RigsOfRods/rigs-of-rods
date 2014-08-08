@@ -1,0 +1,239 @@
+overlay tracks/netchat
+{
+	zorder 99
+	container BorderPanel(tracks/netchatbp)
+	{
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		left -250
+		top 0
+		width 500
+		height 115
+		material Core/StatsBlockCenter
+			border_size 2 2 2 2
+			border_material Core/StatsBlockBorder
+			border_topleft_uv     0.0000 1.0000 0.0039 0.9961
+			border_top_uv         0.0039 1.0000 0.9961 0.9961
+			border_topright_uv    0.9961 1.0000 1.0000 0.9961
+			border_left_uv        0.0000 0.9961 0.0039 0.0039
+			border_right_uv       0.9961 0.9961 1.0000 0.0039
+			border_bottomleft_uv  0.0000 0.0039 0.0039 0.0000
+			border_bottom_uv      0.0039 0.0039 0.9961 0.0000
+			border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
+
+		container Panel(tracks/netchatbreak)
+		{
+			metrics_mode pixels
+			left 10
+			top 90
+			width 480
+			height 2
+			material Core/StatsBreak
+		}
+		element TextArea(tracks/chatline1)
+		{
+			metrics_mode pixels
+			left 10
+			top 10
+			width 480
+			height 30
+			font_name CyberbitEnglish
+			char_height 20
+			colour_top 1 1 0.7
+			colour_bottom 0.8 0.8 0.5
+		}
+		element TextArea(tracks/chatline2)
+		{
+			metrics_mode pixels
+			left 10
+			top 25
+			width 480
+			height 30
+			font_name CyberbitEnglish
+			char_height 20
+			colour_top 1 1 0.7
+			colour_bottom 0.8 0.8 0.5
+		}
+		element TextArea(tracks/chatline3)
+		{
+			metrics_mode pixels
+			left 10
+			top 40
+			width 480
+			height 30
+			font_name CyberbitEnglish
+			char_height 20
+			colour_top 1 1 0.7
+			colour_bottom 0.8 0.8 0.5
+		}
+		element TextArea(tracks/chatline4)
+		{
+			metrics_mode pixels
+			left 10
+			top 55
+			width 480
+			height 30
+			font_name CyberbitEnglish
+			char_height 20
+			colour_top 1 1 0.7
+			colour_bottom 0.8 0.8 0.5
+		}
+		element TextArea(tracks/chatline5)
+		{
+			metrics_mode pixels
+			left 10
+			top 70
+			width 480
+			height 30
+			font_name CyberbitEnglish
+			char_height 20
+			colour_top 1 1 0.7
+			colour_bottom 0.8 0.8 0.5
+		}
+		element TextArea(tracks/chattype)
+		{
+			metrics_mode pixels
+			left 10
+			top 95
+			width 480
+			height 30
+			font_name CyberbitEnglish
+			char_height 20
+			colour_top 1 0.6 0.3
+			colour_bottom 0.8 0.4 0.2
+		}
+
+	}
+}
+
+
+overlay tracks/Racing
+{
+	zorder 100
+	container TextArea(tracks/LapTimemin)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+
+			left 0.78
+			top 0.0
+			width 0.3
+			height 0.1
+			font_name CyberbitEnglish
+			char_height 0.1
+			caption 00'
+			colour_top 1 0.6 0.0
+			colour_bottom 0.8 0.4 0.0
+		}
+	container TextArea(tracks/LapTimes)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+
+			left 0.87
+			top 0.0
+			width 0.3
+			height 0.1
+			font_name CyberbitEnglish
+			char_height 0.1
+			caption 00
+			colour_top 1 0.6 0.0
+			colour_bottom 0.8 0.4 0.0
+		}
+	container TextArea(tracks/LapTimems)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+
+			left 0.95
+			top 0.03
+			width 0.3
+			height 0.05
+			font_name CyberbitEnglish
+			char_height 0.05
+			caption 00
+			colour_top 1 0.6 0.0
+			colour_bottom 0.8 0.4 0.0
+		}
+	container TextArea(tracks/LastTime)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+
+			left 0.78
+			top 0.07
+			width 0.3
+			height 0.1
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption Last lap: --'--.--
+			colour_top 1 0.4 0.4
+			colour_bottom 0.8 0.2 0.2
+		}
+
+
+}
+
+overlay tracks/FlashMessage
+{
+	zorder 100
+
+	// will be dynamically created from 0.36.2 on
+}
+
+overlay tracks/PressureOverlay
+{
+	zorder 20
+	container Panel (tracks/pressureo)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align top
+//			horz_align center
+//			vert_align center
+			width 0.14
+			left -0.28
+//this part is recalculated for screen ratio
+			top 0.0
+			height 0.14
+			material tracks/pressuremat
+		}
+}
+
+overlay tracks/PressureNeedleOverlay
+{
+	zorder 30
+	container Panel (tracks/pressureneedle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align top
+//			horz_align center
+//			vert_align center
+			width 0.14
+			left -0.28
+//this part is recalculated for screen ratio
+			top 0.0
+			height 0.14
+			material tracks/pressureneedle_mat
+		}
+}
+
+overlay tracks/FadeInOut
+{
+   zorder 600
+
+   container Panel(FadeInOutPanel)
+   {
+      left 0
+      top 0
+      width 1
+      height 1
+      material tracks/blackFade
+   }
+}
