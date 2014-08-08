@@ -308,6 +308,8 @@ DEFINE_REGEX( DECIMAL_NUMBER, E_DECIMAL_NUMBER );
 
 DEFINE_REGEX( MINUS_ONE_REAL, E_MINUS_ONE_REAL );
 
+DEFINE_REGEX( REAL_NUMBER, E_REAL_NUMBER );
+
 DEFINE_REGEX( NODE_NUMBER, 
 	E_LEADING_WHITESPACE
 	E_DECIMAL_NUMBER
@@ -1988,7 +1990,7 @@ DEFINE_REGEX( SECTION_ROPES,
 	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #13 Key right */
 
 #define E_ROTATORS_R1_R2_COMMON_INERTIA                                            \
-	E_CAPTURE( E_REAL_NUMBER )                           /* #+1 Start delay */     \
+	E_CAPTURE( E_STRING_NO_SPACES )                           /* #+1 Start delay (real number; accept garbage for backwards compatibility) */     \
 	E_CAPTURE_OPTIONAL(                                                            \
 		E_DELIMITER_COMMA                                                             \
 		E_CAPTURE( E_REAL_NUMBER )                       /* #+3 Stop delay */      \

@@ -4225,8 +4225,25 @@ void Parser::ParseRotators(Ogre::String const & line)
 
 	Rotator rotator;
 	rotator.inertia_defaults = m_user_default_inertia;
+	const unsigned int inertia_start_index = 15;
 
-	_ParseRotatorsCommon(rotator, results, 15);
+	_ParseRotatorsCommon(rotator, results, inertia_start_index);
+
+	/* Backwards compatibility check */
+	/* Parameter "inertia_start_delay" must accept garbage */
+	if (results[inertia_start_index].matched)
+	{
+		std::string start_delay_str = results[inertia_start_index];
+		if (! boost::regex_match(start_delay_str, Regexes::REAL_NUMBER))
+		{
+			
+			float result = STR_PARSE_REAL(start_delay_str);
+			std::stringstream msg;
+			msg << "Invalid value of parameter #14 'inertia_start_delay': '" << start_delay_str 
+				<< "', parsing as '" << result << "' for backwards compatibility. Please fix.";
+			AddMessage(line, Message::TYPE_ERROR, msg.str());
+		}
+	}
 
 	m_current_module->rotators.push_back(rotator);
 }
