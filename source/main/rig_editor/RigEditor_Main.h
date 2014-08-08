@@ -45,6 +45,7 @@ public:
 	{
 		Ogre::ColourValue viewport_background_color;
 		Ogre::ColourValue beam_generic_color;
+		Ogre::ColourValue scene_ambient_light_color;
 	};
 
 	Main();
@@ -73,8 +74,11 @@ private:
 	Ogre::Camera*        m_camera;
 	Ogre::Entity*        m_rig_entity;
 	InputHandler*        m_input_handler;
+	CameraHandler*       m_camera_handler;
 
 	bool                 m_exit_loop_requested;
+
+	MyGUI::TextBox*      m_debug_box;
 
 };
 

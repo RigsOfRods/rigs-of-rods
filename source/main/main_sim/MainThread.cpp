@@ -685,6 +685,9 @@ void MainThread::Go()
 
 						/* Restore overlays */
 						RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
+
+						/* Setup GUI manager updates */
+						Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
 					}
 
 					EnterGameplayLoop();
@@ -710,6 +713,16 @@ void MainThread::Go()
 
 						/* Hide overlays */
 						RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays( BeamFactory::getSingleton().getCurrentTruck() );
+
+						/* Stop GUI manager updates */
+						Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(RoR::Application::GetGuiManager());
+
+						/* Hide top menu */
+						GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
+						if (top_menu != nullptr) 
+						{
+							top_menu->setVisible(false);
+						}
 					}
 
 					m_rig_editor->EnterMainLoop();

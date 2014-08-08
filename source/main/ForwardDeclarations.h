@@ -41,9 +41,10 @@ namespace RoR
 
 	namespace RigEditor
 	{
-		class  Main;
-		class  InputHandler;
 		class  Beam;
+		class  CameraHandler;
+		class  InputHandler;
+		class  Main;
 		class  Node;
 		class  Rig;
 	}
@@ -90,6 +91,7 @@ namespace Ogre
 namespace MyGUI
 {
 	class OgrePlatform;
+	class TextBox;
 }
 
 class AeroEngine;

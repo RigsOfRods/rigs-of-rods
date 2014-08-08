@@ -51,6 +51,16 @@ DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUI
 // Functions
 // ================================================================================
 
+InputHandler::MouseMotionEvent::MouseMotionEvent():
+	rel_x(0),
+	rel_y(0),
+	rel_wheel(0),
+	abs_x(0),
+	abs_y(0),
+	abs_wheel(0)
+{
+}
+
 InputHandler::InputHandler()
 {
 	std::memset(m_key_mappings, 0, KEY_MAPPING_ARRAY_SIZE * sizeof(Event *)); 
@@ -75,6 +85,15 @@ bool InputHandler::WasEventFired(Event const & event)
 void InputHandler::ResetEvents()
 {
 	m_events_fired.reset();
+
+	m_mouse_motion_event.ResetRelativeMove();
+
+	m_mouse_button_event.ResetEvents();
+}
+
+InputHandler::MouseMotionEvent const & InputHandler::GetMouseMotionEvent()
+{
+	return m_mouse_motion_event;
 }
 
 // ================================================================================
@@ -89,7 +108,10 @@ bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
 	}
 
 	const Event* event_ptr = m_key_mappings[arg.key];
-	assert(event_ptr != nullptr);
+	if (event_ptr == nullptr) 
+	{
+		return true; /* Unassigned key */
+	}
 	unsigned int event_index = event_ptr->index;
 	m_events_fired[event_index] = true;
 	return true;
@@ -109,32 +131,60 @@ bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
 // OIS Mouse listener
 // ================================================================================
 
-bool InputHandler::mouseMoved( const OIS::MouseEvent &arg )
+bool InputHandler::mouseMoved( const OIS::MouseEvent &mouse_event )
 {
-	if (RoR::Application::GetGuiManager()->mouseMoved(arg))
+	MyGUI::InputManager::getInstance().injectMouseMove(
+		mouse_event.state.X.abs, 
+		mouse_event.state.Y.abs,
+		mouse_event.state.Z.abs
+		);
+
+	m_mouse_motion_event.AddRelativeMove(mouse_event.state.X.rel, mouse_event.state.Y.rel, mouse_event.state.Z.rel);
+	m_mouse_motion_event.abs_x = mouse_event.state.X.abs;
+	m_mouse_motion_event.abs_y = mouse_event.state.Y.abs;
+	m_mouse_motion_event.abs_wheel = mouse_event.state.Z.abs;
+
+	return true;
+}
+
+bool InputHandler::mousePressed( const OIS::MouseEvent &mouse_event, OIS::MouseButtonID button_id )
+{
+	MyGUI::InputManager::getInstance().injectMousePress(
+		mouse_event.state.X.abs, 
+		mouse_event.state.Y.abs,
+		MyGUI::MouseButton::Enum(button_id)
+		);
+
+	switch (button_id)
 	{
-		return true;
+	case OIS::MB_Right:
+		m_mouse_button_event.RightButtonDown();
+	case OIS::MB_Left:
+		m_mouse_button_event.LeftButtonDown();
+	case OIS::MB_Middle:
+		m_mouse_button_event.MiddleButtonDown();
 	}
 
 	return true;
-} // Stub!
+}
 
-bool InputHandler::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+bool InputHandler::mouseReleased( const OIS::MouseEvent &mouse_event, OIS::MouseButtonID button_id )
 {
-	if (RoR::Application::GetGuiManager()->mousePressed(arg, id))
+	MyGUI::InputManager::getInstance().injectMouseRelease(
+		mouse_event.state.X.abs, 
+		mouse_event.state.Y.abs,
+		MyGUI::MouseButton::Enum(button_id)
+		);
+
+	switch (button_id)
 	{
-		return true;
+	case OIS::MB_Right:
+		m_mouse_button_event.RightButtonUp();
+	case OIS::MB_Left:
+		m_mouse_button_event.LeftButtonUp();
+	case OIS::MB_Middle:
+		m_mouse_button_event.MiddleButtonUp();
 	}
 
 	return true;
-} // Stub!
-
-bool InputHandler::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
-{
-	if (RoR::Application::GetGuiManager()->mouseReleased(arg, id))
-	{
-		return true;
-	}
-
-	return true;
-} // Stub!
+}

@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include "BitFlags.h"
+
 #include <OISKeyboard.h>
 #include <OISMouse.h>
 #include <bitset>
@@ -37,7 +39,8 @@ namespace RoR
 namespace RigEditor
 {
 
-/** Editor-specific input handler (because class InputEngine is too tightly-coupled with simulation logic)
+/** Editor-specific input handler
+* NOTE: class InputEngine is not useful because it's too tightly-coupled with simulation logic.
 */
 class InputHandler:
 	public OIS::MouseListener,
@@ -65,6 +68,115 @@ public:
 		unsigned int index;
 	};
 
+	struct MouseMotionEvent
+	{
+		int rel_x;
+		int rel_y;
+		int rel_wheel;
+		int abs_x;
+		int abs_y;
+		int abs_wheel;
+
+		MouseMotionEvent();
+		
+		bool HasMoved() const
+		{
+			return rel_x != 0 || rel_y != 0;
+		}
+
+		void ResetRelativeMove()
+		{
+			rel_x = 0;
+			rel_y = 0;
+		}
+
+		bool HasScrolled() const
+		{
+			return rel_wheel != 0;
+		}
+
+		void ResetRelativeScroll()
+		{
+			rel_wheel = 0;
+		}
+
+		void AddRelativeMove(int x, int y, int wheel)
+		{
+			rel_x += x;
+			rel_y += y;
+			rel_wheel += wheel;
+		}
+	};
+
+	struct MouseButtonEvent
+	{
+		static const int RIGHT_BUTTON_PRESSED = BITMASK(1);
+		static const int RIGHT_BUTTON_RELEASED = BITMASK(2);
+		static const int RIGHT_BUTTON_IS_DOWN = BITMASK(3);
+
+		static const int LEFT_BUTTON_PRESSED = BITMASK(4);
+		static const int LEFT_BUTTON_RELEASED = BITMASK(5);
+		static const int LEFT_BUTTON_IS_DOWN = BITMASK(6);
+
+		static const int MIDDLE_BUTTON_PRESSED = BITMASK(7);
+		static const int MIDDLE_BUTTON_RELEASED = BITMASK(8);
+		static const int MIDDLE_BUTTON_IS_DOWN = BITMASK(9);
+
+		int flags;
+
+		MouseButtonEvent():
+			flags(0)
+		{}
+
+		void ResetEvents()
+		{
+			BITMASK_SET_0(flags, 
+				RIGHT_BUTTON_PRESSED
+				| RIGHT_BUTTON_RELEASED
+				| LEFT_BUTTON_PRESSED
+				| LEFT_BUTTON_RELEASED
+				| MIDDLE_BUTTON_PRESSED
+				| MIDDLE_BUTTON_RELEASED
+				);
+		}
+
+		void RightButtonDown()
+		{
+			BITMASK_SET_1(flags, RIGHT_BUTTON_PRESSED);
+			BITMASK_SET_1(flags, RIGHT_BUTTON_IS_DOWN);
+		}
+
+		void RightButtonUp()
+		{
+			BITMASK_SET_1(flags, RIGHT_BUTTON_RELEASED);
+			BITMASK_SET_0(flags, RIGHT_BUTTON_IS_DOWN);
+		}
+
+		void LeftButtonDown()
+		{
+			BITMASK_SET_1(flags, LEFT_BUTTON_PRESSED);
+			BITMASK_SET_1(flags, LEFT_BUTTON_IS_DOWN);
+		}
+
+		void LeftButtonUp()
+		{
+			BITMASK_SET_1(flags, LEFT_BUTTON_RELEASED);
+			BITMASK_SET_0(flags, LEFT_BUTTON_IS_DOWN);
+		}
+
+		void MiddleButtonDown()
+		{
+			BITMASK_SET_1(flags, MIDDLE_BUTTON_PRESSED);
+			BITMASK_SET_1(flags, MIDDLE_BUTTON_IS_DOWN);
+		}
+
+		void MiddleButtonUp()
+		{
+			BITMASK_SET_1(flags, MIDDLE_BUTTON_RELEASED);
+			BITMASK_SET_0(flags, MIDDLE_BUTTON_IS_DOWN);
+		}
+	};
+
 	InputHandler();
 
 	~InputHandler()
@@ -73,6 +185,8 @@ public:
 	bool WasEventFired(Event const & event);
 
 	void ResetEvents();
+
+	MouseMotionEvent const & GetMouseMotionEvent();
 
 	/* OIS::KeyListener */
 	bool keyPressed( const OIS::KeyEvent &arg );
@@ -87,9 +201,12 @@ private:
 
 	void SetupDefaultKeyMappings();
 
-	const Event* m_key_mappings[KEY_MAPPING_ARRAY_SIZE];
+	const Event*       m_key_mappings[KEY_MAPPING_ARRAY_SIZE];
 
-	std::bitset<64> m_events_fired;
+	std::bitset<64>    m_events_fired;
+
+	MouseMotionEvent   m_mouse_motion_event;
+	MouseButtonEvent   m_mouse_button_event;
 };
 
 } // namespace RigEditor
