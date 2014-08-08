@@ -93,6 +93,8 @@ namespace Regexes
 
 #define E_STRING_ANYTHING_BUT_WHITESPACE "[^[:blank:]]+"
 
+#define E_STRING_ANYTHING_BUT_DELIMITER "[^[:blank:],]+"
+
 #define E_STRING_ALNUM_COMMAS_USCORES_ONLY "[[:alnum:]_-]+"
 
 #define E_OPTIONAL_SPACE "[[:blank:]]*"
@@ -2204,7 +2206,7 @@ DEFINE_REGEX( SECTION_SOUNDSOURCES2,
 
 	E_CAPTURE( E_NODE_ID ) /* #1 Node which makes the sound */
 	E_CAPTURE( E_DELIMITER )
-	E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #3 Mode/Cinecam ID, decimal number (accept anything for backward compatibility) */
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) /* #3 Mode/Cinecam ID, decimal number. Accept anything for backward compatibility */
 	E_CAPTURE( E_DELIMITER )
 	E_CAPTURE( E_STRING_NO_SPACES ) /* #5 Sound script name */
 
