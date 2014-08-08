@@ -1,0 +1,34 @@
+overlay tracks/MouseOverlay
+{
+	zorder 150
+
+	container Panel (mouse/pointer)
+	{
+		metrics_mode pixels
+		horz_align left
+		vert_align top
+		left 0
+		top 0
+		width 32
+		height 32
+		material mouse
+	}
+}
+
+//what is it? removed until its really needed
+//tracks/MouseSelectionOverlay
+//{
+//	zorder 140
+//
+//	container Panel (mouse/selection)
+//	{
+//		metrics_mode pixels
+//		horz_align left
+//		vert_align top
+//		left 0
+//		top 0
+//		width 32
+//		height 32
+//		material editor/selectionbox
+//	}
+//}

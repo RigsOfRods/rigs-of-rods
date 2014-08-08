@@ -1,0 +1,152 @@
+// splash
+particle_system tracks/particles/water1
+{
+	material        	tracks/SplashMat
+	particle_width  	0.5
+	particle_height 	0.5
+	cull_each       	false
+	quota           	5000
+	billboard_type  	point
+
+	// Area emitter
+	emitter Point
+	{
+		angle               		10
+		emission_rate       		200
+		time_to_live        		20
+		direction           		0 -1 0
+		velocity	        		20
+		colour  1.0, 1.0, 1.0, 1.0
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point 0 0 0
+		plane_normal 0 1 0
+		bounce 0.0
+	}
+	affector LinearForce
+	{
+		force_vector 0 -9.8 0
+	}
+
+	affector ColourFader
+	{
+		alpha -0.1
+	}
+	affector Scaler
+	{
+		rate 	3.0
+	}
+	affector Rotator
+	{
+			rotation_range_start  		0
+			rotation_range_end   	 	360
+			rotation_speed_range_start  	-1
+			rotation_speed_range_end    	1
+	}
+
+	affector FireExtinguisher
+	{
+		effectiveness 	1
+	}
+
+}
+
+particle_system tracks/particles/waterRed
+{
+	material        	tracks/SplashMat
+	particle_width  	0.5
+	particle_height 	0.5
+	cull_each       	false
+	quota           	5000
+	billboard_type  	point
+
+	// Area emitter
+	emitter Point
+	{
+		angle               		5
+		emission_rate       		200
+		time_to_live        		20
+		direction           		0 -1 0
+		velocity	        		10
+		colour  1.0, 0.0, 0.0, 1.0
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point 0 0 0
+		plane_normal 0 1 0
+		bounce 0.0
+	}
+	affector LinearForce
+	{
+		force_vector 0 -9.8 0
+	}
+
+	affector ColourFader
+	{
+		alpha -0.1
+	}
+	affector Scaler
+	{
+		rate 	3.0
+	}
+	affector Rotator
+	{
+			rotation_range_start  		0
+			rotation_range_end   	 	360
+			rotation_speed_range_start  	-1
+			rotation_speed_range_end    	1
+	}
+
+}
+
+particle_system tracks/particles/waterGreen
+{
+	material        	tracks/SplashMat
+	particle_width  	0.5
+	particle_height 	0.5
+	cull_each       	false
+	quota           	5000
+	billboard_type  	point
+
+	// Area emitter
+	emitter Point
+	{
+		angle               		5
+		emission_rate       		200
+		time_to_live        		20
+		direction           		0 -1 0
+		velocity	        		10
+		colour  0.0, 1.0, 0.0, 1.0
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point 0 0 0
+		plane_normal 0 1 0
+		bounce 0.0
+	}
+	affector LinearForce
+	{
+		force_vector 0 -9.8 0
+	}
+
+	affector ColourFader
+	{
+		alpha -0.1
+	}
+	affector Scaler
+	{
+		rate 	3.0
+	}
+	affector Rotator
+	{
+			rotation_range_start  		0
+			rotation_range_end   	 	360
+			rotation_speed_range_start  	-1
+			rotation_speed_range_end    	1
+	}
+
+}
