@@ -1139,17 +1139,20 @@ struct Flexbody
 /* Section FLEX_BODY_WHEELS
 /* -------------------------------------------------------------------------- */
 
-struct FlexBodyWheel: MeshWheel2
+struct FlexBodyWheel: BaseWheel2
 {
-	/* No added params */
 	FlexBodyWheel():
+		side(MeshWheel::SIDE_INVALID),
 		rim_springiness(0),
 		rim_damping(0)
 	{}
 
+	MeshWheel::Side side;
+
 	float rim_springiness;
 	float rim_damping;
-	boost::shared_ptr<BeamDefaults> beam_defaults; /* Rim is setup this way, params in section are for tire. */
+	Ogre::String rim_mesh_name;
+	Ogre::String tyre_mesh_name;
 };
 
 /* -------------------------------------------------------------------------- */
