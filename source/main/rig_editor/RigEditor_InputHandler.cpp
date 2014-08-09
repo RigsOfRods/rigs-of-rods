@@ -87,6 +87,7 @@ void InputHandler::ResetEvents()
 	m_events_fired.reset();
 
 	m_mouse_motion_event.ResetRelativeMove();
+	m_mouse_motion_event.ResetRelativeScroll();
 
 	m_mouse_button_event.ResetEvents();
 }
