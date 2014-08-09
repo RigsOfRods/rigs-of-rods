@@ -159,7 +159,7 @@ void Main::UpdateMainLoop()
 		m_exit_loop_requested = true;
 		return;
 	}
-	if (m_input_handler->GetMouseMotionEvent().HasMoved())
+	if (m_input_handler->GetMouseMotionEvent().HasMoved() || m_input_handler->GetMouseMotionEvent().HasScrolled())
 	{
 		m_camera_handler->InjectMouseMove(
 			m_input_handler->GetMouseMotionEvent().rel_x,
