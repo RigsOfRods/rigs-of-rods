@@ -4503,9 +4503,10 @@ void RigSpawner::FetchAxisNodes(
 
 void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {	
-	/* Check capacity */
+	/* Check capacities */
 	CheckNodeLimit(def.num_rays * 4);
 	CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValid()) ? 26 : 25);
+	CheckFlexbodyLimit(1);
 
 	unsigned int base_node_index = m_rig->free_node;
 	wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
@@ -4528,8 +4529,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	/* Node&beam generation */
 	Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
 	axis_vector.normalise();
-	Ogre::Vector3 rim_ray_vector = Ogre::Vector3(0, def.rim_radius, 0);
-	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / def.num_rays * 2), axis_vector);
+	Ogre::Vector3 rim_ray_vector = axis_vector.perpendicular() * def.rim_radius;
+	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
 
 	/* Width */
 	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
@@ -4565,8 +4566,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		wheel.nodes[(i * 2) + 1] = & inner_node;
 	}
 
-	Ogre::Vector3 tyre_ray_vector = Ogre::Vector3(0, def.tyre_radius, 0);
-	Ogre::Quaternion tyre_ray_rotator = Ogre::Quaternion(Ogre::Degree(-180.f / def.num_rays * 2), axis_vector);
+	Ogre::Vector3 tyre_ray_vector = axis_vector.perpendicular() * def.tyre_radius;
+	Ogre::Quaternion& tyre_ray_rotator = rim_ray_rotator;
 	tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 	/* Tyre nodes */
@@ -4722,11 +4723,42 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		axis_node_1->pos,
 		axis_node_2->pos,
 		def.num_rays,
-		def.mesh_name,
-		def.material_name,
+		def.rim_mesh_name,
+		"tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
 		def.rim_radius,
 		def.side != RigDef::MeshWheel::SIDE_RIGHT
 		);
+
+	/* Create flexbody */
+	char flexbody_name[256];
+	sprintf(flexbody_name, "flexbody-%s-%i", m_rig->truckname, m_rig->free_flexbody);
+
+	int num_nodes = def.num_rays * 4;
+	std::vector<unsigned int> node_indices;
+	node_indices.reserve(num_nodes);
+	for (int i = 0; i < num_nodes; ++i)
+	{
+		node_indices.push_back( base_node_index + i );
+	}
+
+	m_rig->flexbodies[m_rig->free_flexbody] = new FlexBody(
+		m_rig->nodes,
+		m_rig->free_node,
+		def.tyre_mesh_name,
+		flexbody_name,
+		axis_node_1->pos,
+		axis_node_2->pos,
+		static_cast<int>(base_node_index),
+		Ogre::Vector3(0.5,0,0),
+		Ogre::Quaternion::ZERO,
+		node_indices,
+		m_rig->materialFunctionMapper,
+		m_rig->usedSkin,
+		true, /* forceNoShadows */
+		m_rig->materialReplacer
+		);
+
+	m_rig->free_flexbody++;
 
 	/* Advance */
 	m_rig->free_wheel++;

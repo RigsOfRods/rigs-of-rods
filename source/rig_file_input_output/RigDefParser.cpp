@@ -4716,14 +4716,15 @@ void Parser::ParseFlexBodyWheels(Ogre::String const & line)
 	}
 
 	flex_body_wheel.reference_arm_node = _ParseNodeId(results[10]);
-	flex_body_wheel.mass = STR_PARSE_REAL(results[11]);
-	flex_body_wheel.rim_springiness = STR_PARSE_REAL(results[12]);
-	flex_body_wheel.rim_damping = STR_PARSE_REAL(results[13]);
-	flex_body_wheel.tyre_springiness = STR_PARSE_REAL(results[14]);
-	flex_body_wheel.tyre_damping = STR_PARSE_REAL(results[15]);
-	flex_body_wheel.side = MeshWheel::Side(results[16].str().at(0)); /* Regex validates the value */
-	flex_body_wheel.mesh_name = results[17];
-	flex_body_wheel.material_name = results[18];
+	flex_body_wheel.mass               = STR_PARSE_REAL(results[11]);
+	flex_body_wheel.tyre_springiness   = STR_PARSE_REAL(results[12]);
+	flex_body_wheel.tyre_damping       = STR_PARSE_REAL(results[13]);
+	flex_body_wheel.rim_springiness    = STR_PARSE_REAL(results[14]);
+	flex_body_wheel.rim_damping        = STR_PARSE_REAL(results[15]);
+	
+	flex_body_wheel.side               = MeshWheel::Side(results[16].str().at(0)); /* Regex validates the value */
+	flex_body_wheel.rim_mesh_name      = results[17];
+	flex_body_wheel.tyre_mesh_name     = results[18];
 
 	m_current_module->flex_body_wheels.push_back(flex_body_wheel);
 }
