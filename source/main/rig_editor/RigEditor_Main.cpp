@@ -153,15 +153,19 @@ void Main::UpdateMainLoop()
 	m_input_handler->ResetEvents();
 	RoR::Application::GetInputEngine()->Capture(); // Also injects input to GUI
 
+	/* Handle key presses */
 	if (m_input_handler->WasEventFired(InputHandler::Event::QUIT_RIG_EDITOR))
 	{
 		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_SIMULATION);
 		m_exit_loop_requested = true;
 		return;
 	}
+
+	/* Handle mouse move */
 	if (m_input_handler->GetMouseMotionEvent().HasMoved() || m_input_handler->GetMouseMotionEvent().HasScrolled())
 	{
 		m_camera_handler->InjectMouseMove(
+			m_input_handler->GetMouseButtonEvent().IsRightButtonDown(), /* (bool do_orbit) */
 			m_input_handler->GetMouseMotionEvent().rel_x,
 			m_input_handler->GetMouseMotionEvent().rel_y,
 			m_input_handler->GetMouseMotionEvent().rel_wheel

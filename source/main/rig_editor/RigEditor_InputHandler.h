@@ -122,8 +122,6 @@ public:
 		static const int MIDDLE_BUTTON_RELEASED = BITMASK(8);
 		static const int MIDDLE_BUTTON_IS_DOWN = BITMASK(9);
 
-		int flags;
-
 		MouseButtonEvent():
 			flags(0)
 		{}
@@ -175,6 +173,25 @@ public:
 			BITMASK_SET_1(flags, MIDDLE_BUTTON_RELEASED);
 			BITMASK_SET_0(flags, MIDDLE_BUTTON_IS_DOWN);
 		}
+
+		bool IsRightButtonDown() const
+		{
+			return BITMASK_IS_1(flags, RIGHT_BUTTON_IS_DOWN);
+		}
+
+		bool IsLeftButtonDown() const
+		{
+			return BITMASK_IS_1(flags, LEFT_BUTTON_IS_DOWN);
+		}
+
+		bool IsMiddleButtonDown() const
+		{
+			return BITMASK_IS_1(flags, MIDDLE_BUTTON_IS_DOWN);
+		}
+
+	private:
+
+		int flags;
 	};
 
 	InputHandler();
@@ -187,6 +204,8 @@ public:
 	void ResetEvents();
 
 	MouseMotionEvent const & GetMouseMotionEvent();
+
+	MouseButtonEvent const & GetMouseButtonEvent();
 
 	/* OIS::KeyListener */
 	bool keyPressed( const OIS::KeyEvent &arg );
