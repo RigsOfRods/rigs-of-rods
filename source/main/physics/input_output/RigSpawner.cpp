@@ -4532,7 +4532,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	Ogre::Vector3 rim_ray_vector = axis_vector.perpendicular() * def.rim_radius;
 	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
 
-	/* Width */
 	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
 
 	/* Rim nodes */
@@ -4545,24 +4544,28 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
 		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
-		node_t & outer_node = GetFreeNode();
+		node_t & outer_node      = GetFreeNode();
 		InitNode(outer_node, ray_point, def.node_defaults);
-		outer_node.mass    = node_mass;
-		outer_node.id      = -1; // Orig: hardcoded (addWheel2)
-		outer_node.wheelid = m_rig->free_wheel;
+
+		outer_node.mass          = node_mass;
+		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
+		outer_node.wheelid       = m_rig->free_wheel;
+		outer_node.friction_coef = def.node_defaults->friction;
 
 		/* Inner ring */
 		ray_point = axis_node_2->RelPosition + rim_ray_vector;
 		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
-		node_t & inner_node = GetFreeNode();
+		node_t & inner_node      = GetFreeNode();
 		InitNode(inner_node, ray_point, def.node_defaults);
-		inner_node.mass    = node_mass;
-		inner_node.id      = -1; // Orig: hardcoded (addWheel2)
-		inner_node.wheelid = m_rig->free_wheel;
+
+		inner_node.mass          = node_mass;
+		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
+		inner_node.wheelid       = m_rig->free_wheel;
+		inner_node.friction_coef = def.node_defaults->friction;
 
 		/* Wheel object */
-		wheel.nodes[i * 2] = & outer_node;
+		wheel.nodes[i * 2]       = & outer_node;
 		wheel.nodes[(i * 2) + 1] = & inner_node;
 	}
 
@@ -4582,7 +4585,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		outer_node.mass          = (0.67f * def.mass) / (2.f * def.num_rays);
 		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid       = m_rig->free_wheel;
-		outer_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
+		outer_node.friction_coef = def.node_defaults->friction;
 		outer_node.volume_coef   = def.node_defaults->volume;
 		outer_node.surface_coef  = def.node_defaults->surface;
 		outer_node.iswheel       = m_rig->free_wheel*2+1;
@@ -4602,7 +4605,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		inner_node.mass          = (0.33f * def.mass) / (2.f * def.num_rays);
 		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid       = m_rig->free_wheel;
-		inner_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
+		inner_node.friction_coef = def.node_defaults->friction;
 		inner_node.volume_coef   = def.node_defaults->volume;
 		inner_node.surface_coef  = def.node_defaults->surface;
 		inner_node.iswheel       = m_rig->free_wheel*2+2;
