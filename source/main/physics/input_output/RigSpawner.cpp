@@ -4577,12 +4577,13 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	for (unsigned int i = 0; i < def.num_rays; i++)
 	{
 		/* Outer ring */
+		float node_mass = def.mass / (4.f * def.num_rays);
 		Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
 		tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point);
-		outer_node.mass          = (0.67f * def.mass) / (2.f * def.num_rays);
+		outer_node.mass          = node_mass;
 		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid       = m_rig->free_wheel;
 		outer_node.friction_coef = def.node_defaults->friction;
@@ -4602,7 +4603,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point);
-		inner_node.mass          = (0.33f * def.mass) / (2.f * def.num_rays);
+		inner_node.mass          = node_mass;
 		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid       = m_rig->free_wheel;
 		inner_node.friction_coef = def.node_defaults->friction;
@@ -4657,42 +4658,81 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		AddWheelBeam(rim_outer_node, rim_inner_node,      rim_spring, rim_damp, def.beam_defaults);
 		AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
 		AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp, def.beam_defaults);
-		AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
+		AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
+	}
 
-		/* --- Tyre --- */
+	/* Tyre beams */
+	/* Quick&dirty port from original SerializedRig::addWheel3() */
+	for (unsigned int i = 0; i < def.num_rays; i++)
+	{
+		int rim_node_index    = base_node_index + i*2;
+		int tyre_node_index   = base_node_index + i*2 + def.num_rays*2;
+		node_t * rim_node     = & m_rig->nodes[rim_node_index];
 
-		/* These wheels use set_beam_defaults-settings for the tyretread beams like meshwheels2 */
+		AddWheelBeam(rim_node, & m_rig->nodes[tyre_node_index], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
-		unsigned int tyre_node_index = rim_outer_node_index + (2 * def.num_rays);
-		node_t *tyre_outer_node = & m_rig->nodes[tyre_node_index];
-		node_t *tyre_inner_node = & m_rig->nodes[tyre_node_index + 1];
-		unsigned int tyre_next_node_index = rim_next_outer_node_index + (2 * def.num_rays);
-		node_t *tyre_next_outer_node = & m_rig->nodes[tyre_next_node_index];
-		node_t *tyre_next_inner_node = & m_rig->nodes[tyre_next_node_index + 1];
+		int tyre_base_index = (i == 0) ? tyre_node_index + (def.num_rays * 2) : tyre_node_index;
+		AddWheelBeam(rim_node, & m_rig->nodes[tyre_base_index - 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+		AddWheelBeam(rim_node, & m_rig->nodes[tyre_base_index - 2], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
-		/* rim to tiretread */
-		AddWheelBeam(rim_outer_node, tyre_outer_node,      tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		AddWheelBeam(rim_outer_node, tyre_next_inner_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		AddWheelBeam(rim_outer_node, tyre_next_outer_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		AddWheelBeam(rim_inner_node, tyre_outer_node,      tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		AddWheelBeam(rim_inner_node, tyre_inner_node,      tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		AddWheelBeam(rim_inner_node, tyre_next_inner_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
+		node_t * next_rim_node = & m_rig->nodes[rim_node_index + 1];
+		AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
+		AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
-		/* Reinforcement (tire tread) */
-		AddWheelBeam(tyre_outer_node, tyre_inner_node,      tread_spring, tread_damp, def.beam_defaults);
-		AddWheelBeam(tyre_outer_node, tyre_next_outer_node, tread_spring, tread_damp, def.beam_defaults);
-		AddWheelBeam(tyre_inner_node, tyre_next_inner_node, tread_spring, tread_damp, def.beam_defaults);
-		AddWheelBeam(tyre_inner_node, tyre_next_outer_node, tread_spring, tread_damp, def.beam_defaults);
-		if (rigidity_node != nullptr)
-		{
-			unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
-			GetBeam(beam_index).type = BEAM_VIRTUAL;
+		{	
+			int index = (i == 0) ? tyre_node_index + (def.num_rays * 2) - 1 : tyre_node_index - 1;
+			node_t * tyre_node = & m_rig->nodes[index];
+			AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
 		}
+		
+		//reinforcement (tire tread)
+		{
+			// Very messy port :(
+			// Aliases
+			int rimnode = rim_node_index;
+			int rays = def.num_rays;
 
-		/* Support beams */
-		AddWheelBeam(axis_node_1, tyre_outer_node, tyre_spring/2.f, tyre_damp, def.beam_defaults, support_beams_short_bound, 0.f);
-		AddWheelBeam(axis_node_2, tyre_outer_node, tyre_spring/2.f, tyre_damp, def.beam_defaults, support_beams_short_bound, 0.f);
+			AddWheelBeam(&m_rig->nodes[rimnode+rays*2], &m_rig->nodes[base_node_index+i*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
+			AddWheelBeam(&m_rig->nodes[rimnode+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
+			AddWheelBeam(&m_rig->nodes[base_node_index+i*2+1+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
+			AddWheelBeam(&m_rig->nodes[rimnode+1+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
 
+			if (rigidity_node != nullptr)
+			{
+				
+				if (axis_node_closest_to_rigidity_node == axis_node_1)
+				{
+					axis_node_closest_to_rigidity_node = & m_rig->nodes[base_node_index+i*2+rays*2];
+				} else
+				{
+					axis_node_closest_to_rigidity_node = & m_rig->nodes[base_node_index+i*2+1+rays*2];
+				};
+				unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
+				GetBeam(beam_index).type = BEAM_VIRTUAL;
+			}
+		}
+	}
+
+	//calculate the point where the support beams get stiff and prevent the tire tread nodes bounce into the rim rimradius / tire radius and add 5%, this is a shortbound calc in % !
+	float length = 1.0f - ((def.rim_radius / def.tyre_radius) * 0.95f);
+	float ropespring = def.rim_springiness;
+
+	if (ropespring <= DEFAULT_SPRING)
+		ropespring = DEFAULT_SPRING;
+
+	for (unsigned int i=0; i<def.num_rays; i++)
+	{
+		//tiretread anti collapse reinforcements, using precalced support beams
+		unsigned int tirenode = base_node_index + i*2 + def.num_rays*2;
+		unsigned int beam_index;
+
+		beam_index = AddWheelBeam(axis_node_1, &m_rig->nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
+		GetBeam(beam_index).shortbound = length;
+		GetBeam(beam_index).longbound  = 0.f;
+
+		beam_index = AddWheelBeam(axis_node_2, &m_rig->nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+		GetBeam(beam_index).shortbound = length;
+		GetBeam(beam_index).longbound  = 0.f;
 	}
 
 	/* Wheel object */
