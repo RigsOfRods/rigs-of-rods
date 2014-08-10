@@ -4536,7 +4536,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
 
 	/* Rim nodes */
-	/* NOTE: node.iswheel is not used */
+	/* NOTE: node.iswheel is not used for rim nodes */
 	for (unsigned int i = 0; i < def.num_rays; i++)
 	{
 		float node_mass = def.mass / (4.f * def.num_rays);
@@ -4571,7 +4571,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 	/* Tyre nodes */
-	/* NOTE: node.iswheel is not used */
 	for (unsigned int i = 0; i < def.num_rays; i++)
 	{
 		/* Outer ring */
@@ -4586,6 +4585,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		outer_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
 		outer_node.volume_coef   = def.node_defaults->volume;
 		outer_node.surface_coef  = def.node_defaults->surface;
+		outer_node.iswheel       = m_rig->free_wheel*2+1;
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
 		outer_contacter.nodeid        = outer_node.pos; /* Node index */
@@ -4605,6 +4605,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		inner_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
 		inner_node.volume_coef   = def.node_defaults->volume;
 		inner_node.surface_coef  = def.node_defaults->surface;
+		inner_node.iswheel       = m_rig->free_wheel*2+2;
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
 		inner_contacter.nodeid        = inner_node.pos; /* Node index */
