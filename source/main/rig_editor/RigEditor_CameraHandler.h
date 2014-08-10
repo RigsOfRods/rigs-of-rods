@@ -124,7 +124,7 @@ class CameraHandler
 
     void Update(float delta_time_seconds);
 
-	void InjectMouseMove(int x_rel, int y_rel, int wheel_rel);
+	void InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel);
 
 #if 0 // Doesn't match RigEditor's event scheme. Left here for reference
 
@@ -217,7 +217,6 @@ protected:
     Ogre::Camera* mCamera;
     CameraStyle mStyle;
     Ogre::SceneNode* mTarget;
-    bool mOrbiting;
     bool mZooming;
     Ogre::Real mTopSpeed;
     Ogre::Vector3 mVelocity;

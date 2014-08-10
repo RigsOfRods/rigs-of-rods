@@ -66,7 +66,6 @@ using namespace RoR::RigEditor;
 CameraHandler::CameraHandler(Ogre::Camera* cam)
 	: mCamera(cam)
 	, mTarget(0)
-	, mOrbiting(false)
 	, mZooming(false)
 	, mTopSpeed(150)
 	, mVelocity(Ogre::Vector3::ZERO)
@@ -185,13 +184,13 @@ void CameraHandler::Update(float delta_time_seconds)
     }
 }
 
-void CameraHandler::InjectMouseMove(int x_rel, int y_rel, int wheel_rel)
+void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel)
 {
     if (mStyle == CS_ORBIT)
     {
         Ogre::Real dist = (mCamera->getPosition() - mTarget->_getDerivedPosition()).length();
 
-        if (mOrbiting)   // yaw around the target, and pitch locally
+        if (do_orbit)   // yaw around the target, and pitch locally
         {
             mCamera->setPosition(mTarget->_getDerivedPosition());
 
@@ -202,7 +201,7 @@ void CameraHandler::InjectMouseMove(int x_rel, int y_rel, int wheel_rel)
 
             // don't let the camera go over the top or around the bottom of the target
         }
-        else if (mZooming)  // move the camera toward or away from the target
+        else if (mZooming)  // (mouse-move zooming) move the camera toward or away from the target
         {
             // the further the camera is, the faster it moves
             mCamera->moveRelative(Ogre::Vector3(0, 0, y_rel * 0.004f * dist));

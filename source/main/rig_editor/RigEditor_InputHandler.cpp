@@ -97,6 +97,11 @@ InputHandler::MouseMotionEvent const & InputHandler::GetMouseMotionEvent()
 	return m_mouse_motion_event;
 }
 
+InputHandler::MouseButtonEvent const & InputHandler::GetMouseButtonEvent()
+{
+	return m_mouse_button_event;
+}
+
 // ================================================================================
 // OIS Keyboard listener
 // ================================================================================
