@@ -476,6 +476,7 @@ void MainThread::Go()
 		
 			EnterMainMenuLoop();
 			
+			previous_application_state = Application::STATE_MAIN_MENU;
 		}
 		if (m_next_application_state == Application::STATE_SIMULATION)
 		{
@@ -532,11 +533,12 @@ void MainThread::Go()
 			}
 			if (previous_application_state == Application::STATE_SIMULATION)
 			{
+				/* Remove viewports */
 				assert(RoR::Application::GetOgreSubsystem() != nullptr);
 				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
-				assert(RoR::Application::GetOverlayWrapper() != nullptr);
 
 				/* Hide overlays */
+				assert(RoR::Application::GetOverlayWrapper() != nullptr);
 				RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays( BeamFactory::getSingleton().getCurrentTruck() );
 
 				/* Stop GUI manager updates */
@@ -549,16 +551,27 @@ void MainThread::Go()
 					top_menu->setVisible(false);
 				}
 			}
+			else if (previous_application_state == Application::STATE_MAIN_MENU)
+			{
+				/* Remove viewports */
+				assert(RoR::Application::GetOgreSubsystem() != nullptr);
+				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+
+				/* Stop GUI manager updates */
+				Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(RoR::Application::GetGuiManager());
+			}
 
 			m_rig_editor->EnterMainLoop();
 
+			m_application_state = Application::STATE_NONE;
+			m_next_application_state = previous_application_state;
 			previous_application_state = Application::STATE_RIG_EDITOR;
 		}
-	}	
+	}
 
-	// ================================================================================
+	// ========================================================================
 	// Cleanup
-	// ================================================================================
+	// ========================================================================
 
 	LoadingWindow::freeSingleton();
 	SelectorWindow::freeSingleton();
@@ -771,9 +784,6 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	return true;
 }
 
-
-
-
 void MainThread::EnterMainMenuLoop()
 {
 	// ==== FPS-limiter ====
@@ -840,7 +850,6 @@ void MainThread::EnterMainMenuLoop()
 			// Sleep twice as long as we were too fast.
 			sleepMilliSeconds((minTimePerFrame - timeSinceLastFrame) << 1);
 		}
-
 
 		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
