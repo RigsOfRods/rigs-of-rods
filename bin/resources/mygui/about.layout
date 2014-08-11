@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCSX" position="207 339 610 345" align="Center" layer="Back" name="_Main">
+        <Property key="Visible" value="true"/>
+        <Property key="Enabled" value="true"/>
+        <Widget type="TabControl" skin="TabControl" position="0 0 600 280">
+            <Widget type="TabItem" skin="" position="2 24 594 252">
+                <Property key="Caption" value="The Game"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="10 10 165 20">
+                    <Property key="Caption" value="About Rigs of Rods:"/>
+                    <Property key="FontHeight" value="20"/>
+                    <Property key="FontName" value="Default"/>
+                </Widget>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="25 35 130 20">
+                    <Property key="Caption" value="Version:"/>
+                    <Widget type="EditBox" skin="WordWrapEmpty" position="135 0 125 20" name="ror_version">
+                        <Widget type="EditBox" skin="WordWrapEmpty" position="0 25 125 20" name="net_version"/>
+                    </Widget>
+                </Widget>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="25 60 135 20">
+                    <Property key="Caption" value="Network Protocol:"/>
+                </Widget>
+            </Widget>
+            <Widget type="TabItem" skin="" position="2 24 594 252">
+                <Property key="Caption" value="Authors"/>
+            </Widget>
+            <Widget type="TabItem" skin="" position="2 24 594 252">
+                <Property key="Caption" value="Code Contributors"/>
+            </Widget>
+        </Widget>
+        <Widget type="Button" skin="Button" position="485 285 110 20" name="backbtn">
+            <Property key="Caption" value="Back"/>
+        </Widget>
+    </Widget>
+</MyGUI>

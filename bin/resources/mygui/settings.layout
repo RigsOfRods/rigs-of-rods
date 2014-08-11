@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCSX" position="235 195 640 370" align="Center" layer="Back" name="_Main">
+        <Property key="Caption" value="Settings"/>
+        <Property key="Enabled" value="true"/>
+        <Widget type="TabControl" skin="TabControl" position="0 0 630 310">
+            <Widget type="TabItem" skin="" position="2 24 624 282">
+                <Property key="Caption" value="General"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="15 20 195 20">
+                    <Property key="Caption" value="Language:"/>
+                </Widget>
+                <Widget type="ComboBox" skin="ComboBox" position="210 15 405 30"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="15 55 195 25">
+                    <Property key="Caption" value="Default Gearbox Mode:"/>
+                </Widget>
+                <Widget type="ComboBox" skin="ComboBox" position="210 50 405 30"/>
+                <Widget type="Button" skin="CheckBox" position="15 95 20 20"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="40 100 210 15">
+                    <Property key="Caption" value="Arcade Controls"/>
+                </Widget>
+            </Widget>
+            <Widget type="TabItem" skin="" position="2 24 624 282">
+                <Property key="Caption" value="Graphics"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="10 15 120 20" align="Left Top">
+                    <Property key="Caption" value="Render System:"/>
+                    <Property key="TextAlign" value="Left Top"/>
+                </Widget>
+                <Widget type="ComboBox" skin="ComboBox" position="130 10 485 30" align="Right Top">
+                    <Property key="AddItem" value="Direct3D9"/>
+                    <Property key="AddItem" value="Direct3D11"/>
+                    <Property key="AddItem" value="OpenGL"/>
+                </Widget>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="10 60 120 20" align="Left Top">
+                    <Property key="Caption" value="FSAA:"/>
+                </Widget>
+                <Widget type="ComboBox" skin="ComboBox" position="130 55 485 30" align="Right Top">
+                    <Property key="AddItem" value="0"/>
+                    <Property key="AddItem" value="2"/>
+                    <Property key="AddItem" value="4"/>
+                    <Property key="AddItem" value="8"/>
+                </Widget>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="35 110 120 15">
+                    <Property key="Caption" value="Full screen"/>
+                </Widget>
+                <Widget type="Button" skin="CheckBox" position="10 105 20 20"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="205 110 50 15">
+                    <Property key="Caption" value="VSync"/>
+                </Widget>
+                <Widget type="Button" skin="CheckBox" position="180 105 20 20"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="10 150 115 25">
+                    <Property key="Caption" value="Resolution:"/>
+                </Widget>
+                <Widget type="ComboBox" skin="ComboBox" position="130 140 485 30"/>
+                <Widget type="Button" skin="Button" position="10 250 125 25">
+                    <Property key="Caption" value="Advanced"/>
+                </Widget>
+            </Widget>
+            <Widget type="TabItem" skin="" position="2 24 624 282">
+                <Property key="Caption" value="Physics"/>
+            </Widget>
+            <Widget type="TabItem" skin="" position="2 24 624 282">
+                <Property key="Caption" value="Debug"/>
+            </Widget>
+        </Widget>
+        <Widget type="Button" skin="Button" position="490 310 140 25" align="Right Bottom" name="backbtn">
+            <Property key="Caption" value="Back"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="345 310 145 25" align="Right Bottom" name="savebtn">
+            <Property key="Caption" value="Save"/>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings/>
+</MyGUI>
