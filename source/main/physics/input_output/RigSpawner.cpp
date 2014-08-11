@@ -319,6 +319,9 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'SlopeBrake' in any module. */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, RigDef::SlopeBrake, slope_brake, ProcessSlopeBrake);
 
+	/* Section 'WingsSens' in any module */
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_WINGS_SENS, RigDef::WingsSens, WingsSens, ProcessWingsSens);
+
 	/* Section 'wheels2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, RigDef::Wheel2, wheels_2, ProcessWheel2);
 
@@ -541,6 +544,7 @@ void RigSpawner::InitializeRig()
 	m_rig->disable_default_sounds=false;
 	m_rig->detacher_group_state=DEFAULT_DETACHER_GROUP; // initialize default(0) var for detacher_group_state
 	m_rig->slopeBrake=false;
+	m_rig->Wings_Sens=false;
 	m_rig->categoryid=-1;
 	m_rig->truckversion=-1;
 	m_rig->externalcameramode=0;
@@ -5809,6 +5813,13 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 		release_angle = (release_angle < 1.f) ? 1.f : 45.f;
 	}
 	m_rig->slopeBrakeRelAngle = release_angle;
+};
+
+void RigSpawner::ProcessWingsSens(RigDef::WingsSens & def)
+{
+	/* #1: Sensitivity */
+	float force = def.Sensitivity;
+	m_rig->f_WingSens = force;
 };
 
 void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)

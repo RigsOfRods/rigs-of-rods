@@ -324,7 +324,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		{
 			velocityKN = 0.0f;
 		}
-		overlayElement->setCaption(cspeedstr + TOUTFSTRING(Round(velocityKN)) + U(" kn"));
+		overlayElement->setCaption(cspeedstr + TOUTFSTRING(Round(velocityKN)) + U(" kn (") + TOUTFSTRING(Round(velocityKN * 1.852)) + U(" kph) (")+  TOUTFSTRING(Round(velocityKN * 1.151)) + U(" mph)"));
 		checkOverflow(overlayElement);
 
 		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/MaxVelocity");

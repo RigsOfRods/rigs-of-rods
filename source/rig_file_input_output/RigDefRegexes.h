@@ -261,6 +261,7 @@ DEFINE_REGEX( IDENTIFY_KEYWORD,
 	E_KEYWORD_BLOCK("slidenode_connect_instantly")
 	E_KEYWORD_BLOCK("slidenodes")
 	E_KEYWORD_INLINE("SlopeBrake")
+	E_KEYWORD_INLINE("WingsSens")
 	E_KEYWORD_BLOCK("soundsources")
 	E_KEYWORD_BLOCK("soundsources2")
 	E_KEYWORD_INLINE("speedlimiter")
@@ -2187,6 +2188,15 @@ DEFINE_REGEX( INLINE_SECTION_SLOPE_BRAKE,
 				E_CAPTURE( E_REAL_NUMBER ) /* #6 Detach-angle */
 			)
 		)
+	)
+	E_TRAILING_WHITESPACE
+	);
+
+DEFINE_REGEX( INLINE_SECTION_WINGS_SENS,
+	"^WingsSens"
+	E_CAPTURE_OPTIONAL(
+		E_DELIMITER_SPACE
+		E_CAPTURE( E_REAL_NUMBER ) /* #2 Regulating force */
 	)
 	E_TRAILING_WHITESPACE
 	);

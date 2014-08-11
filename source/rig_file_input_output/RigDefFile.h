@@ -910,6 +910,23 @@ struct SlopeBrake
 };
 
 /* -------------------------------------------------------------------------- */
+/* Wings Sensitivity
+/* -------------------------------------------------------------------------- */
+struct WingsSens
+{
+	WingsSens():
+		Sensitivity(0.002f)
+	{}
+
+	static float GetDefaultSensitivity()
+	{
+		return 0.002f;
+	}
+
+	float Sensitivity;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section WHEELS
 /* -------------------------------------------------------------------------- */
 
@@ -2151,6 +2168,7 @@ struct File
 		>                                  skeleton_settings;
 		std::vector<SlideNode>             slidenodes;
 		boost::shared_ptr<SlopeBrake>      slope_brake;
+		boost::shared_ptr<WingsSens>       WingsSens;
 		std::vector<SoundSource>           soundsources;
 		std::vector<SoundSource2>          soundsources2;
 		boost::shared_ptr<SpeedLimiter>    speed_limiter;
@@ -2260,6 +2278,7 @@ struct File
 		KEYWORD_SLIDENODE_CONNECT_INSTANTLY,
 		KEYWORD_SLIDENODES,
 		KEYWORD_SLOPE_BRAKE,
+		KEYWORD_WINGS_SENS,
 		KEYWORD_SOUNDSOURCES,
 		KEYWORD_SOUNDSOURCES2,
 		//KEYWORD_SOUNDSOURCES3, // not supported yet
@@ -2339,6 +2358,7 @@ struct File
 		SECTION_SOUNDSOURCES2,
 		SECTION_SUBMESH,
 		SECTION_SLOPE_BRAKE,
+		SECTION_WINGS_SENS,
 		SECTION_TIES,
 		SECTION_TORQUE_CURVE,
 		SECTION_TRACTION_CONTROL,

@@ -83,6 +83,7 @@ using namespace Ogre; // The _L() macro won't compile without.
 MainThread::MainThread():
 	m_no_rendering(false),
 	m_shutdown_requested(false),
+	m_restart_requested(false),
 	m_start_time(0),
 	m_race_start_time(0),
 	m_race_in_progress(false),
@@ -441,6 +442,7 @@ void MainThread::Go()
 	CacheEntry* selected_map = SelectorWindow::getSingleton().getSelection();
 	if (selected_map == nullptr)
 	{
+		//RequestRestart();
 		RequestShutdown();
 	}
 
@@ -448,7 +450,7 @@ void MainThread::Go()
 	// Game
 	// ================================================================================
 
-	if (! m_shutdown_requested)
+	if (! m_shutdown_requested || ! m_restart_requested)
 	{
 		// ============================================================================
 		// Loading base resources
@@ -809,6 +811,12 @@ void MainThread::RequestShutdown()
 	m_shutdown_requested = true;
 }
 
+void MainThread::RequestRestart()
+{
+	m_shutdown_requested = true;
+	Go();
+}
+
 void MainThread::RequestExitCurrentLoop()
 {
 	m_exit_loop_requested = true;
@@ -928,6 +936,7 @@ void MainThread::MenuLoopUpdateEvents(float seconds_since_last_frame)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
+		//TODO: Go back to menu 
 		RequestExitCurrentLoop();
 		RequestShutdown();
 		return;

@@ -1028,6 +1028,42 @@ void RoRFrameListener::shutdown_final()
 	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
+void RoRFrameListener::Restart()
+{
+	LOG(" ** Restart preparation");
+	
+	loading_state = RESTARTING;
+
+	//RoR::Application::GetGuiManager()->shutdown();
+
+#ifdef USE_SOCKETW
+	if (gEnv->network) gEnv->network->disconnect();
+#endif //SOCKETW
+	
+#ifdef USE_OPENAL
+	SoundScriptManager::getSingleton().setEnabled(false);
+#endif //OPENAL
+
+	LOG(" ** Restarting");
+
+	if (gEnv && gEnv->terrainManager)
+	{
+		if (gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
+		if (gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
+	}
+	if (dashboard) dashboard->prepareShutdown();
+	if (heathaze) heathaze->prepareShutdown();
+
+	BeamFactory::getSingleton().prepareShutdown();
+
+	RoR::Application::GetInputEngine()->prepareShutdown();
+
+	// RoRFrameListener::shutdown_final() is allways called by main thread.
+	// Therefore we need no syncing here.
+	RoR::Application::GetMainThreadLogic()->RequestRestart();
+	//RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+}
+
 void RoRFrameListener::hideMap()
 {
 #ifdef USE_MYGUI

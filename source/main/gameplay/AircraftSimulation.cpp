@@ -41,6 +41,24 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	}
 	//AIRPLANE KEYS
 	float commandrate=4.0;
+
+	if(vehicle->Wings_Sens)
+	{
+		//Try to reduce command rate when airspeed is more important
+		//To make things smooth at high speeds
+		float airspeed = vehicle->nodes[0].Velocity.length() * 1.94384449f;
+		float commandc_rate;
+		if(airspeed > 0.1f)
+		{
+			//(float)commandc_rate = ((float)airspeed * (float)vehicle->f_WingSens);
+
+			(float)commandc_rate = ((float)airspeed * 0.001);
+
+			if(commandc_rate > 0.1f)
+				commandrate = commandrate/commandc_rate;
+		}
+	}
+
 	//turning
 	if (vehicle->replaymode)
 	{
@@ -63,6 +81,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	} 
 	else
 	{
+		//roll
 		float tmp_left = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
 		float tmp_right = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
 		float sum_steer = -tmp_left + tmp_right;

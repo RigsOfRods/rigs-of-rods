@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Airfoil.h"
 #include "ApproxMath.h"
 #include "ResourceBuffer.h"
+#include "Beam.h"
 
 float refairfoilpos[90]={
 		0.00, 0.50, 0.00,
@@ -433,6 +434,8 @@ Vector3 FlexAirfoil::updateVertices()
 	//control surface
 	if (hascontrol)
 	{
+
+
 		float radius=1.0-chordratio;
 		airfoilpos[82]=0.5+radius*sin(deflection/57.0)/rratio;
 		airfoilpos[79]=0.5+radius*sin(deflection/57.0)/lratio;
@@ -648,7 +651,6 @@ Vector3 FlexAirfoil::updateShadowVertices()
 		v2=coshadowposvertices[bandfaces[i*3+2]].vertex-coshadowposvertices[bandfaces[i*3]].vertex;
 		v1=v1.crossProduct(v2);
 		v1.normalise();
-//		v1/=3.0;
 		coshadownorvertices[bandfaces[i*3]].normal+=v1;
 		coshadownorvertices[bandfaces[i*3+1]].normal+=v1;
 		coshadownorvertices[bandfaces[i*3+2]].normal+=v1;
@@ -660,7 +662,6 @@ Vector3 FlexAirfoil::updateShadowVertices()
 		v2=coshadowposvertices[cupfaces[i*3+2]].vertex-coshadowposvertices[cupfaces[i*3]].vertex;
 		v1=v1.crossProduct(v2);
 		v1.normalise();
-//		v1/=3.0;
 		coshadownorvertices[cupfaces[i*3]].normal+=v1;
 		coshadownorvertices[cupfaces[i*3+1]].normal+=v1;
 		coshadownorvertices[cupfaces[i*3+2]].normal+=v1;
@@ -672,7 +673,6 @@ Vector3 FlexAirfoil::updateShadowVertices()
 		v2=coshadowposvertices[cdnfaces[i*3+2]].vertex-coshadowposvertices[cdnfaces[i*3]].vertex;
 		v1=v1.crossProduct(v2);
 		v1.normalise();
-//		v1/=3.0;
 		coshadownorvertices[cdnfaces[i*3]].normal+=v1;
 		coshadownorvertices[cdnfaces[i*3+1]].normal+=v1;
 		coshadownorvertices[cdnfaces[i*3+2]].normal+=v1;
@@ -705,29 +705,22 @@ Vector3 FlexAirfoil::flexit()
 	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
 	{
 		center=updateShadowVertices();
+
 		//find the binding
 		unsigned posbinding=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
 		HardwareVertexBufferSharedPtr pbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(posbinding);
-		//pbuf->lock(HardwareBuffer::HBL_NORMAL);
 		pbuf->writeData(0, pbuf->getSizeInBytes(), shadowposvertices, true);
-		//pbuf->unlock();
+
 		//find the binding
 		unsigned norbinding=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
 		HardwareVertexBufferSharedPtr nbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(norbinding);
-		//nbuf->lock(HardwareBuffer::HBL_NORMAL);
 		nbuf->writeData(0, nbuf->getSizeInBytes(), shadownorvertices, true);
-		//nbuf->unlock();
 
 		EdgeData * 	ed=msh->getEdgeList();
 		ed->updateFaceNormals(0, pbuf);
-	}
-		else
-	{
+	} else {
 		center=updateVertices();
-		//vbuf->lock(HardwareBuffer::HBL_NORMAL);
 		vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-		//vbuf->unlock();
-		//msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 	}
 	return center;
 }
@@ -751,52 +744,6 @@ void FlexAirfoil::updateForces()
 {
 	if (!airfoil) return;
 	if (broken) return;
-//	if (innan) {LOG("STEP "+TOSTRING(innan)+" "+TOSTRING(nblu));innan++;}
-	//evaluate wind direction
-	Vector3 wind=-(nodes[nfld].Velocity+nodes[nfrd].Velocity)/2.0;
-	//add wash
-	int i;
-	for (i=0; i<free_wash; i++)
-		wind-=(0.5*washpropratio[i]*aeroengines[washpropnum[i]]->getpropwash())*aeroengines[washpropnum[i]]->getAxis();
-	float wspeed=wind.length();
-	//chord vector, front to back
-	Vector3 chordv=((nodes[nbld].RelPosition-nodes[nfld].RelPosition)+(nodes[nbrd].RelPosition-nodes[nfrd].RelPosition))/2.0;
-	float chord=chordv.length();
-	//span vector, left to right
-	Vector3 spanv=((nodes[nfrd].RelPosition-nodes[nfld].RelPosition)+(nodes[nbrd].RelPosition-nodes[nbld].RelPosition))/2.0;
-	float span=spanv.length();
-	//lift vector
-//if (_isnan(spanv.x) || _isnan(spanv.y) || _isnan(spanv.z)) LOG("spanv is NaN "+TOSTRING(nblu));
-//if (_isnan(wind.x) || _isnan(wind.y) || _isnan(wind.z)) LOG("wind is NaN "+TOSTRING(nblu));
-	Vector3 liftv=spanv.crossProduct(-wind);
-//if (_isnan(liftv.x) || _isnan(liftv.y) || _isnan(liftv.z)) LOG("liftv0 is NaN "+TOSTRING(nblu));
-//if (_isnan(liftv.x) || _isnan(liftv.y) || _isnan(liftv.z)) LOG("liftv1 is NaN "+TOSTRING(nblu));
-
-	//wing normal
-	float s=span*chord;
-	Vector3 normv=chordv.crossProduct(spanv);
-	normv.normalise();
-	//calculate angle of attack
-	Vector3 pwind;
-	pwind=Plane(Vector3::ZERO, normv, chordv).projectVector(-wind);
-	Vector3 dumb;
-	Degree daoa;
-	chordv.getRotationTo(-pwind).ToAngleAxis(daoa, dumb);
-	aoa=daoa.valueDegrees();
-	float raoa=daoa.valueRadians();
-	if (dumb.dotProduct(spanv)>0) {aoa=-aoa; raoa=-raoa;};
-
-//if (_isnan(aoa)) LOG("aoa is NaN "+TOSTRING(nblu));
-	//get airfoil data
-	float cz, cx, cm;
-	if (isstabilator)
-		airfoil->getparams(aoa-deflection, chordratio, 0, &cz, &cx, &cm);
-	else
-		airfoil->getparams(aoa, chordratio, deflection, &cz, &cx, &cm);
-	//compute surface
-//if (_isnan(cz)) LOG("cz is NaN "+TOSTRING(nblu));
-	//float fs=span*(fabs(thickness*cos(raoa))+fabs(chord*sin(raoa)));
-	//float ts=span*(fabs(chord*cos(raoa))+fabs(thickness*sin(raoa)));
 
 	//tropospheric model valid up to 11.000m (33.000ft)
 	float altitude=nodes[nfld].AbsPosition.y;
@@ -806,16 +753,59 @@ void FlexAirfoil::updateForces()
 	float airpressure=sea_level_pressure*approx_pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
 	float airdensity=airpressure*0.0000120896;//1.225 at sea level
 
+	//evaluate wind direction
+	Vector3 wind=-(nodes[nfld].Velocity+nodes[nfrd].Velocity)/2.0;
+
+	//add wash
+	int i;
+	for (i=0; i<free_wash; i++)
+		wind-=(0.5*washpropratio[i]*aeroengines[washpropnum[i]]->getpropwash())*aeroengines[washpropnum[i]]->getAxis();
+
+	float wspeed=wind.length();
+
+	//chord vector, front to back
+	Vector3 chordv=((nodes[nbld].RelPosition-nodes[nfld].RelPosition)+(nodes[nbrd].RelPosition-nodes[nfrd].RelPosition))/2.0;
+	float chord=chordv.length();
+
+	//span vector, left to right
+	Vector3 spanv=((nodes[nfrd].RelPosition-nodes[nfld].RelPosition)+(nodes[nbrd].RelPosition-nodes[nbld].RelPosition))/2.0;
+	float span=spanv.length();
+
+	//lift vector
+	Vector3 liftv=spanv.crossProduct(-wind);
+
+	//wing normal
+	float s=span*chord;
+	Vector3 normv=chordv.crossProduct(spanv);
+	normv.normalise();
+
+	//calculate angle of attack
+	Vector3 pwind;
+	pwind=Plane(Vector3::ZERO, normv, chordv).projectVector(-wind);
+	Vector3 dumb;
+	Degree daoa;
+	chordv.getRotationTo(-pwind).ToAngleAxis(daoa, dumb);
+	aoa=daoa.valueDegrees();
+	float raoa=daoa.valueRadians();
+	if (dumb.dotProduct(spanv)>0) {aoa=-aoa; raoa=-raoa;};
+	
+
+	//get airfoil data
+	float cz, cx, cm;
+	if (isstabilator)
+		airfoil->getparams(aoa-deflection, chordratio, 0, &cz, &cx, &cm);
+	else
+		airfoil->getparams(aoa, chordratio, deflection, &cz, &cx, &cm);
+
 	Vector3 wforce=Vector3::ZERO;
+
 	//drag
 	wforce=(cx*0.5*airdensity*wspeed*s)*wind;
 
-//if (_isnan(wforce.x) || _isnan(wforce.y) || _isnan(wforce.z)) LOG("wforce1 is NaN "+TOSTRING(nblu));
 	//induced drag
 	if (useInducedDrag)
 	{
 		Vector3 idf=(cx*cx*0.25*airdensity*wspeed*idArea*idArea/(3.14159*idSpan*idSpan))*wind;
-//if (_isnan(idf.length())) LOG("idf is NaN "+TOSTRING(nblu));
 
 		if (idLeft)
 		{
@@ -829,24 +819,12 @@ void FlexAirfoil::updateForces()
 		}
 	}
 
-//if (_isnan(wforce.x) || _isnan(wforce.y) || _isnan(wforce.z)) LOG("wforce1a is NaN "+TOSTRING(nblu));
-//if (_isnan(cz)) LOG("cz is NaN "+TOSTRING(nblu));
-//if (_isnan(wspeed)) LOG("wspeed is NaN "+TOSTRING(nblu));
-//if (_isnan(airdensity)) LOG("airdensity is NaN "+TOSTRING(nblu));
-//if (_isnan(s)) LOG("s is NaN "+TOSTRING(nblu));
-//if (_isnan(liftv.x) || _isnan(liftv.y) || _isnan(liftv.z)) LOG("liftv is NaN "+TOSTRING(nblu));
 	//lift
 	wforce+=(cz*0.5*airdensity*wspeed*chord)*liftv;
 
-
-/*if (_isnan(wforce.x) || _isnan(wforce.y) || _isnan(wforce.z))
-{
-	if (innan==0) innan=1;
-	LOG("wforce2 is NaN "+TOSTRING(nblu));
-}
-*/
 	//moment
 	float moment=-cm*0.5*airdensity*wspeed*wspeed*s;//*chord;
+
 	//apply forces
 
 	Vector3 f1=wforce*(liftcoef * 0.75/4.0f)+normv*(liftcoef *moment/(4.0f*0.25f));
@@ -861,11 +839,6 @@ void FlexAirfoil::updateForces()
 	nodes[nblu].Forces+=f2;
 	nodes[nbrd].Forces+=f2;
 	nodes[nbru].Forces+=f2;
-
-
-
-//	sprintf(debug, "wind %i kts, aoa %i, cz %f, vf %f ", (int)(wspeed*1.9438), (int)aoa, cz, normv.y);
-
 }
 
 FlexAirfoil::~FlexAirfoil()

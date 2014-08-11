@@ -44,7 +44,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
-#include "../common/BitFlags.h"
+#include <BitFlags.h>
 
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
@@ -129,5 +129,6 @@ enum GameStates
 	ALL_LOADED     = 2, //!< Run simulation.
 	EXITING        = 3, //!< No effect, filled at exit, never checked.
 	RELOADING      = 5, //!< Loading new rig.
-	PAUSE          = 6
+	PAUSE          = 6,
+	RESTARTING     = 7
 };
