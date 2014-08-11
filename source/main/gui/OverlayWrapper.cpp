@@ -1118,7 +1118,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 
 	//airspeed
 	float angle=0.0;
-	float ground_speed_kt=vehicle->nodes[0].Velocity.length() * 1.94384449f; // 1.943 = m/s in knots/s
+	float ground_speed_kt=vehicle->nodes[0].Velocity.length()*1.9438; // 1.943 = m/s in knots/s
 
 	//tropospheric model valid up to 11.000m (33.000ft)
 	float altitude=vehicle->nodes[0].AbsPosition.y;

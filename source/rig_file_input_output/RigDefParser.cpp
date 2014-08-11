@@ -31,9 +31,6 @@
 #include "RigDefRegexes.h"
 #include "BitFlags.h"
 
-#include "Language.h"
-#include "Utils.h"
-
 #include <OgreString.h>
 #include <OgreStringVector.h>
 #include <OgreStringConverter.h>
@@ -625,11 +622,6 @@ void Parser::ParseLine(Ogre::String const & line)
 
 			case (File::KEYWORD_SLOPE_BRAKE):
 				ParseSlopeBrake(line);
-				line_finished = true;
-				break;
-
-			case (File::KEYWORD_WINGS_SENS):
-				ParseWingsSens(line);
 				line_finished = true;
 				break;
 
@@ -1488,29 +1480,6 @@ void Parser::ParseSlopeBrake(Ogre::String const & line)
 		}
 	}
 
-}
-
-void Parser::ParseWingsSens(Ogre::String const & line)
-{
-	AddMessage(line, Message::TYPE_WARNING, "WingSens Detected");
-	if (m_current_module->WingsSens != nullptr)
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'WingsSens' in a module, using last one ...");
-	}
-	m_current_module->WingsSens = boost::shared_ptr<WingsSens>( new WingsSens() );
-
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_WINGS_SENS))
-	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-		return;
-	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
-
-	if (results[1].matched)
-	{
-		m_current_module->WingsSens->Sensitivity = STR_PARSE_REAL(results[2]);
-	}
 }
 
 void Parser::ParseSetSkeletonSettings(Ogre::String const & line)

@@ -164,8 +164,6 @@ int Savegame::save(Ogre::String &filename)
 			WRITEVAR(t->slopeBrake);
 			WRITEVAR(t->slopeBrakeFactor);
 			WRITEVAR(t->slopeBrakeAttAngle);
-			WRITEVAR(t->Wings_Sens);
-			WRITEVAR(t->f_WingSens);
 			WRITEVAR(t->previousCrank);
 			WRITEVAR(t->alb_ratio);
 			WRITEVAR(t->alb_minspeed);
@@ -445,8 +443,6 @@ int Savegame::load(Ogre::String &filename)
 		READVAR(t->slopeBrake);
 		READVAR(t->slopeBrakeFactor);
 		READVAR(t->slopeBrakeAttAngle);
-		READVAR(t->Wings_Sens);
-		READVAR(t->f_WingSens);
 		READVAR(t->previousCrank);
 		READVAR(t->alb_ratio);
 		READVAR(t->alb_minspeed);

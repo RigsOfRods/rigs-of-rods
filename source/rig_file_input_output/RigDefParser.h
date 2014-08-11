@@ -263,8 +263,6 @@ protected:
 
 	void ParseSlopeBrake(Ogre::String const & line);
 
-	void ParseWingsSens(Ogre::String const & line);
-
 	void ParseSoundsources(Ogre::String const & line);
 
 	void ParseSoundsources2(Ogre::String const & line);
