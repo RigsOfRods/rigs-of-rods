@@ -32,7 +32,7 @@
 #include "ImprovedConfigFile.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "RigDefParser.h"
+#include "RigDef_Parser.h"
 #include "Settings.h"
 #include "SHA1.h"
 #include "SoundScriptManager.h"

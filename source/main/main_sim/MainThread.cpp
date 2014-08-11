@@ -57,6 +57,7 @@
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
 #include "PlayerColours.h"
+#include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "Scripting.h"
@@ -65,7 +66,6 @@
 #include "Settings.h"
 #include "Skin.h"
 #include "SoundScriptManager.h"
-#include "StartupScreen.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "TruckHUD.h"
@@ -87,7 +87,10 @@ MainThread::MainThread():
 	m_start_time(0),
 	m_race_start_time(0),
 	m_race_in_progress(false),
-	m_exit_loop_requested(false)
+	m_exit_loop_requested(false),
+	m_application_state(Application::STATE_NONE),
+	m_next_application_state(Application::STATE_NONE),
+	m_rig_editor(nullptr)
 {
 	pthread_mutex_init(&m_lock, nullptr);
 	RoR::Application::SetMainThreadLogic(this);
@@ -119,20 +122,8 @@ void MainThread::Go()
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
-	StartupScreen bootstrap_screen;
-	bootstrap_screen.InitAndShow();
-
-	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
-
-	RoR::Application::CreateCacheSystem();
-
-	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
-
-	Application::GetContentManager()->init(); // Load all resource packs
-
-	bootstrap_screen.HideAndRemove();
-
-	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+	// Setup rendering (menu + simulation)
+	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
 
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
@@ -144,6 +135,51 @@ void MainThread::Go()
 	camera->setAutoAspectRatio(true);
 	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
+
+	// SHOW BOOTSTRAP SCREEN
+
+	// Create rendering overlay
+	Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
+	Ogre::Overlay* startup_screen_overlay = static_cast<Ogre::Overlay*>( overlay_manager.getByName("RoR/StartupScreen") );
+	if (!startup_screen_overlay)
+	{
+		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "MainThread::Go");
+	}
+
+	// Set random wallpaper image
+#ifdef USE_MYGUI
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
+	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
+	if (! menu_wallpaper_texture_name.empty() && ! mat.isNull())
+	{
+		if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
+		{
+			mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(menu_wallpaper_texture_name);
+		}
+	}
+#endif // USE_MYGUI
+
+	startup_screen_overlay->show();
+	
+	scene_manager->clearSpecialCaseRenderQueues();
+	scene_manager->addSpecialCaseRenderQueue(Ogre::RENDER_QUEUE_OVERLAY);
+	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_INCLUDE);
+
+	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
+
+	RoR::Application::CreateCacheSystem();
+
+	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
+
+	Application::GetContentManager()->init();
+
+	// HIDE BOOTSTRAP SCREEN
+
+	startup_screen_overlay->hide();
+
+	// Back to full rendering
+	scene_manager->clearSpecialCaseRenderQueues();
+	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_EXCLUDE);
 
 #ifdef USE_MYGUI
 	
@@ -159,6 +195,7 @@ void MainThread::Go()
 	new GUI_MainMenu();
 	GUI_Friction::getSingleton();
 
+	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	if (!v.empty())
 	{
@@ -166,7 +203,7 @@ void MainThread::Go()
 		if (mainw)
 		{
 			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			if (img) img->setImageTexture(bootstrap_screen.GetWallpaperTextureName());
+			if (img) img->setImageTexture(menu_wallpaper_texture_name);
 		}
 	}
 
@@ -452,6 +489,8 @@ void MainThread::Go()
 
 	if (! m_shutdown_requested || ! m_restart_requested)
 	{
+		m_next_application_state = Application::STATE_SIMULATION;
+
 		// ============================================================================
 		// Loading base resources
 		// ============================================================================
@@ -613,15 +652,76 @@ void MainThread::Go()
 #endif // USE_MYGUI
 			}
 
-			// ========================================================================
-			// Game loop
-			// ========================================================================
-
 			Application::CreateSceneMouse();
 			gEnv->frameListener->initialized = true;
-			Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
-			EnterGameplayLoop();
+			// ========================================================================
+			// Main loop (switches application states)
+			// ========================================================================
+
+			Application::State previous_application_state(Application::STATE_NONE);
+
+			while (! m_shutdown_requested)
+			{
+				if (m_next_application_state == Application::STATE_SIMULATION)
+				{
+					// ================================================================
+					// Simulation
+					// ================================================================
+
+					if (previous_application_state == Application::STATE_RIG_EDITOR)
+					{
+						/* Restore 3D engine settings */
+						OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+						assert(ror_ogre_subsystem != nullptr);
+						ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
+						Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
+						viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
+						camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
+						ror_ogre_subsystem->SetViewport(viewport);
+						viewport->setCamera(gEnv->mainCamera);
+
+						/* Restore GUI */
+						RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+
+						/* Restore input */
+						RoR::Application::GetInputEngine()->RestoreKeyboardListener();
+						RoR::Application::GetInputEngine()->RestoreMouseListener();
+
+						/* Restore overlays */
+						RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
+					}
+
+					EnterGameplayLoop();
+
+					previous_application_state = Application::STATE_SIMULATION;
+				}
+				else if (m_next_application_state == Application::STATE_RIG_EDITOR)
+				{
+					// ================================================================
+					// Rig editor
+					// ================================================================
+
+					if (m_rig_editor == nullptr)
+					{
+						m_rig_editor = new RigEditor::Main();
+						assert(m_rig_editor != nullptr);
+					}
+					if (previous_application_state == Application::STATE_SIMULATION)
+					{
+						assert(RoR::Application::GetOgreSubsystem() != nullptr);
+						RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+						assert(RoR::Application::GetOverlayWrapper() != nullptr);
+
+						/* Hide overlays */
+						RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays( BeamFactory::getSingleton().getCurrentTruck() );
+					}
+
+					m_rig_editor->EnterMainLoop();
+
+					previous_application_state = Application::STATE_RIG_EDITOR;
+				}
+			}	
 		}	
 	}
 
@@ -733,6 +833,10 @@ void MainThread::EnterMenuLoop()
 
 void MainThread::EnterGameplayLoop()
 {
+	/* SETUP */
+
+	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
+
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
 	unsigned long minTimePerFrame    = 0;
@@ -748,7 +852,9 @@ void MainThread::EnterGameplayLoop()
 		minTimePerFrame = 1000 / fpsLimit;
 	}
 
-	while(!m_shutdown_requested)
+	/* LOOP */
+
+	while(! m_exit_loop_requested)
 	{
 		startTime = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
@@ -797,6 +903,11 @@ void MainThread::EnterGameplayLoop()
 
 		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
+
+	/* RESTORE ENVIRONMENT */
+
+	m_exit_loop_requested = false;
+	Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
 }
 
 void MainThread::Exit()
@@ -1022,7 +1133,7 @@ void MainThread::StartRaceTimer()
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
 	if (ow)
 	{
-		ow->racing->show();
+		ow->ShowRacingOverlay();
 		ow->laptimes->show();
 		ow->laptimems->show();
 		ow->laptimemin->show();
@@ -1040,7 +1151,7 @@ float MainThread::StopRaceTimer()
 		UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
 		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(time))/60,((int)(time))%60, ((int)(time*100.0))%100);
 		ow->lasttime->setCaption(UTFString(txt));
-		//ow->racing->hide();
+		//ow->m_racing_overlay->hide();
 		ow->laptimes->hide();
 		ow->laptimems->hide();
 		ow->laptimemin->hide();
@@ -1054,7 +1165,7 @@ void MainThread::UpdateRacingGui()
 {
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
 	if (!ow) return;
-	// update racing gui if required
+	// update m_racing_overlay gui if required
 	float time = static_cast<float>(RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - m_race_start_time);
 	wchar_t txt[10];
 	swprintf(txt, 10, L"%.2i", ((int)(time*100.0))%100);

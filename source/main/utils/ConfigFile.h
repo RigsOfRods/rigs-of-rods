@@ -20,43 +20,29 @@
 */
 
 /** 
-	@file   StartupScreen.h
+	@file   ConfigFile.h
+	@date   06/2014
 	@author Petr Ohlidal
-	@date   05/2014
-	@brief  Application startup screen.
 */
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include <OgreConfigFile.h>
+#include <OgreColourValue.h>
+#include <OgreString.h>
 
 namespace RoR
 {
 
-/** Shows background image. No loading bar. It's expected to be on-screen for just a second.
+/** Adds direct parsing of custom types.
 */
-class StartupScreen
+class ConfigFile: public Ogre::ConfigFile
 {
+	public:
 
-public:
+	Ogre::ColourValue GetColourValue(Ogre::String const & key);
 
-	StartupScreen();
-
-	void InitAndShow();
-
-	void HideAndRemove();
-
-	Ogre::String const & GetWallpaperTextureName()
-	{
-		return m_wallpaper_texture_name;
-	}
-
-protected:
-
-	Ogre::SceneManager* m_scene_manager;
-	Ogre::Camera*       m_camera;
-	Ogre::Overlay*      m_overlay;
-	Ogre::String        m_wallpaper_texture_name;
+	float GetFloat(Ogre::String const & key);
 };
 
 } // namespace RoR

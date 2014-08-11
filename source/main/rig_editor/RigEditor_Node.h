@@ -16,42 +16,42 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-	@file   RigDefPrerequisites.h
+/** 
+	@file   RigEditor_Node.h
+	@date   06/2014
 	@author Petr Ohlidal
-	@date   12/2013
 */
 
-namespace RigDef
+#pragma once
+
+#include "RigDef_Prerequisites.h"
+#include "RoRPrerequisites.h"
+
+namespace RoR
 {
 
-/* File structures declarations */
-/* TODO: Complete list */
+namespace RigEditor
+{
 
-struct Airbrake;
-struct Animation;
-struct Axle;
-struct Beam;
-struct BeamDefaults;
-struct BeamDefaultsScale;
-struct CameraSettings;
-struct File;
-struct Globals;
-struct GuiSettings;
-struct Inertia;
-struct ManagedMaterialsOptions;
-struct Node;
-struct NodeDefaults;
-struct OptionalInertia;
-struct ShadowOptions;
-struct VideoCamera;
+class Node
+{
+public:
+	Node(RigDef::Node & node):
+		m_def_node(node)
+	{}
 
-/* Parser classes */
+	Ogre::Vector3 const & GetPosition()
+	{
+		return m_def_node.position;
+	}
 
-class Parser;
-class Validator;
+private:
+	RigDef::Node & m_def_node;
+};
 
-} /* namespace RigDef */
+} // namespace RigEditor
+
+} // namespace RoR

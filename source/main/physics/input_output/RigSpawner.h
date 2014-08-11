@@ -29,7 +29,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "RigDefParser.h"
+#include "RigDef_Parser.h"
 #include "BeamData.h"
 
 #include <OgreString.h>

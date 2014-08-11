@@ -202,4 +202,9 @@ String GUIManager::getRandomWallpaperImage()
 	return files->at(num).filename;
 }
 
+void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
+{
+	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
+}
+
 #endif // USE_MYGUI

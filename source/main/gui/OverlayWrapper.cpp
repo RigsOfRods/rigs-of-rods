@@ -53,7 +53,8 @@ using namespace Ogre;
 
 OverlayWrapper::OverlayWrapper():
 	m_direction_arrow_node(nullptr),
-	mTimeUntilNextToggle(0)
+	mTimeUntilNextToggle(0),
+	m_visible_overlays(0)
 {
 	win = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 	init();
@@ -134,7 +135,7 @@ OverlayElement *OverlayWrapper::loadOverlayElement(String name)
 int OverlayWrapper::init()
 {
 
-	directionOverlay = loadOverlay("tracks/DirectionArrow", false);
+	m_direction_arrow_overlay = loadOverlay("tracks/DirectionArrow", false);
 	try
 	{
 		directionArrowText = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Text");
@@ -146,30 +147,26 @@ int OverlayWrapper::init()
 	directionArrowDistance = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Distance");
 
 	// openGL fix
-	directionOverlay->show();
-	directionOverlay->hide();
+	m_direction_arrow_overlay->show();
+	m_direction_arrow_overlay->hide();
 
-	mouseOverlay = loadOverlay("tracks/MouseOverlay", false);
-#ifdef HAS_EDITOR
-	truckeditorOverlay = loadOverlay("tracks/TruckEditorOverlay");
-#endif
-	mDebugOverlay = loadOverlay("Core/DebugOverlay", false);
-	mTimingDebugOverlay = loadOverlay("tracks/DebugBeamTiming", false);
-	mTimingDebugOverlay->hide();
+	m_debug_fps_memory_overlay = loadOverlay("Core/DebugOverlay", false);
+	m_debug_beam_timing_overlay = loadOverlay("tracks/DebugBeamTiming", false);
+	m_debug_beam_timing_overlay->hide();
 
 	OverlayElement *vere = loadOverlayElement("Core/RoRVersionString");
 	if (vere) vere->setCaption("Rigs of Rods version " + String(ROR_VERSION_STRING));
 	
 
 
-	machinedashboardOverlay = loadOverlay("tracks/MachineDashboardOverlay");
-	airdashboardOverlay = loadOverlay("tracks/AirDashboardOverlay", false);
-	airneedlesOverlay = loadOverlay("tracks/AirNeedlesOverlay", false);
-	boatdashboardOverlay = loadOverlay("tracks/BoatDashboardOverlay");
-	boatneedlesOverlay = loadOverlay("tracks/BoatNeedlesOverlay");
-	dashboardOverlay = loadOverlay("tracks/DashboardOverlay");
-	needlesOverlay = loadOverlay("tracks/NeedlesOverlay");
-	needlesMaskOverlay = loadOverlay("tracks/NeedlesMaskOverlay");
+	m_machine_dashboard_overlay             = loadOverlay("tracks/MachineDashboardOverlay");
+	m_aerial_dashboard_overlay              = loadOverlay("tracks/AirDashboardOverlay", false);
+	m_aerial_dashboard_needles_overlay      = loadOverlay("tracks/AirNeedlesOverlay", false);
+	m_marine_dashboard_overlay              = loadOverlay("tracks/BoatDashboardOverlay");
+	m_marine_dashboard_needles_overlay      = loadOverlay("tracks/BoatNeedlesOverlay");
+	m_truck_dashboard_overlay               = loadOverlay("tracks/DashboardOverlay");
+	m_truck_dashboard_needles_overlay       = loadOverlay("tracks/NeedlesOverlay");
+	m_truck_dashboard_needles_mask_overlay  = loadOverlay("tracks/NeedlesMaskOverlay");
 
 
 	//adjust dashboard size for screen ratio
@@ -199,8 +196,6 @@ int OverlayWrapper::init()
 	resizePanel(lopresso=loadOverlayElement("tracks/lopress"));
 	resizePanel(clutcho=loadOverlayElement("tracks/clutch"));
 	resizePanel(lightso=loadOverlayElement("tracks/lights"));
-
-	mouseElement = loadOverlayElement("mouse/pointer");
 
 	resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashbar"));
 	resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashfiller"));
@@ -363,41 +358,6 @@ int OverlayWrapper::init()
 	airtorque3texture=((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airtorque3needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 	resizePanel(loadOverlayElement("tracks/airtorque4needle"));
 	airtorque4texture=((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airtorque4needle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-	//		speedotexture=((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
-	//        Entity *ecs=gEnv->ogreSceneManager->createEntity("speed_needle", "needle.mesh");
-	//        speed_node=gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode();
-	//        speed_node->attachObject(ecs);
-	//		needlesOverlay->add3D(speed_node);
-	//		placeNeedle(win, speed_node, 1189, 936, 1.0);
-	//tacho
-	//        Entity *ect=gEnv->ogreSceneManager->createEntity("tacho_needle", "needle.mesh");
-	//        tach_node=gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode();
-	//        tach_node->attachObject(ect);
-	//		needlesOverlay->add3D(tach_node);
-	//		placeNeedle(win, tach_node, 1011, 935, 1.0);
-	//		//pitch
-	//        Entity *ecp=gEnv->ogreSceneManager->createEntity("pitch_needle", "needle.mesh");
-	//		ecp->setMaterialName("tracks/whiteneedle");
-	//        pitch_node=gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode();
-	//        pitch_node->attachObject(ecp);
-	//		needlesOverlay->add3D(pitch_node);
-	//		placeNeedle(win, pitch_node, 876, 1014, 1.0);
-	//roll
-	//        Entity *ecr=gEnv->ogreSceneManager->createEntity("roll_needle", "needle.mesh");
-	//		ecr->setMaterialName("tracks/whiteneedle");
-	//        roll_node=gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode();
-	//        roll_node->attachObject(ecr);
-	//		needlesOverlay->add3D(roll_node);
-	//		placeNeedle(win, roll_node, 876, 924, 1.0);
-
-	//rollcorr
-	//		Entity *ecrc=gEnv->ogreSceneManager->createEntity("rollcorr_needle", "needle.mesh");
-	//		ecrc->setMaterialName("tracks/stabneedle");
-	//		rollcorr_node=gEnv->ogreSceneManager->getRootSceneNode()->createChildSceneNode();
-	//		rollcorr_node->attachObject(ecrc);
-	//		needlesOverlay->add3D(rollcorr_node);
-	//		placeNeedle(win, rollcorr_node, 876, 924, 0.8);
 
 
 	guiGear=loadOverlayElement("tracks/Gear");
@@ -420,11 +380,10 @@ int OverlayWrapper::init()
 	guipedbrake=loadOverlayElement("tracks/pedalbrake");
 	guipedacc=loadOverlayElement("tracks/pedalacc");
 
-	pressureOverlay = loadOverlay("tracks/PressureOverlay");
-	pressureNeedleOverlay = loadOverlay("tracks/PressureNeedleOverlay");
-	editorOverlay = loadOverlay("tracks/EditorOverlay");
+	m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
+	m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
 
-	racing = loadOverlay("tracks/Racing", false);
+	m_racing_overlay = loadOverlay("tracks/Racing", false);
 	laptimemin = (TextAreaOverlayElement*)loadOverlayElement("tracks/LapTimemin");
 	laptimes = (TextAreaOverlayElement*)loadOverlayElement("tracks/LapTimes");
 	laptimems = (TextAreaOverlayElement*)loadOverlayElement("tracks/LapTimems");
@@ -432,13 +391,8 @@ int OverlayWrapper::init()
 	lasttime->setCaption("");
 
 	// openGL fix
-	racing->show();
-	racing->hide();
-	
-	editor_pos = loadOverlayElement("tracks/EditorPosition");
-	editor_angles = loadOverlayElement("tracks/EditorAngles");
-	editor_object = loadOverlayElement("tracks/EditorObject");
-	
+	m_racing_overlay->show();
+	m_racing_overlay->hide();	
 
 	truckhud = new TruckHUD();
 	truckhud->show(false);
@@ -455,58 +409,57 @@ void OverlayWrapper::update(float dt)
 
 void OverlayWrapper::showDebugOverlay(int mode)
 {
-	if (!mDebugOverlay || !mTimingDebugOverlay) return;
+	if (!m_debug_fps_memory_overlay || !m_debug_beam_timing_overlay) return;
+
 	if (mode > 0)
 	{
-		mDebugOverlay->show();
+		m_debug_fps_memory_overlay->show();
+		BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY);
+
 		if (mode > 1)
-			mTimingDebugOverlay->show();
+		{
+			BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING);
+			m_debug_beam_timing_overlay->show();
+		}
 		else
-			mTimingDebugOverlay->hide();
+		{
+			BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING);
+			m_debug_beam_timing_overlay->hide();
+		}
 	}
 	else
 	{
-		mDebugOverlay->hide();
-		mTimingDebugOverlay->hide();
+		m_debug_fps_memory_overlay->hide();
+		BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY);
+
+		m_debug_beam_timing_overlay->hide();
+		BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING);
 	}
 }
 
 
 void OverlayWrapper::showPressureOverlay(bool show)
 {
-	if (pressureOverlay)
+	if (m_truck_pressure_overlay)
 	{
 		if (show)
 		{
-			pressureOverlay->show();
-			pressureNeedleOverlay->show();
+			m_truck_pressure_overlay->show();
+			m_truck_pressure_needle_overlay->show();
+			BITMASK_SET_1(m_visible_overlays, VisibleOverlays::TRUCK_TIRE_PRESSURE_OVERLAY);
 		}
 		else
 		{
-			pressureOverlay->hide();
-			pressureNeedleOverlay->hide();
-		}
-	}
-}
-
-void OverlayWrapper::showEditorOverlay(bool show)
-{
-	if (editorOverlay)
-	{
-		if (show)
-		{
-			editorOverlay->show();
-		}
-		else
-		{
-			editorOverlay->hide();
+			m_truck_pressure_overlay->hide();
+			m_truck_pressure_needle_overlay->hide();
+			BITMASK_SET_0(m_visible_overlays, VisibleOverlays::TRUCK_TIRE_PRESSURE_OVERLAY);
 		}
 	}
 }
 
 void OverlayWrapper::showDashboardOverlays(bool show, Beam *truck)
 {
-	if (!needlesOverlay || !dashboardOverlay) return;
+	if (!m_truck_dashboard_needles_overlay || !m_truck_dashboard_overlay) return;
 	int mode = -1;
 	if (truck)
 		mode = truck->driveable;
@@ -522,43 +475,43 @@ void OverlayWrapper::showDashboardOverlays(bool show, Beam *truck)
 	{
 		if (mode==TRUCK)
 		{
-			needlesMaskOverlay->show();
-			needlesOverlay->show();
-			dashboardOverlay->show();
+			m_truck_dashboard_needles_mask_overlay->show();
+			m_truck_dashboard_needles_overlay->show();
+			m_truck_dashboard_overlay->show();
 		};
 		if (mode==AIRPLANE)
 		{
-			airneedlesOverlay->show();
-			airdashboardOverlay->show();
+			m_aerial_dashboard_needles_overlay->show();
+			m_aerial_dashboard_overlay->show();
 			//mouseOverlay->show();
 		};
 		if (mode==BOAT)
 		{
-			boatneedlesOverlay->show();
-			boatdashboardOverlay->show();
+			m_marine_dashboard_needles_overlay->show();
+			m_marine_dashboard_overlay->show();
 		};
 		if (mode==BOAT)
 		{
-			boatneedlesOverlay->show();
-			boatdashboardOverlay->show();
+			m_marine_dashboard_needles_overlay->show();
+			m_marine_dashboard_overlay->show();
 		};
 		if (mode==MACHINE)
 		{
-			machinedashboardOverlay->show();
+			m_machine_dashboard_overlay->show();
 		};
 	}
 	else
 	{
-		machinedashboardOverlay->hide();
-		needlesMaskOverlay->hide();
-		needlesOverlay->hide();
-		dashboardOverlay->hide();
+		m_machine_dashboard_overlay->hide();
+		m_truck_dashboard_needles_mask_overlay->hide();
+		m_truck_dashboard_needles_overlay->hide();
+		m_truck_dashboard_overlay->hide();
 		//for the airplane
-		airneedlesOverlay->hide();
-		airdashboardOverlay->hide();
+		m_aerial_dashboard_needles_overlay->hide();
+		m_aerial_dashboard_overlay->hide();
 		//mouseOverlay->hide();
-		boatneedlesOverlay->hide();
-		boatdashboardOverlay->hide();
+		m_marine_dashboard_needles_overlay->hide();
+		m_marine_dashboard_overlay->hide();
 	}
 }
 
@@ -648,14 +601,14 @@ void OverlayWrapper::updateStats(bool detailed)
 
 int OverlayWrapper::getDashBoardHeight()
 {
-	if (!dashboardOverlay) return 0;
-	float top = 1 + OverlayManager::getSingleton().getOverlayElement("tracks/dashbar")->getTop() * dashboardOverlay->getScaleY(); // tracks/dashbar top = -0.15 by default
+	if (!m_truck_dashboard_overlay) return 0;
+	float top = 1 + OverlayManager::getSingleton().getOverlayElement("tracks/dashbar")->getTop() * m_truck_dashboard_overlay->getScaleY(); // tracks/dashbar top = -0.15 by default
 	return (int)(top * (float)win->getHeight());
 }
 
 bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 {
-	if (!airneedlesOverlay->isVisible()) return false;
+	if (!m_aerial_dashboard_needles_overlay->isVisible()) return false;
 	bool res = false;
 	const OIS::MouseState ms = _arg.state;
 	//Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -670,7 +623,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 
 	if (curr_truck->driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
 	{
-		OverlayElement *element=airneedlesOverlay->findElementAt(mouseX, mouseY);
+		OverlayElement *element=m_aerial_dashboard_needles_overlay->findElementAt(mouseX, mouseY);
 		if (element)
 		{
 			res = true;
@@ -682,7 +635,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 			if (!strncmp(name, "tracks/thrust4", 14) && curr_truck->free_aeroengine>3) curr_truck->aeroengines[3]->setThrottle(1.0f-((mouseY-thrtop-throffset)/thrheight));
 		}
 		//also for main dashboard
-		OverlayElement *element2=airdashboardOverlay->findElementAt(mouseX,mouseY);
+		OverlayElement *element2=m_aerial_dashboard_overlay->findElementAt(mouseX,mouseY);
 		if (element2)
 		{
 			res = true;
@@ -874,7 +827,7 @@ void OverlayWrapper::SetupDirectionArrow()
 		m_direction_arrow_node->setScale(0.1, 0.1, 0.1);
 		m_direction_arrow_node->setPosition(Vector3(-0.6, +0.4, -1));
 		m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
-		RoR::Application::GetOverlayWrapper()->directionOverlay->add3D(m_direction_arrow_node);
+		RoR::Application::GetOverlayWrapper()->m_direction_arrow_overlay->add3D(m_direction_arrow_node);
 	}
 }
 
@@ -897,16 +850,18 @@ void OverlayWrapper::UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & p
 
 void OverlayWrapper::HideDirectionOverlay()
 {
-	directionOverlay->hide();
+	m_direction_arrow_overlay->hide();
 	m_direction_arrow_node->setVisible(false);
+	BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
 }
 
 void OverlayWrapper::ShowDirectionOverlay(Ogre::String const & caption)
 {
-	directionOverlay->show();
+	m_direction_arrow_overlay->show();
 	directionArrowText->setCaption(caption);
 	directionArrowDistance->setCaption("");
 	m_direction_arrow_node->setVisible(true);
+	BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
 }
 
 void OverlayWrapper::UpdatePressureTexture(float pressure)
@@ -1335,4 +1290,48 @@ void OverlayWrapper::UpdateMarineHUD(Beam * vehicle)
 	angle=kt*4.2;
 	boatspeedtexture->setTextureRotate(Degree(-angle));
 	boatsteertexture->setTextureRotate(Degree(vehicle->screwprops[0]->getRudder() * 170));
+}
+
+void OverlayWrapper::ShowRacingOverlay()
+{
+	m_racing_overlay->show();
+	BITMASK_SET_1(m_visible_overlays, VisibleOverlays::RACING);
+}
+
+void OverlayWrapper::HideRacingOverlay()
+{
+	m_racing_overlay->hide();
+	BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
+}
+
+void OverlayWrapper::TemporarilyHideAllOverlays(Beam *current_vehicle)
+{
+	m_racing_overlay->hide();
+	m_direction_arrow_overlay->hide();
+	m_debug_fps_memory_overlay->hide();
+	m_debug_beam_timing_overlay->hide();
+
+	showDashboardOverlays(false, current_vehicle);
+}
+
+void OverlayWrapper::RestoreOverlaysVisibility(Beam *current_vehicle)
+{
+	if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::RACING))
+	{
+		m_racing_overlay->show();
+	}
+	else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW))
+	{
+		m_direction_arrow_overlay->show();
+	}
+	else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY))
+	{
+		m_debug_fps_memory_overlay->show();
+	}
+	else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING))
+	{
+		m_debug_beam_timing_overlay->show();
+	}
+
+	showDashboardOverlays(true, current_vehicle);
 }
