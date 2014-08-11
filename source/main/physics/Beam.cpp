@@ -5524,7 +5524,7 @@ void Beam::updateDashBoards(float &dt)
 		{
 			Vector3 hdir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
 			hdir.normalise();
-			float knots = hdir.dotProduct(nodes[cameranodepos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+			float knots = hdir.dotProduct(nodes[cameranodepos[0]].Velocity) * 1.94384449f; // 1.943 = m/s in knots/s
 			dash->setFloat(DD_WATER_SPEED, knots);
 		}
 	}
@@ -5561,7 +5561,7 @@ void Beam::updateDashBoards(float &dt)
 	{
 		//airspeed
 		{
-			float ground_speed_kt = nodes[0].Velocity.length() * 1.9438f; // 1.943 = m/s in knots/s
+			float ground_speed_kt = nodes[0].Velocity.length() * 1.94384449f; // 1.943 = m/s in knots/s
 
 			//tropospheric model valid up to 11.000m (33.000ft)
 			float altitude              = nodes[0].AbsPosition.y;

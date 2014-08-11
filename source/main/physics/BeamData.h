@@ -831,6 +831,10 @@ struct rig_t
 	bool disable_default_sounds;
 	int detacher_group_state; //!< current detacher group for the next beam generated
 
+	// Wings Sensitivity 
+	bool Wings_Sens;
+	float f_WingSens;
+
 	// Antilockbrake + Tractioncontrol
 	bool slopeBrake;
 	float slopeBrakeFactor;

@@ -379,6 +379,11 @@ protected:
 	void ProcessSlopeBrake(RigDef::SlopeBrake & def);
 
 	/**
+	* Section 'WingsSens' in any module.
+	*/
+	void ProcessWingsSens(RigDef::WingsSens & def);
+
+	/**
 	* Section 'soundsources'.
 	*/
 	void ProcessSoundSource(RigDef::SoundSource & def); 
@@ -389,7 +394,7 @@ protected:
 	void ProcessSoundSource2(RigDef::SoundSource2 & def); 
 
 	/**
-	* Section 'SlopeBrake' in any module.
+	* Section 'SpeedLimiter' in any module.
 	*/
 	void ProcessSpeedLimiter(RigDef::SpeedLimiter & def);
 

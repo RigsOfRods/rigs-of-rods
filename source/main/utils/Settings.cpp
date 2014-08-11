@@ -36,38 +36,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-bool FileExists(const char *path)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	DWORD attributes = GetFileAttributesA(path);
-	return (attributes != INVALID_FILE_ATTRIBUTES && ! (attributes & FILE_ATTRIBUTE_DIRECTORY));
-#else
-	struct stat st;
-	return (stat(path, &st) == 0);
-#endif
-}
-
-bool FolderExists(const char *path)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	DWORD attributes = GetFileAttributesA(path);
-	return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
-#else
-	struct stat st;
-	return (stat(path, &st) == 0);
-#endif
-}
-
-bool FileExists(Ogre::String const & path)
-{
-	return FileExists(path.c_str());
-}
-
-bool FolderExists(Ogre::String const & path)
-{
-	return FolderExists(path.c_str());
-}
-
 Settings::Settings()
 {
 }
@@ -393,7 +361,7 @@ bool Settings::setupPaths()
 		return false;
 
 	String local_config = String(program_path) + String(dsStr) + String("config");
-	if (FolderExists(local_config.c_str()))
+	if (RoR::PlatformUtils::FolderExists(local_config.c_str()))
 	{
 		sprintf(user_path, "%s%sconfig%s",program_path, dsStr, dsStr);
 	}
@@ -401,13 +369,13 @@ bool Settings::setupPaths()
 	// check for resource folder: first the normal version (in the executables directory)
 	strcpy(resources_path, program_path);
 	path_add(resources_path, "resources");
-	if (! FolderExists(resources_path))
+	if (! RoR::PlatformUtils::FolderExists(resources_path))
 	{
 		// if not existing: check one dir up (dev version)
 		strcpy(resources_path, program_path);
 		path_descend(resources_path);
 		path_add(resources_path, "resources");
-		if (! FolderExists(resources_path))
+		if (! RoR::PlatformUtils::FolderExists(resources_path))
 		{
 			// 3rd fallback: check the installation path
 #ifndef WIN32
@@ -416,7 +384,7 @@ bool Settings::setupPaths()
 			strcpy(resources_path, "/usr/share/rigsofrods/resources/");
 #endif // WIN32
 
-			if (! FolderExists(resources_path))
+			if (! RoR::PlatformUtils::FolderExists(resources_path))
 			{
 				ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
 				exit(1);
@@ -441,14 +409,14 @@ bool Settings::setupPaths()
 	char tmppp[1024] = "";
 	strcpy(tmppp, resources_path);	
 	strcat(tmppp, "plugins.cfg");
-	if(FileExists(tmppp))
+	if(RoR::PlatformUtils::FileExists(tmppp))
 	{
 		strcpy(plugins_fname, resources_path);
 	} else
 	{
 		strcpy(tmppp, program_path);	
 		strcat(tmppp, "plugins.cfg");
-		if(FileExists(tmppp))
+		if(RoR::PlatformUtils::FileExists(tmppp))
 			strcpy(plugins_fname, program_path);
 	}
 	
@@ -500,7 +468,7 @@ bool Settings::setupPaths()
 	StringUtil::toLowerCase(settings["Program Path"]);
 #endif
 	// now enable the user to override that:
-	if (FileExists("config.cfg"))
+	if (RoR::PlatformUtils::FileExists("config.cfg"))
 	{
 		loadSettings("config.cfg", true);
 

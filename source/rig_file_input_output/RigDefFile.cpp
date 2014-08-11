@@ -286,6 +286,8 @@ const char * File::SectionToString(File::Section section)
 			return "soundsources2";
 		case (File::SECTION_SLOPE_BRAKE):
 			return "SlopeBrake";
+		case (File::SECTION_WINGS_SENS):
+			return "WingsSens";
 		case (File::SECTION_TIES):
 			return "ties";
 		case (File::SECTION_TORQUE_CURVE):
@@ -441,6 +443,8 @@ const char * File::KeywordToString(File::Keyword keyword)
 			return "slidenodes";
 		case (File::KEYWORD_SLOPE_BRAKE):
 			return "SlopeBrake";
+		case (File::KEYWORD_WINGS_SENS):
+			return "WingsSens";
 		case (File::KEYWORD_SOUNDSOURCES):
 			return "soundsources";
 		case (File::KEYWORD_SOUNDSOURCES2):
