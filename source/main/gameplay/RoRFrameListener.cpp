@@ -1028,11 +1028,11 @@ void RoRFrameListener::shutdown_final()
 	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
-void RoRFrameListener::Restart()
+void RoRFrameListener::Restart() // TODO: Remove this "restart" functionality -> broken by design.
 {
 	LOG(" ** Restart preparation");
 	
-	loading_state = RESTARTING;
+	//loading_state = RESTARTING; // TODO: Remove this "restart" functionality -> broken by design.
 
 	//RoR::Application::GetGuiManager()->shutdown();
 

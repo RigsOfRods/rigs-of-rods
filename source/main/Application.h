@@ -45,6 +45,8 @@ public:
 	enum State
 	{
 		STATE_NONE,
+		STATE_BOOTSTRAP,
+		STATE_MAIN_MENU,
 		STATE_SIMULATION,
 		STATE_RIG_EDITOR
 	};

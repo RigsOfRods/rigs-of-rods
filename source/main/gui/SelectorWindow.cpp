@@ -248,9 +248,8 @@ void SelectorWindow::eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 {
 	if (!ready) return;
 	mSelectedTruck = nullptr;
-	//mSelectionDone = true;
-	BackToMenu();
-	//TODO
+	mSelectionDone = true;
+	hide();
 }
 
 void SelectorWindow::eventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
@@ -872,17 +871,6 @@ void SelectorWindow::hide()
 	mMainWidget->setEnabledSilent(false);
 	ready = false;
 	bindKeys(false);
-}
-
-void SelectorWindow::BackToMenu()
-{
-	RoR::Application::GetGuiManager()->unfocus();
-	mMainWidget->setVisible(false);
-	if (! gEnv->frameListener->loading_state == TERRAIN_LOADED)
-	{
-		//Return to the menu
-		MenuWindow::getSingleton().Show();
-	}
 }
 
 void SelectorWindow::setEnableCancel(bool enabled)
