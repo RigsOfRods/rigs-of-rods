@@ -1,33 +1,40 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef USE_MYGUI
 
-#include "MenuWindow.h"
+/** 
+	@file   MenuWindow.cpp
+	@author Moncef Ben Slimane
+	@date   08/2014
+*/
+
+#include "Application.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "Application.h"
-#include "SkinManager.h"
-#include "Utils.h"
+#include "MainThread.h"
+#include "MenuWindow.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
+#include "SkinManager.h"
+#include "Utils.h"
 
 #include "SelectorWindow.h"
 #include "SettingsWindow.h"
@@ -40,17 +47,19 @@ MenuWindow::MenuWindow()
 	//TODO
 	initialiseByAttributes(this);
 	mMainWidget->setVisible(false);
-	((MyGUI::Window*)mMainWidget)->setCaption(_L("Menu"));
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 
 	mSelTerrButton->eventMouseButtonClick      += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickSelectButton);
+	mRigEditorButton->eventMouseButtonClick    += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickRigEditorButton);
 	mSettingsButton->eventMouseButtonClick     += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickSettingButton);
 	mAboutButton->eventMouseButtonClick        += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickAboutButton);
 	mCloseButton->eventMouseButtonClick        += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickExitButton);
 
-	mMainWidget->setPosition((0.05 * RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth()) , (0.6 * RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight() ));
-	//mMainWidget->setRealSize(0.8, 0.8);
-	//SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain); 
+	mMainWidget->setPosition(
+		(0.05 * RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth()), 
+		(0.6 * RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight())
+		);
+
 }
 
 MenuWindow::~MenuWindow()
@@ -68,7 +77,6 @@ void MenuWindow::Show()
     mMainWidget->castType<MyGUI::Window>()->setVisible(true);
 	SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain); 
 	SelectorWindow::getSingleton().mMainWidget->setVisible(false);
-	//SelectorWindow::getSingleton().
 }
 
 void MenuWindow::Hide()
@@ -80,7 +88,6 @@ void MenuWindow::Hide()
 
 void MenuWindow::eventMouseButtonClickSelectButton(MyGUI::WidgetPtr _sender)
 {
-	//SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
 	SelectorWindow::getSingleton().mMainWidget->setVisible(true);
 	Hide();
 }
@@ -102,4 +109,10 @@ void MenuWindow::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 	gEnv->frameListener->shutdown_final();
 	//Hide();
 }
-#endif
+
+void MenuWindow::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
+{
+	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(RoR::Application::STATE_RIG_EDITOR);
+	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+	Hide();
+}

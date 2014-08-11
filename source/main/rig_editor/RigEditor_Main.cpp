@@ -156,7 +156,6 @@ void Main::UpdateMainLoop()
 	/* Handle key presses */
 	if (m_input_handler->WasEventFired(InputHandler::Event::QUIT_RIG_EDITOR))
 	{
-		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_SIMULATION);
 		m_exit_loop_requested = true;
 		return;
 	}
