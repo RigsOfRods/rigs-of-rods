@@ -74,11 +74,16 @@ public:
 
 protected:
 
-	void EnterMenuLoop();
+	void EnterMainMenuLoop();
 
-	void MenuLoopUpdate(float seconds_since_last_frame);
+	void MainMenuLoopUpdate(float seconds_since_last_frame);
+	
+	void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
-	void MenuLoopUpdateEvents(float seconds_since_last_frame);
+	/**
+	* @return True if everything was prepared OK and simulation may start.
+	*/
+	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
 
 	void EnterGameplayLoop();
 
