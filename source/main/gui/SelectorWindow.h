@@ -43,6 +43,7 @@ public:
 	enum LoaderType {LT_None, LT_Terrain, LT_Vehicle, LT_Truck, LT_Car, LT_Boat, LT_Airplane, LT_Trailer, LT_Train, LT_Load, LT_Extension, LT_Network, LT_NetworkWithBoat, LT_Heli, LT_SKIN, LT_AllBeam};
 	void show(LoaderType type);
 	void hide();
+	void BackToMenu();
 
 	CacheEntry *getSelection() { return mSelectedTruck; }
 	Skin *getSelectedSkin() { return mSelectedSkin; }

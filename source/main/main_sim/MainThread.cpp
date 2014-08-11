@@ -61,6 +61,7 @@
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "Scripting.h"
+#include "MenuWindow.h"
 #include "SelectorWindow.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -82,6 +83,7 @@ using namespace Ogre; // The _L() macro won't compile without.
 MainThread::MainThread():
 	m_no_rendering(false),
 	m_shutdown_requested(false),
+	m_restart_requested(false),
 	m_start_time(0),
 	m_race_start_time(0),
 	m_race_in_progress(false),
@@ -188,6 +190,7 @@ void MainThread::Go()
 
 	// Init singletons. TODO: Move under Application
 	LoadingWindow::getSingleton();
+	MenuWindow::getSingleton();
 	SelectorWindow::getSingleton();
 	new GUI_MainMenu();
 	GUI_Friction::getSingleton();
@@ -454,7 +457,7 @@ void MainThread::Go()
 	new BeamFactory();
 
 	// ================================================================================
-	// Terrain selection
+	// Terrain selection EDIT MENU TIME
 	// ================================================================================
 	
 	if (preselected_map.empty())
@@ -462,7 +465,8 @@ void MainThread::Go()
 #ifdef USE_MYGUI
 		// show terrain selector
 		ShowSurveyMap(false);
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
+		MenuWindow::getSingleton().Show();
+		//Just for the request thingy
 #endif // USE_MYGUI
 
 		EnterMenuLoop(); // TODO: Doesn't really make sense without USE_MYGUI
@@ -475,6 +479,7 @@ void MainThread::Go()
 	CacheEntry* selected_map = SelectorWindow::getSingleton().getSelection();
 	if (selected_map == nullptr)
 	{
+		//RequestRestart();
 		RequestShutdown();
 	}
 
@@ -482,7 +487,7 @@ void MainThread::Go()
 	// Game
 	// ================================================================================
 
-	if (! m_shutdown_requested)
+	if (! m_shutdown_requested || ! m_restart_requested)
 	{
 		m_next_application_state = Application::STATE_SIMULATION;
 
@@ -930,6 +935,12 @@ void MainThread::RequestShutdown()
 	m_shutdown_requested = true;
 }
 
+void MainThread::RequestRestart()
+{
+	m_shutdown_requested = true;
+	Go();
+}
+
 void MainThread::RequestExitCurrentLoop()
 {
 	m_exit_loop_requested = true;
@@ -1049,6 +1060,7 @@ void MainThread::MenuLoopUpdateEvents(float seconds_since_last_frame)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
+		//TODO: Go back to menu 
 		RequestExitCurrentLoop();
 		RequestShutdown();
 		return;

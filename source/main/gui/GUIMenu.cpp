@@ -84,6 +84,7 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("Save Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Load Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
+	p->addItem(_L("Back to menu"), MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Exit"),                            MyGUI::MenuItemType::Normal);
 	m_popup_menus.push_back(p);
 
@@ -376,6 +377,9 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	{
 		GUI_Friction::getSingleton().setVisible(true);
 
+	} else if (miname == _L("Back to menu"))
+	{
+		gEnv->frameListener->Restart();
 	} else if (miname == _L("Exit"))
 	{
 		gEnv->frameListener->shutdown_final();
