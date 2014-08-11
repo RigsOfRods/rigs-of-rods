@@ -50,6 +50,8 @@ public:
 
 	void RequestShutdown();
 
+	void RequestRestart();
+
 	void RequestExitCurrentLoop();
 
 	void StartRaceTimer();
@@ -87,6 +89,7 @@ protected:
 	bool               m_no_rendering;
 	bool               m_exit_loop_requested;
 	bool               m_shutdown_requested;
+	bool               m_restart_requested;
 	pthread_mutex_t    m_lock;
 	unsigned long      m_start_time;
 	unsigned long      m_race_start_time;
