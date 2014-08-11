@@ -16,24 +16,52 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
-	@file  RigDefLimits.h 
-	@brief Limits and constants 
+	@file   RigEditor_Beam.h
+	@date   06/2014
+	@author Petr Ohlidal
 */
 
 #pragma once
 
-namespace RigDef
+#include "RigDef_File.h"
+#include "RigDef_Prerequisites.h"
+#include "RigEditor_Beam.h"
+#include "RoRPrerequisites.h"
+
+namespace RoR
 {
 
-namespace Limits
+namespace RigEditor
 {
 
-static const unsigned int MAX_COMMANDS = 84;
+class Beam
+{
+public:
+	Beam(RigDef::Beam & beam, RigEditor::Node* node_0, RigEditor::Node* node_1):
+		m_def_beam(beam)
+	{
+		m_nodes[0] = node_0;
+		m_nodes[1] = node_1;
+	}
 
-} // namespace Limits
+	RigEditor::Node* GetNodeA()
+	{
+		return m_nodes[0];
+	}
 
-} // namespace RigDef
+	RigEditor::Node* GetNodeB()
+	{
+		return m_nodes[1];
+	}
+
+	RigDef::Beam & m_def_beam;
+	RigEditor::Node* m_nodes[2];
+};
+
+} // namespace RigEditor
+
+} // namespace RoR

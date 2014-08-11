@@ -520,6 +520,14 @@ public:
 	int getNumJoysticks() { return free_joysticks; };
 	OIS::ForceFeedback* getForceFeedbackDevice() {return mForceFeedback;};
 
+	void SetKeyboardListener(OIS::KeyListener* keyboard_listener);
+
+	OIS::MouseState SetMouseListener(OIS::MouseListener* mouse_listener);
+
+	void RestoreMouseListener();
+
+	void RestoreKeyboardListener();
+
 protected:
 
 	InputEngine();

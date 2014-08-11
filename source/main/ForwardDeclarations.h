@@ -38,6 +38,15 @@ namespace RoR
 	class  OgreSubsystem;
 	struct PlatformUtils;
 	class  SceneMouse;
+
+	namespace RigEditor
+	{
+		class  Main;
+		class  InputHandler;
+		class  Beam;
+		class  Node;
+		class  Rig;
+	}
 }
 
 struct node_t;

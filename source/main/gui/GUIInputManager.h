@@ -29,6 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class GUIInputManager
 {
 	friend class InputEngine;
+	friend class RoR::RigEditor::InputHandler;
 
 public:
 

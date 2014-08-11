@@ -50,7 +50,6 @@ public:
 	void showDashboardOverlays(bool show, Beam *truck);
 	void showDebugOverlay(int mode);
 	void showPressureOverlay(bool show);
-	void showEditorOverlay(bool show);
 
 	void windowResized();
 	void resizeOverlay(LoadedOverlay & overlay);
@@ -78,7 +77,33 @@ public:
 
 	void UpdateMarineHUD(Beam * vehicle);
 
+	void ShowRacingOverlay();
+
+	void HideRacingOverlay();
+
+	/** Hides all overlays, but doesn't change visibility flags (for further restoring).
+	*/
+	void TemporarilyHideAllOverlays(Beam *current_vehicle);
+
+	/** Shows all overlays flagged as "visible".
+	*/
+	void RestoreOverlaysVisibility(Beam *current_vehicle);
+
 protected:
+
+	/**
+	* RoR needs to temporarily hide all overlays when player enters editor. 
+	* However, OGRE only provides per-overlay show() and hide() functionality.
+	* Thus, an external state must be kept to restore overlays after exiting the editor.
+	*/
+	struct VisibleOverlays
+	{
+		static const int DIRECTION_ARROW              = BITMASK(1);
+		static const int DEBUG_FPS_MEMORY             = BITMASK(2);
+		static const int DEBUG_BEAM_TIMING            = BITMASK(3);
+		static const int RACING                       = BITMASK(4);
+		static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
+	};
 
 	OverlayWrapper();
 	~OverlayWrapper();
@@ -96,24 +121,35 @@ protected:
 	Ogre::RenderWindow* win;
 	TruckHUD *truckhud;
 
+	// -------------------------------------------------------------
+	// Overlays
+	// -------------------------------------------------------------
+
+	unsigned int  m_visible_overlays;
+
+	Ogre::Overlay *m_truck_dashboard_overlay;
+	Ogre::Overlay *m_truck_dashboard_needles_overlay;
+	Ogre::Overlay *m_truck_dashboard_needles_mask_overlay;
+	Ogre::Overlay *m_truck_pressure_overlay;
+	Ogre::Overlay *m_truck_pressure_needle_overlay;
+
+	Ogre::Overlay *m_aerial_dashboard_overlay;
+	Ogre::Overlay *m_aerial_dashboard_needles_overlay;
+
+	Ogre::Overlay *m_marine_dashboard_overlay;
+	Ogre::Overlay *m_marine_dashboard_needles_overlay;
+
+	Ogre::Overlay *m_machine_dashboard_overlay;
+
 	// Misc
-	Ogre::Overlay *directionOverlay;        //!< truck (racing)
-	Ogre::Overlay *mDebugOverlay;
-	Ogre::Overlay *mTimingDebugOverlay;
-	Ogre::Overlay *dashboardOverlay;        //!< truck
-	Ogre::Overlay *machinedashboardOverlay; 
-	Ogre::Overlay *airdashboardOverlay;     //!< aerial
-	Ogre::Overlay *boatdashboardOverlay;    //!< marine
-	Ogre::Overlay *needlesOverlay;          //!< truck
-	Ogre::Overlay *airneedlesOverlay;       //!< aerial
-	Ogre::Overlay *boatneedlesOverlay;      //!< marine
-	Ogre::Overlay *needlesMaskOverlay;      //!< truck
-	Ogre::Overlay *pressureOverlay;         //!< truck
-	Ogre::Overlay *pressureNeedleOverlay;   //!< truck
-	Ogre::Overlay *editorOverlay;           //!< UNUSED
-	Ogre::Overlay *truckeditorOverlay;      //!< UNUSED
-	Ogre::Overlay *mouseOverlay;            //!< UNUSED (aerial)
-	Ogre::Overlay *racing;                  //!< truck (racing)
+	Ogre::Overlay *m_direction_arrow_overlay;
+	Ogre::Overlay *m_debug_fps_memory_overlay;
+	Ogre::Overlay *m_debug_beam_timing_overlay;	
+	Ogre::Overlay *m_racing_overlay;
+
+	// -------------------------------------------------------------
+	// Overlay elements
+	// -------------------------------------------------------------
 
 	// Truck
 	Ogre::OverlayElement* guiGear;      //!< truck
@@ -122,7 +158,6 @@ protected:
 	Ogre::OverlayElement* guipedclutch; //!< truck
 	Ogre::OverlayElement* guipedbrake;  //!< truck
 	Ogre::OverlayElement* guipedacc;    //!< truck
-	Ogre::OverlayElement* mouseElement; //!< UNUSED
 	Ogre::OverlayElement *pbrakeo;      //!< truck
 	Ogre::OverlayElement *tcontrolo;    //!< truck
 	Ogre::OverlayElement *antilocko;    //!< truck
@@ -151,15 +186,12 @@ protected:
 	// Marine overlay elements
 	Ogre::OverlayElement *bthro1;
 	Ogre::OverlayElement *bthro2;
-	Ogre::OverlayElement *editor_pos;
-	Ogre::OverlayElement *editor_angles;
-	Ogre::OverlayElement *editor_object;
 
 	// Truck
 	Ogre::TextAreaOverlayElement* guiAuto[5];
 	Ogre::TextAreaOverlayElement* guiAuto3D[5];
 
-	// Truck (racing)
+	// Truck (m_racing_overlay)
 	Ogre::TextAreaOverlayElement* laptimemin;
 	Ogre::TextAreaOverlayElement* laptimes;
 	Ogre::TextAreaOverlayElement* laptimems;
@@ -219,7 +251,7 @@ protected:
 	float thrheight;
 	float throffset;
 
-	// Truck racing overlay
+	// Truck m_racing_overlay overlay
 	Ogre::SceneNode* m_direction_arrow_node;
 
 protected:

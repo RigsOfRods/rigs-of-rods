@@ -66,8 +66,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboProp.h"
 #include "Water.h"
 
-#include "RigDefParser.h"
-#include "RigDefValidator.h"
+#include "RigDef_Parser.h"
+#include "RigDef_Validator.h"
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
