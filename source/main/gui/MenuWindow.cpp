@@ -26,12 +26,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "SkinManager.h"
 #include "Utils.h"
-#include "OgreSubsystem.h"
-#include "RoRFrameListener.h"
+//#include "OgreSubsystem.h"
 
 #include "SelectorWindow.h"
-#include "SettingsWindow.h"
-#include "AboutWindow.h"
 
 using namespace Ogre;
 
@@ -41,6 +38,7 @@ MenuWindow::MenuWindow()
 	initialiseByAttributes(this);
 	mMainWidget->setVisible(false);
 	((MyGUI::Window*)mMainWidget)->setCaption(_L("Menu"));
+	mMainWidget->setRealPosition(0.1, 0.1);
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 
 	mSelTerrButton->eventMouseButtonClick      += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickSelectButton);
@@ -48,7 +46,7 @@ MenuWindow::MenuWindow()
 	mAboutButton->eventMouseButtonClick        += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickAboutButton);
 	mCloseButton->eventMouseButtonClick        += MyGUI::newDelegate(this, &MenuWindow::eventMouseButtonClickExitButton);
 
-	mMainWidget->setPosition((0.05 * RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth()) , (0.6 * RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight() ));
+	//mMainWidget->setPosition(0.1 * (Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() , 0.1 * (Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() );
 	//mMainWidget->setRealSize(0.8, 0.8);
 	//SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain); 
 }
@@ -87,19 +85,16 @@ void MenuWindow::eventMouseButtonClickSelectButton(MyGUI::WidgetPtr _sender)
 
 void MenuWindow::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-	SettingsWindow::getSingleton().Show();
-	//Hide();
+	Hide();
 }
 
 void MenuWindow::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 {
-	AboutWindow::getSingleton().Show();
-	//Hide();
+	Hide();
 }
 
 void MenuWindow::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 {
-	gEnv->frameListener->shutdown_final();
-	//Hide();
+	Hide();
 }
 #endif

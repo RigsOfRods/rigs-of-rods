@@ -130,7 +130,6 @@ public: // public methods
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void showspray(bool s);
 	void shutdown_final();
-	void Restart();
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 };
 
