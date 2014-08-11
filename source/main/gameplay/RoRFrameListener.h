@@ -65,7 +65,6 @@ protected:
 	bool enablePosStor;
 	bool flipflop;
 	bool hidegui;
-	bool initialized;
 	bool mTruckInfoOn;
 	bool pressure_pressed;
 

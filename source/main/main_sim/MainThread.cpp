@@ -779,7 +779,6 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 
 	Application::CreateSceneMouse();
-	gEnv->frameListener->initialized = true;
 
 	return true;
 }

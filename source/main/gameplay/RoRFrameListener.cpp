@@ -172,7 +172,6 @@ RoRFrameListener::RoRFrameListener() :
 	freeTruckPosition(false),
 	heathaze(0),
 	hidegui(false),
-	initialized(false),
 	loading_state(NONE_LOADED),
 	mStatsOn(0),
 	mTimeUntilNextToggle(0),
