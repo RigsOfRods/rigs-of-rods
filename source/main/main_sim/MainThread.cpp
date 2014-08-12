@@ -194,6 +194,7 @@ void MainThread::Go()
 
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
+	MyGUI::Widget* menu_wallpaper_widget = nullptr;
 	if (!v.empty())
 	{
 		MyGUI::Widget *mainw = v.at(0);
@@ -201,6 +202,7 @@ void MainThread::Go()
 		{
 			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
 			if (img) img->setImageTexture(menu_wallpaper_texture_name);
+			menu_wallpaper_widget = mainw;
 		}
 	}
 
@@ -470,12 +472,37 @@ void MainThread::Go()
 			m_application_state = Application::STATE_MAIN_MENU;
 			m_next_application_state = Application::STATE_MAIN_MENU;
 
+			if (previous_application_state == Application::STATE_RIG_EDITOR)
+			{
+				/* Restore 3D engine settings */
+				OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+				assert(ror_ogre_subsystem != nullptr);
+				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
+				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
+				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
+				camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
+				ror_ogre_subsystem->SetViewport(viewport);
+				viewport->setCamera(gEnv->mainCamera);
+
+				/* Restore GUI */
+				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
+				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+
+				/* Restore input */
+				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
+				RoR::Application::GetInputEngine()->RestoreMouseListener();
+
+				/* Restore wallpaper */
+				menu_wallpaper_widget->setVisible(true);
+			}
+
 			ShowSurveyMap(false);
 			MenuWindow::getSingleton().Show();
 		
 			EnterMainMenuLoop();
 			
 			previous_application_state = Application::STATE_MAIN_MENU;
+			m_application_state = Application::STATE_NONE;
 		}
 		if (m_next_application_state == Application::STATE_SIMULATION)
 		{
@@ -560,6 +587,8 @@ void MainThread::Go()
 
 				/* Stop GUI manager updates */
 				Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(RoR::Application::GetGuiManager());
+
+				menu_wallpaper_widget->setVisible(false);
 			}
 
 			m_rig_editor->EnterMainLoop();

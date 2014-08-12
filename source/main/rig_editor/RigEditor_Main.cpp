@@ -41,6 +41,8 @@
 #include <OgreRenderWindow.h>
 #include <OgreMaterialManager.h>
 #include <OgreMaterial.h>
+#include <OgreMovableObject.h>
+#include <OgreEntity.h>
 
 using namespace RoR;
 using namespace RoR::RigEditor;
@@ -75,18 +77,38 @@ Main::Main():
 	/* Camera handling */
 	m_camera_handler = new CameraHandler(m_camera);
 
-	// ****************
-	// == test ==
-	// ****************
 
-	Ogre::Entity* ogre_head_test = m_scene_manager->createEntity("OgreHeadTest", "character.mesh");
-	Ogre::SceneNode* n = m_scene_manager->getRootSceneNode();
-	n->setPosition(0,0,0);
-	n->attachObject((Ogre::MovableObject*) ogre_head_test);
 
-	m_camera_handler->SetOrbitTarget(n);
+	/*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	TEST
+	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
 
-	// EXAMPLE MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Back");
+	m_camera->setNearClipDistance( 0.5 );
+	m_camera->setFarClipDistance( 1000.0*1.733 );
+	m_camera->setFOVy(Ogre::Degree(60));
+	m_camera->setAutoAspectRatio(true);
+	//LAST RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_camera);
+	//gEnv->mainCamera = m_camera;
+	{
+		using namespace Ogre;
+		m_scene_manager->setAmbientLight(ColourValue(0,1,0.2));
+		SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
+		Entity* e = m_scene_manager->createEntity("StartupEditorDebugObject", "axes.mesh");
+		node->attachObject(e);
+		
+
+		m_camera_handler->SetOrbitTarget(node);
+		m_camera->setPosition(Ogre::Vector3(300,200,300));
+		//m_camera->lookAt(0,100,0);
+	}
+
+	/*END TEST
+	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
+	
+
+	
+
+	/* Debug output box */
 	m_debug_box = MyGUI::Gui::getInstance().createWidget<MyGUI::TextBox>
 		("TextBox", 50, 50, 300, 300, MyGUI::Align::Top, "Main", "rig_editor_quick_debug_text_box");
 	m_debug_box->setCaption("Hello\nRigEditor!");
@@ -103,8 +125,8 @@ void Main::EnterMainLoop()
 	m_viewport->setBackgroundColour(m_config.viewport_background_color);
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / m_viewport->getActualWidth());
 	m_viewport->setCamera(m_camera);
-	m_camera->setPosition(10,10,10);
-	m_camera->lookAt(0,0,0);
+	//m_camera->setPosition(10,10,10);
+	//m_camera->lookAt(0,0,0);
 
 	/* Setup GUI */
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
@@ -115,6 +137,8 @@ void Main::EnterMainLoop()
 
 	/* Show debug box */
 	m_debug_box->setVisible(true);
+
+	
 
 	while (! m_exit_loop_requested)
 	{
