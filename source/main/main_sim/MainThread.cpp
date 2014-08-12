@@ -190,7 +190,6 @@ void MainThread::Go()
 	LoadingWindow::getSingleton();
 	MenuWindow::getSingleton();
 	SelectorWindow::getSingleton();
-	new GUI_MainMenu();
 	GUI_Friction::getSingleton();
 
 	// Load and show menu wallpaper
@@ -509,6 +508,8 @@ void MainThread::Go()
 				/* Setup GUI manager updates */
 				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
 			}
+
+			new GUI_MainMenu(); /* Top menubar */
 
 			if (SetupGameplayLoop(enable_network, preselected_map))
 			{
