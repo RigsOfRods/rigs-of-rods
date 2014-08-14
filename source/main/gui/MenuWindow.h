@@ -46,6 +46,8 @@ class MenuWindow :
 public:
 	void Show();
 	void Hide();
+	void SetPosition(int pixels_left, int pixels_top);
+	int GetHeight();
 
 private:
 	void eventMouseButtonClickSelectButton(MyGUI::WidgetPtr _sender);

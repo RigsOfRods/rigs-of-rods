@@ -188,7 +188,6 @@ void MainThread::Go()
 
 	// Init singletons. TODO: Move under Application
 	LoadingWindow::getSingleton();
-	MenuWindow::getSingleton();
 	SelectorWindow::getSingleton();
 	GUI_Friction::getSingleton();
 
@@ -472,11 +471,12 @@ void MainThread::Go()
 			m_application_state = Application::STATE_MAIN_MENU;
 			m_next_application_state = Application::STATE_MAIN_MENU;
 
+			OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+			assert(ror_ogre_subsystem != nullptr);
+
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
 				/* Restore 3D engine settings */
-				OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
-				assert(ror_ogre_subsystem != nullptr);
 				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
 				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
@@ -496,7 +496,14 @@ void MainThread::Go()
 				menu_wallpaper_widget->setVisible(true);
 			}
 
-			ShowSurveyMap(false);
+			/* Adjust menu position */
+			Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->getViewport(0);
+			int margin = (viewport->getActualHeight() / 10);
+			MenuWindow::getSingleton().SetPosition(
+				margin, // left
+				viewport->getActualHeight() - MenuWindow::getSingleton().GetHeight() - margin // top
+				);
+
 			MenuWindow::getSingleton().Show();
 		
 			EnterMainMenuLoop();
