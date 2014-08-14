@@ -67,6 +67,16 @@ MenuWindow::~MenuWindow()
 	//TODO
 }
 
+void MenuWindow::SetPosition(int pixels_left, int pixels_top)
+{
+	mMainWidget->setPosition(pixels_left, pixels_top);
+}
+
+int MenuWindow::GetHeight()
+{
+	return mMainWidget->getHeight();
+}
+
 void MenuWindow::Show()
 {
 	RoR::Application::GetInputEngine()->resetKeys();
