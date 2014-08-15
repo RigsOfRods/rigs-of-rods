@@ -61,6 +61,10 @@ public:
 	/** Set scene manager where GUI will be rendered */
 	void SetSceneManager(Ogre::SceneManager* scene_manager);
 
+	/* Panels */
+
+	static GUI::RigEditorMenubar* GetRigEditorMenubar();
+
 private:
 
 	GUIManager();
@@ -80,6 +84,9 @@ private:
 	MyGUI::OgrePlatform* mPlatform;
 	Ogre::String mResourceFileName;
 	bool mExit;
+
+	/* Panels */
+	static GUI::RigEditorMenubar* ms_rig_editor_menubar;
 };
 
 } // namespace RoR

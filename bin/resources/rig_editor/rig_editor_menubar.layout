@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="MenuBar" skin="MenuBar" position="0 0 370 25" layer="Main" name="rig_editor_menubar">
+        <Widget type="MenuItem" skin="" position="0 0 41 21" name="item_file">
+            <Property key="Caption" value="File"/>
+            <Property key="MenuItemType" value="Popup"/>
+            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 80 48" style="Popup" layer="Popup" name="file_popup">
+                <Widget type="MenuItem" skin="" position="0 0 72 19" name="file_popup_item_open">
+                    <Property key="Caption" value="Open"/>
+                </Widget>
+                <Widget type="MenuItem" skin="" position="0 19 72 19" name="file_popup_item_save">
+                    <Property key="Caption" value="Save"/>
+                </Widget>
+            </Widget>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings>
+        <Property key="IncludeDirectory" value="D:\Projects\mygui"/>
+        <Property key="PanelName" value="RigEditorMenubar"/>
+        <Property key="PanelNamespace" value="x"/>
+        <Property key="SourceDirectory" value="D:\Projects\mygui"/>
+    </CodeGeneratorSettings>
+</MyGUI>

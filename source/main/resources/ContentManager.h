@@ -77,6 +77,7 @@ public:
 		static const ResourcePack SOUNDS;
 		static const ResourcePack SUNBURN;
 		static const ResourcePack TEXTURES;
+		static const ResourcePack RIG_EDITOR;
 
 
 		Ogre::uint64 mask;
