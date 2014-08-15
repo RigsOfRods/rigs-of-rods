@@ -48,6 +48,11 @@ namespace RoR
 		class  Node;
 		class  Rig;
 	}
+
+	namespace GUI
+	{
+		class  RigEditorMenubar;
+	}
 }
 
 struct node_t;

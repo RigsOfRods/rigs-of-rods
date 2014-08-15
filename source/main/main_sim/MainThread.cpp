@@ -563,6 +563,9 @@ void MainThread::Go()
 
 			if (m_rig_editor == nullptr)
 			{
+				RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RIG_EDITOR);
+				Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("RigEditor");
+
 				m_rig_editor = new RigEditor::Main();
 				assert(m_rig_editor != nullptr);
 			}

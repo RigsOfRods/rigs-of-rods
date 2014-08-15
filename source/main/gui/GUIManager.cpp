@@ -24,13 +24,12 @@
 	@author based on the basemanager code from mygui common
 */
 
-#ifdef USE_MYGUI
-
 #include "GUIManager.h"
 
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
+#include "GUI_RigEditorMenubar.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
@@ -42,6 +41,16 @@
 
 using namespace Ogre;
 using namespace RoR;
+
+// ================================================================================
+// Static variables
+// ================================================================================
+
+GUI::RigEditorMenubar* GUIManager::ms_rig_editor_menubar = nullptr;
+
+// ================================================================================
+// Functions
+// ================================================================================
 
 GUIManager::GUIManager() :
 	mExit(false),
@@ -207,4 +216,16 @@ void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
 	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
-#endif // USE_MYGUI
+// ============================================================================
+// Panels
+// ============================================================================
+
+GUI::RigEditorMenubar* GUIManager::GetRigEditorMenubar()
+{
+	if (ms_rig_editor_menubar == nullptr)
+	{
+		ms_rig_editor_menubar = new GUI::RigEditorMenubar();
+	}
+	return ms_rig_editor_menubar;
+}
+

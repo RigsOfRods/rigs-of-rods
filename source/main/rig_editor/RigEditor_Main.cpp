@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "GlobalEnvironment.h"
+#include "GUI_RigEditorMenubar.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "MainThread.h"
@@ -122,14 +123,17 @@ void Main::EnterMainLoop()
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
 	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
+	int viewport_width = m_viewport->getActualWidth();
 	m_viewport->setBackgroundColour(m_config.viewport_background_color);
-	m_camera->setAspectRatio(m_viewport->getActualHeight() / m_viewport->getActualWidth());
+	m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
 	m_viewport->setCamera(m_camera);
 	//m_camera->setPosition(10,10,10);
 	//m_camera->lookAt(0,0,0);
 
 	/* Setup GUI */
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
+	RoR::Application::GetGuiManager()->GetRigEditorMenubar()->SetWidth(viewport_width);
+	RoR::Application::GetGuiManager()->GetRigEditorMenubar()->Show();
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -159,6 +163,9 @@ void Main::EnterMainLoop()
 			rw->update(); // update even when in background !
 		}
 	}
+
+	/* Hide GUI */
+	RoR::Application::GetGuiManager()->GetRigEditorMenubar()->Hide();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
