@@ -53,6 +53,7 @@ namespace RoR
 	namespace GUI
 	{
 		class  RigEditorMenubar;
+		class  OpenSaveFileDialog;
 	}
 }
 

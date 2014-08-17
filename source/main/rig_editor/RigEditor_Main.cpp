@@ -56,7 +56,8 @@ Main::Main():
 	m_exit_loop_requested(false),
 	m_input_handler(nullptr),
 	m_debug_box(nullptr),
-	m_gui_menubar(nullptr)
+	m_gui_menubar(nullptr),
+	m_gui_open_save_file_dialog(nullptr)
 {
 	/* Load config */
 	m_config_file.load(SSETTING("Config Root", "") + "rig_editor.cfg");
@@ -125,6 +126,11 @@ Main::~Main()
 		delete m_gui_menubar;
 		m_gui_menubar = nullptr;
 	}
+	if (m_gui_open_save_file_dialog != nullptr)
+	{
+		delete m_gui_open_save_file_dialog;
+		m_gui_open_save_file_dialog = nullptr;
+	}
 }
 
 void Main::EnterMainLoop()
@@ -151,6 +157,10 @@ void Main::EnterMainLoop()
 		m_gui_menubar->Show();
 	}
 	m_gui_menubar->SetWidth(viewport_width);
+	if (m_gui_open_save_file_dialog == nullptr)
+	{
+		m_gui_open_save_file_dialog = new GUI::OpenSaveFileDialog();
+	}
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -183,6 +193,10 @@ void Main::EnterMainLoop()
 
 	/* Hide GUI */
 	m_gui_menubar->Hide();
+	if (m_gui_open_save_file_dialog->isModal())
+	{
+		m_gui_open_save_file_dialog->endModal(); // Hides the dialog
+	}
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
@@ -227,7 +241,9 @@ void Main::UpdateMainLoop()
 
 void Main::CommandOpenRigFile()
 {
-	// TODO
+	m_gui_open_save_file_dialog->setDialogInfo(MyGUI::UString("Open rig file"), MyGUI::UString("Open"), false);
+	m_gui_open_save_file_dialog->eventEndDialog = MyGUI::newDelegate(this, &Main::NotifyFileSelectorEnded);
+	m_gui_open_save_file_dialog->doModal(); // Shows the dialog
 }
 
 void Main::CommandSaveRigFileAs()
@@ -238,4 +254,13 @@ void Main::CommandSaveRigFileAs()
 void Main::CommandSaveRigFile()
 {
 	// TODO
+}
+
+void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
+{
+	if (result)
+	{
+		// TODO
+	}
+	dialog->endModal(); // Hides the dialog
 }

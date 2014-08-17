@@ -28,6 +28,7 @@
 #pragma once
 
 #include "ConfigFile.h"
+#include "GUI_OpenSaveFileDialog.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_IMain.h"
 #include "RoRPrerequisites.h"
@@ -74,6 +75,10 @@ public:
 
 	virtual void CommandSaveRigFile();
 
+	/* GUI callbacks */
+
+	void NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result);
+
 private:
 
 	RoR::ConfigFile      m_config_file;
@@ -90,6 +95,7 @@ private:
 	// GUI
 	MyGUI::TextBox*          m_debug_box;
 	GUI::RigEditorMenubar*   m_gui_menubar;
+	GUI::OpenSaveFileDialog* m_gui_open_save_file_dialog;
 
 };
 
