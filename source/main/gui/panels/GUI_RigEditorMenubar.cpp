@@ -27,11 +27,16 @@
 
 #include "GUI_RigEditorMenubar.h"
 
+#include <MyGUI.h>
+
 using namespace RoR;
 using namespace GUI;
 
-RigEditorMenubar::RigEditorMenubar()
+RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 {
+	m_rig_editor_interface = rig_editor_interface;
+
+	m_file_popup_item_open->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
 }
 
 void RigEditorMenubar::Show()
@@ -47,4 +52,18 @@ void RigEditorMenubar::Hide()
 void RigEditorMenubar::SetWidth(int width_pixels)
 {
 	m_rig_editor_menubar->setSize(width_pixels, m_rig_editor_menubar->getHeight());
+}
+
+// ============================================================================
+// Event handlers
+// ============================================================================
+
+void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender)
+{
+	m_rig_editor_interface->CommandOpenRigFile();
+}
+
+void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender)
+{
+	m_rig_editor_interface->CommandOpenRigFile();
 }

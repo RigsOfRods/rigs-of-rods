@@ -55,7 +55,8 @@ Main::Main():
 	m_rig_entity(nullptr),
 	m_exit_loop_requested(false),
 	m_input_handler(nullptr),
-	m_debug_box(nullptr)
+	m_debug_box(nullptr),
+	m_gui_menubar(nullptr)
 {
 	/* Load config */
 	m_config_file.load(SSETTING("Config Root", "") + "rig_editor.cfg");
@@ -117,6 +118,15 @@ Main::Main():
 	m_debug_box->setFontName("DefaultBig");
 }
 
+Main::~Main()
+{
+	if (m_gui_menubar != nullptr)
+	{
+		delete m_gui_menubar;
+		m_gui_menubar = nullptr;
+	}
+}
+
 void Main::EnterMainLoop()
 {
 	/* Setup 3D engine */
@@ -132,8 +142,15 @@ void Main::EnterMainLoop()
 
 	/* Setup GUI */
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
-	RoR::Application::GetGuiManager()->GetRigEditorMenubar()->SetWidth(viewport_width);
-	RoR::Application::GetGuiManager()->GetRigEditorMenubar()->Show();
+	if (m_gui_menubar == nullptr)
+	{
+		m_gui_menubar = new GUI::RigEditorMenubar(this);
+	}
+	else
+	{
+		m_gui_menubar->Show();
+	}
+	m_gui_menubar->SetWidth(viewport_width);
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -165,7 +182,7 @@ void Main::EnterMainLoop()
 	}
 
 	/* Hide GUI */
-	RoR::Application::GetGuiManager()->GetRigEditorMenubar()->Hide();
+	m_gui_menubar->Hide();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
@@ -206,4 +223,19 @@ void Main::UpdateMainLoop()
 	std::stringstream msg;
 	msg << "Camera pos: [X "<<m_camera->getPosition().x <<", Y "<<m_camera->getPosition().y << ", Z "<<m_camera->getPosition().z <<"] "<<std::endl;
 	m_debug_box->setCaption(msg.str());
+}
+
+void Main::CommandOpenRigFile()
+{
+	// TODO
+}
+
+void Main::CommandSaveRigFileAs()
+{
+	// TODO
+}
+
+void Main::CommandSaveRigFile()
+{
+	// TODO
 }
