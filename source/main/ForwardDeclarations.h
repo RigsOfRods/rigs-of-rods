@@ -43,6 +43,7 @@ namespace RoR
 	{
 		class  Beam;
 		class  CameraHandler;
+		class  IMain;
 		class  InputHandler;
 		class  Main;
 		class  Node;

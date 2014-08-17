@@ -42,16 +42,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-// ================================================================================
-// Static variables
-// ================================================================================
-
-GUI::RigEditorMenubar* GUIManager::ms_rig_editor_menubar = nullptr;
-
-// ================================================================================
-// Functions
-// ================================================================================
-
 GUIManager::GUIManager() :
 	mExit(false),
 	mGUI(nullptr),
@@ -215,17 +205,3 @@ void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
 {
 	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
-
-// ============================================================================
-// Panels
-// ============================================================================
-
-GUI::RigEditorMenubar* GUIManager::GetRigEditorMenubar()
-{
-	if (ms_rig_editor_menubar == nullptr)
-	{
-		ms_rig_editor_menubar = new GUI::RigEditorMenubar();
-	}
-	return ms_rig_editor_menubar;
-}
-

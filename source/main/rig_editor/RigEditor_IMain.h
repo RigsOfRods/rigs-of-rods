@@ -16,54 +16,35 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/** 
+	@file   RigEditor_IMain.h
+	@date   08/2014
+	@author Petr Ohlidal
 */
 
 #pragma once
 
-/** 
-	@file   GUI_RigEditorMenubar.h
-	@author Petr Ohlidal
-	@date   08/2014
-*/
-
-#include "ForwardDeclarations.h"
-#include "GUI_RigEditorMenubarLayout.h"
-#include "RigEditor_IMain.h"
-
 namespace RoR
 {
 
-namespace GUI
+namespace RigEditor
 {
 
-class RigEditorMenubar: public RigEditorMenubarLayout
+/** Command interface to RigEditor */
+class IMain
 {
-
 public:
 
-	RigEditorMenubar(RigEditor::IMain* rig_editor_interface);
+	virtual void CommandOpenRigFile() = 0;
 
-	void Show();
-	
-	void Hide();
+	virtual void CommandSaveRigFileAs() = 0;
 
-	void SetWidth(int width_pixels);
-
-private:
-
-	/* Event handlers */
-
-	void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender);
-
-	void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender);
-
-private:
-
-	RigEditor::IMain* m_rig_editor_interface;
-
+	virtual void CommandSaveRigFile() = 0;
 };
 
-} // namespace GUI
+} // namespace RigEditor
 
 } // namespace RoR

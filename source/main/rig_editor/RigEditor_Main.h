@@ -29,6 +29,7 @@
 
 #include "ConfigFile.h"
 #include "RigDef_Prerequisites.h"
+#include "RigEditor_IMain.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR
@@ -37,7 +38,7 @@ namespace RoR
 namespace RigEditor
 {
 
-class Main
+class Main: public IMain
 {
 public:
 
@@ -65,6 +66,14 @@ public:
 		return m_config;
 	}
 
+	/* IMain implementations */
+
+	virtual void CommandOpenRigFile();
+
+	virtual void CommandSaveRigFileAs();
+
+	virtual void CommandSaveRigFile();
+
 private:
 
 	RoR::ConfigFile      m_config_file;
@@ -78,7 +87,9 @@ private:
 
 	bool                 m_exit_loop_requested;
 
-	MyGUI::TextBox*      m_debug_box;
+	// GUI
+	MyGUI::TextBox*          m_debug_box;
+	GUI::RigEditorMenubar*   m_gui_menubar;
 
 };
 
