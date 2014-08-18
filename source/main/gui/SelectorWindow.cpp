@@ -442,7 +442,7 @@ bool SelectorWindow::searchCompare(String searchString, CacheEntry *ce)
 		// the authors
 		if (!ce->authors.empty())
 		{
-			std::vector<authorinfo_t>::const_iterator it;
+			std::vector<AuthorInfo>::const_iterator it;
 			for (it = ce->authors.begin(); it != ce->authors.end(); it++)
 			{
 				// author name
@@ -479,7 +479,7 @@ bool SelectorWindow::searchCompare(String searchString, CacheEntry *ce)
 			// the authors
 			if (!ce->authors.empty())
 			{
-				std::vector<authorinfo_t>::const_iterator it;
+				std::vector<AuthorInfo>::const_iterator it;
 				for (it = ce->authors.begin(); it != ce->authors.end(); it++)
 				{
 					// author name
@@ -524,7 +524,7 @@ void SelectorWindow::onCategorySelected(int categoryID)
 
 	mModelList->removeAllItems();
 	
-	for (std::vector<CacheEntry>::iterator it = mEntries.begin(); it != mEntries.end(); it++)
+	for (auto it = mEntries.begin(); it != mEntries.end(); it++)
 	{
 		if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
 										|| categoryID == CacheSystem::CID_Fresh && (ts - it->addtimestamp < CACHE_FILE_FRESHNESS)
@@ -664,7 +664,7 @@ void SelectorWindow::updateControls(CacheEntry *entry)
 	}
 	UTFString authors = "";
 	std::set<String> author_names;
-	for (std::vector<authorinfo_t>::iterator it = entry->authors.begin(); it != entry->authors.end(); it++)
+	for (auto it = entry->authors.begin(); it != entry->authors.end(); it++)
 	{
 		if (!it->type.empty() && !it->name.empty())
 		{

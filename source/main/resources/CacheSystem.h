@@ -30,8 +30,6 @@
 
 #include "RoRPrerequisites.h"
 
-#include "BeamData.h" // for authorinfo_t
-
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
@@ -40,42 +38,53 @@
 // 60*60*24 = one day
 #define CACHE_FILE_FRESHNESS 86400
 
-typedef struct
+struct Category_Entry
 {
-	Ogre::String title;					// Category title
-	int number;							// Category number
-} Category_Entry;
+	Ogre::String title;					//!< Category title
+	int number;							//!< Category number
+};
+
+struct AuthorInfo
+{
+	int id;
+	Ogre::String type;
+	Ogre::String name;
+	Ogre::String email;
+};
 
 class CacheEntry
 {
 
 public:
 
-	Ogre::String minitype;				// type of preview picture, either png or dds
-	Ogre::String fname;					// filename
-	Ogre::String fname_without_uid;		// filename
-	Ogre::String dname;					// name parsed from the file
+	/** default constructor resets the data. */
+	CacheEntry();
+
+	Ogre::String minitype;              //!< type of preview picture, either png or dds
+	Ogre::String fname;                 //!< filename
+	Ogre::String fname_without_uid;     //!< filename
+	Ogre::String dname;                 //!< name parsed from the file
 	
-	int categoryid;						// category id
-	Ogre::String categoryname;			// category name
+	int categoryid;                     //!< category id
+	Ogre::String categoryname;          //!< category name
 	
-	int addtimestamp;					// timestamp when this file was added to the cache
+	int addtimestamp;                   //!< timestamp when this file was added to the cache
 	
-	Ogre::String uniqueid;				// file's unique id
-	Ogre::String guid;                  // global unique id
-	int version;						// file's version
-	Ogre::String fext;					// file's extension
-	Ogre::String type;					// Resource Type, FileSystem or Zip
-	Ogre::String dirname;				// mostly, archive name
-	Ogre::String hash;					// file's hash
-	bool resourceLoaded;				// loaded?
-	int number;							// mod number
-	std::time_t filetime;				// filetime
-	bool changedornew;					// is it added or changed during this runtime?
-	bool deleted;						// is this mod deleted?
-	int usagecounter;					// how much it was used already
-	std::vector<authorinfo_t> authors;	// authors
-	Ogre::String filecachename;			// preview image filename
+	Ogre::String uniqueid;              //!< file's unique id
+	Ogre::String guid;                  //!< global unique id
+	int version;						//!< file's version
+	Ogre::String fext;					//!< file's extension
+	Ogre::String type;					//!< Resource Type, FileSystem or Zip
+	Ogre::String dirname;				//!< mostly, archive name
+	Ogre::String hash;					//!< file's hash
+	bool resourceLoaded;				//!< loaded?
+	int number;							//!< mod number
+	std::time_t filetime;				//!< filetime
+	bool changedornew;					//!< is it added or changed during this runtime?
+	bool deleted;						//!< is this mod deleted?
+	int usagecounter;					//!< how much it was used already
+	std::vector<AuthorInfo> authors;	//!< authors
+	Ogre::String filecachename;			//!< preview image filename
 
 	// following all TRUCK detail information:
 	Ogre::String description;
@@ -120,71 +129,6 @@ public:
 	std::vector<Ogre::String> sectionconfigs;
 	std::set<Ogre::String> materials;
 
-	// default constructor resets the data.
-	CacheEntry() :
-		//authors
-		addtimestamp(0),
-		beamcount(0),
-		categoryid(0),
-		categoryname(""),
-		changedornew(false),
-		commandscount(0),
-		custom_particles(false),
-		customtach(false),
-		deleted(false),
-		description(""),
-		dirname(""),
-		dname(""),
-		driveable(0),
-		enginetype('t'),
-		exhaustscount(0),
-		fext(""),
-		filecachename(""),
-		fileformatversion(0),
-		filetime(0),
-		fixescount(0),
-		flarescount(0),
-		flexbodiescount(0),
-		fname(""),
-		fname_without_uid(""),
-		forwardcommands(false),
-		hasSubmeshs(false),
-		hash(""),
-		hydroscount(0),
-		importcommands(false),
-		loadmass(0),
-		managedmaterialscount(0),
-		materialflarebindingscount(0),
-		materials(),
-		maxrpm(0),
-		minitype(""),
-		minrpm(0),
-		nodecount(0),
-		number(0),
-		numgears(0),
-		propscount(0),
-		propwheelcount(0),
-		rescuer(false),
-		resourceLoaded(false),
-		rollon(false),
-		rotatorscount(0),
-		shockcount(0),
-		soundsourcescount(0),
-		tags(""),
-		torque(0),
-		truckmass(0),
-		turbojetcount(0),
-		turbopropscount(0),
-		type(""),
-		uniqueid(""),
-		usagecounter(0),
-		version(0),
-		wheelcount(0),
-		wingscount(0)
-	{
-		// driveable = 0 = NOT_DRIVEABLE
-		// enginetype = t = truck is default
-	}
 };
 
 class CacheSystem : public ZeroedMemoryAllocator
@@ -235,28 +179,21 @@ public:
 
 	// see: https://code.google.com/p/rigsofrods-streams/source/browse/trunk/0.39/win32-skeleton/config/categories.cfg
 	enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
+
 protected:
+
+	// ================================================================================
+	// Functions
+	// ================================================================================
+
 	CacheSystem();
 	~CacheSystem();
 	CacheSystem(const CacheSystem&);
 	CacheSystem& operator= (const CacheSystem&);
-	Ogre::String location;
-	Ogre::String configlocation;
-
-
-	Ogre::String currentSHA1;	// stores sha1 over the content
-	int rgcounter;				// resource group counter, used to track the resource groups created
-	int modcounter;				// counter the number of mods
-
-
-
-	// the extensions we track in the cache system
-	std::vector<Ogre::String> known_extensions;
-
+	
 	int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
-
-	// parses all files loaded with a certain extension
+	/** parses all files loaded with a certain extension */
 	void parseFilesAllRG(Ogre::String ext);
 	void parseFilesOneRG(Ogre::String ext, Ogre::String rg);
 	void parseKnownFilesOneRG(Ogre::String rg);
@@ -264,7 +201,6 @@ protected:
 	void parseKnownFilesOneRGDirectory(Ogre::String rg, Ogre::String dir);
 
 	void checkForNewKnownFiles();
-
 
 	void addFile(Ogre::FileInfo f, Ogre::String ext);	// adds a file to entries
 	void addFile(Ogre::String filename, Ogre::String archiveType, Ogre::String archiveDirectory, Ogre::String ext);
@@ -298,17 +234,7 @@ protected:
 	void parseModAttribute(const Ogre::String& line, CacheEntry& t);
 	void logBadTruckAttrib(const Ogre::String& line, CacheEntry& t);
 
-	// this holds all files
-	std::vector<CacheEntry> entries;
-
-	std::map<Ogre::String, Ogre::String> zipHashes;
-
-	// categories
-	std::map<int, Category_Entry> categories;
-	std::map<int, int> category_usage;
-	std::set<Ogre::String> zipCacheList;
 	void readCategoryTitles();
-
 
 	// helpers
 	char *replacesSpaces(char *str);
@@ -336,5 +262,27 @@ protected:
 	bool isDirectoryUsedInEntries(Ogre::String directory);
 
 	void loadAllDirectoriesInResourceGroup(Ogre::String group);
+
+	// ================================================================================
+	// Variables
+	// ================================================================================
+
+	Ogre::String location;
+	Ogre::String configlocation;
+
+	Ogre::String currentSHA1;	//!< stores sha1 over the content
+	int rgcounter;				//!< resource group counter, used to track the resource groups created
+	int modcounter;				//!< counter the number of mods
+	
+	std::vector<Ogre::String> known_extensions; //!< the extensions we track in the cache system
+
+	std::vector<CacheEntry> entries; //!< this holds all files
+
+	std::map<Ogre::String, Ogre::String> zipHashes;
+
+	// categories
+	std::map<int, Category_Entry> categories;
+	std::map<int, int> category_usage;
+	std::set<Ogre::String> zipCacheList;
 
 };

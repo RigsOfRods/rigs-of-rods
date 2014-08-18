@@ -27,6 +27,7 @@
 
 #include "CacheSystem.h"
 
+#include "BeamData.h"
 #include "BeamEngine.h"
 #include "ErrorUtils.h"
 #include "ImprovedConfigFile.h"
@@ -46,6 +47,72 @@
 #include <OgreFileSystem.h>
 
 using namespace Ogre;
+
+// default constructor resets the data.
+CacheEntry::CacheEntry() :
+	//authors
+	addtimestamp(0),
+	beamcount(0),
+	categoryid(0),
+	categoryname(""),
+	changedornew(false),
+	commandscount(0),
+	custom_particles(false),
+	customtach(false),
+	deleted(false),
+	description(""),
+	dirname(""),
+	dname(""),
+	driveable(0),
+	enginetype('t'),
+	exhaustscount(0),
+	fext(""),
+	filecachename(""),
+	fileformatversion(0),
+	filetime(0),
+	fixescount(0),
+	flarescount(0),
+	flexbodiescount(0),
+	fname(""),
+	fname_without_uid(""),
+	forwardcommands(false),
+	hasSubmeshs(false),
+	hash(""),
+	hydroscount(0),
+	importcommands(false),
+	loadmass(0),
+	managedmaterialscount(0),
+	materialflarebindingscount(0),
+	materials(),
+	maxrpm(0),
+	minitype(""),
+	minrpm(0),
+	nodecount(0),
+	number(0),
+	numgears(0),
+	propscount(0),
+	propwheelcount(0),
+	rescuer(false),
+	resourceLoaded(false),
+	rollon(false),
+	rotatorscount(0),
+	shockcount(0),
+	soundsourcescount(0),
+	tags(""),
+	torque(0),
+	truckmass(0),
+	turbojetcount(0),
+	turbopropscount(0),
+	type(""),
+	uniqueid(""),
+	usagecounter(0),
+	version(0),
+	wheelcount(0),
+	wingscount(0)
+{
+	// driveable = 0 = NOT_DRIVEABLE
+	// enginetype = t = truck is default
+}
 
 CacheSystem::CacheSystem() :
 	  changedFiles(0)
@@ -439,7 +506,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 			return;
 		}
 		// Set
-		authorinfo_t ai;
+		AuthorInfo ai;
 		ai.id = StringConverter::parseInt(params[2]);
 		ai.type = params[1];
 		ai.name = params[3];
@@ -1270,7 +1337,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 	std::vector<RigDef::Author>::iterator author_itor = def->authors.begin();
 	for ( ; author_itor != def->authors.end(); author_itor++)
 	{
-		authorinfo_t author;
+		AuthorInfo author;
 		author.email = author_itor->email;
 		author.id    = (author_itor->_has_forum_account) ? static_cast<int>( author_itor->forum_account_id ) : -1;
 		author.name  = author_itor->name;
@@ -1752,7 +1819,16 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr d
 	tm.loadTerrainConfigBasics(ds);
 
 	//parsing the current file
-	entry.authors	 = tm.getAuthors();
+	for (auto itor = tm.getAuthors().begin(); itor != tm.getAuthors().end(); ++itor)
+	{
+		AuthorInfo a;
+		a.id = itor->id;
+		a.email = itor->email;
+		a.name = itor->name;
+		a.type = itor->type;
+		entry.authors.push_back(a);
+	}
+
 	entry.dname      = tm.getTerrainName();
 	entry.categoryid = tm.getCategoryID();
 	entry.uniqueid   = tm.getGUID();
