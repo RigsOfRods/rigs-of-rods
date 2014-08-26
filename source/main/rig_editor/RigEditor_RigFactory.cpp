@@ -45,6 +45,7 @@ using namespace RoR::RigEditor;
 Rig* RigFactory::BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Module*> & selected_modules, RigEditor::Main* rig_editor)
 {
 	RigEditor::Rig* rig = new Rig();
+	RigEditor::Main::Config & config = rig_editor->GetConfig();
 
 	/* Process nodes (section "nodes") */
 
@@ -98,10 +99,12 @@ Rig* RigFactory::BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Modul
 	}
 
 	/* Prepare material */
-	if (! Ogre::MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
+	if (! Ogre::MaterialManager::getSingleton().resourceExists("rig-editor-skeleton-material"))
 	{
 		Ogre::MaterialPtr mat = static_cast<Ogre::MaterialPtr>(
-			Ogre::MaterialManager::getSingleton().create("vehicle-skeletonview-material", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+			Ogre::MaterialManager::getSingleton().create("rig-editor-skeleton-material", 
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
+		);
 
 		mat->getTechnique(0)->getPass(0)->createTextureUnitState();
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
@@ -113,20 +116,21 @@ Rig* RigFactory::BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Modul
 	/* Create mesh */
 	rig->m_beams_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
 	rig->m_beams_dynamic_mesh->estimateIndexCount(rig->m_beams.size() * 2);
+	rig->m_beams_dynamic_mesh->estimateVertexCount(rig->m_nodes.size());
 	rig->m_beams_dynamic_mesh->setCastShadows(false);
 	rig->m_beams_dynamic_mesh->setDynamic(true);
 	rig->m_beams_dynamic_mesh->setRenderingDistance(300);
 
 	/* Init */
-	rig->m_beams_dynamic_mesh->begin("vehicle-skeletonview-material", Ogre::RenderOperation::OT_LINE_LIST);
+	rig->m_beams_dynamic_mesh->begin("rig-editor-skeleton-material", Ogre::RenderOperation::OT_LINE_LIST);
 
 	/* Process beams */
 	for (auto itor = rig->m_beams.begin(); itor != rig->m_beams.end(); itor++)
 	{
 		rig->m_beams_dynamic_mesh->position((*itor)->GetNodeA()->GetPosition());
-		rig->m_beams_dynamic_mesh->colour(rig_editor->GetConfig().beam_generic_color);
+		rig->m_beams_dynamic_mesh->colour(config.beam_generic_color);
 		rig->m_beams_dynamic_mesh->position((*itor)->GetNodeB()->GetPosition());
-		rig->m_beams_dynamic_mesh->colour(rig_editor->GetConfig().beam_generic_color);
+		rig->m_beams_dynamic_mesh->colour(config.beam_generic_color);
 	}
 
 	/* Finalize */
