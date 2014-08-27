@@ -60,10 +60,10 @@ void RigEditorMenubar::SetWidth(int width_pixels)
 
 void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender)
 {
-	m_rig_editor_interface->CommandOpenRigFile();
+	m_rig_editor_interface->CommandShowDialogOpenRigFile();
 }
 
 void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender)
 {
-	m_rig_editor_interface->CommandOpenRigFile();
+	m_rig_editor_interface->CommandSaveRigFile();
 }

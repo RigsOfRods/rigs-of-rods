@@ -44,7 +44,11 @@ public:
 	RigFactory()
 	{}
 
-	Rig* BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Module*> & selected_modules, RigEditor::Main* rig_editor);
+	Rig* BuildRig(
+		RigDef::File* rig_def, 
+		std::vector< boost::shared_ptr<RigDef::File::Module> > & selected_modules, 
+		RigEditor::Main* rig_editor
+		);
 
 private:
 

@@ -38,9 +38,9 @@ class IMain
 {
 public:
 
-	virtual void CommandOpenRigFile() = 0;
+	virtual void CommandShowDialogOpenRigFile() = 0;
 
-	virtual void CommandSaveRigFileAs() = 0;
+	virtual void CommandShowDialogSaveRigFileAs() = 0;
 
 	virtual void CommandSaveRigFile() = 0;
 };

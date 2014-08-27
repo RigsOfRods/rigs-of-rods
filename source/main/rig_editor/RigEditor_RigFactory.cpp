@@ -42,7 +42,11 @@
 using namespace RoR;
 using namespace RoR::RigEditor;
 
-Rig* RigFactory::BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Module*> & selected_modules, RigEditor::Main* rig_editor)
+Rig* RigFactory::BuildRig(
+	RigDef::File* rig_def, 
+	std::vector< boost::shared_ptr<RigDef::File::Module> > & selected_modules, 
+	RigEditor::Main* rig_editor
+	)
 {
 	RigEditor::Rig* rig = new Rig();
 	RigEditor::Main::Config & config = rig_editor->GetConfig();
@@ -53,14 +57,24 @@ Rig* RigFactory::BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Modul
 	{
 		for (auto node_itor = (*module_itor)->nodes.begin(); node_itor != (*module_itor)->nodes.end(); node_itor++)
 		{
-			auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node*>(node_itor->id, new Node(*node_itor)) );
-			if (result.second == false)
+			bool done = false;
+			RigDef::Node::Id & node_id = node_itor->id;
+			while (true)
 			{
-				std::stringstream msg;
-				msg << "[FATAL ERROR] BuildRig(): Duplicate node id: " << (*node_itor).id.ToString();
-				AddMessage(*module_itor, msg.str());
-				delete rig;
-				return nullptr;
+				auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node*>(node_id, new Node(*node_itor)) );
+				if (result.second == true)
+				{
+					break;
+				}
+				else
+				{
+					std::stringstream msg;
+					msg << "[WARNING] BuildRig(): Duplicate node ID: " << node_id.ToString();
+					node_id.SetStr(node_id.ToString() + "-dup");
+					msg << ", changed to: " << node_id.ToString();
+					AddMessage(module_itor->get(), msg.str());
+					rig->m_modified = true;
+				}
 			}
 		}
 	}
@@ -74,23 +88,34 @@ Rig* RigFactory::BuildRig(RigDef::File* rig_def, std::vector<RigDef::File::Modul
 		for (auto beam_itor = (*module_itor)->beams.begin(); beam_itor != (*module_itor)->beams.end(); beam_itor++)
 		{
 			Node* nodes[] = {nullptr, nullptr};
+
+			/* Find node 0 */
 			auto result = rig->m_nodes.find(beam_itor->nodes[0]);
-			if (result == rig->m_nodes.end()) /* Node 0 not found */
+			if (result == rig->m_nodes.end())
 			{
+				/* Node 0 not found */
 				unlinked_beams_to_retry.push_back(*beam_itor);
 				std::stringstream msg;
 				msg << "[Warning] BuildRig(): Beam[ " << (*beam_itor).nodes[0].ToString() << ", " << (*beam_itor).nodes[1].ToString() << "]: Node 0 not found. Will retry later.";
-				AddMessage(*module_itor, msg.str());
+				AddMessage(module_itor->get(), msg.str());
 			}
 			else
 			{
+				nodes[0] = result->second; // Assign node 0
+
+				/* Find node 1 */
 				result = rig->m_nodes.find(beam_itor->nodes[1]);
-				if (result == rig->m_nodes.end()) /* Node 1 not found */
+				if (result == rig->m_nodes.end())
 				{
+					 /* Node 1 not found */
 					unlinked_beams_to_retry.push_back(*beam_itor);
 					std::stringstream msg;
 					msg << "[Warning] BuildRig(): Beam[ " << (*beam_itor).nodes[0].ToString() << ", " << (*beam_itor).nodes[1].ToString() << "]: Node 1 not found. Will retry later.";
-					AddMessage(*module_itor, msg.str());
+					AddMessage(module_itor->get(), msg.str());
+				}
+				else
+				{
+					nodes[1] = result->second; // Assing node 1
 				}
 			}
 
