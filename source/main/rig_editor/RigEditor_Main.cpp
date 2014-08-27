@@ -28,25 +28,34 @@
 #include "RigEditor_Main.h"
 
 #include "Application.h"
+#include "CacheSystem.h"
 #include "GlobalEnvironment.h"
 #include "GUI_RigEditorMenubar.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "MainThread.h"
 #include "OgreSubsystem.h"
+#include "RigDef_Parser.h"
+#include "RigDef_Validator.h"
 #include "RigEditor_CameraHandler.h"
 #include "RigEditor_InputHandler.h"
+#include "RigEditor_RigFactory.h"
+#include "RigEditor_Rig.h"
 #include "Settings.h"
 
-#include <OgreRoot.h>
-#include <OgreRenderWindow.h>
+#include <OgreEntity.h>
 #include <OgreMaterialManager.h>
 #include <OgreMaterial.h>
 #include <OgreMovableObject.h>
-#include <OgreEntity.h>
+#include <OgreRoot.h>
+#include <OgreRenderWindow.h>
+#include <sstream>
 
 using namespace RoR;
 using namespace RoR::RigEditor;
+
+const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_OPEN_TRUCK     ("RigEditor_OpenTruckFile");
+const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS  ("RigEditor_SaveTruckFileAs");
 
 Main::Main():
 	m_scene_manager(nullptr),
@@ -57,6 +66,7 @@ Main::Main():
 	m_input_handler(nullptr),
 	m_debug_box(nullptr),
 	m_gui_menubar(nullptr),
+	m_rig(nullptr),
 	m_gui_open_save_file_dialog(nullptr)
 {
 	/* Load config */
@@ -239,14 +249,15 @@ void Main::UpdateMainLoop()
 	m_debug_box->setCaption(msg.str());
 }
 
-void Main::CommandOpenRigFile()
+void Main::CommandShowDialogOpenRigFile()
 {
 	m_gui_open_save_file_dialog->setDialogInfo(MyGUI::UString("Open rig file"), MyGUI::UString("Open"), false);
 	m_gui_open_save_file_dialog->eventEndDialog = MyGUI::newDelegate(this, &Main::NotifyFileSelectorEnded);
+	m_gui_open_save_file_dialog->setMode(OpenSaveFileDialogMode::MODE_OPEN_TRUCK);
 	m_gui_open_save_file_dialog->doModal(); // Shows the dialog
 }
 
-void Main::CommandSaveRigFileAs()
+void Main::CommandShowDialogSaveRigFileAs()
 {
 	// TODO
 }
@@ -260,7 +271,160 @@ void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
 {
 	if (result)
 	{
-		// TODO
+		const MyGUI::UString & mode = m_gui_open_save_file_dialog->getMode();
+
+		if (mode == OpenSaveFileDialogMode::MODE_OPEN_TRUCK)
+		{
+			LoadRigDefFile(m_gui_open_save_file_dialog->getCurrentFolder(), m_gui_open_save_file_dialog->getFileName());
+		}
+		else if (mode == OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS)
+		{
+			// TODO
+		}
 	}
 	dialog->endModal(); // Hides the dialog
+}
+
+void RigEditor_LogParserMessages(RigDef::Parser & parser)
+{
+	if (parser.GetMessages().size() == 0)
+	{
+		LOG("RigEditor: Parsing done OK");
+		return;
+	}
+
+	std::stringstream report;
+	report << "RigEditor: Parsing done, report:" << std::endl <<std::endl;
+
+	for (auto iter = parser.GetMessages().begin(); iter != parser.GetMessages().end(); iter++)
+	{
+		switch (iter->type)
+		{
+			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
+				report << "FATAL_ERROR"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_ERROR): 
+				report << "ERROR"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_WARNING): 
+				report << "WARNING"; 
+				break;
+
+			default:
+				report << "INFO"; 
+				break;
+		}
+		report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
+		report << "\tLine (# " << iter->line_number << "): " << iter->line << std::endl;
+		report << "\tMessage: " << iter->message << std::endl;
+	}
+
+	Ogre::LogManager::getSingleton().logMessage(report.str());
+}
+
+void RigEditor_LogValidatorMessages(RigDef::Validator & validator)
+{
+	if (validator.GetMessages().empty())
+	{
+		Ogre::LogManager::getSingleton().logMessage("RigEditor: Validating done OK");
+		return;
+	}
+
+	std::ostringstream report;
+	report << "RigEditor: Validating done, report:" <<std::endl << std::endl;
+
+	for(auto itor = validator.GetMessages().begin(); itor != validator.GetMessages().end(); itor++)
+	{
+		switch (itor->type)
+		{
+			case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
+				report << "FATAL ERROR";
+				break;
+			case (RigDef::Validator::Message::TYPE_ERROR):
+				report << "ERROR";
+				break;
+			case (RigDef::Validator::Message::TYPE_WARNING):
+				report << "WARNING";
+				break;
+			default:
+				report << "INFO";
+		}
+
+		report << ": " << itor->text << std::endl;
+	}
+
+	Ogre::LogManager::getSingleton().logMessage(report.str());
+}
+
+bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
+{
+	Ogre::DataStreamPtr stream = Ogre::DataStreamPtr();
+	//Ogre::String fixed_file_name = file_path;
+	//Ogre::String found_resource_group;
+	Ogre::String resource_group_name("RigEditor_CurrentProject");
+
+	try
+	{
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(directory, "FileSystem", resource_group_name);
+
+		//RoR::Application::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
+		stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resource_group_name);
+	} 
+	catch (Ogre::Exception& e)
+	{
+		// TODO: Report error to user
+
+		LOG("RigEditor: Failed to retrieve rig file" + filename + ", Ogre::Exception was thrown with message: " + e.what());
+		return false;
+	}
+
+	/* PARSING */
+
+	LOG("RigEditor: Parsing rig file: " + filename);
+
+	RigDef::Parser parser;
+	parser.Prepare();
+	while(! stream->eof())
+	{
+		parser.ParseLine(stream->getLine());
+	}
+	parser.Finalize();
+
+	RigEditor_LogParserMessages(parser);
+
+	/* VALIDATING */
+
+	LOG("RigEditor: Validating vehicle: " + parser.GetFile()->name);
+
+	RigDef::Validator validator;
+	validator.Setup(parser.GetFile());
+	bool valid = validator.Validate();
+
+	RigEditor_LogValidatorMessages(validator);
+
+	if (! valid)
+	{
+		// TODO: Report error to user
+
+		LOG("RigEditor: Validating failed!");
+		return false;
+	}
+
+	/* BUILDING RIG MESH */
+
+	RigFactory rig_factory;
+	std::vector< boost::shared_ptr<RigDef::File::Module> > selected_modules;
+	selected_modules.push_back(parser.GetFile()->root_module); // TODO: Handle multiple modules
+	m_rig = rig_factory.BuildRig(parser.GetFile().get(), selected_modules, this);
+
+	// $$$$$$$ TEST
+	Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
+	node->attachObject(m_rig->GetBeamsDynamicMesh());
+	// $$$$$$$ TEST END
+
+	LOG("RigEditor: Rig loaded OK");
+
+	return true;
 }

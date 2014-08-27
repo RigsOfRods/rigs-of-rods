@@ -42,8 +42,19 @@ class Rig
 	friend class RigFactory;
 
 	/** Constructed by RigEditor::RigFactory */
-	Rig()
+	Rig():
+		m_modified(false),
+		m_loaded_ok(false)
 	{}
+
+public:
+
+	Ogre::ManualObject* GetBeamsDynamicMesh()
+	{
+		return m_beams_dynamic_mesh;
+	}
+
+private:
 
 	/* STRUCTURE */
 	std::unordered_map<RigDef::Node::Id, Node*, RigDef::Node::Id::Hasher> m_nodes;
@@ -55,6 +66,7 @@ class Rig
 	/* UTILITY */
 	std::vector<Ogre::String> m_messages;
 	bool                      m_loaded_ok;
+	bool                      m_modified;
 };
 
 } // namespace RigEditor

@@ -50,6 +50,12 @@ public:
 		Ogre::ColourValue scene_ambient_light_color;
 	};
 
+	struct OpenSaveFileDialogMode
+	{
+		static const MyGUI::UString MODE_OPEN_TRUCK;
+		static const MyGUI::UString MODE_SAVE_TRUCK_AS;
+	};
+
 	Main();
 	~Main();
 
@@ -69,9 +75,9 @@ public:
 
 	/* IMain implementations */
 
-	virtual void CommandOpenRigFile();
+	virtual void CommandShowDialogOpenRigFile();
 
-	virtual void CommandSaveRigFileAs();
+	virtual void CommandShowDialogSaveRigFileAs();
 
 	virtual void CommandSaveRigFile();
 
@@ -81,6 +87,8 @@ public:
 
 private:
 
+	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+
 	RoR::ConfigFile      m_config_file;
 	Config               m_config;
 	Ogre::SceneManager*  m_scene_manager;
@@ -89,6 +97,7 @@ private:
 	Ogre::Entity*        m_rig_entity;
 	InputHandler*        m_input_handler;
 	CameraHandler*       m_camera_handler;
+	Rig*                 m_rig;
 
 	bool                 m_exit_loop_requested;
 
