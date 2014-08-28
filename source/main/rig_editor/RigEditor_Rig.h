@@ -31,6 +31,8 @@
 #include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
 
+#include "OgreAxisAlignedBox.h"
+
 namespace RoR
 {
 
@@ -45,6 +47,7 @@ class Rig
 	Rig():
 		m_beams_dynamic_mesh(nullptr),
 		m_nodes_dynamic_mesh(nullptr),
+		m_aabb(Ogre::AxisAlignedBox::BOX_NULL),
 		m_modified(false)
 	{}
 
@@ -60,11 +63,14 @@ public:
 		return m_nodes_dynamic_mesh;
 	}
 
+	void UpdateBoundingBox(Ogre::Vector3 const & point);
+
 private:
 
 	/* STRUCTURE */
 	std::unordered_map<RigDef::Node::Id, Node*, RigDef::Node::Id::Hasher> m_nodes;
 	std::vector<Beam*> m_beams;
+	Ogre::AxisAlignedBox m_aabb;
 
 	/* VISUALS */
 	Ogre::ManualObject*  m_beams_dynamic_mesh;
