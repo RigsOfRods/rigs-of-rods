@@ -51,6 +51,8 @@ class Rig
 		m_modified(false)
 	{}
 
+	~Rig();
+
 public:
 
 	Ogre::ManualObject* GetBeamsDynamicMesh()
