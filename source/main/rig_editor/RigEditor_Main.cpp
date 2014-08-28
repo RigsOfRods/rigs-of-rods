@@ -74,8 +74,12 @@ Main::Main():
 
 	/* Parse config */
 	m_config.viewport_background_color = m_config_file.GetColourValue("viewport_background_color_rgb");
-	m_config.beam_generic_color        = m_config_file.GetColourValue("beam_generic_color_rgb");
 	m_config.scene_ambient_light_color = m_config_file.GetColourValue("scene_ambient_light_color_rgb");
+
+	m_config.beam_generic_color        = m_config_file.GetColourValue("beam_generic_color_rgb");
+	m_config.beam_invisible_color      = m_config_file.GetColourValue("beam_invisible_color_rgb");
+	m_config.beam_rope_color           = m_config_file.GetColourValue("beam_rope_color_rgb");
+	m_config.beam_support_color        = m_config_file.GetColourValue("beam_support_color_rgb");
 
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
