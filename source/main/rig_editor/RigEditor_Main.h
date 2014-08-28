@@ -46,8 +46,13 @@ public:
 	struct Config
 	{
 		Ogre::ColourValue viewport_background_color;
-		Ogre::ColourValue beam_generic_color;
 		Ogre::ColourValue scene_ambient_light_color;
+
+		/* Beam coloring */
+		Ogre::ColourValue beam_generic_color;
+		Ogre::ColourValue beam_invisible_color;
+		Ogre::ColourValue beam_support_color;
+		Ogre::ColourValue beam_rope_color;
 	};
 
 	struct OpenSaveFileDialogMode

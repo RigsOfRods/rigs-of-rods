@@ -152,10 +152,20 @@ Rig* RigFactory::BuildRig(
 	/* Process beams */
 	for (auto itor = rig->m_beams.begin(); itor != rig->m_beams.end(); itor++)
 	{
+		unsigned int beam_options = (*itor)->m_def_beam.options;
+		Ogre::ColourValue const & color =
+			(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_i_INVISIBLE))
+			?	config.beam_invisible_color
+			:	(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_r_ROPE))
+				?	config.beam_rope_color
+				:	(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_s_SUPPORT))
+					?	config.beam_support_color
+					:	config.beam_generic_color;
+
 		rig->m_beams_dynamic_mesh->position((*itor)->GetNodeA()->GetPosition());
-		rig->m_beams_dynamic_mesh->colour(config.beam_generic_color);
+		rig->m_beams_dynamic_mesh->colour(color);
 		rig->m_beams_dynamic_mesh->position((*itor)->GetNodeB()->GetPosition());
-		rig->m_beams_dynamic_mesh->colour(config.beam_generic_color);
+		rig->m_beams_dynamic_mesh->colour(color);
 	}
 
 	/* Finalize */
