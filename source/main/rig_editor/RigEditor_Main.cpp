@@ -82,44 +82,20 @@ Main::Main():
 	assert(ror_ogre_subsystem != nullptr);
 	m_scene_manager = ror_ogre_subsystem->GetOgreRoot()->createSceneManager(Ogre::ST_GENERIC, "rig_editor_scene_manager");
 	m_scene_manager->setAmbientLight(m_config.scene_ambient_light_color);
+
 	m_camera = m_scene_manager->createCamera("rig_editor_camera");
+	m_camera->setNearClipDistance( 0.5 );
+	m_camera->setFarClipDistance( 1000.0*1.733 );
+	m_camera->setFOVy(Ogre::Degree(60));
+	m_camera->setAutoAspectRatio(true);
 
 	/* Setup input */
 	m_input_handler = new InputHandler();
 
 	/* Camera handling */
 	m_camera_handler = new CameraHandler(m_camera);
-
-
-
-	/*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-	TEST
-	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
-
-	m_camera->setNearClipDistance( 0.5 );
-	m_camera->setFarClipDistance( 1000.0*1.733 );
-	m_camera->setFOVy(Ogre::Degree(60));
-	m_camera->setAutoAspectRatio(true);
-	//LAST RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(m_camera);
-	//gEnv->mainCamera = m_camera;
-	{
-		using namespace Ogre;
-		m_scene_manager->setAmbientLight(ColourValue(0,1,0.2));
-		SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
-		Entity* e = m_scene_manager->createEntity("StartupEditorDebugObject", "axes.mesh");
-		node->attachObject(e);
-		
-
-		m_camera_handler->SetOrbitTarget(node);
-		m_camera->setPosition(Ogre::Vector3(300,200,300));
-		//m_camera->lookAt(0,100,0);
-	}
-
-	/*END TEST
-	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*/
-	
-
-	
+	m_camera_handler->SetOrbitTarget(m_scene_manager->getRootSceneNode());	
+	m_camera->setPosition(Ogre::Vector3(10,5,10));
 
 	/* Debug output box */
 	m_debug_box = MyGUI::Gui::getInstance().createWidget<MyGUI::TextBox>
@@ -153,8 +129,6 @@ void Main::EnterMainLoop()
 	m_viewport->setBackgroundColour(m_config.viewport_background_color);
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
 	m_viewport->setCamera(m_camera);
-	//m_camera->setPosition(10,10,10);
-	//m_camera->lookAt(0,0,0);
 
 	/* Setup GUI */
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
@@ -178,8 +152,6 @@ void Main::EnterMainLoop()
 
 	/* Show debug box */
 	m_debug_box->setVisible(true);
-
-	
 
 	while (! m_exit_loop_requested)
 	{
@@ -380,7 +352,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 		return false;
 	}
 
-	/* PARSING */
+	/* PARSE */
 
 	LOG("RigEditor: Parsing rig file: " + filename);
 
@@ -394,7 +366,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 
 	RigEditor_LogParserMessages(parser);
 
-	/* VALIDATING */
+	/* VALIDATE */
 
 	LOG("RigEditor: Validating vehicle: " + parser.GetFile()->name);
 
@@ -412,17 +384,16 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 		return false;
 	}
 
-	/* BUILDING RIG MESH */
+	/* BUILD RIG MESH */
 
 	RigFactory rig_factory;
 	std::vector< boost::shared_ptr<RigDef::File::Module> > selected_modules;
 	selected_modules.push_back(parser.GetFile()->root_module); // TODO: Handle multiple modules
 	m_rig = rig_factory.BuildRig(parser.GetFile().get(), selected_modules, this);
 
-	// $$$$$$$ TEST
-	Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
-	node->attachObject(m_rig->GetBeamsDynamicMesh());
-	// $$$$$$$ TEST END
+	/* SHOW MESH */
+
+	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetBeamsDynamicMesh());
 
 	LOG("RigEditor: Rig loaded OK");
 
