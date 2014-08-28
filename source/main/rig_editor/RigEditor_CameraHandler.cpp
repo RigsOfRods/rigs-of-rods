@@ -65,6 +65,7 @@ using namespace RoR::RigEditor;
 
 CameraHandler::CameraHandler(Ogre::Camera* cam)
 	: mCamera(cam)
+	, m_ortho_zoom_ratio(0)
 	, mTarget(0)
 	, mZooming(false)
 	, mTopSpeed(150)
@@ -96,8 +97,25 @@ void CameraHandler::SetOrbitTarget(Ogre::SceneNode* target)
         }
 
     }
+}
 
+void CameraHandler::ToggleOrtho()
+{
+	if (mCamera->getProjectionType() == Ogre::PT_PERSPECTIVE)
+	{
+		mCamera->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
+		UpdateOrthoZoom();
+	}
+	else
+	{
+		mCamera->setProjectionType(Ogre::PT_PERSPECTIVE);
+	}
+}
 
+void CameraHandler::UpdateOrthoZoom()
+{
+	float distance = mCamera->getPosition().distance(mTarget->getPosition());
+	mCamera->setOrthoWindowWidth(distance * m_ortho_zoom_ratio);
 }
 
 void CameraHandler::SetYawPitchDist(Ogre::Radian yaw, Ogre::Radian pitch, Ogre::Real dist)
@@ -210,7 +228,12 @@ void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
         {
             // the further the camera is, the faster it moves
             mCamera->moveRelative(Ogre::Vector3(0, 0, -wheel_rel * 0.0008f * dist));
-        }
+
+			if (mCamera->getProjectionType() == Ogre::PT_ORTHOGRAPHIC)
+			{
+				UpdateOrthoZoom();
+			}
+		}
     }
     else if (mStyle == CS_FREELOOK)
     {
