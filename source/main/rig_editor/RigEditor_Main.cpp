@@ -90,10 +90,11 @@ Main::Main():
 	m_scene_manager = ror_ogre_subsystem->GetOgreRoot()->createSceneManager(Ogre::ST_GENERIC, "rig_editor_scene_manager");
 	m_scene_manager->setAmbientLight(m_config.scene_ambient_light_color);
 
+	/* Camera */
 	m_camera = m_scene_manager->createCamera("rig_editor_camera");
-	m_camera->setNearClipDistance( 0.5 );
-	m_camera->setFarClipDistance( 1000.0*1.733 );
-	m_camera->setFOVy(Ogre::Degree(60));
+	m_camera->setNearClipDistance(m_config_file.GetFloat("camera_near_clip_distance"));
+	m_camera->setFarClipDistance(m_config_file.GetFloat("camera_far_clip_distance"));
+	m_camera->setFOVy(Ogre::Degree(m_config_file.GetFloat("camera_FOVy_degrees")));
 	m_camera->setAutoAspectRatio(true);
 
 	/* Setup input */
