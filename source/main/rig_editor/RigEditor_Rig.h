@@ -43,6 +43,8 @@ class Rig
 
 	/** Constructed by RigEditor::RigFactory */
 	Rig():
+		m_beams_dynamic_mesh(nullptr),
+		m_nodes_dynamic_mesh(nullptr),
 		m_modified(false),
 		m_loaded_ok(false)
 	{}
