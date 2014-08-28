@@ -107,6 +107,15 @@ class CameraHandler
         return mTopSpeed;
     }
 
+	void SetOrthoZoomRatio(float ortho_zoom_ratio)
+	{
+		m_ortho_zoom_ratio = ortho_zoom_ratio;
+	}
+
+	void ToggleOrtho();
+
+	void UpdateOrthoZoom();
+
     /*-----------------------------------------------------------------------------
     | Sets the movement style of our camera man.
     -----------------------------------------------------------------------------*/
@@ -227,6 +236,7 @@ protected:
     bool mGoingUp;
     bool mGoingDown;
     bool mFastMove;
+	float m_ortho_zoom_ratio;
 };
 
 } // namespace RigEditor

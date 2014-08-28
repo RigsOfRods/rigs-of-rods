@@ -102,6 +102,7 @@ Main::Main():
 	/* Camera handling */
 	m_camera_handler = new CameraHandler(m_camera);
 	m_camera_handler->SetOrbitTarget(m_scene_manager->getRootSceneNode());	
+	m_camera_handler->SetOrthoZoomRatio(m_config_file.GetFloat("ortho_camera_zoom_ratio"));
 	m_camera->setPosition(Ogre::Vector3(10,5,10));
 
 	/* Debug output box */
@@ -209,6 +210,10 @@ void Main::UpdateMainLoop()
 	{
 		m_exit_loop_requested = true;
 		return;
+	}
+	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE))
+	{
+		m_camera_handler->ToggleOrtho();
 	}
 
 	/* Handle mouse move */
