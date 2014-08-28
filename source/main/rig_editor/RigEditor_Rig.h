@@ -54,6 +54,11 @@ public:
 		return m_beams_dynamic_mesh;
 	}
 
+	Ogre::ManualObject* GetNodesDynamicMesh()
+	{
+		return m_nodes_dynamic_mesh;
+	}
+
 private:
 
 	/* STRUCTURE */
@@ -62,6 +67,7 @@ private:
 
 	/* VISUALS */
 	Ogre::ManualObject*  m_beams_dynamic_mesh;
+	Ogre::ManualObject*  m_nodes_dynamic_mesh;
 
 	/* UTILITY */
 	std::vector<Ogre::String> m_messages;

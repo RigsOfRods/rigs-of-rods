@@ -53,6 +53,10 @@ public:
 		Ogre::ColourValue beam_invisible_color;
 		Ogre::ColourValue beam_support_color;
 		Ogre::ColourValue beam_rope_color;
+
+		/* Node display */
+		Ogre::ColourValue node_generic_color;
+		float             node_generic_point_size;
 	};
 
 	struct OpenSaveFileDialogMode
