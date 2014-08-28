@@ -81,6 +81,9 @@ Main::Main():
 	m_config.beam_rope_color           = m_config_file.GetColourValue("beam_rope_color_rgb");
 	m_config.beam_support_color        = m_config_file.GetColourValue("beam_support_color_rgb");
 
+	m_config.node_generic_color       = m_config_file.GetColourValue("node_generic_color_rgb");
+	m_config.node_generic_point_size  = m_config_file.GetFloat("node_generic_point_size");
+
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
@@ -397,7 +400,8 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 
 	/* SHOW MESH */
 
-	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetBeamsDynamicMesh());
+	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetBeamsDynamicMesh()); // Beams
+	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetNodesDynamicMesh()); // Nodes
 
 	LOG("RigEditor: Rig loaded OK");
 

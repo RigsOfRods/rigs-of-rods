@@ -123,6 +123,8 @@ Rig* RigFactory::BuildRig(
 		}
 	}
 
+	/* CREATE MESH OF BEAMS */
+
 	/* Prepare material */
 	if (! Ogre::MaterialManager::getSingleton().resourceExists("rig-editor-skeleton-material"))
 	{
@@ -170,7 +172,47 @@ Rig* RigFactory::BuildRig(
 
 	/* Finalize */
 	rig->m_beams_dynamic_mesh->end();
+
+	/* CREATE MESH OF NODES */
+
+	/* Prepare material */
+	if (! Ogre::MaterialManager::getSingleton().resourceExists("rig-editor-skeleton-nodes-material"))
+	{
+		Ogre::MaterialPtr node_mat = static_cast<Ogre::MaterialPtr>(
+			Ogre::MaterialManager::getSingleton().create("rig-editor-skeleton-nodes-material", 
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
+		);
+
+		node_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+		node_mat->setLightingEnabled(false);
+		node_mat->setReceiveShadows(false);
+		node_mat->setPointSize(config.node_generic_point_size);
+	}
+
+	/* Create mesh */
+	rig->m_nodes_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	rig->m_nodes_dynamic_mesh->estimateVertexCount(rig->m_nodes.size());
+	rig->m_nodes_dynamic_mesh->setCastShadows(false);
+	rig->m_nodes_dynamic_mesh->setDynamic(true);
+	rig->m_nodes_dynamic_mesh->setRenderingDistance(300);
+
+	/* Init */
+	rig->m_nodes_dynamic_mesh->begin("rig-editor-skeleton-nodes-material", Ogre::RenderOperation::OT_POINT_LIST);
+
+	/* Process nodes */
+	for (auto itor = rig->m_nodes.begin(); itor != rig->m_nodes.end(); itor++)
+	{
+		rig->m_nodes_dynamic_mesh->position((*itor).second->GetPosition());
+		rig->m_nodes_dynamic_mesh->colour(config.node_generic_color);
+	}
+
+	/* Finalize */
+	rig->m_nodes_dynamic_mesh->end();
 	
+	/* DONE */
+
 	return rig;
 }
 
