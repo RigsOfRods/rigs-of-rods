@@ -45,8 +45,7 @@ class Rig
 	Rig():
 		m_beams_dynamic_mesh(nullptr),
 		m_nodes_dynamic_mesh(nullptr),
-		m_modified(false),
-		m_loaded_ok(false)
+		m_modified(false)
 	{}
 
 public:
@@ -72,9 +71,7 @@ private:
 	Ogre::ManualObject*  m_nodes_dynamic_mesh;
 
 	/* UTILITY */
-	std::vector<Ogre::String> m_messages;
-	bool                      m_loaded_ok;
-	bool                      m_modified;
+	bool                 m_modified;
 };
 
 } // namespace RigEditor
