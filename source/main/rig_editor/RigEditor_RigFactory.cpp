@@ -64,6 +64,9 @@ Rig* RigFactory::BuildRig(
 				auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node*>(node_id, new Node(*node_itor)) );
 				if (result.second == true)
 				{
+					// Update bounding box
+					rig->m_aabb.merge(node_itor->position);
+
 					break;
 				}
 				else
