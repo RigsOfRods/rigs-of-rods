@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+================================================================================
+  Rigs of Rods project (www.rigsofrods.com)
+  Code template for MyGUI's Layout Editor
+================================================================================
+-->
+
+<MyGUI type="LECodeTemplate" name="C++ BaseLayout">
+    <File template="RoR_LayoutTemplate.h" out_file="#{Include_Directory}/GUI_#{Panel_Name}.h"/>
+    <File template="RoR_LayoutTemplate.cpp" out_file="#{Source_Directory}/GUI_#{Panel_Name}.cpp"/>
+    <String key="Code_Widget_Name" value="m_#{Widget_Name}"/>
+    <String 
+        key="Widget_Declaration" 
+        value="	ATTRIBUTE_FIELD_WIDGET_NAME(#{Panel_Name}, #{Code_Widget_Name}, &quot;#{Widget_Name}&quot;);\n	MyGUI::#{Widget_Type}* #{Code_Widget_Name};\n\n"/>
+</MyGUI>
