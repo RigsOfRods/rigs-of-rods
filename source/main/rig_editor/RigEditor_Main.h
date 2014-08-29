@@ -90,6 +90,8 @@ public:
 
 	virtual void CommandSaveRigFile();
 
+	virtual void CommandCloseCurrentRig();
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result);

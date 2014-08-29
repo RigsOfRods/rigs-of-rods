@@ -252,6 +252,17 @@ void Main::CommandSaveRigFile()
 	// TODO
 }
 
+void Main::CommandCloseCurrentRig()
+{
+	if (m_rig != nullptr)
+	{
+		m_rig->GetBeamsDynamicMesh()->detachFromParent();
+		m_rig->GetNodesDynamicMesh()->detachFromParent();
+		delete m_rig;
+		m_rig = nullptr;
+	}
+}
+
 void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
 {
 	if (result)

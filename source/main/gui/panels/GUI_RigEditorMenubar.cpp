@@ -37,6 +37,7 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 	m_rig_editor_interface = rig_editor_interface;
 
 	m_file_popup_item_open->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
+	m_file_popup_item_close->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
 }
 
 void RigEditorMenubar::Show()
@@ -66,4 +67,9 @@ void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender)
 void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender)
 {
 	m_rig_editor_interface->CommandSaveRigFile();
+}
+
+void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender)
+{
+	m_rig_editor_interface->CommandCloseCurrentRig();
 }

@@ -58,6 +58,8 @@ private:
 
 	void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender);
 
+	void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender);
+
 private:
 
 	RigEditor::IMain* m_rig_editor_interface;
