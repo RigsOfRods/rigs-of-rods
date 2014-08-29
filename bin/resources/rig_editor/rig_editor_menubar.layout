@@ -4,19 +4,22 @@
         <Widget type="MenuItem" skin="" position="0 0 41 21" name="item_file">
             <Property key="Caption" value="File"/>
             <Property key="MenuItemType" value="Popup"/>
-            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 80 48" style="Popup" layer="Popup" name="file_popup">
-                <Widget type="MenuItem" skin="" position="0 0 72 19" name="file_popup_item_open">
+            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 81 67" style="Popup" layer="Popup" name="file_popup">
+                <Widget type="MenuItem" skin="" position="0 0 73 19" name="file_popup_item_open">
                     <Property key="Caption" value="Open"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 19 72 19" name="file_popup_item_save">
+                <Widget type="MenuItem" skin="" position="0 19 73 19" name="file_popup_item_save">
                     <Property key="Caption" value="Save"/>
+                </Widget>
+                <Widget type="MenuItem" skin="" position="0 38 73 19" name="file_popup_item_close">
+                    <Property key="Caption" value="Close"/>
                 </Widget>
             </Widget>
         </Widget>
     </Widget>
     <CodeGeneratorSettings>
         <Property key="IncludeDirectory" value="D:\Projects\mygui"/>
-        <Property key="PanelName" value="RigEditorMenubar"/>
+        <Property key="PanelName" value="RigEditorMenubarLayout"/>
         <Property key="PanelNamespace" value="x"/>
         <Property key="SourceDirectory" value="D:\Projects\mygui"/>
     </CodeGeneratorSettings>

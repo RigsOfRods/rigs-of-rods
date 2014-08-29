@@ -43,6 +43,8 @@ public:
 	virtual void CommandShowDialogSaveRigFileAs() = 0;
 
 	virtual void CommandSaveRigFile() = 0;
+
+	virtual void CommandCloseCurrentRig() = 0;
 };
 
 } // namespace RigEditor
