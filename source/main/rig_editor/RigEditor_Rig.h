@@ -47,6 +47,7 @@ class Rig
 	Rig():
 		m_beams_dynamic_mesh(nullptr),
 		m_nodes_dynamic_mesh(nullptr),
+		m_wheels_dynamic_mesh(nullptr),
 		m_aabb(Ogre::AxisAlignedBox::BOX_NULL),
 		m_modified(false)
 	{}
@@ -65,6 +66,11 @@ public:
 		return m_nodes_dynamic_mesh;
 	}
 
+	Ogre::ManualObject* GetWheelsDynamicMesh()
+	{
+		return m_wheels_dynamic_mesh;
+	}
+
 	void UpdateBoundingBox(Ogre::Vector3 const & point);
 
 private:
@@ -77,6 +83,7 @@ private:
 	/* VISUALS */
 	Ogre::ManualObject*  m_beams_dynamic_mesh;
 	Ogre::ManualObject*  m_nodes_dynamic_mesh;
+	Ogre::ManualObject*  m_wheels_dynamic_mesh;
 
 	/* UTILITY */
 	bool                 m_modified;

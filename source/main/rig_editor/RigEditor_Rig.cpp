@@ -48,6 +48,11 @@ Rig::~Rig()
 		delete m_nodes_dynamic_mesh;
 		m_nodes_dynamic_mesh = nullptr;
 	}
+	if (m_wheels_dynamic_mesh != nullptr)
+	{
+		delete m_wheels_dynamic_mesh;
+		m_wheels_dynamic_mesh = nullptr;
+	}
 
 	/* Clear structure */
 	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
