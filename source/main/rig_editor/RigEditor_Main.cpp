@@ -81,6 +81,10 @@ Main::Main():
 	m_config.beam_rope_color           = m_config_file.GetColourValue("beam_rope_color_rgb");
 	m_config.beam_support_color        = m_config_file.GetColourValue("beam_support_color_rgb");
 
+	m_config.meshwheel2_beam_bounded_color        = m_config_file.GetColourValue("meshwheel2_beam_bounded_color_rgb");
+	m_config.meshwheel2_beam_reinforcement_color  = m_config_file.GetColourValue("meshwheel2_beam_reinforcement_color_rgb");
+	m_config.meshwheel2_beam_rigidity_color       = m_config_file.GetColourValue("meshwheel2_beam_rigidity_color_rgb");
+
 	m_config.node_generic_color       = m_config_file.GetColourValue("node_generic_color_rgb");
 	m_config.node_generic_point_size  = m_config_file.GetFloat("node_generic_point_size");
 
@@ -258,6 +262,7 @@ void Main::CommandCloseCurrentRig()
 	{
 		m_rig->GetBeamsDynamicMesh()->detachFromParent();
 		m_rig->GetNodesDynamicMesh()->detachFromParent();
+		m_rig->GetWheelsDynamicMesh()->detachFromParent();
 		delete m_rig;
 		m_rig = nullptr;
 	}
@@ -419,6 +424,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 
 	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetBeamsDynamicMesh()); // Beams
 	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetNodesDynamicMesh()); // Nodes
+	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetWheelsDynamicMesh()); // Wheels
 
 	LOG("RigEditor: Rig loaded OK");
 

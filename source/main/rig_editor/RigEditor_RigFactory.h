@@ -30,6 +30,7 @@
 #include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
 #include "RigDef_File.h"
+#include "RigEditor_Main.h"
 
 namespace RoR
 {
@@ -52,7 +53,19 @@ public:
 
 private:
 
+	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigEditor::Rig * rig, RigEditor::Main::Config & config, std::string const & module_name);
+
+	void RigFactory::BuildWheelNodes( 
+		std::vector<Ogre::Vector3> & out_positions,
+		unsigned int num_rays,
+		Ogre::Vector3 axis_nodes[2],
+		Ogre::Vector3 const & reference_arm_node,
+		float wheel_radius
+		);
+
 	void AddMessage(RigDef::File::Module* module, std::string const & text);
+
+	void AddMessage(std::string const & module_name, std::string const & text);
 
 	std::vector<Ogre::String> m_messages;
 };

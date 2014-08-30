@@ -54,6 +54,10 @@ public:
 		Ogre::ColourValue beam_support_color;
 		Ogre::ColourValue beam_rope_color;
 
+		Ogre::ColourValue meshwheel2_beam_bounded_color;
+		Ogre::ColourValue meshwheel2_beam_reinforcement_color;
+		Ogre::ColourValue meshwheel2_beam_rigidity_color;
+
 		/* Node display */
 		Ogre::ColourValue node_generic_color;
 		float             node_generic_point_size;

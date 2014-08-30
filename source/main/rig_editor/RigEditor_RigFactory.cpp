@@ -213,6 +213,59 @@ Rig* RigFactory::BuildRig(
 
 	/* Finalize */
 	rig->m_nodes_dynamic_mesh->end();
+
+	/* CREATE MESH OF WHEELS (beams only) */
+
+	/* Prepare material */
+	if (! Ogre::MaterialManager::getSingleton().resourceExists("rig-editor-skeleton-wheels-material"))
+	{
+		Ogre::MaterialPtr node_mat = static_cast<Ogre::MaterialPtr>(
+			Ogre::MaterialManager::getSingleton().create("rig-editor-skeleton-wheels-material", 
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
+		);
+
+		node_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+		node_mat->setLightingEnabled(false);
+		node_mat->setReceiveShadows(false);
+	}
+
+	/* Analyze */
+	int wheels_vertex_count = 0;
+	int wheels_index_count = 0;
+	for (auto module_itor = selected_modules.begin(); module_itor != selected_modules.end(); module_itor++)
+	{
+		/* Meshwheels2 */
+		auto & list = module_itor->get()->mesh_wheels_2;
+		for (auto itor = list.begin(); itor != list.end(); ++itor)
+		{
+			int num_lines = (itor->num_rays * 8);
+			wheels_index_count += num_lines * 2;
+			wheels_vertex_count += num_lines * 2;
+		}
+	}
+
+	/* Create mesh */
+	rig->m_wheels_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	rig->m_wheels_dynamic_mesh->estimateVertexCount(wheels_vertex_count);
+	rig->m_wheels_dynamic_mesh->estimateIndexCount(wheels_index_count);
+	rig->m_wheels_dynamic_mesh->setCastShadows(false);
+	rig->m_wheels_dynamic_mesh->setDynamic(true);
+	rig->m_wheels_dynamic_mesh->setRenderingDistance(300);
+
+	/* Init */
+	rig->m_wheels_dynamic_mesh->begin("rig-editor-skeleton-wheels-material", Ogre::RenderOperation::OT_LINE_LIST);
+
+	/* Process wheels */
+	for (auto module_itor = selected_modules.begin(); module_itor != selected_modules.end(); module_itor++)
+	{
+		/* Meshwheels2 */
+		ProcessMeshwheels2(module_itor->get()->mesh_wheels_2, rig, rig_editor->GetConfig(), module_itor->get()->name);
+	}
+
+	/* Finalize */
+	rig->m_wheels_dynamic_mesh->end();
 	
 	/* DONE */
 
@@ -221,7 +274,177 @@ Rig* RigFactory::BuildRig(
 
 void RigFactory::AddMessage(RigDef::File::Module* module, std::string const & text)
 {
+	AddMessage(module->name, text);
+}
+
+void RigFactory::AddMessage(std::string const & module_name, std::string const & text)
+{
 	std::stringstream msg;
-	msg << text << " (module: " << module->name << ")";
+	msg << text << " (module: " << module_name << ")";
 	m_messages.push_back(msg.str());
+}
+
+bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigEditor::Rig * rig, Main::Config & config, std::string const & module_name)
+{
+	for (auto itor = list.begin(); itor != list.end(); ++itor)
+	{
+		auto def = *itor;
+
+		/* Find axis nodes */
+		RigEditor::Node* axis_nodes[] = {nullptr, nullptr};
+		auto node_result = rig->m_nodes.find(def.nodes[0]);
+		if (node_result == rig->m_nodes.end())
+		{
+			std::stringstream msg;
+			msg << "[Error] ProcessMeshwheels2(): Axis node [0] not found (id: " << def.nodes[0].ToString() << "). Wheel not processed.";
+			AddMessage(module_name, msg.str());
+			return false;
+		}
+		axis_nodes[0] = node_result->second;
+		node_result = rig->m_nodes.find(def.nodes[1]);
+		if (node_result == rig->m_nodes.end())
+		{
+			std::stringstream msg;
+			msg << "[Error] ProcessMeshwheels2(): Axis node [1] not found (id: " << def.nodes[1].ToString() << "). Wheel not processed.";
+			AddMessage(module_name, msg.str());
+			return false;
+		}
+		axis_nodes[1] = node_result->second;
+
+		/* Find reference arm node */
+		node_result = rig->m_nodes.find(def.reference_arm_node);
+		if (node_result == rig->m_nodes.end())
+		{
+			std::stringstream msg;
+			msg << "[Error] ProcessMeshwheels2(): Reference arm node not found (id: " << def.reference_arm_node.ToString() << "). Wheel not processed.";
+			AddMessage(module_name, msg.str());
+			return false;
+		}
+		RigEditor::Node* reference_arm_node = node_result->second;
+
+		/* Generate nodes */
+		std::vector<Ogre::Vector3> generated_nodes;
+		generated_nodes.reserve(def.num_rays * 2);
+		Ogre::Vector3 axis_node_positions[] = {axis_nodes[0]->GetPosition(), axis_nodes[1]->GetPosition()};
+		BuildWheelNodes(generated_nodes, def.num_rays, axis_node_positions, reference_arm_node->GetPosition(), def.tyre_radius);
+
+		/* Find out where to connect rigidity node */
+		bool rigidity_beam_side_1 = false;
+		RigEditor::Node* rigidity_node = nullptr;
+		if (def.rigidity_node.IsValid())
+		{
+			node_result = rig->m_nodes.find(def.rigidity_node);
+			if (node_result == rig->m_nodes.end())
+			{
+				std::stringstream msg;
+				msg << "[Error] ProcessMeshwheels2(): Rigidity node not found (id: " << def.rigidity_node.ToString() << "). Wheel not processed.";
+				AddMessage(module_name, msg.str());
+				return false;
+			}
+			rigidity_node = node_result->second;
+
+			float distance_1 = rigidity_node->GetPosition().distance(axis_nodes[0]->GetPosition());
+			float distance_2 = rigidity_node->GetPosition().distance(axis_nodes[1]->GetPosition());
+			rigidity_beam_side_1 = distance_1 < distance_2;
+		}
+
+		/* Generate beams */
+		Ogre::ManualObject * manual_mesh = rig->m_wheels_dynamic_mesh;
+		for (unsigned int i = 0; i < def.num_rays; i++)
+		{
+			/* Bounded */
+			unsigned int outer_ring_node_index = (i * 2);
+			Ogre::Vector3 const & outer_ring_node_pos = generated_nodes[outer_ring_node_index];
+			Ogre::Vector3 const & inner_ring_node_pos = generated_nodes[outer_ring_node_index + 1];
+		
+			manual_mesh->position(axis_node_positions[0]);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+			manual_mesh->position(outer_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+			
+			manual_mesh->position(axis_node_positions[1]);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+			manual_mesh->position(inner_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+
+			manual_mesh->position(axis_node_positions[1]);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+			manual_mesh->position(outer_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+
+			manual_mesh->position(axis_node_positions[0]);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+			manual_mesh->position(inner_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_bounded_color);
+
+			/* Reinforcement */
+			unsigned int next_outer_ring_node_index = ((i + 1) % def.num_rays) * 2;
+			Ogre::Vector3 const & next_outer_ring_node_pos = generated_nodes[next_outer_ring_node_index];
+			Ogre::Vector3 const & next_inner_ring_node_pos = generated_nodes[next_outer_ring_node_index + 1];
+
+			manual_mesh->position(outer_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+			manual_mesh->position(inner_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+
+			manual_mesh->position(outer_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+			manual_mesh->position(next_outer_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+
+			manual_mesh->position(inner_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+			manual_mesh->position(next_inner_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+
+			manual_mesh->position(inner_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+			manual_mesh->position(next_outer_ring_node_pos);
+			manual_mesh->colour(config.meshwheel2_beam_reinforcement_color);
+
+			/* Rigidity beams */
+			if (rigidity_node != nullptr)
+			{
+				Ogre::Vector3 const & target_node_pos = (rigidity_beam_side_1) ? outer_ring_node_pos : inner_ring_node_pos;
+
+				manual_mesh->position(rigidity_node->GetPosition());
+				manual_mesh->colour(config.meshwheel2_beam_rigidity_color);
+				manual_mesh->position(target_node_pos);
+				manual_mesh->colour(config.meshwheel2_beam_rigidity_color);
+			}
+		}
+	}
+}
+
+void RigFactory::BuildWheelNodes( 
+	std::vector<Ogre::Vector3> & out_positions,
+	unsigned int num_rays,
+	Ogre::Vector3 axis_nodes_pos[2],
+	Ogre::Vector3 const & reference_arm_node_pos,
+	float wheel_radius
+)
+{
+	/* Find near attach */
+	Ogre::Real length_1 = axis_nodes_pos[0].distance(reference_arm_node_pos);
+	Ogre::Real length_2 = axis_nodes_pos[1].distance(reference_arm_node_pos);
+	Ogre::Vector3 const & near_attach = (length_1 < length_2) ? axis_nodes_pos[0] : axis_nodes_pos[1];
+
+	/* Axis */
+	Ogre::Vector3 axis_vector = axis_nodes_pos[1] - axis_nodes_pos[0];
+	axis_vector.normalise();
+	
+	/* Nodes */
+	Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_radius;
+	Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.0 / (num_rays * 2)), axis_vector);
+
+	for (unsigned int i = 0; i < num_rays; i++)
+	{
+		/* Outer ring */
+		out_positions.push_back(axis_nodes_pos[0] + ray_vector);
+		ray_vector = ray_rotator * ray_vector;
+
+		/* Inner ring */
+		out_positions.push_back(axis_nodes_pos[1] + ray_vector);
+		ray_vector = ray_rotator * ray_vector;
+	}
 }
