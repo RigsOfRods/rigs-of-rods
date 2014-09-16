@@ -29,6 +29,7 @@
 
 #include "RigDef_File.h"
 #include "RigEditor_Beam.h"
+#include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_Rig.h"
@@ -48,20 +49,21 @@ Rig* RigFactory::BuildRig(
 	RigEditor::Main* rig_editor
 	)
 {
-	RigEditor::Rig* rig = new Rig();
-	RigEditor::Main::Config & config = rig_editor->GetConfig();
-
+	RigEditor::Config & config = *rig_editor->GetConfig();
+	RigEditor::Rig* rig = new Rig(rig_editor->GetConfig());
+	
 	/* Process nodes (section "nodes") */
 
 	for (auto module_itor = selected_modules.begin(); module_itor != selected_modules.end(); module_itor++)
 	{
+		int node_index = 0;
 		for (auto node_itor = (*module_itor)->nodes.begin(); node_itor != (*module_itor)->nodes.end(); node_itor++)
 		{
 			bool done = false;
 			RigDef::Node::Id & node_id = node_itor->id;
 			while (true)
 			{
-				auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node*>(node_id, new Node(*node_itor)) );
+				auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_id, Node(*module_itor, node_index)) );
 				if (result.second == true)
 				{
 					// Update bounding box
@@ -79,6 +81,7 @@ Rig* RigFactory::BuildRig(
 					rig->m_modified = true;
 				}
 			}
+			node_index++;
 		}
 	}
 
@@ -104,7 +107,7 @@ Rig* RigFactory::BuildRig(
 			}
 			else
 			{
-				nodes[0] = result->second; // Assign node 0
+				nodes[0] = &result->second; // Assign node 0
 
 				/* Find node 1 */
 				result = rig->m_nodes.find(beam_itor->nodes[1]);
@@ -118,7 +121,7 @@ Rig* RigFactory::BuildRig(
 				}
 				else
 				{
-					nodes[1] = result->second; // Assing node 1
+					nodes[1] = &result->second; // Assing node 1
 				}
 			}
 
@@ -207,12 +210,51 @@ Rig* RigFactory::BuildRig(
 	/* Process nodes */
 	for (auto itor = rig->m_nodes.begin(); itor != rig->m_nodes.end(); itor++)
 	{
-		rig->m_nodes_dynamic_mesh->position((*itor).second->GetPosition());
+		rig->m_nodes_dynamic_mesh->position((*itor).second.GetPosition());
 		rig->m_nodes_dynamic_mesh->colour(config.node_generic_color);
 	}
 
 	/* Finalize */
 	rig->m_nodes_dynamic_mesh->end();
+
+	/* CREATE MESH OF HOVERED NODES */
+
+	/* Prepare material */
+	if (! Ogre::MaterialManager::getSingleton().resourceExists("rig-editor-skeleton-nodes-hover-material"))
+	{
+		Ogre::MaterialPtr node_mat = static_cast<Ogre::MaterialPtr>(
+			Ogre::MaterialManager::getSingleton().create("rig-editor-skeleton-nodes-hover-material", 
+			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
+		);
+
+		node_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+		node_mat->setLightingEnabled(false);
+		node_mat->setReceiveShadows(false);
+		node_mat->setPointSize(config.node_hover_point_size);
+	}
+
+	/* Create mesh */
+	rig->m_nodes_hover_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	rig->m_nodes_hover_dynamic_mesh->estimateVertexCount(10);
+	rig->m_nodes_hover_dynamic_mesh->setCastShadows(false);
+	rig->m_nodes_hover_dynamic_mesh->setDynamic(true);
+	rig->m_nodes_hover_dynamic_mesh->setRenderingDistance(300);
+
+	/* Init */
+	rig->m_nodes_hover_dynamic_mesh->begin("rig-editor-skeleton-nodes-hover-material", Ogre::RenderOperation::OT_POINT_LIST);
+
+	/* Fill some dummy vertices (to properly initialise the object) */
+	rig->m_nodes_hover_dynamic_mesh->position(Ogre::Vector3::UNIT_X);
+	rig->m_nodes_hover_dynamic_mesh->colour(Ogre::ColourValue::Red);
+	rig->m_nodes_hover_dynamic_mesh->position(Ogre::Vector3::UNIT_Y);
+	rig->m_nodes_hover_dynamic_mesh->colour(Ogre::ColourValue::Green);
+	rig->m_nodes_hover_dynamic_mesh->position(Ogre::Vector3::UNIT_Z);
+	rig->m_nodes_hover_dynamic_mesh->colour(Ogre::ColourValue::Blue);
+
+	/* Finalize */
+	rig->m_nodes_hover_dynamic_mesh->end();
 
 	/* CREATE MESH OF WHEELS (beams only) */
 
@@ -261,7 +303,7 @@ Rig* RigFactory::BuildRig(
 	for (auto module_itor = selected_modules.begin(); module_itor != selected_modules.end(); module_itor++)
 	{
 		/* Meshwheels2 */
-		ProcessMeshwheels2(module_itor->get()->mesh_wheels_2, rig, rig_editor->GetConfig(), module_itor->get()->name);
+		ProcessMeshwheels2(module_itor->get()->mesh_wheels_2, rig, *rig_editor->GetConfig(), module_itor->get()->name);
 	}
 
 	/* Finalize */
@@ -284,7 +326,7 @@ void RigFactory::AddMessage(std::string const & module_name, std::string const &
 	m_messages.push_back(msg.str());
 }
 
-bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigEditor::Rig * rig, Main::Config & config, std::string const & module_name)
+bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigEditor::Rig * rig, Config & config, std::string const & module_name)
 {
 	for (auto itor = list.begin(); itor != list.end(); ++itor)
 	{
@@ -300,7 +342,7 @@ bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigE
 			AddMessage(module_name, msg.str());
 			return false;
 		}
-		axis_nodes[0] = node_result->second;
+		axis_nodes[0] = &node_result->second;
 		node_result = rig->m_nodes.find(def.nodes[1]);
 		if (node_result == rig->m_nodes.end())
 		{
@@ -309,7 +351,7 @@ bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigE
 			AddMessage(module_name, msg.str());
 			return false;
 		}
-		axis_nodes[1] = node_result->second;
+		axis_nodes[1] = &node_result->second;
 
 		/* Find reference arm node */
 		node_result = rig->m_nodes.find(def.reference_arm_node);
@@ -320,7 +362,7 @@ bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigE
 			AddMessage(module_name, msg.str());
 			return false;
 		}
-		RigEditor::Node* reference_arm_node = node_result->second;
+		RigEditor::Node* reference_arm_node = &node_result->second;
 
 		/* Generate nodes */
 		std::vector<Ogre::Vector3> generated_nodes;
@@ -341,7 +383,7 @@ bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigE
 				AddMessage(module_name, msg.str());
 				return false;
 			}
-			rigidity_node = node_result->second;
+			rigidity_node = &node_result->second;
 
 			float distance_1 = rigidity_node->GetPosition().distance(axis_nodes[0]->GetPosition());
 			float distance_2 = rigidity_node->GetPosition().distance(axis_nodes[1]->GetPosition());
@@ -414,6 +456,7 @@ bool RigFactory::ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigE
 			}
 		}
 	}
+	return true;
 }
 
 void RigFactory::BuildWheelNodes( 

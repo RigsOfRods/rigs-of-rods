@@ -57,6 +57,7 @@
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
 #include "PlayerColours.h"
+#include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
@@ -566,7 +567,9 @@ void MainThread::Go()
 				RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RIG_EDITOR);
 				Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("RigEditor");
 
-				m_rig_editor = new RigEditor::Main();
+				RigEditor::Config* rig_editor_config = new RigEditor::Config(SSETTING("Config Root", "") + "rig_editor.cfg");
+				assert(rig_editor_config != nullptr);
+				m_rig_editor = new RigEditor::Main(rig_editor_config);
 				assert(m_rig_editor != nullptr);
 			}
 			if (previous_application_state == Application::STATE_SIMULATION)

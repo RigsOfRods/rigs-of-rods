@@ -53,7 +53,7 @@ public:
 
 private:
 
-	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigEditor::Rig * rig, RigEditor::Main::Config & config, std::string const & module_name);
+	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, RigEditor::Rig * rig, RigEditor::Config & config, std::string const & module_name);
 
 	void RigFactory::BuildWheelNodes( 
 		std::vector<Ogre::Vector3> & out_positions,

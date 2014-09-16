@@ -275,7 +275,7 @@ struct Node
 			return Compare(rhs);
 		}
 
-		Ogre::String ToString()
+		Ogre::String ToString() const
 		{
 			if (! m_id_str.empty())
 			{

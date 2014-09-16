@@ -29,6 +29,7 @@
 
 #include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
+#include "RigEditor_Types.h"
 
 namespace RoR
 {
@@ -39,17 +40,56 @@ namespace RigEditor
 class Node
 {
 public:
-	Node(RigDef::Node & node):
-		m_def_node(node)
+
+	struct Flags
+	{
+		static const int HOVERED     = BITMASK(1);
+		static const int SELECTED    = BITMASK(2);
+	};
+
+	Node(boost::shared_ptr<RigDef::File::Module> module, int index):
+		m_def_module(module),
+		m_def_index(index),
+		m_flags(0),
+		m_screen_position(0, 0)
 	{}
 
-	Ogre::Vector3 const & GetPosition()
+	Ogre::Vector3 const & GetPosition() const
 	{
-		return m_def_node.position;
+		return GetDefinition().position;
+	}
+
+	void SetScreenPosition(Vector2int const & screen_pos)
+	{
+		m_screen_position = screen_pos;
+	}
+
+	Vector2int const & GetScreenPosition() const
+	{
+		return m_screen_position;
+	}
+
+	void SetHovered(bool value)
+	{
+		Bitmask_SetBool(value, m_flags, Flags::HOVERED);
+	}
+
+	bool IsHovered() const
+	{
+		return BITMASK_IS_1(m_flags, Flags::HOVERED);
+	}
+
+	RigDef::Node const & GetDefinition() const
+	{
+		return m_def_module->nodes[m_def_index];
 	}
 
 private:
-	RigDef::Node & m_def_node;
+	boost::shared_ptr<RigDef::File::Module> m_def_module;
+	int                                     m_def_index;
+
+	Vector2int     m_screen_position;
+	int            m_flags;
 };
 
 } // namespace RigEditor

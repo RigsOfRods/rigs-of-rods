@@ -57,6 +57,7 @@
 #pragma once
 
 #include "RigDef_Prerequisites.h"
+#include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR
@@ -133,7 +134,10 @@ class CameraHandler
 
     void Update(float delta_time_seconds);
 
-	void InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel);
+	/**
+	* @return True if camera moved/zoomed.
+	*/
+	bool InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel);
 
 #if 0 // Doesn't match RigEditor's event scheme. Left here for reference
 
@@ -220,6 +224,15 @@ class CameraHandler
 
 #endif // End of <#if 0> section
 
+	Ogre::Vector3 ConvertWorldToViewPosition(Ogre::Vector3 const & world_position);
+
+	bool ConvertWorldToScreenPosition(
+		Ogre::Vector3 const & world_position,
+		Vector2int & out_screen_position,
+		float & out_camera_distance
+	);
+
+	float GetCameraTargetDistance();
 
 protected:
 
