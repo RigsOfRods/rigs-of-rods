@@ -12,6 +12,13 @@
 
 #define BITMASK_SET_1( VAR, FLAGS ) ( (VAR) |= (FLAGS) )
 
+template<typename var_T, typename flags_T> void Bitmask_SetBool(bool & val, var_T var, flags_T flags)
+{
+	var_T var_true  = BITMASK_SET_1(var, flags);
+	var_T var_false = BITMASK_SET_0(var, flags);
+	var = (val) ? var_true : var_false;
+}
+
 #define BITMASK_IS_0( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == 0 )
 
 #define BITMASK_IS_1( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == (FLAGS) )

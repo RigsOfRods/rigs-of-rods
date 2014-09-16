@@ -29,6 +29,7 @@
 
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
+#include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
 
 #include "OgreAxisAlignedBox.h"
@@ -44,19 +45,13 @@ class Rig
 	friend class RigFactory;
 
 	/** Constructed by RigEditor::RigFactory */
-	Rig():
-		m_beams_dynamic_mesh(nullptr),
-		m_nodes_dynamic_mesh(nullptr),
-		m_wheels_dynamic_mesh(nullptr),
-		m_aabb(Ogre::AxisAlignedBox::BOX_NULL),
-		m_modified(false)
-	{}
+	Rig(Config* config);
 
 public:
 
 	~Rig();
 
-	Ogre::ManualObject* GetBeamsDynamicMesh()
+	/*Ogre::ManualObject* GetBeamsDynamicMesh()
 	{
 		return m_beams_dynamic_mesh;
 	}
@@ -69,24 +64,51 @@ public:
 	Ogre::ManualObject* GetWheelsDynamicMesh()
 	{
 		return m_wheels_dynamic_mesh;
-	}
+	}*/
 
 	void UpdateBoundingBox(Ogre::Vector3 const & point);
+
+	void RefreshNodeScreenPosition(Node & node, CameraHandler* camera_handler);
+
+	/**
+	* @return True if new node was focused.
+	*/
+	bool RefreshNodeClosestToMouse(Vector2int const & mouse_position);
+
+	void RefreshAllNodesScreenPositions(CameraHandler* camera_handler);
+
+	Node* GetNodeClosestToMouse() const
+	{
+		return m_node_closest_to_mouse;
+	}
+
+	void RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node);
+
+	void AttachToScene(Ogre::SceneNode* parent_scene_node);
+
+	void DetachFromScene();
 
 private:
 
 	/* STRUCTURE */
-	std::unordered_map<RigDef::Node::Id, Node*, RigDef::Node::Id::Hasher> m_nodes;
+	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
 	std::vector<Beam*> m_beams;
 	Ogre::AxisAlignedBox m_aabb;
+
+	/* STATE */
+	std::vector<Node*>   m_nodes_dirty_screen_position;
+	Node*                m_node_closest_to_mouse;
+	int                  m_mouse_box_extent;
 
 	/* VISUALS */
 	Ogre::ManualObject*  m_beams_dynamic_mesh;
 	Ogre::ManualObject*  m_nodes_dynamic_mesh;
+	Ogre::ManualObject*  m_nodes_hover_dynamic_mesh;
 	Ogre::ManualObject*  m_wheels_dynamic_mesh;
 
 	/* UTILITY */
 	bool                 m_modified;
+	Config*              m_config;
 };
 
 } // namespace RigEditor

@@ -112,10 +112,14 @@ void CameraHandler::ToggleOrtho()
 	}
 }
 
+float CameraHandler::GetCameraTargetDistance()
+{
+	return mCamera->getPosition().distance(mTarget->getPosition());
+}
+
 void CameraHandler::UpdateOrthoZoom()
 {
-	float distance = mCamera->getPosition().distance(mTarget->getPosition());
-	mCamera->setOrthoWindowWidth(distance * m_ortho_zoom_ratio);
+	mCamera->setOrthoWindowWidth(GetCameraTargetDistance() * m_ortho_zoom_ratio);
 }
 
 void CameraHandler::SetYawPitchDist(Ogre::Radian yaw, Ogre::Radian pitch, Ogre::Real dist)
@@ -202,7 +206,7 @@ void CameraHandler::Update(float delta_time_seconds)
     }
 }
 
-void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel)
+bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel)
 {
     if (mStyle == CS_ORBIT)
     {
@@ -216,6 +220,7 @@ void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
             mCamera->pitch(Ogre::Degree(-y_rel * 0.25f));
 
             mCamera->moveRelative(Ogre::Vector3(0, 0, dist));
+			return true;
 
             // don't let the camera go over the top or around the bottom of the target
         }
@@ -223,6 +228,7 @@ void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
         {
             // the further the camera is, the faster it moves
             mCamera->moveRelative(Ogre::Vector3(0, 0, y_rel * 0.004f * dist));
+			return true;
         }
         else if (wheel_rel != 0)  // move the camera toward or away from the target
         {
@@ -233,6 +239,7 @@ void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
 			{
 				UpdateOrthoZoom();
 			}
+			return true;
 		}
     }
     else if (mStyle == CS_FREELOOK)
@@ -240,4 +247,62 @@ void CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
         mCamera->yaw(Ogre::Degree(-x_rel * 0.15f));
         mCamera->pitch(Ogre::Degree(-y_rel * 0.15f));
     }
+
+	return false;
 }
+
+Ogre::Vector3 CameraHandler::ConvertWorldToViewPosition(
+	Ogre::Vector3 const & _world_position
+)
+{
+	return mCamera->getProjectionMatrix() * (mCamera->getViewMatrix(true) * _world_position);
+}
+
+/**
+* @author http://www.ogre3d.org/forums/viewtopic.php?p=463232#p463232
+* @author http://www.ogre3d.org/tikiwiki/tiki-index.php?page=GetScreenspaceCoords&structure=Cookbook
+*/
+bool CameraHandler::ConvertWorldToScreenPosition(
+	Ogre::Vector3 const & _world_position,
+	Vector2int & out_screen_position,
+	float & _out_camera_distance
+)
+{
+	// Transform position
+	Ogre::Vector3 eye_space_pos = mCamera->getViewMatrix(true) * _world_position;
+
+	// Check if the position is in front of the camera
+	if (eye_space_pos.z < 0.f)
+	{
+		// Get distance
+		_out_camera_distance = -eye_space_pos.z;
+
+		Ogre::Vector3 view_space_pos = mCamera->getProjectionMatrix() * eye_space_pos;
+
+		// Transform from coordinate space [-1, 1] to [0, 1]
+		float screen_space_pos_x = (view_space_pos.x / 2.f) + 0.5f;
+		float screen_space_pos_y = 1 - ((view_space_pos.y / 2.f) + 0.5f);
+
+		// Debug
+		//std::stringstream s;
+		//s.setf(std::ios::fixed);
+		//s.precision(3);
+		//s<<"view: {"<<view_space_pos.x<<"; "<<view_space_pos.y<<"; "<<view_space_pos.z
+		//	<<"}, screenspace: {"<<screen_space_pos.x<<", "<<screen_space_pos.y<<", "<<screen_space_pos.z<<"}";
+		//LOG(s.str())
+		// ------
+
+		// Transform to absolute pixel coordinates
+		Ogre::Viewport* viewport = mCamera->getViewport();
+		out_screen_position.x = static_cast<int>(screen_space_pos_x * viewport->getActualWidth());
+		out_screen_position.y = static_cast<int>(screen_space_pos_y * viewport->getActualHeight());
+
+		return true;
+	}
+	else
+	{
+		_out_camera_distance = 0.f;
+		return false;
+	}
+}
+//-------------------------------------------------------------------------------------------------

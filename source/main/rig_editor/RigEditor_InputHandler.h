@@ -28,6 +28,7 @@
 #pragma once
 
 #include "BitFlags.h"
+#include "RigEditor_Types.h"
 
 #include <OISKeyboard.h>
 #include <OISMouse.h>
@@ -105,6 +106,11 @@ public:
 			rel_x += x;
 			rel_y += y;
 			rel_wheel += wheel;
+		}
+
+		Vector2int GetAbsolutePosition() const
+		{
+			return Vector2int(abs_x, abs_y);
 		}
 	};
 

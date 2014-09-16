@@ -43,11 +43,13 @@ namespace RoR
 	{
 		class  Beam;
 		class  CameraHandler;
+		struct Config;
 		class  IMain;
 		class  InputHandler;
 		class  Main;
 		class  Node;
 		class  Rig;
+		class  RigFactory;
 	}
 
 	namespace GUI

@@ -43,33 +43,13 @@ class Main: public IMain
 {
 public:
 
-	struct Config
-	{
-		Ogre::ColourValue viewport_background_color;
-		Ogre::ColourValue scene_ambient_light_color;
-
-		/* Beam coloring */
-		Ogre::ColourValue beam_generic_color;
-		Ogre::ColourValue beam_invisible_color;
-		Ogre::ColourValue beam_support_color;
-		Ogre::ColourValue beam_rope_color;
-
-		Ogre::ColourValue meshwheel2_beam_bounded_color;
-		Ogre::ColourValue meshwheel2_beam_reinforcement_color;
-		Ogre::ColourValue meshwheel2_beam_rigidity_color;
-
-		/* Node display */
-		Ogre::ColourValue node_generic_color;
-		float             node_generic_point_size;
-	};
-
 	struct OpenSaveFileDialogMode
 	{
 		static const MyGUI::UString MODE_OPEN_TRUCK;
 		static const MyGUI::UString MODE_SAVE_TRUCK_AS;
 	};
 
-	Main();
+	Main(Config* config);
 	~Main();
 
 	void EnterMainLoop();
@@ -81,7 +61,7 @@ public:
 		return m_scene_manager;
 	}
 
-	Config & GetConfig()
+	Config* GetConfig()
 	{
 		return m_config;
 	}
@@ -104,8 +84,7 @@ private:
 
 	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
-	RoR::ConfigFile      m_config_file;
-	Config               m_config;
+	Config*              m_config;
 	Ogre::SceneManager*  m_scene_manager;
 	Ogre::Viewport*      m_viewport;
 	Ogre::Camera*        m_camera;

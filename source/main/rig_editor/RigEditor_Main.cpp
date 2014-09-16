@@ -38,7 +38,9 @@
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 #include "RigEditor_CameraHandler.h"
+#include "RigEditor_Config.h"
 #include "RigEditor_InputHandler.h"
+#include "RigEditor_Node.h"
 #include "RigEditor_RigFactory.h"
 #include "RigEditor_Rig.h"
 #include "Settings.h"
@@ -57,7 +59,8 @@ using namespace RoR::RigEditor;
 const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_OPEN_TRUCK     ("RigEditor_OpenTruckFile");
 const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS  ("RigEditor_SaveTruckFileAs");
 
-Main::Main():
+Main::Main(Config* config):
+	m_config(config),
 	m_scene_manager(nullptr),
 	m_camera(nullptr),
 	m_viewport(nullptr),
@@ -69,36 +72,17 @@ Main::Main():
 	m_rig(nullptr),
 	m_gui_open_save_file_dialog(nullptr)
 {
-	/* Load config */
-	m_config_file.load(SSETTING("Config Root", "") + "rig_editor.cfg");
-
-	/* Parse config */
-	m_config.viewport_background_color = m_config_file.GetColourValue("viewport_background_color_rgb");
-	m_config.scene_ambient_light_color = m_config_file.GetColourValue("scene_ambient_light_color_rgb");
-
-	m_config.beam_generic_color        = m_config_file.GetColourValue("beam_generic_color_rgb");
-	m_config.beam_invisible_color      = m_config_file.GetColourValue("beam_invisible_color_rgb");
-	m_config.beam_rope_color           = m_config_file.GetColourValue("beam_rope_color_rgb");
-	m_config.beam_support_color        = m_config_file.GetColourValue("beam_support_color_rgb");
-
-	m_config.meshwheel2_beam_bounded_color        = m_config_file.GetColourValue("meshwheel2_beam_bounded_color_rgb");
-	m_config.meshwheel2_beam_reinforcement_color  = m_config_file.GetColourValue("meshwheel2_beam_reinforcement_color_rgb");
-	m_config.meshwheel2_beam_rigidity_color       = m_config_file.GetColourValue("meshwheel2_beam_rigidity_color_rgb");
-
-	m_config.node_generic_color       = m_config_file.GetColourValue("node_generic_color_rgb");
-	m_config.node_generic_point_size  = m_config_file.GetFloat("node_generic_point_size");
-
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
 	m_scene_manager = ror_ogre_subsystem->GetOgreRoot()->createSceneManager(Ogre::ST_GENERIC, "rig_editor_scene_manager");
-	m_scene_manager->setAmbientLight(m_config.scene_ambient_light_color);
+	m_scene_manager->setAmbientLight(m_config->scene_ambient_light_color);
 
 	/* Camera */
 	m_camera = m_scene_manager->createCamera("rig_editor_camera");
-	m_camera->setNearClipDistance(m_config_file.GetFloat("camera_near_clip_distance"));
-	m_camera->setFarClipDistance(m_config_file.GetFloat("camera_far_clip_distance"));
-	m_camera->setFOVy(Ogre::Degree(m_config_file.GetFloat("camera_FOVy_degrees")));
+	m_camera->setNearClipDistance(config->camera_near_clip_distance);
+	m_camera->setFarClipDistance(config->camera_far_clip_distance);
+	m_camera->setFOVy(Ogre::Degree(config->camera_FOVy_degrees));
 	m_camera->setAutoAspectRatio(true);
 
 	/* Setup input */
@@ -107,12 +91,12 @@ Main::Main():
 	/* Camera handling */
 	m_camera_handler = new CameraHandler(m_camera);
 	m_camera_handler->SetOrbitTarget(m_scene_manager->getRootSceneNode());	
-	m_camera_handler->SetOrthoZoomRatio(m_config_file.GetFloat("ortho_camera_zoom_ratio"));
+	m_camera_handler->SetOrthoZoomRatio(config->ortho_camera_zoom_ratio);
 	m_camera->setPosition(Ogre::Vector3(10,5,10));
 
 	/* Debug output box */
 	m_debug_box = MyGUI::Gui::getInstance().createWidget<MyGUI::TextBox>
-		("TextBox", 50, 50, 300, 300, MyGUI::Align::Top, "Main", "rig_editor_quick_debug_text_box");
+		("TextBox", 10, 30, 400, 100, MyGUI::Align::Top, "Main", "rig_editor_quick_debug_text_box");
 	m_debug_box->setCaption("Hello\nRigEditor!");
 	m_debug_box->setTextColour(MyGUI::Colour(0.8, 0.8, 0.8));
 	m_debug_box->setFontName("DefaultBig");
@@ -130,6 +114,13 @@ Main::~Main()
 		delete m_gui_open_save_file_dialog;
 		m_gui_open_save_file_dialog = nullptr;
 	}
+
+	if (m_rig != nullptr)
+	{
+		m_rig->DetachFromScene();
+		delete m_rig;
+		m_rig = nullptr;
+	}
 }
 
 void Main::EnterMainLoop()
@@ -139,7 +130,7 @@ void Main::EnterMainLoop()
 	assert(ror_ogre_subsystem != nullptr);
 	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 	int viewport_width = m_viewport->getActualWidth();
-	m_viewport->setBackgroundColour(m_config.viewport_background_color);
+	m_viewport->setBackgroundColour(m_config->viewport_background_color);
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
 	m_viewport->setCamera(m_camera);
 
@@ -221,20 +212,45 @@ void Main::UpdateMainLoop()
 		m_camera_handler->ToggleOrtho();
 	}
 
-	/* Handle mouse move */
+	/* Handle camera control */
 	if (m_input_handler->GetMouseMotionEvent().HasMoved() || m_input_handler->GetMouseMotionEvent().HasScrolled())
 	{
-		m_camera_handler->InjectMouseMove(
+		bool view_changed = m_camera_handler->InjectMouseMove(
 			m_input_handler->GetMouseButtonEvent().IsRightButtonDown(), /* (bool do_orbit) */
 			m_input_handler->GetMouseMotionEvent().rel_x,
 			m_input_handler->GetMouseMotionEvent().rel_y,
 			m_input_handler->GetMouseMotionEvent().rel_wheel
 		);
+
+		if (view_changed)
+		{
+			m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
+		}
+	}
+
+	/* Handle mouse selection of nodes */
+	if (m_rig != nullptr && m_input_handler->GetMouseMotionEvent().HasMoved())
+	{
+		// If mouse focus changed...
+		if (m_rig->RefreshNodeClosestToMouse(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
+		{
+			m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+		}
 	}
 
 	/* Update devel console */
 	std::stringstream msg;
 	msg << "Camera pos: [X "<<m_camera->getPosition().x <<", Y "<<m_camera->getPosition().y << ", Z "<<m_camera->getPosition().z <<"] "<<std::endl;
+	msg << "Mouse node: ";
+	if (m_rig != nullptr && m_rig->GetNodeClosestToMouse() != nullptr)
+	{
+		RigDef::Node const & node_def = m_rig->GetNodeClosestToMouse()->GetDefinition();
+		msg << node_def.id.ToString() << std::endl;
+	}
+	else
+	{
+		msg << "<nullptr>"<< std::endl;
+	}
 	m_debug_box->setCaption(msg.str());
 }
 
@@ -260,9 +276,7 @@ void Main::CommandCloseCurrentRig()
 {
 	if (m_rig != nullptr)
 	{
-		m_rig->GetBeamsDynamicMesh()->detachFromParent();
-		m_rig->GetNodesDynamicMesh()->detachFromParent();
-		m_rig->GetWheelsDynamicMesh()->detachFromParent();
+		m_rig->DetachFromScene();
 		delete m_rig;
 		m_rig = nullptr;
 	}
@@ -422,9 +436,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 
 	/* SHOW MESH */
 
-	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetBeamsDynamicMesh()); // Beams
-	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetNodesDynamicMesh()); // Nodes
-	m_scene_manager->getRootSceneNode()->attachObject(m_rig->GetWheelsDynamicMesh()); // Wheels
+	m_rig->AttachToScene(m_scene_manager->getRootSceneNode());
 
 	LOG("RigEditor: Rig loaded OK");
 
