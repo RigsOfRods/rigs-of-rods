@@ -79,6 +79,16 @@ public:
 		return BITMASK_IS_1(m_flags, Flags::HOVERED);
 	}
 
+	void SetSelected(bool value)
+	{
+		Bitmask_SetBool(value, m_flags, Flags::SELECTED);
+	}
+
+	bool IsSelected() const
+	{
+		return BITMASK_IS_1(m_flags, Flags::SELECTED);
+	}
+
 	RigDef::Node const & GetDefinition() const
 	{
 		return m_def_module->nodes[m_def_index];

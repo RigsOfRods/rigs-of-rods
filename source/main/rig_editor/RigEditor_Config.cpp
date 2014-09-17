@@ -41,6 +41,8 @@ Config::Config(Ogre::String const & conf_file_path)
 	viewport_background_color = conf_file.GetColourValue("viewport_background_color_rgb");
 	scene_ambient_light_color = conf_file.GetColourValue("scene_ambient_light_color_rgb");
 
+	node_mouse_box_halfsize_px   = conf_file.GetInt("node_mouse_box_halfsize_px");
+
 	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
 	beam_rope_color           = conf_file.GetColourValue("beam_rope_color_rgb");
@@ -54,6 +56,8 @@ Config::Config(Ogre::String const & conf_file_path)
 	node_generic_point_size   = conf_file.GetFloat("node_generic_point_size");
 	node_hover_color          = conf_file.GetColourValue("node_hover_color_rgb");
 	node_hover_point_size     = conf_file.GetFloat("node_hover_point_size");
+	node_selected_color       = conf_file.GetColourValue("node_selected_color_rgb");
+	node_selected_point_size  = conf_file.GetFloat("node_selected_point_size");
 
 	camera_near_clip_distance = conf_file.GetFloat("camera_near_clip_distance");
 	camera_far_clip_distance  = conf_file.GetFloat("camera_far_clip_distance");

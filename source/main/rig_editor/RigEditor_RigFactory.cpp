@@ -256,6 +256,48 @@ Rig* RigFactory::BuildRig(
 	/* Finalize */
 	rig->m_nodes_hover_dynamic_mesh->end();
 
+	/* CREATE MESH OF SELECTED NODES */
+
+	/* Prepare material */
+	static const Ogre::String nodes_selected_mat_name("rig-editor-skeleton-nodes-selected-material");
+	if (! Ogre::MaterialManager::getSingleton().resourceExists(nodes_selected_mat_name))
+	{
+		Ogre::MaterialPtr node_mat = static_cast<Ogre::MaterialPtr>(
+			Ogre::MaterialManager::getSingleton().create(
+				nodes_selected_mat_name, 
+				Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			)
+		);
+
+		node_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+		node_mat->setLightingEnabled(false);
+		node_mat->setReceiveShadows(false);
+		node_mat->setPointSize(config.node_selected_point_size);
+	}
+
+	/* Create mesh */
+	rig->m_nodes_selected_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	rig->m_nodes_selected_dynamic_mesh->estimateVertexCount(10);
+	rig->m_nodes_selected_dynamic_mesh->setCastShadows(false);
+	rig->m_nodes_selected_dynamic_mesh->setDynamic(true);
+	rig->m_nodes_selected_dynamic_mesh->setRenderingDistance(300);
+
+	/* Init */
+	rig->m_nodes_selected_dynamic_mesh->begin(nodes_selected_mat_name, Ogre::RenderOperation::OT_POINT_LIST);
+
+	/* Fill some dummy vertices (to properly initialise the object) */
+	rig->m_nodes_selected_dynamic_mesh->position(Ogre::Vector3::UNIT_X);
+	rig->m_nodes_selected_dynamic_mesh->colour(Ogre::ColourValue::Red);
+	rig->m_nodes_selected_dynamic_mesh->position(Ogre::Vector3::UNIT_Y);
+	rig->m_nodes_selected_dynamic_mesh->colour(Ogre::ColourValue::Green);
+	rig->m_nodes_selected_dynamic_mesh->position(Ogre::Vector3::UNIT_Z);
+	rig->m_nodes_selected_dynamic_mesh->colour(Ogre::ColourValue::Blue);
+
+	/* Finalize */
+	rig->m_nodes_selected_dynamic_mesh->end();
+
 	/* CREATE MESH OF WHEELS (beams only) */
 
 	/* Prepare material */

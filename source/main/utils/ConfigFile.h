@@ -43,6 +43,8 @@ class ConfigFile: public Ogre::ConfigFile
 	Ogre::ColourValue GetColourValue(Ogre::String const & key);
 
 	float GetFloat(Ogre::String const & key);
+
+	int GetInt(Ogre::String const & key);
 };
 
 } // namespace RoR

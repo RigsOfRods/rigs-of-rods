@@ -226,16 +226,27 @@ void Main::UpdateMainLoop()
 		);
 	}
 
-	if (camera_view_changed || camera_ortho_toggled)
-	{
-		m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
-	}
-
 	/* Handle mouse selection of nodes */
-	if (m_rig != nullptr && (m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled))
+	if (m_rig != nullptr)
 	{
-		// If mouse focus changed...
-		if (m_rig->RefreshNodeClosestToMouse(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
+		if (camera_view_changed || camera_ortho_toggled)
+		{
+			m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
+		}
+
+		bool node_selection_changed = false;
+		bool node_hover_changed = false;
+		if (m_input_handler->GetMouseButtonEvent().IsLeftButtonDown())
+		{
+			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected();
+		}
+
+		if (m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled)
+		{
+			node_hover_changed = m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition());
+		}
+
+		if (node_selection_changed || node_hover_changed)
 		{
 			m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
 		}
@@ -245,14 +256,14 @@ void Main::UpdateMainLoop()
 	std::stringstream msg;
 	msg << "Camera pos: [X "<<m_camera->getPosition().x <<", Y "<<m_camera->getPosition().y << ", Z "<<m_camera->getPosition().z <<"] "<<std::endl;
 	msg << "Mouse node: ";
-	if (m_rig != nullptr && m_rig->GetNodeClosestToMouse() != nullptr)
+	if (m_rig != nullptr && m_rig->GetMouseHoveredNode() != nullptr)
 	{
-		RigDef::Node const & node_def = m_rig->GetNodeClosestToMouse()->GetDefinition();
+		RigDef::Node const & node_def = m_rig->GetMouseHoveredNode()->GetDefinition();
 		msg << node_def.id.ToString() << std::endl;
 	}
 	else
 	{
-		msg << "<nullptr>"<< std::endl;
+		msg << "[null]"<< std::endl;
 	}
 	m_debug_box->setCaption(msg.str());
 }
@@ -442,7 +453,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	m_rig->AttachToScene(m_scene_manager->getRootSceneNode());
 	/* Handle mouse selection of nodes */
 	m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
-	if (m_rig->RefreshNodeClosestToMouse(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
+	if (m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
 	{
 		m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
 	}
