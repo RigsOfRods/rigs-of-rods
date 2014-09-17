@@ -207,29 +207,32 @@ void Main::UpdateMainLoop()
 		m_exit_loop_requested = true;
 		return;
 	}
+	bool camera_ortho_toggled = false;
 	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE))
 	{
 		m_camera_handler->ToggleOrtho();
+		camera_ortho_toggled = true;
 	}
 
 	/* Handle camera control */
+	bool camera_view_changed = false;
 	if (m_input_handler->GetMouseMotionEvent().HasMoved() || m_input_handler->GetMouseMotionEvent().HasScrolled())
 	{
-		bool view_changed = m_camera_handler->InjectMouseMove(
+		camera_view_changed = m_camera_handler->InjectMouseMove(
 			m_input_handler->GetMouseButtonEvent().IsRightButtonDown(), /* (bool do_orbit) */
 			m_input_handler->GetMouseMotionEvent().rel_x,
 			m_input_handler->GetMouseMotionEvent().rel_y,
 			m_input_handler->GetMouseMotionEvent().rel_wheel
 		);
+	}
 
-		if (view_changed)
-		{
-			m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
-		}
+	if (camera_view_changed || camera_ortho_toggled)
+	{
+		m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
 	}
 
 	/* Handle mouse selection of nodes */
-	if (m_rig != nullptr && m_input_handler->GetMouseMotionEvent().HasMoved())
+	if (m_rig != nullptr && (m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled))
 	{
 		// If mouse focus changed...
 		if (m_rig->RefreshNodeClosestToMouse(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
