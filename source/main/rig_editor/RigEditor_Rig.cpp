@@ -42,37 +42,24 @@ Rig::Rig(Config* config):
 	m_beams_dynamic_mesh(nullptr),
 	m_nodes_dynamic_mesh(nullptr),
 	m_nodes_hover_dynamic_mesh(nullptr),
+	m_nodes_selected_dynamic_mesh(nullptr),
 	m_wheels_dynamic_mesh(nullptr),
-	m_node_closest_to_mouse(nullptr),
+	m_mouse_hovered_node(nullptr),
 	m_aabb(Ogre::AxisAlignedBox::BOX_NULL),
 	m_config(config),
-	m_modified(false),
-	m_mouse_box_extent(10)
+	m_modified(false)
 {}
+
+#define DELETE(PTR) if (PTR != nullptr) { delete PTR; PTR = nullptr; }
 
 Rig::~Rig()
 {
 	/* Clear visuals */
-	if (m_beams_dynamic_mesh != nullptr)
-	{
-		delete m_beams_dynamic_mesh;
-		m_beams_dynamic_mesh = nullptr;
-	}
-	if (m_nodes_dynamic_mesh != nullptr)
-	{
-		delete m_nodes_dynamic_mesh;
-		m_nodes_dynamic_mesh = nullptr;
-	}
-	if (m_wheels_dynamic_mesh != nullptr)
-	{
-		delete m_wheels_dynamic_mesh;
-		m_wheels_dynamic_mesh = nullptr;
-	}
-	if (m_nodes_hover_dynamic_mesh != nullptr)
-	{
-		delete m_nodes_hover_dynamic_mesh;
-		m_nodes_hover_dynamic_mesh = nullptr;
-	}
+	DELETE(m_beams_dynamic_mesh);
+	DELETE(m_nodes_dynamic_mesh);
+	DELETE(m_wheels_dynamic_mesh);
+	DELETE(m_nodes_hover_dynamic_mesh);
+	DELETE(m_nodes_selected_dynamic_mesh);
 
 	/* Clear structure */
 	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
@@ -103,7 +90,7 @@ void Rig::RefreshAllNodesScreenPositions(CameraHandler* camera_handler)
 	}
 }
 
-bool Rig::RefreshNodeClosestToMouse(Vector2int const & mouse_position)
+bool Rig::RefreshMouseHoveredNode(Vector2int const & mouse_position)
 {
 	/*
 	Lookup method: for each node
@@ -111,10 +98,12 @@ bool Rig::RefreshNodeClosestToMouse(Vector2int const & mouse_position)
 		- Convert it's components to abs()
 		- Pick the larger component as 'distance'
 		- Compare 'distance' to previous node
+
+	Finally, compare result node's 'distance' to configured box.
 	*/
 
 	auto itor = m_nodes.begin();
-	Node* result = m_node_closest_to_mouse;
+	Node* result = m_mouse_hovered_node;
 	if (result == nullptr)
 	{
 		result = &itor->second;
@@ -139,17 +128,23 @@ bool Rig::RefreshNodeClosestToMouse(Vector2int const & mouse_position)
 			result = &itor->second;
 		}
 	}
-	bool ret_val = (m_node_closest_to_mouse != result);
-	m_node_closest_to_mouse = result;
+
+	if (result_mouse_distance > m_config->node_mouse_box_halfsize_px)
+	{
+		result = nullptr;
+	}
+
+	bool ret_val = (m_mouse_hovered_node != result);
+	m_mouse_hovered_node = result;
 	return ret_val;
 }
 
 void Rig::RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node)
 {
-	// DEBUG TEST: Just highlight the node closest to mouse. 
+	/* ========== Nodes (plain + selected) ========== */
 
-	/* Nodes */
 	m_nodes_dynamic_mesh->beginUpdate(0);
+	m_nodes_selected_dynamic_mesh->beginUpdate(0);
 	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
 	{
 		// DEBUG (Windows, VC10)
@@ -168,19 +163,29 @@ void Rig::RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node)
 		//         ((((*(((*((*(this)).m_node_closest_to_mouse)).m_def_module).px)).nodes)._Myfirst[(*((*(this)).m_node_closest_to_mouse)).m_def_index]).id).m_id_num
 
 		RigEditor::Node* current_node = &itor->second;
-		if (current_node != m_node_closest_to_mouse)
+		if (current_node != m_mouse_hovered_node)
 		{
-			m_nodes_dynamic_mesh->position((*itor).second.GetPosition());
-			m_nodes_dynamic_mesh->colour(m_config->node_generic_color);
+			if (current_node->IsSelected())
+			{
+				m_nodes_selected_dynamic_mesh->position(current_node->GetPosition());
+				m_nodes_selected_dynamic_mesh->colour(m_config->node_selected_color);
+			}
+			else
+			{
+				m_nodes_dynamic_mesh->position(current_node->GetPosition());
+				m_nodes_dynamic_mesh->colour(m_config->node_generic_color);
+			}
 		}
 	}
 	m_nodes_dynamic_mesh->end();
+	m_nodes_selected_dynamic_mesh->end();
 
-	/* Hover nodes */
-	if (m_node_closest_to_mouse != nullptr)
+	/* ========== Hover nodes ========== */
+
+	if (m_mouse_hovered_node != nullptr)
 	{
 		m_nodes_hover_dynamic_mesh->beginUpdate(0);
-		m_nodes_hover_dynamic_mesh->position(m_node_closest_to_mouse->GetPosition());
+		m_nodes_hover_dynamic_mesh->position(m_mouse_hovered_node->GetPosition());
 		m_nodes_hover_dynamic_mesh->colour(m_config->node_hover_color);
 		m_nodes_hover_dynamic_mesh->end();
 		
@@ -205,6 +210,7 @@ void Rig::AttachToScene(Ogre::SceneNode* parent_scene_node)
 	parent_scene_node->attachObject(m_beams_dynamic_mesh);
 	parent_scene_node->attachObject(m_nodes_dynamic_mesh);
 	parent_scene_node->attachObject(m_nodes_hover_dynamic_mesh);
+	parent_scene_node->attachObject(m_nodes_selected_dynamic_mesh);
 	parent_scene_node->attachObject(m_wheels_dynamic_mesh);
 }
 
@@ -213,5 +219,24 @@ void Rig::DetachFromScene()
 	m_beams_dynamic_mesh->detachFromParent();
 	m_nodes_dynamic_mesh->detachFromParent();
 	m_nodes_hover_dynamic_mesh->detachFromParent();
+	m_nodes_selected_dynamic_mesh->detachFromParent();
 	m_wheels_dynamic_mesh->detachFromParent();
+}
+
+void Rig::DeselectAllNodes()
+{
+	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		itor->second.SetSelected(false);
+	}
+}
+
+bool Rig::ToggleMouseHoveredNodeSelected()
+{
+	if (m_mouse_hovered_node == nullptr)
+	{
+		return false;
+	}
+	m_mouse_hovered_node->SetSelected(! m_mouse_hovered_node->IsSelected());
+	return true;
 }

@@ -51,21 +51,6 @@ public:
 
 	~Rig();
 
-	/*Ogre::ManualObject* GetBeamsDynamicMesh()
-	{
-		return m_beams_dynamic_mesh;
-	}
-
-	Ogre::ManualObject* GetNodesDynamicMesh()
-	{
-		return m_nodes_dynamic_mesh;
-	}
-
-	Ogre::ManualObject* GetWheelsDynamicMesh()
-	{
-		return m_wheels_dynamic_mesh;
-	}*/
-
 	void UpdateBoundingBox(Ogre::Vector3 const & point);
 
 	void RefreshNodeScreenPosition(Node & node, CameraHandler* camera_handler);
@@ -73,13 +58,13 @@ public:
 	/**
 	* @return True if new node was focused.
 	*/
-	bool RefreshNodeClosestToMouse(Vector2int const & mouse_position);
+	bool RefreshMouseHoveredNode(Vector2int const & mouse_position);
 
 	void RefreshAllNodesScreenPositions(CameraHandler* camera_handler);
 
-	Node* GetNodeClosestToMouse() const
+	Node* GetMouseHoveredNode() const
 	{
-		return m_node_closest_to_mouse;
+		return m_mouse_hovered_node;
 	}
 
 	void RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node);
@@ -87,6 +72,10 @@ public:
 	void AttachToScene(Ogre::SceneNode* parent_scene_node);
 
 	void DetachFromScene();
+
+	bool ToggleMouseHoveredNodeSelected();
+
+	void DeselectAllNodes();
 
 private:
 
@@ -96,14 +85,13 @@ private:
 	Ogre::AxisAlignedBox m_aabb;
 
 	/* STATE */
-	std::vector<Node*>   m_nodes_dirty_screen_position;
-	Node*                m_node_closest_to_mouse;
-	int                  m_mouse_box_extent;
+	Node*                m_mouse_hovered_node;
 
 	/* VISUALS */
 	Ogre::ManualObject*  m_beams_dynamic_mesh;
 	Ogre::ManualObject*  m_nodes_dynamic_mesh;
 	Ogre::ManualObject*  m_nodes_hover_dynamic_mesh;
+	Ogre::ManualObject*  m_nodes_selected_dynamic_mesh;
 	Ogre::ManualObject*  m_wheels_dynamic_mesh;
 
 	/* UTILITY */

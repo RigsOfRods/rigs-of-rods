@@ -42,6 +42,9 @@ struct Config
 	Ogre::ColourValue   viewport_background_color;
 	Ogre::ColourValue   scene_ambient_light_color;
 
+	/* Rig manipulation */
+	int                 node_mouse_box_halfsize_px;
+
 	/* Beam coloring */
 	Ogre::ColourValue   beam_generic_color;
 	Ogre::ColourValue   beam_invisible_color;
@@ -57,6 +60,8 @@ struct Config
 	float               node_generic_point_size;
 	Ogre::ColourValue   node_hover_color;
 	float               node_hover_point_size;
+	Ogre::ColourValue   node_selected_color;
+	float               node_selected_point_size;
 
 	/* Camera */
 	float               camera_near_clip_distance;

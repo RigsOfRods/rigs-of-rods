@@ -47,3 +47,8 @@ Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key)
 	value >> r >> g >> b >> a;
 	return Ogre::ColourValue(r, g, b, a);
 }
+
+int ConfigFile::GetInt(Ogre::String const & key)
+{
+	return Ogre::StringConverter::parseInt(getSetting(key));
+}
