@@ -440,6 +440,12 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	/* SHOW MESH */
 
 	m_rig->AttachToScene(m_scene_manager->getRootSceneNode());
+	/* Handle mouse selection of nodes */
+	m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
+	if (m_rig->RefreshNodeClosestToMouse(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
+	{
+		m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+	}
 
 	LOG("RigEditor: Rig loaded OK");
 
