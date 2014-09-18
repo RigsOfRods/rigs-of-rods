@@ -165,10 +165,15 @@ bool InputHandler::mousePressed( const OIS::MouseEvent &mouse_event, OIS::MouseB
 	{
 	case OIS::MB_Right:
 		m_mouse_button_event.RightButtonDown();
+		break;
 	case OIS::MB_Left:
 		m_mouse_button_event.LeftButtonDown();
+		break;
 	case OIS::MB_Middle:
 		m_mouse_button_event.MiddleButtonDown();
+		break;
+	default:
+		assert(false && "Invalid OIS::MouseButtonID");
 	}
 
 	return true;
@@ -186,10 +191,15 @@ bool InputHandler::mouseReleased( const OIS::MouseEvent &mouse_event, OIS::Mouse
 	{
 	case OIS::MB_Right:
 		m_mouse_button_event.RightButtonUp();
+		break;
 	case OIS::MB_Left:
 		m_mouse_button_event.LeftButtonUp();
+		break;
 	case OIS::MB_Middle:
 		m_mouse_button_event.MiddleButtonUp();
+		break;
+	default:
+		assert(false && "Invalid OIS::MouseButtonID");
 	}
 
 	return true;
