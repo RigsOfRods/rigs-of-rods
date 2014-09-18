@@ -236,14 +236,14 @@ void Main::UpdateMainLoop()
 
 		bool node_selection_changed = false;
 		bool node_hover_changed = false;
-		if (m_input_handler->GetMouseButtonEvent().IsLeftButtonDown())
-		{
-			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected();
-		}
-
 		if (m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled)
 		{
 			node_hover_changed = m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition());
+		}
+
+		if ( (! node_hover_changed) && m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
+		{
+			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected();
 		}
 
 		if (node_selection_changed || node_hover_changed)

@@ -195,6 +195,21 @@ public:
 			return BITMASK_IS_1(flags, MIDDLE_BUTTON_IS_DOWN);
 		}
 
+		bool WasLeftButtonPressed() const
+		{
+			return BITMASK_IS_1(flags, LEFT_BUTTON_PRESSED);
+		}
+
+		bool WasRightButtonPressed() const
+		{
+			return BITMASK_IS_1(flags, RIGHT_BUTTON_PRESSED);
+		}
+
+		bool WasMiddleButtonPressed() const
+		{
+			return BITMASK_IS_1(flags, MIDDLE_BUTTON_PRESSED);
+		}
+
 	private:
 
 		int flags;
