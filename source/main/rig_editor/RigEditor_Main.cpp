@@ -421,16 +421,21 @@ void RigEditor_LogValidatorMessages(RigDef::Validator & validator)
 
 bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
 {
+	/* CLOSE PREVIOUS RIG */
+
+	if (m_rig != nullptr)
+	{
+		this->CommandCloseCurrentRig();
+	}
+
+	/* LOAD */
+
 	Ogre::DataStreamPtr stream = Ogre::DataStreamPtr();
-	//Ogre::String fixed_file_name = file_path;
-	//Ogre::String found_resource_group;
 	Ogre::String resource_group_name("RigEditor_CurrentProject");
 
 	try
 	{
 		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(directory, "FileSystem", resource_group_name);
-
-		//RoR::Application::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
 		stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resource_group_name);
 	} 
 	catch (Ogre::Exception& e)
