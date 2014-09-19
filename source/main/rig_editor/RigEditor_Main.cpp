@@ -275,7 +275,12 @@ void Main::UpdateMainLoop()
 
 		if ( (! node_hover_changed) && m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
 		{
-			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected();
+			if (! ctrl_is_down)
+			{
+				m_rig->DeselectAllNodes();
+				node_selection_changed = true;
+			}
+			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected() ? true : node_selection_changed;
 		}
 
 		if (node_selection_changed || node_hover_changed)
