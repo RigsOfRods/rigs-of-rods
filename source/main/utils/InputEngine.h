@@ -528,6 +528,11 @@ public:
 
 	void RestoreKeyboardListener();
 
+	OIS::Keyboard* GetOisKeyboard()
+	{
+		return mKeyboard;
+	}
+
 protected:
 
 	InputEngine();
