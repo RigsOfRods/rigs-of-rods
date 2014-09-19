@@ -45,6 +45,7 @@
 #include "RigEditor_Rig.h"
 #include "Settings.h"
 
+#include <OISKeyboard.h>
 #include <OgreEntity.h>
 #include <OgreMaterialManager.h>
 #include <OgreMaterial.h>
@@ -208,22 +209,53 @@ void Main::UpdateMainLoop()
 		return;
 	}
 	bool camera_ortho_toggled = false;
+	int camera_view_changed = false;
 	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE))
 	{
 		m_camera_handler->ToggleOrtho();
 		camera_ortho_toggled = true;
 	}
 
+	// Orientation:
+	// Front->Back = X axis
+	// Right->Left = Z axis
+	// Top->Down   = Y axis negative
+	// Inspired by:
+	// * Gavril MZ2
+	// * Tatra-T813-Dakar.truck
+
+	OIS::Keyboard* ois_keyboard = RoR::Application::GetInputEngine()->GetOisKeyboard();
+	bool ctrl_is_down = ois_keyboard->isKeyDown(OIS::KC_RCONTROL) || ois_keyboard->isKeyDown(OIS::KC_LCONTROL);
+	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_FRONT))
+	{
+		m_camera_handler->LookInDirection(ctrl_is_down ? Ogre::Vector3::NEGATIVE_UNIT_X : Ogre::Vector3::UNIT_X);
+		camera_view_changed = true;
+	}
+	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_SIDE))
+	{
+		m_camera_handler->LookInDirection(ctrl_is_down ? Ogre::Vector3::UNIT_Z : Ogre::Vector3::NEGATIVE_UNIT_Z);
+		camera_view_changed = true;
+	}
+	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_TOP))
+	{
+		m_camera_handler->TopView(! ctrl_is_down);
+		camera_view_changed = true;
+	}
+
 	/* Handle camera control */
-	bool camera_view_changed = false;
+	
 	if (m_input_handler->GetMouseMotionEvent().HasMoved() || m_input_handler->GetMouseMotionEvent().HasScrolled())
 	{
-		camera_view_changed = m_camera_handler->InjectMouseMove(
+		bool res = m_camera_handler->InjectMouseMove(
 			m_input_handler->GetMouseButtonEvent().IsRightButtonDown(), /* (bool do_orbit) */
 			m_input_handler->GetMouseMotionEvent().rel_x,
 			m_input_handler->GetMouseMotionEvent().rel_y,
 			m_input_handler->GetMouseMotionEvent().rel_wheel
 		);
+		if (res)
+		{
+			camera_view_changed = true;
+		}
 	}
 
 	/* Handle mouse selection of nodes */

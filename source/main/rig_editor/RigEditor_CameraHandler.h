@@ -139,6 +139,10 @@ class CameraHandler
 	*/
 	bool InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel);
 
+	void LookInDirection(Ogre::Vector3 const & direction);
+
+	void TopView(bool inverted);
+
 #if 0 // Doesn't match RigEditor's event scheme. Left here for reference
 
     /*-----------------------------------------------------------------------------

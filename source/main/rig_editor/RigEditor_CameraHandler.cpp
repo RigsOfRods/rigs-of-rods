@@ -168,43 +168,43 @@ void CameraHandler::ManualStop()
     }
 }
 
-void CameraHandler::Update(float delta_time_seconds)
-{
-    if (mStyle == CS_FREELOOK)
-    {
-        // build our acceleration vector based on keyboard input composite
-        Ogre::Vector3 accel = Ogre::Vector3::ZERO;
-        if (mGoingForward) accel += mCamera->getDirection();
-        if (mGoingBack) accel -= mCamera->getDirection();
-        if (mGoingRight) accel += mCamera->getRight();
-        if (mGoingLeft) accel -= mCamera->getRight();
-        if (mGoingUp) accel += mCamera->getUp();
-        if (mGoingDown) accel -= mCamera->getUp();
-
-        // if accelerating, try to reach top speed in a certain time
-        Ogre::Real topSpeed = mFastMove ? mTopSpeed * 20 : mTopSpeed;
-        if (accel.squaredLength() != 0)
-        {
-            accel.normalise();
-            mVelocity += accel * topSpeed * delta_time_seconds * 10;
-        }
-        // if not accelerating, try to stop in a certain time
-        else mVelocity -= mVelocity * delta_time_seconds * 10;
-
-        Ogre::Real tooSmall = std::numeric_limits<Ogre::Real>::epsilon();
-
-        // keep camera velocity below top speed and above epsilon
-        if (mVelocity.squaredLength() > topSpeed * topSpeed)
-        {
-            mVelocity.normalise();
-            mVelocity *= topSpeed;
-        }
-        else if (mVelocity.squaredLength() < tooSmall * tooSmall)
-            mVelocity = Ogre::Vector3::ZERO;
-
-        if (mVelocity != Ogre::Vector3::ZERO) mCamera->move(mVelocity * delta_time_seconds);
-    }
-}
+//void CameraHandler::Update(float delta_time_seconds)
+//{
+//    if (mStyle == CS_FREELOOK)
+//    {
+//        // build our acceleration vector based on keyboard input composite
+//        Ogre::Vector3 accel = Ogre::Vector3::ZERO;
+//        if (mGoingForward) accel += mCamera->getDirection();
+//        if (mGoingBack) accel -= mCamera->getDirection();
+//        if (mGoingRight) accel += mCamera->getRight();
+//        if (mGoingLeft) accel -= mCamera->getRight();
+//        if (mGoingUp) accel += mCamera->getUp();
+//        if (mGoingDown) accel -= mCamera->getUp();
+//
+//        // if accelerating, try to reach top speed in a certain time
+//        Ogre::Real topSpeed = mFastMove ? mTopSpeed * 20 : mTopSpeed;
+//        if (accel.squaredLength() != 0)
+//        {
+//            accel.normalise();
+//            mVelocity += accel * topSpeed * delta_time_seconds * 10;
+//        }
+//        // if not accelerating, try to stop in a certain time
+//        else mVelocity -= mVelocity * delta_time_seconds * 10;
+//
+//        Ogre::Real tooSmall = std::numeric_limits<Ogre::Real>::epsilon();
+//
+//        // keep camera velocity below top speed and above epsilon
+//        if (mVelocity.squaredLength() > topSpeed * topSpeed)
+//        {
+//            mVelocity.normalise();
+//            mVelocity *= topSpeed;
+//        }
+//        else if (mVelocity.squaredLength() < tooSmall * tooSmall)
+//            mVelocity = Ogre::Vector3::ZERO;
+//
+//        if (mVelocity != Ogre::Vector3::ZERO) mCamera->move(mVelocity * delta_time_seconds);
+//    }
+//}
 
 bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int wheel_rel)
 {
@@ -256,6 +256,31 @@ Ogre::Vector3 CameraHandler::ConvertWorldToViewPosition(
 )
 {
 	return mCamera->getProjectionMatrix() * (mCamera->getViewMatrix(true) * _world_position);
+}
+
+void CameraHandler::LookInDirection(Ogre::Vector3 const & direction)
+{
+	Ogre::Vector3 const & target_pos = mTarget->_getDerivedPosition();
+	Ogre::Real dist = mCamera->getPosition().distance(target_pos);
+	mCamera->setPosition(target_pos);
+	mCamera->setOrientation(Ogre::Quaternion::IDENTITY);
+	mCamera->lookAt(target_pos + direction);
+	mCamera->moveRelative(Ogre::Vector3(0, 0, dist));
+}
+
+void CameraHandler::TopView(bool inverted)
+{
+	// For some reason, Camera::LookAt() doesn't do the trick here.
+
+	Ogre::Vector3 const & target_pos = mTarget->_getDerivedPosition();
+	Ogre::Real dist = mCamera->getPosition().distance(target_pos);
+	mCamera->setPosition(target_pos);
+	mCamera->setOrientation(Ogre::Quaternion::IDENTITY);
+	
+	mCamera->yaw(Ogre::Degree(180));
+	mCamera->pitch(Ogre::Degree(inverted ? -90 : 90)); // Look up/down (truck logical space)
+
+	mCamera->moveRelative(Ogre::Vector3(0, 0, dist));
 }
 
 /**
