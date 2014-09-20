@@ -46,6 +46,7 @@ DECLARE_EVENT (                  CAMERA_VIEW_SIDE,   2,                    "CAME
 DECLARE_EVENT (                   CAMERA_VIEW_TOP,   3,                     "CAMERA_VIEW_TOP" )
 DECLARE_EVENT (    CAMERA_VIEW_TOGGLE_PERSPECTIVE,   4,      "CAMERA_VIEW_TOGGLE_PERSPECTIVE" )
 DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUIT_RIG_EDITOR" )
+DECLARE_EVENT (      NODES_DESELECT_OR_SELECT_ALL,   6,        "NODES_DESELECT_OR_SELECT_ALL" )
 
 #define DECLARE_MODE(_FIELD_, _INDEX_, _NAME_, _KEY_ENTERS_, _KEY_EXITS_) const InputHandler::Mode InputHandler::Mode::_FIELD_(_INDEX_, _NAME_, _KEY_ENTERS_, _KEY_EXITS_);
 
@@ -87,6 +88,7 @@ void InputHandler::SetupDefaultKeyMappings()
 	m_event_key_mappings[OIS::KC_NUMPAD7] = & Event::CAMERA_VIEW_TOP;
 	m_event_key_mappings[OIS::KC_NUMPAD5] = & Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE;
 	m_event_key_mappings[OIS::KC_ESCAPE]  = & Event::QUIT_RIG_EDITOR;
+	m_event_key_mappings[OIS::KC_A]       = & Event::NODES_DESELECT_OR_SELECT_ALL;
 
 	m_mode_key_mappings[OIS::KC_N]        = & Mode::CREATE_NEW_NODE;
 	m_mode_key_mappings[OIS::KC_G]        = & Mode::GRAB_NODES;

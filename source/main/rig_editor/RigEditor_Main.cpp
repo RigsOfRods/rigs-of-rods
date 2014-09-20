@@ -277,6 +277,16 @@ void Main::UpdateMainLoop()
 			node_mouse_selecting_disabled = true;
 		}
 
+		// Deselect/select all nodes
+		if	(	(m_input_handler->WasEventFired(InputHandler::Event::NODES_DESELECT_OR_SELECT_ALL))
+			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
+			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
+			)
+		{
+			m_rig->DeselectOrSelectAllNodes();
+			node_selection_changed = true;
+		}
+
 		// Creating new nodes with mouse
 		if (m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
 		{
