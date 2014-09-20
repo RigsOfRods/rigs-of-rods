@@ -59,6 +59,7 @@ public:
 		static const Event CAMERA_VIEW_TOP;
 		static const Event CAMERA_VIEW_TOGGLE_PERSPECTIVE;
 		static const Event QUIT_RIG_EDITOR;
+		static const Event NODES_DESELECT_OR_SELECT_ALL;
 
 		Event(unsigned int index, const char * name):
 			index(index),

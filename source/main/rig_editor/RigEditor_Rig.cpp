@@ -299,3 +299,24 @@ void Rig::RefreshBeamsDynamicMesh()
 
 	m_beams_dynamic_mesh->end();
 }
+
+void Rig::DeselectOrSelectAllNodes()
+{
+	int num_deselected = 0;
+	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		if (itor->second.IsSelected())
+		{
+			itor->second.SetSelected(false);
+			num_deselected++;
+		}
+	}
+
+	if (num_deselected == 0)
+	{
+		for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+		{
+			itor->second.SetSelected(true);
+		}
+	}
+}

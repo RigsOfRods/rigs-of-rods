@@ -85,6 +85,10 @@ public:
 
 	void RefreshBeamsDynamicMesh();
 
+	/** Deselects all nodes. If none was selected, selects all.
+	*/
+	void DeselectOrSelectAllNodes();
+
 private:
 
 	/* STRUCTURE */
