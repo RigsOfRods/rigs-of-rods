@@ -240,3 +240,30 @@ bool Rig::ToggleMouseHoveredNodeSelected()
 	m_mouse_hovered_node->SetSelected(! m_mouse_hovered_node->IsSelected());
 	return true;
 }
+
+Node& Rig::CreateNewNode(Ogre::Vector3 const & position)
+{
+	// CREATE NODE DEF \\
+
+	// TODO: Add support for RigDef::Module selection
+	RigDef::File::Module* target_module = m_rig_def->root_module.get();
+
+	unsigned int target_index = target_module->nodes.size();
+	target_module->nodes.resize(target_module->nodes.size() + 1); // Construct in-place
+	RigDef::Node & node_def = target_module->nodes.back();
+
+	m_highest_node_id++;
+	node_def.id.SetNum(m_highest_node_id);
+	node_def.position = position;
+
+	// CREATE EDITOR NODE \\
+
+	auto result = m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_def.id, Node(target_module, target_index)) );
+	if (result.second == true)
+	{
+		// Update bounding box
+		m_aabb.merge(position);
+	}
+
+	return result.first->second;
+}

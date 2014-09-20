@@ -69,6 +69,20 @@ public:
 		unsigned int index;
 	};
 
+	struct Mode
+	{
+		static const Mode INVALID;
+		static const Mode CREATE_NEW_NODE;
+
+		Mode(unsigned int index, const char * NAME):
+			index(index),
+			name(name)
+		{}
+
+		const char * name;
+		unsigned int index;
+	};
+
 	struct MouseMotionEvent
 	{
 		int rel_x;
@@ -222,6 +236,8 @@ public:
 
 	bool WasEventFired(Event const & event);
 
+	bool IsModeActive(Mode const & mode);
+
 	void ResetEvents();
 
 	MouseMotionEvent const & GetMouseMotionEvent();
@@ -241,9 +257,10 @@ private:
 
 	void SetupDefaultKeyMappings();
 
-	const Event*       m_key_mappings[KEY_MAPPING_ARRAY_SIZE];
-
+	const Event*       m_event_key_mappings[KEY_MAPPING_ARRAY_SIZE];
 	std::bitset<64>    m_events_fired;
+	const Mode*        m_mode_key_mappings[KEY_MAPPING_ARRAY_SIZE];
+	std::bitset<64>    m_active_modes;
 
 	MouseMotionEvent   m_mouse_motion_event;
 	MouseButtonEvent   m_mouse_button_event;

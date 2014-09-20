@@ -44,16 +44,19 @@ using namespace RoR;
 using namespace RoR::RigEditor;
 
 Rig* RigFactory::BuildRig(
-	RigDef::File* rig_def, 
+	boost::shared_ptr<RigDef::File> rig_def, 
 	std::vector< boost::shared_ptr<RigDef::File::Module> > & selected_modules, 
 	RigEditor::Main* rig_editor
 	)
 {
 	RigEditor::Config & config = *rig_editor->GetConfig();
 	RigEditor::Rig* rig = new Rig(rig_editor->GetConfig());
+
+	rig->m_rig_def = rig_def;
 	
 	/* Process nodes (section "nodes") */
 
+	unsigned int highest_numeric_id = 0;
 	for (auto module_itor = selected_modules.begin(); module_itor != selected_modules.end(); module_itor++)
 	{
 		int node_index = 0;
@@ -63,11 +66,17 @@ Rig* RigFactory::BuildRig(
 			RigDef::Node::Id & node_id = node_itor->id;
 			while (true)
 			{
-				auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_id, Node(*module_itor, node_index)) );
+				auto result = rig->m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_id, Node(module_itor->get(), node_index)) );
 				if (result.second == true)
 				{
 					// Update bounding box
 					rig->m_aabb.merge(node_itor->position);
+
+					// Update highest numeric ID
+					if (node_id.Str().empty()) // Is numerically indexes?
+					{
+						highest_numeric_id = (node_id.Num() > highest_numeric_id) ? node_id.Num() : highest_numeric_id;
+					}
 
 					break;
 				}
@@ -84,6 +93,7 @@ Rig* RigFactory::BuildRig(
 			node_index++;
 		}
 	}
+	rig->m_highest_node_id = highest_numeric_id;
 
 	/* Process beams (section "beams") */
 	std::vector<RigDef::Beam> unlinked_beams_to_retry; // Linked to invalid nodes, will retry after other sections (esp. wheels) were processed

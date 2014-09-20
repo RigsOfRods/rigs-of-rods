@@ -261,16 +261,35 @@ void Main::UpdateMainLoop()
 	/* Handle mouse selection of nodes */
 	if (m_rig != nullptr)
 	{
+		bool node_selection_changed = false;
+		bool node_hover_changed = false;
+		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
+
+		if (m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
+		{
+			if (m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
+			{
+				if (! ctrl_is_down)
+				{
+					m_rig->DeselectAllNodes();
+					node_selection_changed = true;
+				}
+				Node & new_node = m_rig->CreateNewNode(
+						m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO)
+					);
+				new_node.SetSelected(true);
+				node_selection_changed = true;
+			}
+		}
+
 		if (camera_view_changed || camera_ortho_toggled)
 		{
 			m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
 		}
-
-		bool node_selection_changed = false;
-		bool node_hover_changed = false;
+		
 		if (m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled)
 		{
-			node_hover_changed = m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition());
+			node_hover_changed = m_rig->RefreshMouseHoveredNode(mouse_screen_position);
 		}
 
 		if ( (! node_hover_changed) && m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
@@ -488,7 +507,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	RigFactory rig_factory;
 	std::vector< boost::shared_ptr<RigDef::File::Module> > selected_modules;
 	selected_modules.push_back(parser.GetFile()->root_module); // TODO: Handle multiple modules
-	m_rig = rig_factory.BuildRig(parser.GetFile().get(), selected_modules, this);
+	m_rig = rig_factory.BuildRig(parser.GetFile(), selected_modules, this);
 
 	/* SHOW MESH */
 

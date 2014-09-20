@@ -66,6 +66,8 @@ using namespace RoR::RigEditor;
 CameraHandler::CameraHandler(Ogre::Camera* cam)
 	: mCamera(cam)
 	, m_ortho_zoom_ratio(0)
+	, m_inverse_projection_matrix_dirty(true)
+	, m_inverse_view_matrix_dirty(true)
 	, mTarget(0)
 	, mZooming(false)
 	, mTopSpeed(150)
@@ -95,7 +97,7 @@ void CameraHandler::SetOrbitTarget(Ogre::SceneNode* target)
         {
             mCamera->setAutoTracking(false);
         }
-
+		m_inverse_view_matrix_dirty = true;
     }
 }
 
@@ -110,6 +112,7 @@ void CameraHandler::ToggleOrtho()
 	{
 		mCamera->setProjectionType(Ogre::PT_PERSPECTIVE);
 	}
+	m_inverse_projection_matrix_dirty = true;
 }
 
 float CameraHandler::GetCameraTargetDistance()
@@ -220,6 +223,7 @@ bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
             mCamera->pitch(Ogre::Degree(-y_rel * 0.25f));
 
             mCamera->moveRelative(Ogre::Vector3(0, 0, dist));
+			m_inverse_view_matrix_dirty = true;
 			return true;
 
             // don't let the camera go over the top or around the bottom of the target
@@ -228,6 +232,7 @@ bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
         {
             // the further the camera is, the faster it moves
             mCamera->moveRelative(Ogre::Vector3(0, 0, y_rel * 0.004f * dist));
+			m_inverse_view_matrix_dirty = true;
 			return true;
         }
         else if (wheel_rel != 0)  // move the camera toward or away from the target
@@ -239,6 +244,7 @@ bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
 			{
 				UpdateOrthoZoom();
 			}
+			m_inverse_view_matrix_dirty = true;
 			return true;
 		}
     }
@@ -251,13 +257,6 @@ bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
 	return false;
 }
 
-Ogre::Vector3 CameraHandler::ConvertWorldToViewPosition(
-	Ogre::Vector3 const & _world_position
-)
-{
-	return mCamera->getProjectionMatrix() * (mCamera->getViewMatrix(true) * _world_position);
-}
-
 void CameraHandler::LookInDirection(Ogre::Vector3 const & direction)
 {
 	Ogre::Vector3 const & target_pos = mTarget->_getDerivedPosition();
@@ -266,6 +265,7 @@ void CameraHandler::LookInDirection(Ogre::Vector3 const & direction)
 	mCamera->setOrientation(Ogre::Quaternion::IDENTITY);
 	mCamera->lookAt(target_pos + direction);
 	mCamera->moveRelative(Ogre::Vector3(0, 0, dist));
+	m_inverse_view_matrix_dirty = true;
 }
 
 void CameraHandler::TopView(bool inverted)
@@ -281,6 +281,7 @@ void CameraHandler::TopView(bool inverted)
 	mCamera->pitch(Ogre::Degree(inverted ? -90 : 90)); // Look up/down (truck logical space)
 
 	mCamera->moveRelative(Ogre::Vector3(0, 0, dist));
+	m_inverse_view_matrix_dirty = true;
 }
 
 /**
@@ -293,31 +294,23 @@ bool CameraHandler::ConvertWorldToScreenPosition(
 	float & _out_camera_distance
 )
 {
-	// Transform position
-	Ogre::Vector3 eye_space_pos = mCamera->getViewMatrix(true) * _world_position;
+	// Transform position: world space -> view space
+	Ogre::Vector3 view_space_pos = mCamera->getViewMatrix(true) * _world_position;
 
 	// Check if the position is in front of the camera
-	if (eye_space_pos.z < 0.f)
+	if (view_space_pos.z < 0.f)
 	{
 		// Get distance
-		_out_camera_distance = -eye_space_pos.z;
+		_out_camera_distance = -view_space_pos.z;
 
-		Ogre::Vector3 view_space_pos = mCamera->getProjectionMatrix() * eye_space_pos;
+		// Transform: view space -> clip space [-1, 1]
+		Ogre::Vector3 clip_space_pos = mCamera->getProjectionMatrix() * view_space_pos;
 
-		// Transform from coordinate space [-1, 1] to [0, 1]
-		float screen_space_pos_x = (view_space_pos.x / 2.f) + 0.5f;
-		float screen_space_pos_y = 1 - ((view_space_pos.y / 2.f) + 0.5f);
+		// Transform: clip space [-1, 1] -> to [0, 1]
+		float screen_space_pos_x = (clip_space_pos.x / 2.f) + 0.5f;
+		float screen_space_pos_y = 1 - ((clip_space_pos.y / 2.f) + 0.5f);
 
-		// Debug
-		//std::stringstream s;
-		//s.setf(std::ios::fixed);
-		//s.precision(3);
-		//s<<"view: {"<<view_space_pos.x<<"; "<<view_space_pos.y<<"; "<<view_space_pos.z
-		//	<<"}, screenspace: {"<<screen_space_pos.x<<", "<<screen_space_pos.y<<", "<<screen_space_pos.z<<"}";
-		//LOG(s.str())
-		// ------
-
-		// Transform to absolute pixel coordinates
+		// Transform: clip space -> absolute pixel coordinates
 		Ogre::Viewport* viewport = mCamera->getViewport();
 		out_screen_position.x = static_cast<int>(screen_space_pos_x * viewport->getActualWidth());
 		out_screen_position.y = static_cast<int>(screen_space_pos_y * viewport->getActualHeight());
@@ -330,4 +323,45 @@ bool CameraHandler::ConvertWorldToScreenPosition(
 		return false;
 	}
 }
-//-------------------------------------------------------------------------------------------------
+
+Ogre::Vector3 CameraHandler::ConvertScreenToWorldPosition(Vector2int const & screen_pos, Ogre::Vector3 const & pivot)
+{
+	if (m_inverse_projection_matrix_dirty)
+	{
+		m_inverse_projection_matrix = mCamera->getProjectionMatrix().inverse();
+		m_inverse_projection_matrix_dirty = false;
+	}
+
+	if (m_inverse_view_matrix_dirty)
+	{
+		m_inverse_view_matrix = mCamera->getViewMatrix().inverse();
+		m_inverse_view_matrix_dirty = false;
+	}
+
+	// NOTE:
+	// Screen pixel coordinates depend on your resolution:
+	//     * start at top left corner of the screen (X:0, Y:0)
+	//     * end in bottom right (for example X:1024, Y:768)
+	// Clip space coordinates are always in range [-1, 1]:
+	//     * start in the middle of the screen (X:0, Y:0, Z:0)
+	//     * Bottom left corner of screen is (X:-1, Y:-1, Z:0)
+	//     * Top right corner of screen is (X:1, Y:1, Z:0)
+
+	// Transform: pixel coordinates -> clip space
+	Ogre::Viewport* viewport = mCamera->getViewport();
+	Ogre::Vector3 output(
+			(((static_cast<float>(screen_pos.x) / static_cast<float>(viewport->getActualWidth()) ) *  2.f) - 1.f),
+			(((static_cast<float>(screen_pos.y) / static_cast<float>(viewport->getActualHeight())) * -2.f) + 1.f),
+			0.f
+		);
+
+	// Set point's depth, defined by pivot
+	Ogre::Vector3 clip_space_pivot = mCamera->getProjectionMatrix() * mCamera->getViewMatrix() * pivot; // Transform pivot: world space -> clip space
+	output.z = clip_space_pivot.z;
+
+	// Transform clip space -> view space
+	output = m_inverse_projection_matrix * output;
+
+	// Transform view space -> world space
+	return m_inverse_view_matrix * output;
+}

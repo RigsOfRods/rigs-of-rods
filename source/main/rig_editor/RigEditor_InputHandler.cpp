@@ -47,6 +47,11 @@ DECLARE_EVENT (                   CAMERA_VIEW_TOP,   3,                     "CAM
 DECLARE_EVENT (    CAMERA_VIEW_TOGGLE_PERSPECTIVE,   4,      "CAMERA_VIEW_TOGGLE_PERSPECTIVE" )
 DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUIT_RIG_EDITOR" )
 
+#define DECLARE_MODE(_FIELD_, _INDEX_, _NAME_) const InputHandler::Mode InputHandler::Mode::_FIELD_(_INDEX_, _NAME_);
+
+DECLARE_MODE (                            INVALID,   0,                             "INVALID" )
+DECLARE_MODE (                    CREATE_NEW_NODE,   1,                     "CREATE_NEW_NODE" )
+
 // ================================================================================
 // Functions
 // ================================================================================
@@ -63,18 +68,21 @@ InputHandler::MouseMotionEvent::MouseMotionEvent():
 
 InputHandler::InputHandler()
 {
-	std::memset(m_key_mappings, 0, KEY_MAPPING_ARRAY_SIZE * sizeof(Event *)); 
+	std::memset(m_event_key_mappings, 0, KEY_MAPPING_ARRAY_SIZE * sizeof(Event *)); 
+	std::memset(m_mode_key_mappings, 0, KEY_MAPPING_ARRAY_SIZE * sizeof(Mode *)); 
 
 	SetupDefaultKeyMappings();
 }
 
 void InputHandler::SetupDefaultKeyMappings()
 {
-	m_key_mappings[OIS::KC_NUMPAD1] = & Event::CAMERA_VIEW_FRONT;
-	m_key_mappings[OIS::KC_NUMPAD3] = & Event::CAMERA_VIEW_SIDE;
-	m_key_mappings[OIS::KC_NUMPAD7] = & Event::CAMERA_VIEW_TOP;
-	m_key_mappings[OIS::KC_NUMPAD5] = & Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE;
-	m_key_mappings[OIS::KC_ESCAPE]  = & Event::QUIT_RIG_EDITOR;
+	m_event_key_mappings[OIS::KC_NUMPAD1] = & Event::CAMERA_VIEW_FRONT;
+	m_event_key_mappings[OIS::KC_NUMPAD3] = & Event::CAMERA_VIEW_SIDE;
+	m_event_key_mappings[OIS::KC_NUMPAD7] = & Event::CAMERA_VIEW_TOP;
+	m_event_key_mappings[OIS::KC_NUMPAD5] = & Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE;
+	m_event_key_mappings[OIS::KC_ESCAPE]  = & Event::QUIT_RIG_EDITOR;
+
+	m_mode_key_mappings[OIS::KC_N]        = & Mode::CREATE_NEW_NODE;
 }
 
 bool InputHandler::WasEventFired(Event const & event)
@@ -102,6 +110,11 @@ InputHandler::MouseButtonEvent const & InputHandler::GetMouseButtonEvent()
 	return m_mouse_button_event;
 }
 
+bool InputHandler::IsModeActive(Mode const & mode)
+{
+	return m_active_modes[mode.index];
+}
+
 // ================================================================================
 // OIS Keyboard listener
 // ================================================================================
@@ -113,13 +126,22 @@ bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
 		return true;
 	}
 
-	const Event* event_ptr = m_key_mappings[arg.key];
-	if (event_ptr == nullptr) 
+	// HANDLE EVENTS \\
+
+	const Event* event_ptr = m_event_key_mappings[arg.key];
+	if (event_ptr != nullptr) 
 	{
-		return true; /* Unassigned key */
+		m_events_fired[event_ptr->index] = true;
 	}
-	unsigned int event_index = event_ptr->index;
-	m_events_fired[event_index] = true;
+	
+	// HANDLE MODES \\
+
+	const Mode* mode_ptr = m_mode_key_mappings[arg.key];
+	if (mode_ptr != nullptr) 
+	{
+		m_active_modes[mode_ptr->index] = true;
+	}
+
 	return true;
 }
 
@@ -128,6 +150,14 @@ bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
 	if (RoR::Application::GetGuiManager()->keyReleased(arg))
 	{
 		return true;
+	}
+
+	// HANDLE MODES \\
+
+	const Mode* mode_ptr = m_mode_key_mappings[arg.key];
+	if (mode_ptr != nullptr) 
+	{
+		m_active_modes[mode_ptr->index] = false;
 	}
 
 	return true;
