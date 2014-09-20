@@ -79,6 +79,8 @@ public:
 
 	Node& CreateNewNode(Ogre::Vector3 const & position);
 
+	void ClearMouseHoveredNode();
+
 private:
 
 	/* STRUCTURE */

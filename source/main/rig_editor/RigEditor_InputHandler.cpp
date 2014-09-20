@@ -98,6 +98,9 @@ void InputHandler::ResetEvents()
 	m_mouse_motion_event.ResetRelativeScroll();
 
 	m_mouse_button_event.ResetEvents();
+
+	m_modes_entered.reset();
+	m_modes_exited.reset();
 }
 
 InputHandler::MouseMotionEvent const & InputHandler::GetMouseMotionEvent()
@@ -113,6 +116,16 @@ InputHandler::MouseButtonEvent const & InputHandler::GetMouseButtonEvent()
 bool InputHandler::IsModeActive(Mode const & mode)
 {
 	return m_active_modes[mode.index];
+}
+
+bool InputHandler::WasModeEntered(Mode const & mode)
+{
+	return m_modes_entered[mode.index];
+}
+	
+bool InputHandler::WasModeExited(Mode const & mode)
+{
+	return m_modes_exited[mode.index];
 }
 
 // ================================================================================
@@ -140,6 +153,7 @@ bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
 	if (mode_ptr != nullptr) 
 	{
 		m_active_modes[mode_ptr->index] = true;
+		m_modes_entered[mode_ptr->index] = true;
 	}
 
 	return true;
@@ -158,6 +172,7 @@ bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
 	if (mode_ptr != nullptr) 
 	{
 		m_active_modes[mode_ptr->index] = false;
+		m_modes_exited[mode_ptr->index] = true;
 	}
 
 	return true;

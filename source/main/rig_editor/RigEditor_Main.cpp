@@ -265,6 +265,12 @@ void Main::UpdateMainLoop()
 		bool node_hover_changed = false;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
+		if (m_input_handler->WasModeEntered(InputHandler::Mode::CREATE_NEW_NODE))
+		{
+			m_rig->ClearMouseHoveredNode();
+			node_hover_changed = true;
+		}
+
 		if (m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
 		{
 			if (m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
@@ -278,6 +284,7 @@ void Main::UpdateMainLoop()
 						m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO)
 					);
 				new_node.SetSelected(true);
+				m_rig->RefreshNodeScreenPosition(new_node, m_camera_handler);
 				node_selection_changed = true;
 			}
 		}
@@ -287,12 +294,22 @@ void Main::UpdateMainLoop()
 			m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
 		}
 		
-		if (m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled)
+		if	(	(m_input_handler->WasModeExited(InputHandler::Mode::CREATE_NEW_NODE))
+			||	(	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
+				&&	((m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled))
+				)
+			)
 		{
-			node_hover_changed = m_rig->RefreshMouseHoveredNode(mouse_screen_position);
+			if (m_rig->RefreshMouseHoveredNode(mouse_screen_position))
+			{
+				node_hover_changed = true;
+			}
 		}
 
-		if ( (! node_hover_changed) && m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
+		if	(	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE)) 
+			&&	(! node_hover_changed) 
+			&&	(m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
+			)
 		{
 			if (! ctrl_is_down)
 			{

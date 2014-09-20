@@ -238,6 +238,10 @@ public:
 
 	bool IsModeActive(Mode const & mode);
 
+	bool WasModeEntered(Mode const & mode);
+	
+	bool WasModeExited(Mode const & mode);
+
 	void ResetEvents();
 
 	MouseMotionEvent const & GetMouseMotionEvent();
@@ -260,7 +264,9 @@ private:
 	const Event*       m_event_key_mappings[KEY_MAPPING_ARRAY_SIZE];
 	std::bitset<64>    m_events_fired;
 	const Mode*        m_mode_key_mappings[KEY_MAPPING_ARRAY_SIZE];
-	std::bitset<64>    m_active_modes;
+	std::bitset<32>    m_active_modes;
+	std::bitset<32>    m_modes_entered;
+	std::bitset<32>    m_modes_exited;
 
 	MouseMotionEvent   m_mouse_motion_event;
 	MouseButtonEvent   m_mouse_button_event;

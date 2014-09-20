@@ -266,3 +266,8 @@ Node& Rig::CreateNewNode(Ogre::Vector3 const & position)
 
 	return result.first->second;
 }
+
+void Rig::ClearMouseHoveredNode()
+{
+	m_mouse_hovered_node = nullptr;
+}
