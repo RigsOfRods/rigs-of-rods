@@ -73,9 +73,8 @@ Rig::~Rig()
 
 void Rig::RefreshNodeScreenPosition(Node & node, CameraHandler* camera_handler)
 {
-	float z_distance;
 	Vector2int screen_pos(-1, -1);
-	bool node_visible = camera_handler->ConvertWorldToScreenPosition(node.GetPosition(), screen_pos, z_distance);
+	bool node_visible = camera_handler->ConvertWorldToScreenPosition(node.GetPosition(), screen_pos);
 	if (node_visible)
 	{
 		node.SetScreenPosition(screen_pos);

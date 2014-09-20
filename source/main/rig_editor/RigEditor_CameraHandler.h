@@ -232,8 +232,7 @@ class CameraHandler
 
 	bool ConvertWorldToScreenPosition(
 		Ogre::Vector3 const & world_position,
-		Vector2int & out_screen_position,
-		float & out_camera_distance
+		Vector2int & out_screen_position
 	);
 
 	float GetCameraTargetDistance();

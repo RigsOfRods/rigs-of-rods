@@ -117,7 +117,7 @@ void CameraHandler::ToggleOrtho()
 
 float CameraHandler::GetCameraTargetDistance()
 {
-	return mCamera->getPosition().distance(mTarget->getPosition());
+	return (mCamera->getViewMatrix() * mTarget->getPosition()).z * -1;
 }
 
 void CameraHandler::UpdateOrthoZoom()
@@ -213,7 +213,7 @@ bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
 {
     if (mStyle == CS_ORBIT)
     {
-        Ogre::Real dist = (mCamera->getPosition() - mTarget->_getDerivedPosition()).length();
+        Ogre::Real dist = GetCameraTargetDistance();
 
         if (do_orbit)   // yaw around the target, and pitch locally
         {
@@ -260,7 +260,7 @@ bool CameraHandler::InjectMouseMove(bool do_orbit, int x_rel, int y_rel, int whe
 void CameraHandler::LookInDirection(Ogre::Vector3 const & direction)
 {
 	Ogre::Vector3 const & target_pos = mTarget->_getDerivedPosition();
-	Ogre::Real dist = mCamera->getPosition().distance(target_pos);
+	Ogre::Real dist = GetCameraTargetDistance();
 	mCamera->setPosition(target_pos);
 	mCamera->setOrientation(Ogre::Quaternion::IDENTITY);
 	mCamera->lookAt(target_pos + direction);
@@ -273,7 +273,7 @@ void CameraHandler::TopView(bool inverted)
 	// For some reason, Camera::LookAt() doesn't do the trick here.
 
 	Ogre::Vector3 const & target_pos = mTarget->_getDerivedPosition();
-	Ogre::Real dist = mCamera->getPosition().distance(target_pos);
+	Ogre::Real dist = GetCameraTargetDistance();
 	mCamera->setPosition(target_pos);
 	mCamera->setOrientation(Ogre::Quaternion::IDENTITY);
 	
@@ -290,8 +290,7 @@ void CameraHandler::TopView(bool inverted)
 */
 bool CameraHandler::ConvertWorldToScreenPosition(
 	Ogre::Vector3 const & _world_position,
-	Vector2int & out_screen_position,
-	float & _out_camera_distance
+	Vector2int & out_screen_position
 )
 {
 	// Transform position: world space -> view space
@@ -300,9 +299,6 @@ bool CameraHandler::ConvertWorldToScreenPosition(
 	// Check if the position is in front of the camera
 	if (view_space_pos.z < 0.f)
 	{
-		// Get distance
-		_out_camera_distance = -view_space_pos.z;
-
 		// Transform: view space -> clip space [-1, 1]
 		Ogre::Vector3 clip_space_pos = mCamera->getProjectionMatrix() * view_space_pos;
 
@@ -319,7 +315,6 @@ bool CameraHandler::ConvertWorldToScreenPosition(
 	}
 	else
 	{
-		_out_camera_distance = 0.f;
 		return false;
 	}
 }
