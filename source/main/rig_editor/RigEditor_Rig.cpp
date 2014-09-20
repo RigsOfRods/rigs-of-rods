@@ -271,3 +271,16 @@ void Rig::ClearMouseHoveredNode()
 {
 	m_mouse_hovered_node = nullptr;
 }
+
+void Rig::TranslateSelectedNodes(Ogre::Vector3 const & offset, CameraHandler* camera_handler)
+{
+	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		if (itor->second.IsSelected())
+		{
+			Ogre::Vector3 & node_pos = itor->second.GetDefinition().position;
+			node_pos = node_pos + offset;
+			RefreshNodeScreenPosition(itor->second, camera_handler);
+		}
+	}
+}

@@ -258,21 +258,29 @@ void Main::UpdateMainLoop()
 		}
 	}
 
-	/* Handle mouse selection of nodes */
+	// RIG MANIPULATION \\
+
 	if (m_rig != nullptr)
 	{
 		bool node_selection_changed = false;
 		bool node_hover_changed = false;
+		bool node_mouse_selecting_disabled = false;
+		bool rig_updated = false;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
-		if (m_input_handler->WasModeEntered(InputHandler::Mode::CREATE_NEW_NODE))
+		if	(	(m_input_handler->WasModeEntered(InputHandler::Mode::CREATE_NEW_NODE))
+			||	(m_input_handler->WasModeEntered(InputHandler::Mode::GRAB_NODES))
+			)
 		{
 			m_rig->ClearMouseHoveredNode();
 			node_hover_changed = true;
+			node_mouse_selecting_disabled = true;
 		}
 
+		// Creating new nodes with mouse
 		if (m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
 		{
+			node_mouse_selecting_disabled = true;
 			if (m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
 			{
 				if (! ctrl_is_down)
@@ -286,7 +294,23 @@ void Main::UpdateMainLoop()
 				new_node.SetSelected(true);
 				m_rig->RefreshNodeScreenPosition(new_node, m_camera_handler);
 				node_selection_changed = true;
+				rig_updated = true;
 			}
+		}
+
+		// Grabbing nodes with mouse
+		if	(	(m_input_handler->GetMouseMotionEvent().HasMoved()) 
+			&&	(m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
+			)
+		{
+			Ogre::Vector3 mouse_world_pos = m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO);
+			Ogre::Vector3 previous_world_pos = m_camera_handler->ConvertScreenToWorldPosition(
+				m_input_handler->GetMouseMotionEvent().GetPreviousAbsolutePosition(), 
+				Ogre::Vector3::ZERO
+			);
+
+			m_rig->TranslateSelectedNodes(mouse_world_pos - previous_world_pos, m_camera_handler);
+			rig_updated = true;
 		}
 
 		if (camera_view_changed || camera_ortho_toggled)
@@ -295,6 +319,7 @@ void Main::UpdateMainLoop()
 		}
 		
 		if	(	(m_input_handler->WasModeExited(InputHandler::Mode::CREATE_NEW_NODE))
+			||	(m_input_handler->WasModeExited(InputHandler::Mode::GRAB_NODES))
 			||	(	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
 				&&	((m_input_handler->GetMouseMotionEvent().HasMoved() || camera_view_changed || camera_ortho_toggled))
 				)
@@ -306,7 +331,7 @@ void Main::UpdateMainLoop()
 			}
 		}
 
-		if	(	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE)) 
+		if	(	(! node_mouse_selecting_disabled) 
 			&&	(! node_hover_changed) 
 			&&	(m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
 			)
@@ -319,7 +344,7 @@ void Main::UpdateMainLoop()
 			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected() ? true : node_selection_changed;
 		}
 
-		if (node_selection_changed || node_hover_changed)
+		if (rig_updated || node_selection_changed || node_hover_changed)
 		{
 			m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
 		}
