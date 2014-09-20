@@ -134,8 +134,22 @@ Rig* RigFactory::BuildRig(
 					nodes[1] = &result->second; // Assing node 1
 				}
 			}
-
-			rig->m_beams.push_back( new Beam(*beam_itor, nodes[0], nodes[1]) );
+		
+			// Colorize beams
+			unsigned int beam_options = beam_itor->options;
+			Ogre::ColourValue const & color =
+				(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_i_INVISIBLE))
+				?	config.beam_invisible_color
+				:	(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_r_ROPE))
+					?	config.beam_rope_color
+					:	(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_s_SUPPORT))
+						?	config.beam_support_color
+						:	config.beam_generic_color;
+			
+			// Allocate and save
+			Beam* beam = new Beam(*beam_itor, nodes[0], nodes[1]);
+			beam->SetColor(color);
+			rig->m_beams.push_back(beam);
 		}
 	}
 
@@ -170,20 +184,10 @@ Rig* RigFactory::BuildRig(
 	/* Process beams */
 	for (auto itor = rig->m_beams.begin(); itor != rig->m_beams.end(); itor++)
 	{
-		unsigned int beam_options = (*itor)->m_def_beam.options;
-		Ogre::ColourValue const & color =
-			(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_i_INVISIBLE))
-			?	config.beam_invisible_color
-			:	(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_r_ROPE))
-				?	config.beam_rope_color
-				:	(BITMASK_IS_1(beam_options, RigDef::Beam::OPTION_s_SUPPORT))
-					?	config.beam_support_color
-					:	config.beam_generic_color;
-
 		rig->m_beams_dynamic_mesh->position((*itor)->GetNodeA()->GetPosition());
-		rig->m_beams_dynamic_mesh->colour(color);
+		rig->m_beams_dynamic_mesh->colour((*itor)->GetColor());
 		rig->m_beams_dynamic_mesh->position((*itor)->GetNodeB()->GetPosition());
-		rig->m_beams_dynamic_mesh->colour(color);
+		rig->m_beams_dynamic_mesh->colour((*itor)->GetColor());
 	}
 
 	/* Finalize */

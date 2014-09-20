@@ -284,3 +284,18 @@ void Rig::TranslateSelectedNodes(Ogre::Vector3 const & offset, CameraHandler* ca
 		}
 	}
 }
+
+void Rig::RefreshBeamsDynamicMesh()
+{
+	m_beams_dynamic_mesh->beginUpdate(0);
+
+	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
+	{
+		m_beams_dynamic_mesh->position((*itor)->GetNodeA()->GetPosition());
+		m_beams_dynamic_mesh->colour((*itor)->GetColor());
+		m_beams_dynamic_mesh->position((*itor)->GetNodeB()->GetPosition());
+		m_beams_dynamic_mesh->colour((*itor)->GetColor());
+	}
+
+	m_beams_dynamic_mesh->end();
+}

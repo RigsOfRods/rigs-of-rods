@@ -348,6 +348,10 @@ void Main::UpdateMainLoop()
 		{
 			m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
 		}
+		if (rig_updated)
+		{
+			m_rig->RefreshBeamsDynamicMesh();
+		}
 	}
 
 	/* Update devel console */
