@@ -54,7 +54,7 @@ public:
 		m_screen_position(0, 0)
 	{}
 
-	Ogre::Vector3 const & GetPosition() const
+	Ogre::Vector3 const & GetPosition()
 	{
 		return GetDefinition().position;
 	}
@@ -89,7 +89,7 @@ public:
 		return BITMASK_IS_1(m_flags, Flags::SELECTED);
 	}
 
-	RigDef::Node const & GetDefinition() const
+	RigDef::Node & GetDefinition()
 	{
 		return m_def_module->nodes[m_def_index];
 	}

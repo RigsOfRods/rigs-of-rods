@@ -81,6 +81,8 @@ public:
 
 	void ClearMouseHoveredNode();
 
+	void TranslateSelectedNodes(Ogre::Vector3 const & offset, CameraHandler* camera_handler);
+
 private:
 
 	/* STRUCTURE */

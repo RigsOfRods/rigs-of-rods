@@ -73,6 +73,7 @@ public:
 	{
 		static const Mode INVALID;
 		static const Mode CREATE_NEW_NODE;
+		static const Mode GRAB_NODES;
 
 		Mode(unsigned int index, const char * NAME):
 			index(index),
@@ -126,6 +127,8 @@ public:
 		{
 			return Vector2int(abs_x, abs_y);
 		}
+
+		Vector2int GetPreviousAbsolutePosition() const;
 	};
 
 	struct MouseButtonEvent

@@ -51,10 +51,16 @@ DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUI
 
 DECLARE_MODE (                            INVALID,   0,                             "INVALID" )
 DECLARE_MODE (                    CREATE_NEW_NODE,   1,                     "CREATE_NEW_NODE" )
+DECLARE_MODE (                         GRAB_NODES,   2,                          "GRAB_NODES" )
 
 // ================================================================================
 // Functions
 // ================================================================================
+
+Vector2int InputHandler::MouseMotionEvent::GetPreviousAbsolutePosition() const
+{
+	return Vector2int( abs_x - rel_x, abs_y - rel_y );
+}
 
 InputHandler::MouseMotionEvent::MouseMotionEvent():
 	rel_x(0),
@@ -83,6 +89,7 @@ void InputHandler::SetupDefaultKeyMappings()
 	m_event_key_mappings[OIS::KC_ESCAPE]  = & Event::QUIT_RIG_EDITOR;
 
 	m_mode_key_mappings[OIS::KC_N]        = & Mode::CREATE_NEW_NODE;
+	m_mode_key_mappings[OIS::KC_G]        = & Mode::GRAB_NODES;
 }
 
 bool InputHandler::WasEventFired(Event const & event)
