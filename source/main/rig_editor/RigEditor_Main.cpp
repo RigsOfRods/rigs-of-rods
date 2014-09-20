@@ -299,19 +299,28 @@ void Main::UpdateMainLoop()
 		}
 
 		// Grabbing nodes with mouse
-		if	(	(m_input_handler->GetMouseMotionEvent().HasMoved()) 
-			&&	(m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
-			)
+		if (m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
 		{
-			Ogre::Vector3 mouse_world_pos = m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO);
-			Ogre::Vector3 previous_world_pos = m_camera_handler->ConvertScreenToWorldPosition(
-				m_input_handler->GetMouseMotionEvent().GetPreviousAbsolutePosition(), 
-				Ogre::Vector3::ZERO
-			);
+			if (m_input_handler->GetMouseMotionEvent().HasMoved())
+			{
+				// Translate selected nodes
+				Ogre::Vector3 mouse_world_pos = m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO);
+				Ogre::Vector3 previous_world_pos = m_camera_handler->ConvertScreenToWorldPosition(
+					m_input_handler->GetMouseMotionEvent().GetPreviousAbsolutePosition(), 
+					Ogre::Vector3::ZERO
+				);
 
-			m_rig->TranslateSelectedNodes(mouse_world_pos - previous_world_pos, m_camera_handler);
-			rig_updated = true;
+				m_rig->TranslateSelectedNodes(mouse_world_pos - previous_world_pos, m_camera_handler);
+				rig_updated = true;
+			}
+
+			if (m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
+			{
+				// Exit grab mode
+				m_input_handler->ExitMode(InputHandler::Mode::GRAB_NODES);
+			}
 		}
+		
 
 		if (camera_view_changed || camera_ortho_toggled)
 		{
@@ -331,8 +340,10 @@ void Main::UpdateMainLoop()
 			}
 		}
 
+		// Selecting nodes with LMB
 		if	(	(! node_mouse_selecting_disabled) 
 			&&	(! node_hover_changed) 
+			&&	(! m_input_handler->WasModeExited(InputHandler::Mode::GRAB_NODES))
 			&&	(m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
 			)
 		{

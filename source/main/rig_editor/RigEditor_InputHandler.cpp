@@ -47,11 +47,11 @@ DECLARE_EVENT (                   CAMERA_VIEW_TOP,   3,                     "CAM
 DECLARE_EVENT (    CAMERA_VIEW_TOGGLE_PERSPECTIVE,   4,      "CAMERA_VIEW_TOGGLE_PERSPECTIVE" )
 DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUIT_RIG_EDITOR" )
 
-#define DECLARE_MODE(_FIELD_, _INDEX_, _NAME_) const InputHandler::Mode InputHandler::Mode::_FIELD_(_INDEX_, _NAME_);
+#define DECLARE_MODE(_FIELD_, _INDEX_, _NAME_, _KEY_ENTERS_, _KEY_EXITS_) const InputHandler::Mode InputHandler::Mode::_FIELD_(_INDEX_, _NAME_, _KEY_ENTERS_, _KEY_EXITS_);
 
-DECLARE_MODE (                            INVALID,   0,                             "INVALID" )
-DECLARE_MODE (                    CREATE_NEW_NODE,   1,                     "CREATE_NEW_NODE" )
-DECLARE_MODE (                         GRAB_NODES,   2,                          "GRAB_NODES" )
+DECLARE_MODE (                            INVALID,   0,                             "INVALID",   true,   true  )
+DECLARE_MODE (                    CREATE_NEW_NODE,   1,                     "CREATE_NEW_NODE",   true,   true  )
+DECLARE_MODE (                         GRAB_NODES,   2,                          "GRAB_NODES",   true,  false  )
 
 // ================================================================================
 // Functions
@@ -135,6 +135,18 @@ bool InputHandler::WasModeExited(Mode const & mode)
 	return m_modes_exited[mode.index];
 }
 
+void InputHandler::EnterMode(Mode const & mode)
+{
+	m_active_modes[mode.index] = false;
+	m_modes_entered[mode.index] = true;
+}
+
+void InputHandler::ExitMode(Mode const & mode)
+{
+	m_active_modes[mode.index] = false;
+	m_modes_exited[mode.index] = true;
+}
+
 // ================================================================================
 // OIS Keyboard listener
 // ================================================================================
@@ -157,7 +169,7 @@ bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
 	// HANDLE MODES \\
 
 	const Mode* mode_ptr = m_mode_key_mappings[arg.key];
-	if (mode_ptr != nullptr) 
+	if (mode_ptr != nullptr && mode_ptr->key_enters) 
 	{
 		m_active_modes[mode_ptr->index] = true;
 		m_modes_entered[mode_ptr->index] = true;
@@ -176,7 +188,7 @@ bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
 	// HANDLE MODES \\
 
 	const Mode* mode_ptr = m_mode_key_mappings[arg.key];
-	if (mode_ptr != nullptr) 
+	if (mode_ptr != nullptr && mode_ptr->key_exits) 
 	{
 		m_active_modes[mode_ptr->index] = false;
 		m_modes_exited[mode_ptr->index] = true;

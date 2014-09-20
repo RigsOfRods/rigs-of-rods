@@ -75,13 +75,17 @@ public:
 		static const Mode CREATE_NEW_NODE;
 		static const Mode GRAB_NODES;
 
-		Mode(unsigned int index, const char * NAME):
+		Mode(unsigned int index, const char * name, bool key_enters, bool key_exits):
 			index(index),
-			name(name)
+			name(name),
+			key_enters(key_enters),
+			key_exits(key_exits)
 		{}
 
-		const char * name;
-		unsigned int index;
+		const char *  name;
+		unsigned int  index;
+		bool          key_enters;
+		bool          key_exits;
 	};
 
 	struct MouseMotionEvent
@@ -244,6 +248,10 @@ public:
 	bool WasModeEntered(Mode const & mode);
 	
 	bool WasModeExited(Mode const & mode);
+
+	void EnterMode(Mode const & mode);
+
+	void ExitMode(Mode const & mode);
 
 	void ResetEvents();
 
