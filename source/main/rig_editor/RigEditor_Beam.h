@@ -58,8 +58,24 @@ public:
 		return m_nodes[1];
 	}
 
-	RigDef::Beam & m_def_beam;
-	RigEditor::Node* m_nodes[2];
+	void SetColor(Ogre::ColourValue const & color)
+	{
+		m_color = color;
+	}
+
+	Ogre::ColourValue const & GetColor() const
+	{
+		return m_color;
+	}
+
+	RigDef::Beam & GetDefinition()
+	{
+		return m_def_beam;
+	}
+
+	RigDef::Beam &         m_def_beam;
+	RigEditor::Node*       m_nodes[2];
+	Ogre::ColourValue      m_color;
 };
 
 } // namespace RigEditor

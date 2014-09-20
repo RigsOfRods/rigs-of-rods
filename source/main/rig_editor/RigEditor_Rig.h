@@ -83,6 +83,8 @@ public:
 
 	void TranslateSelectedNodes(Ogre::Vector3 const & offset, CameraHandler* camera_handler);
 
+	void RefreshBeamsDynamicMesh();
+
 private:
 
 	/* STRUCTURE */
