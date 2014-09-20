@@ -47,7 +47,7 @@ public:
 		static const int SELECTED    = BITMASK(2);
 	};
 
-	Node(boost::shared_ptr<RigDef::File::Module> module, int index):
+	Node(RigDef::File::Module* module, int index):
 		m_def_module(module),
 		m_def_index(index),
 		m_flags(0),
@@ -95,8 +95,8 @@ public:
 	}
 
 private:
-	boost::shared_ptr<RigDef::File::Module> m_def_module;
-	int                                     m_def_index;
+	RigDef::File::Module*  m_def_module;
+	int                    m_def_index;
 
 	Vector2int     m_screen_position;
 	int            m_flags;

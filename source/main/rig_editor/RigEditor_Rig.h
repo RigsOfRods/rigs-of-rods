@@ -77,12 +77,16 @@ public:
 
 	void DeselectAllNodes();
 
+	Node& CreateNewNode(Ogre::Vector3 const & position);
+
 private:
 
 	/* STRUCTURE */
 	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
-	std::vector<Beam*> m_beams;
+	std::vector<Beam*>   m_beams;
 	Ogre::AxisAlignedBox m_aabb;
+	boost::shared_ptr<RigDef::File> m_rig_def;
+	unsigned int         m_highest_node_id;
 
 	/* STATE */
 	Node*                m_mouse_hovered_node;

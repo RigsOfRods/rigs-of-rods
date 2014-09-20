@@ -60,6 +60,8 @@
 #include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
 
+#include <OgreMatrix4.h>
+
 namespace RoR
 {
 
@@ -228,8 +230,6 @@ class CameraHandler
 
 #endif // End of <#if 0> section
 
-	Ogre::Vector3 ConvertWorldToViewPosition(Ogre::Vector3 const & world_position);
-
 	bool ConvertWorldToScreenPosition(
 		Ogre::Vector3 const & world_position,
 		Vector2int & out_screen_position,
@@ -237,6 +237,8 @@ class CameraHandler
 	);
 
 	float GetCameraTargetDistance();
+
+	Ogre::Vector3 ConvertScreenToWorldPosition(Vector2int const & screen_pos, Ogre::Vector3 const & pivot);
 
 protected:
 
@@ -254,6 +256,10 @@ protected:
     bool mGoingDown;
     bool mFastMove;
 	float m_ortho_zoom_ratio;
+	Ogre::Matrix4     m_inverse_projection_matrix;
+	bool              m_inverse_projection_matrix_dirty;
+	Ogre::Matrix4     m_inverse_view_matrix;
+	bool              m_inverse_view_matrix_dirty;
 };
 
 } // namespace RigEditor
