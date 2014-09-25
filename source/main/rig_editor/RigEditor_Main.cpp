@@ -30,6 +30,7 @@
 #include "Application.h"
 #include "CacheSystem.h"
 #include "GlobalEnvironment.h"
+#include "GUI_RigEditorDeleteMenu.h"
 #include "GUI_RigEditorMenubar.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -69,9 +70,7 @@ Main::Main(Config* config):
 	m_exit_loop_requested(false),
 	m_input_handler(nullptr),
 	m_debug_box(nullptr),
-	m_gui_menubar(nullptr),
-	m_rig(nullptr),
-	m_gui_open_save_file_dialog(nullptr)
+	m_rig(nullptr)
 {
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
@@ -105,16 +104,7 @@ Main::Main(Config* config):
 
 Main::~Main()
 {
-	if (m_gui_menubar != nullptr)
-	{
-		delete m_gui_menubar;
-		m_gui_menubar = nullptr;
-	}
-	if (m_gui_open_save_file_dialog != nullptr)
-	{
-		delete m_gui_open_save_file_dialog;
-		m_gui_open_save_file_dialog = nullptr;
-	}
+	// GUI objects are cleaned up by std::unique_ptr
 
 	if (m_rig != nullptr)
 	{
@@ -137,18 +127,22 @@ void Main::EnterMainLoop()
 
 	/* Setup GUI */
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
-	if (m_gui_menubar == nullptr)
+	if (m_gui_menubar.get() == nullptr)
 	{
-		m_gui_menubar = new GUI::RigEditorMenubar(this);
+		m_gui_menubar = std::unique_ptr<GUI::RigEditorMenubar>(new GUI::RigEditorMenubar(this));
 	}
 	else
 	{
 		m_gui_menubar->Show();
 	}
 	m_gui_menubar->SetWidth(viewport_width);
-	if (m_gui_open_save_file_dialog == nullptr)
+	if (m_gui_open_save_file_dialog.get() == nullptr)
 	{
-		m_gui_open_save_file_dialog = new GUI::OpenSaveFileDialog();
+		m_gui_open_save_file_dialog = std::unique_ptr<GUI::OpenSaveFileDialog>(new GUI::OpenSaveFileDialog());
+	}
+	if (m_gui_delete_menu.get() == nullptr)
+	{
+		m_gui_delete_menu = std::unique_ptr<GUI::RigEditorDeleteMenu>(new GUI::RigEditorDeleteMenu(this));
 	}
 
 	/* Setup input */
@@ -184,6 +178,7 @@ void Main::EnterMainLoop()
 	{
 		m_gui_open_save_file_dialog->endModal(); // Hides the dialog
 	}
+	m_gui_delete_menu->Hide();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
@@ -264,7 +259,7 @@ void Main::UpdateMainLoop()
 	{
 		bool node_selection_changed = false;
 		bool node_hover_changed = false;
-		bool node_mouse_selecting_disabled = false;
+		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible();
 		bool rig_updated = false;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
@@ -275,6 +270,23 @@ void Main::UpdateMainLoop()
 			m_rig->ClearMouseHoveredNode();
 			node_hover_changed = true;
 			node_mouse_selecting_disabled = true;
+		}
+
+		// The 'delete menu' dialog
+		if (m_input_handler->WasEventFired(InputHandler::Event::GUI_SHOW_DELETE_MENU))
+		{
+			m_gui_delete_menu->Show();
+			m_gui_delete_menu->SetPosition(
+					mouse_screen_position.x + m_config->gui_dialog_delete_placement_x_px,
+					mouse_screen_position.y + m_config->gui_dialog_delete_placement_y_px
+				);
+		}
+		if (m_gui_delete_menu->IsVisible())
+		{
+			if (! m_gui_delete_menu->TestCursorInRange(mouse_screen_position.x, mouse_screen_position.y, m_config->gui_dialog_delete_cursor_fence_px))
+			{
+				m_gui_delete_menu->Hide();
+			}
 		}
 
 		// Deselect/select all nodes
@@ -589,4 +601,22 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	LOG("RigEditor: Rig loaded OK");
 
 	return true;
+}
+
+void Main::CommandCurrentRigDeleteSelectedNodes()
+{
+	m_gui_delete_menu->Hide();
+	assert(m_rig != nullptr);
+	m_rig->DeleteSelectedNodes();
+	m_rig->RefreshBeamsDynamicMesh();
+	m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+}
+
+void Main::CommandCurrentRigDeleteSelectedBeams()
+{
+	m_gui_delete_menu->Hide();
+	assert(m_rig != nullptr);
+	m_rig->DeleteBeamsBetweenSelectedNodes();
+	m_rig->RefreshBeamsDynamicMesh();
+	m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
 }

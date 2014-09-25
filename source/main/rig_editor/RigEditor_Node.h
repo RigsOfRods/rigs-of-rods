@@ -39,6 +39,8 @@ namespace RigEditor
 
 class Node
 {
+	friend class RigEditor::Rig;
+
 public:
 
 	struct Flags
@@ -47,17 +49,9 @@ public:
 		static const int SELECTED    = BITMASK(2);
 	};
 
-	Node(RigDef::File::Module* module, int index):
-		m_def_module(module),
-		m_def_index(index),
-		m_flags(0),
-		m_screen_position(0, 0)
-	{}
+	Node(RigDef::File::Module* module, int index);
 
-	Ogre::Vector3 const & GetPosition()
-	{
-		return GetDefinition().position;
-	}
+	Ogre::Vector3 const & GetPosition();
 
 	void SetScreenPosition(Vector2int const & screen_pos)
 	{
@@ -89,9 +83,20 @@ public:
 		return BITMASK_IS_1(m_flags, Flags::SELECTED);
 	}
 
-	RigDef::Node & GetDefinition()
+	RigDef::Node & GetDefinition();
+
+protected:
+
+	void EraseDefinition();
+
+	void SetDefIndex(int index)
 	{
-		return m_def_module->nodes[m_def_index];
+		m_def_index = index;
+	}
+
+	int GetDefIndex()
+	{
+		return m_def_index;
 	}
 
 private:

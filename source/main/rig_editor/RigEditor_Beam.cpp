@@ -20,37 +20,31 @@
 */
 
 /** 
-	@file   RigEditor_IMain.h
-	@date   08/2014
+	@file   RigEditor_Beam.cpp
+	@date   09/2014
 	@author Petr Ohlidal
 */
 
-#pragma once
+#include "RigDef_File.h"
+#include "RigEditor_Beam.h"
 
-namespace RoR
+using namespace RoR;
+using namespace RoR::RigEditor;
+
+RigEditor::Beam::Beam(RigDef::File::Module* def_module, int def_index, RigEditor::Node* node_0, RigEditor::Node* node_1):
+	m_def_module(def_module),
+	m_def_index(def_index)
 {
+	m_nodes[0] = node_0;
+	m_nodes[1] = node_1;
+}
 
-namespace RigEditor
+RigDef::Beam & RigEditor::Beam::GetDefinition()
 {
+	return m_def_module->beams[m_def_index];
+}
 
-/** Command interface to RigEditor */
-class IMain
+void RigEditor::Beam::EraseDefinition()
 {
-public:
-
-	virtual void CommandShowDialogOpenRigFile() = 0;
-
-	virtual void CommandShowDialogSaveRigFileAs() = 0;
-
-	virtual void CommandSaveRigFile() = 0;
-
-	virtual void CommandCloseCurrentRig() = 0;
-
-	virtual void CommandCurrentRigDeleteSelectedNodes() = 0;
-
-	virtual void CommandCurrentRigDeleteSelectedBeams() = 0;
-};
-
-} // namespace RigEditor
-
-} // namespace RoR
+	m_def_module->beams.erase(m_def_module->beams.begin() + m_def_index);
+}

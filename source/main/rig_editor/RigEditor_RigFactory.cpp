@@ -101,6 +101,7 @@ Rig* RigFactory::BuildRig(
 
 	for (auto module_itor = selected_modules.begin(); module_itor != selected_modules.end(); module_itor++)
 	{
+		int beam_index = 0;
 		for (auto beam_itor = (*module_itor)->beams.begin(); beam_itor != (*module_itor)->beams.end(); beam_itor++)
 		{
 			Node* nodes[] = {nullptr, nullptr};
@@ -147,9 +148,10 @@ Rig* RigFactory::BuildRig(
 						:	config.beam_generic_color;
 			
 			// Allocate and save
-			Beam* beam = new Beam(*beam_itor, nodes[0], nodes[1]);
+			Beam* beam = new Beam(module_itor->get(), beam_index, nodes[0], nodes[1]);
 			beam->SetColor(color);
 			rig->m_beams.push_back(beam);
+			beam_index++;
 		}
 	}
 

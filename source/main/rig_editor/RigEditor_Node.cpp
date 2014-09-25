@@ -20,37 +20,35 @@
 */
 
 /** 
-	@file   RigEditor_IMain.h
-	@date   08/2014
+	@file   RigEditor_Node.cpp
+	@date   09/2014
 	@author Petr Ohlidal
 */
 
-#pragma once
+#include "RigDef_File.h"
+#include "RigEditor_Node.h"
 
-namespace RoR
+using namespace RoR;
+using namespace RoR::RigEditor;
+
+Node::Node(RigDef::File::Module* module, int index):
+	m_def_module(module),
+	m_def_index(index),
+	m_flags(0),
+	m_screen_position(0, 0)
+{}
+
+RigDef::Node & RigEditor::Node::GetDefinition()
 {
+	return m_def_module->nodes[m_def_index];
+}
 
-namespace RigEditor
+void RigEditor::Node::EraseDefinition()
 {
+	m_def_module->nodes.erase(m_def_module->nodes.begin() + m_def_index);
+}
 
-/** Command interface to RigEditor */
-class IMain
+Ogre::Vector3 const & RigEditor::Node::GetPosition()
 {
-public:
-
-	virtual void CommandShowDialogOpenRigFile() = 0;
-
-	virtual void CommandShowDialogSaveRigFileAs() = 0;
-
-	virtual void CommandSaveRigFile() = 0;
-
-	virtual void CommandCloseCurrentRig() = 0;
-
-	virtual void CommandCurrentRigDeleteSelectedNodes() = 0;
-
-	virtual void CommandCurrentRigDeleteSelectedBeams() = 0;
-};
-
-} // namespace RigEditor
-
-} // namespace RoR
+	return GetDefinition().position;
+}

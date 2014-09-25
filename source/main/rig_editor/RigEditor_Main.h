@@ -36,6 +36,11 @@
 namespace RoR
 {
 
+namespace GUI
+{
+	class RigEditorDeleteMenu; // Forward decl.
+}
+
 namespace RigEditor
 {
 
@@ -76,6 +81,10 @@ public:
 
 	virtual void CommandCloseCurrentRig();
 
+	virtual void CommandCurrentRigDeleteSelectedNodes();
+
+	virtual void CommandCurrentRigDeleteSelectedBeams();
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result);
@@ -96,9 +105,10 @@ private:
 	bool                 m_exit_loop_requested;
 
 	// GUI
-	MyGUI::TextBox*          m_debug_box;
-	GUI::RigEditorMenubar*   m_gui_menubar;
-	GUI::OpenSaveFileDialog* m_gui_open_save_file_dialog;
+	MyGUI::TextBox*                             m_debug_box;
+	std::unique_ptr<GUI::RigEditorMenubar>      m_gui_menubar;
+	std::unique_ptr<GUI::OpenSaveFileDialog>    m_gui_open_save_file_dialog;
+	std::unique_ptr<GUI::RigEditorDeleteMenu>   m_gui_delete_menu;
 
 };
 
