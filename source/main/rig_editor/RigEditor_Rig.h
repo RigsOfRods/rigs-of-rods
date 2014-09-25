@@ -89,6 +89,21 @@ public:
 	*/
 	void DeselectOrSelectAllNodes();
 
+	/**
+	* @return True if beam existed and was deleted, false otherwise.
+	*/
+	bool DeleteBeamBetweenNodes(Node* n1, Node* n2);
+
+	void DeleteBeamsBetweenSelectedNodes();
+
+	int DeleteAttachedBeams(Node* node);
+
+	void DeleteSelectedNodes();
+
+	void DeleteNode(Node* node);
+
+	void DeleteBeam(std::vector<RigEditor::Beam*>::iterator & delete_itor);
+
 private:
 
 	/* STRUCTURE */

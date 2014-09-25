@@ -42,6 +42,10 @@ struct Config
 	Ogre::ColourValue   viewport_background_color;
 	Ogre::ColourValue   scene_ambient_light_color;
 
+	int                 gui_dialog_delete_placement_x_px;
+	int                 gui_dialog_delete_placement_y_px;
+	int                 gui_dialog_delete_cursor_fence_px;
+
 	/* Rig manipulation */
 	int                 node_mouse_box_halfsize_px;
 

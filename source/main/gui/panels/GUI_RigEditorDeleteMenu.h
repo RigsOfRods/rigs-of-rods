@@ -16,41 +16,54 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/** 
-	@file   RigEditor_IMain.h
-	@date   08/2014
-	@author Petr Ohlidal
+	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
+/** 
+	@file   GUI_RigEditorDeleteMenu.h
+	@author Petr Ohlidal
+	@date   09/2014
+*/
+
+#include "ForwardDeclarations.h"
+#include "GUI_RigEditorDeleteMenuLayout.h"
+#include "RigEditor_IMain.h"
+
 namespace RoR
 {
 
-namespace RigEditor
+namespace GUI
 {
 
-/** Command interface to RigEditor */
-class IMain
+class RigEditorDeleteMenu: public RigEditorDeleteMenuLayout
 {
+
 public:
 
-	virtual void CommandShowDialogOpenRigFile() = 0;
+	RigEditorDeleteMenu(RigEditor::IMain* rig_editor_interface);
 
-	virtual void CommandShowDialogSaveRigFileAs() = 0;
+	void Show();
 
-	virtual void CommandSaveRigFile() = 0;
+	void SetPosition(int x, int y);
+	
+	void Hide();
 
-	virtual void CommandCloseCurrentRig() = 0;
+	bool IsVisible();
 
-	virtual void CommandCurrentRigDeleteSelectedNodes() = 0;
+	bool TestCursorInRange(int x, int y, int range);
 
-	virtual void CommandCurrentRigDeleteSelectedBeams() = 0;
+private:
+
+	void DeleteNodesButtonClicked(MyGUI::Widget* sender);
+
+	void DeleteBeamsButtonClicked(MyGUI::Widget* sender);
+
+	RigEditor::IMain* m_rig_editor_interface;
+
 };
 
-} // namespace RigEditor
+} // namespace GUI
 
 } // namespace RoR

@@ -320,3 +320,143 @@ void Rig::DeselectOrSelectAllNodes()
 		}
 	}
 }
+
+bool Rig::DeleteBeamBetweenNodes(Node* n1, Node* n2)
+{
+	// Search & destroy!
+	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
+	{
+		Beam* beam = *itor;
+		if	(	(beam->m_nodes[0] == n1 && beam->m_nodes[1] == n2)
+			||	(beam->m_nodes[0] == n2 && beam->m_nodes[1] == n1)
+			)
+		{
+			DeleteBeam(itor);
+			return true; // Beam found and erased
+		}
+	}
+	return false; // Beam not found
+}
+
+void Rig::DeleteBeamsBetweenSelectedNodes()
+{
+	std::vector<Node*> selected_nodes;
+	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		if (itor->second.IsSelected())
+		{
+			selected_nodes.push_back(&itor->second);
+		}
+	}
+
+	for (auto itor1 = selected_nodes.rbegin(); itor1 != selected_nodes.rend(); ++itor1)
+	{
+		for (auto itor2 = selected_nodes.begin(); itor2 != selected_nodes.end(); ++itor2)
+		{
+			Node* node1 = *itor1;
+			Node* node2 = *itor2;
+			if (node1 != node2)
+			{
+				DeleteBeamBetweenNodes(node1, node2);
+			}
+		}
+		selected_nodes.pop_back();
+	}
+}
+
+int Rig::DeleteAttachedBeams(Node* node)
+{
+	// Seek & destroy!
+	unsigned int beam_count = m_beams.size();
+	unsigned int current_index = 0;
+	int num_found = 0;
+	while (current_index < beam_count)
+	{
+		Beam* beam = m_beams[current_index];
+		if (beam->m_nodes[0] == node || beam->m_nodes[1] == node)
+		{
+			// Erasing invalidates iterators -> get new one every time.
+			DeleteBeam(m_beams.begin() + current_index);
+			--beam_count;
+			++num_found;
+			continue; // Don't increment current_index -> after erasing it points to next element!
+		}
+		else
+		{
+			++current_index;
+		}
+	}
+	return num_found;
+}
+
+void Rig::DeleteSelectedNodes()
+{
+	int num_selected = 0;
+	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		if (itor->second.IsSelected())
+		{
+			DeleteAttachedBeams(&itor->second);
+			++num_selected;
+		}
+	}
+	for (int i = 0; i <= num_selected; ++i)
+	{
+		for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+		{
+			if (itor->second.IsSelected())
+			{
+				DeleteNode(&itor->second);
+				break;
+			}
+		}
+	}	
+}
+
+void Rig::DeleteNode(Node* node)
+{
+	// Node definitions are stored in std::vector and RigEditor::Node-s reference them by array indices.
+	// Therefore, when a node definition is erased, all subsequent indices must be updated.
+
+	RigDef::Node::Id node_id = node->GetDefinition().id;
+
+	// Erase the definition
+	node->EraseDefinition();
+
+	// Erase the node
+	int old_def_index = node->GetDefIndex();
+	auto result = m_nodes.erase(node_id);
+
+	// Update node def indices	
+	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		int def_index = itor->second.GetDefIndex();
+		if (def_index > old_def_index)
+		{
+			itor->second.SetDefIndex(def_index - 1);
+		}
+	}
+}
+
+void Rig::DeleteBeam(std::vector<RigEditor::Beam*>::iterator & beam_delete_itor)
+{
+	// Beam definitions are stored in std::vector and RigEditor::Beam-s reference them by array indices.
+	// Therefore, when a beam definition is erased, all subsequent indices must be updated.
+
+	// Erase the definition
+	(*beam_delete_itor)->EraseDefinition();
+
+	// Erase the beam
+	int old_def_index = (*beam_delete_itor)->GetDefIndex();
+	m_beams.erase(beam_delete_itor);
+
+	// Update indices
+	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
+	{
+		int def_index = (*itor)->GetDefIndex();
+		if (def_index > old_def_index)
+		{
+			(*itor)->SetDefIndex(def_index - 1);
+		}
+	}
+}

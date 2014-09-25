@@ -27,9 +27,7 @@
 
 #pragma once
 
-#include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
-#include "RigEditor_Beam.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR
@@ -40,13 +38,10 @@ namespace RigEditor
 
 class Beam
 {
+	friend class RigEditor::Rig;
+
 public:
-	Beam(RigDef::Beam & beam, RigEditor::Node* node_0, RigEditor::Node* node_1):
-		m_def_beam(beam)
-	{
-		m_nodes[0] = node_0;
-		m_nodes[1] = node_1;
-	}
+	Beam(RigDef::File::Module* def_module, int def_index, RigEditor::Node* node_0, RigEditor::Node* node_1);
 
 	RigEditor::Node* GetNodeA()
 	{
@@ -68,12 +63,24 @@ public:
 		return m_color;
 	}
 
-	RigDef::Beam & GetDefinition()
+	RigDef::Beam & GetDefinition();
+
+protected:
+
+	void EraseDefinition();
+
+	void SetDefIndex(int def_index)
 	{
-		return m_def_beam;
+		m_def_index = def_index;
 	}
 
-	RigDef::Beam &         m_def_beam;
+	int GetDefIndex()
+	{
+		return m_def_index;
+	}
+
+	RigDef::File::Module*  m_def_module;
+	int                    m_def_index;
 	RigEditor::Node*       m_nodes[2];
 	Ogre::ColourValue      m_color;
 };

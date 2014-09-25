@@ -43,6 +43,10 @@ Config::Config(Ogre::String const & conf_file_path)
 
 	node_mouse_box_halfsize_px   = conf_file.GetInt("node_mouse_box_halfsize_px");
 
+	gui_dialog_delete_placement_x_px   = conf_file.GetInt("gui_dialog_delete_placement_x_px");
+	gui_dialog_delete_placement_y_px   = conf_file.GetInt("gui_dialog_delete_placement_y_px");
+	gui_dialog_delete_cursor_fence_px  = conf_file.GetInt("gui_dialog_delete_cursor_fence_px");
+
 	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
 	beam_rope_color           = conf_file.GetColourValue("beam_rope_color_rgb");
