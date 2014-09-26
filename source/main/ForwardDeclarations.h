@@ -39,23 +39,10 @@ namespace RoR
 	struct PlatformUtils;
 	class  SceneMouse;
 
-	namespace RigEditor
-	{
-		class  Beam;
-		class  CameraHandler;
-		struct Config;
-		class  IMain;
-		class  InputHandler;
-		class  Main;
-		class  Node;
-		class  Rig;
-		class  RigFactory;
-	}
-
 	namespace GUI
 	{
-		class  RigEditorMenubar;
 		class  OpenSaveFileDialog;
+		class  Dialog;
 	}
 }
 

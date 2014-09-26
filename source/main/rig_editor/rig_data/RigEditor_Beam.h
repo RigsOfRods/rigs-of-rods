@@ -28,6 +28,7 @@
 #pragma once
 
 #include "RigDef_Prerequisites.h"
+#include "RigEditor_ForwardDeclarations.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR

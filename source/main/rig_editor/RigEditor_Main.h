@@ -31,15 +31,11 @@
 #include "GUI_OpenSaveFileDialog.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_IMain.h"
+#include "RigEditor_ForwardDeclarations.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR
 {
-
-namespace GUI
-{
-	class RigEditorDeleteMenu; // Forward decl.
-}
 
 namespace RigEditor
 {
@@ -87,7 +83,7 @@ public:
 
 	/* GUI callbacks */
 
-	void NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result);
+	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
 
 private:
 

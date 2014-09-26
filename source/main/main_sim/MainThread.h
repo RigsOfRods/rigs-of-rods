@@ -30,6 +30,7 @@
 
 #include "Application.h"
 #include "RoRPrerequisites.h"
+#include "RigEditor_ForwardDeclarations.h"
 
 #include <pthread.h>
 

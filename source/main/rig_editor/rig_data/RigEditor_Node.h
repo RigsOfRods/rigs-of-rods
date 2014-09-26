@@ -29,6 +29,7 @@
 
 #include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
+#include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
 
 namespace RoR
