@@ -750,6 +750,7 @@ Node& Rig::CreateNewNode(Ogre::Vector3 const & position)
 	RigDef::Node node_def;
 	m_highest_node_id++;
 	node_def.id.SetNum(m_highest_node_id);
+	node_def.position = position;
 	auto result = m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_def.id, Node(node_def)) );
 	if (result.second == true)
 	{
