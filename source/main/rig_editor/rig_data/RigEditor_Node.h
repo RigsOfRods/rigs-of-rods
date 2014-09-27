@@ -28,6 +28,7 @@
 #pragma once
 
 #include "RigDef_Prerequisites.h"
+#include "RigDef_File.h"
 #include "RoRPrerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
@@ -50,62 +51,38 @@ public:
 		static const int SELECTED    = BITMASK(2);
 	};
 
-	Node(RigDef::File::Module* module, int index);
+	Node(RigDef::Node const & def);
+
+	Node();
 
 	Ogre::Vector3 const & GetPosition();
 
-	void SetScreenPosition(Vector2int const & screen_pos)
-	{
-		m_screen_position = screen_pos;
-	}
+	void SetScreenPosition(Vector2int const & screen_pos);
 
-	Vector2int const & GetScreenPosition() const
-	{
-		return m_screen_position;
-	}
+	Vector2int const & GetScreenPosition() const;
 
-	void SetHovered(bool value)
-	{
-		Bitmask_SetBool(value, m_flags, Flags::HOVERED);
-	}
+	void SetHovered(bool value);
 
-	bool IsHovered() const
-	{
-		return BITMASK_IS_1(m_flags, Flags::HOVERED);
-	}
+	bool IsHovered() const;
 
-	void SetSelected(bool value)
-	{
-		Bitmask_SetBool(value, m_flags, Flags::SELECTED);
-	}
+	void SetSelected(bool value);
 
-	bool IsSelected() const
-	{
-		return BITMASK_IS_1(m_flags, Flags::SELECTED);
-	}
+	bool IsSelected() const;
 
-	RigDef::Node & GetDefinition();
+	void Translate(Ogre::Vector3 const & offset);
+
+	RigDef::Node::Id const & GetId();
 
 protected:
 
-	void EraseDefinition();
+	bool UnlinkBeam(Beam* beam);
 
-	void SetDefIndex(int index)
-	{
-		m_def_index = index;
-	}
+	RigDef::Node           m_definition;
 
-	int GetDefIndex()
-	{
-		return m_def_index;
-	}
-
-private:
-	RigDef::File::Module*  m_def_module;
-	int                    m_def_index;
-
-	Vector2int     m_screen_position;
-	int            m_flags;
+	Vector2int             m_screen_position;
+	int                    m_flags;
+	Ogre::ColourValue      m_color;
+	std::list<Beam*>       m_linked_beams;
 };
 
 } // namespace RigEditor

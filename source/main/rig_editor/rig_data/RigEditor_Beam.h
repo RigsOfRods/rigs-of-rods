@@ -42,46 +42,20 @@ class Beam
 	friend class RigEditor::Rig;
 
 public:
-	Beam(RigDef::File::Module* def_module, int def_index, RigEditor::Node* node_0, RigEditor::Node* node_1);
+	Beam(RigDef::Beam const & definition, RigEditor::Node* node_0, RigEditor::Node* node_1);
 
-	RigEditor::Node* GetNodeA()
-	{
-		return m_nodes[0];
-	}
+	RigEditor::Node* GetNodeA();
 
-	RigEditor::Node* GetNodeB()
-	{
-		return m_nodes[1];
-	}
+	RigEditor::Node* GetNodeB();
 
-	void SetColor(Ogre::ColourValue const & color)
-	{
-		m_color = color;
-	}
+	void SetColor(Ogre::ColourValue const & color);
 
-	Ogre::ColourValue const & GetColor() const
-	{
-		return m_color;
-	}
-
-	RigDef::Beam & GetDefinition();
+	Ogre::ColourValue const & GetColor() const;
 
 protected:
 
-	void EraseDefinition();
+	RigDef::Beam           m_definition;
 
-	void SetDefIndex(int def_index)
-	{
-		m_def_index = def_index;
-	}
-
-	int GetDefIndex()
-	{
-		return m_def_index;
-	}
-
-	RigDef::File::Module*  m_def_module;
-	int                    m_def_index;
 	RigEditor::Node*       m_nodes[2];
 	Ogre::ColourValue      m_color;
 };

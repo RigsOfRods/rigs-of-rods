@@ -31,20 +31,29 @@
 using namespace RoR;
 using namespace RoR::RigEditor;
 
-RigEditor::Beam::Beam(RigDef::File::Module* def_module, int def_index, RigEditor::Node* node_0, RigEditor::Node* node_1):
-	m_def_module(def_module),
-	m_def_index(def_index)
+RigEditor::Beam::Beam(RigDef::Beam const & definition, RigEditor::Node* node_0, RigEditor::Node* node_1):
+	m_definition(definition)
 {
 	m_nodes[0] = node_0;
 	m_nodes[1] = node_1;
 }
 
-RigDef::Beam & RigEditor::Beam::GetDefinition()
+RigEditor::Node* RigEditor::Beam::GetNodeA()
 {
-	return m_def_module->beams[m_def_index];
+	return m_nodes[0];
 }
 
-void RigEditor::Beam::EraseDefinition()
+RigEditor::Node* RigEditor::Beam::GetNodeB()
 {
-	m_def_module->beams.erase(m_def_module->beams.begin() + m_def_index);
+	return m_nodes[1];
+}
+
+void RigEditor::Beam::SetColor(Ogre::ColourValue const & color)
+{
+	m_color = color;
+}
+
+Ogre::ColourValue const & RigEditor::Beam::GetColor() const
+{
+	return m_color;
 }
