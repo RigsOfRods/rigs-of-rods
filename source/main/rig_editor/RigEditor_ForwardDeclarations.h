@@ -39,9 +39,9 @@ namespace RoR
 		class  IMain;
 		class  InputHandler;
 		class  Main;
+		class  Module;
 		class  Node;
 		class  Rig;
-		class  RigFactory;
 
 	} // namespace RigEditor
 

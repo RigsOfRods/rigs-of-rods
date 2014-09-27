@@ -42,12 +42,10 @@ namespace RigEditor
 
 class Rig
 {
-	friend class RigFactory;
-
-	/** Constructed by RigEditor::RigFactory */
-	Rig(Config* config);
 
 public:
+
+	Rig(Config* config);
 
 	~Rig();
 
@@ -100,18 +98,38 @@ public:
 
 	void DeleteSelectedNodes();
 
-	void DeleteNode(Node* node);
+	bool DeleteNode(Node* node);
+
+	bool DeleteBeam(Beam* beam);
 
 	void DeleteBeam(std::vector<RigEditor::Beam*>::iterator & delete_itor);
+
+	void Build(
+			boost::shared_ptr<RigDef::File> rig_def, 
+			RigEditor::Main* rig_editor,
+			std::list<Ogre::String>* report = nullptr
+		);
+
+private:
+
+	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, std::list<Ogre::String>* report = nullptr);
+
+	void BuildWheelNodes( 
+		std::vector<Ogre::Vector3> & out_positions,
+		unsigned int num_rays,
+		Ogre::Vector3 axis_nodes[2],
+		Ogre::Vector3 const & reference_arm_node,
+		float wheel_radius
+		);
 
 private:
 
 	/* STRUCTURE */
+
 	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
-	std::vector<Beam*>   m_beams;
-	Ogre::AxisAlignedBox m_aabb;
-	boost::shared_ptr<RigDef::File> m_rig_def;
-	unsigned int         m_highest_node_id;
+	std::list<Beam>          m_beams;
+	Ogre::AxisAlignedBox     m_aabb;
+	unsigned int             m_highest_node_id;
 
 	/* STATE */
 	Node*                m_mouse_hovered_node;

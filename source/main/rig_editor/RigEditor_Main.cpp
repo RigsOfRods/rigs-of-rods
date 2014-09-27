@@ -42,7 +42,6 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_InputHandler.h"
 #include "RigEditor_Node.h"
-#include "RigEditor_RigFactory.h"
 #include "RigEditor_Rig.h"
 #include "Settings.h"
 
@@ -393,8 +392,7 @@ void Main::UpdateMainLoop()
 	msg << "Mouse node: ";
 	if (m_rig != nullptr && m_rig->GetMouseHoveredNode() != nullptr)
 	{
-		RigDef::Node const & node_def = m_rig->GetMouseHoveredNode()->GetDefinition();
-		msg << node_def.id.ToString() << std::endl;
+		msg << m_rig->GetMouseHoveredNode()->GetId().ToString() << std::endl;
 	}
 	else
 	{
@@ -583,10 +581,8 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 
 	/* BUILD RIG MESH */
 
-	RigFactory rig_factory;
-	std::vector< boost::shared_ptr<RigDef::File::Module> > selected_modules;
-	selected_modules.push_back(parser.GetFile()->root_module); // TODO: Handle multiple modules
-	m_rig = rig_factory.BuildRig(parser.GetFile(), selected_modules, this);
+	m_rig = new RigEditor::Rig(m_config);
+	m_rig->Build(parser.GetFile(), this);
 
 	/* SHOW MESH */
 
