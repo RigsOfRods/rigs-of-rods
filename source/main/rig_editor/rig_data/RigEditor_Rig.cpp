@@ -934,16 +934,53 @@ bool Rig::DeleteNode(Node* node_to_delete)
 	// Search & destroy!
 	for (auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
 	{
-		Node* current_node = &itor->second;
-		if (node_to_delete == current_node)
+		Node* node = &itor->second;
+		if (node->IsSelected())
 		{
-			if (m_mouse_hovered_node == node_to_delete)
+			DeleteAttachedBeams(node);
+			if (m_mouse_hovered_node == node)
 			{
 				m_mouse_hovered_node = nullptr;
 			}
-			m_nodes.erase(itor); // Invalidated iterator doesn't matter, we're returning.
-			return true; // Node found and erased
+			itor = m_nodes.erase(itor); // Erase the node, advance iterator
+		}
+		else
+		{
+			++itor; // Just advance iterator
 		}
 	}
 	return false; // Node not found
+}
+
+void Rig::ExtrudeSelectedNodes()
+{
+	// Iterate through existing nodes (don't include newly generated nodes)
+	auto node_itor = m_nodes.begin();
+	int num_nodes = m_nodes.size();
+	for (int i = 0; i < num_nodes; ++i)
+	{
+		Node* node = &node_itor->second;
+		if (node->IsSelected())
+		{
+			node->SetSelected(false);
+			Node & new_node = CreateNewNode(node->GetPosition());
+			new_node.SetSelected(true);
+			CreateNewBeam(node, &new_node);
+		}
+
+		++node_itor;
+	}
+}
+
+RigEditor::Beam & Rig::CreateNewBeam(Node* n1, Node* n2)
+{
+	RigDef::Beam beam_def;
+	BITMASK_SET_1(beam_def.options, RigDef::Beam::OPTION_i_INVISIBLE);
+	RigEditor::Beam beam(beam_def, n1, n2);
+	beam.SetColor(m_config->beam_invisible_color);
+	m_beams.push_back(beam);
+	Beam & beam_ref = m_beams.back();
+	n1->m_linked_beams.push_back(&beam_ref);
+	n2->m_linked_beams.push_back(&beam_ref);
+	return beam_ref;
 }
