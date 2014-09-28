@@ -342,8 +342,16 @@ void Main::UpdateMainLoop()
 
 			if (m_input_handler->GetMouseButtonEvent().WasLeftButtonPressed())
 			{
-				// Exit grab mode
+				// Exit grab mode and commit changes
 				m_input_handler->ExitMode(InputHandler::Mode::GRAB_NODES);
+				m_rig->SelectedNodesCommitPositionUpdates();
+			}
+			else if (m_input_handler->WasEventFired(InputHandler::Event::ESCAPE))
+			{
+				// Exit grab mode and revert changes
+				m_input_handler->ExitMode(InputHandler::Mode::GRAB_NODES);
+				m_rig->SelectedNodesCancelPositionUpdates();
+				rig_updated = true;
 			}
 		}
 		

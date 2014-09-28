@@ -984,3 +984,29 @@ RigEditor::Beam & Rig::CreateNewBeam(Node* n1, Node* n2)
 	n2->m_linked_beams.push_back(&beam_ref);
 	return beam_ref;
 }
+
+void Rig::SelectedNodesCommitPositionUpdates()
+{
+	auto end_itor = m_nodes.end();
+	for (auto itor = m_nodes.begin(); itor != end_itor; ++itor)
+	{
+		Node & node = itor->second;
+		if (node.IsSelected())
+		{
+			node.SetDefinitionPosition(node.GetPosition());
+		}
+	}
+}
+
+void Rig::SelectedNodesCancelPositionUpdates()
+{
+	auto end_itor = m_nodes.end();
+	for (auto itor = m_nodes.begin(); itor != end_itor; ++itor)
+	{
+		Node & node = itor->second;
+		if (node.IsSelected())
+		{
+			node.SetPosition(node.GetDefinitionPosition());
+		}
+	}
+}

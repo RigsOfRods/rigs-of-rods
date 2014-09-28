@@ -34,13 +34,19 @@ using namespace RoR::RigEditor;
 Node::Node(RigDef::Node const & def):
 	m_definition(def),
 	m_flags(0),
-	m_screen_position(0, 0)
+	m_screen_position(0, 0),
+	m_position(def.position)
 {}
 
 Node::Node()
 {}
 
 Ogre::Vector3 const & RigEditor::Node::GetPosition()
+{
+	return m_position;
+}
+
+Ogre::Vector3 const & RigEditor::Node::GetDefinitionPosition()
 {
 	return m_definition.position;
 }
@@ -77,7 +83,7 @@ bool RigEditor::Node::IsSelected() const
 
 void RigEditor::Node::Translate(Ogre::Vector3 const & offset)
 {
-	m_definition.position += offset;
+	m_position += offset;
 }
 
 bool RigEditor::Node::UnlinkBeam(Beam* beam_to_delete)
@@ -97,4 +103,14 @@ bool RigEditor::Node::UnlinkBeam(Beam* beam_to_delete)
 RigDef::Node::Id const & RigEditor::Node::GetId()
 {
 	return m_definition.id;
+}
+
+void RigEditor::Node::SetDefinitionPosition(Ogre::Vector3 const & pos)
+{
+	m_definition.position = pos;
+}
+
+void RigEditor::Node::SetPosition(Ogre::Vector3 const & pos)
+{
+	m_position = pos;
 }

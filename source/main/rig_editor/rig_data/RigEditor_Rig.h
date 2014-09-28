@@ -116,6 +116,10 @@ public:
 
 	Beam & CreateNewBeam(Node* n1, Node* n2);
 
+	void SelectedNodesCommitPositionUpdates();
+
+	void SelectedNodesCancelPositionUpdates();
+
 private:
 
 	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, std::list<Ogre::String>* report = nullptr);
