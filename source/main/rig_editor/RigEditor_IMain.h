@@ -49,6 +49,8 @@ public:
 	virtual void CommandCurrentRigDeleteSelectedNodes() = 0;
 
 	virtual void CommandCurrentRigDeleteSelectedBeams() = 0;
+
+	virtual void CommandQuitRigEditor() = 0;
 };
 
 } // namespace RigEditor

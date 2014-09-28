@@ -58,7 +58,6 @@ public:
 		static const Event CAMERA_VIEW_SIDE;
 		static const Event CAMERA_VIEW_TOP;
 		static const Event CAMERA_VIEW_TOGGLE_PERSPECTIVE;
-		static const Event QUIT_RIG_EDITOR;
 		static const Event NODES_DESELECT_OR_SELECT_ALL;
 		static const Event GUI_SHOW_DELETE_MENU;
 		static const Event NODES_EXTRUDE_SELECTED;

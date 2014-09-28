@@ -39,6 +39,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_close, "file_popup_item_close");
 	MyGUI::MenuItem* m_file_popup_item_close;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_quit, "file_popup_item_quit");
+	MyGUI::MenuItem* m_file_popup_item_quit;
+
 	//%LE Widget_Declaration list end
 };
 

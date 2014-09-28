@@ -81,6 +81,8 @@ public:
 
 	virtual void CommandCurrentRigDeleteSelectedBeams();
 
+	virtual void CommandQuitRigEditor();
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);

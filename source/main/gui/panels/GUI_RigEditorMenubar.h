@@ -60,6 +60,8 @@ private:
 
 	void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender);
 
+	void RigEditorMenubar::QuitEditorItemClicked(MyGUI::Widget* sender);
+
 private:
 
 	RigEditor::IMain* m_rig_editor_interface;
