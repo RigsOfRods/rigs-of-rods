@@ -197,11 +197,6 @@ void Main::UpdateMainLoop()
 	RoR::Application::GetInputEngine()->Capture(); // Also injects input to GUI
 
 	/* Handle key presses */
-	if (m_input_handler->WasEventFired(InputHandler::Event::QUIT_RIG_EDITOR))
-	{
-		m_exit_loop_requested = true;
-		return;
-	}
 	bool camera_ortho_toggled = false;
 	int camera_view_changed = false;
 	if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE))
@@ -625,4 +620,9 @@ void Main::CommandCurrentRigDeleteSelectedBeams()
 	m_rig->DeleteBeamsBetweenSelectedNodes();
 	m_rig->RefreshBeamsDynamicMesh();
 	m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+}
+
+void Main::CommandQuitRigEditor()
+{
+	m_exit_loop_requested = true;
 }

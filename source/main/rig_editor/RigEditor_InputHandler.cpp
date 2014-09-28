@@ -45,7 +45,6 @@ DECLARE_EVENT (                 CAMERA_VIEW_FRONT,   1,                   "CAMER
 DECLARE_EVENT (                  CAMERA_VIEW_SIDE,   2,                    "CAMERA_VIEW_SIDE" )
 DECLARE_EVENT (                   CAMERA_VIEW_TOP,   3,                     "CAMERA_VIEW_TOP" )
 DECLARE_EVENT (    CAMERA_VIEW_TOGGLE_PERSPECTIVE,   4,      "CAMERA_VIEW_TOGGLE_PERSPECTIVE" )
-DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUIT_RIG_EDITOR" )
 DECLARE_EVENT (      NODES_DESELECT_OR_SELECT_ALL,   6,        "NODES_DESELECT_OR_SELECT_ALL" )
 DECLARE_EVENT (              GUI_SHOW_DELETE_MENU,   7,                "GUI_SHOW_DELETE_MENU" )
 DECLARE_EVENT (            NODES_EXTRUDE_SELECTED,   8,              "NODES_EXTRUDE_SELECTED" )
@@ -89,7 +88,6 @@ void InputHandler::SetupDefaultKeyMappings()
 	m_event_key_mappings[OIS::KC_NUMPAD3] = & Event::CAMERA_VIEW_SIDE;
 	m_event_key_mappings[OIS::KC_NUMPAD7] = & Event::CAMERA_VIEW_TOP;
 	m_event_key_mappings[OIS::KC_NUMPAD5] = & Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE;
-	m_event_key_mappings[OIS::KC_ESCAPE]  = & Event::QUIT_RIG_EDITOR;
 	m_event_key_mappings[OIS::KC_A]       = & Event::NODES_DESELECT_OR_SELECT_ALL;
 	m_event_key_mappings[OIS::KC_DELETE]  = & Event::GUI_SHOW_DELETE_MENU;
 	m_event_key_mappings[OIS::KC_E]       = & Event::NODES_EXTRUDE_SELECTED;
