@@ -110,6 +110,12 @@ public:
 			std::list<Ogre::String>* report = nullptr
 		);
 
+	/** Blender-like extrusion; makes linked copies of selected nodes, selects new nodes.
+	*/
+	void ExtrudeSelectedNodes();
+
+	Beam & CreateNewBeam(Node* n1, Node* n2);
+
 private:
 
 	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, std::list<Ogre::String>* report = nullptr);

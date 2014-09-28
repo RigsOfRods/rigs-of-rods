@@ -262,6 +262,16 @@ void Main::UpdateMainLoop()
 		bool rig_updated = false;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
+		// Handle event 'extrude selected', because it changes selection and invokes Mode::GRAB_NODES
+		if	(	(m_input_handler->WasEventFired(InputHandler::Event::NODES_EXTRUDE_SELECTED))
+			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
+			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
+			)
+		{
+			m_rig->ExtrudeSelectedNodes();
+			m_input_handler->EnterMode(InputHandler::Mode::GRAB_NODES);
+		}
+		
 		if	(	(m_input_handler->WasModeEntered(InputHandler::Mode::CREATE_NEW_NODE))
 			||	(m_input_handler->WasModeEntered(InputHandler::Mode::GRAB_NODES))
 			)

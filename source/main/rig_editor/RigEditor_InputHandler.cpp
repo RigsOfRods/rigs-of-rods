@@ -48,6 +48,7 @@ DECLARE_EVENT (    CAMERA_VIEW_TOGGLE_PERSPECTIVE,   4,      "CAMERA_VIEW_TOGGLE
 DECLARE_EVENT (                   QUIT_RIG_EDITOR,   5,                     "QUIT_RIG_EDITOR" )
 DECLARE_EVENT (      NODES_DESELECT_OR_SELECT_ALL,   6,        "NODES_DESELECT_OR_SELECT_ALL" )
 DECLARE_EVENT (              GUI_SHOW_DELETE_MENU,   7,                "GUI_SHOW_DELETE_MENU" )
+DECLARE_EVENT (            NODES_EXTRUDE_SELECTED,   8,              "NODES_EXTRUDE_SELECTED" )
 
 #define DECLARE_MODE(_FIELD_, _INDEX_, _NAME_, _KEY_ENTERS_, _KEY_EXITS_) const InputHandler::Mode InputHandler::Mode::_FIELD_(_INDEX_, _NAME_, _KEY_ENTERS_, _KEY_EXITS_);
 
@@ -91,6 +92,7 @@ void InputHandler::SetupDefaultKeyMappings()
 	m_event_key_mappings[OIS::KC_ESCAPE]  = & Event::QUIT_RIG_EDITOR;
 	m_event_key_mappings[OIS::KC_A]       = & Event::NODES_DESELECT_OR_SELECT_ALL;
 	m_event_key_mappings[OIS::KC_DELETE]  = & Event::GUI_SHOW_DELETE_MENU;
+	m_event_key_mappings[OIS::KC_E]       = & Event::NODES_EXTRUDE_SELECTED;
 
 	m_mode_key_mappings[OIS::KC_N]        = & Mode::CREATE_NEW_NODE;
 	m_mode_key_mappings[OIS::KC_G]        = & Mode::GRAB_NODES;
@@ -141,7 +143,7 @@ bool InputHandler::WasModeExited(Mode const & mode)
 
 void InputHandler::EnterMode(Mode const & mode)
 {
-	m_active_modes[mode.index] = false;
+	m_active_modes[mode.index] = true;
 	m_modes_entered[mode.index] = true;
 }
 
