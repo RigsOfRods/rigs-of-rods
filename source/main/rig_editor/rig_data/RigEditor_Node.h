@@ -57,6 +57,8 @@ public:
 
 	Ogre::Vector3 const & GetPosition();
 
+	void SetPosition(Ogre::Vector3 const & pos);
+
 	void SetScreenPosition(Vector2int const & screen_pos);
 
 	Vector2int const & GetScreenPosition() const;
@@ -73,6 +75,10 @@ public:
 
 	RigDef::Node::Id const & GetId();
 
+	void SetDefinitionPosition(Ogre::Vector3 const & pos);
+
+	Ogre::Vector3 const & GetDefinitionPosition();
+
 protected:
 
 	bool UnlinkBeam(Beam* beam);
@@ -83,6 +89,7 @@ protected:
 	int                    m_flags;
 	Ogre::ColourValue      m_color;
 	std::list<Beam*>       m_linked_beams;
+	Ogre::Vector3          m_position; ///< Current position; represents intermediate position during transformations.
 };
 
 } // namespace RigEditor

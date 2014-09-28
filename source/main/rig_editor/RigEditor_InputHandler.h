@@ -54,6 +54,7 @@ public:
 	struct Event
 	{
 		static const Event INVALID;
+		static const Event ESCAPE;
 		static const Event CAMERA_VIEW_FRONT;
 		static const Event CAMERA_VIEW_SIDE;
 		static const Event CAMERA_VIEW_TOP;
