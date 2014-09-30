@@ -4,20 +4,26 @@
         <Widget type="MenuItem" skin="" position="0 0 41 21" name="item_file">
             <Property key="Caption" value="File"/>
             <Property key="MenuItemType" value="Popup"/>
-            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 81 96" style="Popup" layer="Popup" name="file_popup">
-                <Widget type="MenuItem" skin="" position="0 0 73 19" name="file_popup_item_open">
+            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 114 125" style="Popup" layer="Popup" name="file_popup">
+                <Widget type="MenuItem" skin="" position="0 0 106 19" name="file_popup_item_open">
                     <Property key="Caption" value="Open"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 19 73 19" name="file_popup_item_save">
+                <Widget type="MenuItem" skin="" position="0 19 106 19" name="file_popup_item_save">
                     <Property key="Caption" value="Save"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 38 73 19" name="file_popup_item_close">
+                <Widget type="MenuItem" skin="" position="0 38 106 19" name="file_popup_item_close">
                     <Property key="Caption" value="Close"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 57 73 10">
+                <Widget type="MenuItem" skin="" position="0 57 106 10">
                     <Property key="MenuItemType" value="Separator"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 67 73 19" name="file_popup_item_quit">
+                <Widget type="MenuItem" skin="" position="0 67 106 19" name="file_popup_item_properties">
+                    <Property key="Caption" value="Properties"/>
+                </Widget>
+                <Widget type="MenuItem" skin="" position="0 86 106 10">
+                    <Property key="MenuItemType" value="Separator"/>
+                </Widget>
+                <Widget type="MenuItem" skin="" position="0 96 106 19" name="file_popup_item_quit">
                     <Property key="Caption" value="Quit"/>
                 </Widget>
             </Widget>
@@ -26,7 +32,7 @@
     <CodeGeneratorSettings>
         <Property key="IncludeDirectory" value="D:\Projects\VisualStudio2010\RoR-MainMenu\source\main\gui\panels"/>
         <Property key="PanelName" value="RigEditorMenubarLayout"/>
-        <Property key="PanelNamespace" value="x"/>
+        <Property key="PanelNamespace" value="FOO"/>
         <Property key="SourceDirectory" value="D:\Projects\VisualStudio2010\RoR-MainMenu\source\main\gui\panels"/>
     </CodeGeneratorSettings>
 </MyGUI>

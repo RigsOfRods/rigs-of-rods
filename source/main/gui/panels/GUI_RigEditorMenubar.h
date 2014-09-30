@@ -54,13 +54,15 @@ private:
 
 	/* Event handlers */
 
-	void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender);
+	void OpenFileItemClicked(MyGUI::Widget* sender);
 
-	void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender);
+	void SaveFileItemClicked(MyGUI::Widget* sender);
 
-	void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender);
+	void CloseRigItemClicked(MyGUI::Widget* sender);
 
-	void RigEditorMenubar::QuitEditorItemClicked(MyGUI::Widget* sender);
+	void FilePropertiesItemClicked(MyGUI::Widget* sender);
+
+	void QuitEditorItemClicked(MyGUI::Widget* sender);
 
 private:
 

@@ -39,6 +39,7 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 	m_file_popup_item_open->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
 	m_file_popup_item_close->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
 	m_file_popup_item_quit->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::QuitEditorItemClicked);
+	m_file_popup_item_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::FilePropertiesItemClicked);
 }
 
 void RigEditorMenubar::Show()
@@ -78,4 +79,9 @@ void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender)
 void RigEditorMenubar::QuitEditorItemClicked(MyGUI::Widget* sender)
 {
 	m_rig_editor_interface->CommandQuitRigEditor();
+}
+
+void RigEditorMenubar::FilePropertiesItemClicked(MyGUI::Widget* sender)
+{
+	m_rig_editor_interface->CommandShowFilePropertiesWindow();
 }
