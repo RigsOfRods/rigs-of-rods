@@ -83,6 +83,8 @@ public:
 
 	virtual void CommandQuitRigEditor();
 
+	virtual void CommandShowFilePropertiesWindow();
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
@@ -107,6 +109,7 @@ private:
 	std::unique_ptr<GUI::RigEditorMenubar>      m_gui_menubar;
 	std::unique_ptr<GUI::OpenSaveFileDialog>    m_gui_open_save_file_dialog;
 	std::unique_ptr<GUI::RigEditorDeleteMenu>   m_gui_delete_menu;
+	std::unique_ptr<GUI::RigEditorFilePropertiesWindow>   m_gui_file_properties_window;
 
 };
 

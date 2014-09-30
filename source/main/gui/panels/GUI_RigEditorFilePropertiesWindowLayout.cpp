@@ -5,17 +5,17 @@
 // Find the templates at [repository]/tools/MyGUI_LayoutEditor/
 // ----------------------------------------------------------------------------
 
-#include "GUI_RigEditorMenubarLayout.h"
+#include "GUI_RigEditorFilePropertiesWindowLayout.h"
 
 using namespace RoR;
 using namespace GUI;
 
-RigEditorMenubarLayout::RigEditorMenubarLayout(MyGUI::Widget* _parent)
+RigEditorFilePropertiesWindowLayout::RigEditorFilePropertiesWindowLayout(MyGUI::Widget* _parent)
 {
 	initialiseByAttributes(this, _parent);
 }
 
-RigEditorMenubarLayout::~RigEditorMenubarLayout()
+RigEditorFilePropertiesWindowLayout::~RigEditorFilePropertiesWindowLayout()
 {
 }
 

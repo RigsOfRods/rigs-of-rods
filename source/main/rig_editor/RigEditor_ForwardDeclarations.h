@@ -47,8 +47,10 @@ namespace RoR
 
 	namespace GUI
 	{
-		class  RigEditorMenubar;
 		class  RigEditorDeleteMenu;
+		class  RigEditorFilePropertiesWindow;
+		class  RigEditorMenubar;
+
 	} // namespace GUI
 
 } // namespace RoR

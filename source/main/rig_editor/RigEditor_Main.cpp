@@ -31,6 +31,7 @@
 #include "CacheSystem.h"
 #include "GlobalEnvironment.h"
 #include "GUI_RigEditorDeleteMenu.h"
+#include "GUI_RigEditorFilePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -143,6 +144,10 @@ void Main::EnterMainLoop()
 	{
 		m_gui_delete_menu = std::unique_ptr<GUI::RigEditorDeleteMenu>(new GUI::RigEditorDeleteMenu(this));
 	}
+	if (m_gui_file_properties_window.get() == nullptr)
+	{
+		m_gui_file_properties_window = std::unique_ptr<GUI::RigEditorFilePropertiesWindow>(new GUI::RigEditorFilePropertiesWindow(this));
+	}
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -253,7 +258,7 @@ void Main::UpdateMainLoop()
 	{
 		bool node_selection_changed = false;
 		bool node_hover_changed = false;
-		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible();
+		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible() || m_gui_file_properties_window->IsVisible();
 		bool rig_updated = false;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
@@ -633,4 +638,13 @@ void Main::CommandCurrentRigDeleteSelectedBeams()
 void Main::CommandQuitRigEditor()
 {
 	m_exit_loop_requested = true;
+}
+
+void Main::CommandShowFilePropertiesWindow()
+{
+	if (m_rig != nullptr)
+	{
+		m_gui_file_properties_window->Show();
+		m_gui_file_properties_window->CenterToScreen();
+	}
 }
