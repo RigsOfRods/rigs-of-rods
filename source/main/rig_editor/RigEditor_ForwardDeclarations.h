@@ -42,6 +42,7 @@ namespace RoR
 		class  Module;
 		class  Node;
 		class  Rig;
+		class  RigProperties;
 
 	} // namespace RigEditor
 

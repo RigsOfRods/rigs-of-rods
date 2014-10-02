@@ -52,6 +52,10 @@ public:
 
 	bool IsVisible();
 
+	void Import(RigEditor::RigProperties* rig_properties);
+
+	void Export(RigEditor::RigProperties* rig_properties);
+
 private:
 
 	/* Event handlers */

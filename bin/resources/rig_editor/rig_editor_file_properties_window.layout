@@ -279,11 +279,11 @@
                     <Property key="Caption" value="Zoom"/>
                 </Widget>
                 <Widget type="TextBox" skin="TextBox" position="5 230 185 25" name="label_guisettings_dashboard_layout">
-                    <Property key="Caption" value="Dashboard layout file"/>
+                    <Property key="Caption" value="Dashboard layout files"/>
                     <Property key="TextAlign" value="Right VCenter"/>
                 </Widget>
-                <Widget type="TextBox" skin="TextBox" position="5 255 185 25" name="label_guisettings_rtt_dashboard_layout">
-                    <Property key="Caption" value="RTT dashboard layout file"/>
+                <Widget type="TextBox" skin="TextBox" position="5 280 185 25" name="label_guisettings_rtt_dashboard_layout">
+                    <Property key="Caption" value="RTT dashboard layout files"/>
                     <Property key="TextAlign" value="Right VCenter"/>
                 </Widget>
                 <Widget type="TextBox" skin="TextBox" position="545 5 140 25" name="label_help_panel_mat_name_doc">
@@ -301,7 +301,7 @@
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="TextColour" value="0.5 0.3 0.05"/>
                 </Widget>
-                <Widget type="TextBox" skin="TextBox" position="545 255 140 25" name="label_guisettings_rtt_dashboard_layout_doc">
+                <Widget type="TextBox" skin="TextBox" position="545 280 140 25" name="label_guisettings_rtt_dashboard_layout_doc">
                     <Property key="Caption" value="(guisettings)"/>
                     <Property key="TextAlign" value="Left VCenter"/>
                     <Property key="TextColour" value="0.5 0.3 0.05"/>
@@ -340,8 +340,8 @@
                     <Property key="TextAlign" value="Left VCenter"/>
                 </Widget>
                 <Widget type="EditBox" skin="EditBox" position="195 135 345 25" name="editbox_guisettings_help_mat"/>
-                <Widget type="EditBox" skin="EditBox" position="195 230 345 25" name="editbox_guisettings_dashboard_layout"/>
-                <Widget type="EditBox" skin="EditBox" position="195 255 345 25" name="editbox_guisettings_rtt_dashboard_layout"/>
+                <Widget type="EditBox" skin="EditBoxStretch" position="195 230 345 50" name="editbox_guisettings_dashboard_layout"/>
+                <Widget type="EditBox" skin="EditBoxStretch" position="195 280 345 50" name="editbox_guisettings_rtt_dashboard_layout"/>
             </Widget>
         </Widget>
         <Widget type="Button" skin="Button" position="530 370 160 30" name="button_cancel">
