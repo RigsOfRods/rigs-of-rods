@@ -120,6 +120,8 @@ public:
 
 	void SelectedNodesCancelPositionUpdates();
 
+	FileProperties* GetProperties();
+
 private:
 
 	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, std::list<Ogre::String>* report = nullptr);
@@ -140,6 +142,10 @@ private:
 	std::list<Beam>          m_beams;
 	Ogre::AxisAlignedBox     m_aabb;
 	unsigned int             m_highest_node_id;
+	
+	/* PROPERTIES */
+
+	std::unique_ptr<FileProperties>    m_properties;
 
 	/* STATE */
 	Node*                m_mouse_hovered_node;

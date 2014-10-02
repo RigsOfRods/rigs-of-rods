@@ -67,6 +67,11 @@ public:
 		return m_config;
 	}
 
+	Rig* GetRig()
+	{
+		return m_rig;
+	}
+
 	/* IMain implementations */
 
 	virtual void CommandShowDialogOpenRigFile();

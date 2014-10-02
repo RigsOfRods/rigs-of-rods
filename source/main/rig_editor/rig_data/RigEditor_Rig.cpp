@@ -80,6 +80,8 @@ void Rig::Build(
 {
 	RigEditor::Config & config = *rig_editor->GetConfig();
 	RigDef::File::Module* module = rig_def->root_module.get();
+
+	m_properties = std::unique_ptr<FileProperties>(new FileProperties());
 	
 	// ##### Process nodes (section "nodes") #####
 
@@ -1009,4 +1011,9 @@ void Rig::SelectedNodesCancelPositionUpdates()
 			node.SetPosition(node.GetDefinitionPosition());
 		}
 	}
+}
+
+FileProperties* Rig::GetProperties()
+{
+	return m_properties.get();
 }
