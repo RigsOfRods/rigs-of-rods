@@ -31,7 +31,8 @@
 #include "CacheSystem.h"
 #include "GlobalEnvironment.h"
 #include "GUI_RigEditorDeleteMenu.h"
-#include "GUI_RigEditorFilePropertiesWindow.h"
+#include "GUI_RigEditorRigPropertiesWindow.h"
+#include "GUI_RigEditorLandVehiclePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -44,6 +45,7 @@
 #include "RigEditor_InputHandler.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_Rig.h"
+#include "RigEditor_RigProperties.h"
 #include "Settings.h"
 
 #include <OISKeyboard.h>
@@ -144,9 +146,15 @@ void Main::EnterMainLoop()
 	{
 		m_gui_delete_menu = std::unique_ptr<GUI::RigEditorDeleteMenu>(new GUI::RigEditorDeleteMenu(this));
 	}
-	if (m_gui_file_properties_window.get() == nullptr)
+	if (m_gui_rig_properties_window.get() == nullptr)
 	{
-		m_gui_file_properties_window = std::unique_ptr<GUI::RigEditorFilePropertiesWindow>(new GUI::RigEditorFilePropertiesWindow(this));
+		m_gui_rig_properties_window 
+			= std::unique_ptr<GUI::RigEditorRigPropertiesWindow>(new GUI::RigEditorRigPropertiesWindow(this));
+	}
+	if (m_gui_land_vehicle_properties_window.get() == nullptr)
+	{
+		m_gui_land_vehicle_properties_window 
+			= std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>(new GUI::RigEditorLandVehiclePropertiesWindow(this));
 	}
 
 	/* Setup input */
@@ -258,7 +266,7 @@ void Main::UpdateMainLoop()
 	{
 		bool node_selection_changed = false;
 		bool node_hover_changed = false;
-		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible() || m_gui_file_properties_window->IsVisible();
+		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible();// || m_gui_rig_properties_window->IsVisible();
 		bool rig_updated = false;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
@@ -640,11 +648,44 @@ void Main::CommandQuitRigEditor()
 	m_exit_loop_requested = true;
 }
 
-void Main::CommandShowFilePropertiesWindow()
+void Main::CommandShowRigPropertiesWindow()
 {
 	if (m_rig != nullptr)
 	{
-		m_gui_file_properties_window->Show();
-		m_gui_file_properties_window->CenterToScreen();
+		m_gui_rig_properties_window->Import(m_rig->GetProperties());
+		m_gui_rig_properties_window->Show();
+		m_gui_rig_properties_window->CenterToScreen();
+	}
+}
+
+void Main::CommandSaveContentOfRigPropertiesWindow()
+{
+	if (m_rig != nullptr && m_gui_rig_properties_window->IsVisible())
+	{
+		m_gui_rig_properties_window->Export(m_rig->GetProperties());
+	}
+}
+
+void Main::CommandShowLandVehiclePropertiesWindow()
+{
+	if (m_rig != nullptr)
+	{
+		m_gui_land_vehicle_properties_window->Import(
+			m_rig->GetProperties()->GetEngine(),
+			m_rig->GetProperties()->GetEngoption()
+			);
+		m_gui_land_vehicle_properties_window->Show();
+		m_gui_land_vehicle_properties_window->CenterToScreen();		
+	}
+}
+
+void Main::CommandSaveContentOfLandVehiclePropertiesWindow()
+{
+	if (m_rig != nullptr && m_gui_land_vehicle_properties_window->IsVisible())
+	{
+		m_gui_land_vehicle_properties_window->Export(
+			m_rig->GetProperties()->GetEngine(),
+			m_rig->GetProperties()->GetEngoption()
+			);
 	}
 }

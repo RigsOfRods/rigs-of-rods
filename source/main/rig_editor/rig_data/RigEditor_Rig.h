@@ -120,7 +120,9 @@ public:
 
 	void SelectedNodesCancelPositionUpdates();
 
-	FileProperties* GetProperties();
+	RigProperties* GetProperties();
+
+	boost::shared_ptr<RigDef::File> Export();
 
 private:
 
@@ -145,7 +147,7 @@ private:
 	
 	/* PROPERTIES */
 
-	std::unique_ptr<FileProperties>    m_properties;
+	std::unique_ptr<RigProperties>    m_properties;
 
 	/* STATE */
 	Node*                m_mouse_hovered_node;

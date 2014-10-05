@@ -22,13 +22,15 @@
 #pragma once
 
 /** 
-	@file   GUI_RigEditorFilePropertiesWindow.h
+	@file   GUI_RigEditorRigPropertiesWindow.h
 	@author Petr Ohlidal
 	@date   09/2014
 */
 
 #include "ForwardDeclarations.h"
-#include "GUI_RigEditorFilePropertiesWindowLayout.h"
+#include "GUI_RigEditorRigPropertiesWindowLayout.h"
+#include "RigDef_File.h"
+#include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 
 namespace RoR
@@ -37,12 +39,12 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorFilePropertiesWindow: public RigEditorFilePropertiesWindowLayout
+class RigEditorRigPropertiesWindow: public RigEditorRigPropertiesWindowLayout
 {
 
 public:
 
-	RigEditorFilePropertiesWindow(RigEditor::IMain* rig_editor_interface);
+	RigEditorRigPropertiesWindow(RigEditor::IMain* rig_editor_interface);
 
 	void Show();
 	
@@ -58,11 +60,23 @@ public:
 
 private:
 
+	void SetExtCameraMode(RigDef::ExtCamera::Mode mode);
+
+	void SetMinimapMode(RigDef::GuiSettings::MapMode mode);
+
 	/* Event handlers */
 
 	void WindowButtonClicked(MyGUI::Widget* sender, const std::string& name);
 
 	void CancelButtonClicked(MyGUI::Widget* sender);
+
+	void CheckboxClicked(MyGUI::Widget* sender);
+
+	void ExtcameraRadiobuttonClicked(MyGUI::Widget* sender);
+
+	void MinimapRadiobuttonClicked(MyGUI::Widget* sender);
+
+	void SaveButtonClicked(MyGUI::Widget* sender);
 
 private:
 

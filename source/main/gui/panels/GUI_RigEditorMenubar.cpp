@@ -83,5 +83,5 @@ void RigEditorMenubar::QuitEditorItemClicked(MyGUI::Widget* sender)
 
 void RigEditorMenubar::FilePropertiesItemClicked(MyGUI::Widget* sender)
 {
-	m_rig_editor_interface->CommandShowFilePropertiesWindow();
+	m_rig_editor_interface->CommandShowRigPropertiesWindow();
 }

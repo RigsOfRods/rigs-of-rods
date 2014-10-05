@@ -52,7 +52,13 @@ public:
 
 	virtual void CommandQuitRigEditor() = 0;
 
-	virtual void CommandShowFilePropertiesWindow() = 0;
+	virtual void CommandShowRigPropertiesWindow() = 0;
+
+	virtual void CommandSaveContentOfRigPropertiesWindow() = 0;
+
+	virtual void CommandShowLandVehiclePropertiesWindow() = 0;
+
+	virtual void CommandSaveContentOfLandVehiclePropertiesWindow() = 0;
 };
 
 } // namespace RigEditor

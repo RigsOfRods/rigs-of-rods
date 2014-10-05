@@ -32,6 +32,8 @@
 #include "RigEditor_ForwardDeclarations.h"
 #include "RoRPrerequisites.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace RoR
 {
 
@@ -41,13 +43,19 @@ namespace RigEditor
 class RigProperties
 {
 	friend class RigEditor::Rig;
-	friend class GUI::RigEditorFilePropertiesWindow;
-	friend class std::unique_ptr<RigProperties>;
-
-protected:
+	friend class GUI::RigEditorRigPropertiesWindow;
 
 	RigProperties();
+
+public:
+
 	~RigProperties();
+
+	boost::shared_ptr<RigDef::Engine>    GetEngine();
+
+	boost::shared_ptr<RigDef::Engoption> GetEngoption();
+
+protected:	
 
 	void Import(boost::shared_ptr<RigDef::File> def_file);
 	void Export(boost::shared_ptr<RigDef::File> def_file);
@@ -83,6 +91,11 @@ protected:
 
 	Ogre::String                  m_help_panel_material_name;
 	RigDef::GuiSettings           m_gui_settings;
+
+	// LAND VEHICLE window
+
+	boost::shared_ptr<RigDef::Engine>      m_engine;
+	boost::shared_ptr<RigDef::Engoption>   m_engoption;
 };
 
 } // namespace RigEditor

@@ -44,6 +44,9 @@ RigProperties::RigProperties():
 	m_rollon(false)
 {}
 
+RigProperties::~RigProperties()
+{}
+
 void RigProperties::Import(boost::shared_ptr<RigDef::File> def_file)
 {
 	m_title             = def_file->name;
@@ -95,6 +98,10 @@ void RigProperties::Import(boost::shared_ptr<RigDef::File> def_file)
 	{
 		m_skeleton_settings  = *skeleton_settings;
 	}
+
+	// Engine + Engoption
+	m_engine    = def_file->root_module->engine;
+	m_engoption = def_file->root_module->engoption;
 }
 
 void RigProperties::Export(boost::shared_ptr<RigDef::File> def_file)
@@ -120,10 +127,10 @@ void RigProperties::Export(boost::shared_ptr<RigDef::File> def_file)
 
 	// Globals
 	RigDef::Globals globals;
-	globals.cargo_mass = m_globals_load_mass;
-	globals.dry_mass = m_globals_dry_mass;
-	globals.material_name = m_globals_cab_material_name;
-	def_file->root_module->globals = boost::shared_ptr<RigDef::Globals>(new RigDef::Globals(globals));
+	globals.cargo_mass               = m_globals_load_mass;
+	globals.dry_mass                 = m_globals_dry_mass;
+	globals.material_name            = m_globals_cab_material_name;
+	def_file->root_module->globals   = boost::shared_ptr<RigDef::Globals>(new RigDef::Globals(globals));
 
 	// Description
 	for (auto itor = m_description.begin(); itor != m_description.end(); ++itor)
@@ -136,4 +143,19 @@ void RigProperties::Export(boost::shared_ptr<RigDef::File> def_file)
 	{
 		def_file->authors.push_back(*itor);
 	}
+
+	// Engine + Engoption
+	def_file->root_module->engine      = m_engine;
+	def_file->root_module->engoption   = m_engoption;
 }
+
+boost::shared_ptr<RigDef::Engine> RigProperties::GetEngine()
+{
+	return m_engine;
+}
+
+boost::shared_ptr<RigDef::Engoption> RigProperties::GetEngoption()
+{
+	return m_engoption;
+}
+
