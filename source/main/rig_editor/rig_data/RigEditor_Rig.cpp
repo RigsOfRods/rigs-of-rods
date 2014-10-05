@@ -33,6 +33,7 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RigEditor_Node.h"
+#include "RigEditor_RigProperties.h"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -81,7 +82,8 @@ void Rig::Build(
 	RigEditor::Config & config = *rig_editor->GetConfig();
 	RigDef::File::Module* module = rig_def->root_module.get();
 
-	m_properties = std::unique_ptr<FileProperties>(new FileProperties());
+	m_properties = std::unique_ptr<RigProperties>(new RigProperties());
+	m_properties->Import(rig_def);
 	
 	// ##### Process nodes (section "nodes") #####
 
@@ -1013,7 +1015,35 @@ void Rig::SelectedNodesCancelPositionUpdates()
 	}
 }
 
-FileProperties* Rig::GetProperties()
+RigProperties* Rig::GetProperties()
 {
 	return m_properties.get();
+}
+
+boost::shared_ptr<RigDef::File> Rig::Export()
+{
+	using namespace RigDef;
+
+	// Allocate
+	boost::shared_ptr<File> def = boost::shared_ptr<File>(new RigDef::File());
+	boost::shared_ptr<File::Module> module = boost::shared_ptr<File::Module>(new File::Module("_Root_"));
+	def->root_module = module;
+
+	// Fill node data
+	for(auto itor = m_nodes.begin(); itor != m_nodes.end(); ++itor)
+	{
+		module->nodes.push_back(itor->second.m_definition); // Copy definition
+	}
+
+	// Fill beam data
+	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
+	{
+		module->beams.push_back(itor->m_definition); // Copy definition
+	}
+
+	// Export 'properties'
+	m_properties->Export(def);
+
+	// Return
+	return def;
 }

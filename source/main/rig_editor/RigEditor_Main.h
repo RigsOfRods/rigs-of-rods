@@ -88,7 +88,13 @@ public:
 
 	virtual void CommandQuitRigEditor();
 
-	virtual void CommandShowFilePropertiesWindow();
+	virtual void CommandShowRigPropertiesWindow();
+
+	virtual void CommandSaveContentOfRigPropertiesWindow();
+
+	virtual void CommandShowLandVehiclePropertiesWindow();
+
+	virtual void CommandSaveContentOfLandVehiclePropertiesWindow();
 
 	/* GUI callbacks */
 
@@ -114,8 +120,8 @@ private:
 	std::unique_ptr<GUI::RigEditorMenubar>      m_gui_menubar;
 	std::unique_ptr<GUI::OpenSaveFileDialog>    m_gui_open_save_file_dialog;
 	std::unique_ptr<GUI::RigEditorDeleteMenu>   m_gui_delete_menu;
-	std::unique_ptr<GUI::RigEditorFilePropertiesWindow>   m_gui_file_properties_window;
-
+	std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
+	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>   m_gui_land_vehicle_properties_window;
 };
 
 } // namespace RigEditor

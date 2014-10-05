@@ -1,0 +1,455 @@
+/*
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
+
+	For more information, see http://www.rigsofrods.com/
+
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
+
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/** 
+	@file   GUI_RigEditorRigPropertiesWindow.cpp
+	@author Petr Ohlidal
+	@date   09/2014
+*/
+
+#include "GUI_RigEditorRigPropertiesWindow.h"
+#include "RigEditor_RigProperties.h"
+#include "RoRPrerequisites.h"
+
+#include <MyGUI.h>
+
+using namespace RoR;
+using namespace GUI;
+using namespace RigDef;
+
+#define CLASS        RigEditorRigPropertiesWindow
+#define MAIN_WIDGET  m_rig_properties_window
+
+CLASS::CLASS(RigEditor::IMain* rig_editor_interface)
+{
+	m_rig_editor_interface = rig_editor_interface;
+
+	// [Save] button
+	m_button_cancel->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::SaveButtonClicked);
+
+	// [Cancel] button
+	m_button_cancel->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CancelButtonClicked);
+
+	// Close window [X] button
+	MyGUI::Window* main_window = MAIN_WIDGET->castType<MyGUI::Window>();
+	main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::WindowButtonClicked);
+
+	// Checkbox toggling
+	m_checkbox_hide_in_chooser       ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_forwardcommands       ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_importcommands        ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_rescuer               ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_disable_default_sounds->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_use_advanced_deform   ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_rollon                ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+	m_checkbox_guisettings_speedo_use_engine_max_rpm->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CheckboxClicked);
+
+	// Section 'extcamera' radio button
+	m_radio_camera_behaviour_classic->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::ExtcameraRadiobuttonClicked);
+	m_radio_camera_behaviour_cinecam->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::ExtcameraRadiobuttonClicked);
+	m_radio_camera_behaviour_node   ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::ExtcameraRadiobuttonClicked);
+	
+	// Section 'guisettings' - minimap type radio button
+	m_radio_guisettings_minimap_off   ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::MinimapRadiobuttonClicked);
+	m_radio_guisettings_minimap_simple->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::MinimapRadiobuttonClicked);
+	m_radio_guisettings_minimap_zoom  ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::MinimapRadiobuttonClicked);
+
+	Hide();
+}
+
+void CLASS::SaveButtonClicked(MyGUI::Widget* sender)
+{
+	
+}
+
+void CLASS::Show()
+{
+	MAIN_WIDGET->setVisible(true);
+}
+
+void CLASS::Hide()
+{
+	MAIN_WIDGET->setVisible(false);
+}
+
+void RigEditorRigPropertiesWindow::CenterToScreen()
+{
+	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
+	MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
+
+	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
+}
+
+bool CLASS::IsVisible()
+{
+	return MAIN_WIDGET->isVisible();
+}
+
+void CLASS::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)
+{
+	Hide(); // There's only close [X] button -> hide window.
+}
+
+void CLASS::CancelButtonClicked(MyGUI::Widget* sender)
+{
+	Hide();
+}
+
+void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode)
+{
+	m_radio_camera_behaviour_classic->setStateSelected(extcamera_mode == RigDef::ExtCamera::MODE_CLASSIC);
+	m_radio_camera_behaviour_cinecam->setStateSelected(extcamera_mode == RigDef::ExtCamera::MODE_CINECAM);
+	bool is_node = extcamera_mode == RigDef::ExtCamera::MODE_NODE;
+	m_radio_camera_behaviour_node->setStateSelected(is_node);
+	m_editbox_extcamera_node->setEnabled(is_node);
+	if (! is_node)
+	{
+		m_editbox_extcamera_node->setCaption("");
+	}
+}
+
+void CLASS::Import(RigEditor::RigProperties* data)
+{
+	m_editbox_title->setCaption(data->m_title);
+	m_editbox_guid->setCaption(data->m_guid);
+	if (data->m_fileinfo._has_unique_id)
+	{
+		m_editbox_uid->setCaption(data->m_fileinfo.unique_id);
+	}
+	if (data->m_fileinfo._has_category_id)
+	{
+		m_editbox_uid->setCaption(TOSTRING(data->m_fileinfo.category_id));
+	}
+	if (data->m_fileinfo._has_file_version_set)
+	{
+		m_editbox_uid->setCaption(TOSTRING(data->m_fileinfo.file_version));
+	}
+
+	// Description
+	Ogre::String description;
+	auto desc_end = data->m_description.end();
+	for (auto itor = data->m_description.begin(); itor != desc_end; ++itor)
+	{
+		description += (*itor + "\n");
+	}
+	m_editbox_description->setCaption(description);
+
+	// Authors
+	std::stringstream authors_buffer;
+	auto authors_end = data->m_authors.end();
+	for (auto itor = data->m_authors.begin(); itor != authors_end; ++itor)
+	{
+		authors_buffer << itor->type << " ";
+		if (itor->_has_forum_account)
+		{
+			authors_buffer << "-1 ";
+		}
+		else
+		{
+			authors_buffer << TOSTRING(itor->forum_account_id) << " ";
+		}
+		authors_buffer << itor->name << " ";
+		authors_buffer << itor->email << std::endl;
+	}
+	m_editbox_authors->setCaption(authors_buffer.str());
+
+	// Checkboxes
+	m_checkbox_hide_in_chooser       ->setStateSelected(data->m_hide_in_chooser);
+	m_checkbox_forwardcommands       ->setStateSelected(data->m_forward_commands);
+	m_checkbox_importcommands        ->setStateSelected(data->m_import_commands);
+	m_checkbox_rescuer               ->setStateSelected(data->m_is_rescuer);
+	m_checkbox_disable_default_sounds->setStateSelected(data->m_disable_default_sounds);
+	m_checkbox_use_advanced_deform   ->setStateSelected(data->m_enable_advanced_deformation);
+	m_checkbox_rollon                ->setStateSelected(data->m_rollon);
+
+	// Section 'extcamera'
+	SetExtCameraMode(data->m_extcamera.mode);
+
+	// Section 'set_skeleton_settings'
+	m_editbox_beam_thickness_meters       ->setCaption(TOSTRING(data->m_skeleton_settings.beam_thickness_meters));
+	m_editbox_beam_visibility_range_meters->setCaption(TOSTRING(data->m_skeleton_settings.visibility_range_meters));
+
+	m_editbox_help_panel_mat_name->setCaption(data->m_help_panel_material_name);
+	m_editbox_cab_material_name  ->setCaption(data->m_globals_cab_material_name);
+	m_editbox_dry_mass ->setCaption(TOSTRING(data->m_globals_dry_mass));
+	m_editbox_load_mass->setCaption(TOSTRING(data->m_globals_load_mass));
+	m_editbox_minimass ->setCaption(TOSTRING(data->m_minimass));
+
+	// Section 'guisettings'
+	SetMinimapMode(data->m_gui_settings.interactive_overview_map_mode);
+	m_checkbox_guisettings_speedo_use_engine_max_rpm->setStateSelected(data->m_gui_settings.use_max_rpm);
+	m_editbox_guisettings_help_mat  ->setCaption(data->m_gui_settings.help_material);
+	m_editbox_guisettings_speedo_max->setCaption(TOSTRING(data->m_gui_settings.speedo_highest_kph));
+	m_editbox_guisettings_speedo    ->setCaption(data->m_gui_settings.speedo_material);
+	m_editbox_guisettings_tacho     ->setCaption(data->m_gui_settings.tacho_material);
+
+	std::ostringstream rtt_layouts_buf;
+	auto rtt_end = data->m_gui_settings.rtt_dashboard_layouts.end();
+	for (auto itor = data->m_gui_settings.rtt_dashboard_layouts.begin(); itor != rtt_end; ++itor)
+	{
+		rtt_layouts_buf << *itor << std::endl;
+	}
+	m_editbox_guisettings_rtt_dashboard_layout->setCaption(rtt_layouts_buf.str());
+
+	std::ostringstream dash_layouts_buf;
+	auto dash_end = data->m_gui_settings.dashboard_layouts.end();
+	for (auto itor = data->m_gui_settings.dashboard_layouts.begin(); itor != dash_end; ++itor)
+	{
+		dash_layouts_buf << *itor << std::endl;
+	}
+	m_editbox_guisettings_dashboard_layout->setCaption(dash_layouts_buf.str());
+}
+
+#define PARSEUINT(STR)    Ogre::StringConverter::parseUnsignedInt(STR)
+
+void CLASS::Export(RigEditor::RigProperties* data)
+{
+	data->m_title = m_editbox_title->getCaption();
+	data->m_guid = m_editbox_guid->getCaption();
+
+	bool has_uid = ! m_editbox_uid->getCaption().empty();
+	if (has_uid)
+	{
+		data->m_fileinfo.unique_id = m_editbox_uid->getCaption();
+	}
+	data->m_fileinfo._has_unique_id = has_uid;
+
+	bool has_category = ! m_textbox_category_id->getCaption().empty();
+	if (has_category)
+	{
+		data->m_fileinfo.category_id = PARSEUINT(m_textbox_category_id->getCaption());
+	}
+	data->m_fileinfo._has_category_id = has_category;
+
+	bool has_version = ! m_editbox_version->getCaption().empty();
+	if (has_version)
+	{
+		data->m_fileinfo.file_version = PARSEUINT(m_editbox_version->getCaption());
+	}
+	data->m_fileinfo._has_file_version_set = has_version;
+
+	// Description
+	Ogre::String description_str = m_editbox_description->getCaption();
+	Ogre::StringUtil::trim(description_str);
+	if (! description_str.empty())
+	{
+		Ogre::StringVector lines = Ogre::StringUtil::split(description_str, "\n");
+		for (auto itor = lines.begin(); itor != lines.end(); ++itor)
+		{
+			data->m_description.push_back(*itor);
+		}
+	}
+
+	// Authors
+	Ogre::String authors_str = m_editbox_authors->getCaption();
+	Ogre::StringUtil::trim(authors_str);
+	if (! authors_str.empty())
+	{
+		Ogre::StringVector lines = Ogre::StringUtil::split(authors_str, "\n");
+		for (auto itor = lines.begin(); itor != lines.end(); ++itor)
+		{
+			Ogre::String line = *itor;
+			Ogre::StringUtil::trim(line);
+			if (line.empty())
+			{
+				continue;
+			}
+			Ogre::StringVector tokens = Ogre::StringUtil::split(line, " \t");
+			RigDef::Author author;
+			author.type = tokens[0];
+			if (tokens.size() > 1)
+			{
+				int account_id = PARSEINT(tokens[1]);
+				if (account_id > -1)
+				{
+					author.forum_account_id = static_cast<unsigned int>(account_id);
+					author._has_forum_account = true;
+				}
+
+				if (tokens.size() > 2)
+				{
+					author.name = tokens[2];
+
+					if (tokens.size() > 3)
+					{
+						author.email = tokens[3];
+					}
+				}
+			}
+			
+			data->m_authors.push_back(author);
+		}
+	}
+
+	// Checkboxes
+	data->m_hide_in_chooser               = m_checkbox_hide_in_chooser->getStateSelected();
+	data->m_forward_commands              = m_checkbox_forwardcommands->getStateSelected();
+	data->m_import_commands               = m_checkbox_importcommands->getStateSelected();
+	data->m_is_rescuer                    = m_checkbox_rescuer->getStateSelected();
+	data->m_disable_default_sounds        = m_checkbox_disable_default_sounds->getStateSelected();
+	data->m_enable_advanced_deformation   = m_checkbox_use_advanced_deform->getStateSelected();
+	data->m_rollon                        = m_checkbox_rollon->getStateSelected();
+
+	// Section 'extcamera'
+	RigDef::ExtCamera::Mode extcamera_mode = RigDef::ExtCamera::MODE_CLASSIC;
+	extcamera_mode = m_radio_camera_behaviour_classic->getStateSelected()   ? RigDef::ExtCamera::MODE_CLASSIC   : extcamera_mode;
+	extcamera_mode = m_radio_camera_behaviour_cinecam->getStateSelected()   ? RigDef::ExtCamera::MODE_CINECAM   : extcamera_mode;
+	extcamera_mode = m_radio_camera_behaviour_node->getStateSelected()      ? RigDef::ExtCamera::MODE_NODE      : extcamera_mode;
+	data->m_extcamera.mode = extcamera_mode;
+	if (extcamera_mode == RigDef::ExtCamera::MODE_NODE)
+	{
+		data->m_extcamera.node.SetNum(PARSEINT(m_editbox_extcamera_node->getCaption()));
+	}
+
+	// Section 'set_skeleton_settings'
+	data->m_skeleton_settings.beam_thickness_meters     = PARSEREAL(m_editbox_beam_thickness_meters->getCaption());
+	data->m_skeleton_settings.visibility_range_meters   = PARSEREAL(m_editbox_beam_visibility_range_meters->getCaption());
+
+	data->m_help_panel_material_name    = m_editbox_help_panel_mat_name->getCaption();
+	data->m_globals_cab_material_name   = m_editbox_cab_material_name->getCaption();
+	data->m_globals_dry_mass            = PARSEREAL(m_editbox_dry_mass->getCaption());
+	data->m_globals_load_mass           = PARSEREAL(m_editbox_load_mass->getCaption());
+	data->m_minimass                    = PARSEREAL(m_editbox_minimass->getCaption());
+
+	// Section 'guisettings'
+
+	GuiSettings::MapMode minimap_mode = GuiSettings::MAP_MODE_OFF;
+	minimap_mode = m_radio_guisettings_minimap_off->getStateSelected()     ? GuiSettings::MAP_MODE_OFF     : minimap_mode;
+	minimap_mode = m_radio_guisettings_minimap_simple->getStateSelected()  ? GuiSettings::MAP_MODE_SIMPLE  : minimap_mode;
+	minimap_mode = m_radio_guisettings_minimap_zoom->getStateSelected()    ? GuiSettings::MAP_MODE_ZOOM    : minimap_mode;
+	data->m_gui_settings.interactive_overview_map_mode = minimap_mode;
+
+	data->m_gui_settings.use_max_rpm         = m_checkbox_guisettings_speedo_use_engine_max_rpm->getStateSelected();
+	data->m_gui_settings.help_material       = m_editbox_guisettings_help_mat->getCaption();
+	data->m_gui_settings.speedo_highest_kph  = PARSEUINT(m_editbox_guisettings_speedo_max->getCaption());
+	data->m_gui_settings.speedo_material     = m_editbox_guisettings_speedo->getCaption();
+	data->m_gui_settings.tacho_material      = m_editbox_guisettings_tacho->getCaption();
+
+	Ogre::String rtt_layouts_str = m_editbox_guisettings_rtt_dashboard_layout->getCaption();
+	Ogre::StringUtil::trim(rtt_layouts_str);
+	if (! rtt_layouts_str.empty())
+	{
+		Ogre::StringVector lines = Ogre::StringUtil::split(rtt_layouts_str, "\n");
+		for (auto itor = lines.begin(); itor != lines.end(); ++itor)
+		{
+			data->m_gui_settings.rtt_dashboard_layouts.push_back(*itor);
+		}
+	}
+
+	Ogre::String dash_layouts_str = m_editbox_guisettings_rtt_dashboard_layout->getCaption();
+	Ogre::StringUtil::trim(dash_layouts_str);
+	if (! dash_layouts_str.empty())
+	{
+		Ogre::StringVector lines = Ogre::StringUtil::split(dash_layouts_str, "\n");
+		for (auto itor = lines.begin(); itor != lines.end(); ++itor)
+		{
+			data->m_gui_settings.dashboard_layouts.push_back(*itor);
+		}
+	}
+}
+
+void ToggleCheckbox(MyGUI::Button* checkbox)
+{
+	checkbox->setStateSelected(! checkbox->getStateSelected());
+}
+
+void CLASS::CheckboxClicked(MyGUI::Widget* sender)
+{
+	if (sender == m_checkbox_hide_in_chooser)
+	{
+		ToggleCheckbox(m_checkbox_hide_in_chooser);
+	}
+	else if (sender == m_checkbox_forwardcommands)
+	{
+		ToggleCheckbox(m_checkbox_forwardcommands);
+	}
+	else if (sender == m_checkbox_importcommands)
+	{
+		ToggleCheckbox(m_checkbox_importcommands);
+	}
+	else if (sender == m_checkbox_rescuer)
+	{
+		ToggleCheckbox(m_checkbox_rescuer);
+	}
+	else if (sender == m_checkbox_disable_default_sounds)
+	{
+		ToggleCheckbox(m_checkbox_disable_default_sounds);
+	}
+	else if (sender == m_checkbox_use_advanced_deform)
+	{
+		ToggleCheckbox(m_checkbox_use_advanced_deform);
+	}
+	else if (sender == m_checkbox_rollon)
+	{
+		ToggleCheckbox(m_checkbox_rollon);
+	}
+	else if (sender == m_checkbox_guisettings_speedo_use_engine_max_rpm)
+	{
+		ToggleCheckbox(m_checkbox_guisettings_speedo_use_engine_max_rpm);
+	}
+}
+
+void CLASS::ExtcameraRadiobuttonClicked(MyGUI::Widget* sender)
+{
+	using namespace RigDef;
+
+	ExtCamera::Mode mode = ExtCamera::MODE_INVALID;
+	if (sender == m_radio_camera_behaviour_classic)
+	{
+		mode = ExtCamera::MODE_CLASSIC;
+	}
+	else if (sender == m_radio_camera_behaviour_cinecam)
+	{
+		mode = ExtCamera::MODE_CINECAM;
+	}
+	else if (sender == m_radio_camera_behaviour_node)
+	{
+		mode = ExtCamera::MODE_NODE;
+	}
+	SetExtCameraMode(mode);
+}
+
+void CLASS::SetMinimapMode(RigDef::GuiSettings::MapMode mode)
+{
+	using namespace RigDef;
+
+	m_radio_guisettings_minimap_off   ->setStateSelected(mode == GuiSettings::MAP_MODE_OFF);
+	m_radio_guisettings_minimap_simple->setStateSelected(mode == GuiSettings::MAP_MODE_SIMPLE);
+	m_radio_guisettings_minimap_zoom  ->setStateSelected(mode == GuiSettings::MAP_MODE_ZOOM);
+}
+
+void CLASS::MinimapRadiobuttonClicked(MyGUI::Widget* sender)
+{
+	GuiSettings::MapMode mode;
+	if (sender == m_radio_guisettings_minimap_off)
+	{
+		mode = GuiSettings::MAP_MODE_OFF;
+	}
+	else if (sender == m_radio_guisettings_minimap_simple)
+	{
+		mode = GuiSettings::MAP_MODE_SIMPLE;
+	}
+	else if (sender == m_radio_guisettings_minimap_zoom)
+	{
+		mode = GuiSettings::MAP_MODE_ZOOM;
+	}
+	SetMinimapMode(mode);
+}
