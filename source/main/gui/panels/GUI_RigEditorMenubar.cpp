@@ -39,7 +39,8 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 	m_file_popup_item_open->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
 	m_file_popup_item_close->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
 	m_file_popup_item_quit->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::QuitEditorItemClicked);
-	m_file_popup_item_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::FilePropertiesItemClicked);
+	m_file_popup_item_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::RigPropertiesItemClicked);
+	m_file_popup_item_land_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::LandVehiclePropertiesItemClicked);
 }
 
 void RigEditorMenubar::Show()
@@ -81,7 +82,12 @@ void RigEditorMenubar::QuitEditorItemClicked(MyGUI::Widget* sender)
 	m_rig_editor_interface->CommandQuitRigEditor();
 }
 
-void RigEditorMenubar::FilePropertiesItemClicked(MyGUI::Widget* sender)
+void RigEditorMenubar::RigPropertiesItemClicked(MyGUI::Widget* sender)
 {
 	m_rig_editor_interface->CommandShowRigPropertiesWindow();
+}
+
+void RigEditorMenubar::LandVehiclePropertiesItemClicked(MyGUI::Widget* sender)
+{
+	m_rig_editor_interface->CommandShowLandVehiclePropertiesWindow();
 }
