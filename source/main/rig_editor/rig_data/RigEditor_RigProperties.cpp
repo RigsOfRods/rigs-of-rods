@@ -61,13 +61,13 @@ void RigProperties::Import(boost::shared_ptr<RigDef::File> def_file)
 	m_enable_advanced_deformation   = def_file->enable_advanced_deformation;
 	m_disable_default_sounds        = def_file->disable_default_sounds;
 
-	auto desc_end = def_file->description.begin();
+	auto desc_end = def_file->description.end();
 	for (auto itor = def_file->description.begin(); itor != desc_end; ++itor )
 	{
 		m_description.push_back(*itor);
 	}
 
-	auto authors_end = def_file->authors.begin();
+	auto authors_end = def_file->authors.end();
 	for (auto itor = def_file->authors.begin(); itor != authors_end; ++itor )
 	{
 		m_authors.push_back(*itor);

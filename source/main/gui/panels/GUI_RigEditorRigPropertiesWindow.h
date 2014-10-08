@@ -60,7 +60,7 @@ public:
 
 private:
 
-	void SetExtCameraMode(RigDef::ExtCamera::Mode mode);
+	void SetExtCameraMode(RigDef::ExtCamera::Mode mode, RigDef::Node::Id node_id);
 
 	void SetMinimapMode(RigDef::GuiSettings::MapMode mode);
 
@@ -81,6 +81,8 @@ private:
 private:
 
 	RigEditor::IMain* m_rig_editor_interface;
+
+	RigDef::ExtCamera::Mode m_extcamera_mode;
 
 };
 

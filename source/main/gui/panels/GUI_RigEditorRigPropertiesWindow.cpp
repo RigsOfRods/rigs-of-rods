@@ -38,7 +38,8 @@ using namespace RigDef;
 #define CLASS        RigEditorRigPropertiesWindow
 #define MAIN_WIDGET  m_rig_properties_window
 
-CLASS::CLASS(RigEditor::IMain* rig_editor_interface)
+CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
+	m_extcamera_mode(ExtCamera::MODE_CLASSIC)
 {
 	m_rig_editor_interface = rig_editor_interface;
 
@@ -113,7 +114,7 @@ void CLASS::CancelButtonClicked(MyGUI::Widget* sender)
 	Hide();
 }
 
-void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode)
+void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode, RigDef::Node::Id node_id)
 {
 	m_radio_camera_behaviour_classic->setStateSelected(extcamera_mode == RigDef::ExtCamera::MODE_CLASSIC);
 	m_radio_camera_behaviour_cinecam->setStateSelected(extcamera_mode == RigDef::ExtCamera::MODE_CINECAM);
@@ -124,6 +125,11 @@ void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode)
 	{
 		m_editbox_extcamera_node->setCaption("");
 	}
+	else
+	{
+		m_editbox_extcamera_node->setCaption(node_id.ToString());
+	}
+	m_extcamera_mode = extcamera_mode;
 }
 
 void CLASS::Import(RigEditor::RigProperties* data)
@@ -136,11 +142,11 @@ void CLASS::Import(RigEditor::RigProperties* data)
 	}
 	if (data->m_fileinfo._has_category_id)
 	{
-		m_editbox_uid->setCaption(TOSTRING(data->m_fileinfo.category_id));
+		m_textbox_category_id->setCaption(TOSTRING(data->m_fileinfo.category_id));
 	}
 	if (data->m_fileinfo._has_file_version_set)
 	{
-		m_editbox_uid->setCaption(TOSTRING(data->m_fileinfo.file_version));
+		m_editbox_version->setCaption(TOSTRING(data->m_fileinfo.file_version));
 	}
 
 	// Description
@@ -160,11 +166,11 @@ void CLASS::Import(RigEditor::RigProperties* data)
 		authors_buffer << itor->type << " ";
 		if (itor->_has_forum_account)
 		{
-			authors_buffer << "-1 ";
+			authors_buffer << TOSTRING(itor->forum_account_id) << " ";
 		}
 		else
 		{
-			authors_buffer << TOSTRING(itor->forum_account_id) << " ";
+			authors_buffer << "-1 ";
 		}
 		authors_buffer << itor->name << " ";
 		authors_buffer << itor->email << std::endl;
@@ -181,7 +187,7 @@ void CLASS::Import(RigEditor::RigProperties* data)
 	m_checkbox_rollon                ->setStateSelected(data->m_rollon);
 
 	// Section 'extcamera'
-	SetExtCameraMode(data->m_extcamera.mode);
+	SetExtCameraMode(data->m_extcamera.mode, data->m_extcamera.node);
 
 	// Section 'set_skeleton_settings'
 	m_editbox_beam_thickness_meters       ->setCaption(TOSTRING(data->m_skeleton_settings.beam_thickness_meters));
@@ -424,7 +430,10 @@ void CLASS::ExtcameraRadiobuttonClicked(MyGUI::Widget* sender)
 	{
 		mode = ExtCamera::MODE_NODE;
 	}
-	SetExtCameraMode(mode);
+	if (mode != m_extcamera_mode)
+	{
+		SetExtCameraMode(mode, Node::Id(0));
+	}
 }
 
 void CLASS::SetMinimapMode(RigDef::GuiSettings::MapMode mode)
