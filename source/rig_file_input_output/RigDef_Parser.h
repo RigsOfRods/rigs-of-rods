@@ -20,7 +20,7 @@
 */
 
 /**
-	@file   RigDef_Parser.cpp
+	@file   RigDef_Parser.h
 	@author Petr Ohlidal
 	@date   12/2013
 */
