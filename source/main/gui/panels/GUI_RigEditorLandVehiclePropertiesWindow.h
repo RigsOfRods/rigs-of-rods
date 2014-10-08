@@ -78,6 +78,8 @@ private:
 
 	void ForwardGearsEditboxKeyFocusLost(MyGUI::Widget* sender, MyGUI::Widget* _);
 
+	void EngineTypeRadioClicked(MyGUI::Widget* sender);
+
 private:
 
 	RigEditor::IMain* m_rig_editor_interface;

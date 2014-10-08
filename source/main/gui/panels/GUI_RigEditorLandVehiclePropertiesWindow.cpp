@@ -57,6 +57,10 @@ CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
 	MyGUI::Window* main_window = MAIN_WIDGET->castType<MyGUI::Window>();
 	main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::WindowButtonClicked);
 
+	// Engine type radio button
+	m_radiobutton_engine_truck->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::EngineTypeRadioClicked);
+	m_radiobutton_engine_car->eventMouseButtonClick   += MyGUI::newDelegate(this, &CLASS::EngineTypeRadioClicked);
+
 	Hide();
 }
 
@@ -194,7 +198,7 @@ void CLASS::Export(
 void CLASS::SetEngineType(RigDef::Engoption::EngineType type)
 {
 	m_radiobutton_engine_car->setStateSelected(type == Engoption::ENGINE_TYPE_c_CAR);
-	m_radiobutton_engine_truck->setStateSelected(type == Engoption::ENGINE_TYPE_c_CAR);
+	m_radiobutton_engine_truck->setStateSelected(type == Engoption::ENGINE_TYPE_t_TRUCK);
 }
 
 void CLASS::ForwardGearsEditboxKeyFocusGained(MyGUI::Widget* sender, MyGUI::Widget* _)
@@ -216,4 +220,10 @@ void CLASS::ForwardGearsEditboxKeyFocusLost(MyGUI::Widget* sender, MyGUI::Widget
 		m_editbox_more_gear_ratios->setCaption(m_gears_textbox_placeholder_text);
 		m_editbox_more_gear_ratios->setTextColour(m_editbox_placeholder_color);
 	}
+}
+
+void CLASS::EngineTypeRadioClicked(MyGUI::Widget* sender)
+{
+	m_radiobutton_engine_truck->setStateSelected(sender == m_radiobutton_engine_truck);
+	m_radiobutton_engine_car  ->setStateSelected(sender == m_radiobutton_engine_car);
 }

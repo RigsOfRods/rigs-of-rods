@@ -60,9 +60,11 @@ private:
 
 	void CloseRigItemClicked(MyGUI::Widget* sender);
 
-	void FilePropertiesItemClicked(MyGUI::Widget* sender);
+	void RigPropertiesItemClicked(MyGUI::Widget* sender);
 
 	void QuitEditorItemClicked(MyGUI::Widget* sender);
+
+	void LandVehiclePropertiesItemClicked(MyGUI::Widget* sender);
 
 private:
 

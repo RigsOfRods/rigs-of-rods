@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="0 0 600 580" name="land_vehicle_properties_window">
+    <Widget type="Window" skin="WindowCX" position="0 0 600 580" layer="Main" name="land_vehicle_properties_window">
         <Property key="Caption" value="Land vehicle properties"/>
         <Widget type="TabControl" skin="TabControl" position="0 0 590 505">
             <Widget type="TabItem" skin="" position="2 24 584 477">
