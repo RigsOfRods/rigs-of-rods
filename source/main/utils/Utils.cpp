@@ -374,3 +374,43 @@ void generateHashFromFile(String filename, Ogre::String &hash)
 	DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 	generateHashFromDataStream(ds, hash);
 }
+
+namespace RoR
+{
+
+namespace Utils
+{
+	std::string TrimBlanksAndLinebreaks(std::string const & input)
+	{
+		int substr_start = 0;
+		int substr_count = input.length();
+		while (substr_start < substr_count)
+		{
+			char c = input.at(substr_start);
+			if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+			{
+				++substr_start;
+				--substr_count;
+			}
+			else
+			{
+				break;
+			}
+		}
+		while (substr_count > 0)
+		{
+			char c = input.at(substr_count - 1);
+			if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+			{
+				--substr_count;
+			}
+			else
+			{
+				break;
+			}
+		}
+		return input.substr(substr_start, substr_count);
+	}
+}
+
+}

@@ -26,8 +26,10 @@
 */
 
 #include "GUI_RigEditorRigPropertiesWindow.h"
+#include "RigEditor_IMain.h"
 #include "RigEditor_RigProperties.h"
 #include "RoRPrerequisites.h"
+#include "Utils.h"
 
 #include <MyGUI.h>
 
@@ -44,7 +46,7 @@ CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
 	m_rig_editor_interface = rig_editor_interface;
 
 	// [Save] button
-	m_button_cancel->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::SaveButtonClicked);
+	m_button_save->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::SaveButtonClicked);
 
 	// [Cancel] button
 	m_button_cancel->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CancelButtonClicked);
@@ -78,7 +80,8 @@ CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
 
 void CLASS::SaveButtonClicked(MyGUI::Widget* sender)
 {
-	
+	m_rig_editor_interface->CommandSaveContentOfRigPropertiesWindow();
+	Hide();
 }
 
 void CLASS::Show()
@@ -257,10 +260,17 @@ void CLASS::Export(RigEditor::RigProperties* data)
 	Ogre::StringUtil::trim(description_str);
 	if (! description_str.empty())
 	{
-		Ogre::StringVector lines = Ogre::StringUtil::split(description_str, "\n");
+		Ogre::StringVector lines = Ogre::StringUtil::split(description_str, "\r\n"); // Split over CR or LF
 		for (auto itor = lines.begin(); itor != lines.end(); ++itor)
 		{
-			data->m_description.push_back(*itor);
+			if (! itor->empty()) // Empty line?
+			{
+				std::string line = RoR::Utils::TrimBlanksAndLinebreaks(*itor);
+				if (! line.empty())
+				{
+					data->m_description.push_back(line);
+				}
+			}
 		}
 	}
 
