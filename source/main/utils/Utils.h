@@ -1,26 +1,31 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 9th of August 2009
 
-#ifndef __UTILS_H_
-#define __UTILS_H_
+/**
+	@file   
+	@author Thomas Fischer thomas{AT}thomasfischer{DOT}biz
+	@date   9th of August 2009
+*/
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 
@@ -133,4 +138,12 @@ Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
 void generateHashFromDataStream(Ogre::DataStreamPtr &ds, Ogre::String &hash);
 void generateHashFromFile(Ogre::String filename, Ogre::String &hash);
 
-#endif // __UTILS_H_
+namespace RoR
+{
+
+namespace Utils
+{
+	std::string TrimBlanksAndLinebreaks(std::string const & input);
+}
+
+}
