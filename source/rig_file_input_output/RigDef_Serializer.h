@@ -19,59 +19,58 @@
 	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-/** 
-	@file   GUI_RigEditorMenubar.h
+/**
+	@file   RigDef_Serializer.h
 	@author Petr Ohlidal
-	@date   08/2014
+	@date   10/2014
 */
 
-#include "ForwardDeclarations.h"
-#include "GUI_RigEditorMenubarLayout.h"
-#include "RigEditor_IMain.h"
+#pragma once
 
-namespace RoR
+#include "RigDef_File.h"
+
+namespace RigDef
 {
 
-namespace GUI
-{
+/**
+	@class  Serializer
+	@author Petr Ohlidal
 
-class RigEditorMenubar: public RigEditorMenubarLayout
+	@brief Serializes the RigDef::File data structure to file.
+*/
+class Serializer
 {
 
 public:
 
-	RigEditorMenubar(RigEditor::IMain* rig_editor_interface);
+	Serializer(boost::shared_ptr<RigDef::File> rig_def, Ogre::String const & file_path);
 
-	void Show();
+	virtual ~Serializer();
+
+	void Serialize();
+
+protected:
+
+	void ProcessAuthors();
+
+	void ProcessGlobals(boost::shared_ptr<RigDef::File::Module> module);
+
+	void ProcessDescription();
+
+	void ProcessGuid();
+
+	void ProcessFileinfo();
+
+	void WriteFlags();
+
+protected:
+
+	std::ofstream                     m_stream;
+	Ogre::String                      m_file_path;
+	boost::shared_ptr<RigDef::File>   m_rig_def;
+	int                               m_float_precision;
+	int                               m_float_width;
 	
-	void Hide();
-
-	void SetWidth(int width_pixels);
-
-private:
-
-	/* Event handlers */
-
-	void OpenFileItemClicked(MyGUI::Widget* sender);
-
-	void SaveFileAsItemClicked(MyGUI::Widget* sender);
-
-	void CloseRigItemClicked(MyGUI::Widget* sender);
-
-	void RigPropertiesItemClicked(MyGUI::Widget* sender);
-
-	void QuitEditorItemClicked(MyGUI::Widget* sender);
-
-	void LandVehiclePropertiesItemClicked(MyGUI::Widget* sender);
-
-private:
-
-	RigEditor::IMain* m_rig_editor_interface;
-
 };
 
-} // namespace GUI
-
-} // namespace RoR
+} // namespace RigDef

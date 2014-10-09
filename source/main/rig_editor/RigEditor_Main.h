@@ -104,6 +104,8 @@ private:
 
 	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
+	void SaveRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+
 	Config*              m_config;
 	Ogre::SceneManager*  m_scene_manager;
 	Ogre::Viewport*      m_viewport;

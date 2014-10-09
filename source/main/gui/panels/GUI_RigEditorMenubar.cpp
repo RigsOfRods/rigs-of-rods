@@ -36,11 +36,12 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 {
 	m_rig_editor_interface = rig_editor_interface;
 
-	m_file_popup_item_open->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
-	m_file_popup_item_close->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
-	m_file_popup_item_quit->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::QuitEditorItemClicked);
-	m_file_popup_item_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::RigPropertiesItemClicked);
+	m_file_popup_item_open           ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
+	m_file_popup_item_close          ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
+	m_file_popup_item_quit           ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::QuitEditorItemClicked);
+	m_file_popup_item_properties     ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::RigPropertiesItemClicked);
 	m_file_popup_item_land_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::LandVehiclePropertiesItemClicked);
+	m_file_popup_item_save_as        ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::SaveFileAsItemClicked);
 }
 
 void RigEditorMenubar::Show()
@@ -67,9 +68,9 @@ void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender)
 	m_rig_editor_interface->CommandShowDialogOpenRigFile();
 }
 
-void RigEditorMenubar::SaveFileItemClicked(MyGUI::Widget* sender)
+void RigEditorMenubar::SaveFileAsItemClicked(MyGUI::Widget* sender)
 {
-	m_rig_editor_interface->CommandSaveRigFile();
+	m_rig_editor_interface->CommandShowDialogSaveRigFileAs();
 }
 
 void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender)
