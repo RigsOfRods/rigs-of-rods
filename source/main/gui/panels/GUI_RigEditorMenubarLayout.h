@@ -41,8 +41,8 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_open, "file_popup_item_open");
 	MyGUI::MenuItem* m_file_popup_item_open;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_save, "file_popup_item_save");
-	MyGUI::MenuItem* m_file_popup_item_save;
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_save_as, "file_popup_item_save_as");
+	MyGUI::MenuItem* m_file_popup_item_save_as;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_close, "file_popup_item_close");
 	MyGUI::MenuItem* m_file_popup_item_close;

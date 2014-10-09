@@ -39,6 +39,7 @@
 #include "MainThread.h"
 #include "OgreSubsystem.h"
 #include "RigDef_Parser.h"
+#include "RigDef_Serializer.h"
 #include "RigDef_Validator.h"
 #include "RigEditor_CameraHandler.h"
 #include "RigEditor_Config.h"
@@ -437,7 +438,13 @@ void Main::CommandShowDialogOpenRigFile()
 
 void Main::CommandShowDialogSaveRigFileAs()
 {
-	// TODO
+	if (m_rig != nullptr)
+	{
+		m_gui_open_save_file_dialog->setDialogInfo(MyGUI::UString("Save rig file"), MyGUI::UString("Save"), false);
+		m_gui_open_save_file_dialog->eventEndDialog = MyGUI::newDelegate(this, &Main::NotifyFileSelectorEnded);
+		m_gui_open_save_file_dialog->setMode(OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS);
+		m_gui_open_save_file_dialog->doModal(); // Shows the dialog
+	}
 }
 
 void Main::CommandSaveRigFile()
@@ -460,17 +467,36 @@ void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
 	if (result)
 	{
 		const MyGUI::UString & mode = m_gui_open_save_file_dialog->getMode();
+		auto const & folder = m_gui_open_save_file_dialog->getCurrentFolder();
+		auto const & filename = m_gui_open_save_file_dialog->getFileName();
 
 		if (mode == OpenSaveFileDialogMode::MODE_OPEN_TRUCK)
 		{
-			LoadRigDefFile(m_gui_open_save_file_dialog->getCurrentFolder(), m_gui_open_save_file_dialog->getFileName());
+			LoadRigDefFile(folder, filename);
 		}
 		else if (mode == OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS)
 		{
-			// TODO
+			SaveRigDefFile(folder, filename);
 		}
 	}
 	dialog->endModal(); // Hides the dialog
+}
+
+void Main::SaveRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
+{
+	using namespace RigDef;
+
+	if (m_rig == nullptr)
+	{
+		LOG("RigEditor: [WARNING] SaveRigDefFile(): Nothing to save.");
+		return;
+	}
+
+	auto rig_def = m_rig->Export();
+	auto out_path = directory + '/' + filename;
+	Serializer serializer(rig_def, out_path);
+	serializer.Serialize();
+	LOG("RigEditor: Rig saved as: " + out_path);
 }
 
 void RigEditor_LogParserMessages(RigDef::Parser & parser)

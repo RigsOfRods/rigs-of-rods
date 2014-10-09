@@ -8,8 +8,8 @@
                 <Widget type="MenuItem" skin="" position="0 0 193 19" name="file_popup_item_open">
                     <Property key="Caption" value="Open"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 19 193 19" name="file_popup_item_save">
-                    <Property key="Caption" value="Save"/>
+                <Widget type="MenuItem" skin="" position="0 19 193 19" name="file_popup_item_save_as">
+                    <Property key="Caption" value="Save as..."/>
                 </Widget>
                 <Widget type="MenuItem" skin="" position="0 38 193 19" name="file_popup_item_close">
                     <Property key="Caption" value="Close"/>
