@@ -256,6 +256,7 @@ void CLASS::Export(RigEditor::RigProperties* data)
 	data->m_fileinfo._has_file_version_set = has_version;
 
 	// Description
+	data->m_description.clear();
 	Ogre::String description_str = m_editbox_description->getCaption();
 	Ogre::StringUtil::trim(description_str);
 	if (! description_str.empty())
@@ -275,6 +276,7 @@ void CLASS::Export(RigEditor::RigProperties* data)
 	}
 
 	// Authors
+	data->m_authors.clear();
 	Ogre::String authors_str = m_editbox_authors->getCaption();
 	Ogre::StringUtil::trim(authors_str);
 	if (! authors_str.empty())
