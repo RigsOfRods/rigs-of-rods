@@ -654,6 +654,7 @@ struct Cinecam
 	float spring;
 	float damping;
 	boost::shared_ptr<BeamDefaults> beam_defaults;
+	boost::shared_ptr<NodeDefaults> node_defaults;
 };
 
 /* -------------------------------------------------------------------------- */

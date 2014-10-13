@@ -3368,6 +3368,7 @@ void Parser::ParseCinecam(Ogre::String const & line)
 
 	Cinecam cinecam;
 	cinecam.beam_defaults = m_user_beam_defaults;
+	cinecam.node_defaults = m_user_node_defaults;
 
 	cinecam.position.x = STR_PARSE_REAL(results[1]);
 	cinecam.position.y = STR_PARSE_REAL(results[2]);
