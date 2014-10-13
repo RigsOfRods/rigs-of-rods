@@ -972,6 +972,8 @@ protected:
 		int extend_key
 	);
 
+	void AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults);
+
 	/**
 	* Ported from SerializedRig::loadTruck()
 	*/

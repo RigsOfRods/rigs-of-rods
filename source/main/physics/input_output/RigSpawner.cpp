@@ -5091,6 +5091,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 		outer_node.iswheel = (set_param_iswheel) ? (m_rig->free_wheel * 2) + 1 : 0;
 		outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
 		outer_node.wheelid = m_rig->free_wheel;
+		AdjustNodeBuoyancy(outer_node, node_defaults);
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
 		outer_contacter.nodeid        = outer_node.pos; /* Node index */
@@ -5108,6 +5109,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 		inner_node.iswheel = (set_param_iswheel) ? (m_rig->free_wheel * 2) + 2 : 0;
 		inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
 		inner_node.wheelid = m_rig->free_wheel; 
+		AdjustNodeBuoyancy(inner_node, node_defaults);
 
 		contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
 		contacter.nodeid        = inner_node.pos; /* Node index */
@@ -5140,6 +5142,13 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	unsigned int wheel_index = m_rig->free_wheel;
 	m_rig->free_wheel++;
 	return wheel_index;
+}
+
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+{
+	node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) 
+		? 10000.f 
+		: m_file->root_module->globals->dry_mass/15.f;
 }
 
 int RigSpawner::FindLowestNodeInRig()
@@ -6749,7 +6758,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		hook.autolock     = false;
 		m_rig->hooks.push_back(hook);
 	}
-	node.buoyancy          = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : node.buoyancy;
+	AdjustNodeBuoyancy(node, def.node_defaults);
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB) ? 1 : node.mouseGrabMode;
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_n_MOUSE_GRAB) ? 2 : node.mouseGrabMode;
 	node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT) ? 1 : 0;
@@ -6859,6 +6868,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	camera_node.wheelid = -1;
 	camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT;
 	camera_node.id = -1;
+	AdjustNodeBuoyancy(camera_node, def.node_defaults);
 
 	m_rig->cinecameranodepos[m_rig->freecinecamera] = camera_node.pos;
 	m_rig->freecinecamera++;
