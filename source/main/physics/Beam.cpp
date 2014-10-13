@@ -68,6 +68,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDefParser.h"
 #include "RigDefValidator.h"
 
+// DEBUG
+#include "../../../tools/rig_spawner_debug/RoR_Debug_RigInspector.h"
+
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #pragma GCC diagnostic ignored "-Wfloat-equal"
@@ -6277,69 +6280,8 @@ Beam::Beam(
 
 	mCamera = gEnv->mainCamera;
 
-	// TRUCKPARSER DEBUG - NODES
-	std::stringstream s;
-	s << "\n***********************\nNodes double check (free node:" << this->free_node<<")";
-	for (int i = 0; i < this->free_node; i++)
-	{
-		node_t & node = this->nodes[i];
-		s<<"\nNode"
-			<<" index="<<i
-			<<" pos="<<node.pos
-			<<" AbsPosition="<<node.AbsPosition.x<<","<<node.AbsPosition.y<<","<<node.AbsPosition.z
-			<<" RelPosition="<<node.RelPosition.x<<","<<node.RelPosition.y<<","<<node.RelPosition.z
-			<<" mass="<<node.mass
-			<<" locked="<<node.locked
-			<<" iswheel="<<node.iswheel
-			<<" wheelid="<<node.wheelid
-			<<" masstype="<<node.masstype
-			<<" contactless="<<node.contactless
-			<<" lockednode="<<node.lockednode
-			<<" friction_coef="<<node.friction_coef
-			<<" overrideMass="<<node.overrideMass
-			<<" id="<<node.id
-			<<" collisionBoundingBoxID="<<node.collisionBoundingBoxID
-			<<" collRadius="<<node.collRadius
-			<<" collTestTimer="<<node.collTestTimer
-			<<" iPosition="<<node.iPosition
-			<<" iDistance="<<node.iDistance
-			<<" smoothpos="<<node.smoothpos
-			<<" iIsSkin="<<node.iIsSkin
-			<<" isSkin="<<node.isSkin
-			<<" contacter="<<node.contacter
-			<<" mSceneNode="<<(node.mSceneNode != nullptr)
-			;
-	}
-	s<<"\n*******************************";
-	LOG(s.str());
-
-	// BEAMS
-	s.str("");
-	s << "\n***********************\nBeams double check (free beam:" << this->free_beam<<")";
-	for (int i = 0; i < this->free_beam; i++)
-	{
-				beam_t & beam = this->beams[i];
-		s<<"\n"<<i<<": ["<<beam.p1->pos<<","<<beam.p2->pos<<"]"
-
-			<<" type:"<<beam.type
-			<<" iswheel:["<<beam.p1->iswheel<<","<<beam.p2->iswheel<<"]"
-			<<" wheelid:["<<beam.p1->wheelid<<","<<beam.p2->wheelid<<"]"
-			<<" sceneNode:"<<(beam.mSceneNode != nullptr)
-			<<" entity:"<<(beam.mEntity != nullptr)
-			<<" disabled:"<<beam.disabled
-			<<" broken:"<<beam.broken
-			<<" k:"<<beam.k
-			<<" d:"<<beam.d
-			<<" L:"<<beam.L
-			<<" refL:"<<beam.refL
-			<<" Lhydro:"<<beam.Lhydro
-			<<" iStrength:"<<beam.iStrength
-			<<" default_deform:"<<beam.default_deform
-			<<" default_plastic_coef:"<<beam.default_plastic_coef
-			;
-	}
-	s<<"\n*******************************";
-	LOG(s.str());
+	// DEBUG
+	RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\parser-debug\\Parser.log");
 	// END DEBUG
 
 	LOG(" ===== DONE LOADING VEHICLE");

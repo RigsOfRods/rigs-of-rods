@@ -22,6 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
+class RigInspector; // Forward decl.
+
 /**
 * Represents a virtual engine of a vehicle (not "engine" as in "physics engine").
 */
@@ -29,6 +31,7 @@ class BeamEngine : public ZeroedMemoryAllocator
 {
 	friend class Beam;
 	friend class RigSpawner;
+	friend class RigInspector; // Debug class, located in [repository]/tools/rig_spawner_debug
 
 public:
 
