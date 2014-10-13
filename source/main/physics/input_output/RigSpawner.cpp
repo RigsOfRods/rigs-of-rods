@@ -6869,6 +6869,9 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT;
 	camera_node.id = -1;
 	AdjustNodeBuoyancy(camera_node, def.node_defaults);
+	camera_node.friction_coef = def.node_defaults->friction;
+	camera_node.volume_coef   = def.node_defaults->volume;
+	camera_node.surface_coef  = def.node_defaults->surface;
 
 	m_rig->cinecameranodepos[m_rig->freecinecamera] = camera_node.pos;
 	m_rig->freecinecamera++;
