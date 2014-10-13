@@ -244,9 +244,6 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'beams' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, RigDef::Beam, beams, ProcessBeam);
 
-	/* Section 'cinecam' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
-
 	/* Section 'shocks' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
 
@@ -327,6 +324,9 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'flexbodywheels' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, RigDef::FlexBodyWheel, flex_body_wheels, ProcessFlexBodyWheel);
+
+	/* Section 'cinecam' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
 
 	/* Section 'rotators' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS, RigDef::Rotator, rotators, ProcessRotator);
@@ -6679,7 +6679,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.gravimass = Ogre::Vector3(0, node.mass * gravity, 0);
 
 	/* Lockgroup */
-	node.lockgroup = (m_file->lockgroup_default_nolock) ? 9999 : 0;
+	node.lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
 
 	/* Options */
 	unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
