@@ -5017,6 +5017,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 
 	/* Axis */
 	Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
+	float axis_length = axis_vector.length();
 	axis_vector.normalise();
 
 	/* Wheel object */
@@ -5026,7 +5027,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	wheel.refnode0  = axis_node_1;
 	wheel.refnode1  = axis_node_2;
 	wheel.radius    = wheel_radius;
-	wheel.width     = (wheel_width < 0) ? axis_vector.length() : wheel_width;
+	wheel.width     = (wheel_width < 0) ? axis_length : wheel_width;
 	wheel.arm       = reference_arm_node;
 
 	/* Find near attach */
