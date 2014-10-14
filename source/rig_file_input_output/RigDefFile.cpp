@@ -84,7 +84,7 @@ Hook::Hook():
 	flags(0),
 	option_hook_range(0.4f),
 	option_speed_coef(1.0f),
-	option_max_force(100000000.f),
+	option_max_force(10000000.f), // HOOK_FORCE_DEFAULT
 	option_hookgroup(-1),
 	option_lockgroup(-1),
 	option_timer(5.f),
