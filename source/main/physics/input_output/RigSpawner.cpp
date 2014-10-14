@@ -4315,6 +4315,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroRatio           = def.lenghtening_factor;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
 	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
+	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, BITMASK_IS_0(def.options, RigDef::Hydro::OPTION_i_INVISIBLE));
 
@@ -4389,6 +4390,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	beam.longbound            = long_bound;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
 	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
+	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -4462,6 +4464,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 	beam.k          = def.spring_rate;
 	beam.d          = def.damping;
 	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
+	beam.diameter   = def.beam_defaults->visual_beam_diameter;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
