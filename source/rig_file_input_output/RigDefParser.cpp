@@ -3774,8 +3774,8 @@ void Parser::ParseTies(Ogre::String const & line)
 	tie.root_node = _ParseNodeId(results[1]);
 	tie.max_reach_length = STR_PARSE_REAL(results[2]);
 	tie.auto_shorten_rate = STR_PARSE_REAL(results[3]);
-	tie.max_length = STR_PARSE_REAL(results[4]);
-	tie.min_length = STR_PARSE_REAL(results[5]);
+	tie.min_length = STR_PARSE_REAL(results[4]);
+	tie.max_length = STR_PARSE_REAL(results[5]);
 	if (results[6].matched)
 	{
 		tie.options = Tie::Options(STR_PARSE_INT(results[7]));
