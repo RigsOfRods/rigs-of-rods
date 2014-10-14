@@ -921,7 +921,8 @@ protected:
 		float rim_spring,
 		float rim_damping,
 		boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-		RigDef::Node::Id rigidity_node_id
+		RigDef::Node::Id rigidity_node_id,
+		float max_extension = 0.f
 	);
 
 	/**

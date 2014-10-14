@@ -250,6 +250,9 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'shocks2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
 
+	/* Section 'meshwheels2' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
+
 	/* Section 'commands' and 'commands2' (Use generated nodes) */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
 
@@ -318,9 +321,6 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'meshwheels' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS, RigDef::MeshWheel, mesh_wheels, ProcessMeshWheel);
-
-	/* Section 'meshwheels2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
 
 	/* Section 'flexbodywheels' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, RigDef::FlexBodyWheel, flex_body_wheels, ProcessFlexBodyWheel);
@@ -4910,33 +4910,9 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 		rim_spring,
 		rim_damp,
 		def.beam_defaults,
-		def.rigidity_node
+		def.rigidity_node,
+		0.15 // max_extension
 	);
-
-#if 0 // replaced
-	for (unsigned int i = 0; i < def.num_rays; i++)
-	{
-		/* Bounded */
-		unsigned int outer_ring_node_index = base_node_index + (i * 2);
-		node_t *outer_ring_node = & m_rig->nodes[outer_ring_node_index];
-		node_t *inner_ring_node = & m_rig->nodes[outer_ring_node_index + 1];
-		
-		AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damp, def.beam_defaults, 0.66f, 0.f);
-		AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damp, def.beam_defaults, 0.66f, 0.f);
-		AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damp, def.beam_defaults);
-		AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damp, def.beam_defaults);
-
-		/* Reinforcement */
-		unsigned int next_outer_ring_node_index = base_node_index + (((i + 1) % def.num_rays) * 2);
-		node_t *next_outer_ring_node = & m_rig->nodes[next_outer_ring_node_index];
-		node_t *next_inner_ring_node = & m_rig->nodes[next_outer_ring_node_index + 1];
-
-		AddWheelBeam(outer_ring_node, inner_ring_node,      rim_spring, rim_damp, def.beam_defaults);
-		AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damp, def.beam_defaults);
-		AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damp, def.beam_defaults);
-		AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damp, def.beam_defaults);
-	}
-#endif
 
 	/* --- Visuals --- */
 	BuildMeshWheelVisuals(
@@ -5182,7 +5158,8 @@ void RigSpawner::BuildWheelBeams(
 	float rim_spring,
 	float rim_damping,
 	boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-	RigDef::Node::Id rigidity_node_id
+	RigDef::Node::Id rigidity_node_id,
+	float max_extension // = 0.f
 )
 {
 #ifdef DEBUG_TRUCKPARSER2013
@@ -5210,8 +5187,8 @@ void RigSpawner::BuildWheelBeams(
 		node_t *outer_ring_node = & m_rig->nodes[outer_ring_node_index];
 		node_t *inner_ring_node = & m_rig->nodes[outer_ring_node_index + 1];
 		
-		AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, 0.f);
-		AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, 0.f);
+		AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
+		AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
 		AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping, beam_defaults);
 		AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping, beam_defaults);
 
