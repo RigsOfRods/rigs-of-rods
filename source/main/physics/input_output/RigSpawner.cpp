@@ -3570,6 +3570,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	hook->beam->commandShort = def.option_minimum_range_meters;
 	hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
 	hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
+	hook->visible = false;
 	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
 	{
 		hook->autolock = true;
