@@ -54,6 +54,7 @@ Command2::Command2():
 	options(0),
 	_format_version(1), /* 1 = 'commands', 2 = 'commands2' */
 	affect_engine(1),
+	detacher_group(0),
 	needs_engine(true)
 {}
 
