@@ -153,11 +153,11 @@ private:
 	Node*                m_mouse_hovered_node;
 
 	/* VISUALS */
-	Ogre::ManualObject*  m_beams_dynamic_mesh;
-	Ogre::ManualObject*  m_nodes_dynamic_mesh;
-	Ogre::ManualObject*  m_nodes_hover_dynamic_mesh;
-	Ogre::ManualObject*  m_nodes_selected_dynamic_mesh;
-	Ogre::ManualObject*  m_wheels_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>  m_beams_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>  m_nodes_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>  m_nodes_hover_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>  m_nodes_selected_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>  m_wheels_dynamic_mesh;
 
 	/* UTILITY */
 	bool                 m_modified;
