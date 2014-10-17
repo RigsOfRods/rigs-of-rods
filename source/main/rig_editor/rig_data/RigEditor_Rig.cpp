@@ -46,27 +46,15 @@ using namespace RoR;
 using namespace RoR::RigEditor;
 
 Rig::Rig(Config* config):
-	m_beams_dynamic_mesh(nullptr),
-	m_nodes_dynamic_mesh(nullptr),
-	m_nodes_hover_dynamic_mesh(nullptr),
-	m_nodes_selected_dynamic_mesh(nullptr),
-	m_wheels_dynamic_mesh(nullptr),
 	m_mouse_hovered_node(nullptr),
 	m_aabb(Ogre::AxisAlignedBox::BOX_NULL),
 	m_config(config),
 	m_modified(false)
 {}
 
-#define DELETE(PTR) if (PTR != nullptr) { delete PTR; PTR = nullptr; }
-
 Rig::~Rig()
 {
-	/* Clear visuals */
-	DELETE(m_beams_dynamic_mesh);
-	DELETE(m_nodes_dynamic_mesh);
-	DELETE(m_wheels_dynamic_mesh);
-	DELETE(m_nodes_hover_dynamic_mesh);
-	DELETE(m_nodes_selected_dynamic_mesh);
+	// NOTE: visuals deleted by std::unique_ptr
 
 	/* Clear structure */
 	m_beams.clear();
@@ -209,7 +197,7 @@ void Rig::Build(
 	}
 
 	/* Create mesh */
-	m_beams_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	m_beams_dynamic_mesh = std::unique_ptr<Ogre::ManualObject>(rig_editor->GetOgreSceneManager()->createManualObject());
 	m_beams_dynamic_mesh->estimateIndexCount(m_beams.size() * 2);
 	m_beams_dynamic_mesh->estimateVertexCount(m_nodes.size());
 	m_beams_dynamic_mesh->setCastShadows(false);
@@ -252,7 +240,9 @@ void Rig::Build(
 	}
 
 	/* Create mesh */
-	m_nodes_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	m_nodes_dynamic_mesh = std::unique_ptr<Ogre::ManualObject>(
+			rig_editor->GetOgreSceneManager()->createManualObject()
+		);
 	m_nodes_dynamic_mesh->estimateVertexCount(m_nodes.size());
 	m_nodes_dynamic_mesh->setCastShadows(false);
 	m_nodes_dynamic_mesh->setDynamic(true);
@@ -290,7 +280,9 @@ void Rig::Build(
 	}
 
 	/* Create mesh */
-	m_nodes_hover_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	m_nodes_hover_dynamic_mesh = std::unique_ptr<Ogre::ManualObject>(
+			rig_editor->GetOgreSceneManager()->createManualObject()
+		);
 	m_nodes_hover_dynamic_mesh->estimateVertexCount(10);
 	m_nodes_hover_dynamic_mesh->setCastShadows(false);
 	m_nodes_hover_dynamic_mesh->setDynamic(true);
@@ -332,7 +324,9 @@ void Rig::Build(
 	}
 
 	/* Create mesh */
-	m_nodes_selected_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	m_nodes_selected_dynamic_mesh = std::unique_ptr<Ogre::ManualObject>(
+			rig_editor->GetOgreSceneManager()->createManualObject()
+		);
 	m_nodes_selected_dynamic_mesh->estimateVertexCount(10);
 	m_nodes_selected_dynamic_mesh->setCastShadows(false);
 	m_nodes_selected_dynamic_mesh->setDynamic(true);
@@ -381,7 +375,9 @@ void Rig::Build(
 	}
 
 	/* Create mesh */
-	m_wheels_dynamic_mesh = rig_editor->GetOgreSceneManager()->createManualObject();
+	m_wheels_dynamic_mesh = std::unique_ptr<Ogre::ManualObject>(
+			rig_editor->GetOgreSceneManager()->createManualObject()
+		);
 	m_wheels_dynamic_mesh->estimateVertexCount(wheels_vertex_count);
 	m_wheels_dynamic_mesh->estimateIndexCount(wheels_index_count);
 	m_wheels_dynamic_mesh->setCastShadows(false);
@@ -479,7 +475,7 @@ bool Rig::ProcessMeshwheels2(
 		}
 
 		/* Generate beams */
-		Ogre::ManualObject * manual_mesh = m_wheels_dynamic_mesh;
+		Ogre::ManualObject * manual_mesh = m_wheels_dynamic_mesh.get();
 		for (unsigned int i = 0; i < def.num_rays; i++)
 		{
 			/* Bounded */
@@ -699,7 +695,7 @@ void Rig::RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node)
 		
 		if (! m_nodes_hover_dynamic_mesh->isAttached())
 		{
-			parent_scene_node->attachObject(m_nodes_hover_dynamic_mesh);
+			parent_scene_node->attachObject(m_nodes_hover_dynamic_mesh.get());
 		}
 	}
 	else
@@ -715,11 +711,11 @@ void Rig::AttachToScene(Ogre::SceneNode* parent_scene_node)
 {
 	assert(parent_scene_node != nullptr);
 
-	parent_scene_node->attachObject(m_beams_dynamic_mesh);
-	parent_scene_node->attachObject(m_nodes_dynamic_mesh);
-	parent_scene_node->attachObject(m_nodes_hover_dynamic_mesh);
-	parent_scene_node->attachObject(m_nodes_selected_dynamic_mesh);
-	parent_scene_node->attachObject(m_wheels_dynamic_mesh);
+	parent_scene_node->attachObject(m_beams_dynamic_mesh.get());
+	parent_scene_node->attachObject(m_nodes_dynamic_mesh.get());
+	parent_scene_node->attachObject(m_nodes_hover_dynamic_mesh.get());
+	parent_scene_node->attachObject(m_nodes_selected_dynamic_mesh.get());
+	parent_scene_node->attachObject(m_wheels_dynamic_mesh.get());
 }
 
 void Rig::DetachFromScene()
