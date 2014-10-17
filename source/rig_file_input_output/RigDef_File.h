@@ -85,13 +85,7 @@ struct CameraSettings
 
 struct NodeDefaults
 {
-	NodeDefaults():
-		load_weight(-1.f),
-		friction(1),
-		volume(1),
-		surface(1),
-		options(0)
-	{}
+	NodeDefaults();
 
 	float load_weight;
 	float friction;
