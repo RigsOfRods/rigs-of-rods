@@ -63,6 +63,20 @@ protected:
 
 	void WriteFlags();
 
+	void ProcessNodes();
+
+	void ProcessNode(Node & node);
+
+	void ProcessNodeDefaults(NodeDefaults* node_defaults);
+
+	void ProcessNodeOptions(unsigned int options);
+
+	void ProcessBeams();
+
+	void ProcessBeamDefaults(BeamDefaults* beam_defaults);
+
+	void ProcessBeam(Beam & beam);
+
 protected:
 
 	std::ofstream                     m_stream;
@@ -70,6 +84,7 @@ protected:
 	boost::shared_ptr<RigDef::File>   m_rig_def;
 	int                               m_float_precision;
 	int                               m_float_width;
+	int                               m_node_id_width;
 	
 };
 
