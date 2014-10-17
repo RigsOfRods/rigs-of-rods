@@ -90,6 +90,14 @@ Hook::Hook():
 	option_minimum_range_meters(0.f)
 {}
 
+NodeDefaults::NodeDefaults():
+	load_weight(-1.f),
+	friction(1),
+	volume(1),
+	surface(1),
+	options(0)
+{}
+
 Shock::Shock():
 	spring_rate(0),
 	damping(0),
