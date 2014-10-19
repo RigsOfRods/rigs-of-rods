@@ -2946,7 +2946,7 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 			}
 			else
 			{
-				animation.event = results[14];
+				animation.event = token_results[14];
 			}
 		}
 		else 
