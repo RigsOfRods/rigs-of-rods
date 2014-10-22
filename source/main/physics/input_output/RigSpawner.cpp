@@ -256,23 +256,23 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'commands' and 'commands2' (Use generated nodes) */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
 
+	/* Section 'hydros' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
+
+	/* Section 'cinecam' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
+
 	/* Section 'ties' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
 
 	/* Section 'animators' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, RigDef::Animator, animators, ProcessAnimator);
 
-	/* Section 'hydros' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
-
 	/* Section 'wheels' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS, RigDef::Wheel, wheels, ProcessWheel);
 
 	/* Section 'turbojets' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOJETS, RigDef::Turbojet, turbojets, ProcessTurbojet);
-
-	/* Section 'wings' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, RigDef::Wing, wings, ProcessWing);
 
 	/* Section 'fusedrag' */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_FUSEDRAG, RigDef::Fusedrag, fusedrag, ProcessFusedrag);
@@ -297,6 +297,9 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'props' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
+
+	/* Section 'wings' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, RigDef::Wing, wings, ProcessWing);
 
 	/* Section 'engine' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
@@ -324,9 +327,6 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'flexbodywheels' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, RigDef::FlexBodyWheel, flex_body_wheels, ProcessFlexBodyWheel);
-
-	/* Section 'cinecam' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
 
 	/* Section 'rotators' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS, RigDef::Rotator, rotators, ProcessRotator);
