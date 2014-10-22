@@ -25,8 +25,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "Ogre.h"
 
+class RigInspector; // Forward decl.
+
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
+	friend class RigInspector; // Debug class, located in [repository]/tools/rig_spawner_debug
+
 public:
 
 	FlexAirfoil(Ogre::String const & wname, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, char* texband, Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, AeroEngine** tps, bool break_able);
