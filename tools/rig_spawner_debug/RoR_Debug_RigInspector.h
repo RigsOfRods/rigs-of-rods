@@ -57,6 +57,11 @@ The purpose is to debug class RigSpawner, introduced in TruckParser2013 project
 class RigInspector
 {
 public:
+
+	static void InspectFlexAirfoil(std::ofstream & f, FlexAirfoil & fa);
+
+	static void InspectWings(std::ofstream & f, Beam* rig);
+
 static void InspectRig(Beam* rig, std::string const & out_path)
 {
 	std::ofstream f;
@@ -491,10 +496,11 @@ static void InspectRig(Beam* rig, std::string const & out_path)
 		std::vector <rope_t> ropes;
 	std::vector <ropable_t> ropables;
 	std::vector <tie_t> ties;
+	*/
+	InspectWings(f, rig);
+	
 
-	wing_t wings[MAX_WINGS];
-	int free_wing;
-
+	/*
 	std::vector<flare_t> flares;
 	int free_flare;
 
