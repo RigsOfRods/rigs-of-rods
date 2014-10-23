@@ -111,6 +111,13 @@ void RigSpawner::Setup(
 	m_fuse_y_min = 1000.0f;
 	m_fuse_y_max = -1000.0f;
 
+	m_generate_wing_position_lights = true;
+	// TODO: Handle modules
+	if (file->root_module->engine.get() != nullptr) // Engine present => it's a land vehicle.
+	{
+		m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
+	}
+
 	// add custom include path
 	if (!SSETTING("resourceIncludePath", "").empty())
 	{
@@ -607,7 +614,6 @@ void RigSpawner::InitializeRig()
 	m_rig->driversseatfound=false;
 	m_rig->ispolice=false;
 	m_rig->state=SLEEPING;
-	m_rig->hasposlights=false;
 	m_rig->heathaze=false;
 	m_rig->autopilot = nullptr;
 	m_rig->hfinder = nullptr;
@@ -1444,12 +1450,6 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 	}
 	else
 	{
-		// disable position lights on trucks
-		if (m_rig->driveable==TRUCK) 
-		{
-			m_rig->hasposlights=true;
-		}
-
 		if (node_indices[1] != m_rig->wings[wing_index - 1].fa->nfld)
 		{
 			wing_t & start_wing    = m_rig->wings[m_rig->wingstart];
@@ -1463,7 +1463,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 			previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
 
 			//we want also to add positional lights for first wing
-			if (!m_rig->hasposlights && m_rig->flaresMode>0)
+			if (m_generate_wing_position_lights && m_rig->flaresMode>0)
 			{
 				if (! CheckPropLimit(4))
 				{
@@ -1634,7 +1634,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				right_flash_prop.animFlags[0]=0;
 				right_flash_prop.animMode[0]=0;
 				
-				m_rig->hasposlights=true;
+				m_generate_wing_position_lights = false; // Already done
 			}
 
 			m_rig->wingstart=wing_index;
@@ -2228,7 +2228,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		return;
 	}
 
-	prop_t & prop = m_rig->props[m_rig->free_prop];
+ 	prop_t & prop = m_rig->props[m_rig->free_prop];
 	m_rig->free_prop++;
 	memset(&prop, 0, sizeof(prop_t)); /* Initialize prop memory to avoid invalid pointers. */
 
