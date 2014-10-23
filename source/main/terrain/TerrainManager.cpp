@@ -333,7 +333,9 @@ void TerrainManager::initLight()
 {
 	if (use_caelum)
 	{
+#ifdef USE_CAELUM
 		main_light = sky_manager->getMainLight();
+#endif
 	} else
 	{
 		// screw caelum, we will roll our own light
