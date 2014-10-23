@@ -3136,8 +3136,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		// trigger updating of shadows etc
+#ifdef USE_CAELUM
 		SkyManager *sky = gEnv->terrainManager->getSkyManager();
 		if(sky) sky->detectUpdate();
+#endif
 		
 		gEnv->terrainManager->update(dt);
 	}
