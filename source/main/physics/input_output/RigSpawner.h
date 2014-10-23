@@ -1006,4 +1006,5 @@ protected:
 	float m_fuse_z_max;
 	float m_fuse_y_min;
 	float m_fuse_y_max;
+	bool  m_generate_wing_position_lights;
 };

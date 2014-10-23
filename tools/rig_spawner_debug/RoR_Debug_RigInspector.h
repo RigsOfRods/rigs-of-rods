@@ -741,7 +741,6 @@ static void InspectRig(Beam* rig, std::string const & out_path)
 	f<<"\n\t ispolice:"<<rig->ispolice;
 	f<<"\n\t state:"<<rig->state;
 	f<<"\n\t collisionRelevant:"<<rig->collisionRelevant;
-	f<<"\n\t hasposlights:"<<rig->hasposlights;
 	f<<"\n\t heathaze:"<<rig->heathaze;
 
 	f<<"\n\tAutopilot autopilot:"<<ECHO_PTR(rig->autopilot);

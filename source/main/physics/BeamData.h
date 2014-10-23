@@ -924,7 +924,6 @@ struct rig_t
 	bool ispolice;
 	int state;
 	bool collisionRelevant;
-	bool hasposlights;
 	bool heathaze;
 	Autopilot *autopilot;
 	HeightFinder *hfinder;
