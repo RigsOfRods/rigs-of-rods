@@ -807,14 +807,9 @@ struct ExtCamera
 
 	enum Mode
 	{
-		MODE_BEGIN,
-
-		MODE_CLASSIC,
-		MODE_CINECAM,
-		MODE_NODE,
-
-		MODE_END,
-		MODE_INVALID = 0xFFFFFFFF
+		MODE_CLASSIC = 0, // Do not change
+		MODE_CINECAM = 1, // Do not change
+		MODE_NODE    = 2, // Do not change
 	};
 
 	Mode mode;
