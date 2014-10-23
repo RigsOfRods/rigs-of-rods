@@ -233,8 +233,9 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'gobals' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GLOBALS, RigDef::Globals, globals, ProcessGlobals);
 
-	/* Section 'help' in any module */
-	ProcessHelp();
+	/* Section 'help' in any module. */
+	/* NOTE: Must be done before "guisettings" (rig_t::helpmat override) */
+	ProcessHelp(); 
 
 	/* Inline-section 'submesh_groundmodel' in any module */
 	ProcessSubmeshGroundmodel();
@@ -1757,7 +1758,10 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
 	m_rig->tachomat = def.tacho_material;
 	m_rig->speedomat = def.speedo_material;
-	strncpy(m_rig->helpmat, def.help_material.c_str(), 254);
+	if (! def.help_material.empty())
+	{
+		strncpy(m_rig->helpmat, def.help_material.c_str(), sizeof(m_rig->helpmat) - 1);
+	}
 
 	/*if (!strncmp(keyword, "debugBeams", 255) && strnlen(value, 255) > 0)
 	{
@@ -6074,9 +6078,11 @@ void RigSpawner::ProcessHelp()
 	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
-		if (! module_itor->get()->help_panel_material_name.empty())
+		auto module = module_itor->get();
+		if (! module->help_panel_material_name.empty())
 		{
-			strncpy(m_rig->helpmat, module_itor->get()->help_panel_material_name.c_str(), 255);
+			strncpy(m_rig->helpmat, module->help_panel_material_name.c_str(), sizeof(m_rig->helpmat) - 1);
+			m_rig->hashelp = 1;
 			material_count++;
 		}
 	}
