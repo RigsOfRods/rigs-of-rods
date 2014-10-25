@@ -4976,6 +4976,7 @@ void RigSpawner::BuildMeshWheelVisuals(
 		m_rig->usedSkin,
 		m_rig->materialReplacer
 	);
+	m_rig->vwheels[wheel_index].meshwheel = true;
 
 	try
 	{
