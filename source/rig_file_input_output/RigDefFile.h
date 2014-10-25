@@ -579,12 +579,12 @@ struct Axle
 		options(0)
 	{}
 
-	static const unsigned int OPTION_o_OPEN   = BITMASK(1);
-	static const unsigned int OPTION_l_LOCKED = BITMASK(2);
-	static const unsigned int OPTION_s_SPLIT  = BITMASK(3);
+	static const char OPTION_o_OPEN   = 'o';
+	static const char OPTION_l_LOCKED = 'l';
+	static const char OPTION_s_SPLIT  = 's';
 
 	Node::Id wheels[2][2];
-	unsigned int options;
+	std::vector<char> options; //!< Order matters!
 };
 
 /* -------------------------------------------------------------------------- */
