@@ -1942,8 +1942,9 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
 	/* CAB */
 
-	std::vector<RigDef::Cab>::iterator cab_itor = def.cab_triangles.begin();
-	for ( ; cab_itor != def.cab_triangles.end(); cab_itor++)
+	auto cab_itor = def.cab_triangles.begin();
+	auto cab_itor_end = def.cab_triangles.end();
+	for ( ; cab_itor != cab_itor_end; ++cab_itor)
 	{
 		if (! CheckCabLimit(1))
 		{
@@ -2080,69 +2081,72 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
 	/* BACKMESH */
 
-	/* TODO: Verify this code, I ported it from SerializedRig::loadTruck() without fully understanding it :( ~only_a_ptr */
-
-	//close the current mesh
-	if (! CheckCabLimit(1))
+	if (def.backmesh)
 	{
-		return;
-	}
 
-	m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
-	m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
+		//close the current mesh
+		m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
+		m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
 
-	//make it normal
-	m_rig->subisback[m_rig->free_sub]=0;
-	m_rig->free_sub++;
+		// Check limit
+		if (! CheckCabLimit(1))
+		{
+			return;
+		}
 
-	//add an extra front mesh
-	int i;
-	int start = (m_rig->free_sub==1) ? 0 : m_rig->subtexcoords[m_rig->free_sub-2];
-	//texcoords
-	for (i=start; i<m_rig->subtexcoords[m_rig->free_sub-1]; i++)
-	{
-		m_rig->texcoords[m_rig->free_texcoord] = m_rig->texcoords[i];;
-		m_rig->free_texcoord++;
-	}
-	//cab
-	start =  (m_rig->free_sub==1) ? 0 : m_rig->subcabs[m_rig->free_sub-2];
+		//make it normal
+		m_rig->subisback[m_rig->free_sub]=0;
+		m_rig->free_sub++;
 
-	for (i=start; i<m_rig->subcabs[m_rig->free_sub-1]; i++)
-	{
-		m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3];
-		m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3+1];
-		m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
-		m_rig->free_cab++;
-	}
-	//finish it, this is a window
-	m_rig->subisback[m_rig->free_sub]=2;
-	//close the current mesh
-	m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
-	m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
-	//make is transparent
-	m_rig->free_sub++;
+		//add an extra front mesh
+		int i;
+		int start = (m_rig->free_sub==1) ? 0 : m_rig->subtexcoords[m_rig->free_sub-2];
+		//texcoords
+		for (i=start; i<m_rig->subtexcoords[m_rig->free_sub-1]; i++)
+		{
+			m_rig->texcoords[m_rig->free_texcoord] = m_rig->texcoords[i];;
+			m_rig->free_texcoord++;
+		}
+		//cab
+		start =  (m_rig->free_sub==1) ? 0 : m_rig->subcabs[m_rig->free_sub-2];
+
+		for (i=start; i<m_rig->subcabs[m_rig->free_sub-1]; i++)
+		{
+			m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3];
+			m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3+1];
+			m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
+			m_rig->free_cab++;
+		}
+		//finish it, this is a window
+		m_rig->subisback[m_rig->free_sub]=2;
+		//close the current mesh
+		m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
+		m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
+		//make is transparent
+		m_rig->free_sub++;
 
 
-	//add an extra back mesh
-	//texcoords
-	start = (m_rig->free_sub==1) ? 0 : m_rig->subtexcoords[m_rig->free_sub-2];
-	for (i=start; i<m_rig->subtexcoords[m_rig->free_sub-1]; i++)
-	{
-		m_rig->texcoords[m_rig->free_texcoord]=m_rig->texcoords[i];;
-		m_rig->free_texcoord++;
-	}
+		//add an extra back mesh
+		//texcoords
+		start = (m_rig->free_sub==1) ? 0 : m_rig->subtexcoords[m_rig->free_sub-2];
+		for (i=start; i<m_rig->subtexcoords[m_rig->free_sub-1]; i++)
+		{
+			m_rig->texcoords[m_rig->free_texcoord]=m_rig->texcoords[i];;
+			m_rig->free_texcoord++;
+		}
 
-	//cab
-	start = (m_rig->free_sub==1) ? 0 : m_rig->subcabs[m_rig->free_sub-2];
-	for (i=start; i<m_rig->subcabs[m_rig->free_sub-1]; i++)
-	{
-		m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3+1];
-		m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3];
-		m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
-		m_rig->free_cab++;
-	}
+		//cab
+		start = (m_rig->free_sub==1) ? 0 : m_rig->subcabs[m_rig->free_sub-2];
+		for (i=start; i<m_rig->subcabs[m_rig->free_sub-1]; i++)
+		{
+			m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3+1];
+			m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3];
+			m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
+			m_rig->free_cab++;
+		}
 	
-	m_rig->subisback[m_rig->free_sub]=1;
+		m_rig->subisback[m_rig->free_sub]=1;
+	}
 }
 
 void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
