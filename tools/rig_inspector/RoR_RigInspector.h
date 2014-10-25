@@ -16,6 +16,10 @@ The purpose is to debug class RigSpawner, introduced in TruckParser2013 project
 #include "RoRPrerequisites.h"
 #include <iostream>
 
+// Forward
+class Turbojet;
+class Turboprop;
+
 class RigInspector
 {
 public:
@@ -72,8 +76,6 @@ private:
 
 	static void InspectAeroengines(std::ofstream & f, Beam* rig);
 
-	static void PrintTurbojet(std::ofstream & f, Turbojet * ptr);
-
 	static void InspectScrewprops(std::ofstream & f, Beam* rig);
 
 	static void PrintFlexbody(std::ofstream & f, FlexBody* flexbody);
@@ -87,6 +89,8 @@ private:
 	static void InspectAxles(std::ofstream & f, Beam* rig);
 
 	static void PrintTurboprop(std::ofstream & f, Turboprop * ptr);
+
+	static void PrintTurbojet(std::ofstream & f, Turbojet * ptr);
 
 	// ========================================================
 
