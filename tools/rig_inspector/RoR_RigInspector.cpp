@@ -1631,7 +1631,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	FlexBody & data = *flexbody;
 
 	// Nodes
-	f << "\n Nodes: ";
+	f << "\n\t Nodes: ";
 	for (int i = 0; i < data.numnodes; ++i)
 	{	
 		node_t* node = (data.nodes + i);
@@ -1639,7 +1639,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	}
 
 	// Vertices
-	f << "\n Vertices:";
+	f << "\n\t Vertices:";
 	int vertex_count = static_cast<int>(data.vertex_count);
 	for (int i = 0; i < vertex_count; ++i)
 	{
@@ -1666,7 +1666,8 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	}
 
 	// Nodeset
-	f<<"\n Nodeset: ";
+	f<<"\n\t Nodeset: ";
+	f<<"(freenodeset="<<data.freenodeset<<") ";
 	for (int i = 0; i < data.freenodeset; ++i)
 	{
 		FlexBody::interval_t & item = data.nodeset[i];
@@ -1675,6 +1676,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 
 	// Data
 	f
+		<<"\n\t Data: "
 		<<" nodes="<<ECHO_NODE(data.nodes)
 		<<" numnodes="<<data.numnodes
 		<<" vertex_count="<<data.vertex_count
@@ -1684,8 +1686,6 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 		<<" coffset="<<ECHO_V3(data.coffset)
 		<<" snode="<<ECHO_PTR(data.snode)
 
-		<<" freenodeset="<<data.freenodeset
-
 		<<" sharedcount="<<data.sharedcount
 		<<" sharedpbuf="<<data.sharedpbuf.isNull()
 		<<" sharednbuf="<<data.sharednbuf.isNull()
@@ -1694,12 +1694,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 		<<" numsubmeshbuf="<<data.numsubmeshbuf
 		<<" submeshnums="<<ECHO_PTR(data.submeshnums) // TODO: traverse C array
 		<<" subnodecounts="<<ECHO_PTR(data.subnodecounts) // TODO: traverse C array
-		;
-		LOG_ARRAY_HardwareVertexBufferSharedPtr("subpbufs", data.subpbufs, 16);
-		LOG_ARRAY_HardwareVertexBufferSharedPtr("subnbufs", data.subnbufs, 16);
-		LOG_ARRAY_HardwareVertexBufferSharedPtr("subcbufs", data.subcbufs, 16);
 
-		f
 		<<" enabled="<<data.enabled
 		<<" cameramode="<<data.cameramode
 		<<" hasshared="<<data.hasshared
@@ -1710,6 +1705,11 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 		<<" faulty="<<data.faulty
 		// TODO: msh
 		;
+
+	f << "\n\t Vertex buffers: ";
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subpbufs", data.subpbufs, 16);
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subnbufs", data.subnbufs, 16);
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subcbufs", data.subcbufs, 16);
 }
 
 void RigInspector::InspectFlexbodies(std::ofstream & f, Beam* rig)
