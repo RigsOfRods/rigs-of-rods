@@ -32,6 +32,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class FlexBody : public Flexable
 {
+	friend class RigInspector;
+
 public:
 
 	FlexBody(

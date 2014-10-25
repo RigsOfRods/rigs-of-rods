@@ -29,8 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "IThreadTask.h"
 #include "Streamable.h"
 
-class RigInspector; // Forward decl.
-
 /** 
 * Represents an entire rig (any vehicle type)
 * Contains logic related to physics, network, sound, threading, rendering. It's a bit of a monster class :(
@@ -41,7 +39,7 @@ class Beam :
 	public Streamable
 {
 	friend class RigSpawner;
-	friend class RigInspector; // Debug class, located in [repository]/tools/rig_spawner_debug
+	friend class RigInspector; // Debug utility class
 
 public:
 	Beam() {}; // for wrapper, DO NOT USE!

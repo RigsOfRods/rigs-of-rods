@@ -25,6 +25,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 {
+	friend class RigInspector;
+
 public:
 
 	Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr);
@@ -68,15 +70,15 @@ private:
 	bool reversable;
 	bool reverse;
 	bool warmup;
-	float afterburnthrust; //in kN
+	float afterburnthrust; //!< in kN
 	float area;
-	float exhaust_velocity; //in m/s
+	float exhaust_velocity; //!< in m/s
 	float lastflip;
-	float maxdrythrust; //in kN
+	float maxdrythrust; //!< in kN
 	float propwash;
 	float radius;
 	float reflen;
-	float rpm; //in percent!
+	float rpm; //!< in percent!
 	float throtle;
 	float timer;
 	float warmupstart;

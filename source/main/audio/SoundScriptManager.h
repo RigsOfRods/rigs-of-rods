@@ -201,6 +201,7 @@ private:
 class SoundScriptInstance : public ZeroedMemoryAllocator
 {
 	friend class SoundScriptManager;
+	friend class RigInspector;
 
 public:
 

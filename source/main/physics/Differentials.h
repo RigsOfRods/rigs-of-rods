@@ -48,6 +48,8 @@ typedef void (*diff_callback)( differential_data_t& diff_data);
 // ugly code is not merged. fixed that up -- thomas
 class Axle : public ZeroedMemoryAllocator
 {
+	friend class RigInspector;
+
 public:
     Axle();
 

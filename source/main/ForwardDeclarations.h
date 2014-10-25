@@ -131,6 +131,7 @@ class SkyManager;
 class SlideNode;
 class ShadowManager;
 class SoundManager;
+class RigInspector; // Debug utility; located in [root]/tools/rig_inspector
 class SoundScriptInstance;
 class SoundScriptManager;
 class Streamable;
