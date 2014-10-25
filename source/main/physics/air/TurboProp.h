@@ -26,6 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
 {
+	friend class RigInspector;
+
 public:
 
 	bool is_piston;
@@ -90,7 +92,7 @@ private:
 	int torquenode;
 	float torquedist;
 	Airfoil *airfoil;
-	float fullpower; //in kW
+	float fullpower; //!< in kW
 	float proparea;
 	float airdensity;
 	float timer;

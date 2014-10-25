@@ -27,6 +27,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class VideoCamera : public ZeroedMemoryAllocator
 {
+	friend class RigInspector;
+
 public:
 	VideoCamera(rig_t *truck);
 

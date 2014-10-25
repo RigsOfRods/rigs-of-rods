@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class Screwprop : public ZeroedMemoryAllocator
 {
+	friend class RigInspector;
+
 public:
 
 	Screwprop(node_t *nd, int nr, int nb, int nu, float power, int trucknum);
@@ -40,7 +42,7 @@ private:
 
 	DustPool *splashp, *ripplep;
 	bool reverse;
-	float fullpower; //in HP
+	float fullpower; //!< in HP
 	float rudder;
 	float throtle;
 	int nodeback;

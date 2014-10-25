@@ -24,11 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgreMesh.h>
 
-class RigInspector; // Forward dec.
-
 class Airbrake : public ZeroedMemoryAllocator
 {
-	friend class RigInspector; // Debug class, located in [repository]/tools/rig_spawner_debug
+	friend class RigInspector; // Debug utility class
 
 private:
 

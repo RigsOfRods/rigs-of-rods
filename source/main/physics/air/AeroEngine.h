@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class AeroEngine
 {
+	friend class RigInspector;
+
 public:
 	enum {AEROENGINE_TYPE_TURBOPROP, AEROENGINE_TYPE_TURBOJET};
 
