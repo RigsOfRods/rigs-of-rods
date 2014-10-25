@@ -1804,9 +1804,38 @@ void RigInspector::InspectAxles(std::ofstream & f, Beam* rig)
 
 			<<" which_diff="<<data.which_diff
 			<<" free_diff="<<data.free_diff
-			<<" current_callback="<<data.current_callback
 			;
+		f << "\n\t ";
 		LOG_ARRAY("available_diff_method", data.available_diff_method, data.available_diff_method.size());
+
+		// callback
+		f << "\n\t callback: ";
+		if (data.current_callback == data.calcLockedDiff)
+		{
+			f << "calcLockedDiff";
+		}
+		else if (data.current_callback == data.calcSeperatedDiff)
+		{
+			f << "calcSeperatedDiff";
+		}
+		else if (data.current_callback == data.calcViscousDiff)
+		{
+			f << "calcViscousDiff";
+		}
+		/* Refuses to link for some reason
+		Gives error LNK2001: unresolved external symbol
+		else if (data.current_callback == data.calcTCDiff)
+		{
+			f << "calcTCDiff";
+		}*/
+		else if (data.current_callback == data.calcOpenDiff)
+		{
+			f << "calcOpenDiff";
+		}
+		else
+		{
+			f << "~not determined~";
+		}
 	}
 }
 
