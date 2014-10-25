@@ -139,7 +139,7 @@ Tie::Tie():
 	options(OPTIONS_VISIBLE),
 	max_stress(12000),
 	detacher_group(0), /* Global detacher group */
-	group(0),
+	group(-1), // default value
 	_group_set(false)
 {}
 
