@@ -3473,13 +3473,13 @@ void Parser::ParseAxles(Ogre::String const & line)
 				switch(options_str.at(i))
 				{
 					case 'o':
-						axle.options |= Axle::OPTION_o_OPEN;
+						axle.options.push_back(Axle::OPTION_o_OPEN);
 						break;
 					case 'l':
-						axle.options |= Axle::OPTION_l_LOCKED;
+						axle.options.push_back(Axle::OPTION_l_LOCKED);
 						break;
 					case 's':
-						axle.options |= Axle::OPTION_s_SPLIT;
+						axle.options.push_back(Axle::OPTION_s_SPLIT);
 						break;
 
 					default: /* No check needed, regex takes care of that */

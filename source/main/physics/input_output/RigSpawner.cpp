@@ -3086,7 +3086,7 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
 		AddMessage(Message::TYPE_WARNING, msg.str());
 	}
 
-	if (def.options == 0)
+	if (def.options.size() == 0)
 	{
 		AddMessage(Message::TYPE_INFO, "No differential defined, defaulting to Open & Locked");
 		axle->addDiffType(OPEN_DIFF);
@@ -3094,17 +3094,24 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
 	}
 	else
 	{
-		if (BITMASK_IS_1(def.options, RigDef::Axle::OPTION_s_SPLIT))
+		auto end = def.options.end();
+		for (auto itor = def.options.begin(); itor != end; ++itor)
 		{
-			axle->addDiffType(SPLIT_DIFF);
-		}
-		if (BITMASK_IS_1(def.options, RigDef::Axle::OPTION_l_LOCKED))
-		{
-			axle->addDiffType(LOCKED_DIFF);
-		}
-		if (BITMASK_IS_1(def.options, RigDef::Axle::OPTION_o_OPEN))
-		{
-			axle->addDiffType(OPEN_DIFF);
+			switch (*itor)
+			{
+			case RigDef::Axle::OPTION_l_LOCKED:
+				axle->addDiffType(LOCKED_DIFF);
+				break;
+			case RigDef::Axle::OPTION_o_OPEN:
+				axle->addDiffType(OPEN_DIFF);
+				break;
+			case RigDef::Axle::OPTION_s_SPLIT:
+				axle->addDiffType(SPLIT_DIFF);
+				break;
+			default:
+				AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
+				break;
+			}
 		}
 	}
 
