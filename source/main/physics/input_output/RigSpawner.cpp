@@ -3256,6 +3256,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	tie.tying = false;
 	tie.tied = false;
 	tie.beam = & beam;
+	tie.commandValue = -1.f;
 	m_rig->ties.push_back(tie);
 
 	m_rig->hascommands = 1;

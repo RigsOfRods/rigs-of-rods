@@ -1343,8 +1343,8 @@ void RigInspector::InspectTies(std::ofstream & f, Beam* rig)
 			<<" group="<<data.group
 			<<" tied="<<data.tied
 			<<" tying="<<data.tying
-			<<" commandValue="<<data.commandValue
 			<<" lockedto="<<ECHO_PTR(data.lockedto)
+			<<"\n\t [OK TO DIFFER, uninitialized in old spawner] commandValue="<<data.commandValue
 			;
 
 		// TODO: Fix uninitialized pointer.
