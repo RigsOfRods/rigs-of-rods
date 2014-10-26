@@ -1850,6 +1850,8 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 	exhaust.emitterNode = ref_node.pos;
 	exhaust.directionNode = dir_node.pos;
 	exhaust.isOldFormat = false;
+	exhaust.factor = 1.f; // Unused, according to wiki documentation.
+	std::memset(exhaust.material, 0, sizeof(exhaust.material));
 	
 	exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
 	std::stringstream instance_name;

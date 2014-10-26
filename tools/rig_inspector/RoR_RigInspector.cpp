@@ -1429,15 +1429,14 @@ void RigInspector::InspectExhausts(std::ofstream & f, Beam* rig)
 	for(auto itor = rig->exhausts.begin(); itor != end; ++itor)
 	{
 		exhaust_t & data = *itor;
-		f<<"\n TYPE "<<i<<":"
+		f<<"\n exhaust_t "<<i<<":"
 			<<" emitterNode="<<data.emitterNode
 			<<" directionNode="<<data.directionNode
-			<<" material="<<data.material
-			<<" factor="<<data.factor
+			<<" material='"<<data.material<<"'"
 			<<" isOldFormat="<<data.isOldFormat
-
 			<<" smokeNode="<<ECHO_PTR(data.smokeNode)
 			<<" smoker="<<ECHO_PTR(data.smoker)
+			<<"\n\t [OK TO DIFFER, UNUSED, possibly unitialized in old spawner] factor="<<data.factor
 			;
 
 		++i;
