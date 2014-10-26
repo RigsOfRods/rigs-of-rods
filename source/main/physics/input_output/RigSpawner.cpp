@@ -224,6 +224,9 @@ rig_t *RigSpawner::SpawnRig()
 		m_rig->minimass = m_file->minimum_mass;
 	}
 
+	/* Section 'description' */
+	m_rig->description.assign(m_file->description.begin(), m_file->description.end());
+
 	/* Section 'fileformatversion' in root module */
 	m_rig->fileformatversion = m_file->file_format_version;
 

@@ -86,7 +86,7 @@ void Parser::ParseLine(Ogre::String const & line)
 		}
 		else
 		{
-			m_definition->description.push_back(line + "\n");
+			m_definition->description.push_back(line);
 		}
 		line_finished = true;
 	}
