@@ -7281,27 +7281,32 @@ void RigSpawner::SetBeamDamping(beam_t & beam, float damping)
 
 void RigSpawner::CalcBoundingBoxes(rig_t *rig)
 {
+	Ogre::Vector3 node_0_pos = rig->nodes[0].AbsPosition;
 	rig->boundingBox.setExtents(
-		rig->nodes[0].AbsPosition.x, 
-		rig->nodes[0].AbsPosition.y, 
-		rig->nodes[0].AbsPosition.z, 
-		rig->nodes[0].AbsPosition.x, 
-		rig->nodes[0].AbsPosition.y, 
-		rig->nodes[0].AbsPosition.z
+		node_0_pos.x, node_0_pos.y, node_0_pos.z, 
+		node_0_pos.x, node_0_pos.y, node_0_pos.z
 	);
 	rig->collisionBoundingBoxes.clear();
 
 	for (int i=0; i < rig->free_node; i++)
 	{
-		rig->boundingBox.merge(Ogre::Vector3(rig->nodes[i].AbsPosition));
-		if (rig->nodes[i].collisionBoundingBoxID >= 0)
+		node_t & node = rig->nodes[i];
+		Ogre::Vector3 node_position = node.AbsPosition;
+		rig->boundingBox.merge(node_position);
+		if (node.collisionBoundingBoxID >= 0)
 		{
-			if ((unsigned int) rig->nodes[i].collisionBoundingBoxID >= rig->collisionBoundingBoxes.size())
+			if ((unsigned int) node.collisionBoundingBoxID >= rig->collisionBoundingBoxes.size())
 			{
-				rig->collisionBoundingBoxes.push_back(Ogre::AxisAlignedBox(rig->nodes[i].AbsPosition.x, rig->nodes[i].AbsPosition.y, rig->nodes[i].AbsPosition.z, rig->nodes[i].AbsPosition.x, rig->nodes[i].AbsPosition.y, rig->nodes[i].AbsPosition.z));
-			} else
+				rig->collisionBoundingBoxes.push_back(
+					Ogre::AxisAlignedBox(
+						node_position.x, node_position.y, node_position.z, 
+						node_position.x, node_position.y, node_position.z
+					)
+				);
+			} 
+			else
 			{
-				rig->collisionBoundingBoxes[rig->nodes[i].collisionBoundingBoxID].merge(rig->nodes[i].AbsPosition);
+				rig->collisionBoundingBoxes[node.collisionBoundingBoxID].merge(node_position);
 			}
 		}
 	}
