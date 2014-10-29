@@ -524,7 +524,7 @@ File::Module::Module(Ogre::String const & name):
 }
 
 File::File():
-	file_format_version(1),
+	file_format_version(0), // Default = unset
 	hide_in_chooser(false),
 	enable_advanced_deformation(false),
 	rollon(false),
