@@ -48,11 +48,13 @@ Neither the code nor the output is meant to be elegant. The output is not meant
 
 #define ECHO_BEAM(B) "{" << ECHO_PTR(B) <<", n1:" << ECHO_NODE(B->p1) <<", n2:" << ECHO_NODE(B->p2) << "}"
 
+const int LOG_ARRAY_BREAK_LIMIT = 100;
+
 #define LOG_ARRAY(VARNAME, ARRAY, SIZE) \
 { \
 	int size = static_cast<int>((SIZE)); \
 	f << (VARNAME) << "(size=" << (SIZE) <<")" << ":"; \
-	for (int i=0; i<size; ++i){ f <<((ARRAY)[i]); f << ","; }     \
+	for (int i=0; i<size; ++i){ f <<((ARRAY)[i]); f << ","; if (i%LOG_ARRAY_BREAK_LIMIT==0){f<<"\n\t [MORE] ";} }     \
 }
 
 #define LOG_ARRAY_PTR(VARNAME, ARRAY, SIZE)  \
@@ -1086,6 +1088,10 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 	for (int i=0; i<rig->free_texcoord; ++i)
 	{
 		f<<ECHO_V3(rig->texcoords[i]);
+		if (i % 25 == 0)
+		{
+			f << "\n";
+		}
 	}
 	f<<"\n\tfree_texcoord:"<<rig->free_texcoord;
 
@@ -1231,16 +1237,16 @@ void RigInspector::PrintCollcabRate(std::ofstream & f, collcab_rate_t & data)
 void RigInspector::InspectCollcabRate(std::ofstream & f, Beam* rig)
 {
 	f << "\n\n============ collcab_rate_t ============\n";
-	f << "inter:\n";
+	f << "inter:";
 	for (int i = 0; i < MAX_CABS; i++)
 	{
-		f << i << ":";
+		f <<"\n" << i << ":";
 		PrintCollcabRate(f, rig->inter_collcabrate[i]);
 	}
-	f << "intra:\n";
+	f << "intra:";
 	for (int i = 0; i < MAX_CABS; i++)
 	{
-		f << i << ":";
+		f << "\n" << i << ":";
 		PrintCollcabRate(f, rig->intra_collcabrate[i]);
 	}
 }
