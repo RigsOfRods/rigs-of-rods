@@ -1210,7 +1210,7 @@ void Parser::ParseWing(Ogre::String const & line)
 
 						if (results[27].matched)
 						{
-							wing.efficancy_coef = STR_PARSE_REAL(results[28]);
+							wing.efficacy_coef = STR_PARSE_REAL(results[28]);
 						}
 					}
 				}

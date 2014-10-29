@@ -2034,18 +2034,7 @@ struct VideoCamera
 
 struct Wing
 {
-	Wing():
-		control_surface(CONTROL_n_NONE)
-	{
-		tex_coords[0] = 0.f;
-		tex_coords[1] = 0.f;
-		tex_coords[2] = 0.f;
-		tex_coords[3] = 0.f;
-		tex_coords[4] = 0.f;
-		tex_coords[5] = 0.f;
-		tex_coords[6] = 0.f;
-		tex_coords[7] = 0.f;
-	}
+	Wing();
 
 	enum Control
 	{
@@ -2080,8 +2069,7 @@ struct Wing
 	float min_deflection;
 	float max_deflection;
 	Ogre::String airfoil;
-	float efficancy_coef;
-	
+	float efficacy_coef;
 };
 
 /* -------------------------------------------------------------------------- */

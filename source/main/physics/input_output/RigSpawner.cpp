@@ -1406,7 +1406,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 		def.min_deflection,
 		def.max_deflection,
 		def.airfoil,
-		def.efficancy_coef,
+		def.efficacy_coef,
 		m_rig->aeroengines,
 		m_rig->state != NETWORKED
 	);
