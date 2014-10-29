@@ -455,17 +455,7 @@ struct GuiSettings
 
 struct Airbrake
 {
-	Airbrake():
-		offset(Ogre::Vector3::ZERO),
-		width(0),
-		height(0),
-		max_inclination_angle(0),
-		texcoord_x1(0),
-		texcoord_x2(0),
-		texcoord_y1(0),
-		texcoord_y2(0),
-		lift_coefficient(-1.f)
-	{}
+	Airbrake();
 
 	Node::Id reference_node;
 	Node::Id x_axis_node;
