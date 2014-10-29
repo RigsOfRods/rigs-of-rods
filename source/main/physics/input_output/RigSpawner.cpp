@@ -1361,6 +1361,7 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 		def.texcoord_y2,
 		def.lift_coefficient
 	);
+	m_rig->free_airbrake++;
 }
 
 void RigSpawner::ProcessWing(RigDef::Wing & def)
