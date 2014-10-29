@@ -1,0 +1,129 @@
+overlay tracks/3D_NeedlesOverlay
+{
+	zorder 530
+		container Panel (tracks/3Dtachoneedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.18
+			height 0.36
+
+			left 0.05
+			top 0.51
+			material tracks/tachoneedle_mat
+		}
+
+		container Panel (tracks/3Dspeedoneedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.18
+			height 0.36
+
+			left 0.25
+			top 0.51
+			material tracks/speedoneedle_mat
+		}
+
+	container TextArea(tracks/3DGear)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.04
+			height 0.08
+			left 0.23
+			top 0.75
+
+			font_name CyberbitEnglish
+			char_height 0.08
+			caption N
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+	container TextArea(tracks/3DAGearR)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.04
+			height 0.08
+			left 0.45
+			top 0.55
+
+			font_name CyberbitEnglish
+			char_height 0.08
+			caption R
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+	container TextArea(tracks/3DAGearN)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.04
+			height 0.08
+			left 0.45
+			top 0.61
+
+			font_name CyberbitEnglish
+			char_height 0.08
+			caption N
+			colour_top 0.8 0.2 0.2
+			colour_bottom 0.6 0.1 0.1
+		}
+	container TextArea(tracks/3DAGearD)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.04
+			height 0.08
+			left 0.45
+			top 0.67
+
+			font_name CyberbitEnglish
+			char_height 0.08
+			caption D
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+	container TextArea(tracks/3DAGear2)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.04
+			height 0.08
+			left 0.45
+			top 0.73
+
+			font_name CyberbitEnglish
+			char_height 0.08
+			caption 2
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+	container TextArea(tracks/3DAGear1)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.04
+			height 0.08
+			left 0.45
+			top 0.79
+
+			font_name CyberbitEnglish
+			char_height 0.08
+			caption 1
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+
+}

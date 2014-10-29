@@ -1,0 +1,22 @@
+road-taxiway.mesh
+1, 1, 1
+
+beginbox
+boxcoords 0, 50, -5, 0, -6.666, 6.666
+endbox
+
+beginbox
+boxcoords 0, 50, -5, -0.25, -10.0, 10.0
+endbox
+
+beginbox
+boxcoords 0, 50, -1.1236, -0.1236, -10.0047, -6.6613
+rotate -4.288, 0, 0
+endbox
+
+beginbox
+boxcoords 0, 50, -1.1236, -0.1236, 6.6613, 10.0047
+rotate 4.288, 0, 0
+endbox
+
+end

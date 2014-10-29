@@ -1,0 +1,137 @@
+material a474UID_invisible
+{
+   technique
+   {
+      pass
+      {
+         ambient 0.0 0.0 0.0 0.0
+         diffuse 0.0 0.0 0.0 0.0
+         scene_blend alpha_blend  
+                        depth_write off
+      }
+
+   }
+
+}
+
+
+material invisible
+{
+   technique
+   {
+      pass
+      {
+         ambient 0.0 0.0 0.0 0.0
+         diffuse 0.0 0.0 0.0 0.0
+         scene_blend alpha_blend  
+                        depth_write off
+      }
+
+   }
+
+}
+
+
+material a474UID_rails
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture train_rails.dds
+			}
+		}
+
+	}
+
+}
+
+
+material a474UID_crossing
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture train_crossing.dds
+			}
+		}
+
+	}
+
+}
+
+
+material a474UID_switch
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture train_switch.dds
+			}
+		}
+
+	}
+
+}
+
+
+material a474UID_buffer
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture train_buffer.dds
+			}
+		}
+
+	}
+
+}
+
+
+material a474UID_huette
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture train_spawner.dds
+			}
+		}
+
+	}
+
+}
+
+
+material a474UID_fenster
+{
+	technique
+	{
+		pass
+		{
+      		scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+         	texture_unit
+			{
+				texture train_spawnerwindow.dds
+			}
+		}
+
+	}
+
+}
