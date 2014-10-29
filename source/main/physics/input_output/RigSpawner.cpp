@@ -6980,7 +6980,7 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 			}
 		}
 		std::stringstream mat_clone_name;
-		mat_clone_name << m_rig->texname << "-" << m_rig->truckname;
+		mat_clone_name << material_name << "-" << m_rig->truckname;
 		mat->clone(mat_clone_name.str());
 		strncpy(m_rig->texname, mat_clone_name.str().c_str(), 1024);
 	}
