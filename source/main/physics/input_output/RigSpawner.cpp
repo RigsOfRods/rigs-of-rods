@@ -5289,7 +5289,7 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 		wheel_def.node_defaults,
 		wheel_def.mass,
 		true,
-		wheel_def.width
+		-1.f // Set width to axis length (width in definition is ignored)
 	);
 
 	BuildWheelBeams(
