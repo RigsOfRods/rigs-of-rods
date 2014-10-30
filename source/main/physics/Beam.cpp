@@ -69,7 +69,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDefValidator.h"
 
 // DEBUG
-#include "../../../tools/rig_spawner_debug/RoR_Debug_RigInspector.h"
+#include "../../../tools/rig_inspector/RoR_RigInspector.h"
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -6461,6 +6461,8 @@ bool Beam::LoadTruck(
 
 	//update contacter nodes
 	updateContacterNodes();
+
+	RigSpawner::CalcBoundingBoxes(this);
 
 	// fix up submesh collision model
 	if (!subMeshGroundModelName.empty())

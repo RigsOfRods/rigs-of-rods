@@ -224,6 +224,9 @@ rig_t *RigSpawner::SpawnRig()
 		m_rig->minimass = m_file->minimum_mass;
 	}
 
+	/* Section 'description' */
+	m_rig->description.assign(m_file->description.begin(), m_file->description.end());
+
 	/* Section 'fileformatversion' in root module */
 	m_rig->fileformatversion = m_file->file_format_version;
 
@@ -252,47 +255,29 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'beams' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, RigDef::Beam, beams, ProcessBeam);
 
-	/* Section 'shocks' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
-
-	/* Section 'shocks2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
-
-	/* Section 'meshwheels2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
+	/* Section 'hydros' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
 
 	/* Section 'commands' and 'commands2' (Use generated nodes) */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
 
-	/* Section 'hydros' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
+	/* Section 'airbrakes' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, RigDef::Airbrake, airbrakes, ProcessAirbrake);
 
-	/* Section 'cinecam' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
-
-	/* Section 'ties' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
-
-	/* Section 'animators' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, RigDef::Animator, animators, ProcessAnimator);
+	/* Section 'shocks' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
 
 	/* Section 'wheels' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS, RigDef::Wheel, wheels, ProcessWheel);
 
-	/* Section 'turbojets' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOJETS, RigDef::Turbojet, turbojets, ProcessTurbojet);
+	/* Section 'wings' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, RigDef::Wing, wings, ProcessWing);
 
 	/* Section 'fusedrag' */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_FUSEDRAG, RigDef::Fusedrag, fusedrag, ProcessFusedrag);
 
-	/* Section 'contacters' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
-
-	/* Sections 'flares' and 'flares2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
-
-	/* Section 'cameras' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
+	/* Section 'turbojets' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOJETS, RigDef::Turbojet, turbojets, ProcessTurbojet);
 
 	/* Section 'videocamera' */
 	/* 
@@ -306,8 +291,56 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'props' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
 
-	/* Section 'wings' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, RigDef::Wing, wings, ProcessWing);
+	/* Sections 'flares' and 'flares2' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
+
+	/* Section 'cinecam' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
+
+	/* Section 'submeshes' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
+
+	// =====================
+
+
+
+	
+
+	/* Section 'shocks2' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
+
+	/* Section 'meshwheels2' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
+
+	
+
+
+
+	
+
+	/* Section 'ties' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
+
+	/* Section 'animators' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, RigDef::Animator, animators, ProcessAnimator);
+
+	
+
+	
+
+	
+
+	/* Section 'contacters' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
+
+	
+
+	/* Section 'cameras' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
+
+	
+
+	
 
 	/* Section 'engine' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
@@ -387,8 +420,7 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'materialflarebindings' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, RigDef::MaterialFlareBinding, material_flare_bindings, ProcessMaterialFlareBinding);
 
-	/* Section 'submeshes' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
+	
 
 	/* Section 'exhausts' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_EXHAUSTS, RigDef::Exhaust, exhausts, ProcessExhaust);
@@ -402,8 +434,7 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'camerarail' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERARAIL, RigDef::CameraRail, camera_rails, ProcessCameraRail);	
 
-	/* Section 'airbrakes' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, RigDef::Airbrake, airbrakes, ProcessAirbrake);
+	
 
 	/* Section 'pistonprops' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PISTONPROPS, RigDef::Pistonprop, pistonprops, ProcessPistonprop);
@@ -6950,7 +6981,7 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 
 	if (! def.material_name.empty())
 	{
-		Ogre::String material_name;
+		Ogre::String material_name = def.material_name;
 
 		/* Check for skin */
 		if (m_rig->usedSkin != nullptr && m_rig->usedSkin->hasReplacementForMaterial(def.material_name))
@@ -6960,10 +6991,6 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 			{
 				material_name = skin_mat_name;
 			}
-		}
-		else
-		{
-			material_name = def.material_name;
 		}
 
 		/* Clone the material */
@@ -6983,7 +7010,7 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 		std::stringstream mat_clone_name;
 		mat_clone_name << material_name << "-" << m_rig->truckname;
 		mat->clone(mat_clone_name.str());
-		strncpy(m_rig->texname, mat_clone_name.str().c_str(), 1024);
+		strncpy(m_rig->texname, mat_clone_name.str().c_str(), sizeof(m_rig->texname));
 	}
 }
 
@@ -7287,27 +7314,32 @@ void RigSpawner::SetBeamDamping(beam_t & beam, float damping)
 
 void RigSpawner::CalcBoundingBoxes(rig_t *rig)
 {
+	Ogre::Vector3 node_0_pos = rig->nodes[0].AbsPosition;
 	rig->boundingBox.setExtents(
-		rig->nodes[0].AbsPosition.x, 
-		rig->nodes[0].AbsPosition.y, 
-		rig->nodes[0].AbsPosition.z, 
-		rig->nodes[0].AbsPosition.x, 
-		rig->nodes[0].AbsPosition.y, 
-		rig->nodes[0].AbsPosition.z
+		node_0_pos.x, node_0_pos.y, node_0_pos.z, 
+		node_0_pos.x, node_0_pos.y, node_0_pos.z
 	);
 	rig->collisionBoundingBoxes.clear();
 
 	for (int i=0; i < rig->free_node; i++)
 	{
-		rig->boundingBox.merge(Ogre::Vector3(rig->nodes[i].AbsPosition));
-		if (rig->nodes[i].collisionBoundingBoxID >= 0)
+		node_t & node = rig->nodes[i];
+		Ogre::Vector3 node_position = node.AbsPosition;
+		rig->boundingBox.merge(node_position);
+		if (node.collisionBoundingBoxID >= 0)
 		{
-			if ((unsigned int) rig->nodes[i].collisionBoundingBoxID >= rig->collisionBoundingBoxes.size())
+			if ((unsigned int) node.collisionBoundingBoxID >= rig->collisionBoundingBoxes.size())
 			{
-				rig->collisionBoundingBoxes.push_back(Ogre::AxisAlignedBox(rig->nodes[i].AbsPosition.x, rig->nodes[i].AbsPosition.y, rig->nodes[i].AbsPosition.z, rig->nodes[i].AbsPosition.x, rig->nodes[i].AbsPosition.y, rig->nodes[i].AbsPosition.z));
-			} else
+				rig->collisionBoundingBoxes.push_back(
+					Ogre::AxisAlignedBox(
+						node_position.x, node_position.y, node_position.z, 
+						node_position.x, node_position.y, node_position.z
+					)
+				);
+			} 
+			else
 			{
-				rig->collisionBoundingBoxes[rig->nodes[i].collisionBoundingBoxID].merge(rig->nodes[i].AbsPosition);
+				rig->collisionBoundingBoxes[node.collisionBoundingBoxID].merge(node_position);
 			}
 		}
 	}
