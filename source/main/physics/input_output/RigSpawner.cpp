@@ -4787,10 +4787,12 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		beam_index = AddWheelBeam(axis_node_1, &m_rig->nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
 		GetBeam(beam_index).shortbound = length;
 		GetBeam(beam_index).longbound  = 0.f;
+		GetBeam(beam_index).bounded = SHOCK1;
 
 		beam_index = AddWheelBeam(axis_node_2, &m_rig->nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 		GetBeam(beam_index).shortbound = length;
 		GetBeam(beam_index).longbound  = 0.f;
+		GetBeam(beam_index).bounded = SHOCK1;
 	}
 
 	/* Wheel object */
