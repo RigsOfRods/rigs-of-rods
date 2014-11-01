@@ -789,22 +789,29 @@ DEFINE_REGEX( INLINE_SECTION_AUTHOR,
 	);
 
 DEFINE_REGEX( SECTION_AXLES_PROPERTY,
+	E_LEADING_WHITESPACE
 	E_CAPTURE_OPTIONAL( /* #1 */
-		E_LEADING_WHITESPACE
+		E_OPTIONAL_SPACE
 		"w(1|2)" /* #2 wheel number */
 		"\\("
 			E_CAPTURE( E_NODE_ID ) /* #3 Node 1 */
 			E_DELIMITER_SPACE
 			E_CAPTURE( E_NODE_ID ) /* #4 Node 2 */
 		"\\)"
-		E_TRAILING_WHITESPACE
+		E_OPTIONAL_SPACE
 	)
 	E_CAPTURE_OPTIONAL( /* #5 */
-		E_LEADING_WHITESPACE
+		E_OPTIONAL_SPACE
 		"d\\("
 			E_CAPTURE( "[ols]*" ) /* #6 Differential modes */
 		"\\)"
-		E_TRAILING_WHITESPACE
+		E_OPTIONAL_SPACE
+	)
+	E_CAPTURE_OPTIONAL(
+		"[[:blank:];].*" /* Any string starting with space or semicolon (tolerate comment) */
+	)
+	E_CAPTURE_OPTIONAL(
+		E_TRAILING_WHITESPACE /* Optional whitespace + end-of-line */
 	)
 	);
 
