@@ -136,7 +136,7 @@ public:
 	*/
 	unsigned int GetNodeIndexOrThrow(RigDef::Node::Id & id);
 
-	static void CalcBoundingBoxes(rig_t *rig);
+	static void RecalculateBoundingBoxes(rig_t *rig);
 
 	static void SetupDefaultSoundSources(Beam *vehicle);
 
