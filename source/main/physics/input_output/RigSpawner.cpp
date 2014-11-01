@@ -4605,6 +4605,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid       = m_rig->free_wheel;
 		outer_node.friction_coef = def.node_defaults->friction;
+		AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
 		/* Inner ring */
 		ray_point = axis_node_2->RelPosition + rim_ray_vector;
@@ -4617,6 +4618,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid       = m_rig->free_wheel;
 		inner_node.friction_coef = def.node_defaults->friction;
+		AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
 		/* Wheel object */
 		wheel.nodes[i * 2]       = & outer_node;
