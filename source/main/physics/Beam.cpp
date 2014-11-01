@@ -6415,7 +6415,7 @@ bool Beam::LoadTruck(
 		Ogre::Vector3 vehicle_position = spawn_position;
 
 		// check if over-sized
-		RecalculateBoundingBoxes();
+		RigSpawner::RecalculateBoundingBoxes(this);
 		vehicle_position.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - vehicle_position.x;
 		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - vehicle_position.z;
 		
@@ -6462,7 +6462,7 @@ bool Beam::LoadTruck(
 	//update contacter nodes
 	updateContacterNodes();
 
-	RigSpawner::CalcBoundingBoxes(this);
+	RigSpawner::RecalculateBoundingBoxes(this);
 
 	// fix up submesh collision model
 	if (!subMeshGroundModelName.empty())
@@ -6533,36 +6533,145 @@ bool Beam::LoadTruck(
 	return true;
 }
 
-void Beam::RecalculateBoundingBoxes()
+ground_model_t* Beam::getLastFuzzyGroundModel()
 {
-	boundingBox.setExtents(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
-	collisionBoundingBoxes.clear();
+	return lastFuzzyGroundModel;
+}
 
-	for (int i=0; i < free_node; i++)
-	{
-		boundingBox.merge(Ogre::Vector3(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z));
-		if (nodes[i].collisionBoundingBoxID >= 0)
-		{
-			if ((unsigned int) nodes[i].collisionBoundingBoxID >= collisionBoundingBoxes.size())
-			{
-				collisionBoundingBoxes.push_back(Ogre::AxisAlignedBox(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z));
-			} 
-			else
-			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
-			}
-		}
-	}
+float Beam::getSteeringAngle()
+{
+	return hydrodircommand;
+}
 
-	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
-	{
-		collisionBoundingBoxes[i].setMinimum(collisionBoundingBoxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-		collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
-	}
+std::string Beam::getTruckName()
+{
+	return realtruckname;
+}
 
-	boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-	boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+std::string Beam::getTruckFileName()
+{
+	return realtruckfilename;
+}
 
-	predictedBoundingBox = boundingBox;
-	predictedCollisionBoundingBoxes = collisionBoundingBoxes;
+int Beam::getTruckType()
+{
+	return driveable;
+}
+
+std::string Beam::getTruckHash()
+{
+	return beamHash;
+}
+
+std::vector<authorinfo_t> Beam::getAuthors()
+{
+	return authors;
+}
+
+std::vector<std::string> Beam::getDescription()
+{
+	return description;
+}
+
+int Beam::getBeamCount()
+{
+	return free_beam;
+}
+
+beam_t* Beam::getBeams()
+{
+	return beams;
+}
+
+float Beam::getDefaultDeformation()
+{
+	return default_deform;
+}
+
+int Beam::getNodeCount()
+{
+	return free_node;
+}
+
+node_t* Beam::getNodes()
+{
+	return nodes;
+}
+
+void Beam::setMass(float m)
+{
+	truckmass = m;
+}
+
+bool Beam::getBrakeLightVisible()
+{
+	if (state==NETWORKED)
+		return netBrakeLight;
+
+//		return (brake > 0.15 && !parkingbrake);
+	return (brake > 0.15);
+}
+
+bool Beam::getCustomLightVisible(int number)
+{
+	return netCustomLightArray[number] != -1
+			&& flares[netCustomLightArray[number]].controltoggle_status;
+}
+
+void Beam::setCustomLightVisible(int number, bool visible)
+{
+	if (netCustomLightArray[number] == -1)
+		return;
+	flares[netCustomLightArray[number]].controltoggle_status = visible;
+}
+
+
+bool Beam::getBeaconMode()
+{
+	return beacon;
+}
+
+blinktype Beam::getBlinkType()
+{
+	return blinkingtype;
+}
+
+bool Beam::getCustomParticleMode()
+{
+	return cparticle_mode;
+}
+
+int Beam::getLowestNode()
+{
+	return lowestnode;
+}
+
+int Beam::getTruckTime()
+{
+	return nettimer->getMilliseconds();
+}
+
+int Beam::getNetTruckTimeOffset()
+{
+	return net_toffset;
+}
+
+Ogre::Real Beam::getMinimalCameraRadius()
+{
+	return minCameraRadius;
+}
+
+Replay* Beam::getReplay()
+{
+	return replay;
+}
+
+bool Beam::getSlideNodesLockInstant()
+{
+	return slideNodesConnectInstantly;
+}
+
+bool Beam::inRange(float num, float min, float max)
+{
+	return (num <= max && num >= min);
 }

@@ -7312,7 +7312,7 @@ void RigSpawner::SetBeamDamping(beam_t & beam, float damping)
 	beam.d = damping;
 }
 
-void RigSpawner::CalcBoundingBoxes(rig_t *rig)
+void RigSpawner::RecalculateBoundingBoxes(rig_t *rig)
 {
 	Ogre::Vector3 node_0_pos = rig->nodes[0].AbsPosition;
 	rig->boundingBox.setExtents(
