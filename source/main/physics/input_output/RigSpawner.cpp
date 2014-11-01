@@ -4640,12 +4640,13 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point);
 		outer_node.mass          = node_mass;
-		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
+		outer_node.id            = -1; // Orig: hardcoded (addWheel3)
 		outer_node.wheelid       = m_rig->free_wheel;
 		outer_node.friction_coef = def.node_defaults->friction;
 		outer_node.volume_coef   = def.node_defaults->volume;
 		outer_node.surface_coef  = def.node_defaults->surface;
 		outer_node.iswheel       = m_rig->free_wheel*2+1;
+		AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
 		outer_contacter.nodeid        = outer_node.pos; /* Node index */
@@ -4660,12 +4661,13 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point);
 		inner_node.mass          = node_mass;
-		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
+		inner_node.id            = -1; // Orig: hardcoded (addWheel3)
 		inner_node.wheelid       = m_rig->free_wheel;
 		inner_node.friction_coef = def.node_defaults->friction;
 		inner_node.volume_coef   = def.node_defaults->volume;
 		inner_node.surface_coef  = def.node_defaults->surface;
 		inner_node.iswheel       = m_rig->free_wheel*2+2;
+		AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
 		inner_contacter.nodeid        = inner_node.pos; /* Node index */
