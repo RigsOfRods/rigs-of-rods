@@ -4582,11 +4582,10 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 	/* Node&beam generation */
 	Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
+	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
 	axis_vector.normalise();
 	Ogre::Vector3 rim_ray_vector = axis_vector.perpendicular() * def.rim_radius;
 	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
-
-	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
 
 	/* Rim nodes */
 	/* NOTE: node.iswheel is not used for rim nodes */
@@ -4801,7 +4800,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	wheel.nbnodes = 2 * def.num_rays;
 	wheel.refnode0 = axis_node_1;
 	wheel.refnode1 = axis_node_2;
-	wheel.radius = def.rim_radius;
+	wheel.radius = def.tyre_radius;
 	wheel.arm = GetNodePointer(def.reference_arm_node);
 
 	if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
@@ -4809,6 +4808,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		/* for inter-differential locking */
 		m_rig->proped_wheels++;
 		m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
+		m_rig->propwheelcount++;
 	}
 	if (def.braking != RigDef::Wheels::BRAKING_NO)
 	{
