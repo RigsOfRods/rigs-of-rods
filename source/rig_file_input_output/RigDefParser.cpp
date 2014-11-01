@@ -5027,12 +5027,12 @@ void Parser::ParseBeams(Ogre::String const & line)
 	beam.defaults = m_user_beam_defaults;
 	beam.detacher_group = m_current_detacher_group;
 	beam.nodes[0] = _ParseNodeId(results[1]);
-	beam.nodes[1] = _ParseNodeId(results[2]);
+	beam.nodes[1] = _ParseNodeId(results[3]);
 
 	/* Flags */
-	if (results[4].matched)
+	if (results[6].matched)
 	{
-		std::string const & flags_str = results[4];
+		std::string const & flags_str = results[6];
 		for (unsigned int i = 0; i < flags_str.length(); i++)
 		{
 			if (flags_str[i] == 'i') 
@@ -5046,10 +5046,10 @@ void Parser::ParseBeams(Ogre::String const & line)
 			else if (flags_str[i] == 's')
 			{
 				beam.options |= Beam::OPTION_s_SUPPORT;
-				if (results[6].matched)
+				if (results[9].matched)
 				{
 					beam._has_extension_break_limit = true;
-					beam.extension_break_limit = STR_PARSE_REAL(results[6]);
+					beam.extension_break_limit = STR_PARSE_REAL(results[9]);
 				}
 			}
 		}
