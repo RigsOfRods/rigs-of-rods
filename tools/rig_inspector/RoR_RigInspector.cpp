@@ -54,7 +54,7 @@ const int LOG_ARRAY_BREAK_LIMIT = 100;
 { \
 	int size = static_cast<int>((SIZE)); \
 	f << (VARNAME) << "(size=" << (SIZE) <<")" << ":"; \
-	for (int i=0; i<size; ++i){ f <<((ARRAY)[i]); f << ","; if (i%LOG_ARRAY_BREAK_LIMIT==0){f<<"\n\t [MORE] ";} }     \
+	for (int i=0; i<size; ++i){ f <<((ARRAY)[i]); f << ","; if ((i> 0)&&(i%LOG_ARRAY_BREAK_LIMIT)==0){f<<"\n\t [MORE] ";} }     \
 }
 
 #define LOG_ARRAY_PTR(VARNAME, ARRAY, SIZE)  \
@@ -62,7 +62,7 @@ const int LOG_ARRAY_BREAK_LIMIT = 100;
 	int size = static_cast<int>((SIZE)); \
 	f << (VARNAME) << "(size=" << (SIZE) <<")" << ":" \
 	; for (int i=0; i<(size); ++i) { \
-		f<<"[" <<i <<":" <<(ECHO_PTR((ARRAY[i]))) <<"]" ; \
+		f<<"[" <<i <<":" <<(ECHO_PTR((ARRAY[i]))) <<"]" ; if ((i> 0)&&(i%LOG_ARRAY_BREAK_LIMIT)==0){f<<"\n\t [MORE] ";} \
 	 } \
 } 
 
@@ -71,7 +71,7 @@ const int LOG_ARRAY_BREAK_LIMIT = 100;
 	int size = static_cast<int>((SIZE)); \
 	f << (VARNAME) << "(size=" << (SIZE) <<")" << ":" \
 	; for (int i=0; i<(size); ++i) { \
-		f<<"[" <<i <<":" <<(ECHO_AABB((ARRAY[i]))) <<"]" ; \
+		f<<"[" <<i <<":" <<(ECHO_AABB((ARRAY[i]))) <<"]" ; if ((i> 0)&&(i%LOG_ARRAY_BREAK_LIMIT)==0){f<<"\n\t [MORE] ";} \
 	 } \
 }
 
@@ -79,7 +79,7 @@ const int LOG_ARRAY_BREAK_LIMIT = 100;
 { \
 	int size = static_cast<int>((SIZE)); \
 	f << (VARNAME) << "(size=" << (SIZE) <<")" << ":"; \
-	for (int i=0; i<(size); ++i){ f <<(((ARRAY)[i]).isNull()); f << ","; }     \
+	for (int i=0; i<(size); ++i){ f <<(((ARRAY)[i]).isNull()); f << ","; if ((i> 0)&&(i%LOG_ARRAY_BREAK_LIMIT)==0){f<<"\n\t [MORE] ";} }     \
 }
 
 // ----------------------------------------------------------------------------
@@ -1641,6 +1641,10 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	{	
 		node_t* node = (data.nodes + i);
 		f << ECHO_NODE(node);
+		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		{
+			f << "\n\t [MORE]";
+		}
 	}
 
 	// Vertices
@@ -1668,6 +1672,11 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 			<<" locator.nz="<<locator.nz
 			<<" locator.coords="<<ECHO_V3(locator.coords)
 			;
+
+		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		{
+			f << "\n\t [MORE]";
+		}
 	}
 
 	// Nodeset
@@ -1677,6 +1686,10 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	{
 		FlexBody::interval_t & item = data.nodeset[i];
 		f<<" from="<<item.from<<" to="<<item.to;
+		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		{
+			f << "\n\t [MORE]";
+		}
 	}
 
 	// Data
