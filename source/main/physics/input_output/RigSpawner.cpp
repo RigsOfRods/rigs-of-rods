@@ -6801,7 +6801,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	}
 	AdjustNodeBuoyancy(node, def.node_defaults);
 	node.mouseGrabMode     = (def.options == 0u) ? 2 : node.mouseGrabMode; // 2 = n = mouse grab enabled
-	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_n_MOUSE_GRAB) ? 1 : node.mouseGrabMode;
+	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_n_MOUSE_GRAB) ? 2 : node.mouseGrabMode;
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB) ? 1 : node.mouseGrabMode;
 	node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT) ? 1 : 0;
 	node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
