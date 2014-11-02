@@ -6962,6 +6962,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 		CalculateBeamLength(beam);
 		beam.k = def.spring;
 		beam.d = def.damping;
+		beam.diameter = DEFAULT_BEAM_DIAMETER;
 		CreateBeamVisuals(beam, beam_index, *def.beam_defaults, false);
 	}
 
