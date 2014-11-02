@@ -3269,7 +3269,6 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	int beam_index = m_rig->free_beam;
 	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, false);
 	beam.k = def.beam_defaults->GetScaledSpringiness();
 	beam.d = def.beam_defaults->GetScaledDamping();
 	beam.type = (def.options == RigDef::Tie::OPTIONS_INVISIBLE) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
@@ -3283,6 +3282,8 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	beam.commandShort = def.min_length;
 	beam.commandLong = def.max_length;
 	beam.maxtiestress = def.max_stress;
+	beam.diameter = DEFAULT_BEAM_DIAMETER;
+	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, false);
 
 	/* Register tie */
 	tie_t tie;
@@ -4366,7 +4367,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroRatio           = def.lenghtening_factor;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
 	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = def.beam_defaults->visual_beam_diameter;
+	beam.diameter             = DEFAULT_BEAM_DIAMETER;
 
 	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, BITMASK_IS_0(def.options, RigDef::Hydro::OPTION_i_INVISIBLE));
 
