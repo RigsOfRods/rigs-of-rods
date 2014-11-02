@@ -154,7 +154,7 @@ void Parser::ParseLine(Ogre::String const & line)
 				break;
 
 			case (File::KEYWORD_ANTI_LOCK_BRAKES):
-				new_section = File::SECTION_ANTI_LOCK_BRAKES;
+				ParseAntiLockBrakes(line);
 				line_finished = true;
 				break;
 
@@ -834,11 +834,6 @@ void Parser::ParseLine(Ogre::String const & line)
 
 		case (File::SECTION_ANIMATORS):
 			ParseAnimator(line);
-			line_finished = true;
-			break;
-
-		case (File::SECTION_ANTI_LOCK_BRAKES):
-			ParseAntiLockBrakes(line);
 			line_finished = true;
 			break;
 
@@ -2961,7 +2956,7 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 void Parser::ParseAntiLockBrakes(Ogre::String const & line)
 {
 	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ANTI_LOCK_BRAKES))
+	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_ANTI_LOCK_BRAKES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
