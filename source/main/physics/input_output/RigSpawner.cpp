@@ -6276,24 +6276,24 @@ node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Id & id)
 
 void RigSpawner::ProcessBeam(RigDef::Beam & def)
 {
-	beam_t beam;
-	memset(&beam, 0, sizeof(beam_t));
-
-	/* Nodes */
-	beam.p1 = GetBeamNodePointer(def.nodes[0]);
-	if (beam.p1 == nullptr)
+	// Nodes
+	node_t* nodes[] = {nullptr, nullptr};
+	nodes[0] = GetBeamNodePointer(def.nodes[0]);
+	if (nodes[0] == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
 		return;
 	}
-	beam.p2 = GetBeamNodePointer(def.nodes[1]);
-	if (beam.p2 == nullptr)
+	nodes[1] = GetBeamNodePointer(def.nodes[1]);
+	if (nodes[1] == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
 		return;
 	}
 
-	/* Misc. params */
+	// Beam
+	int beam_index = m_rig->free_beam;
+	beam_t & beam = GetAndInitFreeBeam(*nodes[0], *nodes[1]);
 	beam.disabled = false;
 	beam.type = BEAM_NORMAL;
 	beam.detacher_group = m_rig->detacher_group_state;
@@ -6337,10 +6337,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 		beam.longbound = def.extension_break_limit;
 	}
 
-	CreateBeamVisuals(beam, m_rig->free_beam, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
-
-	m_rig->beams[m_rig->free_beam] = beam;
-	m_rig->free_beam++;
+	CreateBeamVisuals(beam, beam_index, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
 }
 
 void RigSpawner::CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_to_scene)
