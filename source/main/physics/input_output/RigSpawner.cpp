@@ -5808,6 +5808,7 @@ unsigned int RigSpawner::AddWheelBeam(
 	beam.type = type;
 	beam.k = spring;
 	beam.d = damping;
+	beam.diameter = DEFAULT_BEAM_DIAMETER;
 	if (max_contraction > 0.f)
 	{
 		beam.shortbound = max_contraction;
