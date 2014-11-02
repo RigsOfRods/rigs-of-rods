@@ -6389,6 +6389,7 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 	VAR beam_creak                  = BEAM_CREAK_DEFAULT (100,000)
 	VAR enable_advanced_deformation = false
 
+
 	add_beam()
 		IF default_deform < beam_creak
 			default_deform = beam_creak
@@ -6398,17 +6399,23 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 		beam.default_deform = default_deform * default_deform_scale
 	END
 
+	
+	enable_advanced_deformation:
+		READ enable_advanced_deformation
+
+
 	set_beam_defaults:
+		READ default_deform
+		VAR  default_deform_user_defined
+		READ default_deform_scale
+		VAR  plastic_coef_user_defined
+
 		IF (!enable_advanced_deformation && default_deform < BEAM_DEFORM)
 		   default_deform = BEAM_DEFORM;
 		END IF
-    
-		VAR user_default_deform
-		VAR default_deform_set
-    
-		IF (default_deform_set)
+
+		IF (plastic_coef_user_defined)
 			beam_creak = 0
-			default_deform = user_default_deform
 		END IF
   
 	---------------------------------------------------------------------------
@@ -6422,40 +6429,72 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 		_enable_advanced_deformation  = false
 		_user_defined                 = false
 		_default_deform_set           = false
+		_plastic_coef_user_defined    = false
 	}
 
+
+	set_beam_defaults:
+		READ beam_defaults
+
+
 	add_beam:
-    
+
+		// Init
+
 		VAR default_deform = BEAM_DEFORM;
-    
-		IF (beam_defaults._user_defined)        
-			IF (beam_defaults._default_deform_set)
-				default_deform = beam_defaults.default_deform    
-			END IF   
+		VAR beam_creak = BEAM_CREAK_DEFAULT;
+
+		// Old 'set_beam_defaults'
+
+		IF (beam_defaults._is_user_defined)
+
+			default_deform = beam_defaults.default_deform
+			IF (!beam_defaults._enable_advanced_deformation && default_deform < BEAM_DEFORM)
+			   default_deform = BEAM_DEFORM;
+			END IF
+
+			IF (beam_defaults._plastic_coef_user_defined && beam_defaults.plastic_coef >= 0)
+				beam_creak = 0
+			END IF
+
 		END IF
-    
-		IF (beam_defaults._default_deform_set && default_deform < BEAM_CREAK_DEFAULT)
-			default_deform = BEAM_CREAK_DEFAULT
+
+		// Old 'add_beam'
+
+		IF default_deform < beam_creak
+			default_deform = beam_creak
 		END IF
-    
+
 		VAR beam;
 		beam.default_deform = default_deform * beam_defaults.scale.default_deform
 	
 	---------------------------------------------------------------------------
 	*/
 
-	float default_deform = BEAM_DEFORM;
+	// Old init
+	float default_deform = BEAM_DEFORM; 
+	float beam_creak = BEAM_CREAK_DEFAULT;
 
-	bool is_deform_user_defined = BITMASK_IS_1(beam_defaults->_user_specified_fields, RigDef::BeamDefaults::PARAM_DEFORM_THRESHOLD_CONSTANT);
-
-	if (beam_defaults->_is_user_defined && is_deform_user_defined)
+	// Old 'set_beam_defaults'
+	if (beam_defaults->_is_user_defined)
 	{
 		default_deform = beam_defaults->deformation_threshold_constant;
+		if (!beam_defaults->_enable_advanced_deformation && default_deform < BEAM_DEFORM)
+		{
+			default_deform = BEAM_DEFORM;
+		}
+
+		bool plastic_coef_user_defined = BITMASK_IS_1(beam_defaults->_user_specified_fields, RigDef::BeamDefaults::PARAM_PLASTIC_DEFORM_COEFFICIENT);
+		if (plastic_coef_user_defined && beam_defaults->plastic_deformation_coefficient >= 0.f)
+		{
+			beam_creak = 0.f;
+		}
 	}
 
-	if (is_deform_user_defined && default_deform < BEAM_CREAK_DEFAULT)
+	// Old 'add_beam'
+	if (default_deform < beam_creak)
 	{
-		default_deform = BEAM_CREAK_DEFAULT;
+		default_deform = beam_creak;
 	}
 
 	float deformation_threshold = default_deform * beam_defaults->scale.deformation_threshold_constant;
