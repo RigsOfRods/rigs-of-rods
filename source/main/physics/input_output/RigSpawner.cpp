@@ -4441,7 +4441,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	beam.longbound            = long_bound;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
 	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = def.beam_defaults->visual_beam_diameter;
+	beam.diameter             = DEFAULT_BEAM_DIAMETER;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -4515,7 +4515,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 	beam.k          = def.spring_rate;
 	beam.d          = def.damping;
 	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
-	beam.diameter   = def.beam_defaults->visual_beam_diameter;
+	beam.diameter   = DEFAULT_BEAM_DIAMETER;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
