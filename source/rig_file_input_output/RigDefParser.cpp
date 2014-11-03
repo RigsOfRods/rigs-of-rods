@@ -4604,19 +4604,19 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line)
 	node.detacher_group = m_current_detacher_group;
 
 	node.id = _ParseNodeId(results[1]);	
-	node.position.x = STR_PARSE_REAL(results[2]);
-	node.position.y = STR_PARSE_REAL(results[3]);
-	node.position.z = STR_PARSE_REAL(results[4]);
+	node.position.x = STR_PARSE_REAL(results[3]);
+	node.position.y = STR_PARSE_REAL(results[5]);
+	node.position.z = STR_PARSE_REAL(results[7]);
 
-	if (results[5].matched) /* Has options? */
+	if (results[10].matched) /* Has options? */
 	{
-		_ParseNodeOptions(node.options, results[6]);
+		_ParseNodeOptions(node.options, results[10]);
 
-		if (results[7].matched) /* Has load weight override? */
+		if (results[13].matched) /* Has load weight override? */
 		{
 			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
 			{
-				node.load_weight_override = STR_PARSE_REAL(results[8]);
+				node.load_weight_override = STR_PARSE_REAL(results[13]);
 				node._has_load_weight_override = true;
 			}
 			else
