@@ -4017,11 +4017,11 @@ void Parser::ParseShocks(Ogre::String const & line)
 	shock.damping        = STR_PARSE_REAL(results[4]);
 	shock.short_bound    = STR_PARSE_REAL(results[5]);
 	shock.long_bound     = STR_PARSE_REAL(results[6]);
-	shock.precompression = STR_PARSE_REAL(results[7]);
+	shock.precompression = STR_PARSE_REAL(results[9]);
 
-	if (results[9].matched) /* Has options? */
+	if (results[11].matched) /* Has options? */
 	{
-		std::string options_str = results[9].str();
+		std::string options_str = results[11].str();
 		for (unsigned int i = 0; i < options_str.length(); i++)
 		{
 			switch (options_str.at(i))
@@ -4051,10 +4051,17 @@ void Parser::ParseShocks(Ogre::String const & line)
 		}
 	}
 
-	if (results[10].matched) /* Invalid trailing text */
+	if (results[12].matched) /* Invalid trailing text */
 	{
 		std::stringstream msg;
-		msg << "Invalid text after parameters: '" << results[10] << "'. Please remove. Ignoring...";
+		msg << "Please remove: Invalid text after parameters: \"" << results[10] << "\"";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
+
+	if (results[7].length() != 0) /* Invalid characters. Always match (due to * quantifier) */
+	{
+		std::stringstream msg;
+		msg << "Please remove: Invalid text after property \"longbound\": \"" << results[7] << "\"";
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
