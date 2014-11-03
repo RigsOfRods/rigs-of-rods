@@ -2094,14 +2094,15 @@ DEFINE_REGEX( SECTION_SHOCKS,
 	E_DELIMITER_COMMA
 	E_CAPTURE( E_REAL_NUMBER ) /* Short bound */
 	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Long bound */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #7 Precompression */
+	E_CAPTURE( E_REAL_NUMBER ) /* #6 Long bound */
+	E_CAPTURE( "[\\.]*" ) /* #7 Stray characters */
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) /* #9 Precompression */
 	E_CAPTURE_OPTIONAL( 
 		E_DELIMITER_COMMA
-		E_CAPTURE( "[^[:blank:],;|]+" ) /* #9 Options */
+		E_CAPTURE( "[^[:blank:],;|]+" ) /* #11 Options */
 	)
-	E_CAPTURE_OPTIONAL( /* #10 Invalid input */
+	E_CAPTURE_OPTIONAL( /* #12 Invalid input */
 		E_CAPTURE( E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE )
 		E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE )
 	)
