@@ -6298,7 +6298,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	beam_t & beam = GetAndInitFreeBeam(*nodes[0], *nodes[1]);
 	beam.disabled = false;
 	beam.type = BEAM_NORMAL;
-	beam.detacher_group = m_rig->detacher_group_state;
+	beam.detacher_group = def.detacher_group;
 	beam.k = def.defaults->GetScaledSpringiness();
 	beam.d = def.defaults->GetScaledDamping();
 	beam.diameter = def.defaults->visual_beam_diameter;

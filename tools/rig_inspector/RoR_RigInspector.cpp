@@ -917,7 +917,6 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 	f<<"\n\t wheel_contact_requested:"<<rig->wheel_contact_requested; // rollon?
 	f<<"\n\t rescuer:"<<rig->rescuer;
 	f<<"\n\t disable_default_sounds:"<<rig->disable_default_sounds;
-	f<<"\n\t detacher_group_state:"<<rig->detacher_group_state;
 	f<<"\n\t slopeBrake:"<<rig->slopeBrake;
 	f<<"\n\t slopeBrakeFactor:"<<rig->slopeBrakeFactor;
 	f<<"\n\t slopeBrakeAttAngle:"<<rig->slopeBrakeAttAngle;
