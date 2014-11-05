@@ -575,7 +575,6 @@ void RigSpawner::InitializeRig()
 	m_rig->wheel_contact_requested = false;
 	m_rig->rescuer = false;
 	m_rig->disable_default_sounds=false;
-	m_rig->detacher_group_state=DEFAULT_DETACHER_GROUP; // initialize default(0) var for detacher_group_state
 	m_rig->slopeBrake=false;
 	m_rig->categoryid=-1;
 	m_rig->truckversion=-1;
