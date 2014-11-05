@@ -5899,7 +5899,7 @@ void RigSpawner::ProcessWheel(RigDef::Wheel & def)
 
 void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 {
-	/* #1: regulating_force */
+	// #1: regulating_force
 	float force = def.regulating_force;
 	if (force < 0.f || force > 20.f)
 	{
@@ -5910,7 +5910,7 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 	}
 	m_rig->slopeBrakeFactor = force;
 
-	/* #2: attach_angle */
+	// #2: attach_angle
 	float attach_angle = def.attach_angle;
 	if (attach_angle < 1.f || attach_angle > 45.f)
 	{
@@ -5921,7 +5921,7 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 	}
 	m_rig->slopeBrakeAttAngle = attach_angle;
 
-	/* #3: release_angle */
+	// #3: release_angle
 	float release_angle = def.release_angle;
 	if (release_angle < 1.f || release_angle > 45.f)
 	{
@@ -5930,7 +5930,10 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 		AddMessage(Message::TYPE_INFO, msg.str());
 		release_angle = (release_angle < 1.f) ? 1.f : 45.f;
 	}
-	m_rig->slopeBrakeRelAngle = release_angle;
+	m_rig->slopeBrakeRelAngle = release_angle + attach_angle;
+
+	// Flag
+	m_rig->slopeBrake = true;
 };
 
 void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
