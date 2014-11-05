@@ -1582,17 +1582,31 @@ void RigInspector::InspectAeroengines(std::ofstream & f, Beam* rig)
 		}
 		else
 		{
-			if (typeid(ae) == typeid(Turbojet))
+			bool printed = false;
+
+			try
 			{
 				Turbojet* t = dynamic_cast<Turbojet*>(ae);
-				PrintTurbojet(f, t);
+				if (t != nullptr)
+				{
+					PrintTurbojet(f, t);
+					printed = true;
+				}
 			}
-			else if (typeid(ae) == typeid(Turboprop))
+			catch(...) {}
+
+			try
 			{
 				Turboprop* t = dynamic_cast<Turboprop*>(ae);
-				PrintTurboprop(f, t);
+				if (t != nullptr)
+				{
+					PrintTurboprop(f, t);
+					printed = true;
+				}
 			}
-			else
+			catch(...) {}
+
+			if (! printed)
 			{
 				f<<" unknown type";
 			}
