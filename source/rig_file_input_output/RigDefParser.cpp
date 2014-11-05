@@ -3182,11 +3182,12 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Command2 command2;
-	command2.beam_defaults = m_user_beam_defaults;
-	command2._format_version = format_version;
-	command2.inertia_defaults = m_user_default_inertia;
-	command2.nodes[0] = _ParseNodeId(results[1]);
-	command2.nodes[1] = _ParseNodeId(results[3]);
+	command2.beam_defaults     = m_user_beam_defaults;
+	command2.detacher_group    = m_current_detacher_group;
+	command2._format_version   = format_version;
+	command2.inertia_defaults  = m_user_default_inertia;
+	command2.nodes[0]          = _ParseNodeId(results[1]);
+	command2.nodes[1]          = _ParseNodeId(results[3]);
 
 	/* Shorten/lenghten rate */
 	command2.shorten_rate = STR_PARSE_REAL(results[5]);
@@ -5073,6 +5074,7 @@ void Parser::ParseAnimator(Ogre::String const & line)
 	Animator animator;
 	animator.inertia_defaults   = m_user_default_inertia;
 	animator.beam_defaults      = m_user_beam_defaults;
+	animator.detacher_group     = m_current_detacher_group;
 	animator.nodes[0]           = _ParseNodeId(results[1]);
 	animator.nodes[1]           = _ParseNodeId(results[2]);
 	animator.lenghtening_factor = STR_PARSE_REAL(results[3]);

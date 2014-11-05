@@ -839,7 +839,6 @@ struct rig_t
 	bool wheel_contact_requested;
 	bool rescuer;
 	bool disable_default_sounds;
-	int detacher_group_state; //!< current detacher group for the next beam generated
 
 	// Antilockbrake + Tractioncontrol
 	bool slopeBrake;
