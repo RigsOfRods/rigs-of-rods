@@ -1162,10 +1162,21 @@ void Parser::Parse(Ogre::String const & line)
 
 void Parser::ParseWing(Ogre::String const & line)
 {
+	
 	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_WINGS))
+	try
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		if (! boost::regex_search(line, results, Regexes::SECTION_WINGS))
+		{
+			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+			return;
+		}
+	}
+	catch(std::runtime_error e)
+	{
+		std::stringstream msg;
+		msg << "Wing not parsed, internal parser failure occured, message: " << e.what();
+		AddMessage(line, Message::TYPE_FATAL_ERROR, msg.str());
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
@@ -5054,6 +5065,10 @@ void Parser::ParseBeams(Ogre::String const & line)
 					beam._has_extension_break_limit = true;
 					beam.extension_break_limit = STR_PARSE_REAL(results[9]);
 				}
+			}
+			else
+			{
+				AddMessage(line, Message::TYPE_WARNING, "Invalid flag: " + flags_str[i]);
 			}
 		}
 	}
