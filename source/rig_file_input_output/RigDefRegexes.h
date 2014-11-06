@@ -73,13 +73,13 @@ namespace Regexes
 
 /* NUMBERS */
 
-#define E_REAL_NUMBER "-?[[:digit:]]*\\.[[:digit:]]*|-?[[:digit:]]+" /* Uses |, MUST be enclosed in E_CAPTURE() */
-
 #define E_DECIMAL_NUMBER "-?[[:digit:]]+"
 
 #define E_POSITIVE_DECIMAL_NUMBER "[[:digit:]]+"
 
 #define E_NEGATIVE_DECIMAL_NUMBER "-[[:digit:]]+"
+
+#define E_REAL_NUMBER "-?[[:digit:]]*\\.[[:digit:]]+[eE]?[-+]?[[:digit:]]*" E_OR E_DECIMAL_NUMBER /* Uses |, MUST be enclosed in E_CAPTURE() */
 
 #define E_MINUS_ONE_REAL "-1\\.[0]*|-1"   /* Uses |, MUST be enclosed in E_CAPTURE() */
 
@@ -825,7 +825,7 @@ DEFINE_REGEX( SECTION_BEAMS,
 
 	E_CAPTURE_OPTIONAL( 
 		E_CAPTURE( E_DELIMITER )
-		E_CAPTURE( "[irs]*" ) /* #6 Options */
+		E_CAPTURE( E_STRING_ALNUM_COMMAS_USCORES_ONLY ) /* #6 Options */
 
 		E_CAPTURE_OPTIONAL( 
 			E_CAPTURE( E_DELIMITER )
