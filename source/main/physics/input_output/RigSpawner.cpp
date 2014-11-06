@@ -5306,6 +5306,16 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 	node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
 
+	if (axis_node_1 == nullptr || axis_node_2 == nullptr)
+	{
+		std::stringstream msg;
+		msg << "Error creating 'wheel': Some axis nodes were not found";
+		msg << " (Node1: " << wheel_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
+		msg << " (Node2: " << wheel_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
+		AddMessage(Message::TYPE_ERROR, msg.str());
+		return -1;
+	}
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
 	{
