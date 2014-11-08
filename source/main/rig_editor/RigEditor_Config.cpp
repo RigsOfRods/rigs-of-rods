@@ -43,14 +43,20 @@ Config::Config(Ogre::String const & conf_file_path)
 
 	node_mouse_box_halfsize_px   = conf_file.GetInt("node_mouse_box_halfsize_px");
 
-	gui_dialog_delete_placement_x_px   = conf_file.GetInt("gui_dialog_delete_placement_x_px");
-	gui_dialog_delete_placement_y_px   = conf_file.GetInt("gui_dialog_delete_placement_y_px");
-	gui_dialog_delete_cursor_fence_px  = conf_file.GetInt("gui_dialog_delete_cursor_fence_px");
+	gui_dialog_delete_placement_x_px     = conf_file.GetInt("gui_dialog_delete_placement_x_px");
+	gui_dialog_delete_placement_y_px     = conf_file.GetInt("gui_dialog_delete_placement_y_px");
+	gui_dialog_delete_cursor_fence_px    = conf_file.GetInt("gui_dialog_delete_cursor_fence_px");
 
 	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
 	beam_rope_color           = conf_file.GetColourValue("beam_rope_color_rgb");
 	beam_support_color        = conf_file.GetColourValue("beam_support_color_rgb");
+
+	cinecam_beam_color_rgb               = conf_file.GetColourValue("cinecam_beam_color_rgb");
+	shock_absorber_beam_color_rgb        = conf_file.GetColourValue("shock_absorber_beam_color_rgb");
+	shock_absorber_2_beam_color_rgb      = conf_file.GetColourValue("shock_absorber_2_beam_color_rgb");
+	steering_hydro_beam_color_rgb        = conf_file.GetColourValue("steering_hydro_beam_color_rgb");
+	command_hydro_beam_color_rgb         = conf_file.GetColourValue("command_hydro_beam_color_rgb");
 
 	meshwheel2_beam_bounded_color        = conf_file.GetColourValue("meshwheel2_beam_bounded_color_rgb");
 	meshwheel2_beam_reinforcement_color  = conf_file.GetColourValue("meshwheel2_beam_reinforcement_color_rgb");

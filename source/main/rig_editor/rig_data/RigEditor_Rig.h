@@ -124,6 +124,14 @@ public:
 
 	boost::shared_ptr<RigDef::File> Export();
 
+	/** Rig building utility function
+	*/
+	Node* FindNode(
+		RigDef::Node::Id const & node_id, 
+		Ogre::String const & section_name,
+		std::list<Ogre::String>* report = nullptr
+		);
+
 private:
 
 	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, std::list<Ogre::String>* report = nullptr);
@@ -142,6 +150,7 @@ private:
 
 	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
 	std::list<Beam>          m_beams;
+	std::list<CineCamera>    m_cinecameras;
 	Ogre::AxisAlignedBox     m_aabb;
 	unsigned int             m_highest_node_id;
 	

@@ -20,15 +20,15 @@
 */
 
 /** 
-	@file   RigEditor_Beam.h
-	@date   06/2014
+	@file   
+	@date   11/2014
 	@author Petr Ohlidal
 */
 
 #pragma once
 
 #include "RigDef_Prerequisites.h"
-#include "RigEditor_ForwardDeclarations.h"
+#include "RigDef_File.h"
 #include "RoRPrerequisites.h"
 
 namespace RoR
@@ -37,42 +37,19 @@ namespace RoR
 namespace RigEditor
 {
 
-class Beam
+class CineCamera
 {
 	friend class RigEditor::Rig;
 
 public:
 
-	enum Type
-	{
-		TYPE_PLAIN,
-		TYPE_STEERING_HYDRO,   //!< Called 'hydro' in RoR jargon
-		TYPE_COMMAND_HYDRO,    //!< Called 'command' in RoR jargon
-		TYPE_SHOCK_ABSORBER,   //!< Called 'shock' in RoR jargon
-		TYPE_SHOCK_ABSORBER_2, //!< Section 'shocks2'
-		TYPE_CINECAM           //!< Section 'cinecam' - generated
-	};	
-
-	Beam(void* source, Type type, RigEditor::Node* node_0, RigEditor::Node* node_1);
-
-	~Beam();
-
-	RigEditor::Node* GetNodeA();
-
-	RigEditor::Node* GetNodeB();
-
-	void SetColor(Ogre::ColourValue const & color);
-
-	Ogre::ColourValue const & GetColor() const;
-
-	Type GetType();
+	CineCamera(RigDef::Cinecam const & def):
+		m_definition(def)
+	{}
 
 protected:
 
-	RigEditor::Node*       m_nodes[2];
-	Ogre::ColourValue      m_color;
-	Type                   m_type;
-	void*                  m_source;
+	RigDef::Cinecam        m_definition;
 };
 
 } // namespace RigEditor

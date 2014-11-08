@@ -34,7 +34,13 @@ namespace RoR
 	{
 
 		class  Beam;
+		class  BeamTypeCommandHydro;
+		class  BeamTypeGenerated;
+		class  BeamTypePlain;
+		class  BeamTypeShock;
+		class  BeamTypeSteeringHydro;
 		class  CameraHandler;
+		class  CineCamera;
 		struct Config;
 		class  IMain;
 		class  InputHandler;

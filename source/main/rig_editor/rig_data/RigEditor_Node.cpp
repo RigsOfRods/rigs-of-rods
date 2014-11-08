@@ -63,22 +63,27 @@ Vector2int const & RigEditor::Node::GetScreenPosition() const
 
 void RigEditor::Node::SetHovered(bool value)
 {
-	Bitmask_SetBool(value, m_flags, Flags::HOVERED);
+	Bitmask_SetBool(value, m_flags, Flags::STATE_HOVERED);
 }
 
 bool RigEditor::Node::IsHovered() const
 {
-	return BITMASK_IS_1(m_flags, Flags::HOVERED);
+	return BITMASK_IS_1(m_flags, Flags::STATE_HOVERED);
 }
 
 void RigEditor::Node::SetSelected(bool value)
 {
-	Bitmask_SetBool(value, m_flags, Flags::SELECTED);
+	Bitmask_SetBool(value, m_flags, Flags::STATE_SELECTED);
 }
 
 bool RigEditor::Node::IsSelected() const
 {
-	return BITMASK_IS_1(m_flags, Flags::SELECTED);
+	return BITMASK_IS_1(m_flags, Flags::STATE_SELECTED);
+}
+
+bool RigEditor::Node::IsSourceCineCamera() const
+{
+	return BITMASK_IS_1(m_flags, Flags::SOURCE_CINECAM);
 }
 
 void RigEditor::Node::Translate(Ogre::Vector3 const & offset)

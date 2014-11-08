@@ -55,6 +55,12 @@ struct Config
 	Ogre::ColourValue   beam_support_color;
 	Ogre::ColourValue   beam_rope_color;
 
+	Ogre::ColourValue   command_hydro_beam_color_rgb;
+	Ogre::ColourValue   steering_hydro_beam_color_rgb;
+	Ogre::ColourValue   shock_absorber_beam_color_rgb;
+	Ogre::ColourValue   shock_absorber_2_beam_color_rgb;
+	Ogre::ColourValue   cinecam_beam_color_rgb;
+
 	Ogre::ColourValue   meshwheel2_beam_bounded_color;
 	Ogre::ColourValue   meshwheel2_beam_reinforcement_color;
 	Ogre::ColourValue   meshwheel2_beam_rigidity_color;

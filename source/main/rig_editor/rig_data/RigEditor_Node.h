@@ -47,8 +47,9 @@ public:
 
 	struct Flags
 	{
-		static const int HOVERED     = BITMASK(1);
-		static const int SELECTED    = BITMASK(2);
+		static const int STATE_HOVERED     = BITMASK(1);
+		static const int STATE_SELECTED    = BITMASK(2);
+		static const int SOURCE_CINECAM    = BITMASK(3);
 	};
 
 	Node(RigDef::Node const & def);
@@ -70,6 +71,8 @@ public:
 	void SetSelected(bool value);
 
 	bool IsSelected() const;
+
+	bool IsSourceCineCamera() const;
 
 	void Translate(Ogre::Vector3 const & offset);
 

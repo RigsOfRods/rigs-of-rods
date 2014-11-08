@@ -29,6 +29,7 @@
 
 #include "RigDef_File.h"
 #include "RigEditor_Beam.h"
+#include "RigEditor_CineCamera.h"
 #include "RigEditor_CameraHandler.h"
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
@@ -59,6 +60,29 @@ Rig::~Rig()
 	/* Clear structure */
 	m_beams.clear();
 	m_nodes.clear();
+}
+
+Node* Rig::FindNode(
+	RigDef::Node::Id const & node_id, 
+	Ogre::String const & section_name,
+	std::list<Ogre::String>* report // = nullptr
+	)
+{
+	/* Find node */
+	auto result = m_nodes.find(node_id);
+	if (result == m_nodes.end())
+	{
+		/* Node not found */
+		if (report != nullptr)
+		{
+			std::stringstream msg;
+			msg << "[Warning] BuildRig(): Section '" << section_name 
+				<< "' Beam[ " << node_id.ToString() << ", " << node_id.ToString() << "]: Node not found.";
+			report->push_back(msg.str());
+		}
+		return nullptr;
+	}
+	return & result->second;
 }
 
 void Rig::Build(
@@ -117,45 +141,18 @@ void Rig::Build(
 	std::vector<RigDef::Beam> unlinked_beams_to_retry; // Linked to invalid nodes, will retry after other sections (esp. wheels) were processed
 	// TODO: Implement the retry.
 	
-	int beam_index = 0;
-	for (auto beam_itor = module->beams.begin(); beam_itor != module->beams.end(); ++beam_itor)
+	auto beam_itor_end = module->beams.end();
+	for (auto beam_itor = module->beams.begin(); beam_itor != beam_itor_end; ++beam_itor)
 	{
-		Node* nodes[] = {nullptr, nullptr};
+		static const Ogre::String section_name("beams");
+		Node* nodes[] = {
+			FindNode(beam_itor->nodes[0], section_name, report),
+			FindNode(beam_itor->nodes[1], section_name, report)
+		};
 
-		/* Find node 0 */
-		auto result = m_nodes.find(beam_itor->nodes[0]);
-		if (result == m_nodes.end())
+		if (nodes[0] == nullptr || nodes[1] == nullptr)
 		{
-			/* Node 0 not found */
-			unlinked_beams_to_retry.push_back(*beam_itor);
-			if (report != nullptr)
-			{
-				std::stringstream msg;
-				msg << "[Warning] BuildRig(): Beam[ " << (*beam_itor).nodes[0].ToString() << ", " << (*beam_itor).nodes[1].ToString() << "]: Node 0 not found. Will retry later.";
-				report->push_back(msg.str());
-			}
-		}
-		else
-		{
-			nodes[0] = &result->second; // Assign node 0
-
-			/* Find node 1 */
-			result = m_nodes.find(beam_itor->nodes[1]);
-			if (result == m_nodes.end())
-			{
-					/* Node 1 not found */
-				unlinked_beams_to_retry.push_back(*beam_itor);
-				if (report != nullptr)
-				{
-					std::stringstream msg;
-					msg << "[Warning] BuildRig(): Beam[ " << (*beam_itor).nodes[0].ToString() << ", " << (*beam_itor).nodes[1].ToString() << "]: Node 1 not found. Will retry later.";
-					report->push_back(msg.str());
-				}
-			}
-			else
-			{
-				nodes[1] = &result->second; // Assing node 1
-			}
+			continue; // Error already logged by FindNode()
 		}
 		
 		// Colorize beams
@@ -169,14 +166,197 @@ void Rig::Build(
 					?	m_config->beam_support_color
 					:	m_config->beam_generic_color;
 			
-		// Allocate and save
-		m_beams.push_back(Beam(*beam_itor, nodes[0], nodes[1]));
-		Beam & beam = m_beams.back();
-		beam.SetColor(color);
-		nodes[0]->m_linked_beams.push_back(&beam);
-		nodes[1]->m_linked_beams.push_back(&beam);
-		beam_index++;
+		// Save
+		auto def_ptr = new RigDef::Beam(*beam_itor);
+		Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_PLAIN, nodes[0], nodes[1]);
+		m_beams.push_back(beam);
+		m_beams.back().SetColor(color);
+		nodes[0]->m_linked_beams.push_back(&m_beams.back());
+		nodes[1]->m_linked_beams.push_back(&m_beams.back());
 	}
+
+	// ##### Process steering hydros (section "hydros") #####
+
+	auto hydro_itor_end = module->hydros.end();
+	for (auto hydro_itor = module->hydros.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
+	{
+		static const Ogre::String section_name("hydros");
+		Node* nodes[] = {
+			FindNode(hydro_itor->nodes[0], section_name, report),
+			FindNode(hydro_itor->nodes[1], section_name, report)
+		};
+
+		if (nodes[0] == nullptr || nodes[1] == nullptr)
+		{
+			continue; // Error already logged by FindNode()
+		}
+			
+		// Save
+		auto def_ptr = new RigDef::Hydro(*hydro_itor);
+		Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_STEERING_HYDRO, nodes[0], nodes[1]);
+		m_beams.push_back(beam);
+		m_beams.back().SetColor(m_config->steering_hydro_beam_color_rgb);
+		nodes[0]->m_linked_beams.push_back(&m_beams.back());
+		nodes[1]->m_linked_beams.push_back(&m_beams.back());
+	}
+
+	// ##### Process command-hydros (section "commands[N]") #####
+
+	auto command_itor_end = module->commands_2.end();
+	for (auto command_itor = module->commands_2.begin(); command_itor != command_itor_end; ++command_itor)
+	{
+		static const Ogre::String section_name("commands[N]");
+		Node* nodes[] = {
+			FindNode(command_itor->nodes[0], section_name, report),
+			FindNode(command_itor->nodes[1], section_name, report)
+		};
+
+		if (nodes[0] == nullptr || nodes[1] == nullptr)
+		{
+			continue; // Error already logged by FindNode()
+		}
+			
+		// Save
+		auto def_ptr = new RigDef::Command2(*command_itor);
+		Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_COMMAND_HYDRO, nodes[0], nodes[1]);
+		m_beams.push_back(beam);
+		m_beams.back().SetColor(m_config->command_hydro_beam_color_rgb);
+		nodes[0]->m_linked_beams.push_back(&m_beams.back());
+		nodes[1]->m_linked_beams.push_back(&m_beams.back());
+	}
+
+	// ##### Process section "shocks" #####
+
+	auto shock_itor_end = module->shocks.end();
+	for (auto shock_itor = module->shocks.begin(); shock_itor != shock_itor_end; ++shock_itor)
+	{
+		static const Ogre::String section_name("shocks[N]");
+		Node* nodes[] = {
+			FindNode(shock_itor->nodes[0], section_name, report),
+			FindNode(shock_itor->nodes[1], section_name, report)
+		};
+
+		if (nodes[0] == nullptr || nodes[1] == nullptr)
+		{
+			continue; // Error already logged by FindNode()
+		}
+			
+		// Save
+		auto def_ptr = new RigDef::Shock(*shock_itor);
+		Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_SHOCK_ABSORBER, nodes[0], nodes[1]);
+		m_beams.push_back(beam);
+		m_beams.back().SetColor(m_config->shock_absorber_beam_color_rgb);
+		nodes[0]->m_linked_beams.push_back(&m_beams.back());
+		nodes[1]->m_linked_beams.push_back(&m_beams.back());
+	}
+
+	// ##### Process section "shocks2" #####
+
+	auto shock2_itor_end = module->shocks_2.end();
+	for (auto shock2_itor = module->shocks_2.begin(); shock2_itor != shock2_itor_end; ++shock2_itor)
+	{
+		static const Ogre::String section_name("shocks[N]");
+		Node* nodes[] = {
+			FindNode(shock2_itor->nodes[0], section_name, report),
+			FindNode(shock2_itor->nodes[1], section_name, report)
+		};
+
+		if (nodes[0] == nullptr || nodes[1] == nullptr)
+		{
+			continue; // Error already logged by FindNode()
+		}
+			
+		// Save
+		auto def_ptr = new RigDef::Shock2(*shock2_itor);
+		Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_SHOCK_ABSORBER_2, nodes[0], nodes[1]);
+		m_beams.push_back(beam);
+		m_beams.back().SetColor(m_config->shock_absorber_2_beam_color_rgb);
+		nodes[0]->m_linked_beams.push_back(&m_beams.back());
+		nodes[1]->m_linked_beams.push_back(&m_beams.back());
+	}
+
+	// ##### Process cine cameras (section "cinecam") #####
+	auto cinecam_itor_end = module->cinecam.end();
+	for (auto cinecam_itor = module->cinecam.begin(); cinecam_itor != cinecam_itor_end; ++cinecam_itor)
+	{
+		RigDef::Cinecam & cinecam_def = *cinecam_itor;
+		m_cinecameras.push_back(CineCamera(cinecam_def));
+		CineCamera & editor_cinecam = m_cinecameras.back();
+
+		// === Cinecam node ===
+		RigDef::Node node_def;
+		node_def.position = cinecam_def.position;
+		++highest_numeric_id;
+		node_def.id.SetNum(highest_numeric_id);
+		auto result = m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_def.id, Node(node_def)) );
+		if (result.second == false)
+		{
+			// Insert failed
+			if (report != nullptr)
+			{
+				report->push_back("FATAL ERROR: Failed to insert cinecam node.");
+			}
+			continue;
+		}
+		// Node created OK
+		Node & cinecam_node = result.first->second;
+
+		// Set node type
+		BITMASK_SET_1(cinecam_node.m_flags, RigEditor::Node::Flags::SOURCE_CINECAM);
+
+		// Update bounding box
+		m_aabb.merge(node_def.position);
+
+		// === Cinecam beams ===
+		static const Ogre::String section_name("cinecam");
+		Node* nodes[] = {
+			FindNode(cinecam_def.nodes[0], section_name, report),
+			FindNode(cinecam_def.nodes[1], section_name, report),
+			FindNode(cinecam_def.nodes[2], section_name, report),
+			FindNode(cinecam_def.nodes[3], section_name, report),
+			FindNode(cinecam_def.nodes[4], section_name, report),
+			FindNode(cinecam_def.nodes[5], section_name, report),
+			FindNode(cinecam_def.nodes[6], section_name, report),
+			FindNode(cinecam_def.nodes[7], section_name, report),
+		};
+		
+		// All nodes found?
+		if (!nodes[0] | !nodes[1] | !nodes[2] | !nodes[3] | !nodes[4] | !nodes[5] | !nodes[6] | !nodes[7])
+		{
+			// Nope
+			if (report != nullptr)
+			{
+				std::stringstream msg;
+				msg << "ERROR: Some cinecam nodes were not found (";
+				msg <<   "0=" << (nodes[0] ? "ok":"NULL");
+				msg << ", 1=" << (nodes[1] ? "ok":"NULL");
+				msg << ", 2=" << (nodes[2] ? "ok":"NULL");
+				msg << ", 3=" << (nodes[3] ? "ok":"NULL");
+				msg << ", 4=" << (nodes[4] ? "ok":"NULL");
+				msg << ", 5=" << (nodes[5] ? "ok":"NULL");
+				msg << ", 6=" << (nodes[6] ? "ok":"NULL");
+				msg << ", 7=" << (nodes[7] ? "ok":"NULL");
+				msg << ")";
+				report->push_back(msg.str());
+			}
+			continue;
+		}
+
+		// Create beams
+		void* cinecam_void_ptr = static_cast<void*>(&editor_cinecam);
+		for (int i = 0; i < 8; ++i)
+		{
+			m_beams.push_back(Beam(cinecam_void_ptr, Beam::TYPE_CINECAM, &cinecam_node, nodes[i]));
+			Beam & beam = m_beams.back();
+			beam.SetColor(m_config->cinecam_beam_color_rgb);
+			cinecam_node.m_linked_beams.push_back(&beam);
+			nodes[i]->m_linked_beams.push_back(&beam);
+		}
+	}
+
+	// ========================================================================
+	// Generating visual meshes
+	// ========================================================================
 
 	// ##### CREATE MESH OF BEAMS #####
 
@@ -974,9 +1154,9 @@ void Rig::ExtrudeSelectedNodes()
 
 RigEditor::Beam & Rig::CreateNewBeam(Node* n1, Node* n2)
 {
-	RigDef::Beam beam_def;
-	BITMASK_SET_1(beam_def.options, RigDef::Beam::OPTION_i_INVISIBLE);
-	RigEditor::Beam beam(beam_def, n1, n2);
+	RigDef::Beam* beam_def = new RigDef::Beam();
+	BITMASK_SET_1(beam_def->options, RigDef::Beam::OPTION_i_INVISIBLE);
+	RigEditor::Beam beam(static_cast<void*>(beam_def), Beam::TYPE_PLAIN, n1, n2);
 	beam.SetColor(m_config->beam_invisible_color);
 	m_beams.push_back(beam);
 	Beam & beam_ref = m_beams.back();
@@ -1034,7 +1214,32 @@ boost::shared_ptr<RigDef::File> Rig::Export()
 	// Fill beam data
 	for (auto itor = m_beams.begin(); itor != m_beams.end(); ++itor)
 	{
-		module->beams.push_back(itor->m_definition); // Copy definition
+		void* def = itor->m_source;
+		Beam::Type type = itor->GetType();
+		switch (type)
+		{
+		case Beam::TYPE_PLAIN:
+			module->beams.push_back(* static_cast<RigDef::Beam*>(def)); // Copy definition
+			break;
+		case Beam::TYPE_COMMAND_HYDRO:
+			module->commands_2.push_back(* static_cast<RigDef::Command2*>(def)); // Copy definition
+			break;
+		case Beam::TYPE_SHOCK_ABSORBER:
+			module->shocks.push_back(* static_cast<RigDef::Shock*>(def)); // Copy definition
+			break;
+		case Beam::TYPE_SHOCK_ABSORBER_2:
+			module->shocks_2.push_back(* static_cast<RigDef::Shock2*>(def)); // Copy definition
+			break;
+		case Beam::TYPE_STEERING_HYDRO:
+			module->hydros.push_back(* static_cast<RigDef::Hydro*>(def)); // Copy definition
+			break;
+		case Beam::TYPE_CINECAM:
+			break; // Generated beam; do nothing
+		default:
+			// This really shouldn't happen
+			throw std::runtime_error("INTERNAL ERROR: Rig::Export(): Unknown Beam::Type encountered");
+		}
+		
 	}
 
 	// Export 'properties'
