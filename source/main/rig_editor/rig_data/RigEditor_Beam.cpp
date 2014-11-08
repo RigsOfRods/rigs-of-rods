@@ -28,32 +28,78 @@
 #include "RigDef_File.h"
 #include "RigEditor_Beam.h"
 
-using namespace RoR;
-using namespace RoR::RigEditor;
+namespace RoR
+{
 
-RigEditor::Beam::Beam(RigDef::Beam const & definition, RigEditor::Node* node_0, RigEditor::Node* node_1):
-	m_definition(definition)
+namespace RigEditor
+{
+
+Beam::Beam(void* source, Type type, Node* node_0, Node* node_1):
+	m_type(type),
+	m_source(source)
 {
 	m_nodes[0] = node_0;
 	m_nodes[1] = node_1;
 }
 
-RigEditor::Node* RigEditor::Beam::GetNodeA()
+Beam::~Beam()
+{
+	// Delete definition
+	switch (m_type)
+	{
+	case Beam::TYPE_CINECAM:
+		break; // Generated; m_source == RigEditor::CineCamera. Do nothing.
+	case Beam::TYPE_COMMAND_HYDRO:
+		delete static_cast<RigDef::Command2*>(m_source);
+		m_source = nullptr;
+		break;
+	case Beam::TYPE_SHOCK_ABSORBER:
+		delete static_cast<RigDef::Shock*>(m_source);
+		m_source = nullptr;
+		break;
+	case Beam::TYPE_SHOCK_ABSORBER_2:
+		delete static_cast<RigDef::Shock2*>(m_source);
+		m_source = nullptr;
+		break;
+	case Beam::TYPE_STEERING_HYDRO:
+		delete static_cast<RigDef::Hydro*>(m_source);
+		m_source = nullptr;
+		break;
+	case Beam::TYPE_PLAIN:
+		delete static_cast<RigDef::Beam*>(m_source);
+		m_source = nullptr;
+		break;
+	default:
+		// Really shouldn't happen
+		throw std::runtime_error("Beam::~Beam(): Unsupported Beam::Type encountered");
+	}
+}
+
+Node* Beam::GetNodeA()
 {
 	return m_nodes[0];
 }
 
-RigEditor::Node* RigEditor::Beam::GetNodeB()
+Node* Beam::GetNodeB()
 {
 	return m_nodes[1];
 }
 
-void RigEditor::Beam::SetColor(Ogre::ColourValue const & color)
+void Beam::SetColor(Ogre::ColourValue const & color)
 {
 	m_color = color;
 }
 
-Ogre::ColourValue const & RigEditor::Beam::GetColor() const
+Ogre::ColourValue const & Beam::GetColor() const
 {
 	return m_color;
 }
+
+Beam::Type Beam::GetType()
+{
+	return m_type;
+}
+
+} // namespace RigEditor
+
+} // namespace RoR
