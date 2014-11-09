@@ -40,6 +40,9 @@ Serializer::Serializer(boost::shared_ptr<RigDef::File> def_file, Ogre::String co
 	m_rig_def(def_file),
 	m_node_id_width(10),
 	m_float_precision(10),
+	m_inertia_function_width(10),
+	m_bool_width(5), // strlen("false") == 5
+	m_command_key_width(2),
 	m_float_width(16) // .e+001 = 6characters
 {}
 
@@ -66,10 +69,13 @@ void Serializer::Serialize()
 		<< "; ---------------------------------------------------------------------------- ;" << endl
 		<< endl;
 
+	// Select source
+	File::Module* source_module = m_rig_def->root_module.get();
+
 	// Write individual elements
 	ProcessDescription();
 	ProcessAuthors();
-	ProcessGlobals(m_rig_def->root_module);
+	ProcessGlobals(source_module);
 	ProcessFileinfo();
 	WriteFlags();
 
@@ -80,8 +86,15 @@ void Serializer::Serialize()
 	}
 
 	// Structure
-	ProcessNodes();
-	ProcessBeams();
+	ProcessNodes(source_module);
+	ProcessBeams(source_module);
+	ProcessShocks(source_module);
+	ProcessShocks2(source_module);
+	ProcessHydros(source_module);
+	ProcessCommands2(source_module);
+
+	// Features
+	ProcessCinecam(source_module);
 	
 	// Finalize
 	m_stream << "end" << endl;
@@ -103,12 +116,39 @@ void Serializer::Process()
 
 */
 
-void Serializer::ProcessBeams()
+void Serializer::ProcessCinecam(File::Module* module)
+{
+	m_stream << "cinecam" << endl << endl;
+
+	for (auto itor = module->cinecam.begin(); itor != module->cinecam.end(); ++itor)
+	{
+		m_stream << "\t"
+			<< setw(m_float_width) << itor->position.x << ", "
+			<< setw(m_float_width) << itor->position.y << ", "
+			<< setw(m_float_width) << itor->position.z << ", ";
+		m_stream
+			<< setw(m_node_id_width) << itor->nodes[0].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[1].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[2].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[3].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[4].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[5].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[6].ToString() << ", "
+			<< setw(m_node_id_width) << itor->nodes[7].ToString() << ", ";
+		m_stream
+			<< setw(m_float_width) << itor->spring << ", "
+			<< setw(m_float_width) << itor->damping;
+	}
+
+	m_stream << endl; // Empty line
+}
+
+void Serializer::ProcessBeams(File::Module* module)
 {
 	// Group beams by presets
 	std::map< BeamDefaults*, std::vector<Beam*> > beams_by_preset;
-	auto itor_end = m_rig_def->root_module->beams.end(); 
-	for (auto itor = m_rig_def->root_module->beams.begin(); itor != itor_end; ++itor)
+	auto itor_end = module->beams.end();
+	for (auto itor = module->beams.begin(); itor != itor_end; ++itor)
 	{
 		Beam & beam = *itor;
 		BeamDefaults* preset = beam.defaults.get();
@@ -153,8 +193,430 @@ void Serializer::ProcessBeams()
 	m_stream << endl;
 }
 
+void Serializer::ProcessShocks(File::Module* module)
+{
+	// Group beams by presets
+	std::map< BeamDefaults*, std::vector<Shock*> > shocks_by_preset;
+	auto itor_end = module->shocks.end(); 
+	for (auto itor = module->shocks.begin(); itor != itor_end; ++itor)
+	{
+		Shock & shock = *itor;
+		BeamDefaults* preset = shock.beam_defaults.get();
+
+		// Ensure preset is in map
+		auto found_itor = shocks_by_preset.find(preset);
+		if (found_itor == shocks_by_preset.end())
+		{
+			// Preset not in map, insert it and add shock.
+			std::vector<Shock*> list;
+			list.reserve(100);
+			list.push_back(&shock);
+			shocks_by_preset.insert(std::make_pair(preset, list));
+		}
+		else
+		{
+			// Preset in map, just add shock.
+			found_itor->second.push_back(&shock);
+		}
+	}
+
+	// Write shocks to file
+	m_stream << "shocks" << endl << endl;
+	auto preset_itor_end = shocks_by_preset.end();
+	for (auto preset_itor = shocks_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
+	{
+		// Write preset
+		BeamDefaults* preset = preset_itor->first;
+		ProcessBeamDefaults(preset);
+
+		// Write shocks
+		auto shock_list = preset_itor->second;
+		auto shock_itor_end = shock_list.end();
+		for (auto shock_itor = shock_list.begin(); shock_itor != shock_itor_end; ++shock_itor)
+		{
+			Shock & shock = *(*shock_itor);
+			ProcessShock(shock);
+		}
+	}
+
+	// Empty line
+	m_stream << endl;
+}
+
+void Serializer::ProcessShocks2(File::Module* module)
+{
+	// Group beams by presets
+	std::map< BeamDefaults*, std::vector<Shock2*> > shocks_by_preset;
+	auto itor_end = module->shocks_2.end(); 
+	for (auto itor = module->shocks_2.begin(); itor != itor_end; ++itor)
+	{
+		Shock2 & shock = *itor;
+		BeamDefaults* preset = shock.beam_defaults.get();
+
+		// Ensure preset is in map
+		auto found_itor = shocks_by_preset.find(preset);
+		if (found_itor == shocks_by_preset.end())
+		{
+			// Preset not in map, insert it and add shock.
+			std::vector<Shock2*> list;
+			list.reserve(100);
+			list.push_back(&shock);
+			shocks_by_preset.insert(std::make_pair(preset, list));
+		}
+		else
+		{
+			// Preset in map, just add shock.
+			found_itor->second.push_back(&shock);
+		}
+	}
+
+	// Write shocks to file
+	m_stream << "shocks2" << endl << endl;
+	auto preset_itor_end = shocks_by_preset.end();
+	for (auto preset_itor = shocks_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
+	{
+		// Write preset
+		BeamDefaults* preset = preset_itor->first;
+		ProcessBeamDefaults(preset);
+
+		// Write shocks
+		auto shock_list = preset_itor->second;
+		auto shock_itor_end = shock_list.end();
+		for (auto shock_itor = shock_list.begin(); shock_itor != shock_itor_end; ++shock_itor)
+		{
+			Shock2 & shock = *(*shock_itor);
+			ProcessShock2(shock);
+		}
+	}
+
+	// Empty line
+	m_stream << endl;
+}
+
+void Serializer::ProcessHydros(File::Module* module)
+{
+	// Group by presets
+	std::map< BeamDefaults*, std::vector<Hydro*> > grouped_by_preset;
+	auto itor_end = module->hydros.end(); 
+	for (auto itor = module->hydros.begin(); itor != itor_end; ++itor)
+	{
+		Hydro & hydro = *itor;
+		BeamDefaults* preset = hydro.beam_defaults.get();
+
+		// Ensure preset is in map
+		auto found_itor = grouped_by_preset.find(preset);
+		if (found_itor == grouped_by_preset.end())
+		{
+			// Preset not in map, insert it and add hydro.
+			std::vector<Hydro*> list;
+			list.reserve(100);
+			list.push_back(&hydro);
+			grouped_by_preset.insert(std::make_pair(preset, list));
+		}
+		else
+		{
+			// Preset in map, just add hydro.
+			found_itor->second.push_back(&hydro);
+		}
+	}
+
+	// Write hydros to file
+	m_stream << "hydros" << endl << endl;
+	auto preset_itor_end = grouped_by_preset.end();
+	for (auto preset_itor = grouped_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
+	{
+		// Write preset
+		BeamDefaults* preset = preset_itor->first;
+		ProcessBeamDefaults(preset);
+
+		// Write hydros
+		auto hydro_list = preset_itor->second;
+		auto hydro_itor_end = hydro_list.end();
+		for (auto hydro_itor = hydro_list.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
+		{
+			Hydro & hydro = *(*hydro_itor);
+			ProcessHydro(hydro);
+		}
+	}
+
+	// Empty line
+	m_stream << endl;
+}
+
+void Serializer::ProcessCommands2(File::Module* module)
+{
+	// Group by presets and _format_version
+	std::map< BeamDefaults*, std::vector<Command2*> > commands_by_preset;
+	auto itor_end = module->commands_2.end(); 
+	for (auto itor = module->commands_2.begin(); itor != itor_end; ++itor)
+	{
+		Command2 & command = *itor;
+		BeamDefaults* preset = command.beam_defaults.get();
+
+		// Ensure preset is in map
+		auto found_itor = commands_by_preset.find(preset);
+		if (found_itor == commands_by_preset.end())
+		{
+			// Preset not in map, insert it and add command.
+			std::vector<Command2*> list;
+			list.reserve(100);
+			list.push_back(&command);
+			commands_by_preset.insert(std::make_pair(preset, list));
+		}
+		else
+		{
+			// Preset in map, just add command.
+			found_itor->second.push_back(&command);
+		}
+	}
+
+	// Write section "commands2" to file (commands from section "commands" are converted)
+	m_stream << "commands" << endl << endl;
+	auto preset_itor_end = commands_by_preset.end();
+	for (auto preset_itor = commands_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
+	{
+		// Write preset
+		BeamDefaults* preset = preset_itor->first;
+		ProcessBeamDefaults(preset);
+
+		// Write hydros
+		auto command_list = preset_itor->second;
+		auto command_itor_end = command_list.end();
+		for (auto command_itor = command_list.begin(); command_itor != command_itor_end; ++command_itor)
+		{
+			Command2 & command = *(*command_itor);
+			ProcessCommand2(command);
+		}
+	}
+
+	// Empty line
+	m_stream << endl;
+}
+
+void Serializer::ProcessCommand2(Command2 & def)
+{
+	m_stream << "\t"
+		<< std::setw(m_node_id_width) << def.nodes[0].ToString()    << ", "
+		<< std::setw(m_node_id_width) << def.nodes[1].ToString()    << ", ";
+
+	m_stream << std::setw(m_float_width) << def.shorten_rate        << ", ";
+	m_stream << std::setw(m_float_width) << def.lengthen_rate       << ", ";
+	m_stream << std::setw(m_float_width) << def.max_contraction     << ", "; // So-called 'shortbound'
+	m_stream << std::setw(m_float_width) << def.max_extension       << ", "; // So-called 'longbound'
+	m_stream << std::setw(m_command_key_width) << def.contract_key  << ", ";
+	m_stream << std::setw(m_command_key_width) << def.extend_key    << ", ";
+
+	// Options
+	unsigned int options = def.options;
+	if (options == 0)
+	{
+		m_stream << "n"; // Placeholder, does nothing.
+	}
+	else
+	{
+		if (BITMASK_IS_1(options, Command2::OPTION_c_AUTO_CENTER))
+		{
+			m_stream << "c";
+		}
+		if (BITMASK_IS_1(options, Command2::OPTION_f_NOT_FASTER))
+		{
+			m_stream << "f";
+		}
+		if (BITMASK_IS_1(options, Command2::OPTION_i_INVISIBLE))
+		{
+			m_stream << "i";
+		}
+		if (BITMASK_IS_1(options, Command2::OPTION_o_PRESS_ONCE_CENTER))
+		{
+			m_stream << "o";
+		}
+		if (BITMASK_IS_1(options, Command2::OPTION_p_PRESS_ONCE))
+		{
+			m_stream << "p";
+		}
+		if (BITMASK_IS_1(options, Command2::OPTION_r_ROPE))
+		{
+			m_stream << "r";
+		}
+	}
+	m_stream << ", ";
+
+	// Description
+	m_stream << (def.description.length() > 0 ? def.description : "_") << ", ";
+	
+	// Inertia 
+	m_stream << std::setw(m_float_width) << def.inertia.start_delay_factor        << ", ";
+	m_stream << std::setw(m_float_width) << def.inertia.stop_delay_factor         << ", ";
+	m_stream << std::setw(m_inertia_function_width) << def.inertia.start_function << ", ";
+	m_stream << std::setw(m_inertia_function_width) << def.inertia.stop_function  << ", ";
+	m_stream << std::setw(m_float_width) << def.affect_engine                     << ", ";
+	m_stream << std::setw(m_bool_width) << (def.needs_engine ? "true" : "false");
+}
+
+void Serializer::ProcessHydro(Hydro & def)
+{
+	m_stream << "\t"
+		<< std::setw(m_node_id_width) << def.nodes[0].ToString() << ", "
+		<< std::setw(m_node_id_width) << def.nodes[1].ToString() << ", ";
+
+	m_stream << std::setw(m_float_width) << def.lenghtening_factor      << ", ";
+	if (def.options == 0)
+	{
+		m_stream << "n"; // Placeholder, does nothing
+	}
+	else
+	{
+		unsigned int options = def.options;
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_a_INPUT_AILERON))
+		{
+			m_stream << "a";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_e_INPUT_ELEVATOR))
+		{
+			m_stream << "e";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER))
+		{
+			m_stream << "g";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER))
+		{
+			m_stream << "h";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_i_INVISIBLE))
+		{
+			m_stream << "i";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_r_INPUT_RUDDER))
+		{
+			m_stream << "r";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED))
+		{
+			m_stream << "s";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_u_INPUT_AILERON_ELEVATOR))
+		{
+			m_stream << "u";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR))
+		{
+			m_stream << "v";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_x_INPUT_AILERON_RUDDER))
+		{
+			m_stream << "x";
+		}
+		if (BITMASK_IS_1(def.options, Hydro::OPTION_y_INPUT_InvAILERON_RUDDER))
+		{
+			m_stream << "y";
+		}
+	}
+	m_stream << ", ";
+
+	// Inertia
+	OptionalInertia & inertia = def.inertia;
+	m_stream << std::setw(m_float_width) << inertia.start_delay_factor  << ", ";
+	m_stream << std::setw(m_float_width) << inertia.stop_delay_factor   << ", ";
+	m_stream << std::setw(m_inertia_function_width) << inertia.start_function << ", ";
+	m_stream << std::setw(m_inertia_function_width) << inertia.stop_function;
+}
+
+void Serializer::ProcessShock(Shock & def)
+{
+	m_stream << "\t"
+		<< std::setw(m_node_id_width) << def.nodes[0].ToString() << ", "
+		<< std::setw(m_node_id_width) << def.nodes[1].ToString() << ", ";
+	m_stream << std::setw(m_float_width) << def.spring_rate      << ", ";
+	m_stream << std::setw(m_float_width) << def.damping          << ", ";
+	m_stream << std::setw(m_float_width) << def.short_bound      << ", ";
+	m_stream << std::setw(m_float_width) << def.long_bound       << ", ";
+	m_stream << std::setw(m_float_width) << def.precompression   << ", ";
+
+	// Options
+	if (def.options == 0)
+	{
+		m_stream << "n"; // Placeholder
+	}
+	else
+	{
+		if (BITMASK_IS_1(def.options, Shock::OPTION_i_INVISIBLE))
+		{
+			m_stream << "i";
+		}
+		if (BITMASK_IS_1(def.options, Shock::OPTION_m_METRIC))
+		{
+			m_stream << "m";
+		}
+		if (BITMASK_IS_1(def.options, Shock::OPTION_L_ACTIVE_LEFT))
+		{
+			m_stream << "L";
+		}
+		if (BITMASK_IS_1(def.options, Shock::OPTION_R_ACTIVE_RIGHT))
+		{
+			m_stream << "R";
+		}
+	}
+
+	// Empty line
+	m_stream << endl;
+}
+
+void Serializer::ProcessShock2(Shock2 & def)
+{
+	m_stream << "\t"
+		<< std::setw(m_node_id_width) << def.nodes[0].ToString() << ", "
+		<< std::setw(m_node_id_width) << def.nodes[1].ToString() << ", ";
+
+	m_stream << std::setw(m_float_width) << def.spring_in                  << ", ";
+	m_stream << std::setw(m_float_width) << def.damp_in                    << ", ";
+	m_stream << std::setw(m_float_width) << def.progress_factor_spring_in  << ", ";
+	m_stream << std::setw(m_float_width) << def.progress_factor_damp_in    << ", ";
+
+	m_stream << std::setw(m_float_width) << def.spring_out                 << ", ";
+	m_stream << std::setw(m_float_width) << def.damp_out                   << ", ";
+	m_stream << std::setw(m_float_width) << def.progress_factor_spring_out << ", ";
+	m_stream << std::setw(m_float_width) << def.progress_factor_damp_out   << ", ";
+
+	m_stream << std::setw(m_float_width) << def.short_bound                << ", ";
+	m_stream << std::setw(m_float_width) << def.long_bound                 << ", ";
+	m_stream << std::setw(m_float_width) << def.precompression             << ", ";
+
+	// Options
+	if (def.options != 0)
+	{
+		m_stream << "n"; // Placeholder
+	}
+	else
+	{
+		if (BITMASK_IS_1(def.options, Shock2::OPTION_i_INVISIBLE))
+		{
+			m_stream << "i";
+		}
+		if (BITMASK_IS_1(def.options, Shock2::OPTION_m_METRIC))
+		{
+			m_stream << "m";
+		}
+		if (BITMASK_IS_1(def.options, Shock2::OPTION_M_ABSOLUTE_METRIC))
+		{
+			m_stream << "M";
+		}
+		if (BITMASK_IS_1(def.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS))
+		{
+			m_stream << "s";
+		}
+	}
+
+	// Empty line
+	m_stream << endl;
+}
+
 void Serializer::ProcessBeamDefaults(BeamDefaults* beam_defaults)
 {
+	if (beam_defaults == nullptr)
+	{
+		return;
+	}
 	m_stream << "set_beam_defaults       "
 		<< beam_defaults->springiness << ", "
 		<< beam_defaults->damping_constant << ", "
@@ -209,12 +671,12 @@ void Serializer::ProcessBeam(Beam & beam)
 	m_stream << endl;
 }
 
-void Serializer::ProcessNodes()
+void Serializer::ProcessNodes(File::Module* module)
 {
 	// Group nodes by presets
 	std::map< NodeDefaults*, std::vector<Node*> > nodes_by_presets;
-	auto itor_end = m_rig_def->root_module->nodes.end(); 
-	for (auto itor = m_rig_def->root_module->nodes.begin(); itor != itor_end; ++itor)
+	auto itor_end = module->nodes.end(); 
+	for (auto itor = module->nodes.begin(); itor != itor_end; ++itor)
 	{
 		Node & node = *itor;
 		NodeDefaults* preset = node.node_defaults.get();
@@ -261,7 +723,14 @@ void Serializer::ProcessNodes()
 
 void Serializer::ProcessNodeDefaults(NodeDefaults* node_defaults)
 {
-	m_stream << "set_node_defaults "
+	m_stream << "set_node_defaults ";
+	if (node_defaults == nullptr)
+	{
+		m_stream << "-1, -1, -1, -1, n" << endl;
+		return;
+	}
+
+	m_stream
 		<< node_defaults->load_weight << ", "
 		<< node_defaults->friction << ", "
 		<< node_defaults->volume << ", "
@@ -448,7 +917,7 @@ void Serializer::ProcessAuthors()
 	m_stream << endl;
 }
 
-void Serializer::ProcessGlobals(boost::shared_ptr<RigDef::File::Module> module)
+void Serializer::ProcessGlobals(File::Module* module)
 {
 	if (module->globals.get() != nullptr)
 	{
