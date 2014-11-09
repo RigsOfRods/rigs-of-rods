@@ -714,7 +714,7 @@ bool TerrainManager::hasPreloadedTrucks()
 	return false;
 }
 
-std::vector<authorinfo_t> TerrainManager::getAuthors()
+std::vector<authorinfo_t> & TerrainManager::GetAuthors()
 {
-	return authors;
+	return authors; 
 }

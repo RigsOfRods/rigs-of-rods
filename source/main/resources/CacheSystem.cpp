@@ -1819,7 +1819,9 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr d
 	tm.loadTerrainConfigBasics(ds);
 
 	//parsing the current file
-	for (auto itor = tm.getAuthors().begin(); itor != tm.getAuthors().end(); ++itor)
+	auto & authors = tm.GetAuthors();
+	auto itor_end = authors.end();
+	for (auto itor = authors.begin(); itor != itor_end; ++itor)
 	{
 		AuthorInfo a;
 		a.id = itor->id;
