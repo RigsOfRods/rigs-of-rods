@@ -1450,6 +1450,10 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 	catch (...)
 	{
 		AddMessage(Message::TYPE_ERROR, "Failed to load mesh (flexbody wing): " + wing_name.str());
+		// Revert wing processing
+		delete wing.fa;
+		std::memset(&wing, 0, sizeof(wing));
+		--m_rig->free_wing;
 		return;
 	}
 	m_rig->deletion_Entities.emplace_back(entity);
@@ -1482,10 +1486,20 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 	}
 	else
 	{
-		if (node_indices[1] != m_rig->wings[wing_index - 1].fa->nfld)
+		wing_t & previous_wing = m_rig->wings[wing_index - 1];
+		if (previous_wing.fa == nullptr)
+		{
+			AddMessage(Message::TYPE_ERROR, "Unable to process wing, previous wing has no Airfoil");
+			// Revert wing processing
+			delete wing.fa;
+			std::memset(&wing, 0, sizeof(wing));
+			--m_rig->free_wing;
+			return;
+		}
+
+		if (node_indices[1] != previous_wing.fa->nfld)
 		{
 			wing_t & start_wing    = m_rig->wings[m_rig->wingstart];
-			wing_t & previous_wing = m_rig->wings[wing_index - 1];
 
 			//discontinuity
 			//inform wing segments
