@@ -17,24 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __TerrainManager_H_
-#define __TerrainManager_H_
 
-#define HASOPTION(X) !terrainConfig.getSetting(X).empty()
-#define BOPTION(X)   StringConverter::parseBool(terrainConfig.getSetting(X))
-#define FOPTION(X)   PARSEREAL(terrainConfig.getSetting(X))
-#define IOPTION(X)   PARSEINT(terrainConfig.getSetting(X))
-#define SOPTION(X)   terrainConfig.getSetting(X)
-#define BOPT(X, Y)   (HASOPTION(X)?BOPTION(X):Y)
-#define FOPT(X, Y)   (HASOPTION(X)?FOPTION(X):Y)
-#define IOPT(X, Y)   (HASOPTION(X)?IOPTION(X):Y)
-#define SOPT(X, Y)   (HASOPTION(X)?SOPTION(X):Y)
-#define XZSTR(X,Z)   String("[") + TOSTRING(X) + String(",") + TOSTRING(Z) + String("]")
+#pragma once
 
-#include "RoRPrerequisites.h"
-
+#include "ConfigFile.h"
 #include "IManager.h"
-#include <OgreConfigFile.h>
 
 class TerrainManager : public IManager
 {
@@ -84,7 +71,7 @@ public:
 
 protected:
 
-	Ogre::ConfigFile mTerrainConfig;
+	RoR::ConfigFile m_terrain_config;
 
 	// subsystems
 	Character *character;
@@ -143,5 +130,3 @@ protected:
 	void fixCompositorClearColor();
 	void loadTerrainObjects();
 };
-
-#endif // __TerrainManager_H_

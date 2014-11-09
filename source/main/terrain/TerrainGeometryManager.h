@@ -20,8 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __TerrainGeometryManager_H_
 #define __TerrainGeometryManager_H_
 
-#include "RoRPrerequisites.h"
-
+#include "ConfigFile.h"
 #include "IHeightFinder.h"
 #include "IManager.h"
 
@@ -30,8 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrainPaging.h>
 #include <OgreTerrainQuadTreeNode.h>
 #include <OgreTerrainGroup.h>
-
-#include <OgreConfigFile.h>
 
 // this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public IManager, public IHeightFinder
@@ -74,7 +71,7 @@ public:
 
 protected:
 
-	Ogre::ConfigFile terrainConfig;
+	RoR::ConfigFile m_terrain_config;
 	Ogre::String baseName;
 	Ogre::String pageConfigFormat;
 	TerrainManager *terrainManager;
