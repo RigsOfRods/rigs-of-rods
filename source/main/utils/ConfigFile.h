@@ -45,6 +45,12 @@ class ConfigFile: public Ogre::ConfigFile
 	float GetFloat(Ogre::String const & key);
 
 	int GetInt(Ogre::String const & key);
+
+	bool GetBoolOrDefault(Ogre::String const & key, bool defaultValue);
+
+	int GetIntOrDefault(Ogre::String const & key, int defaultValue);
+
+	Ogre::String GetStringOrDefault(Ogre::String const & key, Ogre::String const & defaultValue);
 };
 
 } // namespace RoR

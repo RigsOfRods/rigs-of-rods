@@ -52,3 +52,23 @@ int ConfigFile::GetInt(Ogre::String const & key)
 {
 	return Ogre::StringConverter::parseInt(getSetting(key));
 }
+
+bool ConfigFile::GetBoolOrDefault(Ogre::String const & key, bool defaultValue)
+{
+	return Ogre::StringConverter::parseBool(getSetting(key), defaultValue);
+}
+
+int ConfigFile::GetIntOrDefault(Ogre::String const & key, int defaultValue)
+{
+	return Ogre::StringConverter::parseInt(getSetting(key), defaultValue);
+}
+
+Ogre::String ConfigFile::GetStringOrDefault(Ogre::String const & key, Ogre::String const & defaultValue)
+{
+	auto setting = getSetting(key);
+	if (setting.empty())
+	{
+		return defaultValue;
+	}
+	return setting;
+}
