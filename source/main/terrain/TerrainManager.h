@@ -58,7 +58,7 @@ public:
 	int getFarClip() { return far_clip; }
 	int getPagedMode() { return paged_mode; };
 	float getPagedDetailFactor() { return paged_detail_factor; };
-	std::vector<authorinfo_t> getAuthors();
+	std::vector<authorinfo_t> & GetAuthors();
 
 	Ogre::Vector3 getMaxTerrainSize();
 
