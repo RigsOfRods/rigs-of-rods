@@ -93,6 +93,9 @@ void Serializer::Serialize()
 	ProcessHydros(source_module);
 	ProcessCommands2(source_module);
 
+	// Driving
+	ProcessMeshWheels2(source_module);
+
 	// Features
 	ProcessCinecam(source_module);
 	
@@ -115,6 +118,35 @@ void Serializer::Process()
 }
 
 */
+
+void Serializer::ProcessMeshWheels2(File::Module* module)
+{
+	m_stream << "meshwheels2" << endl << endl;
+	auto end_itor = module->mesh_wheels_2.end();
+	for (auto itor = module->mesh_wheels_2.begin(); itor != end_itor; ++itor)
+	{
+		m_stream << "\t"
+			<< setw(m_float_width)   << itor->tyre_radius                   << ", "
+			<< setw(m_float_width)   << itor->rim_radius                    << ", "
+			<< setw(m_float_width)   << itor->width                         << ", "
+			<< setw(3)               << itor->num_rays                      << ", "
+			<< setw(m_node_id_width) << itor->nodes[0].ToString()           << ", "
+			<< setw(m_node_id_width) << itor->nodes[1].ToString()           << ", "
+			<< setw(m_node_id_width) << itor->rigidity_node.ToString()      << ", "
+			<< setw(3)               << itor->braking                       << ", "
+			<< setw(3)               << itor->propulsion                    << ", "
+			<< setw(m_node_id_width) << itor->reference_arm_node.ToString() << ", "
+			<< setw(m_float_width)   << itor->mass                          << ", "
+			<< setw(m_float_width)   << itor->tyre_springiness              << ", "
+			<< setw(m_float_width)   << itor->tyre_damping                  << ", "
+			                         << (static_cast<char>(itor->side))     << ", "
+			                         << itor->mesh_name                     << " " // Separator = space!
+			                         << itor->material_name;
+		m_stream << endl;
+	}
+
+	m_stream << endl; // Empty line
+}
 
 void Serializer::ProcessCinecam(File::Module* module)
 {

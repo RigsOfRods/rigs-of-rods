@@ -151,6 +151,7 @@ private:
 	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
 	std::list<Beam>          m_beams;
 	std::list<CineCamera>    m_cinecameras;
+	std::list<MeshWheel2>    m_mesh_wheels_2;
 	Ogre::AxisAlignedBox     m_aabb;
 	unsigned int             m_highest_node_id;
 	
