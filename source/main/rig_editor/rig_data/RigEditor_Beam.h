@@ -67,6 +67,8 @@ public:
 
 	Type GetType();
 
+	void DeleteDefinition();
+
 protected:
 
 	RigEditor::Node*       m_nodes[2];

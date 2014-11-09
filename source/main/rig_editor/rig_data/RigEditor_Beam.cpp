@@ -44,7 +44,10 @@ Beam::Beam(void* source, Type type, Node* node_0, Node* node_1):
 
 Beam::~Beam()
 {
-	// Delete definition
+}
+
+void Beam::DeleteDefinition()
+{
 	switch (m_type)
 	{
 	case Beam::TYPE_CINECAM:
