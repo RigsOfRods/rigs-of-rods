@@ -53,7 +53,7 @@ protected:
 
 	void ProcessAuthors();
 
-	void ProcessGlobals(boost::shared_ptr<RigDef::File::Module> module);
+	void ProcessGlobals(File::Module* module);
 
 	void ProcessDescription();
 
@@ -63,7 +63,7 @@ protected:
 
 	void WriteFlags();
 
-	void ProcessNodes();
+	void ProcessNodes(File::Module*);
 
 	void ProcessNode(Node & node);
 
@@ -71,11 +71,29 @@ protected:
 
 	void ProcessNodeOptions(unsigned int options);
 
-	void ProcessBeams();
+	void ProcessBeams(File::Module*);
 
 	void ProcessBeamDefaults(BeamDefaults* beam_defaults);
 
 	void ProcessBeam(Beam & beam);
+
+	void ProcessShocks(File::Module*);
+
+	void ProcessShocks2(File::Module*);
+
+	void ProcessShock(Shock & def);
+
+	void ProcessShock2(Shock2 & def);
+
+	void ProcessHydros(File::Module*);
+
+	void ProcessHydro(Hydro & def);
+
+	void ProcessCommands2(File::Module*);
+
+	void ProcessCommand2(Command2 & def);
+
+	void ProcessCinecam(File::Module*);
 
 protected:
 
@@ -84,7 +102,11 @@ protected:
 	boost::shared_ptr<RigDef::File>   m_rig_def;
 	int                               m_float_precision;
 	int                               m_float_width;
+	int                               m_bool_width;
 	int                               m_node_id_width;
+	int                               m_command_key_width;
+	int                               m_inertia_function_width;
+
 	
 };
 

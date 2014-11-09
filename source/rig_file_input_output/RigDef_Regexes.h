@@ -1617,7 +1617,7 @@ DEFINE_REGEX( SECTION_HYDROS,
 	E_CAPTURE( E_REAL_NUMBER ) /* #5 Lengthening factor */
 	E_CAPTURE_OPTIONAL( 
 		E_CAPTURE( E_DELIMITER )
-		E_CAPTURE( "[areuvxyghis]*" ) /* #8 Flags */
+		E_CAPTURE( "[nareuvxyghis]*" ) /* #8 Flags */
 
 		E_CAPTURE_OPTIONAL(
 			E_CAPTURE( E_DELIMITER )
