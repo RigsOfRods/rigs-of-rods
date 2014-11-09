@@ -33,6 +33,7 @@
 #include "RigEditor_CameraHandler.h"
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
+#include "RigEditor_MeshWheel2.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_RigProperties.h"
 
@@ -592,6 +593,7 @@ bool Rig::ProcessMeshwheels2(
 	for (auto itor = list.begin(); itor != list.end(); ++itor)
 	{
 		auto def = *itor;
+		m_mesh_wheels_2.push_back(RigEditor::MeshWheel2(def));
 
 		/* Find axis nodes */
 		RigEditor::Node* axis_nodes[] = {nullptr, nullptr};
@@ -1253,6 +1255,13 @@ boost::shared_ptr<RigDef::File> Rig::Export()
 
 	// Export 'properties'
 	m_properties->Export(def);
+
+	// Export MeshWheels2
+	auto meshwheels2_end = m_mesh_wheels_2.end();
+	for (auto itor = m_mesh_wheels_2.begin(); itor != meshwheels2_end; ++itor)
+	{
+		module->mesh_wheels_2.push_back(itor->m_definition); // Copy definition
+	}
 
 	// Return
 	return def;

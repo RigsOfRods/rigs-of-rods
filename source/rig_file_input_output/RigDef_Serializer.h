@@ -95,6 +95,8 @@ protected:
 
 	void ProcessCinecam(File::Module*);
 
+	void ProcessMeshWheels2(File::Module* module);
+
 protected:
 
 	std::ofstream                     m_stream;

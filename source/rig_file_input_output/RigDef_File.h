@@ -1046,12 +1046,9 @@ struct MeshWheel: BaseWheel
 
 	enum Side
 	{
-		SIDE_BEGIN = 0,
-		SIDE_RIGHT = 'r',
-		SIDE_LEFT = 'l',
-		SIDE_END = 9999,
-		
-		SIDE_INVALID = 0xFFFFFFFF
+		SIDE_INVALID   = 0,
+		SIDE_RIGHT     = 'r',
+		SIDE_LEFT      = 'l'
 	};
 
 	Side side;

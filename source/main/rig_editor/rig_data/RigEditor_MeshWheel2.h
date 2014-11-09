@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -20,46 +20,38 @@
 */
 
 /** 
-	@file   RigEditor_ForwardDeclarations.h
-	@date   09/2014
+	@file   
+	@date   11/2014
 	@author Petr Ohlidal
 */
 
 #pragma once
 
+#include "RigDef_Prerequisites.h"
+#include "RigDef_File.h"
+#include "RoRPrerequisites.h"
+
 namespace RoR
 {
 
-	namespace RigEditor
-	{
+namespace RigEditor
+{
 
-		class  Beam;
-		class  BeamTypeCommandHydro;
-		class  BeamTypeGenerated;
-		class  BeamTypePlain;
-		class  BeamTypeShock;
-		class  BeamTypeSteeringHydro;
-		class  CameraHandler;
-		class  CineCamera;
-		struct Config;
-		class  IMain;
-		class  InputHandler;
-		class  Main;
-		class  MeshWheel2;
-		class  Module;
-		class  Node;
-		class  Rig;
-		class  RigProperties;
+class MeshWheel2
+{
+	friend class RigEditor::Rig;
 
-	} // namespace RigEditor
+public:
 
-	namespace GUI
-	{
-		class  RigEditorDeleteMenu;
-		class  RigEditorRigPropertiesWindow;
-		class  RigEditorLandVehiclePropertiesWindow;
-		class  RigEditorMenubar;
+	MeshWheel2(RigDef::MeshWheel2 const & def):
+		m_definition(def)
+	{}
 
-	} // namespace GUI
+protected:
+
+	RigDef::MeshWheel2        m_definition;
+};
+
+} // namespace RigEditor
 
 } // namespace RoR
