@@ -79,7 +79,12 @@ namespace Regexes
 
 #define E_NEGATIVE_DECIMAL_NUMBER "-[[:digit:]]+"
 
-#define E_REAL_NUMBER "-?[[:digit:]]*\\.[[:digit:]]+[eE]?[-+]?[[:digit:]]*" E_OR E_DECIMAL_NUMBER /* Uses |, MUST be enclosed in E_CAPTURE() */
+#define E_REAL_NUMBER_WITH_EXPONENT "-?[[:digit:]]*\\.[[:digit:]]+[eE][-+]?[[:digit:]]+"
+
+#define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]+"
+
+#define E_REAL_NUMBER \
+	E_REAL_NUMBER_WITH_EXPONENT E_OR E_REAL_NUMBER_SIMPLE E_OR E_DECIMAL_NUMBER /* Uses |, MUST be enclosed in E_CAPTURE() */
 
 #define E_MINUS_ONE_REAL "-1\\.[0]*|-1"   /* Uses |, MUST be enclosed in E_CAPTURE() */
 
