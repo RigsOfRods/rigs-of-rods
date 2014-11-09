@@ -57,8 +57,17 @@ Rig::~Rig()
 {
 	// NOTE: visuals deleted by std::unique_ptr
 
-	/* Clear structure */
+	// == Clear structure ==
+
+	// Beams
+	auto beams_end = m_beams.end();
+	for (auto beam_itor = m_beams.begin(); beam_itor != beams_end; ++beam_itor)
+	{
+		beam_itor->DeleteDefinition();
+	}
 	m_beams.clear();
+
+	// Nodes
 	m_nodes.clear();
 }
 
@@ -167,7 +176,7 @@ void Rig::Build(
 					:	m_config->beam_generic_color;
 			
 		// Save
-		auto def_ptr = new RigDef::Beam(*beam_itor);
+		RigDef::Beam* def_ptr = new RigDef::Beam(*beam_itor);
 		Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_PLAIN, nodes[0], nodes[1]);
 		m_beams.push_back(beam);
 		m_beams.back().SetColor(color);
@@ -1218,7 +1227,7 @@ boost::shared_ptr<RigDef::File> Rig::Export()
 		Beam::Type type = itor->GetType();
 		switch (type)
 		{
-		case Beam::TYPE_PLAIN:
+		case Beam::TYPE_PLAIN: 
 			module->beams.push_back(* static_cast<RigDef::Beam*>(def)); // Copy definition
 			break;
 		case Beam::TYPE_COMMAND_HYDRO:
