@@ -673,12 +673,25 @@ void Serializer::ProcessBeam(Beam & beam)
 
 void Serializer::ProcessNodes(File::Module* module)
 {
-	// Group nodes by presets
+	// Group nodes by presets + find node-zero
 	std::map< NodeDefaults*, std::vector<Node*> > nodes_by_presets;
+	Node* node_zero = nullptr;
 	auto itor_end = module->nodes.end(); 
 	for (auto itor = module->nodes.begin(); itor != itor_end; ++itor)
 	{
 		Node & node = *itor;
+
+		// Check zero node
+		if (node.id.IsValid() && node.id.Str().empty() && node.id.Num() == 0)
+		{
+			if (node_zero != nullptr)
+			{
+				throw std::runtime_error("FATAL: Multiple nodes zero!!!");
+			}
+			node_zero = &node;
+			continue;
+		}
+
 		NodeDefaults* preset = node.node_defaults.get();
 
 		// Ensure preset is in map
@@ -698,8 +711,18 @@ void Serializer::ProcessNodes(File::Module* module)
 		}
 	}
 
-	// Write nodes to file
+	// == Write nodes to file ==
 	m_stream << "nodes" << endl << endl;
+
+	// Node zero first
+	if (node_zero == nullptr)
+	{
+		throw std::runtime_error("FATAL: Node zero not defined!!!");
+	}
+	ProcessNodeDefaults(node_zero->node_defaults.get());
+	ProcessNode(*node_zero);
+
+	// Other nodes
 	auto preset_itor_end = nodes_by_presets.end();
 	for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
 	{
@@ -798,7 +821,7 @@ void Serializer::ProcessNode(Node & node)
 	// Load mass
 	if (node._has_load_weight_override)
 	{
-		m_stream << ", " << node.load_weight_override;
+		m_stream << " " << node.load_weight_override;
 	}
 	m_stream << endl;
 }
@@ -903,7 +926,7 @@ void Serializer::ProcessAuthors()
 	for (auto itor = m_rig_def->authors.begin(); itor != m_rig_def->authors.end(); ++itor)
 	{
 		Author & def = *itor;
-		m_stream << "author " << def.type << " " << def.name << " ";
+		m_stream << "author " << def.type << " ";
 		if (def._has_forum_account)
 		{
 			m_stream << def.forum_account_id << " ";
@@ -912,7 +935,7 @@ void Serializer::ProcessAuthors()
 		{
 			m_stream << "-1 ";
 		}
-		m_stream << def.email << endl;
+		m_stream  << def.name << " " << def.email << endl;
 	}
 	m_stream << endl;
 }
