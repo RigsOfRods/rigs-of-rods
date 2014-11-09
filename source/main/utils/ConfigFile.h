@@ -40,17 +40,15 @@ class ConfigFile: public Ogre::ConfigFile
 {
 	public:
 
-	Ogre::ColourValue GetColourValue(Ogre::String const & key);
+	Ogre::ColourValue GetColourValue(Ogre::String const & key, Ogre::ColourValue const & defaultValue = Ogre::ColourValue());
 
-	float GetFloat(Ogre::String const & key);
+	float GetFloat(Ogre::String const & key, float defaultValue = 0.f);
 
-	int GetInt(Ogre::String const & key);
+	bool GetBool(Ogre::String const & key, bool defaultValue = false);
 
-	bool GetBoolOrDefault(Ogre::String const & key, bool defaultValue);
+	int GetInt(Ogre::String const & key, int defaultValue = 0);
 
-	int GetIntOrDefault(Ogre::String const & key, int defaultValue);
-
-	Ogre::String GetStringOrDefault(Ogre::String const & key, Ogre::String const & defaultValue);
+	Ogre::String GetString(Ogre::String const & key, Ogre::String const & defaultValue = "");
 };
 
 } // namespace RoR

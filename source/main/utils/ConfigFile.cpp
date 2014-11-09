@@ -32,38 +32,27 @@
 
 using namespace RoR;
 
-float ConfigFile::GetFloat(Ogre::String const & key)
+float ConfigFile::GetFloat(Ogre::String const & key, float defaultValue)
 {
-	return Ogre::StringConverter::parseReal(getSetting(key));
+	return Ogre::StringConverter::parseReal(getSetting(key), defaultValue);
 }
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key)
+Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key, Ogre::ColourValue const & defaultValue)
 {
-	std::stringstream value(getSetting(key));
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-	float a = 1.f;
-	value >> r >> g >> b >> a;
-	return Ogre::ColourValue(r, g, b, a);
+	return Ogre::StringConverter::parseColourValue(getSetting(key), defaultValue);
 }
 
-int ConfigFile::GetInt(Ogre::String const & key)
-{
-	return Ogre::StringConverter::parseInt(getSetting(key));
-}
-
-bool ConfigFile::GetBoolOrDefault(Ogre::String const & key, bool defaultValue)
-{
-	return Ogre::StringConverter::parseBool(getSetting(key), defaultValue);
-}
-
-int ConfigFile::GetIntOrDefault(Ogre::String const & key, int defaultValue)
+int ConfigFile::GetInt(Ogre::String const & key, int defaultValue)
 {
 	return Ogre::StringConverter::parseInt(getSetting(key), defaultValue);
 }
 
-Ogre::String ConfigFile::GetStringOrDefault(Ogre::String const & key, Ogre::String const & defaultValue)
+bool ConfigFile::GetBool(Ogre::String const & key, bool defaultValue)
+{
+	return Ogre::StringConverter::parseBool(getSetting(key), defaultValue);
+}
+
+Ogre::String ConfigFile::GetString(Ogre::String const & key, Ogre::String const & defaultValue)
 {
 	auto setting = getSetting(key);
 	if (setting.empty())
