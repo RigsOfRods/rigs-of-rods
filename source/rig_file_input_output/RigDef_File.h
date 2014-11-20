@@ -67,11 +67,10 @@ struct CameraSettings
 
 	enum Mode
 	{
-		MODE_BEGIN    = -9999,
 		MODE_ALWAYS   = -2,
 		MODE_EXTERNAL = -1,
 		MODE_CINECAM  = 1,
-		MODE_END      = 9999,
+
 		MODE_INVALID  = 0xFFFFFFFF
 	};
 
@@ -440,11 +439,10 @@ struct GuiSettings
 
 	enum MapMode
 	{
-		MAP_MODE_BEGIN = 0,
 		MAP_MODE_OFF = 1,
 		MAP_MODE_SIMPLE,
 		MAP_MODE_ZOOM,
-		MAP_MODE_END,
+
 		MAP_MODE_INVALID = 0xFFFFFFFF,
 	};
 
@@ -763,10 +761,8 @@ struct Engoption
 
 	enum EngineType
 	{
-		ENGINE_TYPE_BEGIN   =   0,
 		ENGINE_TYPE_c_CAR   = 'c',
 		ENGINE_TYPE_t_TRUCK = 't',
-		ENGINE_TYPE_END     = 999,
 
 		ENGINE_TYPE_INVALID = 0xFFFFFFFF
 	};
@@ -808,9 +804,11 @@ struct ExtCamera
 
 	enum Mode
 	{
-		MODE_CLASSIC = 0, // Do not change
-		MODE_CINECAM = 1, // Do not change
-		MODE_NODE    = 2, // Do not change
+		MODE_CLASSIC = 0, // Hardcoded in simulation code, do not change
+		MODE_CINECAM = 1, // Hardcoded in simulation code, do not change
+		MODE_NODE    = 2, // Hardcoded in simulation code, do not change
+
+		MODE_INVALID = 0xFFFFFFFF
 	};
 
 	Mode mode;
@@ -915,24 +913,20 @@ struct Wheels
 {
 	enum Braking
 	{
-		BRAKING_BEGIN             = -9999,
 		BRAKING_NO                = 0,
 		BRAKING_YES               = 1,
 		BRAKING_DIRECTIONAL_LEFT  = 2,
 		BRAKING_DIRECTIONAL_RIGHT = 3,
 		BRAKING_ONLY_FOOT         = 4,
-		BRAKING_END               = 9999,
 
 		BRAKING_INVALID           = 0xFFFFFFFF
 	};
 
 	enum Propulsion
 	{
-		PROPULSION_BEGIN    = -9999,
 		PROPULSION_NONE     = 0,
 		PROPULSION_FORWARD  = 1,
 		PROPULSION_BACKWARD = 2,
-		PROPULSION_END      = 9999,
 
 		PROPULSION_INVALID  = 0xFFFFFFFF
 	};
@@ -1082,14 +1076,12 @@ struct Flare2
 
 	enum Type
 	{
-		TYPE_BEGIN           = 0,
 		TYPE_f_HEADLIGHT     = 'f',
 		TYPE_b_BRAKELIGHT    = 'b',
 		TYPE_l_LEFT_BLINKER  = 'l',
 		TYPE_r_RIGHT_BLINKER = 'r',
 		TYPE_R_REVERSE_LIGHT = 'R',
 		TYPE_u_USER          = 'u',
-		TYPE_END             = 9999,
 
 		TYPE_INVALID         = 0xFFFFFFFF
 	};
@@ -1475,14 +1467,12 @@ struct Trigger
 
 	enum EngineTriggerFunction
 	{
-		ENGINE_TRIGGER_FUNCTION_BEGIN,
 		ENGINE_TRIGGER_FUNCTION_CLUTCH      = 0,
 		ENGINE_TRIGGER_FUNCTION_BRAKE       = 1,
 		ENGINE_TRIGGER_FUNCTION_ACCELERATOR = 2,
 		ENGINE_TRIGGER_FUNCTION_RPM_CONTROL = 3,
 		ENGINE_TRIGGER_FUNCTION_SHIFT_UP    = 4, ///< Do not mix with OPTION_t_CONTINUOUS
 		ENGINE_TRIGGER_FUNCTION_SHIFT_DOWN  = 5, ///< Do not mix with OPTION_t_CONTINUOUS
-		ENGINE_TRIGGER_FUNCTION_END,
 
 		ENGINE_TRIGGER_FUNCTION_INVALID     = 0xFFFFFFFF
 	};
@@ -1528,14 +1518,11 @@ struct ManagedMaterial
 	/* IMPORTANT! Order of these values must match Regexes::IDENTIFY_MANAGED_MATERIAL_TYPE enum from Regexes.h */
 	enum Type
 	{
-		TYPE_BEGIN,
-
 		TYPE_FLEXMESH_STANDARD = 1,
 		TYPE_FLEXMESH_TRANSPARENT,
 		TYPE_MESH_STANDARD,
 		TYPE_MESH_TRANSPARENT,
 
-		TYPE_END,
 		TYPE_INVALID = 0xFFFFFFFF
 	};
 
@@ -1663,8 +1650,6 @@ struct Prop
 	/* IMPORTANT! Values must match results from Regexes::SPECIAL_PROPS */
 	enum Special
 	{
-		SPECIAL_BEGIN = 0,
-		
 		SPECIAL_LEFT_REAR_VIEW_MIRROR = 1,
 		SPECIAL_RIGHT_REAR_VIEW_MIRROR,
 		SPECIAL_STEERING_WHEEL_LEFT_HANDED,
@@ -1677,7 +1662,6 @@ struct Prop
 		SPECIAL_REDBEACON,
 		SPECIAL_LIGHTBAR,
 
-		SPECIAL_END = 9999,
 		SPECIAL_INVALID = 0xFFFFFFFF
 	};
 
@@ -1813,11 +1797,10 @@ struct SoundSource2: SoundSource
 {
 	enum Mode
 	{
-		MODE_BEGIN   = 0,
 		MODE_ALWAYS  = -2,
 		MODE_OUTSIDE = -1,
 		MODE_CINECAM = 1,
-		MODE_END     = 0xFFFFFFFE,
+
 		MODE_INVALID = 0xFFFFFFFF
 	};
 
@@ -1908,10 +1891,9 @@ struct Tie
 
 	enum Options
 	{
-		OPTIONS_BEGIN = 0,
 		OPTIONS_VISIBLE = 'n',
 		OPTIONS_INVISIBLE = 'i',
-		OPTIONS_END = 99,
+
 		OPTIONS_INVALID = 0xFFFFFFFF
 	};
 
@@ -2036,8 +2018,6 @@ struct Wing
 
 	enum Control
 	{
-		CONTROL_BEGIN                   = 0,
-
 		CONTROL_n_NONE                  = 'n',
 		CONTROL_a_RIGHT_AILERON         = 'a',
 		CONTROL_b_LEFT_AILERON          = 'b',
@@ -2054,8 +2034,6 @@ struct Wing
 		CONTROL_V_LEFT_HAND_TAILERON    = 'V',
 		CONTROL_i_RIGHT_RUDDERVATOR     = 'i',
 		CONTROL_j_LEFT_RUDDERVATOR      = 'j',
-
-		CONTROL_END                     = 0xFFFFFFFE,
 
 		CONTROL_INVALID                 = 0xFFFFFFFF
 	};
@@ -2272,8 +2250,6 @@ struct File
 
 	enum Section
 	{
-		SECTION_BEGIN,
-
 		SECTION_AIRBRAKES,
 		SECTION_AUTHOR,
 		SECTION_ANIMATORS,
@@ -2342,14 +2318,11 @@ struct File
 
 		SECTION_NONE,       ///< Right after rig name, for example.
 
-		SECTION_END,
-
 		SECTION_INVALID = 0xFFFFFFFF
 	};
 
 	enum Subsection
 	{
-		SUBSECTION_BEGIN = -1,
 		SUBSECTION_NONE = 0,
 
 		SUBSECTION__FLEXBODIES__PROPLIKE_LINE,
@@ -2357,8 +2330,6 @@ struct File
 
 		SUBSECTION__SUBMESH__TEXCOORDS,
 		SUBSECTION__SUBMESH__CAB,
-
-		SUBSECTION_END = 99999,
 
 		SUBSECTION_INVALID = 0xFFFFFFFF
 	};
