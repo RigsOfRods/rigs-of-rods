@@ -20,15 +20,15 @@
 */
 
 /**
-	@file   RigDefParser.cpp
+	@file   RigDef_Parser.cpp
 	@author Petr Ohlidal
 	@date   12/2013
 */
 
-#include "RigDefParser.h"
+#include "RigDef_Parser.h"
 
-#include "RigDefFile.h"
-#include "RigDefRegexes.h"
+#include "RigDef_File.h"
+#include "RigDef_Regexes.h"
 #include "BitFlags.h"
 
 #include <OgreString.h>
@@ -3997,7 +3997,8 @@ void Parser::ParseShocks2(Ogre::String const & line)
 				case 's':
 					BITMASK_SET_1(shock_2.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS);
 					break;
-
+				case 'n':
+					break; // Placeholder, does nothing.
 				default:
 					std::stringstream msg;
 					msg << "Invalid option: '" << options_str.at(i) << "', ignoring...";

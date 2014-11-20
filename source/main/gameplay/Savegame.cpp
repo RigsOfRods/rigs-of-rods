@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Savegame.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
@@ -32,6 +33,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRVersion.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 const char *Savegame::current_version = "ROR_SAVEGAME_v2";
 
@@ -53,7 +55,7 @@ int Savegame::save(Ogre::String &filename)
 	{
 		LOG("error opening savegame");
 #ifdef USE_MYGUI
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("error opening savegame"), "error.png");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("error opening savegame"), "error.png");
 #endif // USE_MYGUI
 		return 1;
 	}
@@ -214,7 +216,7 @@ int Savegame::save(Ogre::String &filename)
 	// and we are done :)
 	LOG("saving done");
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("saving done"), "information.png");
+	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("saving done"), "information.png");
 #endif // USE_MYGUI
 
 	fclose(f);
@@ -233,7 +235,7 @@ int Savegame::load(Ogre::String &filename)
 	{
 		LOG("error opening savegame");
 #ifdef USE_MYGUI
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("error opening savegame"), "error.png");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("error opening savegame"), "error.png");
 #endif // USE_MYGUI
 		return 1;
 	}
@@ -251,7 +253,7 @@ int Savegame::load(Ogre::String &filename)
 			String errstr = _L("unknown savegame version: ") + String(h.savegame_version) + _L(" supported version: ") + String(current_version);
 			LOG(errstr);
 #ifdef USE_MYGUI
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, errstr, "error.png");
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, errstr, "error.png");
 #endif // USE_MYGUI
 			fclose(f);
 			return 1;
@@ -302,7 +304,7 @@ int Savegame::load(Ogre::String &filename)
 		{
 			LOG(_L("savegame corrupted: ") + filename);
 #ifdef USE_MYGUI
-			Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("savegame corrupted: ") + filename, "error.png");
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("savegame corrupted: ") + filename, "error.png");
 #endif // USE_MYGUI
 			fclose(f);
 			return 1;
@@ -501,7 +503,7 @@ int Savegame::load(Ogre::String &filename)
 	// and we are done :)
 	LOG("loading done.");
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("loading done."), "error.png");
+	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("loading done."), "error.png");
 #endif // USE_MYGUI
 	fclose(f);
 	return 0;

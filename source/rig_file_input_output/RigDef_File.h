@@ -20,7 +20,7 @@
 */
 
 /** 
-	@file RigDefFile.h
+	@file   RigDef_File.h
 	@author Petr Ohlidal
 	@date   12/2013
 	@brief Structures which represent a rig-definition file (1:1 match) 
@@ -85,13 +85,7 @@ struct CameraSettings
 
 struct NodeDefaults
 {
-	NodeDefaults():
-		load_weight(-1.f),
-		friction(1),
-		volume(1),
-		surface(1),
-		options(0)
-	{}
+	NodeDefaults();
 
 	float load_weight;
 	float friction;
@@ -189,6 +183,18 @@ struct Node
 
 	public:
 
+		struct Hasher: public std::hash<Id>
+		{
+			size_t operator()(Id const & id) const
+			{
+				// Only one member has a non-zero value at any time.
+				// FIXME: Not an ideal solution
+				std::hash<unsigned int> UintHasher;
+				std::hash<Ogre::String> StringHasher;
+				return UintHasher(id.m_id_num) + StringHasher(id.m_id_str);
+			}
+		};
+
 		Id():
 			m_id_num(INVALID_ID_VALUE)
 		{}
@@ -236,7 +242,7 @@ struct Node
 			return m_id_num;
 		}
 
-		bool Compare(Id const & rhs)
+		bool Compare(Id const & rhs) const
 		{
 			if (m_id_str.empty() && rhs.m_id_str.empty())
 			{
@@ -258,7 +264,12 @@ struct Node
 			return Compare(rhs);
 		}
 
-		Ogre::String ToString()
+		bool operator==(Id const & rhs) const
+		{
+			return Compare(rhs);
+		}
+
+		Ogre::String ToString() const
 		{
 			if (! m_id_str.empty())
 			{
@@ -1021,12 +1032,9 @@ struct MeshWheel: BaseWheel
 
 	enum Side
 	{
-		SIDE_BEGIN = 0,
-		SIDE_RIGHT = 'r',
-		SIDE_LEFT = 'l',
-		SIDE_END = 9999,
-		
-		SIDE_INVALID = 0xFFFFFFFF
+		SIDE_INVALID   = 0,
+		SIDE_RIGHT     = 'r',
+		SIDE_LEFT      = 'l'
 	};
 
 	Side side;

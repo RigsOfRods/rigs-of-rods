@@ -21,33 +21,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __RoRFrameListener_H_
 
 #include "RoRPrerequisites.h"
-
 #include "BeamData.h"
-#include "Ogre.h"
 
+#include <Ogre.h>
 #include <pthread.h>
-
-// Forward declarations
-class Character;
-class Envmap;
-class ForceFeedback;
-
-namespace MOC
-{
-	class CollisionTools;
-}
-
-namespace Ogre
-{
-	class TerrainGroup;
-}
-
 
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
+	friend class RoR::MainThread; // Temporary hack
+
 public:
-	// Constructor takes a RenderWindow because it uses that to determine input context
-	RoRFrameListener(AppState *parent, Ogre::String inputhwnd=0);
+
+	RoRFrameListener();
 	virtual ~RoRFrameListener();
 
 	ChatSystem *netChat;
@@ -57,8 +42,6 @@ public:
 	float netcheckGUITimer;
 
 	int loading_state;
-
-	enum LoadingStatuses { NONE_LOADED, TERRAIN_LOADED, ALL_LOADED, EXITING, EDITING, RELOADING, PAUSE, TERRAIN_EDITOR };
 	
 	Ogre::Vector3 reload_pos;
 
@@ -68,65 +51,37 @@ protected:
 	MPlatform_Base *mplatform;
 #endif //USE_MPLATFORM
 
-#ifdef USE_OIS_G27
-	OIS::Win32LogitechLEDs *leds;
-#endif //USE_OIS_G27
-
-	AppState *parentState;
 	Dashboard *dashboard;
 	DOFManager *dof;
 	ForceFeedback *forcefeedback;
 	HeatHaze *heathaze;
 
 	Ogre::Quaternion reload_dir;
-	Ogre::Real distgrabbed;
 	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
-	Ogre::SceneNode *dirArrowNode;
-	Ogre::SceneNode *pointerDestination;
-	Ogre::String inputhwnd;
-	Ogre::String terrainUID;
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
 
-	OverlayWrapper *ow;
-	bool benchmarking;
-	bool chatlock;
 	bool dirvisible;
 	bool enablePosStor;
 	bool flipflop;
 	bool hidegui;
-	bool initialized;
 	bool mTruckInfoOn;
 	bool pressure_pressed;
 
 	char screenshotformat[256];
-	char terrainmap[1024];
 	
 	collision_box_t *reload_box;
 	double rtime;
 
 	float clutch;
-	float mouseGrabForce;
 	float terrainxsize;
 	float terrainzsize;
 	//float truckx, trucky, truckz;
 
 	int flaresMode;
-	int gameStartTime;
-	int inputGrabMode;
-	int joyshiftlock;
 	int mStatsOn;
-	int mouseGrabState;
 	int netPointToUID;
-	int nodegrabbed;
-	int objectCounter;
 	int raceStartTime;
-	int screenHeight;
-	int screenWidth;
-	int shaderSchemeMode;
-	int truckgrabbed;
-	
-
 
 	unsigned int mNumScreenShots;
 	
@@ -138,7 +93,6 @@ protected:
 
 	void initSoftShadows();
 	void initializeCompontents();
-	void updateGUI(float dt); // update engine panel
 	void updateIO(float dt);
 	void updateStats(void);
 
@@ -149,28 +103,21 @@ protected:
 
 public: // public methods
 
-	OverlayWrapper *getOverlayWrapper() { return ow; };
-
 	bool RTSSgenerateShadersForMaterial(Ogre::String curMaterialName, Ogre::String normalTextureName);
 	bool frameEnded(const Ogre::FrameEvent& evt);
 	bool frameStarted(const Ogre::FrameEvent& evt); // Override frameStarted event to process that (don't care about frameEnded)
 
 	bool updateEvents(float dt);
 	double getTime() { return rtime; };
-	float stopTimer();
 
 	int getLoadingState() { return loading_state; };
 	int getNetPointToUID() { return netPointToUID; };
 
-	void changedCurrentTruck(Beam *previousTruck, Beam *currentTruck);
 	void checkRemoteStreamResultsChanged();
 	void hideGUI(bool visible);
 	void hideMap();
 	void initTrucks(bool loadmanual, Ogre::String selected, Ogre::String selectedExtension = "", const std::vector<Ogre::String> *truckconfig = 0, bool enterTruck = false, Skin *skin = NULL);
-	
-	void loadTerrain(Ogre::String terrainfile);
 
-	void checkSpeedlimit(Beam* curr_truck, float dt);
 	void netDisconnectTruck(int number);
 	void pauseSim(bool value);
 	void reloadCurrentTruck();
@@ -182,10 +129,8 @@ public: // public methods
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void showspray(bool s);
 	void shutdown_final();
-	void startTimer();
-	void updateCruiseControl(Beam* curr_truck, float dt);
-	void updateRacingGUI();
-	void windowResized(Ogre::RenderWindow* rw); // this needs to be public so we can call it manually in embedded mode
+	void Restart();
+	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 };
 
 #endif // __RoRFrameListener_H_

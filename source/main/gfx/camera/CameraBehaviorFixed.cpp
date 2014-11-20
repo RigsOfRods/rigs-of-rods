@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorFixed.h"
 
+#include "Application.h"
 #include "Console.h"
 #include "Language.h"
 
@@ -27,6 +28,12 @@ using namespace Ogre;
 void CameraBehaviorFixed::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("fixed free camera"), "camera_link.png", 3000);
+	RoR::Application::GetConsole()->putMessage(
+		RoR::Console::CONSOLE_MSGTYPE_INFO, 
+		RoR::Console::CONSOLE_SYSTEM_NOTICE, 
+		_L("fixed free camera"), 
+		"camera_link.png", 
+		3000
+	);
 #endif // USE_MYGUI
 }

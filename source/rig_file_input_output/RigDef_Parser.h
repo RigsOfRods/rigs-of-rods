@@ -20,14 +20,14 @@
 */
 
 /**
-	@file   RigDefParser.cpp
+	@file   RigDef_Parser.h
 	@author Petr Ohlidal
 	@date   12/2013
 */
 
 #pragma once
 
-#include "RigDefFile.h"
+#include "RigDef_File.h"
 
 #include <string>
 #include <boost/regex.hpp>

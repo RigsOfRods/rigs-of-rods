@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
+#include "Application.h"
 #include "LobbyGUI.h"
 #include "Scripting.h"
 #include "InputEngine.h"
@@ -319,7 +320,7 @@ void LobbyGUI::update(float dt)
 void LobbyGUI::eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
 	if (!current_tab) return;
-	if (_key == MyGUI::KeyCode::Escape || _key == MyGUI::KeyCode::Enum(INPUTENGINE.getKeboardKeyForCommand(EV_COMMON_CONSOLEDISPLAY)))
+	if (_key == MyGUI::KeyCode::Escape || _key == MyGUI::KeyCode::Enum(RoR::Application::GetInputEngine()->getKeboardKeyForCommand(EV_COMMON_CONSOLEDISPLAY)))
 	{
 		setVisible(false);
 		// delete last character (to avoid printing `)

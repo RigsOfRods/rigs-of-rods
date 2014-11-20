@@ -234,7 +234,7 @@ namespace wraps
 			shutdown();
 		}
 
-	protected:
+	public:
 		MyGUI::Widget* mMainWidget;
 
 	private:

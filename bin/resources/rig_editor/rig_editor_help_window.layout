@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCSX" position="0 0 400 400" layer="Main" name="rig_editor_help_window">
+        <Property key="Caption" value="Rig editor help"/>
+        <Widget type="EditBox" skin="EditBoxStretch" position="0 0 390 365" align="HStretch VStretch"/>
+    </Widget>
+</MyGUI>

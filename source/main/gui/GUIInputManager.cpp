@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_MYGUI
 #include "GUIInputManager.h"
 
+#include "Application.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
 #include "SceneMouse.h"
@@ -103,7 +104,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 	activateGUI();
 	MyGUI::PointerManager::getInstance().setPointer("arrow");
 
-	// fallback, handle by GUI, then by SceneMouse
+	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
 
 	if (handled)
@@ -116,15 +117,15 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 			handled = false;
 	}
 
-	if (!handled && gEnv->frameListener->getOverlayWrapper())
+	if (!handled && RoR::Application::GetOverlayWrapper() != nullptr)
 	{
 		// update the old airplane / autopilot gui
-		handled = gEnv->frameListener->getOverlayWrapper()->mouseMoved(_arg);
+		handled = RoR::Application::GetOverlayWrapper()->mouseMoved(_arg);
 	}
 
 	if (!handled)
 	{
-		SceneMouse *sm = SceneMouse::getSingletonPtr();
+		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
 		if (sm)
 		{
 			// not handled by gui
@@ -159,7 +160,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 	GUI_MainMenu *menu =GUI_MainMenu::getSingletonPtr();
 	if (menu) menu->updatePositionUponMousePosition(mCursorX, mCursorY);
 
-	// fallback, handle by GUI, then by SceneMouse
+	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectMousePress(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
 
 	if (handled)
@@ -172,15 +173,15 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 			handled = false;
 	}
 
-	if (!handled && gEnv->frameListener->getOverlayWrapper())
+	if (!handled && RoR::Application::GetOverlayWrapper())
 	{
 		// update the old airplane / autopilot gui
-		handled = gEnv->frameListener->getOverlayWrapper()->mousePressed(_arg, _id);
+		handled = RoR::Application::GetOverlayWrapper()->mousePressed(_arg, _id);
 	}
 
 	if (!handled)
 	{
-		SceneMouse *sm = SceneMouse::getSingletonPtr();
+		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
 		if (sm) return sm->mousePressed(_arg, _id);
 	}
 	return handled;
@@ -190,7 +191,7 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 {
 	activateGUI();
 
-	// fallback, handle by GUI, then by SceneMouse
+	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectMouseRelease(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
 
 
@@ -204,15 +205,15 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 			handled = false;
 	}
 
-	if (!handled && gEnv->frameListener->getOverlayWrapper())
+	if (!handled && RoR::Application::GetOverlayWrapper())
 	{
 		// update the old airplane / autopilot gui
-		handled = gEnv->frameListener->getOverlayWrapper()->mouseReleased(_arg, _id);
+		handled = RoR::Application::GetOverlayWrapper()->mouseReleased(_arg, _id);
 	}
 
 	if (!handled)
 	{
-		SceneMouse *sm = SceneMouse::getSingletonPtr();
+		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
 		if (sm) return sm->mouseReleased(_arg, _id);
 	}
 	return handled;
@@ -240,7 +241,7 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 #endif
 	}
 	
-	// fallback, handle by GUI, then by SceneMouse
+	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectKeyPress(key, text);
 
 	if (handled)
@@ -253,7 +254,7 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
 	if (!handled)
 	{
-		SceneMouse *sm = SceneMouse::getSingletonPtr();
+		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
 		if (sm) return sm->keyPressed(_arg);
 	}
 
@@ -262,7 +263,7 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
 bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 {
-	// fallback, handle by GUI, then by SceneMouse
+	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectKeyRelease(MyGUI::KeyCode::Enum(_arg.key));
 
 	if (handled)
@@ -275,7 +276,7 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 
 	if (!handled)
 	{
-		SceneMouse *sm = SceneMouse::getSingletonPtr();
+		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
 		if (sm) return sm->keyReleased(_arg);
 	}
 

@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "TextureToolWindow.h"
 
+#include "Application.h"
 #include "Console.h"
 #include "Ogre.h"
 #include "Settings.h"
@@ -28,6 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 TextureToolWindow::TextureToolWindow()
 {
@@ -105,12 +107,12 @@ void TextureToolWindow::saveTexture( String texName, bool usePNG )
 		img.save(outname);
 
 		UTFString msg = _L("saved texture as ") + outname;
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, msg, "information.png");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, msg, "information.png");
 	}
 	catch(Exception &e)
 	{
 		UTFString str = "Exception while saving image: " + e.getFullDescription();
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
 	}
 }
 
@@ -187,7 +189,7 @@ void TextureToolWindow::updateControls( String texName )
 	catch(Exception &e)
 	{
 		UTFString str = "Exception while opening texture:" + e.getFullDescription();
-		Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
 	}
 }
 

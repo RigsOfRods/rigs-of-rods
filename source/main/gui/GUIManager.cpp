@@ -1,30 +1,37 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// based on the basemanager code from mygui common
-#ifdef USE_MYGUI
+
+/** 
+	@file   GUIManager.h
+	@author based on the basemanager code from mygui common
+*/
 
 #include "GUIManager.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
+#include "GUI_RigEditorMenubar.h"
 #include "Language.h"
+#include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
 #include "RTTLayer.h"
 #include "Settings.h"
@@ -33,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI_OgrePlatform.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 GUIManager::GUIManager() :
 	mExit(false),
@@ -40,7 +48,6 @@ GUIManager::GUIManager() :
 	mPlatform(nullptr),
 	mResourceFileName("MyGUI_Core.xml")
 {
-	setSingleton(this);
 	create();
 }
 
@@ -50,10 +57,10 @@ GUIManager::~GUIManager()
 
 bool GUIManager::create()
 {
-	gEnv->ogreRoot->addFrameListener(this);
-	RoRWindowEventUtilities::addWindowEventListener(gEnv->renderWindow, this);
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), this);
 
-	windowResized(gEnv->renderWindow);
+	windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	createGui();
 #ifdef WIN32
 	MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
@@ -76,7 +83,7 @@ void GUIManager::createGui()
 {
 	String gui_logfilename = SSETTING("Log Path", "") + "mygui.log";
 	mPlatform = new MyGUI::OgrePlatform();
-	mPlatform->initialise(gEnv->renderWindow, gEnv->sceneManager, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, gui_logfilename); // use cache resource group so preview images are working
+	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->sceneManager, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, gui_logfilename); // use cache resource group so preview images are working
 	mGUI = new MyGUI::Gui();
 
 	// empty init
@@ -91,7 +98,7 @@ void GUIManager::createGui()
 	MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
 
 	// move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
-	MyGUI::InputManager::getInstance().injectMouseMove(gEnv->renderWindow->getWidth()*0.5f, gEnv->renderWindow->getHeight()*0.5f, 0);
+	MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
 
 	// now find that font texture and save it - for debugging purposes
 	/*
@@ -112,7 +119,7 @@ void GUIManager::createGui()
 
 	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
 	MyGUI::PointerManager::getInstance().setVisible(true);
-	Console *c = Console::getSingletonPtrNoCreation();
+	Console *c = RoR::Application::GetConsole();
 	if (c) c->resized();
 }
 
@@ -163,7 +170,7 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
 	BeamFactory *bf = BeamFactory::getSingletonPtr();
 	if (bf) bf->windowResized();
 
-	Console *c = Console::getSingletonPtrNoCreation();
+	Console *c = RoR::Application::GetConsole();
 	if (c) c->resized();
 }
 
@@ -194,4 +201,7 @@ String GUIManager::getRandomWallpaperImage()
 	return files->at(num).filename;
 }
 
-#endif // USE_MYGUI
+void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
+{
+	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
+}

@@ -1,26 +1,30 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifdef USE_CAELUM
 
 #include "SkyManager.h"
 
+#include "Application.h"
+#include "OgreSubsystem.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
@@ -33,8 +37,12 @@ using namespace Ogre;
 SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 {
 	// Initialise CaelumSystem.
-	mCaelumSystem = new Caelum::CaelumSystem (gEnv->ogreRoot, gEnv->sceneManager, Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE);
-	mCaelumSystem->attachViewport(gEnv->viewPort);
+	mCaelumSystem = new Caelum::CaelumSystem (
+		RoR::Application::GetOgreSubsystem()->GetOgreRoot(), 
+		gEnv->sceneManager, 
+		Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE
+	);
+	mCaelumSystem->attachViewport(RoR::Application::GetOgreSubsystem()->GetViewport());
 
 	/*
 	// TODO: set real time, and let the user select his true location
@@ -45,8 +53,8 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 	*/
 
 	// Register caelum as a listener.
-	gEnv->renderWindow->addListener (mCaelumSystem);
-	gEnv->ogreRoot->addFrameListener(mCaelumSystem);
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->addListener (mCaelumSystem);
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(mCaelumSystem);
 }
 
 SkyManager::~SkyManager()

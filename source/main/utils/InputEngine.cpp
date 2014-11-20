@@ -1,22 +1,24 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "InputEngine.h"
 
 // some gcc fixes
@@ -24,14 +26,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif //OGRE_PLATFORM_LINUX
 
+#include "Application.h"
+#include "ErrorUtils.h"
+#include "OgreSubsystem.h"
+#include "RoRWindowEventUtilities.h"
+#include "Settings.h"
+
 #include <Ogre.h>
 #include <OgreStringConverter.h>
 #include <OgreException.h>
-
-#include "AdvancedOgreFramework.h"
-#include "ErrorUtils.h"
-#include "RoRWindowEventUtilities.h"
-#include "Settings.h"
 
 #ifndef NOOGRE
 #include "Console.h"
@@ -1843,15 +1846,6 @@ void InputEngine::destroy()
 bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabMode, bool captureKbd)
 {
 	grabMode = _grabMode;
-
-	// grab mode override in embedded mode
-	if (gEnv->embeddedMode)
-	{
-		grabMode = GRAB_DYNAMICALLY;
-#ifndef NOOGRE
-		LOG("*** EMBEDDED INPUT MODE ***");
-#endif
-	}
 	
 #ifndef NOOGRE
 	LOG("*** Initializing OIS ***");
@@ -1996,11 +1990,11 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 		// set the mouse to the middle of the screen, hackish!
 #if WIN32
 		// under linux, this will not work and the cursor will never reach (0,0)
-		if (mMouse && gEnv->renderWindow)
+		if (mMouse && RoR::Application::GetOgreSubsystem()->GetRenderWindow())
 		{
 			OIS::MouseState &mutableMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-			mutableMouseState.X.abs = gEnv->renderWindow->getWidth()  * 0.5f;
-			mutableMouseState.Y.abs = gEnv->renderWindow->getHeight() * 0.5f;
+			mutableMouseState.X.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()  * 0.5f;
+			mutableMouseState.Y.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
 		}
 #endif // WIN32
 	}
@@ -2161,8 +2155,37 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
 	ms.width = width;
 	ms.height = height;
 #ifdef USE_MYGUI
-	GUIManager::getSingleton().windowResized(rw);
+	RoR::Application::GetGuiManager()->windowResized(rw);
 #endif //MYGUI
+}
+
+void InputEngine::SetKeyboardListener(OIS::KeyListener* keyboard_listener)
+{
+	assert (mKeyboard != nullptr);
+	mKeyboard->setEventCallback(keyboard_listener);
+}
+
+OIS::MouseState InputEngine::SetMouseListener(OIS::MouseListener* mouse_listener)
+{
+	assert (mMouse != nullptr);
+	mMouse->setEventCallback(mouse_listener);
+	return mMouse->getMouseState();
+}
+
+void InputEngine::RestoreMouseListener()
+{
+	if (mMouse)
+	{
+		mMouse->setEventCallback(this);
+
+		// init states (not required for keyboard)
+		mouseState = mMouse->getMouseState();
+	}
+}
+
+void InputEngine::RestoreKeyboardListener()
+{
+	SetKeyboardListener(this);
 }
 
 /* --- Joystik Events ------------------------------------------ */
@@ -2220,7 +2243,7 @@ bool InputEngine::povMoved( const OIS::JoyStickEvent &arg, int )
 bool InputEngine::keyPressed( const OIS::KeyEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().keyPressed(arg))
+	if (RoR::Application::GetGuiManager()->keyPressed(arg))
 		return true;
 #endif //MYGUI
 
@@ -2235,7 +2258,7 @@ bool InputEngine::keyPressed( const OIS::KeyEvent &arg )
 bool InputEngine::keyReleased( const OIS::KeyEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().keyReleased(arg))
+	if (RoR::Application::GetGuiManager()->keyReleased(arg))
 		return true;
 #endif //MYGUI
 	//LOG("*** keyReleased");
@@ -2249,7 +2272,7 @@ bool InputEngine::keyReleased( const OIS::KeyEvent &arg )
 bool InputEngine::mouseMoved( const OIS::MouseEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().mouseMoved(arg))
+	if (RoR::Application::GetGuiManager()->mouseMoved(arg))
 		return true;
 #endif //MYGUI
 	//LOG("*** mouseMoved");
@@ -2261,7 +2284,7 @@ bool InputEngine::mouseMoved( const OIS::MouseEvent &arg )
 bool InputEngine::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().mousePressed(arg, id))
+	if (RoR::Application::GetGuiManager()->mousePressed(arg, id))
 		return true;
 #endif //MYGUI
 	//LOG("*** mousePressed");
@@ -2273,7 +2296,7 @@ bool InputEngine::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID i
 bool InputEngine::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 #ifdef USE_MYGUI
-	if (GUIManager::getSingleton().mouseReleased(arg, id))
+	if (RoR::Application::GetGuiManager()->mouseReleased(arg, id))
 		return true;
 #endif //MYGUI
 	//LOG("*** mouseReleased");
@@ -3695,27 +3718,12 @@ void InputEngine::setupDefault(Ogre::String inputhwnd /* = "" */)
 	else if (inputGrabSetting == "None")
 		inputGrabMode = GRAB_NONE;
 
-	if (!gEnv->embeddedMode)
-	{
+	// start input engine
+	size_t hWnd = 0;
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
 
-		// start input engine
-		size_t hWnd = 0;
-		gEnv->renderWindow->getCustomAttribute("WINDOW", &hWnd);
+	this->setup(TOSTRING(hWnd), true, true, inputGrabMode);
 
-		INPUTENGINE.setup(TOSTRING(hWnd), true, true, inputGrabMode);
-	} else
-	{
-	#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-		size_t windowHnd = 0;
-		std::ostringstream windowHndStr;
-		gEnv->renderWindow->getCustomAttribute("GLXWINDOW", &windowHnd );
-		windowHndStr << windowHnd;
-		printf("#### GLXWINDOW = %s\n", windowHndStr.str().c_str());
-		INPUTENGINE.setup(windowHndStr.str(), true, true, GRAB_NONE);
-	#else
-		INPUTENGINE.setup(inputhwnd, true, true, GRAB_NONE);
-	#endif
-	}
 }
 
 String InputEngine::getKeyForCommand( int eventID )

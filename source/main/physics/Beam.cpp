@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AirBrake.h"
 #include "Airfoil.h"
+#include "Application.h"
 #include "ApproxMath.h"
 #include "AutoPilot.h"
 #include "BeamData.h"
@@ -65,8 +66,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboProp.h"
 #include "Water.h"
 
-#include "RigDefParser.h"
-#include "RigDefValidator.h"
+#include "RigDef_Parser.h"
+#include "RigDef_Validator.h"
 
 // DEBUG
 #include "../../../tools/rig_inspector/RoR_RigInspector.h"
@@ -77,6 +78,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif //OGRE_PLATFORM_LINUX
 
 using namespace Ogre;
+using namespace RoR;
 
 Beam::~Beam()
 {
@@ -1731,7 +1733,7 @@ void Beam::sendStreamData()
 	int final_packet_size = sizeof(oob_t) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
 	if (final_packet_size > (int)maxPacketLen)
 	{
-		showError(_L("Truck is too big to be send over the net."), _L("Network error!"));
+		ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
 		exit(126);
 	}
 
@@ -3453,7 +3455,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (state==ACTIVATED) // no network!!
 			{
 				// networked customs are set directly, so skip this
-				if (INPUTENGINE.getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
+				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
 				{
 					flares[i].controltoggle_status = ! flares[i].controltoggle_status;
 					keysleep = true;
@@ -5259,7 +5261,7 @@ void Beam::updateAI(float dt)
 
 	/*
 	String txt = "AI:"+TOSTRING(mSteeringForce);
-	gEnv->frameListener->getOverlayWrapper()->flashMessage(txt, 1, -1);
+	RoR::Application::GetOverlayWrapper()->flashMessage(txt, 1, -1);
 	*/
 
 	// actually steer
@@ -5641,27 +5643,27 @@ void Beam::updateDashBoards(float &dt)
 	float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
 	Vector3 upv=dirv.crossProduct(-rollv);
 	if (upv.y<0) rollangle=3.14159-rollangle;
-	ow->adibugstexture->setTextureRotate(Radian(-rollangle));
-	ow->aditapetexture->setTextureVScroll(-pitchangle*0.25);
-	ow->aditapetexture->setTextureRotate(Radian(-rollangle));
+	RoR::Application::GetOverlayWrapper()->adibugstexture->setTextureRotate(Radian(-rollangle));
+	RoR::Application::GetOverlayWrapper()->aditapetexture->setTextureVScroll(-pitchangle*0.25);
+	RoR::Application::GetOverlayWrapper()->aditapetexture->setTextureRotate(Radian(-rollangle));
 
 	// HSI - Horizontal Situation Indicator
 	Vector3 idir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
 	//			idir.normalise();
 	float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
-	ow->hsirosetexture->setTextureRotate(Radian(dirangle));
+	RoR::Application::GetOverlayWrapper()->hsirosetexture->setTextureRotate(Radian(dirangle));
 	if (curr_truck->autopilot)
 	{
-		ow->hsibugtexture->setTextureRotate(Radian(dirangle)-Degree(curr_truck->autopilot->heading));
+		RoR::Application::GetOverlayWrapper()->hsibugtexture->setTextureRotate(Radian(dirangle)-Degree(curr_truck->autopilot->heading));
 		float vdev=0;
 		float hdev=0;
 		curr_truck->autopilot->getRadioFix(localizers, free_localizer, &vdev, &hdev);
 		if (hdev>15) hdev=15;
 		if (hdev<-15) hdev=-15;
-		ow->hsivtexture->setTextureUScroll(-hdev*0.02);
+		RoR::Application::GetOverlayWrapper()->hsivtexture->setTextureUScroll(-hdev*0.02);
 		if (vdev>15) vdev=15;
 		if (vdev<-15) vdev=-15;
-		ow->hsihtexture->setTextureVScroll(-vdev*0.02);
+		RoR::Application::GetOverlayWrapper()->hsihtexture->setTextureVScroll(-vdev*0.02);
 	}
 
 	// VVI - Vertical Velocity Indicator
@@ -5671,66 +5673,66 @@ void Beam::updateDashBoards(float &dt)
 	if (vvi>6000.0) angle=105.75;
 	if (vvi<-1000.0 && vvi>-6000.0) angle=-47.0+(vvi+1000.0)*0.01175;
 	if (vvi<-6000.0) angle=-105.75;
-	ow->vvitexture->setTextureRotate(Degree(-angle+90.0));
+	RoR::Application::GetOverlayWrapper()->vvitexture->setTextureRotate(Degree(-angle+90.0));
 
 
 	if (curr_truck->aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[0];
 		//pitch
-		ow->airpitch1texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::Application::GetOverlayWrapper()->airpitch1texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		ow->airtorque1texture->setTextureRotate(Degree(-angle));
+		RoR::Application::GetOverlayWrapper()->airtorque1texture->setTextureRotate(Degree(-angle));
 	}
 
 	if (ftp>1 && curr_truck->aeroengines[1]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[1];
 		//pitch
-		ow->airpitch2texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::Application::GetOverlayWrapper()->airpitch2texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		ow->airtorque2texture->setTextureRotate(Degree(-angle));
+		RoR::Application::GetOverlayWrapper()->airtorque2texture->setTextureRotate(Degree(-angle));
 	}
 
 	if (ftp>2 && curr_truck->aeroengines[2]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[2];
 		//pitch
-		ow->airpitch3texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::Application::GetOverlayWrapper()->airpitch3texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		ow->airtorque3texture->setTextureRotate(Degree(-angle));
+		RoR::Application::GetOverlayWrapper()->airtorque3texture->setTextureRotate(Degree(-angle));
 	}
 
 	if (ftp>3 && curr_truck->aeroengines[3]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[3];
 		//pitch
-		ow->airpitch4texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::Application::GetOverlayWrapper()->airpitch4texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		ow->airtorque4texture->setTextureRotate(Degree(-angle));
+		RoR::Application::GetOverlayWrapper()->airtorque4texture->setTextureRotate(Degree(-angle));
 	}
 
 	//starters
-	if (curr_truck->aeroengines[0]->getIgnition()) ow->engstarto1->setMaterialName("tracks/engstart-on"); else ow->engstarto1->setMaterialName("tracks/engstart-off");
-	if (ftp>1 && curr_truck->aeroengines[1]->getIgnition()) ow->engstarto2->setMaterialName("tracks/engstart-on"); else ow->engstarto2->setMaterialName("tracks/engstart-off");
-	if (ftp>2 && curr_truck->aeroengines[2]->getIgnition()) ow->engstarto3->setMaterialName("tracks/engstart-on"); else ow->engstarto3->setMaterialName("tracks/engstart-off");
-	if (ftp>3 && curr_truck->aeroengines[3]->getIgnition()) ow->engstarto4->setMaterialName("tracks/engstart-on"); else ow->engstarto4->setMaterialName("tracks/engstart-off");
+	if (curr_truck->aeroengines[0]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto1->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto1->setMaterialName("tracks/engstart-off");
+	if (ftp>1 && curr_truck->aeroengines[1]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto2->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto2->setMaterialName("tracks/engstart-off");
+	if (ftp>2 && curr_truck->aeroengines[2]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto3->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto3->setMaterialName("tracks/engstart-off");
+	if (ftp>3 && curr_truck->aeroengines[3]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto4->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto4->setMaterialName("tracks/engstart-off");
 }
 
 #endif //0
@@ -6317,7 +6319,7 @@ bool Beam::LoadTruck(
 
 	try
 	{
-		CACHE.checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
+		RoR::Application::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
 
 		// error on ds open lower
 		// open the stream and start reading :)
@@ -6328,11 +6330,11 @@ bool Beam::LoadTruck(
 		return false;
 	}
 
-	//this->cacheEntryInfo = CACHE.getResourceInfo(filename);
+	//this->cacheEntryInfo = RoR::Application::GetCacheSystem()->getResourceInfo(filename);
 	if (ds.isNull() || !ds->isReadable())
 	{
 #ifdef USE_MYGUI
-		Console *console = Console::getSingletonPtrNoCreation();
+		Console *console = RoR::Application::GetConsole();
 		if (console != nullptr) 
 		{
 			console->putMessage(

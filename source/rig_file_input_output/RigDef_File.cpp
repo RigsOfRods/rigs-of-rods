@@ -20,12 +20,12 @@
 */
 
 /*
-	@file   RigDefFile.cpp
+	@file   RigDef_File.cpp
 	@author Petr Ohlidal
 	@date   12/2013
 */
 
-#include "RigDefFile.h"
+#include "RigDef_File.h"
 
 namespace RigDef
 {
@@ -101,6 +101,14 @@ Hook::Hook():
 	option_lockgroup(-1),
 	option_timer(5.f),
 	option_minimum_range_meters(0.f)
+{}
+
+NodeDefaults::NodeDefaults():
+	load_weight(-1.f),
+	friction(1),
+	volume(1),
+	surface(1),
+	options(0)
 {}
 
 Shock::Shock():

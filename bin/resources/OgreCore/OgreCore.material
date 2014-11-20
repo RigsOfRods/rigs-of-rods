@@ -36,24 +36,6 @@ material Core/StatsBlockBorder
 	}
 }
 
-material Core/RoRLoadingScreen
-{
-	technique
-	{
-		pass
-		{
-			lighting off
-			scene_blend alpha_blend
-			depth_check off
-
-			texture_unit
-			{
-				texture ror-promo-02b.jpg
-			}
-		}
-	}
-}
-
 material Core/StatsBlockCenter
 {
 	technique

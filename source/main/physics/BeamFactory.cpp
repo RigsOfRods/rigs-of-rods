@@ -22,11 +22,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamFactory.h"
 
+#include "Application.h"
 #include "BeamEngine.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -46,6 +48,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using namespace Ogre;
+using namespace RoR;
 
 template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
@@ -106,7 +109,7 @@ BeamFactory::BeamFactory() :
 		if (pthread_create(&worker_thread, NULL, threadstart, this))
 		{
 			LOG("BEAMFACTORY: Can not start a thread");
-			showError(UTFString("Error"), _L("Failed to start a thread."));
+			ErrorUtils::ShowError(UTFString("Error"), _L("Failed to start a thread."));
 			exit(1);
 		}
 	}
@@ -229,7 +232,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 			UTFString username = ChatSystem::getColouredName(*c);
 			UTFString message = username + ChatSystem::commandColour + _L(" spawned a new vehicle: ") + ChatSystem::normalColour + treg->name;
 #ifdef USE_MYGUI
-			Console *console = Console::getSingletonPtrNoCreation();
+			Console *console = RoR::Application::GetConsole();
 			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_VEHILCE_ADD, message, "car_add.png");
 #endif // USE_MYGUI
 		}
@@ -239,7 +242,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 	// check if we got this truck installed
 	String filename = String(treg->name);
 	String group = "";
-	if (!CACHE.checkResourceLoaded(filename, group))
+	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(filename, group))
 	{
 		LOG("wont add remote stream (truck not existing): '"+filename+"'");
 
@@ -663,7 +666,9 @@ void BeamFactory::removeCurrentTruck()
 void BeamFactory::setCurrentTruck(int new_truck)
 {
 	if (current_truck >= 0 && current_truck < free_truck && trucks[current_truck])
+	{
 		trucks[current_truck]->desactivate();
+	}
 
 	previous_truck = current_truck;
 	current_truck = new_truck;
@@ -671,13 +676,21 @@ void BeamFactory::setCurrentTruck(int new_truck)
 	if (gEnv->frameListener)
 	{
 		if (previous_truck >= 0 && current_truck >= 0)
-			gEnv->frameListener->changedCurrentTruck(trucks[previous_truck], trucks[current_truck]);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(trucks[previous_truck], trucks[current_truck]);
+		}
 		else if (previous_truck >= 0)
-			gEnv->frameListener->changedCurrentTruck(trucks[previous_truck], 0);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(trucks[previous_truck], nullptr);
+		}
 		else if (current_truck >= 0)
-			gEnv->frameListener->changedCurrentTruck(0, trucks[current_truck]);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(nullptr, trucks[current_truck]);
+		}
 		else
-			gEnv->frameListener->changedCurrentTruck(0, 0);
+		{
+			RoR::MainThread::ChangedCurrentVehicle(nullptr, nullptr);
+		}
 	}
 }
 

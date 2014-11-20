@@ -25,6 +25,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
+#define XZSTR(X,Z)   String("[") + TOSTRING(X) + String(",") + TOSTRING(Z) + String("]")
+
 TerrainGeometryManager::TerrainGeometryManager(TerrainManager *terrainManager) :
 	  terrainManager(terrainManager)
 	, disableCaching(false)
@@ -44,7 +46,7 @@ void TerrainGeometryManager::loadOgreTerrainConfig(String filename)
 
 	loadTerrainConfig(filename);
 
-	disableCaching = BOPT("disableCaching", false);
+	disableCaching = m_terrain_config.GetBool("disableCaching", false);
 
 	initTerrain();
 }
@@ -54,11 +56,11 @@ bool TerrainGeometryManager::loadTerrainConfig(String filename)
 	try
 	{
 		DataStreamPtr ds_config = ResourceGroupManager::getSingleton().openResource(filename, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-		terrainConfig.load(ds_config, "\t:=", false);
+		m_terrain_config.load(ds_config, "\t:=", false);
 		return true;
 	} catch(...)
 	{
-		terrainConfig.clear();
+		m_terrain_config.clear();
 	}
 	return false;
 }
@@ -117,22 +119,22 @@ Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
 void TerrainGeometryManager::initTerrain()
 {
 	// X, Y and Z scale
-	mapsizex = IOPT("WorldSizeX", 1024);
-	mapsizey = IOPT("WorldSizeY", 50);
-	mapsizez = IOPT("WorldSizeZ", 1024);
-	terrainSize = IOPT("PageSize", 1025);
+	mapsizex    = m_terrain_config.GetInt("WorldSizeX", 1024);
+	mapsizey    = m_terrain_config.GetInt("WorldSizeY", 50);
+	mapsizez    = m_terrain_config.GetInt("WorldSizeZ", 1024);
+	terrainSize = m_terrain_config.GetInt("PageSize", 1025);
 
 	worldSize = std::max(mapsizex, mapsizez);
 
 	String filenameSuffix = "mapbin";
 	pageMinX = 0;
-	pageMaxX = IOPT("PagesX", 0);
+	pageMaxX = m_terrain_config.GetInt("PagesX", 0);
 	pageMinZ = 0;
-	pageMaxZ = IOPT("PagesZ", 0);
+	pageMaxZ = m_terrain_config.GetInt("PagesZ", 0);
 
-	pageConfigFormat = SOPT("PageFileFormat", baseName + "-page-{X}-{Z}.otc");
+	pageConfigFormat = m_terrain_config.GetString("PageFileFormat", baseName + "-page-{X}-{Z}.otc");
 
-	bool is_flat = BOPT("Flat", false);
+	bool is_flat = m_terrain_config.GetBool("Flat", false);
 
 	terrainPos = Vector3(mapsizex / 2.0f, 0.0f, mapsizez / 2.0f);
 
@@ -234,7 +236,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	Light *light = gEnv->terrainManager->getMainLight();
 	TerrainGlobalOptions *terrainOptions = TerrainGlobalOptions::getSingletonPtr();
 	// Configure global
-	terrainOptions->setMaxPixelError(IOPT("MaxPixelError", 5));
+	terrainOptions->setMaxPixelError(m_terrain_config.GetInt("MaxPixelError", 5));
 
 	// Important to set these so that the terrain knows what to use for derived (non-realtime) data
 	if (light)
@@ -249,27 +251,27 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	defaultimp.terrainSize  = terrainSize; // the heightmap size
 	defaultimp.worldSize    = worldSize; // this is the scaled up size, like 12km
 	defaultimp.inputScale   = mapsizey;
-	defaultimp.minBatchSize = IOPT("minBatchSize", 33);
-	defaultimp.maxBatchSize = IOPT("maxBatchSize", 65);
+	defaultimp.minBatchSize = m_terrain_config.GetInt("minBatchSize", 33);
+	defaultimp.maxBatchSize = m_terrain_config.GetInt("maxBatchSize", 65);
 
 	// optimizations
 	TerrainMaterialGeneratorA::SM2Profile* matProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
 	if (matProfile)
 	{
-		matProfile->setLightmapEnabled(BOPT("LightmapEnabled", false));
-		matProfile->setLayerNormalMappingEnabled(BOPT("NormalMappingEnabled", false));
-		matProfile->setLayerSpecularMappingEnabled(BOPT("SpecularMappingEnabled", false));
-		matProfile->setLayerParallaxMappingEnabled(BOPT("ParallaxMappingEnabled", false));
-		matProfile->setGlobalColourMapEnabled(BOPT("GlobalColourMapEnabled", false));
-		matProfile->setReceiveDynamicShadowsDepth(BOPT("ReceiveDynamicShadowsDepth", false));
+		matProfile->setLightmapEnabled(m_terrain_config.GetBool("LightmapEnabled", false));
+		matProfile->setLayerNormalMappingEnabled(m_terrain_config.GetBool("NormalMappingEnabled", false));
+		matProfile->setLayerSpecularMappingEnabled(m_terrain_config.GetBool("SpecularMappingEnabled", false));
+		matProfile->setLayerParallaxMappingEnabled(m_terrain_config.GetBool("ParallaxMappingEnabled", false));
+		matProfile->setGlobalColourMapEnabled(m_terrain_config.GetBool("GlobalColourMapEnabled", false));
+		matProfile->setReceiveDynamicShadowsDepth(m_terrain_config.GetBool("ReceiveDynamicShadowsDepth", false));
 	}
 
-	terrainOptions->setLayerBlendMapSize(IOPT("LayerBlendMapSize", 1024));
-	terrainOptions->setCompositeMapSize(IOPT("CompositeMapSize", 1024));
-	terrainOptions->setCompositeMapDistance(IOPT("CompositeMapDistance", 4000));
-	terrainOptions->setSkirtSize(IOPT("SkirtSize", 30));
-	terrainOptions->setLightMapSize(IOPT("LightMapSize", 1024));
-	terrainOptions->setCastsDynamicShadows(BOPT("CastsDynamicShadows", false));
+	terrainOptions->setLayerBlendMapSize(m_terrain_config.GetInt("LayerBlendMapSize", 1024));
+	terrainOptions->setCompositeMapSize(m_terrain_config.GetInt("CompositeMapSize", 1024));
+	terrainOptions->setCompositeMapDistance(m_terrain_config.GetInt("CompositeMapDistance", 4000));
+	terrainOptions->setSkirtSize(m_terrain_config.GetInt("SkirtSize", 30));
+	terrainOptions->setLightMapSize(m_terrain_config.GetInt("LightMapSize", 1024));
+	terrainOptions->setCastsDynamicShadows(m_terrain_config.GetBool("CastsDynamicShadows", false));
 
 	terrainOptions->setUseRayBoxDistanceCalculation(false);
 
@@ -360,7 +362,7 @@ void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 
 void TerrainGeometryManager::initBlendMaps(int x, int z, Ogre::Terrain* terrain )
 {
-	bool debugBlendMaps = BOPT("DebugBlendMaps", false);
+	bool debugBlendMaps = m_terrain_config.GetBool("DebugBlendMaps", false);
 
 	int layerCount = terrain->getLayerCount();
 	for (int i = 1; i < layerCount; i++)
@@ -444,8 +446,8 @@ bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 
 	if (heightmapFilename.find(".raw") != String::npos)
 	{
-		int rawSize = IOPT(heightmapString + ".raw.size", 1025);
-		int bpp     = IOPT(heightmapString + ".raw.bpp", 2);
+		int rawSize = m_terrain_config.GetInt(heightmapString + ".raw.size", 1025);
+		int bpp     = m_terrain_config.GetInt(heightmapString + ".raw.bpp", 2);
 
 		// load raw data
 		DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(heightmapFilename);
@@ -459,9 +461,9 @@ bool TerrainGeometryManager::getTerrainImage(int x, int z, Image& img)
 		img.load(heightmapFilename, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	}
 
-	if (BOPT(heightmapString + ".flipX", false))
+	if (m_terrain_config.GetBool(heightmapString + ".flipX", false))
 		img.flipAroundX();
-	if (BOPT(heightmapString + ".flipY", false))
+	if (m_terrain_config.GetBool(heightmapString + ".flipY", false))
 		img.flipAroundY();
 
 	return true;

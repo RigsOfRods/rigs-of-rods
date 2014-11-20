@@ -21,7 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __VidCam_H_
 
 #include "RoRPrerequisites.h"
-#include "RigDefPrerequisites.h"
+#include "RigDef_Prerequisites.h"
 
 #include <OgreMaterial.h>
 

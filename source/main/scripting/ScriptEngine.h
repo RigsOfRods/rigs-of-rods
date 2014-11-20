@@ -53,7 +53,7 @@ class ScriptEngine : public RoRSingletonNoCreation<ScriptEngine>, public Ogre::L
 
 public:
 
-	ScriptEngine(RoRFrameListener *efl, Collisions *_coll);
+	ScriptEngine(Collisions *_coll = nullptr);
 	~ScriptEngine();
 
 	void setCollisions(Collisions *_coll) { coll=_coll; };
@@ -149,6 +149,11 @@ public:
 
 
 	Ogre::Log *scriptLog;
+
+	void SetFrameListener(RoRFrameListener* frame_listener)
+	{
+		mefl = frame_listener;
+	}
 
 protected:
 

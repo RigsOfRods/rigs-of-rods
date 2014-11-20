@@ -1,57 +1,58 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 6th of May 2010
-#ifndef __OverlayWrapper_H_
-#define __OverlayWrapper_H_
+
+/** 
+	@file   OverlayWrapper.h
+	@author Thomas Fischer
+	@date   6th of May 2010
+*/
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 
-#include "Singleton.h"
-
-#include "OgreTextAreaOverlayElement.h"
+#include <OgreTextAreaOverlayElement.h>
 #include <OIS.h>
 
-struct loadedOverlay_t
-{
-	float orgScaleX;
-	float orgScaleY;
-	Ogre::Overlay *o;
-};
-
-class OverlayWrapper : public RoRSingletonNoCreation<OverlayWrapper>, public ZeroedMemoryAllocator
+class OverlayWrapper : public ZeroedMemoryAllocator
 {
 	friend class RoRFrameListener;
+	friend class RoR::Application;
+	friend class RoR::MainThread;
 
 public:
 
-	OverlayWrapper();
-	~OverlayWrapper();
+	struct LoadedOverlay
+	{
+		float orgScaleX;
+		float orgScaleY;
+		Ogre::Overlay *o;
+	};
 
-	// functions
 	void showDashboardOverlays(bool show, Beam *truck);
 	void showDebugOverlay(int mode);
 	void showPressureOverlay(bool show);
-	void showEditorOverlay(bool show);
 
 	void windowResized();
-	void resizeOverlay(struct loadedOverlay_t);
+	void resizeOverlay(LoadedOverlay & overlay);
 
 	int getDashBoardHeight();
 
@@ -60,7 +61,52 @@ public:
 	bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 	float mTimeUntilNextToggle;
 
+	void SetupDirectionArrow();
+
+	void UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & point_to);
+
+	void HideDirectionOverlay();
+
+	void ShowDirectionOverlay(Ogre::String const & caption);
+
+	void UpdatePressureTexture(float pressure);
+
+	void UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop);
+
+	void UpdateAerialHUD(Beam * vehicle);
+
+	void UpdateMarineHUD(Beam * vehicle);
+
+	void ShowRacingOverlay();
+
+	void HideRacingOverlay();
+
+	/** Hides all overlays, but doesn't change visibility flags (for further restoring).
+	*/
+	void TemporarilyHideAllOverlays(Beam *current_vehicle);
+
+	/** Shows all overlays flagged as "visible".
+	*/
+	void RestoreOverlaysVisibility(Beam *current_vehicle);
+
 protected:
+
+	/**
+	* RoR needs to temporarily hide all overlays when player enters editor. 
+	* However, OGRE only provides per-overlay show() and hide() functionality.
+	* Thus, an external state must be kept to restore overlays after exiting the editor.
+	*/
+	struct VisibleOverlays
+	{
+		static const int DIRECTION_ARROW              = BITMASK(1);
+		static const int DEBUG_FPS_MEMORY             = BITMASK(2);
+		static const int DEBUG_BEAM_TIMING            = BITMASK(3);
+		static const int RACING                       = BITMASK(4);
+		static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
+	};
+
+	OverlayWrapper();
+	~OverlayWrapper();
 
 	int init();
 	void update(float dt);
@@ -75,42 +121,55 @@ protected:
 	Ogre::RenderWindow* win;
 	TruckHUD *truckhud;
 
-	//members
-	Ogre::Overlay *directionOverlay;
-	Ogre::Overlay *mDebugOverlay;
-	Ogre::Overlay *mTimingDebugOverlay;
-	Ogre::Overlay *dashboardOverlay;
-	Ogre::Overlay *machinedashboardOverlay;
-	Ogre::Overlay *airdashboardOverlay;
-	Ogre::Overlay *boatdashboardOverlay;
-	Ogre::Overlay *needlesOverlay;
-	Ogre::Overlay *airneedlesOverlay;
-	Ogre::Overlay *boatneedlesOverlay;
-	Ogre::Overlay *needlesMaskOverlay;
-	Ogre::Overlay *pressureOverlay;
-	Ogre::Overlay *pressureNeedleOverlay;
-	Ogre::Overlay *editorOverlay;
-	Ogre::Overlay *truckeditorOverlay;
-	Ogre::Overlay *mouseOverlay;
-	Ogre::Overlay *racing;
+	// -------------------------------------------------------------
+	// Overlays
+	// -------------------------------------------------------------
 
-	Ogre::OverlayElement* guiGear;
-	Ogre::OverlayElement* guiGear3D;
-	Ogre::OverlayElement* guiRoll;
-	Ogre::OverlayElement* guipedclutch;
-	Ogre::OverlayElement* guipedbrake;
-	Ogre::OverlayElement* guipedacc;
-	Ogre::OverlayElement* mouseElement;
-	Ogre::OverlayElement *pbrakeo;
-	Ogre::OverlayElement *tcontrolo;
-	Ogre::OverlayElement *antilocko;
-	Ogre::OverlayElement *lockedo;
-	Ogre::OverlayElement *securedo;
-	Ogre::OverlayElement *lopresso;
-	Ogre::OverlayElement *clutcho;
-	Ogre::OverlayElement *lightso;
-	Ogre::OverlayElement *batto;
-	Ogre::OverlayElement *igno;
+	unsigned int  m_visible_overlays;
+
+	Ogre::Overlay *m_truck_dashboard_overlay;
+	Ogre::Overlay *m_truck_dashboard_needles_overlay;
+	Ogre::Overlay *m_truck_dashboard_needles_mask_overlay;
+	Ogre::Overlay *m_truck_pressure_overlay;
+	Ogre::Overlay *m_truck_pressure_needle_overlay;
+
+	Ogre::Overlay *m_aerial_dashboard_overlay;
+	Ogre::Overlay *m_aerial_dashboard_needles_overlay;
+
+	Ogre::Overlay *m_marine_dashboard_overlay;
+	Ogre::Overlay *m_marine_dashboard_needles_overlay;
+
+	Ogre::Overlay *m_machine_dashboard_overlay;
+
+	// Misc
+	Ogre::Overlay *m_direction_arrow_overlay;
+	Ogre::Overlay *m_debug_fps_memory_overlay;
+	Ogre::Overlay *m_debug_beam_timing_overlay;	
+	Ogre::Overlay *m_racing_overlay;
+
+	// -------------------------------------------------------------
+	// Overlay elements
+	// -------------------------------------------------------------
+
+	// Truck
+	Ogre::OverlayElement* guiGear;      //!< truck
+	Ogre::OverlayElement* guiGear3D;    //!< truck
+	Ogre::OverlayElement* guiRoll;      //!< truck
+	Ogre::OverlayElement* guipedclutch; //!< truck
+	Ogre::OverlayElement* guipedbrake;  //!< truck
+	Ogre::OverlayElement* guipedacc;    //!< truck
+	Ogre::OverlayElement *pbrakeo;      //!< truck
+	Ogre::OverlayElement *tcontrolo;    //!< truck
+	Ogre::OverlayElement *antilocko;    //!< truck
+	Ogre::OverlayElement *lockedo;      //!< truck
+	Ogre::OverlayElement *securedo;     //!< truck
+	Ogre::OverlayElement *lopresso;     //!< truck
+	Ogre::OverlayElement *clutcho;      //!< truck
+	Ogre::OverlayElement *lightso;      //!< truck
+	Ogre::OverlayElement *batto;        //!< truck
+	Ogre::OverlayElement *igno;         //!< truck
+
+	// Aerial overlay elements
 	Ogre::OverlayElement *thro1;
 	Ogre::OverlayElement *thro2;
 	Ogre::OverlayElement *thro3;
@@ -123,42 +182,57 @@ protected:
 	Ogre::OverlayElement *engstarto2;
 	Ogre::OverlayElement *engstarto3;
 	Ogre::OverlayElement *engstarto4;
+
+	// Marine overlay elements
 	Ogre::OverlayElement *bthro1;
 	Ogre::OverlayElement *bthro2;
-	Ogre::OverlayElement *editor_pos;
-	Ogre::OverlayElement *editor_angles;
-	Ogre::OverlayElement *editor_object;
 
+	// Truck
 	Ogre::TextAreaOverlayElement* guiAuto[5];
 	Ogre::TextAreaOverlayElement* guiAuto3D[5];
+
+	// Truck (m_racing_overlay)
 	Ogre::TextAreaOverlayElement* laptimemin;
 	Ogre::TextAreaOverlayElement* laptimes;
 	Ogre::TextAreaOverlayElement* laptimems;
 	Ogre::TextAreaOverlayElement* lasttime;
 	Ogre::TextAreaOverlayElement* directionArrowText;
 	Ogre::TextAreaOverlayElement* directionArrowDistance;
-	Ogre::TextAreaOverlayElement* alt_value_taoe;
-	Ogre::TextAreaOverlayElement* boat_depth_value_taoe;
 
+	Ogre::TextAreaOverlayElement* alt_value_taoe; //!!< Aerial
+
+	Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
+
+	// Aerial
 	Ogre::TextureUnitState *adibugstexture;
 	Ogre::TextureUnitState *aditapetexture;
 	Ogre::TextureUnitState *hsirosetexture;
 	Ogre::TextureUnitState *hsibugtexture;
 	Ogre::TextureUnitState *hsivtexture;
 	Ogre::TextureUnitState *hsihtexture;
+
+	// truck
 	Ogre::TextureUnitState *speedotexture;
 	Ogre::TextureUnitState *tachotexture;
 	Ogre::TextureUnitState *rolltexture;
 	Ogre::TextureUnitState *pitchtexture;
 	Ogre::TextureUnitState *rollcortexture;
 	Ogre::TextureUnitState *turbotexture;
+
+	// Aerial
 	Ogre::TextureUnitState *airspeedtexture;
 	Ogre::TextureUnitState *altimetertexture;
 	Ogre::TextureUnitState *vvitexture;
 	Ogre::TextureUnitState *aoatexture;
+
+	// Marine
 	Ogre::TextureUnitState *boatspeedtexture;
 	Ogre::TextureUnitState *boatsteertexture;
+
+	// Truck
 	Ogre::TextureUnitState *pressuretexture;
+	
+	// Aerial
 	Ogre::TextureUnitState *airrpm1texture;
 	Ogre::TextureUnitState *airrpm2texture;
 	Ogre::TextureUnitState *airrpm3texture;
@@ -172,13 +246,15 @@ protected:
 	Ogre::TextureUnitState *airtorque3texture;
 	Ogre::TextureUnitState *airtorque4texture;
 
+	// Aerial + Marine: Written in init(), read-only in simulation.
 	float thrtop;
 	float thrheight;
 	float throffset;
 
+	// Truck m_racing_overlay overlay
+	Ogre::SceneNode* m_direction_arrow_node;
+
 protected:
 
-	std::vector<struct loadedOverlay_t> overlays;
+	std::vector<LoadedOverlay> m_loaded_overlays;
 };
-
-#endif // __OverlayWrapper_H_

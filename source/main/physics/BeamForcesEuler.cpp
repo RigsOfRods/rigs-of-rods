@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
+#include "Application.h"
 #include "ApproxMath.h"
 #include "Beam.h"
 #include "BeamEngine.h"
@@ -126,12 +127,12 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				// key triggered animations
 				if ((props[propi].animFlags[animnum] & ANIM_FLAG_EVENT) && props[propi].animKey[animnum] != -1)
 				{
-					if (INPUTENGINE.getEventValue(props[propi].animKey[animnum]))
+					if (RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]))
 					{
 						// keystatelock is disabled then set cstate
 						if (props[propi].animKeyState[animnum] == -1.0f)
 						{
-							cstate += INPUTENGINE.getEventValue(props[propi].animKey[animnum]);
+							cstate += RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]);
 						} else if (!props[propi].animKeyState[animnum])
 						{
 							// a key was pressed and a toggle was done already, so bypass

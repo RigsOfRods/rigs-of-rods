@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Character.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
 #include "Collisions.h"
@@ -346,7 +347,7 @@ void Character::update(float dt)
 		float tmpJoy = 0.0f;
 		if (canJump)
 		{
-			if (INPUTENGINE.getEventBoolValue(EV_CHARACTER_JUMP))
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_JUMP))
 			{
 				characterVSpeed = 2.0f;
 				canJump = false;
@@ -355,7 +356,7 @@ void Character::update(float dt)
 
 		bool idleanim = true;
 
-		tmpJoy = INPUTENGINE.getEventValue(EV_CHARACTER_RIGHT);
+		tmpJoy = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_RIGHT);
 		if (tmpJoy > 0.0f)
 		{
 			setRotation(characterRotation + dt * 2.0f * Radian(tmpJoy));
@@ -366,7 +367,7 @@ void Character::update(float dt)
 			}
 		}
 
-		tmpJoy = INPUTENGINE.getEventValue(EV_CHARACTER_LEFT);
+		tmpJoy = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_LEFT);
 		if (tmpJoy > 0.0f)
 		{
 			setRotation(characterRotation - dt * 2.0f * Radian(tmpJoy));
@@ -377,10 +378,10 @@ void Character::update(float dt)
 			}
 		}
 				
-		float tmpRun = INPUTENGINE.getEventValue(EV_CHARACTER_RUN);
+		float tmpRun = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_RUN);
 		float accel = 1.0f;
 
-		tmpJoy = accel = INPUTENGINE.getEventValue(EV_CHARACTER_SIDESTEP_LEFT);
+		tmpJoy = accel = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_SIDESTEP_LEFT);
 		if (tmpJoy > 0.0f)
 		{
 			if (tmpRun > 0.0f) accel = 3.0f * tmpRun;
@@ -388,7 +389,7 @@ void Character::update(float dt)
 			position += dt * characterSpeed *1.5f * accel * Vector3(cos(characterRotation.valueRadians() - Math::HALF_PI), 0.0f, sin(characterRotation.valueRadians() - Math::HALF_PI));
 		}
 
-		tmpJoy = accel = INPUTENGINE.getEventValue(EV_CHARACTER_SIDESTEP_RIGHT);
+		tmpJoy = accel = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_SIDESTEP_RIGHT);
 		if (tmpJoy > 0.0f)
 		{
 			if (tmpRun > 0.0f) accel = 3.0f * tmpRun;
@@ -396,8 +397,8 @@ void Character::update(float dt)
 			position += dt * characterSpeed * 1.5f * accel * Vector3(cos(characterRotation.valueRadians() + Math::HALF_PI), 0.0f, sin(characterRotation.valueRadians() + Math::HALF_PI));
 		}
 
-		tmpJoy = accel = INPUTENGINE.getEventValue(EV_CHARACTER_FORWARD) + INPUTENGINE.getEventValue(EV_CHARACTER_ROT_UP);
-		float tmpBack  = INPUTENGINE.getEventValue(EV_CHARACTER_BACKWARDS) + INPUTENGINE.getEventValue(EV_CHARACTER_ROT_DOWN);
+		tmpJoy = accel = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_FORWARD) + RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_UP);
+		float tmpBack  = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_BACKWARDS) + RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_DOWN);
 		
 		tmpJoy  = std::min(tmpJoy, 1.0f);
 		tmpBack = std::min(tmpBack, 1.0f);

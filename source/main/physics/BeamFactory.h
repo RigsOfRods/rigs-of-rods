@@ -25,7 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "RigDefParser.h"
+#include "RigDef_Parser.h"
 #include "RigSpawner.h"
 #include "Beam.h"
 #include "StreamableFactory.h"

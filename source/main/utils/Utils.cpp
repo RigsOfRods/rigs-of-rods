@@ -172,27 +172,6 @@ String getVersionString(bool multiline)
 	return String(tmp);
 }
 
-bool fileExists(const char *filename)
-{
-	// be careful about what you use here...
-	FILE *f = fopen(filename, "r");
-	if (!f)
-		return false;
-	fclose(f);
-	return true;
-}
-
-bool folderExists(const char *pathname)
-{
-#ifdef WIN32
-	DWORD dwAttrib = GetFileAttributesA(pathname);
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&  (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-	struct stat st;
-	return (stat(pathname, &st) == 0);
-#endif
-}
-
 int isPowerOfTwo (unsigned int x)
 {
   return ((x != 0) && ((x & (~x + 1)) == x));
@@ -240,9 +219,7 @@ AxisAlignedBox getWorldAABB(SceneNode* node)
 
 void fixRenderWindowIcon (RenderWindow *rw)
 {
-#ifndef ROR_EMBEDDED
 #ifdef WIN32
-	// only in non-embedded mode
 	size_t hWnd = 0;
 	rw->getCustomAttribute("WINDOW", &hWnd);
 
@@ -257,7 +234,6 @@ void fixRenderWindowIcon (RenderWindow *rw)
 		::SendMessageA((HWND)hWnd, WM_SETICON, 0, (LPARAM)hIcon);
 	}
 #endif // WIN32
-#endif //ROR_EMBEDDED
 }
 
 UTFString ANSI_TO_UTF(const String source)
@@ -397,4 +373,44 @@ void generateHashFromFile(String filename, Ogre::String &hash)
 	// no exception handling in here
 	DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 	generateHashFromDataStream(ds, hash);
+}
+
+namespace RoR
+{
+
+namespace Utils
+{
+	std::string TrimBlanksAndLinebreaks(std::string const & input)
+	{
+		int substr_start = 0;
+		int substr_count = input.length();
+		while (substr_start < substr_count)
+		{
+			char c = input.at(substr_start);
+			if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+			{
+				++substr_start;
+				--substr_count;
+			}
+			else
+			{
+				break;
+			}
+		}
+		while (substr_count > 0)
+		{
+			char c = input.at(substr_count - 1);
+			if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+			{
+				--substr_count;
+			}
+			else
+			{
+				break;
+			}
+		}
+		return input.substr(substr_start, substr_count);
+	}
+}
+
 }
