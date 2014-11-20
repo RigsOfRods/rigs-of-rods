@@ -59,12 +59,11 @@ public:
 	{
 		enum Type
 		{
-			TYPE_BEGIN,
 			TYPE_INFO,
 			TYPE_WARNING,
 			TYPE_ERROR,
 			TYPE_INTERNAL_ERROR,
-			TYPE_END,
+
 			TYPE_INVALID = 0xFFFFFFFF
 		};
 
