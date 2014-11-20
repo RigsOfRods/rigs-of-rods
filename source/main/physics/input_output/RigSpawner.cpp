@@ -303,23 +303,11 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'submeshes' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
 
-	// =====================
-
-
-
-	
-
 	/* Section 'shocks2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
 
 	/* Section 'meshwheels2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
-
-	
-
-
-
-	
 
 	/* Section 'ties' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
@@ -327,23 +315,11 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'animators' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, RigDef::Animator, animators, ProcessAnimator);
 
-	
-
-	
-
-	
-
 	/* Section 'contacters' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
 
-	
-
 	/* Section 'cameras' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
-
-	
-
-	
 
 	/* Section 'engine' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
@@ -423,8 +399,6 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'materialflarebindings' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, RigDef::MaterialFlareBinding, material_flare_bindings, ProcessMaterialFlareBinding);
 
-	
-
 	/* Section 'exhausts' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_EXHAUSTS, RigDef::Exhaust, exhausts, ProcessExhaust);
 
@@ -436,8 +410,6 @@ rig_t *RigSpawner::SpawnRig()
 
 	/* Section 'camerarail' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERARAIL, RigDef::CameraRail, camera_rails, ProcessCameraRail);	
-
-	
 
 	/* Section 'pistonprops' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PISTONPROPS, RigDef::Pistonprop, pistonprops, ProcessPistonprop);
