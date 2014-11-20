@@ -93,7 +93,7 @@ endmacro(importLib)
 
 	set(Boost_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/boost" CACHE PATH "The boost include path to use")
 	set(Boost_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/boost" CACHE PATH "The boost lib path to use")
-	set(Boost_LIBRARIES "optimized;libboost_date_time-vc100-mt-1_48;libboost_filesystem-vc100-mt-1_48" CACHE STRING "The boost libs to link against")
+	set(Boost_LIBRARIES "optimized;libboost_date_time-vc100-mt-1_48;libboost_filesystem-vc100-mt-1_48;libboost_regex-vc100-mt-1_48.lib" CACHE STRING "The boost libs to link against")
 
 	# special include path for curl ...
 	if(ROR_USE_CURL)

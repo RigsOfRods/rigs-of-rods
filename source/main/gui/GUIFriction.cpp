@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "GUIFriction.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "Settings.h"
 #include "Collisions.h"
@@ -409,7 +410,7 @@ void GUI_Friction::setVisible(bool value)
 			updateControls(gm, false);
 	} else
 	{
-		GUIManager::getSingleton().unfocus();
+		RoR::Application::GetGuiManager()->unfocus();
 	}
 	win->setVisibleSmooth(value);
 	//win->setVisible(value);

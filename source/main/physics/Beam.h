@@ -22,7 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 #include "OgrePrerequisites.h"
-#include "RigDefPrerequisites.h"
+#include "RigDef_Prerequisites.h"
 
 #include "BeamData.h"
 #include "CacheSystem.h"

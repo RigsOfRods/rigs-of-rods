@@ -47,6 +47,7 @@
 
 #include "AirBrake.h"
 #include "Airfoil.h"
+#include "Application.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
@@ -85,6 +86,8 @@
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
+
+using namespace RoR;
 
 /* -------------------------------------------------------------------------- */
 /* Prepare for loading
@@ -922,7 +925,7 @@ void RigSpawner::FinalizeRig()
 		{
 			
 #ifdef USE_MYGUI
-			Console *console = Console::getSingletonPtrNoCreation();
+			RoR::Console *console = RoR::Application::GetConsole();
 			if (console) console->putMessage(
 				Console::CONSOLE_MSGTYPE_INFO, 
 				Console::CONSOLE_SYSTEM_ERROR, 
@@ -2744,7 +2747,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			// we are using keys as source
 			prop.animFlags[anim_index] |= ANIM_FLAG_EVENT;
 
-			int event_id = INPUTENGINE.resolveEventName(anim_itor->event);
+			int event_id = RoR::Application::GetInputEngine()->resolveEventName(anim_itor->event);
 			if (event_id == -1)
 			{
 				AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_itor->event);

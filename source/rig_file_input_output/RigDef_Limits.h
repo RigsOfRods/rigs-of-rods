@@ -20,7 +20,7 @@
 */
 
 /** 
-	@file  RigDefLimits.h 
+	@file  RigDef_Limits.h 
 	@brief Limits and constants 
 */
 

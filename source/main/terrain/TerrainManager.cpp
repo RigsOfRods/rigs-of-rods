@@ -46,7 +46,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 TerrainManager::TerrainManager() : 
-	  mTerrainConfig()
+	  m_terrain_config()
 	, character(0)
 	, collisions(0)
 	, dashboard(0)
@@ -95,32 +95,32 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	// now generate the hash of it
 	generateHashFromDataStream(ds, file_hash);
 
-	mTerrainConfig.load(ds, "\t:=", true);
+	m_terrain_config.load(ds, "\t:=", true);
 
 	// read in the settings
-	terrain_name = mTerrainConfig.getSetting("Name", "General");
+	terrain_name = m_terrain_config.getSetting("Name", "General");
 	if (terrain_name.empty())
 	{
-		showError(_L("Terrain loading error"), _L("the terrain name cannot be empty"));
+		ErrorUtils::ShowError(_L("Terrain loading error"), _L("the terrain name cannot be empty"));
 		exit(125);
 	}
 
-	ogre_terrain_config_filename = mTerrainConfig.getSetting("GeometryConfig", "General");
+	ogre_terrain_config_filename = m_terrain_config.getSetting("GeometryConfig", "General");
 	// otc = ogre terrain config
 	if (ogre_terrain_config_filename.find(".otc") == String::npos)
 	{
-		showError(_L("Terrain loading error"), _L("the new terrain mode only supports .otc configurations"));
+		ErrorUtils::ShowError(_L("Terrain loading error"), _L("the new terrain mode only supports .otc configurations"));
 		exit(125);
 	}
 
-	ambient_color = StringConverter::parseColourValue(mTerrainConfig.getSetting("AmbientColor", "General"), ColourValue::White);
-	category_id = StringConverter::parseInt(mTerrainConfig.getSetting("CategoryID", "General"), 129);
-	guid = mTerrainConfig.getSetting("GUID", "General");
-	start_position = StringConverter::parseVector3(mTerrainConfig.getSetting("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
-	version = StringConverter::parseInt(mTerrainConfig.getSetting("Version", "General"), 1);
+	ambient_color = StringConverter::parseColourValue(m_terrain_config.getSetting("AmbientColor", "General"), ColourValue::White);
+	category_id = StringConverter::parseInt(m_terrain_config.getSetting("CategoryID", "General"), 129);
+	guid = m_terrain_config.getSetting("GUID", "General");
+	start_position = StringConverter::parseVector3(m_terrain_config.getSetting("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
+	version = StringConverter::parseInt(m_terrain_config.getSetting("Version", "General"), 1);
 
 	// parse author info
-	ConfigFile::SettingsIterator it = mTerrainConfig.getSettingsIterator("Authors");
+	ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
 
 	authors.clear();
 
@@ -154,7 +154,7 @@ void TerrainManager::loadTerrain(String filename)
 	} catch(...)
 	{
 		LOG("Terrain not found: " + String(filename));
-		showError(_L("Terrain loading error"), _L("Terrain not found: ") + filename);
+		ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + filename);
 		exit(125);
 	}
 
@@ -298,13 +298,13 @@ void TerrainManager::initSkySubSystem()
 		gEnv->sky = sky_manager;
 
 		// try to load caelum config
-		String caelumConfig = mTerrainConfig.getSetting("CaelumConfigFile", "General");
+		String caelumConfig = m_terrain_config.getSetting("CaelumConfigFile", "General");
 
 		if (!caelumConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(caelumConfig))
 		{
 			// config provided and existing, use it :)
-			int caelumFogStart = StringConverter::parseInt(mTerrainConfig.getSetting("CaelumFogStart", "General"),-1);
-			int caelumFogEnd = StringConverter::parseInt(mTerrainConfig.getSetting("CaelumFogEnd", "General"),-1);
+			int caelumFogStart = StringConverter::parseInt(m_terrain_config.getSetting("CaelumFogStart", "General"),-1);
+			int caelumFogEnd = StringConverter::parseInt(m_terrain_config.getSetting("CaelumFogEnd", "General"),-1);
 			sky_manager->loadScript(caelumConfig, caelumFogStart, caelumFogEnd);
 		} else
 		{
@@ -315,7 +315,7 @@ void TerrainManager::initSkySubSystem()
 	} else
 #endif //USE_CAELUM
 	{
-		String sandStormConfig = mTerrainConfig.getSetting("SandStormCubeMap", "General");
+		String sandStormConfig = m_terrain_config.getSetting("SandStormCubeMap", "General");
 
 		if (!sandStormConfig.empty())
 		{
@@ -537,7 +537,7 @@ void TerrainManager::initWater()
 	// disabled in global config
 	if (waterSettingsString == "None") return;
 	// disabled in map config
-	if (!StringConverter::parseBool(mTerrainConfig.getSetting("Water", "General"))) return;
+	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
 
 	if (waterSettingsString == "Hydrax")
 	{
@@ -546,7 +546,7 @@ void TerrainManager::initWater()
 		water = hw;
 	} else
 	{
-		water = new Water(mTerrainConfig);
+		water = new Water(m_terrain_config);
 	}
 }
 
@@ -570,7 +570,7 @@ void TerrainManager::loadTerrainObjects()
 {
 	try
 	{
-		ConfigFile::SettingsIterator objectsIterator = mTerrainConfig.getSettingsIterator("Objects");
+		ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Objects");
 
 		while (objectsIterator.hasMoreElements())
 		{
@@ -597,7 +597,7 @@ void TerrainManager::initCollisions()
 
 void TerrainManager::initTerrainCollisions()
 {
-	String tractionMapConfig = mTerrainConfig.getSetting("TractionMap", "General");
+	String tractionMapConfig = m_terrain_config.getSetting("TractionMap", "General");
 	if (!tractionMapConfig.empty())
 	{
 		gEnv->collisions->setupLandUse(tractionMapConfig.c_str());
@@ -625,7 +625,7 @@ void TerrainManager::initScripting()
 	{
 		try
 		{
-			ConfigFile::SettingsIterator objectsIterator = mTerrainConfig.getSettingsIterator("Scripts");
+			ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Scripts");
 			while (objectsIterator.hasMoreElements())
 			{
 				String sname = objectsIterator.peekNextKey();
@@ -716,7 +716,7 @@ bool TerrainManager::hasPreloadedTrucks()
 	return false;
 }
 
-std::vector<authorinfo_t> TerrainManager::getAuthors()
+std::vector<authorinfo_t> & TerrainManager::GetAuthors()
 {
-	return authors;
+	return authors; 
 }

@@ -29,11 +29,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class CameraManager : public IBehaviorManager
 {
-	friend class SceneMouse;
+	friend class RoR::SceneMouse;
 
 public:
 
-	CameraManager(OverlayWrapper *ow, DOFManager *dof);
+	CameraManager(DOFManager *dof);
 	~CameraManager();
 
 	class CameraContext
@@ -43,7 +43,6 @@ public:
 		Beam *mCurrTruck;
 		DOFManager *mDof;
 		Ogre::Degree mRotScale;
-		OverlayWrapper *mOverlayWrapper;
 		Ogre::Real mDt;
 		Ogre::Real mTransScale;
 		Ogre::Radian fovInternal;
@@ -63,6 +62,9 @@ public:
 		CAMERA_BEHAVIOR_ISOMETRIC
 	};
 
+	/**
+	* TIGHT-LOOP; Called once per frame.
+	*/
 	bool update(float dt);
 
 	void switchBehavior(int newBehavior, bool reset = true);

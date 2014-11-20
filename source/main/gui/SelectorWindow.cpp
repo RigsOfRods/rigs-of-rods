@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SelectorWindow.h"
 
+#include "Application.h"
 #include "CacheSystem.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -28,6 +29,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "LoadingWindow.h"
 #include "SkinManager.h"
 #include "Utils.h"
+#include "RoRFrameListener.h"
+#include "MenuWindow.h"
 
 #if 0
 // translation help for category entries, should be commented at all times
@@ -329,7 +332,7 @@ void SelectorWindow::getData()
 	}
 
 	int ts = getTimeStamp();
-	std::vector<CacheEntry> *entries = CACHE.getEntries();
+	std::vector<CacheEntry> *entries = RoR::Application::GetCacheSystem()->getEntries();
 	for (std::vector<CacheEntry>::iterator it = entries->begin(); it!=entries->end(); it++)
 	{
 		// category hidden
@@ -378,7 +381,7 @@ void SelectorWindow::getData()
 		mEntries.push_back(*it);
 	}
 	int tally_categories = 0, current_category = 0;
-	std::map<int, Category_Entry> *cats = CACHE.getCategories();
+	std::map<int, Category_Entry> *cats = RoR::Application::GetCacheSystem()->getCategories();
 	for (std::map<int, Category_Entry>::iterator itc = cats->begin(); itc!=cats->end(); itc++)
 	{
 		if (mCategoryUsage[itc->second.number] > 0)
@@ -439,7 +442,7 @@ bool SelectorWindow::searchCompare(String searchString, CacheEntry *ce)
 		// the authors
 		if (!ce->authors.empty())
 		{
-			std::vector<authorinfo_t>::const_iterator it;
+			std::vector<AuthorInfo>::const_iterator it;
 			for (it = ce->authors.begin(); it != ce->authors.end(); it++)
 			{
 				// author name
@@ -476,7 +479,7 @@ bool SelectorWindow::searchCompare(String searchString, CacheEntry *ce)
 			// the authors
 			if (!ce->authors.empty())
 			{
-				std::vector<authorinfo_t>::const_iterator it;
+				std::vector<AuthorInfo>::const_iterator it;
 				for (it = ce->authors.begin(); it != ce->authors.end(); it++)
 				{
 					// author name
@@ -521,7 +524,7 @@ void SelectorWindow::onCategorySelected(int categoryID)
 
 	mModelList->removeAllItems();
 	
-	for (std::vector<CacheEntry>::iterator it = mEntries.begin(); it != mEntries.end(); it++)
+	for (auto it = mEntries.begin(); it != mEntries.end(); it++)
 	{
 		if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
 										|| categoryID == CacheSystem::CID_Fresh && (ts - it->addtimestamp < CACHE_FILE_FRESHNESS)
@@ -588,7 +591,7 @@ void SelectorWindow::onEntrySelected(int entryID)
 		}
 		return;
 	}
-	CacheEntry *entry = CACHE.getEntry(entryID);
+	CacheEntry *entry = RoR::Application::GetCacheSystem()->getEntry(entryID);
 	if (!entry) return;
 	mSelectedTruck = entry;
 	updateControls(mSelectedTruck);
@@ -607,7 +610,7 @@ void SelectorWindow::selectionDone()
 	if (mLoaderType != LT_SKIN)
 	{
 		// we show the normal loader
-		CACHE.checkResourceLoaded(*mSelectedTruck);
+		RoR::Application::GetCacheSystem()->checkResourceLoaded(*mSelectedTruck);
 
 		mCurrentSkins.clear();
 		SkinManager::getSingleton().getUsableSkins(mSelectedTruck->guid, this->mCurrentSkins);
@@ -661,7 +664,7 @@ void SelectorWindow::updateControls(CacheEntry *entry)
 	}
 	UTFString authors = "";
 	std::set<String> author_names;
-	for (std::vector<authorinfo_t>::iterator it = entry->authors.begin(); it != entry->authors.end(); it++)
+	for (auto it = entry->authors.begin(); it != entry->authors.end(); it++)
 	{
 		if (!it->type.empty() && !it->name.empty())
 		{
@@ -835,7 +838,7 @@ void SelectorWindow::show(LoaderType type)
 
 	mSelectedSkin = 0;
 	mSearchLineEdit->setCaption(_L("Search ..."));
-	INPUTENGINE.resetKeys();
+	RoR::Application::GetInputEngine()->resetKeys();
 	LoadingWindow::getSingleton().hide();
 	// focus main mMainWidget (for key input)
 	mTruckConfigs.clear();
@@ -862,7 +865,8 @@ void SelectorWindow::show(LoaderType type)
 
 void SelectorWindow::hide()
 {
-	GUIManager::getSingleton().unfocus();
+	mSelectionDone = true;
+	RoR::Application::GetGuiManager()->unfocus();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
 	ready = false;

@@ -1,32 +1,34 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef ROR_EMBEDDED
 
 #include "RoRPrerequisites.h"
-#include "RigsOfRods.h"
+#include "MainThread.h"
 #include "Language.h"
 #include "ErrorUtils.h"
 #include "Utils.h"
 #include "Settings.h"
 #include "rornet.h"
 #include "RoRVersion.h"
+
+#include <OgreException.h>
 
 using namespace Ogre;
 
@@ -113,7 +115,7 @@ void install_crashrpt()
 		printf("%s\n", szErrorMsg);
 
 
-		showError(_L("Exception handling registration problem"), String(szErrorMsg));
+		ErrorUtils::ShowError(_L("Exception handling registration problem"), String(szErrorMsg));
 
 		assert(nInstResult==0);
 	}
@@ -195,7 +197,6 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_STATE,          ("-state"),     SO_REQ_SEP    },
 	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP    },
 	{ OPT_LOGPATH,        ("-logpath"),       SO_REQ_SEP },
-	{ OPT_REPOMODE,       ("-repomode"),       SO_NONE },
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
@@ -220,12 +221,12 @@ extern "C" {
 
 void showUsage()
 {
-	showInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
+	ErrorUtils::ShowInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
 }
 
 void showVersion()
 {
-	showInfo(_L("Version Information"), getVersionString());
+	ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__
 	printf(" * built with gcc %d.%d.%d\n", __GNUC_MINOR__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif //__GNUC__
@@ -247,8 +248,7 @@ int main(int argc, char *argv[])
 	printf("GETWD=%s\n", str);
 #endif
 
-	// Create application object
-	RigsOfRods app;
+	RoR::MainThread main_thread_object;
 
 //MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE
@@ -305,15 +305,15 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("Enter Preselected Truck", "Yes");
 			} else if (args.OptionId() == OPT_SETUP) {
 				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-			} else if (args.OptionId() == OPT_REPOMODE) {
-				SETTINGS.setSetting("REPO_MODE", "Yes");
 			} else if (args.OptionId() == OPT_VEHICLEOUT) {
 				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
 			} else if (args.OptionId() == OPT_VER) {
 				showVersion();
 				return 0;
 			}
-		} else {
+		} 
+		else 
+		{
 			showUsage();
 			return 1;
 		}
@@ -327,23 +327,18 @@ int main(int argc, char *argv[])
 	//test_crashrpt();
 #endif //USE_CRASHRPT
 
-	try {
-		app.go();
-	} catch(Ogre::Exception& e)
+	try 
 	{
-
- 		if (BSETTING("REPO_MODE", false))
-		{
-			LOG("FATAL ERROR, EXITING: "+e.getFullDescription());
-			std::exit(1);
-		}
-
-		// try to shutdown input system upon an error
-		//if (InputEngine::singletonExists()) // this prevents the creating of it, if not existing
-		//	INPUTENGINE.prepareShutdown();
-
+		main_thread_object.Go();
+	} 
+	catch (Ogre::Exception& e)
+	{
 		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
-		showOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
+		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
+	}
+	catch (std::runtime_error& e)
+	{
+		ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
 	}
 
 #ifdef USE_CRASHRPT
@@ -352,7 +347,7 @@ int main(int argc, char *argv[])
 #endif //USE_CRASHRPT
 
 	// show errors before we give up
-	showStoredOgreWebErrors();
+	ErrorUtils::ShowStoredOgreWebErrors();
 
 	return 0;
 }
@@ -368,5 +363,3 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #ifdef __cplusplus
 }
 #endif
-
-#endif //ROR_EMBEDDED

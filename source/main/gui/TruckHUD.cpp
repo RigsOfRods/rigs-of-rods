@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TruckHUD.h"
 
 #include "AeroEngine.h"
+#include "Application.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "InputEngine.h"
@@ -370,11 +371,11 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 			String keyStr = "";
 
 			sprintf(commandID, "COMMANDS_%02d", i);
-			int eventID = INPUTENGINE.resolveEventName(String(commandID));
-			String keya = INPUTENGINE.getEventCommand(eventID);
+			int eventID = RoR::Application::GetInputEngine()->resolveEventName(String(commandID));
+			String keya = RoR::Application::GetInputEngine()->getEventCommand(eventID);
 			sprintf(commandID, "COMMANDS_%02d", i+1);
-			eventID = INPUTENGINE.resolveEventName(String(commandID));
-			String keyb = INPUTENGINE.getEventCommand(eventID);
+			eventID = RoR::Application::GetInputEngine()->resolveEventName(String(commandID));
+			String keyb = RoR::Application::GetInputEngine()->getEventCommand(eventID);
 
 			// cut off expl
 			if (keya.size() > 6 && keya.substr(0,5) == "EXPL+") keya = keya.substr(5);

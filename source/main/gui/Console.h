@@ -1,62 +1,63 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef USE_MYGUI
-#ifndef __Console_H__
-#define __Console_H__
-#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f)
-#define CONSOLE_PUTMESSAGE_SHORT(a,b,c)
-#endif // __CONSOLE_H__
-#else
-#ifndef __CONSOLE_H__
-#define __CONSOLE_H__
 
-#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f) while(0) { Console *console = Console::getSingletonPtrNoCreation(); if (console) console->putMessage(a,b,c,d,e,f); }
-#define CONSOLE_PUTMESSAGE_SHORT(a,b,c) while(0) { Console *console = Console::getSingletonPtrNoCreation(); if (console) console->putMessage(a,b,c); }
+/** 
+	@file   Console.h
+*/
+
+#pragma once
+
+#ifdef USE_MYGUI
+
+#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f) while(0) { Console *console = RoR::Application::GetConsole(); if (console) console->putMessage(a,b,c,d,e,f); }
+#define CONSOLE_PUTMESSAGE_SHORT(a,b,c) while(0) { Console *console = RoR::Application::GetConsole(); if (console) console->putMessage(a,b,c); }
 
 #include "RoRPrerequisites.h"
-
 #include "InterThreadStoreVector.h"
-#include "mygui/BaseLayout.h"
-#include "Singleton.h"
 
-typedef struct msg_t {
+#include "mygui/BaseLayout.h"
+
+namespace RoR
+{
+
+struct ConsoleMessage 
+{
 	char type;
 	int sender_uid;
-	unsigned long time; // post time in milliseconds since RoR start
-	unsigned long ttl;  // in milliseconds
-	Ogre::UTFString txt; // not POD, beware...
+	unsigned long time; //!< post time in milliseconds since RoR start
+	unsigned long ttl;  //!< in milliseconds
+	Ogre::UTFString txt; //!< not POD, beware...
 	char icon[50];
 	bool forcevisible;
-	//Ogre::String channel;
-} msg_t;
+};
 
 class Console :
-	public RoRSingletonNoCreation<Console>,
 	public Ogre::LogListener,
-	public InterThreadStoreVector<msg_t>,
+	public InterThreadStoreVector<ConsoleMessage>,
 	public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<Console>;
+	friend class Application;
+
 public:
-	Console();
-	~Console();
+
 	void setVisible(bool _visible);
 	bool getVisible();
 
@@ -99,7 +100,27 @@ public:
 	void putMessage(int type, int uid, Ogre::UTFString msg, Ogre::String icon = "bullet_black.png", unsigned long ttl = 30000, bool forcevisible = true);
 
 	void resized();
+
 protected:
+
+	struct MyguiConsoleLine 
+	{
+		MyGUI::TextBox  *txtctrl;
+		MyGUI::ImageBox *iconctrl;
+		int number;
+		ConsoleMessage *msg;
+		bool expired;
+	};
+
+	struct Filter 
+	{
+		int type; //!< type of filter: 0=filter unique message id, 1=user filter: filter username
+		int msg_uid;
+	};
+
+	Console();
+	~Console();
+
 	static const unsigned int lineheight   = 16;
 	static const unsigned int LINES_MAX    = 200;
 	static const unsigned int MESSAGES_MAX = 3000;
@@ -124,7 +145,6 @@ protected:
 	void outputCurrentTerrainHeight();
 	void jumpToPosition(Ogre::Vector3 pos);
 
-
 	MyGUI::Edit* mCommandEdit;
 	MyGUI::WindowPtr mMainWidget;
 	MyGUI::ListBox* mAutoCompleteList;
@@ -147,30 +167,18 @@ protected:
 
 	ChatSystem *netChat;
 
-	typedef struct mygui_console_line_t {
-		MyGUI::TextBox  *txtctrl;
-		MyGUI::ImageBox *iconctrl;
-		int number;
-		msg_t *msg;
-		bool expired;
-	} mygui_console_line_t;
-
 	/// filter related things start
-	msg_t popUpContext;
+	ConsoleMessage popUpContext;
 	int popUpContextNumber;
 	
 	void loadFilters();
 	void saveFilters();
 	
-	typedef struct console_filter_t {
-		int type; // type of filter: 0=filter unique message id, 1=user filter: filter username
-		int msg_uid;
-	} console_filter_t;
-	std::vector<console_filter_t> filters;
+	std::vector<Filter> filters;
 	/// filter related things end
 
-	mygui_console_line_t lines[LINES_MAX];
-	msg_t messages[MESSAGES_MAX];
+	MyguiConsoleLine lines[LINES_MAX];
+	ConsoleMessage messages[MESSAGES_MAX];
 	unsigned int message_counter;
 
 	std::vector<Ogre::UTFString> mHistory;
@@ -183,5 +191,11 @@ protected:
 #endif // OGRE_VERSION
 };
 
-#endif // __Console_H__
-#endif // USE_MYGUI
+} // namespace RoR
+
+#else // #ifdef USE_MYGUI
+
+#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f)
+#define CONSOLE_PUTMESSAGE_SHORT(a,b,c)
+
+#endif 

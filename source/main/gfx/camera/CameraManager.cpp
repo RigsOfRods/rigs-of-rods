@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraManager.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "DepthOfFieldEffect.h"
 #include "InputEngine.h"
@@ -39,7 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-CameraManager::CameraManager(OverlayWrapper *ow, DOFManager *dof) : 
+CameraManager::CameraManager(DOFManager *dof) : 
 	  currentBehavior(0)
 	, currentBehaviorID(-1)
 	, mTransScale(1.0f)
@@ -53,7 +54,6 @@ CameraManager::CameraManager(OverlayWrapper *ow, DOFManager *dof) :
 
 	ctx.mCurrTruck = 0;
 	ctx.mDof = dof;
-	ctx.mOverlayWrapper = ow;
 	ctx.mDebug = BSETTING("Camera Debug", false);
 
 	if ( ctx.mDof )
@@ -72,7 +72,7 @@ CameraManager::~CameraManager()
 	globalBehaviors.clear();
 }
 
-bool CameraManager::update(float dt)
+bool CameraManager::update(float dt) // Called every frame
 {
 	static std::stack<int> precedingBehaviors;
 
@@ -85,20 +85,20 @@ bool CameraManager::update(float dt)
 	ctx.mDt         = dt;
 	ctx.mRotScale   = Degree(mRotScale);
 	ctx.mTransScale = mTransScale;
-	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f));
-	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f));
+	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f)); // FIXME: No reason for this to be done per frame.
+	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f)); // FIXME: No reason for this to be done per frame.
 
-	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
 	{
 		switchToNextBehavior(false);
 	}
 
-	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FIXED);
 	}
 
-	if ( INPUTENGINE.getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
+	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FREE);
 	}

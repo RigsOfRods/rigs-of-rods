@@ -28,6 +28,24 @@
 
 #pragma once
 
+namespace RoR
+{
+	class  Application;
+	class  Console;
+	class  ContentManager;
+	class  GUIManager;
+	class  MainThread;
+	class  OgreSubsystem;
+	struct PlatformUtils;
+	class  SceneMouse;
+
+	namespace GUI
+	{
+		class  OpenSaveFileDialog;
+		class  Dialog;
+	}
+}
+
 struct node_t;
 struct beam_t;
 struct shock_t;
@@ -66,17 +84,24 @@ namespace Ogre
 	class TerrainGroup;
 }
 
+namespace MyGUI
+{
+	class OgrePlatform;
+	class TextBox;
+}
+
 class AeroEngine;
 class Airbrake;
 class Airfoil;
-class AppState;
 class Autopilot;
 class Axle;
 class Beam;
 class BeamEngine;
+class BeamFactory;
 class BeamThreadStats;
 class Buoyance;
 class CacheEntry;
+class CacheSystem;
 class CameraManager;
 class Character;
 class ChatSystem;
@@ -102,6 +127,7 @@ class HeatHaze;
 class HeightFinder;
 class ICameraBehavior;
 class IHeightFinder;
+class InputEngine;
 class IThreadTask;
 class IWater;
 class Landusemap;
@@ -112,6 +138,7 @@ class MeshObject;
 class Mirrors;
 class Network;
 class OverlayWrapper;
+class OutProtocol;
 class PointColDetector;
 class PositionStorage;
 class ProceduralManager;

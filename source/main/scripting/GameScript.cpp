@@ -37,6 +37,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <curl/easy.h>
 #endif //USE_CURL
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
@@ -44,7 +45,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Console.h"
 #include "IHeightFinder.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "Network.h"
+#include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "SelectorWindow.h"
@@ -56,6 +59,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Water.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 /* class that implements the interface for the scripts */
 GameScript::GameScript(ScriptEngine *se) :
@@ -87,7 +91,7 @@ void GameScript::setPersonPosition(const Vector3 &vec)
 
 void GameScript::loadTerrain(const String &terrain)
 {
-	if (gEnv->frameListener) gEnv->frameListener->loadTerrain(terrain);
+	if (gEnv->frameListener) RoR::Application::GetMainThreadLogic()->LoadTerrain(terrain);
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -142,13 +146,19 @@ bool GameScript::getCaelumAvailable()
 float GameScript::stopTimer()
 {
 	float result = 0.0f;
-	if (gEnv->frameListener) result = gEnv->frameListener->stopTimer();
+	if (RoR::Application::GetMainThreadLogic() != nullptr)
+	{
+		result = RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+	}
 	return result;
 }
 
 void GameScript::startTimer()
 {
-	if (gEnv->frameListener) gEnv->frameListener->startTimer();
+	if (RoR::Application::GetMainThreadLogic() != nullptr)
+	{
+		RoR::Application::GetMainThreadLogic()->StartRaceTimer();
+	}
 }
 
 void GameScript::setWaterHeight(float value)
@@ -229,14 +239,14 @@ void GameScript::registerForEvent(int eventValue)
 void GameScript::flashMessage(String &txt, float time, float charHeight)
 {
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
+	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
 #endif // USE_MYGUI
 }
 
 void GameScript::message(String &txt, String &icon, float timeMilliseconds, bool forceVisible)
 {
 #ifdef USE_MYGUI
-	Console::getSingleton().putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
+	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
 #endif // USE_MYGUI
 }
 
@@ -675,7 +685,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count",     CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);
 	}
 
-	const RenderTarget::FrameStats& stats = gEnv->renderWindow->getStatistics();
+	const RenderTarget::FrameStats& stats = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "AVG_FPS", CURLFORM_COPYCONTENTS, TOSTRING(stats.avgFPS).c_str(), CURLFORM_END);
 
 
@@ -748,7 +758,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	LOG("online API result: " + result);
 
 #ifdef USE_MYGUI
-	Console *con = Console::getSingletonPtrNoCreation();
+	Console *con = RoR::Application::GetConsole();
 	if (con)
 		con->putMessage(Console::CONSOLE_MSGTYPE_HIGHSCORE, Console::CONSOLE_SYSTEM_NOTICE, ANSI_TO_UTF(result));
 #endif // USE_MYGUI
@@ -778,7 +788,7 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	result           = "asynchronous";
 
 #ifdef USE_MYGUI
-	Console *con = Console::getSingletonPtrNoCreation();
+	Console *con = RoR::Application::GetConsole();
 	if (con) con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
 #endif // USE_MYGUI
 

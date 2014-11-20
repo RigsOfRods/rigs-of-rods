@@ -20,7 +20,7 @@
 */
 
 /**
-	@file   RigDefPrerequisites.h
+	@file   RigDef_Prerequisites.h
 	@author Petr Ohlidal
 	@date   12/2013
 */
@@ -38,6 +38,9 @@ struct Beam;
 struct BeamDefaults;
 struct BeamDefaultsScale;
 struct CameraSettings;
+struct Engine;
+struct Engoption;
+struct ExtCamera;
 struct File;
 struct Globals;
 struct GuiSettings;

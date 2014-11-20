@@ -1,26 +1,29 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2014 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifdef USE_MYGUI
 
 #include "Console.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
@@ -43,6 +46,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif // LINUX
 
 using namespace Ogre;
+using namespace RoR;
 
 // the delimiters that decide where a word is finished
 const UTFString Console::wordDelimiters = " \\\"\'|.,`!;<>~{}()+&%$@";
@@ -51,7 +55,6 @@ const char *builtInCommands[] = {"/help", "/log", "/pos", "/goto", "/terrainheig
 // class
 Console::Console() : netChat(0), top_border(20), bottom_border(100), message_counter(0), mHistory(), mHistoryPosition(0), inputMode(false), linesChanged(false), scrollOffset(0), autoCompleteIndex(-1), linecount(10), scroll_size(5), angelscriptMode(false)
 {
-	setSingleton(this);
 	mMainWidget = MyGUI::Gui::getInstance().createWidget<MyGUI::Window>("default", 0, 0, 400, 300,  MyGUI::Align::Center, "Back", "Console");
 	mMainWidget->setCaption(_L("Console"));
 	mMainWidget->setAlpha(0.9f);
@@ -165,14 +168,14 @@ void Console::startPrivateChat(int target_uid)
 	client_t *c = gEnv->network->getClientInfo(target_uid);
 	if (!c) return;
 
-	Console::getSingleton().setVisible(true);
-	Console::getSingleton().select("/whisper " + UTFString(c->user.username) + " ");
+	setVisible(true);
+	select("/whisper " + UTFString(c->user.username) + " ");
 }
 
 void Console::unselect()
 {
 	MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-	GUIManager::getSingleton().unfocus();
+	RoR::Application::GetGuiManager()->unfocus();
 }
 
 
@@ -698,8 +701,10 @@ void Console::resized()
 	MyGUI::IntSize size = MyGUI::RenderManager::getInstance().getViewSize();
 	
 	// 15% of the window height is the overlay
-	OverlayWrapper *ow = OverlayWrapper::getSingletonPtr();
-	if (ow) bottom_border = size.height - ow->getDashBoardHeight() + 20;
+	if (RoR::Application::GetOverlayWrapper() != nullptr)
+	{
+		bottom_border = size.height - RoR::Application::GetOverlayWrapper()->getDashBoardHeight() + 20;
+	}
 
 	int height = size.height - bottom_border - top_border;
 	int width  = size.width;
@@ -720,7 +725,7 @@ void Console::resized()
 			lines[i].txtctrl->setSize(width, lines[i].txtctrl->getHeight());
 			continue;
 		}
-		mygui_console_line_t line;
+		MyguiConsoleLine line;
 		memset(&line, 0, sizeof(line));
 		line.number = i;
 
@@ -789,7 +794,7 @@ void Console::updateGUILines( float dt )
 			break;
 		}
 
-		msg_t &m = messages[msgid];
+		ConsoleMessage &m = messages[msgid];
 
 		// check if TTL expired
 		unsigned long t = Root::getSingleton().getTimer()->getMilliseconds() - m.time;
@@ -887,7 +892,7 @@ void Console::updateGUIVisual( float dt )
 int Console::messageUpdate( float dt )
 {
 	// collect the waiting messages and handle them
-	std::vector<msg_t> tmpWaitingMessages;
+	std::vector<ConsoleMessage> tmpWaitingMessages;
 	int results = pull(tmpWaitingMessages);
 
 	// nothing to add?
@@ -925,7 +930,7 @@ int Console::messageUpdate( float dt )
 
 void Console::putMessage( int type, int sender_uid, UTFString txt, String icon, unsigned long ttl, bool forcevisible )
 {
-	msg_t t;
+	ConsoleMessage t;
 
 	t.type       = type;
 	t.sender_uid = sender_uid;

@@ -116,7 +116,7 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 		updatePSSM();
 
 #else
-		showError("Parallel-split Shadow Maps as shadow technique is only available when you build with Ogre 1.6 support.", "PSSM error");
+		ErrorUtils::ShowError("Parallel-split Shadow Maps as shadow technique is only available when you build with Ogre 1.6 support.", "PSSM error");
 		exit(1);
 #endif //OGRE_VERSION
 	}

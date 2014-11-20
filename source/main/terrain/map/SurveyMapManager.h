@@ -76,6 +76,8 @@ public:
 
 	enum SurveyMapTypes { SURVEY_MAP_NONE, SURVEY_MAP_SMALL, SURVEY_MAP_BIG, SURVEY_MAP_END};
 
+	void Update(Beam ** vehicles, int num_vehicles);
+
 protected:
 
 	void init();
