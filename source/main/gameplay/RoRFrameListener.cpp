@@ -1087,8 +1087,10 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 
 		if (enterTruck)
 		{
-			if (b)
+			if (b) {
 				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
+				b->activate();
+			}
 			else
 				BeamFactory::getSingleton().setCurrentTruck(-1);
 		}
