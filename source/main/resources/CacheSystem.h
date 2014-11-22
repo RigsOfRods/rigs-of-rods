@@ -137,7 +137,16 @@ class CacheSystem : public ZeroedMemoryAllocator
 
 public:	
 
-	void startup(bool forcecheck=false);
+	enum CacheValidityState
+	{
+		CACHE_VALID                    = 0,
+		CACHE_NEEDS_UPDATE_INCREMENTAL = -1,
+		CACHE_NEEDS_UPDATE_FULL        = -2,
+
+		CACHE_STATE_UNKNOWN            = 0xFFFFFFFF
+	};
+
+	void Startup(bool forcecheck=false);
 	void loadAllZips();
 	
 	static Ogre::String stripUIDfromString(Ogre::String uidstr);
@@ -209,8 +218,8 @@ protected:
 	void fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 	void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 
-	int isCacheValid();                       // validate cache
-	void unloadUselessResourceGroups();       // unload unused resources after cache generation
+	/// Checks if update is needed
+	CacheValidityState IsCacheValid();
 	Ogre::String filenamesSHA1();             // generates the hash over the whole content
 	bool loadCache();			              // loads cache config file, new format
 	Ogre::String getCacheConfigFilename(bool full); // returns filename of the cache file

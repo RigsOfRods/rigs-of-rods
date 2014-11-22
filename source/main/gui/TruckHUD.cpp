@@ -27,6 +27,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "Utils.h"
 
+#include <OgreOverlayManager.h>
+
 using namespace Ogre;
 
 TruckHUD::TruckHUD() :

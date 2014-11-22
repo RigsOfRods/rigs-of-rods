@@ -149,7 +149,7 @@ void CacheSystem::setLocation(String cachepath, String configpath)
 	configlocation=configpath;
 }
 
-void CacheSystem::startup(bool forcecheck)
+void CacheSystem::Startup(bool force_check)
 {
 	if (BSETTING("NOCACHE", false))
 	{
@@ -163,20 +163,28 @@ void CacheSystem::startup(bool forcecheck)
 	// calculate sha1 over all the content
 	currentSHA1 = filenamesSHA1();
 
-	int valid = isCacheValid();
-	if (forcecheck)
-		valid = -1;
-	// valid == -1 : try incemental update
-	// valid == -2 : must update fully
-	if (valid<0)
+	CacheValidityState validity = CACHE_STATE_UNKNOWN;
+	if (force_check)
+	{
+		validity = CACHE_NEEDS_UPDATE_INCREMENTAL;
+	}
+	else
+	{
+		validity = IsCacheValid();
+	}
+	
+	if (validity != CACHE_VALID)
 	{
 		LOG("cache invalid, updating ...");
 		// generate the cache
-		generateCache((valid < -1));
+		generateCache(validity == CACHE_NEEDS_UPDATE_FULL);
 
-		//LOG("unloading unused resource groups ...");
-		// important: unload everything again!
-		//unloadUselessResourceGroups();
+		LOG("Cache updated, enumerating all resource groups...");
+		StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
+		for(auto itor = sv.begin(); itor != sv.end(); ++itor)
+		{
+			LOG("\t\t" + *itor);
+		}
 	}
 
 	LOG("loading cache...");
@@ -191,6 +199,13 @@ void CacheSystem::startup(bool forcecheck)
 		exit(1337);
 	}
 
+	LOG("Cache loaded, enumerating all resource groups...");
+	StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
+	for(auto itor = sv.begin(); itor != sv.end(); ++itor)
+	{
+		LOG("\t\t" + *itor);
+	}
+
 	LOG("cache loaded!");
 }
 
@@ -202,33 +217,6 @@ std::map<int, Category_Entry> *CacheSystem::getCategories()
 std::vector<CacheEntry> *CacheSystem::getEntries()
 {
 	return &entries;
-}
-
-void CacheSystem::unloadUselessResourceGroups()
-{
-	StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-	StringVector::iterator it;
-	for (it = sv.begin(); it!=sv.end(); it++)
-	{
-		if (it->substr(0, 8) == "General-")
-		{
-			try
-			{
-#ifdef USE_OPENAL
-				SoundScriptManager::getSingleton().clearNonBaseTemplates();
-#endif //OPENAL
-				// we cannot fix this problem below Ogre version 1.7
-				ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(*it);
-				ResourceGroupManager::getSingleton().clearResourceGroup(*it);
-				ResourceGroupManager::getSingleton().unloadResourceGroup(*it);
-				ResourceGroupManager::getSingleton().destroyResourceGroup(*it);
-			} catch(Ogre::Exception& e)
-			{
-				LOG("error while unloading resource groups: " + e.getFullDescription());
-				LOG("trying to continue ...");
-			}
-		}
-	}
 }
 
 String CacheSystem::getCacheConfigFilename(bool full)
@@ -254,7 +242,7 @@ bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
 	return exists;
 }
 
-int CacheSystem::isCacheValid()
+CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
 {
 	String cfgfilename = getCacheConfigFilename(false);
 	ImprovedConfigFile cfg;
@@ -262,7 +250,7 @@ int CacheSystem::isCacheValid()
 	if (!resourceExistsInAllGroups(cfgfilename))
 	{
 		LOG("unable to load config file: "+cfgfilename);
-		return -2;
+		return CACHE_NEEDS_UPDATE_FULL;
 	}
 
 	String group = ResourceGroupManager::getSingleton().findGroupContainingResource(cfgfilename);
@@ -274,16 +262,16 @@ int CacheSystem::isCacheValid()
 	if (shaone == "" || shaone != currentSHA1)
 	{
 		LOG("* mod cache is invalid (not up to date), regenerating new one ...");
-		return -1;
+		return CACHE_NEEDS_UPDATE_INCREMENTAL;
 	}
 	if (cacheformat != String(CACHE_FILE_FORMAT))
 	{
 		entries.clear();
 		LOG("* mod cache has invalid format, trying to regenerate");
-		return -1;
+		return CACHE_NEEDS_UPDATE_INCREMENTAL;
 	}
 	LOG("* mod cache is valid, using it.");
-	return 0;
+	return CACHE_VALID;
 }
 
 void CacheSystem::logBadTruckAttrib(const String& line, CacheEntry& t)
