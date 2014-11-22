@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "AutoPilot.h"
 #include "BeamFactory.h"
+#include "CacheSystem.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "ExtinguishableFireAffector.h"

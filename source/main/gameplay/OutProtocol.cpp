@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRVersion.h"
 #include "Settings.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 
 OutProtocol::OutProtocol(void) : 

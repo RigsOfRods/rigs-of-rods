@@ -30,6 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "BeamStats.h"
 #include "Buoyance.h"
+#include "CacheSystem.h"
 #include "CameraManager.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"

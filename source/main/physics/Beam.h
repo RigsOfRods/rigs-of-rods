@@ -25,9 +25,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDef_Prerequisites.h"
 
 #include "BeamData.h"
-#include "CacheSystem.h"
 #include "IThreadTask.h"
 #include "Streamable.h"
+
+#include <OgreTimer.h>
+#include <OgreOverlayElement.h>
 
 /** 
 * Represents an entire rig (any vehicle type)

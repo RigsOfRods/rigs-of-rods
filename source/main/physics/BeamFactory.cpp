@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "BeamEngine.h"
+#include "CacheSystem.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "InputEngine.h"

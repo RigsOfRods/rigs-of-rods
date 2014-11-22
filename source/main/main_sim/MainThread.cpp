@@ -217,7 +217,7 @@ void MainThread::Go()
 
 	if (BSETTING("regen-cache-only", false))
 	{
-		RoR::Application::GetCacheSystem()->startup(true); // true = force regeneration
+		RoR::Application::GetCacheSystem()->Startup(true); // true = force regeneration
 		
 		// Get stats
 		int num_new     = RoR::Application::GetCacheSystem()->newFiles;
@@ -248,7 +248,7 @@ void MainThread::Go()
 		exit(0);
 	}
 
-	RoR::Application::GetCacheSystem()->startup();
+	RoR::Application::GetCacheSystem()->Startup();
 
 	// Create legacy RoRFrameListener
 
