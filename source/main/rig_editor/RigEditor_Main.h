@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -96,6 +96,8 @@ public:
 
 	virtual void CommandSaveContentOfLandVehiclePropertiesWindow();
 
+	virtual void CommandShowHelpWindow();
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
@@ -122,8 +124,10 @@ private:
 	std::unique_ptr<GUI::RigEditorMenubar>      m_gui_menubar;
 	std::unique_ptr<GUI::OpenSaveFileDialog>    m_gui_open_save_file_dialog;
 	std::unique_ptr<GUI::RigEditorDeleteMenu>   m_gui_delete_menu;
+	std::unique_ptr<GUI::RigEditorHelpWindow>   m_gui_help_window;
 	std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
-	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>   m_gui_land_vehicle_properties_window;
+	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>  m_gui_land_vehicle_properties_window;
+	
 };
 
 } // namespace RigEditor

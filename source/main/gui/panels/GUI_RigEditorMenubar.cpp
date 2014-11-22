@@ -12,11 +12,11 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
@@ -42,6 +42,7 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 	m_file_popup_item_properties     ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::RigPropertiesItemClicked);
 	m_file_popup_item_land_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::LandVehiclePropertiesItemClicked);
 	m_file_popup_item_save_as        ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::SaveFileAsItemClicked);
+	m_menubar_item_help              ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::MenubarItemHelpClicked);
 }
 
 void RigEditorMenubar::Show()
@@ -91,4 +92,9 @@ void RigEditorMenubar::RigPropertiesItemClicked(MyGUI::Widget* sender)
 void RigEditorMenubar::LandVehiclePropertiesItemClicked(MyGUI::Widget* sender)
 {
 	m_rig_editor_interface->CommandShowLandVehiclePropertiesWindow();
+}
+
+void RigEditorMenubar::MenubarItemHelpClicked(MyGUI::Widget* sender)
+{
+	m_rig_editor_interface->CommandShowHelpWindow();
 }
