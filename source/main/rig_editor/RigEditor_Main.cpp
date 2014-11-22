@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -31,9 +31,10 @@
 #include "CacheSystem.h"
 #include "GlobalEnvironment.h"
 #include "GUI_RigEditorDeleteMenu.h"
-#include "GUI_RigEditorRigPropertiesWindow.h"
+#include "GUI_RigEditorHelpWindow.h"
 #include "GUI_RigEditorLandVehiclePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
+#include "GUI_RigEditorRigPropertiesWindow.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "MainThread.h"
@@ -156,6 +157,10 @@ void Main::EnterMainLoop()
 	{
 		m_gui_land_vehicle_properties_window 
 			= std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>(new GUI::RigEditorLandVehiclePropertiesWindow(this));
+	}
+	if (m_gui_help_window.get() == nullptr)
+	{
+		m_gui_help_window = std::unique_ptr<GUI::RigEditorHelpWindow>(new GUI::RigEditorHelpWindow(this));
 	}
 
 	/* Setup input */
@@ -714,4 +719,10 @@ void Main::CommandSaveContentOfLandVehiclePropertiesWindow()
 			m_rig->GetProperties()->GetEngoption()
 			);
 	}
+}
+
+void Main::CommandShowHelpWindow()
+{
+	m_gui_help_window->Show();
+	m_gui_help_window->CenterToScreen();
 }

@@ -22,13 +22,13 @@
 #pragma once
 
 /** 
-	@file   GUI_RigEditorMenubar.h
+	@file   GUI_RigEditorHelpWindow.h
 	@author Petr Ohlidal
-	@date   08/2014
+	@date   11/2014
 */
 
 #include "ForwardDeclarations.h"
-#include "GUI_RigEditorMenubarLayout.h"
+#include "GUI_RigEditorHelpWindowLayout.h"
 #include "RigEditor_IMain.h"
 
 namespace RoR
@@ -37,42 +37,30 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorMenubar: public RigEditorMenubarLayout
+class RigEditorHelpWindow: public RigEditorHelpWindowLayout
 {
 
 public:
 
-	RigEditorMenubar(RigEditor::IMain* rig_editor_interface);
+	RigEditorHelpWindow(RigEditor::IMain* rig_editor_interface);
 
 	void Show();
 	
 	void Hide();
 
-	void SetWidth(int width_pixels);
+	void CenterToScreen();
+
+	bool IsVisible();
 
 private:
 
-	/* Event handlers */
-
-	void MenubarItemClicked(MyGUI::Widget* sender);
-
-	void OpenFileItemClicked(MyGUI::Widget* sender);
-
-	void SaveFileAsItemClicked(MyGUI::Widget* sender);
-
-	void CloseRigItemClicked(MyGUI::Widget* sender);
-
-	void RigPropertiesItemClicked(MyGUI::Widget* sender);
-
-	void QuitEditorItemClicked(MyGUI::Widget* sender);
-
-	void LandVehiclePropertiesItemClicked(MyGUI::Widget* sender);
-
-	void MenubarItemHelpClicked(MyGUI::Widget* sender);
+	// Close window [X] button
+	void WindowButtonClicked(MyGUI::Widget* sender, const std::string& name);
 
 private:
 
 	RigEditor::IMain* m_rig_editor_interface;
+	bool              m_helpfile_loaded;
 
 };
 

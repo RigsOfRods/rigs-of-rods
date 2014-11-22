@@ -56,9 +56,10 @@ namespace RoR
 	namespace GUI
 	{
 		class  RigEditorDeleteMenu;
-		class  RigEditorRigPropertiesWindow;
+		class  RigEditorHelpWindow;
 		class  RigEditorLandVehiclePropertiesWindow;
 		class  RigEditorMenubar;
+		class  RigEditorRigPropertiesWindow;
 
 	} // namespace GUI
 

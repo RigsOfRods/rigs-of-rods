@@ -32,8 +32,8 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_rig_editor_menubar, "rig_editor_menubar");
 	MyGUI::MenuBar* m_rig_editor_menubar;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_item_file, "item_file");
-	MyGUI::MenuItem* m_item_file;
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_menubar_item_file, "menubar_item_file");
+	MyGUI::MenuItem* m_menubar_item_file;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup, "file_popup");
 	MyGUI::PopupMenu* m_file_popup;
@@ -55,6 +55,9 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_quit, "file_popup_item_quit");
 	MyGUI::MenuItem* m_file_popup_item_quit;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_menubar_item_help, "menubar_item_help");
+	MyGUI::MenuItem* m_menubar_item_help;
 
 	//%LE Widget_Declaration list end
 };
