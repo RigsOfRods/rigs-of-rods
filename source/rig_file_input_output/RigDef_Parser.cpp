@@ -4610,6 +4610,7 @@ void Parser::ParseNode2(Ogre::String const & line)
 
 void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line)
 {
+	// Parse line
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_NODES_N2))
 	{
@@ -5028,8 +5029,22 @@ bool Parser::_ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & re
 	return false;
 }
 
-void Parser::ParseBeams(Ogre::String const & line)
+void Parser::ParseBeams(Ogre::String const & _line)
 {
+	// Cut off trailing comments
+	//     Original parser didn't understand comments and parsed it as arguments
+	//     However, some creators used trailing comments without encountering problems.
+	//     Solution: let's tolerate trailing comments in this parser.
+
+	Ogre::String line = _line;
+
+	int semicolon_index = _line.find_first_of(";");
+	if (semicolon_index != -1)
+	{
+		line = line.substr(0, semicolon_index);
+	}
+
+	// Parse arguments
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_BEAMS))
 	{
