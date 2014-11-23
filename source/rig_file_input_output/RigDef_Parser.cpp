@@ -1932,12 +1932,12 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	mesh_wheel.propulsion = Wheels::Propulsion(propulsion);
 
 	mesh_wheel.reference_arm_node = _ParseNodeId(results[10]);
-	mesh_wheel.mass = STR_PARSE_REAL(results[11]);
-	mesh_wheel.spring = STR_PARSE_REAL(results[12]);
-	mesh_wheel.damping = STR_PARSE_REAL(results[13]);
-	mesh_wheel.side = MeshWheel::Side(results[14].str().at(0)); /* The regex validates the data */
-	mesh_wheel.mesh_name = results[15];
-	mesh_wheel.material_name = results[16];
+	mesh_wheel.mass               = STR_PARSE_REAL(results[11]);
+	mesh_wheel.spring             = STR_PARSE_REAL(results[12]);
+	mesh_wheel.damping            = STR_PARSE_REAL(results[13]);
+	mesh_wheel.side               = MeshWheel::Side(results[14].str().at(0)); // The regex validates the data
+	mesh_wheel.mesh_name          = results[16];
+	mesh_wheel.material_name      = results[17];
 
 	m_current_module->mesh_wheels.push_back(mesh_wheel);
 }
@@ -3307,14 +3307,14 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 			if (! more_params_ahead && format_version == 2 && results[result_index + 1].matched)
 			{
 				std::stringstream msg;
-				msg << "Invalid string after parameter 'description': '" << results[result_index + 1] << "', please remove. Ignoring..."; 
+				msg << "Please remove: Invalid string after parameter \"description\": \"" << results[result_index + 1] << "\""; 
 				AddMessage(line, Message::TYPE_WARNING, msg.str());
 
 				/* Even worse, there are 2 misplaced strings */
 				if (! more_params_ahead && results[result_index + 2].matched)
 				{
 					std::stringstream msg;
-					msg << "Another invalid string after parameter 'description': '" << results[result_index + 1] << "'!! Please remove. Ignoring..."; 
+					msg << "Please remove: Second (!!) invalid string after parameter \"description\": \"" << results[result_index + 1] << "\"";
 					AddMessage(line, Message::TYPE_WARNING, msg.str());
 				}
 			}
@@ -3402,7 +3402,7 @@ void Parser::ParseCinecam(Ogre::String const & line)
 	if (results[16].matched)
 	{
 		std::stringstream msg;
-		msg << "Illegal character(s) after last parameter: '" << results[16] << "'. Please remove.";
+		msg << "Please remove: Illegal character(s) after last parameter: \"" << results[16] << "\"";
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
@@ -4793,12 +4793,12 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	mesh_wheel_2.propulsion = Wheels::Propulsion(propulsion);
 
 	mesh_wheel_2.reference_arm_node = _ParseNodeId(results[10]);
-	mesh_wheel_2.mass = STR_PARSE_REAL(results[11]);
-	mesh_wheel_2.tyre_springiness = STR_PARSE_REAL(results[12]);
-	mesh_wheel_2.tyre_damping = STR_PARSE_REAL(results[13]);
-	mesh_wheel_2.side = MeshWheel::Side(results[14].str().at(0)); /* The regex validates the data */
-	mesh_wheel_2.mesh_name = results[15];
-	mesh_wheel_2.material_name = results[16];
+	mesh_wheel_2.mass               = STR_PARSE_REAL(results[11]);
+	mesh_wheel_2.tyre_springiness   = STR_PARSE_REAL(results[12]);
+	mesh_wheel_2.tyre_damping       = STR_PARSE_REAL(results[13]);
+	mesh_wheel_2.side               = MeshWheel::Side(results[14].str().at(0)); // The regex validates the data
+	mesh_wheel_2.mesh_name          = results[16];
+	mesh_wheel_2.material_name      = results[17];
 
 	m_current_module->mesh_wheels_2.push_back(mesh_wheel_2);
 }
