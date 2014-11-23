@@ -25,6 +25,8 @@
 #include "Beam.h"
 #include "OverlayWrapper.h"
 
+#include <OgreCamera.h>
+
 using namespace Ogre;
 
 CameraBehaviorVehicleCineCam::CameraBehaviorVehicleCineCam() :
