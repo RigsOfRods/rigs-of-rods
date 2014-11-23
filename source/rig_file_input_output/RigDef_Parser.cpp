@@ -4032,9 +4032,9 @@ void Parser::ParseShocks(Ogre::String const & line)
 	shock.long_bound     = STR_PARSE_REAL(results[6]);
 	shock.precompression = STR_PARSE_REAL(results[9]);
 
-	if (results[11].matched) /* Has options? */
+	if (results[12].matched) /* Has options? */
 	{
-		std::string options_str = results[11].str();
+		std::string options_str = results[12].str();
 		for (unsigned int i = 0; i < options_str.length(); i++)
 		{
 			switch (options_str.at(i))
@@ -4064,17 +4064,28 @@ void Parser::ParseShocks(Ogre::String const & line)
 		}
 	}
 
-	if (results[12].matched) /* Invalid trailing text */
+	// ========== Syntax error reports ==========
+
+	// Invalid trailing text
+	if (results[13].matched)
 	{
 		std::stringstream msg;
-		msg << "Please remove: Invalid text after parameters: \"" << results[10] << "\"";
+		msg << "Please remove: Invalid text after parameters: \"" << results[15] << "\"";
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
-	if (results[7].length() != 0) /* Invalid characters. Always match (due to * quantifier) */
+	// Invalid characters. Always match (due to * quantifier)
+	if (results[7].length() != 0)
 	{
 		std::stringstream msg;
 		msg << "Please remove: Invalid text after property \"longbound\": \"" << results[7] << "\"";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
+
+	if (results[10].length() != 0)
+	{
+		std::stringstream msg;
+		msg << "Please remove: Invalid text after property \"precompression\": \"" << results[10] << "\"";
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
