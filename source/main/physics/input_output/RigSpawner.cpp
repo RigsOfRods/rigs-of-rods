@@ -2318,6 +2318,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			steering_wheel_offset = def.special_prop_steering_wheel.offset;
 		}
 		prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+		prop.wheelpos = steering_wheel_offset;
 		MeshObject *mesh_object = new MeshObject(
 			def.special_prop_steering_wheel.mesh_name,
 			"",
