@@ -59,6 +59,8 @@ public:
 	void checkGUID();
 	void createGUID();
 
+	int GetFlaresMode();
+
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
 	void addRef(){};
@@ -84,6 +86,11 @@ protected:
 
 	bool get_system_paths(char *program_path, char *user_path);
 	int generateBinaryHash();
+
+	// ------------------------------------------------------------
+	// Cached config data
+
+	int m_flares_mode;
 
 };
 
