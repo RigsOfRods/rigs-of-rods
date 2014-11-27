@@ -1189,54 +1189,42 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 
 void TerrainObjectManager::loadPreloadedTrucks()
 {
-	// get lights mode
-	int flaresMode = 0;
-	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (lightsMode == "None (fastest)")
-		flaresMode = 0;
-	else if (lightsMode == "No light sources")
-		flaresMode = 1;
-	else if (lightsMode == "Only current vehicle, main lights")
-		flaresMode = 2;
-	else if (lightsMode == "All vehicles, main lights")
-		flaresMode = 3;
-	else if (lightsMode == "All vehicles, all lights")
-		flaresMode = 4;
-
-	// load the rest in SP
 	// in netmode, don't load other trucks!
-	if (!gEnv->network)
+	if (gEnv->network != nullptr)
 	{
-		for (unsigned int i=0; i<truck_preload.size(); i++)
-		{
-			Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
-			Beam *b = BeamFactory::getSingleton().createLocal(
-				pos, 
-				truck_preload[i].rotation, 
-				truck_preload[i].name, 
-				nullptr, /* spawnbox */ 
-				truck_preload[i].ismachine, 
-				flaresMode, 
-				nullptr, /* truckconfig */ 
-				nullptr, /* skin */
-				truck_preload[i].freePosition, 
-				true /* preloaded_with_terrain */
-			);
-#ifdef USE_MYGUI
-			if (b && gEnv->surveyMap)
-			{
-				SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
-				if (e)
-				{
-					e->setState(DESACTIVATED);
-					e->setVisibility(true);
-					e->setPosition(truck_preload[i].px, truck_preload[i].pz);
-					e->setRotation(-Radian(b->getHeadingDirectionAngle()));
-				}
-			}
-#endif //USE_MYGUI
-		}
+		return;
 	}
+	
+	for (unsigned int i=0; i<truck_preload.size(); i++)
+	{
+		Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
+		Beam *b = BeamFactory::getSingleton().createLocal(
+			pos, 
+			truck_preload[i].rotation, 
+			truck_preload[i].name, 
+			nullptr, /* spawnbox */ 
+			truck_preload[i].ismachine, 
+			Settings::getSingleton().GetFlaresMode(), 
+			nullptr, /* truckconfig */ 
+			nullptr, /* skin */
+			truck_preload[i].freePosition, 
+			true /* preloaded_with_terrain */
+		);
+#ifdef USE_MYGUI
+		if (b && gEnv->surveyMap)
+		{
+			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
+			if (e)
+			{
+				e->setState(DESACTIVATED);
+				e->setVisibility(true);
+				e->setPosition(truck_preload[i].px, truck_preload[i].pz);
+				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
+			}
+		}
+#endif //USE_MYGUI
+	}
+	
 
 }
 

@@ -68,7 +68,8 @@ bool FolderExists(Ogre::String const & path)
 	return FolderExists(path.c_str());
 }
 
-Settings::Settings()
+Settings::Settings():
+	m_flares_mode(-1)
 {
 }
 
@@ -551,4 +552,27 @@ void Settings::path_add(char* path, const char* dirname)
 #endif
 	sprintf(tmp, "%s%s%c", path, dirname, dirsep);
 	strcpy(path, tmp);
+}
+
+int Settings::GetFlaresMode()
+{
+	if (m_flares_mode == -1)
+	{
+		auto itor = settings.find("Lights");
+		if (itor == settings.end())
+		{
+			m_flares_mode = 2; // "Only current vehicle, main lights" (default)
+		}
+		else
+		{
+			if      (itor->second == "None (fastest)")                    { m_flares_mode = 0; }
+			else if (itor->second == "No light sources")                  { m_flares_mode = 1; }
+			else if (itor->second == "Only current vehicle, main lights") { m_flares_mode = 2; }
+			else if (itor->second == "All vehicles, main lights")         { m_flares_mode = 3; }
+			else if (itor->second == "All vehicles, all lights")          { m_flares_mode = 4; }
+
+			else                                                          { m_flares_mode = 2; }
+		}
+	}
+	return m_flares_mode;
 }
