@@ -6365,23 +6365,22 @@ bool Beam::LoadTruck(
 	RigDef::Validator validator;
 	validator.Setup(parser.GetFile());
 
-	// Workaround: Some terrains pre-load .load files with no beams.
-	// Observed in: "Northern-Isles" [http://www.rigsofrods.com/repository/view/5315]
-	Ogre::String file_extension = file_name.substr(file_name.size() - 5);
+	// Workaround: Some terrains pre-load truckfiles with special purpose:
+	//     "soundloads" = play sound effect at certain spot
+	//     "fixes"      = structures of N/B fixed to the ground
+	// These files can have no beams. Possible extensions: .load or .fixed
+	// .load observed in: "Northern-Isles" [http://www.rigsofrods.com/repository/view/5315]
+	Ogre::String file_extension = file_name.substr(file_name.find_last_of('.'));
 	Ogre::StringUtil::toLowerCase(file_extension);
-	bool is_load = (file_extension == ".load");
-	if (preloaded_with_terrain && is_load)
+	bool extension_matches = (file_extension == ".load") | (file_extension == ".fixed");
+	if (preloaded_with_terrain && extension_matches)
 	{
 		validator.SetCheckBeams(false);
 	}
 	bool valid = validator.Validate();
 
 	LogValidatorMessages(validator);
-
-	if (! valid)
-	{
-		return false;
-	}
+	// Continue anyway...
 
 	/* PROCESSING */
 
