@@ -6816,6 +6816,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		beam.commandShort      = 0.0f;
 		beam.commandLong       = 1.0f;
 		beam.maxtiestress      = HOOK_FORCE_DEFAULT;
+		beam.diameter          = DEFAULT_BEAM_DIAMETER;
 		SetBeamDeformationThreshold(beam, def.beam_defaults);
 		CreateBeamVisuals(beam, beam_index, true);
 			
