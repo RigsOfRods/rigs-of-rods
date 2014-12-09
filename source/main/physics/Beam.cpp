@@ -6280,8 +6280,6 @@ Beam::Beam(
 
 	mCamera = gEnv->mainCamera;
 
-	RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\parser-debug\\NextStable.log");
-
 	LOG(" ===== DONE LOADING VEHICLE");
 }
 
