@@ -3649,7 +3649,10 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		return;
 	}
 
-	shock_t shock;
+	// Acquire shock
+	shock_t & shock = m_rig->shocks[m_rig->free_shock];
+	++m_rig->free_shock;
+
 	/* Disable trigger on startup? (default enabled) */
 	shock.trigger_enabled = ! BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_x_START_OFF);
 
@@ -3663,6 +3666,8 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 
 	unsigned int shortbound_trigger_key = def.shortbound_trigger_key;
 	unsigned int longbound_trigger_key = def.longbound_trigger_key;
+	float shortbound = def.contraction_trigger_limit;
+	float longbound = def.expansion_trigger_limit;
 
 	m_rig->commandkey[shortbound_trigger_key].trigger_cmdkeyblock_state = false;
 	if (longbound_trigger_key != -1)
@@ -3690,8 +3695,8 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_c_COMMAND_STYLE))
 	{
 		/* trigger is set with commandstyle boundaries instead of shocksytle */
-		shortbound_trigger_key = std::abs(static_cast<int>(shortbound_trigger_key) - 1);
-		longbound_trigger_key -= 1;
+		shortbound = abs(shortbound - 1.f);
+		longbound -= 1.f;
 	}
 	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_BLOCK_TRIGGERS))
 	{
@@ -3770,9 +3775,10 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	SetBeamSpring(beam, 0.f);
 	SetBeamDamping(beam, 0.f);
 	CalculateBeamLength(beam);
-	beam.shortbound = def.contraction_trigger_limit;
-	beam.longbound = def.expansion_trigger_limit;
+	beam.shortbound = shortbound;
+	beam.longbound = longbound;
 	beam.bounded = SHOCK2;
+	beam.shock = &shock;
 
 	CreateBeamVisuals(beam, beam_index, hydro_type != BEAM_INVISIBLE_HYDRO);
 
@@ -3830,12 +3836,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	shock.sbd_spring         = def.beam_defaults->springiness;
 	shock.sbd_damp           = def.beam_defaults->damping_constant;
 	shock.last_debug_state   = 0;
-
-	/* Commit data to <rig_t> */
 	
-	m_rig->shocks[m_rig->free_shock] = shock;
-	beam.shock = & m_rig->shocks[m_rig->free_shock];
-	m_rig->free_shock++;
 }
 
 void RigSpawner::ProcessContacter(RigDef::Node::Id & node)
@@ -4264,58 +4265,69 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	}
 
 	unsigned int hydro_type = BEAM_HYDRO;
-	unsigned int hydro_flags = HYDRO_FLAG_DIR;
+	unsigned int hydro_flags = 0;
 
-	/* Options */
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_i_INVISIBLE))
+	// Parse options
+	if (def.options.empty()) // Parse as if option 'n' (OPTION_n_NORMAL) was present
 	{
-		hydro_type = BEAM_INVISIBLE_HYDRO;
+		hydro_type = BEAM_HYDRO;
+		hydro_flags |= HYDRO_FLAG_DIR;
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED))
+	else
 	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_SPEED);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_a_INPUT_AILERON))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_AILERON);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_r_INPUT_RUDDER))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_RUDDER);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_e_INPUT_ELEVATOR))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_ELEVATOR);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_AILERON);
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_ELEVATOR);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_REV_AILERON);
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_ELEVATOR);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_AILERON);
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_RUDDER);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_REV_AILERON);
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_RUDDER);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_ELEVATOR);
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_RUDDER);
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER))
-	{
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_REV_ELEVATOR);
-		BITMASK_SET_1(hydro_flags, HYDRO_FLAG_RUDDER);
+		for (unsigned int i = 0; i < def.options.length(); ++i)
+		{
+			switch (def.options[i])
+			{
+				case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
+					hydro_type = BEAM_INVISIBLE_HYDRO;
+					break;
+				case RigDef::Hydro::OPTION_n_NORMAL:  // n
+					hydro_type = BEAM_HYDRO;
+					hydro_flags |= HYDRO_FLAG_DIR;
+					break;
+				case RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED:  // 's': // speed changing hydro
+					hydro_flags |= HYDRO_FLAG_SPEED;
+					break;
+				case RigDef::Hydro::OPTION_a_INPUT_AILERON:  // 'a':
+					hydro_flags |= HYDRO_FLAG_AILERON;
+					break;
+				case RigDef::Hydro::OPTION_r_INPUT_RUDDER:  // 'r':
+					hydro_flags |= HYDRO_FLAG_RUDDER;
+					break;
+				case RigDef::Hydro::OPTION_e_INPUT_ELEVATOR:  // 'e':
+					hydro_flags |= HYDRO_FLAG_ELEVATOR;
+					break;
+				case RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR:  // 'u':
+					hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_ELEVATOR);
+					break;
+				case RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR:  // 'v':
+					hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR);
+					break;
+				case RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER:  // 'x':
+					hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_RUDDER);
+					break;
+				case RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER:  // 'y':
+					hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER);
+					break;
+				case RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER:  // 'g':
+					hydro_flags |= (HYDRO_FLAG_ELEVATOR | HYDRO_FLAG_RUDDER);
+					break;
+				case RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER:  // 'h':
+					hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
+					break;
+			}
+			
+			// NOTE: This is a quirk ported from v0.4.0.7 spawner (for compatibility)
+			//       This code obviously belongs after the options-loop.
+			//       However, since it's inside the loop, it only works correctly if the 'i' flag is last.
+			//
+			// ORIGINAL COMMENT: if you use the i flag on its own, add the direction to it
+			if (hydro_type == BEAM_INVISIBLE_HYDRO && !hydro_flags)
+			{
+				hydro_flags |= HYDRO_FLAG_DIR;
+			}
+		}
 	}
 
 	/* Inertia */
@@ -4358,7 +4370,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
 	beam.diameter             = DEFAULT_BEAM_DIAMETER;
 
-	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, BITMASK_IS_0(def.options, RigDef::Hydro::OPTION_i_INVISIBLE));
+	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
 
 	m_rig->hydro[m_rig->free_hydro] = beam_index;
 	m_rig->free_hydro++;

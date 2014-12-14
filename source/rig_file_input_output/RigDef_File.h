@@ -1260,31 +1260,31 @@ struct Hydro
 {
 	Hydro():
 		lenghtening_factor(0),
-		options(0),
 		detacher_group(0)
 	{}
 
-	static const unsigned int OPTION_i_INVISIBLE                 = BITMASK(1);
+	static const char OPTION_n_NORMAL                    = 'n';
+	static const char OPTION_i_INVISIBLE                 = 'i';
 
 	/* Useful for trucks */
 
-	static const unsigned int OPTION_s_DISABLE_ON_HIGH_SPEED     = BITMASK(2);
+	static const char OPTION_s_DISABLE_ON_HIGH_SPEED     = 's';
 
 	/* Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.  */
 
-	static const unsigned int OPTION_a_INPUT_AILERON             = BITMASK(3);
-	static const unsigned int OPTION_r_INPUT_RUDDER              = BITMASK(4);
-	static const unsigned int OPTION_e_INPUT_ELEVATOR            = BITMASK(5);
-	static const unsigned int OPTION_u_INPUT_AILERON_ELEVATOR    = BITMASK(6);
-	static const unsigned int OPTION_v_INPUT_InvAILERON_ELEVATOR = BITMASK(7);
-	static const unsigned int OPTION_x_INPUT_AILERON_RUDDER      = BITMASK(8);
-	static const unsigned int OPTION_y_INPUT_InvAILERON_RUDDER   = BITMASK(9);
-	static const unsigned int OPTION_g_INPUT_ELEVATOR_RUDDER     = BITMASK(10);
-	static const unsigned int OPTION_h_INPUT_InvELEVATOR_RUDDER  = BITMASK(11);
+	static const char OPTION_a_INPUT_AILERON             = 'a';
+	static const char OPTION_r_INPUT_RUDDER              = 'r';
+	static const char OPTION_e_INPUT_ELEVATOR            = 'e';
+	static const char OPTION_u_INPUT_AILERON_ELEVATOR    = 'u';
+	static const char OPTION_v_INPUT_InvAILERON_ELEVATOR = 'v';
+	static const char OPTION_x_INPUT_AILERON_RUDDER      = 'x';
+	static const char OPTION_y_INPUT_InvAILERON_RUDDER   = 'y';
+	static const char OPTION_g_INPUT_ELEVATOR_RUDDER     = 'g';
+	static const char OPTION_h_INPUT_InvELEVATOR_RUDDER  = 'h';
 
 	Node::Id nodes[2];
 	float lenghtening_factor;
-	unsigned int options;
+	std::string options;
 	OptionalInertia inertia;
 	boost::shared_ptr<DefaultInertia> inertia_defaults;
 	boost::shared_ptr<BeamDefaults> beam_defaults;

@@ -4956,48 +4956,7 @@ void Parser::ParseHydros(Ogre::String const & line)
 	/* Flags */
 	if (results[8].matched)
 	{
-		std::string const & flags_str = results[8];
-		for (unsigned int i = 0; i < flags_str.length(); i++)
-		{
-			switch (flags_str.at(i))
-			{
-				case 'i': 
-					hydro.options |= Hydro::OPTION_i_INVISIBLE;
-					break;
-				case 's':
-					hydro.options |= Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED;
-					break;
-				case 'a':
-					hydro.options |= Hydro::OPTION_a_INPUT_AILERON;
-					break;
-				case 'r':
-					hydro.options |= Hydro::OPTION_r_INPUT_RUDDER;
-					break;
-				case 'e':
-					hydro.options |= Hydro::OPTION_e_INPUT_ELEVATOR;
-					break;
-				case 'u':
-					hydro.options |= Hydro::OPTION_u_INPUT_AILERON_ELEVATOR;
-					break;
-				case 'v':
-					hydro.options |= Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR;
-					break;
-				case 'x':
-					hydro.options |= Hydro::OPTION_x_INPUT_AILERON_RUDDER;
-					break;
-				case 'y':
-					hydro.options |= Hydro::OPTION_y_INPUT_InvAILERON_RUDDER;
-					break;
-				case 'g':
-					hydro.options |= Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER;
-					break;
-				case 'h':
-					hydro.options |= Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER;
-					break;
-				default:
-					break;
-			}
-		}
+		hydro.options = results[8];
 	}
 
 	/* Inertia part */
