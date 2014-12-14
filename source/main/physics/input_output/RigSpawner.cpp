@@ -4204,6 +4204,8 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 	beam.longbound = 1000000.0f;
 	beam.type = hydro_type;
 	beam.hydroRatio = def.lenghtening_factor;
+	beam.animFlags = anim_flags;
+	beam.animOption = anim_option;
 	CalculateBeamLength(beam);
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
