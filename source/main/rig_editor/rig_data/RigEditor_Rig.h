@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
