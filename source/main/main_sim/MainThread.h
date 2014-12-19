@@ -73,6 +73,8 @@ public:
 
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
 
+
+	void LoadTerrain(Ogre::String const & terrain_file);
 protected:
 
 	void EnterMainMenuLoop();
@@ -87,8 +89,6 @@ protected:
 	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
 
 	void EnterGameplayLoop();
-
-	void LoadTerrain(Ogre::String const & terrain_file);
 
 	void ShowSurveyMap(bool hide);
 

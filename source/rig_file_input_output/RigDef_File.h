@@ -45,6 +45,7 @@
 #include "BitFlags.h"
 
 #include <list>
+#include <functional>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <OgreString.h>
@@ -182,7 +183,7 @@ struct Node
 
 	public:
 
-		struct Hasher: public std::hash<Id>
+		struct Hasher//: public std::hash<Id>
 		{
 			size_t operator()(Id const & id) const
 			{
@@ -209,7 +210,7 @@ struct Node
 
 		static const unsigned int INVALID_ID_VALUE = 0xFFFFFFFF;
 
-		bool IsValid()
+		bool IsValid() const
 		{
 			return (m_id_num != INVALID_ID_VALUE);
 		}
@@ -231,12 +232,12 @@ struct Node
 			m_id_num = 0;
 		}
 
-		Ogre::String const & Str()
+		Ogre::String const & Str() const
 		{
 			return m_id_str;
 		}
 
-		unsigned int Num()
+		unsigned int Num() const
 		{
 			return m_id_num;
 		}
@@ -253,16 +254,11 @@ struct Node
 			}
 		}
 
-		bool operator!=(Id const & rhs)
+		bool operator!=(Id const & rhs) const
 		{
 			return ! Compare(rhs);
 		}
-
-		bool operator==(Id const & rhs)
-		{
-			return Compare(rhs);
-		}
-
+		
 		bool operator==(Id const & rhs) const
 		{
 			return Compare(rhs);
