@@ -144,7 +144,7 @@ public:
 		return m_messages;
 	}
 
-	static bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
+	static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
 protected:
 
@@ -657,13 +657,13 @@ protected:
 	* Seeks node in both RigDef::File definition and rig_t generated rig.
 	* @return Node index or -1 if the node was not found.
 	*/
-	int RigSpawner::FindNodeIndex(RigDef::Node::Id & id, bool silent = false);
+	int FindNodeIndex(RigDef::Node::Id & id, bool silent = false);
 
 	/**
 	* Seeks node in both RigDef::File definition and rig_t generated rig. Tolerates numbered nodes which weren't found (backwards compatibility)
 	* @return Node index or -1 if the node was named and not found (not found numbered nodes pass through, for compatibility).
 	*/
-	int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id);
+	int FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id);
 
 	/**
 	* Finds a generated node in rig.
@@ -840,7 +840,7 @@ protected:
 	/**
 	* Finds node with lowest Y in spawned rig.
 	*/
-	int RigSpawner::FindLowestNodeInRig();
+	int FindLowestNodeInRig();
 
 	//void SetBeamPlasticCoefficient(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
@@ -910,7 +910,7 @@ protected:
 	/**
 	* Adds beams to wheels from 'wheels', 'meshwheels'
 	*/
-	void RigSpawner::BuildWheelBeams(
+	void BuildWheelBeams(
 		unsigned int num_rays,
 		unsigned int base_node_index,
 		node_t *axis_node_1,
@@ -927,7 +927,7 @@ protected:
 	/**
 	* Creates beam for wheels 'wheels', 'meshwheels', 'meshwheels2'
 	*/
-	unsigned int RigSpawner::AddWheelBeam(
+	unsigned int AddWheelBeam(
 		node_t *node_1,
 		node_t *node_2,
 		float spring,
