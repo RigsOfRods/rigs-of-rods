@@ -56,7 +56,7 @@
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Console.h"
-#include "DashboardManager.h"
+#include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DustManager.h"
 #include "FlexAirfoil.h"
