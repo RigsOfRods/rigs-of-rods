@@ -5903,7 +5903,8 @@ void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 	}
 	else
 	{
-		AddWheel(DowngradeWheel2(def));
+		RigDef::Wheel wheel_def = DowngradeWheel2(def);
+        	AddWheel(wheel_def);
 	}
 };
 
