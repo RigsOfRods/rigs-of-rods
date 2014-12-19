@@ -31,7 +31,7 @@ class FlexMeshWheel: public Flexable
 {
 public:
 
-	FlexMeshWheel::FlexMeshWheel(
+	FlexMeshWheel(
 		Ogre::String const & name,
 		node_t *nds, 
 		int axis_node_1_index, 
