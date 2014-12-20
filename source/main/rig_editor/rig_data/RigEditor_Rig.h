@@ -35,6 +35,7 @@
 #include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
 #include "OgreAxisAlignedBox.h"
+#include "RigEditor_Node.h"
 
 namespace RoR
 {
