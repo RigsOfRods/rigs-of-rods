@@ -75,7 +75,8 @@ ENDIF(WIN32)
 
 setup_lib(OPENCL)
 setup_lib(OPENAL)
-
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories   (${Boost_LIBRARY_DIRS})
 include_directories(${Ogre_INCLUDE_DIRS})
 link_directories   (${Ogre_LIBRARY_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
