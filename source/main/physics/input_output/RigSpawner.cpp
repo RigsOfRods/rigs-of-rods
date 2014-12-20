@@ -4054,11 +4054,19 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
 	/* Add keys */
-	m_rig->commandkey[def.contract_key].beams.push_back(-beam_index);
-	m_rig->commandkey[def.contract_key].description = def.description;
+	command_t* contract_command = &m_rig->commandkey[def.contract_key];
+	contract_command->beams.push_back(-beam_index);
+	if (contract_command->description.empty())
+	{
+		contract_command->description = def.description;
+	}
 
-	m_rig->commandkey[def.extend_key].beams.push_back(beam_index);
-	m_rig->commandkey[def.extend_key].description = def.description;
+	command_t* extend_command = &m_rig->commandkey[def.extend_key];
+	extend_command->beams.push_back(beam_index);
+	if (extend_command->description.empty())
+	{
+		extend_command->description = def.description;
+	}
 
 	bool attach_to_scene = (beam.type != BEAM_VIRTUAL && beam.type != BEAM_INVISIBLE && beam.type != BEAM_INVISIBLE_HYDRO);
 	CreateBeamVisuals(beam, beam_index, attach_to_scene);
