@@ -1584,8 +1584,10 @@ void CacheSystem::generateFileCache(CacheEntry &entry, Ogre::String directory)
 			buffer = (char*)malloc(fsize);
 			memset(buffer, 0, fsize);
 			size_t read = ds->read(buffer, fsize);
-			if (read != fsize)
+			if (read != fsize) {
+				free(buffer);
 				return;
+			}
 		}
 
 		bool written=false;
