@@ -259,14 +259,8 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	if (matProfile)
 	{
 		matProfile->setLightmapEnabled(m_terrain_config.GetBool("LightmapEnabled", false));
-		// Fix for OpenGL, otherwise terrains are black
- 		if (Root::getSingleton().getRenderSystem()->getName() == "OpenGL Rendering Subsystem") {
-			matProfile->setLayerNormalMappingEnabled(true);
-			matProfile->setLayerSpecularMappingEnabled(true);
-		} else {
-			matProfile->setLayerNormalMappingEnabled(BOPT("NormalMappingEnabled", false));
-			matProfile->setLayerSpecularMappingEnabled(BOPT("SpecularMappingEnabled", false));
-		}
+		matProfile->setLayerNormalMappingEnabled(m_terrain_config.GetBool("NormalMappingEnabled", false));
+		matProfile->setLayerSpecularMappingEnabled(m_terrain_config.GetBool("SpecularMappingEnabled", false));
 		matProfile->setLayerParallaxMappingEnabled(m_terrain_config.GetBool("ParallaxMappingEnabled", false));
 		matProfile->setGlobalColourMapEnabled(m_terrain_config.GetBool("GlobalColourMapEnabled", false));
 		matProfile->setReceiveDynamicShadowsDepth(m_terrain_config.GetBool("ReceiveDynamicShadowsDepth", false));
