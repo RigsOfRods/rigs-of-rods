@@ -94,7 +94,7 @@ if(WIN32)
 ELSEIF(UNIX)
   set(CMAKE_CXX_FLAGS                       "-std=c++11 -march=nocona -O2 -ffast-math ${CMAKE_CXX_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS_DEBUG          "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          -std=c++11 -Og -ggdb")
-  set(CMAKE_EXE_LINKER_FLAGS_RELEASE        "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        -std=c++11 -march=pentium4 -O2 -ffast-math")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE        "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        -std=c++11 -march=nocona -O2 -ffast-math")
   set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} -std=c++11 -Og")
 
   # add additional gdb debugging stuff
