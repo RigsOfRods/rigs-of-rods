@@ -614,8 +614,12 @@ void Network::receivethreadstart()
 			NetworkStreamManager::getSingleton().removeUser(header.source);
 
 #ifdef USE_MYGUI
-			// we can trigger this in the network thread as the function is thread safe.
-			GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			if (GUI_MainMenu::getSingletonPtr() != nullptr) // Does menubar exist yet?
+				// Executed in main menu, but menubar isn't created until simulation starts.
+			{
+				// we can trigger this in the network thread as the function is thread safe.
+				GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			}
 #endif // USE_MYGUI
 			continue;
 		}
@@ -666,8 +670,12 @@ void Network::receivethreadstart()
 				}
 			}
 #ifdef USE_MYGUI
-			// we can trigger this in the network thread as the function is thread safe.
-			GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			if (GUI_MainMenu::getSingletonPtr() != nullptr) // Does menubar exist yet? 
+				// This code is executed in selector already, but Menubar isn't created until simulation launches.
+			{
+				// we can trigger this in the network thread as the function is thread safe.
+				GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			}
 #endif // USE_MYGUI
 
 			continue;

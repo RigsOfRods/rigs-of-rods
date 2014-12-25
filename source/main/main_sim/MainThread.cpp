@@ -416,17 +416,19 @@ void MainThread::Go()
 		{
 			// so show the terrain selection
 			preselected_map = "";
-		} else if (!isAnyTerrain)
+		} 
+		else if (!isAnyTerrain)
 		{
 			preselected_map = getASCIIFromCharString(terrn, 255);
 		}
 
-		// create player _AFTER_ network, important
-		int colourNum = 0;
-		if (gEnv->network->getLocalUserData()) colourNum = gEnv->network->getLocalUserData()->colournum;
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
-
+		// --------------------------------------------------------------------
 		// network chat stuff
+		int colourNum = 0;
+		if (gEnv->network->getLocalUserData())
+		{
+			colourNum = gEnv->network->getLocalUserData()->colournum;
+		}
 		gEnv->frameListener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
 		Console *c = RoR::Application::GetConsole();
@@ -505,7 +507,16 @@ void MainThread::Go()
 				viewport->getActualHeight() - MenuWindow::getSingleton().GetHeight() - margin // top
 				);
 
-			MenuWindow::getSingleton().Show();
+			if (gEnv->network != nullptr)
+			{
+				// Multiplayer started from configurator -> go directly to map selector (traditional behavior)
+				SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
+				MenuWindow::getSingleton().Hide();
+			}
+			else
+			{
+				MenuWindow::getSingleton().Show();
+			}
 		
 			EnterMainMenuLoop();
 			
@@ -710,7 +721,17 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 	new DustManager(); // setup particle manager singleton. TODO: Move under Application
 
-	if (! enable_network)
+	if (enable_network)
+	{
+		// NOTE: create player _AFTER_ network, important
+		int colourNum = 0;
+		if (gEnv->network->getLocalUserData())
+		{
+			colourNum = gEnv->network->getLocalUserData()->colournum;
+		}
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+	}
+	else
 	{
 		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
 		if (gEnv->player != nullptr)
