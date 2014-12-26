@@ -54,6 +54,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PointColDetector.h"
 #include "PositionStorage.h"
 #include "Replay.h"
+#include "RigSpawner.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
