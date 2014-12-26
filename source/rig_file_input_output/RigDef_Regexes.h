@@ -837,6 +837,7 @@ DEFINE_REGEX( SECTION_BEAMS,
 			E_CAPTURE( E_REAL_NUMBER ) /* #9 User-defined extension break limit */
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #10 */
 	E_TRAILING_WHITESPACE
 	);
 

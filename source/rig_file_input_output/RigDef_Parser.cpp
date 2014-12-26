@@ -5083,6 +5083,13 @@ void Parser::ParseBeams(Ogre::String const & _line)
 		}
 	}
 
+	if (results[10].matched)
+	{
+		std::stringstream msg;
+		msg << "Please remove invalid trailing character(s): \"" << results[10] << "\"";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
+	}
+
 	m_current_module->beams.push_back(beam);
 }
 
