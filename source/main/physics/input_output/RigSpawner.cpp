@@ -27,19 +27,9 @@
 */
 
 /*
-	NOTE:
-	RoR's coding standards demand / * * / comments only.
-	This file contains also // comments which are meant to be temporary (until this parser is stable).
-	They speak about the legacy parser implementation and try to address possible bugs. 
-*/
-
-/*
 	DISABLED:
 		Hashing
 		ScopeLog (What is it for?)
-
-	QUESTIONS:
-		init_node() param 'friction' is unused.
 */
 
 #include "RoRPrerequisites.h"
@@ -246,6 +236,17 @@ rig_t *RigSpawner::SpawnRig()
 	/* Inline-section 'submesh_groundmodel' in any module */
 	ProcessSubmeshGroundmodel();
 
+	
+
+	/* Section 'brakes' in any module */
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, RigDef::Brakes, brakes, ProcessBrakes);
+
+	/* Section 'AntiLockBrakes' in any module. */
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ANTI_LOCK_BRAKES, RigDef::AntiLockBrakes, anti_lock_brakes, ProcessAntiLockBrakes);
+
+	/* Section 'SlopeBrake' in any module. */
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, RigDef::SlopeBrake, slope_brake, ProcessSlopeBrake);
+
 	/* Sections 'nodes' & 'nodes2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_NODES, RigDef::Node, nodes, ProcessNode);
 
@@ -255,14 +256,42 @@ rig_t *RigSpawner::SpawnRig()
 		AddExhaust(m_rig->smokeId, m_rig->smokeRef, true, nullptr);
 	}
 
+	/* Section 'meshwheels2' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
+
 	/* Section 'beams' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, RigDef::Beam, beams, ProcessBeam);
 
-	/* Section 'hooks' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HOOKS, RigDef::Hook, hooks, ProcessHook);	
+	/* Section 'shocks' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
 
-	/* Section 'ties' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
+	/* Section 'commands' and 'commands2' (Use generated nodes) */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
+
+	// Meshwheels2 again
+
+	/* Section 'hydros' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
+
+	/* Sections 'flares' and 'flares2' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
+
+	/* Section 'axles' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AXLES, RigDef::Axle, axles, ProcessAxle);
+
+	/* Section 'flexbodies' (Uses generated nodes) */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, boost::shared_ptr<RigDef::Flexbody>, flexbodies, ProcessFlexbody);
+
+	/* Section 'props' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
+
+	/* Section 'submeshes' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
+
+	/* Section 'contacters' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
+
+	// cameras, cinecam, cameras, cinecam, ...
 
 	/* Section 'cameras' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
@@ -270,14 +299,22 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'cinecam' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
 
+	// --------- Lotus Esprit ------------------------------------------------------------------
+
+	/* Section 'hooks' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HOOKS, RigDef::Hook, hooks, ProcessHook);	
+
+	/* Section 'ties' */
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
+
+	
+
 	/* Section 'ropables' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPABLES, RigDef::Ropable, ropables, ProcessRopable);
 
-	/* Section 'shocks' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
+	
 
-	/* Section 'hydros' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
+	
 
 	/* Section 'wings' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, RigDef::Wing, wings, ProcessWing);
@@ -285,8 +322,7 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'animators' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, RigDef::Animator, animators, ProcessAnimator);
 
-	/* Section 'commands' and 'commands2' (Use generated nodes) */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
+	
 
 	/* Section 'triggers' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TRIGGERS, RigDef::Trigger, triggers, ProcessTrigger);
@@ -294,16 +330,14 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'slidenodes'*/
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, RigDef::SlideNode, slidenodes, ProcessSlidenode);
 
-	/* Sections 'flares' and 'flares2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
+	
 
 	/* Section 'materialflarebindings' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, RigDef::MaterialFlareBinding, material_flare_bindings, ProcessMaterialFlareBinding);
 
-	/* Section 'flexbodies' (Uses generated nodes) */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, boost::shared_ptr<RigDef::Flexbody>, flexbodies, ProcessFlexbody);
+	
 
-	// Hughes-500D (helicopter)------------------------------------------------------------------------------------------------------
+	
 
 	/* Section 'airbrakes' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, RigDef::Airbrake, airbrakes, ProcessAirbrake);
@@ -326,20 +360,16 @@ rig_t *RigSpawner::SpawnRig()
 	*/
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_VIDEOCAMERA, RigDef::VideoCamera, videocameras, ProcessVideoCamera);
 
-	/* Section 'props' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
+	
 
-	/* Section 'submeshes' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
+	
 
 	/* Section 'shocks2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
 
-	/* Section 'meshwheels2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
+	
 
-	/* Section 'contacters' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
+	
 
 	/* Section 'engine' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
@@ -347,18 +377,13 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'engoption' in any module */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGOPTION, RigDef::Engoption, engoption, ProcessEngoption);
 
-	/* Section 'brakes' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, RigDef::Brakes, brakes, ProcessBrakes);
+	
 
 	/* Section 'TractionControl' in any module. */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TRACTION_CONTROL, RigDef::TractionControl, traction_control, ProcessTractionControl);
 
-	/* Section 'AntiLockBrakes' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ANTI_LOCK_BRAKES, RigDef::AntiLockBrakes, anti_lock_brakes, ProcessAntiLockBrakes);
-
-	/* Section 'SlopeBrake' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, RigDef::SlopeBrake, slope_brake, ProcessSlopeBrake);
-
+	
+	
 	/* Section 'wheels2' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, RigDef::Wheel2, wheels_2, ProcessWheel2);
 
@@ -398,8 +423,7 @@ rig_t *RigSpawner::SpawnRig()
 	/* Section 'cruisecontrol' in any module. */
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SPEEDLIMITER, RigDef::SpeedLimiter, speed_limiter, ProcessSpeedLimiter);
 
-	/* Section 'axles' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AXLES, RigDef::Axle, axles, ProcessAxle);
+	
 
 	/* Section 'collisionboxes' */
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COLLISIONBOXES, RigDef::CollisionBox, collision_boxes, ProcessCollisionBox);
@@ -5200,11 +5224,15 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	return wheel_index;
 }
 
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+{
+	unsigned int options = (defaults->options | node_def.options); // Merge flags
+	node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
+}
+
 void RigSpawner::AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults)
 {
-	node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) 
-		? 10000.f 
-		: m_file->root_module->globals->dry_mass/15.f;
+	node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
 }
 
 int RigSpawner::FindLowestNodeInRig()
@@ -6868,7 +6896,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		hook.autolock     = false;
 		m_rig->hooks.push_back(hook);
 	}
-	AdjustNodeBuoyancy(node, def.node_defaults);
+	AdjustNodeBuoyancy(node, def, def.node_defaults);
 	node.mouseGrabMode     = (def.options == 0u) ? 2 : node.mouseGrabMode; // 2 = n = mouse grab enabled
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_n_MOUSE_GRAB) ? 2 : node.mouseGrabMode;
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB) ? 1 : node.mouseGrabMode;
