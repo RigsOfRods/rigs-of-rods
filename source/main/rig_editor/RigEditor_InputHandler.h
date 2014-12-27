@@ -152,6 +152,11 @@ public:
 		static const int MIDDLE_BUTTON_RELEASED = BITMASK(8);
 		static const int MIDDLE_BUTTON_IS_DOWN = BITMASK(9);
 
+		static const int BUTTON_PRESS_INPUT_RECEIVED = BITMASK(10);
+		static const int BUTTON_RELEASE_INPUT_RECEIVED = BITMASK(11);
+		static const int ALL_BUTTON_PRESSES_HANDLED_BY_GUI = BITMASK(12);
+		static const int ALL_BUTTON_RELEASES_HANDLED_BY_GUI = BITMASK(13);
+
 		MouseButtonEvent():
 			flags(0)
 		{}
@@ -159,13 +164,40 @@ public:
 		void ResetEvents()
 		{
 			BITMASK_SET_0(flags, 
-				RIGHT_BUTTON_PRESSED
-				| RIGHT_BUTTON_RELEASED
-				| LEFT_BUTTON_PRESSED
-				| LEFT_BUTTON_RELEASED
-				| MIDDLE_BUTTON_PRESSED
-				| MIDDLE_BUTTON_RELEASED
+				RIGHT_BUTTON_PRESSED | RIGHT_BUTTON_RELEASED
+				| LEFT_BUTTON_PRESSED | LEFT_BUTTON_RELEASED
+				| MIDDLE_BUTTON_PRESSED	| MIDDLE_BUTTON_RELEASED
+				| BUTTON_PRESS_INPUT_RECEIVED | BUTTON_RELEASE_INPUT_RECEIVED
+				| ALL_BUTTON_PRESSES_HANDLED_BY_GUI | ALL_BUTTON_RELEASES_HANDLED_BY_GUI
 				);
+		}
+
+		inline void ButtonPressInputReceived(bool handled_by_gui)
+		{
+			if (handled_by_gui && BITMASK_IS_0(flags, BUTTON_PRESS_INPUT_RECEIVED)) // First input + handled by GUI
+			{
+				BITMASK_SET_1(flags, ALL_BUTTON_PRESSES_HANDLED_BY_GUI);
+			}
+			else if (!handled_by_gui && BITMASK_IS_1(flags, ALL_BUTTON_PRESSES_HANDLED_BY_GUI)) // Any input + not handled by GUI
+			{
+				BITMASK_SET_0(flags, ALL_BUTTON_PRESSES_HANDLED_BY_GUI);
+			}
+			// else ALL_BUTTON_PRESSES_HANDLED_BY_GUI stays FALSE
+			BITMASK_SET_1(flags, BUTTON_PRESS_INPUT_RECEIVED);
+		}
+
+		inline void ButtonReleaseInputReceived(bool handled_by_gui)
+		{
+			if (handled_by_gui && BITMASK_IS_0(flags, BUTTON_RELEASE_INPUT_RECEIVED)) // First input + handled by GUI
+			{
+				BITMASK_SET_1(flags, ALL_BUTTON_RELEASES_HANDLED_BY_GUI);
+			}
+			else if (!handled_by_gui && BITMASK_IS_1(flags, ALL_BUTTON_RELEASES_HANDLED_BY_GUI)) // Any input + not handled by GUI
+			{
+				BITMASK_SET_0(flags, ALL_BUTTON_RELEASES_HANDLED_BY_GUI);
+			}
+			// else ALL_BUTTON_PRESSES_HANDLED_BY_GUI stays FALSE
+			BITMASK_SET_1(flags, BUTTON_RELEASE_INPUT_RECEIVED);
 		}
 
 		void RightButtonDown()

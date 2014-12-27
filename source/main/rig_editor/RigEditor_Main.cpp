@@ -218,7 +218,7 @@ void Main::UpdateMainLoop()
 
 	/* Update input events */
 	m_input_handler->ResetEvents();
-	RoR::Application::GetInputEngine()->Capture(); // Also injects input to GUI
+	RoR::Application::GetInputEngine()->Capture(); // Also injects input to GUI (through RigEditor::InputHandler)
 
 	/* Handle key presses */
 	bool camera_ortho_toggled = false;
