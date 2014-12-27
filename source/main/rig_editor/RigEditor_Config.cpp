@@ -25,8 +25,9 @@
 	@author Petr Ohlidal
 */
 
-#include "ConfigFile.h"
 #include "RigEditor_Config.h"
+
+#include "ConfigFile.h"
 
 using namespace RoR;
 using namespace RoR::RigEditor;
@@ -46,6 +47,12 @@ Config::Config(Ogre::String const & conf_file_path)
 	gui_dialog_delete_placement_x_px     = conf_file.GetInt("gui_dialog_delete_placement_x_px");
 	gui_dialog_delete_placement_y_px     = conf_file.GetInt("gui_dialog_delete_placement_y_px");
 	gui_dialog_delete_cursor_fence_px    = conf_file.GetInt("gui_dialog_delete_cursor_fence_px");
+	gui_node_panel_anchor_right          = conf_file.GetBool("gui_node_panel_anchor_right");
+	gui_node_panel_anchor_bottom         = conf_file.GetBool("gui_node_panel_anchor_bottom");
+	gui_node_panel_margin_x_px           = conf_file.GetInt("gui_node_panel_margin_x_px");
+	gui_node_panel_margin_y_px           = conf_file.GetInt("gui_node_panel_margin_y_px");
+	gui_node_panel_flag_checkbox_mixvalues_color = conf_file.GetColourValue("gui_node_panel_flag_checkbox_mixvalues_color");
+	gui_node_panel_flag_tooltip_text_color       = conf_file.GetColourValue("gui_node_panel_flag_tooltip_text_color");
 
 	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
@@ -73,4 +80,5 @@ Config::Config(Ogre::String const & conf_file_path)
 	camera_far_clip_distance  = conf_file.GetFloat("camera_far_clip_distance");
 	camera_FOVy_degrees       = conf_file.GetFloat("camera_FOVy_degrees");
 	ortho_camera_zoom_ratio   = conf_file.GetFloat("ortho_camera_zoom_ratio");
+
 }

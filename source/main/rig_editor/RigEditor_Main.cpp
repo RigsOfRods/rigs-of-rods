@@ -34,6 +34,7 @@
 #include "GUI_RigEditorHelpWindow.h"
 #include "GUI_RigEditorLandVehiclePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
+#include "GUI_RigEditorNodePanel.h"
 #include "GUI_RigEditorRigPropertiesWindow.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -162,6 +163,10 @@ void Main::EnterMainLoop()
 	{
 		m_gui_help_window = std::unique_ptr<GUI::RigEditorHelpWindow>(new GUI::RigEditorHelpWindow(this));
 	}
+	if (m_nodes_panel.get() == nullptr)
+	{
+		m_nodes_panel = std::unique_ptr<GUI::RigEditorNodePanel>(new GUI::RigEditorNodePanel(this, m_config));
+	}
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -271,6 +276,7 @@ void Main::UpdateMainLoop()
 	if (m_rig != nullptr)
 	{
 		bool node_selection_changed = false;
+		bool all_nodes_deselected = false;
 		bool node_hover_changed = false;
 		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible();// || m_gui_rig_properties_window->IsVisible();
 		bool rig_updated = false;
@@ -320,6 +326,7 @@ void Main::UpdateMainLoop()
 		{
 			m_rig->DeselectOrSelectAllNodes();
 			node_selection_changed = true;
+			all_nodes_deselected = true;
 		}
 
 		// Creating new nodes with mouse
@@ -340,6 +347,7 @@ void Main::UpdateMainLoop()
 				m_rig->RefreshNodeScreenPosition(new_node, m_camera_handler);
 				node_selection_changed = true;
 				rig_updated = true;
+				all_nodes_deselected = false;
 			}
 		}
 
@@ -406,6 +414,10 @@ void Main::UpdateMainLoop()
 				node_selection_changed = true;
 			}
 			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected() ? true : node_selection_changed;
+			if (node_selection_changed)
+			{
+				all_nodes_deselected = false;
+			}
 		}
 
 		if (rig_updated || node_selection_changed || node_hover_changed)
@@ -415,6 +427,41 @@ void Main::UpdateMainLoop()
 		if (rig_updated)
 		{
 			m_rig->RefreshBeamsDynamicMesh();
+		}
+		if (node_selection_changed)
+		{
+			// Update "nodes" panel
+			if (all_nodes_deselected)
+			{
+				m_nodes_panel->Hide();
+			}
+			else
+			{
+				Rig::SelectedNodesQueryResult query;
+				m_rig->QuerySelectedNodesData(&query);
+				
+				if (query.num_nodes == 0)
+				{
+					m_nodes_panel->Hide();
+				}
+				else
+				{
+					int* detacher_group_ptr = nullptr;
+					if (query.detacher_group_id_is_unique)
+					{
+						detacher_group_ptr = &query.detacher_group_id;
+					}
+
+					float* load_weight_ptr = nullptr;
+					if (query.load_weight_is_unique)
+					{
+						load_weight_ptr = &query.load_weight;
+					}
+					m_nodes_panel->UpdateNodeData(query.num_nodes, query.node_name, load_weight_ptr, detacher_group_ptr, nullptr);
+					m_nodes_panel->UpdateNodeFlags(query.flags_all_nodes, query.flags_any_node);
+					m_nodes_panel->Show();
+				}
+			}
 		}
 	}
 
@@ -725,4 +772,9 @@ void Main::CommandShowHelpWindow()
 {
 	m_gui_help_window->Show();
 	m_gui_help_window->CenterToScreen();
+}
+
+void Main::CommandSelectedNodesUpdateFlag(bool add, unsigned int flag)
+{
+	m_rig->SelectedNodesUpdateFlag(add, flag);	
 }

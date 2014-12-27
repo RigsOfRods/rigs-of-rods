@@ -98,6 +98,8 @@ public:
 
 	virtual void CommandShowHelpWindow();
 
+	virtual void CommandSelectedNodesUpdateFlag(bool add, unsigned int flag);
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
@@ -127,6 +129,7 @@ private:
 	std::unique_ptr<GUI::RigEditorHelpWindow>   m_gui_help_window;
 	std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
 	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>  m_gui_land_vehicle_properties_window;
+	std::unique_ptr<GUI::RigEditorNodePanel>    m_nodes_panel;
 	
 };
 

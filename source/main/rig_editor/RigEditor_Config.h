@@ -39,9 +39,17 @@ struct Config
 {
 	Config(Ogre::String const & conf_file_path);
 
+	/* Scene */
 	Ogre::ColourValue   viewport_background_color;
 	Ogre::ColourValue   scene_ambient_light_color;
 
+	/* GUI */
+	Ogre::ColourValue   gui_node_panel_flag_tooltip_text_color;
+	Ogre::ColourValue   gui_node_panel_flag_checkbox_mixvalues_color;
+	bool                gui_node_panel_anchor_right;
+	bool                gui_node_panel_anchor_bottom;
+	int                 gui_node_panel_margin_x_px;
+	int                 gui_node_panel_margin_y_px;
 	int                 gui_dialog_delete_placement_x_px;
 	int                 gui_dialog_delete_placement_y_px;
 	int                 gui_dialog_delete_cursor_fence_px;
@@ -78,6 +86,7 @@ struct Config
 	float               camera_far_clip_distance;
 	float               camera_FOVy_degrees;
 	float               ortho_camera_zoom_ratio;
+
 };
 
 } // namespace RigEditor

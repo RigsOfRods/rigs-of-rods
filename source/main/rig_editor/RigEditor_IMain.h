@@ -61,6 +61,8 @@ public:
 	virtual void CommandSaveContentOfLandVehiclePropertiesWindow() = 0;
 
 	virtual void CommandShowHelpWindow() = 0;
+
+	virtual void CommandSelectedNodesUpdateFlag(bool add, unsigned int flag) = 0;
 };
 
 } // namespace RigEditor

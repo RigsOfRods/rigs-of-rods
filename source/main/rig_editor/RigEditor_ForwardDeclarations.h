@@ -59,6 +59,7 @@ namespace RoR
 		class  RigEditorHelpWindow;
 		class  RigEditorLandVehiclePropertiesWindow;
 		class  RigEditorMenubar;
+		class  RigEditorNodePanel;
 		class  RigEditorRigPropertiesWindow;
 
 	} // namespace GUI

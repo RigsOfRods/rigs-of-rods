@@ -45,6 +45,32 @@ class Rig
 
 public:
 
+	struct SelectedNodesQueryResult
+	{
+		SelectedNodesQueryResult():
+			num_nodes(0),
+			load_weight(0.f),
+			load_weight_is_unique(true),
+			detacher_group_id(0),
+			detacher_group_id_is_unique(true),
+			preset_id(0),
+			preset_id_is_unique(true),
+			flags_all_nodes(0),
+			flags_any_node(0)
+		{}
+
+		int          num_nodes;
+		Ogre::String node_name;
+		float        load_weight;
+		bool         load_weight_is_unique;
+		int          detacher_group_id;
+		bool         detacher_group_id_is_unique;
+		int          preset_id;
+		bool         preset_id_is_unique;
+		unsigned int flags_all_nodes;
+		unsigned int flags_any_node;
+	};
+
 	Rig(Config* config);
 
 	~Rig();
@@ -123,6 +149,10 @@ public:
 	RigProperties* GetProperties();
 
 	boost::shared_ptr<RigDef::File> Export();
+
+	void QuerySelectedNodesData(SelectedNodesQueryResult* result);
+
+	void SelectedNodesUpdateFlag(bool add, unsigned int flag);
 
 	/** Rig building utility function
 	*/

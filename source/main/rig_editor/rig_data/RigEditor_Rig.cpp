@@ -1266,3 +1266,63 @@ boost::shared_ptr<RigDef::File> Rig::Export()
 	// Return
 	return def;
 }
+
+void Rig::QuerySelectedNodesData(SelectedNodesQueryResult* out_result)
+{
+	SelectedNodesQueryResult result; // Local, for performance
+	auto itor_end = m_nodes.end();
+	for (auto itor = m_nodes.begin(); itor != itor_end; ++itor)
+	{
+		RigEditor::Node & node = itor->second;
+		if (node.IsSelected())
+		{
+			++result.num_nodes;
+			if (result.num_nodes == 1)
+			{
+				result.node_name = node.GetId().ToString();
+				result.detacher_group_id = node.GetDefinitionDetacherGroup();
+				result.load_weight = node.GetDefinitionLoadWeight();
+				result.flags_all_nodes = node.GetDefinitionFlags();
+				result.flags_any_node = node.GetDefinitionFlags();
+				// TODO: Implement presets
+			}
+			else
+			{
+				if (result.num_nodes == 2)
+				{
+					result.node_name = "";
+				}
+				int detacher_group_id = node.GetDefinitionDetacherGroup();
+				if (detacher_group_id != result.detacher_group_id)
+				{
+					result.detacher_group_id_is_unique = false;
+				}
+				float load_weight = node.GetDefinitionLoadWeight();
+				if (load_weight != result.load_weight)
+				{
+					result.load_weight_is_unique = false;
+				}
+				unsigned int flags = node.GetDefinitionFlags();
+				result.flags_any_node |= flags; // Bitwise OR
+				result.flags_all_nodes &= flags; // Bitwise AND
+				// TODO: Implement presets
+			}
+		}
+	}
+	*out_result = result;
+}
+
+void Rig::SelectedNodesUpdateFlag(bool add, unsigned int flag)
+{
+	auto itor_end = m_nodes.end();
+	for (auto itor = m_nodes.begin(); itor != itor_end; ++itor)
+	{
+		RigEditor::Node & node = itor->second;
+		if (node.IsSelected())
+		{
+			unsigned int node_flags = node.GetDefinitionFlags();
+			Bitmask_SetBool(add, node_flags, flag);
+			node.SetDefinitionFlags(node_flags);
+		}
+	}
+}
