@@ -36,10 +36,33 @@ class GuiPanelBase
 
 public:
 	GuiPanelBase(MyGUI::Window* main_widget):
-		m_panel_widget(main_widget)
+		m_panel_widget(main_widget),
+		m_is_temporarily_hidden(false)
 	{}
 
-	inline void Show()                    { m_panel_widget->setVisible(true); }
+	inline void Show()
+	{
+		m_panel_widget->setVisible(true); 
+		m_is_temporarily_hidden = false;
+	}
+	
+	inline void HideTemporarily()
+	{ 
+		if (m_panel_widget->isVisible())
+		{
+			m_panel_widget->setVisible(false); 
+			m_is_temporarily_hidden = true; 
+		}
+	}
+
+	inline void ShowIfHiddenTemporarily()
+	{ 
+		if (m_is_temporarily_hidden) 
+		{ 
+			Show();
+		} 
+	}
+
 	inline void Hide()                    { m_panel_widget->setVisible(false); }
 	inline bool IsVisible() const         { return m_panel_widget->isVisible(); }
 	inline int  GetWidthPixels() const    { return GetSizePixels().width; }
@@ -51,7 +74,7 @@ public:
 
 	inline MyGUI::IntSize GetSizePixels() const          { return m_panel_widget->getSize(); }
 	
-	void CenterToScreen()
+	inline void CenterToScreen()
 	{
 		MyGUI::IntSize parentSize = m_panel_widget->getParentSize();
 		SetPosition((parentSize.width - GetWidthPixels()) / 2, (parentSize.height - GetHeightPixels()) / 2);
@@ -59,6 +82,7 @@ public:
 
 protected:
 	MyGUI::Window* m_panel_widget;
+	bool           m_is_temporarily_hidden;
 };
 
 } // namespace RoR

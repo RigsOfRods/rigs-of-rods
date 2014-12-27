@@ -167,6 +167,10 @@ void Main::EnterMainLoop()
 	{
 		m_nodes_panel = std::unique_ptr<GUI::RigEditorNodePanel>(new GUI::RigEditorNodePanel(this, m_config));
 	}
+	else
+	{
+		m_nodes_panel->ShowIfHiddenTemporarily();
+	}
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -202,6 +206,7 @@ void Main::EnterMainLoop()
 		m_gui_open_save_file_dialog->endModal(); // Hides the dialog
 	}
 	m_gui_delete_menu->Hide();
+	m_nodes_panel->HideTemporarily();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
