@@ -281,7 +281,6 @@ void Main::UpdateMainLoop()
 	if (m_rig != nullptr)
 	{
 		bool node_selection_changed = false;
-		bool all_nodes_deselected = false;
 		bool node_hover_changed = false;
 		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible();// || m_gui_rig_properties_window->IsVisible();
 		bool rig_updated = false;
@@ -331,7 +330,6 @@ void Main::UpdateMainLoop()
 		{
 			m_rig->DeselectOrSelectAllNodes();
 			node_selection_changed = true;
-			all_nodes_deselected = true;
 		}
 
 		// Creating new nodes with mouse
@@ -352,7 +350,6 @@ void Main::UpdateMainLoop()
 				m_rig->RefreshNodeScreenPosition(new_node, m_camera_handler);
 				node_selection_changed = true;
 				rig_updated = true;
-				all_nodes_deselected = false;
 			}
 		}
 
@@ -419,10 +416,6 @@ void Main::UpdateMainLoop()
 				node_selection_changed = true;
 			}
 			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected() ? true : node_selection_changed;
-			if (node_selection_changed)
-			{
-				all_nodes_deselected = false;
-			}
 		}
 
 		if (rig_updated || node_selection_changed || node_hover_changed)
@@ -436,36 +429,29 @@ void Main::UpdateMainLoop()
 		if (node_selection_changed)
 		{
 			// Update "nodes" panel
-			if (all_nodes_deselected)
+			Rig::SelectedNodesQueryResult query;
+			m_rig->QuerySelectedNodesData(&query);
+				
+			if (query.num_nodes == 0)
 			{
 				m_nodes_panel->Hide();
 			}
 			else
 			{
-				Rig::SelectedNodesQueryResult query;
-				m_rig->QuerySelectedNodesData(&query);
-				
-				if (query.num_nodes == 0)
+				int* detacher_group_ptr = nullptr;
+				if (query.detacher_group_id_is_unique)
 				{
-					m_nodes_panel->Hide();
+					detacher_group_ptr = &query.detacher_group_id;
 				}
-				else
-				{
-					int* detacher_group_ptr = nullptr;
-					if (query.detacher_group_id_is_unique)
-					{
-						detacher_group_ptr = &query.detacher_group_id;
-					}
 
-					float* load_weight_ptr = nullptr;
-					if (query.load_weight_is_unique)
-					{
-						load_weight_ptr = &query.load_weight;
-					}
-					m_nodes_panel->UpdateNodeData(query.num_nodes, query.node_name, load_weight_ptr, detacher_group_ptr, nullptr);
-					m_nodes_panel->UpdateNodeFlags(query.flags_all_nodes, query.flags_any_node);
-					m_nodes_panel->Show();
+				float* load_weight_ptr = nullptr;
+				if (query.load_weight_is_unique)
+				{
+					load_weight_ptr = &query.load_weight;
 				}
+				m_nodes_panel->UpdateNodeData(query.num_nodes, query.node_name, load_weight_ptr, detacher_group_ptr, nullptr);
+				m_nodes_panel->UpdateNodeFlags(query.flags_all_nodes, query.flags_any_node);
+				m_nodes_panel->Show();
 			}
 		}
 	}
@@ -711,6 +697,7 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 void Main::CommandCurrentRigDeleteSelectedNodes()
 {
 	m_gui_delete_menu->Hide();
+	m_nodes_panel->Hide();
 	assert(m_rig != nullptr);
 	m_rig->DeleteSelectedNodes();
 	m_rig->RefreshBeamsDynamicMesh();
