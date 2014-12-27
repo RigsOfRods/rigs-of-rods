@@ -32,7 +32,8 @@
 using namespace RoR;
 using namespace GUI;
 
-RigEditorDeleteMenu::RigEditorDeleteMenu(RigEditor::IMain* rig_editor_interface)
+RigEditorDeleteMenu::RigEditorDeleteMenu(RigEditor::IMain* rig_editor_interface):
+	GuiPanelBase(m_rig_editor_delete_menu)
 {
 	m_rig_editor_interface = rig_editor_interface;
 
@@ -40,21 +41,6 @@ RigEditorDeleteMenu::RigEditorDeleteMenu(RigEditor::IMain* rig_editor_interface)
 	m_delete_beams_button->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorDeleteMenu::DeleteBeamsButtonClicked);
 
 	Hide();
-}
-
-void RigEditorDeleteMenu::Show()
-{
-	m_rig_editor_delete_menu->setVisible(true);
-}
-
-void RigEditorDeleteMenu::Hide()
-{
-	m_rig_editor_delete_menu->setVisible(false);
-}
-
-void RigEditorDeleteMenu::SetPosition(int x, int y)
-{
-	m_rig_editor_delete_menu->setPosition(x, y);
 }
 
 void RigEditorDeleteMenu::DeleteNodesButtonClicked(MyGUI::Widget* sender)
@@ -65,11 +51,6 @@ void RigEditorDeleteMenu::DeleteNodesButtonClicked(MyGUI::Widget* sender)
 void RigEditorDeleteMenu::DeleteBeamsButtonClicked(MyGUI::Widget* sender)
 {
 	m_rig_editor_interface->CommandCurrentRigDeleteSelectedBeams();
-}
-
-bool RigEditorDeleteMenu::IsVisible()
-{
-	return m_rig_editor_delete_menu->isVisible();
 }
 
 bool RigEditorDeleteMenu::TestCursorInRange(int x, int y, int range)

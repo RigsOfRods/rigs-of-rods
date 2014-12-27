@@ -29,6 +29,7 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorHelpWindowLayout.h"
+#include "GuiPanelBase.h"
 #include "RigEditor_IMain.h"
 
 namespace RoR
@@ -37,7 +38,7 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorHelpWindow: public RigEditorHelpWindowLayout
+class RigEditorHelpWindow: public RigEditorHelpWindowLayout, public GuiPanelBase
 {
 
 public:
@@ -45,12 +46,6 @@ public:
 	RigEditorHelpWindow(RigEditor::IMain* rig_editor_interface);
 
 	void Show();
-	
-	void Hide();
-
-	void CenterToScreen();
-
-	bool IsVisible();
 
 private:
 
