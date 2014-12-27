@@ -39,27 +39,23 @@ public:
 		m_panel_widget(main_widget)
 	{}
 
-	void Show()            { m_panel_widget->setVisible(true); }
-	void Hide()            { m_panel_widget->setVisible(false); }
-	bool IsVisible() const { return m_panel_widget->isVisible(); }
+	inline void Show()                    { m_panel_widget->setVisible(true); }
+	inline void Hide()                    { m_panel_widget->setVisible(false); }
+	inline bool IsVisible() const         { return m_panel_widget->isVisible(); }
+	inline int  GetWidthPixels() const    { return GetSizePixels().width; }
+	inline int  GetHeightPixels() const   { return GetSizePixels().height; }
 
-	MyGUI::IntSize GetSizePixels() const { return m_panel_widget->getSize(); }
-	int GetWidthPixels() const           { return GetSizePixels().width; }
-	int GetHeightPixels() const          { return GetSizePixels().height; }
-	
-	void SetPosition(int x_pixels, int y_pixels)
-	{
-		m_panel_widget->setPosition(x_pixels, y_pixels);
-	}
+	inline void SetPosition(int x_pixels, int y_pixels)  { m_panel_widget->setPosition(x_pixels, y_pixels); }
+	inline void SetWidth(int width_pixels)               { m_panel_widget->setSize(width_pixels, GetHeightPixels()); }
+	inline void SetHeight(int height_pixels)             { m_panel_widget->setSize(GetWidthPixels(), height_pixels); }
+
+	inline MyGUI::IntSize GetSizePixels() const          { return m_panel_widget->getSize(); }
 	
 	void CenterToScreen()
 	{
 		MyGUI::IntSize parentSize = m_panel_widget->getParentSize();
 		SetPosition((parentSize.width - GetWidthPixels()) / 2, (parentSize.height - GetHeightPixels()) / 2);
 	}
-
-	void SetWidth(int width_pixels)   { m_panel_widget->setSize(width_pixels, GetHeightPixels()); }
-	void SetHeight(int height_pixels) { m_panel_widget->setSize(GetWidthPixels(), height_pixels); }
 
 protected:
 	MyGUI::Window* m_panel_widget;
