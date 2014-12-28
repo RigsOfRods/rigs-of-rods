@@ -182,10 +182,9 @@ ELSEIF(UNIX)
 
    PKG_CHECK_MODULES  (Ois OIS REQUIRED)
 
-   find_package(Boost COMPONENTS date_time filesystem system regex)
+   find_package(Boost REQUIRED COMPONENTS date_time filesystem system regex)
    if (Boost_FOUND)
 	set(Boost_INCLUDE_DIRS "${Boost_INCLUDE_DIR}/boost")
-	set(Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS})
    endif()
    
    find_package(CURL)
