@@ -47,7 +47,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_CRASHRPT
 # include "crashrpt.h"
 #endif
-#include <pthread.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -57,43 +56,11 @@ template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 int simulatedTruck;
 void* threadstart(void* vid);
 
-int cpu_num_processors( void )
-{
-#if defined(WIN32)
-    return pthread_num_processors_np();
-
-#elif defined(SYS_LINUX)
-    unsigned int bit;
-    int np;
-    cpu_set_t aff;
-    memset( &aff, 0, sizeof(aff) );
-    sched_getaffinity( 0, sizeof(aff), &aff );
-    for( np = 0, bit = 0; bit < 8*sizeof(aff); bit++ )
-        np += (((uint8_t *)&aff)[bit / 8] >> (bit % 8)) & 1;
-    return np;
-
-#elif defined(SYS_BEOS)
-    system_info info;
-    get_system_info( &info );
-    return info.cpu_count;
-
-#elif defined(SYS_MACOSX)
-    int np;
-    size_t length = sizeof( np );
-    if( sysctlbyname("hw.ncpu", &np, &length, NULL, 0) )
-        np = 1;
-    return np;
-
-#else
-    return 1;
-#endif
-}
-
 BeamFactory::BeamFactory() :
 	  current_truck(-1)
 	, forcedActive(false)
 	, free_truck(0)
-	, num_cpu_cores(cpu_num_processors())
+	, num_cpu_cores(pthread_num_processors_np())
 	, physFrame(0)
 	, previous_truck(-1)
 	, tdr(0)

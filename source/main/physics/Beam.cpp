@@ -298,8 +298,8 @@ Beam::~Beam()
 		netMT = 0;
 	}
 
-	if (networked)
-	{ 
+	if (net_mutex)
+	{
 		pthread_mutex_destroy(&net_mutex);
 	}
 
