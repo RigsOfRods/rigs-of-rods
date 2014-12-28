@@ -298,7 +298,10 @@ Beam::~Beam()
 		netMT = 0;
 	}
 
-	pthread_mutex_destroy(&net_mutex);
+	if (networked)
+	{ 
+		pthread_mutex_destroy(&net_mutex);
+	}
 
 	pthread_cond_destroy(&flexable_task_count_cv);
 	pthread_mutex_destroy(&flexable_task_count_mutex);
