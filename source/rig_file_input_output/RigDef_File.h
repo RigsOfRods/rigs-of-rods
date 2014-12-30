@@ -183,7 +183,7 @@ struct Node
 
 	public:
 
-		struct Hasher//: public std::hash<Id>
+		struct Hasher
 		{
 			size_t operator()(Id const & id) const
 			{
