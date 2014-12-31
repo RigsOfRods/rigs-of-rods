@@ -238,6 +238,8 @@ protected:
 	int automode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
 
 	int trucknum;
+
+	bool is_Electric;
 };
 
 #endif // __BeamEngine_H_

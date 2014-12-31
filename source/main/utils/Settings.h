@@ -67,6 +67,10 @@ public:
 	void release(){};
 #endif
 
+	std::map<Ogre::String, Ogre::String> GetSettingMap()
+	{
+		return settings;
+	}
 protected:
 
 	Settings();

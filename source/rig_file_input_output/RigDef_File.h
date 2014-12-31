@@ -762,6 +762,7 @@ struct Engoption
 	enum EngineType
 	{
 		ENGINE_TYPE_c_CAR   = 'c',
+		ENGINE_TYPE_e_ECAR  = 'e',
 		ENGINE_TYPE_t_TRUCK = 't',
 
 		ENGINE_TYPE_INVALID = 0xFFFFFFFF

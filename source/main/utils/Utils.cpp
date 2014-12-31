@@ -336,6 +336,25 @@ Real Round(Real value, unsigned short ndigits /* = 0 */)
 	return value;
 }
 
+Real Round(Real value, int valueN, unsigned short ndigits /* = 0 */)
+{
+	Real f = 1.0f;
+
+	while (ndigits--)
+		f = f * 10.0f;
+
+	value *= f;
+
+	if (value >= 0.0f)
+		value = std::floor(value + valueN);
+	else
+		value = std::ceil(value - valueN);
+
+	value /= f;
+
+	return value;
+}
+
 void generateHashFromDataStream(DataStreamPtr &ds, Ogre::String &hash)
 {
 	size_t location = ds->tell();

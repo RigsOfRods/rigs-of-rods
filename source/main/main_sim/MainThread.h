@@ -32,6 +32,8 @@
 #include "RoRPrerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 
+#include "GUI_GameMainMenu.h"
+
 #include <pthread.h>
 
 namespace RoR
@@ -72,7 +74,9 @@ public:
 	}
 
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
-
+	
+	//GUI 
+	std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
 protected:
 
 	void EnterMainMenuLoop();
@@ -103,6 +107,7 @@ protected:
 	Application::State m_next_application_state;
 	Application::State m_application_state;
 	RigEditor::Main*   m_rig_editor;
+
 };
 
 } // namespace RoR

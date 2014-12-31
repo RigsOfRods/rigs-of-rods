@@ -3476,6 +3476,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (left_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 		} else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
 		{
 			right_blink_on = isvisible;
@@ -3483,6 +3484,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (right_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
 		} else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
 		{
 			warn_blink_on  = isvisible;
@@ -3490,6 +3492,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (warn_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
+			dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 		}
 
 
@@ -3596,6 +3600,10 @@ void Beam::autoBlinkReset()
 		setBlinkType(BLINK_NONE);
 		blinktreshpassed = false;
 	}
+
+	bool stopblink = false;
+	dash->setBool(DD_SIGNAL_TURNLEFT, stopblink);
+	dash->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
 void Beam::updateProps()
@@ -6511,9 +6519,91 @@ bool Beam::LoadTruck(
 			// load default for a truck
 			if (driveable == TRUCK)
 			{
-				dash->loadDashBoard("default_dashboard.layout", false);
+				//Temporary will fix later. TOFIX
+				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
+				bool test02;
+
+				if (test01 == "Yes")
+					test02 = true;
+				else
+					test02 = false;
+
+				if (test02)
+				{
+					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_mph.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_mph.layout", true);
+						}
+					}
+					else
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500.layout", true);
+						}
+					}
+				}
+				else
+				{
+					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_analog_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
+						}
+					}
+					else
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_analog.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_analog.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_analog.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_analog.layout", true);
+						}
+					}
+				}
+			}
+			else  if (driveable == BOAT)
+			{
+				dash->loadDashBoard("default_dashboard_boat.layout", false);
 				// TODO: load texture dashboard by default as well
-				dash->loadDashBoard("default_dashboard.layout", true);
+				dash->loadDashBoard("default_dashboard_boat.layout", true);
 			}
 		} else
 		{

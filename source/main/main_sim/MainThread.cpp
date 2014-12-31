@@ -62,7 +62,6 @@
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "Scripting.h"
-#include "MenuWindow.h"
 #include "SelectorWindow.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -150,6 +149,7 @@ void MainThread::Go()
 	}
 
 	// Set random wallpaper image
+	//is this still needed? As things load so fast that it's rendred for a fraction of a second.
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
 	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
 	if (! menu_wallpaper_texture_name.empty() && ! mat.isNull())
@@ -215,6 +215,8 @@ void MainThread::Go()
 	RoR::Application::CreateInputEngine();
 	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
 
+	//TODO: Move into it's own function
+	//Because new ingame setting configurator 
 	if (BSETTING("regen-cache-only", false))
 	{
 		RoR::Application::GetCacheSystem()->Startup(true); // true = force regeneration
@@ -245,7 +247,7 @@ void MainThread::Go()
 		str = str + _L("\n(These stats can be imprecise)");
 		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
 
-		exit(0);
+		exit(0); //And remove this
 	}
 
 	RoR::Application::GetCacheSystem()->Startup();
@@ -272,6 +274,7 @@ void MainThread::Go()
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
+	// TODO: Make all these settings load when loading a terrain
 	// get lights mode
 	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
 	if (lightsMode == "None (fastest)")
@@ -370,6 +373,8 @@ void MainThread::Go()
 	
 	if (enable_network)
 	{
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		// cmdline overrides config
 		std::string server_name = SSETTING("Server name", "").c_str();
 		if (cmdAction == "joinserver" && !cmdServerIP.empty())
@@ -398,10 +403,8 @@ void MainThread::Go()
 
 		LoadingWindow::getSingleton().hide();
 
-#ifdef USE_SOCKETW
 		new GUI_Multiplayer();
 		GUI_Multiplayer::getSingleton().update();
-#endif //USE_SOCKETW
 
 		if (!connres)
 		{
@@ -497,16 +500,8 @@ void MainThread::Go()
 				menu_wallpaper_widget->setVisible(true);
 			}
 
-			/* Adjust menu position */
-			Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->getViewport(0);
-			int margin = (viewport->getActualHeight() / 10);
-			MenuWindow::getSingleton().SetPosition(
-				margin, // left
-				viewport->getActualHeight() - MenuWindow::getSingleton().GetHeight() - margin // top
-				);
+			RoR::Application::GetGuiManager()->ShowMainMenu(true);
 
-			MenuWindow::getSingleton().Show();
-		
 			EnterMainMenuLoop();
 			
 			previous_application_state = Application::STATE_MAIN_MENU;
