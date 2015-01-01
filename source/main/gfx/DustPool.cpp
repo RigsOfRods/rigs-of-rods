@@ -26,6 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
+const int DustPool::MAX_DUSTS;
+
 DustPool::DustPool(const char* dname, int dsize) : 
 	  allocated(0)
 	, size(std::min(dsize, MAX_DUSTS))
