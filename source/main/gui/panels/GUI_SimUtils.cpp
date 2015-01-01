@@ -20,11 +20,15 @@
 */
 
 /** 
-	@file   
+	@file   GUI_SimUtils.cpp
 	@author Moncef Ben Slimane
 	@date   12/2014
 */
 
+/*
+	Notice:
+	This GUI is a little bit different from the others, so don't take as example.
+*/
 #include "GUI_SimUtils.h"
 
 #include "RoRPrerequisites.h"
@@ -185,6 +189,10 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 				else
 					truckstats = truckstats + MainThemeColor + "Engine RPM: " + WhiteColor + TOUTFSTRING(Round(truck->engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->engine->getMaxRPM())) + "\n";
 
+				float currentHP = Round((truck->engine->getRPM() * truck->engine->getEngineTorque()) / 5252);
+
+				truckstats = truckstats + MainThemeColor + "Current Power: " + WhiteColor + TOUTFSTRING(currentHP) + U(" hp / ") + TOUTFSTRING(Round(currentHP * 0.745699872)) + U(" Kw") + "\n";
+
 				float velocityKMH = truck->WheelSpeed* 3.6f;
 				float velocityMPH = truck->WheelSpeed * 2.23693629f;
 				float carSpeedKPH = truck->nodes[0].Velocity.length() * 3.6f;
@@ -234,9 +242,6 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 			/*
 			truckstats = truckstats + MainThemeColor + "maxG: " + WhiteColor + Ogre::UTFString(geesstr) + "\n";
-			truckstats = truckstats + "Average Stress:" + Ogre::UTFString(geesstr) + "\n";
-			truckstats = truckstats + "Average Stress:" + Ogre::UTFString(beamstressstr) + "\n";
-			truckstats = truckstats + "Average Stress:" + Ogre::UTFString(beamstressstr) + "\n";
 			*/
 
 			//Is this really usefull? people really use it?
