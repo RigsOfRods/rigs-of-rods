@@ -1664,6 +1664,8 @@ material tracks/boatspeed
 	{
 		pass
 		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
 
 			texture_unit
 			{
@@ -1713,6 +1715,8 @@ material tracks/boatdepthmeter
 	{
 		pass
 		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
 			texture_unit
 			{
 				texture boatdepthmeter.dds
@@ -1720,6 +1724,23 @@ material tracks/boatdepthmeter
 		}
 	}
 }
+
+material tracks/boatthrusttrack
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture boatthrusttrack.dds
+			}
+		}
+	}
+}
+
 
 
 material tracks/dafrwheelface

@@ -1,28 +1,13 @@
 overlay tracks/BoatDashboardOverlay
 {
 	zorder 20
-
-
-	container Panel (tracks/boatspeed)
-		{
-			metrics_mode relative
-			horz_align left
-			vert_align bottom
-			width 0.11
-			left 0.14
-//this part is recalculated for screen ratio
-			top -0.14
-			height 0.11
-			material tracks/boatspeed
-		}
-
-
+	
 	container Panel (tracks/boatsteer)
 		{
 			metrics_mode relative
 			horz_align left
 			vert_align bottom
-			width 0.14
+			width 0.0
 			left 0.3
 //this part is recalculated for screen ratio
 			top -0.11
@@ -37,7 +22,7 @@ overlay tracks/BoatDashboardOverlay
 			vert_align bottom
 //			horz_align center
 //			vert_align center
-			width 1.0
+			width 0.0
 			left 0.0
 //this part is recalculated for screen ratio
 			top -0.15
@@ -54,7 +39,7 @@ overlay tracks/BoatDashboardOverlay
 //			vert_align center
 //			width 0.37
 //			left 0.28
-			width 1.0
+			width 0.0
 			left 0.0
 //this part is recalculated for screen ratio
 			top -0.14
@@ -62,15 +47,28 @@ overlay tracks/BoatDashboardOverlay
 			material tracks/black
 		}
 
+			container Panel (tracks/boatspeed)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.7
+//this part is recalculated for screen ratio
+			top -0.12
+			height 0.11
+			material tracks/boatspeed
+		}
+		
 	container Panel (tracks/boatdepthmeter)
 		{
 			metrics_mode relative
 			horz_align left
 			vert_align bottom
 			width 0.11
-			left 0.5
+			left 0.52
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.13
 			height 0.11
 			material tracks/boatdepthmeter
 			element TextArea(tracks/boatdepthmeter_val)
@@ -94,10 +92,10 @@ overlay tracks/BoatDashboardOverlay
 			horz_align right
 			vert_align bottom
 			width 0.03
-			left -0.12
+			left -0.10
 			top -0.14
 			height 0.14
-			material tracks/thrusttrack
+			material tracks/boatthrusttrack
 		}
 	container Panel (tracks/boatthrusttrack2)
 		{
@@ -108,7 +106,7 @@ overlay tracks/BoatDashboardOverlay
 			left -0.06
 			top -0.14
 			height 0.14
-			material tracks/thrusttrack
+			material tracks/boatthrusttrack
 		}
 
 }
