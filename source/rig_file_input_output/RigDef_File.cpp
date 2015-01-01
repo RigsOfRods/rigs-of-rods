@@ -48,6 +48,10 @@ Airbrake::Airbrake():
 	lift_coefficient(1.f) // This is default
 {}
 
+const char Axle::OPTION_o_OPEN;
+const char Axle::OPTION_l_LOCKED;
+const char Axle::OPTION_s_SPLIT;
+
 AntiLockBrakes::AntiLockBrakes():
 	regulation_force(0),
 	min_speed(0),

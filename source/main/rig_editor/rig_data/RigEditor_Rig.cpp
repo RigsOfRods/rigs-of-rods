@@ -24,6 +24,7 @@
 	@date   08/2014
 	@author Petr Ohlidal
 */
+#include <utility>
 
 #include "RigEditor_Rig.h"
 

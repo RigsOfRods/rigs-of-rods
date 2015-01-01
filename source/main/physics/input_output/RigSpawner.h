@@ -144,7 +144,7 @@ public:
 		return m_messages;
 	}
 
-	static bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
+	static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
 protected:
 
@@ -482,7 +482,7 @@ protected:
 	*/
 	void CreateWheelVisuals(
 		unsigned int wheel_index, 
-		RigDef::Wheel & wheel_def, 
+		const RigDef::Wheel & wheel_def, 
 		unsigned int node_base_index
 	);
 
@@ -490,7 +490,7 @@ protected:
 	* Adds complete wheel (section 'wheels') to the rig.
 	* @return wheel index in rig_t::wheels array.
 	*/
-	unsigned int AddWheel(RigDef::Wheel & wheel);
+	unsigned int AddWheel(const RigDef::Wheel & wheel);
 
 	/**
 	* Adds wheel from section 'wheels2'.
@@ -657,13 +657,13 @@ protected:
 	* Seeks node in both RigDef::File definition and rig_t generated rig.
 	* @return Node index or -1 if the node was not found.
 	*/
-	int RigSpawner::FindNodeIndex(RigDef::Node::Id & id, bool silent = false);
+	int FindNodeIndex(RigDef::Node::Id & id, bool silent = false);
 
 	/**
 	* Seeks node in both RigDef::File definition and rig_t generated rig. Tolerates numbered nodes which weren't found (backwards compatibility)
 	* @return Node index or -1 if the node was named and not found (not found numbered nodes pass through, for compatibility).
 	*/
-	int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id);
+	int FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id);
 
 	/**
 	* Finds a generated node in rig.
@@ -707,13 +707,13 @@ protected:
 	* Finds existing node by Node::Id
 	* @return First: Index of existing node; Second: true if node was found.
 	*/
-	std::pair<unsigned int, bool> GetNodeIndex(RigDef::Node::Id & id, bool quiet = false);
+	std::pair<unsigned int, bool> GetNodeIndex(const RigDef::Node::Id & id, bool quiet = false);
 
 	/**
 	* Finds existing node by Node::Id
 	* @return Pointer to node or nullptr if not found.
 	*/
-	node_t* GetNodePointer(RigDef::Node::Id & id);
+	node_t* GetNodePointer(const RigDef::Node::Id & id);
 
 	/**
 	* Finds existing node by Node::Id
@@ -840,7 +840,7 @@ protected:
 	/**
 	* Finds node with lowest Y in spawned rig.
 	*/
-	int RigSpawner::FindLowestNodeInRig();
+	int FindLowestNodeInRig();
 
 	//void SetBeamPlasticCoefficient(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
@@ -884,7 +884,7 @@ protected:
 	/**
 	* Adds visuals to 'wheels2' wheel.
 	*/
-	void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
+	void CreateWheelVisuals(unsigned int wheel_index, const RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
 
 	/**
 	* Sets up wheel and builds nodes for sections 'wheels', 'meshwheels' and 'meshwheels2'.
@@ -910,7 +910,7 @@ protected:
 	/**
 	* Adds beams to wheels from 'wheels', 'meshwheels'
 	*/
-	void RigSpawner::BuildWheelBeams(
+	void BuildWheelBeams(
 		unsigned int num_rays,
 		unsigned int base_node_index,
 		node_t *axis_node_1,
@@ -927,7 +927,7 @@ protected:
 	/**
 	* Creates beam for wheels 'wheels', 'meshwheels', 'meshwheels2'
 	*/
-	unsigned int RigSpawner::AddWheelBeam(
+	unsigned int AddWheelBeam(
 		node_t *node_1,
 		node_t *node_2,
 		float spring,

@@ -22,6 +22,7 @@ macro(add_ror_project BINNAME folder useWxWidgets)
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS}")
   ENDIF(WIN32)
 
+  
   include_directories(${Ogre_INCLUDE_DIRS})
   link_directories   (${Ogre_LIBRARY_DIRS})
   include_directories(${Boost_INCLUDE_DIRS})
@@ -35,7 +36,14 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
   include_directories(${Ois_INCLUDE_DIRS})
   link_directories   (${Ois_LIBRARY_DIRS})
-
+  
+  print_lib(Boost)
+  print_lib(Ogre)
+  print_lib(Ogre_Terrain)
+  print_lib(Ogre_Paging)
+  print_lib(Ogre_RTShader)
+  print_lib(Ois)
+  
   # optional components
   setup_lib(MYGUI)
   setup_lib(OPENAL)

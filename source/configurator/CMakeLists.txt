@@ -76,6 +76,8 @@ ENDIF(WIN32)
 setup_lib(OPENCL)
 setup_lib(OPENAL)
 
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories   (${Boost_LIBRARY_DIRS})
 include_directories(${Ogre_INCLUDE_DIRS})
 link_directories   (${Ogre_LIBRARY_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
@@ -97,7 +99,7 @@ ELSE(WIN32)
 	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(RoRConfig ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES})
+TARGET_LINK_LIBRARIES(RoRConfig ${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES})
 
 
 

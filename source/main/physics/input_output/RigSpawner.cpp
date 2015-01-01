@@ -56,7 +56,7 @@
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Console.h"
-#include "DashboardManager.h"
+#include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DustManager.h"
 #include "FlexAirfoil.h"
@@ -5305,7 +5305,7 @@ void RigSpawner::BuildWheelBeams(
 #endif
 }
 
-unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
+unsigned int RigSpawner::AddWheel(const RigDef::Wheel & wheel_def)
 {
 	unsigned int base_node_index = m_rig->free_node;
 	node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
@@ -5722,7 +5722,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	return wheel_index;
 }
 
-void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wheel_def, unsigned int node_base_index)
+void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, const RigDef::Wheel & wheel_def, unsigned int node_base_index)
 {
 	CreateWheelVisuals(
 		wheel_index, 
@@ -5734,7 +5734,7 @@ void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wh
 		);
 }
 
-void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
+void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, const RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
 {
 	CreateWheelVisuals(
 		wheel_index, 
@@ -6595,7 +6595,7 @@ void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const &
 	Ogre::LogManager::getSingleton().logMessage(report.str());
 }
 
-std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Id & id, bool quiet /* Default: false */)
+std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(const RigDef::Node::Id & id, bool quiet /* Default: false */)
 {
 	if (id.Num() == RigDef::Node::Id::INVALID_ID_VALUE)
 	{
@@ -6637,7 +6637,7 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Id & id, bo
 	}
 }
 
-node_t* RigSpawner::GetNodePointer(RigDef::Node::Id & id)
+node_t* RigSpawner::GetNodePointer(const RigDef::Node::Id & id)
 {
 	std::pair<unsigned int, bool> result = GetNodeIndex(id);
 	if (result.second)
