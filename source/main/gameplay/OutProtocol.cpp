@@ -154,7 +154,7 @@ bool OutProtocol::update(float dt)
 		gd.PLID        = 0;
 		gd.Speed       = fabs(truck->WheelSpeed);
 		gd.RPM         = truck->engine->getRPM();
-		gd.Turbo       = truck->engine->getTurboPSI() * 0.0689475729f;
+		gd.Turbo       = truck->engine->getTurboPSI(0) * 0.0689475729f;
 		gd.EngTemp     = 0; // TODO
 		gd.Fuel        = 0; // TODO
 		gd.OilPressure = 0; // TODO

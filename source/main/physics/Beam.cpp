@@ -1528,7 +1528,7 @@ bool Beam::frameStep(Real dt)
 	// TODO: move this to the correct spot
 	// update all dashboards
 #ifdef USE_MYGUI
-	updateDashBoards(dt);
+	//updateDashBoards(dt);
 #endif // USE_MYGUI
 
 	// some scripting stuff:
@@ -2050,7 +2050,7 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	//turbo
 	if (flag_state & ANIM_FLAG_TURBO)
 	{
-		float turbo=engine->getTurboPSI()*3.34;
+		float turbo=engine->getTurboPSI(0)*3.34;
 		cstate -= turbo / 67.0f ;
 		div++;
 	}
@@ -5373,7 +5373,7 @@ void Beam::updateDashBoards(float &dt)
 		dash->setFloat(DD_ENGINE_RPM, rpm);
 
 		// turbo
-		float turbo = engine->getTurboPSI() * 3.34f; // MAGIC :/
+		float turbo = engine->getTurboPSI(0) * 3.34f; // MAGIC :/
 		dash->setFloat(DD_ENGINE_TURBO, turbo);
 
 		// ignition
@@ -5402,10 +5402,22 @@ void Beam::updateDashBoards(float &dt)
 		Vector3 hdir = (nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy();
 		velocity = hdir.dotProduct(nodes[0].Velocity);
 	}
-	float speed_kph = velocity * 3.6f;
-	dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
-	float speed_mph = velocity * 2.23693629f;
+	float speed_kph = WheelSpeed * 3.6f; //says wheel speed in the wiki, so fixed it.
+	float speed_mph = WheelSpeed * 2.23693629f;
+
+	if (speed_kph = -0)
+		speed_kph = 0; //Stop flickering btw -0 and 0
+	
+	if (speed_mph = -0)
+		speed_mph = 0;
+
+	if (fabs(WheelSpeed) < 1.0f)
+	{
+		speed_kph = speed_mph = 0.0f;
+	}
+
 	dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
+	dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
 
 	// roll
 	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)

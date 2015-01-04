@@ -714,11 +714,15 @@ bool BeamFactory::enterRescueTruck()
 
 void BeamFactory::updateVisual(float dt)
 {
+
+	//Why having all those 3? Can we merge them?
+
 	for (int t=0; t < free_truck; t++)
 	{
 		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
 		{
 			trucks[t]->updateVisualPrepare(dt);
+			trucks[t]->updateDashBoards(dt);
 		}
 	}
 

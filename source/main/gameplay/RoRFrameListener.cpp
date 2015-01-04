@@ -1291,10 +1291,14 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	if (loading_state == ALL_LOADED)
 	{
 		BeamFactory::getSingleton().updateVisual(dt); // Updates flexbodies. When using ThreadPool, it pushes tasks and also waits for them to complete (in this single call)
-
 		// add some example AI
-		//if (loadedTerrain == "simple.terrn2")
-			//BeamFactory::getSingleton().updateAI(dt);
+
+		//Why not..
+		if(gEnv->terrainManager->getTerrainName() == "Simple Test Terrain")
+			BeamFactory::getSingleton().updateAI(dt);
+
+		//if (terra == "simple.terrn2")
+		//	BeamFactory::getSingleton().updateAI(dt);
 	}
 
 

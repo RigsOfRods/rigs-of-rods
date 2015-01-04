@@ -984,7 +984,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	pitchtexture->setTextureRotate(Radian(angle));
 
 	// turbo
-	angle=40.0-vehicle->engine->getTurboPSI()*3.34;
+	angle=40.0-vehicle->engine->getTurboPSI(0)*3.34;
 	turbotexture->setTextureRotate(Degree(angle));
 
 	// indicators

@@ -502,6 +502,7 @@ bool SoundScriptTemplate::setParameter(Ogre::StringVector vec)
 		if (vec[1] == String("brake")) {trigger_source=SS_TRIG_BRAKE; return true;};
 		if (vec[1] == String("pump")) {trigger_source=SS_TRIG_PUMP; return true;};
 		if (vec[1] == String("starter")) {trigger_source=SS_TRIG_STARTER; return true;};
+		if (vec[1] == String("turbo_backfire")) { trigger_source = SS_TRIG_TURBOBACKFIRE; return true; };
 		if (vec[1] == String("always_on")) {trigger_source=SS_TRIG_ALWAYSON; return true;};
 		if (vec[1] == String("repair")) {trigger_source=SS_TRIG_REPAIR; return true;};
 		if (vec[1] == String("air")) {trigger_source=SS_TRIG_AIR; return true;};

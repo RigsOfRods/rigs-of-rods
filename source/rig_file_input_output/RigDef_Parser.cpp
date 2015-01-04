@@ -291,6 +291,11 @@ void Parser::ParseLine(Ogre::String const & line)
 				line_finished = true;
 				break;
 
+			case (File::KEYWORD_ENGTURBO) :
+				new_section = File::SECTION_ENGTURBO;
+				line_finished = true;
+				break;
+
 			case (File::KEYWORD_ENVMAP):
 				/* Ignored */
 				line_finished = true;
@@ -901,6 +906,11 @@ void Parser::ParseLine(Ogre::String const & line)
 
 		case (File::SECTION_ENGOPTION):
 			ParseEngoption(line);
+			line_finished = true;
+			break;
+
+		case (File::SECTION_ENGTURBO) :
+			ParseEngturbo(line);
 			line_finished = true;
 			break;
 
@@ -3103,6 +3113,23 @@ void Parser::ParseEngoption(Ogre::String const & line)
 	}
 	
 	m_current_module->engoption = boost::shared_ptr<Engoption>( new Engoption(engoption) );
+}
+
+void Parser::ParseEngturbo(Ogre::String const & line)
+{
+	boost::smatch results;
+	if (!boost::regex_search(line, results, Regexes::SECTION_ENGTURBO))
+	{
+		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		return;
+	}
+	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	Engturbo engturbo;
+	engturbo.tinertiaFactor = STR_PARSE_REAL(results[1]);
+	engturbo.nturbos = STR_PARSE_REAL(results[2]);
+	engturbo.additionalTorque = STR_PARSE_REAL(results[3]);
+
+	m_current_module->engturbo = boost::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
 
 void Parser::ParseEngine(Ogre::String const & line)
