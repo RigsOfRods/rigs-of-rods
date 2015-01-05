@@ -77,9 +77,9 @@ public:
 
 private:
 
-	OgreSubsystem::OgreSubsystem();
+	OgreSubsystem();
 
-	OgreSubsystem::~OgreSubsystem();
+	~OgreSubsystem();
 
 	Ogre::String        m_hwnd; 
 	Ogre::String        m_main_hwnd;

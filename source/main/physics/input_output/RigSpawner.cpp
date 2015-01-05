@@ -56,7 +56,7 @@
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Console.h"
-#include "DashboardManager.h"
+#include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DustManager.h"
 #include "FlexAirfoil.h"
@@ -5903,7 +5903,8 @@ void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 	}
 	else
 	{
-		AddWheel(DowngradeWheel2(def));
+		RigDef::Wheel wheel_def = DowngradeWheel2(def);
+        	AddWheel(wheel_def);
 	}
 };
 

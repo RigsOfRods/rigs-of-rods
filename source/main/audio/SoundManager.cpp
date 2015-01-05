@@ -441,7 +441,7 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
 	// ok, creating buffer
 	void* bdata=malloc(dataSize);
 	if (!bdata) {LOG("Memory error reading file "+filename);return true;}
-	if (stream->read(bdata, dataSize) != dataSize) {LOG("Could not read file "+filename);return true;}
+	if (stream->read(bdata, dataSize) != dataSize) {LOG("Could not read file "+filename); free(bdata); return true;}
 
 	//LOG("alBufferData: format "+TOSTRING(format)+" size "+TOSTRING(dataSize)+" freq "+TOSTRING(freq));
 	alGetError(); // Reset errors
