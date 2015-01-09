@@ -70,6 +70,7 @@
 #include "TerrainManager.h"
 #include "TruckHUD.h"
 #include "Utils.h"
+#include "SkyManager.h"
 
 #include <OgreRoot.h>
 #include <OgreString.h>
@@ -215,40 +216,8 @@ void MainThread::Go()
 	RoR::Application::CreateInputEngine();
 	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
 
-	//TODO: Move into it's own function
-	//Because new ingame setting configurator 
-	if (BSETTING("regen-cache-only", false))
-	{
-		RoR::Application::GetCacheSystem()->Startup(true); // true = force regeneration
-		
-		// Get stats
-		int num_new     = RoR::Application::GetCacheSystem()->newFiles;
-		int num_changed = RoR::Application::GetCacheSystem()->changedFiles;
-		int num_deleted = RoR::Application::GetCacheSystem()->deletedFiles;
-		
-		// Report
-		Ogre::UTFString str = _L("Cache regeneration done.\n");
-		if (num_new > 0)
-		{
-			str = str + TOUTFSTRING(num_new) + _L(" new files\n");
-		}
-		if (num_changed > 0)
-		{
-			str = str + TOUTFSTRING(num_changed) + _L(" changed files\n");
-		}
-		if (num_deleted > 0)
-		{
-			str = str + TOUTFSTRING(num_deleted) + _L(" deleted files\n");
-		}
-		if (num_new + num_changed + num_deleted == 0)
-		{
-			str = str + _L("no changes");
-		}
-		str = str + _L("\n(These stats can be imprecise)");
-		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
-
-		exit(0); //And remove this
-	}
+	if (BSETTING("regen-cache-only", false)) //Can be usefull so we will leave it here -max98
+		MainThread::RegenCache(); 
 
 	RoR::Application::GetCacheSystem()->Startup();
 
@@ -463,7 +432,7 @@ void MainThread::Go()
 		LOG("Preselected Map: " + (preselected_map));
 		m_next_application_state = Application::STATE_SIMULATION;
 	}
-
+	m_base_resource_load = false;
 	while (! m_shutdown_requested)
 	{
 		if (m_next_application_state == Application::STATE_MAIN_MENU)
@@ -496,6 +465,13 @@ void MainThread::Go()
 				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
 				RoR::Application::GetInputEngine()->RestoreMouseListener();
 
+				/* Restore wallpaper */
+				menu_wallpaper_widget->setVisible(true);
+			}
+			else if (previous_application_state == Application::STATE_SIMULATION)
+			{
+				UnloadTerrain();
+				m_base_resource_load = true;
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
 			}
@@ -647,89 +623,90 @@ void MainThread::Go()
 
 bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected_map)
 {
-
-	// ============================================================================
-	// Loading base resources
-	// ============================================================================
-
-	LoadingWindow::getSingleton().setProgress(0, _L("Loading base resources"));
-
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
-
-	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
-	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
-
-	if (BSETTING("HDR", false))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
-
-	if (BSETTING("DOF", false))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
-
-	if (BSETTING("Glow", false))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
-
-	if (BSETTING("Motion blur", false))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
-
-	if (BSETTING("HeatHaze", false))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
-
-	if (BSETTING("Sunburn", false))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
-
-	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps")
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
-
-	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
-
-	// ============================================================================
-	// Setup
-	// ============================================================================
-
-	Application::CreateOverlayWrapper();
-	Application::GetOverlayWrapper()->SetupDirectionArrow();
-
-	new DustManager(); // setup particle manager singleton. TODO: Move under Application
-
-	if (! enable_network)
+	if (m_base_resource_load == false)
 	{
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-		if (gEnv->player != nullptr)
+		// ============================================================================
+		// Loading base resources
+		// ============================================================================
+
+		LoadingWindow::getSingleton().setProgress(0, _L("Loading base resources"));
+
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
+
+		if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+
+		if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
+
+		if (BSETTING("HDR", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
+
+		if (BSETTING("DOF", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
+
+		if (BSETTING("Glow", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
+
+		if (BSETTING("Motion blur", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
+
+		if (BSETTING("HeatHaze", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
+
+		if (BSETTING("Sunburn", false))
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
+
+		if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps")
+			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
+
+		Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
+
+		// ============================================================================
+		// Setup
+		// ============================================================================
+
+		Application::CreateOverlayWrapper();
+		Application::GetOverlayWrapper()->SetupDirectionArrow();
+
+		new DustManager(); // setup particle manager singleton. TODO: Move under Application
+
+		if (!enable_network)
 		{
-			gEnv->player->setVisible(false);
+			gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+			if (gEnv->player != nullptr)
+			{
+				gEnv->player->setVisible(false);
+			}
 		}
+
+		// heathaze effect
+		if (BSETTING("HeatHaze", false))
+		{
+			gEnv->frameListener->heathaze = new HeatHaze();
+			gEnv->frameListener->heathaze->setEnable(true);
+		}
+
+		// depth of field effect
+		if (BSETTING("DOF", false))
+		{
+			gEnv->frameListener->dof = new DOFManager();
+		}
+
+		// init camera manager after mygui and after we have a character
+		new CameraManager(gEnv->frameListener->dof);
 	}
-
-	// heathaze effect
-	if (BSETTING("HeatHaze", false))
-	{
-		gEnv->frameListener->heathaze = new HeatHaze();
-		gEnv->frameListener->heathaze->setEnable(true);
-	}
-
-	// depth of field effect
-	if (BSETTING("DOF", false))
-	{
-		gEnv->frameListener->dof = new DOFManager();
-	}
-
-	// init camera manager after mygui and after we have a character
-	new CameraManager(gEnv->frameListener->dof);
-
 	// ============================================================================
 	// Loading map
 	// ============================================================================
@@ -1169,6 +1146,50 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 	}
 }
 
+void MainThread::BackToMenu()
+{
+	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_MAIN_MENU);
+	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+}
+
+void MainThread::UnloadTerrain()
+{
+	gEnv->frameListener->loading_state = NONE_LOADED;
+
+	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
+	
+	//Unload all vehicules
+	BeamFactory::getSingleton().removeAllTrucks();
+
+	if (gEnv->player != nullptr)
+	{
+		gEnv->player->setVisible(false);
+		gEnv->player->setPosition(Ogre::Vector3::ZERO);
+		delete(gEnv->player);
+		gEnv->player = nullptr;
+	}
+	
+	if (gEnv->sky != nullptr)
+	{
+		delete(gEnv->sky);
+		gEnv->sky = nullptr;
+	}
+
+	gEnv->sceneManager->destroyAllLights();
+
+	if (gEnv->terrainManager != nullptr)
+	{
+		// remove old terrain
+		delete(gEnv->terrainManager);
+		gEnv->terrainManager = nullptr;
+	}
+	
+
+
+	// hide loading window
+	LoadingWindow::getSingleton().hide();
+}
+
 void MainThread::ShowSurveyMap(bool be_visible)
 {
 	if (gEnv->surveyMap != nullptr)
@@ -1392,5 +1413,42 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 		
 		TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->trucknum:-1);
+	}
+}
+
+void MainThread::RegenCache()
+{
+	//TODO: Move to somewhere else than MainThread maybe? -max98
+	RoR::Application::GetCacheSystem()->Startup(true); // true = force regeneration
+
+	if (BSETTING("regen-cache-only", false)) //Only if game run just for regen
+	{
+		// Get stats
+		int num_new = RoR::Application::GetCacheSystem()->newFiles;
+		int num_changed = RoR::Application::GetCacheSystem()->changedFiles;
+		int num_deleted = RoR::Application::GetCacheSystem()->deletedFiles;
+
+		// Report
+		Ogre::UTFString str = _L("Cache regeneration done.\n");
+		if (num_new > 0)
+		{
+			str = str + TOUTFSTRING(num_new) + _L(" new files\n");
+		}
+		if (num_changed > 0)
+		{
+			str = str + TOUTFSTRING(num_changed) + _L(" changed files\n");
+		}
+		if (num_deleted > 0)
+		{
+			str = str + TOUTFSTRING(num_deleted) + _L(" deleted files\n");
+		}
+		if (num_new + num_changed + num_deleted == 0)
+		{
+			str = str + _L("no changes");
+		}
+		str = str + _L("\n(These stats can be imprecise)");
+
+		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
+		exit(0);
 	}
 }

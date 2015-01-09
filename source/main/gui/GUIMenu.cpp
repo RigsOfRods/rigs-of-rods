@@ -349,6 +349,10 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		}
 
 	} 
+	else if (miname == _L("Back to menu"))
+	{
+		Application::GetMainThreadLogic()->BackToMenu();
+	}
 	else if (miname == _L("Remove current vehicle"))
 	{
 		BeamFactory::getSingleton().removeCurrentTruck();

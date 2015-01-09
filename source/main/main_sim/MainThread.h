@@ -75,6 +75,10 @@ public:
 
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
 	
+	void RegenCache();
+
+	void BackToMenu();
+
 	//GUI 
 	std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
 protected:
@@ -93,6 +97,7 @@ protected:
 	void EnterGameplayLoop();
 
 	void LoadTerrain(Ogre::String const & terrain_file);
+	void UnloadTerrain();
 
 	void ShowSurveyMap(bool hide);
 
@@ -107,6 +112,7 @@ protected:
 	Application::State m_next_application_state;
 	Application::State m_application_state;
 	RigEditor::Main*   m_rig_editor;
+	bool			   m_base_resource_load;
 
 };
 

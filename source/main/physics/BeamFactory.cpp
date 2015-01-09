@@ -645,6 +645,19 @@ void BeamFactory::removeTruck(int truck)
 		_deleteTruck(trucks[truck]);
 }
 
+void BeamFactory::p_removeAllTrucks()
+{
+	for (int i = 0; i < free_truck; i++)
+	{
+		if (current_truck == i)
+			setCurrentTruck(-1);
+		if (!removeBeam(trucks[i]))
+			// deletion over beamfactory failed, delete by hand
+			// then delete the class
+			_deleteTruck(trucks[i]);
+	}
+}
+
 void BeamFactory::_deleteTruck(Beam *b)
 {
 	if (b == 0)	return;
@@ -662,6 +675,11 @@ void BeamFactory::_deleteTruck(Beam *b)
 void BeamFactory::removeCurrentTruck()
 {
 	removeTruck(current_truck);
+}
+
+void BeamFactory::removeAllTrucks()
+{
+	p_removeAllTrucks();
 }
 
 void BeamFactory::setCurrentTruck(int new_truck)

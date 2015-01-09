@@ -46,7 +46,7 @@ public:
 	~GameSettings();
 
 	void Show();
-	void Hide();
+	void Hide(bool isMenu = true);
 	
 private:
 	//Basic things
@@ -57,6 +57,8 @@ private:
 
 	//Buttons
 	void eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender);
+	void eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender);
+	void eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender);
 
 	//Checkboxes
 	void OnArcadeModeCheck(MyGUI::WidgetPtr _sender);
@@ -81,6 +83,7 @@ private:
 	void OnIntraColisCheck(MyGUI::WidgetPtr _sender);
 	void OnASyncPhysicsCheck(MyGUI::WidgetPtr _sender);
 	void OnDigitalSpeedoCheck(MyGUI::WidgetPtr _sender);
+	void OnReplayEnableCheck(MyGUI::WidgetPtr _sender);
 
 	//Sliders
 	void OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position);
