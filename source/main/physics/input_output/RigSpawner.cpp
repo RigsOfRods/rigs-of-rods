@@ -6738,7 +6738,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node_t & node = m_rig->nodes[inserted_node.first];
 	node.pos = inserted_node.first; /* Node index */
 	node.id = static_cast<int>(def.id.Num());
-	node.id_str = def.id.Str();
 
 	/* Positioning */
 	Ogre::Vector3 node_position = m_spawn_position + m_spawn_rotation * def.position;
