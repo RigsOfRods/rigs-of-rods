@@ -72,6 +72,19 @@ SceneMouse::SceneMouse()
 
 SceneMouse::~SceneMouse()
 {
+	
+	if (pickLineNode != nullptr)
+	{
+		gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
+		pickLineNode = nullptr;
+	}
+	
+
+	if (pickLine != nullptr)
+	{
+		gEnv->sceneManager->destroyManualObject("PickLineObject");
+		pickLine = nullptr;
+	}
 }
 
 void SceneMouse::releaseMousePick()
