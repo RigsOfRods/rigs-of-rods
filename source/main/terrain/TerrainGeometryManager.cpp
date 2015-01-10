@@ -36,7 +36,7 @@ TerrainGeometryManager::TerrainGeometryManager(TerrainManager *terrainManager) :
 
 TerrainGeometryManager::~TerrainGeometryManager()
 {
-
+	mTerrainGroup->removeAllTerrains();
 }
 
 void TerrainGeometryManager::loadOgreTerrainConfig(String filename)

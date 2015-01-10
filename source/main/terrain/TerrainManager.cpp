@@ -80,6 +80,8 @@ TerrainManager::TerrainManager() :
 
 TerrainManager::~TerrainManager()
 {
+	m_terrain_config.clear();
+
 	if (main_light != nullptr)
 	{
 		gEnv->sceneManager->destroyAllLights();
@@ -108,6 +110,18 @@ TerrainManager::~TerrainManager()
 	{
 		delete(object_manager);
 		object_manager = nullptr;
+	}
+
+	if (geometry_manager != nullptr)
+	{
+		delete(geometry_manager);
+		geometry_manager = nullptr;
+	}
+
+	if (water != nullptr)
+	{
+		delete(water);
+		water = nullptr;
 	}
 }
 
@@ -575,7 +589,8 @@ void TerrainManager::initWater()
 		water = hw;
 	} else
 	{
-		water = new Water(m_terrain_config);
+		if (water == nullptr)
+			water = new Water(m_terrain_config);
 	}
 }
 

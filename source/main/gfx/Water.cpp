@@ -322,6 +322,45 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig)
 	} else wbuffer=0;
 }
 
+Water::~Water()
+{
+
+	if (mRefractCam != nullptr)
+	{
+		gEnv->sceneManager->destroyCamera("RefractCam");
+		mRefractCam = nullptr;
+	}
+
+	if (mReflectCam != nullptr)
+	{
+		gEnv->sceneManager->destroyCamera("ReflectCam");
+		mReflectCam = nullptr;
+	}
+
+	if (pPlaneEnt != nullptr)
+	{
+		gEnv->sceneManager->destroyEntity("plane");
+		pPlaneEnt = nullptr;
+	}
+
+	if (pTestNode != nullptr)
+	{
+		gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("WaterPlane");
+		pTestNode = nullptr;
+	}
+
+	gEnv->sceneManager->destroyEntity("bplane");
+
+	if (pBottomNode != nullptr)
+	{
+		gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("BottomWaterPlane");
+		pBottomNode = nullptr;
+	}
+	height = 0;
+	orgheight = 0;
+	waterSceneMgr = nullptr;
+}
+
 bool Water::allowUnderWater()
 {
 	return false;

@@ -38,6 +38,7 @@
 #include "GUIManager.h"
 #include "RoRFrameListener.h"
 #include "MainThread.h"
+#include "Console.h"
 
 #include <MyGUI.h>
 
@@ -79,6 +80,9 @@ int CLASS::GetHeight()
 
 void CLASS::Show()
 {
+	if (RoR::Application::GetConsole()->getVisible())
+		RoR::Application::GetConsole()->setVisible(false);
+
 	MAIN_WIDGET->setVisibleSmooth(true);
 	//Is this really needed?
 	SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain); 
