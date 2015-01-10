@@ -30,12 +30,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SocketW.h"
 #endif //USE_SOCKETW
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Ws2tcpip.h>
 #define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 #else
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
-#endif //WIN32
+#endif // _WIN32
 
 class OutProtocol : public RoRSingleton< OutProtocol >, public ZeroedMemoryAllocator
 {

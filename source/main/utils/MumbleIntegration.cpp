@@ -31,7 +31,7 @@ using namespace Ogre;
 // small utility function to convert a char string to a widechar string
 int convertCharSet(wchar_t *wcstring, const char *s)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	// Convert to a wchar_t*
 	size_t origsize = strlen(s) + 1;
 	size_t convertedChars = 0;
@@ -39,7 +39,7 @@ int convertCharSet(wchar_t *wcstring, const char *s)
 	return (int)convertedChars;
 #else
 	// TODO
-#endif //WIN32
+#endif // _WIN32
 }
 
 MumbleIntegration::MumbleIntegration() : lm(NULL)
@@ -53,7 +53,7 @@ MumbleIntegration::~MumbleIntegration()
 
 void MumbleIntegration::initMumble()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	HANDLE hMapObject = OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, L"MumbleLink");
 	if (hMapObject == NULL)
 		return;
@@ -83,7 +83,7 @@ void MumbleIntegration::initMumble()
 		lm = NULL;
 		return;
 	}
-#endif
+#endif // _WIN32
 }
 
 void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 avatarPos)

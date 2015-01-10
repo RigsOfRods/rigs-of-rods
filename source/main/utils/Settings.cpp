@@ -411,11 +411,11 @@ bool Settings::setupPaths()
 		if (! FolderExists(resources_path))
 		{
 			// 3rd fallback: check the installation path
-#ifndef WIN32
+#ifndef _WIN32
 			// linux fallback
 			// TODO: use installation patch values from CMake
 			strcpy(resources_path, "/usr/share/rigsofrods/resources/");
-#endif // WIN32
+#endif // !_WIN32
 
 			if (! FolderExists(resources_path))
 			{
@@ -426,14 +426,14 @@ bool Settings::setupPaths()
 	}
 
 	// change working directory to executable path
-#ifdef WIN32
+#ifdef _WIN32
 	_chdir(program_path);
-#endif //WIN32
+#endif // _WIN32
 
 	//setup config files names
 	char plugins_fname[1024] = {};
 
-#ifdef WIN32
+#ifdef _WIN32
 	// under windows, the plugins.cfg is in the installation directory
 	strcpy(plugins_fname, program_path);
 #else
@@ -453,7 +453,7 @@ bool Settings::setupPaths()
 			strcpy(plugins_fname, program_path);
 	}
 	
-#endif // WIN32
+#endif // _WIN32
 
 
 #ifdef _DEBUG

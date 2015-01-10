@@ -82,7 +82,7 @@ int ConfigManager::getCurrentVersionInfo()
 	return 1;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 void wxStringToTCHAR(TCHAR *tCharString, wxString &myString)
 {
 	const wxChar* myStringChars = myString.c_str();
@@ -92,10 +92,10 @@ void wxStringToTCHAR(TCHAR *tCharString, wxString &myString)
 	tCharString[myString.Len()] = _T('\0');
 }
 
-#endif //WIN32
+#endif // _WIN32
 std::string ConfigManager::readVersionInfo()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	// http://stackoverflow.com/questions/940707/how-do-i-programatically-get-the-version-of-a-dll-or-exe
 
 	wxString rorpath = getInstallationPath() + wxT("RoR.exe");
@@ -143,7 +143,7 @@ std::string ConfigManager::readVersionInfo()
 		sprintf(buffer, "%d.%d.%d", major, minor, patch);
 		return std::string(buffer);
 	}
-#endif // WIN32
+#endif // _WIN32
 	return "unknown";
 }
 
@@ -172,7 +172,7 @@ bool ConfigManager::getUserPathExists()
 
 wxString ConfigManager::getUserPath()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	WCHAR Wuser_path[1024];
 
 	if (SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, Wuser_path)!=S_OK)
@@ -184,7 +184,7 @@ wxString ConfigManager::getUserPath()
 	// TODO: fix hardcoded value here
 	tfn.AppendDir(wxT("Rigs of Rods ") + wxString(ROR_VERSION_STRING_SHORT));
 	return tfn.GetPath();
-#endif // WIN32
+#endif // _WIN32
 }
 
 void ConfigManager::associateViewerFileTypes(std::string type)
@@ -430,7 +430,7 @@ void ConfigManager::checkForNewUpdater()
 	std::string ourHash = getOwnHash();
 
     char platform_str[256]="";
-#ifdef WIN32
+#ifdef _WIN32
    sprintf(platform_str, "windows");
 #else
    sprintf(platform_str, "linux");

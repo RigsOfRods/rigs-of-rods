@@ -206,7 +206,7 @@ int irc_connect6 (irc_session_t * session,
 	getaddrinfo_ptr_t getaddrinfo_ptr;
 	freeaddrinfo_ptr_t freeaddrinfo_ptr;
 	int resolvesuccess = 0;
-#endif
+#endif // _WIN32
 	sprintf(portStr, "%u", (unsigned)port);
 
 	// Check and copy all the specified fields
@@ -289,7 +289,7 @@ int irc_connect6 (irc_session_t * session,
 		memcpy( &saddr, res->ai_addr, res->ai_addrlen );
 		freeaddrinfo( res );
 	}
-#endif
+#endif // _WIN32
 	
 	// create the IRC server socket
 	if ( socket_create( PF_INET6, SOCK_STREAM, &session->sock)
@@ -312,7 +312,7 @@ int irc_connect6 (irc_session_t * session,
 #else
 	session->lasterror = LIBIRC_ERR_NOIPV6;
 	return 1;
-#endif	
+#endif // ENABLE_IPV6
 }
 
 

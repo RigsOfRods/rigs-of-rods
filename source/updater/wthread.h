@@ -105,13 +105,13 @@ struct ci_less : std::binary_function<std::string, std::string, bool>
 	}
 };
 
-#ifdef WIN32
+#ifdef _WIN32
 // case insensitive
 #define FileHashMap std::map<std::string, Hashentry, ci_less>
 #else
 // case sensitive
 #define FileHashMap std::map<std::string, Hashentry>
-#endif //WIN32
+#endif // _WIN32
 
 class WsyncThread : public wxThread, public wxEvtHandler
 {

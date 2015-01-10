@@ -363,11 +363,11 @@ void addlog (const char * fmt, ...)
 	va_list va_alist;
 
 	va_start (va_alist, fmt);
-#if defined (WIN32)
+#if defined (_WIN32)
 	_vsnprintf (buf, sizeof(buf), fmt, va_alist);
 #else
 	vsnprintf (buf, sizeof(buf), fmt, va_alist);
-#endif
+#endif // _WIN32
 	va_end (va_alist);
 
 	LOG("IRC| " + String(buf));
@@ -646,7 +646,7 @@ void *s_ircthreadstart(void* arg)
 		return 0;
 	}
 
-#ifdef WIN32
+#ifdef _WIN32
 	// winsock startup, required
 	WORD wVersionRequested = MAKEWORD (1, 1);
 	WSADATA wsaData;
@@ -656,7 +656,7 @@ void *s_ircthreadstart(void* arg)
 		LOG("IRC| failed to init IRC socket");
 		return 0;
 	}
-#endif //WIN32
+#endif // _WIN32
 
 	// setup the callbacks
 	irc_callbacks_t	callbacks;
