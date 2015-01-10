@@ -74,11 +74,17 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorNodePanelLayout, m_loadweight_editbox, "loadweight_editbox");
 	MyGUI::EditBox* m_loadweight_editbox;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorNodePanelLayout, m_detacher_group_label, "detacher_group_label");
+	MyGUI::TextBox* m_detacher_group_label;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorNodePanelLayout, m_detacher_group_editbox, "detacher_group_editbox");
 	MyGUI::EditBox* m_detacher_group_editbox;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorNodePanelLayout, m_flag_tooltip_label, "flag_tooltip_label");
 	MyGUI::TextBox* m_flag_tooltip_label;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorNodePanelLayout, m_preset_selector_label, "preset_selector_label");
+	MyGUI::TextBox* m_preset_selector_label;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorNodePanelLayout, m_preset_selector_combobox, "preset_selector_combobox");
 	MyGUI::ComboBox* m_preset_selector_combobox;

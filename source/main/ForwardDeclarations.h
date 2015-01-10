@@ -46,6 +46,11 @@ namespace RoR
 	}
 }
 
+namespace MyGUI
+{
+	class  OgrePlatform;
+}
+
 struct node_t;
 struct beam_t;
 struct shock_t;
@@ -82,12 +87,6 @@ namespace Ogre
 {
 	class MovableText;
 	class TerrainGroup;
-}
-
-namespace MyGUI
-{
-	class OgrePlatform;
-	class TextBox;
 }
 
 class AeroEngine;

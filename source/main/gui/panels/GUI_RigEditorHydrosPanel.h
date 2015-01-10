@@ -28,9 +28,10 @@
 */
 
 #include "ForwardDeclarations.h"
-#include "GUI_RigEditorNodePanelLayout.h"
+#include "GUI_RigEditorHydrosPanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_IMain.h"
 #include "RigEditor_RigQueries.h"
 
 namespace RoR
@@ -39,14 +40,16 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorNodePanel: public RigEditorNodePanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorHydrosPanel: public RigEditorHydrosPanelLayout, public RigEditor::GuiNodeBeamPanelBase
 {
 
 public:
 
-	RigEditorNodePanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config);
+	RigEditorHydrosPanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config);
 
-	void UpdateNodeData(RigEditor::RigAggregateNodesData* query);
+	void UpdateHydrosData(RigEditor::RigAggregateHydrosData* query_result);
+
+	inline const RigEditor::RigAggregateHydrosData* GetHydrosData() { return &m_data; }
 
 	inline void HideAndReset()
 	{
@@ -54,19 +57,18 @@ public:
 		m_data.Reset();
 	}
 
-	inline const RigEditor::RigAggregateNodesData* GetData() { return &m_data; }
-
 private:
 
-	void SetNodeNameFieldVisible(bool show);
+	// Aggregate rig data
+	RigEditor::RigAggregateHydrosData m_data;
 
-	// Aggregate node data
-	RigEditor::RigAggregateNodesData m_data;
-
-	// Form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_loadweight_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_node_name_field;
+	// GUI form fields
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_factor_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_start_delay_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_stop_delay_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_start_function_field; 
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_stop_function_field;  
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;  
 };
 
 } // namespace GUI

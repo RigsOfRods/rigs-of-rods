@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,11 +12,11 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
@@ -36,8 +36,6 @@
 	NOTES: 
 	* Since these are open structs, the m_ prefix for member variables is not used.
 	* Members prefixed by _ are helper flags which mark special values or missing values.
-
-	
 */
 
 #pragma once
@@ -326,18 +324,18 @@ struct Node
 		detacher_group(0) /* Global detacher group */
 	{}
 
-	static const unsigned int OPTION_n_MOUSE_GRAB         = BITMASK(1);
-	static const unsigned int OPTION_m_NO_MOUSE_GRAB      = BITMASK(2);
-	static const unsigned int OPTION_f_NO_SPARKS          = BITMASK(3);
-	static const unsigned int OPTION_x_EXHAUST_POINT      = BITMASK(4);
-	static const unsigned int OPTION_y_EXHAUST_DIRECTION  = BITMASK(5);
-	static const unsigned int OPTION_c_NO_GROUND_CONTACT  = BITMASK(6);
-	static const unsigned int OPTION_h_HOOK_POINT         = BITMASK(7);
-	static const unsigned int OPTION_e_TERRAIN_EDIT_POINT = BITMASK(8);
-	static const unsigned int OPTION_b_EXTRA_BUOYANCY     = BITMASK(9);
-	static const unsigned int OPTION_p_NO_PARTICLES       = BITMASK(10);
-	static const unsigned int OPTION_L_LOG                = BITMASK(11);
-	static const unsigned int OPTION_l_LOAD_WEIGHT        = BITMASK(12);
+	BITMASK_PROPERTY( options,  1, OPTION_n_MOUSE_GRAB        , HasFlag_n, SetFlag_n)
+	BITMASK_PROPERTY( options,  2, OPTION_m_NO_MOUSE_GRAB     , HasFlag_m, SetFlag_m)
+	BITMASK_PROPERTY( options,  3, OPTION_f_NO_SPARKS         , HasFlag_f, SetFlag_f)
+	BITMASK_PROPERTY( options,  4, OPTION_x_EXHAUST_POINT     , HasFlag_x, SetFlag_x)
+	BITMASK_PROPERTY( options,  5, OPTION_y_EXHAUST_DIRECTION , HasFlag_y, SetFlag_y)
+	BITMASK_PROPERTY( options,  6, OPTION_c_NO_GROUND_CONTACT , HasFlag_c, SetFlag_c)
+	BITMASK_PROPERTY( options,  7, OPTION_h_HOOK_POINT        , HasFlag_h, SetFlag_h)
+	BITMASK_PROPERTY( options,  8, OPTION_e_TERRAIN_EDIT_POINT, HasFlag_e, SetFlag_e)
+	BITMASK_PROPERTY( options,  9, OPTION_b_EXTRA_BUOYANCY    , HasFlag_b, SetFlag_b)
+	BITMASK_PROPERTY( options, 10, OPTION_p_NO_PARTICLES      , HasFlag_p, SetFlag_p)
+	BITMASK_PROPERTY( options, 11, OPTION_L_LOG               , HasFlag_L, SetFlag_L)
+	BITMASK_PROPERTY( options, 12, OPTION_l_LOAD_WEIGHT       , HasFlag_l, SetFlag_l)
 
 	Id id;
 	Ogre::Vector3 position;
@@ -599,9 +597,9 @@ struct Beam
 		detacher_group(0) /* 0 = Default detacher group */
 	{}
 
-	static const unsigned int OPTION_i_INVISIBLE = BITMASK(1);
-	static const unsigned int OPTION_r_ROPE      = BITMASK(2);
-	static const unsigned int OPTION_s_SUPPORT   = BITMASK(3);
+	BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE, HasFlag_i_Invisible, SetFlag_i_Invisible);
+	BITMASK_PROPERTY(options, 2, OPTION_r_ROPE     , HasFlag_r_Rope     , SetFlag_r_Rope     );
+	BITMASK_PROPERTY(options, 3, OPTION_s_SUPPORT  , HasFlag_s_Support  , SetFlag_s_Support  );
 
 	Node::Id nodes[2];
 	unsigned int options; ///< Bit flags
@@ -1191,10 +1189,12 @@ struct Shock
 {
 	Shock();
 
-	static const unsigned int OPTION_i_INVISIBLE    = BITMASK(1);
-	static const unsigned int OPTION_L_ACTIVE_LEFT  = BITMASK(2); //< Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
-	static const unsigned int OPTION_R_ACTIVE_RIGHT = BITMASK(3); //< Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
-	static const unsigned int OPTION_m_METRIC       = BITMASK(4);
+	BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE    , HasOption_i_Invisible,   SetOption_i_Invisible) 
+	// Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
+	BITMASK_PROPERTY(options, 2, OPTION_L_ACTIVE_LEFT  , HasOption_L_ActiveLeft,  SetOption_L_ActiveLeft) 
+	// Stability active suspension can be made with "L" for suspension on the truck's left and "R" for suspension on the truck's right. 
+	BITMASK_PROPERTY(options, 3, OPTION_R_ACTIVE_RIGHT , HasOption_R_ActiveRight, SetOption_R_ActiveRight)
+	BITMASK_PROPERTY(options, 4, OPTION_m_METRIC       , HasOption_m_Metric,      SetOption_m_Metric) 
 
 	Node::Id nodes[2];
 	float spring_rate;         ///< The 'stiffness' of the shock. The higher the value, the less the shock will move for a given bump. 
@@ -1215,10 +1215,13 @@ struct Shock2
 {
 	Shock2();
 
-	static const unsigned int OPTION_i_INVISIBLE        = BITMASK(1);
-	static const unsigned int OPTION_s_SOFT_BUMP_BOUNDS = BITMASK(2);  ///< soft bump boundaries, use when shocks reach limiters too often and "jumprebound" (default is hard bump boundaries)
-	static const unsigned int OPTION_m_METRIC           = BITMASK(3);  ///< metric values for shortbound/longbound applying to the length of the beam.
-	static const unsigned int OPTION_M_ABSOLUTE_METRIC  = BITMASK(4);  ///< Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
+	BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE       , HasOption_i_Invisible,      SetOption_i_Invisible) 
+	// soft bump boundaries, use when shocks reach limiters too often and "jumprebound" (default is hard bump boundaries)
+	BITMASK_PROPERTY(options, 2, OPTION_s_SOFT_BUMP_BOUNDS, HasOption_s_SoftBumpBounds, SetOption_s_SoftBumpBounds)
+	// metric values for shortbound/longbound applying to the length of the beam.
+	BITMASK_PROPERTY(options, 3, OPTION_m_METRIC          , HasOption_m_Metric,         SetOption_m_Metric)
+	// Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
+	BITMASK_PROPERTY(options, 4, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
 
 	Node::Id nodes[2];
 	float spring_in;                  ///< Spring value applied when the shock is compressing.
@@ -1281,6 +1284,20 @@ struct Hydro
 	static const char OPTION_y_INPUT_InvAILERON_RUDDER   = 'y';
 	static const char OPTION_g_INPUT_ELEVATOR_RUDDER     = 'g';
 	static const char OPTION_h_INPUT_InvELEVATOR_RUDDER  = 'h';
+
+	inline bool HasFlag_a() { return options.find(RigDef::Hydro::OPTION_a_INPUT_AILERON)             != std::string::npos; }
+	inline bool HasFlag_e() { return options.find(RigDef::Hydro::OPTION_e_INPUT_ELEVATOR)            != std::string::npos; }
+	inline bool HasFlag_g() { return options.find(RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER)     != std::string::npos; }
+	inline bool HasFlag_h() { return options.find(RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER)  != std::string::npos; }
+	inline bool HasFlag_i() { return options.find(RigDef::Hydro::OPTION_i_INVISIBLE)                 != std::string::npos; }
+	inline bool HasFlag_r() { return options.find(RigDef::Hydro::OPTION_r_INPUT_RUDDER)              != std::string::npos; }
+	inline bool HasFlag_s() { return options.find(RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED)     != std::string::npos; }
+	inline bool HasFlag_u() { return options.find(RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR)    != std::string::npos; }
+	inline bool HasFlag_v() { return options.find(RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR) != std::string::npos; }
+	inline bool HasFlag_x() { return options.find(RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER)      != std::string::npos; }
+	inline bool HasFlag_y() { return options.find(RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER)   != std::string::npos; }
+
+	inline void AddFlag(char flag) { options += flag; }
 
 	Node::Id nodes[2];
 	float lenghtening_factor;
@@ -1371,12 +1388,12 @@ struct Command2
 {
 	Command2();
 
-	static const unsigned int OPTION_i_INVISIBLE         = BITMASK(1);
-	static const unsigned int OPTION_r_ROPE              = BITMASK(2);
-	static const unsigned int OPTION_c_AUTO_CENTER       = BITMASK(3);
-	static const unsigned int OPTION_f_NOT_FASTER        = BITMASK(4);
-	static const unsigned int OPTION_p_PRESS_ONCE        = BITMASK(5);
-	static const unsigned int OPTION_o_PRESS_ONCE_CENTER = BITMASK(6);
+	BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE        , HasOption_i_Invisible,       SetOption_i_Invisible      )
+	BITMASK_PROPERTY(options, 2, OPTION_r_ROPE             , HasOption_r_Rope,            SetOption_r_Rope           )
+	BITMASK_PROPERTY(options, 3, OPTION_c_AUTO_CENTER      , HasOption_c_AutoCenter,      SetOption_c_AutoCenter     )
+	BITMASK_PROPERTY(options, 4, OPTION_f_NOT_FASTER       , HasOption_f_NotFaster,       SetOption_f_NotFaster      )
+	BITMASK_PROPERTY(options, 5, OPTION_p_PRESS_ONCE       , HasOption_p_PressOnce,       SetOption_p_PressOnce      )
+	BITMASK_PROPERTY(options, 6, OPTION_o_PRESS_ONCE_CENTER, HasOption_o_PressOnceCenter, SetOption_o_PressOnceCenter)
 
 	unsigned int _format_version;
 	Node::Id nodes[2];
@@ -1395,7 +1412,7 @@ struct Command2
 	boost::shared_ptr<DefaultInertia> inertia_defaults;
 	int detacher_group;
 
-	bool HasOption(unsigned int option)
+	inline bool HasOption(unsigned int option) const
 	{
 		return BITMASK_IS_1(options, option);
 	}

@@ -71,6 +71,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 
+#include "d:\\Projects\\Git\\RoR-NextStable\\tools\\rig_inspector\\RoR_RigInspector.h"
+
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #pragma GCC diagnostic ignored "-Wfloat-equal"
@@ -6280,6 +6282,8 @@ Beam::Beam(
 	}
 
 	mCamera = gEnv->mainCamera;
+
+	RigInspector::InspectRig(this, "d:\\Projects\\RoR\\rig_inspection\\NextStable.log");
 
 	LOG(" ===== DONE LOADING VEHICLE");
 }

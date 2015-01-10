@@ -24,14 +24,15 @@
 /** 
 	@file   
 	@author Petr Ohlidal
-	@date   12/2014
+	@date   01/2015
 */
 
 #include "ForwardDeclarations.h"
-#include "GUI_RigEditorNodePanelLayout.h"
+#include "GUI_RigEditorShocksPanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_GuiNodeBeamPanelBase.h"
 #include "RigEditor_RigQueries.h"
+#include "RigEditor_IMain.h"
 
 namespace RoR
 {
@@ -39,14 +40,22 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorNodePanel: public RigEditorNodePanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorShocksPanel: public RigEditorShocksPanelLayout, public RigEditor::GuiNodeBeamPanelBase
 {
 
 public:
 
-	RigEditorNodePanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config);
+	RigEditorShocksPanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config);
 
-	void UpdateNodeData(RigEditor::RigAggregateNodesData* query);
+	void UpdateShockData(RigEditor::RigAggregateShocksData* data);
+
+	inline void Hide()
+	{
+		m_data.Reset();
+		GuiNodeBeamPanelBase::Hide();
+	}
+
+	inline RigEditor::RigAggregateShocksData* GetShocksData() { return &m_data; }
 
 	inline void HideAndReset()
 	{
@@ -54,19 +63,22 @@ public:
 		m_data.Reset();
 	}
 
-	inline const RigEditor::RigAggregateNodesData* GetData() { return &m_data; }
-
 private:
 
-	void SetNodeNameFieldVisible(bool show);
+	/// Wrapper around Base's callback - needed to bind
+	void Shocks_CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget);
 
-	// Aggregate node data
-	RigEditor::RigAggregateNodesData m_data;
+	// Aggregate rig data
+	RigEditor::RigAggregateShocksData m_data;
 
-	// Form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_loadweight_field;
+	// GUI form fields
 	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_node_name_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_spring_field;        
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_damping_field;       
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_contraction_limit_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_limit_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_precompression_field;
+
 };
 
 } // namespace GUI
