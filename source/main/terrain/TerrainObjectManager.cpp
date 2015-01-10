@@ -89,6 +89,7 @@ TerrainObjectManager::~TerrainObjectManager()
 		gEnv->sceneManager->destroyStaticGeometry("bakeSG");
 		bakesg = nullptr;
 	}
+	gEnv->sceneManager->destroyAllEntities();
 }
 
 void TerrainObjectManager::proceduralTests()

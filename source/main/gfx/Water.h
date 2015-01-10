@@ -30,6 +30,7 @@ class Water : public IWater, public ZeroedMemoryAllocator
 public:
 
 	Water(const Ogre::ConfigFile &mTerrainConfig);
+	~Water();
 
 	float getHeight();
 	float getHeightWaves(Ogre::Vector3 pos);
