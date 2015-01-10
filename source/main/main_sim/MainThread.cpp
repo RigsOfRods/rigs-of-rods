@@ -1154,8 +1154,6 @@ void MainThread::BackToMenu()
 
 void MainThread::UnloadTerrain()
 {
-	gEnv->frameListener->loading_state = NONE_LOADED;
-
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	
 	//Unload all vehicules
@@ -1175,16 +1173,23 @@ void MainThread::UnloadTerrain()
 		gEnv->sky = nullptr;
 	}
 
-	gEnv->sceneManager->destroyAllLights();
-
 	if (gEnv->terrainManager != nullptr)
 	{
 		// remove old terrain
 		delete(gEnv->terrainManager);
 		gEnv->terrainManager = nullptr;
 	}
-	
 
+	Application::DeleteSceneMouse();
+
+	gEnv->frameListener->loading_state = NONE_LOADED;
+
+	//Few little details
+	gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+	if (gEnv->player != nullptr)
+	{
+		gEnv->player->setVisible(false);
+	}
 
 	// hide loading window
 	LoadingWindow::getSingleton().hide();

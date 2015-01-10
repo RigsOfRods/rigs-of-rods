@@ -84,6 +84,11 @@ TerrainObjectManager::~TerrainObjectManager()
 		}
 	}
 #endif //USE_PAGED
+	if (bakesg != nullptr)
+	{
+		gEnv->sceneManager->destroyStaticGeometry("bakeSG");
+		bakesg = nullptr;
+	}
 }
 
 void TerrainObjectManager::proceduralTests()

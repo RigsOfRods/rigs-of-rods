@@ -80,11 +80,35 @@ TerrainManager::TerrainManager() :
 
 TerrainManager::~TerrainManager()
 {
-/*	delete(main_light);
-	main_light = nullptr;
-	*/
-	/*delete(sky_manager);
-	sky_manager = nullptr;*/
+	if (main_light != nullptr)
+	{
+		gEnv->sceneManager->destroyAllLights();
+		main_light = nullptr;
+	}
+	
+	if (sky_manager != nullptr)
+	{
+		delete(sky_manager);
+		sky_manager = nullptr;
+	}
+
+	if (envmap != nullptr)
+	{
+		delete(envmap);
+		envmap = nullptr;
+	}
+
+	if (dashboard != nullptr)
+	{
+		delete(dashboard);
+		dashboard = nullptr;
+	}
+
+	if (object_manager != nullptr)
+	{
+		delete(object_manager);
+		object_manager = nullptr;
+	}
 }
 
 // some shortcut to remove ugly code

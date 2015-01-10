@@ -211,6 +211,14 @@ Envmap::Envmap() :
 	}
 }
 
+Envmap::~Envmap()
+{
+	for (int face = 0; face < NUM_FACES; face++)
+	{
+		gEnv->sceneManager->destroyCamera("EnvironmentCamera-" + TOSTRING(face));
+	}
+}
+
 void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 {
 	if (!mIsDynamic || !beam)

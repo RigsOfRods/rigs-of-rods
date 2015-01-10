@@ -62,6 +62,11 @@ Dashboard::Dashboard() :
 //	mDashboardListener->dbeditorOverlay = OverlayManager::getSingleton().getByName("tracks/EditorOverlay");
 }
 
+Dashboard::~Dashboard()
+{
+	gEnv->sceneManager->destroyCamera("DashCam");
+}
+
 void Dashboard::setEnable(bool en)
 {
 	rttTex->setActive(en);
