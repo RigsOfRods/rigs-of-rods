@@ -47,6 +47,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_triangle_count, "triangle_count");
 	MyGUI::EditBox* m_triangle_count;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_batch_count, "batch_count");
+	MyGUI::EditBox* m_batch_count;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(SimUtilsLayout, m_truckinfo_box, "truckinfo_box");
 	MyGUI::ImageBox* m_truckinfo_box;
 

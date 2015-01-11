@@ -55,6 +55,12 @@ using namespace GUI;
 
 CLASS::CLASS()
 {
+	//Usefull
+	MainThemeColor = U("#FF7D02");
+	WhiteColor = U("#FFFFFF");
+	RedColor = U("#DF2121");
+	BlueColor = U("#3399DD");
+
 	MAIN_WIDGET->setUserString("interactive", "0");
 	MAIN_WIDGET->setPosition(0, 0);
 
@@ -101,11 +107,6 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 {
 	if (GetMainVisibiltyState()) //Update when it's visible
 	{
-		Ogre::UTFString MainThemeColor = U("#FF7D02"); // colour key shortcut
-		Ogre::UTFString WhiteColor = U("#FFFFFF"); // colour key shortcut
-		Ogre::UTFString RedColor = U("#DF2121"); // colour key shortcut
-		Ogre::UTFString BlueColor = U("#3399DD"); // colour key shortcut
-
 		if (b_fpsbox)
 		{
 			const Ogre::RenderTarget::FrameStats& stats = Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
@@ -113,10 +114,13 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 			m_avg_fps->setCaptionWithReplacing("Average FPS: " + Ogre::StringConverter::toString(stats.avgFPS));
 			m_worst_fps->setCaptionWithReplacing("Worst FPS: " + Ogre::StringConverter::toString(stats.worstFPS));
 			m_best_fps->setCaptionWithReplacing("Best FPS: " + Ogre::StringConverter::toString(stats.bestFPS));
-			m_triangle_count->setCaptionWithReplacing("Triangle Count: " + Ogre::StringConverter::toString(stats.triangleCount));
+			m_triangle_count->setCaptionWithReplacing("Triangle count: " + Ogre::StringConverter::toString(stats.triangleCount));
+			m_batch_count->setCaptionWithReplacing("Batch count: " + Ogre::StringConverter::toString(stats.batchCount));
 		}
+		else
+			m_fpscounter_box->setVisible(false);
 
-		if (b_truckinfo)
+		if (b_truckinfo && truck != nullptr)
 		{
 			m_truck_name->setCaptionWithReplacing(truck->getTruckName());
 			truckstats = "\n"; //always reset on each frame + space
@@ -225,10 +229,10 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 				{
 					for (int i = 0; i < 8; i++)
 					{
-						if (truck->aeroengines[i])
-						{
-							truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i +1 /*not to start with 0, players wont like it i guess*/ ) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + "%" + "\n";
-						}
+						if (truck->aeroengines[i] && truck->aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOJET)
+							truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + "%" + "\n";
+						else if (truck->aeroengines[i] && truck->aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+							truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + " RPM" + "\n";
 					}
 					float altitude = truck->nodes[0].AbsPosition.y * 1.1811f;
 					truckstats = truckstats + MainThemeColor + "Altitude: " + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" meters") + "\n";
@@ -287,5 +291,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 			m_truck_stats->setCaptionWithReplacing(truckstats);
 		}
+		else 
+			m_truckinfo_box->setVisible(false);
 	}
 }

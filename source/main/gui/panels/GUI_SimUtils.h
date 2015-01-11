@@ -72,6 +72,13 @@ private:
 	std::map<int, float> maxVelos;
 	std::map<int, float> minVelos;
 
+	//Colors
+	Ogre::UTFString MainThemeColor; // colour key shortcut
+	Ogre::UTFString WhiteColor; // colour key shortcut
+	Ogre::UTFString RedColor; // colour key shortcut
+	Ogre::UTFString BlueColor; // colour key shortcut
+
+
 	Ogre::String truckstats;
 };
 
