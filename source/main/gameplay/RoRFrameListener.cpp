@@ -737,7 +737,8 @@ bool RoRFrameListener::updateEvents(float dt)
 		}
 
 #ifdef USE_CAELUM
-		if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
+		
+		if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 		{
 			Real time_factor = 1000.0f;
 			Real multiplier = 10;
@@ -776,6 +777,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif // USE_MYGUI
 			}
 		}
+		
 #endif // USE_CAELUM
 
 		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
@@ -1281,7 +1283,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		// trigger updating of shadows etc
 #ifdef USE_CAELUM
 		SkyManager *sky = gEnv->terrainManager->getSkyManager();
-		if(sky) sky->detectUpdate();
+		if (sky && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
+			sky->detectUpdate();
 #endif
 		
 		gEnv->terrainManager->update(dt);

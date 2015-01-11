@@ -54,6 +54,8 @@ public:
 
 	enum water_quality {WATER_FULL_QUALITY, WATER_FULL_SPEED, WATER_REFLECT, WATER_BASIC};
 
+	void processWater(int mType);
+
 private:
 
 	float getWaveHeight(Ogre::Vector3 pos);
@@ -73,13 +75,14 @@ private:
 	bool haswaves;
 	bool visible;
 	float *wbuffer;
-	float wheight;
-	float height, orgheight;
+	float wHeight, orgHeight, wbHeight;
 	float maxampl;
 	float mScale;
 	int framecounter;
 	int free_wavetrain;
 	int mType;
+
+	Ogre::MeshPtr mprt;
 	Ogre::Vector3 mapSize;
 	Ogre::Camera *mRenderCamera;
 	Ogre::Camera *mReflectCam;
@@ -90,7 +93,10 @@ private:
 	Ogre::SceneNode *pBottomNode;
 	Ogre::SceneNode *pTestNode;
 	Ogre::Viewport *vRtt1, *vRtt2;
+	Ogre::ColourValue fade;
 	wavetrain_t wavetrains[MAX_WAVETRAINS];
+
 };
+
 
 #endif // __Water_H_
