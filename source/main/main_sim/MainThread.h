@@ -36,12 +36,14 @@
 
 #include <pthread.h>
 
+class GameScript;
+
 namespace RoR
 {
 
 class MainThread
 {
-	friend class GameScript; // Needs LoadTerrain()
+	friend class ::GameScript; // Needs LoadTerrain()
 
 public:
 

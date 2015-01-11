@@ -42,11 +42,11 @@
 #include "OgreFontManager.h"
 #include "OgreSubsystem.h"
 #include "RoRVersion.h"
-#include "Screwprop.h"
+#include "ScrewProp.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TruckHUD.h"
-#include "Turboprop.h"
+#include "TurboProp.h"
 #include "Utils.h"
 
 using namespace Ogre;

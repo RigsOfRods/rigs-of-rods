@@ -36,6 +36,7 @@
 #include "RigEditor_MeshWheel2.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_RigProperties.h"
+#include "RigEditor_Node.h"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>

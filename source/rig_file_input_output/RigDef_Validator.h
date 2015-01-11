@@ -100,24 +100,24 @@ private:
 	* @param required Is this section required?
 	* @return True if all conditions were met.
 	*/
-	bool Validator::CheckSection(RigDef::File::Keyword keyword, bool unique, bool required);
+	bool CheckSection(RigDef::File::Keyword keyword, bool unique, bool required);
 
 	/**
 	* Checks if a module contains a section.
 	*/
-	bool Validator::HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword);
+	bool HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword);
 
-	bool Validator::CheckSpecialNodeZero();
+	bool CheckSpecialNodeZero();
 
 	/**
 	* Inline-ection 'submesh_groundmodel', unique across all modules.
 	*/
-	bool Validator::CheckSectionSubmeshGroundmodel();
+	bool CheckSectionSubmeshGroundmodel();
 
 	/**
 	* Checks there's at least 1 forward gear.
 	*/
-	bool Validator::CheckGearbox();
+	bool CheckGearbox();
 
 	void AddMessage(Validator::Message::Type type, Ogre::String const & text);
 
@@ -129,16 +129,16 @@ private:
 
 	bool CheckAnimator(RigDef::Animator & def);
 
-	bool Validator::CheckCommand(RigDef::Command2 & def);
+	bool CheckCommand(RigDef::Command2 & def);
 
-	bool Validator::CheckTrigger(RigDef::Trigger & def);
+	bool CheckTrigger(RigDef::Trigger & def);
 
 	/**
 	* Section 'videocamera'.
 	*/
-	bool Validator::CheckVideoCamera(RigDef::VideoCamera & def);
+	bool CheckVideoCamera(RigDef::VideoCamera & def);
 
-	bool Validator::CheckFlare2(RigDef::Flare2 & def);
+	bool CheckFlare2(RigDef::Flare2 & def);
 
 /* -------------------------------------------------------------------------- */
 /* Properties
