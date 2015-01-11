@@ -81,16 +81,19 @@ TerrainManager::~TerrainManager()
 {
 	m_terrain_config.clear();
 
+	//I think that the order is important
+
+	if (sky_manager != nullptr)
+	{
+		delete(sky_manager);
+		gEnv->sky = nullptr;
+		sky_manager = nullptr;
+	}
+
 	if (main_light != nullptr)
 	{
 		gEnv->sceneManager->destroyAllLights();
 		main_light = nullptr;
-	}
-	
-	if (sky_manager != nullptr)
-	{
-		delete(sky_manager);
-		sky_manager = nullptr;
 	}
 
 	if (envmap != nullptr)
@@ -105,6 +108,12 @@ TerrainManager::~TerrainManager()
 		dashboard = nullptr;
 	}
 
+	if (water != nullptr)
+	{
+		delete(water);
+		water = nullptr;
+	}
+
 	if (object_manager != nullptr)
 	{
 		delete(object_manager);
@@ -115,12 +124,6 @@ TerrainManager::~TerrainManager()
 	{
 		delete(geometry_manager);
 		geometry_manager = nullptr;
-	}
-
-	if (water != nullptr)
-	{
-		delete(water);
-		water = nullptr;
 	}
 }
 
@@ -330,9 +333,9 @@ void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
 	// Caelum skies
-	bool useCaelum = SSETTING("Sky effects", "Caelum (best looking, slower)")=="Caelum (best looking, slower)";
+	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
 
-	if (useCaelum)
+	if (use_caelum)
 	{
 		sky_manager = new SkyManager();
 		gEnv->sky = sky_manager;

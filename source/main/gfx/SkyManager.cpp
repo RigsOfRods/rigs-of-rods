@@ -40,7 +40,7 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 	mCaelumSystem = new Caelum::CaelumSystem (
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot(), 
 		gEnv->sceneManager, 
-		Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE
+		Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT
 	);
 	mCaelumSystem->attachViewport(RoR::Application::GetOgreSubsystem()->GetViewport());
 	/*
@@ -58,7 +58,9 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 
 SkyManager::~SkyManager()
 {
+	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeListener(mCaelumSystem);
 	mCaelumSystem->shutdown(false);
+	mCaelumSystem = nullptr;
 }
 
 void SkyManager::notifyCameraChanged(Camera *cam)
