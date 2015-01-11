@@ -1325,6 +1325,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		mTimeUntilNextToggle -= dt;
 	}
 
+	if (BeamFactory::getSingleton().getCurrentTruck() == nullptr)
+		RoR::Application::GetGuiManager()->UpdateSimUtils(dt, nullptr);
+	
+
 	// one of the input modes is immediate, so update the movement vector
 	if (loading_state == ALL_LOADED)
 	{
