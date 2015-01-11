@@ -30,9 +30,11 @@
 namespace RigDef
 {
 	/* These definitions are needed because the variables are declared but not defined in Axle */
+#ifndef _WIN32
 	const char Axle::OPTION_o_OPEN;
 	const char Axle::OPTION_l_LOCKED;
 	const char Axle::OPTION_s_SPLIT;
+#endif
 
 /* -------------------------------------------------------------------------- */
 /* Sections                                                                   */
