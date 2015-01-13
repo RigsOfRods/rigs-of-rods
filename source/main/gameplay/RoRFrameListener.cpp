@@ -236,13 +236,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !hidegui)
 	{
-		Console *c = RoR::Application::GetConsole();
-		if (c)
-		{
-			RoR::Application::GetInputEngine()->resetKeys();
-			c->setVisible(true);
-			c->select();
-		}
+		//TODO: Separate chat and console
 	}
 #endif //USE_MYGUI
 	// update characters

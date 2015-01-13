@@ -308,7 +308,8 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		// cannot whisper with self...
 		if (user_uid == gEnv->network->getUID()) return;
 
-		RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//TODO: Separate Chat and console
 	}
 	
 	if (!gEnv->frameListener) return;

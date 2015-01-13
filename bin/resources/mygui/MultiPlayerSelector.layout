@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="125 240 820 480" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCSX" position="125 240 820 480" layer="Main" name="_Main">
         <Property key="Caption" value="Multiplayer"/>
         <Widget type="EditBox" skin="WordWrapEmpty" position="10 5 170 20">
             <Property key="Caption" value="Available Servers:"/>
