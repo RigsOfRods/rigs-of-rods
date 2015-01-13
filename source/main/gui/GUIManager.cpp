@@ -319,3 +319,16 @@ int GUIManager::getMessageBoxResult()
 
 	return m_gui_gMessageBox->getResult();
 }
+
+void GUIManager::ShowMultiPlayerSelector(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_MultiplayerSelector.get() == nullptr)
+			m_gui_MultiplayerSelector = std::unique_ptr<GUI::MultiplayerSelector>(new GUI::MultiplayerSelector());
+
+		m_gui_MultiplayerSelector->Show();
+	}
+	else
+		m_gui_MultiplayerSelector->Hide();
+}

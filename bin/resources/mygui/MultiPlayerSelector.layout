@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="125 240 820 480">
+    <Widget type="Window" skin="WindowCX" position="125 240 820 480" layer="Main" name="_Main">
         <Property key="Caption" value="Multiplayer"/>
         <Widget type="EditBox" skin="WordWrapEmpty" position="10 5 170 20">
             <Property key="Caption" value="Available Servers:"/>
@@ -9,22 +9,22 @@
             <Property key="Caption" value="Join"/>
         </Widget>
         <Widget type="MultiListBox" skin="MultiListBox" position="5 25 795 375" name="servers_list">
-            <Widget type="MultiListItem" skin="skin_Default" position="0 0 284 346">
+            <Widget type="MultiListItem" skin="skin_Default" position="0 0 284 346" name="server_name">
                 <Property key="ItemResizingPolicy" value="Fixed"/>
                 <Property key="ItemWidth" value="284"/>
                 <Property key="Caption" value="Name"/>
             </Widget>
-            <Widget type="MultiListItem" skin="" position="284 0 140 346">
+            <Widget type="MultiListItem" skin="skin_Default" position="284 0 140 346" name="server_ip">
                 <Property key="ItemResizingPolicy" value="Fixed"/>
                 <Property key="ItemWidth" value="140"/>
                 <Property key="Caption" value="IP Address"/>
             </Widget>
-            <Widget type="MultiListItem" skin="" position="424 0 296 346">
+            <Widget type="MultiListItem" skin="skin_Default" position="424 0 296 346" name="server_map">
                 <Property key="Caption" value="Map name"/>
                 <Property key="ItemResizingPolicy" value="Fixed"/>
                 <Property key="ItemWidth" value="296"/>
             </Widget>
-            <Widget type="MultiListItem" skin="" position="720 0 67 346">
+            <Widget type="MultiListItem" skin="skin_Default" position="720 0 67 346" name="server_slots">
                 <Property key="Caption" value="Players"/>
                 <Property key="ItemWidth" value="67"/>
                 <Property key="ItemResizingPolicy" value="Fixed"/>
@@ -33,11 +33,15 @@
         <Widget type="Button" skin="Button" position="595 405 100 35" name="settingsbutton">
             <Property key="Caption" value="Settings"/>
         </Widget>
+        <Widget type="EditBox" skin="WordWrapEmpty" position="680 5 115 20" name="ror_net_ver">
+            <Property key="Caption" value="RoR_Net 2.37"/>
+            <Property key="TextAlign" value="Right Top"/>
+        </Widget>
     </Widget>
     <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="C:\New ROR Project\RoR NextStable GUI\source\main\gui\panels"/>
+        <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
         <Property key="PanelName" value="MultiplayerSelectorLayout"/>
         <Property key="PanelNamespace" value="m"/>
-        <Property key="SourceDirectory" value="C:\New ROR Project\RoR NextStable GUI\source\main\gui\panels"/>
+        <Property key="SourceDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
     </CodeGeneratorSettings>
 </MyGUI>

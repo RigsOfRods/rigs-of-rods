@@ -40,6 +40,7 @@
 #include "GUI_DebugOptions.h"
 #include "GUI_SimUtils.h"
 #include "GUI_MessageBox.h"
+#include "GUI_MultiplayerSelector.h"
 
 namespace RoR
 {
@@ -77,8 +78,9 @@ public:
 
 	void UpdateSimUtils(float dt, Beam *truck);
 	void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
-	int getMessageBoxResult();
+	int getMessageBoxResult(); //TODO
 
+	void ShowMultiPlayerSelector(bool isVisible);
 private:
 
 	GUIManager();
@@ -107,6 +109,8 @@ private:
 	std::unique_ptr<GUI::SimUtils>			m_gui_SimUtils;
 	bool isSimUtilsVisible;
 	std::unique_ptr<GUI::gMessageBox>		m_gui_gMessageBox;
+
+	std::unique_ptr<GUI::MultiplayerSelector>			m_gui_MultiplayerSelector;
 };
 
 } // namespace RoR
