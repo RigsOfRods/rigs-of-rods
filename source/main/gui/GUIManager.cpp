@@ -120,8 +120,8 @@ void GUIManager::createGui()
 
 	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
 	MyGUI::PointerManager::getInstance().setVisible(true);
-	Console *c = RoR::Application::GetConsole();
-	if (c) c->resized();
+	//Console *c = RoR::Application::GetConsole();
+	//if (c) c->resized();
 }
 
 void GUIManager::destroyGui()
@@ -171,8 +171,8 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
 	BeamFactory *bf = BeamFactory::getSingletonPtr();
 	if (bf) bf->windowResized();
 
-	Console *c = RoR::Application::GetConsole();
-	if (c) c->resized();
+	/*Console *c = RoR::Application::GetConsole();
+	if (c) c->resized();*/
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)

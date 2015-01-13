@@ -133,12 +133,13 @@
             <UserString key="anim" value="textstring"/>
             <UserString key="link" value="engine_autogear_string"/>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="458 612 100 90" align="Right Bottom">
+        <Widget type="ImageBox" skin="ImageBox" position="458 615 100 90" align="Right Bottom" name="roll">
             <Property key="ImageTexture" value="anglo_v.png"/>
             <Property key="Alpha" value="1"/>
             <UserString key="link" value="roll"/>
-            <Widget type="ImageBox" skin="RotatingSkin" position="0 12 100 100" name="roll">
+            <Widget type="ImageBox" skin="RotatingSkin" position="0 10 100 100">
                 <Property key="ImageTexture" value="redneedle_v2.png"/>
+                <Property key="Visible" value="false"/>
                 <UserString key="link" value="roll"/>
                 <UserString key="anim" value="rotate"/>
                 <UserString key="min" value="-36"/>
@@ -150,11 +151,11 @@
                 </Widget>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="458 702 100 90" align="Right Bottom" name="pitch">
+        <Widget type="ImageBox" skin="ImageBox" position="460 702 100 90" align="Right Bottom" name="pitch">
             <Property key="ImageTexture" value="anglo_h.png"/>
             <Property key="Alpha" value="1"/>
             <UserString key="link" value="pitch"/>
-            <Widget type="ImageBox" skin="RotatingSkin" position="0 12 100 100">
+            <Widget type="ImageBox" skin="RotatingSkin" position="0 15 100 100">
                 <Property key="ImageTexture" value="redneedle_v2.png"/>
                 <UserString key="link" value="pitch"/>
                 <UserString key="vmax" value="-45"/>

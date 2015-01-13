@@ -390,16 +390,7 @@ void MainThread::Go()
 		}
 		gEnv->frameListener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
-		Console *c = RoR::Application::GetConsole();
-		if (c)
-		{
-			c->setVisible(true);
-			c->setNetChat(gEnv->frameListener->netChat);
-			wchar_t tmp[255] = L"";
-			UTFString format = _L("Press %ls to start chatting");
-			swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
-			c->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, UTFString(tmp), "information.png");
-		}
+		//TODO: separate console and chatbox.
 
 #ifdef USE_MUMBLE
 		new MumbleIntegration();
@@ -1078,13 +1069,7 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !gEnv->frameListener->hidegui)
 	{
-		Console *c = RoR::Application::GetConsole();
-		if (c)
-		{
-			RoR::Application::GetInputEngine()->resetKeys();
-			c->setVisible(true);
-			c->select();
-		}
+		//TODO: Separate Chat and console
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
