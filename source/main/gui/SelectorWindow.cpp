@@ -171,6 +171,7 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 		searching = true;
 	}
 
+	
 	// category
 	if (!searching && (_key == MyGUI::KeyCode::ArrowLeft || _key == MyGUI::KeyCode::ArrowRight))
 	{
@@ -209,11 +210,19 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 			newitem--;
 		else
 			newitem++;
+		
 
-		if (iid == 0)
+		//Annd fixed :3
+		if (iid == 0 && _key == MyGUI::KeyCode::ArrowUp)
 		{
 			newitem = (int)mModelList->getItemCount() - 1;
 		}
+		else if (iid == (int)mModelList->getItemCount() - 1 && _key == MyGUI::KeyCode::ArrowDown)
+		{
+			newitem = 0;
+		}
+
+
 		try
 		{
 			mModelList->setIndexSelected(newitem);
@@ -222,12 +231,15 @@ void SelectorWindow::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI:
 		{
 			return;
 		}
+
 		eventListChangePositionModelList(mModelList, newitem);
+
 		// fix cursor position
 		if (searching)
 		{
 			mSearchLineEdit->setTextCursor(mSearchLineEdit->getTextLength());
 		}
+
 	} else if (_key == MyGUI::KeyCode::Return)
 	{
 		if (mLoaderType == LT_SKIN || (mLoaderType != LT_SKIN && mSelectedTruck))
