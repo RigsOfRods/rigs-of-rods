@@ -89,27 +89,28 @@ void CLASS::Hide()
 
 void CLASS::UpdateControls()
 {
-	m_debug_truck_mass->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Debug Truck Mass"], false));
+	m_debug_truck_mass->setStateCheck(Settings::getSingleton().getBooleanSetting("Debug Truck Mass", false));
 
-	m_debug_collision_meshes->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Debug Collisions"], false));
+	m_debug_collision_meshes->setStateCheck(Settings::getSingleton().getBooleanSetting("Debug Collisions", false));
 
-	m_ingame_console->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Enable Ingame Console"], false));
+	m_ingame_console->setStateCheck(Settings::getSingleton().getBooleanSetting("Enable Ingame Console", false));
 
-	m_debug_envmap->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["EnvMapDebug"], false));
+	m_debug_envmap->setStateCheck(Settings::getSingleton().getBooleanSetting("EnvMapDebug", false));
 
-	m_debug_videocameras->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["VideoCameraDebug"], false));
+	m_debug_videocameras->setStateCheck(Settings::getSingleton().getBooleanSetting("VideoCameraDebug", false));
 
-	m_trigger_debug->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Trigger Debug"], false));
+	m_trigger_debug->setStateCheck(Settings::getSingleton().getBooleanSetting("Trigger Debug", false));
 
-	m_debug_dof->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["DOFDebug"], false));
+	m_debug_dof->setStateCheck(Settings::getSingleton().getBooleanSetting("DOFDebug", false));
 
-	m_beam_break_debug->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Beam Break Debug"], false));
+	m_beam_break_debug->setStateCheck(Settings::getSingleton().getBooleanSetting("Beam Break Debug", false));
 
-	m_beam_deform_debug->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Beam Deform Debug"], false));
+	m_beam_deform_debug->setStateCheck(Settings::getSingleton().getBooleanSetting("Beam Deform Debug", false));
 
-	m_adv_logging->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["Advanced Logging"], false));
+	m_adv_logging->setStateCheck(Settings::getSingleton().getBooleanSetting("Advanced Logging", false));
 
-	m_disable_crash_reporting->setStateCheck(Settings::getSingleton().getBooleanSetting(DebugOptionsMap["NoCrashRpt"], true));
+	m_disable_crash_reporting->setStateCheck(Settings::getSingleton().getBooleanSetting("NoCrashRpt", true));
+
 
 	if (DebugOptionsMap["Input Grab"] == "Dynamically")
 		m_input_grabing->setIndexSelected(1);
