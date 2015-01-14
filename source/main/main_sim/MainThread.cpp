@@ -1141,6 +1141,9 @@ void MainThread::UnloadTerrain()
 	gEnv->frameListener->loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	
+	//First of all..
+	RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+
 	//Unload all vehicules
 	BeamFactory::getSingleton().removeAllTrucks();
 
