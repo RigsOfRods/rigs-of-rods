@@ -256,7 +256,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 			UTFString message = username + ChatSystem::commandColour + _L(" spawned a new vehicle: ") + ChatSystem::normalColour + treg->name;
 #ifdef USE_MYGUI
 			Console *console = RoR::Application::GetConsole();
-			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_VEHILCE_ADD, message, "car_add.png");
+			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, message, "car_add.png");
 #endif // USE_MYGUI
 		}
 	}

@@ -40,6 +40,9 @@
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "Utils.h"
+#include "RoRVersion.h"
+
+#include <boost/lexical_cast.hpp>
 
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_LINUX
 #include <iconv.h>
@@ -71,8 +74,13 @@ Console::Console()
 		setVisible(true);
 
 	ConsoleText = "";
+	iText = 0;
+	HistoryCursor = 0;
 
 	m_Console_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &Console::eventCommandAccept);
+	m_Console_TextBox->eventKeyButtonPressed += MyGUI::newDelegate(this, &Console::eventButtonPressed);
+
+	m_Console_Send->eventMouseButtonClick += MyGUI::newDelegate(this, &Console::eventMouseButtonClickSendButton);
 
 	LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
@@ -90,7 +98,7 @@ void Console::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::str
 
 void Console::setVisible(bool _visible)
 {
-	((MyGUI::Window*)mMainWidget)->setVisible(_visible);
+	((MyGUI::Window*)mMainWidget)->setVisibleSmooth(_visible);
 }
 
 bool Console::getVisible()
@@ -117,7 +125,9 @@ void Console::putMessage( int type, int sender_uid, UTFString txt, String icon, 
 
 void Console::showMessage(ConsoleMessage msg)
 {
-	TextCol = "";
+	//TextCol = "";
+	TextCol = "#FFFFFF";
+	/*
 	if (msg.type == CONSOLE_MSGTYPE_LOG)
 		TextCol = "#FFFFFF";
 	else if (msg.type == CONSOLE_MSGTYPE_INFO)
@@ -126,12 +136,17 @@ void Console::showMessage(ConsoleMessage msg)
 		TextCol = "#3399FF";
 	else if (msg.type == CONSOLE_MSGTYPE_NETWORK)
 		TextCol = "#9900FF";
-	else if (msg.type == CONSOLE_MSGTYPE_FLASHMESSAGE)
-		TextCol = "#00FFFF";
-	else if (msg.type == CONSOLE_MSGTYPE_HIGHSCORE)
-		TextCol = "#FFFFFF";
 	else
-		TextCol = "#FFFFFF";
+		TextCol = "#FFFFFF";*/
+
+	if (msg.sender_uid == CONSOLE_TITLE)
+		TextCol = "#FF8100"; //Orange
+	else if (msg.sender_uid == CONSOLE_SYSTEM_ERROR)
+		TextCol = "#FF0000"; //Red
+	else if (msg.sender_uid == CONSOLE_SYSTEM_REPLY)
+		TextCol = "#00FF00"; //Green
+	else if (msg.sender_uid == CONSOLE_HELP)
+		TextCol = "#72C0E0"; //Light blue
 
 	ConsoleText += TextCol + msg.txt + "\n";
 
@@ -174,12 +189,50 @@ void Console::messageLogged(const String& message, LogMessageLevel lml, bool mas
 
 #endif //MYGUI
 
+void Console::eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender)
+{
+	m_Console_TextBox->_riseKeyButtonPressed(MyGUI::KeyCode::Return, ' ');
+}
+
+void Console::eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
+{
+	switch (_key.toValue())
+	{
+		case MyGUI::KeyCode::ArrowUp:
+		{
+			if (HistoryCursor > iText)
+				HistoryCursor = 0;
+
+			if (sTextHistory[HistoryCursor] != "")
+				m_Console_TextBox->setCaption(sTextHistory[HistoryCursor]);
+
+			HistoryCursor++;
+		}
+		break;
+
+		case MyGUI::KeyCode::ArrowDown:
+		{
+			if (HistoryCursor < 0)
+				HistoryCursor = iText;
+
+			if (sTextHistory[HistoryCursor] != "")
+				m_Console_TextBox->setCaption(sTextHistory[HistoryCursor]);	
+
+			HistoryCursor--;
+		}
+		break;
+	}
+}
+
+/*
+All commands are here
+*/
 void Console::eventCommandAccept(MyGUI::Edit* _sender)
 {
-	UTFString msg = convertFromMyGUIString(_sender->getCaption());
+	UTFString msg = convertFromMyGUIString(m_Console_TextBox->getCaption());
 
 	// we did not autoComplete, so try to handle the message
-	_sender->setCaption("");
+	m_Console_TextBox->setCaption("");
 
 	if (msg.empty())
 	{
@@ -189,6 +242,8 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 	if (msg[0] == '/')
 	{
+		sTextHistory[iText] = msg;
+		iText++; //Used for text history
 		if (msg == "/help")
 		{
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Available commands:"), "help.png");
@@ -205,17 +260,21 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/quit - exits"), "table_save.png");
 
-#ifdef USE_ANGELSCRIPT
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use \\game.log(\"hello world!\"); - if first character of a line is as backslash, the line is interpreted as AngelScript code"), "information.png");
+#ifdef USE_ANGELSCRIPT	
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/as - toggle AngelScript Mode: no need to put the backslash before script commands"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setgravity - changes terrain's gravity"), "script_go.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
+
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Page Up/Down Keys in the InputBox to scroll through the history"), "information.png");
+#ifdef USE_ANGELSCRIPT	
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use \\game.log(\"hello world!\"); - if first character of a line is as backslash, the line is interpreted as AngelScript code"), "information.png");
+#endif // USE_ANGELSCRIPT
 			return;
 		}
-		else if (msg == "/pos" && gEnv->frameListener->loading_state == (TERRAIN_LOADED || ALL_LOADED))
+		else if (msg == "/pos" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 		{
 			Beam *b = BeamFactory::getSingleton().getCurrentTruck();
 			if (!b && gEnv->player)
@@ -231,7 +290,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			return;
 		}
-		else if (msg.substr(0, 5) == "/goto" && gEnv->frameListener->loading_state == (TERRAIN_LOADED || ALL_LOADED))
+		else if (msg.substr(0, 5) == "/goto" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 		{
 			StringVector args = StringUtil::split(msg, " ");
 
@@ -257,7 +316,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			return;
 		} 
-		else if (msg == "/terrainheight" && gEnv->frameListener->loading_state == (TERRAIN_LOADED || ALL_LOADED))
+		else if (msg == "/terrainheight" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 		{
 			if (!gEnv->terrainManager->getHeightFinder()) return;
 			Vector3 pos = Vector3::ZERO;
@@ -279,7 +338,10 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 		}
 		else if (msg == "/ver")
 		{
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, getVersionString(true), "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, "Rigs of Rods:", "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " Version: " + String(ROR_VERSION_STRING), "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " Protocol version: " + String(RORNET_VERSION), "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " build time: " + String(__DATE__) + ", " + String(__TIME__), "information.png");
 			return;
 
 		} 
@@ -289,7 +351,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			return;
 
 		}
-		else if (msg == "/as" && gEnv->frameListener->loading_state == (TERRAIN_LOADED || ALL_LOADED))
+		else if (msg == "/as" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 		{
 			//TODO
 			angelscriptMode = !angelscriptMode;
@@ -313,14 +375,37 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			}
 			return;
 		}
+		else if (msg != "" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
+		{
+			//Special commands, TODO: change the whole condition to this style
+			Ogre::StringVector args = StringUtil::split(msg, " ");
+
+			if (args[0] == "/setgravity")
+			{
+				float gValue;
+				if (args[1] == "earth")
+					gValue = -9.81;
+				else if (args[1] == "moon")
+					gValue = -1.6;
+				else if (args[1] == "jupiter")
+					gValue = -50;
+				else
+					gValue = boost::lexical_cast<float>(args[1].c_str());
+
+				gEnv->terrainManager->setGravity(gValue);
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
+				gValue = NULL;
+				return;
+			}
+		}
 		else
 		{
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, _L(" unknown command: ") + msg, "error.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("unknown command: ") + msg, "error.png");
 		}
 
 		// scripting
 #ifdef USE_ANGELSCRIPT
-		if (angelscriptMode || msg[0] == '\\' && gEnv->frameListener->loading_state == (TERRAIN_LOADED || ALL_LOADED))
+		if (angelscriptMode || msg[0] == '\\' && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 		{
 			// we want to notify any running scripts that we might change something (prevent cheating)
 			ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
@@ -336,6 +421,6 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			return;
 		}
 #endif //ANGELSCRIPT
-
-	}
+	} else
+		putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, "Unknown command", "script_go.png");
 }

@@ -105,6 +105,13 @@ protected:
 #endif // OGRE_VERSION
 
 	void eventCommandAccept(MyGUI::Edit* _sender);
+	void eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender);
+	void eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char);
+
+
+	Ogre::String sTextHistory[500];
+	int iText;
+	int HistoryCursor;
 };
 
 } // namespace RoR
