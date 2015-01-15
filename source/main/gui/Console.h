@@ -71,14 +71,8 @@ public:
 
 	enum {
 		// detailed message type identifier, mostly used for message filtering
-		CONSOLE_VEHILCE_ADD,
-		CONSOLE_VEHILCE_DELETE,
-		CONSOLE_JOIN_GAME,
-		CONSOLE_LEAVE_GAME,
-
 		CONSOLE_HELP,
-		CONSOLE_CHAT,
-		CONSOLE_LOCAL_CHAT, // spoken word by self
+		CONSOLE_TITLE,
 
 		CONSOLE_LOCAL_SCRIPT, // script self
 
