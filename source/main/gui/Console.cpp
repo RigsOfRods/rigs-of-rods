@@ -72,6 +72,8 @@ Console::Console()
 
 	ConsoleText = "";
 
+	m_Console_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &Console::eventCommandAccept);
+
 	LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
@@ -140,7 +142,6 @@ void Console::showMessage(ConsoleMessage msg)
 
 	if (getVisible())
 		m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
-
 }
 
 #if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
@@ -172,3 +173,168 @@ void Console::messageLogged(const String& message, LogMessageLevel lml, bool mas
 }
 
 #endif //MYGUI
+
+void Console::eventCommandAccept(MyGUI::Edit* _sender)
+{
+	UTFString msg = convertFromMyGUIString(_sender->getCaption());
+
+	// we did not autoComplete, so try to handle the message
+	_sender->setCaption("");
+
+	if (msg.empty())
+	{
+		// discard the empty message
+		return;
+	}
+
+	if (msg[0] == '/')
+	{
+		if (msg == "/help")
+		{
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, ChatSystem::commandColour + _L("possible commands:"), "help.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/help#000000 - this help information"), "help.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/ver#000000  - shows the Rigs of Rods version"), "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/pos#000000  - outputs the current position"), "world.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/goto <x> <y> <z>#000000  - jumps to the mentioned position"), "world.png");
+
+			if (gEnv->terrainManager->getHeightFinder())
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/terrainheight#000000  - get height of terrain at current position"), "world.png");
+
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/log#000000  - toggles log output on the console"), "table_save.png");
+
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/quit#000000 - exits"), "table_save.png");
+
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, ChatSystem::commandColour + _L("tips:"), "help.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use #dd0000Arrow Up/Down Keys#000000 in the InputBox to reuse old messages"), "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use #dd0000Page Up/Down Keys#000000 in the InputBox to scroll through the history"), "information.png");
+
+#ifdef USE_ANGELSCRIPT
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use #dd0000\\game.log(\"hello world!\");#000000 - if first character of a line is as backslash, the line is interpreted as AngelScript code"), "information.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("#dd0000/as#000000 - toggle AngelScript Mode: no need to put the backslash before script commands"), "script_go.png");
+#endif // USE_ANGELSCRIPT
+			return;
+		}
+		else if (msg == "/pos")
+		{
+			Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+			if (!b && gEnv->player)
+			{
+				Vector3 pos = gEnv->player->getPosition();
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Character position: ") + String("#dd0000") + TOSTRING(pos.x) + String("#000000, #00dd00") + TOSTRING(pos.y) + String("#000000, #0000dd") + TOSTRING(pos.z), "world.png");
+			}
+			else if (b)
+			{
+				Vector3 pos = b->getPosition();
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Vehicle position: ") + String("#dd0000") + TOSTRING(pos.x) + String("#000000, #00dd00") + TOSTRING(pos.y) + String("#000000, #0000dd") + TOSTRING(pos.z), "world.png");
+			}
+
+			return;
+		}
+		else if(msg.substr(0, 5) == "/goto")
+		{
+			StringVector args = StringUtil::split(msg, " ");
+
+			if (args.size() != 4)
+			{
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, ChatSystem::commandColour + _L("usage: /goto x y z"), "information.png");
+				return;
+			}
+
+			Vector3 pos = Vector3(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
+
+			Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+			if (!b && gEnv->player)
+			{
+				gEnv->player->setPosition(pos);
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Character position set to: ") + String("#dd0000") + TOSTRING(pos.x) + String("#000000, #00dd00") + TOSTRING(pos.y) + String("#000000, #0000dd") + TOSTRING(pos.z), "world.png");
+			}
+			else if (b)
+			{
+				b->resetPosition(pos, false);
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Vehicle position set to: ") + String("#dd0000") + TOSTRING(pos.x) + String("#000000, #00dd00") + TOSTRING(pos.y) + String("#000000, #0000dd") + TOSTRING(pos.z), "world.png");
+			}
+
+			return;
+		} 
+		else if (msg == "/terrainheight")
+		{
+			if (!gEnv->terrainManager->getHeightFinder()) return;
+			Vector3 pos = Vector3::ZERO;
+
+			Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+			if (!b && gEnv->player)
+			{
+				pos = gEnv->player->getPosition();
+			}
+			else if (b)
+			{
+				pos = b->getPosition();
+			}
+
+			Real h = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Terrain height at position: ") + String("#dd0000") + TOSTRING(pos.x) + String("#000000, #0000dd") + TOSTRING(pos.z) + String("#000000 = #00dd00") + TOSTRING(h), "world.png");
+
+			return;
+		}
+		else if (msg == "/ver")
+		{
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, ChatSystem::commandColour + getVersionString(false), "information.png");
+			return;
+
+		} 
+		else if (msg == "/quit")
+		{
+			gEnv->frameListener->shutdown_final();
+			return;
+
+		}
+		else if (msg == "/as")
+		{
+			//TODO
+			angelscriptMode = !angelscriptMode;
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, ChatSystem::commandColour + _L("AngelScript Mode ") + (angelscriptMode ? _L("enabled") : _L("disabled")), "information.png");
+			return;
+
+		}
+		else if (msg == "/log")
+		{
+			// switch to console logging
+			bool logging = BSETTING("Enable Ingame Console", false);
+			if (!logging)
+			{
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, ChatSystem::commandColour + _L(" logging to console enabled"), "information.png");
+				SETTINGS.setSetting("Enable Ingame Console", "Yes");
+			}
+			else
+			{
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, ChatSystem::commandColour + _L(" logging to console disabled"), "information.png");
+				SETTINGS.setSetting("Enable Ingame Console", "No");
+			}
+			return;
+		}
+		else
+		{
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, ChatSystem::commandColour + _L(" unknown command: ") + msg, "error.png");
+		}
+
+		// scripting
+#ifdef USE_ANGELSCRIPT
+		if (angelscriptMode || msg[0] == '\\')
+		{
+			// we want to notify any running scripts that we might change something (prevent cheating)
+			ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
+
+			String command = (angelscriptMode ? msg : msg.substr(1));
+
+			StringUtil::trim(command);
+			if (command.empty()) return;
+
+			String nmsg = ChatSystem::scriptCommandColour + ">>> " + ChatSystem::normalColour + command;
+			putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_LOCAL_SCRIPT, nmsg, "script_go.png");
+			int res = ScriptEngine::getSingleton().executeString(command);
+			return;
+		}
+#endif //ANGELSCRIPT
+
+	}
+}

@@ -245,6 +245,7 @@ void GameScript::flashMessage(String &txt, float time, float charHeight)
 
 void GameScript::message(String &txt, String &icon, float timeMilliseconds, bool forceVisible)
 {
+	//TODO: Notification system
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
 #endif // USE_MYGUI
