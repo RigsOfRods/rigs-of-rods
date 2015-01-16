@@ -5394,6 +5394,7 @@ void Beam::updateDashBoards(float &dt)
 	float dash_brake = brake / brakeforce;
 	dash->setFloat(DD_BRAKE, dash_brake);
 
+	/*
 	// speedo
 	float velocity = nodes[0].Velocity.length();
 
@@ -5418,6 +5419,21 @@ void Beam::updateDashBoards(float &dt)
 
 	dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 	dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
+	*/
+	//TODO: FIX THIS
+
+	// speedo
+	float velocity = nodes[0].Velocity.length();
+
+	if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
+	{
+		Vector3 hdir = (nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy();
+		velocity = hdir.dotProduct(nodes[0].Velocity);
+	}
+	float speed_kph = velocity * 3.6f;
+	dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
+	float speed_mph = velocity * 2.23693629f;
+	dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
 	// roll
 	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
