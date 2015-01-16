@@ -150,7 +150,7 @@ bool ContentManager::init(void)
 	AddResourcePack(ResourcePack::DASHBOARDS);
 #endif // USE_MYGUI
 
-#ifdef WIN32
+#ifdef _WIN32
 	// TODO: FIX UNDER LINUX!
 	// register particle classes
 	LOG("Registering Particle Box Emitter");
@@ -158,7 +158,7 @@ bool ContentManager::init(void)
 	ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
 	ParticleSystemManager::getSingleton().addRendererFactory(mParticleSystemRendererFact);
 	ParticleSystemManager::getSingleton().addEmitterFactory(mParticleEmitterFact);
-#endif // WIN32
+#endif // _WIN32
 
 #ifdef USE_ANGELSCRIPT
 	// FireExtinguisherAffector

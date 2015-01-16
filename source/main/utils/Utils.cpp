@@ -24,9 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRVersion.h"
 #include "SHA1.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <iconv.h>
-#endif //WIN32
+#endif // _WIN32
 
 using namespace Ogre;
 
@@ -219,7 +219,7 @@ AxisAlignedBox getWorldAABB(SceneNode* node)
 
 void fixRenderWindowIcon (RenderWindow *rw)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	size_t hWnd = 0;
 	rw->getCustomAttribute("WINDOW", &hWnd);
 
@@ -233,7 +233,7 @@ void fixRenderWindowIcon (RenderWindow *rw)
 		::SendMessageA((HWND)hWnd, WM_SETICON, 1, (LPARAM)hIcon);
 		::SendMessageA((HWND)hWnd, WM_SETICON, 0, (LPARAM)hIcon);
 	}
-#endif // WIN32
+#endif // _WIN32
 }
 
 UTFString ANSI_TO_UTF(const String source)
@@ -244,7 +244,7 @@ UTFString ANSI_TO_UTF(const String source)
 // TODO: Make it bulletproof! <Bad Ptr> e.g kills this
 std::wstring ANSI_TO_WCHAR(const String source)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	const char* srcPtr = source.c_str();
 	int tmpSize = MultiByteToWideChar( CP_ACP, 0, srcPtr, -1, 0, 0 );
 	WCHAR* tmpBuff = new WCHAR [ tmpSize + 1 ];
@@ -305,7 +305,7 @@ std::wstring ANSI_TO_WCHAR(const String source)
 	std::wstring str2(source.length(), L' '); // Make room for characters
 	std::copy(source.begin(), source.end(), str2.begin());
 	return str2;
-#endif // WIN32
+#endif // _WIN32
 }
 
 void trimUTFString( UTFString &str, bool left, bool right)

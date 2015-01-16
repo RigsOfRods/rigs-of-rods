@@ -1102,7 +1102,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y += dText->GetSize().GetHeight() + 2;
 
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifdef _CPPRTTI
 	dText = new wxStaticText(aboutPanel, -1, wxT("Built with Run-Time Type Information (RTTI, /GR)"), wxPoint(x_row1 + 15, y)); y += dText->GetSize().GetHeight() + 2;
 #endif //_CPPRTTI
@@ -1122,7 +1122,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 #ifdef _M_X64
 	dText = new wxStaticText(aboutPanel, -1, _("Built for x64 processors"), wxPoint(x_row1 + 15, y)); y += dText->GetSize().GetHeight() + 2;
 #endif // _M_IX86_FP
-#endif // WIN32
+#endif // _WIN32
 
 	y += 20;
 
@@ -1898,11 +1898,11 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 
 		wxString s = conv(optIt->first.c_str());
 		renderer_name[counter] = optIt->first;
-#ifdef WIN32
+#ifdef _WIN32
 		renderer_text[counter]->SetLabel(_(s));
 #else
 		renderer_text[counter]->SetLabel(wxGetTranslation(s));
-#endif // WIN32
+#endif // _WIN32
 		renderer_text[counter]->Show();
 
 		// add all values and select current value
@@ -2027,11 +2027,11 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 
 			valueCounter++;
 			s = conv(valStr.c_str());
-#ifdef WIN32
+#ifdef _WIN32
 			renderer_choice[counter]->AppendValueItem(s, _(s));
 #else
 			renderer_choice[counter]->AppendValueItem(s, wxGetTranslation(s));
-#endif //WIN32
+#endif // _WIN32
 		}
 		renderer_choice[counter]->sort();
 		renderer_choice[counter]->setSelectedValue(selection);
@@ -2638,7 +2638,7 @@ void MyDialog::OnButUpdateRoR(wxCommandEvent& event)
 // see http://msdn.microsoft.com/en-us/library/8yfshtha.aspx
 int tryLoadOpenCL2()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	bool failed = false;
 	__try
 	{
@@ -2651,9 +2651,9 @@ int tryLoadOpenCL2()
 	if(failed)
 		return -1;
 	return 1;
-#else // WIN32
+#else // _WIN32
 	// TODO: implement late loading under different OSs
-#endif // WIN32
+#endif // _WIN32
 }
 
 void MyDialog::tryLoadOpenCL()
@@ -2997,7 +2997,7 @@ void MyDialog::OnChangedNotebook2(wxNotebookEvent& event)
 	}
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 // code borrowed from updater
 void wxStringToTCHAR(TCHAR *tCharString, wxString &myString)
 {
@@ -3060,7 +3060,7 @@ std::string MyDialog::readVersionInfo()
 	}
 	return "unknown";
 }
-#endif //WIN32
+#endif // _WIN32
 
 void MyDialog::OnChangedNotebook1(wxNotebookEvent& event)
 {
@@ -3068,7 +3068,7 @@ void MyDialog::OnChangedNotebook1(wxNotebookEvent& event)
 	if(tabname == _("Updates"))
 	{
 		// try to find our version
-#ifdef WIN32
+#ifdef _WIN32
 		helphtmw->LoadPage(wxString(conv(NEWS_HTML_PAGE))+
 			wxString(conv("?netversion="))+wxString(conv(RORNET_VERSION))+
 			wxString(conv("&version="))+wxString(readVersionInfo())+
@@ -3079,7 +3079,7 @@ void MyDialog::OnChangedNotebook1(wxNotebookEvent& event)
 			wxString(conv("?netversion="))+wxString(conv(RORNET_VERSION))+
 			wxString(conv("&lang="))+conv(conv(language->CanonicalName))
 			);
-#endif // WIN32
+#endif // _WIN32
 	}
 }
 

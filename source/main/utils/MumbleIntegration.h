@@ -41,13 +41,13 @@ protected:
 	
 	struct LinkedMem
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		UINT32	uiVersion;
 		DWORD	uiTick;
 #else
 		uint32_t uiVersion;
 		uint32_t uiTick;
-#endif
+#endif // _WIN32
 		float	fAvatarPosition[3];
 		float	fAvatarFront[3];
 		float	fAvatarTop[3];
@@ -56,11 +56,11 @@ protected:
 		float	fCameraFront[3];
 		float	fCameraTop[3];
 		wchar_t	identity[256];
-#ifdef WIN32
+#ifdef _WIN32
 		UINT32	context_len;
 #else
 		uint32_t context_len;
-#endif
+#endif // _WIN32
 		unsigned char context[256];
 		wchar_t description[2048];
 	};
