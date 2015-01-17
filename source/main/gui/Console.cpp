@@ -256,12 +256,8 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/pos - outputs the current position"), "world.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
 
-
-			//if (gEnv->terrainManager->getHeightFinder()) //Not needed imo -max98
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/terrainheight - get height of terrain at current position"), "world.png");
-
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/log - toggles log output on the console"), "table_save.png");
-
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/quit - exits"), "table_save.png");
 
 #ifdef USE_ANGELSCRIPT	
@@ -273,6 +269,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
+
 			return;
 		} else if (args[0] == "/setgravity")
 		{

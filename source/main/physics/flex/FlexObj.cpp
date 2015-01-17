@@ -211,9 +211,9 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
 
 
     /// Notify Mesh object that it has been loaded
+    msh->buildEdgeList();
+    msh->prepareForShadowVolume();
     msh->load();
-	msh->buildEdgeList();
-
 }
 
 void FlexObj::scale(float factor)

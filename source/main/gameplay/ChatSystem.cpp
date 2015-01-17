@@ -127,7 +127,7 @@ ChatSystem::ChatSystem(int source, unsigned int streamid, int colourNumber, bool
 
 #ifdef USE_MYGUI
 		String msg = username + commandColour + _L(" joined the game");
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_JOIN_GAME, msg, "user_add.png");
+		//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_JOIN_GAME, msg, "user_add.png");
 #endif //USE_MYGUI
 	}
 #endif //SOCKETW
@@ -139,7 +139,7 @@ ChatSystem::~ChatSystem()
 	if (remote)
 	{
 		String msg = username + commandColour + _L(" left the game");
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LEAVE_GAME, msg, "user_delete.png");
+		//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LEAVE_GAME, msg, "user_delete.png");
 	}
 #endif //USE_MYGUI
 }
@@ -162,6 +162,7 @@ void ChatSystem::sendStreamData()
 
 void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len)
 {
+	/*
 #ifdef USE_MYGUI
 	if (type == MSG2_UTF_CHAT)
 	{
@@ -198,7 +199,9 @@ void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "script_key.png");
 		}
 	}
-#endif //USE_MYGUI
+	
+#endif //USE_MYGUI*/
+	//TODO: NOTIFICATION SYSTEM
 }
 
 void ChatSystem::sendChat(UTFString chatline)
@@ -281,7 +284,7 @@ void ChatSystem::sendPrivateChat(int target_uid, UTFString chatline, UTFString u
 	// add local visual
 #ifdef USE_MYGUI
 	UTFString nmsg = gEnv->network->getNickname(true) + normalColour + whisperColour + _L(" [whispered to ") + normalColour + username + whisperColour + "]" + normalColour + ": " + chatline;
-	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOCAL_CHAT, nmsg, "script_key.png");
+	//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOCAL_CHAT, nmsg, "script_key.png");
 #endif // USE_MYGUI
 #endif // USE_SOCKETW
 }

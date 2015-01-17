@@ -507,6 +507,9 @@ struct wheel_t
 	int lastContactType;
 	ground_model_t *lastGroundModel;
 
+	//skidmarks v2
+	bool isSkiding;
+	
 	// for improved collision code
 	int lastEventHandler;
 };

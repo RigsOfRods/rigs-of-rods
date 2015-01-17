@@ -144,6 +144,13 @@ FlexBody::FlexBody(
 	//LOG("FLEXBODY unique mesh created: "+String(meshname)+" -> "+String(uname_mesh));
 
 	msh=ent->getMesh();
+	//shadow
+	if (hasshadows)
+	{
+		LOG("FLEXBODY preparing for shadow volume");
+		msh->prepareForShadowVolume(); // we do this always so we have only one data structure format to manage
+		msh->buildEdgeList();
+	}
 
 	//determine if we have texture coordinates everywhere
 	hastexture=true;
@@ -459,14 +466,6 @@ FlexBody::FlexBody(
 		locs[i].coords= mat * (vertices[i] - nodes[locs[i].ref].smoothpos);
 
 		// that's it!
-	}
-
-	//shadow
-	if (hasshadows)
-	{
-		LOG("FLEXBODY preparing for shadow volume");
-		msh->prepareForShadowVolume(); // we do this always so we have only one data structure format to manage
-		msh->buildEdgeList();
 	}
 
 	//adjusting bounds

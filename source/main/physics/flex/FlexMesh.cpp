@@ -214,6 +214,7 @@ FlexMesh::FlexMesh(
 
 		/// Notify Mesh object that it has been loaded
 	msh->buildEdgeList();
+	msh->prepareForShadowVolume();
 	//msh->buildTangentVectors();
 	/*unsigned short src, dest;
 	if (!msh->suggestTangentVectorBuildParams(src, dest))
