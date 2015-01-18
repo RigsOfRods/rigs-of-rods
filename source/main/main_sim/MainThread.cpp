@@ -286,7 +286,8 @@ void MainThread::Go()
 	else if (lightsMode == "All vehicles, all lights")
 		gEnv->frameListener->flaresMode = 4;
 
-	// force feedback
+	// force feedback TODO: Fix for Linux
+	#ifdef _WIN32
 	if (BSETTING("Force Feedback", true))
 	{
 		//check if a device has been detected
@@ -301,6 +302,7 @@ void MainThread::Go()
 			gEnv->frameListener->forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
 		}
 	}
+	#endif // _WIN32
 
 	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
 	if     (screenshotFormatString == "jpg (smaller, default)")
