@@ -330,6 +330,8 @@ void TerrainManager::initCamera()
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
+	else
+		gEnv->mainCamera->setFarClipDistance(5000);
 }
 
 void TerrainManager::initSkySubSystem()
@@ -587,8 +589,8 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		HydraxWater *hw = new HydraxWater();
-		hw->loadConfig("HydraxDemo.hdx");
+		HydraxWater *hw = new HydraxWater(m_terrain_config);
+		//hw->loadConfig("HydraxDemo.hdx");
 		water = hw;
 	} else
 	{

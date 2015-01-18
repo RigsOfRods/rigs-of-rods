@@ -66,7 +66,9 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 		gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(100);
 
 		//important optimization
-		gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1)->setShadowsEnabled(false);
+		if (!BSETTING("TerrainSelfShadow", false))
+			gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1)->setShadowsEnabled(true); //this has no effects
+
 		gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
  
 		//		gEnv->ogreSceneManager->setUseCullCamera(false);
