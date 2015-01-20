@@ -4,40 +4,32 @@
 HydraxVersion=0.5.4
 
 #Main options field
-<vector3>Position=0x10x0
 <float>PlanesError=2.5
 #Shader mode: 0=HLSL, 1=CG, 2=GLSL
 <int>ShaderMode=0
-<float>FullReflectionDistance=1e+011
-<float>GlobalTransparency=0.5
-<float>NormalDistortion=0.075
+<float>FullReflectionDistance=50000000.0
+<float>GlobalTransparency=0.1
 <vector3>WaterColor=0.0398721x0.124018x0.164179
 
 #Components field
-Components=Sun|Depth|Caustics|Underwater|UnderwaterReflections|UnderwaterGodRays
-
-#Sun parameters
-<vector3>SunPosition=0x10000x0
-<float>SunStrength=1.75
-<float>SunArea=150
-<vector3>SunColor=1x0.9x0.6
+Components=Sun|Foam|Depth|Caustics|Underwater|UnderwaterReflections|UnderwaterGodRays
 
 #Foam parameters
 <float>FoamMaxDistance=7.5e+006
-<float>FoamScale=0.0001
+<float>FoamScale=0.1
 <float>FoamStart=0
 <float>FoamTransparency=1
 
 #Depth parameters
-<float>DepthLimit=40
-<float>DistLimit=10
+<float>DepthLimit=90
+<float>DistLimit=90
 
 #Smooth transitions parameters
 <float>SmoothPower=5
 
 #Caustics parameters
 <float>CausticsScale=13.5
-<float>CausticsPower=1.5
+<float>CausticsPower=5.5
 <float>CausticsEnd=0.04
 
 #God rays parameters
@@ -67,10 +59,10 @@ Module=ProjectedGridVertex
 <float>PG_Strength=3.5
 
 #Noise options
-Noise=Real
+Noise=Perlin
 
 <int>Perlin_Octaves=8
-<float>Perlin_Scale=0.85
+<float>Perlin_Scale=0.5
 <float>Perlin_Falloff=0.49
 <float>Perlin_Animspeed=1.4
 <float>Perlin_Timemulti=1.27

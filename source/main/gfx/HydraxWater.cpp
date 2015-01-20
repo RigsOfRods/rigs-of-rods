@@ -31,7 +31,9 @@ Based on HydraxWater.cpp/.h
 #include "Application.h"
 #include "OgreSubsystem.h"
 #include "Settings.h"
+#include "SkyManager.h"
 
+#include <Caelum.h>
 
 using namespace Ogre;
 
@@ -96,7 +98,10 @@ public:
 };
 
 // HydraxWater
-HydraxWater::HydraxWater(const Ogre::ConfigFile &mTerrainConfig)
+HydraxWater::HydraxWater(const Ogre::ConfigFile &mTerrainConfig):
+waternoise(0)
+, mHydrax(0)
+, waterHeight(5)
 {
 	mRenderCamera = gEnv->mainCamera;
 	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
@@ -115,46 +120,61 @@ HydraxWater::~HydraxWater()
 bool HydraxWater::CreateHydrax()
 {
 	mHydrax->create();
-	mHydrax->getRttManager()->addRttListener(new HydraxRttListener());
+	//mHydrax->getRttManager()->addRttListener(new HydraxRttListener());
 	mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
-
+	/*
 	if (haswaves)
 		mModule->setOptions(Hydrax::Module::ProjectedGrid::Options(mModule->getOptions().Complexity, 3, mModule->getOptions().Elevation, mModule->getOptions().Smooth, mModule->getOptions().ForceRecalculateGeometry, mModule->getOptions().ChoppyWaves, mModule->getOptions().ChoppyStrength)); //Not so flat water, flat doesn't look nice with hydrax
-
+		*/
+	//mHydrax->getMesh()->getSceneNode()->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
 	return true;
 }
 
 void HydraxWater::InitComponents()
 {
-	Perlin = new Hydrax::Noise::Perlin(Hydrax::Noise::Perlin::Options());
+	waternoise = new Hydrax::Noise::Perlin(Hydrax::Noise::Perlin::Options(waternoise->getOptions().Octaves, 0.5, waternoise->getOptions().Falloff, waternoise->getOptions().Animspeed, waternoise->getOptions().Timemulti));
 	mModule = new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer
 		mHydrax,
 		// Noise module
-		Perlin,
+		waternoise,
 		// Base plane
-		Ogre::Plane(Ogre::Vector3::UNIT_Y, Ogre::Real(0.0f)),
+		Ogre::Plane(Ogre::Vector3::UNIT_Y, 0),
 		// Normal mode
 		Hydrax::MaterialManager::NM_VERTEX,
 		// Projected grid options
 		Hydrax::Module::ProjectedGrid::Options());
+
 	mHydrax->setModule(static_cast<Hydrax::Module::Module*>(mModule));
 
 	mHydrax->loadCfg("HydraxDefault.hdx");
 
 
 	//All of this is temporary
-	/*
+	// Add some waves
+/*	waternoise->addWave(
+		Ogre::Vector2(1.f, 0.f),
+		0.3f,
+		10.f);
+	waternoise->addWave(
+		Ogre::Vector2(0.85f, 0.15f),
+		0.15f,
+		8.f);
+	waternoise->addWave(
+		Ogre::Vector2(0.95f, 0.1f),
+		0.1f,
+		7.f);
+		*/
+	/**
 	//Bascily, Hydrax's configs
 	mHydrax->setComponents(
-	static_cast<Hydrax::HydraxComponent>(
-	Hydrax::HYDRAX_COMPONENT_SUN        |
-	//Hydrax::HYDRAX_COMPONENT_FOAM       |
-	Hydrax::HYDRAX_COMPONENT_DEPTH      |
-	Hydrax::HYDRAX_COMPONENT_SMOOTH     |
-	Hydrax::HYDRAX_COMPONENT_CAUSTICS   |
-	Hydrax::HYDRAX_COMPONENT_UNDERWATER |
-	Hydrax::HYDRAX_COMPONENT_UNDERWATER_REFLECTIONS |
-	Hydrax::HYDRAX_COMPONENT_UNDERWATER_GODRAYS));
+		static_cast<Hydrax::HydraxComponent>(Hydrax::HYDRAX_COMPONENT_SUN |
+		Hydrax::HYDRAX_COMPONENT_FOAM |
+		Hydrax::HYDRAX_COMPONENT_DEPTH |
+		Hydrax::HYDRAX_COMPONENT_SMOOTH |
+		Hydrax::HYDRAX_COMPONENT_CAUSTICS |
+		Hydrax::HYDRAX_COMPONENT_UNDERWATER |
+		Hydrax::HYDRAX_COMPONENT_UNDERWATER_REFLECTIONS |
+		Hydrax::HYDRAX_COMPONENT_UNDERWATER_GODRAYS));
 
 	mHydrax->setShaderMode(Hydrax::MaterialManager::SM_HLSL);
 	mHydrax->setDepthLimit(140);
@@ -163,7 +183,10 @@ void HydraxWater::InitComponents()
 	mHydrax->setCausticsPower(2);
 	mHydrax->setDistLimit(800);
 	mHydrax->setCausticsEnd(0.8);
-	mHydrax->setCausticsScale(135);*/
+	mHydrax->setCausticsScale(135);
+	mHydrax->setFoamScale(0.5);
+	*/
+
 }
 
 void HydraxWater::AddMaterial(Ogre::Terrain *terrain)
@@ -209,7 +232,13 @@ void HydraxWater::showWave(Vector3 refpos)
 
 void HydraxWater::update()
 {
-
+	if (gEnv->sky->getCaelumSys()) //Caelum way of doing things
+	{
+		Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
+		sunPosition -= gEnv->sky->getCaelumSys()->getSun()->getLightDirection() * 80000;
+		mHydrax->setSunPosition(sunPosition);
+		mHydrax->setSunColor(Ogre::Vector3(gEnv->sky->getCaelumSys()->getSun()->getBodyColour().r, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().g, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().b));
+	}
 }
 
 void HydraxWater::prepareShutdown()
@@ -238,7 +267,7 @@ float HydraxWater::getHeightWaves(Vector3 pos)
 	{
 		return waterHeight;
 	}
-	waveHeight = mModule->getHeigth(Ogre::Vector2(pos.x, pos.y));
+	waveHeight = mHydrax->getHeigth(pos);
 	return waveHeight;
 }
 

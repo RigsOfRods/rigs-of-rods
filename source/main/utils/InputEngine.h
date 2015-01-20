@@ -533,6 +533,11 @@ public:
 		return mKeyboard;
 	}
 
+	std::map<std::string, OIS::KeyCode> GetKeyMap()
+	{
+		return allkeys;
+	}
+
 protected:
 
 	InputEngine();

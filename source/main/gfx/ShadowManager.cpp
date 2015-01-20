@@ -59,6 +59,7 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 	gEnv->sceneManager->setShadowTechnique(tech);
 	gEnv->sceneManager->setShadowFarDistance(shadowFarDistance);
 	gEnv->sceneManager->setShowDebugShadows(false);
+	gEnv->sceneManager->setShadowTextureFSAA(8);
 
 	if (tech == Ogre::SHADOWTYPE_STENCIL_MODULATIVE)
 	{

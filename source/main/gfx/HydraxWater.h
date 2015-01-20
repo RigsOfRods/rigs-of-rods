@@ -21,12 +21,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __HydraxWater_H_
 #define __HydraxWater_H_
 
-#include "RoRPrerequisites.h"
-
-#include "IWater.h"
+#include "Prerequisites.h"
 #include "Hydrax.h"
+#include "MaterialManager.h"
+#include "Noise.h"
 #include "Perlin.h"
+#include "Real.h"
 #include "ProjectedGrid.h"
+#include "SimpleGrid.h"
+
+#include "Ogre.h"
+#include "Water.h"
+#include "IWater.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
 
@@ -68,7 +74,7 @@ protected:
 	float waterHeight;
 	Ogre::Camera * mRenderCamera;
 	bool haswaves;
-	Hydrax::Noise::Perlin *Perlin;
+	Hydrax::Noise::Perlin *waternoise;
 	Hydrax::Module::ProjectedGrid *mModule;
 };
 
