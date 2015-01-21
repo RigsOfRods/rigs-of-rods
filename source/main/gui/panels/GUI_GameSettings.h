@@ -87,6 +87,7 @@ private:
 	void OnASyncPhysicsCheck(MyGUI::WidgetPtr _sender);
 	void OnDigitalSpeedoCheck(MyGUI::WidgetPtr _sender);
 	void OnReplayEnableCheck(MyGUI::WidgetPtr _sender);
+	void OnHqScreenshotsCheck(MyGUI::WidgetPtr _sender);
 
 	//Sliders
 	void OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position);

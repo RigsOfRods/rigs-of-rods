@@ -98,7 +98,8 @@ CLASS::CLASS()
 	m_digital_speedo->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDigitalSpeedoCheck);
 
 	m_enable_replay->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReplayEnableCheck);
-
+	m_hq_screenshots->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnHqScreenshotsCheck);
+	
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
@@ -544,8 +545,17 @@ void CLASS::UpdateControls()
 	if (sight_range >= 4999)
 		m_sightrange_indicator->setCaption("Unlimited");
 	else
-		m_sightrange_indicator->setCaption(Ogre::StringConverter::toString(sight_range) + " m");
-			
+		m_sightrange_indicator->setCaption(Ogre::StringConverter::toString(sight_range) + " m");		
+
+	if (GameSettingsMap["Replay mode"] == "Yes")
+		m_enable_replay->setStateCheck(true);
+	else
+		m_enable_replay->setStateCheck(false);
+
+	if (GameSettingsMap["Screenshot Format"] == "png (bigger, no quality loss)")
+		m_hq_screenshots->setStateCheck(true);
+	else
+		m_hq_screenshots->setStateCheck(false);
 }
 
 void CLASS::OnArcadeModeCheck(MyGUI::WidgetPtr _sender)
@@ -764,6 +774,16 @@ void CLASS::OnReplayEnableCheck(MyGUI::WidgetPtr _sender)
 	//ShowRestartNotice = true;
 }
 
+void CLASS::OnHqScreenshotsCheck(MyGUI::WidgetPtr _sender)
+{
+	m_hq_screenshots->setStateCheck(!m_hq_screenshots->getStateCheck());
+	if (m_hq_screenshots->getStateCheck() == false)
+		GameSettingsMap["Screenshot Format"] = "jpg (smaller, default)";
+	else
+		GameSettingsMap["Screenshot Format"] = "png (bigger, no quality loss)";
+	//ShowRestartNotice = true;
+}
+
 void CLASS::OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position)
 {
 	GameSettingsMap["Sound Volume"] = Ogre::StringConverter::toString(_position); //Erm, it's a string in the config map, isn't it?
@@ -970,7 +990,6 @@ void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
 				{
 					m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
 					m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() - 1, vecIt->configline);
-
 				}
 
 			}

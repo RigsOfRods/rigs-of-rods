@@ -122,6 +122,7 @@ bool HydraxWater::CreateHydrax()
 	mHydrax->create();
 	//mHydrax->getRttManager()->addRttListener(new HydraxRttListener());
 	mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
+	//mHydrax->getMaterialManager()->addDepthTechnique(static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(gEnv->terrainManager->getGeometryManager()->getTerrainGroup()->getTerrain(500, 500)->getMaterialName()))->createTechnique());
 	/*
 	if (haswaves)
 		mModule->setOptions(Hydrax::Module::ProjectedGrid::Options(mModule->getOptions().Complexity, 3, mModule->getOptions().Elevation, mModule->getOptions().Smooth, mModule->getOptions().ForceRecalculateGeometry, mModule->getOptions().ChoppyWaves, mModule->getOptions().ChoppyStrength)); //Not so flat water, flat doesn't look nice with hydrax
