@@ -1,34 +1,40 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
-Copyright 2009 Lefteris Stamatogiannakis
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2009      Lefteris Stamatogiannakis
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __Collisions_H_
-#define __Collisions_H_
+
+#pragma once
 
 #include "RoRPrerequisites.h"
 
 #include "BeamData.h" // for collision_box_t
-#include "Ogre.h"
 
 #include <pthread.h>
+#include <OgrePrerequisites.h>
+#include <OgreString.h>
+#include <OgreEntity.h>
+#include <OgreVector3.h>
+#include <OgreSceneNode.h>
+#include <OgreQuaternion.h>
 
-typedef struct _eventsource
+struct eventsource_t
 {
 	char instancename[256];
 	char boxname[256];
@@ -37,7 +43,7 @@ typedef struct _eventsource
 	int scripthandler;
 	int cbox;
 	bool enabled;
-} eventsource_t;
+};
 
 typedef std::vector<int> cell_t;
 
@@ -47,7 +53,8 @@ class Collisions : public ZeroedMemoryAllocator
 {
 public:
 
-	enum SurfaceType {
+	enum SurfaceType 
+	{
 		FX_NONE,
 		FX_HARD,    // hard surface: rubber burning and sparks
 		FX_DUSTY,   // dusty surface (with dust colour)
@@ -61,13 +68,13 @@ public:
 
 private:
 
-	typedef struct _hash
+	struct hash_t
 	{
 		unsigned int cellid;
 		cell_t *cell;
-	} hash_t;
+	};
 
-	typedef struct _collision_tri
+	struct collision_tri_t
 	{
 		Ogre::Vector3 a;
 		Ogre::Vector3 b;
@@ -76,7 +83,7 @@ private:
 		Ogre::Matrix3 reverse;
 		ground_model_t* gm;
 		bool enabled;
-	} collision_tri_t;
+	};
 
 
 	static const int LATEST_GROUND_MODEL_VERSION = 3;
@@ -193,5 +200,3 @@ public:
 		const Ogre::Quaternion &orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3 &scale = Ogre::Vector3::UNIT_SCALE);
 	void resizeMemory(long newSize);
 };
-
-#endif // __Collisions_H_
