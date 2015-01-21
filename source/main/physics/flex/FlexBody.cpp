@@ -61,8 +61,6 @@ FlexBody::FlexBody(
 	nodes[cx].iIsSkin=true;
 	nodes[cy].iIsSkin=true;
 
-	hasshadows=(gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE);
-
 	/* Add nodes */
 	std::vector<unsigned int>::iterator node_itor = node_indices.begin();
 	for ( ; node_itor != node_indices.end(); node_itor++)
@@ -145,11 +143,11 @@ FlexBody::FlexBody(
 
 	msh=ent->getMesh();
 	//shadow
-	if (hasshadows)
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
 	{
 		LOG("FLEXBODY preparing for shadow volume");
-		msh->prepareForShadowVolume(); // we do this always so we have only one data structure format to manage
 		msh->buildEdgeList();
+		msh->prepareForShadowVolume(); // we do this always so we have only one data structure format to manage
 	}
 
 	//determine if we have texture coordinates everywhere

@@ -103,6 +103,7 @@ CLASS::CLASS()
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
+	//m_key_button->eventMouseButtonDoubleClick += MyGUI::newDelegate(this, &CLASS::OnKeyMapDoubleClick);
 
 	//Sliders
 	m_volume_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnVolumeSlider);
@@ -111,6 +112,7 @@ CLASS::CLASS()
 
 	MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
 	mMainWidget->setPosition(gui_area.width/2 - mMainWidget->getWidth()/2, gui_area.height/2 - mMainWidget->getHeight()/2);
+
 
 	if (!BSETTING("DevMode", false))
 	{
@@ -600,9 +602,9 @@ void CLASS::OnFullsreenCheck(MyGUI::WidgetPtr _sender)
 {
 	m_fullscreen->setStateCheck(!m_fullscreen->getStateCheck());
 	if (m_fullscreen->getStateCheck() == false)
-		OgreSettingsMap["Fullscreen"] = "No"; //This one is special
+		OgreSettingsMap["Full Screen"] = "No"; //This one is special
 	else
-		OgreSettingsMap["Fullscreen"] = "Yes";
+		OgreSettingsMap["Full Screen"] = "Yes";
 	ShowRestartNotice = true;
 }
 

@@ -405,7 +405,10 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
 
     /// Notify Mesh object that it has been loaded
 	//MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(false);
-	msh->buildEdgeList();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+	}
 	//msh->prepareForShadowVolume();
 	msh->load();
 	//MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes()

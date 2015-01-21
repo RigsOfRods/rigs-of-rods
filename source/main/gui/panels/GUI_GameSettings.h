@@ -99,6 +99,7 @@ private:
 	void LoadKeyMap();
 	void OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index);
 	bool isKeyMapLoaded;
+	void OnKeyMapDoubleClick(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
 
 	std::map<int, std::vector<event_trigger_t> > KeyMap;
 
