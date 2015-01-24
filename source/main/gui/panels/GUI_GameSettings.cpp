@@ -51,6 +51,8 @@
 #include <AL/alext.h>
 #endif // USE_OPENAL
 
+#include <dirent.h>
+
 using namespace RoR;
 using namespace GUI;
 
@@ -156,7 +158,7 @@ void CLASS::eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender)
 
 	if (ShowRestartNotice == true)
 	{
-		RoR::Application::GetGuiManager()->ShowMessageBox("Restart required", "You need to restart the game for few settings to apply.", true, "Ok", true, false, "");
+		RoR::Application::GetGuiManager()->ShowMessageBox("Restart required", "You need to restart the game for few settings to apply. You can still play and restart next time, but the game can glitch out.", true, "Ok", true, false, "");
 	}
 
 	Hide();
@@ -889,8 +891,6 @@ void CLASS::SaveSettings()
 		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.
 		Settings::getSingleton().saveSettings();
 	}
-
-
 } 
 
 void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
@@ -898,6 +898,7 @@ void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
 	MAIN_WIDGET->setVisibleSmooth(false);
 	Application::GetMainThreadLogic()->RegenCache();
 	MAIN_WIDGET->setVisibleSmooth(true);
+	RoR::Application::GetGuiManager()->ShowMessageBox("Cache regenerated", "Cache regenerated succesfully!", true, "Ok", true, false, "");
 }
 
 void CLASS::OnTabChange(MyGUI::TabControl* _sender, size_t _index)
@@ -1004,12 +1005,37 @@ void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
 
 void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 {
-#ifdef _WIN32
-//FindFirstFile/DeleteFile and all that didn't work. (I don't know why)
+	//Should work for windows and Linux
+	DIR *pdir;
+	struct dirent *pent;
+	pdir = opendir(GameSettingsMap["Cache Path"].c_str());
+	if (!pdir)
+	{
+		LOG("Error while clearing cache: directory does not exist.");
+		return;
+	}
+	while ((pent = readdir(pdir)))
+	{
+		try
+		{
+			//cout << pent->d_name;
+			Ogre::String file_delete = pent->d_name;
+			file_delete = GameSettingsMap["Cache Path"].c_str() + file_delete;
+			DeleteFile(file_delete.c_str());
+		}
+		catch (...)
+		{
+			LOG("Error while clearing cache: something went wrong.");
+			return;
+		}
 
-#endif
-	//TODO: Linux/Mac
-	//Hiradur should take a look at this.
+	}
+
+	closedir(pdir);
+	pdir = NULL;
+	pent = nullptr;
 
 	ShowRestartNotice = true;
+	RoR::Application::GetGuiManager()->ShowMessageBox("Cache cleared", "Cache cleared succesfully, you need to restart the game for the changes to apply.", true, "Ok", true, false, "");
+
 }
