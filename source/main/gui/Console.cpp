@@ -69,9 +69,7 @@ Console::Console()
 	MyGUI::IntSize parentSize = ((MyGUI::Window*)mMainWidget)->getParentSize();
 
 	((MyGUI::Window*)mMainWidget)->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-
-	if (BSETTING("Enable Ingame Console", false))
-		setVisible(true);
+	((MyGUI::Window*)mMainWidget)->setVisible(false);
 
 	ConsoleText = "";
 	iText = 0;

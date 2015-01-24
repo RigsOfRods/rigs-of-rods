@@ -188,11 +188,6 @@ void MainThread::Go()
 	// create console, must be done early
 	Application::CreateConsoleIfNotExists();
 
-	// Init singletons. TODO: Move under Application
-	LoadingWindow::getSingleton();
-	SelectorWindow::getSingleton();
-	GUI_Friction::getSingleton();
-
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	MyGUI::Widget* menu_wallpaper_widget = nullptr;
@@ -220,6 +215,11 @@ void MainThread::Go()
 		MainThread::RegenCache(); 
 
 	RoR::Application::GetCacheSystem()->Startup();
+
+	// Init singletons. TODO: Move under Application
+	LoadingWindow::getSingleton();
+	SelectorWindow::getSingleton();
+	GUI_Friction::getSingleton();
 
 	// Create legacy RoRFrameListener
 
