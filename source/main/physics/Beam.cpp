@@ -66,6 +66,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
+#include "GUIManager.h"
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
@@ -6372,6 +6373,7 @@ bool Beam::LoadTruck(
 				30000, 
 				true
 			);
+			RoR::Application::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
 		}
 #endif // USE_MYGUI
 		return false;

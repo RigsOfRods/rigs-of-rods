@@ -56,6 +56,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "GUIManager.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -239,6 +240,7 @@ void GameScript::flashMessage(String &txt, float time, float charHeight)
 {
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
+	RoR::Application::GetGuiManager()->PushNotification("Script:", txt);
 #endif // USE_MYGUI
 }
 
@@ -247,6 +249,7 @@ void GameScript::message(String &txt, String &icon, float timeMilliseconds, bool
 	//TODO: Notification system
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
+	RoR::Application::GetGuiManager()->PushNotification("Script:", txt);
 #endif // USE_MYGUI
 }
 
@@ -760,7 +763,10 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 #ifdef USE_MYGUI
 	Console *con = RoR::Application::GetConsole();
 	if (con)
+	{
 		con->putMessage(Console::CONSOLE_MSGTYPE_HIGHSCORE, Console::CONSOLE_SYSTEM_NOTICE, ANSI_TO_UTF(result));
+		RoR::Application::GetGuiManager()->PushNotification("Script:", ANSI_TO_UTF(result));
+	}
 #endif // USE_MYGUI
 #endif //USE_CURL
 	return 0;
@@ -790,6 +796,7 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 #ifdef USE_MYGUI
 	Console *con = RoR::Application::GetConsole();
 	if (con) con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("using Online API...") + TOSTRING(""));
 #endif // USE_MYGUI
 
 	// fix the String objects in the dict

@@ -29,9 +29,18 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_SimUtilsLayout.h"
+#include "InterThreadStoreVector.h"
 
 namespace RoR
 {
+
+struct NotificationMessage
+{
+	unsigned long time; //!< post time in milliseconds since RoR start
+	unsigned long ttl;  //!< in milliseconds
+	Ogre::UTFString txt; //!< not POD, beware...
+	Ogre::UTFString title; //!< not POD, beware...
+};
 
 namespace GUI
 {
@@ -49,7 +58,10 @@ public:
 	void ToggleFPSBox();
 	void ToggleTruckInfoBox();
 
-	void UpdateStats(float dt, Beam *truck);
+	void UpdateStats(float dt, Beam *truck); //different from Framestep!
+	void framestep(float dt);
+
+	void PushNotification(Ogre::String Title, Ogre::String text);
 
 	//Not sure about this, might throw some exceptions..
 	bool GetMainVisibiltyState()
@@ -60,6 +72,7 @@ public:
 private:
 	bool b_fpsbox;
 	bool b_truckinfo;
+	bool b_notification;
 
 	//taken from TruckHUD.h
 	std::map<int, float> avVelos;
@@ -78,8 +91,13 @@ private:
 	Ogre::UTFString RedColor; // colour key shortcut
 	Ogre::UTFString BlueColor; // colour key shortcut
 
-
 	Ogre::String truckstats;
+
+	std::vector<NotificationMessage> tmpWaitingNotifications;
+
+	// logic
+	float alpha;
+	long pushTime;
 };
 
 } // namespace GUI

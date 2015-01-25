@@ -51,6 +51,7 @@ public:
 	void hide();
 	bool IsVisible();
 	void BackToMenu();
+	void reset();
 
 	CacheEntry *getSelection() { return mSelectedTruck; }
 	Skin *getSelectedSkin() { return mSelectedSkin; }

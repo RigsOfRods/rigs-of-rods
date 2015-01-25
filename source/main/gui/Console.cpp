@@ -152,12 +152,12 @@ void Console::showMessage(ConsoleMessage msg)
 
 	ConsoleText += TextCol + msg.txt + "\n";
 
-	if (msg.forcevisible)
-		setVisible(true);
+	/*if (msg.forcevisible)
+		setVisible(true);*/
 
 	m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
 
-	if (getVisible())
+	//if (getVisible())
 		m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
 }
 

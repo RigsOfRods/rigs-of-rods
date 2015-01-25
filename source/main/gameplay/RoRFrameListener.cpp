@@ -314,6 +314,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		LOG(ssmsg);
 #ifdef USE_MYGUI
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
+		RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
 	}
 
@@ -350,9 +351,15 @@ bool RoRFrameListener::updateEvents(float dt)
 		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS10, 0.5f)) { slot=9; res = curr_truck->savePosition(slot); };
 #ifdef USE_MYGUI
 		if (slot != -1 && !res)
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Position saved under slot ") + TOSTRING(slot+1), "infromation.png");
+		{
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Position saved under slot ") + TOSTRING(slot + 1), "infromation.png");
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Position saved under slot ") + TOSTRING(slot + 1));
+		}
 		else if (slot != -1 && res)
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Error while saving position saved under slot ") + TOSTRING(slot+1), "error.png");
+		{
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Error while saving position saved under slot ") + TOSTRING(slot + 1), "error.png");
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Error while saving position saved under slot ") + TOSTRING(slot + 1));
+		}
 #endif //USE_MYGUI
 
 		if (res == -10)
@@ -369,9 +376,15 @@ bool RoRFrameListener::updateEvents(float dt)
 			if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS10, 0.5f)) { slot=9; res = curr_truck->loadPosition(slot); };
 #ifdef USE_MYGUI
 			if (slot != -1 && res==0)
-				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Loaded position from slot ") + TOSTRING(slot+1), "infromation.png");
-			else if (slot != -1 && res!=0)
-				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Could not load position from slot ") + TOSTRING(slot+1), "error.png");
+			{
+				RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Loaded position from slot ") + TOSTRING(slot + 1));
+				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Loaded position from slot ") + TOSTRING(slot + 1), "infromation.png");
+			}
+			else if (slot != -1 && res != 0)
+			{
+				RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Could not load position from slot ") + TOSTRING(slot + 1));
+				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Could not load position from slot ") + TOSTRING(slot + 1), "error.png");
+			}
 #endif // USE_MYGUI
 		}
 	}
@@ -392,6 +405,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	#ifdef USE_MYGUI
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
 	#endif // USE_MYGUI
 
 			// save the settings
@@ -408,6 +422,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		{
 #ifdef USE_MYGUI
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached") + TOSTRING(""));
 #endif // USE_MYGUI
 		}
 	}
@@ -702,6 +717,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					{
 #ifdef USE_MYGUI
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
+						RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("No rescue truck found!") + TOSTRING(""));
 #endif // USE_MYGUI
 					}
 				}
@@ -770,6 +786,7 @@ bool RoRFrameListener::updateEvents(float dt)
 			{
 				gEnv->terrainManager->getSkyManager()->setTimeFactor(time_factor);
 #ifdef USE_MYGUI
+				RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime());
 				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime(), "weather_sun.png", 1000);
 #endif // USE_MYGUI
 			}
@@ -1325,6 +1342,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	if (BeamFactory::getSingleton().getCurrentTruck() == nullptr)
 		RoR::Application::GetGuiManager()->UpdateSimUtils(dt, nullptr);
 	
+	RoR::Application::GetGuiManager()->framestep(dt);
 
 	// one of the input modes is immediate, so update the movement vector
 	if (loading_state == ALL_LOADED)
@@ -1453,6 +1471,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 				{
 #ifdef USE_MYGUI
 					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
+					RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first") + TOSTRING(""));
 #endif // USE_MYGUI
 					gEnv->collisions->clearEventCache();
 					return;
@@ -1757,6 +1776,7 @@ void RoRFrameListener::reloadCurrentTruck()
 	String msg = TOSTRING(newBeam->trucknum) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", msg);
 #endif //USE_MYGUI
 
 	// dislocate the old truck, so its out of sight
