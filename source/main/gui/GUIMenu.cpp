@@ -41,7 +41,6 @@
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Savegame.h"
-#include "SelectorWindow.h"
 #include "Settings.h"
 #include "TextureToolWindow.h"
 #include "Utils.h"
@@ -322,7 +321,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		gEnv->frameListener->reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
 		gEnv->frameListener->freeTruckPosition = true;
 		gEnv->frameListener->loading_state = RELOADING;
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
+		Application::GetGuiManager()->getMainSelector()->show(LT_AllBeam);
 
 	} else if (miname == _L("Reload current vehicle") && gEnv->player)
 	{

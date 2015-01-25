@@ -131,3 +131,23 @@ enum GameStates
 	RELOADING      = 5, //!< Loading new rig.
 	PAUSE          = 6
 };
+
+enum LoaderType 
+{ 
+	LT_None, 
+	LT_Terrain, 
+	LT_Vehicle,
+	LT_Truck, 
+	LT_Car, 
+	LT_Boat,
+	LT_Airplane, 
+	LT_Trailer,
+	LT_Train, 
+	LT_Load, 
+	LT_Extension, 
+	LT_Network,
+	LT_NetworkWithBoat, 
+	LT_Heli, 
+	LT_SKIN,
+	LT_AllBeam 
+};

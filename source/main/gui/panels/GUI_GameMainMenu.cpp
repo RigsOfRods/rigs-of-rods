@@ -32,7 +32,6 @@
 #include "RoRVersion.h"
 #include "rornet.h"
 #include "Language.h"
-#include "SelectorWindow.h"
 #include "GlobalEnvironment.h"
 #include "Application.h"
 #include "GUIManager.h"
@@ -85,9 +84,6 @@ void CLASS::Show()
 		RoR::Application::GetConsole()->setVisible(false);
 
 	MAIN_WIDGET->setVisibleSmooth(true);
-	//Is this really needed?
-	SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain); 
-	SelectorWindow::getSingleton().mMainWidget->setVisible(false);
 }
 
 void CLASS::Hide()
@@ -97,7 +93,7 @@ void CLASS::Hide()
 
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
-	SelectorWindow::getSingleton().mMainWidget->setVisible(true);
+	Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
 	Hide();
 }
 

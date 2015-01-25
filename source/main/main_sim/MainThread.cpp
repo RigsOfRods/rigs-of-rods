@@ -62,7 +62,6 @@
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 #include "Scripting.h"
-#include "SelectorWindow.h"
 #include "Settings.h"
 #include "Skin.h"
 #include "SoundScriptManager.h"
@@ -218,7 +217,7 @@ void MainThread::Go()
 
 	// Init singletons. TODO: Move under Application
 	LoadingWindow::getSingleton();
-	SelectorWindow::getSingleton();
+	RoR::Application::GetGuiManager()->initMainSelector();
 	GUI_Friction::getSingleton();
 
 	// Create legacy RoRFrameListener
@@ -578,7 +577,7 @@ void MainThread::Go()
 	// ========================================================================
 
 	LoadingWindow::freeSingleton();
-	SelectorWindow::freeSingleton();
+	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
 	if (gEnv->network) delete (gEnv->network);
@@ -704,7 +703,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	Ogre::String map_file_name;
 	if (preselected_map.empty())
 	{
-		CacheEntry* selected_map = SelectorWindow::getSingleton().getSelection();
+		CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->getSelection();
 		if (selected_map != nullptr)
 		{
 			map_file_name = selected_map->fname;
@@ -765,7 +764,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 	else if (gEnv->terrainManager->hasPreloadedTrucks())
 	{
-		Skin* selected_skin = SelectorWindow::getSingleton().getSelectedSkin();
+		Skin* selected_skin = RoR::Application::GetGuiManager()->getMainSelector()->getSelectedSkin();
 		gEnv->frameListener->initTrucks(false, map_file_name, "", 0, false, selected_skin);
 	}
 	else
@@ -774,12 +773,12 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		if (gEnv->terrainManager->getWater())
 		{
 			ShowSurveyMap(false);
-			SelectorWindow::getSingleton().show(SelectorWindow::LT_NetworkWithBoat);
+			RoR::Application::GetGuiManager()->getMainSelector()->show(LT_NetworkWithBoat);
 		} 
 		else
 		{
 			ShowSurveyMap(false);
-			SelectorWindow::getSingleton().show(SelectorWindow::LT_Network);
+			RoR::Application::GetGuiManager()->getMainSelector()->show(LT_Network);
 		}
 	}
 
@@ -821,9 +820,9 @@ void MainThread::EnterMainMenuLoop()
 
 		MainMenuLoopUpdate(timeSinceLastFrame);
 
-		if (SelectorWindow::getSingleton().isFinishedSelecting())
+		if (RoR::Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
 		{
-			CacheEntry* selected_map = SelectorWindow::getSingleton().getSelection();
+			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->getSelection();
 			if (selected_map != nullptr)
 			{
 				SetNextApplicationState(Application::STATE_SIMULATION);
@@ -983,7 +982,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		return;
 	}
 
-	if (SelectorWindow::getSingleton().isFinishedSelecting())
+	if (RoR::Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
 	{
 		RequestExitCurrentLoop();
 	}
