@@ -107,10 +107,8 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
 	AuthorsText = AuthorsText + color1 + "only_a_ptr:" + white + " Core Developer, active" + newline;
 	AuthorsText = AuthorsText + color1 + "Hiradur:" + white + " Linux fixes, few tweaks, active" + newline;
-	AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes, active" + newline;
 	AuthorsText = AuthorsText + color1 + "max98:" + white + " Few fixes, Few improvements, GUI Overhaul, active" + newline;
-	AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker, active" + newline;
-	AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, active" + newline;
+
 	
 	//Code Contributors:
 	AuthorsText = AuthorsText + newline;
@@ -130,6 +128,9 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + color1 + "synthead:" + white + " Minor Linux fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "ulteq:" + white + " sound engine, lots of fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "theshark:" + white + " various fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker" + newline;
+	AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
+	AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
 
 	//Core Content Contributors
 	AuthorsText = AuthorsText + newline;
@@ -154,6 +155,7 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + orange + "Used Libs:" + newline;
 	AuthorsText = AuthorsText + color1 + "Ogre3D:" + white + " 3D rendering engine" + newline;
 	AuthorsText = AuthorsText + color1 + "Caelum:" + white + " Atmospheric effects" + newline;
+	AuthorsText = AuthorsText + color1 + "Hydrax:" + white + " Water rendering" + newline;
 	AuthorsText = AuthorsText + color1 + "AngelScript:" + white + " Scripting Backend" + newline;
 #ifdef USE_OPENAL
 	AuthorsText = AuthorsText + color1 + "OpenAL Soft:" + white + " Sound engine" + newline;

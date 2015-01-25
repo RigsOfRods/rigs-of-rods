@@ -99,14 +99,14 @@ void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
 	Application::GetGuiManager()->ShowSettingGui(true);
+	Hide();
 }
 
 void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
 	Application::GetGuiManager()->ShowAboutGUI(true);
+	Hide();
 }
 
 void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
@@ -117,8 +117,8 @@ void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
 	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
+	Hide();
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)

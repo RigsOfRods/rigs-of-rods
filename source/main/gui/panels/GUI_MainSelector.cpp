@@ -943,5 +943,13 @@ bool CLASS::IsVisible()
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
 	if (_name == "close")
+	{
+		if (!ready) return;
+		mSelectedTruck = nullptr;
+		mSelectionDone = true;
 		hide();
+		//Do this on cancel only
+		if (gEnv->frameListener->loading_state == NONE_LOADED)
+			Application::GetGuiManager()->ShowMainMenu(true);
+	}
 }

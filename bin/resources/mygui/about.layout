@@ -36,6 +36,7 @@
                 <Widget type="EditBox" skin="EditBoxStretch" position="5 0 585 250" name="authors">
                     <Property key="VisibleVScroll" value="true"/>
                     <Property key="VisibleHScroll" value="false"/>
+                    <Property key="ReadOnly" value="true"/>
                 </Widget>
             </Widget>
         </Widget>
