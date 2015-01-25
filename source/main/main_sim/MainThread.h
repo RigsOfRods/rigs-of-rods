@@ -32,8 +32,6 @@
 #include "RoRPrerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 
-#include "GUI_GameMainMenu.h"
-
 #include <pthread.h>
 
 class GameScript;
@@ -81,8 +79,6 @@ public:
 
 	void BackToMenu();
 
-	//GUI 
-	std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
 protected:
 
 	void EnterMainMenuLoop();

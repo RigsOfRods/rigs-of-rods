@@ -93,38 +93,38 @@ void CLASS::Hide()
 
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
 	Hide();
+	Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowSettingGui(true);
 	Hide();
+	Application::GetGuiManager()->ShowSettingGui(true);
 }
 
 void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowAboutGUI(true);
 	Hide();
+	Application::GetGuiManager()->ShowAboutGUI(true);
 }
 
 void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 {
+	Hide();
 	gEnv->frameListener->shutdown_final();
-	//Hide();
 }
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
 	Hide();
+	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
+	Hide();
 	Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
 	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-	Hide();
 }
 

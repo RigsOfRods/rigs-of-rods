@@ -37,6 +37,7 @@
 #include "CacheSystem.h"
 #include "SkinManager.h"
 #include "LoadingWindow.h"
+#include "RoRFrameListener.h"
 
 #include <MyGUI.h>
 
@@ -57,30 +58,14 @@ dtsum(0)
 , readytime(1.0f)
 , visibleCounter(0)
 {
+	MAIN_WIDGET->setVisible(false);
+
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+	win->eventWindowChangeCoord += MyGUI::newDelegate(this, &CLASS::notifyWindowChangeCoord);
 
 	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
 	MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
-
-	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-	hide();
-
-	//Frol old file
-	MAIN_WIDGET->setCaption(_L("Loader"));
-
-	m_SearchLine->setCaption(_L("Search ..."));
-	m_Ok->setCaption(_L("OK"));
-	m_Cancel->setCaption(_L("Cancel"));
-
-	// setup controls
-	m_Config->addItem("Default", Ogre::String("Default"));
-	m_Config->setIndexSelected(0);
-
-	MAIN_WIDGET->setRealPosition(0.1, 0.1);
-	MAIN_WIDGET->setRealSize(0.8, 0.8);
-
-	win->eventWindowChangeCoord += MyGUI::newDelegate(this, &CLASS::notifyWindowChangeCoord);
 
 	m_Type->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::eventComboChangePositionTypeComboBox);
 
@@ -96,6 +81,22 @@ dtsum(0)
 	m_SearchLine->eventKeySetFocus += MyGUI::newDelegate(this, &CLASS::eventSearchTextGotFocus);
 
 	readytime = 0.5f;
+
+	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
+	
+	//From old file
+	MAIN_WIDGET->setCaption(_L("Loader"));
+
+	m_SearchLine->setCaption(_L("Search ..."));
+	m_Ok->setCaption(_L("OK"));
+	m_Cancel->setCaption(_L("Cancel"));
+
+	// setup controls
+	m_Config->addItem("Default", Ogre::String("Default"));
+	m_Config->setIndexSelected(0);
+
+	MAIN_WIDGET->setRealPosition(0.1, 0.1);
+	MAIN_WIDGET->setRealSize(0.8, 0.8);
 }
 
 CLASS::~CLASS()
@@ -252,6 +253,9 @@ void CLASS::eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 	mSelectedTruck = nullptr;
 	mSelectionDone = true;
 	hide();
+	//Do this on cancel only
+	if (gEnv->frameListener->loading_state == NONE_LOADED)
+		Application::GetGuiManager()->ShowMainMenu(true);
 }
 
 void CLASS::eventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
@@ -821,7 +825,7 @@ void CLASS::resizePreviewImage()
 
 	if (imgSize.width != 0 && imgSize.height != 0)
 	{
-		MyGUI::IntSize maxSize = m_Preview->getSize();
+		MyGUI::IntSize maxSize = m_PreviewBox->getSize();
 
 		float imgRatio = imgSize.width / (float)imgSize.height;
 		float maxRatio = maxSize.width / (float)maxSize.height;
@@ -892,7 +896,7 @@ void CLASS::hide()
 	mSelectionDone = true;
 	RoR::Application::GetGuiManager()->unfocus();
 	MAIN_WIDGET->setVisibleSmooth(false);
-	mMainWidget->setEnabledSilent(false);
+	MAIN_WIDGET->setEnabledSilent(false);
 	ready = false;
 	bindKeys(false);
 }
@@ -904,7 +908,7 @@ void CLASS::setEnableCancel(bool enabled)
 
 void CLASS::eventSearchTextChange(MyGUI::EditBox *_sender)
 {
-	if (!mMainWidget->getVisible()) return;
+	if (!MAIN_WIDGET->getVisible()) return;
 	onCategorySelected(CacheSystem::CID_SearchResults);
 	m_Type->setCaption(_L("Search Results"));
 }
