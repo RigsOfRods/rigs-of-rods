@@ -49,6 +49,7 @@ public:
 	bool isFinishedSelecting();
 	void show(LoaderType type);
 	void hide();
+	bool IsVisible();
 	void BackToMenu();
 
 	CacheEntry *getSelection() { return mSelectedTruck; }
@@ -60,7 +61,6 @@ public:
 private:
 
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-	bool IsVisible();
 
 	// gui events
 	void eventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _index);

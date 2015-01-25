@@ -467,6 +467,7 @@ void MainThread::Go()
 				menu_wallpaper_widget->setVisible(true);
 			}
 
+			//if (!RoR::Application::GetGuiManager()->getMainSelector()->IsVisible())
 			RoR::Application::GetGuiManager()->ShowMainMenu(true);
 
 			EnterMainMenuLoop();
@@ -829,7 +830,7 @@ void MainThread::EnterMainMenuLoop()
 				RequestExitCurrentLoop();
 			}
 		}
-		
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 		RoRWindowEventUtilities::messagePump();
 #endif
@@ -982,10 +983,10 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		return;
 	}
 
-	if (RoR::Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
+/*	if (RoR::Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
 	{
 		RequestExitCurrentLoop();
-	}
+	}*/
 
 	// update GUI
 	RoR::Application::GetInputEngine()->Capture();
