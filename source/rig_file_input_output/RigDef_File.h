@@ -382,7 +382,7 @@ struct OptionalInertia: public Inertia
 };
 
 /* -------------------------------------------------------------------------- */
-/* Directive SET_NODE_DEFAULTS
+/* Directive SET_MANAGEDMATERIALS_OPTIONS
 /* -------------------------------------------------------------------------- */
 
 struct ManagedMaterialsOptions
@@ -838,10 +838,10 @@ struct AntiLockBrakes
 {
 	AntiLockBrakes();
 
-	static const unsigned int MODE_ON           = BITMASK(1);
-	static const unsigned int MODE_OFF          = BITMASK(2);
-	static const unsigned int MODE_NO_DASHBOARD = BITMASK(3);
-	static const unsigned int MODE_NO_TOGGLE    = BITMASK(4);
+	BITMASK_PROPERTY(mode,  1, MODE_ON           , GetModeIsOn,        SetModeIsOn)
+	BITMASK_PROPERTY(mode,  2, MODE_OFF          , GetModeIsOff,       SetModeIsOff)
+	BITMASK_PROPERTY(mode,  3, MODE_NO_DASHBOARD , GetModeNoDashboard, SetModeNoDashboard)
+	BITMASK_PROPERTY(mode,  4, MODE_NO_TOGGLE    , GetModeNoToggle,    SetModeNoToggle)
 
 	float regulation_force;
 	unsigned int min_speed;
@@ -857,11 +857,11 @@ struct AntiLockBrakes
 struct TractionControl
 {
 	TractionControl();
-
-	static const unsigned int MODE_ON           = BITMASK(1);
-	static const unsigned int MODE_OFF          = BITMASK(2);
-	static const unsigned int MODE_NO_DASHBOARD = BITMASK(3);
-	static const unsigned int MODE_NO_TOGGLE    = BITMASK(4);
+	
+	BITMASK_PROPERTY(mode,  1, MODE_ON           , GetModeIsOn,        SetModeIsOn)
+	BITMASK_PROPERTY(mode,  2, MODE_OFF          , GetModeIsOff,       SetModeIsOff)
+	BITMASK_PROPERTY(mode,  3, MODE_NO_DASHBOARD , GetModeNoDashboard, SetModeNoDashboard)
+	BITMASK_PROPERTY(mode,  4, MODE_NO_TOGGLE    , GetModeNoToggle,    SetModeNoToggle)
 
 	float regulation_force;
 	float wheel_slip;
@@ -1164,11 +1164,11 @@ struct Hook
 {
 	Hook();
 
-	static const unsigned int FLAG_SELF_LOCK           = BITMASK(1);
-	static const unsigned int FLAG_AUTO_LOCK           = BITMASK(2);
-	static const unsigned int FLAG_NO_DISABLE          = BITMASK(3);
-	static const unsigned int FLAG_NO_ROPE             = BITMASK(4);
-	static const unsigned int FLAG_VISIBLE             = BITMASK(5);
+	BITMASK_PROPERTY( flags, 1, FLAG_SELF_LOCK  , HasOptionSelfLock,  SetHasOptionSelfLock  )
+	BITMASK_PROPERTY( flags, 2, FLAG_AUTO_LOCK  , HasOptionAutoLock,  SetHasOptionAutoLock  )
+	BITMASK_PROPERTY( flags, 3, FLAG_NO_DISABLE , HasOptionNoDisable, SetHasOptionNoDisable )
+	BITMASK_PROPERTY( flags, 4, FLAG_NO_ROPE    , HasOptionNoRope,    SetHasOptionNoRope    )
+	BITMASK_PROPERTY( flags, 5, FLAG_VISIBLE    , HasOptionVisible,   SetHasOptionVisible   )
 
 	Node::Id node;
 	unsigned int flags;
@@ -1336,7 +1336,7 @@ struct Animator
 		flags(0),
 		short_limit(0),
 		long_limit(0),
-		detacher_group(0)
+ 		detacher_group(0)
 	{}
 
 	static const unsigned int OPTION_VISIBLE           = BITMASK(1);
@@ -1470,17 +1470,17 @@ struct Trigger
 {
 	Trigger();
 
-	static const unsigned int OPTION_i_INVISIBLE             = BITMASK(1);
-	static const unsigned int OPTION_c_COMMAND_STYLE         = BITMASK(2);
-	static const unsigned int OPTION_x_START_OFF             = BITMASK(3);
-	static const unsigned int OPTION_b_BLOCK_KEYS            = BITMASK(4);
-	static const unsigned int OPTION_B_BLOCK_TRIGGERS        = BITMASK(5);
-	static const unsigned int OPTION_A_INV_BLOCK_TRIGGERS    = BITMASK(6);
-	static const unsigned int OPTION_s_SWITCH_CMD_NUM        = BITMASK(7);
-	static const unsigned int OPTION_h_UNLOCK_HOOKGROUPS_KEY = BITMASK(8);
-	static const unsigned int OPTION_H_LOCK_HOOKGROUPS_KEY   = BITMASK(9);
-	static const unsigned int OPTION_t_CONTINUOUS            = BITMASK(10);
-	static const unsigned int OPTION_E_ENGINE_TRIGGER        = BITMASK(11);
+	BITMASK_PROPERTY(options,  1, OPTION_i_INVISIBLE             , HasFlag_i, SetFlag_i )
+	BITMASK_PROPERTY(options,  2, OPTION_c_COMMAND_STYLE         , HasFlag_c, SetFlag_c )
+	BITMASK_PROPERTY(options,  3, OPTION_x_START_OFF             , HasFlag_x, SetFlag_x )
+	BITMASK_PROPERTY(options,  4, OPTION_b_BLOCK_KEYS            , HasFlag_b, SetFlag_b )
+	BITMASK_PROPERTY(options,  5, OPTION_B_BLOCK_TRIGGERS        , HasFlag_B, SetFlag_B )
+	BITMASK_PROPERTY(options,  6, OPTION_A_INV_BLOCK_TRIGGERS    , HasFlag_A, SetFlag_A )
+	BITMASK_PROPERTY(options,  7, OPTION_s_SWITCH_CMD_NUM        , HasFlag_s, SetFlag_s )
+	BITMASK_PROPERTY(options,  8, OPTION_h_UNLOCK_HOOKGROUPS_KEY , HasFlag_h, SetFlag_h )
+	BITMASK_PROPERTY(options,  9, OPTION_H_LOCK_HOOKGROUPS_KEY   , HasFlag_H, SetFlag_H )
+	BITMASK_PROPERTY(options, 10, OPTION_t_CONTINUOUS            , HasFlag_t, SetFlag_t )
+	BITMASK_PROPERTY(options, 11, OPTION_E_ENGINE_TRIGGER        , HasFlag_E, SetFlag_E )
 
 	enum EngineTriggerFunction
 	{
@@ -1778,10 +1778,10 @@ struct SlideNode
 {
 	SlideNode();
 
-	static const unsigned int CONSTRAINT_ATTACH_ALL     = BITMASK(1);
-	static const unsigned int CONSTRAINT_ATTACH_FOREIGN = BITMASK(2);
-	static const unsigned int CONSTRAINT_ATTACH_SELF    = BITMASK(3);
-	static const unsigned int CONSTRAINT_ATTACH_NONE    = BITMASK(4);
+	BITMASK_PROPERTY( constraint_flags, 1, CONSTRAINT_ATTACH_ALL     , HasConstraint_a_AttachAll     , SetConstraint_a_AttachAll     )   
+	BITMASK_PROPERTY( constraint_flags, 2, CONSTRAINT_ATTACH_FOREIGN , HasConstraint_f_AttachForeign , SetConstraint_f_AttachForeign )
+	BITMASK_PROPERTY( constraint_flags, 3, CONSTRAINT_ATTACH_SELF    , HasConstraint_s_AttachSelf 	 , SetConstraint_s_AttachSelf	 )
+	BITMASK_PROPERTY( constraint_flags, 4, CONSTRAINT_ATTACH_NONE    , HasConstraint_n_AttachNone 	 , SetConstraint_n_AttachNone	 )
 
 	Node::Id slide_node;
 	std::vector<Node::Range> rail_node_ranges;
