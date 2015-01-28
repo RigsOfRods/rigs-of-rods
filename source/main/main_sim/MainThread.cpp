@@ -379,7 +379,7 @@ void MainThread::Go()
 		// important note: all new network code is written in order to allow also the old network protocol to further exist.
 		// at some point you need to decide with what type of server you communicate below and choose the correct class
 
-		gEnv->network = new Network(server_name, server_port, gEnv->frameListener);
+		gEnv->network = new Network(server_name, server_port);
 
 		bool connres = gEnv->network->connect();
 

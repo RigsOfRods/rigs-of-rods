@@ -32,7 +32,7 @@ class Network : public ZeroedMemoryAllocator
 {
 public:
 
-	Network(Ogre::String servername, long sport, RoRFrameListener *efl);
+	Network(Ogre::String servername, long server_port);
 	~Network();
 
 	// messaging functions
@@ -67,9 +67,8 @@ public:
 
 private:
 
-	Ogre::UTFString mySname;
+	Ogre::UTFString m_server_name;
 	Ogre::UTFString nickname;
-	RoRFrameListener *mefl;
 	SWInetSocket socket;
 	bool initiated;
 	bool shutdown;
@@ -82,7 +81,7 @@ private:
 	int send_buffer_len;
 	int speed_bytes_sent, speed_bytes_sent_tmp, speed_bytes_recv, speed_bytes_recv_tmp;
 	int speed_time;
-	long mySport;
+	long m_server_port;
 	oob_t send_oob;
 	pthread_cond_t send_work_cv;
 	pthread_mutex_t clients_mutex;

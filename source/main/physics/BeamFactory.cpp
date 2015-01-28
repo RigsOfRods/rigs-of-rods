@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
-#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -672,7 +671,6 @@ void BeamFactory::setCurrentTruck(int new_truck)
 	previous_truck = current_truck;
 	current_truck = new_truck;
 
-	if (gEnv->frameListener)
 	{
 		if (previous_truck >= 0 && current_truck >= 0)
 		{

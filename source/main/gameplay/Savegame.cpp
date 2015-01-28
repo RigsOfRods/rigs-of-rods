@@ -29,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Character.h"
 #include "Console.h"
 #include "Language.h"
-#include "RoRFrameListener.h"
 #include "RoRVersion.h"
 
 using namespace Ogre;
@@ -89,22 +88,7 @@ int Savegame::save(Ogre::String &filename)
 			}
 			
 			// TODO: FIX savegame camera integration
-			//h.camRotX = gEnv->frameListener->camRotX.valueRadians();
-			//h.camRotY = gEnv->frameListener->camRotY.valueRadians();
-			//h.camDist = gEnv->frameListener->camDist;
-
-
-			//memcpy(&h.cam_ideal_pos, gEnv->frameListener->camIdealPosition.ptr(), sizeof(float) * 3);
-
-			//h.pushcamRotX = gEnv->frameListener->pushcamRotX.valueRadians();
-			//h.pushcamRotY = gEnv->frameListener->pushcamRotY.valueRadians();
-			//h.mMoveScale  = gEnv->frameListener->mMoveScale;
-			//h.mRotScale   = gEnv->frameListener->mRotScale.valueRadians();
-
-			//memcpy(&h.lastPosition, gEnv->frameListener->lastPosition.ptr(), sizeof(float) * 3);
-
-			//h.cameramode     = gEnv->frameListener->cameramode;
-			//h.lastcameramode = gEnv->frameListener->lastcameramode;
+			
 		}
 
 		// write header to file
@@ -269,28 +253,7 @@ int Savegame::load(Ogre::String &filename)
 		}
 
 		// TODO: FIX savegame camera integration
-		/*
-		if (gEnv->frameListener->getCamera())
-		{
-			gEnv->frameListener->getCamera()->setPosition(Vector3(h.cam_pos));
-		}
-
-		gEnv->frameListener->camRotX = Radian(h.camRotX);
-		gEnv->frameListener->camRotY = Radian(h.camRotY);
-		gEnv->frameListener->camDist = h.camDist;
-
-		gEnv->frameListener->camIdealPosition = Vector3(h.cam_ideal_pos);
-
-		gEnv->frameListener->pushcamRotX = Radian(h.pushcamRotX);
-		gEnv->frameListener->pushcamRotY = Radian(h.pushcamRotY);
-		gEnv->frameListener->mMoveScale  = h.mMoveScale;
-		gEnv->frameListener->mRotScale   = Radian(h.mRotScale);
-
-		gEnv->frameListener->lastPosition = Vector3(h.lastPosition);
-
-		gEnv->frameListener->cameramode = h.cameramode;
-		gEnv->frameListener->lastcameramode = h.lastcameramode;
-		*/
+		
 	}
 
 	// iterate the trucks
