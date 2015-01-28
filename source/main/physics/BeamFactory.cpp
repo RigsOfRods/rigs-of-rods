@@ -159,7 +159,6 @@ Beam *BeamFactory::createLocal(
 	Ogre::String fname, 
 	collision_box_t *spawnbox /* = nullptr */, 
 	bool ismachine /* = false */, 
-	int flareMode /* = 0 */, 
 	const std::vector<Ogre::String> *truckconfig /* = nullptr */, 
 	Skin *skin /* = nullptr */, 
 	bool freePosition, /* = false */
@@ -182,7 +181,6 @@ Beam *BeamFactory::createLocal(
 		gEnv->network != nullptr, // networking
 		spawnbox,
 		ismachine,
-		flareMode,
 		truckconfig,
 		skin,
 		freePosition,
@@ -285,11 +283,11 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		reg->reg.name,
 		true, // networked
 		gEnv->network!=0, // networking
-		0,
-		false,
-		3,
+		nullptr, // spawnbox
+		false, // ismachine
 		&truckconfig,
-		0);
+		nullptr // skin
+		);
 
 	trucks[truck_num] = b;
 

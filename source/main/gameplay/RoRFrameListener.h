@@ -77,7 +77,6 @@ protected:
 	float terrainzsize;
 	//float truckx, trucky, truckz;
 
-	int flaresMode;
 	int mStatsOn;
 	int netPointToUID;
 	int raceStartTime;

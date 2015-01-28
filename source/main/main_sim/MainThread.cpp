@@ -272,19 +272,6 @@ void MainThread::Go()
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
-	// get lights mode
-	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (lightsMode == "None (fastest)")
-		gEnv->frameListener->flaresMode = 0;
-	else if (lightsMode == "No light sources")
-		gEnv->frameListener->flaresMode = 1;
-	else if (lightsMode == "Only current vehicle, main lights")
-		gEnv->frameListener->flaresMode = 2;
-	else if (lightsMode == "All vehicles, main lights")
-		gEnv->frameListener->flaresMode = 3;
-	else if (lightsMode == "All vehicles, all lights")
-		gEnv->frameListener->flaresMode = 4;
-
 	// force feedback
 	if (BSETTING("Force Feedback", true))
 	{

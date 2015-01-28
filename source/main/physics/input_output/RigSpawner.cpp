@@ -444,22 +444,8 @@ void RigSpawner::InitializeRig()
 	m_rig->hydroInertia = new CmdKeyInertia();
 	m_rig->rotaInertia  = new CmdKeyInertia();
 
-	/* Lights mode */
-	//int flares_mode = Settings::getSingleton().GetFlaresMode(-1);
-	//m_rig->flaresMode = (flares_mode == -1) ? 3 : flares_mode; // on by default
-	m_rig->flaresMode = 3; // on by default
-	Ogre::String light_mode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (light_mode == "None (fastest)")
-		m_rig->flaresMode = 0;
-	else if (light_mode == "No light sources")
-		m_rig->flaresMode = 1;
-	else if (light_mode == "Only current vehicle, main lights")
-		m_rig->flaresMode = 2;
-	else if (light_mode == "All vehicles, main lights")
-		m_rig->flaresMode = 3;
-	else if (light_mode == "All vehicles, all lights")
-		m_rig->flaresMode = 4;
-
+	// Lights mode
+	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(3); // Default = 3 (All vehicles, main lights)
 }
 
 void RigSpawner::FinalizeRig()
