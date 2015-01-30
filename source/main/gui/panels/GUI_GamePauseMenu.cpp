@@ -25,7 +25,7 @@
 	@date   11/2014
 */
 
-#include "GUI_GameMainMenu.h"
+#include "GUI_GamePauseMenu.h"
 
 #include "RoRPrerequisites.h"
 #include "Utils.h"
@@ -45,19 +45,18 @@
 using namespace RoR;
 using namespace GUI;
 
-#define CLASS        GameMainMenu
+#define CLASS        GamePauseMenu
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
 CLASS::CLASS()
 {
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 
-	m_single_player->eventMouseButtonClick      += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSelectTerrainButton);
-	m_rig_editor->eventMouseButtonClick    += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
-	m_settings->eventMouseButtonClick     += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSettingButton);
-	m_about->eventMouseButtonClick        += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
-	m_exit->eventMouseButtonClick        += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
-	m_multi_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
+	m_resume_game->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickResumeButton);
+	m_change_map->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickChangeMapButton);
+	m_back_to_menu->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackToMenuButton);
+	m_rig_editor->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
+
 	win->setMovable(false);
 
 	Hide();
@@ -81,41 +80,31 @@ int CLASS::GetHeight()
 void CLASS::Show()
 {
 	MAIN_WIDGET->setVisibleSmooth(true);
+	gEnv->frameListener->setSimPaused(true);
 }
 
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
+	gEnv->frameListener->setSimPaused(false);
 }
 
-void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
+void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
+}
+
+void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
+{
+	Hide();
+	Application::GetMainThreadLogic()->UnloadTerrain();
 	Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
 }
 
-void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
-{
-	Application::GetGuiManager()->ShowSettingGui(true);
-	Hide();
-}
-
-void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
-{
-	Application::GetGuiManager()->ShowAboutGUI(true);
-	Hide();
-}
-
-void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
+void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	gEnv->frameListener->shutdown_final();
-}
-
-void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
-{
-	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
-	Hide();
+	Application::GetMainThreadLogic()->BackToMenu();
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
@@ -124,4 +113,3 @@ void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 	Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
 	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
-

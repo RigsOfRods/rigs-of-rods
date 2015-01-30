@@ -79,6 +79,7 @@ public:
 
 	void BackToMenu();
 
+	void UnloadTerrain(); //just unload terrain, no back to menu
 protected:
 
 	void EnterMainMenuLoop();
@@ -95,7 +96,6 @@ protected:
 	void EnterGameplayLoop();
 
 	void LoadTerrain(Ogre::String const & terrain_file);
-	void UnloadTerrain();
 
 	void ShowSurveyMap(bool hide);
 

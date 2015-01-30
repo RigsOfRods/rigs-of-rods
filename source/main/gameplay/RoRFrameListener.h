@@ -45,6 +45,8 @@ public:
 	
 	Ogre::Vector3 reload_pos;
 
+	void setSimPaused(bool state) { isSimPaused = state; }
+
 protected:
 
 #ifdef USE_MPLATFORM
@@ -67,6 +69,8 @@ protected:
 	bool hidegui;
 	bool mTruckInfoOn;
 	bool pressure_pressed;
+
+	bool isSimPaused;
 
 	char screenshotformat[256];
 	

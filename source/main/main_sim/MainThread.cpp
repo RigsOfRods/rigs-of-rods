@@ -1153,7 +1153,6 @@ void MainThread::UnloadTerrain()
 	if (gEnv->player != nullptr)
 	{
 		gEnv->player->setVisible(false);
-		gEnv->player->setPosition(Ogre::Vector3::ZERO);
 		delete(gEnv->player);
 		gEnv->player = nullptr;
 	}
@@ -1167,7 +1166,7 @@ void MainThread::UnloadTerrain()
 
 	Application::DeleteSceneMouse();
 
-	//Few little details
+	//Reinit few things
 	gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
 	if (gEnv->player != nullptr)
 	{

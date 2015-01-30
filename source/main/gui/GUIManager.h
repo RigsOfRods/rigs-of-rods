@@ -42,6 +42,7 @@
 #include "GUI_MessageBox.h"
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MainSelector.h"
+#include "GUI_GamePauseMenu.h"
 
 namespace RoR
 {
@@ -91,6 +92,8 @@ public:
 	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
 
 	void initSimUtils();
+
+	void ShowPauseMenu(bool isVisible);
 private:
 
 	GUIManager();
@@ -119,6 +122,7 @@ private:
 	std::unique_ptr<GUI::SimUtils>			m_gui_SimUtils;
 	std::unique_ptr<GUI::gMessageBox>		m_gui_gMessageBox;
 	std::unique_ptr<GUI::MultiplayerSelector>		m_gui_MultiplayerSelector;
+	std::unique_ptr<GUI::GamePauseMenu>		m_gui_GamePauseMenu;
 	std::shared_ptr<GUI::MainSelector>		m_gui_MainSelector;
 	bool isSimUtilsVisible;
 };
