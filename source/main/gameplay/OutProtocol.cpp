@@ -125,7 +125,11 @@ bool OutProtocol::update(float dt)
 	timer = 0;
 
 	// send a package
-	OutGaugePack gd;
+	if( mode == 3) // OutGauge Packet V2
+		OutGaugePackV2 gd;
+	else
+		OutGaugePack gd;
+	
 	memset(&gd, 0, sizeof(gd));
 
 	// set some common things
@@ -187,6 +191,20 @@ bool OutProtocol::update(float dt)
 		if ( truck->realtruckname.length() > 15 )
 		{
 			strncpy(gd.Display2, truck->realtruckname.c_str() + 15, 15);
+		}
+		
+		if( mode == 3)
+		{
+			// OutGauge Packet V2
+			gd.MaxGears = truck->engine->getNumGears();
+			gd.MaxRPM = truck->engine->getMaxRPM();
+			
+			int ignition = 0;
+			if( truck->engine->hasContact() && truck->engine->isRunning())
+				ignition = 2;
+			if( truck->engine->hasContact() && !(truck->engine->isRunning()))
+				ignition = 1;	
+			gd.IgnitionStarter = ignition;
 		}
 	}
 	// send the package
