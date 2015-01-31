@@ -125,11 +125,7 @@ bool OutProtocol::update(float dt)
 	timer = 0;
 
 	// send a package
-	if( mode == 3) // OutGauge Packet V2
-		OutGaugePackV2 gd;
-	else
-		OutGaugePack gd;
-	
+	OutGaugePackV2 gd; // declare V2 as it is wider and backward compatible with v1
 	memset(&gd, 0, sizeof(gd));
 
 	// set some common things
@@ -208,7 +204,11 @@ bool OutProtocol::update(float dt)
 		}
 	}
 	// send the package
-	send(sockfd, (const char*)&gd, sizeof(gd), NULL);
+	// set the right size of the buffer depending the OutGauge mode
+	int sz = sizeof(OutGaugePack);
+	if(mode == 3)
+		sz = sizeof(OutGaugePackV2);
+	send(sockfd, (const char*)&gd, sz, NULL);
 
 	return true;
 #else
