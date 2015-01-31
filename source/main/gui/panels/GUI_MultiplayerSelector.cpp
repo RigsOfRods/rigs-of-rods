@@ -20,7 +20,7 @@
 */
 
 /** 
-	@file   GUI_GameAbout.cpp
+	@file   GUI_MultiplayerSelector.cpp
 	@author Moncef Ben Slimane
 	@date   11/2014
 */
@@ -36,7 +36,7 @@
 #include "Application.h"
 
 #include <MyGUI.h>
-
+#include <curl\curl.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -56,12 +56,28 @@ CLASS::CLASS()
 
 	CenterToScreen();
 
+	init();
+
 	Hide();
 }
 
 CLASS::~CLASS()
 {
 
+}
+
+void CLASS::init()
+{
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, REPO_HTML_SERVERLIST + Ogre::String("?version=") + RORNET_VERSION);
+		res = curl_easy_perform(curl);
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
 }
 
 void CLASS::Show()

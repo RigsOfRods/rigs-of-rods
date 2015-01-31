@@ -53,6 +53,7 @@ private:
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void CenterToScreen();
 	bool IsVisible();
+	void init();
 };
 
 } // namespace GUI

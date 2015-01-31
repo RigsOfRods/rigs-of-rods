@@ -38,6 +38,7 @@
 #include "RoRFrameListener.h"
 #include "MainThread.h"
 #include "Console.h"
+#include "Character.h"
 
 #include <MyGUI.h>
 
@@ -51,15 +52,13 @@ using namespace GUI;
 CLASS::CLASS()
 {
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
+	win->setMovable(false);
 
 	m_resume_game->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickResumeButton);
 	m_change_map->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickChangeMapButton);
 	m_back_to_menu->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackToMenuButton);
 	m_rig_editor->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
-
-	win->setMovable(false);
-
-	Hide();
+	m_quit_game->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickQuitButton);
 }
 
 CLASS::~CLASS()
@@ -80,12 +79,14 @@ int CLASS::GetHeight()
 void CLASS::Show()
 {
 	MAIN_WIDGET->setVisibleSmooth(true);
+	gEnv->player->setPhysicsEnabled(false);
 	gEnv->frameListener->setSimPaused(true);
 }
 
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
+	gEnv->player->setPhysicsEnabled(true);
 	gEnv->frameListener->setSimPaused(false);
 }
 
@@ -96,9 +97,9 @@ void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
 {
+	//TODO: FIXME
 	Hide();
-	Application::GetMainThreadLogic()->UnloadTerrain();
-	Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
+	Application::GetMainThreadLogic()->BackToMenu();
 }
 
 void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
@@ -111,5 +112,12 @@ void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
 	Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
+	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+}
+
+void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
+{
+	Hide();
+	Application::GetMainThreadLogic()->RequestShutdown();
 	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }

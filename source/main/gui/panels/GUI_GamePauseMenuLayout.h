@@ -41,6 +41,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GamePauseMenuLayout, m_rig_editor, "rig_editor");
 	MyGUI::Button* m_rig_editor;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(GamePauseMenuLayout, m_quit_game, "quit_game");
+	MyGUI::Button* m_quit_game;
+
 	//%LE Widget_Declaration list end
 };
 
