@@ -155,8 +155,6 @@ public:
 	ThreadPool *beamThreadPool;
 
 protected:
-
-	Ogre::SceneNode *parent;
 	
 	bool async_physics;
 	bool thread_mode;

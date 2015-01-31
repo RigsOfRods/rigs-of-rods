@@ -40,7 +40,6 @@
 #include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
-#include "Savegame.h"
 #include "SelectorWindow.h"
 #include "Settings.h"
 #include "TextureToolWindow.h"
@@ -337,15 +336,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 			return;
 		}
 		//String fname = SSETTING("Cache Path", "") + gEnv->frameListener->loadedTerrain + ".rorscene";
-
-		//Savegame s;
-		if (miname == _L("Save Scenery"))
-		{
-			//s.save(fname);
-		} else
-		{
-			//s.load(fname);
-		}
 
 	} 
 	else if (miname == _L("remove current Vehicle"))
