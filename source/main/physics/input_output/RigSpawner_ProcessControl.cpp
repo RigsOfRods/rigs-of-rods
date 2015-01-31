@@ -240,6 +240,9 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'engoption' in any module
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGOPTION, RigDef::Engoption, engoption, ProcessEngoption);
 
+	// Section 'engturbo' in any module 
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGTURBO, RigDef::Engturbo, engturbo, ProcessEngturbo);
+
 	// Section 'TractionControl' in any module.
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TRACTION_CONTROL, RigDef::TractionControl, traction_control, ProcessTractionControl);
 	

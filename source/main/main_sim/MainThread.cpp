@@ -461,12 +461,12 @@ void MainThread::Go()
 			if (gEnv->network != nullptr)
 			{
 				// Multiplayer started from configurator -> go directly to map selector (traditional behavior)
-				SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
-				MenuWindow::getSingleton().Hide();
+				RoR::Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
+				RoR::Application::GetGuiManager()->ShowMainMenu(false);
 			}
 			else
 			{
-				MenuWindow::getSingleton().Show();
+				RoR::Application::GetGuiManager()->ShowMainMenu(true);
 			}
 		
 			EnterMainMenuLoop();
