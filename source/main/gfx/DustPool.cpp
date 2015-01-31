@@ -27,8 +27,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 #ifndef _WIN32
-const int DustPool::MAX_DUSTS;
-#endif
+  // This definitions is needed because the variable is declared but not defined in DustPool
+  const int DustPool::MAX_DUSTS;
+#endif // !_WIN32
 
 DustPool::DustPool(const char* dname, int dsize) : 
 	  allocated(0)

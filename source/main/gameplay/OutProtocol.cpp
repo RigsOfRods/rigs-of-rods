@@ -50,7 +50,7 @@ OutProtocol::~OutProtocol(void)
 {
 	if ( sockfd != 0 )
 	{
-#if WIN32
+#if _WIN32
 		closesocket( sockfd );
 #else
 		close( sockfd );
@@ -61,7 +61,7 @@ OutProtocol::~OutProtocol(void)
 
 void OutProtocol::startup()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	SWBaseSocket::SWBaseError error;
 
 	// get some settings
@@ -105,12 +105,12 @@ void OutProtocol::startup()
 	working = true;
 #else
 	// TODO: fix linux
-#endif //WIN32
+#endif // _WIN32
 }
 
 bool OutProtocol::update(float dt)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	if ( !working )
 	{
 		return false;
@@ -196,5 +196,5 @@ bool OutProtocol::update(float dt)
 #else
 	// TODO: fix linux
 	return false;
-#endif //WIN32
+#endif // _WIN32
 }

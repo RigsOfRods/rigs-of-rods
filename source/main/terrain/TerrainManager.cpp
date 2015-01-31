@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
-#include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
@@ -231,8 +230,6 @@ void TerrainManager::loadTerrain(String filename)
 	loadTerrainObjects();
 
 	collisions->printStats();
-
-	if (gEnv->frameListener) gEnv->frameListener->loading_state = TERRAIN_LOADED;
 	
 	// bake the decals
 	//finishTerrainDecal();

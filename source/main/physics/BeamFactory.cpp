@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
-#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -184,7 +183,6 @@ Beam *BeamFactory::createLocal(
 	Ogre::String fname, 
 	collision_box_t *spawnbox /* = nullptr */, 
 	bool ismachine /* = false */, 
-	int flareMode /* = 0 */, 
 	const std::vector<Ogre::String> *truckconfig /* = nullptr */, 
 	Skin *skin /* = nullptr */, 
 	bool freePosition, /* = false */
@@ -207,7 +205,6 @@ Beam *BeamFactory::createLocal(
 		gEnv->network != nullptr, // networking
 		spawnbox,
 		ismachine,
-		flareMode,
 		truckconfig,
 		skin,
 		freePosition,
@@ -311,11 +308,11 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		reg->reg.name,
 		true, // networked
 		gEnv->network!=0, // networking
-		0,
-		false,
-		3,
+		nullptr, // spawnbox
+		false, // ismachine
 		&truckconfig,
-		0);
+		nullptr // skin
+		);
 
 	trucks[truck_num] = b;
 
@@ -718,7 +715,6 @@ void BeamFactory::setCurrentTruck(int new_truck)
 	previous_truck = current_truck;
 	current_truck = new_truck;
 
-	if (gEnv->frameListener)
 	{
 		if (previous_truck >= 0 && current_truck >= 0)
 		{

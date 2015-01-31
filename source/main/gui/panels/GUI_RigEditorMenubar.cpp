@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -55,9 +55,10 @@ void RigEditorMenubar::Hide()
 	m_rig_editor_menubar->setVisible(false);
 }
 
-void RigEditorMenubar::SetWidth(int width_pixels)
+void RigEditorMenubar::StretchWidthToScreen()
 {
-	m_rig_editor_menubar->setSize(width_pixels, m_rig_editor_menubar->getHeight());
+	MyGUI::IntSize parentSize = m_rig_editor_menubar->getParentSize();
+	m_rig_editor_menubar->setSize(parentSize.width, m_rig_editor_menubar->getHeight());
 }
 
 // ============================================================================

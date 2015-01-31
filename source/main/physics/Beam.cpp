@@ -54,7 +54,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PointColDetector.h"
 #include "PositionStorage.h"
 #include "Replay.h"
-#include "RoRFrameListener.h"
+#include "RigSpawner.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -6059,7 +6059,6 @@ Beam::Beam(
 	bool networking, /* = false  */ 
 	collision_box_t *spawnbox, /* = nullptr */
 	bool ismachine, /* = false  */ 
-	int flareMode, /* = nullptr */
 	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
 	Skin *skin, /* = nullptr */
 	bool freeposition, /* = false */

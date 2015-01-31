@@ -61,7 +61,6 @@ public:
 	* @param rot
 	* @param fname Rig file name.
 	* @param ismachine (see BeamData.h)
-	* @param flareMode IGNORED
 	* @param truckconfig Networking related.
 	* @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
 	*/
@@ -74,7 +73,6 @@ public:
 		, bool networking = false
 		, collision_box_t *spawnbox = nullptr
 		, bool ismachine = false
-		, int flareMode = 0
 		, const std::vector<Ogre::String> *truckconfig = nullptr
 		, Skin *skin = nullptr
 		, bool freeposition = false

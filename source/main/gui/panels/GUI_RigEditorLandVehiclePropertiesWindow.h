@@ -29,6 +29,7 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorLandVehiclePropertiesWindowLayout.h"
+#include "GuiPanelBase.h"
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
@@ -39,20 +40,12 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorLandVehiclePropertiesWindow: public RigEditorLandVehiclePropertiesWindowLayout
+class RigEditorLandVehiclePropertiesWindow: public RigEditorLandVehiclePropertiesWindowLayout, public GuiPanelBase
 {
 
 public:
 
 	RigEditorLandVehiclePropertiesWindow(RigEditor::IMain* rig_editor_interface);
-
-	void Show();
-	
-	void Hide();
-
-	void CenterToScreen();
-
-	bool IsVisible();
 
 	void Import(
 			boost::shared_ptr<RigDef::Engine> engine,

@@ -1210,7 +1210,6 @@ void TerrainObjectManager::loadPreloadedTrucks()
 			truck_preload[i].name, 
 			nullptr, /* spawnbox */ 
 			truck_preload[i].ismachine, 
-			Settings::getSingleton().GetFlaresMode(), 
 			nullptr, /* truckconfig */ 
 			nullptr, /* skin */
 			truck_preload[i].freePosition, 

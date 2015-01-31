@@ -3329,36 +3329,60 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 		{
 			command2.description = results[result_index];
 
-			/* Backwards-compatibility: if there are 1-2 extra strings behind the description and no proper arguments follow, tolerate the extra strings */
-			bool more_params_ahead = results[result_index + 3].matched;
-			if (! more_params_ahead && format_version == 2 && results[result_index + 1].matched)
+			if (format_version == 1)
 			{
-				std::stringstream msg;
-				msg << "Please remove: Invalid string after parameter \"description\": \"" << results[result_index + 1] << "\""; 
-				AddMessage(line, Message::TYPE_WARNING, msg.str());
-
-				/* Even worse, there are 2 misplaced strings */
-				if (! more_params_ahead && results[result_index + 2].matched)
+				result_index += 5;
+				if (_ParseOptionalInertia(command2.inertia, results, result_index))
 				{
-					std::stringstream msg;
-					msg << "Please remove: Second (!!) invalid string after parameter \"description\": \"" << results[result_index + 1] << "\"";
-					AddMessage(line, Message::TYPE_WARNING, msg.str());
-				}
-			}
-
-			result_index += 5;
-			if (_ParseOptionalInertia(command2.inertia, results, result_index))
-			{
-				result_index += 12;
+					result_index += 12;
 			
-				if (results[result_index].matched)
-				{
-					command2.affect_engine = STR_PARSE_REAL(results[result_index]);
-
-					result_index += 3;
 					if (results[result_index].matched)
 					{
-						command2.needs_engine = STR_PARSE_BOOL(results[result_index]);
+						command2.affect_engine = STR_PARSE_REAL(results[result_index]);
+
+						result_index += 3;
+						if (results[result_index].matched)
+						{
+							command2.needs_engine = STR_PARSE_BOOL(results[result_index]);
+						}
+					}
+				}
+			}
+			else if (format_version == 2)
+			{
+				result_index += 3;
+				if (results[result_index].matched)
+				{
+					std::string rest_of_line = results[result_index];
+					boost::smatch rest_of_results;
+					result_index = 0;
+					if (boost::regex_search(rest_of_line, rest_of_results, Regexes::SECTION_COMMANDS2_INERTIA_ENGINE_PART))
+					{
+						if (_ParseOptionalInertia(command2.inertia, rest_of_results, 2))
+						{
+							result_index += 12;
+			
+							if (rest_of_results[result_index].matched)
+							{
+								command2.affect_engine = STR_PARSE_REAL(rest_of_results[result_index]);
+
+								result_index += 3;
+								if (rest_of_results[result_index].matched)
+								{
+									command2.needs_engine = STR_PARSE_BOOL(rest_of_results[result_index]);
+								}
+							}
+						}
+					}
+					else
+					{
+						Ogre::StringUtil::trim(rest_of_line);
+						if (! rest_of_line.empty()) // Could happen with invalid trailing delimiter and I don't want to look like an idiot
+						{
+							std::stringstream msg;
+							msg << "Please remove: Invalid string after parameter \"description\": \"" << rest_of_line << "\""; 
+							AddMessage(line, Message::TYPE_WARNING, msg.str());
+						}
 					}
 				}
 			}
@@ -5084,6 +5108,13 @@ void Parser::ParseBeams(Ogre::String const & _line)
 				AddMessage(line, Message::TYPE_WARNING, "Invalid flag: " + flags_str[i]);
 			}
 		}
+	}
+
+	if (results[10].matched)
+	{
+		std::stringstream msg;
+		msg << "Please remove invalid trailing character(s): \"" << results[10] << "\"";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
 	m_current_module->beams.push_back(beam);

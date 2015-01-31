@@ -243,20 +243,6 @@ void MainThread::Go()
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
-	// TODO: Make all these settings load when loading a terrain
-	// get lights mode
-	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (lightsMode == "None (fastest)")
-		gEnv->frameListener->flaresMode = 0;
-	else if (lightsMode == "No light sources")
-		gEnv->frameListener->flaresMode = 1;
-	else if (lightsMode == "Only current vehicle, main lights")
-		gEnv->frameListener->flaresMode = 2;
-	else if (lightsMode == "All vehicles, main lights")
-		gEnv->frameListener->flaresMode = 3;
-	else if (lightsMode == "All vehicles, all lights")
-		gEnv->frameListener->flaresMode = 4;
-
 	// force feedback
 	if (BSETTING("Force Feedback", true))
 	{
@@ -366,7 +352,7 @@ void MainThread::Go()
 		// important note: all new network code is written in order to allow also the old network protocol to further exist.
 		// at some point you need to decide with what type of server you communicate below and choose the correct class
 
-		gEnv->network = new Network(server_name, server_port, gEnv->frameListener);
+		gEnv->network = new Network(server_name, server_port);
 
 		bool connres = gEnv->network->connect();
 
@@ -388,17 +374,19 @@ void MainThread::Go()
 		{
 			// so show the terrain selection
 			preselected_map = "";
-		} else if (!isAnyTerrain)
+		} 
+		else if (!isAnyTerrain)
 		{
 			preselected_map = getASCIIFromCharString(terrn, 255);
 		}
 
-		// create player _AFTER_ network, important
-		int colourNum = 0;
-		if (gEnv->network->getLocalUserData()) colourNum = gEnv->network->getLocalUserData()->colournum;
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
-
+		// --------------------------------------------------------------------
 		// network chat stuff
+		int colourNum = 0;
+		if (gEnv->network->getLocalUserData())
+		{
+			colourNum = gEnv->network->getLocalUserData()->colournum;
+		}
 		gEnv->frameListener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
 		//TODO: separate console and chatbox.
@@ -470,6 +458,17 @@ void MainThread::Go()
 			//if (!RoR::Application::GetGuiManager()->getMainSelector()->IsVisible())
 			RoR::Application::GetGuiManager()->ShowMainMenu(true);
 
+			if (gEnv->network != nullptr)
+			{
+				// Multiplayer started from configurator -> go directly to map selector (traditional behavior)
+				SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain);
+				MenuWindow::getSingleton().Hide();
+			}
+			else
+			{
+				MenuWindow::getSingleton().Show();
+			}
+		
 			EnterMainMenuLoop();
 			
 			previous_application_state = Application::STATE_MAIN_MENU;
@@ -672,17 +671,28 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
 
-		if (!enable_network)
+if (enable_network)
+	{
+		// NOTE: create player _AFTER_ network, important
+		int colourNum = 0;
+		if (gEnv->network->getLocalUserData())
 		{
-			gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-			if (gEnv->player != nullptr)
-			{
-				gEnv->player->setVisible(false);
-			}
+			colourNum = gEnv->network->getLocalUserData()->colournum;
 		}
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+	}
+	else
+	{
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+		if (gEnv->player != nullptr)
+		{
+			gEnv->player->setVisible(false);
+		}
+	}
 
 		// heathaze effect
 		if (BSETTING("HeatHaze", false))
+
 		{
 			gEnv->frameListener->heathaze = new HeatHaze();
 			gEnv->frameListener->heathaze->setEnable(true);

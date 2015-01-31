@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
 #include "Skin.h"
+#include "BeamData.h" // For node_t
 
 using namespace Ogre;
 

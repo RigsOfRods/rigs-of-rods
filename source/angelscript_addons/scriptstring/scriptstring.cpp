@@ -727,9 +727,9 @@ void RegisterScriptString_Native(asIScriptEngine *engine)
 	// otherwise the library will not allow the use of object handles for this type
 	r = engine->RegisterStringFactory("string@", asFUNCTION(StringFactory), asCALL_CDECL); assert( r >= 0 );
 
-#ifdef WIN32
+#ifdef _WIN32
 	r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTIONPR(operator ==, (const string &, const string &), bool), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-#endif // WIN32
+#endif // _WIN32
 	r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmp), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "string@ opAdd(const string &in) const", asFUNCTIONPR(operator +, (const CScriptString &, const CScriptString &), CScriptString*), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 
@@ -852,14 +852,14 @@ void RegisterScriptString_Generic(asIScriptEngine *engine)
 
 void RegisterScriptString(asIScriptEngine *engine)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	if( strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") )
 		RegisterScriptString_Generic(engine);
 	else
 		RegisterScriptString_Native(engine);
 #else
 	RegisterScriptString_Generic(engine);
-#endif // WIN32
+#endif // _WIN32
 }
 
 END_AS_NAMESPACE

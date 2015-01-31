@@ -27,19 +27,9 @@
 */
 
 /*
-	NOTE:
-	RoR's coding standards demand / * * / comments only.
-	This file contains also // comments which are meant to be temporary (until this parser is stable).
-	They speak about the legacy parser implementation and try to address possible bugs. 
-*/
-
-/*
 	DISABLED:
 		Hashing
 		ScopeLog (What is it for?)
-
-	QUESTIONS:
-		init_node() param 'friction' is unused.
 */
 
 #include "RoRPrerequisites.h"
@@ -80,7 +70,6 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "VideoCamera.h"
-#include "GUIManager.h"
 
 #include <OgreMaterialManager.h>
 #include <OgreSceneManager.h>
@@ -137,328 +126,6 @@ void RigSpawner::Setup(
 	{
 		Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
 	}
-}
-
-/* -------------------------------------------------------------------------- */
-/* Actual loading.
-/* -------------------------------------------------------------------------- */
-
-#define PROCESS_SECTION_IN_ANY_MODULE(_KEYWORD_, _CLASS_, _FIELD_, _FUNCTION_)             \
-{                                                                                          \
-    SetCurrentKeyword(_KEYWORD_);                                                          \
-    auto module_itor = m_selected_modules.begin();                                         \
-    for (; module_itor != m_selected_modules.end(); module_itor++)                         \
-    {                                                                                      \
-        _CLASS_ *def = module_itor->get()->_FIELD_.get();                                  \
-        if (def != nullptr)                                                                \
-        {                                                                                  \
-            try {                                                                          \
-                _FUNCTION_(*def);                                                          \
-            }                                                                              \
-            catch (Exception ex)                                                           \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, ex.what());                                \
-            }                                                                              \
-            catch (...)                                                                    \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");       \
-            }                                                                              \
-            break;                                                                         \
-        }                                                                                  \
-    }                                                                                      \
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
-}
-
-#define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _CLASS_, _FIELD_, _FUNCTION_)            \
-{                                                                                          \
-    SetCurrentKeyword(_KEYWORD_);                                                          \
-    auto module_itor = m_selected_modules.begin();                                         \
-    for (; module_itor != m_selected_modules.end(); module_itor++)                         \
-    {                                                                                      \
-        std::vector<_CLASS_>::iterator section_itor = module_itor->get()->_FIELD_.begin(); \
-        for (; section_itor != module_itor->get()->_FIELD_.end(); section_itor++)          \
-        {                                                                                  \
-            try {                                                                          \
-                _FUNCTION_(*section_itor);                                                 \
-            }                                                                              \
-            catch (RigSpawner::Exception & ex)                                             \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, ex.what());                                \
-            }                                                                              \
-            catch (...)                                                                    \
-            {                                                                              \
-                AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");       \
-            }                                                                              \
-        }                                                                                  \
-    }                                                                                      \
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
-}
-
-rig_t *RigSpawner::SpawnRig()
-{
-	InitializeRig();
-
-	/* Vehicle name */
-	m_rig->realtruckname = m_file->name;
-
-	/* Flags in root module */
-	m_rig->forwardcommands             = m_file->forward_commands;
-	m_rig->importcommands              = m_file->import_commands;
-	m_rig->wheel_contact_requested     = m_file->rollon;
-	m_rig->rescuer                     = m_file->rescuer;
-	m_rig->disable_default_sounds      = m_file->disable_default_sounds;
-	m_rig->hideInChooser               = m_file->hide_in_chooser;
-	m_rig->slideNodesConnectInstantly  = m_file->slide_nodes_connect_instantly;
-
-	/* Section 'authors' in root module */
-	ProcessAuthors();
-
-	/* Section 'fileinfo' in root module */
-	ProcessFileInfo();
-	
-	/* Section 'guid' in root module */
-	if (! m_file->guid.empty())
-	{
-		strncpy(m_rig->guid, m_file->guid.c_str(), 128);
-	}
-
-	/* Section 'minimass' in root module */
-	if (m_file->_minimum_mass_set)
-	{
-		m_rig->minimass = m_file->minimum_mass;
-	}
-
-	/* Section 'description' */
-	m_rig->description.assign(m_file->description.begin(), m_file->description.end());
-
-	/* Section 'fileformatversion' in root module */
-	m_rig->fileformatversion = m_file->file_format_version;
-
-	/* Section 'managedmaterials' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MANAGEDMATERIALS, RigDef::ManagedMaterial, managed_materials, ProcessManagedMaterial);
-
-	/* Section 'gobals' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GLOBALS, RigDef::Globals, globals, ProcessGlobals);
-
-	/* Section 'help' in any module. */
-	/* NOTE: Must be done before "guisettings" (rig_t::helpmat override) */
-	ProcessHelp(); 
-
-	/* Inline-section 'submesh_groundmodel' in any module */
-	ProcessSubmeshGroundmodel();
-
-	/* Sections 'nodes' & 'nodes2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_NODES, RigDef::Node, nodes, ProcessNode);
-
-	/* Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle) */
-	if (m_rig->smokeId != 0 && m_rig->smokeRef != 0)
-	{
-		AddExhaust(m_rig->smokeId, m_rig->smokeRef, true, nullptr);
-	}
-
-	/* Section 'beams' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, RigDef::Beam, beams, ProcessBeam);
-
-	/* Section 'hydros' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
-
-	/* Section 'commands' and 'commands2' (Use generated nodes) */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
-
-	/* Section 'airbrakes' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, RigDef::Airbrake, airbrakes, ProcessAirbrake);
-
-	/* Section 'shocks' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
-
-	/* Section 'wheels' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS, RigDef::Wheel, wheels, ProcessWheel);
-
-	/* Section 'wings' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WINGS, RigDef::Wing, wings, ProcessWing);
-
-	/* Section 'fusedrag' */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_FUSEDRAG, RigDef::Fusedrag, fusedrag, ProcessFusedrag);
-
-	/* Section 'turbojets' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOJETS, RigDef::Turbojet, turbojets, ProcessTurbojet);
-
-	/* Section 'videocamera' */
-	/* 
-		Videocameras must be processed before "props" otherwise they won't work. Reason unknown.
-		Tested on:
-			Gavril MZ2 [http://www.rigsofrods.com/threads/74698]
-			Sisu SA-150 [http://www.rigsofrods.com/repository/view/3986]
-	*/
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_VIDEOCAMERA, RigDef::VideoCamera, videocameras, ProcessVideoCamera);
-
-	/* Section 'props' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
-
-	/* Sections 'flares' and 'flares2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
-
-	/* Section 'cinecam' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
-
-	/* Section 'submeshes' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
-
-	/* Section 'shocks2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
-
-	/* Section 'meshwheels2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
-
-	/* Section 'ties' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TIES, RigDef::Tie, ties, ProcessTie);
-
-	/* Section 'animators' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, RigDef::Animator, animators, ProcessAnimator);
-
-	/* Section 'contacters' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
-
-	/* Section 'cameras' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
-
-	/* Section 'engine' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
-
-	/* Section 'engoption' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGOPTION, RigDef::Engoption, engoption, ProcessEngoption);
-
-	/* Section 'engturbo' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGTURBO, RigDef::Engturbo, engturbo, ProcessEngturbo);
-
-	/* Section 'brakes' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, RigDef::Brakes, brakes, ProcessBrakes);
-
-	/* Section 'TractionControl' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TRACTION_CONTROL, RigDef::TractionControl, traction_control, ProcessTractionControl);
-
-	/* Section 'AntiLockBrakes' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ANTI_LOCK_BRAKES, RigDef::AntiLockBrakes, anti_lock_brakes, ProcessAntiLockBrakes);
-
-	/* Section 'SlopeBrake' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, RigDef::SlopeBrake, slope_brake, ProcessSlopeBrake);
-
-	/* Section 'wheels2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, RigDef::Wheel2, wheels_2, ProcessWheel2);
-
-	/* Section 'meshwheels' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS, RigDef::MeshWheel, mesh_wheels, ProcessMeshWheel);
-
-	/* Section 'flexbodywheels' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, RigDef::FlexBodyWheel, flex_body_wheels, ProcessFlexBodyWheel);
-
-	/* Section 'rotators' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS, RigDef::Rotator, rotators, ProcessRotator);
-
-	/* Section 'rotators_2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS2, RigDef::Rotator2, rotators_2, ProcessRotator2);
-
-	/* Section 'rotators_2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS2, RigDef::Rotator2, rotators_2, ProcessRotator2);
-
-	/* Section 'triggers' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TRIGGERS, RigDef::Trigger, triggers, ProcessTrigger);
-
-	/* Section 'triggers' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_LOCKGROUPS, RigDef::Lockgroup, lockgroups, ProcessLockgroup);
-
-	/* Section 'hooks' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HOOKS, RigDef::Hook, hooks, ProcessHook);	
-
-	/* Section 'railgroups'*/
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_RAILGROUPS, RigDef::RailGroup, railgroups, ProcessRailGroup);
-
-	/* Section 'slidenodes'*/
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, RigDef::SlideNode, slidenodes, ProcessSlidenode);
-
-	/* Section 'ropes'*/
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPES, RigDef::Rope, ropes, ProcessRope);
-
-	/* Section 'ropables' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPABLES, RigDef::Ropable, ropables, ProcessRopable);
-
-	/* Section 'particles' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PARTICLES, RigDef::Particle, particles, ProcessParticle);
-
-	/* Section 'torquecurve' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TORQUECURVE, RigDef::TorqueCurve, torque_curve, ProcessTorqueCurve);
-
-	/* Section 'cruisecontrol' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_CRUISECONTROL, RigDef::CruiseControl, cruise_control, ProcessCruiseControl);
-
-	/* Section 'cruisecontrol' in any module. */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SPEEDLIMITER, RigDef::SpeedLimiter, speed_limiter, ProcessSpeedLimiter);
-
-	/* Section 'axles' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AXLES, RigDef::Axle, axles, ProcessAxle);
-
-	/* Section 'collisionboxes' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COLLISIONBOXES, RigDef::CollisionBox, collision_boxes, ProcessCollisionBox);
-
-	/* Section 'materialflarebindings' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, RigDef::MaterialFlareBinding, material_flare_bindings, ProcessMaterialFlareBinding);
-
-	/* Section 'exhausts' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_EXHAUSTS, RigDef::Exhaust, exhausts, ProcessExhaust);
-
-	/* Section 'guisettings' in any module */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GUISETTINGS, RigDef::GuiSettings, gui_settings, ProcessGuiSettings);
-
-	/* Section 'extcamera' */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_EXTCAMERA, RigDef::ExtCamera, ext_camera, ProcessExtCamera);
-
-	/* Section 'camerarail' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERARAIL, RigDef::CameraRail, camera_rails, ProcessCameraRail);	
-
-	/* Section 'pistonprops' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PISTONPROPS, RigDef::Pistonprop, pistonprops, ProcessPistonprop);
-
-	/* Sections 'turboprops' and 'turboprops2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOPROPS2, RigDef::Turboprop2, turboprops_2, ProcessTurboprop2);
-
-	/* Section 'screwprops' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SCREWPROPS, RigDef::Screwprop, screwprops, ProcessScrewprop);
-
-	/* Section 'set_skeleton_settings' */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SET_SKELETON_SETTINGS, RigDef::SkeletonSettings, skeleton_settings, ProcessSkeletonSettings);
-
-	/* Section 'flexbodies' (Uses generated nodes) */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, boost::shared_ptr<RigDef::Flexbody>, flexbodies, ProcessFlexbody);
-
-#ifdef USE_OPENAL
-
-	/* Section 'soundsources' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SOUNDSOURCES, RigDef::SoundSource, soundsources, ProcessSoundSource);
-
-	/* Section 'soundsources2' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SOUNDSOURCES2, RigDef::SoundSource2, soundsources2, ProcessSoundSource2);
-
-#endif /* USE_OPENAL */
-
-#if 0 // TEMPLATES
-
-	/* Section '' */
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File:, RigDef:, , Process);
-
-	/* Section '' */
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File:, RigDef:, , Process);
-
-#endif
-
-	m_rig->loading_finished = true;
-
-	/* POST-PROCESSING */
-	FinalizeRig();
-
-	/* Pass ownership */
-	rig_t *rig = m_rig;
-	m_rig = nullptr;
-	return rig;
 }
 
 void RigSpawner::InitializeRig()
@@ -533,6 +200,7 @@ void RigSpawner::InitializeRig()
 	memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
 	m_rig->free_airbrake = 0;
 	memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
+	m_rig->useSkidmarks = false;
 	memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
 	m_rig->free_flexbody = 0;
 	m_rig->vidcams.clear();
@@ -731,6 +399,8 @@ void RigSpawner::InitializeRig()
 	
 	m_rig->beamsRoot = m_parent_scene_node;
 
+	m_rig->useSkidmarks = BSETTING("Skidmarks", false);
+
 	/* Collisions */
 
 	m_rig->disableTruckTruckCollisions = BSETTING("DisableCollisions", false);
@@ -774,20 +444,8 @@ void RigSpawner::InitializeRig()
 	m_rig->hydroInertia = new CmdKeyInertia();
 	m_rig->rotaInertia  = new CmdKeyInertia();
 
-	/* Lights mode */
-	m_rig->flaresMode = 3; // on by default
-	Ogre::String light_mode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (light_mode == "None (fastest)")
-		m_rig->flaresMode = 0;
-	else if (light_mode == "No light sources")
-		m_rig->flaresMode = 1;
-	else if (light_mode == "Only current vehicle, main lights")
-		m_rig->flaresMode = 2;
-	else if (light_mode == "All vehicles, main lights")
-		m_rig->flaresMode = 3;
-	else if (light_mode == "All vehicles, all lights")
-		m_rig->flaresMode = 4;
-
+	// Lights mode
+	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(3); // Default = 3 (All vehicles, main lights)
 }
 
 void RigSpawner::FinalizeRig()
@@ -907,7 +565,6 @@ void RigSpawner::FinalizeRig()
 				30000, 
 				true
 			);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
 #endif // USE_MYGUI
 
 			Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";
@@ -1081,6 +738,11 @@ void RigSpawner::FinalizeRig()
 	
 #endif
 }
+
+/* -------------------------------------------------------------------------- */
+/* Actual loading
+/* ~~~ Implemented in RigSpawner_ProcessControl.cpp!
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* Processing functions and utilities.
@@ -3781,6 +3443,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	beam.longbound = longbound;
 	beam.bounded = SHOCK2;
 	beam.shock = &shock;
+	beam.diameter = DEFAULT_BEAM_DIAMETER;
 
 	CreateBeamVisuals(beam, beam_index, hydro_type != BEAM_INVISIBLE_HYDRO);
 
@@ -4051,11 +3714,19 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
 	/* Add keys */
-	m_rig->commandkey[def.contract_key].beams.push_back(-beam_index);
-	m_rig->commandkey[def.contract_key].description = def.description;
+	command_t* contract_command = &m_rig->commandkey[def.contract_key];
+	contract_command->beams.push_back(-beam_index);
+	if (contract_command->description.empty())
+	{
+		contract_command->description = def.description;
+	}
 
-	m_rig->commandkey[def.extend_key].beams.push_back(beam_index);
-	m_rig->commandkey[def.extend_key].description = def.description;
+	command_t* extend_command = &m_rig->commandkey[def.extend_key];
+	extend_command->beams.push_back(beam_index);
+	if (extend_command->description.empty())
+	{
+		extend_command->description = def.description;
+	}
 
 	bool attach_to_scene = (beam.type != BEAM_VIRTUAL && beam.type != BEAM_INVISIBLE && beam.type != BEAM_INVISIBLE_HYDRO);
 	CreateBeamVisuals(beam, beam_index, attach_to_scene);
@@ -5189,11 +4860,15 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	return wheel_index;
 }
 
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+{
+	unsigned int options = (defaults->options | node_def.options); // Merge flags
+	node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
+}
+
 void RigSpawner::AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults)
 {
-	node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) 
-		? 10000.f 
-		: m_file->root_module->globals->dry_mass/15.f;
+	node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
 }
 
 int RigSpawner::FindLowestNodeInRig()
@@ -6107,30 +5782,6 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	);
 };
 
-void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
-{
-	/* Is this a land vehicle? */
-	if (m_rig->engine == nullptr)
-	{
-		AddMessage(Message::TYPE_WARNING, "Section 'engturbo' found but no engine defined. Skipping ...");
-		return;
-	}
-
-	/* Find it */
-	boost::shared_ptr<RigDef::Engturbo> engturbo;
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
-	for (; module_itor != m_selected_modules.end(); module_itor++)
-	{
-		if (module_itor->get()->engturbo != nullptr)
-		{
-			engturbo = module_itor->get()->engturbo;
-		}
-	}
-
-	/* Process it */
-	m_rig->engine->setTurboOptions(engturbo->tinertiaFactor, engturbo->nturbos, engturbo->additionalTorque);
-};
-
 void RigSpawner::ProcessEngine(RigDef::Engine & def)
 {
 	/* Process it */
@@ -6881,7 +6532,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		hook.autolock     = false;
 		m_rig->hooks.push_back(hook);
 	}
-	AdjustNodeBuoyancy(node, def.node_defaults);
+	AdjustNodeBuoyancy(node, def, def.node_defaults);
 	node.mouseGrabMode     = (def.options == 0u) ? 2 : node.mouseGrabMode; // 2 = n = mouse grab enabled
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_n_MOUSE_GRAB) ? 2 : node.mouseGrabMode;
 	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB) ? 1 : node.mouseGrabMode;

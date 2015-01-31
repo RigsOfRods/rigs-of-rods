@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,11 +12,11 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -46,6 +46,11 @@ namespace RoR
 	}
 }
 
+namespace MyGUI
+{
+	class  OgrePlatform;
+}
+
 struct node_t;
 struct beam_t;
 struct shock_t;
@@ -72,6 +77,7 @@ struct hook_t;
 struct ground_model_t;
 struct client_t;
 struct authorinfo_t;
+struct user_info_t;
 
 namespace MOC
 {
@@ -82,12 +88,7 @@ namespace Ogre
 {
 	class MovableText;
 	class TerrainGroup;
-}
-
-namespace MyGUI
-{
-	class OgrePlatform;
-	class TextBox;
+	class ConfigFile;
 }
 
 class AeroEngine;

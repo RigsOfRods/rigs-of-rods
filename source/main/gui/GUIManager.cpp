@@ -63,9 +63,9 @@ bool GUIManager::create()
 
 	windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	createGui();
-#ifdef WIN32
+#ifdef _WIN32
 	MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
-#endif // WIN32
+#endif // _WIN32
 	return true;
 }
 

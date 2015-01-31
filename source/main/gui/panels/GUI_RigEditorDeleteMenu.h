@@ -30,6 +30,7 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorDeleteMenuLayout.h"
 #include "RigEditor_IMain.h"
+#include "GuiPanelBase.h"
 
 namespace RoR
 {
@@ -37,20 +38,12 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorDeleteMenu: public RigEditorDeleteMenuLayout
+class RigEditorDeleteMenu: public RigEditorDeleteMenuLayout, public GuiPanelBase
 {
 
 public:
 
 	RigEditorDeleteMenu(RigEditor::IMain* rig_editor_interface);
-
-	void Show();
-
-	void SetPosition(int x, int y);
-	
-	void Hide();
-
-	bool IsVisible();
 
 	bool TestCursorInRange(int x, int y, int range);
 

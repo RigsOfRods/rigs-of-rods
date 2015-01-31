@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __RoRFrameListener_H_
 
 #include "RoRPrerequisites.h"
-#include "BeamData.h"
 
 #include <Ogre.h>
 #include <pthread.h>
@@ -82,7 +81,6 @@ protected:
 	float terrainzsize;
 	//float truckx, trucky, truckz;
 
-	int flaresMode;
 	int mStatsOn;
 	int netPointToUID;
 	int raceStartTime;

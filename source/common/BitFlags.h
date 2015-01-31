@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OgrePlatform.h>
+#include <cstdint>
 
 /** @file Bit operations */
 
@@ -29,14 +29,36 @@ template<typename var_T, typename flags_T> void Bitmask_SetBool(bool val, var_T 
 
 #define BITMASK_IS_1( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == (FLAGS) )
 
+#define BITMASK_FILL_1_EXCEPT( FLAGS_0 ) (( 0xFFFFFFFF & ~((FLAGS_0)) ))
+
+/// Defines a bitmask constant with given bit index (1-indexed) and a getter function. 
+#define BITMASK_PROPERTY_GET(VAR, BIT_INDEX, FLAG_NAME, GETTER_NAME) \
+	static const unsigned int FLAG_NAME = BITMASK((BIT_INDEX)); \
+	inline bool GETTER_NAME() const { return BITMASK_IS_1((VAR), FLAG_NAME); }
+
+/// Defines a bitmask constant with given bit index (1-indexed) and a getter/setter functions.
+#define BITMASK_PROPERTY(VAR, BIT_INDEX, FLAG_NAME, GETTER_NAME, SETTER_NAME) \
+	BITMASK_PROPERTY_GET((VAR), (BIT_INDEX), FLAG_NAME, GETTER_NAME) \
+	inline void SETTER_NAME(bool value) { Bitmask_SetBool(value, (VAR), FLAG_NAME); }
+
 // --------------------------------------------------------------------------------
 
-#define BITMASK_64( OFFSET )           ( Ogre::uint64(1) << ((OFFSET) - 1) )
+#define BITMASK_64( OFFSET )           ( uint64_t(1) << ((OFFSET) - 1) )
 
 #define BITMASK_64_SET_0               BITMASK_SET_0
 
 #define BITMASK_64_SET_1               BITMASK_SET_1
 
-#define BITMASK_64_IS_0( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == Ogre::uint64(0) )
+#define BITMASK_64_IS_0( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == uint64_t(0) )
 
 #define BITMASK_64_IS_1                BITMASK_IS_1
+
+/// Defines a 64bit bitmask constant with given bit index (1-indexed) and a getter function. 
+#define BITMASK_64_PROPERTY_GET(VAR, BIT_INDEX, FLAG_NAME, GETTER_NAME) \
+	static const unsigned int FLAG_NAME = BITMASK_64((BIT_INDEX)); \
+	inline bool GETTER_NAME() const { return BITMASK_64_IS_1((VAR), FLAG_NAME); }
+
+/// Defines a 64bit bitmask constant with given bit index (1-indexed) and a getter/setter functions.
+#define BITMASK_64_PROPERTY(VAR, BIT_INDEX, FLAG_NAME, GETTER_NAME, SETTER_NAME) \
+	BITMASK_PROPERTY_GET((VAR), (BIT_INDEX), FLAG_NAME, GETTER_NAME) \
+	inline void SETTER_NAME(bool value) { Bitmask_SetBool(value, (VAR), FLAG_NAME); }

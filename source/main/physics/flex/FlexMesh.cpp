@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ApproxMath.h"
 #include "Ogre.h"
 #include "ResourceBuffer.h"
+#include "BeamData.h"
 
 using namespace Ogre;
 

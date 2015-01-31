@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -36,7 +36,7 @@
 #include "RigEditor_MeshWheel2.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_RigProperties.h"
-#include "RigEditor_Node.h"
+#include "RigEditor_RigQueries.h"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -1267,3 +1267,533 @@ boost::shared_ptr<RigDef::File> Rig::Export()
 	// Return
 	return def;
 }
+
+void Rig::QuerySelectedNodesData(RigAggregateNodesData* out_result)
+{
+	RigAggregateNodesData result; // Local, for performance
+	auto itor_end = m_nodes.end();
+	for (auto itor = m_nodes.begin(); itor != itor_end; ++itor)
+	{
+		RigEditor::Node & node = itor->second;
+		if (node.IsSelected())
+		{
+			++result.num_selected;
+			if (result.num_selected == 1)
+			{
+				result.node_name         = node.GetId().ToString();
+				result.detacher_group_id = node.GetDefinitionDetacherGroup();
+				result.load_weight       = node.GetDefinitionLoadWeight();
+				
+				unsigned int node_flags = node.GetDefinitionFlags();
+				result.SetFlag_m( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_m_NO_MOUSE_GRAB     ) );
+				result.SetFlag_f( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_f_NO_SPARKS         ) );
+				result.SetFlag_x( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_x_EXHAUST_POINT     ) );
+				result.SetFlag_y( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_y_EXHAUST_DIRECTION ) );
+				result.SetFlag_c( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_c_NO_GROUND_CONTACT ) );
+				result.SetFlag_h( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_h_HOOK_POINT        ) );
+				result.SetFlag_b( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_b_EXTRA_BUOYANCY    ) );
+				result.SetFlag_p( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_p_NO_PARTICLES      ) );
+				result.SetFlag_L( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_L_LOG               ) );
+				result.SetFlag_l( BITMASK_IS_1( node_flags, RigDef::Node::OPTION_l_LOAD_WEIGHT       ) );
+				
+				// TODO: Implement presets
+			}
+			else
+			{
+				if (result.num_selected == 2)
+				{
+					result.node_name = "";
+				}
+
+				if (result.IsDetacherGroupUniform()) { result.SetDetacherGroupIsUniform(node.GetDefinitionDetacherGroup() == result.detacher_group_id); }
+				if (result.IsLoadWeightUniform())    { result.SetLoadWeightIsUniform   (node.GetDefinitionLoadWeight()    == result.load_weight      ); }
+
+				unsigned int node_flags = node.GetDefinitionFlags();
+				result.SetFlagIsUniform_m( result.IsFlagUniform_m() && (result.HasFlag_m() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_m_NO_MOUSE_GRAB     )));
+				result.SetFlagIsUniform_f( result.IsFlagUniform_f() && (result.HasFlag_f() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_f_NO_SPARKS         )));
+				result.SetFlagIsUniform_x( result.IsFlagUniform_x() && (result.HasFlag_x() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_x_EXHAUST_POINT     )));
+				result.SetFlagIsUniform_y( result.IsFlagUniform_y() && (result.HasFlag_y() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_y_EXHAUST_DIRECTION )));
+				result.SetFlagIsUniform_c( result.IsFlagUniform_c() && (result.HasFlag_c() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_c_NO_GROUND_CONTACT )));
+				result.SetFlagIsUniform_h( result.IsFlagUniform_h() && (result.HasFlag_h() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_h_HOOK_POINT        )));
+				result.SetFlagIsUniform_b( result.IsFlagUniform_b() && (result.HasFlag_b() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_b_EXTRA_BUOYANCY    )));
+				result.SetFlagIsUniform_p( result.IsFlagUniform_p() && (result.HasFlag_p() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_p_NO_PARTICLES      )));
+				result.SetFlagIsUniform_L( result.IsFlagUniform_L() && (result.HasFlag_L() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_L_LOG               )));
+				result.SetFlagIsUniform_l( result.IsFlagUniform_l() && (result.HasFlag_l() == BITMASK_IS_1( node_flags, RigDef::Node::OPTION_l_LOAD_WEIGHT       )));
+				
+				// TODO: Implement presets
+			}
+		}
+	}
+	*out_result = result;
+}
+
+void Rig::QuerySelectedBeamsData(RigAggregateBeams2Data* out_result)
+{
+	UpdateSelectedBeamsList();
+	RigAggregateBeams2Data result; // Local, for performance
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_PLAIN)
+		{
+			auto & res = result.plain_beams;
+			auto * def = beam->GetDefinitionPlainBeam();
+			assert(def != nullptr);
+
+			if (res.num_selected == 0)
+			{
+				res.SetFlag_i(def->HasFlag_i_Invisible());
+				res.SetFlag_r(def->HasFlag_r_Rope());
+				res.SetFlag_s(def->HasFlag_s_Support());
+				res.detacher_group = def->detacher_group;
+				res.extension_break_limit = def->extension_break_limit;
+			}
+			else
+			{
+				// Flags
+				res.SetFlagUniform_i( res.IsFlagUniform_i() && (res.HasFlag_i() == def->HasFlag_i_Invisible()));				
+				res.SetFlagUniform_r( res.IsFlagUniform_r() && (res.HasFlag_r() == def->HasFlag_r_Rope()));				
+				res.SetFlagUniform_s( res.IsFlagUniform_s() && (res.HasFlag_s() == def->HasFlag_s_Support()));
+
+				// Numbers
+				res.SetDetacherGroupIsUniform(      res.IsDetacherGroupUniform()       && (res.detacher_group        == def->detacher_group));											   
+				res.SetExtensionBreakLimitIsUniform(res.IsExtensionBreakLimitUniform() && (res.extension_break_limit == def->extension_break_limit));
+			}
+			++res.num_selected;
+		}
+		else if (beam->GetType() == Beam::TYPE_STEERING_HYDRO)
+		{
+			auto & res = result.hydros;
+			auto * def = beam->GetDefinitionHydro();
+			assert(def != nullptr);
+
+			if (res.num_selected == 0)
+			{
+				// Flags (1)                        // Flags (2)                        // Flags (3)
+				res.SetFlag_a(def->HasFlag_a());    res.SetFlag_e(def->HasFlag_e());    res.SetFlag_g(def->HasFlag_g());
+				res.SetFlag_h(def->HasFlag_h());    res.SetFlag_i(def->HasFlag_i());    res.SetFlag_r(def->HasFlag_r());
+				res.SetFlag_s(def->HasFlag_s());    res.SetFlag_u(def->HasFlag_u());    res.SetFlag_v(def->HasFlag_v());
+				res.SetFlag_x(def->HasFlag_x());    res.SetFlag_y(def->HasFlag_y());
+
+				res.detacher_group          = def->detacher_group;
+				res.extension_factor        = def->lenghtening_factor;
+				res.inertia_start_delay     = def->inertia.start_delay_factor;
+				res.inertia_stop_delay      = def->inertia.stop_delay_factor;
+				res.inertia_start_function  = def->inertia.start_function;
+				res.inertia_stop_function   = def->inertia.stop_function;
+			}
+			else
+			{
+				// Update uniformity
+				res.SetFlagIsUniform_a( res.IsFlagUniform_a() && (res.HasFlag_a() == def->HasFlag_a()) );
+				res.SetFlagIsUniform_e( res.IsFlagUniform_e() && (res.HasFlag_e() == def->HasFlag_e()) );
+				res.SetFlagIsUniform_g( res.IsFlagUniform_g() && (res.HasFlag_g() == def->HasFlag_g()) );
+				res.SetFlagIsUniform_h( res.IsFlagUniform_h() && (res.HasFlag_h() == def->HasFlag_h()) );
+				res.SetFlagIsUniform_i( res.IsFlagUniform_i() && (res.HasFlag_i() == def->HasFlag_i()) );
+				res.SetFlagIsUniform_r( res.IsFlagUniform_r() && (res.HasFlag_r() == def->HasFlag_r()) );
+				res.SetFlagIsUniform_s( res.IsFlagUniform_s() && (res.HasFlag_s() == def->HasFlag_s()) );
+				res.SetFlagIsUniform_u( res.IsFlagUniform_u() && (res.HasFlag_u() == def->HasFlag_u()) );
+				res.SetFlagIsUniform_v( res.IsFlagUniform_v() && (res.HasFlag_v() == def->HasFlag_v()) );
+				res.SetFlagIsUniform_x( res.IsFlagUniform_x() && (res.HasFlag_x() == def->HasFlag_x()) );
+				res.SetFlagIsUniform_y( res.IsFlagUniform_y() && (res.HasFlag_y() == def->HasFlag_y()) );
+				
+				res.SetDetacherGroupIsUniform(        res.IsDetacherGroupUniform()        && (res.detacher_group         == def->detacher_group));
+				res.SetExtensionFactorIsUniform(      res.IsExtensionFactorUniform()      && (res.extension_factor       == def->lenghtening_factor));
+				res.SetInertiaStartDelayIsUniform(    res.IsInertiaStartDelayUniform()    && res.inertia_start_delay     == def->inertia.start_delay_factor);
+				res.SetInertiaStopDelayIsUniform(     res.IsInertiaStopDelayUniform()     && (res.inertia_stop_delay     == def->inertia.stop_delay_factor));
+				res.SetInertiaStartFunctionIsUniform( res.IsInertiaStartFunctionUniform() && (res.inertia_start_function == def->inertia.start_function));
+				res.SetInertiaStopFunctionIsUniform(  res.IsInertiaStopFunctionUniform()  && (res.inertia_stop_function  == def->inertia.stop_function));
+			}
+			++res.num_selected;
+		}
+		else if (beam->GetType() == Beam::TYPE_COMMAND_HYDRO)
+		{
+			auto & res = result.commands2;
+			auto * def = beam->GetDefinitionCommand2();
+			assert(def != nullptr);
+
+			if (res.num_selected == 0)
+			{
+				res.SetFlag_c(def->HasOption_c_AutoCenter());
+				res.SetFlag_f(def->HasOption_f_NotFaster());
+				res.SetFlag_i(def->HasOption_i_Invisible());
+				res.SetFlag_o(def->HasOption_o_PressOnceCenter());
+				res.SetFlag_p(def->HasOption_p_PressOnce());
+				res.SetFlag_r(def->HasOption_r_Rope());
+
+				res.detacher_group          = def->detacher_group;
+				res.contraction_rate        = def->shorten_rate;
+				res.extension_rate          = def->lengthen_rate;
+				res.contract_key            = def->contract_key;
+				res.extend_key              = def->extend_key;
+				res.description             = def->description;
+				res.max_contraction         = def->max_contraction;
+				res.max_extension           = def->max_extension;
+				res.inertia_start_delay     = def->inertia.start_delay_factor;
+				res.inertia_stop_delay      = def->inertia.stop_delay_factor;
+				res.inertia_start_function  = def->inertia.start_function;
+				res.inertia_stop_function   = def->inertia.stop_function;
+				res.affect_engine           = def->affect_engine;
+				res.SetBoolNeedsEngine(def->needs_engine);
+			}
+			else
+			{
+				if (res.IsFlagUniform_c()) { res.SetFlagIsUniform_c(res.HasFlag_c() == def->HasOption_c_AutoCenter());       }
+				if (res.IsFlagUniform_f()) { res.SetFlagIsUniform_f(res.HasFlag_f() == def->HasOption_f_NotFaster());		 }
+				if (res.IsFlagUniform_i()) { res.SetFlagIsUniform_i(res.HasFlag_i() == def->HasOption_i_Invisible());		 }
+				if (res.IsFlagUniform_o()) { res.SetFlagIsUniform_o(res.HasFlag_o() == def->HasOption_o_PressOnceCenter());  }
+				if (res.IsFlagUniform_p()) { res.SetFlagIsUniform_p(res.HasFlag_p() == def->HasOption_p_PressOnce());		 }
+				if (res.IsFlagUniform_r()) { res.SetFlagIsUniform_r(res.HasFlag_r() == def->HasOption_r_Rope());			 }
+
+				if (res.IsDetacherGroupUniform())        { res.SetDetacherGroupIsUniform(       res.detacher_group         == def->detacher_group); }
+				if (res.IsContractionRateUniform())      { res.SetContractionRateIsUniform(     res.contraction_rate       == def->shorten_rate); }
+				if (res.IsExtensionRateUniform())        { res.SetExtensionRateIsUniform(       res.extension_rate         == def->lengthen_rate); }
+				if (res.IsContractKeyUniform())          { res.SetContractKeyIsUniform(         res.contract_key           == def->contract_key); }
+				if (res.IsExtendKeyUniform())            { res.SetExtendKeyIsUniform(           res.extend_key             == def->extend_key); }
+				if (res.IsDescriptionUniform())          { res.SetDescriptionIsUniform(         res.description            == def->description); }
+				if (res.IsContractionLimitUniform())     { res.SetContractionLimitIsUniform(    res.max_contraction        == def->max_contraction); }
+				if (res.IsExtensionLimitUniform())       { res.SetExtensionLimitIsUniform(      res.max_extension          == def->max_extension); }
+				if (res.IsInertiaStartDelayUniform())    { res.SetInertiaStartDelayIsUniform(   res.inertia_start_delay    == def->inertia.start_delay_factor); }
+				if (res.IsInertiaStopDelayUniform())     { res.SetInertiaStopDelayIsUniform(    res.inertia_stop_delay     == def->inertia.stop_delay_factor); }
+				if (res.IsInertiaStartFunctionUniform()) { res.SetInertiaStartFunctionIsUniform(res.inertia_start_function == def->inertia.start_function); }
+				if (res.IsInertiaStopFunctionUniform())  { res.SetInertiaStopFunctionIsUniform( res.inertia_stop_function  == def->inertia.stop_function); }
+				if (res.IsAffectEngineUniform())         { res.SetAffectEngineIsUniform(        res.affect_engine          == def->affect_engine); }
+				if (res.IsNeedsEngineUniform())          { res.SetNeedsEngineIsUniform(         res.GetBoolNeedsEngine()   == def->needs_engine); }
+			}
+			++res.num_selected;
+		}
+		else if (beam->GetType() == Beam::TYPE_SHOCK_ABSORBER)
+		{
+			auto & res = result.shocks;
+			auto * def = beam->GetDefinitionShock();
+			assert(def != nullptr);
+
+			if (res.num_selected == 0)
+			{
+				res.spring_rate       = def->spring_rate;
+				res.damping           = def->damping;
+				res.contraction_limit = def->short_bound;
+				res.extension_limit   = def->long_bound;
+				res.precompression    = def->precompression;
+				res.detacher_group    = def->detacher_group;
+
+				res.SetFlag_i(def->HasOption_i_Invisible());
+				res.SetFlag_L(def->HasOption_L_ActiveLeft());
+				res.SetFlag_R(def->HasOption_R_ActiveRight());
+				res.SetFlag_m(def->HasOption_m_Metric());
+			}
+			else
+			{
+				if (res.IsSpringUniform())           { res.SetSpringIsUniform(          res.spring_rate       == def->spring_rate); }
+				if (res.IsDampingUniform())          { res.SetDampingIsUniform(         res.damping           == def->damping); }
+				if (res.IsContractionLimitUniform()) { res.SetContractionLimitIsUniform(res.contraction_limit == def->short_bound); }
+				if (res.IsExtensionLimitUniform())   { res.SetExtensionLimitIsUniform(  res.extension_limit   == def->long_bound); }
+				if (res.IsPrecompressionUniform())   { res.SetPrecompressionIsUniform(  res.precompression    == def->precompression); }
+				if (res.IsDetacherGroupUniform())    { res.SetDetacherGroupIsUniform(   res.detacher_group    == def->detacher_group); }
+
+				if (res.IsFlagUniform_i()) { res.SetFlagIsUniform_i(res.HasFlag_i() == def->HasOption_i_Invisible()); }
+				if (res.IsFlagUniform_L()) { res.SetFlagIsUniform_L(res.HasFlag_L() == def->HasOption_L_ActiveLeft()); }
+				if (res.IsFlagUniform_R()) { res.SetFlagIsUniform_R(res.HasFlag_R() == def->HasOption_R_ActiveRight()); }
+				if (res.IsFlagUniform_m()) { res.SetFlagIsUniform_m(res.HasFlag_m() == def->HasOption_m_Metric()); }
+			}
+			++res.num_selected;
+		}
+		else if (beam->GetType() == Beam::TYPE_SHOCK_ABSORBER_2)
+		{
+			auto & res = result.shocks2;
+			auto * def = beam->GetDefinitionShock2();
+			assert(def != nullptr);
+
+			if (res.num_selected == 0)
+			{
+				res.spring_in_rate      = def->spring_in;
+				res.spring_out_rate     = def->spring_out;
+				res.spring_in_progress  = def->progress_factor_spring_in;
+				res.spring_out_progress = def->progress_factor_spring_out;
+				res.damp_in_rate        = def->damp_in;
+				res.damp_out_rate       = def->damp_out;
+				res.damp_in_progress    = def->progress_factor_damp_in;
+				res.damp_out_progress   = def->progress_factor_damp_out;
+				res.contraction_limit   = def->short_bound;
+				res.extension_limit     = def->long_bound;
+				res.precompression      = def->precompression;
+				res.detacher_group      = def->detacher_group;
+
+				res.SetFlag_i(def->HasOption_i_Invisible());
+				res.SetFlag_M(def->HasOption_M_AbsoluteMetric());
+				res.SetFlag_s(def->HasOption_s_SoftBumpBounds());
+				res.SetFlag_m(def->HasOption_m_Metric());
+			}
+			else
+			{
+				if (res.IsSpringInRateUniform())     { res.SetSpringInRateIsUniform(    res.spring_in_rate      == def->spring_in); }
+				if (res.IsSpringOutRateUniform())    { res.SetSpringOutRateIsUniform(   res.spring_out_rate     == def->spring_out); }
+				if (res.IsSpringInProgressUniform()) { res.SetSpringInProgressIsUniform(res.spring_in_progress  == def->progress_factor_spring_in); }
+				if (res.IsDampInProgressUniform())   { res.SetDampInProgressIsUniform(  res.spring_out_progress == def->progress_factor_spring_out); }
+				if (res.IsDampInRateUniform())       { res.SetDampInRateIsUniform(      res.damp_in_rate        == def->damp_in); }
+				if (res.IsDampOutRateUniform())      { res.SetDampOutRateIsUniform(     res.damp_out_rate       == def->damp_out); }
+				if (res.IsDampInProgressUniform())   { res.SetDampInProgressIsUniform(  res.damp_in_progress    == def->progress_factor_damp_in); }
+				if (res.IsDampOutProgressUniform())  { res.SetDampOutProgressIsUniform( res.damp_out_progress   == def->progress_factor_damp_out); }
+				if (res.IsContractionLimitUniform()) { res.SetContractionLimitIsUniform(res.contraction_limit   == def->short_bound); }
+				if (res.IsExtensionLimitUniform())   { res.SetExtensionLimitIsUniform(  res.extension_limit     == def->long_bound); }
+				if (res.IsPrecompressionUniform())   { res.SetPrecompressionIsUniform(  res.precompression      == def->precompression); }
+				if (res.IsDetacherGroupUniform())    { res.SetDetacherGroupIsUniform(   res.detacher_group      == def->detacher_group); }
+
+				if (res.IsFlagUniform_i()) { res.SetFlagIsUniform_i(res.HasFlag_i() == def->HasOption_i_Invisible()); }
+				if (res.IsFlagUniform_M()) { res.SetFlagIsUniform_M(res.HasFlag_M() == def->HasOption_M_AbsoluteMetric()); }
+				if (res.IsFlagUniform_s()) { res.SetFlagIsUniform_s(res.HasFlag_s() == def->HasOption_s_SoftBumpBounds()); }
+				if (res.IsFlagUniform_m()) { res.SetFlagIsUniform_m(res.HasFlag_m() == def->HasOption_m_Metric()); }
+			}
+			++res.num_selected;
+		}
+	}
+	*out_result = result;
+}
+
+void Rig::UpdateSelectedBeamsList()
+{
+	// Selected beams are those between 2 selected nodes
+
+	m_selected_beams.clear();
+	std::set<Beam*> beam_set;
+	for (auto node_itor = m_nodes.begin(); node_itor != m_nodes.end(); ++node_itor)
+	{
+		Node* node = &node_itor->second;
+		if (node->IsSelected())
+		{
+			auto beam_itor     = node->m_linked_beams.begin();
+			auto beam_itor_end = node->m_linked_beams.end();
+			while (beam_itor != beam_itor_end)
+			{
+				Beam* beam = *beam_itor;
+				auto result_itor = beam_set.insert(beam);
+				if (result_itor.second == false)
+				{
+					// Already in set => is between 2 selected nodes
+					m_selected_beams.push_back(*result_itor.first);
+				}
+				++beam_itor;
+			}
+		}
+	}
+}
+
+// ----------------------------------------------------------------------------
+// Node/beam updaters
+// ----------------------------------------------------------------------------
+
+void Rig::SelectedNodesUpdateAttributes(const RigAggregateNodesData* data)
+{
+	auto itor_end = m_nodes.end();
+	for (auto itor = m_nodes.begin(); itor != itor_end; ++itor)
+	{
+		RigEditor::Node& node = itor->second;
+		if (node.IsSelected())
+		{
+			if (data->IsDetacherGroupUniform()) { node.SetDefinitionDetacherGroup(data->detacher_group_id); }
+			if (data->IsLoadWeightUniform())    { node.SetDefinitionLoadWeight(data->load_weight); }
+
+			unsigned int node_flags = node.GetDefinitionFlags();
+			if (data->IsFlagUniform_m()) { Bitmask_SetBool( data->HasFlag_m(), node_flags, RigDef::Node::OPTION_m_NO_MOUSE_GRAB     ); }
+			if (data->IsFlagUniform_f()) { Bitmask_SetBool( data->HasFlag_f(), node_flags, RigDef::Node::OPTION_f_NO_SPARKS         ); }
+			if (data->IsFlagUniform_x()) { Bitmask_SetBool( data->HasFlag_x(), node_flags, RigDef::Node::OPTION_x_EXHAUST_POINT     ); }
+			if (data->IsFlagUniform_y()) { Bitmask_SetBool( data->HasFlag_y(), node_flags, RigDef::Node::OPTION_y_EXHAUST_DIRECTION ); }
+			if (data->IsFlagUniform_c()) { Bitmask_SetBool( data->HasFlag_c(), node_flags, RigDef::Node::OPTION_c_NO_GROUND_CONTACT ); }
+			if (data->IsFlagUniform_h()) { Bitmask_SetBool( data->HasFlag_h(), node_flags, RigDef::Node::OPTION_h_HOOK_POINT        ); }
+			if (data->IsFlagUniform_b()) { Bitmask_SetBool( data->HasFlag_b(), node_flags, RigDef::Node::OPTION_b_EXTRA_BUOYANCY    ); }
+			if (data->IsFlagUniform_p()) { Bitmask_SetBool( data->HasFlag_p(), node_flags, RigDef::Node::OPTION_p_NO_PARTICLES      ); }
+			if (data->IsFlagUniform_L()) { Bitmask_SetBool( data->HasFlag_L(), node_flags, RigDef::Node::OPTION_L_LOG               ); }
+			if (data->IsFlagUniform_l()) { Bitmask_SetBool( data->HasFlag_l(), node_flags, RigDef::Node::OPTION_l_LOAD_WEIGHT       ); }
+			node.SetDefinitionFlags(node_flags);
+		}
+	}
+}
+
+void Rig::SelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData* data)
+{
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_PLAIN)
+		{
+			RigDef::Beam* def = beam->GetDefinitionPlainBeam();
+			
+			if (data->IsFlagUniform_i()) { def->SetFlag_i_Invisible( data->HasFlag_i()); }
+			if (data->IsFlagUniform_s()) { def->SetFlag_s_Support(   data->HasFlag_s()); }
+			if (data->IsFlagUniform_r()) { def->SetFlag_r_Rope(      data->HasFlag_r()); }
+			
+			if (data->IsDetacherGroupUniform())       { def->detacher_group        = data->detacher_group; }
+			if (data->IsExtensionBreakLimitUniform()) { def->extension_break_limit = data->extension_break_limit; }
+		}
+	}
+}
+
+void Rig::SelectedMixedBeamsUpdateAttributes(const MixedBeamsAggregateData *data)
+{
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_PLAIN)
+		{
+			RigDef::Beam* def = beam->GetDefinitionPlainBeam();
+			
+			if (data->IsDetacherGroupUniform()) { def->detacher_group = data->detacher_group; }
+		}
+		else if (beam->GetType() == Beam::TYPE_SHOCK_ABSORBER_2)
+		{
+			RigDef::Shock2* shock = beam->GetDefinitionShock2();
+												    
+			if (data->IsDetacherGroupUniform()) { shock->detacher_group = data->detacher_group; }
+		}
+		else if (beam->GetType() == Beam::TYPE_STEERING_HYDRO)
+		{
+			RigDef::Hydro* def = beam->GetDefinitionHydro();
+
+			if (data->IsDetacherGroupUniform()) { def->detacher_group = data->detacher_group; }
+		}
+		else if (beam->GetType() == Beam::TYPE_COMMAND_HYDRO)
+		{
+			RigDef::Command2* def = beam->GetDefinitionCommand2();
+			
+			if (data->IsDetacherGroupUniform()) { def->detacher_group = data->detacher_group; } 
+		}
+		else if (beam->GetType() == Beam::TYPE_SHOCK_ABSORBER)
+		{
+			RigDef::Shock* shock = beam->GetDefinitionShock();
+			
+			if (data->IsDetacherGroupUniform()) { shock->detacher_group = data->detacher_group; }
+		}
+	}
+}
+
+void Rig::SelectedShocks2UpdateAttributes(const RigAggregateShocks2Data* data)
+{
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_SHOCK_ABSORBER_2)
+		{
+			RigDef::Shock2* shock = beam->GetDefinitionShock2();
+			
+			if (data->IsFlagUniform_i()) { shock->SetOption_i_Invisible     ( data->HasFlag_i()); }
+			if (data->IsFlagUniform_M()) { shock->SetOption_M_AbsoluteMetric( data->HasFlag_M()); }
+			if (data->IsFlagUniform_s()) { shock->SetOption_s_SoftBumpBounds( data->HasFlag_s()); }
+			if (data->IsFlagUniform_m()) { shock->SetOption_m_Metric        ( data->HasFlag_m()); }
+
+			if (data->IsSpringInRateUniform())      { shock->spring_in    = data->spring_in_rate; }
+			if (data->IsSpringOutRateUniform())     { shock->spring_out   = data->spring_out_rate; }
+			if (data->IsDampInRateUniform())        { shock->damp_in      = data->damp_in_rate; }
+			if (data->IsDampOutRateUniform())       { shock->damp_out     = data->damp_out_rate; }
+			if (data->IsSpringInProgressUniform())  { shock->progress_factor_spring_in  = data->spring_in_progress; }
+			if (data->IsSpringOutProgressUniform()) { shock->progress_factor_spring_out = data->spring_out_progress; }
+			if (data->IsDampInProgressUniform())    { shock->progress_factor_damp_in    = data->damp_in_progress; }
+			if (data->IsDampOutProgressUniform())   { shock->progress_factor_damp_out   = data->damp_out_progress; }
+												    
+			if (data->IsDetacherGroupUniform())     { shock->detacher_group = data->detacher_group; }
+			if (data->IsExtensionLimitUniform())    { shock->long_bound     = data->extension_limit; }
+			if (data->IsContractionLimitUniform())  { shock->short_bound    = data->contraction_limit; }
+			if (data->IsPrecompressionUniform())    { shock->precompression = data->precompression; }
+		}
+	}
+}
+
+void Rig::SelectedHydrosUpdateAttributes(const RigAggregateHydrosData* data)
+{
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_STEERING_HYDRO)
+		{
+			RigDef::Hydro* def = beam->GetDefinitionHydro();
+			
+			if (data->IsFlagUniform_a()) { if (!def->HasFlag_a()) { def->AddFlag(RigDef::Hydro::OPTION_a_INPUT_AILERON);             } }
+			if (data->IsFlagUniform_e()) { if (!def->HasFlag_e()) { def->AddFlag(RigDef::Hydro::OPTION_e_INPUT_ELEVATOR);            } }
+			if (data->IsFlagUniform_g()) { if (!def->HasFlag_g()) { def->AddFlag(RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER);     } }
+			if (data->IsFlagUniform_h()) { if (!def->HasFlag_h()) { def->AddFlag(RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER);  } }
+			if (data->IsFlagUniform_i()) { if (!def->HasFlag_i()) { def->AddFlag(RigDef::Hydro::OPTION_i_INVISIBLE);                 } }
+			if (data->IsFlagUniform_r()) { if (!def->HasFlag_r()) { def->AddFlag(RigDef::Hydro::OPTION_r_INPUT_RUDDER);              } }
+			if (data->IsFlagUniform_s()) { if (!def->HasFlag_s()) { def->AddFlag(RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED);     } }
+			if (data->IsFlagUniform_u()) { if (!def->HasFlag_u()) { def->AddFlag(RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR);    } }
+			if (data->IsFlagUniform_v()) { if (!def->HasFlag_v()) { def->AddFlag(RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR); } }
+			if (data->IsFlagUniform_x()) { if (!def->HasFlag_x()) { def->AddFlag(RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER);      } }
+			if (data->IsFlagUniform_y()) { if (!def->HasFlag_y()) { def->AddFlag(RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER);   } }
+				
+			if (data->IsDetacherGroupUniform())       { def->detacher_group             = data->detacher_group;        }
+			if (data->IsExtensionFactorUniform())     { def->lenghtening_factor         = data->extension_factor;      }
+			if (data->IsInertiaStartDelayUniform())   { def->inertia.start_delay_factor = data->inertia_start_delay;   }
+			if (data->IsInertiaStopDelayUniform())    { def->inertia.stop_delay_factor  = data->inertia_stop_delay;    }
+			if (data->IsInertiaStartFunctionUniform()){ def->inertia.start_function	    = data->inertia_start_function;}
+			if (data->IsInertiaStopFunctionUniform()) { def->inertia.stop_function	    = data->inertia_stop_function; }
+		}
+	}
+}
+
+void Rig::SelectedCommands2UpdateAttributes(const RigAggregateCommands2Data*   data)
+{
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_COMMAND_HYDRO)
+		{
+			RigDef::Command2* def = beam->GetDefinitionCommand2();
+
+			if (data->IsFlagUniform_c()) { def->SetOption_c_AutoCenter(       data->HasFlag_c()); }
+			if (data->IsFlagUniform_f()) { def->SetOption_f_NotFaster(		  data->HasFlag_f()); }
+			if (data->IsFlagUniform_i()) { def->SetOption_i_Invisible(		  data->HasFlag_i()); }
+			if (data->IsFlagUniform_o()) { def->SetOption_o_PressOnceCenter(  data->HasFlag_o()); }
+			if (data->IsFlagUniform_p()) { def->SetOption_p_PressOnce(		  data->HasFlag_p()); }
+			if (data->IsFlagUniform_r()) { def->SetOption_r_Rope(			  data->HasFlag_r()); }
+
+			if (data->IsDetacherGroupUniform())        { def->detacher_group              = data->detacher_group        ; } 
+			if (data->IsContractionRateUniform())      { def->shorten_rate                = data->contraction_rate      ; } 
+			if (data->IsExtensionRateUniform())        { def->lengthen_rate               = data->extension_rate        ; } 
+			if (data->IsContractKeyUniform())          { def->contract_key                = data->contract_key          ; } 
+			if (data->IsExtendKeyUniform())            { def->extend_key                  = data->extend_key            ; } 
+			if (data->IsDescriptionUniform())          { def->description                 = data->description           ; } 
+			if (data->IsContractionLimitUniform())     { def->max_contraction             = data->max_contraction       ; } 
+			if (data->IsExtensionLimitUniform())       { def->max_extension               = data->max_extension         ; } 
+			if (data->IsInertiaStartDelayUniform())    { def->inertia.start_delay_factor  = data->inertia_start_delay   ; } 
+			if (data->IsInertiaStopDelayUniform())     { def->inertia.stop_delay_factor   = data->inertia_stop_delay    ; } 
+			if (data->IsInertiaStartFunctionUniform()) { def->inertia.start_function      = data->inertia_start_function; } 
+			if (data->IsInertiaStopFunctionUniform())  { def->inertia.stop_function       = data->inertia_stop_function ; } 
+			if (data->IsAffectEngineUniform())         { def->affect_engine               = data->affect_engine         ; } 
+			if (data->IsNeedsEngineUniform())          { def->needs_engine                = data->GetBoolNeedsEngine()  ; } 
+		}
+	}
+}
+
+
+void Rig::SelectedShocksUpdateAttributes(const RigAggregateShocksData* data)
+{
+	auto itor_end = m_selected_beams.end();
+	for (auto itor = m_selected_beams.begin(); itor != itor_end; ++itor)
+	{
+		Beam* beam = *itor;
+		if (beam->GetType() == Beam::TYPE_SHOCK_ABSORBER)
+		{
+			RigDef::Shock* shock = beam->GetDefinitionShock();
+			
+			if (data->IsFlagUniform_i()) { shock->SetOption_i_Invisible(  data->HasFlag_i()); }
+			if (data->IsFlagUniform_L()) { shock->SetOption_L_ActiveLeft( data->HasFlag_L()); }
+			if (data->IsFlagUniform_R()) { shock->SetOption_R_ActiveRight(data->HasFlag_R()); }
+			if (data->IsFlagUniform_m()) { shock->SetOption_m_Metric(     data->HasFlag_m()); }
+
+			if (data->IsSpringUniform())           { shock->spring_rate    = data->spring_rate; }
+			if (data->IsDampingUniform())          { shock->damping        = data->damping; }
+			if (data->IsDetacherGroupUniform())    { shock->detacher_group = data->detacher_group; }
+			if (data->IsExtensionLimitUniform())   { shock->long_bound     = data->extension_limit; }
+			if (data->IsContractionLimitUniform()) { shock->short_bound    = data->contraction_limit; }
+			if (data->IsPrecompressionUniform())   { shock->precompression = data->precompression; }
+		}
+	}
+}
+
+// ----------------------------------------------------------------------------
+// EOF
+// ----------------------------------------------------------------------------

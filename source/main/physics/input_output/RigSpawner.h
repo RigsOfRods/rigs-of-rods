@@ -977,15 +977,23 @@ protected:
 		int extend_key
 	);
 
+	/** 
+	* For specified nodes
+	*/
+	void AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults);
+
+	/** 
+	* For generated nodes
+	*/
 	void AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults);
 
 	/**
-	* Ported from SerializedRig::loadTruck()
+	* Ported from SerializedRig::loadTruck() [v0.4.0.7]
 	*/
 	void FinalizeRig();
 
 	/**
-	* Ported from SerializedRig::SerializedRig()
+	* Ported from SerializedRig::SerializedRig() [v0.4.0.7]
 	*/
 	void InitializeRig();
 

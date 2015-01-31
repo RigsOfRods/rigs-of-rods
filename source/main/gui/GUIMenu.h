@@ -31,7 +31,6 @@
 
 #include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
-#include "BeamData.h"
 #include "Singleton.h"
 
 #include <MyGUI.h>

@@ -20,3 +20,4 @@ ror-dependencies-*.zip
 dependencies-*.zip
 _build
 libangelscript_addons*.a
+source/main/gui/AboutWindow.cpp
