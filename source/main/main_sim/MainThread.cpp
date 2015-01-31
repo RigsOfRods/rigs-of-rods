@@ -269,6 +269,7 @@ void MainThread::Go()
 	gEnv->frameListener->dirvisible = false;
 	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
+	new GUI_MainMenu(); /* Top menubar */
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
@@ -541,8 +542,6 @@ void MainThread::Go()
 				/* Setup GUI manager updates */
 				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
 			}
-
-			new GUI_MainMenu(); /* Top menubar */
 
 			if (SetupGameplayLoop(enable_network, preselected_map))
 			{

@@ -330,7 +330,6 @@ struct node_t
 	int mouseGrabMode;           //!< { 0=Mouse grab, 1=No mouse grab, 2=Mouse grab with force display}
 	int pos;                     //!< This node's index in rig_t::nodes array.
 	Ogre::SceneNode *mSceneNode; //!< visual  
-	Ogre::String id_str;         //!< String identifier assigned in rig-definition file (if used).
 };
 
 

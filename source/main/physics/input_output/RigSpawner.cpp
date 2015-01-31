@@ -46,7 +46,7 @@
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Console.h"
-#include "DashboardManager.h"
+#include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DustManager.h"
 #include "FlexAirfoil.h"
@@ -5580,7 +5580,8 @@ void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 	}
 	else
 	{
-		AddWheel(DowngradeWheel2(def));
+		RigDef::Wheel wheel_def = DowngradeWheel2(def);
+        	AddWheel(wheel_def);
 	}
 };
 
@@ -6414,7 +6415,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node_t & node = m_rig->nodes[inserted_node.first];
 	node.pos = inserted_node.first; /* Node index */
 	node.id = static_cast<int>(def.id.Num());
-	node.id_str = def.id.Str();
 
 	/* Positioning */
 	Ogre::Vector3 node_position = m_spawn_position + m_spawn_rotation * def.position;

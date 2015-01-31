@@ -39,7 +39,7 @@ public:
 	void setActive(bool state);
 	//static VideoCamera *setActive(bool state);
 	
-	static VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & def);
+	static VideoCamera *Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & def);
 
 	int camNode, lookat, switchoff;
 	float fov, minclip, maxclip;

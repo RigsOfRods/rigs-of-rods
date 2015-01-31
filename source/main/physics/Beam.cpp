@@ -298,7 +298,7 @@ Beam::~Beam()
 		netMT = 0;
 	}
 
-	if (net_mutex)
+	if (state == NETWORKED) // int rig_t::state
 	{
 		pthread_mutex_destroy(&net_mutex);
 	}

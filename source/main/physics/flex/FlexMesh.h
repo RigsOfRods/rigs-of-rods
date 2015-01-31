@@ -36,7 +36,7 @@ class FlexMesh: public Flexable
 {
 public:
 
-	FlexMesh::FlexMesh(
+	FlexMesh(
 		Ogre::String const & name, 
 		node_t *nds, 
 		int n1, 

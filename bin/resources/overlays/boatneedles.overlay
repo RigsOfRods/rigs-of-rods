@@ -8,7 +8,7 @@ overlay tracks/BoatNeedlesOverlay
 			horz_align right
 			vert_align bottom
 			width 0.03
-			left -0.12
+			left -0.10
 			top -0.04
 			height 0.03
 			material tracks/thrusthandle
@@ -31,9 +31,9 @@ overlay tracks/BoatNeedlesOverlay
 			horz_align left
 			vert_align bottom
 			width 0.11
-			left 0.14
+			left 0.7
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.12
 			height 0.11
 			material tracks/boatspeedneedle_mat
 		}

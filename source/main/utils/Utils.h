@@ -37,9 +37,9 @@
 
 #include <pthread.h>
 
-#if WIN32
+#if _WIN32
 # include <windows.h> // Sleep()
-#endif // WIN32
+#endif // _WIN32
 
 
 // from http://stahlforce.com/dev/index.php?tool=csc01
@@ -120,11 +120,11 @@ inline void sleepMilliSeconds(unsigned int ms)
 
 inline unsigned long getThreadID()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return (unsigned long)pthread_self().p;
 #else
 	return (unsigned long)pthread_self();
-#endif // WIN32
+#endif // _WIN32
 }
 
 inline Ogre::String getThreadIDAsString()

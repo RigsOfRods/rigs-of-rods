@@ -236,11 +236,11 @@ MyWizard::MyWizard(int startupMode, wxFrame *frame, bool _autoUpdateEnabled, boo
 		std::string ourHash = CONFIG->getOwnHash();
 		LOG("INSTALLER HASH: %s\n", ourHash.c_str());
 		char platform_str[256]="";
-#ifdef WIN32
+#ifdef _WIN32
 		sprintf(platform_str, "windows");
 #else
 		sprintf(platform_str, "linux");
-#endif
+#endif // _WIN32
 		LOG("INSTALLER PLATFORM: %s\n", platform_str);
 		LOG("INSTALLER BUILD DATE: %s, %s\n", __DATE__, __TIME__);
 	}
