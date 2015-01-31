@@ -554,14 +554,14 @@ void Settings::path_add(char* path, const char* dirname)
 	strcpy(path, tmp);
 }
 
-int Settings::GetFlaresMode()
+int Settings::GetFlaresMode(int default_value /*=2*/)
 {
-	if (m_flares_mode == -1)
+	if (m_flares_mode == -1) // -1: unknown, -2: default, 0+: mode ID
 	{
 		auto itor = settings.find("Lights");
 		if (itor == settings.end())
 		{
-			m_flares_mode = 2; // "Only current vehicle, main lights" (default)
+			m_flares_mode = -2;
 		}
 		else
 		{
@@ -571,8 +571,12 @@ int Settings::GetFlaresMode()
 			else if (itor->second == "All vehicles, main lights")         { m_flares_mode = 3; }
 			else if (itor->second == "All vehicles, all lights")          { m_flares_mode = 4; }
 
-			else                                                          { m_flares_mode = 2; }
+			else                                                          { m_flares_mode = -2; }
 		}
+	}
+	if (m_flares_mode == -2)
+	{
+		return default_value;
 	}
 	return m_flares_mode;
 }

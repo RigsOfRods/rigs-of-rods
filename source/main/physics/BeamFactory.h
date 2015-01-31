@@ -26,7 +26,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "RigDef_Parser.h"
-#include "RigSpawner.h"
 #include "Beam.h"
 #include "StreamableFactory.h"
 #include "TwoDReplay.h"
@@ -57,7 +56,6 @@ public:
 		Ogre::String fname, 
 		collision_box_t *spawnbox = NULL, 
 		bool ismachine = false, 
-		int flareMode = 0, 
 		const std::vector<Ogre::String> *truckconfig = nullptr, 
 		Skin *skin = nullptr, 
 		bool freePosition = false,

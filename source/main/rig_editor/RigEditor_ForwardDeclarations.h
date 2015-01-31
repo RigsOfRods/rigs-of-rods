@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -32,7 +32,6 @@ namespace RoR
 
 	namespace RigEditor
 	{
-
 		class  Beam;
 		class  BeamTypeCommandHydro;
 		class  BeamTypeGenerated;
@@ -42,6 +41,7 @@ namespace RoR
 		class  CameraHandler;
 		class  CineCamera;
 		struct Config;
+		struct GuiPanelPositionData;
 		class  IMain;
 		class  InputHandler;
 		class  Main;
@@ -51,15 +51,31 @@ namespace RoR
 		class  Rig;
 		class  RigProperties;
 
+		// Rig aggregate data
+		struct MixedBeamsAggregateData;
+		struct RigAggregateNodesData;
+		struct RigAggregatePlainBeamsData;
+		struct RigAggregateShocksData;
+		struct RigAggregateShocks2Data;
+		struct RigAggregateCommands2Data;
+		struct RigAggregateHydrosData;
+		struct RigAggregateBeams2Data;
+
 	} // namespace RigEditor
 
 	namespace GUI
 	{
+		class  RigEditorBeamsPanel;
+		class  RigEditorCommands2Panel;
 		class  RigEditorDeleteMenu;
 		class  RigEditorHelpWindow;
+		class  RigEditorHydrosPanel;
 		class  RigEditorLandVehiclePropertiesWindow;
 		class  RigEditorMenubar;
+		class  RigEditorNodePanel;
 		class  RigEditorRigPropertiesWindow;
+		class  RigEditorShocksPanel;
+		class  RigEditorShocks2Panel;
 
 	} // namespace GUI
 

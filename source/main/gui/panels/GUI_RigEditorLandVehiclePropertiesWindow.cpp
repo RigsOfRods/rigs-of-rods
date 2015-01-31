@@ -40,6 +40,7 @@ using namespace RigDef;
 #define MAIN_WIDGET   m_land_vehicle_properties_window
 
 CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
+	GuiPanelBase(MAIN_WIDGET),
 	m_forward_gears_textbox_empty(true)
 {
 	m_rig_editor_interface = rig_editor_interface;
@@ -62,29 +63,6 @@ CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
 	m_radiobutton_engine_car->eventMouseButtonClick   += MyGUI::newDelegate(this, &CLASS::EngineTypeRadioClicked);
 
 	Hide();
-}
-
-void CLASS::Show()
-{
-	MAIN_WIDGET->setVisible(true);
-}
-
-void CLASS::Hide()
-{
-	MAIN_WIDGET->setVisible(false);
-}
-
-void CLASS::CenterToScreen()
-{
-	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
-	MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
-
-	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-}
-
-bool CLASS::IsVisible()
-{
-	return MAIN_WIDGET->isVisible();
 }
 
 void CLASS::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)

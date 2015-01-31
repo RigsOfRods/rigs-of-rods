@@ -98,7 +98,13 @@ ContentManager::~ContentManager()
 void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
 {
 	std::stringstream log_msg;
-	log_msg << "[RoR|ContentManager] Loading resource pack '" << resource_pack.name << "' from group '" << resource_pack.resource_group_name << "'";
+	if (BITMASK_64_IS_1(m_loaded_resource_packs, resource_pack.mask)) // Already loaded?
+	{
+		log_msg << "[RoR|ContentManager] Resource pack \"" << resource_pack.name << "\" already loaded.";
+		LOG(log_msg.str());
+		return;
+	}
+	log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
 	Ogre::String resources_dir = SSETTING("Resources Path", "resources" + PlatformUtils::DIRECTORY_SEPARATOR);
 	Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
 	if (PlatformUtils::FileExists(zip_path))

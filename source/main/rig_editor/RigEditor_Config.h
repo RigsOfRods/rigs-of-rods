@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -35,17 +35,38 @@ namespace RoR
 namespace RigEditor
 {
 
+struct GuiPanelPositionData
+{
+	bool anchor_right;
+	bool anchor_bottom;
+	int margin_left_px;
+	int margin_top_px;
+	int margin_right_px;
+	int margin_bottom_px;
+};
+
 struct Config
 {
 	Config(Ogre::String const & conf_file_path);
 
+	/* Scene */
 	Ogre::ColourValue   viewport_background_color;
 	Ogre::ColourValue   scene_ambient_light_color;
 
+	/* GUI */
+	Ogre::ColourValue   gui_nodebeam_panels_tooltip_text_color;
+	Ogre::ColourValue   gui_nodebeam_panels_field_mixvalues_color;
 	int                 gui_dialog_delete_placement_x_px;
 	int                 gui_dialog_delete_placement_y_px;
 	int                 gui_dialog_delete_cursor_fence_px;
 
+	GuiPanelPositionData   gui_nodes_panel_position;
+	GuiPanelPositionData   gui_beams_panel_position;
+	GuiPanelPositionData   gui_hydros_panel_position;
+	GuiPanelPositionData   gui_commands2_panel_position;
+	GuiPanelPositionData   gui_shocks_panel_position;
+	GuiPanelPositionData   gui_shocks2_panel_position;
+	
 	/* Rig manipulation */
 	int                 node_mouse_box_halfsize_px;
 
@@ -78,6 +99,7 @@ struct Config
 	float               camera_far_clip_distance;
 	float               camera_FOVy_degrees;
 	float               ortho_camera_zoom_ratio;
+
 };
 
 } // namespace RigEditor

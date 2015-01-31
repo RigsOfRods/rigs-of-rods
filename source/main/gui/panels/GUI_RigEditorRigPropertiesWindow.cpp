@@ -41,6 +41,7 @@ using namespace RigDef;
 #define MAIN_WIDGET  m_rig_properties_window
 
 CLASS::CLASS(RigEditor::IMain* rig_editor_interface):
+	GuiPanelBase(MAIN_WIDGET),
 	m_extcamera_mode(ExtCamera::MODE_CLASSIC)
 {
 	m_rig_editor_interface = rig_editor_interface;
@@ -82,29 +83,6 @@ void CLASS::SaveButtonClicked(MyGUI::Widget* sender)
 {
 	m_rig_editor_interface->CommandSaveContentOfRigPropertiesWindow();
 	Hide();
-}
-
-void CLASS::Show()
-{
-	MAIN_WIDGET->setVisible(true);
-}
-
-void CLASS::Hide()
-{
-	MAIN_WIDGET->setVisible(false);
-}
-
-void RigEditorRigPropertiesWindow::CenterToScreen()
-{
-	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
-	MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
-
-	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
-}
-
-bool CLASS::IsVisible()
-{
-	return MAIN_WIDGET->isVisible();
 }
 
 void CLASS::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)

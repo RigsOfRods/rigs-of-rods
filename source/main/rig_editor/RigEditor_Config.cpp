@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -25,27 +25,77 @@
 	@author Petr Ohlidal
 */
 
-#include "ConfigFile.h"
 #include "RigEditor_Config.h"
+
+#include "ConfigFile.h"
 
 using namespace RoR;
 using namespace RoR::RigEditor;
 
 Config::Config(Ogre::String const & conf_file_path)
 {
-	/* Load config */
+	// Init
+	memset(this, 0, sizeof(Config));
+
+	// Load config file
 	RoR::ConfigFile conf_file;
 	conf_file.load(conf_file_path);
 
-	/* Parse config */
+	// Parse config
 	viewport_background_color = conf_file.GetColourValue("viewport_background_color_rgb");
 	scene_ambient_light_color = conf_file.GetColourValue("scene_ambient_light_color_rgb");
 
 	node_mouse_box_halfsize_px   = conf_file.GetInt("node_mouse_box_halfsize_px");
 
+	gui_nodebeam_panels_tooltip_text_color     = conf_file.GetColourValue("gui_nodebeam_panels_tooltip_text_color");
+	gui_nodebeam_panels_field_mixvalues_color  = conf_file.GetColourValue("gui_nodebeam_panels_field_mixvalues_color");
+
 	gui_dialog_delete_placement_x_px     = conf_file.GetInt("gui_dialog_delete_placement_x_px");
 	gui_dialog_delete_placement_y_px     = conf_file.GetInt("gui_dialog_delete_placement_y_px");
 	gui_dialog_delete_cursor_fence_px    = conf_file.GetInt("gui_dialog_delete_cursor_fence_px");
+
+	// NODE/BEAM panels
+	gui_nodes_panel_position.anchor_right      = conf_file.GetBool("gui_nodes_panel_anchor_right");
+	gui_nodes_panel_position.anchor_bottom     = conf_file.GetBool("gui_nodes_panel_anchor_bottom");
+	gui_nodes_panel_position.margin_left_px    = conf_file.GetInt( "gui_nodes_panel_margin_left_px");
+	gui_nodes_panel_position.margin_right_px   = conf_file.GetInt( "gui_nodes_panel_margin_right_px");
+	gui_nodes_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_nodes_panel_margin_bottom_px");
+	gui_nodes_panel_position.margin_top_px     = conf_file.GetInt( "gui_nodes_panel_margin_top_px");
+
+	gui_beams_panel_position.anchor_right      = conf_file.GetBool("gui_beams_panel_anchor_right");
+	gui_beams_panel_position.anchor_bottom     = conf_file.GetBool("gui_beams_panel_anchor_bottom");
+	gui_beams_panel_position.margin_left_px    = conf_file.GetInt( "gui_beams_panel_margin_left_px");
+	gui_beams_panel_position.margin_right_px   = conf_file.GetInt( "gui_beams_panel_margin_right_px");
+	gui_beams_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_beams_panel_margin_bottom_px");
+	gui_beams_panel_position.margin_top_px     = conf_file.GetInt( "gui_beams_panel_margin_top_px");
+
+	gui_hydros_panel_position.anchor_right      = conf_file.GetBool("gui_hydros_panel_anchor_right");
+	gui_hydros_panel_position.anchor_bottom     = conf_file.GetBool("gui_hydros_panel_anchor_bottom");
+	gui_hydros_panel_position.margin_left_px    = conf_file.GetInt( "gui_hydros_panel_margin_left_px");
+	gui_hydros_panel_position.margin_right_px   = conf_file.GetInt( "gui_hydros_panel_margin_right_px");
+	gui_hydros_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_hydros_panel_margin_bottom_px");
+	gui_hydros_panel_position.margin_top_px     = conf_file.GetInt( "gui_hydros_panel_margin_top_px");
+
+	gui_commands2_panel_position.anchor_right      = conf_file.GetBool("gui_commands2_panel_anchor_right");
+	gui_commands2_panel_position.anchor_bottom     = conf_file.GetBool("gui_commands2_panel_anchor_bottom");
+	gui_commands2_panel_position.margin_left_px    = conf_file.GetInt( "gui_commands2_panel_margin_left_px");
+	gui_commands2_panel_position.margin_right_px   = conf_file.GetInt( "gui_commands2_panel_margin_right_px");
+	gui_commands2_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_commands2_panel_margin_bottom_px");
+	gui_commands2_panel_position.margin_top_px     = conf_file.GetInt( "gui_commands2_panel_margin_top_px");
+	
+	gui_shocks_panel_position.anchor_right      = conf_file.GetBool("gui_shocks_panel_anchor_right");
+	gui_shocks_panel_position.anchor_bottom     = conf_file.GetBool("gui_shocks_panel_anchor_bottom");
+	gui_shocks_panel_position.margin_left_px    = conf_file.GetInt( "gui_shocks_panel_margin_left_px");
+	gui_shocks_panel_position.margin_right_px   = conf_file.GetInt( "gui_shocks_panel_margin_right_px");
+	gui_shocks_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_shocks_panel_margin_bottom_px");
+	gui_shocks_panel_position.margin_top_px     = conf_file.GetInt( "gui_shocks_panel_margin_top_px");
+
+	gui_shocks2_panel_position.anchor_right      = conf_file.GetBool("gui_shocks2_panel_anchor_right");
+	gui_shocks2_panel_position.anchor_bottom     = conf_file.GetBool("gui_shocks2_panel_anchor_bottom");
+	gui_shocks2_panel_position.margin_left_px    = conf_file.GetInt( "gui_shocks2_panel_margin_left_px");
+	gui_shocks2_panel_position.margin_right_px   = conf_file.GetInt( "gui_shocks2_panel_margin_right_px");
+	gui_shocks2_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_shocks2_panel_margin_bottom_px");
+	gui_shocks2_panel_position.margin_top_px     = conf_file.GetInt( "gui_shocks2_panel_margin_top_px");
 
 	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
@@ -73,4 +123,5 @@ Config::Config(Ogre::String const & conf_file_path)
 	camera_far_clip_distance  = conf_file.GetFloat("camera_far_clip_distance");
 	camera_FOVy_degrees       = conf_file.GetFloat("camera_FOVy_degrees");
 	ortho_camera_zoom_ratio   = conf_file.GetFloat("ortho_camera_zoom_ratio");
+
 }

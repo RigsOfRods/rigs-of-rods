@@ -82,6 +82,18 @@ public:
 
 	Ogre::Vector3 const & GetDefinitionPosition();
 
+	inline int      GetDefinitionDetacherGroup() const                { return m_definition.detacher_group; }
+
+	inline void     SetDefinitionDetacherGroup(int detacher_group_id) { m_definition.detacher_group = detacher_group_id; }
+
+	inline float    GetDefinitionLoadWeight() const                   { return m_definition.load_weight_override; }
+
+	inline void     SetDefinitionLoadWeight(float load_weight)        { m_definition.load_weight_override = load_weight; }
+
+	inline unsigned GetDefinitionFlags() const                        { return m_definition.options; }
+
+	inline void     SetDefinitionFlags(unsigned int flags)            { m_definition.options = flags; }
+
 protected:
 
 	bool UnlinkBeam(Beam* beam);

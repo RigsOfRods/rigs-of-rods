@@ -21,8 +21,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __FlexAirfoil_H__
 
 #include "RoRPrerequisites.h"
+#include "BeamData.h" // For MAX_AEROENGINES
 
-#include "BeamData.h"
 #include "Ogre.h"
 
 class FlexAirfoil : public ZeroedMemoryAllocator

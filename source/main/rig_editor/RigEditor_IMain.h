@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -26,6 +26,8 @@
 */
 
 #pragma once
+
+#include "RigEditor_ForwardDeclarations.h"
 
 namespace RoR
 {
@@ -61,6 +63,15 @@ public:
 	virtual void CommandSaveContentOfLandVehiclePropertiesWindow() = 0;
 
 	virtual void CommandShowHelpWindow() = 0;
+
+	// Rig updaters
+	virtual void CommandRigSelectedNodesUpdateAttributes     (const RigAggregateNodesData*      data) = 0;
+	virtual void CommandRigSelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData* data) = 0;
+	virtual void CommandRigSelectedShocksUpdateAttributes    (const RigAggregateShocksData*     data) = 0;
+	virtual void CommandRigSelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data*    data) = 0;
+	virtual void CommandRigSelectedHydrosUpdateAttributes    (const RigAggregateHydrosData*     data) = 0;
+	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data) = 0;
+	
 };
 
 } // namespace RigEditor

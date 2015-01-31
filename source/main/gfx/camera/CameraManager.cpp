@@ -23,7 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "DepthOfFieldEffect.h"
 #include "InputEngine.h"
-#include "RoRFrameListener.h"
 #include "Settings.h"
 
 #include "CameraBehaviorOrbit.h"

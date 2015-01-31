@@ -195,7 +195,7 @@ typedef struct stream_unregister_t
 /**
  * RoRNet; general user information structure
  */
-typedef struct user_info_t
+struct user_info_t
 {
 	unsigned int uniqueid;     //!< user unique id
 	char username[MAX_USERNAME_LEN];      //!< the nickname of the user WIDE CHAR!
@@ -211,7 +211,13 @@ typedef struct user_info_t
 	int authstatus;            //!< auth status set by server: AUTH_*
 	int slotnum;               //!< slot number set by server
 	int colournum;             //!< colour set by server
-} user_info_t;
+};
+
+struct client_t
+{
+	user_info_t   user;                 //!< user struct
+	bool          used;                 //!< if this slot is used already
+};
 
 
 /**

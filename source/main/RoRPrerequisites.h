@@ -46,6 +46,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
 #include "../common/BitFlags.h"
 
+#include <MyGUI_Prerequest.h> // Forward declarations
+
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
 #ifndef AS_USE_NAMESPACE

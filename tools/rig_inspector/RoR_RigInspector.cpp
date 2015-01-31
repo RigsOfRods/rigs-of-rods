@@ -48,7 +48,7 @@ Neither the code nor the output is meant to be elegant. The output is not meant
 
 #define ECHO_BEAM(B) "{" << ECHO_PTR(B) <<", n1:" << ECHO_NODE(B->p1) <<", n2:" << ECHO_NODE(B->p2) << "}"
 
-const int LOG_ARRAY_BREAK_LIMIT = 100;
+const int LOG_ARRAY_BREAK_LIMIT = 25;
 
 #define LOG_ARRAY(VARNAME, ARRAY, SIZE) \
 { \
@@ -1686,7 +1686,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 			<<" locator.coords="<<ECHO_V3(locator.coords)
 			;
 
-		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		if (i > 0 && (i % 5) == 0)
 		{
 			f << "\n\t [MORE]";
 		}

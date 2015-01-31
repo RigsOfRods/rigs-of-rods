@@ -29,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIMenu.h"
 #include "GUIMp.h"
 #include "Language.h"
-#include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -79,7 +78,7 @@ void *s_receivethreadstart(void* vid)
 Timer Network::timer = Ogre::Timer();
 unsigned int Network::myuid=0;
 
-Network::Network(String servername, long sport, RoRFrameListener *efl) :
+Network::Network(String servername, long server_port) :
 	  lagDataClients()
 	, initiated(false)
 	, net_quality(0)
@@ -94,9 +93,8 @@ Network::Network(String servername, long sport, RoRFrameListener *efl) :
 	memset(&userdata, 0, sizeof(user_info_t));
 	shutdown=false;
 
-	mySname = servername;
-	mySport = sport;
-	mefl = efl;
+	m_server_name = servername;
+	m_server_port = server_port;
 	myauthlevel = AUTH_NONE;
 	net_instance=this;
 	nickname = "";
@@ -157,7 +155,7 @@ bool Network::connect()
 
 	//manage the server socket
 	socket.set_timeout(10, 10000); // 10 seconds timeout set as default
-	socket.connect(mySport, mySname, &error);
+	socket.connect(m_server_port, m_server_name, &error);
 	if (error!=SWBaseSocket::ok)
 	{
 		//this is an error!
@@ -614,8 +612,12 @@ void Network::receivethreadstart()
 			NetworkStreamManager::getSingleton().removeUser(header.source);
 
 #ifdef USE_MYGUI
-			// we can trigger this in the network thread as the function is thread safe.
-			GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			if (GUI_MainMenu::getSingletonPtr() != nullptr) // Does menubar exist yet?
+				// Executed in main menu, but menubar isn't created until simulation starts.
+			{
+				// we can trigger this in the network thread as the function is thread safe.
+				GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			}
 #endif // USE_MYGUI
 			continue;
 		}
@@ -666,8 +668,12 @@ void Network::receivethreadstart()
 				}
 			}
 #ifdef USE_MYGUI
-			// we can trigger this in the network thread as the function is thread safe.
-			GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			if (GUI_MainMenu::getSingletonPtr() != nullptr) // Does menubar exist yet? 
+				// This code is executed in selector already, but Menubar isn't created until simulation launches.
+			{
+				// we can trigger this in the network thread as the function is thread safe.
+				GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+			}
 #endif // USE_MYGUI
 
 			continue;

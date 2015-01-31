@@ -28,6 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
+#include "rornet.h" // For RORNET_VERSION
 #include "RoRVersion.h"
 
 #include "MenuWindow.h"

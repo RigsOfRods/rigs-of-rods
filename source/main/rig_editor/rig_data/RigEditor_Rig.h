@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -45,7 +45,6 @@ namespace RigEditor
 
 class Rig
 {
-
 public:
 
 	Rig(Config* config);
@@ -127,6 +126,23 @@ public:
 
 	boost::shared_ptr<RigDef::File> Export();
 
+	void QuerySelectedNodesData(RigAggregateNodesData* result);
+
+	void QuerySelectedBeamsData(RigAggregateBeams2Data* result);
+
+	void UpdateSelectedBeamsList();
+
+	inline unsigned int GetNumSelectedBeams() const { return m_selected_beams.size(); }
+	
+	// Node/beam updaters
+	void SelectedNodesUpdateAttributes     (const RigAggregateNodesData      *data);
+	void SelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData *data);
+	void SelectedMixedBeamsUpdateAttributes(const MixedBeamsAggregateData          *data);
+	void SelectedShocksUpdateAttributes    (const RigAggregateShocksData     *data);
+	void SelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data    *data);
+	void SelectedHydrosUpdateAttributes    (const RigAggregateHydrosData     *data);
+	void SelectedCommands2UpdateAttributes (const RigAggregateCommands2Data  *data);
+
 	/** Rig building utility function
 	*/
 	Node* FindNode(
@@ -164,6 +180,7 @@ private:
 
 	/* STATE */
 	Node*                m_mouse_hovered_node;
+	std::list<Beam*>     m_selected_beams;
 
 	/* VISUALS */
 	std::unique_ptr<Ogre::ManualObject>  m_beams_dynamic_mesh;

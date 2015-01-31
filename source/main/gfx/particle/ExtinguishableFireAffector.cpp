@@ -25,7 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "OgreStringConverter.h"
 #include "OgreSceneNode.h"
 #include "RoRPrerequisites.h"
-#include "RoRFrameListener.h"
 #include "ScriptEngine.h"
 
 
