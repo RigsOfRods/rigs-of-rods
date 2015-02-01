@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="205 335 610 351" align="Center" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCX" position="205 335 610 360" align="Center" layer="Main" name="_Main">
         <Property key="Visible" value="true"/>
         <Property key="Enabled" value="true"/>
         <Property key="Caption" value="About"/>
-        <Widget type="TabControl" skin="TabControl" position="0 0 600 280">
-            <Widget type="TabItem" skin="" position="2 24 594 252">
+        <Widget type="TabControl" skin="TabControl" position="0 0 600 285">
+            <Widget type="TabItem" skin="" position="2 24 594 257">
                 <Property key="Caption" value="The Game"/>
                 <Widget type="EditBox" skin="WordWrapEmpty" position="10 10 165 20">
                     <Property key="Caption" value="About Rigs of Rods:"/>
@@ -31,16 +31,16 @@
                     <Property key="Caption" value="Unknown"/>
                 </Widget>
             </Widget>
-            <Widget type="TabItem" skin="" position="2 24 594 252">
+            <Widget type="TabItem" skin="" position="2 24 594 257">
                 <Property key="Caption" value="Credits"/>
-                <Widget type="EditBox" skin="EditBoxStretch" position="5 0 585 250" name="authors">
+                <Widget type="EditBox" skin="EditBoxStretch" position="5 5 585 250" name="authors">
                     <Property key="VisibleVScroll" value="true"/>
                     <Property key="VisibleHScroll" value="false"/>
                     <Property key="ReadOnly" value="true"/>
                 </Widget>
             </Widget>
         </Widget>
-        <Widget type="Button" skin="Button" position="495 280 105 35" name="backbtn">
+        <Widget type="Button" skin="Button" position="495 285 105 35" name="backbtn">
             <Property key="Caption" value="Back"/>
         </Widget>
     </Widget>

@@ -81,6 +81,7 @@ CLASS::CLASS()
 CLASS::~CLASS()
 {
 	HideMain();
+	//delete(MAIN_WIDGET);
 }
 
 void CLASS::ShowMain()
@@ -108,6 +109,8 @@ void CLASS::ToggleTruckInfoBox()
 
 void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 {
+	if (!MAIN_WIDGET->getVisible()) return;
+
 	m_not_title->setCaption(Title);
 	m_not_text->setCaption(text);
 	m_notification->setVisible(true);
@@ -116,6 +119,8 @@ void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 
 void CLASS::framestep(float dt)
 {
+	if (!MAIN_WIDGET->getVisible()) return;
+
 	unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 	if (m_notification->getVisible())
 	{
@@ -139,6 +144,8 @@ void CLASS::framestep(float dt)
 
 void CLASS::UpdateStats(float dt, Beam *truck)
 {
+	if (!MAIN_WIDGET->getVisible()) return;
+
 	if (GetMainVisibiltyState()) //Update when it's visible
 	{
 		if (b_fpsbox)
