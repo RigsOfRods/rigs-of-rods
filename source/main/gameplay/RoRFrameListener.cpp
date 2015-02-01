@@ -201,6 +201,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (!RoR::Application::GetInputEngine()->getInputsChanged()) return true;
 
 	bool dirty = false;
+
 	//update joystick readings
 	//	joy->UpdateInputState();
 
@@ -221,6 +222,15 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->update(dt);
 
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
+
+
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
+	{
+		//shutdown_final();
+		Application::GetGuiManager()->TogglePauseMenu();
+	}
+
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
 
 #ifdef USE_MYGUI
 	if (GUI_Friction::getSingletonPtr() && GUI_Friction::getSingleton().getVisible() && curr_truck)
@@ -245,12 +255,6 @@ bool RoRFrameListener::updateEvents(float dt)
 	} else if (loading_state==ALL_LOADED && !gEnv->network)
 	{
 		gEnv->player->update(dt);
-	}
-
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
-	{
-		//shutdown_final();
-		Application::GetGuiManager()->TogglePauseMenu();
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.5f))
