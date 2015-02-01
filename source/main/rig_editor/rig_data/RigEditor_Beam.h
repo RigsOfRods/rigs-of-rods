@@ -63,7 +63,7 @@ public:
 	inline Ogre::ColourValue const &  GetColor() const { return m_color; }
 	inline Beam::Type                 GetType() const  { return m_type; }
 
-	inline void Beam::SetColor(Ogre::ColourValue const & color) { m_color = color; }
+	inline void SetColor(Ogre::ColourValue const & color) { m_color = color; }
 
 	void DeleteDefinition();
 

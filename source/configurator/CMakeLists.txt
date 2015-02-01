@@ -82,6 +82,7 @@ link_directories   (${Ogre_LIBRARY_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
 link_directories   (${Ois_LIBRARY_DIRS})
 include_directories(${RoR_SOURCE_DIR}/source/protocol)
+include_directories(${MYGUI_INCLUDE_DIRS})
 
 add_definitions("-DNOOGRE -D_UNICODE")
 include_directories(../main/)
