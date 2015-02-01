@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCS" position="435 240 200 295" align="Center" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCS" position="435 240 200 290" align="Center" layer="Main" name="_Main">
         <Property key="Caption" value="Main Menu"/>
         <Property key="Show" value="true"/>
         <Property key="Enabled" value="true"/>

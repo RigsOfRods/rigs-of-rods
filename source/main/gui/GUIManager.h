@@ -92,6 +92,7 @@ public:
 	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
 
 	void initSimUtils();
+	void killSimUtils();
 
 	void TogglePauseMenu();
 

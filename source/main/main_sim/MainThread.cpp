@@ -449,6 +449,7 @@ void MainThread::Go()
 			}
 			else if (previous_application_state == Application::STATE_SIMULATION)
 			{
+				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_load = true;
 				/* Restore wallpaper */

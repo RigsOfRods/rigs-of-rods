@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="192 319 640 385" align="Center" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCX" position="190 320 640 395" align="Center" layer="Main" name="_Main">
         <Property key="Caption" value="Settings"/>
         <Property key="Enabled" value="true"/>
         <Widget type="TabControl" skin="TabControl" position="0 0 630 315" name="tabCtrl">
@@ -262,7 +262,7 @@
                 </Widget>
             </Widget>
         </Widget>
-        <Widget type="Button" skin="Button" position="525 315 105 35" align="Right Bottom" name="savebtn">
+        <Widget type="Button" skin="Button" position="525 320 105 35" align="Default" name="savebtn">
             <Property key="Caption" value="Save"/>
         </Widget>
     </Widget>

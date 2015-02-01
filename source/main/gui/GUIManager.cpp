@@ -147,6 +147,16 @@ void GUIManager::initSimUtils()
 		m_gui_SimUtils = std::unique_ptr<GUI::SimUtils>(new GUI::SimUtils());
 }
 
+void GUIManager::killSimUtils()
+{
+	if (m_gui_SimUtils.get() != nullptr)
+	{
+		//delete(m_gui_SimUtils.get());
+		m_gui_SimUtils->~SimUtils();
+		m_gui_SimUtils = nullptr;
+	}	
+}
+
 bool GUIManager::frameStarted(const FrameEvent& evt)
 {
 	if (mExit) return false;
