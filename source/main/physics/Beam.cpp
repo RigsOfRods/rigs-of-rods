@@ -971,17 +971,6 @@ void Beam::calcNodeConnectivityGraph()
 	BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
 }
 
-void Beam::updateContacterNodes()
-{
-	for (int i=0; i<free_collcab; i++)
-	{
-		int tmpv = collcabs[i] * 3;
-		nodes[cabs[tmpv]].contacter = true;
-		nodes[cabs[tmpv+1]].contacter = true;
-		nodes[cabs[tmpv+2]].contacter = true;
-	}
-}
-
 int Beam::savePosition(int indexPosition)
 {
 	if (!posStorage) return -1;
@@ -6452,9 +6441,6 @@ bool Beam::LoadTruck(
 
 	//compute node connectivity graph
 	calcNodeConnectivityGraph();
-
-	//update contacter nodes
-	updateContacterNodes();
 
 	RigSpawner::RecalculateBoundingBoxes(this);
 
