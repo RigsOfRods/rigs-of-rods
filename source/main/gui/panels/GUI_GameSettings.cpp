@@ -1055,7 +1055,7 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 			//cout << pent->d_name;
 			Ogre::String file_delete = pent->d_name;
 			file_delete = GameSettingsMap["Cache Path"].c_str() + file_delete;
-			DeleteFile(file_delete.c_str());
+			std::remove(file_delete.c_str()); // Should work on linux and windows
 		}
 		catch (...)
 		{
