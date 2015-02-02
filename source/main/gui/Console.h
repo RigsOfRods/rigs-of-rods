@@ -34,7 +34,7 @@
 #include "InterThreadStoreVector.h"
 
 #include "mygui/BaseLayout.h"
-#include "panels\GUI_GameConsoleLayout.h"
+#include "GUI_GameConsoleLayout.h"
 
 namespace RoR
 {

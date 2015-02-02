@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="210 290 605 190" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCX" position="210 290 605 190" layer="Modal" name="_Main">
         <Property key="Caption" value="TITLE"/>
         <Widget type="EditBox" skin="WordWrapEmpty" position="10 15 575 90" name="text"/>
         <Widget type="Button" skin="Button" position="490 110 100 40" name="button1">
