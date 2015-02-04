@@ -87,12 +87,12 @@ CLASS::~CLASS()
 void CLASS::ShowMain()
 {
 	//Kinda of initialization
-	MAIN_WIDGET->setVisibleSmooth(true);
+	MAIN_WIDGET->setVisible(true);
 }
 
 void CLASS::HideMain()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
 }
 
 void CLASS::ToggleFPSBox()
