@@ -39,6 +39,7 @@
 #include "MainThread.h"
 #include "Console.h"
 #include "Character.h"
+#include "CameraManager.h"
 
 #include <MyGUI.h>
 
@@ -81,6 +82,8 @@ void CLASS::Show()
 	MAIN_WIDGET->setVisibleSmooth(true);
 	gEnv->player->setPhysicsEnabled(false);
 	gEnv->frameListener->setSimPaused(true);
+	sCameraMode = gEnv->cameraManager->getCurrentBehavior();
+	gEnv->cameraManager->switchBehavior(1);
 }
 
 void CLASS::Hide()
@@ -88,6 +91,7 @@ void CLASS::Hide()
 	MAIN_WIDGET->setVisibleSmooth(false);
 	gEnv->player->setPhysicsEnabled(true);
 	gEnv->frameListener->setSimPaused(false);
+	gEnv->cameraManager->switchBehavior(sCameraMode);
 }
 
 void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)

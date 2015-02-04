@@ -58,6 +58,7 @@ private:
 	void eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender);
 	void eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender);
 
+	int sCameraMode; //Saved on show
 };
 
 } // namespace GUI

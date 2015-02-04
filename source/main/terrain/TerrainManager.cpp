@@ -328,7 +328,7 @@ void TerrainManager::initCamera()
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
 	else
-		gEnv->mainCamera->setFarClipDistance(5000);
+		gEnv->mainCamera->setFarClipDistance(0);
 }
 
 void TerrainManager::initSkySubSystem()
