@@ -187,7 +187,7 @@ void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _re
 String GUIManager::getRandomWallpaperImage()
 {
 	
-	FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
+	FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("wallpapers", "*.jpg");
 	if (files.isNull() || files->empty())
 	{
 		return "";
@@ -197,7 +197,9 @@ String GUIManager::getRandomWallpaperImage()
 	int num = 0;
 	for (int i = 0; i<Math::RangeRandom(0, 10); i++)
 		num = Math::RangeRandom(0, files->size());
-
+	
+	printf("attempting to load wall paper: {%s}{%s}{%s}{%s}\n\n", files->at(num).archive->getName().c_str(), files->at(num).filename.c_str(), files->at(num).path.c_str(), files->at(num).basename.c_str());
+	//return files->at(num).archive->getName() + "/" + files->at(num).filename;
 	return files->at(num).filename;
 }
 

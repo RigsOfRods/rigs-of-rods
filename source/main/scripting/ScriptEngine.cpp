@@ -148,7 +148,7 @@ void ScriptEngine::exploreScripts()
 	// this shouldn't be used at the moment
 #if 0
 #if USE_ANGELSCRIPT
-	FileInfoListPtr files= ResourceGroupManager::getSingleton().findResourceFileInfo("Scripts", "*.rs", false);
+	FileInfoListPtr files= ResourceGroupManager::getSingleton().findResourceFileInfo("scripts", "*.rs", false);
 	for (FileInfoList::iterator iterFiles = files->begin(); iterFiles!= files->end(); ++iterFiles)
 	{
 		loadScript(iterFiles->filename);

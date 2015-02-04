@@ -1,22 +1,3 @@
-/*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
-
-For more information, see http://www.rigsofrods.com/
-
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
-
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
-*/
 /**
  @file SlideNode.h
  @author Christopher Ritchey
@@ -110,7 +91,6 @@ static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
 #define ATTACH_ALL ( ATTACH_SELF | ATTACH_FOREIGN )
 
 #define MASK_ATTACH_RULES ATTACH_ALL
-#define MASK_SLIDE_BROKEN (1 << 3)
 
 /**
  *
@@ -133,6 +113,8 @@ public:
 	Rail( beam_t* newBeam );
 	Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
 	Rail( Rail& other );
+	
+	int Id() const { return curBeam->p1->id << 16 | ( curBeam->p2->id & 0x00FF); }
 };
 
 /**
@@ -162,7 +144,7 @@ public:
 	unsigned int getID() const { return mId; }
 	
 	/** clears up all the allocated memory this is intentionally not made into a
-	 * destructor to avoid issues like copying Rails when storing in a container
+	 *  destructor to avoid issues like copying Rails when storing in a container
 	 *  it is assumed that if next is not null then next->prev is not null either
 	 */
 	void cleanUp()
@@ -194,9 +176,9 @@ class RailBuilder : public ZeroedMemoryAllocator
 public:
 	/* no public members */
 private:
-	Rail*    mStart;    //! Start of the Rail series
-	Rail*    mFront;    //! Front of the Rail, not necessarily the start
-	Rail*     mBack;    //! Last rail in the series
+	Rail*     mStart;    //! Start of the Rail series
+	Rail*     mFront;    //! Front of the Rail, not necessarily the start
+	Rail*      mBack;    //! Last rail in the series
 	bool      mLoop;    //! Check if rail is to be looped
 	bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
 	
@@ -236,37 +218,38 @@ private:
 };
 
 /**
- *
+ * TODO refactor slide nodes to make use of integrate and update components
+ * some parts needs to be removed that pertain to calculating the forces like a
+ * spring.
+ * 
+ * This class will also need to be added to two lists, one to keep track of 
+ * SlideNode instances, and another to handle integration
+ *---
+ *  what needs to be done is move all of the force calculations to an
+ *  IntegrateComponent, and convert SlideNode to an UpdateComponent. 
  */
-class SlideNode : public ZeroedMemoryAllocator
+class SlideNode
+: public Framework::Components::UpdateComponent<Units::Second>
+, public ZeroedMemoryAllocator
 {
 
 // Members /////////////////////////////////////////////////////////////////////
 public:
 	/* no public  members */
 private:
-    node_t*     mSlidingNode; //!< pointer to node that is sliding
-    beam_t*     mSlidingBeam; //!< pointer to current beam sliding on
-    RailGroup* mOrgRailGroup; //!< initial Rail group on spawn
-    RailGroup* mCurRailGroup; //!< current Rail group, used for attachments
-    Rail*       mSlidingRail; //!< current rail we are sliding on
+    NodeComponent _slidingNode; //!< node that is sliding
+    BeamComponent _slidingBeam; //!< current beam sliding on
+    
+    LinearSIThresholdCoupler _coupler; //! beam used to calculate corrective forces
+    
+    RailGroup*   mOrgRailGroup; //!< initial Rail group on spawn
+    RailGroup*   mCurRailGroup; //!< current Rail group, used for attachments
+    Rail*         mSlidingRail; //!< current rail we are sliding on
 
-    //! ratio of length along the slide beam where the virtual node is
-    //! 0.0f = p1, 1.0f = p2
-    Ogre::Real mRatio;
-
-    Ogre::Vector3 mIdealPosition; //!< Where the node SHOULD be. (m)
-
-    Ogre::Real mInitThreshold; //!< distance from beam calculating corrective forces (m)
-    Ogre::Real  mCurThreshold; //!< currenth threshold, used for attaching a beam (m)
-    Ogre::Real    mSpringRate; //!< Spring rate holding node to rail (N/m)
-    Ogre::Real    mBreakForce; //!< Force at which Slide Node breaks from rail (N)
-
-    Ogre::Real    mAttachRate; //!< how fast the cur threshold changes (m/s)
     Ogre::Real    mAttachDist; //!< maximum distance slide node will attach to a beam (m)
 
-        unsigned int mBoolSettings; //!< bit Array for storing beam settings
-
+    unsigned int mBoolSettings; //!< bit Array for storing beam settings
+	
 // Methods /////////////////////////////////////////////////////////////////////
 public:
         /**
@@ -280,10 +263,14 @@ public:
     virtual ~SlideNode();
 
     /**
+     *  I want to get rid of this off, load to the update components.
+     *  I want slide node to only be aware of where the node should be, and only 
+     *  update where the node should be. The rest should be offloaded to components
+     *   
      * Updates the corrective forces and applies these forces to the beam
      * @param dt size of the current time
      */
-    void UpdateForces(float dt);
+    virtual void updateForce(float dt);
 
     /**
      * updates the positional information, such as where the ideal location
@@ -292,15 +279,11 @@ public:
      */
     void UpdatePosition();
 
+    // TODO handled by IntegrateComponent
     /**
      * @return The current position of the SlideNode
      */
     const Ogre::Vector3& getNodePosition() const;
-
-    /**
-     * @return The position where the SlideNode should be location on the slide beam
-     */
-    const Ogre::Vector3& getIdealPosition() const;
 
     /**
      * @return Id of the SlideNode
@@ -323,7 +306,7 @@ public:
     void reset()
     {
     	mCurRailGroup = mOrgRailGroup;
-    	resetFlag( MASK_SLIDE_BROKEN );
+    	_coupler.setBroken(false);
     	ResetPositions();
     }
 
@@ -333,7 +316,7 @@ public:
     void ResetPositions();
 
     /**
-     * @param toAttach Which Rail this SLideNode starts sliding on when reset
+     * @param toAttach Which rail this slideNode starts sliding on when reset
      * or spawning
      */
     void setDefaultRail(RailGroup* toAttach)
@@ -350,30 +333,37 @@ public:
     {
 		mCurRailGroup = toAttach;
 		ResetPositions();
-		mCurThreshold = (mSlidingBeam ? getLenTo(mSlidingBeam) : mInitThreshold);
+		_coupler.setCurThreshold(_slidingBeam.isBroken() ? getLenTo(_slidingBeam) : _coupler.getInitThreshold());
     }
 
 
 
     //! distance from a beam before corrective forces take effect
-	void setThreshold( Ogre::Real threshold ) { mInitThreshold = mCurThreshold = fabs( threshold ); }
+	void setThreshold( Ogre::Real threshold ) { 
+		_coupler.setInitThreshold(threshold);
+		_coupler.setCurThreshold( threshold );
+	}
 	//! spring force used to calculate corrective forces
-	void setSpringRate( Ogre::Real rate ){ mSpringRate = fabs( rate); }
+	void setSpringRate( Ogre::Real rate ){ _coupler.setSpringRate( rate ); }
+	//! Damping rate used to calculate corrective forces
+	void setDampingRate( Ogre::Real rate ){ _coupler.setDampingRate( rate ); }
 	//! Force required to break the Node from the Rail
-	void setBreakForce( Ogre::Real breakRate ) { mBreakForce = fabs( breakRate); }
+	void setBreakForce( Ogre::Real breakRate ) { _coupler.setBreakForce( breakRate ); }
 	//! how long it will take for springs to fully attach to the Rail
-	void setAttachmentRate( Ogre::Real rate ) { mAttachRate = fabs( rate); }
+	void setAttachmentRate( Ogre::Real rate ) { _coupler.setAttachRate( rate ); }
 	//! maximum distance this spring node is allowed to reach out for a Rail
-	void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist); }
+	void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist ); }
 	
 	//! Distance away from beam before corrective forces begin to act on the node
-	Ogre::Real getThreshold () const { return mCurThreshold; }
+	Ogre::Real getThreshold () const { return _coupler.getCurThreshold(); }
 	//! spring force used to calculate corrective forces
-	Ogre::Real getSpringRate() const { return mSpringRate; }
-	//! Force required to break the Node from the Rail
-	Ogre::Real getBreakForce() const { return mBreakForce; }
+	Ogre::Real getSpringRate() const { return _coupler.getSpringRate(); }
+	//! Damping rate used to calculate corrective forces
+	Ogre::Real getDampingRate() const { return _coupler.getDampingRate(); }
+	//! Force required to break the No_slidingBeamde from the Rail
+	Ogre::Real getBreakForce() const { return _coupler.getBreakForce(); }
 	//! how long it will take for springs to fully attach to the Rail
-	Ogre::Real getAttachmentRate() const { return mAttachRate; }
+	Ogre::Real getAttachmentRate() const { return _coupler.getAttachRate(); }
 	//! maximum distance this spring node is allowed to reach out for a Rail
 	Ogre::Real getAttachmentDistance() const { return mAttachDist; }
 
@@ -412,6 +402,13 @@ public:
      */
     static Ogre::Real getLenTo( const beam_t* beam, const Ogre::Vector3& point );
 
+	/**
+	 * @param beam
+	 * @param point
+	 * @return value is always positive, if beam is null return infinity
+	 */
+	static Ogre::Real getLenTo( const BeamComponent& beam, const Ogre::Vector3& point );
+
 
     /**
      * @param group
@@ -431,6 +428,13 @@ public:
      * @return value is always positive, if beam is null return infinity
      */
     Ogre::Real getLenTo( const beam_t* beam) const;
+
+	/**
+	 *
+	 * @param beam
+	 * @return value is always positive, if beam is null return infinity
+	 */
+	Ogre::Real getLenTo( const BeamComponent& beam) const;
 
     /**
      * Finds the closest rail to the point, non-incremental version.
@@ -473,12 +477,6 @@ public:
     static Rail* getClosestRail(const Rail* rail, const Ogre::Vector3& point );
 
 private:
-    /**
-     * returns the forces used to keep the slide node in alignment with the
-     * slide beam.
-     * @return forces between the ideal position and the slide node
-     */
-    Ogre::Vector3 getCorrectiveForces();
 
     /**
      *  sets a specific bit or bits to 1

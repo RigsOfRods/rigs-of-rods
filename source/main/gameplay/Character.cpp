@@ -35,7 +35,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Water.h"
 
 using namespace Ogre;
-
+typedef Ogre::Radian Radian; 
 
 unsigned int Character::characterCounter = 0;
 

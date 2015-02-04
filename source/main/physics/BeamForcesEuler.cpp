@@ -506,6 +506,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		if (aeroengines[i]) aeroengines[i]->updateForces(dt, doUpdate);
 
 	BES_STOP(BES_CORE_Turboprop);
+}
+
+void Beam::calcScrewProp(bool doUpdate)
+{
 	BES_START(BES_CORE_Screwprop);
 
 	//screwprop forces
@@ -513,6 +517,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		if (screwprops[i]) screwprops[i]->updateForces(doUpdate);
 
 	BES_STOP(BES_CORE_Screwprop);
+}
+
+void Beam::calcWing()
+{
 	BES_START(BES_CORE_Wing);
 
 	//wing forces
@@ -520,6 +528,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		if (wings[i].fa) wings[i].fa->updateForces();
 
 	BES_STOP(BES_CORE_Wing);
+}
+
+void Beam::calcFuseDrag()
+{
 	BES_START(BES_CORE_FuseDrag);
 
 	//compute fuse drag
@@ -552,6 +564,11 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	}
 
 	BES_STOP(BES_CORE_FuseDrag);
+	
+}
+
+void Beam::calcAirBrakes()
+{
 	BES_START(BES_CORE_Airbrakes);
 
 	//airbrakes
@@ -992,6 +1009,11 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	odometerUser  += distance_driven;
 
 	BES_STOP(BES_CORE_Wheels);
+}
+
+void Beam::calcShocks(bool doUpdate, Ogre::Real dt)
+{
+	
 	BES_START(BES_CORE_Shocks);
 
 	//update position
@@ -1049,8 +1071,16 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	}
 
 	BES_STOP(BES_CORE_Shocks);
+	
+}
+
+void Beam::calcHydros(bool doUpdate, Ogre::Real dt)
+{
 	BES_START(BES_CORE_Hydros);
 
+	// TODO wspeed is calculated in calcwheels, need to find a sane way
+	// to get the value to this function 
+	Real wspeed = 0.0;
 	//direction
 	if (hydrodirstate!=0 || hydrodircommand!=0)
 	{
@@ -1518,7 +1548,11 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		}
 	}
 
-	BES_STOP(BES_CORE_Commands);
+	BES_STOP(BES_CORE_Commands);	
+}
+
+void Beam::calcReplay(bool doUpdate, Ogre::Real dt)
+{
 	BES_START(BES_CORE_Replay);
 
 	// we also store a new replay frame

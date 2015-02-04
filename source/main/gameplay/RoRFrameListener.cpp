@@ -888,7 +888,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						e->setState(DESACTIVATED);
 						e->setVisibility(true);
 						e->setPosition(reload_pos);
-						e->setRotation(-Radian(local_truck->getHeadingDirectionAngle()));
+						e->setRotation(-Ogre::Radian(local_truck->getHeadingDirectionAngle()));
 					}
 				}
 
@@ -961,13 +961,13 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION) && loading_state == ALL_LOADED)
 	{
 		Vector3 position(Vector3::ZERO);
-		Radian rotation(0);
+		Ogre::Radian rotation(0);
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() == -1)
 		{
 			if (gEnv->player)
 			{
 				position = gEnv->player->getPosition();
-				rotation = gEnv->player->getRotation() + Radian(Math::PI);
+				rotation = gEnv->player->getRotation() + Ogre::Radian(Math::PI);
 			}
 		} else
 		{
@@ -1103,7 +1103,7 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 				e->setState(DESACTIVATED);
 				e->setVisibility(true);
 				e->setPosition(spawnpos.x, spawnpos.z);
-				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
+				e->setRotation(-Ogre::Radian(b->getHeadingDirectionAngle()));
 			}
 		}
 #endif //USE_MYGUI

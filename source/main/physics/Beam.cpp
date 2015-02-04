@@ -290,6 +290,13 @@ Beam::~Beam()
 		(*it)->cleanUp();
 		delete (*it);
 	}
+	
+	
+	// Delete SlideNodes
+	for (std::vector< SlideNode* >::iterator it = mSlideNodes.begin(); it != mSlideNodes.end(); it++)
+	{
+		delete (*it);
+	}
 
 	if (netMT)
 	{

@@ -1,22 +1,3 @@
-/*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
-
-For more information, see http://www.rigsofrods.com/
-
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
-
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
-*/
 /**
  @file SlideNode.cpp
  @author Christopher Ritchey
@@ -43,27 +24,32 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamData.h"
 
+#include "physics/framework/BeamComponents.h"
+#include "physics/framework/ThresholdCoupler.h"
+#include "physics/framework/UpdateComponents.h"
+#include "physics/framework/NodeComponent.h"
+
 // RAIL GROUP IMPLEMENTATION ///////////////////////////////////////////////////
 unsigned int RailGroup::nextId = 7000000;
 
 // RAIL IMPLEMENTATION /////////////////////////////////////////////////////////
-Rail::Rail() : prev(NULL), curBeam( NULL ), next(NULL) {}
-Rail::Rail( beam_t* newBeam ) : prev(NULL), curBeam( newBeam ), next(NULL) {}
+Rail::Rail() : prev(nullptr), curBeam( nullptr ), next(nullptr) {}
+Rail::Rail( beam_t* newBeam ) : prev(nullptr), curBeam( newBeam ), next(nullptr) {}
 Rail::Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext ) :
 	prev(newPrev), curBeam( newBeam ), next(newNext) {}
 
 Rail::Rail( Rail& o) : prev(o.prev), curBeam(o.curBeam), next(o.next)
 {
-	o.prev = NULL;
-	o.curBeam = NULL;
-	o.next = NULL;
+	o.prev = nullptr;
+	o.curBeam = nullptr;
+	o.next = nullptr;
 }
 
 // RAIL BUILDER IMPLEMENTATION /////////////////////////////////////////////////
 
 // pass a rail value, this class does not manage memory
 RailBuilder::RailBuilder() :
-	mStart(NULL),
+	mStart(nullptr),
 	mFront(mStart),
 	mBack(mStart),
 	mLoop(false),
@@ -87,21 +73,21 @@ RailBuilder::~RailBuilder()
 	if ( !mRetreived && mStart )
 	{
 		Rail* cur = mStart;
-		if ( cur->prev ) cur->prev = cur->prev->next = NULL;
+		if ( cur->prev ) cur->prev = cur->prev->next = nullptr;
 		while( cur->next )
 		{
 			cur = cur->next;
 			delete cur->prev;
-			cur->prev = NULL;
+			cur->prev = nullptr;
 		}
 		
 		delete cur;
-		cur = NULL;
+		cur = nullptr;
 	}
 	
-	mStart = NULL;
-	mFront = NULL;
-	mBack = NULL;
+	mStart = nullptr;
+	mFront = nullptr;
+	mBack = nullptr;
 }
 	
 void RailBuilder::pushBack(beam_t* next)
@@ -118,7 +104,7 @@ void RailBuilder::pushBack(beam_t* next)
 	}
 	else
 	{
-		mBack->next = new Rail(next, mBack, NULL);
+		mBack->next = new Rail(next, mBack, nullptr);
 		mBack = mBack->next;
 	}
 	
@@ -137,24 +123,24 @@ void RailBuilder::pushFront(beam_t* prev)
 		mStart->curBeam = prev;
 	}
 	else
-	mFront->prev = new Rail(prev, NULL, mFront);
+	mFront->prev = new Rail(prev, nullptr, mFront);
 	mFront = mFront->prev;	
 }
 
 //! wrapper method
 void RailBuilder::loopRail(bool doLoop)
 {
-	(doLoop) ? loopRail() : unLoopRail();
+	mLoop = doLoop;
 }
 
 void RailBuilder::loopRail()
 {
-	mLoop = true;
+	loopRail(true);	
 }
 
 void RailBuilder::unLoopRail()
 {
-	mLoop = false;
+	loopRail(false);
 }
 
 Rail* RailBuilder::getCompletedRail()
@@ -170,64 +156,43 @@ Rail* RailBuilder::getCompletedRail()
 }
 
 // SLIDE NODES IMPLEMENTATION //////////////////////////////////////////////////
-SlideNode::SlideNode(node_t* slidingNode, RailGroup* slidingRail):
+SlideNode::SlideNode(node_t* slidingNode, RailGroup* slidingRail)
+: _slidingNode(slidingNode)
+, _slidingBeam( nullptr )
+, _coupler(_slidingNode, _slidingBeam)
 
-	mSlidingNode(slidingNode),
-	mSlidingBeam( NULL ),
-	mOrgRailGroup(slidingRail),
-	mCurRailGroup(mOrgRailGroup),
-	mSlidingRail( NULL ),
-	mRatio(0.0f),
+, mOrgRailGroup(slidingRail)
+, mCurRailGroup(mOrgRailGroup)
+, mSlidingRail( nullptr )
 
-	mInitThreshold( 0.0f ),
-	mCurThreshold( 0.0f ),
-	mSpringRate( 9000000 ),
-	mBreakForce( std::numeric_limits<Ogre::Real>::infinity() ), // beam won't break
-
-	mAttachRate( 1.0f ),
-	mAttachDist( 0.1f ),
-	mBoolSettings( ATTACH_NONE )
+, mAttachDist( 0.1f )
+, mBoolSettings( ATTACH_NONE )
 {
-	// make sure they exist
-	MYASSERT( mSlidingNode );
 }
 
 SlideNode::~SlideNode()
 {
-	 mSlidingNode = NULL;
-	mOrgRailGroup = NULL;
-	mCurRailGroup = NULL;
-	 mSlidingBeam = NULL;
-	 mSlidingRail = NULL;
+	mOrgRailGroup = nullptr;
+	mCurRailGroup = nullptr;
+	 mSlidingRail = nullptr;
 }
 
-void SlideNode::UpdateForces(float dt)
+void SlideNode::updateForce(float dt)
 {
+	UpdatePosition();
+	
 	// only do calcs if we have a beam to slide on
-	if ( !mSlidingBeam || mSlidingBeam->broken || getFlag( MASK_SLIDE_BROKEN ) )
+	if ( _slidingBeam.isBroken() || _coupler.isBroken() )
 	{
 		return;
 	}
-	
-	// the threshold changes when attaching a node to a beam, if it's more than
-	// the initial amount then then we're still attaching.
-	if ( mCurThreshold > mInitThreshold )
-	{
-		mCurThreshold -= (mAttachRate * dt);
-	}
-	
-	Ogre::Vector3 perpForces = getCorrectiveForces();
-	// perpendicular Forces are distributed according to the position along the Beam
-	if ( perpForces.length() > mBreakForce ) setFlag( MASK_SLIDE_BROKEN );
-	mSlidingNode->Forces += -perpForces;
-	mSlidingBeam->p1->Forces += perpForces * (1 - mRatio);
-	mSlidingBeam->p2->Forces += perpForces * mRatio;
+	_coupler.updateForce(dt);
 }
 
 
 Rail* SlideNode::getClosestRailAll(RailGroup* railGroup, const Ogre::Vector3& point )
 {
-	if ( !railGroup ) return NULL;
+	if ( !railGroup ) return nullptr;
 
 	Rail* closestRail = (Rail*) railGroup->getStartRail();
 	Rail* curRail = (Rail*) railGroup->getStartRail()->next;
@@ -277,19 +242,20 @@ Rail* SlideNode::getClosestRail(const Rail* rail, const Ogre::Vector3& point )
 void SlideNode::UpdatePosition()
 {
 	// only do calcs if we have a beam to slide on
-	if ( !mSlidingBeam || mSlidingBeam->broken )
+	if ( _slidingBeam.isBroken() )
 	{
-		mIdealPosition = mSlidingNode->AbsPosition;
+    	_coupler.setBroken(true);
 		return;
 	}
 		
 	// find which beam to use
-	mSlidingRail = getClosestRail( mSlidingRail, mSlidingNode->AbsPosition );
-	mSlidingBeam = mSlidingRail->curBeam;
+	mSlidingRail = getClosestRail( mSlidingRail, _slidingNode.getPosition() );
+	_slidingBeam.setBeam(mSlidingRail->curBeam);
+	
 	
 	// Get vector for beam
-	Ogre::Vector3 b = mSlidingBeam->p2->AbsPosition;
-	b -= mSlidingBeam->p1->AbsPosition;
+	Ogre::Vector3 b = _slidingBeam.getNode2().getPosition();
+	b -= _slidingBeam.getNode1().getPosition();
 	
 	// pre-compute normal
 	const Ogre::Real bLen = b.length();
@@ -298,38 +264,29 @@ void SlideNode::UpdatePosition()
 	b.normalise();
 	
 	// Get dot product along the b beam
-	const Ogre::Real aDotBUnit = (mSlidingNode->AbsPosition - mSlidingBeam->p1->AbsPosition).dotProduct( b );
+	const Ogre::Real aDotBUnit = (_slidingNode.getPosition() - _slidingBeam.getNode1().getPosition()).dotProduct( b );
 	
 	// constrain Value between the two end points
 	const Ogre::Real len = std::max( 0.0f, std::min( aDotBUnit, bLen) );
-	mIdealPosition  = b;
-	mIdealPosition *= len;
-	mIdealPosition += mSlidingBeam->p1->AbsPosition;
 	
-	// calculate(cache) the ratio between the the two end points,
 	// if bLen = 0.0f it means the beam is zero length so pick an end point
-	mRatio = (bLen > 0.0f) ? len/bLen : 0.0f;
+	_slidingBeam.setRatio((bLen > 0.0f) ? len/bLen : 0.0f);
 }
 
 const Ogre::Vector3& SlideNode::getNodePosition() const  
 { 
-	return mSlidingNode->AbsPosition; 
-}
-
-const Ogre::Vector3& SlideNode::getIdealPosition() const 
-{ 
-	return mIdealPosition; 
+	return _slidingNode.getPosition();
 }
 
 unsigned int SlideNode::getNodeID() const  
 { 
-	return mSlidingNode->id; 
+	return _slidingNode.getId();
 }
 
 void SlideNode::ResetPositions()
 {
-    mSlidingRail = getClosestRailAll(mCurRailGroup, mSlidingNode->AbsPosition);
-    mSlidingBeam = (mSlidingRail ? mSlidingRail->curBeam : NULL );
+	mSlidingRail = getClosestRailAll(mCurRailGroup, _slidingNode.getPosition());
+	_slidingBeam.setBeam(mSlidingRail ? mSlidingRail->curBeam : nullptr );
     UpdatePosition();
 }
 
@@ -354,26 +311,30 @@ Ogre::Real SlideNode::getLenTo( const beam_t* beam, const Ogre::Vector3& point )
     return fast_length( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point );	
 }
 
+static Ogre::Real SlideNode::getLenTo( const BeamComponent& beam, const Ogre::Vector3& point )
+{
+	if ( beam.getBeam() ) return std::numeric_limits<Ogre::Real>::infinity();
+
+	return fast_length( nearestPointOnLine(beam.getNode1().getPosition(), beam.getNode2().getPosition(), point)- point );
+}
+
 Ogre::Real SlideNode::getLenTo( const RailGroup* group ) const
 {
-    return getLenTo( group, mSlidingNode->AbsPosition );	
+    return getLenTo( group, _slidingNode.getPosition() );
 }
 
 Ogre::Real SlideNode::getLenTo( const Rail* rail ) const
 {
-    return getLenTo( rail, mSlidingNode->AbsPosition );	
+    return getLenTo( rail, _slidingNode.getPosition() );
 }
 
 Ogre::Real SlideNode::getLenTo( const beam_t* beam) const
 {
-    return getLenTo( beam,  mSlidingNode->AbsPosition );
+    return getLenTo( beam,  _slidingNode.getPosition() );
 }
 
- Ogre::Vector3 SlideNode::getCorrectiveForces()
+Ogre::Real SlideNode::getLenTo( const BeamComponent& beam) const
 {
-	const Ogre::Vector3 force = (mIdealPosition - mSlidingNode->AbsPosition);
-	const Ogre::Real  beamLen = std::max( 0.0f, force.length() - mCurThreshold );
-	const Ogre::Real forceLen = -mSpringRate * beamLen;
-	return (force.normalisedCopy() * forceLen);
-}
+	return getLenTo( beam,  _slidingNode.getPosition() );
+ }
 
