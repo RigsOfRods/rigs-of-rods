@@ -1589,8 +1589,8 @@ void RoRFrameListener::hideGUI(bool visible)
 {
 #ifdef USE_MYGUI
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	Console *c = RoR::Application::GetConsole();
-	if (c) c->setVisible(!visible);
+	//Console *c = RoR::Application::GetConsole();
+	//if (c) c->setVisible(!visible);
 
 	if (visible)
 	{
