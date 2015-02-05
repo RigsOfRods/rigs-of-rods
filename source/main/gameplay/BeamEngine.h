@@ -43,14 +43,14 @@ public:
 	float getRPM();
 	float getSmoke();
 	float getTorque();
-	float getTurboPSI(int id);
+	float getTurboPSI();
 	int getAutoMode();
 
 	/**
 	* Sets current engine state; Needed mainly for smoke.
 	* @param rpm Current engine RPM
 	* @param force Current acceleration force
-	* @param clutch
+	* @param clutch 
 	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...15 = forward}
 	* @param running
 	* @param contact
@@ -76,14 +76,6 @@ public:
 	* @param minimix Min. idle mixture
 	*/
 	void setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
-
-	/**
-	* Sets engine options.
-	* @param tinertiatinertiaFactor Turbo inertia factor
-	* @param nturbos Number of turbos
-	* @param additionalTorque Torque that will be added to the engine at max turbo rpm
-	**/
-	void setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque);
 
 	/**
 	* Set current engine RPM.
@@ -119,7 +111,7 @@ public:
 	int getGearRange();
 	void setGear(int v);
 	void setGearRange(int v);
-
+	
 	// stall engine
 	void stop();
 
@@ -150,7 +142,7 @@ public:
 	* Changes gear by a relative offset. Plays sounds.
 	*/
 	void shift(int val);
-
+	
 	/**
 	* Changes gear to given value. Plays sounds.
 	* @see BeamEngine::shift
@@ -169,8 +161,8 @@ public:
 	*/
 	void updateAudio(int doUpdate);
 
-	enum shiftmodes { AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES };
-	enum autoswitch { REAR, NEUTRAL, DRIVE, TWO, ONE, MANUALMODE };
+	enum shiftmodes {AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES};
+	enum autoswitch {REAR, NEUTRAL, DRIVE, TWO, ONE, MANUALMODE};
 
 protected:
 
@@ -238,15 +230,7 @@ protected:
 	std::deque<float> brakes;
 
 	// turbo
-	//Yeah i know, a bit dirty
-	#define MAXTURBO 4
-	float curTurboRPM[MAXTURBO];
-	float turboInertiaFactor;
-	int numTurbos;
-	const int maxTurboRPM;
-	float turbotorque;
-	float turboInertia;
-	float EngineAddiTorque[MAXTURBO];
+	float curTurboRPM;
 
 	// air pressure
 	TorqueCurve *torqueCurve;
@@ -254,8 +238,6 @@ protected:
 	int automode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
 
 	int trucknum;
-
-	bool is_Electric;
 };
 
 #endif // __BeamEngine_H_

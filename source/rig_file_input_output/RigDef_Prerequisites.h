@@ -40,7 +40,6 @@ struct BeamDefaultsScale;
 struct CameraSettings;
 struct Engine;
 struct Engoption;
-struct Engturbo;
 struct ExtCamera;
 struct File;
 struct Globals;

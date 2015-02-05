@@ -2051,7 +2051,7 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	//turbo
 	if (flag_state & ANIM_FLAG_TURBO)
 	{
-		float turbo=engine->getTurboPSI(0)*3.34;
+		float turbo=engine->getTurboPSI()*3.34;
 		cstate -= turbo / 67.0f ;
 		div++;
 	}
@@ -5369,7 +5369,7 @@ void Beam::updateDashBoards(float &dt)
 		dash->setFloat(DD_ENGINE_RPM, rpm);
 
 		// turbo
-		float turbo = engine->getTurboPSI(0) * 3.34f; // MAGIC :/
+		float turbo = engine->getTurboPSI() * 3.34f; // MAGIC :/
 		dash->setFloat(DD_ENGINE_TURBO, turbo);
 
 		// ignition

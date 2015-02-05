@@ -181,8 +181,6 @@ protected:
 
 	void ParseEngoption(Ogre::String const & line);
 
-	void ParseEngturbo(Ogre::String const & line);
-
 	void ParseExhaust(Ogre::String const & line);
 
 	void ParseExtCamera(Ogre::String const & line);

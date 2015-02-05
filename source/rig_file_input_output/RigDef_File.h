@@ -760,7 +760,6 @@ struct Engoption
 	enum EngineType
 	{
 		ENGINE_TYPE_c_CAR   = 'c',
-		ENGINE_TYPE_e_ECAR  = 'e',
 		ENGINE_TYPE_t_TRUCK = 't',
 
 		ENGINE_TYPE_INVALID = 0xFFFFFFFF
@@ -778,19 +777,6 @@ struct Engoption
 	float stall_rpm;
 	float max_idle_mixture;
 	float min_idle_mixture;
-};
-
-/* -------------------------------------------------------------------------- */
-/* Section ENGTURBO
-/* -------------------------------------------------------------------------- */
-
-struct Engturbo
-{
-	Engturbo();
-
-	float tinertiaFactor;
-	int nturbos;
-	float additionalTorque;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2112,7 +2098,6 @@ struct File
 		std::vector<Node::Id>              contacters;
 		boost::shared_ptr<Engine>          engine;
 		boost::shared_ptr<Engoption>       engoption;
-		boost::shared_ptr<Engturbo>        engturbo;
 		std::vector<Exhaust>               exhausts;
 		boost::shared_ptr<ExtCamera>       ext_camera;
 		std::vector<Node::Id>              fixes;
@@ -2198,7 +2183,6 @@ struct File
 		KEYWORD_END_SECTION,
 		KEYWORD_ENGINE,
 		KEYWORD_ENGOPTION,
-		KEYWORD_ENGTURBO,
 		KEYWORD_ENVMAP,
 		KEYWORD_EXHAUSTS,
 		KEYWORD_EXTCAMERA,
@@ -2299,7 +2283,6 @@ struct File
 		SECTION_CONTACTERS,
 		SECTION_ENGINE,
 		SECTION_ENGOPTION,
-		SECTION_ENGTURBO,
 		SECTION_EXHAUSTS,
 		SECTION_FIXES,
 		SECTION_FLARES,

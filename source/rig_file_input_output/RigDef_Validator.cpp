@@ -73,8 +73,6 @@ bool Validator::Validate()
 
 	valid &= CheckSection(RigDef::File::KEYWORD_ENGOPTION, true, false); /* Unique */
 
-	valid &= CheckSection(RigDef::File::KEYWORD_ENGTURBO, true, false); /* Unique */
-
 	valid &= CheckSection(RigDef::File::KEYWORD_TORQUECURVE, true, false); /* Unique */
 
 	valid &= CheckSection(RigDef::File::KEYWORD_SPEEDLIMITER, true, false); /* Unique */
@@ -199,9 +197,6 @@ bool Validator::HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module,
 
 		case (File::KEYWORD_ENGOPTION):
 			return (module->engoption != nullptr);
-
-		case (File::KEYWORD_ENGTURBO) :
-			return (module->engturbo != nullptr);
 
 		case (File::KEYWORD_EXTCAMERA):
 			return (module->ext_camera != nullptr);
