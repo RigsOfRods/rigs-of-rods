@@ -23,7 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ResourceBuffer.h"
 #include "IHeightFinder.h"
 #include "TerrainManager.h"
-
 using namespace Ogre;
 
 Road2::Road2(int id) :
@@ -641,7 +640,11 @@ void Road2::createMesh()
 	//msh->_setBoundingSphereRadius((aab->getMaximum()-aab->getMinimum()).length()/2.0);
 
 	/// Notify Mesh object that it has been loaded
-	msh->buildEdgeList();
-	msh->prepareForShadowVolume();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+		msh->prepareForShadowVolume();
+	}
+
 	msh->load();
 };

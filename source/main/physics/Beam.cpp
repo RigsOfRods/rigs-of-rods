@@ -66,6 +66,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
+#include "GUIManager.h"
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
@@ -1528,7 +1529,7 @@ bool Beam::frameStep(Real dt)
 	// TODO: move this to the correct spot
 	// update all dashboards
 #ifdef USE_MYGUI
-	updateDashBoards(dt);
+	//updateDashBoards(dt);
 #endif // USE_MYGUI
 
 	// some scripting stuff:
@@ -3048,12 +3049,7 @@ void Beam::updateSkidmarks()
 		}
 
 		skidtrails[i]->updatePoint();
-	}
-
-	//LOG("updating skidmark visuals");
-	for (int i=0; i<free_wheel; i++)
-	{
-		if (skidtrails[i]) skidtrails[i]->update();
+		if (skidtrails[i] && wheels[i].isSkiding) skidtrails[i]->update();
 	}
 
 	BES_STOP(BES_CORE_Skidmarks);
@@ -3476,6 +3472,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (left_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 		} else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
 		{
 			right_blink_on = isvisible;
@@ -3483,6 +3480,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (right_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
 		} else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
 		{
 			warn_blink_on  = isvisible;
@@ -3490,6 +3488,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (warn_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
+			dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 		}
 
 
@@ -3596,6 +3596,10 @@ void Beam::autoBlinkReset()
 		setBlinkType(BLINK_NONE);
 		blinktreshpassed = false;
 	}
+
+	bool stopblink = false;
+	dash->setBool(DD_SIGNAL_TURNLEFT, stopblink);
+	dash->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
 void Beam::updateProps()
@@ -5386,10 +5390,38 @@ void Beam::updateDashBoards(float &dt)
 	float dash_brake = brake / brakeforce;
 	dash->setFloat(DD_BRAKE, dash_brake);
 
+	/*
 	// speedo
 	float velocity = nodes[0].Velocity.length();
 
 	if (cameranodepos[0] >= 0 && cameranodedir[0] >=0)
+	{
+		Vector3 hdir = (nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy();
+		velocity = hdir.dotProduct(nodes[0].Velocity);
+	}
+	float speed_kph = WheelSpeed * 3.6f; //says wheel speed in the wiki, so fixed it.
+	float speed_mph = WheelSpeed * 2.23693629f;
+
+	if (speed_kph = -0)
+		speed_kph = 0; //Stop flickering btw -0 and 0
+	
+	if (speed_mph = -0)
+		speed_mph = 0;
+
+	if (fabs(WheelSpeed) < 1.0f)
+	{
+		speed_kph = speed_mph = 0.0f;
+	}
+
+	dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
+	dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
+	*/
+	//TODO: FIX THIS
+
+	// speedo
+	float velocity = nodes[0].Velocity.length();
+
+	if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
 	{
 		Vector3 hdir = (nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy();
 		velocity = hdir.dotProduct(nodes[0].Velocity);
@@ -6131,6 +6163,8 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
+
+	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* class <Beam> mutexes */
@@ -6338,6 +6372,7 @@ bool Beam::LoadTruck(
 				30000, 
 				true
 			);
+			RoR::Application::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
 		}
 #endif // USE_MYGUI
 		return false;
@@ -6510,9 +6545,91 @@ bool Beam::LoadTruck(
 			// load default for a truck
 			if (driveable == TRUCK)
 			{
-				dash->loadDashBoard("default_dashboard.layout", false);
+				//Temporary will fix later. TOFIX
+				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
+				bool test02;
+
+				if (test01 == "Yes")
+					test02 = true;
+				else
+					test02 = false;
+
+				if (test02)
+				{
+					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_mph.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_mph.layout", true);
+						}
+					}
+					else
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500.layout", true);
+						}
+					}
+				}
+				else
+				{
+					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_analog_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
+						}
+					}
+					else
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_analog.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_analog.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_analog.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_analog.layout", true);
+						}
+					}
+				}
+			}
+			else  if (driveable == BOAT)
+			{
+				dash->loadDashBoard("default_dashboard_boat.layout", false);
 				// TODO: load texture dashboard by default as well
-				dash->loadDashBoard("default_dashboard.layout", true);
+				dash->loadDashBoard("default_dashboard_boat.layout", true);
 			}
 		} else
 		{

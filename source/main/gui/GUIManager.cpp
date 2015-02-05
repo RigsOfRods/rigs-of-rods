@@ -46,7 +46,8 @@ GUIManager::GUIManager() :
 	mExit(false),
 	mGUI(nullptr),
 	mPlatform(nullptr),
-	mResourceFileName("MyGUI_Core.xml")
+	mResourceFileName("MyGUI_Core.xml"),
+	isSimUtilsVisible(false)
 {
 	create();
 }
@@ -119,8 +120,8 @@ void GUIManager::createGui()
 
 	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
 	MyGUI::PointerManager::getInstance().setVisible(true);
-	Console *c = RoR::Application::GetConsole();
-	if (c) c->resized();
+	//Console *c = RoR::Application::GetConsole();
+	//if (c) c->resized();
 }
 
 void GUIManager::destroyGui()
@@ -138,6 +139,22 @@ void GUIManager::destroyGui()
 		delete mPlatform;
 		mPlatform = nullptr;
 	}
+}
+
+void GUIManager::initSimUtils()
+{
+	if (m_gui_SimUtils.get() == nullptr)
+		m_gui_SimUtils = std::unique_ptr<GUI::SimUtils>(new GUI::SimUtils());
+}
+
+void GUIManager::killSimUtils()
+{
+	if (m_gui_SimUtils.get() != nullptr)
+	{
+		//delete(m_gui_SimUtils.get());
+		m_gui_SimUtils->~SimUtils();
+		m_gui_SimUtils = nullptr;
+	}	
 }
 
 bool GUIManager::frameStarted(const FrameEvent& evt)
@@ -161,6 +178,16 @@ bool GUIManager::frameEnded(const FrameEvent& evt)
 	return true;
 };
 
+void GUIManager::framestep(float dt)
+{
+	if (m_gui_SimUtils) //Be sure that it exists
+		m_gui_SimUtils->framestep(dt);
+};
+
+void GUIManager::PushNotification(String Title, String text)
+{
+	m_gui_SimUtils->PushNotification(Title, text);
+}
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
 {
 	int width = (int)rw->getWidth();
@@ -170,8 +197,16 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
 	BeamFactory *bf = BeamFactory::getSingletonPtr();
 	if (bf) bf->windowResized();
 
-	Console *c = RoR::Application::GetConsole();
-	if (c) c->resized();
+	if (m_gui_GameMainMenu.get() != nullptr)
+	{
+		/* Adjust menu position */
+		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+		int margin = (viewport->getActualHeight() / 15);
+		m_gui_GameMainMenu->SetPosition(
+			margin, // left
+			viewport->getActualHeight() - m_gui_GameMainMenu->GetHeight() - margin // top
+			);
+	}
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
@@ -190,7 +225,9 @@ String GUIManager::getRandomWallpaperImage()
 	FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
 	if (files.isNull() || files->empty())
 	{
-		return "";
+		files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
+		if (files.isNull() || files->empty())
+			return "";
 	}
 	srand ( time(NULL) );
 
@@ -204,4 +241,170 @@ String GUIManager::getRandomWallpaperImage()
 void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
 {
 	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
+}
+
+void GUIManager::ShowMainMenu(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_GameMainMenu.get() == nullptr)
+			m_gui_GameMainMenu = std::unique_ptr<GUI::GameMainMenu>(new GUI::GameMainMenu());
+
+		/* Adjust menu position */
+		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+		int margin = (viewport->getActualHeight() / 15);
+		m_gui_GameMainMenu->SetPosition(
+			margin, // left
+			viewport->getActualHeight() - m_gui_GameMainMenu->GetHeight() - margin // top
+			);
+
+		m_gui_GameMainMenu->Show();
+	} else 
+		m_gui_GameMainMenu->Hide();
+}
+
+void GUIManager::ShowSettingGui(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_GameSettings.get() == nullptr)
+			m_gui_GameSettings = std::unique_ptr<GUI::GameSettings>(new GUI::GameSettings());
+
+		m_gui_GameSettings->Show();
+	} else
+		m_gui_GameSettings->Hide();
+}
+
+void GUIManager::ShowAboutGUI(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_GameAbout.get() == nullptr)
+			m_gui_GameAbout = std::unique_ptr<GUI::GameAbout>(new GUI::GameAbout());
+
+		m_gui_GameAbout->Show();
+	}
+	else
+		m_gui_GameAbout->Hide();
+}
+
+void GUIManager::ShowDebugOptionsGUI(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_DebugOptions.get() == nullptr)
+			m_gui_DebugOptions = std::unique_ptr<GUI::DebugOptions>(new GUI::DebugOptions());
+
+		m_gui_DebugOptions->Show();
+	}
+	else
+		m_gui_DebugOptions->Hide();
+}
+
+void GUIManager::ToggleFPSBox()
+{
+	if (!isSimUtilsVisible) //We don't know, might be already init'ed
+	{
+		isSimUtilsVisible = true;
+	}
+
+	//Easy as pie!
+	m_gui_SimUtils->ToggleFPSBox();
+}
+
+void GUIManager::ToggleTruckInfoBox()
+{
+	if (!isSimUtilsVisible) //We don't know, might be already init'ed
+	{
+		isSimUtilsVisible = true;
+	}
+
+	m_gui_SimUtils->ToggleTruckInfoBox();
+}
+
+void GUIManager::UpdateSimUtils(float dt, Beam *truck)
+{
+	if (isSimUtilsVisible) //Better to update only when it's visible.
+	{
+		if (m_gui_SimUtils) //Be sure that it exists
+			m_gui_SimUtils->UpdateStats(dt, truck);
+	}
+}
+
+void GUIManager::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "")
+{
+	if (m_gui_gMessageBox.get() == nullptr)
+		m_gui_gMessageBox = std::unique_ptr<GUI::gMessageBox>(new GUI::gMessageBox());
+
+	m_gui_gMessageBox->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+}
+
+int GUIManager::getMessageBoxResult()
+{
+	if (m_gui_gMessageBox.get() == nullptr)
+		return 0;
+
+	return m_gui_gMessageBox->getResult();
+}
+
+void GUIManager::ShowMultiPlayerSelector(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_MultiplayerSelector.get() == nullptr)
+			m_gui_MultiplayerSelector = std::unique_ptr<GUI::MultiplayerSelector>(new GUI::MultiplayerSelector());
+
+		m_gui_MultiplayerSelector->Show();
+	}
+	else
+		m_gui_MultiplayerSelector->Hide();
+}
+
+void GUIManager::initMainSelector()
+{
+	if (m_gui_MainSelector.get() == nullptr)
+		m_gui_MainSelector = std::shared_ptr<GUI::MainSelector>(new GUI::MainSelector());
+	else
+		LOG("ERROR: Trying to init MainSelector more than 1 time.");
+}
+
+void GUIManager::TogglePauseMenu()
+{
+	if (m_gui_GamePauseMenu.get() == nullptr)
+	{
+		//First time, to remove flicker glitch
+		m_gui_GamePauseMenu = std::unique_ptr<GUI::GamePauseMenu>(new GUI::GamePauseMenu());
+
+		/* Adjust menu position */
+		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+		int margin = (viewport->getActualHeight() / 15);
+		m_gui_GamePauseMenu->SetPosition(
+			margin, // left
+			viewport->getActualHeight() - m_gui_GamePauseMenu->GetHeight() - margin // top
+			);
+		m_gui_GamePauseMenu->Show();
+		return;
+	}
+			
+
+	/* Adjust menu position */
+	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+	int margin = (viewport->getActualHeight() / 15);
+	m_gui_GamePauseMenu->SetPosition(
+		margin, // left
+		viewport->getActualHeight() - m_gui_GamePauseMenu->GetHeight() - margin // top
+		);
+
+	if (!m_gui_GamePauseMenu->mMainWidget->getVisible())
+		m_gui_GamePauseMenu->Show();
+	else
+		m_gui_GamePauseMenu->Hide();
+}
+
+bool GUIManager::GetPauseMenuVisible()
+{
+	if (m_gui_GamePauseMenu.get() != nullptr)
+		return m_gui_GamePauseMenu->mMainWidget->getVisible();
+	else
+		return false;
 }

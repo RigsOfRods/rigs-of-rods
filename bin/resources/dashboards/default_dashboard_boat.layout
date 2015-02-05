@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="ImageBox" skin="ImageBox" position="0 114 1024 795" align="Strech" layer="Back" name="_Main">
+        <Widget type="ImageBox" skin="ImageBox" position="773 542 250 250" align="Right Bottom" layer="Back" name="SpeedoGauge">
+            <Property key="ImageTexture" value="speedo_boat.png"/>
+            <UserString key="link" value="water_speed"/>
+            <Widget type="TextBox" skin="TextBox" position="89 175 72 27" name="textdepth">
+                <Property key="TextColour" value="1 1 1"/>
+                <Property key="TextAlign" value="Right VCenter"/>
+                <Property key="FontHeight" value="18"/>
+                <Property key="Caption" value="123"/>
+                <Property key="FontName" value="Digital-7-18"/>
+                <UserString key="link" value="water_depth"/>
+                <UserString key="anim" value="textformat"/>
+                <UserString key="format" value="%2.1f"/>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="-62 678 512 130" align="Left Bottom" layer="Back" name="lightsBackground">
+            <Property key="ImageTexture" value="littlelights.png"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="7 733 55 55" align="Left Bottom" layer="Middle" name="ign">
+            <Property key="ImageTexture" value="ign-off.png"/>
+            <UserString key="anim" value="lamp"/>
+            <UserString key="texture" value="ign"/>
+            <UserString key="link" value="engine_ignition"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="60 733 55 55" align="Left Bottom" layer="Middle" name="lightsBattery">
+            <Property key="ImageTexture" value="batt-off.png"/>
+            <UserString key="anim" value="lamp"/>
+            <UserString key="texture" value="batt"/>
+            <UserString key="link" value="engine_battery"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="219 733 55 55" align="Left Bottom" layer="Middle" name="lightsLocked">
+            <Property key="ImageTexture" value="secured-off.png"/>
+            <UserString key="anim" value="lamp"/>
+            <UserString key="texture" value="secured"/>
+            <UserString key="link" value="locked"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="272 733 55 55" align="Left Bottom" layer="Middle" name="lightsTies">
+            <Property key="ImageTexture" value="locked-0.png"/>
+            <UserString key="texture" value="locked"/>
+            <UserString key="link" value="ties_mode"/>
+            <UserString key="anim" value="series"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="325 733 55 55" align="Left Bottom" layer="Middle" name="lightsFrontLights">
+            <Property key="ImageTexture" value="lights-off.png"/>
+            <UserString key="anim" value="lamp"/>
+            <UserString key="link" value="lights"/>
+            <UserString key="texture" value="lights"/>
+        </Widget>
+        <Widget type="ImageBox" skin="RotatingSkin" position="769 538 258 258" align="Right Bottom" layer="Middle" name="SpeedoNeedle">
+            <Property key="ImageTexture" value="redneedle_v2.png"/>
+            <UserString key="anim" value="rotate"/>
+            <UserString key="link" value="water_speed"/>
+            <UserString key="vmax" value="60"/>
+            <UserString key="vmin" value="-60"/>
+            <UserString key="min" value="-135"/>
+            <UserString key="max" value="135"/>
+            <Widget type="ImageBox" skin="ImageBox" position="113 113 32 32">
+                <Property key="ImageTexture" value="needle_prt2.png"/>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="RotatingSkin" position="461 644 150 150" align="HCenter Bottom" name="steerrudder">
+            <Property key="ImageTexture" value="shipsteer.dds"/>
+            <UserString key="anim" value="rotate"/>
+            <UserString key="max" value="360"/>
+            <UserString key="min" value="-360"/>
+            <UserString key="link" value="screw_steer_1"/>
+            <UserString key="vmax" value="-1"/>
+            <UserString key="vmin" value="1"/>
+        </Widget>
+    </Widget>
+</MyGUI>

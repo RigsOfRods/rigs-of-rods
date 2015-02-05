@@ -40,7 +40,6 @@
 #include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
-#include "SelectorWindow.h"
 #include "Settings.h"
 #include "TextureToolWindow.h"
 #include "Utils.h"
@@ -73,17 +72,17 @@ GUI_MainMenu::GUI_MainMenu() :
 	mi->setCaption(_L("Simulation"));
 	p->setPopupAccept(true);
 	
-	p->addItem(_L("get new Vehicle"),                 MyGUI::MenuItemType::Normal);
-	p->addItem(_L("reload current Vehicle"),          MyGUI::MenuItemType::Normal);
-	p->addItem(_L("remove current Vehicle"),          MyGUI::MenuItemType::Normal);
-	p->addItem(_L("activate all Vehicles"),           MyGUI::MenuItemType::Normal);
-	p->addItem(_L("activated Vehicles never sleep"),  MyGUI::MenuItemType::Normal);
-	p->addItem(_L("send all Vehicles to sleep"),      MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Get new vehicle"),                 MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Reload current vehicle"),          MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Remove current vehicle"),          MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Activate all vehicles"),           MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Activated vehicles never sleep"),  MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Send all vehicles to sleep"),      MyGUI::MenuItemType::Normal);
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
 	p->addItem(_L("Save Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Load Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
-	p->addItem(_L("Back to menu"), MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Back to menu"),					  MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Exit"),                            MyGUI::MenuItemType::Normal);
 	m_popup_menus.push_back(p);
 
@@ -119,6 +118,7 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("Friction Settings"),  MyGUI::MenuItemType::Normal, "frictiongui");
 	p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
 	p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
+	p->addItem(_L("Debug Options"),		 MyGUI::MenuItemType::Normal, "debugoptions");
 	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
@@ -306,12 +306,13 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		// cannot whisper with self...
 		if (user_uid == gEnv->network->getUID()) return;
 
-		RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//TODO: Separate Chat and console
 	}
 	
 	if (!gEnv->frameListener) return;
 
-	if (miname == _L("get new Vehicle") && gEnv->player)
+	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
 		if (gEnv->frameListener->loading_state == NONE_LOADED) return;
 		// get out first
@@ -319,9 +320,9 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		gEnv->frameListener->reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
 		gEnv->frameListener->freeTruckPosition = true;
 		gEnv->frameListener->loading_state = RELOADING;
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
+		Application::GetGuiManager()->getMainSelector()->show(LT_AllBeam);
 
-	} else if (miname == _L("reload current Vehicle") && gEnv->player)
+	} else if (miname == _L("Reload current vehicle") && gEnv->player)
 	{
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 		{
@@ -338,25 +339,29 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		//String fname = SSETTING("Cache Path", "") + gEnv->frameListener->loadedTerrain + ".rorscene";
 
 	} 
-	else if (miname == _L("remove current Vehicle"))
+	else if (miname == _L("Back to menu"))
+	{
+		Application::GetMainThreadLogic()->BackToMenu();
+	}
+	else if (miname == _L("Remove current vehicle"))
 	{
 		BeamFactory::getSingleton().removeCurrentTruck();
 
-	} else if (miname == _L("activate all Vehicles"))
+	} else if (miname == _L("Activate all vehicles"))
 	{
 		BeamFactory::getSingleton().activateAllTrucks();
 
-	} else if (miname == _L("activated Vehicles never sleep")) 
+	} else if (miname == _L("Activated vehicles never sleep")) 
 	{
 		BeamFactory::getSingleton().setTrucksForcedActive(true);
-		_item->setCaption(_L("activated Vehicles can sleep"));
+		_item->setCaption(_L("Activated Vehicles can sleep"));
 
-	} else if (miname == _L("activated Vehicles can sleep")) 
+	} else if (miname == _L("Activated Vehicles can sleep")) 
 	{
 		BeamFactory::getSingleton().setTrucksForcedActive(false);
-		_item->setCaption(_L("activated Vehicles never sleep"));
+		_item->setCaption(_L("Activated Vehicles never sleep"));
 
-	} else if (miname == _L("send all Vehicles to sleep"))
+	} else if (miname == _L("Send all vehicles to sleep"))
 	{
 		// get out first
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
@@ -369,7 +374,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 
 	} else if (miname == _L("Back to menu"))
 	{
-		gEnv->frameListener->Restart();
+		//gEnv->frameListener->Restart(); TODO
 	} else if (miname == _L("Exit"))
 	{
 		gEnv->frameListener->shutdown_final();
@@ -430,6 +435,10 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("Texture Tool"))
 	{
 		TextureToolWindow::getSingleton().show();
+	}
+	else if (miname == _L("Debug Options"))
+	{
+		Application::GetGuiManager()->ShowDebugOptionsGUI(true);
 	}
 	else if (id == "rig-editor-enter")
 	{

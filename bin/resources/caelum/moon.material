@@ -52,6 +52,18 @@ material Caelum/FullMoon
             }
         }
     }
+    technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
+        }
+    }
 }
 
 material Caelum/PhaseMoon
@@ -79,6 +91,18 @@ material Caelum/PhaseMoon
             }
         }
     }
+    technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
+        }
+    }
 }
 
 material Caelum/MoonBackground
@@ -101,6 +125,18 @@ material Caelum/MoonBackground
                 texture moon_disc.dds
                 colour_op_ex source1 src_manual src_diffuse 0 0 0 0
             }
+        }
+    }
+    technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
         }
     }
 }

@@ -32,6 +32,7 @@ http://graphics.cs.lth.se/theses/projects/projgrid/
 
 
 #include "Noise.h"
+#include <pthread.h>
 
 #define n_bits				5
 #define n_size				(1<<(n_bits-1))
@@ -271,6 +272,7 @@ namespace Hydrax{ namespace Noise
 
 		/// Elapsed time
 		double time;
+		pthread_mutex_t work_mutex;
 
 		/// GPUNormalMapManager pointer
 		GPUNormalMapManager *mGPUNormalMapManager;

@@ -210,6 +210,8 @@ public:
 	void updateSkidmarks();
 	void updateAI(float dt);
 
+	void updateDashBoards(float &dt);
+
 	/**
 	* Prepares vehicle for in-cabin camera use.
 	*/
@@ -576,8 +578,6 @@ protected:
 	void updateContacterNodes();
 	void moveOrigin(Ogre::Vector3 offset); //move physics origin
 	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
-
-	void updateDashBoards(float &dt);
 	
 	Ogre::Vector3 position;
 	Ogre::Vector3 iPosition; // initial position

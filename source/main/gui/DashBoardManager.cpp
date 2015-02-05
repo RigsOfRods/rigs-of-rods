@@ -109,6 +109,8 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
 	INITDATA(DD_ODOMETER_TOTAL          , DC_FLOAT, "odometer_total");
 	INITDATA(DD_ODOMETER_USER           , DC_FLOAT, "odometer_user");
 
+	INITDATA(DD_SIGNAL_TURNLEFT			, DC_BOOL, "signal_turnleft");
+	INITDATA(DD_SIGNAL_TURNRIGHT		, DC_BOOL, "signal_turnright");
 	// load dash fonts
 	MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
 }
@@ -157,9 +159,11 @@ int DashBoardManager::loadDashBoard( Ogre::String filename, bool textureLayer )
 void DashBoardManager::update(float &dt)
 {
 	// TODO: improve logic: only update visible dashboards
+	// Max98: done.
 	for (int i=0; i < free_dashboard; i++)
 	{
-		dashboards[i]->update(dt);
+		if (dashboards[i]->getVisible() == true)
+			dashboards[i]->update(dt);
 	}
 }
 

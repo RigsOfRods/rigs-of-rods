@@ -258,8 +258,6 @@ const char * File::SectionToString(File::Section section)
 			return "contacters";
 		case (File::SECTION_ENGINE):
 			return "engine";
-		case (File::SECTION_ENGOPTION):
-			return "engoption";
 		case (File::SECTION_EXHAUSTS):
 			return "exhausts";
 		case (File::SECTION_FIXES):

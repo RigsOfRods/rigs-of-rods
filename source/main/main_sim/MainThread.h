@@ -74,6 +74,17 @@ public:
 	}
 
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
+	
+	void RegenCache();
+
+	void BackToMenu();
+
+	/**
+	* @return True if everything was prepared OK and simulation may start.
+	*/
+	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
+
+	void UnloadTerrain();
 
 protected:
 
@@ -82,11 +93,6 @@ protected:
 	void MainMenuLoopUpdate(float seconds_since_last_frame);
 	
 	void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
-
-	/**
-	* @return True if everything was prepared OK and simulation may start.
-	*/
-	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
 
 	void EnterGameplayLoop();
 
@@ -105,6 +111,8 @@ protected:
 	Application::State m_next_application_state;
 	Application::State m_application_state;
 	RigEditor::Main*   m_rig_editor;
+	bool			   m_base_resource_load;
+
 };
 
 } // namespace RoR

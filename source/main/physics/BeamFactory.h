@@ -98,9 +98,12 @@ public:
 
 	bool removeBeam(Beam *b);
 	void removeCurrentTruck();
+	void removeAllTrucks();
 	void removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 	void removeTruck(int truck);
 	
+	void p_removeAllTrucks();
+
 	bool enterRescueTruck();
 	void repairTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box, bool keepPosition=false);
 

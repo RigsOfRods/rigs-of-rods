@@ -1,12 +1,12 @@
 /*
 This source file is part of Rigs of Rods
-Copyright 2005,2006,2007,2008,2009 Pierre-Michel Ricordel
-Copyright 2007,2008,2009 Thomas Fischer
+Copyright 2005-2012 Pierre-Michel Ricordel
+Copyright 2007-2012 Thomas Fischer
 
 For more information, see http://www.rigsofrods.com/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as 
+it under the terms of the GNU General Public License version 3, as
 published by the Free Software Foundation.
 
 Rigs of Rods is distributed in the hope that it will be useful,
@@ -17,12 +17,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-// Thomas Fischer, 23 of April 2008
 
 #ifndef __HydraxWater_H_
 #define __HydraxWater_H_
 
-// this is a workaround for fixing compilation/linking issues in conjunction with caelum
 #include "Prerequisites.h"
 #include "Hydrax.h"
 #include "MaterialManager.h"
@@ -35,12 +33,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Ogre.h"
 #include "Water.h"
 #include "IWater.h"
+#include "TerrainManager.h"
+#include "TerrainGeometryManager.h"
 
 class HydraxWater : public IWater
 {
 public:
-
-	HydraxWater();
+	HydraxWater(const Ogre::ConfigFile &mTerrainConfig);
+	~HydraxWater();
 
 	float getHeight();
 	float getHeightWaves(Ogre::Vector3 pos);
@@ -60,21 +60,23 @@ public:
 	void showWave(Ogre::Vector3 refpos);
 	void update();
 	void updateReflectionPlane(float h);
-	
-	int loadConfig(Ogre::String configfile);
+
+	bool isUnderWater();
+	void InitComponents();
+	void AddMaterial(Ogre::Terrain *terrain);
+
+	Hydrax::Hydrax* GetHydrax() { return mHydrax; }
 
 protected:
-
-	void registerDust(DustPool* dp);
-
+	bool CreateHydrax();
 	Hydrax::Hydrax *mHydrax;
-	Hydrax::Noise::Real *waternoise;
-
-	Ogre::Camera *mRenderCamera;
-	float wheight;
-	float waveStrength;
-
-	bool visible;
+	float waveHeight;
+	float waterHeight;
+	Ogre::Camera * mRenderCamera;
+	bool haswaves;
+	Hydrax::Noise::Perlin *waternoise;
+	Hydrax::Module::ProjectedGrid *mModule;
 };
 
 #endif // __HydraxWater_H_
+

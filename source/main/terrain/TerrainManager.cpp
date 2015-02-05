@@ -79,6 +79,52 @@ TerrainManager::TerrainManager() :
 
 TerrainManager::~TerrainManager()
 {
+	m_terrain_config.clear();
+
+	//I think that the order is important
+
+	if (sky_manager != nullptr)
+	{
+		delete(sky_manager);
+		gEnv->sky = nullptr;
+		sky_manager = nullptr;
+	}
+
+	if (main_light != nullptr)
+	{
+		gEnv->sceneManager->destroyAllLights();
+		main_light = nullptr;
+	}
+
+	if (envmap != nullptr)
+	{
+		delete(envmap);
+		envmap = nullptr;
+	}
+
+	if (dashboard != nullptr)
+	{
+		delete(dashboard);
+		dashboard = nullptr;
+	}
+
+	if (water != nullptr)
+	{
+		delete(water);
+		water = nullptr;
+	}
+
+	if (object_manager != nullptr)
+	{
+		delete(object_manager);
+		object_manager = nullptr;
+	}
+
+	if (geometry_manager != nullptr)
+	{
+		delete(geometry_manager);
+		geometry_manager = nullptr;
+	}
 }
 
 // some shortcut to remove ugly code
@@ -281,15 +327,17 @@ void TerrainManager::initCamera()
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
+	else
+		gEnv->mainCamera->setFarClipDistance(0);
 }
 
 void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
 	// Caelum skies
-	bool useCaelum = SSETTING("Sky effects", "Caelum (best looking, slower)")=="Caelum (best looking, slower)";
+	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
 
-	if (useCaelum)
+	if (use_caelum)
 	{
 		sky_manager = new SkyManager();
 		gEnv->sky = sky_manager;
@@ -538,12 +586,13 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		HydraxWater *hw = new HydraxWater();
-		hw->loadConfig("HydraxDemo.hdx");
+		HydraxWater *hw = new HydraxWater(m_terrain_config);
+		//hw->loadConfig("HydraxDemo.hdx");
 		water = hw;
 	} else
 	{
-		water = new Water(m_terrain_config);
+		if (water == nullptr)
+			water = new Water(m_terrain_config);
 	}
 }
 

@@ -496,21 +496,19 @@ namespace Hydrax
 
 	void RttManager::CReflectionListener::CReflectionQueueListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String &invocation, bool &skipThisInvocation)
 	{
-		if ((queueGroupId == Ogre::RENDER_QUEUE_SKIES_EARLY || queueGroupId == Ogre::RENDER_QUEUE_SKIES_LATE) 
-			&& mActive)
+		if ((queueGroupId == Ogre::RENDER_QUEUE_SKIES_EARLY || queueGroupId == Ogre::RENDER_QUEUE_SKIES_LATE || queueGroupId == (Ogre::RENDER_QUEUE_SKIES_EARLY + 2)) && mActive)
 		{
 			mRttManager->mHydrax->getCamera()->disableCustomNearClipPlane();
-			Ogre::Root::getSingleton().getRenderSystem()->_setProjectionMatrix(mRttManager->mHydrax->getCamera()->getProjectionMatrixRS()); 
+			Ogre::Root::getSingleton().getRenderSystem()->_setProjectionMatrix(mRttManager->mHydrax->getCamera()->getProjectionMatrixRS());
 		}
 	}
 
 	void RttManager::CReflectionListener::CReflectionQueueListener::renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String &invocation, bool &skipThisInvocation)
 	{
-		if ((queueGroupId == Ogre::RENDER_QUEUE_SKIES_EARLY || queueGroupId == Ogre::RENDER_QUEUE_SKIES_LATE) 
-			&& mActive)
+		if ((queueGroupId == Ogre::RENDER_QUEUE_SKIES_EARLY || queueGroupId == Ogre::RENDER_QUEUE_SKIES_LATE || queueGroupId == (Ogre::RENDER_QUEUE_SKIES_EARLY + 2)) && mActive)
 		{
 			mRttManager->mHydrax->getCamera()->enableCustomNearClipPlane(mRttManager->mPlanes[RTT_REFLECTION]);
-			Ogre::Root::getSingleton().getRenderSystem()->_setProjectionMatrix(mRttManager->mHydrax->getCamera()->getProjectionMatrixRS()); 
+			Ogre::Root::getSingleton().getRenderSystem()->_setProjectionMatrix(mRttManager->mHydrax->getCamera()->getProjectionMatrixRS());
 		}
 	}
 

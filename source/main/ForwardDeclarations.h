@@ -31,13 +31,13 @@
 namespace RoR
 {
 	class  Application;
-	class  Console;
 	class  ContentManager;
 	class  GUIManager;
 	class  MainThread;
 	class  OgreSubsystem;
 	struct PlatformUtils;
 	class  SceneMouse;
+	class  Console;
 
 	namespace GUI
 	{

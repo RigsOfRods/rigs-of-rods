@@ -40,7 +40,7 @@ ShadowManager::~ShadowManager()
 void ShadowManager::loadConfiguration()
 {
 	Ogre::String s = SSETTING("Shadow technique", "Parallel-split Shadow Maps");
-	if (s == "Stencil shadows")
+	if (s == "Stencil shadows (best looking)")
 		changeShadowTechnique(Ogre::SHADOWTYPE_STENCIL_MODULATIVE);
 	else if (s == "Texture shadows")
 		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -59,6 +59,7 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 	gEnv->sceneManager->setShadowTechnique(tech);
 	gEnv->sceneManager->setShadowFarDistance(shadowFarDistance);
 	gEnv->sceneManager->setShowDebugShadows(false);
+	gEnv->sceneManager->setShadowTextureFSAA(8);
 
 	if (tech == Ogre::SHADOWTYPE_STENCIL_MODULATIVE)
 	{
@@ -66,14 +67,20 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 		gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(100);
 
 		//important optimization
-		gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1)->setShadowsEnabled(false);
+		if (!BSETTING("TerrainSelfShadow", false))
+			gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1)->setShadowsEnabled(true); //this has no effects
 
+		gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
+ 
 		//		gEnv->ogreSceneManager->setUseCullCamera(false);
 		//		gEnv->ogreSceneManager->setShowBoxes(true);
 		//		gEnv->ogreSceneManager->showBoundingBoxes(true);
 	} else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE)
 	{
-		gEnv->sceneManager->setShadowTextureSettings(2048,2);
+		if (!BSETTING("HQTextureShadows", false))
+			gEnv->sceneManager->setShadowTextureSettings(2048, 2);
+		else
+			gEnv->sceneManager->setShadowTextureSettings(8192, 2);
 	} else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED)
 	{
 #if OGRE_VERSION>0x010602

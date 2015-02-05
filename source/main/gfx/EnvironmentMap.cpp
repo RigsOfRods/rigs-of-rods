@@ -211,6 +211,14 @@ Envmap::Envmap() :
 	}
 }
 
+Envmap::~Envmap()
+{
+	for (int face = 0; face < NUM_FACES; face++)
+	{
+		gEnv->sceneManager->destroyCamera("EnvironmentCamera-" + TOSTRING(face));
+	}
+}
+
 void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 {
 	if (!mIsDynamic || !beam)
@@ -247,6 +255,7 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 	{
 		// caelum needs to know that we changed the cameras
 	#ifdef USE_CAELUM
+		
 		if (gEnv->terrainManager->getSkyManager())
 		{
 			gEnv->terrainManager->getSkyManager()->notifyCameraChanged(mCameras[mRound]);
@@ -256,6 +265,7 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 		mRound = (mRound + 1) % NUM_FACES;
 	}
 #ifdef USE_CAELUM
+	
 	if (gEnv->terrainManager->getSkyManager())
 	{
 		gEnv->terrainManager->getSkyManager()->notifyCameraChanged(gEnv->mainCamera);

@@ -54,6 +54,12 @@ public:
 	void notifyCameraChanged(Ogre::Camera *cam);
 
 	void detectUpdate();
+
+	Caelum::CaelumSystem* getCaelumSys()
+	{
+		return mCaelumSystem;
+	}
+
 protected:
 	Caelum::LongReal lc;
     Caelum::CaelumSystem *mCaelumSystem;
