@@ -77,7 +77,10 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 		//		gEnv->ogreSceneManager->showBoundingBoxes(true);
 	} else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE)
 	{
-		gEnv->sceneManager->setShadowTextureSettings(2048,2);
+		if (!BSETTING("HQTextureShadows", false))
+			gEnv->sceneManager->setShadowTextureSettings(2048, 2);
+		else
+			gEnv->sceneManager->setShadowTextureSettings(8192, 2);
 	} else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED)
 	{
 #if OGRE_VERSION>0x010602
