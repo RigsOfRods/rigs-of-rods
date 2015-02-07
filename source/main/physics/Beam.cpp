@@ -3048,12 +3048,7 @@ void Beam::updateSkidmarks()
 		}
 
 		skidtrails[i]->updatePoint();
-	}
-
-	//LOG("updating skidmark visuals");
-	for (int i=0; i<free_wheel; i++)
-	{
-		if (skidtrails[i]) skidtrails[i]->update();
+		if (skidtrails[i] && wheels[i].isSkiding) skidtrails[i]->update();
 	}
 
 	BES_STOP(BES_CORE_Skidmarks);
@@ -6131,6 +6126,8 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
+
+	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* class <Beam> mutexes */

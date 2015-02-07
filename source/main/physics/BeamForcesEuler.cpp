@@ -1992,12 +1992,32 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 								SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_SCREETCH, (ns-thresold) / thresold);
 								SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SCREETCH);
 #endif //USE_OPENAL
+//Shouldn't skidmarks be activated from here?
+								if (useSkidmarks)
+								{
+									wheels[nodes[i].wheelid].isSkiding = true;
+									if (!(nodes[i].iswheel % 2))
+										wheels[nodes[i].wheelid].lastContactInner = nodes[i].AbsPosition;
+									else
+										wheels[nodes[i].wheelid].lastContactOuter = nodes[i].AbsPosition;
+
+									wheels[nodes[i].wheelid].lastContactType = (nodes[i].iswheel % 2);
+									wheels[nodes[i].wheelid].lastSlip = ns;
+									wheels[nodes[i].wheelid].lastGroundModel = gm;
+								}
 							}
 							// sparks
 							if (!nodes[i].iswheel && ns > 1.0 && !nodes[i].disable_sparks)
 							{
 								// friction < 10 will remove the 'f' nodes from the spark generation nodes
 								if (sparksp) sparksp->allocSparks(nodes[i].AbsPosition, nodes[i].Velocity);
+							}
+							if (nodes[i].iswheel && ns < thresold)
+							{
+								if (useSkidmarks)
+								{
+									wheels[nodes[i].wheelid].isSkiding = false;
+								}
 							}
 							break;
 
@@ -2007,20 +2027,10 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 								if (clumpp) clumpp->allocClump(nodes[i].AbsPosition, nodes[i].Velocity/2.0, gm->fx_colour);
 							}
 							break;
+						default:
+							//Useless for the moment
+							break;
 						}
-					}
-
-					// register wheel contact
-					if (gm && useSkidmarks && nodes[i].wheelid >= 0)
-					{
-						if (!(nodes[i].iswheel%2))
-							wheels[nodes[i].wheelid].lastContactInner = nodes[i].AbsPosition;
-						else
-							wheels[nodes[i].wheelid].lastContactOuter = nodes[i].AbsPosition;
-
-						wheels[nodes[i].wheelid].lastContactType = (nodes[i].iswheel%2);
-						wheels[nodes[i].wheelid].lastSlip = ns;
-						wheels[nodes[i].wheelid].lastGroundModel = gm;
 					}
 
 					wheels[nodes[i].wheelid].lastEventHandler = handlernum;

@@ -200,7 +200,6 @@ void RigSpawner::InitializeRig()
 	memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
 	m_rig->free_airbrake = 0;
 	memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
-	m_rig->useSkidmarks = false;
 	memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
 	m_rig->free_flexbody = 0;
 	m_rig->vidcams.clear();
@@ -398,8 +397,6 @@ void RigSpawner::InitializeRig()
 	m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
 	
 	m_rig->beamsRoot = m_parent_scene_node;
-
-	m_rig->useSkidmarks = BSETTING("Skidmarks", false);
 
 	/* Collisions */
 
