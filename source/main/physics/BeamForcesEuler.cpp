@@ -51,25 +51,56 @@ using namespace Ogre;
 
 void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 {
-	Beam** trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-
-	IWater *water = 0;
-	if (gEnv->terrainManager)
-		water = gEnv->terrainManager->getWater();
-
-	increased_accuracy = false;
 	float inverted_dt = 1.0f / dt;
+	calcTruckEngine(doUpdate, dt);
 
+	// calc
+	calcBeams_(doUpdate, dt, step, maxsteps);
+
+	// not related to physics
+	calcAnimatedProps(doUpdate, dt);
+
+	calcMouse();
+
+	calcUpdateComponents(dt);
+
+	calcTurboProp(doUpdate, dt);
+	calcScrewProp(doUpdate);
+	calcWing();
+	calcFuseDrag();
+	calcAirBrakes();
+	calcBuoyance(doUpdate, dt, step, maxsteps);
+
+
+	calcAxles(doUpdate, dt);
+	calcWheels(doUpdate, dt, step, maxsteps);
+	calcShocks(doUpdate, dt);
+
+	calcHydros(doUpdate, dt);
+	calcCommands(doUpdate, dt);
+
+	// integration, most likely this needs to be done after all the
+	// forces have been calculated other wise, forces might linger
+	calcNodes_(doUpdate, dt, step, maxsteps);
+
+	calcReplay(doUpdate, dt);
+	BES_STOP(BES_CORE_WholeTruckCalc);
+}
+
+void Beam::calcTruckEngine(bool doUpdate, Real dt)
+{
+	BES_START(BES_CORE_TruckEngine);
 	//engine callback
 	if (engine)
 	{
-		BES_START(BES_CORE_TruckEngine);
 		engine->update(dt, doUpdate);
-		BES_STOP(BES_CORE_TruckEngine);
 	}
+	BES_STOP(BES_CORE_TruckEngine);
+}
 	//if (doUpdate) mWindow->setDebugText(engine->status);
 
+void Beam::calcBeams_(bool doUpdate, Real dt, int step, int maxsteps)
+{
 #if BEAMS_INTER_TRUCK_PARALLEL
 #if !BEAMS_INTRA_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps);
@@ -99,7 +130,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			it->timer = 0.0f;
 		}
 	}
+}
 
+void Beam::calcAnimatedProps(bool doUpdate, Real dt)
+{
 	BES_START(BES_CORE_AnimatedProps);
 
 	//animate props
@@ -392,7 +426,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	}
 
 	BES_STOP(BES_CORE_AnimatedProps);
+}
 
+void Beam::calcForceFeedBack(bool doUpdate)
+{
 	if (state==ACTIVATED) //force feedback sensors
 	{
 		if (doUpdate)
@@ -410,22 +447,21 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				affhydro += beams[hydro[i]].hydroRatio * beams[hydro[i]].refL * beams[hydro[i]].stress;
 		}
 	}
+}
 
+void Beam::calcMouse()
+{
 	//mouse stuff
 	if (mousenode != -1)
 	{
 		Vector3 dir = mousepos - nodes[mousenode].AbsPosition;
 		nodes[mousenode].Forces += mousemoveforce * dir;
 	}
+}
 
+void Beam::calcNodes_(bool doUpdate, Real dt, int step, int maxsteps)
+{
 #if NODES_INTER_TRUCK_PARALLEL
-	// START Slidenode section /////////////////////////////////////////////////
-	// these must be done before the integrator, or else the forces are not calculated properly
-	BES_START(BES_CORE_SlideNodes);
-	updateSlideNodeForces(dt);
-	BES_STOP(BES_CORE_SlideNodes);
-	// END Slidenode section   /////////////////////////////////////////////////
-
 	BES_START(BES_CORE_Nodes);
 
 	watercontact = false;
@@ -498,7 +534,26 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	BES_STOP(BES_CORE_Nodes);
 #endif
-		
+}
+
+void Beam::calcAxles(bool doUpdate, Ogre::Real dt)
+{
+	// TODO Wheels and Axles share many variables, this was moved to calc
+	// Wheels until a better method is devised to share the information
+	// this is kept here to maintain the intended structure
+}
+
+void Beam::calcUpdateComponents(Ogre::Real dt)
+{
+	for(auto component : _updateComponents)
+	{
+		component->updateForce(dt);
+	}
+
+}
+
+void Beam::calcTurboProp(bool doUpdate, Ogre::Real dt)
+{
 	BES_START(BES_CORE_Turboprop);
 
 	//turboprop forces
@@ -578,8 +633,13 @@ void Beam::calcAirBrakes()
 	}
 
 	BES_STOP(BES_CORE_Airbrakes);
+}
+
+void Beam::calcBuoyance(bool doUpdate, Ogre::Real dt, int step, int)
+{
 	BES_START(BES_CORE_Buoyance);
 
+	IWater *water = (gEnv->terrainManager ? gEnv->terrainManager->getWater() : nullptr);
 	//water buoyance
 	if (free_buoycab && water)
 	{
@@ -608,6 +668,11 @@ void Beam::calcAirBrakes()
 	}
 
 	BES_STOP(BES_CORE_Buoyance);
+}
+
+
+void Beam::calcWheels(bool doUpdate, Real dt, int step, int maxsteps)
+{
 	BES_START(BES_CORE_Axles);
 
 	//wheel speed
@@ -1221,6 +1286,10 @@ void Beam::calcHydros(bool doUpdate, Ogre::Real dt)
 	}
 
 	BES_STOP(BES_CORE_Hydros);
+}
+
+void Beam::calcCommands(bool doUpdate, Ogre::Real dt)
+{
 	BES_START(BES_CORE_Commands);
 
 	// commands

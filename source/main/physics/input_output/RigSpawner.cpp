@@ -2993,32 +2993,32 @@ void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 {
 	node_t & node = GetNodeOrThrow(def.slide_node);
-	SlideNode slide_node(& node, nullptr);
-	slide_node.setThreshold(def.tolerance);
-	slide_node.setSpringRate(def.spring_rate);
-	slide_node.setAttachmentRate(def.spring_rate);
+	SlideNode* slide_node = new SlideNode(& node, nullptr);
+	slide_node->setThreshold(def.tolerance);
+	slide_node->setSpringRate(def.spring_rate);
+	slide_node->setAttachmentRate(def.spring_rate);
 	if (def._break_force_set)
 	{
-		slide_node.setBreakForce(def.break_force);
+		slide_node->setBreakForce(def.break_force);
 	}
-	slide_node.setAttachmentDistance(def.max_attachment_distance);
+	slide_node->setAttachmentDistance(def.max_attachment_distance);
 
 	/* Constraints */
 	if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_ALL))
 	{
-		slide_node.setAttachRule( ATTACH_ALL );
+		slide_node->setAttachRule( ATTACH_ALL );
 	}
 	if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_SELF))
 	{
-		slide_node.setAttachRule( ATTACH_SELF );
+		slide_node->setAttachRule( ATTACH_SELF );
 	}
 	if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_FOREIGN))
 	{
-		slide_node.setAttachRule( ATTACH_FOREIGN );
+		slide_node->setAttachRule( ATTACH_FOREIGN );
 	}
 	if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_NONE))
 	{
-		slide_node.setAttachRule( ATTACH_NONE );
+		slide_node->setAttachRule( ATTACH_NONE );
 	}
 
 	/* RailGroup */
@@ -3037,9 +3037,8 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 
 		if (rail_group == nullptr)
 		{
-			std::stringstream msg;
-			msg << "Specified rail group id '" << def.railgroup_id << "' not found. Ignoring slidenode...";
-			AddMessage(Message::TYPE_ERROR, msg.str());
+			std::string msg = "Specified rail group id '" + std::to_string(def.railgroup_id) + "' not found. Ignoring slidenode...";
+			AddMessage(Message::TYPE_ERROR, msg);
 			return;
 		}
 	}
@@ -3058,7 +3057,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 		AddMessage(Message::TYPE_ERROR, "No RailGroup available for SlideNode, skipping...");
 	}
 
-	slide_node.setDefaultRail(rail_group);
+	slide_node->setDefaultRail(rail_group);
 	m_rig->mSlideNodes.push_back(slide_node);
 }
 

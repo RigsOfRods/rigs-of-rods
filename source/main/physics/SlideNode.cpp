@@ -24,9 +24,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamData.h"
 
-#include "physics/framework/BeamComponents.h"
-#include "physics/framework/ThresholdCoupler.h"
-#include "physics/framework/UpdateComponents.h"
 #include "physics/framework/NodeComponent.h"
 
 // RAIL GROUP IMPLEMENTATION ///////////////////////////////////////////////////
@@ -311,7 +308,7 @@ Ogre::Real SlideNode::getLenTo( const beam_t* beam, const Ogre::Vector3& point )
     return fast_length( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point );	
 }
 
-static Ogre::Real SlideNode::getLenTo( const BeamComponent& beam, const Ogre::Vector3& point )
+Ogre::Real SlideNode::getLenTo( const BeamComponent& beam, const Ogre::Vector3& point )
 {
 	if ( beam.getBeam() ) return std::numeric_limits<Ogre::Real>::infinity();
 

@@ -32,17 +32,17 @@ void Beam::toggleSlideNodeLock()
 	int curTruck = BeamFactory::getSingleton().getCurrentTruckNumber();
 
 	// for every slide node on this truck
-	for (SlideNode& node : mSlideNodes)
+	for (SlideNode* node : mSlideNodes)
 	{
 		std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)nullptr, std::numeric_limits<Ogre::Real>::infinity());
 		std::pair<RailGroup*, Ogre::Real> current((RailGroup*)nullptr, std::numeric_limits<Ogre::Real>::infinity());
 		
 		// if neither foreign, nor self attach is set then we cannot change the
 		// Rail attachments
-		if ( !node.getAttachRule( ATTACH_ALL ) ) continue;
+		if ( !node->getAttachRule( ATTACH_ALL ) ) continue;
 		if ( SlideNodesLocked )
 		{
-			node.attachToRail( NULL );
+			node->attachToRail( nullptr );
 			continue;
 		}
 		
@@ -50,16 +50,16 @@ void Beam::toggleSlideNodeLock()
 		for ( unsigned int i = 0; i < (unsigned int) trucksnum; ++i)
 		{
 			// make sure this truck is allowed
-			if (!((curTruck != i && node.getAttachRule(ATTACH_FOREIGN) ) ||
-				  (curTruck == i && node.getAttachRule(ATTACH_SELF) ) ) )
+			if (!((curTruck != i && node->getAttachRule(ATTACH_FOREIGN) ) ||
+				  (curTruck == i && node->getAttachRule(ATTACH_SELF) ) ) )
 				continue;
 			
-			current = getClosestRailOnTruck( BeamFactory::getSingleton().getTruck(i), node );
+			current = getClosestRailOnTruck( BeamFactory::getSingleton().getTruck(i), *node );
 			if ( current.second < closest.second ) closest = current;
 			
 		} // this many
 		
-		node.attachToRail(closest.first);
+		node->attachToRail(closest.first);
 	} // nests
 	
 	SlideNodesLocked = !SlideNodesLocked;
@@ -67,8 +67,8 @@ void Beam::toggleSlideNodeLock()
 
 std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck( Beam* truck, const SlideNode& node)
 {
-	std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)bullptr, std::numeric_limits<Ogre::Real>::infinity());
-	Rail* curRail = NULL;
+	std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)nullptr, std::numeric_limits<Ogre::Real>::infinity());
+	Rail* curRail = nullptr;
 	Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
 
 	for (RailGroup* group : truck->mRailGroups)
@@ -93,7 +93,7 @@ std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck( Beam* truck, cons
 #endif
 		if ( lenToCurRail < node.getAttachmentDistance() && lenToCurRail < closest.second )
 		{
-			closest.first = &group;
+			closest.first = group;
 			closest.second = lenToCurRail;
 		}
 	}
@@ -104,24 +104,24 @@ std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck( Beam* truck, cons
 // SlideNode Utility functions /////////////////////////////////////////////////
 void Beam::resetSlideNodePositions()
 {
-	for (auto& slideNode : mSlideNodes)
+	for (SlideNode* slideNode : mSlideNodes)
 	{
-		slideNode.ResetPositions();
+		slideNode->ResetPositions();
 	}	
 }
 
 void Beam::resetSlideNodes()
 {
-	for (auto& slideNode : mSlideNodes)
+	for (SlideNode* slideNode : mSlideNodes)
 	{
-		slideNode.reset();
+		slideNode->reset();
 	}
 }
 
 void Beam::updateSlideNodePositions()
 {
-	for (auto& slideNode : mSlideNodes)
+	for (SlideNode* slideNode : mSlideNodes)
 	{
-		slideNode.UpdatePosition();
+		slideNode->UpdatePosition();
 	}
 }

@@ -254,7 +254,9 @@ struct rig_t
 	Ogre::Vector3 origin;
 	Ogre::SceneNode *beamsRoot;
 	//! Stores all the SlideNodes available on this truck
-	std::vector< SlideNode > mSlideNodes;
+	std::vector< SlideNode* > mSlideNodes;
+	std::vector< Framework::Components::UpdateComponent<Units::Second>* > _updateComponents;
+	std::vector< Framework::Components::IntegrateComponent<Units::Second>* > _integrateComponents;
 
 	int proped_wheels; //!< Number of propelled wheels.
 	int braked_wheels; //!< Number of braked wheels.

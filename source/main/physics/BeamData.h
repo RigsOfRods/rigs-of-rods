@@ -284,7 +284,7 @@ static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 #include "datatypes/node.h"
 #include "datatypes/shock.h"
 
-struct collcab_rate
+struct collcab_rate_t
 {
 	int rate;
 	int distance;

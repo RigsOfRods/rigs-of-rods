@@ -298,23 +298,21 @@ public:
 	
 	//! @{ calc forces euler division
 	void calcTruckEngine(bool doUpdate, Ogre::Real dt);
-	void calcBeams(bool doUpdate, Ogre::Real dt, int& increased_accuracy);
+	void calcBeams_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
 	void calcAnimatedProps(bool doUpdate, Ogre::Real dt);
-	void calcSkeletonColouring(bool doUpdate);
-	void calcRigidifiers(float inverted_dt);
 	void calcHooks(bool doUpdate);
-	void calcRopes();
+	void calcForceFeedBack(bool doUpdate);
 	void calcMouse();
-	void calcNodes(bool doUpdate, Ogre::Real dt, int increased_accuracy, int step);
+	void calcNodes_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
 	void calcUpdateComponents(Ogre::Real dt);
 	void calcTurboProp(bool doUpdate, Ogre::Real dt);
 	void calcScrewProp(bool doUpdate);
 	void calcWing();
 	void calcFuseDrag();
 	void calcAirBrakes();
-	void calcBuoyance(bool doUpdate, Ogre::Real dt, int step);
+	void calcBuoyance(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
 	void calcAxles(bool doUpdate, Ogre::Real dt);
-	void calcWheels(bool doUpdate, Ogre::Real dt);
+	void calcWheels(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
 	void calcShocks(bool doUpdate, Ogre::Real dt);
 	void calcHydros(bool doUpdate, Ogre::Real dt);
 	void calcCommands(bool doUpdate, Ogre::Real dt);
