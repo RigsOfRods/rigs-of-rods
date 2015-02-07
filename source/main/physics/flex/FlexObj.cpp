@@ -211,8 +211,12 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
 
 
     /// Notify Mesh object that it has been loaded
-    msh->buildEdgeList();
-    msh->prepareForShadowVolume();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+		msh->prepareForShadowVolume();
+	}
+
     msh->load();
 }
 
