@@ -250,7 +250,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
 		//shutdown_final();
-		Application::GetGuiManager()->ShowPauseMenu(true);
+		Application::GetGuiManager()->TogglePauseMenu();
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.5f))
@@ -460,7 +460,8 @@ bool RoRFrameListener::updateEvents(float dt)
 			{
 				if (gEnv->player)
 				{
-					gEnv->player->setPhysicsEnabled(true);
+					if (!Application::GetGuiManager()->GetPauseMenuVisible())
+						gEnv->player->setPhysicsEnabled(true);
 				}
 			} else // we are in a vehicle
 			{

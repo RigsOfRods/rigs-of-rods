@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowC" position="85 425 200 200" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowC" position="85 425 200 245" layer="Main" name="_Main">
         <Property key="Caption" value="Pause"/>
         <Property key="Show" value="true"/>
         <Property key="Enabled" value="true"/>
@@ -16,6 +16,9 @@
         </Widget>
         <Widget type="Button" skin="Button" position="10 90 168 25" name="rig_editor">
             <Property key="Caption" value="Rig Editor"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="10 170 168 26" name="quit_game">
+            <Property key="Caption" value="Quit to Desktop"/>
         </Widget>
     </Widget>
     <CodeGeneratorSettings>

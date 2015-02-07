@@ -79,7 +79,13 @@ public:
 
 	void BackToMenu();
 
-	void UnloadTerrain(); //just unload terrain, no back to menu
+	/**
+	* @return True if everything was prepared OK and simulation may start.
+	*/
+	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
+
+	void UnloadTerrain();
+
 protected:
 
 	void EnterMainMenuLoop();
@@ -87,11 +93,6 @@ protected:
 	void MainMenuLoopUpdate(float seconds_since_last_frame);
 	
 	void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
-
-	/**
-	* @return True if everything was prepared OK and simulation may start.
-	*/
-	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
 
 	void EnterGameplayLoop();
 

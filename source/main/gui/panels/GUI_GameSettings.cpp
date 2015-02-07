@@ -888,6 +888,37 @@ void CLASS::SaveSettings()
 		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.
 		Settings::getSingleton().saveSettings();
 	}
+
+	//Apply fullscreen
+	if (BSETTING("DevMode", false)) //let's disable this for now
+	{
+		if (OgreSettingsMap["Full Screen"].c_str() != ExOgreSettingsMap["Full Screen"].c_str())
+		{
+			Ogre::StringVector args = Ogre::StringUtil::split(OgreSettingsMap["Video Mode"], " ");
+
+			static int org_width = -1, org_height = -1;
+			int width = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth();
+			int height = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight();
+			if (org_width == -1)
+				org_width = width;
+			if (org_height == -1)
+				org_height = height;
+			bool mode = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isFullScreen();
+			if (!mode)
+			{
+				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(true, (int)args[0].c_str(), (int)args[2].c_str());
+				LOG(" ** switched to fullscreen: " + TOSTRING(width) + "x" + TOSTRING(height));
+			}
+			else
+			{
+				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, 640, 480);
+				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
+				LOG(" ** switched to windowed mode: ");
+			}
+			ShowRestartNotice = false;
+		}
+	}
+
 } 
 
 void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)

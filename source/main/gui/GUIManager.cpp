@@ -358,12 +358,12 @@ void GUIManager::initMainSelector()
 		LOG("ERROR: Trying to init MainSelector more than 1 time.");
 }
 
-void GUIManager::ShowPauseMenu(bool isVisible)
+void GUIManager::TogglePauseMenu()
 {
-	if (isVisible == true)
+	if (m_gui_GamePauseMenu.get() == nullptr)
 	{
-		if (m_gui_GamePauseMenu.get() == nullptr)
-			m_gui_GamePauseMenu = std::unique_ptr<GUI::GamePauseMenu>(new GUI::GamePauseMenu());
+		//First time, to remove flicker glitch
+		m_gui_GamePauseMenu = std::unique_ptr<GUI::GamePauseMenu>(new GUI::GamePauseMenu());
 
 		/* Adjust menu position */
 		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
@@ -372,9 +372,29 @@ void GUIManager::ShowPauseMenu(bool isVisible)
 			margin, // left
 			viewport->getActualHeight() - m_gui_GamePauseMenu->GetHeight() - margin // top
 			);
-
 		m_gui_GamePauseMenu->Show();
+		return;
 	}
+			
+
+	/* Adjust menu position */
+	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+	int margin = (viewport->getActualHeight() / 15);
+	m_gui_GamePauseMenu->SetPosition(
+		margin, // left
+		viewport->getActualHeight() - m_gui_GamePauseMenu->GetHeight() - margin // top
+		);
+
+	if (!m_gui_GamePauseMenu->mMainWidget->getVisible())
+		m_gui_GamePauseMenu->Show();
 	else
 		m_gui_GamePauseMenu->Hide();
+}
+
+bool GUIManager::GetPauseMenuVisible()
+{
+	if (m_gui_GamePauseMenu.get() != nullptr)
+		return m_gui_GamePauseMenu->mMainWidget->getVisible();
+	else
+		return false;
 }

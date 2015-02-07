@@ -93,7 +93,10 @@ public:
 
 	void initSimUtils();
 
-	void ShowPauseMenu(bool isVisible);
+	void TogglePauseMenu();
+
+	bool GetPauseMenuVisible();
+
 private:
 
 	GUIManager();
