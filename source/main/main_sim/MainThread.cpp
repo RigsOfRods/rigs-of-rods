@@ -458,6 +458,17 @@ void MainThread::Go()
 			//if (!RoR::Application::GetGuiManager()->getMainSelector()->IsVisible())
 			RoR::Application::GetGuiManager()->ShowMainMenu(true);
 
+			if (gEnv->network != nullptr)
+			{
+				// Multiplayer started from configurator -> go directly to map selector (traditional behavior)
+				RoR::Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
+				RoR::Application::GetGuiManager()->ShowMainMenu(false);
+			}
+			else
+			{
+				RoR::Application::GetGuiManager()->ShowMainMenu(true);
+			}
+		
 			EnterMainMenuLoop();
 			
 			previous_application_state = Application::STATE_MAIN_MENU;

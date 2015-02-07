@@ -890,6 +890,8 @@ void CLASS::SaveSettings()
 	}
 
 	//Apply fullscreen
+	//Not working correctly
+	/*
 	if (BSETTING("DevMode", false)) //let's disable this for now
 	{
 		if (OgreSettingsMap["Full Screen"].c_str() != ExOgreSettingsMap["Full Screen"].c_str())
@@ -917,7 +919,7 @@ void CLASS::SaveSettings()
 			}
 			ShowRestartNotice = false;
 		}
-	}
+	}*/
 
 } 
 
