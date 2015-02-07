@@ -171,8 +171,16 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
 	BeamFactory *bf = BeamFactory::getSingletonPtr();
 	if (bf) bf->windowResized();
 
-	/*Console *c = RoR::Application::GetConsole();
-	if (c) c->resized();*/
+	if (m_gui_GameMainMenu.get() != nullptr)
+	{
+		/* Adjust menu position */
+		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+		int margin = (viewport->getActualHeight() / 15);
+		m_gui_GameMainMenu->SetPosition(
+			margin, // left
+			viewport->getActualHeight() - m_gui_GameMainMenu->GetHeight() - margin // top
+			);
+	}
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
@@ -213,12 +221,11 @@ void GUIManager::ShowMainMenu(bool isVisible)
 {
 	if (isVisible == true)
 	{
-		OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 		if (m_gui_GameMainMenu.get() == nullptr)
 			m_gui_GameMainMenu = std::unique_ptr<GUI::GameMainMenu>(new GUI::GameMainMenu());
 
 		/* Adjust menu position */
-		Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->getViewport(0);
+		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
 		int margin = (viewport->getActualHeight() / 15);
 		m_gui_GameMainMenu->SetPosition(
 			margin, // left

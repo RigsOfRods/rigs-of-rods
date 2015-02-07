@@ -115,11 +115,13 @@ BeamFactory::BeamFactory() :
 				// Use custom settings from RoR.cfg
 				gEnv->threadPool = new ThreadPool(numThreadsInPool);
 				beamThreadPool   = new ThreadPool(numThreadsInPool);
+				LOG("BEAMFACTORY: Creating: " + TOSTRING(numThreadsInPool) + " threads");
 			} else if (num_cpu_cores > 2)
 			{
 				// Use default settings
 				gEnv->threadPool = new ThreadPool(num_cpu_cores);
 				beamThreadPool   = new ThreadPool(num_cpu_cores);
+				LOG("BEAMFACTORY: Creating: " + TOSTRING(num_cpu_cores) + " threads");
 			}
 		}
 

@@ -65,6 +65,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_digital_speedo, "digital_speedo");
 	MyGUI::Button* m_digital_speedo;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_hq_screenshots, "hq_screenshots");
+	MyGUI::Button* m_hq_screenshots;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_render_sys, "render_sys");
 	MyGUI::ComboBox* m_render_sys;
 

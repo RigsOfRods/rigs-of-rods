@@ -59,6 +59,7 @@ CLASS::CLASS()
 	m_about->eventMouseButtonClick        += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
 	m_exit->eventMouseButtonClick        += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
 	m_multi_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
+	win->setMovable(false);
 
 	Hide();
 }

@@ -32,10 +32,10 @@
                 </Widget>
                 <Widget type="EditBox" skin="EditBox" position="210 185 60 30" name="fovexternal"/>
                 <Widget type="EditBox" skin="EditBox" position="210 225 60 30" name="fovinternal"/>
-                <Widget type="Button" skin="Button" position="465 225 105 35" name="clear_cache">
+                <Widget type="Button" skin="Button" position="465 235 105 35" name="clear_cache">
                     <Property key="Caption" value="Clear Cache"/>
                 </Widget>
-                <Widget type="Button" skin="Button" position="355 225 105 35" name="regen_cache">
+                <Widget type="Button" skin="Button" position="355 235 105 35" name="regen_cache">
                     <Property key="Caption" value="Regen Cache"/>
                 </Widget>
                 <Widget type="Button" skin="CheckBox" position="215 105 125 20" name="enable_replay">
@@ -51,6 +51,9 @@
                 </Widget>
                 <Widget type="Button" skin="CheckBox" position="355 160 215 20" name="digital_speedo">
                     <Property key="Caption" value="Digital Speedometer"/>
+                </Widget>
+                <Widget type="Button" skin="CheckBox" position="355 185 260 20" name="hq_screenshots">
+                    <Property key="Caption" value="High quality screenshots"/>
                 </Widget>
             </Widget>
             <Widget type="TabItem" skin="" position="2 24 624 287">
