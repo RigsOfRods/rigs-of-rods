@@ -120,7 +120,8 @@ void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 {
-	
+	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
+	Hide();
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
