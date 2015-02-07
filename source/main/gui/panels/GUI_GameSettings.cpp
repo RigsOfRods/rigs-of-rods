@@ -106,6 +106,13 @@ CLASS::CLASS()
 	MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
 	mMainWidget->setPosition(gui_area.width/2 - mMainWidget->getWidth()/2, gui_area.height/2 - mMainWidget->getHeight()/2);
 
+	if (!BSETTING("DevMode", false))
+	{
+		m_heathaze->setEnabled(false);
+		m_glow->setEnabled(false);
+		m_sunburn->setEnabled(false);
+	}
+
 	Hide();
 }
 
@@ -332,11 +339,19 @@ void CLASS::UpdateControls()
 	else
 		m_tex_filter->setIndexSelected(0);
 
+	if (BSETTING("DevMode", false))
+	{
+		//Things that aren't ready to be used yet.
+		m_sky_type->addItem("SkyX (best looking, slower)");
+		m_shadow_type->addItem("Parallel-split Shadow Maps");
+		m_water_type->addItem("Hydrax");
+	}
+
 	//Sky effects
 	Ogre::String skytype = GameSettingsMap["Sky effects"];
 	if (skytype == "Caelum (best looking, slower)")
 		m_sky_type->setIndexSelected(1);
-	else if (skytype == "SkyX (best looking, slower)")
+	else if (skytype == "SkyX (best looking, slower)" && BSETTING("DevMode", false))
 		m_sky_type->setIndexSelected(2);
 	else
 		m_sky_type->setIndexSelected(0);
@@ -347,7 +362,7 @@ void CLASS::UpdateControls()
 		m_shadow_type->setIndexSelected(1);
 	else if (shadowtype == "Stencil shadows (best looking)")
 		m_shadow_type->setIndexSelected(2);
-	else if (shadowtype == "Parallel-split Shadow Maps")
+	else if (shadowtype == "Parallel-split Shadow Maps" && BSETTING("DevMode", false))
 		m_shadow_type->setIndexSelected(3);
 	else
 		m_shadow_type->setIndexSelected(0);
@@ -360,7 +375,7 @@ void CLASS::UpdateControls()
 		m_water_type->setIndexSelected(2);
 	else if (watertype == "Reflection + refraction (quality optimized)")
 		m_water_type->setIndexSelected(3);
-	else if (watertype == "Hydrax")
+	else if (watertype == "Hydrax" && BSETTING("DevMode", false))
 		m_water_type->setIndexSelected(4);
 	else
 		m_water_type->setIndexSelected(0);
@@ -802,6 +817,9 @@ void CLASS::SaveSettings()
 	else if (OgreSettingsMap["FSAA"] != ExOgreSettingsMap["FSAA"])
 		ShowRestartNotice = true;
 
+
+	if (GameSettingsMap["Water effects"] == "Hydrax")
+		GameSettingsMap["SightRange"] = 5000;
 
 	//Something used by both saves
 	std::map<std::string, std::string>::iterator it;
