@@ -357,3 +357,24 @@ void GUIManager::initMainSelector()
 	else
 		LOG("ERROR: Trying to init MainSelector more than 1 time.");
 }
+
+void GUIManager::ShowPauseMenu(bool isVisible)
+{
+	if (isVisible == true)
+	{
+		if (m_gui_GamePauseMenu.get() == nullptr)
+			m_gui_GamePauseMenu = std::unique_ptr<GUI::GamePauseMenu>(new GUI::GamePauseMenu());
+
+		/* Adjust menu position */
+		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+		int margin = (viewport->getActualHeight() / 15);
+		m_gui_GamePauseMenu->SetPosition(
+			margin, // left
+			viewport->getActualHeight() - m_gui_GamePauseMenu->GetHeight() - margin // top
+			);
+
+		m_gui_GamePauseMenu->Show();
+	}
+	else
+		m_gui_GamePauseMenu->Hide();
+}

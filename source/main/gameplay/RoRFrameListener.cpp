@@ -180,7 +180,8 @@ RoRFrameListener::RoRFrameListener() :
 	pressure_pressed(false),
 	raceStartTime(-1),
 	reload_box(0),
-	rtime(0)
+	rtime(0),
+	isSimPaused(false)
 {
 
 }
@@ -248,7 +249,8 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
-		shutdown_final();
+		//shutdown_final();
+		Application::GetGuiManager()->ShowPauseMenu(true);
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.5f))
@@ -1345,7 +1347,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		BeamFactory::getSingleton().checkSleepingState();
 
 		// we simulate one truck, it will take care of the others (except networked ones)
-		BeamFactory::getSingleton().calcPhysics(dt);
+		if (!isSimPaused)
+			BeamFactory::getSingleton().calcPhysics(dt);
 
 		updateIO(dt);
 
