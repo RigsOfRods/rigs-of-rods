@@ -186,6 +186,8 @@ void GUIManager::framestep(float dt)
 
 void GUIManager::PushNotification(String Title, String text)
 {
+	if (!m_gui_SimUtils->GetMainVisibiltyState()) return;
+
 	m_gui_SimUtils->PushNotification(Title, text);
 }
 void GUIManager::windowResized(Ogre::RenderWindow* rw)

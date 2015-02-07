@@ -60,7 +60,7 @@ GUI_MainMenu::GUI_MainMenu() :
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR */
 
-	m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Back");
+	m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Main");
 	m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
 	
 	/* -------------------------------------------------------------------------------- */
@@ -160,6 +160,10 @@ GUI_MainMenu::GUI_MainMenu() :
 
 GUI_MainMenu::~GUI_MainMenu()
 {
+	pthread_mutex_destroy(&m_update_lock);
+	m_menubar_widget->setVisible(false);
+	m_menubar_widget->_shutdown();
+	m_menubar_widget = nullptr;
 }
 
 UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)

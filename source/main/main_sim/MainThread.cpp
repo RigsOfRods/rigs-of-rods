@@ -239,7 +239,6 @@ void MainThread::Go()
 	gEnv->frameListener->dirvisible = false;
 	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
-	new GUI_MainMenu(); /* Top menubar */
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
@@ -399,7 +398,6 @@ void MainThread::Go()
 #endif //SOCKETW	
 
 	new BeamFactory();
-
 	// ========================================================================
 	// Main loop (switches application states)
 	// ========================================================================
@@ -452,6 +450,13 @@ void MainThread::Go()
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_load = true;
+				/* Hide top menu */
+				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
+				if (top_menu != nullptr)
+				{
+					delete(top_menu);
+					top_menu = nullptr;
+				}
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
 			}
@@ -550,7 +555,8 @@ void MainThread::Go()
 				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
 				if (top_menu != nullptr) 
 				{
-					top_menu->setVisible(false);
+					delete(top_menu);
+					top_menu = nullptr;
 				}
 			}
 			else if (previous_application_state == Application::STATE_MAIN_MENU)
@@ -887,6 +893,7 @@ void MainThread::EnterGameplayLoop()
 {
 	/* SETUP */
 
+	new GUI_MainMenu();
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
 	unsigned long timeSinceLastFrame = 1;
