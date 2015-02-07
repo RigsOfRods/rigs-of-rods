@@ -92,7 +92,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIMenu.h"
 #include "GUIFriction.h"
 #include "GUIMp.h"
-#include "SelectorWindow.h"
 #include "LoadingWindow.h"
 #include "Console.h"
 #include "SurveyMapManager.h"
@@ -330,7 +329,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
 		freeTruckPosition = true;
 		loading_state = RELOADING;
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
+		Application::GetGuiManager()->getMainSelector()->show(LT_AllBeam);
 		return true;
 	}
 
@@ -503,6 +502,10 @@ bool RoRFrameListener::updateEvents(float dt)
 					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && curr_truck->replaypos-10 > -curr_truck->replaylen)
 					{
 						curr_truck->replaypos-=10;
+					}
+					if (RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) && RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_V))
+					{
+						
 					}
 
 					if (RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
@@ -841,13 +844,13 @@ bool RoRFrameListener::updateEvents(float dt)
 		//no terrain or truck loaded
 
 #ifdef USE_MYGUI
-		if (SelectorWindow::getSingleton().isFinishedSelecting())
+		if (Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
 		{
 			if (loading_state==TERRAIN_LOADED)
 			{
-				CacheEntry *selection = SelectorWindow::getSingleton().getSelection();
-				Skin *skin = SelectorWindow::getSingleton().getSelectedSkin();
-				std::vector<String> config = SelectorWindow::getSingleton().getTruckConfig();
+				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->getSelection();
+				Skin *skin = Application::GetGuiManager()->getMainSelector()->getSelectedSkin();
+				std::vector<String> config = Application::GetGuiManager()->getMainSelector()->getTruckConfig();
 				std::vector<String> *configptr = &config;
 				if (config.size() == 0) configptr = 0;
 				if (selection)
@@ -858,14 +861,14 @@ bool RoRFrameListener::updateEvents(float dt)
 			} 
 			else if (loading_state == RELOADING)
 			{
-				CacheEntry *selection = SelectorWindow::getSingleton().getSelection();
-				Skin *skin = SelectorWindow::getSingleton().getSelectedSkin();
+				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->getSelection();
+				Skin *skin = Application::GetGuiManager()->getMainSelector()->getSelectedSkin();
 				Beam *local_truck = nullptr;
 				if (selection != nullptr)
 				{
 					/* We load an extra truck */
 					std::vector<String> *config_ptr = nullptr;
-					std::vector<String> config = SelectorWindow::getSingleton().getTruckConfig();
+					std::vector<String> config = Application::GetGuiManager()->getMainSelector()->getTruckConfig();
 					if (config.size() > 0)
 					{
 						config_ptr = & config;
@@ -887,7 +890,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 				}
 
-				SelectorWindow::getSingleton().hide();
+				Application::GetGuiManager()->getMainSelector()->hide();
 				loading_state = ALL_LOADED;
 
 				RoR::Application::GetGuiManager()->unfocus();
@@ -1457,8 +1460,9 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	reload_box = gEnv->collisions->getBox(instance, box);
 	loading_state = RELOADING;
 	hideMap();
+
 #ifdef USE_MYGUI
-	SelectorWindow::getSingleton().show(SelectorWindow::LoaderType(type));
+	Application::GetGuiManager()->getMainSelector()->show(LoaderType(type));
 #endif //USE_MYGUI
 }
 

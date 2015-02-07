@@ -339,3 +339,11 @@ void GUIManager::ShowMultiPlayerSelector(bool isVisible)
 	else
 		m_gui_MultiplayerSelector->Hide();
 }
+
+void GUIManager::initMainSelector()
+{
+	if (m_gui_MainSelector.get() == nullptr)
+		m_gui_MainSelector = std::shared_ptr<GUI::MainSelector>(new GUI::MainSelector());
+	else
+		LOG("ERROR: Trying to init MainSelector more than 1 time.");
+}

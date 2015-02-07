@@ -41,6 +41,7 @@
 #include "GUI_SimUtils.h"
 #include "GUI_MessageBox.h"
 #include "GUI_MultiplayerSelector.h"
+#include "GUI_MainSelector.h"
 
 namespace RoR
 {
@@ -81,6 +82,10 @@ public:
 	int getMessageBoxResult(); //TODO
 
 	void ShowMultiPlayerSelector(bool isVisible);
+
+	void initMainSelector();
+	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
+
 private:
 
 	GUIManager();
@@ -107,10 +112,10 @@ private:
 	std::unique_ptr<GUI::GameSettings>		m_gui_GameSettings;
 	std::unique_ptr<GUI::DebugOptions>		m_gui_DebugOptions;
 	std::unique_ptr<GUI::SimUtils>			m_gui_SimUtils;
-	bool isSimUtilsVisible;
 	std::unique_ptr<GUI::gMessageBox>		m_gui_gMessageBox;
-
-	std::unique_ptr<GUI::MultiplayerSelector>			m_gui_MultiplayerSelector;
+	std::unique_ptr<GUI::MultiplayerSelector>		m_gui_MultiplayerSelector;
+	std::shared_ptr<GUI::MainSelector>		m_gui_MainSelector;
+	bool isSimUtilsVisible;
 };
 
 } // namespace RoR

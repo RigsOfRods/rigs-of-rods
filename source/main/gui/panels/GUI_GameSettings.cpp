@@ -32,7 +32,6 @@
 #include "RoRVersion.h"
 #include "rornet.h"
 #include "Language.h"
-#include "SelectorWindow.h"
 #include "GlobalEnvironment.h"
 #include "Application.h"
 #include "RoRFrameListener.h"
