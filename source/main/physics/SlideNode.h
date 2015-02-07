@@ -29,6 +29,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgreVector3.h>
 
+#include "physics/framework/BeamComponents.h"
+#include "physics/framework/ThresholdCoupler.h"
+#include "physics/framework/UpdateComponents.h"
 /**
  * Find the point on a line defined by pt1 and pt2 that
  * is nearest to a given point tp
@@ -150,16 +153,16 @@ public:
 	void cleanUp()
 	{
 		Rail* cur = mStart;
-		if ( cur->prev ) cur->prev = cur->prev->next = NULL;
+		if ( cur->prev ) cur->prev = cur->prev->next = nullptr;
 		while( cur->next )
 		{
 			cur = cur->next;
 			delete cur->prev;
-			cur->prev = NULL;
+			cur->prev = nullptr;
 		}
 		
 		delete cur;
-		cur = NULL;
+		cur = nullptr;
 	}
 	
 private:
@@ -176,9 +179,9 @@ class RailBuilder : public ZeroedMemoryAllocator
 public:
 	/* no public members */
 private:
-	Rail*     mStart;    //! Start of the Rail series
-	Rail*     mFront;    //! Front of the Rail, not necessarily the start
-	Rail*      mBack;    //! Last rail in the series
+	Rail*    mStart;    //! Start of the Rail series
+	Rail*    mFront;    //! Front of the Rail, not necessarily the start
+	Rail*     mBack;    //! Last rail in the series
 	bool      mLoop;    //! Check if rail is to be looped
 	bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
 	
@@ -256,7 +259,7 @@ public:
          *
          * @param slidingNode pointer to the node acting as a slide node
          * @param slidingRail pointer to the rail group the node is initially
-         * sliding on. NULL is an acceptable value.
+         * sliding on. nullptr is an acceptable value.
          * @return New SlideNode instance
          */
     SlideNode(node_t* slidingNode, RailGroup* slidingRail);
@@ -326,7 +329,7 @@ public:
     }
 
     /**
-     * @param toAttach Which rail to attach to, Pass NULL to detach this
+     * @param toAttach Which rail to attach to, Pass nullptr to detach this
      * SlideNode from any rail.
      */
     void attachToRail(RailGroup* toAttach)
