@@ -40,7 +40,6 @@
 #include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
-#include "Savegame.h"
 #include "Settings.h"
 #include "TextureToolWindow.h"
 #include "Utils.h"
