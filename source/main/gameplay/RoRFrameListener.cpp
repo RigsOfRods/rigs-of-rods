@@ -167,7 +167,6 @@ RoRFrameListener::RoRFrameListener() :
 	clutch(0),
 	dashboard(0),
 	dof(0),
-	flaresMode(3), // on by default
 	forcefeedback(0),
 	freeTruckPosition(false),
 	heathaze(0),
@@ -877,7 +876,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
-					local_truck = BeamFactory::getSingleton().createLocal(reload_pos, reload_dir, selection->fname, reload_box, false, flaresMode, config_ptr, skin, freeTruckPosition);
+					local_truck = BeamFactory::getSingleton().createLocal(reload_pos, reload_dir, selection->fname, reload_box, false, config_ptr, skin, freeTruckPosition);
 					freeTruckPosition = false; // reset this, only to be used once
 				}
 
@@ -1083,12 +1082,14 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 		Vector3 spawnpos = gEnv->terrainManager->getSpawnPos();
 		Quaternion spawnrot = Quaternion::ZERO;
 
-		b = BeamFactory::getSingleton().createLocal(spawnpos, spawnrot, selectedchr, 0, false, flaresMode, truckconfig, skin);
+		b = BeamFactory::getSingleton().createLocal(spawnpos, spawnrot, selectedchr, 0, false, truckconfig, skin);
 
 		if (enterTruck)
 		{
-			if (b)
+			if (b) {
 				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
+				b->activate();
+			}
 			else
 				BeamFactory::getSingleton().setCurrentTruck(-1);
 		}

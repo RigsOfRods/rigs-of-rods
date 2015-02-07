@@ -56,7 +56,6 @@ public:
 		Ogre::String fname, 
 		collision_box_t *spawnbox = NULL, 
 		bool ismachine = false, 
-		int flareMode = 0, 
 		const std::vector<Ogre::String> *truckconfig = nullptr, 
 		Skin *skin = nullptr, 
 		bool freePosition = false,
@@ -156,8 +155,6 @@ public:
 	ThreadPool *beamThreadPool;
 
 protected:
-
-	Ogre::SceneNode *parent;
 	
 	bool async_physics;
 	bool thread_mode;

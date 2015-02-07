@@ -27,6 +27,10 @@
 
 #pragma once
 
+#include <MyGUI_Common.h>
+#include <MyGUI_Prerequest.h> // Forward declarations
+#include <MyGUI_Window.h>
+
 namespace RoR
 {
 

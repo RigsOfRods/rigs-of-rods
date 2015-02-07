@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -27,12 +27,15 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
 #include "OgreAxisAlignedBox.h"
+#include "RigEditor_Node.h"
 
 namespace RoR
 {
@@ -42,34 +45,7 @@ namespace RigEditor
 
 class Rig
 {
-
 public:
-
-	struct SelectedNodesQueryResult
-	{
-		SelectedNodesQueryResult():
-			num_nodes(0),
-			load_weight(0.f),
-			load_weight_is_unique(true),
-			detacher_group_id(0),
-			detacher_group_id_is_unique(true),
-			preset_id(0),
-			preset_id_is_unique(true),
-			flags_all_nodes(0),
-			flags_any_node(0)
-		{}
-
-		int          num_nodes;
-		Ogre::String node_name;
-		float        load_weight;
-		bool         load_weight_is_unique;
-		int          detacher_group_id;
-		bool         detacher_group_id_is_unique;
-		int          preset_id;
-		bool         preset_id_is_unique;
-		unsigned int flags_all_nodes;
-		unsigned int flags_any_node;
-	};
 
 	Rig(Config* config);
 
@@ -150,9 +126,22 @@ public:
 
 	boost::shared_ptr<RigDef::File> Export();
 
-	void QuerySelectedNodesData(SelectedNodesQueryResult* result);
+	void QuerySelectedNodesData(RigAggregateNodesData* result);
 
-	void SelectedNodesUpdateFlag(bool add, unsigned int flag);
+	void QuerySelectedBeamsData(RigAggregateBeams2Data* result);
+
+	void UpdateSelectedBeamsList();
+
+	inline unsigned int GetNumSelectedBeams() const { return m_selected_beams.size(); }
+	
+	// Node/beam updaters
+	void SelectedNodesUpdateAttributes     (const RigAggregateNodesData      *data);
+	void SelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData *data);
+	void SelectedMixedBeamsUpdateAttributes(const MixedBeamsAggregateData          *data);
+	void SelectedShocksUpdateAttributes    (const RigAggregateShocksData     *data);
+	void SelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data    *data);
+	void SelectedHydrosUpdateAttributes    (const RigAggregateHydrosData     *data);
+	void SelectedCommands2UpdateAttributes (const RigAggregateCommands2Data  *data);
 
 	/** Rig building utility function
 	*/
@@ -191,6 +180,7 @@ private:
 
 	/* STATE */
 	Node*                m_mouse_hovered_node;
+	std::list<Beam*>     m_selected_beams;
 
 	/* VISUALS */
 	std::unique_ptr<Ogre::ManualObject>  m_beams_dynamic_mesh;

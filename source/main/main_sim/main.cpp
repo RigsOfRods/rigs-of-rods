@@ -32,11 +32,11 @@
 
 using namespace Ogre;
 
-#if WIN32
+#if _WIN32
 #include <tchar.h>
 #else
 #define _T
-#endif // WIN32
+#endif // _WIN32
 
 #ifdef USE_CRASHRPT
 // see http://code.google.com/p/crashrpt/

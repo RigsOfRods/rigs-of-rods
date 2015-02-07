@@ -1988,7 +1988,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 		}
 
 		// set the mouse to the middle of the screen, hackish!
-#if WIN32
+#if _WIN32
 		// under linux, this will not work and the cursor will never reach (0,0)
 		if (mMouse && RoR::Application::GetOgreSubsystem()->GetRenderWindow())
 		{
@@ -1996,7 +1996,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 			mutableMouseState.X.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()  * 0.5f;
 			mutableMouseState.Y.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
 		}
-#endif // WIN32
+#endif // _WIN32
 	}
 	//this becomes more and more convoluted!
 #ifdef NOOGRE

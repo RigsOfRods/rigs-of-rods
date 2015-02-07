@@ -55,7 +55,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PositionStorage.h"
 #include "Replay.h"
 #include "RigSpawner.h"
-#include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -299,7 +298,7 @@ Beam::~Beam()
 		netMT = 0;
 	}
 
-	if (net_mutex)
+	if (state == NETWORKED) // int rig_t::state
 	{
 		pthread_mutex_destroy(&net_mutex);
 	}
@@ -6028,7 +6027,6 @@ Beam::Beam(
 	bool networking, /* = false  */ 
 	collision_box_t *spawnbox, /* = nullptr */
 	bool ismachine, /* = false  */ 
-	int flareMode, /* = nullptr */
 	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
 	Skin *skin, /* = nullptr */
 	bool freeposition, /* = false */

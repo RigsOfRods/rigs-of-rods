@@ -269,21 +269,9 @@ void MainThread::Go()
 	gEnv->frameListener->dirvisible = false;
 	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
+	new GUI_MainMenu(); /* Top menubar */
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
-
-	// get lights mode
-	String lightsMode = SSETTING("Lights", "Only current vehicle, main lights");
-	if (lightsMode == "None (fastest)")
-		gEnv->frameListener->flaresMode = 0;
-	else if (lightsMode == "No light sources")
-		gEnv->frameListener->flaresMode = 1;
-	else if (lightsMode == "Only current vehicle, main lights")
-		gEnv->frameListener->flaresMode = 2;
-	else if (lightsMode == "All vehicles, main lights")
-		gEnv->frameListener->flaresMode = 3;
-	else if (lightsMode == "All vehicles, all lights")
-		gEnv->frameListener->flaresMode = 4;
 
 	// force feedback
 	if (BSETTING("Force Feedback", true))
@@ -392,7 +380,7 @@ void MainThread::Go()
 		// important note: all new network code is written in order to allow also the old network protocol to further exist.
 		// at some point you need to decide with what type of server you communicate below and choose the correct class
 
-		gEnv->network = new Network(server_name, server_port, gEnv->frameListener);
+		gEnv->network = new Network(server_name, server_port);
 
 		bool connres = gEnv->network->connect();
 
@@ -554,8 +542,6 @@ void MainThread::Go()
 				/* Setup GUI manager updates */
 				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
 			}
-
-			new GUI_MainMenu(); /* Top menubar */
 
 			if (SetupGameplayLoop(enable_network, preselected_map))
 			{

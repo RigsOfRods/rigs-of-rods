@@ -31,12 +31,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
-#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
 #include "ChatSystem.h"
 #include "Console.h"
+
+#ifdef _GNU_SOURCE
+#include <sys/sysinfo.h>
+#endif
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"
@@ -56,11 +59,29 @@ template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 int simulatedTruck;
 void* threadstart(void* vid);
 
+static unsigned hardware_concurrency()
+{
+	#if defined(PTW32_VERSION) || defined(__hpux)
+		return pthread_num_processors_np();
+	#elif defined(_GNU_SOURCE)
+		return get_nprocs();
+	#elif defined(__APPLE__) || defined(__FreeBSD__)
+		int count;
+		size_t size = sizeof(count);
+		return sysctlbyname("hw.ncpu", &count, &size, NULL, 0) ? 0 : count;
+	#elif defined(BOOST_HAS_UNISTD_H) && defined(_SC_NPROCESSORS_ONLN)
+		int const count = sysconf(_SC_NPROCESSORS_ONLN);
+		return (count > 0) ? count : 0;
+	#else
+		return 0;
+	#endif
+} 
+
 BeamFactory::BeamFactory() :
 	  current_truck(-1)
 	, forcedActive(false)
 	, free_truck(0)
-	, num_cpu_cores(pthread_num_processors_np())
+	, num_cpu_cores(hardware_concurrency())
 	, physFrame(0)
 	, previous_truck(-1)
 	, tdr(0)
@@ -159,7 +180,6 @@ Beam *BeamFactory::createLocal(
 	Ogre::String fname, 
 	collision_box_t *spawnbox /* = nullptr */, 
 	bool ismachine /* = false */, 
-	int flareMode /* = 0 */, 
 	const std::vector<Ogre::String> *truckconfig /* = nullptr */, 
 	Skin *skin /* = nullptr */, 
 	bool freePosition, /* = false */
@@ -182,7 +202,6 @@ Beam *BeamFactory::createLocal(
 		gEnv->network != nullptr, // networking
 		spawnbox,
 		ismachine,
-		flareMode,
 		truckconfig,
 		skin,
 		freePosition,
@@ -285,11 +304,11 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		reg->reg.name,
 		true, // networked
 		gEnv->network!=0, // networking
-		0,
-		false,
-		3,
+		nullptr, // spawnbox
+		false, // ismachine
 		&truckconfig,
-		0);
+		nullptr // skin
+		);
 
 	trucks[truck_num] = b;
 
@@ -674,7 +693,6 @@ void BeamFactory::setCurrentTruck(int new_truck)
 	previous_truck = current_truck;
 	current_truck = new_truck;
 
-	if (gEnv->frameListener)
 	{
 		if (previous_truck >= 0 && current_truck >= 0)
 		{

@@ -41,21 +41,21 @@
         <Widget type="Button" skin="CheckBox" position="140 50 50 20" name="flag_L_checkbox">
             <Property key="Caption" value="L"/>
         </Widget>
-        <Widget type="TextBox" skin="TextBox" position="5 110 125 25" name="loadweight_label">
+        <Widget type="TextBox" skin="TextBox" position="5 95 125 25" name="loadweight_label">
             <Property key="Caption" value="Load weight:"/>
             <Property key="TextAlign" value="Left VCenter"/>
         </Widget>
-        <Widget type="EditBox" skin="EditBox" position="130 110 90 25" name="loadweight_editbox"/>
-        <Widget type="TextBox" skin="TextBox" position="5 135 125 25">
+        <Widget type="EditBox" skin="EditBox" position="130 95 90 25" name="loadweight_editbox"/>
+        <Widget type="TextBox" skin="TextBox" position="5 120 125 25" name="detacher_group_label">
             <Property key="Caption" value="Detacher group:"/>
             <Property key="TextAlign" value="Left VCenter"/>
         </Widget>
-        <Widget type="EditBox" skin="EditBox" position="130 135 90 25" name="detacher_group_editbox"/>
-        <Widget type="TextBox" skin="TextBox" position="5 90 215 20" name="flag_tooltip_label">
+        <Widget type="EditBox" skin="EditBox" position="130 120 90 25" name="detacher_group_editbox"/>
+        <Widget type="TextBox" skin="TextBox" position="5 145 215 20" name="flag_tooltip_label">
             <Property key="TextAlign" value="Left VCenter"/>
             <Property key="TextColour" value="0.902001 1 0.0350877"/>
         </Widget>
-        <Widget type="TextBox" skin="TextBox" position="5 160 215 25">
+        <Widget type="TextBox" skin="TextBox" position="5 165 215 20" name="preset_selector_label">
             <Property key="Caption" value="Preset:"/>
             <Property key="TextAlign" value="Left VCenter"/>
         </Widget>

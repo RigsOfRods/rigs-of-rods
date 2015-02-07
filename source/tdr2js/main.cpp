@@ -57,6 +57,7 @@ int main(int argc, char**argv)
 	if(!fileo)
 	{
 		printf("error opening ouput file: %s\n", fnout);
+		fclose(file);
 		return 1;
 	}
 	fprintf(fileo, "var data = [\n");
@@ -70,6 +71,8 @@ int main(int argc, char**argv)
 	{
 		printf("unsupported file format: %s\n", header.fileformat);
 		printf("supported fileformat: %s\n", R2DFILEFORMAT);
+		fclose(file);
+		fclose(fileo);
 		return 1;
 	}
 	printf("loaded file with %d rigs:\n", header.num_rigs);

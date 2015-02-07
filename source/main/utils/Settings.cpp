@@ -411,11 +411,11 @@ bool Settings::setupPaths()
 		if (! FolderExists(resources_path))
 		{
 			// 3rd fallback: check the installation path
-#ifndef WIN32
+#ifndef _WIN32
 			// linux fallback
 			// TODO: use installation patch values from CMake
 			strcpy(resources_path, "/usr/share/rigsofrods/resources/");
-#endif // WIN32
+#endif // !_WIN32
 
 			if (! FolderExists(resources_path))
 			{
@@ -426,14 +426,14 @@ bool Settings::setupPaths()
 	}
 
 	// change working directory to executable path
-#ifdef WIN32
+#ifdef _WIN32
 	_chdir(program_path);
-#endif //WIN32
+#endif // _WIN32
 
 	//setup config files names
 	char plugins_fname[1024] = {};
 
-#ifdef WIN32
+#ifdef _WIN32
 	// under windows, the plugins.cfg is in the installation directory
 	strcpy(plugins_fname, program_path);
 #else
@@ -453,7 +453,7 @@ bool Settings::setupPaths()
 			strcpy(plugins_fname, program_path);
 	}
 	
-#endif // WIN32
+#endif // _WIN32
 
 
 #ifdef _DEBUG
@@ -554,14 +554,14 @@ void Settings::path_add(char* path, const char* dirname)
 	strcpy(path, tmp);
 }
 
-int Settings::GetFlaresMode()
+int Settings::GetFlaresMode(int default_value /*=2*/)
 {
-	if (m_flares_mode == -1)
+	if (m_flares_mode == -1) // -1: unknown, -2: default, 0+: mode ID
 	{
 		auto itor = settings.find("Lights");
 		if (itor == settings.end())
 		{
-			m_flares_mode = 2; // "Only current vehicle, main lights" (default)
+			m_flares_mode = -2;
 		}
 		else
 		{
@@ -571,8 +571,12 @@ int Settings::GetFlaresMode()
 			else if (itor->second == "All vehicles, main lights")         { m_flares_mode = 3; }
 			else if (itor->second == "All vehicles, all lights")          { m_flares_mode = 4; }
 
-			else                                                          { m_flares_mode = 2; }
+			else                                                          { m_flares_mode = -2; }
 		}
+	}
+	if (m_flares_mode == -2)
+	{
+		return default_value;
 	}
 	return m_flares_mode;
 }

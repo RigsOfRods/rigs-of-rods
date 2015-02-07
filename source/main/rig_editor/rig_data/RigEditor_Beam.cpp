@@ -78,31 +78,6 @@ void Beam::DeleteDefinition()
 	}
 }
 
-Node* Beam::GetNodeA()
-{
-	return m_nodes[0];
-}
-
-Node* Beam::GetNodeB()
-{
-	return m_nodes[1];
-}
-
-void Beam::SetColor(Ogre::ColourValue const & color)
-{
-	m_color = color;
-}
-
-Ogre::ColourValue const & Beam::GetColor() const
-{
-	return m_color;
-}
-
-Beam::Type Beam::GetType()
-{
-	return m_type;
-}
-
 } // namespace RigEditor
 
 } // namespace RoR

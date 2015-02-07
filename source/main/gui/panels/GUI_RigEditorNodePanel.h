@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,11 +12,11 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -30,8 +30,8 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorNodePanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
-#include "RigEditor_IMain.h"
-#include "GuiPanelBase.h"
+#include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_RigQueries.h"
 
 namespace RoR
 {
@@ -39,55 +39,34 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorNodePanel: public RigEditorNodePanelLayout, public GuiPanelBase
+class RigEditorNodePanel: public RigEditorNodePanelLayout, public RigEditor::GuiNodeBeamPanelBase
 {
 
 public:
 
 	RigEditorNodePanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config);
 
-	/**
-	* @param node_name                     nullptr if multiple nodes selected
-	* @param unique_load_weight_ptr        nullptr if not unique
-	* @param unique_detacher_group_id_ptr  nullptr if not unique
-	* @param unique_preset_id_ptr          nullptr if not unique
-	*/
-	void UpdateNodeData(
-		int node_count, 
-		Ogre::String node_name,
-		float* unique_load_weight_ptr,
-		int* unique_detacher_group_id_ptr,
-		int* unique_preset_id_ptr
-		);
+	void UpdateNodeData(RigEditor::RigAggregateNodesData* query);
 
-	void UpdateNodeFlags(
-		unsigned int flags_all_nodes,
-		unsigned int flags_any_node
-		);
+	inline void HideAndReset()
+	{
+		Hide();
+		m_data.Reset();
+	}
 
-	void PositionOnScreen(RigEditor::Config* config);
+	inline const RigEditor::RigAggregateNodesData* GetData() { return &m_data; }
 
 private:
 
 	void SetNodeNameFieldVisible(bool show);
 
-	void UpdateFlagCheckbox(
-		MyGUI::Button* checkbox,
-		unsigned int flags_all_nodes,
-		unsigned int flags_any_node
-		);
+	// Aggregate node data
+	RigEditor::RigAggregateNodesData m_data;
 
-	void NodeFlagCheckboxClicked(MyGUI::Widget* sender);
-
-	void NodeFlagCheckboxFocusGained(MyGUI::Widget* old_widget, MyGUI::Widget* new_widget);
-
-	void NodeFlagCheckboxFocusLost(MyGUI::Widget* old_widget, MyGUI::Widget* new_widget);
-
-	RigEditor::IMain* m_rig_editor_interface;
-
-	MyGUI::Colour m_config_checkbox_mixvalues_color;
-	MyGUI::Colour m_config_checkbox_default_color;
-
+	// Form fields
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_loadweight_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;
+	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_node_name_field;
 };
 
 } // namespace GUI

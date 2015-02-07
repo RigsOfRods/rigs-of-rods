@@ -43,7 +43,7 @@
 #ifndef INCLUDE_LIBIRC_H
 #define INCLUDE_LIBIRC_H
 
-#if !defined (WIN32)
+#if !defined (_WIN32)
 	#include <sys/select.h>	/* fd_set */
 #else
 	#include <winsock2.h>
@@ -51,12 +51,12 @@
 	#if defined (ENABLE_IPV6)
 		typedef int  (WSAAPI * getaddrinfo_ptr_t)  (const char *, const char* , const struct addrinfo *, struct addrinfo **);
 		typedef void (WSAAPI * freeaddrinfo_ptr_t) (struct addrinfo*);
-	#endif
-#endif
+	#endif // ENABLE_IPV6
+#endif // !_WIN32
 
 #ifdef	__cplusplus
 extern "C" {
-#endif
+#endif // _cplusplus
 
 /*! \brief A libircclient IRC session.
  *

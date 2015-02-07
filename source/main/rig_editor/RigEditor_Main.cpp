@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -30,12 +30,17 @@
 #include "Application.h"
 #include "CacheSystem.h"
 #include "GlobalEnvironment.h"
+#include "GUI_RigEditorBeamsPanel.h"
+#include "GUI_RigEditorCommands2Panel.h"
 #include "GUI_RigEditorDeleteMenu.h"
 #include "GUI_RigEditorHelpWindow.h"
+#include "GUI_RigEditorHydrosPanel.h"
 #include "GUI_RigEditorLandVehiclePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
 #include "GUI_RigEditorNodePanel.h"
 #include "GUI_RigEditorRigPropertiesWindow.h"
+#include "GUI_RigEditorShocksPanel.h"
+#include "GUI_RigEditorShocks2Panel.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "MainThread.h"
@@ -49,6 +54,7 @@
 #include "RigEditor_Node.h"
 #include "RigEditor_Rig.h"
 #include "RigEditor_RigProperties.h"
+#include "RigEditor_RigQueries.h"
 #include "Settings.h"
 
 #include <OISKeyboard.h>
@@ -130,47 +136,7 @@ void Main::EnterMainLoop()
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
 	m_viewport->setCamera(m_camera);
 
-	/* Setup GUI */
-	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
-	if (m_gui_menubar.get() == nullptr)
-	{
-		m_gui_menubar = std::unique_ptr<GUI::RigEditorMenubar>(new GUI::RigEditorMenubar(this));
-	}
-	else
-	{
-		m_gui_menubar->Show();
-	}
-	m_gui_menubar->SetWidth(viewport_width);
-	if (m_gui_open_save_file_dialog.get() == nullptr)
-	{
-		m_gui_open_save_file_dialog = std::unique_ptr<GUI::OpenSaveFileDialog>(new GUI::OpenSaveFileDialog());
-	}
-	if (m_gui_delete_menu.get() == nullptr)
-	{
-		m_gui_delete_menu = std::unique_ptr<GUI::RigEditorDeleteMenu>(new GUI::RigEditorDeleteMenu(this));
-	}
-	if (m_gui_rig_properties_window.get() == nullptr)
-	{
-		m_gui_rig_properties_window 
-			= std::unique_ptr<GUI::RigEditorRigPropertiesWindow>(new GUI::RigEditorRigPropertiesWindow(this));
-	}
-	if (m_gui_land_vehicle_properties_window.get() == nullptr)
-	{
-		m_gui_land_vehicle_properties_window 
-			= std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>(new GUI::RigEditorLandVehiclePropertiesWindow(this));
-	}
-	if (m_gui_help_window.get() == nullptr)
-	{
-		m_gui_help_window = std::unique_ptr<GUI::RigEditorHelpWindow>(new GUI::RigEditorHelpWindow(this));
-	}
-	if (m_nodes_panel.get() == nullptr)
-	{
-		m_nodes_panel = std::unique_ptr<GUI::RigEditorNodePanel>(new GUI::RigEditorNodePanel(this, m_config));
-	}
-	else
-	{
-		m_nodes_panel->ShowIfHiddenTemporarily();
-	}
+	InitializeOrRestoreGui();
 
 	/* Setup input */
 	RoR::Application::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -206,7 +172,13 @@ void Main::EnterMainLoop()
 		m_gui_open_save_file_dialog->endModal(); // Hides the dialog
 	}
 	m_gui_delete_menu->Hide();
-	m_nodes_panel->HideTemporarily();
+	// Supress node/beam panels (if visible)
+	m_nodes_panel    ->HideTemporarily();
+	m_beams_panel    ->HideTemporarily();
+	m_hydros_panel   ->HideTemporarily();
+	m_commands2_panel->HideTemporarily();
+	m_shocks_panel   ->HideTemporarily();
+	m_shocks2_panel  ->HideTemporarily();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
@@ -284,9 +256,13 @@ void Main::UpdateMainLoop()
 		bool node_hover_changed = false;
 		bool node_mouse_selecting_disabled = m_gui_delete_menu->IsVisible();// || m_gui_rig_properties_window->IsVisible();
 		bool rig_updated = false;
+		bool all_nodes_selection_toggled = false;
+		bool rig_must_deselect_all_nodes = false;
+		RigEditor::Node* node_to_set_selected = nullptr;
 		Vector2int mouse_screen_position = m_input_handler->GetMouseMotionEvent().GetAbsolutePosition();
 
 		// Handle event 'extrude selected', because it changes selection and invokes Mode::GRAB_NODES
+		// TODO: Make this work with GUI panel updates. It will require implementing array of nodes to set selected.
 		if	(	(m_input_handler->WasEventFired(InputHandler::Event::NODES_EXTRUDE_SELECTED))
 			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::CREATE_NEW_NODE))
 			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
@@ -328,7 +304,7 @@ void Main::UpdateMainLoop()
 			&&	(! m_input_handler->IsModeActive(InputHandler::Mode::GRAB_NODES))
 			)
 		{
-			m_rig->DeselectOrSelectAllNodes();
+			all_nodes_selection_toggled = true;
 			node_selection_changed = true;
 		}
 
@@ -340,14 +316,13 @@ void Main::UpdateMainLoop()
 			{
 				if (! ctrl_is_down)
 				{
-					m_rig->DeselectAllNodes();
+					rig_must_deselect_all_nodes = true;
 					node_selection_changed = true;
 				}
-				Node & new_node = m_rig->CreateNewNode(
+				node_to_set_selected = &m_rig->CreateNewNode(
 						m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO)
 					);
-				new_node.SetSelected(true);
-				m_rig->RefreshNodeScreenPosition(new_node, m_camera_handler);
+				m_rig->RefreshNodeScreenPosition(*node_to_set_selected, m_camera_handler);
 				node_selection_changed = true;
 				rig_updated = true;
 			}
@@ -361,7 +336,7 @@ void Main::UpdateMainLoop()
 				// Translate selected nodes
 				Ogre::Vector3 mouse_world_pos = m_camera_handler->ConvertScreenToWorldPosition(mouse_screen_position, Ogre::Vector3::ZERO);
 				Ogre::Vector3 previous_world_pos = m_camera_handler->ConvertScreenToWorldPosition(
-					m_input_handler->GetMouseMotionEvent().GetPreviousAbsolutePosition(), 
+					m_input_handler->GetMouseMotionEvent().GetPreviousAbsolutePosition(),
 					Ogre::Vector3::ZERO
 				);
 
@@ -412,11 +387,127 @@ void Main::UpdateMainLoop()
 		{
 			if (! ctrl_is_down)
 			{
-				m_rig->DeselectAllNodes();
+				rig_must_deselect_all_nodes = true;
 				node_selection_changed = true;
 			}
-			node_selection_changed = m_rig->ToggleMouseHoveredNodeSelected() ? true : node_selection_changed;
+			if (m_rig->GetMouseHoveredNode() != nullptr)
+			{
+				node_selection_changed = true;
+				node_to_set_selected = m_rig->GetMouseHoveredNode();
+			}
 		}
+
+		if (node_selection_changed)
+		{
+			// ==== Apply changes from GUI to rig ====
+
+			if (m_nodes_panel->GetData()->num_selected != 0)
+			{
+				m_rig->SelectedNodesUpdateAttributes(m_nodes_panel->GetData());
+				if (m_rig->GetNumSelectedBeams() != 0)
+				{
+					if (m_beams_panel->HasMixedBeamTypes())
+					{
+						MixedBeamsAggregateData data;
+						m_beams_panel->GetMixedBeamsData(&data);
+						m_rig->SelectedMixedBeamsUpdateAttributes(&data);
+					}
+					else
+					{
+						if (m_beams_panel->GetPlainBeamsData()->num_selected != 0)
+						{
+							m_rig->SelectedPlainBeamsUpdateAttributes(m_beams_panel->GetPlainBeamsData());
+						}
+						else if (m_shocks_panel->GetShocksData()->num_selected != 0)
+						{
+							m_rig->SelectedShocksUpdateAttributes(m_shocks_panel->GetShocksData());
+						}
+						else if (m_shocks2_panel->GetShocks2Data()->num_selected != 0)
+						{
+							m_rig->SelectedShocks2UpdateAttributes(m_shocks2_panel->GetShocks2Data());
+						}
+						else if (m_hydros_panel->GetHydrosData()->num_selected != 0)
+						{
+							m_rig->SelectedHydrosUpdateAttributes(m_hydros_panel->GetHydrosData());
+						}
+						else if (m_commands2_panel->GetCommands2Data()->num_selected != 0)
+						{
+							m_rig->SelectedCommands2UpdateAttributes(m_commands2_panel->GetCommands2Data());
+						}
+					}		
+				}
+			}
+
+			HideAllNodeBeamGuiPanels(); // Reset GUI
+
+			// ==== Perform rig selection updates ====
+			if (all_nodes_selection_toggled)
+			{
+				m_rig->DeselectOrSelectAllNodes();
+			}
+			if (rig_must_deselect_all_nodes)
+			{
+				m_rig->DeselectAllNodes();
+			}
+			if (node_to_set_selected != nullptr)
+			{
+				node_to_set_selected->SetSelected(true);
+			}
+
+			// ==== Query updated data ====
+
+			// Update "nodes" panel
+			RigAggregateNodesData query;
+			m_rig->QuerySelectedNodesData(&query);
+
+			if (query.num_selected != 0)
+			{
+				m_nodes_panel->UpdateNodeData(&query);
+				m_nodes_panel->Show();
+			}
+
+			// Update BEAM panels
+			if (query.num_selected >= 2)
+			{
+				RigAggregateBeams2Data beam_query;
+				m_rig->QuerySelectedBeamsData(&beam_query);
+				if (beam_query.GetTotalNumSelectedBeams() != 0)
+				{
+					if (beam_query.HasMixedBeamTypes())
+					{
+						m_beams_panel->UpdateMixedBeamData(&beam_query);
+						m_beams_panel->Show();
+					}
+					else if (beam_query.plain_beams.num_selected != 0)
+					{
+						m_beams_panel->UpdatePlainBeamData(&beam_query.plain_beams);
+						m_beams_panel->Show();
+					}
+					else if (beam_query.hydros.num_selected != 0)
+					{
+						m_hydros_panel->UpdateHydrosData(&beam_query.hydros);
+						m_hydros_panel->Show();
+					}
+					else if (beam_query.commands2.num_selected != 0)
+					{
+						m_commands2_panel->UpdateCommand2Data(&beam_query.commands2);
+						m_commands2_panel->Show();
+					}
+					else if (beam_query.shocks.num_selected != 0)
+					{
+						m_shocks_panel->UpdateShockData(&beam_query.shocks);
+						m_shocks_panel->Show();
+					}
+					else if (beam_query.shocks2.num_selected != 0)
+					{
+						m_shocks2_panel->UpdateShock2Data(&beam_query.shocks2);
+						m_shocks2_panel->Show();
+					}
+				}
+			}
+		}
+
+		// ==== Update visuals ====
 
 		if (rig_updated || node_selection_changed || node_hover_changed)
 		{
@@ -425,34 +516,6 @@ void Main::UpdateMainLoop()
 		if (rig_updated)
 		{
 			m_rig->RefreshBeamsDynamicMesh();
-		}
-		if (node_selection_changed)
-		{
-			// Update "nodes" panel
-			Rig::SelectedNodesQueryResult query;
-			m_rig->QuerySelectedNodesData(&query);
-				
-			if (query.num_nodes == 0)
-			{
-				m_nodes_panel->Hide();
-			}
-			else
-			{
-				int* detacher_group_ptr = nullptr;
-				if (query.detacher_group_id_is_unique)
-				{
-					detacher_group_ptr = &query.detacher_group_id;
-				}
-
-				float* load_weight_ptr = nullptr;
-				if (query.load_weight_is_unique)
-				{
-					load_weight_ptr = &query.load_weight;
-				}
-				m_nodes_panel->UpdateNodeData(query.num_nodes, query.node_name, load_weight_ptr, detacher_group_ptr, nullptr);
-				m_nodes_panel->UpdateNodeFlags(query.flags_all_nodes, query.flags_any_node);
-				m_nodes_panel->Show();
-			}
 		}
 	}
 
@@ -499,9 +562,13 @@ void Main::CommandCloseCurrentRig()
 {
 	if (m_rig != nullptr)
 	{
+		// Remove rig
 		m_rig->DetachFromScene();
 		delete m_rig;
 		m_rig = nullptr;
+
+		// Restore GUI
+		HideAllNodeBeamGuiPanels();
 	}
 }
 
@@ -697,16 +764,27 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 void Main::CommandCurrentRigDeleteSelectedNodes()
 {
 	m_gui_delete_menu->Hide();
-	m_nodes_panel->Hide();
+	HideAllNodeBeamGuiPanels();
 	assert(m_rig != nullptr);
 	m_rig->DeleteSelectedNodes();
 	m_rig->RefreshBeamsDynamicMesh();
 	m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
 }
 
+void Main::HideAllNodeBeamGuiPanels()
+{
+	m_nodes_panel    ->HideAndReset();
+	m_beams_panel    ->HideAndReset();
+	m_hydros_panel   ->HideAndReset();
+	m_commands2_panel->HideAndReset();
+	m_shocks2_panel  ->HideAndReset();
+	m_shocks_panel   ->HideAndReset();
+}
+
 void Main::CommandCurrentRigDeleteSelectedBeams()
 {
 	m_gui_delete_menu->Hide();
+	HideAllNodeBeamGuiPanels();
 	assert(m_rig != nullptr);
 	m_rig->DeleteBeamsBetweenSelectedNodes();
 	m_rig->RefreshBeamsDynamicMesh();
@@ -766,7 +844,89 @@ void Main::CommandShowHelpWindow()
 	m_gui_help_window->CenterToScreen();
 }
 
-void Main::CommandSelectedNodesUpdateFlag(bool add, unsigned int flag)
+#define INIT_OR_RESTORE_NODEBEAM_PANEL(VAR, CLASSNAME) \
+	if ((VAR).get() == nullptr) \
+		(VAR) = std::unique_ptr<GUI::CLASSNAME>(new GUI::CLASSNAME(this, m_config)); \
+	else \
+		(VAR)->ShowIfHiddenTemporarily();
+
+void Main::InitializeOrRestoreGui()
 {
-	m_rig->SelectedNodesUpdateFlag(add, flag);	
+	INIT_OR_RESTORE_NODEBEAM_PANEL(m_nodes_panel,     RigEditorNodePanel);
+	INIT_OR_RESTORE_NODEBEAM_PANEL(m_beams_panel,     RigEditorBeamsPanel);
+	INIT_OR_RESTORE_NODEBEAM_PANEL(m_hydros_panel,    RigEditorHydrosPanel);
+	INIT_OR_RESTORE_NODEBEAM_PANEL(m_commands2_panel, RigEditorCommands2Panel);
+	INIT_OR_RESTORE_NODEBEAM_PANEL(m_shocks_panel,    RigEditorShocksPanel);
+	INIT_OR_RESTORE_NODEBEAM_PANEL(m_shocks2_panel,   RigEditorShocks2Panel);
+
+	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
+	if (m_gui_menubar.get() == nullptr)
+	{
+		m_gui_menubar = std::unique_ptr<GUI::RigEditorMenubar>(new GUI::RigEditorMenubar(this));
+	}
+	else
+	{
+		m_gui_menubar->Show();
+	}
+	m_gui_menubar->StretchWidthToScreen();
+	if (m_gui_open_save_file_dialog.get() == nullptr)
+	{
+		m_gui_open_save_file_dialog = std::unique_ptr<GUI::OpenSaveFileDialog>(new GUI::OpenSaveFileDialog());
+	}
+	if (m_gui_delete_menu.get() == nullptr)
+	{
+		m_gui_delete_menu = std::unique_ptr<GUI::RigEditorDeleteMenu>(new GUI::RigEditorDeleteMenu(this));
+	}
+	if (m_gui_rig_properties_window.get() == nullptr)
+	{
+		m_gui_rig_properties_window 
+			= std::unique_ptr<GUI::RigEditorRigPropertiesWindow>(new GUI::RigEditorRigPropertiesWindow(this));
+	}
+	if (m_gui_land_vehicle_properties_window.get() == nullptr)
+	{
+		m_gui_land_vehicle_properties_window 
+			= std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>(new GUI::RigEditorLandVehiclePropertiesWindow(this));
+	}
+	if (m_gui_help_window.get() == nullptr)
+	{
+		m_gui_help_window = std::unique_ptr<GUI::RigEditorHelpWindow>(new GUI::RigEditorHelpWindow(this));
+	}
 }
+
+// ----------------------------------------------------------------------------
+// Rig Updaters
+// ----------------------------------------------------------------------------
+
+void Main::CommandRigSelectedNodesUpdateAttributes(const RigAggregateNodesData* data)
+{
+	m_rig->SelectedNodesUpdateAttributes(data);
+}
+
+void Main::CommandRigSelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData* data)
+{
+	m_rig->SelectedPlainBeamsUpdateAttributes(data);
+}
+
+void Main::CommandRigSelectedShocksUpdateAttributes(const RigAggregateShocksData*     data)
+{
+	m_rig->SelectedShocksUpdateAttributes(data);
+}
+
+void Main::CommandRigSelectedShocks2UpdateAttributes(const RigAggregateShocks2Data*    data)
+{
+	m_rig->SelectedShocks2UpdateAttributes(data);
+}
+
+void Main::CommandRigSelectedHydrosUpdateAttributes(const RigAggregateHydrosData*     data)
+{
+	m_rig->SelectedHydrosUpdateAttributes(data);
+}
+
+void Main::CommandRigSelectedCommands2UpdateAttributes(const RigAggregateCommands2Data*  data)
+{
+	m_rig->SelectedCommands2UpdateAttributes(data);
+}
+
+// ----------------------------------------------------------------------------
+// End
+// ----------------------------------------------------------------------------

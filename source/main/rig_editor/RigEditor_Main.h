@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -98,13 +98,23 @@ public:
 
 	virtual void CommandShowHelpWindow();
 
-	virtual void CommandSelectedNodesUpdateFlag(bool add, unsigned int flag);
+	// Rig updaters
+	virtual void CommandRigSelectedNodesUpdateAttributes     (const RigAggregateNodesData*      data);
+	virtual void CommandRigSelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData* data);
+	virtual void CommandRigSelectedShocksUpdateAttributes    (const RigAggregateShocksData*     data);
+	virtual void CommandRigSelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data*    data);
+	virtual void CommandRigSelectedHydrosUpdateAttributes    (const RigAggregateHydrosData*     data);
+	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data);
 
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
 
 private:
+
+	void InitializeOrRestoreGui();
+
+	void HideAllNodeBeamGuiPanels();
 
 	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
@@ -129,7 +139,12 @@ private:
 	std::unique_ptr<GUI::RigEditorHelpWindow>   m_gui_help_window;
 	std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
 	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>  m_gui_land_vehicle_properties_window;
-	std::unique_ptr<GUI::RigEditorNodePanel>    m_nodes_panel;
+	std::unique_ptr<GUI::RigEditorNodePanel>       m_nodes_panel;
+	std::unique_ptr<GUI::RigEditorBeamsPanel>      m_beams_panel;
+	std::unique_ptr<GUI::RigEditorHydrosPanel>     m_hydros_panel;
+	std::unique_ptr<GUI::RigEditorShocksPanel>     m_shocks_panel;
+	std::unique_ptr<GUI::RigEditorShocks2Panel>    m_shocks2_panel;
+	std::unique_ptr<GUI::RigEditorCommands2Panel>  m_commands2_panel;
 	
 };
 

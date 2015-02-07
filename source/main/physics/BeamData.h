@@ -1,49 +1,38 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
-* @file Core data structures for simulation.
+* @file
+* @brief Core data structures for simulation.
 * @author created on 30th of April 2010 by Thomas Fischer 
 */
 
 #pragma once
 
 /*
-
- Rigs of Rods Data Structure (WIP)
-
- +--------------------------------------------------------+
- | Physics             | Visuals                          |
- +---------------------+----------------------------------+
- | rig_phys_t          | rig_vis_t                        |
- |  node_phys_t        | n/a                              |
- |  beam_phys_t        | n/a                              |
- +---------------------+----------------------------------+
-
  A word of warning:
  RoR's performance is very sensitive to the ordering of the parameters in this
  structure (due to cache reasons). You can easily destroy RoR's performance if you put
  something in the wrong place. Unless you know what you are doing (do you come armed
  with a cache usage tracker?), add what you wish to the bottom of the structure.
-
- the order of the structs in here is important as well.
 */
 
 // The RoR required includes (should be included already)
@@ -341,7 +330,6 @@ struct node_t
 	int mouseGrabMode;           //!< { 0=Mouse grab, 1=No mouse grab, 2=Mouse grab with force display}
 	int pos;                     //!< This node's index in rig_t::nodes array.
 	Ogre::SceneNode *mSceneNode; //!< visual  
-	Ogre::String id_str;         //!< String identifier assigned in rig-definition file (if used).
 };
 
 
@@ -1076,12 +1064,6 @@ struct ground_model_t
 	float fx_particle_timedelta;    //!< delta for particle animation
 	float fx_particle_velo_factor;  //!< velocity factor
 	float fx_particle_ttl;
-};
-
-struct client_t
-{
-	user_info_t   user;                 //!< user struct
-	bool          used;                 //!< if this slot is used already
 };
 
 struct authorinfo_t

@@ -24,9 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // Defines whether Checked Iterators are enabled. If defined as 1, unsafe iterator use causes a runtime error. If defined as 0, checked iterators are disabled.
 // TBD - tdev
 // needs to be consistent across _ALL_ libs and code, thus disabled
-//#ifdef WIN32
+//#ifdef _WIN32
 //#define _SECURE_SCL 0
-//#endif //WIN32
+//#endif // _WIN32
 
 // add some ogre headers
 #include <OgreAxisAlignedBox.h>
@@ -45,6 +45,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GlobalEnvironment.h"
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
 #include "../common/BitFlags.h"
+
+#include <MyGUI_Prerequest.h> // Forward declarations
 
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
@@ -93,10 +95,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif // _MSC_VER
 
 #ifdef FEAT_DEBUG_ASSERT
-# ifdef WIN32
+# ifdef _WIN32
 // __debugbreak will break into the debugger in visual studio
 #  define MYASSERT(x)       do { if (x) { } else { LOGSAFE("***ASSERT FAILED: "+OGREFUNCTIONSTRING); __debugbreak(); }; } while(0)
-# endif //WIN32
+# endif // _WIN32
 #else //!FEAT_DEBUG_ASSERT
 # define MYASSERT(x)         assert(x)
 #endif //FEAT_DEBUG_ASSERT
