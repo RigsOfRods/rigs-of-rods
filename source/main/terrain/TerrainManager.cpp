@@ -75,6 +75,7 @@ TerrainManager::TerrainManager() :
 	, version(1)
 	, water_line(0.0f)
 {
+	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
 }
 
 TerrainManager::~TerrainManager()
@@ -287,9 +288,7 @@ void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
 	// Caelum skies
-	bool useCaelum = SSETTING("Sky effects", "Caelum (best looking, slower)")=="Caelum (best looking, slower)";
-
-	if (useCaelum)
+	if (use_caelum)
 	{
 		sky_manager = new SkyManager();
 		gEnv->sky = sky_manager;
