@@ -141,6 +141,12 @@ void GUIManager::destroyGui()
 	}
 }
 
+void GUIManager::initSimUtils()
+{
+	if (m_gui_SimUtils.get() == nullptr)
+		m_gui_SimUtils = std::unique_ptr<GUI::SimUtils>(new GUI::SimUtils());
+}
+
 bool GUIManager::frameStarted(const FrameEvent& evt)
 {
 	if (mExit) return false;
@@ -162,6 +168,16 @@ bool GUIManager::frameEnded(const FrameEvent& evt)
 	return true;
 };
 
+void GUIManager::framestep(float dt)
+{
+	if (m_gui_SimUtils) //Be sure that it exists
+		m_gui_SimUtils->framestep(dt);
+};
+
+void GUIManager::PushNotification(String Title, String text)
+{
+	m_gui_SimUtils->PushNotification(Title, text);
+}
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
 {
 	int width = (int)rw->getWidth();
@@ -279,9 +295,6 @@ void GUIManager::ToggleFPSBox()
 {
 	if (!isSimUtilsVisible) //We don't know, might be already init'ed
 	{
-		if (m_gui_SimUtils.get() == nullptr)
-			m_gui_SimUtils = std::unique_ptr<GUI::SimUtils>(new GUI::SimUtils());
-
 		isSimUtilsVisible = true;
 	}
 
@@ -293,9 +306,6 @@ void GUIManager::ToggleTruckInfoBox()
 {
 	if (!isSimUtilsVisible) //We don't know, might be already init'ed
 	{
-		if (m_gui_SimUtils.get() == nullptr)
-			m_gui_SimUtils = std::unique_ptr<GUI::SimUtils>(new GUI::SimUtils());
-
 		isSimUtilsVisible = true;
 	}
 

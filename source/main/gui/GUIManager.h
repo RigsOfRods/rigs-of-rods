@@ -78,6 +78,10 @@ public:
 	void ToggleTruckInfoBox();
 
 	void UpdateSimUtils(float dt, Beam *truck);
+	void framestep(float dt);
+
+	void PushNotification(Ogre::String Title, Ogre::String text);
+
 	void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
 	int getMessageBoxResult(); //TODO
 
@@ -86,6 +90,7 @@ public:
 	void initMainSelector();
 	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
 
+	void initSimUtils();
 private:
 
 	GUIManager();

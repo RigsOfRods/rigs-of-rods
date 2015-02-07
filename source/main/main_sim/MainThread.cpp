@@ -791,6 +791,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 
 	Application::CreateSceneMouse();
+	Application::GetGuiManager()->initSimUtils();
 
 	return true;
 }
@@ -1148,6 +1149,8 @@ void MainThread::UnloadTerrain()
 	gEnv->frameListener->loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	
+	RoR::Application::GetGuiManager()->getMainSelector()->reset();
+
 	//First of all..
 	RoR::Application::GetMainThreadLogic()->StopRaceTimer();
 

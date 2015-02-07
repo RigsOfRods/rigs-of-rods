@@ -26,6 +26,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Network.h"
 #include "PlayerColours.h"
 #include "Utils.h"
+#include "GUIManager.h"
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"
@@ -128,6 +129,7 @@ ChatSystem::ChatSystem(int source, unsigned int streamid, int colourNumber, bool
 #ifdef USE_MYGUI
 		String msg = username + commandColour + _L(" joined the game");
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_JOIN_GAME, msg, "user_add.png");
+		RoR::Application::GetGuiManager()->PushNotification("Server info:", msg);
 #endif //USE_MYGUI
 	}
 #endif //SOCKETW
@@ -140,6 +142,7 @@ ChatSystem::~ChatSystem()
 	{
 		String msg = username + commandColour + _L(" left the game");
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LEAVE_GAME, msg, "user_delete.png");
+		RoR::Application::GetGuiManager()->PushNotification("Server info:", msg);
 	}
 #endif //USE_MYGUI
 }

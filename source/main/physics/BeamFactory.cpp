@@ -36,6 +36,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 #include "ChatSystem.h"
 #include "Console.h"
+#include "GUIManager.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -256,6 +257,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 #ifdef USE_MYGUI
 			Console *console = RoR::Application::GetConsole();
 			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, message, "car_add.png");
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", message);
 #endif // USE_MYGUI
 		}
 	}

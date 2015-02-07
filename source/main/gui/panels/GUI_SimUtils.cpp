@@ -46,6 +46,7 @@
 
 #include <MyGUI.h>
 #include <OgreRenderTarget.h>
+#include <OgreRoot.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -71,6 +72,8 @@ CLASS::CLASS()
 
 	b_fpsbox = false;
 	b_truckinfo = false;
+
+	alpha = 1.0f;
 
 	ShowMain(); //It's invisible and unclickable, so no worrys
 }
@@ -101,6 +104,37 @@ void CLASS::ToggleTruckInfoBox()
 {
 	b_truckinfo = !b_truckinfo;
 	m_truckinfo_box->setVisible(b_truckinfo);
+}
+
+void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
+{
+	m_not_title->setCaption(Title);
+	m_not_text->setCaption(text);
+	m_notification->setVisible(true);
+	pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+}
+
+void CLASS::framestep(float dt)
+{
+	unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+	if (m_notification->getVisible())
+	{
+		unsigned long endTime = pushTime + 5000;
+		unsigned long startTime = endTime - (long)1000.0f;
+		if (ot < startTime)
+		{
+			alpha = 1.0f;
+		}
+		else
+		{
+			alpha = 1 - ((ot - startTime) / 1000.0f);
+		}
+
+		m_notification->setAlpha(alpha);
+
+		if (alpha <= 0.1)
+			m_notification->setVisible(false);
+	}
 }
 
 void CLASS::UpdateStats(float dt, Beam *truck)

@@ -104,6 +104,18 @@ CLASS::~CLASS()
 
 }
 
+void CLASS::reset()
+{
+	dtsum = 0;
+	keysBound = false;
+	mSelectedSkin = 0;
+	mSelectedTruck = 0;
+	mSelectionDone = true;
+	ready = false;
+	readytime = 1.0f;
+	visibleCounter = 0;
+}
+
 void CLASS::frameEntered(float dt)
 {
 	if (dtsum < readytime)
