@@ -29,6 +29,9 @@ public:
 protected:
 
 	//%LE Widget_Declaration list start
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_tabCtrl, "tabCtrl");
+	MyGUI::TabControl* m_tabCtrl;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_lang, "lang");
 	MyGUI::ComboBox* m_lang;
 
@@ -166,6 +169,18 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_volume_indicator, "volume_indicator");
 	MyGUI::EditBox* m_volume_indicator;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_keymapping, "keymapping");
+	MyGUI::MultiListBox* m_keymapping;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_key_name, "key_name");
+	MyGUI::MultiListItem* m_key_name;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_key_button, "key_button");
+	MyGUI::MultiListItem* m_key_button;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_keymap_group, "keymap_group");
+	MyGUI::ComboBox* m_keymap_group;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_savebtn, "savebtn");
 	MyGUI::Button* m_savebtn;

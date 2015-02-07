@@ -86,7 +86,7 @@ void MenuWindow::Show()
 
     mMainWidget->castType<MyGUI::Window>()->setVisible(true);
 	SelectorWindow::getSingleton().show(SelectorWindow::LT_Terrain); 
-	SelectorWindow::getSingleton().mMainWidget->setVisible(false);
+	//SelectorWindow::getSingleton().mMainWidget->setVisibleSmooth(false);
 }
 
 void MenuWindow::Hide()
@@ -94,11 +94,13 @@ void MenuWindow::Hide()
 	RoR::Application::GetGuiManager()->unfocus();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
+
 }
 
 void MenuWindow::eventMouseButtonClickSelectButton(MyGUI::WidgetPtr _sender)
 {
-	SelectorWindow::getSingleton().mMainWidget->setVisible(true);
+	//SelectorWindow::getSingleton().mMainWidget->setVisible(true);
+	SelectorWindow::getSingleton().hide();
 	Hide();
 }
 

@@ -31,6 +31,9 @@
 #include "GUI_GameSettingsLayout.h"
 
 #include "GUI_GameSettings.h"
+#include "InputEngine.h"
+
+#include <OIS.h>
 
 namespace RoR
 {
@@ -89,6 +92,14 @@ private:
 	void OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position);
 	void OnFPSLimiterSlider(MyGUI::ScrollBar* _sender, size_t _position);
 	void OnSightRangeSlider(MyGUI::ScrollBar* _sender, size_t _position);
+
+	//Key mapping things
+	void OnTabChange(MyGUI::TabControl* _sender, size_t _index);
+	void LoadKeyMap();
+	void OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index);
+	bool isKeyMapLoaded;
+
+	std::map<int, std::vector<event_trigger_t> > KeyMap;
 
 	//Few things
 	std::map<std::string, std::string> GameSettingsMap;

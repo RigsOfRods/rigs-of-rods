@@ -78,7 +78,7 @@ SelectorWindow::SelectorWindow() :
 	, visibleCounter(0)
 {
 	initialiseByAttributes(this);
-	mMainWidget->setVisible(false);
+	((MyGUI::Window*)mMainWidget)->setVisibleSmooth(false);
 	((MyGUI::Window*)mMainWidget)->setCaption(_L("Loader"));
 	mSearchLineEdit->setCaption(_L("Search ..."));
 	mOkButton->setCaption(_L("OK"));
@@ -859,10 +859,10 @@ void SelectorWindow::show(LoaderType type)
 	mMainWidget->setEnabledSilent(true);
 
 	// first time fast
-	if (!visibleCounter)
+	/*if (!visibleCounter)
 		mMainWidget->castType<MyGUI::Window>()->setVisible(true);
-	else
-		mMainWidget->castType<MyGUI::Window>()->setVisibleSmooth(true);
+	else*/
+	((MyGUI::Window*)mMainWidget)->setVisibleSmooth(true);
 
 	if (type != LT_SKIN) mSelectedTruck = 0; // when in skin, we still need the info
 
@@ -880,7 +880,7 @@ void SelectorWindow::hide()
 {
 	mSelectionDone = true;
 	RoR::Application::GetGuiManager()->unfocus();
-	mMainWidget->setVisible(false);
+	((MyGUI::Window*)mMainWidget)->setVisibleSmooth(false);
 	mMainWidget->setEnabledSilent(false);
 	ready = false;
 	bindKeys(false);

@@ -43,7 +43,8 @@
 #include "Settings.h"
 
 #include <MyGUI.h>
-
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #ifdef USE_OPENAL
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -98,6 +99,10 @@ CLASS::CLASS()
 
 	m_enable_replay->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReplayEnableCheck);
 
+	//Key mapping
+	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
+	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
+
 	//Sliders
 	m_volume_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnVolumeSlider);
 	m_fps_limiter_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnFPSLimiterSlider);
@@ -111,6 +116,7 @@ CLASS::CLASS()
 		m_heathaze->setEnabled(false);
 		m_glow->setEnabled(false);
 		m_sunburn->setEnabled(false);
+		//m_tabCtrl->getItemAt(6)->setEnabled(false);
 	}
 
 	Hide();
@@ -819,7 +825,12 @@ void CLASS::SaveSettings()
 
 
 	if (GameSettingsMap["Water effects"] == "Hydrax")
-		GameSettingsMap["SightRange"] = 5000;
+		GameSettingsMap["SightRange"] = "5000";
+
+	if (isKeyMapLoaded)
+	{
+		Application::GetInputEngine()->saveMapping("input.map", RoR::Application::GetOgreSubsystem()->GetMainHWND());
+	}
 
 	//Something used by both saves
 	std::map<std::string, std::string>::iterator it;
@@ -857,6 +868,7 @@ void CLASS::SaveSettings()
 		Settings::getSingleton().saveSettings();
 	}
 
+
 } 
 
 void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
@@ -866,6 +878,108 @@ void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
 	MAIN_WIDGET->setVisibleSmooth(true);
 }
 
+void CLASS::OnTabChange(MyGUI::TabControl* _sender, size_t _index)
+{
+	MyGUI::TabItemPtr tab = _sender->getItemAt(_index);
+	if (!tab) return;
+
+	if (_index == 6)
+		LoadKeyMap();
+}
+
+void CLASS::LoadKeyMap()
+{
+	//Cleanup first
+	m_keymapping->removeAllItems();
+
+	KeyMap = Application::GetInputEngine()->getEvents();
+
+	std::map<int, std::vector<event_trigger_t>>::iterator it;
+
+	int counter = 0;
+	char curGroup[128] = "";
+	std::map<int, std::vector<event_trigger_t> >::iterator mapIt;
+	std::vector<event_trigger_t>::iterator vecIt;
+	for (mapIt = KeyMap.begin(); mapIt != KeyMap.end(); mapIt++)
+	{
+		std::vector<event_trigger_t> vec = mapIt->second;
+
+		for (vecIt = vec.begin(); vecIt != vec.end(); vecIt++, counter++)
+		{
+			if (strcmp(vecIt->group, curGroup))
+			{
+				strncpy(curGroup, vecIt->group, 128);
+				// group title:
+				m_keymap_group->addItem(vecIt->group);
+			}
+
+			if (m_keymap_group->getCaption() == "")
+				m_keymap_group->setIndexSelected(0); //at least select something
+
+			//Thanks stackoverflow and boost..
+			try {
+				if (boost::starts_with(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), m_keymap_group->getCaption()))
+				{
+					m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
+					m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() -1, vecIt->configline);
+				}
+				
+			}
+			catch (boost::bad_lexical_cast) {
+				LOG("Keymapping Error #1"); //Temporary
+			}
+
+			//m_key_name->
+			// print event name
+			//fprintf(f, "%-30s ", eventIDToName(mapIt->first).c_str());
+			// print event type
+			//fprintf(f, "%-20s ", getEventTypeName(vecIt->eventtype).c_str());
+
+			if (vecIt->eventtype == ET_Keyboard)
+			{
+				//fprintf(f, "%s ", vecIt->configline);
+			}
+		}
+	}
+	isKeyMapLoaded = true;
+}
+
+void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
+{
+	if (_sender->getCaption() == "")
+		return;
+
+	//Cleanup first
+	m_keymapping->removeAllItems();
+
+	std::map<int, std::vector<event_trigger_t>>::iterator it;
+
+	int counter = 0;
+	std::map<int, std::vector<event_trigger_t> >::iterator mapIt;
+	std::vector<event_trigger_t>::iterator vecIt;
+	for (mapIt = KeyMap.begin(); mapIt != KeyMap.end(); mapIt++)
+	{
+		std::vector<event_trigger_t> vec = mapIt->second;
+
+		for (vecIt = vec.begin(); vecIt != vec.end(); vecIt++, counter++)
+		{
+			//Thanks stackoverflow and boost..
+			try 
+			{
+				if (boost::starts_with(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), _sender->getItemNameAt(_index)))
+				{
+					m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
+					m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() - 1, vecIt->configline);
+
+				}
+
+			}
+			catch (boost::bad_lexical_cast) {
+				LOG("Keymapping Error #2"); //Temporary
+			}
+		}
+	}
+}
 
 void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 {
