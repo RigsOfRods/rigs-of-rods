@@ -61,17 +61,6 @@ bool HydraxWater::CreateHydrax()
 	return true;
 }
 
-void HydraxWater::AddDepthTechnique()
-{
-//Not working
-	Ogre::TerrainMaterialGeneratorA::SM2Profile *matProfile = 0;
-	if (Ogre::TerrainGlobalOptions::getSingletonPtr())
-	{
-		matProfile = static_cast<Ogre::TerrainMaterialGeneratorA::SM2Profile*>(Ogre::TerrainGlobalOptions::getSingleton().getDefaultMaterialGenerator()->getActiveProfile());
-		mHydrax->getMaterialManager()->addDepthTechnique(static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(matProfile->getName()))->createTechnique());
-	}
-}
-
 void HydraxWater::InitComponents()
 {
 	waternoise = new Hydrax::Noise::Perlin(Hydrax::Noise::Perlin::Options(waternoise->getOptions().Octaves, 0.5, waternoise->getOptions().Falloff, waternoise->getOptions().Animspeed, waternoise->getOptions().Timemulti));
@@ -91,18 +80,6 @@ void HydraxWater::InitComponents()
 	mHydrax->loadCfg("HydraxDefault.hdx");
 }
 
-void HydraxWater::AddMaterial(Ogre::Terrain *terrain)
-{
-	try
-	{
-		mHydrax->getMaterialManager()->addDepthTechnique(static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(terrain->getMaterialName()))->createTechnique());
-		HydraxLOG("Added depth technique to: " + terrain->getMaterialName());
-	}
-	catch (...)
-	{
-		HydraxLOG("Error while adding Terrain Depth Technique");
-	}
-}
 bool HydraxWater::isUnderWater()
 {
 	//To avoid wired hydrax bug

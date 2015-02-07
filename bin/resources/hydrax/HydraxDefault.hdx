@@ -12,7 +12,7 @@ HydraxVersion=0.5.4
 <vector3>WaterColor=0.0398721x0.124018x0.164179
 
 #Components field
-Components=Sun|Foam|Depth|Caustics|Underwater|UnderwaterReflections|UnderwaterGodRays
+Components=Sun|Foam|Depth|Smooth|Caustics|Underwater|UnderwaterReflections|UnderwaterGodRays
 
 #Foam parameters
 <float>FoamMaxDistance=7.5e+006
@@ -21,16 +21,16 @@ Components=Sun|Foam|Depth|Caustics|Underwater|UnderwaterReflections|UnderwaterGo
 <float>FoamTransparency=1
 
 #Depth parameters
-<float>DepthLimit=90
+<float>DepthLimit=70
 <float>DistLimit=90
 
 #Smooth transitions parameters
 <float>SmoothPower=5
 
 #Caustics parameters
-<float>CausticsScale=13.5
+<float>CausticsScale=8.5
 <float>CausticsPower=5.5
-<float>CausticsEnd=0.04
+<float>CausticsEnd=0.7
 
 #God rays parameters
 <vector3>GodRaysExposure=0.76x2.46x2.29

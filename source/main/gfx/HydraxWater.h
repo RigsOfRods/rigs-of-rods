@@ -59,8 +59,6 @@ public:
 
 	bool isUnderWater();
 	void InitComponents();
-	void AddMaterial(Ogre::Terrain *terrain);
-	void AddDepthTechnique();
 
 	Hydrax::Hydrax* GetHydrax() { return mHydrax; }
 

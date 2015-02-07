@@ -131,6 +131,7 @@ class IHeightFinder;
 class InputEngine;
 class IThreadTask;
 class IWater;
+class HydraxWater;
 class Landusemap;
 class MapTextureCreator;
 class MaterialFunctionMapper;

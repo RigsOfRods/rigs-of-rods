@@ -85,6 +85,7 @@ protected:
 	TerrainGeometryManager *geometry_manager;
 	TerrainObjectManager *object_manager;
 	IWater *water;
+	HydraxWater *hw;
 
 	// properties
 	Ogre::ColourValue ambient_color;

@@ -41,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "OgreTerrainPaging.h"
 
 using namespace Ogre;
 
@@ -548,9 +549,19 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		HydraxWater *hw = new HydraxWater(m_terrain_config);
+		hw = new HydraxWater(m_terrain_config);
 		//hw->loadConfig("HydraxDefault.hdx");
 		water = hw;
+
+		//Apply depth technique to the terrain
+		TerrainGroup::TerrainIterator ti = geometry_manager->getTerrainGroup()->getTerrainIterator();
+		while (ti.hasMoreElements())
+		{
+			Terrain* t = ti.getNext()->instance;
+			MaterialPtr ptr = t->getMaterial();
+			hw->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+		}
+
 	} else
 	{
 		water = new Water(m_terrain_config);
