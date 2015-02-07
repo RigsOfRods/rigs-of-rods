@@ -67,7 +67,7 @@ public:
 	size_t getMemoryUsage();
 	void freeResources();
 
-	static const int UNLIMITED_SIGHTRANGE = 5000;
+	static const int UNLIMITED_SIGHTRANGE = 4999;
 
 protected:
 

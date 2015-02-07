@@ -276,12 +276,23 @@ void TerrainManager::initCamera()
 {
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 	gEnv->mainCamera->setPosition(start_position);
-	gEnv->mainCamera->setFarClipDistance(0);
 
 	far_clip = FSETTING("SightRange", 4500);
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
+	else
+		gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+
+	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+
+	// disabled in global config
+	if (waterSettingsString == "None") return;
+	// disabled in map config
+	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
+
+	if (waterSettingsString == "Hydrax" && far_clip >= UNLIMITED_SIGHTRANGE)
+		gEnv->mainCamera->setFarClipDistance(9999); //Unlimited
 }
 
 void TerrainManager::initSkySubSystem()
@@ -537,8 +548,8 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		HydraxWater *hw = new HydraxWater();
-		hw->loadConfig("HydraxDemo.hdx");
+		HydraxWater *hw = new HydraxWater(m_terrain_config);
+		//hw->loadConfig("HydraxDefault.hdx");
 		water = hw;
 	} else
 	{
