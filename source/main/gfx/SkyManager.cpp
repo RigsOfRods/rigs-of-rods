@@ -43,7 +43,6 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 		Caelum::CaelumSystem::CAELUM_COMPONENTS_NONE
 	);
 	mCaelumSystem->attachViewport(RoR::Application::GetOgreSubsystem()->GetViewport());
-
 	/*
 	// TODO: set real time, and let the user select his true location
 	mCaelumSystem->getUniversalClock()->setGregorianDateTime(2008, 4, 9, 6, 33, 0);
@@ -59,6 +58,7 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 
 SkyManager::~SkyManager()
 {
+	mCaelumSystem->shutdown(false);
 }
 
 void SkyManager::notifyCameraChanged(Camera *cam)

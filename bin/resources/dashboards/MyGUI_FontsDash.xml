@@ -40,9 +40,9 @@
 		</Codes>
 	</Resource>
 	
-	<Resource type="ResourceTrueTypeFont" name="Digital-7-20">
+	<Resource type="ResourceTrueTypeFont" name="Digital-7-18">
 		<Property key="Source" value="digital-7.mono.ttf"/>
-		<Property key="Size" value="20"/>
+		<Property key="Size" value="18"/>
 		<Property key="Resolution" value="100"/>
 		<Property key="Antialias" value="true"/>
 		<Property key="SpaceWidth" value="4"/>

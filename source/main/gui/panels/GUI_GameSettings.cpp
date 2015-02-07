@@ -40,6 +40,7 @@
 #include "OgreSubsystem.h"
 #include "ImprovedConfigFile.h"
 #include "GUIManager.h"
+#include "Settings.h"
 
 #include <MyGUI.h>
 
@@ -65,6 +66,8 @@ CLASS::CLASS()
 
 	//Buttons
 	m_savebtn->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSaveButton);
+	m_regen_cache->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRegenCache);
+	m_clear_cache->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickClearCache);
 
 	//Checkboxes
 	m_arc_mode->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnArcadeModeCheck);
@@ -93,6 +96,8 @@ CLASS::CLASS()
 
 	m_digital_speedo->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDigitalSpeedoCheck);
 
+	m_enable_replay->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReplayEnableCheck);
+
 	//Sliders
 	m_volume_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnVolumeSlider);
 	m_fps_limiter_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnFPSLimiterSlider);
@@ -117,10 +122,10 @@ void CLASS::Show()
 	ShowRestartNotice = false; //Reinit
 }
 
-void CLASS::Hide()
+void CLASS::Hide(bool isMenu)
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	RoR::Application::GetGuiManager()->ShowMainMenu(true);
+	RoR::Application::GetGuiManager()->ShowMainMenu(isMenu);
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
@@ -728,6 +733,16 @@ void CLASS::OnDigitalSpeedoCheck(MyGUI::WidgetPtr _sender)
 	//ShowRestartNotice = true;
 }
 
+void CLASS::OnReplayEnableCheck(MyGUI::WidgetPtr _sender)
+{
+	m_enable_replay->setStateCheck(!m_enable_replay->getStateCheck());
+	if (m_enable_replay->getStateCheck() == false)
+		GameSettingsMap["Replay mode"] = "No";
+	else
+		GameSettingsMap["Replay mode"] = "Yes";
+	//ShowRestartNotice = true;
+}
+
 void CLASS::OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position)
 {
 	GameSettingsMap["Sound Volume"] = Ogre::StringConverter::toString(_position); //Erm, it's a string in the config map, isn't it?
@@ -825,3 +840,23 @@ void CLASS::SaveSettings()
 	}
 
 } 
+
+void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
+{
+	MAIN_WIDGET->setVisibleSmooth(false);
+	Application::GetMainThreadLogic()->RegenCache();
+	MAIN_WIDGET->setVisibleSmooth(true);
+}
+
+
+void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
+{
+#ifdef _WIN32
+//FindFirstFile/DeleteFile and all that didn't work. (I don't know why)
+
+#endif
+	//TODO: Linux/Mac
+	//Hiradur should take a look at this.
+
+	ShowRestartNotice = true;
+}

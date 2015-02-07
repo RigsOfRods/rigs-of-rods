@@ -79,6 +79,11 @@ TerrainManager::TerrainManager() :
 
 TerrainManager::~TerrainManager()
 {
+/*	delete(main_light);
+	main_light = nullptr;
+	*/
+	/*delete(sky_manager);
+	sky_manager = nullptr;*/
 }
 
 // some shortcut to remove ugly code
