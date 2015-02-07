@@ -30,7 +30,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SkinManager.h"
 #include "Utils.h"
 #include "RoRFrameListener.h"
-#include "MenuWindow.h"
 
 #if 0
 // translation help for category entries, should be commented at all times
@@ -336,9 +335,9 @@ void SelectorWindow::getData()
 	for (std::vector<CacheEntry>::iterator it = entries->begin(); it!=entries->end(); it++)
 	{
 		// category hidden
-		if (it->categoryid == CacheSystem::CID_Unsorted)
+		/*if (it->categoryid == CacheSystem::CID_Unsorted)
 			continue;
-
+			*/
 		//printf("category: %d\n", it->categoryid);
 		bool add = false;
 		if (it->fext=="terrn2")
@@ -691,11 +690,13 @@ void SelectorWindow::updateControls(CacheEntry *entry)
 		mEntryNameStaticText->setCaption("ENCODING ERROR");
 	}
 
-	UTFString c       = U("#257900"); // colour key shortcut
-	UTFString nc      = U("#000000"); // colour key shortcut
+	UTFString c = U("#FF7D02"); // colour key shortcut
+	UTFString nc = U("#FFFFFF"); // colour key shortcut
+
 	UTFString newline = U("\n");
 
-	UTFString descriptiontxt = U("#003dae") + ANSI_TO_UTF(entry->description) + nc + newline;
+	UTFString descriptiontxt = U("#66FF33") + ANSI_TO_UTF(entry->description) + nc + newline;
+
 	descriptiontxt = descriptiontxt +_L("Author(s): ") + c + authors + nc +newline;
 
 	
@@ -734,7 +735,7 @@ void SelectorWindow::updateControls(CacheEntry *entry)
 	UTFString driveableStr[5] = {_L("Non-Driveable"), _L("Truck"), _L("Airplane"), _L("Boat"), _L("Machine")};
 	if (entry->nodecount > 0) descriptiontxt = descriptiontxt +_L("Vehicle Type: ") + c + driveableStr[entry->driveable] + nc + newline;
 
-	descriptiontxt = descriptiontxt +"#448b9a\n"; // different colour for the props
+	descriptiontxt = descriptiontxt +"#FF0000\n"; // red colour for the props
 
 	if (entry->forwardcommands) descriptiontxt = descriptiontxt +_L("[forwards commands]") + newline;
 	if (entry->importcommands) descriptiontxt = descriptiontxt +_L("[imports commands]") + newline;
@@ -748,7 +749,7 @@ void SelectorWindow::updateControls(CacheEntry *entry)
 	if (entry->type == "Zip") descriptiontxt = descriptiontxt +_L("[zip archive]") + newline;
 	if (entry->type == "FileSystem") descriptiontxt = descriptiontxt +_L("[unpacked in directory]") + newline;
 
-	descriptiontxt = descriptiontxt +"#666666\n"; // now grey-ish colour
+	descriptiontxt = descriptiontxt +"#66CCFF\n"; // now blue-ish color*
 
 	if (!entry->dirname.empty()) descriptiontxt = descriptiontxt +_L("Source: ") + entry->dirname + newline;
 	if (!entry->fname.empty()) descriptiontxt = descriptiontxt +_L("Filename: ") + entry->fname + newline;

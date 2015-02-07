@@ -29,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 
-#include "MenuWindow.h"
 
 using namespace Ogre;
 
@@ -69,7 +68,7 @@ void SettingsWindow::Hide()
 	if (! gEnv->frameListener->loading_state == TERRAIN_LOADED)
 	{
 		//Return to the menu
-		MenuWindow::getSingleton().Show();
+		//MenuWindow::getSingleton().Show();
 	}
 }
 

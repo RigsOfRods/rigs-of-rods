@@ -92,7 +92,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIMenu.h"
 #include "GUIFriction.h"
 #include "GUIMp.h"
-#include "MenuWindow.h"
 #include "SelectorWindow.h"
 #include "LoadingWindow.h"
 #include "Console.h"
@@ -317,7 +316,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif // USE_MYGUI
 
 		// show new flash message
-		String ssmsg = _L("wrote screenshot:") + TOSTRING(mNumScreenShots);
+		String ssmsg = _L("Screenshot:") + TOSTRING(mNumScreenShots);
 		LOG(ssmsg);
 #ifdef USE_MYGUI
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
@@ -923,7 +922,8 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		mTruckInfoOn = ! mTruckInfoOn;
 		dirty=true;
-		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(mTruckInfoOn);
+		
+		Application::GetGuiManager()->ToggleTruckInfoBox();
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
@@ -935,15 +935,9 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if (loading_state == ALL_LOADED && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
 	{
-		dirty=true;
-		if (mStatsOn==0)
-			mStatsOn=1;
-		else if (mStatsOn==1)
-			mStatsOn=0;
-		else if (mStatsOn==2)
-			mStatsOn=0;
+		dirty=true; //What's this for?
 
-		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDebugOverlay(mStatsOn);
+		Application::GetGuiManager()->ToggleFPSBox();
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_MAT_DEBUG))
@@ -1356,7 +1350,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 			{
 				//update the truck info gui (also if not displayed!)
 				RoR::Application::GetOverlayWrapper()->truckhud->update(dt, vehicle, mTruckInfoOn);
-
+				RoR::Application::GetGuiManager()->UpdateSimUtils(dt, vehicle);
 #ifdef FEAT_TIMING
 				BES.updateGUI(dt);
 #endif // FEAT_TIMING
