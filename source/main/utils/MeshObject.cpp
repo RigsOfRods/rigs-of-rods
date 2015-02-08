@@ -26,6 +26,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Ogre.h"
 #include "Settings.h"
 #include "Skin.h"
+#include "TerrainManager.h"
 
 using namespace Ogre;
 
@@ -144,7 +145,7 @@ void MeshObject::postProcess()
 			// we need to tune this according to our sightrange
 			float sightrange = FSETTING("SightRange", 2000);
 
-			if (sightrange > 4999)
+			if (sightrange > gEnv->terrainManager->UNLIMITED_SIGHTRANGE)
 			{
 				// unlimited
 				if     (i == 1) distance =  200;

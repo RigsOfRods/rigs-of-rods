@@ -293,7 +293,7 @@ void TerrainManager::initCamera()
 	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
 
 	if (waterSettingsString == "Hydrax" && far_clip >= UNLIMITED_SIGHTRANGE)
-		gEnv->mainCamera->setFarClipDistance(9999); //Unlimited
+		gEnv->mainCamera->setFarClipDistance(9999*6); //Unlimited
 }
 
 void TerrainManager::initSkySubSystem()
