@@ -549,8 +549,20 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		hw = new HydraxWater(m_terrain_config);
-		//hw->loadConfig("HydraxDefault.hdx");
+		// try to load hydrax config
+		String hydraxConfig = m_terrain_config.getSetting("HydraxConfigFile", "General");
+
+		if (!hydraxConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(hydraxConfig))
+		{
+			hw = new HydraxWater(m_terrain_config, hydraxConfig);
+		}
+		else
+		{
+			// no config provided, fall back to the default one
+			hw = new HydraxWater(m_terrain_config);
+		}
+
+		
 		water = hw;
 
 		//Apply depth technique to the terrain

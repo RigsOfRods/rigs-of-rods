@@ -34,11 +34,12 @@ Based on HydraxWater.cpp/.h
 using namespace Ogre;
 
 // HydraxWater
-HydraxWater::HydraxWater(const Ogre::ConfigFile &mTerrainConfig):
+HydraxWater::HydraxWater(const Ogre::ConfigFile &mTerrainConfig, Ogre::String configFile):
 waternoise(0)
 , mHydrax(0)
 , waterHeight(5)
 {
+	CurrentConfigFile = configFile;
 	mRenderCamera = gEnv->mainCamera;
 	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
 	waveHeight = 0;
@@ -77,7 +78,7 @@ void HydraxWater::InitComponents()
 
 	mHydrax->setModule(static_cast<Hydrax::Module::Module*>(mModule));
 
-	mHydrax->loadCfg("HydraxDefault.hdx");
+	mHydrax->loadCfg(CurrentConfigFile);
 }
 
 bool HydraxWater::isUnderWater()

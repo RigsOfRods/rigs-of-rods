@@ -35,7 +35,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class HydraxWater : public IWater
 {
 public:
-	HydraxWater(const Ogre::ConfigFile &mTerrainConfig);
+	HydraxWater(const Ogre::ConfigFile &mTerrainConfig, Ogre::String configFile = "HydraxDefault.hdx");
 	~HydraxWater();
 
 	float getHeight();
@@ -71,6 +71,7 @@ protected:
 	bool haswaves;
 	Hydrax::Noise::Perlin *waternoise;
 	Hydrax::Module::ProjectedGrid *mModule;
+	Ogre::String CurrentConfigFile;
 };
 
 #endif // __HydraxWater_H_
