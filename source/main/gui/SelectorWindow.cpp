@@ -335,9 +335,11 @@ void SelectorWindow::getData()
 	std::vector<CacheEntry> *entries = RoR::Application::GetCacheSystem()->getEntries();
 	for (std::vector<CacheEntry>::iterator it = entries->begin(); it!=entries->end(); it++)
 	{
+		/*
 		// category hidden
 		if (it->categoryid == CacheSystem::CID_Unsorted)
-			continue;
+			continue;*/
+		//Max98: now the unsorted category shows always shows up
 
 		//printf("category: %d\n", it->categoryid);
 		bool add = false;
