@@ -6924,7 +6924,7 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
 	return true;
 }
 
-bool RigSpawner::CheckCameraRailLimit(unsigned int count)
+bool RigSpawner::CheckWingLimit(unsigned int count)
 {
 	if ((m_rig->free_wing + count) > MAX_WINGS)
 	{
@@ -6936,7 +6936,7 @@ bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 	return true;
 }
 
-bool RigSpawner::CheckWingLimit(unsigned int count)
+bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 {
 	if ((m_rig->free_camerarail + count) > MAX_CAMERARAIL)
 	{
