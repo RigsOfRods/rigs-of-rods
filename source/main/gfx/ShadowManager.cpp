@@ -40,7 +40,7 @@ ShadowManager::~ShadowManager()
 void ShadowManager::loadConfiguration()
 {
 	Ogre::String s = SSETTING("Shadow technique", "Parallel-split Shadow Maps");
-	if (s == "Stencil shadows")
+	if (s == "Stencil shadows (best looking)")
 		changeShadowTechnique(Ogre::SHADOWTYPE_STENCIL_MODULATIVE);
 	else if (s == "Texture shadows")
 		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -67,7 +67,8 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 
 		//important optimization
 		gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_WORLD_GEOMETRY_1)->setShadowsEnabled(false);
-
+		gEnv->sceneManager->getRenderQueue()->getQueueGroup(Ogre::RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
+ 
 		//		gEnv->ogreSceneManager->setUseCullCamera(false);
 		//		gEnv->ogreSceneManager->setShowBoxes(true);
 		//		gEnv->ogreSceneManager->showBoundingBoxes(true);

@@ -281,6 +281,9 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
 	terrainOptions->setUseRayBoxDistanceCalculation(false);
 
+	//TODO: Make this only when hydrax is enabled.
+	terrainOptions->setUseVertexCompressionWhenAvailable(false);
+
 	// load layer basics now
 	loadLayers(0, 0, 0);
 }
