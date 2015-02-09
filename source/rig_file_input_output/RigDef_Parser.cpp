@@ -5078,7 +5078,7 @@ void Parser::ParseBeams(Ogre::String const & _line)
 			}
 			else
 			{
-				AddMessage(line, Message::TYPE_WARNING, "Invalid flag: " + flags_str[i]);
+				AddMessage(line, Message::TYPE_WARNING, std::string("Invalid flag: ") + flags_str[i]);
 			}
 		}
 	}
