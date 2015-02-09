@@ -34,6 +34,7 @@ namespace RoR
 	class  Console;
 	class  ContentManager;
 	class  GUIManager;
+	class  GuiManagerInterface;
 	class  MainThread;
 	class  OgreSubsystem;
 	struct PlatformUtils;

@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "GUI_RigSpawnerReportWindow.h"
 #include "GUIInputManager.h"
+#include "GuiManagerInterface.h"
 #include "RoRPrerequisites.h"
 
 #include <MyGUI.h>
@@ -42,6 +44,7 @@ class GUIManager :
 	, public Ogre::FrameListener
 	, public Ogre::WindowEventListener
 	, public ZeroedMemoryAllocator
+	, public GuiManagerInterface
 {
 
 	friend class RoR::Application; // Manages lifecycle of this class
@@ -58,6 +61,12 @@ public:
 
 	/** Set scene manager where GUI will be rendered */
 	void SetSceneManager(Ogre::SceneManager* scene_manager);
+
+	// ------------ Interface functions ------------ //
+
+	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
+	virtual void ShowRigSpawnerReportWindow();
+	virtual void HideRigSpawnerReportWindow();
 
 private:
 
@@ -78,6 +87,10 @@ private:
 	MyGUI::OgrePlatform* mPlatform;
 	Ogre::String mResourceFileName;
 	bool mExit;
+
+	// ---------- GUI Panels ----------
+
+	std::unique_ptr<GUI::RigSpawnerReportWindow> m_rig_spawner_report_window;
 };
 
 } // namespace RoR

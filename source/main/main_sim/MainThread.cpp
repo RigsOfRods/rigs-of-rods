@@ -269,7 +269,7 @@ void MainThread::Go()
 	gEnv->frameListener->dirvisible = false;
 	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
-	new GUI_MainMenu(); /* Top menubar */
+	new GUI_MainMenu(Application::GetGuiManagerInterface()); /* Top menubar */
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 

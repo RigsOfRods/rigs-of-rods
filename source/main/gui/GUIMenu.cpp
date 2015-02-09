@@ -50,10 +50,11 @@
 using namespace Ogre;
 using namespace RoR;
 
-GUI_MainMenu::GUI_MainMenu() :
+GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 	  m_menu_width(800)
 	, m_menu_height(20)
 	, m_vehicle_list_needs_update(false)
+	, m_gui_manager_interface(gui_manager_interface)
 {
 	setSingleton(this);
 	pthread_mutex_init(&m_update_lock, NULL);
@@ -141,6 +142,14 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("show Beam hydros"),        MyGUI::MenuItemType::Normal, "debug-beam-hydros");
 	p->addItem(_L("show Beam commands"),      MyGUI::MenuItemType::Normal, "debug-beam-commands");
 	m_popup_menus.push_back(p);
+
+	/* -------------------------------------------------------------------------------- */
+	/* RIG LOADING REPORT WINDOW */
+
+	mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
+	mi->setItemType(MyGUI::MenuItemType::Popup);
+	mi->setCaption("Spawner log");
+	mi->eventMouseButtonClick += MyGUI::newDelegate( this, &GUI_MainMenu::MenubarShowSpawnerReportButtonClicked);
 
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR POSITION */
@@ -486,6 +495,11 @@ void GUI_MainMenu::triggerUpdateVehicleList()
 	MUTEX_LOCK(&m_update_lock);
 	m_vehicle_list_needs_update = true;
 	MUTEX_UNLOCK(&m_update_lock);
+}
+
+void GUI_MainMenu::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)
+{
+	m_gui_manager_interface->ShowRigSpawnerReportWindow();
 }
 
 #endif // USE_MYGUI
