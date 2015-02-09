@@ -37,6 +37,9 @@ class GuiManagerInterface
 {
 public:
 
+	// The manager
+	virtual void UnfocusGui() = 0;
+
 	// Rig spawner window
 	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other) = 0;
 	virtual void ShowRigSpawnerReportWindow() = 0;

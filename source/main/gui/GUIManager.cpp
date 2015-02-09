@@ -72,7 +72,7 @@ bool GUIManager::create()
 	return true;
 }
 
-void GUIManager::unfocus()
+void GUIManager::UnfocusGui()
 {
 	MyGUI::InputManager::getInstance().resetKeyFocusWidget();
 	MyGUI::InputManager::getInstance().resetMouseCaptureWidget();
@@ -228,4 +228,5 @@ void GUIManager::ShowRigSpawnerReportWindow()
 void GUIManager::HideRigSpawnerReportWindow()
 {
 	m_rig_spawner_report_window->Hide();
+	UnfocusGui();
 }

@@ -866,7 +866,7 @@ void SelectorWindow::show(LoaderType type)
 void SelectorWindow::hide()
 {
 	mSelectionDone = true;
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
 	ready = false;

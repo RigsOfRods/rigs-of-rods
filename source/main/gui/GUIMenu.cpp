@@ -335,7 +335,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 		{
 			gEnv->frameListener->reloadCurrentTruck();
-			RoR::Application::GetGuiManager()->unfocus();
+			RoR::Application::GetGuiManager()->UnfocusGui();
 		}
 	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
 	{
@@ -452,7 +452,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 void GUI_MainMenu::setVisible(bool value)
 {
 	m_menubar_widget->setVisible(value);
-	if (!value) RoR::Application::GetGuiManager()->unfocus();
+	if (!value) RoR::Application::GetGuiManager()->UnfocusGui();
 	//MyGUI::PointerManager::getInstance().setVisible(value);
 }
 

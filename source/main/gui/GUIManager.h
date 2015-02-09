@@ -53,8 +53,6 @@ public:
 
 	void destroy();
 
-	void unfocus();
-
 	static Ogre::String getRandomWallpaperImage();
 
 	void windowResized(Ogre::RenderWindow* rw);
@@ -63,6 +61,8 @@ public:
 	void SetSceneManager(Ogre::SceneManager* scene_manager);
 
 	// ------------ Interface functions ------------ //
+
+	virtual void UnfocusGui();
 
 	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
 	virtual void ShowRigSpawnerReportWindow();

@@ -175,7 +175,7 @@ void Console::startPrivateChat(int target_uid)
 void Console::unselect()
 {
 	MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 }
 
 
@@ -483,7 +483,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 	// we did not autoComplete, so try to handle the message
 	_sender->setCaption("");
 
-	// unfocus, so we return to the main game for the keyboard focus
+	// UnfocusGui, so we return to the main game for the keyboard focus
 	inputMode = false;
 	linesChanged = true;
 	scrollOffset = 0; // reset offset

@@ -42,7 +42,7 @@ RigSpawnerReportWindow::RigSpawnerReportWindow(GuiManagerInterface* gui_manager_
 	Hide();
 }
 
-	void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
+void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
 {
 	m_rig_spawner_report_window->setCaption("Loading report: " + vehicle_name);
 
@@ -77,5 +77,5 @@ RigSpawnerReportWindow::RigSpawnerReportWindow(GuiManagerInterface* gui_manager_
 
 void RigSpawnerReportWindow::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)
 {
-	Hide(); // There's only close [X] button -> hide window.
+	m_gui_manager_interface->HideRigSpawnerReportWindow(); // There's only close [X] button -> hide window.
 }
