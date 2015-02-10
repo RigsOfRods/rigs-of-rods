@@ -74,7 +74,7 @@ void LoadingWindow::setAutotrack(const Ogre::UTFString& _text, bool _updateRende
 
 void LoadingWindow::hide()
 {
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 	mMainWidget->setVisible(false);
 }
 

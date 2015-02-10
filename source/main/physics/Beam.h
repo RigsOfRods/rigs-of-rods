@@ -573,7 +573,6 @@ protected:
 
 	void calc_masses2(Ogre::Real total, bool reCalc=false);
 	void calcNodeConnectivityGraph();
-	void updateContacterNodes();
 	void moveOrigin(Ogre::Vector3 offset); //move physics origin
 	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 

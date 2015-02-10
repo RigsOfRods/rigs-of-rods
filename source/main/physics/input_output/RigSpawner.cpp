@@ -702,6 +702,8 @@ void RigSpawner::FinalizeRig()
 
 	m_rig->lowestnode = FindLowestNodeInRig();
 
+	UpdateCollcabContacterNodes();
+
 #if 0 // hashing + scope_log disabled
 
    // now generate the hash of it
@@ -6924,7 +6926,7 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
 	return true;
 }
 
-bool RigSpawner::CheckCameraRailLimit(unsigned int count)
+bool RigSpawner::CheckWingLimit(unsigned int count)
 {
 	if ((m_rig->free_wing + count) > MAX_WINGS)
 	{
@@ -6936,7 +6938,7 @@ bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 	return true;
 }
 
-bool RigSpawner::CheckWingLimit(unsigned int count)
+bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 {
 	if ((m_rig->free_camerarail + count) > MAX_CAMERARAIL)
 	{
@@ -7241,4 +7243,15 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 	}
 
 #endif //OPENAL
+}
+
+void RigSpawner::UpdateCollcabContacterNodes()
+{
+	for (int i=0; i<m_rig->free_collcab; i++)
+	{
+		int tmpv = m_rig->collcabs[i] * 3;
+		m_rig->nodes[m_rig->cabs[tmpv]].contacter = true;
+		m_rig->nodes[m_rig->cabs[tmpv+1]].contacter = true;
+		m_rig->nodes[m_rig->cabs[tmpv+2]].contacter = true;
+	}
 }

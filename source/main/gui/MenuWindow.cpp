@@ -91,7 +91,7 @@ void MenuWindow::Show()
 
 void MenuWindow::Hide()
 {
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
 }
