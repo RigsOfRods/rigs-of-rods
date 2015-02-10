@@ -119,6 +119,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	guid = m_terrain_config.getSetting("GUID", "General");
 	start_position = StringConverter::parseVector3(m_terrain_config.getSetting("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
 	version = StringConverter::parseInt(m_terrain_config.getSetting("Version", "General"), 1);
+	gravity = StringConverter::parseReal(m_terrain_config.getSetting("Gravity", "General"), -9.81);
 
 	// parse author info
 	ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
