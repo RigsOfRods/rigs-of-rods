@@ -68,7 +68,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboProp.h"
 #include "Water.h"
 
-#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
+// DEBUG UTILITY
+//#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
@@ -6285,7 +6286,8 @@ Beam::Beam(
 
 	mCamera = gEnv->mainCamera;
 
-	RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log"); 
+	// DEBUG UTILITY
+	//RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log"); 
 
 	LOG(" ===== DONE LOADING VEHICLE");
 }
