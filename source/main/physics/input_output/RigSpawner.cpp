@@ -702,6 +702,8 @@ void RigSpawner::FinalizeRig()
 
 	m_rig->lowestnode = FindLowestNodeInRig();
 
+	UpdateCollcabContacterNodes();
+
 #if 0 // hashing + scope_log disabled
 
    // now generate the hash of it
@@ -7241,4 +7243,15 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 	}
 
 #endif //OPENAL
+}
+
+void RigSpawner::UpdateCollcabContacterNodes()
+{
+	for (int i=0; i<m_rig->free_collcab; i++)
+	{
+		int tmpv = m_rig->collcabs[i] * 3;
+		m_rig->nodes[m_rig->cabs[tmpv]].contacter = true;
+		m_rig->nodes[m_rig->cabs[tmpv+1]].contacter = true;
+		m_rig->nodes[m_rig->cabs[tmpv+2]].contacter = true;
+	}
 }

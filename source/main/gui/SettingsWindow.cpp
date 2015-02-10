@@ -63,7 +63,7 @@ void SettingsWindow::Show()
 
 void SettingsWindow::Hide()
 {
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 	mMainWidget->setVisible(false);
 	mMainWidget->setEnabledSilent(false);
 	if (! gEnv->frameListener->loading_state == TERRAIN_LOADED)

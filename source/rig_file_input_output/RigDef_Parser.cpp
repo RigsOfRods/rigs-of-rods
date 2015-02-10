@@ -1684,7 +1684,7 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line)
 			line, 
 			Message::TYPE_WARNING, 
 			"Directive 'set_managedmaterials_options':"
-				" Invalid value of parameter #1: '" + input + "', should be only '0' or '1'."
+				" Invalid value of parameter ~1: '" + input + "', should be only '0' or '1'."
 				" Interpreting as '0' for backwards compatibility. Please fix."
 			);
 	}
@@ -1917,7 +1917,7 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	int braking = STR_PARSE_INT(results[8]);
 	if (braking < 0 || braking > 4)
 	{
-		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter #7 (braking), using 0 (no braking)");
+		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter ~7 (braking), using 0 (no braking)");
 		braking = 0;
 	}
 	mesh_wheel.braking = Wheels::Braking(braking);
@@ -1926,7 +1926,7 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	int propulsion = STR_PARSE_INT(results[9]);
 	if (propulsion < 0 || propulsion > 2)
 	{
-		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter #8 (propulsion), using 0 (no propulsion)");
+		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter ~8 (propulsion), using 0 (no propulsion)");
 		braking = 0;
 	}
 	mesh_wheel.propulsion = Wheels::Propulsion(propulsion);
@@ -3862,7 +3862,7 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 	Ogre::String mode_str = results[3];
 	if (! boost::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
 	{
-		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter #2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
+		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter ~2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
 	}
 	else
 	{
@@ -4290,7 +4290,7 @@ void Parser::ParseRotators(Ogre::String const & line)
 			
 			float result = STR_PARSE_REAL(start_delay_str);
 			std::stringstream msg;
-			msg << "Invalid value of parameter #14 'inertia_start_delay': '" << start_delay_str 
+			msg << "Invalid value of parameter ~14 'inertia_start_delay': '" << start_delay_str 
 				<< "', parsing as '" << result << "' for backwards compatibility. Please fix.";
 			AddMessage(line, Message::TYPE_ERROR, msg.str());
 		}
@@ -4392,7 +4392,7 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 		AddMessage(
 			line, 
 			Message::TYPE_WARNING, 
-			"Inline-section 'fileinfo', parameter #3 'File version': Found real number, should be a decimal. Converting..."
+			"Inline-section 'fileinfo', parameter ~3 'File version': Found real number, should be a decimal. Converting..."
 		);
 		version = static_cast<int>(STR_PARSE_REAL(results[11]));
 	}
@@ -4813,7 +4813,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	int braking = STR_PARSE_INT(results[8]);
 	if (braking < 0 || braking > 4)
 	{
-		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter #7 (braking), using 0 (no braking)");
+		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter ~7 (braking), using 0 (no braking)");
 		braking = 0;
 	}
 	mesh_wheel_2.braking = Wheels::Braking(braking);
@@ -4822,7 +4822,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	int propulsion = STR_PARSE_INT(results[9]);
 	if (propulsion < 0 || propulsion > 2)
 	{
-		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter #8 (propulsion), using 0 (no propulsion)");
+		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter ~8 (propulsion), using 0 (no propulsion)");
 		braking = 0;
 	}
 	mesh_wheel_2.propulsion = Wheels::Propulsion(propulsion);
@@ -4853,7 +4853,7 @@ void Parser::ParseMaterialFlareBindings(Ogre::String const & line)
 	if (results[2].matched)
 	{
 		std::stringstream msg;
-		msg << "Invalid character(s) '" << results[2] << "' after parameter #1 'Flare index', ingoring...";
+		msg << "Invalid character(s) '" << results[2] << "' after parameter ~1 'Flare index', ingoring...";
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 	binding.material_name = results[4];
@@ -5078,7 +5078,7 @@ void Parser::ParseBeams(Ogre::String const & _line)
 			}
 			else
 			{
-				AddMessage(line, Message::TYPE_WARNING, "Invalid flag: " + flags_str[i]);
+				AddMessage(line, Message::TYPE_WARNING, std::string("Invalid flag: ") + flags_str[i]);
 			}
 		}
 	}
