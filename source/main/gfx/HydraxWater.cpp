@@ -51,7 +51,19 @@ waternoise(0)
 
 HydraxWater::~HydraxWater()
 {
+	//delete(waternoise);
+	//waternoise = nullptr;
+	//delete(mModule);
+	//mModule = nullptr;
+	mHydrax->remove();
+	//delete(mHydrax);
+	mHydrax = nullptr;
 
+	waveHeight = 0;
+	waterHeight = 0;
+	haswaves = false;
+	mRenderCamera = nullptr;
+	CurrentConfigFile = "";
 }
 
 bool HydraxWater::CreateHydrax()
@@ -112,12 +124,17 @@ void HydraxWater::showWave(Vector3 refpos)
 
 void HydraxWater::update()
 {
-	if (gEnv->sky->getCaelumSys()) //Caelum way of doing things
+	//This has to change in the next versions when SkyX will be added.
+	if (gEnv->sky) //Caelum way of doing things
 	{
 		Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
 		sunPosition -= gEnv->sky->getCaelumSys()->getSun()->getLightDirection() * 80000;
 		mHydrax->setSunPosition(sunPosition);
 		mHydrax->setSunColor(Ogre::Vector3(gEnv->sky->getCaelumSys()->getSun()->getBodyColour().r, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().g, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().b));
+	}
+	else
+	{
+		mHydrax->setSunPosition(gEnv->sceneManager->getLight("MainLight")->getPosition());
 	}
 }
 
