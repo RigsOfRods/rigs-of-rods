@@ -239,6 +239,7 @@ void MainThread::Go()
 	gEnv->frameListener->dirvisible = false;
 	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
+	new GUI_MainMenu(Application::GetGuiManagerInterface()); /* Top menubar */
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
@@ -454,8 +455,7 @@ void MainThread::Go()
 				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
 				if (top_menu != nullptr)
 				{
-					delete(top_menu);
-					top_menu = nullptr;
+					top_menu->setVisible(false);
 				}
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
@@ -485,7 +485,6 @@ void MainThread::Go()
 			// ================================================================
 			// Simulation
 			// ================================================================
-			new GUI_MainMenu(Application::GetGuiManagerInterface());
 
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
@@ -554,10 +553,9 @@ void MainThread::Go()
 
 				/* Hide top menu */
 				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
-				if (top_menu != nullptr) 
+				if (top_menu != nullptr)
 				{
-					delete(top_menu);
-					top_menu = nullptr;
+					top_menu->setVisible(false);
 				}
 			}
 			else if (previous_application_state == Application::STATE_MAIN_MENU)
