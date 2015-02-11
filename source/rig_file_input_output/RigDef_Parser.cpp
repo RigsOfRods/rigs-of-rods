@@ -5059,6 +5059,10 @@ void Parser::ParseBeams(Ogre::String const & _line)
 		std::string const & flags_str = results[6];
 		for (unsigned int i = 0; i < flags_str.length(); i++)
 		{
+			if (flags_str[i] == 'v') 
+			{
+				continue; // Dummy flag
+			}
 			if (flags_str[i] == 'i') 
 			{
 				beam.options |= Beam::OPTION_i_INVISIBLE;
