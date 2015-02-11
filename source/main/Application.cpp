@@ -167,4 +167,9 @@ void Application::CreateCacheSystem()
 	ms_cache_system = new CacheSystem();
 }
 
+GuiManagerInterface* Application::GetGuiManagerInterface()
+{
+	return static_cast<GuiManagerInterface*>(ms_gui_manager);
+}
+
 } // namespace RoR

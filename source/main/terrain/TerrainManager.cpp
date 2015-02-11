@@ -41,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "OgreTerrainPaging.h"
 
 using namespace Ogre;
 
@@ -75,6 +76,7 @@ TerrainManager::TerrainManager() :
 	, version(1)
 	, water_line(0.0f)
 {
+	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
 }
 
 TerrainManager::~TerrainManager()
@@ -163,6 +165,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	guid = m_terrain_config.getSetting("GUID", "General");
 	start_position = StringConverter::parseVector3(m_terrain_config.getSetting("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
 	version = StringConverter::parseInt(m_terrain_config.getSetting("Version", "General"), 1);
+	gravity = StringConverter::parseReal(m_terrain_config.getSetting("Gravity", "General"), -9.81);
 
 	// parse author info
 	ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
@@ -321,22 +324,29 @@ void TerrainManager::initCamera()
 {
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 	gEnv->mainCamera->setPosition(start_position);
-	gEnv->mainCamera->setFarClipDistance(0);
 
 	far_clip = FSETTING("SightRange", 4500);
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
 	else
-		gEnv->mainCamera->setFarClipDistance(0);
+		gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+
+	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+
+	// disabled in global config
+	if (waterSettingsString == "None") return;
+	// disabled in map config
+	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
+
+	if (waterSettingsString == "Hydrax" && far_clip >= UNLIMITED_SIGHTRANGE)
+		gEnv->mainCamera->setFarClipDistance(9999*6); //Unlimited
 }
 
 void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
 	// Caelum skies
-	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
-
 	if (use_caelum)
 	{
 		sky_manager = new SkyManager();
@@ -586,9 +596,31 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		HydraxWater *hw = new HydraxWater();
-		hw->loadConfig("HydraxDemo.hdx");
+		// try to load hydrax config
+		String hydraxConfig = m_terrain_config.getSetting("HydraxConfigFile", "General");
+
+		if (!hydraxConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(hydraxConfig))
+		{
+			hw = new HydraxWater(m_terrain_config, hydraxConfig);
+		}
+		else
+		{
+			// no config provided, fall back to the default one
+			hw = new HydraxWater(m_terrain_config);
+		}
+
+		
 		water = hw;
+
+		//Apply depth technique to the terrain
+		TerrainGroup::TerrainIterator ti = geometry_manager->getTerrainGroup()->getTerrainIterator();
+		while (ti.hasMoreElements())
+		{
+			Terrain* t = ti.getNext()->instance;
+			MaterialPtr ptr = t->getMaterial();
+			hw->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+		}
+
 	} else
 	{
 		if (water == nullptr)

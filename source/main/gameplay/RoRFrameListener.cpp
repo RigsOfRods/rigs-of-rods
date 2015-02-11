@@ -917,7 +917,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				Application::GetGuiManager()->getMainSelector()->hide();
 				loading_state = ALL_LOADED;
 
-				RoR::Application::GetGuiManager()->unfocus();
+				RoR::Application::GetGuiManager()->UnfocusGui();
 
 				if (local_truck != nullptr && local_truck->driveable != NOT_DRIVEABLE)
 				{
@@ -1164,7 +1164,7 @@ void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::
 	LOG("initTrucks done");
 
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 #endif //USE_MYGUI
 }
 

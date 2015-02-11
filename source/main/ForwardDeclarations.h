@@ -33,6 +33,7 @@ namespace RoR
 	class  Application;
 	class  ContentManager;
 	class  GUIManager;
+	class  GuiManagerInterface;
 	class  MainThread;
 	class  OgreSubsystem;
 	struct PlatformUtils;
@@ -131,6 +132,7 @@ class IHeightFinder;
 class InputEngine;
 class IThreadTask;
 class IWater;
+class HydraxWater;
 class Landusemap;
 class MapTextureCreator;
 class MaterialFunctionMapper;

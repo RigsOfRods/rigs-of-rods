@@ -44,6 +44,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GuiManagerInterface.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -67,6 +68,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboProp.h"
 #include "Water.h"
 #include "GUIManager.h"
+
+// DEBUG UTILITY
+//#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
@@ -970,17 +974,6 @@ void Beam::calcNodeConnectivityGraph()
 		}
 	}
 	BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
-}
-
-void Beam::updateContacterNodes()
-{
-	for (int i=0; i<free_collcab; i++)
-	{
-		int tmpv = collcabs[i] * 3;
-		nodes[cabs[tmpv]].contacter = true;
-		nodes[cabs[tmpv+1]].contacter = true;
-		nodes[cabs[tmpv+2]].contacter = true;
-	}
 }
 
 int Beam::savePosition(int indexPosition)
@@ -3049,12 +3042,7 @@ void Beam::updateSkidmarks()
 		}
 
 		skidtrails[i]->updatePoint();
-	}
-
-	//LOG("updating skidmark visuals");
-	for (int i=0; i<free_wheel; i++)
-	{
-		if (skidtrails[i]) skidtrails[i]->update();
+		if (skidtrails[i] && wheels[i].isSkiding) skidtrails[i]->update();
 	}
 
 	BES_STOP(BES_CORE_Skidmarks);
@@ -5920,12 +5908,13 @@ void Beam::onComplete()
 }
 
 
-void LogParserMessages(RigDef::Parser & parser)
+std::string ProcessParserMessages(RigDef::Parser & parser, int& num_errors, int& num_warnings, int& num_other)
 {
 	if (parser.GetMessages().size() == 0)
 	{
-		LOG(" == Parsing done OK");
-		return;
+		std::string msg(" == Parsing done OK");
+		LOG(msg);
+		return msg;
 	}
 
 	std::stringstream report;
@@ -5938,29 +5927,33 @@ void LogParserMessages(RigDef::Parser & parser)
 		{
 			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
 				report << "FATAL_ERROR"; 
+				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_ERROR): 
 				report << "ERROR"; 
+				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_WARNING): 
 				report << "WARNING"; 
+				++num_warnings;
 				break;
 
 			default:
 				report << "INFO"; 
+				++num_other;
 				break;
 		}
 		report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
-		report << "\tLine (# " << iter->line_number << "): " << iter->line << std::endl;
+		report << "\tLine (" << iter->line_number << "): " << iter->line << std::endl;
 		report << "\tMessage: " << iter->message << std::endl;
 	}
 
-	Ogre::LogManager::getSingleton().logMessage(report.str());
+	return report.str();
 }
 
-void LogSpawnerMessages(RigSpawner & spawner)
+std::string ProcessSpawnerMessages(RigSpawner & spawner, int& num_errors, int& num_warnings, int& num_other)
 {
 	std::stringstream report;
 
@@ -5971,33 +5964,37 @@ void LogSpawnerMessages(RigSpawner & spawner)
 		{
 			case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
 				report << "INTERNAL ERROR"; 
+				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_ERROR): 
 				report << "ERROR"; 
+				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_WARNING): 
 				report << "WARNING"; 
+				++num_warnings;
 				break;
 
 			default:
 				report << "INFO"; 
+				++num_other;
 				break;
 		}
 		report << "(Keyword " << RigDef::File::KeywordToString(iter->keyword) << ")" << std::endl;
 		report << "\t" << iter->text << std::endl;
 	}
-
-	Ogre::LogManager::getSingleton().logMessage(report.str());
+	return report.str();
 }
 
-void LogValidatorMessages(RigDef::Validator & validator)
+std::string ProcessValidatorMessages(RigDef::Validator & validator, int& num_errors, int& num_warnings, int& num_other)
 {
 	if (validator.GetMessages().empty())
 	{
-		Ogre::LogManager::getSingleton().logMessage(" == Validating done OK");
-		return;
+		std::string msg(" == Validating done OK");
+		Ogre::LogManager::getSingleton().logMessage(msg);
+		return msg;
 	}
 
 	std::stringstream report;
@@ -6010,21 +6007,26 @@ void LogValidatorMessages(RigDef::Validator & validator)
 		{
 			case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
 				report << "FATAL ERROR";
+				++num_errors;
 				break;
 			case (RigDef::Validator::Message::TYPE_ERROR):
 				report << "ERROR";
+				++num_errors;
 				break;
 			case (RigDef::Validator::Message::TYPE_WARNING):
 				report << "WARNING";
+				++num_warnings;
 				break;
 			default:
 				report << "INFO";
+				++num_other;
+				break;
 		}
 
 		report << ": " << itor->text << std::endl;
 	}
 
-	Ogre::LogManager::getSingleton().logMessage(report.str());
+	return report.str();
 }
 
 Beam::Beam(
@@ -6140,6 +6142,8 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
+
+	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* class <Beam> mutexes */
@@ -6288,6 +6292,9 @@ Beam::Beam(
 
 	mCamera = gEnv->mainCamera;
 
+	// DEBUG UTILITY
+	//RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log"); 
+
 	LOG(" ===== DONE LOADING VEHICLE");
 }
 
@@ -6365,7 +6372,12 @@ bool Beam::LoadTruck(
 	}
 	parser.Finalize();
 
-	LogParserMessages(parser);
+	int report_num_errors(0);
+	int report_num_warnings(0);
+	int report_num_other(0);
+	std::string report_text = ProcessParserMessages(parser, report_num_errors, report_num_warnings, report_num_other);
+	report_text += "\n\n";
+	LOG(report_text);
 
 	/* VALIDATING */
 
@@ -6388,7 +6400,10 @@ bool Beam::LoadTruck(
 	}
 	bool valid = validator.Validate();
 
-	LogValidatorMessages(validator);
+	std::string validator_report = ProcessValidatorMessages(validator, report_num_errors, report_num_warnings, report_num_other);
+	LOG(validator_report);
+	report_text += validator_report;
+	report_text += "\n\n";
 	// Continue anyway...
 
 	/* PROCESSING */
@@ -6410,6 +6425,12 @@ bool Beam::LoadTruck(
 	}
 
 	spawner.SpawnRig();
+	report_text += ProcessSpawnerMessages(spawner, report_num_errors, report_num_warnings, report_num_other);
+	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
+	if (report_num_errors != 0)
+	{
+		RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
+	}
 
 	/* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
 
@@ -6462,9 +6483,6 @@ bool Beam::LoadTruck(
 
 	//compute node connectivity graph
 	calcNodeConnectivityGraph();
-
-	//update contacter nodes
-	updateContacterNodes();
 
 	RigSpawner::RecalculateBoundingBoxes(this);
 

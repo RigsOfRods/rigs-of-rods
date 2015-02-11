@@ -837,6 +837,8 @@ protected:
 
 	void CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_to_scene);
 
+	void UpdateCollcabContacterNodes();
+
 	/**
 	* Finds node with lowest Y in spawned rig.
 	*/

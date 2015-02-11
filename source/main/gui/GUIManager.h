@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "GUI_RigSpawnerReportWindow.h"
 #include "GUIInputManager.h"
+#include "GuiManagerInterface.h"
 #include "RoRPrerequisites.h"
 
 #include <MyGUI.h>
@@ -52,6 +54,7 @@ class GUIManager :
 	, public Ogre::FrameListener
 	, public Ogre::WindowEventListener
 	, public ZeroedMemoryAllocator
+	, public GuiManagerInterface
 {
 
 	friend class RoR::Application; // Manages lifecycle of this class
@@ -60,8 +63,6 @@ public:
 
 	void destroy();
 
-	void unfocus();
-
 	static Ogre::String getRandomWallpaperImage();
 
 	void windowResized(Ogre::RenderWindow* rw);
@@ -69,6 +70,7 @@ public:
 	/** Set scene manager where GUI will be rendered */
 	void SetSceneManager(Ogre::SceneManager* scene_manager);
 
+	// ------------ Interface functions ------------ //
 	//GUI windows manager
 	void ShowMainMenu(bool isVisible);
 	void ShowSettingGui(bool isVisible);
@@ -98,6 +100,12 @@ public:
 
 	bool GetPauseMenuVisible();
 
+	virtual void UnfocusGui();
+
+	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
+	virtual void ShowRigSpawnerReportWindow();
+	virtual void HideRigSpawnerReportWindow();
+
 private:
 
 	GUIManager();
@@ -117,9 +125,10 @@ private:
 	MyGUI::OgrePlatform* mPlatform;
 	Ogre::String mResourceFileName;
 	bool mExit;
-
-	//GUI Windows pointers
-    std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
+	
+	// ---------- GUI Panels ----------
+	//GUI Windows pointers	
+  std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
 	std::unique_ptr<GUI::GameAbout>			m_gui_GameAbout;
 	std::unique_ptr<GUI::GameSettings>		m_gui_GameSettings;
 	std::unique_ptr<GUI::DebugOptions>		m_gui_DebugOptions;
@@ -128,6 +137,8 @@ private:
 	std::unique_ptr<GUI::MultiplayerSelector>		m_gui_MultiplayerSelector;
 	std::unique_ptr<GUI::GamePauseMenu>		m_gui_GamePauseMenu;
 	std::shared_ptr<GUI::MainSelector>		m_gui_MainSelector;
+	std::unique_ptr<GUI::RigSpawnerReportWindow> m_rig_spawner_report_window;
+	
 	bool isSimUtilsVisible;
 };
 

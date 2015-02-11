@@ -1386,7 +1386,6 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		{
 			try
 			{
-				// we wont crash for help panels ...
 				if (current_vehicle->hashelp)
 				{
 					OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName(current_vehicle->helpmat);
@@ -1398,11 +1397,17 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 					OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
 				}
 			} 
-			catch(std::runtime_error ex)
+			catch(Ogre::Exception& ex)
 			{
+				// Report the error
 				std::stringstream msg;
-				msg << "Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
+				msg << "Error, help panel material (defined in 'help' or 'guisettings/helpMaterial') could not be loaded.\n"
+					"Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
 				LOG(msg.str());
+
+				// Do not retry
+				current_vehicle->hashelp = 0;
+				current_vehicle->helpmat[0] = '\0';
 			}
 
 			// enable gui mods

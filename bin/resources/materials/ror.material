@@ -230,6 +230,18 @@ material tracks/invisible
 			}
 		}
 	}
+	technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
+        }
+    } 
 }
 
 material tracks/EnvMapDebug
@@ -2707,6 +2719,18 @@ material tracks/trans
 			alpha_rejection greater 0
 		}
 	}
+	technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
+        }
+    } 
 }
 
 material tracks/seabottom

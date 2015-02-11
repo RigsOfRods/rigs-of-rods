@@ -66,10 +66,14 @@ bool GUIManager::create()
 #ifdef _WIN32
 	MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
 #endif // _WIN32
+
+	// Create panels
+	m_rig_spawner_report_window = std::unique_ptr<GUI::RigSpawnerReportWindow>(new GUI::RigSpawnerReportWindow(this));
+
 	return true;
 }
 
-void GUIManager::unfocus()
+void GUIManager::UnfocusGui()
 {
 	MyGUI::InputManager::getInstance().resetKeyFocusWidget();
 	MyGUI::InputManager::getInstance().resetMouseCaptureWidget();
@@ -245,6 +249,12 @@ void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
 	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
+
+// ============================================================================
+// Interface functions
+// ============================================================================
+
+
 void GUIManager::ShowMainMenu(bool isVisible)
 {
 	if (isVisible == true)
@@ -409,4 +419,21 @@ bool GUIManager::GetPauseMenuVisible()
 		return m_gui_GamePauseMenu->mMainWidget->getVisible();
 	else
 		return false;
+}
+
+void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
+{
+	m_rig_spawner_report_window->SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
+}
+
+void GUIManager::ShowRigSpawnerReportWindow()
+{
+	m_rig_spawner_report_window->CenterToScreen();
+	m_rig_spawner_report_window->Show();
+}
+
+void GUIManager::HideRigSpawnerReportWindow()
+{
+	m_rig_spawner_report_window->Hide();
+	UnfocusGui();
 }
