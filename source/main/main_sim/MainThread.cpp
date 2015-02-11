@@ -485,6 +485,7 @@ void MainThread::Go()
 			// ================================================================
 			// Simulation
 			// ================================================================
+			new GUI_MainMenu(Application::GetGuiManagerInterface());
 
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
@@ -892,8 +893,6 @@ void MainThread::EnterMainMenuLoop()
 void MainThread::EnterGameplayLoop()
 {
 	/* SETUP */
-
-	new GUI_MainMenu();
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
 	unsigned long timeSinceLastFrame = 1;

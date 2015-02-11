@@ -906,7 +906,7 @@ void CLASS::show(LoaderType type)
 void CLASS::hide()
 {
 	mSelectionDone = true;
-	RoR::Application::GetGuiManager()->unfocus();
+	RoR::Application::GetGuiManager()->UnfocusGui();
 	MAIN_WIDGET->setVisibleSmooth(false);
 	MAIN_WIDGET->setEnabledSilent(false);
 	ready = false;

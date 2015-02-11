@@ -347,7 +347,7 @@ void CLASS::UpdateControls()
 	else
 		m_tex_filter->setIndexSelected(0);
 
-	if (BSETTING("DevMode", false))
+	if (BSETTING("DevMode", false) && !IsLoaded)
 	{
 		//Things that aren't ready to be used yet.
 		m_sky_type->addItem("SkyX (best looking, slower)");
