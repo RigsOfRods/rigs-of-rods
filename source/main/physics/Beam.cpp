@@ -6632,11 +6632,17 @@ bool Beam::getCustomLightVisible(int number)
 
 void Beam::setCustomLightVisible(int number, bool visible)
 {
-	if (netCustomLightArray[number] == -1)
+	if (number >= 5)
+	{
+		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") overflow, max: 4...");
 		return;
-	flares[netCustomLightArray[number]].controltoggle_status = visible;
-}
+	}
 
+	if (flares[netCustomLightArray[number]].snode)
+		flares[netCustomLightArray[number]].controltoggle_status = visible;
+	else
+		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");
+}
 
 bool Beam::getBeaconMode()
 {
