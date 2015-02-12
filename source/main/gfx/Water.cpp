@@ -577,6 +577,7 @@ float Water::getHeight()
 void Water::setHeight(float value)
 {
 	wHeight = value;
+	orgheight = value;
 }
 
 float Water::getHeightWaves(Vector3 pos)
