@@ -81,6 +81,7 @@ private:
 	int framecounter;
 	int free_wavetrain;
 	int mType;
+	bool ForceUpdate;
 
 	Ogre::MeshPtr mprt;
 	Ogre::Vector3 mapSize;
@@ -91,7 +92,7 @@ private:
 	Ogre::RenderTexture* rttTex1;
 	Ogre::RenderTexture* rttTex2;
 	Ogre::SceneNode *pBottomNode;
-	Ogre::SceneNode *pTestNode;
+	Ogre::SceneNode *pWaterNode;
 	Ogre::Viewport *vRtt1, *vRtt2;
 	Ogre::ColourValue fade;
 	wavetrain_t wavetrains[MAX_WAVETRAINS];
