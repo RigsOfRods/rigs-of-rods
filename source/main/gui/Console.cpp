@@ -41,6 +41,7 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 #include "RoRVersion.h"
+#include "IWater.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -267,6 +268,9 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 #endif // USE_ANGELSCRIPT
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setgravity - changes terrain's gravity"), "script_go.png");
+
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setwaterlevel - changes water's level"), "script_go.png");
+
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
@@ -287,6 +291,16 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			gEnv->terrainManager->setGravity(gValue);
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
 			gValue = NULL;
+			return;
+		} else if (args[0] == "/setwaterlevel")
+		{
+			if (gEnv->terrainManager && gEnv->terrainManager->getWater())
+			{
+				IWater* water = gEnv->terrainManager->getWater();
+				water->setCamera(gEnv->mainCamera);
+				water->setHeight(boost::lexical_cast<float>(args[1].c_str()));
+				water->update();
+			}
 			return;
 		}
 		else if (args[0] == "/pos" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))

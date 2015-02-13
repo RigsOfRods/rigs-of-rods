@@ -625,6 +625,11 @@ void TerrainManager::initWater()
 	{
 		if (water == nullptr)
 			water = new Water(m_terrain_config);
+		else if (water != nullptr)
+		{
+			delete(water);
+			water = new Water(m_terrain_config);
+		}
 	}
 }
 
