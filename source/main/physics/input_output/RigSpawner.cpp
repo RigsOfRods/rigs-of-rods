@@ -70,6 +70,7 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "VideoCamera.h"
+#include "GUIManager.h"
 
 #include <OgreMaterialManager.h>
 #include <OgreSceneManager.h>
@@ -562,6 +563,7 @@ void RigSpawner::FinalizeRig()
 				30000, 
 				true
 			);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
 #endif // USE_MYGUI
 
 			Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";

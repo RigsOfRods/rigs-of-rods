@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "Console.h"
 #include "Language.h"
+#include "GUIManager.h"
 
 using namespace Ogre;
 
@@ -35,5 +36,6 @@ void CameraBehaviorIsometric::activate(const CameraManager::CameraContext &ctx, 
 		"camera_link.png", 
 		3000
 	);
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("fixed free camera") + TOSTRING(""));
 #endif // USE_MYGUI
 }

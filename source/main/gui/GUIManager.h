@@ -35,6 +35,16 @@
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 
+//Include managed guis headers
+#include "GUI_GameMainMenu.h"
+#include "GUI_GameAbout.h"
+#include "GUI_GameSettings.h"
+#include "GUI_DebugOptions.h"
+#include "GUI_SimUtils.h"
+#include "GUI_MessageBox.h"
+#include "GUI_MultiplayerSelector.h"
+#include "GUI_MainSelector.h"
+#include "GUI_GamePauseMenu.h"
 
 namespace RoR
 {
@@ -61,6 +71,34 @@ public:
 	void SetSceneManager(Ogre::SceneManager* scene_manager);
 
 	// ------------ Interface functions ------------ //
+	//GUI windows manager
+	void ShowMainMenu(bool isVisible);
+	void ShowSettingGui(bool isVisible);
+	void ShowAboutGUI(bool isVisible);
+	void ShowDebugOptionsGUI(bool isVisible);
+
+	void ToggleFPSBox();
+	void ToggleTruckInfoBox();
+
+	void UpdateSimUtils(float dt, Beam *truck);
+	void framestep(float dt);
+
+	void PushNotification(Ogre::String Title, Ogre::String text);
+
+	void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
+	int getMessageBoxResult(); //TODO
+
+	void ShowMultiPlayerSelector(bool isVisible);
+
+	void initMainSelector();
+	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
+
+	void initSimUtils();
+	void killSimUtils();
+
+	void TogglePauseMenu();
+
+	bool GetPauseMenuVisible();
 
 	virtual void UnfocusGui();
 
@@ -87,10 +125,21 @@ private:
 	MyGUI::OgrePlatform* mPlatform;
 	Ogre::String mResourceFileName;
 	bool mExit;
-
+	
 	// ---------- GUI Panels ----------
-
+	//GUI Windows pointers	
+  std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
+	std::unique_ptr<GUI::GameAbout>			m_gui_GameAbout;
+	std::unique_ptr<GUI::GameSettings>		m_gui_GameSettings;
+	std::unique_ptr<GUI::DebugOptions>		m_gui_DebugOptions;
+	std::unique_ptr<GUI::SimUtils>			m_gui_SimUtils;
+	std::unique_ptr<GUI::gMessageBox>		m_gui_gMessageBox;
+	std::unique_ptr<GUI::MultiplayerSelector>		m_gui_MultiplayerSelector;
+	std::unique_ptr<GUI::GamePauseMenu>		m_gui_GamePauseMenu;
+	std::shared_ptr<GUI::MainSelector>		m_gui_MainSelector;
 	std::unique_ptr<GUI::RigSpawnerReportWindow> m_rig_spawner_report_window;
+	
+	bool isSimUtilsVisible;
 };
 
 } // namespace RoR

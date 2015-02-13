@@ -159,14 +159,12 @@ String getVersionString(bool multiline)
 	{
 		sprintf(tmp, "Rigs of Rods\n"
 			" version: %s\n"
-			" revision: %s\n"
-			" full revision: %s\n"
 			" protocol version: %s\n"
 			" build time: %s, %s\n"
-			, ROR_VERSION_STRING, SVN_REVISION, SVN_ID, RORNET_VERSION, __DATE__, __TIME__);
+			, ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
 	} else
 	{
-		sprintf(tmp, "Rigs of Rods version %s, revision: %s, protocol version: %s, build time: %s, %s", ROR_VERSION_STRING, SVN_REVISION, RORNET_VERSION, __DATE__, __TIME__);
+		sprintf(tmp, "Rigs of Rods version %s, protocol version: %s, build time: %s, %s", ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
 	}
 
 	return String(tmp);
@@ -330,6 +328,25 @@ Real Round(Real value, unsigned short ndigits /* = 0 */)
 		value = std::floor(value + 0.5f);
 	else
 		value = std::ceil(value - 0.5f);
+
+	value /= f;
+
+	return value;
+}
+
+Real Round(Real value, int valueN, unsigned short ndigits /* = 0 */)
+{
+	Real f = 1.0f;
+
+	while (ndigits--)
+		f = f * 10.0f;
+
+	value *= f;
+
+	if (value >= 0.0f)
+		value = std::floor(value + valueN);
+	else
+		value = std::ceil(value - valueN);
 
 	value /= f;
 
