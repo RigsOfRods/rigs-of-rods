@@ -5926,17 +5926,17 @@ std::string ProcessParserMessages(RigDef::Parser & parser, int& num_errors, int&
 		switch (iter->type)
 		{
 			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
-				report << "FATAL_ERROR"; 
+				report << "#FF3300 FATAL_ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_ERROR): 
-				report << "ERROR"; 
+				report << "#FF3300 ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_WARNING): 
-				report << "WARNING"; 
+				report << "#FFFF00 WARNING #FFFFFF"; 
 				++num_warnings;
 				break;
 
@@ -5963,17 +5963,17 @@ std::string ProcessSpawnerMessages(RigSpawner & spawner, int& num_errors, int& n
 		switch (iter->type)
 		{
 			case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
-				report << "INTERNAL ERROR"; 
+				report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_ERROR): 
-				report << "ERROR"; 
+				report << "#FF3300 ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_WARNING): 
-				report << "WARNING"; 
+				report << "#FFFF00 WARNING #FFFFFF"; 
 				++num_warnings;
 				break;
 
@@ -6006,15 +6006,15 @@ std::string ProcessValidatorMessages(RigDef::Validator & validator, int& num_err
 		switch (itor->type)
 		{
 			case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
-				report << "FATAL ERROR";
+				report << "#FF3300 FATAL ERROR #FFFFFF";
 				++num_errors;
 				break;
 			case (RigDef::Validator::Message::TYPE_ERROR):
-				report << "ERROR";
+				report << "#FF3300 ERROR #FFFFFF";
 				++num_errors;
 				break;
 			case (RigDef::Validator::Message::TYPE_WARNING):
-				report << "WARNING";
+				report << "#FFFF00 WARNING #FFFFFF";
 				++num_warnings;
 				break;
 			default:
