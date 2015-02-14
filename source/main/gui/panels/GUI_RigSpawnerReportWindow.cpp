@@ -50,7 +50,7 @@ void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_nam
 	bool first = true;
 	if (num_errors > 0)
 	{
-		summary << num_errors << " ERRORS";
+		summary << num_errors <<  "#FF3300 Errors #FFFFFF";
 		first = false;
 	}
 	if (num_warnings > 0)
@@ -59,7 +59,7 @@ void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_nam
 		{
 			summary << ", ";
 		}
-		summary << num_warnings << " warnings";
+		summary << num_warnings << "#FFFF00 Warnings #FFFFFF";
 		first = false;
 	}
 	if (num_other > 0)

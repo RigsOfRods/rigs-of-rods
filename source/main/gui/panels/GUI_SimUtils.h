@@ -62,12 +62,6 @@ public:
 	void framestep(float dt);
 
 	void PushNotification(Ogre::String Title, Ogre::String text);
-
-	//Not sure about this, might throw some exceptions..
-	bool GetMainVisibiltyState()
-	{
-		return ((MyGUI::Window*)mMainWidget)->getVisible();
-	}
 	
 private:
 	bool b_fpsbox;
