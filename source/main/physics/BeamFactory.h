@@ -102,6 +102,9 @@ public:
 	void removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 	void removeTruck(int truck);
 	
+	void MuteAllTrucks();
+	void UnmuteAllTrucks();
+
 	void p_removeAllTrucks();
 
 	bool enterRescueTruck();

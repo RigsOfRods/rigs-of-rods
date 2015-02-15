@@ -86,6 +86,7 @@ void CLASS::Show()
 		gEnv->cameraManager->switchBehavior(1);
 
 	gEnv->frameListener->setSimPaused(true);
+	BeamFactory::getSingleton().MuteAllTrucks();
 }
 
 void CLASS::Hide()
@@ -98,6 +99,7 @@ void CLASS::Hide()
 		gEnv->cameraManager->switchBehavior(sCameraMode);
 
 	gEnv->frameListener->setSimPaused(false);
+	BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 
 void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
