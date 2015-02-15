@@ -437,3 +437,28 @@ void GUIManager::HideRigSpawnerReportWindow()
 	m_rig_spawner_report_window->Hide();
 	UnfocusGui();
 }
+
+void GUIManager::ShowChatBox()
+{
+	//This should happen only when the user is going to write something
+	if (m_gui_ChatBox.get() == nullptr)
+		m_gui_ChatBox = std::unique_ptr<GUI::GameChatBox>(new GUI::GameChatBox());
+
+	m_gui_ChatBox->Show();
+}
+
+void GUIManager::pushMessageChatBox(Ogre::String txt)
+{
+	if (m_gui_ChatBox.get() == nullptr)
+		m_gui_ChatBox = std::unique_ptr<GUI::GameChatBox>(new GUI::GameChatBox());
+
+	m_gui_ChatBox->pushMsg(txt);
+}
+
+void GUIManager::SetNetChat(ChatSystem *c)
+{
+	if (m_gui_ChatBox.get() == nullptr)
+		m_gui_ChatBox = std::unique_ptr<GUI::GameChatBox>(new GUI::GameChatBox());
+
+	m_gui_ChatBox->setNetChat(c);
+}

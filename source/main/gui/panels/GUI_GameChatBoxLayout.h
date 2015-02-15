@@ -29,14 +29,11 @@ public:
 protected:
 
 	//%LE Widget_Declaration list start
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Console_MainBox, "Console_MainBox");
-	MyGUI::EditBox* m_Console_MainBox;
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_MainBox, "Chatbox_MainBox");
+	MyGUI::EditBox* m_Chatbox_MainBox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Console_TextBox, "Console_TextBox");
-	MyGUI::EditBox* m_Console_TextBox;
-
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Console_Send, "Console_Send");
-	MyGUI::Button* m_Console_Send;
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_TextBox, "Chatbox_TextBox");
+	MyGUI::EditBox* m_Chatbox_TextBox;
 
 	//%LE Widget_Declaration list end
 };
