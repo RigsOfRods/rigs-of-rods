@@ -672,12 +672,18 @@ void BeamFactory::p_removeAllTrucks()
 {
 	for (int i = 0; i < free_truck; i++)
 	{
-		if (current_truck == i)
-			setCurrentTruck(-1);
-		if (!removeBeam(trucks[i]))
-			// deletion over beamfactory failed, delete by hand
-			// then delete the class
-			_deleteTruck(trucks[i]);
+		if (trucks[i])
+		{
+			trucks[i]->DisableAllSounds();
+
+			if (current_truck == i)
+				setCurrentTruck(-1);
+
+			if (!removeBeam(trucks[i]))
+				// deletion over beamfactory failed, delete by hand
+				// then delete the class
+				_deleteTruck(trucks[i]);
+		}
 	}
 }
 
@@ -689,6 +695,7 @@ void BeamFactory::_deleteTruck(Beam *b)
 
 	trucks[b->trucknum] = 0;
 	delete b;
+	//free_truck = free_truck - 1;
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();

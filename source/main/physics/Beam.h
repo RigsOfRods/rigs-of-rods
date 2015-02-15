@@ -390,6 +390,8 @@ public:
 	*/
 	void changedCamera();
 
+	void DisableAllSounds();
+
 	float getTotalMass(bool withLocked=true);
 	void recalc_masses();
 	int getWheelNodeCount();

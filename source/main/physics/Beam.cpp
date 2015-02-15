@@ -5139,6 +5139,15 @@ bool Beam::getReverseLightVisible()
 	return reverselight;
 }
 
+void Beam::DisableAllSounds()
+{
+	for (int i = 0; i < free_soundsource; i++)
+	{
+		if (soundsources[i].ssi)
+			soundsources[i].ssi->setEnabled(false);
+	}
+}
+
 void Beam::changedCamera()
 {
 	// change sound setup
