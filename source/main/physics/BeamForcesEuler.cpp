@@ -62,8 +62,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	calcMouse();
 
-	calcUpdateComponents(dt);
-
 	calcTurboProp(doUpdate, dt);
 	calcScrewProp(doUpdate);
 	calcWing();
@@ -458,10 +456,17 @@ void Beam::calcMouse()
 		nodes[mousenode].Forces += mousemoveforce * dir;
 	}
 }
+void Beam::calcSlideNodes(Ogre::Real dt)
+{
+	BES_START(BES_CORE_SlideNodes);
+	updateSlideNodeForces(dt);
+	BES_STOP(BES_CORE_SlideNodes);
+}
 
 void Beam::calcNodes_(bool doUpdate, Real dt, int step, int maxsteps)
 {
 #if NODES_INTER_TRUCK_PARALLEL
+	calcSlideNodes(dt);
 	BES_START(BES_CORE_Nodes);
 
 	watercontact = false;
@@ -541,15 +546,6 @@ void Beam::calcAxles(bool doUpdate, Ogre::Real dt)
 	// TODO Wheels and Axles share many variables, this was moved to calc
 	// Wheels until a better method is devised to share the information
 	// this is kept here to maintain the intended structure
-}
-
-void Beam::calcUpdateComponents(Ogre::Real dt)
-{
-	for(auto component : _updateComponents)
-	{
-		component->updateForce(dt);
-	}
-
 }
 
 void Beam::calcTurboProp(bool doUpdate, Ogre::Real dt)

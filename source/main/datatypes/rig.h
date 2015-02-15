@@ -10,10 +10,7 @@
 
 #include "RoRPrerequisites.h"
 #include "BeamData.h"
-
-#include "physics/framework/IntegrateComponents.h"
-#include "physics/framework/UpdateComponents.h"
-#include "physics/framework/Units.h"
+#include <vector>
 
 #include <OgrePrerequisites.h>
 
@@ -46,9 +43,9 @@ struct rig_t
 
 	wing_t wings[MAX_WINGS];
 	int free_wing;
-		
+
 	command_t commandkey[MAX_COMMANDS + 10]; // 0 for safety
-	
+
 	rotator_t rotators[MAX_ROTATORS];
 	int free_rotator;
 
@@ -58,7 +55,7 @@ struct rig_t
 	prop_t props[MAX_PROPS];
 	prop_t *driverSeat;
 	int free_prop;
-	
+
 	shock_t shocks[MAX_SHOCKS];
 	int free_shock;
 	int free_active_shock; //!< this has no array associated with it. its just to determine if there are active shocks!
@@ -67,12 +64,12 @@ struct rig_t
 
 	cparticle_t cparticles[MAX_CPARTICLES];
 	int free_cparticle;
-	
+
 	std::vector<debugtext_t>nodes_debug, beams_debug;
-	
+
 	soundsource_t soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
 	int free_soundsource;
-	
+
 	int pressure_beams[MAX_PRESSURE_BEAMS];
 	int free_pressure_beam;
 
@@ -127,7 +124,7 @@ struct rig_t
 	char guid[128];
 	int hasfixes;
 	int wingstart;
-	
+
 	Ogre::String realtruckname;
 	bool loading_finished;
 
@@ -254,9 +251,7 @@ struct rig_t
 	Ogre::Vector3 origin;
 	Ogre::SceneNode *beamsRoot;
 	//! Stores all the SlideNodes available on this truck
-	std::vector< SlideNode* > mSlideNodes;
-	std::vector< Framework::Components::UpdateComponent<Units::Second>* > _updateComponents;
-	std::vector< Framework::Components::IntegrateComponent<Units::Second>* > _integrateComponents;
+	std::vector< SlideNode > mSlideNodes;
 
 	int proped_wheels; //!< Number of propelled wheels.
 	int braked_wheels; //!< Number of braked wheels.

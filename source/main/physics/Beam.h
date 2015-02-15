@@ -304,7 +304,7 @@ public:
 	void calcForceFeedBack(bool doUpdate);
 	void calcMouse();
 	void calcNodes_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
-	void calcUpdateComponents(Ogre::Real dt);
+	void calcSlideNodes(Ogre::Real dt);
 	void calcTurboProp(bool doUpdate, Ogre::Real dt);
 	void calcScrewProp(bool doUpdate);
 	void calcWing();
@@ -722,7 +722,11 @@ protected:
 	bool SlideNodesLocked;
 	bool GUIFeaturesChanged;
 
-
+	/**
+	* calculate and apply Corrective forces
+	* @param dt delta time in seconds
+	*/
+	void updateSlideNodeForces(const Ogre::Real dt);
 	//! Recalculate SlideNode positions
 	void resetSlideNodePositions();
 	//! Reset all the SlideNodes
