@@ -7,7 +7,7 @@
             <Property key="TextAlign" value="Center"/>
         </Widget>
         <Widget type="EditBox" skin="EditBoxStretch" position="5 25 580 335" align="Stretch" name="report_text_area">
-            <Property key="ReadOnly" value="false"/>
+            <Property key="ReadOnly" value="true"/>
             <Property key="Static" value="false"/>
             <Property key="WordWrap" value="true"/>
             <Property key="Caption" value="Nothing to report."/>

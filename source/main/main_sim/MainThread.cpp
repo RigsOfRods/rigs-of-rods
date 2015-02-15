@@ -1168,7 +1168,10 @@ void MainThread::UnloadTerrain()
 	RoR::Application::GetGuiManager()->getMainSelector()->reset();
 
 	//First of all..
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
 	RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+	ow->HideRacingOverlay();
+	ow->HideDirectionOverlay();
 
 	//Unload all vehicules
 	BeamFactory::getSingleton().removeAllTrucks();

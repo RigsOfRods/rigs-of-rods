@@ -649,6 +649,28 @@ void BeamFactory::repairTruck(Collisions *collisions, const Ogre::String &inst, 
 	}
 }
 
+void BeamFactory::MuteAllTrucks()
+{
+	for (int i = 0; i < free_truck; i++)
+	{
+		if (trucks[i])
+		{
+			trucks[i]->StopAllSounds();
+		}
+	}
+}
+
+void BeamFactory::UnmuteAllTrucks()
+{
+	for (int i = 0; i < free_truck; i++)
+	{
+		if (trucks[i])
+		{
+			trucks[i]->UnmuteAllSounds();
+		}
+	}
+}
+
 void BeamFactory::removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box)
 {
 	removeTruck(findTruckInsideBox(collisions, inst, box));
@@ -672,12 +694,18 @@ void BeamFactory::p_removeAllTrucks()
 {
 	for (int i = 0; i < free_truck; i++)
 	{
-		if (current_truck == i)
-			setCurrentTruck(-1);
-		if (!removeBeam(trucks[i]))
-			// deletion over beamfactory failed, delete by hand
-			// then delete the class
-			_deleteTruck(trucks[i]);
+		if (trucks[i])
+		{
+			trucks[i]->StopAllSounds();
+
+			if (current_truck == i)
+				setCurrentTruck(-1);
+
+			if (!removeBeam(trucks[i]))
+				// deletion over beamfactory failed, delete by hand
+				// then delete the class
+				_deleteTruck(trucks[i]);
+		}
 	}
 }
 
@@ -689,6 +717,7 @@ void BeamFactory::_deleteTruck(Beam *b)
 
 	trucks[b->trucknum] = 0;
 	delete b;
+	//free_truck = free_truck - 1;
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();

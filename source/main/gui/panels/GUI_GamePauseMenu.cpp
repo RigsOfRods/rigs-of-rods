@@ -29,17 +29,15 @@
 
 #include "RoRPrerequisites.h"
 #include "Utils.h"
-#include "RoRVersion.h"
-#include "rornet.h"
 #include "Language.h"
 #include "GlobalEnvironment.h"
 #include "Application.h"
 #include "GUIManager.h"
 #include "RoRFrameListener.h"
 #include "MainThread.h"
-#include "Console.h"
 #include "Character.h"
 #include "CameraManager.h"
+#include "BeamFactory.h"
 
 #include <MyGUI.h>
 
@@ -80,18 +78,28 @@ int CLASS::GetHeight()
 void CLASS::Show()
 {
 	MAIN_WIDGET->setVisibleSmooth(true);
-	gEnv->player->setPhysicsEnabled(false);
-	gEnv->frameListener->setSimPaused(true);
 	sCameraMode = gEnv->cameraManager->getCurrentBehavior();
-	gEnv->cameraManager->switchBehavior(1);
+
+	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+		gEnv->player->setPhysicsEnabled(false);
+	else
+		gEnv->cameraManager->switchBehavior(1);
+
+	gEnv->frameListener->setSimPaused(true);
+	BeamFactory::getSingleton().MuteAllTrucks();
 }
 
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	gEnv->player->setPhysicsEnabled(true);
+
+	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+		gEnv->player->setPhysicsEnabled(true);
+	else
+		gEnv->cameraManager->switchBehavior(sCameraMode);
+
 	gEnv->frameListener->setSimPaused(false);
-	gEnv->cameraManager->switchBehavior(sCameraMode);
+	BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 
 void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)

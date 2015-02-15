@@ -42,6 +42,7 @@ public:
 	int getUID() { return source; };
 	
 	bool isRemote() { return remote; };
+	bool getBeamCoupling() { return isCoupled; };
 
 	void setBeamCoupling(bool enabled, Beam *truck = 0);
 	void setColour(int color) { this->colourNumber = color; };
@@ -65,6 +66,7 @@ protected:
 	void createMapEntity();
 
 	Beam *beamCoupling;
+	bool isCoupled;
 	SurveyMapEntity *mapEntity;
 
 	bool canJump;

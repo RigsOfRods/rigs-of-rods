@@ -384,10 +384,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("Friction Settings"))
 	{
 		GUI_Friction::getSingleton().setVisible(true);
-
-	} else if (miname == _L("Back to menu"))
-	{
-		//gEnv->frameListener->Restart(); TODO
 	} else if (miname == _L("Exit"))
 	{
 		gEnv->frameListener->shutdown_final();
