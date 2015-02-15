@@ -5,7 +5,7 @@ Copyright (c) 2007-2013 Thomas Fischer
 Copyright (c) 2013-2015 Petr Ohlidal  
 
 This is Rigs of Rods, an open source vehicle simulator focussed on simulating vehicle physics.
-For a simple overview of the features Rigs of Rods provides please refer to ``` doc/Things you can do in Rigs of Rods.pdf ```
+For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
 
 #### Trailer:
 
@@ -24,13 +24,14 @@ For a simple overview of the features Rigs of Rods provides please refer to ``` 
 * Forum: http://www.rigsofrods.com/forum/
 * Mod Repository: http://www.rigsofrods.com/repository/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
+* IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
 * doc/ directory of source distribution
 
 
 ## Paths
-$bin  - Compiled binaries  
-$res  - Resources for the game  
-$user - User-created modifiable data  
+$bin  - compiled binaries  
+$res  - resources/assets for the game  
+$user - user-created mods, configuration files, logs, screenshots  
 
 Windows:  
 $bin   = source\bin  
@@ -49,11 +50,11 @@ $user  = ?
 
 
 ## Controls
-Depending on the vehicle there are a lot of commands. For a graphical overview refer to ``` doc/keysheet.pdf ```  
+Depending on the vehicle there are a lot of commands. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
 For an indepth view refer to ``` $user/.rigsofrods/config/input.map ```  
-Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicles documentation or use 'T' key ingame for a list of commands.
+Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or use 'T' key ingame for a list of commands.
 
-##### Basic commands:  
+##### Basic controls:  
 
 | key                            | effect                                               |
 |--------------------------------|------------------------------------------------------|
@@ -73,36 +74,36 @@ Please note that certain vehicles come with their own specific commands not repr
  
  
 ## Mods
-Rigs of Rods comes only with a very small selection of vehicles and terrains. For the best experience download additional mods from http://www.rigsofrods.com/repository/  
+Rigs of Rods comes only with a very small selection of vehicles and terrains. For the best experience download additional mods from the [Rigs of Rods mod repository](http://www.rigsofrods.com/repository/)  
 If you want to get going quickly have a look at modpacks that can be found in the repository as well.
 
 
 ## Configuration files
 - Default location:  
-    $user/config/*
+    ``` $user/config/* ```
 - They are created by RoRConfig on first use
 
 
 ## Command-line options
 
 * -map \<mapname\>
-    * loads the map on startup. Example:
+    * loads map \<mapname\> on startup. Example:
         * ``` RoR.exe -map aspen ```
-    * note: do not add the .terrn extension
+    * note: do not add .terrn file format extension
 * -truck \<truckfile\>
-    * loads a truck on startup. For example: 
+    * loads a truck on startup. Example: 
         * ``` RoR.exe -map oahu -truck semi.truck ```
         * ``` RoR.exe -map oahu -truck an-12.airplane ```
 * -enter
-    * Enter selected truck by -truck on startup
+    * enter selected truck by -truck option on startup
 * -setup 
-    * this shows the Ogre Settings Dialog instead of loading the settings from ogre.cfg 
+    * displays OGRE3D settings dialog instead of loading settings from ogre.cfg 
 * -help
-    * shows a command line argument help
+    * displays help for command line arguments
 
 	
 ## Compiling
-For instructions refer to BUILDING.md
+For instructions refer to [BUILDING.md](BUILDING.md)
 	
 
 ## License of Rigs of Rods
@@ -122,4 +123,4 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 ```
 
-For licenses of used libraries see DEPENDENCIES.md
+For licenses of used libraries see [DEPENDENCIES.md](DEPENDENCIES.md)
