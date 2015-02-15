@@ -723,9 +723,9 @@ protected:
 	bool GUIFeaturesChanged;
 
 	/**
-	* calculate and apply Corrective forces
-	* @param dt delta time in seconds
-	*/
+	 * calculate and apply Corrective forces
+	 * @param dt delta time in seconds
+	 */
 	void updateSlideNodeForces(const Ogre::Real dt);
 	//! Recalculate SlideNode positions
 	void resetSlideNodePositions();
