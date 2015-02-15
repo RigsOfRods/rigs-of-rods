@@ -5,7 +5,7 @@ Copyright (c) 2007-2013 Thomas Fischer
 Copyright (c) 2013-2015 Petr Ohlidal  
 
 This is Rigs of Rods, an open source vehicle simulator focussed on simulating vehicle physics.
-For a simple overview of the features Rigs of Rods provides please refer to doc/Things you can do in Rigs of Rods.pdf
+For a simple overview of the features Rigs of Rods provides please refer to ``` doc/Things you can do in Rigs of Rods.pdf ```
 
 #### Trailer:
 
@@ -22,14 +22,15 @@ For a simple overview of the features Rigs of Rods provides please refer to doc/
 * Wiki: http://www.rigsofrods.com/wiki/
 * Developer wiki: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
 * Forum: http://www.rigsofrods.com/forum/
+* Mod Repository: http://www.rigsofrods.com/repository/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * doc/ directory of source distribution
 
 
 ## Paths
-$bin- Compiled binaries  
-$res- Resources for the game  
-$user- User-created modifiable data  
+$bin  - Compiled binaries  
+$res  - Resources for the game  
+$user - User-created modifiable data  
 
 Windows:  
 $bin   = source\bin  
@@ -44,7 +45,36 @@ $user   = ~/.rigsofrods
 OS X:  
 $bin    = ?  
 $res    = ?  
-$user  = ?  
+$user  = ? 
+
+
+## Controls
+Depending on the vehicle there are a lot of commands. For a graphical overview refer to ``` doc/keysheet.pdf ```  
+For an indepth view refer to ``` $user/.rigsofrods/config/input.map ```  
+Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicles documentation or use 'T' key ingame for a list of commands.
+
+##### Basic commands:  
+
+| key                            | effect                                               |
+|--------------------------------|------------------------------------------------------|
+| arrow keys                     | move, steer, accelerate, decelarate                  |
+| mouse+rightclick               | rotate camera                                        |
+| mousewheel+rightclick          | camera zoom                                          |
+| C                              | change camera perspective                            |
+| T                              | display vehicle stats + specific commands            |
+| BACKSPACE                      | reset vehicle at current location                    |
+| I                              | reset vehicle to spawnpoint                          |
+| TAB                            | show minimap                                         |
+| ESC                            | show menu                                            |
+| A/Z                            | trucks: shift up/down                                |
+| CTRL+HOME                      | aircrafts: start engine                              |
+| Page Up/Down                   | aircrafts: increase/decrease throttle                |
+| F1/F2                          | helicopters: lift up/down                            |
+ 
+ 
+## Mods
+Rigs of Rods comes only with a very small selection of vehicles and terrains. For the best experience download additional mods from http://www.rigsofrods.com/repository/  
+If you want to get going quickly have a look at modpacks that can be found in the repository as well.
 
 
 ## Configuration files
