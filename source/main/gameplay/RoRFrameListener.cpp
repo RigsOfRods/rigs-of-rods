@@ -1395,7 +1395,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(vehicle->getPressure());
 				}
 
-				if (RoR::Application::GetMainThreadLogic()->IsRaceInProgress())
+				if (RoR::Application::GetMainThreadLogic()->IsRaceInProgress() && !RoR::Application::GetGuiManager()->GetPauseMenuVisible())
 				{
 					RoR::Application::GetMainThreadLogic()->UpdateRacingGui();
 				}
