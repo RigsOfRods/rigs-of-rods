@@ -125,7 +125,7 @@ bool OutProtocol::update(float dt)
 	timer = 0;
 
 	// send a package
-	OutGaugePack gd;
+	OutGaugePackV2 gd; // declare V2 as it is wider and backward compatible with v1
 	memset(&gd, 0, sizeof(gd));
 
 	// set some common things
@@ -188,9 +188,27 @@ bool OutProtocol::update(float dt)
 		{
 			strncpy(gd.Display2, truck->realtruckname.c_str() + 15, 15);
 		}
+		
+		if( mode == 3)
+		{
+			// OutGauge Packet V2
+			gd.MaxGears = truck->engine->getNumGears();
+			gd.MaxRPM = truck->engine->getMaxRPM();
+			
+			int ignition = 0;
+			if( truck->engine->hasContact() && truck->engine->isRunning())
+				ignition = 2;
+			if( truck->engine->hasContact() && !(truck->engine->isRunning()))
+				ignition = 1;	
+			gd.IgnitionStarter = ignition;
+		}
 	}
 	// send the package
-	send(sockfd, (const char*)&gd, sizeof(gd), NULL);
+	// set the right size of the buffer depending the OutGauge mode
+	int sz = sizeof(OutGaugePack);
+	if(mode == 3)
+		sz = sizeof(OutGaugePackV2);
+	send(sockfd, (const char*)&gd, sz, NULL);
 
 	return true;
 #else
