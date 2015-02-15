@@ -173,18 +173,18 @@ void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int
 		{
 			// server said something
 			UTFString msg = tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "user_gray.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		} else if (source == (int)this->source && (int)streamid == this->streamid)
 		{
 			UTFString msg = username + normalColour + ": " + tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "user_comment.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		}
 #ifdef USE_SOCKETW
 		else if (source == (int)gEnv->network->getUID())
 		{
 			// our message bounced back :D
 			UTFString msg = gEnv->network->getNickname(true) + normalColour + ": " + tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "user_comment.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		}
 #endif // USE_SOCKETW
 	} else if (type == MSG2_UTF_PRIVCHAT)
@@ -194,11 +194,11 @@ void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int
 		{
 			// server said something
 			String msg = whisperColour + _L(" [whispered] ") + normalColour +  tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "script_key.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		} else if (source == (int)this->source && (int)streamid == this->streamid)
 		{
 			UTFString msg = username + _L(" [whispered] ") + normalColour + ": " + tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "script_key.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		}
 	}
 #endif //USE_MYGUI

@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include "GUI_RigSpawnerReportWindow.h"
 #include "GUIInputManager.h"
 #include "GuiManagerInterface.h"
 #include "RoRPrerequisites.h"
@@ -36,6 +35,7 @@
 #include <OgreWindowEventUtilities.h>
 
 //Include managed guis headers
+#include "GUI_RigSpawnerReportWindow.h"
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
 #include "GUI_GameSettings.h"
@@ -45,6 +45,7 @@
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MainSelector.h"
 #include "GUI_GamePauseMenu.h"
+#include "GUI_GameChatBox.h"
 
 namespace RoR
 {
@@ -98,6 +99,10 @@ public:
 
 	void TogglePauseMenu();
 
+	void ShowChatBox();
+	void pushMessageChatBox(Ogre::String txt);
+	void SetNetChat(ChatSystem *c);
+
 	bool GetPauseMenuVisible();
 
 	virtual void UnfocusGui();
@@ -128,7 +133,7 @@ private:
 	
 	// ---------- GUI Panels ----------
 	//GUI Windows pointers	
-  std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
+	std::unique_ptr<GUI::GameMainMenu>      m_gui_GameMainMenu;
 	std::unique_ptr<GUI::GameAbout>			m_gui_GameAbout;
 	std::unique_ptr<GUI::GameSettings>		m_gui_GameSettings;
 	std::unique_ptr<GUI::DebugOptions>		m_gui_DebugOptions;
@@ -137,6 +142,7 @@ private:
 	std::unique_ptr<GUI::MultiplayerSelector>		m_gui_MultiplayerSelector;
 	std::unique_ptr<GUI::GamePauseMenu>		m_gui_GamePauseMenu;
 	std::shared_ptr<GUI::MainSelector>		m_gui_MainSelector;
+	std::shared_ptr<GUI::GameChatBox>		m_gui_ChatBox;
 	std::unique_ptr<GUI::RigSpawnerReportWindow> m_rig_spawner_report_window;
 	
 	bool isSimUtilsVisible;
