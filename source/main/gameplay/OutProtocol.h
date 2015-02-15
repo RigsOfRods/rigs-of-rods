@@ -106,6 +106,14 @@ private:
 		char           Display2[16]; // Usually Settings
 		int			   ID;           // optional - only if OutGauge ID is specified
 	});
+		
+	// Zappadoc addition 2015-01, to extend outgauge API with backward compatibility
+	PACK (struct OutGaugePackV2 : public OutGaugePack // include v1
+	{
+		unsigned cha	MaxGears;	 // max forward gears
+		unsigned char	IgnitionStarter; // 0=0ff; 1=ignition; 2=ignition+starter (running)
+		float		MaxRPM;		// Max RPM engine
+	});
 };
 
 #endif // _OUTPROTCOL_H__
