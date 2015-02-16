@@ -57,17 +57,6 @@ public:
 
 	void RequestExitCurrentLoop();
 
-	void StartRaceTimer();
-
-	float StopRaceTimer();
-
-	void UpdateRacingGui();
-
-	bool IsRaceInProgress()
-	{
-		return m_race_in_progress;
-	}
-
 	void SetNextApplicationState(Application::State next_app_state)
 	{
 		m_next_application_state = next_app_state;
@@ -106,8 +95,6 @@ protected:
 	bool               m_restart_requested;
 	pthread_mutex_t    m_lock;
 	unsigned long      m_start_time;
-	unsigned long      m_race_start_time;
-	bool               m_race_in_progress;
 	Application::State m_next_application_state;
 	Application::State m_application_state;
 	RigEditor::Main*   m_rig_editor;

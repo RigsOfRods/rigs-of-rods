@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCSX" position="89 207 845 610" align="Center" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCSX" position="89 207 845 610" align="Center" layer="Middle" name="_Main">
         <Property key="Caption" value="Loader"/>
         <Property key="MinSize" value="640 480"/>
         <Widget type="ComboBox" skin="ComboBox" position="5 2 248 32" align="Left Top" name="Type">
