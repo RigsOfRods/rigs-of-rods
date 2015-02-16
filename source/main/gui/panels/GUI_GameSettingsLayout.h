@@ -143,6 +143,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_light_source_effects, "light_source_effects");
 	MyGUI::ComboBox* m_light_source_effects;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_autohide_chatbox, "autohide_chatbox");
+	MyGUI::Button* m_autohide_chatbox;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_fps_limiter_slider, "fps_limiter_slider");
 	MyGUI::ScrollBar* m_fps_limiter_slider;
 

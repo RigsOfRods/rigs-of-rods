@@ -347,12 +347,13 @@ void CLASS::UpdateControls()
 	else
 		m_tex_filter->setIndexSelected(0);
 
+	m_water_type->addItem("Hydrax"); //It's working good enough to be here now. 
+
 	if (BSETTING("DevMode", false) && !IsLoaded)
 	{
 		//Things that aren't ready to be used yet.
 		m_sky_type->addItem("SkyX (best looking, slower)");
 		m_shadow_type->addItem("Parallel-split Shadow Maps");
-		m_water_type->addItem("Hydrax");
 	}
 
 	//Sky effects
@@ -384,6 +385,7 @@ void CLASS::UpdateControls()
 	else if (watertype == "Reflection + refraction (quality optimized)")
 		m_water_type->setIndexSelected(3);
 	else if (watertype == "Hydrax" && BSETTING("DevMode", false))
+	else if (watertype == "Hydrax")
 		m_water_type->setIndexSelected(4);
 	else
 		m_water_type->setIndexSelected(0);

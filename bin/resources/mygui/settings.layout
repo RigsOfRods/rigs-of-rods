@@ -194,6 +194,12 @@
                     <Property key="AddItem" value="All vehicles, all lights"/>
                     <Property key="ReadOnly" value="true"/>
                 </Widget>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="215 80 150 20">
+                    <Property key="Caption" value="Other:"/>
+                </Widget>
+                <Widget type="Button" skin="CheckBox" position="215 100 210 20" name="autohide_chatbox">
+                    <Property key="Caption" value="Auto-hide Chatbox"/>
+                </Widget>
             </Widget>
             <Widget type="TabItem" skin="" position="2 24 624 287">
                 <Property key="Caption" value="Physics"/>

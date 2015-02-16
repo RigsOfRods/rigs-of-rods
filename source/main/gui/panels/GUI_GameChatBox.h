@@ -60,6 +60,7 @@ private:
 	bool isTyping;
 
 	// logic
+	bool autoHide;
 	float alpha;
 	long pushTime;
 };
