@@ -1179,8 +1179,11 @@ void MainThread::UnloadTerrain()
 	ow->HideRacingOverlay();
 	ow->HideDirectionOverlay();
 
+	LoadingWindow::getSingleton().setProgress(15, _L("Unloading Terrain"));
+
 	//Unload all vehicules
 	BeamFactory::getSingleton().removeAllTrucks();
+	LoadingWindow::getSingleton().setProgress(30, _L("Unloading Terrain"));
 
 	if (gEnv->player != nullptr)
 	{
@@ -1188,15 +1191,18 @@ void MainThread::UnloadTerrain()
 		delete(gEnv->player);
 		gEnv->player = nullptr;
 	}
-	
+	LoadingWindow::getSingleton().setProgress(45, _L("Unloading Terrain"));
+
 	if (gEnv->terrainManager != nullptr)
 	{
 		// remove old terrain
 		delete(gEnv->terrainManager);
 		gEnv->terrainManager = nullptr;
 	}
+	LoadingWindow::getSingleton().setProgress(60, _L("Unloading Terrain"));
 
 	Application::DeleteSceneMouse();
+	LoadingWindow::getSingleton().setProgress(75, _L("Unloading Terrain"));
 
 	//Reinit few things
 	gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
@@ -1204,7 +1210,7 @@ void MainThread::UnloadTerrain()
 	{
 		gEnv->player->setVisible(false);
 	}
-
+	LoadingWindow::getSingleton().setProgress(100, _L("Unloading Terrain"));
 	// hide loading window
 	LoadingWindow::getSingleton().hide();
 }
