@@ -160,21 +160,19 @@ Water::~Water()
 
 	if (mRefractCam != nullptr)
 	{
-		mRefractCam->~Camera();
-		gEnv->sceneManager->destroyCamera("RefractCam");
+		gEnv->sceneManager->destroyCamera(mRefractCam);
 		mRefractCam = nullptr;
 	}
 
 	if (mReflectCam != nullptr)
 	{
-		mReflectCam->~Camera();
-		gEnv->sceneManager->destroyCamera("ReflectCam");
+		gEnv->sceneManager->destroyCamera(mReflectCam);
 		mReflectCam = nullptr;
 	}
 
 	if (pPlaneEnt != nullptr)
 	{
-		gEnv->sceneManager->destroyEntity("plane");
+		gEnv->sceneManager->destroyEntity(pPlaneEnt);
 		pPlaneEnt = nullptr;
 	}
 
