@@ -66,6 +66,11 @@ CLASS::CLASS():
 		);
 
 	m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
+	autoHide = BSETTING("ChatAutoHide", true);
+
+	if (!autoHide)
+		Show();
+
 	Hide();
 }
 
@@ -112,7 +117,9 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 	Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
 	isTyping = false;
 	_sender->setCaption("");
-	_sender->setEnabled(false);
+
+	if (autoHide)
+		_sender->setEnabled(false);
 
 	if (msg.empty())
 	{
@@ -132,31 +139,36 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 
 void CLASS::Update(float dt)
 {
-	unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-	if (newMsg && !isTyping)
+	if (autoHide)
 	{
-		if (!MAIN_WIDGET->getVisible())
-			MAIN_WIDGET->setVisible(true);
-
-		unsigned long endTime = pushTime + 5000;
-		unsigned long startTime = endTime - (long)1000.0f;
-		if (ot < startTime)
+		unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+		if (newMsg || !isTyping)
 		{
-			alpha = 1.0f;
-		}
-		else
-		{
-			alpha = 1 - ((ot - startTime) / 1000.0f);
-		}
+			if (!MAIN_WIDGET->getVisible())
+				MAIN_WIDGET->setVisible(true);
 
-		MAIN_WIDGET->setAlpha(alpha);
+			unsigned long endTime = pushTime + 5000;
+			unsigned long startTime = endTime - (long)1000.0f;
+			if (ot < startTime)
+			{
+				alpha = 1.0f;
+			}
+			else
+			{
+				alpha = 1 - ((ot - startTime) / 1000.0f);
+			}
 
-		if (alpha <= 0.1)
-		{
-			newMsg = false;
-			MAIN_WIDGET->setVisible(false);
+			MAIN_WIDGET->setAlpha(alpha);
+
+			if (alpha <= 0.1)
+			{
+				newMsg = false;
+				MAIN_WIDGET->setVisible(false);
+			}
 		}
-	}
-	else if (!isTyping)
-		MAIN_WIDGET->setVisible(false);
+		else if (isTyping)
+			MAIN_WIDGET->setAlpha(1);
+
+	} else if (!MAIN_WIDGET->getVisible())
+		MAIN_WIDGET->setVisible(true);
 }

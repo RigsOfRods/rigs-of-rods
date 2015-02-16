@@ -101,6 +101,8 @@ CLASS::CLASS()
 	m_enable_replay->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReplayEnableCheck);
 	m_hq_screenshots->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnHqScreenshotsCheck);
 	
+	m_autohide_chatbox->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnChatBoxAutoHideCheck);
+
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
@@ -347,12 +349,13 @@ void CLASS::UpdateControls()
 	else
 		m_tex_filter->setIndexSelected(0);
 
+	m_water_type->addItem("Hydrax"); //It's working good enough to be here now. 
+
 	if (BSETTING("DevMode", false) && !IsLoaded)
 	{
 		//Things that aren't ready to be used yet.
 		m_sky_type->addItem("SkyX (best looking, slower)");
 		m_shadow_type->addItem("Parallel-split Shadow Maps");
-		m_water_type->addItem("Hydrax");
 	}
 
 	//Sky effects
@@ -383,7 +386,7 @@ void CLASS::UpdateControls()
 		m_water_type->setIndexSelected(2);
 	else if (watertype == "Reflection + refraction (quality optimized)")
 		m_water_type->setIndexSelected(3);
-	else if (watertype == "Hydrax" && BSETTING("DevMode", false))
+	else if (watertype == "Hydrax")
 		m_water_type->setIndexSelected(4);
 	else
 		m_water_type->setIndexSelected(0);
@@ -557,6 +560,11 @@ void CLASS::UpdateControls()
 		m_hq_screenshots->setStateCheck(true);
 	else
 		m_hq_screenshots->setStateCheck(false);
+
+	if (GameSettingsMap["ChatAutoHide"] == "Yes")
+		m_autohide_chatbox->setStateCheck(true);
+	else
+		m_autohide_chatbox->setStateCheck(false);
 }
 
 void CLASS::OnArcadeModeCheck(MyGUI::WidgetPtr _sender)
@@ -782,6 +790,16 @@ void CLASS::OnHqScreenshotsCheck(MyGUI::WidgetPtr _sender)
 		GameSettingsMap["Screenshot Format"] = "jpg (smaller, default)";
 	else
 		GameSettingsMap["Screenshot Format"] = "png (bigger, no quality loss)";
+	//ShowRestartNotice = true;
+}
+
+void CLASS::OnChatBoxAutoHideCheck(MyGUI::WidgetPtr _sender)
+{
+	m_autohide_chatbox->setStateCheck(!m_autohide_chatbox->getStateCheck());
+	if (m_autohide_chatbox->getStateCheck())
+		GameSettingsMap["ChatAutoHide"] = "Yes";
+	else
+		GameSettingsMap["ChatAutoHide"] = "No";
 	//ShowRestartNotice = true;
 }
 

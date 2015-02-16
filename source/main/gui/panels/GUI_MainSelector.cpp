@@ -901,6 +901,11 @@ void CLASS::show(LoaderType type)
 	readytime = 0.5f;
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::frameEntered);
 	bindKeys();
+
+	if (type == LT_Terrain && gEnv->network)
+		m_Cancel->setEnabled(false);
+	else
+		m_Cancel->setEnabled(true);
 }
 
 void CLASS::hide()
