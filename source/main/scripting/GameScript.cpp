@@ -146,18 +146,18 @@ bool GameScript::getCaelumAvailable()
 float GameScript::stopTimer()
 {
 	float result = 0.0f;
-	if (RoR::Application::GetMainThreadLogic() != nullptr)
+	if (gEnv->frameListener != nullptr)
 	{
-		result = RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+		result = gEnv->frameListener->StopRaceTimer();
 	}
 	return result;
 }
 
 void GameScript::startTimer()
 {
-	if (RoR::Application::GetMainThreadLogic() != nullptr)
+	if (gEnv->frameListener != nullptr)
 	{
-		RoR::Application::GetMainThreadLogic()->StartRaceTimer();
+		gEnv->frameListener->StartRaceTimer();
 	}
 }
 

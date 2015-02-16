@@ -46,6 +46,17 @@ public:
 
 	void setSimPaused(bool state) { isSimPaused = state; }
 
+	void StartRaceTimer();
+
+	float StopRaceTimer();
+
+	void UpdateRacingGui();
+
+	bool IsRaceInProgress()
+	{
+		return m_race_in_progress;
+	}
+
 protected:
 
 #ifdef USE_MPLATFORM
@@ -61,6 +72,9 @@ protected:
 	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
+
+	unsigned long      m_race_start_time;
+	bool               m_race_in_progress;
 
 	bool dirvisible;
 	bool enablePosStor;

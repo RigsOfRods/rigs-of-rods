@@ -191,7 +191,55 @@ RoRFrameListener::~RoRFrameListener()
 
 }
 
+void RoRFrameListener::StartRaceTimer()
+{
+	m_race_start_time = (int)rtime;
+	m_race_in_progress = true;
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
+	if (ow)
+	{
+		ow->ShowRacingOverlay();
+		ow->laptimes->show();
+		ow->laptimems->show();
+		ow->laptimemin->show();
+	}
+}
 
+float RoRFrameListener::StopRaceTimer()
+{
+	float time = static_cast<float>(rtime - m_race_start_time);
+	// let the display on
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
+	if (ow)
+	{
+		wchar_t txt[256] = L"";
+		UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
+		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(time)) / 60, ((int)(time)) % 60, ((int)(time*100.0)) % 100);
+		ow->lasttime->setCaption(UTFString(txt));
+		//ow->m_racing_overlay->hide();
+		ow->laptimes->hide();
+		ow->laptimems->hide();
+		ow->laptimemin->hide();
+	}
+	m_race_start_time = 0;
+	m_race_in_progress = false;
+	return time;
+}
+
+void RoRFrameListener::UpdateRacingGui()
+{
+	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
+	if (!ow) return;
+	// update m_racing_overlay gui if required
+	float time = static_cast<float>(rtime - m_race_start_time);
+	wchar_t txt[10];
+	swprintf(txt, 10, L"%.2i", ((int)(time*100.0)) % 100);
+	ow->laptimems->setCaption(txt);
+	swprintf(txt, 10, L"%.2i", ((int)(time)) % 60);
+	ow->laptimes->setCaption(txt);
+	swprintf(txt, 10, L"%.2i'", ((int)(time)) / 60);
+	ow->laptimemin->setCaption(UTFString(txt));
+}
 
 bool RoRFrameListener::updateEvents(float dt)
 {
@@ -650,7 +698,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !curr_truck->replaymode)
 				{
 					// stop any races
-					RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+					StopRaceTimer();
 					// init
 					curr_truck->reset();
 				}
@@ -664,7 +712,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				//replay mode
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
 				{
-					RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+					StopRaceTimer();
 					curr_truck->setReplayMode(!curr_truck->replaymode);
 				}
 
@@ -1397,9 +1445,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(vehicle->getPressure());
 				}
 
-				if (RoR::Application::GetMainThreadLogic()->IsRaceInProgress() && !RoR::Application::GetGuiManager()->GetPauseMenuVisible())
+				if (IsRaceInProgress() && !RoR::Application::GetGuiManager()->GetPauseMenuVisible())
 				{
-					RoR::Application::GetMainThreadLogic()->UpdateRacingGui();
+					UpdateRacingGui(); //I really think that this should stay here.
 				}
 
 				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)
