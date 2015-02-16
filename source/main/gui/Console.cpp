@@ -267,11 +267,10 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/as <code here> - interpret angel code using console"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setgravity - changes terrain's gravity"), "script_go.png");
-
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setwaterlevel - changes water's level"), "script_go.png");
-
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setgravity <real> or <text string> - changes terrain's gravity"), "script_go.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
+
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setwaterlevel <real> - changes water's level"), "script_go.png");
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
