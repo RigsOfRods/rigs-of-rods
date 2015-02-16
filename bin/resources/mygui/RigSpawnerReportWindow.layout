@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCSX" position="0 0 600 400" layer="Main" name="rig_spawner_report_window">
+    <Widget type="Window" skin="WindowCSX" position="0 0 600 400" layer="Middle" name="rig_spawner_report_window">
         <Property key="Caption" value="Rig spawner report"/>
         <Widget type="TextBox" skin="TextBox" position="0 0 590 20" name="report_summary_textbox">
             <Property key="Caption" value="No vehicle loaded."/>

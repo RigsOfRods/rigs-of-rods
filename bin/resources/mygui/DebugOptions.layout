@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="485 240 315 530" layer="Main" name="_Main">
+    <Widget type="Window" skin="WindowCX" position="485 240 315 530" layer="Middle" name="_Main">
         <Property key="Caption" value="Debug Options"/>
         <Widget type="Button" skin="CheckBox" position="10 10 135 25" name="ingame_console">
             <Property key="Caption" value="Ingame Console"/>
