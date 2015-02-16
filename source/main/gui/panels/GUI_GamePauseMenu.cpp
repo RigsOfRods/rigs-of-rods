@@ -87,6 +87,13 @@ void CLASS::Show()
 
 	gEnv->frameListener->setSimPaused(true);
 	BeamFactory::getSingleton().MuteAllTrucks();
+
+	if (gEnv->network)
+	{
+		m_back_to_menu->setEnabled(false);
+		m_rig_editor->setEnabled(false);
+		m_change_map->setEnabled(false);
+	}
 }
 
 void CLASS::Hide()
