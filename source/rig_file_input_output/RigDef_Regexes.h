@@ -837,6 +837,7 @@ DEFINE_REGEX( SECTION_BEAMS,
 			E_CAPTURE( E_REAL_NUMBER ) /* #9 User-defined extension break limit */
 		)
 	)
+	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #10 */
 	E_TRAILING_WHITESPACE
 	);
 
@@ -935,73 +936,70 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
 		)                                                                         \
 	)
 
+DEFINE_REGEX( SECTION_COMMANDS2_INERTIA_ENGINE_PART, 
+	E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART 
+	);
+
 DEFINE_REGEX( SECTION_COMMANDS,
-	E_CAPTURE( E_NODE_ID ) /* #1 Node 1 */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_NODE_ID ) /* #3 Node 2 */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #5 Rate */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #7 Min length */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #9 Max length */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #11 Contract key */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #13 Expand key */
-	E_CAPTURE_OPTIONAL( /* #14 */
-		E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-		E_CAPTURE( "i|r|n" ) /* #16 Options */
-		E_CAPTURE_OPTIONAL( /* #17 */
-			E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA ) 
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #19 Description */ 
-			E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA ) /* #20 */
-			E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART
+	E_CAPTURE( E_NODE_ID )     // #1 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )     // #3 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #5 Rate
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #7 Min length
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #9 Max length
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )  // #11 Contract key
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )  // #13 Expand key
+	E_CAPTURE_OPTIONAL(                     // #14
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( "i|r|n" )                // #16 Options
+		E_CAPTURE_OPTIONAL(                 // #17
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) // #19 Description ----
+			E_CAPTURE_OPTIONAL(
+				E_CAPTURE( E_DELIMITER )
+				E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART // Result index += ( 3[outside] + 1[inside] )
+			)
 		)
 	)
 	);
 
 DEFINE_REGEX( SECTION_COMMANDS_2,
-/*
-	Syntax (valid separator is comma or space, because the original documentation was confusing and nobody got it right)
-	id1, id2, rateShort, rateLong, short, long, keyS, keyL, options description startDelay, stopDelay, startFunction  stopFunction affectEngine needsEngine
-*/
+	// Syntax (valid separator is comma or space, because the original documentation was confusing and nobody got it right)
+	// id1, id2, rateShort, rateLong, short, long, keyS, keyL, options description startDelay, stopDelay, startFunction  stopFunction affectEngine needsEngine
+
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID )  /* #1 Node 1 */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_NODE_ID )  /* #3 Node 2 */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #5 Contract rate */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #7 Expand rate */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #9 Min length */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_REAL_NUMBER ) /* #11 Max length */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )  /* #13 Contract key */
-	E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )  /* #15 Expand key */
-	E_CAPTURE_OPTIONAL(                     /* #16 */
-		E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-		E_CAPTURE( "[nircfpo]*" )           /* #18 Options */
-		E_CAPTURE_OPTIONAL(                 /* #19 */
-			E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )
-			E_CAPTURE( E_STRING_NO_SPACES ) /* #21 Description */
-			/*	
-				Illegal description with spaces. 
-				However, for backwards compatibility, we must silently pass	up to 2 extra strings 
-				as long as they don't start with a digit and there's nothing after them.
-			*/
-			E_CAPTURE_OPTIONAL( E_DELIMITER_SPACE E_STRING_NO_LEADING_DIGIT ) /* #22 Error */
-			E_CAPTURE_OPTIONAL( E_DELIMITER_SPACE E_STRING_NO_LEADING_DIGIT ) /* #23 Error */
-			E_CAPTURE_OPTIONAL( /* #24 */
-				E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA ) /* #25 */
-				E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART
-			)
+	E_CAPTURE( E_NODE_ID )     // #1 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )     // #3 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #5 Contract rate
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #7 Expand rate
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #9 Min length
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #11 Max length
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )    // #13 Contract key
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )    // #15 Expand key
+	E_CAPTURE_OPTIONAL(                       // #16
+		E_CAPTURE( E_DELIMITER ) 
+		E_CAPTURE( "[nircfpo]*" )             // #18 Options
+		E_CAPTURE_OPTIONAL(                   // #19
+			E_CAPTURE( E_DELIMITER )          // #20
+			E_CAPTURE( E_STRING_NO_SPACES )   // #21 Description
+			E_CAPTURE_OPTIONAL(
+				E_CAPTURE( E_DELIMITER )      // #23 Delimiter
+				E_CAPTURE( ".*" )             // #24 The rest of the line (for further processing)
+			)			
 		)
 	)
-	E_TRAILING_WHITESPACE
 	);
 
 DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
@@ -1110,7 +1108,7 @@ DEFINE_REGEX( SECTION_ENGOPTION,
 	E_CAPTURE( E_REAL_NUMBER ) /* #1 Inertia */
 	E_CAPTURE_OPTIONAL( 
 		E_CAPTURE( E_DELIMITER ) 
-		E_CAPTURE( "[ct]" ) /* #4 Type */
+		E_CAPTURE( "[cet]" ) /* #4 Type */
 
 		E_CAPTURE_OPTIONAL( 
 			E_CAPTURE( E_DELIMITER )

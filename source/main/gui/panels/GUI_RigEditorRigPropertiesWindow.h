@@ -29,6 +29,7 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorRigPropertiesWindowLayout.h"
+#include "GuiPanelBase.h"
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
@@ -39,20 +40,12 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorRigPropertiesWindow: public RigEditorRigPropertiesWindowLayout
+class RigEditorRigPropertiesWindow: public RigEditorRigPropertiesWindowLayout, public GuiPanelBase
 {
 
 public:
 
 	RigEditorRigPropertiesWindow(RigEditor::IMain* rig_editor_interface);
-
-	void Show();
-	
-	void Hide();
-
-	void CenterToScreen();
-
-	bool IsVisible();
 
 	void Import(RigEditor::RigProperties* rig_properties);
 

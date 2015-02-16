@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Airfoil.h"
 #include "ApproxMath.h"
 #include "ResourceBuffer.h"
+#include "BeamData.h"
 
 float refairfoilpos[90]={
 		0.00, 0.50, 0.00,
@@ -405,7 +406,10 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
 
     /// Notify Mesh object that it has been loaded
 	//MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(false);
-	msh->buildEdgeList();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+	}
 	//msh->prepareForShadowVolume();
 	msh->load();
 	//MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes()

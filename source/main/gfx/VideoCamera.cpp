@@ -29,6 +29,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "SkyManager.h"
 #include "Utils.h"
+#include "RoRFrameListener.h"
+#include "Application.h"
+#include "GUIManager.h"
 
 
 using namespace Ogre;
@@ -180,10 +183,13 @@ void VideoCamera::setActive(bool state)
 
 void VideoCamera::update(float dt)
 {
+	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+
 #ifdef USE_CAELUM
 	// caelum needs to know that we changed the cameras
-	if (gEnv->sky)
+	if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
 		gEnv->sky->notifyCameraChanged(mVidCam);
+		
 #endif // USE_CAELUM
 
 	// update the texture now, otherwise shuttering

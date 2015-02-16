@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ApproxMath.h"
 #include "Ogre.h"
 #include "ResourceBuffer.h"
+#include "BeamData.h"
 
 using namespace Ogre;
 
@@ -213,7 +214,11 @@ FlexMesh::FlexMesh(
 	//msh->_setBoundingSphereRadius(Math::Sqrt(1*1+1*1));
 
 		/// Notify Mesh object that it has been loaded
-	msh->buildEdgeList();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+		msh->prepareForShadowVolume();
+	}
 	//msh->buildTangentVectors();
 	/*unsigned short src, dest;
 	if (!msh->suggestTangentVectorBuildParams(src, dest))

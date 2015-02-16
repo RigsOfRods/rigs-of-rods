@@ -59,7 +59,7 @@ public:
 	void checkGUID();
 	void createGUID();
 
-	int GetFlaresMode();
+	int GetFlaresMode(int default_value = 2);
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -67,6 +67,10 @@ public:
 	void release(){};
 #endif
 
+	std::map<Ogre::String, Ogre::String> GetSettingMap()
+	{
+		return settings;
+	}
 protected:
 
 	Settings();
@@ -90,7 +94,7 @@ protected:
 	// ------------------------------------------------------------
 	// Cached config data
 
-	int m_flares_mode;
+	int m_flares_mode; // -1: unknown, -2: default, 0+: mode ID
 
 };
 

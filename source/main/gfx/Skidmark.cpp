@@ -114,7 +114,7 @@ int SkidmarkManager::getTexture(String model, String ground, float slip, String 
 	{
 		if (it->ground == ground && it->slipFrom <= slip && it->slipTo > slip)
 		{
-			texture = it->texture;
+			texture = it->texture.c_str();
 			return 0;
 		}
 	}
@@ -154,8 +154,9 @@ void Skidmark::addObject(Vector3 start, String texture)
 	skid.pos=0;
 	skid.lastPointAv=start;
 	skid.facecounter=0;
-	skid.face[0] = Vector3::ZERO;
-	skid.face[1] = Vector3::ZERO;
+
+	for (int i = 0; i<3; i++) skid.face[i] = Vector3::ZERO;
+
 	skid.colour = ColourValue(Math::RangeRandom(0, 100)/100.0f, Math::RangeRandom(0, 100)/100.0f, Math::RangeRandom(0, 100)/100.0f, 0.8f);
 
 
@@ -165,6 +166,7 @@ void Skidmark::addObject(Vector3 start, String texture)
 	MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
 	Pass *p = mat->getTechnique(0)->getPass(0);
 	
+	TextureUnitState *tus = p->createTextureUnitState(texture);
 	p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
 	p->setLightingEnabled(false);
 	p->setDepthWriteEnabled(false);
@@ -218,60 +220,40 @@ void Skidmark::setPointInt(unsigned short index, const Vector3 &value, Real fsiz
 
 void Skidmark::updatePoint()
 {
-	Vector3 thisPoint = wheel->lastContactType?wheel->lastContactOuter:wheel->lastContactInner;
-	Vector3 axis = wheel->lastContactType?(wheel->refnode1->RelPosition - wheel->refnode0->RelPosition):(wheel->refnode0->RelPosition - wheel->refnode1->RelPosition);
-	Vector3 thisPointAV = thisPoint + axis * 0.5f;
-	Real distance = 0;
-	Real maxDist = maxDistance;
-	String texture = "none";
-	SkidmarkManager::getSingleton().getTexture("default", wheel->lastGroundModel->name, wheel->lastSlip, texture);
+		Vector3 thisPoint = wheel->lastContactType?wheel->lastContactOuter:wheel->lastContactInner;
+		Vector3 axis = wheel->lastContactType?(wheel->refnode1->RelPosition - wheel->refnode0->RelPosition):(wheel->refnode0->RelPosition - wheel->refnode1->RelPosition);
+		Vector3 thisPointAV = thisPoint + axis * 0.5f;
+		Real distance = 0;
+		Real maxDist = maxDistance;
+		String texture = "none";
+		SkidmarkManager::getSingleton().getTexture("default", wheel->lastGroundModel->name, wheel->lastSlip, texture);
 	
-	// dont add points with no texture
-	if (texture == "none") return;
+		// dont add points with no texture
+		if (texture == "none") return;
 
-	if (wheel->speed > 1) maxDist *= wheel->speed;
+		if (wheel->speed > 1) maxDist *= wheel->speed;
 
-	if (!objects.size())
-	{
-		// add first bucket
-		addObject(thisPoint, texture);
-	} else
-	{
-		// check existing buckets
-		skidmark_t skid = objects.back();
-
-		distance = skid.lastPointAv.distance(thisPointAV);
-		// too near to update?
-		if (distance < minDistance)
+		if (!objects.size())
 		{
-			//LOG("E: too near for update");
-			return;
-		}
-		
-		// change ground texture if required
-		if (skid.pos > 0 && skid.groundTexture[0] != texture)
-		{
-			// new object with new texture
-			if (distance > maxDist)
-			{
-				// to far away for connection
-				addObject(thisPoint, texture);
-			} else
-			{
-				// add new bucket with connection to last bucket
-				Vector3 lp1 = objects.back().points[objects.back().pos-1];
-				Vector3 lp2 = objects.back().points[objects.back().pos-2];
-				addObject(lp1, texture);
-				addPoint(lp2, distance, texture);
-				addPoint(lp1, distance, texture);
-			}
+			// add first bucket
+			addObject(thisPoint, texture);
 		} else
 		{
-			// no texture change required :D
+			// check existing buckets
+			skidmark_t skid = objects.back();
 
-			// far enough for new bucket?
-			if (skid.pos >= (int)skid.points.size())
+			distance = skid.lastPointAv.distance(thisPointAV);
+			// too near to update?
+			if (distance < minDistance)
 			{
+				//LOG("E: too near for update");
+				return;
+			}
+		
+			// change ground texture if required
+			if (skid.pos > 0 && skid.groundTexture[0] != texture)
+			{
+				// new object with new texture
 				if (distance > maxDist)
 				{
 					// to far away for connection
@@ -285,52 +267,71 @@ void Skidmark::updatePoint()
 					addPoint(lp2, distance, texture);
 					addPoint(lp1, distance, texture);
 				}
-			}
-			else if (distance > maxDistance)
+			} else
 			{
-				// just new bucket, no connection to last bucket
-				addObject(thisPoint, texture);
+				// no texture change required :D
+
+				// far enough for new bucket?
+				if (skid.pos >= (int)skid.points.size())
+				{
+					if (distance > maxDist)
+					{
+						// to far away for connection
+						addObject(thisPoint, texture);
+					} else
+					{
+						// add new bucket with connection to last bucket
+						Vector3 lp1 = objects.back().points[objects.back().pos-1];
+						Vector3 lp2 = objects.back().points[objects.back().pos-2];
+						addObject(lp1, texture);
+						addPoint(lp2, distance, texture);
+						addPoint(lp1, distance, texture);
+					}
+				}
+				else if (distance > maxDistance)
+				{
+					// just new bucket, no connection to last bucket
+					addObject(thisPoint, texture);
+				}
 			}
 		}
-	}
 
-	skidmark_t skid = objects.back();
+		skidmark_t skid = objects.back();
 
-	float overaxis = 0.2f;
-	// tactics: we always choose the latest oint and then create two points
+		float overaxis = 0.2f;
+		// tactics: we always choose the latest oint and then create two points
 	
-	// XXX: TO BE IMPROVED
-	//Vector3 groundNormal = Vector3::ZERO;
-	//hfinder->getNormalAt(thisPoint.x, thisPoint.y, thisPoint.z, &groundNormal);
+		// XXX: TO BE IMPROVED
+		//Vector3 groundNormal = Vector3::ZERO;
+		//hfinder->getNormalAt(thisPoint.x, thisPoint.y, thisPoint.z, &groundNormal);
 
-	//LOG("ground normal: "+TOSTRING(wheel->refnode1->RelPosition.dotProduct(groundNormal)));
+		//LOG("ground normal: "+TOSTRING(wheel->refnode1->RelPosition.dotProduct(groundNormal)));
 
-	// choose node wheel by the latest added point
-	if (!wheel->lastContactType)
-	{
-		// choose inner
-		//LOG("inner");
-		addPoint(wheel->lastContactInner - (axis * overaxis), distance, texture);
-		addPoint(wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
-	} else
-	{
-		// choose outer
-		//LOG("outer");
-		addPoint(wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
-		addPoint(wheel->lastContactOuter - (axis * overaxis), distance, texture);
-	}
+		// choose node wheel by the latest added point
+		if (!wheel->lastContactType)
+		{
+			// choose inner
+			//LOG("inner");
+			addPoint(wheel->lastContactInner - (axis * overaxis), distance, texture);
+			addPoint(wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
+		} else
+		{
+			// choose outer
+			//LOG("outer");
+			addPoint(wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
+			addPoint(wheel->lastContactOuter - (axis * overaxis), distance, texture);
+		}
 
-	// save as last point (in the middle of the wheel)
-	objects.back().lastPointAv = thisPointAV;
+		// save as last point (in the middle of the wheel)
+		objects.back().lastPointAv = thisPointAV;
 
-	/*
-	// debug code: adds boxes to the average point
-	SceneNode *sn = mNode->getParentSceneNode()->createChildSceneNode();
-	sn->attachObject(gEnv->ogreSceneManager->createEntity("addPointTRACK"+TOSTRING(objects.back().lastPointAv) +TOSTRING(axis), "beam.mesh"));
-	sn->setPosition(thisPointAV);
-	sn->setScale(0.1f, 0.01f, 0.1f);
-	*/
-
+		/*
+		// debug code: adds boxes to the average point
+		SceneNode *sn = mNode->getParentSceneNode()->createChildSceneNode();
+		sn->attachObject(gEnv->ogreSceneManager->createEntity("addPointTRACK"+TOSTRING(objects.back().lastPointAv) +TOSTRING(axis), "beam.mesh"));
+		sn->setPosition(thisPointAV);
+		sn->setScale(0.1f, 0.01f, 0.1f);
+		*/
 }
 
 void Skidmark::addPoint(const Vector3 &value, Real fsize, String texture)

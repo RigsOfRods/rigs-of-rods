@@ -30,6 +30,9 @@ Neither the code nor the output is meant to be elegant. The output is not meant
 #include "TurboProp.h"
 #include "VideoCamera.h"
 
+#include <OgreSceneNode.h>
+#include <OgreEntity.h>
+
 // ----------------------------------------------------------------------------
 // Helper macros, to be used with std::fstream and << operator
 // ----------------------------------------------------------------------------
@@ -48,7 +51,19 @@ Neither the code nor the output is meant to be elegant. The output is not meant
 
 #define ECHO_BEAM(B) "{" << ECHO_PTR(B) <<", n1:" << ECHO_NODE(B->p1) <<", n2:" << ECHO_NODE(B->p2) << "}"
 
-const int LOG_ARRAY_BREAK_LIMIT = 100;
+const int LOG_ARRAY_BREAK_LIMIT = 25;
+
+#define LOG_OGRE_SCENENODE(VAR) \
+{ \
+	if (VAR != nullptr) { f << "{OgreSceneNode: POS=" << ECHO_V3(VAR->getPosition()) << ", visible:" << VAR->isInSceneGraph() << "}"; } \
+	else { f << "{OgreSceneNode: nullptr}"; } \
+}
+
+#define LOG_OGRE_ENTITY(VAR) \
+{ \
+	if (VAR != nullptr) { f << "{OgreEntity: isInScene():" << VAR->isInScene() << "}"; } \
+	else { f << "{OgreEntity: nullptr}"; } \
+}
 
 #define LOG_ARRAY(VARNAME, ARRAY, SIZE) \
 { \
@@ -224,7 +239,8 @@ void RigInspector::InspectWings(std::ofstream & f, Beam* rig)
 		wing_t & data = rig->wings[i];
 		f<<"\n wing "<<i<<":"
 			<<"(FlexAirfoil*) fa="<<ECHO_PTR(data.fa)
-			<<"(Ogre::SceneNode*) cnode="<<ECHO_PTR(data.cnode);
+			<<"(Ogre::SceneNode*) cnode=";
+		LOG_OGRE_SCENENODE(data.cnode);
 
 		FlexAirfoil & fa = *data.fa;
 		RigInspector::InspectFlexAirfoil(f, fa);
@@ -364,8 +380,8 @@ void RigInspector::InspectNodes(std::ofstream & f, Beam* rig)
 			<<" contacter="<<node.contacter
 			<<" mouseGrabMode="<<node.mouseGrabMode
 			<<" pos="<<node.pos
-			<<" mSceneNode="<<ECHO_PTR(node.mSceneNode)
-			;
+			<<" mSceneNode=";
+		LOG_OGRE_SCENENODE(node.mSceneNode)
 	}
 }
 
@@ -423,12 +439,13 @@ void RigInspector::InspectBeams(std::ofstream & f, Beam* rig)
 			<<" minendmass="<<beam.minendmass
 			<<" scale="<<beam.scale
 			<<" shock="<<ECHO_PTR(beam.shock)
-			<<" mSceneNode="<<ECHO_PTR(beam.mSceneNode)
-			<<" mEntity="<<ECHO_PTR(beam.mEntity)
 			<<" *EXTRA*"
 			<<" iswheel:["<<beam.p1->iswheel<<","<<beam.p2->iswheel<<"]"
 			<<" wheelid:["<<beam.p1->wheelid<<","<<beam.p2->wheelid<<"]"
-			;
+			<<" mSceneNode=";
+		LOG_OGRE_SCENENODE(beam.mSceneNode)
+			f << "mEntity=";
+		LOG_OGRE_ENTITY(beam.mEntity)
 	}
 }
 
@@ -506,9 +523,11 @@ void RigInspector::InspectWheels(std::ofstream & f, Beam* rig)
 			<<" p1="<<ECHO_NODE(visuals.p1)
 			<<" p2="<<ECHO_NODE(visuals.p2)
 			<<" fm(Flexable *)="<<ECHO_PTR(visuals.fm) // TODO: Flexable * inspection
-			<<" cnode="<<ECHO_PTR(visuals.cnode)
+			
 			<<" meshwheel="<<visuals.meshwheel
+			<<" cnode="
 			;
+		LOG_OGRE_SCENENODE(visuals.cnode)
 	}
 }
 
@@ -622,7 +641,8 @@ void RigInspector::InspectClassBeam(std::ofstream & f, Beam* rig)
 	f<<"\n\t first_wheel_node:"<<rig->first_wheel_node;
 	f<<"\n\t netbuffersize:"<<rig->netbuffersize;
 	f<<"\n\t nodebuffersize:"<<rig->nodebuffersize;
-	f<<"\n\t netLabelNode:"<<ECHO_PTR(rig->netLabelNode);
+	f<<"\n\t netLabelNode:";
+	LOG_OGRE_SCENENODE(rig->netLabelNode);
 
 	f<<"\n\t realtruckfilename:"<<rig->realtruckfilename;
 	f<<"\n\t tdt:"<<rig->tdt;
@@ -679,7 +699,8 @@ void RigInspector::InspectClassBeam(std::ofstream & f, Beam* rig)
 	f<<"\n\t deleting:"<<rig->deleting;
 	f<<"\n\t hydrolen:"<<rig->hydrolen;
 
-	f<<"\n\t smokeNode:"<<ECHO_PTR(rig->smokeNode);
+	f<<"\n\t smokeNode:";
+	LOG_OGRE_SCENENODE(rig->smokeNode);
 	f<<"\n\t smoker:"<<ECHO_PTR(rig->smoker);
 	f<<"\n\t stabsleep:"<<rig->stabsleep;
 	f<<"\n\t replay:"<<ECHO_PTR(rig->replay);
@@ -723,7 +744,8 @@ void RigInspector::InspectClassBeam(std::ofstream & f, Beam* rig)
 	f<<"\n\t floating_origin_enable:"<<rig->floating_origin_enable;
 
 	f<<"\n\t simpleSkeletonManualObject:"<<ECHO_PTR(rig->simpleSkeletonManualObject);
-	f<<"\n\t simpleSkeletonNode:"<<ECHO_PTR(rig->simpleSkeletonNode);
+	f<<"\n\t simpleSkeletonNode:";
+	LOG_OGRE_SCENENODE(rig->simpleSkeletonNode);
 	f<<"\n\t simpleSkeletonInitiated:"<<rig->simpleSkeletonInitiated;
 	f<<"\n\t blinktreshpassed:"<<rig->blinktreshpassed;
 
@@ -829,12 +851,12 @@ void RigInspector::InspectProps(std::ofstream & f, Beam* rig)
 				<<ECHO_PTR(data.bbs[1])
 				<<ECHO_PTR(data.bbs[2])
 				<<ECHO_PTR(data.bbs[3])
-			<<" bbsnode="
-				<<ECHO_PTR(data.bbsnode[0])
-				<<ECHO_PTR(data.bbsnode[1])
-				<<ECHO_PTR(data.bbsnode[2])
-				<<ECHO_PTR(data.bbsnode[3])
-			<<" light="
+			<<" bbsnode=";
+				LOG_OGRE_SCENENODE(data.bbsnode[0])
+				LOG_OGRE_SCENENODE(data.bbsnode[1])
+				LOG_OGRE_SCENENODE(data.bbsnode[2])
+				LOG_OGRE_SCENENODE(data.bbsnode[3])
+			f<<" light="
 				<<ECHO_PTR(data.light[0])
 				<<ECHO_PTR(data.light[1])
 				<<ECHO_PTR(data.light[2])
@@ -887,7 +909,7 @@ void RigInspector::InspectAirbrakes(std::ofstream & f, Beam* rig)
 		Airbrake* data = rig->airbrakes[i];
 		f<<"\n Airbrake "<<i<<":"
 			<<" msh(not null?)="<<!data->msh.isNull()
-			<<" snode="<<ECHO_PTR(data->snode)
+			
 			<<" noderef="<<ECHO_NODE(data->noderef)
 			<<" nodex="<<ECHO_NODE(data->nodex)
 			<<" nodey="<<ECHO_NODE(data->nodey)
@@ -896,7 +918,8 @@ void RigInspector::InspectAirbrakes(std::ofstream & f, Beam* rig)
 			<<" ratio="<<data->ratio
 			<<" maxangle="<<data->maxangle
 			<<" area="<<data->area
-			;
+			<<" snode=";
+		LOG_OGRE_SCENENODE(data->snode)
 	}
 }
 
@@ -1022,7 +1045,8 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 	f<<"\n\t fileformatversion:"<<rig->fileformatversion;
 	// TODO std::vector<Ogre::String> sectionconfigs;
 	f<<"\n\t origin:"<<ECHO_V3(rig->origin);
-	f<<"\n\t beamsRoot:"<<ECHO_PTR(rig->beamsRoot);
+	f<<"\n\t beamsRoot:";
+	LOG_OGRE_SCENENODE(rig->beamsRoot);
 
 	// TODO std::vector< SlideNode > mSlideNodes;
 	f<<"\n\t proped_wheels:"<<rig->proped_wheels;
@@ -1053,7 +1077,8 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 	f<<"\n\t shadowOptimizations:"<<rig->shadowOptimizations;
 	f<<"\n\t hasEmissivePass:"<<rig->hasEmissivePass;
 	f<<"\n\t cabMesh:"<<ECHO_PTR(rig->cabMesh);
-	f<<"\n\t cabNode:"<<ECHO_PTR(rig->cabNode);
+	f<<"\n\t cabNode:";
+	LOG_OGRE_SCENENODE(rig->cabNode);
 	f<<"\n\t boundingBox:"<<ECHO_AABB(rig->boundingBox);
 	f<<"\n\t predictedBoundingBox:"<<ECHO_AABB(rig->predictedBoundingBox);
 
@@ -1078,7 +1103,8 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 
 	f<<"\n\t flaresMode:"<<rig->flaresMode;
 	f<<"\n\t cablight:"<<ECHO_PTR(rig->cablight);
-	f<<"\n\t cablightNode:"<<ECHO_PTR(rig->cablightNode);
+	f<<"\n\t cablightNode:";
+	LOG_OGRE_SCENENODE(rig->cablightNode);
 
 	f<<"\n\t";
 	LOG_ARRAY("hydro", rig->hydro, rig->free_hydro);
@@ -1409,8 +1435,9 @@ void RigInspector::InspectFlares(std::ofstream & f, Beam* rig)
 			<<" offsety="<<data.offsety
 			<<" offsetz="<<data.offsetz
 
-			<<" snode="<<ECHO_PTR(data.snode)
-			<<" bbs="<<ECHO_PTR(data.bbs)
+			<<" snode=";
+		LOG_OGRE_SCENENODE(data.snode)
+			f<<" bbs="<<ECHO_PTR(data.bbs)
 			<<" light="<<ECHO_PTR(data.light)
 
 			<<" type="<<data.type
@@ -1439,7 +1466,8 @@ void RigInspector::InspectExhausts(std::ofstream & f, Beam* rig)
 			<<" directionNode="<<data.directionNode
 			<<" material='"<<data.material<<"'"
 			<<" isOldFormat="<<data.isOldFormat
-			<<" smokeNode="<<ECHO_PTR(data.smokeNode)
+			<<" smokeNode=";LOG_OGRE_SCENENODE(data.smokeNode)
+			f
 			<<" smoker="<<ECHO_PTR(data.smoker)
 			<<"\n\t [OK TO DIFFER, UNUSED, possibly unitialized in old spawner] factor="<<data.factor
 			;
@@ -1487,12 +1515,15 @@ void RigInspector::PrintTurboprop(std::ofstream & f, Turboprop * ptr)
 		<<" maxrevpitch="<<data.maxrevpitch
 		<<" regspeed="<<data.regspeed
 
-		<<" vspinner="<<ECHO_PTR(data.vspinner)
+		<<" vspinner=";
+	LOG_OGRE_SCENENODE(data.vspinner)
+	f
 		<<" free_vpale="<<data.free_vpale
 		<<" smokePS="<<ECHO_PTR(data.smokePS)
 		<<" heathazePS="<<ECHO_PTR(data.heathazePS)
-		<<" smokeNode="<<ECHO_PTR(data.smokeNode)
-		<<" rotenergy="<<data.rotenergy
+		<<" smokeNode=";
+	LOG_OGRE_SCENENODE(data.smokeNode)
+		f<<" rotenergy="<<data.rotenergy
 		<<" fixed_pitch="<<data.fixed_pitch
 
 		<<" reverse="<<data.reverse
@@ -1528,10 +1559,12 @@ void RigInspector::PrintTurbojet(std::ofstream & f, Turbojet * ptr)
 		<<" mr="<<ECHO_PTR(data.mr)
 		<<" heathazePS="<<ECHO_PTR(data.heathazePS)
 		<<" smokePS="<<ECHO_PTR(data.smokePS)
-		<<" absnode="<<ECHO_PTR(data.absnode)
-		<<" nzsnode="<<ECHO_PTR(data.nzsnode)
+		<<" absnode=";
+	LOG_OGRE_SCENENODE(data.absnode)
+		f<<" nzsnode=";
+	LOG_OGRE_SCENENODE(data.nzsnode)
 
-		<<" axis="<<ECHO_V3(data.axis)
+		f<<" axis="<<ECHO_V3(data.axis)
 
 		<<" afterburner="<<data.afterburner
 		<<" failed="<<data.failed
@@ -1564,8 +1597,8 @@ void RigInspector::PrintTurbojet(std::ofstream & f, Turbojet * ptr)
 		<<" thr_id="<<data.thr_id
 		<<" trucknum="<<data.trucknum
 		<<" nodes="<<ECHO_NODE(data.nodes)
-		<<" smokeNode="<<ECHO_PTR(data.smokeNode)
-		;
+		<<" smokeNode=";
+	LOG_OGRE_SCENENODE(data.smokeNode)
 }
 
 void RigInspector::InspectAeroengines(std::ofstream & f, Beam* rig)
@@ -1686,7 +1719,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 			<<" locator.coords="<<ECHO_V3(locator.coords)
 			;
 
-		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		if (i > 0 && (i % 5) == 0)
 		{
 			f << "\n\t [MORE]";
 		}
@@ -1715,9 +1748,10 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 		<<" cx="<<data.cx
 		<<" cy="<<data.cy
 		<<" coffset="<<ECHO_V3(data.coffset)
-		<<" snode="<<ECHO_PTR(data.snode)
+		<<" snode=";
+	LOG_OGRE_SCENENODE(data.snode)
 
-		<<" sharedcount="<<data.sharedcount
+		f<<" sharedcount="<<data.sharedcount
 		<<" sharedpbuf="<<data.sharedpbuf.isNull()
 		<<" sharednbuf="<<data.sharednbuf.isNull()
 		<<" sharedcbuf="<<data.sharedcbuf.isNull()
@@ -1807,8 +1841,9 @@ void RigInspector::InspectVideocameras(std::ofstream & f, Beam* rig)
 			<<" rttTex="<<ECHO_PTR(data.rttTex)
 			<<" mat="<<data.mat.isNull()
 			<<" debugMode="<<data.debugMode
-			<<" debugNode="<<ECHO_PTR(data.debugNode)
-			<<" mr="<<ECHO_PTR(data.mr)
+			<<" debugNode=";
+		LOG_OGRE_SCENENODE(data.debugNode)
+			f<<" mr="<<ECHO_PTR(data.mr)
 			<<" rwMirror="<<ECHO_PTR(data.rwMirror)
 			;
 

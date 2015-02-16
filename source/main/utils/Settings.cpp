@@ -188,8 +188,6 @@ void Settings::saveSettings()
 
 void Settings::saveSettings(String configFile)
 {
-	// use C++ for easier wstring usage ... :-/
-
 	std::ofstream f(configFile.c_str());
 	if (!f.is_open()) return;
 
@@ -198,9 +196,29 @@ void Settings::saveSettings(String configFile)
 	for (it = settings.begin(); it != settings.end(); it++)
 	{
 		if (it->first == "BinaryHash") continue;
-		f << it->first << " = " << it->second << std::endl;
+		f << it->first << "=" << it->second << std::endl;
 	}
 	f.close();
+	/*
+	FILE *fd;
+	Ogre::String rorcfg = configFile;
+	std::map<std::string, std::string>::iterator it;
+
+	LOG("Saving to Config file: " + rorcfg);
+
+	const char * rorcfg_char = rorcfg.c_str();
+	fd = fopen(rorcfg_char, "w");
+	if (!fd)
+	{
+		LOG("Could not write config file");
+		return;
+	}
+	// now save the Settings to RoR.cfg
+	for (it = settings.begin(); it != settings.end(); it++)
+	{
+		fprintf(fd, "%s=%s\n", it->first.c_str(), it->second.c_str());
+	}
+	fclose(fd);*/
 }
 
 void Settings::loadSettings(String configFile, bool overwrite)
@@ -554,14 +572,14 @@ void Settings::path_add(char* path, const char* dirname)
 	strcpy(path, tmp);
 }
 
-int Settings::GetFlaresMode()
+int Settings::GetFlaresMode(int default_value /*=2*/)
 {
-	if (m_flares_mode == -1)
+	if (m_flares_mode == -1) // -1: unknown, -2: default, 0+: mode ID
 	{
 		auto itor = settings.find("Lights");
 		if (itor == settings.end())
 		{
-			m_flares_mode = 2; // "Only current vehicle, main lights" (default)
+			m_flares_mode = -2;
 		}
 		else
 		{
@@ -571,8 +589,12 @@ int Settings::GetFlaresMode()
 			else if (itor->second == "All vehicles, main lights")         { m_flares_mode = 3; }
 			else if (itor->second == "All vehicles, all lights")          { m_flares_mode = 4; }
 
-			else                                                          { m_flares_mode = 2; }
+			else                                                          { m_flares_mode = -2; }
 		}
+	}
+	if (m_flares_mode == -2)
+	{
+		return default_value;
 	}
 	return m_flares_mode;
 }

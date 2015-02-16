@@ -31,7 +31,6 @@
 
 #include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
-#include "BeamData.h"
 #include "Singleton.h"
 
 #include <MyGUI.h>
@@ -41,7 +40,7 @@ class GUI_MainMenu : public RoRSingletonNoCreation< GUI_MainMenu >, public Zeroe
 {
 public:
 
-	GUI_MainMenu();
+	GUI_MainMenu(RoR::GuiManagerInterface* gui_manager_interface);
 
 	~GUI_MainMenu();
 
@@ -70,6 +69,8 @@ protected:
 
 	void vehiclesListUpdate();
 
+	void MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender);
+
 	std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
 	MyGUI::PopupMenuPtr              m_vehicles_menu_widget;
 	MyGUI::MenuBarPtr                m_menubar_widget;
@@ -77,6 +78,7 @@ protected:
 	int                              m_menu_height;
 	pthread_mutex_t                  m_update_lock;
 	bool                             m_vehicle_list_needs_update;
+	RoR::GuiManagerInterface*        m_gui_manager_interface;
 };
 
 #endif // USE_MYGUI

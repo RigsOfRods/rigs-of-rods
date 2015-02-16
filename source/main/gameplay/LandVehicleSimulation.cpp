@@ -28,6 +28,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "SoundScriptManager.h"
+#include "GUIManager.h"
 
 using namespace RoR;
 
@@ -291,18 +292,23 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				{
 					case BeamEngine::AUTOMATIC:
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Automatic shift"), "cog.png", 3000);
+						RoR::Application::GetGuiManager()->PushNotification("Gearbox Mode:", "Automatic shift");
 						break;
 					case BeamEngine::SEMIAUTO:
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Manual shift - Auto clutch"), "cog.png", 3000);
+						RoR::Application::GetGuiManager()->PushNotification("Gearbox Mode:", "Manual shift - Auto clutch");
 						break;
 					case BeamEngine::MANUAL:
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully Manual: sequential shift"), "cog.png", 3000);
+						RoR::Application::GetGuiManager()->PushNotification("Gearbox Mode:", "Fully Manual: sequential shift");
 						break;
 					case BeamEngine::MANUAL_STICK:
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully manual: stick shift"), "cog.png", 3000);
+						RoR::Application::GetGuiManager()->PushNotification("Gearbox Mode:", "Fully manual: stick shift");
 						break;
 					case BeamEngine::MANUAL_RANGES:
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Fully Manual: stick shift with ranges"), "cog.png", 3000);
+						RoR::Application::GetGuiManager()->PushNotification("Gearbox Mode:", "Fully Manual: stick shift with ranges");
 						break;
 				}
 #endif //USE_MYGUI
@@ -502,6 +508,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 		{
 #ifdef USE_MYGUI
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No differential installed on current vehicle!"), "warning.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Differential:", "No differential installed on current vehicle!");
 #endif // USE_MYGUI
 		} 
 		else
@@ -509,6 +516,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 			curr_truck->toggleAxleLock();
 #ifdef USE_MYGUI
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Differentials switched to: ") + curr_truck->getAxleLockName(), "cog.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Differential:", "Differentials switched to: " + curr_truck->getAxleLockName());
 #endif // USE_MYGUI
 		}
 	}

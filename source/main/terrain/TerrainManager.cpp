@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
-#include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
@@ -42,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "OgreTerrainPaging.h"
 
 using namespace Ogre;
 
@@ -76,10 +76,57 @@ TerrainManager::TerrainManager() :
 	, version(1)
 	, water_line(0.0f)
 {
+	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
 }
 
 TerrainManager::~TerrainManager()
 {
+	m_terrain_config.clear();
+
+	//I think that the order is important
+
+	if (sky_manager != nullptr)
+	{
+		delete(sky_manager);
+		gEnv->sky = nullptr;
+		sky_manager = nullptr;
+	}
+
+	if (main_light != nullptr)
+	{
+		gEnv->sceneManager->destroyAllLights();
+		main_light = nullptr;
+	}
+
+	if (envmap != nullptr)
+	{
+		delete(envmap);
+		envmap = nullptr;
+	}
+
+	if (dashboard != nullptr)
+	{
+		delete(dashboard);
+		dashboard = nullptr;
+	}
+
+	if (water != nullptr)
+	{
+		delete(water);
+		water = nullptr;
+	}
+
+	if (object_manager != nullptr)
+	{
+		delete(object_manager);
+		object_manager = nullptr;
+	}
+
+	if (geometry_manager != nullptr)
+	{
+		delete(geometry_manager);
+		geometry_manager = nullptr;
+	}
 }
 
 // some shortcut to remove ugly code
@@ -118,6 +165,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	guid = m_terrain_config.getSetting("GUID", "General");
 	start_position = StringConverter::parseVector3(m_terrain_config.getSetting("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
 	version = StringConverter::parseInt(m_terrain_config.getSetting("Version", "General"), 1);
+	gravity = StringConverter::parseReal(m_terrain_config.getSetting("Gravity", "General"), -9.81);
 
 	// parse author info
 	ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
@@ -185,8 +233,6 @@ void TerrainManager::loadTerrain(String filename)
 	loadTerrainObjects();
 
 	collisions->printStats();
-
-	if (gEnv->frameListener) gEnv->frameListener->loading_state = TERRAIN_LOADED;
 	
 	// bake the decals
 	//finishTerrainDecal();
@@ -278,21 +324,30 @@ void TerrainManager::initCamera()
 {
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 	gEnv->mainCamera->setPosition(start_position);
-	gEnv->mainCamera->setFarClipDistance(0);
 
 	far_clip = FSETTING("SightRange", 4500);
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
+	else
+		gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+
+	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+
+	// disabled in global config
+	if (waterSettingsString == "None") return;
+	// disabled in map config
+	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
+
+	if (waterSettingsString == "Hydrax" && far_clip >= UNLIMITED_SIGHTRANGE)
+		gEnv->mainCamera->setFarClipDistance(9999*6); //Unlimited
 }
 
 void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
 	// Caelum skies
-	bool useCaelum = SSETTING("Sky effects", "Caelum (best looking, slower)")=="Caelum (best looking, slower)";
-
-	if (useCaelum)
+	if (use_caelum)
 	{
 		sky_manager = new SkyManager();
 		gEnv->sky = sky_manager;
@@ -541,12 +596,40 @@ void TerrainManager::initWater()
 
 	if (waterSettingsString == "Hydrax")
 	{
-		HydraxWater *hw = new HydraxWater();
-		hw->loadConfig("HydraxDemo.hdx");
+		// try to load hydrax config
+		String hydraxConfig = m_terrain_config.getSetting("HydraxConfigFile", "General");
+
+		if (!hydraxConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(hydraxConfig))
+		{
+			hw = new HydraxWater(m_terrain_config, hydraxConfig);
+		}
+		else
+		{
+			// no config provided, fall back to the default one
+			hw = new HydraxWater(m_terrain_config);
+		}
+
+		
 		water = hw;
+
+		//Apply depth technique to the terrain
+		TerrainGroup::TerrainIterator ti = geometry_manager->getTerrainGroup()->getTerrainIterator();
+		while (ti.hasMoreElements())
+		{
+			Terrain* t = ti.getNext()->instance;
+			MaterialPtr ptr = t->getMaterial();
+			hw->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+		}
+
 	} else
 	{
-		water = new Water(m_terrain_config);
+		if (water == nullptr)
+			water = new Water(m_terrain_config);
+		else if (water != nullptr)
+		{
+			delete(water);
+			water = new Water(m_terrain_config);
+		}
 	}
 }
 

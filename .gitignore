@@ -1,5 +1,6 @@
-syntax: glob
+
 CMakeFiles
+Solution/
 cmake_install.cmake
 Makefile
 CMakeCache.txt
@@ -20,4 +21,3 @@ ror-dependencies-*.zip
 dependencies-*.zip
 _build
 libangelscript_addons*.a
-

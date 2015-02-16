@@ -1,27 +1,32 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "FlexMeshWheel.h"
 
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
 #include "Skin.h"
+#include "MaterialFunctionMapper.h"
+#include "BeamData.h"
+
 #include <sstream>
 
 using namespace Ogre;
@@ -182,7 +187,11 @@ FlexMeshWheel::FlexMeshWheel(
 	//msh->_setBoundingSphereRadius(Math::Sqrt(1*1+1*1));
 
 	/// Notify Mesh object that it has been loaded
-	msh->buildEdgeList();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+		msh->prepareForShadowVolume();
+	}
 	//msh->buildTangentVectors();
 	/*unsigned short src, dest;
 	if (!msh->suggestTangentVectorBuildParams(src, dest))

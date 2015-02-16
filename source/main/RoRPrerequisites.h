@@ -46,6 +46,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
 #include "../common/BitFlags.h"
 
+#include <MyGUI_Prerequest.h> // Forward declarations
+
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
 #ifndef AS_USE_NAMESPACE
@@ -130,4 +132,24 @@ enum GameStates
 	EXITING        = 3, //!< No effect, filled at exit, never checked.
 	RELOADING      = 5, //!< Loading new rig.
 	PAUSE          = 6
+};
+
+enum LoaderType 
+{ 
+	LT_None, 
+	LT_Terrain, 
+	LT_Vehicle,
+	LT_Truck, 
+	LT_Car, 
+	LT_Boat,
+	LT_Airplane, 
+	LT_Trailer,
+	LT_Train, 
+	LT_Load, 
+	LT_Extension, 
+	LT_Network,
+	LT_NetworkWithBoat, 
+	LT_Heli, 
+	LT_SKIN,
+	LT_AllBeam 
 };

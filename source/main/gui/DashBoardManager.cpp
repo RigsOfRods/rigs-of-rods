@@ -109,6 +109,8 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
 	INITDATA(DD_ODOMETER_TOTAL          , DC_FLOAT, "odometer_total");
 	INITDATA(DD_ODOMETER_USER           , DC_FLOAT, "odometer_user");
 
+	INITDATA(DD_SIGNAL_TURNLEFT			, DC_BOOL, "signal_turnleft");
+	INITDATA(DD_SIGNAL_TURNRIGHT		, DC_BOOL, "signal_turnright");
 	// load dash fonts
 	MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
 }

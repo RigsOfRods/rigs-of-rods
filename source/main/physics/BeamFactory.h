@@ -26,7 +26,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "RigDef_Parser.h"
-#include "RigSpawner.h"
 #include "Beam.h"
 #include "StreamableFactory.h"
 #include "TwoDReplay.h"
@@ -57,7 +56,6 @@ public:
 		Ogre::String fname, 
 		collision_box_t *spawnbox = NULL, 
 		bool ismachine = false, 
-		int flareMode = 0, 
 		const std::vector<Ogre::String> *truckconfig = nullptr, 
 		Skin *skin = nullptr, 
 		bool freePosition = false,
@@ -100,9 +98,15 @@ public:
 
 	bool removeBeam(Beam *b);
 	void removeCurrentTruck();
+	void removeAllTrucks();
 	void removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 	void removeTruck(int truck);
 	
+	void MuteAllTrucks();
+	void UnmuteAllTrucks();
+
+	void p_removeAllTrucks();
+
 	bool enterRescueTruck();
 	void repairTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box, bool keepPosition=false);
 
@@ -157,8 +161,6 @@ public:
 	ThreadPool *beamThreadPool;
 
 protected:
-
-	Ogre::SceneNode *parent;
 	
 	bool async_physics;
 	bool thread_mode;

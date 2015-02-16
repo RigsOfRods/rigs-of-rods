@@ -48,7 +48,7 @@ public:
 	
 	void Hide();
 
-	void SetWidth(int width_pixels);
+	void StretchWidthToScreen();
 
 private:
 

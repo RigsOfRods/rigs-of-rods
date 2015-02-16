@@ -225,11 +225,17 @@ bool InputHandler::mouseMoved( const OIS::MouseEvent &mouse_event )
 
 bool InputHandler::mousePressed( const OIS::MouseEvent &mouse_event, OIS::MouseButtonID button_id )
 {
-	MyGUI::InputManager::getInstance().injectMousePress(
+	bool handled_by_gui = MyGUI::InputManager::getInstance().injectMousePress(
 		mouse_event.state.X.abs, 
 		mouse_event.state.Y.abs,
 		MyGUI::MouseButton::Enum(button_id)
 		);
+
+	m_mouse_button_event.ButtonPressInputReceived(handled_by_gui);
+	if (handled_by_gui)
+	{
+		return true;
+	}
 
 	switch (button_id)
 	{
@@ -251,11 +257,17 @@ bool InputHandler::mousePressed( const OIS::MouseEvent &mouse_event, OIS::MouseB
 
 bool InputHandler::mouseReleased( const OIS::MouseEvent &mouse_event, OIS::MouseButtonID button_id )
 {
-	MyGUI::InputManager::getInstance().injectMouseRelease(
+	bool handled_by_gui = MyGUI::InputManager::getInstance().injectMouseRelease(
 		mouse_event.state.X.abs, 
 		mouse_event.state.Y.abs,
 		MyGUI::MouseButton::Enum(button_id)
 		);
+
+	m_mouse_button_event.ButtonReleaseInputReceived(handled_by_gui);
+	if (handled_by_gui)
+	{
+		return true;
+	}
 
 	switch (button_id)
 	{

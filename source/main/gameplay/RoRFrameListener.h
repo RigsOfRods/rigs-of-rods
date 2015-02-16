@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __RoRFrameListener_H_
 
 #include "RoRPrerequisites.h"
-#include "BeamData.h"
 
 #include <Ogre.h>
 #include <pthread.h>
@@ -44,6 +43,8 @@ public:
 	int loading_state;
 	
 	Ogre::Vector3 reload_pos;
+
+	void setSimPaused(bool state) { isSimPaused = state; }
 
 protected:
 
@@ -68,6 +69,8 @@ protected:
 	bool mTruckInfoOn;
 	bool pressure_pressed;
 
+	bool isSimPaused;
+
 	char screenshotformat[256];
 	
 	collision_box_t *reload_box;
@@ -78,7 +81,6 @@ protected:
 	float terrainzsize;
 	//float truckx, trucky, truckz;
 
-	int flaresMode;
 	int mStatsOn;
 	int netPointToUID;
 	int raceStartTime;

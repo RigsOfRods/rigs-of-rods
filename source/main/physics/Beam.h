@@ -61,7 +61,6 @@ public:
 	* @param rot
 	* @param fname Rig file name.
 	* @param ismachine (see BeamData.h)
-	* @param flareMode IGNORED
 	* @param truckconfig Networking related.
 	* @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
 	*/
@@ -74,7 +73,6 @@ public:
 		, bool networking = false
 		, collision_box_t *spawnbox = nullptr
 		, bool ismachine = false
-		, int flareMode = 0
 		, const std::vector<Ogre::String> *truckconfig = nullptr
 		, Skin *skin = nullptr
 		, bool freeposition = false
@@ -392,6 +390,9 @@ public:
 	*/
 	void changedCamera();
 
+	void StopAllSounds();
+	void UnmuteAllSounds();
+
 	float getTotalMass(bool withLocked=true);
 	void recalc_masses();
 	int getWheelNodeCount();
@@ -575,7 +576,6 @@ protected:
 
 	void calc_masses2(Ogre::Real total, bool reCalc=false);
 	void calcNodeConnectivityGraph();
-	void updateContacterNodes();
 	void moveOrigin(Ogre::Vector3 offset); //move physics origin
 	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 

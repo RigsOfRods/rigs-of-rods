@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowC" position="120 375 615 225" layer="Middle" name="_Main">
+        <Property key="Caption" value="ChatBox"/>
+        <Widget type="EditBox" skin="EditBoxStretch" position="0 0 605 160" align="Stretch" name="Chatbox_MainBox">
+            <Property key="VisibleHScroll" value="true"/>
+            <Property key="VisibleVScroll" value="true"/>
+            <Property key="ReadOnly" value="true"/>
+            <Property key="MultiLine" value="true"/>
+            <Property key="MaxTextLength" value="1000"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBox" position="0 160 605 30" align="HStretch Bottom" name="Chatbox_TextBox">
+            <Property key="Enabled" value="false"/>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings>
+        <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+        <Property key="PanelName" value="GameChatBoxLayout"/>
+        <Property key="PanelNamespace" value="m"/>
+        <Property key="SourceDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+    </CodeGeneratorSettings>
+</MyGUI>

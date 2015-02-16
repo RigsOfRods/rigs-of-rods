@@ -30,6 +30,8 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
+#include "Application.h"
+#include "GUIManager.h"
 
 #ifdef USE_MYGUI
 # include <MyGUI.h>
@@ -72,10 +74,25 @@ SceneMouse::SceneMouse()
 
 SceneMouse::~SceneMouse()
 {
+	
+	if (pickLineNode != nullptr)
+	{
+		gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
+		pickLineNode = nullptr;
+	}
+	
+
+	if (pickLine != nullptr)
+	{
+		gEnv->sceneManager->destroyManualObject("PickLineObject");
+		pickLine = nullptr;
+	}
 }
 
 void SceneMouse::releaseMousePick()
 {
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+
 	// hide mouse line
 	if (pickLineNode)
 		pickLineNode->setVisible(false);
@@ -181,6 +198,8 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
 void SceneMouse::update(float dt)
 {
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+
 	if (mouseGrabState == 1 && grab_truck)
 	{
 		// get values
@@ -205,6 +224,8 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+
 	if (mouseGrabState == 1)
 	{
 		releaseMousePick();

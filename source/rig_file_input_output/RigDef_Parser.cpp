@@ -1684,7 +1684,7 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line)
 			line, 
 			Message::TYPE_WARNING, 
 			"Directive 'set_managedmaterials_options':"
-				" Invalid value of parameter #1: '" + input + "', should be only '0' or '1'."
+				" Invalid value of parameter ~1: '" + input + "', should be only '0' or '1'."
 				" Interpreting as '0' for backwards compatibility. Please fix."
 			);
 	}
@@ -1917,7 +1917,7 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	int braking = STR_PARSE_INT(results[8]);
 	if (braking < 0 || braking > 4)
 	{
-		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter #7 (braking), using 0 (no braking)");
+		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter ~7 (braking), using 0 (no braking)");
 		braking = 0;
 	}
 	mesh_wheel.braking = Wheels::Braking(braking);
@@ -1926,7 +1926,7 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	int propulsion = STR_PARSE_INT(results[9]);
 	if (propulsion < 0 || propulsion > 2)
 	{
-		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter #8 (propulsion), using 0 (no propulsion)");
+		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter ~8 (propulsion), using 0 (no propulsion)");
 		braking = 0;
 	}
 	mesh_wheel.propulsion = Wheels::Propulsion(propulsion);
@@ -3302,36 +3302,60 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 		{
 			command2.description = results[result_index];
 
-			/* Backwards-compatibility: if there are 1-2 extra strings behind the description and no proper arguments follow, tolerate the extra strings */
-			bool more_params_ahead = results[result_index + 3].matched;
-			if (! more_params_ahead && format_version == 2 && results[result_index + 1].matched)
+			if (format_version == 1)
 			{
-				std::stringstream msg;
-				msg << "Please remove: Invalid string after parameter \"description\": \"" << results[result_index + 1] << "\""; 
-				AddMessage(line, Message::TYPE_WARNING, msg.str());
-
-				/* Even worse, there are 2 misplaced strings */
-				if (! more_params_ahead && results[result_index + 2].matched)
+				result_index += 5;
+				if (_ParseOptionalInertia(command2.inertia, results, result_index))
 				{
-					std::stringstream msg;
-					msg << "Please remove: Second (!!) invalid string after parameter \"description\": \"" << results[result_index + 1] << "\"";
-					AddMessage(line, Message::TYPE_WARNING, msg.str());
-				}
-			}
-
-			result_index += 5;
-			if (_ParseOptionalInertia(command2.inertia, results, result_index))
-			{
-				result_index += 12;
+					result_index += 12;
 			
-				if (results[result_index].matched)
-				{
-					command2.affect_engine = STR_PARSE_REAL(results[result_index]);
-
-					result_index += 3;
 					if (results[result_index].matched)
 					{
-						command2.needs_engine = STR_PARSE_BOOL(results[result_index]);
+						command2.affect_engine = STR_PARSE_REAL(results[result_index]);
+
+						result_index += 3;
+						if (results[result_index].matched)
+						{
+							command2.needs_engine = STR_PARSE_BOOL(results[result_index]);
+						}
+					}
+				}
+			}
+			else if (format_version == 2)
+			{
+				result_index += 3;
+				if (results[result_index].matched)
+				{
+					std::string rest_of_line = results[result_index];
+					boost::smatch rest_of_results;
+					result_index = 0;
+					if (boost::regex_search(rest_of_line, rest_of_results, Regexes::SECTION_COMMANDS2_INERTIA_ENGINE_PART))
+					{
+						if (_ParseOptionalInertia(command2.inertia, rest_of_results, 2))
+						{
+							result_index += 12;
+			
+							if (rest_of_results[result_index].matched)
+							{
+								command2.affect_engine = STR_PARSE_REAL(rest_of_results[result_index]);
+
+								result_index += 3;
+								if (rest_of_results[result_index].matched)
+								{
+									command2.needs_engine = STR_PARSE_BOOL(rest_of_results[result_index]);
+								}
+							}
+						}
+					}
+					else
+					{
+						Ogre::StringUtil::trim(rest_of_line);
+						if (! rest_of_line.empty()) // Could happen with invalid trailing delimiter and I don't want to look like an idiot
+						{
+							std::stringstream msg;
+							msg << "Please remove: Invalid string after parameter \"description\": \"" << rest_of_line << "\""; 
+							AddMessage(line, Message::TYPE_WARNING, msg.str());
+						}
 					}
 				}
 			}
@@ -3838,7 +3862,7 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 	Ogre::String mode_str = results[3];
 	if (! boost::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
 	{
-		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter #2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
+		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter ~2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
 	}
 	else
 	{
@@ -4266,7 +4290,7 @@ void Parser::ParseRotators(Ogre::String const & line)
 			
 			float result = STR_PARSE_REAL(start_delay_str);
 			std::stringstream msg;
-			msg << "Invalid value of parameter #14 'inertia_start_delay': '" << start_delay_str 
+			msg << "Invalid value of parameter ~14 'inertia_start_delay': '" << start_delay_str 
 				<< "', parsing as '" << result << "' for backwards compatibility. Please fix.";
 			AddMessage(line, Message::TYPE_ERROR, msg.str());
 		}
@@ -4368,7 +4392,7 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 		AddMessage(
 			line, 
 			Message::TYPE_WARNING, 
-			"Inline-section 'fileinfo', parameter #3 'File version': Found real number, should be a decimal. Converting..."
+			"Inline-section 'fileinfo', parameter ~3 'File version': Found real number, should be a decimal. Converting..."
 		);
 		version = static_cast<int>(STR_PARSE_REAL(results[11]));
 	}
@@ -4789,7 +4813,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	int braking = STR_PARSE_INT(results[8]);
 	if (braking < 0 || braking > 4)
 	{
-		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter #7 (braking), using 0 (no braking)");
+		AddMessage(results[8], Message::TYPE_ERROR, "Invalid value of parameter ~7 (braking), using 0 (no braking)");
 		braking = 0;
 	}
 	mesh_wheel_2.braking = Wheels::Braking(braking);
@@ -4798,7 +4822,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	int propulsion = STR_PARSE_INT(results[9]);
 	if (propulsion < 0 || propulsion > 2)
 	{
-		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter #8 (propulsion), using 0 (no propulsion)");
+		AddMessage(results[9], Message::TYPE_ERROR, "Invalid value of parameter ~8 (propulsion), using 0 (no propulsion)");
 		braking = 0;
 	}
 	mesh_wheel_2.propulsion = Wheels::Propulsion(propulsion);
@@ -4829,7 +4853,7 @@ void Parser::ParseMaterialFlareBindings(Ogre::String const & line)
 	if (results[2].matched)
 	{
 		std::stringstream msg;
-		msg << "Invalid character(s) '" << results[2] << "' after parameter #1 'Flare index', ingoring...";
+		msg << "Invalid character(s) '" << results[2] << "' after parameter ~1 'Flare index', ingoring...";
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 	binding.material_name = results[4];
@@ -5054,9 +5078,16 @@ void Parser::ParseBeams(Ogre::String const & _line)
 			}
 			else
 			{
-				AddMessage(line, Message::TYPE_WARNING, "Invalid flag: " + flags_str[i]);
+				AddMessage(line, Message::TYPE_WARNING, std::string("Invalid flag: ") + flags_str[i]);
 			}
 		}
+	}
+
+	if (results[10].matched)
+	{
+		std::stringstream msg;
+		msg << "Please remove invalid trailing character(s): \"" << results[10] << "\"";
+		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
 	m_current_module->beams.push_back(beam);
