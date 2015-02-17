@@ -207,14 +207,21 @@ void RoRFrameListener::StartRaceTimer()
 
 float RoRFrameListener::StopRaceTimer()
 {
-	float time = static_cast<float>(rtime - m_race_start_time);
+	float time;
+
+	if (m_race_in_progress)
+	{
+		time = static_cast<float>(rtime - m_race_start_time);
+		m_race_bestlap_time = time;
+	}
+
 	// let the display on
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
 	if (ow)
 	{
 		wchar_t txt[256] = L"";
 		UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
-		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(time)) / 60, ((int)(time)) % 60, ((int)(time*100.0)) % 100);
+		swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(m_race_bestlap_time)) / 60, ((int)(m_race_bestlap_time)) % 60, ((int)(m_race_bestlap_time*100.0)) % 100);
 		ow->lasttime->setCaption(UTFString(txt));
 		//ow->m_racing_overlay->hide();
 		ow->laptimes->hide();
@@ -223,7 +230,7 @@ float RoRFrameListener::StopRaceTimer()
 	}
 	m_race_start_time = 0;
 	m_race_in_progress = false;
-	return time;
+	return m_race_bestlap_time;
 }
 
 void RoRFrameListener::UpdateRacingGui()
