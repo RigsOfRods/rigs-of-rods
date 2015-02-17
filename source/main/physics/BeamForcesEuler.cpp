@@ -44,36 +44,40 @@
 #include "Water.h"
 #include "TerrainManager.h"
 #include "VehicleAI.h"
+
 #include "microprofile.h"
 
 using namespace Ogre;
 using namespace RoR;
 
-void Actor::calcForcesEulerCompute(int step, int num_steps)
+const float dt = static_cast<float>(PHYSICS_DT);
+
+void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
-    MICROPROFILE_SCOPEI ("Actor", "calc Force sEuler Compute", MP_BLUE);
+    MICROPROFILE_SCOPEI ("Actor", "calc Forces Euler Compute", MP_BLUE);
 
-    const bool doUpdate = (step == 0);
-    const float dt = static_cast<float>(PHYSICS_DT);
-    IWater* water = App::GetSimTerrain()->getWater();
-    const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
-
+    if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
     this->CalcBeams(doUpdate);
+    this->UpdateSlideNodeForces(dt); // must be done before the integrator, or else the forces are not calculated properly
+    this->CalcNodes();
+    this->CalcAircraftForces(doUpdate);
+    this->CalcFuseDrag();
+    this->CalcBuoyance(doUpdate);
+    this->CalcAxles();
+    this->CalcWheels(doUpdate, num_steps);
+    this->CalcShocks(doUpdate, num_steps);
+    this->CalcHydros();
+    this->CalcCommands(doUpdate);
+    this->CalcTies();
+    this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
+    this->CalcMouse();
+    this->CalcForceFeedback(doUpdate);
+    this->CalcReplay();
+}
 
-    if (doUpdate)
-    {
-        //just call this once per frame to avoid performance impact
-        ToggleHooks(-2, HOOK_LOCK, -1);
-    }
-
-    //auto locks (scan just once per frame, need to use a timer)
-    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
-    {
-        //we need to do this here to avoid countdown speedup by triggers
-        it->hk_timer = std::max(0.0f, it->hk_timer - dt);
-    }
-
-    if (is_player_actor) //force feedback sensors
+void Actor::CalcForceFeedback(bool doUpdate)
+{
+    if (this == RoR::App::GetSimController()->GetPlayerActor())
     {
         if (doUpdate)
         {
@@ -94,34 +98,22 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             }
         }
     }
+}
 
-    //mouse stuff
+void Actor::CalcMouse()
+{
     if (m_mouse_grab_node != -1)
     {
         Vector3 dir = m_mouse_grab_pos - ar_nodes[m_mouse_grab_node].AbsPosition;
         ar_nodes[m_mouse_grab_node].Forces += m_mouse_grab_move_force * dir;
     }
+}
 
-    // START Slidenode section /////////////////////////////////////////////////
-    // these must be done before the integrator, or else the forces are not calculated properly
-    updateSlideNodeForces(dt);
-    // END Slidenode section   /////////////////////////////////////////////////
-
-    this->CalcNodes();
-    this->UpdateBoundingBoxes();
-
-    // anti-explosion guard
-    if (ar_bounding_box.getSize().length() > 200.0f * m_min_camera_radius)
-    {
-        ActorModifyRequest rq; // actor exploded, schedule reset
-        rq.amr_actor = this;
-        rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-        App::GetSimController()->QueueActorModify(rq);
-
-        m_ongoing_reset = true;
-
-        return; // return early to avoid propagating invalid values
-    }
+void Actor::CalcAircraftForces(bool doUpdate)
+{
+    //airbrake forces
+    for (int i = 0; i < ar_num_airbrakes; i++)
+        ar_airbrakes[i]->applyForce();
 
     //turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)
@@ -137,8 +129,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     for (int i = 0; i < ar_num_wings; i++)
         if (ar_wings[i].fa)
             ar_wings[i].fa->updateForces();
+}
 
-    //compute fuse drag
+void Actor::CalcFuseDrag()
+{
     if (m_fusealge_airfoil)
     {
         Vector3 wind = -m_fusealge_front->Velocity;
@@ -167,15 +161,11 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         //fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
         ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
     }
+}
 
-    //airbrakes
-    for (int i = 0; i < ar_num_airbrakes; i++)
-    {
-        ar_airbrakes[i]->applyForce();
-    }
-
-    //water buoyance
-    if (ar_num_buoycabs && water)
+void Actor::CalcBuoyance(bool doUpdate)
+{
+    if (ar_num_buoycabs && App::GetSimTerrain()->getWater())
     {
         for (int i = 0; i < ar_num_buoycabs; i++)
         {
@@ -183,7 +173,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             m_buoyance->computeNodeForce(&ar_nodes[ar_cabs[tmpv]], &ar_nodes[ar_cabs[tmpv + 1]], &ar_nodes[ar_cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
         }
     }
+}
 
+void Actor::CalcAxles()
+{
     // loop through all axles for inter axle torque, this is the torsion to keep
     // the axles aligned with each other as if they connected by a shaft
     for (int i = 1; i < m_num_axles; i++)
@@ -264,16 +257,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         ar_wheels[m_axles[i]->ax_wheel_1].wh_torque += diff_data.out_torque[0];
         ar_wheels[m_axles[i]->ax_wheel_2].wh_torque += diff_data.out_torque[1];
     }
+}
 
-    for (int i = 0; i < ar_num_wheels; i++)
-    {
-        if (ar_engine && ar_wheels[i].wh_propulsed)
-        {
-            // The torque scaling is required for backwards compatibility
-            ar_wheels[i].wh_torque += (m_has_axles_section ? 2.0f : 1.0f) * ar_engine->GetTorque() / m_num_proped_wheels;
-        }
-    }
-
+void Actor::CalcWheels(bool doUpdate, int num_steps)
+{
     // driving aids traction control & anti-lock brake pulse
     tc_timer += dt;
     alb_timer += dt;
@@ -305,6 +292,12 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_wheels[i].debug_slip = Vector3::ZERO;
             ar_wheels[i].debug_force = Vector3::ZERO;
             ar_wheels[i].debug_scaled_cforce = Vector3::ZERO;
+        }
+
+        if (ar_engine && ar_wheels[i].wh_propulsed)
+        {
+            // The torque scaling is required for backwards compatibility
+            ar_wheels[i].wh_torque += (m_has_axles_section ? 2.0f : 1.0f) * ar_engine->GetTorque() / m_num_proped_wheels;
         }
 
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
@@ -477,7 +470,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         ar_engine->SetWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
     }
 
-    if (step == num_steps)
+    if (doUpdate)
     {
         if (!m_antilockbrake)
         {
@@ -502,7 +495,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     float distance_driven = fabs(ar_wheel_speed * dt);
     m_odometer_total += distance_driven;
     m_odometer_user += distance_driven;
+}
 
+void Actor::CalcShocks(bool doUpdate, int num_steps)
+{
     //variable shocks for stabilization
     if (this->ar_has_active_shocks && m_stabilizer_shock_request)
     {
@@ -554,7 +550,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         else
             SOUND_STOP(ar_instance_id, SS_TRIG_AIR);
     }
+}
 
+void Actor::CalcHydros()
+{
     //direction
     if (ar_hydro_dir_state != 0 || ar_hydro_dir_command != 0)
     {
@@ -712,7 +711,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         int flagstate = hydrobeam.hb_anim_flags;
         if (flagstate)
         {
-            calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, hydrobeam.hb_anim_param);
+            this->CalcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, hydrobeam.hb_anim_param);
         }
 
         if (div)
@@ -739,8 +738,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_beams[beam_idx].L = hydrobeam.hb_ref_length * factor;
         }
     }
+}
 
-    // commands
+void Actor::CalcCommands(bool doUpdate)
+{
     if (m_has_command_beams)
     {
         int active = 0;
@@ -989,7 +990,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_engine->SetEnginePriming(requested);
         }
 
-        if (doUpdate && is_player_actor)
+        if (doUpdate && this == RoR::App::GetSimController()->GetPlayerActor())
         {
 #ifdef USE_OPENAL
             if (active > 0)
@@ -1049,7 +1050,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             }
         }
     }
+}
 
+void Actor::CalcTies()
+{
     // go through all ties and process them
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
@@ -1078,14 +1082,17 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             it->ti_tying = false;
         }
     }
-
-    // Should happen after the shocks / commands / engine triggers are updated
+}
+void Actor::CalcTruckEngine(bool doUpdate)
+{
     if (ar_engine)
     {
         ar_engine->UpdateEngineSim(dt, doUpdate);
     }
+}
 
-    // we also store a new replay frame
+void Actor::CalcReplay()
+{
     if (m_replay_handler && m_replay_handler->isValid())
     {
         m_replay_timer += dt;
@@ -1127,9 +1134,9 @@ bool Actor::CalcForcesEulerPrepare()
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
-    this->calcHooks();
-    this->calcRopes();
-    this->forwardCommands();
+    this->CalcHooks();
+    this->CalcRopes();
+    this->ForwardCommands();
     this->CalcBeamsInterActor();
 
     return true;
@@ -1162,9 +1169,7 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
 void Actor::CalcBeams(bool trigger_hooks)
 {
     MICROPROFILE_SCOPEI ("Actor", "Calc Beams", MP_BLUE);
-    const float dt = static_cast<float>(PHYSICS_DT);
 
-    // Springs
     for (int i = 0; i < ar_num_beams; i++)
     {
         if (!ar_beams[i].bm_disabled && !ar_beams[i].bm_inter_actor)
@@ -1214,7 +1219,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                 break;
 
             case SHOCK2:
-                calcShocks2(i, difftoBeamL, k, d, trigger_hooks);
+                this->CalcShocks2(i, difftoBeamL, k, d, trigger_hooks);
                 break;
 
             case SUPPORTBEAM:
@@ -1540,10 +1545,9 @@ void Actor::CalcBeamsInterActor()
 void Actor::CalcNodes()
 {
     MICROPROFILE_SCOPEI ("Actor", "Calc Nodes", MP_BLUE1);
-    const float dt = static_cast<float>(PHYSICS_DT);
-    IWater* water = App::GetSimTerrain()->getWater();
-    const float gravity = App::GetSimTerrain()->getGravity();
 
+    const auto water = App::GetSimTerrain()->getWater();
+    const float gravity = App::GetSimTerrain()->getGravity();
     m_water_contact = false;
 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1626,9 +1630,21 @@ void Actor::CalcNodes()
             ar_nodes[i].nd_under_water = is_under_water;
         }
     }
+
+    this->UpdateBoundingBoxes();
+
+    // anti-explsion guard
+    if (ar_bounding_box.getSize().length() > 200.0f * m_min_camera_radius)
+    {
+        ActorModifyRequest rq; // actor exploded, schedule reset
+        rq.amr_actor = this;
+        rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+        App::GetSimController()->QueueActorModify(rq);
+        m_ongoing_reset = true;
+    }
 }
 
-void Actor::forwardCommands()
+void Actor::ForwardCommands()
 {
     Actor* current_truck = RoR::App::GetSimController()->GetPlayerActor();
     auto bf = RoR::App::GetSimController()->GetBeamFactory();
@@ -1667,11 +1683,14 @@ void Actor::forwardCommands()
     }
 }
 
-void Actor::calcHooks()
+void Actor::CalcHooks()
 {
     //locks - this is not active in network mode
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
+        //we need to do this here to avoid countdown speedup by triggers
+        it->hk_timer = std::max(0.0f, it->hk_timer - dt);
+
         if (it->hk_lock_node && it->hk_locked == PRELOCK)
         {
             if (it->hk_beam->bm_disabled)
@@ -1737,7 +1756,7 @@ void Actor::calcHooks()
     }
 }
 
-void Actor::calcRopes()
+void Actor::CalcRopes()
 {
     if (ar_ropes.size())
     {
