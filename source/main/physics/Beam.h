@@ -102,7 +102,7 @@ public:
     void              ToggleTractionControl();             //!< Event handler
     void              ToggleCruiseControl();               //!< Event handler
     void              ToggleBeacons();                     //!< Event handler
-    void              forwardCommands();
+    void              ForwardCommands();
     void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
     int               savePosition(int position);
     int               loadPosition(int position);
@@ -155,8 +155,6 @@ public:
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
-    bool              CalcForcesEulerPrepare();            //!< A single physics step (see PHYSICS_DT)
-    void              calcForcesEulerCompute(int step, int num_steps); //!< TIGHT LOOP; Physics;
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
@@ -363,13 +361,33 @@ public:
 
 private:
 
-    void              CalcBeams(bool trigger_hooks);       //!< Single physics step (see PHYSICS_DT); Physics & sound;
-    void              CalcBeamsInterActor();               //!< Physics (1 step) & sound - only beams between multiple actors (noshock or ropes)
-    void              CalcNodes();                         //!< Single physics step (see PHYSICS_DT)
-    void              calcHooks();                         //!< TIGHT LOOP; Physics;
-    void              calcRopes();                         //!< TIGHT LOOP; Physics;
-    void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, bool update_hooks);
-    void              calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
+    bool              CalcForcesEulerPrepare();            //!< TIGHT LOOP; Physics;
+    void              CalcAircraftForces(bool doUpdate);   //!< TIGHT LOOP; Physics;
+    void              CalcAnimatedProps(bool doUpdate);    //!< TIGHT LOOP; Physics;
+    void              CalcForcesEulerCompute(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
+    void              CalcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3); //!< TIGHT LOOP; Physics;
+    void              CalcAxles(bool doUpdate);            //!< TIGHT LOOP; Physics;
+    void              CalcBeams(bool trigger_hooks);       //!< TIGHT LOOP; Physics;
+    void              CalcBeamsInterActor();               //!< TIGHT LOOP; Physics;
+    void              CalcBuoyance(bool doUpdate);         //!< TIGHT LOOP; Physics;
+    void              CalcCommands(bool doUpdate);         //!< TIGHT LOOP; Physics;
+    void              CalcForceFeedback(bool doUpdate);    //!< TIGHT LOOP; Physics;
+    void              CalcFuseDrag();                      //!< TIGHT LOOP; Physics;
+    void              CalcHooks();                         //!< TIGHT LOOP; Physics;
+    void              CalcHooks(bool doUpdate);            //!< TIGHT LOOP; Physics;
+    void              CalcHydros();                        //!< TIGHT LOOP; Physics;
+    void              CalcMouse();                         //!< TIGHT LOOP; Physics;
+    void              CalcNodes();                         //!< TIGHT LOOP; Physics;
+    void              CalcReplay();                        //!< TIGHT LOOP; Physics;
+    void              CalcRopes();                         //!< TIGHT LOOP; Physics;
+    void              CalcShocks(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
+    void              CalcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, bool update_hooks);
+    void              CalcSlideNodes();                    //!< TIGHT LOOP; Physics;
+    void              CalcTies();                          //!< TIGHT LOOP; Physics;
+    void              CalcTruckEngine(bool doUpdate);      //!< TIGHT LOOP; Physics;
+    void              CalcAxles();                         //!< TIGHT LOOP; Physics;
+    void              CalcWheels(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
+
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
@@ -378,7 +396,7 @@ private:
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
     void              sendStreamSetup();
-    void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
+    void              UpdateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes

@@ -1061,7 +1061,7 @@ void ActorManager::UpdatePhysicsSimulation()
                 {
                     auto func = std::function<void()>([this, i, actor]()
                         {
-                            actor->calcForcesEulerCompute(i, m_physics_steps);
+                            actor->CalcForcesEulerCompute(i == 0, m_physics_steps);
                             if (!actor->ar_disable_self_collision)
                             {
                                 actor->IntraPointCD()->UpdateIntraPoint(actor);

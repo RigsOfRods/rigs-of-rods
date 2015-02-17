@@ -1718,7 +1718,7 @@ void Actor::receiveStreamData(unsigned int type, int source, unsigned int stream
     }
 }
 
-void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
+void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
 {
     // ## DEV NOTE:
     // ## Until 06/2018, this function was used for both animator-beams (physics, part of softbody) and animated props (visual-only).
@@ -2141,7 +2141,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 }
 
-void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool trigger_hooks)
+void Actor::CalcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool trigger_hooks)
 {
     if (!ar_beams[beam_i].shock)
         return;
