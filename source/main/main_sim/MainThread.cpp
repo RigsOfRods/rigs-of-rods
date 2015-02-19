@@ -241,6 +241,7 @@ void MainThread::Go()
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
 
+#ifdef _WIN32
 	// force feedback
 	if (BSETTING("Force Feedback", true))
 	{
@@ -256,6 +257,7 @@ void MainThread::Go()
 			gEnv->frameListener->forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
 		}
 	}
+#endif // _WIN32
 
 	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
 	if     (screenshotFormatString == "jpg (smaller, default)")
