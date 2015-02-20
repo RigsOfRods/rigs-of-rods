@@ -193,11 +193,12 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		float health = ((float)beambroken / (float)beamCount) * 10.0f + ((float)beamdeformed / (float)beamCount);
 		if (health < 1.0f)
 		{
-			truckstats = truckstats + MainThemeColor + "Vehicule's health: " + WhiteColor + TOUTFSTRING(Round((1.0f - health) * 100.0f, 2)) + U("%") + "\n";
+			truckstats = truckstats + MainThemeColor + "Vehicle's health: " + WhiteColor + TOUTFSTRING(Round((1.0f - health) * 100.0f, 2)) + U("%") + "\n";
 		}
 		else if (health >= 1.0f)
 		{
-			truckstats = truckstats + MainThemeColor + "Vehicule's destruction: " + WhiteColor + TOUTFSTRING(Round(health * 100.0f, 2)) + U("%") + "\n";
+			//When this condition is true, it means that health is at 0% which means 100% of destruction.
+			truckstats = truckstats + MainThemeColor + "Vehicle's destruction: " + WhiteColor + U("100%") + "\n";
 		}
 
 		truckstats = truckstats + MainThemeColor + "Beam count: " + WhiteColor + TOUTFSTRING(beamCount) + "\n";
