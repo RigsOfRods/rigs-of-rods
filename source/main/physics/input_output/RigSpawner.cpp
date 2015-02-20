@@ -998,7 +998,7 @@ void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 		GetNodeIndexOrThrow(def.blade_tip_nodes[2]),
 		GetNodeIndexOrThrow(def.blade_tip_nodes[3]),
 		couple_node_index,
-		true,
+		false,
 		def.airfoil,
 		def.turbine_power_kW,
 		def.pitch
