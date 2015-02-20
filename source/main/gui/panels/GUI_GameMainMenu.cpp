@@ -52,13 +52,16 @@ CLASS::CLASS()
 {
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 
-	m_single_player->eventMouseButtonClick      += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSelectTerrainButton);
-	m_rig_editor->eventMouseButtonClick    += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
-	m_settings->eventMouseButtonClick     += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSettingButton);
-	m_about->eventMouseButtonClick        += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
-	m_exit->eventMouseButtonClick        += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
-	m_multi_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
+	m_single_player->eventMouseButtonClick	 += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSelectTerrainButton);
+	m_rig_editor->eventMouseButtonClick		 += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
+	m_settings->eventMouseButtonClick		 += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSettingButton);
+	m_about->eventMouseButtonClick			 += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
+	m_exit->eventMouseButtonClick			 += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
+	m_multi_player->eventMouseButtonClick	 += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
 	win->setMovable(false);
+
+	if (!BSETTING("DevMode", false))
+		m_multi_player->setEnabled(false);
 
 	Hide();
 }
