@@ -58,10 +58,10 @@ public:
 	Ogre::Light *getMainLight() { return main_light; };
 	Ogre::Vector3 getSpawnPos() { return start_position; };
 
-	SkyManager *getSkyManager() 
+	CaelumManager *getCaelumManager() 
 	{ 
 		if (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED)
-			return sky_manager;
+			return caelum_manager;
 		else
 			return nullptr;
 	};
@@ -90,7 +90,7 @@ protected:
 	HDRListener *hdr_listener;
 	SurveyMapManager *survey_map;
 	ShadowManager *shadow_manager;
-	SkyManager *sky_manager;
+	CaelumManager *caelum_manager;
 	TerrainGeometryManager *geometry_manager;
 	TerrainObjectManager *object_manager;
 	IWater *water;

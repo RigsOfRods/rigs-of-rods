@@ -77,7 +77,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TruckHUD.h"
@@ -820,21 +820,21 @@ bool RoRFrameListener::updateEvents(float dt)
 			Real multiplier = 10;
 			bool update_time = false;
 
-			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_INCREASE_TIME) && gEnv->terrainManager->getSkyManager())
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_INCREASE_TIME) && gEnv->terrainManager->getCaelumManager())
 			{
 				update_time = true;
 			}
-			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_INCREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
+			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_INCREASE_TIME_FAST) && gEnv->terrainManager->getCaelumManager())
 			{
 				time_factor *= multiplier;
 				update_time = true;
 			}
-			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_DECREASE_TIME) && gEnv->terrainManager->getSkyManager())
+			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_DECREASE_TIME) && gEnv->terrainManager->getCaelumManager())
 			{
 				time_factor = -time_factor;
 				update_time = true;
 			}
-			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_DECREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
+			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_DECREASE_TIME_FAST) && gEnv->terrainManager->getCaelumManager())
 			{
 				time_factor *= -multiplier;
 				update_time = true;
@@ -842,15 +842,15 @@ bool RoRFrameListener::updateEvents(float dt)
 			else
 			{
 				time_factor = 1.0f;
-				update_time = gEnv->terrainManager->getSkyManager()->getTimeFactor() != 1.0f;
+				update_time = gEnv->terrainManager->getCaelumManager()->getTimeFactor() != 1.0f;
 			}
 
 			if ( update_time )
 			{
-				gEnv->terrainManager->getSkyManager()->setTimeFactor(time_factor);
+				gEnv->terrainManager->getCaelumManager()->setTimeFactor(time_factor);
 #ifdef USE_MYGUI
-				RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime());
-				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime(), "weather_sun.png", 1000);
+				RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getCaelumManager()->getPrettyTime());
+				RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getCaelumManager()->getPrettyTime(), "weather_sun.png", 1000);
 #endif // USE_MYGUI
 			}
 		}
@@ -1361,7 +1361,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 		// trigger updating of shadows etc
 #ifdef USE_CAELUM
-		SkyManager *sky = gEnv->terrainManager->getSkyManager();
+		CaelumManager *sky = gEnv->terrainManager->getCaelumManager();
 		if (sky && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
 			sky->detectUpdate();
 #endif

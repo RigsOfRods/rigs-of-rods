@@ -24,7 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformUtils.h"
 #include "RoRWindowEventUtilities.h"
 #include "Settings.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 #include "Utils.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
@@ -258,7 +258,7 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 	if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
 	{
 		gEnv->sky->notifyCameraChanged(renderCamera);
-//		gEnv->terrainManager->getSkyManager()->forceUpdate(0.01f);
+//		gEnv->terrainManager->getCaelumManager()->forceUpdate(0.01f);
 	}
 #endif // USE_CAELUM
 

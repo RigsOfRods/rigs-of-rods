@@ -69,7 +69,7 @@
 #include "TerrainManager.h"
 #include "TruckHUD.h"
 #include "Utils.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 
 #include <OgreRoot.h>
 #include <OgreString.h>

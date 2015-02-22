@@ -34,7 +34,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
@@ -55,7 +55,7 @@ TerrainManager::TerrainManager() :
 	, hdr_listener(0)
 	, object_manager(0)
 	, shadow_manager(0)
-	, sky_manager(0)
+	, caelum_manager(0)
 	, survey_map(0)
 	, water(0)
 	, authors()
@@ -85,11 +85,11 @@ TerrainManager::~TerrainManager()
 
 	//I think that the order is important
 
-	if (sky_manager != nullptr)
+	if (caelum_manager != nullptr)
 	{
-		delete(sky_manager);
+		delete(caelum_manager);
 		gEnv->sky = nullptr;
-		sky_manager = nullptr;
+		caelum_manager = nullptr;
 	}
 
 	if (main_light != nullptr)
@@ -349,8 +349,8 @@ void TerrainManager::initSkySubSystem()
 	// Caelum skies
 	if (use_caelum)
 	{
-		sky_manager = new SkyManager();
-		gEnv->sky = sky_manager;
+		caelum_manager = new CaelumManager();
+		gEnv->sky = caelum_manager;
 
 		// try to load caelum config
 		String caelumConfig = m_terrain_config.getSetting("CaelumConfigFile", "General");
@@ -360,11 +360,11 @@ void TerrainManager::initSkySubSystem()
 			// config provided and existing, use it :)
 			int caelumFogStart = StringConverter::parseInt(m_terrain_config.getSetting("CaelumFogStart", "General"),-1);
 			int caelumFogEnd = StringConverter::parseInt(m_terrain_config.getSetting("CaelumFogEnd", "General"),-1);
-			sky_manager->loadScript(caelumConfig, caelumFogStart, caelumFogEnd);
+			caelum_manager->loadScript(caelumConfig, caelumFogStart, caelumFogEnd);
 		} else
 		{
 			// no config provided, fall back to the default one
-			sky_manager->loadScript("ror_default_sky");
+			caelum_manager->loadScript("ror_default_sky");
 		}
 
 	} else
@@ -389,7 +389,7 @@ void TerrainManager::initLight()
 	if (use_caelum)
 	{
 #ifdef USE_CAELUM
-		main_light = sky_manager->getMainLight();
+		main_light = caelum_manager->getMainLight();
 #endif
 	} else
 	{

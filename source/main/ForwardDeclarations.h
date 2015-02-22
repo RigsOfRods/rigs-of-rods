@@ -157,7 +157,7 @@ class ScopeLog;
 class Screwprop;
 class Skidmark;
 class Skin;
-class SkyManager;
+class CaelumManager;
 class SlideNode;
 class ShadowManager;
 class SoundManager;

@@ -22,7 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Beam.h"
 #include "Ogre.h"
 #include "Settings.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
@@ -256,9 +256,9 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 		// caelum needs to know that we changed the cameras
 	#ifdef USE_CAELUM
 		
-		if (gEnv->terrainManager->getSkyManager())
+		if (gEnv->terrainManager->getCaelumManager())
 		{
-			gEnv->terrainManager->getSkyManager()->notifyCameraChanged(mCameras[mRound]);
+			gEnv->terrainManager->getCaelumManager()->notifyCameraChanged(mCameras[mRound]);
 		}
 	#endif // USE_CAELUM
 		mRenderTargets[mRound]->update();
@@ -266,9 +266,9 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 	}
 #ifdef USE_CAELUM
 	
-	if (gEnv->terrainManager->getSkyManager())
+	if (gEnv->terrainManager->getCaelumManager())
 	{
-		gEnv->terrainManager->getSkyManager()->notifyCameraChanged(gEnv->mainCamera);
+		gEnv->terrainManager->getCaelumManager()->notifyCameraChanged(gEnv->mainCamera);
 	}
 #endif // USE_CAELUM
 

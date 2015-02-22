@@ -51,7 +51,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "Settings.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
@@ -122,7 +122,7 @@ String GameScript::getCaelumTime()
 {
 	String result = "";
 #ifdef USE_CAELUM
-	if (gEnv->terrainManager) result = gEnv->terrainManager->getSkyManager()->getPrettyTime();
+	if (gEnv->terrainManager) result = gEnv->terrainManager->getCaelumManager()->getPrettyTime();
 #endif // USE_CAELUM
 	return result;
 }
@@ -130,7 +130,7 @@ String GameScript::getCaelumTime()
 void GameScript::setCaelumTime(float value)
 {
 #ifdef USE_CAELUM
-	if (gEnv->terrainManager) gEnv->terrainManager->getSkyManager()->setTimeFactor(value);
+	if (gEnv->terrainManager) gEnv->terrainManager->getCaelumManager()->setTimeFactor(value);
 #endif // USE_CAELUM
 }
 
@@ -138,7 +138,7 @@ bool GameScript::getCaelumAvailable()
 {
 	bool result = false;
 #ifdef USE_CAELUM
-	if (gEnv->terrainManager) result = gEnv->terrainManager->getSkyManager() != 0;
+	if (gEnv->terrainManager) result = gEnv->terrainManager->getCaelumManager() != 0;
 #endif // USE_CAELUM
 	return result;
 }

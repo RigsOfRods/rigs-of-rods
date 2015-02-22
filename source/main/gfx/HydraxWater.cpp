@@ -27,7 +27,7 @@ Based on HydraxWater.cpp/.h
 #include "Application.h"
 #include "OgreSubsystem.h"
 #include "Settings.h"
-#include "SkyManager.h"
+#include "CaelumManager.h"
 
 #include <Caelum.h>
 

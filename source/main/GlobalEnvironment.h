@@ -52,7 +52,7 @@ public:
 	SurveyMapManager *surveyMap;
 	Network *network;
 	RoRFrameListener *frameListener;
-	SkyManager *sky;
+	CaelumManager *sky;
 	TerrainManager *terrainManager;
 	ThreadPool *threadPool;
 
