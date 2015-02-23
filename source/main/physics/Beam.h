@@ -557,7 +557,7 @@ protected:
 	* TIGHT LOOP; Physics; 
 	* @param doUpdate Unused (overwritten in function)
 	*/
-	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_inde, int chunk_number);
+	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number);
 
 	/**
 	* TIGHT LOOP; Physics; 

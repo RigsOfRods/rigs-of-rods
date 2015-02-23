@@ -1668,7 +1668,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 #else
 	if (free_beam < 100)
 	{
-		calcBeams(doUpdate, dt, step, maxstepss, 0, 1);
+		calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
 	} else
 	{
 		runThreadTask(this, THREAD_BEAMS, true);
@@ -1702,7 +1702,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	watercontact = false;
 
 	#if !NODES_INTRA_TRUCK_PARALLEL
-		calcNodes(doUpdate, dt, step, maxstepss, 0, 1);
+		calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
 	#else
 		runThreadTask(this, THREAD_NODES, true);
 	#endif
