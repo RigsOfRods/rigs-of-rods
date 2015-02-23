@@ -75,6 +75,7 @@ protected:
 
 	unsigned long      m_race_start_time;
 	bool               m_race_in_progress;
+	float			   m_race_bestlap_time;
 
 	bool dirvisible;
 	bool enablePosStor;
