@@ -30,6 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgreTimer.h>
 #include <OgreOverlayElement.h>
+#include <vector>
 
 /** 
 * Represents an entire rig (any vehicle type)
@@ -294,6 +295,36 @@ public:
 	bool left_blink_on, right_blink_on, warn_blink_on;
 	//! @}
 
+	
+	//! @{ calc forces euler division
+	void calcTruckEngine(bool doUpdate, Ogre::Real dt);
+	void calcBeams(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
+	void calcAnimatedProps(bool doUpdate, Ogre::Real dt);
+	void calcHooks(bool doUpdate);
+	void calcForceFeedBack(bool doUpdate);
+	void calcMouse();
+	void calcNodes_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
+	void calcSlideNodes(Ogre::Real dt);
+	void calcTurboProp(bool doUpdate, Ogre::Real dt);
+	void calcScrewProp(bool doUpdate);
+	void calcWing();
+	void calcFuseDrag();
+	void calcAirBrakes();
+	void calcBuoyance(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
+	void calcAxles(bool doUpdate, Ogre::Real dt);
+	void calcWheels(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
+	void calcShocks(bool doUpdate, Ogre::Real dt);
+	void calcHydros(bool doUpdate, Ogre::Real dt);
+	void calcCommands(bool doUpdate, Ogre::Real dt);
+	void calcReplay(bool doUpdate, Ogre::Real dt);
+	//! @}
+	
+	//! @{ helper routines
+
+	void calcBeam(beam_t& beam, bool doUpdate, Ogre::Real dt, int& increased_accuracy);
+	//! @}
+	
+	
 	/* functions to be sorted */
 	Ogre::Quaternion specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
 	Ogre::String getAxleLockName();	//! get the name of the current differential model
@@ -526,7 +557,7 @@ protected:
 	* TIGHT LOOP; Physics; 
 	* @param doUpdate Unused (overwritten in function)
 	*/
-	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number);
 
 	/**
 	* TIGHT LOOP; Physics; 
@@ -692,7 +723,6 @@ protected:
 	//! true if SlideNodes are locked, false if not
 	bool SlideNodesLocked;
 	bool GUIFeaturesChanged;
-
 
 	/**
 	 * calculate and apply Corrective forces
