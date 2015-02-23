@@ -115,6 +115,8 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 
 bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg)
 {
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true;
+
 	const OIS::MouseState ms = _arg.state;
 
 	gEnv->mainCamera->yaw(Degree(-ms.X.rel * 0.13f));
