@@ -298,7 +298,7 @@ public:
 	
 	//! @{ calc forces euler division
 	void calcTruckEngine(bool doUpdate, Ogre::Real dt);
-	void calcBeams_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
+	void calcBeams(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
 	void calcAnimatedProps(bool doUpdate, Ogre::Real dt);
 	void calcHooks(bool doUpdate);
 	void calcForceFeedBack(bool doUpdate);
@@ -557,7 +557,7 @@ protected:
 	* TIGHT LOOP; Physics; 
 	* @param doUpdate Unused (overwritten in function)
 	*/
-	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_inde, int chunk_number);
 
 	/**
 	* TIGHT LOOP; Physics; 
