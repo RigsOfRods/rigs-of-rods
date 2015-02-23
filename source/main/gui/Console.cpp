@@ -36,12 +36,12 @@
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
-#include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "Utils.h"
 #include "RoRVersion.h"
 #include "IWater.h"
+#include "Scripting.h"
 
 #include <boost/lexical_cast.hpp>
 

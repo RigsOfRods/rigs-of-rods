@@ -57,7 +57,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Replay.h"
 #include "RigSpawner.h"
 #include "ScrewProp.h"
-#include "Scripting.h"
 #include "Settings.h"
 #include "Skidmark.h"
 #include "SlideNode.h"
@@ -68,6 +67,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboProp.h"
 #include "Water.h"
 #include "GUIManager.h"
+#include "Scripting.h"
 
 // DEBUG UTILITY
 //#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"

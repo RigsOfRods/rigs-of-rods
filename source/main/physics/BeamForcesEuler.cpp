@@ -55,33 +55,33 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	calcTruckEngine(doUpdate, dt);
 
 	// calc
-	calcBeams(doUpdate, dt, step, maxsteps);
+	calcBeams((bool)doUpdate, dt, step, maxsteps);
 
 	// not related to physics
-	calcAnimatedProps(doUpdate, dt);
+	calcAnimatedProps((bool)doUpdate, dt);
 
 	calcMouse();
 
-	calcTurboProp(doUpdate, dt);
-	calcScrewProp(doUpdate);
+	calcTurboProp((bool)doUpdate, dt);
+	calcScrewProp((bool)doUpdate);
 	calcWing();
 	calcFuseDrag();
 	calcAirBrakes();
-	calcBuoyance(doUpdate, dt, step, maxsteps);
+	calcBuoyance((bool)doUpdate, dt, step, maxsteps);
 
 
-	calcAxles(doUpdate, dt);
-	calcWheels(doUpdate, dt, step, maxsteps);
-	calcShocks(doUpdate, dt);
+	calcAxles((bool)doUpdate, dt);
+	calcWheels((bool)doUpdate, dt, step, maxsteps);
+	calcShocks((bool)doUpdate, dt);
 
-	calcHydros(doUpdate, dt);
-	calcCommands(doUpdate, dt);
+	calcHydros((bool)doUpdate, dt);
+	calcCommands((bool)doUpdate, dt);
 
 	// integration, most likely this needs to be done after all the
 	// forces have been calculated other wise, forces might linger
-	calcNodes_(doUpdate, dt, step, maxsteps);
+	calcNodes_((bool)doUpdate, dt, step, maxsteps);
 
-	calcReplay(doUpdate, dt);
+	calcReplay((bool)doUpdate, dt);
 	BES_STOP(BES_CORE_WholeTruckCalc);
 }
 

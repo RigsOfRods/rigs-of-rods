@@ -74,7 +74,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SceneMouse.h"
 #include "ScopeLog.h"
 #include "ScrewProp.h"
-#include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
 #include "CaelumManager.h"
@@ -86,6 +85,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "VideoCamera.h"
 #include "Water.h"
 #include "WriteTextToTexture.h"
+#include "Scripting.h"
 
 #ifdef USE_MYGUI
 #include "GUIManager.h"

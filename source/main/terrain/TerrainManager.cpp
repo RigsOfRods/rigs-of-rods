@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
-#include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
 #include "CaelumManager.h"
@@ -42,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Water.h"
 #include "OgreTerrainPaging.h"
+#include "Scripting.h"
 
 using namespace Ogre;
 

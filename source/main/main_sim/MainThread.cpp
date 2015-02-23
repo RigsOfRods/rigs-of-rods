@@ -61,7 +61,6 @@
 #include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
 #include "ScriptEngine.h"
-#include "Scripting.h"
 #include "Settings.h"
 #include "Skin.h"
 #include "SoundScriptManager.h"
@@ -70,6 +69,7 @@
 #include "TruckHUD.h"
 #include "Utils.h"
 #include "CaelumManager.h"
+#include "Scripting.h"
 
 #include <OgreRoot.h>
 #include <OgreString.h>

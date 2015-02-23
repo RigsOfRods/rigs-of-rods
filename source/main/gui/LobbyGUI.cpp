@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "LobbyGUI.h"
-#include "Scripting.h"
 #include "InputEngine.h"
 
 using namespace Ogre;
