@@ -820,21 +820,21 @@ bool RoRFrameListener::updateEvents(float dt)
 			Real multiplier = 10;
 			bool update_time = false;
 
-			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_INCREASE_TIME) && gEnv->terrainManager->getSkyManager())
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME) && gEnv->terrainManager->getSkyManager())
 			{
 				update_time = true;
 			}
-			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_INCREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
+			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
 			{
 				time_factor *= multiplier;
 				update_time = true;
 			}
-			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_DECREASE_TIME) && gEnv->terrainManager->getSkyManager())
+			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME) && gEnv->terrainManager->getSkyManager())
 			{
 				time_factor = -time_factor;
 				update_time = true;
 			}
-			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAELUM_DECREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
+			else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
 			{
 				time_factor *= -multiplier;
 				update_time = true;
