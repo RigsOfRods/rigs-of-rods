@@ -46,6 +46,7 @@
 #include "GUI_MainSelector.h"
 #include "GUI_GamePauseMenu.h"
 #include "GUI_GameChatBox.h"
+#include "GUI_VehicleDescription.h"
 
 namespace RoR
 {
@@ -105,6 +106,8 @@ public:
 
 	bool GetPauseMenuVisible();
 
+	void ShowVehicleDescription();
+
 	virtual void UnfocusGui();
 
 	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
@@ -144,7 +147,8 @@ private:
 	std::shared_ptr<GUI::MainSelector>		m_gui_MainSelector;
 	std::shared_ptr<GUI::GameChatBox>		m_gui_ChatBox;
 	std::unique_ptr<GUI::RigSpawnerReportWindow> m_rig_spawner_report_window;
-	
+	std::unique_ptr<GUI::VehicleDescription> m_vehicle_description;
+
 	bool isSimUtilsVisible;
 };
 

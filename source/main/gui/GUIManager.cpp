@@ -465,3 +465,11 @@ void GUIManager::SetNetChat(ChatSystem *c)
 
 	m_gui_ChatBox->setNetChat(c);
 }
+
+void GUIManager::ShowVehicleDescription()
+{
+	if (m_vehicle_description.get() == nullptr)
+		m_vehicle_description = std::unique_ptr<GUI::VehicleDescription>(new GUI::VehicleDescription());
+
+	m_vehicle_description->Show();
+}
