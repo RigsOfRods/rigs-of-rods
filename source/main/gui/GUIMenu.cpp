@@ -74,6 +74,7 @@ GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 	p->setPopupAccept(true);
 	
 	p->addItem(_L("Get new vehicle"),                 MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Show vehicle description"),		  MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Reload current vehicle"),          MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Remove current vehicle"),          MyGUI::MenuItemType::Normal);
 
@@ -456,6 +457,10 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	else if (miname == _L("Debug Options"))
 	{
 		Application::GetGuiManager()->ShowDebugOptionsGUI(true);
+	}
+	else if (miname == _L("Show vehicle description"))
+	{
+		Application::GetGuiManager()->ShowVehicleDescription();
 	}
 	else if (id == "rig-editor-enter")
 	{

@@ -7,17 +7,17 @@
 // Do not modify this code directly. Create a derived class instead.
 // ----------------------------------------------------------------------------
 
-#include "GUI_TerrainSelectorLayout.h"
+#include "GUI_VehicleDescriptionLayout.h"
 
 using namespace RoR;
 using namespace GUI;
 
-TerrainSelectorLayout::TerrainSelectorLayout(MyGUI::Widget* _parent)
+VehicleDescriptionLayout::VehicleDescriptionLayout(MyGUI::Widget* _parent)
 {
 	initialiseByAttributes(this, _parent);
 }
 
-TerrainSelectorLayout::~TerrainSelectorLayout()
+VehicleDescriptionLayout::~VehicleDescriptionLayout()
 {
 }
 
