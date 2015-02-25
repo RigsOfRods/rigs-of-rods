@@ -43,6 +43,7 @@
 
 #include "AeroEngine.h"
 #include "BeamEngine.h"
+#include "ScrewProp.h"
 
 #include <MyGUI.h>
 #include <OgreRenderTarget.h>
@@ -222,7 +223,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		wchar_t truckmassstr[256];
 		Ogre::UTFString massstr;
 		swprintf(truckmassstr, 256, L"%ls %8.2f kg (%.2f tons)", massstr.asWStr_c_str(), mass, mass / 1000.0f);
-		truckstats = truckstats + MainThemeColor + "Current mass: " + WhiteColor + Ogre::UTFString(truckmassstr) + "\n";
+		truckstats = truckstats + MainThemeColor + "Total mass: " + WhiteColor + Ogre::UTFString(truckmassstr) + "\n";
 
 		truckstats = truckstats + "\n"; //Some space
 
@@ -264,7 +265,9 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		}
 		else 
 		{
-			truckstats = truckstats + MainThemeColor + "Current Speed: " + WhiteColor + TOUTFSTRING(Round(truck->nodes[0].Velocity.length() * 1.94384449f)) + U(" kn") + "\n";
+			float speedKN = truck->nodes[0].Velocity.length() * 1.94384449f;
+			truckstats = truckstats + MainThemeColor + "Current Speed: " + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
+			float altitude = truck->nodes[0].AbsPosition.y * 1.1811f;
 			if (truck->driveable == AIRPLANE)
 			{
 				for (int i = 0; i < 8; i++)
@@ -274,12 +277,16 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 					else if (truck->aeroengines[i] && truck->aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 						truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + " RPM" + "\n";
 				}
-				float altitude = truck->nodes[0].AbsPosition.y * 1.1811f;
 				truckstats = truckstats + MainThemeColor + "Altitude: " + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" meters") + "\n";
 			}
 			else if(truck->driveable == BOAT)
 			{
-				//To be honnest, i forgot what i was going to put here.
+				truckstats = truckstats + MainThemeColor + "Depth: " + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" meters") + "\n";
+				for (int i = 0; i < 8; i++)
+				{
+					if (truck->screwprops[i])
+						truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->screwprops[i]->getThrottle() *100 )) + "%" + "\n";
+				}
 			}
 				
 		}
