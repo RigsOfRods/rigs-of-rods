@@ -57,13 +57,11 @@ public:
 	void update();
 	void updateReflectionPlane(float h);
 
-	bool isUnderWater();
-	void InitComponents();
-
 	Hydrax::Hydrax* GetHydrax() { return mHydrax; }
 
 protected:
-	bool CreateHydrax();
+
+	void InitHydrax();
 	Hydrax::Hydrax *mHydrax;
 	float waveHeight;
 	float waterHeight;
