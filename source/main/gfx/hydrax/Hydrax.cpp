@@ -63,7 +63,7 @@ namespace Hydrax
             , mCausticsEnd(0.55)
 			, mGodRaysExposure(Ogre::Vector3(0.76,2.46,2.29))
 			, mGodRaysIntensity(0.015)
-			, mUnderwaterCameraSwitchDelta(1.25f)
+			, mUnderwaterCameraSwitchDelta(0.1f)
 			, mCurrentFrameUnderwater(false)
             , mMesh(new Mesh(this))
 			, mMaterialManager(new MaterialManager(this))

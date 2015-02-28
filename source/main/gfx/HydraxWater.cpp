@@ -38,44 +38,28 @@ HydraxWater::HydraxWater(const Ogre::ConfigFile &mTerrainConfig, Ogre::String co
 waternoise(0)
 , mHydrax(0)
 , waterHeight(5)
+, waveHeight(0)
+, mRenderCamera(gEnv->mainCamera)
+, CurrentConfigFile(configFile)
 {
-	CurrentConfigFile = configFile;
-	mRenderCamera = gEnv->mainCamera;
-	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
-	waveHeight = 0;
 	waterHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));
 	haswaves = BSETTING("Waves", false);
-	InitComponents();
-	CreateHydrax();
+
+	mRenderCamera->setNearClipDistance(0.1f);
+
+	InitHydrax();
 }
 
 HydraxWater::~HydraxWater()
 {
-	//delete(waternoise);
-	//waternoise = nullptr;
-	//delete(mModule);
-	//mModule = nullptr;
 	mHydrax->remove();
-	//delete(mHydrax);
 	mHydrax = nullptr;
-
-	waveHeight = 0;
-	waterHeight = 0;
-	haswaves = false;
-	mRenderCamera = nullptr;
-	CurrentConfigFile = "";
 }
 
-bool HydraxWater::CreateHydrax()
+void HydraxWater::InitHydrax()
 {
-	mHydrax->create();
-	mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
-	
-	return true;
-}
+	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
 
-void HydraxWater::InitComponents()
-{
 	waternoise = new Hydrax::Noise::Perlin(Hydrax::Noise::Perlin::Options(waternoise->getOptions().Octaves, 0.5, waternoise->getOptions().Falloff, waternoise->getOptions().Animspeed, waternoise->getOptions().Timemulti));
 	mModule = new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer
 		mHydrax,
@@ -91,15 +75,9 @@ void HydraxWater::InitComponents()
 	mHydrax->setModule(static_cast<Hydrax::Module::Module*>(mModule));
 
 	mHydrax->loadCfg(CurrentConfigFile);
-}
 
-bool HydraxWater::isUnderWater()
-{
-	//To avoid wired hydrax bug
-	/*if(gEnv->mainCamera->getPosition().y < waterHeight)
-	return true;*/
-	return mHydrax->_isCurrentFrameUnderwater();
-	//return false;
+	mHydrax->create();
+	mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
 }
 
 bool HydraxWater::isUnderWater(Ogre::Vector3 pos)
