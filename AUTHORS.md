@@ -38,6 +38,7 @@ If you are one of the previous authors and happen to come across this list pleas
 | ?                              | donoteat                | ?                      | ?                              |
 | ?                              | kevinmce                | ?                      | ?                              |
 | ?                              | 09Challenger            | ?                      | ?                              |
+| Speciesx                       | klink                   | ?                      | ?                              |
 
 
 ##### authors of the source code since reboot (move to git)
