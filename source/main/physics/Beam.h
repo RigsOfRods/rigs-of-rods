@@ -551,7 +551,7 @@ protected:
 	* TIGHT LOOP; Physics & sound; 
 	* @param doUpdate Only passed to Beam::calcShocks2()
 	*/
-	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index = 0, int chunk_number = 1);
+	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number);;
 
 	/**
 	* TIGHT LOOP; Physics; 
