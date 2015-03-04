@@ -267,7 +267,10 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		{
 			float speedKN = truck->nodes[0].Velocity.length() * 1.94384449f;
 			truckstats = truckstats + MainThemeColor + "Current Speed: " + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
-			float altitude = truck->nodes[0].AbsPosition.y * 1.1811f;
+			float altitude = truck->nodes[0].AbsPosition.y / 30.48 * 100;
+
+			truckstats = truckstats + MainThemeColor + "Altitude: " + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" feet (") + TOUTFSTRING(Round(altitude * 0.30480)) + U(" meters)") + "\n";
+
 			if (truck->driveable == AIRPLANE)
 			{
 				for (int i = 0; i < 8; i++)
@@ -277,11 +280,9 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 					else if (truck->aeroengines[i] && truck->aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 						truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + " RPM" + "\n";
 				}
-				truckstats = truckstats + MainThemeColor + "Altitude: " + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" meters") + "\n";
 			}
 			else if(truck->driveable == BOAT)
 			{
-				truckstats = truckstats + MainThemeColor + "Depth: " + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" meters") + "\n";
 				for (int i = 0; i < 8; i++)
 				{
 					if (truck->screwprops[i])
