@@ -224,26 +224,26 @@ eventInfo_t eventInfo[] = {
 		_L("increase throttle")
 	},
 	{
-		"CAELUM_DECREASE_TIME",
-		EV_CAELUM_DECREASE_TIME,
+		"SKY_DECREASE_TIME",
+		EV_SKY_DECREASE_TIME,
 		"Keyboard EXPL+SUBTRACT",
 		_L("decrease day-time")
 	},
 	{
-		"CAELUM_DECREASE_TIME_FAST",
-		EV_CAELUM_DECREASE_TIME_FAST,
+		"SKY_DECREASE_TIME_FAST",
+		EV_SKY_DECREASE_TIME_FAST,
 		"Keyboard SHIFT+SUBTRACT",
 		_L("decrease day-time a lot faster")
 	},
 	{
-		"CAELUM_INCREASE_TIME",
-		EV_CAELUM_INCREASE_TIME,
+		"SKY_INCREASE_TIME",
+		EV_SKY_INCREASE_TIME,
 		"Keyboard EXPL+ADD",
 		_L("increase day-time")
 	},
 	{
-		"CAELUM_INCREASE_TIME_FAST",
-		EV_CAELUM_INCREASE_TIME_FAST,
+		"SKY_INCREASE_TIME_FAST",
+		EV_SKY_INCREASE_TIME_FAST,
 		"Keyboard SHIFT+ADD",
 		_L("increase day-time a lot faster")
 	},
@@ -1170,54 +1170,6 @@ eventInfo_t eventInfo[] = {
 		EV_SURVEY_MAP_ZOOM_OUT,
 		"Keyboard EXPL+SHIFT+TAB",
 		_L("zoom out")
-	},
-	{
-		"TERRAINEDITOR_BUILT",
-		EV_TERRAINEDITOR_BUILT,
-		"Keyboard SPACE",
-		_L("place currently selected object at current position")
-	},
-	{
-		"TERRAINEDITOR_PITCHBACKWARD",
-		EV_TERRAINEDITOR_PITCHBACKWARD,
-		"Keyboard EXPL+DELETE",
-		_L("pitch object backward")
-	},
-	{
-		"TERRAINEDITOR_PITCHFOREWARD",
-		EV_TERRAINEDITOR_PITCHFOREWARD,
-		"Keyboard END",
-		_L("pitch object foreward")
-	},
-	{
-		"TERRAINEDITOR_ROTATELEFT",
-		EV_TERRAINEDITOR_ROTATELEFT,
-		"Keyboard INSERT",
-		_L("rotate object left")
-	},
-	{
-		"TERRAINEDITOR_ROTATERIGHT",
-		EV_TERRAINEDITOR_ROTATERIGHT,
-		"Keyboard HOME",
-		_L("rotate object right")
-	},
-	{
-		"TERRAINEDITOR_SELECTROAD",
-		EV_TERRAINEDITOR_SELECTROAD,
-		"Keyboard B",
-		_L("switch to road laying mode")
-	},
-	{
-		"TERRAINEDITOR_TOGGLEOBJECT",
-		EV_TERRAINEDITOR_TOGGLEOBJECT,
-		"Keyboard V",
-		_L("toggle between available objects")
-	},
-	{
-		"TERRAINEDITOR_TOGGLEROADTYPE",
-		EV_TERRAINEDITOR_TOGGLEROADTYPE,
-		"Keyboard EXPL+CTRL+T",
-		_L("toggle between available road types")
 	},
 	{
 		"TRUCK_ACCELERATE",

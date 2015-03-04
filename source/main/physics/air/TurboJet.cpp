@@ -66,27 +66,30 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	reflen=axis.length();
 	axis=axis/reflen;
 	reset();
+
 	//setup visuals
 	char paname[256];
 	sprintf(paname, "%s-nozzle", propname);
-	Entity *te = gEnv->sceneManager->createEntity(paname, "nozzle.mesh");
-	MaterialFunctionMapper::replaceSimpleMeshMaterials(te, ColourValue(1, 0.5, 0.5));
-	if (mfm) mfm->replaceMeshMaterials(te);
-	if (mr) mr->replaceMeshMaterials(te);
-	if (usedSkin) usedSkin->replaceMeshMaterials(te);
+	nozzleMesh = gEnv->sceneManager->createEntity(paname, "nozzle.mesh");
+	MaterialFunctionMapper::replaceSimpleMeshMaterials(nozzleMesh, ColourValue(1, 0.5, 0.5));
+
+	if (mfm) mfm->replaceMeshMaterials(nozzleMesh);
+	if (mr) mr->replaceMeshMaterials(nozzleMesh);
+	if (usedSkin) usedSkin->replaceMeshMaterials(nozzleMesh);
 	nzsnode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	nzsnode->attachObject(te);
+	nzsnode->attachObject(nozzleMesh);
 	nzsnode->setScale(nozlength, nozdiam, nozdiam);
+
 	if (afterburnable)
 	{
 		sprintf(paname, "%s-abflame", propname);
-		te = gEnv->sceneManager->createEntity(paname, "abflame.mesh");
-		MaterialFunctionMapper::replaceSimpleMeshMaterials(te, ColourValue(1, 1, 0));
-		if (mfm) mfm->replaceMeshMaterials(te);
-		if (mr) mr->replaceMeshMaterials(te);
-		if (usedSkin) usedSkin->replaceMeshMaterials(te);
+		flameMesh = gEnv->sceneManager->createEntity(paname, "abflame.mesh");
+		MaterialFunctionMapper::replaceSimpleMeshMaterials(flameMesh, ColourValue(1, 1, 0));
+		if (mfm) mfm->replaceMeshMaterials(flameMesh);
+		if (mr) mr->replaceMeshMaterials(flameMesh);
+		if (usedSkin) usedSkin->replaceMeshMaterials(flameMesh);
 		absnode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		absnode->attachObject(te);
+		absnode->attachObject(flameMesh);
 		absnode->setScale(1.0, nozdiam, nozdiam);
 		absnode->setVisible(false);
 	}
@@ -118,6 +121,29 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 			heathazePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
 		}
 	}
+}
+
+Turbojet::~Turbojet()
+{
+	//A fast work around 
+	//
+	SoundScriptManager::getSingleton().modulate(trucknum, thr_id, 0);
+	SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
+	SoundScriptManager::getSingleton().trigStop(trucknum, ab_id);
+	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
+
+	delete heathazePS;
+
+	delete smokePS;
+	delete smokeNode;
+
+	flameMesh->setVisible(false);
+	delete flameMesh;
+	delete absnode;
+
+	nozzleMesh->setVisible(false);
+	delete nozzleMesh;
+	delete nzsnode;
 }
 
 void Turbojet::updateVisuals()

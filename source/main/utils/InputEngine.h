@@ -102,10 +102,10 @@ enum events
 	EV_BOAT_THROTTLE_AXIS, //!< throttle axis. Only use this if you have fitting hardware :) (i.e. a Slider)
 	EV_BOAT_THROTTLE_DOWN, //!< decrease throttle
 	EV_BOAT_THROTTLE_UP, //!< increase throttle
-	EV_CAELUM_DECREASE_TIME, //!< decrease day-time
-	EV_CAELUM_DECREASE_TIME_FAST, //!< decrease day-time a lot faster
-	EV_CAELUM_INCREASE_TIME, //!< increase day-time
-	EV_CAELUM_INCREASE_TIME_FAST, //!< increase day-time a lot faster
+	EV_SKY_DECREASE_TIME, //!< decrease day-time
+	EV_SKY_DECREASE_TIME_FAST, //!< decrease day-time a lot faster
+	EV_SKY_INCREASE_TIME, //!< increase day-time
+	EV_SKY_INCREASE_TIME_FAST, //!< increase day-time a lot faster
 	EV_CAMERA_CHANGE, //!< change camera mode
 	EV_CAMERA_DOWN,
 	EV_CAMERA_FREE_MODE,
@@ -274,14 +274,6 @@ enum events
 	EV_SURVEY_MAP_TOGGLE_VIEW, //!< toggle map modes
 	EV_SURVEY_MAP_ZOOM_IN, //!< increase survey map scale
 	EV_SURVEY_MAP_ZOOM_OUT, //!< decrease survey map scale
-	EV_TERRAINEDITOR_BUILT, //!< place currently selected object at current position
-	EV_TERRAINEDITOR_PITCHBACKWARD, //!< pitch object backward
-	EV_TERRAINEDITOR_PITCHFOREWARD, //!< pitch object foreward
-	EV_TERRAINEDITOR_ROTATELEFT, //!< rotate object left
-	EV_TERRAINEDITOR_ROTATERIGHT, //!< rotate object right
-	EV_TERRAINEDITOR_SELECTROAD, //!< switch to road laying mode
-	EV_TERRAINEDITOR_TOGGLEOBJECT, //!< toggle between available objects
-	EV_TERRAINEDITOR_TOGGLEROADTYPE, //!< toggle between available road types
 
 	EV_TRUCK_ACCELERATE, //!< accelerate the truck
 	EV_TRUCK_ANTILOCK_BRAKE, //!< toggle antilockbrake system
