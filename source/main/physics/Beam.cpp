@@ -476,6 +476,11 @@ Vector3 Beam::getPosition()
 	return position; //the position is already in absolute position
 }
 
+Vector3 Beam::getVehiclePosition()
+{
+	return position; //the position is already in absolute position
+}
+
 void Beam::CreateSimpleSkeletonMaterial()
 {
 	if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
@@ -5212,6 +5217,115 @@ bool Beam::isLocked()
 		if (it->locked==LOCKED)
 			return true;
 	return false;
+}
+
+bool Beam::navigateTo(Vector3 &in)
+{
+	// start engine if not running
+	if (engine && !engine->running)
+		engine->start();
+
+	Vector3 TargetPosition = in;
+	TargetPosition.y=0;	//Vector3 > Vector2
+	Quaternion TargetOrientation = Quaternion::ZERO;
+
+	Vector3 mAgentPosition        = position;
+	mAgentPosition.y=0;	//Vector3 > Vector2
+	Quaternion mAgentOrientation  = Quaternion(Radian(getHeadingDirectionAngle()), Vector3::NEGATIVE_UNIT_Y);
+	mAgentOrientation.normalise();
+
+	Vector3 mVectorToTarget       = TargetPosition - mAgentPosition; // A-B = B->A
+	mAgentPosition.normalise();
+
+	Vector3 mAgentHeading         = mAgentOrientation * mAgentPosition;
+	Vector3 mTargetHeading        = TargetOrientation * TargetPosition;
+	mAgentHeading.normalise();
+	mTargetHeading.normalise();
+
+	// Orientation control - Vector3::UNIT_Y is common up vector.
+	Vector3 mAgentVO        = mAgentOrientation.Inverse() * Vector3::UNIT_Y;
+	Vector3 mTargetVO       = TargetOrientation * Vector3::UNIT_Y;
+
+	// Compute new torque scalar (-1.0 to 1.0) based on heading vector to target.
+	Vector3 mSteeringForce = mAgentOrientation.Inverse() * mVectorToTarget;
+	mSteeringForce.normalise();
+
+	//float mYaw    = mSteeringForce.x * 2;
+	//float mPitch  = mSteeringForce.y;
+	//float mRoll   = mTargetVO.getRotationTo( mAgentVO ).getRoll().valueRadians();
+	/*
+	if(mYaw > 1)
+		mYaw = 1;
+
+	if(mYaw < -1)
+		mYaw = -1;
+		*/
+	// actually steer
+	hydrodircommand = mSteeringForce.x;//mYaw
+
+	// accelerate / brake
+	//float maxvelo = 1;
+
+	//maxvelo = std::max<float>(0.2f, 1-fabs(mYaw)) * 50;
+
+
+	Vector3 dir;
+	float pitch;
+	// pitch
+	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+	{
+		dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		dir.normalise();
+		float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
+		if (angle < -1) angle = -1;
+		if (angle >  1) angle =  1;
+
+		pitch = Radian(angle).valueDegrees();
+	}
+
+	//More power for uphill
+	float power = 80 + pitch;
+	power = power/100;
+
+
+	//String txt = "brakePower: "+TOSTRING(brakePower);//+" @ "+TOSTRING(maxvelo)
+	///RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
+
+	if (engine)
+	{
+		if (mVectorToTarget.length() > 5.0f)
+		{
+			if (pitch > -10)
+			{
+				brake = 0;
+				engine->autoSetAcc(power);
+			}
+			else if(WheelSpeed > 10)
+			{
+				if (pitch < 0) pitch = -pitch;
+				brake = pitch * brakeforce / 90;
+				engine->autoSetAcc(0);
+			}
+			else
+			{
+				brake = 0;
+				engine->autoSetAcc(power);
+			}
+			return false;
+		} 
+		else
+		{
+			engine->autoSetAcc(0);
+			brake = brakeforce;
+			return true;
+		}
+	}
+	else
+	{
+		return true;
+	}
+
+
 }
 
 void Beam::updateDashBoards(float &dt)

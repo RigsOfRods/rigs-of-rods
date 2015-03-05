@@ -306,7 +306,10 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", AngelScript::asMETHOD(Beam,getWheelSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "vector3 getGForces()", AngelScript::asMETHOD(Beam,getGForces), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
-	
+	result = engine->RegisterObjectMethod("BeamClass", "vector3 getVehiclePosition()", AngelScript::asMETHOD(Beam,getVehiclePosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("BeamClass", "bool navigateTo(vector3 &in)", AngelScript::asMETHOD(Beam,navigateTo), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+
+
 	/*
 	// impossible to use offsetof for derived classes
 	// unusable, read http://www.angelcode.com/angelscript/sdk/docs/manual/doc_adv_class_hierarchy.html
