@@ -208,7 +208,6 @@ public:
 	* Creates or updates skidmarks. No side effects.
 	*/
 	void updateSkidmarks();
-	void updateAI(float dt);
 
 	/**
 	* Prepares vehicle for in-cabin camera use.

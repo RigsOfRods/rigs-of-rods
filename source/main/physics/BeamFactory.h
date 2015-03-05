@@ -114,7 +114,6 @@ public:
 	* TIGHT-LOOP; Logic: display, particles, sound; 
 	*/
 	void updateVisual(float dt);
-	void updateAI(float dt);
 
 	inline unsigned long getPhysFrame() { return physFrame; };
 
