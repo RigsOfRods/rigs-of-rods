@@ -308,7 +308,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		Quaternion::ZERO,
 		reg->reg.name,
 		true, // networked
-		gEnv->network!=0, // networking
+		gEnv->network != nullptr, // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,

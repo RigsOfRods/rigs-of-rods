@@ -6052,8 +6052,8 @@ Beam::Beam(
 	Ogre::Vector3 pos, 
 	Ogre::Quaternion rot, 
 	const char* fname, 
-	bool networked, /* = false  */
-	bool networking, /* = false  */ 
+	bool _networked, /* = false  */
+	bool _networking, /* = false  */ 
 	collision_box_t *spawnbox, /* = nullptr */
 	bool ismachine, /* = false  */ 
 	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
@@ -6182,7 +6182,7 @@ Beam::Beam(
 	trucknum = truck_number;
 	freePositioned = freeposition;
 	usedSkin = skin;
-	networking = networking;
+	networking = _networking;
 	memset(truckname, 0, 256);
 	sprintf(truckname, "t%i", truck_number);
 	memset(uniquetruckid, 0, 256);
@@ -6193,7 +6193,7 @@ Beam::Beam(
 		driveable = MACHINE;
 	}
 	enable_wheel2 = true; // since 0.38 enabled wheels2 by default
-	if (networked || networking)
+	if (_networked || networking)
 	{
 		enable_wheel2 = false;
 	}
@@ -6226,7 +6226,7 @@ Beam::Beam(
 	// setup replay mode
 	bool enablereplay = BSETTING("Replay mode", false);
 
-	if (enablereplay && !networked && !networking)
+	if (enablereplay && !_networked && !networking)
 	{
 		replaylen = ISETTING("Replay length", 10000);
 		replay = new Replay(this, replaylen);
@@ -6282,7 +6282,7 @@ Beam::Beam(
 	CreateSimpleSkeletonMaterial();
 
 	// start network stuff
-	if (networked)
+	if (_networked)
 	{
 		state = NETWORKED;
 		// malloc memory
@@ -6750,8 +6750,8 @@ void Beam::setCustomLightVisible(int number, bool visible)
 
 	if (flares[netCustomLightArray[number]].snode)
 		flares[netCustomLightArray[number]].controltoggle_status = visible;
-	else
-		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");
+	/*else
+		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");*/
 }
 
 bool Beam::getBeaconMode()
