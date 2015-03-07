@@ -31,7 +31,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // $Rev:$
 
 #define ROR_VERSION_STRING_SHORT      "0.4"
-#define ROR_VERSION_STRING            "0.4.0.7"
-#define ROR_VERSION_STRING_WIN         0,4,0,7
+#define ROR_VERSION_STRING            "0.4.5.0"
+#define ROR_VERSION_STRING_WIN         0,4,5,0
+
+#define ROR_DEVMODE TRUE
 
 #endif //RORVERSION_H__

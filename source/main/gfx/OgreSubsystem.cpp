@@ -74,7 +74,10 @@ bool OgreSubsystem::Configure()
 	{
 		// If returned true, user clicked OK so initialise
 		// Here we choose to let the system create a default rendering window by passing 'true'
-		m_render_window = m_ogre_root->initialise(true, "Rigs of Rods version " + Ogre::String(ROR_VERSION_STRING));
+		if (ROR_DEVMODE)
+			m_render_window = m_ogre_root->initialise(true, "Rigs of Rods version " + Ogre::String(ROR_VERSION_STRING) + " - Developer");
+		else
+			m_render_window = m_ogre_root->initialise(true, "Rigs of Rods version " + Ogre::String(ROR_VERSION_STRING));
 
 		// set window icon correctly
 		fixRenderWindowIcon(m_render_window);
