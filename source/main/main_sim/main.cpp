@@ -63,8 +63,6 @@ BOOL WINAPI crashCallback(LPVOID /*lpvState*/)
 	crAddFile((SSETTING("Config Root") + "RoR.cfg").c_str(), "Rigs of Rods Configuration");
 
 	crAddProperty("Version", ROR_VERSION_STRING);
-	crAddProperty("Revision", SVN_REVISION);
-	crAddProperty("full_revision", SVN_ID);
 	crAddProperty("protocol_version", RORNET_VERSION);
 	crAddProperty("build_date", __DATE__);
 	crAddProperty("build_time", __TIME__);

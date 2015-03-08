@@ -346,8 +346,6 @@ bool RoRFrameListener::updateEvents(float dt)
 			as->addData("User_NickName", SSETTING("Nickname", "Anonymous"));
 			as->addData("User_Language", SSETTING("Language", "English"));
 			as->addData("RoR_VersionString", String(ROR_VERSION_STRING));
-			as->addData("RoR_VersionSVN", String(SVN_REVISION));
-			as->addData("RoR_VersionSVNID", String(SVN_ID));
 			as->addData("RoR_ProtocolVersion", String(RORNET_VERSION));
 			as->addData("RoR_BinaryHash", SSETTING("BinaryHash", ""));
 			as->addData("MP_ServerName", SSETTING("Server name", ""));
