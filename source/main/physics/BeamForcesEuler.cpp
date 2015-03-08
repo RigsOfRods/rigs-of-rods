@@ -1142,6 +1142,9 @@ void Beam::calcHydros(bool doUpdate, Ogre::Real dt)
 	// TODO wspeed is calculated in calcwheels, need to find a sane way
 	// to get the value to this function 
 	Real wspeed = 0.0;
+
+	wspeed = WheelSpeed; //getWheelSpeed()
+
 	//direction
 	if (hydrodirstate!=0 || hydrodircommand!=0)
 	{
