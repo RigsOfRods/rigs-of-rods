@@ -298,9 +298,8 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif //USE_MYGUI
 
 #ifdef USE_MYGUI
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !hidegui)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !hidegui && gEnv->network)
 	{
-		//TODO: Separate chat and console
 		RoR::Application::GetInputEngine()->resetKeys();
 		RoR::Application::GetGuiManager()->ShowChatBox();
 	}
