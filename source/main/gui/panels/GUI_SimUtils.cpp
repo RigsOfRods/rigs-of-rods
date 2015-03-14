@@ -234,9 +234,9 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 			else
 				truckstats = truckstats + MainThemeColor + "Engine RPM: " + WhiteColor + TOUTFSTRING(Round(truck->engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->engine->getMaxRPM())) + "\n";
 
-			float currentHP = Round((truck->engine->getRPM() * truck->engine->getEngineTorque()) / 5252);
+			float currentKw = (((truck->engine->getRPM() * truck->engine->getEngineTorque() *(3.14159265358979323846 /* pi.. */ / 30)) / 1000));
 
-			truckstats = truckstats + MainThemeColor + "Current Power: " + WhiteColor + TOUTFSTRING(currentHP) + U(" hp / ") + TOUTFSTRING(Round(currentHP * 0.745699872)) + U(" Kw") + "\n";
+			truckstats = truckstats + MainThemeColor + "Current Power: " + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
 
 			float velocityKMH = truck->WheelSpeed* 3.6f;
 			float velocityMPH = truck->WheelSpeed * 2.23693629f;
