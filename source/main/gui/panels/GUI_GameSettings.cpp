@@ -349,7 +349,10 @@ void CLASS::UpdateControls()
 	else
 		m_tex_filter->setIndexSelected(0);
 
-	m_water_type->addItem("Hydrax"); //It's working good enough to be here now. 
+	if (!IsLoaded)
+	{
+		m_water_type->addItem("Hydrax"); //It's working good enough to be here now. 
+	}
 
 	if (BSETTING("DevMode", false) && !IsLoaded)
 	{
