@@ -92,11 +92,13 @@ public:
 
 protected:
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-	void showMessage(ConsoleMessage msg);
+	void messageUpdate(float dt);
 
 	Ogre::String ConsoleText;
 	Ogre::UTFString TextCol;
 	bool angelscriptMode;
+
+	void frameEntered(float dt);
 
 #if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
 	void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
