@@ -6748,8 +6748,14 @@ void Beam::setCustomLightVisible(int number, bool visible)
 		return;
 	}
 
-	if (flares[netCustomLightArray[number]].snode)
-		flares[netCustomLightArray[number]].controltoggle_status = visible;
+	try
+	{
+		if (flares[netCustomLightArray[number]].snode)
+			flares[netCustomLightArray[number]].controltoggle_status = visible;
+	}
+	catch (Exception ex)
+	{
+	}
 	/*else
 		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");*/
 }

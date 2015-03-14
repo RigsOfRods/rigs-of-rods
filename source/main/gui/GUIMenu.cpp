@@ -188,25 +188,25 @@ UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 {
 	UTFString tmp = ChatSystem::getColouredName(user);
 
-	tmp = tmp + U(" #000000(");
+	tmp = tmp + U(": ");
 
 	// some more info
-	if (user.authstatus & AUTH_ADMIN)
-		tmp = tmp + _L("#c97100admin#000000, ");
-	if (user.authstatus & AUTH_RANKED)
-		tmp = tmp + _L("#00c900ranked#000000, ");
-	if (user.authstatus & AUTH_MOD)
-		tmp = tmp + _L("#c90000moderator#000000, ");
-	if (user.authstatus & AUTH_BANNED)
-		tmp = tmp + _L("banned, ");
 	if (user.authstatus & AUTH_BOT)
-		tmp = tmp + _L("#0000c9bot#000000, ");
+		tmp = tmp + _L("#0000c9 Bot, ");
+	else if (user.authstatus & AUTH_BANNED)
+		tmp = tmp + _L("banned, ");
+	else if (user.authstatus & AUTH_RANKED)
+		tmp = tmp + _L("#00c900 Ranked, ");
+	else if (user.authstatus & AUTH_MOD)
+		tmp = tmp + _L("#c90000 Moderator, ");
+	else if (user.authstatus & AUTH_ADMIN)
+		tmp = tmp + _L("#c97100 Admin, ");
 
-	tmp = tmp + _L("#0000ddversion:#000000 ");
+	tmp = tmp + _L("#ff8d00 version: #3eff20 ");
 	tmp = tmp + ANSI_TO_UTF(user.clientversion);
 	tmp = tmp + U(", ");
 
-	tmp = tmp + _L("#0000ddlanguage:#000000 ");
+	tmp = tmp + _L("#ff8d00 language: #46b1f9 ");
 	tmp = tmp + ANSI_TO_UTF(user.language);
 	tmp = tmp + U(", ");
 
@@ -214,8 +214,6 @@ UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 		tmp = tmp + _L("no vehicles");
 	else
 		tmp = tmp + TOUTFSTRING(num_vehicles) + _L(" vehicles");
-
-	tmp = tmp + U( "#000000)");
 
 	return tmp;
 }
@@ -460,7 +458,8 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	}
 	else if (miname == _L("Show vehicle description"))
 	{
-		Application::GetGuiManager()->ShowVehicleDescription();
+		if (BeamFactory::getSingleton().getCurrentTruck() != 0)
+			Application::GetGuiManager()->ShowVehicleDescription();
 	}
 	else if (id == "rig-editor-enter")
 	{

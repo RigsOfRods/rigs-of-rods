@@ -71,6 +71,7 @@ CLASS::CLASS():
 	if (!autoHide)
 		Show();
 
+
 	Hide();
 }
 
@@ -125,6 +126,21 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 	{
 		// discard the empty message
 		return;
+	}
+
+	if (msg[0] == '/' || msg[0] == '\\')
+	{
+		Ogre::StringVector args = Ogre::StringUtil::split(msg, " ");
+		if (args[0] == "/whisper")
+		{
+			if (args.size() != 3)
+			{
+				pushMsg("usage: /whisper username message");
+				return;
+			}
+			netChat->sendPrivateChat(args[1], args[2]);
+			return;
+		}
 	}
 
 	if (gEnv->network && netChat)

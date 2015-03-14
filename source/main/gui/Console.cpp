@@ -55,10 +55,6 @@ using namespace GUI;
 
 //Console layout manager
 
-// the delimiters that decide where a word is finished
-const UTFString wordDelimiters = " \\\"\'|.,`!;<>~{}()+&%$@"; //TODO
-const char *builtInCommands[] = {"/help", "/log", "/pos", "/goto", "/terrainheight", "/ver", "/save", "/whisper", "/as", NULL};
-
 // class
 Console::Console()
 {
@@ -80,6 +76,8 @@ Console::Console()
 	m_Console_TextBox->eventKeyButtonPressed += MyGUI::newDelegate(this, &Console::eventButtonPressed);
 
 	m_Console_Send->eventMouseButtonClick += MyGUI::newDelegate(this, &Console::eventMouseButtonClickSendButton);
+
+	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &Console::frameEntered);
 
 #ifdef USE_ANGELSCRIPT
 	//ScriptEngine::getSingleton().loadScript("Console.as");
@@ -109,6 +107,11 @@ bool Console::getVisible()
 	return ((MyGUI::Window*)mMainWidget)->getVisible();
 }
 
+void Console::frameEntered(float dt)
+{
+	messageUpdate(dt);
+}
+
 void Console::putMessage( int type, int sender_uid, UTFString txt, String icon, unsigned long ttl, bool forcevisible )
 {
 	ConsoleMessage t;
@@ -123,43 +126,39 @@ void Console::putMessage( int type, int sender_uid, UTFString txt, String icon, 
 	strncpy(t.icon, icon.c_str(), 50);
 	//t.channel = "default";
 
-	showMessage(t);
+	//showMessage(t);
+	push(t);
 }
 
-void Console::showMessage(ConsoleMessage msg)
+void Console::messageUpdate(float dt)
 {
-	//TextCol = "";
-	TextCol = "#FFFFFF";
-	/*
-	if (msg.type == CONSOLE_MSGTYPE_LOG)
-		TextCol = "#FFFFFF";
-	else if (msg.type == CONSOLE_MSGTYPE_INFO)
-		TextCol = "#00FF00";
-	else if (msg.type == CONSOLE_MSGTYPE_SCRIPT)
-		TextCol = "#3399FF";
-	else if (msg.type == CONSOLE_MSGTYPE_NETWORK)
-		TextCol = "#9900FF";
-	else
-		TextCol = "#FFFFFF";*/
+	std::vector<ConsoleMessage> tmpWaitingMessages;
+	int results = pull(tmpWaitingMessages);
 
-	if (msg.sender_uid == CONSOLE_TITLE)
-		TextCol = "#FF8100"; //Orange
-	else if (msg.sender_uid == CONSOLE_SYSTEM_ERROR)
-		TextCol = "#FF0000"; //Red
-	else if (msg.sender_uid == CONSOLE_SYSTEM_REPLY)
-		TextCol = "#00FF00"; //Green
-	else if (msg.sender_uid == CONSOLE_HELP)
-		TextCol = "#72C0E0"; //Light blue
+	int r = 0;
+	if (results > 0)
+	{
+		for (int i = 0; i < results; i++, r++)
+		{
+			TextCol = "#FFFFFF";
+			if (tmpWaitingMessages[i].sender_uid == CONSOLE_TITLE)
+				TextCol = "#FF8100"; //Orange
+			else if (tmpWaitingMessages[i].sender_uid == CONSOLE_SYSTEM_ERROR)
+				TextCol = "#FF0000"; //Red
+			else if (tmpWaitingMessages[i].sender_uid == CONSOLE_SYSTEM_REPLY)
+				TextCol = "#00FF00"; //Green
+			else if (tmpWaitingMessages[i].sender_uid == CONSOLE_HELP)
+				TextCol = "#72C0E0"; //Light blue
 
-	ConsoleText += TextCol + msg.txt + "\n";
+			ConsoleText += TextCol + tmpWaitingMessages[i].txt + "\n";
 
-	/*if (msg.forcevisible)
-		setVisible(true);*/
 
-	m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
+			m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
 
-	//if (getVisible())
-		m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
+			//if (getVisible())
+			m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
+		}
+	}
 }
 
 #if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
