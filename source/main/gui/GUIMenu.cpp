@@ -458,7 +458,8 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	}
 	else if (miname == _L("Show vehicle description"))
 	{
-		Application::GetGuiManager()->ShowVehicleDescription();
+		if (BeamFactory::getSingleton().getCurrentTruck() != 0)
+			Application::GetGuiManager()->ShowVehicleDescription();
 	}
 	else if (id == "rig-editor-enter")
 	{
