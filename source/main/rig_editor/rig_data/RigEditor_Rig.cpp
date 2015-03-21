@@ -32,11 +32,15 @@
 #include "RigEditor_CineCamera.h"
 #include "RigEditor_CameraHandler.h"
 #include "RigEditor_Config.h"
+#include "RigEditor_FlexBodyWheel.h"
+#include "RigEditor_HighlightBoxesDynamicMesh.h"
 #include "RigEditor_Main.h"
+#include "RigEditor_MeshWheel.h"
 #include "RigEditor_MeshWheel2.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_RigProperties.h"
 #include "RigEditor_RigQueries.h"
+#include "RigEditor_RigWheelVisuals.h"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -44,9 +48,39 @@
 #include <OgreManualObject.h>
 #include <OgreSceneManager.h>
 #include <OgreRenderOperation.h>
+#include <sstream>
 
 using namespace RoR;
 using namespace RoR::RigEditor;
+
+Ogre::String RigBuildingReport::ToString() const
+{
+	std::stringstream s;
+	auto end = m_messages.end();
+	auto itor = m_messages.begin();
+	for (; itor != end; ++itor)
+	{
+		switch (itor->level)
+		{
+		case Message::LEVEL_ERROR:
+			s << "ERROR ";
+			break;
+		case Message::LEVEL_INFO:
+			s << "INFO ";
+			break;
+		case Message::LEVEL_WARNING:
+			s << "WARNING ";
+			break;
+		default:
+			assert(false && "Wrong message type");
+			break;
+		}
+		s << "(module: " << itor->module_name << ", section: " << itor->section_name << "): " << itor->text << std::endl;
+	}
+	return s.str();
+}
+
+// ============================================================================
 
 Rig::Rig(Config* config):
 	m_mouse_hovered_node(nullptr),
@@ -73,23 +107,16 @@ Rig::~Rig()
 	m_nodes.clear();
 }
 
-Node* Rig::FindNode(
-	RigDef::Node::Id const & node_id, 
-	Ogre::String const & section_name,
-	std::list<Ogre::String>* report // = nullptr
-	)
+Node* Rig::FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger /* = nullptr */ )
 {
-	/* Find node */
+	// Find node
 	auto result = m_nodes.find(node_id);
 	if (result == m_nodes.end())
 	{
-		/* Node not found */
-		if (report != nullptr)
+		// Node not found
+		if (logger != nullptr)
 		{
-			std::stringstream msg;
-			msg << "[Warning] BuildRig(): Section '" << section_name 
-				<< "' Beam[ " << node_id.ToString() << ", " << node_id.ToString() << "]: Node not found.";
-			report->push_back(msg.str());
+			logger->AddMessage(RigBuildingReport::Message::LEVEL_WARNING, Ogre::String("Node not found: ") + node_id.ToString());
 		}
 		return nullptr;
 	}
@@ -99,11 +126,16 @@ Node* Rig::FindNode(
 void Rig::Build(
 		boost::shared_ptr<RigDef::File> rig_def, 
 		RigEditor::Main* rig_editor,
-		std::list<Ogre::String>* report // = nullptr
+		Ogre::SceneNode* parent_scene_node,
+		RigBuildingReport* report // = nullptr
 	)
 {
+	assert(parent_scene_node != nullptr);
+	assert(rig_editor != nullptr);
+
 	RigEditor::Config & config = *rig_editor->GetConfig();
 	RigDef::File::Module* module = rig_def->root_module.get();
+	report->SetCurrentModuleName(module->name);
 
 	m_properties = std::unique_ptr<RigProperties>(new RigProperties());
 	m_properties->Import(rig_def);
@@ -112,6 +144,7 @@ void Rig::Build(
 
 	unsigned int highest_numeric_id = 0;
 	int node_index = 0;
+	report->SetCurrentSectionName("nodes");
 	for (auto node_itor = module->nodes.begin(); node_itor != module->nodes.end(); ++node_itor)
 	{
 		bool done = false;
@@ -136,10 +169,10 @@ void Rig::Build(
 			else if (report != nullptr)
 			{
 				std::stringstream msg;
-				msg << "[WARNING] BuildRig(): Duplicate node ID: " << node_id.ToString();
+				msg << "Duplicate node ID: " << node_id.ToString();
 				node_id.SetStr(node_id.ToString() + "-dup");
 				msg << ", changed to: " << node_id.ToString();
-				report->push_back(msg.str());
+				report->AddMessage(RigBuildingReport::Message::LEVEL_WARNING, msg.str());
 				m_modified = true;
 			}
 		}
@@ -151,14 +184,14 @@ void Rig::Build(
 
 	std::vector<RigDef::Beam> unlinked_beams_to_retry; // Linked to invalid nodes, will retry after other sections (esp. wheels) were processed
 	// TODO: Implement the retry.
+	report->SetCurrentSectionName("beams");
 	
 	auto beam_itor_end = module->beams.end();
 	for (auto beam_itor = module->beams.begin(); beam_itor != beam_itor_end; ++beam_itor)
 	{
-		static const Ogre::String section_name("beams");
 		Node* nodes[] = {
-			FindNode(beam_itor->nodes[0], section_name, report),
-			FindNode(beam_itor->nodes[1], section_name, report)
+			FindNode(beam_itor->nodes[0], report),
+			FindNode(beam_itor->nodes[1], report)
 		};
 
 		if (nodes[0] == nullptr || nodes[1] == nullptr)
@@ -189,12 +222,12 @@ void Rig::Build(
 	// ##### Process steering hydros (section "hydros") #####
 
 	auto hydro_itor_end = module->hydros.end();
+	report->SetCurrentSectionName("hydros");
 	for (auto hydro_itor = module->hydros.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
 	{
-		static const Ogre::String section_name("hydros");
 		Node* nodes[] = {
-			FindNode(hydro_itor->nodes[0], section_name, report),
-			FindNode(hydro_itor->nodes[1], section_name, report)
+			FindNode(hydro_itor->nodes[0], report),
+			FindNode(hydro_itor->nodes[1], report)
 		};
 
 		if (nodes[0] == nullptr || nodes[1] == nullptr)
@@ -214,12 +247,12 @@ void Rig::Build(
 	// ##### Process command-hydros (section "commands[N]") #####
 
 	auto command_itor_end = module->commands_2.end();
+	report->SetCurrentSectionName("commands2");
 	for (auto command_itor = module->commands_2.begin(); command_itor != command_itor_end; ++command_itor)
 	{
-		static const Ogre::String section_name("commands[N]");
 		Node* nodes[] = {
-			FindNode(command_itor->nodes[0], section_name, report),
-			FindNode(command_itor->nodes[1], section_name, report)
+			FindNode(command_itor->nodes[0], report),
+			FindNode(command_itor->nodes[1], report)
 		};
 
 		if (nodes[0] == nullptr || nodes[1] == nullptr)
@@ -239,12 +272,12 @@ void Rig::Build(
 	// ##### Process section "shocks" #####
 
 	auto shock_itor_end = module->shocks.end();
+	report->SetCurrentSectionName("shocks");
 	for (auto shock_itor = module->shocks.begin(); shock_itor != shock_itor_end; ++shock_itor)
 	{
-		static const Ogre::String section_name("shocks[N]");
 		Node* nodes[] = {
-			FindNode(shock_itor->nodes[0], section_name, report),
-			FindNode(shock_itor->nodes[1], section_name, report)
+			FindNode(shock_itor->nodes[0], report),
+			FindNode(shock_itor->nodes[1], report)
 		};
 
 		if (nodes[0] == nullptr || nodes[1] == nullptr)
@@ -264,12 +297,12 @@ void Rig::Build(
 	// ##### Process section "shocks2" #####
 
 	auto shock2_itor_end = module->shocks_2.end();
+	report->SetCurrentSectionName("shocks2");
 	for (auto shock2_itor = module->shocks_2.begin(); shock2_itor != shock2_itor_end; ++shock2_itor)
 	{
-		static const Ogre::String section_name("shocks[N]");
 		Node* nodes[] = {
-			FindNode(shock2_itor->nodes[0], section_name, report),
-			FindNode(shock2_itor->nodes[1], section_name, report)
+			FindNode(shock2_itor->nodes[0], report),
+			FindNode(shock2_itor->nodes[1], report)
 		};
 
 		if (nodes[0] == nullptr || nodes[1] == nullptr)
@@ -288,6 +321,7 @@ void Rig::Build(
 
 	// ##### Process cine cameras (section "cinecam") #####
 	auto cinecam_itor_end = module->cinecam.end();
+	report->SetCurrentSectionName("cinecam");
 	for (auto cinecam_itor = module->cinecam.begin(); cinecam_itor != cinecam_itor_end; ++cinecam_itor)
 	{
 		RigDef::Cinecam & cinecam_def = *cinecam_itor;
@@ -305,7 +339,7 @@ void Rig::Build(
 			// Insert failed
 			if (report != nullptr)
 			{
-				report->push_back("FATAL ERROR: Failed to insert cinecam node.");
+				report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, "FATAL: Failed to insert cinecam node.");
 			}
 			continue;
 		}
@@ -319,16 +353,15 @@ void Rig::Build(
 		m_aabb.merge(node_def.position);
 
 		// === Cinecam beams ===
-		static const Ogre::String section_name("cinecam");
 		Node* nodes[] = {
-			FindNode(cinecam_def.nodes[0], section_name, report),
-			FindNode(cinecam_def.nodes[1], section_name, report),
-			FindNode(cinecam_def.nodes[2], section_name, report),
-			FindNode(cinecam_def.nodes[3], section_name, report),
-			FindNode(cinecam_def.nodes[4], section_name, report),
-			FindNode(cinecam_def.nodes[5], section_name, report),
-			FindNode(cinecam_def.nodes[6], section_name, report),
-			FindNode(cinecam_def.nodes[7], section_name, report),
+			FindNode(cinecam_def.nodes[0], report),
+			FindNode(cinecam_def.nodes[1], report),
+			FindNode(cinecam_def.nodes[2], report),
+			FindNode(cinecam_def.nodes[3], report),
+			FindNode(cinecam_def.nodes[4], report),
+			FindNode(cinecam_def.nodes[5], report),
+			FindNode(cinecam_def.nodes[6], report),
+			FindNode(cinecam_def.nodes[7], report),
 		};
 		
 		// All nodes found?
@@ -338,7 +371,7 @@ void Rig::Build(
 			if (report != nullptr)
 			{
 				std::stringstream msg;
-				msg << "ERROR: Some cinecam nodes were not found (";
+				msg << "Some cinecam nodes were not found (";
 				msg <<   "0=" << (nodes[0] ? "ok":"NULL");
 				msg << ", 1=" << (nodes[1] ? "ok":"NULL");
 				msg << ", 2=" << (nodes[2] ? "ok":"NULL");
@@ -348,7 +381,7 @@ void Rig::Build(
 				msg << ", 6=" << (nodes[6] ? "ok":"NULL");
 				msg << ", 7=" << (nodes[7] ? "ok":"NULL");
 				msg << ")";
-				report->push_back(msg.str());
+				report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, msg.str());
 			}
 			continue;
 		}
@@ -364,6 +397,8 @@ void Rig::Build(
 			nodes[i]->m_linked_beams.push_back(&beam);
 		}
 	}
+	
+	BuildFromModule(module, report);
 
 	// ========================================================================
 	// Generating visual meshes
@@ -537,235 +572,125 @@ void Rig::Build(
 	/* Finalize */
 	m_nodes_selected_dynamic_mesh->end();
 
-	/* CREATE MESH OF WHEELS (beams only) */
+	// WHEEL VISUALS
 
-	/* Prepare material */
-	if (! Ogre::MaterialManager::getSingleton().resourceExists("rig-editor-skeleton-wheels-material"))
-	{
-		Ogre::MaterialPtr node_mat = static_cast<Ogre::MaterialPtr>(
-			Ogre::MaterialManager::getSingleton().create("rig-editor-skeleton-wheels-material", 
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
-		);
-
-		node_mat->getTechnique(0)->getPass(0)->createTextureUnitState();
-		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
-		node_mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
-		node_mat->setLightingEnabled(false);
-		node_mat->setReceiveShadows(false);
-	}
-
-	/* Analyze */
-	int wheels_vertex_count = 0;
-	int wheels_index_count = 0;
-	auto & list = module->mesh_wheels_2;
-	for (auto itor = list.begin(); itor != list.end(); ++itor)
-	{
-		int num_lines = (itor->num_rays * 8);
-		wheels_index_count += num_lines * 2;
-		wheels_vertex_count += num_lines * 2;
-	}
-
-	/* Create mesh */
-	m_wheels_dynamic_mesh = std::unique_ptr<Ogre::ManualObject>(
-			rig_editor->GetOgreSceneManager()->createManualObject()
-		);
-	m_wheels_dynamic_mesh->estimateVertexCount(wheels_vertex_count);
-	m_wheels_dynamic_mesh->estimateIndexCount(wheels_index_count);
-	m_wheels_dynamic_mesh->setCastShadows(false);
-	m_wheels_dynamic_mesh->setDynamic(true);
-	m_wheels_dynamic_mesh->setRenderingDistance(300);
-
-	/* Init */
-	m_wheels_dynamic_mesh->begin("rig-editor-skeleton-wheels-material", Ogre::RenderOperation::OT_LINE_LIST);
-
-	/* Process wheels */
-	/* Meshwheels2 */
-	ProcessMeshwheels2(list);
-
-	/* Finalize */
-	m_wheels_dynamic_mesh->end();
+	m_wheel_visuals = std::unique_ptr<RigWheelVisuals>(new RigWheelVisuals());
+	m_wheel_visuals->Init(rig_editor);
+	m_wheel_visuals->RefreshWheelsDynamicMeshes(parent_scene_node, rig_editor, m_wheels);
 }
 
-bool Rig::ProcessMeshwheels2(
-		std::vector<RigDef::MeshWheel2> & list, 
-		std::list<Ogre::String>* report // = nullptr
-	)
+bool Rig::GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report)
 {
-	for (auto itor = list.begin(); itor != list.end(); ++itor)
+	axis_inner = FindNode(a1, report);
+	axis_outer = FindNode(a2, report);
+	if (axis_inner == nullptr || axis_outer == nullptr)
 	{
-		auto def = *itor;
-		m_mesh_wheels_2.push_back(RigEditor::MeshWheel2(def));
-
-		/* Find axis nodes */
-		RigEditor::Node* axis_nodes[] = {nullptr, nullptr};
-		auto node_result = m_nodes.find(def.nodes[0]);
-		if (node_result == m_nodes.end())
-		{
-			if (report != nullptr)
-			{
-				std::stringstream msg;
-				msg << "[Error] ProcessMeshwheels2(): Axis node [0] not found (id: " << def.nodes[0].ToString() << "). Wheel not processed.";
-				report->push_back(msg.str());
-			}
-			return false;
-		}
-		axis_nodes[0] = &node_result->second;
-		node_result = m_nodes.find(def.nodes[1]);
-		if (node_result == m_nodes.end())
-		{
-			if (report != nullptr)
-			{
-				std::stringstream msg;
-				msg << "[Error] ProcessMeshwheels2(): Axis node [1] not found (id: " << def.nodes[1].ToString() << "). Wheel not processed.";
-				report->push_back(msg.str());
-			}
-			return false;
-		}
-		axis_nodes[1] = &node_result->second;
-
-		/* Find reference arm node */
-		node_result = m_nodes.find(def.reference_arm_node);
-		if (node_result == m_nodes.end())
-		{
-			if (report != nullptr)
-			{
-				std::stringstream msg;
-				msg << "[Error] ProcessMeshwheels2(): Reference arm node not found (id: " << def.reference_arm_node.ToString() << "). Wheel not processed.";
-				report->push_back(msg.str());
-			}
-			return false;
-		}
-		RigEditor::Node* reference_arm_node = &node_result->second;
-
-		/* Generate nodes */
-		std::vector<Ogre::Vector3> generated_nodes;
-		generated_nodes.reserve(def.num_rays * 2);
-		Ogre::Vector3 axis_node_positions[] = {axis_nodes[0]->GetPosition(), axis_nodes[1]->GetPosition()};
-		BuildWheelNodes(generated_nodes, def.num_rays, axis_node_positions, reference_arm_node->GetPosition(), def.tyre_radius);
-
-		/* Find out where to connect rigidity node */
-		bool rigidity_beam_side_1 = false;
-		RigEditor::Node* rigidity_node = nullptr;
-		if (def.rigidity_node.IsValid())
-		{
-			node_result = m_nodes.find(def.rigidity_node);
-			if (node_result == m_nodes.end())
-			{
-				if (report != nullptr)
-				{
-					std::stringstream msg;
-					msg << "[Error] ProcessMeshwheels2(): Rigidity node not found (id: " << def.rigidity_node.ToString() << "). Wheel not processed.";
-					report->push_back(msg.str());
-				}
-				return false;
-			}
-			rigidity_node = &node_result->second;
-
-			float distance_1 = rigidity_node->GetPosition().distance(axis_nodes[0]->GetPosition());
-			float distance_2 = rigidity_node->GetPosition().distance(axis_nodes[1]->GetPosition());
-			rigidity_beam_side_1 = distance_1 < distance_2;
-		}
-
-		/* Generate beams */
-		Ogre::ManualObject * manual_mesh = m_wheels_dynamic_mesh.get();
-		for (unsigned int i = 0; i < def.num_rays; i++)
-		{
-			/* Bounded */
-			unsigned int outer_ring_node_index = (i * 2);
-			Ogre::Vector3 const & outer_ring_node_pos = generated_nodes[outer_ring_node_index];
-			Ogre::Vector3 const & inner_ring_node_pos = generated_nodes[outer_ring_node_index + 1];
-		
-			manual_mesh->position(axis_node_positions[0]);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-			manual_mesh->position(outer_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-			
-			manual_mesh->position(axis_node_positions[1]);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-			manual_mesh->position(inner_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-
-			manual_mesh->position(axis_node_positions[1]);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-			manual_mesh->position(outer_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-
-			manual_mesh->position(axis_node_positions[0]);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-			manual_mesh->position(inner_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_bounded_color);
-
-			/* Reinforcement */
-			unsigned int next_outer_ring_node_index = ((i + 1) % def.num_rays) * 2;
-			Ogre::Vector3 const & next_outer_ring_node_pos = generated_nodes[next_outer_ring_node_index];
-			Ogre::Vector3 const & next_inner_ring_node_pos = generated_nodes[next_outer_ring_node_index + 1];
-
-			manual_mesh->position(outer_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-			manual_mesh->position(inner_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-
-			manual_mesh->position(outer_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-			manual_mesh->position(next_outer_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-
-			manual_mesh->position(inner_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-			manual_mesh->position(next_inner_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-
-			manual_mesh->position(inner_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-			manual_mesh->position(next_outer_ring_node_pos);
-			manual_mesh->colour(m_config->meshwheel2_beam_reinforcement_color);
-
-			/* Rigidity beams */
-			if (rigidity_node != nullptr)
-			{
-				Ogre::Vector3 const & target_node_pos = (rigidity_beam_side_1) ? outer_ring_node_pos : inner_ring_node_pos;
-
-				manual_mesh->position(rigidity_node->GetPosition());
-				manual_mesh->colour(m_config->meshwheel2_beam_rigidity_color);
-				manual_mesh->position(target_node_pos);
-				manual_mesh->colour(m_config->meshwheel2_beam_rigidity_color);
-			}
-		}
+		report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, "Some axis nodes were not found");
+		return false;
+	}
+	if (axis_inner->GetPosition().z > axis_outer->GetPosition().z)
+	{
+		Node* swap = axis_inner;
+		axis_inner = axis_outer;
+		axis_outer = swap;
 	}
 	return true;
 }
 
-void Rig::BuildWheelNodes( 
-	std::vector<Ogre::Vector3> & out_positions,
-	unsigned int num_rays,
-	Ogre::Vector3 axis_nodes_pos[2],
-	Ogre::Vector3 const & reference_arm_node_pos,
-	float wheel_radius
-)
+bool Rig::GetWheelDefinitionNodes(
+	RigDef::Node::Id axis1,
+	RigDef::Node::Id axis2,
+	RigDef::Node::Id rigidity,
+	RigDef::Node::Id reference_arm,
+	Node*& out_axis_inner, 
+	Node*& out_axis_outer,
+	Node*& out_rigidity, 
+	Node*& out_reference_arm,
+	RigBuildingReport* report
+	)
 {
-	/* Find near attach */
-	Ogre::Real length_1 = axis_nodes_pos[0].distance(reference_arm_node_pos);
-	Ogre::Real length_2 = axis_nodes_pos[1].distance(reference_arm_node_pos);
-	Ogre::Vector3 const & near_attach = (length_1 < length_2) ? axis_nodes_pos[0] : axis_nodes_pos[1];
-
-	/* Axis */
-	Ogre::Vector3 axis_vector = axis_nodes_pos[1] - axis_nodes_pos[0];
-	axis_vector.normalise();
-	
-	/* Nodes */
-	Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_radius;
-	Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.0 / (num_rays * 2)), axis_vector);
-
-	for (unsigned int i = 0; i < num_rays; i++)
+	this->GetWheelAxisNodes(axis1, axis2, out_axis_inner, out_axis_outer, report);
+	// Rigidity node (leave NULL if undefined)
+	Node* rigidity_ptr = nullptr;
+	if (rigidity.IsValid())
 	{
-		/* Outer ring */
-		out_positions.push_back(axis_nodes_pos[0] + ray_vector);
-		ray_vector = ray_rotator * ray_vector;
-
-		/* Inner ring */
-		out_positions.push_back(axis_nodes_pos[1] + ray_vector);
-		ray_vector = ray_rotator * ray_vector;
+		rigidity_ptr = FindNode(rigidity, report);
+		if (rigidity_ptr == nullptr)
+		{
+			report->AddMessage(
+				RigBuildingReport::Message::LEVEL_ERROR, 
+				Ogre::String("Failed to find rigidity node: ") + rigidity.ToString());
+			return false;
+		}
+		out_rigidity = rigidity_ptr;
 	}
+	// Reference arm node (set to inner axis node if undefined)
+	Node* ref_arm_ptr = out_axis_inner;
+	if (reference_arm.IsValid())
+	{
+		ref_arm_ptr = FindNode(reference_arm, report);
+		if (ref_arm_ptr == nullptr)
+		{
+			report->AddMessage(
+				RigBuildingReport::Message::LEVEL_ERROR, 
+				Ogre::String("Failed to find reference arm node: ") + reference_arm.ToString());
+			return false;
+		}
+		out_reference_arm = ref_arm_ptr;
+	}
+	return true;
+}
+
+void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* report /*=nullptr*/)
+{
+	// FLEXBODYWHEELS
+	report->SetCurrentSectionName("flexbodywheels");
+	auto flexbodywheels_end = module->flex_body_wheels.end();
+	for (auto itor = module->flex_body_wheels.begin(); itor != flexbodywheels_end; ++itor)
+	{
+		Node* axis_inner = nullptr;
+		Node* axis_outer = nullptr;
+		Node* rigidity = nullptr;
+		Node* reference_arm = nullptr;
+		RigDef::FlexBodyWheel & def = *itor;
+		bool nodes_found = GetWheelDefinitionNodes(
+			def.nodes[0], def.nodes[1], def.rigidity_node, def.reference_arm_node, // Input
+			axis_inner, axis_outer, rigidity, reference_arm, // Output
+			report);
+		if (!nodes_found)
+		{
+			continue; // Error already logged
+		}
+
+		auto wheel = new FlexBodyWheel(def, axis_inner, axis_outer, rigidity, reference_arm);
+		wheel->SetGeometryIsDirty(true);
+		m_wheels.push_back(wheel);
+	}
+	
+	// MESHWHEELS_2
+	report->SetCurrentSectionName("meshwheels2");
+	auto meshwheels2_end = module->mesh_wheels_2.end();
+	for (auto itor = module->mesh_wheels_2.begin(); itor != meshwheels2_end; ++itor)
+	{
+		Node* axis_inner = nullptr;
+		Node* axis_outer = nullptr;
+		Node* rigidity = nullptr;
+		Node* reference_arm = nullptr;
+		RigDef::MeshWheel2 & def = *itor;
+		bool nodes_found = GetWheelDefinitionNodes(
+			def.nodes[0], def.nodes[1], def.rigidity_node, def.reference_arm_node, // Input
+			axis_inner, axis_outer, rigidity, reference_arm, // Output
+			report);
+		if (!nodes_found)
+		{
+			continue; // Error already logged
+		}
+		auto meshwheel2 = new MeshWheel2(def, axis_inner, axis_outer, rigidity, reference_arm);
+		meshwheel2->SetGeometryIsDirty(true);
+		m_wheels.push_back(meshwheel2);
+	}
+
+	report->ClearCurrentSectionName();
 }
 
 void Rig::RefreshNodeScreenPosition(Node & node, CameraHandler* camera_handler)
@@ -907,7 +832,8 @@ void Rig::AttachToScene(Ogre::SceneNode* parent_scene_node)
 	parent_scene_node->attachObject(m_nodes_dynamic_mesh.get());
 	parent_scene_node->attachObject(m_nodes_hover_dynamic_mesh.get());
 	parent_scene_node->attachObject(m_nodes_selected_dynamic_mesh.get());
-	parent_scene_node->attachObject(m_wheels_dynamic_mesh.get());
+
+	m_wheel_visuals->AttachToScene(parent_scene_node);
 }
 
 void Rig::DetachFromScene()
@@ -916,7 +842,6 @@ void Rig::DetachFromScene()
 	m_nodes_dynamic_mesh->detachFromParent();
 	m_nodes_hover_dynamic_mesh->detachFromParent();
 	m_nodes_selected_dynamic_mesh->detachFromParent();
-	m_wheels_dynamic_mesh->detachFromParent();
 }
 
 void Rig::DeselectAllNodes()
@@ -954,6 +879,11 @@ Node& Rig::CreateNewNode(Ogre::Vector3 const & position)
 void Rig::ClearMouseHoveredNode()
 {
 	m_mouse_hovered_node = nullptr;
+}
+
+void Rig::RefreshWheelsDynamicMesh(Ogre::SceneNode* parent_scene_node, RigEditor::Main* rig_editor)
+{
+	m_wheel_visuals->RefreshWheelsDynamicMeshes(parent_scene_node, rig_editor, m_wheels);
 }
 
 void Rig::TranslateSelectedNodes(Ogre::Vector3 const & offset, CameraHandler* camera_handler)
@@ -1257,11 +1187,42 @@ boost::shared_ptr<RigDef::File> Rig::Export()
 	// Export 'properties'
 	m_properties->Export(def);
 
-	// Export MeshWheels2
-	auto meshwheels2_end = m_mesh_wheels_2.end();
-	for (auto itor = m_mesh_wheels_2.begin(); itor != meshwheels2_end; ++itor)
+	auto output_module = def->root_module;
+
+	// EXPORT WHEELS
+	auto wheels_end = m_wheels.end();
+	for (auto itor = m_wheels.begin(); itor != wheels_end; ++itor)
 	{
-		module->mesh_wheels_2.push_back(itor->m_definition); // Copy definition
+		LandVehicleWheel* wheel = *itor;
+		switch (wheel->GetType())
+		{
+		case LandVehicleWheel::TYPE_MESHWHEEL_2:
+			{
+				RigEditor::MeshWheel2* mw2 = static_cast<RigEditor::MeshWheel2*>(wheel);
+				output_module->mesh_wheels_2.push_back(mw2->GetDefinition()); // Copy definition
+				break;
+			}
+		
+		case LandVehicleWheel::TYPE_MESHWHEEL:
+			{
+				RigEditor::MeshWheel* mw = static_cast<RigEditor::MeshWheel*>(wheel);
+				output_module->mesh_wheels.push_back(mw->GetDefinition()); // Copy definition
+				break;
+			}
+		
+		case LandVehicleWheel::TYPE_FLEXBODYWHEEL:
+			{
+				RigEditor::FlexBodyWheel* fbw = static_cast<RigEditor::FlexBodyWheel*>(wheel);
+				output_module->flex_body_wheels.push_back(fbw->GetDefinition()); // Copy definition
+				break;
+			}
+
+		default:
+			// This really shouldn't happen
+			throw std::runtime_error("INTERNAL ERROR: Rig::Export(): Unknown LandVehicleWheel::Type encountered");
+			break;
+		}
+		
 	}
 
 	// Return
@@ -1791,6 +1752,66 @@ void Rig::SelectedShocksUpdateAttributes(const RigAggregateShocksData* data)
 			if (data->IsContractionLimitUniform()) { shock->short_bound    = data->contraction_limit; }
 			if (data->IsPrecompressionUniform())   { shock->precompression = data->precompression; }
 		}
+	}
+}
+
+void Rig::SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor)
+{
+	if (wheel->IsSelected() == state_selected)
+	{
+		return; // No change
+	}
+	// Update selection state and visuals
+	wheel->SetIsSelected(state_selected);
+	m_wheel_visuals->UpdateWheelsSelectionHighlightBoxes(m_wheels, rig_editor);
+}
+
+void Rig::SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor)
+{
+	if (wheel->IsHovered() == state_hovered)
+	{
+		return; // No change
+	}
+	// Update hover state and visuals
+	wheel->SetIsSelected(state_hovered);
+	m_wheel_visuals->UpdateWheelsMouseHoverHighlightBoxes(m_wheels, rig_editor);
+}
+
+void Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
+{
+	bool anything_changed = false;
+	auto end = m_wheels.end();
+	for (auto itor = m_wheels.begin(); itor != end; ++itor)
+	{
+		LandVehicleWheel* wheel = *itor;
+		if (wheel->IsSelected() != state_selected)
+		{
+			anything_changed = true;
+			wheel->SetIsSelected(state_selected);
+		}
+	}
+	if (anything_changed)
+	{
+		m_wheel_visuals->UpdateWheelsSelectionHighlightBoxes(m_wheels, rig_editor);
+	}
+}
+
+void Rig::SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor)
+{
+	bool anything_changed = false;
+	auto end = m_wheels.end();
+	for (auto itor = m_wheels.begin(); itor != end; ++itor)
+	{
+		LandVehicleWheel* wheel = *itor;
+		if (wheel->IsHovered() != state_hovered)
+		{
+			anything_changed = true;
+			wheel->SetIsHovered(state_hovered);
+		}
+	}
+	if (anything_changed)
+	{
+		m_wheel_visuals->UpdateWheelsMouseHoverHighlightBoxes(m_wheels, rig_editor);
 	}
 }
 

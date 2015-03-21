@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -29,7 +29,8 @@
 
 #include "RigDef_Prerequisites.h"
 #include "RigDef_File.h"
-#include "RoRPrerequisites.h"
+#include "RigEditor_LandVehicleWheel.h"
+#include "RigEditor_Node.h"
 
 namespace RoR
 {
@@ -37,15 +38,25 @@ namespace RoR
 namespace RigEditor
 {
 
-class MeshWheel2
+class MeshWheel2: public LandVehicleWheel
 {
 	friend class RigEditor::Rig;
 
 public:
 
-	MeshWheel2(RigDef::MeshWheel2 const & def):
+	MeshWheel2(RigDef::MeshWheel2 const & def,  Node* inner, Node* outer, Node* rigidity, Node* reference_arm_node):
+		LandVehicleWheel(TYPE_MESHWHEEL_2),
 		m_definition(def)
-	{}
+	{
+		m_axis_inner_node = inner;
+		m_axis_outer_node = outer;
+		m_rigidity_node = rigidity;
+		m_reference_arm_node = reference_arm_node;
+	}
+
+	virtual void ReGenerateMeshData();
+
+	inline RigDef::MeshWheel2 & GetDefinition() { return m_definition; }
 
 protected:
 

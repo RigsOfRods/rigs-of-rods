@@ -71,6 +71,12 @@ public:
 	virtual void CommandRigSelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data*    data) = 0;
 	virtual void CommandRigSelectedHydrosUpdateAttributes    (const RigAggregateHydrosData*     data) = 0;
 	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data) = 0;
+
+	// Land vehicle wheel list
+	virtual void CommandSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected) = 0;
+	virtual void CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered) = 0;
+	virtual void CommandSetAllWheelsSelected(bool state_selected) = 0;
+	virtual void CommandSetAllWheelsHovered(bool state_selected) = 0;
 	
 };
 

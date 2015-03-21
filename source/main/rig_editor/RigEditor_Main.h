@@ -106,6 +106,12 @@ public:
 	virtual void CommandRigSelectedHydrosUpdateAttributes    (const RigAggregateHydrosData*     data);
 	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data);
 
+	// Wheel list
+	virtual void CommandSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected);
+	virtual void CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered);
+	virtual void CommandSetAllWheelsSelected(bool state_selected);
+	virtual void CommandSetAllWheelsHovered(bool state_selected);
+
 	/* GUI callbacks */
 
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);

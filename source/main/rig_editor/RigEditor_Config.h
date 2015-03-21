@@ -86,6 +86,20 @@ struct Config
 	Ogre::ColourValue   meshwheel2_beam_reinforcement_color;
 	Ogre::ColourValue   meshwheel2_beam_rigidity_color;
 
+	Ogre::ColourValue   meshwheel_beam_bounded_color;
+	Ogre::ColourValue   meshwheel_beam_reinforcement_color;
+	Ogre::ColourValue   meshwheel_beam_rigidity_color;
+
+	Ogre::ColourValue   flexbodywheel_rim_connection_color;
+	Ogre::ColourValue   flexbodywheel_rim_reinforcement_color;
+	Ogre::ColourValue   flexbodywheel_tyre_connection_color;
+	Ogre::ColourValue   flexbodywheel_tyre_reinforcement_color;
+	Ogre::ColourValue   flexbodywheel_tyre_rigidity_color;
+
+	/* Highlight AABB display */
+	Ogre::ColourValue   wheels_selection_highlight_boxes_color;
+	Ogre::ColourValue   wheels_hover_highlight_boxes_color;
+
 	/* Node display */
 	Ogre::ColourValue   node_generic_color;
 	float               node_generic_point_size;

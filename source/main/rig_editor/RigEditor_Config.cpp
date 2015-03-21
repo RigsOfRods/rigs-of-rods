@@ -112,6 +112,16 @@ Config::Config(Ogre::String const & conf_file_path)
 	meshwheel2_beam_reinforcement_color  = conf_file.GetColourValue("meshwheel2_beam_reinforcement_color_rgb");
 	meshwheel2_beam_rigidity_color       = conf_file.GetColourValue("meshwheel2_beam_rigidity_color_rgb");
 
+	meshwheel_beam_bounded_color        = conf_file.GetColourValue("meshwheel_beam_bounded_color_rgb");
+	meshwheel_beam_reinforcement_color  = conf_file.GetColourValue("meshwheel_beam_reinforcement_color_rgb");
+	meshwheel_beam_rigidity_color       = conf_file.GetColourValue("meshwheel_beam_rigidity_color_rgb");
+
+	flexbodywheel_rim_connection_color     = conf_file.GetColourValue("flexbodywheel_rim_connection_color");
+	flexbodywheel_rim_reinforcement_color  = conf_file.GetColourValue("flexbodywheel_rim_reinforcement_color");
+	flexbodywheel_tyre_connection_color	   = conf_file.GetColourValue("flexbodywheel_tyre_connection_color");
+	flexbodywheel_tyre_reinforcement_color = conf_file.GetColourValue("flexbodywheel_tyre_reinforcement_color");
+	flexbodywheel_tyre_rigidity_color	   = conf_file.GetColourValue("flexbodywheel_tyre_rigidity_color");
+
 	node_generic_color        = conf_file.GetColourValue("node_generic_color_rgb");
 	node_generic_point_size   = conf_file.GetFloat("node_generic_point_size");
 	node_hover_color          = conf_file.GetColourValue("node_hover_color_rgb");
@@ -123,5 +133,10 @@ Config::Config(Ogre::String const & conf_file_path)
 	camera_far_clip_distance  = conf_file.GetFloat("camera_far_clip_distance");
 	camera_FOVy_degrees       = conf_file.GetFloat("camera_FOVy_degrees");
 	ortho_camera_zoom_ratio   = conf_file.GetFloat("ortho_camera_zoom_ratio");
+
+	// HIGHLIGHT AABB COLORS
+
+	wheels_selection_highlight_boxes_color   = conf_file.GetColourValue("wheels_selection_highlight_boxes_color");
+	wheels_hover_highlight_boxes_color       = conf_file.GetColourValue("wheels_hover_highlight_boxes_color");
 
 }

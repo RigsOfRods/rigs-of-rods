@@ -27,6 +27,8 @@
 
 #include "GUI_RigEditorMenubar.h"
 
+#include "RigEditor_GuiPopupWheelsList.h"
+
 #include <MyGUI.h>
 
 using namespace RoR;
@@ -43,6 +45,12 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 	m_file_popup_item_land_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::LandVehiclePropertiesItemClicked);
 	m_file_popup_item_save_as        ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::SaveFileAsItemClicked);
 	m_menubar_item_help              ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::MenubarItemHelpClicked);
+
+	m_wheels_list = std::unique_ptr<RigEditor::GuiPopupWheelsList>(
+		new RigEditor::GuiPopupWheelsList(
+			rig_editor_interface, m_wheels_popup,
+			m_wheels_popup_item_select_all, m_wheels_popup_item_deselect_all)
+		);
 }
 
 void RigEditorMenubar::Show()
@@ -59,6 +67,16 @@ void RigEditorMenubar::StretchWidthToScreen()
 {
 	MyGUI::IntSize parentSize = m_rig_editor_menubar->getParentSize();
 	m_rig_editor_menubar->setSize(parentSize.width, m_rig_editor_menubar->getHeight());
+}
+
+void RigEditorMenubar::UpdateLandVehicleWheelsList(std::vector<RigEditor::LandVehicleWheel*> & list)
+{
+	m_wheels_list->UpdateWheelsList(list);
+}
+
+void RigEditorMenubar::ClearLandVehicleWheelsList()
+{
+	m_wheels_list->ClearWheelsList();
 }
 
 // ============================================================================

@@ -569,6 +569,7 @@ void Main::CommandCloseCurrentRig()
 
 		// Restore GUI
 		HideAllNodeBeamGuiPanels();
+		m_gui_menubar->ClearLandVehicleWheelsList();
 	}
 }
 
@@ -744,19 +745,24 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	/* BUILD RIG MESH */
 
 	m_rig = new RigEditor::Rig(m_config);
-	m_rig->Build(parser.GetFile(), this);
+	RigEditor::RigBuildingReport rig_build_report;
+	Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
+	m_rig->Build(parser.GetFile(), this, parent_scene_node, &rig_build_report);
 
 	/* SHOW MESH */
 
-	m_rig->AttachToScene(m_scene_manager->getRootSceneNode());
+	m_rig->AttachToScene(parent_scene_node);
 	/* Handle mouse selection of nodes */
 	m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
 	if (m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
 	{
-		m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+		m_rig->RefreshNodesDynamicMeshes(parent_scene_node);
 	}
+	/* Update GUI */
+	m_gui_menubar->ClearLandVehicleWheelsList();
+	m_gui_menubar->UpdateLandVehicleWheelsList(m_rig->GetWheels());
 
-	LOG("RigEditor: Rig loaded OK");
+	LOG(Ogre::String("RigEditor: Finished loading rig, report:\n") + rig_build_report.ToString());
 
 	return true;
 }
@@ -925,6 +931,26 @@ void Main::CommandRigSelectedHydrosUpdateAttributes(const RigAggregateHydrosData
 void Main::CommandRigSelectedCommands2UpdateAttributes(const RigAggregateCommands2Data*  data)
 {
 	m_rig->SelectedCommands2UpdateAttributes(data);
+}
+
+void Main::CommandSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected)
+{
+	m_rig->SetWheelSelected(wheel_ptr, wheel_index, state_selected, this);
+}
+
+void Main::CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered)
+{
+	m_rig->SetWheelHovered(wheel_ptr, wheel_index, state_hovered, this);
+}
+
+void Main::CommandSetAllWheelsSelected(bool state_selected)
+{
+	m_rig->SetAllWheelsSelected(state_selected, this);
+}
+
+void Main::CommandSetAllWheelsHovered(bool state_hovered)
+{
+	m_rig->SetAllWheelsHovered(state_hovered, this);
 }
 
 // ----------------------------------------------------------------------------

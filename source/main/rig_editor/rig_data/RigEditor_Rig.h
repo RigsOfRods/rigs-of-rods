@@ -43,6 +43,51 @@ namespace RoR
 namespace RigEditor
 {
 
+class RigBuildingReport
+{
+public:
+	struct Message
+	{
+		enum Level
+		{
+			LEVEL_ERROR,
+			LEVEL_WARNING,
+			LEVEL_INFO,
+			LEVEL_INVALID = 0xFFFFFFFF
+		};
+
+		Message(Level level, Ogre::String const & text, Ogre::String const & module_name, Ogre::String const & section_name):
+			level(level),
+			text(text),
+			module_name(module_name),
+			section_name(section_name)
+		{}
+
+		Ogre::String section_name;
+		Ogre::String module_name;
+		Ogre::String text;
+		Level level;
+	};
+
+	inline void SetCurrentSectionName(Ogre::String const & sec_name) { m_current_section_name = sec_name; }
+	inline void ClearCurrentSectionName() { m_current_section_name.clear(); }
+
+	inline void SetCurrentModuleName(Ogre::String const & sec_name) { m_current_module_name = sec_name; }
+	inline void ClearCurrentModuleName() { m_current_module_name.clear(); }
+
+	void AddMessage(Message::Level level, Ogre::String const & text)
+	{
+		m_messages.push_back(Message(level, text, m_current_module_name, m_current_section_name));
+	}
+
+	Ogre::String ToString() const;
+
+private:
+	Ogre::String m_current_section_name;
+	Ogre::String m_current_module_name;
+	std::list<Message> m_messages;
+};
+
 class Rig
 {
 public:
@@ -67,10 +112,7 @@ public:
 		return m_mouse_hovered_node;
 	}
 
-	void RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node);
-
 	void AttachToScene(Ogre::SceneNode* parent_scene_node);
-
 	void DetachFromScene();
 
 	bool ToggleMouseHoveredNodeSelected();
@@ -82,8 +124,6 @@ public:
 	void ClearMouseHoveredNode();
 
 	void TranslateSelectedNodes(Ogre::Vector3 const & offset, CameraHandler* camera_handler);
-
-	void RefreshBeamsDynamicMesh();
 
 	/** Deselects all nodes. If none was selected, selects all.
 	*/
@@ -107,10 +147,11 @@ public:
 	void DeleteBeam(std::vector<RigEditor::Beam*>::iterator & delete_itor);
 
 	void Build(
-			boost::shared_ptr<RigDef::File> rig_def, 
-			RigEditor::Main* rig_editor,
-			std::list<Ogre::String>* report = nullptr
-		);
+		boost::shared_ptr<RigDef::File> rig_def, 
+		RigEditor::Main* rig_editor,
+		Ogre::SceneNode* parent_scene_node,
+		RigBuildingReport* report // = nullptr
+	);
 
 	/** Blender-like extrusion; makes linked copies of selected nodes, selects new nodes.
 	*/
@@ -133,35 +174,52 @@ public:
 	void UpdateSelectedBeamsList();
 
 	inline unsigned int GetNumSelectedBeams() const { return m_selected_beams.size(); }
+
+	// Update visuals
+	void RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node);
+	void RefreshBeamsDynamicMesh();
+	void RefreshWheelsDynamicMesh(Ogre::SceneNode* parent_scene_node, RigEditor::Main* rig_editor);
 	
 	// Node/beam updaters
 	void SelectedNodesUpdateAttributes     (const RigAggregateNodesData      *data);
 	void SelectedPlainBeamsUpdateAttributes(const RigAggregatePlainBeamsData *data);
-	void SelectedMixedBeamsUpdateAttributes(const MixedBeamsAggregateData          *data);
+	void SelectedMixedBeamsUpdateAttributes(const MixedBeamsAggregateData    *data);
 	void SelectedShocksUpdateAttributes    (const RigAggregateShocksData     *data);
 	void SelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data    *data);
 	void SelectedHydrosUpdateAttributes    (const RigAggregateHydrosData     *data);
 	void SelectedCommands2UpdateAttributes (const RigAggregateCommands2Data  *data);
 
-	/** Rig building utility function
-	*/
-	Node* FindNode(
-		RigDef::Node::Id const & node_id, 
-		Ogre::String const & section_name,
-		std::list<Ogre::String>* report = nullptr
-		);
+	// Wheels
+	void SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor);
+	void SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor);
+	void SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor);
+	void SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor);
+
+	inline std::vector<LandVehicleWheel*>& GetWheels() { return m_wheels; }
 
 private:
 
-	bool ProcessMeshwheels2(std::vector<RigDef::MeshWheel2> & list, std::list<Ogre::String>* report = nullptr);
+	/** Rig building utility function
+	*/
+	Node* Rig::FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger = nullptr);
 
-	void BuildWheelNodes( 
-		std::vector<Ogre::Vector3> & out_positions,
-		unsigned int num_rays,
-		Ogre::Vector3 axis_nodes[2],
-		Ogre::Vector3 const & reference_arm_node,
-		float wheel_radius
+	bool GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report);
+
+	/// Finds all nodes required for wheel. 
+	/// @return False if some valid node was not found.
+	bool GetWheelDefinitionNodes(
+		RigDef::Node::Id axis1,
+		RigDef::Node::Id axis2,
+		RigDef::Node::Id rigidity,
+		RigDef::Node::Id reference_arm,
+		Node*& out_axis_inner, 
+		Node*& out_axis_outer,
+		Node*& out_rigidity, 
+		Node*& out_reference_arm,
+		RigBuildingReport* report
 		);
+
+	void BuildFromModule(RigDef::File::Module* module, RigBuildingReport* logger = nullptr);
 
 private:
 
@@ -170,9 +228,10 @@ private:
 	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
 	std::list<Beam>          m_beams;
 	std::list<CineCamera>    m_cinecameras;
-	std::list<MeshWheel2>    m_mesh_wheels_2;
 	Ogre::AxisAlignedBox     m_aabb;
 	unsigned int             m_highest_node_id;
+
+	std::vector<LandVehicleWheel*>    m_wheels;
 	
 	/* PROPERTIES */
 
@@ -183,11 +242,11 @@ private:
 	std::list<Beam*>     m_selected_beams;
 
 	/* VISUALS */
-	std::unique_ptr<Ogre::ManualObject>  m_beams_dynamic_mesh;
-	std::unique_ptr<Ogre::ManualObject>  m_nodes_dynamic_mesh;
-	std::unique_ptr<Ogre::ManualObject>  m_nodes_hover_dynamic_mesh;
-	std::unique_ptr<Ogre::ManualObject>  m_nodes_selected_dynamic_mesh;
-	std::unique_ptr<Ogre::ManualObject>  m_wheels_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>         m_beams_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>         m_nodes_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>         m_nodes_hover_dynamic_mesh;
+	std::unique_ptr<Ogre::ManualObject>         m_nodes_selected_dynamic_mesh;
+	std::unique_ptr<RigWheelVisuals>            m_wheel_visuals;
 
 	/* UTILITY */
 	bool                 m_modified;
