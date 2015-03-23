@@ -134,9 +134,11 @@ Config::Config(Ogre::String const & conf_file_path)
 	camera_FOVy_degrees       = conf_file.GetFloat("camera_FOVy_degrees");
 	ortho_camera_zoom_ratio   = conf_file.GetFloat("ortho_camera_zoom_ratio");
 
-	// HIGHLIGHT AABB COLORS
+	// HIGHLIGHT AABB PROPERTIES
 
 	wheels_selection_highlight_boxes_color   = conf_file.GetColourValue("wheels_selection_highlight_boxes_color");
+	wheels_selection_highlight_boxes_padding = conf_file.GetFloat("wheels_selection_highlight_boxes_padding");
 	wheels_hover_highlight_boxes_color       = conf_file.GetColourValue("wheels_hover_highlight_boxes_color");
+	wheels_hover_highlight_boxes_padding     = conf_file.GetFloat("wheels_hover_highlight_boxes_padding");
 
 }

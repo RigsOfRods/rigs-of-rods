@@ -261,6 +261,7 @@ void RigWheelVisuals::UpdateWheelsSelectionHighlightBoxes(
 	}
 
 	// Update selection highlight
+	float box_padding = rig_editor->GetConfig()->wheels_selection_highlight_boxes_padding;
 	m_wheels_selected_dynamic_mesh->BeginUpdate();
 	for (auto itor = wheels.begin(); itor != end; ++itor)
 	{
@@ -268,7 +269,9 @@ void RigWheelVisuals::UpdateWheelsSelectionHighlightBoxes(
 		if (wheel->IsSelected())
 		{
 			m_wheels_selected_dynamic_mesh->AddBox(
-				wheel->GetAabbEdgesMax(), wheel->GetAabbEdgesMin(), rig_editor->GetConfig()->wheels_selection_highlight_boxes_color);
+				wheel->GetAabbEdgesMax(box_padding), 
+				wheel->GetAabbEdgesMin(box_padding), 
+				rig_editor->GetConfig()->wheels_selection_highlight_boxes_color);
 		}
 	}
 	m_wheels_selected_dynamic_mesh->EndUpdate();
@@ -282,7 +285,7 @@ void RigWheelVisuals::UpdateWheelsMouseHoverHighlightBoxes(
 		Ogre::SceneNode* parent_scene_node
 		)
 {
-	// Check if any wheel is selected
+	// Check if any wheel is hovered
 	auto end = wheels.end();
 	bool hovered_found = false;
 	for (auto itor = wheels.begin(); itor != end; ++itor)
@@ -301,7 +304,8 @@ void RigWheelVisuals::UpdateWheelsMouseHoverHighlightBoxes(
 		return;
 	}
 
-	// Update selection highlight
+	// Update hover highlight
+	float box_padding = rig_editor->GetConfig()->wheels_hover_highlight_boxes_padding;
 	m_wheels_hovered_dynamic_mesh->BeginUpdate();
 	for (auto itor = wheels.begin(); itor != end; ++itor)
 	{
@@ -309,7 +313,9 @@ void RigWheelVisuals::UpdateWheelsMouseHoverHighlightBoxes(
 		if (wheel->IsHovered())
 		{
 			m_wheels_hovered_dynamic_mesh->AddBox(
-				wheel->GetAabbEdgesMax(), wheel->GetAabbEdgesMin(), rig_editor->GetConfig()->wheels_selection_highlight_boxes_color);
+				wheel->GetAabbEdgesMax(box_padding), 
+				wheel->GetAabbEdgesMin(box_padding), 
+				rig_editor->GetConfig()->wheels_hover_highlight_boxes_color);
 		}
 	}
 	m_wheels_hovered_dynamic_mesh->EndUpdate();

@@ -30,7 +30,6 @@
 #include "BitFlags.h"
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
-#include "RigEditor_AABB.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_Types.h"
 
@@ -147,8 +146,14 @@ public:
 	inline std::vector<Edge>& GetEdges() { return m_edges; }
 	virtual void ReGenerateMeshData() {}
 
-	inline Ogre::Vector3 const & GetAabbEdgesMin() const { return m_aabb.getMinimum(); }
-	inline Ogre::Vector3 const & GetAabbEdgesMax() const { return m_aabb.getMaximum(); }
+	inline Ogre::Vector3 GetAabbEdgesMin(float padding = 0.f) const
+	{
+		return m_aabb.getMinimum() - Ogre::Vector3(padding, padding, padding); 
+	}
+	inline Ogre::Vector3 GetAabbEdgesMax(float padding = 0.f) const
+	{ 
+		return m_aabb.getMaximum() + Ogre::Vector3(padding, padding, padding); 
+	}
 
 protected:
 	Node*                        m_axis_inner_node;

@@ -98,7 +98,9 @@ struct Config
 
 	/* Highlight AABB display */
 	Ogre::ColourValue   wheels_selection_highlight_boxes_color;
+	float               wheels_selection_highlight_boxes_padding;
 	Ogre::ColourValue   wheels_hover_highlight_boxes_color;
+	float               wheels_hover_highlight_boxes_padding;
 
 	/* Node display */
 	Ogre::ColourValue   node_generic_color;
