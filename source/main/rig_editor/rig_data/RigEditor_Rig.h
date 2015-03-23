@@ -179,6 +179,8 @@ public:
 	void RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node);
 	void RefreshBeamsDynamicMesh();
 	void RefreshWheelsDynamicMesh(Ogre::SceneNode* parent_scene_node, RigEditor::Main* rig_editor);
+	void CheckAndRefreshWheelsSelectionHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node);
+	void CheckAndRefreshWheelsMouseHoverHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node);
 	
 	// Node/beam updaters
 	void SelectedNodesUpdateAttributes     (const RigAggregateNodesData      *data);

@@ -65,7 +65,8 @@ public:
 		Ogre::Vector3 const & reference_arm_node,
 		std::vector<Ogre::Vector3>& out_vertices,
 		std::vector<Edge>& out_edges,
-		LandVehicleWheel::Type wheel_type
+		LandVehicleWheel::Type wheel_type,
+		Ogre::AxisAlignedBox & out_aabb
 		);
 
 	inline RigDef::MeshWheel & GetDefinition() { return m_definition; }

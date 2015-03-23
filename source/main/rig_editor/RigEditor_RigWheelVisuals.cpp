@@ -235,7 +235,11 @@ void RigWheelVisuals::DetachFromScene()
 	}
 }
 
-void RigWheelVisuals::UpdateWheelsSelectionHighlightBoxes(std::vector<LandVehicleWheel*> & wheels, RigEditor::Main* rig_editor)
+void RigWheelVisuals::UpdateWheelsSelectionHighlightBoxes(
+		std::vector<LandVehicleWheel*> & wheels, 
+		RigEditor::Main* rig_editor,
+		Ogre::SceneNode* parent_scene_node
+		)
 {
 	// Check if any wheel is selected
 	auto end = wheels.end();
@@ -252,6 +256,7 @@ void RigWheelVisuals::UpdateWheelsSelectionHighlightBoxes(std::vector<LandVehicl
 	if (!selected_found)
 	{
 		m_wheels_selected_dynamic_mesh->DetachFromScene();
+		this->SetIsSelectionDirty(false);
 		return;
 	}
 
@@ -267,20 +272,47 @@ void RigWheelVisuals::UpdateWheelsSelectionHighlightBoxes(std::vector<LandVehicl
 		}
 	}
 	m_wheels_selected_dynamic_mesh->EndUpdate();
+	m_wheels_selected_dynamic_mesh->AttachToScene(parent_scene_node);
+	this->SetIsSelectionDirty(false);
 }
 
-void RigWheelVisuals::UpdateWheelsMouseHoverHighlightBoxes(std::vector<LandVehicleWheel*> & wheels, RigEditor::Main* rig_editor)
+void RigWheelVisuals::UpdateWheelsMouseHoverHighlightBoxes(
+		std::vector<LandVehicleWheel*> & wheels, 
+		RigEditor::Main* rig_editor, 
+		Ogre::SceneNode* parent_scene_node
+		)
 {
-	m_wheels_hovered_dynamic_mesh->BeginUpdate();
+	// Check if any wheel is selected
 	auto end = wheels.end();
+	bool hovered_found = false;
+	for (auto itor = wheels.begin(); itor != end; ++itor)
+	{
+		LandVehicleWheel* wheel = *itor;
+		if (wheel->IsHovered())
+		{
+			hovered_found = true;
+			break;
+		}
+	}
+	if (!hovered_found)
+	{
+		m_wheels_hovered_dynamic_mesh->DetachFromScene();
+		this->SetIsHoverDirty(false);
+		return;
+	}
+
+	// Update selection highlight
+	m_wheels_hovered_dynamic_mesh->BeginUpdate();
 	for (auto itor = wheels.begin(); itor != end; ++itor)
 	{
 		LandVehicleWheel* wheel = *itor;
 		if (wheel->IsHovered())
 		{
 			m_wheels_hovered_dynamic_mesh->AddBox(
-				wheel->GetAabbEdgesMax(), wheel->GetAabbEdgesMin(), rig_editor->GetConfig()->wheels_hover_highlight_boxes_color);
+				wheel->GetAabbEdgesMax(), wheel->GetAabbEdgesMin(), rig_editor->GetConfig()->wheels_selection_highlight_boxes_color);
 		}
 	}
 	m_wheels_hovered_dynamic_mesh->EndUpdate();
+	m_wheels_hovered_dynamic_mesh->AttachToScene(parent_scene_node);
+	this->SetIsHoverDirty(false);
 }

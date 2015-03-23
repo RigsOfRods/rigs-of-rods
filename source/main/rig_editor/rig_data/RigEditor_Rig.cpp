@@ -1729,7 +1729,6 @@ void Rig::SelectedCommands2UpdateAttributes(const RigAggregateCommands2Data*   d
 	}
 }
 
-
 void Rig::SelectedShocksUpdateAttributes(const RigAggregateShocksData* data)
 {
 	auto itor_end = m_selected_beams.end();
@@ -1755,15 +1754,30 @@ void Rig::SelectedShocksUpdateAttributes(const RigAggregateShocksData* data)
 	}
 }
 
+void Rig::CheckAndRefreshWheelsSelectionHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node)
+{
+	if (m_wheel_visuals->IsSelectionDirty())
+	{
+		m_wheel_visuals->UpdateWheelsSelectionHighlightBoxes(m_wheels, rig_editor, parent_scene_node);	
+	}
+}
+
+void Rig::CheckAndRefreshWheelsMouseHoverHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node)
+{
+	if (m_wheel_visuals->IsHoverDirty())
+	{
+		m_wheel_visuals->UpdateWheelsMouseHoverHighlightBoxes(m_wheels, rig_editor, parent_scene_node);
+	}
+}
+
 void Rig::SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor)
 {
 	if (wheel->IsSelected() == state_selected)
 	{
 		return; // No change
 	}
-	// Update selection state and visuals
 	wheel->SetIsSelected(state_selected);
-	m_wheel_visuals->UpdateWheelsSelectionHighlightBoxes(m_wheels, rig_editor);
+	m_wheel_visuals->SetIsSelectionDirty(true);
 }
 
 void Rig::SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor)
@@ -1773,8 +1787,8 @@ void Rig::SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered
 		return; // No change
 	}
 	// Update hover state and visuals
-	wheel->SetIsSelected(state_hovered);
-	m_wheel_visuals->UpdateWheelsMouseHoverHighlightBoxes(m_wheels, rig_editor);
+	wheel->SetIsHovered(state_hovered);
+	m_wheel_visuals->SetIsHoverDirty(true);
 }
 
 void Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
@@ -1792,7 +1806,7 @@ void Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
 	}
 	if (anything_changed)
 	{
-		m_wheel_visuals->UpdateWheelsSelectionHighlightBoxes(m_wheels, rig_editor);
+		m_wheel_visuals->SetIsSelectionDirty(true);
 	}
 }
 
@@ -1811,7 +1825,7 @@ void Rig::SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor)
 	}
 	if (anything_changed)
 	{
-		m_wheel_visuals->UpdateWheelsMouseHoverHighlightBoxes(m_wheels, rig_editor);
+		m_wheel_visuals->SetIsHoverDirty(true);
 	}
 }
 

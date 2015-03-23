@@ -53,7 +53,8 @@ void MeshWheel2::ReGenerateMeshData()
 		m_reference_arm_node->GetPosition(),
 		m_vertices,
 		m_edges,
-		GetType()
+		GetType(),
+		m_aabb
 		);
 
 	this->SetGeometryIsDirty(false);

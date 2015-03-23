@@ -166,6 +166,20 @@ void FlexBodyWheel::ReGenerateMeshData()
 		m_edges.push_back(Edge(axis_index_outer, tire_outer_index, Edge::TYPE_FLEXBODYWHEEL_TYRE_REINFORCEMENT));
 	}
 
+	this->UpdateAABB();
+
 	this->SetGeometryIsDirty(false);
 	this->SetHasRayCountChanged(false);
+}
+
+void FlexBodyWheel::UpdateAABB()
+{
+	auto end = m_vertices.end();
+	auto itor = m_vertices.begin();
+	m_aabb.setNull();
+
+	for (; end != itor; ++itor)
+	{
+		m_aabb.merge(*itor);
+	}
 }

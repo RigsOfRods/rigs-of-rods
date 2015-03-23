@@ -43,7 +43,8 @@ namespace RigEditor
 class RigWheelVisuals
 {
 public:
-	RigWheelVisuals()
+	RigWheelVisuals():
+		m_flags(0)
 	{}
 
 	void Init(RigEditor::Main* rig_editor);
@@ -64,8 +65,19 @@ public:
 
 	// Wheel selection/hover highlights
 
-	void UpdateWheelsSelectionHighlightBoxes(std::vector<LandVehicleWheel*> & wheels, RigEditor::Main* rig_editor);
-	void UpdateWheelsMouseHoverHighlightBoxes(std::vector<LandVehicleWheel*> & wheels, RigEditor::Main* rig_editor);
+	void UpdateWheelsSelectionHighlightBoxes(
+			std::vector<LandVehicleWheel*> & wheels, 
+			RigEditor::Main* rig_editor, 
+			Ogre::SceneNode* parent_scene_node
+		);
+	void UpdateWheelsMouseHoverHighlightBoxes(
+			std::vector<LandVehicleWheel*> & wheels, 
+			RigEditor::Main* rig_editor, 
+			Ogre::SceneNode* parent_scene_node
+		);
+
+	BITMASK_PROPERTY(m_flags,  1,   FLAG_IS_HOVER_DIRTY,       IsHoverDirty,       SetIsHoverDirty)
+	BITMASK_PROPERTY(m_flags,  2,   FLAG_IS_SELECTION_DIRTY,   IsSelectionDirty,   SetIsSelectionDirty)
 
 protected:
 
@@ -83,6 +95,7 @@ protected:
 	std::unique_ptr<Ogre::ManualObject>         m_wheels_dynamic_mesh;
 	std::unique_ptr<HighlightBoxesDynamicMesh>  m_wheels_selected_dynamic_mesh;
 	std::unique_ptr<HighlightBoxesDynamicMesh>  m_wheels_hovered_dynamic_mesh;
+	unsigned int                                m_flags;
 };
 
 } // namespace RigEditor

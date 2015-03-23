@@ -30,6 +30,7 @@
 #include "BitFlags.h"
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
+#include "RigEditor_AABB.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_Types.h"
 
@@ -101,7 +102,8 @@ public:
 		m_reference_arm_node(nullptr),
 		m_rigidity_node_connect_outer_ring(false)
 	{
-		SetGeometryIsDirty(true);	
+		SetGeometryIsDirty(true);
+		m_aabb.setNull();
 	}
 
 	virtual ~LandVehicleWheel();
@@ -138,14 +140,15 @@ public:
 		Ogre::Vector3 const & axis_node_outer,
 		Ogre::Vector3 const & reference_arm_node,
 		Ogre::Vector3* rigidity_node_ptr,
-		float wheel_radius
+		float wheel_radius,
+		Ogre::AxisAlignedBox & out_aabb
 		);
 	inline std::vector<Ogre::Vector3>& GetVertices() { return m_vertices; }
 	inline std::vector<Edge>& GetEdges() { return m_edges; }
 	virtual void ReGenerateMeshData() {}
 
-	inline Ogre::Vector3 const & GetAabbEdgesMin() { return m_aabb_edges_min; }
-	inline Ogre::Vector3 const & GetAabbEdgesMax() { return m_aabb_edges_max; }
+	inline Ogre::Vector3 const & GetAabbEdgesMin() const { return m_aabb.getMinimum(); }
+	inline Ogre::Vector3 const & GetAabbEdgesMax() const { return m_aabb.getMaximum(); }
 
 protected:
 	Node*                        m_axis_inner_node;
@@ -156,8 +159,7 @@ protected:
 	std::vector<Ogre::Vector3>   m_vertices;
 	std::vector<Edge>            m_edges;
 	unsigned int                 m_flags;
-	Ogre::Vector3                m_aabb_edges_min;
-	Ogre::Vector3                m_aabb_edges_max;
+	Ogre::AxisAlignedBox         m_aabb;
 private:
 	Type                         m_type;
 };

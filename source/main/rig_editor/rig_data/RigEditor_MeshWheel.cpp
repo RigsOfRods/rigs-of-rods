@@ -54,7 +54,8 @@ void MeshWheel::ReGenerateMeshData()
 		m_reference_arm_node->GetPosition(),
 		m_vertices,
 		m_edges,
-		GetType()
+		GetType(),
+		m_aabb
 		);
 
 	this->SetGeometryIsDirty(false);
@@ -71,12 +72,13 @@ void MeshWheel::GenerateMeshWheelGeometry(
 	Ogre::Vector3 const & reference_arm_node,
 	std::vector<Ogre::Vector3>& out_vertices,
 	std::vector<Edge>& out_edges,
-	LandVehicleWheel::Type wheel_type
+	LandVehicleWheel::Type wheel_type,
+	Ogre::AxisAlignedBox & out_aabb
 	)
 {
 	// GENERATE VERTICES
 
-	LandVehicleWheel::BuildWheelNodes(out_vertices, num_rays, axis_point_inner, axis_point_outer, reference_arm_node, rigidity_point_ptr, wheel_radius);
+	LandVehicleWheel::BuildWheelNodes(out_vertices, num_rays, axis_point_inner, axis_point_outer, reference_arm_node, rigidity_point_ptr, wheel_radius, out_aabb);
 
 	// GENERATE EDGES
 

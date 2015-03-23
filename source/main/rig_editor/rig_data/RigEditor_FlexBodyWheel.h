@@ -61,6 +61,8 @@ public:
 	inline RigDef::FlexBodyWheel & GetDefinition() { return m_definition; }
 
 private:
+	void UpdateAABB();
+
 	RigDef::FlexBodyWheel        m_definition;
 };
 

@@ -508,15 +508,17 @@ void Main::UpdateMainLoop()
 		}
 
 		// ==== Update visuals ====
-
+		Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
 		if (rig_updated || node_selection_changed || node_hover_changed)
 		{
-			m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+			m_rig->RefreshNodesDynamicMeshes(parent_scene_node);
 		}
 		if (rig_updated)
 		{
 			m_rig->RefreshBeamsDynamicMesh();
 		}
+		m_rig->CheckAndRefreshWheelsSelectionHighlights(this, parent_scene_node);
+		m_rig->CheckAndRefreshWheelsMouseHoverHighlights(this, parent_scene_node);
 	}
 
 	/* Update devel console */

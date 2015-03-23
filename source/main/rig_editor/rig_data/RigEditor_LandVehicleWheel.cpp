@@ -32,6 +32,7 @@
 
 #include <vector>
 #include <OgreVector3.h>
+#include <OgreAxisAlignedBox.h>
 
 using namespace RoR;
 using namespace RigEditor;
@@ -49,7 +50,8 @@ void LandVehicleWheel::BuildWheelNodes(
 	Ogre::Vector3 const & axis_node_outer,
 	Ogre::Vector3 const & reference_arm_node_pos,
 	Ogre::Vector3* rigidity_node_ptr,
-	float wheel_radius
+	float wheel_radius,
+	Ogre::AxisAlignedBox & out_aabb
 )
 {
 	// Prepare buffer & insert initial points
@@ -71,17 +73,24 @@ void LandVehicleWheel::BuildWheelNodes(
 	// Generated nodes
 	Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_radius;
 	Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.0 / (num_rays * 2)), axis_vector);
+	Ogre::AxisAlignedBox aabb;
+	aabb.setNull();
 
 	for (unsigned int i = 0; i < num_rays; i++)
 	{
 		// Outer ring
-		out_positions.push_back(axis_node_inner + ray_vector);
+		Ogre::Vector3 pos = axis_node_inner + ray_vector;
+		aabb.merge(pos);
+		out_positions.push_back(pos);
 		ray_vector = ray_rotator * ray_vector;
 
 		// Inner ring
-		out_positions.push_back(axis_node_outer + ray_vector);
+		pos = axis_node_outer + ray_vector;
+		aabb.merge(pos);
+		out_positions.push_back(pos);
 		ray_vector = ray_rotator * ray_vector;
 	}
+	out_aabb = aabb;
 }
 
 void LandVehicleWheel::RigidityNodeUpdateConnectivity()

@@ -71,8 +71,8 @@ protected:
 	virtual void OnDeselectAllMouseFocusGained(MyGUI::MenuItem* menu_item, GuiWidgetUserdata* userdata) = 0;
 	virtual void OnDeselectAllMouseFocusLost  (MyGUI::MenuItem* menu_item, GuiWidgetUserdata* userdata) = 0;
 
-	void GuiCallback_MouseFocusGained(MyGUI::Widget* old_widget, MyGUI::Widget* new_widget);
-	void GuiCallback_MouseFocusLost  (MyGUI::Widget* old_widget, MyGUI::Widget* new_widget);
+	void GuiCallback_MouseFocusGained(MyGUI::Widget* menu_item_widget, MyGUI::Widget* menu_widget);
+	void GuiCallback_MouseFocusLost  (MyGUI::Widget* menu_item_widget, MyGUI::Widget* menu_widget);
 	void GuiCallback_MouseClicked    (MyGUI::Widget* sender);
 
 	std::vector<MyGUI::MenuItem*> m_list_item_widgets;
