@@ -53,7 +53,7 @@ using namespace GUI;
 		m_data.GetFlagsPtr(), RigEditor::RigAggregatePlainBeamsData::UNIFLAG, ((void*) &(SRC)), EditboxFieldSpec::SRC_TYPE);
 
 RigEditorBeamsPanel::RigEditorBeamsPanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config):
-	RigEditor::GuiNodeBeamPanelBase(rig_editor_interface, config, m_beams_panel, m_flag_i_checkbox)
+	RigEditor::RigElementGuiPanelBase(rig_editor_interface, config, m_beams_panel, m_flag_i_checkbox)
 {
 	m_flags_tooltip_label->setTextColour(m_text_color_tooltip);
 	

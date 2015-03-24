@@ -30,7 +30,7 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorHydrosPanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
-#include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_RigElementGuiPanelBase.h"
 #include "RigEditor_IMain.h"
 #include "RigEditor_RigQueries.h"
 
@@ -40,7 +40,7 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorHydrosPanel: public RigEditorHydrosPanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorHydrosPanel: public RigEditorHydrosPanelLayout, public RigEditor::RigElementGuiPanelBase
 {
 
 public:
@@ -63,12 +63,12 @@ private:
 	RigEditor::RigAggregateHydrosData m_data;
 
 	// GUI form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_factor_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_start_delay_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_stop_delay_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_start_function_field; 
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_stop_function_field;  
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;  
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_extension_factor_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_start_delay_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_stop_delay_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_start_function_field; 
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_stop_function_field;  
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_detacher_group_field;  
 };
 
 } // namespace GUI

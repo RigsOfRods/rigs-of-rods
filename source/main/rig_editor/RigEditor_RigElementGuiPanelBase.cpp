@@ -25,7 +25,7 @@
 	@date   01/2015
 */
 
-#include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_RigElementGuiPanelBase.h"
 
 #include "RigEditor_Config.h"
 
@@ -42,7 +42,7 @@ using namespace RigEditor;
 
 #define CONVERT_COLOR_OGRE_TO_MYGUI(OUT, IN) OUT.red = IN.r; OUT.green = IN.g; OUT.blue = IN.b; OUT.alpha = IN.a;
 
-GuiNodeBeamPanelBase::GuiNodeBeamPanelBase(
+RigElementGuiPanelBase::RigElementGuiPanelBase(
 	RigEditor::IMain* rig_editor_interface, 
 	RigEditor::Config* config, 
 	MyGUI::Window* panel_widget,
@@ -63,7 +63,7 @@ GuiNodeBeamPanelBase::GuiNodeBeamPanelBase(
 // Editbox utils
 // ----------------------------------------------------------------------------
 
-void GuiNodeBeamPanelBase::EditboxRestoreValue(EditboxFieldSpec* spec)
+void RigElementGuiPanelBase::EditboxRestoreValue(EditboxFieldSpec* spec)
 {
 	// Mark uniform state
 	if (spec->label != nullptr)
@@ -96,7 +96,7 @@ void GuiNodeBeamPanelBase::EditboxRestoreValue(EditboxFieldSpec* spec)
 		spec->editbox->setCaption("");
 	}
 }
-void GuiNodeBeamPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
+void RigElementGuiPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
 {
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(nullptr); // Remove focus
 	if (spec->editbox->getCaption().empty())
@@ -122,7 +122,7 @@ void GuiNodeBeamPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
 	}
 }
 
-void GuiNodeBeamPanelBase::SetupEditboxField(
+void RigElementGuiPanelBase::SetupEditboxField(
 		EditboxFieldSpec* spec, 
 		MyGUI::TextBox* label, MyGUI::EditBox* editbox, 
 		unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
@@ -130,12 +130,12 @@ void GuiNodeBeamPanelBase::SetupEditboxField(
 	)
 {
 	*spec = EditboxFieldSpec(label, editbox, source_flags_ptr, uniformity_flag, source_ptr, source_type_flag);
-	editbox->eventKeySetFocus      += MyGUI::newDelegate(this, &GuiNodeBeamPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue);
-	editbox->eventKeyButtonPressed += MyGUI::newDelegate(this, &GuiNodeBeamPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores);
+	editbox->eventKeySetFocus      += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue);
+	editbox->eventKeyButtonPressed += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores);
 	editbox->setUserData(spec);
 }
 
-void GuiNodeBeamPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
+void RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
 {
 	if (old_widget == nullptr)
 	{
@@ -149,7 +149,7 @@ void GuiNodeBeamPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue(MyGU
 	}
 }
 
-void GuiNodeBeamPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores(MyGUI::Widget* widget, MyGUI::KeyCode key_code, MyGUI::Char key_value)
+void RigElementGuiPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores(MyGUI::Widget* widget, MyGUI::KeyCode key_code, MyGUI::Char key_value)
 {
 	bool key_escape = (key_code == MyGUI::KeyCode::Escape);
 	bool key_enter = (key_code == MyGUI::KeyCode::Return);
@@ -172,7 +172,7 @@ void GuiNodeBeamPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores(MyGUI::Wi
 // Checkbox utils
 // ----------------------------------------------------------------------------
 
-void GuiNodeBeamPanelBase::SetupFlagCheckbox(
+void RigElementGuiPanelBase::SetupFlagCheckbox(
 	MyGUI::Button* checkbox, 
 	unsigned int* data_flags_ptr, 
 	unsigned int flag_uniform, 
@@ -181,19 +181,19 @@ void GuiNodeBeamPanelBase::SetupFlagCheckbox(
 	const char* tooltip_text)
 {
 	checkbox->setUserData(FlagCheckboxUserData(data_flags_ptr, flag_uniform, flag_value, tooltip_text, tooltip_label));
-	checkbox->eventMouseButtonClick += MyGUI::newDelegate(this, &GuiNodeBeamPanelBase::CallbackClick_FlagCheckboxUpdateValue);
-	checkbox->eventMouseSetFocus    += MyGUI::newDelegate(this, &GuiNodeBeamPanelBase::CallbackGotMouseFocus_FlagCheckboxShowTooltip);
-	checkbox->eventMouseLostFocus   += MyGUI::newDelegate(this, &GuiNodeBeamPanelBase::CallbackLostMouseFocus_FlagCheckboxClearTooltip);
+	checkbox->eventMouseButtonClick += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackClick_FlagCheckboxUpdateValue);
+	checkbox->eventMouseSetFocus    += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackGotMouseFocus_FlagCheckboxShowTooltip);
+	checkbox->eventMouseLostFocus   += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackLostMouseFocus_FlagCheckboxClearTooltip);
 }
 
-void GuiNodeBeamPanelBase::UpdateFlagCheckbox(MyGUI::Button* checkbox, bool selected, bool mixed)
+void RigElementGuiPanelBase::UpdateFlagCheckbox(MyGUI::Button* checkbox, bool selected, bool mixed)
 {
 	checkbox->setStateSelected((mixed) ? false : selected);
 	auto & text_color = (mixed) ? m_text_color_mixvalues : m_text_color_default;
 	checkbox->setTextColour(text_color);
 }
 
-void GuiNodeBeamPanelBase::CallbackClick_FlagCheckboxUpdateValue(MyGUI::Widget* sender)
+void RigElementGuiPanelBase::CallbackClick_FlagCheckboxUpdateValue(MyGUI::Widget* sender)
 {
 	MyGUI::Button* checkbox = sender->castType<MyGUI::Button>();
 	assert(checkbox != nullptr);
@@ -219,7 +219,7 @@ void GuiNodeBeamPanelBase::CallbackClick_FlagCheckboxUpdateValue(MyGUI::Widget* 
 	Bitmask_SetBool( selected, *userdata_ptr->data_flags_ptr, userdata_ptr->value_flag);
 }
 
-void GuiNodeBeamPanelBase::CallbackGotMouseFocus_FlagCheckboxShowTooltip(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
+void RigElementGuiPanelBase::CallbackGotMouseFocus_FlagCheckboxShowTooltip(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
 {
 	FlagCheckboxUserData* userdata_ptr = new_widget->getUserData<FlagCheckboxUserData>();
 	if (userdata_ptr == nullptr)
@@ -229,7 +229,7 @@ void GuiNodeBeamPanelBase::CallbackGotMouseFocus_FlagCheckboxShowTooltip(MyGUI::
 	userdata_ptr->tooltip_textbox->setCaption(userdata_ptr->tooltip_text);
 }
 
-void GuiNodeBeamPanelBase::CallbackLostMouseFocus_FlagCheckboxClearTooltip(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
+void RigElementGuiPanelBase::CallbackLostMouseFocus_FlagCheckboxClearTooltip(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
 {
 	FlagCheckboxUserData* userdata_ptr = new_widget->getUserData<FlagCheckboxUserData>();
 	if (userdata_ptr == nullptr)
@@ -243,7 +243,7 @@ void GuiNodeBeamPanelBase::CallbackLostMouseFocus_FlagCheckboxClearTooltip(MyGUI
 // Other
 // ----------------------------------------------------------------------------
 
-void GuiNodeBeamPanelBase::AlignToScreen(RigEditor::GuiPanelPositionData* position_data)
+void RigElementGuiPanelBase::AlignToScreen(RigEditor::GuiPanelPositionData* position_data)
 {
 	MyGUI::IntSize screenSize = m_panel_widget->getParentSize();
 	int x = position_data->margin_left_px; // Anchor: left

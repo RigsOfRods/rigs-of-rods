@@ -42,7 +42,7 @@ namespace RoR
 namespace RigEditor
 {
 
-class GuiNodeBeamPanelBase: public GuiPanelBase
+class RigElementGuiPanelBase: public GuiPanelBase
 {
 
 public:
@@ -110,7 +110,7 @@ public:
 	};
 	// ------------------------------------------------------------------------
 
-	GuiNodeBeamPanelBase(
+	RigElementGuiPanelBase(
 		RigEditor::IMain* rig_editor_interface, 
 		RigEditor::Config* config, 
 		MyGUI::Window* panel_widget,

@@ -54,7 +54,7 @@ using namespace GUI;
 	);
 
 RigEditorShocks2Panel::RigEditorShocks2Panel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config):
-	RigEditor::GuiNodeBeamPanelBase(rig_editor_interface, config, m_shocks2_panel, m_flag_i_checkbox)
+	RigEditor::RigElementGuiPanelBase(rig_editor_interface, config, m_shocks2_panel, m_flag_i_checkbox)
 {
 	m_flags_tooltip_label->setTextColour(m_text_color_tooltip);
 	

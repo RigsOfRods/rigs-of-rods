@@ -30,7 +30,7 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorShocksPanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
-#include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_RigElementGuiPanelBase.h"
 #include "RigEditor_RigQueries.h"
 #include "RigEditor_IMain.h"
 
@@ -40,7 +40,7 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorShocksPanel: public RigEditorShocksPanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorShocksPanel: public RigEditorShocksPanelLayout, public RigEditor::RigElementGuiPanelBase
 {
 
 public:
@@ -52,7 +52,7 @@ public:
 	inline void Hide()
 	{
 		m_data.Reset();
-		GuiNodeBeamPanelBase::Hide();
+		RigElementGuiPanelBase::Hide();
 	}
 
 	inline RigEditor::RigAggregateShocksData* GetShocksData() { return &m_data; }
@@ -72,12 +72,12 @@ private:
 	RigEditor::RigAggregateShocksData m_data;
 
 	// GUI form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_spring_field;        
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_damping_field;       
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_contraction_limit_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_limit_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_precompression_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_detacher_group_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_spring_field;        
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_damping_field;       
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_contraction_limit_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_extension_limit_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_precompression_field;
 
 };
 

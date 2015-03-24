@@ -34,7 +34,7 @@
 using namespace RoR;
 using namespace GUI;
 
-#define SUPERCLASS RigEditor::GuiNodeBeamPanelBase
+#define SUPERCLASS RigEditor::RigElementGuiPanelBase
 
 // ----------------------------------------------------------------------------
 // Constructor
