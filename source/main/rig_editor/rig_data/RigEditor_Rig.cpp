@@ -39,7 +39,7 @@
 #include "RigEditor_MeshWheel2.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_RigProperties.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 #include "RigEditor_RigWheelVisuals.h"
 
 #include <OgreManualObject.h>

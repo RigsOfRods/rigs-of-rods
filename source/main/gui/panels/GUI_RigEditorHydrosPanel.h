@@ -32,7 +32,7 @@
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_RigElementGuiPanelBase.h"
 #include "RigEditor_IMain.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 namespace RoR
 {

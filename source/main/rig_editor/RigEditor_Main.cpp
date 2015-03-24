@@ -54,7 +54,7 @@
 #include "RigEditor_Node.h"
 #include "RigEditor_Rig.h"
 #include "RigEditor_RigProperties.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 #include "Settings.h"
 
 #include <OISKeyboard.h>

@@ -31,7 +31,7 @@
 #include "GUI_RigEditorShocksPanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_RigElementGuiPanelBase.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 #include "RigEditor_IMain.h"
 
 namespace RoR

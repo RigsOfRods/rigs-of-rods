@@ -28,7 +28,7 @@
 #include "GUI_RigEditorShocks2Panel.h"
 #include "RigDef_File.h" // For shock flags
 #include "RigEditor_Config.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 #include <MyGUI.h>
 

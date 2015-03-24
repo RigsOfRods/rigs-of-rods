@@ -27,7 +27,7 @@
 
 #include "GUI_RigEditorCommands2Panel.h"
 #include "RigEditor_Config.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 #include <MyGUI.h>
 
