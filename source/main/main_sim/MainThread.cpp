@@ -645,6 +645,10 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
 	}
 
+	// ============================================================================
+	// Loading settings resources
+	// ============================================================================
+
 	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
 
@@ -669,10 +673,10 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	if (BSETTING("HeatHaze", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
 
-	if (BSETTING("Sunburn", false) && !isLoadedMap["SUNBURN"])
+	if (BSETTING("Sunburn", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
 
-	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !isLoadedMap["PSSM"])
+	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
@@ -725,7 +729,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 
 	// depth of field effect
-	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 	{
 		gEnv->frameListener->dof = new DOFManager();
 	}
