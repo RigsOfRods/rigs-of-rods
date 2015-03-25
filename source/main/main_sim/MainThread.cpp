@@ -645,65 +645,35 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
 	}
 
-	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !isLoadedMap["HYDRAX"])
-	{
+	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
-		isLoadedMap["HYDRAX"] = true;
-	}
 
-	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && !isLoadedMap["CAELUM"])
-	{
+	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-		isLoadedMap["CAELUM"] = true;
-	}
 
-	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !isLoadedMap["PAGED"])
-	{
+	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
-		isLoadedMap["PAGED"] = true;
-	}
 
-	if (BSETTING("HDR", false) && !isLoadedMap["HDR"])
-	{
+	if (BSETTING("HDR", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
-		isLoadedMap["HDR"] = true;
-	}
 
-	if (BSETTING("DOF", false) && !isLoadedMap["DEPTH_OF_FIELD"])
-	{
+	if (BSETTING("DOF", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
-		isLoadedMap["DEPTH_OF_FIELD"] = true;
-	}
 
-	if (BSETTING("Glow", false) && !isLoadedMap["GLOW"])
-	{
+	if (BSETTING("Glow", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
-		isLoadedMap["GLOW"] = true;
-	}
 
-	if (BSETTING("Motion blur", false) && !isLoadedMap["BLUR"])
-	{
+	if (BSETTING("Motion blur", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
-		isLoadedMap["BLUR"] = true;
-	}
 
-	if (BSETTING("HeatHaze", false) && !isLoadedMap["HEATHAZE"])
-	{
+	if (BSETTING("HeatHaze", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
-		isLoadedMap["HEATHAZE"] = true;
-	}
 
 	if (BSETTING("Sunburn", false) && !isLoadedMap["SUNBURN"])
-	{
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
-		isLoadedMap["SUNBURN"] = true;
-	}
 
 	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !isLoadedMap["PSSM"])
-	{
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
-		isLoadedMap["PSSM"] = true;
-	}
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
 
@@ -748,14 +718,14 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 
 	// heathaze effect
-	if (BSETTING("HeatHaze", false) && isLoadedMap["HEATHAZE"])
+	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 	{
 		gEnv->frameListener->heathaze = new HeatHaze();
 		gEnv->frameListener->heathaze->setEnable(true);
 	}
 
 	// depth of field effect
-	if (BSETTING("DOF", false) && isLoadedMap["DEPTH_OF_FIELD"])
+	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 	{
 		gEnv->frameListener->dof = new DOFManager();
 	}
