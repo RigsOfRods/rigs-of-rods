@@ -280,8 +280,11 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
 
-//	PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem")); // Not needed / overrides Settings in Skysubsystem !
-//	initFog();
+	if (SSETTING("Sky effects", "Sandstorm (fastest)") == "Sandstorm (fastest)") //Caelum has its own fog management
+	{
+		PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
+		initFog();
+	}
 
 	PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
 	initVegetation();
@@ -411,7 +414,7 @@ void TerrainManager::initFog()
 	if (far_clip >= UNLIMITED_SIGHTRANGE)
 		gEnv->sceneManager->setFog(FOG_NONE);
 	else
-		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.0f, far_clip * 0.7f, far_clip * 0.9f);
+		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.000f, far_clip * 0.65f, far_clip*0.9);
 }
 
 void TerrainManager::initVegetation()
