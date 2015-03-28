@@ -39,7 +39,7 @@ If you are one of the previous authors and happen to come across this list pleas
 | ?                              | kevinmce                | ?                      | ?                              |
 | ?                              | 09Challenger            | ?                      | ?                              |
 | Speciesx                       | klink                   | ?                      | ?                              |
-
+| ?                              | hagdervriese            | ?                      | ?                              |
 
 ##### authors of the source code since reboot (move to git)
 | GitHub nickname                | RoR forum nickname      | real name              | email                          |

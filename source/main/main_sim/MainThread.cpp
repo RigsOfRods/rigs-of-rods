@@ -624,7 +624,7 @@ void MainThread::Go()
 
 bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected_map)
 {
-	if (m_base_resource_load == false)
+	if (!m_base_resource_load)
 	{
 		// ============================================================================
 		// Loading base resources
@@ -643,90 +643,103 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+	}
+
+	// ============================================================================
+	// Loading settings resources
+	// ============================================================================
+
+	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
 
-		if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)")
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
 
-		if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)")
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
+	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
 
-		if (BSETTING("HDR", false))
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
+	if (BSETTING("HDR", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
 
-		if (BSETTING("DOF", false))
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
+	if (BSETTING("DOF", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
 
-		if (BSETTING("Glow", false))
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
+	if (BSETTING("Glow", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
 
-		if (BSETTING("Motion blur", false))
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
+	if (BSETTING("Motion blur", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
 
-		if (BSETTING("HeatHaze", false))
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
+	if (BSETTING("HeatHaze", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
 
-		if (BSETTING("Sunburn", false))
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
+	if (BSETTING("Sunburn", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
 
-		if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps")
-			RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
+	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
 
-		Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
 
-		// ============================================================================
-		// Setup
-		// ============================================================================
+	// ============================================================================
+	// Setup
+	// ============================================================================
 
-		Application::CreateOverlayWrapper();
-		Application::GetOverlayWrapper()->SetupDirectionArrow();
+	Application::CreateOverlayWrapper();
+	Application::GetOverlayWrapper()->SetupDirectionArrow();
 
+	if (!m_base_resource_load)
+	{
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
+	}
 
-		if (!enable_network)
+	if (!enable_network)
+	{
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+		if (gEnv->player != nullptr)
 		{
-			gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-			if (gEnv->player != nullptr)
-			{
-				gEnv->player->setVisible(false);
-			}
+			gEnv->player->setVisible(false);
 		}
+	}
 
-		if (enable_network)
+	if (enable_network)
+	{
+		// NOTE: create player _AFTER_ network, important
+		int colourNum = 0;
+		if (gEnv->network->getLocalUserData())
 		{
-			// NOTE: create player _AFTER_ network, important
-			int colourNum = 0;
-			if (gEnv->network->getLocalUserData())
-			{
-				colourNum = gEnv->network->getLocalUserData()->colournum;
-			}
-			gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+			colourNum = gEnv->network->getLocalUserData()->colournum;
 		}
-		else
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+	}
+	else
+	{
+		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
+		if (gEnv->player != nullptr)
 		{
-			gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-			if (gEnv->player != nullptr)
-			{
-				gEnv->player->setVisible(false);
-			}
+			gEnv->player->setVisible(false);
 		}
+	}
 
-		// heathaze effect
-		if (BSETTING("HeatHaze", false))
-		{
-			gEnv->frameListener->heathaze = new HeatHaze();
-			gEnv->frameListener->heathaze->setEnable(true);
-		}
+	// heathaze effect
+	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+	{
+		gEnv->frameListener->heathaze = new HeatHaze();
+		gEnv->frameListener->heathaze->setEnable(true);
+	}
 
-		// depth of field effect
-		if (BSETTING("DOF", false))
-		{
-			gEnv->frameListener->dof = new DOFManager();
-		}
+	// depth of field effect
+	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
+	{
+		gEnv->frameListener->dof = new DOFManager();
+	}
 
+	if (!m_base_resource_load)
+	{
 		// init camera manager after mygui and after we have a character
 		new CameraManager(gEnv->frameListener->dof);
 	}
+	
 	// ============================================================================
 	// Loading map
 	// ============================================================================

@@ -100,6 +100,7 @@ protected:
 	RigEditor::Main*   m_rig_editor;
 	bool			   m_base_resource_load;
 
+	std::map<std::string, bool> isLoadedMap;
 };
 
 } // namespace RoR
