@@ -62,13 +62,11 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	calcMouse();
 
-	calcTurboProp(doUpdate, dt);
 	calcScrewProp(doUpdate);
 	calcWing();
 	calcFuseDrag();
 	calcAirBrakes();
 	calcBuoyance(doUpdate, dt, step, maxsteps);
-
 
 	calcAxles(doUpdate, dt);
 	calcWheels(doUpdate, dt, step, maxsteps);
@@ -80,6 +78,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	// integration, most likely this needs to be done after all the
 	// forces have been calculated other wise, forces might linger
 	calcNodes_(doUpdate, dt, step, maxsteps);
+
+	//This has to be done after the nodes
+	calcTurboProp(doUpdate, dt);
 
 	calcReplay(doUpdate, dt);
 	BES_STOP(BES_CORE_WholeTruckCalc);

@@ -204,139 +204,95 @@ void DustPool::update(float gspeed)
 	gspeed=fabs(gspeed);
 	for (int i=0; i<allocated; i++)
 	{
-		/*
-		// show particle if requested
-		if (pss[i] && visible[i])
-		{
-			pss[i]->setVisible(true);
-			//pss[i]->setEmitting(true);
-		}
-		*/
+		ParticleEmitter *emit = pss[i]->getEmitter(0);
+		Vector3 ndir = velocities[i];
+		Real vel = ndir.length();
+		ColourValue col = colours[i];
+
+		if (vel == 0)
+			vel += 0.0001;
+		ndir = ndir / vel;
+
+		emit->setEnabled(true);
+
+		sns[i]->setPosition(positions[i]);
+		emit->setDirection(ndir);
+		emit->setParticleVelocity(vel);
 
 		if (types[i]==DUST_NORMAL)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=velocities[i];
 			ndir.y=0;
 			ndir=ndir/2.0;
-			//if (ndir.y<0) ndir.y=-ndir.y;
-			Real vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
-			emit->setDirection(ndir);
-			emit->setParticleVelocity(vel);
-//			emit->setColour(ColourValue(0.65, 0.55, 0.53,(vel+(gspeed/10.0))*0.05));
-			ColourValue col=colours[i];
+
 			col.a=(vel+(gspeed/10.0))*0.05;
-			emit->setColour(col);
 			emit->setTimeToLive((vel+(gspeed/10.0))*0.05/0.1);
 		}
-		if (types[i]==DUST_CLUMP)
+		else if (types[i]==DUST_CLUMP)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=velocities[i];
-			//ndir.y=0;
 			ndir=ndir/2.0;
 			if (ndir.y<0) ndir.y=-ndir.y;
-			Real vel=ndir.length();
-			ndir.y+=vel/5.5;
-			vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
-			emit->setDirection(ndir);
-			emit->setParticleVelocity(vel);
-			ColourValue col=colours[i];
+
 			col.a=1.0;
-			emit->setColour(col);
-		} else if (types[i]==DUST_RUBBER)
+		} 
+		else if (types[i]==DUST_RUBBER)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=velocities[i];
 			ndir.y=0;
 			ndir=ndir/4.0;
-			//if (ndir.y<0) ndir.y=-ndir.y;
-			Real vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
-			emit->setDirection(ndir);
-			emit->setParticleVelocity(vel);
-			emit->setColour(ColourValue(0.9, 0.9, 0.9,vel*0.05));
+
+			col.a = vel*0.05;
+			col.b = 0.9;
+			col.g = 0.9;
+			col.r = 0.9;
+
 			emit->setTimeToLive(vel*0.05/0.1);
-		} else if (types[i]==DUST_SPARKS)
+		} 
+		else if (types[i]==DUST_SPARKS)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=-velocities[i];
-			//ndir.y=-ndir.y;
-			Real vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
-			emit->setDirection(ndir);
-			emit->setParticleVelocity(vel);
-		} else if (types[i]==DUST_VAPOUR)
+			//ugh
+		} 
+		else if (types[i]==DUST_VAPOUR)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=velocities[i];
-			Real vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
-			emit->setDirection(ndir);
 			emit->setParticleVelocity(vel/2.0);
-			emit->setColour(ColourValue(0.9, 0.9, 0.9,rates[i]*0.03));
+
+			col.a = rates[i] * 0.03;
+			col.b = 0.9;
+			col.g = 0.9;
+			col.r = 0.9;
+
 			emit->setTimeToLive(rates[i]*0.03/0.1);
-		} else if (types[i]==DUST_DRIP)
+		} 
+		else if (types[i]==DUST_DRIP)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=velocities[i];
-			Real vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
-			emit->setDirection(ndir);
-			emit->setParticleVelocity(vel);
 			emit->setEmissionRate(rates[i]);
-		} else if (types[i]==DUST_SPLASH)
+		} 
+		else if (types[i]==DUST_SPLASH)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Vector3 ndir=velocities[i];
-			if (ndir.y<0) ndir.y=-ndir.y/2.0;
-			ndir=ndir/2.0;
-			Real vel=ndir.length();
-			if (vel == 0)
-				vel += 0.0001;
-			ndir=ndir/vel;
-			emit->setEnabled(true);
-			sns[i]->setPosition(positions[i]);
+			if (ndir.y<0) 
+				ndir.y=-ndir.y/2.0;
+
 			emit->setDirection(ndir);
-			emit->setParticleVelocity(vel);
-			emit->setColour(ColourValue(0.9, 0.9, 0.9,vel*0.05));
+
+			col.a = vel*0.05;
+			col.b = 0.9;
+			col.g = 0.9;
+			col.r = 0.9;
+
 			emit->setTimeToLive(vel*0.05/0.1);
-		} else if (types[i]==DUST_RIPPLE)
+		} 
+		else if (types[i]==DUST_RIPPLE)
 		{
-			ParticleEmitter *emit=pss[i]->getEmitter(0);
-			Real vel=velocities[i].length();
-			emit->setEnabled(true);
 			positions[i].y=gEnv->terrainManager->getWater()->getHeight()-0.02;
 			sns[i]->setPosition(positions[i]);
-			emit->setColour(ColourValue(0.9, 0.9, 0.9,vel*0.04));
+
+			col.a = vel*0.04;
+			col.b = 0.9;
+			col.g = 0.9;
+			col.r = 0.9;
+
 			emit->setTimeToLive(vel*0.04/0.1);
 		}
+
+		emit->setColour(col);
 	}
 	for (int i=allocated; i<size; i++)
 	{
