@@ -56,7 +56,14 @@ RigElementGuiPanelBase::RigElementGuiPanelBase(
 	m_rig_editor_interface = rig_editor_interface;
 	CONVERT_COLOR_OGRE_TO_MYGUI(m_text_color_mixvalues, config->gui_nodebeam_panels_field_mixvalues_color);
 	CONVERT_COLOR_OGRE_TO_MYGUI(m_text_color_tooltip,  config->gui_nodebeam_panels_tooltip_text_color);
-	m_text_color_default = text_color_source->getTextColour();
+    if (text_color_source != nullptr)
+    {
+	    m_text_color_default = text_color_source->getTextColour();
+    }
+    else
+    {
+        m_text_color_default = MyGUI::Colour(0,0,0);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -96,6 +103,7 @@ void RigElementGuiPanelBase::EditboxRestoreValue(EditboxFieldSpec* spec)
 		spec->editbox->setCaption("");
 	}
 }
+
 void RigElementGuiPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
 {
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(nullptr); // Remove focus
@@ -135,18 +143,46 @@ void RigElementGuiPanelBase::SetupEditboxField(
 	editbox->setUserData(spec);
 }
 
+void RigElementGuiPanelBase::SetupGenericField(
+		GenericFieldSpec* spec, 
+		MyGUI::TextBox* label, 
+        MyGUI::Widget* field_widget, 
+		unsigned int* source_flags_ptr, 
+        unsigned int uniformity_flag, 
+		void* source_ptr,
+        unsigned int source_type_flag
+	)
+{
+	*spec = GenericFieldSpec(label, field_widget, source_flags_ptr, uniformity_flag, source_ptr, source_type_flag);
+	field_widget->setUserData(spec);
+    field_widget->eventKeySetFocus += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue);
+}
+
 void RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
 {
 	if (old_widget == nullptr)
 	{
 		return;
 	}
-	MyGUI::EditBox* editbox = old_widget->castType<MyGUI::EditBox>(false); // False = don't throw exception
-	if (editbox != nullptr) // Previous widget is an editbox
-	{
-		EditboxFieldSpec* spec_ptr = *(editbox->getUserData<EditboxFieldSpec*>());
-		EditboxRestoreValue(spec_ptr);
-	}
+
+    if (old_widget->getTypeName() == "ComboBox")
+    {
+        MyGUI::ComboBox* combox = old_widget->castType<MyGUI::ComboBox>();
+        GenericFieldSpec** spec_ptr_ptr = combox->getUserData<GenericFieldSpec*>(false); // False - don't throw exception
+        if (spec_ptr_ptr != nullptr)
+        {
+            ComboboxRestoreValue(*spec_ptr_ptr);
+        }
+    }
+    else if (old_widget->getTypeName() == "EditBox")
+    {
+        MyGUI::EditBox* editbox = old_widget->castType<MyGUI::EditBox>();
+        EditboxFieldSpec** spec_ptr_ptr = editbox->getUserData<EditboxFieldSpec*>(false);  // False - don't throw exception
+        if (spec_ptr_ptr != nullptr)
+        {
+		    EditboxRestoreValue(*spec_ptr_ptr);
+        }
+    }
 }
 
 void RigElementGuiPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores(MyGUI::Widget* widget, MyGUI::KeyCode key_code, MyGUI::Char key_value)
@@ -237,6 +273,74 @@ void RigElementGuiPanelBase::CallbackLostMouseFocus_FlagCheckboxClearTooltip(MyG
 		return;
 	}
 	userdata_ptr->tooltip_textbox->setCaption("");
+}
+
+// ----------------------------------------------------------------------------
+// GenericField logic
+// ----------------------------------------------------------------------------
+
+void RigElementGuiPanelBase::ComboboxRestoreValue(GenericFieldSpec* spec)
+{
+	// Mark uniform state
+	if (spec->label != nullptr)
+	{
+		spec->label->setTextColour(spec->IsSourceUniform() ? m_text_color_default : m_text_color_mixvalues);
+	}
+	
+	// Reload GUI value
+    assert(spec->field_widget);
+    MyGUI::ComboBox* combox = static_cast<MyGUI::ComboBox*>(spec->field_widget);
+	if (spec->IsSourceUniform())
+	{
+		if (spec->IsSourceFloat())
+		{
+			char caption[30];
+			sprintf(caption, "%f", *spec->GetSourceFloat());
+			combox->setCaption(caption); // Restore value from source
+		}
+		else if (spec->IsSourceInt())
+		{
+			char caption[30];
+			sprintf(caption, "%d", *spec->GetSourceInt());
+			combox->setCaption(caption); // Restore value from source
+		}
+		else if (spec->IsSourceString())
+		{
+			combox->setCaption(*spec->GetSourceString()); // Restore value from source
+		}
+	}
+	else
+	{
+		combox->setCaption("");
+	}
+}
+
+void RigElementGuiPanelBase::ComboboxCommitValue(GenericFieldSpec* spec)
+{
+	MyGUI::InputManager::getInstance().setKeyFocusWidget(nullptr); // Remove focus
+    assert(spec->field_widget);
+    MyGUI::ComboBox* combox = static_cast<MyGUI::ComboBox*>(spec->field_widget);
+	if (combox->getCaption().empty())
+	{
+		return;
+	}
+	if (spec->label != nullptr)
+	{
+		spec->label->setTextColour(m_text_color_default); // Mark "not uniform"
+	}
+	spec->SetSourceIsUniform();
+	if (spec->IsSourceFloat())
+	{
+		*spec->GetSourceFloat() = Ogre::StringConverter::parseReal(combox->getCaption()); // Save value
+	}
+	else if (spec->IsSourceInt())
+	{
+		*spec->GetSourceInt() = Ogre::StringConverter::parseInt(combox->getCaption()); // Save value
+	}
+	else if (spec->IsSourceString())
+	{
+		*spec->GetSourceString() = combox->getCaption(); // Save value
+	}
 }
 
 // ----------------------------------------------------------------------------

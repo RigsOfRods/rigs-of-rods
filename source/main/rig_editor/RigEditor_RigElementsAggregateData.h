@@ -23,6 +23,18 @@
 	@file   
 	@date   12/2014
 	@author Petr Ohlidal
+
+	AggregateData structures provide a connection between rig elements and associated GUI panels.
+	Usage:
+		* Query info about selected elements in rig.
+		* Provide data backend for GUI panel associated with the element.
+		* Bulk update of selected elements in rig.
+
+	Contents of *AggregateData structure:
+		* Element count
+		* Data fields (element-specific)
+		* Uniformity flags (1 per each data field).
+		  - TRUE if the field's value is uniform across all aggregated elements, FALSE if not.
 */
 
 #pragma once
@@ -392,9 +404,9 @@ struct RigAggregateBeams2Data
 		{
 			int detacher_group_id = plain_beams.detacher_group;
 			detacher_group_is_uniform = (hydros.detacher_group     != detacher_group_id) ? false : detacher_group_is_uniform;
-			detacher_group_is_uniform = (shocks.detacher_group     != detacher_group_id) ? false : detacher_group_is_uniform;     
-			detacher_group_is_uniform = (shocks2.detacher_group    != detacher_group_id) ? false : detacher_group_is_uniform; 
-			detacher_group_is_uniform = (commands2.detacher_group  != detacher_group_id) ? false : detacher_group_is_uniform; 
+			detacher_group_is_uniform = (shocks.detacher_group     != detacher_group_id) ? false : detacher_group_is_uniform;
+			detacher_group_is_uniform = (shocks2.detacher_group    != detacher_group_id) ? false : detacher_group_is_uniform;
+			detacher_group_is_uniform = (commands2.detacher_group  != detacher_group_id) ? false : detacher_group_is_uniform;
 		}
 		return detacher_group_is_uniform;
 	}

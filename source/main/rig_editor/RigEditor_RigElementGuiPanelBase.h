@@ -65,6 +65,7 @@ public:
 		MyGUI::TextBox* tooltip_textbox;
 	};
 	// ------------------------------------------------------------------------
+	// TODO: Derive from GenericFieldSpec
 	struct EditboxFieldSpec
 	{
 		EditboxFieldSpec(
@@ -109,6 +110,52 @@ public:
 		unsigned int     m_flags;
 	};
 	// ------------------------------------------------------------------------
+	struct GenericFieldSpec
+	{
+		GenericFieldSpec(
+				MyGUI::TextBox* label, MyGUI::Widget* field_widget, 
+				unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
+				void* source_ptr, unsigned int source_type_flag
+			):
+			label(label),
+			field_widget(field_widget),
+			m_flags(source_type_flag),
+			m_source_ptr(source_ptr),
+			m_source_flags_ptr(source_flags_ptr),
+			m_uniformity_flag(uniformity_flag)
+		{}
+
+		GenericFieldSpec():
+			label(nullptr),
+			field_widget(nullptr),
+			m_flags(0),
+			m_source_ptr(nullptr),
+			m_uniformity_flag(0)
+		{}
+
+		BITMASK_PROPERTY(m_flags, 1, SOURCE_DATATYPE_FLOAT,  IsSourceFloat,  SetSourceIsFloat)
+		BITMASK_PROPERTY(m_flags, 2, SOURCE_DATATYPE_INT,    IsSourceInt,    SetSourceIsInt)
+		BITMASK_PROPERTY(m_flags, 3, SOURCE_DATATYPE_STRING, IsSourceString, SetSourceIsString)
+        BITMASK_PROPERTY(m_flags, 4, SOURCE_DATATYPE_BOOL,   IsSourceBool,   SetSourceIsBool)
+
+		inline float*         GetSourceFloat()  { return (IsSourceFloat()  ? reinterpret_cast<float*>       (m_source_ptr) : nullptr); }
+		inline int*           GetSourceInt()    { return (IsSourceInt()    ? reinterpret_cast<int*>         (m_source_ptr) : nullptr); }
+		inline Ogre::String*  GetSourceString() { return (IsSourceString() ? reinterpret_cast<Ogre::String*>(m_source_ptr) : nullptr); }
+
+		inline void SetSourceIsUniform()    {        BITMASK_SET_1(*m_source_flags_ptr, m_uniformity_flag); }
+		inline void SetSourceNotUniform()   {        BITMASK_SET_0(*m_source_flags_ptr, m_uniformity_flag); }
+		inline bool IsSourceUniform() const { return BITMASK_IS_1(*m_source_flags_ptr,  m_uniformity_flag); }
+
+		MyGUI::TextBox*  label;
+		MyGUI::Widget*   field_widget;
+		
+	private:
+		void*            m_source_ptr;
+		unsigned int*    m_source_flags_ptr;
+		unsigned int     m_uniformity_flag;
+		unsigned int     m_flags;
+	};
+	// ------------------------------------------------------------------------
 
 	RigElementGuiPanelBase(
 		RigEditor::IMain* rig_editor_interface, 
@@ -116,6 +163,8 @@ public:
 		MyGUI::Window* panel_widget,
 		MyGUI::Button* text_color_source
 	);
+
+    inline void SetDefaultTextColor(MyGUI::Colour const & col) { m_text_color_default = col; }
 
 protected:
 
@@ -134,6 +183,7 @@ protected:
 	void UpdateFlagCheckbox(MyGUI::Button* checkbox, bool selected, bool mixed);
 
 	// Editbox form field
+
 	void SetupEditboxField(EditboxFieldSpec* spec, 
 		MyGUI::TextBox* label, MyGUI::EditBox* editbox, 
 		unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
@@ -143,6 +193,23 @@ protected:
 	void CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget);
 	void EditboxRestoreValue(EditboxFieldSpec* spec);
 	void EditboxCommitValue(EditboxFieldSpec* spec);
+
+    // Generic form field
+
+	void SetupGenericField(
+		GenericFieldSpec* spec, 
+		MyGUI::TextBox* label, 
+        MyGUI::Widget* field_widget, 
+		unsigned int* source_flags_ptr, 
+        unsigned int uniformity_flag, 
+		void* source_ptr, 
+        unsigned int source_type_flag
+	);
+
+    // Combobox field
+
+    void ComboboxRestoreValue(GenericFieldSpec* spec);
+    void ComboboxCommitValue(GenericFieldSpec* spec);
 
 	// GUI panel utility
 	void AlignToScreen(RigEditor::GuiPanelPositionData* position_data);

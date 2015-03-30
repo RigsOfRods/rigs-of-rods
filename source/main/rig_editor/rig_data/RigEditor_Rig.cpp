@@ -40,6 +40,7 @@
 #include "RigEditor_Node.h"
 #include "RigEditor_RigProperties.h"
 #include "RigEditor_RigElementsAggregateData.h"
+#include "RigEditor_RigWheelsAggregateData.h"
 #include "RigEditor_RigWheelVisuals.h"
 
 #include <OgreManualObject.h>
@@ -1770,14 +1771,15 @@ void Rig::CheckAndRefreshWheelsMouseHoverHighlights(RigEditor::Main* rig_editor,
 	}
 }
 
-void Rig::SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor)
+bool Rig::SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor)
 {
 	if (wheel->IsSelected() == state_selected)
 	{
-		return; // No change
+		return false; // No change
 	}
 	wheel->SetIsSelected(state_selected);
 	m_wheel_visuals->SetIsSelectionDirty(true);
+    return true;
 }
 
 void Rig::SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor)
@@ -1791,7 +1793,7 @@ void Rig::SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered
 	m_wheel_visuals->SetIsHoverDirty(true);
 }
 
-void Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
+bool Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
 {
 	bool anything_changed = false;
 	auto end = m_wheels.end();
@@ -1807,7 +1809,9 @@ void Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
 	if (anything_changed)
 	{
 		m_wheel_visuals->SetIsSelectionDirty(true);
+        return true;
 	}
+    return false;
 }
 
 void Rig::SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor)
@@ -1828,6 +1832,24 @@ void Rig::SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor)
 		m_wheel_visuals->SetIsHoverDirty(true);
 	}
 }
+
+void Rig::QuerySelectedWheelsData(AllWheelsAggregateData* out_data)
+{
+    out_data->Reset();
+    auto end = m_wheels.end();
+    auto itor = m_wheels.begin();
+    for (; itor != end; ++itor)
+    {
+        LandVehicleWheel* wheel = *itor;
+        if (wheel->IsSelected())
+        {
+            out_data->AddWheel(wheel);
+        }
+    }
+}
+
+//void UpdateSelectedWheelsData(MixedWheelsAggregateData* data);
+//void UpdateSelectedMeshWheels2Data(MeshWheel2AggregateData* data);
 
 // ----------------------------------------------------------------------------
 // EOF

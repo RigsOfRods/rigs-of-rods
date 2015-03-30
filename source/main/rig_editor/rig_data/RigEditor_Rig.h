@@ -191,11 +191,17 @@ public:
 	void SelectedHydrosUpdateAttributes    (const RigAggregateHydrosData     *data);
 	void SelectedCommands2UpdateAttributes (const RigAggregateCommands2Data  *data);
 
-	// Wheels
-	void SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor);
+	// WHEELS
+
+    /// @return True if selection was changed.
+	bool SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor);
 	void SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor);
-	void SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor);
+    /// @return True if selection was changed.
+	bool SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor);
 	void SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor);
+    void QuerySelectedWheelsData(AllWheelsAggregateData* data);
+    //void UpdateSelectedWheelsData(MixedWheelsAggregateData* data);
+    //void UpdateSelectedMeshWheels2Data(MeshWheel2AggregateData* data);
 
 	inline std::vector<LandVehicleWheel*>& GetWheels() { return m_wheels; }
 

@@ -152,6 +152,11 @@ struct BeamDefaults
 		return breaking_threshold_constant * scale.breaking_threshold_constant;
 	}
 
+    inline float GetScaledDeformThreshold() const
+    {
+        return deformation_threshold_constant * scale.deformation_threshold_constant;
+    }
+
 	float springiness;
 	float damping_constant;
 	float deformation_threshold_constant;

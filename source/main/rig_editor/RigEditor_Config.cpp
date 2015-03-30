@@ -97,7 +97,25 @@ Config::Config(Ogre::String const & conf_file_path)
 	gui_shocks2_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_shocks2_panel_margin_bottom_px");
 	gui_shocks2_panel_position.margin_top_px     = conf_file.GetInt( "gui_shocks2_panel_margin_top_px");
 
-	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
+    // WHEEL panels
+
+    gui_meshwheels2_panel_position.anchor_right      = conf_file.GetBool("gui_meshwheels2_panel_anchor_right");
+	gui_meshwheels2_panel_position.anchor_bottom     = conf_file.GetBool("gui_meshwheels2_panel_anchor_bottom");
+	gui_meshwheels2_panel_position.margin_left_px    = conf_file.GetInt( "gui_meshwheels2_panel_margin_left_px");
+	gui_meshwheels2_panel_position.margin_right_px   = conf_file.GetInt( "gui_meshwheels2_panel_margin_right_px");
+	gui_meshwheels2_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_meshwheels2_panel_margin_bottom_px");
+	gui_meshwheels2_panel_position.margin_top_px     = conf_file.GetInt( "gui_meshwheels2_panel_margin_top_px");
+
+    gui_flexbodywheels_panel_position.anchor_right      = conf_file.GetBool("gui_flexbodywheels_panel_anchor_right");
+	gui_flexbodywheels_panel_position.anchor_bottom     = conf_file.GetBool("gui_flexbodywheels_panel_anchor_bottom");
+	gui_flexbodywheels_panel_position.margin_left_px    = conf_file.GetInt( "gui_flexbodywheels_panel_margin_left_px");
+	gui_flexbodywheels_panel_position.margin_right_px   = conf_file.GetInt( "gui_flexbodywheels_panel_margin_right_px");
+	gui_flexbodywheels_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_flexbodywheels_panel_margin_bottom_px");
+	gui_flexbodywheels_panel_position.margin_top_px     = conf_file.GetInt( "gui_flexbodywheels_panel_margin_top_px");
+
+	// NODE/BEAM DISPLAY
+    
+    beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
 	beam_rope_color           = conf_file.GetColourValue("beam_rope_color_rgb");
 	beam_support_color        = conf_file.GetColourValue("beam_support_color_rgb");
@@ -128,6 +146,8 @@ Config::Config(Ogre::String const & conf_file_path)
 	node_hover_point_size     = conf_file.GetFloat("node_hover_point_size");
 	node_selected_color       = conf_file.GetColourValue("node_selected_color_rgb");
 	node_selected_point_size  = conf_file.GetFloat("node_selected_point_size");
+
+    // CAMERA
 
 	camera_near_clip_distance = conf_file.GetFloat("camera_near_clip_distance");
 	camera_far_clip_distance  = conf_file.GetFloat("camera_far_clip_distance");

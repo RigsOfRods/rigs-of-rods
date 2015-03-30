@@ -66,6 +66,8 @@ struct Config
 	GuiPanelPositionData   gui_commands2_panel_position;
 	GuiPanelPositionData   gui_shocks_panel_position;
 	GuiPanelPositionData   gui_shocks2_panel_position;
+    GuiPanelPositionData   gui_meshwheels2_panel_position;
+    GuiPanelPositionData   gui_flexbodywheels_panel_position;
 	
 	/* Rig manipulation */
 	int                 node_mouse_box_halfsize_px;

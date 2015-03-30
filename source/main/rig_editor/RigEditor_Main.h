@@ -112,15 +112,17 @@ public:
 	virtual void CommandSetAllWheelsSelected(bool state_selected);
 	virtual void CommandSetAllWheelsHovered(bool state_selected);
 
-	/* GUI callbacks */
-
+	// GUI callbacks
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
+
+    // State flags
+    BITMASK_PROPERTY(m_state_flags,  1,  WHEEL_SELECTION_CHANGED,   HasWheelSelectionChanged,   SetHasWheelSelectionChanged);
 
 private:
 
 	void InitializeOrRestoreGui();
-
 	void HideAllNodeBeamGuiPanels();
+    void HideAllWheelGuiPanels();
 
 	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
@@ -136,21 +138,24 @@ private:
 	Rig*                 m_rig;
 
 	bool                 m_exit_loop_requested;
+    unsigned int         m_state_flags;
 
 	// GUI
-	MyGUI::TextBox*                             m_debug_box;
-	std::unique_ptr<GUI::RigEditorMenubar>      m_gui_menubar;
-	std::unique_ptr<GUI::OpenSaveFileDialog>    m_gui_open_save_file_dialog;
-	std::unique_ptr<GUI::RigEditorDeleteMenu>   m_gui_delete_menu;
-	std::unique_ptr<GUI::RigEditorHelpWindow>   m_gui_help_window;
+	MyGUI::TextBox*                                             m_debug_box;
+	std::unique_ptr<GUI::RigEditorMenubar>                      m_gui_menubar;
+	std::unique_ptr<GUI::OpenSaveFileDialog>                    m_gui_open_save_file_dialog;
+	std::unique_ptr<GUI::RigEditorDeleteMenu>                   m_gui_delete_menu;
+	std::unique_ptr<GUI::RigEditorHelpWindow>                   m_gui_help_window;
 	std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
 	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>  m_gui_land_vehicle_properties_window;
-	std::unique_ptr<GUI::RigEditorNodePanel>       m_nodes_panel;
-	std::unique_ptr<GUI::RigEditorBeamsPanel>      m_beams_panel;
-	std::unique_ptr<GUI::RigEditorHydrosPanel>     m_hydros_panel;
-	std::unique_ptr<GUI::RigEditorShocksPanel>     m_shocks_panel;
-	std::unique_ptr<GUI::RigEditorShocks2Panel>    m_shocks2_panel;
-	std::unique_ptr<GUI::RigEditorCommands2Panel>  m_commands2_panel;
+	std::unique_ptr<GUI::RigEditorNodePanel>                    m_nodes_panel;
+	std::unique_ptr<GUI::RigEditorBeamsPanel>                   m_beams_panel;
+	std::unique_ptr<GUI::RigEditorHydrosPanel>                  m_hydros_panel;
+	std::unique_ptr<GUI::RigEditorShocksPanel>                  m_shocks_panel;
+	std::unique_ptr<GUI::RigEditorShocks2Panel>                 m_shocks2_panel;
+	std::unique_ptr<GUI::RigEditorCommands2Panel>               m_commands2_panel;
+    std::unique_ptr<GUI::RigEditorMeshWheels2Panel>             m_meshwheels2_panel;
+    std::unique_ptr<GUI::RigEditorFlexBodyWheelsPanel>          m_flexbodywheels_panel;
 	
 };
 

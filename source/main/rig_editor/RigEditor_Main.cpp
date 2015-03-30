@@ -33,10 +33,12 @@
 #include "GUI_RigEditorBeamsPanel.h"
 #include "GUI_RigEditorCommands2Panel.h"
 #include "GUI_RigEditorDeleteMenu.h"
+#include "GUI_RigEditorFlexBodyWheelsPanel.h"
 #include "GUI_RigEditorHelpWindow.h"
 #include "GUI_RigEditorHydrosPanel.h"
 #include "GUI_RigEditorLandVehiclePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
+#include "GUI_RigEditorMeshWheels2Panel.h"
 #include "GUI_RigEditorNodePanel.h"
 #include "GUI_RigEditorRigPropertiesWindow.h"
 #include "GUI_RigEditorShocksPanel.h"
@@ -55,6 +57,7 @@
 #include "RigEditor_Rig.h"
 #include "RigEditor_RigProperties.h"
 #include "RigEditor_RigElementsAggregateData.h"
+#include "RigEditor_RigWheelsAggregateData.h"
 #include "Settings.h"
 
 #include <OISKeyboard.h>
@@ -81,7 +84,8 @@ Main::Main(Config* config):
 	m_exit_loop_requested(false),
 	m_input_handler(nullptr),
 	m_debug_box(nullptr),
-	m_rig(nullptr)
+	m_rig(nullptr),
+    m_state_flags(0)
 {
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
@@ -179,6 +183,8 @@ void Main::EnterMainLoop()
 	m_commands2_panel->HideTemporarily();
 	m_shocks_panel   ->HideTemporarily();
 	m_shocks2_panel  ->HideTemporarily();
+    m_meshwheels2_panel     ->HideTemporarily();
+    m_flexbodywheels_panel  ->HideTemporarily();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
@@ -504,11 +510,38 @@ void Main::UpdateMainLoop()
 						m_shocks2_panel->Show();
 					}
 				}
-			}
-		}
+			} // if (query.num_selected >= 2)
+		} // if (node_selection_changed)
+
+        if (this->HasWheelSelectionChanged())
+        {
+            HideAllWheelGuiPanels();
+
+            AllWheelsAggregateData wheel_query;
+            m_rig->QuerySelectedWheelsData(&wheel_query);
+            if (wheel_query.num_elements != 0)
+            {
+                if(wheel_query.ContainsMultipleWheelTypes())
+                {
+                    // To be done.
+                }
+                else if (wheel_query.meshwheels2_data.num_elements != 0)
+                {
+                    m_meshwheels2_panel->UpdateMeshWheels2Data(&wheel_query.meshwheels2_data);
+                    m_meshwheels2_panel->Show();
+                }
+                else if (wheel_query.flexbodywheels_data.num_elements != 0)
+                {
+                    m_flexbodywheels_panel->UpdateFlexBodyWheelsData(&wheel_query.flexbodywheels_data);
+                    m_flexbodywheels_panel->Show();
+                }
+            }
+            
+            this->SetHasWheelSelectionChanged(false);
+        }
 
 		// ==== Update visuals ====
-		Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
+        Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
 		if (rig_updated || node_selection_changed || node_hover_changed)
 		{
 			m_rig->RefreshNodesDynamicMeshes(parent_scene_node);
@@ -517,8 +550,8 @@ void Main::UpdateMainLoop()
 		{
 			m_rig->RefreshBeamsDynamicMesh();
 		}
-		m_rig->CheckAndRefreshWheelsSelectionHighlights(this, parent_scene_node);
-		m_rig->CheckAndRefreshWheelsMouseHoverHighlights(this, parent_scene_node);
+        m_rig->CheckAndRefreshWheelsSelectionHighlights(this, parent_scene_node);
+	    m_rig->CheckAndRefreshWheelsMouseHoverHighlights(this, parent_scene_node);
 	}
 
 	/* Update devel console */
@@ -852,7 +885,7 @@ void Main::CommandShowHelpWindow()
 	m_gui_help_window->CenterToScreen();
 }
 
-#define INIT_OR_RESTORE_NODEBEAM_PANEL(VAR, CLASSNAME) \
+#define INIT_OR_RESTORE_RIG_ELEMENT_PANEL(VAR, CLASSNAME) \
 	if ((VAR).get() == nullptr) \
 		(VAR) = std::unique_ptr<GUI::CLASSNAME>(new GUI::CLASSNAME(this, m_config)); \
 	else \
@@ -860,12 +893,14 @@ void Main::CommandShowHelpWindow()
 
 void Main::InitializeOrRestoreGui()
 {
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_nodes_panel,     RigEditorNodePanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_beams_panel,     RigEditorBeamsPanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_hydros_panel,    RigEditorHydrosPanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_commands2_panel, RigEditorCommands2Panel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_shocks_panel,    RigEditorShocksPanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_shocks2_panel,   RigEditorShocks2Panel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_nodes_panel,            RigEditorNodePanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_beams_panel,            RigEditorBeamsPanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_hydros_panel,           RigEditorHydrosPanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_commands2_panel,        RigEditorCommands2Panel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_shocks_panel,           RigEditorShocksPanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_shocks2_panel,          RigEditorShocks2Panel);
+    INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_meshwheels2_panel,      RigEditorMeshWheels2Panel);
+    INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_flexbodywheels_panel,   RigEditorFlexBodyWheelsPanel);
 
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
 	if (m_gui_menubar.get() == nullptr)
@@ -899,6 +934,12 @@ void Main::InitializeOrRestoreGui()
 	{
 		m_gui_help_window = std::unique_ptr<GUI::RigEditorHelpWindow>(new GUI::RigEditorHelpWindow(this));
 	}
+}
+
+void Main::HideAllWheelGuiPanels()
+{
+    m_meshwheels2_panel->Hide();
+    m_flexbodywheels_panel->Hide();
 }
 
 // ----------------------------------------------------------------------------
@@ -937,22 +978,45 @@ void Main::CommandRigSelectedCommands2UpdateAttributes(const RigAggregateCommand
 
 void Main::CommandSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected)
 {
-	m_rig->SetWheelSelected(wheel_ptr, wheel_index, state_selected, this);
+    if (m_rig == nullptr)
+    {
+        return;
+    }
+    const bool selection_changed = m_rig->SetWheelSelected(wheel_ptr, wheel_index, state_selected, this);
+    if (selection_changed)
+    {
+        this->SetHasWheelSelectionChanged(true);
+    }
 }
 
 void Main::CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered)
 {
+    if (m_rig == nullptr)
+    {
+        return;
+    }
 	m_rig->SetWheelHovered(wheel_ptr, wheel_index, state_hovered, this);
 }
 
 void Main::CommandSetAllWheelsSelected(bool state_selected)
 {
-	m_rig->SetAllWheelsSelected(state_selected, this);
+    if (m_rig == nullptr)
+    {
+        return;
+    }
+	const bool selection_changed = m_rig->SetAllWheelsSelected(state_selected, this);
+    if (selection_changed)
+    {
+        this->SetHasWheelSelectionChanged(true);
+    }
 }
 
 void Main::CommandSetAllWheelsHovered(bool state_hovered)
 {
-	m_rig->SetAllWheelsHovered(state_hovered, this);
+    if (m_rig != nullptr)
+    {
+	    m_rig->SetAllWheelsHovered(state_hovered, this);
+    }
 }
 
 // ----------------------------------------------------------------------------
