@@ -280,8 +280,11 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
 
-//	PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem")); // Not needed / overrides Settings in Skysubsystem !
-//	initFog();
+	if (SSETTING("Sky effects", "Sandstorm (fastest)") == "Sandstorm (fastest)") //Caelum has its own fog management
+	{
+		PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
+		initFog();
+	}
 
 	PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
 	initVegetation();
@@ -330,17 +333,19 @@ void TerrainManager::initCamera()
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
 	else
-		gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+	{
+		String waterSettingsString = SSETTING("Water effects", "Hydrax");
 
-	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+		// disabled in global config
+		if (waterSettingsString == "None") return;
+		// disabled in map config
+		if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
 
-	// disabled in global config
-	if (waterSettingsString == "None") return;
-	// disabled in map config
-	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
-
-	if (waterSettingsString == "Hydrax" && far_clip >= UNLIMITED_SIGHTRANGE)
-		gEnv->mainCamera->setFarClipDistance(9999*6); //Unlimited
+		if (waterSettingsString == "Hydrax")
+			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited
+		else
+			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+	}
 }
 
 void TerrainManager::initSkySubSystem()
@@ -411,7 +416,7 @@ void TerrainManager::initFog()
 	if (far_clip >= UNLIMITED_SIGHTRANGE)
 		gEnv->sceneManager->setFog(FOG_NONE);
 	else
-		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.0f, far_clip * 0.7f, far_clip * 0.9f);
+		gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.000f, far_clip * 0.65f, far_clip*0.9);
 }
 
 void TerrainManager::initVegetation()
