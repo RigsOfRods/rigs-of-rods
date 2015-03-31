@@ -6447,7 +6447,10 @@ bool Beam::LoadTruck(
 	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
 	if (report_num_errors != 0)
 	{
-		RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
+		if (BSETTING("AutoRigSpawnerReport", false))
+		{
+			RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
+		}
 	}
 
 	/* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
