@@ -215,9 +215,13 @@ void DustPool::update(float gspeed)
 
 		emit->setEnabled(true);
 
-		sns[i]->setPosition(positions[i]);
-		emit->setDirection(ndir);
-		emit->setParticleVelocity(vel);
+		if (types[i] != DUST_RIPPLE)
+		{
+			emit->setDirection(ndir);
+			emit->setParticleVelocity(vel);
+			sns[i]->setPosition(positions[i]);
+		}
+		
 
 		if (types[i]==DUST_NORMAL)
 		{
@@ -281,7 +285,7 @@ void DustPool::update(float gspeed)
 		} 
 		else if (types[i]==DUST_RIPPLE)
 		{
-			positions[i].y=gEnv->terrainManager->getWater()->getHeight()-0.02;
+			positions[i].y = gEnv->terrainManager->getWater()->getHeight() - 0.02;
 			sns[i]->setPosition(positions[i]);
 
 			col.a = vel*0.04;
