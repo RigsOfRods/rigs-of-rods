@@ -65,7 +65,7 @@
             <UserString key="anim" value="rotate"/>
             <UserString key="max" value="360"/>
             <UserString key="min" value="-360"/>
-            <UserString key="link" value="screw_steer_1"/>
+            <UserString key="link" value="screw_steer_0"/>
             <UserString key="vmax" value="-1"/>
             <UserString key="vmin" value="1"/>
         </Widget>

@@ -255,7 +255,8 @@ void DashBoard::update( float &dt )
 			// calculate the angle
 			float angle = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
 
-			if (fabs(val - controls[i].last) < 0.2f) continue;
+			if (fabs(val - controls[i].last) < 0.02f) continue;
+
 			controls[i].last = val;
 
 			// enforce limits
