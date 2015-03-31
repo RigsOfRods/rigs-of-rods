@@ -333,17 +333,19 @@ void TerrainManager::initCamera()
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
 	else
-		gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+	{
+		String waterSettingsString = SSETTING("Water effects", "Hydrax");
 
-	String waterSettingsString = SSETTING("Water effects", "Hydrax");
+		// disabled in global config
+		if (waterSettingsString == "None") return;
+		// disabled in map config
+		if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
 
-	// disabled in global config
-	if (waterSettingsString == "None") return;
-	// disabled in map config
-	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
-
-	if (waterSettingsString == "Hydrax" && far_clip >= UNLIMITED_SIGHTRANGE)
-		gEnv->mainCamera->setFarClipDistance(9999*6); //Unlimited
+		if (waterSettingsString == "Hydrax")
+			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited
+		else
+			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+	}
 }
 
 void TerrainManager::initSkySubSystem()
