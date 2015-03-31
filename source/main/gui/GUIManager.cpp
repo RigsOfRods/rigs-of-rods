@@ -428,11 +428,8 @@ void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::stri
 
 void GUIManager::ShowRigSpawnerReportWindow()
 {
-	if (BSETTING("AutoRigSpawnerReport", false))
-	{
-		m_rig_spawner_report_window->CenterToScreen();
-		m_rig_spawner_report_window->Show();
-	}
+	m_rig_spawner_report_window->CenterToScreen();
+	m_rig_spawner_report_window->Show();
 }
 
 void GUIManager::HideRigSpawnerReportWindow()
