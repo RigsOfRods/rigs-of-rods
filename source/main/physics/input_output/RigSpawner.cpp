@@ -443,7 +443,7 @@ void RigSpawner::InitializeRig()
 	m_rig->rotaInertia  = new CmdKeyInertia();
 
 	// Lights mode
-	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(3); // Default = 3 (All vehicles, main lights)
+	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(); // Default = 2 (All vehicles, main lights)
 }
 
 void RigSpawner::FinalizeRig()
@@ -460,6 +460,9 @@ void RigSpawner::FinalizeRig()
 				AddMessage(Message::TYPE_ERROR, "TorqueCurve: Points (rpm) must be in an ascending order. Using default curve");
 			}
 		}
+
+		//Gearbox
+		m_rig->engine->setAutoMode(Settings::getSingleton().GetGearBoxMode());
 	}
 	
 	//calculate gwps height offset
