@@ -266,7 +266,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/as <code here> - interpret angel code using console"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setgravity <real> or <text string> - changes terrain's gravity"), "script_go.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/gravity <real> or <text string> - changes terrain's gravity, if no value is entred, shows current gravity"), "script_go.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setwaterlevel <real> - changes water's level"), "script_go.png");
@@ -274,17 +274,26 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
 			return;
-		} else if (args[0] == "/setgravity")
+		} else if (args[0] == "/gravity")
 		{
 			float gValue;
-			if (args[1] == "earth")
-				gValue = -9.81;
-			else if (args[1] == "moon")
-				gValue = -1.6;
-			else if (args[1] == "jupiter")
-				gValue = -50;
-			else
-				gValue = boost::lexical_cast<float>(args[1].c_str());
+
+			if (args.size() > 1)
+			{
+				if (args[1] == "earth")
+					gValue = -9.81;
+				else if (args[1] == "moon")
+					gValue = -1.6;
+				else if (args[1] == "jupiter")
+					gValue = -50;
+				else
+					gValue = boost::lexical_cast<float>(args[1].c_str());
+			} else
+			{
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Current gravity is: ") + StringConverter::toString(gEnv->terrainManager->getGravity()), "information.png");
+				return;
+			}
+
 
 			gEnv->terrainManager->setGravity(gValue);
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
@@ -292,12 +301,17 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			return;
 		} else if (args[0] == "/setwaterlevel")
 		{
-			if (gEnv->terrainManager && gEnv->terrainManager->getWater())
+			if (gEnv->terrainManager && gEnv->terrainManager->getWater() && args.size() > 1)
 			{
 				IWater* water = gEnv->terrainManager->getWater();
 				water->setCamera(gEnv->mainCamera);
 				water->setHeight(boost::lexical_cast<float>(args[1].c_str()));
 				water->update();
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Water level set to: ") + StringConverter::toString(water->getHeight()), "information.png");
+			}
+			else
+			{
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("Please enter a correct value. "), "information.png");
 			}
 			return;
 		}
