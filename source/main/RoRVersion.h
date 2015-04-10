@@ -29,11 +29,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // $LastChangedBy:$
 // $Id:$
 // $Rev:$
-#define SVN_REVISION "$Rev: "
-#define SVN_ID "$Id: $"
 
 #define ROR_VERSION_STRING_SHORT      "0.4"
-#define ROR_VERSION_STRING            "0.4.0.7"
-#define ROR_VERSION_STRING_WIN         0,4,0,7
+#define ROR_VERSION_STRING            "0.4.5.0-dev"
+#define ROR_VERSION_STRING_WIN         0,4,5,0
 
 #endif //RORVERSION_H__

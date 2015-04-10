@@ -36,6 +36,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 #include "ChatSystem.h"
 #include "Console.h"
+#include "GUIManager.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -115,11 +116,13 @@ BeamFactory::BeamFactory() :
 				// Use custom settings from RoR.cfg
 				gEnv->threadPool = new ThreadPool(numThreadsInPool);
 				beamThreadPool   = new ThreadPool(numThreadsInPool);
+				LOG("BEAMFACTORY: Creating: " + TOSTRING(numThreadsInPool) + " threads");
 			} else if (num_cpu_cores > 2)
 			{
 				// Use default settings
 				gEnv->threadPool = new ThreadPool(num_cpu_cores);
 				beamThreadPool   = new ThreadPool(num_cpu_cores);
+				LOG("BEAMFACTORY: Creating: " + TOSTRING(num_cpu_cores) + " threads");
 			}
 		}
 
@@ -252,8 +255,10 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 			UTFString username = ChatSystem::getColouredName(*c);
 			UTFString message = username + ChatSystem::commandColour + _L(" spawned a new vehicle: ") + ChatSystem::normalColour + treg->name;
 #ifdef USE_MYGUI
-			Console *console = RoR::Application::GetConsole();
-			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_VEHILCE_ADD, message, "car_add.png");
+			/*Console *console = RoR::Application::GetConsole();
+			if (console) console->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, message, "car_add.png");
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", message);*/
+			RoR::Application::GetGuiManager()->pushMessageChatBox(message);
 #endif // USE_MYGUI
 		}
 	}
@@ -303,7 +308,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		Quaternion::ZERO,
 		reg->reg.name,
 		true, // networked
-		gEnv->network!=0, // networking
+		gEnv->network != nullptr, // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,
@@ -645,6 +650,28 @@ void BeamFactory::repairTruck(Collisions *collisions, const Ogre::String &inst, 
 	}
 }
 
+void BeamFactory::MuteAllTrucks()
+{
+	for (int i = 0; i < free_truck; i++)
+	{
+		if (trucks[i])
+		{
+			trucks[i]->StopAllSounds();
+		}
+	}
+}
+
+void BeamFactory::UnmuteAllTrucks()
+{
+	for (int i = 0; i < free_truck; i++)
+	{
+		if (trucks[i])
+		{
+			trucks[i]->UnmuteAllSounds();
+		}
+	}
+}
+
 void BeamFactory::removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box)
 {
 	removeTruck(findTruckInsideBox(collisions, inst, box));
@@ -664,6 +691,25 @@ void BeamFactory::removeTruck(int truck)
 		_deleteTruck(trucks[truck]);
 }
 
+void BeamFactory::p_removeAllTrucks()
+{
+	for (int i = 0; i < free_truck; i++)
+	{
+		if (trucks[i])
+		{
+			trucks[i]->StopAllSounds();
+
+			if (current_truck == i)
+				setCurrentTruck(-1);
+
+			if (!removeBeam(trucks[i]))
+				// deletion over beamfactory failed, delete by hand
+				// then delete the class
+				_deleteTruck(trucks[i]);
+		}
+	}
+}
+
 void BeamFactory::_deleteTruck(Beam *b)
 {
 	if (b == 0)	return;
@@ -672,6 +718,7 @@ void BeamFactory::_deleteTruck(Beam *b)
 
 	trucks[b->trucknum] = 0;
 	delete b;
+	//free_truck = free_truck - 1;
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
@@ -681,6 +728,11 @@ void BeamFactory::_deleteTruck(Beam *b)
 void BeamFactory::removeCurrentTruck()
 {
 	removeTruck(current_truck);
+}
+
+void BeamFactory::removeAllTrucks()
+{
+	p_removeAllTrucks();
 }
 
 void BeamFactory::setCurrentTruck(int new_truck)

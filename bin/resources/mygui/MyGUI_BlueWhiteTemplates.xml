@@ -158,7 +158,7 @@
         <Widget type="Widget" skin="TextBoxSkin" position="20 20 16 16" name="Root">
             <Property key="TextAlign" value="Default"/>
             <Property key="FontName" value="Default"/>
-            <Property key="TextColour" value="0 0 0"/>
+            <Property key="TextColour" value="1 1 1"/>
             <UserString key="LE_TargetWidgetType" value="TextBox"/>
         </Widget>
     </Resource>
@@ -168,7 +168,7 @@
             <Widget type="TextBox" skin="EditClientSkin" position="2 2 23 20" align="Stretch" name="Client">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="FontName" value="Default"/>
-                <Property key="TextColour" value="0 0 0"/>
+                <Property key="TextColour" value="1 1 1"/>
                 <Property key="Pointer" value="beam"/>
             </Widget>
         </Widget>
@@ -182,7 +182,7 @@
             <UserString key="LE_TargetWidgetType" value="EditBox"/>
             <Widget type="TextBox" skin="EditClientSkin" position="2 3 33 32" align="Stretch" name="Client">
                 <Property key="TextAlign" value="Default"/>
-                <Property key="TextColour" value="0 0 0"/>
+                <Property key="TextColour" value="1 1 1"/>
                 <Property key="FontName" value="Default"/>
                 <Property key="Pointer" value="beam"/>
             </Widget>
@@ -199,7 +199,7 @@
             <Widget type="TextBox" skin="EditClientSkin" position="0 0 16 16" align="Stretch" name="Client">
                 <Property key="TextAlign" value="Default"/>
                 <Property key="FontName" value="Default"/>
-                <Property key="TextColour" value="0 0 0"/>
+                <Property key="TextColour" value="1 1 1"/>
                 <Property key="Pointer" value="beam"/>
             </Widget>
         </Widget>
@@ -216,7 +216,7 @@
             <Widget type="TextBox" skin="EditClientSkin" position="0 0 16 16" align="Stretch" name="Client">
                 <Property key="TextAlign" value="Default"/>
                 <Property key="FontName" value="Default"/>
-                <Property key="TextColour" value="0 0 0"/>
+                <Property key="TextColour" value="1 1 1"/>
             </Widget>
         </Widget>
         <Widget type="EditBox" skin="WordWrapEmpty" position="65 40 45 50">
@@ -230,7 +230,7 @@
             <UserString key="LE_TargetWidgetType" value="ComboBox"/>
             <Widget type="TextBox" skin="EditClientSkin" position="2 2 75 20" align="Stretch" name="Client">
                 <Property key="TextAlign" value="Left VCenter"/>
-                <Property key="TextColour" value="0 0 0"/>
+                <Property key="TextColour" value="1 1 1"/>
                 <Property key="FontName" value="Default"/>
                 <Property key="Pointer" value="beam"/>
             </Widget>
@@ -253,7 +253,7 @@
             <UserString key="LE_TargetWidgetType" value="Window"/>
             <Widget type="Widget" skin="CaptionEmptySkin" position="0 0 68 28" align="HStretch Top">
                 <Widget type="TextBox" skin="TextBox" position="2 3 62 24" align="HStretch Top" name="Caption">
-                    <Property key="TextColour" value="0 0 0"/>
+                    <Property key="TextColour" value="1 1 1"/>
                     <Property key="TextAlign" value="Center"/>
                     <Property key="FontName" value="Default"/>
                 </Widget>
@@ -272,7 +272,7 @@
             <UserString key="LE_TargetWidgetType" value="Window"/>
             <Widget type="Widget" skin="CaptionSkin" position="0 0 68 28" align="HStretch Top">
                 <Widget type="TextBox" skin="TextBox" position="7 1 52 22" align="HStretch Top" name="Caption">
-                    <Property key="TextColour" value="0 0 0"/>
+                    <Property key="TextColour" value="1 1 1"/>
                     <Property key="TextAlign" value="Center"/>
                     <Property key="FontName" value="Default"/>
                 </Widget>
@@ -291,7 +291,7 @@
             <UserString key="LE_TargetWidgetType" value="Window"/>
             <Widget type="Widget" skin="CaptionSkin" position="0 0 68 28" align="HStretch Top">
                 <Widget type="TextBox" skin="TextBox" position="7 1 52 22" align="HStretch Top" name="Caption">
-                    <Property key="TextColour" value="0 0 0"/>
+                    <Property key="TextColour" value="1 1 1"/>
                     <Property key="TextAlign" value="Center"/>
                     <Property key="FontName" value="Default"/>
                 </Widget>
@@ -322,7 +322,7 @@
                     <UserString key="Event" value="close"/>
                 </Widget>
                 <Widget type="TextBox" skin="TextBox" position="7 1 29 22" align="HStretch Top" name="Caption">
-                    <Property key="TextColour" value="0 0 0"/>
+                    <Property key="TextColour" value="1 1 1"/>
                     <Property key="TextAlign" value="Center"/>
                     <Property key="FontName" value="Default"/>
                 </Widget>
@@ -350,7 +350,7 @@
                     <UserString key="Event" value="close"/>
                 </Widget>
                 <Widget type="TextBox" skin="TextBox" position="7 1 29 22" align="HStretch Top" name="Caption">
-                    <Property key="TextColour" value="0 0 0"/>
+                    <Property key="TextColour" value="1 1 1"/>
                     <Property key="TextAlign" value="Center"/>
                     <Property key="FontName" value="Default"/>
                 </Widget>
@@ -378,7 +378,7 @@
                     <UserString key="Event" value="close"/>
                 </Widget>
                 <Widget type="TextBox" skin="TextBox" position="7 1 29 22" align="HStretch Top" name="Caption">
-                    <Property key="TextColour" value="0 0 0"/>
+                    <Property key="TextColour" value="1 1 1"/>
                     <Property key="TextAlign" value="Center"/>
                     <Property key="FontName" value="Default"/>
                 </Widget>
@@ -722,7 +722,7 @@
             <Widget type="TextBox" skin="EditClientSkin" position="2 2 23 20" align="Stretch" name="Client">
                 <Property key="TextAlign" value="Left VCenter"/>
                 <Property key="FontName" value="Default"/>
-                <Property key="TextColour" value="0 0 0"/>
+                <Property key="TextColour" value="1 1 1"/>
                 <Property key="Pointer" value="beam"/>
             </Widget>
         </Widget>
@@ -734,7 +734,7 @@
         <Widget type="Widget" skin="simplefadetext" position="20 20 16 16" name="Root">
             <Property key="TextAlign" value="Default"/>
             <Property key="FontName" value="Default"/>
-            <Property key="TextColour" value="0 0 0"/>
+            <Property key="TextColour" value="1 1 1"/>
             <UserString key="LE_TargetWidgetType" value="TextBox"/>
         </Widget>
     </Resource>

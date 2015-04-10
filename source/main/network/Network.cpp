@@ -414,16 +414,19 @@ int Network::receivemessage(SWInetSocket *socket, header_t *head, char* content,
 
 	if (head->size>0)
 	{
-		//read the rest
-		while (hlen<(int)sizeof(header_t)+(int)head->size)
+		if ((int)sizeof(header_t) > 0)
 		{
-			int recvnum=socket->recv(buffer+hlen, (head->size+sizeof(header_t))-hlen,&error);
-			if (recvnum<0)
+			//read the rest
+			while (hlen<(int)sizeof(header_t)+(int)head->size)
 			{
-				LOG("NET receive error 2: "+ TOSTRING(recvnum));
-				return -1;
+				int recvnum=socket->recv(buffer+hlen, (head->size+sizeof(header_t))-hlen,&error);
+				if (recvnum<0)
+				{
+					LOG("NET receive error 2: "+ TOSTRING(recvnum));
+					return -1;
+				}
+				hlen+=recvnum;
 			}
-			hlen+=recvnum;
 		}
 	}
 	speed_bytes_recv_tmp += head->size + sizeof(header_t);

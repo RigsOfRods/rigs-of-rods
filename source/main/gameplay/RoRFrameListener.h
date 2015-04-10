@@ -44,6 +44,19 @@ public:
 	
 	Ogre::Vector3 reload_pos;
 
+	void setSimPaused(bool state) { isSimPaused = state; }
+
+	void StartRaceTimer();
+
+	float StopRaceTimer();
+
+	void UpdateRacingGui();
+
+	bool IsRaceInProgress()
+	{
+		return m_race_in_progress;
+	}
+
 protected:
 
 #ifdef USE_MPLATFORM
@@ -60,12 +73,18 @@ protected:
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
 
+	unsigned long      m_race_start_time;
+	bool               m_race_in_progress;
+	float			   m_race_bestlap_time;
+
 	bool dirvisible;
 	bool enablePosStor;
 	bool flipflop;
 	bool hidegui;
 	bool mTruckInfoOn;
 	bool pressure_pressed;
+
+	bool isSimPaused;
 
 	char screenshotformat[256];
 	

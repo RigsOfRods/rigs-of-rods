@@ -109,6 +109,8 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
 	INITDATA(DD_ODOMETER_TOTAL          , DC_FLOAT, "odometer_total");
 	INITDATA(DD_ODOMETER_USER           , DC_FLOAT, "odometer_user");
 
+	INITDATA(DD_SIGNAL_TURNLEFT			, DC_BOOL, "signal_turnleft");
+	INITDATA(DD_SIGNAL_TURNRIGHT		, DC_BOOL, "signal_turnright");
 	// load dash fonts
 	MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
 }
@@ -253,7 +255,8 @@ void DashBoard::update( float &dt )
 			// calculate the angle
 			float angle = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
 
-			if (fabs(val - controls[i].last) < 0.2f) continue;
+			if (fabs(val - controls[i].last) < 0.02f) continue;
+
 			controls[i].last = val;
 
 			// enforce limits

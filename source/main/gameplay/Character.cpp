@@ -58,6 +58,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, remote(remote)
 	, source(source)
 	, streamid(streamid)
+	, isCoupled(0)
 {
 	myNumber = characterCounter++;
 	myName   = "Character" + TOSTRING(myNumber);
@@ -630,15 +631,17 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 
 		// do not cast shadows inside of a truck
 		mCharacterNode->getAttachedObject(0)->setCastShadows(false);
-
+		isCoupled = true;
 		// check if there is a seat, if not, hide our character
 		if (!beamCoupling->hasDriverSeat())
 		{
 			// driver seat not found
 			setVisible(false);
+			isCoupled = false;
 		}
 	} else
 	{
+		isCoupled = false;
 		setPhysicsEnabled(true);
 		beamCoupling = 0;
 		if (mMoveableText && !mMoveableText->isVisible())

@@ -409,3 +409,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 	}
 	return true;
 }
+void TruckHUD::initTorqueOverlay()
+{
+
+}

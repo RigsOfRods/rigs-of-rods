@@ -95,6 +95,15 @@ ContentManager::~ContentManager()
 {
 }
 
+bool ContentManager::isLoaded(Ogre::uint64 res_pack_id)
+{
+	if (BITMASK_64_IS_1(m_loaded_resource_packs, res_pack_id)) // Already loaded?
+	{
+		return true;
+	}
+	return false;
+}
+
 void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
 {
 	std::stringstream log_msg;

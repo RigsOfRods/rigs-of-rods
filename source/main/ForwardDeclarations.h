@@ -31,7 +31,6 @@
 namespace RoR
 {
 	class  Application;
-	class  Console;
 	class  ContentManager;
 	class  GUIManager;
 	class  GuiManagerInterface;
@@ -39,6 +38,7 @@ namespace RoR
 	class  OgreSubsystem;
 	struct PlatformUtils;
 	class  SceneMouse;
+	class  Console;
 
 	namespace GUI
 	{
@@ -132,6 +132,7 @@ class IHeightFinder;
 class InputEngine;
 class IThreadTask;
 class IWater;
+class HydraxWater;
 class Landusemap;
 class MapTextureCreator;
 class MaterialFunctionMapper;

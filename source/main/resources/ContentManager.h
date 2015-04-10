@@ -86,7 +86,9 @@ public:
 	};
 
 	void AddResourcePack(ResourcePack const & resource_pack);
-	
+
+	bool isLoaded(Ogre::uint64 res_pack_id);
+
 	bool init(void);
 
 protected:

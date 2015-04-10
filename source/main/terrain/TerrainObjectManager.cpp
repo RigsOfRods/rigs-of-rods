@@ -84,6 +84,12 @@ TerrainObjectManager::~TerrainObjectManager()
 		}
 	}
 #endif //USE_PAGED
+	if (bakesg != nullptr)
+	{
+		gEnv->sceneManager->destroyStaticGeometry("bakeSG");
+		bakesg = nullptr;
+	}
+	gEnv->sceneManager->destroyAllEntities();
 }
 
 void TerrainObjectManager::proceduralTests()
@@ -394,7 +400,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 				GrassLayer* grassLayer = grassLoader->addLayer(grassmat);
 				grassLayer->setHeightRange(minH, maxH);
-				//grassLayer->setLightingEnabled(true);
+				grassLayer->setLightingEnabled(true);
 
 				grassLayer->setAnimationEnabled((SwaySpeed>0));
 				grassLayer->setSwaySpeed(SwaySpeed);

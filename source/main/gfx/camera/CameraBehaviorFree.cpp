@@ -27,6 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "mygui/BaseLayout.h"
 #include "Ogre.h"
 #include "TerrainManager.h"
+#include "GUIManager.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -114,6 +115,8 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 
 bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg)
 {
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true;
+
 	const OIS::MouseState ms = _arg.state;
 
 	gEnv->mainCamera->yaw(Degree(-ms.X.rel * 0.13f));
@@ -130,5 +133,6 @@ void CameraBehaviorFree::activate(const CameraManager::CameraContext &ctx, bool 
 {
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("free camera"), "camera_go.png", 3000);
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("free camera") + TOSTRING(""));
 #endif // USE_MYGUI
 }

@@ -30,6 +30,7 @@ class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 public:
 
 	Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr);
+	~Turbojet();
 
 	void flipStart();
 	void reset();
@@ -63,6 +64,8 @@ private:
 	Ogre::SceneNode *absnode;
 	Ogre::SceneNode *nzsnode;
 	Ogre::Vector3 axis;
+	Ogre::Entity *nozzleMesh;
+	Ogre::Entity *flameMesh;
 	bool afterburner;
 	bool failed;
 	bool heathaze;

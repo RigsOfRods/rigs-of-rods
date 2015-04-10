@@ -67,6 +67,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
+#include "GUIManager.h"
 
 // DEBUG UTILITY
 //#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
@@ -3041,12 +3042,7 @@ void Beam::updateSkidmarks()
 		}
 
 		skidtrails[i]->updatePoint();
-	}
-
-	//LOG("updating skidmark visuals");
-	for (int i=0; i<free_wheel; i++)
-	{
-		if (skidtrails[i]) skidtrails[i]->update();
+		if (skidtrails[i] && wheels[i].isSkiding) skidtrails[i]->update();
 	}
 
 	BES_STOP(BES_CORE_Skidmarks);
@@ -3469,6 +3465,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (left_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 		} else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
 		{
 			right_blink_on = isvisible;
@@ -3476,6 +3473,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (right_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
 		} else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
 		{
 			warn_blink_on  = isvisible;
@@ -3483,6 +3481,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (warn_blink_on)
 				SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
 #endif //USE_OPENAL
+			dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
+			dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 		}
 
 
@@ -3589,6 +3589,10 @@ void Beam::autoBlinkReset()
 		setBlinkType(BLINK_NONE);
 		blinktreshpassed = false;
 	}
+
+	bool stopblink = false;
+	dash->setBool(DD_SIGNAL_TURNLEFT, stopblink);
+	dash->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
 void Beam::updateProps()
@@ -5135,6 +5139,24 @@ bool Beam::getReverseLightVisible()
 	return reverselight;
 }
 
+void Beam::StopAllSounds()
+{
+	for (int i = 0; i < free_soundsource; i++)
+	{
+		if (soundsources[i].ssi)
+			soundsources[i].ssi->setEnabled(false);
+	}
+}
+
+void Beam::UnmuteAllSounds()
+{
+	for (int i = 0; i < free_soundsource; i++)
+	{
+		bool enabled = (soundsources[i].type == -2 || soundsources[i].type == currentcamera);
+		soundsources[i].ssi->setEnabled(enabled);
+	}
+}
+
 void Beam::changedCamera()
 {
 	// change sound setup
@@ -5922,17 +5944,17 @@ std::string ProcessParserMessages(RigDef::Parser & parser, int& num_errors, int&
 		switch (iter->type)
 		{
 			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
-				report << "FATAL_ERROR"; 
+				report << "#FF3300 FATAL_ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_ERROR): 
-				report << "ERROR"; 
+				report << "#FF3300 ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_WARNING): 
-				report << "WARNING"; 
+				report << "#FFFF00 WARNING #FFFFFF"; 
 				++num_warnings;
 				break;
 
@@ -5959,17 +5981,17 @@ std::string ProcessSpawnerMessages(RigSpawner & spawner, int& num_errors, int& n
 		switch (iter->type)
 		{
 			case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
-				report << "INTERNAL ERROR"; 
+				report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_ERROR): 
-				report << "ERROR"; 
+				report << "#FF3300 ERROR #FFFFFF"; 
 				++num_errors;
 				break;
 
 			case (RigDef::Parser::Message::TYPE_WARNING): 
-				report << "WARNING"; 
+				report << "#FFFF00 WARNING #FFFFFF"; 
 				++num_warnings;
 				break;
 
@@ -6002,15 +6024,15 @@ std::string ProcessValidatorMessages(RigDef::Validator & validator, int& num_err
 		switch (itor->type)
 		{
 			case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
-				report << "FATAL ERROR";
+				report << "#FF3300 FATAL ERROR #FFFFFF";
 				++num_errors;
 				break;
 			case (RigDef::Validator::Message::TYPE_ERROR):
-				report << "ERROR";
+				report << "#FF3300 ERROR #FFFFFF";
 				++num_errors;
 				break;
 			case (RigDef::Validator::Message::TYPE_WARNING):
-				report << "WARNING";
+				report << "#FFFF00 WARNING #FFFFFF";
 				++num_warnings;
 				break;
 			default:
@@ -6030,8 +6052,8 @@ Beam::Beam(
 	Ogre::Vector3 pos, 
 	Ogre::Quaternion rot, 
 	const char* fname, 
-	bool networked, /* = false  */
-	bool networking, /* = false  */ 
+	bool _networked, /* = false  */
+	bool _networking, /* = false  */ 
 	collision_box_t *spawnbox, /* = nullptr */
 	bool ismachine, /* = false  */ 
 	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
@@ -6138,6 +6160,8 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
+
+	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* class <Beam> mutexes */
@@ -6158,7 +6182,7 @@ Beam::Beam(
 	trucknum = truck_number;
 	freePositioned = freeposition;
 	usedSkin = skin;
-	networking = networking;
+	networking = _networking;
 	memset(truckname, 0, 256);
 	sprintf(truckname, "t%i", truck_number);
 	memset(uniquetruckid, 0, 256);
@@ -6169,7 +6193,7 @@ Beam::Beam(
 		driveable = MACHINE;
 	}
 	enable_wheel2 = true; // since 0.38 enabled wheels2 by default
-	if (networked || networking)
+	if (_networked || networking)
 	{
 		enable_wheel2 = false;
 	}
@@ -6202,7 +6226,7 @@ Beam::Beam(
 	// setup replay mode
 	bool enablereplay = BSETTING("Replay mode", false);
 
-	if (enablereplay && !networked && !networking)
+	if (enablereplay && !_networked && !networking)
 	{
 		replaylen = ISETTING("Replay length", 10000);
 		replay = new Replay(this, replaylen);
@@ -6258,7 +6282,7 @@ Beam::Beam(
 	CreateSimpleSkeletonMaterial();
 
 	// start network stuff
-	if (networked)
+	if (_networked)
 	{
 		state = NETWORKED;
 		// malloc memory
@@ -6348,6 +6372,7 @@ bool Beam::LoadTruck(
 				30000, 
 				true
 			);
+			RoR::Application::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
 		}
 #endif // USE_MYGUI
 		return false;
@@ -6422,7 +6447,10 @@ bool Beam::LoadTruck(
 	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
 	if (report_num_errors != 0)
 	{
-		RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
+		if (BSETTING("AutoRigSpawnerReport", false))
+		{
+			RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
+		}
 	}
 
 	/* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
@@ -6531,9 +6559,91 @@ bool Beam::LoadTruck(
 			// load default for a truck
 			if (driveable == TRUCK)
 			{
-				dash->loadDashBoard("default_dashboard.layout", false);
+				//Temporary will fix later. TOFIX
+				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
+				bool test02;
+
+				if (test01 == "Yes")
+					test02 = true;
+				else
+					test02 = false;
+
+				if (test02)
+				{
+					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_mph.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_mph.layout", true);
+						}
+					}
+					else
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500.layout", true);
+						}
+					}
+				}
+				else
+				{
+					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_analog_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
+						}
+					}
+					else
+					{
+						if (engine->getMaxRPM() > 3500)
+						{
+							//7000 rpm tachometer thanks to klink
+							dash->loadDashBoard("default_dashboard7000_analog.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard7000_analog.layout", true);
+						}
+						else
+						{
+							dash->loadDashBoard("default_dashboard3500_analog.layout", false);
+							// TODO: load texture dashboard by default as well
+							dash->loadDashBoard("default_dashboard3500_analog.layout", true);
+						}
+					}
+				}
+			}
+			else  if (driveable == BOAT)
+			{
+				dash->loadDashBoard("default_dashboard_boat.layout", false);
 				// TODO: load texture dashboard by default as well
-				dash->loadDashBoard("default_dashboard.layout", true);
+				dash->loadDashBoard("default_dashboard_boat.layout", true);
 			}
 		} else
 		{
@@ -6635,11 +6745,23 @@ bool Beam::getCustomLightVisible(int number)
 
 void Beam::setCustomLightVisible(int number, bool visible)
 {
-	if (netCustomLightArray[number] == -1)
+	if (number >= 5)
+	{
+		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") overflow, max: 4...");
 		return;
-	flares[netCustomLightArray[number]].controltoggle_status = visible;
-}
+	}
 
+	try
+	{
+		if (flares[netCustomLightArray[number]].snode)
+			flares[netCustomLightArray[number]].controltoggle_status = visible;
+	}
+	catch (Exception ex)
+	{
+	}
+	/*else
+		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");*/
+}
 
 bool Beam::getBeaconMode()
 {

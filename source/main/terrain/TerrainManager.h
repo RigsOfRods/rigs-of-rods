@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ConfigFile.h"
 #include "IManager.h"
+#include "RoRFrameListener.h"
 
 class TerrainManager : public IManager
 {
@@ -56,7 +57,15 @@ public:
 	IWater *getWater() { return water; };
 	Ogre::Light *getMainLight() { return main_light; };
 	Ogre::Vector3 getSpawnPos() { return start_position; };
-	SkyManager *getSkyManager() { return sky_manager; };
+
+	SkyManager *getSkyManager() 
+	{ 
+		if (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED)
+			return sky_manager;
+		else
+			return nullptr;
+	};
+
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };
 
@@ -67,7 +76,7 @@ public:
 	size_t getMemoryUsage();
 	void freeResources();
 
-	static const int UNLIMITED_SIGHTRANGE = 5000;
+	static const int UNLIMITED_SIGHTRANGE = 4999;
 
 protected:
 
@@ -85,6 +94,7 @@ protected:
 	TerrainGeometryManager *geometry_manager;
 	TerrainObjectManager *object_manager;
 	IWater *water;
+	HydraxWater *hw;
 
 	// properties
 	Ogre::ColourValue ambient_color;

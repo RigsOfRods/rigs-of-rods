@@ -27,6 +27,7 @@ class Envmap : public ZeroedMemoryAllocator
 public:
 		
 	Envmap();
+	~Envmap();
 
 	void prepareShutdown() {};
 

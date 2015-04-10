@@ -70,6 +70,7 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "VideoCamera.h"
+#include "GUIManager.h"
 
 #include <OgreMaterialManager.h>
 #include <OgreSceneManager.h>
@@ -200,7 +201,6 @@ void RigSpawner::InitializeRig()
 	memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
 	m_rig->free_airbrake = 0;
 	memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
-	m_rig->useSkidmarks = false;
 	memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
 	m_rig->free_flexbody = 0;
 	m_rig->vidcams.clear();
@@ -399,8 +399,6 @@ void RigSpawner::InitializeRig()
 	
 	m_rig->beamsRoot = m_parent_scene_node;
 
-	m_rig->useSkidmarks = BSETTING("Skidmarks", false);
-
 	/* Collisions */
 
 	m_rig->disableTruckTruckCollisions = BSETTING("DisableCollisions", false);
@@ -445,7 +443,7 @@ void RigSpawner::InitializeRig()
 	m_rig->rotaInertia  = new CmdKeyInertia();
 
 	// Lights mode
-	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(3); // Default = 3 (All vehicles, main lights)
+	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(); // Default = 2 (All vehicles, main lights)
 }
 
 void RigSpawner::FinalizeRig()
@@ -462,6 +460,9 @@ void RigSpawner::FinalizeRig()
 				AddMessage(Message::TYPE_ERROR, "TorqueCurve: Points (rpm) must be in an ascending order. Using default curve");
 			}
 		}
+
+		//Gearbox
+		m_rig->engine->setAutoMode(Settings::getSingleton().GetGearBoxMode());
 	}
 	
 	//calculate gwps height offset
@@ -565,6 +566,7 @@ void RigSpawner::FinalizeRig()
 				30000, 
 				true
 			);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
 #endif // USE_MYGUI
 
 			Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";
@@ -999,7 +1001,7 @@ void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 		GetNodeIndexOrThrow(def.blade_tip_nodes[2]),
 		GetNodeIndexOrThrow(def.blade_tip_nodes[3]),
 		couple_node_index,
-		true,
+		false,
 		def.airfoil,
 		def.turbine_power_kW,
 		def.pitch
@@ -6905,7 +6907,7 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
 	return true;
 }
 
-bool RigSpawner::CheckCameraRailLimit(unsigned int count)
+bool RigSpawner::CheckWingLimit(unsigned int count)
 {
 	if ((m_rig->free_wing + count) > MAX_WINGS)
 	{
@@ -6917,7 +6919,7 @@ bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 	return true;
 }
 
-bool RigSpawner::CheckWingLimit(unsigned int count)
+bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 {
 	if ((m_rig->free_camerarail + count) > MAX_CAMERARAIL)
 	{
