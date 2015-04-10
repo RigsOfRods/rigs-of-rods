@@ -38,6 +38,7 @@
 #include "MainThread.h"
 #include "OgreSubsystem.h"
 #include "ImprovedConfigFile.h"
+#include "FileSystemInfo.h"
 #include "GUIManager.h"
 #include "Settings.h"
 
@@ -49,8 +50,6 @@
 #include <AL/alc.h>
 #include <AL/alext.h>
 #endif // USE_OPENAL
-
-#include <dirent.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -1056,35 +1055,17 @@ void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
 
 void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 {
-	//Should work for windows and Linux
-	DIR *pdir;
-	struct dirent *pent;
-	pdir = opendir(GameSettingsMap["Cache Path"].c_str());
-	if (!pdir)
-	{
-		LOG("Error while clearing cache: directory does not exist.");
-		return;
-	}
-	while ((pent = readdir(pdir)))
-	{
-		try
-		{
-			//cout << pent->d_name;
-			Ogre::String file_delete = pent->d_name;
-			file_delete = GameSettingsMap["Cache Path"].c_str() + file_delete;
-			std::remove(file_delete.c_str()); // Should work on linux and windows
-		}
-		catch (...)
-		{
-			LOG("Error while clearing cache: something went wrong.");
-			return;
-		}
+	// List files in cache
+	RoR::FileSystem::VectorFileInfo cache_files;
+	std::string cache_dir_str = GameSettingsMap["Cache Path"];
+	std::wstring cache_dir_wstr = MyGUI::UString(cache_dir_str).asWStr();
+	RoR::FileSystem::getSystemFileList(cache_files, cache_dir_wstr, L"*.*");
 
-	}
-
-	closedir(pdir);
-	pdir = NULL;
-	pent = nullptr;
+	// Remove files
+	std::for_each(cache_files.begin(), cache_files.end(), [cache_dir_wstr](RoR::FileSystem::FileInfo& file_info) {
+		MyGUI::UString path_to_delete = RoR::FileSystem::concatenatePath(cache_dir_wstr, file_info.name);
+		std::remove(path_to_delete.asUTF8_c_str());
+	});
 
 	ShowRestartNotice = true;
 	RoR::Application::GetGuiManager()->ShowMessageBox("Cache cleared", "Cache cleared succesfully, you need to restart the game for the changes to apply.", true, "Ok", true, false, "");
