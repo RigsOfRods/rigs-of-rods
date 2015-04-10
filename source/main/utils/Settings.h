@@ -60,6 +60,7 @@ public:
 	void createGUID();
 
 	int GetFlaresMode(int default_value = 2);
+	int GetGearBoxMode(int default_value = 0);
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -95,7 +96,7 @@ protected:
 	// Cached config data
 
 	int m_flares_mode; // -1: unknown, -2: default, 0+: mode ID
-
+	int m_gearbox_mode;
 };
 
 #endif // __Settings_H_
