@@ -3315,113 +3315,84 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		return;
 	}
 
-	// Acquire shock
-	shock_t & shock = m_rig->shocks[m_rig->free_shock];
-	++m_rig->free_shock;
+	shock_t shock;
 
-	/* Disable trigger on startup? (default enabled) */
-	shock.trigger_enabled = ! BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_x_START_OFF);
+	// Disable trigger on startup? (default enabled)
+	shock.trigger_enabled = !def.HasFlag_x_StartDisabled();
+
+	m_rig->commandkey[def.shortbound_trigger_action].trigger_cmdkeyblock_state = false;
+	if (def.longbound_trigger_action != -1)
+	{
+		m_rig->commandkey[def.longbound_trigger_action].trigger_cmdkeyblock_state = false;
+	}
 
 	unsigned int hydro_type = BEAM_HYDRO;
 	unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISTRIGGER;
-	/* Set the CommandKeys that are set in a commandkeyblocker or trigger to blocked on startup, default is released */
-	bool cmd_key_block = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_b_BLOCK_KEYS);
-	bool hook_toggle = false;
-	bool trigger_blocker = false;
-	bool inverted_trigger_blocker = false;
+	float short_limit = def.contraction_trigger_limit;
+	float long_limit = def.expansion_trigger_limit;
 
-	unsigned int shortbound_trigger_key = def.shortbound_trigger_key;
-	unsigned int longbound_trigger_key = def.longbound_trigger_key;
-	float shortbound = def.contraction_trigger_limit;
-	float longbound = def.expansion_trigger_limit;
-
-	m_rig->commandkey[shortbound_trigger_key].trigger_cmdkeyblock_state = false;
-	if (longbound_trigger_key != -1)
-	{
-		m_rig->commandkey[longbound_trigger_key].trigger_cmdkeyblock_state = false;
-	}
-
-	/* Options */
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_i_INVISIBLE))
+	if (def.HasFlag_i_Invisible())
 	{
 		hydro_type = BEAM_INVISIBLE_HYDRO;
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_BLOCK_TRIGGERS))
+	if (def.HasFlag_B_TriggerBlocker())
 	{
-		/* Blocker that enable/disable other triggers */
-		trigger_blocker = true;
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER);
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_SWITCH_CMD_NUM))
+	if (def.HasFlag_s_CmdNumSwitch()) // switch that exchanges cmdshort/cmdshort for all triggers with the same commandnumbers, default false
 	{
-		/* switch that exchanges cmdshort/cmdshort for all triggers with the same commandnumbers, default false */
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CMD_SWITCH);
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_c_COMMAND_STYLE))
+	if (def.HasFlag_c_CommandStyle()) // // trigger is set with commandstyle boundaries instead of shocksytle
 	{
-		/* trigger is set with commandstyle boundaries instead of shocksytle */
-		shortbound = abs(shortbound - 1.f);
-		longbound -= 1.f;
+		short_limit = abs(short_limit - 1);
+		long_limit = long_limit - 1;
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_BLOCK_TRIGGERS))
+	if (def.HasFlag_A_InvTriggerBlocker()) // Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON)
 	{
-		/* Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON) */
-		inverted_trigger_blocker = true;
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER_A);
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY))
+	if (def.HasFlag_h_UnlocksHookGroup())
 	{
-		hook_toggle = true;
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_HOOK_UNLOCK);
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY))
+	if (def.HasFlag_H_LocksHookGroup())
 	{
-		hook_toggle = true;
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_HOOK_LOCK);
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_t_CONTINUOUS))
+	if (def.HasFlag_t_Continuous())
 	{
-		/* this trigger sends values between 0 and 1 */
-		hook_toggle = true;
-		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CONTINUOUS);
+		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CONTINUOUS); // this trigger sends values between 0 and 1
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_t_CONTINUOUS))
+	if (def.HasFlag_E_EngineTrigger())
 	{
-		/* this trigger sends values between 0 and 1 */
-		hook_toggle = true;
-		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CONTINUOUS);
+		BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_ENGINE);
 	}
 
-	bool is_engine_trigger = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER);
-
-	if	(	! trigger_blocker 
-		&&	! inverted_trigger_blocker
-		&&	! hook_toggle 
-		&&	! is_engine_trigger
-		)
+	// Checks
+	if (!def.IsTriggerBlockerAnyType() && !def.IsHookToggleTrigger() && !def.HasFlag_E_EngineTrigger())
 	{
-		// make the full check
-		if (shortbound_trigger_key < 1 || shortbound_trigger_key > MAX_COMMANDS)
+		if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
 		{
 			std::stringstream msg;
-			msg << "Invalid value of 'shortbound trigger key': '" << shortbound_trigger_key << "'. Must be between 1 and 84. Ignoring trigger...";
+			msg << "Invalid value of 'shortbound_trigger_action': '" << def.shortbound_trigger_action << "'. Must be between 1 and "<<MAX_COMMANDS<<". Ignoring trigger.";
 			AddMessage(Message::TYPE_ERROR, msg.str());
 			return;
 		}
-	} 
-	else if (! hook_toggle && ! is_engine_trigger)
+	}
+	else if (!def.IsHookToggleTrigger() && !def.HasFlag_E_EngineTrigger())
 	{
 		// this is a Trigger-Blocker, make special check
-		if (shortbound_trigger_key < 0 || longbound_trigger_key < 0)
+		if (def.shortbound_trigger_action < 0 || def.longbound_trigger_action < 0)
 		{
 			AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.");
 			return;
 		}
-	} 
-	else if (is_engine_trigger)
+	}
+	else if (def.HasFlag_E_EngineTrigger())
 	{
-		if (trigger_blocker || inverted_trigger_blocker || hook_toggle || (shock_flags & SHOCK_FLAG_TRG_CMD_SWITCH))
+		if (def.IsTriggerBlockerAnyType() || def.IsHookToggleTrigger() || def.HasFlag_s_CmdNumSwitch())
 		{
 			AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
 			return;
@@ -3441,8 +3412,8 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	SetBeamSpring(beam, 0.f);
 	SetBeamDamping(beam, 0.f);
 	CalculateBeamLength(beam);
-	beam.shortbound = shortbound;
-	beam.longbound = longbound;
+	beam.shortbound = short_limit;
+	beam.longbound = long_limit;
 	beam.bounded = SHOCK2;
 	beam.shock = &shock;
 	beam.diameter = DEFAULT_BEAM_DIAMETER;
@@ -3456,13 +3427,14 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 
 	shock.beamid = beam_index;
 	shock.trigger_switch_state = 0.0f;   // used as bool and countdowntimer, dont touch!
-	if (!trigger_blocker && !inverted_trigger_blocker) // this is no trigger_blocker (A/B)
+
+	if (!def.IsTriggerBlockerAnyType())
 	{
-		shock.trigger_cmdshort = shortbound_trigger_key;
-		if (longbound_trigger_key != -1 || (longbound_trigger_key == -1 && hook_toggle))
+		shock.trigger_cmdshort = def.shortbound_trigger_action;
+		if (def.longbound_trigger_action != -1 || (def.longbound_trigger_action == -1 && def.IsHookToggleTrigger()))
 		{
 			// this is a trigger or a hook_toggle
-			shock.trigger_cmdlong = longbound_trigger_key;
+			shock.trigger_cmdlong = def.longbound_trigger_action;
 		}
 		else
 		{
@@ -3473,36 +3445,40 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	else 
 	{
 		// this is a trigger_blocker
-		if (!inverted_trigger_blocker)
+		if (!def.HasFlag_A_InvTriggerBlocker())
 		{
 			//normal BLOCKER
 			shock_flags |= SHOCK_FLAG_TRG_BLOCKER;
-			shock.trigger_cmdshort = shortbound_trigger_key;
-			shock.trigger_cmdlong  = longbound_trigger_key;
+			shock.trigger_cmdshort = def.shortbound_trigger_action;
+			shock.trigger_cmdlong  = def.longbound_trigger_action;
 		} 
 		else
 		{
 			//inverted BLOCKER
 			shock_flags |= SHOCK_FLAG_TRG_BLOCKER_A;
-			shock.trigger_cmdshort = shortbound_trigger_key;
-			shock.trigger_cmdlong  = longbound_trigger_key;
+			shock.trigger_cmdshort = def.shortbound_trigger_action;
+			shock.trigger_cmdlong  = def.longbound_trigger_action;
 		}
 	}
 
-	if (cmd_key_block && !trigger_blocker)
+	if (def.HasFlag_b_KeyBlocker() && !def.HasFlag_B_TriggerBlocker())
 	{
-		m_rig->commandkey[shortbound_trigger_key].trigger_cmdkeyblock_state = true;
-		if (longbound_trigger_key != -1)
+		m_rig->commandkey[def.shortbound_trigger_action].trigger_cmdkeyblock_state = true;
+		if (def.longbound_trigger_action != -1)
 		{
-			m_rig->commandkey[longbound_trigger_key].trigger_cmdkeyblock_state = true;
+			m_rig->commandkey[def.longbound_trigger_action].trigger_cmdkeyblock_state = true;
 		}
 	}
-	
+
 	shock.trigger_boundary_t = def.boundary_timer;
 	shock.flags              = shock_flags;
 	shock.sbd_spring         = def.beam_defaults->springiness;
 	shock.sbd_damp           = def.beam_defaults->damping_constant;
 	shock.last_debug_state   = 0;
+
+	// Commit created shock
+	m_rig->shocks[m_rig->free_shock] = shock;
+	++m_rig->free_shock;
 	
 }
 

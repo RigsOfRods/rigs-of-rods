@@ -2351,15 +2351,15 @@ DEFINE_REGEX( SECTION_TRIGGERS,
 	E_DELIMITER_COMMA
 	E_CAPTURE( E_REAL_NUMBER ) /* Contraction trigger limit */
 	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Expansion trigger limit */
+	E_CAPTURE( E_REAL_NUMBER ) /* Extension trigger limit */
 	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Contraction trigger key (or engine index with E option) */
+	E_CAPTURE( E_DECIMAL_NUMBER ) /* #5 Contraction trigger action */
 	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #6 Expansion trigger key (or function number with E option) */
+	E_CAPTURE( E_DECIMAL_NUMBER ) /* #6 Extension trigger action */
 
 	E_CAPTURE_OPTIONAL( 
 		E_DELIMITER_COMMA
-		E_CAPTURE( "[icxbBAshHtE]*" ) /* #8 Options */
+		E_CAPTURE( E_STRING_ALNUM_COMMAS_USCORES_ONLY ) /* #8 Options */
 	
 		E_CAPTURE_OPTIONAL( 
 			E_DELIMITER_COMMA

@@ -592,21 +592,21 @@ void Serializer::ProcessTriggers(File::Module* module)
 			<< def.nodes[0].ToString()       << ", "
 			<< def.nodes[1].ToString()       << ", "
 			<< def.contraction_trigger_limit << ", "
-			<< def.expansion_trigger_limit	 << ", "
-			<< def.shortbound_trigger_key	 << ", "
-			<< def.longbound_trigger_key	 << ", ";
+			<< def.expansion_trigger_limit   << ", "
+			<< def.shortbound_trigger_action << ", "
+			<< def.longbound_trigger_action  << ", ";
 
-		if (def.HasFlag_i()) { m_stream << "i"; }
-		if (def.HasFlag_c()) { m_stream << "c"; }
-		if (def.HasFlag_x()) { m_stream << "x"; }
-		if (def.HasFlag_b()) { m_stream << "b"; }
-		if (def.HasFlag_B()) { m_stream << "B"; }
-		if (def.HasFlag_A()) { m_stream << "A"; }
-		if (def.HasFlag_s()) { m_stream << "s"; }
-		if (def.HasFlag_h()) { m_stream << "h"; }
-		if (def.HasFlag_H()) { m_stream << "H"; }
-		if (def.HasFlag_t()) { m_stream << "t"; }
-		if (def.HasFlag_E()) { m_stream << "E"; }
+		if (def.HasFlag_i_Invisible()          ) { m_stream << "i"; }
+		if (def.HasFlag_c_CommandStyle()       ) { m_stream << "c"; }
+		if (def.HasFlag_x_StartDisabled()      ) { m_stream << "x"; }
+		if (def.HasFlag_b_KeyBlocker()         ) { m_stream << "b"; }
+		if (def.HasFlag_B_TriggerBlocker()     ) { m_stream << "B"; }
+		if (def.HasFlag_A_InvTriggerBlocker()  ) { m_stream << "A"; }
+		if (def.HasFlag_s_CmdNumSwitch()       ) { m_stream << "s"; }
+		if (def.HasFlag_h_UnlocksHookGroup()   ) { m_stream << "h"; }
+		if (def.HasFlag_H_LocksHookGroup()     ) { m_stream << "H"; }
+		if (def.HasFlag_t_Continuous()         ) { m_stream << "t"; }
+		if (def.HasFlag_E_EngineTrigger()      ) { m_stream << "E"; }
 
 		m_stream << " " << def.boundary_timer;
 	}

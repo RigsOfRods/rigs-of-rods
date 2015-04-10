@@ -3691,8 +3691,8 @@ void Parser::ParseTriggers(Ogre::String const & line)
 	trigger.nodes[1] = _ParseNodeId(results[2]);
 	trigger.contraction_trigger_limit = STR_PARSE_REAL(results[3]);
 	trigger.expansion_trigger_limit = STR_PARSE_REAL(results[4]);
-	unsigned int short_key_or_motor = STR_PARSE_INT(results[5]);
-	unsigned int long_key_or_function = STR_PARSE_INT(results[6]);
+	int shortbound_trigger_action = STR_PARSE_INT(results[5]);
+	int longbound_trigger_action = STR_PARSE_INT(results[6]);
 
 	if (results[8].matched)
 	{
@@ -3735,27 +3735,40 @@ void Parser::ParseTriggers(Ogre::String const & line)
 					trigger.options |= Trigger::OPTION_E_ENGINE_TRIGGER;
 					break;
 
-				default: /* No check needed, regex takes care of that */
+				default:
+					AddMessage(line, Message::TYPE_WARNING, Ogre::String("Invalid trigger option: " + options_str.at(i)));
 					break;
 			}
 		}
 	}
-
-	if (trigger.options & Trigger::OPTION_E_ENGINE_TRIGGER)
-	{
-		trigger._engine_trigger_motor_index = short_key_or_motor;
-		trigger._engine_trigger_function = Trigger::EngineTriggerFunction(long_key_or_function);
-	}
-	else
-	{
-		trigger.shortbound_trigger_key = short_key_or_motor;
-		trigger.longbound_trigger_key = long_key_or_function;
-	}
-
 	if (results[10].matched)
 	{
 		trigger.boundary_timer = STR_PARSE_REAL(results[10]);
 	}
+
+	// Handle actions
+	if (!trigger.IsTriggerBlockerAnyType() && !trigger.IsHookToggleTrigger() && !trigger.HasFlag_E_EngineTrigger())
+	{
+		Trigger::CommandKeyTrigger command_keys;
+		command_keys.contraction_trigger_key = shortbound_trigger_action;
+		command_keys.extension_trigger_key   = longbound_trigger_action;
+		trigger.SetCommandKeyTrigger(command_keys);
+	}
+	else if (!trigger.IsHookToggleTrigger() && !trigger.HasFlag_E_EngineTrigger())
+	{
+		Trigger::HookToggleTrigger hook_toggle;
+		hook_toggle.contraction_trigger_hookgroup_id = shortbound_trigger_action;
+		hook_toggle.extension_trigger_hookgroup_id = longbound_trigger_action;
+		trigger.SetHookToggleTrigger(hook_toggle);
+	}
+	else if (trigger.HasFlag_E_EngineTrigger())
+	{
+		Trigger::EngineTrigger engine_trigger;
+		engine_trigger.function = Trigger::EngineTrigger::Function(shortbound_trigger_action);
+		engine_trigger.motor_index = longbound_trigger_action;
+		trigger.SetEngineTrigger(engine_trigger);
+	}
+
 
 	m_current_module->triggers.push_back(trigger);
 }
