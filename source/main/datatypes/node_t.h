@@ -5,8 +5,7 @@
  *      Author: chris
  */
 
-#ifndef NODE_H_
-#define NODE_H_
+#pragma once
 
 #include "OgrePrerequisites.h"
 
@@ -60,6 +59,3 @@ struct node_t
 	int pos;                     //!< This node's index in rig_t::nodes array.
 	Ogre::SceneNode *mSceneNode; //!< visual
 };
-
-
-#endif /* NODE_H_ */

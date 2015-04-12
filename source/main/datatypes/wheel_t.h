@@ -5,8 +5,8 @@
  *      Author: chris
  */
 
-#ifndef WHEEL_H_
-#define WHEEL_H_
+#pragma once
+
 #include "RoRPrerequisites.h"
 #include <OgrePrerequisites.h>
 
@@ -68,6 +68,3 @@ struct vwheel_t
 	Ogre::SceneNode *cnode;
 	bool meshwheel;
 };
-
-
-#endif /* WHEEL_H_ */
