@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,7 +12,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -91,6 +91,8 @@ public:
 
 	bool init(void);
 
+	inline RoR::SkinManager* GetSkinManager() const { return m_skin_manager; }
+
 protected:
 
 	ContentManager();
@@ -105,7 +107,7 @@ protected:
 	bool resourceCollision(Ogre::Resource *resource, Ogre::ResourceManager *resourceManager);
 
 	Ogre::uint64 m_loaded_resource_packs;
-
+	RoR::SkinManager* m_skin_manager;
 };
 
 } // namespace RoR

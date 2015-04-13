@@ -41,7 +41,7 @@ class MainSelector : public MainSelectorLayout
 {
 
 public:
-	MainSelector();
+	MainSelector(RoR::SkinManager* skin_manager);
 	~MainSelector();
 
 	bool IsFinishedSelecting();
@@ -96,7 +96,7 @@ private:
 	bool                       m_keys_bound;
 	float                      m_ready_time;
 	float                      m_deltatime_sum;
-
+	RoR::SkinManager*          m_skin_manager;
 };
 
 } // namespace GUI

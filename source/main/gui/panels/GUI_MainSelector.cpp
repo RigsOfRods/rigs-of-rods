@@ -48,7 +48,7 @@ using namespace GUI;
 #define CLASS        MainSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS() :
+CLASS::CLASS(RoR::SkinManager* skin_manager) :
 m_deltatime_sum(0)
 , m_keys_bound(false)
 , m_selected_skin(nullptr)
@@ -56,6 +56,7 @@ m_deltatime_sum(0)
 , m_selection_done(true)
 , m_ready(false)
 , m_ready_time(1.0f)
+, m_skin_manager(skin_manager)
 {
 	MAIN_WIDGET->setVisible(false);
 
@@ -642,7 +643,7 @@ void CLASS::OnSelectionDone()
 		RoR::Application::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
 
 		m_current_skins.clear();
-		SkinManager::getSingleton().getUsableSkins(m_selected_entry->guid, this->m_current_skins);
+		m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
 		if (!m_current_skins.empty())
 		{
 			Hide();

@@ -92,7 +92,7 @@ public:
 
 	void ShowMultiPlayerSelector(bool isVisible);
 
-	void initMainSelector();
+	void InitMainSelector(RoR::SkinManager* skin_manager);
 	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
 
 	void initSimUtils();

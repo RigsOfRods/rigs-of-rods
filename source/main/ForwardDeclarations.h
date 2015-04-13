@@ -38,6 +38,7 @@ namespace RoR
 	class  OgreSubsystem;
 	struct PlatformUtils;
 	class  SceneMouse;
+	class  SkinManager;
 	class  Console;
 
 	namespace GUI

@@ -215,7 +215,7 @@ void MainThread::Go()
 
 	// Init singletons. TODO: Move under Application
 	LoadingWindow::getSingleton();
-	RoR::Application::GetGuiManager()->initMainSelector();
+	RoR::Application::GetGuiManager()->InitMainSelector(Application::GetContentManager()->GetSkinManager());
 	GUI_Friction::getSingleton();
 
 	// Create legacy RoRFrameListener

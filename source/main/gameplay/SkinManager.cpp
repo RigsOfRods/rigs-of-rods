@@ -1,25 +1,28 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "SkinManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 SkinManager::SkinManager() : ResourceManager()
 {
@@ -95,7 +98,7 @@ void SkinManager::parseScript(DataStreamPtr& stream, const String& groupName)
 					// NB skin isn't loaded until required
 				} else
 				{
-					parseAttribute(line, pSkin);
+					ParseSkinAttribute(line, pSkin);
 				}
 			}
 		}
@@ -108,7 +111,7 @@ void SkinManager::parseScript(DataStreamPtr& stream, const String& groupName)
 	}
 }
 
-void SkinManager::parseAttribute(const String& line, Skin *pSkin)
+void SkinManager::ParseSkinAttribute(const String& line, Skin *pSkin)
 {
 	Ogre::StringVector params = StringUtil::split(line, "\t=,;\n");
 	for (unsigned int i=0; i < params.size(); i++)
@@ -130,42 +133,7 @@ void SkinManager::parseAttribute(const String& line, Skin *pSkin)
 	StringUtil::trim(pSkin->name);
 }
 
-void SkinManager::logBadAttrib(const String& line, Skin *pSkin)
-{
-	LOG("Bad attribute line: " + line + " in skin " + pSkin->getName());
-}
-
-bool SkinManager::hasSkinForGUID(Ogre::String guid)
-{
-	Ogre::ResourceManager::ResourceMapIterator it = getResourceIterator();
-	while (it.hasMoreElements())
-	{
-		Skin *skin = (Skin *)it.getNext().getPointer();
-
-		if (skin->guid == guid)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-void SkinManager::getMaterialAlternatives(Ogre::String materialName, std::vector<Skin *> &skinVector)
-{
-	Ogre::ResourceManager::ResourceMapIterator it = getResourceIterator();
-	while (it.hasMoreElements())
-	{
-		Skin *skin = (Skin *)it.getNext().getPointer();
-
-		if (skin->hasReplacementForMaterial(materialName))
-		{
-			skinVector.push_back(skin);
-		}
-	}
-}
-
-void SkinManager::getUsableSkins(String guid, std::vector<Skin *> &skins)
+void SkinManager::GetUsableSkins(String guid, std::vector<Skin *> &skins)
 {
 	Ogre::ResourceManager::ResourceMapIterator it = getResourceIterator();
 	while (it.hasMoreElements())
@@ -188,16 +156,6 @@ void SkinManager::getUsableSkins(String guid, std::vector<Skin *> &skins)
 			skins.push_back(skin);
 		}
 	}
-}
-
-int SkinManager::getSkinCount()
-{
-	return mResourcesByHandle.size();
-}
-
-void SkinManager::clear()
-{
-	mResourcesByHandle.clear();
 }
 
 //we wont unload skins once loaded!
