@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,11 +12,11 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -44,63 +44,58 @@ public:
 	MainSelector();
 	~MainSelector();
 
-	void setupCamera(Ogre::Camera* _camera) { mCamera = _camera; }
-
-	bool isFinishedSelecting();
-	void show(LoaderType type);
-	void hide();
+	bool IsFinishedSelecting();
+	void Show(LoaderType type);
+	void Hide();
 	bool IsVisible();
 	void BackToMenu();
-	void reset();
+	void Reset();
 
-	CacheEntry *getSelection() { return mSelectedTruck; }
-	Skin *getSelectedSkin() { return mSelectedSkin; }
-	std::vector<Ogre::String> getTruckConfig() { return mTruckConfigs; }
-	void setEnableCancel(bool enabled);
+	CacheEntry *GetSelectedEntry() { return m_selected_entry; }
+	Skin *GetSelectedSkin() { return m_selected_skin; }
+	std::vector<Ogre::String> GetVehicleConfigs() { return m_vehicle_configs; }
 	int ConvertType(LoaderType type) { return LoaderType(type); }
-	LoaderType getLoaderType() { return LoaderType(); }
 private:
 
-	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
+	void NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 
 	// gui events
-	void eventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _index);
-	void eventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index);
-	void eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char);
-	void eventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _index);
-	void eventListChangePositionModelListAccept(MyGUI::ListPtr _sender, size_t _index);
-	void eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender);
-	void eventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender);
-	void eventSearchTextChange(MyGUI::EditBox *_sender);
-	void eventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget);
-	void notifyWindowChangeCoord(MyGUI::Window* _sender);
-	void resizePreviewImage();
-	void bindKeys(bool bind = true);
+	void EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _index);
+	void EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index);
+	void EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char);
+	void EventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _index);
+	void EventListChangePositionModelListAccept(MyGUI::ListPtr _sender, size_t _index);
+	void EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender);
+	void EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender);
+	void EventSearchTextChange(MyGUI::EditBox *_sender);
+	void EventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget);
+	void NotifyWindowChangeCoord(MyGUI::Window* _sender);
+	void ResizePreviewImage();
+	void BindKeys(bool bind = true);
 
 	// other functions
-	void getData();
-	void onCategorySelected(int categoryID);
-	void onEntrySelected(int entryID);
-	void selectionDone();
-	bool searchCompare(Ogre::String searchString, CacheEntry *ce);
+	void UpdateGuiData();
+	void OnCategorySelected(int categoryID);
+	void OnEntrySelected(int entryID);
+	void OnSelectionDone();
+	bool SearchCompare(Ogre::String searchString, CacheEntry *ce);
 
-	void updateControls(CacheEntry *entry);
-	void setPreviewImage(Ogre::String texture);
-	void frameEntered(float dt);
-	CacheEntry *mSelectedTruck;
-	LoaderType mLoaderType;
-	Ogre::Camera *mCamera;
-	Ogre::String mPreviewImageTexture;
-	Skin *mSelectedSkin;
-	bool mSelectionDone;
-	bool ready;
-	int visibleCounter;
-	std::vector<CacheEntry> mEntries;
-	std::vector<Ogre::String> mTruckConfigs;
-	std::vector<Skin *> mCurrentSkins;
-	bool keysBound;
-	float readytime;
-	float dtsum;
+	void UpdateControls(CacheEntry *entry);
+	void SetPreviewImage(Ogre::String texture);
+	void FrameEntered(float dt);
+
+	CacheEntry*                m_selected_entry;
+	LoaderType                 m_loader_type;
+	Ogre::String               m_preview_image_texture;
+	Skin*                      m_selected_skin;
+	bool                       m_selection_done;
+	bool                       m_ready;
+	std::vector<CacheEntry>    m_entries;
+	std::vector<Ogre::String>  m_vehicle_configs;
+	std::vector<Skin *>        m_current_skins;
+	bool                       m_keys_bound;
+	float                      m_ready_time;
+	float                      m_deltatime_sum;
 
 };
 
