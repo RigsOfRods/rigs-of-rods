@@ -447,10 +447,10 @@ bool Validator::CheckTrigger(RigDef::Trigger & def)
 		if (! trigger_blocker && ! inv_trigger_blocker && ! hook_toggle )
 		{
 			/* Make the full check */
-			if (def.shortbound_trigger_key < 1 || def.shortbound_trigger_key > Limits::MAX_COMMANDS)
+			if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > Limits::MAX_COMMANDS)
 			{
 				std::stringstream msg;
-				msg << "Wrong parameter 'shortbound_trigger_key': " << def.shortbound_trigger_key;
+				msg << "Wrong parameter 'shortbound_trigger_action': " << def.shortbound_trigger_action;
 				msg << "; Alloved range is <0 - " << Limits::MAX_COMMANDS << ">. ";
 				msg << "Trigger deactivated.";
 				AddMessage(Message::TYPE_ERROR, msg.str());
@@ -460,19 +460,19 @@ bool Validator::CheckTrigger(RigDef::Trigger & def)
 		else if (! hook_toggle)
 		{
 			/* This is a Trigger-Blocker, make special check */
-			if (def.shortbound_trigger_key < 0)
+			if (def.shortbound_trigger_action < 0)
 			{
 				std::stringstream msg;
-				msg << "Wrong parameter 'shortbound_trigger_key': " << def.shortbound_trigger_key;
+				msg << "Wrong parameter 'shortbound_trigger_action': " << def.shortbound_trigger_action;
 				msg << "; Alloved range is <0 - " << Limits::MAX_COMMANDS << ">. ";
 				msg << "Trigger deactivated.";
 				AddMessage(Message::TYPE_ERROR, msg.str());
 				ok = false;
 			}
-			if (def.longbound_trigger_key < 0)
+			if (def.longbound_trigger_action < 0)
 			{
 				std::stringstream msg;
-				msg << "Wrong parameter 'longbound_trigger_key': " << def.longbound_trigger_key;
+				msg << "Wrong parameter 'longbound_trigger_action': " << def.longbound_trigger_action;
 				msg << "; Alloved range is <0 - " << Limits::MAX_COMMANDS << ">. ";
 				msg << "Trigger deactivated.";
 				AddMessage(Message::TYPE_ERROR, msg.str());

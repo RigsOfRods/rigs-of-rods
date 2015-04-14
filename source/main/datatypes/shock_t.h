@@ -5,8 +5,7 @@
  *      Author: chris
  */
 
-#ifndef SHOCK_H_
-#define SHOCK_H_
+#pragma once
 
 /**
 * SIM-CORE; Shock.
@@ -33,6 +32,3 @@ struct shock_t
 	float trigger_boundary_t;       //!< optional value to tune trigger_switch_state autorelease
 	int last_debug_state;           //!< smart debug output
 };
-
-
-#endif /* SHOCK_H_ */

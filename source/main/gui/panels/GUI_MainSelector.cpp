@@ -48,39 +48,39 @@ using namespace GUI;
 #define CLASS        MainSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS() :
-dtsum(0)
-, keysBound(false)
-, mSelectedSkin(0)
-, mSelectedTruck(0)
-, mSelectionDone(true)
-, ready(false)
-, readytime(1.0f)
-, visibleCounter(0)
+CLASS::CLASS(RoR::SkinManager* skin_manager) :
+m_deltatime_sum(0)
+, m_keys_bound(false)
+, m_selected_skin(nullptr)
+, m_selected_entry(nullptr)
+, m_selection_done(true)
+, m_ready(false)
+, m_ready_time(1.0f)
+, m_skin_manager(skin_manager)
 {
 	MAIN_WIDGET->setVisible(false);
 
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
-	win->eventWindowChangeCoord += MyGUI::newDelegate(this, &CLASS::notifyWindowChangeCoord);
+	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
+	win->eventWindowChangeCoord += MyGUI::newDelegate(this, &CLASS::NotifyWindowChangeCoord);
 
 	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
 	MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
 
-	m_Type->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::eventComboChangePositionTypeComboBox);
+	m_Type->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::EventComboChangePositionTypeComboBox);
 
-	m_Model->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::eventListChangePositionModelListAccept);
-	m_Model->eventListChangePosition += MyGUI::newDelegate(this, &CLASS::eventListChangePositionModelList);
-	m_Config->eventComboAccept += MyGUI::newDelegate(this, &CLASS::eventComboAcceptConfigComboBox);
-	m_Ok->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickOkButton);
-	m_Cancel->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickCancelButton);
+	m_Model->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::EventListChangePositionModelListAccept);
+	m_Model->eventListChangePosition += MyGUI::newDelegate(this, &CLASS::EventListChangePositionModelList);
+	m_Config->eventComboAccept += MyGUI::newDelegate(this, &CLASS::EventComboAcceptConfigComboBox);
+	m_Ok->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::EventMouseButtonClickOkButton);
+	m_Cancel->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::EventMouseButtonClickCancelButton);
 
 	// search stuff
-	m_SearchLine->eventEditTextChange += MyGUI::newDelegate(this, &CLASS::eventSearchTextChange);
-	m_SearchLine->eventMouseSetFocus += MyGUI::newDelegate(this, &CLASS::eventSearchTextGotFocus);
-	m_SearchLine->eventKeySetFocus += MyGUI::newDelegate(this, &CLASS::eventSearchTextGotFocus);
+	m_SearchLine->eventEditTextChange += MyGUI::newDelegate(this, &CLASS::EventSearchTextChange);
+	m_SearchLine->eventMouseSetFocus += MyGUI::newDelegate(this, &CLASS::EventSearchTextGotFocus);
+	m_SearchLine->eventKeySetFocus += MyGUI::newDelegate(this, &CLASS::EventSearchTextGotFocus);
 
-	readytime = 0.5f;
+	m_ready_time = 0.5f;
 
 	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
 	
@@ -104,59 +104,58 @@ CLASS::~CLASS()
 
 }
 
-void CLASS::reset()
+void CLASS::Reset()
 {
-	dtsum = 0;
-	keysBound = false;
-	mSelectedSkin = 0;
-	mSelectedTruck = 0;
-	mSelectionDone = true;
-	ready = false;
-	readytime = 1.0f;
-	visibleCounter = 0;
+	m_deltatime_sum = 0;
+	m_keys_bound = false;
+	m_selected_skin = nullptr;
+	m_selected_entry = nullptr;
+	m_selection_done = true;
+	m_ready = false;
+	m_ready_time = 1.0f;
 }
 
-void CLASS::frameEntered(float dt)
+void CLASS::FrameEntered(float dt)
 {
-	if (dtsum < readytime)
+	if (m_deltatime_sum < m_ready_time)
 	{
-		dtsum += dt;
+		m_deltatime_sum += dt;
 	}
 	else
 	{
-		readytime = 0;
-		dtsum = 0;
-		ready = true;
-		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::frameEntered);
+		m_ready_time = 0;
+		m_deltatime_sum = 0;
+		m_ready = true;
+		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
 	}
 }
 
-void CLASS::bindKeys(bool bind)
+void CLASS::BindKeys(bool bind)
 {
-	if (bind && !keysBound)
+	if (bind && !m_keys_bound)
 	{
-		MAIN_WIDGET->eventKeyButtonPressed += MyGUI::newDelegate(this, &CLASS::eventKeyButtonPressed_Main);
-		m_Type->eventKeyButtonPressed += MyGUI::newDelegate(this, &CLASS::eventKeyButtonPressed_Main);
-		m_SearchLine->eventKeyButtonPressed += MyGUI::newDelegate(this, &CLASS::eventKeyButtonPressed_Main);
-		keysBound = true;
+		MAIN_WIDGET->eventKeyButtonPressed += MyGUI::newDelegate(this, &CLASS::EventKeyButtonPressed_Main);
+		m_Type->eventKeyButtonPressed += MyGUI::newDelegate(this, &CLASS::EventKeyButtonPressed_Main);
+		m_SearchLine->eventKeyButtonPressed += MyGUI::newDelegate(this, &CLASS::EventKeyButtonPressed_Main);
+		m_keys_bound = true;
 	}
-	else if (!bind && keysBound)
+	else if (!bind && m_keys_bound)
 	{
-		MAIN_WIDGET->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CLASS::eventKeyButtonPressed_Main);
-		m_Type->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CLASS::eventKeyButtonPressed_Main);
-		m_SearchLine->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CLASS::eventKeyButtonPressed_Main);
-		keysBound = false;
+		MAIN_WIDGET->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CLASS::EventKeyButtonPressed_Main);
+		m_Type->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CLASS::EventKeyButtonPressed_Main);
+		m_SearchLine->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CLASS::EventKeyButtonPressed_Main);
+		m_keys_bound = false;
 	}
 }
 
-void CLASS::notifyWindowChangeCoord(MyGUI::Window* _sender)
+void CLASS::NotifyWindowChangeCoord(MyGUI::Window* _sender)
 {
-	resizePreviewImage();
+	ResizePreviewImage();
 }
 
-void CLASS::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
+void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
-	if (!ready || !mMainWidget->getVisible()) return;
+	if (!m_ready || !mMainWidget->getVisible()) return;
 	int cid = (int)m_Type->getIndexSelected();
 	int iid = (int)m_Model->getIndexSelected();
 
@@ -202,7 +201,7 @@ void CLASS::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 		{
 			return;
 		}
-		eventComboChangePositionTypeComboBox(m_Type, newitem);
+		EventComboChangePositionTypeComboBox(m_Type, newitem);
 	}
 	else if (_key == MyGUI::KeyCode::ArrowUp || _key == MyGUI::KeyCode::ArrowDown)
 	{
@@ -235,7 +234,7 @@ void CLASS::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 			return;
 		}
 
-		eventListChangePositionModelList(m_Model, newitem);
+		EventListChangePositionModelList(m_Model, newitem);
 
 		// fix cursor position
 		if (searching)
@@ -246,51 +245,51 @@ void CLASS::eventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 	}
 	else if (_key == MyGUI::KeyCode::Return)
 	{
-		if (mLoaderType == LT_SKIN || (mLoaderType != LT_SKIN && mSelectedTruck))
+		if (m_loader_type == LT_SKIN || (m_loader_type != LT_SKIN && m_selected_entry))
 		{
-			selectionDone();
+			OnSelectionDone();
 		}
 	}
 }
 
-void CLASS::eventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
+void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
 {
-	if (!ready) return;
-	selectionDone();
+	if (!m_ready) return;
+	OnSelectionDone();
 }
 
-void CLASS::eventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
+void CLASS::EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 {
-	if (!ready) return;
-	mSelectedTruck = nullptr;
-	mSelectionDone = true;
-	hide();
+	if (!m_ready) return;
+	m_selected_entry = nullptr;
+	m_selection_done = true;
+	Hide();
 	//Do this on cancel only
 	if (gEnv->frameListener->loading_state == NONE_LOADED)
 		Application::GetGuiManager()->ShowMainMenu(true);
 }
 
-void CLASS::eventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
+void CLASS::EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
 	try
 	{
 		int categoryID = *m_Type->getItemDataAt<int>(_index);
 		m_SearchLine->setCaption(_L("Search ..."));
-		onCategorySelected(categoryID);
+		OnCategorySelected(categoryID);
 	}
 	catch (...)
 	{
 	}
 }
 
-void CLASS::eventListChangePositionModelListAccept(MyGUI::ListPtr _sender, size_t _index)
+void CLASS::EventListChangePositionModelListAccept(MyGUI::ListPtr _sender, size_t _index)
 {
-	eventListChangePositionModelList(_sender, _index);
-	selectionDone();
+	EventListChangePositionModelList(_sender, _index);
+	OnSelectionDone();
 }
 
-void CLASS::eventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _index)
+void CLASS::EventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _index)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
 
@@ -299,35 +298,35 @@ void CLASS::eventListChangePositionModelList(MyGUI::ListPtr _sender, size_t _ind
 	try
 	{
 		int entryID = *m_Model->getItemDataAt<int>(_index);
-		onEntrySelected(entryID);
+		OnEntrySelected(entryID);
 	}
 	catch (...)
 	{
 	}
 }
 
-void CLASS::eventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
+void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
 	try
 	{
-		mTruckConfigs.clear();
+		m_vehicle_configs.clear();
 		Ogre::String config = *m_Config->getItemDataAt<Ogre::String>(_index);
-		mTruckConfigs.push_back(config);
+		m_vehicle_configs.push_back(config);
 	}
 	catch (...)
 	{
 	}
 }
 
-void CLASS::getData()
+void CLASS::UpdateGuiData()
 {
 	std::map<int, int> mCategoryUsage;
 	m_Type->removeAllItems();
 	m_Model->removeAllItems();
-	mEntries.clear();
+	m_entries.clear();
 
-	if (mLoaderType == LT_SKIN)
+	if (m_loader_type == LT_SKIN)
 	{
 		// skin specific stuff
 		m_Type->setEnabled(false);
@@ -338,13 +337,13 @@ void CLASS::getData()
 		m_Model->addItem(_L("Default Skin"), 0);
 		{
 			int i = 1;
-			for (std::vector<Skin *>::iterator it = mCurrentSkins.begin(); it != mCurrentSkins.end(); it++, i++)
+			for (std::vector<Skin *>::iterator it = m_current_skins.begin(); it != m_current_skins.end(); it++, i++)
 			{
 				m_Model->addItem((*it)->getName(), i);
 			}
 		}
 		m_Model->setIndexSelected(0);
-		onEntrySelected(0);
+		OnEntrySelected(0);
 		return;
 	}
 	else
@@ -364,21 +363,21 @@ void CLASS::getData()
 		//printf("category: %d\n", it->categoryid);
 		bool add = false;
 		if (it->fext == "terrn2")
-			add = (mLoaderType == LT_Terrain);
+			add = (m_loader_type == LT_Terrain);
 		else if (it->fext == "truck")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Vehicle || mLoaderType == LT_Truck || mLoaderType == LT_Network || mLoaderType == LT_NetworkWithBoat);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Truck || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
 		else if (it->fext == "car")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Vehicle || mLoaderType == LT_Car || mLoaderType == LT_Network || mLoaderType == LT_NetworkWithBoat);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Vehicle || m_loader_type == LT_Car || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
 		else if (it->fext == "boat")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Boat || mLoaderType == LT_NetworkWithBoat);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Boat || m_loader_type == LT_NetworkWithBoat);
 		else if (it->fext == "airplane")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Airplane || mLoaderType == LT_Network || mLoaderType == LT_NetworkWithBoat);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Airplane || m_loader_type == LT_Network || m_loader_type == LT_NetworkWithBoat);
 		else if (it->fext == "trailer")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Trailer || mLoaderType == LT_Extension);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Trailer || m_loader_type == LT_Extension);
 		else if (it->fext == "train")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Train);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Train);
 		else if (it->fext == "load")
-			add = (mLoaderType == LT_AllBeam || mLoaderType == LT_Load || mLoaderType == LT_Extension);
+			add = (m_loader_type == LT_AllBeam || m_loader_type == LT_Load || m_loader_type == LT_Extension);
 
 		if (!add)
 			continue;
@@ -400,7 +399,7 @@ void CLASS::getData()
 		if (ts - it->addtimestamp < CACHE_FILE_FRESHNESS)
 			mCategoryUsage[CacheSystem::CID_Fresh]++;
 
-		mEntries.push_back(*it);
+		m_entries.push_back(*it);
 	}
 	int tally_categories = 0, current_category = 0;
 	std::map<int, Category_Entry> *cats = RoR::Application::GetCacheSystem()->getCategories();
@@ -434,11 +433,11 @@ void CLASS::getData()
 		{
 			return;
 		}
-		onCategorySelected(*m_Type->getItemDataAt<int>(0));
+		OnCategorySelected(*m_Type->getItemDataAt<int>(0));
 	}
 }
 
-bool CLASS::searchCompare(Ogre::String searchString, CacheEntry *ce)
+bool CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
 {
 	if (searchString.find(":") == Ogre::String::npos)
 	{
@@ -540,9 +539,9 @@ bool CLASS::searchCompare(Ogre::String searchString, CacheEntry *ce)
 	return false;
 }
 
-void CLASS::onCategorySelected(int categoryID)
+void CLASS::OnCategorySelected(int categoryID)
 {
-	if (mLoaderType == LT_SKIN) return;
+	if (m_loader_type == LT_SKIN) return;
 
 	Ogre::String search_cmd = m_SearchLine->getCaption();
 	Ogre::StringUtil::toLowerCase(search_cmd);
@@ -552,11 +551,11 @@ void CLASS::onCategorySelected(int categoryID)
 
 	m_Model->removeAllItems();
 
-	for (auto it = mEntries.begin(); it != mEntries.end(); it++)
+	for (auto it = m_entries.begin(); it != m_entries.end(); it++)
 	{
 		if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
 			|| categoryID == CacheSystem::CID_Fresh && (ts - it->addtimestamp < CACHE_FILE_FRESHNESS)
-			|| categoryID == CacheSystem::CID_SearchResults && searchCompare(search_cmd, &(*it)))
+			|| categoryID == CacheSystem::CID_SearchResults && SearchCompare(search_cmd, &(*it)))
 		{
 			counter++;
 			Ogre::String txt = TOSTRING(counter) + ". " + it->dname;
@@ -582,29 +581,29 @@ void CLASS::onCategorySelected(int categoryID)
 		{
 			return;
 		}
-		onEntrySelected(*m_Model->getItemDataAt<int>(0));
+		OnEntrySelected(*m_Model->getItemDataAt<int>(0));
 	}
 }
 
-void CLASS::onEntrySelected(int entryID)
+void CLASS::OnEntrySelected(int entryID)
 {
-	if (mLoaderType == LT_SKIN)
+	if (m_loader_type == LT_SKIN)
 	{
 		// special skin handling
 		if (entryID == 0)
 		{
 			// default, default infos
-			updateControls(mSelectedTruck);
+			this->UpdateControls(m_selected_entry);
 			return;
 		}
 		entryID -= 1; // remove default skin :)
-		Skin *skin = mCurrentSkins[entryID];
+		Skin *skin = m_current_skins[entryID];
 
 		// we assume its already loaded
 		// set selected skin as current
-		mSelectedSkin = skin;
+		m_selected_skin = skin;
 
-		setPreviewImage(mCurrentSkins[entryID]->thumbnail);
+		SetPreviewImage(m_current_skins[entryID]->thumbnail);
 
 		m_EntryName->setCaption(skin->name);
 
@@ -624,53 +623,53 @@ void CLASS::onEntrySelected(int entryID)
 	}
 	CacheEntry *entry = RoR::Application::GetCacheSystem()->getEntry(entryID);
 	if (!entry) return;
-	mSelectedTruck = entry;
-	updateControls(mSelectedTruck);
+	m_selected_entry = entry;
+	this->UpdateControls(m_selected_entry);
 }
 
-void CLASS::selectionDone()
+void CLASS::OnSelectionDone()
 {
-	if (!ready || !mSelectedTruck || mSelectionDone)
+	if (!m_ready || !m_selected_entry || m_selection_done)
 		return;
 
-	mSelectionDone = true;
+	m_selection_done = true;
 
-	mSelectedTruck->usagecounter++;
+	m_selected_entry->usagecounter++;
 	// TODO: Save the modified value of the usagecounter
 
-	if (mLoaderType != LT_SKIN)
+	if (m_loader_type != LT_SKIN)
 	{
 		// we show the normal loader
-		RoR::Application::GetCacheSystem()->checkResourceLoaded(*mSelectedTruck);
+		RoR::Application::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
 
-		mCurrentSkins.clear();
-		SkinManager::getSingleton().getUsableSkins(mSelectedTruck->guid, this->mCurrentSkins);
-		if (!mCurrentSkins.empty())
+		m_current_skins.clear();
+		m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
+		if (!m_current_skins.empty())
 		{
-			hide();
-			show(LT_SKIN);
+			Hide();
+			Show(LT_SKIN);
 		}
 		else
 		{
-			mSelectedSkin = 0;
-			hide();
+			m_selected_skin = 0;
+			Hide();
 		}
 	}
 	else
 	{
 		// we show the skin loader, set final skin and exit!
-		// mSelectedSkin should be set already!
-		hide();
+		// m_selected_skin should be set already!
+		Hide();
 	}
 }
 
-void CLASS::updateControls(CacheEntry *entry)
+void CLASS::UpdateControls(CacheEntry *entry)
 {
 	Ogre::String outBasename = "";
 	Ogre::String outPath = "";
 	Ogre::StringUtil::splitFilename(entry->filecachename, outBasename, outPath);
 
-	setPreviewImage(outBasename);
+	SetPreviewImage(outBasename);
 
 	if (entry->sectionconfigs.size())
 	{
@@ -689,9 +688,9 @@ void CLASS::updateControls(CacheEntry *entry)
 		}
 		m_Config->setIndexSelected(0);
 
-		mTruckConfigs.clear();
+		m_vehicle_configs.clear();
 		Ogre::String configstr = *m_Config->getItemDataAt<Ogre::String>(0);
-		mTruckConfigs.push_back(configstr);
+		m_vehicle_configs.push_back(configstr);
 	}
 	else
 	{
@@ -803,7 +802,7 @@ void CLASS::updateControls(CacheEntry *entry)
 	m_EntryDescription->setCaption(convertToMyGUIString(descriptiontxt));
 }
 
-void CLASS::setPreviewImage(Ogre::String texture)
+void CLASS::SetPreviewImage(Ogre::String texture)
 {
 	if (texture == "" || texture == "none")
 	{
@@ -811,11 +810,11 @@ void CLASS::setPreviewImage(Ogre::String texture)
 		return;
 	}
 
-	mPreviewImageTexture = texture;
+	m_preview_image_texture = texture;
 
 	try
 	{
-		resizePreviewImage();
+		ResizePreviewImage();
 		m_Preview->setImageTexture(texture);
 		m_Preview->setVisible(true);
 	}
@@ -825,10 +824,10 @@ void CLASS::setPreviewImage(Ogre::String texture)
 	}
 }
 
-void CLASS::resizePreviewImage()
+void CLASS::ResizePreviewImage()
 {
 	MyGUI::IntSize imgSize(0, 0);
-	Ogre::TexturePtr t = Ogre::TextureManager::getSingleton().load(mPreviewImageTexture, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+	Ogre::TexturePtr t = Ogre::TextureManager::getSingleton().load(m_preview_image_texture, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 	if (!t.isNull())
 	{
 		imgSize.width = (int)t->getWidth() * 10;
@@ -866,41 +865,36 @@ void CLASS::resizePreviewImage()
 	}
 }
 
-bool CLASS::isFinishedSelecting()
+bool CLASS::IsFinishedSelecting()
 {
-	return mSelectionDone;
+	return m_selection_done;
 }
 
-void CLASS::show(LoaderType type)
+void CLASS::Show(LoaderType type)
 {
-	if (!mSelectionDone) return;
-	mSelectionDone = false;
+	if (!m_selection_done) return;
+	m_selection_done = false;
 
-	mSelectedSkin = 0;
+	m_selected_skin = 0;
 	m_SearchLine->setCaption(_L("Search ..."));
 	RoR::Application::GetInputEngine()->resetKeys();
 	LoadingWindow::getSingleton().hide();
 	// focus main mMainWidget (for key input)
-	mTruckConfigs.clear();
+	m_vehicle_configs.clear();
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
 	mMainWidget->setEnabledSilent(true);
 
-	// first time fast
-	/*if (!visibleCounter)
-	mMainWidget->castType<MyGUI::Window>()->setVisible(true);
-	else*/
 	MAIN_WIDGET->setVisibleSmooth(true);
 
-	if (type != LT_SKIN) mSelectedTruck = 0; // when in skin, we still need the info
+	if (type != LT_SKIN) m_selected_entry = nullptr; // when in skin, we still need the info
 
-	mLoaderType = type;
-	getData();
-	visibleCounter++;
+	m_loader_type = type;
+	UpdateGuiData();
 
 	// so want to sleep 0.5 before the controls start working
-	readytime = 0.5f;
-	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::frameEntered);
-	bindKeys();
+	m_ready_time = 0.5f;
+	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::FrameEntered);
+	BindKeys();
 
 	if (type == LT_Terrain && gEnv->network)
 		m_Cancel->setEnabled(false);
@@ -908,29 +902,24 @@ void CLASS::show(LoaderType type)
 		m_Cancel->setEnabled(true);
 }
 
-void CLASS::hide()
+void CLASS::Hide()
 {
-	mSelectionDone = true;
+	m_selection_done = true;
 	RoR::Application::GetGuiManager()->UnfocusGui();
 	MAIN_WIDGET->setVisibleSmooth(false);
 	MAIN_WIDGET->setEnabledSilent(false);
-	ready = false;
-	bindKeys(false);
+	m_ready = false;
+	BindKeys(false);
 }
 
-void CLASS::setEnableCancel(bool enabled)
-{
-	m_Cancel->setEnabled(enabled);
-}
-
-void CLASS::eventSearchTextChange(MyGUI::EditBox *_sender)
+void CLASS::EventSearchTextChange(MyGUI::EditBox *_sender)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
-	onCategorySelected(CacheSystem::CID_SearchResults);
+	OnCategorySelected(CacheSystem::CID_SearchResults);
 	m_Type->setCaption(_L("Search Results"));
 }
 
-void CLASS::eventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget)
+void CLASS::EventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
 
@@ -945,14 +934,14 @@ bool CLASS::IsVisible()
 	return MAIN_WIDGET->isVisible();
 }
 
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
+void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
 	if (_name == "close")
 	{
-		if (!ready) return;
-		mSelectedTruck = nullptr;
-		mSelectionDone = true;
-		hide();
+		if (!m_ready) return;
+		m_selected_entry = nullptr;
+		m_selection_done = true;
+		Hide();
 		//Do this on cancel only
 		if (gEnv->frameListener->loading_state == NONE_LOADED)
 			Application::GetGuiManager()->ShowMainMenu(true);

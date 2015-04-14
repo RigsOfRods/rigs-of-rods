@@ -281,8 +281,8 @@ static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 
 /* basic structures */
 
-#include "datatypes/node.h"
-#include "datatypes/shock.h"
+#include "datatypes/node_t.h"
+#include "datatypes/shock_t.h"
 
 struct collcab_rate_t
 {
@@ -292,8 +292,7 @@ struct collcab_rate_t
 	bool calcforward;
 };
 
-#include "datatypes/beam.h"
-
+#include "datatypes/beam_t.h"
 
 struct soundsource_t
 {
@@ -322,7 +321,7 @@ struct rigidifier_t
 	beam_t *beamc;
 };
 
-#include "datatypes/wheel.h"
+#include "datatypes/wheel_t.h"
 
 struct hook_t
 {
@@ -510,7 +509,7 @@ struct debugtext_t
 	Ogre::SceneNode *node;
 };
 
-#include "datatypes/rig.h"
+#include "datatypes/rig_t.h"
 
 
 // some non-beam structs

@@ -5,8 +5,7 @@
  *      Author: chris
  */
 
-#ifndef RIG_H_
-#define RIG_H_
+#pragma once
 
 #include "RoRPrerequisites.h"
 #include "BeamData.h"
@@ -312,5 +311,3 @@ struct rig_t
 	std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
 	Ogre::String beamHash; //!< Unused
 };
-
-#endif /* RIG_H_ */

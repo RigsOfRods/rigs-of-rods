@@ -215,7 +215,7 @@ void MainThread::Go()
 
 	// Init singletons. TODO: Move under Application
 	LoadingWindow::getSingleton();
-	RoR::Application::GetGuiManager()->initMainSelector();
+	RoR::Application::GetGuiManager()->InitMainSelector(Application::GetContentManager()->GetSkinManager());
 	GUI_Friction::getSingleton();
 
 	// Create legacy RoRFrameListener
@@ -473,7 +473,7 @@ void MainThread::Go()
 			if (gEnv->network != nullptr)
 			{
 				// Multiplayer started from configurator -> go directly to map selector (traditional behavior)
-				RoR::Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
+				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
 				RoR::Application::GetGuiManager()->ShowMainMenu(false);
 			}
 			else
@@ -747,7 +747,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	Ogre::String map_file_name;
 	if (preselected_map.empty())
 	{
-		CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->getSelection();
+		CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 		if (selected_map != nullptr)
 		{
 			map_file_name = selected_map->fname;
@@ -808,7 +808,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 	else if (gEnv->terrainManager->hasPreloadedTrucks())
 	{
-		Skin* selected_skin = RoR::Application::GetGuiManager()->getMainSelector()->getSelectedSkin();
+		Skin* selected_skin = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
 		gEnv->frameListener->initTrucks(false, map_file_name, "", 0, false, selected_skin);
 	}
 	else
@@ -817,12 +817,12 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		if (gEnv->terrainManager->getWater())
 		{
 			ShowSurveyMap(false);
-			RoR::Application::GetGuiManager()->getMainSelector()->show(LT_NetworkWithBoat);
+			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_NetworkWithBoat);
 		} 
 		else
 		{
 			ShowSurveyMap(false);
-			RoR::Application::GetGuiManager()->getMainSelector()->show(LT_Network);
+			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Network);
 		}
 	}
 
@@ -865,9 +865,9 @@ void MainThread::EnterMainMenuLoop()
 
 		MainMenuLoopUpdate(timeSinceLastFrame);
 
-		if (RoR::Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
+		if (RoR::Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
 		{
-			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->getSelection();
+			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 			if (selected_map != nullptr)
 			{
 				SetNextApplicationState(Application::STATE_SIMULATION);
@@ -1026,7 +1026,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		return;
 	}
 
-/*	if (RoR::Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
+/*	if (RoR::Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
 	{
 		RequestExitCurrentLoop();
 	}*/
@@ -1184,7 +1184,7 @@ void MainThread::UnloadTerrain()
 	gEnv->frameListener->loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	
-	RoR::Application::GetGuiManager()->getMainSelector()->reset();
+	RoR::Application::GetGuiManager()->getMainSelector()->Reset();
 
 	//First of all..
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();

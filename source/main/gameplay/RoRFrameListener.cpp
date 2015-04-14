@@ -390,7 +390,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
 		freeTruckPosition = true;
 		loading_state = RELOADING;
-		Application::GetGuiManager()->getMainSelector()->show(LT_AllBeam);
+		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 		return true;
 	}
 
@@ -922,13 +922,13 @@ bool RoRFrameListener::updateEvents(float dt)
 		//no terrain or truck loaded
 
 #ifdef USE_MYGUI
-		if (Application::GetGuiManager()->getMainSelector()->isFinishedSelecting())
+		if (Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
 		{
 			if (loading_state==TERRAIN_LOADED)
 			{
-				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->getSelection();
-				Skin *skin = Application::GetGuiManager()->getMainSelector()->getSelectedSkin();
-				std::vector<String> config = Application::GetGuiManager()->getMainSelector()->getTruckConfig();
+				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
+				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
+				std::vector<String> config = Application::GetGuiManager()->getMainSelector()->GetVehicleConfigs();
 				std::vector<String> *configptr = &config;
 				if (config.size() == 0) configptr = 0;
 				if (selection)
@@ -939,14 +939,14 @@ bool RoRFrameListener::updateEvents(float dt)
 			} 
 			else if (loading_state == RELOADING)
 			{
-				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->getSelection();
-				Skin *skin = Application::GetGuiManager()->getMainSelector()->getSelectedSkin();
+				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
+				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
 				Beam *local_truck = nullptr;
 				if (selection != nullptr)
 				{
 					/* We load an extra truck */
 					std::vector<String> *config_ptr = nullptr;
-					std::vector<String> config = Application::GetGuiManager()->getMainSelector()->getTruckConfig();
+					std::vector<String> config = Application::GetGuiManager()->getMainSelector()->GetVehicleConfigs();
 					if (config.size() > 0)
 					{
 						config_ptr = & config;
@@ -968,7 +968,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 				}
 
-				Application::GetGuiManager()->getMainSelector()->hide();
+				Application::GetGuiManager()->getMainSelector()->Hide();
 				loading_state = ALL_LOADED;
 
 				RoR::Application::GetGuiManager()->UnfocusGui();
@@ -1543,7 +1543,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	hideMap();
 
 #ifdef USE_MYGUI
-	Application::GetGuiManager()->getMainSelector()->show(LoaderType(type));
+	Application::GetGuiManager()->getMainSelector()->Show(LoaderType(type));
 #endif //USE_MYGUI
 }
 

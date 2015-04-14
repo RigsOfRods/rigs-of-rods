@@ -94,7 +94,7 @@ void CLASS::Hide()
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	Application::GetGuiManager()->getMainSelector()->show(LT_Terrain);
+	Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)

@@ -5,8 +5,7 @@
  *      Author: chris
  */
 
-#ifndef BEAM_H_
-#define BEAM_H_
+#pragma once
 
 #include "RoRPrerequisites.h"
 #include "OgrePrerequisites.h"
@@ -72,5 +71,3 @@ struct beam_t
 	Ogre::SceneNode *mSceneNode; //!< visual
 	Ogre::Entity *mEntity; //!< visual
 };
-
-#endif /* BEAM_H_ */

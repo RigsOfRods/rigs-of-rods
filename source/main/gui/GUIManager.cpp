@@ -372,12 +372,17 @@ void GUIManager::ShowMultiPlayerSelector(bool isVisible)
 		m_gui_MultiplayerSelector->Hide();
 }
 
-void GUIManager::initMainSelector()
+void GUIManager::InitMainSelector(RoR::SkinManager* skin_manager)
 {
 	if (m_gui_MainSelector.get() == nullptr)
-		m_gui_MainSelector = std::shared_ptr<GUI::MainSelector>(new GUI::MainSelector());
+	{
+		m_gui_MainSelector = std::shared_ptr<GUI::MainSelector>(new GUI::MainSelector(skin_manager));
+	}
 	else
+	{
+		assert(false && "ERROR: Trying to init MainSelector more than 1 time.");
 		LOG("ERROR: Trying to init MainSelector more than 1 time.");
+	}
 }
 
 void GUIManager::TogglePauseMenu()
