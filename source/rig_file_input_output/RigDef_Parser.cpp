@@ -5325,24 +5325,41 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
 
 File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
 {
+    // Search with correct lettercase
 	boost::smatch results;
-	if (boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD))
+	boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
+    File::Keyword keyword = FindKeywordMatch(results);
+    if (keyword != File::KEYWORD_INVALID)
+    {
+        return keyword;
+    }
+
+    // Search and ignore lettercase
+    boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
+    keyword = FindKeywordMatch(results);
+    if (keyword != File::KEYWORD_INVALID)
+    {
+        this->AddMessage(line, Message::TYPE_WARNING, 
+            "Keyword has invalid lettercase. Correct form is: " + std::string(File::KeywordToString(keyword)));
+    }
+    return keyword;
+}
+
+File::Keyword Parser::FindKeywordMatch(boost::smatch& search_results)
+{
+    /* The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
+		so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
+		*/
+	for (unsigned int i = 1; i < search_results.size(); i++)
 	{
-		/* The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
-			so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
-			*/
-		for (unsigned int i = 1; i < results.size(); i++)
+		boost::ssub_match sub  = search_results[i];
+		if (sub.matched)
 		{
-			boost::ssub_match sub  = results[i];
-			if (sub.matched)
-			{
-				/* Build enum value directly from result offset */
-				return File::Keyword(i);
-			}
+			/* Build enum value directly from result offset */
+            return File::Keyword(i);
 		}
 	}
-
-	return File::KEYWORD_INVALID;
+    return File::KEYWORD_INVALID;
 }
 
 void Parser::Prepare()

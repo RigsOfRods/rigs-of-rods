@@ -415,12 +415,18 @@ const char * File::KeywordToString(File::Keyword keyword)
 			return "contacters";
 		case (File::KEYWORD_CRUISECONTROL):
 			return "cruisecontrol";
+        case (File::KEYWORD_DESCRIPTION):
+			return "description";
 		case (File::KEYWORD_ENGINE):
 			return "engine";
 		case (File::KEYWORD_ENGOPTION):
 			return "engoption";
 		case (File::KEYWORD_EXHAUSTS):
 			return "exhausts";
+        case (File::KEYWORD_FILEINFO):
+			return "fileinfo";
+        case (File::KEYWORD_FILEFORMATVERSION):
+			return "fileformatversion";
 		case (File::KEYWORD_FIXES):
 			return "fixes";
 		case (File::KEYWORD_FLARES):
@@ -454,7 +460,7 @@ const char * File::KeywordToString(File::Keyword keyword)
 		case (File::KEYWORD_MINIMASS):
 			return "minimass";
 		case (File::KEYWORD_NODES):
-			return "nodecollision";
+			return "nodes";
 		case (File::KEYWORD_NODES2):
 			return "nodes2";
 		case (File::KEYWORD_PARTICLES):

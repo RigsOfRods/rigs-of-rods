@@ -304,6 +304,10 @@ protected:
 	*/
 	File::Keyword IdentifyKeyword(Ogre::String const & line);
 
+    /** Keyword scan utility function. 
+	*/
+    File::Keyword FindKeywordMatch(boost::smatch& search_results);
+
 	/** Adds a message to parser report.
 	*/
 	void AddMessage(std::string const & line, Message::Type type, std::string const & message);
