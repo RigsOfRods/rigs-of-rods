@@ -122,11 +122,8 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_side_label, "side_label");
 	MyGUI::TextBox* m_side_label;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_side_right_radiobutton, "side_right_radiobutton");
-	MyGUI::Button* m_side_right_radiobutton;
-
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_side_left_radiobutton, "side_left_radiobutton");
-	MyGUI::Button* m_side_left_radiobutton;
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_nodes_section_label, "nodes_section_label");
+	MyGUI::TextBox* m_nodes_section_label;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_node_axis_a_label, "node_axis_a_label");
 	MyGUI::TextBox* m_node_axis_a_label;
@@ -154,6 +151,9 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_tyre_radius_editbox, "tyre_radius_editbox");
 	MyGUI::EditBox* m_tyre_radius_editbox;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMeshWheels2PanelLayout, m_side_combobox, "side_combobox");
+	MyGUI::ComboBox* m_side_combobox;
 
 	//%LE Widget_Declaration list end
 };

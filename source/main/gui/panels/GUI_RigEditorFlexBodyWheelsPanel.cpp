@@ -47,6 +47,10 @@ using namespace GUI;
 	SetupGenericField(&NAME##_field, NAME##_label, NAME##_combobox, \
 		m_data.GetFlagsPtr(), RigEditor::FlexBodyWheelAggregateData::UNIFLAG, ((void*) &(SRC)), GenericFieldSpec::SRC_TYPE);
 
+#define SETUP_NODE_EDITBOX(NAME, SRC) \
+	SetupEditboxField(&NAME##_field, NAME##_label, NAME##_editbox, \
+        nullptr, 0, ((void*) &(SRC)), EditboxFieldSpec::SOURCE_DATATYPE_OBJECT_NODE, false);
+
 RigEditorFlexBodyWheelsPanel::RigEditorFlexBodyWheelsPanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config):
 	RigEditor::RigElementGuiPanelBase(rig_editor_interface, config, m_flexbodywheels_panel, nullptr)
 {
@@ -56,15 +60,18 @@ RigEditorFlexBodyWheelsPanel::RigEditorFlexBodyWheelsPanel(RigEditor::IMain* rig
 	SETUP_COMBOBOX ( m_braking               , FIELD_BRAKING_MODE_IS_UNIFORM         , m_data.braking                , SOURCE_DATATYPE_INT); // ENUM
 	SETUP_EDITBOX  ( m_rim_mesh_name         , FIELD_RIM_MESH_NAME_IS_UNIFORM        , m_data.rim_mesh_name          , SOURCE_DATATYPE_STRING);
 	SETUP_EDITBOX  ( m_tyre_mesh_name        , FIELD_TYRE_MESH_NAME_IS_UNIFORM       , m_data.tyre_mesh_name         , SOURCE_DATATYPE_STRING);
-    //TODO SETUP_EDITBOX  ( m_side	                 , FIELD_SIDE_IS_UNIFORM                 , m_data.is_right_side          , SOURCE_DATATYPE_BOOL);
+    SETUP_COMBOBOX ( m_side	                 , FIELD_SIDE_IS_UNIFORM                 , m_data.is_right_side          , SOURCE_DATATYPE_BOOL);
 	SETUP_EDITBOX  ( m_rim_radius            , FIELD_RIM_RADIUS_IS_UNIFORM           , m_data.rim_radius             , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_rim_spring            , FIELD_RIM_SPRING_IS_UNIFORM           , m_data.rim_spring             , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_rim_damping           , FIELD_RIM_DAMPING_IS_UNIFORM          , m_data.rim_damping            , SOURCE_DATATYPE_FLOAT);
-	//SETUP_EDITBOX  ( m_rim_deform_threshold  , FIELD_RIM_DEFORM_THRESHOLD_IS_UNIFORM , m_data.rim_deform_threshold   , SOURCE_DATATYPE_FLOAT);
-	//SETUP_EDITBOX  ( m_rim_break_threshold   , FIELD_RIM_BREAK_THRESHOLD_IS_UNIFORM  , m_data.rim_breaking_threshold , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_tyre_radius           , FIELD_TYRE_RADIUS_IS_UNIFORM          , m_data.tyre_radius            , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_tyre_spring           , FIELD_TYRE_SPRING_IS_UNIFORM          , m_data.tyre_spring            , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_tyre_damping          , FIELD_TYRE_DAMPING_IS_UNIFORM         , m_data.tyre_damping           , SOURCE_DATATYPE_FLOAT);
+
+    SETUP_NODE_EDITBOX  ( m_node_axis_a        , m_data.axis_nodes[0]      );
+    SETUP_NODE_EDITBOX  ( m_node_axis_b        , m_data.axis_nodes[1]      );
+    SETUP_NODE_EDITBOX  ( m_rigidity_node      , m_data.rigidity_node      );
+    SETUP_NODE_EDITBOX  ( m_arm_node           , m_data.reference_arm_node );
 
 	this->AlignToScreen(&config->gui_flexbodywheels_panel_position);
     this->SetDefaultTextColor(m_tyre_damping_label->getTextColour());
@@ -86,7 +93,7 @@ void RigEditorFlexBodyWheelsPanel::UpdateFlexBodyWheelsData(RigEditor::FlexBodyW
 	else
 	{
 		char caption[30];
-		sprintf(caption, "FlexBody wheel [%d]", data->num_elements);
+		sprintf(caption, "FlexBody wheels [%d]", data->num_elements);
 		m_panel_widget->setCaption(caption);
 	}
 
@@ -95,6 +102,7 @@ void RigEditorFlexBodyWheelsPanel::UpdateFlexBodyWheelsData(RigEditor::FlexBodyW
     EditboxRestoreValue ( &m_mass_field	                );   
     ComboboxRestoreValue( &m_propulsion_field           );
     ComboboxRestoreValue( &m_braking_field              );
+    ComboboxRestoreValue( &m_side_field                 );
     EditboxRestoreValue ( &m_rim_mesh_name_field        );
     EditboxRestoreValue ( &m_tyre_mesh_name_field       );  
     EditboxRestoreValue ( &m_rim_radius_field           );
@@ -103,4 +111,25 @@ void RigEditorFlexBodyWheelsPanel::UpdateFlexBodyWheelsData(RigEditor::FlexBodyW
     EditboxRestoreValue ( &m_tyre_radius_field          );
     EditboxRestoreValue ( &m_tyre_spring_field          );
     EditboxRestoreValue ( &m_tyre_damping_field         );
+
+    // Node fields
+    EditboxRestoreValue ( &m_node_axis_a_field);
+    EditboxRestoreValue ( &m_node_axis_b_field);
+    EditboxRestoreValue ( &m_rigidity_node_field);
+    EditboxRestoreValue ( &m_arm_node_field);
+    this->SetNodeFieldsVisible(data->num_elements == 1);
+}
+
+// ----------------------------------------------------------------------------
+// Other
+// ----------------------------------------------------------------------------
+
+void RigEditorFlexBodyWheelsPanel::SetNodeFieldsVisible(bool visible)
+{
+    m_node_axis_a_field  .SetWidgetsVisible(visible);
+    m_node_axis_b_field  .SetWidgetsVisible(visible);
+    m_rigidity_node_field.SetWidgetsVisible(visible);
+    m_arm_node_field     .SetWidgetsVisible(visible);
+
+    m_nodes_section_label->setVisible(visible);
 }

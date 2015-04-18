@@ -64,17 +64,17 @@ void GuiPopupWheelsList::OnItemMouseFocusLost       (MyGUI::MenuItem* menu_item,
 
 void GuiPopupWheelsList::OnItemMouseClicked       (MyGUI::MenuItem* menu_item, GuiWidgetUserdata* userdata)
 {
-	WHEEL_FORWARD_CALLBACK(menu_item, userdata, true, CommandSetWheelSelected);
+	WHEEL_FORWARD_CALLBACK(menu_item, userdata, true, CommandScheduleSetWheelSelected);
 }
 
 void GuiPopupWheelsList::OnSelectAllMouseClicked  (MyGUI::MenuItem* menu_item, GuiWidgetUserdata* userdata)
 {
-	m_rig_editor_interface->CommandSetAllWheelsSelected(true);
+	m_rig_editor_interface->CommandScheduleSetAllWheelsSelected(true);
 }
 
 void GuiPopupWheelsList::OnDeselectAllMouseClicked(MyGUI::MenuItem* menu_item, GuiWidgetUserdata* userdata)
 {
-	m_rig_editor_interface->CommandSetAllWheelsSelected(false);
+	m_rig_editor_interface->CommandScheduleSetAllWheelsSelected(false);
 }
 
 void GuiPopupWheelsList::UpdateWheelsList(std::vector<LandVehicleWheel*> wheels_list)

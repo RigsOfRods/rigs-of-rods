@@ -59,28 +59,32 @@ public:
 
 private:
 
+    void CallbackClick_RadioButton(MyGUI::Widget* sender);
+
+    void SetNodeFieldsVisible(bool visible);
+
 	// Aggregate rig data
 	RigEditor::MeshWheel2AggregateData m_data;
 
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_num_rays_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_mass_field;
-	RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_propulsion_field;
-	RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_braking_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_mesh_name_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_material_name_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_side_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_axis_node_a_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_axis_node_b_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rigidity_node_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_reference_arm_node_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_radius_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_spring_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_damping_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_deform_threshold_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_break_threshold_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_radius_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_spring_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_damping_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_num_rays_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_mass_field;
+    RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_propulsion_field;
+    RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_braking_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_mesh_name_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_material_name_field;
+    RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_side_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_node_axis_a_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_node_axis_b_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rigidity_node_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_arm_node_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_radius_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_spring_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_damping_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_deform_threshold_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_break_threshold_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_radius_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_spring_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_damping_field;
 };
 
 } // namespace GUI

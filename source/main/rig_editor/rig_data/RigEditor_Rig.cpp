@@ -1782,6 +1782,59 @@ bool Rig::SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_select
     return true;
 }
 
+bool Rig::ScheduleSetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor)
+{
+    if (state_selected)
+    {
+        if (!wheel->IsScheduledForSelect() && !wheel->IsSelected())
+        {
+            wheel->SetIsScheduledForDeselect(false);
+            wheel->SetIsScheduledForSelect(true);
+            return true;
+        }
+    }
+    else
+    {
+        if (!wheel->IsScheduledForDeselect() && wheel->IsSelected())
+        {
+            wheel->SetIsScheduledForSelect(false);
+            wheel->SetIsScheduledForDeselect(true);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Rig::PerformScheduledWheelSelectionUpdates(RigEditor::Main* rig_editor)
+{
+    bool any_change = false;
+    auto end = m_wheels.end();
+    auto itor = m_wheels.begin();
+    for (; itor != end; ++itor)
+    {
+        LandVehicleWheel* wheel = *itor;
+        if (wheel->IsScheduledForSelect() && !wheel->IsSelected())
+        {
+            any_change = true;
+            wheel->SetIsSelected(true);
+            wheel->SetIsScheduledForSelect(false);
+            wheel->SetIsScheduledForDeselect(false);
+        }
+        else if (wheel->IsScheduledForDeselect() && wheel->IsSelected())
+        {
+            any_change = true;
+            wheel->SetIsSelected(false);
+            wheel->SetIsScheduledForSelect(false);
+            wheel->SetIsScheduledForDeselect(false);
+        }
+    }
+    if (any_change)
+    {
+        m_wheel_visuals->SetIsSelectionDirty(true);
+    }
+    return any_change;
+}
+
 void Rig::SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor)
 {
 	if (wheel->IsHovered() == state_hovered)
@@ -1814,6 +1867,19 @@ bool Rig::SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
     return false;
 }
 
+bool Rig::ScheduleSetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor)
+{
+	bool anything_changed = false;
+	auto end = m_wheels.end();
+    auto itor = m_wheels.begin();
+	for (; itor != end; ++itor)
+	{
+		LandVehicleWheel* wheel = *itor;
+        anything_changed = anything_changed || ScheduleSetWheelSelected(wheel, -1, state_selected, rig_editor);
+	}
+	return anything_changed;
+}
+
 void Rig::SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor)
 {
 	bool anything_changed = false;
@@ -1835,6 +1901,7 @@ void Rig::SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor)
 
 void Rig::QuerySelectedWheelsData(AllWheelsAggregateData* out_data)
 {
+    assert(out_data != nullptr);
     out_data->Reset();
     auto end = m_wheels.end();
     auto itor = m_wheels.begin();
@@ -1848,8 +1915,17 @@ void Rig::QuerySelectedWheelsData(AllWheelsAggregateData* out_data)
     }
 }
 
-//void UpdateSelectedWheelsData(MixedWheelsAggregateData* data);
-//void UpdateSelectedMeshWheels2Data(MeshWheel2AggregateData* data);
+void Rig::UpdateSelectedWheelsData(AllWheelsAggregateData* data)
+{
+    assert(data != nullptr);
+    std::for_each(m_wheels.begin(), m_wheels.end(), [data](LandVehicleWheel* wheel)
+    {
+        if (wheel->IsSelected())
+        {
+            wheel->Update(data);
+        }
+    });
+}
 
 // ----------------------------------------------------------------------------
 // EOF

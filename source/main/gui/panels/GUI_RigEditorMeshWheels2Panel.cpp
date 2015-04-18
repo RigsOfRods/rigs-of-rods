@@ -47,6 +47,10 @@ using namespace GUI;
 	SetupGenericField(&NAME##_field, NAME##_label, NAME##_combobox, \
 		m_data.GetFlagsPtr(), RigEditor::MeshWheel2AggregateData::UNIFLAG, ((void*) &(SRC)), GenericFieldSpec::SRC_TYPE);
 
+#define SETUP_NODE_EDITBOX(NAME, SRC) \
+	SetupEditboxField(&NAME##_field, NAME##_label, NAME##_editbox, \
+        nullptr, 0, ((void*) &(SRC)), EditboxFieldSpec::SOURCE_DATATYPE_OBJECT_NODE, false);
+
 RigEditorMeshWheels2Panel::RigEditorMeshWheels2Panel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config):
 	RigEditor::RigElementGuiPanelBase(rig_editor_interface, config, m_meshwheels2_panel, nullptr)
 {
@@ -56,7 +60,7 @@ RigEditorMeshWheels2Panel::RigEditorMeshWheels2Panel(RigEditor::IMain* rig_edito
 	SETUP_COMBOBOX ( m_braking               , FIELD_BRAKING_MODE_IS_UNIFORM         , m_data.braking                , SOURCE_DATATYPE_INT); // ENUM
 	SETUP_EDITBOX  ( m_rim_mesh_name         , FIELD_RIM_MESH_NAME_IS_UNIFORM        , m_data.rim_mesh_name          , SOURCE_DATATYPE_STRING);
 	SETUP_EDITBOX  ( m_tyre_material_name    , FIELD_TYRE_MATERIAL_NAME_IS_UNIFORM   , m_data.tyre_material_name     , SOURCE_DATATYPE_STRING);
-    //TODO SETUP_EDITBOX  ( m_side	                 , FIELD_SIDE_IS_UNIFORM                 , m_data.is_right_side          , SOURCE_DATATYPE_BOOL);
+    SETUP_COMBOBOX ( m_side	                 , FIELD_SIDE_IS_UNIFORM                 , m_data.is_right_side          , SOURCE_DATATYPE_BOOL);
 	SETUP_EDITBOX  ( m_rim_radius            , FIELD_RIM_RADIUS_IS_UNIFORM           , m_data.rim_radius             , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_rim_spring            , FIELD_RIM_SPRING_IS_UNIFORM           , m_data.rim_spring             , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_rim_damping           , FIELD_RIM_DAMPING_IS_UNIFORM          , m_data.rim_damping            , SOURCE_DATATYPE_FLOAT);
@@ -65,7 +69,12 @@ RigEditorMeshWheels2Panel::RigEditorMeshWheels2Panel(RigEditor::IMain* rig_edito
 	SETUP_EDITBOX  ( m_tyre_radius           , FIELD_TYRE_RADIUS_IS_UNIFORM          , m_data.tyre_radius            , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_tyre_spring           , FIELD_TYRE_SPRING_IS_UNIFORM          , m_data.tyre_spring            , SOURCE_DATATYPE_FLOAT);
 	SETUP_EDITBOX  ( m_tyre_damping          , FIELD_TYRE_DAMPING_IS_UNIFORM         , m_data.tyre_damping           , SOURCE_DATATYPE_FLOAT);
-
+    
+    SETUP_NODE_EDITBOX  ( m_node_axis_a        , m_data.axis_nodes[0]      );
+    SETUP_NODE_EDITBOX  ( m_node_axis_b        , m_data.axis_nodes[1]      );
+    SETUP_NODE_EDITBOX  ( m_rigidity_node      , m_data.rigidity_node      );
+    SETUP_NODE_EDITBOX  ( m_arm_node           , m_data.reference_arm_node );
+    
 	this->AlignToScreen(&config->gui_meshwheels2_panel_position);
     this->SetDefaultTextColor(m_tyre_damping_label->getTextColour());
 }
@@ -95,6 +104,7 @@ void RigEditorMeshWheels2Panel::UpdateMeshWheels2Data(RigEditor::MeshWheel2Aggre
     EditboxRestoreValue ( &m_mass_field	                );
     ComboboxRestoreValue( &m_propulsion_field           );
     ComboboxRestoreValue( &m_braking_field              );
+    ComboboxRestoreValue( &m_side_field                 );
     EditboxRestoreValue ( &m_rim_mesh_name_field        );
     EditboxRestoreValue ( &m_tyre_material_name_field   );
     EditboxRestoreValue ( &m_rim_radius_field           );
@@ -105,4 +115,25 @@ void RigEditorMeshWheels2Panel::UpdateMeshWheels2Data(RigEditor::MeshWheel2Aggre
     EditboxRestoreValue ( &m_tyre_radius_field          );
     EditboxRestoreValue ( &m_tyre_spring_field          );
     EditboxRestoreValue ( &m_tyre_damping_field         );
+
+    // Node fields
+    EditboxRestoreValue ( &m_node_axis_a_field    );
+    EditboxRestoreValue ( &m_node_axis_b_field    );
+    EditboxRestoreValue ( &m_rigidity_node_field  );
+    EditboxRestoreValue ( &m_arm_node_field       );
+    this->SetNodeFieldsVisible(data->num_elements == 1);
+}
+
+// ----------------------------------------------------------------------------
+// Other
+// ----------------------------------------------------------------------------
+
+void RigEditorMeshWheels2Panel::SetNodeFieldsVisible(bool visible)
+{
+    m_node_axis_a_field  .SetWidgetsVisible(visible);
+    m_node_axis_b_field  .SetWidgetsVisible(visible);
+    m_rigidity_node_field.SetWidgetsVisible(visible);
+    m_arm_node_field     .SetWidgetsVisible(visible);
+
+    m_nodes_section_label->setVisible(visible);
 }

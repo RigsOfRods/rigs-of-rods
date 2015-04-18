@@ -27,6 +27,7 @@
 
 #include "RigEditor_RigElementGuiPanelBase.h"
 
+#include "RigDef_File.h"
 #include "RigEditor_Config.h"
 
 #include <MyGUI.h>
@@ -67,19 +68,43 @@ RigElementGuiPanelBase::RigElementGuiPanelBase(
 }
 
 // ----------------------------------------------------------------------------
+// Field spec
+// ----------------------------------------------------------------------------
+
+void RigElementGuiPanelBase::GenericFieldSpec::SetWidgetsVisible(bool visible)
+{
+    label->setVisible(visible);
+    field_widget->setVisible(visible);
+}
+
+RigElementGuiPanelBase::EditboxFieldSpec::EditboxFieldSpec(
+		MyGUI::TextBox* label, 
+        MyGUI::EditBox* editbox, 
+		unsigned int* source_flags_ptr, 
+        unsigned int uniformity_flag, 
+		void* source_ptr, 
+        unsigned int source_type_flag, 
+        bool use_uniformity):
+    GenericFieldSpec(label, static_cast<MyGUI::Widget*>(editbox), source_flags_ptr, uniformity_flag, source_ptr, source_type_flag, use_uniformity),
+    editbox(editbox)
+{}
+
+// ----------------------------------------------------------------------------
 // Editbox utils
 // ----------------------------------------------------------------------------
 
 void RigElementGuiPanelBase::EditboxRestoreValue(EditboxFieldSpec* spec)
 {
+    bool is_uniform = spec->IsSourceUniform();
+
 	// Mark uniform state
 	if (spec->label != nullptr)
 	{
-		spec->label->setTextColour(spec->IsSourceUniform() ? m_text_color_default : m_text_color_mixvalues);
+		spec->label->setTextColour(is_uniform ? m_text_color_default : m_text_color_mixvalues);
 	}
 	
 	// Reload GUI value
-	if (spec->IsSourceUniform())
+	if (is_uniform)
 	{
 		if (spec->IsSourceFloat())
 		{
@@ -97,6 +122,18 @@ void RigElementGuiPanelBase::EditboxRestoreValue(EditboxFieldSpec* spec)
 		{
 			spec->editbox->setCaption(*spec->GetSourceString()); // Restore value from source
 		}
+        else if (spec->IsSourceNode())
+        {
+            RigDef::Node::Id* node_ptr = static_cast<RigDef::Node::Id*>(spec->GetSourceRawPtr());
+            if (!node_ptr->IsValid())
+            {
+                spec->editbox->setCaption("");    
+            }
+            else
+            {
+                spec->editbox->setCaption(node_ptr->ToString());
+            }
+        }
 	}
 	else
 	{
@@ -128,16 +165,50 @@ void RigElementGuiPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
 	{
 		*spec->GetSourceString() = spec->editbox->getCaption(); // Save value
 	}
+    else if (spec->IsSourceNode())
+    {
+        RigDef::Node::Id* node_ptr = static_cast<RigDef::Node::Id*>(spec->GetSourceRawPtr());
+        Ogre::String value = spec->editbox->getCaption();
+        Ogre::StringUtil::trim(value);
+        if (value.empty())
+        {
+            node_ptr->Invalidate();
+        }
+        else
+        {
+            // Determine if numbered or named node is entered
+            auto itor = value.begin();
+            auto end = value.end();
+            bool pure_number = true;
+            for (; itor != end; ++itor)
+            {
+                if (!std::isdigit(*itor))
+                {
+                    pure_number = false;
+                    break;
+                }
+            }
+            if (pure_number)
+            {
+                int num_value = Ogre::StringConverter::parseInt(value);
+                node_ptr->SetNum(num_value);
+            }
+            else
+            {
+                node_ptr->SetStr(value);
+            }
+        }
+    }
 }
 
 void RigElementGuiPanelBase::SetupEditboxField(
 		EditboxFieldSpec* spec, 
 		MyGUI::TextBox* label, MyGUI::EditBox* editbox, 
 		unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
-		void* source_ptr, unsigned int source_type_flag
+		void* source_ptr, unsigned int source_type_flag, bool use_uniformity// = true
 	)
 {
-	*spec = EditboxFieldSpec(label, editbox, source_flags_ptr, uniformity_flag, source_ptr, source_type_flag);
+	*spec = EditboxFieldSpec(label, editbox, source_flags_ptr, uniformity_flag, source_ptr, source_type_flag, use_uniformity);
 	editbox->eventKeySetFocus      += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue);
 	editbox->eventKeyButtonPressed += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyPress_EnterCommitsEscapeRestores);
 	editbox->setUserData(spec);
@@ -154,8 +225,11 @@ void RigElementGuiPanelBase::SetupGenericField(
 	)
 {
 	*spec = GenericFieldSpec(label, field_widget, source_flags_ptr, uniformity_flag, source_ptr, source_type_flag);
-	field_widget->setUserData(spec);
-    field_widget->eventKeySetFocus += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue);
+    if (field_widget != nullptr)
+    {
+	    field_widget->setUserData(spec);
+        field_widget->eventKeySetFocus += MyGUI::newDelegate(this, &RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue);
+    }
 }
 
 void RigElementGuiPanelBase::CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget)
@@ -329,14 +403,21 @@ void RigElementGuiPanelBase::ComboboxCommitValue(GenericFieldSpec* spec)
 		spec->label->setTextColour(m_text_color_default); // Mark "not uniform"
 	}
 	spec->SetSourceIsUniform();
+    // This code relies on combobox values being in format "%N - Text", where %N is a number 
+    // Ogre::StringConverter::parse[Int/Real]() parses everything until whitespace, so it nicely extracts the number
 	if (spec->IsSourceFloat())
 	{
-		*spec->GetSourceFloat() = Ogre::StringConverter::parseReal(combox->getCaption()); // Save value
+		*spec->GetSourceFloat() = Ogre::StringConverter::parseReal(combox->getCaption());
 	}
 	else if (spec->IsSourceInt())
 	{
-		*spec->GetSourceInt() = Ogre::StringConverter::parseInt(combox->getCaption()); // Save value
+		*spec->GetSourceInt() = Ogre::StringConverter::parseInt(combox->getCaption());
 	}
+    else if (spec->IsSourceBool())
+    {
+        int value = Ogre::StringConverter::parseInt(combox->getCaption());
+        *spec->GetSourceBool() = (value != 0);
+    }
 	else if (spec->IsSourceString())
 	{
 		*spec->GetSourceString() = combox->getCaption(); // Save value

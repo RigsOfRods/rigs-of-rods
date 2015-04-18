@@ -65,63 +65,19 @@ public:
 		MyGUI::TextBox* tooltip_textbox;
 	};
 	// ------------------------------------------------------------------------
-	// TODO: Derive from GenericFieldSpec
-	struct EditboxFieldSpec
-	{
-		EditboxFieldSpec(
-				MyGUI::TextBox* label, MyGUI::EditBox* editbox, 
-				unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
-				void* source_ptr, unsigned int source_type_flag):
-			label(label),
-			editbox(editbox),
-			m_flags(source_type_flag),
-			m_source_ptr(source_ptr),
-			m_source_flags_ptr(source_flags_ptr),
-			m_uniformity_flag(uniformity_flag)
-		{}
-
-		EditboxFieldSpec():
-			label(nullptr),
-			editbox(nullptr),
-			m_flags(0),
-			m_source_ptr(nullptr),
-			m_uniformity_flag(0)
-		{}
-
-		BITMASK_PROPERTY(m_flags, 1, SOURCE_DATATYPE_FLOAT,  IsSourceFloat,  SetSourceIsFloat)
-		BITMASK_PROPERTY(m_flags, 2, SOURCE_DATATYPE_INT,    IsSourceInt,    SetSourceIsInt)
-		BITMASK_PROPERTY(m_flags, 3, SOURCE_DATATYPE_STRING, IsSourceString, SetSourceIsString)
-
-		inline float*         GetSourceFloat()  { return (IsSourceFloat()  ? reinterpret_cast<float*>       (m_source_ptr) : nullptr); }
-		inline int*           GetSourceInt()    { return (IsSourceInt()    ? reinterpret_cast<int*>         (m_source_ptr) : nullptr); }
-		inline Ogre::String*  GetSourceString() { return (IsSourceString() ? reinterpret_cast<Ogre::String*>(m_source_ptr) : nullptr); }
-
-		inline void SetSourceIsUniform()    {        BITMASK_SET_1(*m_source_flags_ptr, m_uniformity_flag); }
-		inline void SetSourceNotUniform()   {        BITMASK_SET_0(*m_source_flags_ptr, m_uniformity_flag); }
-		inline bool IsSourceUniform() const { return BITMASK_IS_1(*m_source_flags_ptr,  m_uniformity_flag); }
-
-		MyGUI::TextBox*  label;
-		MyGUI::EditBox*  editbox;
-		
-	private:
-		void*            m_source_ptr;
-		unsigned int*    m_source_flags_ptr;
-		unsigned int     m_uniformity_flag;
-		unsigned int     m_flags;
-	};
-	// ------------------------------------------------------------------------
 	struct GenericFieldSpec
 	{
 		GenericFieldSpec(
 				MyGUI::TextBox* label, MyGUI::Widget* field_widget, 
 				unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
-				void* source_ptr, unsigned int source_type_flag
+				void* source_ptr, unsigned int source_type_flag, bool check_uniformity = true
 			):
 			label(label),
 			field_widget(field_widget),
 			m_flags(source_type_flag),
 			m_source_ptr(source_ptr),
 			m_source_flags_ptr(source_flags_ptr),
+            m_use_uniformity(check_uniformity),
 			m_uniformity_flag(uniformity_flag)
 		{}
 
@@ -130,21 +86,37 @@ public:
 			field_widget(nullptr),
 			m_flags(0),
 			m_source_ptr(nullptr),
-			m_uniformity_flag(0)
+			m_uniformity_flag(0),
+            m_use_uniformity(true)
 		{}
 
-		BITMASK_PROPERTY(m_flags, 1, SOURCE_DATATYPE_FLOAT,  IsSourceFloat,  SetSourceIsFloat)
-		BITMASK_PROPERTY(m_flags, 2, SOURCE_DATATYPE_INT,    IsSourceInt,    SetSourceIsInt)
-		BITMASK_PROPERTY(m_flags, 3, SOURCE_DATATYPE_STRING, IsSourceString, SetSourceIsString)
-        BITMASK_PROPERTY(m_flags, 4, SOURCE_DATATYPE_BOOL,   IsSourceBool,   SetSourceIsBool)
+		BITMASK_PROPERTY(m_flags, 1, SOURCE_DATATYPE_FLOAT,       IsSourceFloat,  SetSourceIsFloat)
+		BITMASK_PROPERTY(m_flags, 2, SOURCE_DATATYPE_INT,         IsSourceInt,    SetSourceIsInt)
+		BITMASK_PROPERTY(m_flags, 3, SOURCE_DATATYPE_STRING,      IsSourceString, SetSourceIsString)
+        BITMASK_PROPERTY(m_flags, 4, SOURCE_DATATYPE_BOOL,        IsSourceBool,   SetSourceIsBool)
+        BITMASK_PROPERTY(m_flags, 5, SOURCE_DATATYPE_OBJECT_NODE, IsSourceNode,   SetSourceIsNode)
 
 		inline float*         GetSourceFloat()  { return (IsSourceFloat()  ? reinterpret_cast<float*>       (m_source_ptr) : nullptr); }
 		inline int*           GetSourceInt()    { return (IsSourceInt()    ? reinterpret_cast<int*>         (m_source_ptr) : nullptr); }
 		inline Ogre::String*  GetSourceString() { return (IsSourceString() ? reinterpret_cast<Ogre::String*>(m_source_ptr) : nullptr); }
+        inline bool*          GetSourceBool()   { return (IsSourceBool()   ? reinterpret_cast<bool*>        (m_source_ptr) : nullptr); }
+        inline void*          GetSourceRawPtr() const { return m_source_ptr; }
 
-		inline void SetSourceIsUniform()    {        BITMASK_SET_1(*m_source_flags_ptr, m_uniformity_flag); }
-		inline void SetSourceNotUniform()   {        BITMASK_SET_0(*m_source_flags_ptr, m_uniformity_flag); }
-		inline bool IsSourceUniform() const { return BITMASK_IS_1(*m_source_flags_ptr,  m_uniformity_flag); }
+		inline void SetSourceIsUniform()
+        {
+            if (m_use_uniformity)
+                BITMASK_SET_1(*m_source_flags_ptr, m_uniformity_flag);
+        }
+		inline void SetSourceNotUniform()
+        {
+            if (m_use_uniformity)
+                BITMASK_SET_0(*m_source_flags_ptr, m_uniformity_flag);
+        }
+		inline bool IsSourceUniform() const 
+        { 
+            return m_use_uniformity ? BITMASK_IS_1(*m_source_flags_ptr,  m_uniformity_flag) : true;
+        }
+        void SetWidgetsVisible(bool visible);
 
 		MyGUI::TextBox*  label;
 		MyGUI::Widget*   field_widget;
@@ -152,8 +124,28 @@ public:
 	private:
 		void*            m_source_ptr;
 		unsigned int*    m_source_flags_ptr;
+        bool             m_use_uniformity;
 		unsigned int     m_uniformity_flag;
 		unsigned int     m_flags;
+	};
+    // ------------------------------------------------------------------------
+	struct EditboxFieldSpec: public GenericFieldSpec
+	{
+		EditboxFieldSpec(
+				MyGUI::TextBox* label, 
+                MyGUI::EditBox* editbox, 
+				unsigned int* source_flags_ptr, 
+                unsigned int uniformity_flag, 
+				void* source_ptr, 
+                unsigned int source_type_flag, 
+                bool use_uniformity);
+
+		EditboxFieldSpec():
+			GenericFieldSpec(),
+            editbox(nullptr)
+		{}
+
+		MyGUI::EditBox*  editbox;
 	};
 	// ------------------------------------------------------------------------
 
@@ -184,10 +176,15 @@ protected:
 
 	// Editbox form field
 
-	void SetupEditboxField(EditboxFieldSpec* spec, 
-		MyGUI::TextBox* label, MyGUI::EditBox* editbox, 
-		unsigned int* source_flags_ptr, unsigned int uniformity_flag, 
-		void* source_ptr, unsigned int source_type_flag
+	void SetupEditboxField(
+        EditboxFieldSpec* spec, 
+		MyGUI::TextBox* label, 
+        MyGUI::EditBox* editbox, 
+		unsigned int* source_flags_ptr, 
+        unsigned int uniformity_flag, 
+		void* source_ptr, 
+        unsigned int source_type_flag,
+        bool use_uniformity = true
 	);
 	void CallbackKeyPress_EnterCommitsEscapeRestores(MyGUI::Widget* widget, MyGUI::KeyCode key_code, MyGUI::Char key_value);
 	void CallbackKeyFocusGained_RestorePreviousFieldValue(MyGUI::Widget* new_widget, MyGUI::Widget* old_widget);

@@ -57,6 +57,8 @@ public:
 	}
 
 	virtual void ReGenerateMeshData();
+    
+    virtual void Update(AllWheelsAggregateData *data);
 
 	inline RigDef::FlexBodyWheel & GetDefinition() { return m_definition; }
 

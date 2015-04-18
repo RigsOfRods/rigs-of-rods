@@ -97,19 +97,11 @@
             <Property key="AddItem" value="4 - Only footbrake, no parkbrake"/>
             <Property key="MaxListLength" value="200"/>
         </Widget>
-        <Widget type="TextBox" skin="TextBox" position="5 195 65 20" name="side_label">
+        <Widget type="TextBox" skin="TextBox" position="5 195 75 20" name="side_label">
             <Property key="Caption" value="Side:"/>
             <Property key="TextAlign" value="Left VCenter"/>
         </Widget>
-        <Widget type="Button" skin="RadioButton" position="80 195 70 20" name="side_right_radiobutton">
-            <Property key="Caption" value="Right"/>
-            <Property key="TextAlign" value="Left VCenter"/>
-        </Widget>
-        <Widget type="Button" skin="RadioButton" position="150 195 70 20" name="side_left_radiobutton">
-            <Property key="Caption" value="Left"/>
-            <Property key="TextAlign" value="Left VCenter"/>
-        </Widget>
-        <Widget type="TextBox" skin="TextBox" position="5 215 215 20">
+        <Widget type="TextBox" skin="TextBox" position="5 215 215 20" name="nodes_section_label">
             <Property key="Caption" value="---- Nodes ----"/>
             <Property key="TextAlign" value="HCenter VCenter"/>
         </Widget>
@@ -137,6 +129,13 @@
             <Property key="TextAlign" value="Left VCenter"/>
         </Widget>
         <Widget type="EditBox" skin="EditBox" position="100 420 125 20" name="tyre_radius_editbox"/>
+        <Widget type="ComboBox" skin="ComboBox" position="85 195 140 20" name="side_combobox">
+            <Property key="Static" value="true"/>
+            <Property key="ReadOnly" value="true"/>
+            <Property key="Caption" value="0 - Left"/>
+            <Property key="AddItem" value="0 - Left"/>
+            <Property key="AddItem" value="1 - Right"/>
+        </Widget>
     </Widget>
     <CodeGeneratorSettings>
         <Property key="IncludeDirectory" value="D:\projects\git\ror-nextstable\source\main\gui\panels"/>

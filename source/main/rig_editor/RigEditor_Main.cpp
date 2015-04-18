@@ -513,31 +513,45 @@ void Main::UpdateMainLoop()
 			} // if (query.num_selected >= 2)
 		} // if (node_selection_changed)
 
-        if (this->HasWheelSelectionChanged())
+        if (this->IsAnyWheelSelectionChangeScheduled())
         {
-            HideAllWheelGuiPanels();
+            // Apply changes from panels
+            AllWheelsAggregateData wheel_update;
+            wheel_update.flexbodywheels_data = *m_flexbodywheels_panel->GetFlexBodyWheelsData();
+            wheel_update.num_elements += wheel_update.flexbodywheels_data.num_elements;
+            wheel_update.meshwheels2_data = *m_meshwheels2_panel->GetMeshWheel2Data();
+            wheel_update.num_elements += wheel_update.meshwheels2_data.num_elements;
+            m_rig->UpdateSelectedWheelsData(&wheel_update);
 
-            AllWheelsAggregateData wheel_query;
-            m_rig->QuerySelectedWheelsData(&wheel_query);
-            if (wheel_query.num_elements != 0)
+            // Update selection
+            const bool any_change = m_rig->PerformScheduledWheelSelectionUpdates(this);
+            this->ResetAllScheduledWheelSelectionChanges();
+
+            if (any_change)
             {
-                if(wheel_query.ContainsMultipleWheelTypes())
+                HideAllWheelGuiPanels();
+            
+                // Query selected wheels data
+                AllWheelsAggregateData wheel_query;
+                m_rig->QuerySelectedWheelsData(&wheel_query);
+                if (wheel_query.num_elements != 0)
                 {
-                    // To be done.
-                }
-                else if (wheel_query.meshwheels2_data.num_elements != 0)
-                {
-                    m_meshwheels2_panel->UpdateMeshWheels2Data(&wheel_query.meshwheels2_data);
-                    m_meshwheels2_panel->Show();
-                }
-                else if (wheel_query.flexbodywheels_data.num_elements != 0)
-                {
-                    m_flexbodywheels_panel->UpdateFlexBodyWheelsData(&wheel_query.flexbodywheels_data);
-                    m_flexbodywheels_panel->Show();
+                    if(wheel_query.ContainsMultipleWheelTypes())
+                    {
+                        // To be done.
+                    }
+                    else if (wheel_query.meshwheels2_data.num_elements != 0)
+                    {
+                        m_meshwheels2_panel->UpdateMeshWheels2Data(&wheel_query.meshwheels2_data);
+                        m_meshwheels2_panel->Show();
+                    }
+                    else if (wheel_query.flexbodywheels_data.num_elements != 0)
+                    {
+                        m_flexbodywheels_panel->UpdateFlexBodyWheelsData(&wheel_query.flexbodywheels_data);
+                        m_flexbodywheels_panel->Show();
+                    }
                 }
             }
-            
-            this->SetHasWheelSelectionChanged(false);
         }
 
 		// ==== Update visuals ====
@@ -976,16 +990,25 @@ void Main::CommandRigSelectedCommands2UpdateAttributes(const RigAggregateCommand
 	m_rig->SelectedCommands2UpdateAttributes(data);
 }
 
-void Main::CommandSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected)
+void Main::CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected)
 {
     if (m_rig == nullptr)
     {
         return;
     }
-    const bool selection_changed = m_rig->SetWheelSelected(wheel_ptr, wheel_index, state_selected, this);
-    if (selection_changed)
+    const bool selection_changes = m_rig->ScheduleSetWheelSelected(wheel_ptr, wheel_index, state_selected, this);
+    if (selection_changes)
     {
-        this->SetHasWheelSelectionChanged(true);
+        if (state_selected)
+        {
+            this->SetIsSelectWheelScheduled(true);
+            this->SetIsDeselectWheelScheduled(false);
+        }
+        else
+        {
+            this->SetIsSelectWheelScheduled(false);
+            this->SetIsDeselectWheelScheduled(true);
+        }
     }
 }
 
@@ -998,16 +1021,24 @@ void Main::CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index,
 	m_rig->SetWheelHovered(wheel_ptr, wheel_index, state_hovered, this);
 }
 
-void Main::CommandSetAllWheelsSelected(bool state_selected)
+void Main::CommandScheduleSetAllWheelsSelected(bool state_selected)
 {
     if (m_rig == nullptr)
     {
         return;
     }
-	const bool selection_changed = m_rig->SetAllWheelsSelected(state_selected, this);
-    if (selection_changed)
+    if (m_rig->ScheduleSetAllWheelsSelected(state_selected, this))
     {
-        this->SetHasWheelSelectionChanged(true);
+        if (state_selected)
+        {
+            this->SetIsSelectAllWheelsScheduled(true);
+            this->SetIsDeselectAllWheelsScheduled(false);        
+        }
+        else
+        {
+            this->SetIsSelectAllWheelsScheduled(false);
+            this->SetIsDeselectAllWheelsScheduled(true);
+        }
     }
 }
 

@@ -70,6 +70,7 @@ void AllWheelsAggregateData::AddWheel(LandVehicleWheel* wheel)
 void MeshWheel2AggregateData::AddWheel(MeshWheel2* data)
 {
     ++num_elements;
+
     RigDef::MeshWheel2& def = data->GetDefinition();
     if (num_elements == 1)
     {
@@ -87,15 +88,14 @@ void MeshWheel2AggregateData::AddWheel(MeshWheel2* data)
         tyre_damping           = def.tyre_damping;
         
         rim_radius             = def.rim_radius;
-        rim_spring             = def.beam_defaults->GetScaledSpringiness();
-        rim_damping            = def.beam_defaults->GetScaledDamping();
-        rim_deform_threshold   = def.beam_defaults->GetScaledDeformThreshold();
-        rim_breaking_threshold = def.beam_defaults->GetScaledBreakingThreshold();
+        rim_spring             = def.beam_defaults->springiness; // Scale doesn't apply here
+        rim_damping            = def.beam_defaults->damping_constant; // Scale doesn't apply here
+        rim_deform_threshold   = def.beam_defaults->deformation_threshold_constant; // Scale doesn't apply here
+        rim_breaking_threshold = def.beam_defaults->breaking_threshold_constant; // Scale doesn't apply here
 
-        is_right_side          = def.side = RigDef::MeshWheel::SIDE_RIGHT;
+        is_right_side          = (def.side == RigDef::MeshWheel::SIDE_RIGHT);
 	    rim_mesh_name          = def.mesh_name;
 	    tyre_material_name     = def.material_name;
-        return;
     }
     else
     {
@@ -114,15 +114,17 @@ void MeshWheel2AggregateData::AddWheel(MeshWheel2* data)
         SetTyreRadiusIsUniform      (IsTyreRadiusUniform      () && (tyre_radius == def.tyre_radius));
         
         SetRimRadiusIsUniform       (IsRimRadiusUniform       () && (rim_radius == def.rim_radius));
-        SetRimSpringIsUniform       (IsRimSpringUniform       () && (rim_spring == def.beam_defaults->GetScaledSpringiness()));
-        SetRimDampingIsUniform      (IsRimDampingUniform      () && (rim_damping == def.beam_defaults->GetScaledDamping()));
-        SetDeformThresholdIsUniform (IsDeformThresholdUniform () && (rim_deform_threshold == def.beam_defaults->GetScaledDeformThreshold()));
-        SetBreakThresholdIsUniform  (IsBreakThresholdUniform  () && (rim_breaking_threshold == def.beam_defaults->GetScaledBreakingThreshold()));
+        SetRimSpringIsUniform       (IsRimSpringUniform       () && (rim_spring == def.beam_defaults->springiness)); // Scale doesn't apply here
+        SetRimDampingIsUniform      (IsRimDampingUniform      () && (rim_damping == def.beam_defaults->damping_constant)); // Scale doesn't apply here
+        SetDeformThresholdIsUniform (IsDeformThresholdUniform () && (rim_deform_threshold == def.beam_defaults->deformation_threshold_constant)); // Scale doesn't apply here
+        SetBreakThresholdIsUniform  (IsBreakThresholdUniform  () && (rim_breaking_threshold == def.beam_defaults->breaking_threshold_constant)); // Scale doesn't apply here
         
-        SetSideIsUniform            (IsSideUniform            () && (is_right_side == (def.side = RigDef::MeshWheel::SIDE_RIGHT)));
+        SetSideIsUniform            (IsSideUniform            () && (is_right_side == (def.side == RigDef::MeshWheel::SIDE_RIGHT)));
         SetRimMeshNameIsUniform     (IsRimMeshNameUniform     () && (rim_mesh_name == def.mesh_name));
         SetTyreMaterialNameIsUniform(IsTyreMaterialNameUniform() && (tyre_material_name == def.material_name));
     }
+    
+    return;
 }
 
 void FlexBodyWheelAggregateData::AddWheel(FlexBodyWheel* data)
@@ -148,7 +150,7 @@ void FlexBodyWheelAggregateData::AddWheel(FlexBodyWheel* data)
         rim_spring             = def.beam_defaults->GetScaledSpringiness();
         rim_damping            = def.beam_defaults->GetScaledDamping();
         
-        is_right_side          = def.side = RigDef::MeshWheel::SIDE_RIGHT;
+        is_right_side          = (def.side == RigDef::MeshWheel::SIDE_RIGHT);
 	    rim_mesh_name          = def.rim_mesh_name;
 	    tyre_mesh_name         = def.tyre_mesh_name;
         return;
@@ -173,7 +175,7 @@ void FlexBodyWheelAggregateData::AddWheel(FlexBodyWheel* data)
         SetRimSpringIsUniform       (IsRimSpringUniform       () && (rim_spring == def.beam_defaults->GetScaledSpringiness()));
         SetRimDampingIsUniform      (IsRimDampingUniform      () && (rim_damping == def.beam_defaults->GetScaledDamping()));
         
-        SetSideIsUniform            (IsSideUniform            () && (is_right_side == (def.side = RigDef::MeshWheel::SIDE_RIGHT)));
+        SetSideIsUniform            (IsSideUniform            () && (is_right_side == (def.side == RigDef::MeshWheel::SIDE_RIGHT)));
         SetRimMeshNameIsUniform     (IsRimMeshNameUniform     () && (rim_mesh_name == def.rim_mesh_name));
         SetTyreMeshNameIsUniform    (IsTyreMeshNameUniform    () && (tyre_mesh_name == def.tyre_mesh_name));
     }

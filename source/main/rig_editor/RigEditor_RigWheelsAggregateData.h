@@ -128,7 +128,7 @@ struct MeshWheel2AggregateData: public BaseWheelAggregateData
 
 private:
 
-	unsigned int m_flags;
+	// m_flags ~~ Defined in BaseWheelAggregateData
 };
 
 struct FlexBodyWheelAggregateData: public BaseWheelAggregateData
@@ -174,7 +174,7 @@ struct FlexBodyWheelAggregateData: public BaseWheelAggregateData
 
 private:
 
-	unsigned int m_flags;
+	// m_flags ~~ Defined in BaseWheelAggregateData
 };
 
 struct AllWheelsAggregateData

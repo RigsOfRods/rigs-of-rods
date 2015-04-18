@@ -29,6 +29,7 @@
 
 #include "RigDef_Prerequisites.h"
 #include "RigDef_File.h"
+#include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_LandVehicleWheel.h"
 #include "RigEditor_Node.h"
 
@@ -44,17 +45,11 @@ class MeshWheel2: public LandVehicleWheel
 
 public:
 
-	MeshWheel2(RigDef::MeshWheel2 const & def,  Node* inner, Node* outer, Node* rigidity, Node* reference_arm_node):
-		LandVehicleWheel(TYPE_MESHWHEEL_2),
-		m_definition(def)
-	{
-		m_axis_inner_node = inner;
-		m_axis_outer_node = outer;
-		m_rigidity_node = rigidity;
-		m_reference_arm_node = reference_arm_node;
-	}
+	MeshWheel2(RigDef::MeshWheel2 const & def,  Node* inner, Node* outer, Node* rigidity, Node* reference_arm_node);
 
 	virtual void ReGenerateMeshData();
+
+    virtual void Update(AllWheelsAggregateData *data);
 
 	inline RigDef::MeshWheel2 & GetDefinition() { return m_definition; }
 

@@ -59,6 +59,8 @@ public:
 
 private:
 
+    void SetNodeFieldsVisible(bool visible);
+
 	// Aggregate rig data
 	RigEditor::FlexBodyWheelAggregateData m_data;
 
@@ -68,11 +70,11 @@ private:
 	RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_braking_field;
 	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_mesh_name_field;
 	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_tyre_mesh_name_field;
-	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_side_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_axis_node_a_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_axis_node_b_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rigidity_node_field;
-//  RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_reference_arm_node_field;
+	RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_side_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_node_axis_a_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_node_axis_b_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rigidity_node_field;
+    RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_arm_node_field;
 	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_radius_field;
 	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_spring_field;
 	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_rim_damping_field;

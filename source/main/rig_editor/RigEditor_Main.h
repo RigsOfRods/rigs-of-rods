@@ -107,17 +107,28 @@ public:
 	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data);
 
 	// Wheel list
-	virtual void CommandSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected);
+	virtual void CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected);
 	virtual void CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered);
-	virtual void CommandSetAllWheelsSelected(bool state_selected);
+	virtual void CommandScheduleSetAllWheelsSelected(bool state_selected);
 	virtual void CommandSetAllWheelsHovered(bool state_selected);
 
 	// GUI callbacks
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
 
     // State flags
-    BITMASK_PROPERTY(m_state_flags,  1,  WHEEL_SELECTION_CHANGED,   HasWheelSelectionChanged,   SetHasWheelSelectionChanged);
-
+    BITMASK_PROPERTY(m_state_flags,  1,  IS_SELECT_WHEEL_SCHEDULED,         IsSelectWheelScheduled,         SetIsSelectWheelScheduled);
+    BITMASK_PROPERTY(m_state_flags,  2,  IS_DESELECT_WHEEL_SCHEDULED,       IsDeselectWheelScheduled,       SetIsDeselectWheelScheduled);
+    BITMASK_PROPERTY(m_state_flags,  3,  IS_SELECT_ALL_WHEELS_SCHEDULED,    IsSelectAllWheelsScheduled,     SetIsSelectAllWheelsScheduled);
+    BITMASK_PROPERTY(m_state_flags,  4,  IS_DESELECT_ALL_WHEELS_SCHEDULED,  IsDeselectAllWheelsScheduled,   SetIsDeselectAllWheelsScheduled);
+    inline bool IsAnyWheelSelectionChangeScheduled() const
+    { 
+        return IsSelectWheelScheduled() || IsDeselectWheelScheduled() || IsSelectAllWheelsScheduled() || IsDeselectAllWheelsScheduled();
+    }
+    inline void ResetAllScheduledWheelSelectionChanges()
+    {
+        BITMASK_SET_0(m_state_flags, IS_SELECT_WHEEL_SCHEDULED | IS_DESELECT_WHEEL_SCHEDULED | IS_SELECT_ALL_WHEELS_SCHEDULED | IS_DESELECT_ALL_WHEELS_SCHEDULED);
+    }
+    
 private:
 
 	void InitializeOrRestoreGui();

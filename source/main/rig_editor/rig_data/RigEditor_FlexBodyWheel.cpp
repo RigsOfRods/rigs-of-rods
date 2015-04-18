@@ -28,6 +28,7 @@
 #include "RigEditor_FlexBodyWheel.h"
 
 #include "RigDef_File.h"
+#include "RigEditor_RigWheelsAggregateData.h"
 
 using namespace RoR;
 using namespace RigEditor;
@@ -182,4 +183,53 @@ void FlexBodyWheel::UpdateAABB()
 	{
 		m_aabb.merge(*itor);
 	}
+}
+
+void FlexBodyWheel::Update(AllWheelsAggregateData *all_data)
+{
+    assert(all_data != nullptr);
+    FlexBodyWheelAggregateData& data = all_data->flexbodywheels_data;
+    if (data.num_elements == 0)
+    {
+        return;
+    }
+
+    // Ray count
+    if (data.IsRayCountUniform() && data.num_rays != m_definition.num_rays) { 
+        m_definition.num_rays = data.num_rays;
+        this->SetGeometryIsDirty(true);
+	    this->SetHasRayCountChanged(true);
+    }
+    // Nodes
+    if (data.num_elements == 1)
+    {
+        if (data.axis_nodes[0] != m_definition.nodes[0]) {
+            m_definition.nodes[0] = data.axis_nodes[0];
+            this->SetGeometryIsDirty(true);
+        }
+        if (data.axis_nodes[1] != m_definition.nodes[1]) {
+            m_definition.nodes[1] = data.axis_nodes[1];
+            this->SetGeometryIsDirty(true);
+        }
+        if (data.rigidity_node != m_definition.rigidity_node) {
+            m_definition.rigidity_node = data.rigidity_node;
+            this->SetGeometryIsDirty(true);
+        }
+        if (data.reference_arm_node != m_definition.reference_arm_node) {
+            m_definition.reference_arm_node = data.reference_arm_node;
+        }
+    }
+    // Other
+    if (data.IsBrakingModeUniform())      { m_definition.braking = data.braking; }
+    if (data.IsMassUniform())             { m_definition.mass = data.mass; }
+    if (data.IsPropulsionModeUniform())   { m_definition.propulsion = data.propulsion; }
+    if (data.IsRimDampingUniform())       { m_definition.beam_defaults->damping_constant = data.rim_damping; }
+    if (data.IsRimMeshNameUniform())      { m_definition.rim_mesh_name = data.rim_mesh_name; }
+    if (data.IsRimRadiusUniform())        { m_definition.rim_radius = data.rim_radius; }
+    if (data.IsRimSpringUniform())        { m_definition.beam_defaults->springiness = data.rim_spring; }
+    if (data.IsSideUniform())             { m_definition.side = data.is_right_side ? RigDef::MeshWheel::SIDE_RIGHT : RigDef::MeshWheel::SIDE_LEFT; }
+    if (data.IsTyreDampingUniform())      { m_definition.tyre_damping = data.tyre_damping; }
+    if (data.IsTyreMeshNameUniform())     { m_definition.tyre_mesh_name = data.tyre_mesh_name; }
+    if (data.IsTyreRadiusUniform())       { m_definition.tyre_radius = data.tyre_radius; }
+    if (data.IsTyreSpringUniform())       { m_definition.tyre_springiness = data.tyre_spring; }
 }

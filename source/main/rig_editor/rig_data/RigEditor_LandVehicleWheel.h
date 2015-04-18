@@ -112,6 +112,10 @@ public:
 	BITMASK_PROPERTY(m_flags,  3, IS_SELECTED,                IsSelected,              SetIsSelected)
 	BITMASK_PROPERTY(m_flags,  4, IS_HOVERED,                 IsHovered,               SetIsHovered)
 	BITMASK_PROPERTY(m_flags,  5, HAS_RAY_COUNT_CHANGED,      HasRayCountChanged,      SetHasRayCountChanged)
+    // When user clicks "select this wheel", the wheel is scheduled for selection
+    // Actual selection is performed during main-loop update
+    BITMASK_PROPERTY(m_flags,  6, IS_SCHEDULED_FOR_SELECT,    IsScheduledForSelect,    SetIsScheduledForSelect)
+    BITMASK_PROPERTY(m_flags,  7, IS_SCHEDULED_FOR_DESELECT,  IsScheduledForDeselect,  SetIsScheduledForDeselect)
 
 	// Type
 	inline Type GetType() const { return m_type; }
@@ -145,6 +149,7 @@ public:
 	inline std::vector<Ogre::Vector3>& GetVertices() { return m_vertices; }
 	inline std::vector<Edge>& GetEdges() { return m_edges; }
 	virtual void ReGenerateMeshData() {}
+    virtual void Update(AllWheelsAggregateData *data) {}
 
 	inline Ogre::Vector3 GetAabbEdgesMin(float padding = 0.f) const
 	{

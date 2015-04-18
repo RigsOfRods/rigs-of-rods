@@ -195,13 +195,17 @@ public:
 
     /// @return True if selection was changed.
 	bool SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor);
+    /// @return True if selection will change
+    bool ScheduleSetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor);
 	void SetWheelHovered(LandVehicleWheel* wheel, int index, bool state_hovered, RigEditor::Main* rig_editor);
     /// @return True if selection was changed.
 	bool SetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor);
+    bool ScheduleSetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor);
 	void SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor);
     void QuerySelectedWheelsData(AllWheelsAggregateData* data);
-    //void UpdateSelectedWheelsData(MixedWheelsAggregateData* data);
-    //void UpdateSelectedMeshWheels2Data(MeshWheel2AggregateData* data);
+    void UpdateSelectedWheelsData(AllWheelsAggregateData* data);
+    /// @return True if selection was changed.
+    bool PerformScheduledWheelSelectionUpdates(RigEditor::Main* rig_editor);
 
 	inline std::vector<LandVehicleWheel*>& GetWheels() { return m_wheels; }
 
