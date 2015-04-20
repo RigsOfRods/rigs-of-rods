@@ -2573,12 +2573,17 @@ void Serializer::ProcessAuthors()
 
 void Serializer::ProcessGlobals(File::Module* module)
 {
-	if (module->globals.get() != nullptr)
+	if (module->globals.get() == nullptr)
 	{
-		m_stream 
-			<< "globals" << endl
-			<< "\t" << module->globals->dry_mass << ", "
-			<< module->globals->cargo_mass << ", "
-			<< module->globals->material_name << endl << endl;
-	}
+        return;
+    }
+
+	m_stream << "globals\n\t"
+        << module->globals->dry_mass << ", "
+		<< module->globals->cargo_mass;
+    if (!module->globals->material_name.empty())
+    {
+        m_stream << ", " << module->globals->material_name;
+    }
+    m_stream << endl << endl;
 }
