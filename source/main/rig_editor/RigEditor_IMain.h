@@ -40,13 +40,12 @@ class IMain
 {
 public:
 
+    // File management
 	virtual void CommandShowDialogOpenRigFile() = 0;
-
 	virtual void CommandShowDialogSaveRigFileAs() = 0;
-
 	virtual void CommandSaveRigFile() = 0;
-
 	virtual void CommandCloseCurrentRig() = 0;
+    virtual void CommandCreateNewEmptyRig() = 0;
 
 	virtual void CommandCurrentRigDeleteSelectedNodes() = 0;
 
@@ -59,8 +58,8 @@ public:
 	virtual void CommandSaveContentOfRigPropertiesWindow() = 0;
 
 	virtual void CommandShowLandVehiclePropertiesWindow() = 0;
-
-	virtual void CommandSaveContentOfLandVehiclePropertiesWindow() = 0;
+    
+	virtual void CommandSaveLandVehiclePropertiesWindowData() = 0;
 
 	virtual void CommandShowHelpWindow() = 0;
 

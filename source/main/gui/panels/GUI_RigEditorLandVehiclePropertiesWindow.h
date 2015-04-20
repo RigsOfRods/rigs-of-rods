@@ -51,13 +51,14 @@ public:
 			boost::shared_ptr<RigDef::Engine> engine,
 			boost::shared_ptr<RigDef::Engoption> engoption
 		);
-
-	void Export(
-			boost::shared_ptr<RigDef::Engine> engine,
-			boost::shared_ptr<RigDef::Engoption> engoption
-		);
+    
+    // Export
+	boost::shared_ptr<RigDef::Engine>    ExportEngine();
+    boost::shared_ptr<RigDef::Engoption> ExportEngoption();
 
 private:
+
+    void SetVehicleHasEngine(bool has_engine);
 
 	void SetEngineType(RigDef::Engoption::EngineType type);
 
@@ -66,6 +67,7 @@ private:
 	void WindowButtonClicked(MyGUI::Widget* sender, const std::string& name);
 
 	void CancelButtonClicked(MyGUI::Widget* sender);
+    void SaveButtonClicked(MyGUI::Widget* sender);
 
 	void ForwardGearsEditboxKeyFocusGained(MyGUI::Widget* sender, MyGUI::Widget* _);
 
@@ -73,11 +75,15 @@ private:
 
 	void EngineTypeRadioClicked(MyGUI::Widget* sender);
 
+    void AddRemoveButtonsClicked(MyGUI::Widget* sender);
+
+    void ResetEngineEngoptionForm();
+
 private:
 
 	RigEditor::IMain* m_rig_editor_interface;
 
-	RigEditor::RigProperties* m_rig_properties;
+    bool m_vehicle_has_engine;
 
 	// Forward gears editbox
 	bool m_forward_gears_textbox_empty;

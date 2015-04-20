@@ -74,13 +74,12 @@ public:
 
 	/* IMain implementations */
 
+    // File management
 	virtual void CommandShowDialogOpenRigFile();
-
 	virtual void CommandShowDialogSaveRigFileAs();
-
 	virtual void CommandSaveRigFile();
-
 	virtual void CommandCloseCurrentRig();
+    virtual void CommandCreateNewEmptyRig();
 
 	virtual void CommandCurrentRigDeleteSelectedNodes();
 
@@ -92,10 +91,11 @@ public:
 
 	virtual void CommandSaveContentOfRigPropertiesWindow();
 
+    // Land vehicle window
 	virtual void CommandShowLandVehiclePropertiesWindow();
+	virtual void CommandSaveLandVehiclePropertiesWindowData();
 
-	virtual void CommandSaveContentOfLandVehiclePropertiesWindow();
-
+    // Help window
 	virtual void CommandShowHelpWindow();
 
 	// Rig updaters
@@ -138,6 +138,8 @@ private:
 	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
 	void SaveRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+
+    void OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node);
 
 	Config*              m_config;
 	Ogre::SceneManager*  m_scene_manager;

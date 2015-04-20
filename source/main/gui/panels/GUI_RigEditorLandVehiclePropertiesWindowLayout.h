@@ -32,6 +32,12 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_land_vehicle_properties_window, "land_vehicle_properties_window");
 	MyGUI::Window* m_land_vehicle_properties_window;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_land_vehicle_tab_control, "land_vehicle_tab_control");
+	MyGUI::TabControl* m_land_vehicle_tab_control;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_edit_engine_tab, "edit_engine_tab");
+	MyGUI::TabItem* m_edit_engine_tab;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_editbox_shift_down_rpm, "editbox_shift_down_rpm");
 	MyGUI::EditBox* m_editbox_shift_down_rpm;
 
@@ -118,6 +124,15 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_editbox_engoption_min_idle_mixture, "editbox_engoption_min_idle_mixture");
 	MyGUI::EditBox* m_editbox_engoption_min_idle_mixture;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_remove_engine_button, "remove_engine_button");
+	MyGUI::Button* m_remove_engine_button;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_add_engine_tab, "add_engine_tab");
+	MyGUI::TabItem* m_add_engine_tab;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_add_engine_button, "add_engine_button");
+	MyGUI::Button* m_add_engine_button;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorLandVehiclePropertiesWindowLayout, m_button_save, "button_save");
 	MyGUI::Button* m_button_save;

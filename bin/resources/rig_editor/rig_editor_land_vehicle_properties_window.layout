@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="0 0 600 580" layer="Main" name="land_vehicle_properties_window">
+    <Widget type="Window" skin="WindowCX" position="0 0 600 620" layer="Main" name="land_vehicle_properties_window">
         <Property key="Caption" value="Land vehicle properties"/>
-        <Widget type="TabControl" skin="TabControl" position="0 0 590 505">
-            <Widget type="TabItem" skin="" position="2 24 584 477">
+        <Widget type="TabControl" skin="TabControl" position="0 0 590 545" name="land_vehicle_tab_control">
+            <Widget type="TabItem" skin="" position="2 24 584 517" name="edit_engine_tab">
                 <Property key="Caption" value="Engine"/>
                 <Widget type="TextBox" skin="TextBox" position="0 0 180 25">
                     <Property key="Caption" value="Shift down RPM*"/>
@@ -188,19 +188,28 @@
                 <Widget type="EditBox" skin="EditBox" position="185 405 235 25" name="editbox_engoption_idle_rpm"/>
                 <Widget type="EditBox" skin="EditBox" position="185 430 235 25" name="editbox_engoption_max_idle_mixture"/>
                 <Widget type="EditBox" skin="EditBox" position="185 455 235 25" name="editbox_engoption_min_idle_mixture"/>
+                <Widget type="Button" skin="Button" position="315 485 265 30" name="remove_engine_button">
+                    <Property key="Caption" value="[-] Remove engine from vehicle "/>
+                </Widget>
+            </Widget>
+            <Widget type="TabItem" skin="" position="2 24 584 517" name="add_engine_tab">
+                <Property key="Caption" value="Engine"/>
+                <Widget type="Button" skin="Button" position="5 235 575 30" name="add_engine_button">
+                    <Property key="Caption" value="[+] Add engine to vehicle"/>
+                </Widget>
             </Widget>
         </Widget>
-        <Widget type="Button" skin="Button" position="5 510 160 30" name="button_save">
+        <Widget type="Button" skin="Button" position="5 550 160 30" name="button_save">
             <Property key="Caption" value="Save"/>
         </Widget>
-        <Widget type="Button" skin="Button" position="425 510 160 30" name="button_cancel">
+        <Widget type="Button" skin="Button" position="425 550 160 30" name="button_cancel">
             <Property key="Caption" value="Cancel"/>
         </Widget>
     </Widget>
     <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="d:/projects\VisualStudio2010\RoR-MainMenu-2\source\main\gui\panels"/>
+        <Property key="IncludeDirectory" value="d:/projects\git\ror-nextstable\source\main\gui\panels"/>
         <Property key="PanelName" value="RigEditorLandVehiclePropertiesWindowLayout"/>
         <Property key="PanelNamespace" value="Foo"/>
-        <Property key="SourceDirectory" value="d:/projects\VisualStudio2010\RoR-MainMenu-2\source\main\gui\panels"/>
+        <Property key="SourceDirectory" value="d:/projects\git\ror-nextstable\source\main\gui\panels"/>
     </CodeGeneratorSettings>
 </MyGUI>

@@ -161,4 +161,8 @@ Config::Config(Ogre::String const & conf_file_path)
 	wheels_hover_highlight_boxes_color       = conf_file.GetColourValue("wheels_hover_highlight_boxes_color");
 	wheels_hover_highlight_boxes_padding     = conf_file.GetFloat("wheels_hover_highlight_boxes_padding");
 
+    // RIG PROPERTIES
+
+    new_rig_initial_box_half_size     = conf_file.GetFloat("new_rig_initial_box_half_size");
+
 }

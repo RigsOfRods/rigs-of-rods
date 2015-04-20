@@ -52,8 +52,9 @@ public:
 	~RigProperties();
 
 	boost::shared_ptr<RigDef::Engine>    GetEngine();
-
 	boost::shared_ptr<RigDef::Engoption> GetEngoption();
+    inline void SetEngine(boost::shared_ptr<RigDef::Engine> engine) { m_engine = engine; }
+    inline void SetEngoption(boost::shared_ptr<RigDef::Engoption> engoption) { m_engoption = engoption; }
 
 protected:	
 

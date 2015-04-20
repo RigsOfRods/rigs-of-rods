@@ -799,8 +799,16 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	m_rig->Build(parser.GetFile(), this, parent_scene_node, &rig_build_report);
 
 	/* SHOW MESH */
+    this->OnNewRigCreatedOrLoaded(parent_scene_node);
 
-	m_rig->AttachToScene(parent_scene_node);
+	LOG(Ogre::String("RigEditor: Finished loading rig, report:\n") + rig_build_report.ToString());
+
+	return true;
+}
+
+void Main::OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node)
+{
+    m_rig->AttachToScene(parent_scene_node);
 	/* Handle mouse selection of nodes */
 	m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
 	if (m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
@@ -810,10 +818,6 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	/* Update GUI */
 	m_gui_menubar->ClearLandVehicleWheelsList();
 	m_gui_menubar->UpdateLandVehicleWheelsList(m_rig->GetWheels());
-
-	LOG(Ogre::String("RigEditor: Finished loading rig, report:\n") + rig_build_report.ToString());
-
-	return true;
 }
 
 void Main::CommandCurrentRigDeleteSelectedNodes()
@@ -882,14 +886,12 @@ void Main::CommandShowLandVehiclePropertiesWindow()
 	}
 }
 
-void Main::CommandSaveContentOfLandVehiclePropertiesWindow()
+void Main::CommandSaveLandVehiclePropertiesWindowData()
 {
 	if (m_rig != nullptr && m_gui_land_vehicle_properties_window->IsVisible())
 	{
-		m_gui_land_vehicle_properties_window->Export(
-			m_rig->GetProperties()->GetEngine(),
-			m_rig->GetProperties()->GetEngoption()
-			);
+        m_rig->GetProperties()->SetEngine(m_gui_land_vehicle_properties_window->ExportEngine());
+        m_rig->GetProperties()->SetEngoption(m_gui_land_vehicle_properties_window->ExportEngoption());
 	}
 }
 
@@ -1048,6 +1050,85 @@ void Main::CommandSetAllWheelsHovered(bool state_hovered)
     {
 	    m_rig->SetAllWheelsHovered(state_hovered, this);
     }
+}
+
+// Utility macros for creating fresh empty rig + initial cube
+#define ADD_NODE(MODULENAME, NODENAME, X, Y, Z) \
+{ \
+    RigDef::Node n; \
+    n.id.SetStr(NODENAME); \
+    n.position = Ogre::Vector3(X, Y, Z); \
+    MODULENAME->nodes.push_back(n); \
+}
+#define LINK_NODES(MODULE, NODE1, NODE2)\
+{\
+    RigDef::Beam b;\
+    b.nodes[0].SetStr(NODE1);\
+    b.nodes[1].SetStr(NODE2);\
+    MODULE->beams.push_back(b);\
+}
+#define LINK_NODE_0(MODULE, NODE1)\
+{\
+    RigDef::Beam b;\
+    b.nodes[0].SetStr(NODE1);\
+    b.nodes[1].SetNum(0);\
+    MODULE->beams.push_back(b);\
+}
+
+void Main::CommandCreateNewEmptyRig()
+{
+    if (m_rig != nullptr)
+    {
+	    return;
+    }
+
+    m_rig = new RigEditor::Rig(m_config);
+    // Create definition
+	auto def = boost::shared_ptr<RigDef::File>(new RigDef::File());
+    def->name = "Unnamed rig (created in editor)";
+	auto module = boost::shared_ptr<RigDef::File::Module>(new RigDef::File::Module("_Root_"));
+	def->root_module = module;
+    // Create special node 0 in _Root_ module
+    RigDef::Node node_0;
+    node_0.id.SetNum(0);
+    node_0.position = Ogre::Vector3::ZERO;
+    module->nodes.push_back(node_0);
+    // Create cube around node 0
+    float size = m_config->new_rig_initial_box_half_size;
+    ADD_NODE(module, "CUBE_bottom_oo", -size, -size, -size);
+    ADD_NODE(module, "CUBE_bottom_xo",  size, -size, -size);
+    ADD_NODE(module, "CUBE_bottom_ox", -size, -size,  size);
+    ADD_NODE(module, "CUBE_bottom_xx",  size, -size,  size);
+    ADD_NODE(module, "CUBE_top_oo",    -size,  size, -size);
+    ADD_NODE(module, "CUBE_top_xo",     size,  size, -size);
+    ADD_NODE(module, "CUBE_top_ox",    -size,  size,  size);
+    ADD_NODE(module, "CUBE_top_xx",     size,  size,  size);
+    // Link nodes                         
+    LINK_NODES(module, "CUBE_bottom_oo", "CUBE_bottom_xo"); // Bottom plane...
+    LINK_NODES(module, "CUBE_bottom_xo", "CUBE_bottom_xx");
+    LINK_NODES(module, "CUBE_bottom_xx", "CUBE_bottom_ox");
+    LINK_NODES(module, "CUBE_bottom_ox", "CUBE_bottom_oo");
+    LINK_NODES(module, "CUBE_top_oo", "CUBE_top_xo"); // Top plane...
+    LINK_NODES(module, "CUBE_top_xo", "CUBE_top_xx");
+    LINK_NODES(module, "CUBE_top_xx", "CUBE_top_ox");
+    LINK_NODES(module, "CUBE_top_ox", "CUBE_top_oo");
+    LINK_NODES(module, "CUBE_bottom_oo", "CUBE_top_oo"); // Top to bottom...
+    LINK_NODES(module, "CUBE_bottom_xo", "CUBE_top_xo");
+    LINK_NODES(module, "CUBE_bottom_ox", "CUBE_top_ox");
+    LINK_NODES(module, "CUBE_bottom_xx", "CUBE_top_xx");
+    // Link node 0
+    LINK_NODE_0(module, "CUBE_bottom_oo" );
+    LINK_NODE_0(module, "CUBE_bottom_xo" );
+    LINK_NODE_0(module, "CUBE_bottom_ox" );
+    LINK_NODE_0(module, "CUBE_bottom_xx" );
+    LINK_NODE_0(module, "CUBE_top_oo"    );
+    LINK_NODE_0(module, "CUBE_top_xo"    );
+    LINK_NODE_0(module, "CUBE_top_ox"    );
+    LINK_NODE_0(module, "CUBE_top_xx"    );
+    // Build
+    m_rig->Build(def, this, this->m_scene_manager->getRootSceneNode(), nullptr);
+    // Accomodate
+    this->OnNewRigCreatedOrLoaded(m_scene_manager->getRootSceneNode());
 }
 
 // ----------------------------------------------------------------------------

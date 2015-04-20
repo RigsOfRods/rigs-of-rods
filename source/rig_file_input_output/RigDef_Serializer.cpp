@@ -61,8 +61,8 @@ void Serializer::Serialize()
 	// Write banner
 	m_stream
 		<< "; ---------------------------------------------------------------------------- ;" << endl
-		<< "; Rigs of Rods (www.rigsofrods.com)                                            ;" << endl
-		<< "; =================================                                            ;" << endl
+		<< "; Rigs of Rods project (www.rigsofrods.com)                                    ;" << endl
+		<< "; =========================================                                    ;" << endl
 		<< ";                                                                              ;" << endl
 		<< "; This is a rig definition file.                                               ;" << endl
 		<< "; See http://www.rigsofrods.com/wiki/pages/Truck_Description_File for details. ;" << endl
@@ -374,7 +374,7 @@ void Serializer::ProcessExtCamera(File::Module* module)
 		return;
 	}
 	RigDef::ExtCamera* def = module->ext_camera.get();
-	m_stream << "extcamera";
+	m_stream << "extcamera ";
 
 	switch (def->mode)
 	{
@@ -1523,21 +1523,29 @@ void Serializer::ProcessEngine(File::Module* module)
 		return;
 	}
 	
-	m_stream << "engine\n\t" 
-		<< setw(m_float_width)   << module->engine->shift_down_rpm                << ", "
-		<< setw(m_float_width)   << module->engine->shift_up_rpm                  << ", "
-		<< setw(m_float_width)   << module->engine->torque                        << ", "
-		<< setw(m_float_width)   << module->engine->global_gear_ratio             << ", "
-		<< setw(m_float_width)   << module->engine->reverse_gear_ratio            << ", "
-		<< setw(m_float_width)   << module->engine->neutral_gear_ratio;
-		
-	auto itor_end = module->engine->gear_ratios.end();
-	auto itor = module->engine->gear_ratios.end();
-	for (; itor != itor_end; ++itor)
+	m_stream << "engine" 
+        "\n;\t"
+        "ShiftDownRPM,"
+        " ShiftUpRPM,"
+        "     Torque,"
+        " GlobalGear,"
+        " ReverseGear,"
+        " NeutralGear,"
+        " Forward gears...\n\t"
+		<< setw(12)   << module->engine->shift_down_rpm                << ", "
+		<< setw(10)   << module->engine->shift_up_rpm                  << ", "
+		<< setw(10)   << module->engine->torque                        << ", "
+		<< setw(10)   << module->engine->global_gear_ratio             << ", "
+		<< setw(11)   << module->engine->reverse_gear_ratio            << ", "
+		<< setw(11)   << module->engine->neutral_gear_ratio;
+	
+    auto itor = module->engine->gear_ratios.begin();	
+	auto end  = module->engine->gear_ratios.end();
+	for (; itor != end; ++itor)
 	{
 		m_stream << ", " << *itor;
 	}
-	m_stream << endl << endl;
+	m_stream << ", -1.0" /*terminator*/ << endl << endl;
 }
 
 void Serializer::ProcessEngoption(File::Module* module)
@@ -1547,17 +1555,29 @@ void Serializer::ProcessEngoption(File::Module* module)
 		return;
 	}
 	
-	m_stream << "engoption" << endl << "\t" 
-		<< setw(m_float_width)   << module->engoption->inertia           << ", "
-		                         << module->engoption->type              << ", "
-		<< setw(m_float_width)   << module->engoption->clutch_force      << ", "
-		<< setw(m_float_width)   << module->engoption->shift_time        << ", "
-		<< setw(m_float_width)   << module->engoption->clutch_time       << ", "
-		<< setw(m_float_width)   << module->engoption->post_shift_time   << ", "
-		<< setw(m_float_width)   << module->engoption->stall_rpm         << ", "
-		<< setw(m_float_width)   << module->engoption->idle_rpm          << ", "
-		<< setw(m_float_width)   << module->engoption->max_idle_mixture  << ", "
-		<< setw(m_float_width)   << module->engoption->min_idle_mixture;
+	m_stream << "engoption"
+        "\n;\t"
+        "EngInertia,"
+        " EngineType,"
+        " ClutchForce,"
+        " ShiftTime,"
+        " ClutchTime,"
+        " PostShiftTime,"
+        " StallRPM,"
+        " IdleRPM,"
+        " MaxIdleMixture,"
+        " MinIdleMixture"
+        "\n\t" 
+		<< setw(10)   << module->engoption->inertia           << ", "
+		<< setw(10)   << (char)module->engoption->type        << ", "
+		<< setw(11)   << module->engoption->clutch_force      << ", "
+		<< setw( 9)   << module->engoption->shift_time        << ", "
+		<< setw(10)   << module->engoption->clutch_time       << ", "
+		<< setw(13)   << module->engoption->post_shift_time   << ", "
+		<< setw( 8)   << module->engoption->stall_rpm         << ", "
+		<< setw( 7)   << module->engoption->idle_rpm          << ", "
+		<< setw(14)   << module->engoption->max_idle_mixture  << ", "
+		<< setw(14)   << module->engoption->min_idle_mixture;
 	
 	m_stream << endl << endl;
 }
@@ -2309,23 +2329,47 @@ void Serializer::ProcessNodes(File::Module* module)
 	ProcessNodeDefaults(node_zero->node_defaults.get());
 	ProcessNode(*node_zero);
 
-	// Other nodes
-	auto preset_itor_end = nodes_by_presets.end();
-	for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
-	{
-		// Write preset
-		NodeDefaults* preset = preset_itor->first;
-		ProcessNodeDefaults(preset);
+    // Other numbered nodes
+    auto preset_itor_end = nodes_by_presets.end();
+    for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
+    {
+        // Write preset
+        NodeDefaults* preset = preset_itor->first;
+        ProcessNodeDefaults(preset);
 
-		// Write nodes
-		std::vector<Node*> & node_list = preset_itor->second;
-		auto node_itor_end = node_list.end();
-		for (auto node_itor = node_list.begin(); node_itor != node_itor_end; ++node_itor)
-		{
-			Node & node = *(*node_itor);
-			ProcessNode(node);
-		}
-	}
+        // Write nodes
+        std::vector<Node*> & node_list = preset_itor->second;
+        auto node_itor_end = node_list.end();
+        for (auto node_itor = node_list.begin(); node_itor != node_itor_end; ++node_itor)
+        {
+            Node & node = *(*node_itor);
+            if (node.id.Str().empty()) // Numbered nodes only
+            {
+                ProcessNode(node);
+            }
+        }
+    }
+
+    // Other named nodes
+    m_stream << endl << endl << "nodes2" << endl << endl;
+    for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
+    {
+        // Write preset
+        NodeDefaults* preset = preset_itor->first;
+        ProcessNodeDefaults(preset);
+
+        // Write nodes
+        std::vector<Node*> & node_list = preset_itor->second;
+        auto node_itor_end = node_list.end();
+        for (auto node_itor = node_list.begin(); node_itor != node_itor_end; ++node_itor)
+        {
+            Node & node = *(*node_itor);
+            if (!node.id.Str().empty() && node.id.Num() == 0) // Named nodes only
+            {
+                ProcessNode(node);
+            }
+        }
+    }
 
 	// Empty line
 	m_stream << endl;

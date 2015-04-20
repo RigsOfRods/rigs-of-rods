@@ -124,8 +124,9 @@ Node* Rig::FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger 
 	return & result->second;
 }
 
+
 void Rig::Build(
-		boost::shared_ptr<RigDef::File> rig_def, 
+		boost::shared_ptr<RigDef::File> rig_def,
 		RigEditor::Main* rig_editor,
 		Ogre::SceneNode* parent_scene_node,
 		RigBuildingReport* report // = nullptr
@@ -136,7 +137,10 @@ void Rig::Build(
 
 	RigEditor::Config & config = *rig_editor->GetConfig();
 	RigDef::File::Module* module = rig_def->root_module.get();
-	report->SetCurrentModuleName(module->name);
+	if (report != nullptr)
+    {
+        report->SetCurrentModuleName(module->name);
+    }
 
 	m_properties = std::unique_ptr<RigProperties>(new RigProperties());
 	m_properties->Import(rig_def);
@@ -145,7 +149,10 @@ void Rig::Build(
 
 	unsigned int highest_numeric_id = 0;
 	int node_index = 0;
-	report->SetCurrentSectionName("nodes");
+    if (report != nullptr)
+    {
+	    report->SetCurrentSectionName("nodes");
+    }
 	for (auto node_itor = module->nodes.begin(); node_itor != module->nodes.end(); ++node_itor)
 	{
 		bool done = false;
@@ -179,14 +186,16 @@ void Rig::Build(
 		}
 		node_index++;
 	}
-	m_highest_node_id = highest_numeric_id;	
+	m_highest_node_id = highest_numeric_id;
 
 	// ##### Process beams (section "beams") #####
 
 	std::vector<RigDef::Beam> unlinked_beams_to_retry; // Linked to invalid nodes, will retry after other sections (esp. wheels) were processed
 	// TODO: Implement the retry.
-	report->SetCurrentSectionName("beams");
-	
+	if (report != nullptr)
+    {
+        report->SetCurrentSectionName("beams");
+	}
 	auto beam_itor_end = module->beams.end();
 	for (auto beam_itor = module->beams.begin(); beam_itor != beam_itor_end; ++beam_itor)
 	{
@@ -223,8 +232,11 @@ void Rig::Build(
 	// ##### Process steering hydros (section "hydros") #####
 
 	auto hydro_itor_end = module->hydros.end();
-	report->SetCurrentSectionName("hydros");
-	for (auto hydro_itor = module->hydros.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
+	if (report != nullptr)
+    {
+        report->SetCurrentSectionName("hydros");
+	}
+    for (auto hydro_itor = module->hydros.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
 	{
 		Node* nodes[] = {
 			FindNode(hydro_itor->nodes[0], report),
@@ -248,8 +260,11 @@ void Rig::Build(
 	// ##### Process command-hydros (section "commands[N]") #####
 
 	auto command_itor_end = module->commands_2.end();
-	report->SetCurrentSectionName("commands2");
-	for (auto command_itor = module->commands_2.begin(); command_itor != command_itor_end; ++command_itor)
+	if (report != nullptr)
+    {
+        report->SetCurrentSectionName("commands2");
+	}
+    for (auto command_itor = module->commands_2.begin(); command_itor != command_itor_end; ++command_itor)
 	{
 		Node* nodes[] = {
 			FindNode(command_itor->nodes[0], report),
@@ -273,7 +288,10 @@ void Rig::Build(
 	// ##### Process section "shocks" #####
 
 	auto shock_itor_end = module->shocks.end();
-	report->SetCurrentSectionName("shocks");
+	if (report != nullptr)
+    {
+        report->SetCurrentSectionName("shocks");
+    }
 	for (auto shock_itor = module->shocks.begin(); shock_itor != shock_itor_end; ++shock_itor)
 	{
 		Node* nodes[] = {
@@ -298,8 +316,11 @@ void Rig::Build(
 	// ##### Process section "shocks2" #####
 
 	auto shock2_itor_end = module->shocks_2.end();
-	report->SetCurrentSectionName("shocks2");
-	for (auto shock2_itor = module->shocks_2.begin(); shock2_itor != shock2_itor_end; ++shock2_itor)
+    if (report != nullptr)
+    {
+	    report->SetCurrentSectionName("shocks2");
+	}
+    for (auto shock2_itor = module->shocks_2.begin(); shock2_itor != shock2_itor_end; ++shock2_itor)
 	{
 		Node* nodes[] = {
 			FindNode(shock2_itor->nodes[0], report),
@@ -322,7 +343,10 @@ void Rig::Build(
 
 	// ##### Process cine cameras (section "cinecam") #####
 	auto cinecam_itor_end = module->cinecam.end();
-	report->SetCurrentSectionName("cinecam");
+	if (report != nullptr)
+    {
+        report->SetCurrentSectionName("cinecam");
+    }
 	for (auto cinecam_itor = module->cinecam.begin(); cinecam_itor != cinecam_itor_end; ++cinecam_itor)
 	{
 		RigDef::Cinecam & cinecam_def = *cinecam_itor;
@@ -586,7 +610,10 @@ bool Rig::GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axi
 	axis_outer = FindNode(a2, report);
 	if (axis_inner == nullptr || axis_outer == nullptr)
 	{
-		report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, "Some axis nodes were not found");
+		if (report != nullptr)
+        {
+            report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, "Some axis nodes were not found");
+        }
 		return false;
 	}
 	if (axis_inner->GetPosition().z > axis_outer->GetPosition().z)
@@ -618,9 +645,12 @@ bool Rig::GetWheelDefinitionNodes(
 		rigidity_ptr = FindNode(rigidity, report);
 		if (rigidity_ptr == nullptr)
 		{
-			report->AddMessage(
-				RigBuildingReport::Message::LEVEL_ERROR, 
-				Ogre::String("Failed to find rigidity node: ") + rigidity.ToString());
+            if (report != nullptr)
+            {
+			    report->AddMessage(
+				    RigBuildingReport::Message::LEVEL_ERROR, 
+				    Ogre::String("Failed to find rigidity node: ") + rigidity.ToString());
+            }
 			return false;
 		}
 		out_rigidity = rigidity_ptr;
@@ -632,9 +662,12 @@ bool Rig::GetWheelDefinitionNodes(
 		ref_arm_ptr = FindNode(reference_arm, report);
 		if (ref_arm_ptr == nullptr)
 		{
-			report->AddMessage(
-				RigBuildingReport::Message::LEVEL_ERROR, 
-				Ogre::String("Failed to find reference arm node: ") + reference_arm.ToString());
+            if (report != nullptr)
+            {
+			    report->AddMessage(
+				    RigBuildingReport::Message::LEVEL_ERROR, 
+				    Ogre::String("Failed to find reference arm node: ") + reference_arm.ToString());
+            }
 			return false;
 		}
 		out_reference_arm = ref_arm_ptr;
@@ -645,7 +678,10 @@ bool Rig::GetWheelDefinitionNodes(
 void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* report /*=nullptr*/)
 {
 	// FLEXBODYWHEELS
-	report->SetCurrentSectionName("flexbodywheels");
+    if (report != nullptr)
+    {
+	    report->SetCurrentSectionName("flexbodywheels");
+    }
 	auto flexbodywheels_end = module->flex_body_wheels.end();
 	for (auto itor = module->flex_body_wheels.begin(); itor != flexbodywheels_end; ++itor)
 	{
@@ -669,8 +705,11 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
 	}
 	
 	// MESHWHEELS_2
-	report->SetCurrentSectionName("meshwheels2");
-	auto meshwheels2_end = module->mesh_wheels_2.end();
+    if (report != nullptr)
+    {
+	    report->SetCurrentSectionName("meshwheels2");
+	}
+    auto meshwheels2_end = module->mesh_wheels_2.end();
 	for (auto itor = module->mesh_wheels_2.begin(); itor != meshwheels2_end; ++itor)
 	{
 		Node* axis_inner = nullptr;
@@ -690,8 +729,11 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
 		meshwheel2->SetGeometryIsDirty(true);
 		m_wheels.push_back(meshwheel2);
 	}
-
-	report->ClearCurrentSectionName();
+    
+    if (report != nullptr)
+    {
+	    report->ClearCurrentSectionName();
+    }
 }
 
 void Rig::RefreshNodeScreenPosition(Node & node, CameraHandler* camera_handler)

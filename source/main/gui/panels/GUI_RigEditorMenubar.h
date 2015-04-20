@@ -61,8 +61,6 @@ private:
 
 	/* Event handlers */
 
-	void MenubarItemClicked(MyGUI::Widget* sender);
-
 	void OpenFileItemClicked(MyGUI::Widget* sender);
 
 	void SaveFileAsItemClicked(MyGUI::Widget* sender);
@@ -74,6 +72,8 @@ private:
 	void QuitEditorItemClicked(MyGUI::Widget* sender);
 
 	void LandVehiclePropertiesItemClicked(MyGUI::Widget* sender);
+
+    void CreateEmptyRigItemClicked(MyGUI::Widget* sender);
 
 	void MenubarItemHelpClicked(MyGUI::Widget* sender);
 

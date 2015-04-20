@@ -4,29 +4,32 @@
         <Widget type="MenuItem" skin="" position="0 0 41 21" name="menubar_item_file">
             <Property key="Caption" value="File"/>
             <Property key="MenuItemType" value="Popup"/>
-            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 201 144" style="Popup" layer="Popup" name="file_popup">
-                <Widget type="MenuItem" skin="" position="0 0 193 19" name="file_popup_item_open">
+            <Widget type="PopupMenu" skin="PopupMenu" position="2 25 201 163" style="Popup" layer="Popup" name="file_popup">
+                <Widget type="MenuItem" skin="" position="0 0 193 19" name="file_popup_item_create_empty">
+                    <Property key="Caption" value="Create new"/>
+                </Widget>
+                <Widget type="MenuItem" skin="" position="0 19 193 19" name="file_popup_item_open">
                     <Property key="Caption" value="Open"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 19 193 19" name="file_popup_item_save_as">
+                <Widget type="MenuItem" skin="" position="0 38 193 19" name="file_popup_item_save_as">
                     <Property key="Caption" value="Save as..."/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 38 193 19" name="file_popup_item_close">
+                <Widget type="MenuItem" skin="" position="0 57 193 19" name="file_popup_item_close">
                     <Property key="Caption" value="Close"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 57 193 10">
+                <Widget type="MenuItem" skin="" position="0 76 193 10">
                     <Property key="MenuItemType" value="Separator"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 67 193 19" name="file_popup_item_properties">
+                <Widget type="MenuItem" skin="" position="0 86 193 19" name="file_popup_item_properties">
                     <Property key="Caption" value="General properties"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 86 193 19" name="file_popup_item_land_properties">
+                <Widget type="MenuItem" skin="" position="0 105 193 19" name="file_popup_item_land_properties">
                     <Property key="Caption" value="Land vehicle properties"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 105 193 10">
+                <Widget type="MenuItem" skin="" position="0 124 193 10">
                     <Property key="MenuItemType" value="Separator"/>
                 </Widget>
-                <Widget type="MenuItem" skin="" position="0 115 193 19" name="file_popup_item_quit">
+                <Widget type="MenuItem" skin="" position="0 134 193 19" name="file_popup_item_quit">
                     <Property key="Caption" value="Quit"/>
                 </Widget>
             </Widget>

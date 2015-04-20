@@ -69,7 +69,7 @@ struct Config
     GuiPanelPositionData   gui_meshwheels2_panel_position;
     GuiPanelPositionData   gui_flexbodywheels_panel_position;
 	
-	/* Rig manipulation */
+	/* Rig manipulation HUD */
 	int                 node_mouse_box_halfsize_px;
 
 	/* Beam coloring */
@@ -117,6 +117,9 @@ struct Config
 	float               camera_far_clip_distance;
 	float               camera_FOVy_degrees;
 	float               ortho_camera_zoom_ratio;
+
+    /* Rig properties */
+    float               new_rig_initial_box_half_size;
 
 };
 

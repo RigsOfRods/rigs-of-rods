@@ -38,6 +38,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup, "file_popup");
 	MyGUI::PopupMenu* m_file_popup;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_create_empty, "file_popup_item_create_empty");
+	MyGUI::MenuItem* m_file_popup_item_create_empty;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_open, "file_popup_item_open");
 	MyGUI::MenuItem* m_file_popup_item_open;
 
