@@ -137,3 +137,11 @@ void RigEditorMeshWheels2Panel::SetNodeFieldsVisible(bool visible)
 
     m_nodes_section_label->setVisible(visible);
 }
+
+void RigEditorMeshWheels2Panel::OnFieldValueChanged(GenericFieldSpec* field)
+{
+    if (field == &m_num_rays_field || field == &m_tyre_radius_field)
+    {
+        this->SetIsImmediateRigUpdateNeeded(true);
+    }
+}

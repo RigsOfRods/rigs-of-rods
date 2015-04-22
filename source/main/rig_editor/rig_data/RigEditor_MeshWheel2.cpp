@@ -84,10 +84,17 @@ void MeshWheel2::Update(AllWheelsAggregateData *all_data)
     }
 
     // Ray count
-    if (data.IsRayCountUniform() && data.num_rays != m_definition.num_rays) { 
+    if (data.IsRayCountUniform() && data.num_rays != m_definition.num_rays) 
+    { 
         m_definition.num_rays = data.num_rays;
         this->SetGeometryIsDirty(true);
 	    this->SetHasRayCountChanged(true);
+    }
+    // Radius
+    if (data.IsTyreRadiusUniform())
+    {
+        this->SetGeometryIsDirty(true);
+        m_definition.tyre_radius = data.tyre_radius;
     }
     // Nodes
     if (data.num_elements == 1)
@@ -121,6 +128,5 @@ void MeshWheel2::Update(AllWheelsAggregateData *all_data)
     if (data.IsSideUniform())             { m_definition.side = data.is_right_side ? RigDef::MeshWheel::SIDE_RIGHT : RigDef::MeshWheel::SIDE_LEFT; }
     if (data.IsTyreDampingUniform())      { m_definition.tyre_damping = data.tyre_damping; }
     if (data.IsTyreMaterialNameUniform()) { m_definition.material_name = data.tyre_material_name; }
-    if (data.IsTyreRadiusUniform())       { m_definition.tyre_radius = data.tyre_radius; }
     if (data.IsTyreSpringUniform())       { m_definition.tyre_springiness = data.tyre_spring; }
 }

@@ -195,10 +195,22 @@ void FlexBodyWheel::Update(AllWheelsAggregateData *all_data)
     }
 
     // Ray count
-    if (data.IsRayCountUniform() && data.num_rays != m_definition.num_rays) { 
+    if (data.IsRayCountUniform() && data.num_rays != m_definition.num_rays) 
+    { 
         m_definition.num_rays = data.num_rays;
         this->SetGeometryIsDirty(true);
 	    this->SetHasRayCountChanged(true);
+    }
+    // Radius
+    if (data.IsTyreRadiusUniform())
+    {
+        this->SetGeometryIsDirty(true);
+        m_definition.tyre_radius = data.tyre_radius;
+    }
+    if (data.IsRimRadiusUniform())
+    { 
+        this->SetGeometryIsDirty(true);
+        m_definition.rim_radius = data.rim_radius; 
     }
     // Nodes
     if (data.num_elements == 1)
@@ -225,11 +237,9 @@ void FlexBodyWheel::Update(AllWheelsAggregateData *all_data)
     if (data.IsPropulsionModeUniform())   { m_definition.propulsion = data.propulsion; }
     if (data.IsRimDampingUniform())       { m_definition.beam_defaults->damping_constant = data.rim_damping; }
     if (data.IsRimMeshNameUniform())      { m_definition.rim_mesh_name = data.rim_mesh_name; }
-    if (data.IsRimRadiusUniform())        { m_definition.rim_radius = data.rim_radius; }
     if (data.IsRimSpringUniform())        { m_definition.beam_defaults->springiness = data.rim_spring; }
     if (data.IsSideUniform())             { m_definition.side = data.is_right_side ? RigDef::MeshWheel::SIDE_RIGHT : RigDef::MeshWheel::SIDE_LEFT; }
     if (data.IsTyreDampingUniform())      { m_definition.tyre_damping = data.tyre_damping; }
     if (data.IsTyreMeshNameUniform())     { m_definition.tyre_mesh_name = data.tyre_mesh_name; }
-    if (data.IsTyreRadiusUniform())       { m_definition.tyre_radius = data.tyre_radius; }
     if (data.IsTyreSpringUniform())       { m_definition.tyre_springiness = data.tyre_spring; }
 }

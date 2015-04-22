@@ -59,6 +59,10 @@ public:
 
 private:
 
+    // Notification calback
+    // Override
+    virtual void OnFieldValueChanged(GenericFieldSpec* field);
+
     void CallbackClick_RadioButton(MyGUI::Widget* sender);
 
     void SetNodeFieldsVisible(bool visible);
@@ -66,6 +70,7 @@ private:
 	// Aggregate rig data
 	RigEditor::MeshWheel2AggregateData m_data;
 
+    // Fields
     RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_num_rays_field;
     RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_mass_field;
     RigEditor::RigElementGuiPanelBase::GenericFieldSpec m_propulsion_field;

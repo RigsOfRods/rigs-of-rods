@@ -513,6 +513,8 @@ void Main::UpdateMainLoop()
 			} // if (query.num_selected >= 2)
 		} // if (node_selection_changed)
 
+        bool must_refresh_wheels_mesh = false;
+
         if (this->IsAnyWheelSelectionChangeScheduled())
         {
             // Apply changes from panels
@@ -521,7 +523,7 @@ void Main::UpdateMainLoop()
             wheel_update.num_elements += wheel_update.flexbodywheels_data.num_elements;
             wheel_update.meshwheels2_data = *m_meshwheels2_panel->GetMeshWheel2Data();
             wheel_update.num_elements += wheel_update.meshwheels2_data.num_elements;
-            m_rig->UpdateSelectedWheelsData(&wheel_update);
+            must_refresh_wheels_mesh = m_rig->UpdateSelectedWheelsData(&wheel_update);
 
             // Update selection
             const bool any_change = m_rig->PerformScheduledWheelSelectionUpdates(this);
@@ -553,6 +555,26 @@ void Main::UpdateMainLoop()
                 }
             }
         }
+        else
+        {
+            AllWheelsAggregateData wheel_update;
+            if (m_flexbodywheels_panel->IsImmediateRigUpdateNeeded())
+            {
+                wheel_update.flexbodywheels_data = *m_flexbodywheels_panel->GetFlexBodyWheelsData();
+                wheel_update.num_elements += wheel_update.flexbodywheels_data.num_elements;
+                m_flexbodywheels_panel->SetIsImmediateRigUpdateNeeded(false);
+            }
+            if (m_meshwheels2_panel->IsImmediateRigUpdateNeeded())
+            {
+                wheel_update.meshwheels2_data = *m_meshwheels2_panel->GetMeshWheel2Data();
+                wheel_update.num_elements += wheel_update.meshwheels2_data.num_elements;
+                m_meshwheels2_panel->SetIsImmediateRigUpdateNeeded(false);
+            }
+            if (wheel_update.num_elements != 0)
+            {
+                must_refresh_wheels_mesh = m_rig->UpdateSelectedWheelsData(&wheel_update);
+            }
+        }
 
 		// ==== Update visuals ====
         Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
@@ -564,7 +586,13 @@ void Main::UpdateMainLoop()
 		{
 			m_rig->RefreshBeamsDynamicMesh();
 		}
-        m_rig->CheckAndRefreshWheelsSelectionHighlights(this, parent_scene_node);
+        bool force_refresh_wheel_selection_boxes = false;
+        if (must_refresh_wheels_mesh)
+        {
+            m_rig->RefreshWheelsDynamicMesh(parent_scene_node, this);
+            force_refresh_wheel_selection_boxes = true;
+        }
+        m_rig->CheckAndRefreshWheelsSelectionHighlights(this, parent_scene_node, force_refresh_wheel_selection_boxes);
 	    m_rig->CheckAndRefreshWheelsMouseHoverHighlights(this, parent_scene_node);
 	}
 

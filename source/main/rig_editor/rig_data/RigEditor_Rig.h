@@ -179,7 +179,7 @@ public:
 	void RefreshNodesDynamicMeshes(Ogre::SceneNode* parent_scene_node);
 	void RefreshBeamsDynamicMesh();
 	void RefreshWheelsDynamicMesh(Ogre::SceneNode* parent_scene_node, RigEditor::Main* rig_editor);
-	void CheckAndRefreshWheelsSelectionHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node);
+	void CheckAndRefreshWheelsSelectionHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node, bool force = false);
 	void CheckAndRefreshWheelsMouseHoverHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node);
 	
 	// Node/beam updaters
@@ -203,7 +203,8 @@ public:
     bool ScheduleSetAllWheelsSelected(bool state_selected, RigEditor::Main* rig_editor);
 	void SetAllWheelsHovered(bool state_hovered, RigEditor::Main* rig_editor);
     void QuerySelectedWheelsData(AllWheelsAggregateData* data);
-    void UpdateSelectedWheelsData(AllWheelsAggregateData* data);
+    /// @return True if any wheel's geometry changed.
+    bool UpdateSelectedWheelsData(AllWheelsAggregateData* data);
     /// @return True if selection was changed.
     bool PerformScheduledWheelSelectionUpdates(RigEditor::Main* rig_editor);
 

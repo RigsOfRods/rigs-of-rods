@@ -61,6 +61,10 @@ private:
 
     void SetNodeFieldsVisible(bool visible);
 
+    // Notification calback
+    // Override
+    virtual void OnFieldValueChanged(GenericFieldSpec* field);
+
 	// Aggregate rig data
 	RigEditor::FlexBodyWheelAggregateData m_data;
 

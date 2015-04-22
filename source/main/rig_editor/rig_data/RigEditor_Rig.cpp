@@ -1797,9 +1797,9 @@ void Rig::SelectedShocksUpdateAttributes(const RigAggregateShocksData* data)
 	}
 }
 
-void Rig::CheckAndRefreshWheelsSelectionHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node)
+void Rig::CheckAndRefreshWheelsSelectionHighlights(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node, bool force)
 {
-	if (m_wheel_visuals->IsSelectionDirty())
+	if (m_wheel_visuals->IsSelectionDirty() || force)
 	{
 		m_wheel_visuals->UpdateWheelsSelectionHighlightBoxes(m_wheels, rig_editor, parent_scene_node);	
 	}
@@ -1957,16 +1957,19 @@ void Rig::QuerySelectedWheelsData(AllWheelsAggregateData* out_data)
     }
 }
 
-void Rig::UpdateSelectedWheelsData(AllWheelsAggregateData* data)
+bool Rig::UpdateSelectedWheelsData(AllWheelsAggregateData* data)
 {
     assert(data != nullptr);
-    std::for_each(m_wheels.begin(), m_wheels.end(), [data](LandVehicleWheel* wheel)
+    bool is_geometry_dirty = false;
+    std::for_each(m_wheels.begin(), m_wheels.end(), [data, &is_geometry_dirty](LandVehicleWheel* wheel)
     {
         if (wheel->IsSelected())
         {
             wheel->Update(data);
+            is_geometry_dirty = is_geometry_dirty || wheel->IsGeometryDirty();
         }
     });
+    return is_geometry_dirty;
 }
 
 // ----------------------------------------------------------------------------

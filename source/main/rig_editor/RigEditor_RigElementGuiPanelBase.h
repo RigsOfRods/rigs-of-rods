@@ -158,7 +158,12 @@ public:
 
     inline void SetDefaultTextColor(MyGUI::Colour const & col) { m_text_color_default = col; }
 
+    BITMASK_PROPERTY( m_flags,  1,  IMMEDIATE_RIG_UPDATE_NEEDED, IsImmediateRigUpdateNeeded, SetIsImmediateRigUpdateNeeded);
+
 protected:
+
+    // Notification calback
+    virtual void OnFieldValueChanged(GenericFieldSpec* field) {}
 
 	// Flag checkbox
 	void SetupFlagCheckbox(
@@ -212,6 +217,7 @@ protected:
 	void AlignToScreen(RigEditor::GuiPanelPositionData* position_data);
 
 	RigEditor::IMain* m_rig_editor_interface;
+    unsigned int m_flags;
 
 	MyGUI::Colour m_text_color_mixvalues;
 	MyGUI::Colour m_text_color_default;

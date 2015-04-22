@@ -49,7 +49,8 @@ RigElementGuiPanelBase::RigElementGuiPanelBase(
 	MyGUI::Window* panel_widget,
 	MyGUI::Button* text_color_source
 ):
-	GuiPanelBase(panel_widget)
+	GuiPanelBase(panel_widget),
+    m_flags(0)
 {
 	Hide(); // Start hidden
 
@@ -153,17 +154,21 @@ void RigElementGuiPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
 		spec->label->setTextColour(m_text_color_default); // Mark "not uniform"
 	}
 	spec->SetSourceIsUniform();
+    bool value_updated = false;
 	if (spec->IsSourceFloat())
 	{
 		*spec->GetSourceFloat() = Ogre::StringConverter::parseReal(spec->editbox->getCaption()); // Save value
+        value_updated = true;
 	}
 	else if (spec->IsSourceInt())
 	{
 		*spec->GetSourceInt() = Ogre::StringConverter::parseInt(spec->editbox->getCaption()); // Save value
+        value_updated = true;
 	}
 	else if (spec->IsSourceString())
 	{
 		*spec->GetSourceString() = spec->editbox->getCaption(); // Save value
+        value_updated = true;
 	}
     else if (spec->IsSourceNode())
     {
@@ -198,6 +203,12 @@ void RigElementGuiPanelBase::EditboxCommitValue(EditboxFieldSpec* spec)
                 node_ptr->SetStr(value);
             }
         }
+        value_updated = true;
+    }
+
+    if (value_updated)
+    {
+        this->OnFieldValueChanged(spec);
     }
 }
 
