@@ -34,6 +34,7 @@ class Dashboard : public ZeroedMemoryAllocator
 public:
 
 	Dashboard();
+	~Dashboard();
 
 	void setEnable(bool en);
 	void prepareShutdown();

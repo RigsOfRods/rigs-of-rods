@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "DepthOfFieldEffect.h"
 #include "InputEngine.h"
 #include "Settings.h"
+#include "GUIManager.h"
 
 #include "CameraBehaviorOrbit.h"
 #include "CameraBehaviorCharacter.h"
@@ -73,6 +74,8 @@ CameraManager::~CameraManager()
 
 bool CameraManager::update(float dt) // Called every frame
 {
+	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+
 	static std::stack<int> precedingBehaviors;
 
 	if ( dt == 0 ) return false;

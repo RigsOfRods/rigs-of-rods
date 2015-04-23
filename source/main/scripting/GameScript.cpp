@@ -50,13 +50,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
-#include "SelectorWindow.h"
 #include "Settings.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "GUIManager.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -146,18 +146,18 @@ bool GameScript::getCaelumAvailable()
 float GameScript::stopTimer()
 {
 	float result = 0.0f;
-	if (RoR::Application::GetMainThreadLogic() != nullptr)
+	if (gEnv->frameListener != nullptr)
 	{
-		result = RoR::Application::GetMainThreadLogic()->StopRaceTimer();
+		result = gEnv->frameListener->StopRaceTimer();
 	}
 	return result;
 }
 
 void GameScript::startTimer()
 {
-	if (RoR::Application::GetMainThreadLogic() != nullptr)
+	if (gEnv->frameListener != nullptr)
 	{
-		RoR::Application::GetMainThreadLogic()->StartRaceTimer();
+		gEnv->frameListener->StartRaceTimer();
 	}
 }
 
@@ -240,13 +240,16 @@ void GameScript::flashMessage(String &txt, float time, float charHeight)
 {
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
+	RoR::Application::GetGuiManager()->PushNotification("Script:", txt);
 #endif // USE_MYGUI
 }
 
 void GameScript::message(String &txt, String &icon, float timeMilliseconds, bool forceVisible)
 {
+	//TODO: Notification system
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
+	RoR::Application::GetGuiManager()->PushNotification("Script:", txt);
 #endif // USE_MYGUI
 }
 
@@ -268,21 +271,21 @@ void GameScript::setChatFontSize(int size)
 void GameScript::showChooser(const String &type, const String &instance, const String &box)
 {
 #ifdef USE_MYGUI
-	SelectorWindow::LoaderType ntype = SelectorWindow::LT_None;
+	LoaderType ntype = LT_None;
 	
-	if (type == "airplane")    ntype = SelectorWindow::LT_Airplane;
-	if (type == "all")         ntype = SelectorWindow::LT_AllBeam;
-	if (type == "boat")        ntype = SelectorWindow::LT_Boat;
-	if (type == "car")         ntype = SelectorWindow::LT_Car;
-	if (type == "extension")   ntype = SelectorWindow::LT_Extension;
-	if (type == "heli")        ntype = SelectorWindow::LT_Heli;
-	if (type == "load")        ntype = SelectorWindow::LT_Load;
-	if (type == "trailer")     ntype = SelectorWindow::LT_Trailer;
-	if (type == "train")       ntype = SelectorWindow::LT_Train;
-	if (type == "truck")       ntype = SelectorWindow::LT_Truck;
-	if (type == "vehicle")     ntype = SelectorWindow::LT_Vehicle;
+	if (type == "airplane")    ntype = LT_Airplane;
+	if (type == "all")         ntype = LT_AllBeam;
+	if (type == "boat")        ntype = LT_Boat;
+	if (type == "car")         ntype = LT_Car;
+	if (type == "extension")   ntype = LT_Extension;
+	if (type == "heli")        ntype = LT_Heli;
+	if (type == "load")        ntype = LT_Load;
+	if (type == "trailer")     ntype = LT_Trailer;
+	if (type == "train")       ntype = LT_Train;
+	if (type == "truck")       ntype = LT_Truck;
+	if (type == "vehicle")     ntype = LT_Vehicle;
 	
-	if (ntype != SelectorWindow::LT_None)
+	if (ntype != LT_None)
 	{
 		if (gEnv->frameListener) gEnv->frameListener->showLoad(ntype, instance, box);
 	}
@@ -650,8 +653,6 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, SSETTING("Language", "English").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionString", CURLFORM_COPYCONTENTS, ROR_VERSION_STRING, CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionSVN", CURLFORM_COPYCONTENTS, SVN_REVISION, CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionSVNID", CURLFORM_COPYCONTENTS, SVN_ID, CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_ProtocolVersion", CURLFORM_COPYCONTENTS, RORNET_VERSION, CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_BinaryHash", CURLFORM_COPYCONTENTS, SSETTING("BinaryHash", "-").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_GUID", CURLFORM_COPYCONTENTS, SSETTING("GUID", "-").c_str(), CURLFORM_END);
@@ -760,7 +761,10 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 #ifdef USE_MYGUI
 	Console *con = RoR::Application::GetConsole();
 	if (con)
+	{
 		con->putMessage(Console::CONSOLE_MSGTYPE_HIGHSCORE, Console::CONSOLE_SYSTEM_NOTICE, ANSI_TO_UTF(result));
+		RoR::Application::GetGuiManager()->PushNotification("Script:", ANSI_TO_UTF(result));
+	}
 #endif // USE_MYGUI
 #endif //USE_CURL
 	return 0;
@@ -790,6 +794,7 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 #ifdef USE_MYGUI
 	Console *con = RoR::Application::GetConsole();
 	if (con) con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("using Online API...") + TOSTRING(""));
 #endif // USE_MYGUI
 
 	// fix the String objects in the dict

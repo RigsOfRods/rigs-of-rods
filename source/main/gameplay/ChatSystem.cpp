@@ -26,6 +26,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Network.h"
 #include "PlayerColours.h"
 #include "Utils.h"
+#include "GUIManager.h"
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"
@@ -99,10 +100,10 @@ ChatSystem *ChatSystemFactory::getFirstChatSystem()
 ///////////////////////////////////
 // ChatSystem
 
-const UTFString ChatSystem::commandColour       = U("#941e8d");
-const UTFString ChatSystem::normalColour        = U("#000000");
-const UTFString ChatSystem::whisperColour       = U("#967417");
-const UTFString ChatSystem::scriptCommandColour = U("#32436f");
+const UTFString ChatSystem::commandColour       = U("#00FF00");
+const UTFString ChatSystem::normalColour        = U("#FFFFFF");
+const UTFString ChatSystem::whisperColour       = U("#FFCC00");
+const UTFString ChatSystem::scriptCommandColour = U("#0099FF");
 
 
 
@@ -127,7 +128,8 @@ ChatSystem::ChatSystem(int source, unsigned int streamid, int colourNumber, bool
 
 #ifdef USE_MYGUI
 		String msg = username + commandColour + _L(" joined the game");
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_JOIN_GAME, msg, "user_add.png");
+		//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "user_add.png");
+		RoR::Application::GetGuiManager()->PushNotification("Server info:", msg);
 #endif //USE_MYGUI
 	}
 #endif //SOCKETW
@@ -139,7 +141,8 @@ ChatSystem::~ChatSystem()
 	if (remote)
 	{
 		String msg = username + commandColour + _L(" left the game");
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LEAVE_GAME, msg, "user_delete.png");
+		//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, msg, "user_delete.png");
+		RoR::Application::GetGuiManager()->PushNotification("Server info:", msg);
 	}
 #endif //USE_MYGUI
 }
@@ -170,18 +173,18 @@ void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int
 		{
 			// server said something
 			UTFString msg = tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "user_gray.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		} else if (source == (int)this->source && (int)streamid == this->streamid)
 		{
 			UTFString msg = username + normalColour + ": " + tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "user_comment.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		}
 #ifdef USE_SOCKETW
 		else if (source == (int)gEnv->network->getUID())
 		{
 			// our message bounced back :D
 			UTFString msg = gEnv->network->getNickname(true) + normalColour + ": " + tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "user_comment.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		}
 #endif // USE_SOCKETW
 	} else if (type == MSG2_UTF_PRIVCHAT)
@@ -191,11 +194,11 @@ void ChatSystem::receiveStreamData(unsigned int &type, int &source, unsigned int
 		{
 			// server said something
 			String msg = whisperColour + _L(" [whispered] ") + normalColour +  tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "script_key.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		} else if (source == (int)this->source && (int)streamid == this->streamid)
 		{
 			UTFString msg = username + _L(" [whispered] ") + normalColour + ": " + tryConvertUTF(buffer);
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_CHAT, msg, "script_key.png");
+			RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 		}
 	}
 #endif //USE_MYGUI
@@ -245,7 +248,8 @@ void ChatSystem::sendPrivateChat(UTFString targetUsername, UTFString chatline)
 	if (target_uid < 0)
 	{
 #ifdef USE_MYGUI
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ChatSystem::commandColour + _L("user not found: ") + targetUsername, "error.png");
+		RoR::Application::GetGuiManager()->pushMessageChatBox(ChatSystem::commandColour + _L("user not found: ") + targetUsername);
+		//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ChatSystem::commandColour + _L("user not found: ") + targetUsername, "error.png");
 #endif // USE_MYGUI
 		return;
 	}
@@ -281,7 +285,8 @@ void ChatSystem::sendPrivateChat(int target_uid, UTFString chatline, UTFString u
 	// add local visual
 #ifdef USE_MYGUI
 	UTFString nmsg = gEnv->network->getNickname(true) + normalColour + whisperColour + _L(" [whispered to ") + normalColour + username + whisperColour + "]" + normalColour + ": " + chatline;
-	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOCAL_CHAT, nmsg, "script_key.png");
+	//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_NETWORK, Console::CONSOLE_LOGMESSAGE, nmsg, "script_key.png");
+	RoR::Application::GetGuiManager()->pushMessageChatBox(nmsg);
 #endif // USE_MYGUI
 #endif // USE_SOCKETW
 }

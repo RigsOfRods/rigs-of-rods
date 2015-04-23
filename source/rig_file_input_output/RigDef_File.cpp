@@ -178,14 +178,12 @@ TractionControl::TractionControl():
 {}
 
 Trigger::Trigger():
-	shortbound_trigger_key(0),
-	longbound_trigger_key(0),
+	shortbound_trigger_action(0),
+	longbound_trigger_action(0),
 	contraction_trigger_limit(0),
 	expansion_trigger_limit(0),
 	options(0),
 	boundary_timer(1.f), /* Default */
-	_engine_trigger_motor_index(0),
-	_engine_trigger_function(ENGINE_TRIGGER_FUNCTION_INVALID),
 	detacher_group(0)
 {}
 

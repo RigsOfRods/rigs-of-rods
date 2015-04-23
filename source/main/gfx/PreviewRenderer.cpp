@@ -28,6 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 
 using namespace Ogre;
 
@@ -253,7 +254,8 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 	//renderViewport->setBackgroundColour(ColourValue(1, 1, 1, 0));
 
 #ifdef USE_CAELUM
-	if (gEnv->sky)
+	
+	if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
 	{
 		gEnv->sky->notifyCameraChanged(renderCamera);
 //		gEnv->terrainManager->getSkyManager()->forceUpdate(0.01f);
@@ -311,7 +313,8 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 				Root::getSingleton().renderOneFrame();
 				renderTarget->update();
 #ifdef USE_CAELUM
-				if (gEnv->sky)
+				
+				if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
 				{
 					gEnv->sky->forceUpdate(0.01f);
 				}

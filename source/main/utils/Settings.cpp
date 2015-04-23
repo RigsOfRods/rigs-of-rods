@@ -69,7 +69,8 @@ bool FolderExists(Ogre::String const & path)
 }
 
 Settings::Settings():
-	m_flares_mode(-1)
+	m_flares_mode(-1),
+	m_gearbox_mode(-1)
 {
 }
 
@@ -188,8 +189,6 @@ void Settings::saveSettings()
 
 void Settings::saveSettings(String configFile)
 {
-	// use C++ for easier wstring usage ... :-/
-
 	std::ofstream f(configFile.c_str());
 	if (!f.is_open()) return;
 
@@ -198,9 +197,29 @@ void Settings::saveSettings(String configFile)
 	for (it = settings.begin(); it != settings.end(); it++)
 	{
 		if (it->first == "BinaryHash") continue;
-		f << it->first << " = " << it->second << std::endl;
+		f << it->first << "=" << it->second << std::endl;
 	}
 	f.close();
+	/*
+	FILE *fd;
+	Ogre::String rorcfg = configFile;
+	std::map<std::string, std::string>::iterator it;
+
+	LOG("Saving to Config file: " + rorcfg);
+
+	const char * rorcfg_char = rorcfg.c_str();
+	fd = fopen(rorcfg_char, "w");
+	if (!fd)
+	{
+		LOG("Could not write config file");
+		return;
+	}
+	// now save the Settings to RoR.cfg
+	for (it = settings.begin(); it != settings.end(); it++)
+	{
+		fprintf(fd, "%s=%s\n", it->first.c_str(), it->second.c_str());
+	}
+	fclose(fd);*/
 }
 
 void Settings::loadSettings(String configFile, bool overwrite)
@@ -579,4 +598,31 @@ int Settings::GetFlaresMode(int default_value /*=2*/)
 		return default_value;
 	}
 	return m_flares_mode;
+}
+
+int Settings::GetGearBoxMode(int default_value /*=0*/)
+{
+	if (m_gearbox_mode == -1) // -1: unknown, -2: default, 0+: mode ID
+	{
+		auto itor = settings.find("GearboxMode");
+		if (itor == settings.end())
+		{
+			m_gearbox_mode = -2;
+		}
+		else
+		{
+			if (itor->second == "Automatic shift")	{ m_gearbox_mode = 0; }
+			else if (itor->second == "Manual shift - Auto clutch")	{ m_gearbox_mode = 1; }
+			else if (itor->second == "Fully Manual: sequential shift")	{ m_gearbox_mode = 2; }
+			else if (itor->second == "Fully manual: stick shift")	{ m_gearbox_mode = 3; }
+			else if (itor->second == "Fully Manual: stick shift with ranges")	{ m_gearbox_mode = 4; }
+
+			else { m_gearbox_mode = -2; }
+		}
+	}
+	if (m_gearbox_mode == -2)
+	{
+		return default_value;
+	}
+	return m_gearbox_mode;
 }

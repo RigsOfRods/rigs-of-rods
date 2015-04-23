@@ -1204,21 +1204,21 @@ void Serializer::ProcessTriggers(File::Module* module)
 			<< def.nodes[0].ToString()       << ", "
 			<< def.nodes[1].ToString()       << ", "
 			<< def.contraction_trigger_limit << ", "
-			<< def.expansion_trigger_limit	 << ", "
-			<< def.shortbound_trigger_key	 << ", "
-			<< def.longbound_trigger_key	 << ", ";
+			<< def.expansion_trigger_limit   << ", "
+			<< def.shortbound_trigger_action << ", "
+			<< def.longbound_trigger_action  << ", ";
 
-		if (def.HasFlag_i()) { m_stream << "i"; }
-		if (def.HasFlag_c()) { m_stream << "c"; }
-		if (def.HasFlag_x()) { m_stream << "x"; }
-		if (def.HasFlag_b()) { m_stream << "b"; }
-		if (def.HasFlag_B()) { m_stream << "B"; }
-		if (def.HasFlag_A()) { m_stream << "A"; }
-		if (def.HasFlag_s()) { m_stream << "s"; }
-		if (def.HasFlag_h()) { m_stream << "h"; }
-		if (def.HasFlag_H()) { m_stream << "H"; }
-		if (def.HasFlag_t()) { m_stream << "t"; }
-		if (def.HasFlag_E()) { m_stream << "E"; }
+		if (def.HasFlag_i_Invisible()          ) { m_stream << "i"; }
+		if (def.HasFlag_c_CommandStyle()       ) { m_stream << "c"; }
+		if (def.HasFlag_x_StartDisabled()      ) { m_stream << "x"; }
+		if (def.HasFlag_b_KeyBlocker()         ) { m_stream << "b"; }
+		if (def.HasFlag_B_TriggerBlocker()     ) { m_stream << "B"; }
+		if (def.HasFlag_A_InvTriggerBlocker()  ) { m_stream << "A"; }
+		if (def.HasFlag_s_CmdNumSwitch()       ) { m_stream << "s"; }
+		if (def.HasFlag_h_UnlocksHookGroup()   ) { m_stream << "h"; }
+		if (def.HasFlag_H_LocksHookGroup()     ) { m_stream << "H"; }
+		if (def.HasFlag_t_Continuous()         ) { m_stream << "t"; }
+		if (def.HasFlag_E_EngineTrigger()      ) { m_stream << "E"; }
 
 		m_stream << " " << def.boundary_timer;
 	}
@@ -1264,45 +1264,45 @@ void Serializer::ProcessAnimators(File::Module* module)
 			<< def.lenghtening_factor << ", ";
 
 		// Options
-		bool and = false;
-		ANIMATOR_ADD_FLAG(def, and, OPTION_VISIBLE          , "vis")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_INVISIBLE        , "inv")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_AIRSPEED         , "airspeed")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_VERTICAL_VELOCITY, "vvi")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_ALTIMETER_100K   , "altimeter100k")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_ALTIMETER_10K    , "altimeter10k")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_ALTIMETER_1K     , "altimeter1k")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_ANGLE_OF_ATTACK  , "aoa")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_FLAP             , "flap")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_AIR_BRAKE        , "airbrake")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_ROLL             , "roll")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_PITCH            , "pitch")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_BRAKES           , "brakes")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_ACCEL            , "accel")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_CLUTCH           , "clutch")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_SPEEDO           , "speedo")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_TACHO            , "tacho")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_TURBO            , "turbo")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_PARKING          , "parking")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_SHIFT_LEFT_RIGHT , "shifterman1")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_SHIFT_BACK_FORTH , "shifterman2")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_SEQUENTIAL_SHIFT , "sequential")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_GEAR_SELECT      , "shifterlin")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_TORQUE           , "torque")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_DIFFLOCK         , "difflock")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_BOAT_RUDDER      , "rudderboat")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_BOAT_THROTTLE    , "throttleboat")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_SHORT_LIMIT      , "shortlimit")
-		ANIMATOR_ADD_FLAG(def, and, OPTION_LONG_LIMIT       , "longlimit")
+		bool bAnd = false;
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_VISIBLE          , "vis")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_INVISIBLE        , "inv")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_AIRSPEED         , "airspeed")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_VERTICAL_VELOCITY, "vvi")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_ALTIMETER_100K   , "altimeter100k")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_ALTIMETER_10K    , "altimeter10k")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_ALTIMETER_1K     , "altimeter1k")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_ANGLE_OF_ATTACK  , "aoa")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_FLAP             , "flap")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_AIR_BRAKE        , "airbrake")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_ROLL             , "roll")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_PITCH            , "pitch")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_BRAKES           , "brakes")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_ACCEL            , "accel")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_CLUTCH           , "clutch")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_SPEEDO           , "speedo")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_TACHO            , "tacho")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_TURBO            , "turbo")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_PARKING          , "parking")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_SHIFT_LEFT_RIGHT , "shifterman1")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_SHIFT_BACK_FORTH , "shifterman2")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_SEQUENTIAL_SHIFT , "sequential")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_GEAR_SELECT      , "shifterlin")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_TORQUE           , "torque")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_DIFFLOCK         , "difflock")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_BOAT_RUDDER      , "rudderboat")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_BOAT_THROTTLE    , "throttleboat")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_SHORT_LIMIT      , "shortlimit")
+		ANIMATOR_ADD_FLAG(def, bAnd, OPTION_LONG_LIMIT       , "longlimit")
 
-		ANIMATOR_ADD_AERIAL_FLAG(def, and, OPTION_THROTTLE , "throttle")
-		ANIMATOR_ADD_AERIAL_FLAG(def, and, OPTION_RPM      , "rpm")
-		ANIMATOR_ADD_AERIAL_FLAG(def, and, OPTION_TORQUE   , "aerotorq")
-		ANIMATOR_ADD_AERIAL_FLAG(def, and, OPTION_PITCH    , "aeropit")
-		ANIMATOR_ADD_AERIAL_FLAG(def, and, OPTION_STATUS   , "aerostatus")
+		ANIMATOR_ADD_AERIAL_FLAG(def, bAnd, OPTION_THROTTLE , "throttle")
+		ANIMATOR_ADD_AERIAL_FLAG(def, bAnd, OPTION_RPM      , "rpm")
+		ANIMATOR_ADD_AERIAL_FLAG(def, bAnd, OPTION_TORQUE   , "aerotorq")
+		ANIMATOR_ADD_AERIAL_FLAG(def, bAnd, OPTION_PITCH    , "aeropit")
+		ANIMATOR_ADD_AERIAL_FLAG(def, bAnd, OPTION_STATUS   , "aerostatus")
 
-		ANIMATOR_ADD_LIMIT(def, and, OPTION_SHORT_LIMIT    , "shortlimit", def.short_limit)
-		ANIMATOR_ADD_LIMIT(def, and, OPTION_LONG_LIMIT     , "longlimit",  def.long_limit)
+		ANIMATOR_ADD_LIMIT(def, bAnd, OPTION_SHORT_LIMIT    , "shortlimit", def.short_limit)
+		ANIMATOR_ADD_LIMIT(def, bAnd, OPTION_LONG_LIMIT     , "longlimit",  def.long_limit)
 	}
 	m_stream << endl << endl; // Empty line
 }
@@ -1472,14 +1472,14 @@ void Serializer::ProcessTractionControl(File::Module* module)
 			<< alb->fade_speed << ", "
 			<< alb->pulse_per_sec << ", mode: ";
 		// Modes
-		bool and = false;
-		if (alb->GetModeIsOn())        { m_stream << " ON ";       and = true; }
-		if (and) { m_stream << "&"; }
-		if (alb->GetModeIsOff())       { m_stream << " OFF ";      and = true; }
-		if (and) { m_stream << "&"; }
-		if (alb->GetModeNoDashboard()) { m_stream << " NODASH ";   and = true; }
-		if (and) { m_stream << "&"; }
-		if (alb->GetModeNoToggle())    { m_stream << " NOTOGGLE "; and = true; }
+		bool bAnd = false;
+		if (alb->GetModeIsOn())        { m_stream << " ON ";       bAnd = true; }
+		if (bAnd) { m_stream << "&"; }
+		if (alb->GetModeIsOff())       { m_stream << " OFF ";      bAnd = true; }
+		if (bAnd) { m_stream << "&"; }
+		if (alb->GetModeNoDashboard()) { m_stream << " NODASH ";   bAnd = true; }
+		if (bAnd) { m_stream << "&"; }
+		if (alb->GetModeNoToggle())    { m_stream << " NOTOGGLE "; bAnd = true; }
 	}
 }
 
@@ -1506,14 +1506,14 @@ void Serializer::ProcessAntiLockBrakes(File::Module* module)
 		<< alb->min_speed << ", "
 		<< alb->pulse_per_sec << ", mode: ";
 	// Modes
-	bool and = false;
-	if (alb->GetModeIsOn())        { m_stream << " ON ";       and = true; }
-	if (and) { m_stream << "&"; }
-	if (alb->GetModeIsOff())       { m_stream << " OFF ";      and = true; }
-	if (and) { m_stream << "&"; }
-	if (alb->GetModeNoDashboard()) { m_stream << " NODASH ";   and = true; }
-	if (and) { m_stream << "&"; }
-	if (alb->GetModeNoToggle())    { m_stream << " NOTOGGLE "; and = true; }
+	bool bAnd = false;
+	if (alb->GetModeIsOn())        { m_stream << " ON ";       bAnd = true; }
+	if (bAnd) { m_stream << "&"; }
+	if (alb->GetModeIsOff())       { m_stream << " OFF ";      bAnd = true; }
+	if (bAnd) { m_stream << "&"; }
+	if (alb->GetModeNoDashboard()) { m_stream << " NODASH ";   bAnd = true; }
+	if (bAnd) { m_stream << "&"; }
+	if (alb->GetModeNoToggle())    { m_stream << " NOTOGGLE "; bAnd = true; }
 }
 
 void Serializer::ProcessEngine(File::Module* module)

@@ -40,7 +40,6 @@
 #include "MainThread.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
-#include "SelectorWindow.h"
 #include "Settings.h"
 #include "TextureToolWindow.h"
 #include "Utils.h"
@@ -50,10 +49,11 @@
 using namespace Ogre;
 using namespace RoR;
 
-GUI_MainMenu::GUI_MainMenu() :
+GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 	  m_menu_width(800)
 	, m_menu_height(20)
 	, m_vehicle_list_needs_update(false)
+	, m_gui_manager_interface(gui_manager_interface)
 {
 	setSingleton(this);
 	pthread_mutex_init(&m_update_lock, NULL);
@@ -61,7 +61,7 @@ GUI_MainMenu::GUI_MainMenu() :
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR */
 
-	m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Back");
+	m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Main");
 	m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
 	
 	/* -------------------------------------------------------------------------------- */
@@ -73,17 +73,26 @@ GUI_MainMenu::GUI_MainMenu() :
 	mi->setCaption(_L("Simulation"));
 	p->setPopupAccept(true);
 	
-	p->addItem(_L("get new Vehicle"),                 MyGUI::MenuItemType::Normal);
-	p->addItem(_L("reload current Vehicle"),          MyGUI::MenuItemType::Normal);
-	p->addItem(_L("remove current Vehicle"),          MyGUI::MenuItemType::Normal);
-	p->addItem(_L("activate all Vehicles"),           MyGUI::MenuItemType::Normal);
-	p->addItem(_L("activated Vehicles never sleep"),  MyGUI::MenuItemType::Normal);
-	p->addItem(_L("send all Vehicles to sleep"),      MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Get new vehicle"),                 MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Show vehicle description"),		  MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Reload current vehicle"),          MyGUI::MenuItemType::Normal);
+	p->addItem(_L("Remove current vehicle"),          MyGUI::MenuItemType::Normal);
+
+	if (!BSETTING("Network enable", false))
+	{
+		p->addItem(_L("Activate all vehicles"), MyGUI::MenuItemType::Normal);
+		p->addItem(_L("Activated vehicles never sleep"), MyGUI::MenuItemType::Normal);
+		p->addItem(_L("Send all vehicles to sleep"), MyGUI::MenuItemType::Normal);
+	}
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
-	p->addItem(_L("Save Scenery"),                    MyGUI::MenuItemType::Normal);
+
+	/*p->addItem(_L("Save Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Load Scenery"),                    MyGUI::MenuItemType::Normal);
-	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
-	p->addItem(_L("Back to menu"), MyGUI::MenuItemType::Normal);
+	p->addItem("-",                                   MyGUI::MenuItemType::Separator);*/ //Disabled for the moment as far as i know -max98
+
+	if (!BSETTING("Network enable", false))
+		p->addItem(_L("Back to menu"),					  MyGUI::MenuItemType::Normal);
+
 	p->addItem(_L("Exit"),                            MyGUI::MenuItemType::Normal);
 	m_popup_menus.push_back(p);
 
@@ -119,6 +128,7 @@ GUI_MainMenu::GUI_MainMenu() :
 	p->addItem(_L("Friction Settings"),  MyGUI::MenuItemType::Normal, "frictiongui");
 	p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
 	p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
+	p->addItem(_L("Debug Options"),		 MyGUI::MenuItemType::Normal, "debugoptions");
 	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
@@ -143,6 +153,14 @@ GUI_MainMenu::GUI_MainMenu() :
 	m_popup_menus.push_back(p);
 
 	/* -------------------------------------------------------------------------------- */
+	/* RIG LOADING REPORT WINDOW */
+
+	mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
+	mi->setItemType(MyGUI::MenuItemType::Popup);
+	mi->setCaption("Spawner log");
+	mi->eventMouseButtonClick += MyGUI::newDelegate( this, &GUI_MainMenu::MenubarShowSpawnerReportButtonClicked);
+
+	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR POSITION */
 
 	MyGUI::IntSize s = mi->getTextSize();
@@ -160,31 +178,35 @@ GUI_MainMenu::GUI_MainMenu() :
 
 GUI_MainMenu::~GUI_MainMenu()
 {
+	pthread_mutex_destroy(&m_update_lock);
+	m_menubar_widget->setVisible(false);
+	m_menubar_widget->_shutdown();
+	m_menubar_widget = nullptr;
 }
 
 UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 {
 	UTFString tmp = ChatSystem::getColouredName(user);
 
-	tmp = tmp + U(" #000000(");
+	tmp = tmp + U(": ");
 
 	// some more info
-	if (user.authstatus & AUTH_ADMIN)
-		tmp = tmp + _L("#c97100admin#000000, ");
-	if (user.authstatus & AUTH_RANKED)
-		tmp = tmp + _L("#00c900ranked#000000, ");
-	if (user.authstatus & AUTH_MOD)
-		tmp = tmp + _L("#c90000moderator#000000, ");
-	if (user.authstatus & AUTH_BANNED)
-		tmp = tmp + _L("banned, ");
 	if (user.authstatus & AUTH_BOT)
-		tmp = tmp + _L("#0000c9bot#000000, ");
+		tmp = tmp + _L("#0000c9 Bot, ");
+	else if (user.authstatus & AUTH_BANNED)
+		tmp = tmp + _L("banned, ");
+	else if (user.authstatus & AUTH_RANKED)
+		tmp = tmp + _L("#00c900 Ranked, ");
+	else if (user.authstatus & AUTH_MOD)
+		tmp = tmp + _L("#c90000 Moderator, ");
+	else if (user.authstatus & AUTH_ADMIN)
+		tmp = tmp + _L("#c97100 Admin, ");
 
-	tmp = tmp + _L("#0000ddversion:#000000 ");
+	tmp = tmp + _L("#ff8d00 version: #3eff20 ");
 	tmp = tmp + ANSI_TO_UTF(user.clientversion);
 	tmp = tmp + U(", ");
 
-	tmp = tmp + _L("#0000ddlanguage:#000000 ");
+	tmp = tmp + _L("#ff8d00 language: #46b1f9 ");
 	tmp = tmp + ANSI_TO_UTF(user.language);
 	tmp = tmp + U(", ");
 
@@ -192,8 +214,6 @@ UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 		tmp = tmp + _L("no vehicles");
 	else
 		tmp = tmp + TOUTFSTRING(num_vehicles) + _L(" vehicles");
-
-	tmp = tmp + U( "#000000)");
 
 	return tmp;
 }
@@ -306,12 +326,13 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		// cannot whisper with self...
 		if (user_uid == gEnv->network->getUID()) return;
 
-		RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//TODO: Separate Chat and console
 	}
 	
 	if (!gEnv->frameListener) return;
 
-	if (miname == _L("get new Vehicle") && gEnv->player)
+	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
 		if (gEnv->frameListener->loading_state == NONE_LOADED) return;
 		// get out first
@@ -319,14 +340,14 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		gEnv->frameListener->reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
 		gEnv->frameListener->freeTruckPosition = true;
 		gEnv->frameListener->loading_state = RELOADING;
-		SelectorWindow::getSingleton().show(SelectorWindow::LT_AllBeam);
+		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 
-	} else if (miname == _L("reload current Vehicle") && gEnv->player)
+	} else if (miname == _L("Reload current vehicle") && gEnv->player)
 	{
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 		{
 			gEnv->frameListener->reloadCurrentTruck();
-			RoR::Application::GetGuiManager()->unfocus();
+			RoR::Application::GetGuiManager()->UnfocusGui();
 		}
 	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
 	{
@@ -338,25 +359,29 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		//String fname = SSETTING("Cache Path", "") + gEnv->frameListener->loadedTerrain + ".rorscene";
 
 	} 
-	else if (miname == _L("remove current Vehicle"))
+	else if (miname == _L("Back to menu"))
+	{
+		Application::GetMainThreadLogic()->BackToMenu();
+	}
+	else if (miname == _L("Remove current vehicle"))
 	{
 		BeamFactory::getSingleton().removeCurrentTruck();
 
-	} else if (miname == _L("activate all Vehicles"))
+	} else if (miname == _L("Activate all vehicles"))
 	{
 		BeamFactory::getSingleton().activateAllTrucks();
 
-	} else if (miname == _L("activated Vehicles never sleep")) 
+	} else if (miname == _L("Activated vehicles never sleep")) 
 	{
 		BeamFactory::getSingleton().setTrucksForcedActive(true);
-		_item->setCaption(_L("activated Vehicles can sleep"));
+		_item->setCaption(_L("Activated Vehicles can sleep"));
 
-	} else if (miname == _L("activated Vehicles can sleep")) 
+	} else if (miname == _L("Activated Vehicles can sleep")) 
 	{
 		BeamFactory::getSingleton().setTrucksForcedActive(false);
-		_item->setCaption(_L("activated Vehicles never sleep"));
+		_item->setCaption(_L("Activated Vehicles never sleep"));
 
-	} else if (miname == _L("send all Vehicles to sleep"))
+	} else if (miname == _L("Send all vehicles to sleep"))
 	{
 		// get out first
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
@@ -366,10 +391,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("Friction Settings"))
 	{
 		GUI_Friction::getSingleton().setVisible(true);
-
-	} else if (miname == _L("Back to menu"))
-	{
-		gEnv->frameListener->Restart();
 	} else if (miname == _L("Exit"))
 	{
 		gEnv->frameListener->shutdown_final();
@@ -431,6 +452,15 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	{
 		TextureToolWindow::getSingleton().show();
 	}
+	else if (miname == _L("Debug Options"))
+	{
+		Application::GetGuiManager()->ShowDebugOptionsGUI(true);
+	}
+	else if (miname == _L("Show vehicle description"))
+	{
+		if (BeamFactory::getSingleton().getCurrentTruck() != 0)
+			Application::GetGuiManager()->ShowVehicleDescription();
+	}
 	else if (id == "rig-editor-enter")
 	{
 		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
@@ -443,7 +473,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 void GUI_MainMenu::setVisible(bool value)
 {
 	m_menubar_widget->setVisible(value);
-	if (!value) RoR::Application::GetGuiManager()->unfocus();
+	if (!value) RoR::Application::GetGuiManager()->UnfocusGui();
 	//MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
@@ -486,6 +516,11 @@ void GUI_MainMenu::triggerUpdateVehicleList()
 	MUTEX_LOCK(&m_update_lock);
 	m_vehicle_list_needs_update = true;
 	MUTEX_UNLOCK(&m_update_lock);
+}
+
+void GUI_MainMenu::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)
+{
+	m_gui_manager_interface->ShowRigSpawnerReportWindow();
 }
 
 #endif // USE_MYGUI

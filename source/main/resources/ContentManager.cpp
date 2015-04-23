@@ -1,21 +1,22 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ContentManager.h"
@@ -87,12 +88,22 @@ DECLARE_RESOURCE_PACK( 30, RIG_EDITOR,            "rig_editor",           "RigEd
 // ================================================================================
 
 ContentManager::ContentManager():
+	m_skin_manager(nullptr),
 	m_loaded_resource_packs(0)
 {
 }
 
 ContentManager::~ContentManager()
 {
+}
+
+bool ContentManager::isLoaded(Ogre::uint64 res_pack_id)
+{
+	if (BITMASK_64_IS_1(m_loaded_resource_packs, res_pack_id)) // Already loaded?
+	{
+		return true;
+	}
+	return false;
 }
 
 void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
@@ -159,7 +170,7 @@ bool ContentManager::init(void)
 #ifdef _WIN32
 	// TODO: FIX UNDER LINUX!
 	// register particle classes
-	LOG("Registering Particle Box Emitter");
+	LOG("RoR|ContentManager: Registering Particle Box Emitter");
 	ParticleSystemRendererFactory *mParticleSystemRendererFact = OGRE_NEW ShaderParticleRendererFactory();
 	ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
 	ParticleSystemManager::getSingleton().addRendererFactory(mParticleSystemRendererFact);
@@ -178,7 +189,7 @@ bool ContentManager::init(void)
 
 	// sound is a bit special as we mark the base sounds so we don't clear them accidentally later on
 #ifdef USE_OPENAL
-	LOG("Creating Sound Manager");
+	LOG("RoR|ContentManager: Creating Sound Manager");
 	SoundScriptManager::getSingleton().setLoadingBaseSounds(true);
 #endif // USE_OPENAL
 
@@ -188,7 +199,7 @@ bool ContentManager::init(void)
 
 
 	// streams path, to be processed later by the cache system
-	LOG("Loading filesystems");
+	LOG("RoR|ContentManager: Loading filesystems");
 
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"cache", "FileSystem", "cache");
 	// config, flat
@@ -200,10 +211,10 @@ bool ContentManager::init(void)
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"scripts", "FileSystem", "Scripts");
 
 	// init skin manager, important to happen before trucks resource loading!
-	LOG("registering Skin Manager");
-	new SkinManager();
+	LOG("RoR|ContentManager: Registering Skin Manager");
+	m_skin_manager = new RoR::SkinManager(); // SkinManager registers itself
 
-	LOG("registering colored text overlay factory");
+	LOG("RoR|ContentManager: Registering colored text overlay factory");
 	ColoredTextAreaOverlayElementFactory *pCT = new ColoredTextAreaOverlayElementFactory();
 	OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
@@ -219,7 +230,7 @@ bool ContentManager::init(void)
 	MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
 
 	// load all resources now, so the zip files are also initiated
-	LOG("initialiseAllResourceGroups()");
+	LOG("RoR|ContentManager: Calling initialiseAllResourceGroups()");
 	try
 	{
 		if (BSETTING("Background Loading", false))
@@ -228,7 +239,7 @@ bool ContentManager::init(void)
 			ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 	} catch(Ogre::Exception& e)
 	{
-		LOG("catched error while initializing Resource groups: " + e.getFullDescription());
+		LOG("RoR|ContentManager: catched error while initializing Resource groups: " + e.getFullDescription());
 	}
 #ifdef USE_OPENAL
 	SoundScriptManager::getSingleton().setLoadingBaseSounds(false);
@@ -246,7 +257,7 @@ bool ContentManager::init(void)
 	exploreFolders("TerrainFolders");
 	exploreZipFolders("Packs"); // this is required for skins to work
 
-	LOG("initialiseAllResourceGroups() - Content");
+	LOG("RoR|ContentManager: Calling initialiseAllResourceGroups() - Content");
 	try
 	{
 		if (BSETTING("Background Loading", false))
@@ -255,7 +266,7 @@ bool ContentManager::init(void)
 			ResourceGroupManager::getSingleton().initialiseResourceGroup("Packs");
 	} catch(Ogre::Exception& e)
 	{
-		LOG("catched error while initializing Content Resource groups: " + e.getFullDescription());
+		LOG("RoR|ContentManager: catched error while initializing Content Resource groups: " + e.getFullDescription());
 	}
 
 	LanguageEngine::getSingleton().postSetup();

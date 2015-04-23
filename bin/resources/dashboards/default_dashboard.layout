@@ -16,7 +16,7 @@
         <Widget type="ImageBox" skin="ImageBox" position="775 755 80 26" align="Right Bottom" layer="Back" name="TurboGauge">
             <Property key="ImageTexture" value="turbo.png"/>
             <UserString key="link" value="engine_turbo"/>
-        </Widget>		
+        </Widget>
         <Widget type="ImageBox" skin="ImageBox" position="-62 678 512 130" align="Left Bottom" layer="Back" name="lightsBackground">
             <Property key="ImageTexture" value="littlelights.png"/>
         </Widget>
@@ -70,8 +70,7 @@
         </Widget>
         <Widget type="ImageBox" skin="RotatingSkin" position="829 608 190 190" align="Right Bottom" layer="Middle" name="SpeedoNeedle">
             <Property key="ImageTexture" value="redneedle.png"/>
-            <Property key="Alpha" value="1"/>
-            <UserString key="anim" value="rotate"/>
+             <UserString key="anim" value="rotate"/>
             <UserString key="vmin" value="0"/>
             <UserString key="vmax" value="140"/>
             <UserString key="min" value="-140.5"/>
@@ -80,7 +79,6 @@
         </Widget>
         <Widget type="ImageBox" skin="RotatingSkin" position="614 609 190 190" align="Right Bottom" layer="Middle" name="RPMNeedle">
             <Property key="ImageTexture" value="redneedle.png"/>
-            <Property key="Alpha" value="1"/>
             <UserString key="anim" value="rotate"/>
             <UserString key="vmin" value="0"/>
             <UserString key="vmax" value="3500"/>
@@ -102,6 +100,7 @@
             <Property key="FontName" value="DefaultDashFont"/>
             <Property key="FontHeight" value="18"/>
             <Property key="TextAlign" value="Center"/>
+            <Property key="TextColour" value="1 1 1"/>
             <UserString key="anim" value="textstring"/>
             <UserString key="link" value="engine_gear_string"/>
         </Widget>

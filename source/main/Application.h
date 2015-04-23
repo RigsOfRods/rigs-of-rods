@@ -82,6 +82,8 @@ public:
 		return ms_gui_manager;
 	}
 
+	static GuiManagerInterface* GetGuiManagerInterface();
+
 	static Console* GetConsole()
 	{
 		return ms_console;

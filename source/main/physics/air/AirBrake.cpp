@@ -134,17 +134,29 @@ Airbrake::Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *
     //msh->_setBoundingSphereRadius(Math::Sqrt(1*1+1*1));
 
     /// Notify Mesh object that it has been loaded
-	msh->buildEdgeList();
+	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
+	{
+		msh->buildEdgeList();
+	}
+
 	msh->load();
 
 	// create the entity and scene node
 	char entname[256];
 	sprintf(entname, "airbrakenode-%s-%i", basename, num);
-	Entity *ec = gEnv->sceneManager->createEntity(entname, meshname);
+	ec = gEnv->sceneManager->createEntity(entname, meshname);
 	snode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	snode->attachObject(ec);
 
 	updatePosition(0.0);
+}
+
+Airbrake::~Airbrake()
+{
+	ec->setVisible(false);
+	delete ec;
+	snode->setVisible(false);
+	delete snode;
 }
 
 void Airbrake::updatePosition(float amount)

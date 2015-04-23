@@ -129,19 +129,24 @@ rig_t *RigSpawner::SpawnRig()
 
 	// Section 'help' in any module.
 	// NOTE: Must be done before "guisettings" (rig_t::helpmat override)
-	ProcessHelp(); 
+	ProcessHelp();
 
-	// Inline-section 'submesh_groundmodel' in any module
-	ProcessSubmeshGroundmodel();
+	// Section 'engine' in any module
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
+
+	// Section 'engoption' in any module
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGOPTION, RigDef::Engoption, engoption, ProcessEngoption);
+
+	// Section 'torquecurve' in any module.
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TORQUECURVE, RigDef::TorqueCurve, torque_curve, ProcessTorqueCurve);
 
 	// Section 'brakes' in any module
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, RigDef::Brakes, brakes, ProcessBrakes);
 
-	// Section 'AntiLockBrakes' in any module.
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ANTI_LOCK_BRAKES, RigDef::AntiLockBrakes, anti_lock_brakes, ProcessAntiLockBrakes);
+	// Section 'guisettings' in any module
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GUISETTINGS, RigDef::GuiSettings, gui_settings, ProcessGuiSettings);
 
-	// Section 'SlopeBrake' in any module.
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, RigDef::SlopeBrake, slope_brake, ProcessSlopeBrake);
+	// ---------------------------- Nodes & Beams ----------------------------
 
 	// Sections 'nodes' & 'nodes2'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_NODES, RigDef::Node, nodes, ProcessNode);
@@ -152,14 +157,16 @@ rig_t *RigSpawner::SpawnRig()
 		AddExhaust(m_rig->smokeId, m_rig->smokeRef, true, nullptr);
 	}
 
-	// Section 'meshwheels2'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
-
 	// Section 'beams'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, RigDef::Beam, beams, ProcessBeam);
 
+	// ---------------------------- Node & Beam generating sections ----------------------------
+
 	// Section 'shocks'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, RigDef::Shock, shocks, ProcessShock);
+
+	// Section 'shocks2'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
 
 	// Section 'commands' and 'commands2' (Use generated nodes)
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, RigDef::Command2, commands_2, ProcessCommand);
@@ -167,6 +174,34 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'hydros'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, RigDef::Hydro, hydros, ProcessHydro);
 
+	// Section 'cinecam'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
+
+	// ---------------------------- Wheels ----------------------------
+
+	// Section 'wheels'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS, RigDef::Wheel, wheels, ProcessWheel);
+
+	// Section 'wheels2'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, RigDef::Wheel2, wheels_2, ProcessWheel2);
+
+	// Section 'meshwheels'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS, RigDef::MeshWheel, mesh_wheels, ProcessMeshWheel);
+
+	// Section 'meshwheels2'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, RigDef::MeshWheel2, mesh_wheels_2, ProcessMeshWheel2);
+
+	// Section 'flexbodywheels'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, RigDef::FlexBodyWheel, flex_body_wheels, ProcessFlexBodyWheel);
+
+	// ---------------------------- Other ----------------------------
+
+	// Section 'AntiLockBrakes' in any module.
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ANTI_LOCK_BRAKES, RigDef::AntiLockBrakes, anti_lock_brakes, ProcessAntiLockBrakes);
+
+	// Section 'SlopeBrake' in any module.
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, RigDef::SlopeBrake, slope_brake, ProcessSlopeBrake);
+	
 	// Sections 'flares' and 'flares2'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, RigDef::Flare2, flares_2, ProcessFlare2);
 
@@ -176,20 +211,17 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'flexbodies' (Uses generated nodes)
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, boost::shared_ptr<RigDef::Flexbody>, flexbodies, ProcessFlexbody);
 
-	// Section 'props'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
-
 	// Section 'submeshes'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, RigDef::Submesh, submeshes, ProcessSubmesh);
+
+	// Inline-section 'submesh_groundmodel' in any module
+	ProcessSubmeshGroundmodel();
 
 	// Section 'contacters'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, RigDef::Node::Id, contacters, ProcessContacter);
 
 	// Section 'cameras'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CAMERAS, RigDef::Camera, cameras, ProcessCamera);
-
-	// Section 'cinecam'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, RigDef::Cinecam, cinecam, ProcessCinecam);
 
 	// Section 'hooks'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HOOKS, RigDef::Hook, hooks, ProcessHook);	
@@ -218,9 +250,6 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'airbrakes'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, RigDef::Airbrake, airbrakes, ProcessAirbrake);
 
-	// Section 'wheels'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS, RigDef::Wheel, wheels, ProcessWheel);
-
 	// Section 'fusedrag'
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_FUSEDRAG, RigDef::Fusedrag, fusedrag, ProcessFusedrag);
 
@@ -231,26 +260,11 @@ rig_t *RigSpawner::SpawnRig()
 	// !!! MUST be processed before "props", otherwise they won't work
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_VIDEOCAMERA, RigDef::VideoCamera, videocameras, ProcessVideoCamera);
 
-	// Section 'shocks2'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, RigDef::Shock2, shocks_2, ProcessShock2);
-
-	// Section 'engine' in any module
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGINE, RigDef::Engine, engine, ProcessEngine);
-
-	// Section 'engoption' in any module
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGOPTION, RigDef::Engoption, engoption, ProcessEngoption);
+	// Section 'props'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, RigDef::Prop, props, ProcessProp);
 
 	// Section 'TractionControl' in any module.
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TRACTION_CONTROL, RigDef::TractionControl, traction_control, ProcessTractionControl);
-	
-	// Section 'wheels2'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, RigDef::Wheel2, wheels_2, ProcessWheel2);
-
-	// Section 'meshwheels'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS, RigDef::MeshWheel, mesh_wheels, ProcessMeshWheel);
-
-	// Section 'flexbodywheels'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, RigDef::FlexBodyWheel, flex_body_wheels, ProcessFlexBodyWheel);
 
 	// Section 'rotators'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROTATORS, RigDef::Rotator, rotators, ProcessRotator);
@@ -273,9 +287,6 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'particles'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PARTICLES, RigDef::Particle, particles, ProcessParticle);
 
-	// Section 'torquecurve' in any module.
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TORQUECURVE, RigDef::TorqueCurve, torque_curve, ProcessTorqueCurve);
-
 	// Section 'cruisecontrol' in any module.
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_CRUISECONTROL, RigDef::CruiseControl, cruise_control, ProcessCruiseControl);
 
@@ -287,9 +298,6 @@ rig_t *RigSpawner::SpawnRig()
 
 	// Section 'exhausts'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_EXHAUSTS, RigDef::Exhaust, exhausts, ProcessExhaust);
-
-	// Section 'guisettings' in any module
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GUISETTINGS, RigDef::GuiSettings, gui_settings, ProcessGuiSettings);
 
 	// Section 'extcamera'
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_EXTCAMERA, RigDef::ExtCamera, ext_camera, ProcessExtCamera);
