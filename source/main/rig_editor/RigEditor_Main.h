@@ -74,13 +74,12 @@ public:
 
 	/* IMain implementations */
 
+    // File management
 	virtual void CommandShowDialogOpenRigFile();
-
 	virtual void CommandShowDialogSaveRigFileAs();
-
 	virtual void CommandSaveRigFile();
-
 	virtual void CommandCloseCurrentRig();
+    virtual void CommandCreateNewEmptyRig();
 
 	virtual void CommandCurrentRigDeleteSelectedNodes();
 
@@ -92,10 +91,11 @@ public:
 
 	virtual void CommandSaveContentOfRigPropertiesWindow();
 
+    // Land vehicle window
 	virtual void CommandShowLandVehiclePropertiesWindow();
+	virtual void CommandSaveLandVehiclePropertiesWindowData();
 
-	virtual void CommandSaveContentOfLandVehiclePropertiesWindow();
-
+    // Help window
 	virtual void CommandShowHelpWindow();
 
 	// Rig updaters
@@ -106,19 +106,40 @@ public:
 	virtual void CommandRigSelectedHydrosUpdateAttributes    (const RigAggregateHydrosData*     data);
 	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data);
 
-	/* GUI callbacks */
+	// Wheel list
+	virtual void CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected);
+	virtual void CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered);
+	virtual void CommandScheduleSetAllWheelsSelected(bool state_selected);
+	virtual void CommandSetAllWheelsHovered(bool state_selected);
 
+	// GUI callbacks
 	void NotifyFileSelectorEnded(RoR::GUI::Dialog* dialog, bool result);
 
+    // State flags
+    BITMASK_PROPERTY(m_state_flags,  1,  IS_SELECT_WHEEL_SCHEDULED,         IsSelectWheelScheduled,         SetIsSelectWheelScheduled);
+    BITMASK_PROPERTY(m_state_flags,  2,  IS_DESELECT_WHEEL_SCHEDULED,       IsDeselectWheelScheduled,       SetIsDeselectWheelScheduled);
+    BITMASK_PROPERTY(m_state_flags,  3,  IS_SELECT_ALL_WHEELS_SCHEDULED,    IsSelectAllWheelsScheduled,     SetIsSelectAllWheelsScheduled);
+    BITMASK_PROPERTY(m_state_flags,  4,  IS_DESELECT_ALL_WHEELS_SCHEDULED,  IsDeselectAllWheelsScheduled,   SetIsDeselectAllWheelsScheduled);
+    inline bool IsAnyWheelSelectionChangeScheduled() const
+    { 
+        return IsSelectWheelScheduled() || IsDeselectWheelScheduled() || IsSelectAllWheelsScheduled() || IsDeselectAllWheelsScheduled();
+    }
+    inline void ResetAllScheduledWheelSelectionChanges()
+    {
+        BITMASK_SET_0(m_state_flags, IS_SELECT_WHEEL_SCHEDULED | IS_DESELECT_WHEEL_SCHEDULED | IS_SELECT_ALL_WHEELS_SCHEDULED | IS_DESELECT_ALL_WHEELS_SCHEDULED);
+    }
+    
 private:
 
 	void InitializeOrRestoreGui();
-
 	void HideAllNodeBeamGuiPanels();
+    void HideAllWheelGuiPanels();
 
 	bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
 	void SaveRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+
+    void OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node);
 
 	Config*              m_config;
 	Ogre::SceneManager*  m_scene_manager;
@@ -130,21 +151,24 @@ private:
 	Rig*                 m_rig;
 
 	bool                 m_exit_loop_requested;
+    unsigned int         m_state_flags;
 
 	// GUI
-	MyGUI::TextBox*                             m_debug_box;
-	std::unique_ptr<GUI::RigEditorMenubar>      m_gui_menubar;
-	std::unique_ptr<GUI::OpenSaveFileDialog>    m_gui_open_save_file_dialog;
-	std::unique_ptr<GUI::RigEditorDeleteMenu>   m_gui_delete_menu;
-	std::unique_ptr<GUI::RigEditorHelpWindow>   m_gui_help_window;
-	std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
+	MyGUI::TextBox*                                             m_debug_box;
+	std::unique_ptr<GUI::RigEditorMenubar>                      m_gui_menubar;
+	std::unique_ptr<GUI::OpenSaveFileDialog>                    m_gui_open_save_file_dialog;
+	std::unique_ptr<GUI::RigEditorDeleteMenu>                   m_gui_delete_menu;
+	std::unique_ptr<GUI::RigEditorHelpWindow>                   m_gui_help_window;
+	std::unique_ptr<GUI::RigEditorNodePanel>                    m_nodes_panel;
+	std::unique_ptr<GUI::RigEditorBeamsPanel>                   m_beams_panel;
+	std::unique_ptr<GUI::RigEditorHydrosPanel>                  m_hydros_panel;
+	std::unique_ptr<GUI::RigEditorShocksPanel>                  m_shocks_panel;
+	std::unique_ptr<GUI::RigEditorShocks2Panel>                 m_shocks2_panel;
+	std::unique_ptr<GUI::RigEditorCommands2Panel>               m_commands2_panel;
+    std::unique_ptr<GUI::RigEditorMeshWheels2Panel>             m_meshwheels2_panel;
+    std::unique_ptr<GUI::RigEditorFlexBodyWheelsPanel>          m_flexbodywheels_panel;
+    std::unique_ptr<GUI::RigEditorRigPropertiesWindow>          m_gui_rig_properties_window;
 	std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>  m_gui_land_vehicle_properties_window;
-	std::unique_ptr<GUI::RigEditorNodePanel>       m_nodes_panel;
-	std::unique_ptr<GUI::RigEditorBeamsPanel>      m_beams_panel;
-	std::unique_ptr<GUI::RigEditorHydrosPanel>     m_hydros_panel;
-	std::unique_ptr<GUI::RigEditorShocksPanel>     m_shocks_panel;
-	std::unique_ptr<GUI::RigEditorShocks2Panel>    m_shocks2_panel;
-	std::unique_ptr<GUI::RigEditorCommands2Panel>  m_commands2_panel;
 	
 };
 

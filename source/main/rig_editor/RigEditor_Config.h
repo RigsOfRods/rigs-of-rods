@@ -66,8 +66,10 @@ struct Config
 	GuiPanelPositionData   gui_commands2_panel_position;
 	GuiPanelPositionData   gui_shocks_panel_position;
 	GuiPanelPositionData   gui_shocks2_panel_position;
+    GuiPanelPositionData   gui_meshwheels2_panel_position;
+    GuiPanelPositionData   gui_flexbodywheels_panel_position;
 	
-	/* Rig manipulation */
+	/* Rig manipulation HUD */
 	int                 node_mouse_box_halfsize_px;
 
 	/* Beam coloring */
@@ -86,6 +88,22 @@ struct Config
 	Ogre::ColourValue   meshwheel2_beam_reinforcement_color;
 	Ogre::ColourValue   meshwheel2_beam_rigidity_color;
 
+	Ogre::ColourValue   meshwheel_beam_bounded_color;
+	Ogre::ColourValue   meshwheel_beam_reinforcement_color;
+	Ogre::ColourValue   meshwheel_beam_rigidity_color;
+
+	Ogre::ColourValue   flexbodywheel_rim_connection_color;
+	Ogre::ColourValue   flexbodywheel_rim_reinforcement_color;
+	Ogre::ColourValue   flexbodywheel_tyre_connection_color;
+	Ogre::ColourValue   flexbodywheel_tyre_reinforcement_color;
+	Ogre::ColourValue   flexbodywheel_tyre_rigidity_color;
+
+	/* Highlight AABB display */
+	Ogre::ColourValue   wheels_selection_highlight_boxes_color;
+	float               wheels_selection_highlight_boxes_padding;
+	Ogre::ColourValue   wheels_hover_highlight_boxes_color;
+	float               wheels_hover_highlight_boxes_padding;
+
 	/* Node display */
 	Ogre::ColourValue   node_generic_color;
 	float               node_generic_point_size;
@@ -99,6 +117,9 @@ struct Config
 	float               camera_far_clip_distance;
 	float               camera_FOVy_degrees;
 	float               ortho_camera_zoom_ratio;
+
+    /* Rig properties */
+    float               new_rig_initial_box_half_size;
 
 };
 

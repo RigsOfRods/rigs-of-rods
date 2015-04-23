@@ -49,8 +49,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
+void Beam::calcForcesEulerCompute(int doUpdate_int, Real dt, int step, int maxsteps)
 {
+    bool doUpdate = (doUpdate_int != 0);
 	float inverted_dt = 1.0f / dt;
 	calcTruckEngine(doUpdate, dt);
 

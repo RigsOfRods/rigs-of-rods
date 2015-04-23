@@ -31,24 +31,48 @@ namespace RigDef
 /* File structures declarations */
 /* TODO: Complete list */
 
+struct AeroAnimator;
 struct Airbrake;
 struct Animation;
+struct AntiLockBrakes;
 struct Axle;
 struct Beam;
 struct BeamDefaults;
 struct BeamDefaultsScale;
+struct Brakes;
+struct Cab;
+struct CameraRail;
 struct CameraSettings;
+struct Cinecam;
+struct CollisionBox;
+struct Command2;
+struct CruiseControl;
 struct Engine;
 struct Engoption;
 struct ExtCamera;
 struct File;
+struct Flare;
+struct Flare2;
+struct FlexBody;
+struct FlexBodyWheel;
+struct Fusedrag;
 struct Globals;
 struct GuiSettings;
+struct Hook;
+struct Hydro;
 struct Inertia;
+struct Lockgroup;
 struct ManagedMaterialsOptions;
+struct Meshwheel;
+struct Meshwheel2;
 struct Node;
 struct NodeDefaults;
 struct OptionalInertia;
+struct Particle;
+struct Pistonprop;
+struct Prop;
+struct RailGroup;
+struct Ropable;
 struct ShadowOptions;
 struct VideoCamera;
 

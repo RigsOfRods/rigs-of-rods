@@ -38,6 +38,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup, "file_popup");
 	MyGUI::PopupMenu* m_file_popup;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_create_empty, "file_popup_item_create_empty");
+	MyGUI::MenuItem* m_file_popup_item_create_empty;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_open, "file_popup_item_open");
 	MyGUI::MenuItem* m_file_popup_item_open;
 
@@ -58,6 +61,18 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_menubar_item_help, "menubar_item_help");
 	MyGUI::MenuItem* m_menubar_item_help;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_menubar_item_wheels, "menubar_item_wheels");
+	MyGUI::MenuItem* m_menubar_item_wheels;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_wheels_popup, "wheels_popup");
+	MyGUI::PopupMenu* m_wheels_popup;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_wheels_popup_item_select_all, "wheels_popup_item_select_all");
+	MyGUI::MenuItem* m_wheels_popup_item_select_all;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_wheels_popup_item_deselect_all, "wheels_popup_item_deselect_all");
+	MyGUI::MenuItem* m_wheels_popup_item_deselect_all;
 
 	//%LE Widget_Declaration list end
 };

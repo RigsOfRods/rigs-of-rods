@@ -314,7 +314,7 @@ protected:
 
 	/** Nodes and Nodes2 are unified with this parser.
 	*/
-	void _ParseSectionsNodesNodes2(Ogre::String const & line);
+	void _ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2);
 
 	/** Commands and Commands2 are unified with this parser.
 	*/

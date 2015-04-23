@@ -27,7 +27,7 @@
 
 #include "GUI_RigEditorCommands2Panel.h"
 #include "RigEditor_Config.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 #include <MyGUI.h>
 
@@ -59,7 +59,7 @@ using namespace GUI;
 	);
 
 RigEditorCommands2Panel::RigEditorCommands2Panel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config):
-	RigEditor::GuiNodeBeamPanelBase(rig_editor_interface, config, m_commands2_panel, m_flag_i_checkbox)
+	RigEditor::RigElementGuiPanelBase(rig_editor_interface, config, m_commands2_panel, m_flag_i_checkbox)
 {
 	m_flags_tooltip_label->setTextColour(m_text_color_tooltip);
 	

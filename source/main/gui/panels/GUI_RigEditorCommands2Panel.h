@@ -30,8 +30,8 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorCommands2PanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
-#include "RigEditor_GuiNodeBeamPanelBase.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementGuiPanelBase.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 namespace RoR
 {
@@ -39,7 +39,7 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorCommands2Panel: public RigEditorCommands2PanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorCommands2Panel: public RigEditorCommands2PanelLayout, public RigEditor::RigElementGuiPanelBase
 {
 
 public:
@@ -64,19 +64,19 @@ private:
 	RigEditor::RigAggregateCommands2Data m_data;
 
 	// GUI form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;   
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_contraction_rate_field; 
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_rate_field;   
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_contraction_limit_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_limit_field;  
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_contract_key_field;     
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extend_key_field;                   
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_start_delay_field;      
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_stop_delay_field;       
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_affect_engine_field;    
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_start_function_field;   
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_stop_function_field; 
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_description_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_detacher_group_field;   
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_contraction_rate_field; 
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_extension_rate_field;   
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_contraction_limit_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_extension_limit_field;  
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_contract_key_field;     
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_extend_key_field;                   
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_start_delay_field;      
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_stop_delay_field;       
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_affect_engine_field;    
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_start_function_field;   
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_stop_function_field; 
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_description_field;
 };
 
 } // namespace GUI

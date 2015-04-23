@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -29,7 +29,10 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorMenubarLayout.h"
+#include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_IMain.h"
+
+#include <vector>
 
 namespace RoR
 {
@@ -50,11 +53,13 @@ public:
 
 	void StretchWidthToScreen();
 
+	void UpdateLandVehicleWheelsList(std::vector<RigEditor::LandVehicleWheel*> & list);
+
+	void ClearLandVehicleWheelsList();
+
 private:
 
 	/* Event handlers */
-
-	void MenubarItemClicked(MyGUI::Widget* sender);
 
 	void OpenFileItemClicked(MyGUI::Widget* sender);
 
@@ -68,11 +73,17 @@ private:
 
 	void LandVehiclePropertiesItemClicked(MyGUI::Widget* sender);
 
+    void CreateEmptyRigItemClicked(MyGUI::Widget* sender);
+
 	void MenubarItemHelpClicked(MyGUI::Widget* sender);
+
+	inline RigEditor::GuiPopupWheelsList* GetWheelsList() { return m_wheels_list.get(); }
 
 private:
 
-	RigEditor::IMain* m_rig_editor_interface;
+	RigEditor::IMain*      m_rig_editor_interface;
+
+	std::unique_ptr<RigEditor::GuiPopupWheelsList> m_wheels_list;
 
 };
 

@@ -29,9 +29,9 @@
 
 namespace RoR
 {
-
 	namespace RigEditor
 	{
+        struct AllWheelsAggregateData;
 		class  Beam;
 		class  BeamTypeCommandHydro;
 		class  BeamTypeGenerated;
@@ -41,15 +41,24 @@ namespace RoR
 		class  CameraHandler;
 		class  CineCamera;
 		struct Config;
+		class  FlexBodyWheel;
 		struct GuiPanelPositionData;
+		class  GuiPopupDynamicListBase;
+		class  GuiPopupWheelsList;
+		class  HighlightBoxesDynamicMesh;
 		class  IMain;
 		class  InputHandler;
+		class  LandVehicleWheel;
 		class  Main;
+		class  MeshWheel;
 		class  MeshWheel2;
+        struct MeshWheel2AggregateData;
+        struct MixedWheelsAggregateData;
 		class  Module;
 		class  Node;
 		class  Rig;
 		class  RigProperties;
+		class  RigWheelVisuals;
 
 		// Rig aggregate data
 		struct MixedBeamsAggregateData;
@@ -68,10 +77,12 @@ namespace RoR
 		class  RigEditorBeamsPanel;
 		class  RigEditorCommands2Panel;
 		class  RigEditorDeleteMenu;
+        class  RigEditorFlexBodyWheelsPanel;
 		class  RigEditorHelpWindow;
 		class  RigEditorHydrosPanel;
 		class  RigEditorLandVehiclePropertiesWindow;
 		class  RigEditorMenubar;
+        class  RigEditorMeshWheels2Panel;
 		class  RigEditorNodePanel;
 		class  RigEditorRigPropertiesWindow;
 		class  RigEditorShocksPanel;

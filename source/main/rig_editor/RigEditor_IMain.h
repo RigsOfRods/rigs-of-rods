@@ -40,13 +40,12 @@ class IMain
 {
 public:
 
+    // File management
 	virtual void CommandShowDialogOpenRigFile() = 0;
-
 	virtual void CommandShowDialogSaveRigFileAs() = 0;
-
 	virtual void CommandSaveRigFile() = 0;
-
 	virtual void CommandCloseCurrentRig() = 0;
+    virtual void CommandCreateNewEmptyRig() = 0;
 
 	virtual void CommandCurrentRigDeleteSelectedNodes() = 0;
 
@@ -59,8 +58,8 @@ public:
 	virtual void CommandSaveContentOfRigPropertiesWindow() = 0;
 
 	virtual void CommandShowLandVehiclePropertiesWindow() = 0;
-
-	virtual void CommandSaveContentOfLandVehiclePropertiesWindow() = 0;
+    
+	virtual void CommandSaveLandVehiclePropertiesWindowData() = 0;
 
 	virtual void CommandShowHelpWindow() = 0;
 
@@ -71,6 +70,12 @@ public:
 	virtual void CommandRigSelectedShocks2UpdateAttributes   (const RigAggregateShocks2Data*    data) = 0;
 	virtual void CommandRigSelectedHydrosUpdateAttributes    (const RigAggregateHydrosData*     data) = 0;
 	virtual void CommandRigSelectedCommands2UpdateAttributes (const RigAggregateCommands2Data*  data) = 0;
+
+	// Land vehicle wheel list
+	virtual void CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected) = 0;
+	virtual void CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered) = 0;
+	virtual void CommandScheduleSetAllWheelsSelected(bool state_selected) = 0;
+	virtual void CommandSetAllWheelsHovered(bool state_selected) = 0;
 	
 };
 

@@ -30,9 +30,9 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorShocks2PanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
-#include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_RigElementGuiPanelBase.h"
 #include "RigEditor_IMain.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 namespace RoR
 {
@@ -40,7 +40,7 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorShocks2Panel: public RigEditorShocks2PanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorShocks2Panel: public RigEditorShocks2PanelLayout, public RigEditor::RigElementGuiPanelBase
 {
 
 public:
@@ -63,18 +63,18 @@ private:
 	RigEditor::RigAggregateShocks2Data m_data;
 
 	// GUI form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;     
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_spring_in_field;          
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_damp_in_field;            
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_spring_out_field;         
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_damp_out_field;           
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_spring_in_progress_field; 
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_damp_in_progress_field;   
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_spring_out_progress_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_damp_out_progress_field;  
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_contraction_limit_field;  
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_extension_limit_field;    
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_precompression_field;     
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_detacher_group_field;     
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_spring_in_field;          
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_damp_in_field;            
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_spring_out_field;         
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_damp_out_field;           
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_spring_in_progress_field; 
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_damp_in_progress_field;   
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_spring_out_progress_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_damp_out_progress_field;  
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_contraction_limit_field;  
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_extension_limit_field;    
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_precompression_field;     
 };
 
 } // namespace GUI

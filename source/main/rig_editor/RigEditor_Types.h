@@ -85,6 +85,8 @@ struct Vector2t
 
 typedef Vector2t<int> Vector2int;
 
+typedef Vector2t<unsigned int> Vector2uint;
+
 } // namespace RigEditor
 
 } // namespace RoR

@@ -27,7 +27,7 @@
 
 #include "GUI_RigEditorNodePanel.h"
 #include "RigEditor_Config.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 #include <MyGUI.h>
 
@@ -53,7 +53,7 @@ using namespace GUI;
 		m_data.GetFlagsPtr(), RigEditor::RigAggregateNodesData::UNIFLAG, ((void*) &(SRC)), EditboxFieldSpec::SRC_TYPE);
 
 RigEditorNodePanel::RigEditorNodePanel(RigEditor::IMain* rig_editor_interface, RigEditor::Config* config):
-	RigEditor::GuiNodeBeamPanelBase(rig_editor_interface, config, m_node_panel, m_flag_m_checkbox)
+	RigEditor::RigElementGuiPanelBase(rig_editor_interface, config, m_node_panel, m_flag_m_checkbox)
 {
 	m_flag_tooltip_label->setTextColour(m_text_color_tooltip);
 	

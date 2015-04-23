@@ -27,14 +27,14 @@
 
 #include "GUI_RigEditorShocksPanel.h"
 #include "RigEditor_Config.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 #include <MyGUI.h>
 
 using namespace RoR;
 using namespace GUI;
 
-#define SUPERCLASS RigEditor::GuiNodeBeamPanelBase
+#define SUPERCLASS RigEditor::RigElementGuiPanelBase
 
 // ----------------------------------------------------------------------------
 // Constructor

@@ -4157,9 +4157,10 @@ Node::Id Parser::_ParseNodeId(std::string const & node_id_str)
 	}
 	else
 	{
-		if (boost::regex_search(node_id_str, results, Regexes::NODE_NAME))
+		if (!boost::regex_search(node_id_str, results, Regexes::NODE_NAME))
 		{
-			AddMessage(node_id_str, Message::TYPE_ERROR, "Invalid node Id, returning NODE_ID_INVALID");
+			AddMessage(node_id_str, Message::TYPE_ERROR, 
+                "Bad node ID (contains forbidden characters, only [ a-z A-Z - _ ] are allowed), returning NODE_ID_INVALID");
 			return Node::Id(); /* Defaults to NODE_ID_INVALID */
 		}
 		else
@@ -4648,19 +4649,26 @@ void Parser::ParseParticles(Ogre::String const & line)
 
 void Parser::ParseNode(Ogre::String const & line)
 {
-	_ParseSectionsNodesNodes2(line);
+    const bool version_2 = false;
+	_ParseSectionsNodesNodes2(line, version_2);
 }
 
 void Parser::ParseNode2(Ogre::String const & line)
 {
-	_ParseSectionsNodesNodes2(line);
+    const bool version_2 = true;
+	_ParseSectionsNodesNodes2(line, version_2);
 }
 
-void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line)
+void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2)
 {
 	// Parse line
 	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_NODES_N2))
+    const boost::regex* regex_ptr = &Regexes::SECTION_NODES;
+    if (is_version_2)
+    {
+        regex_ptr = &Regexes::SECTION_NODES_2;
+    }
+	if (! boost::regex_search(line, results, *regex_ptr))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4672,7 +4680,14 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line)
 	node.beam_defaults = m_user_beam_defaults;
 	node.detacher_group = m_current_detacher_group;
 
-	node.id = _ParseNodeId(results[1]);	
+    if (is_version_2)
+    {
+        node.id.SetStr(results[1]);    
+    }
+    else
+    {
+        node.id.SetNum(STR_PARSE_INT(results[1]));
+    }
 	node.position.x = STR_PARSE_REAL(results[3]);
 	node.position.y = STR_PARSE_REAL(results[5]);
 	node.position.z = STR_PARSE_REAL(results[7]);

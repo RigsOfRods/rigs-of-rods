@@ -61,8 +61,8 @@ void Serializer::Serialize()
 	// Write banner
 	m_stream
 		<< "; ---------------------------------------------------------------------------- ;" << endl
-		<< "; Rigs of Rods (www.rigsofrods.com)                                            ;" << endl
-		<< "; =================================                                            ;" << endl
+		<< "; Rigs of Rods project (www.rigsofrods.com)                                    ;" << endl
+		<< "; =========================================                                    ;" << endl
 		<< ";                                                                              ;" << endl
 		<< "; This is a rig definition file.                                               ;" << endl
 		<< "; See http://www.rigsofrods.com/wiki/pages/Truck_Description_File for details. ;" << endl
@@ -131,30 +131,642 @@ void Serializer::Serialize()
 	// TODO: detacher_group
 	// TODO: rigidifiers
 	ProcessFlares2(source_module);
+	ProcessMaterialFlareBindings(source_module);
+	ProcessPropsAndAnimations(source_module);
+	ProcessSubmesh(source_module);
+	ProcessSubmeshGroundmodel(source_module);
+	ProcessExhausts(source_module);
+	ProcessGuiSettings(source_module);
+	ProcessSetSkeletonSettings(source_module);
+	ProcessVideocamera(source_module);
+	ProcessExtCamera(source_module);
+	ProcessSoundsources(source_module);
+	ProcessSoundsources2(source_module);
+
+	// Aerial
+	ProcessWings(source_module);
+	ProcessAirbrakes(source_module);
+	ProcessTurboprops(source_module);
+	ProcessFusedrag(source_module);
+	ProcessPistonprops(source_module);
+	ProcessTurbojets(source_module);
+
+	// Marine
+	ProcessScrewprops(source_module);
 	
 	// Finalize
 	m_stream << "end" << endl;
 	m_stream.close();
 }
 
-/* TEMPLATE
-void Serializer::ProcessHooks(File::Module* module)
+void Serializer::ProcessPistonprops(File::Module* module)
 {
-	if (module->hooks.empty())
+	if (module->pistonprops.empty())
 	{
 		return;
 	}
-	m_stream << "hooks" << endl;
-	auto end_itor = module->hooks.end();
-	for (auto itor = module->hooks.begin(); itor != end_itor; ++itor)
+	m_stream << "pistonprops" << endl;
+	auto end_itor = module->pistonprops.end();
+	for (auto itor = module->pistonprops.begin(); itor != end_itor; ++itor)
 	{
-		RigDef::Hook & def = *itor;
+		auto & def = *itor;
 
-		m_stream << "\n\t" << def.node.ToString();
+		m_stream << "\n\t" << def.reference_node.ToString()
+			<< ", " << def.axis_node.ToString()
+			<< ", " << def.blade_tip_nodes[0].ToString()
+			<< ", " << def.blade_tip_nodes[1].ToString()
+			<< ", " << def.blade_tip_nodes[2].ToString()
+			<< ", " << def.blade_tip_nodes[3].ToString()
+			<< ", " << (def.couple_node.IsValid() ? def.couple_node.ToString() : "-1")
+			<< ", " << def.turbine_power_kW
+			<< ", " << def.pitch
+			<< ", " << def.airfoil;
 	}
 	m_stream << endl << endl; // Empty line
 }
-*/
+
+void Serializer::ProcessTurbojets(File::Module* module)
+{
+	if (module->turbojets.empty())
+	{
+		return;
+	}
+	m_stream << "turbojets" << endl;
+	auto end_itor = module->turbojets.end();
+	for (auto itor = module->turbojets.begin(); itor != end_itor; ++itor)
+	{
+		auto & def = *itor;
+
+		m_stream << "\n\t" << def.front_node.ToString()
+			<< ", " << def.back_node.ToString()
+			<< ", " << def.side_node.ToString()
+			<< ", " << def.is_reversable
+			<< ", " << def.dry_thrust
+			<< ", " << def.wet_thrust
+			<< ", " << def.front_diameter
+			<< ", " << def.back_diameter
+			<< ", " << def.nozzle_length;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessScrewprops(File::Module* module)
+{
+	if (module->screwprops.empty())
+	{
+		return;
+	}
+	m_stream << "screwprops" << endl;
+	auto end_itor = module->screwprops.end();
+	for (auto itor = module->screwprops.begin(); itor != end_itor; ++itor)
+	{
+		auto & def = *itor;
+
+		m_stream << "\n\t" << def.prop_node.ToString()
+			<< ", " << def.back_node.ToString()
+			<< ", " << def.top_node.ToString()
+			<< ", " << def.power;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessFusedrag(File::Module* module)
+{
+	
+	m_stream << ";fusedrag -- STUB" << endl;
+	
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessTurboprops(File::Module* module)
+{
+	if (module->turboprops_2.empty())
+	{
+		return;
+	}
+	m_stream << "turboprops" << endl;
+	auto end_itor = module->turboprops_2.end();
+	for (auto itor = module->turboprops_2.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Turboprop2 & def = *itor;
+
+		m_stream << "\n\t" << def.reference_node.ToString()
+			<< ", " << def.axis_node.ToString()
+			<< ", " << def.blade_tip_nodes[0].ToString()
+			<< ", " << def.blade_tip_nodes[1].ToString()
+			<< ", " << def.blade_tip_nodes[2].ToString()
+			<< ", " << def.blade_tip_nodes[3].ToString()
+			<< ", " << def.turbine_power_kW
+			<< ", " << def.airfoil;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessAirbrakes(File::Module* module)
+{
+	if (module->airbrakes.empty())
+	{
+		return;
+	}
+	m_stream << "airbrakes" << endl;
+	auto end_itor = module->airbrakes.end();
+	for (auto itor = module->airbrakes.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Airbrake & def = *itor;
+
+		m_stream << "\n\t" << def.reference_node.ToString()
+			<< ", " << def.x_axis_node.ToString()
+			<< ", " << def.y_axis_node.ToString()
+			<< ", " << (def.aditional_node.IsValid() ? def.aditional_node.ToString() : "-1")
+			<< ", " << def.offset.x
+			<< ", " << def.offset.y
+			<< ", " << def.offset.z
+			<< ", " << def.width
+			<< ", " << def.height
+			<< ", " << def.max_inclination_angle
+			<< ", " << def.texcoord_x1
+			<< ", " << def.texcoord_y1
+			<< ", " << def.texcoord_x2
+			<< ", " << def.texcoord_y2
+			<< ", " << def.lift_coefficient;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessWings(File::Module* module)
+{
+	if (module->wings.empty())
+	{
+		return;
+	}
+	m_stream << "wings" << endl;
+	auto end_itor = module->wings.end();
+	for (auto itor = module->wings.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Wing & def = *itor;
+
+		m_stream << "\n\t" << def.nodes[0].ToString()
+			<< ", " << def.nodes[1].ToString()
+			<< ", " << def.nodes[2].ToString()
+			<< ", " << def.nodes[3].ToString()
+			<< ", " << def.nodes[4].ToString()
+			<< ", " << def.nodes[5].ToString()
+			<< ", " << def.nodes[6].ToString()
+			<< ", " << def.nodes[7].ToString()
+			<< ", " << def.tex_coords[0]
+			<< ", " << def.tex_coords[1]
+			<< ", " << def.tex_coords[2]
+			<< ", " << def.tex_coords[3]
+			<< ", " << def.tex_coords[4]
+			<< ", " << def.tex_coords[5]
+			<< ", " << def.tex_coords[6]
+			<< ", " << def.tex_coords[7]
+			<< ", " << def.control_surface
+			<< ", " << def.chord_point
+			<< ", " << def.min_deflection
+			<< ", " << def.max_deflection
+			<< ", " << def.airfoil
+			<< ", " << def.efficacy_coef;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessSoundsources(File::Module* module)
+{
+	if (module->soundsources.empty())
+	{
+		return;
+	}
+	m_stream << "soundsources" << endl;
+	auto end_itor = module->soundsources.end();
+	for (auto itor = module->soundsources.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::SoundSource & def = *itor;
+
+		m_stream << "\n\t" << def.node.ToString() << ", " << def.sound_script_name;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessSoundsources2(File::Module* module)
+{
+	if (module->soundsources2.empty())
+	{
+		return;
+	}
+	m_stream << "soundsources2" << endl;
+	auto end_itor = module->soundsources2.end();
+	for (auto itor = module->soundsources2.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::SoundSource2 & def = *itor;
+
+		m_stream << "\n\t" << def.node.ToString() 
+			<< ", " << def.mode
+			<< ", " << def.sound_script_name;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessExtCamera(File::Module* module)
+{
+	if (!module->ext_camera)
+	{
+		return;
+	}
+	RigDef::ExtCamera* def = module->ext_camera.get();
+	m_stream << "extcamera ";
+
+	switch (def->mode)
+	{
+	case ExtCamera::MODE_NODE:
+		m_stream << "node " << def->node.ToString();
+		break;
+	case ExtCamera::MODE_CINECAM:
+		m_stream << "cinecam";
+		break;
+	case ExtCamera::MODE_CLASSIC:
+	default:
+		m_stream << "classic";
+		break;
+	}
+		m_stream << "\n\n";
+}
+
+void Serializer::ProcessVideocamera(File::Module* module)
+{
+	if (module->videocameras.empty())
+	{
+		return;
+	}
+	m_stream << "videocamera" << endl;
+	auto end_itor = module->videocameras.end();
+	for (auto itor = module->videocameras.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::VideoCamera & def = *itor;
+
+		m_stream << "\n\t" << def.reference_node.ToString()
+			<< ", " << def.left_node.ToString()
+			<< ", " << def.bottom_node.ToString()
+			<< ", " << (def.alt_reference_node.IsValid() ? def.alt_reference_node.ToString() : "-1")
+			<< ", " << (def.alt_orientation_node.IsValid() ? def.alt_orientation_node.ToString() : "-1")
+			<< ", " << def.offset.x
+			<< ", " << def.offset.y
+			<< ", " << def.offset.z
+			<< ", " << def.rotation.x
+			<< ", " << def.rotation.y
+			<< ", " << def.rotation.z
+			<< ", " << def.field_of_view
+			<< ", " << def.texture_width
+			<< ", " << def.texture_height
+			<< ", " << def.min_clip_distance
+			<< ", " << def.max_clip_distance
+			<< ", " << def.camera_role
+			<< ", " << def.camera_mode
+			<< ", " << def.material_name;
+		if (!def.camera_name.empty())
+		{
+			m_stream << ", " << def.camera_name;
+		}
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessSetSkeletonSettings(File::Module* module)
+{
+	if (!module->skeleton_settings)
+	{
+		return;
+	}
+	RigDef::SkeletonSettings* def = module->skeleton_settings.get();
+	m_stream << "set_skeleton_settings " << def->visibility_range_meters << ", " << def->beam_thickness_meters << "\n\n";
+}
+
+void Serializer::ProcessGuiSettings(File::Module* module)
+{
+	if (!module->gui_settings)
+	{
+		return;
+	}
+	RigDef::GuiSettings* def = module->gui_settings.get();
+	m_stream << "guisettings"
+		<< "\n\tspeedoMax: " << def->speedo_highest_kph 
+		<< "\n\tuseMaxRPM: " << def->use_max_rpm;
+
+	switch (def->interactive_overview_map_mode)
+	{
+	case GuiSettings::MAP_MODE_OFF:
+		m_stream << "\n\tinteractiveOverviewMap: off";
+		break;
+	case GuiSettings::MAP_MODE_SIMPLE:
+		m_stream << "\n\tinteractiveOverviewMap: simple";
+		break;
+	case GuiSettings::MAP_MODE_ZOOM:
+		m_stream << "\n\tinteractiveOverviewMap: zoom";
+		break;
+	default:;
+	}
+	if (!def->tacho_material.empty())
+	{
+		m_stream << "\n\ttachoMaterial: " << def->tacho_material;
+	}
+	if (!def->speedo_material.empty())
+	{
+		m_stream << "\n\tspeedoMaterial: " << def->speedo_material;
+	}
+	if (!def->help_material.empty())
+	{
+		m_stream << "\n\thelpMaterial: " << def->help_material;
+	}
+	auto end = def->dashboard_layouts.end();
+	for (auto itor = def->dashboard_layouts.begin(); itor != end; ++itor)
+	{
+		m_stream << "\n\tdashboard: " << *itor;
+	}
+	end = def->rtt_dashboard_layouts.end();
+	for (auto itor = def->rtt_dashboard_layouts.begin(); itor != end; ++itor)
+	{
+		m_stream << "\n\ttexturedashboard: " << *itor;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessExhausts(File::Module* module)
+{
+	if (module->exhausts.empty())
+	{
+		return;
+	}
+	m_stream << "exhausts" << endl;
+	auto end_itor = module->exhausts.end();
+	for (auto itor = module->exhausts.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Exhaust & def = *itor;
+
+		m_stream << "\n\t" << def.reference_node.ToString()
+			<< ", " << def.direction_node.ToString()
+			<< ", " << def.material_name;
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessSubmeshGroundmodel(File::Module* module)
+{
+	// TODO
+	m_stream << ";submesh_groundmodel -- STUB"<< endl << endl; // Empty line
+}
+
+#define CAB_PRINT_OPTION_FLAG(VAR, FLAG, CHAR) \
+	if (BITMASK_IS_1(VAR, RigDef::Cab::FLAG)) { m_stream << CHAR; }
+
+#define CAB_PRINT_OPTION_FUNC(DEF, FUNC, CHAR) \
+	if (DEF->FUNC()) { m_stream << CHAR; }
+
+void Serializer::ProcessSubmesh(File::Module* module)
+{
+	if (module->submeshes.empty())
+	{
+		return;
+	}
+	m_stream << "submesh" << endl;
+	auto end_itor = module->submeshes.end();
+	for (auto itor = module->submeshes.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Submesh & def = *itor;
+
+		if (def.texcoords.size() > 0)
+		{
+			m_stream << "\n\ttexcoords";
+			auto texcoord_end = def.texcoords.end();
+			for (auto texcoord_itor = def.texcoords.begin(); texcoord_itor != texcoord_end; ++texcoord_itor)
+			{
+				m_stream << "\n\t" << texcoord_itor->node.ToString() << ", " << texcoord_itor->u << ", " << texcoord_itor->v;
+			}
+		}
+		if (def.cab_triangles.size() > 0)
+		{
+			m_stream << "\n\tcab";
+			auto cab_end = def.cab_triangles.end();
+			for (auto cab_itor = def.cab_triangles.begin(); cab_itor != cab_end; ++cab_itor)
+			{
+				m_stream << "\n\t" << cab_itor->nodes[0].ToString() 
+					<< ", " << cab_itor->nodes[1].ToString() 
+					<< ", " << cab_itor->nodes[2].ToString()
+					<< ", n";
+
+				// Options
+				CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_c_CONTACT           , 'c')
+				CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_b_BUOYANT           , 'b')
+				CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_p_10xTOUGHER        , 'p')
+				CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_u_INVULNERABLE      , 'u')
+				CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_s_BUOYANT_NO_DRAG   , 's')
+				CAB_PRINT_OPTION_FLAG(cab_itor->options, OPTION_r_BUOYANT_ONLY_DRAG , 'r')
+				CAB_PRINT_OPTION_FUNC(cab_itor, GetOption_D_ContactBuoyant		    , 'D')
+				CAB_PRINT_OPTION_FUNC(cab_itor, GetOption_F_10xTougherBuoyant	    , 'F')
+				CAB_PRINT_OPTION_FUNC(cab_itor, GetOption_S_UnpenetrableBuoyant     , 'S')
+			}
+		}
+		if (def.backmesh)
+		{
+			m_stream << "\n\tbackmesh";
+		}
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+#define PROP_ANIMATION_ADD_FLAG(FLAGS_VAR, AND_VAR, BITMASK_CONST, NAME_STR) \
+	if (AND_VAR) { m_stream << " | "; } \
+	if (BITMASK_IS_1((FLAGS_VAR), RigDef::Animation::BITMASK_CONST)) { \
+		AND_VAR = true; \
+		m_stream << NAME_STR; \
+	}
+
+void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
+{
+	m_stream << "\n\tadd_animation " << anim.ratio
+		<< ", " << anim.lower_limit
+		<< ", " << anim.upper_limit
+		<< ", source: ";
+			
+	// Source flags
+	bool and = false;
+	unsigned int src_flags = anim.source;
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_AIRSPEED         , "airspeed");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_VERTICAL_VELOCITY, "vvi");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ALTIMETER_100K   , "altimeter100k");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ALTIMETER_10K    , "altimeter10k");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ALTIMETER_1K     , "altimeter1k");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ANGLE_OF_ATTACK  , "aoa");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_FLAP             , "flap");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_AIR_BRAKE        , "airbrake");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ROLL             , "roll");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_PITCH            , "pitch");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_BRAKES           , "brakes");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ACCEL            , "accel");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_CLUTCH           , "clutch");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_SPEEDO           , "speedo");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_TACHO            , "tacho");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_TURBO            , "turbo");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_PARKING          , "parking");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_SHIFT_LEFT_RIGHT , "shifterman1");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_SHIFT_BACK_FORTH , "shifterman2");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_SEQUENTIAL_SHIFT , "sequential");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_SHIFTERLIN       , "shifterlin");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_TORQUE           , "torque");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_HEADING          , "heading");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_DIFFLOCK         , "difflock");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_BOAT_RUDDER      , "rudderboat");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_BOAT_THROTTLE    , "throttleboat");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_STEERING_WHEEL   , "steeringwheel");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_AILERON          , "aileron");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_ELEVATOR         , "elevator");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_AIR_RUDDER       , "rudderair");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_PERMANENT        , "permanent");
+	PROP_ANIMATION_ADD_FLAG(src_flags, and, SOURCE_EVENT            , "event");
+			
+	m_stream << ", mode: ";
+	and = false;
+	unsigned int mode_flags = anim.mode;
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_ROTATION_X  , "x-rotation");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_ROTATION_Y  , "y-rotation");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_ROTATION_Z  , "z-rotation");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_OFFSET_X    , "x-offset");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_OFFSET_Y    , "y-offset");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_OFFSET_Z    , "z-offset");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_AUTO_ANIMATE, "autoanimate");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_NO_FLIP     , "noflip");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_BOUNCE      , "bounce");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, and, MODE_EVENT_LOCK  , "eventlock");
+			
+	if (anim.HasSource_Event())
+	{
+		m_stream << ", event: " << anim.event;
+	}
+}
+
+void Serializer::ProcessFlexbodies(File::Module* module)
+{
+	if (module->flexbodies.empty())
+	{
+		return;
+	}
+	m_stream << "flexbodies" << endl;
+	auto end_itor = module->flexbodies.end();
+	for (auto itor = module->flexbodies.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Flexbody* def = itor->get();
+
+		// Prop-like line
+		m_stream << "\n\t" << def->reference_node.ToString()
+			<< ", " << def->x_axis_node.ToString()
+			<< ", " << def->y_axis_node.ToString()
+			<< ", " << def->offset.x
+			<< ", " << def->offset.y
+			<< ", " << def->offset.z
+			<< ", " << def->rotation.x 
+			<< ", " << def->rotation.y
+			<< ", " << def->rotation.z
+			<< ", " << def->mesh_name;
+
+		// Forset line
+		m_stream << "\n\t\tforset ";
+		auto forset_end = def->forset.end();
+		auto forset_itor = def->forset.begin();
+		bool first = true;
+		for (; forset_itor != forset_end; ++forset_itor)
+		{
+			if (!first)
+			{
+				m_stream << ", ";
+			}
+			m_stream << forset_itor->start.ToString();
+			if (forset_itor->IsRange())
+			{
+				m_stream << "-" << forset_itor->end.ToString();
+			}
+			first = false;
+		}
+
+		// Animations
+		auto anim_end = def->animations.end();
+		for (auto anim_itor = def->animations.begin(); anim_itor != anim_end; ++anim_itor)
+		{
+			ProcessDirectiveAddAnimation(*anim_itor);
+		}
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessPropsAndAnimations(File::Module* module)
+{
+	if (module->props.empty())
+	{
+		return;
+	}
+	m_stream << "props" << endl;
+	auto end_itor = module->props.end();
+	for (auto itor = module->props.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::Prop & def = *itor;
+
+		m_stream << "\n\t" << def.reference_node.ToString()
+			<< ", " << def.x_axis_node.ToString()
+			<< ", " << def.y_axis_node.ToString()
+			<< ", " << def.offset.x
+			<< ", " << def.offset.y
+			<< ", " << def.offset.z
+			<< ", " << def.rotation.x 
+			<< ", " << def.rotation.y
+			<< ", " << def.rotation.z
+			<< ", ";
+		if (def.special == Prop::SPECIAL_INVALID)
+		{
+			m_stream << def.mesh_name;
+			continue;
+		}
+
+		// Special props
+		if (def.special == Prop::SPECIAL_BEACON)
+		{
+			m_stream << def.mesh_name 
+				<< " " << def.special_prop_beacon.flare_material_name
+				<< " " << def.special_prop_beacon.color.r
+				<< ", " << def.special_prop_beacon.color.g
+				<< ", " << def.special_prop_beacon.color.b;
+		}
+		else if (def.special == Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED || def.special == Prop::SPECIAL_STEERING_WHEEL_RIGHT_HANDED)
+		{
+			m_stream << " " << def.special_prop_steering_wheel.mesh_name
+				<< " " << def.special_prop_steering_wheel.offset.x
+				<< ", " << def.special_prop_steering_wheel.offset.y
+				<< ", " << def.special_prop_steering_wheel.offset.z
+				<< ", " << def.special_prop_steering_wheel.rotation_angle;
+		}
+
+		// Animations
+		auto anim_end = def.animations.end();
+		for (auto anim_itor = def.animations.begin(); anim_itor != anim_end; ++anim_itor)
+		{
+			ProcessDirectiveAddAnimation(*anim_itor);
+		}
+	}
+	m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessMaterialFlareBindings(File::Module* module)
+{
+	if (module->material_flare_bindings.empty())
+	{
+		return;
+	}
+	m_stream << "materialflarebindings" << endl;
+	auto end_itor = module->material_flare_bindings.end();
+	for (auto itor = module->material_flare_bindings.begin(); itor != end_itor; ++itor)
+	{
+		RigDef::MaterialFlareBinding & def = *itor;
+		m_stream << "\n\t" << def.flare_number << ", " << def.material_name;
+	}
+	m_stream << endl << endl; // Empty line
+}
 
 void Serializer::ProcessFlares2(File::Module* module)
 {
@@ -911,21 +1523,29 @@ void Serializer::ProcessEngine(File::Module* module)
 		return;
 	}
 	
-	m_stream << "engine\n\t" 
-		<< setw(m_float_width)   << module->engine->shift_down_rpm                << ", "
-		<< setw(m_float_width)   << module->engine->shift_up_rpm                  << ", "
-		<< setw(m_float_width)   << module->engine->torque                        << ", "
-		<< setw(m_float_width)   << module->engine->global_gear_ratio             << ", "
-		<< setw(m_float_width)   << module->engine->reverse_gear_ratio            << ", "
-		<< setw(m_float_width)   << module->engine->neutral_gear_ratio;
-		
-	auto itor_end = module->engine->gear_ratios.end();
-	auto itor = module->engine->gear_ratios.end();
-	for (; itor != itor_end; ++itor)
+	m_stream << "engine" 
+        "\n;\t"
+        "ShiftDownRPM,"
+        " ShiftUpRPM,"
+        "     Torque,"
+        " GlobalGear,"
+        " ReverseGear,"
+        " NeutralGear,"
+        " Forward gears...\n\t"
+		<< setw(12)   << module->engine->shift_down_rpm                << ", "
+		<< setw(10)   << module->engine->shift_up_rpm                  << ", "
+		<< setw(10)   << module->engine->torque                        << ", "
+		<< setw(10)   << module->engine->global_gear_ratio             << ", "
+		<< setw(11)   << module->engine->reverse_gear_ratio            << ", "
+		<< setw(11)   << module->engine->neutral_gear_ratio;
+	
+    auto itor = module->engine->gear_ratios.begin();	
+	auto end  = module->engine->gear_ratios.end();
+	for (; itor != end; ++itor)
 	{
 		m_stream << ", " << *itor;
 	}
-	m_stream << endl << endl;
+	m_stream << ", -1.0" /*terminator*/ << endl << endl;
 }
 
 void Serializer::ProcessEngoption(File::Module* module)
@@ -935,17 +1555,29 @@ void Serializer::ProcessEngoption(File::Module* module)
 		return;
 	}
 	
-	m_stream << "engoption" << endl << "\t" 
-		<< setw(m_float_width)   << module->engoption->inertia           << ", "
-		                         << module->engoption->type              << ", "
-		<< setw(m_float_width)   << module->engoption->clutch_force      << ", "
-		<< setw(m_float_width)   << module->engoption->shift_time        << ", "
-		<< setw(m_float_width)   << module->engoption->clutch_time       << ", "
-		<< setw(m_float_width)   << module->engoption->post_shift_time   << ", "
-		<< setw(m_float_width)   << module->engoption->stall_rpm         << ", "
-		<< setw(m_float_width)   << module->engoption->idle_rpm          << ", "
-		<< setw(m_float_width)   << module->engoption->max_idle_mixture  << ", "
-		<< setw(m_float_width)   << module->engoption->min_idle_mixture;
+	m_stream << "engoption"
+        "\n;\t"
+        "EngInertia,"
+        " EngineType,"
+        " ClutchForce,"
+        " ShiftTime,"
+        " ClutchTime,"
+        " PostShiftTime,"
+        " StallRPM,"
+        " IdleRPM,"
+        " MaxIdleMixture,"
+        " MinIdleMixture"
+        "\n\t" 
+		<< setw(10)   << module->engoption->inertia           << ", "
+		<< setw(10)   << (char)module->engoption->type        << ", "
+		<< setw(11)   << module->engoption->clutch_force      << ", "
+		<< setw( 9)   << module->engoption->shift_time        << ", "
+		<< setw(10)   << module->engoption->clutch_time       << ", "
+		<< setw(13)   << module->engoption->post_shift_time   << ", "
+		<< setw( 8)   << module->engoption->stall_rpm         << ", "
+		<< setw( 7)   << module->engoption->idle_rpm          << ", "
+		<< setw(14)   << module->engoption->max_idle_mixture  << ", "
+		<< setw(14)   << module->engoption->min_idle_mixture;
 	
 	m_stream << endl << endl;
 }
@@ -1032,7 +1664,7 @@ void Serializer::ProcessMeshWheels(File::Module* module)
 	{
 		return;
 	}
-	m_stream << "meshwheels" << endl << endl;
+	m_stream << "meshwheels\n\n";
 	auto end_itor = module->mesh_wheels.end();
 	for (auto itor = module->mesh_wheels.begin(); itor != end_itor; ++itor)
 	{
@@ -1457,6 +2089,7 @@ void Serializer::ProcessCommand2(Command2 & def)
 	m_stream << std::setw(m_inertia_function_width) << def.inertia.stop_function  << ", ";
 	m_stream << std::setw(m_float_width) << def.affect_engine                     << ", ";
 	m_stream << std::setw(m_bool_width) << (def.needs_engine ? "true" : "false");
+	m_stream << endl;
 }
 
 void Serializer::ProcessHydro(Hydro & def)
@@ -1479,9 +2112,16 @@ void Serializer::ProcessHydro(Hydro & def)
 	// Inertia
 	OptionalInertia & inertia = def.inertia;
 	m_stream << std::setw(m_float_width) << inertia.start_delay_factor  << ", ";
-	m_stream << std::setw(m_float_width) << inertia.stop_delay_factor   << ", ";
-	m_stream << std::setw(m_inertia_function_width) << inertia.start_function << ", ";
-	m_stream << std::setw(m_inertia_function_width) << inertia.stop_function;
+	m_stream << std::setw(m_float_width) << inertia.stop_delay_factor;
+	if (!inertia.start_function.empty())
+	{
+		m_stream << ", " << std::setw(m_inertia_function_width) << inertia.start_function;
+		if (!inertia.stop_function.empty())
+		{
+			m_stream << ", " << std::setw(m_inertia_function_width) << inertia.stop_function;
+		}
+	}
+	m_stream << endl;
 }
 
 void Serializer::ProcessShock(Shock & def)
@@ -1689,23 +2329,47 @@ void Serializer::ProcessNodes(File::Module* module)
 	ProcessNodeDefaults(node_zero->node_defaults.get());
 	ProcessNode(*node_zero);
 
-	// Other nodes
-	auto preset_itor_end = nodes_by_presets.end();
-	for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
-	{
-		// Write preset
-		NodeDefaults* preset = preset_itor->first;
-		ProcessNodeDefaults(preset);
+    // Other numbered nodes
+    auto preset_itor_end = nodes_by_presets.end();
+    for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
+    {
+        // Write preset
+        NodeDefaults* preset = preset_itor->first;
+        ProcessNodeDefaults(preset);
 
-		// Write nodes
-		std::vector<Node*> & node_list = preset_itor->second;
-		auto node_itor_end = node_list.end();
-		for (auto node_itor = node_list.begin(); node_itor != node_itor_end; ++node_itor)
-		{
-			Node & node = *(*node_itor);
-			ProcessNode(node);
-		}
-	}
+        // Write nodes
+        std::vector<Node*> & node_list = preset_itor->second;
+        auto node_itor_end = node_list.end();
+        for (auto node_itor = node_list.begin(); node_itor != node_itor_end; ++node_itor)
+        {
+            Node & node = *(*node_itor);
+            if (node.id.Str().empty()) // Numbered nodes only
+            {
+                ProcessNode(node);
+            }
+        }
+    }
+
+    // Other named nodes
+    m_stream << endl << endl << "nodes2" << endl << endl;
+    for (auto preset_itor = nodes_by_presets.begin(); preset_itor != preset_itor_end; ++preset_itor)
+    {
+        // Write preset
+        NodeDefaults* preset = preset_itor->first;
+        ProcessNodeDefaults(preset);
+
+        // Write nodes
+        std::vector<Node*> & node_list = preset_itor->second;
+        auto node_itor_end = node_list.end();
+        for (auto node_itor = node_list.begin(); node_itor != node_itor_end; ++node_itor)
+        {
+            Node & node = *(*node_itor);
+            if (!node.id.Str().empty() && node.id.Num() == 0) // Named nodes only
+            {
+                ProcessNode(node);
+            }
+        }
+    }
 
 	// Empty line
 	m_stream << endl;
@@ -1909,12 +2573,17 @@ void Serializer::ProcessAuthors()
 
 void Serializer::ProcessGlobals(File::Module* module)
 {
-	if (module->globals.get() != nullptr)
+	if (module->globals.get() == nullptr)
 	{
-		m_stream 
-			<< "globals" << endl
-			<< "\t" << module->globals->dry_mass << ", "
-			<< module->globals->cargo_mass << ", "
-			<< module->globals->material_name << endl << endl;
-	}
+        return;
+    }
+
+	m_stream << "globals\n\t"
+        << module->globals->dry_mass << ", "
+		<< module->globals->cargo_mass;
+    if (!module->globals->material_name.empty())
+    {
+        m_stream << ", " << module->globals->material_name;
+    }
+    m_stream << endl << endl;
 }

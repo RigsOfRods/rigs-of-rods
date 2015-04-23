@@ -33,10 +33,12 @@
 #include "GUI_RigEditorBeamsPanel.h"
 #include "GUI_RigEditorCommands2Panel.h"
 #include "GUI_RigEditorDeleteMenu.h"
+#include "GUI_RigEditorFlexBodyWheelsPanel.h"
 #include "GUI_RigEditorHelpWindow.h"
 #include "GUI_RigEditorHydrosPanel.h"
 #include "GUI_RigEditorLandVehiclePropertiesWindow.h"
 #include "GUI_RigEditorMenubar.h"
+#include "GUI_RigEditorMeshWheels2Panel.h"
 #include "GUI_RigEditorNodePanel.h"
 #include "GUI_RigEditorRigPropertiesWindow.h"
 #include "GUI_RigEditorShocksPanel.h"
@@ -54,7 +56,8 @@
 #include "RigEditor_Node.h"
 #include "RigEditor_Rig.h"
 #include "RigEditor_RigProperties.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
+#include "RigEditor_RigWheelsAggregateData.h"
 #include "Settings.h"
 
 #include <OISKeyboard.h>
@@ -81,7 +84,8 @@ Main::Main(Config* config):
 	m_exit_loop_requested(false),
 	m_input_handler(nullptr),
 	m_debug_box(nullptr),
-	m_rig(nullptr)
+	m_rig(nullptr),
+    m_state_flags(0)
 {
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
@@ -179,6 +183,8 @@ void Main::EnterMainLoop()
 	m_commands2_panel->HideTemporarily();
 	m_shocks_panel   ->HideTemporarily();
 	m_shocks2_panel  ->HideTemporarily();
+    m_meshwheels2_panel     ->HideTemporarily();
+    m_flexbodywheels_panel  ->HideTemporarily();
 
 	/* Hide debug box */
 	m_debug_box->setVisible(false);
@@ -504,19 +510,90 @@ void Main::UpdateMainLoop()
 						m_shocks2_panel->Show();
 					}
 				}
-			}
-		}
+			} // if (query.num_selected >= 2)
+		} // if (node_selection_changed)
+
+        bool must_refresh_wheels_mesh = false;
+
+        if (this->IsAnyWheelSelectionChangeScheduled())
+        {
+            // Apply changes from panels
+            AllWheelsAggregateData wheel_update;
+            wheel_update.flexbodywheels_data = *m_flexbodywheels_panel->GetFlexBodyWheelsData();
+            wheel_update.num_elements += wheel_update.flexbodywheels_data.num_elements;
+            wheel_update.meshwheels2_data = *m_meshwheels2_panel->GetMeshWheel2Data();
+            wheel_update.num_elements += wheel_update.meshwheels2_data.num_elements;
+            must_refresh_wheels_mesh = m_rig->UpdateSelectedWheelsData(&wheel_update);
+
+            // Update selection
+            const bool any_change = m_rig->PerformScheduledWheelSelectionUpdates(this);
+            this->ResetAllScheduledWheelSelectionChanges();
+
+            if (any_change)
+            {
+                HideAllWheelGuiPanels();
+            
+                // Query selected wheels data
+                AllWheelsAggregateData wheel_query;
+                m_rig->QuerySelectedWheelsData(&wheel_query);
+                if (wheel_query.num_elements != 0)
+                {
+                    if(wheel_query.ContainsMultipleWheelTypes())
+                    {
+                        // To be done.
+                    }
+                    else if (wheel_query.meshwheels2_data.num_elements != 0)
+                    {
+                        m_meshwheels2_panel->UpdateMeshWheels2Data(&wheel_query.meshwheels2_data);
+                        m_meshwheels2_panel->Show();
+                    }
+                    else if (wheel_query.flexbodywheels_data.num_elements != 0)
+                    {
+                        m_flexbodywheels_panel->UpdateFlexBodyWheelsData(&wheel_query.flexbodywheels_data);
+                        m_flexbodywheels_panel->Show();
+                    }
+                }
+            }
+        }
+        else
+        {
+            AllWheelsAggregateData wheel_update;
+            if (m_flexbodywheels_panel->IsImmediateRigUpdateNeeded())
+            {
+                wheel_update.flexbodywheels_data = *m_flexbodywheels_panel->GetFlexBodyWheelsData();
+                wheel_update.num_elements += wheel_update.flexbodywheels_data.num_elements;
+                m_flexbodywheels_panel->SetIsImmediateRigUpdateNeeded(false);
+            }
+            if (m_meshwheels2_panel->IsImmediateRigUpdateNeeded())
+            {
+                wheel_update.meshwheels2_data = *m_meshwheels2_panel->GetMeshWheel2Data();
+                wheel_update.num_elements += wheel_update.meshwheels2_data.num_elements;
+                m_meshwheels2_panel->SetIsImmediateRigUpdateNeeded(false);
+            }
+            if (wheel_update.num_elements != 0)
+            {
+                must_refresh_wheels_mesh = m_rig->UpdateSelectedWheelsData(&wheel_update);
+            }
+        }
 
 		// ==== Update visuals ====
-
+        Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
 		if (rig_updated || node_selection_changed || node_hover_changed)
 		{
-			m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+			m_rig->RefreshNodesDynamicMeshes(parent_scene_node);
 		}
 		if (rig_updated)
 		{
 			m_rig->RefreshBeamsDynamicMesh();
 		}
+        bool force_refresh_wheel_selection_boxes = false;
+        if (must_refresh_wheels_mesh)
+        {
+            m_rig->RefreshWheelsDynamicMesh(parent_scene_node, this);
+            force_refresh_wheel_selection_boxes = true;
+        }
+        m_rig->CheckAndRefreshWheelsSelectionHighlights(this, parent_scene_node, force_refresh_wheel_selection_boxes);
+	    m_rig->CheckAndRefreshWheelsMouseHoverHighlights(this, parent_scene_node);
 	}
 
 	/* Update devel console */
@@ -569,6 +646,7 @@ void Main::CommandCloseCurrentRig()
 
 		// Restore GUI
 		HideAllNodeBeamGuiPanels();
+		m_gui_menubar->ClearLandVehicleWheelsList();
 	}
 }
 
@@ -744,21 +822,30 @@ bool Main::LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const
 	/* BUILD RIG MESH */
 
 	m_rig = new RigEditor::Rig(m_config);
-	m_rig->Build(parser.GetFile(), this);
+	RigEditor::RigBuildingReport rig_build_report;
+	Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
+	m_rig->Build(parser.GetFile(), this, parent_scene_node, &rig_build_report);
 
 	/* SHOW MESH */
+    this->OnNewRigCreatedOrLoaded(parent_scene_node);
 
-	m_rig->AttachToScene(m_scene_manager->getRootSceneNode());
+	LOG(Ogre::String("RigEditor: Finished loading rig, report:\n") + rig_build_report.ToString());
+
+	return true;
+}
+
+void Main::OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node)
+{
+    m_rig->AttachToScene(parent_scene_node);
 	/* Handle mouse selection of nodes */
 	m_rig->RefreshAllNodesScreenPositions(m_camera_handler);
 	if (m_rig->RefreshMouseHoveredNode(m_input_handler->GetMouseMotionEvent().GetAbsolutePosition()))
 	{
-		m_rig->RefreshNodesDynamicMeshes(m_scene_manager->getRootSceneNode());
+		m_rig->RefreshNodesDynamicMeshes(parent_scene_node);
 	}
-
-	LOG("RigEditor: Rig loaded OK");
-
-	return true;
+	/* Update GUI */
+	m_gui_menubar->ClearLandVehicleWheelsList();
+	m_gui_menubar->UpdateLandVehicleWheelsList(m_rig->GetWheels());
 }
 
 void Main::CommandCurrentRigDeleteSelectedNodes()
@@ -827,14 +914,12 @@ void Main::CommandShowLandVehiclePropertiesWindow()
 	}
 }
 
-void Main::CommandSaveContentOfLandVehiclePropertiesWindow()
+void Main::CommandSaveLandVehiclePropertiesWindowData()
 {
 	if (m_rig != nullptr && m_gui_land_vehicle_properties_window->IsVisible())
 	{
-		m_gui_land_vehicle_properties_window->Export(
-			m_rig->GetProperties()->GetEngine(),
-			m_rig->GetProperties()->GetEngoption()
-			);
+        m_rig->GetProperties()->SetEngine(m_gui_land_vehicle_properties_window->ExportEngine());
+        m_rig->GetProperties()->SetEngoption(m_gui_land_vehicle_properties_window->ExportEngoption());
 	}
 }
 
@@ -844,7 +929,7 @@ void Main::CommandShowHelpWindow()
 	m_gui_help_window->CenterToScreen();
 }
 
-#define INIT_OR_RESTORE_NODEBEAM_PANEL(VAR, CLASSNAME) \
+#define INIT_OR_RESTORE_RIG_ELEMENT_PANEL(VAR, CLASSNAME) \
 	if ((VAR).get() == nullptr) \
 		(VAR) = std::unique_ptr<GUI::CLASSNAME>(new GUI::CLASSNAME(this, m_config)); \
 	else \
@@ -852,12 +937,14 @@ void Main::CommandShowHelpWindow()
 
 void Main::InitializeOrRestoreGui()
 {
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_nodes_panel,     RigEditorNodePanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_beams_panel,     RigEditorBeamsPanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_hydros_panel,    RigEditorHydrosPanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_commands2_panel, RigEditorCommands2Panel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_shocks_panel,    RigEditorShocksPanel);
-	INIT_OR_RESTORE_NODEBEAM_PANEL(m_shocks2_panel,   RigEditorShocks2Panel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_nodes_panel,            RigEditorNodePanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_beams_panel,            RigEditorBeamsPanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_hydros_panel,           RigEditorHydrosPanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_commands2_panel,        RigEditorCommands2Panel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_shocks_panel,           RigEditorShocksPanel);
+	INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_shocks2_panel,          RigEditorShocks2Panel);
+    INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_meshwheels2_panel,      RigEditorMeshWheels2Panel);
+    INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_flexbodywheels_panel,   RigEditorFlexBodyWheelsPanel);
 
 	RoR::Application::GetGuiManager()->SetSceneManager(m_scene_manager);
 	if (m_gui_menubar.get() == nullptr)
@@ -893,6 +980,12 @@ void Main::InitializeOrRestoreGui()
 	}
 }
 
+void Main::HideAllWheelGuiPanels()
+{
+    m_meshwheels2_panel->Hide();
+    m_flexbodywheels_panel->Hide();
+}
+
 // ----------------------------------------------------------------------------
 // Rig Updaters
 // ----------------------------------------------------------------------------
@@ -925,6 +1018,145 @@ void Main::CommandRigSelectedHydrosUpdateAttributes(const RigAggregateHydrosData
 void Main::CommandRigSelectedCommands2UpdateAttributes(const RigAggregateCommands2Data*  data)
 {
 	m_rig->SelectedCommands2UpdateAttributes(data);
+}
+
+void Main::CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected)
+{
+    if (m_rig == nullptr)
+    {
+        return;
+    }
+    const bool selection_changes = m_rig->ScheduleSetWheelSelected(wheel_ptr, wheel_index, state_selected, this);
+    if (selection_changes)
+    {
+        if (state_selected)
+        {
+            this->SetIsSelectWheelScheduled(true);
+            this->SetIsDeselectWheelScheduled(false);
+        }
+        else
+        {
+            this->SetIsSelectWheelScheduled(false);
+            this->SetIsDeselectWheelScheduled(true);
+        }
+    }
+}
+
+void Main::CommandSetWheelHovered (LandVehicleWheel* wheel_ptr, int wheel_index, bool state_hovered)
+{
+    if (m_rig == nullptr)
+    {
+        return;
+    }
+	m_rig->SetWheelHovered(wheel_ptr, wheel_index, state_hovered, this);
+}
+
+void Main::CommandScheduleSetAllWheelsSelected(bool state_selected)
+{
+    if (m_rig == nullptr)
+    {
+        return;
+    }
+    if (m_rig->ScheduleSetAllWheelsSelected(state_selected, this))
+    {
+        if (state_selected)
+        {
+            this->SetIsSelectAllWheelsScheduled(true);
+            this->SetIsDeselectAllWheelsScheduled(false);        
+        }
+        else
+        {
+            this->SetIsSelectAllWheelsScheduled(false);
+            this->SetIsDeselectAllWheelsScheduled(true);
+        }
+    }
+}
+
+void Main::CommandSetAllWheelsHovered(bool state_hovered)
+{
+    if (m_rig != nullptr)
+    {
+	    m_rig->SetAllWheelsHovered(state_hovered, this);
+    }
+}
+
+// Utility macros for creating fresh empty rig + initial cube
+#define ADD_NODE(MODULENAME, NODENAME, X, Y, Z) \
+{ \
+    RigDef::Node n; \
+    n.id.SetStr(NODENAME); \
+    n.position = Ogre::Vector3(X, Y, Z); \
+    MODULENAME->nodes.push_back(n); \
+}
+#define LINK_NODES(MODULE, NODE1, NODE2)\
+{\
+    RigDef::Beam b;\
+    b.nodes[0].SetStr(NODE1);\
+    b.nodes[1].SetStr(NODE2);\
+    MODULE->beams.push_back(b);\
+}
+#define LINK_NODE_0(MODULE, NODE1)\
+{\
+    RigDef::Beam b;\
+    b.nodes[0].SetStr(NODE1);\
+    b.nodes[1].SetNum(0);\
+    MODULE->beams.push_back(b);\
+}
+
+void Main::CommandCreateNewEmptyRig()
+{
+    if (m_rig != nullptr)
+    {
+	    return;
+    }
+
+    m_rig = new RigEditor::Rig(m_config);
+    // Create definition
+	auto def = boost::shared_ptr<RigDef::File>(new RigDef::File());
+    def->name = "Unnamed rig (created in editor)";
+	auto module = boost::shared_ptr<RigDef::File::Module>(new RigDef::File::Module("_Root_"));
+	def->root_module = module;
+    // Create special node 0 in _Root_ module
+    RigDef::Node node_0;
+    node_0.id.SetNum(0);
+    node_0.position = Ogre::Vector3::ZERO;
+    module->nodes.push_back(node_0);
+    // Create cube around node 0
+    float size = m_config->new_rig_initial_box_half_size;
+    ADD_NODE(module, "CUBE_bottom_oo", -size, -size, -size);
+    ADD_NODE(module, "CUBE_bottom_xo",  size, -size, -size);
+    ADD_NODE(module, "CUBE_bottom_ox", -size, -size,  size);
+    ADD_NODE(module, "CUBE_bottom_xx",  size, -size,  size);
+    ADD_NODE(module, "CUBE_top_oo",    -size,  size, -size);
+    ADD_NODE(module, "CUBE_top_xo",     size,  size, -size);
+    ADD_NODE(module, "CUBE_top_ox",    -size,  size,  size);
+    ADD_NODE(module, "CUBE_top_xx",     size,  size,  size);
+    // Link nodes                         
+    LINK_NODES(module, "CUBE_bottom_oo", "CUBE_bottom_xo"); // Bottom plane...
+    LINK_NODES(module, "CUBE_bottom_xo", "CUBE_bottom_xx");
+    LINK_NODES(module, "CUBE_bottom_xx", "CUBE_bottom_ox");
+    LINK_NODES(module, "CUBE_bottom_ox", "CUBE_bottom_oo");
+    LINK_NODES(module, "CUBE_top_oo", "CUBE_top_xo"); // Top plane...
+    LINK_NODES(module, "CUBE_top_xo", "CUBE_top_xx");
+    LINK_NODES(module, "CUBE_top_xx", "CUBE_top_ox");
+    LINK_NODES(module, "CUBE_top_ox", "CUBE_top_oo");
+    LINK_NODES(module, "CUBE_bottom_oo", "CUBE_top_oo"); // Top to bottom...
+    LINK_NODES(module, "CUBE_bottom_xo", "CUBE_top_xo");
+    LINK_NODES(module, "CUBE_bottom_ox", "CUBE_top_ox");
+    LINK_NODES(module, "CUBE_bottom_xx", "CUBE_top_xx");
+    // Link node 0
+    LINK_NODE_0(module, "CUBE_bottom_oo" );
+    LINK_NODE_0(module, "CUBE_bottom_xo" );
+    LINK_NODE_0(module, "CUBE_bottom_ox" );
+    LINK_NODE_0(module, "CUBE_bottom_xx" );
+    LINK_NODE_0(module, "CUBE_top_oo"    );
+    LINK_NODE_0(module, "CUBE_top_xo"    );
+    LINK_NODE_0(module, "CUBE_top_ox"    );
+    LINK_NODE_0(module, "CUBE_top_xx"    );
+    // Build
+    m_rig->Build(def, this, this->m_scene_manager->getRootSceneNode(), nullptr);
+    // Accomodate
+    this->OnNewRigCreatedOrLoaded(m_scene_manager->getRootSceneNode());
 }
 
 // ----------------------------------------------------------------------------

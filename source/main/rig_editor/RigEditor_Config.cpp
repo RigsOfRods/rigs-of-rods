@@ -97,7 +97,25 @@ Config::Config(Ogre::String const & conf_file_path)
 	gui_shocks2_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_shocks2_panel_margin_bottom_px");
 	gui_shocks2_panel_position.margin_top_px     = conf_file.GetInt( "gui_shocks2_panel_margin_top_px");
 
-	beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
+    // WHEEL panels
+
+    gui_meshwheels2_panel_position.anchor_right      = conf_file.GetBool("gui_meshwheels2_panel_anchor_right");
+	gui_meshwheels2_panel_position.anchor_bottom     = conf_file.GetBool("gui_meshwheels2_panel_anchor_bottom");
+	gui_meshwheels2_panel_position.margin_left_px    = conf_file.GetInt( "gui_meshwheels2_panel_margin_left_px");
+	gui_meshwheels2_panel_position.margin_right_px   = conf_file.GetInt( "gui_meshwheels2_panel_margin_right_px");
+	gui_meshwheels2_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_meshwheels2_panel_margin_bottom_px");
+	gui_meshwheels2_panel_position.margin_top_px     = conf_file.GetInt( "gui_meshwheels2_panel_margin_top_px");
+
+    gui_flexbodywheels_panel_position.anchor_right      = conf_file.GetBool("gui_flexbodywheels_panel_anchor_right");
+	gui_flexbodywheels_panel_position.anchor_bottom     = conf_file.GetBool("gui_flexbodywheels_panel_anchor_bottom");
+	gui_flexbodywheels_panel_position.margin_left_px    = conf_file.GetInt( "gui_flexbodywheels_panel_margin_left_px");
+	gui_flexbodywheels_panel_position.margin_right_px   = conf_file.GetInt( "gui_flexbodywheels_panel_margin_right_px");
+	gui_flexbodywheels_panel_position.margin_bottom_px  = conf_file.GetInt( "gui_flexbodywheels_panel_margin_bottom_px");
+	gui_flexbodywheels_panel_position.margin_top_px     = conf_file.GetInt( "gui_flexbodywheels_panel_margin_top_px");
+
+	// NODE/BEAM DISPLAY
+    
+    beam_generic_color        = conf_file.GetColourValue("beam_generic_color_rgb");
 	beam_invisible_color      = conf_file.GetColourValue("beam_invisible_color_rgb");
 	beam_rope_color           = conf_file.GetColourValue("beam_rope_color_rgb");
 	beam_support_color        = conf_file.GetColourValue("beam_support_color_rgb");
@@ -112,6 +130,16 @@ Config::Config(Ogre::String const & conf_file_path)
 	meshwheel2_beam_reinforcement_color  = conf_file.GetColourValue("meshwheel2_beam_reinforcement_color_rgb");
 	meshwheel2_beam_rigidity_color       = conf_file.GetColourValue("meshwheel2_beam_rigidity_color_rgb");
 
+	meshwheel_beam_bounded_color        = conf_file.GetColourValue("meshwheel_beam_bounded_color_rgb");
+	meshwheel_beam_reinforcement_color  = conf_file.GetColourValue("meshwheel_beam_reinforcement_color_rgb");
+	meshwheel_beam_rigidity_color       = conf_file.GetColourValue("meshwheel_beam_rigidity_color_rgb");
+
+	flexbodywheel_rim_connection_color     = conf_file.GetColourValue("flexbodywheel_rim_connection_color");
+	flexbodywheel_rim_reinforcement_color  = conf_file.GetColourValue("flexbodywheel_rim_reinforcement_color");
+	flexbodywheel_tyre_connection_color	   = conf_file.GetColourValue("flexbodywheel_tyre_connection_color");
+	flexbodywheel_tyre_reinforcement_color = conf_file.GetColourValue("flexbodywheel_tyre_reinforcement_color");
+	flexbodywheel_tyre_rigidity_color	   = conf_file.GetColourValue("flexbodywheel_tyre_rigidity_color");
+
 	node_generic_color        = conf_file.GetColourValue("node_generic_color_rgb");
 	node_generic_point_size   = conf_file.GetFloat("node_generic_point_size");
 	node_hover_color          = conf_file.GetColourValue("node_hover_color_rgb");
@@ -119,9 +147,22 @@ Config::Config(Ogre::String const & conf_file_path)
 	node_selected_color       = conf_file.GetColourValue("node_selected_color_rgb");
 	node_selected_point_size  = conf_file.GetFloat("node_selected_point_size");
 
+    // CAMERA
+
 	camera_near_clip_distance = conf_file.GetFloat("camera_near_clip_distance");
 	camera_far_clip_distance  = conf_file.GetFloat("camera_far_clip_distance");
 	camera_FOVy_degrees       = conf_file.GetFloat("camera_FOVy_degrees");
 	ortho_camera_zoom_ratio   = conf_file.GetFloat("ortho_camera_zoom_ratio");
+
+	// HIGHLIGHT AABB PROPERTIES
+
+	wheels_selection_highlight_boxes_color   = conf_file.GetColourValue("wheels_selection_highlight_boxes_color");
+	wheels_selection_highlight_boxes_padding = conf_file.GetFloat("wheels_selection_highlight_boxes_padding");
+	wheels_hover_highlight_boxes_color       = conf_file.GetColourValue("wheels_hover_highlight_boxes_color");
+	wheels_hover_highlight_boxes_padding     = conf_file.GetFloat("wheels_hover_highlight_boxes_padding");
+
+    // RIG PROPERTIES
+
+    new_rig_initial_box_half_size     = conf_file.GetFloat("new_rig_initial_box_half_size");
 
 }

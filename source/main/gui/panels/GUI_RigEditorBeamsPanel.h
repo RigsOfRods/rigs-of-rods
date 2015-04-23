@@ -30,9 +30,9 @@
 #include "ForwardDeclarations.h"
 #include "GUI_RigEditorBeamsPanelLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
-#include "RigEditor_GuiNodeBeamPanelBase.h"
+#include "RigEditor_RigElementGuiPanelBase.h"
 #include "RigEditor_IMain.h"
-#include "RigEditor_RigQueries.h"
+#include "RigEditor_RigElementsAggregateData.h"
 
 namespace RoR
 {
@@ -40,7 +40,7 @@ namespace RoR
 namespace GUI
 {
 
-class RigEditorBeamsPanel: public RigEditorBeamsPanelLayout, public RigEditor::GuiNodeBeamPanelBase
+class RigEditorBeamsPanel: public RigEditorBeamsPanelLayout, public RigEditor::RigElementGuiPanelBase
 {
 
 public:
@@ -81,8 +81,8 @@ private:
 	bool                                        m_data_mixed;
 
 	// GUI form fields
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_detacher_group_field;
-	RigEditor::GuiNodeBeamPanelBase::EditboxFieldSpec m_ext_breaklimit_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_detacher_group_field;
+	RigEditor::RigElementGuiPanelBase::EditboxFieldSpec m_ext_breaklimit_field;
 };
 
 } // namespace GUI
