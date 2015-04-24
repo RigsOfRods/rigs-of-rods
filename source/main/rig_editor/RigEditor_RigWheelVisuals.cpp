@@ -57,7 +57,6 @@ void RigWheelVisuals::BuildWheelsGeometryDynamicMesh(
 	std::vector<LandVehicleWheel*> & wheels
 	)
 {
-	assert(parent_scene_node != nullptr);
 	assert(rig_editor != nullptr);
 
 	// Prepare material
