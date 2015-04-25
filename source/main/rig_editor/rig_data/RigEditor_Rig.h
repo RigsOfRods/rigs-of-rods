@@ -214,7 +214,7 @@ private:
 
 	/** Rig building utility function
 	*/
-	Node* Rig::FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger = nullptr);
+	Node* FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger = nullptr);
 
 	bool GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report);
 
