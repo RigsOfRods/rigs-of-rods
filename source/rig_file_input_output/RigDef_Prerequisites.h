@@ -80,5 +80,6 @@ struct VideoCamera;
 
 class Parser;
 class Validator;
+class SequentialImporter;
 
 } /* namespace RigDef */

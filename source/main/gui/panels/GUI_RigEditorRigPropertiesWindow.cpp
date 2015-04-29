@@ -95,7 +95,7 @@ void CLASS::CancelButtonClicked(MyGUI::Widget* sender)
 	Hide();
 }
 
-void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode, RigDef::Node::Id node_id)
+void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode, RigDef::Node::Ref node_ref)
 {
 	m_radio_camera_behaviour_classic->setStateSelected(extcamera_mode == RigDef::ExtCamera::MODE_CLASSIC);
 	m_radio_camera_behaviour_cinecam->setStateSelected(extcamera_mode == RigDef::ExtCamera::MODE_CINECAM);
@@ -108,7 +108,7 @@ void CLASS::SetExtCameraMode(RigDef::ExtCamera::Mode extcamera_mode, RigDef::Nod
 	}
 	else
 	{
-		m_editbox_extcamera_node->setCaption(node_id.ToString());
+		m_editbox_extcamera_node->setCaption(node_ref.Str());
 	}
 	m_extcamera_mode = extcamera_mode;
 }
@@ -312,7 +312,9 @@ void CLASS::Export(RigEditor::RigProperties* data)
 	data->m_extcamera.mode = extcamera_mode;
 	if (extcamera_mode == RigDef::ExtCamera::MODE_NODE)
 	{
-		data->m_extcamera.node.SetNum(PARSEINT(m_editbox_extcamera_node->getCaption()));
+        std::string node_ref_str = m_editbox_extcamera_node->getCaption();
+        unsigned flags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED; // Fileformatversion>=450 ~ Use named-only nodes
+        data->m_extcamera.node = Node::Ref(node_ref_str, 0, flags); 
 	}
 
 	// Section 'set_skeleton_settings'
@@ -422,7 +424,7 @@ void CLASS::ExtcameraRadiobuttonClicked(MyGUI::Widget* sender)
 	}
 	if (mode != m_extcamera_mode)
 	{
-		SetExtCameraMode(mode, Node::Id(0));
+		SetExtCameraMode(mode, Node::Ref());
 	}
 }
 

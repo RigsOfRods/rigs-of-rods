@@ -108,16 +108,16 @@ Rig::~Rig()
 	m_nodes.clear();
 }
 
-Node* Rig::FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger /* = nullptr */ )
+Node* Rig::FindNode(RigDef::Node::Ref const & node_ref, RigBuildingReport* logger /* = nullptr */ )
 {
 	// Find node
-	auto result = m_nodes.find(node_id);
+	auto result = m_nodes.find(node_ref.Str());
 	if (result == m_nodes.end())
 	{
 		// Node not found
 		if (logger != nullptr)
 		{
-			logger->AddMessage(RigBuildingReport::Message::LEVEL_WARNING, Ogre::String("Node not found: ") + node_id.ToString());
+			logger->AddMessage(RigBuildingReport::Message::LEVEL_WARNING, std::string("Node not found: ") + node_ref.ToString());
 		}
 		return nullptr;
 	}
@@ -147,7 +147,6 @@ void Rig::Build(
 	
 	// ##### Process nodes (section "nodes") #####
 
-	unsigned int highest_numeric_id = 0;
 	int node_index = 0;
     if (report != nullptr)
     {
@@ -160,17 +159,11 @@ void Rig::Build(
 		RigDef::Node::Id & node_id = node_itor->id;
 		while (true)
 		{
-			auto result = m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_id, Node(node_def)) );
+            auto result = m_nodes.insert( std::make_pair(node_id.Str(), Node(node_def)) );
 			if (result.second == true)
 			{
 				// Update bounding box
 				m_aabb.merge(node_itor->position);
-
-				// Update highest numeric ID
-				if (node_id.Str().empty()) // Is numerically indexed?
-				{
-					highest_numeric_id = (node_id.Num() > highest_numeric_id) ? node_id.Num() : highest_numeric_id;
-				}
 
 				break;
 			}
@@ -178,7 +171,7 @@ void Rig::Build(
 			{
 				std::stringstream msg;
 				msg << "Duplicate node ID: " << node_id.ToString();
-				node_id.SetStr(node_id.ToString() + "-dup");
+				node_id.SetStr(node_id.Str() + "-dup");
 				msg << ", changed to: " << node_id.ToString();
 				report->AddMessage(RigBuildingReport::Message::LEVEL_WARNING, msg.str());
 				m_modified = true;
@@ -186,7 +179,7 @@ void Rig::Build(
 		}
 		node_index++;
 	}
-	m_highest_node_id = highest_numeric_id;
+    m_highest_node_id = m_nodes.size();
 
 	// ##### Process beams (section "beams") #####
 
@@ -356,9 +349,8 @@ void Rig::Build(
 		// === Cinecam node ===
 		RigDef::Node node_def;
 		node_def.position = cinecam_def.position;
-		++highest_numeric_id;
-		node_def.id.SetNum(highest_numeric_id);
-		auto result = m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_def.id, Node(node_def)) );
+		node_def.id.SetNum(m_highest_node_id++);
+        auto result = m_nodes.insert( std::make_pair(node_def.id.Str(), Node(node_def)) );
 		if (result.second == false)
 		{
 			// Insert failed
@@ -604,7 +596,7 @@ void Rig::Build(
 	m_wheel_visuals->RefreshWheelsDynamicMeshes(parent_scene_node, rig_editor, m_wheels);
 }
 
-bool Rig::GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report)
+bool Rig::GetWheelAxisNodes(RigDef::Node::Ref const & a1, RigDef::Node::Ref const & a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report)
 {
 	axis_inner = FindNode(a1, report);
 	axis_outer = FindNode(a2, report);
@@ -626,10 +618,10 @@ bool Rig::GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axi
 }
 
 bool Rig::GetWheelDefinitionNodes(
-	RigDef::Node::Id axis1,
-	RigDef::Node::Id axis2,
-	RigDef::Node::Id rigidity,
-	RigDef::Node::Id reference_arm,
+	RigDef::Node::Ref axis1,
+	RigDef::Node::Ref axis2,
+	RigDef::Node::Ref rigidity,
+	RigDef::Node::Ref reference_arm,
 	Node*& out_axis_inner, 
 	Node*& out_axis_outer,
 	Node*& out_rigidity, 
@@ -640,7 +632,7 @@ bool Rig::GetWheelDefinitionNodes(
 	this->GetWheelAxisNodes(axis1, axis2, out_axis_inner, out_axis_outer, report);
 	// Rigidity node (leave NULL if undefined)
 	Node* rigidity_ptr = nullptr;
-	if (rigidity.IsValid())
+	if (rigidity.IsValidAnyState())
 	{
 		rigidity_ptr = FindNode(rigidity, report);
 		if (rigidity_ptr == nullptr)
@@ -657,7 +649,7 @@ bool Rig::GetWheelDefinitionNodes(
 	}
 	// Reference arm node (set to inner axis node if undefined)
 	Node* ref_arm_ptr = out_axis_inner;
-	if (reference_arm.IsValid())
+	if (reference_arm.IsValidAnyState())
 	{
 		ref_arm_ptr = FindNode(reference_arm, report);
 		if (ref_arm_ptr == nullptr)
@@ -911,7 +903,7 @@ Node& Rig::CreateNewNode(Ogre::Vector3 const & position)
 	m_highest_node_id++;
 	node_def.id.SetNum(m_highest_node_id);
 	node_def.position = position;
-	auto result = m_nodes.insert( std::pair<RigDef::Node::Id, Node>(node_def.id, Node(node_def)) );
+	auto result = m_nodes.insert( std::make_pair(node_def.id.Str(), Node(node_def)) );
 	if (result.second == true)
 	{
 		m_aabb.merge(position); // Update bounding box

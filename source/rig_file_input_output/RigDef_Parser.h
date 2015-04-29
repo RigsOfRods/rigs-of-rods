@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2015 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.com/
 
@@ -12,11 +12,11 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -27,7 +27,9 @@
 
 #pragma once
 
+#include "RigDef_Prerequisites.h"
 #include "RigDef_File.h"
+#include "RigDef_SequentialImporter.h"
 
 #include <string>
 #include <boost/regex.hpp>
@@ -73,6 +75,7 @@ namespace RigDef
 		Again, there are exceptions to this rule.
 	
 */
+
 class Parser
 {
 
@@ -118,6 +121,14 @@ public:
 	{
 		return m_definition;
 	}
+
+    SequentialImporter* GetSequentialImporter() { return &m_sequential_importer; }
+
+    std::string ProcessMessagesToString();
+
+    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
+    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
+    int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
 protected:
 
@@ -298,6 +309,10 @@ protected:
 /*	Utilities */
 /* -------------------------------------------------------------------------- */
 
+    /** Attempts to parse cab line. Returns true if successful.
+    */
+    bool _TryParseCab(Ogre::String const & line);
+
 	void _CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index);
 
 	/** Keyword scan function. 
@@ -324,7 +339,7 @@ protected:
 	*/
 	void _ParseSectionsCommandsCommands2(Ogre::String const & line, boost::regex const & regex, unsigned int format_version);
 
-	Node::Id _ParseNodeId(std::string const & node_id_str);
+	Node::Ref _ParseNodeRef(std::string const & node_id_str);
 
 	Node::Id _ParseOptionalNodeId(std::string const & node_id_str);
 
@@ -378,14 +393,20 @@ protected:
 	File::Subsection                     m_current_subsection;     ///< Parser state.
 	bool                                 m_in_block_comment;       ///< Parser state.
 	bool                                 m_in_description_section; ///< Parser state.
+    bool                                 m_any_named_node_defined; ///< Parser state.
 	boost::shared_ptr<Submesh>           m_current_submesh;        ///< Parser state.
 	boost::shared_ptr<CameraRail>        m_current_camera_rail;    ///< Parser state.
 	boost::shared_ptr<Flexbody>          m_last_flexbody;
 	unsigned int                         m_num_contiguous_blank_lines; ///< Parser state; Num. blank lines right above the current one
 
+    SequentialImporter                   m_sequential_importer;
+
 	unsigned int                         m_current_line_number; ///< Only for reports. Initialised to 1
 	boost::shared_ptr<RigDef::File>      m_definition;
 	std::list<Message>                   m_messages;
+    int                                  m_messages_num_errors;
+    int                                  m_messages_num_warnings;
+    int                                  m_messages_num_other;
 };
 
 } // namespace RigDef

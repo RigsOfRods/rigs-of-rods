@@ -177,7 +177,7 @@ void Serializer::ProcessPistonprops(File::Module* module)
 			<< ", " << def.blade_tip_nodes[1].ToString()
 			<< ", " << def.blade_tip_nodes[2].ToString()
 			<< ", " << def.blade_tip_nodes[3].ToString()
-			<< ", " << (def.couple_node.IsValid() ? def.couple_node.ToString() : "-1")
+            << ", " << (def.couple_node.IsValidAnyState() ? def.couple_node.ToString() : "-1")
 			<< ", " << def.turbine_power_kW
 			<< ", " << def.pitch
 			<< ", " << def.airfoil;
@@ -277,7 +277,7 @@ void Serializer::ProcessAirbrakes(File::Module* module)
 		m_stream << "\n\t" << def.reference_node.ToString()
 			<< ", " << def.x_axis_node.ToString()
 			<< ", " << def.y_axis_node.ToString()
-			<< ", " << (def.aditional_node.IsValid() ? def.aditional_node.ToString() : "-1")
+			<< ", " << (def.aditional_node.IsValidAnyState() ? def.aditional_node.ToString() : "-1")
 			<< ", " << def.offset.x
 			<< ", " << def.offset.y
 			<< ", " << def.offset.z
@@ -407,8 +407,8 @@ void Serializer::ProcessVideocamera(File::Module* module)
 		m_stream << "\n\t" << def.reference_node.ToString()
 			<< ", " << def.left_node.ToString()
 			<< ", " << def.bottom_node.ToString()
-			<< ", " << (def.alt_reference_node.IsValid() ? def.alt_reference_node.ToString() : "-1")
-			<< ", " << (def.alt_orientation_node.IsValid() ? def.alt_orientation_node.ToString() : "-1")
+			<< ", " << (def.alt_reference_node.IsValidAnyState() ? def.alt_reference_node.ToString() : "-1")
+			<< ", " << (def.alt_orientation_node.IsValidAnyState() ? def.alt_orientation_node.ToString() : "-1")
 			<< ", " << def.offset.x
 			<< ", " << def.offset.y
 			<< ", " << def.offset.z
@@ -781,8 +781,8 @@ void Serializer::ProcessFlares2(File::Module* module)
 		RigDef::Flare2 & def = *itor;
 
 		m_stream << "\n\t" << def.reference_node.ToString()
-			<< ", " << def.x
-			<< ", " << def.y
+            << ", " << def.node_axis_x.ToString()
+            << ", " << def.node_axis_y.ToString()
 			<< ", " << def.offset.x
 			<< ", " << def.offset.y
 			<< ", " << def.type

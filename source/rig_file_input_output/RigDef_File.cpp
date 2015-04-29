@@ -328,6 +328,8 @@ const char * File::SectionToString(File::Section section)
 			return "soundsources2";
 		case (File::SECTION_SLOPE_BRAKE):
 			return "SlopeBrake";
+        case (File::SECTION_SUBMESH):
+			return "submesh";
 		case (File::SECTION_TIES):
 			return "ties";
 		case (File::SECTION_TORQUE_CURVE):

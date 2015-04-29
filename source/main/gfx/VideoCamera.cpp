@@ -316,11 +316,11 @@ VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & d
 			* Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
 
 		// set alternative camposition (optional)
-		v->camNode = rig_spawner->GetNodeIndexOrThrow(def.alt_reference_node.IsValid() ? def.alt_reference_node : def.reference_node);
+		v->camNode = rig_spawner->GetNodeIndexOrThrow(def.alt_reference_node.IsValidAnyState() ? def.alt_reference_node : def.reference_node);
 
 		 // set alternative lookat position (optional)
 		int camera_role = def.camera_role;
-		if (def.alt_orientation_node.IsValid())
+		if (def.alt_orientation_node.IsValidAnyState())
 		{
 			v->lookat = rig_spawner->GetNodeIndexOrThrow(def.alt_orientation_node);
 			camera_role = 0; // this is a tracecam, overwrite mode setting
