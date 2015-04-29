@@ -2387,7 +2387,7 @@ void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
 			msg << "Subsection 'forset': Invalid element '" << *itor << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
 			AddMessage(line, Message::TYPE_WARNING, msg.str());
                 
-            m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(TOSTRING(result), result, noderef_flags)));
+            m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(TOSTRING(result), result, noderef_flags, m_current_line_number)));
 		}
 		else if (results[1].matched) /* Range of numbered nodes */
 		{
@@ -2395,13 +2395,13 @@ void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
             int end_node_index = STR_PARSE_INT(results[3]);
 			m_last_flexbody->node_list_to_import.push_back(
                 Node::Range(
-                    Node::Ref(results[2], static_cast<unsigned>(start_node_index), noderef_flags), 
-                    Node::Ref(results[3], static_cast<unsigned>(end_node_index), noderef_flags)));
+                    Node::Ref(results[2], static_cast<unsigned>(start_node_index), noderef_flags, m_current_line_number), 
+                    Node::Ref(results[3], static_cast<unsigned>(end_node_index), noderef_flags, m_current_line_number)));
 		}
 		else if(results[4].matched) /* Single numbered node */
 		{
             int node_index = STR_PARSE_INT(results[4]);
-			m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(results[4], static_cast<unsigned>(node_index), noderef_flags)));
+			m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(results[4], static_cast<unsigned>(node_index), noderef_flags, m_current_line_number)));
 		}			
 	}
 }
@@ -4218,12 +4218,12 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
         {
             flags |= Node::Ref::IMPORT_STATE_MUST_CHECK_NAMED_FIRST;
         }
-        return Node::Ref(node_id_str, node_id_num, flags);
+        return Node::Ref(node_id_str, node_id_num, flags, m_current_line_number);
     }
     else
     {
         // fileformatversion >= 450, use named-only nodes
-        return Node::Ref(node_id_str, 0, Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED);
+        return Node::Ref(node_id_str, 0, Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED, m_current_line_number);
     }
 }
 

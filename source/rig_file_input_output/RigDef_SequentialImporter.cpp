@@ -170,7 +170,7 @@ Node::Ref SequentialImporter::ResolveNodeByIndex(unsigned int index_in)
     {
         ++m_num_resolved_to_self; // The happy statistic -> nodes which resolved to the same index.
     }
-    return Node::Ref(TOSTRING(index_out), index_out, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED);
+    return Node::Ref(TOSTRING(index_out), index_out, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, 0);
 }
 
 Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
@@ -190,20 +190,24 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
         auto result = m_named_nodes.find(noderef_in.Str());
         if (result != m_named_nodes.end())
         {
-            return Node::Ref(noderef_in.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED);
+            return Node::Ref(noderef_in.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumberDefined());
         }
     }
     if (noderef_in.Num() >= m_all_nodes.size())
     {
+        // Return exactly what SerializedRig::parse_node_number() would return on this error, for compatibility.
+        // This definitely isn't valid, but it behaves exactly as RoR 0.38, so it's perfectly IMPORT_VALID! :D
+        Node::Ref out_ref("0", 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumberDefined());
         std::stringstream msg;
-        msg << "Cannot resolve " << noderef_in.ToString() << " - not a named node, and index is not defined (highest is: " << m_all_nodes.size() - 1 << ")";
+        msg << "Cannot resolve " << noderef_in.ToString() << " - not a named node, and index is not defined (highest is: " 
+            << m_all_nodes.size() - 1 << "). For backwards compatibility, converting to: " << out_ref.ToString();
         this->AddMessage(Message::TYPE_ERROR, msg.str());
-        return Node::Ref(); // Invalid
+        return out_ref; // Invalid
     }
     auto entry = m_all_nodes[noderef_in.Num()];
     if (entry.node_id.IsTypeNamed())
     {
-        auto out_ref = Node::Ref(entry.node_id.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED);
+        Node::Ref out_ref(entry.node_id.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumberDefined());
         std::stringstream msg;
         msg << noderef_in.ToString() << " resolved to " << out_ref.ToString();
         this->AddMessage(Message::TYPE_INFO, msg.str());
@@ -212,7 +216,7 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
     else if (entry.node_id.IsTypeNumbered())
     {
         unsigned out_index = this->GetNodeArrayOffset(entry.origin_keyword) + entry.node_sub_index;
-        auto out_ref = Node::Ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED);
+        Node::Ref out_ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumberDefined());
         std::stringstream msg;
         msg << noderef_in.ToString() << " resolved to " << out_ref.ToString();
         this->AddMessage(Message::TYPE_INFO, msg.str());
@@ -323,11 +327,11 @@ void SequentialImporter::ResolveNodeRanges(std::vector<Node::Range>& ranges)
 #define FOR_EACH(KEYWORD, VECTOR, VARNAME, BLOCK) \
 {                                                 \
     m_current_keyword = KEYWORD;                  \
-    auto itor = VECTOR.begin();                   \
-    auto end = VECTOR.end();                      \
-    for (; itor != end; ++itor)                   \
+    auto itor_ = VECTOR.begin();                  \
+    auto end_ = VECTOR.end();                     \
+    for (; itor_ != end_; ++itor_)                \
     {                                             \
-        auto& VARNAME = *itor;                    \
+        auto& VARNAME = *itor_;                   \
         BLOCK                                     \
     }                                             \
     m_current_keyword = File::KEYWORD_INVALID;    \
@@ -581,6 +585,18 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
     FOR_EACH (File::KEYWORD_SOUNDSOURCES2, module->soundsources2, soundsource2,
     {
         RESOLVE(soundsource2.node);
+    });
+
+    FOR_EACH (File::KEYWORD_SUBMESH, module->submeshes, submesh,
+    {
+        auto cab_itor = submesh.cab_triangles.begin();
+        auto cab_end  = submesh.cab_triangles.end();
+        for (; cab_itor != cab_end; ++cab_itor)
+        {
+            RESOLVE(cab_itor->nodes[0]);
+            RESOLVE(cab_itor->nodes[1]);
+            RESOLVE(cab_itor->nodes[2]);
+        }
     });
 
     FOR_EACH (File::KEYWORD_TIES, module->ties, tie,

@@ -89,7 +89,7 @@ struct Node
         BITMASK_PROPERTY_GET (m_flags,  6, REGULAR_STATE_IS_NAMED,            GetRegularState_IsNamed);
         BITMASK_PROPERTY_GET (m_flags,  7, REGULAR_STATE_IS_NUMBERED,         GetRegularState_IsNumbered);
 
-        Ref(std::string const & id_str, unsigned int id_num, unsigned flags);
+        Ref(std::string const & id_str, unsigned int id_num, unsigned flags, unsigned line_number_defined);
         Ref();
 
         inline std::string const & Str() const        { return m_id; }
@@ -99,15 +99,17 @@ struct Node
         inline bool operator==(Ref const & rhs) const { return Compare(rhs); }
         inline bool operator!=(Ref const & rhs) const { return ! Compare(rhs); }
 
+        inline bool     IsValidAnyState() const       { return GetImportState_IsValid() || GetRegularState_IsValid(); }
+        inline unsigned GetLineNumberDefined() const  { return m_line_number_defined; }
+
         void Invalidate();
         std::string ToString() const;
-
-        inline bool IsValidAnyState() const { return GetImportState_IsValid() || GetRegularState_IsValid(); }
 
     private:
         std::string  m_id;
         unsigned int m_id_as_number;
         unsigned int m_flags;
+        unsigned int m_line_number_defined;
     };
 
 	struct Range

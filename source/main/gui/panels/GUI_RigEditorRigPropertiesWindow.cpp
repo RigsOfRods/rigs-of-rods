@@ -314,7 +314,7 @@ void CLASS::Export(RigEditor::RigProperties* data)
 	{
         std::string node_ref_str = m_editbox_extcamera_node->getCaption();
         unsigned flags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED; // Fileformatversion>=450 ~ Use named-only nodes
-        data->m_extcamera.node = Node::Ref(node_ref_str, 0, flags); 
+        data->m_extcamera.node = Node::Ref(node_ref_str, 0, flags, 0); 
 	}
 
 	// Section 'set_skeleton_settings'

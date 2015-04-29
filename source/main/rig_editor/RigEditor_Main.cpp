@@ -1092,8 +1092,8 @@ void Main::CommandSetAllWheelsHovered(bool state_hovered)
 {\
     RigDef::Beam b;\
     unsigned flags = RigDef::Node::Ref::REGULAR_STATE_IS_VALID | RigDef::Node::Ref::REGULAR_STATE_IS_NAMED; \
-    b.nodes[0] = RigDef::Node::Ref(NODE1, 0u, flags);\
-    b.nodes[1] = RigDef::Node::Ref(NODE2, 0u, flags);\
+    b.nodes[0] = RigDef::Node::Ref(NODE1, 0u, flags, 0);\
+    b.nodes[1] = RigDef::Node::Ref(NODE2, 0u, flags, 0);\
     MODULE->beams.push_back(b);\
 }
 

@@ -78,17 +78,19 @@ void Node::Id::Invalidate()
     m_flags = 0;
 }
 
-Node::Ref::Ref(std::string const & id_str, unsigned int id_num, unsigned flags):
-    m_flags(0)
+Node::Ref::Ref(std::string const & id_str, unsigned int id_num, unsigned flags, unsigned line_number_defined):
+    m_flags(0),
+    m_line_number_defined(line_number_defined),
+    m_id_as_number(id_num)
 {
     m_id = id_str;
-    m_id_as_number = id_num;
     BITMASK_SET_1(m_flags, flags);
 }
 
 Node::Ref::Ref():
     m_flags(0),
-    m_id_as_number(0)
+    m_id_as_number(0),
+    m_line_number_defined(0)
 {
 }
 
@@ -97,24 +99,28 @@ void Node::Ref::Invalidate()
     m_id_as_number = 0;
     m_id.clear();
     m_flags = 0;
+    m_line_number_defined = 0;
 }
 
 std::string Node::Ref::ToString() const
 {
     std::stringstream msg;
-    msg << "Node::Ref(id:"<<m_id<<",flags:[";
-    if(GetImportState_IsValid           ()) { msg << " IMPORT_STATE_IS_VALID"            ; }
-    if(GetImportState_MustCheckNamedFirst        ()) { msg << " IMPORT_STATE_MUST_CHECK_NAMED_FIRST"        ; }
-    if(GetImportState_IsResolvedNamed   ()) { msg << " IMPORT_STATE_IS_RESOLVED_NAMED"   ; }
-    if(GetImportState_IsResolvedNumbered()) { msg << " IMPORT_STATE_IS_RESOLVED_NUMBERED"; }                                  
-    if(GetRegularState_IsValid          ()) { msg << " REGULAR_STATE_IS_VALID"           ; }
-    if(GetRegularState_IsNamed          ()) { msg << " REGULAR_STATE_IS_NAMED"           ; }
-    if(GetRegularState_IsNumbered       ()) { msg << " REGULAR_STATE_IS_NUMBERED"        ; }
+    msg << "Node::Ref(id:"<<m_id
+        <<", src line:"<<((m_line_number_defined != 0) ? TOSTRING(m_line_number_defined) : "?")
+        <<", import flags:[";
+    if(GetImportState_IsValid             ()) { msg << " VALID"            ; }
+    if(GetImportState_MustCheckNamedFirst ()) { msg << " CHECK_NAMED_FIRST"; }
+    if(GetImportState_IsResolvedNamed     ()) { msg << " RESOLVED_NAMED"   ; }
+    if(GetImportState_IsResolvedNumbered  ()) { msg << " RESOLVED_NUMBERED"; }  
+    msg << "], regular flags:[";
+    if(GetRegularState_IsValid            ()) { msg << " VALID"            ; }
+    if(GetRegularState_IsNamed            ()) { msg << " NAMED"            ; }
+    if(GetRegularState_IsNumbered         ()) { msg << " NUMBERED"         ; }
     msg << "])";
     return msg.str();
 }
 
 std::string Node::Id::ToString() const
 {
-    return std::string("Node::Id(") + this->Str() + (this->IsTypeNumbered() ? " [NUMBERED])" : " [NAMED])");
+    return std::string("Node::Id(") + this->Str() + (this->IsTypeNumbered() ? " NUMBERED)" : " NAMED)");
 }
