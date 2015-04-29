@@ -668,9 +668,9 @@ void Serializer::ProcessFlexbodies(File::Module* module)
 			<< ", " << def->mesh_name;
 
 		// Forset line
-		m_stream << "\n\t\tforset ";
-		auto forset_end = def->forset.end();
-		auto forset_itor = def->forset.begin();
+		m_stream << "\n\t\tforset (node list)";
+		auto forset_end = def->node_list.end();
+		auto forset_itor = def->node_list.begin();
 		bool first = true;
 		for (; forset_itor != forset_end; ++forset_itor)
 		{
@@ -678,11 +678,7 @@ void Serializer::ProcessFlexbodies(File::Module* module)
 			{
 				m_stream << ", ";
 			}
-			m_stream << forset_itor->start.ToString();
-			if (forset_itor->IsRange())
-			{
-				m_stream << "-" << forset_itor->end.ToString();
-			}
+			m_stream << forset_itor->ToString();
 			first = false;
 		}
 

@@ -1394,9 +1394,9 @@ DEFINE_REGEX( FORSET_ELEMENT,
 		E_TRAILING_WHITESPACE
 	)
 	E_OR
-	E_CAPTURE( /* #4 Solitary node (numbered or named) */
+	E_CAPTURE( /* #4 Solitary numbered node */
 		E_LEADING_WHITESPACE
-		E_NODE_ID
+		E_POSITIVE_DECIMAL_NUMBER
 		E_TRAILING_WHITESPACE
 	)
 	);

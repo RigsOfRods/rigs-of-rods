@@ -335,6 +335,8 @@ protected:
 	*/
 	void _ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2);
 
+    void _ImportLegacyFlexbodyForsetLine(Ogre::String const & line);
+
 	/** Commands and Commands2 are unified with this parser.
 	*/
 	void _ParseSectionsCommandsCommands2(Ogre::String const & line, boost::regex const & regex, unsigned int format_version);

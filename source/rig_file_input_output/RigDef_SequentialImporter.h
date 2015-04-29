@@ -159,6 +159,7 @@ private:
     Node::Ref ResolveNodeByIndex(unsigned int index);
     unsigned GetNodeArrayOffset(File::Keyword keyword);
     void ResolveNodeRanges(std::vector<Node::Range>& ranges);
+    void ResolveFlexbodyForset(std::vector<Node::Range>& ranges, std::vector<Node::Ref>& out_nodes);
 
     void AddMessage(Message::Type msg_type, std::string text);
 

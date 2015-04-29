@@ -1861,8 +1861,20 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 
 	/* Collect nodes */
 	std::vector<unsigned int> node_indices;
-	node_indices.reserve(100);
-	bool nodes_found = CollectNodesFromRanges(def->forset, node_indices);
+    node_indices.reserve(def->node_list.size());
+	bool nodes_found = true;
+    auto node_itor = def->node_list.begin();
+    auto node_end  = def->node_list.end();
+    for (; node_itor != node_end; ++node_itor)
+    {
+        auto result = this->GetNodeIndex(*node_itor);
+        if (!result.second)
+        {
+            nodes_found = false;
+            break;
+        }
+        node_indices.push_back(result.first);
+    }
 
 	if (! nodes_found)
 	{

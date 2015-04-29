@@ -935,7 +935,6 @@ struct Flexbody
 		offset(Ogre::Vector3::ZERO),
 		rotation(Ogre::Vector3::ZERO)
 	{
-		forset.reserve(10);
 	}
 
 	Node::Ref reference_node;
@@ -945,7 +944,8 @@ struct Flexbody
 	Ogre::Vector3 rotation;
 	Ogre::String mesh_name;
 	std::list<Animation> animations;
-	std::vector<Node::Range> forset;
+	std::vector<Node::Range> node_list_to_import; //< Node ranges are disallowed in fileformatversion >=450
+    std::vector<Node::Ref> node_list;
 	CameraSettings camera_settings;
 };
 

@@ -2359,6 +2359,53 @@ void Parser::ParseSubmesh(Ogre::String const & line)
 	}
 }
 
+void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
+{
+    // "forset" keyword is obsolete in fileformatversion >= 450
+    // This code is import-only
+
+	boost::smatch line_results;
+	if (! boost::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
+	{
+		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		return;
+	}
+
+	Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
+	// NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated.
+    auto itor = tokens.begin();
+    auto end  = tokens.end();
+	for ( ; itor != end; ++itor)
+	{
+        unsigned noderef_flags = Node::Ref::IMPORT_STATE_IS_VALID;
+		boost::smatch results;
+		if (! boost::regex_search(*itor, results, Regexes::FORSET_ELEMENT))
+		{
+			/* Invalid element, attempt to parse as node number for backwards compatibility */
+			unsigned int result = strtoul((*itor).c_str(), nullptr, 10);
+			std::stringstream msg;
+			msg << "Subsection 'forset': Invalid element '" << *itor << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
+			AddMessage(line, Message::TYPE_WARNING, msg.str());
+                
+            m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(TOSTRING(result), result, noderef_flags)));
+		}
+		else if (results[1].matched) /* Range of numbered nodes */
+		{
+            int start_node_index = STR_PARSE_INT(results[2]);
+            int end_node_index = STR_PARSE_INT(results[3]);
+			m_last_flexbody->node_list_to_import.push_back(
+                Node::Range(
+                    Node::Ref(results[2], static_cast<unsigned>(start_node_index), noderef_flags), 
+                    Node::Ref(results[3], static_cast<unsigned>(end_node_index), noderef_flags)));
+		}
+		else if(results[4].matched) /* Single numbered node */
+		{
+            int node_index = STR_PARSE_INT(results[4]);
+			m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(results[4], static_cast<unsigned>(node_index), noderef_flags)));
+		}			
+	}
+}
+
 void Parser::ParseFlexbody(Ogre::String const & line)
 {
 	if (m_current_subsection == File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
@@ -2394,38 +2441,7 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 	}
 	else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
 	{
-		boost::smatch line_results;
-		if (! boost::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
-		{
-			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-			return;
-		}
-
-		Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
-		/* NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated. */
-		Ogre::StringVector::iterator iter = tokens.begin();
-		for ( ; iter != tokens.end(); iter++)
-		{
-			boost::smatch results;
-			if (! boost::regex_search(*iter, results, Regexes::FORSET_ELEMENT))
-			{
-				/* Invalid element, attempt to parse as node number for backwards compatibility */
-				unsigned int result = strtoul((*iter).c_str(), nullptr, 10);
-				std::stringstream msg;
-				msg << "Subsection 'forset': Invalid element '" << *iter << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
-				AddMessage(line, Message::TYPE_WARNING, msg.str());
-                unsigned flags = Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED | Node::Ref::REGULAR_STATE_IS_NUMBERED;
-                m_last_flexbody->forset.push_back(Node::Range(Node::Ref(TOSTRING(result), result, flags)));
-			}
-			else if (results[1].matched) /* Range of numbered nodes */
-			{
-				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeRef(results[2]), _ParseNodeRef(results[3])));
-			}
-			else if(results[4].matched) /* Single node */
-			{
-				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeRef(results[4])));
-			}			
-		}
+        this->_ImportLegacyFlexbodyForsetLine(line);
 
 		/* Switch subsection */
 		m_current_subsection =  File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
@@ -4196,7 +4212,8 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
 		}
         // Since fileformatversion is not known from the beginning of parsing, 2 states must be kept 
         // at the same time: IMPORT_STATE and REGULAR_STATE. The outer logic must make the right pick.
-        unsigned int flags = Node::Ref::IMPORT_STATE_IS_VALID;
+        unsigned int flags = Node::Ref::IMPORT_STATE_IS_VALID |                                     // Import state
+                             Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED; // Regular state (fileformatversion >= 450)
         if (m_any_named_node_defined)
         {
             flags |= Node::Ref::IMPORT_STATE_MUST_CHECK_NAMED_FIRST;
