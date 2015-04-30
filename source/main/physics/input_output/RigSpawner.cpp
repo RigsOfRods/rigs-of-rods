@@ -6203,11 +6203,13 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const &
 	{
 		if (! quiet)
 		{
-            AddMessage(Message::TYPE_ERROR, std::string("Attemp to resolve node-reference with 'INVALID' flag ") + node_ref.ToString());
+            AddMessage(Message::TYPE_ERROR, std::string("Attemptto resolve invalid node reference: ") + node_ref.ToString());
 		}
 		return std::make_pair(0, false);
 	}
-    else if (node_ref.GetImportState_IsResolvedNamed() || node_ref.GetRegularState_IsNamed())
+    bool is_imported = node_ref.GetImportState_IsValid();
+    bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
+    if (is_named)
 	{
 		auto result = m_named_nodes.find(node_ref.Str());
 		if (result != m_named_nodes.end())
