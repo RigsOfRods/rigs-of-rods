@@ -144,7 +144,7 @@ unsigned SequentialImporter::GetNodeArrayOffset(File::Keyword keyword)
     return out_offset;
 }
 
-Node::Ref SequentialImporter::ResolveNodeByIndex(unsigned int index_in)
+Node::Ref SequentialImporter::ResolveNodeByIndex(unsigned int index_in, unsigned int def_line_number)
 {
     if (index_in >= m_all_nodes.size())
     {
@@ -170,7 +170,7 @@ Node::Ref SequentialImporter::ResolveNodeByIndex(unsigned int index_in)
     {
         ++m_num_resolved_to_self; // The happy statistic -> nodes which resolved to the same index.
     }
-    return Node::Ref(TOSTRING(index_out), index_out, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, 0);
+    return Node::Ref(TOSTRING(index_out), index_out, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, def_line_number);
 }
 
 Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
@@ -190,14 +190,14 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
         auto result = m_named_nodes.find(noderef_in.Str());
         if (result != m_named_nodes.end())
         {
-            return Node::Ref(noderef_in.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumberDefined());
+            return Node::Ref(noderef_in.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumber());
         }
     }
     if (noderef_in.Num() >= m_all_nodes.size())
     {
         // Return exactly what SerializedRig::parse_node_number() would return on this error, for compatibility.
         // This definitely isn't valid, but it behaves exactly as RoR 0.38, so it's perfectly IMPORT_VALID! :D
-        Node::Ref out_ref("0", 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumberDefined());
+        Node::Ref out_ref("0", 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumber());
         std::stringstream msg;
         msg << "Cannot resolve " << noderef_in.ToString() << " - not a named node, and index is not defined (highest is: "
             << m_all_nodes.size() - 1 << "). For backwards compatibility, converting to: " << out_ref.ToString();
@@ -207,7 +207,7 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
     auto entry = m_all_nodes[noderef_in.Num()];
     if (entry.node_id.IsTypeNamed())
     {
-        Node::Ref out_ref(entry.node_id.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumberDefined());
+        Node::Ref out_ref(entry.node_id.Str(), 0, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NAMED, noderef_in.GetLineNumber());
         std::stringstream msg;
         msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString();
         this->AddMessage(Message::TYPE_INFO, msg.str());
@@ -216,7 +216,7 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
     else if (entry.node_id.IsTypeNumbered())
     {
         unsigned out_index = this->GetNodeArrayOffset(entry.origin_keyword) + entry.node_sub_index;
-        Node::Ref out_ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumberDefined());
+        Node::Ref out_ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumber());
         std::stringstream msg;
         msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString();
         this->AddMessage(Message::TYPE_INFO, msg.str());
@@ -248,7 +248,7 @@ void SequentialImporter::ResolveFlexbodyForset(std::vector<Node::Range>& in_rang
             }
             else
             {
-                out_nodes.push_back(this->ResolveNodeByIndex(range.start.Num())); // Forset nodes are numbered-only
+                out_nodes.push_back(this->ResolveNodeByIndex(range.start.Num(), range.start.GetLineNumber())); // Forset nodes are numbered-only
             }
         }
         else // It's a range
@@ -268,9 +268,10 @@ void SequentialImporter::ResolveFlexbodyForset(std::vector<Node::Range>& in_rang
             else
             {
                 unsigned int end_index = range.end.Num();
+                unsigned int line_num = range.start.GetLineNumber();
                 for (unsigned int i = range.start.Num(); i <= end_index; ++i)
                 {
-                    out_nodes.push_back(this->ResolveNodeByIndex(i));
+                    out_nodes.push_back(this->ResolveNodeByIndex(i, line_num));
                 }
             }
         }
@@ -308,7 +309,7 @@ void SequentialImporter::ResolveNodeRanges(std::vector<Node::Range>& ranges)
             unsigned int end_index = range.end.Num();
             for (unsigned int i = range.start.Num(); i < end_index; ++i)
             {
-                ranges.push_back(Node::Range(this->ResolveNodeByIndex(i)));
+                ranges.push_back(Node::Range(this->ResolveNodeByIndex(i, range.start.GetLineNumber())));
             }
         }
     }

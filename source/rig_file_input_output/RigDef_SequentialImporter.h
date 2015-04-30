@@ -156,7 +156,7 @@ private:
     void ProcessModule(boost::shared_ptr<RigDef::File::Module> module);
 
     Node::Ref ResolveNode(Node::Ref const & noderef_in);
-    Node::Ref ResolveNodeByIndex(unsigned int index);
+    Node::Ref ResolveNodeByIndex(unsigned int index, unsigned int def_line_number);
     unsigned GetNodeArrayOffset(File::Keyword keyword);
     void ResolveNodeRanges(std::vector<Node::Range>& ranges);
     void ResolveFlexbodyForset(std::vector<Node::Range>& ranges, std::vector<Node::Ref>& out_nodes);

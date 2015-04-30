@@ -78,9 +78,9 @@ void Node::Id::Invalidate()
     m_flags = 0;
 }
 
-Node::Ref::Ref(std::string const & id_str, unsigned int id_num, unsigned flags, unsigned line_number_defined):
+Node::Ref::Ref(std::string const & id_str, unsigned int id_num, unsigned flags, unsigned line_number):
     m_flags(0),
-    m_line_number_defined(line_number_defined),
+    m_line_number(line_number),
     m_id_as_number(id_num)
 {
     m_id = id_str;
@@ -90,7 +90,7 @@ Node::Ref::Ref(std::string const & id_str, unsigned int id_num, unsigned flags, 
 Node::Ref::Ref():
     m_flags(0),
     m_id_as_number(0),
-    m_line_number_defined(0)
+    m_line_number(0)
 {
 }
 
@@ -99,15 +99,23 @@ void Node::Ref::Invalidate()
     m_id_as_number = 0;
     m_id.clear();
     m_flags = 0;
-    m_line_number_defined = 0;
+    m_line_number = 0;
 }
 
 std::string Node::Ref::ToString() const
 {
     std::stringstream msg;
-    msg << "Node::Ref(id:"<<m_id
-        <<", src line:"<<((m_line_number_defined != 0) ? TOSTRING(m_line_number_defined) : "?")
-        <<", import flags:[";
+    msg << "Node::Ref(id:" << m_id
+        << ", src line:";
+    if (m_line_number != 0)
+    {
+        msg << m_line_number;
+    }
+    else
+    {
+        msg << "?";
+    }
+    msg << ", import flags:[";
     if(GetImportState_IsValid             ()) { msg << " VALID"            ; }
     if(GetImportState_MustCheckNamedFirst ()) { msg << " CHECK_NAMED_FIRST"; }
     if(GetImportState_IsResolvedNamed     ()) { msg << " RESOLVED_NAMED"   ; }

@@ -100,7 +100,7 @@ struct Node
         inline bool operator!=(Ref const & rhs) const { return ! Compare(rhs); }
 
         inline bool     IsValidAnyState() const       { return GetImportState_IsValid() || GetRegularState_IsValid(); }
-        inline unsigned GetLineNumberDefined() const  { return m_line_number_defined; }
+        inline unsigned GetLineNumber() const         { return m_line_number; }
 
         void Invalidate();
         std::string ToString() const;
@@ -109,7 +109,7 @@ struct Node
         std::string  m_id;
         unsigned int m_id_as_number;
         unsigned int m_flags;
-        unsigned int m_line_number_defined;
+        unsigned int m_line_number;
     };
 
 	struct Range
