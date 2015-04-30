@@ -216,7 +216,7 @@ bool Validator::HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module,
 			return (module->ext_camera != nullptr);
 
 		case (File::KEYWORD_FUSEDRAG):
-			return (module->fusedrag != nullptr);
+            return ! module->fusedrag.empty();
 
 		case (File::KEYWORD_GLOBALS):
 			return (module->globals != nullptr);

@@ -252,7 +252,7 @@ rig_t *RigSpawner::SpawnRig()
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, airbrakes, ProcessAirbrake);
 
 	// Section 'fusedrag'
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_FUSEDRAG, fusedrag, ProcessFusedrag);
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FUSEDRAG, fusedrag, ProcessFusedrag);
 
 	// Section 'turbojets'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOJETS, turbojets, ProcessTurbojet);

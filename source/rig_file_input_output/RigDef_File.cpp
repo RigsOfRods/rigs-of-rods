@@ -93,8 +93,7 @@ Engoption::Engoption():
 Fusedrag::Fusedrag():
 	autocalc(false),
 	approximate_width(0),
-	area_coefficient(0),
-	_area_coefficient_set(false),
+	area_coefficient(1.f),  // Default
 	airfoil_name("NACA0009.afl")
 {}
 

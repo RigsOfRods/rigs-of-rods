@@ -881,16 +881,13 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 		// fusedrag autocalculation
 
 		// calculate fusedrag by truck size
-		if (def._area_coefficient_set)
-		{
-			factor = def.area_coefficient;
-		}
+		factor = def.area_coefficient;
 		width  =  (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;			
 		
 		m_rig->fuseAirfoil = new Airfoil(fusefoil);
 		
-		m_rig->fuseFront   = & GetNode(front_node_idx); //&nodes[front];
-		m_rig->fuseBack    = & GetNode(front_node_idx);  //&nodes[front];
+		m_rig->fuseFront   = & GetNode(front_node_idx);
+		m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
 		m_rig->fuseWidth   = width;
 		AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
 	} else
@@ -901,8 +898,8 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 					
 		m_rig->fuseAirfoil = new Airfoil(fusefoil);
 		
-		m_rig->fuseFront   = & GetNode(front_node_idx); //&nodes[front];
-		m_rig->fuseBack    = & GetNode(front_node_idx);  //&nodes[front];
+		m_rig->fuseFront   = & GetNode(front_node_idx);
+		m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
 		m_rig->fuseWidth   = width;
 	}
 }

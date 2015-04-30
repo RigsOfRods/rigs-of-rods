@@ -983,7 +983,6 @@ struct Fusedrag
 	float approximate_width;
 	Ogre::String airfoil_name;
 	float area_coefficient;
-	bool _area_coefficient_set;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2002,7 +2001,7 @@ struct File
 			boost::shared_ptr<Flexbody>
 		>                                  flexbodies;
 		std::vector<FlexBodyWheel>         flex_body_wheels;
-		boost::shared_ptr<Fusedrag>        fusedrag;
+		std::vector<Fusedrag>              fusedrag;
 		boost::shared_ptr<Globals>         globals;
 		boost::shared_ptr<GuiSettings>     gui_settings;
 		std::vector<Hook>                  hooks;

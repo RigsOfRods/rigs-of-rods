@@ -2180,11 +2180,6 @@ void Parser::ParseGlobals(Ogre::String const & line)
 
 void Parser::ParseFusedrag(Ogre::String const & line)
 {
-	if (m_current_module->fusedrag != nullptr)
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'fusedrag' in one module, using last defined...");
-	}
-
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_FUSEDRAG))
 	{
@@ -2202,7 +2197,7 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 		fusedrag.approximate_width = STR_PARSE_REAL(results[4]);
 		fusedrag.airfoil_name = results[5];
 
-		m_current_module->fusedrag = boost::shared_ptr<Fusedrag>( new Fusedrag(fusedrag) );
+		m_current_module->fusedrag.push_back(fusedrag);
 	}
 	else if (results[6].matched)
 	{
@@ -2211,7 +2206,6 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 		if (results[7].matched)
 		{
 			fusedrag.area_coefficient = STR_PARSE_REAL(results[8]);
-			fusedrag._area_coefficient_set = true;
 
 			if (results[9].matched)
 			{
@@ -2219,7 +2213,7 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 			}
 		}
 
-		m_current_module->fusedrag = boost::shared_ptr<Fusedrag>( new Fusedrag(fusedrag) );
+		m_current_module->fusedrag.push_back(fusedrag);
 	}
 	else
 	{
@@ -2355,7 +2349,7 @@ void Parser::ParseSubmesh(Ogre::String const & line)
     //}
 	else
 	{
-		AddMessage(line, Message::TYPE_FATAL_ERROR, "Section submesh has no subsection defined, line not parsed.");
+		AddMessage(line, Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
 	}
 }
 

@@ -459,13 +459,11 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
 	    RESOLVE(flexbodywheel.reference_arm_node);
     });
 
-    /* // TODO: multiple fusedrags
     FOR_EACH (File::KEYWORD_FUSEDRAG, module->fusedrag, fusedrag,
     {
         RESOLVE(fusedrag.front_node);
         RESOLVE(fusedrag.rear_node);
     });
-    */
 
     FOR_EACH (File::KEYWORD_HOOKS, module->hooks, hook,
     {
