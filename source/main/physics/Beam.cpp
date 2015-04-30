@@ -6340,9 +6340,8 @@ bool Beam::LoadTruck(
     report_num_errors   += spawner.GetMessagesNumErrors();
     report_num_warnings += spawner.GetMessagesNumWarnings();
     report_num_other    += spawner.GetMessagesNumOther();
-    std::string spawner_log = spawner.ProcessMessagesToString();
-    LOG(spawner_log);
-    report_text += spawner_log + "\n\n";
+    // Spawner log already printed to RoR.log
+    report_text += spawner.ProcessMessagesToString() + "\n\n";
 
     // Extra information to RoR.log
     if (importer->IsEnabled())
