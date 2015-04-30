@@ -642,6 +642,15 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
 	    RESOLVE(wheel2.reference_arm_node);
     });
 
+    FOR_EACH (File::KEYWORD_VIDEOCAMERA, module->videocameras, videocamera,
+    {
+        RESOLVE(videocamera.reference_node      );
+        RESOLVE(videocamera.left_node           );
+        RESOLVE(videocamera.bottom_node         );
+        RESOLVE(videocamera.alt_reference_node  );
+        RESOLVE(videocamera.alt_orientation_node);
+    });
+
     FOR_EACH (File::KEYWORD_WINGS, module->wings, wing,
     {
         RESOLVE(wing.nodes[0]);
