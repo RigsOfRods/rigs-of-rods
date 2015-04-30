@@ -6295,7 +6295,7 @@ std::pair<unsigned int, bool> RigSpawner::AddNode(RigDef::Node::Id & id)
     }
     if (id.IsTypeNumbered())
     {
-        if (id.Num() <= static_cast<unsigned int>(m_rig->free_node))
+        if (id.Num() < static_cast<unsigned int>(m_rig->free_node))
         {
             std::stringstream msg;
             msg << "Duplicate node number, previous definition will be overriden! - " << id.ToString() << " (number of nodes at this point: " << m_rig->free_node << ")";
