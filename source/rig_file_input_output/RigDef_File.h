@@ -1904,9 +1904,7 @@ struct VideoCamera
 	Node::Ref left_node;
 	Node::Ref bottom_node;
 	Node::Ref alt_reference_node;
-	bool _alt_reference_node_set;
 	Node::Ref alt_orientation_node;
-	bool _alt_orientation_node_set;
 	Ogre::Vector3 offset;
 	Ogre::Vector3 rotation;
 	float field_of_view;

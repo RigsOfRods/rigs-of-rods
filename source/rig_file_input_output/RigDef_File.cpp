@@ -187,8 +187,6 @@ Trigger::Trigger():
 {}
 
 VideoCamera::VideoCamera():
-	_alt_reference_node_set(false),
-	_alt_orientation_node_set(false),
 	offset(Ogre::Vector3::ZERO),
 	rotation(Ogre::Vector3::ZERO),
 	field_of_view(0),
