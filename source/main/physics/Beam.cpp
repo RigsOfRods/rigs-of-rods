@@ -6344,6 +6344,13 @@ bool Beam::LoadTruck(
     LOG(spawner_log);
     report_text += spawner_log + "\n\n";
 
+    // Extra information to RoR.log
+    if (importer->IsEnabled())
+    {
+        LOG(importer->GetNodeStatistics());
+        LOG(importer->IterateAndPrintAllNodes());
+    }
+
 	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
 	if (report_num_errors != 0)
 	{

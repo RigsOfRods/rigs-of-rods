@@ -148,8 +148,8 @@ public:
     int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
     std::string ProcessMessagesToString();
-    void LogNodeStatistics();
-    void IterateAndLogAllNodes();
+    std::string GetNodeStatistics();
+    std::string IterateAndPrintAllNodes();
 
 private:
 

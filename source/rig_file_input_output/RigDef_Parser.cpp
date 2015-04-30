@@ -5488,8 +5488,6 @@ void Parser::Finalize()
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.LogNodeStatistics();
-        m_sequential_importer.IterateAndLogAllNodes();
         m_sequential_importer.Process( m_definition );
     }
 }
