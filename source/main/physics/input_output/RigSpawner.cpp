@@ -3890,7 +3890,8 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	{
 		for (unsigned int i = 0; i < def.options.length(); ++i)
 		{
-			switch (def.options[i])
+            const char c = def.options[i];
+			switch (c)
 			{
 				case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
 					hydro_type = BEAM_INVISIBLE_HYDRO;
@@ -3929,6 +3930,9 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 				case RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER:  // 'h':
 					hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
 					break;
+                default:
+                    this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid flag:") + c);
+                    break;
 			}
 			
 			// NOTE: This is a quirk ported from v0.4.0.7 spawner (for compatibility)

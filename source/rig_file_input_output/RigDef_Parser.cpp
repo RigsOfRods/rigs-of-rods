@@ -1629,7 +1629,8 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 {
 	for (unsigned int i = 0; i < options_str.length(); i++)
 	{
-		switch(options_str.at(i))
+        const char c = options_str.at(i);
+		switch(c)
 		{
 			case 'l':
 				BITMASK_SET_1(options, Node::OPTION_l_LOAD_WEIGHT);
@@ -1670,7 +1671,8 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 				BITMASK_SET_1(options, Node::OPTION_L_LOG);
 				break;
 
-			default: /* No check needed, regex takes care of that */
+			default:
+                this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
 				break;
 		}
 	}
@@ -1951,9 +1953,19 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	mesh_wheel.mass               = STR_PARSE_REAL(results[11]);
 	mesh_wheel.spring             = STR_PARSE_REAL(results[12]);
 	mesh_wheel.damping            = STR_PARSE_REAL(results[13]);
-	mesh_wheel.side               = MeshWheel::Side(results[14].str().at(0)); // The regex validates the data
 	mesh_wheel.mesh_name          = results[16];
 	mesh_wheel.material_name      = results[17];
+
+    char side_char = results[14].str().at(0);
+    mesh_wheel.side = MeshWheel::SIDE_RIGHT;
+    if (side_char != 'r')
+    {
+        if (side_char != 'l')
+        {
+            this->AddMessage(line, Message::TYPE_WARNING, std::string("Invalid SIDE flag (acceptable are [r/l]), parsing as LEFT for backwards compatibility: ") + side_char);
+        }
+        mesh_wheel.side = MeshWheel::SIDE_LEFT;
+    }
 
 	m_current_module->mesh_wheels.push_back(mesh_wheel);
 }
@@ -3278,7 +3290,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 		bool one_press_mode = false;
 		for (unsigned int i = 0; i < options_str.length(); i++)
 		{
-			switch(options_str.at(i))
+            const char c = options_str.at(i);
+			switch(c)
 			{
 				case 'n': /* Filler */
 					break;
@@ -3339,7 +3352,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 					}
 					break;
 				
-				default: /* No check needed, regex takes care of that */
+				default:
+                    this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
 					break;
 			}
 		}
@@ -3873,7 +3887,23 @@ void Parser::ParseTies(Ogre::String const & line)
 	tie.max_length = STR_PARSE_REAL(results[5]);
 	if (results[6].matched)
 	{
-		tie.options = Tie::Options(STR_PARSE_INT(results[7]));
+        std::string tie_options = results[7];
+        for (unsigned i = 0; i < tie_options.size(); ++i)
+        {
+            const char tie_char = tie_options.at(i);
+            switch (tie_char)
+            {
+            case 'n':
+                tie.options = Tie::OPTIONS_INVISIBLE;
+                break;
+            case 'i':
+                tie.options = Tie::OPTIONS_INVISIBLE;
+                break;
+            default:
+                this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + tie_char);
+                break;
+            }
+        }
 		
 		if (results[8].matched)
 		{
@@ -4018,6 +4048,9 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 					case 'n':
 						BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_NONE);
 						break;
+                    default:
+                        this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + option);
+                        break;
 				}
 			}
 		}
@@ -4490,11 +4523,16 @@ void Parser::ParseRopes(Ogre::String const & line)
 	if (results[4].matched)
 	{
 		std::string options_str = results[4].str();
-		if (options_str.at(0) == 'i')
+        const char options_char = options_str.at(0);
+		if (options_char == 'i')
 		{
 			rope.invisible = true;
 			rope._has_invisible_set = true;
 		}
+        else
+        {
+            this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid flag: ") + options_char);
+        }
 	}
 
 	m_current_module->ropes.push_back(rope);
