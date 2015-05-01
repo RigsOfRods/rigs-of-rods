@@ -32,6 +32,7 @@
 #include "BitFlags.h"
 #include "RoRPrerequisites.h"
 
+#include <OgreException.h>
 #include <OgreString.h>
 #include <OgreStringVector.h>
 #include <OgreStringConverter.h>
@@ -1335,7 +1336,7 @@ void Parser::ParseWheel(Ogre::String const & line)
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS2, wheel.num_rays, wheel.rigidity_node.IsValidAnyState());
+        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS, wheel.num_rays, wheel.rigidity_node.IsValidAnyState());
     }
 
 	unsigned int braking = STR_PARSE_INT(results[7]);
@@ -1928,7 +1929,7 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 
     if (m_sequential_importer.IsEnabled())
     {
-        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS2, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
+        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_MESHWHEELS, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
     }
 	
 	/* Braking */
@@ -3488,13 +3489,6 @@ void Parser::ParseCinecam(Ogre::String const & line)
 		}
 	}
 
-	if (results[16].matched)
-	{
-		std::stringstream msg;
-		msg << "Please remove: Illegal character(s) after last parameter: \"" << results[16] << "\"";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
-	}
-
 	m_current_module->cinecam.push_back(cinecam);
 }
 
@@ -4483,16 +4477,13 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 	int version = -1;
 	if (results[10].matched)
 	{
+        // Integer input
 		version = STR_PARSE_INT(results[10]);
 	}
 	else if (results[11].matched)
 	{
-		AddMessage(
-			line, 
-			Message::TYPE_WARNING, 
-			"Inline-section 'fileinfo', parameter ~3 'File version': Found real number, should be a decimal. Converting..."
-		);
-		version = static_cast<int>(STR_PARSE_REAL(results[11]));
+		// Float input, silently parse as int.
+		version = STR_PARSE_INT(results[11]);
 	}
 
 	if (version >= 0)
@@ -4748,8 +4739,89 @@ void Parser::ParseNode2(Ogre::String const & line)
 	_ParseSectionsNodesNodes2(line, version_2);
 }
 
-void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2)
+// Static
+void Parser::_TrimTrailingComments(std::string const & line_in, std::string & line_out)
 {
+    // Trim trailing comment
+    int last_comment_delim = line_in.find_last_of(";");
+    if (last_comment_delim != Ogre::String::npos)
+    {
+        line_out = line_in.substr(0, last_comment_delim);
+        return;
+    }
+    last_comment_delim = line_in.find_last_of("//");
+    if (last_comment_delim != Ogre::String::npos)
+    {
+        line_out = line_in.substr(0, last_comment_delim);
+        return;
+    }
+    line_out = line_in;
+}
+
+void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
+{
+    Ogre::StringUtil::trim(line);
+    Ogre::StringVector args;
+    int num_args = this->_ParseArgs(line, args, 4u);
+    if (num_args == -1)
+    {
+        return; // Error already logged
+    }
+
+	Node node;
+	node.node_defaults = m_user_node_defaults;
+	node.beam_defaults = m_user_beam_defaults;
+	node.detacher_group = m_current_detacher_group;
+
+    if (is_version_2)
+    {
+        node.id.SetStr(args[0]);
+        if (m_sequential_importer.IsEnabled())
+        {
+            m_sequential_importer.AddNamedNode(args[0]);
+        }
+        m_any_named_node_defined = true; // For import logic
+    }
+    else
+    {
+        const unsigned int node_num = static_cast<unsigned int>(STR_PARSE_INT(args[0]));
+        node.id.SetNum(node_num);
+        if (m_sequential_importer.IsEnabled())
+        {
+            m_sequential_importer.AddNumberedNode(node_num);
+        }
+    }
+	node.position.x = STR_PARSE_REAL(args[1]);
+	node.position.y = STR_PARSE_REAL(args[2]);
+	node.position.z = STR_PARSE_REAL(args[3]);
+
+	if (num_args > 3) /* Has options? */
+	{
+		_ParseNodeOptions(node.options, args[4]);
+
+		if (num_args > 4) /* Has load weight override? */
+		{
+			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
+			{
+				node.load_weight_override = STR_PARSE_REAL(args[5]);
+				node._has_load_weight_override = true;
+			}
+			else
+			{
+				AddMessage(line, Message::TYPE_WARNING, "Node has load-weight-override value specified, but option 'l' is not present. Ignoring value...");
+			}
+		}
+	}
+
+	m_current_module->nodes.push_back(node);
+}
+
+void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_version_2)
+{
+    // Strip trailing comments
+    std::string line;
+    Parser::_TrimTrailingComments(line_in, line);
+
 	// Parse line
 	boost::smatch results;
     const boost::regex* regex_ptr = &Regexes::SECTION_NODES;
@@ -4759,10 +4831,21 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_versio
     }
 	if (! boost::regex_search(line, results, *regex_ptr))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        if (m_sequential_importer.IsEnabled()) // Are we imporing legacy fileformat?
+        {
+		    this->AddMessage(line, Message::TYPE_WARNING, "Failed to parse using safe method, falling back to classic method.");
+            this->_ParseNodesLegacyMethod(line, is_version_2);
+        }
+        else
+        {
+            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        }
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+
+    const int result_pos_options = 11;
+    const int result_pos_loadweightoverride = 15;
 
 	Node node;
 	node.node_defaults = m_user_node_defaults;
@@ -4791,15 +4874,15 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_versio
 	node.position.y = STR_PARSE_REAL(results[5]);
 	node.position.z = STR_PARSE_REAL(results[7]);
 
-	if (results[10].matched) /* Has options? */
+	if (results[result_pos_options].matched) /* Has options? */
 	{
-		_ParseNodeOptions(node.options, results[10]);
+		_ParseNodeOptions(node.options, results[result_pos_options]);
 
-		if (results[13].matched) /* Has load weight override? */
+		if (results[result_pos_loadweightoverride].matched) /* Has load weight override? */
 		{
 			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
 			{
-				node.load_weight_override = STR_PARSE_REAL(results[13]);
+				node.load_weight_override = STR_PARSE_REAL(results[result_pos_loadweightoverride]);
 				node._has_load_weight_override = true;
 			}
 			else
@@ -4877,7 +4960,7 @@ void Parser::ParseFlexBodyWheels(Ogre::String const & line)
     if (m_sequential_importer.IsEnabled())
     {
         m_sequential_importer.GenerateNodesForWheel(
-            File::KEYWORD_WHEELS2,flex_body_wheel.num_rays, flex_body_wheel.rigidity_node.IsValidAnyState());
+            File::KEYWORD_FLEXBODYWHEELS,flex_body_wheel.num_rays, flex_body_wheel.rigidity_node.IsValidAnyState());
     }
 
 	unsigned int braking = STR_PARSE_INT(results[8]);
@@ -4945,7 +5028,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
     if (m_sequential_importer.IsEnabled())
     {
         m_sequential_importer.GenerateNodesForWheel(
-            File::KEYWORD_WHEELS2, mesh_wheel_2.num_rays, mesh_wheel_2.rigidity_node.IsValidAnyState());
+            File::KEYWORD_MESHWHEELS2, mesh_wheel_2.num_rays, mesh_wheel_2.rigidity_node.IsValidAnyState());
     }
 	
 	/* Braking */
@@ -5164,18 +5247,8 @@ bool Parser::_ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & re
 
 void Parser::ParseBeams(Ogre::String const & _line)
 {
-	// Cut off trailing comments
-	//     Original parser didn't understand comments and parsed it as arguments
-	//     However, some creators used trailing comments without encountering problems.
-	//     Solution: let's tolerate trailing comments in this parser.
-
-	Ogre::String line = _line;
-
-	int semicolon_index = _line.find_first_of(";");
-	if (semicolon_index != -1)
-	{
-		line = line.substr(0, semicolon_index);
-	}
+	std::string line;
+    Parser::_TrimTrailingComments(_line, line);
 
 	// Parse arguments
 	boost::smatch results;
@@ -5224,13 +5297,6 @@ void Parser::ParseBeams(Ogre::String const & _line)
 				AddMessage(line, Message::TYPE_WARNING, std::string("Invalid flag: ") + flags_str[i]);
 			}
 		}
-	}
-
-	if (results[10].matched)
-	{
-		std::stringstream msg;
-		msg << "Please remove invalid trailing character(s): \"" << results[10] << "\"";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
 	m_current_module->beams.push_back(beam);
@@ -5569,6 +5635,31 @@ std::string Parser::ProcessMessagesToString()
 	}
 
 	return report.str();
+}
+
+int Parser::_ParseArgs(std::string const & line, Ogre::StringVector &args, unsigned min_num_args)
+{
+    // Note: This splitting silently ignores multiple consecutive separators.
+    //       For example "A,|,B" will produce results[0] = "A", results[1] = "B"
+    try
+	{
+        args = Ogre::StringUtil::split(line, ":|, \t");
+        if (args.size() < min_num_args)
+        {
+            std::stringstream msg;
+            msg << "Too few arguments, minimum is: " << min_num_args;
+            this->AddMessage(line, Message::TYPE_ERROR, msg.str());
+            args.clear();
+            return -1;
+        }
+        return args.size();
+	} 
+    catch(Ogre::Exception &e)
+	{
+        this->AddMessage(line, Message::TYPE_ERROR, "Unexpected error while parsing line: "+e.getFullDescription());
+		args.clear();
+		return -1;
+	}
 }
 
 } // namespace RigDef

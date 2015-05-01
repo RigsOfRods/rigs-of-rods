@@ -248,7 +248,19 @@ void SequentialImporter::ResolveFlexbodyForset(std::vector<Node::Range>& in_rang
             }
             else
             {
-                out_nodes.push_back(this->ResolveNodeByIndex(range.start.Num(), range.start.GetLineNumber())); // Forset nodes are numbered-only
+                Node::Ref node_ref = this->ResolveNodeByIndex(range.start.Num(), range.start.GetLineNumber()); // Forset nodes are numbered-only
+                // Invalid nodes are simply thrown away, for backwards compatibility 
+                // (FlexBody loops through existing nodes first, and then evaluates if they are in the SET)
+                if (node_ref.IsValidAnyState())
+                {
+                    out_nodes.push_back(node_ref);
+                }
+                else
+                {
+                    std::stringstream msg;
+                    msg << "ResolveFlexbodyForset(): Stand-alone node [" << range.start.ToString() << "] resolved invalid, removing from FORSET";
+                    this->AddMessage(Message::TYPE_WARNING, msg.str());
+                }
             }
         }
         else // It's a range
@@ -271,7 +283,19 @@ void SequentialImporter::ResolveFlexbodyForset(std::vector<Node::Range>& in_rang
                 unsigned int line_num = range.start.GetLineNumber();
                 for (unsigned int i = range.start.Num(); i <= end_index; ++i)
                 {
-                    out_nodes.push_back(this->ResolveNodeByIndex(i, line_num));
+                    Node::Ref node_ref = this->ResolveNodeByIndex(i, line_num); // Forset nodes are numbered-only
+                    // Invalid nodes are simply thrown away, for backwards compatibility 
+                    // (FlexBody loops through existing nodes first, and then evaluates if they are in the SET -> invalid nodes are silently ignored)
+                    if (node_ref.IsValidAnyState())
+                    {
+                        out_nodes.push_back(node_ref);
+                    }
+                    else
+                    {
+                        std::stringstream msg;
+                        msg << "ResolveFlexbodyForset(): Node ["<<i<<"] from range [" << range.start.ToString() << " - " << range.end.ToString() << "] resolved invalid, removing from FORSET";
+                        this->AddMessage(Message::TYPE_WARNING, msg.str());
+                    }
                 }
             }
         }

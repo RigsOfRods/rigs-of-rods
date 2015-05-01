@@ -4547,6 +4547,12 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 	node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
 
+    if (axis_node_1 == nullptr || axis_node_2 == nullptr)
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Failed to find axis nodes, skipping meshwheel2...");
+        return;
+    }
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
 	{
@@ -6207,7 +6213,7 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const &
 	{
 		if (! quiet)
 		{
-            AddMessage(Message::TYPE_ERROR, std::string("Attemptto resolve invalid node reference: ") + node_ref.ToString());
+            AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
 		}
 		return std::make_pair(0, false);
 	}
@@ -7175,15 +7181,15 @@ std::string RigSpawner::ProcessMessagesToString()
 	{
 		switch (itor->type)
 		{
-			case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
+			case (Message::TYPE_INTERNAL_ERROR): 
 				report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
 				break;
 
-			case (RigDef::Parser::Message::TYPE_ERROR): 
+			case (Message::TYPE_ERROR): 
 				report << "#FF3300 ERROR #FFFFFF"; 
 				break;
 
-			case (RigDef::Parser::Message::TYPE_WARNING): 
+			case (Message::TYPE_WARNING): 
 				report << "#FFFF00 WARNING #FFFFFF"; 
 				break;
 

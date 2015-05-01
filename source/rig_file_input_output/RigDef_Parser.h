@@ -309,6 +309,11 @@ protected:
 /*	Utilities */
 /* -------------------------------------------------------------------------- */
 
+    /** The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
+    * @return -1 on error (error logged). Otherwise, number of arguments
+    */
+    int _ParseArgs(std::string const & line, Ogre::StringVector &args, unsigned min_num_args);
+
     /** Attempts to parse cab line. Returns true if successful.
     */
     bool _TryParseCab(Ogre::String const & line);
@@ -334,6 +339,12 @@ protected:
 	/** Nodes and Nodes2 are unified with this parser.
 	*/
 	void _ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2);
+
+    /** The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
+	*/
+    void _ParseNodesLegacyMethod(Ogre::String line, bool is_version_2);
+
+    static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
     void _ImportLegacyFlexbodyForsetLine(Ogre::String const & line);
 
