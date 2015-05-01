@@ -129,20 +129,21 @@ public:
 	Ogre::MaterialPtr CloneMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
 
 	/**
-	* Finds existing node by Node::Id; throws an exception if the node doesn't exist.
+	* Finds existing node by Node::Ref; throws an exception if the node doesn't exist.
 	* @return Index of existing node
 	* @throws Exception If the node isn't found.
 	*/
-	unsigned int GetNodeIndexOrThrow(RigDef::Node::Id & id);
+	unsigned int GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
 
 	static void RecalculateBoundingBoxes(rig_t *rig);
 
 	static void SetupDefaultSoundSources(Beam *vehicle);
 
-	std::list<Message> & GetMessages()
-	{
-		return m_messages;
-	}
+    std::string ProcessMessagesToString();
+	std::list<Message> & GetMessages() { return m_messages; }
+    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
+    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
+    int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
 	static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
@@ -216,7 +217,7 @@ protected:
 	/**
 	* Section 'contacters'.
 	*/
-	void ProcessContacter(RigDef::Node::Id & node);
+	void ProcessContacter(RigDef::Node::Ref & node_ref);
 
 	/**
 	* Section 'cruisecontrol' in any module.
@@ -648,28 +649,16 @@ protected:
 /* -------------------------------------------------------------------------- */
 
 	/**
-	* Seeks node. Tolerates non-existent numbered-nodes (backwards compatibility)
-	* @return Pointer to node. If node is indexed and doesn't exist, returns pointer to un-initialised object. Returns nullptr if node is named and doesn't exist.
+	* Seeks node.
+	* @return Pointer to node, or nullptr if not found.
 	*/
-	node_t* GetBeamNodePointer(RigDef::Node::Id & id);
+	node_t* GetBeamNodePointer(RigDef::Node::Ref const & node_ref);
 
 	/**
 	* Seeks node in both RigDef::File definition and rig_t generated rig.
 	* @return Node index or -1 if the node was not found.
 	*/
-	int FindNodeIndex(RigDef::Node::Id & id, bool silent = false);
-
-	/**
-	* Seeks node in both RigDef::File definition and rig_t generated rig. Tolerates numbered nodes which weren't found (backwards compatibility)
-	* @return Node index or -1 if the node was named and not found (not found numbered nodes pass through, for compatibility).
-	*/
-	int FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id);
-
-	/**
-	* Finds a generated node in rig.
-	* @return Pointer to node, or nullptr if node doesn't exist.
-	*/
-	node_t* FindGeneratedNodeInRig(RigDef::Node::Id & id, bool silent = false);
+	int FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent = false);
 
 	/**
 	* Finds wheel with given axle nodes and returns it's index.
@@ -704,41 +693,41 @@ protected:
 	);
 
 	/**
-	* Finds existing node by Node::Id
+	* Finds existing node by Node::Ref
 	* @return First: Index of existing node; Second: true if node was found.
 	*/
-	std::pair<unsigned int, bool> GetNodeIndex(RigDef::Node::Id & id, bool quiet = false);
+	std::pair<unsigned int, bool> GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet = false);
 
 	/**
-	* Finds existing node by Node::Id
+	* Finds existing node by Node::Ref
 	* @return Pointer to node or nullptr if not found.
 	*/
-	node_t* GetNodePointer(RigDef::Node::Id & id);
+	node_t* GetNodePointer(RigDef::Node::Ref const & node_ref);
 
 	/**
-	* Finds existing node by Node::Id
+	* Finds existing node by Node::Ref
 	* @return Pointer to node
 	* @throws Exception If the node isn't found.
 	*/
-	node_t* GetNodePointerOrThrow(RigDef::Node::Id & id);
+	node_t* GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref);
 
 	/**
-	* Finds existing node by Node::Id; throws an exception if the node doesn't exist.
+	* Finds existing node by Node::Ref; throws an exception if the node doesn't exist.
 	* @return Reference to existing node.
 	* @throws Exception If the node isn't found.
 	*/
-	node_t & GetNodeOrThrow(RigDef::Node::Id & id);
+	node_t & GetNodeOrThrow(RigDef::Node::Ref const & node_ref);
 
 	/**
 	* Finds existing pointer by Node::Id
 	* @return Ref. to node.
 	*/
-	node_t & GetNode(RigDef::Node::Id & id)
+	node_t & GetNode(RigDef::Node::Ref & node_ref)
 	{
-		node_t * node = GetNodePointer(id);
+		node_t * node = GetNodePointer(node_ref);
 		if (node == nullptr)
 		{
-			throw Exception("Failed to retrieve node.");
+            throw Exception(std::string("Failed to retrieve node from reference: ") + node_ref.ToString());
 		}
 		return * node;
 	}
@@ -922,7 +911,7 @@ protected:
 		float rim_spring,
 		float rim_damping,
 		boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-		RigDef::Node::Id rigidity_node_id,
+		RigDef::Node::Ref const & rigidity_node_id,
 		float max_extension = 0.f
 	);
 
@@ -963,8 +952,8 @@ protected:
 	void FetchAxisNodes(
 		node_t* & axis_node_1, 
 		node_t* & axis_node_2, 
-		RigDef::Node::Id axis_node_1_id,
-		RigDef::Node::Id axis_node_2_id
+		RigDef::Node::Ref const & axis_node_1_id,
+		RigDef::Node::Ref const & axis_node_2_id
 	);
 
 	void _ProcessCommandKeyInertia(
@@ -998,10 +987,16 @@ protected:
 	Beam *m_rig; //!< The output rig.
 	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	std::map<Ogre::String, unsigned int> m_named_nodes;
-	std::map<unsigned int, unsigned int> m_numbered_nodes;
-	std::list<Message> m_messages; //!< Message log.
-	RigDef::File::Keyword m_current_keyword; //!< For error reports
+	
 	bool m_enable_background_loading;
+
+    // Logging
+    std::list<Message>    m_messages;
+    RigDef::File::Keyword m_current_keyword; //!< For error reports
+    int                   m_messages_num_errors;
+    int                   m_messages_num_warnings;
+    int                   m_messages_num_other;
+
 
 	/* RIG CONTEXT */
 

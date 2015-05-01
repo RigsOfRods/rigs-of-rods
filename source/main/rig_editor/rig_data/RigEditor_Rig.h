@@ -214,17 +214,17 @@ private:
 
 	/** Rig building utility function
 	*/
-	Node* FindNode(RigDef::Node::Id const & node_id, RigBuildingReport* logger = nullptr);
+	Node* Rig::FindNode(RigDef::Node::Ref const & node_ref, RigBuildingReport* logger = nullptr);
 
-	bool GetWheelAxisNodes(RigDef::Node::Id a1, RigDef::Node::Id a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report);
+	bool GetWheelAxisNodes(RigDef::Node::Ref const & a1, RigDef::Node::Ref const & a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report);
 
 	/// Finds all nodes required for wheel. 
 	/// @return False if some valid node was not found.
 	bool GetWheelDefinitionNodes(
-		RigDef::Node::Id axis1,
-		RigDef::Node::Id axis2,
-		RigDef::Node::Id rigidity,
-		RigDef::Node::Id reference_arm,
+		RigDef::Node::Ref axis1,
+		RigDef::Node::Ref axis2,
+		RigDef::Node::Ref rigidity,
+		RigDef::Node::Ref reference_arm,
 		Node*& out_axis_inner, 
 		Node*& out_axis_outer,
 		Node*& out_rigidity, 
@@ -238,11 +238,11 @@ private:
 
 	/* STRUCTURE */
 
-	std::unordered_map<RigDef::Node::Id, Node, RigDef::Node::Id::Hasher> m_nodes;
-	std::list<Beam>          m_beams;
-	std::list<CineCamera>    m_cinecameras;
-	Ogre::AxisAlignedBox     m_aabb;
-	unsigned int             m_highest_node_id;
+    std::map<std::string, Node>       m_nodes; // Only named nodes are supported
+	std::list<Beam>                   m_beams;
+	std::list<CineCamera>             m_cinecameras;
+	Ogre::AxisAlignedBox              m_aabb;
+	unsigned int                      m_highest_node_id;
 
 	std::vector<LandVehicleWheel*>    m_wheels;
 	

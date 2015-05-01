@@ -41,7 +41,8 @@
 
 #include "ConfigFile.h"
 #include "GUI_OpenSaveFileDialog.h"
-#include "RigDef_File.h" // For RigDef::Node::Id
+#include "RigDef_Node.h"
+#include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_IMain.h"
 #include "RigEditor_ForwardDeclarations.h"
@@ -62,9 +63,9 @@ struct BaseWheelAggregateData
 
 	// Element data fields
 	unsigned int num_rays;
-	RigDef::Node::Id axis_nodes[2];
-	RigDef::Node::Id rigidity_node;
-	RigDef::Node::Id reference_arm_node;
+	RigDef::Node::Ref axis_nodes[2];
+	RigDef::Node::Ref rigidity_node;
+	RigDef::Node::Ref reference_arm_node;
 	RigDef::Wheels::Braking braking;
 	RigDef::Wheels::Propulsion propulsion;
 	float mass;

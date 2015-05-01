@@ -1091,15 +1091,9 @@ void Main::CommandSetAllWheelsHovered(bool state_hovered)
 #define LINK_NODES(MODULE, NODE1, NODE2)\
 {\
     RigDef::Beam b;\
-    b.nodes[0].SetStr(NODE1);\
-    b.nodes[1].SetStr(NODE2);\
-    MODULE->beams.push_back(b);\
-}
-#define LINK_NODE_0(MODULE, NODE1)\
-{\
-    RigDef::Beam b;\
-    b.nodes[0].SetStr(NODE1);\
-    b.nodes[1].SetNum(0);\
+    unsigned flags = RigDef::Node::Ref::REGULAR_STATE_IS_VALID | RigDef::Node::Ref::REGULAR_STATE_IS_NAMED; \
+    b.nodes[0] = RigDef::Node::Ref(NODE1, 0u, flags, 0);\
+    b.nodes[1] = RigDef::Node::Ref(NODE2, 0u, flags, 0);\
     MODULE->beams.push_back(b);\
 }
 
@@ -1118,7 +1112,7 @@ void Main::CommandCreateNewEmptyRig()
 	def->root_module = module;
     // Create special node 0 in _Root_ module
     RigDef::Node node_0;
-    node_0.id.SetNum(0);
+    node_0.id.SetStr("ZERO");
     node_0.position = Ogre::Vector3::ZERO;
     module->nodes.push_back(node_0);
     // Create cube around node 0
@@ -1145,14 +1139,14 @@ void Main::CommandCreateNewEmptyRig()
     LINK_NODES(module, "CUBE_bottom_ox", "CUBE_top_ox");
     LINK_NODES(module, "CUBE_bottom_xx", "CUBE_top_xx");
     // Link node 0
-    LINK_NODE_0(module, "CUBE_bottom_oo" );
-    LINK_NODE_0(module, "CUBE_bottom_xo" );
-    LINK_NODE_0(module, "CUBE_bottom_ox" );
-    LINK_NODE_0(module, "CUBE_bottom_xx" );
-    LINK_NODE_0(module, "CUBE_top_oo"    );
-    LINK_NODE_0(module, "CUBE_top_xo"    );
-    LINK_NODE_0(module, "CUBE_top_ox"    );
-    LINK_NODE_0(module, "CUBE_top_xx"    );
+    LINK_NODES(module, "CUBE_bottom_oo", "ZERO" );
+    LINK_NODES(module, "CUBE_bottom_xo", "ZERO" );
+    LINK_NODES(module, "CUBE_bottom_ox", "ZERO" );
+    LINK_NODES(module, "CUBE_bottom_xx", "ZERO" );
+    LINK_NODES(module, "CUBE_top_oo"   , "ZERO" );
+    LINK_NODES(module, "CUBE_top_xo"   , "ZERO" );
+    LINK_NODES(module, "CUBE_top_ox"   , "ZERO" );
+    LINK_NODES(module, "CUBE_top_xx"   , "ZERO" );
     // Build
     m_rig->Build(def, this, this->m_scene_manager->getRootSceneNode(), nullptr);
     // Accomodate

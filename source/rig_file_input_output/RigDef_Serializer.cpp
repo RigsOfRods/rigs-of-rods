@@ -177,7 +177,7 @@ void Serializer::ProcessPistonprops(File::Module* module)
 			<< ", " << def.blade_tip_nodes[1].ToString()
 			<< ", " << def.blade_tip_nodes[2].ToString()
 			<< ", " << def.blade_tip_nodes[3].ToString()
-			<< ", " << (def.couple_node.IsValid() ? def.couple_node.ToString() : "-1")
+            << ", " << (def.couple_node.IsValidAnyState() ? def.couple_node.ToString() : "-1")
 			<< ", " << def.turbine_power_kW
 			<< ", " << def.pitch
 			<< ", " << def.airfoil;
@@ -277,7 +277,7 @@ void Serializer::ProcessAirbrakes(File::Module* module)
 		m_stream << "\n\t" << def.reference_node.ToString()
 			<< ", " << def.x_axis_node.ToString()
 			<< ", " << def.y_axis_node.ToString()
-			<< ", " << (def.aditional_node.IsValid() ? def.aditional_node.ToString() : "-1")
+			<< ", " << (def.aditional_node.IsValidAnyState() ? def.aditional_node.ToString() : "-1")
 			<< ", " << def.offset.x
 			<< ", " << def.offset.y
 			<< ", " << def.offset.z
@@ -407,8 +407,8 @@ void Serializer::ProcessVideocamera(File::Module* module)
 		m_stream << "\n\t" << def.reference_node.ToString()
 			<< ", " << def.left_node.ToString()
 			<< ", " << def.bottom_node.ToString()
-			<< ", " << (def.alt_reference_node.IsValid() ? def.alt_reference_node.ToString() : "-1")
-			<< ", " << (def.alt_orientation_node.IsValid() ? def.alt_orientation_node.ToString() : "-1")
+			<< ", " << (def.alt_reference_node.IsValidAnyState() ? def.alt_reference_node.ToString() : "-1")
+			<< ", " << (def.alt_orientation_node.IsValidAnyState() ? def.alt_orientation_node.ToString() : "-1")
 			<< ", " << def.offset.x
 			<< ", " << def.offset.y
 			<< ", " << def.offset.z
@@ -588,54 +588,54 @@ void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
 		<< ", source: ";
 			
 	// Source flags
-	bool b_and = false;
+	bool join = false;
 	unsigned int src_flags = anim.source;
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_AIRSPEED         , "airspeed");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_VERTICAL_VELOCITY, "vvi");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ALTIMETER_100K   , "altimeter100k");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ALTIMETER_10K    , "altimeter10k");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ALTIMETER_1K     , "altimeter1k");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ANGLE_OF_ATTACK  , "aoa");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_FLAP             , "flap");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_AIR_BRAKE        , "airbrake");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ROLL             , "roll");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_PITCH            , "pitch");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_BRAKES           , "brakes");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ACCEL            , "accel");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_CLUTCH           , "clutch");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_SPEEDO           , "speedo");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_TACHO            , "tacho");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_TURBO            , "turbo");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_PARKING          , "parking");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_SHIFT_LEFT_RIGHT , "shifterman1");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_SHIFT_BACK_FORTH , "shifterman2");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_SEQUENTIAL_SHIFT , "sequential");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_SHIFTERLIN       , "shifterlin");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_TORQUE           , "torque");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_HEADING          , "heading");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_DIFFLOCK         , "difflock");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_BOAT_RUDDER      , "rudderboat");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_BOAT_THROTTLE    , "throttleboat");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_STEERING_WHEEL   , "steeringwheel");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_AILERON          , "aileron");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_ELEVATOR         , "elevator");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_AIR_RUDDER       , "rudderair");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_PERMANENT        , "permanent");
-	PROP_ANIMATION_ADD_FLAG(src_flags, b_and, SOURCE_EVENT            , "event");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_AIRSPEED         , "airspeed");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_VERTICAL_VELOCITY, "vvi");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ALTIMETER_100K   , "altimeter100k");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ALTIMETER_10K    , "altimeter10k");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ALTIMETER_1K     , "altimeter1k");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ANGLE_OF_ATTACK  , "aoa");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_FLAP             , "flap");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_AIR_BRAKE        , "airbrake");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ROLL             , "roll");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_PITCH            , "pitch");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_BRAKES           , "brakes");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ACCEL            , "accel");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_CLUTCH           , "clutch");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_SPEEDO           , "speedo");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_TACHO            , "tacho");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_TURBO            , "turbo");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_PARKING          , "parking");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_SHIFT_LEFT_RIGHT , "shifterman1");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_SHIFT_BACK_FORTH , "shifterman2");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_SEQUENTIAL_SHIFT , "sequential");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_SHIFTERLIN       , "shifterlin");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_TORQUE           , "torque");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_HEADING          , "heading");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_DIFFLOCK         , "difflock");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_BOAT_RUDDER      , "rudderboat");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_BOAT_THROTTLE    , "throttleboat");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_STEERING_WHEEL   , "steeringwheel");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_AILERON          , "aileron");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_ELEVATOR         , "elevator");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_AIR_RUDDER       , "rudderair");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_PERMANENT        , "permanent");
+	PROP_ANIMATION_ADD_FLAG(src_flags, join, SOURCE_EVENT            , "event");
 			
 	m_stream << ", mode: ";
-	b_and = false;
+	join = false;
 	unsigned int mode_flags = anim.mode;
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_ROTATION_X  , "x-rotation");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_ROTATION_Y  , "y-rotation");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_ROTATION_Z  , "z-rotation");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_OFFSET_X    , "x-offset");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_OFFSET_Y    , "y-offset");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_OFFSET_Z    , "z-offset");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_AUTO_ANIMATE, "autoanimate");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_NO_FLIP     , "noflip");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_BOUNCE      , "bounce");
-	PROP_ANIMATION_ADD_FLAG(mode_flags, b_and, MODE_EVENT_LOCK  , "eventlock");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_ROTATION_X  , "x-rotation");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_ROTATION_Y  , "y-rotation");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_ROTATION_Z  , "z-rotation");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_OFFSET_X    , "x-offset");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_OFFSET_Y    , "y-offset");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_OFFSET_Z    , "z-offset");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_AUTO_ANIMATE, "autoanimate");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_NO_FLIP     , "noflip");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_BOUNCE      , "bounce");
+	PROP_ANIMATION_ADD_FLAG(mode_flags, join, MODE_EVENT_LOCK  , "eventlock");
 			
 	if (anim.HasSource_Event())
 	{
@@ -668,9 +668,9 @@ void Serializer::ProcessFlexbodies(File::Module* module)
 			<< ", " << def->mesh_name;
 
 		// Forset line
-		m_stream << "\n\t\tforset ";
-		auto forset_end = def->forset.end();
-		auto forset_itor = def->forset.begin();
+		m_stream << "\n\t\tforset (node list)";
+		auto forset_end = def->node_list.end();
+		auto forset_itor = def->node_list.begin();
 		bool first = true;
 		for (; forset_itor != forset_end; ++forset_itor)
 		{
@@ -678,11 +678,7 @@ void Serializer::ProcessFlexbodies(File::Module* module)
 			{
 				m_stream << ", ";
 			}
-			m_stream << forset_itor->start.ToString();
-			if (forset_itor->IsRange())
-			{
-				m_stream << "-" << forset_itor->end.ToString();
-			}
+			m_stream << forset_itor->ToString();
 			first = false;
 		}
 
@@ -781,8 +777,8 @@ void Serializer::ProcessFlares2(File::Module* module)
 		RigDef::Flare2 & def = *itor;
 
 		m_stream << "\n\t" << def.reference_node.ToString()
-			<< ", " << def.x
-			<< ", " << def.y
+            << ", " << def.node_axis_x.ToString()
+            << ", " << def.node_axis_y.ToString()
 			<< ", " << def.offset.x
 			<< ", " << def.offset.y
 			<< ", " << def.type

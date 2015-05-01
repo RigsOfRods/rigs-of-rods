@@ -31,6 +31,8 @@
 #include "RigEditor_GuiPopupWheelsList.h"
 #include "GUI_RigEditorMenubarLayout.h"
 #include "RigEditor_ForwardDeclarations.h"
+#include "RigEditor_GuiPopupWheelsList.h"
+
 #include "RigEditor_IMain.h"
 
 #include <vector>

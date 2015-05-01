@@ -5925,128 +5925,6 @@ void Beam::onComplete()
 	}
 }
 
-
-std::string ProcessParserMessages(RigDef::Parser & parser, int& num_errors, int& num_warnings, int& num_other)
-{
-	if (parser.GetMessages().size() == 0)
-	{
-		std::string msg(" == Parsing done OK");
-		LOG(msg);
-		return msg;
-	}
-
-	std::stringstream report;
-	report << " == Parsing done, report:" << std::endl <<std::endl;
-
-	std::list<RigDef::Parser::Message>::const_iterator iter = parser.GetMessages().begin();
-	for (; iter != parser.GetMessages().end(); iter++)
-	{
-		switch (iter->type)
-		{
-			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
-				report << "#FF3300 FATAL_ERROR #FFFFFF"; 
-				++num_errors;
-				break;
-
-			case (RigDef::Parser::Message::TYPE_ERROR): 
-				report << "#FF3300 ERROR #FFFFFF"; 
-				++num_errors;
-				break;
-
-			case (RigDef::Parser::Message::TYPE_WARNING): 
-				report << "#FFFF00 WARNING #FFFFFF"; 
-				++num_warnings;
-				break;
-
-			default:
-				report << "INFO"; 
-				++num_other;
-				break;
-		}
-		report << " (Section " << RigDef::File::SectionToString(iter->section) << ")" << std::endl;
-		report << "\tLine (" << iter->line_number << "): " << iter->line << std::endl;
-		report << "\tMessage: " << iter->message << std::endl;
-	}
-
-	return report.str();
-}
-
-std::string ProcessSpawnerMessages(RigSpawner & spawner, int& num_errors, int& num_warnings, int& num_other)
-{
-	std::stringstream report;
-
-	std::list<RigSpawner::Message>::const_iterator iter = spawner.GetMessages().begin();
-	for (; iter != spawner.GetMessages().end(); iter++)
-	{
-		switch (iter->type)
-		{
-			case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
-				report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
-				++num_errors;
-				break;
-
-			case (RigDef::Parser::Message::TYPE_ERROR): 
-				report << "#FF3300 ERROR #FFFFFF"; 
-				++num_errors;
-				break;
-
-			case (RigDef::Parser::Message::TYPE_WARNING): 
-				report << "#FFFF00 WARNING #FFFFFF"; 
-				++num_warnings;
-				break;
-
-			default:
-				report << "INFO"; 
-				++num_other;
-				break;
-		}
-		report << "(Keyword " << RigDef::File::KeywordToString(iter->keyword) << ")" << std::endl;
-		report << "\t" << iter->text << std::endl;
-	}
-	return report.str();
-}
-
-std::string ProcessValidatorMessages(RigDef::Validator & validator, int& num_errors, int& num_warnings, int& num_other)
-{
-	if (validator.GetMessages().empty())
-	{
-		std::string msg(" == Validating done OK");
-		Ogre::LogManager::getSingleton().logMessage(msg);
-		return msg;
-	}
-
-	std::stringstream report;
-	report << " == Validating done, report:" <<std::endl << std::endl;
-
-	std::list<RigDef::Validator::Message>::iterator itor = validator.GetMessages().begin();
-	for( ; itor != validator.GetMessages().end(); itor++)
-	{
-		switch (itor->type)
-		{
-			case (RigDef::Validator::Message::TYPE_FATAL_ERROR):
-				report << "#FF3300 FATAL ERROR #FFFFFF";
-				++num_errors;
-				break;
-			case (RigDef::Validator::Message::TYPE_ERROR):
-				report << "#FF3300 ERROR #FFFFFF";
-				++num_errors;
-				break;
-			case (RigDef::Validator::Message::TYPE_WARNING):
-				report << "#FFFF00 WARNING #FFFFFF";
-				++num_warnings;
-				break;
-			default:
-				report << "INFO";
-				++num_other;
-				break;
-		}
-
-		report << ": " << itor->text << std::endl;
-	}
-
-	return report.str();
-}
-
 Beam::Beam(
 	int truck_number, 
 	Ogre::Vector3 pos, 
@@ -6311,7 +6189,7 @@ Beam::Beam(
 	mCamera = gEnv->mainCamera;
 
 	// DEBUG UTILITY
-	//RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log"); 
+	// RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log"); 
 
 	LOG(" ===== DONE LOADING VEHICLE");
 }
@@ -6390,12 +6268,25 @@ bool Beam::LoadTruck(
 	}
 	parser.Finalize();
 
-	int report_num_errors(0);
-	int report_num_warnings(0);
-	int report_num_other(0);
-	std::string report_text = ProcessParserMessages(parser, report_num_errors, report_num_warnings, report_num_other);
+    int report_num_errors   = parser.GetMessagesNumErrors();
+    int report_num_warnings = parser.GetMessagesNumWarnings();
+    int report_num_other    = parser.GetMessagesNumOther();
+	std::string report_text = parser.ProcessMessagesToString();
 	report_text += "\n\n";
 	LOG(report_text);
+
+    auto* importer = parser.GetSequentialImporter();
+    if (importer->IsEnabled())
+    {
+        report_num_errors   += importer->GetMessagesNumErrors();
+        report_num_warnings += importer->GetMessagesNumWarnings();
+        report_num_other    += importer->GetMessagesNumOther();
+
+        std::string importer_report = importer->ProcessMessagesToString();
+        LOG(importer_report);
+        
+        report_text += importer_report + "\n\n";
+    }
 
 	/* VALIDATING */
 
@@ -6418,7 +6309,10 @@ bool Beam::LoadTruck(
 	}
 	bool valid = validator.Validate();
 
-	std::string validator_report = ProcessValidatorMessages(validator, report_num_errors, report_num_warnings, report_num_other);
+    report_num_errors   += validator.GetMessagesNumErrors();
+    report_num_warnings += validator.GetMessagesNumWarnings();
+    report_num_other    += validator.GetMessagesNumOther();
+    std::string validator_report = validator.ProcessMessagesToString();
 	LOG(validator_report);
 	report_text += validator_report;
 	report_text += "\n\n";
@@ -6443,7 +6337,19 @@ bool Beam::LoadTruck(
 	}
 
 	spawner.SpawnRig();
-	report_text += ProcessSpawnerMessages(spawner, report_num_errors, report_num_warnings, report_num_other);
+    report_num_errors   += spawner.GetMessagesNumErrors();
+    report_num_warnings += spawner.GetMessagesNumWarnings();
+    report_num_other    += spawner.GetMessagesNumOther();
+    // Spawner log already printed to RoR.log
+    report_text += spawner.ProcessMessagesToString() + "\n\n";
+
+    // Extra information to RoR.log
+    if (importer->IsEnabled())
+    {
+        LOG(importer->GetNodeStatistics());
+        LOG(importer->IterateAndPrintAllNodes());
+    }
+
 	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
 	if (report_num_errors != 0)
 	{

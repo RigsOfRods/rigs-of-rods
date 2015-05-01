@@ -30,7 +30,9 @@
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
 #include "BitFlags.h"
+#include "RoRPrerequisites.h"
 
+#include <OgreException.h>
 #include <OgreString.h>
 #include <OgreStringVector.h>
 #include <OgreStringConverter.h>
@@ -1185,7 +1187,7 @@ void Parser::ParseWing(Ogre::String const & line)
 
 	for (unsigned int i = 0; i < 8; i++)
 	{
-		wing.nodes[i] = _ParseNodeId(results[i + 1]);
+		wing.nodes[i] = _ParseNodeRef(results[i + 1]);
 	}
 
 	for (unsigned int i = 0; i < 8; i++)
@@ -1262,13 +1264,18 @@ void Parser::ParseWheel2(Ogre::String const & line)
 	wheel_2.tyre_radius   = STR_PARSE_REAL(results[2]);
 	wheel_2.width         = STR_PARSE_REAL(results[3]);
 	wheel_2.num_rays      = STR_PARSE_INT(results[4]);
-	wheel_2.nodes[0]      = _ParseNodeId(results[5]);
-	wheel_2.nodes[1]      = _ParseNodeId(results[6]);
-	wheel_2.rigidity_node = _ParseNodeId(results[7]);
+	wheel_2.nodes[0]      = _ParseNodeRef(results[5]);
+	wheel_2.nodes[1]      = _ParseNodeRef(results[6]);
+	wheel_2.rigidity_node = _ParseNodeRef(results[7]);
 	if (wheel_2.rigidity_node.Num() == 9999) /* Special null value */
 	{
 		wheel_2.rigidity_node.Invalidate();
 	}
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS2, wheel_2.num_rays, wheel_2.rigidity_node.IsValidAnyState());
+    }
 
 	unsigned int braking = STR_PARSE_INT(results[8]);
 	if (braking >= 0 && braking <= 4)
@@ -1289,7 +1296,7 @@ void Parser::ParseWheel2(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'propulsion' value, setting PROPULSION_NONE (0).");
 	}
-	wheel_2.reference_arm_node = _ParseNodeId(results[10]);
+	wheel_2.reference_arm_node = _ParseNodeRef(results[10]);
 
 	wheel_2.mass               = STR_PARSE_REAL(results[11]);
 	wheel_2.rim_springiness    = STR_PARSE_REAL(results[12]);
@@ -1319,13 +1326,18 @@ void Parser::ParseWheel(Ogre::String const & line)
 	wheel.radius = STR_PARSE_REAL(results[1]);
 	wheel.width = STR_PARSE_REAL(results[2]);
 	wheel.num_rays = STR_PARSE_INT(results[3]);
-	wheel.nodes[0] = _ParseNodeId(results[4]);
-	wheel.nodes[1] = _ParseNodeId(results[5]);
-	wheel.rigidity_node = _ParseNodeId(results[6]);
+	wheel.nodes[0] = _ParseNodeRef(results[4]);
+	wheel.nodes[1] = _ParseNodeRef(results[5]);
+	wheel.rigidity_node = _ParseNodeRef(results[6]);
 	if (wheel.rigidity_node.Num() == 9999) /* Special null value */
 	{
 		wheel.rigidity_node.Invalidate();
 	}
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS, wheel.num_rays, wheel.rigidity_node.IsValidAnyState());
+    }
 
 	unsigned int braking = STR_PARSE_INT(results[7]);
 	if (braking >= 0 && braking <= 4)
@@ -1346,7 +1358,7 @@ void Parser::ParseWheel(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'propulsion' value, setting PROPULSION_NONE (0).");
 	}
-	wheel.reference_arm_node = _ParseNodeId(results[9]);
+	wheel.reference_arm_node = _ParseNodeRef(results[9]);
 
 	wheel.mass = STR_PARSE_REAL(results[10]);
 	wheel.springiness = STR_PARSE_REAL(results[11]);
@@ -1618,7 +1630,8 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 {
 	for (unsigned int i = 0; i < options_str.length(); i++)
 	{
-		switch(options_str.at(i))
+        const char c = options_str.at(i);
+		switch(c)
 		{
 			case 'l':
 				BITMASK_SET_1(options, Node::OPTION_l_LOAD_WEIGHT);
@@ -1659,7 +1672,8 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 				BITMASK_SET_1(options, Node::OPTION_L_LOG);
 				break;
 
-			default: /* No check needed, regex takes care of that */
+			default:
+                this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
 				break;
 		}
 	}
@@ -1903,15 +1917,20 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	mesh_wheel.rim_radius = STR_PARSE_REAL(results[2]);
 	mesh_wheel.width = STR_PARSE_REAL(results[3]);
 	mesh_wheel.num_rays = STR_PARSE_INT(results[4]);
-	mesh_wheel.nodes[0] = _ParseNodeId(results[5]);
-	mesh_wheel.nodes[1] = _ParseNodeId(results[6]);
+	mesh_wheel.nodes[0] = _ParseNodeRef(results[5]);
+	mesh_wheel.nodes[1] = _ParseNodeRef(results[6]);
 
 	/* Axle rigidity node (9999 = null) */
-	mesh_wheel.rigidity_node = _ParseNodeId(results[7]);
-	if (mesh_wheel.rigidity_node.IsValid() && mesh_wheel.rigidity_node.Num() == 9999)
+	mesh_wheel.rigidity_node = _ParseNodeRef(results[7]);
+	if (mesh_wheel.rigidity_node.IsValidAnyState() && mesh_wheel.rigidity_node.Num() == 9999)
 	{
 		mesh_wheel.rigidity_node.Invalidate();
 	}
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_MESHWHEELS, mesh_wheel.num_rays, mesh_wheel.rigidity_node.IsValidAnyState());
+    }
 	
 	/* Braking */
 	int braking = STR_PARSE_INT(results[8]);
@@ -1931,13 +1950,23 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	}
 	mesh_wheel.propulsion = Wheels::Propulsion(propulsion);
 
-	mesh_wheel.reference_arm_node = _ParseNodeId(results[10]);
+	mesh_wheel.reference_arm_node = _ParseNodeRef(results[10]);
 	mesh_wheel.mass               = STR_PARSE_REAL(results[11]);
 	mesh_wheel.spring             = STR_PARSE_REAL(results[12]);
 	mesh_wheel.damping            = STR_PARSE_REAL(results[13]);
-	mesh_wheel.side               = MeshWheel::Side(results[14].str().at(0)); // The regex validates the data
 	mesh_wheel.mesh_name          = results[16];
 	mesh_wheel.material_name      = results[17];
+
+    char side_char = results[14].str().at(0);
+    mesh_wheel.side = MeshWheel::SIDE_RIGHT;
+    if (side_char != 'r')
+    {
+        if (side_char != 'l')
+        {
+            this->AddMessage(line, Message::TYPE_WARNING, std::string("Invalid SIDE flag (acceptable are [r/l]), parsing as LEFT for backwards compatibility: ") + side_char);
+        }
+        mesh_wheel.side = MeshWheel::SIDE_LEFT;
+    }
 
 	m_current_module->mesh_wheels.push_back(mesh_wheel);
 }
@@ -1953,7 +1982,7 @@ void Parser::ParseHook(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Hook hook;
-	hook.node = _ParseNodeId(results[1]);
+	hook.node = _ParseNodeRef(results[1]);
 
 	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
 	Ogre::StringVector::iterator iter = tokens.begin();
@@ -2164,11 +2193,6 @@ void Parser::ParseGlobals(Ogre::String const & line)
 
 void Parser::ParseFusedrag(Ogre::String const & line)
 {
-	if (m_current_module->fusedrag != nullptr)
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'fusedrag' in one module, using last defined...");
-	}
-
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_FUSEDRAG))
 	{
@@ -2178,15 +2202,15 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Fusedrag fusedrag;
-	fusedrag.front_node = _ParseNodeId(results[1]);
-	fusedrag.rear_node = _ParseNodeId(results[2]);
+	fusedrag.front_node = _ParseNodeRef(results[1]);
+	fusedrag.rear_node = _ParseNodeRef(results[2]);
 
 	if (results[3].matched)
 	{
 		fusedrag.approximate_width = STR_PARSE_REAL(results[4]);
 		fusedrag.airfoil_name = results[5];
 
-		m_current_module->fusedrag = boost::shared_ptr<Fusedrag>( new Fusedrag(fusedrag) );
+		m_current_module->fusedrag.push_back(fusedrag);
 	}
 	else if (results[6].matched)
 	{
@@ -2195,7 +2219,6 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 		if (results[7].matched)
 		{
 			fusedrag.area_coefficient = STR_PARSE_REAL(results[8]);
-			fusedrag._area_coefficient_set = true;
 
 			if (results[9].matched)
 			{
@@ -2203,7 +2226,7 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 			}
 		}
 
-		m_current_module->fusedrag = boost::shared_ptr<Fusedrag>( new Fusedrag(fusedrag) );
+		m_current_module->fusedrag.push_back(fusedrag);
 	}
 	else
 	{
@@ -2250,62 +2273,70 @@ void Parser::ParseDirectiveFlexbodyCameraMode(Ogre::String const & line)
 	_ParseCameraSettings(m_last_flexbody->camera_settings, results[1]);
 }
 
+bool Parser::_TryParseCab(Ogre::String const & line)
+{
+    boost::smatch results;
+	if (! boost::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_CAB))
+	{
+		return false;
+	}
+	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+
+	Cab cab;
+	cab.nodes[0] = _ParseNodeRef(results[1]);
+	cab.nodes[1] = _ParseNodeRef(results[3]);
+	cab.nodes[2] = _ParseNodeRef(results[5]);
+
+	if (results[5].matched)
+	{
+		std::string options_str = results[8].str();
+		for (unsigned int i = 0; i < options_str.length(); i++)
+		{
+			switch(options_str.at(i))
+			{
+				case 'c':
+					cab.options |= Cab::OPTION_c_CONTACT;
+					break;
+				case 'b':
+					cab.options |= Cab::OPTION_b_BUOYANT;
+					break;
+				case 'D':
+					cab.options |= (Cab::OPTION_c_CONTACT | Cab::OPTION_b_BUOYANT);
+					break;
+				case 'p':
+					cab.options |= Cab::OPTION_p_10xTOUGHER;
+					break;
+				case 'u':
+					cab.options |= Cab::OPTION_u_INVULNERABLE;
+					break;
+				case 'F':
+					cab.options |= (Cab::OPTION_p_10xTOUGHER | Cab::OPTION_b_BUOYANT);
+					break;
+				case 'S':
+					cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT);
+					break;
+				case 'n':
+					break ; /* Placeholder, does nothing */
+
+				default:
+					AddMessage(line, Message::TYPE_WARNING, "Subsection 'submesh/cab': Invalid option '" + options_str.at(i) + std::string("', ignoring..."));
+					break;
+			}
+		}
+	}
+
+	m_current_submesh->cab_triangles.push_back(cab);
+    return true;
+}
+
 void Parser::ParseSubmesh(Ogre::String const & line)
 {
 	if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
 	{
-		boost::smatch results;
-		if (! boost::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_CAB))
-		{
-			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-			return;
-		}
-		/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
-
-		Cab cab;
-		cab.nodes[0] = _ParseNodeId(results[1]);
-		cab.nodes[1] = _ParseNodeId(results[2]);
-		cab.nodes[2] = _ParseNodeId(results[3]);
-
-		if (results[5].matched)
-		{
-			std::string options_str = results[5].str();
-			for (unsigned int i = 0; i < options_str.length(); i++)
-			{
-				switch(options_str.at(i))
-				{
-					case 'c':
-						cab.options |= Cab::OPTION_c_CONTACT;
-						break;
-					case 'b':
-						cab.options |= Cab::OPTION_b_BUOYANT;
-						break;
-					case 'D':
-						cab.options |= (Cab::OPTION_c_CONTACT | Cab::OPTION_b_BUOYANT);
-						break;
-					case 'p':
-						cab.options |= Cab::OPTION_p_10xTOUGHER;
-						break;
-					case 'u':
-						cab.options |= Cab::OPTION_u_INVULNERABLE;
-						break;
-					case 'F':
-						cab.options |= (Cab::OPTION_p_10xTOUGHER | Cab::OPTION_b_BUOYANT);
-						break;
-					case 'S':
-						cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT);
-						break;
-					case 'n':
-						break ; /* Placeholder, does nothing */
-
-					default:
-						AddMessage(line, Message::TYPE_WARNING, "Subsection 'submesh/cab': Invalid option '" + options_str.at(i) + std::string("', ignoring..."));
-						break;
-				}
-			}
-		}
-
-		m_current_submesh->cab_triangles.push_back(cab);
+		if (!this->_TryParseCab(line))
+        {
+            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        }
 	}
 	else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
 	{
@@ -2318,15 +2349,67 @@ void Parser::ParseSubmesh(Ogre::String const & line)
 		/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 		Texcoord texcoord;
-		texcoord.node = _ParseNodeId(results[1]);
+		texcoord.node = _ParseNodeRef(results[1]);
 		texcoord.u = STR_PARSE_REAL(results[2]);
 		texcoord.v = STR_PARSE_REAL(results[3]);
 
 		m_current_submesh->texcoords.push_back(texcoord);
 	}
+    // Experiment, left here for future use
+    //else if (this->_TryParseCab(line))
+    //{
+    //    AddMessage(line, Message::TYPE_WARNING, "Section submesh has no subsection defined, but subsequent line matches 'cab' entry. Parsed as 'cab'.");
+    //}
 	else
 	{
-		AddMessage(line, Message::TYPE_FATAL_ERROR, "Internal parser failure, section 'submesh' not parsed.");
+		AddMessage(line, Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
+	}
+}
+
+void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
+{
+    // "forset" keyword is obsolete in fileformatversion >= 450
+    // This code is import-only
+
+	boost::smatch line_results;
+	if (! boost::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
+	{
+		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		return;
+	}
+
+	Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
+	// NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated.
+    auto itor = tokens.begin();
+    auto end  = tokens.end();
+	for ( ; itor != end; ++itor)
+	{
+        unsigned noderef_flags = Node::Ref::IMPORT_STATE_IS_VALID;
+		boost::smatch results;
+		if (! boost::regex_search(*itor, results, Regexes::FORSET_ELEMENT))
+		{
+			/* Invalid element, attempt to parse as node number for backwards compatibility */
+			unsigned int result = strtoul((*itor).c_str(), nullptr, 10);
+			std::stringstream msg;
+			msg << "Subsection 'forset': Invalid element '" << *itor << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
+			AddMessage(line, Message::TYPE_WARNING, msg.str());
+                
+            m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(TOSTRING(result), result, noderef_flags, m_current_line_number)));
+		}
+		else if (results[1].matched) /* Range of numbered nodes */
+		{
+            int start_node_index = STR_PARSE_INT(results[2]);
+            int end_node_index = STR_PARSE_INT(results[3]);
+			m_last_flexbody->node_list_to_import.push_back(
+                Node::Range(
+                    Node::Ref(results[2], static_cast<unsigned>(start_node_index), noderef_flags, m_current_line_number), 
+                    Node::Ref(results[3], static_cast<unsigned>(end_node_index), noderef_flags, m_current_line_number)));
+		}
+		else if(results[4].matched) /* Single numbered node */
+		{
+            int node_index = STR_PARSE_INT(results[4]);
+			m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(results[4], static_cast<unsigned>(node_index), noderef_flags, m_current_line_number)));
+		}			
 	}
 }
 
@@ -2343,9 +2426,9 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 		/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 		Flexbody flexbody;
-		flexbody.reference_node = _ParseNodeId(results[1]);
-		flexbody.x_axis_node = _ParseNodeId(results[2]);
-		flexbody.y_axis_node = _ParseNodeId(results[3]);
+		flexbody.reference_node = _ParseNodeRef(results[1]);
+		flexbody.x_axis_node = _ParseNodeRef(results[2]);
+		flexbody.y_axis_node = _ParseNodeRef(results[3]);
 
 		flexbody.offset.x = STR_PARSE_REAL(results[4]);
 		flexbody.offset.y = STR_PARSE_REAL(results[5]);
@@ -2365,37 +2448,7 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 	}
 	else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
 	{
-		boost::smatch line_results;
-		if (! boost::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
-		{
-			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-			return;
-		}
-
-		Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
-		/* NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated. */
-		Ogre::StringVector::iterator iter = tokens.begin();
-		for ( ; iter != tokens.end(); iter++)
-		{
-			boost::smatch results;
-			if (! boost::regex_search(*iter, results, Regexes::FORSET_ELEMENT))
-			{
-				/* Invalid element, attempt to parse as node number for backwards compatibility */
-				unsigned int result = strtoul((*iter).c_str(), nullptr, 10);
-				std::stringstream msg;
-				msg << "Subsection 'forset': Invalid element '" << *iter << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
-				AddMessage(line, Message::TYPE_WARNING, msg.str());
-				m_last_flexbody->forset.push_back(Node::Range(result));
-			}
-			else if (results[1].matched) /* Range of numbered nodes */
-			{
-				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[2]), _ParseNodeId(results[3])));
-			}
-			else if(results[4].matched) /* Single node */
-			{
-				m_last_flexbody->forset.push_back(Node::Range(_ParseNodeId(results[4])));
-			}			
-		}
+        this->_ImportLegacyFlexbodyForsetLine(line);
 
 		/* Switch subsection */
 		m_current_subsection =  File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
@@ -2417,9 +2470,9 @@ void Parser::ParseFlare2(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Flare2 flare2;
-	flare2.reference_node = _ParseNodeId(results[1]);
-	flare2.x = STR_PARSE_REAL(results[2]);
-	flare2.y = STR_PARSE_REAL(results[3]);
+	flare2.reference_node = _ParseNodeRef(results[1]);
+	flare2.node_axis_x     = _ParseNodeRef(results[2]);
+	flare2.node_axis_y     = _ParseNodeRef(results[3]);
 	flare2.offset.x = STR_PARSE_REAL(results[4]);
 	flare2.offset.y = STR_PARSE_REAL(results[5]);
 	flare2.offset.z = STR_PARSE_REAL(results[6]);
@@ -2463,9 +2516,10 @@ void Parser::ParseFlare(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Flare2 flare;
-	flare.reference_node = _ParseNodeId(results[1]);
-	flare.x = STR_PARSE_REAL(results[5]);
-	flare.y = STR_PARSE_REAL(results[9]);
+	flare.reference_node = _ParseNodeRef(results[1]);
+	flare.node_axis_x    = _ParseNodeRef(results[5]);
+	flare.node_axis_y    = _ParseNodeRef(results[9]);
+
 	flare.offset.x = STR_PARSE_REAL(results[13]);
 	flare.offset.y = STR_PARSE_REAL(results[17]);
 
@@ -2516,7 +2570,7 @@ void Parser::ParseFixes(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_current_module->fixes.push_back(_ParseNodeId(results[1]));
+	m_current_module->fixes.push_back(_ParseNodeRef(results[1]));
 }
 
 void Parser::ParseExtCamera(Ogre::String const & line)
@@ -2545,7 +2599,7 @@ void Parser::ParseExtCamera(Ogre::String const & line)
 	if (results[4].matched)
 	{
 		m_current_module->ext_camera->mode = ExtCamera::MODE_NODE;
-		m_current_module->ext_camera->node = _ParseNodeId(results[6]);
+		m_current_module->ext_camera->node = _ParseNodeRef(results[6]);
 	}
 }
 
@@ -2560,8 +2614,8 @@ void Parser::ParseExhaust(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Exhaust exhaust;
-	exhaust.reference_node = _ParseNodeId(results[1]);
-	exhaust.direction_node = _ParseNodeId(results[2]);
+	exhaust.reference_node = _ParseNodeRef(results[1]);
+	exhaust.direction_node = _ParseNodeRef(results[2]);
 	
 	if (results[3].matched)
 	{
@@ -2586,7 +2640,13 @@ void Parser::ParseFileFormatVersion(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_definition->file_format_version = STR_PARSE_INT(results[1]);
+    const unsigned version = STR_PARSE_INT(results[1]);
+	m_definition->file_format_version = version;
+
+    if (version >= 450)
+    {
+        m_sequential_importer.Disable();
+    }
 }
 
 void Parser::ParseDirectiveDetacherGroup(Ogre::String const & line)
@@ -3169,7 +3229,7 @@ void Parser::ParseContacter(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_current_module->contacters.push_back( _ParseNodeId(results[1]) );
+	m_current_module->contacters.push_back( _ParseNodeRef(results[1]) );
 }
 
 void Parser::ParseCommand(Ogre::String const & line)
@@ -3197,8 +3257,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 	command2.detacher_group    = m_current_detacher_group;
 	command2._format_version   = format_version;
 	command2.inertia_defaults  = m_user_default_inertia;
-	command2.nodes[0]          = _ParseNodeId(results[1]);
-	command2.nodes[1]          = _ParseNodeId(results[3]);
+	command2.nodes[0]          = _ParseNodeRef(results[1]);
+	command2.nodes[1]          = _ParseNodeRef(results[3]);
 
 	/* Shorten/lenghten rate */
 	command2.shorten_rate = STR_PARSE_REAL(results[5]);
@@ -3231,7 +3291,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 		bool one_press_mode = false;
 		for (unsigned int i = 0; i < options_str.length(); i++)
 		{
-			switch(options_str.at(i))
+            const char c = options_str.at(i);
+			switch(c)
 			{
 				case 'n': /* Filler */
 					break;
@@ -3292,7 +3353,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 					}
 					break;
 				
-				default: /* No check needed, regex takes care of that */
+				default:
+                    this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
 					break;
 			}
 		}
@@ -3381,7 +3443,7 @@ void Parser::ParseCollisionBox(Ogre::String const & line)
 	Ogre::StringVector::iterator iter = tokens.begin();
 	for ( ; iter != tokens.end(); iter++)
 	{
-		collisionbox.nodes.push_back( _ParseNodeId(*iter) );
+		collisionbox.nodes.push_back( _ParseNodeRef(*iter) );
 	}
 
 	m_current_module->collision_boxes.push_back(collisionbox);
@@ -3404,14 +3466,18 @@ void Parser::ParseCinecam(Ogre::String const & line)
 	cinecam.position.x = STR_PARSE_REAL(results[1]);
 	cinecam.position.y = STR_PARSE_REAL(results[2]);
 	cinecam.position.z = STR_PARSE_REAL(results[3]);
-	cinecam.nodes[0] = _ParseNodeId(results[4]);
-	cinecam.nodes[1] = _ParseNodeId(results[5]);
-	cinecam.nodes[2] = _ParseNodeId(results[6]);
-	cinecam.nodes[3] = _ParseNodeId(results[7]);
-	cinecam.nodes[4] = _ParseNodeId(results[8]);
-	cinecam.nodes[5] = _ParseNodeId(results[9]);
-	cinecam.nodes[6] = _ParseNodeId(results[10]);
-	cinecam.nodes[7] = _ParseNodeId(results[11]);
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.AddGeneratedNode(File::KEYWORD_CINECAM);
+    }
+	cinecam.nodes[0] = _ParseNodeRef(results[4]);
+	cinecam.nodes[1] = _ParseNodeRef(results[5]);
+	cinecam.nodes[2] = _ParseNodeRef(results[6]);
+	cinecam.nodes[3] = _ParseNodeRef(results[7]);
+	cinecam.nodes[4] = _ParseNodeRef(results[8]);
+	cinecam.nodes[5] = _ParseNodeRef(results[9]);
+	cinecam.nodes[6] = _ParseNodeRef(results[10]);
+	cinecam.nodes[7] = _ParseNodeRef(results[11]);
 
 	if (results[13].matched)
 	{
@@ -3421,13 +3487,6 @@ void Parser::ParseCinecam(Ogre::String const & line)
 		{
 			cinecam.damping = STR_PARSE_REAL(results[15]);
 		}
-	}
-
-	if (results[16].matched)
-	{
-		std::stringstream msg;
-		msg << "Please remove: Illegal character(s) after last parameter: \"" << results[16] << "\"";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
 	m_current_module->cinecam.push_back(cinecam);
@@ -3443,7 +3502,7 @@ void Parser::ParseCameraRails(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_current_camera_rail->nodes.push_back( _ParseNodeId(results[1]) );
+	m_current_camera_rail->nodes.push_back( _ParseNodeRef(results[1]) );
 }
 
 void Parser::ParseBrakes(Ogre::String line)
@@ -3493,8 +3552,8 @@ void Parser::ParseAxles(Ogre::String const & line)
 		if (results[1].matched)
 		{
 			unsigned int wheel_index = STR_PARSE_INT(results[2]) - 1;
-			axle.wheels[wheel_index][0] = _ParseNodeId(results[3]);
-			axle.wheels[wheel_index][1] = _ParseNodeId(results[4]);
+			axle.wheels[wheel_index][0] = _ParseNodeRef(results[3]);
+			axle.wheels[wheel_index][1] = _ParseNodeRef(results[4]);
 		}
 		else if (results[5].matched)
 		{
@@ -3534,10 +3593,10 @@ void Parser::ParseAirbrakes(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Airbrake airbrake;
-	airbrake.reference_node = _ParseNodeId(results[1]);
-	airbrake.x_axis_node    = _ParseNodeId(results[2]);
-	airbrake.y_axis_node    = _ParseNodeId(results[3]);
-	airbrake.aditional_node = _ParseNodeId(results[4]);
+	airbrake.reference_node = _ParseNodeRef(results[1]);
+	airbrake.x_axis_node    = _ParseNodeRef(results[2]);
+	airbrake.y_axis_node    = _ParseNodeRef(results[3]);
+	airbrake.aditional_node = _ParseNodeRef(results[4]);
 
 	airbrake.offset.x = STR_PARSE_REAL(results[5]);
 	airbrake.offset.y = STR_PARSE_REAL(results[6]);
@@ -3566,20 +3625,20 @@ void Parser::ParseVideoCamera(Ogre::String const & line)
 
 	VideoCamera videocamera;
 
-	videocamera.reference_node       = _ParseNodeId(results[1]);
-	videocamera.left_node            = _ParseNodeId(results[2]);
-	videocamera.bottom_node          = _ParseNodeId(results[3]);
+	videocamera.reference_node       = _ParseNodeRef(results[1]);
+	videocamera.left_node            = _ParseNodeRef(results[2]);
+	videocamera.bottom_node          = _ParseNodeRef(results[3]);
 
 	std::string param_4 = results[4];
 	if (! boost::regex_match(param_4, Regexes::MINUS_ONE_REAL))
 	{
-		videocamera.alt_reference_node = _ParseNodeId(param_4);
+		videocamera.alt_reference_node = _ParseNodeRef(param_4);
 	}
 
 	std::string param_5 = results[5];
 	if (! boost::regex_match(param_5, Regexes::MINUS_ONE_REAL))
 	{
-		videocamera.alt_orientation_node = _ParseNodeId(param_5);
+		videocamera.alt_orientation_node = _ParseNodeRef(param_5);
 	}
 
 	videocamera.offset.x = STR_PARSE_REAL(results[6]);
@@ -3620,9 +3679,9 @@ void Parser::ParseCameras(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Camera camera;
-	camera.center_node = _ParseNodeId(results[1]);
-	camera.back_node = _ParseNodeId(results[2]);
-	camera.left_node = _ParseNodeId(results[3]);
+	camera.center_node = _ParseNodeRef(results[1]);
+	camera.back_node = _ParseNodeRef(results[2]);
+	camera.left_node = _ParseNodeRef(results[3]);
 
 	m_current_module->cameras.push_back(camera);
 }
@@ -3638,12 +3697,12 @@ void Parser::ParseTurboprops(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Turboprop2 turboprop;
-	turboprop.reference_node = _ParseNodeId(results[1]);
-	turboprop.axis_node = _ParseNodeId(results[2]);
-	turboprop.blade_tip_nodes[0] = _ParseNodeId(results[3]);
-	turboprop.blade_tip_nodes[1] = _ParseNodeId(results[4]);
-	turboprop.blade_tip_nodes[2] = _ParseNodeId(results[5]);
-	turboprop.blade_tip_nodes[3] = _ParseNodeId(results[6]);
+	turboprop.reference_node = _ParseNodeRef(results[1]);
+	turboprop.axis_node = _ParseNodeRef(results[2]);
+	turboprop.blade_tip_nodes[0] = _ParseNodeRef(results[3]);
+	turboprop.blade_tip_nodes[1] = _ParseNodeRef(results[4]);
+	turboprop.blade_tip_nodes[2] = _ParseNodeRef(results[5]);
+	turboprop.blade_tip_nodes[3] = _ParseNodeRef(results[6]);
 	turboprop.turbine_power_kW = STR_PARSE_REAL(results[7]);
 	turboprop.airfoil = results[8];
 
@@ -3661,9 +3720,9 @@ void Parser::ParseTurbojets(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Turbojet turbojet;
-	turbojet.front_node     = _ParseNodeId(results[1]);
-	turbojet.back_node      = _ParseNodeId(results[2]);
-	turbojet.side_node      = _ParseNodeId(results[3]);
+	turbojet.front_node     = _ParseNodeRef(results[1]);
+	turbojet.back_node      = _ParseNodeRef(results[2]);
+	turbojet.side_node      = _ParseNodeRef(results[3]);
 	turbojet.is_reversable  = STR_PARSE_INT(results[4]);
 	turbojet.dry_thrust     = STR_PARSE_REAL(results[5]);
 	turbojet.wet_thrust     = STR_PARSE_REAL(results[6]);
@@ -3687,8 +3746,8 @@ void Parser::ParseTriggers(Ogre::String const & line)
 	Trigger trigger;
 	trigger.beam_defaults = m_user_beam_defaults;
 	trigger.detacher_group = m_current_detacher_group;
-	trigger.nodes[0] = _ParseNodeId(results[1]);
-	trigger.nodes[1] = _ParseNodeId(results[2]);
+	trigger.nodes[0] = _ParseNodeRef(results[1]);
+	trigger.nodes[1] = _ParseNodeRef(results[2]);
 	trigger.contraction_trigger_limit = STR_PARSE_REAL(results[3]);
 	trigger.expansion_trigger_limit = STR_PARSE_REAL(results[4]);
 	int shortbound_trigger_action = STR_PARSE_INT(results[5]);
@@ -3815,14 +3874,30 @@ void Parser::ParseTies(Ogre::String const & line)
 	tie.beam_defaults = m_user_beam_defaults;
 	tie.detacher_group = m_current_detacher_group;
 
-	tie.root_node = _ParseNodeId(results[1]);
+	tie.root_node = _ParseNodeRef(results[1]);
 	tie.max_reach_length = STR_PARSE_REAL(results[2]);
 	tie.auto_shorten_rate = STR_PARSE_REAL(results[3]);
 	tie.min_length = STR_PARSE_REAL(results[4]);
 	tie.max_length = STR_PARSE_REAL(results[5]);
 	if (results[6].matched)
 	{
-		tie.options = Tie::Options(STR_PARSE_INT(results[7]));
+        std::string tie_options = results[7];
+        for (unsigned i = 0; i < tie_options.size(); ++i)
+        {
+            const char tie_char = tie_options.at(i);
+            switch (tie_char)
+            {
+            case 'n':
+                tie.options = Tie::OPTIONS_INVISIBLE;
+                break;
+            case 'i':
+                tie.options = Tie::OPTIONS_INVISIBLE;
+                break;
+            default:
+                this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + tie_char);
+                break;
+            }
+        }
 		
 		if (results[8].matched)
 		{
@@ -3849,7 +3924,7 @@ void Parser::ParseSoundsources(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	SoundSource soundsource;
-	soundsource.node = _ParseNodeId(results[1]);
+	soundsource.node = _ParseNodeRef(results[1]);
 	soundsource.sound_script_name = results[2];
 
 	m_current_module->soundsources.push_back(soundsource);
@@ -3867,7 +3942,7 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	SoundSource2 soundsource2;
-	soundsource2.node = _ParseNodeId(results[1]);
+	soundsource2.node = _ParseNodeRef(results[1]);
 	soundsource2.sound_script_name = results[5];
 
 	/* Mode */
@@ -3912,7 +3987,7 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	SlideNode slidenode;
-	slidenode.slide_node = _ParseNodeId(results[1]);
+	slidenode.slide_node = _ParseNodeRef(results[1]);
 
 	bool in_rail_node_list = true;
 	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
@@ -3967,6 +4042,9 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 					case 'n':
 						BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_NONE);
 						break;
+                    default:
+                        this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + option);
+                        break;
 				}
 			}
 		}
@@ -3974,7 +4052,7 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 		{
 			if (in_rail_node_list)
 			{
-				slidenode.rail_node_ranges.push_back( _ParseNodeId(*itor));
+				slidenode.rail_node_ranges.push_back( _ParseNodeRef(*itor));
 			}
 			else
 			{
@@ -4001,8 +4079,8 @@ void Parser::ParseShocks2(Ogre::String const & line)
 	Shock2 shock_2;
 	shock_2.beam_defaults              = m_user_beam_defaults;
 	shock_2.detacher_group               = m_current_detacher_group;
-	shock_2.nodes[0]                   = _ParseNodeId(results[1]);
-	shock_2.nodes[1]                   = _ParseNodeId(results[2]);
+	shock_2.nodes[0]                   = _ParseNodeRef(results[1]);
+	shock_2.nodes[1]                   = _ParseNodeRef(results[2]);
 	shock_2.spring_in                  = STR_PARSE_REAL(results[3]);
 	shock_2.damp_in                    = STR_PARSE_REAL(results[4]);
 	shock_2.progress_factor_spring_in  = STR_PARSE_REAL(results[5]);
@@ -4061,8 +4139,8 @@ void Parser::ParseShocks(Ogre::String const & line)
 	Shock shock;
 	shock.beam_defaults  = m_user_beam_defaults;
 	shock.detacher_group = m_current_detacher_group;
-	shock.nodes[0]       = _ParseNodeId(results[1]);
-	shock.nodes[1]       = _ParseNodeId(results[2]);
+	shock.nodes[0]       = _ParseNodeRef(results[1]);
+	shock.nodes[1]       = _ParseNodeRef(results[2]);
 	shock.spring_rate    = STR_PARSE_REAL(results[3]);
 	shock.damping        = STR_PARSE_REAL(results[4]);
 	shock.short_bound    = STR_PARSE_REAL(results[5]);
@@ -4139,35 +4217,35 @@ void Parser::_CheckInvalidTrailingText(Ogre::String const & line, boost::smatch 
 	}
 }
 
-Node::Id Parser::_ParseNodeId(std::string const & node_id_str)
+Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
 {
-	boost::smatch results;
-	if (boost::regex_search(node_id_str, results, Regexes::NODE_NUMBER))
-	{
-		int input = STR_PARSE_INT(results[0]);
-		if (input < 0)
+    if (m_sequential_importer.IsEnabled())
+    {
+        // Import of legacy fileformatversion
+        int node_id_num = STR_PARSE_INT(node_id_str);
+        if (node_id_num < 0)
 		{
 			std::stringstream msg;
-			msg << "Encountered node with illegal negative number: '" << input 
-				<< "', parsing as positive '" << input * -1 << "' for backwards compatibility. Please fix as soon as possible.";
+			msg << "Encountered node with illegal negative number: '" << node_id_num 
+				<< "', parsing as positive '" << node_id_num * -1 << "' for backwards compatibility. Please fix as soon as possible.";
 			AddMessage(node_id_str, Message::TYPE_WARNING, msg.str());
-			input *= -1;
+			node_id_num *= -1;
 		}
-		return Node::Id(input); /* Numbered node */
-	}
-	else
-	{
-		if (!boost::regex_search(node_id_str, results, Regexes::NODE_NAME))
-		{
-			AddMessage(node_id_str, Message::TYPE_ERROR, 
-                "Bad node ID (contains forbidden characters, only [ a-z A-Z - _ ] are allowed), returning NODE_ID_INVALID");
-			return Node::Id(); /* Defaults to NODE_ID_INVALID */
-		}
-		else
-		{
-			return Node::Id(results[0]); /* Named node */
-		}
-	}
+        // Since fileformatversion is not known from the beginning of parsing, 2 states must be kept 
+        // at the same time: IMPORT_STATE and REGULAR_STATE. The outer logic must make the right pick.
+        unsigned int flags = Node::Ref::IMPORT_STATE_IS_VALID |                                     // Import state
+                             Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED; // Regular state (fileformatversion >= 450)
+        if (m_any_named_node_defined)
+        {
+            flags |= Node::Ref::IMPORT_STATE_MUST_CHECK_NAMED_FIRST;
+        }
+        return Node::Ref(node_id_str, node_id_num, flags, m_current_line_number);
+    }
+    else
+    {
+        // fileformatversion >= 450, use named-only nodes
+        return Node::Ref(node_id_str, 0, Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NAMED, m_current_line_number);
+    }
 }
 
 void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
@@ -4231,9 +4309,9 @@ void Parser::ParseScrewprops(Ogre::String const & line)
 
 	Screwprop screwprop;
 
-	screwprop.prop_node = _ParseNodeId(results[1]);
-	screwprop.back_node = _ParseNodeId(results[2]);
-	screwprop.top_node = _ParseNodeId(results[3]);
+	screwprop.prop_node = _ParseNodeRef(results[1]);
+	screwprop.back_node = _ParseNodeRef(results[2]);
+	screwprop.top_node = _ParseNodeRef(results[3]);
 	screwprop.power = STR_PARSE_REAL(results[4]);
 
 	m_current_module->screwprops.push_back(screwprop);
@@ -4241,18 +4319,18 @@ void Parser::ParseScrewprops(Ogre::String const & line)
 
 void Parser::_ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, unsigned int inertia_start_index)
 {
-	rotator.axis_nodes[0] = _ParseNodeId(results[1]);
-	rotator.axis_nodes[1] = _ParseNodeId(results[2]);
+	rotator.axis_nodes[0] = _ParseNodeRef(results[1]);
+	rotator.axis_nodes[1] = _ParseNodeRef(results[2]);
 
-	rotator.base_plate_nodes[0] = _ParseNodeId(results[3]);
-	rotator.base_plate_nodes[1] = _ParseNodeId(results[4]);
-	rotator.base_plate_nodes[2] = _ParseNodeId(results[5]);
-	rotator.base_plate_nodes[3] = _ParseNodeId(results[6]);
+	rotator.base_plate_nodes[0] = _ParseNodeRef(results[3]);
+	rotator.base_plate_nodes[1] = _ParseNodeRef(results[4]);
+	rotator.base_plate_nodes[2] = _ParseNodeRef(results[5]);
+	rotator.base_plate_nodes[3] = _ParseNodeRef(results[6]);
 
-	rotator.rotating_plate_nodes[0] = _ParseNodeId(results[7]);
-	rotator.rotating_plate_nodes[1] = _ParseNodeId(results[8]);
-	rotator.rotating_plate_nodes[2] = _ParseNodeId(results[9]);
-	rotator.rotating_plate_nodes[3] = _ParseNodeId(results[10]);
+	rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[7]);
+	rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[8]);
+	rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[9]);
+	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[10]);
 
 	rotator.rate = STR_PARSE_REAL(results[11]);
 
@@ -4399,16 +4477,13 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 	int version = -1;
 	if (results[10].matched)
 	{
+        // Integer input
 		version = STR_PARSE_INT(results[10]);
 	}
 	else if (results[11].matched)
 	{
-		AddMessage(
-			line, 
-			Message::TYPE_WARNING, 
-			"Inline-section 'fileinfo', parameter ~3 'File version': Found real number, should be a decimal. Converting..."
-		);
-		version = static_cast<int>(STR_PARSE_REAL(results[11]));
+		// Float input, silently parse as int.
+		version = STR_PARSE_INT(results[11]);
 	}
 
 	if (version >= 0)
@@ -4433,17 +4508,22 @@ void Parser::ParseRopes(Ogre::String const & line)
 	Rope rope;
 	rope.beam_defaults = m_user_beam_defaults;
 	rope.detacher_group = m_current_detacher_group;
-	rope.root_node = _ParseNodeId(results[1]);
-	rope.end_node = _ParseNodeId(results[2]);
+	rope.root_node = _ParseNodeRef(results[1]);
+	rope.end_node = _ParseNodeRef(results[2]);
 
 	if (results[4].matched)
 	{
 		std::string options_str = results[4].str();
-		if (options_str.at(0) == 'i')
+        const char options_char = options_str.at(0);
+		if (options_char == 'i')
 		{
 			rope.invisible = true;
 			rope._has_invisible_set = true;
 		}
+        else
+        {
+            this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid flag: ") + options_char);
+        }
 	}
 
 	m_current_module->ropes.push_back(rope);
@@ -4460,7 +4540,7 @@ void Parser::ParseRopables(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Ropable ropable;
-	ropable.node = _ParseNodeId(results[1]);
+	ropable.node = _ParseNodeRef(results[1]);
 
 	if (results[3].matched)
 	{
@@ -4496,7 +4576,7 @@ void Parser::ParseRailGroups(Ogre::String const & line)
 	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2].str(), ",");
 	for (auto itor = tokens.begin(); itor != tokens.end(); itor++)
 	{
-		railgroup.node_list.push_back( _ParseNodeId(*itor));
+		railgroup.node_list.push_back( _ParseNodeRef(*itor));
 	}
 
 	m_current_module->railgroups.push_back(railgroup);
@@ -4513,9 +4593,9 @@ void Parser::ParseProps(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Prop prop;
-	prop.reference_node = _ParseNodeId(results[1]);
-	prop.x_axis_node = _ParseNodeId(results[3]);
-	prop.y_axis_node = _ParseNodeId(results[5]);
+	prop.reference_node = _ParseNodeRef(results[1]);
+	prop.x_axis_node = _ParseNodeRef(results[3]);
+	prop.y_axis_node = _ParseNodeRef(results[5]);
 
 	prop.offset.x = STR_PARSE_REAL(results[7]);
 	prop.offset.y = STR_PARSE_REAL(results[9]);
@@ -4607,17 +4687,17 @@ void Parser::ParsePistonprops(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Pistonprop pistonprop;
-	pistonprop.reference_node = _ParseNodeId(results[1]);
-	pistonprop.axis_node = _ParseNodeId(results[2]);
-	pistonprop.blade_tip_nodes[0] = _ParseNodeId(results[3]);
-	pistonprop.blade_tip_nodes[1] = _ParseNodeId(results[4]);
-	pistonprop.blade_tip_nodes[2] = _ParseNodeId(results[5]);
-	pistonprop.blade_tip_nodes[3] = _ParseNodeId(results[6]);
+	pistonprop.reference_node = _ParseNodeRef(results[1]);
+	pistonprop.axis_node = _ParseNodeRef(results[2]);
+	pistonprop.blade_tip_nodes[0] = _ParseNodeRef(results[3]);
+	pistonprop.blade_tip_nodes[1] = _ParseNodeRef(results[4]);
+	pistonprop.blade_tip_nodes[2] = _ParseNodeRef(results[5]);
+	pistonprop.blade_tip_nodes[3] = _ParseNodeRef(results[6]);
 
 	/* Couplenode */
 	if (results[9].matched)
 	{
-		pistonprop.couple_node = _ParseNodeId(results[9]);
+		pistonprop.couple_node = _ParseNodeRef(results[9]);
 		pistonprop._couple_node_set = true;
 	}
 
@@ -4640,8 +4720,8 @@ void Parser::ParseParticles(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Particle particle;
-	particle.emitter_node = _ParseNodeId(results[1]);
-	particle.reference_node = _ParseNodeId(results[2]);
+	particle.emitter_node = _ParseNodeRef(results[1]);
+	particle.reference_node = _ParseNodeRef(results[2]);
 	particle.particle_system_name = results[3];
 
 	m_current_module->particles.push_back(particle);
@@ -4659,8 +4739,89 @@ void Parser::ParseNode2(Ogre::String const & line)
 	_ParseSectionsNodesNodes2(line, version_2);
 }
 
-void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2)
+// Static
+void Parser::_TrimTrailingComments(std::string const & line_in, std::string & line_out)
 {
+    // Trim trailing comment
+    int last_comment_delim = line_in.find_last_of(";");
+    if (last_comment_delim != Ogre::String::npos)
+    {
+        line_out = line_in.substr(0, last_comment_delim);
+        return;
+    }
+    last_comment_delim = line_in.find_last_of("//");
+    if (last_comment_delim != Ogre::String::npos)
+    {
+        line_out = line_in.substr(0, last_comment_delim);
+        return;
+    }
+    line_out = line_in;
+}
+
+void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
+{
+    Ogre::StringUtil::trim(line);
+    Ogre::StringVector args;
+    int num_args = this->_ParseArgs(line, args, 4u);
+    if (num_args == -1)
+    {
+        return; // Error already logged
+    }
+
+	Node node;
+	node.node_defaults = m_user_node_defaults;
+	node.beam_defaults = m_user_beam_defaults;
+	node.detacher_group = m_current_detacher_group;
+
+    if (is_version_2)
+    {
+        node.id.SetStr(args[0]);
+        if (m_sequential_importer.IsEnabled())
+        {
+            m_sequential_importer.AddNamedNode(args[0]);
+        }
+        m_any_named_node_defined = true; // For import logic
+    }
+    else
+    {
+        const unsigned int node_num = static_cast<unsigned int>(STR_PARSE_INT(args[0]));
+        node.id.SetNum(node_num);
+        if (m_sequential_importer.IsEnabled())
+        {
+            m_sequential_importer.AddNumberedNode(node_num);
+        }
+    }
+	node.position.x = STR_PARSE_REAL(args[1]);
+	node.position.y = STR_PARSE_REAL(args[2]);
+	node.position.z = STR_PARSE_REAL(args[3]);
+
+	if (num_args > 3) /* Has options? */
+	{
+		_ParseNodeOptions(node.options, args[4]);
+
+		if (num_args > 4) /* Has load weight override? */
+		{
+			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
+			{
+				node.load_weight_override = STR_PARSE_REAL(args[5]);
+				node._has_load_weight_override = true;
+			}
+			else
+			{
+				AddMessage(line, Message::TYPE_WARNING, "Node has load-weight-override value specified, but option 'l' is not present. Ignoring value...");
+			}
+		}
+	}
+
+	m_current_module->nodes.push_back(node);
+}
+
+void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_version_2)
+{
+    // Strip trailing comments
+    std::string line;
+    Parser::_TrimTrailingComments(line_in, line);
+
 	// Parse line
 	boost::smatch results;
     const boost::regex* regex_ptr = &Regexes::SECTION_NODES;
@@ -4670,10 +4831,21 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_versio
     }
 	if (! boost::regex_search(line, results, *regex_ptr))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        if (m_sequential_importer.IsEnabled()) // Are we imporing legacy fileformat?
+        {
+		    this->AddMessage(line, Message::TYPE_WARNING, "Failed to parse using safe method, falling back to classic method.");
+            this->_ParseNodesLegacyMethod(line, is_version_2);
+        }
+        else
+        {
+            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        }
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+
+    const int result_pos_options = 11;
+    const int result_pos_loadweightoverride = 15;
 
 	Node node;
 	node.node_defaults = m_user_node_defaults;
@@ -4682,25 +4854,35 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line, bool is_versio
 
     if (is_version_2)
     {
-        node.id.SetStr(results[1]);    
+        node.id.SetStr(results[1]);
+        if (m_sequential_importer.IsEnabled())
+        {
+            m_sequential_importer.AddNamedNode(results[1]);
+        }
+        m_any_named_node_defined = true; // For import logic
     }
     else
     {
-        node.id.SetNum(STR_PARSE_INT(results[1]));
+        const unsigned int node_num = static_cast<unsigned int>(STR_PARSE_INT(results[1]));
+        node.id.SetNum(node_num);
+        if (m_sequential_importer.IsEnabled())
+        {
+            m_sequential_importer.AddNumberedNode(node_num);
+        }
     }
 	node.position.x = STR_PARSE_REAL(results[3]);
 	node.position.y = STR_PARSE_REAL(results[5]);
 	node.position.z = STR_PARSE_REAL(results[7]);
 
-	if (results[10].matched) /* Has options? */
+	if (results[result_pos_options].matched) /* Has options? */
 	{
-		_ParseNodeOptions(node.options, results[10]);
+		_ParseNodeOptions(node.options, results[result_pos_options]);
 
-		if (results[13].matched) /* Has load weight override? */
+		if (results[result_pos_loadweightoverride].matched) /* Has load weight override? */
 		{
 			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
 			{
-				node.load_weight_override = STR_PARSE_REAL(results[13]);
+				node.load_weight_override = STR_PARSE_REAL(results[result_pos_loadweightoverride]);
 				node._has_load_weight_override = true;
 			}
 			else
@@ -4724,7 +4906,7 @@ void Parser::ParseNodeCollision(Ogre::String const & line)
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	NodeCollision node_collision;
-	node_collision.node = _ParseNodeId(results[1]);
+	node_collision.node = _ParseNodeRef(results[1]);
 	node_collision.radius = STR_PARSE_REAL(results[2]);
 	m_current_module->node_collisions.push_back(node_collision);
 }
@@ -4766,14 +4948,20 @@ void Parser::ParseFlexBodyWheels(Ogre::String const & line)
 	flex_body_wheel.rim_radius = STR_PARSE_REAL(results[2]);
 	flex_body_wheel.width = STR_PARSE_REAL(results[3]);
 	flex_body_wheel.num_rays = STR_PARSE_INT(results[4]);
-	flex_body_wheel.nodes[0] = _ParseNodeId(results[5]);
-	flex_body_wheel.nodes[1] = _ParseNodeId(results[6]);
+	flex_body_wheel.nodes[0] = _ParseNodeRef(results[5]);
+	flex_body_wheel.nodes[1] = _ParseNodeRef(results[6]);
 	
-	Node::Id rigidity_node = _ParseNodeId(results[7]);
+	Node::Ref rigidity_node = _ParseNodeRef(results[7]);
 	if(rigidity_node.Num() != 9999) /* Special placeholder value */
 	{
 		flex_body_wheel.rigidity_node = rigidity_node;
 	}
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.GenerateNodesForWheel(
+            File::KEYWORD_FLEXBODYWHEELS,flex_body_wheel.num_rays, flex_body_wheel.rigidity_node.IsValidAnyState());
+    }
 
 	unsigned int braking = STR_PARSE_INT(results[8]);
 	if (braking >= 0 && braking <= 4)
@@ -4795,7 +4983,7 @@ void Parser::ParseFlexBodyWheels(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'propulsion' value, setting PROPULSION_NONE (0).");
 	}
 
-	flex_body_wheel.reference_arm_node = _ParseNodeId(results[10]);
+	flex_body_wheel.reference_arm_node = _ParseNodeRef(results[10]);
 	flex_body_wheel.mass               = STR_PARSE_REAL(results[11]);
 	flex_body_wheel.tyre_springiness   = STR_PARSE_REAL(results[12]);
 	flex_body_wheel.tyre_damping       = STR_PARSE_REAL(results[13]);
@@ -4827,15 +5015,21 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	mesh_wheel_2.rim_radius = STR_PARSE_REAL(results[2]);
 	mesh_wheel_2.width = STR_PARSE_REAL(results[3]);
 	mesh_wheel_2.num_rays = STR_PARSE_INT(results[4]);
-	mesh_wheel_2.nodes[0] = _ParseNodeId(results[5]);
-	mesh_wheel_2.nodes[1] = _ParseNodeId(results[6]);
+	mesh_wheel_2.nodes[0] = _ParseNodeRef(results[5]);
+	mesh_wheel_2.nodes[1] = _ParseNodeRef(results[6]);
 
 	/* Axle rigidity node (9999 = null) */
-	mesh_wheel_2.rigidity_node = _ParseNodeId(results[7]);
-	if (mesh_wheel_2.rigidity_node.IsValid() && mesh_wheel_2.rigidity_node.Num() == 9999)
+	mesh_wheel_2.rigidity_node = _ParseNodeRef(results[7]);
+	if (mesh_wheel_2.rigidity_node.IsValidAnyState() && mesh_wheel_2.rigidity_node.Num() == 9999)
 	{
 		mesh_wheel_2.rigidity_node.Invalidate();
 	}
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.GenerateNodesForWheel(
+            File::KEYWORD_MESHWHEELS2, mesh_wheel_2.num_rays, mesh_wheel_2.rigidity_node.IsValidAnyState());
+    }
 	
 	/* Braking */
 	int braking = STR_PARSE_INT(results[8]);
@@ -4855,7 +5049,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	}
 	mesh_wheel_2.propulsion = Wheels::Propulsion(propulsion);
 
-	mesh_wheel_2.reference_arm_node = _ParseNodeId(results[10]);
+	mesh_wheel_2.reference_arm_node = _ParseNodeRef(results[10]);
 	mesh_wheel_2.mass               = STR_PARSE_REAL(results[11]);
 	mesh_wheel_2.tyre_springiness   = STR_PARSE_REAL(results[12]);
 	mesh_wheel_2.tyre_damping       = STR_PARSE_REAL(results[13]);
@@ -4979,7 +5173,7 @@ void Parser::ParseLockgroups(Ogre::String const & line)
 	for ( ; iter != tokens.end(); iter++)
 	{
 		Ogre::String token = *iter;
-		lockgroup.nodes.push_back(_ParseNodeId(token));
+		lockgroup.nodes.push_back(_ParseNodeRef(token));
 	}
 
 	_CheckInvalidTrailingText(line, results, 5);
@@ -5001,8 +5195,8 @@ void Parser::ParseHydros(Ogre::String const & line)
 	hydro.inertia_defaults   = m_user_default_inertia;
 	hydro.detacher_group     = m_current_detacher_group;
 	hydro.beam_defaults      = m_user_beam_defaults;
-	hydro.nodes[0]           = _ParseNodeId(results[1]);
-	hydro.nodes[1]           = _ParseNodeId(results[3]);
+	hydro.nodes[0]           = _ParseNodeRef(results[1]);
+	hydro.nodes[1]           = _ParseNodeRef(results[3]);
 	hydro.lenghtening_factor = STR_PARSE_REAL(results[5]);
 
 	/* Flags */
@@ -5053,18 +5247,8 @@ bool Parser::_ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & re
 
 void Parser::ParseBeams(Ogre::String const & _line)
 {
-	// Cut off trailing comments
-	//     Original parser didn't understand comments and parsed it as arguments
-	//     However, some creators used trailing comments without encountering problems.
-	//     Solution: let's tolerate trailing comments in this parser.
-
-	Ogre::String line = _line;
-
-	int semicolon_index = _line.find_first_of(";");
-	if (semicolon_index != -1)
-	{
-		line = line.substr(0, semicolon_index);
-	}
+	std::string line;
+    Parser::_TrimTrailingComments(_line, line);
 
 	// Parse arguments
 	boost::smatch results;
@@ -5078,8 +5262,8 @@ void Parser::ParseBeams(Ogre::String const & _line)
 	Beam beam;
 	beam.defaults = m_user_beam_defaults;
 	beam.detacher_group = m_current_detacher_group;
-	beam.nodes[0] = _ParseNodeId(results[1]);
-	beam.nodes[1] = _ParseNodeId(results[3]);
+	beam.nodes[0] = _ParseNodeRef(results[1]);
+	beam.nodes[1] = _ParseNodeRef(results[3]);
 
 	/* Flags */
 	if (results[6].matched)
@@ -5115,13 +5299,6 @@ void Parser::ParseBeams(Ogre::String const & _line)
 		}
 	}
 
-	if (results[10].matched)
-	{
-		std::stringstream msg;
-		msg << "Please remove invalid trailing character(s): \"" << results[10] << "\"";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
-	}
-
 	m_current_module->beams.push_back(beam);
 }
 
@@ -5139,8 +5316,8 @@ void Parser::ParseAnimator(Ogre::String const & line)
 	animator.inertia_defaults   = m_user_default_inertia;
 	animator.beam_defaults      = m_user_beam_defaults;
 	animator.detacher_group     = m_current_detacher_group;
-	animator.nodes[0]           = _ParseNodeId(results[1]);
-	animator.nodes[1]           = _ParseNodeId(results[2]);
+	animator.nodes[0]           = _ParseNodeRef(results[1]);
+	animator.nodes[1]           = _ParseNodeRef(results[2]);
 	animator.lenghtening_factor = STR_PARSE_REAL(results[3]);
 
 	/* Parse options */
@@ -5321,28 +5498,59 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
 	m_messages.back().section = m_current_section;
 	m_messages.back().subsection = m_current_subsection;
 	m_messages.back().module = m_current_module->name;
+
+    switch (type)
+    {
+    case Message::TYPE_ERROR: 
+    case Message::TYPE_FATAL_ERROR: 
+        ++m_messages_num_errors; 
+        break;
+    case Message::TYPE_WARNING: 
+        ++m_messages_num_warnings; 
+        break;
+    default:
+        ++m_messages_num_other;
+        break;
+    }
 }
 
 File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
 {
+    // Search with correct lettercase
 	boost::smatch results;
-	if (boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD))
+	boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
+    File::Keyword keyword = FindKeywordMatch(results);
+    if (keyword != File::KEYWORD_INVALID)
+    {
+        return keyword;
+    }
+
+    // Search and ignore lettercase
+    boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
+    keyword = FindKeywordMatch(results);
+    if (keyword != File::KEYWORD_INVALID)
+    {
+        this->AddMessage(line, Message::TYPE_WARNING, 
+            "Keyword has invalid lettercase. Correct form is: " + std::string(File::KeywordToString(keyword)));
+    }
+    return keyword;
+}
+
+File::Keyword Parser::FindKeywordMatch(boost::smatch& search_results)
+{
+    /* The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
+		so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
+		*/
+	for (unsigned int i = 1; i < search_results.size(); i++)
 	{
-		/* The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
-			so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
-			*/
-		for (unsigned int i = 1; i < results.size(); i++)
+		boost::ssub_match sub  = search_results[i];
+		if (sub.matched)
 		{
-			boost::ssub_match sub  = results[i];
-			if (sub.matched)
-			{
-				/* Build enum value directly from result offset */
-				return File::Keyword(i);
-			}
+			/* Build enum value directly from result offset */
+            return File::Keyword(i);
 		}
 	}
-
-	return File::KEYWORD_INVALID;
+    return File::KEYWORD_INVALID;
 }
 
 void Parser::Prepare()
@@ -5354,6 +5562,7 @@ void Parser::Prepare()
 	m_definition = boost::shared_ptr<File>(new File());
 	m_in_block_comment = false;
 	m_in_description_section = false;
+    m_any_named_node_defined = false;
 	m_last_flexbody.reset(); // Set to nullptr
 	m_current_detacher_group = 0; /* Global detacher group */
 
@@ -5365,6 +5574,12 @@ void Parser::Prepare()
 	m_root_module = boost::shared_ptr<File::Module>( new File::Module("_Root_") );
 	m_definition->root_module = m_root_module;
 	m_current_module = m_root_module;
+
+    m_sequential_importer.Init(true); // Enabled=true
+
+    m_messages_num_errors = 0;
+    m_messages_num_warnings = 0;
+    m_messages_num_other = 0;
 }
 
 void Parser::Finalize()
@@ -5373,6 +5588,77 @@ void Parser::Finalize()
 	{
 		m_current_module->submeshes.push_back(*m_current_submesh);
 		m_current_submesh.reset(); // Set to nullptr
+	}
+
+    if (m_sequential_importer.IsEnabled())
+    {
+        m_sequential_importer.Process( m_definition );
+    }
+}
+
+std::string Parser::ProcessMessagesToString()
+{
+	if (this->GetMessages().size() == 0)
+	{
+		std::string msg(" == Parsing done OK, nothing to report");
+		return msg;
+	}
+
+	std::stringstream report;
+	report << " == Parsing done, report:" << std::endl <<std::endl;
+
+    auto itor = m_messages.begin();
+    auto end  = m_messages.end();
+	for (; itor != end; ++itor)
+	{
+		switch (itor->type)
+		{
+			case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
+				report << "#FF3300 FATAL_ERROR #FFFFFF"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_ERROR): 
+				report << "#FF3300 ERROR #FFFFFF"; 
+				break;
+
+			case (RigDef::Parser::Message::TYPE_WARNING): 
+				report << "#FFFF00 WARNING #FFFFFF"; 
+				break;
+
+			default:
+				report << "INFO"; 
+				break;
+		}
+		report << " (Section " << RigDef::File::SectionToString(itor->section) << ")" << std::endl;
+		report << "\tLine (" << itor->line_number << "): " << itor->line << std::endl;
+		report << "\tMessage: " << itor->message << std::endl;
+	}
+
+	return report.str();
+}
+
+int Parser::_ParseArgs(std::string const & line, Ogre::StringVector &args, unsigned min_num_args)
+{
+    // Note: This splitting silently ignores multiple consecutive separators.
+    //       For example "A,|,B" will produce results[0] = "A", results[1] = "B"
+    try
+	{
+        args = Ogre::StringUtil::split(line, ":|, \t");
+        if (args.size() < min_num_args)
+        {
+            std::stringstream msg;
+            msg << "Too few arguments, minimum is: " << min_num_args;
+            this->AddMessage(line, Message::TYPE_ERROR, msg.str());
+            args.clear();
+            return -1;
+        }
+        return args.size();
+	} 
+    catch(Ogre::Exception &e)
+	{
+        this->AddMessage(line, Message::TYPE_ERROR, "Unexpected error while parsing line: "+e.getFullDescription());
+		args.clear();
+		return -1;
 	}
 }
 

@@ -127,6 +127,10 @@ void RigSpawner::Setup(
 	{
 		Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
 	}
+
+    m_messages_num_errors = 0;
+    m_messages_num_warnings = 0;
+    m_messages_num_other = 0;
 }
 
 void RigSpawner::InitializeRig()
@@ -877,16 +881,13 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 		// fusedrag autocalculation
 
 		// calculate fusedrag by truck size
-		if (def._area_coefficient_set)
-		{
-			factor = def.area_coefficient;
-		}
+		factor = def.area_coefficient;
 		width  =  (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;			
 		
 		m_rig->fuseAirfoil = new Airfoil(fusefoil);
 		
-		m_rig->fuseFront   = & GetNode(front_node_idx); //&nodes[front];
-		m_rig->fuseBack    = & GetNode(front_node_idx);  //&nodes[front];
+		m_rig->fuseFront   = & GetNode(front_node_idx);
+		m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
 		m_rig->fuseWidth   = width;
 		AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
 	} else
@@ -897,8 +898,8 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 					
 		m_rig->fuseAirfoil = new Airfoil(fusefoil);
 		
-		m_rig->fuseFront   = & GetNode(front_node_idx); //&nodes[front];
-		m_rig->fuseBack    = & GetNode(front_node_idx);  //&nodes[front];
+		m_rig->fuseFront   = & GetNode(front_node_idx);
+		m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
 		m_rig->fuseWidth   = width;
 	}
 }
@@ -972,7 +973,7 @@ void RigSpawner::BuildAerialEngine(
 
 void RigSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
 {
-	int couple_node_index = (def.couple_node.IsValid())	? GetNodeIndexOrThrow(def.couple_node) : -1;
+	int couple_node_index = (def.couple_node.IsValidAnyState())	? GetNodeIndexOrThrow(def.couple_node) : -1;
 
 	BuildAerialEngine(
 		GetNodeIndexOrThrow(def.reference_node),
@@ -1354,7 +1355,7 @@ float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const
 void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 {
 	int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
-	int node_index = FindNodeIndex_AcceptNonExistentNumbered(def.node);
+	int node_index = FindNodeIndex(def.node);
 	if (node_index == -1)
 	{
 		return;
@@ -1402,8 +1403,9 @@ void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 
 void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
 {
-	std::vector<RigDef::Node::Id>::iterator itor = def.nodes.begin();
-	for(; itor != def.nodes.end(); itor++)
+    auto itor = def.nodes.begin();
+    auto end  = def.nodes.end();
+	for(; itor != end; ++itor)
 	{
 		if (! CheckCameraRailLimit(1))
 		{
@@ -1416,7 +1418,7 @@ void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
 void RigSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
 {
 	m_rig->externalcameramode = def.mode;
-	if (def.node.IsValid())
+	if (def.node.IsValidAnyState())
 	{
 		m_rig->externalcameranode = GetNodeIndexOrThrow(def.node);
 	}
@@ -1590,8 +1592,9 @@ void RigSpawner::ProcessSubmeshGroundmodel()
 {
 	SetCurrentKeyword(RigDef::File::KEYWORD_SUBMESH_GROUNDMODEL);
 
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
-	for (; module_itor != m_selected_modules.end(); module_itor++)
+    auto module_itor = m_selected_modules.begin();
+    auto module_end  = m_selected_modules.end();
+	for (; module_itor != module_end; ++module_itor)
 	{
 		if (! module_itor->get()->submeshes_ground_model_name.empty())
 		{
@@ -1855,8 +1858,20 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 
 	/* Collect nodes */
 	std::vector<unsigned int> node_indices;
-	node_indices.reserve(100);
-	bool nodes_found = CollectNodesFromRanges(def->forset, node_indices);
+    node_indices.reserve(def->node_list.size());
+	bool nodes_found = true;
+    auto node_itor = def->node_list.begin();
+    auto node_end  = def->node_list.end();
+    for (; node_itor != node_end; ++node_itor)
+    {
+        auto result = this->GetNodeIndex(*node_itor);
+        if (!result.second)
+        {
+            nodes_found = false;
+            break;
+        }
+        node_indices.push_back(result.first);
+    }
 
 	if (! nodes_found)
 	{
@@ -1893,32 +1908,6 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 	m_rig->free_flexbody++;
 }
 
-int RigSpawner::FindNodeIndex_AcceptNonExistentNumbered(RigDef::Node::Id & node_id)
-{
-	int index = FindNodeIndex(node_id, true);
-	if (index != -1)
-	{
-		return index;
-	}
-
-	if (node_id.Str().empty()) /* Is defined by number? */
-	{
-		std::stringstream msg;
-		msg << "Node with number '" << node_id.Num() << "' doesn't exist (searched in definition and generated nodes). "
-			<< "Accepting it anyway for backwards compatibility. "
-			<< "Please fix as soon as possible.";
-		AddMessage(Message::TYPE_WARNING, msg.str());
-		return static_cast<int>(node_id.Num());
-	}
-	else
-	{
-		std::stringstream msg;
-		msg << "Node named '" << node_id.Str() << "' doesn't exist (searched in definition and generated nodes).";
-		AddMessage(Message::TYPE_ERROR, msg.str());
-		return -1;
-	}
-}
-
 void RigSpawner::ProcessProp(RigDef::Prop & def)
 {
 	if (! CheckPropLimit(1))
@@ -1931,8 +1920,8 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	memset(&prop, 0, sizeof(prop_t)); /* Initialize prop memory to avoid invalid pointers. */
 
 	prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
-	prop.nodex           = FindNodeIndex_AcceptNonExistentNumbered(def.x_axis_node);
-	prop.nodey           = FindNodeIndex_AcceptNonExistentNumbered(def.y_axis_node);
+	prop.nodex           = FindNodeIndex(def.x_axis_node);
+	prop.nodey           = FindNodeIndex(def.y_axis_node);
 	if (prop.nodex == -1 || prop.nodey == -1)
 	{
 		return;
@@ -2466,8 +2455,8 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	flare.blinkdelay_curr      = 0.f;
 	flare.blinkdelay_state     = false;
 	flare.noderef              = GetNodeIndexOrThrow(def.reference_node);
-	flare.nodex                = def.x;
-	flare.nodey                = def.y;
+    flare.nodex                = GetNodeIndexOrThrow(def.node_axis_x);
+	flare.nodey                = GetNodeIndexOrThrow(def.node_axis_y);
 	flare.offsetx              = def.offset.x;
 	flare.offsety              = def.offset.y;
 	flare.offsetz              = def.offset.z;
@@ -2720,8 +2709,9 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
 void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 {
-	std::vector<RigDef::Node::Id>::iterator itor = def.nodes.begin();
-	for ( ; itor != def.nodes.end(); itor++)
+    auto itor = def.nodes.begin();
+    auto end  = def.nodes.end();
+	for ( ; itor != end; ++itor)
 	{
 		std::pair<unsigned int, bool> node_result = GetNodeIndex(*itor);
 		if (! node_result.second)
@@ -3066,56 +3056,22 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 	m_rig->mSlideNodes.push_back(slide_node);
 }
 
-node_t* RigSpawner::FindGeneratedNodeInRig(RigDef::Node::Id & id, bool silent /* Default = false */)
+int RigSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* Default: false */)
 {
-	/* Only work with number-indexed nodes */
-	if (id.Str().empty() && id.Num() < static_cast<unsigned int>(m_rig->free_node))
-	{
-		if (m_rig->nodes[id.Num()].id == -1) /* Make sure the node was generated */
-		{
-			return & m_rig->nodes[id.Num()];				
-		}
-		else
-		{
-			std::stringstream msg;
-			msg << "Cannot use undefined node '" << id.ToString() << "'";
-			AddMessage(Message::TYPE_ERROR, msg.str());
-			return nullptr;
-		}
-	}
-	else
-	{
-		if (! silent)
-		{
-			std::stringstream msg;
-			msg << "Attempt to use non-existent node '" << id.ToString() << "'";
-			AddMessage(Message::TYPE_ERROR, msg.str());
-		}
-		return nullptr;
-	}
-}
-
-int RigSpawner::FindNodeIndex(RigDef::Node::Id & id, bool silent /* Default: false */)
-{
-	std::pair<unsigned int, bool> result = GetNodeIndex(id, /* quiet */ true);
+	std::pair<unsigned int, bool> result = GetNodeIndex(node_ref, /* quiet */ true);
 	if (result.second)
 	{
 		return static_cast<int>(result.first);
 	}
 	else
 	{
-		node_t *node = FindGeneratedNodeInRig(id, silent);
-		if (node == nullptr)
+		if (! silent)
 		{
-			if (! silent)
-			{
-				std::stringstream msg;
-				msg << "Failed to find node '" << id.ToString() << "', no such node defined in source file or dynamically generated during spawn.";
-				AddMessage(Message::TYPE_ERROR, msg.str());
-			}
-			return -1; /* Node not found */
+			std::stringstream msg;
+			msg << "Failed to find node by reference: " << node_ref.ToString();
+			AddMessage(Message::TYPE_ERROR, msg.str());
 		}
-		return node->pos;
+		return -1; /* Node not found */
 	}
 }
 
@@ -3303,8 +3259,9 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 
 void RigSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
 {
-	std::vector<RigDef::Node::Id>::iterator itor = lockgroup.nodes.begin();
-	for (; itor != lockgroup.nodes.end(); itor++)
+    auto itor = lockgroup.nodes.begin();
+    auto end  = lockgroup.nodes.end();
+	for (; itor != end; ++itor)
 	{
 		GetNodeOrThrow(*itor).lockgroup = lockgroup.number;
 	}
@@ -3401,8 +3358,8 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		}
 	}
 
-	int node_1_index = FindNodeIndex_AcceptNonExistentNumbered(def.nodes[0]);
-	int node_2_index = FindNodeIndex_AcceptNonExistentNumbered(def.nodes[1]);
+	int node_1_index = FindNodeIndex(def.nodes[0]);
+	int node_2_index = FindNodeIndex(def.nodes[1]);
 	if (node_1_index == -1 || node_2_index == -1 )
 	{
 		return;
@@ -3484,9 +3441,9 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	
 }
 
-void RigSpawner::ProcessContacter(RigDef::Node::Id & node)
+void RigSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 {
-	unsigned int node_index = GetNodeIndexOrThrow(node);
+	unsigned int node_index = GetNodeIndexOrThrow(node_ref);
 	m_rig->contacters[m_rig->free_contacter].nodeid = node_index;
 	GetNode(node_index).iIsSkin = true;
 	m_rig->free_contacter++;
@@ -3933,7 +3890,8 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	{
 		for (unsigned int i = 0; i < def.options.length(); ++i)
 		{
-			switch (def.options[i])
+            const char c = def.options[i];
+			switch (c)
 			{
 				case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
 					hydro_type = BEAM_INVISIBLE_HYDRO;
@@ -3972,6 +3930,9 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 				case RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER:  // 'h':
 					hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
 					break;
+                default:
+                    this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid flag:") + c);
+                    break;
 			}
 			
 			// NOTE: This is a quirk ported from v0.4.0.7 spawner (for compatibility)
@@ -4197,8 +4158,8 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 void RigSpawner::FetchAxisNodes(
 	node_t* & axis_node_1, 
 	node_t* & axis_node_2, 
-	RigDef::Node::Id axis_node_1_id,
-	RigDef::Node::Id axis_node_2_id
+	RigDef::Node::Ref const & axis_node_1_id,
+	RigDef::Node::Ref const & axis_node_2_id
 )
 {
 	axis_node_1 = GetNodePointer(axis_node_1_id);
@@ -4217,7 +4178,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {	
 	/* Check capacities */
 	CheckNodeLimit(def.num_rays * 4);
-	CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValid()) ? 26 : 25);
+	CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValidAnyState()) ? 26 : 25);
 	CheckFlexbodyLimit(1);
 
 	unsigned int base_node_index = m_rig->free_node;
@@ -4230,7 +4191,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	/* Rigidity node */
 	node_t *rigidity_node = nullptr;
 	node_t *axis_node_closest_to_rigidity_node = nullptr;
-	if (def.rigidity_node.IsValid())
+	if (def.rigidity_node.IsValidAnyState())
 	{
 		rigidity_node = GetNodePointer(def.rigidity_node);
 		Ogre::Real distance_1 = (rigidity_node->RelPosition - axis_node_1->RelPosition).length();
@@ -4586,6 +4547,12 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 	node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
 
+    if (axis_node_1 == nullptr || axis_node_2 == nullptr)
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Failed to find axis nodes, skipping meshwheel2...");
+        return;
+    }
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
 	{
@@ -4879,7 +4846,7 @@ void RigSpawner::BuildWheelBeams(
 	float rim_spring,
 	float rim_damping,
 	boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-	RigDef::Node::Id rigidity_node_id,
+	RigDef::Node::Ref const & rigidity_node_id,
 	float max_extension // = 0.f
 )
 {
@@ -4893,7 +4860,7 @@ void RigSpawner::BuildWheelBeams(
 	/* Find out where to connect rigidity node */
 	bool rigidity_beam_side_1 = false;
 	node_t *rigidity_node = nullptr;
-	if (rigidity_node_id.IsValid())
+	if (rigidity_node_id.IsValidAnyState())
 	{
 		rigidity_node = GetNodePointerOrThrow(rigidity_node_id);
 		float distance_1 = rigidity_node->RelPosition.distance(axis_node_1->RelPosition);
@@ -5158,7 +5125,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 {
 	/* Check capacity */
 	CheckNodeLimit(wheel_2_def.num_rays * 4);
-	CheckBeamLimit(wheel_2_def.num_rays * (wheel_2_def.rigidity_node.IsValid()) ? 26 : 25);
+	CheckBeamLimit(wheel_2_def.num_rays * (wheel_2_def.rigidity_node.IsValidAnyState()) ? 26 : 25);
 
 	unsigned int base_node_index = m_rig->free_node;
 	wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
@@ -5179,7 +5146,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 	/* Rigidity node */
 	node_t *axis_node_closest_to_rigidity_node = nullptr;
-	if (wheel_2_def.rigidity_node.IsValid())
+	if (wheel_2_def.rigidity_node.IsValidAnyState())
 	{
 		node_t & rigidity_node = GetNode(wheel_2_def.rigidity_node);
 		Ogre::Real distance_1 = (rigidity_node.RelPosition - axis_node_1->RelPosition).length();
@@ -5869,36 +5836,27 @@ void RigSpawner::ProcessAuthors()
 	SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
 };
 
-unsigned int RigSpawner::GetNodeIndexOrThrow(RigDef::Node::Id & id)
+unsigned int RigSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
 {
-	std::pair<unsigned int, bool> result = GetNodeIndex(id);
+	std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
 	if (! result.second)
 	{
 		std::stringstream msg;
-		msg << "Failed to retrieve required node '";
-		if (! id.Str().empty())
-		{
-			msg << id.Str();
-		}
-		else
-		{
-			msg << id.Num();
-		}
-		msg << "'";
-		throw Exception(msg.str());
+        msg << "Failed to retrieve required node: " << node_ref.ToString();
+        throw Exception(msg.str());
 	}
 	return result.first;
 }
 
-node_t & RigSpawner::GetNodeOrThrow(RigDef::Node::Id & id)
+node_t & RigSpawner::GetNodeOrThrow(RigDef::Node::Ref const & node_ref)
 {
-	return m_rig->nodes[GetNodeIndexOrThrow(id)];
+	return m_rig->nodes[GetNodeIndexOrThrow(node_ref)];
 }
 
 void RigSpawner::ProcessCamera(RigDef::Camera & def)
 {
 	/* Center node */
-	if (def.center_node.IsValid())
+	if (def.center_node.IsValidAnyState())
 	{
 		m_rig->cameranodepos[m_rig->freecamera] 
 			= static_cast<int>(GetNodeIndexOrThrow(def.center_node));
@@ -5909,7 +5867,7 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
 	}
 
 	/* Direction node */
-	if (def.back_node.IsValid())
+	if (def.back_node.IsValidAnyState())
 	{
 		m_rig->cameranodedir[m_rig->freecamera] 
 			= static_cast<int>(GetNodeIndexOrThrow(def.back_node));
@@ -5920,7 +5878,7 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
 	}
 
 	/* Roll node */
-	if (def.left_node.IsValid())
+	if (def.left_node.IsValidAnyState())
 	{
 		m_rig->cameranoderoll[m_rig->freecamera] 
 			= static_cast<int>(GetNodeIndexOrThrow(def.left_node));
@@ -5934,19 +5892,12 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
 	m_rig->freecamera++;
 };
 
-node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Id & id)
+node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)
 {
-	node_t* node = GetNodePointer(id);
+	node_t* node = GetNodePointer(node_ref);
 	if (node != nullptr)
 	{
 		return node;
-	}	
-	if (id.Str().empty()) /* Is this numbered node? */
-	{
-		std::stringstream msg;
-		msg << "Beam defined with non-existent node '" << id.ToString() << "'. Using it anyway for backwards compatibility. Please fix.";
-		AddMessage(Message::TYPE_WARNING, msg.str());
-		return & m_rig->nodes[id.Num()]; /* Backwards compatibility */
 	}
 	return nullptr;
 }
@@ -5958,13 +5909,13 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	nodes[0] = GetBeamNodePointer(def.nodes[0]);
 	if (nodes[0] == nullptr)
 	{
-		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
+        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[0].ToString());
 		return;
 	}
 	nodes[1] = GetBeamNodePointer(def.nodes[1]);
 	if (nodes[1] == nullptr)
 	{
-		AddMessage(Message::TYPE_WARNING, "Could not find node, ignoring beam...");
+		AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[1].ToString());
 		return;
 	}
 
@@ -5979,7 +5930,6 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	beam.diameter = def.defaults->visual_beam_diameter;
 	beam.minendmass = 1.f; // Orig = hardcoded in add_beam()
 	beam.bounded = NOSHOCK; // Orig: if (shortbound) ... hardcoded in BTS_BEAMS
-	// orig: beams[pos].p2truck=0; (redundant because of memset() )
 
 	/* Deformation */
 	SetBeamDeformationThreshold(beam, def.defaults);
@@ -6235,37 +6185,43 @@ void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const &
 	{
 		case (RigSpawner::Message::TYPE_INTERNAL_ERROR): 
 			report << "INTERNAL ERROR"; 
+            ++m_messages_num_errors;
 			break;
 
 		case (RigSpawner::Message::TYPE_ERROR):
 			report << "ERROR";
+            ++m_messages_num_errors; 
 			break;
 
 		case (RigSpawner::Message::TYPE_WARNING):
 			report << "WARNING";
+            ++m_messages_num_warnings; 
 			break;
 
 		default:
 			report << "INFO";
+            ++m_messages_num_other;
 			break;
 	}
 	report << " (Keyword " << RigDef::File::KeywordToString(m_current_keyword) << ") " << text;
 	Ogre::LogManager::getSingleton().logMessage(report.str());
 }
 
-std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Id & id, bool quiet /* Default: false */)
+std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* Default: false */)
 {
-	if (id.Num() == RigDef::Node::Id::INVALID_ID_VALUE)
+    if (!node_ref.IsValidAnyState())
 	{
 		if (! quiet)
 		{
-			AddMessage(Message::TYPE_ERROR, "Attempt to find node marked 'invalid'");
+            AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
 		}
 		return std::make_pair(0, false);
 	}
-	else if (! id.Str().empty())
+    bool is_imported = node_ref.GetImportState_IsValid();
+    bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
+    if (is_named)
 	{
-		std::map<Ogre::String, unsigned int>::iterator result = m_named_nodes.find(id.Str());
+		auto result = m_named_nodes.find(node_ref.Str());
 		if (result != m_named_nodes.end())
 		{
 			return std::make_pair(result->second, true);
@@ -6273,31 +6229,30 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Id & id, bo
 		else if (! quiet)
 		{
 			std::stringstream msg;
-			msg << "Attempt to find non-existent node named '" << id.Str() << "'";
-			AddMessage(Message::TYPE_WARNING, msg.str());
+            msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
+			AddMessage(Message::TYPE_ERROR, msg.str());
 		}
 		return std::make_pair(0, false);
 	}
 	else
 	{
-		std::map<unsigned int, unsigned int>::iterator result = m_numbered_nodes.find(id.Num());
-		if (result != m_numbered_nodes.end())
-		{
-			return std::make_pair(result->second, true);
-		}
-		else if (! quiet)
-		{
-			std::stringstream msg;
-			msg << "Attempt to find non-existent node with number '" << id.Num() << "'";
-			AddMessage(Message::TYPE_WARNING, msg.str());
-		}
-		return std::make_pair(0, false);
+        if (node_ref.Num() >= static_cast<unsigned int>(m_rig->free_node))
+        {
+            if (! quiet)
+            {
+                std::stringstream msg;
+                msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_rig->free_node<<"): " << node_ref.ToString();
+			    AddMessage(Message::TYPE_ERROR, msg.str());
+            }
+            return std::make_pair(0, false);
+        }
+        return std::make_pair(node_ref.Num(), true);
 	}
 }
 
-node_t* RigSpawner::GetNodePointer(RigDef::Node::Id & id)
+node_t* RigSpawner::GetNodePointer(RigDef::Node::Ref const & node_ref)
 {
-	std::pair<unsigned int, bool> result = GetNodeIndex(id);
+	std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
 	if (result.second)
 	{
 		return & m_rig->nodes[result.first];
@@ -6308,13 +6263,13 @@ node_t* RigSpawner::GetNodePointer(RigDef::Node::Id & id)
 	}
 }
 
-node_t* RigSpawner::GetNodePointerOrThrow(RigDef::Node::Id & id)
+node_t* RigSpawner::GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref)
 {
-	node_t *node = GetNodePointer(id);
+	node_t *node = GetNodePointer(node_ref);
 	if (node == nullptr)
 	{
 		std::stringstream msg;
-		msg << "Required node '" << id.ToString() << "' not found";
+		msg << "Required node not found: " << node_ref.ToString();
 		throw Exception(msg.str());
 	}
 	return node;
@@ -6322,66 +6277,48 @@ node_t* RigSpawner::GetNodePointerOrThrow(RigDef::Node::Id & id)
 
 std::pair<unsigned int, bool> RigSpawner::AddNode(RigDef::Node::Id & id)
 {
-	if (id.Num() == RigDef::Node::Id::INVALID_ID_VALUE)
+    if (!id.IsValid())
+    {
+        std::stringstream msg;
+        msg << "Attempt to add node with 'INVALID' flag: " << id.ToString() << " (number of nodes at this point: " << m_rig->free_node << ")";
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
+        return std::make_pair(0, false);
+    }
+    if ((m_rig->free_node + 1) > MAX_NODES)
 	{
-		throw Exception("Attempt to add node marked 'invalid'");
+		std::stringstream msg;
+        msg << "Node limit (" << MAX_NODES << ") exceeded with node: " << id.ToString();
+		this->AddMessage(Message::TYPE_ERROR, msg.str());
+        return std::make_pair(0, false);
 	}
-	else if (! id.Str().empty())
-	{
-		if (m_rig->free_node == 0) // Double check, Validator should take care of this...
-		{
-			std::stringstream msg;
-			msg << "The first node defined in section 'nodes' must be '0', found '" << id.Str() << "'";
-			throw Exception(msg.str());
-		}
-		else if ((m_rig->free_node + 1) > MAX_NODES)
-		{
-			std::stringstream msg;
-			msg << "Node limit (" << MAX_NODES << ") exceeded with node '" << id.Str() << "'";
-			throw Exception(msg.str());
-		}
-
-		std::pair<std::map<Ogre::String, unsigned int>::iterator, bool> result
-			= m_named_nodes.insert(std::make_pair(id.Str(), m_rig->free_node));
-		if (! result.second)
-		{
-			AddMessage(Message::TYPE_ERROR, Ogre::String("Ignoring node! Duplicate name: ") + id.Str());
-		}
-		else
-		{
-			m_rig->free_node++;
-		}
-		return std::make_pair(m_rig->free_node, result.second);
-	}
-	else
-	{
-		if (m_rig->free_node == 0 && id.Num() != 0) // Double check, Validator should take care of this...
-		{
-			std::stringstream msg;
-			msg << "The first node defined in section 'nodes' must be '0', found '" << id.Num() << "'";
-			throw Exception(msg.str());
-		}
-		else if ((m_rig->free_node + 1) > MAX_NODES)
-		{
-			std::stringstream msg;
-			msg << "Node limit (" << MAX_NODES << ") exceeded with node '" << id.Num() << "'";
-			throw Exception(msg.str());
-		}
-
-		unsigned int free_node_slot = m_rig->free_node;
-		std::pair<std::map<unsigned int, unsigned int>::iterator, bool> result
-			= m_numbered_nodes.insert(std::make_pair(id.Num(), free_node_slot));
-		if (! result.second)
-		{
-			AddMessage(Message::TYPE_ERROR, Ogre::String("Ignoring node! Duplicate number: ") + TOSTRING(id.Num()));
-		}
-		else
-		{
-			m_rig->free_node++;
-		}
-
-		return std::make_pair(free_node_slot, result.second);
-	}
+    if (id.IsTypeNamed())
+    {
+        unsigned int new_index = static_cast<unsigned int>(m_rig->free_node);
+        auto insert_result = m_named_nodes.insert(std::make_pair(id.Str(), new_index));
+        if (! insert_result.second)
+        {
+            std::stringstream msg;
+            msg << "Ignoring named node! Duplicate name: " << id.Str() << " (number of nodes at this point: " << m_rig->free_node << ")";
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
+            return std::make_pair(0, false);
+        }
+        m_rig->free_node++;
+        return std::make_pair(new_index, true);
+    }
+    if (id.IsTypeNumbered())
+    {
+        if (id.Num() < static_cast<unsigned int>(m_rig->free_node))
+        {
+            std::stringstream msg;
+            msg << "Duplicate node number, previous definition will be overriden! - " << id.ToString() << " (number of nodes at this point: " << m_rig->free_node << ")";
+            this->AddMessage(Message::TYPE_WARNING, msg.str());
+        }
+        unsigned int new_index = static_cast<unsigned int>(m_rig->free_node);
+        m_rig->free_node++;
+        return std::make_pair(new_index, true);
+    }
+    // Invalid node ID without type flag!
+    throw Exception("Invalid Node::Id without type flags!");
 }
 
 void RigSpawner::ProcessNode(RigDef::Node & def)
@@ -6408,9 +6345,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	}
 		
 	node.wetstate = DRY; // orig = hardcoded (init_node)
-	// node.locked = false // Orig {{nodes[pos].locked=m<0.0;}} // always false due to hardcoded mass
-	// node.iswheel = 0; // Hardcoded in orig
-	// node.friction = 0; // Hardcoded in orig
 	node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
 	node.friction_coef = def.node_defaults->friction;
 	node.volume_coef = def.node_defaults->volume;
@@ -6647,7 +6581,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	if (m_rig->flaresMode >= 2 && m_rig->cablight == nullptr)
 	{
 		std::stringstream light_name;
-		light_name << "cabinlight-" << m_rig->truckname; // Original: "cabinglight" (probably typo) ~only_a_ptr
+		light_name << "cabinlight-" << m_rig->truckname;
 		m_rig->cablight = gEnv->sceneManager->createLight(light_name.str());
 		m_rig->cablight->setType(Ogre::Light::LT_POINT);
 		m_rig->cablight->setDiffuseColour( Ogre::ColourValue(0.4, 0.4, 0.3));
@@ -7235,4 +7169,36 @@ void RigSpawner::UpdateCollcabContacterNodes()
 		m_rig->nodes[m_rig->cabs[tmpv+1]].contacter = true;
 		m_rig->nodes[m_rig->cabs[tmpv+2]].contacter = true;
 	}
+}
+
+std::string RigSpawner::ProcessMessagesToString()
+{
+	std::stringstream report;
+
+    auto itor = m_messages.begin();
+    auto end  = m_messages.end();
+	for (; itor != end; ++itor)
+	{
+		switch (itor->type)
+		{
+			case (Message::TYPE_INTERNAL_ERROR): 
+				report << "#FF3300 INTERNAL ERROR #FFFFFF"; 
+				break;
+
+			case (Message::TYPE_ERROR): 
+				report << "#FF3300 ERROR #FFFFFF"; 
+				break;
+
+			case (Message::TYPE_WARNING): 
+				report << "#FFFF00 WARNING #FFFFFF"; 
+				break;
+
+			default:
+				report << "INFO"; 
+				break;
+		}
+		report << "(Keyword " << RigDef::File::KeywordToString(itor->keyword) << ")" << std::endl;
+		report << "\t" << itor->text << std::endl;
+	}
+	return report.str();
 }

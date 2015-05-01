@@ -92,6 +92,12 @@ public:
 		m_check_beams = check_beams;
 	}
 
+    int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
+    int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
+    int GetMessagesNumOther()    const { return m_messages_num_other;    }
+
+    std::string ProcessMessagesToString();
+
 private:
 
 	/**
@@ -106,8 +112,6 @@ private:
 	* Checks if a module contains a section.
 	*/
 	bool HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword);
-
-	bool CheckSpecialNodeZero();
 
 	/**
 	* Inline-ection 'submesh_groundmodel', unique across all modules.
@@ -145,6 +149,9 @@ private:
 /* -------------------------------------------------------------------------- */
 
 	std::list<Message> m_messages;
+    int m_messages_num_errors;
+    int m_messages_num_warnings;
+    int m_messages_num_other;
 	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
 	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	bool m_check_beams;

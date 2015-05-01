@@ -53,7 +53,7 @@ public:
 
 private:
 
-	void SetExtCameraMode(RigDef::ExtCamera::Mode mode, RigDef::Node::Id node_id);
+	void SetExtCameraMode(RigDef::ExtCamera::Mode mode, RigDef::Node::Ref node_ref);
 
 	void SetMinimapMode(RigDef::GuiSettings::MapMode mode);
 

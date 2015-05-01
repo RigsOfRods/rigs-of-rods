@@ -93,8 +93,7 @@ Engoption::Engoption():
 Fusedrag::Fusedrag():
 	autocalc(false),
 	approximate_width(0),
-	area_coefficient(0),
-	_area_coefficient_set(false),
+	area_coefficient(1.f),  // Default
 	airfoil_name("NACA0009.afl")
 {}
 
@@ -188,8 +187,6 @@ Trigger::Trigger():
 {}
 
 VideoCamera::VideoCamera():
-	_alt_reference_node_set(false),
-	_alt_orientation_node_set(false),
 	offset(Ogre::Vector3::ZERO),
 	rotation(Ogre::Vector3::ZERO),
 	field_of_view(0),
@@ -328,6 +325,8 @@ const char * File::SectionToString(File::Section section)
 			return "soundsources2";
 		case (File::SECTION_SLOPE_BRAKE):
 			return "SlopeBrake";
+        case (File::SECTION_SUBMESH):
+			return "submesh";
 		case (File::SECTION_TIES):
 			return "ties";
 		case (File::SECTION_TORQUE_CURVE):
@@ -415,12 +414,18 @@ const char * File::KeywordToString(File::Keyword keyword)
 			return "contacters";
 		case (File::KEYWORD_CRUISECONTROL):
 			return "cruisecontrol";
+        case (File::KEYWORD_DESCRIPTION):
+			return "description";
 		case (File::KEYWORD_ENGINE):
 			return "engine";
 		case (File::KEYWORD_ENGOPTION):
 			return "engoption";
 		case (File::KEYWORD_EXHAUSTS):
 			return "exhausts";
+        case (File::KEYWORD_FILEINFO):
+			return "fileinfo";
+        case (File::KEYWORD_FILEFORMATVERSION):
+			return "fileformatversion";
 		case (File::KEYWORD_FIXES):
 			return "fixes";
 		case (File::KEYWORD_FLARES):
@@ -454,7 +459,7 @@ const char * File::KeywordToString(File::Keyword keyword)
 		case (File::KEYWORD_MINIMASS):
 			return "minimass";
 		case (File::KEYWORD_NODES):
-			return "nodecollision";
+			return "nodes";
 		case (File::KEYWORD_NODES2):
 			return "nodes2";
 		case (File::KEYWORD_PARTICLES):

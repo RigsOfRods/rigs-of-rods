@@ -99,10 +99,10 @@ void MeshWheel2AggregateData::AddWheel(MeshWheel2* data)
     }
     else
     {
-        rigidity_node     .Invalidate();
-        reference_arm_node.Invalidate();
-        axis_nodes[0]     .Invalidate();
-        axis_nodes[1]     .Invalidate();
+        rigidity_node     .SetRegularState_IsValid(false);
+        reference_arm_node.SetRegularState_IsValid(false);
+        axis_nodes[0]     .SetRegularState_IsValid(false);
+        axis_nodes[1]     .SetRegularState_IsValid(false);
 
         SetRayCountIsUniform        (IsRayCountUniform        () && (num_rays == def.num_rays)); 
         SetBrakingModeIsUniform     (IsBrakingModeUniform     () && (braking == def.braking));
@@ -157,10 +157,10 @@ void FlexBodyWheelAggregateData::AddWheel(FlexBodyWheel* data)
     }
     else
     {
-        rigidity_node     .Invalidate();
-        reference_arm_node.Invalidate();
-        axis_nodes[0]     .Invalidate();
-        axis_nodes[1]     .Invalidate();
+        rigidity_node     .SetRegularState_IsValid(false);
+        reference_arm_node.SetRegularState_IsValid(false);
+        axis_nodes[0]     .SetRegularState_IsValid(false);
+        axis_nodes[1]     .SetRegularState_IsValid(false);
 
         SetRayCountIsUniform        (IsRayCountUniform        () && (num_rays == def.num_rays)); 
         SetBrakingModeIsUniform     (IsBrakingModeUniform     () && (braking == def.braking));
