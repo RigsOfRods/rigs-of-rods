@@ -4743,18 +4743,30 @@ void Parser::ParseNode2(Ogre::String const & line)
 void Parser::_TrimTrailingComments(std::string const & line_in, std::string & line_out)
 {
     // Trim trailing comment
-    int last_comment_delim = line_in.find_last_of(";");
-    if (last_comment_delim != Ogre::String::npos)
+    // We need to handle a case of lines as [keyword 1, 2, 3 ;;///// Comment!]
+    int comment_start = line_in.find_first_of(";");
+    if (comment_start != Ogre::String::npos)
     {
-        line_out = line_in.substr(0, last_comment_delim);
+        line_out = line_in.substr(0, comment_start);
         return;
     }
-    last_comment_delim = line_in.find_last_of("//");
-    if (last_comment_delim != Ogre::String::npos)
+    // The [//Comment] is harder - the '/' character may also be present in DESCRIPTION arguments!
+    comment_start = line_in.find_last_of("/");
+    if (comment_start != Ogre::String::npos)
     {
-        line_out = line_in.substr(0, last_comment_delim);
+        while (comment_start >= 0)
+        {
+            char c = line_in[comment_start - 1];
+            if (c != '/' && c != ' ' && c != '\t')
+            {
+                break; // Start of comment found
+            }
+            --comment_start;
+        }
+        line_out = line_in.substr(0, comment_start);
         return;
     }
+    // No comment found
     line_out = line_in;
 }
 
