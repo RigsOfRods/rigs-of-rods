@@ -880,16 +880,6 @@ void Beam::calc_masses2(Real total, bool reCalc)
 		totalmass += nodes[i].mass;
 	}
 	LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)totalmass) +" kg");
-	//now a special stuff
-	int unst = 0;
-	int st = 0;
-	int wunst = 0;
-	for (int i=0; i<free_beam; i++)
-	{
-		float mass = beams[i].p1->mass;
-		if (beams[i].p2->mass<mass) mass = beams[i].p2->mass;
-	}
-	LOG("Beams status: unstable:"+TOSTRING(unst)+" wheel:"+TOSTRING(wunst)+" normal:"+TOSTRING(free_beam-unst-wunst-st)+" superstable:"+TOSTRING(st));
 
 	BES_GFX_STOP(BES_GFX_calc_masses2);
 }
