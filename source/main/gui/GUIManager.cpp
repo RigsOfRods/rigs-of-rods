@@ -351,6 +351,14 @@ void GUIManager::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool bu
 	m_gui_gMessageBox->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
 }
 
+void GUIManager::UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "", bool IsVisible = true)
+{
+	if (m_gui_gMessageBox.get() == nullptr)
+		m_gui_gMessageBox = std::unique_ptr<GUI::gMessageBox>(new GUI::gMessageBox());
+
+	m_gui_gMessageBox->UpdateMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2, IsVisible);
+}
+
 int GUIManager::getMessageBoxResult()
 {
 	if (m_gui_gMessageBox.get() == nullptr)

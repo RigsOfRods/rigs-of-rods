@@ -69,6 +69,23 @@ void CLASS::Show()
 	MAIN_WIDGET->setVisibleSmooth(true);
 }
 
+void CLASS::UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible)
+{
+	((MyGUI::Window*)mMainWidget)->setCaptionWithReplacing(mTitle);
+	m_text->setCaptionWithReplacing(mText);
+
+	if (button1)
+		m_button1->setCaptionWithReplacing(mButton1);
+
+	if (button2)
+		m_button2->setCaptionWithReplacing(mButton2);
+
+	if (!MAIN_WIDGET->getVisible())
+		Show();
+	else if (IsVisible == false)
+		Hide();
+}
+
 void CLASS::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2)
 {
 	i_Results = 0; //Reinit

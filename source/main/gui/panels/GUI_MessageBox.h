@@ -44,7 +44,7 @@ public:
 	~gMessageBox();
 	
 	void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
-
+	void UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible);
 	// return 0: no button pressed, should not happen, use AllowClose to enable.
 	// return 1: button1 pressed.
 	// return 2: button2 pressed.

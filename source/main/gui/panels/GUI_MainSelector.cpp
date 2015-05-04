@@ -20,9 +20,7 @@
 */
 
 /** 
-	@file   GUI_GameAbout.cpp
-	@author Moncef Ben Slimane
-	@date   11/2014
+	@file   GUI_MainSelector.cpp
 */
 
 #include "GUI_MainSelector.h"

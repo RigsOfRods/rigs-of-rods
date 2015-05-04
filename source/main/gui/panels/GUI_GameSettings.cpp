@@ -64,6 +64,7 @@ CLASS::CLASS()
 
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+	m_key_mapping_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
 
 	//Buttons
 	m_savebtn->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSaveButton);
@@ -105,6 +106,7 @@ CLASS::CLASS()
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
+	m_change_key->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReMapPress);
 
 	//Sliders
 	m_volume_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnVolumeSlider);
@@ -113,6 +115,7 @@ CLASS::CLASS()
 
 	MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
 	mMainWidget->setPosition(gui_area.width/2 - mMainWidget->getWidth()/2, gui_area.height/2 - mMainWidget->getHeight()/2);
+	m_key_mapping_window->setPosition(gui_area.width / 2 - m_key_mapping_window->getWidth() / 2, gui_area.height / 2 - m_key_mapping_window->getHeight() / 2);
 
 	if (!BSETTING("DevMode", false))
 	{
@@ -146,8 +149,16 @@ void CLASS::Hide(bool isMenu)
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
-	if (_name == "close")
-		Hide();
+	if (_sender == mMainWidget)
+	{
+		if (_name == "close")
+			Hide();
+	}
+	else if (_sender == m_key_mapping_window)
+	{
+		if (_name == "close")
+			m_key_mapping_window->setVisibleSmooth(false);
+	}
 }
 
 void CLASS::eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender)
@@ -1070,4 +1081,17 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 	ShowRestartNotice = true;
 	RoR::Application::GetGuiManager()->ShowMessageBox("Cache cleared", "Cache cleared succesfully, you need to restart the game for the changes to apply.", true, "Ok", true, false, "");
 
+}
+
+void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
+{
+	Ogre::String str_text = "";
+	str_text += "Press any button/Move your joystick axis to map it to this event. \nYou can also close this window to cancel the mapping. \n\n";
+	str_text += "#66FF33 Event: #FFFFFF" + m_keymapping->getSubItemNameAt(0, m_keymapping->getItemIndexSelected()) + "\n";
+	str_text += "#66FF33 Current Key: #FFFFFF" + m_keymapping->getSubItemNameAt(1, m_keymapping->getItemIndexSelected());
+	m_key_mapping_window->setCaptionWithReplacing("Assign new key");
+	m_key_mapping_window_text->setCaptionWithReplacing(str_text);
+	m_key_mapping_window->setVisibleSmooth(true);
+
+	str_text = "";
 }

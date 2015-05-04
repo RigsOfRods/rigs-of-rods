@@ -100,6 +100,7 @@ private:
 	void LoadKeyMap();
 	void OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index);
 	bool isKeyMapLoaded;
+	void OnReMapPress(MyGUI::WidgetPtr _sender);
 
 	std::map<int, std::vector<event_trigger_t> > KeyMap;
 
