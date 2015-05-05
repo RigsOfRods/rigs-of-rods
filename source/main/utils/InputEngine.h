@@ -491,6 +491,7 @@ public:
 
 	bool isEventDefined(int eventID);
 	void addEvent(int eventID, event_trigger_t t);
+	void updateEvent(int eventID, event_trigger_t t);
 	bool deleteEventBySUID(int suid);
 	bool getInputsChanged() { return inputsChanged; };
 	void prepareShutdown();

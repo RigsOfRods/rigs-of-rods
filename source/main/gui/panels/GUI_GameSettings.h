@@ -101,6 +101,10 @@ private:
 	void OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index);
 	bool isKeyMapLoaded;
 	void OnReMapPress(MyGUI::WidgetPtr _sender);
+	void FrameEntered(float dt);
+	bool startCounter;
+	unsigned long endTime;
+	Ogre::String LastKeyCombo;
 
 	std::map<int, std::vector<event_trigger_t> > KeyMap;
 

@@ -293,7 +293,8 @@
     <Widget type="Window" skin="WindowCX" position="395 70 375 235" layer="Main" name="key_mapping_window">
         <Property key="Caption" value="Remap your key"/>
         <Property key="Visible" value="false"/>
-        <Widget type="EditBox" skin="WordWrapEmpty" position="5 0 355 195" name="key_mapping_window_text"/>
+        <Widget type="EditBox" skin="WordWrapEmpty" position="5 0 355 165" name="key_mapping_window_text"/>
+        <Widget type="EditBox" skin="WordWrapEmpty" position="5 170 355 25" name="key_mapping_window_info"/>
     </Widget>
     <CodeGeneratorSettings>
         <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>

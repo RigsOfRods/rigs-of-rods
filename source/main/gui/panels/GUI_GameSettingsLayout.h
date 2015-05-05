@@ -200,6 +200,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_key_mapping_window_text, "key_mapping_window_text");
 	MyGUI::EditBox* m_key_mapping_window_text;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_key_mapping_window_info, "key_mapping_window_info");
+	MyGUI::EditBox* m_key_mapping_window_info;
+
 	//%LE Widget_Declaration list end
 };
 

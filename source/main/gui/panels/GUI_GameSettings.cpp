@@ -107,6 +107,7 @@ CLASS::CLASS()
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
 	m_change_key->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReMapPress);
+	startCounter = false;
 
 	//Sliders
 	m_volume_slider->eventScrollChangePosition += MyGUI::newDelegate(this, &CLASS::OnVolumeSlider);
@@ -1026,6 +1027,7 @@ void CLASS::LoadKeyMap()
 		}
 	}
 	isKeyMapLoaded = true;
+	m_keymapping->setIndexSelected(0);
 }
 
 void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
@@ -1062,6 +1064,7 @@ void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
 			}
 		}
 	}
+	m_keymapping->setIndexSelected(0);
 }
 
 void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
@@ -1085,13 +1088,62 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 
 void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 {
-	Ogre::String str_text = "";
-	str_text += "Press any button/Move your joystick axis to map it to this event. \nYou can also close this window to cancel the mapping. \n\n";
-	str_text += "#66FF33 Event: #FFFFFF" + m_keymapping->getSubItemNameAt(0, m_keymapping->getItemIndexSelected()) + "\n";
-	str_text += "#66FF33 Current Key: #FFFFFF" + m_keymapping->getSubItemNameAt(1, m_keymapping->getItemIndexSelected());
-	m_key_mapping_window->setCaptionWithReplacing("Assign new key");
-	m_key_mapping_window_text->setCaptionWithReplacing(str_text);
-	m_key_mapping_window->setVisibleSmooth(true);
+		Ogre::String str_text = "";
+		str_text += "Press any button/Move your joystick axis to map it to this event. \nYou can also close this window to cancel the mapping. \n\n";
+		str_text += "#66FF33 Event: #FFFFFF" + m_keymapping->getSubItemNameAt(0, m_keymapping->getItemIndexSelected()) + "\n";
+		str_text += "#66FF33 Current Key: #FFFFFF" + m_keymapping->getSubItemNameAt(1, m_keymapping->getItemIndexSelected());
+		m_key_mapping_window->setCaptionWithReplacing("Assign new key");
+		m_key_mapping_window_text->setCaptionWithReplacing(str_text);
+		m_key_mapping_window->setVisibleSmooth(true);
+		MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::FrameEntered);
 
-	str_text = "";
+		str_text = "";
+}
+
+void CLASS::FrameEntered(float dt)
+{
+	unsigned long Timer = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+
+	if (RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RETURN) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_ESCAPE))
+	{
+		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
+		m_key_mapping_window->setVisibleSmooth(false);
+		return;
+	}
+
+	std::string combo;
+	int keys = RoR::Application::GetInputEngine()->getCurrentKeyCombo(&combo);
+	if (keys != 0)
+	{
+		endTime = Timer + 5000;
+		startCounter = true;
+		LastKeyCombo = Ogre::String(combo.c_str());
+
+		Ogre::String str_text = "";
+		str_text += "Press any button/Move your joystick axis to map it to this event. \nYou can also close this window to cancel the mapping. \n\n";
+		str_text += "#66FF33 Event: #FFFFFF" + m_keymapping->getSubItemNameAt(0, m_keymapping->getItemIndexSelected()) + "\n";
+		str_text += "#66FF33 Current Key: #FFFFFF" + m_keymapping->getSubItemNameAt(1, m_keymapping->getItemIndexSelected()) + "\n";
+		str_text += "#66FF33 New Key: #FFFFFF" + LastKeyCombo;
+		m_key_mapping_window_text->setCaptionWithReplacing(str_text);
+		
+		str_text = "";
+	}
+
+	if (startCounter)
+	{
+		long timer1 = Timer - endTime;
+		m_key_mapping_window_info->setCaptionWithReplacing("Changes will apply in: " + Ogre::StringConverter::toString(-timer1) + " Seconds");
+		if (timer1 == 0)
+		{
+			m_keymapping->setSubItemNameAt(1, m_keymapping->getItemIndexSelected(), LastKeyCombo);
+
+			startCounter = false;
+			LastKeyCombo = "";
+
+			MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
+			m_key_mapping_window->setVisibleSmooth(false);
+			return;
+		}
+	}
+
 }
