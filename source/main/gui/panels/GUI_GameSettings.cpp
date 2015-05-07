@@ -373,10 +373,8 @@ void CLASS::UpdateControls()
 	Ogre::String shadowtype = GameSettingsMap["Shadow technique"];
 	if (shadowtype == "Texture shadows")
 		m_shadow_type->setIndexSelected(1);
-	else if (shadowtype == "Stencil shadows (best looking)")
-		m_shadow_type->setIndexSelected(2);
 	else if (shadowtype == "Parallel-split Shadow Maps" && BSETTING("DevMode", false))
-		m_shadow_type->setIndexSelected(3);
+		m_shadow_type->setIndexSelected(2);
 	else
 		m_shadow_type->setIndexSelected(0);
 

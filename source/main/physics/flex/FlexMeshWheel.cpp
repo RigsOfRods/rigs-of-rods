@@ -187,11 +187,6 @@ FlexMeshWheel::FlexMeshWheel(
 	//msh->_setBoundingSphereRadius(Math::Sqrt(1*1+1*1));
 
 	/// Notify Mesh object that it has been loaded
-	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
-	{
-		msh->buildEdgeList();
-		msh->prepareForShadowVolume();
-	}
 	//msh->buildTangentVectors();
 	/*unsigned short src, dest;
 	if (!msh->suggestTangentVectorBuildParams(src, dest))
@@ -329,41 +324,16 @@ bool FlexMeshWheel::flexitPrepare(Beam* b)
 
 void FlexMeshWheel::flexitCompute()
 {
-	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
-	{
-		flexit_center = updateShadowVertices();
-	} else
-	{
-		flexit_center = updateVertices();
-	}
+	flexit_center = updateVertices();
 }
 
 Vector3 FlexMeshWheel::flexitFinal()
 {
-	if (gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique()==SHADOWTYPE_STENCIL_ADDITIVE)
-	{
-		//find the binding
-		unsigned posbinding = msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
-		HardwareVertexBufferSharedPtr pbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(posbinding);
-		//pbuf->lock(HardwareBuffer::HBL_NORMAL);
-		pbuf->writeData(0, pbuf->getSizeInBytes(), shadowposvertices, true);
-		//pbuf->unlock();
-		//find the binding
-		unsigned norbinding = msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
-		HardwareVertexBufferSharedPtr nbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(norbinding);
-		//nbuf->lock(HardwareBuffer::HBL_NORMAL);
-		nbuf->writeData(0, nbuf->getSizeInBytes(), shadownorvertices, true);
-		//nbuf->unlock();
 
-		EdgeData* ed = msh->getEdgeList();
-		ed->updateFaceNormals(0, pbuf);
-	} else
-	{
-		//vbuf->lock(HardwareBuffer::HBL_NORMAL);
-		vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-		//vbuf->unlock();
-		//msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-	}
+	//vbuf->lock(HardwareBuffer::HBL_NORMAL);
+	vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
+	//vbuf->unlock();
+	//msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
 
 	return flexit_center;
 }
