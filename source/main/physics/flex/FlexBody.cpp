@@ -143,13 +143,6 @@ FlexBody::FlexBody(
 	//LOG("FLEXBODY unique mesh created: "+String(meshname)+" -> "+String(uname_mesh));
 
 	msh=ent->getMesh();
-	//shadow
-	if (gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE || gEnv->sceneManager->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE)
-	{
-		LOG("FLEXBODY preparing for shadow volume");
-		msh->buildEdgeList();
-		msh->prepareForShadowVolume(); // we do this always so we have only one data structure format to manage
-	}
 
 	//determine if we have texture coordinates everywhere
 	hastexture=true;

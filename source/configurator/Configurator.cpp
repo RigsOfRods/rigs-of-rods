@@ -1298,13 +1298,10 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	shadow=new wxValueChoice(graphicsPanel, choice_shadow, wxPoint(x_row1, y), wxSize(200, -1), 0);
 	shadow->AppendValueItem(wxT("No shadows (fastest)"), _("No shadows (fastest)"));
 	shadow->AppendValueItem(wxT("Texture shadows"), _("Texture shadows"));
-	shadow->AppendValueItem(wxT("Stencil shadows (best looking)"), _("Stencil shadows (best looking)"));
-	// XXX: SHADOWS broken :(
-	//shadow->Disable();
 #if OGRE_VERSION>0x010602
 	shadow->AppendValueItem(wxT("Parallel-split Shadow Maps"), _("Parallel-split Shadow Maps"));
 #endif //OGRE_VERSION
-	shadow->SetToolTip(_("Texture shadows are fast but limited: jagged edges, no object self-shadowing, limited shadow distance.\nStencil shadows are slow but gives perfect shadows."));
+	shadow->SetToolTip(_("Shadow technique to be used ingame."));
 	sky->SetSelection(1); //Texture shadows
 	y+=25;
 
