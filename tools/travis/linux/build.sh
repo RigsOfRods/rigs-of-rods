@@ -1,4 +1,4 @@
-cd ../../
+cd ~/rigs-of-rods
 
 cmake -DROR_USE_MYGUI="TRUE" \
 -DROR_USE_OPENAL="TRUE" \
@@ -10,5 +10,3 @@ cmake -DROR_USE_MYGUI="TRUE" \
 .
 
 make
-
-

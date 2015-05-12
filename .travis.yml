@@ -3,13 +3,12 @@ sudo: required
 
 compiler:
   - gcc
-  - clang
 
 install:
-  - ./tools/travis/dependencies.sh
+  - ./tools/travis/linux/dependencies.sh
 
 script:
-  - ./tools/travis/build.sh
+  - ./tools/travis/linux/build.sh
 
 notifications:
   irc:

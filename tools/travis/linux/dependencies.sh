@@ -10,7 +10,7 @@ sudo apt-get install subversion mercurial git automake cmake build-essential pkg
 
 cd ~/
 mkdir ~/ror-deps
-mkdir ~/.rigsofrods 
+mkdir ~/.rigsofrods
 cd ~/ror-deps
 
 #OGRE
