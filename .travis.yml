@@ -4,6 +4,10 @@ sudo: required
 compiler:
   - gcc
 
+before_install:
+  - chmod +x ./tools/travis/linux/dependencies.sh
+  - chmod +x ./tools/travis/linux/build.sh
+
 install:
   - ./tools/travis/linux/dependencies.sh
 

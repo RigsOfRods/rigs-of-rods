@@ -1,5 +1,3 @@
-cd ~/rigs-of-rods
-
 cmake -DROR_USE_MYGUI="TRUE" \
 -DROR_USE_OPENAL="TRUE" \
 -DROR_USE_SOCKETW="TRUE" \
@@ -9,4 +7,4 @@ cmake -DROR_USE_MYGUI="TRUE" \
 -DCMAKE_BUILD_TYPE=DEBUG \
 .
 
-make
+make -j2
