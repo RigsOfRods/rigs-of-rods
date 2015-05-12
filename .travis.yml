@@ -1,0 +1,20 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+install:
+  - ./tools/travis/dependencies.sh
+
+script:
+  - ./tools/travis/build.sh
+
+notifications:
+  irc:
+    template:
+      - "%{repository}#%{build_number} %{commit} %{author}: %{message} %{build_url}"
+    channels:
+      - "irc.freenode.org#rigsofrods-dev"
+    use_notice: true
+    skip_join: true
