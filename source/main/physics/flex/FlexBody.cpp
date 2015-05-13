@@ -24,6 +24,21 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ResourceBuffer.h"
 #include "Skin.h"
 #include "BeamData.h" // For node_t
+#include "Timer.h"
+
+// Uncomment for time stats in RoR.log
+// #define FLEXBODY_LOG_LOADING_TIMES
+
+#ifdef FLEXBODY_LOG_LOADING_TIMES
+#   define TIMER_CREATE() \
+        PrecisionTimer loading_timer;
+
+#   define TIMER_SNAPSHOT(VAR_NAME) \
+        double VAR_NAME = loading_timer.elapsed(); loading_timer.restart();
+#else
+#   define TIMER_CREATE()
+#   define TIMER_SNAPSHOT(VAR_NAME)
+#endif
 
 using namespace Ogre;
 
@@ -55,6 +70,8 @@ FlexBody::FlexBody(
 	, m_scene_node(nullptr)
     , m_has_texture(true)
 {
+    TIMER_CREATE();
+
 	m_nodes[m_node_center].iIsSkin=true;
 	m_nodes[m_node_x].iIsSkin=true;
 	m_nodes[m_node_y].iIsSkin=true;
@@ -109,6 +126,8 @@ FlexBody::FlexBody(
 	uname_mesh[250] = '\0';
 	strcat(uname_mesh, "_mesh");
 	MeshPtr mesh = MeshManager::getSingleton().load(meshname, groupname);
+    TIMER_SNAPSHOT(stat_mesh_loaded_time);
+
 	MeshPtr newmesh = mesh->clone(uname_mesh);
 	
 	// now find possible LODs
@@ -132,7 +151,7 @@ FlexBody::FlexBody(
 	if (material_function_mapper) material_function_mapper->replaceMeshMaterials(ent);
 	if (material_replacer) material_replacer->replaceMeshMaterials(ent);
 	if (usedSkin) usedSkin->replaceMeshMaterials(ent);
-	//LOG("FLEXBODY unique mesh created: "+String(meshname)+" -> "+String(uname_mesh));
+    TIMER_SNAPSHOT(stat_mesh_ready_time);
 
 	m_mesh=ent->getMesh();
 
@@ -171,6 +190,7 @@ FlexBody::FlexBody(
     {
         LOG("FLEXBODY Error: at least one part of this mesh does not have normal vectors, export your mesh with normal vectors! Disabling flexbody");
     }
+    TIMER_SNAPSHOT(stat_mesh_scanned_time);
 
 	//create optimal VertexDeclaration
 	VertexDeclaration* optimalVD=HardwareBufferManager::getSingleton().createVertexDeclaration();
@@ -218,6 +238,7 @@ FlexBody::FlexBody(
 			}
 		}
 	}
+    TIMER_SNAPSHOT(stat_vertexbuffers_created_time);
 
 	//reorg
 	//LOG("FLEXBODY reorganizing buffers");
@@ -238,6 +259,7 @@ FlexBody::FlexBody(
 			sm->vertexData->closeGapsInBindings();
 		}
 	}
+    TIMER_SNAPSHOT(stat_buffers_reorganised_time);
 
 	//print mesh information
 	//LOG("FLEXBODY Printing modififed mesh informations:");
@@ -322,12 +344,14 @@ FlexBody::FlexBody(
 		}
 		cursubmesh++;
 	}
+    TIMER_SNAPSHOT(stat_manual_buffers_created_time);
 
 	//transform
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		vertices[i]=(orientation*vertices[i])+position;
 	}
+    TIMER_SNAPSHOT(stat_transformed_time);
 
 	m_locators=(Locator_t*)malloc(sizeof(Locator_t)*m_vertex_count);
 	for (int i=0; i<(int)m_vertex_count; i++)
@@ -435,6 +459,7 @@ FlexBody::FlexBody(
 
 		// that's it!
 	}
+    TIMER_SNAPSHOT(stat_located_time);
 
 	//adjusting bounds
 	AxisAlignedBox aab=m_mesh->getBounds();
@@ -459,6 +484,8 @@ FlexBody::FlexBody(
 	m_scene_node->attachObject(ent);
 	m_scene_node->setPosition(position);
 
+    TIMER_SNAPSHOT(stat_showmesh_time);
+
 	// If something unexpected happens here, then
 	// replace fast_normalise(a) with a.normalisedCopy()
 	for (int i=0; i<(int)m_vertex_count; i++)
@@ -477,7 +504,29 @@ FlexBody::FlexBody(
 		m_src_normals[i] = mat*(orientation * m_src_normals[i]);
 	}
 
-	LOG("FLEXBODY ready");
+    TIMER_SNAPSHOT(stat_euclidean2_time);
+
+#ifdef FLEXBODY_LOG_LOADING_TIMES
+    char stats[1000];
+    sprintf(stats, "FLEXBODY (%s) ready, stats:"
+        "\n\tmesh loaded:  %f sec"
+        "\n\tmesh ready:   %f sec"
+        "\n\tmesh scanned: %f sec"
+        "\n\tOgre vertexbuffers created:       %f sec"
+        "\n\tOgre vertexbuffers reorganised:   %f sec"
+        "\n\tmanual vertexbuffers created:     %f sec"
+        "\n\tmanual vertexbuffers transformed: %f sec"
+        "\n\tnodes located:      %f sec"
+        "\n\tmesh displayed:     %f sec"
+        "\n\tnormals calculated: %f sec",
+        meshname.c_str(), stat_mesh_loaded_time, stat_mesh_ready_time, stat_mesh_scanned_time, 
+        stat_vertexbuffers_created_time, stat_buffers_reorganised_time,
+        stat_manual_buffers_created_time, stat_transformed_time, stat_located_time, 
+        stat_showmesh_time, stat_euclidean2_time);
+    LOG(stats);
+#else
+    LOG("FLEXBODY ready");
+#endif
 }
 
 void FlexBody::setEnabled(bool e)
