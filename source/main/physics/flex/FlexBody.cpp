@@ -50,7 +50,6 @@ FlexBody::FlexBody(
 	, m_node_y(ny)
 	, m_is_enabled(true)
 	, m_is_faulty(false)
-	, freenodeset(0)
 	, m_has_texture_blend(true)
 	, m_nodes(all_nodes)
 	, m_scene_node(nullptr)
@@ -61,13 +60,6 @@ FlexBody::FlexBody(
 	m_nodes[m_node_y].iIsSkin=true;
 
     Ogre::Vector3* vertices = nullptr;
-
-	/* Add m_nodes */
-	std::vector<unsigned int>::iterator node_itor = node_indices.begin();
-	for ( ; node_itor != node_indices.end(); node_itor++)
-	{
-		addinterval(*node_itor, *node_itor);
-	}
 
 	Vector3 normal = Vector3::UNIT_Y;
 	Vector3 position = Vector3::ZERO;
@@ -341,102 +333,89 @@ FlexBody::FlexBody(
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		//search nearest node as the local origin
-		float mindist=1000000.0;
-		int minnode=-1;
-		for (int k=0; k<numnodes; k++)
-		{
-			//if (m_nodes[k].iswheel) continue;
-			float dist = vertices[i].squaredDistance(m_nodes[k].smoothpos);
-			if (dist < mindist && isinset(k))
-			{
-				mindist = dist;
-				minnode = k;
-			}
-		}
-		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
-		m_locators[i].ref=minnode;
-		m_nodes[minnode].iIsSkin=true;
-
-//	LOG("FLEXBODY distance to "+TOSTRING(minnode)+" "+TOSTRING(mindist));
+		float closest_node_distance = 1000000.0;
+		int closest_node_index = -1;
+        auto end  = node_indices.end();
+        auto itor = node_indices.begin();
+        for (; itor != end; ++itor)
+        {
+            float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+            if (node_distance < closest_node_distance)
+            {
+                closest_node_distance = node_distance;
+                closest_node_index = *itor;
+            }
+        }
+        if (closest_node_index==-1)
+        {
+            LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
+        }
+        else
+        {
+            m_nodes[closest_node_index].iIsSkin=true;
+        }
+        m_locators[i].ref=closest_node_index;
 
 		//search the second nearest node as the X vector
-		mindist=1000000.0;
-		minnode=-1;
-		for (int k=0; k<numnodes; k++)
-		{
-			//if (m_nodes[k].iswheel) continue;
-			if (k==m_locators[i].ref) continue;
-			float dist = vertices[i].squaredDistance(m_nodes[k].smoothpos);
-			if (dist < mindist && isinset(k))
-			{
-				mindist = dist;
-				minnode = k;
-			}
-		}
-		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
-		m_locators[i].nx=minnode;
-		m_nodes[minnode].iIsSkin=true;
+		closest_node_distance=1000000.0;
+		closest_node_index=-1;
+        itor = node_indices.begin();
+        for (; itor != end; ++itor)
+        {
+            if (*itor == m_locators[i].ref)
+            {
+                continue;
+            }
+            float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+            if (node_distance < closest_node_distance)
+            {
+                closest_node_distance = node_distance;
+                closest_node_index = *itor;
+            }
+        }
+        if (closest_node_index==-1)
+        {
+            LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
+        }
+        else
+        {
+            m_nodes[closest_node_index].iIsSkin=true;
+        }
+        m_locators[i].nx=closest_node_index;
 
 		//search another close, orthogonal node as the Y vector
-		mindist=1000000.0;
-		minnode=-1;
-		Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
-		for (int k=0; k<numnodes; k++)
-		{
-			//if (m_nodes[k].iswheel) continue;
-			if (k==m_locators[i].ref) continue;
-			if (k==m_locators[i].nx) continue;
-			float dist = vertices[i].squaredDistance(m_nodes[k].smoothpos);
-			if (dist < mindist && isinset(k))
-			{
-				Vector3 vt = fast_normalise(m_nodes[k].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
-				float cost = vx.dotProduct(vt);
-				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
-				mindist = dist;
-				minnode = k;
-			}
-		}
-		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
-		m_locators[i].ny=minnode;
-		m_nodes[minnode].iIsSkin=true;
-
-#if 0
-		//search the final close, orthogonal node as the Z vector
-		mindist=1000000.0;
-		minnode=-1;
-		Vector3 vy=m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		vy.normalise();
-		for (int k=0; k<numnodes; k++)
-		{
-			//if (m_nodes[k].iswheel) continue;
-			if (k==m_locators[i].ref) continue;
-			if (k==m_locators[i].nx) continue;
-			if (k==m_locators[i].ny) continue;
-			float dist=vertices[i].squaredDistance(m_nodes[k].smoothpos);
-			if (dist < mindist)
-			{
-				Vector3 vt=approx_normalise(m_nodes[k].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-				float cost=vx.dotProduct(vt);
-				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
-				cost=vy.dotProduct(vt);
-				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
-				mindist = dist;
-				minnode = k;
-			}
-		}
-		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VZ node not found");
-		m_locators[i].nz=minnode;
-
-		//rright, check orientation
-		Vector3 xyn=vx.crossProduct(vy);
-		if (xyn.dotProduct(m_nodes[m_locators[i].nz].smoothpos-m_nodes[m_locators[i].ref].smoothpos)<0)
-		{
-			//the base is messed up
-			int t=m_locators[i].nz;
-			m_locators[i].nz=m_locators[i].ny;
-			m_locators[i].ny=t;
-		}
-#endif // 0
+        closest_node_distance=1000000.0;
+		closest_node_index=-1;
+        itor = node_indices.begin();
+        Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+        for (; itor != end; ++itor)
+        {
+            if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
+            {
+                continue;
+            }
+            float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+            if (node_distance < closest_node_distance)
+            {
+                Vector3 vt = fast_normalise(m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+                float cost = vx.dotProduct(vt);
+                if (cost>0.707 || cost<-0.707)
+                {
+                    continue; //rejection, fails the orthogonality criterion (+-45 degree)
+                }
+                closest_node_distance = node_distance;
+                closest_node_index = *itor;
+            }
+        }
+        if (closest_node_index==-1)
+        {
+            LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
+        }
+        else
+        {
+            m_nodes[closest_node_index].iIsSkin=true;
+        }
+        m_locators[i].ny=closest_node_index;
 
 		// If something unexpected happens here, then
 		// replace fast_normalise(a) with a.normalisedCopy()
@@ -479,30 +458,6 @@ FlexBody::FlexBody(
 	m_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	m_scene_node->attachObject(ent);
 	m_scene_node->setPosition(position);
-	//ent->setCastShadows(enableShadows);
-
-#if 0
-	// XXX TODO: fix 1.7 LODs
-	if (enable_truck_lod)
-	{
-		String lodstr = "FLEXBODY LODs: ";
-		for (int i=0;i<m_mesh->getNumLodLevels();i++)
-		{
-			if (i) lodstr += ", ";
-			lodstr += TOSTRING(Real(sqrt(m_mesh->getLodLevel(i).fromDepthSquared))) + "m";
-
-			if (m_mesh->getLodLevel(i).edgeData)
-			{
-				lodstr += "(" + TOSTRING(m_mesh->getLodLevel(i).edgeData->triangles.size()) + " triangles)";
-			} else
-			{
-				if (m_mesh->getEdgeList(i))
-					lodstr += "(" + TOSTRING(m_mesh->getEdgeList(i)->triangles.size()) +" triangles)";
-			}
-		}
-		LOG(lodstr);
-	}
-#endif //0
 
 	// If something unexpected happens here, then
 	// replace fast_normalise(a) with a.normalisedCopy()
@@ -578,26 +533,6 @@ void FlexBody::printMeshInfo(Mesh* mesh)
 			}
 		}
 	}
-}
-
-void FlexBody::addinterval(int from, int to)
-{
-	if (freenodeset < MAX_SET_INTERVALS)
-	{
-		nodeset[freenodeset].from=from;
-		nodeset[freenodeset].to=to;
-		freenodeset++;
-	}
-}
-
-bool FlexBody::isinset(int n)
-{
-	for (int i=0; i < freenodeset; i++)
-	{
-		if (n >= nodeset[i].from && n <= nodeset[i].to)
-			return true;
-	}
-	return false;
 }
 
 bool FlexBody::flexitPrepare(Beam* b)

@@ -52,8 +52,6 @@ public:
 		MaterialReplacer *material_replacer
 	);
 
-	void addinterval(int from, int to);
-	bool isinset(int n);
 	void printMeshInfo(Ogre::Mesh* mesh);
 	void reset();
 	void updateBlend();
@@ -80,12 +78,6 @@ public:
 
 private:
 
-	typedef struct
-	{
-		int from;
-		int to;
-	} interval_t;
-
 	struct Locator_t
 	{
 		int ref;
@@ -94,8 +86,6 @@ private:
 		int nz;
 		Ogre::Vector3 coords;
 	};
-
-	static const int MAX_SET_INTERVALS = 256;
 
 	node_t*           m_nodes;
 	size_t            m_vertex_count;
@@ -113,9 +103,6 @@ private:
 	Ogre::SceneNode*  m_scene_node;
     Ogre::MeshPtr     m_mesh;
     int               m_camera_mode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-
-	interval_t nodeset[MAX_SET_INTERVALS]; // Factory only
-	int freenodeset;// Factory only
 
 	int                                 m_shared_buf_num_verts;
 	Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_pos;
