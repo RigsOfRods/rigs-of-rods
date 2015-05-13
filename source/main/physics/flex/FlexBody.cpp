@@ -28,7 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 FlexBody::FlexBody(
-	node_t *nds, 
+	node_t *all_nodes, 
 	int numnodes, 
 	Ogre::String const & meshname, 
 	Ogre::String const & uname, 
@@ -38,31 +38,31 @@ FlexBody::FlexBody(
 	Ogre::Vector3 const & offset, 
 	Ogre::Quaternion const & rot, 
 	std::vector<unsigned int> & node_indices, 
-	MaterialFunctionMapper *mfm, 
+	MaterialFunctionMapper *material_function_mapper, 
 	Skin *usedSkin, 
 	bool forceNoShadows, 
-	MaterialReplacer *mr
+	MaterialReplacer *material_replacer
 ):
-	  cameramode(-2)	
-	, coffset(offset)
-	, cref(ref)
-	, cx(nx)
-	, cy(ny)
-	, enabled(true)
-	, faulty(false)
+	  m_camera_mode(-2)	
+	, m_center_offset(offset)
+	, m_node_center(ref)
+	, m_node_x(nx)
+	, m_node_y(ny)
+	, m_is_enabled(true)
+	, m_is_faulty(false)
 	, freenodeset(0)
-	, hasblend(true)
-	, hastangents(false)
-	, mr(mr)
-	, nodes(nds)
-	, numnodes(numnodes)
-	, snode(0)
+	, m_has_texture_blend(true)
+	, m_nodes(all_nodes)
+	, m_scene_node(nullptr)
+    , m_has_texture(true)
 {
-	nodes[cref].iIsSkin=true;
-	nodes[cx].iIsSkin=true;
-	nodes[cy].iIsSkin=true;
+	m_nodes[m_node_center].iIsSkin=true;
+	m_nodes[m_node_x].iIsSkin=true;
+	m_nodes[m_node_y].iIsSkin=true;
 
-	/* Add nodes */
+    Ogre::Vector3* vertices = nullptr;
+
+	/* Add m_nodes */
 	std::vector<unsigned int>::iterator node_itor = node_indices.begin();
 	for ( ; node_itor != node_indices.end(); node_itor++)
 	{
@@ -74,13 +74,13 @@ FlexBody::FlexBody(
 	Quaternion orientation = Quaternion::ZERO;
 	if (ref >= 0)
 	{
-		Vector3 diffX = nodes[nx].smoothpos-nodes[ref].smoothpos;
-		Vector3 diffY = nodes[ny].smoothpos-nodes[ref].smoothpos;
+		Vector3 diffX = m_nodes[nx].smoothpos-m_nodes[ref].smoothpos;
+		Vector3 diffY = m_nodes[ny].smoothpos-m_nodes[ref].smoothpos;
 
 		normal = fast_normalise(diffY.crossProduct(diffX));
 
 		// position
-		position = nodes[ref].smoothpos + offset.x*diffX + offset.y*diffY;
+		position = m_nodes[ref].smoothpos + offset.x*diffX + offset.y*diffY;
 		position = position + offset.z*normal;
 
 		// orientation
@@ -91,7 +91,7 @@ FlexBody::FlexBody(
 	{
 		// special case!
 		normal = Vector3::UNIT_Y;
-		position=nodes[0].smoothpos+offset;
+		position=m_nodes[0].smoothpos+offset;
 		orientation = rot;
 	}
 
@@ -108,7 +108,7 @@ FlexBody::FlexBody(
 	if (groupname == "")
 	{
 		LOG("FLEXBODY mesh not found: "+String(meshname));
-		faulty=true;
+		m_is_faulty=true;
 		return;
 	}
 	// build new unique mesh name
@@ -137,33 +137,55 @@ FlexBody::FlexBody(
 
 	Entity *ent = gEnv->sceneManager->createEntity(uname, uname_mesh);
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, ColourValue(0.5, 0.5, 1));
-	if (mfm) mfm->replaceMeshMaterials(ent);
-	if (mr) mr->replaceMeshMaterials(ent);
+	if (material_function_mapper) material_function_mapper->replaceMeshMaterials(ent);
+	if (material_replacer) material_replacer->replaceMeshMaterials(ent);
 	if (usedSkin) usedSkin->replaceMeshMaterials(ent);
 	//LOG("FLEXBODY unique mesh created: "+String(meshname)+" -> "+String(uname_mesh));
 
-	msh=ent->getMesh();
+	m_mesh=ent->getMesh();
 
 	//determine if we have texture coordinates everywhere
-	hastexture=true;
-	if (msh->sharedVertexData && msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES)==0) hastexture=false;
-	for (int i=0; i<msh->getNumSubMeshes(); i++) if (!msh->getSubMesh(i)->useSharedVertices && msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES)==0) hastexture=false;
-	if (!hastexture) LOG("FLEXBODY Warning: at least one part of this mesh does not have texture coordinates, switching off texturing!");
-	if (!hastexture) {hastangents=false;hasblend=false;}; //we can't do this
+	if (m_mesh->sharedVertexData && m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES)==0)
+    {
+        m_has_texture=false;
+    }
+    for (int i=0; i<m_mesh->getNumSubMeshes(); i++) 
+    { 
+        if (!m_mesh->getSubMesh(i)->useSharedVertices && m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES)==0) 
+        { 
+            m_has_texture=false; 
+        } 
+    }
+	if (!m_has_texture)
+    {
+        LOG("FLEXBODY Warning: at least one part of this mesh does not have texture coordinates, switching off texturing!");
+        m_has_texture_blend=false;
+    }
 
 	//detect the anomalous case where a mesh is exported without normal vectors
 	bool havenormal=true;
-	if (msh->sharedVertexData && msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)==0) havenormal=false;
-	for (int i=0; i<msh->getNumSubMeshes(); i++) if (!msh->getSubMesh(i)->useSharedVertices && msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)==0) havenormal=false;
-	if (!havenormal) LOG("FLEXBODY Error: at least one part of this mesh does not have normal vectors, export your mesh with normal vectors! THIS WILL CRASH IN 3.2.1...");
+	if (m_mesh->sharedVertexData && m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)==0)
+    {
+        havenormal=false;
+    }
+    for (int i=0; i<m_mesh->getNumSubMeshes(); i++) 
+    { 
+        if (!m_mesh->getSubMesh(i)->useSharedVertices && m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)==0) 
+        { 
+            havenormal=false; 
+        } 
+    }
+	if (!havenormal) 
+    {
+        LOG("FLEXBODY Error: at least one part of this mesh does not have normal vectors, export your mesh with normal vectors! Disabling flexbody");
+    }
 
 	//create optimal VertexDeclaration
 	VertexDeclaration* optimalVD=HardwareBufferManager::getSingleton().createVertexDeclaration();
 	optimalVD->addElement(0, 0, VET_FLOAT3, VES_POSITION);
 	optimalVD->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
-	if (hasblend) optimalVD->addElement(2, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
-	if (hastexture) optimalVD->addElement(3, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
-	if (hastangents) optimalVD->addElement(4, 0, VET_FLOAT3, VES_TANGENT);
+	if (m_has_texture_blend) optimalVD->addElement(2, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+	if (m_has_texture) optimalVD->addElement(3, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
 	optimalVD->sort();
 	optimalVD->closeGapsInSource();
 
@@ -175,54 +197,45 @@ FlexBody::FlexBody(
 	//printMeshInfo(ent->getMesh().getPointer());
 
 	//adding color buffers, well get the reference later
-	if (hasblend)
+	if (m_has_texture_blend)
 	{
-		if (msh->sharedVertexData)
+		if (m_mesh->sharedVertexData)
 		{
-			if (msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)==0)
+			if (m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)==0)
 			{
 				//add buffer
-				int index=msh->sharedVertexData->vertexDeclaration->getMaxSource()+1;
-				msh->sharedVertexData->vertexDeclaration->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
-				msh->sharedVertexData->vertexDeclaration->sort();
-				index=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-				HardwareVertexBufferSharedPtr vbuf=HardwareBufferManager::getSingleton().createVertexBuffer(VertexElement::getTypeSize(VET_COLOUR_ARGB), msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-				msh->sharedVertexData->vertexBufferBinding->setBinding(index, vbuf);
+				int index=m_mesh->sharedVertexData->vertexDeclaration->getMaxSource()+1;
+				m_mesh->sharedVertexData->vertexDeclaration->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+				m_mesh->sharedVertexData->vertexDeclaration->sort();
+				index=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+				HardwareVertexBufferSharedPtr vbuf=HardwareBufferManager::getSingleton().createVertexBuffer(VertexElement::getTypeSize(VET_COLOUR_ARGB), m_mesh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+				m_mesh->sharedVertexData->vertexBufferBinding->setBinding(index, vbuf);
 			}
 		}
-		for (int i=0; i<msh->getNumSubMeshes(); i++) if (!msh->getSubMesh(i)->useSharedVertices)
+		for (int i=0; i<m_mesh->getNumSubMeshes(); i++) if (!m_mesh->getSubMesh(i)->useSharedVertices)
 		{
-			if (msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)==0)
+			if (m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)==0)
 			{
 				//add buffer
-				int index=msh->getSubMesh(i)->vertexData->vertexDeclaration->getMaxSource()+1;
-				msh->getSubMesh(i)->vertexData->vertexDeclaration->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
-				msh->getSubMesh(i)->vertexData->vertexDeclaration->sort();
-				index=msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-				HardwareVertexBufferSharedPtr vbuf=HardwareBufferManager::getSingleton().createVertexBuffer(VertexElement::getTypeSize(VET_COLOUR_ARGB), msh->getSubMesh(i)->vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-				msh->getSubMesh(i)->vertexData->vertexBufferBinding->setBinding(index, vbuf);
+				int index=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->getMaxSource()+1;
+				m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+				m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->sort();
+				index=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+				HardwareVertexBufferSharedPtr vbuf=HardwareBufferManager::getSingleton().createVertexBuffer(VertexElement::getTypeSize(VET_COLOUR_ARGB), m_mesh->getSubMesh(i)->vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+				m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->setBinding(index, vbuf);
 			}
 		}
-	}
-
-	//tangents for envmapping
-	if (hastangents)
-	{
-		LOG("FLEXBODY preparing for tangents");
-		unsigned short srcTex, destTex;
-		bool existing = msh->suggestTangentVectorBuildParams(VES_TANGENT, srcTex, destTex);
-		if (!existing) msh->buildTangentVectors(VES_TANGENT, srcTex, destTex);
 	}
 
 	//reorg
 	//LOG("FLEXBODY reorganizing buffers");
-	if (msh->sharedVertexData)
+	if (m_mesh->sharedVertexData)
 	{
-		msh->sharedVertexData->reorganiseBuffers(optimalVD, optimalBufferUsages);
-		msh->sharedVertexData->removeUnusedBuffers();
-		msh->sharedVertexData->closeGapsInBindings();
+		m_mesh->sharedVertexData->reorganiseBuffers(optimalVD, optimalBufferUsages);
+		m_mesh->sharedVertexData->removeUnusedBuffers();
+		m_mesh->sharedVertexData->closeGapsInBindings();
 	}
-    Mesh::SubMeshIterator smIt = msh->getSubMeshIterator();
+    Mesh::SubMeshIterator smIt = m_mesh->getSubMeshIterator();
 	while (smIt.hasMoreElements())
 	{
 		SubMesh* sm = smIt.getNext();
@@ -239,117 +252,101 @@ FlexBody::FlexBody(
 	//printMeshInfo(ent->getMesh().getPointer());
 
 	//get the buffers
-	//getMeshInformation(ent->getMesh().getPointer(),vertex_count,vertices,index_count,indices, position, orientation, Vector3(1,1,1));
+	//getMeshInformation(ent->getMesh().getPointer(),m_vertex_count,vertices,index_count,indices, position, orientation, Vector3(1,1,1));
 
 	//getting vertex counts
-	vertex_count=0;
-	hasshared=false;
-	numsubmeshbuf=0;
-	if (msh->sharedVertexData)
+	m_vertex_count=0;
+	m_uses_shared_vertex_data=false;
+	m_num_submesh_vbufs=0;
+	if (m_mesh->sharedVertexData)
 	{
-		vertex_count+=msh->sharedVertexData->vertexCount;
-		hasshared=true;
+		m_vertex_count+=m_mesh->sharedVertexData->vertexCount;
+		m_uses_shared_vertex_data=true;
 	}
-	for (int i=0; i<msh->getNumSubMeshes(); i++)
+	for (int i=0; i<m_mesh->getNumSubMeshes(); i++)
 	{
-		if (!msh->getSubMesh(i)->useSharedVertices)
+		if (!m_mesh->getSubMesh(i)->useSharedVertices)
 		{
-			vertex_count+=msh->getSubMesh(i)->vertexData->vertexCount;
-			numsubmeshbuf++;
+			m_vertex_count+=m_mesh->getSubMesh(i)->vertexData->vertexCount;
+			m_num_submesh_vbufs++;
 		}
 	}
 
-	LOG("FLEXBODY Vertices in mesh "+String(meshname)+": "+ TOSTRING(vertex_count));
+	LOG("FLEXBODY Vertices in mesh "+String(meshname)+": "+ TOSTRING(m_vertex_count));
 	//LOG("Triangles in mesh: %u",index_count / 3);
 
-	//getting buffers bindings and data
-	if (numsubmeshbuf>0)
+	vertices=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	m_dst_pos=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	m_src_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	m_dst_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	if (m_has_texture_blend)
 	{
-		submeshnums=(int*)malloc(sizeof(int)*numsubmeshbuf);
-		subnodecounts=(int*)malloc(sizeof(int)*numsubmeshbuf);
-		//C++ is just dumb!
-		//How can they manage to break such a fundamental programming mechanisms?
-		//They invented the un-initializable and un-attribuable objects you can't allocate dynamically!
-		//I'm sure they have a fancy way to do that but they won't pry my precious malloc() from my cold, dead hands! goddamit!
-		//subpbufs=(HardwareVertexBufferSharedPtr*)malloc(sizeof(HardwareVertexBufferSharedPtr)*numsubmeshbuf);
-		//subpbufs[0]=HardwareVertexBufferSharedPtr(); //crash!
-		//subnbufs=(HardwareVertexBufferSharedPtr*)malloc(sizeof(HardwareVertexBufferSharedPtr)*numsubmeshbuf);
-		//subnbufs[0]=HardwareVertexBufferSharedPtr(); //crash!
-		if (numsubmeshbuf>=16) 	LOG("FLEXBODY You have more than 16 submeshes! Blame Bjarne for this crash.");
-	}
-	vertices=(Vector3*)malloc(sizeof(Vector3)*vertex_count);
-	dstpos=(Vector3*)malloc(sizeof(Vector3)*vertex_count);
-	srcnormals=(Vector3*)malloc(sizeof(Vector3)*vertex_count);
-	dstnormals=(Vector3*)malloc(sizeof(Vector3)*vertex_count);
-	if (hasblend)
-	{
-		srccolors=(ARGB*)malloc(sizeof(ARGB)*vertex_count);
-		for (int i=0; i<(int)vertex_count; i++) srccolors[i]=0x00000000;
+		m_src_colors=(ARGB*)malloc(sizeof(ARGB)*m_vertex_count);
+		for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
 	}
 	Vector3* vpt=vertices;
-	Vector3* npt=srcnormals;
+	Vector3* npt=m_src_normals;
 	int cursubmesh=0;
-	if (msh->sharedVertexData)
+	if (m_mesh->sharedVertexData)
 	{
-		sharedcount=(int)msh->sharedVertexData->vertexCount;
+		m_shared_buf_num_verts=(int)m_mesh->sharedVertexData->vertexCount;
 		//vertices
-		int source=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
-		sharedpbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(source);
-		sharedpbuf->readData(0, msh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)vpt);
-		vpt+=msh->sharedVertexData->vertexCount;
+		int source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		m_shared_vbuf_pos=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+		m_shared_vbuf_pos->readData(0, m_mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)vpt);
+		vpt+=m_mesh->sharedVertexData->vertexCount;
 		//normals
-		source=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
-		sharednbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(source);
-		sharednbuf->readData(0, msh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)npt);
-		npt+=msh->sharedVertexData->vertexCount;
+		source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+		m_shared_vbuf_norm=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+		m_shared_vbuf_norm->readData(0, m_mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)npt);
+		npt+=m_mesh->sharedVertexData->vertexCount;
 		//colors
-		if (hasblend)
+		if (m_has_texture_blend)
 		{
-			source=msh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-			sharedcbuf=msh->sharedVertexData->vertexBufferBinding->getBuffer(source);
-			sharedcbuf->writeData(0, msh->sharedVertexData->vertexCount*sizeof(ARGB), (void*)srccolors);
+			source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+			m_shared_vbuf_color=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+			m_shared_vbuf_color->writeData(0, m_mesh->sharedVertexData->vertexCount*sizeof(ARGB), (void*)m_src_colors);
 		}
 	}
-	for (int i=0; i<msh->getNumSubMeshes(); i++) if (!msh->getSubMesh(i)->useSharedVertices)
+	for (int i=0; i<m_mesh->getNumSubMeshes(); i++) if (!m_mesh->getSubMesh(i)->useSharedVertices)
 	{
-		submeshnums[cursubmesh]=i;
-		subnodecounts[cursubmesh]=(int)msh->getSubMesh(i)->vertexData->vertexCount;
+		m_submesh_vbufs_vertex_counts[cursubmesh]=(int)m_mesh->getSubMesh(i)->vertexData->vertexCount;
 		//vertices
-		int source=msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
-		subpbufs[cursubmesh]=msh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
-		subpbufs[cursubmesh]->readData(0, msh->getSubMesh(i)->vertexData->vertexCount*sizeof(Vector3), (void*)vpt);
-		vpt+=msh->getSubMesh(i)->vertexData->vertexCount;
+		int source=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		m_submesh_vbufs_pos[cursubmesh]=m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
+		m_submesh_vbufs_pos[cursubmesh]->readData(0, m_mesh->getSubMesh(i)->vertexData->vertexCount*sizeof(Vector3), (void*)vpt);
+		vpt+=m_mesh->getSubMesh(i)->vertexData->vertexCount;
 		//normals
-		source=msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
-		subnbufs[cursubmesh]=msh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
-		subnbufs[cursubmesh]->readData(0, msh->getSubMesh(i)->vertexData->vertexCount*sizeof(Vector3), (void*)npt);
-		npt+=msh->getSubMesh(i)->vertexData->vertexCount;
+		source=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+		m_submesh_vbufs_norm[cursubmesh]=m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
+		m_submesh_vbufs_norm[cursubmesh]->readData(0, m_mesh->getSubMesh(i)->vertexData->vertexCount*sizeof(Vector3), (void*)npt);
+		npt+=m_mesh->getSubMesh(i)->vertexData->vertexCount;
 		//colors
-		if (hasblend)
+		if (m_has_texture_blend)
 		{
-			source=msh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-			subcbufs[cursubmesh]=msh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
-			subcbufs[cursubmesh]->writeData(0, msh->getSubMesh(i)->vertexData->vertexCount*sizeof(ARGB), (void*)srccolors);
+			source=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+			m_submesh_vbufs_color[cursubmesh]=m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
+			m_submesh_vbufs_color[cursubmesh]->writeData(0, m_mesh->getSubMesh(i)->vertexData->vertexCount*sizeof(ARGB), (void*)m_src_colors);
 		}
 		cursubmesh++;
 	}
 
 	//transform
-	for (int i=0; i<(int)vertex_count; i++)
+	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		vertices[i]=(orientation*vertices[i])+position;
 	}
 
-	locs=(Locator_t*)malloc(sizeof(Locator_t)*vertex_count);
-	for (int i=0; i<(int)vertex_count; i++)
+	m_locators=(Locator_t*)malloc(sizeof(Locator_t)*m_vertex_count);
+	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		//search nearest node as the local origin
 		float mindist=1000000.0;
 		int minnode=-1;
 		for (int k=0; k<numnodes; k++)
 		{
-			//if (nodes[k].iswheel) continue;
-			float dist = vertices[i].squaredDistance(nodes[k].smoothpos);
+			//if (m_nodes[k].iswheel) continue;
+			float dist = vertices[i].squaredDistance(m_nodes[k].smoothpos);
 			if (dist < mindist && isinset(k))
 			{
 				mindist = dist;
@@ -357,8 +354,8 @@ FlexBody::FlexBody(
 			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
-		locs[i].ref=minnode;
-		nodes[minnode].iIsSkin=true;
+		m_locators[i].ref=minnode;
+		m_nodes[minnode].iIsSkin=true;
 
 //	LOG("FLEXBODY distance to "+TOSTRING(minnode)+" "+TOSTRING(mindist));
 
@@ -367,9 +364,9 @@ FlexBody::FlexBody(
 		minnode=-1;
 		for (int k=0; k<numnodes; k++)
 		{
-			//if (nodes[k].iswheel) continue;
-			if (k==locs[i].ref) continue;
-			float dist = vertices[i].squaredDistance(nodes[k].smoothpos);
+			//if (m_nodes[k].iswheel) continue;
+			if (k==m_locators[i].ref) continue;
+			float dist = vertices[i].squaredDistance(m_nodes[k].smoothpos);
 			if (dist < mindist && isinset(k))
 			{
 				mindist = dist;
@@ -377,22 +374,22 @@ FlexBody::FlexBody(
 			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
-		locs[i].nx=minnode;
-		nodes[minnode].iIsSkin=true;
+		m_locators[i].nx=minnode;
+		m_nodes[minnode].iIsSkin=true;
 
 		//search another close, orthogonal node as the Y vector
 		mindist=1000000.0;
 		minnode=-1;
-		Vector3 vx = fast_normalise(nodes[locs[i].nx].smoothpos - nodes[locs[i].ref].smoothpos);
+		Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
 		for (int k=0; k<numnodes; k++)
 		{
-			//if (nodes[k].iswheel) continue;
-			if (k==locs[i].ref) continue;
-			if (k==locs[i].nx) continue;
-			float dist = vertices[i].squaredDistance(nodes[k].smoothpos);
+			//if (m_nodes[k].iswheel) continue;
+			if (k==m_locators[i].ref) continue;
+			if (k==m_locators[i].nx) continue;
+			float dist = vertices[i].squaredDistance(m_nodes[k].smoothpos);
 			if (dist < mindist && isinset(k))
 			{
-				Vector3 vt = fast_normalise(nodes[k].smoothpos - nodes[locs[i].ref].smoothpos);
+				Vector3 vt = fast_normalise(m_nodes[k].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
 				float cost = vx.dotProduct(vt);
 				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
 				mindist = dist;
@@ -400,25 +397,25 @@ FlexBody::FlexBody(
 			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
-		locs[i].ny=minnode;
-		nodes[minnode].iIsSkin=true;
+		m_locators[i].ny=minnode;
+		m_nodes[minnode].iIsSkin=true;
 
 #if 0
 		//search the final close, orthogonal node as the Z vector
 		mindist=1000000.0;
 		minnode=-1;
-		Vector3 vy=nodes[locs[i].ny].smoothpos-nodes[locs[i].ref].smoothpos;
+		Vector3 vy=m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
 		vy.normalise();
 		for (int k=0; k<numnodes; k++)
 		{
-			//if (nodes[k].iswheel) continue;
-			if (k==locs[i].ref) continue;
-			if (k==locs[i].nx) continue;
-			if (k==locs[i].ny) continue;
-			float dist=vertices[i].squaredDistance(nodes[k].smoothpos);
+			//if (m_nodes[k].iswheel) continue;
+			if (k==m_locators[i].ref) continue;
+			if (k==m_locators[i].nx) continue;
+			if (k==m_locators[i].ny) continue;
+			float dist=vertices[i].squaredDistance(m_nodes[k].smoothpos);
 			if (dist < mindist)
 			{
-				Vector3 vt=approx_normalise(nodes[k].smoothpos-nodes[locs[i].ref].smoothpos);
+				Vector3 vt=approx_normalise(m_nodes[k].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
 				float cost=vx.dotProduct(vt);
 				if (cost>0.707 || cost<-0.707) continue; //rejection, fails the orthogonality criterion (+-45 degree)
 				cost=vy.dotProduct(vt);
@@ -428,16 +425,16 @@ FlexBody::FlexBody(
 			}
 		}
 		if (minnode==-1) LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VZ node not found");
-		locs[i].nz=minnode;
+		m_locators[i].nz=minnode;
 
 		//rright, check orientation
 		Vector3 xyn=vx.crossProduct(vy);
-		if (xyn.dotProduct(nodes[locs[i].nz].smoothpos-nodes[locs[i].ref].smoothpos)<0)
+		if (xyn.dotProduct(m_nodes[m_locators[i].nz].smoothpos-m_nodes[m_locators[i].ref].smoothpos)<0)
 		{
 			//the base is messed up
-			int t=locs[i].nz;
-			locs[i].nz=locs[i].ny;
-			locs[i].ny=t;
+			int t=m_locators[i].nz;
+			m_locators[i].nz=m_locators[i].ny;
+			m_locators[i].ny=t;
 		}
 #endif // 0
 
@@ -445,23 +442,23 @@ FlexBody::FlexBody(
 		// replace fast_normalise(a) with a.normalisedCopy()
 
 		Matrix3 mat;
-		Vector3 diffX = nodes[locs[i].nx].smoothpos-nodes[locs[i].ref].smoothpos;
-		Vector3 diffY = nodes[locs[i].ny].smoothpos-nodes[locs[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].smoothpos-nodes[loc.ref].smoothpos);
+		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
 		mat = mat.Inverse();
 
 		//compute coordinates in the newly formed Euclidean basis
-		locs[i].coords= mat * (vertices[i] - nodes[locs[i].ref].smoothpos);
+		m_locators[i].coords= mat * (vertices[i] - m_nodes[m_locators[i].ref].smoothpos);
 
 		// that's it!
 	}
 
 	//adjusting bounds
-	AxisAlignedBox aab=msh->getBounds();
+	AxisAlignedBox aab=m_mesh->getBounds();
 	Vector3 v=aab.getMinimum();
 	float mi=v.x;
 	if (v.y<mi) mi=v.y;
@@ -475,13 +472,13 @@ FlexBody::FlexBody(
 	if (mi>ma) ma=mi;
 	aab.setMinimum(Vector3(-ma,-ma,-ma));
 	aab.setMaximum(Vector3(ma,ma,ma));
-	msh->_setBounds(aab, true);
+	m_mesh->_setBounds(aab, true);
 
 	LOG("FLEXBODY show mesh");
 	//okay, show the mesh now
-	snode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	snode->attachObject(ent);
-	snode->setPosition(position);
+	m_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+	m_scene_node->attachObject(ent);
+	m_scene_node->setPosition(position);
 	//ent->setCastShadows(enableShadows);
 
 #if 0
@@ -489,18 +486,18 @@ FlexBody::FlexBody(
 	if (enable_truck_lod)
 	{
 		String lodstr = "FLEXBODY LODs: ";
-		for (int i=0;i<msh->getNumLodLevels();i++)
+		for (int i=0;i<m_mesh->getNumLodLevels();i++)
 		{
 			if (i) lodstr += ", ";
-			lodstr += TOSTRING(Real(sqrt(msh->getLodLevel(i).fromDepthSquared))) + "m";
+			lodstr += TOSTRING(Real(sqrt(m_mesh->getLodLevel(i).fromDepthSquared))) + "m";
 
-			if (msh->getLodLevel(i).edgeData)
+			if (m_mesh->getLodLevel(i).edgeData)
 			{
-				lodstr += "(" + TOSTRING(msh->getLodLevel(i).edgeData->triangles.size()) + " triangles)";
+				lodstr += "(" + TOSTRING(m_mesh->getLodLevel(i).edgeData->triangles.size()) + " triangles)";
 			} else
 			{
-				if (msh->getEdgeList(i))
-					lodstr += "(" + TOSTRING(msh->getEdgeList(i)->triangles.size()) +" triangles)";
+				if (m_mesh->getEdgeList(i))
+					lodstr += "(" + TOSTRING(m_mesh->getEdgeList(i)->triangles.size()) +" triangles)";
 			}
 		}
 		LOG(lodstr);
@@ -509,20 +506,20 @@ FlexBody::FlexBody(
 
 	// If something unexpected happens here, then
 	// replace fast_normalise(a) with a.normalisedCopy()
-	for (int i=0; i<(int)vertex_count; i++)
+	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		Matrix3 mat;
-		Vector3 diffX = nodes[locs[i].nx].smoothpos-nodes[locs[i].ref].smoothpos;
-		Vector3 diffY = nodes[locs[i].ny].smoothpos-nodes[locs[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].smoothpos-nodes[loc.ref].smoothpos);
+		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
 		mat = mat.Inverse();
 
 		// compute coordinates in the Euclidean basis
-		srcnormals[i] = mat*(orientation * srcnormals[i]);
+		m_src_normals[i] = mat*(orientation * m_src_normals[i]);
 	}
 
 	LOG("FLEXBODY ready");
@@ -530,22 +527,22 @@ FlexBody::FlexBody(
 
 void FlexBody::setEnabled(bool e)
 {
-	if (faulty) return;
+	if (m_is_faulty) return;
 	setVisible(e);
-	enabled = e;
+	m_is_enabled = e;
 }
 
 void FlexBody::setVisible(bool visible)
 {
-	if (faulty) return;
-	if (!enabled) return;
-	if (snode)
-		snode->setVisible(visible);
+	if (m_is_faulty) return;
+	if (!m_is_enabled) return;
+	if (m_scene_node)
+		m_scene_node->setVisible(visible);
 }
 
 void FlexBody::printMeshInfo(Mesh* mesh)
 {
-	if (faulty) return;
+	if (m_is_faulty) return;
 	if (mesh->sharedVertexData)
 	{
 		LOG("FLEXBODY Mesh has Shared Vertices:");
@@ -605,25 +602,25 @@ bool FlexBody::isinset(int n)
 
 bool FlexBody::flexitPrepare(Beam* b)
 {
-	if (faulty) return false;
-	if (!enabled) return false;
-	if (hasblend) updateBlend();
+	if (m_is_faulty) return false;
+	if (!m_is_enabled) return false;
+	if (m_has_texture_blend) updateBlend();
 	
 	// compute the local center
 	Ogre::Vector3 flexit_normal;
 
-	if (cref >= 0)
+	if (m_node_center >= 0)
 	{
-		Vector3 diffX = nodes[cx].smoothpos - nodes[cref].smoothpos;
-		Vector3 diffY = nodes[cy].smoothpos - nodes[cref].smoothpos;
+		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
+		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
 		flexit_normal = diffY.crossProduct(diffX).normalisedCopy();
 
-		flexit_center = nodes[cref].smoothpos + coffset.x*diffX + coffset.y*diffY;
-		flexit_center += coffset.z*flexit_normal;
+		flexit_center = m_nodes[m_node_center].smoothpos + m_center_offset.x*diffX + m_center_offset.y*diffY;
+		flexit_center += m_center_offset.z*flexit_normal;
 	} else
 	{
 		flexit_normal = Vector3::UNIT_Y;
-		flexit_center = nodes[0].smoothpos;
+		flexit_center = m_nodes[0].smoothpos;
 	}
 
 	return Flexable::flexitPrepare(b);
@@ -633,110 +630,112 @@ void FlexBody::flexitCompute()
 {
 	// If something unexpected happens here, then
 	// replace approx_normalise(a) with a.normalisedCopy()
-	for (int i=0; i<(int)vertex_count; i++)
+	for (int i=0; i<(int)m_vertex_count; i++)
 	{
-		Vector3 diffX = nodes[locs[i].nx].smoothpos - nodes[locs[i].ref].smoothpos;
-		Vector3 diffY = nodes[locs[i].ny].smoothpos - nodes[locs[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
 		Vector3 nCross = approx_normalise(diffX.crossProduct(diffY));
 
-		dstpos[i].x = diffX.x * locs[i].coords.x + diffY.x * locs[i].coords.y + nCross.x * locs[i].coords.z;
-		dstpos[i].y = diffX.y * locs[i].coords.x + diffY.y * locs[i].coords.y + nCross.y * locs[i].coords.z;
-		dstpos[i].z = diffX.z * locs[i].coords.x + diffY.z * locs[i].coords.y + nCross.z * locs[i].coords.z;
+		m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
+		m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
+		m_dst_pos[i].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
 
-		dstpos[i] += nodes[locs[i].ref].smoothpos - flexit_center;
+		m_dst_pos[i] += m_nodes[m_locators[i].ref].smoothpos - flexit_center;
 
-		dstnormals[i].x = diffX.x * srcnormals[i].x + diffY.x * srcnormals[i].y + nCross.x * srcnormals[i].z;
-		dstnormals[i].y = diffX.y * srcnormals[i].x + diffY.y * srcnormals[i].y + nCross.y * srcnormals[i].z;
-		dstnormals[i].z = diffX.z * srcnormals[i].x + diffY.z * srcnormals[i].y + nCross.z * srcnormals[i].z;
+		m_dst_normals[i].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
+		m_dst_normals[i].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
+		m_dst_normals[i].z = diffX.z * m_src_normals[i].x + diffY.z * m_src_normals[i].y + nCross.z * m_src_normals[i].z;
 
-		dstnormals[i] = approx_normalise(dstnormals[i]);
+		m_dst_normals[i] = approx_normalise(m_dst_normals[i]);
 	}
 #if 0
-	for (int i=0; i<(int)vertex_count; i++)
+	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		Matrix3 mat;
-		Vector3 diffX = nodes[locs[i].nx].smoothpos - nodes[locs[i].ref].smoothpos;
-		Vector3 diffY = nodes[locs[i].ny].smoothpos - nodes[locs[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, approx_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].smoothpos-nodes[loc.ref].smoothpos);
+		mat.SetColumn(2, approx_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
-		dstpos[i] = mat * locs[i].coords + nodes[locs[i].ref].smoothpos - flexit_center;
-		dstnormals[i] = approx_normalise(mat * srcnormals[i]);
+		m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].smoothpos - flexit_center;
+		m_dst_normals[i] = approx_normalise(mat * m_src_normals[i]);
 	}
 #endif
 }
 
 Vector3 FlexBody::flexitFinal()
 {
-	Vector3 *ppt = dstpos;
-	Vector3 *npt = dstnormals;
-	if (hasshared)
+	Vector3 *ppt = m_dst_pos;
+	Vector3 *npt = m_dst_normals;
+	if (m_uses_shared_vertex_data)
 	{
-		sharedpbuf->writeData(0, sharedcount*sizeof(Vector3), ppt, true);
-		ppt += sharedcount;
-		sharednbuf->writeData(0, sharedcount*sizeof(Vector3), npt, true);
-		npt += sharedcount;
+		m_shared_vbuf_pos->writeData(0, m_shared_buf_num_verts*sizeof(Vector3), ppt, true);
+		ppt += m_shared_buf_num_verts;
+		m_shared_vbuf_norm->writeData(0, m_shared_buf_num_verts*sizeof(Vector3), npt, true);
+		npt += m_shared_buf_num_verts;
 	}
-	for (int i=0; i<numsubmeshbuf; i++)
+	for (int i=0; i<m_num_submesh_vbufs; i++)
 	{
-		subpbufs[i]->writeData(0, subnodecounts[i]*sizeof(Vector3), ppt, true);
-		ppt += subnodecounts[i];
-		subnbufs[i]->writeData(0, subnodecounts[i]*sizeof(Vector3), npt, true);
-		npt += subnodecounts[i];
+		m_submesh_vbufs_pos[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(Vector3), ppt, true);
+		ppt += m_submesh_vbufs_vertex_counts[i];
+		m_submesh_vbufs_norm[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(Vector3), npt, true);
+		npt += m_submesh_vbufs_vertex_counts[i];
 	}
 
-	snode->setPosition(flexit_center);
+	m_scene_node->setPosition(flexit_center);
 
 	return flexit_center;
 }
 
 void FlexBody::reset()
 {
-	if (faulty) return;
-	if (hasblend)
+	if (m_is_faulty) return;
+	if (m_has_texture_blend)
 	{
-		for (int i=0; i<(int)vertex_count; i++) srccolors[i]=0x00000000;
+		for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
 		writeBlend();
 	}
 }
 
 void FlexBody::writeBlend()
 {
-	if (!enabled) return;
-	if (!hasblend) return;
-	ARGB *cpt = srccolors;
-	if (hasshared)
+	if (!m_is_enabled) return;
+	if (!m_has_texture_blend) return;
+	ARGB *cpt = m_src_colors;
+	if (m_uses_shared_vertex_data)
 	{
-		sharedcbuf->writeData(0, sharedcount*sizeof(ARGB), (void*)cpt, true);
-		cpt+=sharedcount;
+		m_shared_vbuf_color->writeData(0, m_shared_buf_num_verts*sizeof(ARGB), (void*)cpt, true);
+		cpt+=m_shared_buf_num_verts;
 	}
-	for (int i=0; i<numsubmeshbuf; i++)
+	for (int i=0; i<m_num_submesh_vbufs; i++)
 	{
-		subcbufs[i]->writeData(0, subnodecounts[i]*sizeof(ARGB), (void*)cpt, true);
-		cpt+=subnodecounts[i];
+		m_submesh_vbufs_color[i]->writeData(0, m_submesh_vbufs_vertex_counts[i]*sizeof(ARGB), (void*)cpt, true);
+		cpt+=m_submesh_vbufs_vertex_counts[i];
 	}
 }
 
 void FlexBody::updateBlend() //so easy!
 {
-	if (!enabled) return;
+	if (!m_is_enabled) return;
 	bool changed = false;
-	for (int i=0; i<(int)vertex_count; i++)
+	for (int i=0; i<(int)m_vertex_count; i++)
 	{
-		node_t *nd = &nodes[locs[i].ref];
-		ARGB col = srccolors[i];
+		node_t *nd = &m_nodes[m_locators[i].ref];
+		ARGB col = m_src_colors[i];
 		if (nd->contacted && !(col&0xFF000000))
 		{
-			srccolors[i]=col|0xFF000000;
+			m_src_colors[i]=col|0xFF000000;
 			changed = true;
 		}
 		if ((nd->wetstate!=DRY) ^ ((col&0x000000FF)>0))
 		{
-			srccolors[i]=(col&0xFFFFFF00)+0x000000FF*(nd->wetstate!=DRY);
+			m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*(nd->wetstate!=DRY);
 			changed = true;
 		}
 	}
 	if (changed) writeBlend();
 }
+
+

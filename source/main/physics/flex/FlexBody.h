@@ -46,10 +46,10 @@ public:
 		Ogre::Vector3 const & offset, 
 		Ogre::Quaternion const & rot, 
 		std::vector<unsigned int> & node_indices, 
-		MaterialFunctionMapper *mfm, 
+		MaterialFunctionMapper *material_function_mapper, 
 		Skin *usedSkin, 
 		bool forceNoShadows, 
-		MaterialReplacer *mr
+		MaterialReplacer *material_replacer
 	);
 
 	void addinterval(int from, int to);
@@ -58,7 +58,7 @@ public:
 	void reset();
 	void updateBlend();
 	void writeBlend();
-	Ogre::SceneNode *getSceneNode() { return snode; };
+	Ogre::SceneNode *getSceneNode() { return m_scene_node; };
 
 	void setEnabled(bool e);
 
@@ -66,8 +66,8 @@ public:
 	* Visibility control 
 	* @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 	*/
-	void setCameraMode(int mode) { cameramode = mode; };
-	int getCameraMode() { return cameramode; };
+	void setCameraMode(int mode) { m_camera_mode = mode; };
+	int getCameraMode() { return m_camera_mode; };
 
 	// Flexable
 	bool flexitPrepare(Beam* b);
@@ -76,9 +76,9 @@ public:
 
 	void setVisible(bool visible);
 
-private:
 
-	MaterialReplacer *mr;
+
+private:
 
 	typedef struct
 	{
@@ -86,57 +86,53 @@ private:
 		int to;
 	} interval_t;
 
-	typedef struct
+	struct Locator_t
 	{
 		int ref;
 		int nx;
 		int ny;
 		int nz;
 		Ogre::Vector3 coords;
-	} Locator_t;
+	};
 
 	static const int MAX_SET_INTERVALS = 256;
 
-	node_t *nodes;
-	int numnodes;
-	size_t vertex_count;
-	Ogre::Vector3* vertices;
-	Ogre::Vector3* dstpos;
-	Ogre::Vector3* srcnormals;
-	Ogre::Vector3* dstnormals;
-	Ogre::ARGB* srccolors;
-	Locator_t *locs; //!< 1 loc per vertex
+	node_t*           m_nodes;
+	size_t            m_vertex_count;
+	                  
+	Ogre::Vector3*    m_dst_pos;
+	Ogre::Vector3*    m_src_normals;
+	Ogre::Vector3*    m_dst_normals;
+	Ogre::ARGB*       m_src_colors;
+	Locator_t*        m_locators; //!< 1 loc per vertex
 
-	int cref;
-	int cx;
-	int cy;
-	Ogre::Vector3 coffset;
-	Ogre::SceneNode *snode;
+	int	              m_node_center;
+	int	              m_node_x;
+	int	              m_node_y;
+	Ogre::Vector3     m_center_offset;
+	Ogre::SceneNode*  m_scene_node;
+    Ogre::MeshPtr     m_mesh;
+    int               m_camera_mode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 
-	interval_t nodeset[MAX_SET_INTERVALS];
-	int freenodeset;
+	interval_t nodeset[MAX_SET_INTERVALS]; // Factory only
+	int freenodeset;// Factory only
 
-	int sharedcount;
-	Ogre::HardwareVertexBufferSharedPtr sharedpbuf;
-	Ogre::HardwareVertexBufferSharedPtr sharednbuf;
-	Ogre::HardwareVertexBufferSharedPtr sharedcbuf;
-	int numsubmeshbuf;
-	int *submeshnums;
-	int *subnodecounts;
-	Ogre::HardwareVertexBufferSharedPtr subpbufs[16]; //!< positions
-	Ogre::HardwareVertexBufferSharedPtr subnbufs[16]; //!< normals
-	Ogre::HardwareVertexBufferSharedPtr subcbufs[16]; //!< colors
+	int                                 m_shared_buf_num_verts;
+	Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_pos;
+	Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_norm;
+	Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_color;
+	
+    int                                 m_num_submesh_vbufs;
+	int                                 m_submesh_vbufs_vertex_counts[16];
+	Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_pos[16]; //!< positions
+	Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_norm[16]; //!< normals
+	Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_color[16]; //!< colors
 
-	bool enabled;
+	bool m_is_enabled;
+    bool m_is_faulty;
+	bool m_uses_shared_vertex_data;
+	bool m_has_texture;
+	bool m_has_texture_blend;
 
-	int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-
-	bool hasshared;
-	bool hasshadows;
-	bool hastangents;
-	bool hastexture;
-	bool hasblend;
-	bool faulty;
-
-	Ogre::MeshPtr msh;
+	
 };
