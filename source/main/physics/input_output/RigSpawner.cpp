@@ -1889,7 +1889,7 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 		AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def->mesh_name + "'");
 	}
 
-	m_rig->flexbodies[m_rig->free_flexbody] = new FlexBody(
+    auto * flexbody = new FlexBody(
 		m_rig->nodes, 
 		m_rig->free_node, 
 		def->mesh_name, 
@@ -1905,6 +1905,12 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 		1, 
 		m_rig->materialReplacer
 		);
+    int camera_mode = (def->camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM) 
+        ? (int)def->camera_settings.cinecam_index 
+        : (int)def->camera_settings.mode;
+    flexbody->setCameraMode(camera_mode);
+
+	m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
 	m_rig->free_flexbody++;
 }
 
@@ -5426,7 +5432,7 @@ void RigSpawner::CreateWheelVisuals(
 	catch (...)
 	{
 		std::stringstream msg;
-		msg << "Failed to load mesh '" << wheel_mesh_name << "'";
+		msg << "Failed to load mesh '" << wheel_mesh_name.str() << "'";
 		AddMessage(Message::TYPE_ERROR, msg.str());
 	}
 }
