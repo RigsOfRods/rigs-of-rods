@@ -6328,6 +6328,7 @@ bool Beam::LoadTruck(
 	LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
 	RigSpawner spawner;
+    spawner.ProfilerReset();
 	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
 	/* Setup modules */
@@ -6573,6 +6574,7 @@ bool Beam::LoadTruck(
 	}
 #endif // USE_MYGUI
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
+    spawner.ProfilerDumpReportHtml();
 
 	return true;
 }

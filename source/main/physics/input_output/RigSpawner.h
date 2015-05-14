@@ -147,6 +147,9 @@ public:
 
 	static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
+    void ProfilerDumpReportHtml();
+    void ProfilerReset();
+
 protected:
 
 /* -------------------------------------------------------------------------- */

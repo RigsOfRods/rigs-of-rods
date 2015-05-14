@@ -78,6 +78,16 @@
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
 
+// This will dump HTML report Documents/Rigs of Rods/profiler/rig_spawner.html
+// #define SPAWNER_USE_PROFILER
+
+#ifdef SPAWNER_USE_PROFILER
+#   include "profiler/Profiler.h"
+#   define SPAWNER_PROFILE_SCOPED() PROFILE_SCOPED()
+#else
+#   define SPAWNER_PROFILE_SCOPED()
+#endif
+
 using namespace RoR;
 
 /* -------------------------------------------------------------------------- */
@@ -92,6 +102,8 @@ void RigSpawner::Setup(
 	Ogre::Quaternion const & spawn_rotation
 )
 {
+    SPAWNER_PROFILE_SCOPED();
+
 	m_rig = rig;
 	m_file = file;
 	m_parent_scene_node = parent;
@@ -135,7 +147,9 @@ void RigSpawner::Setup(
 
 void RigSpawner::InitializeRig()
 {
-	m_rig->mCamera = nullptr;
+	SPAWNER_PROFILE_SCOPED();
+
+    m_rig->mCamera = nullptr;
 	// clear rig parent structure
 	memset(m_rig->nodes, 0, sizeof(node_t) * MAX_NODES);
 	m_rig->free_node = 0;
@@ -452,7 +466,9 @@ void RigSpawner::InitializeRig()
 
 void RigSpawner::FinalizeRig()
 {
-	// we should post-process the torque curve if existing
+	SPAWNER_PROFILE_SCOPED();
+
+    // we should post-process the torque curve if existing
 	if (m_rig->engine)
 	{
 		int result = m_rig->engine->getTorqueCurve()->spaceCurveEvenly(m_rig->engine->getTorqueCurve()->getUsedSpline());
@@ -758,7 +774,9 @@ void RigSpawner::FinalizeRig()
 
 void RigSpawner::WashCalculator(Ogre::Quaternion const & rot)
 {
-	Ogre::Quaternion invrot=rot.Inverse();
+	SPAWNER_PROFILE_SCOPED();
+
+    Ogre::Quaternion invrot=rot.Inverse();
 	//we will compute wash
 	int w,p;
 	for (p=0; p<m_rig->free_aeroengine; p++)
@@ -800,7 +818,9 @@ void RigSpawner::WashCalculator(Ogre::Quaternion const & rot)
 
 void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
 {
-	int front,back,ref;
+	SPAWNER_PROFILE_SCOPED();
+
+    int front,back,ref;
 	front = GetNodeIndexOrThrow(def.front_node);//parse_node_number(c, args[0]);
 	back  = GetNodeIndexOrThrow(def.back_node);//parse_node_number(c, args[1]);
 	ref   = GetNodeIndexOrThrow(def.side_node);//parse_node_number(c, args[2]);
@@ -839,13 +859,17 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
 
 void RigSpawner::ProcessSkeletonSettings(RigDef::SkeletonSettings & def)
 {
-	m_rig->fadeDist = def.visibility_range_meters;
+	SPAWNER_PROFILE_SCOPED();
+
+    m_rig->fadeDist = def.visibility_range_meters;
 	m_rig->skeleton_beam_diameter = def.beam_thickness_meters;
 }
 
 void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
 {
-	if (! CheckScrewpropLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckScrewpropLimit(1))
 	{
 		return;
 	}
@@ -868,7 +892,9 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
 
 void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 {
-	//parse fusedrag
+	SPAWNER_PROFILE_SCOPED();
+
+    //parse fusedrag
 	int front_node_idx = GetNodeIndexOrThrow(def.front_node);
 	int back_node_idx = GetNodeIndexOrThrow(def.rear_node);
 	float width = 1.f;
@@ -918,7 +944,9 @@ void RigSpawner::BuildAerialEngine(
 	float pitch
 	)
 {
-	char propname[256];
+	SPAWNER_PROFILE_SCOPED();
+
+    char propname[256];
 	sprintf(propname, "turboprop-%s-%i", m_rig->truckname, m_rig->free_aeroengine);
 
 	Turboprop *turbo_prop = new Turboprop(
@@ -973,7 +1001,9 @@ void RigSpawner::BuildAerialEngine(
 
 void RigSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
 {
-	int couple_node_index = (def.couple_node.IsValidAnyState())	? GetNodeIndexOrThrow(def.couple_node) : -1;
+	SPAWNER_PROFILE_SCOPED();
+
+    int couple_node_index = (def.couple_node.IsValidAnyState())	? GetNodeIndexOrThrow(def.couple_node) : -1;
 
 	BuildAerialEngine(
 		GetNodeIndexOrThrow(def.reference_node),
@@ -992,7 +1022,9 @@ void RigSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
 
 void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 {
-	int couple_node_index = (def._couple_node_set) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+	SPAWNER_PROFILE_SCOPED();
+
+    int couple_node_index = (def._couple_node_set) ? GetNodeIndexOrThrow(def.couple_node) : -1;
 
 	BuildAerialEngine(
 		GetNodeIndexOrThrow(def.reference_node),
@@ -1011,7 +1043,9 @@ void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 
 void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 {
-	if (! CheckAirBrakeLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckAirBrakeLimit(1))
 	{
 		return;
 	}
@@ -1040,7 +1074,9 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 
 void RigSpawner::ProcessWing(RigDef::Wing & def)
 {
-	if (! CheckWingLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckWingLimit(1))
 	{
 		return;
 	}
@@ -1349,12 +1385,16 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 
 float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const & x, Ogre::Vector3 const & y, Ogre::Vector3 const & aref)
 {
-	return (((x-ref).crossProduct(y-ref)).length()+((x-aref).crossProduct(y-aref)).length())*0.5f;
+	SPAWNER_PROFILE_SCOPED();
+
+    return (((x-ref).crossProduct(y-ref)).length()+((x-aref).crossProduct(y-aref)).length())*0.5f;
 }
 
 void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 {
-	int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
+	SPAWNER_PROFILE_SCOPED();
+
+    int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
 	int node_index = FindNodeIndex(def.node);
 	if (node_index == -1)
 	{
@@ -1370,12 +1410,16 @@ void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 
 void RigSpawner::AddSoundSourceInstance(Beam *vehicle, Ogre::String const & sound_script_name, int node_index, int type)
 {
-	AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->trucknum, nullptr), node_index);
+	SPAWNER_PROFILE_SCOPED();
+
+    AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->trucknum, nullptr), node_index);
 }
 
 void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script, int node_index, int type)
 {
-	if (! CheckSoundScriptLimit(vehicle, 1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckSoundScriptLimit(vehicle, 1))
 	{
 		return;
 	}
@@ -1393,7 +1437,9 @@ void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script
 
 void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 {
-	AddSoundSource(
+	SPAWNER_PROFILE_SCOPED();
+
+    AddSoundSource(
 			m_rig,
 			SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
 			GetNodeIndexOrThrow(def.node),
@@ -1403,6 +1449,8 @@ void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 
 void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
 {
+    SPAWNER_PROFILE_SCOPED();
+
     auto itor = def.nodes.begin();
     auto end  = def.nodes.end();
 	for(; itor != end; ++itor)
@@ -1417,7 +1465,9 @@ void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
 
 void RigSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
 {
-	m_rig->externalcameramode = def.mode;
+	SPAWNER_PROFILE_SCOPED();
+
+    m_rig->externalcameramode = def.mode;
 	if (def.node.IsValidAnyState())
 	{
 		m_rig->externalcameranode = GetNodeIndexOrThrow(def.node);
@@ -1426,7 +1476,9 @@ void RigSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
 
 void RigSpawner::ProcessVideoCamera(RigDef::VideoCamera & def)
 {
-	VideoCamera *v = VideoCamera::Setup(this, def);
+	SPAWNER_PROFILE_SCOPED();
+
+    VideoCamera *v = VideoCamera::Setup(this, def);
 	if (v != nullptr)
 	{
 		m_rig->vidcams.push_back(v);
@@ -1439,12 +1491,7 @@ void RigSpawner::ProcessVideoCamera(RigDef::VideoCamera & def)
 
 void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 {
-	// guisettings
-	/*char keyword[256];
-	char value[256];
-	int n = parse_args(c, args, 2);
-	strncpy(keyword, args[0].c_str(), 255);
-	strncpy(value,   args[1].c_str(), 255);*/
+	SPAWNER_PROFILE_SCOPED();
 
 	m_rig->tachomat = def.tacho_material;
 	m_rig->speedomat = def.speedo_material;
@@ -1452,23 +1499,6 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 	{
 		strncpy(m_rig->helpmat, def.help_material.c_str(), sizeof(m_rig->helpmat) - 1);
 	}
-
-	/*if (!strncmp(keyword, "debugBeams", 255) && strnlen(value, 255) > 0)
-	{
-		// obsolete
-	}
-	if (!strncmp(keyword, "tachoMaterial", 255) && strnlen(value, 255) > 0)
-	{
-		tachomat = String(value);
-	}
-	else if (!strncmp(keyword, "speedoMaterial", 255) && strnlen(value, 255) > 0)
-	{
-		speedomat = String(value);
-	}
-	else if (!strncmp(keyword, "helpMaterial", 255) && strnlen(value, 255) > 0)
-	{
-		strncpy(helpmat, value, 254);
-	}*/
 	if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
 	{
 		m_rig->speedoMax = def.speedo_highest_kph; /* Handles default */
@@ -1482,18 +1512,6 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 	}
 	m_rig->useMaxRPMforGUI = def.use_max_rpm;  /* Handles default */
 
-/*	else if (!strncmp(keyword, "speedoMax", 255) && strnlen(value, 255) > 0)
-	{
-		float tmp = StringConverter::parseReal(String(value));
-		if (tmp > 10 && tmp < 32000)
-			speedoMax = tmp;
-	}
-	else if (!strncmp(keyword, "useMaxRPM", 255) && strnlen(value, 255) > 0)
-	{
-		int use = StringConverter::parseInt(String(value));
-		useMaxRPMforGUI = (use == 1);
-	}*/
-
 	std::list<Ogre::String>::iterator dash_itor = def.dashboard_layouts.begin();
 	for ( ; dash_itor != def.dashboard_layouts.end(); dash_itor++)
 	{
@@ -1506,33 +1524,18 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 		m_rig->dashBoardLayouts.push_back(std::pair<Ogre::String, bool>(*rtt_itor, true));
 	}
 
-	/*else if (!strncmp(keyword, "dashboard", 255) && strnlen(value, 255) > 0)
-	{
-		dashBoardLayouts.push_back(std::pair<Ogre::String, bool>(String(value), false));
-	}
-	else if (!strncmp(keyword, "texturedashboard", 255) && strnlen(value, 255) > 0)
-	{
-		dashBoardLayouts.push_back(std::pair<Ogre::String, bool>(String(value), true));
-	}*/
 }
 
 void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 {
-	// parse exhausts
+	SPAWNER_PROFILE_SCOPED();
+
+    // parse exhausts
 	if (m_rig->disable_smoke)
 	{
 		return;
 	}
-	/*int id1, id2;
-	float factor;
-	char material[256] = "";
-
-	int n = parse_args(c, args, 2);
-	id1 = parse_node_number(c, args[0]);
-	id2 = parse_node_number(c, args[1]);
-	if (n > 2) factor = PARSEREAL(args[2]);
-	if (n > 3) strncpy(material, args[3].c_str(), 255);*/
-
+	
 	node_t & ref_node = GetNodeOrThrow(def.reference_node);//id1;
 	node_t & dir_node = GetNodeOrThrow(def.direction_node);//id2;
 
@@ -1555,11 +1558,6 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 	{
 		material_name = def.material_name;
 	}
-
-	/*char wname[256];
-	sprintf(wname, "exhaust-%d-%s", (int)exhausts.size(), truckname);
-	if (strnlen(material,50) == 0 || String(material) == "default")
-		strcpy(material, "tracks/Smoke");*/
 
 	if (m_rig->usedSkin)
 	{
@@ -1590,7 +1588,9 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 
 void RigSpawner::ProcessSubmeshGroundmodel()
 {
-	SetCurrentKeyword(RigDef::File::KEYWORD_SUBMESH_GROUNDMODEL);
+	SPAWNER_PROFILE_SCOPED();
+
+    SetCurrentKeyword(RigDef::File::KEYWORD_SUBMESH_GROUNDMODEL);
 
     auto module_itor = m_selected_modules.begin();
     auto module_end  = m_selected_modules.end();
@@ -1608,7 +1608,9 @@ void RigSpawner::ProcessSubmeshGroundmodel()
 
 void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 {
-	if (! CheckSubmeshLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckSubmeshLimit(1))
 	{
 		return;
 	}
@@ -1650,13 +1652,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 			AddMessage(Message::TYPE_ERROR, msg.str());
 			return;
 		}
-
-		/*char type='n';
-		int n = parse_args(c, args, 3);
-		int id1 = parse_node_number(c, args[0]);
-		int id2 = parse_node_number(c, args[1]);
-		int id3 = parse_node_number(c, args[2]);
-		if (n > 3) type = args[3][0];*/
 
 		m_rig->cabs[m_rig->free_cab*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]); //id1;
 		m_rig->cabs[m_rig->free_cab*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);//id2;
@@ -1753,11 +1748,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 				return;
 			}
 
-			/*if (free_collcab >= MAX_CABS || )
-			{
-				parser_warning(c, "unable to create buoycabs: cabs limit reached ("+TOSTRING(MAX_CABS)+")", PARSER_ERROR);
-				continue;
-			}*/
 			m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab;
 			m_rig->collcabstype[m_rig->free_collcab]=collcabs_type;
 			m_rig->free_collcab++;
@@ -1844,7 +1834,9 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
 void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 {
-	if (! CheckFlexbodyLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckFlexbodyLimit(1))
 	{
 		return;
 	}
@@ -1916,7 +1908,9 @@ void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
 
 void RigSpawner::ProcessProp(RigDef::Prop & def)
 {
-	if (! CheckPropLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckPropLimit(1))
 	{
 		return;
 	}
@@ -2402,7 +2396,9 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 
 void RigSpawner::ProcessMaterialFlareBinding(RigDef::MaterialFlareBinding & def)
 {
-	std::stringstream mat_clone_name;
+	SPAWNER_PROFILE_SCOPED();
+
+    std::stringstream mat_clone_name;
 	mat_clone_name << def.material_name << "_mfb_" << m_rig->truckname;
 	Ogre::MaterialPtr material = CloneMaterial(def.material_name, mat_clone_name.str());
 	if (material.isNull())
@@ -2423,7 +2419,9 @@ void RigSpawner::ProcessMaterialFlareBinding(RigDef::MaterialFlareBinding & def)
 
 void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
-	if (m_rig->flaresMode == 0)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (m_rig->flaresMode == 0)
 	{
 		return;
 	}
@@ -2588,7 +2586,9 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
 Ogre::MaterialPtr RigSpawner::CloneMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
 {
-	Ogre::MaterialPtr src_mat = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(source_name));
+	SPAWNER_PROFILE_SCOPED();
+
+    Ogre::MaterialPtr src_mat = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(source_name));
 	if (src_mat.isNull())
 	{
 		std::stringstream msg;
@@ -2601,7 +2601,9 @@ Ogre::MaterialPtr RigSpawner::CloneMaterial(Ogre::String const & source_name, Og
 
 void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 {
-	Ogre::MaterialPtr test = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(def.name));
+	SPAWNER_PROFILE_SCOPED();
+
+    Ogre::MaterialPtr test = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(def.name));
 	if (! test.isNull())
 	{
 		std::stringstream msg;
@@ -2715,6 +2717,8 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
 void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 {
+    SPAWNER_PROFILE_SCOPED();
+
     auto itor = def.nodes.begin();
     auto end  = def.nodes.end();
 	for ( ; itor != end; ++itor)
@@ -2734,7 +2738,9 @@ void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 
 bool RigSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2)
 {
-	for (int i = 0; i < m_rig->free_wheel; i++)
+	SPAWNER_PROFILE_SCOPED();
+
+    for (int i = 0; i < m_rig->free_wheel; i++)
 	{
 		wheel_t & wheel = m_rig->wheels[i];
 		if	(	(wheel.refnode0 == axis_node_1 && wheel.refnode1 == axis_node_2)
@@ -2750,7 +2756,9 @@ bool RigSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, n
 
 void RigSpawner::ProcessAxle(RigDef::Axle & def)
 {
-	if (! CheckAxleLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckAxleLimit(1))
 	{
 		return;
 	}
@@ -2812,7 +2820,9 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
 
 void RigSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
 {
-	m_rig->sl_enabled = true;
+	SPAWNER_PROFILE_SCOPED();
+
+    m_rig->sl_enabled = true;
 	m_rig->sl_speed_limit = def.max_speed;
 	if (def.max_speed <= 0.f)
 	{
@@ -2824,7 +2834,9 @@ void RigSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
 
 void RigSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
 {
-	m_rig->cc_target_speed_lower_limit = def.min_speed;
+	SPAWNER_PROFILE_SCOPED();
+
+    m_rig->cc_target_speed_lower_limit = def.min_speed;
 	if (m_rig->cc_target_speed_lower_limit <= 0.f)
 	{
 		std::stringstream msg;
@@ -2836,7 +2848,9 @@ void RigSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
 
 void RigSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 {
-	if (m_rig->engine == nullptr)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (m_rig->engine == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Section 'torquecurve' found but no 'engine' defined, skipping...");
 		return;
@@ -2861,7 +2875,9 @@ void RigSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 
 void RigSpawner::ProcessParticle(RigDef::Particle & def)
 {
-	if (! m_rig->cparticle_enabled)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! m_rig->cparticle_enabled)
 	{
 		return;
 	}
@@ -2899,7 +2915,9 @@ void RigSpawner::ProcessParticle(RigDef::Particle & def)
 
 void RigSpawner::ProcessRopable(RigDef::Ropable & def)
 {
-	ropable_t ropable;
+	SPAWNER_PROFILE_SCOPED();
+
+    ropable_t ropable;
 	ropable.node = GetNodePointerOrThrow(def.node);
 	ropable.group = def.group;
 	ropable.used = 0; // Hardcoded in BTS_ROPABLES
@@ -2911,7 +2929,9 @@ void RigSpawner::ProcessRopable(RigDef::Ropable & def)
 
 void RigSpawner::ProcessTie(RigDef::Tie & def)
 {
-	if (! CheckBeamLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckBeamLimit(1))
 	{
 		return;
 	}
@@ -2952,7 +2972,9 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 
 void RigSpawner::ProcessRope(RigDef::Rope & def)
 {
-	if (! CheckBeamLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckBeamLimit(1))
 	{
 		return;
 	}
@@ -2981,7 +3003,9 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 
 void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 {
-	Rail *rail = CreateRail(def.node_list);
+	SPAWNER_PROFILE_SCOPED();
+
+    Rail *rail = CreateRail(def.node_list);
 	if (rail == nullptr)
 	{
 		return;
@@ -2992,7 +3016,9 @@ void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 
 void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 {
-	node_t & node = GetNodeOrThrow(def.slide_node);
+	SPAWNER_PROFILE_SCOPED();
+
+    node_t & node = GetNodeOrThrow(def.slide_node);
 	SlideNode slide_node(& node, nullptr);
 	slide_node.setThreshold(def.tolerance);
 	slide_node.setSpringRate(def.spring_rate);
@@ -3064,7 +3090,9 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 
 int RigSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* Default: false */)
 {
-	std::pair<unsigned int, bool> result = GetNodeIndex(node_ref, /* quiet */ true);
+	SPAWNER_PROFILE_SCOPED();
+
+    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref, /* quiet */ true);
 	if (result.second)
 	{
 		return static_cast<int>(result.first);
@@ -3086,7 +3114,9 @@ bool RigSpawner::CollectNodesFromRanges(
 	std::vector<unsigned int> & out_node_indices
 	)
 {
-	std::vector<RigDef::Node::Range>::iterator itor = node_ranges.begin();
+	SPAWNER_PROFILE_SCOPED();
+
+    std::vector<RigDef::Node::Range>::iterator itor = node_ranges.begin();
 	for ( ; itor != node_ranges.end(); itor++)
 	{
 		if (itor->IsRange())
@@ -3153,7 +3183,9 @@ bool RigSpawner::CollectNodesFromRanges(
 
 Rail *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
 {
-	/* Collect nodes */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Collect nodes */
 	std::vector<unsigned int> node_indices;
 	node_indices.reserve(100);
 
@@ -3184,7 +3216,9 @@ Rail *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
 
 beam_t *RigSpawner::FindBeamInRig(unsigned int node_a_index, unsigned int node_b_index)
 {
-	node_t *node_a = & m_rig->nodes[node_a_index];
+	SPAWNER_PROFILE_SCOPED();
+
+    node_t *node_a = & m_rig->nodes[node_a_index];
 	node_t *node_b = & m_rig->nodes[node_b_index];
 
 	for (unsigned int i = 0; i < static_cast<unsigned int>(m_rig->free_beam); i++)
@@ -3202,7 +3236,9 @@ beam_t *RigSpawner::FindBeamInRig(unsigned int node_a_index, unsigned int node_b
 
 void RigSpawner::ProcessHook(RigDef::Hook & def)
 {
-	/* Find the node */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Find the node */
 	node_t *node = GetNodePointer(def.node);
 	if (node ==  nullptr)
 	{
@@ -3265,6 +3301,8 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 
 void RigSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
 {
+    SPAWNER_PROFILE_SCOPED();
+
     auto itor = lockgroup.nodes.begin();
     auto end  = lockgroup.nodes.end();
 	for (; itor != end; ++itor)
@@ -3275,7 +3313,9 @@ void RigSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
 
 void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 {
-	if (! CheckBeamLimit(1) || ! CheckShockLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckBeamLimit(1) || ! CheckShockLimit(1))
 	{
 		return;
 	}
@@ -3449,7 +3489,9 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 
 void RigSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 {
-	unsigned int node_index = GetNodeIndexOrThrow(node_ref);
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int node_index = GetNodeIndexOrThrow(node_ref);
 	m_rig->contacters[m_rig->free_contacter].nodeid = node_index;
 	GetNode(node_index).iIsSkin = true;
 	m_rig->free_contacter++;
@@ -3457,7 +3499,9 @@ void RigSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 
 void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 {
-	if (! CheckRotatorLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckRotatorLimit(1))
 	{
 		return;
 	}
@@ -3494,7 +3538,9 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 
 void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 {
-	if (! CheckRotatorLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckRotatorLimit(1))
 	{
 		return;
 	}
@@ -3543,7 +3589,9 @@ void RigSpawner::_ProcessCommandKeyInertia(
 	int extend_key
 )
 {
-	if (m_rig->cmdInertia != nullptr)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (m_rig->cmdInertia != nullptr)
 	{
 		/* Handle placeholders */
 		Ogre::String start_function;
@@ -3597,7 +3645,9 @@ void RigSpawner::_ProcessCommandKeyInertia(
 
 void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 {
-	if (! CheckBeamLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckBeamLimit(1))
 	{
 		return;
 	}
@@ -3680,7 +3730,9 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 
 void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 {
-	if (! CheckBeamLimit(1) || ! CheckHydroLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckBeamLimit(1) || ! CheckHydroLimit(1))
 	{
 		return;
 	}
@@ -3849,7 +3901,9 @@ beam_t & RigSpawner::AddBeam(
 	int detacher_group
 )
 {
-	/* Init */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Init */
 	beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
 	beam.detacher_group = detacher_group;
 	beam.diameter = beam_defaults->visual_beam_diameter;
@@ -3872,13 +3926,17 @@ beam_t & RigSpawner::AddBeam(
 
 void RigSpawner::SetBeamStrength(beam_t & beam, float strength)
 {
-	beam.strength = strength;
+	SPAWNER_PROFILE_SCOPED();
+
+    beam.strength = strength;
 	beam.iStrength = strength;
 }
 
 void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 {
-	if (! CheckHydroLimit(1) || ! CheckBeamLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckHydroLimit(1) || ! CheckBeamLimit(1))
 	{
 		return;
 	}
@@ -4001,7 +4059,9 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 
 void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 {
-	if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
 	{
 		return;
 	}
@@ -4095,7 +4155,9 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 
 void RigSpawner::ProcessShock(RigDef::Shock & def)
 {
-	if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
 	{
 		return;
 	}
@@ -4168,7 +4230,9 @@ void RigSpawner::FetchAxisNodes(
 	RigDef::Node::Ref const & axis_node_2_id
 )
 {
-	axis_node_1 = GetNodePointer(axis_node_1_id);
+	SPAWNER_PROFILE_SCOPED();
+
+    axis_node_1 = GetNodePointer(axis_node_1_id);
 	axis_node_2 = GetNodePointer(axis_node_2_id);
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
@@ -4182,7 +4246,9 @@ void RigSpawner::FetchAxisNodes(
 
 void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {	
-	/* Check capacities */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Check capacities */
 	CheckNodeLimit(def.num_rays * 4);
 	CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValidAnyState()) ? 26 : 25);
 	CheckFlexbodyLimit(1);
@@ -4495,7 +4561,9 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 {
-	unsigned int base_node_index = m_rig->free_node;
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int base_node_index = m_rig->free_node;
 	node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
@@ -4549,7 +4617,9 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 
 void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 {
-	unsigned int base_node_index = m_rig->free_node;
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int base_node_index = m_rig->free_node;
 	node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
 
@@ -4628,7 +4698,9 @@ void RigSpawner::BuildMeshWheelVisuals(
 	bool rim_reverse
 )
 {
-	std::stringstream wheel_name;
+	SPAWNER_PROFILE_SCOPED();
+
+    std::stringstream wheel_name;
 	wheel_name << "wheel-" << m_rig->truckname << "-" << wheel_index;
 	std::stringstream entity_name;
 	entity_name << "wheelobj-" << m_rig->truckname << "-" << wheel_index;
@@ -4698,7 +4770,9 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	float wheel_width       /* Default: -1.f */
 )
 {
-	/* Check capacity */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Check capacity */
 	CheckNodeLimit(reserve_nodes);
 	CheckBeamLimit(reserve_beams);
 
@@ -4815,18 +4889,24 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 
 void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults)
 {
-	unsigned int options = (defaults->options | node_def.options); // Merge flags
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int options = (defaults->options | node_def.options); // Merge flags
 	node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
 }
 
 void RigSpawner::AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults)
 {
-	node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
+	SPAWNER_PROFILE_SCOPED();
+
+    node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
 }
 
 int RigSpawner::FindLowestNodeInRig()
 {
-	int lowest_node_index = 0;
+	SPAWNER_PROFILE_SCOPED();
+
+    int lowest_node_index = 0;
 	float lowest_y = m_rig->nodes[0].AbsPosition.y;
 
 	for (int i = 0; i < m_rig->free_node; i++)
@@ -4856,6 +4936,8 @@ void RigSpawner::BuildWheelBeams(
 	float max_extension // = 0.f
 )
 {
+    SPAWNER_PROFILE_SCOPED();
+    
 #ifdef DEBUG_TRUCKPARSER2013
 	// DEBUG
 	std::stringstream msg;
@@ -4937,7 +5019,9 @@ void RigSpawner::BuildWheelBeams(
 
 unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 {
-	unsigned int base_node_index = m_rig->free_node;
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int base_node_index = m_rig->free_node;
 	node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
 
@@ -5129,7 +5213,9 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 
 unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 {
-	/* Check capacity */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Check capacity */
 	CheckNodeLimit(wheel_2_def.num_rays * 4);
 	CheckBeamLimit(wheel_2_def.num_rays * (wheel_2_def.rigidity_node.IsValidAnyState()) ? 26 : 25);
 
@@ -5354,7 +5440,9 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wheel_def, unsigned int node_base_index)
 {
-	CreateWheelVisuals(
+	// Wrapper, not profiling
+
+    CreateWheelVisuals(
 		wheel_index, 
 		node_base_index, 
 		wheel_def.num_rays,
@@ -5366,7 +5454,9 @@ void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wh
 
 void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
 {
-	CreateWheelVisuals(
+	// Wrapper, not profiling
+
+    CreateWheelVisuals(
 		wheel_index, 
 		node_base_index, 
 		wheel_2_def.num_rays,
@@ -5387,7 +5477,9 @@ void RigSpawner::CreateWheelVisuals(
 	float rim_ratio
 )
 {
-	wheel_t & wheel = m_rig->wheels[wheel_index];
+	SPAWNER_PROFILE_SCOPED();
+
+    wheel_t & wheel = m_rig->wheels[wheel_index];
 	vwheel_t & visual_wheel = m_rig->vwheels[wheel_index];
 
 	std::stringstream wheel_mesh_name;
@@ -5448,7 +5540,9 @@ unsigned int RigSpawner::AddWheelBeam(
 	int type                 /* Default: BEAM_INVISIBLE */
 )
 {
-	unsigned int index = m_rig->free_beam;
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int index = m_rig->free_beam;
 	beam_t & beam = AddBeam(*node_1, *node_2, beam_defaults, DEFAULT_DETACHER_GROUP); 
 	beam.type = type;
 	beam.k = spring;
@@ -5473,7 +5567,9 @@ unsigned int RigSpawner::AddWheelBeam(
 
 unsigned int RigSpawner::AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
 {
-	unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
 	beam_t & beam = GetBeam(beam_index);
 	beam.k = wheel_2_def.rim_springiness;
 	beam.d = wheel_2_def.rim_damping;
@@ -5482,7 +5578,9 @@ unsigned int RigSpawner::AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *n
 
 unsigned int RigSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
 {
-	unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
 	beam_t & beam = GetBeam(beam_index);
 	beam.k = wheel_2_def.tyre_springiness;
 	beam.d = wheel_2_def.tyre_damping;
@@ -5495,7 +5593,9 @@ unsigned int RigSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_
 
 unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
 {
-	unsigned int index = m_rig->free_beam;
+	SPAWNER_PROFILE_SCOPED();
+
+    unsigned int index = m_rig->free_beam;
 	beam_t & beam = GetFreeBeam();
 	InitBeam(beam, node_1, node_2);
 	beam.type = BEAM_INVISIBLE;
@@ -5505,7 +5605,9 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
 
 RigDef::Wheel RigSpawner::DowngradeWheel2(RigDef::Wheel2 & wheel_2)
 {
-	RigDef::Wheel wheel;
+	SPAWNER_PROFILE_SCOPED();
+
+    RigDef::Wheel wheel;
 	wheel.radius = wheel_2.tyre_radius;
 	wheel.width = wheel_2.width;
 	wheel.num_rays = wheel_2.num_rays;
@@ -5525,7 +5627,9 @@ RigDef::Wheel RigSpawner::DowngradeWheel2(RigDef::Wheel2 & wheel_2)
 
 void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 {
-	if (m_rig->enable_wheel2)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (m_rig->enable_wheel2)
 	{
 		unsigned int node_base_index = m_rig->free_node;
 		unsigned int wheel_index = AddWheel2(def);
@@ -5545,7 +5649,9 @@ void RigSpawner::ProcessWheel(RigDef::Wheel & def)
 
 void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 {
-	// #1: regulating_force
+	SPAWNER_PROFILE_SCOPED();
+
+    // #1: regulating_force
 	float force = def.regulating_force;
 	if (force < 0.f || force > 20.f)
 	{
@@ -5584,7 +5690,9 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 
 void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 {
-	/* #1: regulating_force */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* #1: regulating_force */
 	float force = def.regulation_force;
 	if (force < 0.f || force > 20.f)
 	{
@@ -5637,7 +5745,9 @@ void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 
 void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 {
-	/* #1: regulating_force */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* #1: regulating_force */
 	float force = def.regulation_force;
 	if (force < 0.f || force > 20.f)
 	{
@@ -5689,7 +5799,9 @@ void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 
 void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 {
-	m_rig->brakeforce = def.default_braking_force;
+	SPAWNER_PROFILE_SCOPED();
+
+    m_rig->brakeforce = def.default_braking_force;
 	if (def._parking_brake_force_set)
 	{
 		m_rig->hbrakeforce = def.parking_brake_force;
@@ -5702,7 +5814,9 @@ void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 
 void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 {
-	/* Is this a land vehicle? */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Is this a land vehicle? */
 	if (m_rig->engine == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Section 'engoption' found but no engine defined. Skipping ...");
@@ -5737,7 +5851,9 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 
 void RigSpawner::ProcessEngine(RigDef::Engine & def)
 {
-	/* Process it */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Process it */
 	m_rig->driveable = TRUCK;
 
 	/* Process gear list to BeamEngine-compatible format */
@@ -5775,7 +5891,9 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
 
 void RigSpawner::ProcessHelp()
 {
-	SetCurrentKeyword(RigDef::File::KEYWORD_HELP);
+	SPAWNER_PROFILE_SCOPED();
+
+    SetCurrentKeyword(RigDef::File::KEYWORD_HELP);
 	unsigned int material_count = 0;
 
 	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
@@ -5802,7 +5920,9 @@ void RigSpawner::ProcessHelp()
 
 void RigSpawner::ProcessFileInfo()
 {
-	if (m_file->file_info != nullptr)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (m_file->file_info != nullptr)
 	{
 		if (m_file->file_info->_has_unique_id)
 		{
@@ -5823,7 +5943,9 @@ void RigSpawner::ProcessFileInfo()
 
 void RigSpawner::ProcessAuthors()
 {
-	SetCurrentKeyword(RigDef::File::KEYWORD_FILEFORMATVERSION);
+	SPAWNER_PROFILE_SCOPED();
+
+    SetCurrentKeyword(RigDef::File::KEYWORD_FILEFORMATVERSION);
 
 	std::vector<RigDef::Author>::iterator author_itor = m_file->authors.begin();
 	for (; author_itor != m_file->authors.end(); author_itor++)
@@ -5844,7 +5966,9 @@ void RigSpawner::ProcessAuthors()
 
 unsigned int RigSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
 {
-	std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
+	SPAWNER_PROFILE_SCOPED();
+
+    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
 	if (! result.second)
 	{
 		std::stringstream msg;
@@ -5856,12 +5980,16 @@ unsigned int RigSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
 
 node_t & RigSpawner::GetNodeOrThrow(RigDef::Node::Ref const & node_ref)
 {
-	return m_rig->nodes[GetNodeIndexOrThrow(node_ref)];
+	SPAWNER_PROFILE_SCOPED();
+
+    return m_rig->nodes[GetNodeIndexOrThrow(node_ref)];
 }
 
 void RigSpawner::ProcessCamera(RigDef::Camera & def)
 {
-	/* Center node */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Center node */
 	if (def.center_node.IsValidAnyState())
 	{
 		m_rig->cameranodepos[m_rig->freecamera] 
@@ -5900,7 +6028,9 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
 
 node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)
 {
-	node_t* node = GetNodePointer(node_ref);
+	SPAWNER_PROFILE_SCOPED();
+
+    node_t* node = GetNodePointer(node_ref);
 	if (node != nullptr)
 	{
 		return node;
@@ -5910,7 +6040,9 @@ node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)
 
 void RigSpawner::ProcessBeam(RigDef::Beam & def)
 {
-	// Nodes
+	SPAWNER_PROFILE_SCOPED();
+
+    // Nodes
 	node_t* nodes[] = {nullptr, nullptr};
 	nodes[0] = GetBeamNodePointer(def.nodes[0]);
 	if (nodes[0] == nullptr)
@@ -5975,7 +6107,9 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 
 void RigSpawner::CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_to_scene)
 {
-	/* Setup visuals */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Setup visuals */
 	// In original loader, in BTS_BEAMS the visuals are always created but not always attached.
 	// Is there a reason?
 	std::stringstream beam_name;
@@ -6009,7 +6143,9 @@ void RigSpawner::CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_t
 
 void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults)
 {
-	/*
+	SPAWNER_PROFILE_SCOPED();
+
+    /*
 	---------------------------------------------------------------------------
 		Old parser logic
 	---------------------------------------------------------------------------
@@ -6137,7 +6273,9 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 
 void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, RigDef::BeamDefaults & beam_defaults, bool activate)
 {
-	std::stringstream beam_name;
+	SPAWNER_PROFILE_SCOPED();
+
+    std::stringstream beam_name;
 	beam_name << "beam-" << m_rig->truckname << "-" << beam_index;
 	try
 	{
@@ -6161,7 +6299,9 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, RigDef::BeamDe
 
 void RigSpawner::CalculateBeamLength(beam_t & beam)
 {
-	float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
+	SPAWNER_PROFILE_SCOPED();
+
+    float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
 	beam.L = beam_length;
 	beam.Lhydro = beam_length;
 	beam.refL = beam_length;
@@ -6169,7 +6309,9 @@ void RigSpawner::CalculateBeamLength(beam_t & beam)
 
 void RigSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 {
-	beam.p1 = node_1;
+	SPAWNER_PROFILE_SCOPED();
+
+    beam.p1 = node_1;
 	beam.p2 = node_2;
 
 	/* Length */
@@ -6181,7 +6323,9 @@ void RigSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 
 void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const & text)
 {
-	/* Add message to report */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Add message to report */
 	m_messages.push_back(Message(type, text, m_current_keyword));
 
 	/* Log message immediately (to put other log messages in context) */
@@ -6215,6 +6359,8 @@ void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const &
 
 std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* Default: false */)
 {
+    SPAWNER_PROFILE_SCOPED();
+
     if (!node_ref.IsValidAnyState())
 	{
 		if (! quiet)
@@ -6258,7 +6404,9 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const &
 
 node_t* RigSpawner::GetNodePointer(RigDef::Node::Ref const & node_ref)
 {
-	std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
+	SPAWNER_PROFILE_SCOPED();
+
+    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref);
 	if (result.second)
 	{
 		return & m_rig->nodes[result.first];
@@ -6271,7 +6419,9 @@ node_t* RigSpawner::GetNodePointer(RigDef::Node::Ref const & node_ref)
 
 node_t* RigSpawner::GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref)
 {
-	node_t *node = GetNodePointer(node_ref);
+	SPAWNER_PROFILE_SCOPED();
+
+    node_t *node = GetNodePointer(node_ref);
 	if (node == nullptr)
 	{
 		std::stringstream msg;
@@ -6283,6 +6433,8 @@ node_t* RigSpawner::GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref)
 
 std::pair<unsigned int, bool> RigSpawner::AddNode(RigDef::Node::Id & id)
 {
+    SPAWNER_PROFILE_SCOPED();
+
     if (!id.IsValid())
     {
         std::stringstream msg;
@@ -6329,7 +6481,9 @@ std::pair<unsigned int, bool> RigSpawner::AddNode(RigDef::Node::Id & id)
 
 void RigSpawner::ProcessNode(RigDef::Node & def)
 {
-	std::pair<unsigned int, bool> inserted_node = AddNode(def.id);
+	SPAWNER_PROFILE_SCOPED();
+
+    std::pair<unsigned int, bool> inserted_node = AddNode(def.id);
 	if (! inserted_node.second)
 	{
 		return;
@@ -6479,7 +6633,9 @@ void RigSpawner::AddExhaust(
 		Ogre::String *user_material_name
 	)
 {
-	if (m_rig->disable_smoke)
+	SPAWNER_PROFILE_SCOPED();
+
+    if (m_rig->disable_smoke)
 	{
 		return;
 	}
@@ -6536,7 +6692,9 @@ void RigSpawner::AddExhaust(
 
 bool RigSpawner::AddModule(Ogre::String const & module_name)
 {
-	std::map< Ogre::String, boost::shared_ptr<RigDef::File::Module> >::iterator result 
+	SPAWNER_PROFILE_SCOPED();
+
+    std::map< Ogre::String, boost::shared_ptr<RigDef::File::Module> >::iterator result 
 		= m_file->modules.find(module_name);
 
 	if (result != m_file->modules.end())
@@ -6551,7 +6709,9 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
 
 void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 {
-	if (! CheckNodeLimit(1) && ! CheckBeamLimit(8))
+	SPAWNER_PROFILE_SCOPED();
+
+    if (! CheckNodeLimit(1) && ! CheckBeamLimit(8))
 	{
 		return;
 	}
@@ -6605,7 +6765,9 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 
 void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 {
-	/* Position */
+	SPAWNER_PROFILE_SCOPED();
+
+    /* Position */
 	node.AbsPosition = position;
 	node.RelPosition = position - m_rig->origin;
 	node.smoothpos = position;
@@ -6626,7 +6788,9 @@ void RigSpawner::InitNode(
 	boost::shared_ptr<RigDef::NodeDefaults> node_defaults
 )
 {
-	InitNode(node, position);
+	SPAWNER_PROFILE_SCOPED();
+
+    InitNode(node, position);
 	node.friction_coef = node_defaults->friction;
 	node.volume_coef = node_defaults->volume;
 	node.surface_coef = node_defaults->surface;
@@ -6634,6 +6798,7 @@ void RigSpawner::InitNode(
 
 void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 {
+    SPAWNER_PROFILE_SCOPED();
 
 	m_rig->truckmass = def.dry_mass;
 	m_rig->loadmass = def.cargo_mass;
@@ -6679,7 +6844,9 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 
 bool RigSpawner::CheckNodeLimit(unsigned int count)
 {
-	if ((m_rig->free_node + count) > MAX_NODES)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_node + count) > MAX_NODES)
 	{
 		std::stringstream msg;
 		msg << "Node limit (" << MAX_NODES << ") exceeded";
@@ -6691,7 +6858,9 @@ bool RigSpawner::CheckNodeLimit(unsigned int count)
 
 bool RigSpawner::CheckBeamLimit(unsigned int count)
 {
-	if ((m_rig->free_beam + count) > MAX_BEAMS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_beam + count) > MAX_BEAMS)
 	{
 		std::stringstream msg;
 		msg << "Beam limit (" << MAX_BEAMS << ") exceeded";
@@ -6703,7 +6872,9 @@ bool RigSpawner::CheckBeamLimit(unsigned int count)
 
 bool RigSpawner::CheckShockLimit(unsigned int count)
 {
-	if ((m_rig->free_shock + count) > MAX_SHOCKS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_shock + count) > MAX_SHOCKS)
 	{
 		std::stringstream msg;
 		msg << "Shock limit (" << MAX_SHOCKS << ") exceeded";
@@ -6715,7 +6886,9 @@ bool RigSpawner::CheckShockLimit(unsigned int count)
 
 bool RigSpawner::CheckRotatorLimit(unsigned int count)
 {
-	if ((m_rig->free_rotator + count) > MAX_ROTATORS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_rotator + count) > MAX_ROTATORS)
 	{
 		std::stringstream msg;
 		msg << "Rotator limit (" << MAX_ROTATORS << ") exceeded";
@@ -6727,7 +6900,9 @@ bool RigSpawner::CheckRotatorLimit(unsigned int count)
 
 bool RigSpawner::CheckHydroLimit(unsigned int count)
 {
-	if ((m_rig->free_shock + count) > MAX_HYDROS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_shock + count) > MAX_HYDROS)
 	{
 		std::stringstream msg;
 		msg << "Hydro limit (" << MAX_HYDROS << ") exceeded";
@@ -6739,7 +6914,9 @@ bool RigSpawner::CheckHydroLimit(unsigned int count)
 
 bool RigSpawner::CheckParticleLimit(unsigned int count)
 {
-	if ((m_rig->free_cparticle + count) > MAX_CPARTICLES)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_cparticle + count) > MAX_CPARTICLES)
 	{
 		std::stringstream msg;
 		msg << "Particle limit (" << MAX_CPARTICLES << ") exceeded";
@@ -6751,7 +6928,9 @@ bool RigSpawner::CheckParticleLimit(unsigned int count)
 
 bool RigSpawner::CheckAxleLimit(unsigned int count)
 {
-	if ((m_rig->free_axle + count) > MAX_WHEELS/2)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_axle + count) > MAX_WHEELS/2)
 	{
 		std::stringstream msg;
 		msg << "Axle limit (" << MAX_WHEELS/2 << ") exceeded";
@@ -6762,7 +6941,10 @@ bool RigSpawner::CheckAxleLimit(unsigned int count)
 }
 
 bool RigSpawner::CheckPropLimit(unsigned int count)
-{	if ((m_rig->free_prop + count) > MAX_PROPS)
+{	
+    SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_prop + count) > MAX_PROPS)
 	{
 		std::stringstream msg;
 		msg << "Prop limit (" << MAX_PROPS << ") exceeded";
@@ -6774,7 +6956,9 @@ bool RigSpawner::CheckPropLimit(unsigned int count)
 
 bool RigSpawner::CheckFlexbodyLimit(unsigned int count)
 {
-	if ((m_rig->free_flexbody + count) > MAX_FLEXBODIES)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_flexbody + count) > MAX_FLEXBODIES)
 	{
 		std::stringstream msg;
 		msg << "Flexbody limit (" << MAX_FLEXBODIES << ") exceeded";
@@ -6786,7 +6970,9 @@ bool RigSpawner::CheckFlexbodyLimit(unsigned int count)
 
 bool RigSpawner::CheckSubmeshLimit(unsigned int count)
 {
-	if ((m_rig->free_sub + count) > MAX_SUBMESHES)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_sub + count) > MAX_SUBMESHES)
 	{
 		std::stringstream msg;
 		msg << "Submesh limit (" << MAX_SUBMESHES << ") exceeded";
@@ -6798,7 +6984,9 @@ bool RigSpawner::CheckSubmeshLimit(unsigned int count)
 
 bool RigSpawner::CheckTexcoordLimit(unsigned int count)
 {
-	if ((m_rig->free_texcoord + count) > MAX_TEXCOORDS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_texcoord + count) > MAX_TEXCOORDS)
 	{
 		std::stringstream msg;
 		msg << "Texcoord limit (" << MAX_TEXCOORDS << ") exceeded";
@@ -6811,7 +6999,9 @@ bool RigSpawner::CheckTexcoordLimit(unsigned int count)
 /* Static version */
 bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count)
 {
-	//return CheckSoundScriptLimit(m_rig, count);
+	SPAWNER_PROFILE_SCOPED();
+
+    //return CheckSoundScriptLimit(m_rig, count);
 	if ((vehicle->free_soundsource + count) > MAX_SOUNDSCRIPTS_PER_TRUCK)
 	{
 		std::stringstream msg;
@@ -6824,7 +7014,9 @@ bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count)
 
 bool RigSpawner::CheckSoundScriptLimit(unsigned int count)
 {
-	//return CheckSoundScriptLimit(m_rig, count);
+	SPAWNER_PROFILE_SCOPED();
+
+    //return CheckSoundScriptLimit(m_rig, count);
 	if ((m_rig->free_soundsource + count) > MAX_SOUNDSCRIPTS_PER_TRUCK)
 	{
 		std::stringstream msg;
@@ -6837,7 +7029,9 @@ bool RigSpawner::CheckSoundScriptLimit(unsigned int count)
 
 bool RigSpawner::CheckCabLimit(unsigned int count)
 {
-	if ((m_rig->free_cab + count) > MAX_CABS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_cab + count) > MAX_CABS)
 	{
 		std::stringstream msg;
 		msg << "Cab limit (" << MAX_CABS << ") exceeded";
@@ -6849,7 +7043,9 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
 
 bool RigSpawner::CheckWingLimit(unsigned int count)
 {
-	if ((m_rig->free_wing + count) > MAX_WINGS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_wing + count) > MAX_WINGS)
 	{
 		std::stringstream msg;
 		msg << "Wing limit (" << MAX_WINGS << ") exceeded";
@@ -6861,7 +7057,9 @@ bool RigSpawner::CheckWingLimit(unsigned int count)
 
 bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 {
-	if ((m_rig->free_camerarail + count) > MAX_CAMERARAIL)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_camerarail + count) > MAX_CAMERARAIL)
 	{
 		std::stringstream msg;
 		msg << "CameraRail limit (" << MAX_CAMERARAIL << ") exceeded";
@@ -6873,7 +7071,9 @@ bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 
 bool RigSpawner::CheckAirBrakeLimit(unsigned int count)
 {
-	if ((m_rig->free_airbrake + count) > MAX_AIRBRAKES)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_airbrake + count) > MAX_AIRBRAKES)
 	{
 		std::stringstream msg;
 		msg << "AirBrake limit (" << MAX_AIRBRAKES << ") exceeded";
@@ -6885,7 +7085,9 @@ bool RigSpawner::CheckAirBrakeLimit(unsigned int count)
 
 bool RigSpawner::CheckAeroEngineLimit(unsigned int count)
 {
-	if ((m_rig->free_aeroengine + count) > MAX_AEROENGINES)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_aeroengine + count) > MAX_AEROENGINES)
 	{
 		std::stringstream msg;
 		msg << "AeroEngine limit (" << MAX_AEROENGINES << ") exceeded";
@@ -6897,7 +7099,9 @@ bool RigSpawner::CheckAeroEngineLimit(unsigned int count)
 
 bool RigSpawner::CheckScrewpropLimit(unsigned int count)
 {
-	if ((m_rig->free_screwprop + count) > MAX_SCREWPROPS)
+	SPAWNER_PROFILE_SCOPED();
+
+    if ((m_rig->free_screwprop + count) > MAX_SCREWPROPS)
 	{
 		std::stringstream msg;
 		msg << "Screwprop limit (" << MAX_SCREWPROPS << ") exceeded";
@@ -6914,7 +7118,9 @@ node_t &RigSpawner:: GetNode(unsigned int node_index)
 
 void RigSpawner::InitNode(unsigned int node_index, Ogre::Vector3 const & position)
 {
-	InitNode(m_rig->nodes[node_index], position);
+	SPAWNER_PROFILE_SCOPED();
+
+    InitNode(m_rig->nodes[node_index], position);
 }
 
 beam_t & RigSpawner::GetBeam(unsigned int index)
@@ -6924,7 +7130,9 @@ beam_t & RigSpawner::GetBeam(unsigned int index)
 
 node_t & RigSpawner::GetFreeNode()
 {
-	CheckNodeLimit(1);
+	SPAWNER_PROFILE_SCOPED();
+
+    CheckNodeLimit(1);
 	node_t & node = m_rig->nodes[m_rig->free_node];
 	node.pos = m_rig->free_node;
 	m_rig->free_node++;
@@ -6933,7 +7141,9 @@ node_t & RigSpawner::GetFreeNode()
 
 beam_t & RigSpawner::GetFreeBeam()
 {
-	CheckBeamLimit(1);
+	SPAWNER_PROFILE_SCOPED();
+
+    CheckBeamLimit(1);
 	beam_t & beam = m_rig->beams[m_rig->free_beam];
 	m_rig->free_beam++;
 	return beam;
@@ -6941,14 +7151,18 @@ beam_t & RigSpawner::GetFreeBeam()
 
 shock_t & RigSpawner::GetFreeShock()
 {
-	shock_t & shock = m_rig->shocks[m_rig->free_shock];
+	SPAWNER_PROFILE_SCOPED();
+
+    shock_t & shock = m_rig->shocks[m_rig->free_shock];
 	m_rig->free_shock++;
 	return shock;
 }
 
 beam_t & RigSpawner::GetAndInitFreeBeam(node_t & node_1, node_t & node_2)
 {
-	beam_t & beam = GetFreeBeam();
+	SPAWNER_PROFILE_SCOPED();
+
+    beam_t & beam = GetFreeBeam();
 	beam.p1 = & node_1;
 	beam.p2 = & node_2;
 	return beam;
@@ -6956,7 +7170,9 @@ beam_t & RigSpawner::GetAndInitFreeBeam(node_t & node_1, node_t & node_2)
 
 node_t & RigSpawner::GetAndInitFreeNode(Ogre::Vector3 const & position)
 {
-	node_t & node = GetFreeNode();
+	SPAWNER_PROFILE_SCOPED();
+
+    node_t & node = GetFreeNode();
 	InitNode(node, position);
 	return node;
 }
@@ -6973,7 +7189,9 @@ void RigSpawner::SetBeamDamping(beam_t & beam, float damping)
 
 void RigSpawner::RecalculateBoundingBoxes(rig_t *rig)
 {
-	Ogre::Vector3 node_0_pos = rig->nodes[0].AbsPosition;
+	SPAWNER_PROFILE_SCOPED();
+
+    Ogre::Vector3 node_0_pos = rig->nodes[0].AbsPosition;
 	rig->boundingBox.setExtents(
 		node_0_pos.x, node_0_pos.y, node_0_pos.z, 
 		node_0_pos.x, node_0_pos.y, node_0_pos.z
@@ -7019,7 +7237,9 @@ void RigSpawner::RecalculateBoundingBoxes(rig_t *rig)
 
 void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 {
-	int trucknum = vehicle->trucknum;
+	SPAWNER_PROFILE_SCOPED();
+
+    int trucknum = vehicle->trucknum;
 	int smokeId = vehicle->smokeId;
 
 #ifdef USE_OPENAL
@@ -7168,7 +7388,9 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 
 void RigSpawner::UpdateCollcabContacterNodes()
 {
-	for (int i=0; i<m_rig->free_collcab; i++)
+	SPAWNER_PROFILE_SCOPED();
+
+    for (int i=0; i<m_rig->free_collcab; i++)
 	{
 		int tmpv = m_rig->collcabs[i] * 3;
 		m_rig->nodes[m_rig->cabs[tmpv]].contacter = true;
@@ -7179,7 +7401,9 @@ void RigSpawner::UpdateCollcabContacterNodes()
 
 std::string RigSpawner::ProcessMessagesToString()
 {
-	std::stringstream report;
+	SPAWNER_PROFILE_SCOPED();
+
+    std::stringstream report;
 
     auto itor = m_messages.begin();
     auto end  = m_messages.end();
@@ -7207,4 +7431,19 @@ std::string RigSpawner::ProcessMessagesToString()
 		report << "\t" << itor->text << std::endl;
 	}
 	return report.str();
+}
+
+void RigSpawner::ProfilerReset()
+{
+#ifdef SPAWNER_USE_PROFILER
+    Profiler::reset();
+#endif
+}
+
+void RigSpawner::ProfilerDumpReportHtml()
+{
+#ifdef SPAWNER_USE_PROFILER
+    std::string out_path = SSETTING("Profiler output dir", "") + "rig_spawner.html";
+    ::Profiler::DumpHtml(out_path.c_str());
+#endif
 }
