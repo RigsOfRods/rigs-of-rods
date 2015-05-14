@@ -70,6 +70,7 @@ public:
 		, Ogre::Vector3 pos
 		, Ogre::Quaternion rot
 		, const char* fname
+        , RoR::RigLoadingProfiler* rig_loading_profiler
 		, bool networked = false
 		, bool networking = false
 		, collision_box_t *spawnbox = nullptr
@@ -119,6 +120,7 @@ public:
 	* Spawns vehicle.
 	*/
 	bool LoadTruck(
+        RoR::RigLoadingProfiler* rig_loading_profiler,
 		Ogre::String const & file_name, 
 		Ogre::SceneNode *parent_scene_node, 
 		Ogre::Vector3 const & spawn_position,
