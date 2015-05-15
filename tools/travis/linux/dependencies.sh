@@ -16,7 +16,7 @@ cd ~/ror-deps
 
 #OGRE
 wget -O ogre.zip http://bitbucket.org/sinbad/ogre/get/v1-8.zip
-unzip ogre.zip
+unzip -qq ogre.zip
 rm ogre.zip
 cd sinbad-ogre-*
 cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
@@ -28,7 +28,7 @@ cd ..
 
 #MyGUI (needs specific revision)
 wget -O mygui.zip https://github.com/MyGUI/mygui/archive/a790944c344c686805d074d7fc1d7fc13df98c37.zip
-unzip mygui.zip
+unzip -qq mygui.zip
 rm mygui.zip
 cd mygui-*
 cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
@@ -53,7 +53,7 @@ cd ..
 
 #Caelum (needs specific revision for OGRE-1.8)
 wget -O caelum.zip http://caelum.googlecode.com/archive/3b0f1afccf5cb75c65d812d0361cce61b0e82e52.zip
-unzip caelum.zip
+unzip -qq caelum.zip
 rm caelum.zip
 cd caelum-*
 cmake -DCaelum_BUILD_SAMPLES:BOOL=OFF .
@@ -74,7 +74,7 @@ cd ..
 mkdir angelscript
 cd angelscript
 wget http://www.angelcode.com/angelscript/sdk/files/angelscript_2.22.1.zip
-unzip angelscript_*.zip
+unzip -qq angelscript_*.zip
 cd sdk/angelscript/projects/gnuc
 SHARED=1 VERSION=2.22.1 make --silent -j2 
 # sudo make install fails when making the symbolic link, this removes the existing versions
