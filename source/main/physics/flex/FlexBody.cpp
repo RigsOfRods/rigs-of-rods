@@ -1,44 +1,32 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "FlexBody.h"
 
 #include "ApproxMath.h"
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
+#include "RigLoadingProfilerControl.h"
 #include "Skin.h"
-#include "BeamData.h" // For node_t
-#include "Timer.h"
-
-// Uncomment for time stats in RoR.log
-// #define FLEXBODY_LOG_LOADING_TIMES
-
-#ifdef FLEXBODY_LOG_LOADING_TIMES
-#   define TIMER_CREATE() \
-        PrecisionTimer loading_timer;
-
-#   define TIMER_SNAPSHOT(VAR_NAME) \
-        double VAR_NAME = loading_timer.elapsed(); loading_timer.restart();
-#else
-#   define TIMER_CREATE()
-#   define TIMER_SNAPSHOT(VAR_NAME)
-#endif
+#include "BeamData.h"
 
 using namespace Ogre;
 
@@ -55,8 +43,8 @@ FlexBody::FlexBody(
 	std::vector<unsigned int> & node_indices, 
 	MaterialFunctionMapper *material_function_mapper, 
 	Skin *usedSkin, 
-	bool forceNoShadows, 
-	MaterialReplacer *material_replacer
+	MaterialReplacer *material_replacer,
+    bool enable_LODs // = false
 ):
 	  m_camera_mode(-2)	
 	, m_center_offset(offset)
@@ -71,6 +59,7 @@ FlexBody::FlexBody(
     , m_has_texture(true)
 {
     TIMER_CREATE();
+    FLEXBODY_PROFILER_START("Compute pos + orientation");
 
 	m_nodes[m_node_center].iIsSkin=true;
 	m_nodes[m_node_x].iIsSkin=true;
@@ -103,6 +92,7 @@ FlexBody::FlexBody(
 		position=m_nodes[0].smoothpos+offset;
 		orientation = rot;
 	}
+    FLEXBODY_PROFILER_ENTER("Find mesh resource");
 
 	// load unique mesh (load original mesh and clone it with unique name)
 
@@ -120,38 +110,65 @@ FlexBody::FlexBody(
 		m_is_faulty=true;
 		return;
 	}
+    FLEXBODY_PROFILER_ENTER("Build unique name");
 	// build new unique mesh name
 	char uname_mesh[256] = {};
 	strncpy(uname_mesh, uname.c_str(), 250);
 	uname_mesh[250] = '\0';
 	strcat(uname_mesh, "_mesh");
+    FLEXBODY_PROFILER_ENTER("Load mesh");
 	MeshPtr mesh = MeshManager::getSingleton().load(meshname, groupname);
     TIMER_SNAPSHOT(stat_mesh_loaded_time);
-
+    FLEXBODY_PROFILER_ENTER("Clone mesh");
 	MeshPtr newmesh = mesh->clone(uname_mesh);
-	
-	// now find possible LODs
- 	String basename, ext;
-	StringUtil::splitBaseFilename(String(meshname), basename, ext);
-	for (int i=0; i<4;i++)
-	{
-		String fn = basename + "_" + TOSTRING(i) + ".mesh";
-		bool exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn);
-		if (!exists) continue;
-
-		float distance = 3;
-		if (i == 1) distance = 20;
-		if (i == 2) distance = 50;
-		if (i == 3) distance = 200;
-		newmesh->createManualLodLevel(distance, fn);
-	}
-
+    if (enable_LODs)
+    {
+        // now find possible LODs
+	    FLEXBODY_PROFILER_ENTER("Handle LODs >> Split mesh name");
+ 	    String basename, ext;
+	    StringUtil::splitBaseFilename(String(meshname), basename, ext);
+        FLEXBODY_PROFILER_ENTER("Handle LODs >> Run loop");
+	    for (int i=0; i<4;i++)
+	    {
+            bool exists;
+            String fn;
+            {
+                FLEXBODY_PROFILER_SCOPED("LOD LOOP > Find resource > call Ogre::ResGroupMan::resExistsInAnyGroup()");
+		        fn = basename + "_" + TOSTRING(i) + ".mesh";
+		        exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn);
+            }
+		    if (!exists) continue;
+            {
+                FLEXBODY_PROFILER_SCOPED("LOD LOOP > Create manual LOD level");
+		        float distance = 3;
+		        if (i == 1) distance = 20;
+		        if (i == 2) distance = 50;
+		        if (i == 3) distance = 200;
+		        newmesh->createManualLodLevel(distance, fn);
+            }
+	    }
+    }
+    FLEXBODY_PROFILER_ENTER("Create entity");
 	Entity *ent = gEnv->sceneManager->createEntity(uname, uname_mesh);
+    FLEXBODY_PROFILER_ENTER("MaterialFunctionMapper::replaceSimpleMeshMaterials()");
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, ColourValue(0.5, 0.5, 1));
-	if (material_function_mapper) material_function_mapper->replaceMeshMaterials(ent);
-	if (material_replacer) material_replacer->replaceMeshMaterials(ent);
-	if (usedSkin) usedSkin->replaceMeshMaterials(ent);
+	if (material_function_mapper)
+    {
+        FLEXBODY_PROFILER_ENTER("mat_function_mapper->replaceMeshMaterials()")
+        material_function_mapper->replaceMeshMaterials(ent);
+    }
+	if (material_replacer)
+    {
+        FLEXBODY_PROFILER_ENTER("material_replacer->replaceMeshMaterials()")
+        material_replacer->replaceMeshMaterials(ent);
+    }
+	if (usedSkin)
+    {
+        FLEXBODY_PROFILER_ENTER("usedSkin->replaceMeshMaterials()")
+        usedSkin->replaceMeshMaterials(ent);
+    }
     TIMER_SNAPSHOT(stat_mesh_ready_time);
+    FLEXBODY_PROFILER_ENTER("Check texcoord presence")
 
 	m_mesh=ent->getMesh();
 
@@ -172,6 +189,7 @@ FlexBody::FlexBody(
         LOG("FLEXBODY Warning: at least one part of this mesh does not have texture coordinates, switching off texturing!");
         m_has_texture_blend=false;
     }
+    FLEXBODY_PROFILER_ENTER("Detect missing normals")
 
 	//detect the anomalous case where a mesh is exported without normal vectors
 	bool havenormal=true;
@@ -191,23 +209,27 @@ FlexBody::FlexBody(
         LOG("FLEXBODY Error: at least one part of this mesh does not have normal vectors, export your mesh with normal vectors! Disabling flexbody");
     }
     TIMER_SNAPSHOT(stat_mesh_scanned_time);
+    FLEXBODY_PROFILER_ENTER("Create vertex declaration")
 
 	//create optimal VertexDeclaration
 	VertexDeclaration* optimalVD=HardwareBufferManager::getSingleton().createVertexDeclaration();
+    FLEXBODY_PROFILER_ENTER("Setup vertex declaration")
 	optimalVD->addElement(0, 0, VET_FLOAT3, VES_POSITION);
 	optimalVD->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
 	if (m_has_texture_blend) optimalVD->addElement(2, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
 	if (m_has_texture) optimalVD->addElement(3, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+    FLEXBODY_PROFILER_ENTER("Sort vertex decl")
 	optimalVD->sort();
+    FLEXBODY_PROFILER_ENTER("Vertex decl -> closeGapsInSource()")
 	optimalVD->closeGapsInSource();
-
+    FLEXBODY_PROFILER_ENTER("Create 'optimal buffer usage' list")
 	BufferUsageList optimalBufferUsages;
-	for (size_t u = 0; u <= optimalVD->getMaxSource(); ++u) optimalBufferUsages.push_back(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+	for (size_t u = 0; u <= optimalVD->getMaxSource(); ++u) 
+    {
+        optimalBufferUsages.push_back(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+    }
 
-	//print mesh information
-	//LOG("FLEXBODY Printing input mesh informations:");
-	//printMeshInfo(ent->getMesh().getPointer());
-
+    FLEXBODY_PROFILER_ENTER("Create color buffers")
 	//adding color buffers, well get the reference later
 	if (m_has_texture_blend)
 	{
@@ -238,6 +260,7 @@ FlexBody::FlexBody(
 			}
 		}
 	}
+    FLEXBODY_PROFILER_ENTER("Reorganise vertex buffers")
     TIMER_SNAPSHOT(stat_vertexbuffers_created_time);
 
 	//reorg
@@ -260,6 +283,7 @@ FlexBody::FlexBody(
 		}
 	}
     TIMER_SNAPSHOT(stat_buffers_reorganised_time);
+    FLEXBODY_PROFILER_ENTER("Count vertices")
 
 	//print mesh information
 	//LOG("FLEXBODY Printing modififed mesh informations:");
@@ -288,7 +312,7 @@ FlexBody::FlexBody(
 
 	LOG("FLEXBODY Vertices in mesh "+String(meshname)+": "+ TOSTRING(m_vertex_count));
 	//LOG("Triangles in mesh: %u",index_count / 3);
-
+    FLEXBODY_PROFILER_ENTER("Alloc buffers")
 	vertices=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
 	m_dst_pos=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
 	m_src_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
@@ -298,6 +322,7 @@ FlexBody::FlexBody(
 		m_src_colors=(ARGB*)malloc(sizeof(ARGB)*m_vertex_count);
 		for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
 	}
+    FLEXBODY_PROFILER_ENTER("Fill buffers")
 	Vector3* vpt=vertices;
 	Vector3* npt=m_src_normals;
 	int cursubmesh=0;
@@ -346,6 +371,7 @@ FlexBody::FlexBody(
 	}
     TIMER_SNAPSHOT(stat_manual_buffers_created_time);
 
+    FLEXBODY_PROFILER_ENTER("Transform vertices")
 	//transform
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
@@ -353,6 +379,7 @@ FlexBody::FlexBody(
 	}
     TIMER_SNAPSHOT(stat_transformed_time);
 
+    FLEXBODY_PROFILER_ENTER("Locate nodes")
 	m_locators=(Locator_t*)malloc(sizeof(Locator_t)*m_vertex_count);
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
@@ -462,6 +489,7 @@ FlexBody::FlexBody(
     TIMER_SNAPSHOT(stat_located_time);
 
 	//adjusting bounds
+    FLEXBODY_PROFILER_ENTER("Adjust bounds")
 	AxisAlignedBox aab=m_mesh->getBounds();
 	Vector3 v=aab.getMinimum();
 	float mi=v.x;
@@ -478,6 +506,7 @@ FlexBody::FlexBody(
 	aab.setMaximum(Vector3(ma,ma,ma));
 	m_mesh->_setBounds(aab, true);
 
+    FLEXBODY_PROFILER_ENTER("Attach mesh to scene")
 	LOG("FLEXBODY show mesh");
 	//okay, show the mesh now
 	m_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -485,7 +514,7 @@ FlexBody::FlexBody(
 	m_scene_node->setPosition(position);
 
     TIMER_SNAPSHOT(stat_showmesh_time);
-
+    FLEXBODY_PROFILER_ENTER("Transform normals")
 	// If something unexpected happens here, then
 	// replace fast_normalise(a) with a.normalisedCopy()
 	for (int i=0; i<(int)m_vertex_count; i++)
@@ -505,6 +534,7 @@ FlexBody::FlexBody(
 	}
 
     TIMER_SNAPSHOT(stat_euclidean2_time);
+    FLEXBODY_PROFILER_ENTER("Printing time stats");
 
 #ifdef FLEXBODY_LOG_LOADING_TIMES
     char stats[1000];
@@ -527,6 +557,7 @@ FlexBody::FlexBody(
 #else
     LOG("FLEXBODY ready");
 #endif
+    FLEXBODY_PROFILER_EXIT();
 }
 
 void FlexBody::setEnabled(bool e)

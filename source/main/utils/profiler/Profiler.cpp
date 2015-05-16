@@ -25,6 +25,8 @@
 	#include <unistd.h>
 #endif
 
+#include "RoRPrerequisites.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -909,6 +911,13 @@ namespace Profiler {
 			Caller::mColors.push( ColorF( 255.0f/255.0f,  128.0f/255.0f,  128.0f/255.0f ), 1.00f );
 			
 			f = fopen( m_out_path.c_str(), "wb+" );
+            if (f == nullptr)
+            {
+                char msg[300];
+                sprintf(msg, "Failed to open HTML output file: %s", m_out_path.c_str());
+                LOG(msg);
+                return;
+            }
 
 			Caller::mHTMLFormatter.Clear();
 			fputs(
@@ -940,6 +949,7 @@ namespace Profiler {
 		}
 
 		void GlobalInfo( u64 rawCycles ) {
+            if (f == nullptr) {return;}
 			fputs( "<div class=\"overall\"><table>", f );
 			if ( programName ) {
 				fprintf( f, "<tr><td class=\"title\">Command Line: </td><td>%s", programName );
@@ -952,6 +962,7 @@ namespace Profiler {
 		}
 
 		void ThreadsInfo( u64 totalCalls, f64 timerOverhead, f64 rdtscOverhead ) {
+            if (f == nullptr) {return;}
 			fprintf( f, "<tr><td class=\"title\">Total calls: </td><td>" PRINTFU64() "</td></tr>\n", totalCalls );
 			fprintf( f, "<tr><td class=\"title\">rdtsc overhead: </td><td>%.0f cycles</td></tr>\n", rdtscOverhead );
 			fprintf( f, "<tr><td class=\"title\">Per call overhead: </td><td>%.0f cycles</td></tr>\n", timerOverhead );
@@ -960,6 +971,7 @@ namespace Profiler {
 		}
 
 		void PrintThread( Caller *root ) {
+            if (f == nullptr) {return;}
 			fputs( "<div class=\"thread\"><table>\n", f );
 			fputs( css_title_row, f );
 			root->PrintHtml( f );
@@ -967,6 +979,7 @@ namespace Profiler {
 		}
 
 		void PrintAccumulated( Caller *accumulated ) {
+            if (f == nullptr) {return;}
 			fputs( "<div class=\"thread\"><table>\n", f );
 			fputs( css_totals_row, f );
 			fputs( "<tr style=\"" css_thread_style "\"><td><table><tr><td><img src=\"img/root.gif\" /></td><td>Functions sorted by self time</td></tr></table></td><td></td><td></td><td></td></tr>\n", f );
@@ -979,6 +992,7 @@ namespace Profiler {
 		}
 
 		void Finish() {
+            if (f == nullptr) {return;}
 			fputs( "</div>\n", f );
 			fputs( "</body></html>", f );
 			fclose( f );

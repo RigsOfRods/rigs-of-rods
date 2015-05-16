@@ -6279,7 +6279,7 @@ bool Beam::LoadTruck(
 	LOG(report_text);
 
     auto* importer = parser.GetSequentialImporter();
-    if (importer->IsEnabled())
+    if (importer->IsEnabled() && BSETTING("RigImporter_PrintMessagesToLog", false))
     {
         report_num_errors   += importer->GetMessagesNumErrors();
         report_num_warnings += importer->GetMessagesNumWarnings();
@@ -6328,7 +6328,6 @@ bool Beam::LoadTruck(
 	LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
 	RigSpawner spawner;
-    spawner.ProfilerReset();
 	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
 	/* Setup modules */
@@ -6353,8 +6352,14 @@ bool Beam::LoadTruck(
     // Extra information to RoR.log
     if (importer->IsEnabled())
     {
-        LOG(importer->GetNodeStatistics());
-        LOG(importer->IterateAndPrintAllNodes());
+        if (BSETTING("RigImporter_PrintNodeStatsToLog", false))
+        {
+            LOG(importer->GetNodeStatistics());
+        }
+        if (BSETTING("RigImporter_Debug_TraverseAndLogAllNodes", false))
+        {
+            LOG(importer->IterateAndPrintAllNodes());
+        }
     }
 
 	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
@@ -6574,7 +6579,6 @@ bool Beam::LoadTruck(
 	}
 #endif // USE_MYGUI
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
-    spawner.ProfilerDumpReportHtml();
 
 	return true;
 }

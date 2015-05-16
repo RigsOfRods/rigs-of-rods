@@ -31,6 +31,7 @@
 #include "RoRPrerequisites.h"
 #include "RigDef_Parser.h"
 #include "BeamData.h"
+#include "FlexFactory.h"
 
 #include <OgreString.h>
 
@@ -146,9 +147,6 @@ public:
     int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
 	static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
-
-    void ProfilerDumpReportHtml();
-    void ProfilerReset();
 
 protected:
 
@@ -1000,7 +998,6 @@ protected:
     int                   m_messages_num_warnings;
     int                   m_messages_num_other;
 
-
 	/* RIG CONTEXT */
 
 	Ogre::SceneNode *m_parent_scene_node;
@@ -1014,4 +1011,6 @@ protected:
 	float m_fuse_y_min;
 	float m_fuse_y_max;
 	bool  m_generate_wing_position_lights;
+
+    RoR::FlexFactory m_flex_factory;
 };

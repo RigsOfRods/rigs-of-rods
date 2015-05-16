@@ -1,21 +1,22 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+	This source file is part of Rigs of Rods
+	Copyright 2005-2012 Pierre-Michel Ricordel
+	Copyright 2007-2012 Thomas Fischer
+	Copyright 2013-2015 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+	Rigs of Rods is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 3, as
+	published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	Rigs of Rods is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -29,13 +30,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreHardwareVertexBuffer.h>
 #include <OgreMesh.h>
 
+// Forward decl
+namespace RoR
+{
+    class FlexFactory;
+}
+
 class FlexBody : public Flexable
 {
 	friend class RigInspector;
+    friend class RoR::FlexFactory;
 
-public:
-
-	FlexBody(
+	FlexBody( // Private
 		node_t *nds, 
 		int numnodes, 
 		Ogre::String const & meshname, 
@@ -48,10 +54,11 @@ public:
 		std::vector<unsigned int> & node_indices, 
 		MaterialFunctionMapper *material_function_mapper, 
 		Skin *usedSkin, 
-		bool forceNoShadows, 
-		MaterialReplacer *material_replacer
+		MaterialReplacer *material_replacer,
+        bool enable_LODs = false
 	);
 
+public:
 	void printMeshInfo(Ogre::Mesh* mesh);
 	void reset();
 	void updateBlend();
@@ -73,8 +80,6 @@ public:
 	Ogre::Vector3 flexitFinal();
 
 	void setVisible(bool visible);
-
-
 
 private:
 

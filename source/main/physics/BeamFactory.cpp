@@ -38,6 +38,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Console.h"
 #include "GUIManager.h"
 #include "RigLoadingProfiler.h"
+#include "RigLoadingProfilerControl.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -193,6 +194,9 @@ Beam *BeamFactory::createLocal(
 )
 {
     RigLoadingProfiler rig_loading_profiler;
+#ifdef ROR_PROFILE_RIG_LOADING
+    ::Profiler::reset();
+#endif
 
 	int truck_num = getFreeTruckSlot();
 	if (truck_num == -1)
@@ -241,7 +245,10 @@ Beam *BeamFactory::createLocal(
     LOADRIG_PROFILER_CHECKPOINT(ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS);
 
     LOG(rig_loading_profiler.Report());
-
+#ifdef ROR_PROFILE_RIG_LOADING
+    std::string out_path = SSETTING("Profiler output dir", "") + ROR_PROFILE_RIG_LOADING_OUTFILE;
+    ::Profiler::DumpHtml(out_path.c_str());
+#endif
 	return b;
 }
 
