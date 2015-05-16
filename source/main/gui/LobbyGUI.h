@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
+#pragma once
 #ifndef LOBBYGUI_H__
 #define LOBBYGUI_H__
 

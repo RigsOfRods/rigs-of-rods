@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // based on the openttd class of the same name
 // this helps finding problems when uninitialized member pointers are used
 
+#pragma once
 #ifndef ZEROMEMORYALLOCATOR_H__
 #define ZEROMEMORYALLOCATOR_H__
 

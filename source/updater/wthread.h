@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WTHREAD_H__
 #define WTHREAD_H__
 

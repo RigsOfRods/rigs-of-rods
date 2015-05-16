@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
+#pragma once
 #ifndef __MAP_ENTITY_H_
 #define __MAP_ENTITY_H_
 

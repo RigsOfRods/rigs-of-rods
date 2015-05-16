@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CEVENT_H__
 #define CEVENT_H__
 

@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // written by thomas fischer thomas{AT}thomasfischer{DOT}biz on 18th of June 2011
 // to cope the problems of the buggy i18n translations in wxChoice
 
+#pragma once
 #ifndef WXVALUECHOICE
 #define WXVALUECHOICE
 

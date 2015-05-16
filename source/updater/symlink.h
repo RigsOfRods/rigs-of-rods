@@ -3,6 +3,8 @@
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
 // from http://msdn.microsoft.com/en-us/library/bb776891(VS.85).aspx
+
+#pragma once
 #ifndef SYMLINK__H__
 #define SYMLINK__H__
 

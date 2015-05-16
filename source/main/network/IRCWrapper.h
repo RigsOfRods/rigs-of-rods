@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef USE_SOCKETW
 
+#pragma once
 #ifndef __IRCWrapper_H_
 #define __IRCWrapper_H_
 

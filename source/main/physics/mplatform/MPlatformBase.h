@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef USE_MPLATFORM
+#pragma once
 #ifndef MPLATFORM_BASE_H
 #define MPLATFORM_BASE_H
 

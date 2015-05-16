@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on the 26th of July 2009 by Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
+#pragma once
 #ifndef __PositionStorage_H__
 #define __PositionStorage_H__
 

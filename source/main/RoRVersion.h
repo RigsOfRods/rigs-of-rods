@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 17th of May 2011 by Thomas Fischer
 
+#pragma once
 #ifndef RORVERSION_H__
 #define RORVERSION_H__
 // the version is in its own file so that you dont recompile everything when changing the version

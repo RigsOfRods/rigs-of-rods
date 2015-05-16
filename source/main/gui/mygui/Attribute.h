@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 	@module
 */
 
+#pragma once
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__
 

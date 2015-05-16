@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
  * Created on April 6, 2009, 2:57 AM
  */
 
+#pragma once
 #ifndef __APPROXMATH_H_
 #define	__APPROXMATH_H_
 

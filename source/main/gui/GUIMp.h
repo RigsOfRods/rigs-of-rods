@@ -20,6 +20,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 18th of July 2010
 #ifdef USE_MYGUI
 #ifdef USE_SOCKETW
+
+#pragma once
 #ifndef __GUI_Mp_H_
 #define __GUI_Mp_H_
 

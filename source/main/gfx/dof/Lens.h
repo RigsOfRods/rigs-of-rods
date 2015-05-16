@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //
 // Author: Ryan Booker (eyevee99)
 
+#pragma once
 #ifndef __Lens_H__
 #define __Lens_H__
 

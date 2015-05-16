@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // Created on 18th May 2011.
+
+#pragma once
 #ifndef LOCALSTORAGE_H__
 #define LOCALSTORAGE_H__
 

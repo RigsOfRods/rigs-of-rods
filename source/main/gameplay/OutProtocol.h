@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 17th of July 2011
 
+#pragma once
 #ifndef _OUTPROTCOL_H__
 #define _OUTPROTCOL_H__
 

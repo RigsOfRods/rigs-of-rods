@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 22th of December 2009
 
+#pragma once
 #ifndef __StreamableFactoryInterface_H_
 #define __StreamableFactoryInterface_H_
 

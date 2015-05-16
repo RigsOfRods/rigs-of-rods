@@ -40,6 +40,7 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma once
 #ifndef __SLIDENODE_H_
 #define __SLIDENODE_H_
 
