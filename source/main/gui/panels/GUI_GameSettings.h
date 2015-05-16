@@ -105,6 +105,7 @@ private:
 	bool startCounter;
 	unsigned long endTime;
 	Ogre::String LastKeyCombo;
+	bool isFrameActivated;
 
 	std::map<int, std::vector<event_trigger_t> > KeyMap;
 

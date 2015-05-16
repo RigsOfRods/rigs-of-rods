@@ -158,7 +158,15 @@ void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
 	else if (_sender == m_key_mapping_window)
 	{
 		if (_name == "close")
+		{
+			if (startCounter)
+				startCounter = false;
+
+			if (isFrameActivated)
+				MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
+
 			m_key_mapping_window->setVisibleSmooth(false);
+		}
 	}
 }
 
@@ -1095,7 +1103,11 @@ void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 		m_key_mapping_window->setCaptionWithReplacing("Assign new key");
 		m_key_mapping_window_text->setCaptionWithReplacing(str_text);
 		m_key_mapping_window->setVisibleSmooth(true);
+
 		MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::FrameEntered);
+		isFrameActivated = true;
+
+		m_key_mapping_window_info->setCaptionWithReplacing("");
 
 		str_text = "";
 }
@@ -1107,6 +1119,8 @@ void CLASS::FrameEntered(float dt)
 	if (RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RETURN) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_ESCAPE))
 	{
 		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
+		isFrameActivated = false;
+
 		m_key_mapping_window->setVisibleSmooth(false);
 		return;
 	}
@@ -1141,6 +1155,8 @@ void CLASS::FrameEntered(float dt)
 			LastKeyCombo = "";
 
 			MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
+			isFrameActivated = false;
+
 			m_key_mapping_window->setVisibleSmooth(false);
 			return;
 		}
