@@ -1,4 +1,5 @@
 // license: do whatever you want to do with it ;)
+#pragma once
 #ifndef TIMER_H__
 #define TIMER_H__
 

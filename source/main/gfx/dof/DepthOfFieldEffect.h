@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //
 // This code is in the public domain. You may do whatever you want with it.
 
+#pragma once
 #ifndef __DepthOfFieldEffect_H_
 #define __DepthOfFieldEffect_H_
 

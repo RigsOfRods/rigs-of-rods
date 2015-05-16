@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
+#pragma once
 #ifndef __HIGHSCORE_WINDOW_H__
 #define __HIGHSCORE_WINDOW_H__
 

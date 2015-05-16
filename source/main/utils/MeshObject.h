@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 1st of May 2010
 
+#pragma once
 #ifndef __MeshObject_H_
 #define __MeshObject_H_
 

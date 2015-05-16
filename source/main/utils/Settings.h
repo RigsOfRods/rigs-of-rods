@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created by thomas fischer, 4th of January 2009
+
+#pragma once
 #ifndef __Settings_H_
 #define __Settings_H_
 

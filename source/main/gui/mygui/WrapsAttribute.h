@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 	@module
 */
 
+#pragma once
 #ifndef __WRAPS_ATTRIBUTE_H__
 #define __WRAPS_ATTRIBUTE_H__
 

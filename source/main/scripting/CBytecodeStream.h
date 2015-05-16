@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 15th of May 2011 by Thomas Fischer
 
+#pragma once
 #ifndef CBYTECODEESTREAM_H__
 #define CBYTECODEESTREAM_H__
 

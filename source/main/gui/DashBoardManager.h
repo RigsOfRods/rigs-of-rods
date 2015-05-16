@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 19th of October 2011
 #ifdef USE_MYGUI
+
+#pragma once
 #ifndef __DashBoardManager_H_
 #define __DashBoardManager_H_
 

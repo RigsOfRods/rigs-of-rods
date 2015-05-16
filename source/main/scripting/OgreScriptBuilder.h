@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 15th of May 2011 by Thomas Fischer
 
+#pragma once
 #ifndef OGRESCRIPTBUILDER_H__
 #define OGRESCRIPTBUILDER_H__
 

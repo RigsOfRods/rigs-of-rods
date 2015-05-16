@@ -20,6 +20,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // source: ogre wiki: http://www.ogre3d.org/wiki/index.php/HowTo:_Write_text_on_texture
 
+#pragma once
+
 #include "RoRPrerequisites.h"
 
 #include "OgrePrerequisites.h"

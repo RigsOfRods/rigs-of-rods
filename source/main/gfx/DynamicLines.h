@@ -1,4 +1,6 @@
 // from Ogre wiki: http://www.ogre3d.org/tikiwiki/DynamicLineDrawing
+
+#pragma once
 #ifndef _DYNAMIC_LINES_H_
 #define _DYNAMIC_LINES_H_
 

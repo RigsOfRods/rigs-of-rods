@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 //created by Thomas Fischer 22th of January 2011
 
+#pragma once
 #ifndef __DecalManager_H_
 #define __DecalManager_H_
 

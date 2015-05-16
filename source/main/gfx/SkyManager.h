@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_CAELUM
 
+#pragma once
 #ifndef __SkyManager_H_
 #define __SkyManager_H_
 

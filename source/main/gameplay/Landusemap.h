@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 //created by thomas fischer 23 February 2009
+#pragma once
 #ifndef __LandUseMap_H_
 #define __LandUseMap_H_
 

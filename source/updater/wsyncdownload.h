@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WSYNCDOWNLOAD_H__
 #define WSYNCDOWNLOAD_H__
 

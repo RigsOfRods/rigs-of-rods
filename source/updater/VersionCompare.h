@@ -1,4 +1,5 @@
 // from: http://stackoverflow.com/questions/2941491/compare-versions-as-strings
+#pragma once
 #ifndef VERSIONCOMPARE_H__
 #define VERSIONCOMPARE_H__
 
