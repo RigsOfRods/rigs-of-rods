@@ -40,6 +40,10 @@ public:
 	void updatePSSM(Ogre::Terrain* terrain = 0);
 protected:
 
+	void processPSSM();
+
+	void processTextureShadows();
+
 	Ogre::ShadowCameraSetupPtr mPSSMSetup;
 	bool mDepthShadows;
 
