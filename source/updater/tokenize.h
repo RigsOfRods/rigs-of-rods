@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <vector>
 /// \brief convert input string into vector of string tokens

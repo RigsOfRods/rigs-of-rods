@@ -17,6 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#pragma once
 #ifndef __CAMERA_BEHAVIOR_VEHICLE_ORBIT_H_
 #define __CAMERA_BEHAVIOR_VEHICLE_ORBIT_H_
 

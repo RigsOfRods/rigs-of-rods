@@ -1,5 +1,6 @@
 // based on the MyGUI UnitTests
 
+#pragma once
 #ifndef __MYGUI_RTT_LAYER_H__
 #define __MYGUI_RTT_LAYER_H__
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __OGRE_SHADER_PARTICLE_RENDERER_H__
 #define __OGRE_SHADER_PARTICLE_RENDERER_H__
 

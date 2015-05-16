@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created by thomas{AT}thomasfischer{DOT}biz, 5th of July 2010
+
+#pragma once
 #ifndef __PreviewRenderer_H_
 #define __PreviewRenderer_H_
 

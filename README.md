@@ -1,4 +1,7 @@
-# Rigs of Rods
+# Rigs of Rods 
+
+[![Build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)
+[![Join the chat at https://gitter.im/RigsOfRods/rigs-of-rods](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RigsOfRods/rigs-of-rods?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Copyright (c) 2005-2013 Pierre-Michel Ricordel  
 Copyright (c) 2007-2013 Thomas Fischer  
@@ -74,8 +77,8 @@ Please note that certain vehicles come with their own specific commands not repr
  
  
 ## Mods
-Rigs of Rods comes only with a very small selection of vehicles and terrains. For the best experience download additional mods from the [Rigs of Rods mod repository](http://www.rigsofrods.com/repository/)  
-If you want to get going quickly have a look at modpacks that can be found in the repository as well.
+Rigs of Rods comes only with a very small selection of vehicles and terrains. For the best experience download additional mods from the [Rigs of Rods mod repository](http://www.rigsofrods.com/repository/)
+If you want to get going quickly have a look at modpacks which can be found in the repository as well.
 
 
 ## Configuration files

@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 21th of May 2008 by Thomas
 
+#pragma once
 #ifndef CACHESYSTEMTABLE_H__
 #define CACHESYSTEMTABLE_H__
 

@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // create by thomas fischer, 6th of februray 2011
 
+#pragma once
 #ifndef __AdvancedScreen_H_
 #define __AdvancedScreen_H_
 

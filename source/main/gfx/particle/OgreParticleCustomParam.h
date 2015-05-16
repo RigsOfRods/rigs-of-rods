@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __OGRE_PARTICLE_CUSTOM_PARAM_H__
 #define __OGRE_PARTICLE_CUSTOM_PARAM_H__
 

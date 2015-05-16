@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MPLATFORM
+#pragma once
 #ifndef __MPLATFORM_FD_H_
 #define __MPLATFORM_FD_H_
 

@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 17th of August 2009
 
+#pragma once
 #ifndef __CharacterFactory_H_
 #define __CharacterFactory_H_
 

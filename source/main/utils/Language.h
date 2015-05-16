@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created: 12th of January 2009, thomas fischer thomas{AT}thomasfischer{DOT}biz
+
+#pragma once
 #ifndef __language_h__
 #define __language_h__
 

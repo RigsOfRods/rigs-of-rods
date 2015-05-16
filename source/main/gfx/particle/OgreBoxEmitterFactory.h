@@ -26,6 +26,8 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
+
+#pragma once
 #ifndef __BoxEmitterFactory_H__
 #define __BoxEmitterFactory_H__
 

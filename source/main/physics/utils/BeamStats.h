@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // thomas, 11th of March 2008
 
+#pragma once
 #ifndef __BeamStats_H_
 #define __BeamStats_H_
 

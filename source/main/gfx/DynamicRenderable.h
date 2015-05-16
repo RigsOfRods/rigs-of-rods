@@ -1,4 +1,6 @@
 // from the ogre wiki: http://www.ogre3d.org/tikiwiki/DynamicGrowingBuffers
+
+#pragma once
 #ifndef DYNAMIC_RENDERABLE_H
 #define DYNAMIC_RENDERABLE_H
 

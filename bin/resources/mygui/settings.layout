@@ -120,7 +120,6 @@
                 <Widget type="ComboBox" skin="ComboBox" position="160 70 445 30" name="shadow_type">
                     <Property key="AddItem" value="No shadows (fastest)"/>
                     <Property key="AddItem" value="Texture shadows"/>
-                    <Property key="AddItem" value="Stencil shadows (best looking)"/>
                     <Property key="ReadOnly" value="true"/>
                     <Property key="Static" value="true"/>
                 </Widget>

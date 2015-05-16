@@ -19,7 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 // thomas, 17th of June 2008
-
+#pragma once
 #ifndef __ProceduralManager_H_
 #define __ProceduralManager_H_
 

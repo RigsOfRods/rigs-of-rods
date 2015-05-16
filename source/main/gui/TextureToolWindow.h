@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
+#pragma once
 #ifndef __TextureToolWindow_H_
 #define __TextureToolWindow_H_
 

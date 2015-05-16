@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 24th of February 2009 by Thomas Fischer
+
+#pragma once
 #ifndef __GameScript_H_
 #define __GameScript_H_
 

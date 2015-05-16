@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 7th of September 2009
 #ifdef USE_MYGUI
+
+#pragma once
 #ifndef __GUI_Friction_H_
 #define __GUI_Friction_H_
 

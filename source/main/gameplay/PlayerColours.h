@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 23rd of December 2009
 
+#pragma once
 #ifndef PLAYERCOLOURS_H__
 #define PLAYERCOLOURS_H__
 

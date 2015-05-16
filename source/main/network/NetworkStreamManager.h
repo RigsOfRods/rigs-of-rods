@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 7th of August 2009
 
+#pragma once
 #ifndef __NetworkStreamManager_H_
 #define __NetworkStreamManager_H_
 

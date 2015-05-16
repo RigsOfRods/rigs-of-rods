@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // this is a wrapper around the real scripting interface so you dont need
 // the precompiler if in every header
 
+#pragma once
 #include "ScriptEvents.h"
 
 #ifdef USE_ANGELSCRIPT
