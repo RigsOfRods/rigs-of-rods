@@ -51,8 +51,8 @@ void ShadowManager::loadConfiguration()
 int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 {
 	float shadowFarDistance = std::min(200.0f, (FSETTING("SightRange", 2000)* 0.8f));
-	float scoef=0.2;
-	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563+scoef, 0.578+scoef, 0.625+scoef));
+	float scoef = 0.12;
+	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 
 	gEnv->sceneManager->setShadowTechnique(tech);
 	gEnv->sceneManager->setShadowFarDistance(shadowFarDistance);
@@ -60,54 +60,59 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 
 	if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE)
 	{
-		gEnv->sceneManager->setShadowTextureSettings(2048,2);
-	} else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED)
-	{
-#if OGRE_VERSION>0x010602
-
-		// General scene setup
-
-		// 3 textures per directional light (PSSM)
-		int num = 3;
-
-		gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, num);
-
-		if (mPSSMSetup.isNull())
-		{
-			// shadow camera setup
-			Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-			pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
-			pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance());
-			for (int i=0; i < num; ++i)
-			{	//int size = i==0 ? 2048 : 1024;
-				const Ogre::Real cAdjfA[5] = {2, 1, 0.5, 0.25, 0.125};
-				pssmSetup->setOptimalAdjustFactor(i, cAdjfA[std::min(i, 4)]);
-			}
-			mPSSMSetup.bind(pssmSetup);
-
-		}
-		gEnv->sceneManager->setShadowCameraSetup(mPSSMSetup);
-		
-		
-		gEnv->sceneManager->setShadowTextureCount(num);
-		for (int i=0; i < num; ++i)
-		{	int size = i==0 ? 2048 : 1024;
-			gEnv->sceneManager->setShadowTextureConfig(i, size, size, mDepthShadows ? Ogre::PF_FLOAT32_R : Ogre::PF_X8B8G8R8);
-		}
-
-		gEnv->sceneManager->setShadowTextureSelfShadow(mDepthShadows);
-		gEnv->sceneManager->setShadowCasterRenderBackFaces(false);
-
-		gEnv->sceneManager->setShadowTextureCasterMaterial(mDepthShadows?"PSSM/shadow_caster":Ogre::StringUtil::BLANK);
-
-		updatePSSM();
-
-#else
-		ErrorUtils::ShowError("Parallel-split Shadow Maps as shadow technique is only available when you build with Ogre 1.6 support.", "PSSM error");
-		exit(1);
-#endif //OGRE_VERSION
+		processTextureShadows();
 	}
+	else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED)
+	{
+		processPSSM();
+	}
+
 	return 0;
+}
+
+void ShadowManager::processTextureShadows()
+{
+	gEnv->sceneManager->setShadowTextureSettings(2048, 2);
+}
+
+void ShadowManager::processPSSM()
+{
+	// 3 textures per directional light (PSSM)
+	int num = 3;
+
+	gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, num);	
+
+	if (mPSSMSetup.isNull())
+	{
+		// shadow camera setup
+		Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
+		pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
+		pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance());
+		for (int i = 0; i < num; ++i)
+		{	//int size = i==0 ? 2048 : 1024;
+			const Ogre::Real cAdjfA[5] = { 2, 1, 0.5, 0.25, 0.125 };
+			pssmSetup->setOptimalAdjustFactor(i, cAdjfA[std::min(i, 4)]);
+		}
+		mPSSMSetup.bind(pssmSetup);
+
+	}
+	gEnv->sceneManager->setShadowCameraSetup(mPSSMSetup);
+
+
+	gEnv->sceneManager->setShadowTextureCount(num);
+
+	for (int i = 0; i < num; ++i)
+	{
+		int size = i == 0 ? 2048 : 1024;
+		gEnv->sceneManager->setShadowTextureConfig(i, size, size, mDepthShadows ? Ogre::PF_FLOAT32_R : Ogre::PF_X8B8G8R8);
+	}
+
+	gEnv->sceneManager->setShadowTextureSelfShadow(true);
+	gEnv->sceneManager->setShadowCasterRenderBackFaces(false);
+
+	gEnv->sceneManager->setShadowTextureCasterMaterial(mDepthShadows ? "PSSM/shadow_caster" : Ogre::StringUtil::BLANK);
+
+	updatePSSM();
 }
 
 void ShadowManager::updatePSSM(Ogre::Terrain* terrain)

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCX" position="190 320 640 395" align="Center" layer="Middle" name="_Main">
+    <Widget type="Window" skin="WindowCX" position="192 314 640 395" align="Center" layer="Middle" name="_Main">
         <Property key="Caption" value="Settings"/>
         <Property key="Enabled" value="true"/>
         <Widget type="TabControl" skin="TabControl" position="0 0 630 315" name="tabCtrl">
@@ -262,7 +262,7 @@
             </Widget>
             <Widget type="TabItem" skin="" position="2 24 624 287">
                 <Property key="Caption" value="Controls"/>
-                <Widget type="MultiListBox" skin="MultiListBox" position="0 30 625 260" name="keymapping">
+                <Widget type="MultiListBox" skin="MultiListBox" position="0 -5 625 260" name="keymapping">
                     <Widget type="MultiListItem" skin="" position="0 0 460 231" name="key_name">
                         <Property key="Caption" value="Action name"/>
                         <Property key="ItemWidth" value="460"/>
@@ -273,17 +273,31 @@
                         <Property key="ItemResizingPolicy" value="Fill"/>
                     </Widget>
                 </Widget>
-                <Widget type="ComboBox" skin="ComboBox" position="50 0 270 30" name="keymap_group">
+                <Widget type="ComboBox" skin="ComboBox" position="45 255 270 30" name="keymap_group">
                     <Property key="ReadOnly" value="true"/>
                     <Property key="Static" value="true"/>
                 </Widget>
-                <Widget type="EditBox" skin="WordWrapEmpty" position="5 5 110 20">
+                <Widget type="EditBox" skin="WordWrapEmpty" position="0 260 110 20">
                     <Property key="Caption" value="Type:"/>
+                </Widget>
+                <Widget type="Button" skin="Button" position="530 255 90 30" name="change_key">
+                    <Property key="Caption" value="Re-map"/>
                 </Widget>
             </Widget>
         </Widget>
         <Widget type="Button" skin="Button" position="525 320 105 35" align="Default" name="savebtn">
             <Property key="Caption" value="Save"/>
+        </Widget>
+    </Widget>
+    <Widget type="Window" skin="WindowCX" position="395 70 375 235" layer="Main" name="key_mapping_window">
+        <Property key="Caption" value="Remap your key"/>
+        <Property key="Visible" value="false"/>
+        <Widget type="EditBox" skin="WordWrapEmpty" position="5 5 355 165" name="key_mapping_window_text"/>
+        <Widget type="EditBox" skin="WordWrapEmpty" position="5 165 355 25" name="key_mapping_window_info"/>
+        <Widget type="EditBox" skin="EditBox" position="0 0 365 195">
+            <Property key="MultiLine" value="true"/>
+            <Property key="ReadOnly" value="true"/>
+            <Property key="Static" value="true"/>
         </Widget>
     </Widget>
     <CodeGeneratorSettings>

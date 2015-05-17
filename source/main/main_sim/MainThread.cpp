@@ -626,6 +626,8 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 {
 	if (!m_base_resource_load)
 	{
+		LOG("Loading base resources");
+
 		// ============================================================================
 		// Loading base resources
 		// ============================================================================
@@ -751,6 +753,8 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		if (selected_map != nullptr)
 		{
 			map_file_name = selected_map->fname;
+			RoR::Application::GetCacheSystem()->checkResourceLoaded(*selected_map);
+			LOG("Loading map resources");
 		}
 		else
 		{

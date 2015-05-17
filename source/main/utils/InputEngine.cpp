@@ -2740,6 +2740,20 @@ void InputEngine::addEvent(int eventID, event_trigger_t t)
 	events[eventID].push_back(t);
 }
 
+void InputEngine::updateEvent(int eventID, event_trigger_t t)
+{
+	if (eventID == -1)
+		//unknown event, discard
+		return;
+	if (events.find(eventID) == events.end())
+	{
+		events[eventID] = std::vector<event_trigger_t>();
+		events[eventID].clear();
+	}
+	events[eventID].push_back(t);
+}
+
+
 bool InputEngine::processLine(char *line, int deviceID)
 {
 	static String cur_comment = "";

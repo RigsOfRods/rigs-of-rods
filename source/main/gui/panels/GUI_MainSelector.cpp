@@ -20,9 +20,7 @@
 */
 
 /** 
-	@file   GUI_GameAbout.cpp
-	@author Moncef Ben Slimane
-	@date   11/2014
+	@file   GUI_MainSelector.cpp
 */
 
 #include "GUI_MainSelector.h"
@@ -640,7 +638,10 @@ void CLASS::OnSelectionDone()
 	if (m_loader_type != LT_SKIN)
 	{
 		// we show the normal loader
-		RoR::Application::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
+
+		//Only load vehicles via the selector
+		if (m_loader_type != LT_Terrain)
+			RoR::Application::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
 
 		m_current_skins.clear();
 		m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
