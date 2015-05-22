@@ -98,7 +98,8 @@ public:
 		boost::shared_ptr<RigDef::File> file,
 		Ogre::SceneNode *parent,
 		Ogre::Vector3 const & spawn_position,
-		Ogre::Quaternion const & spawn_rotation
+		Ogre::Quaternion const & spawn_rotation,
+        int cache_entry_number = -1
 		);
 
 	rig_t *SpawnRig();
@@ -985,6 +986,7 @@ protected:
 	void InitializeRig();
 
 	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
+    int m_cache_entry_number;
 	Beam *m_rig; //!< The output rig.
 	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	std::map<Ogre::String, unsigned int> m_named_nodes;

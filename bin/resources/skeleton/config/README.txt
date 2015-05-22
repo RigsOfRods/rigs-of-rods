@@ -19,3 +19,4 @@ RoR.cfg
     RigImporter_PrintNodeStatsToLog          | bool, default false | 0.4.5+
     
     Flexbody_EnableLODs                      | bool, default false | 0.4.5+
+    Flexbody_UseCache                        | bool, default false | 0.4.5+ | EXPERIMENTAL!!!

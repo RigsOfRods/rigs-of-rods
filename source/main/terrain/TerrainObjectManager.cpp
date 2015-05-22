@@ -1204,10 +1204,11 @@ void TerrainObjectManager::loadPreloadedTrucks()
 	for (unsigned int i=0; i<truck_preload.size(); i++)
 	{
 		Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
-		Beam *b = BeamFactory::getSingleton().createLocal(
+		Beam *b = BeamFactory::getSingleton().CreateLocalRigInstance(
 			pos, 
 			truck_preload[i].rotation, 
-			truck_preload[i].name, 
+			truck_preload[i].name,
+            -1,
 			nullptr, /* spawnbox */ 
 			truck_preload[i].ismachine, 
 			nullptr, /* truckconfig */ 

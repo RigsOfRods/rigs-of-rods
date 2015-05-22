@@ -134,7 +134,15 @@ public: // public methods
 	void checkRemoteStreamResultsChanged();
 	void hideGUI(bool visible);
 	void hideMap();
-	void initTrucks(bool loadmanual, Ogre::String selected, Ogre::String selectedExtension = "", const std::vector<Ogre::String> *truckconfig = 0, bool enterTruck = false, Skin *skin = NULL);
+	void InitTrucks(
+        bool loadmanual, 
+        std::string const & selected, 
+        int cache_entry_number = -1,
+        std::string const & selectedExtension = "",
+        const std::vector<Ogre::String> *truckconfig = nullptr,
+        bool enterTruck = false,
+        Skin *skin = nullptr
+        );
 
 	void netDisconnectTruck(int number);
 	void pauseSim(bool value);

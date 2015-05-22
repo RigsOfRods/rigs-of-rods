@@ -87,6 +87,7 @@
 #   include "Timer.h"
 #   define TIMER_CREATE()                  PrecisionTimer loading_timer;
 #   define TIMER_SNAPSHOT(VAR_NAME)        double VAR_NAME = loading_timer.elapsed(); loading_timer.restart();
+#   define TIMER_SNAPSHOT_REF(VAR_NAME)    VAR_NAME = loading_timer.elapsed(); loading_timer.restart();
 #else
 #   define TIMER_CREATE()
 #   define TIMER_SNAPSHOT(VAR_NAME)

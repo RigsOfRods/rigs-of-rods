@@ -5931,7 +5931,8 @@ Beam::Beam(
 	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
 	Skin *skin, /* = nullptr */
 	bool freeposition, /* = false */
-	bool preloaded_with_terrain /* = false */
+	bool preloaded_with_terrain, /* = false */
+    int cache_entry_number /* = -1 */
 ) :
 
 	  deleting(false)
@@ -6089,7 +6090,7 @@ Beam::Beam(
 	
 	if (strnlen(fname, 200) > 0)
 	{
-		if(! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, preloaded_with_terrain))
+		if(! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, preloaded_with_terrain, cache_entry_number))
 		{
 			return;
 		}
@@ -6198,7 +6199,8 @@ bool Beam::LoadTruck(
 	Ogre::Vector3 const & spawn_position,
 	Ogre::Quaternion & spawn_rotation,
 	collision_box_t *spawn_box,
-	bool preloaded_with_terrain /* = false */
+	bool preloaded_with_terrain, // = false
+    int cache_entry_number // = -1
 )
 {
 	/* add custom include path */
@@ -6328,7 +6330,7 @@ bool Beam::LoadTruck(
 	LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
 	RigSpawner spawner;
-	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation);
+	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation, cache_entry_number);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
 	/* Setup modules */
 	spawner.AddModule(parser.GetFile()->root_module);

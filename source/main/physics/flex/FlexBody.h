@@ -23,6 +23,7 @@
 
 #include "RoRPrerequisites.h"
 #include "Flexable.h"
+#include "Locator_t.h"
 #include "MaterialFunctionMapper.h"
 
 #include <OgreVector3.h>
@@ -33,15 +34,19 @@
 // Forward decl
 namespace RoR
 {
-    class FlexFactory;
+    class  FlexFactory;
+    class  FlexBodyFileIO;
+    struct FlexBodyCacheData;
 }
 
 class FlexBody : public Flexable
 {
 	friend class RigInspector;
     friend class RoR::FlexFactory;
+    friend class RoR::FlexBodyFileIO;
 
-	FlexBody( // Private
+	FlexBody( // Private, for FlexFactory
+        RoR::FlexBodyCacheData* preloaded_from_cache,
 		node_t *nds, 
 		int numnodes, 
 		Ogre::String const & meshname, 
@@ -59,6 +64,9 @@ class FlexBody : public Flexable
 	);
 
 public:
+
+    ~FlexBody();
+
 	void printMeshInfo(Ogre::Mesh* mesh);
 	void reset();
 	void updateBlend();
@@ -82,15 +90,6 @@ public:
 	void setVisible(bool visible);
 
 private:
-
-	struct Locator_t
-	{
-		int ref;
-		int nx;
-		int ny;
-		int nz;
-		Ogre::Vector3 coords;
-	};
 
 	node_t*           m_nodes;
 	size_t            m_vertex_count;
@@ -125,6 +124,4 @@ private:
 	bool m_uses_shared_vertex_data;
 	bool m_has_texture;
 	bool m_has_texture_blend;
-
-	
 };

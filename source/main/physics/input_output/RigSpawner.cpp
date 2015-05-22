@@ -90,13 +90,15 @@ void RigSpawner::Setup(
 	boost::shared_ptr<RigDef::File> file,
 	Ogre::SceneNode *parent,
 	Ogre::Vector3 const & spawn_position,
-	Ogre::Quaternion const & spawn_rotation
+	Ogre::Quaternion const & spawn_rotation,
+    int cache_entry_number
 )
 {
     SPAWNER_PROFILE_SCOPED();
 
 	m_rig = rig;
 	m_file = file;
+    m_cache_entry_number = cache_entry_number;
 	m_parent_scene_node = parent;
 	m_spawn_position = spawn_position;
 	m_spawn_rotation = spawn_rotation;
@@ -454,7 +456,16 @@ void RigSpawner::InitializeRig()
 	// Lights mode
 	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(); // Default = 2 (All vehicles, main lights)
 
-    m_flex_factory = RoR::FlexFactory(m_rig->materialFunctionMapper, m_rig->materialReplacer, m_rig->usedSkin, m_rig->nodes);
+    m_flex_factory = RoR::FlexFactory(
+        m_rig->materialFunctionMapper, 
+        m_rig->materialReplacer, 
+        m_rig->usedSkin, 
+        m_rig->nodes,
+        BSETTING("Flexbody_UseCache", false),
+        m_cache_entry_number
+        );
+
+    m_flex_factory.CheckAndLoadFlexbodyCache();
 }
 
 void RigSpawner::FinalizeRig()
@@ -721,6 +732,8 @@ void RigSpawner::FinalizeRig()
 	m_rig->lowestnode = FindLowestNodeInRig();
 
 	UpdateCollcabContacterNodes();
+
+    m_flex_factory.SaveFlexbodiesToCache();
 
 #if 0 // hashing + scope_log disabled
 

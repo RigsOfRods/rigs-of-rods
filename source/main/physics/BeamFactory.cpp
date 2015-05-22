@@ -181,10 +181,11 @@ bool BeamFactory::removeBeam(Beam *b)
 
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RigLoadingProfiler::ENTRY_ID);
 
-Beam *BeamFactory::createLocal(
+Beam *BeamFactory::CreateLocalRigInstance(
 	Ogre::Vector3 pos, 
 	Ogre::Quaternion rot, 
 	Ogre::String fname, 
+    int cache_entry_number, // = -1, 
 	collision_box_t *spawnbox /* = nullptr */, 
 	bool ismachine /* = false */, 
 	const std::vector<Ogre::String> *truckconfig /* = nullptr */, 
@@ -218,7 +219,8 @@ Beam *BeamFactory::createLocal(
 		truckconfig,
 		skin,
 		freePosition,
-		preloaded_with_terrain
+		preloaded_with_terrain,
+        cache_entry_number
 		);
 	trucks[truck_num] = b;
 
