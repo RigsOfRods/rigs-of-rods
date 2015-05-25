@@ -43,14 +43,14 @@ void ShadowManager::loadConfiguration()
 	if (s == "Texture shadows")
 		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
 	else if (s == "Parallel-split Shadow Maps")
-		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
+		changeShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 	else 
 		changeShadowTechnique(Ogre::SHADOWTYPE_NONE);
 }
 
 int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 {
-	float shadowFarDistance = std::min(200.0f, (FSETTING("SightRange", 2000)* 0.8f));
+	float shadowFarDistance = FSETTING("SightRange", 2000);
 	float scoef = 0.12;
 	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 
@@ -62,7 +62,7 @@ int ShadowManager::changeShadowTechnique(Ogre::ShadowTechnique tech)
 	{
 		processTextureShadows();
 	}
-	else if (tech == Ogre::SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED)
+	else if (tech == Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED)
 	{
 		processPSSM();
 	}
@@ -93,6 +93,10 @@ void ShadowManager::processPSSM()
 			const Ogre::Real cAdjfA[5] = { 2, 1, 0.5, 0.25, 0.125 };
 			pssmSetup->setOptimalAdjustFactor(i, cAdjfA[std::min(i, 4)]);
 		}
+		pssmSetup->setUseAggressiveFocusRegion(true);
+		pssmSetup->setCameraLightDirectionThreshold(Ogre::Degree(35.0));
+		pssmSetup->setUseSimpleOptimalAdjust(false);
+
 		mPSSMSetup.bind(pssmSetup);
 
 	}
@@ -108,9 +112,14 @@ void ShadowManager::processPSSM()
 	}
 
 	gEnv->sceneManager->setShadowTextureSelfShadow(true);
-	gEnv->sceneManager->setShadowCasterRenderBackFaces(false);
+	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
 	gEnv->sceneManager->setShadowTextureCasterMaterial(mDepthShadows ? "PSSM/shadow_caster" : Ogre::StringUtil::BLANK);
+
+	// Disable fog on the caster pass.
+	MaterialPtr passCaterMaterial = MaterialManager::getSingleton().getByName("PSSM/shadow_caster");
+	Pass* pssmCasterPass = passCaterMaterial->getTechnique(0)->getPass(0);
+	pssmCasterPass->setFog(true);
 
 	updatePSSM();
 }
@@ -137,8 +146,8 @@ void ShadowManager::updatePSSM(Ogre::Terrain* terrain)
 		splitPoints[i] = splitPointList[i];
 
 	// TODO: fix this
-	//setMaterialSplitPoints("road", splitPoints);
-	//setMaterialSplitPoints("road2", splitPoints);
+	setMaterialSplitPoints("road", splitPoints);
+	setMaterialSplitPoints("road2", splitPoints);
 
 
 	if (matProfile && terrain)
@@ -151,7 +160,7 @@ void ShadowManager::updatePSSM(Ogre::Terrain* terrain)
 
 void ShadowManager::setMaterialSplitPoints(Ogre::String materialName, Ogre::Vector4 &splitPoints)
 {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
+/*	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
 	if (!mat.isNull())
 	{
 		unsigned short np = mat->getTechnique(0)->getNumPasses()-1;  // last
@@ -161,5 +170,5 @@ void ShadowManager::setMaterialSplitPoints(Ogre::String materialName, Ogre::Vect
 		{
 			// this material is not prepared for PSSM usage !
 		}
-	}
+	}*/
 }

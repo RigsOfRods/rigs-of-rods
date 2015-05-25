@@ -1,51 +1,54 @@
 void shadow_caster_vs(
-	float4 position			: POSITION,
-
-	out float4 oPosition	: POSITION,
-	out float2 oDepth		: TEXCOORD0,
-
+	float4 position : POSITION,
+	float2 uv : TEXCOORD0,
+	out float4 oPosition : POSITION,
+	out float2 oDepth : TEXCOORD0,
+	out float2 oUv : TEXCOORD1,
 	uniform float4x4 wvpMat)
-{
-	// this is the view space position
+	{
 	oPosition = mul(wvpMat, position);
-
-	// depth info for the fragment.
 	oDepth.x = oPosition.z;
 	oDepth.y = oPosition.w;
-
-	// clamp z to zero. seem to do the trick. :-/
-	//oPosition.z = max(oPosition.z, 0);
+	oPosition.z = max(oPosition.z, 0);
+	oUv = uv;
 }
-
 void shadow_caster_ps(
-	float2 depth		: TEXCOORD0,
-
-	out float4 oColour	: COLOR,
-
+	float4 position : POSITION,
+	float2 depth : TEXCOORD0,
+	float2 uv : TEXCOORD1,
+	out float4 oColour : COLOR,
 	uniform float4 pssmSplitPoints)
 {
 	float finalDepth = depth.x / depth.y;
 	oColour = float4(finalDepth, finalDepth, finalDepth, 1);
 }
-
-
-
+void shadow_caster_alpha_ps(
+	float4 position : POSITION,
+	float2 depth : TEXCOORD0,
+	float2 uv : TEXCOORD1,
+	out float4 oColour : COLOR,
+	uniform sampler2D alphaMap : TEXUNIT0,
+	uniform float4 pssmSplitPoints)
+{
+	float finalDepth = depth.x / depth.y;
+	float4 trans = tex2D(alphaMap, uv);
+	oColour = float4(finalDepth, finalDepth, finalDepth, trans.w);
+	clip( oColour.a > 0.5 ? 1:-1);
+}
 void shadow_receiver_vs(
-	float4 position				: POSITION,
-	float3 normal				: NORMAL,
-	float2 uv					: TEXCOORD0,
-
+	float4 position : POSITION,
+	float3 normal : NORMAL,
+	float2 uv : TEXCOORD0,
 	out float4 oPosition		: POSITION,
-	out float3 oUv				: TEXCOORD0,
+	out float3 oUv			: TEXCOORD0,
 	out float3 oLightDir		: TEXCOORD1,
 	out float3 oHalfAngle		: TEXCOORD2,
 	out float4 oLightPosition0	: TEXCOORD3,
 	out float4 oLightPosition1	: TEXCOORD4,
 	out float4 oLightPosition2	: TEXCOORD5,
-	out float3 oNormal			: TEXCOORD6,
-
-	uniform float4 lightPosition,				// object space
-	uniform float3 eyePosition,					// object space
+	out float3 oNormal		: TEXCOORD6,
+	uniform float4 lightPosition,			// object space
+	uniform float3 eyePosition,			// object space
 	uniform float4x4 worldViewProjMatrix,
 	uniform float4x4 texWorldViewProjMatrix0,
 	uniform float4x4 texWorldViewProjMatrix1,
@@ -54,12 +57,12 @@ void shadow_receiver_vs(
 	// calculate output position
 	oPosition = mul(worldViewProjMatrix, position);
 
-	// pass the main uvs straight through unchanged
+	// main uv's unchanged
 	oUv.xy = uv;
 	oUv.z = oPosition.z;
 
 	// calculate tangent space light vector
-	// Get object space light direction
+	//Get object space light direction
 	oLightDir = normalize(lightPosition.xyz - (position * lightPosition.w).xyz);
 
 	// Calculate half-angle in tangent space
@@ -80,30 +83,25 @@ float shadowPCF(sampler2D shadowMap, float4 shadowMapPos, float2 offset)
 	float2 uv = shadowMapPos.xy;
 	float3 o = float3(offset, -offset.x) * 0.3f;
 
+	//return	(shadowMapPos.z <= tex2D(shadowMap, uv.xy).r) ? 1 : 0;
 	// Note: We using 2x2 PCF. Good enough and is alot faster.
-	float c =	(shadowMapPos.z <= tex2D(shadowMap, uv.xy - o.xy).r) ? 1 : 0; // top left
-	c +=		(shadowMapPos.z <= tex2D(shadowMap, uv.xy + o.xy).r) ? 1 : 0; // bottom right
-	c +=		(shadowMapPos.z <= tex2D(shadowMap, uv.xy + o.zy).r) ? 1 : 0; // bottom left
-	c +=		(shadowMapPos.z <= tex2D(shadowMap, uv.xy - o.zy).r) ? 1 : 0; // top right
-	//float c =	(shadowMapPos.z <= tex2Dlod(shadowMap, uv.xyyy - o.xyyy).r) ? 1 : 0; // top left
-	//c +=		(shadowMapPos.z <= tex2Dlod(shadowMap, uv.xyyy + o.xyyy).r) ? 1 : 0; // bottom right
-	//c +=		(shadowMapPos.z <= tex2Dlod(shadowMap, uv.xyyy + o.zyyy).r) ? 1 : 0; // bottom left
-	//c +=		(shadowMapPos.z <= tex2Dlod(shadowMap, uv.xyyy - o.zyyy).r) ? 1 : 0; // top right
-	return c / 4;
+	float c =	(shadowMapPos.z <= tex2D(shadowMap, uv.xy - o.xy).r) ? 1 : 0; //topleft
+	c +=		(shadowMapPos.z <= tex2D(shadowMap, uv.xy + o.xy).r) ? 1 : 0; //bottomright
+	c +=		(shadowMapPos.z <= tex2D(shadowMap, uv.xy + o.zy).r) ? 1 : 0; //bottomleft
+	c +=		(shadowMapPos.z <= tex2D(shadowMap, uv.xy - o.zy).r) ? 1 : 0; // topright
+	return c / 5;
 }
 
 // to put it simply, this does 100% per pixel diffuse lighting
 void shadow_receiver_ps(
-	float3 uv				: TEXCOORD0,
-	float3 OSlightDir			: TEXCOORD1,
-	float3 OShalfAngle		: TEXCOORD2,
+	float3 uv		: TEXCOORD0,
+	float3 OSlightDir	: TEXCOORD1,
+	float3 OShalfAngle	: TEXCOORD2,
 	float4 LightPosition0	: TEXCOORD3,
 	float4 LightPosition1	: TEXCOORD4,
 	float4 LightPosition2	: TEXCOORD5,
-	float3 normal			: TEXCOORD6,
-
-	out float4 oColour		: COLOR,
-
+	float3 normal		: TEXCOORD6,
+	out float4 oColour	: COLOR,
 	uniform float4 invShadowMapSize0,
 	uniform float4 invShadowMapSize1,
 	uniform float4 invShadowMapSize2,
@@ -122,20 +120,21 @@ void shadow_receiver_ps(
 	// calculate shadow
 	float shadowing = 1.0f;
 	float4 splitColour;
+	float4 pssmSplitPoints2 = float4(1,0.5,0.25,0.124);
 	if (uv.z <= pssmSplitPoints.y)
 	{
-		splitColour = float4(0.1, 0, 0, 1);
-		shadowing = shadowPCF(shadowMap0, LightPosition0, invShadowMapSize0.xy);
+	splitColour = float4(0.9, 0, 0, 1);
+	shadowing = shadowPCF(shadowMap0, LightPosition0, invShadowMapSize0.xy);/*0*/
 	}
 	else if (uv.z <= pssmSplitPoints.z)
 	{
-		splitColour = float4(0, 0.1, 0, 1);
-		shadowing = shadowPCF(shadowMap1, LightPosition1, invShadowMapSize1.xy);
+	splitColour = float4(0, 0.9, 0, 1);
+	shadowing = shadowPCF(shadowMap1, LightPosition1, invShadowMapSize1.xy);/*1*/
 	}
 	else
 	{
-		splitColour = float4(0.1, 0.1, 0, 1);
-		shadowing = shadowPCF(shadowMap2, LightPosition2, invShadowMapSize2.xy);
+	splitColour = float4(0.9, 0.9, 0, 1);
+	shadowing = shadowPCF(shadowMap2, LightPosition2, invShadowMapSize2.xy);/*2*/
 	}
 
 	// retrieve normalised light vector, expand from range-compressed
@@ -149,16 +148,14 @@ void shadow_receiver_ps(
 
 	// specular
 	float4 specularColour = tex2D(specular, uv.xy);
-	float shininess = specularColour.w;
-	specularColour.w = 1;
+	float shininess = specularColour.w;  specularColour.w = 1;
 
 	// calculate lit value.
-	float4 lighting = lit(dot(normal, lightVec), dot(normal, halfAngle), shininess * 128) * shadowing;
+	float4 lighting = lit(dot(normal, lightVec), dot(normal, halfAngle), shininess * 52) * 	(0.3f + 0.7f * shadowing);
 
-	// final lighting with diffuse and spec
-	oColour = (diffuseColour * clamp(ambient + lightDiffuse * lighting.y, 0, 1)) + (lightSpecular * specularColour * lighting.z);
+
+	oColour = (diffuseColour * clamp(ambient + lightDiffuse * lighting.y, 0, 1)) + 	(lightSpecular * specularColour * lighting.z);
 	oColour.w = diffuseColour.w;
 
-	//oColour += splitColour;
-}
 
+}

@@ -1,0 +1,47 @@
+abstract material PSSM/base_receiver
+{
+ transparency_casts_shadows on
+ receive_shadows on
+ technique
+ {
+  pass
+  {
+   lighting on
+   ambient 0.25 0.25 0.25 1
+   diffuse 1.0 1.0 1.0 1
+   specular 0.1 0.1 0.1 1
+   emissive 0 0 0
+   scene_blend alpha_blend
+   alpha_rejection greater 5
+   vertex_program_ref PSSM/shadow_receiver_vs
+   {
+   }
+   fragment_program_ref PSSM/shadow_receiver_ps
+   {
+   }
+   texture_unit shadow 0
+   {
+   content_type shadow
+   tex_address_mode clamp
+   tex_coord_set 0
+   }
+   texture_unit shadow 1
+   {
+   content_type shadow
+   tex_address_mode clamp
+   tex_coord_set 1
+   }
+   texture_unit shadow 2
+   {
+   content_type shadow
+   tex_address_mode clamp
+   tex_coord_set 2
+   }
+   diffuse 1.0 1.0 1.0 1
+   texture_unit diffuse 1
+   {
+    texture_alias diffuse
+              }
+  }
+ }
+}
