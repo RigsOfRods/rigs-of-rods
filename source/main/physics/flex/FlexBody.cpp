@@ -264,19 +264,25 @@ FlexBody::FlexBody(
 				m_mesh->sharedVertexData->vertexBufferBinding->setBinding(index, vbuf);
 			}
 		}
-		for (int i=0; i<num_submeshes; i++) if (!m_mesh->getSubMesh(i)->useSharedVertices)
-		{
-			if (m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)==0)
-			{
-				//add buffer
-				int index=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->getMaxSource()+1;
-				m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
-				m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->sort();
-				index=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-				HardwareVertexBufferSharedPtr vbuf=HardwareBufferManager::getSingleton().createVertexBuffer(VertexElement::getTypeSize(VET_COLOUR_ARGB), m_mesh->getSubMesh(i)->vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-				m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->setBinding(index, vbuf);
-			}
-		}
+		for (int i=0; i<num_submeshes; i++)
+        {
+            if (!m_mesh->getSubMesh(i)->useSharedVertices)
+		    {
+                Ogre::VertexData* vertex_data = m_mesh->getSubMesh(i)->vertexData;
+                Ogre::VertexDeclaration* vertex_decl = vertex_data->vertexDeclaration;
+			    if (vertex_decl->findElementBySemantic(VES_DIFFUSE)==0)
+			    {
+				    //add buffer
+				    int index = vertex_decl->getMaxSource()+1;
+				    vertex_decl->addElement(index, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
+				    vertex_decl->sort();
+				    vertex_decl->findElementBySemantic(VES_DIFFUSE)->getSource();
+				    HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+                        VertexElement::getTypeSize(VET_COLOUR_ARGB), vertex_data->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+				    vertex_data->vertexBufferBinding->setBinding(index, vbuf);
+			    }
+		    }
+        }
 	}
     FLEXBODY_PROFILER_ENTER("Reorganise vertex buffers")
     TIMER_SNAPSHOT(stat_vertexbuffers_created_time);
@@ -399,188 +405,191 @@ FlexBody::FlexBody(
 	    }
     }
     else
-    { // Intentionally bad indent, for easier reading of diffs. temporary.
-    FLEXBODY_PROFILER_ENTER("Alloc buffers")
-	vertices=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
-	m_dst_pos=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
-	m_src_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
-	m_dst_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
-	if (m_has_texture_blend)
-	{
-		m_src_colors=(ARGB*)malloc(sizeof(ARGB)*m_vertex_count);
-		for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
-	}
-    FLEXBODY_PROFILER_ENTER("Fill buffers")
-	Vector3* vpt=vertices;
-	Vector3* npt=m_src_normals;
-	if (m_mesh->sharedVertexData)
-	{
-		m_shared_buf_num_verts=(int)m_mesh->sharedVertexData->vertexCount;
-		//vertices
-		int source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
-		m_shared_vbuf_pos=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
-		m_shared_vbuf_pos->readData(0, m_mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)vpt);
-		vpt+=m_mesh->sharedVertexData->vertexCount;
-		//normals
-		source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
-		m_shared_vbuf_norm=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
-		m_shared_vbuf_norm->readData(0, m_mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)npt);
-		npt+=m_mesh->sharedVertexData->vertexCount;
-		//colors
-		if (m_has_texture_blend)
-		{
-			source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-			m_shared_vbuf_color=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
-			m_shared_vbuf_color->writeData(0, m_mesh->sharedVertexData->vertexCount*sizeof(ARGB), (void*)m_src_colors);
-		}
-	}
-    int cursubmesh=0;
-	for (int i=0; i<num_submeshes; i++)
-	{
-        if (m_mesh->getSubMesh(i)->useSharedVertices)
-        {
-            continue;
-        }
-		m_submesh_vbufs_vertex_counts[cursubmesh]=(int)m_mesh->getSubMesh(i)->vertexData->vertexCount;
-		//vertices
-		int source=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
-		m_submesh_vbufs_pos[cursubmesh]=m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
-		m_submesh_vbufs_pos[cursubmesh]->readData(0, m_mesh->getSubMesh(i)->vertexData->vertexCount*sizeof(Vector3), (void*)vpt);
-		vpt+=m_mesh->getSubMesh(i)->vertexData->vertexCount;
-		//normals
-		source=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
-		m_submesh_vbufs_norm[cursubmesh]=m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
-		m_submesh_vbufs_norm[cursubmesh]->readData(0, m_mesh->getSubMesh(i)->vertexData->vertexCount*sizeof(Vector3), (void*)npt);
-		npt+=m_mesh->getSubMesh(i)->vertexData->vertexCount;
-		//colors
-		if (m_has_texture_blend)
-		{
-			source=m_mesh->getSubMesh(i)->vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
-			m_submesh_vbufs_color[cursubmesh]=m_mesh->getSubMesh(i)->vertexData->vertexBufferBinding->getBuffer(source);
-			m_submesh_vbufs_color[cursubmesh]->writeData(0, m_mesh->getSubMesh(i)->vertexData->vertexCount*sizeof(ARGB), (void*)m_src_colors);
-		}
-		cursubmesh++;
-	}
-    TIMER_SNAPSHOT_REF(stat_manual_buffers_created_time);
-
-    FLEXBODY_PROFILER_ENTER("Transform vertices")
-	//transform
-	for (int i=0; i<(int)m_vertex_count; i++)
-	{
-		vertices[i]=(orientation*vertices[i])+position;
-	}
-    TIMER_SNAPSHOT_REF(stat_transformed_time);
-
-    FLEXBODY_PROFILER_ENTER("Locate nodes")
-	m_locators = new Locator_t[m_vertex_count];
-	for (int i=0; i<(int)m_vertex_count; i++)
-	{
-		//search nearest node as the local origin
-		float closest_node_distance = 1000000.0;
-		int closest_node_index = -1;
-        auto end  = node_indices.end();
-        auto itor = node_indices.begin();
-        for (; itor != end; ++itor)
-        {
-            float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
-            if (node_distance < closest_node_distance)
-            {
-                closest_node_distance = node_distance;
-                closest_node_index = *itor;
-            }
-        }
-        if (closest_node_index==-1)
-        {
-            LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
-        }
-        else
-        {
-            m_nodes[closest_node_index].iIsSkin=true;
-        }
-        m_locators[i].ref=closest_node_index;
-
-		//search the second nearest node as the X vector
-		closest_node_distance=1000000.0;
-		closest_node_index=-1;
-        itor = node_indices.begin();
-        for (; itor != end; ++itor)
-        {
-            if (*itor == m_locators[i].ref)
+    {
+        FLEXBODY_PROFILER_ENTER("Alloc buffers")
+	    vertices=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	    m_dst_pos=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	    m_src_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	    m_dst_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
+	    if (m_has_texture_blend)
+	    {
+		    m_src_colors=(ARGB*)malloc(sizeof(ARGB)*m_vertex_count);
+		    for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
+	    }
+        FLEXBODY_PROFILER_ENTER("Fill buffers")
+	    Vector3* vpt=vertices;
+	    Vector3* npt=m_src_normals;
+	    if (m_mesh->sharedVertexData)
+	    {
+		    m_shared_buf_num_verts=(int)m_mesh->sharedVertexData->vertexCount;
+		    //vertices
+		    int source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		    m_shared_vbuf_pos=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+		    m_shared_vbuf_pos->readData(0, m_mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)vpt);
+		    vpt+=m_mesh->sharedVertexData->vertexCount;
+		    //normals
+		    source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+		    m_shared_vbuf_norm=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+		    m_shared_vbuf_norm->readData(0, m_mesh->sharedVertexData->vertexCount*sizeof(Vector3), (void*)npt);
+		    npt+=m_mesh->sharedVertexData->vertexCount;
+		    //colors
+		    if (m_has_texture_blend)
+		    {
+			    source=m_mesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+			    m_shared_vbuf_color=m_mesh->sharedVertexData->vertexBufferBinding->getBuffer(source);
+			    m_shared_vbuf_color->writeData(0, m_mesh->sharedVertexData->vertexCount*sizeof(ARGB), (void*)m_src_colors);
+		    }
+	    }
+        int cursubmesh=0;
+	    for (int i=0; i<num_submeshes; i++)
+	    {
+            const Ogre::SubMesh* submesh = m_mesh->getSubMesh(i);
+            if (submesh->useSharedVertices)
             {
                 continue;
             }
-            float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
-            if (node_distance < closest_node_distance)
-            {
-                closest_node_distance = node_distance;
-                closest_node_index = *itor;
-            }
-        }
-        if (closest_node_index==-1)
-        {
-            LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
-        }
-        else
-        {
-            m_nodes[closest_node_index].iIsSkin=true;
-        }
-        m_locators[i].nx=closest_node_index;
+            const Ogre::VertexData* vertex_data = submesh->vertexData;
+            int vertex_count = (int)vertex_data->vertexCount;
+		    m_submesh_vbufs_vertex_counts[cursubmesh] = vertex_count;
+		    //vertices
+		    int source = vertex_data->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		    m_submesh_vbufs_pos[cursubmesh]=vertex_data->vertexBufferBinding->getBuffer(source);
+		    m_submesh_vbufs_pos[cursubmesh]->readData(0, vertex_count*sizeof(Vector3), (void*)vpt);
+		    vpt += vertex_count;
+		    //normals
+		    source = vertex_data->vertexDeclaration->findElementBySemantic(VES_NORMAL)->getSource();
+		    m_submesh_vbufs_norm[cursubmesh]=vertex_data->vertexBufferBinding->getBuffer(source);
+		    m_submesh_vbufs_norm[cursubmesh]->readData(0, vertex_count*sizeof(Vector3), (void*)npt);
+		    npt += vertex_count;
+		    //colors
+		    if (m_has_texture_blend)
+		    {
+			    source = vertex_data->vertexDeclaration->findElementBySemantic(VES_DIFFUSE)->getSource();
+			    m_submesh_vbufs_color[cursubmesh] = vertex_data->vertexBufferBinding->getBuffer(source);
+			    m_submesh_vbufs_color[cursubmesh]->writeData(0, vertex_count*sizeof(ARGB), (void*)m_src_colors);
+		    }
+		    cursubmesh++;
+	    }
+        TIMER_SNAPSHOT_REF(stat_manual_buffers_created_time);
 
-		//search another close, orthogonal node as the Y vector
-        closest_node_distance=1000000.0;
-		closest_node_index=-1;
-        itor = node_indices.begin();
-        Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
-        for (; itor != end; ++itor)
-        {
-            if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
+        FLEXBODY_PROFILER_ENTER("Transform vertices")
+	    //transform
+	    for (int i=0; i<(int)m_vertex_count; i++)
+	    {
+		    vertices[i]=(orientation*vertices[i])+position;
+	    }
+        TIMER_SNAPSHOT_REF(stat_transformed_time);
+
+        FLEXBODY_PROFILER_ENTER("Locate nodes")
+	    m_locators = new Locator_t[m_vertex_count];
+	    for (int i=0; i<(int)m_vertex_count; i++)
+	    {
+		    //search nearest node as the local origin
+		    float closest_node_distance = 1000000.0;
+		    int closest_node_index = -1;
+            auto end  = node_indices.end();
+            auto itor = node_indices.begin();
+            for (; itor != end; ++itor)
             {
-                continue;
-            }
-            float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
-            if (node_distance < closest_node_distance)
-            {
-                Vector3 vt = fast_normalise(m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
-                float cost = vx.dotProduct(vt);
-                if (cost>0.707 || cost<-0.707)
+                float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+                if (node_distance < closest_node_distance)
                 {
-                    continue; //rejection, fails the orthogonality criterion (+-45 degree)
+                    closest_node_distance = node_distance;
+                    closest_node_index = *itor;
                 }
-                closest_node_distance = node_distance;
-                closest_node_index = *itor;
             }
-        }
-        if (closest_node_index==-1)
-        {
-            LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
-        }
-        else
-        {
-            m_nodes[closest_node_index].iIsSkin=true;
-        }
-        m_locators[i].ny=closest_node_index;
+            if (closest_node_index==-1)
+            {
+                LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
+            }
+            else
+            {
+                m_nodes[closest_node_index].iIsSkin=true;
+            }
+            m_locators[i].ref=closest_node_index;
 
-		// If something unexpected happens here, then
-		// replace fast_normalise(a) with a.normalisedCopy()
+		    //search the second nearest node as the X vector
+		    closest_node_distance=1000000.0;
+		    closest_node_index=-1;
+            itor = node_indices.begin();
+            for (; itor != end; ++itor)
+            {
+                if (*itor == m_locators[i].ref)
+                {
+                    continue;
+                }
+                float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+                if (node_distance < closest_node_distance)
+                {
+                    closest_node_distance = node_distance;
+                    closest_node_index = *itor;
+                }
+            }
+            if (closest_node_index==-1)
+            {
+                LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
+            }
+            else
+            {
+                m_nodes[closest_node_index].iIsSkin=true;
+            }
+            m_locators[i].nx=closest_node_index;
 
-		Matrix3 mat;
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		    //search another close, orthogonal node as the Y vector
+            closest_node_distance=1000000.0;
+		    closest_node_index=-1;
+            itor = node_indices.begin();
+            Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+            for (; itor != end; ++itor)
+            {
+                if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
+                {
+                    continue;
+                }
+                float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+                if (node_distance < closest_node_distance)
+                {
+                    Vector3 vt = fast_normalise(m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+                    float cost = vx.dotProduct(vt);
+                    if (cost>0.707 || cost<-0.707)
+                    {
+                        continue; //rejection, fails the orthogonality criterion (+-45 degree)
+                    }
+                    closest_node_distance = node_distance;
+                    closest_node_index = *itor;
+                }
+            }
+            if (closest_node_index==-1)
+            {
+                LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
+            }
+            else
+            {
+                m_nodes[closest_node_index].iIsSkin=true;
+            }
+            m_locators[i].ny=closest_node_index;
 
-		mat.SetColumn(0, diffX);
-		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+		    // If something unexpected happens here, then
+		    // replace fast_normalise(a) with a.normalisedCopy()
 
-		mat = mat.Inverse();
+		    Matrix3 mat;
+		    Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		    Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
 
-		//compute coordinates in the newly formed Euclidean basis
-		m_locators[i].coords= mat * (vertices[i] - m_nodes[m_locators[i].ref].smoothpos);
+		    mat.SetColumn(0, diffX);
+		    mat.SetColumn(1, diffY);
+		    mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
-		// that's it!
-	}
-    TIMER_SNAPSHOT_REF(stat_located_time);
+		    mat = mat.Inverse();
 
-    } // End of preparing buffers + locators -- intentionally badly indented, temporary
+		    //compute coordinates in the newly formed Euclidean basis
+		    m_locators[i].coords= mat * (vertices[i] - m_nodes[m_locators[i].ref].smoothpos);
+
+		    // that's it!
+	    }
+        TIMER_SNAPSHOT_REF(stat_located_time);
+
+    } // if (preloaded_from_cache == nullptr)
 
 	//adjusting bounds
     FLEXBODY_PROFILER_ENTER("Adjust bounds")
@@ -609,26 +618,26 @@ FlexBody::FlexBody(
 
     TIMER_SNAPSHOT(stat_showmesh_time);
     if (preloaded_from_cache == nullptr)
-    { // intentional bad indent.
-    FLEXBODY_PROFILER_ENTER("Transform normals")
-	// If something unexpected happens here, then
-	// replace fast_normalise(a) with a.normalisedCopy()
-	for (int i=0; i<(int)m_vertex_count; i++)
-	{
-		Matrix3 mat;
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+    {
+        FLEXBODY_PROFILER_ENTER("Transform normals")
+	    // If something unexpected happens here, then
+	    // replace fast_normalise(a) with a.normalisedCopy()
+	    for (int i=0; i<(int)m_vertex_count; i++)
+	    {
+		    Matrix3 mat;
+		    Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		    Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
 
-		mat.SetColumn(0, diffX);
-		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+		    mat.SetColumn(0, diffX);
+		    mat.SetColumn(1, diffY);
+		    mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
-		mat = mat.Inverse();
+		    mat = mat.Inverse();
 
-		// compute coordinates in the Euclidean basis
-		m_src_normals[i] = mat*(orientation * m_src_normals[i]);
-	}
-    } // Intentional bad indent
+		    // compute coordinates in the Euclidean basis
+		    m_src_normals[i] = mat*(orientation * m_src_normals[i]);
+	    }
+    }
 
     TIMER_SNAPSHOT(stat_euclidean2_time);
     FLEXBODY_PROFILER_ENTER("Printing time stats");
