@@ -44,15 +44,15 @@
 
 // HTML profiler
 // Profile creating flexbody, fine-grained
-#define FLEXBODY_USE_PROFILER
+//#define FLEXBODY_USE_PROFILER
 
 // RoR.log only
 // Prints simple, per-flexbody stats to RoR.log
-#define FLEXBODY_LOG_LOADING_TIMES
+//#define FLEXBODY_LOG_LOADING_TIMES
 
 // HTML profiler
 // Profile entire class RigSpawner, per-function
-//#define SPAWNER_USE_PROFILER
+#define SPAWNER_USE_PROFILER
 
 // ============================================================================
 // END SETUP
@@ -78,9 +78,10 @@
 #   define FLEXBODY_PROFILER_SCOPED(NAME)         ::PROFILE_SCOPED_RAW(FLEXBODY_PROFILER_LABEL(NAME))
 #else
 #   define FLEXBODY_PROFILER_START(NAME) 
-#   define FLEXBODY_PROFILER_CHECKPOINT(NAME) 
+#   define FLEXBODY_PROFILER_LABEL(NAME) 
 #   define FLEXBODY_PROFILER_EXIT()
 #   define FLEXBODY_PROFILER_SCOPED(NAME)
+#   define FLEXBODY_PROFILER_ENTER(NAME)
 #endif
 
 #ifdef FLEXBODY_LOG_LOADING_TIMES
@@ -91,4 +92,5 @@
 #else
 #   define TIMER_CREATE()
 #   define TIMER_SNAPSHOT(VAR_NAME)
+#   define TIMER_SNAPSHOT_REF(VAR_NAME)
 #endif
