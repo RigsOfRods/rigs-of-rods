@@ -52,7 +52,7 @@
 
 // HTML profiler
 // Profile entire class RigSpawner, per-function
-#define SPAWNER_USE_PROFILER
+//#define SPAWNER_USE_PROFILER
 
 // ============================================================================
 // END SETUP
