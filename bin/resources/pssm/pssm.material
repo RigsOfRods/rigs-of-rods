@@ -1,57 +1,48 @@
-// declare the vertex shader (CG for the language)
 vertex_program PSSM/shadow_caster_vs cg
 {
-	// source file
 	source pssm.cg
-	// will run on vertex shader 1.1+
-	profiles vs_1_1 arbvp1
-	// entry function
+	profiles vs_2_0 arbvp1
 	entry_point shadow_caster_vs
-
 	default_params
 	{
 		param_named_auto wvpMat worldviewproj_matrix
-		// this is the scene's depth range
-		//param_named_auto depthRange			scene_depth_range
-		//param_named_auto optimalAdustFactor	custom 0
 	}
 }
-
-// declare the fragment shader (CG for the language)
 fragment_program PSSM/shadow_caster_ps cg
 {
-	// source file
 	source pssm.cg
-	// will run on pixel shader 2.0+
 	profiles ps_2_0 arbfp1
-	// entry function
 	entry_point shadow_caster_ps
-
 	default_params
 	{
 	}
 }
-
+fragment_program PSSM/shadow_caster_alpha_ps cg
+{
+	source pssm.cg
+	profiles ps_2_0 arbfp1
+	entry_point shadow_caster_alpha_ps
+	default_params
+	{
+	}
+}
 material PSSM/shadow_caster
 {
 	technique
 	{
-		// all this will do is write depth and depth² to red and green
 		pass
 		{
+			fog_override true
+			cull_hardware none
 			vertex_program_ref PSSM/shadow_caster_vs
 			{
 			}
-
-			fragment_program_ref PSSM/shadow_caster_ps
+			fragment_program_ref PSSM/shadow_caster_alpha_ps
 			{
 			}
 		}
 	}
 }
-
-
-
 vertex_program PSSM/shadow_receiver_vs cg
 {
 	source pssm.cg
@@ -86,7 +77,8 @@ fragment_program PSSM/shadow_receiver_ps cg
 		param_named_auto invShadowMapSize0	inverse_texture_size 0
 		param_named_auto invShadowMapSize1	inverse_texture_size 1
 		param_named_auto invShadowMapSize2	inverse_texture_size 2
-		//param_named pssmSplitPoints MANUAL
+		//param_named pssmSplitPoints MANUAL 0
+		param_named pssmSplitPoints float4 1.0 187 774 10000.0
 	}
 }
 
@@ -99,6 +91,7 @@ abstract material PSSM/base_receiver
 		{
 			ambient 1 1 1 1
 			diffuse 1 1 1 1
+			//cull_hardware $cull
 
 			vertex_program_ref PSSM/shadow_receiver_vs {}
 			fragment_program_ref PSSM/shadow_receiver_ps {}
@@ -107,38 +100,40 @@ abstract material PSSM/base_receiver
 			{
 				content_type shadow
 				tex_address_mode clamp
+				tex_border_colour 1.0 1.0 1.0 1.0
+				filtering anisotropic anisotropic none
 			}
 			texture_unit shadow_tex1
 			{
 				content_type shadow
 				tex_address_mode clamp
+				tex_border_colour 1.0 1.0 1.0 1.0
+				filtering anisotropic anisotropic none
 			}
 			texture_unit shadow_tex2
 			{
 				content_type shadow
 				tex_address_mode clamp
+				tex_border_colour 1.0 1.0 1.0 1.0
+				filtering anisotropic anisotropic none
 			}
 
 			texture_unit diffuse_tex
-			{
+            {
 				texture $diffuse
-			}
+            }
 		}
 	}
 }
 
 material PSSM/Plane : PSSM/base_receiver
 {
-	set $diffuse BumpyMetal.jpg
-}
-
-material PSSM/Plane2 : PSSM/base_receiver
-{
-	set $diffuse BumpyMetal.jpg
+	set $diffuse brass_patina.jpg
+	//set $cull none
 }
 
 material PSSM/Knot : PSSM/base_receiver
 {
-	set $diffuse MtlPlat2.jpg
+	set $diffuse brass_patina.jpg
+	//set $cull none
 }
-

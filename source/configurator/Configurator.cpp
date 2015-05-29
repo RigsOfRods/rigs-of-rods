@@ -278,6 +278,7 @@ private:
 	wxCheckBox *hdr;
 	wxCheckBox *heathaze;
 	wxCheckBox *ingame_console;
+	wxCheckBox *dev_mode;
 	wxCheckBox *mblur;
 	wxCheckBox *mirror;
 	wxCheckBox *nocrashrpt;
@@ -974,7 +975,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	wxPanel *ctsetPanel=new wxPanel(ctbook, -1);
 	ctbook->AddPage(ctsetPanel, _("Info"), false);
-	wxStaticText *dText2 = new wxStaticText(ctsetPanel, -1, _("Please edit the input mappings by hand by using a texteditor.\nThe input mappings are stored in the following file:\nMy Documents\\Rigs of Rods\\config\\input.map"), wxPoint(10,10));
+	wxStaticText *dText2 = new wxStaticText(ctsetPanel, -1, _("Since 0.4.5, you can use the ingame key mapping system. \nYou can also edit the input mappings by hand by using a texteditor.\nThe input mappings are stored in the following file:\nMy Documents\\Rigs of Rods\\config\\input.map"), wxPoint(10,10));
 
 #if wxCHECK_VERSION(2, 8, 0)
 	wxHyperlinkCtrl *link1 = new wxHyperlinkCtrl(ctsetPanel, -1, _("(more help here)"), _("http://www.rigsofrods.com/wiki/pages/Input.map"), wxPoint(10, 100));
@@ -1127,64 +1128,9 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y += 20;
 
 	addAboutTitle(_("Authors"), x_row1, y);
-	
-	// Looong list following
-	addAboutEntry(wxT("Pierre-Michel-Ricordel (pricorde)"), wxT("Physics Genius, Original Author, Core Developer, retired"), wxT("http://www.rigsofrods.com/members/18658-pricorde"), x_row1, y);
-	addAboutEntry(wxT("Thomas Fischer (tdev)"), wxT("Core Developer"), wxT("http://www.rigsofrods.com/members/18656-tdev"), x_row1, y);
-	y+=20;
+	addAboutEntry(_("Authors"), _("You can find a complete list of the RoR's authors ingame: about->credits."), wxT("mailto:support@rigsofrods.com"), x_row1, y);
 
-	addAboutTitle(_("Code Contributors"), x_row1, y);
-	addAboutEntry(wxT("Estama"),   wxT("Physics Core Optimizations, Collision/Friction code, Support Beams"), wxT("http://www.rigsofrods.com/members/26673-estama"), x_row1, y);
-	addAboutEntry(wxT("Lifter"),   wxT("Triggers, Animators, Animated Props, Shocks2"), wxT("http://www.rigsofrods.com/members/22371-Lifter"), x_row1, y);
-	addAboutEntry(wxT("Aperion"),  wxT("Slidesnodes, Axles, Improved Engine code, Rigidifiers, Networking code"), wxT("http://www.rigsofrods.com/members/18734-Aperion"), x_row1, y);
-	addAboutEntry(wxT("FlyPiper"), wxT("Inertia Code, minor patches"), wxT("http://www.rigsofrods.com/members/19789-flypiper"), x_row1, y);
-	addAboutEntry(wxT("knied"),    wxT("MacOSX Patches"), wxT("http://www.rigsofrods.com/members/32234-knied"), x_row1, y);
-	addAboutEntry(wxT("altren"),   wxT("Coded some MyGUI windows"), wxString(), x_row1, y);
-	addAboutEntry(wxT("petern"),   wxT("Repair on spot, Linux patches"), wxString(), x_row1, y);
-	addAboutEntry(wxT("imrenagy"), wxT("Moving chair hardware support, several fixes"), wxString(), x_row1, y);
-	addAboutEntry(wxT("priotr"),   wxT("Several Linux fixes"), wxString(), x_row1, y);
-	addAboutEntry(wxT("neorej16"), wxT("AngelScript improvements"), wxT("http://www.rigsofrods.com/members/28955-neorej16"), x_row1, y);
-	addAboutEntry(wxT("cptf"),     wxT("Several Linux gcc fixes"), wxString(), x_row1, y);
-	addAboutEntry(wxT("88Toyota"), wxT("Clutch force patches"), wxT("http://www.rigsofrods.com/members/24735-88Toyota"), x_row1, y);
-	addAboutEntry(wxT("synthead"), wxT("Minor Linux fixes"), wxT("http://www.rigsofrods.com/members/24570-synthead"), x_row1, y);
-	addAboutEntry(wxT("ulteq"),    wxT("sound engine, lots of fixes"), wxT("http://www.rigsofrods.com/members/52782-ulteq"), x_row1, y);
-	addAboutEntry(wxT("theshark"), wxT("various fixes"), wxT("http://www.rigsofrods.com/members/55599-theshark"), x_row1, y);
-	y+=20;
-
-	addAboutTitle(_("Core Content Contributors"), x_row1, y);
-	addAboutEntry(wxT("donoteat"), wxT("Improved spawner models, terrain work"), wxT("http://www.rigsofrods.com/members/18779-donoteat"), x_row1, y);
-	addAboutEntry(wxT("kevinmce"), wxT("old Character"), wxT("http://www.rigsofrods.com/members/18956-kevinmce"), x_row1, y);
-	addAboutEntry(wxT("09Challenger "), wxT("new character animations"), wxT("http://www.rigsofrods.com/members/42202-09Challenger"), x_row1, y);
-	y+=20;
-
-	addAboutTitle(_("Mod Contributors"), x_row1, y);
-	addAboutEntry(wxT("The Rigs of Rods community"), wxT("Provides us with lots of mods to play with"), wxT("http://www.rigsofrods.com/repository/"), x_row1, y);
-	y+=20;
-
-	addAboutTitle(_("Testers"), x_row1, y);
-	addAboutEntry(wxT("Invited core team"), wxT("The invited members helped us a lot along the way at various corners"), wxString(), x_row1, y);
-	y+=20;
-
-	addAboutTitle(_("Used Software"), x_row1, y);
-	addAboutEntry(wxT("Ogre3D"),        wxT("3D rendering engine"), wxT("http://www.ogre3d.org"), x_row1, y);
-	addAboutEntry(wxT("Caelum"),        wxT("Atmospheric effects"), wxT("http://code.google.com/p/caelum/"), x_row1, y);
-	addAboutEntry(wxT("AngelScript"),   wxT("Scripting Backend"), wxT("http://www.angelcode.com/angelscript/"), x_row1, y);
-	//addAboutEntry(wxT("LUA"),           wxT("Scripting Backend"), wxT("http://www.lua.org"), x_row1, y);
-#ifdef USE_OPENAL
-	addAboutEntry(wxT("OpenAL Soft"),   wxT("Sound engine"), wxT("http://kcat.strangesoft.net/openal.html"), x_row1, y);
-#endif //USE_OPENAL
-	addAboutEntry(wxT("MyGUI"),         wxT("GUI System"), wxT("http://www.mygui.info"), x_row1, y);
-	addAboutEntry(wxT("CrashRpt"),      wxT("Crash Reporting system"), wxT("http://code.google.com/p/crashrpt/"), x_row1, y);
-	//addAboutEntry(wxT("Hydrax"),        wxT("Advanced Water System"), wxT("http://www.ogre3d.org/addonforums/viewforum.php?f=20"), x_row1, y);
-	addAboutEntry(wxT("mofilereader"),  wxT("Used for Internationalization"), wxT("http://code.google.com/p/mofilereader/"), x_row1, y);
-	addAboutEntry(wxT("OIS"),           wxT("Used as Input System"), wxT("http://sourceforge.net/projects/wgois/"), x_row1, y);
-	addAboutEntry(wxT("pagedGeometry"), wxT("Used for foliage (grass, trees, etc)"), wxT("http://code.google.com/p/ogre-paged/"), x_row1, y);
-	addAboutEntry(wxT("pthreads"),      wxT("Used for threading"), wxString(), x_row1, y);
-	addAboutEntry(wxT("curl"),          wxT("Used for www-server communication"), wxT("http://curl.haxx.se/"), x_row1, y);
-	addAboutEntry(wxT("SocketW"),       wxT("Used as cross-platform socket abstraction"), wxT("http://www.digitalfanatics.org/cal/socketw/index.html"), x_row1, y);
-	addAboutEntry(wxT("boost"),         wxT("Used as glue in between the components"), wxT("http://www.boost.org"), x_row1, y);
-	addAboutEntry(wxT("wxWidgets"),     wxT("Used as cross platform user interface toolkit"), wxT("http://www.wxwidgets.org"), x_row1, y);
-	y+=20;
+	y += 20;
 
 	addAboutTitle(_("Missing someone?"), x_row1, y);
 	addAboutEntry(_("Missing someone?"), _("If we are missing someone on this list, please drop us a line at:\nsupport@rigsofrods.com"), wxT("mailto:support@rigsofrods.com"), x_row1, y);
@@ -1208,6 +1154,10 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	ingame_console=new wxCheckBox(debugPanel, -1, _("Ingame Console"), wxPoint(10, y));
 	ingame_console->SetToolTip(_("Enables the Scripting Console ingame. Use the ~ key."));
 	y+=15;
+
+	dev_mode = new wxCheckBox(debugPanel, -1, _("Developer mode"), wxPoint(10, y));
+	dev_mode->SetToolTip(_("Unlocks disabled & unfinished features for developement"));
+	y += 15;
 
 	dtm=new wxCheckBox(debugPanel, -1, _("Debug Truck Mass"), wxPoint(10, y));
 	dtm->SetToolTip(_("Prints all node masses to the RoR.log"));
@@ -1367,7 +1317,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	skidmarks=new wxCheckBox(graphicsPanel, -1, _("Skidmarks"), wxPoint(x_row2, y));
 	skidmarks->SetToolTip(_("Adds tire tracks to the ground."));
-	skidmarks->Disable();
+	//skidmarks->Disable();
 	y+=15;
 
 	envmap=new wxCheckBox(graphicsPanel, -1, _("HQ reflections"), wxPoint(x_row1, y));
@@ -2099,6 +2049,7 @@ void MyDialog::SetDefaults()
 	hdr->SetValue(false);
 	heathaze->SetValue(false);
 	ingame_console->SetValue(false);
+	dev_mode->SetValue(false);
 	inputgrab->SetSelection(0);          // All
 	mblur->SetValue(false);
 	mirror->SetValue(true);
@@ -2113,7 +2064,7 @@ void MyDialog::SetDefaults()
 	shadow->SetSelection(0);             // no shadows
 	shadowOptimizations->SetValue(true);
 	sightRange->SetValue(5000);          // 5k = unlimited
-	skidmarks->SetValue(false);
+	skidmarks->SetValue(true);
 	sky->SetSelection(1);                // caelum
 	sunburn->SetValue(false);
 	textfilt->SetSelection(3);           // anisotropic
@@ -2158,6 +2109,7 @@ void MyDialog::getSettingsControls()
 	settings["DisableCollisions"] = (collisions->GetValue()) ? "Yes" : "No";
 	settings["DisableSelfCollisions"] = (selfcollisions->GetValue()) ? "Yes" : "No";
 	settings["Enable Ingame Console"] = (ingame_console->GetValue()) ? "Yes" : "No";
+	settings["DevMode"] = (dev_mode->GetValue()) ? "Yes" : "No";
 	settings["EnvMapDebug"] = (debug_envmap->GetValue()) ? "Yes" : "No";
 	settings["Envmap"] = (envmap->GetValue()) ? "Yes" : "No";
 	settings["External Camera Mode"] = (extcam->GetValue()) ? "Static" : "Pitching";
@@ -2188,7 +2140,7 @@ void MyDialog::getSettingsControls()
 	settings["Shadow optimizations"] = (shadowOptimizations->GetValue()) ? "Yes" : "No";
 	settings["Shadow technique"] = shadow->getSelectedValueAsSTDString();
 	settings["SightRange"] = TOSTRING(sightRange->GetValue());
-	settings["Skidmarks"] = "No"; //(skidmarks->GetValue()) ? "Yes" : "No";
+	settings["Skidmarks"] = (skidmarks->GetValue()) ? "Yes" : "No";
 	settings["Sky effects"] = sky->getSelectedValueAsSTDString();
 	settings["Sunburn"] = "No"; //(sunburn->GetValue()) ? "Yes" : "No";
 	settings["Texture Filtering"] = textfilt->getSelectedValueAsSTDString();
@@ -2277,7 +2229,7 @@ void MyDialog::updateSettingsControls()
 	//st = settings["AutoDownload"]; if (st.length()>0) autodl->SetValue(st=="Yes");
 	//st = settings["Glow"]; if (st.length()>0) glow->SetValue(st=="Yes");
 	//st = settings["Hydrax"]; if (st.length()>0) hydrax->SetValue(st=="Yes");
-	//st = settings["Skidmarks"]; if (st.length()>0) skidmarks->SetValue(st=="Yes");
+	st = settings["Skidmarks"]; if (st.length()>0) skidmarks->SetValue(st=="Yes");
 	//st = settings["Sunburn"]; if (st.length()>0) sunburn->SetValue(st=="Yes");
 	//st = settings["Use RTShader System"]; if (st.length()>0) rtshader->SetValue(st=="Yes");
 	st = settings["Advanced Logging"]; if (st.length()>0) advanced_logging->SetValue(st=="Yes");
@@ -2291,6 +2243,7 @@ void MyDialog::updateSettingsControls()
 	st = settings["DisableCollisions"]; if (st.length()>0) collisions->SetValue(st=="Yes");
 	st = settings["DisableSelfCollisions"]; if (st.length()>0) selfcollisions->SetValue(st=="Yes");
 	st = settings["Enable Ingame Console"]; if (st.length()>0) ingame_console->SetValue(st=="Yes");
+	st = settings["DevMode"]; if (st.length()>0) dev_mode->SetValue(st == "Yes");
 	st = settings["EnvMapDebug"]; if (st.length()>0) debug_envmap->SetValue(st=="Yes");
 	st = settings["Envmap"]; if (st.length()>0) envmap->SetValue(st=="Yes");
 	st = settings["External Camera Mode"]; if (st.length()>0) extcam->SetValue(st=="Static");
