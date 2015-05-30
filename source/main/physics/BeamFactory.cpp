@@ -37,6 +37,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ChatSystem.h"
 #include "Console.h"
 #include "GUIManager.h"
+#include "RigLoadingProfiler.h"
+#include "RigLoadingProfilerControl.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -177,10 +179,13 @@ bool BeamFactory::removeBeam(Beam *b)
 	return false;
 }
 
-Beam *BeamFactory::createLocal(
+#define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RigLoadingProfiler::ENTRY_ID);
+
+Beam *BeamFactory::CreateLocalRigInstance(
 	Ogre::Vector3 pos, 
 	Ogre::Quaternion rot, 
 	Ogre::String fname, 
+    int cache_entry_number, // = -1, 
 	collision_box_t *spawnbox /* = nullptr */, 
 	bool ismachine /* = false */, 
 	const std::vector<Ogre::String> *truckconfig /* = nullptr */, 
@@ -189,6 +194,11 @@ Beam *BeamFactory::createLocal(
 	bool preloaded_with_terrain /* = false */
 )
 {
+    RigLoadingProfiler rig_loading_profiler;
+#ifdef ROR_PROFILE_RIG_LOADING
+    ::Profiler::reset();
+#endif
+
 	int truck_num = getFreeTruckSlot();
 	if (truck_num == -1)
 	{
@@ -201,6 +211,7 @@ Beam *BeamFactory::createLocal(
 		pos,
 		rot,
 		fname.c_str(),
+        &rig_loading_profiler,
 		false, // networked
 		gEnv->network != nullptr, // networking
 		spawnbox,
@@ -208,9 +219,9 @@ Beam *BeamFactory::createLocal(
 		truckconfig,
 		skin,
 		freePosition,
-		preloaded_with_terrain
+		preloaded_with_terrain,
+        cache_entry_number
 		);
-
 	trucks[truck_num] = b;
 
 	// lock slide nodes after spawning the truck?
@@ -233,9 +244,17 @@ Beam *BeamFactory::createLocal(
 	{
 		b->updateNetworkInfo();
 	}
+    LOADRIG_PROFILER_CHECKPOINT(ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS);
 
+    LOG(rig_loading_profiler.Report());
+#ifdef ROR_PROFILE_RIG_LOADING
+    std::string out_path = SSETTING("Profiler output dir", "") + ROR_PROFILE_RIG_LOADING_OUTFILE;
+    ::Profiler::DumpHtml(out_path.c_str());
+#endif
 	return b;
 }
+
+#undef LOADRIG_PROFILER_CHECKPOINT
 
 Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 {
@@ -301,12 +320,13 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		LOG("ERROR: could not add beam to main list");
 		return 0;
 	}
-
+    RigLoadingProfiler p; // TODO: Placeholder. Use it
 	Beam *b = new Beam(
 		truck_num,
 		pos,
 		Quaternion::ZERO,
 		reg->reg.name,
+        &p,
 		true, // networked
 		gEnv->network != nullptr, // networking
 		nullptr, // spawnbox

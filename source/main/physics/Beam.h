@@ -64,12 +64,14 @@ public:
 	* @param ismachine (see BeamData.h)
 	* @param truckconfig Networking related.
 	* @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
+    * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
 	*/
 	Beam( 
 		  int tnum
 		, Ogre::Vector3 pos
 		, Ogre::Quaternion rot
 		, const char* fname
+        , RoR::RigLoadingProfiler* rig_loading_profiler
 		, bool networked = false
 		, bool networking = false
 		, collision_box_t *spawnbox = nullptr
@@ -78,6 +80,7 @@ public:
 		, Skin *skin = nullptr
 		, bool freeposition = false
 		, bool preloaded_with_terrain = false
+        , int cache_entry_number = -1
 		);
 
 	/**
@@ -119,12 +122,14 @@ public:
 	* Spawns vehicle.
 	*/
 	bool LoadTruck(
+        RoR::RigLoadingProfiler* rig_loading_profiler,
 		Ogre::String const & file_name, 
 		Ogre::SceneNode *parent_scene_node, 
 		Ogre::Vector3 const & spawn_position,
 		Ogre::Quaternion & spawn_rotation,
 		collision_box_t *spawn_box,
-		bool preloaded_with_terrain = false
+		bool preloaded_with_terrain = false,
+        int cache_entry_number = -1
 	);
 
 	/**

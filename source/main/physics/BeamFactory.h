@@ -51,10 +51,14 @@ public:
 	*/
 	Beam *createLocal(int slotid) { return 0; }
 
-	Beam *createLocal(
+    /**
+    * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
+    */
+	Beam* CreateLocalRigInstance(
 		Ogre::Vector3 pos, 
 		Ogre::Quaternion rot, 
-		Ogre::String fname, 
+		Ogre::String fname,
+        int cache_entry_number = -1, 
 		collision_box_t *spawnbox = NULL, 
 		bool ismachine = false, 
 		const std::vector<Ogre::String> *truckconfig = nullptr, 

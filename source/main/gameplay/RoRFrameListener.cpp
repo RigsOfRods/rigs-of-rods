@@ -932,9 +932,9 @@ bool RoRFrameListener::updateEvents(float dt)
 				std::vector<String> *configptr = &config;
 				if (config.size() == 0) configptr = 0;
 				if (selection)
-					initTrucks(true, selection->fname, selection->fext, configptr, false, skin);
+					this->InitTrucks(true, selection->fname, selection->number, selection->fext, configptr, false, skin);
 				else
-					initTrucks(false, "");
+					this->InitTrucks(false, "");
 
 			} 
 			else if (loading_state == RELOADING)
@@ -952,7 +952,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
-					local_truck = BeamFactory::getSingleton().createLocal(reload_pos, reload_dir, selection->fname, reload_box, false, config_ptr, skin, freeTruckPosition);
+					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, selection->fname, selection->number, reload_box, false, config_ptr, skin, freeTruckPosition);
 					freeTruckPosition = false; // reset this, only to be used once
 				}
 
@@ -1141,19 +1141,24 @@ void RoRFrameListener::hideMap()
 }
 
 
-
-void RoRFrameListener::initTrucks(bool loadmanual, Ogre::String selected, Ogre::String selectedExtension /* = "" */, const std::vector<Ogre::String> *truckconfig /* = 0 */, bool enterTruck /* = false */, Skin *skin /* = NULL */)
+void RoRFrameListener::InitTrucks(
+    bool loadmanual, 
+    std::string const & selected, 
+    int cache_entry_number, // = -1 
+    std::string const & selectedExtension, // = ""
+    const std::vector<Ogre::String> *truckconfig, // = nullptr 
+    bool enterTruck, // = false 
+    Skin *skin // = nullptr
+    )
 {
 	//we load truck
-	char *selectedchr = const_cast< char *> (selected.c_str());
-
 	if (loadmanual)
 	{
 		Beam *b = 0;
 		Vector3 spawnpos = gEnv->terrainManager->getSpawnPos();
 		Quaternion spawnrot = Quaternion::ZERO;
 
-		b = BeamFactory::getSingleton().createLocal(spawnpos, spawnrot, selectedchr, 0, false, truckconfig, skin);
+		b = BeamFactory::getSingleton().CreateLocalRigInstance(spawnpos, spawnrot, selected, cache_entry_number, nullptr, false, truckconfig, skin);
 
 		if (enterTruck)
 		{
@@ -1796,7 +1801,7 @@ void RoRFrameListener::reloadCurrentTruck()
 	if (!curr_truck) return;
 
 	// try to load the same truck again
-	Beam *newBeam = BeamFactory::getSingleton().createLocal(reload_pos, reload_dir, curr_truck->realtruckfilename);
+	Beam *newBeam = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, curr_truck->realtruckfilename, -1);
 
 	if (!newBeam)
 	{

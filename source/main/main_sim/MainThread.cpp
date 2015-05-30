@@ -808,12 +808,12 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		// load preselected truck
 		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truckConfig);
 		gEnv->frameListener->loading_state = TERRAIN_LOADED;
-		gEnv->frameListener->initTrucks(true, preselected_truck, "", &truckConfig, enterTruck);
+		gEnv->frameListener->InitTrucks(true, preselected_truck, -1, "", &truckConfig, enterTruck);
 	}
 	else if (gEnv->terrainManager->hasPreloadedTrucks())
 	{
 		Skin* selected_skin = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
-		gEnv->frameListener->initTrucks(false, map_file_name, "", 0, false, selected_skin);
+		gEnv->frameListener->InitTrucks(false, map_file_name, -1, "", 0, false, selected_skin);
 	}
 	else
 	{

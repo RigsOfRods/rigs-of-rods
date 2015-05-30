@@ -31,6 +31,7 @@
 #include "RoRPrerequisites.h"
 #include "RigDef_Parser.h"
 #include "BeamData.h"
+#include "FlexFactory.h"
 
 #include <OgreString.h>
 
@@ -97,7 +98,8 @@ public:
 		boost::shared_ptr<RigDef::File> file,
 		Ogre::SceneNode *parent,
 		Ogre::Vector3 const & spawn_position,
-		Ogre::Quaternion const & spawn_rotation
+		Ogre::Quaternion const & spawn_rotation,
+        int cache_entry_number = -1
 		);
 
 	rig_t *SpawnRig();
@@ -984,6 +986,7 @@ protected:
 	void InitializeRig();
 
 	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
+    int m_cache_entry_number;
 	Beam *m_rig; //!< The output rig.
 	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	std::map<Ogre::String, unsigned int> m_named_nodes;
@@ -996,7 +999,6 @@ protected:
     int                   m_messages_num_errors;
     int                   m_messages_num_warnings;
     int                   m_messages_num_other;
-
 
 	/* RIG CONTEXT */
 
@@ -1011,4 +1013,6 @@ protected:
 	float m_fuse_y_min;
 	float m_fuse_y_max;
 	bool  m_generate_wing_position_lights;
+
+    RoR::FlexFactory m_flex_factory;
 };
