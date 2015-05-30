@@ -491,6 +491,13 @@ bool Settings::setupPaths()
 	strcpy(ogrelog_fname, user_path);
 	path_add(ogrelog_fname, "logs");
 
+    settings["Log dir"] = ogrelog_fname;
+
+    char profiler_out_dir[1000];
+    strcpy(profiler_out_dir, user_path);
+    path_add(profiler_out_dir, "profiler");
+    settings["Profiler output dir"] = profiler_out_dir;
+
 	char ogrelog_path[1024] = {};
 	strcpy(ogrelog_path, ogrelog_fname);
 	strcat(ogrelog_fname, "RoR.log");
@@ -499,7 +506,7 @@ bool Settings::setupPaths()
 
 	settings["dirsep"] = String(dsStr);
 	settings["Config Root"] = String(config_root);
-	settings["Cache Path"] = String(user_path) + "cache" + String(dsStr);
+	settings["CachePath"] = String(user_path) + "cache" + String(dsStr);
 
 	// only set log path if it was not set before
 	settings["Log Path"] = String(ogrelog_path);

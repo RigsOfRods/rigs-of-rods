@@ -55,6 +55,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PointColDetector.h"
 #include "PositionStorage.h"
 #include "Replay.h"
+#include "RigLoadingProfiler.h"
 #include "RigSpawner.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
@@ -71,6 +72,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 // DEBUG UTILITY
 //#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
+
+#define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
@@ -5920,6 +5923,7 @@ Beam::Beam(
 	Ogre::Vector3 pos, 
 	Ogre::Quaternion rot, 
 	const char* fname, 
+    RoR::RigLoadingProfiler* rig_loading_profiler,
 	bool _networked, /* = false  */
 	bool _networking, /* = false  */ 
 	collision_box_t *spawnbox, /* = nullptr */
@@ -5927,7 +5931,8 @@ Beam::Beam(
 	const std::vector<Ogre::String> *truckconfig, /* = nullptr */
 	Skin *skin, /* = nullptr */
 	bool freeposition, /* = false */
-	bool preloaded_with_terrain /* = false */
+	bool preloaded_with_terrain, /* = false */
+    int cache_entry_number /* = -1 */
 ) :
 
 	  deleting(false)
@@ -6028,7 +6033,6 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
-
 	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
@@ -6044,6 +6048,8 @@ Beam::Beam(
 		pthread_mutex_init(&task_index_mutex[task], NULL);
 	}
 	pthread_mutex_init(&itc_node_access_mutex, NULL);
+
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_INITTHREADS);
 
 	/* struct <rig_t> parameters */
 	
@@ -6079,10 +6085,12 @@ Beam::Beam(
 	}
 
 	Ogre::SceneNode *beams_parent = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_PREPARE_LOADTRUCK);
 	
 	if (strnlen(fname, 200) > 0)
 	{
-		if(! LoadTruck(fname, beams_parent, pos, rot, spawnbox, preloaded_with_terrain))
+		if(! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, preloaded_with_terrain, cache_entry_number))
 		{
 			return;
 		}
@@ -6185,12 +6193,14 @@ Beam::Beam(
 }
 
 bool Beam::LoadTruck(
+    RoR::RigLoadingProfiler* rig_loading_profiler,
 	Ogre::String const & file_name, 
 	Ogre::SceneNode *parent_scene_node, 
 	Ogre::Vector3 const & spawn_position,
 	Ogre::Quaternion & spawn_rotation,
 	collision_box_t *spawn_box,
-	bool preloaded_with_terrain /* = false */
+	bool preloaded_with_terrain, // = false
+    int cache_entry_number // = -1
 )
 {
 	/* add custom include path */
@@ -6225,7 +6235,8 @@ bool Beam::LoadTruck(
 		return false;
 	}
 
-	//this->cacheEntryInfo = RoR::Application::GetCacheSystem()->getResourceInfo(filename);
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_OPENFILE);
+
 	if (ds.isNull() || !ds->isReadable())
 	{
 #ifdef USE_MYGUI
@@ -6251,12 +6262,16 @@ bool Beam::LoadTruck(
 	LOG(" == Parsing vehicle file: " + file_name);
 
 	RigDef::Parser parser;
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_CREATE);
 	parser.Prepare();
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_PREPARE);
 	while(! ds->eof())
 	{
 		parser.ParseLine(ds->getLine());
 	}
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_RUN);
 	parser.Finalize();
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_FINALIZE);
 
     int report_num_errors   = parser.GetMessagesNumErrors();
     int report_num_warnings = parser.GetMessagesNumWarnings();
@@ -6266,7 +6281,7 @@ bool Beam::LoadTruck(
 	LOG(report_text);
 
     auto* importer = parser.GetSequentialImporter();
-    if (importer->IsEnabled())
+    if (importer->IsEnabled() && BSETTING("RigImporter_PrintMessagesToLog", false))
     {
         report_num_errors   += importer->GetMessagesNumErrors();
         report_num_warnings += importer->GetMessagesNumWarnings();
@@ -6279,17 +6294,17 @@ bool Beam::LoadTruck(
     }
 
 	/* VALIDATING */
-
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_PARSE);
 	LOG(" == Validating vehicle: " + parser.GetFile()->name);
 
 	RigDef::Validator validator;
 	validator.Setup(parser.GetFile());
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_INIT);
 
 	// Workaround: Some terrains pre-load truckfiles with special purpose:
 	//     "soundloads" = play sound effect at certain spot
 	//     "fixes"      = structures of N/B fixed to the ground
 	// These files can have no beams. Possible extensions: .load or .fixed
-	// .load observed in: "Northern-Isles" [http://www.rigsofrods.com/repository/view/5315]
 	Ogre::String file_extension = file_name.substr(file_name.find_last_of('.'));
 	Ogre::StringUtil::toLowerCase(file_extension);
 	bool extension_matches = (file_extension == ".load") | (file_extension == ".fixed");
@@ -6298,6 +6313,7 @@ bool Beam::LoadTruck(
 		validator.SetCheckBeams(false);
 	}
 	bool valid = validator.Validate();
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_RUN);
 
     report_num_errors   += validator.GetMessagesNumErrors();
     report_num_warnings += validator.GetMessagesNumWarnings();
@@ -6307,14 +6323,15 @@ bool Beam::LoadTruck(
 	report_text += validator_report;
 	report_text += "\n\n";
 	// Continue anyway...
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_VALIDATION);
 
 	/* PROCESSING */
 
 	LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
 	RigSpawner spawner;
-	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation);
-
+	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, spawn_rotation, cache_entry_number);
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
 	/* Setup modules */
 	spawner.AddModule(parser.GetFile()->root_module);
 	if (parser.GetFile()->modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
@@ -6325,8 +6342,9 @@ bool Beam::LoadTruck(
 			spawner.AddModule(*itor);
 		}
 	}
-
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_ADDMODULES);
 	spawner.SpawnRig();
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_RUN);
     report_num_errors   += spawner.GetMessagesNumErrors();
     report_num_warnings += spawner.GetMessagesNumWarnings();
     report_num_other    += spawner.GetMessagesNumOther();
@@ -6336,8 +6354,14 @@ bool Beam::LoadTruck(
     // Extra information to RoR.log
     if (importer->IsEnabled())
     {
-        LOG(importer->GetNodeStatistics());
-        LOG(importer->IterateAndPrintAllNodes());
+        if (BSETTING("RigImporter_PrintNodeStatsToLog", false))
+        {
+            LOG(importer->GetNodeStatistics());
+        }
+        if (BSETTING("RigImporter_Debug_TraverseAndLogAllNodes", false))
+        {
+            LOG(importer->IterateAndPrintAllNodes());
+        }
     }
 
 	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
@@ -6348,7 +6372,7 @@ bool Beam::LoadTruck(
 			RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
 		}
 	}
-
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_LOG);
 	/* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
 
 	/* Place correctly */
@@ -6388,20 +6412,25 @@ bool Beam::LoadTruck(
 	{
 		resetPosition(spawn_position, true);
 	}
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_FIXES);
 
 	//compute final mass
 	calc_masses2(truckmass);
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_CALC_MASSES);
 	//setup default sounds
 	if (!disable_default_sounds)
 	{
 		//setupDefaultSoundSources();
 		RigSpawner::SetupDefaultSoundSources(this);
 	}
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SET_DEFAULT_SND_SOURCES);
 
 	//compute node connectivity graph
 	calcNodeConnectivityGraph();
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_CALC_NODE_CONNECT_GRAPH);
 
 	RigSpawner::RecalculateBoundingBoxes(this);
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_RECALC_BOUNDING_BOXES);
 
 	// fix up submesh collision model
 	if (!subMeshGroundModelName.empty())
@@ -6409,6 +6438,7 @@ bool Beam::LoadTruck(
 		submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
 		if (!submesh_ground_model) gEnv->collisions->defaultgm;
 	}
+    
 
 	// print some truck memory stats
 	int mem = 0, memr = 0, tmpmem = 0;
@@ -6445,7 +6475,7 @@ bool Beam::LoadTruck(
 	LOG("BEAM: truck memory used: " + TOSTRING(mem)  + " B (" + TOSTRING(mem/1024)  + " kB)");
 	LOG("BEAM: truck memory allocated: " + TOSTRING(memr)  + " B (" + TOSTRING(memr/1024)  + " kB)");
 
-
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_GROUNDMODEL_AND_STATS);
 #ifdef USE_MYGUI
 	// now load any dashboards
 	if (dash)
@@ -6550,6 +6580,7 @@ bool Beam::LoadTruck(
 		dash->setVisible(false);
 	}
 #endif // USE_MYGUI
+    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
 
 	return true;
 }
