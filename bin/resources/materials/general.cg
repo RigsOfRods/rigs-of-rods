@@ -1,0 +1,357 @@
+//-------------------------------------------------------
+struct VIn
+{
+	float4 p : POSITION;	float3 n : NORMAL;
+	float3 t : TANGENT;		float3 uv: TEXCOORD0;
+	float4 c : COLOR;
+};
+struct VOut
+{
+	float4 p : POSITION;	float3 uv : TEXCOORD0;	float4 wp : TEXCOORD1;
+	float3 n : TEXCOORD2;	float3 t  : TEXCOORD3;	float3 b  : TEXCOORD4;
+	float4 c : COLOR;
+};
+struct PIn
+{							float3 uv : TEXCOORD0;	float4 wp : TEXCOORD1;
+	float3 n : TEXCOORD2;	float3 t  : TEXCOORD3;	float3 b  : TEXCOORD4;
+	float4 c : COLOR;
+};
+
+void ambient_vs(VIn IN,
+	uniform float4x4 wvpMat,
+	out float4 oPos : POSITION, out float2 oUV : TEXCOORD0)
+{
+	oPos = mul(wvpMat, IN.p);  oUV = IN.uv.xy;
+}
+
+float4 ambient_ps(in float2 uv : TEXCOORD0,
+	uniform float3 ambient,  uniform float4 matDif,
+	uniform sampler2D diffuseMap): COLOR0
+{
+	float4 diffuseTex = tex2D(diffuseMap, uv);
+	return float4(ambient * matDif.rgb * diffuseTex.rgb, diffuseTex.a);
+}
+
+///-----------------------------------------------------------------------------------------------------------------
+///-------------------------------------------------  ppx  vs  render
+///-----------------------------------------------------------------------------------------------------------------
+VOut render_vs(VIn IN,
+	uniform float4x4 wMat,  uniform float4x4 wvpMat)
+{
+	VOut OUT;  OUT.uv = IN.uv;
+	OUT.wp = mul(wMat, IN.p);
+	OUT.p = mul(wvpMat, IN.p);
+	OUT.n = IN.n;
+	OUT.c = IN.c;  //clr
+	return OUT;
+}
+
+//-------------------------------------------------  ppx  -------------------------------------------------
+float4 render_ps(PIn IN,
+	uniform float3 ambient,	uniform float4 matDif): COLOR0
+{
+	float bridge = IN.c.x, pipe = IN.c.y;
+	float border = lerp(IN.c.z, 1,pipe);
+	float norm = abs(IN.n.y);  //abs
+
+	float pwr = lerp(lerp(8, 8, bridge), 4, pipe);
+	float ter = lerp(lerp(1, 0, bridge), 0, pipe);
+	float diffuse = 1 - lerp( 1-lerp(pow(norm, pwr), pow(norm, pwr), pipe),
+		pow(1.f - 2.f*acos(norm)/3.141592654, pwr), ter);
+	float3 clrLi = ambient + diffuse * matDif.rgb;
+ 
+	//return float4(IN.n, 1);  // test
+	//return IN.c;  // test
+	//float alpha = lerp(1, 253.f/255.f, bridge);
+
+	float3 clr = lerp( lerp(
+		float3(1, 1, 1) * clrLi,
+		float3(0, 0.8,1) * (0.4+0.7*clrLi), bridge),
+		float3(1,0.8, 0) * (0.2+1.0*clrLi), pipe);
+	return float4(/*border */ clr, 1);
+}
+//-------------------------------------------------
+float4 render_gr_ps(PIn IN): COLOR0
+{
+	float bridge = IN.c.w;
+
+	//return IN.c;  // test
+	return float4(bridge * float3(1,1,1), bridge);
+}
+
+
+///-----------------------------------------------------------------------------------------------------------------
+///-------------------------------------------------  ppx  vs
+///-----------------------------------------------------------------------------------------------------------------
+VOut diffuse_vs(VIn IN,
+	uniform float4x4 wMat,  uniform float4x4 wvpMat,
+	uniform float4 fogParams)
+{
+	VOut OUT;  OUT.uv = IN.uv;
+	OUT.wp = mul(wMat, IN.p);
+	OUT.p = mul(wvpMat, IN.p);
+	OUT.n = IN.n;  OUT.t = IN.t;  OUT.b = cross(IN.t, IN.n);
+	OUT.c = IN.c;  //clr
+	OUT.wp.w = saturate(fogParams.x * (OUT.p.z - fogParams.y) * fogParams.w);
+	return OUT;
+}
+
+//-------------------------------------------------  ppx  -------------------------------------------------
+float4 diffuse_ps(PIn IN,
+	uniform float3 ambient,  uniform float3 lightDif0,  uniform float3 lightSpec0,
+	uniform float4 matDif,   uniform float4 matSpec,	uniform float matShininess,
+	uniform float3 fogColor,
+	uniform float4 lightPos0,  uniform float3 camPos,
+	uniform float4 invSMSize,  uniform float4x4 iTWMat,
+
+	uniform sampler2D diffuseMap : TEXUNIT0,
+	uniform sampler2D normalMap : TEXUNIT1): COLOR0
+{
+	float3 ldir = normalize(lightPos0.xyz - (lightPos0.w * IN.wp.xyz));
+
+	float4 normalTex = tex2D(normalMap, IN.uv.xy);  // normal to object space
+	float3x3 tbn = float3x3(IN.t, IN.b, IN.n);
+	float3 normal = mul(transpose(tbn), normalTex.xyz * 2.f - 1.f);
+	normal = normalize(mul((float3x3)iTWMat, normal));
+
+	float3 diffuse = max(dot(ldir, normal), 0);
+
+	float3 camDir = normalize(camPos - IN.wp.xyz);
+	float3 halfVec = normalize(ldir + camDir);
+	float3 specular = pow(max(dot(normal, halfVec), 0), matShininess);
+
+	float4 diffuseTex = tex2D(diffuseMap, IN.uv.xy);
+
+	float3 diffC = diffuse * lightDif0 */*?*/ matDif.rgb  * diffuseTex.rgb;
+	float3 specC = specular * lightSpec0 * matSpec.rgb;
+	float3 clrSUM = diffuseTex.rgb * ambient + diffC + specC;
+ 
+	clrSUM = lerp(clrSUM, fogColor, /*IN.fogVal*/IN.wp.w);
+	//return float4(normal, 1);  // test
+	//return IN.c;  // test
+	return float4(clrSUM, diffuseTex.a /* matDif.a*/);
+}
+
+
+//-------------------------------------------------  ppx env reflect  -------------------------------------
+float4 diffuse_ps_env(PIn IN,
+	uniform float4 envPars,
+	uniform float3 ambient,  uniform float3 lightDif0,  uniform float3 lightSpec0,
+	uniform float4 matDif,   uniform float4 matSpec,	uniform float matShininess,
+	uniform float3 fogColor,
+	uniform float4 lightPos0,  uniform float3 camPos,
+	uniform float4 invSMSize,  uniform float4x4 iTWMat,
+
+	uniform sampler2D diffuseMap : TEXUNIT0,
+	uniform sampler2D normalMap : TEXUNIT1,
+	uniform samplerCUBE envMap : TEXUNIT2): COLOR0
+{
+	float3 ldir = normalize(lightPos0.xyz - (lightPos0.w * IN.wp.xyz));
+
+	float4 normalTex = tex2D(normalMap, IN.uv.xy);  // normal to object space
+	float3x3 tbn = float3x3(IN.t, IN.b, IN.n);
+	float3 normal = mul(transpose(tbn), normalTex.xyz * 2.f - 1.f);
+	normal = normalize(mul((float3x3)iTWMat, normal));
+
+	float3 diffuse = max(dot(ldir, normal), 0);
+	float3 camDir = normalize(camPos - IN.wp.xyz);
+	float3 halfVec = normalize(ldir + camDir);
+	float3 specular = pow(max(dot(normal, halfVec), 0), matShininess);
+
+	float4 diffuseTex = tex2D(diffuseMap, IN.uv.xy);  /// env
+	float4 envTex = texCUBE(envMap, reflect(-camDir, normal) );
+
+	float3 diffC = diffuse * lightDif0 */*?*/ matDif.rgb * diffuseTex.rgb;
+	float3 specC = specular * lightSpec0 * matSpec.rgb;
+	float3 clrSUM = diffuseTex.rgb * ambient + diffC + specC;
+ 
+	float3 clrE = envPars.x * clrSUM + envPars.y * envTex.rgb;
+	clrE = lerp(clrE, fogColor, /*IN.fogVal*/IN.wp.w);
+	//return float4(normal, 1);  // test
+	return float4(clrE, diffuseTex.a);
+}
+
+
+///-----------------------------------------------------------------------------------------------------------------
+///-------------------------------------------------  ppx  vs  shadow
+///-----------------------------------------------------------------------------------------------------------------
+VOut diffuse_sh_vs(VIn IN,
+	uniform float4x4 wMat,  uniform float4x4 wvpMat,
+	uniform float4 fogParams,
+		out float4 oLightPosition0	: TEXCOORD5,
+		out float4 oLightPosition1	: TEXCOORD6,
+		out float4 oLightPosition2	: TEXCOORD7,
+	uniform float4x4 texWVPMat0,
+	uniform float4x4 texWVPMat1,
+	uniform float4x4 texWVPMat2)
+{
+	VOut OUT;  OUT.uv = IN.uv;
+	OUT.wp = mul(wMat, IN.p);
+	OUT.p = mul(wvpMat, IN.p);	OUT.uv.z = OUT.p.z;
+	OUT.n = IN.n;  OUT.t = IN.t;  OUT.b = cross(IN.t, IN.n);
+	OUT.c = IN.c;  //clr
+	OUT.wp.w = saturate(fogParams.x * (OUT.p.z - fogParams.y) * fogParams.w);
+
+	oLightPosition0 = mul(texWVPMat0, IN.p);  // pos in light space
+	oLightPosition1 = mul(texWVPMat1, IN.p);
+	oLightPosition2 = mul(texWVPMat2, IN.p);
+	return OUT;
+}
+
+///  PCF  -------------------------------------------------
+float shadowPCF(sampler2D shadowMap, float4 shadowMapPos, float2 offset)
+{
+	shadowMapPos = shadowMapPos / shadowMapPos.w;
+	float2 uv = shadowMapPos.xy;
+	float3 o = float3(offset, -offset.x) * 0.3f;
+
+	///  bias =  -0.99f  -1 no shadow  0 all shadowed
+	float shPos = shadowMapPos.z /*+ 0.0f*/;
+	//return (shPos <= tex2D(shadowMap, uv.xy).r) ? 1 : 0;  // no PCF
+	float c = (shPos <= tex2D(shadowMap, uv.xy - o.xy).r) ? 1 : 0; // top left
+		 c += (shPos <= tex2D(shadowMap, uv.xy + o.xy).r) ? 1 : 0; // bottom right
+		 c += (shPos <= tex2D(shadowMap, uv.xy + o.zy).r) ? 1 : 0; // bottom left
+		 c += (shPos <= tex2D(shadowMap, uv.xy - o.zy).r) ? 1 : 0; // top right
+	return c / 4;  /**/
+}
+
+//-------------------------------------------------  ppx  shadow  -----------------------------------------
+float4 diffuse_sh_ps(PIn IN,
+			float4 LightPosition0	: TEXCOORD5,
+			float4 LightPosition1	: TEXCOORD6,
+			float4 LightPosition2	: TEXCOORD7,
+
+	uniform float3 ambient,  uniform float3 lightDif0,  uniform float3 lightSpec0,
+	uniform float4 matDif,   uniform float4 matSpec,	uniform float matShininess,
+	uniform float3 fogColor,
+	uniform float4 lightPos0,  uniform float3 camPos,
+	uniform float4 invSMSize,  uniform float4x4 iTWMat,
+
+	uniform sampler2D diffuseMap : TEXUNIT0,
+	uniform sampler2D normalMap  : TEXUNIT1,
+
+	uniform sampler2D shadowMap0,
+	uniform sampler2D shadowMap1,
+	uniform sampler2D shadowMap2,
+
+	uniform float4 invShadowMapSize0,
+	uniform float4 invShadowMapSize1,
+	uniform float4 invShadowMapSize2,
+	uniform float4 pssmSplitPoints ): COLOR0
+{
+	float3 ldir = normalize(lightPos0.xyz - (lightPos0.w * IN.wp.xyz));
+
+	float4 normalTex = tex2D(normalMap, IN.uv.xy);  // normal to object space
+	float3x3 tbn = float3x3(IN.t, IN.b, IN.n);
+	float3 normal = mul(transpose(tbn), normalTex.xyz * 2.f - 1.f);
+	normal = normalize(mul((float3x3)iTWMat, normal));
+
+	float3 diffuse = max(dot(ldir, normal), 0);
+
+	float3 camDir = normalize(camPos - IN.wp.xyz);
+	float3 halfVec = normalize(ldir + camDir);
+	float3 specular = pow(max(dot(normal, halfVec), 0), matShininess);
+
+	float4 diffuseTex = tex2D(diffuseMap, IN.uv.xy);
+
+	float3 diffC = diffuse * lightDif0 * matDif.rgb  * diffuseTex.rgb;
+	float3 specC = specular * lightSpec0 * matSpec.rgb;
+
+	//  calculate shadow
+	float shadowing = 1.0f;
+	//float4 splitColour;
+	if (IN.uv.z <= pssmSplitPoints.y)
+	{
+		//splitColour = float4(0, 0.9, 0.9, 1);
+		shadowing = shadowPCF(shadowMap0, LightPosition0, invShadowMapSize0.xy);
+	}
+	else if (IN.uv.z <= pssmSplitPoints.z)
+	{
+		//splitColour = float4(0, 0.9, 0, 1);
+		shadowing = shadowPCF(shadowMap1, LightPosition1, invShadowMapSize1.xy); //1
+	}else
+	{
+		//splitColour = float4(0.9, 0.9, 0, 1);
+		shadowing = shadowPCF(shadowMap2, LightPosition2, invShadowMapSize2.xy); //2
+	}/**/
+		//shadowing = shadowPCF(shadowMap0, LightPosition0, invShadowMapSize0.xy);
+
+	float3 clrSUM = diffuseTex.rgb * ambient + diffC * (0.25f + 0.75f * shadowing) + specC * shadowing;
+	//return float4(/*normalTex.xyz*/normal, 1);  // test
+	
+	clrSUM = lerp(clrSUM, fogColor, /*IN.fogVal*/IN.wp.w);
+	//return float4(normal, 1);  // test
+	//return IN.c;  // test
+	return float4(clrSUM, diffuseTex.a);
+}
+
+//-------------------------------------------------  ppx  shadow  -----------------------------------------
+float4 diffuse_sh_a_ps(PIn IN,
+			float4 LightPosition0	: TEXCOORD5,
+			float4 LightPosition1	: TEXCOORD6,
+			float4 LightPosition2	: TEXCOORD7,
+
+	uniform float3 ambient,  uniform float3 lightDif0,  uniform float3 lightSpec0,
+	uniform float4 matDif,   uniform float4 matSpec,	uniform float matShininess,
+	uniform float3 fogColor,
+	uniform float4 lightPos0,  uniform float3 camPos,
+	uniform float4 invSMSize,  uniform float4x4 iTWMat,
+
+	uniform sampler2D diffuseMap : TEXUNIT0,
+	uniform sampler2D diffuseAlpha : TEXUNIT1,
+	uniform sampler2D normalMap  : TEXUNIT2,
+
+	uniform sampler2D shadowMap0,
+	uniform sampler2D shadowMap1,
+	uniform sampler2D shadowMap2,
+
+	uniform float4 invShadowMapSize0,
+	uniform float4 invShadowMapSize1,
+	uniform float4 invShadowMapSize2,
+	uniform float4 pssmSplitPoints ): COLOR0
+{
+	float3 ldir = normalize(lightPos0.xyz - (lightPos0.w * IN.wp.xyz));
+
+	float4 normalTex = tex2D(normalMap, IN.uv.xy);  // normal to object space
+	float3x3 tbn = float3x3(IN.t, IN.b, IN.n);
+	float3 normal = mul(transpose(tbn), normalTex.xyz * 2.f - 1.f);
+	normal = normalize(mul((float3x3)iTWMat, normal));
+
+	float3 diffuse = max(dot(ldir, normal), 0);
+
+	float3 camDir = normalize(camPos - IN.wp.xyz);
+	float3 halfVec = normalize(ldir + camDir);
+	float3 specular = pow(max(dot(normal, halfVec), 0), matShininess);
+
+	float4 diffuseTex = tex2D(diffuseMap, IN.uv.xy);  diffuseTex.a = tex2D(diffuseAlpha, IN.uv.xy).g;
+
+	float3 diffC = diffuse * lightDif0 * matDif.rgb  * diffuseTex.rgb;
+	float3 specC = specular * lightSpec0 * matSpec.rgb;
+
+	//  calculate shadow
+	float shadowing = 1.0f;
+	//float4 splitColour;
+	if (IN.uv.z <= pssmSplitPoints.y)
+	{
+		//splitColour = float4(0, 0.9, 0.9, 1);
+		shadowing = shadowPCF(shadowMap0, LightPosition0, invShadowMapSize0.xy);
+	}
+	else if (IN.uv.z <= pssmSplitPoints.z)
+	{
+		//splitColour = float4(0, 0.9, 0, 1);
+		shadowing = shadowPCF(shadowMap1, LightPosition1, invShadowMapSize1.xy); //1
+	}else
+	{
+		//splitColour = float4(0.9, 0.9, 0, 1);
+		shadowing = shadowPCF(shadowMap2, LightPosition2, invShadowMapSize2.xy); //2
+	}/**/
+		//shadowing = shadowPCF(shadowMap0, LightPosition0, invShadowMapSize0.xy);
+
+	float3 clrSUM = diffuseTex.rgb * ambient + diffC * (0.25f + 0.75f * shadowing) + specC * shadowing;
+	//return float4(/*normalTex.xyz*/normal, 1);  // test
+	
+	clrSUM = lerp(clrSUM, fogColor, /*IN.fogVal*/IN.wp.w);
+	//return float4(normal, 1);  // test
+	//return IN.c;  // test
+	return float4(clrSUM, diffuseTex.a);
+}
