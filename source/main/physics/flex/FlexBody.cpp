@@ -31,7 +31,7 @@
 
 using namespace Ogre;
 
-#define FLEX_COMPAT_v0_38_67
+//#define FLEX_COMPAT_v0_38_67
 
 FlexBody::FlexBody(
     RoR::FlexBodyCacheData* preloaded_from_cache,
@@ -885,22 +885,25 @@ bool FlexBody::flexitPrepare(Beam* b)
 	if (m_has_texture_blend) updateBlend();
 	
 	// compute the local center
-	Vector3 normal;
+	Vector3 flexit_normal;
 	Vector3 center;
 	if(m_node_center >= 0)
 	{
-		normal=(m_nodes[m_node_y].smoothpos-m_nodes[m_node_center].smoothpos).crossProduct(m_nodes[m_node_x].smoothpos-m_nodes[m_node_center].smoothpos);
-		normal.normalise();
-		center=m_nodes[m_node_center].smoothpos
-            +m_center_offset.x*(m_nodes[m_node_x].smoothpos-m_nodes[m_node_center].smoothpos)
-            +m_center_offset.y*(m_nodes[m_node_y].smoothpos-m_nodes[m_node_center].smoothpos);
-		center=(center+normal*m_center_offset.z);
+		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
+		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
+
+		flexit_normal = diffY.crossProduct(diffX);
+		flexit_normal.normalise();
+		
+		center= m_nodes[m_node_center].smoothpos + m_center_offset.x* diffX + m_center_offset.y* diffY;
+		center += flexit_normal*m_center_offset.z;
 	} 
     else
 	{
-		normal = Vector3::UNIT_Y;
+		flexit_normal = Vector3::UNIT_Y;
 		center = m_nodes[0].smoothpos;
 	}
+
     flexit_center = center;
 
 	return Flexable::flexitPrepare(b);
@@ -941,7 +944,7 @@ bool FlexBody::flexitPrepare(Beam* b)
 	{
 		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
 		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
-		flexit_normal = diffY.crossProduct(diffX).normalisedCopy();
+		flexit_normal = approx_normalise(diffY.crossProduct(diffX));
 
 		flexit_center = m_nodes[m_node_center].smoothpos + m_center_offset.x*diffX + m_center_offset.y*diffY;
 		flexit_center += m_center_offset.z*flexit_normal;
@@ -952,7 +955,7 @@ bool FlexBody::flexitPrepare(Beam* b)
 	}
 
 	return Flexable::flexitPrepare(b);
-}
+}	
 
 void FlexBody::flexitCompute()
 {
@@ -962,7 +965,7 @@ void FlexBody::flexitCompute()
 	{
 		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
 		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 nCross = approx_normalise(diffX.crossProduct(diffY));
+		Vector3 nCross = approx_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
 
 		m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
 		m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
