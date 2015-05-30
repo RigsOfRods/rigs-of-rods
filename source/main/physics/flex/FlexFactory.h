@@ -173,7 +173,7 @@ public:
         int                       cache_entry_number = -1
         );
 
-    FlexBody* FlexFactory::CreateFlexBody(
+    FlexBody* CreateFlexBody(
         const int num_nodes_in_rig, 
         const char* mesh_name, 
         const char* mesh_unique_name, 
