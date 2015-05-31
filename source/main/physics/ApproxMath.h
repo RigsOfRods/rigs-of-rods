@@ -113,12 +113,17 @@ inline float approx_sqrt(const float y)
 // Calculates approximate 1/square_root(x)
 // it is faster than fast_invSqrt BUT
 // use it in code not requiring precision
-inline float approx_invSqrt(const float y)
+inline float approx_invSqrt(float x)
 {
-    float f = y;
-    int i = 0x5f3759df - ( (*(int *)&f) >> 1);
+	float xhalf = 0.5f*x;
+	int i = *(int*)&x;         // get bits for floating value
+	i = 0x5f3759df - (i >> 1);   // give initial guess y0
+	x = *(float*)&i;           // convert bits back to float
+	x *= 1.5f - xhalf*x*x;     // newton step, repeating this step
+	// increases accuracy
+	//x *= 1.5f - xhalf*x*x;
 
-    return *(float *)&i;
+	return x;
 }
 
 // This function is a classic 1/square_root(x)code
