@@ -416,7 +416,7 @@ void MainThread::Go()
 		LOG("Preselected Map: " + (preselected_map));
 		m_next_application_state = Application::STATE_SIMULATION;
 	}
-	m_base_resource_load = false;
+	m_base_resource_loaded = false;
 	while (! m_shutdown_requested)
 	{
 		if (m_next_application_state == Application::STATE_MAIN_MENU)
@@ -456,7 +456,7 @@ void MainThread::Go()
 			{
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
-				m_base_resource_load = true;
+				m_base_resource_loaded = true;
 				/* Hide top menu */
 				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
 				if (top_menu != nullptr)
@@ -582,6 +582,24 @@ void MainThread::Go()
 			m_next_application_state = previous_application_state;
 			previous_application_state = Application::STATE_RIG_EDITOR;
 		}
+		else if (m_next_application_state == Application::STATE_CHANGEMAP)
+		{
+			//Sim -> change map -> sim
+			if (previous_application_state == Application::STATE_SIMULATION)
+			{
+				Application::GetGuiManager()->killSimUtils();
+				UnloadTerrain();
+				m_base_resource_loaded = true;	
+				menu_wallpaper_widget->setVisible(true);
+			}
+
+			previous_application_state = Application::STATE_CHANGEMAP;
+			m_next_application_state = Application::STATE_CHANGEMAP;
+
+			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+			//It's the same thing so..
+			EnterMainMenuLoop();
+		}
 	}
 
 	// ========================================================================
@@ -624,7 +642,7 @@ void MainThread::Go()
 
 bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected_map)
 {
-	if (!m_base_resource_load)
+	if (!m_base_resource_loaded)
 	{
 		LOG("Loading base resources");
 
@@ -690,7 +708,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	Application::CreateOverlayWrapper();
 	Application::GetOverlayWrapper()->SetupDirectionArrow();
 
-	if (!m_base_resource_load)
+	if (!m_base_resource_loaded)
 	{
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
 	}
@@ -736,7 +754,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		gEnv->frameListener->dof = new DOFManager();
 	}
 
-	if (!m_base_resource_load)
+	if (!m_base_resource_loaded)
 	{
 		// init camera manager after mygui and after we have a character
 		new CameraManager(gEnv->frameListener->dof);
@@ -1183,6 +1201,12 @@ void MainThread::BackToMenu()
 	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
+void MainThread::ChangeMap()
+{
+	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_CHANGEMAP);
+	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+
+}
 void MainThread::UnloadTerrain()
 {
 	gEnv->frameListener->loading_state = NONE_LOADED;
