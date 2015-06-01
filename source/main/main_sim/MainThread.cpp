@@ -467,6 +467,12 @@ void MainThread::Go()
 				menu_wallpaper_widget->setVisible(true);
 			}
 
+			if (BSETTING("MainMenuMusic", true))
+			{
+				SoundScriptManager::getSingleton().createInstance("tracks/main_menu_tune", -1, nullptr);
+				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
+			}
+
 			//if (!RoR::Application::GetGuiManager()->getMainSelector()->IsVisible())
 			RoR::Application::GetGuiManager()->ShowMainMenu(true);
 
@@ -849,6 +855,10 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Network);
 		}
 	}
+
+	if (BSETTING("MainMenuMusic", true))
+		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
+		//SoundScriptManager::getSingleton().modulate(nullptr, SS_MOD_MUSIC_VOLUME, 0);
 
 	Application::CreateSceneMouse();
 	Application::GetGuiManager()->initSimUtils();

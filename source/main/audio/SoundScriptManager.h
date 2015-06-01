@@ -98,6 +98,7 @@ enum SoundTriggers {
 	SS_TRIG_AVICHAT12,
 	SS_TRIG_AVICHAT13,
 	SS_TRIG_LINKED_COMMAND,
+	SS_TRIG_MAIN_MENU,
 	SS_MAX_TRIG
 };
 
@@ -132,6 +133,7 @@ enum ModulationSources {
 	SS_MOD_AIRSPEED,
 	SS_MOD_AOA,
 	SS_MOD_LINKED_COMMANDRATE,
+	SS_MOD_MUSIC_VOLUME,
 	SS_MAX_MOD
 };
 
@@ -215,6 +217,7 @@ public:
 	void setPosition(Ogre::Vector3 pos, Ogre::Vector3 velocity);
 	void start();
 	void stop();
+	void kill();
 
 	static const float PITCHDOWN_FADE_FACTOR;
 	static const float PITCHDOWN_CUTOFF_FACTOR;
@@ -262,6 +265,8 @@ public:
 	void trigStop    (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
 	void trigToggle  (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
 	void trigToggle  (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+	void trigKill	 (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
+	void trigKill    (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
 	bool getTrigState(int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
 	bool getTrigState(Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
 	void modulate    (int truck, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
