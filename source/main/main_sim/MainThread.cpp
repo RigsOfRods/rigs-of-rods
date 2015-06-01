@@ -585,14 +585,16 @@ void MainThread::Go()
 		else if (m_next_application_state == Application::STATE_CHANGEMAP)
 		{
 			//Sim -> change map -> sim
+			//                  -> back to menu
+
 			if (previous_application_state == Application::STATE_SIMULATION)
 			{
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_loaded = true;	
-				menu_wallpaper_widget->setVisible(true);
+				
 			}
-
+			menu_wallpaper_widget->setVisible(true);
 			previous_application_state = Application::STATE_CHANGEMAP;
 			m_next_application_state = Application::STATE_CHANGEMAP;
 
