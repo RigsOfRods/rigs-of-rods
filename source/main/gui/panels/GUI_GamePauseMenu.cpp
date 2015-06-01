@@ -118,7 +118,7 @@ void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
 {
 	//TODO: FIXME
 	Hide();
-	Application::GetMainThreadLogic()->BackToMenu();
+	Application::GetMainThreadLogic()->ChangeMap();
 }
 
 void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)

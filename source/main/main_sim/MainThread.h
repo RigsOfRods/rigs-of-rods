@@ -67,7 +67,7 @@ public:
 	void RegenCache();
 
 	void BackToMenu();
-
+	void ChangeMap();
 	/**
 	* @return True if everything was prepared OK and simulation may start.
 	*/
@@ -98,7 +98,7 @@ protected:
 	Application::State m_next_application_state;
 	Application::State m_application_state;
 	RigEditor::Main*   m_rig_editor;
-	bool			   m_base_resource_load;
+	bool			   m_base_resource_loaded;
 
 	std::map<std::string, bool> isLoadedMap;
 };

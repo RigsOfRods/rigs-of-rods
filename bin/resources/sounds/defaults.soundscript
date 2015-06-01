@@ -1,5 +1,12 @@
 //DEFAULT SOUND SCRIPTS
 
+tracks/main_menu_tune
+{
+	trigger_source main_menu
+	gain_source	music_volume
+	start_sound unpitched main_menu_tune.wav
+}
+
 tracks/default_diesel
 {
 	trigger_source	engine

@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "IHeightFinder.h"
 #include "Ogre.h"
+#include "Settings.h"
 
 using namespace Ogre;
 
@@ -140,6 +141,14 @@ Skidmark::Skidmark(wheel_t *wheel, Ogre::SceneNode *snode, int lenght /* = 500 *
 	if (lenght % 2)
 	{
 		lenght--;
+	}
+
+	//Configurable limits of skidmarks
+	int c_BucketCount = ISETTING("SkidmarksBuckets", 0);
+
+	if (c_BucketCount > 0)
+	{
+		bucketCount = c_BucketCount;
 	}
 }
 
