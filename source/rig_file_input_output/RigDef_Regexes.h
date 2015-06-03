@@ -1218,7 +1218,7 @@ DEFINE_REGEX( INLINE_SECTION_FILEINFO,
 	E_CAPTURE(
 		E_CAPTURE( E_MINUS_ONE_REAL )   /* #2 No UID */
 		E_OR
-		E_CAPTURE( E_STRING_NO_SPACES ) /* #3 UID */ 
+		E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) /* #3 UID */ 
 	)
 	E_CAPTURE_OPTIONAL( /* #4 Wrapper */
 		E_DELIMITER_COMMA
@@ -1477,9 +1477,10 @@ DEFINE_REGEX( SECTION_GLOBALS,
 	E_CAPTURE( E_REAL_NUMBER ) /* Cargo mass */
 	E_CAPTURE_OPTIONAL( 
 		E_DELIMITER_COMMA
-		E_CAPTURE( E_STRING_NO_SPACES ) /* Truck submesh material */
+		E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) /* Truck submesh material */
 	)
-	E_CAPTURE_OPTIONAL( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #5 Illegal characters at the end */
+    E_CAPTURE_OPTIONAL( E_DELIMITER )                      /* #5 Illegal characters at the end */
+	E_CAPTURE_OPTIONAL( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #6 Illegal characters at the end */
 	E_TRAILING_WHITESPACE
 	);
 
@@ -1518,7 +1519,7 @@ DEFINE_REGEX( SECTION_GUISETTINGS,
 		E_CAPTURE( 
 			"useMaxRPM" 
 			E_DELIMITER_SPACE 
-			E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #9 Boolean (0/1): Use max RPM from ENGINE section as tacho-max */
+			E_CAPTURE( E_DECIMAL_NUMBER ) /* #9 Boolean (0/1): Use max RPM from ENGINE section as tacho-max */
 			E_TRAILING_WHITESPACE
 		)
 		E_OR
@@ -1688,7 +1689,7 @@ DEFINE_REGEX( SECTION_LOCKGROUPS,
 
 DEFINE_REGEX( SECTION_MANAGEDMATERIALS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_STRING_NO_SPACES ) /* #1 Material name */
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) /* #1 Material name */
 	E_CAPTURE( E_DELIMITER )        /* #2 */
 	E_CAPTURE(                      /* #3 Type wrapper */
 		E_CAPTURE( "mesh_standard" )        /* #4 */
@@ -1722,7 +1723,7 @@ DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
 		E_OR
 		E_DELIMITER_SPACE /* Backwards compatibility */
 	)
-	E_CAPTURE( E_STRING_NO_SPACES )        /* #4 Material name */
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )        /* #4 Material name */
 	E_TRAILING_WHITESPACE
 	);
 

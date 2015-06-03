@@ -2096,7 +2096,7 @@ void Parser::ParseGuiSettings(Ogre::String const & line)
 	else if (results[9].matched)
 	{
 		int input = STR_PARSE_INT(results[9]);
-		if ( input != 0 && input != 1 )
+		if ( input != 0 && input != 1 ) // This is backwards compatible, legacy check was: 1. parse VALUE_STR as int 2. compare (VALUE_INT == 1)
 		{
 			std::stringstream msg;
 			msg << "Param 'Use Max RPM' has invalid value '" << results[9] << "'. Valid values are '0' (no) or '1' (yes). Parsing as '0' (no). Please fix.";
@@ -2179,13 +2179,6 @@ void Parser::ParseGlobals(Ogre::String const & line)
 	if (results[3].matched)
 	{
 		globals.material_name = results[4];
-	}
-
-	if (results[5].matched)
-	{
-		std::stringstream msg;
-		msg << "Illegal characters at the end of input: '" << results[5] << "', ignoring...";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
 	m_current_module->globals = boost::shared_ptr<Globals>( new Globals(globals) );
