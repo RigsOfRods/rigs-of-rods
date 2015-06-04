@@ -104,6 +104,10 @@ CLASS::CLASS()
 	
 	m_autohide_chatbox->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnChatBoxAutoHideCheck);
 
+	m_main_menu_music->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnEnableMenuMusicCheck);
+	m_flexbodies_lods->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnEnableFlexLODsCheck);
+	m_flexbody_cache_system->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnEnableFlexCacheCheck);
+
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
@@ -586,6 +590,27 @@ void CLASS::UpdateControls()
 		m_autohide_chatbox->setStateCheck(true);
 	else
 		m_autohide_chatbox->setStateCheck(false);
+
+	if (GameSettingsMap["Flexbody_EnableLODs"] == "Yes")
+		m_flexbodies_lods->setStateCheck(true);
+	else
+		m_flexbodies_lods->setStateCheck(false);
+
+	if (GameSettingsMap["Flexbody_UseCache"] == "Yes")
+		m_flexbody_cache_system->setStateCheck(true);
+	else
+		m_flexbody_cache_system->setStateCheck(false);
+
+	Ogre::String skidmarks_quality = GameSettingsMap["SkidmarksBuckets"];
+	if (skidmarks_quality == "5")
+		m_skidmarks_quality->setIndexSelected(1);
+	else
+		m_light_source_effects->setIndexSelected(0);
+
+	if (GameSettingsMap["MainMenuMusic"] == "Yes")
+		m_main_menu_music->setStateCheck(true);
+	else
+		m_main_menu_music->setStateCheck(false);
 }
 
 void CLASS::OnArcadeModeCheck(MyGUI::WidgetPtr _sender)
@@ -824,6 +849,35 @@ void CLASS::OnChatBoxAutoHideCheck(MyGUI::WidgetPtr _sender)
 	//ShowRestartNotice = true;
 }
 
+void CLASS::OnEnableFlexLODsCheck(MyGUI::WidgetPtr _sender)
+{
+	m_flexbodies_lods->setStateCheck(!m_flexbodies_lods->getStateCheck());
+	if (m_flexbodies_lods->getStateCheck())
+		GameSettingsMap["Flexbody_EnableLODs"] = "Yes";
+	else
+		GameSettingsMap["Flexbody_EnableLODs"] = "No";
+	ShowRestartNotice = true;
+}
+
+void CLASS::OnEnableFlexCacheCheck(MyGUI::WidgetPtr _sender)
+{
+	m_flexbody_cache_system->setStateCheck(!m_flexbody_cache_system->getStateCheck());
+	if (m_flexbody_cache_system->getStateCheck())
+		GameSettingsMap["Flexbody_UseCache"] = "Yes";
+	else
+		GameSettingsMap["Flexbody_UseCache"] = "No";
+	ShowRestartNotice = true;
+}
+
+void CLASS::OnEnableMenuMusicCheck(MyGUI::WidgetPtr _sender)
+{
+	m_main_menu_music->setStateCheck(!m_main_menu_music->getStateCheck());
+	if (m_main_menu_music->getStateCheck())
+		GameSettingsMap["MainMenuMusic"] = "Yes";
+	else
+		GameSettingsMap["MainMenuMusic"] = "No";
+	ShowRestartNotice = true;
+}
 void CLASS::OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position)
 {
 	GameSettingsMap["Sound Volume"] = Ogre::StringConverter::toString(_position); //Erm, it's a string in the config map, isn't it?
@@ -886,6 +940,11 @@ void CLASS::SaveSettings()
 
 	if (GameSettingsMap["Water effects"] == "Hydrax")
 		GameSettingsMap["SightRange"] = "5000";
+
+	if (m_skidmarks_quality->getCaption() == "Normal")
+		GameSettingsMap["SkidmarksBuckets"] = "0";
+	else
+		GameSettingsMap["SkidmarksBuckets"] = "5";
 
 	if (isKeyMapLoaded)
 	{

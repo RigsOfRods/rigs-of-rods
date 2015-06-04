@@ -146,6 +146,15 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_autohide_chatbox, "autohide_chatbox");
 	MyGUI::Button* m_autohide_chatbox;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_flexbodies_lods, "flexbodies_lods");
+	MyGUI::Button* m_flexbodies_lods;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_flexbody_cache_system, "flexbody_cache_system");
+	MyGUI::Button* m_flexbody_cache_system;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_skidmarks_quality, "skidmarks_quality");
+	MyGUI::ComboBox* m_skidmarks_quality;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_fps_limiter_slider, "fps_limiter_slider");
 	MyGUI::ScrollBar* m_fps_limiter_slider;
 
@@ -175,6 +184,9 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_volume_indicator, "volume_indicator");
 	MyGUI::EditBox* m_volume_indicator;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_main_menu_music, "main_menu_music");
+	MyGUI::Button* m_main_menu_music;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_keymapping, "keymapping");
 	MyGUI::MultiListBox* m_keymapping;
