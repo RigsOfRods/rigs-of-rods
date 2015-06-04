@@ -41,6 +41,7 @@
 #include "FileSystemInfo.h"
 #include "GUIManager.h"
 #include "Settings.h"
+#include "TerrainManager.h"
 
 #include <MyGUI.h>
 #include <boost/algorithm/string/predicate.hpp>
@@ -566,7 +567,7 @@ void CLASS::UpdateControls()
 	long sight_range = Ogre::StringConverter::parseLong(GameSettingsMap["SightRange"], 5000);
 	m_sightrange->setScrollRange(5000);
 	m_sightrange->setScrollPosition(sight_range -1);
-	if (sight_range >= 4999)
+	if (sight_range >= TerrainManager::UNLIMITED_SIGHTRANGE)
 		m_sightrange_indicator->setCaption("Unlimited");
 	else
 		m_sightrange_indicator->setCaption(Ogre::StringConverter::toString(sight_range) + " m");		
