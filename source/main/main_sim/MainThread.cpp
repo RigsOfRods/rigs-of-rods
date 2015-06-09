@@ -662,6 +662,10 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
+
+		//Before loading standard materials
+		initMatManager();
+
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
@@ -1484,4 +1488,22 @@ void MainThread::RegenCache()
 		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
 		exit(0);
 	}
+}
+
+void MainThread::initMatManager()
+{
+	//Dirty, needs to be improved
+	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/pssm/on/", "FileSystem", "ShadowsMats");
+	else
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/pssm/off/", "FileSystem", "ShadowsMats");
+
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
+
+	ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/texture_manager/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
+
+	//Last
+	ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/", "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }

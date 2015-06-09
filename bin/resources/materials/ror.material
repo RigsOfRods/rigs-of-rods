@@ -65,36 +65,6 @@ material tracks/bigsign/town
 }
 
 
-
-material tracks/character
-{
-	technique
-	{
-		pass
-		{
-			diffuse 0.800000 0.800000 0.800000
-			specular 0.000000 0.000000 0.000000 12.500000
-			
-			texture_unit
-			{
-				texture character.dds
-			}
-			
-			texture_unit
-			{
-				texture character-alpha.png
-				colour_op alpha_blend
-			}
-			
-			texture_unit
-			{
-				colour_op_ex blend_current_alpha src_manual src_current 0 0 0
-				alpha_op_ex blend_current_alpha src_manual src_current 0
-			}
-		}
-	}
-}
-
 material chp
 {
 	technique

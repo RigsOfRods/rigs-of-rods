@@ -1,9 +1,10 @@
+import * from "pssm_mat.material"
 
 material managed/flexmesh_standard/simple
 {
 	technique
 	{
-		pass
+		pass 1
 		{
 			texture_unit
 			{
@@ -17,7 +18,7 @@ material managed/flexmesh_standard/damageonly
 {
 	technique
 	{
-		pass
+		pass 1
 		{
 			diffuse vertexcolour
 			texture_unit
@@ -41,7 +42,7 @@ material managed/flexmesh_standard/specularonly
 {
     technique
     {
-        pass
+        pass 1
         {
             // Makes the pixel shader alpha output be used for alpha blending
             scene_blend alpha_blend
@@ -102,7 +103,7 @@ material managed/flexmesh_standard/speculardamage
 {
     technique
     {
-        pass
+        pass 1
         {
             // Makes the pixel shader alpha output be used for alpha blending
             scene_blend alpha_blend
@@ -170,7 +171,7 @@ material managed/flexmesh_transparent/simple
 {
 	technique
 	{
-		pass
+		pass 1
 		{
 			scene_blend alpha_blend
 			alpha_rejection greater 0
@@ -187,7 +188,7 @@ material managed/flexmesh_transparent/damageonly
 {
 	technique
 	{
-		pass
+		pass 1
 		{
 			scene_blend alpha_blend
 			alpha_rejection greater 0
@@ -217,7 +218,7 @@ material managed/flexmesh_transparent/specularonly
 {
     technique
     {
-        pass
+        pass 1
         {
 			alpha_rejection greater 0
 			depth_write off
@@ -281,7 +282,7 @@ material managed/flexmesh_transparent/speculardamage
 {
     technique
     {
-        pass
+        pass 1
         {
 			alpha_rejection greater 0
 			depth_write off
@@ -352,7 +353,7 @@ material managed/mesh_standard/simple
 {
 	technique
 	{
-		pass
+		pass 1
 		{
 			texture_unit
 			{
@@ -366,7 +367,7 @@ material managed/mesh_standard/specular
 {
     technique
     {
-        pass
+        pass 1
         {
             // Makes the pixel shader alpha output be used for alpha blending
             scene_blend alpha_blend
@@ -425,7 +426,7 @@ material managed/mesh_transparent/simple
 {
 	technique
 	{
-		pass
+		pass 1
 		{
 			scene_blend alpha_blend
 			alpha_rejection greater 0
@@ -442,7 +443,7 @@ material managed/mesh_transparent/specular
 {
     technique
     {
-        pass
+        pass 1
         {
 			alpha_rejection greater 0
 			depth_write off
