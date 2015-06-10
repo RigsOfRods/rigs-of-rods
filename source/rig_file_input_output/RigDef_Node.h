@@ -33,6 +33,7 @@
 
 #include <OgreVector3.h>
 #include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace RigDef
 {

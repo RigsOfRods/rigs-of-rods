@@ -130,7 +130,9 @@ namespace Ogre {
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually)
+	void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, Camera *camera,
+		const Camera *lodCamera, list<Particle*>::type& currentParticles,
+		bool cullIndividually)
 	{
 		// be sure that we have enough space in buffers
 		if (!allocateBuffers(currentParticles.size())) {
@@ -148,7 +150,7 @@ namespace Ogre {
 				addParticle(pDataVB, *pParticle);
 				pDataVB += 4 * mVertexSize;
 
-				float fDist = (mParentNode != NULL) ? mParentNode->getPosition().distance(pParticle->position) : pParticle->position.length();
+				float fDist = (mParentNode != NULL) ? mParentNode->getPosition().distance(pParticle->mPosition) : pParticle->mPosition.length();
 				if (fDist > mRadius)
 					mRadius = fDist;
 			}
@@ -199,10 +201,11 @@ namespace Ogre {
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	void ShaderParticleRenderer::_notifyAttached(Node* parent, bool isTagPoint)
+	void ShaderParticleRenderer::_notifyAttached(Ogre::Node * parent)
 	{
+		//todo fix ogre 2.0
 		mParentNode = parent;
-		mParentIsTagPoint = isTagPoint;
+		//mParentIsTagPoint = isTagPoint;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -257,7 +260,7 @@ namespace Ogre {
 		op.indexData     = mIndexData;
 		op.operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
 		op.useIndexes    = true;
-		op.srcRenderable = this;
+		//op.srcRenderable = this; //todo fix ogre 2.0
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -302,8 +305,10 @@ namespace Ogre {
 			// Query from parent entity if exists
 			if (mParentIsTagPoint)
 			{
-				TagPoint* tp = static_cast<TagPoint*>(mParentNode);
-				return tp->getParentEntity()->queryLights();
+				/*TagPoint* tp; 
+				tp->addChild(mParentNode); //todo fix ogre 2.0
+
+				return tp->getParentEntity()->queryLights();*/
 			}
 
 			if (mParentNode)
@@ -311,12 +316,15 @@ namespace Ogre {
 				SceneNode* sn = static_cast<SceneNode*>(mParentNode);
 
 				// Make sure we only update this only if need.
+				//todo fix ogre 2.0
+				/*
 				ulong frame = sn->getCreator()->_getLightsDirtyCounter();
 				if (mLightListUpdated != frame)
 				{
 					mLightListUpdated = frame;
 					sn->findLights(mLightList, mRadius);
 				}
+				*/
 			}
 			else
 			{
@@ -437,9 +445,9 @@ namespace Ogre {
 		size_t ofs = 0;
 		for (int k=0; k<4; ++k) {
 			float* pPosition = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-			pPosition[0] = particle.position.x;
-			pPosition[1] = particle.position.y;
-			pPosition[2] = particle.position.z;
+			pPosition[0] = particle.mPosition.x;
+			pPosition[1] = particle.mPosition.y;
+			pPosition[2] = particle.mPosition.z;
 			pPosition[3] = k;
 		}
 		ofs += sizeof(float) * 4;
@@ -448,10 +456,10 @@ namespace Ogre {
 		if (mVertexFormatColour) {
 			for (int k=0; k<4; ++k) {
 				float* pColour = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-				pColour[0] = particle.colour.r;
-				pColour[1] = particle.colour.g;
-				pColour[2] = particle.colour.b;
-				pColour[3] = particle.colour.a;
+				pColour[0] = particle.mColour.r;
+				pColour[1] = particle.mColour.g;
+				pColour[2] = particle.mColour.b;
+				pColour[3] = particle.mColour.a;
 			}
 			ofs += sizeof(float) * 4;
 		}
@@ -487,7 +495,7 @@ namespace Ogre {
 		if (mVertexFormatRotation) {
 			for (int k=0; k<4; ++k) {
 				float* pRotation = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-				*pRotation = particle.rotation.valueRadians();
+				*pRotation = particle.mRotation.valueRadians();
 			}
 			ofs += sizeof(float);
 		}
@@ -496,7 +504,7 @@ namespace Ogre {
 		if (mVertexFormatRotationSpeed) {
 			for (int k=0; k<4; ++k) {
 				float* pRotation = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-				*pRotation = particle.rotationSpeed.valueRadians();
+				*pRotation = particle.mRotationSpeed.valueRadians();
 			}
 			ofs += sizeof(float);
 		}
@@ -505,9 +513,9 @@ namespace Ogre {
 		if (mVertexFormatDirection) {
 			for (int k=0; k<4; ++k) {
 				float* pDirection = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-				pDirection[0] = particle.direction.x;
-				pDirection[1] = particle.direction.y;
-				pDirection[2] = particle.direction.z;
+				pDirection[0] = particle.mDirection.x;
+				pDirection[1] = particle.mDirection.y;
+				pDirection[2] = particle.mDirection.z;
 			}
 			ofs += sizeof(float) * 3;
 		}
@@ -516,7 +524,7 @@ namespace Ogre {
 		if (mVertexFormatTTL) {
 			for (int k=0; k<4; ++k) {
 				float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-				*pTime = particle.timeToLive;
+				*pTime = particle.mTimeToLive;
 			}
 			ofs += sizeof(float);
 		}
@@ -525,14 +533,14 @@ namespace Ogre {
 		if (mVertexFormatTTL) {
 			for (int k=0; k<4; ++k) {
 				float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-				*pTime = particle.totalTimeToLive;
+				*pTime = particle.mTotalTimeToLive;
 			}
 			ofs += sizeof(float);
 		}
 		
 		// time fragment
 		if (mVertexFormatTimeFragment) {
-			float fFrag = particle.timeToLive / particle.totalTimeToLive;
+			float fFrag = particle.mTimeToLive / particle.mTotalTimeToLive;
 			for (int k=0; k<4; ++k) {
 				float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
 				*pTime = fFrag;
@@ -542,7 +550,7 @@ namespace Ogre {
 		
 		// inverse time fragment
 		if (mVertexFormatTimeFragmentInv) {
-			float fFrag = 1.0f - particle.timeToLive / particle.totalTimeToLive;
+			float fFrag = 1.0f - particle.mTimeToLive / particle.mTotalTimeToLive;
 			for (int k=0; k<4; ++k) {
 				float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
 				*pTime = fFrag;
@@ -577,7 +585,8 @@ namespace Ogre {
 	//////////////////////////////////////////////////////////////////////////
 	ParticleSystemRenderer* ShaderParticleRendererFactory::createInstance( const String& name )
 	{
-        return OGRE_NEW ShaderParticleRenderer();
+        //todo fix ogre 2.0 check if works
+		return new ShaderParticleRenderer();
 	}
 
 	//////////////////////////////////////////////////////////////////////////

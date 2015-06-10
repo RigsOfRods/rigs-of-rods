@@ -748,4 +748,8 @@ protected:
 	 * @return a pair containing the rail, and the distant to the SlideNode
 	 */
 	std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
+
+private:
+	Ogre::SceneNode* flaresNodes[99]; //uhm something to max flares possible should be better //todo ogre 2.0
+	Ogre::SceneNode* beaconLightsNodes[99]; //same here
 };

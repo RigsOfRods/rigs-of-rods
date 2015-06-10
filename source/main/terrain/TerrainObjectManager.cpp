@@ -43,6 +43,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgreRTShaderSystem.h>
 #include <OgreFontManager.h>
+#include <OgreParticleSystem.h>
 
 using namespace Ogre;
 
@@ -191,7 +192,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 			Ogre::ColourValue BackgroundColour = Ogre::ColourValue::White;//Ogre::ColourValue(0.1337f, 0.1337f, 0.1337f, 1.0f);
 			Ogre::ColourValue GridColour = Ogre::ColourValue(0.2f, 0.2f, 0.2f, 1.0f);
 
-			Ogre::ManualObject *mReferenceObject = new Ogre::ManualObject("ReferenceGrid");
+			Ogre::ManualObject *mReferenceObject = gEnv->sceneManager->createManualObject(); //todo fix ogre 2.0 check if works
+			mReferenceObject->setName("ReferenceGrid");
 
 			mReferenceObject->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
 
@@ -966,7 +968,8 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 
 			if (!strncmp("particleSystem", ptline, 14) && tenode)
 			{
-				float x=0, y=0, z=0, scale=0;
+				//todo fix ogre 2.0
+				/*float x=0, y=0, z=0, scale=0;
 				char pname[255]="", sname[255]="";
 				int res = sscanf(ptline, "particleSystem %f, %f, %f, %f, %s %s", &scale, &x, &y, &z, pname, sname);
 				if (res != 6) continue;
@@ -998,7 +1001,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				SceneNode *sn = tenode->createChildSceneNode();
 				sn->attachObject(pParticleSys);
 				sn->pitch(Degree(90));
-				continue;
+				continue;*/
 			}
 
 			if (!strncmp("setMeshMaterial", ptline, 15))

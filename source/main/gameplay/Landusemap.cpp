@@ -85,9 +85,9 @@ int Landusemap::loadConfig(Ogre::String filename)
 	{
 		// try to load directly otherwise via resource group
 		if (group == "")
-			cfg.load(filename);
+			cfg.loadDirect(filename);
 		else
-			cfg.load(filename, group, "\x09:=", true);
+			cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
 	} catch(Ogre::Exception& e)
 	{
 		ErrorUtils::ShowError(_L("Error while loading landuse config"), e.getFullDescription());

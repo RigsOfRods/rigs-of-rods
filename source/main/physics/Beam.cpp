@@ -68,6 +68,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
+#include "OgreOverlayElement.h"
+#include "OgreOverlayManager.h"
 #include "GUIManager.h"
 
 // DEBUG UTILITY
@@ -78,6 +80,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 
+#include <OgreParticleSystem.h>
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #pragma GCC diagnostic ignored "-Wfloat-equal"
@@ -139,7 +142,7 @@ Beam::~Beam()
 		{
 			if (!deletion_Entities[i]) continue;
 			deletion_Entities[i]->detachAllObjectsFromBone();
-			gEnv->sceneManager->destroyEntity(deletion_Entities[i]->getName());
+			gEnv->sceneManager->destroyEntity(deletion_Entities[i]);
 		}
 		deletion_Entities.clear();
 	}
@@ -3280,18 +3283,21 @@ void Beam::updateFlares(float dt, bool isCurrent)
 		{
 			if (props[i].beacontype=='b')
 			{
+				beaconLightsNodes[i] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode(); //TODO check if this actually works
+				beaconLightsNodes[i]->attachObject(props[i].light[0]);
+
 				//update light
 				Quaternion orientation=props[i].snode->getOrientation();
-				props[i].light[0]->setPosition(props[i].snode->getPosition()+orientation*Vector3(0,0,0.12));
+				beaconLightsNodes[i]->setPosition(props[i].snode->getPosition() + orientation*Vector3(0, 0, 0.12));
 				props[i].bpos[0]+=dt*props[i].brate[0];//rotate baby!
 				props[i].light[0]->setDirection(orientation*Vector3(cos(props[i].bpos[0]),sin(props[i].bpos[0]),0));
 				//billboard
-				Vector3 vdir=props[i].light[0]->getPosition()-mCamera->getPosition();
+				Vector3 vdir = beaconLightsNodes[i]->getPosition() - mCamera->getPosition();
 				float vlen=vdir.length();
 				if (vlen>100.0) {props[i].bbsnode[0]->setVisible(false);continue;}
 				//normalize
 				vdir=vdir/vlen;
-				props[i].bbsnode[0]->setPosition(props[i].light[0]->getPosition()-vdir*0.1);
+				props[i].bbsnode[0]->setPosition(beaconLightsNodes[i]->getPosition() - vdir*0.1);
 				float amplitude=props[i].light[0]->getDirection().dotProduct(vdir);
 				if (amplitude>0)
 				{
@@ -3311,22 +3317,26 @@ void Beam::updateFlares(float dt, bool isCurrent)
 				{
 					//update light
 					Quaternion orientation=props[i].snode->getOrientation();
+					beaconLightsNodes[i] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode(); //TODO check if this actually works
+					beaconLightsNodes[i]->attachObject(props[i].light[k]);
+
 					switch (k)
 					{
-					case 0: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(-0.64,0,0.14));break;
-					case 1: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(-0.32,0,0.14));break;
-					case 2: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(+0.32,0,0.14));break;
-					case 3: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(+0.64,0,0.14));break;
+						case 0: beaconLightsNodes[i]->setPosition(props[i].snode->getPosition() + orientation*Vector3(-0.64, 0, 0.14)); break;
+						case 1: beaconLightsNodes[i]->setPosition(props[i].snode->getPosition() + orientation*Vector3(-0.32, 0, 0.14)); break;
+						case 2: beaconLightsNodes[i]->setPosition(props[i].snode->getPosition() + orientation*Vector3(+0.32, 0, 0.14)); break;
+						case 3: beaconLightsNodes[i]->setPosition(props[i].snode->getPosition() + orientation*Vector3(+0.64, 0, 0.14)); break;
 					}
+
 					props[i].bpos[k]+=dt*props[i].brate[k];//rotate baby!
 					props[i].light[k]->setDirection(orientation*Vector3(cos(props[i].bpos[k]),sin(props[i].bpos[k]),0));
 					//billboard
-					Vector3 vdir=props[i].light[k]->getPosition()-mCamera->getPosition();
+					Vector3 vdir = beaconLightsNodes[i]->getPosition() - mCamera->getPosition();
 					float vlen=vdir.length();
 					if (vlen>100.0) {props[i].bbsnode[k]->setVisible(false);continue;}
 					//normalize
 					vdir=vdir/vlen;
-					props[i].bbsnode[k]->setPosition(props[i].light[k]->getPosition()-vdir*0.2);
+					props[i].bbsnode[k]->setPosition(beaconLightsNodes[i]->getPosition() - vdir*0.2);
 					float amplitude=props[i].light[k]->getDirection().dotProduct(vdir);
 					if (amplitude>0)
 					{
@@ -3342,17 +3352,24 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			}
 			if (props[i].beacontype=='r')
 			{
+				Vector3 mposition = nodes[props[i].noderef].smoothpos + props[i].offsetx*(nodes[props[i].nodex].smoothpos - nodes[props[i].noderef].smoothpos) + props[i].offsety*(nodes[props[i].nodey].smoothpos - nodes[props[i].noderef].smoothpos);
+				
+				beaconLightsNodes[i] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode(); //TODO check if this actually works
+
 				//update light
 				Quaternion orientation=props[i].snode->getOrientation();
-				props[i].light[0]->setPosition(props[i].snode->getPosition()+orientation*Vector3(0,0,0.06));
+
+				beaconLightsNodes[i]->setPosition(props[i].snode->getPosition() + orientation*Vector3(0, 0, 0.06));
+				beaconLightsNodes[i]->attachObject(props[i].light[0]);
+
 				props[i].bpos[0]+=dt*props[i].brate[0];//rotate baby!
 				//billboard
-				Vector3 vdir=props[i].light[0]->getPosition()-mCamera->getPosition();
+				Vector3 vdir = beaconLightsNodes[i]->getPosition() - mCamera->getPosition();
 				float vlen=vdir.length();
 				if (vlen>100.0) {props[i].bbsnode[0]->setVisible(false);continue;}
 				//normalize
 				vdir=vdir/vlen;
-				props[i].bbsnode[0]->setPosition(props[i].light[0]->getPosition()-vdir*0.1);
+				props[i].bbsnode[0]->setPosition(beaconLightsNodes[i]->getPosition() - vdir*0.1);
 				bool visible=false;
 				if (props[i].bpos[0]>1.0)
 				{
@@ -3378,7 +3395,10 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (props[i].beacontype=='w')
 			{
 				Vector3 mposition=nodes[props[i].noderef].smoothpos+props[i].offsetx*(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos)+props[i].offsety*(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos);
-				props[i].light[0]->setPosition(mposition);
+				beaconLightsNodes[i] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode(); //TODO check if this actually works
+				beaconLightsNodes[i]->setPosition(mposition);
+				beaconLightsNodes[i]->attachObject(props[i].light[0]);
+
 				props[i].bpos[0]+=dt*props[i].brate[0];//rotate baby!
 				//billboard
 				Vector3 vdir=mposition-mCamera->getPosition();
@@ -3512,9 +3532,11 @@ void Beam::updateFlares(float dt, bool isCurrent)
 		}
 		if (flares[i].light)
 		{
-			flares[i].light->setPosition(mposition-0.2*amplitude*normal);
-			// point the real light towards the ground a bit
 			flares[i].light->setDirection(-normal - Vector3(0, 0.2, 0));
+			flaresNodes[i] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+			flaresNodes[i]->setPosition(mposition - 0.2*amplitude*normal);
+			flaresNodes[i]->attachObject(flares[i].light);
+			// point the real light towards the ground a bit
 		}
 		if (flares[i].isVisible)
 		{
@@ -4842,7 +4864,13 @@ void Beam::setDebugOverlayState(int mode)
 			sprintf(nodeName, "%s-nodesDebug-%d", truckname, i);
 			sprintf(entName, "%s-nodesDebug-%d-Ent", truckname, i);
 			t.id=i;
-			t.txt = new MovableText(nodeName, "n"+TOSTRING(i));
+
+			Ogre::NameValuePairList params;
+			params["name"] = nodeName;
+			params["caption"] = "n" + TOSTRING(i);
+			t.txt = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+				&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 			t.txt->setFontName("highcontrast_black");
 			t.txt->setTextAlignment(MovableText::H_LEFT, MovableText::V_BELOW);
 			//t.txt->setAdditionalHeight(0);
@@ -4889,7 +4917,13 @@ void Beam::setDebugOverlayState(int mode)
 			char nodeName[256]="";
 			sprintf(nodeName, "%s-beamsDebug-%d", truckname, i);
 			t.id=i;
-			t.txt = new MovableText(nodeName, "b"+TOSTRING(i));
+
+			Ogre::NameValuePairList params;
+			params["name"] = nodeName;
+			params["caption"] = "b" + TOSTRING(i);
+			t.txt = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+				&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 			t.txt->setFontName("highcontrast_black");
 			t.txt->setTextAlignment(MovableText::H_LEFT, MovableText::V_BELOW);
 			//t.txt->setAdditionalHeight(0);
@@ -5067,7 +5101,13 @@ void Beam::updateNetworkInfo()
 	{
 		char wname[256];
 		sprintf(wname, "netlabel-%s", truckname);
-		netMT = new MovableText(wname, networkUsername);
+
+		Ogre::NameValuePairList params;
+		params["name"] = wname;
+		params["caption"] = "n" + networkUsername;
+		netMT = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+			&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 		netMT->setFontName("CyberbitEnglish");
 		netMT->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
 		//netMT->setAdditionalHeight(2);

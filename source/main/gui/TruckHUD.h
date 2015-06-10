@@ -23,6 +23,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __TruckHUD_H_
 
 #include "RoRPrerequisites.h"
+#include "OgreOverlay.h"
+#include "OgreOverlayElement.h"
 
 class TruckHUD : public ZeroedMemoryAllocator
 {

@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "BeamData.h"
 #include "Ogre.h"
+#include <OgreParticleSystem.h>
 
 using namespace Ogre;
 
@@ -124,7 +125,8 @@ Turboprop::Turboprop(
 		char dename[256];
 		sprintf(dename,"%s-smoke", propname);
 		smokeNode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		smokePS=gEnv->sceneManager->createParticleSystem(dename, "tracks/TurbopropSmoke");
+		smokePS=gEnv->sceneManager->createParticleSystem("tracks/TurbopropSmoke");
+		smokePS->setName(dename);
 		if (smokePS)
 		{
 			smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
@@ -136,7 +138,8 @@ Turboprop::Turboprop(
 		if (heathaze)
 		{
 			sprintf(dename,"%s-smoke-heat", propname);
-			heathazePS=gEnv->sceneManager->createParticleSystem(dename, "tracks/TurbopropHeatHaze");
+			heathazePS=gEnv->sceneManager->createParticleSystem("tracks/TurbopropHeatHaze");
+			heathazePS->setName(dename);
 			smokeNode->attachObject(heathazePS);
 			heathazePS->setCastShadows(false);
 			heathazePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap

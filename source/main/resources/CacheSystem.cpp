@@ -586,6 +586,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 	else if (attrib == "enginetype")
 		if (params.size() != 2) { logBadTruckAttrib(line, t); return; } else  t.enginetype = StringConverter::parseInt(params[1]);
 	else if (attrib == "materials")
+	{
 		if (params.size() < 2)
 		{
 			logBadTruckAttrib(line, t);
@@ -594,10 +595,11 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 		else
 		{
 			String mat = params[1];
-			Ogre::StringVector ar = StringUtil::split(mat," ");
-			for (Ogre::StringVector::iterator it = ar.begin(); it!=ar.end(); it++)
+			Ogre::StringVector ar = StringUtil::split(mat, " ");
+			for (Ogre::StringVector::iterator it = ar.begin(); it != ar.end(); it++)
 				t.materials.insert(*it);
 		}
+	}
 }
 
 bool CacheSystem::loadCache()
@@ -2248,7 +2250,7 @@ void CacheSystem::checkForNewContent()
 std::time_t CacheSystem::fileTime(Ogre::String filename)
 {
 	FileSystemArchiveFactory FSAF;
-	Archive *fsa = FSAF.createInstance(filename);
+	Archive *fsa = FSAF.createInstance(filename, true);
 
 	std::time_t ft = fsa->getModifiedTime(filename);
 

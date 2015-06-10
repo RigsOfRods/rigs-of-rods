@@ -40,6 +40,8 @@
 #include "IHeightFinder.h"
 #include "Language.h"
 #include "OgreFontManager.h"
+#include "OgreOverlay.h"
+#include "OgreOverlayManager.h"
 #include "OgreSubsystem.h"
 #include "RoRVersion.h"
 #include "ScrewProp.h"
@@ -533,11 +535,11 @@ void OverlayWrapper::updateStats(bool detailed)
 		OverlayElement* guiWorst = OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
 
 
-		guiAvg->setCaption(avgFps + TOUTFSTRING(stats.avgFPS));
+/*		guiAvg->setCaption(avgFps + TOUTFSTRING(stats.avgFPS));
 		guiCurr->setCaption(currFps + TOUTFSTRING(stats.lastFPS));
 		guiBest->setCaption(bestFps + TOUTFSTRING(stats.bestFPS) + U(" ") + TOUTFSTRING(stats.bestFrameTime) + U(" ms"));
 		guiWorst->setCaption(worstFps + TOUTFSTRING(stats.worstFPS) + U(" ") + TOUTFSTRING(stats.worstFrameTime) + U(" ms"));
-
+		*/
 		OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
 		UTFString triss = tris + TOUTFSTRING(stats.triangleCount);
 		if (stats.triangleCount > 1000000)
@@ -563,8 +565,8 @@ void OverlayWrapper::updateStats(bool detailed)
 		UTFString memoryText;
 		if (TextureManager::getSingleton().getMemoryUsage() > 1)
 			memoryText = memoryText + _L("Textures: ") + formatBytes(TextureManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(TextureManager::getSingleton().getMemoryBudget()) + U("\n");
-		if (CompositorManager::getSingleton().getMemoryUsage() > 1)
-			memoryText = memoryText + _L("Compositors: ") + formatBytes(CompositorManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(CompositorManager::getSingleton().getMemoryBudget()) + U("\n");
+		//if (CompositorManager::getSingleton().getMemoryUsage() > 1)
+			//memoryText = memoryText + _L("Compositors: ") + formatBytes(CompositorManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(CompositorManager::getSingleton().getMemoryBudget()) + U("\n");
 		if (FontManager::getSingleton().getMemoryUsage() > 1)
 			memoryText = memoryText + _L("Fonts: ") + formatBytes(FontManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(FontManager::getSingleton().getMemoryBudget()) + U("\n");
 		if (GpuProgramManager::getSingleton().getMemoryUsage() > 1)
@@ -575,8 +577,8 @@ void OverlayWrapper::updateStats(bool detailed)
 			memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
 		if (MeshManager::getSingleton().getMemoryUsage() > 1)
 			memoryText = memoryText + _L("Meshes: ") + formatBytes(MeshManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MeshManager::getSingleton().getMemoryBudget()) + U("\n");
-		if (SkeletonManager::getSingleton().getMemoryUsage() > 1)
-			memoryText = memoryText + _L("Skeletons: ") + formatBytes(SkeletonManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(SkeletonManager::getSingleton().getMemoryBudget()) + U("\n");
+	//	if (SkeletonManager::getSingleton().getMemoryUsage() > 1)
+		//	memoryText = memoryText + _L("Skeletons: ") + formatBytes(SkeletonManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(SkeletonManager::getSingleton().getMemoryBudget()) + U("\n");
 		if (MaterialManager::getSingleton().getMemoryUsage() > 1)
 			memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
 		memoryText = memoryText + U("\n");
@@ -586,11 +588,11 @@ void OverlayWrapper::updateStats(bool detailed)
 
 
 
-		float sumMem = TextureManager::getSingleton().getMemoryUsage() + CompositorManager::getSingleton().getMemoryUsage() + FontManager::getSingleton().getMemoryUsage() + GpuProgramManager::getSingleton().getMemoryUsage() + HighLevelGpuProgramManager ::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage() + MeshManager::getSingleton().getMemoryUsage() + SkeletonManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage();
-		String sumMemoryText = _L("Memory (Ogre): ") + formatBytes(sumMem) + U("\n");
+		//float sumMem = TextureManager::getSingleton().getMemoryUsage() + CompositorManager::getSingleton().getMemoryUsage() + FontManager::getSingleton().getMemoryUsage() + GpuProgramManager::getSingleton().getMemoryUsage() + HighLevelGpuProgramManager ::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage() + MeshManager::getSingleton().getMemoryUsage() + SkeletonManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage();
+		//String sumMemoryText = _L("Memory (Ogre): ") + formatBytes(sumMem) + U("\n");
 
 		OverlayElement* memorySumDbg = OverlayManager::getSingleton().getOverlayElement("Core/CurrMemory");
-		memorySumDbg->setCaption(sumMemoryText);
+		//memorySumDbg->setCaption(sumMemoryText);
 
 	}
 	catch(...)
@@ -821,7 +823,7 @@ void OverlayWrapper::SetupDirectionArrow()
 	#endif //OGRE_VERSION
 
 		// Add entity to the scene node
-		m_direction_arrow_node = new SceneNode(gEnv->sceneManager);
+		m_direction_arrow_node = gEnv->sceneManager->createSceneNode();
 		m_direction_arrow_node->attachObject(arrow_entity);
 		m_direction_arrow_node->setVisible(false);
 		m_direction_arrow_node->setScale(0.1, 0.1, 0.1);

@@ -162,7 +162,7 @@ void MeshObject::postProcess()
 			}
 
 			Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
-			mesh->createManualLodLevel(distance, iterFiles->filename);
+//			mesh->createManualLodLevel(distance, iterFiles->filename); //todo fix ogre 2.0
 		}
 
 		// the custom LODs
@@ -176,7 +176,7 @@ void MeshObject::postProcess()
 			if (r <= 0 || i < 0) continue;
 
 			Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
-			mesh->createManualLodLevel(i, iterFiles->filename);
+//			mesh->createManualLodLevel(i, iterFiles->filename); //todo fix ogre 2.0
 		}
 	}
 

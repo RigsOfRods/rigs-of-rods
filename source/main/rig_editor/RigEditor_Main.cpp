@@ -90,7 +90,7 @@ Main::Main(Config* config):
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
-	m_scene_manager = ror_ogre_subsystem->GetOgreRoot()->createSceneManager(Ogre::ST_GENERIC, "rig_editor_scene_manager");
+	//m_scene_manager = ror_ogre_subsystem->GetOgreRoot()->createSceneManager(; //todo fix ogre 2.0
 	m_scene_manager->setAmbientLight(m_config->scene_ambient_light_color);
 
 	/* Camera */
@@ -134,12 +134,14 @@ void Main::EnterMainLoop()
 	/* Setup 3D engine */
 	OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 	assert(ror_ogre_subsystem != nullptr);
-	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
+
+	//todo fix ogre 2.0
+/*	m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 	int viewport_width = m_viewport->getActualWidth();
 	m_viewport->setBackgroundColour(m_config->viewport_background_color);
 	m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
 	m_viewport->setCamera(m_camera);
-
+	*/
 	InitializeOrRestoreGui();
 
 	/* Setup input */
@@ -165,7 +167,7 @@ void Main::EnterMainLoop()
 
 		if (!rw->isActive() && rw->isVisible())
 		{
-			rw->update(); // update even when in background !
+			//rw->update(); // update even when in background ! //todo fix ogre 2.0
 		}
 	}
 

@@ -199,9 +199,9 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
 	{
 		// try to load directly otherwise via resource group
 		if (group == "")
-			cfg.load(filename);
+			cfg.loadDirect(filename);
 		else
-			cfg.load(filename, group, "\x09:=", true);
+			cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
 	} catch(Ogre::Exception& e)
 	{
 		ErrorUtils::ShowError("Error while loading ground model", e.getFullDescription());
@@ -692,7 +692,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 		mo->triangle(3,7,6);
 
 		mo->end();
-		mo->setBoundingBox(*aa);
+//		mo->setBoundingBox(*aa); //fix ogre 2.0
 		mo->setRenderingDistance(200);
 		debugsn->attachObject(mo);
 
@@ -717,7 +717,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 		mo->index(5);mo->index(4); mo->index(4);mo->index(6); mo->index(6);mo->index(7); mo->index(7);mo->index(5);
 		// bottom and top not needed
 		mo->end();
-		mo->setBoundingBox(*aa);
+//		mo->setBoundingBox(*aa); //fix ogre 2.0
 		debugsn->attachObject(mo);
 		mo->setRenderingDistance(200);
 		delete(aa);
@@ -730,7 +730,13 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 			String labelCaption = "EVENTBOX\nevent:"+String(eventname) + "\ninstance:" + String(instancename);
 			if (scripthandler != -1)
 				labelCaption += "\nhandler:" + TOSTRING(scripthandler);
-			MovableText *mt = new MovableText(labelName, labelCaption);
+
+			Ogre::NameValuePairList params;
+			params["name"] = labelName;
+			params["caption"] = labelCaption;
+			Ogre::MovableText* mt = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+				&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 			mt->setFontName("highcontrast_black");
 			mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
 			mt->setAdditionalHeight(1);
@@ -1553,8 +1559,10 @@ int Collisions::createCollisionDebugVisualization()
 				String matName = "mat-coll-dbg-"+TOSTRING((int)(percentd*100));
 				String cell_name="("+TOSTRING(cellx)+","+ TOSTRING(cellz)+")";
 
-				ManualObject *mo =  gEnv->sceneManager->createManualObject("collisionDebugVisualization"+cell_name);
-				SceneNode *mo_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("collisionDebugVisualization_node"+cell_name);
+				ManualObject *mo =  gEnv->sceneManager->createManualObject();
+				mo->setName("collisionDebugVisualization" + cell_name);
+				SceneNode *mo_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+				mo_node->setName("collisionDebugVisualization_node" + cell_name);
 
 				mo->begin(matName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
@@ -1579,7 +1587,7 @@ int Collisions::createCollisionDebugVisualization()
 				mo->textureCoord(0,0);
 
 				mo->end();
-				mo->setBoundingBox(AxisAlignedBox(0, 0, 0, CELL_SIZE, 1, CELL_SIZE));
+				//mo->setBoundingBox(AxisAlignedBox(0, 0, 0, CELL_SIZE, 1, CELL_SIZE)); //fix ogre 2.0
 				mo_node->attachObject(mo);
 
 #if 0
@@ -1647,7 +1655,13 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
 	
 		String labelName = "collision_mesh_label_"+TOSTRING(free_collision_tri);
 		String labelCaption = "COLLMESH\nmeshname:"+meshname + "\ngroundmodel:" + String(gm->name);
-		MovableText *mt = new MovableText(labelName, labelCaption);
+
+		Ogre::NameValuePairList params;
+		params["name"] = labelName;
+		params["caption"] = labelCaption;
+		Ogre::MovableText* mt = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+			&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 		mt->setFontName("highcontrast_black");
 		mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
 		mt->setAdditionalHeight(1);

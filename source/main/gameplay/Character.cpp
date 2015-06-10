@@ -34,6 +34,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Water.h"
 
+#include "MovableText.h"
+
 using namespace Ogre;
 
 
@@ -161,7 +163,13 @@ void Character::updateNetLabel()
 	//LOG(" * updateNetLabel : " + TOSTRING(this->source));
 	if (!mMoveableText)
 	{
-		mMoveableText = new MovableText("netlabel-"+myName, networkUsername);
+		Ogre::NameValuePairList params;
+		params["name"] = "netlabel-" + myName;
+		params["caption"] = networkUsername;
+
+		mMoveableText = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+			&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 		mCharacterNode->attachObject(mMoveableText);
 		mMoveableText->setFontName("CyberbitEnglish");
 		mMoveableText->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);

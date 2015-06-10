@@ -18,7 +18,7 @@ class DynamicLines : public DynamicRenderable
 
 public:
 	/// Constructor - see setOperationType() for description of argument.
-	DynamicLines(char* materialname, OperationType opType=Ogre::RenderOperation::OT_LINE_STRIP);
+	DynamicLines(Ogre::IdType id, Ogre::ObjectMemoryManager *objectMemoryManager, const Ogre::NameValuePairList* params);
 	virtual ~DynamicLines();
 
 	/// Add a point to the point list

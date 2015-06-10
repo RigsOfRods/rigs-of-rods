@@ -32,10 +32,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 #include "Ogre.h"
+#include <OgreCommon.h>
+#include <OgreMovableObject.h>
+#include <OgreFrameListener.h>
+#include <Overlay\OgreFontManager.h>
 
 namespace Ogre {
 
-class MovableText : public MovableObject, public Renderable
+	class MovableText : public MovableObject, public Renderable, public FrameListener
 {
     /******************************** MovableText data ****************************/
 public:
@@ -72,9 +76,11 @@ protected:
 	MaterialPtr		mpMaterial;
     MaterialPtr		mpBackgroundMaterial;
 
+
     /******************************** public methods ******************************/
 public:
-	MovableText(const UTFString &name, const UTFString &caption, const UTFString &fontName = "CyberbitEnglish", Real charHeight = 1.0, const ColourValue &color = ColourValue::Black);
+	MovableText(IdType id, ObjectMemoryManager *objectMemoryManager, const NameValuePairList* params);
+	//MovableText(const UTFString &name, const UTFString &caption, const UTFString &fontName = "CyberbitEnglish", Real charHeight = 1.0, const ColourValue &color = ColourValue::Black);
 	virtual ~MovableText();
 
 	// Add to build on Shoggoth:
@@ -121,13 +127,28 @@ protected:
 	const   String            &getMovableType(void) const {static Ogre::String movType = "MovableText"; return movType;};
 
     void    _notifyCurrentCamera(Camera *cam);
-	void    _updateRenderQueue(RenderQueue* queue);
+	void    _updateRenderQueue(RenderQueue* queue, Camera *camera, const Camera *lodCamera);
 
 	// from renderable
 	void    getRenderOperation(RenderOperation &op);
 	const   MaterialPtr       &getMaterial(void) const {assert(!mpMaterial.isNull());return mpMaterial;};
 	const   LightList         &getLights(void) const {return mLList;};
 };
+	/** Factory object for creating MovableText instances */
+	class MovableTextFactory : public MovableObjectFactory
+	{
+	protected:
+		virtual MovableObject* createInstanceImpl(IdType id, ObjectMemoryManager *objectMemoryManager, const NameValuePairList* params = 0);
+	public:
+		MovableTextFactory() {}
+		~MovableTextFactory() {}
+
+		static String FACTORY_TYPE_NAME;
+
+		const String& getType() const;
+		void destroyInstance(MovableObject* obj);
+
+	};
 
 }
 

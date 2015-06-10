@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 
 #include "OgreFontManager.h"
+#include "OgreOverlayManager.h"
 #include "Settings.h"
 
 #ifdef USE_MYGUI

@@ -33,6 +33,7 @@
 
 #include "OgreShaderParticleRenderer.h"
 #include "OgreBoxEmitterFactory.h"
+#include "OgreOverlayManager.h"
 
 #ifdef USE_ANGELSCRIPT
 #include "FireExtinguisherAffectorFactory.h"

@@ -175,7 +175,7 @@ FlexBody::FlexBody(
 		        if (i == 1) distance = 20;
 		        if (i == 2) distance = 50;
 		        if (i == 3) distance = 200;
-		        newmesh->createManualLodLevel(distance, fn);
+		      //  newmesh->createManualLodLevel(distance, fn); //todo fix ogre 2.0
             }
 	    }
     }

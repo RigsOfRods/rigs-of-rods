@@ -150,10 +150,10 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 	if (b_fpsbox)
 	{
 		const Ogre::RenderTarget::FrameStats& stats = Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
-		m_cur_fps->setCaptionWithReplacing("Current FPS: " + Ogre::StringConverter::toString(stats.lastFPS));
-		m_avg_fps->setCaptionWithReplacing("Average FPS: " + Ogre::StringConverter::toString(stats.avgFPS));
+		//m_cur_fps->setCaptionWithReplacing("Current FPS: " + Ogre::StringConverter::toString(stats.batchCount));
+		/*m_avg_fps->setCaptionWithReplacing("Average FPS: " + Ogre::StringConverter::toString(stats.avgFPS));
 		m_worst_fps->setCaptionWithReplacing("Worst FPS: " + Ogre::StringConverter::toString(stats.worstFPS));
-		m_best_fps->setCaptionWithReplacing("Best FPS: " + Ogre::StringConverter::toString(stats.bestFPS));
+		m_best_fps->setCaptionWithReplacing("Best FPS: " + Ogre::StringConverter::toString(stats.bestFPS));*/
 		m_triangle_count->setCaptionWithReplacing("Triangle count: " + Ogre::StringConverter::toString(stats.triangleCount));
 		m_batch_count->setCaptionWithReplacing("Batch count: " + Ogre::StringConverter::toString(stats.batchCount));
 	}

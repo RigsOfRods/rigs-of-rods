@@ -36,15 +36,16 @@ using namespace Ogre;
 #define POS_TEX_BINDING    0
 #define COLOUR_BINDING     1
 
-MovableText::MovableText(const UTFString &name, const UTFString &caption, const UTFString &fontName, Real charHeight, const ColourValue &color)
-: mpCam(NULL)
+MovableText::MovableText(Ogre::IdType id, ObjectMemoryManager *objectMemoryManager, const NameValuePairList* params)
+: MovableObject(id, objectMemoryManager, 1)
+, mpCam(NULL)
 , mpWin(NULL)
 , mpFont(NULL)
-, mName(name)
-, mCaption(caption)
-, mFontName(fontName)
-, mCharHeight(charHeight)
-, mColor(color)
+, mName("")
+, mCaption("")
+, mFontName("BlueHighway-8")
+, mCharHeight(1.0f)
+, mColor(ColourValue::White)
 , mType("MovableText")
 , mTimeUntilNextToggle(0)
 , mSpaceWidth(0)
@@ -54,16 +55,35 @@ MovableText::MovableText(const UTFString &name, const UTFString &caption, const 
 , mVerticalAlignment(V_BELOW)
 , mAdditionalHeight(0.0)
 {
-	if (name == "")
-		throw Exception(Exception::ERR_INVALIDPARAMS, "Trying to create MovableText without name", "MovableText::MovableText");
+	if (params != 0)
+	{
+		NameValuePairList::const_iterator ni;
 
-	if (caption == "")
-	//    throw Exception(Exception::ERR_INVALIDPARAMS, "Trying to create MovableText without caption", "MovableText::MovableText");
-		mCaption = ".";
+		ni = params->find("name");
+		if (ni != params->end())
+		{
+			mName = ni->second;
+		}
+
+		ni = params->find("caption");
+		if (ni != params->end())
+		{
+			mCaption = ni->second;
+		}
+
+		ni = params->find("fontName");
+		if (ni != params->end())
+		{
+			mFontName = ni->second;
+		}
+	}
+
+	assert(mName != "" && "Trying to create MovableText without name");
 
 	mRenderOp.vertexData = NULL;
 	this->setFontName(mFontName);
 	this->_setupGeometry();
+	Root::getSingletonPtr()->addFrameListener(this);
 }
 
 MovableText::~MovableText()
@@ -82,7 +102,7 @@ void MovableText::setFontName(const UTFString &fontName)
 	if (mFontName != fontName || mpMaterial.isNull() || !mpFont)
 	{
 		mFontName = fontName;
-		mpFont = (Font *)FontManager::getSingleton().getByName(mFontName).getPointer();
+		mpFont = (Font *)FontManager::getSingleton().getResourceByName(mFontName).getPointer();
 		if (!mpFont)
 			throw Exception(Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + fontName, "MovableText::setFontName");
 
@@ -539,7 +559,7 @@ void MovableText::_notifyCurrentCamera(Camera *cam)
 	mpCam = cam;
 }
 
-void MovableText::_updateRenderQueue(RenderQueue* queue)
+void MovableText::_updateRenderQueue(RenderQueue* queue, Camera *camera, const Camera *lodCamera)
 {
 	if (this->isVisible())
 	{
@@ -551,4 +571,25 @@ void MovableText::_updateRenderQueue(RenderQueue* queue)
 		queue->addRenderable(this, mRenderQueueID, OGRE_RENDERABLE_DEFAULT_PRIORITY);
 		//      queue->addRenderable(this, mRenderQueueID, RENDER_QUEUE_SKIES_LATE);
 	}
+}
+
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+String MovableTextFactory::FACTORY_TYPE_NAME = "MovableText";
+//-----------------------------------------------------------------------
+const String& MovableTextFactory::getType(void) const
+{
+	return FACTORY_TYPE_NAME;
+}
+//-----------------------------------------------------------------------
+MovableObject* MovableTextFactory::createInstanceImpl(IdType id,
+	ObjectMemoryManager *objectMemoryManager,
+	const NameValuePairList* params)
+{
+	return OGRE_NEW MovableText(id, objectMemoryManager, params);
+}
+//-----------------------------------------------------------------------
+void MovableTextFactory::destroyInstance(MovableObject* obj)
+{
+	OGRE_DELETE obj;
 }

@@ -38,7 +38,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "DepthOfFieldEffect.h"
+//#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
@@ -60,7 +60,7 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
-#include "ScriptEngine.h"
+//#include "ScriptEngine.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -73,6 +73,7 @@
 
 #include <OgreRoot.h>
 #include <OgreString.h>
+#include <OgreOverlayManager.h>
 
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
@@ -110,6 +111,7 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
+	Ogre::OverlaySystem* overlay_system = new OverlaySystem(); //Overlay init
 
 	Application::CreateContentManager();
 
@@ -122,10 +124,20 @@ void MainThread::Go()
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
-	// Setup rendering (menu + simulation)
-	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
-	gEnv->sceneManager = scene_manager;
+	const size_t numThreads = std::max<int>(1, Ogre::PlatformInformation::getNumLogicalCores());
+	Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_SINGLETHREAD;
+	if (numThreads > 1) Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_THREADED;
 
+	// Setup rendering (menu + simulation)
+	Ogre::SceneManager* scene_manager = Root::getSingleton().createSceneManager(Ogre::ST_EXTERIOR_CLOSE, numThreads, threadedCullingMethod);
+
+	gEnv->sceneManager = scene_manager;
+	if (overlay_system)
+	{
+		scene_manager->addRenderQueueListener(overlay_system);
+		gEnv->overlaySystem = overlay_system;
+	}
+	
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
 	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
 	camera->lookAt(Ogre::Vector3(0,0,-300)); // Look back along -Z
@@ -133,7 +145,6 @@ void MainThread::Go()
 	camera->setFarClipDistance( 1000.0*1.733 );
 	camera->setFOVy(Ogre::Degree(60));
 	camera->setAutoAspectRatio(true);
-	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
 
 	// SHOW BOOTSTRAP SCREEN
@@ -175,6 +186,10 @@ void MainThread::Go()
 	// HIDE BOOTSTRAP SCREEN
 
 	startup_screen_overlay->hide();
+
+	//Maybe somewhere else?
+	Ogre::MovableTextFactory* movableTextFactory = new Ogre::MovableTextFactory();
+	Application::GetOgreSubsystem()->GetOgreRoot()->addMovableObjectFactory(movableTextFactory);
 
 	// Back to full rendering
 	scene_manager->clearSpecialCaseRenderQueues();
@@ -221,7 +236,7 @@ void MainThread::Go()
 	// Create legacy RoRFrameListener
 
 	gEnv->frameListener = new RoRFrameListener();
-	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+	//ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener); //todo fix ogre 2.0
 
 	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
 
@@ -434,6 +449,7 @@ void MainThread::Go()
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
 				/* Restore 3D engine settings */
+				/**
 				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
 				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
@@ -441,16 +457,16 @@ void MainThread::Go()
 				ror_ogre_subsystem->SetViewport(viewport);
 				viewport->setCamera(gEnv->mainCamera);
 
-				/* Restore GUI */
+				/* Restore GUI *//**
 				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
-				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);*/
 
-				/* Restore input */
+				/* Restore input *//*
 				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
-				RoR::Application::GetInputEngine()->RestoreMouseListener();
+				RoR::Application::GetInputEngine()->RestoreMouseListener();*/
 
 				/* Restore wallpaper */
-				menu_wallpaper_widget->setVisible(true);
+				//menu_wallpaper_widget->setVisible(true);
 			}
 			else if (previous_application_state == Application::STATE_SIMULATION)
 			{
@@ -501,27 +517,27 @@ void MainThread::Go()
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
 				/* Restore 3D engine settings */
-				OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+				/*OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 				assert(ror_ogre_subsystem != nullptr);
 				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
 				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
 				camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
 				ror_ogre_subsystem->SetViewport(viewport);
-				viewport->setCamera(gEnv->mainCamera);
+				viewport->setCamera(gEnv->mainCamera);*/
 
 				/* Restore GUI */
-				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+			//	RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
 
 				/* Restore input */
-				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
-				RoR::Application::GetInputEngine()->RestoreMouseListener();
+				/*RoR::Application::GetInputEngine()->RestoreKeyboardListener();
+				RoR::Application::GetInputEngine()->RestoreMouseListener();*/
 
 				/* Restore overlays */
-				RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
+				//RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
 
 				/* Setup GUI manager updates */
-				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
+				//Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
 			}
 
 			if (SetupGameplayLoop(enable_network, preselected_map))
@@ -642,6 +658,8 @@ void MainThread::Go()
 
 	delete gEnv->frameListener;
 	gEnv->frameListener = nullptr;
+	
+	delete overlay_system;
 
 	delete gEnv;
 	gEnv = nullptr;
@@ -763,7 +781,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	// depth of field effect
 	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 	{
-		gEnv->frameListener->dof = new DOFManager();
+		//gEnv->frameListener->dof = new DOFManager();
 	}
 
 	if (!m_base_resource_loaded)
@@ -926,8 +944,8 @@ void MainThread::EnterMainMenuLoop()
 
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
-		if (!rw->isActive() && rw->isVisible())
-			rw->update(); // update even when in background !
+		/*if (!rw->isActive() && rw->isVisible())
+			rw->update(); // update even when in background !*/
 
 		
 		// FPS-limiter. TODO: Is this necessary in menu?
@@ -1002,8 +1020,8 @@ void MainThread::EnterGameplayLoop()
 
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
-		if (!rw->isActive() && rw->isVisible())
-			rw->update(); // update even when in background !
+		/*if (!rw->isActive() && rw->isVisible())
+			rw->update(); // update even when in background !*/
 
 		MUTEX_UNLOCK(&m_lock);
 

@@ -28,115 +28,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "OgrePrerequisites.h"
-#include "OgreCompositorInstance.h"
-#include "OgreRenderTargetListener.h"
-#include "OgreFrameListener.h"
-#include "OgreRenderQueue.h"
-
-class Lens;
-
-class DepthOfFieldEffect : public Ogre::CompositorInstance::Listener,
-						   public Ogre::RenderTargetListener,
-						   public Ogre::RenderQueue::RenderableListener,
-						   public ZeroedMemoryAllocator
+class DepthOfFieldEffect
 {
 public:
 
 	DepthOfFieldEffect();
 	~DepthOfFieldEffect();
 
-	float getNearDepth() const {return mNearDepth; }
-	float getFocalDepth() const {return mFocalDepth; }
-	float getFarDepth() const {return mFarDepth; }
-	void setFocalDepths(float nearDepth, float focalDepth, float farDepth);
-	float getFarBlurCutoff() const {return mFarBlurCutoff; }
-	void setFarBlurCutoff(float cutoff);
-	bool getEnabled() const;
-	void setEnabled(bool value);
-
-private:
-
-	// Implementation of Ogre::CompositorInstance::Listener
-	virtual void notifyMaterialSetup(Ogre::uint32 passId, Ogre::MaterialPtr& material);
-
-	// Implementation of Ogre::RenderTargetListener
-	virtual void preViewportUpdate(const Ogre::RenderTargetViewportEvent& evt);
-	virtual void postViewportUpdate(const Ogre::RenderTargetViewportEvent& evt);
-
-	// Implementation of Ogre::RenderQueue::RenderableListener
-	virtual bool renderableQueued(Ogre::Renderable* rend, Ogre::uint8 groupID,
-				Ogre::ushort priority, Ogre::Technique** ppTech, Ogre::RenderQueue* pQueue);
-
-	int mWidth;
-	int mHeight;
-
-	static const int BLUR_DIVISOR;
-
-	enum PassId
-	{
-		BlurPass,
-		OutputPass
-	};
-
-	Ogre::Viewport* mDepthViewport;
-	Ogre::RenderTexture* mDepthTarget;
-	Ogre::TexturePtr mDepthTexture;
-	Ogre::MaterialPtr mDepthMaterial;
-	Ogre::Technique* mDepthTechnique;
-	Ogre::CompositorInstance* mCompositor;
-
-	float mNearDepth;
-	float mFocalDepth;
-	float mFarDepth;
-	float mFarBlurCutoff;
-
-	void createDepthRenderTexture();
-	void destroyDepthRenderTexture();
-//	void createCompositor();
-//	void destroyCompositor();
-	void addCompositor();
-	void removeCompositor();
 };
-
-class DOFManager : public Ogre::FrameListener, public ZeroedMemoryAllocator
-{
-public:
-
-	DOFManager();
-	~DOFManager();
-
-
-	void setEnabled(bool enabled);
-	bool getEnabled();
-
-	// controls
-	enum FocusMode {Auto, Manual, Pinhole};
-
-	void Aperture(float delta);
-	void moveFocus(float delta);
-	void setAperture(float f);
-	void setAutoSpeed(float f);
-	void setFocus(float f);
-	void setFocusMode(int mode) {mFocusMode = (FocusMode)mode;}
-	void setLensFOV(Ogre::Radian fov);
-	void setZoom(float f);
-	void zoomView(float delta);
-
-protected:
-
-	virtual bool frameStarted(const Ogre::FrameEvent& evt);
-
-	void cleanup();
-
-	DepthOfFieldEffect* mDepthOfFieldEffect;
-	FocusMode mFocusMode;
-	Lens* mLens;
-	Ogre::RaySceneQuery *mRaySceneQuery;
-	Ogre::Real targetFocalDistance;
-	Ogre::SceneNode *debugNode;
-	float mAutoSpeed;
-	float mAutoTime;
-};
-
 #endif // __DepthOfFieldEffect_H_

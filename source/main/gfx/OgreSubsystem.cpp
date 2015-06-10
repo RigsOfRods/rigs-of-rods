@@ -38,6 +38,8 @@
 #include <OgreConfigFile.h>
 #include <OgreRenderWindow.h>
 #include <OgreTimer.h>
+#include <Compositor/OgreCompositorManager2.h>
+#include <OgreTextureManager.h>
 
 namespace RoR
 {
@@ -171,12 +173,21 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
 	// configure RoR
 	Configure();
 
+	//GetOgreRoot()->initialiseCompositor();
+	Ogre::CompositorManager2* pCompositorManager = GetOgreRoot()->getCompositorManager2();
+	const Ogre::String workspaceName = "scene workspace";
+	const Ogre::IdString workspaceNameHash = workspaceName;
+	pCompositorManager->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue::Black);
+	pCompositorManager->addWorkspace(gEnv->sceneManager, GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
+
+	/*
     m_viewport = m_render_window->addViewport(nullptr);
 	
     m_viewport->setBackgroundColour(Ogre::ColourValue(0.5f, 0.5f, 0.5f, 1.0f));
 
     m_viewport->setCamera(nullptr);
 	m_viewport->setBackgroundColour(Ogre::ColourValue::Black);
+	*/
 
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
@@ -195,10 +206,11 @@ void OgreSubsystem::WindowResized(Ogre::Vector2 const & size)
 	RoRWindowEventUtilities::triggerResize(m_render_window);
 
 	// Set the aspect ratio for the new size
+	/*
 	if (m_viewport->getCamera())
 	{
 		m_viewport->getCamera()->setAspectRatio(Ogre::Real(size.x) / Ogre::Real(size.y));
-	}
+	}*/
 }
 
 unsigned long OgreSubsystem::GetTimeSinceStartup() 

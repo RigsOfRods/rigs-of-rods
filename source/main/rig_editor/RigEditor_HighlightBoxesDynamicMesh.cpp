@@ -162,19 +162,20 @@ void HighlightBoxesDynamicMesh::AddBox(
 	this->AddCorner(Vector3(extent_min.x, extent_max.y, extent_max.z), line_lengths, Vector3(1,-1,-1), color);
 }
 
+//todo ogre 2.0
 void HighlightBoxesDynamicMesh::DetachFromScene()
 {
-	if (m_dynamic_mesh->isInScene())
+	/*if (m_dynamic_mesh->isInScene())
 	{
 		m_dynamic_mesh->detachFromParent();
-	}
+	}*/
 }
 
 void HighlightBoxesDynamicMesh::AttachToScene(Ogre::SceneNode* parent_scene_node)
 {
 	assert(parent_scene_node != nullptr);
-	if (!m_dynamic_mesh->isInScene())
+	/*if (!m_dynamic_mesh->isInScene())
 	{
 		parent_scene_node->attachObject(m_dynamic_mesh.get());
-	}
+	}*/
 }

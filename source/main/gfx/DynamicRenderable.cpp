@@ -5,7 +5,8 @@
 
 using namespace Ogre;
 
-DynamicRenderable::DynamicRenderable()
+DynamicRenderable::DynamicRenderable(IdType id, ObjectMemoryManager *objectMemoryManager)
+: SimpleRenderable(id, objectMemoryManager)
 {
 }
 

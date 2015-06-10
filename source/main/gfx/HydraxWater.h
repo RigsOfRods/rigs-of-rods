@@ -18,59 +18,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __HydraxWater_H_
 #define __HydraxWater_H_
 
-#include "Prerequisites.h"
-#include "Hydrax.h"
-#include "MaterialManager.h"
-#include "Noise.h"
-#include "Perlin.h"
-#include "Real.h"
-#include "ProjectedGrid.h"
-#include "SimpleGrid.h"
-
-#include "Ogre.h"
-#include "Water.h"
-#include "IWater.h"
-#include "TerrainManager.h"
-#include "TerrainGeometryManager.h"
-
-class HydraxWater : public IWater
+class HydraxWater
 {
 public:
-	HydraxWater(const Ogre::ConfigFile &mTerrainConfig, Ogre::String configFile = "HydraxDefault.hdx");
+	HydraxWater();
 	~HydraxWater();
-
-	float getHeight();
-	float getHeightWaves(Ogre::Vector3 pos);
-	Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
-
-	void setCamera(Ogre::Camera *cam);
-	void setFadeColour(Ogre::ColourValue ambient);
-	void setHeight(float value);
-	void setSunPosition(Ogre::Vector3);
-	void setVisible(bool value);
-
-	bool isUnderWater(Ogre::Vector3 pos);
-	bool allowUnderWater();
-	void framestep(float dt);
-	void moveTo(float centerheight);
-	void prepareShutdown();
-	void showWave(Ogre::Vector3 refpos);
-	void update();
-	void updateReflectionPlane(float h);
-
-	Hydrax::Hydrax* GetHydrax() { return mHydrax; }
-
-protected:
-
-	void InitHydrax();
-	Hydrax::Hydrax *mHydrax;
-	float waveHeight;
-	float waterHeight;
-	Ogre::Camera * mRenderCamera;
-	bool haswaves;
-	Hydrax::Noise::Perlin *waternoise;
-	Hydrax::Module::ProjectedGrid *mModule;
-	Ogre::String CurrentConfigFile;
+	//todo: remake ogre 2.0
 };
 
 #endif // __HydraxWater_H_
