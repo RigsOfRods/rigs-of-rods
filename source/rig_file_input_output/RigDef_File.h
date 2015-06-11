@@ -898,7 +898,7 @@ struct Flare2
 		offset(0, 0, 1), /* Section 'flares(1)' has offset.z hardcoded to 1 */
 		type(TYPE_f_HEADLIGHT),
 		control_number(-1),
-		blink_delay_milis(500),
+		blink_delay_milis(-2),
 		size(-1)
 	{}
 

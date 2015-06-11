@@ -2461,7 +2461,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	flare.type                 = def.type;
 	flare.controlnumber        = def.control_number;
 	flare.controltoggle_status = false;
-	flare.blinkdelay           = (blink_delay == -1.f) ? 0.5f : blink_delay / 1000.f;
+	flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
 	flare.blinkdelay_curr      = 0.f;
 	flare.blinkdelay_state     = false;
 	flare.noderef              = GetNodeIndexOrThrow(def.reference_node);
