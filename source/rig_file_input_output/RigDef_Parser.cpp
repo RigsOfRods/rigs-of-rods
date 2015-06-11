@@ -2312,7 +2312,9 @@ bool Parser::_TryParseCab(Ogre::String const & line)
 					break ; /* Placeholder, does nothing */
 
 				default:
-					AddMessage(line, Message::TYPE_WARNING, "Subsection 'submesh/cab': Invalid option '" + options_str.at(i) + std::string("', ignoring..."));
+					std::stringstream msg;
+					msg << "Subsection 'submesh/cab': Invalid option '" << options_str.at(i) << "', ignoring...";
+					AddMessage(line, Message::TYPE_WARNING, msg.str());
 					break;
 			}
 		}
