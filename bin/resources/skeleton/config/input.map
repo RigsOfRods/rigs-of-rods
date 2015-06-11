@@ -33,12 +33,6 @@ BOAT_THROTTLE_AXIS             None
 BOAT_THROTTLE_UP               Keyboard             UP 
 BOAT_THROTTLE_DOWN             Keyboard             DOWN
 
-; CAELUM
-CAELUM_DECREASE_TIME           Keyboard             EXPL+SUBTRACT 
-CAELUM_DECREASE_TIME_FAST      Keyboard             SHIFT+SUBTRACT 
-CAELUM_INCREASE_TIME           Keyboard             EXPL+ADD 
-CAELUM_INCREASE_TIME_FAST      Keyboard             SHIFT+ADD 
-
 ; CAMERA
 CAMERA_CHANGE                  Keyboard             EXPL+C 
 CAMERA_FREE_MODE               Keyboard             EXPL+SHIFT+C 
@@ -168,7 +162,6 @@ COMMON_OUTPUT_POSITION         Keyboard             H
 COMMON_PRESSURE_LESS           Keyboard             LBRACKET 
 COMMON_PRESSURE_MORE           Keyboard             RBRACKET 
 COMMON_QUIT_GAME               Keyboard             ESCAPE 
-COMMON_RELOAD_ROADS            Keyboard             EXPL+CTRL+SHIFT+R 
 COMMON_REPLAY_BACKWARD         Keyboard             EXPL+LEFT 
 COMMON_REPLAY_FAST_BACKWARD    Keyboard             EXPL+SHIFT+LEFT 
 COMMON_REPLAY_FAST_FORWARD     Keyboard             EXPL+SHIFT+RIGHT 
@@ -177,7 +170,6 @@ COMMON_RESCUE_TRUCK            Keyboard             R
 COMMON_RESET_TRUCK             Keyboard             EXPL+I 
 COMMON_SCREENSHOT              Keyboard             SYSRQ 
 COMMON_SECURE_LOAD             Keyboard             O 
-COMMON_SHOWTRUCKTOOL           Keyboard             CTRL+T 
 COMMON_SHOW_SKELETON           Keyboard             K 
 COMMON_START_TRUCK_EDITOR      Keyboard             SHIFT+Y 
 COMMON_TOGGLE_CUSTOM_PARTICLES Keyboard             G 
@@ -211,16 +203,6 @@ MENU_LEFT                      Keyboard             LEFT
 MENU_RIGHT                     Keyboard             RIGHT 
 MENU_SELECT                    Keyboard             EXPL+RETURN 
 MENU_UP                        Keyboard             UP 
-
-; TERRAINEDITOR
-TERRAINEDITOR_BUILT            Keyboard             SPACE 
-TERRAINEDITOR_PITCHBACKWARD    Keyboard             DELETE 
-TERRAINEDITOR_PITCHFOREWARD    Keyboard             END 
-TERRAINEDITOR_ROTATELEFT       Keyboard             INSERT 
-TERRAINEDITOR_ROTATERIGHT      Keyboard             HOME 
-TERRAINEDITOR_SELECTROAD       Keyboard             B 
-TERRAINEDITOR_TOGGLEOBJECT     Keyboard             V 
-TERRAINEDITOR_TOGGLEROADTYPE   Keyboard             EXPL+CTRL+T 
 
 ; TRUCK
 TRUCK_ACCELERATE               Keyboard             UP 
