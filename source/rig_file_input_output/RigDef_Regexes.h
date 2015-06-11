@@ -81,7 +81,8 @@ namespace Regexes
 
 #define E_REAL_NUMBER_WITH_EXPONENT "-?[[:digit:]]*\\.[[:digit:]]+[eE][-+]?[[:digit:]]+"
 
-#define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]+"
+// NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.com/repository/view/2389
+#define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]*"
 
 #define E_REAL_NUMBER \
 	E_REAL_NUMBER_WITH_EXPONENT E_OR E_REAL_NUMBER_SIMPLE E_OR E_DECIMAL_NUMBER /* Uses |, MUST be enclosed in E_CAPTURE() */
