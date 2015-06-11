@@ -2250,6 +2250,9 @@ struct File
 
 	static const char * KeywordToString(Keyword keyword);
 
+    /// Does this file contain "fixes", i.e. nodes attached to terrain?
+    bool HasFixes();
+
 	unsigned int file_format_version;
 	Ogre::String guid;
 	std::vector<Ogre::String> description;

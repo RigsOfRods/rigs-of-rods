@@ -251,6 +251,11 @@ protected:
 	*/
 	void ProcessFileInfo();
 
+    /**
+	* Section 'fixes'
+	*/
+	void ProcessFixedNode(RigDef::Node::Ref node_ref);
+
 	/**
 	* Sections 'flares' and 'flares2'.
 	*/

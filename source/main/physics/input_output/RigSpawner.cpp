@@ -222,7 +222,6 @@ void RigSpawner::InitializeRig()
 
 	memset(m_rig->guid, 0, 128);
 	
-	m_rig->hasfixes=0;
 	m_rig->wingstart=-1;
 	
 	m_rig->realtruckname = "";
@@ -1530,6 +1529,12 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 		m_rig->dashBoardLayouts.push_back(std::pair<Ogre::String, bool>(*rtt_itor, true));
 	}
 
+}
+
+void RigSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
+{
+    node_t & node = GetNodeOrThrow(node_ref);
+    node.locked = 1;
 }
 
 void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
