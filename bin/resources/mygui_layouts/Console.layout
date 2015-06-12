@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCSX" position="175 220 645 415" layer="Main" name="_Main">
+        <Property key="Caption" value="Console"/>
+        <Widget type="EditBox" skin="EditBoxStretch" position="0 0 635 350" align="Stretch" name="Console_MainBox">
+            <Property key="VisibleHScroll" value="true"/>
+            <Property key="VisibleVScroll" value="true"/>
+            <Property key="ReadOnly" value="true"/>
+            <Property key="MultiLine" value="true"/>
+            <Property key="MaxTextLength" value="1000"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBox" position="0 350 580 30" align="HStretch Bottom" name="Console_TextBox"/>
+        <Widget type="Button" skin="Button" position="580 350 55 30" align="Right Bottom" name="Console_Send">
+            <Property key="Caption" value="Send"/>
+        </Widget>
+    </Widget>
+    <CodeGeneratorSettings>
+        <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+        <Property key="PanelName" value="GameConsoleLayout"/>
+        <Property key="PanelNamespace" value="m"/>
+        <Property key="SourceDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+    </CodeGeneratorSettings>
+</MyGUI>

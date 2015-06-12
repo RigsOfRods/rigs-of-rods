@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<MyGUI type="Layout">
-    <Widget type="Widget" skin="PanelSmall" position="88 56 407 407" layer="Modal" name="_Main">
-        <Widget type="StaticImage" skin="StaticImage" position="2 2 400 400" align="Stretch" name="mMapTexture"/>
-    </Widget>
-</MyGUI>

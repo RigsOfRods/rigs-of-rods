@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowC" position="235 427 554 169" align="Center" layer="Overlapped" name="_Main">
+        <Property key="Caption" value="Loading..."/>
+        <Property key="MinSize" value="580 200"/>
+        <Widget type="ProgressBar" skin="ProgressBar" position="10 107 528 18" layer="Back" name="Bar">
+            <Property key="Range" value="100"/>
+            <Property key="RangePosition" value="0"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position="150 0 386 89" layer="Back" name="Info">
+            <Property key="FontName" value="DefaultBig"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="25 0 106 86">
+            <Property key="ImageTexture" value="rorlogo.png"/>
+        </Widget>
+    </Widget>
+</MyGUI>

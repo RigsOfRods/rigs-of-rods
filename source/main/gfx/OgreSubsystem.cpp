@@ -174,11 +174,6 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
 	Configure();
 
 	//GetOgreRoot()->initialiseCompositor();
-	Ogre::CompositorManager2* pCompositorManager = GetOgreRoot()->getCompositorManager2();
-	const Ogre::String workspaceName = "scene workspace";
-	const Ogre::IdString workspaceNameHash = workspaceName;
-	pCompositorManager->createBasicWorkspaceDef(workspaceName, Ogre::ColourValue::Black);
-	pCompositorManager->addWorkspace(gEnv->sceneManager, GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
 
 	/*
     m_viewport = m_render_window->addViewport(nullptr);
@@ -194,7 +189,7 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
     m_timer = new Ogre::Timer();
     m_timer->reset();
 
-    m_render_window->setActive(true);
+ //   m_render_window->setActive(true);
 
     return true;
 }

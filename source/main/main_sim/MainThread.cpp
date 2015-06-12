@@ -74,6 +74,13 @@
 #include <OgreRoot.h>
 #include <OgreString.h>
 #include <OgreOverlayManager.h>
+#include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorNodeDef.h>
+#include <Compositor/OgreCompositorWorkspaceDef.h>
+#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
+#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
+#include <Compositor/OgreTextureDefinition.h>
+#include <MyGUI_OgrePlatform.h>
 
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
@@ -121,8 +128,8 @@ void MainThread::Go()
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
-	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 
 	const size_t numThreads = std::max<int>(1, Ogre::PlatformInformation::getNumLogicalCores());
 	Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_SINGLETHREAD;
@@ -147,7 +154,7 @@ void MainThread::Go()
 	camera->setAutoAspectRatio(true);
 	gEnv->mainCamera = camera;
 
-	// SHOW BOOTSTRAP SCREEN
+	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
 	// Create rendering overlay
 	Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
@@ -156,24 +163,43 @@ void MainThread::Go()
 	{
 		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "MainThread::Go");
 	}
-
-	// Set random wallpaper image
-	//is this still needed? As things load so fast that it's rendred for a fraction of a second.
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
-	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
-	if (! menu_wallpaper_texture_name.empty() && ! mat.isNull())
-	{
-		if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
-		{
-			mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(menu_wallpaper_texture_name);
-		}
-	}
-
-	startup_screen_overlay->show();
 	
-	scene_manager->clearSpecialCaseRenderQueues();
-	scene_manager->addSpecialCaseRenderQueue(Ogre::RENDER_QUEUE_OVERLAY);
-	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_INCLUDE);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MYGUI_LAYOUTS);
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("mygui_preinit");
+
+	Application::CreateGuiManagerIfNotExists();
+
+	const Ogre::String workspaceName = "scene workspace";
+	const Ogre::IdString workspaceNameHash = workspaceName;
+
+	Ogre::CompositorManager2* pCompositorManager = Ogre::Root::getSingleton().getCompositorManager2();
+	Ogre::CompositorNodeDef *nodeDef = pCompositorManager->addNodeDefinition("myworkspace");
+	//Input texture
+	nodeDef->addTextureSourceName("WindowRT", 0, Ogre::TextureDefinitionBase::TEXTURE_INPUT);
+	nodeDef->setNumTargetPass(1);
+	{
+		Ogre::CompositorTargetDef *targetDef = nodeDef->addTargetPass("WindowRT");
+		targetDef->setNumPasses(3);
+		{
+			{
+				Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>
+				(targetDef->addPass(Ogre::PASS_CLEAR));
+				Ogre::CompositorPassSceneDef *passScene = static_cast<Ogre::CompositorPassSceneDef*>
+					(targetDef->addPass(Ogre::PASS_SCENE));
+				passScene->mShadowNode = Ogre::IdString();
+
+				// For the MyGUI pass
+				targetDef->addPass(Ogre::PASS_CUSTOM, MyGUI::OgreCompositorPassProvider::mPassId);
+			}
+		}
+
+	}
+	Ogre::CompositorWorkspaceDef *workDef = pCompositorManager->addWorkspaceDefinition(workspaceName);
+	workDef->connectOutput(nodeDef->getName(), 0);
+
+	pCompositorManager->addWorkspace(gEnv->sceneManager, Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
+
+	Application::GetGuiManager()->createGui2();
 
 	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
 
@@ -183,10 +209,6 @@ void MainThread::Go()
 
 	Application::GetContentManager()->init();
 
-	// HIDE BOOTSTRAP SCREEN
-
-	startup_screen_overlay->hide();
-
 	//Maybe somewhere else?
 	Ogre::MovableTextFactory* movableTextFactory = new Ogre::MovableTextFactory();
 	Application::GetOgreSubsystem()->GetOgreRoot()->addMovableObjectFactory(movableTextFactory);
@@ -194,12 +216,11 @@ void MainThread::Go()
 	// Back to full rendering
 	scene_manager->clearSpecialCaseRenderQueues();
 	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_EXCLUDE);
-	
-	Application::CreateGuiManagerIfNotExists();
 
 	// create console, must be done early
 	Application::CreateConsoleIfNotExists();
 
+	/**/
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	MyGUI::Widget* menu_wallpaper_widget = nullptr;
@@ -209,7 +230,7 @@ void MainThread::Go()
 		if (mainw)
 		{
 			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			if (img) img->setImageTexture(menu_wallpaper_texture_name);
+			//if (img) img->setImageTexture(menu_wallpaper_texture_name);
 			menu_wallpaper_widget = mainw;
 		}
 	}

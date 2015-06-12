@@ -144,13 +144,8 @@ void LanguageEngine::postSetup()
 
 Ogre::UTFString LanguageEngine::lookUp(Ogre::String name)
 {
-#ifdef USE_MOFILEREADER
-	if (working)
-		return reader->Lookup(name.c_str());
-	return name;
-#else
-	return UTFString(gettext(name.c_str()));
-#endif //MOFILEREADER
+	//todo fix ogre 2.0
+	return UTFString(name.c_str());
 }
 
 void LanguageEngine::setupCodeRanges(String codeRangesFilename, String codeRangesGroupname)
