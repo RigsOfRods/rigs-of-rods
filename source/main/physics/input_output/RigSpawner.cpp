@@ -222,7 +222,6 @@ void RigSpawner::InitializeRig()
 
 	memset(m_rig->guid, 0, 128);
 	
-	m_rig->hasfixes=0;
 	m_rig->wingstart=-1;
 	
 	m_rig->realtruckname = "";
@@ -1532,6 +1531,12 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
 }
 
+void RigSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
+{
+    node_t & node = GetNodeOrThrow(node_ref);
+    node.locked = 1;
+}
+
 void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 {
 	SPAWNER_PROFILE_SCOPED();
@@ -2456,7 +2461,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	flare.type                 = def.type;
 	flare.controlnumber        = def.control_number;
 	flare.controltoggle_status = false;
-	flare.blinkdelay           = (blink_delay == -1.f) ? 0.5f : blink_delay / 1000.f;
+	flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
 	flare.blinkdelay_curr      = 0.f;
 	flare.blinkdelay_state     = false;
 	flare.noderef              = GetNodeIndexOrThrow(def.reference_node);

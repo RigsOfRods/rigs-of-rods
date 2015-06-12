@@ -1681,36 +1681,23 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	}
 	FlexBody & data = *flexbody;
 
-	// Nodes
-	f << "\n\t Nodes: ";
-	for (int i = 0; i < data.numnodes; ++i)
-	{	
-		node_t* node = (data.nodes + i);
-		f << ECHO_NODE(node);
-		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
-		{
-			f << "\n\t [MORE]";
-		}
-	}
-
 	// Vertices
 	f << "\n\t Vertices:";
-	int vertex_count = static_cast<int>(data.vertex_count);
+	int vertex_count = static_cast<int>(data.m_vertex_count);
 	for (int i = 0; i < vertex_count; ++i)
 	{
-		Ogre::Vector3 & vertex = * (data.vertices + i);
-		Ogre::Vector3 & dstpos = * (data.dstpos + i);
-		Ogre::Vector3 & srcnormal = * (data.srcnormals + i);
-		Ogre::Vector3 & dstnormal = * (data.dstnormals + i);
-		Ogre::ARGB & srccolor = * (data.srccolors + i);
-		FlexBody::Locator_t & locator = * (data.locs + i);
+
+		Ogre::Vector3 & dstpos = * (data.m_dst_pos + i);
+		Ogre::Vector3 & srcnormal = * (data.m_src_normals + i);
+		Ogre::Vector3 & dstnormal = * (data.m_dst_normals + i);
+		Ogre::ARGB & srccolor = * (data.m_src_colors + i);
+		Locator_t & locator = * (data.m_locators + i);
 
 		f
-			<<" vertex="<<ECHO_V3(vertex)
-			<<" dstpos="<<ECHO_V3(dstpos)
-			<<" srcnormal="<<ECHO_V3(srcnormal)
-			<<" dstnormal="<<ECHO_V3(dstnormal)
-			<<" srccolor="<<srccolor
+			<<" m_dst_pos="<<ECHO_V3(dstpos)
+			<<" m_src_normals="<<ECHO_V3(srcnormal)
+			<<" m_dst_normals="<<ECHO_V3(dstnormal)
+			<<" m_src_colors="<<srccolor
 
 			<<" locator.ref="<<locator.ref
 			<<" locator.nx="<<locator.nx
@@ -1725,56 +1712,43 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 		}
 	}
 
-	// Nodeset
-	f<<"\n\t Nodeset: ";
-	f<<"(freenodeset="<<data.freenodeset<<") ";
-	for (int i = 0; i < data.freenodeset; ++i)
-	{
-		FlexBody::interval_t & item = data.nodeset[i];
-		f<<" from="<<item.from<<" to="<<item.to;
-		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
-		{
-			f << "\n\t [MORE]";
-		}
-	}
-
 	// Data
+    // NOTE: Old/deleted variable names are kept for reference.
 	f
 		<<"\n\t Data: "
-		<<" nodes="<<ECHO_NODE(data.nodes)
-		<<" numnodes="<<data.numnodes
-		<<" vertex_count="<<data.vertex_count
-		<<" cref="<<data.cref
-		<<" cx="<<data.cx
-		<<" cy="<<data.cy
-		<<" coffset="<<ECHO_V3(data.coffset)
+		<<" m_nodes="<<ECHO_NODE(data.m_nodes)
+		<<" m_vertex_count="<<data.m_vertex_count
+		<<" m_node_center="<<data.m_node_center
+		<<" m_node_x="<<data.m_node_x
+		<<" m_node_y="<<data.m_node_y
+		<<" m_center_offset="<<ECHO_V3(data.m_center_offset)
 		<<" snode=";
-	LOG_OGRE_SCENENODE(data.snode)
+	LOG_OGRE_SCENENODE(data.m_scene_node)
 
-		f<<" sharedcount="<<data.sharedcount
-		<<" sharedpbuf="<<data.sharedpbuf.isNull()
-		<<" sharednbuf="<<data.sharednbuf.isNull()
-		<<" sharedcbuf="<<data.sharedcbuf.isNull()
+		f<<" m_shared_buf_num_verts="<<data.m_shared_buf_num_verts // OLD: sharedcount
+		<<" sharedpbuf="<<data.m_shared_vbuf_pos.isNull() // OLD: sharedpbuf
+		<<" sharednbuf="<<data.m_shared_vbuf_norm.isNull() // OLD: sharednbuf
+		<<" sharedcbuf="<<data.m_shared_vbuf_color.isNull() // OLD: sharedcbuf
 
-		<<" numsubmeshbuf="<<data.numsubmeshbuf
-		<<" submeshnums="<<ECHO_PTR(data.submeshnums) // TODO: traverse C array
-		<<" subnodecounts="<<ECHO_PTR(data.subnodecounts) // TODO: traverse C array
+		<<" numsubmeshbuf="<<data.m_num_submesh_vbufs// OLD: numsubmeshbuf
+		//UNUSED<<" submeshnums="<<ECHO_PTR(data.submeshnums) // TODO: traverse C array
+		//UNUSED<<" subnodecounts="<<ECHO_PTR(data.subnodecounts) // TODO: traverse C array
 
-		<<" enabled="<<data.enabled
-		<<" cameramode="<<data.cameramode
-		<<" hasshared="<<data.hasshared
-		<<" hasshadows="<<data.hasshadows
-		<<" hastangents="<<data.hastangents
-		<<" hastexture="<<data.hastexture
-		<<" hasblend="<<data.hasblend
-		<<" faulty="<<data.faulty
+		<<" m_is_enabled="<<data.m_is_enabled//enabled
+		//<<" cameramode="<<data.cameramode//UNUSED, keep for reference
+		<<" m_uses_shared_vertex_data="<<data.m_uses_shared_vertex_data//hasshared
+		//UNUSED<<" hasshadows="<<data.hasshadows
+		//UNUSED<<" hastangents="<<data.hastangents
+		<<" m_has_texture="<<data.m_has_texture//hastexture
+		<<" m_has_texture_blend="<<data.m_has_texture_blend//hasblend
+		<<" m_is_faulty="<<data.m_is_faulty//faulty
 		// TODO: msh
 		;
 
 	f << "\n\t Vertex buffers: ";
-	LOG_ARRAY_HardwareVertexBufferSharedPtr("subpbufs", data.subpbufs, 16);
-	LOG_ARRAY_HardwareVertexBufferSharedPtr("subnbufs", data.subnbufs, 16);
-	LOG_ARRAY_HardwareVertexBufferSharedPtr("subcbufs", data.subcbufs, 16);
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subpbufs", data.m_submesh_vbufs_pos, 16); // OLD: subpbufs
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subnbufs", data.m_submesh_vbufs_norm, 16); // OLD: subnbufs
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subcbufs", data.m_submesh_vbufs_color, 16); // OLD: subcbufs
 }
 
 void RigInspector::InspectFlexbodies(std::ofstream & f, Beam* rig)

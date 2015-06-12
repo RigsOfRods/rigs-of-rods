@@ -2096,7 +2096,7 @@ void Parser::ParseGuiSettings(Ogre::String const & line)
 	else if (results[9].matched)
 	{
 		int input = STR_PARSE_INT(results[9]);
-		if ( input != 0 && input != 1 )
+		if ( input != 0 && input != 1 ) // This is backwards compatible, legacy check was: 1. parse VALUE_STR as int 2. compare (VALUE_INT == 1)
 		{
 			std::stringstream msg;
 			msg << "Param 'Use Max RPM' has invalid value '" << results[9] << "'. Valid values are '0' (no) or '1' (yes). Parsing as '0' (no). Please fix.";
@@ -2179,13 +2179,6 @@ void Parser::ParseGlobals(Ogre::String const & line)
 	if (results[3].matched)
 	{
 		globals.material_name = results[4];
-	}
-
-	if (results[5].matched)
-	{
-		std::stringstream msg;
-		msg << "Illegal characters at the end of input: '" << results[5] << "', ignoring...";
-		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 
 	m_current_module->globals = boost::shared_ptr<Globals>( new Globals(globals) );
@@ -2319,7 +2312,9 @@ bool Parser::_TryParseCab(Ogre::String const & line)
 					break ; /* Placeholder, does nothing */
 
 				default:
-					AddMessage(line, Message::TYPE_WARNING, "Subsection 'submesh/cab': Invalid option '" + options_str.at(i) + std::string("', ignoring..."));
+					std::stringstream msg;
+					msg << "Subsection 'submesh/cab': Invalid option '" << options_str.at(i) << "', ignoring...";
+					AddMessage(line, Message::TYPE_WARNING, msg.str());
 					break;
 			}
 		}
@@ -4807,11 +4802,11 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
 	node.position.y = STR_PARSE_REAL(args[2]);
 	node.position.z = STR_PARSE_REAL(args[3]);
 
-	if (num_args > 3) /* Has options? */
+	if (num_args > 4) /* Has options? */
 	{
 		_ParseNodeOptions(node.options, args[4]);
 
-		if (num_args > 4) /* Has load weight override? */
+		if (num_args > 5) /* Has load weight override? */
 		{
 			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
 			{

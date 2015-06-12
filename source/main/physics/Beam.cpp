@@ -6376,7 +6376,7 @@ bool Beam::LoadTruck(
 	/* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
 
 	/* Place correctly */
-	if (! this->hasfixes)
+    if (! parser.GetFile()->HasFixes())
 	{
 		Ogre::Vector3 vehicle_position = spawn_position;
 

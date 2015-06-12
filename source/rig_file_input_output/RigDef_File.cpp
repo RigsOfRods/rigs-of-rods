@@ -589,4 +589,22 @@ File::File():
 	description.reserve(20);
 }
 
+bool File::HasFixes()
+{
+    if (root_module->fixes.size() != 0)
+    {
+        return true;
+    }
+    auto end  = modules.end();
+    auto itor = modules.begin();
+    for (; itor != end; ++itor)
+    {
+        if (itor->second->fixes.size() != 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 } /* namespace RigDef */
