@@ -4802,11 +4802,11 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
 	node.position.y = STR_PARSE_REAL(args[2]);
 	node.position.z = STR_PARSE_REAL(args[3]);
 
-	if (num_args > 3) /* Has options? */
+	if (num_args > 4) /* Has options? */
 	{
 		_ParseNodeOptions(node.options, args[4]);
 
-		if (num_args > 4) /* Has load weight override? */
+		if (num_args > 5) /* Has load weight override? */
 		{
 			if (node.options & Node::OPTION_l_LOAD_WEIGHT)
 			{
