@@ -48,7 +48,13 @@ CAMERA_ROTATE_UP               Keyboard             NUMPAD8
 CAMERA_ZOOM_IN                 Keyboard             EXPL+NUMPAD9 
 CAMERA_ZOOM_IN_FAST            Keyboard             SHIFT+NUMPAD9 
 CAMERA_ZOOM_OUT                Keyboard             EXPL+NUMPAD3 
-CAMERA_ZOOM_OUT_FAST           Keyboard             SHIFT+NUMPAD3 
+CAMERA_ZOOM_OUT_FAST           Keyboard             SHIFT+NUMPAD3
+
+; SKY
+SKY_DECREASE_TIME              Keyboard             EXPL+SUBTRACT 
+SKY_DECREASE_TIME_FAST         Keyboard             SHIFT+SUBTRACT 
+SKY_INCREASE_TIME              Keyboard             EXPL+ADD 
+SKY_INCREASE_TIME_FAST         Keyboard             SHIFT+ADD 
 
 ; CHARACTER
 CHARACTER_BACKWARDS            Keyboard             S 
