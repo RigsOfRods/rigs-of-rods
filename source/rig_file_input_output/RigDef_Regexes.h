@@ -81,11 +81,17 @@ namespace Regexes
 
 #define E_REAL_NUMBER_WITH_EXPONENT "-?[[:digit:]]*\\.[[:digit:]]+[eE][-+]?[[:digit:]]+"
 
+#define E_REAL_NUMBER_WITH_EXPONENT_NO_FRACTION "-?[[:digit:]]*[eE][-+]?[[:digit:]]+"
+
 // NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.com/repository/view/2389
 #define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]*"
 
+//NOTE: Uses |, MUST be enclosed in E_CAPTURE()
 #define E_REAL_NUMBER \
-	E_REAL_NUMBER_WITH_EXPONENT E_OR E_REAL_NUMBER_SIMPLE E_OR E_DECIMAL_NUMBER /* Uses |, MUST be enclosed in E_CAPTURE() */
+	E_REAL_NUMBER_WITH_EXPONENT             E_OR \
+	E_REAL_NUMBER_WITH_EXPONENT_NO_FRACTION E_OR \
+	E_REAL_NUMBER_SIMPLE                    E_OR \
+	E_DECIMAL_NUMBER 
 
 #define E_MINUS_ONE_REAL "-1\\.[0]*|-1"   /* Uses |, MUST be enclosed in E_CAPTURE() */
 
