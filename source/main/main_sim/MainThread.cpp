@@ -155,6 +155,7 @@ void MainThread::Go()
 	gEnv->mainCamera = camera;
 
 	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+	gEnv->sceneManager->setAmbientLight(Ogre::ColourValue::White);
 
 	// Create rendering overlay
 	Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
@@ -220,6 +221,8 @@ void MainThread::Go()
 	// create console, must be done early
 	Application::CreateConsoleIfNotExists();
 
+	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
+
 	/**/
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
@@ -230,7 +233,7 @@ void MainThread::Go()
 		if (mainw)
 		{
 			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			//if (img) img->setImageTexture(menu_wallpaper_texture_name);
+			if (img) img->setImageTexture(menu_wallpaper_texture_name);
 			menu_wallpaper_widget = mainw;
 		}
 	}
@@ -708,7 +711,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+		//RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);

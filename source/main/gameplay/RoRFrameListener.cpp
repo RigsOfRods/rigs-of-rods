@@ -1173,14 +1173,15 @@ void RoRFrameListener::InitTrucks(
 #ifdef USE_MYGUI
 		if (b && gEnv->surveyMap)
 		{
-			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
+			//TODO FIX OGRE 2.0
+			/*SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
 			if (e)
 			{
 				e->setState(DESACTIVATED);
 				e->setVisibility(true);
 				e->setPosition(spawnpos.x, spawnpos.z);
 				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
-			}
+			}*/
 		}
 #endif //USE_MYGUI
 

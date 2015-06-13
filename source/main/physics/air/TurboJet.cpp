@@ -72,7 +72,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	//setup visuals
 	char paname[256];
 	sprintf(paname, "%s-nozzle", propname);
-	nozzleMesh = gEnv->sceneManager->createEntity(paname, "nozzle.mesh");
+	nozzleMesh = gEnv->sceneManager->createEntity("nozzle.mesh");
+	nozzleMesh->setName(paname);
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(nozzleMesh, ColourValue(1, 0.5, 0.5));
 
 	if (mfm) mfm->replaceMeshMaterials(nozzleMesh);
@@ -85,7 +86,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	if (afterburnable)
 	{
 		sprintf(paname, "%s-abflame", propname);
-		flameMesh = gEnv->sceneManager->createEntity(paname, "abflame.mesh");
+		flameMesh = gEnv->sceneManager->createEntity("abflame.mesh");
+		flameMesh->setName(paname);
 		MaterialFunctionMapper::replaceSimpleMeshMaterials(flameMesh, ColourValue(1, 1, 0));
 		if (mfm) mfm->replaceMeshMaterials(flameMesh);
 		if (mr) mr->replaceMeshMaterials(flameMesh);

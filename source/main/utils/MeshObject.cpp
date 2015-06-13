@@ -183,12 +183,15 @@ void MeshObject::postProcess()
 	// now create an entity around the mesh and attach it to the scene graph
 	try
 	{
-		if (entityName.empty())
-			ent = gEnv->sceneManager->createEntity(meshName);
-		else
-			ent = gEnv->sceneManager->createEntity(entityName, meshName);
+		ent = gEnv->sceneManager->createEntity(meshName);
+		if (!entityName.empty())
+		{
+			ent->setName(entityName);
+		}
+
 		if (ent)
 			sceneNode->attachObject(ent);
+
 	} catch(Ogre::Exception& e)
 	{
 		LOG("error loading mesh: " + meshName + ": " + e.getFullDescription());

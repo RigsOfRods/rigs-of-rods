@@ -4888,7 +4888,9 @@ void Beam::setDebugOverlayState(int mode)
 			// collision nodes debug, also mimics as node visual
 			SceneNode *s = t.node->createChildSceneNode();
 			deletion_sceneNodes.emplace_back(s);
-			Entity *b = gEnv->sceneManager->createEntity(entName, "sphere.mesh");
+			Entity *b = gEnv->sceneManager->createEntity("sphere.mesh");
+			b->setName(entName);
+
 			deletion_Entities.emplace_back(b);
 			b->setMaterialName("tracks/transgreen");
 			s->attachObject(b);
@@ -6525,6 +6527,8 @@ bool Beam::LoadTruck(
 			// load default for a truck
 			if (driveable == TRUCK)
 			{
+				//TODO FIX OGRE 2.0
+				/*
 				//Temporary will fix later. TOFIX
 				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
 				bool test02;
@@ -6604,6 +6608,7 @@ bool Beam::LoadTruck(
 						}
 					}
 				}
+				*/
 			}
 			else  if (driveable == BOAT)
 			{

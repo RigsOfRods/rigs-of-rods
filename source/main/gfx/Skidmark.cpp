@@ -336,13 +336,19 @@ void Skidmark::updatePoint()
 		// save as last point (in the middle of the wheel)
 		objects.back().lastPointAv = thisPointAV;
 
-		/*
+		
 		// debug code: adds boxes to the average point
 		SceneNode *sn = mNode->getParentSceneNode()->createChildSceneNode();
-		sn->attachObject(gEnv->ogreSceneManager->createEntity("addPointTRACK"+TOSTRING(objects.back().lastPointAv) +TOSTRING(axis), "beam.mesh"));
+
+		Ogre::Entity* pointTrack = gEnv->sceneManager->createEntity("beam.mesh");
+		pointTrack->setName("addPointTRACK" + TOSTRING(objects.back().lastPointAv) + TOSTRING(axis));
+
+		sn->attachObject(pointTrack);
 		sn->setPosition(thisPointAV);
 		sn->setScale(0.1f, 0.01f, 0.1f);
-		*/
+
+		delete pointTrack;
+		
 }
 
 void Skidmark::addPoint(const Vector3 &value, Real fsize, String texture)

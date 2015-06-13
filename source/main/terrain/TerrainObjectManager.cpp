@@ -302,7 +302,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 				treeLoader->setColorMap(ColorMap);
 			}
 
-			Entity *curTree = gEnv->sceneManager->createEntity(String("paged_")+treemesh+TOSTRING(pagedGeometry.size()), treemesh);
+			Entity *curTree = gEnv->sceneManager->createEntity(treemesh);
+			curTree-setName(String("paged_")+treemesh+TOSTRING(pagedGeometry.size()));
 
 			if (gridspacing > 0)
 			{
@@ -1222,14 +1223,15 @@ void TerrainObjectManager::loadPreloadedTrucks()
 #ifdef USE_MYGUI
 		if (b && gEnv->surveyMap)
 		{
-			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
+			//TODO FIX OGRE 2.0
+			/*SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
 			if (e)
 			{
 				e->setState(DESACTIVATED);
 				e->setVisibility(true);
 				e->setPosition(truck_preload[i].px, truck_preload[i].pz);
 				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
-			}
+			}*/
 		}
 #endif //USE_MYGUI
 	}

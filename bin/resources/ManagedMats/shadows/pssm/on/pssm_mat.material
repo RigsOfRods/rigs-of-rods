@@ -81,7 +81,7 @@ abstract technique PSSM/base_receiver
 
 abstract technique PSSM/managed/base_receiver
 {
-		pass 1
+		pass RenderTexture
 		{
 			lighting on
 			ambient 0.25 0.25 0.25 1

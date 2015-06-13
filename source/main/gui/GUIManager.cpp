@@ -454,17 +454,22 @@ bool GUIManager::GetPauseMenuVisible()
 
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
 {
-	m_rig_spawner_report_window->SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
+	if (m_rig_spawner_report_window)
+		m_rig_spawner_report_window->SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
 }
 
 void GUIManager::ShowRigSpawnerReportWindow()
 {
+	if (!m_rig_spawner_report_window) return;
+
 	m_rig_spawner_report_window->CenterToScreen();
 	m_rig_spawner_report_window->Show();
 }
 
 void GUIManager::HideRigSpawnerReportWindow()
 {
+	if (!m_rig_spawner_report_window) return;
+
 	m_rig_spawner_report_window->Hide();
 	UnfocusGui();
 }

@@ -87,7 +87,8 @@ void Road::addRoadType(const char* name)
 	// create visuals
 	String entity_name = String("RoadPreview-").append(name);
 	String mesh_name = String(name).append(".mesh");
-	Entity *te = gEnv->sceneManager->createEntity(entity_name, mesh_name);
+	Entity *te = gEnv->sceneManager->createEntity(mesh_name);
+	te->setName(entity_name);
 
 	te->setCastShadows(false);
 

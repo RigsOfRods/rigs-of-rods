@@ -397,10 +397,16 @@ void TerrainManager::initLight()
 		// screw caelum, we will roll our own light
 
 		// Create a light
+		Ogre::SceneNode* lightNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 		main_light = gEnv->sceneManager->createLight();
+		lightNode->attachObject(main_light);
+
 		//directional light for shadow
 		main_light->setType(Light::LT_DIRECTIONAL);
-		main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
+
+		Ogre::Vector3 lightDir = Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy();
+
+		main_light->setDirection(lightDir);
 
 		main_light->setDiffuseColour(ambient_color);
 		main_light->setSpecularColour(ambient_color);

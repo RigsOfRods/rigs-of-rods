@@ -681,7 +681,8 @@ void RigSpawner::FinalizeRig()
 		try
 		{
 			//parser_warning(c, "loading cab", PARSER_INFO);
-			ec = gEnv->sceneManager->createEntity(wnamei, wname);
+			ec = gEnv->sceneManager->createEntity(wname);
+			ec->setName(wnamei);
 			//		ec->setRenderQueueGroup(RENDER_QUEUE_6);
 			//parser_warning(c, "attaching cab", PARSER_INFO);
 			if (ec)
@@ -1131,7 +1132,8 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 	Ogre::Entity *entity = nullptr;
 	try
 	{
-		entity = gEnv->sceneManager->createEntity(wing_obj_name.str(), wing_name.str());
+		entity = gEnv->sceneManager->createEntity(wing_name.str());
+		entity->setName(wing_obj_name.str());
 	}
 	catch (...)
 	{
@@ -4738,7 +4740,8 @@ void RigSpawner::BuildMeshWheelVisuals(
 	try
 	{
 		m_rig->vwheels[wheel_index].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		Ogre::Entity *ec = gEnv->sceneManager->createEntity(entity_name.str(), wheel_name.str());
+		Ogre::Entity *ec = gEnv->sceneManager->createEntity(wheel_name.str());
+		ec->setName(entity_name.str());
 		if (ec)
 		{
 			m_rig->deletion_Entities.emplace_back(ec);
@@ -5516,7 +5519,8 @@ void RigSpawner::CreateWheelVisuals(
 
 	try
 	{
-		Ogre::Entity *ec = gEnv->sceneManager->createEntity(wheel_name_i.str(), wheel_mesh_name.str());
+		Ogre::Entity *ec = gEnv->sceneManager->createEntity(wheel_mesh_name.str());
+		ec->setName(wheel_name_i.str());
 		MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, Ogre::ColourValue(0, 0.5, 0.5));
 		if (m_rig->materialFunctionMapper != nullptr)
 		{
@@ -6129,7 +6133,8 @@ void RigSpawner::CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_t
 	beam_name << "beam-" << m_rig->truckname << "-" << index;
 	try
 	{
-		beam.mEntity = gEnv->sceneManager->createEntity(beam_name.str(), "beam.mesh");
+		beam.mEntity = gEnv->sceneManager->createEntity("beam.mesh");
+		beam.mEntity->setName(beam_name.str());
 	}
 	catch (...)
 	{
@@ -6292,7 +6297,8 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, RigDef::BeamDe
 	beam_name << "beam-" << m_rig->truckname << "-" << beam_index;
 	try
 	{
-		beam.mEntity = gEnv->sceneManager->createEntity(beam_name.str(), "beam.mesh");
+		beam.mEntity = gEnv->sceneManager->createEntity("beam.mesh");
+		beam.mEntity->setName(beam_name.str());
 	}
 	catch (...)
 	{

@@ -5,11 +5,15 @@ material RoR/Managed_Mats/Base
 {
  	transparency_casts_shadows on
 	receive_shadows on
-
+	
 	technique ShadowTechnique: PSSM/managed/base_receiver
 	{
 	//Texture is rendred here
-		pass 1
+		pass RenderShadows
+		{
+
+		}
+		pass 
 		{
 			texture_unit diffuse 1
 			{
@@ -34,8 +38,12 @@ abstract material RoR/Managed_Mats/BaseWithNormal
 	
 	technique ShadowTechnique: PSSM/managed/base_receiver
 	{
+		pass RenderShadows
+		{
+
+		}
 	//Texture is rendred here
-		pass 1
+		pass 
 		{
 			texture_unit diffuse 1
 			{
@@ -60,18 +68,22 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 }
 
 abstract material RoR/Managed_Mats/Vegetation
-{
+{	
  	transparency_casts_shadows on
 	receive_shadows on
 	
-	technique: PSSM/managed/base_receiver
+	technique ShadowTechnique
 	{
-		pass diffuse 1
+		pass 
 		{
 			scene_blend alpha_blend
+			alpha_rejection greater 120
 			cull_hardware none
-			alpha_rejection greater 128
-			texture_alias diffuse_tex
+			
+			texture_unit diffuse 1
+			{
+				texture_alias diffuse_tex
+			}
 		}
 	}
 }
@@ -81,15 +93,18 @@ abstract material RoR/Managed_Mats/Transparent
  	transparency_casts_shadows on
 	receive_shadows on
 	
-	technique: PSSM/managed/base_receiver
+	technique ShadowTechnique
 	{
-		pass diffuse 1
+		pass
 		{
-			cull_hardware none
-			cull_software none
 			scene_blend alpha_blend
-			alpha_rejection greater 128
-			texture_alias diffuse_tex
+			alpha_rejection greater 120
+			cull_hardware none
+			
+			texture_unit diffuse 1
+			{
+				texture_alias diffuse_tex
+			}
 		}
 	}
 }

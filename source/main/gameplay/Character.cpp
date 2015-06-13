@@ -65,7 +65,8 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	myNumber = characterCounter++;
 	myName   = "Character" + TOSTRING(myNumber);
 
-	Entity *entity = gEnv->sceneManager->createEntity(myName+"_mesh", "character.mesh");
+	Entity *entity = gEnv->sceneManager->createEntity("character.mesh");
+	entity->setName(myName+"_mesh");
 #if OGRE_VERSION<0x010602
 	entity->setNormaliseNormals(true);
 #endif //OGRE_VERSION
@@ -677,13 +678,14 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 void Character::createMapEntity()
 {
 #ifdef USE_MYGUI
-	if (gEnv->surveyMap)
+	//FIX OGRE2.0
+	/*if (gEnv->surveyMap)
 	{
 		mapEntity = gEnv->surveyMap->createNamedMapEntity(myName, "person");
 		mapEntity->setState(0);
 		mapEntity->setVisibility(true);
 		mapEntity->setPosition(mCharacterNode->getPosition());
 		mapEntity->setRotation(mCharacterNode->getOrientation());
-	}
+	}*/
 #endif // USE_MYGUI
 }
