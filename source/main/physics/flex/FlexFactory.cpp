@@ -361,6 +361,12 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
     }
 }
 
+FlexBodyFileIO::FlexBodyFileIO():
+    m_file(nullptr),
+    m_fileformat_version(0),
+    m_cache_entry_number(0)
+	{}
+
 void FlexFactory::CheckAndLoadFlexbodyCache()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
