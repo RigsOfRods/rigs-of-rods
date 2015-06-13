@@ -110,7 +110,7 @@ public:
     static const char*        SIGNATURE;
     static const unsigned int FILE_FORMAT_VERSION = 1;
 
-    FlexBodyFileIO() {}
+    FlexBodyFileIO();
 
     std::vector<FlexBody*> &  GetList();
     inline void               AddItemToSave(FlexBody* fb)     { m_items_to_save.push_back(fb); }
