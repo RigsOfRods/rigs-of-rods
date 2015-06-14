@@ -1,0 +1,95 @@
+import * from "pssm_mat.material"
+import * from "derbymutt.material"
+
+material RoR/Managed_Mats/Base
+{
+ 	transparency_casts_shadows on
+	receive_shadows on
+
+	technique ShadowTechnique: PSSM/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass 1
+		{
+			texture_unit diffuse 1
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+		
+	technique: SpecularMapping
+	{
+	}
+
+	technique: AOMapping
+	{
+	}
+}
+
+abstract material RoR/Managed_Mats/BaseWithNormal
+{
+ 	transparency_casts_shadows on
+	receive_shadows on
+	
+	technique ShadowTechnique: PSSM/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass 1
+		{
+			texture_unit diffuse 1
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/BaseNoShadows
+{
+	technique
+	{
+		pass
+		{
+		 texture_unit diffuse 1
+		 {
+				texture_alias diffuse_tex
+		 }
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/Vegetation
+{
+ 	transparency_casts_shadows on
+	receive_shadows on
+	
+	technique: PSSM/managed/base_receiver
+	{
+		pass diffuse 1
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			alpha_rejection greater 128
+			texture_alias diffuse_tex
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/Transparent
+{
+ 	transparency_casts_shadows on
+	receive_shadows on
+	
+	technique: PSSM/managed/base_receiver
+	{
+		pass diffuse 1
+		{
+			cull_hardware none
+			cull_software none
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_alias diffuse_tex
+		}
+	}
+}

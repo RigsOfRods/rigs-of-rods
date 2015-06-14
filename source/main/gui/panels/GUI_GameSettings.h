@@ -89,6 +89,9 @@ private:
 	void OnReplayEnableCheck(MyGUI::WidgetPtr _sender);
 	void OnHqScreenshotsCheck(MyGUI::WidgetPtr _sender);
 	void OnChatBoxAutoHideCheck(MyGUI::WidgetPtr _sender);
+	void OnEnableFlexLODsCheck(MyGUI::WidgetPtr _sender);
+	void OnEnableFlexCacheCheck(MyGUI::WidgetPtr _sender);
+	void OnEnableMenuMusicCheck(MyGUI::WidgetPtr _sender);
 
 	//Sliders
 	void OnVolumeSlider(MyGUI::ScrollBar* _sender, size_t _position);

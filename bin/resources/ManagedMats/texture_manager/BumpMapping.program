@@ -1,0 +1,52 @@
+// Bump map vertex program, support for this is required
+vertex_program Examples/BumpMapVPCg cg
+{
+	source BumpMapping.cg
+	entry_point main_vp
+	profiles vs_4_0 vs_1_1 arbvp1
+}
+
+// Bump map fragment program, support for this is optional
+fragment_program Examples/BumpMapFPCg cg
+{
+	source BumpMapping.cg
+	entry_point main_fp
+	profiles ps_4_0 ps_2_0 arbfp1 fp20
+}
+
+vertex_program Examples/BumpMapVPShadowRcvCg cg
+{
+	source BumpMapping.cg
+	entry_point main_shadowreceiver_vp
+	profiles vs_1_1 arbvp1
+}
+
+
+fragment_program Examples/BumpMapFPShadowRcvCg cg
+{
+	source BumpMapping.cg
+	entry_point main_shadowreceiver_fp
+	profiles ps_2_0 arbfp1 fp20
+}
+
+//----------
+fragment_program Examples/BumpMapFPShadowRcv unified
+{
+	delegate Examples/BumpMapFPShadowRcvCg
+}
+
+vertex_program Examples/BumpMapVP unified
+{
+	delegate Examples/BumpMapVPCg
+}
+
+fragment_program Examples/BumpMapFP unified
+{
+	delegate Examples/BumpMapFPCg
+}
+
+vertex_program Examples/BumpMapVPShadowRcv unified
+{
+	delegate Examples/BumpMapVPShadowRcvCg
+}
+

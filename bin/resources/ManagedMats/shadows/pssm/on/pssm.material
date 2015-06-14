@@ -1,0 +1,59 @@
+vertex_program PSSM/shadow_caster_vs cg
+{
+	// source file
+	source pssm.cg
+	// will run on vertex shader 1.1+
+	profiles vs_1_1 arbvp1
+	// entry function
+	entry_point shadow_caster_vs
+
+	default_params
+	{
+		param_named_auto wvpMat worldviewproj_matrix
+		// this is the scene's depth range
+		//param_named_auto depthRange			scene_depth_range
+		//param_named_auto optimalAdustFactor	custom 0
+	}
+}
+
+fragment_program PSSM/shadow_caster_ps cg
+{
+	// source file
+	source pssm.cg
+	// will run on pixel shader 2.0+
+	profiles ps_2_0 arbfp1
+	// entry function
+	entry_point shadow_caster_ps
+
+	default_params
+	{
+	}
+}
+
+fragment_program PSSM/shadow_caster_alpha_ps cg
+{
+	source pssm.cg
+	profiles ps_2_0 arbfp1
+	entry_point shadow_caster_alpha_ps
+	default_params
+	{
+	}
+}
+
+material PSSM/shadow_caster
+{
+	technique
+	{
+		pass
+		{
+			fog_override true
+			cull_hardware none
+			vertex_program_ref PSSM/shadow_caster_vs
+			{
+			}
+			fragment_program_ref PSSM/shadow_caster_alpha_ps
+			{
+			}
+		}
+	}
+}

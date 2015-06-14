@@ -337,14 +337,10 @@ void TerrainManager::initCamera()
 		String waterSettingsString = SSETTING("Water effects", "Hydrax");
 
 		// disabled in global config
-		if (waterSettingsString == "None") return;
-		// disabled in map config
-		if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
-
-		if (waterSettingsString == "Hydrax")
-			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited
-		else
+		if (waterSettingsString != "Hydrax")
 			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+		else
+			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
 	}
 }
 

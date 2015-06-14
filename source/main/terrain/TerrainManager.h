@@ -137,6 +137,7 @@ protected:
 	void initVegetation();
 	void initWater();
 
+
 	void fixCompositorClearColor();
 	void loadTerrainObjects();
 };
