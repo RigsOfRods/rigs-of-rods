@@ -2267,7 +2267,8 @@ void Beam::calcHooks()
 {
 	BES_START(BES_CORE_Hooks);
 	//locks - this is not active in network mode
-	for (std::vector<hook_t>::iterator it=hooks.begin(); it!=hooks.end(); it++)
+	auto hooks_end = hooks.end();
+	for (auto it=hooks.begin(); it != hooks_end; ++it)
 	{
 		if (it->lockNode && it->locked == PRELOCK)
 		{
@@ -2278,8 +2279,10 @@ void Beam::calcHooks()
 				it->beam->p2truck  = it->lockTruck;
 				it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
 				it->beam->disabled = false;
-				if (it->beam->mSceneNode->numAttachedObjects() == 0 && it->visible)
+				if (it->beam->mSceneNode->numAttachedObjects() == 0 && it->is_hook_visible)
+				{
 					it->beam->mSceneNode->attachObject(it->beam->mEntity);
+				}
 			} else
 			{
 				if (it->beam->L < it->beam->commandShort)
