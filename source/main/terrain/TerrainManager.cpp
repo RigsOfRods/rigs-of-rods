@@ -373,15 +373,20 @@ void TerrainManager::initSkySubSystem()
 	{
 		String sandStormConfig = m_terrain_config.getSetting("SandStormCubeMap", "General");
 
-		if (!sandStormConfig.empty())
+		/*if (!sandStormConfig.empty())
 		{
 			// use custom
 			gEnv->sceneManager->setSkyBox(true, sandStormConfig, 100, true);
 		} else
 		{
 			// use default
-			gEnv->sceneManager->setSkyBox(true, "tracks/skyboxcol", 100, true);
-		}
+			//gEnv->sceneManager->setSkyBox(true, "tracks/skyboxcol", 100, true);
+			*/
+		//TODO FIX OGRE 2.0 
+		//Actually it's working but as we got ne caelum, we gotta improve it at least
+
+			gEnv->sceneManager->setSkyDome(true, "Examples/CloudySky", 50, 10);
+		//}
 	}
 }
 

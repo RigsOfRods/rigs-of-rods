@@ -55,8 +55,8 @@ void ShadowManager::loadConfiguration()
 int ShadowManager::updateShadowTechnique()
 {
 	float shadowFarDistance = FSETTING("SightRange", 2000);
-	float scoef = 0.12;
-	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
+	//float scoef = 0.12;
+	//gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 
 	if (ShadowsType == SHADOWS_TEXTURE)
 	{
@@ -78,6 +78,10 @@ void ShadowManager::processTextureShadows()
 
 void ShadowManager::processPSSM()
 {
+	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(100.0f);
+	gEnv->sceneManager->setShadowFarDistance(60.0f);
+	gEnv->sceneManager->setShadowTextureCasterMaterial("RoR_ShadowsCaster");
+	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
 }
 

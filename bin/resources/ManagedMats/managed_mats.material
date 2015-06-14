@@ -1,21 +1,14 @@
-import * from "pssm_mat.material"
+import * from "shadows_mat.material"
 import * from "derbymutt.material"
 
 material RoR/Managed_Mats/Base
 {
- 	transparency_casts_shadows on
-	receive_shadows on
-	
-	technique ShadowTechnique: PSSM/managed/base_receiver
+	technique ShadowTechnique: Shadows/managed/base_receiver
 	{
 	//Texture is rendred here
 		pass RenderShadows
 		{
-
-		}
-		pass 
-		{
-			texture_unit diffuse 1
+			texture_unit TextureName
 			{
 				texture_alias diffuse_tex
 			}
@@ -28,28 +21,6 @@ material RoR/Managed_Mats/Base
 
 	technique: AOMapping
 	{
-	}
-}
-
-abstract material RoR/Managed_Mats/BaseWithNormal
-{
- 	transparency_casts_shadows on
-	receive_shadows on
-	
-	technique ShadowTechnique: PSSM/managed/base_receiver
-	{
-		pass RenderShadows
-		{
-
-		}
-	//Texture is rendred here
-		pass 
-		{
-			texture_unit diffuse 1
-			{
-				texture_alias diffuse_tex
-			}
-		}
 	}
 }
 
@@ -69,18 +40,16 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 
 abstract material RoR/Managed_Mats/Vegetation
 {	
- 	transparency_casts_shadows on
-	receive_shadows on
-	
 	technique ShadowTechnique
 	{
-		pass 
+	//Texture is rendred here
+		pass RenderShadows: Shadows/managed/base_receiver
 		{
 			scene_blend alpha_blend
 			alpha_rejection greater 120
 			cull_hardware none
-			
-			texture_unit diffuse 1
+			cull_software none
+			texture_unit TextureName
 			{
 				texture_alias diffuse_tex
 			}
@@ -90,18 +59,18 @@ abstract material RoR/Managed_Mats/Vegetation
 
 abstract material RoR/Managed_Mats/Transparent
 {
- 	transparency_casts_shadows on
-	receive_shadows on
-	
-	technique ShadowTechnique
+	technique ShadowTechnique: Shadows/managed/base_receiver
 	{
-		pass
+	//Texture is rendred here
+		pass RenderShadows
 		{
+			receive_shadows off
+			transparency_casts_shadows on
 			scene_blend alpha_blend
 			alpha_rejection greater 120
 			cull_hardware none
-			
-			texture_unit diffuse 1
+			cull_software none
+			texture_unit TextureName
 			{
 				texture_alias diffuse_tex
 			}

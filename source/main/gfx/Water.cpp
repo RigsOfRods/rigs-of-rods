@@ -26,53 +26,53 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "TerrainManager.h"
 
+#include <OgreBillboard.h>
+
 using namespace Ogre;
 
-//Some ugly code here..
-Entity* pPlaneEnt;
-
-Plane waterPlane;
-Plane bottomPlane;
-Plane reflectionPlane;
-Plane refractionPlane;
-SceneManager *waterSceneMgr;
-
-class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
+/**********************************************************************
+Static declarations
+**********************************************************************/
+// Lights
+#define NUM_LIGHTS 1
+// Colours for the lights
+Ogre::ColourValue mDiffuseLightColours[NUM_LIGHTS] =
 {
-public:
-
-	void preRenderTargetUpdate(const RenderTargetEvent& evt)
-	{
-
-	}
-
-	void postRenderTargetUpdate(const RenderTargetEvent& evt)
-	{
-
-	}
+	Ogre::ColourValue(0.6, 0.6, 0.6)
 };
 
-class ReflectionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
+Ogre::ColourValue mSpecularLightColours[NUM_LIGHTS] =
 {
-public:
-	void preRenderTargetUpdate(const RenderTargetEvent& evt)
-	{
-
-
-	}
-	void postRenderTargetUpdate(const RenderTargetEvent& evt)
-	{
-
-	}
+	Ogre::ColourValue(0.5, 0.5, 0.5)
 };
 
-RefractionTextureListener mRefractionListener;
-ReflectionTextureListener mReflectionListener;
-//End ugly code
+// the light nodes
+Ogre::SceneNode* mLightNodes[NUM_LIGHTS];
+// the light node pivots
+Ogre::SceneNode* mLightPivots[NUM_LIGHTS];
+
+Ogre::SceneNode*      mMainNode;
+Ogre::Entity*         mOceanSurfaceEnt;
+
+Ogre::MaterialPtr     mActiveMaterial;
+Ogre::Pass*           mActivePass;
+Ogre::GpuProgramPtr   mActiveFragmentProgram;
+Ogre::GpuProgramPtr   mActiveVertexProgram;
+Ogre::GpuProgramParametersSharedPtr mActiveFragmentParameters;
+Ogre::GpuProgramParametersSharedPtr mActiveVertexParameters;
 
 Water::Water(const Ogre::ConfigFile &mTerrainConfig) 
 {
+	mapSize = gEnv->terrainManager->getMaxTerrainSize();
+	wHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));;
+	wbHeight = PARSEREAL(mTerrainConfig.getSetting("WaterBottomLine", "General"));
 
+	if (mapSize.x < 1500 && mapSize.z < 1500)
+		mScale = 1.5f;
+	else
+		mScale = 1.0f;
+
+	processWater(1);
 }
 
 Water::~Water()
@@ -83,7 +83,54 @@ Water::~Water()
 
 void Water::processWater(int mType)
 {
+	mActiveMaterial = Ogre::MaterialManager::getSingleton().getByName("Ocean2_HLSL_GLSL");
+	mActiveMaterial->load();
 
+	// Define a plane mesh that will be used for the ocean surface
+	Ogre::Plane oceanSurface;
+	oceanSurface.normal = Ogre::Vector3::UNIT_Y;
+	oceanSurface.d = 0;
+	Ogre::MeshManager::getSingleton().createPlane("OceanSurface",
+		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+		oceanSurface,
+		1000, 1000, 50, 50, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
+
+	mOceanSurfaceEnt = gEnv->sceneManager->createEntity("OceanSurface",
+		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+		SCENE_STATIC);
+
+	mOceanSurfaceEnt->setMaterialName("Ocean2_HLSL_GLSL");
+
+	if (!mActiveMaterial.isNull() && mActiveMaterial->getNumSupportedTechniques())
+	{
+		Ogre::Technique* currentTechnique = mActiveMaterial->getSupportedTechnique(0);
+		if (currentTechnique)
+		{
+			mActivePass = currentTechnique->getPass(0);
+			if (mActivePass)
+			{
+				if (mActivePass->hasFragmentProgram())
+				{
+					mActiveFragmentProgram = mActivePass->getFragmentProgram();
+					mActiveFragmentParameters = mActivePass->getFragmentProgramParameters();
+				}
+				if (mActivePass->hasVertexProgram())
+				{
+					mActiveVertexProgram = mActivePass->getVertexProgram();
+					mActiveVertexParameters = mActivePass->getVertexProgramParameters();
+				}
+
+				mActiveVertexParameters->setNamedConstant("waveFreq", 0.025f);
+				mActiveVertexParameters->setNamedConstant("waveAmp", 0.0f);
+
+				mActivePass->setDiffuse(gEnv->terrainManager->getMainLight()->getDiffuseColour());
+				mActivePass->setAmbient(gEnv->sceneManager->getAmbientLight());
+			}
+		}
+	}
+	pWaterNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode(SCENE_STATIC);
+	pWaterNode->attachObject(mOceanSurfaceEnt);
+	pWaterNode->setPosition(Vector3((mapSize.x * mScale) / 2, wHeight, (mapSize.z * mScale) / 2));
 }
 
 bool Water::allowUnderWater()

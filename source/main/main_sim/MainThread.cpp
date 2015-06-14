@@ -80,6 +80,7 @@
 #include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
 #include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
 #include <Compositor/OgreTextureDefinition.h>
+#include <Compositor/OgreCompositorShadowNode.h>
 #include <MyGUI_OgrePlatform.h>
 
 // Global instance of GlobalEnvironment used throughout the game.
@@ -148,8 +149,8 @@ void MainThread::Go()
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
 	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
 	camera->lookAt(Ogre::Vector3(0,0,-300)); // Look back along -Z
-	camera->setNearClipDistance( 0.5 );
-	camera->setFarClipDistance( 1000.0*1.733 );
+	camera->setNearClipDistance( 0.2 ); //0.5
+	camera->setFarClipDistance( 5000 );
 	camera->setFOVy(Ogre::Degree(60));
 	camera->setAutoAspectRatio(true);
 	gEnv->mainCamera = camera;
@@ -170,6 +171,8 @@ void MainThread::Go()
 
 	Application::CreateGuiManagerIfNotExists();
 
+	initMatManager();
+
 	const Ogre::String workspaceName = "scene workspace";
 	const Ogre::IdString workspaceNameHash = workspaceName;
 
@@ -183,11 +186,10 @@ void MainThread::Go()
 		targetDef->setNumPasses(3);
 		{
 			{
-				Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>
-				(targetDef->addPass(Ogre::PASS_CLEAR));
-				Ogre::CompositorPassSceneDef *passScene = static_cast<Ogre::CompositorPassSceneDef*>
-					(targetDef->addPass(Ogre::PASS_SCENE));
-				passScene->mShadowNode = Ogre::IdString();
+				Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>(targetDef->addPass(Ogre::PASS_CLEAR));
+				Ogre::CompositorPassSceneDef *passScene = static_cast<Ogre::CompositorPassSceneDef*>(targetDef->addPass(Ogre::PASS_SCENE));
+
+				passScene->mShadowNode = "ExampleShadows_PssmShadowNode";
 
 				// For the MyGUI pass
 				targetDef->addPass(Ogre::PASS_CUSTOM, MyGUI::OgreCompositorPassProvider::mPassId);
@@ -195,7 +197,7 @@ void MainThread::Go()
 		}
 
 	}
-	Ogre::CompositorWorkspaceDef *workDef = pCompositorManager->addWorkspaceDefinition(workspaceName);
+	Ogre::CompositorWorkspaceDef *workDef = pCompositorManager->addWorkspaceDefinition(workspaceNameHash);
 	workDef->connectOutput(nodeDef->getName(), 0);
 
 	pCompositorManager->addWorkspace(gEnv->sceneManager, Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
@@ -682,8 +684,8 @@ void MainThread::Go()
 
 	delete gEnv->frameListener;
 	gEnv->frameListener = nullptr;
-	
-	delete overlay_system;
+
+	//delete overlay_system; //crash here, wat
 
 	delete gEnv;
 	gEnv = nullptr;
@@ -704,10 +706,6 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
-
-		//Before loading standard materials
-		initMatManager();
-
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
@@ -1536,9 +1534,9 @@ void MainThread::initMatManager()
 {
 	//Dirty, needs to be improved
 	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
-		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/pssm/on/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/on/", "FileSystem", "ShadowsMats");
 	else
-		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/pssm/off/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/off/", "FileSystem", "ShadowsMats");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
