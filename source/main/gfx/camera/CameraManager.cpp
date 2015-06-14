@@ -21,7 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "BeamFactory.h"
-#include "DepthOfFieldEffect.h"
+//#include "DepthOfFieldEffect.h"
 #include "InputEngine.h"
 #include "Settings.h"
 #include "GUIManager.h"
@@ -58,7 +58,7 @@ CameraManager::CameraManager(DOFManager *dof) :
 
 	if ( ctx.mDof )
 	{
-		ctx.mDof->setFocusMode(DOFManager::Auto);
+		//ctx.mDof->setFocusMode(DOFManager::Auto); //todo fix ogre 2.0
 	}
 }
 

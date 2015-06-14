@@ -85,12 +85,13 @@ TerrainManager::~TerrainManager()
 
 	//I think that the order is important
 
+	/*
 	if (sky_manager != nullptr)
 	{
 		delete(sky_manager);
 		gEnv->sky = nullptr;
 		sky_manager = nullptr;
-	}
+	}*/
 
 	if (main_light != nullptr)
 	{
@@ -325,7 +326,6 @@ void TerrainManager::initSubSystems()
 
 void TerrainManager::initCamera()
 {
-	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 	gEnv->mainCamera->setPosition(start_position);
 
 	far_clip = FSETTING("SightRange", 4500);
@@ -337,14 +337,10 @@ void TerrainManager::initCamera()
 		String waterSettingsString = SSETTING("Water effects", "Hydrax");
 
 		// disabled in global config
-		if (waterSettingsString == "None") return;
-		// disabled in map config
-		if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
-
-		if (waterSettingsString == "Hydrax")
-			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited
-		else
+		if (waterSettingsString != "Hydrax")
 			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
+		else
+			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
 	}
 }
 
@@ -377,15 +373,20 @@ void TerrainManager::initSkySubSystem()
 	{
 		String sandStormConfig = m_terrain_config.getSetting("SandStormCubeMap", "General");
 
-		if (!sandStormConfig.empty())
+		/*if (!sandStormConfig.empty())
 		{
 			// use custom
 			gEnv->sceneManager->setSkyBox(true, sandStormConfig, 100, true);
 		} else
 		{
 			// use default
-			gEnv->sceneManager->setSkyBox(true, "tracks/skyboxcol", 100, true);
-		}
+			//gEnv->sceneManager->setSkyBox(true, "tracks/skyboxcol", 100, true);
+			*/
+		//TODO FIX OGRE 2.0 
+		//Actually it's working but as we got ne caelum, we gotta improve it at least
+
+			gEnv->sceneManager->setSkyDome(true, "Examples/CloudySky", 50, 10);
+		//}
 	}
 }
 
@@ -401,10 +402,16 @@ void TerrainManager::initLight()
 		// screw caelum, we will roll our own light
 
 		// Create a light
-		main_light = gEnv->sceneManager->createLight("MainLight");
+		Ogre::SceneNode* lightNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+		main_light = gEnv->sceneManager->createLight();
+		lightNode->attachObject(main_light);
+
 		//directional light for shadow
 		main_light->setType(Light::LT_DIRECTIONAL);
-		main_light->setDirection(0.785, -0.423, 0.453);
+
+		Ogre::Vector3 lightDir = Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy();
+
+		main_light->setDirection(lightDir);
 
 		main_light->setDiffuseColour(ambient_color);
 		main_light->setSpecularColour(ambient_color);
@@ -448,146 +455,27 @@ void TerrainManager::initVegetation()
 
 void TerrainManager::initHDR()
 {
-	Viewport *vp = gEnv->mainCamera->getViewport();
-	CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HDR", 0);
-	CompositorManager::getSingleton().setCompositorEnabled(vp, "HDR", true);
-
-	// HDR needs a special listener
-	hdr_listener = new HDRListener();
-	instance->addListener(hdr_listener);
-	hdr_listener->notifyViewportSize(vp->getActualWidth(), vp->getActualHeight());
-	hdr_listener->notifyCompositor(instance);
+	//todo ogre 2.0
 }
 
 void TerrainManager::initGlow()
 {
-	CompositorManager::getSingleton().addCompositor(gEnv->mainCamera->getViewport(), "Glow");
-	CompositorManager::getSingleton().setCompositorEnabled(gEnv->mainCamera->getViewport(), "Glow", true);
-	GlowMaterialListener *gml = new GlowMaterialListener();
-	MaterialManager::getSingleton().addListener(gml);
+	//todo ogre 2.0
 }
 
 void TerrainManager::initMotionBlur()
 {
-	// Motion blur effect
-	CompositorPtr comp3 = CompositorManager::getSingleton().create("MotionBlur", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-	{
-		CompositionTechnique *t = comp3->createTechnique();
-		{
-			CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("scene");
-			def->width = 0;
-			def->height = 0;
-#if OGRE_VERSION>0x010602
-			def->formatList.push_back(PF_R8G8B8);
-#else
-			def->format = PF_R8G8B8;
-#endif //OGRE_VERSION
-		}
-		{
-			CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("sum");
-			def->width = 0;
-			def->height = 0;
-#if OGRE_VERSION>0x010602
-			def->formatList.push_back(PF_R8G8B8);
-#else
-			def->format = PF_R8G8B8;
-#endif //OGRE_VERSION
-		}
-		{
-			CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("temp");
-			def->width = 0;
-			def->height = 0;
-#if OGRE_VERSION>0x010602
-			def->formatList.push_back(PF_R8G8B8);
-#else
-			def->format = PF_R8G8B8;
-#endif //OGRE_VERSION
-		}
-		// Render scene
-		{
-			CompositionTargetPass *tp = t->createTargetPass();
-			tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
-			tp->setOutputName("scene");
-		}
-		// Initialization pass for sum texture
-		{
-			CompositionTargetPass *tp = t->createTargetPass();
-			tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
-			tp->setOutputName("sum");
-			tp->setOnlyInitial(true);
-		}
-		// Do the motion blur
-		{
-			CompositionTargetPass *tp = t->createTargetPass();
-			tp->setInputMode(CompositionTargetPass::IM_NONE);
-			tp->setOutputName("temp");
-			{
-				CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Compositor/Combine");
-				pass->setInput(0, "scene");
-				pass->setInput(1, "sum");
-			}
-		}
-		// Copy back sum texture
-		{
-			CompositionTargetPass *tp = t->createTargetPass();
-			tp->setInputMode(CompositionTargetPass::IM_NONE);
-			tp->setOutputName("sum");
-			{
-				CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Compositor/Copyback");
-				pass->setInput(0, "temp");
-			}
-		}
-		// Display result
-		{
-			CompositionTargetPass *tp = t->getOutputTargetPass();
-			tp->setInputMode(CompositionTargetPass::IM_NONE);
-			{
-				CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Compositor/MotionBlur");
-				pass->setInput(0, "sum");
-			}
-		}
-	}
-	CompositorManager::getSingleton().addCompositor(gEnv->mainCamera->getViewport(),"MotionBlur");
-	CompositorManager::getSingleton().setCompositorEnabled(gEnv->mainCamera->getViewport(), "MotionBlur", true);
+	//todo ogre 2.0
 }
 
 void TerrainManager::initSunburn()
 {
-	CompositorManager::getSingleton().addCompositor(gEnv->mainCamera->getViewport(),"Sunburn");
-	CompositorManager::getSingleton().setCompositorEnabled(gEnv->mainCamera->getViewport(), "Sunburn", true);
+	//todo ogre 2.0
 }
 
 void TerrainManager::fixCompositorClearColor()
 {
-	// hack
-	// now with extensive error checking
-	if (CompositorManager::getSingleton().hasCompositorChain(gEnv->mainCamera->getViewport()))
-	{
-		//	//CompositorManager::getSingleton().getCompositorChain(gEnv->ogreCamera->getViewport())->getCompositor(0)->getTechnique()->getOutputTargetPass()->getPass(0)->setClearColour(fade_color);
-		CompositorInstance *co = CompositorManager::getSingleton().getCompositorChain(gEnv->mainCamera->getViewport())->_getOriginalSceneCompositor();
-		if (co)
-		{
-			CompositionTechnique *ct = co->getTechnique();
-			if (ct)
-			{
-				CompositionTargetPass *ctp = ct->getOutputTargetPass();
-				if (ctp)
-				{
-					CompositionPass *p = ctp->getPass(0);
-					if (p)
-					{
-						p->setClearColour(fade_color);
-					}
-				}
-			}
-		}
-	}
+	//todo ogre 2.0
 }
 
 void TerrainManager::initWater()
@@ -599,7 +487,7 @@ void TerrainManager::initWater()
 	// disabled in map config
 	if (!StringConverter::parseBool(m_terrain_config.getSetting("Water", "General"))) return;
 
-	if (waterSettingsString == "Hydrax")
+	/*if (waterSettingsString == "Hydrax")
 	{
 		// try to load hydrax config
 		String hydraxConfig = m_terrain_config.getSetting("HydraxConfigFile", "General");
@@ -623,10 +511,10 @@ void TerrainManager::initWater()
 		{
 			Terrain* t = ti.getNext()->instance;
 			MaterialPtr ptr = t->getMaterial();
-			hw->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+			//hw->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
 		}
 
-	} else
+	} else*/
 	{
 		if (water == nullptr)
 			water = new Water(m_terrain_config);

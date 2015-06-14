@@ -103,7 +103,7 @@ public:
 		return true;
 	}
 
-	void setSetting(String key, String value, String section = StringUtil::BLANK)
+	void setSetting(String key, String value, String section = Ogre::BLANKSTRING)
 	{
 		SettingsMultiMap *set = mSettings[section];
 		if (!set)
@@ -120,44 +120,44 @@ public:
 	}
 
 	// type specific implementations
-	Radian getSettingRadian(String key, String section = StringUtil::BLANK) { return StringConverter::parseAngle(getSetting(key, section));	}
-	void setSetting(String key, Radian value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section);	}
+	Radian getSettingRadian(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseAngle(getSetting(key, section));	}
+	void setSetting(String key, Radian value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section);	}
 
-	bool getSettingBool(String key, String section = StringUtil::BLANK) { return StringConverter::parseBool(getSetting(key, section)); }
-	void setSetting(String key, bool value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	bool getSettingBool(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseBool(getSetting(key, section)); }
+	void setSetting(String key, bool value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	Real getSettingReal(String key, String section = StringUtil::BLANK) { return StringConverter::parseReal(getSetting(key, section)); }
-	void setSetting(String key, Real value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	Real getSettingReal(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseReal(getSetting(key, section)); }
+	void setSetting(String key, Real value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	int getSettingInt(String key, String section = StringUtil::BLANK) { return StringConverter::parseInt(getSetting(key, section)); }
-	void setSetting(String key, int value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	int getSettingInt(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseInt(getSetting(key, section)); }
+	void setSetting(String key, int value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	unsigned int getSettingUnsignedInt(String key, String section = StringUtil::BLANK) { return StringConverter::parseUnsignedInt(getSetting(key, section)); }
-	void setSetting(String key, unsigned int value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	unsigned int getSettingUnsignedInt(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseUnsignedInt(getSetting(key, section)); }
+	void setSetting(String key, unsigned int value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	long getSettingLong(String key, String section = StringUtil::BLANK) { return StringConverter::parseLong(getSetting(key, section)); }
-	void setSetting(String key, long value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	long getSettingLong(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseLong(getSetting(key, section)); }
+	void setSetting(String key, long value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	unsigned long getSettingUnsignedLong(String key, String section = StringUtil::BLANK) { return StringConverter::parseUnsignedLong(getSetting(key, section)); }
-	void setSetting(String key, unsigned long value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	unsigned long getSettingUnsignedLong(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseUnsignedLong(getSetting(key, section)); }
+	void setSetting(String key, unsigned long value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	Vector3 getSettingVector3(String key, String section = StringUtil::BLANK) { return StringConverter::parseVector3(getSetting(key, section)); }
-	void setSetting(String key, Vector3 value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	Vector3 getSettingVector3(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseVector3(getSetting(key, section)); }
+	void setSetting(String key, Vector3 value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	Matrix3 getSettingMatrix3(String key, String section = StringUtil::BLANK) { return StringConverter::parseMatrix3(getSetting(key, section)); }
-	void setSetting(String key, Matrix3 value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	Matrix3 getSettingMatrix3(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseMatrix3(getSetting(key, section)); }
+	void setSetting(String key, Matrix3 value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	Matrix4 getSettingMatrix4(String key, String section = StringUtil::BLANK) { return StringConverter::parseMatrix4(getSetting(key, section)); }
-	void setSetting(String key, Matrix4 value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	Matrix4 getSettingMatrix4(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseMatrix4(getSetting(key, section)); }
+	void setSetting(String key, Matrix4 value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	Quaternion getSettingQuaternion(String key, String section = StringUtil::BLANK) { return StringConverter::parseQuaternion(getSetting(key, section)); }
-	void setSetting(String key, Quaternion value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	Quaternion getSettingQuaternion(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseQuaternion(getSetting(key, section)); }
+	void setSetting(String key, Quaternion value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	ColourValue getSettingColorValue(String key, String section = StringUtil::BLANK) { return StringConverter::parseColourValue(getSetting(key, section)); }
-	void setSetting(String key, ColourValue value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	ColourValue getSettingColorValue(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseColourValue(getSetting(key, section)); }
+	void setSetting(String key, ColourValue value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
-	StringVector getSettingStringVector(String key, String section = StringUtil::BLANK) { return StringConverter::parseStringVector(getSetting(key, section)); }
-	void setSetting(String key, StringVector value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
+	StringVector getSettingStringVector(String key, String section = Ogre::BLANKSTRING) { return StringConverter::parseStringVector(getSetting(key, section)); }
+	void setSetting(String key, StringVector value, String section = Ogre::BLANKSTRING) { setSetting(key, TOSTRING(value), section); }
 
 protected:
 	String separators;

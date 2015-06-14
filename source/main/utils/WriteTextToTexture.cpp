@@ -25,6 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "OgreTextureManager.h"
 #include "OgreMaterial.h"
 #include "OgreTechnique.h"
+#include <OgreFont.h>
 
 // source: ogre wiki: http://www.ogre3d.org/wiki/index.php/HowTo:_Write_text_on_texture
 using namespace Ogre;

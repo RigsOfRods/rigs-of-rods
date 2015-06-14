@@ -1,23 +1,9 @@
+import * from "managed_mats.material"
 
-material 1-Default
+material tracks/character: RoR/Managed_Mats/Base
 {
-	technique
-	{
-		pass
-		{
-			ambient 0.588235 0.588235 0.588235 1
-			diffuse 0.588235 0.588235 0.588235 1
-			specular 0 0 0 1 10
-			emissive 0.5 0.5 0.5 1
-
-			texture_unit
-			{
-				texture male_char01_tex.jpg
-			}
-		}
-
-	}
-
+	set_texture_alias diffuse_tex character.dds
+	set_texture_alias specular_tex character-alpha.png
 }
 
 

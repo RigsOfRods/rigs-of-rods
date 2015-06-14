@@ -71,7 +71,7 @@ int generateFontTexture(Ogre::String fontName, bool load=false)
 
 	// now render to file
 	Ogre::RenderTexture* pRenderTexture = fontTextureRTT->getBuffer()->getRenderTarget();
-	pRenderTexture->update();
+//	pRenderTexture->update(); //todo fix ogre 2.0
 	Ogre::String outImageName = font->getName()+ cache_name + ".png";
 	pRenderTexture->writeContentsToFile(outImageName);
 

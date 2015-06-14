@@ -59,7 +59,9 @@ FlexMeshWheel::FlexMeshWheel(
 	//the rim object
 	std::stringstream rim_name;
 	rim_name << "rim-" << name;
-	rimEnt = gEnv->sceneManager->createEntity(rim_name.str(), mesh_name);
+	rimEnt = gEnv->sceneManager->createEntity(mesh_name);
+	rimEnt->setName(rim_name.str());
+
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(rimEnt, ColourValue(0, 0.5, 0.8));
 	if (material_function_mapper != nullptr)
 	{

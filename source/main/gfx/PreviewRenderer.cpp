@@ -28,6 +28,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
+#include "Ogre.h"
+#include "OgreBuildSettings.h"
 #include "RoRFrameListener.h"
 
 using namespace Ogre;
@@ -60,7 +62,9 @@ void PreviewRenderer::render()
 	//vp->setShadowsEnabled(false);
 	// white background
 	//vp->setBackgroundColour(ColourValue::White);
-	vp->setClearEveryFrame(true);
+
+	//todo fix ogre 2.0
+	//vp->setClearEveryFrame(true);
 
 	// better mipmapping
 	MaterialManager::getSingleton().setDefaultAnisotropy(8);
@@ -246,10 +250,10 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 	renderTexture = TextureManager::getSingleton().createManual("3dpreview1", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, textureSize, textureSize, 32, 0, PF_A8R8G8B8, TU_RENDERTARGET, 0, false, 8, "Quality");
 	
 	RenderTexture *renderTarget = renderTexture->getBuffer()->getRenderTarget();
-	renderTarget->setAutoUpdated(false);
-	Viewport *renderViewport = renderTarget->addViewport(renderCamera);
-	renderViewport->setOverlaysEnabled(false);
-	renderViewport->setClearEveryFrame(true);
+	//renderTarget->setAutoUpdated(false);
+	//Viewport *renderViewport = renderTarget->addViewport(renderCamera);
+	//renderViewport->setOverlaysEnabled(false);
+	//renderViewport->setClearEveryFrame(true);
 	//renderViewport->setShadowsEnabled(false);
 	//renderViewport->setBackgroundColour(ColourValue(1, 1, 1, 0));
 
@@ -311,7 +315,7 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 
 				RoRWindowEventUtilities::messagePump();
 				Root::getSingleton().renderOneFrame();
-				renderTarget->update();
+			//	renderTarget->update();
 #ifdef USE_CAELUM
 				
 				if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
@@ -338,6 +342,6 @@ void PreviewRenderer::render(String ext)
 	// create some screenshot
 	RoRWindowEventUtilities::messagePump();
 	Root::getSingleton().renderOneFrame();
-	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
+	//RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
 	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(fn+"."+ext+".jpg");
 }

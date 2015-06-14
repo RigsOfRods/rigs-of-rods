@@ -43,7 +43,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CollisionTools.h"
 #include "Dashboard.h"
 #include "DashBoardManager.h"
-#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "EnvironmentMap.h"
 #include "ErrorUtils.h"
@@ -354,13 +353,11 @@ bool RoRFrameListener::updateEvents(float dt)
 			as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
 			const RenderTarget::FrameStats& stats = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
-			as->addData("AVGFPS", TOSTRING(stats.avgFPS));
 
 			as->write();
 			delete(as);
 		} else
 		{
-			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
 			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(tmpfn);
 		}
 
@@ -1050,6 +1047,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 	//update window
+	/*
 	if (!RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isAutoUpdated())
 	{
 		if (dirty)
@@ -1057,6 +1055,8 @@ bool RoRFrameListener::updateEvents(float dt)
 		else
 			sleepMilliSeconds(10);
 	}
+
+	*/
 	// Return true to continue rendering
 	return true;
 }
@@ -1173,14 +1173,15 @@ void RoRFrameListener::InitTrucks(
 #ifdef USE_MYGUI
 		if (b && gEnv->surveyMap)
 		{
-			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
+			//TODO FIX OGRE 2.0
+			/*SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
 			if (e)
 			{
 				e->setState(DESACTIVATED);
 				e->setVisibility(true);
 				e->setPosition(spawnpos.x, spawnpos.z);
 				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
-			}
+			}*/
 		}
 #endif //USE_MYGUI
 

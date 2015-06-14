@@ -202,7 +202,7 @@ AxisAlignedBox getWorldAABB(SceneNode* node)
 	for (int i=0; i<node->numAttachedObjects(); ++i)
 	{
 		MovableObject* o = node->getAttachedObject(i);
-		aabb.merge(o->getWorldBoundingBox(true));
+		//aabb.merge(o->getWorldBoundingBox(true)); //todo fix ogre 2.0
 	}
 
 	// merge with child nodes

@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Dashboard.h"
 
 #include "Console.h"
+#include "OgreOverlayManager.h"
 #include "ResourceBuffer.h"
 #include "TruckHUD.h"
 
@@ -42,10 +43,12 @@ Dashboard::Dashboard() :
 
 	mDashCam->setAspectRatio(2.0);
 
-	Viewport *v = rttTex->addViewport(mDashCam);
+	//fix ogre 2.0
+	/**
+	Viewport *v = rttTex->addViewport();
 	v->setClearEveryFrame(true);
 	v->setBackgroundColour(ColourValue::Black);
-	//v->setOverlaysEnabled(false);
+	//v->setOverlaysEnabled(false);*/
 
 	MaterialPtr mat = MaterialManager::getSingleton().getByName("renderdash");
 	mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("dashtexture");
@@ -64,7 +67,7 @@ Dashboard::Dashboard() :
 
 Dashboard::~Dashboard()
 {
-	gEnv->sceneManager->destroyCamera("DashCam");
+	gEnv->sceneManager->destroyCamera(mDashCam);
 }
 
 void Dashboard::setEnable(bool en)

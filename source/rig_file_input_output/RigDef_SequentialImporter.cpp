@@ -29,6 +29,7 @@
 
 #include "RigDef_Parser.h"
 #include "RoRPrerequisites.h"
+#include <iomanip> 
 
 using namespace RigDef;
 

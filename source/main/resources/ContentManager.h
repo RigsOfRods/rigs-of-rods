@@ -68,6 +68,7 @@ public:
 		static const ResourcePack MATERIALS;
 		static const ResourcePack MESHES;
 		static const ResourcePack MYGUI;
+		static const ResourcePack MYGUI_LAYOUTS;
 		static const ResourcePack OVERLAYS;
 		static const ResourcePack PAGED;
 		static const ResourcePack PARTICLES;

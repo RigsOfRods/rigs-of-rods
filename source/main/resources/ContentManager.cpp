@@ -33,6 +33,7 @@
 
 #include "OgreShaderParticleRenderer.h"
 #include "OgreBoxEmitterFactory.h"
+#include "OgreOverlayManager.h"
 
 #ifdef USE_ANGELSCRIPT
 #include "FireExtinguisherAffectorFactory.h"
@@ -82,6 +83,7 @@ DECLARE_RESOURCE_PACK( 27, SOUNDS,                "sounds",               "Gener
 DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 30, RIG_EDITOR,            "rig_editor",           "RigEditor");
+DECLARE_RESOURCE_PACK( 31, MYGUI_LAYOUTS,		  "mygui_layouts",		  "mygui_preinit");
 
 // ================================================================================
 // Functions
@@ -201,7 +203,7 @@ bool ContentManager::init(void)
 	// streams path, to be processed later by the cache system
 	LOG("RoR|ContentManager: Loading filesystems");
 
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"cache", "FileSystem", "cache");
+	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"cache", "FileSystem", "cache", false, false);
 	// config, flat
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"config", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"alwaysload", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);

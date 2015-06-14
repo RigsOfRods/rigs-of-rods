@@ -38,7 +38,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "DepthOfFieldEffect.h"
+//#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
@@ -60,7 +60,7 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
-#include "ScriptEngine.h"
+//#include "ScriptEngine.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -73,6 +73,15 @@
 
 #include <OgreRoot.h>
 #include <OgreString.h>
+#include <OgreOverlayManager.h>
+#include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorNodeDef.h>
+#include <Compositor/OgreCompositorWorkspaceDef.h>
+#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
+#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
+#include <Compositor/OgreTextureDefinition.h>
+#include <Compositor/OgreCompositorShadowNode.h>
+#include <MyGUI_OgrePlatform.h>
 
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
@@ -110,6 +119,7 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
+	Ogre::OverlaySystem* overlay_system = new OverlaySystem(); //Overlay init
 
 	Application::CreateContentManager();
 
@@ -119,24 +129,34 @@ void MainThread::Go()
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
-	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
+
+	const size_t numThreads = std::max<int>(1, Ogre::PlatformInformation::getNumLogicalCores());
+	Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_SINGLETHREAD;
+	if (numThreads > 1) Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_THREADED;
 
 	// Setup rendering (menu + simulation)
-	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
-	gEnv->sceneManager = scene_manager;
+	Ogre::SceneManager* scene_manager = Root::getSingleton().createSceneManager(Ogre::ST_EXTERIOR_CLOSE, numThreads, threadedCullingMethod);
 
+	gEnv->sceneManager = scene_manager;
+	if (overlay_system)
+	{
+		scene_manager->addRenderQueueListener(overlay_system);
+		gEnv->overlaySystem = overlay_system;
+	}
+	
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
 	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
 	camera->lookAt(Ogre::Vector3(0,0,-300)); // Look back along -Z
-	camera->setNearClipDistance( 0.5 );
-	camera->setFarClipDistance( 1000.0*1.733 );
+	camera->setNearClipDistance( 0.2 ); //0.5
+	camera->setFarClipDistance( 5000 );
 	camera->setFOVy(Ogre::Degree(60));
 	camera->setAutoAspectRatio(true);
-	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
 
-	// SHOW BOOTSTRAP SCREEN
+	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+	gEnv->sceneManager->setAmbientLight(Ogre::ColourValue::White);
 
 	// Create rendering overlay
 	Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
@@ -145,24 +165,44 @@ void MainThread::Go()
 	{
 		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "MainThread::Go");
 	}
-
-	// Set random wallpaper image
-	//is this still needed? As things load so fast that it's rendred for a fraction of a second.
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
-	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
-	if (! menu_wallpaper_texture_name.empty() && ! mat.isNull())
-	{
-		if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
-		{
-			mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(menu_wallpaper_texture_name);
-		}
-	}
-
-	startup_screen_overlay->show();
 	
-	scene_manager->clearSpecialCaseRenderQueues();
-	scene_manager->addSpecialCaseRenderQueue(Ogre::RENDER_QUEUE_OVERLAY);
-	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_INCLUDE);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MYGUI_LAYOUTS);
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("mygui_preinit");
+
+	Application::CreateGuiManagerIfNotExists();
+
+	initMatManager();
+
+	const Ogre::String workspaceName = "scene workspace";
+	const Ogre::IdString workspaceNameHash = workspaceName;
+
+	Ogre::CompositorManager2* pCompositorManager = Ogre::Root::getSingleton().getCompositorManager2();
+	Ogre::CompositorNodeDef *nodeDef = pCompositorManager->addNodeDefinition("myworkspace");
+	//Input texture
+	nodeDef->addTextureSourceName("WindowRT", 0, Ogre::TextureDefinitionBase::TEXTURE_INPUT);
+	nodeDef->setNumTargetPass(1);
+	{
+		Ogre::CompositorTargetDef *targetDef = nodeDef->addTargetPass("WindowRT");
+		targetDef->setNumPasses(3);
+		{
+			{
+				Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>(targetDef->addPass(Ogre::PASS_CLEAR));
+				Ogre::CompositorPassSceneDef *passScene = static_cast<Ogre::CompositorPassSceneDef*>(targetDef->addPass(Ogre::PASS_SCENE));
+
+				passScene->mShadowNode = "ExampleShadows_PssmShadowNode";
+
+				// For the MyGUI pass
+				targetDef->addPass(Ogre::PASS_CUSTOM, MyGUI::OgreCompositorPassProvider::mPassId);
+			}
+		}
+
+	}
+	Ogre::CompositorWorkspaceDef *workDef = pCompositorManager->addWorkspaceDefinition(workspaceNameHash);
+	workDef->connectOutput(nodeDef->getName(), 0);
+
+	pCompositorManager->addWorkspace(gEnv->sceneManager, Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
+
+	Application::GetGuiManager()->createGui2();
 
 	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
 
@@ -172,19 +212,20 @@ void MainThread::Go()
 
 	Application::GetContentManager()->init();
 
-	// HIDE BOOTSTRAP SCREEN
-
-	startup_screen_overlay->hide();
+	//Maybe somewhere else?
+	Ogre::MovableTextFactory* movableTextFactory = new Ogre::MovableTextFactory();
+	Application::GetOgreSubsystem()->GetOgreRoot()->addMovableObjectFactory(movableTextFactory);
 
 	// Back to full rendering
 	scene_manager->clearSpecialCaseRenderQueues();
 	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_EXCLUDE);
-	
-	Application::CreateGuiManagerIfNotExists();
 
 	// create console, must be done early
 	Application::CreateConsoleIfNotExists();
 
+	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
+
+	/**/
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	MyGUI::Widget* menu_wallpaper_widget = nullptr;
@@ -221,7 +262,7 @@ void MainThread::Go()
 	// Create legacy RoRFrameListener
 
 	gEnv->frameListener = new RoRFrameListener();
-	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+	//ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener); //todo fix ogre 2.0
 
 	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
 
@@ -434,6 +475,7 @@ void MainThread::Go()
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
 				/* Restore 3D engine settings */
+				/**
 				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
 				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
@@ -441,16 +483,16 @@ void MainThread::Go()
 				ror_ogre_subsystem->SetViewport(viewport);
 				viewport->setCamera(gEnv->mainCamera);
 
-				/* Restore GUI */
+				/* Restore GUI *//**
 				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
-				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);*/
 
-				/* Restore input */
+				/* Restore input *//*
 				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
-				RoR::Application::GetInputEngine()->RestoreMouseListener();
+				RoR::Application::GetInputEngine()->RestoreMouseListener();*/
 
 				/* Restore wallpaper */
-				menu_wallpaper_widget->setVisible(true);
+				//menu_wallpaper_widget->setVisible(true);
 			}
 			else if (previous_application_state == Application::STATE_SIMULATION)
 			{
@@ -501,27 +543,27 @@ void MainThread::Go()
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
 				/* Restore 3D engine settings */
-				OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+				/*OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 				assert(ror_ogre_subsystem != nullptr);
 				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
 				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
 				camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
 				ror_ogre_subsystem->SetViewport(viewport);
-				viewport->setCamera(gEnv->mainCamera);
+				viewport->setCamera(gEnv->mainCamera);*/
 
 				/* Restore GUI */
-				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
+			//	RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
 
 				/* Restore input */
-				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
-				RoR::Application::GetInputEngine()->RestoreMouseListener();
+				/*RoR::Application::GetInputEngine()->RestoreKeyboardListener();
+				RoR::Application::GetInputEngine()->RestoreMouseListener();*/
 
 				/* Restore overlays */
-				RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
+				//RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
 
 				/* Setup GUI manager updates */
-				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
+				//Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
 			}
 
 			if (SetupGameplayLoop(enable_network, preselected_map))
@@ -643,6 +685,8 @@ void MainThread::Go()
 	delete gEnv->frameListener;
 	gEnv->frameListener = nullptr;
 
+	//delete overlay_system; //crash here, wat
+
 	delete gEnv;
 	gEnv = nullptr;
 
@@ -665,7 +709,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+		//RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
@@ -759,7 +803,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	// depth of field effect
 	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 	{
-		gEnv->frameListener->dof = new DOFManager();
+		//gEnv->frameListener->dof = new DOFManager();
 	}
 
 	if (!m_base_resource_loaded)
@@ -922,8 +966,8 @@ void MainThread::EnterMainMenuLoop()
 
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
-		if (!rw->isActive() && rw->isVisible())
-			rw->update(); // update even when in background !
+		/*if (!rw->isActive() && rw->isVisible())
+			rw->update(); // update even when in background !*/
 
 		
 		// FPS-limiter. TODO: Is this necessary in menu?
@@ -998,8 +1042,8 @@ void MainThread::EnterGameplayLoop()
 
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
-		if (!rw->isActive() && rw->isVisible())
-			rw->update(); // update even when in background !
+		/*if (!rw->isActive() && rw->isVisible())
+			rw->update(); // update even when in background !*/
 
 		MUTEX_UNLOCK(&m_lock);
 
@@ -1484,4 +1528,22 @@ void MainThread::RegenCache()
 		ErrorUtils::ShowError(_L("Cache regeneration done"), str);
 		exit(0);
 	}
+}
+
+void MainThread::initMatManager()
+{
+	//Dirty, needs to be improved
+	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/on/", "FileSystem", "ShadowsMats");
+	else
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/off/", "FileSystem", "ShadowsMats");
+
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
+
+	ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/texture_manager/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
+
+	//Last
+	ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/", "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }

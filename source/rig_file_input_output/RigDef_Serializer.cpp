@@ -30,6 +30,7 @@
 #include "RigDef_File.h"
 
 #include <fstream>
+#include <iomanip> 
 #include <OgreStringConverter.h>
 
 using namespace RigDef;

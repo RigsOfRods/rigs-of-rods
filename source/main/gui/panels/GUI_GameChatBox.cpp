@@ -40,6 +40,7 @@
 
 #include <OgreRenderTarget.h>
 #include <OgreRoot.h>
+#include <OgreViewport.h>
 
 using namespace RoR;
 using namespace GUI;

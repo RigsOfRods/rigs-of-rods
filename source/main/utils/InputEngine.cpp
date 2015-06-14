@@ -1709,7 +1709,7 @@ eventInfo_t eventInfo[] = {
 
 
 	// the end, DO NOT MODIFY
-	{"", -1, "", ""},
+	{"", -1, "", ""}
 };
 
 

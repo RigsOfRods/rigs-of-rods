@@ -27,6 +27,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRVersion.h"
 #include "Utils.h"
 
+#include <OgreTimer.h>
+
 // created by thomas fischer thomas{AT}thomasfischer{DOT}biz, 18th of Juli 2009
 
 using namespace Ogre;

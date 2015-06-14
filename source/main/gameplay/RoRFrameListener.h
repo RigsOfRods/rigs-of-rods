@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include <Ogre.h>
+#include <OgreFrameListener.h>
 #include <pthread.h>
 
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator

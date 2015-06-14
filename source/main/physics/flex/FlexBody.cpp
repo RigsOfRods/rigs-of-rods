@@ -175,12 +175,13 @@ FlexBody::FlexBody(
 		        if (i == 1) distance = 20;
 		        if (i == 2) distance = 50;
 		        if (i == 3) distance = 200;
-		        newmesh->createManualLodLevel(distance, fn);
+		      //  newmesh->createManualLodLevel(distance, fn); //todo fix ogre 2.0
             }
 	    }
     }
     FLEXBODY_PROFILER_ENTER("Create entity");
-	Entity *ent = gEnv->sceneManager->createEntity(uname, uname_mesh);
+	Entity *ent = gEnv->sceneManager->createEntity(uname_mesh);
+	ent->setName(uname);
     FLEXBODY_PROFILER_ENTER("MaterialFunctionMapper::replaceSimpleMeshMaterials()");
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, ColourValue(0.5, 0.5, 1));
 	if (material_function_mapper)

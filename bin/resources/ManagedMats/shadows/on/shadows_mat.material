@@ -1,0 +1,57 @@
+material RoR_ShadowsCaster
+{
+	technique
+	{
+		pass
+		{
+            vertex_program_ref Example_ShadowsCaster_vs
+			{
+			}
+            fragment_program_ref Example_ShadowsCaster_ps
+			{
+			}
+		}
+	}
+}
+
+abstract technique Shadows/managed/base_receiver
+{
+	receive_shadows on
+	transparency_casts_shadows on
+	pass RenderShadows
+	{
+		vertex_program_ref Example_Shadows_pssm_vs
+		{
+		}
+	
+		fragment_program_ref Example_Shadows_pssm_ps
+		{
+		}
+		
+		texture_unit TextureName
+		{
+
+		}
+
+		texture_unit
+		{
+			content_type shadow
+			tex_address_mode border
+			tex_coord_set 0
+		}
+
+		texture_unit
+		{
+			content_type shadow
+			tex_address_mode border
+			tex_coord_set 1
+		}
+
+		texture_unit
+		{
+			content_type shadow
+			tex_address_mode border
+			tex_coord_set 2
+		}
+	}
+}

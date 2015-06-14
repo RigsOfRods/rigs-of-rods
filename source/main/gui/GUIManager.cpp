@@ -38,6 +38,12 @@
 #include "TerrainManager.h"
 
 #include <MyGUI_OgrePlatform.h>
+#include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorNodeDef.h>
+#include <Compositor/OgreCompositorWorkspaceDef.h>
+#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
+#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
+#include <Compositor/OgreTextureDefinition.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -62,13 +68,12 @@ bool GUIManager::create()
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), this);
 
 	windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
+
 	createGui();
-#ifdef _WIN32
-	MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
-#endif // _WIN32
+
 
 	// Create panels
-	m_rig_spawner_report_window = std::unique_ptr<GUI::RigSpawnerReportWindow>(new GUI::RigSpawnerReportWindow(this));
+	//m_rig_spawner_report_window = std::unique_ptr<GUI::RigSpawnerReportWindow>(new GUI::RigSpawnerReportWindow(this));
 
 	return true;
 }
@@ -87,45 +92,57 @@ void GUIManager::destroy()
 void GUIManager::createGui()
 {
 	String gui_logfilename = SSETTING("Log Path", "") + "mygui.log";
+
 	mPlatform = new MyGUI::OgrePlatform();
-	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->sceneManager, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, gui_logfilename); // use cache resource group so preview images are working
+	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME); // use cache resource group so preview images are working
+
+}
+
+void GUIManager::createGui2()
+{
+
 	mGUI = new MyGUI::Gui();
 
 	// empty init
-	mGUI->initialise("");
+	mGUI->initialise(mResourceFileName);
 
 	// add layer factory
-	MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
-	
-	// then load the actual config
-	MyGUI::ResourceManager::getInstance().load(mResourceFileName);
+	//MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
 
-	MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
+	// then load the actual config
+	//	MyGUI::ResourceManager::getInstance().load(mResourceFileName);
+
+	//MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
 
 	// move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
-	MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
+	//MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
 
 	// now find that font texture and save it - for debugging purposes
 	/*
 	ResourceManager::ResourceMapIterator it = TextureManager::getSingleton().getResourceIterator();
 	while (it.hasMoreElements())
 	{
-		ResourcePtr res = it.getNext();
-		if (res->getName().find("TrueTypeFont") != String::npos)
-		{
-			Image image;
-			TexturePtr tex = (TexturePtr)res;
-			tex->convertToImage(image);
-			image.save(res->getName() + ".png");
-			LOG(">> saved TTF texture: " + res->getName());
-		}
+	ResourcePtr res = it.getNext();
+	if (res->getName().find("TrueTypeFont") != String::npos)
+	{
+	Image image;
+	TexturePtr tex = (TexturePtr)res;
+	tex->convertToImage(image);
+	image.save(res->getName() + ".png");
+	LOG(">> saved TTF texture: " + res->getName());
+	}
 	}
 	*/
 
 	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
-	MyGUI::PointerManager::getInstance().setVisible(true);
+	//MyGUI::PointerManager::getInstance().setVisible(true);
+
+	//mPlatform->getRenderManagerPtr()->setRenderWindow(Application::GetOgreSubsystem()->GetRenderWindow());
 	//Console *c = RoR::Application::GetConsole();
 	//if (c) c->resized();
+#ifdef _WIN32
+	//MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
+#endif // _WIN32
 }
 
 void GUIManager::destroyGui()
@@ -246,7 +263,7 @@ String GUIManager::getRandomWallpaperImage()
 
 void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
 {
-	mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
+	//mPlatform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
 
@@ -271,7 +288,8 @@ void GUIManager::ShowMainMenu(bool isVisible)
 			);
 
 		m_gui_GameMainMenu->Show();
-	} else 
+	}
+	else
 		m_gui_GameMainMenu->Hide();
 }
 
@@ -436,17 +454,22 @@ bool GUIManager::GetPauseMenuVisible()
 
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
 {
-	m_rig_spawner_report_window->SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
+	if (m_rig_spawner_report_window)
+		m_rig_spawner_report_window->SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
 }
 
 void GUIManager::ShowRigSpawnerReportWindow()
 {
+	if (!m_rig_spawner_report_window) return;
+
 	m_rig_spawner_report_window->CenterToScreen();
 	m_rig_spawner_report_window->Show();
 }
 
 void GUIManager::HideRigSpawnerReportWindow()
 {
+	if (!m_rig_spawner_report_window) return;
+
 	m_rig_spawner_report_window->Hide();
 	UnfocusGui();
 }

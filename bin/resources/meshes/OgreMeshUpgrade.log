@@ -1,0 +1,32 @@
+23:53:48: Creating resource group General
+23:53:48: Creating resource group Internal
+23:53:48: Creating resource group Autodetect
+23:53:48: Registering ResourceManager for type Material
+23:53:48: Registering ResourceManager for type OldSkeleton
+23:53:48: Registering ResourceManager for type Mesh
+23:53:48: Skeleton: Loading character.skeleton
+23:53:48: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource character.skeleton in resource group General or any other group. in ResourceGroupManager::openResource at D:\GIT_REPO\ogre_tutorial\OGRE_BUILD\v2.0rc1tag\ogre2.0\OgreMain\src\OgreResourceGroupManager.cpp (line 757)
+23:53:48: Unable to load skeleton character.skeleton for Mesh conversion. This Mesh will not be animated. You can ignore this message if you are using an offline tool.
+23:53:48: WARNING: conversion is an older format ([MeshSerializer_v1.8]); you should upgrade it as soon as possible using the OgreMeshUpgrade tool.
+23:53:48: MeshSerializer writing mesh data to stream ...
+23:53:48: File header written.
+23:53:48: Writing mesh data...
+23:53:48: Writing submesh...
+23:53:48: Exporting submesh texture aliases...
+23:53:48: Submesh texture aliases exported.
+23:53:48: Submesh exported.
+23:53:48: Exporting skeleton link...
+23:53:48: Skeleton link exported.
+23:53:48: Exporting shared geometry bone assignments...
+23:53:48: Shared geometry bone assignments exported.
+23:53:48: Exporting bounds information....
+23:53:48: Bounds information exported.
+23:53:48: Exporting submesh name table...
+23:53:48: Submesh name table exported.
+23:53:48: Exporting edge lists...
+23:53:48: Edge lists exported
+23:53:48: Mesh data exported.
+23:53:48: MeshSerializer export successful.
+23:53:48: Unregistering ResourceManager for type Mesh
+23:53:48: Unregistering ResourceManager for type OldSkeleton
+23:53:48: Unregistering ResourceManager for type Material

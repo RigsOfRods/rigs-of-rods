@@ -11,10 +11,35 @@ enum {
 	TEXCOORD_BINDING
 };
 
-DynamicLines::DynamicLines(char* materialname, OperationType opType)
+DynamicLines::DynamicLines(IdType id, ObjectMemoryManager *objectMemoryManager, const NameValuePairList* params)
+: DynamicRenderable(id, objectMemoryManager)
 {
-	initialize(opType,false);
-	setMaterial(materialname);
+	//todo fix ogre 2.0 check if works
+	if (params != 0)
+	{
+		NameValuePairList::const_iterator ni;
+
+		ni = params->find("material");
+		if (ni != params->end())
+		{
+			setMaterial(ni->second);
+		}
+
+		ni = params->find("opType");
+		if (ni != params->end())
+		{
+			OperationType opType;
+			if (ni->second == "0") opType = RenderOperation::OT_LINE_STRIP;
+			if (ni->second == "1") opType = RenderOperation::OT_LINE_LIST;
+			if (ni->second == "3") opType = RenderOperation::OT_POINT_LIST;
+			if (ni->second == "4") opType = RenderOperation::OT_TRIANGLE_FAN;
+			if (ni->second == "5") opType = RenderOperation::OT_TRIANGLE_LIST;
+			if (ni->second == "6") opType = RenderOperation::OT_TRIANGLE_STRIP;
+
+			initialize(opType, false);
+		}
+	}
+
 	mDirty = true;
 }
 

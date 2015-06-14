@@ -32,6 +32,7 @@
 #include "CameraManager.h"
 #include "Application.h"
 #include "GUIManager.h"
+#include "OgreSubsystem.h"
 
 #ifdef USE_MYGUI
 # include <MyGUI.h>
@@ -41,6 +42,9 @@
 #include <OgreResourceGroupManager.h>
 #include <OgreTechnique.h>
 #include <OgreManualObject.h>
+#include <OgreCamera.h>
+#include <OgreRenderWindow.h>
+
 
 using namespace Ogre;
 using namespace RoR;
@@ -51,8 +55,11 @@ SceneMouse::SceneMouse()
 	grab_truck     = NULL;
 	
 	// load 3d line for mouse picking
-	pickLine =  gEnv->sceneManager->createManualObject("PickLineObject");
-	pickLineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("PickLineNode");
+	pickLine =  gEnv->sceneManager->createManualObject();
+	pickLine->setName("PickLineObject");
+
+	pickLineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+	pickLineNode->setName("PickLineNode");
 
 	MaterialPtr pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial",ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	pickLineMaterial->setReceiveShadows(false);
@@ -77,14 +84,14 @@ SceneMouse::~SceneMouse()
 	
 	if (pickLineNode != nullptr)
 	{
-		gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
+		gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild(pickLineNode);
 		pickLineNode = nullptr;
 	}
 	
 
 	if (pickLine != nullptr)
 	{
-		gEnv->sceneManager->destroyManualObject("PickLineObject");
+		gEnv->sceneManager->destroyManualObject(pickLine);
 		pickLine = nullptr;
 	}
 }
@@ -246,7 +253,7 @@ bool SceneMouse::keyReleased(const OIS::KeyEvent& _arg)
 
 Ray SceneMouse::getMouseRay()
 {
-	Viewport *vp = gEnv->mainCamera->getViewport();
+	RenderWindow *rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 
-	return gEnv->mainCamera->getCameraToViewportRay((float)lastMouseX / (float)vp->getActualWidth(), (float)lastMouseY / (float)vp->getActualHeight());
+	return gEnv->mainCamera->getCameraToViewportRay((float)lastMouseX / (float)rw->getWidth(), (float)lastMouseY / (float)rw->getHeight());
 }

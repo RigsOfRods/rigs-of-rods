@@ -26,6 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Skin.h"
 #include "SoundScriptManager.h"
 
+#include <OgreParticleSystem.h>
+
 using namespace Ogre;
 
 Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool _heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr) : mr(mr)
@@ -70,7 +72,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	//setup visuals
 	char paname[256];
 	sprintf(paname, "%s-nozzle", propname);
-	nozzleMesh = gEnv->sceneManager->createEntity(paname, "nozzle.mesh");
+	nozzleMesh = gEnv->sceneManager->createEntity("nozzle.mesh");
+	nozzleMesh->setName(paname);
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(nozzleMesh, ColourValue(1, 0.5, 0.5));
 
 	if (mfm) mfm->replaceMeshMaterials(nozzleMesh);
@@ -83,7 +86,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	if (afterburnable)
 	{
 		sprintf(paname, "%s-abflame", propname);
-		flameMesh = gEnv->sceneManager->createEntity(paname, "abflame.mesh");
+		flameMesh = gEnv->sceneManager->createEntity("abflame.mesh");
+		flameMesh->setName(paname);
 		MaterialFunctionMapper::replaceSimpleMeshMaterials(flameMesh, ColourValue(1, 1, 0));
 		if (mfm) mfm->replaceMeshMaterials(flameMesh);
 		if (mr) mr->replaceMeshMaterials(flameMesh);
@@ -103,7 +107,9 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	{
 		sprintf(paname,"%s-smoke", propname);
 		smokeNode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		smokePS=gEnv->sceneManager->createParticleSystem(paname, "tracks/TurbopropSmoke");
+		smokePS=gEnv->sceneManager->createParticleSystem("tracks/TurbopropSmoke");
+		smokePS->setName(paname);
+
 		if (smokePS)
 		{
 			smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
@@ -115,7 +121,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 		if (heathaze)
 		{
 			sprintf(paname,"%s-smoke-heat", propname);
-			heathazePS=gEnv->sceneManager->createParticleSystem(paname, "tracks/JetHeatHaze");
+			heathazePS=gEnv->sceneManager->createParticleSystem( "tracks/JetHeatHaze");
+			heathazePS->setName(paname);
 			smokeNode->attachObject(heathazePS);
 			heathazePS->setCastShadows(false);
 			heathazePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap

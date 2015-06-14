@@ -330,7 +330,7 @@ void LobbyGUI::eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, M
 		return;
 	}
 
-	switch(_key.toValue())
+	switch(_key.getValue())
 	{
 	case MyGUI::KeyCode::ArrowUp:
 		if (current_tab->mHistoryPosition > 0)

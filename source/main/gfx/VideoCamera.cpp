@@ -80,7 +80,7 @@ void VideoCamera::init()
 			, Ogre::TU_RENDERTARGET
 			, new ResourceBuffer());
 		rttTex = rttTexPtr->getBuffer()->getRenderTarget();
-		rttTex->setAutoUpdated(false);
+		//rttTex->setAutoUpdated(false);
 	} else
 	{
 		NameValuePairList misc;
@@ -116,7 +116,7 @@ void VideoCamera::init()
 		if (ISETTING("VideoCameraWidth_" + TOSTRING(counter), 0) > 0)
 			rwMirror->resize(ISETTING("VideoCameraWidth_" + TOSTRING(counter), 0), ISETTING("VideoCameraHeight_" + TOSTRING(counter), 0));
 		
-		rwMirror->setAutoUpdated(false);
+		//rwMirror->setAutoUpdated(false);
 		fixRenderWindowIcon(rwMirror);
 		rwMirror->setDeactivateOnFocusChange(false);
 		// TODO: disable texture mirrors
@@ -132,12 +132,12 @@ void VideoCamera::init()
 
 	if (rttTex)
 	{
-		Ogre::Viewport *vp = rttTex->addViewport(mVidCam);
-		vp->setClearEveryFrame(true);
+		//Ogre::Viewport *vp = rttTex->addViewport(mVidCam);
+		/*vp->setClearEveryFrame(true);
 		vp->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
 		vp->setVisibilityMask(~HIDE_MIRROR);
-		vp->setVisibilityMask(~DEPTHMAP_DISABLED);
-		vp->setOverlaysEnabled(false);
+		vp->setVisibilityMask(~DEPTHMAP_DISABLED);*/
+		//vp->setOverlaysEnabled(false);
 
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(materialName + "_texture");
 
@@ -148,12 +148,12 @@ void VideoCamera::init()
 
 	if (rwMirror)
 	{
-		Ogre::Viewport *vp = rwMirror->addViewport(mVidCam);
-		vp->setClearEveryFrame(true);
+		///Ogre::Viewport *vp = rwMirror->addViewport(mVidCam);
+		/*vp->setClearEveryFrame(true);
 		vp->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
 		vp->setVisibilityMask(~HIDE_MIRROR);
-		vp->setVisibilityMask(~DEPTHMAP_DISABLED);
-		vp->setOverlaysEnabled(false);
+		vp->setVisibilityMask(~DEPTHMAP_DISABLED);*/
+		//vp->setOverlaysEnabled(false);
 		mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(disabledTexture);
 	}
 	
@@ -193,9 +193,9 @@ void VideoCamera::update(float dt)
 #endif // USE_CAELUM
 
 	// update the texture now, otherwise shuttering
-	if (rttTex) rttTex->update();
+	/*if (rttTex) rttTex->update();
 
-	if (rwMirror) rwMirror->update();
+	if (rwMirror) rwMirror->update();*/
 
 	// get the normal of the camera plane now
 	Vector3 normal=(-(truck->nodes[nref].smoothpos - truck->nodes[nz].smoothpos)).crossProduct(-(truck->nodes[nref].smoothpos - truck->nodes[ny].smoothpos));

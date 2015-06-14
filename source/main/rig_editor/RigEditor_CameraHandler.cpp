@@ -307,10 +307,11 @@ bool CameraHandler::ConvertWorldToScreenPosition(
 		float screen_space_pos_y = 1 - ((clip_space_pos.y / 2.f) + 0.5f);
 
 		// Transform: clip space -> absolute pixel coordinates
-		Ogre::Viewport* viewport = mCamera->getViewport();
+/*		Ogre::Viewport* viewport = mCamera->getViewport();
 		out_screen_position.x = static_cast<int>(screen_space_pos_x * viewport->getActualWidth());
 		out_screen_position.y = static_cast<int>(screen_space_pos_y * viewport->getActualHeight());
-
+		*/ 
+		// fix ogre 2.0
 		return true;
 	}
 	else
@@ -343,20 +344,22 @@ Ogre::Vector3 CameraHandler::ConvertScreenToWorldPosition(Vector2int const & scr
 	//     * Top right corner of screen is (X:1, Y:1, Z:0)
 
 	// Transform: pixel coordinates -> clip space
-	Ogre::Viewport* viewport = mCamera->getViewport();
+	/*Ogre::Viewport* viewport = mCamera->getViewport();
 	Ogre::Vector3 output(
 			(((static_cast<float>(screen_pos.x) / static_cast<float>(viewport->getActualWidth()) ) *  2.f) - 1.f),
 			(((static_cast<float>(screen_pos.y) / static_cast<float>(viewport->getActualHeight())) * -2.f) + 1.f),
 			0.f
 		);
+		*/
+	//fix ogre 2.0
 
 	// Set point's depth, defined by pivot
 	Ogre::Vector3 clip_space_pivot = mCamera->getProjectionMatrix() * mCamera->getViewMatrix() * pivot; // Transform pivot: world space -> clip space
-	output.z = clip_space_pivot.z;
+	//output.z = clip_space_pivot.z;
 
 	// Transform clip space -> view space
-	output = m_inverse_projection_matrix * output;
+	//output = m_inverse_projection_matrix * output;
 
 	// Transform view space -> world space
-	return m_inverse_view_matrix * output;
+	return Ogre::Vector3(0, 0, 0);// * output;
 }

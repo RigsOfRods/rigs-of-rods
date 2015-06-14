@@ -166,7 +166,7 @@ void RigWheelVisuals::RefreshWheelsDynamicMeshes(
 			bool attach_to_scene = false;
 			if (m_wheels_dynamic_mesh.get() != nullptr)
 			{
-				attach_to_scene = m_wheels_dynamic_mesh->isInScene();
+//				attach_to_scene = m_wheels_dynamic_mesh->isInScene(); //todo fix ogre 2.0
 				m_wheels_dynamic_mesh->detachFromParent();
 				m_wheels_dynamic_mesh.reset();
 			}

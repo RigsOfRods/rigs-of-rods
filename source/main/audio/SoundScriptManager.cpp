@@ -983,7 +983,7 @@ void SoundScriptInstance::start()
 	if (start_sound)
 	{
 		start_sound->stop();
-		start_sound->setLoop(true);
+		//start_sound->setLoop(true);
 		start_sound->play();
 	}
 

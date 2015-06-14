@@ -34,6 +34,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Water.h"
 
+#include "MovableText.h"
+
 using namespace Ogre;
 
 
@@ -63,7 +65,8 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	myNumber = characterCounter++;
 	myName   = "Character" + TOSTRING(myNumber);
 
-	Entity *entity = gEnv->sceneManager->createEntity(myName+"_mesh", "character.mesh");
+	Entity *entity = gEnv->sceneManager->createEntity("character.mesh");
+	entity->setName(myName+"_mesh");
 #if OGRE_VERSION<0x010602
 	entity->setNormaliseNormals(true);
 #endif //OGRE_VERSION
@@ -161,7 +164,13 @@ void Character::updateNetLabel()
 	//LOG(" * updateNetLabel : " + TOSTRING(this->source));
 	if (!mMoveableText)
 	{
-		mMoveableText = new MovableText("netlabel-"+myName, networkUsername);
+		Ogre::NameValuePairList params;
+		params["name"] = "netlabel-" + myName;
+		params["caption"] = networkUsername;
+
+		mMoveableText = static_cast<Ogre::MovableText*>(gEnv->sceneManager->createMovableObject(Ogre::MovableTextFactory::FACTORY_TYPE_NAME,
+			&gEnv->sceneManager->_getEntityMemoryManager(Ogre::SCENE_DYNAMIC), &params));
+
 		mCharacterNode->attachObject(mMoveableText);
 		mMoveableText->setFontName("CyberbitEnglish");
 		mMoveableText->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
@@ -669,13 +678,14 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 void Character::createMapEntity()
 {
 #ifdef USE_MYGUI
-	if (gEnv->surveyMap)
+	//FIX OGRE2.0
+	/*if (gEnv->surveyMap)
 	{
 		mapEntity = gEnv->surveyMap->createNamedMapEntity(myName, "person");
 		mapEntity->setState(0);
 		mapEntity->setVisibility(true);
 		mapEntity->setPosition(mCharacterNode->getPosition());
 		mapEntity->setRotation(mCharacterNode->getOrientation());
-	}
+	}*/
 #endif // USE_MYGUI
 }
