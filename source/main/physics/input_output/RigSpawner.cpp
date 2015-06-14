@@ -3326,7 +3326,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		return;
 	}
 
-	shock_t shock;
+	shock_t & shock = this->GetFreeShock();
 
 	// Disable trigger on startup? (default enabled)
 	shock.trigger_enabled = !def.HasFlag_x_StartDisabled();
@@ -3486,10 +3486,6 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	shock.sbd_spring         = def.beam_defaults->springiness;
 	shock.sbd_damp           = def.beam_defaults->damping_constant;
 	shock.last_debug_state   = 0;
-
-	// Commit created shock
-	m_rig->shocks[m_rig->free_shock] = shock;
-	++m_rig->free_shock;
 	
 }
 
