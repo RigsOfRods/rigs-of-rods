@@ -35,6 +35,8 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   link_directories   (${Ogre_Paging_LIBRARY_DIRS})
   include_directories(${Ogre_RTShader_INCLUDE_DIRS})
   link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
+  include_directories(${Ogre_Volume_INCLUDE_DIRS})
+  link_directories   (${Ogre_Volume_LIBRARY_DIRS})
   include_directories(${Ois_INCLUDE_DIRS})
   link_directories   (${Ois_LIBRARY_DIRS})
 
@@ -135,12 +137,13 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   ENDIF(WIN32)
 
   target_link_libraries(${BINNAME}
-		${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ogre_Terrain_LIBRARIES} ${Ogre_Paging_LIBRARIES} ${Ogre_Overlay_LIBRARIES} ${Ogre_RTShader_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs}
+		${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ogre_Terrain_LIBRARIES} ${Ogre_Paging_LIBRARIES} ${Ogre_Overlay_LIBRARIES} ${Ogre_RTShader_LIBRARIES} ${Ogre_Volume_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs}
 	)
 	
 if(WIN32)
   # always copy ogre files
   copy_lib_files_for_target(${BINNAME} Ogre)
+  copy_lib_files_for_target(${BINNAME} Ois)
   # and pthread
   copy_lib_files_for_target(${BINNAME} PThread)
   # platform binaries

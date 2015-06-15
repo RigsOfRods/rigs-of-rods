@@ -72,7 +72,7 @@ DECLARE_RESOURCE_PACK( 16, HYDRAX,                "hydrax",               "LoadB
 DECLARE_RESOURCE_PACK( 17, ICONS,                 "icons",                "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 18, MATERIALS,             "materials",            "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 19, MESHES,                "meshes",               "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 20, MYGUI,                 "mygui",                "General");
+DECLARE_RESOURCE_PACK( 20, MYGUI,                 "mygui",                "mygui_init");
 DECLARE_RESOURCE_PACK( 21, OVERLAYS,              "overlays",             "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 22, PAGED,                 "paged",                "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 23, PARTICLES,             "particles",            "LoadBeforeMap");
@@ -83,7 +83,7 @@ DECLARE_RESOURCE_PACK( 27, SOUNDS,                "sounds",               "Gener
 DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 30, RIG_EDITOR,            "rig_editor",           "RigEditor");
-DECLARE_RESOURCE_PACK( 31, MYGUI_LAYOUTS,		  "mygui_layouts",		  "mygui_preinit");
+DECLARE_RESOURCE_PACK( 31, MYGUI_LAYOUTS,		  "mygui_layouts",		  "mygui_init");
 
 // ================================================================================
 // Functions
@@ -217,6 +217,7 @@ bool ContentManager::init(void)
 	m_skin_manager = new RoR::SkinManager(); // SkinManager registers itself
 
 	LOG("RoR|ContentManager: Registering colored text overlay factory");
+	
 	ColoredTextAreaOverlayElementFactory *pCT = new ColoredTextAreaOverlayElementFactory();
 	OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
