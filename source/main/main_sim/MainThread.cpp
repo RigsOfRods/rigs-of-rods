@@ -129,12 +129,15 @@ void MainThread::Go()
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
 	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MYGUI_LAYOUTS);
+	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MYGUI);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("mygui_init");
 
 	const size_t numThreads = std::max<int>(1, Ogre::PlatformInformation::getNumLogicalCores());
-	Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_SINGLETHREAD;
-	if (numThreads > 1) Ogre::InstancingTheadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_THREADED;
+	Ogre::InstancingThreadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_SINGLETHREAD;
+	if (numThreads > 1) Ogre::InstancingThreadedCullingMethod threadedCullingMethod = Ogre::INSTANCING_CULLING_THREADED;
 
 	// Setup rendering (menu + simulation)
 	Ogre::SceneManager* scene_manager = Root::getSingleton().createSceneManager(Ogre::ST_EXTERIOR_CLOSE, numThreads, threadedCullingMethod);
@@ -143,7 +146,7 @@ void MainThread::Go()
 	if (overlay_system)
 	{
 		scene_manager->addRenderQueueListener(overlay_system);
-		gEnv->overlaySystem = overlay_system;
+		gEnv->overlaySystem = nullptr;
 	}
 	
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
@@ -155,29 +158,29 @@ void MainThread::Go()
 	camera->setAutoAspectRatio(true);
 	gEnv->mainCamera = camera;
 
-	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+	//Set ambiant light
 	gEnv->sceneManager->setAmbientLight(Ogre::ColourValue::White);
 
 	// Create rendering overlay
 	Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
-	Ogre::Overlay* startup_screen_overlay = static_cast<Ogre::Overlay*>( overlay_manager.getByName("RoR/StartupScreen") );
+    Ogre::Overlay* startup_screen_overlay = static_cast<Ogre::Overlay*>( overlay_manager.getByName("RoR/StartupScreen") );
 	if (!startup_screen_overlay)
 	{
 		OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "MainThread::Go");
 	}
-	
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MYGUI_LAYOUTS);
-	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("mygui_preinit");
 
-	Application::CreateGuiManagerIfNotExists();
-
+	//For shadows and stuff
 	initMatManager();
 
-	const Ogre::String workspaceName = "scene workspace";
+	//Init gui before the compositor
+	Application::CreateGuiManagerIfNotExists();
+
+	//Init compositor
+	const Ogre::String workspaceName = "RoRSceneWorkSpace";
 	const Ogre::IdString workspaceNameHash = workspaceName;
 
 	Ogre::CompositorManager2* pCompositorManager = Ogre::Root::getSingleton().getCompositorManager2();
-	Ogre::CompositorNodeDef *nodeDef = pCompositorManager->addNodeDefinition("myworkspace");
+	Ogre::CompositorNodeDef *nodeDef = pCompositorManager->addNodeDefinition("WorkSpace1");
 	//Input texture
 	nodeDef->addTextureSourceName("WindowRT", 0, Ogre::TextureDefinitionBase::TEXTURE_INPUT);
 	nodeDef->setNumTargetPass(1);
@@ -202,9 +205,23 @@ void MainThread::Go()
 
 	pCompositorManager->addWorkspace(gEnv->sceneManager, Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
 
-	Application::GetGuiManager()->createGui2();
+	// Load and show menu wallpaper
+	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
+	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
+	MyGUI::Widget* menu_wallpaper_widget = nullptr;
+	if (!v.empty())
+	{
+		MyGUI::Widget *mainw = v.at(0);
+		if (mainw)
+		{
+			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
+			if (img) img->setImageTexture(menu_wallpaper_texture_name);
+			menu_wallpaper_widget = mainw;
+		}
+	}
 
-	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
+	// Render bootstrap screen once and leave it visible.
+	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
 	RoR::Application::CreateCacheSystem();
 
@@ -223,27 +240,8 @@ void MainThread::Go()
 	// create console, must be done early
 	Application::CreateConsoleIfNotExists();
 
-	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
-
-	/**/
-	// Load and show menu wallpaper
-	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
-	MyGUI::Widget* menu_wallpaper_widget = nullptr;
-	if (!v.empty())
-	{
-		MyGUI::Widget *mainw = v.at(0);
-		if (mainw)
-		{
-			MyGUI::ImageBox *img = (MyGUI::ImageBox *)(mainw->getChildAt(0));
-			if (img) img->setImageTexture(menu_wallpaper_texture_name);
-			menu_wallpaper_widget = mainw;
-		}
-	}
-
 #ifdef USE_ANGELSCRIPT
-
 	new ScriptEngine(); // Init singleton. TODO: Move under Application
-
 #endif
 
 	RoR::Application::CreateInputEngine();
@@ -260,9 +258,11 @@ void MainThread::Go()
 	GUI_Friction::getSingleton();
 
 	// Create legacy RoRFrameListener
-
 	gEnv->frameListener = new RoRFrameListener();
-	//ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener); //todo fix ogre 2.0
+
+#ifdef USE_ANGELSCRIPT
+	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+#endif
 
 	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
 
@@ -474,8 +474,9 @@ void MainThread::Go()
 
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
+				//TODO FIX OGRE 2.0
 				/* Restore 3D engine settings */
-				/**
+				/*
 				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
 				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
 				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
@@ -709,7 +710,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-		//RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+		//RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES); //Todo fix ogre 2.0
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);

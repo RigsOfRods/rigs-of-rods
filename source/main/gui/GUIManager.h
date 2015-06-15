@@ -115,7 +115,6 @@ public:
 	virtual void ShowRigSpawnerReportWindow();
 	virtual void HideRigSpawnerReportWindow();
 
-	void createGui2();
 private:
 
 	GUIManager();

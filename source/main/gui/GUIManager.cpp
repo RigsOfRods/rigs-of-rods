@@ -38,12 +38,6 @@
 #include "TerrainManager.h"
 
 #include <MyGUI_OgrePlatform.h>
-#include <Compositor/OgreCompositorManager2.h>
-#include <Compositor/OgreCompositorNodeDef.h>
-#include <Compositor/OgreCompositorWorkspaceDef.h>
-#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
-#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
-#include <Compositor/OgreTextureDefinition.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -73,7 +67,7 @@ bool GUIManager::create()
 
 
 	// Create panels
-	//m_rig_spawner_report_window = std::unique_ptr<GUI::RigSpawnerReportWindow>(new GUI::RigSpawnerReportWindow(this));
+	m_rig_spawner_report_window = std::unique_ptr<GUI::RigSpawnerReportWindow>(new GUI::RigSpawnerReportWindow(this));
 
 	return true;
 }
@@ -94,54 +88,27 @@ void GUIManager::createGui()
 	String gui_logfilename = SSETTING("Log Path", "") + "mygui.log";
 
 	mPlatform = new MyGUI::OgrePlatform();
-	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME); // use cache resource group so preview images are working
-
-}
-
-void GUIManager::createGui2()
-{
-
+	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, gui_logfilename); // use cache resource group so preview images are working
 	mGUI = new MyGUI::Gui();
 
 	// empty init
-	mGUI->initialise(mResourceFileName);
+	mGUI->initialise("");
 
 	// add layer factory
-	//MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
+	MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
 
 	// then load the actual config
-	//	MyGUI::ResourceManager::getInstance().load(mResourceFileName);
+	MyGUI::ResourceManager::getInstance().load(mResourceFileName);
 
-	//MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
+	MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
 
 	// move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
-	//MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
+	MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
 
-	// now find that font texture and save it - for debugging purposes
-	/*
-	ResourceManager::ResourceMapIterator it = TextureManager::getSingleton().getResourceIterator();
-	while (it.hasMoreElements())
-	{
-	ResourcePtr res = it.getNext();
-	if (res->getName().find("TrueTypeFont") != String::npos)
-	{
-	Image image;
-	TexturePtr tex = (TexturePtr)res;
-	tex->convertToImage(image);
-	image.save(res->getName() + ".png");
-	LOG(">> saved TTF texture: " + res->getName());
-	}
-	}
-	*/
+	MyGUI::PointerManager::getInstance().setVisible(true);
 
-	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
-	//MyGUI::PointerManager::getInstance().setVisible(true);
-
-	//mPlatform->getRenderManagerPtr()->setRenderWindow(Application::GetOgreSubsystem()->GetRenderWindow());
-	//Console *c = RoR::Application::GetConsole();
-	//if (c) c->resized();
 #ifdef _WIN32
-	//MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
+	MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
 #endif // _WIN32
 }
 

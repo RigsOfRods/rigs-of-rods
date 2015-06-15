@@ -39,7 +39,7 @@ endif()
 endmacro(copy_files_for_target)
 
 macro(copy_lib_files_for_target TRGT SRC)
-	copy_files_for_target("${TRGT}" "${ROR_DEPENDENCIES_DIR}/bin/${ARCH_DIR}/${SRC}/$(ConfigurationName)/*" ${SRC})
+	copy_files_for_target("${TRGT}" "${ROR_DEPENDENCIES_DIR}/bin/${ARCH_DIR}/${SRC}/Release/*" ${SRC})
 endmacro(copy_lib_files_for_target)
 
 macro(setup_lib name)

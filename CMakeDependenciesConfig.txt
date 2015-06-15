@@ -2,9 +2,9 @@
 set(ROR_USE_MYGUI        "TRUE" CACHE BOOL "use MyGUI")
 set(ROR_USE_OPENAL       "TRUE" CACHE BOOL "use OPENAL")
 set(ROR_USE_SOCKETW      "TRUE" CACHE BOOL "use SOCKETW")
-set(ROR_USE_PAGED        "TRUE" CACHE BOOL "use paged geometry")
-set(ROR_USE_CAELUM       "TRUE" CACHE BOOL "use caelum sky")
-set(ROR_USE_ANGELSCRIPT  "TRUE" CACHE BOOL "use angel script")
+set(ROR_USE_PAGED        "FALSE" CACHE BOOL "use paged geometry")
+set(ROR_USE_CAELUM       "FALSE" CACHE BOOL "use caelum sky")
+set(ROR_USE_ANGELSCRIPT  "FALSE" CACHE BOOL "use angel script")
 set(ROR_USE_CURL         "TRUE" CACHE BOOL "use curl, required for communication with online services")
 
 
@@ -80,6 +80,7 @@ endmacro(importLib)
 		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
 		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
 		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Overlay;"
+		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Volume;"
 		"The ogre include path to use")
 	importLib(OgreMain Ogre)
 	importLib(OgreTerrain Ogre)
@@ -87,11 +88,12 @@ endmacro(importLib)
 	importLib(OgreRTShaderSystem Ogre)
 	importLib(OgreProperty Ogre)
 	importLib(OgreOverlay Ogre)
-	set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty;OgreOverlay" CACHE STRING "The Ogre libs to link against")
+	importLib(OgreVolume Ogre)
+	set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty;OgreOverlay;OgreVolume" CACHE STRING "The Ogre libs to link against")
 
 	set(Ois_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/ois" CACHE PATH "The OIS include path to use")
-	importLib(ois_static OIS)
-	set(Ois_LIBRARIES "ois_static" CACHE STRING "The OIS libs to link against")
+	importLib(ois OIS)
+	set(Ois_LIBRARIES "ois" CACHE STRING "The OIS libs to link against")
 
 	set(Boost_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/boost" CACHE PATH "The boost include path to use")
 	set(Boost_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/boost" CACHE PATH "The boost lib path to use")
@@ -120,8 +122,8 @@ endmacro(importLib)
 		set(MYGUI_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/MyGUI" CACHE PATH "The mygui include path to use")
 		importLib(MyGUIEngineStatic MyGUI)
 		importLib(MyGUI.OgrePlatform MyGUI)
-		importLib(freetype2311 MyGUI)
-		set(MYGUI_LIBRARIES "MyGUI.OgrePlatform;MyGUIEngineStatic;freetype2311" CACHE STRING "The mygui libs to link against")
+		importLib(freetype255 MyGUI)
+		set(MYGUI_LIBRARIES "MyGUI.OgrePlatform;MyGUIEngineStatic;freetype255" CACHE STRING "The mygui libs to link against")
 	endif(ROR_USE_MYGUI)
 
 	if(ROR_USE_OPENAL)

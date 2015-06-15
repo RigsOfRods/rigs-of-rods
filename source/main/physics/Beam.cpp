@@ -6528,7 +6528,6 @@ bool Beam::LoadTruck(
 			if (driveable == TRUCK)
 			{
 				//TODO FIX OGRE 2.0
-				/*
 				//Temporary will fix later. TOFIX
 				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
 				bool test02;
@@ -6608,7 +6607,6 @@ bool Beam::LoadTruck(
 						}
 					}
 				}
-				*/
 			}
 			else  if (driveable == BOAT)
 			{
