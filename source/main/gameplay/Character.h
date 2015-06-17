@@ -25,7 +25,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MovableText.h"
 #include "Streamable.h"
-#include <WIN32/OgreTimerImp.h>
+
+#include <OgreTimer.h>
 
 class Character : public Streamable, public ZeroedMemoryAllocator
 {
