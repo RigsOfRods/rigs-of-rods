@@ -506,7 +506,7 @@ bool Settings::setupPaths()
 
 	settings["dirsep"] = String(dsStr);
 	settings["Config Root"] = String(config_root);
-	settings["CachePath"] = String(user_path) + "cache" + String(dsStr);
+	settings["Cache Path"] = String(user_path) + "cache" + String(dsStr);
 
 	// only set log path if it was not set before
 	settings["Log Path"] = String(ogrelog_path);
