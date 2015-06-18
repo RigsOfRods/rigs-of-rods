@@ -79,7 +79,7 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	if (mfm) mfm->replaceMeshMaterials(nozzleMesh);
 	if (mr) mr->replaceMeshMaterials(nozzleMesh);
 	if (usedSkin) usedSkin->replaceMeshMaterials(nozzleMesh);
-	nzsnode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+	nzsnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	nzsnode->attachObject(nozzleMesh);
 	nzsnode->setScale(nozlength, nozdiam, nozdiam);
 
@@ -92,7 +92,7 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 		if (mfm) mfm->replaceMeshMaterials(flameMesh);
 		if (mr) mr->replaceMeshMaterials(flameMesh);
 		if (usedSkin) usedSkin->replaceMeshMaterials(flameMesh);
-		absnode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+		absnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 		absnode->attachObject(flameMesh);
 		absnode->setScale(1.0, nozdiam, nozdiam);
 		absnode->setVisible(false);
@@ -100,14 +100,14 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	//smoke visual
 	if (disable_smoke)
 	{
-		smokeNode=0;
-		smokePS=0;
+		smokeNode = 0;
+		smokePS = 0;
 	}
 	else
 	{
-		sprintf(paname,"%s-smoke", propname);
-		smokeNode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		smokePS=gEnv->sceneManager->createParticleSystem("tracks/TurbopropSmoke");
+		sprintf(paname, "%s-smoke", propname);
+		smokeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+		smokePS = gEnv->sceneManager->createParticleSystem("tracks/TurbopropSmoke");
 		smokePS->setName(paname);
 
 		if (smokePS)
@@ -117,11 +117,11 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 			smokePS->setCastShadows(false);
 		}
 
-		heathazePS=0;
+		heathazePS = 0;
 		if (heathaze)
 		{
-			sprintf(paname,"%s-smoke-heat", propname);
-			heathazePS=gEnv->sceneManager->createParticleSystem( "tracks/JetHeatHaze");
+			sprintf(paname, "%s-smoke-heat", propname);
+			heathazePS = gEnv->sceneManager->createParticleSystem("tracks/JetHeatHaze");
 			heathazePS->setName(paname);
 			smokeNode->attachObject(heathazePS);
 			heathazePS->setCastShadows(false);

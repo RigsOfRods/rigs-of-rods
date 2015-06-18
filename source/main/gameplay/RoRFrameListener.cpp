@@ -1082,7 +1082,7 @@ void RoRFrameListener::shutdown_final()
 	if (gEnv && gEnv->terrainManager)
 	{
 		if (gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
-		if (gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
+		if (gEnv->envMap) gEnv->envMap->prepareShutdown();
 	}
 	if (dashboard) dashboard->prepareShutdown();
 	if (heathaze) heathaze->prepareShutdown();
@@ -1118,7 +1118,7 @@ void RoRFrameListener::Restart() // TODO: Remove this "restart" functionality ->
 	if (gEnv && gEnv->terrainManager)
 	{
 		if (gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->prepareShutdown();
-		if (gEnv->terrainManager->getEnvmap()) gEnv->terrainManager->getEnvmap()->prepareShutdown();
+		if (gEnv->envMap) gEnv->envMap->prepareShutdown();
 	}
 	if (dashboard) dashboard->prepareShutdown();
 	if (heathaze) heathaze->prepareShutdown();
@@ -1328,11 +1328,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		gEnv->terrainManager->update(dt);
 
 		// env map update
-		if (gEnv->terrainManager->getEnvmap())
+		if (gEnv->envMap)
 		{
 			if (curr_truck)
 			{
-				gEnv->terrainManager->getEnvmap()->update(curr_truck->getPosition(), curr_truck);
+				gEnv->envMap->update(curr_truck->getPosition(), curr_truck);
 			} else
 			{
 				float height = gEnv->terrainManager->getMaxTerrainSize().y;
@@ -1340,7 +1340,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					height = gEnv->terrainManager->getHeightFinder()->getHeightAt(terrainxsize / 2.0f, terrainzsize / 2.0f );
 				}
-				gEnv->terrainManager->getEnvmap()->update(Vector3(terrainxsize / 2.0f, height + 50.0f, terrainzsize / 2.0f));
+				gEnv->envMap->update(Vector3(terrainxsize / 2.0f, height + 50.0f, terrainzsize / 2.0f));
 			}
 		}
 

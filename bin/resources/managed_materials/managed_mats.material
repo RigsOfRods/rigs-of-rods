@@ -3,12 +3,12 @@ import * from "derbymutt.material"
 
 material RoR/Managed_Mats/Base
 {
-	technique ShadowTechnique: Shadows/managed/base_receiver
+	technique BaseTechnique: Shadows/managed/base_receiver
 	{
 	//Texture is rendred here
-		pass RenderShadows
+		pass BaseRender
 		{
-			texture_unit TextureName
+			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex
 			}
@@ -40,16 +40,17 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 
 abstract material RoR/Managed_Mats/Vegetation
 {	
-	technique ShadowTechnique
+	transparency_casts_shadows off
+	technique BaseTechnique
 	{
 	//Texture is rendred here
-		pass RenderShadows: Shadows/managed/base_receiver
+		pass BaseRender: Shadows/managed/base_receiver
 		{
 			scene_blend alpha_blend
 			alpha_rejection greater 120
 			cull_hardware none
 			cull_software none
-			texture_unit TextureName
+			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex
 			}
@@ -59,18 +60,16 @@ abstract material RoR/Managed_Mats/Vegetation
 
 abstract material RoR/Managed_Mats/Transparent
 {
-	technique ShadowTechnique: Shadows/managed/base_receiver
+	technique BaseTechnique: Shadows/managed/base_receiver
 	{
 	//Texture is rendred here
-		pass RenderShadows
+		pass BaseRender
 		{
-			receive_shadows off
-			transparency_casts_shadows on
 			scene_blend alpha_blend
 			alpha_rejection greater 120
 			cull_hardware none
 			cull_software none
-			texture_unit TextureName
+			texture_unit Diffuse_Map
 			{
 				texture_alias diffuse_tex
 			}

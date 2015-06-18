@@ -56,6 +56,7 @@ public:
 	SkyManager *sky;
 	TerrainManager *terrainManager;
 	ThreadPool *threadPool;
+	Envmap *envMap;
 
 	float mrTime;
 };

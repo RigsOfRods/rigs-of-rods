@@ -40,6 +40,7 @@
 #include "OgreSubsystem.h"
 #include "OgreRenderWindow.h"
 #include "Beam.h"
+#include "MainThread.h"
 
 #include "AeroEngine.h"
 #include "BeamEngine.h"
@@ -47,6 +48,7 @@
 
 #include <MyGUI.h>
 #include <OgreRenderTarget.h>
+#include <OgreViewport.h>
 #include <OgreRoot.h>
 
 using namespace RoR;
@@ -150,10 +152,10 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 	if (b_fpsbox)
 	{
 		const Ogre::RenderTarget::FrameStats& stats = Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
-		//m_cur_fps->setCaptionWithReplacing("Current FPS: " + Ogre::StringConverter::toString(stats.batchCount));
-		/*m_avg_fps->setCaptionWithReplacing("Average FPS: " + Ogre::StringConverter::toString(stats.avgFPS));
-		m_worst_fps->setCaptionWithReplacing("Worst FPS: " + Ogre::StringConverter::toString(stats.worstFPS));
-		m_best_fps->setCaptionWithReplacing("Best FPS: " + Ogre::StringConverter::toString(stats.bestFPS));*/
+		m_cur_fps->setCaptionWithReplacing("Current FPS: " + Ogre::StringConverter::toString(Application::GetMainThreadLogic()->fps));
+		m_avg_fps->setCaptionWithReplacing("Average FPS: " + Ogre::StringConverter::toString(0));
+		m_worst_fps->setCaptionWithReplacing("Worst FPS: " + Ogre::StringConverter::toString(0));
+		m_best_fps->setCaptionWithReplacing("Best FPS: " + Ogre::StringConverter::toString(0));
 		m_triangle_count->setCaptionWithReplacing("Triangle count: " + Ogre::StringConverter::toString(stats.triangleCount));
 		m_batch_count->setCaptionWithReplacing("Batch count: " + Ogre::StringConverter::toString(stats.batchCount));
 	}

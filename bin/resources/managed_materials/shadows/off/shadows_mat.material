@@ -1,0 +1,10 @@
+abstract technique Shadows/managed/base_receiver
+{
+	pass BaseRender
+	{
+		texture_unit Diffuse_Map
+		{
+
+		}
+	}
+}

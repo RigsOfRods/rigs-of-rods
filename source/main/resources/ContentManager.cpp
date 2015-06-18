@@ -159,7 +159,7 @@ bool ContentManager::init(void)
 	// note: you need to set the build mode correctly before you build the paths!
 
 	// by default, display everything in the depth map
-	Ogre::MovableObject::setDefaultVisibilityFlags(DEPTHMAP_ENABLED);
+	//Ogre::MovableObject::setDefaultVisibilityFlags(DEPTHMAP_ENABLED | 0x00000001 | 0x00000004);
 
 	ColoredTextAreaOverlayElementFactory *cef = new ColoredTextAreaOverlayElementFactory();
 	OverlayManager::getSingleton().addOverlayElementFactory(cef);

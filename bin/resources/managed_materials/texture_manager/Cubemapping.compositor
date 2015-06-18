@@ -1,0 +1,27 @@
+abstract target EnvironmentTexture_target
+{
+	pass clear
+	{
+		colour_value 0 0 0 1
+	}
+
+	pass render_scene
+	{
+		//Filter stuff that shouldn't be reflected (vampires?)
+		visibility_mask		0x00000004
+		overlays			off
+		camera_cubemap_reorient true
+	}
+}
+
+compositor_node EnvironmentRendererNode
+{
+	in 0 EnvironmentTexture
+
+	target EnvironmentTexture +X : EnvironmentTexture_target { }
+	target EnvironmentTexture -X : EnvironmentTexture_target { }
+	target EnvironmentTexture +Y : EnvironmentTexture_target { }
+	target EnvironmentTexture -Y : EnvironmentTexture_target { }
+	target EnvironmentTexture +Z : EnvironmentTexture_target { }
+	target EnvironmentTexture -Z : EnvironmentTexture_target { }
+}

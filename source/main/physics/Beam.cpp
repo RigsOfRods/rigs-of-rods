@@ -3128,7 +3128,7 @@ void Beam::prepareInside(bool inside)
 			transmat->setReceiveShadows(false);
 		}
 		//setting camera
-		mCamera->setNearClipDistance( 0.1 );
+		mCamera->setNearClipDistance( 0.05 );
 		//activate mirror
 		//if (mirror) mirror->setActive(true);
 		//enable transparent seat
@@ -3173,7 +3173,7 @@ void Beam::prepareInside(bool inside)
 			transmat->setReceiveShadows(true);
 		}
 		//setting camera
-		mCamera->setNearClipDistance( 0.5 );
+		mCamera->setNearClipDistance( 0.1 );
 		//desactivate mirror
 		//if (mirror) mirror->setActive(false);
 		//disable transparent seat
@@ -3804,7 +3804,7 @@ void Beam::updateVisualPrepare(float dt)
 		if (wings[i].fa->type=='h') wings[i].fa->setControlDeflection((-autoaileron+flapangles[flap])/2.0);
 		if (wings[i].fa->type=='i') wings[i].fa->setControlDeflection((-autoelevator+autorudder)/2.0);
 		if (wings[i].fa->type=='j') wings[i].fa->setControlDeflection((autoelevator+autorudder)/2.0);
-		wings[i].cnode->setPosition(wings[i].fa->flexit());
+		//wings[i].cnode->setPosition(wings[i].fa->flexit()); //todo fix ogre 2.0
 	}
 	//setup commands for hydros
 	hydroaileroncommand=autoaileron;
@@ -4344,6 +4344,8 @@ void Beam::cabFade(float amount)
 	// wings
 	for (int i=0; i<free_wing; i++)
 	{
+		//todo fix ogre 2.0
+		/*
 		if (amount == 0)
 		{
 			wings[i].cnode->setVisible(false);
@@ -4353,6 +4355,7 @@ void Beam::cabFade(float amount)
 				wings[i].cnode->setVisible(true);
 			fadeMesh(wings[i].cnode, amount);
 		}
+		*/
 	}
 }
 
@@ -6527,7 +6530,6 @@ bool Beam::LoadTruck(
 			// load default for a truck
 			if (driveable == TRUCK)
 			{
-				//TODO FIX OGRE 2.0
 				//Temporary will fix later. TOFIX
 				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
 				bool test02;

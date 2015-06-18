@@ -1,0 +1,209 @@
+material managed/flexmesh_transparent/simple
+{
+	technique
+	{
+		pass 1
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			texture_unit
+			{
+				texture unknown.dds
+			}
+		}
+	}
+}
+
+material managed/flexmesh_transparent/damageonly
+{
+	technique
+	{
+		pass 1
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			
+			diffuse vertexcolour
+			texture_unit
+			{
+				texture unknown.dds
+				colour_op_ex source1 src_texture src_current 
+				alpha_op_ex source1 src_texture src_current
+			}
+			texture_unit
+			{
+				texture unknown.dds
+				colour_op_ex blend_diffuse_alpha src_texture src_current 
+				alpha_op_ex blend_diffuse_alpha src_texture src_current
+			}
+		}
+	}
+}
+
+
+material managed/flexmesh_transparent/specularonly
+{
+	technique
+	{
+		pass 1
+		{
+			alpha_rejection greater 0
+			depth_write off
+			
+			// Makes the pixel shader alpha output be used for alpha blending
+			scene_blend alpha_blend
+			diffuse vertexcolour
+
+			texture_unit diffusetex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit speculartex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 1
+			}
+		}
+		pass
+		{
+			depth_write off
+			scene_blend add
+			diffuse vertexcolour
+
+			texture_unit speculartex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit envmaptex
+			{
+					cubic_texture EnvironmentTexture combinedUVW
+					tex_address_mode clamp
+					tex_coord_set 1
+			}
+		}
+	}
+}
+
+material managed/flexmesh_transparent/speculardamage
+{
+	technique
+	{
+		pass 1
+		{
+			alpha_rejection greater 0
+			depth_write off
+
+			// Makes the pixel shader alpha output be used for alpha blending
+			scene_blend alpha_blend
+			diffuse vertexcolour
+			//specular 0.5 0.5 0.5 1 12.5
+
+			texture_unit diffusetex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit speculartex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 1
+			}
+			texture_unit diffusedmgtex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 2
+			}
+		}
+		pass
+		{
+			depth_write off
+			scene_blend add
+			diffuse vertexcolour
+	
+			texture_unit speculartex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit envmaptex
+			{
+					cubic_texture EnvironmentTexture combinedUVW
+					tex_address_mode clamp
+					tex_coord_set 1
+			}
+		}
+	}
+}
+
+material managed/mesh_transparent/simple
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			texture_unit
+			{
+				texture unknown.dds
+			}
+		}
+	}
+}
+
+material managed/mesh_transparent/specular
+{
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 0
+			depth_write off
+			// Makes the pixel shader alpha output be used for alpha blending
+			scene_blend alpha_blend
+
+			texture_unit diffusetex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit speculartex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 1
+			}
+		}
+		pass
+		{
+			depth_write off
+			scene_blend add
+				
+			texture_unit speculartex
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit envmaptex
+			{
+					cubic_texture EnvironmentTexture combinedUVW
+					tex_address_mode clamp
+					tex_coord_set 1
+			}
+		}
+	}
+}

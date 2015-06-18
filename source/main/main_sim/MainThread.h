@@ -34,6 +34,15 @@
 
 #include <pthread.h>
 
+#include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorNodeDef.h>
+#include <Compositor/OgreCompositorWorkspaceDef.h>
+#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
+#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
+#include <Compositor/OgreTextureDefinition.h>
+#include <Compositor/OgreCompositorShadowNode.h>
+#include <Compositor/OgreCompositorWorkspace.h>
+
 class GameScript;
 
 namespace RoR
@@ -75,6 +84,14 @@ public:
 
 	void UnloadTerrain();
 
+	float fps;
+
+	//TODO: move somewhere else maybe?
+	Ogre::CompositorWorkspace* getMainWorkSpace()
+	{
+		return mWorkSpace;
+	}
+
 protected:
 
 	void EnterMainMenuLoop();
@@ -103,6 +120,11 @@ protected:
 	bool			   m_base_resource_loaded;
 
 	std::map<std::string, bool> isLoadedMap;
+
+	Ogre::CompositorManager2* pCompositorManager;
+	Ogre::CompositorNodeDef *nodeDef;
+	Ogre::CompositorTargetDef *targetDef;
+	Ogre::CompositorWorkspace *mWorkSpace;
 };
 
 } // namespace RoR

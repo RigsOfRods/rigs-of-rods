@@ -192,7 +192,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 			Ogre::ColourValue BackgroundColour = Ogre::ColourValue::White;//Ogre::ColourValue(0.1337f, 0.1337f, 0.1337f, 1.0f);
 			Ogre::ColourValue GridColour = Ogre::ColourValue(0.2f, 0.2f, 0.2f, 1.0f);
 
-			Ogre::ManualObject *mReferenceObject = gEnv->sceneManager->createManualObject(); //todo fix ogre 2.0 check if works
+			Ogre::ManualObject *mReferenceObject = gEnv->sceneManager->createManualObject();
 			mReferenceObject->setName("ReferenceGrid");
 
 			mReferenceObject->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
