@@ -533,12 +533,13 @@ void RigSpawner::FinalizeRig()
 	{
 		if (m_rig->autopilot != nullptr) 
 		{
-			m_rig->autopilot->setInertialReferences(
+			/*m_rig->autopilot->setInertialReferences(
 				& GetNode(m_airplane_left_light),
 				& GetNode(m_airplane_right_light),
 				m_rig->fuseBack,
 				& GetNode(m_rig->cameranodepos[0])
-				);
+				);*/
+			//TODO FIX OGRE 2.0
 		}
 		//inform wing segments
 		float span=GetNode(m_rig->wings[m_rig->wingstart].fa->nfrd).RelPosition.distance(GetNode(m_rig->wings[m_rig->free_wing-1].fa->nfld).RelPosition);
@@ -1132,19 +1133,24 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 	Ogre::Entity *entity = nullptr;
 	try
 	{
-		entity = gEnv->sceneManager->createEntity(wing_name.str());
-		entity->setName(wing_obj_name.str());
+		//entity = gEnv->sceneManager->createEntity("");
+		//entity->setName(wing_obj_name.str());
 	}
 	catch (...)
 	{
 		AddMessage(Message::TYPE_ERROR, "Failed to load mesh (flexbody wing): " + wing_name.str());
 		// Revert wing processing
-		delete wing.fa;
+		/*delete wing.fa;
 		std::memset(&wing, 0, sizeof(wing));
-		--m_rig->free_wing;
-		return;
+		--m_rig->free_wing;*/
+		//return; //Temporary fix 
+		
+		//TODO FIX OGRE 2.0
 	}
-	m_rig->deletion_Entities.emplace_back(entity);
+	//m_rig->deletion_Entities.emplace_back(entity);
+
+	//TODO FIX OGRE 2.0
+	/*
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(entity, Ogre::ColourValue(0.5, 1, 0));
 	if (m_rig->materialFunctionMapper) 
 	{
@@ -1158,8 +1164,9 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 	{
 		m_rig->usedSkin->replaceMeshMaterials(entity);
 	}
-	wing.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	wing.cnode->attachObject(entity);
+	*/
+//	wing.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+//	wing.cnode->attachObject(entity);
 					
 	//induced drag
 	if (m_rig->wingstart==-1) 
@@ -1203,7 +1210,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				{
 					return;
 				}
-
+				/*
 				//Left green
 				m_airplane_left_light=previous_wing.fa->nfld;
 				prop_t & left_green_prop = m_rig->props[m_rig->free_prop];
@@ -1311,6 +1318,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				right_red_prop.brate[0]=1.0;
 				right_red_prop.beacontype='R';
 				right_red_prop.light[0]=nullptr; /* No light */
+/*
 				//the flare billboard
 				sprintf(propname, "prop-%s-%i", m_rig->truckname, m_rig->free_prop);
 				right_red_prop.bbsnode[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -1375,8 +1383,9 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				right_flash_prop.animMode[0]=0;
 				
 				m_generate_wing_position_lights = false; // Already done
+				*/
 			}
-
+			
 			m_rig->wingstart=wing_index;
 			m_wing_area=ComputeWingArea(
 				GetNode(wing.fa->nfld).AbsPosition, 
@@ -2638,58 +2647,150 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 			? "managed/flexmesh_standard" 
 			: "managed/flexmesh_transparent";
 
-		if (def.HasDamagedDiffuseMap())
+		if (mat_name_base == "managed/flexmesh_standard")
 		{
-			if (def.HasSpecularMap())
+			if (def.HasDamagedDiffuseMap())
 			{
-				/* FLEXMESH, damage, specular */
-				material = CloneMaterial(mat_name_base + "/speculardamage", def.name);
-				if (material.isNull())
+				if (def.HasSpecularMap())
 				{
-					return;
+					/* FLEXMESH, damage, specular */
+					material = CloneMaterial(mat_name_base + "/speculardamage", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+					material->getTechnique("SpecTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+					material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->getTextureUnitState("SpecularMapping2_Tex")->setTextureName(def.specular_map);
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName(def.damaged_diffuse_map);
-				material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
+				else
+				{
+					/* FLEXMESH, damage, no_specular */
+					material = CloneMaterial(mat_name_base + "/damageonly", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+				}
+				if (def.options.double_sided)
+				{
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+					if (def.HasSpecularMap())
+					{
+						material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->setCullingMode(Ogre::CULL_NONE);
+					}
+				}
 			}
 			else
 			{
-				/* FLEXMESH, damage, no_specular */
-				material = CloneMaterial(mat_name_base + "/damageonly", def.name);
-				if (material.isNull())
+				if (def.HasSpecularMap())
 				{
-					return;
+					/* FLEXMESH, no_damage, specular */
+					material = CloneMaterial(mat_name_base + "/specularonly", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+					material->getTechnique("SpecTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+					material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->getTextureUnitState("SpecularMapping2_Tex")->setTextureName(def.specular_map);
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.damaged_diffuse_map);				
+				else
+				{
+					/* FLEXMESH, no_damage, no_specular */
+					material = CloneMaterial(mat_name_base + "/simple", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+				}
+				if (def.options.double_sided)
+				{
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+					if (def.HasSpecularMap())
+					{
+						material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->setCullingMode(Ogre::CULL_NONE);
+					}
+				}
 			}
 		}
 		else
 		{
-			if (def.HasSpecularMap())
+			if (def.HasDamagedDiffuseMap())
 			{
-				/* FLEXMESH, no_damage, specular */
-				material = CloneMaterial(mat_name_base + "/specularonly", def.name);
-				if (material.isNull())
+				if (def.HasSpecularMap())
 				{
-					return;
+					/* FLEXMESH, damage, specular */
+					material = CloneMaterial(mat_name_base + "/speculardamage", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName(def.damaged_diffuse_map);
+					material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
-				material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
+				else
+				{
+					/* FLEXMESH, damage, no_specular */
+					material = CloneMaterial(mat_name_base + "/damageonly", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.damaged_diffuse_map);
+				}
+				if (def.options.double_sided)
+				{
+					material->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
+					if (def.HasSpecularMap())
+					{
+						material->getTechnique(0)->getPass(1)->setCullingMode(Ogre::CULL_NONE);
+					}
+				}
 			}
 			else
 			{
-				/* FLEXMESH, no_damage, no_specular */
-				material = CloneMaterial(mat_name_base + "/simple", def.name);
-				if (material.isNull())
+				if (def.HasSpecularMap())
 				{
-					return;
+					/* FLEXMESH, no_damage, specular */
+					material = CloneMaterial(mat_name_base + "/specularonly", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
+					material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);				
+				else
+				{
+					/* FLEXMESH, no_damage, no_specular */
+					material = CloneMaterial(mat_name_base + "/simple", def.name);
+					if (material.isNull())
+					{
+						return;
+					}
+					material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
+				}
+
+				if (def.options.double_sided)
+				{
+					material->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
+					if (def.HasSpecularMap())
+					{
+						material->getTechnique(0)->getPass(1)->setCullingMode(Ogre::CULL_NONE);
+					}
+				}
 			}
 		}
+		
 	}
 	else if (def.type == RigDef::ManagedMaterial::TYPE_MESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_MESH_TRANSPARENT)
 	{
@@ -2698,39 +2799,78 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 			? "managed/mesh_standard" 
 			: "managed/mesh_transparent";
 
-		if (def.HasSpecularMap())
+		if (mat_name_base == "managed/mesh_standard")
 		{
-			/* MESH, specular */
-			material = CloneMaterial(mat_name_base + "/specular", def.name);
-			if (material.isNull())
+			if (def.HasSpecularMap())
 			{
-				return;
+				/* MESH, specular */
+				material = CloneMaterial(mat_name_base + "/specular", def.name);
+				if (material.isNull())
+				{
+					return;
+				}
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+				material->getTechnique("SpecTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+				material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->getTextureUnitState("SpecularMapping2_Tex")->setTextureName(def.specular_map);
 			}
-			material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-			material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
-			material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
+			else
+			{
+				/* MESH, no_specular */
+				material = CloneMaterial(mat_name_base + "/simple", def.name);
+				if (material.isNull())
+				{
+					return;
+				}
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+				
+				if (def.options.double_sided)
+				{
+					material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+					if (def.HasSpecularMap())
+					{
+						material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->setCullingMode(Ogre::CULL_NONE);
+					}
+				}
+			}
 		}
 		else
 		{
-			/* MESH, no_specular */
-			material = CloneMaterial(mat_name_base + "/simple", def.name);
-			if (material.isNull())
+			if (def.HasSpecularMap())
 			{
-				return;
+				/* MESH, specular */
+				material = CloneMaterial(mat_name_base + "/specular", def.name);
+				if (material.isNull())
+				{
+					return;
+				}
+				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
+				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
+				material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
 			}
-			material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);				
+			else
+			{
+				/* MESH, no_specular */
+				material = CloneMaterial(mat_name_base + "/simple", def.name);
+				if (material.isNull())
+				{
+					return;
+				}
+				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
+			}
+
+			if (def.options.double_sided)
+			{
+				material->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
+				if (def.HasSpecularMap())
+				{
+					material->getTechnique(0)->getPass(1)->setCullingMode(Ogre::CULL_NONE);
+				}
+			}
 		}
 	}
 
 	/* Finalize */
-	if (def.options.double_sided)
-	{
-		material->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
-		if (def.HasSpecularMap())
-		{
-			material->getTechnique(0)->getPass(1)->setCullingMode(Ogre::CULL_NONE);
-		}
-	}
+
 	material->compile();
 }
 

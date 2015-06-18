@@ -24,12 +24,17 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-class Envmap : public ZeroedMemoryAllocator
+#include <Compositor/OgreCompositorWorkspaceListener.h>
+#include <OgrePrerequisites.h>
+
+class Envmap : public Ogre::CompositorWorkspaceListener, public ZeroedMemoryAllocator
 {
 public:
 		
 	Envmap();
 	~Envmap();
+
+	void init();
 
 	void prepareShutdown() {};
 
@@ -37,16 +42,16 @@ public:
 
 private:
 
-	void init(Ogre::Vector3 center);
+	Ogre::CompositorWorkspace *mCubemapWorkspace;
 
-	static const unsigned int NUM_FACES = 6;
+	Ogre::Camera *mCubeCamera;
 
-	Ogre::Camera *mCameras[NUM_FACES];
-	Ogre::RenderTarget *mRenderTargets[NUM_FACES];
 	bool mInitiated;
 	bool mIsDynamic;
 	int mRound;
 	int updateRate;
+
+	Ogre::TexturePtr tex;
 };
 
 #endif // __Environment_Map_H_

@@ -4,10 +4,10 @@ material RoR_ShadowsCaster
 	{
 		pass
 		{
-            vertex_program_ref Example_ShadowsCaster_vs
+      vertex_program_ref Example_ShadowsCaster_vs
 			{
 			}
-            fragment_program_ref Example_ShadowsCaster_ps
+      fragment_program_ref Example_ShadowsCaster_ps
 			{
 			}
 		}
@@ -16,9 +16,7 @@ material RoR_ShadowsCaster
 
 abstract technique Shadows/managed/base_receiver
 {
-	receive_shadows on
-	transparency_casts_shadows on
-	pass RenderShadows
+	pass BaseRender
 	{
 		vertex_program_ref Example_Shadows_pssm_vs
 		{
@@ -28,7 +26,7 @@ abstract technique Shadows/managed/base_receiver
 		{
 		}
 		
-		texture_unit TextureName
+		texture_unit Diffuse_Map
 		{
 
 		}

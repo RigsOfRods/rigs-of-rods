@@ -70,17 +70,12 @@
 #include "TruckHUD.h"
 #include "Utils.h"
 #include "SkyManager.h"
+#include "EnvironmentMap.h"
 
 #include <OgreRoot.h>
 #include <OgreString.h>
 #include <OgreOverlayManager.h>
-#include <Compositor/OgreCompositorManager2.h>
-#include <Compositor/OgreCompositorNodeDef.h>
-#include <Compositor/OgreCompositorWorkspaceDef.h>
-#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
-#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
-#include <Compositor/OgreTextureDefinition.h>
-#include <Compositor/OgreCompositorShadowNode.h>
+
 #include <MyGUI_OgrePlatform.h>
 
 // Global instance of GlobalEnvironment used throughout the game.
@@ -152,7 +147,7 @@ void MainThread::Go()
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
 	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
 	camera->lookAt(Ogre::Vector3(0,0,-300)); // Look back along -Z
-	camera->setNearClipDistance( 0.2 ); //0.5
+	camera->setNearClipDistance( 0.1 ); //0.5
 	camera->setFarClipDistance( 5000 );
 	camera->setFOVy(Ogre::Degree(60));
 	camera->setAutoAspectRatio(true);
@@ -179,14 +174,15 @@ void MainThread::Go()
 	const Ogre::String workspaceName = "RoRSceneWorkSpace";
 	const Ogre::IdString workspaceNameHash = workspaceName;
 
-	Ogre::CompositorManager2* pCompositorManager = Ogre::Root::getSingleton().getCompositorManager2();
-	Ogre::CompositorNodeDef *nodeDef = pCompositorManager->addNodeDefinition("WorkSpace1");
+	pCompositorManager = Ogre::Root::getSingleton().getCompositorManager2();
+	nodeDef = pCompositorManager->addNodeDefinition("WorkSpace1");
+
 	//Input texture
 	nodeDef->addTextureSourceName("WindowRT", 0, Ogre::TextureDefinitionBase::TEXTURE_INPUT);
 	nodeDef->setNumTargetPass(1);
 	{
-		Ogre::CompositorTargetDef *targetDef = nodeDef->addTargetPass("WindowRT");
-		targetDef->setNumPasses(3);
+		targetDef = nodeDef->addTargetPass("WindowRT");
+		//targetDef->setNumPasses(3);
 		{
 			{
 				Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>(targetDef->addPass(Ogre::PASS_CLEAR));
@@ -198,12 +194,11 @@ void MainThread::Go()
 				targetDef->addPass(Ogre::PASS_CUSTOM, MyGUI::OgreCompositorPassProvider::mPassId);
 			}
 		}
-
 	}
 	Ogre::CompositorWorkspaceDef *workDef = pCompositorManager->addWorkspaceDefinition(workspaceNameHash);
 	workDef->connectOutput(nodeDef->getName(), 0);
 
-	pCompositorManager->addWorkspace(gEnv->sceneManager, Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
+	mWorkSpace = pCompositorManager->addWorkspace(gEnv->sceneManager, Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->mainCamera, workspaceNameHash, true);
 
 	// Load and show menu wallpaper
 	Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
@@ -225,7 +220,7 @@ void MainThread::Go()
 
 	RoR::Application::CreateCacheSystem();
 
-	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
+	RoR::Application::GetCacheSystem()->setLocation(SSETTING("CachePath", ""), SSETTING("Config Root", ""));
 
 	Application::GetContentManager()->init();
 
@@ -1054,6 +1049,8 @@ void MainThread::EnterGameplayLoop()
 			sleepMilliSeconds((minTimePerFrame - timeSinceLastFrame) << 1);
 		}
 
+		if (timeSinceLastFrame > 0.25 && timeSinceLastFrame != 0)
+			fps = 1000 / timeSinceLastFrame;
 
 		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
@@ -1535,16 +1532,19 @@ void MainThread::initMatManager()
 {
 	//Dirty, needs to be improved
 	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
-		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/on/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/shadows/on/", "FileSystem", "ShadowsMats");
 	else
-		ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/shadows/off/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/shadows/off/", "FileSystem", "ShadowsMats");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
-	ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/texture_manager/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/texture_manager/", "FileSystem", "TextureManager");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
 
+	Envmap* env = new Envmap();
+	gEnv->envMap = env;
+
 	//Last
-	ResourceGroupManager::getSingleton().addResourceLocation("../resources/ManagedMats/", "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/", "FileSystem", "ManagedMats");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }

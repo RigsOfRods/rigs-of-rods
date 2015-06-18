@@ -50,7 +50,7 @@ TerrainManager::TerrainManager() :
 	, character(0)
 	, collisions(0)
 	, dashboard(0)
-	, envmap(0)
+	, envmap(gEnv->envMap)
 	, geometry_manager(0)
 	, hdr_listener(0)
 	, object_manager(0)
@@ -102,7 +102,7 @@ TerrainManager::~TerrainManager()
 	if (envmap != nullptr)
 	{
 		delete(envmap);
-		envmap = nullptr;
+		gEnv->envMap = nullptr;
 	}
 
 	if (dashboard != nullptr)
@@ -528,7 +528,7 @@ void TerrainManager::initWater()
 
 void TerrainManager::initEnvironmentMap()
 {
-	envmap = new Envmap();
+	//envmap = new Envmap();
 }
 
 void TerrainManager::initDashboards()
