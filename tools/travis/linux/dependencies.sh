@@ -2,9 +2,9 @@
 . ./config
 
 #Initialization
-if [ ! -e "$ROR_SOURCE_DIR" ]; then
-  mkdir -p "$ROR_SOURCE_DIR"
-fi
+mkdir -p "$ROR_SOURCE_DIR"
+mkdir -p "$ROR_INSTALL_DIR"
+
 
 #Precompiled dependencies
 #sudo apt-get update
@@ -17,9 +17,8 @@ libssl-dev libcurl4-openssl-dev libgtk2.0-dev libwxgtk3.0-dev
 
 # OGRE
 cd "$ROR_SOURCE_DIR"
-hg clone https://bitbucket.org/sinbad/ogre
+hg clone https://bitbucket.org/sinbad/ogre -b v2-0
 cd ogre
-hg pull && hg update v2-0-0RC1
 cmake -DCMAKE_INSTALL_PREFIX="$ROR_INSTALL_DIR" \
 -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DCMAKE_BUILD_TYPE:STRING=DEBUG \
@@ -45,9 +44,7 @@ make install
 
 # MySocketW
 cd "$ROR_SOURCE_DIR"
-if [ ! -e mysocketw ]; then
-  git clone --depth=1 https://github.com/Hiradur/mysocketw.git
-fi
+git clone --depth=1 https://github.com/Hiradur/mysocketw.git
 cd mysocketw
 git pull
 sed -i '/^PREFIX *=/d' Makefile.conf
