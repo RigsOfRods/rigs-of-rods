@@ -3,11 +3,7 @@
 [![Build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)
 [![Join the chat at https://gitter.im/RigsOfRods/rigs-of-rods](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RigsOfRods/rigs-of-rods?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Copyright (c) 2005-2013 Pierre-Michel Ricordel  
-Copyright (c) 2007-2013 Thomas Fischer  
-Copyright (c) 2013-2015 Petr Ohlidal  
-
-This is Rigs of Rods, an open source vehicle simulator focussed on simulating vehicle physics.
+Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
 For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
 
 #### Trailer:
@@ -23,12 +19,12 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 ## Further documentation
 * Website: http://www.rigsofrods.com/
 * Wiki: http://www.rigsofrods.com/wiki/
-* Developer wiki: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
+* Developer Wiki: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
 * Forum: http://www.rigsofrods.com/forum/
 * Mod Repository: http://www.rigsofrods.com/repository/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
-* doc/ directory of source distribution
+* [doc/](doc/)
 
 
 ## Paths
@@ -47,15 +43,16 @@ $res    = source/bin/resources
 $user   = ~/.rigsofrods  
 
 OS X:  
-$bin    = ?  
-$res    = ?  
-$user  = ? 
+$bin    = source/bin  
+$res    = source/bin/resources  
+$user   = ~/.rigsofrods  
 
 
 ## Controls
-Depending on the vehicle there are a lot of commands. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
+Available commands depend on the vehicle you are in. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
 For an indepth view refer to ``` $user/.rigsofrods/config/input.map ```  
-Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or use 'T' key ingame for a list of commands.
+Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or go to Menu -> Simulation -> Show vehicle description.  
+Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other controllers, including support for Force Feedback.
 
 ##### Basic controls:  
 
@@ -65,7 +62,7 @@ Please note that certain vehicles come with their own specific commands not repr
 | mouse+rightclick               | rotate camera                                        |
 | mousewheel+rightclick          | camera zoom                                          |
 | C                              | change camera perspective                            |
-| T                              | display vehicle stats + specific commands            |
+| T                              | display vehicle stats                                |
 | BACKSPACE                      | reset vehicle at current location                    |
 | I                              | reset vehicle to spawnpoint                          |
 | TAB                            | show minimap                                         |
@@ -74,11 +71,12 @@ Please note that certain vehicles come with their own specific commands not repr
 | CTRL+HOME                      | aircrafts: start engine                              |
 | Page Up/Down                   | aircrafts: increase/decrease throttle                |
 | F1/F2                          | helicopters: lift up/down                            |
+| Print Screen                   | create screenshot in $user/ folder                   |
  
  
-## Mods
-Rigs of Rods comes only with a very small selection of vehicles and terrains. For the best experience download additional mods from the [Rigs of Rods mod repository](http://www.rigsofrods.com/repository/)
-If you want to get going quickly have a look at modpacks which can be found in the repository as well.
+## Content/Mods
+Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.rigsofrods.com/repository/). The [Showroom Subforum](http://www.rigsofrods.com/forums/103-Showrooms-and-WIP) may contain additional content not found in the Mod Repository.  
+If you want to get going quickly have a look at modpacks which can be found in the Mod Repository as well.
 
 
 ## Configuration files
@@ -111,7 +109,13 @@ For instructions refer to [BUILDING.md](BUILDING.md)
 
 ## License of Rigs of Rods
 
-Rigs of Rods is licensed under GPLv3 or later:
+Copyright (c) 2005-2013 Pierre-Michel Ricordel  
+Copyright (c) 2007-2013 Thomas Fischer  
+Copyright (c) 2009-2015 Rigs of Rods Contributors
+
+Rigs of Rods went open source under GPLv2 or later on the 8th of February, 2009.
+
+Rigs of Rods is now licensed under GPLv3 or later:
 ```
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as 
@@ -126,4 +130,6 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 ```
 
-For licenses of used libraries see [DEPENDENCIES.md](DEPENDENCIES.md)
+* For the full license text see [COPYING](COPYING)
+* For involved authors see [AUTHORS.md](AUTHORS.md)
+* For licenses of used libraries see [DEPENDENCIES.md](DEPENDENCIES.md)
