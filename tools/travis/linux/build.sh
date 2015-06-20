@@ -1,5 +1,5 @@
 #!/bin/sh
-. ./config
+source ./config
 
 cmake \
 -DROR_USE_MYGUI="TRUE" \

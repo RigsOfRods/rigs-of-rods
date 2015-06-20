@@ -1,7 +1,7 @@
 #!/bin/bash
-. ./config
 
 #Initialization
+source ./config
 mkdir -p "$ROR_SOURCE_DIR"
 mkdir -p "$ROR_INSTALL_DIR"
 
@@ -19,7 +19,8 @@ libssl-dev libcurl4-openssl-dev libgtk2.0-dev libwxgtk3.0-dev
 cd "$ROR_SOURCE_DIR"
 hg clone https://bitbucket.org/sinbad/ogre -b v2-0
 cd ogre
-cmake -DCMAKE_INSTALL_PREFIX="$ROR_INSTALL_DIR" \
+cmake \
+-DCMAKE_INSTALL_PREFIX="$ROR_INSTALL_DIR" \
 -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DCMAKE_BUILD_TYPE:STRING=DEBUG \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
@@ -31,7 +32,8 @@ cd "$ROR_SOURCE_DIR"
 git clone https://github.com/MyGUI/mygui.git
 cd mygui
 git checkout ogre2
-cmake -DCMAKE_INSTALL_PREFIX="$ROR_INSTALL_DIR" \
+cmake \
+-DCMAKE_INSTALL_PREFIX="$ROR_INSTALL_DIR" \
 -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DCMAKE_BUILD_TYPE:STRING=DEBUG \
 -DMYGUI_BUILD_DEMOS:BOOL=OFF \

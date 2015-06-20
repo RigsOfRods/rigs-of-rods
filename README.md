@@ -1,6 +1,6 @@
 # Rigs of Rods 
 
-[![Build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)
+[![Build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=Ogre-2.0)](https://travis-ci.org/RigsOfRods/rigs-of-rods)
 [![Join the chat at https://gitter.im/RigsOfRods/rigs-of-rods](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RigsOfRods/rigs-of-rods?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Copyright (c) 2005-2013 Pierre-Michel Ricordel  
