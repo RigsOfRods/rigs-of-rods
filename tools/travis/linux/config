@@ -1,0 +1,15 @@
+# The directory source files are downloaded and extracted to.
+ROR_SOURCE_DIR=~/rigs-of-rods/source
+
+# The directory binaries are installed to.
+ROR_INSTALL_DIR=~/rigs-of-rods/install
+
+# Make options. Defaults are:
+# -s  -- Silent operation; do not print the commands as they are executed.
+# -jX -- Number of jobs to run simultaneously. X is the number of processors in /proc/cpuinfo by default.
+ROR_MAKEOPTS="-s -j2"
+
+
+# Don't change this
+PKG_CONFIG_PATH="$ROR_INSTALL_DIR/lib/pkgconfig"
+export PKG_CONFIG_PATH
