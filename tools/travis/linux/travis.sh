@@ -13,7 +13,6 @@ if [ $ANALYZE = "true" ]; then
             cat cppcheck.txt
             exit 1
         fi
-    fi
 else # no static analysis, do regular build
     ./tools/travis/linux/dependencies.sh
     ./tools/travis/linux/build.sh
