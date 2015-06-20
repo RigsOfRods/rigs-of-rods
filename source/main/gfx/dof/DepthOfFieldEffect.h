@@ -27,6 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __DepthOfFieldEffect_H_
 
 #include "RoRPrerequisites.h"
+#include <OgreFrameListener.h>
 
 class DepthOfFieldEffect
 {
@@ -36,4 +37,13 @@ public:
 	~DepthOfFieldEffect();
 
 };
+
+class DOFManager : public Ogre::FrameListener, public ZeroedMemoryAllocator
+{
+public:
+
+	DOFManager();
+	~DOFManager();
+};
+
 #endif // __DepthOfFieldEffect_H_

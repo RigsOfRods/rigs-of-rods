@@ -38,7 +38,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-//#include "DepthOfFieldEffect.h"
+#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
@@ -60,7 +60,9 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
-//#include "ScriptEngine.h"
+#ifdef USE_ANGELSCRIPT
+#include "ScriptEngine.h"
+#endif
 #include "Scripting.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -364,7 +366,7 @@ void MainThread::Go()
 	
 	if (enable_network)
 	{
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MODELS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		// cmdline overrides config
 		std::string server_name = SSETTING("Server name", "").c_str();
@@ -703,7 +705,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MODELS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
 		//RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES); //Todo fix ogre 2.0
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
@@ -717,35 +719,8 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	// Loading settings resources
 	// ============================================================================
 
-	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
-
-	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
 	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
-
-	if (BSETTING("HDR", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
-
-	if (BSETTING("DOF", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
-
-	if (BSETTING("Glow", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
-
-	if (BSETTING("Motion blur", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
-
-	if (BSETTING("HeatHaze", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
-
-	if (BSETTING("Sunburn", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
-
-	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
 
@@ -790,16 +765,16 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	}
 
 	// heathaze effect
-	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+	if (BSETTING("HeatHaze", false) /*&& RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask)*/)
 	{
 		gEnv->frameListener->heathaze = new HeatHaze();
 		gEnv->frameListener->heathaze->setEnable(true);
 	}
 
 	// depth of field effect
-	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
+	if (BSETTING("DOF", false) /*&& RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask)*/)
 	{
-		//gEnv->frameListener->dof = new DOFManager();
+		gEnv->frameListener->dof = new DOFManager();
 	}
 
 	if (!m_base_resource_loaded)

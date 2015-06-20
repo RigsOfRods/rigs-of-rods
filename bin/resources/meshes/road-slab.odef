@@ -1,8 +1,0 @@
-road-slab.mesh
-1, 1, 1
-
-beginbox
-boxcoords -5.01, 5.01, -3, 0.3, -5.01, 5.01
-endbox
-
-end

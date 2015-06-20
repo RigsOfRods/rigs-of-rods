@@ -1,0 +1,6 @@
+40mthresholddisp.mesh
+1,1,1
+beginmesh
+mesh 40mthresholddisp.mesh
+endmesh
+end

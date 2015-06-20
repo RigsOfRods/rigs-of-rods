@@ -1706,94 +1706,14 @@ void RoRFrameListener::checkRemoteStreamResultsChanged()
 bool RoRFrameListener::RTSSgenerateShadersForMaterial(String curMaterialName, String normalTextureName)
 {
 	if (!BSETTING("Use RTShader System", false)) return false;
-	bool success;
-
-	// Create the shader based technique of this material.
-	success = RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(curMaterialName,
-			 			MaterialManager::DEFAULT_SCHEME_NAME,
-			 			RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-	if (!success)
-		return false;
-
-	// Setup custom shader sub render states according to current setup.
-	MaterialPtr curMaterial = MaterialManager::getSingleton().getByName(curMaterialName);
-
-
-	// Grab the first pass render state.
-	// NOTE: For more complicated samples iterate over the passes and build each one of them as desired.
-	RTShader::RenderState* renderState = RTShader::ShaderGenerator::getSingleton().getRenderState(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, curMaterialName, 0);
-
-	// Remove all sub render states.
-	renderState->reset();
-
-
-#ifdef RTSHADER_SYSTEM_BUILD_CORE_SHADERS
-	// simple vertex lightning
-	/*
-	{
-		RTShader::SubRenderState* perPerVertexLightModel = RTShader::ShaderGenerator::getSingleton().createSubRenderState(RTShader::FFPLighting::Type);
-		renderState->addTemplateSubRenderState(perPerVertexLightModel);
-	}
-	*/
-#endif
-#ifdef RTSHADER_SYSTEM_BUILD_EXT_SHADERS
-	if (normalTextureName.empty())
-	{
-		// SSLM_PerPixelLighting
-		RTShader::SubRenderState* perPixelLightModel = RTShader::ShaderGenerator::getSingleton().createSubRenderState(RTShader::PerPixelLighting::Type);
-
-		renderState->addTemplateSubRenderState(perPixelLightModel);
-	} else
-	{
-		// SSLM_NormalMapLightingTangentSpace
-		RTShader::SubRenderState* subRenderState = RTShader::ShaderGenerator::getSingleton().createSubRenderState(RTShader::NormalMapLighting::Type);
-		RTShader::NormalMapLighting* normalMapSubRS = static_cast<RTShader::NormalMapLighting*>(subRenderState);
-
-		normalMapSubRS->setNormalMapSpace(RTShader::NormalMapLighting::NMS_TANGENT);
-		normalMapSubRS->setNormalMapTextureName(normalTextureName);
-
-		renderState->addTemplateSubRenderState(normalMapSubRS);
-	}
-	// SSLM_NormalMapLightingObjectSpace
-	/*
-	{
-		// Apply normal map only on main entity.
-		if (entity->getName() == MAIN_ENTITY_NAME)
-		{
-			RTShader::SubRenderState* subRenderState = mShaderGenerator->createSubRenderState(RTShader::NormalMapLighting::Type);
-			RTShader::NormalMapLighting* normalMapSubRS = static_cast<RTShader::NormalMapLighting*>(subRenderState);
-
-			normalMapSubRS->setNormalMapSpace(RTShader::NormalMapLighting::NMS_OBJECT);
-			normalMapSubRS->setNormalMapTextureName("Panels_Normal_Obj.png");
-
-			renderState->addTemplateSubRenderState(normalMapSubRS);
-		}
-
-		// It is secondary entity -> use simple per pixel lighting.
-		else
-		{
-			RTShader::SubRenderState* perPixelLightModel = mShaderGenerator->createSubRenderState(RTShader::PerPixelLighting::Type);
-			renderState->addTemplateSubRenderState(perPixelLightModel);
-		}
-	} */
-
-#endif
-
-	// Invalidate this material in order to re-generate its shaders.
-	RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, curMaterialName);
+	//no more in ogre2.0
 	return true;
 }
 
 void RoRFrameListener::RTSSgenerateShaders(Entity* entity, String normalTextureName)
 {
 	if (!BSETTING("Use RTShader System", false)) return;
-	for (unsigned int i=0; i < entity->getNumSubEntities(); ++i)
-	{
-		SubEntity* curSubEntity = entity->getSubEntity(i);
-		const String& curMaterialName = curSubEntity->getMaterialName();
-
-		RTSSgenerateShadersForMaterial(curMaterialName, normalTextureName);
-	}
+	//no more in ogre2.0
 }
 
 void RoRFrameListener::reloadCurrentTruck()

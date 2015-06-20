@@ -41,9 +41,9 @@ compositor_node_shadow ExampleShadows_PssmShadowNode
 
 	num_splits					3
     pssm_lambda                 0.60
-    shadow_map 0 4096 4096 PF_FLOAT32_R light 0 split 0 depth_pool 2
+    shadow_map 0 2048 2048 PF_FLOAT32_R light 0 split 0 depth_pool 2
     shadow_map 1 2048 2048 PF_FLOAT32_R light 0 split 1 depth_pool 2
-    shadow_map 2 1024 1024 PF_FLOAT32_R light 0 split 2 depth_pool 2
+    shadow_map 2 2048 2048 PF_FLOAT32_R light 0 split 2 depth_pool 2
 
 	shadow_map 0 1 2 : shadow_map_target {}
 }

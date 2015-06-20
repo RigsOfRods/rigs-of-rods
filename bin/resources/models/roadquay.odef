@@ -1,0 +1,16 @@
+roadquay.mesh
+1, 1, 1
+
+beginbox
+boxcoords 0, 10, -10, 0, -8, 8
+endbox
+
+beginbox
+boxcoords 0, 10, -1, 0.1, -8, -7.5
+endbox
+
+beginbox
+boxcoords 0, 10, -1, 0.1, 7.5, 8
+endbox
+
+end

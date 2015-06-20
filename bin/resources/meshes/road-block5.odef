@@ -1,8 +1,0 @@
-road-block5.mesh
-1, 1, 1
-
-beginbox
-boxcoords -2.5, 2.5, 0, 5, -2.5, 2.5
-endbox
-
-end

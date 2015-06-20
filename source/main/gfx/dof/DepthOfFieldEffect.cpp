@@ -39,3 +39,14 @@ DepthOfFieldEffect::~DepthOfFieldEffect()
 {
 
 }
+
+//-----------------
+DOFManager::DOFManager()
+{
+
+}
+
+DOFManager::~DOFManager()
+{
+
+}
