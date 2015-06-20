@@ -7,8 +7,6 @@ compiler:
 
 before_install:
   # Show some information about the underlying system
-  - cat /etc/issue                             # Distribution
-  - uname -a                                   # Linux Kernel version
   - cat /proc/cpuinfo | grep -m1 "model name"  # CPU model
 
   # Make our build scripts executable
