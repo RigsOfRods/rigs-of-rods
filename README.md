@@ -74,9 +74,9 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 | Print Screen                   | create screenshot in $user/ folder                   |
  
  
-## Mods
-Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download additional mods from the [Rigs of Rods mod repository](http://www.rigsofrods.com/repository/)  
-If you want to get going quickly have a look at modpacks which can be found in the repository as well.
+## Content/Mods
+Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.rigsofrods.com/repository/). The [Showroom Subforum](http://www.rigsofrods.com/forums/103-Showrooms-and-WIP) may contain additional content not found in the Mod Repository.  
+If you want to get going quickly have a look at modpacks which can be found in the Mod Repository as well.
 
 
 ## Configuration files
