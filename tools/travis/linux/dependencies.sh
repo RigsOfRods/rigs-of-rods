@@ -1,12 +1,9 @@
 #!/bin/bash
 
 #Initialization
-source ./config
+source "$TRAVIS_BUILD_DIR"/tools/travis/linux/config
 mkdir -p "$ROR_SOURCE_DIR"
 mkdir -p "$ROR_INSTALL_DIR"
-
-echo "$ROR_INSTALL_DIR"
-
 
 #Precompiled dependencies
 #sudo apt-get update
@@ -26,8 +23,6 @@ cmake \
 -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DCMAKE_BUILD_TYPE:STRING=DEBUG \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
-echo "cat ogre"
-cat $ROR_SOURCE_DIR/ogre/CMakeCache.txt | grep CMAKE_INSTALL_PREFIX
 make $ROR_MAKEOPTS
 make install
 

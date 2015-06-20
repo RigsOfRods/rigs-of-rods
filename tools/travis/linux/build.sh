@@ -1,5 +1,5 @@
 #!/bin/sh
-source ./config
+source ./tools/travis/linux/config
 
 cmake \
 -DROR_USE_MYGUI="TRUE" \
