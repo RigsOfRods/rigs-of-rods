@@ -8,7 +8,7 @@ if [ $ANALYZE = "true" ]; then
         cppcheck \
           --template "{file}({line}): {severity} ({id}): {message}" \
           --enable=information --enable=performance \
-          --force --std=c++11 -j2 . 2> cppcheck.txt
+          --force --std=c++11 -j2 ./source 2> cppcheck.txt
         if [ -s cppcheck.txt ]; then
             cat cppcheck.txt
             exit 1
