@@ -2422,18 +2422,18 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 
 		Flexbody flexbody;
 		flexbody.reference_node = _ParseNodeRef(results[1]);
-		flexbody.x_axis_node = _ParseNodeRef(results[2]);
-		flexbody.y_axis_node = _ParseNodeRef(results[3]);
+		flexbody.x_axis_node    = _ParseNodeRef(results[3]);
+		flexbody.y_axis_node    = _ParseNodeRef(results[5]);
 
-		flexbody.offset.x = STR_PARSE_REAL(results[4]);
-		flexbody.offset.y = STR_PARSE_REAL(results[5]);
-		flexbody.offset.z = STR_PARSE_REAL(results[6]);
+		flexbody.offset.x = STR_PARSE_REAL(results[7]);
+		flexbody.offset.y = STR_PARSE_REAL(results[9]);
+		flexbody.offset.z = STR_PARSE_REAL(results[11]);
 
-		flexbody.rotation.x = STR_PARSE_REAL(results[7]);
-		flexbody.rotation.y = STR_PARSE_REAL(results[8]);
-		flexbody.rotation.z = STR_PARSE_REAL(results[9]);
+		flexbody.rotation.x = STR_PARSE_REAL(results[13]);
+		flexbody.rotation.y = STR_PARSE_REAL(results[15]);
+		flexbody.rotation.z = STR_PARSE_REAL(results[17]);
 
-		flexbody.mesh_name = results[10];
+		flexbody.mesh_name = results[19];
 
 		m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
 		m_current_module->flexbodies.push_back(m_last_flexbody);
