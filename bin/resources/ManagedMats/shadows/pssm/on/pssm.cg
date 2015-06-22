@@ -92,6 +92,32 @@ float shadowPCF(sampler2D shadowMap, float4 shadowMapPos, float2 offset)
 	return c / 5;
 }
 
+/*
+#define PCF_SAMPS 7 
+
+#define PCFH ((PCF_SAMPS-1)/2)
+#define PCFT (PCF_SAMPS*PCF_SAMPS)
+#define PCFSize 5
+
+float shadowPCF(sampler2D shadowMap, float4 shadowMapPos, float2 offset)
+{
+   shadowMapPos = shadowMapPos / shadowMapPos.w;
+   float2 uv = shadowMapPos.xy;
+   float3 o = float3(offset, -offset.x) * 0.3f;//* 0.5f;
+
+   float c=0;
+   int i, j;
+      for (i = -PCFH; i<= PCFH; i += 1) {
+      for (j = -PCFH; j<= PCFH; j += 1) {
+      float2 sample=float2(o.z*i,o.y*j);
+         c +=      (shadowMapPos.z <= tex2D(shadowMap, uv.xy - sample).r) ? 1 : 0; // top right
+
+       }
+      }
+   return (c / PCFT)* 0.5+0.5;
+
+}
+*/
 // to put it simply, this does 100% per pixel diffuse lighting
 void shadow_receiver_ps(
 	float3 uv		: TEXCOORD0,
@@ -120,7 +146,6 @@ void shadow_receiver_ps(
 	// calculate shadow
 	float shadowing = 1.0f;
 	float4 splitColour;
-	float4 pssmSplitPoints2 = float4(1,0.5,0.25,0.124);
 	if (uv.z <= pssmSplitPoints.y)
 	{
 	splitColour = float4(0.9, 0, 0, 1);

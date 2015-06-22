@@ -89,6 +89,8 @@ protected:
 
 	void ShowSurveyMap(bool hide);
 
+	void initMatManager();
+
 	bool               m_no_rendering;
 	bool               m_exit_loop_requested;
 	bool               m_shutdown_requested;
