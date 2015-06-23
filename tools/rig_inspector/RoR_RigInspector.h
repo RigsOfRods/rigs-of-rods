@@ -16,6 +16,9 @@ The purpose is to debug class RigSpawner, introduced in TruckParser2013 project
 #include "RoRPrerequisites.h"
 #include <iostream>
 
+// Enables compiling with 0.4.0.7
+// #define RIG_INSPECTOR_COMPAT_0407
+
 // Forward
 class Turbojet;
 class Turboprop;

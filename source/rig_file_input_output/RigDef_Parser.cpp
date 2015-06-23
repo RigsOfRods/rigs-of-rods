@@ -2422,18 +2422,18 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 
 		Flexbody flexbody;
 		flexbody.reference_node = _ParseNodeRef(results[1]);
-		flexbody.x_axis_node = _ParseNodeRef(results[2]);
-		flexbody.y_axis_node = _ParseNodeRef(results[3]);
+		flexbody.x_axis_node    = _ParseNodeRef(results[3]);
+		flexbody.y_axis_node    = _ParseNodeRef(results[5]);
 
-		flexbody.offset.x = STR_PARSE_REAL(results[4]);
-		flexbody.offset.y = STR_PARSE_REAL(results[5]);
-		flexbody.offset.z = STR_PARSE_REAL(results[6]);
+		flexbody.offset.x = STR_PARSE_REAL(results[7]);
+		flexbody.offset.y = STR_PARSE_REAL(results[9]);
+		flexbody.offset.z = STR_PARSE_REAL(results[11]);
 
-		flexbody.rotation.x = STR_PARSE_REAL(results[7]);
-		flexbody.rotation.y = STR_PARSE_REAL(results[8]);
-		flexbody.rotation.z = STR_PARSE_REAL(results[9]);
+		flexbody.rotation.x = STR_PARSE_REAL(results[13]);
+		flexbody.rotation.y = STR_PARSE_REAL(results[15]);
+		flexbody.rotation.z = STR_PARSE_REAL(results[17]);
 
-		flexbody.mesh_name = results[10];
+		flexbody.mesh_name = results[19];
 
 		m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
 		m_current_module->flexbodies.push_back(m_last_flexbody);
@@ -5254,6 +5254,9 @@ bool Parser::_ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & re
 
 void Parser::ParseBeams(Ogre::String const & _line)
 {
+	const int FLAGS_INDEX     = 7;
+	const int EXT_LIMIT_INDEX = 11;
+
 	std::string line;
     Parser::_TrimTrailingComments(_line, line);
 
@@ -5273,9 +5276,9 @@ void Parser::ParseBeams(Ogre::String const & _line)
 	beam.nodes[1] = _ParseNodeRef(results[3]);
 
 	/* Flags */
-	if (results[6].matched)
+	if (results[FLAGS_INDEX].matched)
 	{
-		std::string const & flags_str = results[6];
+		std::string const & flags_str = results[FLAGS_INDEX];
 		for (unsigned int i = 0; i < flags_str.length(); i++)
 		{
 			if (flags_str[i] == 'v') 
@@ -5293,10 +5296,10 @@ void Parser::ParseBeams(Ogre::String const & _line)
 			else if (flags_str[i] == 's')
 			{
 				beam.options |= Beam::OPTION_s_SUPPORT;
-				if (results[9].matched)
+				if (results[EXT_LIMIT_INDEX].matched)
 				{
 					beam._has_extension_break_limit = true;
-					beam.extension_break_limit = STR_PARSE_REAL(results[9]);
+					beam.extension_break_limit = STR_PARSE_REAL(results[EXT_LIMIT_INDEX]);
 				}
 			}
 			else

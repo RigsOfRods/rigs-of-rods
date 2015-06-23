@@ -545,7 +545,11 @@ void RigInspector::InspectHooks(std::ofstream & f, Beam* rig)
 			<<" selflock="<<data.selflock
 			<<" autolock="<<data.autolock
 			<<" nodisable="<<data.nodisable
+#ifdef RIG_INSPECTOR_COMPAT_0407
 			<<" visible="<<data.visible
+#else
+			<<" visible="<<data.is_hook_visible
+#endif
 			<<" maxforce="<<data.maxforce
 			<<" lockrange="<<data.lockrange
 			<<" lockspeed="<<data.lockspeed
@@ -931,7 +935,6 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 
 	f<<"\n\thideInChooser:"<<rig->hideInChooser;
 	f<<"\n\tguid:"<<rig->guid;
-	f<<"\n\thasfixes:"<<rig->hasfixes;
 	f<<"\n\twingstart:"<<rig->wingstart;
 	f<<"\n\tloading_finished:"<<rig->loading_finished;
 
@@ -1671,6 +1674,112 @@ void RigInspector::InspectScrewprops(std::ofstream & f, Beam* rig)
 	}
 }
 
+#ifdef RIG_INSPECTOR_COMPAT_0407
+void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
+{
+	f<<"\nFlexbody:";
+	if (flexbody == nullptr)
+	{
+		f<<"nullptr";
+		return;
+	}
+	FlexBody & data = *flexbody;
+
+	// Nodes
+	f << "\n\t Nodes: ";
+	for (int i = 0; i < data.numnodes; ++i)
+	{	
+		node_t* node = (data.nodes + i);
+		f << ECHO_NODE(node);
+		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		{
+			f << "\n\t [MORE]";
+		}
+	}
+
+	// Vertices
+	f << "\n\t Vertices:";
+	int vertex_count = static_cast<int>(data.vertex_count);
+	for (int i = 0; i < vertex_count; ++i)
+	{
+		Ogre::Vector3 & vertex = * (data.vertices + i);
+		Ogre::Vector3 & dstpos = * (data.dstpos + i);
+		Ogre::Vector3 & srcnormal = * (data.srcnormals + i);
+		Ogre::Vector3 & dstnormal = * (data.dstnormals + i);
+		Ogre::ARGB & srccolor = * (data.srccolors + i);
+		FlexBody::Locator_t & locator = * (data.locs + i);
+
+		f
+			<<" vertex="<<ECHO_V3(vertex)
+			<<" dstpos="<<ECHO_V3(dstpos)
+			<<" srcnormal="<<ECHO_V3(srcnormal)
+			<<" dstnormal="<<ECHO_V3(dstnormal)
+			<<" srccolor="<<srccolor
+
+			<<" locator.ref="<<locator.ref
+			<<" locator.nx="<<locator.nx
+			<<" locator.ny="<<locator.ny
+			<<" locator.nz="<<locator.nz
+			<<" locator.coords="<<ECHO_V3(locator.coords)
+			;
+
+		if (i > 0 && (i % 5) == 0)
+		{
+			f << "\n\t [MORE]";
+		}
+	}
+
+	// Nodeset
+	f<<"\n\t Nodeset: ";
+	f<<"(freenodeset="<<data.freenodeset<<") ";
+	for (int i = 0; i < data.freenodeset; ++i)
+	{
+		FlexBody::interval_t & item = data.nodeset[i];
+		f<<" from="<<item.from<<" to="<<item.to;
+		if (i > 0 && (i % LOG_ARRAY_BREAK_LIMIT) == 0)
+		{
+			f << "\n\t [MORE]";
+		}
+	}
+
+	// Data
+	f
+		<<"\n\t Data: "
+		<<" nodes="<<ECHO_NODE(data.nodes)
+		<<" numnodes="<<data.numnodes
+		<<" vertex_count="<<data.vertex_count
+		<<" cref="<<data.cref
+		<<" cx="<<data.cx
+		<<" cy="<<data.cy
+		<<" coffset="<<ECHO_V3(data.coffset)
+		<<" snode="<<ECHO_PTR(data.snode)
+
+		<<" sharedcount="<<data.sharedcount
+		<<" sharedpbuf="<<data.sharedpbuf.isNull()
+		<<" sharednbuf="<<data.sharednbuf.isNull()
+		<<" sharedcbuf="<<data.sharedcbuf.isNull()
+
+		<<" numsubmeshbuf="<<data.numsubmeshbuf
+		<<" submeshnums="<<ECHO_PTR(data.submeshnums) // TODO: traverse C array
+		<<" subnodecounts="<<ECHO_PTR(data.subnodecounts) // TODO: traverse C array
+
+		<<" enabled="<<data.enabled
+		<<" cameramode="<<data.cameramode
+		<<" hasshared="<<data.hasshared
+		<<" hasshadows="<<data.hasshadows
+		<<" hastangents="<<data.hastangents
+		<<" hastexture="<<data.hastexture
+		<<" hasblend="<<data.hasblend
+		<<" faulty="<<data.faulty
+		// TODO: msh
+		;
+
+	f << "\n\t Vertex buffers: ";
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subpbufs", data.subpbufs, 16);
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subnbufs", data.subnbufs, 16);
+	LOG_ARRAY_HardwareVertexBufferSharedPtr("subcbufs", data.subcbufs, 16);
+}
+#else // RIG_INSPECTOR_COMPAT_0407
 void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 {
 	f<<"\nFlexbody:";
@@ -1750,6 +1859,7 @@ void RigInspector::PrintFlexbody(std::ofstream & f, FlexBody* flexbody)
 	LOG_ARRAY_HardwareVertexBufferSharedPtr("subnbufs", data.m_submesh_vbufs_norm, 16); // OLD: subnbufs
 	LOG_ARRAY_HardwareVertexBufferSharedPtr("subcbufs", data.m_submesh_vbufs_color, 16); // OLD: subcbufs
 }
+#endif
 
 void RigInspector::InspectFlexbodies(std::ofstream & f, Beam* rig)
 {
