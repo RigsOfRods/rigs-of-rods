@@ -1530,21 +1530,25 @@ void MainThread::RegenCache()
 
 void MainThread::initMatManager()
 {
+	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "ManagedMats/";
+
 	//Dirty, needs to be improved
 	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
-		ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/shadows/on/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
 	else
-		ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/shadows/off/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
-	ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/texture_manager/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture_manager/", "FileSystem", "TextureManager");
+
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
 
 	Envmap* env = new Envmap();
 	gEnv->envMap = env;
 
 	//Last
-	ResourceGroupManager::getSingleton().addResourceLocation("../resources/managed_materials/", "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path, "FileSystem", "ManagedMats");
+
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }
