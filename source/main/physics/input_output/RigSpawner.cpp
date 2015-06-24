@@ -222,7 +222,6 @@ void RigSpawner::InitializeRig()
 
 	memset(m_rig->guid, 0, 128);
 	
-	m_rig->hasfixes=0;
 	m_rig->wingstart=-1;
 	
 	m_rig->realtruckname = "";
@@ -1549,6 +1548,12 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
 }
 
+void RigSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
+{
+    node_t & node = GetNodeOrThrow(node_ref);
+    node.locked = 1;
+}
+
 void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 {
 	SPAWNER_PROFILE_SCOPED();
@@ -2474,7 +2479,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	flare.type                 = def.type;
 	flare.controlnumber        = def.control_number;
 	flare.controltoggle_status = false;
-	flare.blinkdelay           = (blink_delay == -1.f) ? 0.5f : blink_delay / 1000.f;
+	flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
 	flare.blinkdelay_curr      = 0.f;
 	flare.blinkdelay_state     = false;
 	flare.noderef              = GetNodeIndexOrThrow(def.reference_node);
@@ -3436,7 +3441,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	hook->beam->commandShort = def.option_minimum_range_meters;
 	hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
 	hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
-	hook->visible = false;
+	hook->is_hook_visible = false;
 	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
 	{
 		hook->autolock = true;
@@ -3451,7 +3456,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	}
 	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
 	{
-		hook->visible = true;
+		hook->is_hook_visible = true;
 		if (hook->beam->mSceneNode->numAttachedObjects() == 0)
 		{
 			hook->beam->mSceneNode->attachObject(hook->beam->mEntity);
@@ -3480,7 +3485,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 		return;
 	}
 
-	shock_t shock;
+	shock_t & shock = this->GetFreeShock();
 
 	// Disable trigger on startup? (default enabled)
 	shock.trigger_enabled = !def.HasFlag_x_StartDisabled();
@@ -3640,10 +3645,6 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	shock.sbd_spring         = def.beam_defaults->springiness;
 	shock.sbd_damp           = def.beam_defaults->damping_constant;
 	shock.last_debug_state   = 0;
-
-	// Commit created shock
-	m_rig->shocks[m_rig->free_shock] = shock;
-	++m_rig->free_shock;
 	
 }
 
@@ -6743,26 +6744,27 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		beam.maxtiestress      = HOOK_FORCE_DEFAULT;
 		beam.diameter          = DEFAULT_BEAM_DIAMETER;
 		SetBeamDeformationThreshold(beam, def.beam_defaults);
-		CreateBeamVisuals(beam, beam_index, true);
+		CreateBeamVisuals(beam, beam_index, false);
 			
 		// Logic cloned from SerializedRig.cpp, section BTS_NODES
 		hook_t hook;
-		hook.hookNode     = & node;
-		hook.group        = -1;
-		hook.locked       = UNLOCKED;
-		hook.lockNode     = 0;
-		hook.lockTruck    = 0;
-		hook.lockNodes    = true;
-		hook.lockgroup    = -1;
-		hook.beam         = & beam;
-		hook.maxforce     = HOOK_FORCE_DEFAULT;
-		hook.lockrange    = HOOK_RANGE_DEFAULT;
-		hook.lockspeed    = HOOK_SPEED_DEFAULT;
-		hook.selflock     = false;
-		hook.nodisable    = false;
-		hook.timer        = 0.0f;
-		hook.timer_preset = HOOK_LOCK_TIMER_DEFAULT;
-		hook.autolock     = false;
+		hook.hookNode          = & node;
+		hook.group             = -1;
+		hook.locked            = UNLOCKED;
+		hook.lockNode          = 0;
+		hook.lockTruck         = 0;
+		hook.lockNodes         = true;
+		hook.lockgroup         = -1;
+		hook.beam              = & beam;
+		hook.maxforce          = HOOK_FORCE_DEFAULT;
+		hook.lockrange         = HOOK_RANGE_DEFAULT;
+		hook.lockspeed         = HOOK_SPEED_DEFAULT;
+		hook.selflock          = false;
+		hook.nodisable         = false;
+		hook.timer             = 0.0f;
+		hook.timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
+		hook.autolock          = false;
+		hook.is_hook_visible   = false;
 		m_rig->hooks.push_back(hook);
 	}
 	AdjustNodeBuoyancy(node, def, def.node_defaults);

@@ -21,10 +21,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIInputManager.h"
 
 #include "Application.h"
+#include "GUIManager.h"
+#include "GUIMenu.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
 #include "SceneMouse.h"
-#include "GUIMenu.h"
 
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
@@ -103,6 +104,15 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
 	activateGUI();
 	MyGUI::PointerManager::getInstance().setPointer("arrow");
+
+	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible())
+	{
+		MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
+		mCursorX = _arg.state.X.abs;
+		mCursorY = _arg.state.Y.abs;
+		checkPosition();
+		return true;
+	}
 
 	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);

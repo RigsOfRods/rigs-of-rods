@@ -35,7 +35,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreCommon.h>
 #include <OgreMovableObject.h>
 #include <OgreFrameListener.h>
-#include <Overlay\OgreFontManager.h>
+#include <Overlay/OgreFontManager.h>
 
 namespace Ogre {
 

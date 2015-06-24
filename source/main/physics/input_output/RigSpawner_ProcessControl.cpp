@@ -318,6 +318,9 @@ rig_t *RigSpawner::SpawnRig()
     // Section 'flexbodies' (Uses generated nodes)
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
 
+    // Section 'fixes'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FIXES, fixes, ProcessFixedNode);
+
 #ifdef USE_OPENAL
 
 	// Section 'soundsources'

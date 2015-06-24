@@ -332,7 +332,7 @@ struct hook_t
 	bool selflock;
 	bool autolock;
 	bool nodisable;
-	bool visible;
+	bool is_hook_visible; //< Read-only, set at spawn. Read by Beam::calcHooks()
 	float maxforce;
 	float lockrange;
 	float lockspeed;
