@@ -1,37 +1,5 @@
 abstract technique SpecularMapping
 {
-	pass SpecularMapping1
-	{
-		scene_blend_op subtract 
-		texture_unit SpecularMapping1_Tex
-		{
-			texture_alias specular_tex
-		}
-	}
-	pass SpecularMapping2
-	{
-		diffuse 0 0 0 0
-		emissive 0 0 0 0
-		specular 0.5 0.5 0.5 1 64
-		scene_blend add 
-		ambient 0 0 0 0
-		
-		texture_unit SpecularMapping2_Tex
-		{
-			texture_alias specular_tex
-			tex_coord_set 0
-		}
-	}
-	pass
-	{
-		texture_unit envmaptex
-		{
-				cubic_texture EnvironmentTexture combinedUVW
-				tex_address_mode clamp
-				env_map cubic_reflection
-				tex_coord_set 1
-		}
-	}
 }
 
 abstract technique WaterMapping

@@ -2810,8 +2810,8 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 					return;
 				}
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-				material->getTechnique("SpecTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
-				material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->getTextureUnitState("SpecularMapping2_Tex")->setTextureName(def.specular_map);
+				material->getTechnique("spec")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+				//material->getTechnique("SpecTechnique")->getPass("SpecularMapping2")->getTextureUnitState("SpecularMapping2_Tex")->setTextureName(def.specular_map);
 			}
 			else
 			{

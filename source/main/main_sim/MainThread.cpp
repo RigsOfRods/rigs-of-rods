@@ -184,7 +184,7 @@ void MainThread::Go()
 	nodeDef->setNumTargetPass(1);
 	{
 		targetDef = nodeDef->addTargetPass("WindowRT");
-		//targetDef->setNumPasses(3);
+		targetDef->setNumPasses(3);
 		{
 			{
 				Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>(targetDef->addPass(Ogre::PASS_CLEAR));

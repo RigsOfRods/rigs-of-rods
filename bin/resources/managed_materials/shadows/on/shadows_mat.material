@@ -35,21 +35,40 @@ abstract technique Shadows/managed/base_receiver
 		{
 			content_type shadow
 			tex_address_mode border
-			tex_coord_set 0
+			tex_coord_set 3
 		}
 
 		texture_unit
 		{
 			content_type shadow
 			tex_address_mode border
-			tex_coord_set 1
+			tex_coord_set 4
 		}
 
 		texture_unit
 		{
 			content_type shadow
 			tex_address_mode border
-			tex_coord_set 2
+			tex_coord_set 5
+		}
+	}
+}
+
+abstract technique Shadows/managed2/base_receiver
+{
+	pass BaseRender
+	{
+		vertex_program_ref Example_Shadows_pssm_vs
+		{
+		}
+	
+		fragment_program_ref Example_Shadows_pssm_ps
+		{
+		}
+		
+		texture_unit Diffuse_Map
+		{
+
 		}
 	}
 }
