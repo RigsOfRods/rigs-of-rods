@@ -220,7 +220,7 @@ void MainThread::Go()
 
 	RoR::Application::CreateCacheSystem();
 
-	RoR::Application::GetCacheSystem()->setLocation(SSETTING("CachePath", ""), SSETTING("Config Root", ""));
+	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
 
 	Application::GetContentManager()->init();
 
@@ -1530,18 +1530,16 @@ void MainThread::RegenCache()
 
 void MainThread::initMatManager()
 {
-	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "ManagedMats/";
+	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
 
 	//Dirty, needs to be improved
 	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
-		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/on/", "FileSystem", "ShadowsMats");
 	else
-		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
-
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/off/", "FileSystem", "ShadowsMats");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
 	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture_manager/", "FileSystem", "TextureManager");
-
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
 
 	Envmap* env = new Envmap();
@@ -1549,6 +1547,5 @@ void MainThread::initMatManager()
 
 	//Last
 	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path, "FileSystem", "ManagedMats");
-
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }

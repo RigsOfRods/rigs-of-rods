@@ -269,7 +269,7 @@ void FlexBodyFileIO::OpenFile(const char* fopen_mode)
         throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED;
     }
     char path[500];
-    sprintf(path, "%sflexbodies_mod_%00d.dat", SSETTING("Cache Path", "").c_str(), m_cache_entry_number); // SSETTING(CachePath) includes separator
+    sprintf(path, "%sflexbodies_mod_%00d.dat", SSETTING("Cache Path", "").c_str(), m_cache_entry_number); // SSETTING(Cache Path) includes separator
     m_file = fopen(path, fopen_mode);
     if (m_file == nullptr)
     {
