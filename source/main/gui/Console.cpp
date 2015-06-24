@@ -296,7 +296,6 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			gEnv->terrainManager->setGravity(gValue);
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
-			gValue = NULL;
 			return;
 		} else if (args[0] == "/setwaterlevel")
 		{
