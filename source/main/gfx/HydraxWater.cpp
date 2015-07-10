@@ -60,7 +60,7 @@ void HydraxWater::InitHydrax()
 {
 	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
 
-	waternoise = new Hydrax::Noise::Perlin(Hydrax::Noise::Perlin::Options(waternoise->getOptions().Octaves, 0.5, waternoise->getOptions().Falloff, waternoise->getOptions().Animspeed, waternoise->getOptions().Timemulti));
+	waternoise = new Hydrax::Noise::Perlin();
 	mModule = new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer
 		mHydrax,
 		// Noise module
@@ -75,6 +75,17 @@ void HydraxWater::InitHydrax()
 	mHydrax->setModule(static_cast<Hydrax::Module::Module*>(mModule));
 
 	mHydrax->loadCfg(CurrentConfigFile);
+	
+	// Choose shader language based on renderer (HLSL=0, CG=1, GLSL=2)
+	if(Root::getSingleton().getRenderSystem()->getName() == "Direct3D9 Rendering Subsystem" || Root::getSingleton().getRenderSystem()->getName() == "Direct3D11 Rendering Subsystem")
+	{
+		mHydrax->setShaderMode(static_cast<Hydrax::MaterialManager::ShaderMode>(0));
+	}
+	else
+	{
+		mHydrax->setShaderMode(static_cast<Hydrax::MaterialManager::ShaderMode>(2));
+	}
+
 
 	mHydrax->create();
 	mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
