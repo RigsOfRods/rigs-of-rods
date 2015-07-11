@@ -158,6 +158,12 @@ public:
 	pthread_t worker_thread;
 
 	ThreadPool *beamThreadPool;
+	
+#ifdef USE_ANGELSCRIPT
+	// we have to add this to be able to use the class as reference inside scripts
+	void addRef(){};
+	void release(){};
+#endif
 
 protected:
 	
