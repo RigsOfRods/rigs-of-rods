@@ -55,7 +55,7 @@ overlay tracks/AirNeedlesOverlay
 			width 0.11
 			left 0.14
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/airspeedneedle_mat
 		}
@@ -203,7 +203,7 @@ overlay tracks/AirNeedlesOverlay
 			width 0.11
 			left 0.25
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/altimeterneedle_mat
 		}
@@ -216,7 +216,7 @@ overlay tracks/AirNeedlesOverlay
 			width 0.11
 			left 0.35
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/vvineedle_mat
 		}
@@ -229,7 +229,7 @@ overlay tracks/AirNeedlesOverlay
 			width 0.11
 			left 0.516
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/aoaneedle_mat
 		}
