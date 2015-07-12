@@ -5318,7 +5318,7 @@ bool Beam::navigateTo(Vector3 &in)
 				else if (WheelSpeed > maxvelo + 5)
 				{
 					brake = brakeforce / 3;
-					engine->autoSetAcc(power);
+					engine->autoSetAcc(0);
 				}
 				else
 				{
