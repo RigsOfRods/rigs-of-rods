@@ -5250,24 +5250,30 @@ bool Beam::navigateTo(Vector3 &in)
 	Vector3 mSteeringForce = mAgentOrientation.Inverse() * mVectorToTarget;
 	mSteeringForce.normalise();
 
-	//float mYaw    = mSteeringForce.x * 2;
-	//float mPitch  = mSteeringForce.y;
+	float mYaw    = mSteeringForce.x;
+	float mPitch  = mSteeringForce.z;
 	//float mRoll   = mTargetVO.getRotationTo( mAgentVO ).getRoll().valueRadians();
-	/*
-	if(mYaw > 1)
-		mYaw = 1;
 
-	if(mYaw < -1)
-		mYaw = -1;
-		*/
+	if(mPitch > 0)
+    {
+        if (mYaw > 0)
+            mYaw = 1;
+        else
+            mYaw = -1;
+    }
+
 	// actually steer
-	hydrodircommand = mSteeringForce.x;//mYaw
+	hydrodircommand = mYaw;//mYaw
 
 	// accelerate / brake
-	//float maxvelo = 1;
+	float maxvelo = 1;
 
-	//maxvelo = std::max<float>(0.2f, 1-fabs(mYaw)) * 50;
+	maxvelo = std::max<float>(0.2f, 1-fabs(mYaw)) * 50;
 
+	maxvelo += std::max<float>(5, std::min<float>(mVectorToTarget.length(), 50)) - 50;
+
+    if (maxvelo < 0)
+        maxvelo = 0;
 
 	Vector3 dir;
 	float pitch;
@@ -5291,16 +5297,12 @@ bool Beam::navigateTo(Vector3 &in)
 	//String txt = "brakePower: "+TOSTRING(brakePower);//+" @ "+TOSTRING(maxvelo)
 	///RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
 
+
 	if (engine)
 	{
 		if (mVectorToTarget.length() > 5.0f)
 		{
-			if (pitch > -10)
-			{
-				brake = 0;
-				engine->autoSetAcc(power);
-			}
-			else if(WheelSpeed > 10)
+			if(pitch < -5 && WheelSpeed > 10)
 			{
 				if (pitch < 0) pitch = -pitch;
 				brake = pitch * brakeforce / 90;
@@ -5308,8 +5310,21 @@ bool Beam::navigateTo(Vector3 &in)
 			}
 			else
 			{
-				brake = 0;
-				engine->autoSetAcc(power);
+				if (WheelSpeed < maxvelo - 5)
+				{
+					brake = 0;
+					engine->autoSetAcc(power);
+				}
+				else if (WheelSpeed > maxvelo + 5)
+				{
+					brake = brakeforce / 3;
+					engine->autoSetAcc(power);
+				}
+				else
+				{
+					brake = 0;
+					engine->autoSetAcc(0);
+				}
 			}
 			return false;
 		} 
