@@ -479,6 +479,11 @@ Vector3 Beam::getPosition()
 	return position; //the position is already in absolute position
 }
 
+Vector3 Beam::getVehiclePosition()
+{
+	return position; //the position is already in absolute position
+}
+
 void Beam::CreateSimpleSkeletonMaterial()
 {
 	if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
@@ -5207,46 +5212,23 @@ bool Beam::isLocked()
 	return false;
 }
 
-void Beam::updateAI(float dt)
+bool Beam::navigateTo(Vector3 &in)
 {
-	if (driveable != TRUCK ||
-		!gEnv->cameraManager ||
-		!gEnv->cameraManager->hasActiveBehavior() ||
-		!gEnv->cameraManager->gameControlsLocked())
-	{
-		return;
-	}
-
 	// start engine if not running
 	if (engine && !engine->running)
 		engine->start();
 
-	Vector3 TargetPosition = mCamera->getPosition();
-	TargetPosition.y=0;
+	Vector3 TargetPosition = in;
+	TargetPosition.y=0;	//Vector3 > Vector2
 	Quaternion TargetOrientation = Quaternion::ZERO;
 
 	Vector3 mAgentPosition        = position;
+	mAgentPosition.y=0;	//Vector3 > Vector2
 	Quaternion mAgentOrientation  = Quaternion(Radian(getHeadingDirectionAngle()), Vector3::NEGATIVE_UNIT_Y);
 	mAgentOrientation.normalise();
 
-#if 0
-	// this is for debugging purposes
-	static SceneNode *n = 0;
-	if (!n)
-	{
-		Entity *e = gEnv->sceneManager->createEntity("axes.mesh");
-		deletion_Entities.emplace_back(e);
-		n = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		deletion_sceneNodes.emplace_back(n);
-		n->attachObject(e);
-	}
-	n->setPosition(mAgentPosition);
-	n->setOrientation(mAgentOrientation);
-#endif
-
 	Vector3 mVectorToTarget       = TargetPosition - mAgentPosition; // A-B = B->A
 	mAgentPosition.normalise();
-	mAgentPosition.y=0;
 
 	Vector3 mAgentHeading         = mAgentOrientation * mAgentPosition;
 	Vector3 mTargetHeading        = TargetOrientation * TargetPosition;
@@ -5262,43 +5244,96 @@ void Beam::updateAI(float dt)
 	mSteeringForce.normalise();
 
 	float mYaw    = mSteeringForce.x;
-	//float mPitch  = mSteeringForce.y;
+	float mPitch  = mSteeringForce.z;
 	//float mRoll   = mTargetVO.getRotationTo( mAgentVO ).getRoll().valueRadians();
 
-	/*
-	String txt = "AI:"+TOSTRING(mSteeringForce);
-	RoR::Application::GetOverlayWrapper()->flashMessage(txt, 1, -1);
-	*/
+	if(mPitch > 0)
+    {
+        if (mYaw > 0)
+            mYaw = 1;
+        else
+            mYaw = -1;
+    }
 
 	// actually steer
-	hydrodircommand = mYaw;
+	hydrodircommand = mYaw;//mYaw
 
 	// accelerate / brake
 	float maxvelo = 1;
 
 	maxvelo = std::max<float>(0.2f, 1-fabs(mYaw)) * 50;
 
+	maxvelo += std::max<float>(5, std::min<float>(mVectorToTarget.length(), 50)) - 50;
+
+    if (maxvelo < 0)
+        maxvelo = 0;
+
+	Vector3 dir;
+	float pitch;
+	// pitch
+	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+	{
+		dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		dir.normalise();
+		float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
+		if (angle < -1) angle = -1;
+		if (angle >  1) angle =  1;
+
+		pitch = Radian(angle).valueDegrees();
+	}
+
+	//More power for uphill
+	float power = 80 + pitch;
+	power = power/100;
+
+
+	//String txt = "brakePower: "+TOSTRING(brakePower);//+" @ "+TOSTRING(maxvelo)
+	///RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
+
 
 	if (engine)
 	{
-		if (mVectorToTarget.length() > minCameraRadius * 2.0f)
+		if (mVectorToTarget.length() > 5.0f)
 		{
-			if (WheelSpeed < maxvelo)
-				engine->autoSetAcc(0.8f);
-			else
+			if(pitch < -5 && WheelSpeed > 10)
+			{
+				if (pitch < 0) pitch = -pitch;
+				brake = pitch * brakeforce / 90;
 				engine->autoSetAcc(0);
-			brake = 0;
-		} else
+			}
+			else
+			{
+				if (WheelSpeed < maxvelo - 5)
+				{
+					brake = 0;
+					engine->autoSetAcc(power);
+				}
+				else if (WheelSpeed > maxvelo + 5)
+				{
+					brake = brakeforce / 3;
+					engine->autoSetAcc(0);
+				}
+				else
+				{
+					brake = 0;
+					engine->autoSetAcc(0);
+				}
+			}
+			return false;
+		} 
+		else
 		{
 			engine->autoSetAcc(0);
 			brake = brakeforce;
-
-			if (!(int(gEnv->mrTime * 4.0f) % 2)) 
-			{
-				lightsToggle();
-			}
+			return true;
 		}
 	}
+	else
+	{
+		return true;
+	}
+
+
 }
 
 void Beam::updateDashBoards(float &dt)

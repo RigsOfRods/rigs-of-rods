@@ -835,17 +835,6 @@ void BeamFactory::updateVisual(float dt)
 	}
 }
 
-void BeamFactory::updateAI(float dt)
-{
-	for (int t=0; t < free_truck; t++)
-	{
-		if (trucks[t])
-		{
-			trucks[t]->updateAI(dt);
-		}
-	}
-}
-
 void BeamFactory::calcPhysics(float dt)
 {
 	physFrame++;
