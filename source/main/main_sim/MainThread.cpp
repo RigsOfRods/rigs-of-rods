@@ -1495,7 +1495,7 @@ void MainThread::initMatManager()
 	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "ManagedMats/";
 
 	//Dirty, needs to be improved
-	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
 		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
 	else
 		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
