@@ -101,6 +101,9 @@ public:
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
 	void resetPosition(float px, float pz, bool setInitPosition);
 
+	Ogre::Vector3 getVehiclePosition();
+
+
 	/**
 	* Moves vehicle.
 	* @param translation Offset to move vehicle.
@@ -214,7 +217,9 @@ public:
 	* Creates or updates skidmarks. No side effects.
 	*/
 	void updateSkidmarks();
-	void updateAI(float dt);
+
+	bool navigateTo(Ogre::Vector3 &in);
+
 
 	/**
 	* Prepares vehicle for in-cabin camera use.

@@ -119,7 +119,6 @@ public:
 	* TIGHT-LOOP; Logic: display, particles, sound; 
 	*/
 	void updateVisual(float dt);
-	void updateAI(float dt);
 
 	inline unsigned long getPhysFrame() { return physFrame; };
 
@@ -164,6 +163,12 @@ public:
 	pthread_t worker_thread;
 
 	ThreadPool *beamThreadPool;
+	
+#ifdef USE_ANGELSCRIPT
+	// we have to add this to be able to use the class as reference inside scripts
+	void addRef(){};
+	void release(){};
+#endif
 
 protected:
 	

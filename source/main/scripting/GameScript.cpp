@@ -77,6 +77,16 @@ void GameScript::log(const String &msg)
 	SLOG(msg);
 }
 
+void GameScript::activateAllVehicles()
+{
+	BeamFactory::getSingleton().activateAllTrucks();
+}
+
+void GameScript::setTrucksForcedActive(bool forceActive)
+{
+	BeamFactory::getSingleton().setTrucksForcedActive(forceActive);
+}
+
 double GameScript::getTime()
 {
 	double result = 0.0l;
