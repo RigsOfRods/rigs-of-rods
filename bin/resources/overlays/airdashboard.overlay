@@ -10,7 +10,7 @@ overlay tracks/AirDashboardOverlay
 			vert_align bottom
 //			horz_align center
 //			vert_align center
-			width 1.0
+			width 0.0
 			left 0.0
 //this part is recalculated for screen ratio
 			top -0.15
@@ -27,7 +27,7 @@ overlay tracks/AirDashboardOverlay
 //			vert_align center
 //			width 0.37
 //			left 0.28
-			width 0.8
+			width 0.0
 			left 0.0
 //this part is recalculated for screen ratio
 			top -0.14
@@ -35,18 +35,6 @@ overlay tracks/AirDashboardOverlay
 			material tracks/black
 		}
 	
-	container Panel (tracks/airhelp)
-		{
-			metrics_mode relative
-			horz_align left
-			vert_align bottom
-			width 0.48
-			left 0.14
-//this part is recalculated for screen ratio
-			top -0.03
-			height 0.03
-			material tracks/airhelp
-		}
 
 	container Panel (tracks/airspeed)
 		{
@@ -56,7 +44,7 @@ overlay tracks/AirDashboardOverlay
 			width 0.11
 			left 0.14
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/airspeed
 		}
@@ -70,15 +58,15 @@ overlay tracks/AirDashboardOverlay
 			width 0.11
 			left 0.25
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/altimeter
 			element TextArea(tracks/altimeter_val)
 			{
 				metrics_mode relative
-				left 0.024
+				left 0.020
 				width 0.05
-				top 0.045
+				top 0.048
 				height 0.025
 				font_name cent
 				char_height 0.025
@@ -96,7 +84,7 @@ overlay tracks/AirDashboardOverlay
 			width 0.056
 			left 0.36
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/vvi
 		}
@@ -109,7 +97,7 @@ overlay tracks/AirDashboardOverlay
 			width 0.11
 			left 0.416
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/adi-tape
 			container Panel (tracks/adi)
@@ -136,7 +124,7 @@ overlay tracks/AirDashboardOverlay
 			width 0.056
 			left 0.526
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/aoa
 		}
@@ -149,7 +137,7 @@ overlay tracks/AirDashboardOverlay
 			width 0.11
 			left 0.582
 //this part is recalculated for screen ratio
-			top -0.14
+			top -0.11
 			height 0.11
 			material tracks/hsi
 			container Panel (tracks/hsi-rose)
@@ -433,8 +421,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.095
-			left 0.14
-			top -0.18
+			left 0.17
+			top -0.14
 			height 0.04
 			material tracks/black
 			container Panel (tracks/ap_hdg_title_bg)
@@ -471,7 +459,7 @@ overlay tracks/AirDashboardOverlay
 					metrics_mode relative
 					left 0.005
 					width 0.05
-					top 0.001
+					top -0.001
 					height 0.02
 					font_name cent
 					char_height 0.02
@@ -515,8 +503,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.03
-			left 0.235
-			top -0.18
+			left 0.265
+			top -0.14
 			height 0.04
 			material tracks/wlv-off
 		}
@@ -526,8 +514,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.03
-			left 0.265
-			top -0.18
+			left 0.295
+			top -0.14
 			height 0.04
 			material tracks/nav-off
 		}
@@ -538,8 +526,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.095
-			left 0.295
-			top -0.18
+			left 0.325
+			top -0.14
 			height 0.04
 			material tracks/black
 			container Panel (tracks/ap_alt_title_bg)
@@ -576,7 +564,7 @@ overlay tracks/AirDashboardOverlay
 					metrics_mode relative
 					left 0.005
 					width 0.05
-					top 0.001
+					top -0.001
 					height 0.02
 					font_name cent
 					char_height 0.02
@@ -620,8 +608,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.095
-			left 0.390
-			top -0.18
+			left 0.420
+			top -0.14
 			height 0.04
 			material tracks/black
 			container Panel (tracks/ap_vs_title_bg)
@@ -658,7 +646,7 @@ overlay tracks/AirDashboardOverlay
 					metrics_mode relative
 					left 0.005
 					width 0.05
-					top 0.001
+					top -0.001
 					height 0.02
 					font_name cent
 					char_height 0.02
@@ -702,8 +690,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.095
-			left 0.485
-			top -0.18
+			left 0.515
+			top -0.14
 			height 0.04
 			material tracks/black
 			container Panel (tracks/ap_ias_title_bg)
@@ -740,7 +728,7 @@ overlay tracks/AirDashboardOverlay
 					metrics_mode relative
 					left 0.005
 					width 0.05
-					top 0.001
+					top -0.001
 					height 0.02
 					font_name cent
 					char_height 0.02
@@ -784,8 +772,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.03
-			left 0.580
-			top -0.18
+			left 0.610
+			top -0.14
 			height 0.04
 			material tracks/gpws-on
 		}
@@ -795,8 +783,8 @@ overlay tracks/AirDashboardOverlay
 			horz_align left
 			vert_align bottom
 			width 0.03
-			left 0.610
-			top -0.18
+			left 0.640
+			top -0.14
 			height 0.04
 			material tracks/brks-off
 		}
