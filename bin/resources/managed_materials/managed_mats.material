@@ -1,0 +1,78 @@
+import * from "shadows_mat.material"
+import * from "derbymutt.material"
+
+material RoR/Managed_Mats/Base
+{
+	technique BaseTechnique: Shadows/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+		
+	technique: SpecularMapping
+	{
+	}
+
+	technique: AOMapping
+	{
+	}
+}
+
+abstract material RoR/Managed_Mats/BaseNoShadows
+{
+	technique
+	{
+		pass
+		{
+		 texture_unit diffuse 1
+		 {
+				texture_alias diffuse_tex
+		 }
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/Vegetation
+{	
+	transparency_casts_shadows off
+	technique BaseTechnique
+	{
+	//Texture is rendred here
+		pass BaseRender: Shadows/managed/base_receiver
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 120
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/Transparent
+{
+	technique BaseTechnique: Shadows/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass BaseRender
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 120
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+}

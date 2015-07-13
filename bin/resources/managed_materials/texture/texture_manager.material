@@ -1,25 +1,7 @@
+//Credits: derbymutt
+
 abstract technique SpecularMapping
 {
-	pass
-	{
-		scene_blend_op subtract 
-		texture_unit
-		{
-			texture_alias specular_tex
-		}
-	}
-	pass
-	{
-		diffuse 0 0 0 0
-		emissive 0 0 0 0
-		specular 0.5 0.5 0.5 1 64
-		scene_blend add 
-		ambient 0 0 0 0
-		texture_unit
-		{
-			texture_alias specular_tex
-		}
-	}
 }
 
 abstract technique WaterMapping
