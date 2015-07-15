@@ -708,8 +708,9 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	if (BSETTING("Sunburn", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
 
-	if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
+	/*if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
+		*/
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
 
@@ -1492,17 +1493,17 @@ void MainThread::RegenCache()
 
 void MainThread::initMatManager()
 {
-	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "ManagedMats/";
+	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
 
 	//Dirty, needs to be improved
-	if (SSETTING("Shadows", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
 		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
 	else
 		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
-	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture_manager/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture/", "FileSystem", "TextureManager");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
 
 	//Last

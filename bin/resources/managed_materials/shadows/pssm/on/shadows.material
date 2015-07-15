@@ -1,0 +1,7 @@
+abstract technique Shadows/managed/base_receiver
+{
+	pass BaseRender
+	{
+
+	}
+}
