@@ -1955,7 +1955,7 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 	mesh_wheel.spring             = STR_PARSE_REAL(results[12]);
 	mesh_wheel.damping            = STR_PARSE_REAL(results[13]);
 	mesh_wheel.mesh_name          = results[16];
-	mesh_wheel.material_name      = results[17];
+	mesh_wheel.material_name      = results[18];
 
     char side_char = results[14].str().at(0);
     mesh_wheel.side = MeshWheel::SIDE_RIGHT;
@@ -5062,7 +5062,7 @@ void Parser::ParseMeshWheels2(Ogre::String const & line)
 	mesh_wheel_2.tyre_damping       = STR_PARSE_REAL(results[13]);
 	mesh_wheel_2.side               = MeshWheel::Side(results[14].str().at(0)); // The regex validates the data
 	mesh_wheel_2.mesh_name          = results[16];
-	mesh_wheel_2.material_name      = results[17];
+	mesh_wheel_2.material_name      = results[18];
 
 	m_current_module->mesh_wheels_2.push_back(mesh_wheel_2);
 }
