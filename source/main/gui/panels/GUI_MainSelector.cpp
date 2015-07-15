@@ -317,6 +317,24 @@ void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _i
 	}
 }
 
+template <typename T1, typename T2>
+struct sort_cats {
+	bool operator ()(std::pair<int, Category_Entry> const& a, std::pair<int, Category_Entry> const& b) const {
+		if( a.second.number ==  CacheSystem::CID_All ) return true;
+		if( b.second.number ==  CacheSystem::CID_All ) return false;
+		if( a.second.number ==  CacheSystem::CID_Fresh ) return true;
+		if( b.second.number ==  CacheSystem::CID_Fresh ) return false;
+		return a.second.title < b.second.title;
+	}
+};
+
+template <typename T1>
+struct sort_entries {
+	bool operator ()(CacheEntry const& a, CacheEntry const& b) const {
+		return a.dname < b.dname;
+	}
+};
+
 void CLASS::UpdateGuiData()
 {
 	std::map<int, int> mCategoryUsage;
@@ -352,6 +370,7 @@ void CLASS::UpdateGuiData()
 
 	int ts = getTimeStamp();
 	std::vector<CacheEntry> *entries = RoR::Application::GetCacheSystem()->getEntries();
+	std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
 	for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
 	{
 		// category hidden
@@ -401,12 +420,16 @@ void CLASS::UpdateGuiData()
 	}
 	int tally_categories = 0, current_category = 0;
 	std::map<int, Category_Entry> *cats = RoR::Application::GetCacheSystem()->getCategories();
-	for (std::map<int, Category_Entry>::iterator itc = cats->begin(); itc != cats->end(); itc++)
+
+	std::vector<std::pair<int, Category_Entry> > sorted_cats(cats->begin(), cats->end());
+	std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Category_Entry>());
+
+	for (std::vector<std::pair<int, Category_Entry>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
 	{
 		if (mCategoryUsage[itc->second.number] > 0)
 			tally_categories++;
 	}
-	for (std::map<int, Category_Entry>::iterator itc = cats->begin(); itc != cats->end(); itc++)
+	for (std::vector<std::pair<int, Category_Entry>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
 	{
 		int num_elements = mCategoryUsage[itc->second.number];
 		if (num_elements > 0)
