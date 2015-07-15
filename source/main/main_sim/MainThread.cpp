@@ -1493,7 +1493,7 @@ void MainThread::RegenCache()
 
 void MainThread::initMatManager()
 {
-	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "ManagedMats/";
+	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
 
 	//Dirty, needs to be improved
 	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
@@ -1503,7 +1503,7 @@ void MainThread::initMatManager()
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
-	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture_manager/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture/", "FileSystem", "TextureManager");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
 
 	//Last

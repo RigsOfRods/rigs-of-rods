@@ -2,9 +2,9 @@ import * from "managed_mats.material"
 
 material tracks/character: RoR/Managed_Mats/Base
 {
-	technique ShadowTechnique
+	technique BaseTechnique
 	{
-		pass 1
+		pass BaseRender
 		{
 			texture_unit diffuse 1
 			{

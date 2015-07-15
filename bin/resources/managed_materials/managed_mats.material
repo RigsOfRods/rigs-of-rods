@@ -1,7 +1,7 @@
-import * from "shadows_mat.material"
-import * from "derbymutt.material"
+import * from "shadows.material"
+import * from "texture_manager.material"
 
-material RoR/Managed_Mats/Base
+abstract material RoR/Managed_Mats/Base
 {
 	technique BaseTechnique: Shadows/managed/base_receiver
 	{
@@ -13,14 +13,6 @@ material RoR/Managed_Mats/Base
 				texture_alias diffuse_tex
 			}
 		}
-	}
-		
-	technique: SpecularMapping
-	{
-	}
-
-	technique: AOMapping
-	{
 	}
 }
 
@@ -38,9 +30,30 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 	}
 }
 
+abstract material RoR/Managed_Mats/BaseSpecular
+{
+	technique BaseTechnique: Shadows/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+		pass SpecularMapping1: Texture/managed/SpecularMapping
+		{
+			texture_unit SpecularMapping1_Tex
+			{
+				texture_alias specular_tex
+			}
+		}
+	}
+}
+
 abstract material RoR/Managed_Mats/Vegetation
 {	
-	transparency_casts_shadows off
 	technique BaseTechnique
 	{
 	//Texture is rendred here
