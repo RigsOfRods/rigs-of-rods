@@ -2609,8 +2609,8 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    Ogre::MaterialPtr test = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(def.name));
-	if (! test.isNull())
+	Ogre::MaterialPtr test = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(def.name));
+	if (!test.isNull())
 	{
 		std::stringstream msg;
 		msg << "Managed material '" << def.name << "' already exists (probably because the vehicle was already spawned before)";
@@ -2620,9 +2620,9 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 	Ogre::MaterialPtr material;
 	if (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT)
 	{
-		Ogre::String mat_name_base 
-			= (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD) 
-			? "managed/flexmesh_standard" 
+		Ogre::String mat_name_base
+			= (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD)
+			? "managed/flexmesh_standard"
 			: "managed/flexmesh_transparent";
 
 		if (def.HasDamagedDiffuseMap())
@@ -2635,10 +2635,9 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 				{
 					return;
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName(def.damaged_diffuse_map);
-				material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+				material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
 			}
 			else
 			{
@@ -2648,8 +2647,16 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 				{
 					return;
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.damaged_diffuse_map);				
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+			}
+			if (def.options.double_sided)
+			{
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+				if (def.HasSpecularMap())
+				{
+					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+				}
 			}
 		}
 		else
@@ -2662,9 +2669,8 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 				{
 					return;
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
-				material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+				material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
 			}
 			else
 			{
@@ -2674,15 +2680,23 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 				{
 					return;
 				}
-				material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);				
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+			}
+			if (def.options.double_sided)
+			{
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+				if (def.HasSpecularMap())
+				{
+					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+				}
 			}
 		}
 	}
 	else if (def.type == RigDef::ManagedMaterial::TYPE_MESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_MESH_TRANSPARENT)
 	{
-		Ogre::String mat_name_base 
-			= (def.type == RigDef::ManagedMaterial::TYPE_MESH_STANDARD) 
-			? "managed/mesh_standard" 
+		Ogre::String mat_name_base
+			= (def.type == RigDef::ManagedMaterial::TYPE_MESH_STANDARD)
+			? "managed/mesh_standard"
 			: "managed/mesh_transparent";
 
 		if (def.HasSpecularMap())
@@ -2693,9 +2707,8 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 			{
 				return;
 			}
-			material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);
-			material->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName(def.specular_map);
-			material->getTechnique(0)->getPass(1)->getTextureUnitState(0)->setTextureName(def.specular_map);
+			material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+			material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
 		}
 		else
 		{
@@ -2705,19 +2718,21 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 			{
 				return;
 			}
-			material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(def.diffuse_map);				
+			material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+
+			if (def.options.double_sided)
+			{
+				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+				if (def.HasSpecularMap())
+				{
+					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
+				}
+			}
 		}
 	}
 
 	/* Finalize */
-	if (def.options.double_sided)
-	{
-		material->getTechnique(0)->getPass(0)->setCullingMode(Ogre::CULL_NONE);
-		if (def.HasSpecularMap())
-		{
-			material->getTechnique(0)->getPass(1)->setCullingMode(Ogre::CULL_NONE);
-		}
-	}
+
 	material->compile();
 }
 

@@ -2,26 +2,26 @@
 
 abstract pass Texture/managed/SpecularMapping
 {
-	scene_blend add
-	texture_unit SpecularMapping1_Tex
-	{
-		texture_alias specular_tex
-		// use alpha from this texture
-		alpha_op_ex source1 src_texture src_texture
-		// and colour from last pass
-		colour_op_ex source2 src_texture src_texture
-	}
-	texture_unit envmap
-	{
-		cubic_texture EnvironmentTexture combinedUVW
-		color_op_ex blend_manual src_texture src_current 0.5
-		tex_address_mode wrap
-		scale 1 1
-		env_map cubic_reflection
+		scene_blend add
+		texture_unit SpecularMapping1_Tex
+		{
+			texture_alias specular_tex
+			// use alpha from this texture
+			alpha_op_ex source1 src_texture src_texture
+			// and colour from last pass
+			colour_op_ex source2 src_texture src_texture
+		}
+		texture_unit envmap
+		{
+			cubic_texture EnvironmentTexture combinedUVW
+			color_op_ex blend_manual src_texture src_current 0.5
+			tex_address_mode wrap
+							scale 1 1
+			env_map cubic_reflection
 
-		// alpha blend colour with colour from last pass
-		colour_op_ex modulate src_texture src_current
-	}
+			// alpha blend colour with colour from last pass
+			colour_op_ex modulate src_texture src_current
+		}
 }
 
 abstract technique WaterMapping
@@ -37,7 +37,7 @@ abstract technique WaterMapping
 			// and colour from last pass
 			colour_op_ex source2 src_texture src_texture
 		}
-		texture_unit
+		texture_unit envmap
 		{
 			cubic_texture EnvironmentTexture combinedUVW
 			color_op_ex blend_manual src_texture src_current 0.5

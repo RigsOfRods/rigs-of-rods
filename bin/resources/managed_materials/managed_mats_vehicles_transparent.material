@@ -1,0 +1,150 @@
+import * from "shadows.material"
+import * from "texture_manager.material"
+
+material managed/flexmesh_transparent/simple
+{
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver //Include shadows
+	{
+		pass BaseRender
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			texture_unit Diffuse_Map
+			{
+				texture unknown.dds
+			}
+		}
+	}
+}
+
+material managed/flexmesh_transparent/damageonly
+{
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver //Include shadows
+	{
+		pass BaseRender
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			
+			diffuse vertexcolour
+			texture_unit Diffuse_Map
+			{
+				texture unknown.dds
+				colour_op_ex source1 src_texture src_current 
+				alpha_op_ex source1 src_texture src_current
+			}
+			texture_unit Dmg_Diffuse_Map
+			{
+				texture unknown.dds
+				colour_op_ex blend_diffuse_alpha src_texture src_current 
+				alpha_op_ex blend_diffuse_alpha src_texture src_current
+			}
+		}
+	}
+}
+
+
+material managed/flexmesh_transparent/specularonly
+{
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver //Include shadows
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			depth_write off
+			
+			// Makes the pixel shader alpha output be used for alpha blending
+			scene_blend alpha_blend
+			diffuse vertexcolour
+
+			texture_unit Diffuse_Map
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+		}
+		pass SpecularMapping1: Texture/managed/SpecularMapping
+		{
+			depth_write off
+		}
+	}
+}
+
+material managed/flexmesh_transparent/speculardamage
+{
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver //Include shadows
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			depth_write off
+
+			// Makes the pixel shader alpha output be used for alpha blending
+			scene_blend alpha_blend
+			diffuse vertexcolour
+			//specular 0.5 0.5 0.5 1 12.5
+
+			texture_unit Diffuse_Map
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+			texture_unit Dmg_Diffuse_Map
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 2
+			}
+		}
+		pass SpecularMapping1: Texture/managed/SpecularMapping
+		{ 
+			depth_write off
+		}
+	}
+}
+
+material managed/mesh_transparent/simple
+{
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver //Include shadows
+	{
+		pass BaseRender
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			texture_unit Diffuse_Map
+			{
+				texture unknown.dds
+			}
+		}
+	}
+}
+
+material managed/mesh_transparent/specular
+{
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver //Include shadows
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			depth_write off
+			// Makes the pixel shader alpha output be used for alpha blending
+			scene_blend alpha_blend
+
+			texture_unit Diffuse_Map
+			{
+					// This pass will use this 2D texture as its input
+					texture unknown.dds 2d
+					tex_coord_set 0
+			}
+		}
+		pass SpecularMapping1: Texture/managed/SpecularMapping
+		{
+			depth_write off
+		}
+	}
+}

@@ -5,3 +5,11 @@ abstract technique Shadows/managed/base_receiver
 
 	}
 }
+
+abstract technique Shadows/managed_transparent/base_receiver
+{
+	pass BaseRender
+	{
+
+	}
+}
