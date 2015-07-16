@@ -214,6 +214,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("end_section")                                \
     E_KEYWORD_BLOCK("engine")                                     \
     E_KEYWORD_BLOCK("engoption")                                  \
+	E_KEYWORD_BLOCK("engturbo")									  \
     E_KEYWORD_BLOCK("envmap")                                     \
     E_KEYWORD_BLOCK("exhausts")                                   \
     E_KEYWORD_INLINE("extcamera")                                 \
@@ -1169,6 +1170,16 @@ DEFINE_REGEX( SECTION_ENGOPTION,
 		)
 	)
 	E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #29 Illegal text */ 
+	E_TRAILING_WHITESPACE
+	);
+
+DEFINE_REGEX(SECTION_ENGTURBO,
+	E_LEADING_WHITESPACE
+	E_CAPTURE(E_REAL_NUMBER) /* #1 Inertia */
+	E_DELIMITER_COMMA
+	E_CAPTURE(E_REAL_NUMBER) /* #1 Number of turbos */
+	E_DELIMITER_COMMA
+	E_CAPTURE(E_REAL_NUMBER) /* #1 Additional Torque */
 	E_TRAILING_WHITESPACE
 	);
 

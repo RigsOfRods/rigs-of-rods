@@ -5824,6 +5824,30 @@ void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 	}
 };
 
+void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
+{
+	/* Is this a land vehicle? */
+	if (m_rig->engine == nullptr)
+	{
+		AddMessage(Message::TYPE_WARNING, "Section 'engturbo' found but no engine defined. Skipping ...");
+		return;
+	}
+	
+		/* Find it */
+	boost::shared_ptr<RigDef::Engturbo> engturbo;
+	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	for (; module_itor != m_selected_modules.end(); module_itor++)
+	{
+		if (module_itor->get()->engturbo != nullptr)
+		{
+			engturbo = module_itor->get()->engturbo;
+		}
+	}
+	
+		/* Process it */
+	m_rig->engine->setTurboOptions(engturbo->tinertiaFactor, engturbo->nturbos, engturbo->additionalTorque);
+};
+
 void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 {
 	SPAWNER_PROFILE_SCOPED();

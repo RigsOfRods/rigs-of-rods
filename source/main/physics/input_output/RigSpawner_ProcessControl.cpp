@@ -141,6 +141,9 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'engoption' in any module
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGOPTION, engoption, ProcessEngoption);
 
+	/* Section 'engturbo' in any module */
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ENGTURBO, engturbo, ProcessEngturbo);
+
 	// Section 'torquecurve' in any module.
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
 

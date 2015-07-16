@@ -49,6 +49,7 @@ struct Command2;
 struct CruiseControl;
 struct Engine;
 struct Engoption;
+struct Engturbo;
 struct ExtCamera;
 struct File;
 struct Flare;

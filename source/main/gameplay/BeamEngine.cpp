@@ -41,7 +41,6 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, curEngineRPM(0.0f)
 	, curGear(0)
 	, curGearRange(0)
-	, curTurboRPM(0.0f)
 	, curWheelRevolutions(0.0f)
 	, diffRatio(dratio)
 	, engineTorque(torque - brakingTorque)
@@ -73,6 +72,9 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, type('t')
 	, upShiftDelayCounter(0)
 	, is_Electric(false)
+	, turboInertiaFactor(1)
+	, numTurbos(1)
+	, maxTurboRPM(200000.0f)
 {
 	fullRPMRange = (maxRPM - minRPM);
 	oneThirdRPMRange = fullRPMRange / 3.0f;
@@ -83,6 +85,12 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	{
 		(*it) *= diffRatio;
 	}
+
+	for (int i = 0; i < MAXTURBO; i++)
+	{ 
+		EngineAddiTorque[i] = 0;
+		curTurboRPM[i] = 0;
+	}
 }
 
 BeamEngine::~BeamEngine()
@@ -90,6 +98,21 @@ BeamEngine::~BeamEngine()
 	// delete NULL is safe
 	delete torqueCurve;
 	torqueCurve = NULL;
+}
+
+void BeamEngine::setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque)
+{
+	if (!hasturbo)
+		hasturbo = true; //Should have a turbo
+
+	//if (nturbos <= 0) numTurbos = 1;
+
+	numTurbos = nturbos;
+	turboInertiaFactor = tinertiaFactor;
+
+	for (int i = 0; i < numTurbos; i++)
+		EngineAddiTorque[i] = additionalTorque / numTurbos;
+
 }
 
 void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
@@ -127,7 +150,8 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 		{
 			clutchForce = 5000.0f;
 		}
-	} else
+	}
+	else
 	{
 		is_Electric = false;
 		// it's a truck
@@ -171,24 +195,30 @@ void BeamEngine::update(float dt, int doUpdate)
 
 	if (hasturbo)
 	{
-		// update turbo speed (lag)
-		float turbotorque = 0.0f;
-		float turboInertia = 0.000003f;
-
-		// braking (compression)
-		turbotorque -= curTurboRPM / 200000.0f;
-
-		// powering (exhaust) with limiter
-		if (curTurboRPM < 200000.0f && running && acc > 0.06f)
+		for (int i = 0; i < numTurbos; i++)
 		{
-			turbotorque += 1.5f * acc * (curEngineRPM / maxRPM);
-		} else
-		{
-			turbotorque += 0.1f * (curEngineRPM / maxRPM);
+			// update turbo speed (lag)
+			// reset each of the values for each turbo
+			turbotorque = 0.0f;
+
+			turboInertia = 0.000003f * turboInertiaFactor;
+
+			// braking (compression)
+			turbotorque -= curTurboRPM[i] / maxTurboRPM;
+
+			// powering (exhaust) with limiter
+			if (curTurboRPM[i] < maxTurboRPM && running && acc > 0.06f)
+			{
+				turbotorque += 1.5f * acc * (curEngineRPM / maxRPM);
+			}
+			else
+			{
+				turbotorque += 0.1f * (curEngineRPM / maxRPM);
+			}
+
+			// integration
+			curTurboRPM[i] += dt * turbotorque / turboInertia;
 		}
-
-		// integration
-		curTurboRPM += dt * turbotorque / turboInertia;
 	}
 
 	// update engine speed
@@ -557,7 +587,8 @@ void BeamEngine::updateAudio(int doUpdate)
 #ifdef USE_OPENAL
 	if (hasturbo)
 	{
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM);
+		for (int i = 0; i < numTurbos; i++)
+			 SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM[i]);
 	}
 
 	if (doUpdate)
@@ -619,7 +650,12 @@ void BeamEngine::setAcc(float val)
 
 float BeamEngine::getTurboPSI()
 {
-	return curTurboRPM / 10000.0f;
+	float allPSI = 0;
+
+	for (int i = 0; i < numTurbos; i++)
+		allPSI += curTurboRPM[i] / 10000.0f;
+
+	return allPSI;
 }
 
 float BeamEngine::getAcc()
@@ -644,11 +680,9 @@ void BeamEngine::netForceSettings(float rpm, float force, float clutch, int gear
 
 float BeamEngine::getSmoke()
 {
-	const int maxTurboRPM = 200000.0f;
-
 	if (running)
 	{
-		return curAcc * (1.0f - curTurboRPM / maxTurboRPM);// * engineTorque / 5000.0f;
+		return curAcc * (1.0f - curTurboRPM[0] /* doesn't matter */ / maxTurboRPM);// * engineTorque / 5000.0f;
 	}
 
 	return -1;
@@ -735,7 +769,10 @@ void BeamEngine::start()
 	curClutch = 0.0f;
 	curEngineRPM = 750.0f;
 	curClutchTorque = 0.0f;
-	curTurboRPM = 0.0f;
+
+	for (int i = 0; i < numTurbos; i++)
+		 curTurboRPM[i] = 0.0f;
+
 	apressure = 0.0f;
 	running = true;
 	contact = true;
@@ -928,7 +965,9 @@ void BeamEngine::setManualClutch(float val)
 float BeamEngine::getEnginePower(float rpm)
 {
 	// engine power with limiter
-	float tqValue = 1.0f;
+	float tqValue = 0.0f; //This is not a value, it's more of a ratio(0-1), really got me lost..
+
+	float atValue = 0.0f; //Additional torque (turbo integreation)
 
 	float rpmRatio = rpm / (maxRPM * 1.25f);
 
@@ -939,7 +978,13 @@ float BeamEngine::getEnginePower(float rpm)
 		tqValue = torqueCurve->getEngineTorque(rpmRatio);
 	}
 
-	return engineTorque * tqValue;
+	if (hasturbo)
+	{
+		for (int i = 0; i < numTurbos; i++)
+			atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+	}
+
+	return (engineTorque * tqValue) + atValue;
 }
 
 float BeamEngine::getAccToHoldRPM(float rpm)
