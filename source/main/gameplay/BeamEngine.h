@@ -79,6 +79,14 @@ public:
 	void setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
 
 	/**
+	* Sets turbo options.
+	* @param tinertiatinertiaFactor Turbo inertia factor
+	* @param nturbos Number of turbos
+	* @param additionalTorque Torque that will be added to the engine at max turbo rpm
+	**/
+	void setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop);
+
+	/**
 	* Set current engine RPM.
 	*/
 	void setRPM(float rpm);
@@ -231,7 +239,16 @@ protected:
 	std::deque<float> brakes;
 
 	// turbo
-	float curTurboRPM;
+	//Yeah i know, a bit dirty
+	#define MAXTURBO 4
+	float curTurboRPM[MAXTURBO];
+	float turboInertiaFactor;
+	int numTurbos;
+	const int maxTurboRPM;
+	float turbotorque;
+	float turboInertia;
+	float EngineAddiTorque[MAXTURBO];
+	float turboEngineRpmOperation;
 
 	// air pressure
 	TorqueCurve *torqueCurve;

@@ -612,6 +612,20 @@ struct Engoption
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section ENGTURBO
+/* -------------------------------------------------------------------------- */
+ 
+struct Engturbo
+{
+	Engturbo();
+	
+	float tinertiaFactor;
+	int nturbos;
+	float additionalTorque;
+	float enginerpmop;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section EXHAUSTS
 /* -------------------------------------------------------------------------- */
 
@@ -1988,16 +2002,15 @@ struct File
 		std::vector<Cinecam>               cinecam;
 		std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
 		boost::shared_ptr<CruiseControl>   cruise_control;
-		std::vector<Node::Ref>              contacters;
+		std::vector<Node::Ref>             contacters;
 		boost::shared_ptr<Engine>          engine;
 		boost::shared_ptr<Engoption>       engoption;
+		boost::shared_ptr<Engturbo>        engturbo;
 		std::vector<Exhaust>               exhausts;
 		boost::shared_ptr<ExtCamera>       ext_camera;
 		std::vector<Node::Ref>              fixes;
 		std::vector<Flare2>                flares_2;
-		std::vector<
-			boost::shared_ptr<Flexbody>
-		>                                  flexbodies;
+		std::vector<boost::shared_ptr<Flexbody>>	flexbodies;
 		std::vector<FlexBodyWheel>         flex_body_wheels;
 		std::vector<Fusedrag>              fusedrag;
 		boost::shared_ptr<Globals>         globals;
@@ -2076,6 +2089,7 @@ struct File
 		KEYWORD_END_SECTION,
 		KEYWORD_ENGINE,
 		KEYWORD_ENGOPTION,
+		KEYWORD_ENGTURBO,
 		KEYWORD_ENVMAP,
 		KEYWORD_EXHAUSTS,
 		KEYWORD_EXTCAMERA,
@@ -2176,6 +2190,7 @@ struct File
 		SECTION_CONTACTERS,
 		SECTION_ENGINE,
 		SECTION_ENGOPTION,
+		SECTION_ENGTURBO,
 		SECTION_EXHAUSTS,
 		SECTION_FIXES,
 		SECTION_FLARES,

@@ -237,6 +237,11 @@ protected:
 	void ProcessEngoption(RigDef::Engoption & def);
 
 	/**
+	* Section 'engturbo' in any module.
+	*/
+	void ProcessEngturbo(RigDef::Engturbo & def);
+
+	/**
 	* Section 'exhausts'.
 	*/
 	void ProcessExhaust(RigDef::Exhaust & def);

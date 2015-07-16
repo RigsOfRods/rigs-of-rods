@@ -6,7 +6,7 @@ material tracks/character: RoR/Managed_Mats/Base
 	{
 		pass BaseRender
 		{
-			texture_unit diffuse 1
+			texture_unit Diffuse_Map 1
 			{
 				texture character.dds
 			}
