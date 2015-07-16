@@ -1,5 +1,5 @@
 # Authors of Rigs of Rods
-Rigs of Rods is licensed under GPLv3 or later by the following authors (in no particular order) if not stated otherwise. A copy of the license can be found in [LICENSE.txt](LICENSE.txt) or online at http://www.gnu.org/licenses/gpl-3.0.en.html
+Rigs of Rods is licensed under GPLv3 or later by the following authors (in no particular order) if not stated otherwise. A copy of the license can be found in [COPYING](COPYING) or online at http://www.gnu.org/licenses/gpl-3.0.en.html
 
 ##### Previous authors of the source code
 

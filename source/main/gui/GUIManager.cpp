@@ -155,9 +155,7 @@ void GUIManager::killSimUtils()
 {
 	if (m_gui_SimUtils.get() != nullptr)
 	{
-		//delete(m_gui_SimUtils.get());
-		m_gui_SimUtils->~SimUtils();
-		m_gui_SimUtils = nullptr;
+		m_gui_SimUtils.reset();
 	}	
 }
 

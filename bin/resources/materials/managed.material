@@ -1,5 +1,3 @@
-import * from "pssm_mat.material"
-
 material managed/flexmesh_standard/simple
 {
 	technique

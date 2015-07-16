@@ -59,6 +59,18 @@ public:
 	void log(const Ogre::String &msg);
 
 	/**
+	 * moves the person relative
+	 * @param vec translation vector
+	 */
+	void activateAllVehicles();
+
+	/**
+	 * moves the person relative
+	 * @param vec translation vector
+	 */
+	void setTrucksForcedActive(bool forceActive);
+
+	/**
 	 * returns the time in seconds since the game was started
 	 * @return time in seconds
 	 */
