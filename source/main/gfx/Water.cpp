@@ -103,7 +103,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 	fade = gEnv->sceneManager->getFogColour();
 	waterSceneMgr = gEnv->sceneManager;
 
-	wHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));;
+	wHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));
 	wbHeight = PARSEREAL(mTerrainConfig.getSetting("WaterBottomLine", "General"));
 
 	if (mapSize.x < 1500 && mapSize.z < 1500)
@@ -412,7 +412,7 @@ void Water::showWave(Vector3 refpos)
 		for (pz=0; pz<WAVEREZ+1; pz++)
 		{
 			Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+1]=getHeightWaves(refpos+Vector3((mapsize.x * mScale)/2-(float)px*(mapsize.x * mScale)/WAVEREZ, 0, (float)pz*(mapsize.z * mScale)/WAVEREZ-(mapsize.z * mScale)/2));
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+1]=getHeightWaves(refpos+Vector3((mapsize.x * mScale)/2-(float)px*(mapsize.x * mScale)/WAVEREZ, 0, (float)pz*(mapsize.z * mScale)/WAVEREZ-(mapsize.z * mScale)/2)) - wHeight;
 		}
 	}
 	//normals
