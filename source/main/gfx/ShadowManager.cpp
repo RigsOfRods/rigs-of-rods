@@ -56,7 +56,7 @@ int ShadowManager::updateShadowTechnique()
 {
 	float shadowFarDistance = FSETTING("SightRange", 2000);
 	float scoef = 0.12;
-	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
+	//gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 	gEnv->sceneManager->setShowDebugShadows(false);
 
 	if (ShadowsType == SHADOWS_TEXTURE)
@@ -105,22 +105,22 @@ void ShadowManager::processTextureShadows()
 
 void ShadowManager::processPSSM()
 {
-	gEnv->sceneManager->setShadowFarDistance(2000);
+	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(100.0f);
+	gEnv->sceneManager->setShadowFarDistance(60.f);
 	gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
 	gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
+	gEnv->sceneManager->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
 
 	if (PSSM_Shadows.mPSSMSetup.isNull())
 	{
 		// shadow camera setup
 		Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
-		//pssmSetup->setCameraLightDirectionThreshold(Ogre::Degree(15.0));
-		//pssmSetup->setUseAggressiveFocusRegion(true);
-		//pssmSetup->setUseSimpleOptimalAdjust(false);
 
-		/*pssmSetup->calculateSplitPoints(3, 0.5, 600, 0.91f);
-		*/
-		pssmSetup->setSplitPadding(5);
+		pssmSetup->setSplitPadding(0.1);
+
+		pssmSetup->calculateSplitPoints(3, 0.5, 600, 0.91f);
+
 		pssmSetup->setOptimalAdjustFactor(0, 2);
 		pssmSetup->setOptimalAdjustFactor(1, 1);
 		pssmSetup->setOptimalAdjustFactor(2, 0.5);
@@ -130,17 +130,14 @@ void ShadowManager::processPSSM()
 	}
 	gEnv->sceneManager->setShadowCameraSetup(PSSM_Shadows.mPSSMSetup);
 
-
-	gEnv->sceneManager->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
-
-	gEnv->sceneManager->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT16_RGB);
-	gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT16_RGB);
-	gEnv->sceneManager->setShadowTextureConfig(2, 512,  512,  PF_FLOAT16_RGB);
+	gEnv->sceneManager->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(2, 1024, 1024, PF_FLOAT32_R);
 
 	gEnv->sceneManager->setShadowTextureSelfShadow(true);
 	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
-	gEnv->sceneManager->setShadowTextureCasterMaterial(PSSM_Shadows.mDepthShadows ? "PSSM/shadow_caster" : Ogre::StringUtil::BLANK);
+	gEnv->sceneManager->setShadowTextureCasterMaterial("PSSM/shadow_caster");
 
 	updatePSSM();
 }
@@ -163,19 +160,12 @@ void ShadowManager::updatePSSM(Ogre::Terrain* terrain)
 	Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList = pssmSetup->getSplitPoints();
 
 	
-	splitPointList[0] = 1.0;
-	splitPointList[1] = 95.0;
-	splitPointList[2] = 255.0;
-	splitPointList[3] = 512.0;
-	pssmSetup->setSplitPoints(splitPointList);
-	
-	
 	Ogre::Vector4 splitPoints;
 	for (int i = 0; i < PSSM_Shadows.ShadowsTextureNum; ++i)
 		splitPoints[i] = splitPointList[i];
 
-	MaterialPtr mat = MaterialManager::getSingleton().getByName("RoR/Managed_Mats/Base");
-	mat->getTechnique("ShadowTechnique")->getPass(0)->getFragmentProgramParameters()->setNamedConstant("pssmSplitPoints", splitPoints);
+	//MaterialPtr mat = MaterialManager::getSingleton().getByName("RoR/Managed_Mats/Base");
+	//mat->getTechnique("ShadowTechnique")->getPass(0)->getFragmentProgramParameters()->setNamedConstant("pssmSplitPoints", splitPoints);
 
 	// TODO: fix this
 /*	setMaterialSplitPoints("road", splitPoints);

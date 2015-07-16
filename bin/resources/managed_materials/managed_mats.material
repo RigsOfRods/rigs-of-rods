@@ -1,0 +1,91 @@
+import * from "shadows.material"
+import * from "texture_manager.material"
+
+abstract material RoR/Managed_Mats/Base
+{
+	technique BaseTechnique: Shadows/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/BaseNoShadows
+{
+	technique
+	{
+		pass
+		{
+		 texture_unit diffuse 1
+		 {
+				texture_alias diffuse_tex
+		 }
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/BaseSpecular
+{
+	technique BaseTechnique: Shadows/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+		pass SpecularMapping1: Texture/managed/SpecularMapping
+		{
+			texture_unit SpecularMapping1_Tex
+			{
+				texture_alias specular_tex
+			}
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/Vegetation
+{	
+	technique BaseTechnique
+	{
+	//Texture is rendred here
+		pass BaseRender: Shadows/managed/base_receiver
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 120
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+}
+
+abstract material RoR/Managed_Mats/Transparent
+{
+	technique BaseTechnique: Shadows/managed/base_receiver
+	{
+	//Texture is rendred here
+		pass BaseRender
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 120
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture_alias diffuse_tex
+			}
+		}
+	}
+}
