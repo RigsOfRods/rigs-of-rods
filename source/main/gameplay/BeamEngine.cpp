@@ -75,6 +75,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, turboInertiaFactor(1)
 	, numTurbos(1)
 	, maxTurboRPM(200000.0f)
+	, turboEngineRpmOperation(0.0f)
 {
 	fullRPMRange = (maxRPM - minRPM);
 	oneThirdRPMRange = fullRPMRange / 3.0f;
@@ -100,15 +101,20 @@ BeamEngine::~BeamEngine()
 	torqueCurve = NULL;
 }
 
-void BeamEngine::setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque)
+void BeamEngine::setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop)
 {
 	if (!hasturbo)
 		hasturbo = true; //Should have a turbo
 
-	//if (nturbos <= 0) numTurbos = 1;
+	if (nturbos > MAXTURBO)
+	{
+		numTurbos = 4;
+		LOG("Turbo: No more than 4 turbos allowed"); //TODO: move this under RigParser
+	}
 
 	numTurbos = nturbos;
 	turboInertiaFactor = tinertiaFactor;
+	turboEngineRpmOperation = enginerpmop;
 
 	for (int i = 0; i < numTurbos; i++)
 		EngineAddiTorque[i] = additionalTorque / numTurbos;
@@ -207,13 +213,16 @@ void BeamEngine::update(float dt, int doUpdate)
 			turbotorque -= curTurboRPM[i] / maxTurboRPM;
 
 			// powering (exhaust) with limiter
-			if (curTurboRPM[i] < maxTurboRPM && running && acc > 0.06f)
+			if (curEngineRPM >= turboEngineRpmOperation)
 			{
-				turbotorque += 1.5f * acc * (curEngineRPM / maxRPM);
-			}
-			else
-			{
-				turbotorque += 0.1f * (curEngineRPM / maxRPM);
+				if (curTurboRPM[i] < maxTurboRPM && running && acc > 0.06f)
+				{
+					turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+				}
+				else
+				{
+					turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) /( maxRPM - turboEngineRpmOperation)));
+				}
 			}
 
 			// integration

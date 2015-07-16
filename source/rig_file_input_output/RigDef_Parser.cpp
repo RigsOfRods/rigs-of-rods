@@ -3184,7 +3184,8 @@ void Parser::ParseEngturbo(Ogre::String const & line)
 	engturbo.tinertiaFactor = STR_PARSE_REAL(results[1]);
 	engturbo.nturbos = STR_PARSE_REAL(results[2]);
 	engturbo.additionalTorque = STR_PARSE_REAL(results[3]);
-	
+	engturbo.enginerpmop = STR_PARSE_REAL(results[4]);
+
 	m_current_module->engturbo = boost::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
 

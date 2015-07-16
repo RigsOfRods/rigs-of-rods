@@ -622,6 +622,7 @@ struct Engturbo
 	float tinertiaFactor;
 	int nturbos;
 	float additionalTorque;
+	float enginerpmop;
 };
 
 /* -------------------------------------------------------------------------- */
