@@ -619,6 +619,7 @@ struct Engturbo
 {
 	Engturbo();
 	
+	int version;
 	float tinertiaFactor;
 	int nturbos;
 	float additionalTorque;

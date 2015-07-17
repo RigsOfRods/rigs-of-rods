@@ -76,6 +76,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, numTurbos(1)
 	, maxTurboRPM(200000.0f)
 	, turboEngineRpmOperation(0.0f)
+	, turboVer(1)
 {
 	fullRPMRange = (maxRPM - minRPM);
 	oneThirdRPMRange = fullRPMRange / 3.0f;
@@ -101,7 +102,7 @@ BeamEngine::~BeamEngine()
 	torqueCurve = NULL;
 }
 
-void BeamEngine::setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop)
+void BeamEngine::setTurboOptions(int ver, float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop)
 {
 	if (!hasturbo)
 		hasturbo = true; //Should have a turbo
@@ -110,15 +111,23 @@ void BeamEngine::setTurboOptions(float tinertiaFactor, int nturbos, float additi
 	{
 		numTurbos = 4;
 		LOG("Turbo: No more than 4 turbos allowed"); //TODO: move this under RigParser
-	}
+	} else
+		numTurbos = nturbos;
 
-	numTurbos = nturbos;
+	turboVer = ver;
 	turboInertiaFactor = tinertiaFactor;
 	turboEngineRpmOperation = enginerpmop;
 
-	for (int i = 0; i < numTurbos; i++)
-		EngineAddiTorque[i] = additionalTorque / numTurbos;
-
+	if (turboVer == 1)
+	{
+		for (int i = 0; i < numTurbos; i++)
+			EngineAddiTorque[i] = additionalTorque / numTurbos;
+	}
+	else
+	{
+		turboMaxPSI = additionalTorque;
+		maxTurboRPM = turboMaxPSI * 10000;
+	}
 }
 
 void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
@@ -659,12 +668,12 @@ void BeamEngine::setAcc(float val)
 
 float BeamEngine::getTurboPSI()
 {
-	float allPSI = 0;
+	turboPSI = 0;
 
 	for (int i = 0; i < numTurbos; i++)
-		allPSI += curTurboRPM[i] / 10000.0f;
+		turboPSI += curTurboRPM[i] / 10000.0f;
 
-	return allPSI;
+	return turboPSI;
 }
 
 float BeamEngine::getAcc()
@@ -989,8 +998,15 @@ float BeamEngine::getEnginePower(float rpm)
 
 	if (hasturbo)
 	{
-		for (int i = 0; i < numTurbos; i++)
-			atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+		if (turboVer == 1)
+		{
+			for (int i = 0; i < numTurbos; i++)
+				atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+		}
+		else
+		{
+			atValue = (((getTurboPSI() * 6.8) * engineTorque) / 100); //1psi = 6% more power
+		}
 	}
 
 	return (engineTorque * tqValue) + atValue;
