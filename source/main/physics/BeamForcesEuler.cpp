@@ -42,17 +42,16 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 #include "ThreadPool.h"
 
-#define BEAMS_INTER_TRUCK_PARALLEL 0
+#define BEAMS_INTER_TRUCK_PARALLEL 1
 #define BEAMS_INTRA_TRUCK_PARALLEL 0
 #define NODES_INTER_TRUCK_PARALLEL 1
-#define NODES_INTRA_TRUCK_PARALLEL 1
+#define NODES_INTRA_TRUCK_PARALLEL 0
 
 using namespace Ogre;
 
 void Beam::calcForcesEulerCompute(int doUpdate_int, Real dt, int step, int maxsteps)
 {
     bool doUpdate = (doUpdate_int != 0);
-	float inverted_dt = 1.0f / dt;
 	calcTruckEngine(doUpdate, dt);
 
 	// calc
@@ -1880,12 +1879,9 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 			Vector3 v = beams[i].p1->Velocity - beams[i].p2->Velocity;
 
 			float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
-			float len = slen;
 			beams[i].stress = slen;
-			if (len < 0.0f)
-			{
-				len = -len;
-			}
+			float len = std::abs(slen);
+			
 
 			// Fast test for deformation
 			if (len > beams[i].minmaxposnegstress)

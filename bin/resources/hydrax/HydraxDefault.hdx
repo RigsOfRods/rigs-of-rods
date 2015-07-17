@@ -11,7 +11,8 @@ HydraxVersion=0.5.4
 <vector3>WaterColor=0.0886994x0.204166x0.238806
 
 #Components field
-Components=Sun|Foam|Depth|Smooth|Caustics|Underwater|UnderwaterReflections
+Components=Foam|Depth|Smooth|Caustics|Underwater|UnderwaterReflections
+#Broken with OpenGL: Sun|UnderwaterGodrays
 
 #Foam parameters
 <float>FoamMaxDistance=7.5e+006
