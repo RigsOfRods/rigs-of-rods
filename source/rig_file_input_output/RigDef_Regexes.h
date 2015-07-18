@@ -1410,7 +1410,7 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 	);
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
-	"^forset"
+	"^forset[:]?" // Tolerate invalid ":" after keyword, observed i.e. in http://www.rigsofrods.com/repository/view/2497
 	E_CAPTURE( E_DELIMITER )
 	E_CAPTURE( ".*$" ) /* #2 Entire line */
 	);

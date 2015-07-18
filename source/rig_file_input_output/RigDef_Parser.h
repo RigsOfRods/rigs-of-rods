@@ -173,6 +173,7 @@ protected:
 	void ParseBrakes(Ogre::String line);
 
 	void ParseCameras(Ogre::String const & line);
+	void ParseCamerasUnsafe(Ogre::String const & line);
 
 	void ParseCameraRails(Ogre::String const & line);
 
@@ -233,6 +234,8 @@ protected:
 	void ParseMaterialFlareBindings(Ogre::String const & line);
 
 	void ParseMeshWheel(Ogre::String const & line);
+	void ParseMeshWheelUnsafe(Ogre::String const & line);
+	void VerifyAndProcessMeshWheel(Ogre::String const & line, MeshWheel& mesh_wheel_def, int braking, int propulsion, char side);
 
 	void ParseMeshWheels2(Ogre::String const & line);
 
@@ -281,6 +284,7 @@ protected:
 	void ParseSpeedLimiter(Ogre::String const & line);
 
 	void ParseSubmesh(Ogre::String const & line);
+	void ParseSubmeshUnsafe(Ogre::String const & line);
 
 	void ParseSubmeshGroundModel(Ogre::String const & line);
 
@@ -319,6 +323,8 @@ protected:
     /** Attempts to parse cab line. Returns true if successful.
     */
     bool _TryParseCab(Ogre::String const & line);
+
+	unsigned int _ParseCabOptions(Ogre::String const & options_str);
 
 	void _CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index);
 
