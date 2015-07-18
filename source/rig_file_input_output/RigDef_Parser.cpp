@@ -2278,6 +2278,47 @@ void Parser::ParseDirectiveFlexbodyCameraMode(Ogre::String const & line)
 	_ParseCameraSettings(m_last_flexbody->camera_settings, results[1]);
 }
 
+unsigned int Parser::_ParseCabOptions(Ogre::String const & options_str)
+{
+	unsigned int cab_options = 0;
+	for (unsigned int i = 0; i < options_str.length(); i++)
+	{
+		switch (options_str.at(i))
+		{
+		case 'c':
+			cab_options |= Cab::OPTION_c_CONTACT;
+			break;
+		case 'b':
+			cab_options |= Cab::OPTION_b_BUOYANT;
+			break;
+		case 'D':
+			cab_options |= (Cab::OPTION_c_CONTACT | Cab::OPTION_b_BUOYANT);
+			break;
+		case 'p':
+			cab_options |= Cab::OPTION_p_10xTOUGHER;
+			break;
+		case 'u':
+			cab_options |= Cab::OPTION_u_INVULNERABLE;
+			break;
+		case 'F':
+			cab_options |= (Cab::OPTION_p_10xTOUGHER | Cab::OPTION_b_BUOYANT);
+			break;
+		case 'S':
+			cab_options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT);
+			break;
+		case 'n':
+			break; /* Placeholder, does nothing */
+
+		default:
+			std::stringstream msg;
+			msg << "Subsection 'submesh/cab': Invalid option '" << options_str.at(i) << "', ignoring...";
+			this->AddMessage(options_str, Message::TYPE_WARNING, msg.str());
+			break;
+		}
+	}
+	return cab_options;
+}
+
 bool Parser::_TryParseCab(Ogre::String const & line)
 {
     boost::smatch results;
@@ -2292,48 +2333,43 @@ bool Parser::_TryParseCab(Ogre::String const & line)
 	cab.nodes[1] = _ParseNodeRef(results[3]);
 	cab.nodes[2] = _ParseNodeRef(results[5]);
 
-	if (results[5].matched)
+	if (results[6].matched)
 	{
-		std::string options_str = results[8].str();
-		for (unsigned int i = 0; i < options_str.length(); i++)
-		{
-			switch(options_str.at(i))
-			{
-				case 'c':
-					cab.options |= Cab::OPTION_c_CONTACT;
-					break;
-				case 'b':
-					cab.options |= Cab::OPTION_b_BUOYANT;
-					break;
-				case 'D':
-					cab.options |= (Cab::OPTION_c_CONTACT | Cab::OPTION_b_BUOYANT);
-					break;
-				case 'p':
-					cab.options |= Cab::OPTION_p_10xTOUGHER;
-					break;
-				case 'u':
-					cab.options |= Cab::OPTION_u_INVULNERABLE;
-					break;
-				case 'F':
-					cab.options |= (Cab::OPTION_p_10xTOUGHER | Cab::OPTION_b_BUOYANT);
-					break;
-				case 'S':
-					cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT);
-					break;
-				case 'n':
-					break ; /* Placeholder, does nothing */
-
-				default:
-					std::stringstream msg;
-					msg << "Subsection 'submesh/cab': Invalid option '" << options_str.at(i) << "', ignoring...";
-					AddMessage(line, Message::TYPE_WARNING, msg.str());
-					break;
-			}
-		}
+		cab.options = this->_ParseCabOptions(results[8].str());
 	}
 
 	m_current_submesh->cab_triangles.push_back(cab);
-    return true;
+	return true;
+}
+
+void Parser::ParseSubmeshUnsafe(Ogre::String const & line)
+{
+	if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
+	{
+		PARSE_UNSAFE_START(3);
+
+		Cab cab;
+		cab.nodes[0] = this->_ParseNodeRef(values[0]);
+		cab.nodes[1] = this->_ParseNodeRef(values[1]);
+		cab.nodes[2] = this->_ParseNodeRef(values[2]);
+		if (values.size() > 3)
+		{
+			cab.options = this->_ParseCabOptions(values[3]);
+		}
+
+		m_current_submesh->cab_triangles.push_back(cab);
+	}
+	else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
+	{
+		PARSE_UNSAFE_START(3);
+
+		Texcoord texcoord;
+		texcoord.node = this->_ParseNodeRef(values[0]);
+		texcoord.u    = STR_PARSE_REAL(values[1]);
+		texcoord.v    = STR_PARSE_REAL(values[2]);
+
+		m_current_submesh->texcoords.push_back(texcoord);
+	}
 }
 
 void Parser::ParseSubmesh(Ogre::String const & line)
@@ -2341,16 +2377,16 @@ void Parser::ParseSubmesh(Ogre::String const & line)
 	if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
 	{
 		if (!this->_TryParseCab(line))
-        {
-            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        }
+		{
+			this->ParseSubmeshUnsafe(line);
+		}
 	}
 	else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
 	{
 		boost::smatch results;
 		if (! boost::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_TEXCOORDS))
 		{
-			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+			this->ParseSubmeshUnsafe(line);
 			return;
 		}
 		/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
