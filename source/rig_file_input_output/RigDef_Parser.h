@@ -232,6 +232,8 @@ protected:
 	void ParseMaterialFlareBindings(Ogre::String const & line);
 
 	void ParseMeshWheel(Ogre::String const & line);
+	void ParseMeshWheelUnsafe(Ogre::String const & line);
+	void VerifyAndProcessMeshWheel(Ogre::String const & line, MeshWheel& mesh_wheel_def, int braking, int propulsion, char side);
 
 	void ParseMeshWheels2(Ogre::String const & line);
 
