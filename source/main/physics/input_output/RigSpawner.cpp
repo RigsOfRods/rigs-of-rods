@@ -5845,7 +5845,7 @@ void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
 	}
 	
 		/* Process it */
-	m_rig->engine->setTurboOptions(engturbo->tinertiaFactor, engturbo->nturbos, engturbo->additionalTorque, engturbo->enginerpmop);
+	m_rig->engine->setTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->additionalTorque, engturbo->enginerpmop);
 };
 
 void RigSpawner::ProcessEngoption(RigDef::Engoption & def)

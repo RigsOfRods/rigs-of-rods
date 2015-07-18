@@ -3181,10 +3181,11 @@ void Parser::ParseEngturbo(Ogre::String const & line)
 
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 	Engturbo engturbo;
-	engturbo.tinertiaFactor = STR_PARSE_REAL(results[1]);
-	engturbo.nturbos = STR_PARSE_REAL(results[2]);
-	engturbo.additionalTorque = STR_PARSE_REAL(results[3]);
-	engturbo.enginerpmop = STR_PARSE_REAL(results[4]);
+	engturbo.version = STR_PARSE_REAL(results[1]);
+	engturbo.tinertiaFactor = STR_PARSE_REAL(results[2]);
+	engturbo.nturbos = STR_PARSE_REAL(results[3]);
+	engturbo.additionalTorque = STR_PARSE_REAL(results[4]);
+	engturbo.enginerpmop = STR_PARSE_REAL(results[5]);
 
 	m_current_module->engturbo = boost::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
