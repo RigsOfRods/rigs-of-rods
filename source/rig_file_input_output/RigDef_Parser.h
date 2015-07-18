@@ -173,6 +173,7 @@ protected:
 	void ParseBrakes(Ogre::String line);
 
 	void ParseCameras(Ogre::String const & line);
+	void ParseCamerasUnsafe(Ogre::String const & line);
 
 	void ParseCameraRails(Ogre::String const & line);
 

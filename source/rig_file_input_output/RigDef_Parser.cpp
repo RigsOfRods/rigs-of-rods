@@ -46,6 +46,18 @@ namespace RigDef
 
 #define STR_PARSE_BOOL(_STR_) Ogre::StringConverter::parseBool(_STR_)
 
+#define PARSE_UNSAFE_START(MIN_ARGS)                                 \
+	this->AddMessage(line, Message::TYPE_WARNING,                    \
+		"Syntax check failed, parsing by legacy unsafe method...");  \
+	const int min_args = MIN_ARGS;                                   \
+	Ogre::StringVector values;                                       \
+	if (this->_ParseArgs(line, values, min_args) < min_args)         \
+	{                                                                \
+		std::stringstream msg;                                       \
+		msg << "Too few arguments, required number is " << min_args; \
+		this->AddMessage(line, Message::TYPE_WARNING, msg.str());    \
+	}
+
 Parser::Parser():
 	m_ror_minimass(0)
 {
@@ -3663,20 +3675,32 @@ void Parser::ParseVideoCamera(Ogre::String const & line)
 	m_current_module->videocameras.push_back(videocamera);
 }
 
+void Parser::ParseCamerasUnsafe(Ogre::String const & line)
+{
+	PARSE_UNSAFE_START(3);
+
+	Camera camera;
+	camera.center_node = this->_ParseNodeRef(values[0]);
+	camera.back_node   = this->_ParseNodeRef(values[1]);
+	camera.left_node   = this->_ParseNodeRef(values[2]);
+
+	m_current_module->cameras.push_back(camera);
+}
+
 void Parser::ParseCameras(Ogre::String const & line)
 {
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_CAMERAS))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		this->ParseCamerasUnsafe(line);
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Camera camera;
 	camera.center_node = _ParseNodeRef(results[1]);
-	camera.back_node = _ParseNodeRef(results[2]);
-	camera.left_node = _ParseNodeRef(results[3]);
+	camera.back_node   = _ParseNodeRef(results[2]);
+	camera.left_node   = _ParseNodeRef(results[3]);
 
 	m_current_module->cameras.push_back(camera);
 }
