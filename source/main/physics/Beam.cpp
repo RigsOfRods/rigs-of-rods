@@ -5783,7 +5783,7 @@ void Beam::updateDashBoards(float &dt)
 
 Vector3 Beam::getGForces()
 {
-	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES && cameranoderoll[0] >= 0 && cameranoderoll[0] < MAX_NODES)
+	if (cameranodecount > 0 && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES && cameranoderoll[0] >= 0 && cameranoderoll[0] < MAX_NODES)
 	{
 		Vector3 acc      = cameranodeacc / cameranodecount;
 		cameranodeacc    = Vector3::ZERO;
