@@ -112,14 +112,14 @@
             </Widget>
         </Widget>
         <Widget type="ImageBox" skin="ImageBox" position="929 478 80 80" align="Right Bottom" layer="Back" name="TurboGauge">
-            <Property key="ImageTexture" value="turbo_v2.png"/>
+            <Property key="ImageTexture" value="turbo_v4.png"/>
             <UserString key="link" value="engine_turbo"/>
         </Widget>
         <Widget type="ImageBox" skin="RotatingSkin" position="931 480 76 76" align="Right Bottom" layer="Overlapped" name="needle_bottom">
             <Property key="ImageTexture" value="redneedle_v2.png"/>
             <UserString key="link" value="engine_turbo"/>
             <UserString key="anim" value="rotate"/>
-            <UserString key="vmax" value="100"/>
+            <UserString key="vmax" value="135"/>
             <UserString key="vmin" value="0"/>
             <UserString key="min" value="-130"/>
             <UserString key="max" value="130"/>

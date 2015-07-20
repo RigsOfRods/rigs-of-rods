@@ -245,9 +245,6 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'triggers'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TRIGGERS, triggers, ProcessTrigger);
 
-	// Section 'slidenodes'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, slidenodes, ProcessSlidenode);
-
 	// Section 'materialflarebindings'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, material_flare_bindings, ProcessMaterialFlareBinding);
 
@@ -281,6 +278,9 @@ rig_t *RigSpawner::SpawnRig()
 
 	// Section 'railgroups'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_RAILGROUPS, railgroups, ProcessRailGroup);
+
+	// Section 'slidenodes'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, slidenodes, ProcessSlidenode);
 
 	// Section 'ropes'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPES, ropes, ProcessRope);

@@ -84,7 +84,7 @@ public:
 	* @param nturbos Number of turbos
 	* @param additionalTorque Torque that will be added to the engine at max turbo rpm
 	**/
-	void setTurboOptions(float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop);
+	void setTurboOptions(int ver, float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop);
 
 	/**
 	* Set current engine RPM.
@@ -240,15 +240,18 @@ protected:
 
 	// turbo
 	//Yeah i know, a bit dirty
+	int turboVer;
 	#define MAXTURBO 4
 	float curTurboRPM[MAXTURBO];
 	float turboInertiaFactor;
 	int numTurbos;
-	const int maxTurboRPM;
+	int maxTurboRPM;
 	float turbotorque;
 	float turboInertia;
 	float EngineAddiTorque[MAXTURBO];
 	float turboEngineRpmOperation;
+	float turboMaxPSI;
+	float turboPSI;
 
 	// air pressure
 	TorqueCurve *torqueCurve;
