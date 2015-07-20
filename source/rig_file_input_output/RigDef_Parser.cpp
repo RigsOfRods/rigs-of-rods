@@ -3289,7 +3289,7 @@ void Parser::ParseEngine(Ogre::String const & line)
 
 	/* Forward gears */
 	bool terminator_found = false;
-	for (unsigned int gear_index = 0; gear_index < 15; ++gear_index)
+	for (unsigned int gear_index = 0; gear_index < 21; ++gear_index)
 	{
 		unsigned int result_index = 13 + (gear_index * 3);
 

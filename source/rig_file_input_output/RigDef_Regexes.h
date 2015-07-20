@@ -1100,7 +1100,37 @@ DEFINE_REGEX( SECTION_ENGINE,
 														E_CAPTURE_OPTIONAL( 
 															E_CAPTURE( E_DELIMITER )
 															E_CAPTURE( E_REAL_NUMBER ) /* #55 15th gear, max */
-														)
+														
+															E_CAPTURE_OPTIONAL(
+																E_CAPTURE(E_DELIMITER)
+																E_CAPTURE(E_REAL_NUMBER) /* #55 16th gear, max */
+														
+																E_CAPTURE_OPTIONAL(
+																	E_CAPTURE(E_DELIMITER)
+																	E_CAPTURE(E_REAL_NUMBER) /* #55 17th gear, max */
+														
+																	E_CAPTURE_OPTIONAL(
+																		E_CAPTURE(E_DELIMITER)
+																		E_CAPTURE(E_REAL_NUMBER) /* #55 18th gear, max */
+														
+																		E_CAPTURE_OPTIONAL(
+																			E_CAPTURE(E_DELIMITER)
+																			E_CAPTURE(E_REAL_NUMBER) /* #55 19th gear, max */
+														
+																			E_CAPTURE_OPTIONAL(
+																				E_CAPTURE(E_DELIMITER)
+																				E_CAPTURE(E_REAL_NUMBER) /* #55 20th gear, max */
+																			
+																				E_CAPTURE_OPTIONAL(
+																					E_CAPTURE(E_DELIMITER)
+																					E_CAPTURE(E_REAL_NUMBER) /* #55 21st gear, max */
+																				)
+																			)
+																		)
+																	)
+																)
+															)
+														)					
 													)
 												)
 											)

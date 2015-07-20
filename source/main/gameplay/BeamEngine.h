@@ -52,7 +52,7 @@ public:
 	* @param rpm Current engine RPM
 	* @param force Current acceleration force
 	* @param clutch 
-	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...15 = forward}
+	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
 	* @param running
 	* @param contact
 	* @param automode
@@ -178,7 +178,7 @@ protected:
 	// gear stuff
 	float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
 	float curWheelRevolutions; //!< Gears; measured wheel revolutions
-	int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...15 = forward} 
+	int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
 	int curGearRange; //!< Gears
 	int numGears; //!< Gears
 	std::vector<float> gearsRatio; //!< Gears
