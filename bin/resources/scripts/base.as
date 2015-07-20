@@ -1,7 +1,7 @@
 // this is the default event handling routine
 void defaultEventCallback(int trigger_type, string inst, string box, int nodeid)
 {
-	if        (box == "shopairplane")
+	if(box == "shopairplane")
 	{
 		game.showChooser("airplane", inst, "spawnzone");
 		game.clearEventCache();
