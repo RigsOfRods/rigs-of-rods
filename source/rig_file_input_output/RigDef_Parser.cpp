@@ -3324,7 +3324,7 @@ void Parser::ParseEngine(Ogre::String const & line)
 		return;
 	}
 
-	if (! terminator_found && ! results[36].matched) /* Terminator, required, absence tolerated for compatibility */
+	if (! terminator_found && ! results[42].matched) /* Terminator, required, absence tolerated for compatibility */
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Forward gears list is not terminated using '-1.0'. Please fix.");
 	}
