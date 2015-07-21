@@ -1100,7 +1100,37 @@ DEFINE_REGEX( SECTION_ENGINE,
 														E_CAPTURE_OPTIONAL( 
 															E_CAPTURE( E_DELIMITER )
 															E_CAPTURE( E_REAL_NUMBER ) /* #55 15th gear, max */
-														)
+														
+															E_CAPTURE_OPTIONAL(
+																E_CAPTURE(E_DELIMITER)
+																E_CAPTURE(E_REAL_NUMBER) /* #55 16th gear, max */
+														
+																E_CAPTURE_OPTIONAL(
+																	E_CAPTURE(E_DELIMITER)
+																	E_CAPTURE(E_REAL_NUMBER) /* #55 17th gear, max */
+														
+																	E_CAPTURE_OPTIONAL(
+																		E_CAPTURE(E_DELIMITER)
+																		E_CAPTURE(E_REAL_NUMBER) /* #55 18th gear, max */
+														
+																		E_CAPTURE_OPTIONAL(
+																			E_CAPTURE(E_DELIMITER)
+																			E_CAPTURE(E_REAL_NUMBER) /* #55 19th gear, max */
+														
+																			E_CAPTURE_OPTIONAL(
+																				E_CAPTURE(E_DELIMITER)
+																				E_CAPTURE(E_REAL_NUMBER) /* #55 20th gear, max */
+																			
+																				E_CAPTURE_OPTIONAL(
+																					E_CAPTURE(E_DELIMITER)
+																					E_CAPTURE(E_REAL_NUMBER) /* #55 21st gear, max */
+																				)
+																			)
+																		)
+																	)
+																)
+															)
+														)					
 													)
 												)
 											)
@@ -1181,9 +1211,19 @@ DEFINE_REGEX(SECTION_ENGTURBO,
 	E_DELIMITER_COMMA
 	E_CAPTURE(E_REAL_NUMBER) /* #1 Number of turbos */
 	E_DELIMITER_COMMA
-	E_CAPTURE(E_REAL_NUMBER) /* #1 Additional Torque */
-	E_DELIMITER_COMMA
-	E_CAPTURE(E_REAL_NUMBER) /* #1 engine rpm operation */
+	E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM1 */
+	E_CAPTURE_OPTIONAL(
+		E_DELIMITER_COMMA
+		E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM2 */
+		E_CAPTURE_OPTIONAL(
+			E_DELIMITER_COMMA
+			E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM3 */
+			E_CAPTURE_OPTIONAL(
+				E_DELIMITER_COMMA
+				E_CAPTURE(E_REAL_NUMBER)
+			)/* #1 PARAM4 */
+		)
+	)
 	E_TRAILING_WHITESPACE
 	);
 

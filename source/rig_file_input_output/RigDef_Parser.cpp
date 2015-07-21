@@ -3263,8 +3263,17 @@ void Parser::ParseEngturbo(Ogre::String const & line)
 	engturbo.version = STR_PARSE_REAL(results[1]);
 	engturbo.tinertiaFactor = STR_PARSE_REAL(results[2]);
 	engturbo.nturbos = STR_PARSE_REAL(results[3]);
-	engturbo.additionalTorque = STR_PARSE_REAL(results[4]);
-	engturbo.enginerpmop = STR_PARSE_REAL(results[5]);
+
+	if (STR_PARSE_REAL(results[3]) > 4)
+	{
+		AddMessage(line, Message::TYPE_WARNING, "You cannot have more than 4 turbos. Fallback: using 4 instead.");
+		engturbo.nturbos = 4;
+	}
+
+	engturbo.param1 = STR_PARSE_REAL(results[4]);
+	engturbo.param2 = STR_PARSE_REAL(results[6]);
+	engturbo.param3 = STR_PARSE_REAL(results[8]);
+	engturbo.param4 = STR_PARSE_REAL(results[10]);
 
 	m_current_module->engturbo = boost::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
@@ -3289,7 +3298,7 @@ void Parser::ParseEngine(Ogre::String const & line)
 
 	/* Forward gears */
 	bool terminator_found = false;
-	for (unsigned int gear_index = 0; gear_index < 15; ++gear_index)
+	for (unsigned int gear_index = 0; gear_index < 21; ++gear_index)
 	{
 		unsigned int result_index = 13 + (gear_index * 3);
 
@@ -3315,7 +3324,7 @@ void Parser::ParseEngine(Ogre::String const & line)
 		return;
 	}
 
-	if (! terminator_found && ! results[36].matched) /* Terminator, required, absence tolerated for compatibility */
+	if (! terminator_found && ! results[42].matched) /* Terminator, required, absence tolerated for compatibility */
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Forward gears list is not terminated using '-1.0'. Please fix.");
 	}

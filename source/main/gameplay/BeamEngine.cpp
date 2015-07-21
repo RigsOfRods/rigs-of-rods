@@ -77,6 +77,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, maxTurboRPM(200000.0f)
 	, turboEngineRpmOperation(0.0f)
 	, turboVer(1)
+	, minBOVPsi(11)
 {
 	fullRPMRange = (maxRPM - minRPM);
 	oneThirdRPMRange = fullRPMRange / 3.0f;
@@ -102,7 +103,7 @@ BeamEngine::~BeamEngine()
 	torqueCurve = NULL;
 }
 
-void BeamEngine::setTurboOptions(int ver, float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop)
+void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4)
 {
 	if (!hasturbo)
 		hasturbo = true; //Should have a turbo
@@ -114,19 +115,31 @@ void BeamEngine::setTurboOptions(int ver, float tinertiaFactor, int nturbos, flo
 	} else
 		numTurbos = nturbos;
 
-	turboVer = ver;
+	turboVer = type;
 	turboInertiaFactor = tinertiaFactor;
-	turboEngineRpmOperation = enginerpmop;
+
+	if (param2 != 9999)
+		turboEngineRpmOperation = param2;
+	
 
 	if (turboVer == 1)
 	{
 		for (int i = 0; i < numTurbos; i++)
-			EngineAddiTorque[i] = additionalTorque / numTurbos;
+			EngineAddiTorque[i] = param1 / numTurbos; //Additional torque
 	}
 	else
 	{
-		turboMaxPSI = additionalTorque;
-		maxTurboRPM = turboMaxPSI * 10000;
+		turboMaxPSI = param1; //maxPSI
+		maxTurboRPM = turboMaxPSI * 10000; //Big turbos, less rpm, smaal turbos, more rpm
+
+		//Duh
+		if (param3 == 1)
+			b_BOV = true;
+		else
+			b_BOV = false;
+
+		if (param3 != 9999)
+			minBOVPsi = param4;
 	}
 }
 
@@ -215,27 +228,57 @@ void BeamEngine::update(float dt, int doUpdate)
 			// update turbo speed (lag)
 			// reset each of the values for each turbo
 			turbotorque = 0.0f;
+			turboBOVtorque = 0.0f;
 
 			turboInertia = 0.000003f * turboInertiaFactor;
 
 			// braking (compression)
 			turbotorque -= curTurboRPM[i] / maxTurboRPM;
+			turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
 
 			// powering (exhaust) with limiter
 			if (curEngineRPM >= turboEngineRpmOperation)
 			{
-				if (curTurboRPM[i] < maxTurboRPM && running && acc > 0.06f)
+				if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
 				{
 					turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
 				}
 				else
 				{
-					turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) /( maxRPM - turboEngineRpmOperation)));
+					turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
 				}
 			}
 
 			// integration
 			curTurboRPM[i] += dt * turbotorque / turboInertia;
+
+			//Update BOV
+			//It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
+			//This one is used to simulate the pressure between the engine and the compressor.
+			//I should make the whole turbo code work this way. -Max98
+			if (b_BOV)
+			{
+				
+				if (curBOVTurboRPM[i] < curTurboRPM[i])
+					turboBOVtorque += 1.5f * acc * (((curEngineRPM) / (maxRPM)));
+				else
+					turboBOVtorque += 0.07f * (((curEngineRPM) / (maxRPM)));
+
+
+				if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000) 
+				{
+					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
+					curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
+				}
+				else
+				{
+					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
+					if (curBOVTurboRPM[i] < curTurboRPM[i])
+						curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
+					else
+						curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
+				}	
+			}
 		}
 	}
 
@@ -670,8 +713,16 @@ float BeamEngine::getTurboPSI()
 {
 	turboPSI = 0;
 
-	for (int i = 0; i < numTurbos; i++)
-		turboPSI += curTurboRPM[i] / 10000.0f;
+	if (b_BOV)
+	{
+		for (int i = 0; i < numTurbos; i++)
+			turboPSI += curBOVTurboRPM[i] / 10000.0f;
+	}
+	else
+	{
+		for (int i = 0; i < numTurbos; i++)
+			turboPSI += curTurboRPM[i] / 10000.0f;
+	}
 
 	return turboPSI;
 }
@@ -789,7 +840,10 @@ void BeamEngine::start()
 	curClutchTorque = 0.0f;
 
 	for (int i = 0; i < numTurbos; i++)
-		 curTurboRPM[i] = 0.0f;
+	{
+		curTurboRPM[i] = 0.0f;
+		curBOVTurboRPM[i] = 0.0f;
+	}
 
 	apressure = 0.0f;
 	running = true;
