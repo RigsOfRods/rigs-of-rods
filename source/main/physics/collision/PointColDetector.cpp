@@ -196,7 +196,7 @@ void PointColDetector::querybb(const Vector3 &bmin, const Vector3 &bmax)
 {
 	bbmin=bmin;
 	bbmax=bmax;
-	
+
 	hit_count=0;
 	queryrec(0, 0);
 }
@@ -288,90 +288,123 @@ inline void PointColDetector::calc_bounding_box(Vector3 &bmin, Vector3 &bmax, co
 
 inline void PointColDetector::queryrec(int kdindex, int axis)
 {
-tail_cut:
-	if (kdtree[kdindex].end<0)
+	for (;;)
 	{
-		build_kdtree_incr(axis, kdindex);
-	}
+		if (kdtree[kdindex].end < 0)
+		{
+			build_kdtree_incr(axis, kdindex);
+		}
 
-	if (kdtree[kdindex].ref!=NULL)
-	{
-	    float *point=kdtree[kdindex].ref->point;
-	    if (point[0]>=bbmin.x && point[0]<=bbmax.x
-		    && point[1]>=bbmin.y && point[1]<=bbmax.y
-		    && point[2]>=bbmin.z && point[2]<=bbmax.z )
-	    {
-			hit_list[hit_count]=kdtree[kdindex].ref->pidref;
-		    hit_count++;
-	    }
-	    return;
-	}
+		if (kdtree[kdindex].ref != NULL)
+		{
+			float *point = kdtree[kdindex].ref->point;
+			if (point[0] >= bbmin.x && point[0] <= bbmax.x
+			  && point[1] >= bbmin.y && point[1] <= bbmax.y
+			  && point[2] >= bbmin.z && point[2] <= bbmax.z )
+			{
+				hit_list[hit_count] = kdtree[kdindex].ref->pidref;
+				hit_count++;
+			}
+			return;
+		}
 
-	int newaxis;
-	int newindex;
+		int newaxis;
+		int newindex;
 
-	if (bbmax[axis]>=kdtree[kdindex].middle)
-	{
-		if (bbmin[axis]>kdtree[kdindex].max) return;
+		if (bbmax[axis] >= kdtree[kdindex].middle)
+		{
+			if (bbmin[axis] > kdtree[kdindex].max)
+			{
+				return;
+			}
 
-		newaxis=axis+1;
-		if (newaxis==3) newaxis=0;
-		newindex=kdindex+kdindex+1;
+			newaxis = axis + 1;
+			
+			if (newaxis == 3)
+			{
+				newaxis = 0;
+			}
 
-		if (bbmin[axis]<=kdtree[kdindex].middle) queryrec(newindex, newaxis);
-		kdindex=newindex+1;
-		axis=newaxis;
-		goto tail_cut;
-	} else {
-		if (bbmax[axis]<kdtree[kdindex].min) return;
+			newindex = kdindex+kdindex+1;
 
-		kdindex=kdindex+kdindex+1;
-		axis++;
-		if (axis==3) axis=0;
-		goto tail_cut;
+			if (bbmin[axis] <= kdtree[kdindex].middle)
+			{
+				queryrec(newindex, newaxis);
+			}
+
+			kdindex = newindex+1;
+			axis = newaxis;
+		}
+		else
+		{
+			if (bbmax[axis] < kdtree[kdindex].min)
+			{
+				return;
+			}
+
+			kdindex = kdindex + kdindex + 1;
+			axis++;
+
+			if (axis == 3)
+			{
+				axis = 0;
+			}
+		}
 	}
 }
 
 void PointColDetector::build_kdtree(int begin, int end, int axis, int index)
 {
 	int median;
-tail_cut:
-	int slice_size=end-begin;
-	if (slice_size!=1) {
-		if (slice_size==2){
-			median=begin+1;
-			if (ref_list[begin].point[axis]>ref_list[median].point[axis])
+	for (;;)
+	{
+		int slice_size = end-begin;
+		if (slice_size != 1)
+		{
+			if (slice_size == 2)
 			{
-				std::swap(ref_list[begin],ref_list[median]);
+				median = begin + 1;
+
+				if (ref_list[begin].point[axis] > ref_list[median].point[axis])
+				{
+					std::swap(ref_list[begin],ref_list[median]);
+				}
+
+				kdtree[index].min = ref_list[begin].point[axis];
+				kdtree[index].max = ref_list[median].point[axis];
+			}
+			else
+			{
+				median = begin + (slice_size>>1);
+				partintwo(begin, median, end, axis, kdtree[index].min, kdtree[index].max);
 			}
 
-			kdtree[index].min=ref_list[begin].point[axis];
-			kdtree[index].max=ref_list[median].point[axis];
-		} else
-		{
-			median=begin+(slice_size>>1);
-			partintwo(begin, median, end, axis, kdtree[index].min, kdtree[index].max);
+			kdtree[index].middle = ref_list[median].point[axis];
+			kdtree[index].ref = NULL;
+
+			axis++;
+
+			if (axis==3)
+			{
+				axis=0;
+			}
+
+			int newindex = index + index + 1;
+			build_kdtree(begin, median, axis, newindex);
+
+			//Tail cutting
+			index = newindex+1;
+			begin = median;
 		}
+		else
+		{
+			kdtree[index].middle = ref_list[begin].point[axis];
+			kdtree[index].ref = &ref_list[begin];
+			kdtree[index].min = ref_list[begin].point[axis];
+			kdtree[index].max = ref_list[begin].point[axis];
 
-		kdtree[index].middle=ref_list[median].point[axis];
-		kdtree[index].ref=NULL;
-
-		axis++;
-		if (axis==3) axis=0;
-
-		int newindex=index+index+1;
-		build_kdtree(begin, median, axis, newindex);
-
-		//Tail cutting
-		index=newindex+1;
-		begin=median;
-		goto tail_cut;
-	} else
-	{
-		kdtree[index].middle=ref_list[begin].point[axis];
-		kdtree[index].ref=&ref_list[begin];
-		kdtree[index].min=ref_list[begin].point[axis];
-		kdtree[index].max=ref_list[begin].point[axis];
+			return;
+		}
 	}
 }
 
@@ -395,7 +428,7 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
 			kdtree[index].max=ref_list[median].point[axis];
 			kdtree[index].middle=kdtree[index].max;
 			kdtree[index].ref=NULL;
-			
+
 			axis++;
 			if (axis==3) axis=0;
 
@@ -405,7 +438,7 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
 			kdtree[newindex].max=kdtree[newindex].middle;
 			kdtree[newindex].end=median;
 			newindex++;
-			
+
 			kdtree[newindex].ref=&ref_list[median];
 			kdtree[newindex].middle=kdtree[newindex].ref->point[axis];
 			kdtree[newindex].min=kdtree[newindex].middle;
