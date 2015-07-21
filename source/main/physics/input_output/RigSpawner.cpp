@@ -1980,6 +1980,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		{
 			steering_wheel_offset = def.special_prop_steering_wheel.offset;
 		}
+		prop.wheelrotdegree = def.special_prop_steering_wheel.rotation_angle;
 		prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 		prop.wheelpos = steering_wheel_offset;
 		MeshObject *mesh_object = new MeshObject(
@@ -2022,10 +2023,6 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	{
 		m_rig->driversseatfound = true;
 		m_rig->driverSeat = & prop;
-	}
-	else if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED || def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_RIGHT_HANDED)
-	{
-		prop.wheelrotdegree = def.special_prop_steering_wheel.rotation_angle;
 	}
 	else if (m_rig->flaresMode > 0)
 	{
