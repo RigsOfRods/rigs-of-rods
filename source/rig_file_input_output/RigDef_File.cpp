@@ -93,7 +93,10 @@ Engoption::Engoption():
 Engturbo::Engturbo() :
 tinertiaFactor(1),
 nturbos(1),
-additionalTorque(0)
+param1(9999), //used for default values
+param2(9999),
+param3(9999),
+param4(9999)
 {}
 
 Fusedrag::Fusedrag():
