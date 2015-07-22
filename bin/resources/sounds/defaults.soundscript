@@ -86,6 +86,14 @@ tracks/default_turbo_bov
 	start_sound	unpitched default_turbo_bov.wav
 }
 
+tracks/default_wastegate_flutter
+{
+	trigger_source	turbo_waste_gate
+	gain_source	turbo_rpm
+	gain_factors -0.00005	0.000001 1.852E-12
+	start_sound	unpitched default_wastegate_flutter.wav
+}
+
 tracks/default_air_purge
 {
 	trigger_source air_purge

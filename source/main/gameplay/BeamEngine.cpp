@@ -273,8 +273,13 @@ void BeamEngine::update(float dt, int doUpdate)
 
 						if (b_flutter)
 						{
+							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
 							if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
+							{
 								b_flutter = false;
+								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
+							}
+								
 						}
 					}
 					else

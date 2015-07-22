@@ -7305,6 +7305,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_mid", smokeId);
 
 			AddSoundSourceInstance(vehicle, "tracks/default_turbo_bov", smokeId);
+			AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", smokeId);
 		}
 			
 		if (vehicle->engine->hasair)
