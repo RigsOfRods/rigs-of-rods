@@ -299,7 +299,16 @@ void BeamEngine::update(float dt, int doUpdate)
 						turboInertia = turboInertia *1.3; //back to normal inertia
 				}
 			}
-				
+			
+			//simulate compressor surge
+			if (!b_BOV)
+			{
+				if (curTurboRPM[i] > 13 * 10000 && curAcc < 0.06f)
+				{
+					turbotorque += (turbotorque * 2.5);
+				}
+			}
+
 			// update main turbo rpm
 			curTurboRPM[i] += dt * turbotorque / turboInertia;
 
