@@ -220,6 +220,10 @@ void WsyncThread::listFiles(const path &dir_path, std::vector<std::string> &file
 	{
 		if (is_directory(itr->status()))
 		{
+			std::size_t found = itr->path().string().find("resources");
+			if (found == std::string::npos)
+				continue;
+
 			listFiles(itr->path(), files);
 			continue;
 		}
@@ -272,6 +276,21 @@ int WsyncThread::buildFileIndex(boost::filesystem::path &outfilename, boost::fil
 		if (found != string::npos)
 			continue;
 
+		found = respath.find(".ico");
+		if (found != string::npos)
+			continue;
+
+		found = respath.find(".pdf");
+		if (found != string::npos)
+			continue;
+
+		found = respath.find(".png");
+		if (found != string::npos)
+			continue;
+
+		found = respath.find(".jpeg");
+		if (found != string::npos)
+			continue;
 
 		sprintf(tmp, "%s (%s) ...", respath.c_str(), formatFilesize(fileSize).c_str());
 		updateCallback(MSE_UPDATE_PROGRESS, string(tmp), float(counter)/float(counterMax));
@@ -590,13 +609,13 @@ int WsyncThread::sync()
 
 	if(predDownloadSize > 0)
 	{
-		LOG("==== finding mirror\n");
+		/*LOG("==== finding mirror\n");
 		bool measureMirrorSpeed = (predDownloadSize > 10485760); // 10 MB
 		if(findMirror(measureMirrorSpeed) && measureMirrorSpeed)
 		{
 			// try to find a mirror without measuring the speed
 			findMirror();
-		}
+		}*/
 	}
 	// reset progress bar
 	updateCallback(MSE_UPDATE_PROGRESS, "", 0);

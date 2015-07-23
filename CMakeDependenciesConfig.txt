@@ -11,7 +11,7 @@ set(ROR_USE_CURL         "TRUE" CACHE BOOL "use curl, required for communication
 # some obsolete options:
 # disabled some options for now
 #set(ROR_FEAT_TIMING     "FALSE" CACHE BOOL "enable beam statistics. For core development only")
-set(ROR_BUILD_UPDATER   OFF)
+set(ROR_BUILD_UPDATER   ON)
 set(ROR_FEAT_TIMING     OFF)
 set(ROR_BUILD_SIM       ON)
 

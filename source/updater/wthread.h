@@ -34,7 +34,7 @@
 
 // wsync (1) = old full install service with streams
 // wsync2 = new update only service
-#define WSYNC_MAIN_SERVER   "wsync2.rigsofrods.com"
+#define WSYNC_MAIN_SERVER   "springriversolutions.com/ror/wsync"
 #define WSYNC_MAIN_DIR      "/"
 #define WSYNC_VERSION_INFO  "/version.txt"
 

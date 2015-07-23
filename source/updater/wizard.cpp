@@ -377,7 +377,7 @@ PresentationPage::PresentationPage(wxWizard *parent, bool enforceUpdate) : wxWiz
 		LOG("INSTALLED VERSION: '%s'\n", conv(a).c_str());
 		LOG("ONLINE VERSION:    '%s'\n", conv(b).c_str());
 
-		if (installed_version < online_version)
+		if ((installed_version < online_version) || boost::starts_with(conv(a), "0.38") || boost::starts_with(conv(a), "0.37"))
 		{
 			// new version
 			mainSizer->Add(tst=new wxStaticText(this, wxID_ANY, _T("Click on Next to continue.\n")), 0, wxALL, 5);
@@ -554,7 +554,7 @@ DownloadPage::DownloadPage(wxWizard *parent) : wxWizardPageSimple(parent), wizar
 	// Server used
 	txt = new wxStaticText(this, wxID_ANY, _T("Server used: "));
 	wxg->Add(txt, 0, wxALL|wxEXPAND, 0);
-	txt_server = new wxStaticText(this, wxID_ANY, _T("only main server"));
+	txt_server = new wxStaticText(this, wxID_ANY, _T("springriversolutions.com"));
 	wxg->Add(txt_server, 0, wxALL|wxEXPAND, 0);
 
 	// Server used
@@ -705,7 +705,7 @@ bool DownloadPage::OnEnter(bool forward)
 	hlink->SetLabel(versionText);
 	hlink->SetURL(conv(versionURL));
 
-    htmlinfo->LoadPage(wxT("http://api.rigsofrods.com/didyouknow/"));
+   // htmlinfo->LoadPage(wxT("http://api.rigsofrods.com/didyouknow/"));
 
 	if(!CONFIG->getUserPathExists())
 	{
@@ -814,8 +814,8 @@ void DownloadPage::OnStatusUpdate(MyStatusEvent &ev)
 }
 void DownloadPage::OnTimer(wxTimerEvent& event)
 {
-    if(htmlinfo)
-      htmlinfo->LoadPage(wxT("http://api.rigsofrods.com/didyouknow/"));
+    //if(htmlinfo)
+     // htmlinfo->LoadPage(wxT("http://api.rigsofrods.com/didyouknow/"));
 }
 
 

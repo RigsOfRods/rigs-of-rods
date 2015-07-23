@@ -140,7 +140,7 @@ std::string ConfigManager::readVersionInfo()
 		int minor = LOWORD(pFileInfo->dwFileVersionMS);
 		int patch = HIWORD(pFileInfo->dwFileVersionLS);
 		int rev   = LOWORD(pFileInfo->dwFileVersionLS);
-		sprintf(buffer, "%d.%d.%d", major, minor, patch);
+		sprintf(buffer, "%d.%d.%d.%d", major, minor, patch, rev);
 		return std::string(buffer);
 	}
 #endif // _WIN32
@@ -275,16 +275,17 @@ void ConfigManager::updateUserConfigs()
 	LOG("==== updating user configs ... \n");
 
 	boost::filesystem::path iPath = boost::filesystem::path (conv(getInstallationPath()));
+	boost::filesystem::path u_Path = nullptr;
+
 	iPath = iPath / std::string("skeleton") / std::string("config");
 
-	boost::filesystem::path uPath;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	LPWSTR wuser_path = new wchar_t[1024];
 	if (!SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, wuser_path)!=S_OK)
 	{
 		GetShortPathName(wuser_path, wuser_path, 512); //this is legal
-		uPath = wstrtostr(std::wstring(wuser_path));
-		uPath = uPath / (std::string("Rigs of Rods ") + wxT(ROR_VERSION_STRING_SHORT)) / std::string("config");;
+		u_Path = wstrtostr(std::wstring(wuser_path));
+		u_Path = u_Path / (std::string("Rigs of Rods ") + std::string(ROR_VERSION_STRING_SHORT)) / std::string("config");
 	}
 #else
 	// XXX : TODO
@@ -296,14 +297,14 @@ void ConfigManager::updateUserConfigs()
 	bool ok = boost::filesystem::is_directory(iPath);
 	LOG("%s\n", ok?"ok":"error");
 
-	LOG("user path: %s ... ", uPath.string().c_str());
-	ok = boost::filesystem::is_directory(uPath);
+	LOG("user path: %s ... ", u_Path.string().c_str());
+	ok = boost::filesystem::is_directory(u_Path);
 	LOG("%s\n", ok?"ok":"error");
 
-	updateUserConfigFile(std::string("categories.cfg"), iPath, uPath);
-	updateUserConfigFile(std::string("ground_models.cfg"), iPath, uPath);
-	updateUserConfigFile(std::string("torque_models.cfg"), iPath, uPath);
-	updateUserConfigFile(std::string("wavefield.cfg"), iPath, uPath);
+	updateUserConfigFile(std::string("categories.cfg"), iPath, u_Path);
+	updateUserConfigFile(std::string("ground_models.cfg"), iPath, u_Path);
+	updateUserConfigFile(std::string("torque_models.cfg"), iPath, u_Path);
+	updateUserConfigFile(std::string("wavefield.cfg"), iPath, u_Path);
 }
 
 void ConfigManager::installRuntime()
@@ -438,7 +439,9 @@ void ConfigManager::checkForNewUpdater()
 
     char url_tmp[256]="";
 	sprintf(url_tmp, API_CHINSTALLER, ourHash.c_str(), platform_str, ROR_VERSION_STRING_SHORT);
+	LOG("server used: %s\n", std::string(WSYNC_MAIN_SERVER));
 
+	/*
 	WsyncDownload *wsdl = new WsyncDownload();
 	LOG("checking for updates...\n");
 	wsdl->setDownloadMessage(_T("checking for updates"));
@@ -446,7 +449,8 @@ void ConfigManager::checkForNewUpdater()
 	int res = wsdl->downloadConfigFile(1, API_SERVER, std::string(url_tmp), list, true);
 	if(!res && list.size()>0 && list[0].size()>0)
 	{
-		LOG("update check result: %s\n", list[0][0].c_str());
+		//TODO FIX THIS
+		//LOG("update check result: %s\n", list[0][0].c_str());
 		if(list[0][0] == std::string("ok"))
 		{
 			// no updates
@@ -482,7 +486,7 @@ void ConfigManager::checkForNewUpdater()
 			}
 		}
 	}
-	delete(wsdl);
+	delete(wsdl);*/
 }
 
 void path_descend(char* path)

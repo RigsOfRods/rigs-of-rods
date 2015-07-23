@@ -49,11 +49,23 @@ link_directories   (${Boost_LIBRARY_DIRS})
 include_directories(${RoR_Installer_SOURCE_DIR}/../main)
 
 # find wxwidgets
-SET(wxWidgets_USE_UNICODE ON)
-FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS base core html net adv)
-include_directories(${wxWidgets_INCLUDE_DIRS})
-add_definitions("-D${wxWidgets_DEFINITIONS}" ${wxWidgets_CXX_FLAGS})
-link_directories (${wxWidgets_LIB_DIR})
+if(WIN32)
+	# use precompiled stuff
+	set(wxWidgets_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/WxWidgets" CACHE PATH "The wxWidgets include path to use")
+	set(wxWidgets_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/WxWidgets/Release" CACHE PATH "The wxWidgets lib path to use")
+	set(wxWidgets_LIBRARIES    "wxbase29u.lib;wxmsw29u_core.lib;wxmsw29u_html.lib;wxbase29u_net.lib;wxmsw29u_adv.lib;wxpng.lib;wxtiff.lib;wxjpeg.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;" CACHE STRING "The wxWidgets lib to link against")
+	add_definitions("-D_UNICODE -D_CRT_SECURE_NO_WARNINGS -DUNICODE")
+	include_directories(${wxWidgets_INCLUDE_DIRS})
+	link_directories (${wxWidgets_LIBRARY_DIRS})
+else(WIN32)
+	# find wxwidgets
+	SET(wxWidgets_USE_UNICODE ON)
+	FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS base core html net adv)
+	include( ${wxWidgets_USE_FILE} )
+	#include_directories(${wxWidgets_INCLUDE_DIRS})
+	#add_definitions("-D${wxWidgets_DEFINITIONS}" ${wxWidgets_CXX_FLAGS})
+	#link_directories (${wxWidgets_LIB_DIR})
+endif(WIN32)
 
 IF(WIN32)
    add_definitions("-D__WIN32__ -D_CRT_SECURE_NO_WARNINGS -DPLATFORM=1 -DWIN32_LEAN_AND_MEAN")
