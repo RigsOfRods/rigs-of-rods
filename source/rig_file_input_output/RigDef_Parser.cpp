@@ -3277,6 +3277,10 @@ void Parser::ParseEngturbo(Ogre::String const & line)
 	engturbo.param5 = STR_PARSE_REAL(results[12]);
 	engturbo.param6 = STR_PARSE_REAL(results[14]);
 	engturbo.param7 = STR_PARSE_REAL(results[16]);
+	engturbo.param8 = STR_PARSE_REAL(results[18]);
+	engturbo.param9 = STR_PARSE_REAL(results[20]);
+	engturbo.param10 = STR_PARSE_REAL(results[22]);
+	engturbo.param11 = STR_PARSE_REAL(results[24]);
 
 	m_current_module->engturbo = boost::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }

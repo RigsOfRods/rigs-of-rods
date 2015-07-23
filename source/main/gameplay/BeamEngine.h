@@ -84,7 +84,7 @@ public:
 	* @param nturbos Number of turbos
 	* @param additionalTorque Torque that will be added to the engine at max turbo rpm
 	**/
-	void setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7);
+	void setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
 
 	/**
 	* Set current engine RPM.
@@ -260,6 +260,11 @@ protected:
 	float minWGPsi;
 	bool b_flutter;
 	float wastegate_threshold_p, wastegate_threshold_n;
+	bool b_anti_lag;
+	float minRPM_antilag;
+	float rnd_antilag_chance;
+	float antilag_power_factor;
+	
 
 	// air pressure
 	TorqueCurve *torqueCurve;

@@ -64,8 +64,6 @@ tracks/default_turbo_mid
 {
 	trigger_source engine
 	pitch_source	turbo_rpm
-	gain_source		turbo_rpm
-	gain_factors	0.0	0.0	1.852E-12
 	sound	80000.0	default_turbo.wav
 }
 
@@ -73,9 +71,7 @@ tracks/default_turbo_big
 {
 	trigger_source engine
 	pitch_source	turbo_rpm
-	gain_source		turbo_rpm
-	gain_factors	0.0	0.0	1.852E-12
-	sound	150000.0	default_turbo.wav
+	sound	150000.0 default_turbo.wav
 }
 
 tracks/default_turbo_bov
@@ -92,6 +88,12 @@ tracks/default_wastegate_flutter
 	gain_source	turbo_rpm
 	gain_factors -0.00005	0.000001 1.852E-12
 	start_sound	unpitched default_wastegate_flutter.wav
+}
+
+tracks/default_turbo_backfire
+{
+	trigger_source	turbo_back_fire
+	start_sound	unpitched default_turbo_backfire.wav
 }
 
 tracks/default_air_purge

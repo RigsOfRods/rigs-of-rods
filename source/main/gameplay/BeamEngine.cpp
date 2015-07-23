@@ -84,6 +84,10 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, b_flutter(false)
 	, wastegate_threshold_p(0)
 	, wastegate_threshold_n(0)
+	, b_anti_lag(false)
+	, rnd_antilag_chance(0.9975)
+	, minRPM_antilag(3000)
+	, antilag_power_factor(170)
 {
 	fullRPMRange = (maxRPM - minRPM);
 	oneThirdRPMRange = fullRPMRange / 3.0f;
@@ -109,7 +113,7 @@ BeamEngine::~BeamEngine()
 	torqueCurve = NULL;
 }
 
-void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7)
+void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
 	if (!hasturbo)
 		hasturbo = true; //Should have a turbo
@@ -160,6 +164,20 @@ void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, fl
 			wastegate_threshold_n = 1 - param7;
 			wastegate_threshold_p = 1 + param7;
 		}
+
+		if (param8 == 1)
+			b_anti_lag = true;
+		else
+			b_anti_lag = false;
+
+		if (param9 != 9999)
+			rnd_antilag_chance = param9;
+
+		if (param10 != 9999)
+			minRPM_antilag = param10;
+
+		if (param11 != 9999)
+			antilag_power_factor = param11;
 	}
 }
 
@@ -307,6 +325,22 @@ void BeamEngine::update(float dt, int doUpdate)
 				{
 					turbotorque += (turbotorque * 2.5);
 				}
+			}
+
+			// anti lag
+			if (b_anti_lag && curAcc < 0.5)
+			{
+				float f = frand();
+				if (curEngineRPM > minRPM_antilag && f > rnd_antilag_chance)
+				{
+					if (curTurboRPM[i] > maxTurboRPM*0.35 && curTurboRPM[i] < maxTurboRPM)
+					{
+						turbotorque -= (turbotorque * (f * antilag_power_factor));
+						SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+					}
+				}
+				else
+					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
 			}
 
 			// update main turbo rpm

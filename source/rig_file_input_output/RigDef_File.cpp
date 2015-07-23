@@ -99,7 +99,11 @@ param3(9999),
 param4(9999),
 param5(9999),
 param6(9999), 
-param7(9999) 
+param7(9999),
+param8(9999),
+param9(9999),
+param10(9999),
+param11(9999)
 {}
 
 Fusedrag::Fusedrag():
