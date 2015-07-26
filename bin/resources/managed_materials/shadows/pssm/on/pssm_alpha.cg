@@ -1,0 +1,31 @@
+// PSSM shadow caster with support for alpha textures (eg. trees)
+// Supports RTSS shadow receivers
+
+void shadow_caster_alpha_vs(
+	float4 position : POSITION,
+	float2 uv : TEXCOORD0,
+	out float4 oPosition : POSITION,
+	out float2 oDepth : TEXCOORD0,
+	out float2 oUv : TEXCOORD1,
+	uniform float4x4 wvpMat)
+{
+	oPosition = mul(wvpMat, position);
+	oDepth.x = oPosition.z;
+	oDepth.y = oPosition.w;
+	oPosition.z = max(oPosition.z, 0);
+	oUv = uv;
+}
+
+void shadow_caster_alpha_ps(
+	float4 position : POSITION,
+	float2 depth : TEXCOORD0,
+	float2 uv : TEXCOORD1,
+	out float4 oColour : COLOR,
+	uniform sampler2D alphaMap : TEXUNIT0,
+	uniform float4 pssmSplitPoints)
+{
+	float finalDepth = depth.x / depth.y;
+	float4 trans = tex2D(alphaMap, uv);
+	oColour = float4(finalDepth, finalDepth, finalDepth, trans.w);
+	clip( oColour.a > 0.5 ? 1:-1);
+}

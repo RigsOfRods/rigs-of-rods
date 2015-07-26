@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "LoadingWindow.h"
 #include "TerrainManager.h"
+#include "ShadowManager.h"
 
 using namespace Ogre;
 
@@ -270,6 +271,8 @@ void TerrainGeometryManager::configureTerrainDefaults()
 		matProfile->setLayerParallaxMappingEnabled(m_terrain_config.GetBool("ParallaxMappingEnabled", false));
 		matProfile->setGlobalColourMapEnabled(m_terrain_config.GetBool("GlobalColourMapEnabled", false));
 		matProfile->setReceiveDynamicShadowsDepth(m_terrain_config.GetBool("ReceiveDynamicShadowsDepth", false));
+
+		terrainManager->getShadowManager()->updateTerrainMaterial(matProfile);
 	}
 
 	terrainOptions->setLayerBlendMapSize(m_terrain_config.GetInt("LayerBlendMapSize", 1024));

@@ -69,6 +69,8 @@ public:
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };
 
+	ShadowManager *getShadowManager() { return shadow_manager; };
+
 	// preloaded trucks
 	void loadPreloadedTrucks();
 	bool hasPreloadedTrucks();

@@ -25,7 +25,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "OgreTerrain.h"
+#include <OgreTerrain.h>
+#include <OgreShadowCameraSetupPSSM.h>
+#include <OgreTerrainMaterialGeneratorA.h>
+
 
 enum {
 	SHADOWS_NONE,
@@ -51,13 +54,15 @@ public:
 
 	void loadConfiguration();
 
-	void updatePSSM(Ogre::Terrain* terrain = 0);
+	void updatePSSM();
+
+	void updateTerrainMaterial(Ogre::TerrainMaterialGeneratorA::SM2Profile* matProfile);
 protected:
 
 	void processTextureShadows();
 
 	void processPSSM();
-	void setMaterialSplitPoints(Ogre::String materialName, Ogre::Vector4 &splitPoints);
+	void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 
 	int updateShadowTechnique();
 

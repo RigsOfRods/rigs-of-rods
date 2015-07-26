@@ -52,15 +52,15 @@ abstract material RoR/Managed_Mats/BaseSpecular
 	}
 }
 
+//No shadows on these
 abstract material RoR/Managed_Mats/Vegetation
 {	
-	technique BaseTechnique
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver
 	{
 	//Texture is rendred here
-		pass BaseRender: Shadows/managed/base_receiver
+		pass BaseRender
 		{
-			scene_blend alpha_blend
-			alpha_rejection greater 120
+			alpha_rejection greater_equal 192
 			cull_hardware none
 			cull_software none
 			texture_unit Diffuse_Map
@@ -73,13 +73,12 @@ abstract material RoR/Managed_Mats/Vegetation
 
 abstract material RoR/Managed_Mats/Transparent
 {
-	technique BaseTechnique: Shadows/managed/base_receiver
+	technique BaseTechnique: Shadows/managed_transparent/base_receiver
 	{
 	//Texture is rendred here
 		pass BaseRender
 		{
-			scene_blend alpha_blend
-			alpha_rejection greater 120
+			alpha_rejection greater_equal 192
 			cull_hardware none
 			cull_software none
 			texture_unit Diffuse_Map

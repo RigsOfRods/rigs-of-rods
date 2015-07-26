@@ -20,9 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ShadowManager.h"
 
 #include "Ogre.h"
-#include "OgreShadowCameraSetup.h"
 #include "OgreTerrain.h"
-#include "OgreTerrainMaterialGeneratorA.h"
 
 #include "Settings.h"
 
@@ -56,7 +54,7 @@ int ShadowManager::updateShadowTechnique()
 {
 	float shadowFarDistance = FSETTING("SightRange", 2000);
 	float scoef = 0.12;
-	//gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
+	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 	gEnv->sceneManager->setShowDebugShadows(false);
 
 	if (ShadowsType == SHADOWS_TEXTURE)
@@ -105,92 +103,65 @@ void ShadowManager::processTextureShadows()
 
 void ShadowManager::processPSSM()
 {
-	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(100.0f);
-	gEnv->sceneManager->setShadowFarDistance(60.f);
 	gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
+	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(500.0f);
+	gEnv->sceneManager->setShadowFarDistance(300.0f);
+	gEnv->sceneManager->setShadowDirLightTextureOffset(0.7f);
 	gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
 	gEnv->sceneManager->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
+
+	gEnv->sceneManager->setShadowTextureSelfShadow(true);
+	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
+
+	//Caster is set via materials
+	//gEnv->sceneManager->setShadowTextureCasterMaterial("Ogre/shadow/depth/caster");
 
 	if (PSSM_Shadows.mPSSMSetup.isNull())
 	{
 		// shadow camera setup
 		Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
 
-		pssmSetup->setSplitPadding(0.1);
-
-		pssmSetup->calculateSplitPoints(3, 0.5, 600, 0.91f);
-
-		pssmSetup->setOptimalAdjustFactor(0, 2);
-		pssmSetup->setOptimalAdjustFactor(1, 1);
-		pssmSetup->setOptimalAdjustFactor(2, 0.5);
+		pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), 0.91f);
+		pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
+		pssmSetup->setOptimalAdjustFactor(0, -1);
+		pssmSetup->setOptimalAdjustFactor(1, -1);
+		pssmSetup->setOptimalAdjustFactor(2, -1);
 
 		PSSM_Shadows.mPSSMSetup.bind(pssmSetup);
-
+		
+		//Send split info to managed materials
+		setManagedMaterialSplitPoints(pssmSetup->getSplitPoints());
 	}
 	gEnv->sceneManager->setShadowCameraSetup(PSSM_Shadows.mPSSMSetup);
 
-	gEnv->sceneManager->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT32_R);
-	gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
-	gEnv->sceneManager->setShadowTextureConfig(2, 1024, 1024, PF_FLOAT32_R);
-
-	gEnv->sceneManager->setShadowTextureSelfShadow(true);
-	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
-
-	gEnv->sceneManager->setShadowTextureCasterMaterial("PSSM/shadow_caster");
-
-	updatePSSM();
+	gEnv->sceneManager->setShadowTextureConfig(0, 4096, 4096, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(1, 2048, 2048, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
 }
 
-void ShadowManager::updatePSSM(Ogre::Terrain* terrain)
+void ShadowManager::updatePSSM()
 {
 	if (!PSSM_Shadows.mPSSMSetup.get())  return;
+	//Ugh what here?
+}
 
-	Ogre::TerrainMaterialGeneratorA::SM2Profile *matProfile = 0;
-	if (Ogre::TerrainGlobalOptions::getSingletonPtr())
+void ShadowManager::updateTerrainMaterial(Ogre::TerrainMaterialGeneratorA::SM2Profile* matProfile)
+{
+	if (ShadowsType == SHADOWS_PSSM)
 	{
-		matProfile = static_cast<Ogre::TerrainMaterialGeneratorA::SM2Profile*>(Ogre::TerrainGlobalOptions::getSingleton().getDefaultMaterialGenerator()->getActiveProfile());
-		matProfile->setReceiveDynamicShadowsEnabled(true);
-		matProfile->setReceiveDynamicShadowsLowLod(true);
-		matProfile->setGlobalColourMapEnabled(true);
-	}
-
-
-	Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
-	Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList = pssmSetup->getSplitPoints();
-
-	
-	Ogre::Vector4 splitPoints;
-	for (int i = 0; i < PSSM_Shadows.ShadowsTextureNum; ++i)
-		splitPoints[i] = splitPointList[i];
-
-	//MaterialPtr mat = MaterialManager::getSingleton().getByName("RoR/Managed_Mats/Base");
-	//mat->getTechnique("ShadowTechnique")->getPass(0)->getFragmentProgramParameters()->setNamedConstant("pssmSplitPoints", splitPoints);
-
-	// TODO: fix this
-/*	setMaterialSplitPoints("road", splitPoints);
-	setMaterialSplitPoints("road2", splitPoints);
-	*/
-
-	if (matProfile && terrain)
-	{
-		matProfile->generateForCompositeMap(terrain);
-		matProfile->setReceiveDynamicShadowsDepth(PSSM_Shadows.mDepthShadows);
-		matProfile->setReceiveDynamicShadowsPSSM(static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get()));
+		Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
+		matProfile->setReceiveDynamicShadowsPSSM(pssmSetup);
 	}
 }
 
-void ShadowManager::setMaterialSplitPoints(Ogre::String materialName, Ogre::Vector4 &splitPoints)
+void ShadowManager::setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList)
 {
-	/*	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
-	if (!mat.isNull())
-	{
-	unsigned short np = mat->getTechnique(0)->getNumPasses()-1;  // last
-	try {
-	mat->getTechnique(0)->getPass(np)->getFragmentProgramParameters()->setNamedConstant("pssmSplitPoints", splitPoints);
-	} catch(...)
-	{
-	// this material is not prepared for PSSM usage !
-	}
-	}*/
+	Ogre::Vector4 splitPoints;
+
+	for (int i = 0; i < 3; ++i)
+		splitPoints[i] = splitPointList[i];
+
+	GpuSharedParametersPtr p = GpuProgramManager::getSingleton().getSharedParameters("pssm_params");
+	p->setNamedConstant("pssmSplitPoints", splitPoints);
 }
