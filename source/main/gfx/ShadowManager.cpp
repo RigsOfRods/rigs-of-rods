@@ -55,7 +55,7 @@ int ShadowManager::updateShadowTechnique()
 	float shadowFarDistance = FSETTING("SightRange", 2000);
 	float scoef = 0.12;
 	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
-	gEnv->sceneManager->setShowDebugShadows(false);
+	gEnv->sceneManager->setShowDebugShadows(true);
 
 	if (ShadowsType == SHADOWS_TEXTURE)
 	{
@@ -105,8 +105,8 @@ void ShadowManager::processPSSM()
 {
 	gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
-	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(500.0f);
-	gEnv->sceneManager->setShadowFarDistance(300.0f);
+	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(3000.0f);
+	gEnv->sceneManager->setShadowFarDistance(1000.0f);
 	gEnv->sceneManager->setShadowDirLightTextureOffset(0.7f);
 	gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
 	gEnv->sceneManager->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
@@ -115,18 +115,18 @@ void ShadowManager::processPSSM()
 	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
 	//Caster is set via materials
-	//gEnv->sceneManager->setShadowTextureCasterMaterial("Ogre/shadow/depth/caster");
 
 	if (PSSM_Shadows.mPSSMSetup.isNull())
 	{
 		// shadow camera setup
 		Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();
 
-		pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), 0.91f);
+		pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), 0.93f);
 		pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
-		pssmSetup->setOptimalAdjustFactor(0, -1);
-		pssmSetup->setOptimalAdjustFactor(1, -1);
-		pssmSetup->setOptimalAdjustFactor(2, -1);
+
+		pssmSetup->setOptimalAdjustFactor(0, 5);
+		pssmSetup->setOptimalAdjustFactor(1, 1);
+		pssmSetup->setOptimalAdjustFactor(2, 0.5);
 
 		PSSM_Shadows.mPSSMSetup.bind(pssmSetup);
 		
@@ -135,9 +135,9 @@ void ShadowManager::processPSSM()
 	}
 	gEnv->sceneManager->setShadowCameraSetup(PSSM_Shadows.mPSSMSetup);
 
-	gEnv->sceneManager->setShadowTextureConfig(0, 4096, 4096, PF_FLOAT32_R);
-	gEnv->sceneManager->setShadowTextureConfig(1, 2048, 2048, PF_FLOAT32_R);
-	gEnv->sceneManager->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
+	gEnv->sceneManager->setShadowTextureConfig(2, 1024, 1024, PF_FLOAT32_R);
 }
 
 void ShadowManager::updatePSSM()
@@ -151,6 +151,7 @@ void ShadowManager::updateTerrainMaterial(Ogre::TerrainMaterialGeneratorA::SM2Pr
 	if (ShadowsType == SHADOWS_PSSM)
 	{
 		Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
+		matProfile->setReceiveDynamicShadowsDepth(true);
 		matProfile->setReceiveDynamicShadowsPSSM(pssmSetup);
 	}
 }
