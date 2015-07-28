@@ -241,7 +241,10 @@ protected:
 	void ParseMeshWheelUnsafe(Ogre::String const & line);
 	void VerifyAndProcessMeshWheel(Ogre::String const & line, MeshWheel& mesh_wheel_def, int braking, int propulsion, char side);
 
-	void ParseMeshWheels2(Ogre::String const & line);
+	// MeshWheels2
+	void ParseMeshWheel2(Ogre::String const & line);
+	void ParseMeshWheel2Unsafe(Ogre::String const & line);
+	void VerifyAndProcessMeshWheel2(Ogre::String const & line, MeshWheel2& mesh_wheel_2_def, int braking, int propulsion, char side);
 
 	void ParseMinimass(Ogre::String const & line);
 
