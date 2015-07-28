@@ -954,7 +954,7 @@ void Parser::ParseLine(Ogre::String const & line)
 			break;
 
 		case (File::SECTION_FLEX_BODY_WHEELS):
-			ParseFlexBodyWheels(line);
+			ParseFlexBodyWheel(line);
 			line_finished = true;
 			break;
 
@@ -5071,12 +5071,12 @@ void Parser::ParseMinimass(Ogre::String const & line)
 	m_definition->_minimum_mass_set = true;
 }
 
-void Parser::ParseFlexBodyWheels(Ogre::String const & line)
+void Parser::ParseFlexBodyWheel(Ogre::String const & line)
 {
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_FLEXBODYWHEELS))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		this->ParseFlexBodyWheelUnsafe(line);
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
@@ -5084,57 +5084,102 @@ void Parser::ParseFlexBodyWheels(Ogre::String const & line)
 	flex_body_wheel.beam_defaults = m_user_beam_defaults;
 	flex_body_wheel.node_defaults = m_user_node_defaults;
 
-	flex_body_wheel.tyre_radius = STR_PARSE_REAL(results[1]);
-	flex_body_wheel.rim_radius = STR_PARSE_REAL(results[2]);
-	flex_body_wheel.width = STR_PARSE_REAL(results[3]);
-	flex_body_wheel.num_rays = STR_PARSE_INT(results[4]);
-	flex_body_wheel.nodes[0] = _ParseNodeRef(results[5]);
-	flex_body_wheel.nodes[1] = _ParseNodeRef(results[6]);
-	
-	Node::Ref rigidity_node = _ParseNodeRef(results[7]);
-	if(rigidity_node.Num() != 9999) /* Special placeholder value */
+	flex_body_wheel.tyre_radius        = STR_PARSE_REAL(results[ 1]);
+	flex_body_wheel.rim_radius         = STR_PARSE_REAL(results[ 3]);
+	flex_body_wheel.width              = STR_PARSE_REAL(results[ 5]);
+	flex_body_wheel.num_rays           = STR_PARSE_INT (results[ 7]);
+	flex_body_wheel.nodes[0]           = _ParseNodeRef (results[ 9]);
+	flex_body_wheel.nodes[1]           = _ParseNodeRef (results[11]);
+	flex_body_wheel.rigidity_node      = _ParseNodeRef (results[13]);
+	int braking                        = STR_PARSE_INT (results[15]);
+	int propulsion                     = STR_PARSE_INT (results[17]);
+	flex_body_wheel.reference_arm_node = _ParseNodeRef (results[19]);
+	flex_body_wheel.mass               = STR_PARSE_REAL(results[21]);
+	flex_body_wheel.tyre_springiness   = STR_PARSE_REAL(results[23]);
+	flex_body_wheel.tyre_damping       = STR_PARSE_REAL(results[25]);
+	flex_body_wheel.rim_springiness    = STR_PARSE_REAL(results[27]);
+	flex_body_wheel.rim_damping        = STR_PARSE_REAL(results[29]);
+	char side                          =                results[31].str().at(0);
+	flex_body_wheel.rim_mesh_name      =                results[33];
+	flex_body_wheel.tyre_mesh_name     =                results[35];
+
+	this->VerifyAndProcessFlexBodyWheel(line, flex_body_wheel, braking, propulsion, side);
+}
+
+void Parser::ParseFlexBodyWheelUnsafe(Ogre::String const & line)
+{
+	PARSE_UNSAFE_START(16);
+
+	FlexBodyWheel flexbody_wheel;
+	flexbody_wheel.node_defaults = m_user_node_defaults;
+	flexbody_wheel.beam_defaults = m_user_beam_defaults;
+
+	flexbody_wheel.tyre_radius         = STR_PARSE_REAL(values[ 0]);
+	flexbody_wheel.rim_radius          = STR_PARSE_REAL(values[ 1]);
+	flexbody_wheel.width               = STR_PARSE_REAL(values[ 2]);
+	flexbody_wheel.num_rays            = STR_PARSE_INT (values[ 3]);
+	flexbody_wheel.nodes[0]            = _ParseNodeRef (values[ 4]);
+	flexbody_wheel.nodes[1]            = _ParseNodeRef (values[ 5]);
+	flexbody_wheel.rigidity_node       = _ParseNodeRef (values[ 6]);
+	int braking                        = STR_PARSE_INT (values[ 7]);
+	int propulsion                     = STR_PARSE_INT (values[ 8]);
+	flexbody_wheel.reference_arm_node  = _ParseNodeRef (values[ 9]);
+	flexbody_wheel.mass                = STR_PARSE_REAL(values[10]);
+	flexbody_wheel.tyre_springiness    = STR_PARSE_REAL(values[11]);
+	flexbody_wheel.tyre_damping        = STR_PARSE_REAL(values[12]);
+	flexbody_wheel.rim_springiness     = STR_PARSE_REAL(values[13]);
+	flexbody_wheel.rim_damping         = STR_PARSE_REAL(values[14]);
+	char side_char                     =                values[15].at(0);
+	if (values.size() >= 17) 
+	{ 
+		flexbody_wheel.rim_mesh_name   =                values[16];
+	}
+	if (values.size() >= 18)
 	{
-		flex_body_wheel.rigidity_node = rigidity_node;
+		flexbody_wheel.tyre_mesh_name =                 values[17];
 	}
 
-    if (m_sequential_importer.IsEnabled())
-    {
-        m_sequential_importer.GenerateNodesForWheel(
-            File::KEYWORD_FLEXBODYWHEELS,flex_body_wheel.num_rays, flex_body_wheel.rigidity_node.IsValidAnyState());
-    }
+	this->VerifyAndProcessFlexBodyWheel(line, flexbody_wheel, braking, propulsion, side_char);
+}
 
-	unsigned int braking = STR_PARSE_INT(results[8]);
-	if (braking >= 0 && braking <= 4)
+void Parser::VerifyAndProcessFlexBodyWheel(Ogre::String const & line, FlexBodyWheel& flexbody_wheel, int braking, int propulsion, char side_char)
+{
+	// Axle rigidity node (9999 = null)
+	if (flexbody_wheel.rigidity_node.IsValidAnyState() && flexbody_wheel.rigidity_node.Num() == 9999)
 	{
-		flex_body_wheel.braking = Wheels::Braking(braking);
-	}
-	else
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Invalid 'braking' value, setting BRAKING_NO (0).");
+		flexbody_wheel.rigidity_node.Invalidate();
 	}
 
-	unsigned int propulsion = STR_PARSE_INT(results[9]);
-	if (propulsion >= 0 && propulsion <= 2)
+	if (braking < 0 || braking > 4)
 	{
-		flex_body_wheel.propulsion = Wheels::Propulsion(propulsion);
+		this->AddMessage(line, Message::TYPE_ERROR, "Invalid value of parameter ~7 (braking), using 0 (no braking)");
+		braking = 0;
 	}
-	else
+	flexbody_wheel.braking = Wheels::Braking(braking);
+
+	if (propulsion < 0 || propulsion > 2)
 	{
-		AddMessage(line, Message::TYPE_WARNING, "Invalid 'propulsion' value, setting PROPULSION_NONE (0).");
+		this->AddMessage(line, Message::TYPE_ERROR, "Invalid value of parameter ~8 (propulsion), using 0 (no propulsion)");
+		braking = 0;
+	}
+	flexbody_wheel.propulsion = Wheels::Propulsion(propulsion);
+
+	flexbody_wheel.side = MeshWheel::SIDE_RIGHT;
+	if (side_char != 'r')
+	{
+		if (side_char != 'l')
+		{
+			this->AddMessage(line, Message::TYPE_WARNING, std::string("Invalid SIDE flag (acceptable are [r/l]), parsing as LEFT for backwards compatibility: ") + side_char);
+		}
+		flexbody_wheel.side = MeshWheel::SIDE_LEFT;
 	}
 
-	flex_body_wheel.reference_arm_node = _ParseNodeRef(results[10]);
-	flex_body_wheel.mass               = STR_PARSE_REAL(results[11]);
-	flex_body_wheel.tyre_springiness   = STR_PARSE_REAL(results[12]);
-	flex_body_wheel.tyre_damping       = STR_PARSE_REAL(results[13]);
-	flex_body_wheel.rim_springiness    = STR_PARSE_REAL(results[14]);
-	flex_body_wheel.rim_damping        = STR_PARSE_REAL(results[15]);
-	
-	flex_body_wheel.side               = MeshWheel::Side(results[16].str().at(0)); /* Regex validates the value */
-	flex_body_wheel.rim_mesh_name      = results[17];
-	flex_body_wheel.tyre_mesh_name     = results[18];
+	if (m_sequential_importer.IsEnabled())
+	{
+		m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_FLEXBODYWHEELS, flexbody_wheel.num_rays, flexbody_wheel.rigidity_node.IsValidAnyState());
+	}
 
-	m_current_module->flex_body_wheels.push_back(flex_body_wheel);
+	m_current_module->flex_body_wheels.push_back(flexbody_wheel);
 }
 
 void Parser::ParseMeshWheels2(Ogre::String const & line)
