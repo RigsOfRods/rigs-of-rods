@@ -46,19 +46,6 @@ namespace RigDef
 
 #define STR_PARSE_BOOL(_STR_) Ogre::StringConverter::parseBool(_STR_)
 
-// TODO: FAULTY, REMOVE THIS
-#define PARSE_UNSAFE_START(MIN_ARGS)                                 \
-	this->AddMessage(line, Message::TYPE_WARNING,                    \
-		"Syntax check failed, parsing by legacy unsafe method...");  \
-	const int min_args = MIN_ARGS;                                   \
-	Ogre::StringVector values;                                       \
-	if (this->_ParseArgs(line, values, min_args) < min_args)         \
-	{                                                                \
-		std::stringstream msg;                                       \
-		msg << "Too few arguments, required number is " << min_args; \
-		this->AddMessage(line, Message::TYPE_WARNING, msg.str());    \
-	}
-
 /// Parses line into "values[]" array and checks number of arguments
 #define PARSE_UNSAFE(VAR_LINE, MIN_ARGS, _BLOCK_)                      \
 	this->AddMessage(line, Message::TYPE_WARNING,                      \
@@ -1956,30 +1943,31 @@ void Parser::VerifyAndProcessMeshWheel(Ogre::String const & line, MeshWheel& mes
 
 void Parser::ParseMeshWheelUnsafe(Ogre::String const & line)
 {
-	PARSE_UNSAFE_START(16);
+	PARSE_UNSAFE(line, 16,
+	{
+		MeshWheel mesh_wheel;
+		mesh_wheel.node_defaults      = m_user_node_defaults;
+		mesh_wheel.beam_defaults      = m_user_beam_defaults;
 
-	MeshWheel mesh_wheel;
-	mesh_wheel.node_defaults      = m_user_node_defaults;
-	mesh_wheel.beam_defaults      = m_user_beam_defaults;
+		mesh_wheel.tyre_radius        = STR_PARSE_REAL(values[ 0]);
+		mesh_wheel.rim_radius         = STR_PARSE_REAL(values[ 1]);
+		mesh_wheel.width              = STR_PARSE_REAL(values[ 2]);
+		mesh_wheel.num_rays           = STR_PARSE_INT (values[ 3]);
+		mesh_wheel.nodes[0]           = _ParseNodeRef (values[ 4]);
+		mesh_wheel.nodes[1]           = _ParseNodeRef (values[ 5]);
+		mesh_wheel.rigidity_node      = _ParseNodeRef (values[ 6]);
+		int braking                   = STR_PARSE_INT (values[ 7]);
+		int propulsion                = STR_PARSE_INT (values[ 8]);
+		mesh_wheel.reference_arm_node = _ParseNodeRef (values[ 9]);
+		mesh_wheel.mass               = STR_PARSE_REAL(values[10]);
+		mesh_wheel.spring             = STR_PARSE_REAL(values[11]);
+		mesh_wheel.damping            = STR_PARSE_REAL(values[12]);
+		char side_char                =                values[13].at(0);
+		mesh_wheel.mesh_name          =                values[14];
+		mesh_wheel.material_name      =                values[15];
 
-	mesh_wheel.tyre_radius        = STR_PARSE_REAL(values[ 0]);
-	mesh_wheel.rim_radius         = STR_PARSE_REAL(values[ 1]);
-	mesh_wheel.width              = STR_PARSE_REAL(values[ 2]);
-	mesh_wheel.num_rays           = STR_PARSE_INT (values[ 3]);
-	mesh_wheel.nodes[0]           = _ParseNodeRef (values[ 4]);
-	mesh_wheel.nodes[1]           = _ParseNodeRef (values[ 5]);
-	mesh_wheel.rigidity_node      = _ParseNodeRef (values[ 6]);
-	int braking                   = STR_PARSE_INT (values[ 7]);
-	int propulsion                = STR_PARSE_INT (values[ 8]);
-	mesh_wheel.reference_arm_node = _ParseNodeRef (values[ 9]);
-	mesh_wheel.mass               = STR_PARSE_REAL(values[10]);
-	mesh_wheel.spring             = STR_PARSE_REAL(values[11]);
-	mesh_wheel.damping            = STR_PARSE_REAL(values[12]);
-	char side_char                =                values[13].at(0);
-	mesh_wheel.mesh_name          =                values[14];
-	mesh_wheel.material_name      =                values[15];
-
-	this->VerifyAndProcessMeshWheel(line, mesh_wheel, braking, propulsion, side_char);
+		this->VerifyAndProcessMeshWheel(line, mesh_wheel, braking, propulsion, side_char);
+	});
 }
 
 void Parser::ParseMeshWheel(Ogre::String const & line)
@@ -2018,30 +2006,31 @@ void Parser::ParseMeshWheel(Ogre::String const & line)
 
 void Parser::ParseMeshWheel2Unsafe(Ogre::String const & line)
 {
-	PARSE_UNSAFE_START(16);
+	PARSE_UNSAFE(line, 16,
+	{
+		MeshWheel2 mesh_wheel_2;
+		mesh_wheel_2.node_defaults = m_user_node_defaults;
+		mesh_wheel_2.beam_defaults = m_user_beam_defaults;
 
-	MeshWheel2 mesh_wheel_2;
-	mesh_wheel_2.node_defaults = m_user_node_defaults;
-	mesh_wheel_2.beam_defaults = m_user_beam_defaults;
+		mesh_wheel_2.tyre_radius        = STR_PARSE_REAL(values[ 0]);
+		mesh_wheel_2.rim_radius         = STR_PARSE_REAL(values[ 1]);
+		mesh_wheel_2.width              = STR_PARSE_REAL(values[ 2]);
+		mesh_wheel_2.num_rays           = STR_PARSE_INT (values[ 3]);
+		mesh_wheel_2.nodes[0]           = _ParseNodeRef (values[ 4]);
+		mesh_wheel_2.nodes[1]           = _ParseNodeRef (values[ 5]);
+		mesh_wheel_2.rigidity_node      = _ParseNodeRef (values[ 6]);
+		int braking                     = STR_PARSE_INT (values[ 7]);
+		int propulsion                  = STR_PARSE_INT (values[ 8]);
+		mesh_wheel_2.reference_arm_node = _ParseNodeRef (values[ 9]);
+		mesh_wheel_2.mass               = STR_PARSE_REAL(values[10]);
+		mesh_wheel_2.tyre_springiness   = STR_PARSE_REAL(values[11]);
+		mesh_wheel_2.tyre_damping       = STR_PARSE_REAL(values[12]);
+		char side_char                  =                values[13].at(0);
+		mesh_wheel_2.mesh_name          =                values[14];
+		mesh_wheel_2.material_name      =                values[15];
 
-	mesh_wheel_2.tyre_radius        = STR_PARSE_REAL(values[ 0]);
-	mesh_wheel_2.rim_radius         = STR_PARSE_REAL(values[ 1]);
-	mesh_wheel_2.width              = STR_PARSE_REAL(values[ 2]);
-	mesh_wheel_2.num_rays           = STR_PARSE_INT (values[ 3]);
-	mesh_wheel_2.nodes[0]           = _ParseNodeRef (values[ 4]);
-	mesh_wheel_2.nodes[1]           = _ParseNodeRef (values[ 5]);
-	mesh_wheel_2.rigidity_node      = _ParseNodeRef (values[ 6]);
-	int braking                     = STR_PARSE_INT (values[ 7]);
-	int propulsion                  = STR_PARSE_INT (values[ 8]);
-	mesh_wheel_2.reference_arm_node = _ParseNodeRef (values[ 9]);
-	mesh_wheel_2.mass               = STR_PARSE_REAL(values[10]);
-	mesh_wheel_2.tyre_springiness   = STR_PARSE_REAL(values[11]);
-	mesh_wheel_2.tyre_damping       = STR_PARSE_REAL(values[12]);
-	char side_char                  =                values[13].at(0);
-	mesh_wheel_2.mesh_name          =                values[14];
-	mesh_wheel_2.material_name      =                values[15];
-
-	this->VerifyAndProcessMeshWheel2(line, mesh_wheel_2, braking, propulsion, side_char);
+		this->VerifyAndProcessMeshWheel2(line, mesh_wheel_2, braking, propulsion, side_char);
+	});
 }
 
 void Parser::ParseMeshWheel2(Ogre::String const & line)
@@ -2481,29 +2470,31 @@ void Parser::ParseSubmeshUnsafe(Ogre::String const & line)
 {
 	if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
 	{
-		PARSE_UNSAFE_START(3);
-
-		Cab cab;
-		cab.nodes[0] = this->_ParseNodeRef(values[0]);
-		cab.nodes[1] = this->_ParseNodeRef(values[1]);
-		cab.nodes[2] = this->_ParseNodeRef(values[2]);
-		if (values.size() > 3)
+		PARSE_UNSAFE(line, 3,
 		{
-			cab.options = this->_ParseCabOptions(values[3]);
-		}
+			Cab cab;
+			cab.nodes[0] = this->_ParseNodeRef(values[0]);
+			cab.nodes[1] = this->_ParseNodeRef(values[1]);
+			cab.nodes[2] = this->_ParseNodeRef(values[2]);
+			if (values.size() > 3)
+			{
+				cab.options = this->_ParseCabOptions(values[3]);
+			}
 
-		m_current_submesh->cab_triangles.push_back(cab);
+			m_current_submesh->cab_triangles.push_back(cab);
+		});
 	}
 	else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
 	{
-		PARSE_UNSAFE_START(3);
+		PARSE_UNSAFE(line, 3,
+		{
+			Texcoord texcoord;
+			texcoord.node = this->_ParseNodeRef(values[0]);
+			texcoord.u    =      STR_PARSE_REAL(values[1]);
+			texcoord.v    =      STR_PARSE_REAL(values[2]);
 
-		Texcoord texcoord;
-		texcoord.node = this->_ParseNodeRef(values[0]);
-		texcoord.u    = STR_PARSE_REAL(values[1]);
-		texcoord.v    = STR_PARSE_REAL(values[2]);
-
-		m_current_submesh->texcoords.push_back(texcoord);
+			m_current_submesh->texcoords.push_back(texcoord);
+		});
 	}
 }
 
@@ -3880,14 +3871,15 @@ void Parser::ParseVideoCamera(Ogre::String const & line)
 
 void Parser::ParseCamerasUnsafe(Ogre::String const & line)
 {
-	PARSE_UNSAFE_START(3);
+	PARSE_UNSAFE(line, 3,
+	{
+		Camera camera;
+		camera.center_node = this->_ParseNodeRef(values[0]);
+		camera.back_node   = this->_ParseNodeRef(values[1]);
+		camera.left_node   = this->_ParseNodeRef(values[2]);
 
-	Camera camera;
-	camera.center_node = this->_ParseNodeRef(values[0]);
-	camera.back_node   = this->_ParseNodeRef(values[1]);
-	camera.left_node   = this->_ParseNodeRef(values[2]);
-
-	m_current_module->cameras.push_back(camera);
+		m_current_module->cameras.push_back(camera);
+	});
 }
 
 void Parser::ParseCameras(Ogre::String const & line)
@@ -5202,38 +5194,39 @@ void Parser::ParseFlexBodyWheel(Ogre::String const & line)
 
 void Parser::ParseFlexBodyWheelUnsafe(Ogre::String const & line)
 {
-	PARSE_UNSAFE_START(16);
-
-	FlexBodyWheel flexbody_wheel;
-	flexbody_wheel.node_defaults = m_user_node_defaults;
-	flexbody_wheel.beam_defaults = m_user_beam_defaults;
-
-	flexbody_wheel.tyre_radius         = STR_PARSE_REAL(values[ 0]);
-	flexbody_wheel.rim_radius          = STR_PARSE_REAL(values[ 1]);
-	flexbody_wheel.width               = STR_PARSE_REAL(values[ 2]);
-	flexbody_wheel.num_rays            = STR_PARSE_INT (values[ 3]);
-	flexbody_wheel.nodes[0]            = _ParseNodeRef (values[ 4]);
-	flexbody_wheel.nodes[1]            = _ParseNodeRef (values[ 5]);
-	flexbody_wheel.rigidity_node       = _ParseNodeRef (values[ 6]);
-	int braking                        = STR_PARSE_INT (values[ 7]);
-	int propulsion                     = STR_PARSE_INT (values[ 8]);
-	flexbody_wheel.reference_arm_node  = _ParseNodeRef (values[ 9]);
-	flexbody_wheel.mass                = STR_PARSE_REAL(values[10]);
-	flexbody_wheel.tyre_springiness    = STR_PARSE_REAL(values[11]);
-	flexbody_wheel.tyre_damping        = STR_PARSE_REAL(values[12]);
-	flexbody_wheel.rim_springiness     = STR_PARSE_REAL(values[13]);
-	flexbody_wheel.rim_damping         = STR_PARSE_REAL(values[14]);
-	char side_char                     =                values[15].at(0);
-	if (values.size() >= 17) 
-	{ 
-		flexbody_wheel.rim_mesh_name   =                values[16];
-	}
-	if (values.size() >= 18)
+	PARSE_UNSAFE(line, 16,
 	{
-		flexbody_wheel.tyre_mesh_name =                 values[17];
-	}
+		FlexBodyWheel flexbody_wheel;
+		flexbody_wheel.node_defaults = m_user_node_defaults;
+		flexbody_wheel.beam_defaults = m_user_beam_defaults;
 
-	this->VerifyAndProcessFlexBodyWheel(line, flexbody_wheel, braking, propulsion, side_char);
+		flexbody_wheel.tyre_radius         = STR_PARSE_REAL(values[ 0]);
+		flexbody_wheel.rim_radius          = STR_PARSE_REAL(values[ 1]);
+		flexbody_wheel.width               = STR_PARSE_REAL(values[ 2]);
+		flexbody_wheel.num_rays            = STR_PARSE_INT (values[ 3]);
+		flexbody_wheel.nodes[0]            = _ParseNodeRef (values[ 4]);
+		flexbody_wheel.nodes[1]            = _ParseNodeRef (values[ 5]);
+		flexbody_wheel.rigidity_node       = _ParseNodeRef (values[ 6]);
+		int braking                        = STR_PARSE_INT (values[ 7]);
+		int propulsion                     = STR_PARSE_INT (values[ 8]);
+		flexbody_wheel.reference_arm_node  = _ParseNodeRef (values[ 9]);
+		flexbody_wheel.mass                = STR_PARSE_REAL(values[10]);
+		flexbody_wheel.tyre_springiness    = STR_PARSE_REAL(values[11]);
+		flexbody_wheel.tyre_damping        = STR_PARSE_REAL(values[12]);
+		flexbody_wheel.rim_springiness     = STR_PARSE_REAL(values[13]);
+		flexbody_wheel.rim_damping         = STR_PARSE_REAL(values[14]);
+		char side_char                     =                values[15].at(0);
+		if (values.size() >= 17) 
+		{ 
+			flexbody_wheel.rim_mesh_name   =                values[16];
+		}
+		if (values.size() >= 18)
+		{
+			flexbody_wheel.tyre_mesh_name =                 values[17];
+		}
+
+		this->VerifyAndProcessFlexBodyWheel(line, flexbody_wheel, braking, propulsion, side_char);
+	});
 }
 
 void Parser::VerifyAndProcessFlexBodyWheel(Ogre::String const & line, FlexBodyWheel& flexbody_wheel, int braking, int propulsion, char side_char)
