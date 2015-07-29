@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "IManager.h"
 #include "RoRFrameListener.h"
 
+#include "OgreTerrainPSSMMaterialGenerator.h"
+
 class TerrainManager : public IManager
 {
 public:

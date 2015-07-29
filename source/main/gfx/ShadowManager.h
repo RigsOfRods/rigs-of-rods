@@ -28,6 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrain.h>
 #include <OgreShadowCameraSetupPSSM.h>
 #include <OgreTerrainMaterialGeneratorA.h>
+#include "OgreTerrainPSSMMaterialGenerator.h"
 
 
 enum {
@@ -57,7 +58,10 @@ public:
 
 	void updatePSSM();
 
-	void updateTerrainMaterial(Ogre::TerrainMaterialGeneratorA::SM2Profile* matProfile);
+	void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
+
+	int getShadowsType() { return ShadowsType; }
+
 protected:
 
 	void processTextureShadows();
