@@ -1,42 +1,40 @@
 abstract technique Shadows/managed/base_receiver
 {
-	shadow_caster_material Ogre/shadow/depth/caster
 	pass BaseRender
 	{
 			ambient 1 1 1 1
 			diffuse 1 1 1 1
 			
-			vertex_program_ref Ogre/shadow/receiver/depth/pssm3/vp
+			vertex_program_ref PSSM/shadow_receiver_vs {}
+			fragment_program_ref PSSM/shadow_receiver_ps {}
+			
+			texture_unit shadow_tex0
 			{
+				content_type shadow
+				tex_address_mode clamp
+				tex_border_colour 1.0 1.0 1.0 1.0
+				filtering anisotropic anisotropic none
 			}
-			fragment_program_ref Ogre/shadow/receiver/depth/pssm3/fp
+			texture_unit shadow_tex1
 			{
-				// you must specify pssmSplitPoints when you instantiate!
+				content_type shadow
+				tex_address_mode clamp
+				tex_border_colour 1.0 1.0 1.0 1.0
+				filtering anisotropic anisotropic none
+			}
+			texture_unit shadow_tex2
+			{
+				content_type shadow
+				tex_address_mode clamp
+				tex_border_colour 1.0 1.0 1.0 1.0
+				filtering anisotropic anisotropic none
 			}
 			
 			texture_unit Diffuse_Map
 			{
 				// nothing specified for now, derivers can override
 			}
-			
-			texture_unit shadow0
-			{
-				content_type shadow
-				tex_address_mode border
-				tex_border_colour 1 1 1 1
-			}
-			texture_unit shadow1
-			{
-				content_type shadow
-				tex_address_mode border
-				tex_border_colour 1 1 1 1
-			}
-			texture_unit shadow2
-			{
-				content_type shadow
-				tex_address_mode border
-				tex_border_colour 1 1 1 1
-			}
+
 	}
 }
 

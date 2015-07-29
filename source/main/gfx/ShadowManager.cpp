@@ -105,7 +105,7 @@ void ShadowManager::processPSSM()
 {
 	gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
-	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(3000.0f);
+	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(1500.0f);
 	gEnv->sceneManager->setShadowFarDistance(1000.0f);
 	gEnv->sceneManager->setShadowDirLightTextureOffset(0.7f);
 	gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
@@ -115,6 +115,7 @@ void ShadowManager::processPSSM()
 	gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
 	//Caster is set via materials
+	gEnv->sceneManager->setShadowTextureCasterMaterial("Ogre/shadow/depth/caster");
 
 	if (PSSM_Shadows.mPSSMSetup.isNull())
 	{
@@ -124,9 +125,9 @@ void ShadowManager::processPSSM()
 		pssmSetup->calculateSplitPoints(3, gEnv->mainCamera->getNearClipDistance(), gEnv->sceneManager->getShadowFarDistance(), 0.93f);
 		pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
 
-		pssmSetup->setOptimalAdjustFactor(0, 5);
-		pssmSetup->setOptimalAdjustFactor(1, 1);
-		pssmSetup->setOptimalAdjustFactor(2, 0.5);
+		pssmSetup->setOptimalAdjustFactor(0, -1);
+		pssmSetup->setOptimalAdjustFactor(1, -1);
+		pssmSetup->setOptimalAdjustFactor(2, -1);
 
 		PSSM_Shadows.mPSSMSetup.bind(pssmSetup);
 		
@@ -151,7 +152,7 @@ void ShadowManager::updateTerrainMaterial(Ogre::TerrainMaterialGeneratorA::SM2Pr
 	if (ShadowsType == SHADOWS_PSSM)
 	{
 		Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
-		matProfile->setReceiveDynamicShadowsDepth(true);
+		matProfile->setReceiveDynamicShadowsDepth(false);
 		matProfile->setReceiveDynamicShadowsPSSM(pssmSetup);
 	}
 }

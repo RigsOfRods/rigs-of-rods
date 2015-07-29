@@ -1,105 +1,71 @@
-// Template materials for integrated depth shadows
 shared_params pssm_params  
 {  
     shared_param_named pssmSplitPoints float4  
 }  
 
-vertex_program Ogre/shadow/caster/depth/vp cg
+vertex_program PSSM/shadow_caster_vs cg
 {
-	source depthshadowobject.cg
-	profiles vs_1_1 arbvp1
-	entry_point main_vp
-	compile_arguments -DSHADOWCASTER=1 -DDEPTH_SHADOWCASTER=1 -DDEPTH_SHADOWRECEIVER=0
-
-	default_params
-	{
-		param_named_auto worldViewProj		worldviewproj_matrix
-		param_named_auto depthRange			scene_depth_range 0
-	}
-}
-
-fragment_program Ogre/shadow/caster/depth/fp cg
-{
-	source depthshadowobject.cg
-	profiles ps_2_x arbfp1
-	entry_point main_fp
-	compile_arguments -DSHADOWCASTER=1 -DDEPTH_SHADOWCASTER=1 -DDEPTH_SHADOWRECEIVER=0
-
-	default_params
-	{
-	}
-}
-
-
-
-vertex_program Ogre/shadow/receiver/depth/pssm3/vp cg
-{
-	source depthshadowobject.cg
-	profiles vs_1_1 arbvp1
-	entry_point main_vp
-	compile_arguments -DSHADOWCASTER=0 -DDEPTH_SHADOWCASTER=0 -DDEPTH_SHADOWRECEIVER=1 
-
-	default_params
-	{
-		param_named_auto worldViewProj		worldviewproj_matrix
-		param_named_auto lightPosition		light_position_object_space 0
-		param_named_auto lightDiffuse		derived_light_diffuse_colour 0
-		param_named_auto depthRange0		shadow_scene_depth_range 0
-		param_named_auto depthRange1		shadow_scene_depth_range 1
-		param_named_auto depthRange2		shadow_scene_depth_range 2
-		
-		param_named_auto texWorldViewProjMatrix0	texture_worldviewproj_matrix 0
-		param_named_auto texWorldViewProjMatrix1	texture_worldviewproj_matrix 1
-		param_named_auto texWorldViewProjMatrix2	texture_worldviewproj_matrix 2
-	}
-}
-
-fragment_program Ogre/shadow/receiver/depth/pssm3/fp cg
-{
-	source depthshadowobject.cg
-	profiles ps_2_x arbfp1
-	entry_point main_fp
-	compile_arguments -DSHADOWCASTER=0 -DDEPTH_SHADOWCASTER=0 -DDEPTH_SHADOWRECEIVER=1 
-
-	default_params
-	{
-		param_named_auto materialAmbient derived_ambient_light_colour
-		// shadow samplers are indexes 1/2/3
-		param_named_auto inverseShadowmapSize0 inverse_texture_size 1
-		param_named_auto inverseShadowmapSize1 inverse_texture_size 2
-		param_named_auto inverseShadowmapSize2 inverse_texture_size 3
-		//SET THIS MANUALLY!
-		//param_named pssmSplitPoints 0 0 0 0
-		shared_params_ref pssm_params  
-	}
-}
-
-vertex_program PSSM/shadow_caster_alpha_vs cg
-{
-   // source file
-   source pssm_alpha.cg
-   // will run on vertex shader 1.1+
-   profiles vs_2_0 arbvp1
-   // entry function
-   entry_point shadow_caster_alpha_vs
-
+	source pssm.cg
+	profiles vs_2_0 arbvp1
+	entry_point shadow_caster_vs
 	default_params
 	{
 		param_named_auto wvpMat worldviewproj_matrix
 	}
 }
-
-// declare the fragment shader (CG for the language)
+fragment_program PSSM/shadow_caster_ps cg
+{
+	source pssm.cg
+	profiles ps_2_0 arbfp1
+	entry_point shadow_caster_ps
+	default_params
+	{
+	}
+}
 fragment_program PSSM/shadow_caster_alpha_ps cg
 {
-   // source file
-   source pssm_alpha.cg
-   // will run on pixel shader 2.0+
-   profiles ps_2_0 arbfp1
-   // entry function
-   entry_point shadow_caster_alpha_ps
+	source pssm.cg
+	profiles ps_2_0 arbfp1
+	entry_point shadow_caster_alpha_ps
+	default_params
+	{
+	}
+}
+vertex_program PSSM/shadow_receiver_vs cg
+{
+	source pssm.cg
+	profiles vs_1_1 arbvp1
+	entry_point shadow_receiver_vs
 
-   default_params
-   {
-   }
+	default_params
+	{
+		param_named_auto lightPosition				light_position_object_space 0
+		param_named_auto eyePosition				camera_position_object_space
+		param_named_auto worldViewProjMatrix		worldviewproj_matrix
+		param_named_auto texWorldViewProjMatrix0	texture_worldviewproj_matrix 0
+		param_named_auto texWorldViewProjMatrix1	texture_worldviewproj_matrix 1
+		param_named_auto texWorldViewProjMatrix2	texture_worldviewproj_matrix 2
+		//param_named_auto depthRange0				shadow_scene_depth_range 0
+		//param_named_auto depthRange1				shadow_scene_depth_range 1
+		//param_named_auto depthRange2				shadow_scene_depth_range 2
+	}
+}
+
+fragment_program PSSM/shadow_receiver_ps cg
+{
+	source pssm.cg
+	profiles ps_2_x arbfp1
+	entry_point shadow_receiver_ps
+
+	default_params
+	{
+		param_named_auto lightDiffuse		derived_light_diffuse_colour 0
+		param_named_auto lightSpecular		derived_light_specular_colour 0
+		param_named_auto ambient			derived_ambient_light_colour 
+		param_named_auto invShadowMapSize0	inverse_texture_size 0
+		param_named_auto invShadowMapSize1	inverse_texture_size 1
+		param_named_auto invShadowMapSize2	inverse_texture_size 2
+		//param_named pssmSplitPoints MANUAL 0
+		shared_params_ref pssm_params  
+	}
 }

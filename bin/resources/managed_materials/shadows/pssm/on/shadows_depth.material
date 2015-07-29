@@ -5,77 +5,15 @@ material Ogre/shadow/depth/caster
 	{
 		pass
 		{
-			vertex_program_ref Ogre/shadow/caster/depth/vp
+			fog_override true
+			cull_hardware none
+			vertex_program_ref PSSM/shadow_caster_vs
 			{
 			}
-			fragment_program_ref Ogre/shadow/caster/depth/fp
+			fragment_program_ref PSSM/shadow_caster_alpha_ps
 			{
 			}
 		}
 	}
 }
 
-material PSSM/shadow_caster_alpha
-{
-   technique
-   {
-      // all this will do is write depth and depth² to red and green
-      pass
-      {
-         // Make sure that when including this material in another with 'shadow_caster_material' that it does not inherit alpha_rejection from it
-         alpha_rejection always_pass
-      
-         vertex_program_ref PSSM/shadow_caster_alpha_vs
-         {
-         }
-
-         fragment_program_ref PSSM/shadow_caster_alpha_ps
-         {
-         }
-      }
-   }
-}
-
-material Ogre/shadow/depth/integrated/pssm
-{
-    technique
-	{
-		// link to caster material
-		shadow_caster_material Ogre/shadow/depth/caster
-		
-		pass
-		{
-			vertex_program_ref Ogre/shadow/receiver/depth/pssm3/vp
-			{
-			}
-			fragment_program_ref Ogre/shadow/receiver/depth/pssm3/fp
-			{
-				// you must specify pssmSplitPoints when you instantiate!
-			}
-			
-			texture_unit diffuse
-			{
-				// nothing specified for now, derivers can override
-			}
-			
-			texture_unit shadow0
-			{
-				content_type shadow
-				tex_address_mode border
-				tex_border_colour 1 1 1 1
-			}
-			texture_unit shadow1
-			{
-				content_type shadow
-				tex_address_mode border
-				tex_border_colour 1 1 1 1
-			}
-			texture_unit shadow2
-			{
-				content_type shadow
-				tex_address_mode border
-				tex_border_colour 1 1 1 1
-			}
-		}
-	}
-}
