@@ -41,8 +41,9 @@ struct PSSM_Shadows_Data
 {
 	Ogre::ShadowCameraSetupPtr mPSSMSetup;
 	bool mDepthShadows;
-	Ogre::Vector4 splitPoints;
 	int ShadowsTextureNum;
+	int Quality;
+	float lambda;
 };
 
 class ShadowManager : public ZeroedMemoryAllocator
