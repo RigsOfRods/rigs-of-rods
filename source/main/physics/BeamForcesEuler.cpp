@@ -43,9 +43,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 
 #define BEAMS_INTER_TRUCK_PARALLEL 1
-#define BEAMS_INTRA_TRUCK_PARALLEL 1
+#define BEAMS_INTRA_TRUCK_PARALLEL 0
 #define NODES_INTER_TRUCK_PARALLEL 1
-#define NODES_INTRA_TRUCK_PARALLEL 1
+#define NODES_INTRA_TRUCK_PARALLEL 0
 
 using namespace Ogre;
 
