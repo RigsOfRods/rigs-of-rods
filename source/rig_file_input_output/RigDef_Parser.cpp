@@ -46,6 +46,7 @@ namespace RigDef
 
 #define STR_PARSE_BOOL(_STR_) Ogre::StringConverter::parseBool(_STR_)
 
+// TODO: FAULTY, REMOVE THIS
 #define PARSE_UNSAFE_START(MIN_ARGS)                                 \
 	this->AddMessage(line, Message::TYPE_WARNING,                    \
 		"Syntax check failed, parsing by legacy unsafe method...");  \
@@ -56,6 +57,23 @@ namespace RigDef
 		std::stringstream msg;                                       \
 		msg << "Too few arguments, required number is " << min_args; \
 		this->AddMessage(line, Message::TYPE_WARNING, msg.str());    \
+	}
+
+/// Parses line into "values[]" array and checks number of arguments
+#define PARSE_UNSAFE(VAR_LINE, MIN_ARGS, _BLOCK_)                      \
+	this->AddMessage(line, Message::TYPE_WARNING,                      \
+		"Syntax check failed, parsing by legacy unsafe method...");    \
+	const int min_args = MIN_ARGS;                                     \
+	Ogre::StringVector values;                                         \
+	if (this->_ParseArgs(VAR_LINE, values, min_args) < min_args)       \
+	{                                                                  \
+		std::stringstream msg;                                         \
+		msg << "Too few arguments, required number is " << min_args;   \
+		this->AddMessage(VAR_LINE, Message::TYPE_WARNING, msg.str());  \
+	}                                                                  \
+	else                                                               \
+	{                                                                  \
+		_BLOCK_                                                        \
 	}
 
 Parser::Parser():
@@ -1561,98 +1579,72 @@ void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
 	}
 }
 
+void Parser::VerifyAndProcessDirectiveSetNodeDefaults(
+	Ogre::String const & line,
+	float load_weight,
+	float friction,
+	float volume, 
+	float surface, 
+	unsigned int options)
+{
+	m_user_node_defaults = boost::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
+
+	m_user_node_defaults->load_weight = (load_weight < 0) ? m_ror_node_defaults->load_weight : load_weight;
+	m_user_node_defaults->friction    = (friction    < 0) ? m_ror_node_defaults->friction    : friction;
+	m_user_node_defaults->volume      = (volume      < 0) ? m_ror_node_defaults->volume      : volume;
+	m_user_node_defaults->surface     = (surface     < 0) ? m_ror_node_defaults->surface     : surface;
+
+	m_user_node_defaults->options     = options;
+}
+
+void Parser::ParseDirectiveSetNodeDefaultsUnsafe(Ogre::String const & line)
+{
+	PARSE_UNSAFE(line, 2,
+	{
+		int num_args = values.size();
+
+		// NOTE: Arguments start at index [1], [0] is the keyword
+		float load_weight =                  STR_PARSE_REAL(values[1]);
+		float friction    = (num_args > 2) ? STR_PARSE_REAL(values[2]) : -1;
+		float volume      = (num_args > 3) ? STR_PARSE_REAL(values[3]) : -1;
+		float surface     = (num_args > 4) ? STR_PARSE_REAL(values[4]) : -1;
+		unsigned int options = 0;
+		if (num_args > 5) { this->_ParseNodeOptions(options, values[5]); }
+
+		this->VerifyAndProcessDirectiveSetNodeDefaults(line, load_weight, friction, volume, surface, options);
+	});
+}
+
 void Parser::ParseDirectiveSetNodeDefaults(Ogre::String const & line)
 {
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SET_NODE_DEFAULTS))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		this->ParseDirectiveSetNodeDefaultsUnsafe(line);
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_user_node_defaults = boost::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
-
-	/* Load  */
-	float default_load_weight = STR_PARSE_REAL(results[1]);
-	if (default_load_weight < 0)
+	// NOTE: -1 resets to default value
+	float load_weight = STR_PARSE_REAL(results[1]);
+	float friction    = (results[2].matched) ? STR_PARSE_REAL(results[4])  : -1;
+	float volume      = (results[4].matched) ? STR_PARSE_REAL(results[7])  : -1;
+	float surface     = (results[6].matched) ? STR_PARSE_REAL(results[10]) : -1;
+	
+	unsigned int options = 0;
+	if (results[11].matched)
 	{
-		m_user_node_defaults->load_weight = m_ror_node_defaults->load_weight;
-	}
-	else
-	{
-		m_user_node_defaults->load_weight = default_load_weight;
-	}
-
-	/* Friction */
-	if (results[2].matched)
-	{
-		float default_friction = STR_PARSE_REAL(results[3]);
-		if (default_friction < 0)
-		{
-			m_user_node_defaults->friction = m_ror_node_defaults->friction;
-		}
-		else
-		{
-			m_user_node_defaults->friction = default_friction;
-		}
-	}
-	else
-	{
-		return;
+		this->_ParseNodeOptions(options, results[13]);
 	}
 
-	/* Volume */
-	if (results[4].matched)
-	{
-		float default_volume = STR_PARSE_REAL(results[5]);
-		if (default_volume < 0)
-		{
-			m_user_node_defaults->volume = m_ror_node_defaults->volume;
-		}
-		else
-		{
-			m_user_node_defaults->volume = default_volume;
-		}
-	}
-	else
-	{
-		return;
-	}
-
-	/* Surface */
-	if (results[6].matched)
-	{
-		float default_surface = STR_PARSE_REAL(results[7]);
-		if (default_surface < 0)
-		{
-			m_user_node_defaults->surface = m_ror_node_defaults->surface;
-		}
-		else
-		{
-			m_user_node_defaults->surface = default_surface;
-		}
-	}
-	else
-	{
-		return;
-	}
-
-	/* Options */
-	if (results[8].matched)
-	{
-		unsigned int options = 0;
-		_ParseNodeOptions(options, results[9]);	
-		m_user_node_defaults->options = options;
-	}
-	return;
+	this->VerifyAndProcessDirectiveSetNodeDefaults(line, load_weight, friction, volume, surface, options);
 }
 
 void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
 {
 	for (unsigned int i = 0; i < options_str.length(); i++)
 	{
-        const char c = options_str.at(i);
+		const char c = options_str.at(i);
 		switch(c)
 		{
 			case 'l':
@@ -1695,7 +1687,7 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 				break;
 
 			default:
-                this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
+				this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
 				break;
 		}
 	}

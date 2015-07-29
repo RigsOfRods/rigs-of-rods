@@ -153,6 +153,8 @@ protected:
 	void ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line);
 
 	void ParseDirectiveSetNodeDefaults(Ogre::String const & line);
+	void ParseDirectiveSetNodeDefaultsUnsafe(Ogre::String const & line);
+	void VerifyAndProcessDirectiveSetNodeDefaults(Ogre::String const & line, float loadweight, float friction, float volume, float surface, unsigned int options);
 
 /* -------------------------------------------------------------------------- */
 /*	Section parsers                                                           */
