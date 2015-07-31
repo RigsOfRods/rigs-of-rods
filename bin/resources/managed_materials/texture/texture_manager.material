@@ -14,7 +14,7 @@ abstract pass Texture/managed/SpecularMapping
 		texture_unit envmap
 		{
 			cubic_texture EnvironmentTexture combinedUVW
-			color_op_ex blend_manual src_texture src_current 0.5
+			colour_op_ex blend_manual src_texture src_current 0.5
 			tex_address_mode wrap
 							scale 1 1
 			env_map cubic_reflection
@@ -40,7 +40,7 @@ abstract technique WaterMapping
 		texture_unit envmap
 		{
 			cubic_texture EnvironmentTexture combinedUVW
-			color_op_ex blend_manual src_texture src_current 0.5
+			colour_op_ex blend_manual src_texture src_current 0.5
 			tex_address_mode wrap
 			scale 1 1
 			env_map cubic_reflection
