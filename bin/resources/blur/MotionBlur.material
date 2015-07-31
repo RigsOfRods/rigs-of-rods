@@ -1,4 +1,4 @@
-fragment_program Ogre/Compositor/Combine_fp cg
+fragment_program Ogre/Compositor/Combine_Cg_fp cg
 {
 	source Combine_fp.cg
 	profiles ps_2_0 arbfp1
@@ -6,8 +6,25 @@ fragment_program Ogre/Compositor/Combine_fp cg
 
 	default_params
 	{
-		param_named blur float 0.8
+		param_named blur float 0.4
 	}
+}
+
+fragment_program Ogre/Compositor/Combine_GLSLES_fp glsles
+{
+	source Combine_fp.glsles
+	default_params
+	{
+		param_named blur float 0.8
+   		param_named RT int 0
+   		param_named Sum int 1
+	}
+}
+
+fragment_program Ogre/Compositor/Combine_fp unified
+{
+	delegate Ogre/Compositor/Combine_GLSLES_fp
+	delegate Ogre/Compositor/Combine_Cg_fp
 }
 
 material Ogre/Compositor/Combine
