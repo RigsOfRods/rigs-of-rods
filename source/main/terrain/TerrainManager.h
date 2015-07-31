@@ -24,6 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "IManager.h"
 #include "RoRFrameListener.h"
 
+#include "OgreTerrainPSSMMaterialGenerator.h"
+
 class TerrainManager : public IManager
 {
 public:
@@ -68,6 +70,8 @@ public:
 
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };
+
+	ShadowManager *getShadowManager() { return shadow_manager; };
 
 	// preloaded trucks
 	void loadPreloadedTrucks();

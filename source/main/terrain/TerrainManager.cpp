@@ -254,6 +254,8 @@ void TerrainManager::loadTerrain(String filename)
 void TerrainManager::initSubSystems()
 {
 	// geometry - ogre terrain things
+	initShadows();
+
 	PROGRESS_WINDOW(15, _L("Initializing Geometry Subsystem"));
 	initGeometry();
 
@@ -268,7 +270,7 @@ void TerrainManager::initSubSystems()
 	initScripting();
 
 	PROGRESS_WINDOW(21, _L("Initializing Shadow Subsystem"));
-	initShadows();
+	
 
 	PROGRESS_WINDOW(25, _L("Initializing Camera Subsystem"));
 	initCamera();
@@ -400,10 +402,13 @@ void TerrainManager::initLight()
 		main_light = gEnv->sceneManager->createLight("MainLight");
 		//directional light for shadow
 		main_light->setType(Light::LT_DIRECTIONAL);
-		main_light->setDirection(0.785, -0.423, 0.453);
+		main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
 		main_light->setDiffuseColour(ambient_color);
 		main_light->setSpecularColour(ambient_color);
+		main_light->setCastShadows(true);
+		main_light->setShadowFarDistance(1000.0f);
+		main_light->setShadowNearClipDistance(-1);
 	}
 }
 

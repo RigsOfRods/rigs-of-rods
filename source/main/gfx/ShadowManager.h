@@ -25,7 +25,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "OgreTerrain.h"
+#include <OgreTerrain.h>
+#include <OgreShadowCameraSetupPSSM.h>
+#include <OgreTerrainMaterialGeneratorA.h>
+#include "OgreTerrainPSSMMaterialGenerator.h"
+
 
 enum {
 	SHADOWS_NONE,
@@ -38,8 +42,9 @@ struct PSSM_Shadows_Data
 {
 	Ogre::ShadowCameraSetupPtr mPSSMSetup;
 	bool mDepthShadows;
-	Ogre::Vector4 splitPoints;
 	int ShadowsTextureNum;
+	int Quality;
+	float lambda;
 };
 
 class ShadowManager : public ZeroedMemoryAllocator
@@ -51,13 +56,18 @@ public:
 
 	void loadConfiguration();
 
-	void updatePSSM(Ogre::Terrain* terrain = 0);
+	void updatePSSM();
+
+	void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
+
+	int getShadowsType() { return ShadowsType; }
+
 protected:
 
 	void processTextureShadows();
 
 	void processPSSM();
-	void setMaterialSplitPoints(Ogre::String materialName, Ogre::Vector4 &splitPoints);
+	void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 
 	int updateShadowTechnique();
 

@@ -1230,6 +1230,22 @@ DEFINE_REGEX(SECTION_ENGTURBO,
 						E_CAPTURE_OPTIONAL(
 							E_DELIMITER_COMMA
 							E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 7 */
+							E_CAPTURE_OPTIONAL(
+								E_DELIMITER_COMMA
+								E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 8 */
+								E_CAPTURE_OPTIONAL(
+									E_DELIMITER_COMMA
+									E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 9 */
+									E_CAPTURE_OPTIONAL(
+										E_DELIMITER_COMMA
+										E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 10 */
+										E_CAPTURE_OPTIONAL(
+											E_DELIMITER_COMMA
+											E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 11 */
+										)
+									)
+								)
+							)
 						)
 					)
 				)

@@ -341,6 +341,7 @@ void Water::processWater(int mType)
 		pPlaneEnt->setMaterialName("tracks/basicwater");
 	}
 
+	pPlaneEnt->setCastShadows(false);
 	//position
 	pWaterNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("WaterPlane");
 	pWaterNode->attachObject(pPlaneEnt);
@@ -355,6 +356,7 @@ void Water::processWater(int mType)
 		mapSize.x * mScale, mapSize.z * mScale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
 	Entity *pE = gEnv->sceneManager->createEntity("bplane", "BottomPlane");
 	pE->setMaterialName("tracks/seabottom");
+	pE->setCastShadows(false);
 
 	//position
 	pBottomNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");

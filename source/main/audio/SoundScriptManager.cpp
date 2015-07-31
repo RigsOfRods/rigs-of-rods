@@ -531,6 +531,7 @@ bool SoundScriptTemplate::setParameter(Ogre::StringVector vec)
 		if (vec[1] == String("starter")) {trigger_source=SS_TRIG_STARTER; return true;};
 		if (vec[1] == String("turbo_BOV")) { trigger_source = SS_TRIG_TURBOBOV; return true; };
 		if (vec[1] == String("turbo_waste_gate")) { trigger_source = SS_TRIG_TURBOWASTEGATE; return true; };
+		if (vec[1] == String("turbo_back_fire")) { trigger_source = SS_TRIG_TURBOBACKFIRE; return true; };
 		if (vec[1] == String("always_on")) {trigger_source=SS_TRIG_ALWAYSON; return true;};
 		if (vec[1] == String("repair")) {trigger_source=SS_TRIG_REPAIR; return true;};
 		if (vec[1] == String("air")) {trigger_source=SS_TRIG_AIR; return true;};

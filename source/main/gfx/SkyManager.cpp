@@ -146,6 +146,8 @@ void SkyManager::loadScript(String script, int fogStart, int fogEnd)
 	{
 		LOG("exception upon loading sky script: " + e.getFullDescription());
 	}
+	Ogre::Vector3 lightsrc = mCaelumSystem->getSun()->getMainLight()->getDirection();
+	mCaelumSystem->getSun()->getMainLight()->setDirection(lightsrc.normalisedCopy());
 }
 
 void SkyManager::setTimeFactor(Real factor)

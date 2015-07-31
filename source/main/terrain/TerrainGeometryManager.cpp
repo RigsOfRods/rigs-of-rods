@@ -22,6 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "LoadingWindow.h"
 #include "TerrainManager.h"
+#include "ShadowManager.h"
+#include "OgreTerrainPSSMMaterialGenerator.h"
 
 using namespace Ogre;
 
@@ -233,8 +235,14 @@ void TerrainGeometryManager::configureTerrainDefaults()
 {
 	OGRE_NEW TerrainGlobalOptions();
 
+	Ogre::TerrainPSSMMaterialGenerator *matGen = new Ogre::TerrainPSSMMaterialGenerator();
+	Ogre::TerrainMaterialGeneratorPtr ptr = Ogre::TerrainMaterialGeneratorPtr();
+	ptr.bind(matGen);
+
 	Light *light = gEnv->terrainManager->getMainLight();
 	TerrainGlobalOptions *terrainOptions = TerrainGlobalOptions::getSingletonPtr();
+
+	terrainOptions->setDefaultMaterialGenerator(ptr);
 	// Configure global
 	terrainOptions->setMaxPixelError(m_terrain_config.GetInt("MaxPixelError", 5));
 
@@ -255,7 +263,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	defaultimp.maxBatchSize = m_terrain_config.GetInt("maxBatchSize", 65);
 
 	// optimizations
-	TerrainMaterialGeneratorA::SM2Profile* matProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
+	TerrainPSSMMaterialGenerator::SM2Profile* matProfile = static_cast<TerrainPSSMMaterialGenerator::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
 	if (matProfile)
 	{
 		matProfile->setLightmapEnabled(m_terrain_config.GetBool("LightmapEnabled", false));
@@ -270,6 +278,8 @@ void TerrainGeometryManager::configureTerrainDefaults()
 		matProfile->setLayerParallaxMappingEnabled(m_terrain_config.GetBool("ParallaxMappingEnabled", false));
 		matProfile->setGlobalColourMapEnabled(m_terrain_config.GetBool("GlobalColourMapEnabled", false));
 		matProfile->setReceiveDynamicShadowsDepth(m_terrain_config.GetBool("ReceiveDynamicShadowsDepth", false));
+
+		terrainManager->getShadowManager()->updateTerrainMaterial(matProfile);
 	}
 
 	terrainOptions->setLayerBlendMapSize(m_terrain_config.GetInt("LayerBlendMapSize", 1024));
