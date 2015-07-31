@@ -1888,12 +1888,13 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 			{
 				if ((beams[i].type==BEAM_NORMAL || beams[i].type==BEAM_INVISIBLE) && beams[i].bounded!=SHOCK1 && k!=0.0f)
 				{
+					Real deform;
 					// Actual deformation tests
 					if (slen > beams[i].maxposstress && difftoBeamL < 0.0f) // compression
 					{
 						increased_accuracy = true;
 						Real yield_length = beams[i].maxposstress / k;
-						Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
+						deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
 						Real Lold = beams[i].L;
 						beams[i].L += deform;
 						beams[i].L = std::max(MIN_BEAM_LENGTH, beams[i].L);
@@ -1910,7 +1911,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					{
 						increased_accuracy = true;
 						Real yield_length = beams[i].maxnegstress / k;
-						Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
+						deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
 						Real Lold = beams[i].L;
 						beams[i].L += deform;
 						slen = slen - (slen - beams[i].maxnegstress) * 0.5f;
@@ -1924,10 +1925,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 #ifdef USE_OPENAL
 					// Sound effect
 					// Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
-					/*
+					
 					SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
 					SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
-					*/
+					
 #endif  //USE_OPENAL
 					beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
 					beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);

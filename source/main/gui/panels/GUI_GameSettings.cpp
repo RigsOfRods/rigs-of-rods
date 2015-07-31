@@ -635,9 +635,9 @@ void CLASS::OnCreakSoundCheck(MyGUI::WidgetPtr _sender)
 {
 	m_d_creak_sound->setStateCheck(!m_d_creak_sound->getStateCheck());
 	if (m_d_creak_sound->getStateCheck() == false)
-		GameSettingsMap["Creak Sound"] = "No";
-	else
 		GameSettingsMap["Creak Sound"] = "Yes";
+	else
+		GameSettingsMap["Creak Sound"] = "No";
 	ShowRestartNotice = true;
 }
 
