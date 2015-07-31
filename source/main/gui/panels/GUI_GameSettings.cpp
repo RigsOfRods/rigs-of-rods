@@ -605,7 +605,7 @@ void CLASS::UpdateControls()
 	if (skidmarks_quality == "5")
 		m_skidmarks_quality->setIndexSelected(1);
 	else
-		m_light_source_effects->setIndexSelected(0);
+		m_skidmarks_quality->setIndexSelected(0);
 
 	if (GameSettingsMap["MainMenuMusic"] == "Yes")
 		m_main_menu_music->setStateCheck(true);

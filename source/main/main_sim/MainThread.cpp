@@ -1226,6 +1226,8 @@ void MainThread::ChangeMap()
 }
 void MainThread::UnloadTerrain()
 {
+	gEnv->frameListener->hideMap();
+
 	gEnv->frameListener->loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	

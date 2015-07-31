@@ -5842,7 +5842,7 @@ void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
 	}
 	
 		/* Process it */
-	m_rig->engine->setTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->additionalTorque, engturbo->enginerpmop);
+	m_rig->engine->setTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7);
 };
 
 void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
@@ -7296,7 +7296,18 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 		if (vehicle->engine->type=='c')
 			AddSoundSourceInstance(vehicle, "tracks/default_car", smokeId);
 		if (vehicle->engine->hasturbo)
-			AddSoundSourceInstance(vehicle, "tracks/default_turbo", smokeId);
+		{
+			if (vehicle->engine->turboInertiaFactor >= 3)
+				AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", smokeId);
+			else if (vehicle->engine->turboInertiaFactor <= 0.5)
+				AddSoundSourceInstance(vehicle, "tracks/default_turbo_small", smokeId);
+			else
+				AddSoundSourceInstance(vehicle, "tracks/default_turbo_mid", smokeId);
+
+			AddSoundSourceInstance(vehicle, "tracks/default_turbo_bov", smokeId);
+			AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", smokeId);
+		}
+			
 		if (vehicle->engine->hasair)
 			AddSoundSourceInstance(vehicle, "tracks/default_air_purge", 0);
 		//starter

@@ -1100,7 +1100,37 @@ DEFINE_REGEX( SECTION_ENGINE,
 														E_CAPTURE_OPTIONAL( 
 															E_CAPTURE( E_DELIMITER )
 															E_CAPTURE( E_REAL_NUMBER ) /* #55 15th gear, max */
-														)
+														
+															E_CAPTURE_OPTIONAL(
+																E_CAPTURE(E_DELIMITER)
+																E_CAPTURE(E_REAL_NUMBER) /* #55 16th gear, max */
+														
+																E_CAPTURE_OPTIONAL(
+																	E_CAPTURE(E_DELIMITER)
+																	E_CAPTURE(E_REAL_NUMBER) /* #55 17th gear, max */
+														
+																	E_CAPTURE_OPTIONAL(
+																		E_CAPTURE(E_DELIMITER)
+																		E_CAPTURE(E_REAL_NUMBER) /* #55 18th gear, max */
+														
+																		E_CAPTURE_OPTIONAL(
+																			E_CAPTURE(E_DELIMITER)
+																			E_CAPTURE(E_REAL_NUMBER) /* #55 19th gear, max */
+														
+																			E_CAPTURE_OPTIONAL(
+																				E_CAPTURE(E_DELIMITER)
+																				E_CAPTURE(E_REAL_NUMBER) /* #55 20th gear, max */
+																			
+																				E_CAPTURE_OPTIONAL(
+																					E_CAPTURE(E_DELIMITER)
+																					E_CAPTURE(E_REAL_NUMBER) /* #55 21st gear, max */
+																				)
+																			)
+																		)
+																	)
+																)
+															)
+														)					
 													)
 												)
 											)
@@ -1181,9 +1211,31 @@ DEFINE_REGEX(SECTION_ENGTURBO,
 	E_DELIMITER_COMMA
 	E_CAPTURE(E_REAL_NUMBER) /* #1 Number of turbos */
 	E_DELIMITER_COMMA
-	E_CAPTURE(E_REAL_NUMBER) /* #1 Additional Torque */
-	E_DELIMITER_COMMA
-	E_CAPTURE(E_REAL_NUMBER) /* #1 engine rpm operation */
+	E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM1 */
+	E_CAPTURE_OPTIONAL(
+		E_DELIMITER_COMMA
+		E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM2 */
+		E_CAPTURE_OPTIONAL(
+			E_DELIMITER_COMMA
+			E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM3 */
+			E_CAPTURE_OPTIONAL(
+				E_DELIMITER_COMMA
+				E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM4 */
+				E_CAPTURE_OPTIONAL(
+					E_DELIMITER_COMMA
+					E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 5 */
+					E_CAPTURE_OPTIONAL(
+						E_DELIMITER_COMMA
+						E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 6 */
+						E_CAPTURE_OPTIONAL(
+							E_DELIMITER_COMMA
+							E_CAPTURE(E_REAL_NUMBER) /* #1 PARAM 7 */
+						)
+					)
+				)
+			)
+		)
+	)
 	E_TRAILING_WHITESPACE
 	);
 
@@ -1433,41 +1485,41 @@ DEFINE_REGEX( FORSET_ELEMENT,
 
 DEFINE_REGEX( SECTION_FLEXBODYWHEELS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_REAL_NUMBER ) /* #1 Tire radius */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Rim radius */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Width */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Num rays */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* #5 Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Ref. node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Braked? */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Propulsed? */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* #10 Reference arm node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Weight */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Tire spring */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Tire damp */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Rim spring */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #15 Rim damp */
-	E_DELIMITER_COMMA
-	E_CAPTURE( "[lr]" ) /* Rim orientation */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_STRING_NO_SPACES ) /* Rim mesh */
-	E_DELIMITER_SPACE
-	E_CAPTURE( E_STRING_NO_SPACES ) /* #18 Tire mesh */
+	E_CAPTURE( E_REAL_NUMBER )                   // #1 Tire radius
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #3 Rim radius
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #5 Width
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #7 Num rays
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #9 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #11 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #13 Rigidity node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #15 Braked?
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #17 Propulsed?
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #19 Reference arm node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #21 Weight
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #23 Tire spring
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #25 Tire damp
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #27 Rim spring
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                   // #29 Rim damp
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( "[lr]" )                          // #31 Rim orientation
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #33 Rim mesh
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #35 Tire mesh
 	E_TRAILING_WHITESPACE
 	);
 
@@ -1757,37 +1809,37 @@ DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
 
 DEFINE_REGEX( SECTION_MESHWHEELS_MESHWHEELS2,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_REAL_NUMBER ) /* Tyre radius */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Rim radius */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Width */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Num rays */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* #5 Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Ref. node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Braked? */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Propulsed? */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* #10 Reference arm node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Mass*/
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Tyre spring */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Tyre damping */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_STRING_NO_SPACES ) /* #14 Rim orientation */
+	E_CAPTURE( E_REAL_NUMBER )                   // #1 Tyre radius
+	E_CAPTURE( E_DELIMITER )                     
+	E_CAPTURE( E_REAL_NUMBER )                   // #3 Rim radius
+	E_CAPTURE( E_DELIMITER )                     
+	E_CAPTURE( E_REAL_NUMBER )                   // #5 Width
 	E_CAPTURE( E_DELIMITER )
-	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) /* #16 Rim mesh name */
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #7 Num rays
 	E_CAPTURE( E_DELIMITER )
-	E_CAPTURE( E_STRING_NO_SPACES ) /* #17 Tyre material name */
+	E_CAPTURE( E_NODE_ID )                       // #9 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #11 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #13 Rigidity node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #15 Braked?
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #17 Propulsed?
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #19 Reference arm node
+	E_CAPTURE( E_DELIMITER )                     
+	E_CAPTURE( E_REAL_NUMBER )                   // #21 Mass
+	E_CAPTURE( E_DELIMITER )                     
+	E_CAPTURE( E_REAL_NUMBER )                   // #23 Tyre spring
+	E_CAPTURE( E_DELIMITER )                     
+	E_CAPTURE( E_REAL_NUMBER )                   // #25 Tyre damping
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #27 Rim orientation
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #29 Rim mesh name
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #31 Tyre material name
 	E_TRAILING_WHITESPACE
 	);
 

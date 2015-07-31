@@ -52,7 +52,7 @@ public:
 	* @param rpm Current engine RPM
 	* @param force Current acceleration force
 	* @param clutch 
-	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...15 = forward}
+	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
 	* @param running
 	* @param contact
 	* @param automode
@@ -84,7 +84,7 @@ public:
 	* @param nturbos Number of turbos
 	* @param additionalTorque Torque that will be added to the engine at max turbo rpm
 	**/
-	void setTurboOptions(int ver, float tinertiaFactor, int nturbos, float additionalTorque, float enginerpmop);
+	void setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7);
 
 	/**
 	* Set current engine RPM.
@@ -178,7 +178,7 @@ protected:
 	// gear stuff
 	float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
 	float curWheelRevolutions; //!< Gears; measured wheel revolutions
-	int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...15 = forward} 
+	int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
 	int curGearRange; //!< Gears
 	int numGears; //!< Gears
 	std::vector<float> gearsRatio; //!< Gears
@@ -252,6 +252,14 @@ protected:
 	float turboEngineRpmOperation;
 	float turboMaxPSI;
 	float turboPSI;
+	bool b_BOV;
+	float curBOVTurboRPM[MAXTURBO];
+	float turboBOVtorque;
+	int minBOVPsi;
+	bool b_WasteGate;
+	float minWGPsi;
+	bool b_flutter;
+	float wastegate_threshold_p, wastegate_threshold_n;
 
 	// air pressure
 	TorqueCurve *torqueCurve;

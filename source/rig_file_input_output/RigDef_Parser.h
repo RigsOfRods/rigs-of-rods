@@ -211,7 +211,10 @@ protected:
 
 	void ParseFlexbody(Ogre::String const & line);
 
-	void ParseFlexBodyWheels(Ogre::String const & line);
+	// FlexBodyWheels
+	void ParseFlexBodyWheel(Ogre::String const & line);
+	void ParseFlexBodyWheelUnsafe(Ogre::String const & line);
+	void VerifyAndProcessFlexBodyWheel(Ogre::String const & line, FlexBodyWheel& def, int braking, int propulsion, char side);
 
 	void ParseFusedrag(Ogre::String const & line);
 
@@ -233,11 +236,15 @@ protected:
 
 	void ParseMaterialFlareBindings(Ogre::String const & line);
 
+	// MeshWheels
 	void ParseMeshWheel(Ogre::String const & line);
 	void ParseMeshWheelUnsafe(Ogre::String const & line);
 	void VerifyAndProcessMeshWheel(Ogre::String const & line, MeshWheel& mesh_wheel_def, int braking, int propulsion, char side);
 
-	void ParseMeshWheels2(Ogre::String const & line);
+	// MeshWheels2
+	void ParseMeshWheel2(Ogre::String const & line);
+	void ParseMeshWheel2Unsafe(Ogre::String const & line);
+	void VerifyAndProcessMeshWheel2(Ogre::String const & line, MeshWheel2& mesh_wheel_2_def, int braking, int propulsion, char side);
 
 	void ParseMinimass(Ogre::String const & line);
 
