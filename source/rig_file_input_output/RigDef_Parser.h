@@ -278,9 +278,17 @@ protected:
 
 	void ParseSetSkeletonSettings(Ogre::String const & line);
 
-	void ParseShocks(Ogre::String const & line);
+	// Shocks
+	void         ParseShock(Ogre::String const & line);
+	void         ParseShockUnsafe(Ogre::String const & line);
+	unsigned int ParseShockOptions(Ogre::String const & line, std::string const & options_str);
+	void         LogParsedShockDataForChecking(Ogre::String const & line, Shock& shock);
 
-	void ParseShocks2(Ogre::String const & line);
+	// Shocks2
+	void         ParseShock2(Ogre::String const & line);
+	void         ParseShock2Unsafe(Ogre::String const & line);
+	unsigned int ParseShock2Options(Ogre::String const & line, std::string const & options_str);
+	void         LogParsedShock2DataForChecking(Ogre::String const & line, Shock2& shock);
 
 	void ParseSlidenodes(Ogre::String const & line);
 
