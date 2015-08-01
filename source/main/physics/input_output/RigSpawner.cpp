@@ -5230,20 +5230,26 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 	unsigned int base_node_index = m_rig->free_node;
 	wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
+	node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
+	node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
+
+	if (axis_node_1 == nullptr || axis_node_2 == nullptr)
+	{
+		std::stringstream msg;
+		msg << "Error creating 'wheel2': Some axis nodes were not found";
+		msg << " (Node1: " << wheel_2_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
+		msg << " (Node2: " << wheel_2_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
+		AddMessage(Message::TYPE_ERROR, msg.str());
+		return -1;
+	}
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	node_t *axis_node_1 = nullptr;
-	node_t *axis_node_2 = nullptr;
-	if (GetNode(wheel_2_def.nodes[0]).RelPosition.z < GetNode(wheel_2_def.nodes[1]).RelPosition.z)
+	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
 	{
-		node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
-		node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
-	}
-	else
-	{
-		node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[1]);
-		node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[0]);
-	}
+		node_t *swap = axis_node_1;
+		axis_node_1 = axis_node_2;
+		axis_node_2 = swap;
+	}	
 
 	/* Rigidity node */
 	node_t *axis_node_closest_to_rigidity_node = nullptr;
@@ -5259,7 +5265,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
 	axis_vector.normalise();
 	Ogre::Vector3 rim_ray_vector = Ogre::Vector3(0, wheel_2_def.rim_radius, 0);
-	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_2_def.num_rays * 2), axis_vector);
+	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_2_def.num_rays), axis_vector);
 
 	/* Width */
 	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
@@ -5271,7 +5277,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		/* Outer ring */
 		Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
-		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
@@ -5282,7 +5287,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		/* Inner ring */
 		ray_point = axis_node_2->RelPosition + rim_ray_vector;
-		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
@@ -5294,10 +5298,12 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		/* Wheel object */
 		wheel.nodes[i * 2] = & outer_node;
 		wheel.nodes[(i * 2) + 1] = & inner_node;
+
+		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 	}
 
 	Ogre::Vector3 tyre_ray_vector = Ogre::Vector3(0, wheel_2_def.tyre_radius, 0);
-	Ogre::Quaternion tyre_ray_rotator = Ogre::Quaternion(Ogre::Degree(-180.f / wheel_2_def.num_rays * 2), axis_vector);
+	Ogre::Quaternion tyre_ray_rotator = Ogre::Quaternion(Ogre::Degree(-180.f / wheel_2_def.num_rays), axis_vector);
 	tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 	/* Tyre nodes */
@@ -5305,7 +5311,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	{
 		/* Outer ring */
 		Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
-		tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point);
@@ -5325,7 +5330,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		/* Inner ring */
 		ray_point = axis_node_2->RelPosition + tyre_ray_vector;
-		tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point);
@@ -5346,6 +5350,8 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		/* Wheel object */
 		wheel.nodes[i * 2] = & outer_node;
 		wheel.nodes[(i * 2) + 1] = & inner_node;
+
+		tyre_ray_vector = rim_ray_rotator * tyre_ray_vector; // This is OK
 	}
 
 	/* Beams */
