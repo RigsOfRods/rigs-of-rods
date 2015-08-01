@@ -83,7 +83,13 @@ public:
 	size_t getMemoryUsage();
 	void freeResources() {};
 
+	void OnReturnToMainMenu();
+	void NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle);
+
 protected:
+
+	void createGlobalBehaviors();
+	void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle);
 
 	CameraContext ctx;
 
@@ -94,8 +100,6 @@ protected:
 	IBehavior<CameraContext> *currentBehavior;
 
 	std::map <int , IBehavior<CameraContext> *> globalBehaviors;
-
-	void createGlobalBehaviors();
 
 	bool mouseMoved(const OIS::MouseEvent& _arg);
 	bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);

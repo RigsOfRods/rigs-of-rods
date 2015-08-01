@@ -25,6 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "InputEngine.h"
 #include "Settings.h"
 #include "GUIManager.h"
+#include "PerVehicleCameraContext.h"
 
 #include "CameraBehaviorOrbit.h"
 #include "CameraBehaviorCharacter.h"
@@ -41,7 +42,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 CameraManager::CameraManager(DOFManager *dof) : 
-	  currentBehavior(0)
+	  currentBehavior(nullptr)
 	, currentBehaviorID(-1)
 	, mTransScale(1.0f)
 	, mTransSpeed(50.0f)
@@ -76,8 +77,6 @@ bool CameraManager::update(float dt) // Called every frame
 {
 	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
 
-	static std::stack<int> precedingBehaviors;
-
 	if ( dt == 0 ) return false;
 
 	mTransScale = mTransSpeed  * dt;
@@ -103,22 +102,6 @@ bool CameraManager::update(float dt) // Called every frame
 	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FREE);
-	}
-
-	if ( !ctx.mCurrTruck && hasActiveVehicleBehavior() )
-	{
-		precedingBehaviors.push(currentBehaviorID);
-		switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
-	} else if ( ctx.mCurrTruck && hasActiveCharacterBehavior() )
-	{
-		if ( !precedingBehaviors.empty() )
-		{
-			switchBehavior(precedingBehaviors.top(), false);
-			precedingBehaviors.pop();
-		} else
-		{
-			switchBehavior(CAMERA_BEHAVIOR_VEHICLE);
-		}
 	}
 
 	if ( currentBehavior )
@@ -164,6 +147,38 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
 	currentBehaviorID = newBehaviorID;
 
 	// activate new
+	if (ctx.mCurrTruck != nullptr)
+	{
+		ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_EXTERNAL;
+	}
+	currentBehavior->activate(ctx, reset);
+}
+
+void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle)
+{
+	if (newBehaviorID == currentBehaviorID)
+	{
+		return;
+	}
+
+	if ( globalBehaviors.find(newBehaviorID) == globalBehaviors.end() )
+	{
+		return;
+	}
+
+	// deactivate old
+	ctx.mCurrTruck = old_vehicle;
+	if ( currentBehavior )
+	{
+		currentBehavior->deactivate(ctx);
+	}
+
+	// set new
+	currentBehavior = globalBehaviors[newBehaviorID];
+	currentBehaviorID = newBehaviorID;
+
+	// activate new
+	ctx.mCurrTruck = new_vehicle;
 	currentBehavior->activate(ctx, reset);
 }
 
@@ -210,14 +225,14 @@ int CameraManager::getCurrentBehavior()
 
 void CameraManager::createGlobalBehaviors()
 {
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_CHARACTER, new CameraBehaviorCharacter()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_STATIC, new CameraBehaviorStatic()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE, new CameraBehaviorVehicle()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_SPLINE, new CameraBehaviorVehicleSpline()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_CINECAM, new CameraBehaviorVehicleCineCam()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FREE, new CameraBehaviorFree()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FIXED, new CameraBehaviorFixed()));
-	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_ISOMETRIC, new CameraBehaviorIsometric()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_CHARACTER,       new CameraBehaviorCharacter()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_STATIC,          new CameraBehaviorStatic()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE,         new CameraBehaviorVehicle()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_SPLINE,  new CameraBehaviorVehicleSpline()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_CINECAM, new CameraBehaviorVehicleCineCam(this)));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FREE,            new CameraBehaviorFree()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FIXED,           new CameraBehaviorFixed()));
+	globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_ISOMETRIC,       new CameraBehaviorIsometric()));
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
@@ -248,4 +263,41 @@ size_t CameraManager::getMemoryUsage()
 {
 	// TODO
 	return 0;
+}
+
+void CameraManager::OnReturnToMainMenu()
+{
+	ctx.mCurrTruck = nullptr;
+	currentBehavior = nullptr;
+	currentBehaviorID = -1;
+}
+
+void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
+{
+	// Getting out of vehicle
+	if (new_vehicle == nullptr)
+	{
+		ctx.mCurrTruck = nullptr;
+		this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
+		return;
+	}
+
+	// Getting in vehicle
+	switch (new_vehicle->GetCameraContext()->behavior)
+	{
+	case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_3rdPERSON:
+		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
+		break;
+
+	case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_SPLINE, true, old_vehicle, new_vehicle);
+		break;
+
+	case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_CINECAM, true, old_vehicle, new_vehicle);
+		break;
+
+	default:
+		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
+	}
 }
