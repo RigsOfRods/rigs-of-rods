@@ -6398,19 +6398,19 @@ void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const &
 
 std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* Default: false */)
 {
-    SPAWNER_PROFILE_SCOPED();
+	SPAWNER_PROFILE_SCOPED();
 
-    if (!node_ref.IsValidAnyState())
+	if (!node_ref.IsValidAnyState())
 	{
 		if (! quiet)
 		{
-            AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
+			AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
 		}
 		return std::make_pair(0, false);
 	}
-    bool is_imported = node_ref.GetImportState_IsValid();
-    bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
-    if (is_named)
+	bool is_imported = node_ref.GetImportState_IsValid();
+	bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
+	if (is_named)
 	{
 		auto result = m_named_nodes.find(node_ref.Str());
 		if (result != m_named_nodes.end())
@@ -6420,24 +6420,25 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const &
 		else if (! quiet)
 		{
 			std::stringstream msg;
-            msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
+			msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
 			AddMessage(Message::TYPE_ERROR, msg.str());
 		}
 		return std::make_pair(0, false);
 	}
 	else
 	{
-        if (node_ref.Num() >= static_cast<unsigned int>(m_rig->free_node))
-        {
-            if (! quiet)
-            {
-                std::stringstream msg;
-                msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_rig->free_node<<"): " << node_ref.ToString();
-			    AddMessage(Message::TYPE_ERROR, msg.str());
-            }
-            return std::make_pair(0, false);
-        }
-        return std::make_pair(node_ref.Num(), true);
+		// Imported nodes pass without check
+		if (!is_imported && (node_ref.Num() >= static_cast<unsigned int>(m_rig->free_node)))
+		{
+			if (! quiet)
+			{
+				std::stringstream msg;
+				msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_rig->free_node<<"): " << node_ref.ToString();
+				AddMessage(Message::TYPE_ERROR, msg.str());
+			}
+			return std::make_pair(0, false);
+		}
+		return std::make_pair(node_ref.Num(), true);
 	}
 }
 

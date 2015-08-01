@@ -218,7 +218,8 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
         unsigned out_index = this->GetNodeArrayOffset(entry.origin_keyword) + entry.node_sub_index;
         Node::Ref out_ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumber());
         std::stringstream msg;
-        msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString();
+        msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString()
+            << "\n\tOrigin: " << RigDef::File::KeywordToString(entry.origin_keyword) << " SubIndex: " << entry.node_sub_index;
         this->AddMessage(Message::TYPE_INFO, msg.str());
         return out_ref;
     }

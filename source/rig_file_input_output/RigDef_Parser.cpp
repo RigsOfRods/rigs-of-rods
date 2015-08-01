@@ -1584,6 +1584,32 @@ void Parser::VerifyAndProcessDirectiveSetNodeDefaults(
 	m_user_node_defaults->options     = options;
 }
 
+void Parser::LogParsedDirectiveSetNodeDefaultsData(Ogre::String const & line, float load_weight, float friction, float volume, float surface, unsigned int options)
+{
+	std::stringstream msg;
+	msg << "Parsed data for verification:"
+		<< "\n\tLoadWeight: " << load_weight
+		<< "\n\t  Friction: " << friction
+		<< "\n\t    Volume: " << volume
+		<< "\n\t   Surface: " << surface
+		<< "\n\t   Options: ";
+		
+	if (BITMASK_IS_1(options, Node::OPTION_l_LOAD_WEIGHT)       )  { msg << " l_LOAD_WEIGHT"; }
+	if (BITMASK_IS_1(options, Node::OPTION_n_MOUSE_GRAB)        )  { msg << " n_MOUSE_GRAB"; }
+	if (BITMASK_IS_1(options, Node::OPTION_m_NO_MOUSE_GRAB)     )  { msg << " m_NO_MOUSE_GRAB"; }
+	if (BITMASK_IS_1(options, Node::OPTION_f_NO_SPARKS)         )  { msg << " f_NO_SPARKS"; }
+	if (BITMASK_IS_1(options, Node::OPTION_x_EXHAUST_POINT)     )  { msg << " x_EXHAUST_POINT"; }
+	if (BITMASK_IS_1(options, Node::OPTION_y_EXHAUST_DIRECTION) )  { msg << " y_EXHAUST_DIRECTION"; }
+	if (BITMASK_IS_1(options, Node::OPTION_c_NO_GROUND_CONTACT) )  { msg << " c_NO_GROUND_CONTACT"; }
+	if (BITMASK_IS_1(options, Node::OPTION_h_HOOK_POINT)        )  { msg << " h_HOOK_POINT"; }
+	if (BITMASK_IS_1(options, Node::OPTION_e_TERRAIN_EDIT_POINT))  { msg << " e_TERRAIN_EDIT_POINT"; }
+	if (BITMASK_IS_1(options, Node::OPTION_b_EXTRA_BUOYANCY)    )  { msg << " b_EXTRA_BUOYANCY"; }
+	if (BITMASK_IS_1(options, Node::OPTION_p_NO_PARTICLES)      )  { msg << " p_NO_PARTICLES"; }
+	if (BITMASK_IS_1(options, Node::OPTION_L_LOG)               )  { msg << " L_LOG"; }
+
+	this->AddMessage(line, Message::TYPE_WARNING, msg.str());
+}
+
 void Parser::ParseDirectiveSetNodeDefaultsUnsafe(Ogre::String const & line)
 {
 	PARSE_UNSAFE(line, 2,
@@ -1598,6 +1624,7 @@ void Parser::ParseDirectiveSetNodeDefaultsUnsafe(Ogre::String const & line)
 		unsigned int options = 0;
 		if (num_args > 5) { this->_ParseNodeOptions(options, values[5]); }
 
+		this->LogParsedDirectiveSetNodeDefaultsData(line, load_weight, friction, volume, surface, options);
 		this->VerifyAndProcessDirectiveSetNodeDefaults(line, load_weight, friction, volume, surface, options);
 	});
 }
