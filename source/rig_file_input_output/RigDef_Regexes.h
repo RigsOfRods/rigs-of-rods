@@ -663,22 +663,22 @@ DEFINE_REGEX( DIRECTIVE_SET_NODE_DEFAULTS,
     E_LEADING_WHITESPACE
 	"[Ss][Ee][Tt]_[Nn][Oo][Dd][Ee]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]" 
 	E_DELIMITER_SPACE
-	E_CAPTURE( E_REAL_NUMBER ) /* Load weight */
+	E_CAPTURE( E_REAL_NUMBER )                                   // #1 Load weight
 	E_CAPTURE_OPTIONAL(
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_REAL_NUMBER ) /* #3 Friction */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_REAL_NUMBER )                               // #4 Friction
 
 		E_CAPTURE_OPTIONAL(
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* #5 Volume */
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER )                           // #7 Volume
 
 			E_CAPTURE_OPTIONAL(
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_REAL_NUMBER ) /* #7 Surface */
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_REAL_NUMBER )                       // #10 Surface
 
 				E_CAPTURE_OPTIONAL(
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #9 Options */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #13 Options
 				)
 			)
 		)
@@ -2215,62 +2215,68 @@ DEFINE_REGEX( INLINE_SECTION_SET_COLLISION_RANGE,
 
 DEFINE_REGEX( SECTION_SHOCKS,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Spring */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Damping */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Short bound */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #6 Long bound */
-	E_CAPTURE( "[\\.]*" )      /* #7 Stray characters */
+	E_CAPTURE( E_NODE_ID )       // #1 Node 1
 	E_CAPTURE( E_DELIMITER )
-	E_CAPTURE( E_REAL_NUMBER ) /* #9 Precompression */
-	E_CAPTURE( "[\\.]*" )      /* #10 Stray characters */
-	E_CAPTURE_OPTIONAL(        /* #11 */
-		E_DELIMITER_COMMA      /* This may be a delimiter or stray comma (encountered in http://www.rigsofrods.com/repository/view/4340, v0.4, shunting coupler) */
-		E_CAPTURE_OPTIONAL( "[^[:blank:],;|]+" ) /* #12 Options */
-	)
-	E_CAPTURE_OPTIONAL(        /* #13 Invalid input */
-		E_CAPTURE( E_DELIMITER )
-		E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) /* #15 */
+	E_CAPTURE( E_NODE_ID )       // #3 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )   // #5 Spring
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )   // #7 Damping
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )   // #9 Short bound
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )   // #11 Long bound
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )   // #13 Precompression
+
+	E_CAPTURE_OPTIONAL(
+		E_CAPTURE( E_DELIMITER ) // #15 Delimiter (possibly dangling)
+
+		E_CAPTURE_OPTIONAL(
+			E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )  // #17 Options
+
+			E_CAPTURE_OPTIONAL( E_DELIMITER )             // #18 Dangling delimiter (fault tolerance)
+		)
 	)
 	E_TRAILING_WHITESPACE
 	);
 
 DEFINE_REGEX( SECTION_SHOCKS2,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Spring in */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Damping in */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #5 Spring in progression factor */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Damping in progression factor */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Spring out */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Damping out */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Spring out progression factor */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #10 Damping out progression factor */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Short bound */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Long bound */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* #13 Precompression */
+	E_CAPTURE( E_NODE_ID )     // #1 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )     // #3 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #5 Spring in
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #7 Damping in
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #9 Spring in progression factor
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #11 Damping in progression factor
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #13 Spring out
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #15 Damping out
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #17 Spring out progression factor
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #19 Damping out progression factor
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #21 Short bound
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #23 Long bound
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER ) // #25 Precompression
+
 	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_STRING_NO_SPACES ) /* #15 Options */
+		E_CAPTURE( E_DELIMITER ) // #27 Delimiter (possibly dangling)
+
+		E_CAPTURE_OPTIONAL(
+			E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #29 Options
+
+			E_CAPTURE_OPTIONAL(E_DELIMITER)              // #30 Dangling delimiter (fault tolerance)
+		)
 	)
 	E_TRAILING_WHITESPACE
 	);

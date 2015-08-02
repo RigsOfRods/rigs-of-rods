@@ -78,12 +78,11 @@ int CLASS::GetHeight()
 void CLASS::Show()
 {
 	MAIN_WIDGET->setVisibleSmooth(true);
-	sCameraMode = gEnv->cameraManager->getCurrentBehavior();
 
 	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+	{
 		gEnv->player->setPhysicsEnabled(false);
-	else
-		gEnv->cameraManager->switchBehavior(1);
+	}
 
 	gEnv->frameListener->setSimPaused(true);
 	BeamFactory::getSingleton().MuteAllTrucks();
@@ -98,12 +97,17 @@ void CLASS::Show()
 
 void CLASS::Hide()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	// The "fade out" effect causes a visual glitch.
+	// During the animation, camera doesn't follow the vehicle and position
+	// of the driver isn't updated (he "floats out" of the cabin)
+	// Quick workaroud: use simple hiding without animation.
+	//MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
 
 	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+	{
 		gEnv->player->setPhysicsEnabled(true);
-	else
-		gEnv->cameraManager->switchBehavior(sCameraMode);
+	}
 
 	gEnv->frameListener->setSimPaused(false);
 	BeamFactory::getSingleton().UnmuteAllTrucks();

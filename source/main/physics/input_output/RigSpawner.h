@@ -511,7 +511,7 @@ protected:
 	*/
 	unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
-	void CreateBeamVisuals(beam_t & beam, int beam_index, RigDef::BeamDefaults & beam_defaults, bool activate);
+	void CreateBeamVisuals(beam_t & beam, int beam_index, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate);
 
 	Rail *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
@@ -835,8 +835,6 @@ protected:
 	beam_t *FindBeamInRig(unsigned int node_a, unsigned int node_b);
 
 	void SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults);
-
-	void CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_to_scene);
 
 	void UpdateCollcabContacterNodes();
 

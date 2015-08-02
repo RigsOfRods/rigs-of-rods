@@ -218,7 +218,8 @@ Node::Ref SequentialImporter::ResolveNode(Node::Ref const & noderef_in)
         unsigned out_index = this->GetNodeArrayOffset(entry.origin_keyword) + entry.node_sub_index;
         Node::Ref out_ref(TOSTRING(out_index), out_index, Node::Ref::IMPORT_STATE_IS_VALID | Node::Ref::IMPORT_STATE_IS_RESOLVED_NUMBERED, noderef_in.GetLineNumber());
         std::stringstream msg;
-        msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString();
+        msg << "Node resolved\n\tSource: " << noderef_in.ToString() << "\n\tResult: " << out_ref.ToString()
+            << "\n\tOrigin: " << RigDef::File::KeywordToString(entry.origin_keyword) << " SubIndex: " << entry.node_sub_index;
         this->AddMessage(Message::TYPE_INFO, msg.str());
         return out_ref;
     }
@@ -506,7 +507,7 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
         RESOLVE(meshwheel.nodes[0]          );
         RESOLVE(meshwheel.nodes[1]          );
         RESOLVE(meshwheel.rigidity_node     );
-	    RESOLVE(meshwheel.reference_arm_node);
+        RESOLVE(meshwheel.reference_arm_node);
     });
 
     FOR_EACH (File::KEYWORD_MESHWHEELS2, module->mesh_wheels_2, meshwheel2,
@@ -514,7 +515,7 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
         RESOLVE(meshwheel2.nodes[0]          );
         RESOLVE(meshwheel2.nodes[1]          );
         RESOLVE(meshwheel2.rigidity_node     );
-	    RESOLVE(meshwheel2.reference_arm_node);
+        RESOLVE(meshwheel2.reference_arm_node);
     });
 
     FOR_EACH (File::KEYWORD_PARTICLES, module->particles, particle,
@@ -612,6 +613,15 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
 
     FOR_EACH (File::KEYWORD_SUBMESH, module->submeshes, submesh,
     {
+        m_current_keyword = File::KEYWORD_TEXCOORDS;
+        auto texcoord_itor = submesh.texcoords.begin();
+        auto texcoord_end  = submesh.texcoords.end();
+        for (; texcoord_itor != texcoord_end; ++texcoord_itor)
+        {
+            RESOLVE(texcoord_itor->node);
+        }
+
+        m_current_keyword = File::KEYWORD_CAB;
         auto cab_itor = submesh.cab_triangles.begin();
         auto cab_end  = submesh.cab_triangles.end();
         for (; cab_itor != cab_end; ++cab_itor)
@@ -655,7 +665,7 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
         RESOLVE(wheel.nodes[0]          );
         RESOLVE(wheel.nodes[1]          );
         RESOLVE(wheel.rigidity_node     );
-	    RESOLVE(wheel.reference_arm_node);
+        RESOLVE(wheel.reference_arm_node);
     });
 
     FOR_EACH (File::KEYWORD_WHEELS2, module->wheels_2, wheel2,
@@ -663,7 +673,7 @@ void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> m
         RESOLVE(wheel2.nodes[0]          );
         RESOLVE(wheel2.nodes[1]          );
         RESOLVE(wheel2.rigidity_node     );
-	    RESOLVE(wheel2.reference_arm_node);
+        RESOLVE(wheel2.reference_arm_node);
     });
 
     FOR_EACH (File::KEYWORD_VIDEOCAMERA, module->videocameras, videocamera,

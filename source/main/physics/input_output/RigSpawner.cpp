@@ -2974,7 +2974,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	beam.commandLong = def.max_length;
 	beam.maxtiestress = def.max_stress;
 	beam.diameter = DEFAULT_BEAM_DIAMETER;
-	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, false);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 
 	/* Register tie */
 	tie_t tie;
@@ -3441,7 +3441,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	beam.shock = &shock;
 	beam.diameter = DEFAULT_BEAM_DIAMETER;
 
-	CreateBeamVisuals(beam, beam_index, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	if (m_rig->triggerdebug)
 	{
@@ -3736,7 +3736,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 	}
 
 	bool attach_to_scene = (beam.type != BEAM_VIRTUAL && beam.type != BEAM_INVISIBLE && beam.type != BEAM_INVISIBLE_HYDRO);
-	CreateBeamVisuals(beam, beam_index, attach_to_scene);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, attach_to_scene);
 
 	m_rig->free_commands++;
 	m_rig->hascommands = 1;
@@ -3893,7 +3893,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
 	SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
-	CreateBeamVisuals(beam, beam_index, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
 	{
@@ -4065,7 +4065,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
 	beam.diameter             = DEFAULT_BEAM_DIAMETER;
 
-	CreateBeamVisuals(beam, beam_index, *def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
 
 	m_rig->hydro[m_rig->free_hydro] = beam_index;
 	m_rig->free_hydro++;
@@ -4148,7 +4148,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	beam.refL       *= def.precompression;
 	beam.Lhydro     *= def.precompression;
 
-	CreateBeamVisuals(beam, beam_index, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	shock_t & shock  = GetFreeShock();
 	shock.flags      = shock_flags;
@@ -4231,7 +4231,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 
 	/* Create beam visuals, but don't attach them to scene graph */
 	/* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-	CreateBeamVisuals(beam, beam_index, false);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 
 	beam.shock = & shock;
 	shock.beamid = beam_index;
@@ -5230,20 +5230,26 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 	unsigned int base_node_index = m_rig->free_node;
 	wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
+	node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
+	node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
+
+	if (axis_node_1 == nullptr || axis_node_2 == nullptr)
+	{
+		std::stringstream msg;
+		msg << "Error creating 'wheel2': Some axis nodes were not found";
+		msg << " (Node1: " << wheel_2_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
+		msg << " (Node2: " << wheel_2_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
+		AddMessage(Message::TYPE_ERROR, msg.str());
+		return -1;
+	}
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	node_t *axis_node_1 = nullptr;
-	node_t *axis_node_2 = nullptr;
-	if (GetNode(wheel_2_def.nodes[0]).RelPosition.z < GetNode(wheel_2_def.nodes[1]).RelPosition.z)
+	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
 	{
-		node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
-		node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
-	}
-	else
-	{
-		node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[1]);
-		node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[0]);
-	}
+		node_t *swap = axis_node_1;
+		axis_node_1 = axis_node_2;
+		axis_node_2 = swap;
+	}	
 
 	/* Rigidity node */
 	node_t *axis_node_closest_to_rigidity_node = nullptr;
@@ -5259,7 +5265,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
 	axis_vector.normalise();
 	Ogre::Vector3 rim_ray_vector = Ogre::Vector3(0, wheel_2_def.rim_radius, 0);
-	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_2_def.num_rays * 2), axis_vector);
+	Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_2_def.num_rays), axis_vector);
 
 	/* Width */
 	wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
@@ -5271,7 +5277,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		/* Outer ring */
 		Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
-		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
@@ -5282,7 +5287,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		/* Inner ring */
 		ray_point = axis_node_2->RelPosition + rim_ray_vector;
-		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
@@ -5294,10 +5298,12 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		/* Wheel object */
 		wheel.nodes[i * 2] = & outer_node;
 		wheel.nodes[(i * 2) + 1] = & inner_node;
+
+		rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 	}
 
 	Ogre::Vector3 tyre_ray_vector = Ogre::Vector3(0, wheel_2_def.tyre_radius, 0);
-	Ogre::Quaternion tyre_ray_rotator = Ogre::Quaternion(Ogre::Degree(-180.f / wheel_2_def.num_rays * 2), axis_vector);
+	Ogre::Quaternion tyre_ray_rotator = Ogre::Quaternion(Ogre::Degree(-180.f / wheel_2_def.num_rays), axis_vector);
 	tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 	/* Tyre nodes */
@@ -5305,7 +5311,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	{
 		/* Outer ring */
 		Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
-		tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point);
@@ -5325,7 +5330,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		/* Inner ring */
 		ray_point = axis_node_2->RelPosition + tyre_ray_vector;
-		tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point);
@@ -5346,6 +5350,8 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		/* Wheel object */
 		wheel.nodes[i * 2] = & outer_node;
 		wheel.nodes[(i * 2) + 1] = & inner_node;
+
+		tyre_ray_vector = rim_ray_rotator * tyre_ray_vector; // This is OK
 	}
 
 	/* Beams */
@@ -5568,7 +5574,7 @@ unsigned int RigSpawner::AddWheelBeam(
 	if (type != BEAM_VIRTUAL)
 	{
 		/* Create visuals, but don't attach to scene-graph (compatibility with show-skeleton function) */
-		CreateBeamVisuals(beam, index, false);
+		CreateBeamVisuals(beam, index, beam_defaults, false);
 	}
 
 	return index;
@@ -6135,43 +6141,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 		beam.longbound = def.extension_break_limit;
 	}
 
-	CreateBeamVisuals(beam, beam_index, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
-}
-
-void RigSpawner::CreateBeamVisuals(beam_t &beam, int index, bool attach_entity_to_scene)
-{
-	SPAWNER_PROFILE_SCOPED();
-
-    /* Setup visuals */
-	// In original loader, in BTS_BEAMS the visuals are always created but not always attached.
-	// Is there a reason?
-	std::stringstream beam_name;
-	beam_name << "beam-" << m_rig->truckname << "-" << index;
-	try
-	{
-		beam.mEntity = gEnv->sceneManager->createEntity(beam_name.str(), "beam.mesh");
-	}
-	catch (...)
-	{
-		throw Exception("Failed to load file 'beam.mesh' (should come with RoR installation)");
-	}
-	m_rig->deletion_Entities.push_back(beam.mEntity);
-	beam.mSceneNode = m_rig->beamsRoot->createChildSceneNode();
-	beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
-
-	/* Material */
-	if (beam.type == BEAM_HYDRO || beam.type == BEAM_MARKED)
-	{
-		beam.mEntity->setMaterialName("tracks/Chrome");
-	}
-
-	/* Attach visuals */
-	// In original loader, in BTS_BEAMS the visuals are always created but not always attached.
-	// Is there a reason?
-	if (attach_entity_to_scene)
-	{
-		beam.mSceneNode->attachObject(beam.mEntity);
-	}
+	CreateBeamVisuals(beam, beam_index, def.defaults, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
 }
 
 void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults)
@@ -6304,7 +6274,7 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 	beam.maxnegstress       = -(deformation_threshold);
 }
 
-void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, RigDef::BeamDefaults & beam_defaults, bool activate)
+void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -6321,7 +6291,14 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, RigDef::BeamDe
 	m_rig->deletion_Entities.push_back(beam.mEntity);
 	beam.mSceneNode = m_rig->beamsRoot->createChildSceneNode();
 	beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
-	beam.mEntity->setMaterialName(beam_defaults.beam_material_name);
+	if (beam.type == BEAM_HYDRO || beam.type == BEAM_MARKED)
+	{
+		beam.mEntity->setMaterialName("tracks/Chrome");
+	}
+	else
+	{
+		beam.mEntity->setMaterialName(beam_defaults->beam_material_name);
+	}
 
 	/* Attach visuals */
 	if (activate)
@@ -6392,19 +6369,19 @@ void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const &
 
 std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const & node_ref, bool quiet /* Default: false */)
 {
-    SPAWNER_PROFILE_SCOPED();
+	SPAWNER_PROFILE_SCOPED();
 
-    if (!node_ref.IsValidAnyState())
+	if (!node_ref.IsValidAnyState())
 	{
 		if (! quiet)
 		{
-            AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
+			AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
 		}
 		return std::make_pair(0, false);
 	}
-    bool is_imported = node_ref.GetImportState_IsValid();
-    bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
-    if (is_named)
+	bool is_imported = node_ref.GetImportState_IsValid();
+	bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
+	if (is_named)
 	{
 		auto result = m_named_nodes.find(node_ref.Str());
 		if (result != m_named_nodes.end())
@@ -6414,24 +6391,25 @@ std::pair<unsigned int, bool> RigSpawner::GetNodeIndex(RigDef::Node::Ref const &
 		else if (! quiet)
 		{
 			std::stringstream msg;
-            msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
+			msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
 			AddMessage(Message::TYPE_ERROR, msg.str());
 		}
 		return std::make_pair(0, false);
 	}
 	else
 	{
-        if (node_ref.Num() >= static_cast<unsigned int>(m_rig->free_node))
-        {
-            if (! quiet)
-            {
-                std::stringstream msg;
-                msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_rig->free_node<<"): " << node_ref.ToString();
-			    AddMessage(Message::TYPE_ERROR, msg.str());
-            }
-            return std::make_pair(0, false);
-        }
-        return std::make_pair(node_ref.Num(), true);
+		// Imported nodes pass without check
+		if (!is_imported && (node_ref.Num() >= static_cast<unsigned int>(m_rig->free_node)))
+		{
+			if (! quiet)
+			{
+				std::stringstream msg;
+				msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_rig->free_node<<"): " << node_ref.ToString();
+				AddMessage(Message::TYPE_ERROR, msg.str());
+			}
+			return std::make_pair(0, false);
+		}
+		return std::make_pair(node_ref.Num(), true);
 	}
 }
 
@@ -6617,7 +6595,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		beam.maxtiestress      = HOOK_FORCE_DEFAULT;
 		beam.diameter          = DEFAULT_BEAM_DIAMETER;
 		SetBeamDeformationThreshold(beam, def.beam_defaults);
-		CreateBeamVisuals(beam, beam_index, false);
+		CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 			
 		// Logic cloned from SerializedRig.cpp, section BTS_NODES
 		hook_t hook;
@@ -6774,7 +6752,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 		beam.k = def.spring;
 		beam.d = def.damping;
 		beam.diameter = DEFAULT_BEAM_DIAMETER;
-		CreateBeamVisuals(beam, beam_index, *def.beam_defaults, false);
+		CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 	}
 
 	/* Cabin light */
