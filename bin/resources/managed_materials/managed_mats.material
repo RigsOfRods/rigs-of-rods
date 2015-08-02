@@ -22,7 +22,7 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 	{
 		pass
 		{
-		 texture_unit diffuse 1
+		 texture_unit Diffuse_Map
 		 {
 				texture_alias diffuse_tex
 		 }

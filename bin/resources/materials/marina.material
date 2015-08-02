@@ -1,14 +1,6 @@
-material marina
+import * from "managed_mats.material"
+
+material marina: RoR/Managed_Mats/Base
 {
-	technique
-    {
-        pass
-        {
-			cull_hardware none
-            texture_unit diffuseMap
-            {
-                texture marinaskindiffuse.dds
-            }
-        }
-    }
+	set_texture_alias diffuse_tex marinaskindiffuse.dds
 }

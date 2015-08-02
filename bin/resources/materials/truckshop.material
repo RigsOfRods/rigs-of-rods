@@ -1,3 +1,5 @@
+import * from "managed_mats.material"
+
 material default
 {
 	technique
@@ -7,16 +9,7 @@ material default
 		}
 	}
 }
-material truckshop
+material truckshop: RoR/Managed_Mats/Base
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture truckshopdiffuse.dds
-			}
-		}
-	}
+	set_texture_alias diffuse_tex truckshopdiffuse.dds
 }
