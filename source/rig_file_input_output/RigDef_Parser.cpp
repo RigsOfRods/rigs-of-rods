@@ -4424,7 +4424,7 @@ void Parser::LogParsedShock2DataForChecking(Ogre::String const & line, Shock2& s
 		"\n\t          LongBound: %f"
 		"\n\t     Precompression: %f"
 		"\n\t            Options: ",
-		shock.nodes[0].ToString(), shock.nodes[1].ToString(),
+		shock.nodes[0].ToString().c_str(), shock.nodes[1].ToString().c_str(),
 		shock.spring_in,
 		shock.damp_in,
 		shock.progress_factor_spring_in,
@@ -4538,7 +4538,7 @@ void Parser::LogParsedShockDataForChecking(Ogre::String const & line, Shock& sho
 		"\n\t     LongBound: %f",
 		"\n\tPrecompression: %f"
 		"\n\t       Options: ", 
-		shock.nodes[0].ToString(), shock.nodes[1].ToString(), 
+		shock.nodes[0].ToString().c_str(), shock.nodes[1].ToString().c_str(), 
 		shock.spring_rate, 
 		shock.damping, 
 		shock.short_bound, 
