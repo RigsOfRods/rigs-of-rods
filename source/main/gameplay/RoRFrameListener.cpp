@@ -1372,11 +1372,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	//update visual - antishaking
-	if (loading_state == ALL_LOADED)
+	if (loading_state == ALL_LOADED && !this->isSimPaused)
 	{
 		BeamFactory::getSingleton().updateVisual(dt); // Updates flexbodies. When using ThreadPool, it pushes tasks and also waits for them to complete (in this single call)
 	}
-
 
 	if (!updateEvents(dt))
 	{
