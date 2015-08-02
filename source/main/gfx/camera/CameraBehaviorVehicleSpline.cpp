@@ -160,11 +160,13 @@ void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext &c
 	{
 		gEnv->cameraManager->switchToNextBehavior();
 		return;
-	} else if ( reset )
+	} 
+	else if ( reset )
 	{
 		this->reset(ctx);
 		createSpline(ctx);
 	}
+	ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE;
 }
 
 void CameraBehaviorVehicleSpline::reset(const CameraManager::CameraContext &ctx)

@@ -153,7 +153,7 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'guisettings' in any module
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
 
-	// ---------------------------- Nodes & Beams ----------------------------
+	// ---------------------------- User-defined nodes ----------------------------
 
 	// Sections 'nodes' & 'nodes2'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_NODES, nodes, ProcessNode);
@@ -164,27 +164,12 @@ rig_t *RigSpawner::SpawnRig()
 		AddExhaust(m_rig->smokeId, m_rig->smokeRef, true, nullptr);
 	}
 
-	// Section 'beams'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, beams, ProcessBeam);
-
-	// ---------------------------- Node & Beam generating sections ----------------------------
-
-	// Section 'shocks'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, shocks, ProcessShock);
-
-	// Section 'shocks2'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, shocks_2, ProcessShock2);
-
-	// Section 'commands' and 'commands2' (Use generated nodes)
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, commands_2, ProcessCommand);
-
-	// Section 'hydros'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, hydros, ProcessHydro);
+	// ---------------------------- Node generating sections ----------------------------
 
 	// Section 'cinecam'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CINECAM, cinecam, ProcessCinecam);
 
-	// ---------------------------- Wheels ----------------------------
+	// ---------------------------- Wheels (also generate nodes) ----------------------------
 
 	// Section 'wheels'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS, wheels, ProcessWheel);
@@ -200,6 +185,30 @@ rig_t *RigSpawner::SpawnRig()
 
 	// Section 'flexbodywheels'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
+
+	// ---------------------------- User-defined beams ----------------------------
+	//              (may reference any generated/user-defined node)
+
+	// Section 'beams'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_BEAMS, beams, ProcessBeam);
+
+	// Section 'shocks'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS, shocks, ProcessShock);
+
+	// Section 'shocks2'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, shocks_2, ProcessShock2);
+
+	// Section 'commands' and 'commands2' (Use generated nodes)
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, commands_2, ProcessCommand);
+
+	// Section 'hydros'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, hydros, ProcessHydro);
+
+	// Section 'triggers'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TRIGGERS, triggers, ProcessTrigger);
+
+	// Section 'ropes'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPES, ropes, ProcessRope);
 
 	// ---------------------------- Other ----------------------------
 
@@ -242,9 +251,6 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'animators'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, animators, ProcessAnimator);
 
-	// Section 'triggers'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TRIGGERS, triggers, ProcessTrigger);
-
 	// Section 'materialflarebindings'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, material_flare_bindings, ProcessMaterialFlareBinding);
 
@@ -281,9 +287,6 @@ rig_t *RigSpawner::SpawnRig()
 
 	// Section 'slidenodes'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SLIDENODES, slidenodes, ProcessSlidenode);
-
-	// Section 'ropes'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ROPES, ropes, ProcessRope);
 
 	// Section 'particles'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PARTICLES, particles, ProcessParticle);

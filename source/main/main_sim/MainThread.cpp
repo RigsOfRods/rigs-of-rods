@@ -457,6 +457,7 @@ void MainThread::Go()
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_loaded = true;
+				gEnv->cameraManager->OnReturnToMainMenu();
 				/* Hide top menu */
 				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
 				if (top_menu != nullptr)
@@ -1453,6 +1454,11 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 		
 		TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->trucknum:-1);
+	}
+
+	if (previous_vehicle != nullptr || current_vehicle != nullptr)
+	{
+		gEnv->cameraManager->NotifyVehicleChanged(previous_vehicle, current_vehicle);
 	}
 }
 

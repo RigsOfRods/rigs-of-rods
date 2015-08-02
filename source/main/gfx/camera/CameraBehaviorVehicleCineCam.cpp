@@ -24,15 +24,15 @@
 #include "Application.h"
 #include "Beam.h"
 #include "OverlayWrapper.h"
+#include "PerVehicleCameraContext.h"
 
 #include <OgreCamera.h>
 
 using namespace Ogre;
 
-CameraBehaviorVehicleCineCam::CameraBehaviorVehicleCineCam() :
-	  CameraBehaviorVehicle()
-	, currTruck(0)
-	, lastCineCam(0)
+CameraBehaviorVehicleCineCam::CameraBehaviorVehicleCineCam(CameraManager* camera_mgr) :
+	CameraBehaviorVehicle(),
+	m_camera_manager(camera_mgr)
 {
 }
 
@@ -63,56 +63,64 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
 void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
-	if ( !ctx.mCurrTruck || ctx.mCurrTruck->freecinecamera <= 0 )
+	Beam* current_vehicle = ctx.mCurrTruck;
+	if (current_vehicle == nullptr)
 	{
-		gEnv->cameraManager->switchToNextBehavior();
+		m_camera_manager->switchToNextBehavior();
 		return;
-	} else if ( reset )
+	}
+	RoR::PerVehicleCameraContext* vehicle_cam_context = current_vehicle->GetCameraContext();
+	if ( current_vehicle->freecinecamera <= 0 )
 	{
-		lastCineCam = 0;
+		m_camera_manager->switchToNextBehavior();
+		return;
+	} 
+	else if ( reset )
+	{
 		this->reset(ctx);
 	}
 
-	currTruck = ctx.mCurrTruck;
-
 	gEnv->mainCamera->setFOVy(ctx.fovInternal);
 
-	ctx.mCurrTruck->prepareInside(true);
+	current_vehicle->prepareInside(true);
 
 	if ( RoR::Application::GetOverlayWrapper() )
 	{
 		RoR::Application::GetOverlayWrapper()->showDashboardOverlays(
-			(ctx.mCurrTruck->driveable == AIRPLANE), 
-			ctx.mCurrTruck
+			(current_vehicle->driveable == AIRPLANE), 
+			current_vehicle
 		);
 	}
 
-	ctx.mCurrTruck->currentcamera = lastCineCam;
-	ctx.mCurrTruck->changedCamera();
+	current_vehicle->currentcamera = current_vehicle->GetCameraContext()->last_cinecam_index;
+	current_vehicle->changedCamera();
+
+	vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM;
 }
 
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
-	if ( currTruck == nullptr )
+	Beam* current_vehicle = ctx.mCurrTruck;
+	if ( current_vehicle == nullptr 
+		|| current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM )
 	{
 		return;
 	}
 
 	gEnv->mainCamera->setFOVy(ctx.fovExternal);
-		
-	currTruck->prepareInside(false);
+	
+	current_vehicle->prepareInside(false);
 
-	/* IF (player is in vehicle && OverlayWrapper object exists) */
-	if ( ctx.mCurrTruck != nullptr && RoR::Application::GetOverlayWrapper() != nullptr )
+	if ( RoR::Application::GetOverlayWrapper() != nullptr )
 	{
-		RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, currTruck);
+		RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
 	}
 
-	lastCineCam = currTruck->currentcamera;
+	current_vehicle->GetCameraContext()->last_cinecam_index = current_vehicle->currentcamera;
 
-	currTruck->currentcamera = -1;
-	currTruck->changedCamera();
-	currTruck = nullptr;
+	current_vehicle->GetCameraContext()->last_cinecam_index = false;
+	current_vehicle->currentcamera = -1;
+	current_vehicle->changedCamera();
 }
 
 void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx)
@@ -124,10 +132,12 @@ void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx
 
 bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)
 {
-	if ( ctx.mCurrTruck && ctx.mCurrTruck->currentcamera < ctx.mCurrTruck->freecinecamera-1 )
+	Beam* vehicle = ctx.mCurrTruck;
+	if ( (vehicle != nullptr) && (vehicle->currentcamera) < (vehicle->freecinecamera-1) )
 	{
-		ctx.mCurrTruck->currentcamera++;
-		ctx.mCurrTruck->changedCamera();
+		vehicle->currentcamera++;
+		vehicle->GetCameraContext()->last_cinecam_index = vehicle->currentcamera;
+		vehicle->changedCamera();
 		return false;
 	}
 	return true;
