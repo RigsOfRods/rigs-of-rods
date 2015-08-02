@@ -157,7 +157,7 @@ void ShadowManager::processPSSM()
 		pssmSetup->setSplitPadding(gEnv->mainCamera->getNearClipDistance());
 
 		pssmSetup->setOptimalAdjustFactor(0, -1);
-		pssmSetup->setOptimalAdjustFactor(1, 1);
+		pssmSetup->setOptimalAdjustFactor(1, -1);
 		pssmSetup->setOptimalAdjustFactor(2, -1);
 
 		PSSM_Shadows.mPSSMSetup.bind(pssmSetup);
