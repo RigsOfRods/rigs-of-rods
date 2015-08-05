@@ -3,19 +3,19 @@ Rigs of Rods is licensed under GPLv3 or later by the following authors (in no pa
 
 ##### Previous authors of the source code
 
-| GitHub nickname                | RoR forum nickname      | real name              | email                          |
-|--------------------------------|-------------------------|------------------------|--------------------------------|
-| ?                              | pricorde                | ?                      | ?                              |
-| tdev                           | tdev                    | Thomas Fischer         | tfischer{at}beamng{dot}com     | 
-| ?                              | estama                  | ?                      | ?                              |
-| ?                              | Lifter                  | ?                      | ?                              |
-| ?                              | FlyPiper                | ?                      | ?                              |
-| ?                              | knied                   | ?                      | ?                              |
-| ?                              | neorej16                | ?                      | ?                              |
-| ?                              | 88Toyota                | ?                      | ?                              |
-| ?                              | synthead                | ?                      | ?                              |
-| ?                              | ulteq                   | ?                      | ?                              |
-| ?                              | theshark                | ?                      | ?                              |
+| GitHub nickname                | RoR forum nickname      | real name              | email                            |
+|--------------------------------|-------------------------|------------------------|----------------------------------|
+| ?                              | pricorde                | ?                      | ?                                |
+| tdev                           | tdev                    | Thomas Fischer         | tfischer{at}beamng{dot}com       | 
+| ?                              | estama                  | ?                      | ?                                |
+| ?                              | Lifter                  | ?                      | ?                                |
+| ?                              | FlyPiper                | ?                      | ?                                |
+| ?                              | knied                   | ?                      | ?                                |
+| ?                              | neorej16                | ?                      | ?                                |
+| ?                              | 88Toyota                | ?                      | ?                                |
+| ?                              | synthead                | ?                      | ?                                |
+| ?                              | ulteq                   | ?                      | ?                                |
+| ?                              | theshark                | ?                      | ?                                |
 
 
 ##### Additional authors not found on the Rigs of Rods forum
@@ -33,21 +33,22 @@ If you are one of the previous authors and happen to come across this list pleas
 
 ##### Authors of assets used by Rigs of Rods
 
-| GitHub nickname                | RoR forum nickname      | real name              | email                          |
-|--------------------------------|-------------------------|------------------------|--------------------------------|
-| ?                              | donoteat                | ?                      | ?                              |
-| ?                              | kevinmce                | ?                      | ?                              |
-| ?                              | 09Challenger            | ?                      | ?                              |
-| Speciesx                       | klink                   | ?                      | ?                              |
-| ?                              | hagdervriese            | ?                      | ?                              |
+| GitHub nickname                | RoR forum nickname      | real name              | email                            |
+|--------------------------------|-------------------------|------------------------|----------------------------------|
+| ?                              | donoteat                | ?                      | ?                                |
+| ?                              | kevinmce                | ?                      | ?                                |
+| ?                              | 09Challenger            | ?                      | ?                                |
+| Speciesx                       | klink                   | ?                      | ?                                |
+| ?                              | hagdervriese            | ?                      | ?                                |
 
 ##### authors of the source code since reboot (move to git)
-| GitHub nickname                | RoR forum nickname      | real name              | email                          |
-|--------------------------------|-------------------------|------------------------|--------------------------------|
-| Hiradur                        | Hiradur                 | Niklas Kersten         | n\<surname\>.dev@gmail.com     |
-| only-a-ptr                     | only_a_ptr              | Petr Ohlídal           | my-name@my-surname.cz          |
-| Aperion                        | Aperion                 | <uncompleted>          | <uncompleted>                 |
+| GitHub nickname                | RoR forum nickname      | real name              | email                            |
+|--------------------------------|-------------------------|------------------------|----------------------------------|
+| Hiradur                        | Hiradur                 | Niklas Kersten         | n\<surname\>.dev@gmail.com       |
+| only-a-ptr                     | only_a_ptr              | Petr Ohlídal           | my-name@my-surname.cz            |
+| Aperion                        | Aperion                 | <uncompleted>          | <uncompleted>                    |
 | Max98                          | max98                   | Moncef Ben Slimane     | moncefbenslimane{at}yahoo{dot}fr |
+| skybon                         | skybon                  | Artem Vorotnikov       | my-name@my-surname.me            |
 
 If you are a first time commiter please add yourself to this list for legal reasons. You may want to disguise your email adress to prevent crawlers from detecting it. If you do so make sure it does not leave room for different interpretations.
 
