@@ -183,7 +183,6 @@ Envmap::Envmap() :
 
 			// Fill index buffer
 			indexBuffer->writeData(0, indexBuffer->getSizeInBytes(), indexData, true);
-			indexBuffer->unlock();
 
 			mesh->_setBounds(AxisAlignedBox::BOX_INFINITE);
 			mesh->_setBoundingSphereRadius(10);
