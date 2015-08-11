@@ -1,3 +1,7 @@
+#version 100
+precision mediump int;
+precision mediump float;
+
 uniform sampler2D inRTT;
 
 uniform vec4 sampleOffsets[15];
@@ -18,5 +22,4 @@ void main(void)
     }
     
     gl_FragColor = accum;
-	
 }

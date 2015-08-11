@@ -19,7 +19,7 @@
 	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
+/**
 	@file   GUI_SimUtils.cpp
 	@author Moncef Ben Slimane
 	@date   12/2014
@@ -263,7 +263,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 			truckstats = truckstats + MainThemeColor + "Car speed: " + WhiteColor + TOUTFSTRING(Round(carSpeedKPH)) + U(" km/h (") + TOUTFSTRING(Round(carSpeedMPH)) + U(" mph)") + "\n";
 		}
-		else 
+		else
 		{
 			float speedKN = truck->nodes[0].Velocity.length() * 1.94384449f;
 			truckstats = truckstats + MainThemeColor + "Current Speed: " + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
@@ -289,7 +289,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 						truckstats = truckstats + MainThemeColor + "Engine " + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->screwprops[i]->getThrottle() *100 )) + "%" + "\n";
 				}
 			}
-				
+
 		}
 
 		/*
@@ -304,9 +304,9 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		// apply deadzones ==> no flickering +/-
 		if (fabs(gees.y) < 0.01) gees.y = 0.0f;
 		if (fabs(gees.z) < 0.01) gees.z = 0.0f;
-		Ogre::UTFString tmp = _L("Vertical: %1.2fg | Saggital: %1.2fg | Lateral: %1.2fg");
+		Ogre::UTFString tmp = _L("Vertical: % 1.2fg\nSagittal: % 1.2fg\nLateral:  % 1.2fg");
 		swprintf(geesstr, 256, tmp.asWStr_c_str(), gees.x, gees.y, gees.z);
-		truckstats = truckstats + MainThemeColor + "Gees: " + WhiteColor + Ogre::UTFString(geesstr) + "\n";
+		truckstats = truckstats + MainThemeColor + "G-Forces:\n" + WhiteColor + Ogre::UTFString(geesstr) + "\n";
 
 		if (truck->driveable == TRUCK || truck->driveable == AIRPLANE || truck->driveable == BOAT)
 		{
@@ -325,7 +325,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 			if (gees.z < maxNegLatG[truck->driveable])
 				maxNegLatG[truck->driveable] = gees.z;
 
-			tmp = _L("V %1.2fg %1.2fg // S %1.2fg %1.2fg // L %1.2fg %1.2fg");
+			tmp = _L("Vertical: % 1.2fg % 1.2fg\nSagittal: % 1.2fg % 1.2fg\nLateral:  % 1.2fg % 1.2fg");
 			swprintf(geesstr, 256, tmp.asWStr_c_str(),
 				maxPosVerG[truck->driveable],
 				maxNegVerG[truck->driveable],
@@ -334,12 +334,12 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 				maxPosLatG[truck->driveable],
 				maxNegLatG[truck->driveable]
 				);
-			truckstats = truckstats + MainThemeColor + "maxG: " + WhiteColor + Ogre::UTFString(geesstr) + "\n";
+			truckstats = truckstats + MainThemeColor + "G-Forces: Maximum - Minimum:\n" + WhiteColor + Ogre::UTFString(geesstr) + "\n";
 		}
 
 		m_truck_stats->setCaptionWithReplacing(truckstats);
 	}
-	else 
+	else
 		m_truckinfo_box->setVisible(false);
 
 }
