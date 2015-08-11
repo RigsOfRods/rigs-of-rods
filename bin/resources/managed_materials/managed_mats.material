@@ -18,9 +18,9 @@ abstract material RoR/Managed_Mats/Base
 
 abstract material RoR/Managed_Mats/BaseNoShadows
 {
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 		 texture_unit Diffuse_Map
 		 {

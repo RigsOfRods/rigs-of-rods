@@ -185,6 +185,7 @@ void ShadowManager::updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM
 		matProfile->setReceiveDynamicShadowsLowLod(false);
 		matProfile->setReceiveDynamicShadowsEnabled(true);
 		matProfile->setReceiveDynamicShadowsPSSM(pssmSetup);
+		matProfile->setLightmapEnabled(false);
 	}
 }
 

@@ -376,13 +376,14 @@ void CLASS::UpdateControls()
 	if (!IsLoaded)
 	{
 		m_water_type->addItem("Hydrax"); //It's working good enough to be here now. 
+		m_shadow_type->addItem("Parallel-split Shadow Maps");
 	}
 
 	if (BSETTING("DevMode", false) && !IsLoaded)
 	{
 		//Things that aren't ready to be used yet.
 		m_sky_type->addItem("SkyX (best looking, slower)");
-		m_shadow_type->addItem("Parallel-split Shadow Maps");
+	
 	}
 
 	//Sky effects
@@ -396,9 +397,9 @@ void CLASS::UpdateControls()
 
 	//Shadow technique
 	Ogre::String shadowtype = GameSettingsMap["Shadow technique"];
-	if (shadowtype == "Texture shadows")
+	if (shadowtype == "Texture shadows)")
 		m_shadow_type->setIndexSelected(1);
-	else if (shadowtype == "Parallel-split Shadow Maps" && BSETTING("DevMode", false))
+	else if (shadowtype == "Parallel-split Shadow Maps")
 		m_shadow_type->setIndexSelected(2);
 	else
 		m_shadow_type->setIndexSelected(0);
@@ -1166,6 +1167,7 @@ void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 		isFrameActivated = true;
 
 		m_key_mapping_window_info->setCaptionWithReplacing("");
+		mMainWidget->setEnabledSilent(true);
 
 		str_text = "";
 }

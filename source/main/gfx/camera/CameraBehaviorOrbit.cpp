@@ -139,9 +139,9 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	if ( ctx.mCurrTruck )
 	{
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
-			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->ttdt;
+			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->oldframe_global_dt;
 		else
-			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->tdt;
+			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->global_dt;
 	}
 
 	Vector3 camPosition = (1.0f / (camRatio + 1.0f)) * desiredPosition + (camRatio / (camRatio + 1.0f)) * precedingPosition;
