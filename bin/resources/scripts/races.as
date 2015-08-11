@@ -1,36 +1,32 @@
-/*
-Hi,
-
-You've found your way to the race system of Rigs of Rods.
-
-If you are looking for more information on how to use this
-class or what arguments should be given to certain functions,
-please visit http://docs.rigsofrods.com/
-
-If you are looking for examples on how to use this class,
-please look at the scripting files of other terrains or
-search the forum.
-
-If you have questions that cannot be answerred using the
-methods mentioned above, then please ask your question in
-the scripting section of the Rigs of Rods forum:
-http://www.rigsofrods.com/forums/167-Scripting
-
-This class was designed to be as simple as possible for
-normal users, while being as flexible as possible for
-advanced users.
-If you're here because this class doesn't provide the
-functionality that you need for your terrain, then try
-to improve the class and submit your additions using
-the issue tracker of Rigs of Rods.
-http://redmine.rigsofrods.com
-
-Don't forget to increase the version numbers after every
-edit! (racesManager::raceManagerVersion and
-raceBuilder::raceBuilderVersion)
-
--- neorej16
-*/
+// Hi,
+// 
+// You've found your way to the race system of Rigs of Rods.
+// 
+// If you are looking for more information on how to use this
+// class or what arguments should be given to certain functions,
+// please visit https://rigsofrods.github.io/en/docs/
+// 
+// If you are looking for examples on how to use this class,
+// please look at the scripting files of other terrains or
+// search the forum.
+// 
+// If you have questions that cannot be answerred using the
+// methods mentioned above, then please ask your question in
+// the scripting section of the Rigs of Rods forum:
+// http://www.rigsofrods.com/forums/167-Scripting
+// 
+// This class was designed to be as simple as possible for
+// normal users, while being as flexible as possible for
+// advanced users.
+// If you're here because this class doesn't provide the
+// functionality that you need for your terrain, then try
+// to improve the class and submit your additions using
+// the issue tracker of Rigs of Rods.
+// http://github.com/RigsOfRods/rigs-of-rods/issues
+// 
+// Don't forget to increase the version numbers after every
+// edit! (racesManager::raceManagerVersion and
+// raceBuilder::raceBuilderVersion)
 
 // Define a function signature for the callback pointers
 funcdef void RACE_EVENT_CALLBACK(dictionary@);

@@ -44,7 +44,7 @@ e.g. screenshot of graphical glitch
 
 ### Setup
 * Fork, then clone the repository
-* Set up your development environment, help may be found [here][compile]
+* Set up your development environment, help may be found [here][docindex]
 * Make sure Rigs of Rods runs properly before doing any changes
 
 ### Applying changes
@@ -60,11 +60,12 @@ e.g. screenshot of graphical glitch
 * At this point you're waiting on us. We may suggest changes, improvements or alternatives
 
 #### Additional links:
+* [Documentation index][docindex]
 * [Developer Wiki Portal][devwiki]
 * [Doxygen documentation][doxy]
 
-[compile]: http://www.rigsofrods.com/wiki/pages/Compiling_Sources
-[style]: http://www.rigsofrods.com/wiki/pages/Coding_style
-[commit]: http://www.rigsofrods.com/wiki/pages/Commit_style
+[docindex]: https://rigsofrods.github.io/en/docs
+[style]: https://rigsofrods.github.io/en/docs/coding-style
+[commit]: https://rigsofrods.github.io/en/docs/commit-style
 [devwiki]: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
 [doxy]: http://ror.ezzg.be/docs/

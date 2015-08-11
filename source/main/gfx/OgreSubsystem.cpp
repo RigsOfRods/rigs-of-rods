@@ -154,7 +154,7 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
 	} 
 	catch(Ogre::Exception& e)
 	{
-		Ogre::String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
+		Ogre::String url = "https://rigsofrods.github.io/en/docs/errors/index.html#" + TOSTRING(e.getNumber());
 		ErrorUtils::ShowOgreWebError(_L("A fatal exception has occured!"), ANSI_TO_UTF(e.getFullDescription()), ANSI_TO_UTF(url));
 		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(1);

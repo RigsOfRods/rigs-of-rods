@@ -1,5 +1,5 @@
 # Building instructions
-Please refer to http://www.rigsofrods.com/wiki/pages/Compiling_Sources
+Please refer to https://rigsofrods.github.io/en/docs/index.html
 
 ## CMake options
 ##### Rigs of Rods core:  
