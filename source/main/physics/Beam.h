@@ -471,8 +471,8 @@ public:
 	int getLowestNode();
 	void preMapLabelRenderUpdate(bool mode, float cheight=0);
 	
-	float tdt;
-	float ttdt;
+	float global_dt;
+	float oldframe_global_dt;
 	bool simulated;
 	int airbrakeval;
 	Ogre::Vector3 cameranodeacc;
