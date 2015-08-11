@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 	} 
 	catch (Ogre::Exception& e)
 	{
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
+		String url = "https://rigsofrods.github.io/en/docs/errors/index.html#" + TOSTRING(e.getNumber());
 		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
 	}
 	catch (std::runtime_error& e)
