@@ -287,7 +287,9 @@ void TerrainGeometryManager::configureTerrainDefaults()
 	terrainOptions->setCompositeMapDistance(m_terrain_config.GetInt("CompositeMapDistance", 4000));
 	terrainOptions->setSkirtSize(m_terrain_config.GetInt("SkirtSize", 30));
 	terrainOptions->setLightMapSize(m_terrain_config.GetInt("LightMapSize", 1024));
-	terrainOptions->setCastsDynamicShadows(m_terrain_config.GetBool("CastsDynamicShadows", false));
+
+	if (matProfile->getReceiveDynamicShadowsPSSM())
+		terrainOptions->setCastsDynamicShadows(true);
 
 	terrainOptions->setUseRayBoxDistanceCalculation(false);
 
