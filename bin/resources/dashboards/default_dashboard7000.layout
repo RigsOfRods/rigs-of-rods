@@ -80,7 +80,7 @@
                 <UserString key="link" value="engine_clutch_warning"/>
                 <UserString key="texture" value="clutch_v2"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="67 206 35 35" name="lightsBattery">
+            <Widget type="ImageBox" skin="ImageBox" position="67 209 35 35" name="lightsBattery">
                 <Property key="ImageTexture" value="batt_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="batt_v2"/>
