@@ -515,10 +515,10 @@ static int libirc_new_dcc_session (irc_session_t * session, unsigned long ip, un
 	dcc->dccsend_file_fp = 0;
 
 	if ( libirc_mutex_init (&dcc->mutex_outbuf) )
-		goto cleanup_exit_error;
+		return cleanup_exit_error(dcc);
 
 	if ( socket_create (PF_INET, SOCK_STREAM, &dcc->sock) )
-		goto cleanup_exit_error;
+		return cleanup_exit_error(dcc);
 
 	if ( !ip )
 	{
@@ -533,10 +533,10 @@ static int libirc_new_dcc_session (irc_session_t * session, unsigned long ip, un
         saddr.sin_port = htons (0);
 
 		if ( bind (dcc->sock, (struct sockaddr *) &saddr, sizeof(saddr)) < 0 )
-			goto cleanup_exit_error;
+			return cleanup_exit_error(dcc);
 
 		if ( listen (dcc->sock, 5) < 0 )
-			goto cleanup_exit_error;
+			return cleanup_exit_error(dcc);
 
 		dcc->state = LIBIRC_STATE_LISTENING;
 	}
@@ -544,7 +544,7 @@ static int libirc_new_dcc_session (irc_session_t * session, unsigned long ip, un
 	{
 		// make socket non-blocking, so connect() call won't block
 		if ( socket_make_nonblocking (&dcc->sock) )
-			goto cleanup_exit_error;
+			return cleanup_exit_error(dcc);
 
 		memset (&dcc->remote_addr, 0, sizeof(dcc->remote_addr));
 		dcc->remote_addr.sin_family = AF_INET;
@@ -569,10 +569,12 @@ static int libirc_new_dcc_session (irc_session_t * session, unsigned long ip, un
 
     *pdcc = dcc;
     return 0;
+}
 
-cleanup_exit_error:
-	if ( dcc->sock >= 0 )
-		socket_close (&dcc->sock);
+static int cleanup_exit_error(dcc) {
+	if (dcc->sock >= 0) {
+		socket_close(&dcc->sock);
+	}
 
 	free (dcc);
 	return LIBIRC_ERR_SOCKET;
