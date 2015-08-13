@@ -1,89 +1,85 @@
-material runwayheading09
+import * from "managed_mats.material"
+
+material runwayheading09: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-		depth_bias 2 [2]
-			texture_unit
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading90.dds
 			}
 		}
 	}
 }
-material runwaytouchdown
+material runwaytouchdown: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytouchdown.dds
 			}
 		}
 	}
 }
-material runwaythreshold
+material runwaythreshold: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaythreshold.dds
 			}
 		}
 	}
 }
-material runwaybase
+material runwaybase: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaybase.dds
 			}
 		}
 	}
 }
-material runwayfixeddistance
+material runwayfixeddistance: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayfixeddistance.dds
 			}
 		}
 	}
 }
-material runwayedge
+material runwayedge: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture runwayedge2.dds
 				tex_address_mode wrap
@@ -92,15 +88,14 @@ material runwayedge
 		}
 	}
 }
-material runwayblastpad
+material runwayblastpad: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayblastpad.dds
 				tex_address_mode wrap
@@ -110,15 +105,14 @@ material runwayblastpad
 		}
 	}
 }
-material runwaytaxient1
+material runwaytaxient1: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance1.dds
 				tex_address_mode wrap
@@ -127,15 +121,14 @@ material runwaytaxient1
 		}
 	}
 }
-material runwaydispthresh
+material runwaydispthresh: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaydisplacedthreshold.dds
 				tex_address_mode wrap
@@ -144,17 +137,16 @@ material runwaydispthresh
 		}
 	}
 }
-material taxiwayedge
+material taxiwayedge: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture taxiwayedge.dds
 				tex_address_mode wrap
@@ -163,30 +155,28 @@ material taxiwayedge
 		}
 	}
 }
-material taxiwaylines
+material taxiwaylines: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture taxiwaylines.dds
 			}
 		}
 	}
 }
-material taxiwayconcrete
+material taxiwayconcrete: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture taxiwaybase.dds
 				tex_address_mode wrap
@@ -195,15 +185,14 @@ material taxiwayconcrete
 		}
 	}
 }
-material taxiway
+material taxiway: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture taxiwaybase.dds
 				tex_address_mode wrap
@@ -212,17 +201,16 @@ material taxiway
 		}
 	}
 }
-material runwaytaxiwaycross1
+material runwaytaxiwaycross1: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance4.dds
 				tex_address_mode wrap
@@ -231,17 +219,16 @@ material runwaytaxiwaycross1
 		}
 	}
 }
-material runwaytaxiwaytee1
+material runwaytaxiwaytee1: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance3.dds
 				tex_address_mode wrap
@@ -250,17 +237,16 @@ material runwaytaxiwaytee1
 		}
 	}
 }
-material rapidexit1
+material rapidexit1: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance5.dds
 				tex_address_mode wrap
@@ -269,17 +255,16 @@ material rapidexit1
 		}
 	}
 }
-material rapidexit2
+material rapidexit2: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance7.dds
 				tex_address_mode wrap
@@ -288,17 +273,16 @@ material rapidexit2
 		}
 	}
 }
-material rapidexit3
+material rapidexit3: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance6.dds
 				tex_address_mode wrap
@@ -307,17 +291,16 @@ material rapidexit3
 		}
 	}
 }
-material runwaytaxient3
+material runwaytaxient3: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance13.dds
 				tex_address_mode wrap
@@ -326,17 +309,16 @@ material runwaytaxient3
 		}
 	}
 }
-material runwaytaxiwaycross2
+material runwaytaxiwaycross2: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance12.dds
 				tex_address_mode wrap
@@ -345,17 +327,16 @@ material runwaytaxiwaycross2
 		}
 	}
 }
-material runwaytaxiwaytee2
+material runwaytaxiwaytee2: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance11.dds
 				tex_address_mode wrap
@@ -364,17 +345,16 @@ material runwaytaxiwaytee2
 		}
 	}
 }
-material rapidexit4
+material rapidexit4: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]	
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance8.dds
 				tex_address_mode wrap
@@ -383,17 +363,16 @@ material rapidexit4
 		}
 	}
 }
-material rapidexit5
+material rapidexit5: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]	
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance10.dds
 				tex_address_mode wrap
@@ -402,17 +381,16 @@ material rapidexit5
 		}
 	}
 }
-material rapidexit6
+material rapidexit6: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]	
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance9.dds
 				tex_address_mode wrap
@@ -421,17 +399,16 @@ material rapidexit6
 		}
 	}
 }
-material runwaytaxient4
+material runwaytaxient4: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance2.dds
 				tex_address_mode wrap
@@ -440,17 +417,16 @@ material runwaytaxient4
 		}
 	}
 }
-material runwaytaxitee3
+material runwaytaxitee3: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]	
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance17.dds
 				tex_address_mode wrap
@@ -459,17 +435,16 @@ material runwaytaxitee3
 		}
 	}
 }
-material rapidexit7
+material rapidexit7: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]	
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance14.dds
 				tex_address_mode wrap
@@ -478,17 +453,16 @@ material rapidexit7
 		}
 	}
 }
-material rapidexit8
+material rapidexit8: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance16.dds
 				tex_address_mode wrap
@@ -497,17 +471,16 @@ material rapidexit8
 		}
 	}
 }
-material rapidexit9
+material rapidexit9: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance15.dds
 				tex_address_mode wrap
@@ -516,17 +489,16 @@ material rapidexit9
 		}
 	}
 }
-material runwaytaxitee3.001
+material runwaytaxitee3.001: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			alpha_rejection greater 0
 			alpha_to_coverage on
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwaytaxiwayentrance18.dds
 				tex_address_mode wrap
@@ -535,14 +507,13 @@ material runwaytaxitee3.001
 		}
 	}
 }
-material airportgrass
+material airportgrass: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture airportgrass.dds
 				tex_address_mode wrap
@@ -551,15 +522,14 @@ material airportgrass
 		}
 	}
 }
-material runwayheading05
+material runwayheading05: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading05.dds
 				tex_address_mode wrap
@@ -568,15 +538,14 @@ material runwayheading05
 		}
 	}
 }
-material runwayheading23
+material runwayheading23: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading23.dds
 				tex_address_mode wrap
@@ -585,15 +554,14 @@ material runwayheading23
 		}
 	}
 }
-material runwayheading27
+material runwayheading27: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading27.dds
 				tex_address_mode wrap
@@ -602,15 +570,14 @@ material runwayheading27
 		}
 	}
 }
-material runwayheading36
+material runwayheading36: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading36.dds
 				tex_address_mode wrap
@@ -619,15 +586,14 @@ material runwayheading36
 		}
 	}
 }
-material runwayheading18
+material runwayheading18: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading18.dds
 				tex_address_mode wrap
@@ -636,15 +602,14 @@ material runwayheading18
 		}
 	}
 }
-material runwayheading03
+material runwayheading03: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading03.dds
 				tex_address_mode wrap
@@ -653,15 +618,14 @@ material runwayheading03
 		}
 	}
 }
-material runwayheading21
+material runwayheading21: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading21.dds
 				tex_address_mode wrap
@@ -670,15 +634,14 @@ material runwayheading21
 		}
 	}
 }
-material runwayheading29
+material runwayheading29: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading29.dds
 				tex_address_mode wrap
@@ -687,15 +650,14 @@ material runwayheading29
 		}
 	}
 }
-material runwayheading11
+material runwayheading11: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture Runwayheading11.dds
 				tex_address_mode wrap
