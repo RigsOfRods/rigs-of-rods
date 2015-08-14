@@ -67,18 +67,9 @@ material tracks/bigsign/town
 }
 
 
-material chp
+material chp: RoR/Managed_Mats/Base
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture chp.dds
-			}
-		}
-	}
+	set_texture_alias diffuse_tex chp.dds
 }
 
 
@@ -2327,34 +2318,42 @@ material tracks/PlayerColours/30
 		}
 	}
 }
+
 material asphalt: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex asphalt.dds
 }
+
 material roadcross: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex roadcross.dds
 }
+
 material roadtee: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex roadtee.dds
 }
+
 material road: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex road.dds
 }
+
 material roadturn: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex roadturn.dds
 }
+
 material roadbf: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex road.dds
 }
+
 material runway: RoR/Managed_Mats/Base
 {
 	set_texture_alias diffuse_tex runway.dds
 }
+
 material sign-nhelens
 {
 	technique
@@ -2517,18 +2516,9 @@ material renderdash
 	}
 }
 
-material road2
+material road2: RoR/Managed_Mats/Base
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture road2.dds
-			}
-		}
-	}
+	set_texture_alias diffuse_tex road2.dds
 }
 
 
