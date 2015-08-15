@@ -8,7 +8,7 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 
 #### Trailer:
 
-[![Rigs of Rods Trailer](http://img.youtube.com/vi/3A6OHnAD_Pc/0.jpg)](http://www.youtube.com/watch?v=3A6OHnAD_Pc)
+[![Rigs of Rods Trailer](http://img.youtube.com/vi/bRbQ4OaljWs/0.jpg)](http://www.youtube.com/watch?v=bRbQ4OaljWs)
 
 ## Supported platforms:
 * Windows
