@@ -131,6 +131,6 @@ void CameraBehaviorFree::activate(const CameraManager::CameraContext &ctx, bool 
 {
 #ifdef USE_MYGUI
 	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
-	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Free camera") + Ogre::String(""));
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
 #endif // USE_MYGUI
 }

@@ -804,7 +804,7 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 #ifdef USE_MYGUI
 	Console *con = RoR::Application::GetConsole();
 	if (con) con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
-	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("using Online API...") + TOSTRING(""));
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("using Online API..."));
 #endif // USE_MYGUI
 
 	// fix the String objects in the dict

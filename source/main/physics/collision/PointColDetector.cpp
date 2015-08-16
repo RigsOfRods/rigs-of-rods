@@ -23,6 +23,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Beam.h"
 #include "BeamFactory.h"
 
+#ifdef WIN32
+//should be more for VS only not windows
+double log2(double n)
+{
+	// log(n)/log(2) is log2.  
+	return log(n) / log(2.f);
+}
+#endif
+
 using namespace Ogre;
 
 PointColDetector::PointColDetector(std::vector < Vector3 > &o_list) : object_list(&o_list) {
@@ -127,7 +136,7 @@ void PointColDetector::update_structures() {
 		exp_factor = 0;
 	}
 
-	kdtree.resize(pow((float) 2, exp_factor), kdelem);
+	kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
 void PointColDetector::update_structures_for_contacters(Beam* truck) {
@@ -158,7 +167,7 @@ void PointColDetector::update_structures_for_contacters(Beam* truck) {
 		exp_factor = 0;
 	}
 
-	kdtree.resize(pow((float) 2, exp_factor), kdelem);
+	kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
 void PointColDetector::update_structures_for_contacters(Beam** trucks, const int numtrucks) {
@@ -193,7 +202,7 @@ void PointColDetector::update_structures_for_contacters(Beam** trucks, const int
 		exp_factor = 0;
 	}
 
-	kdtree.resize(pow((float) 2, exp_factor), kdelem);
+	kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
 void PointColDetector::querybb(const Vector3 &bmin, const Vector3 &bmax) {
