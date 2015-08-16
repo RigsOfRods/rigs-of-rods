@@ -186,12 +186,13 @@ void GUIManager::framestep(float dt)
 		m_gui_SimUtils->framestep(dt);
 };
 
-void GUIManager::PushNotification(String Title, String text)
+void GUIManager::PushNotification(String Title, UTFString text)
 {
 	if (!m_gui_SimUtils) return;
 
 	m_gui_SimUtils->PushNotification(Title, text);
 }
+
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
 {
 	int width = (int)rw->getWidth();

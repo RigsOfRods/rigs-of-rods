@@ -36,6 +36,6 @@ void CameraBehaviorIsometric::activate(const CameraManager::CameraContext &ctx, 
 		"camera_link.png", 
 		3000
 	);
-	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("fixed free camera") + TOSTRING(""));
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("fixed free camera"));
 #endif // USE_MYGUI
 }
