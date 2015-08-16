@@ -105,12 +105,16 @@ void CLASS::initMisc()
 	//Current Project devs:
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
-	AuthorsText = AuthorsText + color1 + "Petr Ohlídal (only_a_ptr):" + white + " Core Developer, active" + newline;
+	AuthorsText = AuthorsText + color1 + "Petr Ohlidal (only_a_ptr):" + white + " Core Developer, active" + newline;
 	AuthorsText = AuthorsText + color1 + "Niklas Kersten (Hiradur):" + white + " Linux fixes, few tweaks, active" + newline;
 	AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul, active" + newline;
 	AuthorsText = AuthorsText + color1 + "Artem Vorotnikov (skybon):" + white + " Web services, fixes, utilities, active" + newline;
 
-	
+	//Server Contributors
+	AuthorsText = AuthorsText + newline;
+	AuthorsText = AuthorsText + orange + "Server Contributors:" + newline;
+	AuthorsText = AuthorsText + color1 + "CProgrammer3088:" + white + " Provides us with a server to host updater's files." + newline;
+
 	//Code Contributors:
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Code Contributors:" + newline;

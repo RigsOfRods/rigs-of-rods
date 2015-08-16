@@ -106,9 +106,8 @@ void ShadowManager::processPSSM()
 {
 	gEnv->sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
 
-	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(1500.0f);
-	gEnv->sceneManager->setShadowFarDistance(500.0f);
-	//gEnv->sceneManager->setShadowDirLightTextureOffset(0.7f);
+	gEnv->sceneManager->setShadowDirectionalLightExtrusionDistance(299.0f);
+	gEnv->sceneManager->setShadowFarDistance(350.0f);
 	gEnv->sceneManager->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, PSSM_Shadows.ShadowsTextureNum);
 	gEnv->sceneManager->setShadowTextureCount(PSSM_Shadows.ShadowsTextureNum);
 
@@ -124,28 +123,28 @@ void ShadowManager::processPSSM()
 		gEnv->sceneManager->setShadowTextureConfig(0, 4096, 4096, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(1, 3072, 3072, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
-		PSSM_Shadows.lambda = 0.91f;
+		PSSM_Shadows.lambda = 0.965f;
 	}
 	else if (PSSM_Shadows.Quality == 2)
 	{
 		gEnv->sceneManager->setShadowTextureConfig(0, 3072, 3072, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(1, 2048, 2048, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(2, 2048, 2048, PF_FLOAT32_R);
-		PSSM_Shadows.lambda = 0.92f;
+		PSSM_Shadows.lambda = 0.97f;
 	}
 	else if(PSSM_Shadows.Quality == 1)
 	{
 		gEnv->sceneManager->setShadowTextureConfig(0, 2048, 2048, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(2, 1024, 1024, PF_FLOAT32_R);
-		PSSM_Shadows.lambda = 0.92f;
+		PSSM_Shadows.lambda = 0.975f;
 	}
 	else 
 	{
 		gEnv->sceneManager->setShadowTextureConfig(0, 1024, 1024, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(1, 1024, 1024, PF_FLOAT32_R);
 		gEnv->sceneManager->setShadowTextureConfig(2,  512,  512, PF_FLOAT32_R);
-		PSSM_Shadows.lambda = 0.92f;
+		PSSM_Shadows.lambda = 0.98f;
 	}
 
 	if (PSSM_Shadows.mPSSMSetup.isNull())
