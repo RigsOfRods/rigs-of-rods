@@ -50,8 +50,8 @@ public:
 	void querybb(const Ogre::Vector3 &bmin, const Ogre::Vector3 &bmax);
 	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, float enlargeBB=0.0f);
 	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const float enlargeBB=0.0f);
-	inline void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
-	inline void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const float enlargeBB=0.0f);
+	void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
+	void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const float enlargeBB=0.0f);
 
 private:
 
@@ -70,12 +70,12 @@ private:
 	} kdnode_t;
 
 	int object_list_size;
-	refelem_t *ref_list;
-	pointid_t *pointid_list;
+	std::vector< refelem_t > ref_list;
+	std::vector< pointid_t > pointid_list;
 	std::vector< kdnode_t > kdtree;
 	Ogre::Vector3 bbmin;
 	Ogre::Vector3 bbmax;
-	inline void queryrec(int kdindex, int axis);
+	void queryrec(int kdindex, int axis);
 	void build_kdtree(int begin, int end, int axis, int index);
 	void build_kdtree_incr(int axis, int index);
 	void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
