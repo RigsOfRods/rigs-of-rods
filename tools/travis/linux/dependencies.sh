@@ -26,10 +26,10 @@ make -s -j2
 sudo make -s install
 cd ..
 
-#MyGUI (needs specific revision)
-wget -O mygui.zip https://github.com/MyGUI/mygui/archive/a790944c344c686805d074d7fc1d7fc13df98c37.zip
-unzip -qq mygui.zip
-rm mygui.zip
+#MyGUI
+wget -O mygui.tar.gz https://github.com/MyGUI/mygui/archive/MyGUI3.2.2.tar.gz
+tar -xvf mygui.tar.gz
+rm mygui.tar.gz
 cd mygui-*
 cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DCMAKE_BUILD_TYPE:STRING=Release \
