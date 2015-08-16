@@ -777,7 +777,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					{
 #ifdef USE_MYGUI
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
-						RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("No rescue truck found!") + TOSTRING(""));
+						RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("No rescue truck found!"));
 #endif // USE_MYGUI
 					}
 				}
@@ -1528,7 +1528,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 				{
 #ifdef USE_MYGUI
 					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
-					RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first") + TOSTRING(""));
+					RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
 #endif // USE_MYGUI
 					gEnv->collisions->clearEventCache();
 					return;
