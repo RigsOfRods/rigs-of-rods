@@ -1,12 +1,13 @@
-material trafficlightsequence2
+import * from "managed_mats.material"
+
+material trafficlightsequence2: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
 			depth_bias 2 [2]
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				anim_texture signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds signalgreen.dds signalgreen.dds signalgreen.dds signalamber.dds 40
 				tex_address_mode wrap
@@ -16,14 +17,13 @@ material trafficlightsequence2
 		}
 	}
 }
-material trafficlightmain
+material trafficlightmain: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture trafficlightsdiffuse.dds
 				tex_address_mode wrap
@@ -33,12 +33,11 @@ material trafficlightmain
 		}
 	}
 }
-material trafficlightsequence1
+material trafficlightsequence1: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender Diffuse_Map
 		{
 			depth_bias 2 [2]
 			texture_unit
