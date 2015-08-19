@@ -2,5 +2,6 @@
 1,1,1
 beginmesh
 mesh 40mfixeddistance.mesh
+stdfriction asphalt
 endmesh
 end

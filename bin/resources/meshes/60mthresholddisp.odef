@@ -2,5 +2,6 @@
 1,1,1
 beginmesh
 mesh 60mthresholddisp.mesh
+stdfriction asphalt
 endmesh
 end

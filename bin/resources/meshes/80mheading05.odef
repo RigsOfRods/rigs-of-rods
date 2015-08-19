@@ -2,5 +2,6 @@
 1,1,1
 beginmesh
 mesh 80mheading05.mesh
+stdfriction asphalt
 endmesh
 end
