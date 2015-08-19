@@ -1,14 +1,12 @@
-material levelcrossingmedium
+import * from "managed_mats.material"
+
+material levelcrossingmedium: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture levelcrossingmedium.dds
 				tex_address_mode wrap
@@ -18,17 +16,13 @@ material levelcrossingmedium
 		}
 	}
 }
-material sign-slippery
+material sign-slippery: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-slippery.dds
 				tex_address_mode wrap
@@ -38,17 +32,13 @@ material sign-slippery
 		}
 	}
 }
-material sign-rocks
+material sign-rocks: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-rocks.dds
 				tex_address_mode wrap
@@ -58,17 +48,13 @@ material sign-rocks
 		}
 	}
 }
-material sign-autostrasse
+material sign-autostrasse: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-autostasse.dds
 				tex_address_mode wrap
@@ -78,17 +64,13 @@ material sign-autostrasse
 		}
 	}
 }
-material sign-maxspeed50
+material sign-maxspeed50: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed50.dds
 				tex_address_mode wrap
@@ -98,17 +80,13 @@ material sign-maxspeed50
 		}
 	}
 }
-material sign-bluebuslane
+material sign-bluebuslane: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-bluebuslanes.dds
 				tex_address_mode wrap
@@ -118,17 +96,13 @@ material sign-bluebuslane
 		}
 	}
 }
-material signcircle
+material signcircle: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture circlediffuse.dds
 				tex_address_mode wrap
@@ -138,17 +112,13 @@ material signcircle
 		}
 	}
 }
-material sign-parkingzoneend
+material sign-parkingzoneend: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-parkingzoneend.dds
 				tex_address_mode wrap
@@ -158,17 +128,13 @@ material sign-parkingzoneend
 		}
 	}
 }
-material sign-novehicles
+material sign-novehicles: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-novehicles.dds
 				tex_address_mode wrap
@@ -178,17 +144,13 @@ material sign-novehicles
 		}
 	}
 }
-material sign-nohazmat
+material sign-nohazmat: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-nohazmat.dds
 				tex_address_mode wrap
@@ -198,17 +160,13 @@ material sign-nohazmat
 		}
 	}
 }
-material sign-Scurveright
+material sign-Scurveright: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-Scurveright.dds
 				tex_address_mode wrap
@@ -218,17 +176,13 @@ material sign-Scurveright
 		}
 	}
 }
-material sign-rightturn
+material sign-rightturn: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-rightturn.dds
 				tex_address_mode wrap
@@ -238,17 +192,13 @@ material sign-rightturn
 		}
 	}
 }
-material sign-maxspeed110
+material sign-maxspeed110: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed110.dds
 				tex_address_mode wrap
@@ -258,17 +208,13 @@ material sign-maxspeed110
 		}
 	}
 }
-material sign-maxspeed80
+material sign-maxspeed80: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed80.dds
 				tex_address_mode wrap
@@ -278,17 +224,13 @@ material sign-maxspeed80
 		}
 	}
 }
-material sign-pulloff
+material sign-pulloff: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-pulloff.dds
 				tex_address_mode wrap
@@ -298,17 +240,13 @@ material sign-pulloff
 		}
 	}
 }
-material levelcrossingnear
+material levelcrossingnear: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture levelcrossingnear.dds
 				tex_address_mode wrap
@@ -318,17 +256,13 @@ material levelcrossingnear
 		}
 	}
 }
-material sign-trafficlight
+material sign-trafficlight: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-trafficlight.dds
 				tex_address_mode wrap
@@ -338,17 +272,13 @@ material sign-trafficlight
 		}
 	}
 }
-material sign-maxspeed130
+material sign-maxspeed130: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed130.dds
 				tex_address_mode wrap
@@ -358,17 +288,13 @@ material sign-maxspeed130
 		}
 	}
 }
-material sign-roadnarrowsright
+material sign-roadnarrowsright: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-roadnarrowsright.dds
 				tex_address_mode wrap
@@ -378,17 +304,13 @@ material sign-roadnarrowsright
 		}
 	}
 }
-material sign-roadnarrowsleft
+material sign-roadnarrowsleft: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-roadnarrowsleft.dds
 				tex_address_mode wrap
@@ -398,17 +320,13 @@ material sign-roadnarrowsleft
 		}
 	}
 }
-material sign-blueYright
+material sign-blueYright: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-blueYright.dds
 				tex_address_mode wrap
@@ -418,17 +336,13 @@ material sign-blueYright
 		}
 	}
 }
-material sign-nocars
+material sign-nocars: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-nocars.dds
 				tex_address_mode wrap
@@ -438,17 +352,13 @@ material sign-nocars
 		}
 	}
 }
-material sign-bump
+material sign-bump: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-bump.dds
 				tex_address_mode wrap
@@ -458,17 +368,13 @@ material sign-bump
 		}
 	}
 }
-material sign-maxspeed20
+material sign-maxspeed20: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed20.dds
 				tex_address_mode wrap
@@ -478,17 +384,13 @@ material sign-maxspeed20
 		}
 	}
 }
-material sign-hospital
+material sign-hospital: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-hospital.dds
 				tex_address_mode wrap
@@ -498,17 +400,13 @@ material sign-hospital
 		}
 	}
 }
-material sign-leftturn
+material sign-leftturn: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-leftturn.dds
 				tex_address_mode wrap
@@ -518,17 +416,13 @@ material sign-leftturn
 		}
 	}
 }
-material sign-noparking
+material sign-noparking: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-noparking.dds
 				tex_address_mode wrap
@@ -538,17 +432,13 @@ material sign-noparking
 		}
 	}
 }
-material sign-nopedestrians
+material sign-nopedestrians: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-nopedestrians.dds
 				tex_address_mode wrap
@@ -558,17 +448,13 @@ material sign-nopedestrians
 		}
 	}
 }
-material sign-twowaytraffic
+material sign-twowaytraffic: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-twowaytraffic.dds
 				tex_address_mode wrap
@@ -578,17 +464,13 @@ material sign-twowaytraffic
 		}
 	}
 }
-material sign-blueleftturn
+material sign-blueleftturn: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-blueleftturn.dds
 				tex_address_mode wrap
@@ -598,17 +480,13 @@ material sign-blueleftturn
 		}
 	}
 }
-material sign-noentry
+material sign-noentry: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-noentry.dds
 				tex_address_mode wrap
@@ -618,17 +496,13 @@ material sign-noentry
 		}
 	}
 }
-material sign-railway
+material sign-railway: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-railway.dds
 				tex_address_mode wrap
@@ -638,17 +512,13 @@ material sign-railway
 		}
 	}
 }
-material sign-maxspeed60
+material sign-maxspeed60: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed60.dds
 				tex_address_mode wrap
@@ -658,17 +528,13 @@ material sign-maxspeed60
 		}
 	}
 }
-material levelcrossingdistant
+material levelcrossingdistant: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture levelcrossingdistant.dds
 				tex_address_mode wrap
@@ -678,17 +544,13 @@ material levelcrossingdistant
 		}
 	}
 }
-material sign-parkingzones
+material sign-parkingzones: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-parkingzonestart.dds
 				tex_address_mode wrap
@@ -698,17 +560,13 @@ material sign-parkingzones
 		}
 	}
 }
-material sign-autostrasseend
+material sign-autostrasseend: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-autostasseend.dds
 				tex_address_mode wrap
@@ -718,17 +576,13 @@ material sign-autostrasseend
 		}
 	}
 }
-material sign-maxspeed40
+material sign-maxspeed40: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed40.dds
 				tex_address_mode wrap
@@ -738,17 +592,13 @@ material sign-maxspeed40
 		}
 	}
 }
-material sign-crosswinds
+material sign-crosswinds: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-crosswinds.dds
 				tex_address_mode wrap
@@ -758,17 +608,13 @@ material sign-crosswinds
 		}
 	}
 }
-material sign-blueYleft
+material sign-blueYleft: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-blueYleft.dds
 				tex_address_mode wrap
@@ -778,17 +624,13 @@ material sign-blueYleft
 		}
 	}
 }
-material sign-protectedrailway
+material sign-protectedrailway: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-protectedrailway.dds
 				tex_address_mode wrap
@@ -798,17 +640,13 @@ material sign-protectedrailway
 		}
 	}
 }
-material sign-derestriction
+material sign-derestriction: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-derestriction.dds
 				tex_address_mode wrap
@@ -818,17 +656,13 @@ material sign-derestriction
 		}
 	}
 }
-material sign-rightpriority
+material sign-rightpriority: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-leftpriority.dds
 				tex_address_mode wrap
@@ -838,17 +672,13 @@ material sign-rightpriority
 		}
 	}
 }
-material sign-roadnarrows
+material sign-roadnarrows: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-roadnarrows.dds
 				tex_address_mode wrap
@@ -858,17 +688,13 @@ material sign-roadnarrows
 		}
 	}
 }
-material sign-Scurveleft
+material sign-Scurveleft: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-Scurveleft.dds
 				tex_address_mode wrap
@@ -878,17 +704,13 @@ material sign-Scurveleft
 		}
 	}
 }
-material sign-autobahn
+material sign-autobahn: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-autobahn.dds
 				tex_address_mode wrap
@@ -898,17 +720,13 @@ material sign-autobahn
 		}
 	}
 }
-material sign-autobahnend
+material sign-autobahnend: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-autobahnend.dds
 				tex_address_mode wrap
@@ -918,17 +736,13 @@ material sign-autobahnend
 		}
 	}
 }
-material sign-menatwork
+material sign-menatwork: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-menatwork.dds
 				tex_address_mode wrap
@@ -938,17 +752,13 @@ material sign-menatwork
 		}
 	}
 }
-material sign-stop
+material sign-stop: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map Diffuse_Map
 			{
 				texture sign-stop.dds
 				tex_address_mode wrap
@@ -958,17 +768,13 @@ material sign-stop
 		}
 	}
 }
-material sign-warning
+material sign-warning: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-warning.dds
 				tex_address_mode wrap
@@ -978,17 +784,13 @@ material sign-warning
 		}
 	}
 }
-material sign-priorityintersec
+material sign-priorityintersec: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-priorityintersectiondds.dds
 				tex_address_mode wrap
@@ -998,17 +800,13 @@ material sign-priorityintersec
 		}
 	}
 }
-material sign-maxspeed100
+material sign-maxspeed100: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed100.dds
 				tex_address_mode wrap
@@ -1018,17 +816,13 @@ material sign-maxspeed100
 		}
 	}
 }
-material sign-maxspeed120
+material sign-maxspeed120: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed120.dds
 				tex_address_mode wrap
@@ -1038,17 +832,13 @@ material sign-maxspeed120
 		}
 	}
 }
-material sign-maxspeed90
+material sign-maxspeed90: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed90.dds
 				tex_address_mode wrap
@@ -1058,17 +848,13 @@ material sign-maxspeed90
 		}
 	}
 }
-material sign-roundabout
+material sign-roundabout: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-roundabout.dds
 				tex_address_mode wrap
@@ -1078,17 +864,13 @@ material sign-roundabout
 		}
 	}
 }
-material sign-descent10
+material sign-descent10: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-descent10.dds
 				tex_address_mode wrap
@@ -1098,17 +880,13 @@ material sign-descent10
 		}
 	}
 }
-material sign-blueroundabout
+material sign-blueroundabout: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-blueroundabout.dds
 				tex_address_mode wrap
@@ -1118,17 +896,13 @@ material sign-blueroundabout
 		}
 	}
 }
-material sign-tunnel
+material sign-tunnel: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-tunnel.dds
 				tex_address_mode wrap
@@ -1138,17 +912,13 @@ material sign-tunnel
 		}
 	}
 }
-material sign-nostopping
+material sign-nostopping: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-nostopping.dds
 				tex_address_mode wrap
@@ -1158,17 +928,13 @@ material sign-nostopping
 		}
 	}
 }
-material sign-deer
+material sign-deer: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-deer.dds
 				tex_address_mode wrap
@@ -1178,17 +944,13 @@ material sign-deer
 		}
 	}
 }
-material sign-bluerightturn
+material sign-bluerightturn: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-bluerightturn.dds
 				tex_address_mode wrap
@@ -1198,17 +960,13 @@ material sign-bluerightturn
 		}
 	}
 }
-material sign-parking
+material sign-parking: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-parking.dds
 				tex_address_mode wrap
@@ -1218,17 +976,13 @@ material sign-parking
 		}
 	}
 }
-material sign-crossing
+material sign-crossing: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-crossing.dds
 				tex_address_mode wrap
@@ -1238,17 +992,13 @@ material sign-crossing
 		}
 	}
 }
-material sign-maxspeed30
+material sign-maxspeed30: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed30.dds
 				tex_address_mode wrap
@@ -1258,17 +1008,13 @@ material sign-maxspeed30
 		}
 	}
 }
-material sign-fall
+material sign-fall: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-fall.dds
 				tex_address_mode wrap
@@ -1278,17 +1024,13 @@ material sign-fall
 		}
 	}
 }
-material sign-crosswalk
+material sign-crosswalk: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-crosswalk.dds
 				tex_address_mode wrap
@@ -1298,17 +1040,13 @@ material sign-crosswalk
 		}
 	}
 }
-material sign-leftpriority
+material sign-leftpriority: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-rightpriority.dds
 				tex_address_mode wrap
@@ -1318,17 +1056,13 @@ material sign-leftpriority
 		}
 	}
 }
-material sign-maxspeed10
+material sign-maxspeed10: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed10.dds
 				tex_address_mode wrap
@@ -1338,17 +1072,13 @@ material sign-maxspeed10
 		}
 	}
 }
-material sign-bluearrow
+material sign-bluearrow: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-bluearrow.dds
 				tex_address_mode wrap
@@ -1358,17 +1088,13 @@ material sign-bluearrow
 		}
 	}
 }
-material sign-nouturn
+material sign-nouturn: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-nouturn.dds
 				tex_address_mode wrap
@@ -1378,17 +1104,13 @@ material sign-nouturn
 		}
 	}
 }
-material sign-maxspeed70
+material sign-maxspeed70: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-maxspeed70.dds
 				tex_address_mode wrap
@@ -1398,17 +1120,13 @@ material sign-maxspeed70
 		}
 	}
 }
-material sign-notrucks
+material sign-notrucks: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-notrucks.dds
 				tex_address_mode wrap
@@ -1418,17 +1136,13 @@ material sign-notrucks
 		}
 	}
 }
-material stopsign
+material stopsign: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture stopdiffuse.dds
 				tex_address_mode wrap
@@ -1438,17 +1152,13 @@ material stopsign
 		}
 	}
 }
-material signsquare
+material signsquare: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture squarediffuse.dds	
 				tex_address_mode wrap
@@ -1458,17 +1168,13 @@ material signsquare
 		}
 	}
 }
-material sign-yield
+material sign-yield: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-yield.dds
 				tex_address_mode wrap
@@ -1478,17 +1184,13 @@ material sign-yield
 		}
 	}
 }
-material signtriangle
+material signtriangle: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-						
-			
-			
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture trianglediffuse.dds
 				tex_address_mode wrap
@@ -1498,14 +1200,13 @@ material signtriangle
 		}
 	}
 }
-material sign-redstripes1
+material sign-redstripes1: RoR/Managed_Mats/Base
 {
-	receive_shadows on
-	technique
+	technique BaseTechnique
 	{
-		pass
+		pass BaseRender
 		{
-			texture_unit
+			texture_unit Diffuse_Map
 			{
 				texture sign-redstripes1.dds
 				tex_address_mode wrap
