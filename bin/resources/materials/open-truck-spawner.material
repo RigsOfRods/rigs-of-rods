@@ -1,0 +1,16 @@
+import * from "managed_mats.material"
+
+
+material open-truck-spawner: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture open-truck-spawner.dds
+			}
+		}
+	}
+}
