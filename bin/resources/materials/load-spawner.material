@@ -1,0 +1,16 @@
+import * from "managed_mats.material"
+
+
+material load-spawner: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture load-spawner.dds
+			}
+		}
+	}
+}
