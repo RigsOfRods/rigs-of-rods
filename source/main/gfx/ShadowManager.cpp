@@ -19,8 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "ShadowManager.h"
 
-#include "Ogre.h"
-#include "OgreTerrain.h"
+#include <Ogre.h>
+#include <OgreTerrain.h>
 
 #include "Settings.h"
 

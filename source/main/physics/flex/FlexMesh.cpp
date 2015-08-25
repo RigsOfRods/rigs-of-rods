@@ -19,8 +19,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FlexMesh.h"
 
+#include <Ogre.h>
+
 #include "ApproxMath.h"
-#include "Ogre.h"
 #include "ResourceBuffer.h"
 #include "BeamData.h"
 

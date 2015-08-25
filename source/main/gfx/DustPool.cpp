@@ -19,7 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "DustPool.h"
 
-#include "Ogre.h"
+#include <Ogre.h>
+
 #include "RoRPrerequisites.h"
 #include "TerrainManager.h"
 #include "Water.h"
@@ -31,9 +32,7 @@ using namespace Ogre;
   const int DustPool::MAX_DUSTS;
 #endif // !_WIN32
 
-DustPool::DustPool(const char* dname, int dsize) : 
-	  allocated(0)
-	, size(std::min(dsize, MAX_DUSTS))
+DustPool::DustPool(const char* dname, int dsize) :  allocated(0), size(std::min(dsize, static_cast<int>(MAX_DUSTS)))
 {
 	for (int i=0; i<size; i++)
 	{

@@ -22,16 +22,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 --------------------------------------------------------------------------------
 */
 
-#include <Mesh.h>
+#include "Mesh.h"
 
-#include <Hydrax.h>
+#include "Hydrax.h"
 
 namespace Hydrax
 {
 	Mesh::Mesh(Hydrax *h)
             : mHydrax(h)
 			, mCreated(false)
-            , mMesh(0)
+            , mMesh()
             , mSubMesh(0)
             , mEntity(0)
             , mNumFaces(0)

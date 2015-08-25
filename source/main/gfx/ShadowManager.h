@@ -23,11 +23,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __ShadowManager_H_
 #define __ShadowManager_H_
 
-#include "RoRPrerequisites.h"
-
 #include <OgreTerrain.h>
 #include <OgreShadowCameraSetupPSSM.h>
 #include <OgreTerrainMaterialGeneratorA.h>
+
+#include "RoRPrerequisites.h"
+
 #include "OgreTerrainPSSMMaterialGenerator.h"
 
 

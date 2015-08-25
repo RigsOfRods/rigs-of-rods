@@ -22,8 +22,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __DIFFERENTIALS_H_
 #define __DIFFERENTIALS_H_
 
+#include <OgrePrerequisites.h>
+
 #include "RoRPrerequisites.h"
-#include "OgrePrerequisites.h"
 
 #define MAX_DIFFS 3
 struct differential_data_t

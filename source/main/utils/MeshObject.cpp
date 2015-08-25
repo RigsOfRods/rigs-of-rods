@@ -21,9 +21,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 1st of May 2010
 #include "MeshObject.h"
 
+#include <Ogre.h>
+
 #include "MaterialFunctionMapper.h"
 #include "MaterialReplacer.h"
-#include "Ogre.h"
 #include "Settings.h"
 #include "Skin.h"
 #include "TerrainManager.h"
@@ -287,16 +288,6 @@ void MeshObject::operationCompleted(BackgroundProcessTicket ticket, const Backgr
 	LOG("operationCompleted: " + meshName);
 	if (ticket == this->ticket)
 		postProcess();
-}
-
-void MeshObject::backgroundLoadingComplete(Resource *r)
-{
-	// deprecated, use loadingComplete instead
-}
-
-void MeshObject::backgroundPreparingComplete(Resource *r)
-{
-	// deprecated, use preparingComplete instead
 }
 
 void MeshObject::loadingComplete(Resource *r)

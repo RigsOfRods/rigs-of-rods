@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorOrbit.h"
 
+#include <Ogre.h>
+
 #include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
@@ -27,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "Ogre.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;

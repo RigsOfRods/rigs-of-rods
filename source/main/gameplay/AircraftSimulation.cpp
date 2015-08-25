@@ -21,14 +21,14 @@
 
 #include "AircraftSimulation.h"
 
+#include <Overlay/OgreOverlayManager.h>
+
 #include "AeroEngine.h"
 #include "Application.h"
 #include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "InputEngine.h"
-
-#include <OgreOverlayManager.h>
 
 using namespace RoR;
 

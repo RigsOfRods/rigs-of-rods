@@ -20,8 +20,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Skin.h"
 
-#include "OgreLogManager.h"
-#include "Ogre.h"
+#include <Ogre.h>
+#include <OgreLogManager.h>
 #include "CacheSystem.h"
 
 using namespace Ogre;

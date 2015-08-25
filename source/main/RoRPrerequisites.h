@@ -40,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <OgrePrerequisites.h>
+#include <Overlay/OgreOverlaySystem.h>
 
 #include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"

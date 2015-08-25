@@ -18,13 +18,13 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WriteTextToTexture.h"
-#include "OgreHardwarePixelBuffer.h"
-#include "OgreTexture.h"
-#include "OgreFont.h"
 
-#include "OgreTextureManager.h"
-#include "OgreMaterial.h"
-#include "OgreTechnique.h"
+#include <OgreFont.h>
+#include <OgreHardwarePixelBuffer.h>
+#include <OgreMaterial.h>
+#include <OgreTechnique.h>
+#include <OgreTexture.h>
+#include <OgreTextureManager.h>
 
 // source: ogre wiki: http://www.ogre3d.org/wiki/index.php/HowTo:_Write_text_on_texture
 using namespace Ogre;

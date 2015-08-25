@@ -29,6 +29,8 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   
   include_directories(${Ogre_Terrain_INCLUDE_DIRS})
   link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
+  include_directories(${Ogre_Overlay_INCLUDE_DIRS})
+  link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
   include_directories(${Ogre_Paging_INCLUDE_DIRS})
   link_directories   (${Ogre_Paging_LIBRARY_DIRS})
   include_directories(${Ogre_RTShader_INCLUDE_DIRS})
@@ -135,7 +137,7 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   ENDIF(WIN32)
 
   target_link_libraries(${BINNAME}
-		${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ogre_Terrain_LIBRARIES} ${Ogre_Paging_LIBRARIES} ${Ogre_RTShader_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs}
+		${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ogre_Terrain_LIBRARIES} ${Ogre_Overlay_LIBRARIES} ${Ogre_Paging_LIBRARIES} ${Ogre_RTShader_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs}
 	)
 	
 if(WIN32)

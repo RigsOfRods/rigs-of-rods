@@ -19,8 +19,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
+#include <Ogre.h>
+
 #include "Beam.h"
-#include "Ogre.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"

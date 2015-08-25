@@ -24,8 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __MeshObject_H_
 #define __MeshObject_H_
 
+#include <Ogre.h>
+
 #include "RoRPrerequisites.h"
-#include "Ogre.h"
 
 class MeshObject : public Ogre::ResourceBackgroundQueue::Listener, public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
@@ -66,8 +67,6 @@ protected:
 	void loadMesh();
 
 	void operationCompleted(Ogre::BackgroundProcessTicket ticket, const Ogre::BackgroundProcessResult& result);
-	void backgroundLoadingComplete(Ogre::Resource *r);
-	void backgroundPreparingComplete(Ogre::Resource *r);
 	void loadingComplete(Ogre::Resource *r);
 	void preparingComplete(Ogre::Resource *r);
 	void unloadingComplete(Ogre::Resource *r);

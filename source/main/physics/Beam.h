@@ -20,18 +20,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <OgrePrerequisites.h>
+#include <OgreTimer.h>
+#include <Overlay/OgreOverlayElement.h>
+#include <vector>
+
 #include "RoRPrerequisites.h"
-#include "OgrePrerequisites.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
 
 #include "BeamData.h"
 #include "IThreadTask.h"
 #include "Streamable.h"
-
-#include <OgreTimer.h>
-#include <OgreOverlayElement.h>
-#include <vector>
 
 /** 
 * Represents an entire rig (any vehicle type)

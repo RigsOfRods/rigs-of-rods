@@ -1,5 +1,23 @@
+// This source file is part of Rigs of Rods
+// Copyright 2005-2015 Rigs of Rods contributors
+
+// For more information, see http://www.rigsofrods.com/
+
+// Rigs of Rods is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3, as
+// published by the Free Software Foundation.
+
+// Rigs of Rods is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+
 #include "MaterialReplacer.h"
-#include "Ogre.h"
+
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -14,7 +32,6 @@ void MaterialReplacer::replaceMeshMaterials(Ogre::Entity *e)
 			if (this->hasReplacementForMaterial(sm->getMaterialName()))
 			{
 				String newMat = this->getReplacementForMaterial(sm->getMaterialName());
-				//LOG("Skin: replaced mesh material " + sm->getMaterialName() + " with new new material " + newMat + " on entity " + e->getName());
 				sm->setMaterialName(newMat);
 			}
 		}
@@ -26,7 +43,6 @@ void MaterialReplacer::replaceMeshMaterials(Ogre::Entity *e)
 		if (this->hasReplacementForMaterial(subent->getMaterialName()))
 		{
 			String newMat = this->getReplacementForMaterial(subent->getMaterialName());
-			//LOG("Skin: replaced mesh material " + subent->getMaterialName() + " with new new material " + newMat + " on entity " + e->getName());
 			subent->setMaterialName(newMat);
 		}
 	}

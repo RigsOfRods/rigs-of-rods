@@ -39,14 +39,14 @@
 
 #pragma once
 
+#include <cstdint>
+#include <OgreAxisAlignedBox.h>
+
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
-#include "OgreAxisAlignedBox.h"
-
-#include <cstdint>
 
 namespace RoR
 {

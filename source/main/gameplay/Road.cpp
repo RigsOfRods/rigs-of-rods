@@ -19,7 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Road.h"
-#include "Ogre.h"
+
+#include <Ogre.h>
 
 using namespace Ogre;
 

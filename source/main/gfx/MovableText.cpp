@@ -26,10 +26,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 * @update  2006 by barraq see nospam@barraquand.com
 */
 
-#include "Ogre.h"
-#include "OgreFontManager.h"
 #include "MovableText.h"
 
+#include <Ogre.h>
+#include <OgreFontManager.h>
 
 using namespace Ogre;
 
@@ -82,7 +82,7 @@ void MovableText::setFontName(const UTFString &fontName)
 	if (mFontName != fontName || mpMaterial.isNull() || !mpFont)
 	{
 		mFontName = fontName;
-		mpFont = (Font *)FontManager::getSingleton().getByName(mFontName).getPointer();
+		mpFont = (Font *)FontManager::getSingleton().getResourceByName(mFontName).getPointer();
 		if (!mpFont)
 			throw Exception(Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + fontName, "MovableText::setFontName");
 

@@ -7,8 +7,9 @@
 
 #pragma once
 
+#include <OgrePrerequisites.h>
+
 #include "RoRPrerequisites.h"
-#include "OgrePrerequisites.h"
 
 /**
 * SIM-CORE; Beam data.

@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Dashboard.h"
 
+#include <Overlay/OgreOverlayManager.h>
+
 #include "Console.h"
 #include "ResourceBuffer.h"
 #include "TruckHUD.h"
