@@ -29,9 +29,10 @@ tracks/default_car
 {
 	trigger_source	engine
 	pitch_source	engine_rpm
-	gain_source	injector_ratio
-	gain_factors	0.5	0.5
-	sound 1500 default_car_idle.wav
+	sound 750 default_car_idle.wav
+	sound 2250 default_car_low.wav
+	sound 3750 default_car_med.wav
+	sound 5250 default_car_high.wav
 }
 
 tracks/default_starter
