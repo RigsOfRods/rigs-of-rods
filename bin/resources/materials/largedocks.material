@@ -1,14 +1,6 @@
-material largedocks
+import * from "managed_mats.material"
+
+material largedocks: RoR/Managed_Mats/Base
 {
- 
-    technique
-    {
-        pass
-        {
-            texture_unit diffuseMap
-            {
-                texture largedocksdiffuse.dds
-            }
-        }
-    }
+	set_texture_alias diffuse_tex largedocksdiffuse.dds
 }
