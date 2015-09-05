@@ -7234,7 +7234,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 	//engine
 	if (vehicle->engine != nullptr) /* Land vehicle */
 	{
-		if (vehicle->engine->type=='t')
+		if (vehicle->engine->getType() =='t')
 		{
 			AddSoundSourceInstance(vehicle, "tracks/default_diesel", smokeId);
 			AddSoundSourceInstance(vehicle, "tracks/default_force", smokeId);
@@ -7242,13 +7242,13 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 			AddSoundSourceInstance(vehicle, "tracks/default_parkbrakes", 0);
 			AddSoundSourceInstance(vehicle, "tracks/default_reverse_beep", 0);
 		}
-		if (vehicle->engine->type=='c')
+		if (vehicle->engine->getType() =='c')
 			AddSoundSourceInstance(vehicle, "tracks/default_car", smokeId);
-		if (vehicle->engine->hasturbo)
+		if (vehicle->engine->hasTurbo())
 		{
-			if (vehicle->engine->turboInertiaFactor >= 3)
+			if (vehicle->engine->GetTurboInertiaFactor() >= 3)
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", smokeId);
-			else if (vehicle->engine->turboInertiaFactor <= 0.5)
+			else if (vehicle->engine->GetTurboInertiaFactor() <= 0.5)
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_small", smokeId);
 			else
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_mid", smokeId);
@@ -7257,7 +7257,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 			AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", smokeId);
 		}
 			
-		if (vehicle->engine->hasair)
+		if (vehicle->engine->HasAir())
 			AddSoundSourceInstance(vehicle, "tracks/default_air_purge", 0);
 		//starter
 		AddSoundSourceInstance(vehicle, "tracks/default_starter", 0);

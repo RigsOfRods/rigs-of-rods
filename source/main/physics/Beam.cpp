@@ -393,7 +393,7 @@ void Beam::scaleTruck(float value)
 	{
 		//engine->maxRPM *= value;
 		//engine->iddleRPM *= value;
-		engine->engineTorque *= value;
+		engine->ScaleEngineTorque(value);
 		//engine->stallRPM *= value;
 		//engine->brakingTorque *= value;
 	}
@@ -1499,7 +1499,7 @@ bool Beam::frameStep(Real dt)
 
 	if (dt==0) return true;
 	if (!loading_finished) return true;
-	if (state >= SLEEPING) return true;
+	if (this->state >= SLEEPING) return true;
 	if (mTimeUntilNextToggle > -1)
 		mTimeUntilNextToggle -= dt;
 	
@@ -1508,11 +1508,12 @@ bool Beam::frameStep(Real dt)
 	int steps = dt / PHYSICS_DT;
 
 	m_dt_remainder = dt - (steps * PHYSICS_DT);
+	// 2000 * [100ms] 0.1   = 200;
 
 	// TODO: move this to the correct spot
 	// update all dashboards
 #ifdef USE_MYGUI
-	updateDashBoards(dt);
+	this->updateDashBoards(dt);
 #endif // USE_MYGUI
 
 	// some scripting stuff:
@@ -1579,13 +1580,18 @@ bool Beam::frameStep(Real dt)
 			
 			for (int i=0; i<steps; i++)
 			{
-				int num_simulated_trucks = 0;
+				int num_simulated_trucks = 0; 
+					// WTF? This shadows member Beam::num_simulated_trucks
+					// A very similar code is in "Beam::threadentry()", except the "int" keyword is not there (!)  ~only_a_ptr
 
 				for (int t=0; t<numtrucks; t++)
 				{
 					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, dtperstep, i, steps)))
 					{
-						num_simulated_trucks++;
+						num_simulated_trucks++; 
+							// Updates local variable, but there is member with the same name: Beam::num_simulated_trucks.
+							// Since the local variable isn't read anywyere, this effectively only blocks update of the member.
+							// Bug or feature? ~only_a_ptr
 						trucks[t]->calcForcesEulerCompute(i==0, dtperstep, i, steps);
 						trucks[t]->calcForcesEulerFinal(i==0, dtperstep, i, steps);
 						if (!disableTruckTruckSelfCollisions)
@@ -1735,8 +1741,8 @@ void Beam::sendStreamData()
 			send_oob->engine_clutch  = engine->getClutch();
 			send_oob->engine_gear    = engine->getGear();
 
-			if (engine->contact) send_oob->flagmask += NETMASK_ENGINE_CONT;
-			if (engine->running) send_oob->flagmask += NETMASK_ENGINE_RUN;
+			if (engine->hasContact()) send_oob->flagmask += NETMASK_ENGINE_CONT;
+			if (engine->isRunning()) send_oob->flagmask += NETMASK_ENGINE_RUN;
 
 			if      (engine->getAutoMode() == BeamEngine::AUTOMATIC)     send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
 			else if (engine->getAutoMode() == BeamEngine::SEMIAUTO)      send_oob->flagmask += NETMASK_ENGINE_MODE_SEMIAUTO;
@@ -5134,7 +5140,7 @@ bool Beam::isLocked()
 bool Beam::navigateTo(Vector3 &in)
 {
 	// start engine if not running
-	if (engine && !engine->running)
+	if (engine && !engine->isRunning())
 		engine->start();
 
 	Vector3 TargetPosition = in;
@@ -5331,11 +5337,11 @@ void Beam::updateDashBoards(float &dt)
 		dash->setFloat(DD_ENGINE_TURBO, turbo);
 
 		// ignition
-		bool ign = engine->contact;
+		bool ign = engine->hasContact();
 		dash->setBool(DD_ENGINE_IGNITION, ign);
 
 		// battery
-		bool batt = (engine->contact && !engine->running);
+		bool batt = (engine->hasContact() && !engine->isRunning());
 		dash->setBool(DD_ENGINE_BATTERY, batt);
 
 		// clutch warning
@@ -5561,7 +5567,7 @@ void Beam::updateDashBoards(float &dt)
 
 		if (hasEngine)
 		{
-			hasturbo = engine->hasturbo;
+			hasturbo = engine->hasTurbo();
 			autogearVisible = (engine->getAutoShift() != BeamEngine::MANUALMODE);
 		}
 
@@ -5766,10 +5772,10 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 		// TODO: Implement setTargetRPM in the BeamEngine.cpp
 		break;
 	case TRG_ENGINE_SHIFTUP:
-		if (e) e->shift(1);
+		if (e) e->BeamEngineShift(1);
 		break;
 	case TRG_ENGINE_SHIFTDOWN:
-		if (e) e->shift(-1);
+		if (e) e->BeamEngineShift(-1);
 		break;
 	default:
 		break;

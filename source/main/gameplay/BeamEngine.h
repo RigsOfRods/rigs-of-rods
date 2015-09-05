@@ -28,13 +28,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 class BeamEngine : public ZeroedMemoryAllocator
 {
-	friend class Beam;
 	friend class RigSpawner;
 	friend class RigInspector; // Debug utility class
 
 public:
 
-	BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, int trucknum);
+	BeamEngine(float m_conf_engine_min_rpm, float m_conf_engine_max_rpm, float torque, std::vector<float> gears, float dratio, int m_vehicle_index);
 	~BeamEngine();
 
 	float getAcc();
@@ -53,11 +52,11 @@ public:
 	* @param force Current acceleration force
 	* @param clutch 
 	* @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
-	* @param running
-	* @param contact
-	* @param automode
+	* @param m_is_engine_running
+	* @param m_starter_has_contact
+	* @param m_transmission_mode
 	*/
-	void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
+	void netForceSettings(float rpm, float force, float clutch, int gear, bool m_is_engine_running, bool m_starter_has_contact, char m_transmission_mode);
 
 	void setAcc(float val);
 	void setAutoMode(int mode);
@@ -65,7 +64,7 @@ public:
 
 	/**
 	* Sets engine options.
-	* @param einertia Engine inertia
+	* @param einertia Engine m_conf_engine_inertia
 	* @param etype Engine type {'t' = truck (default), 'c' = car}
 	* @param eclutch
 	* @param ctime Clutch time
@@ -80,7 +79,7 @@ public:
 
 	/**
 	* Sets turbo options.
-	* @param tinertiatinertiaFactor Turbo inertia factor
+	* @param tinertiatinertiaFactor Turbo m_conf_engine_inertia factor
 	* @param nturbos Number of turbos
 	* @param additionalTorque Torque that will be added to the engine at max turbo rpm
 	**/
@@ -105,8 +104,8 @@ public:
 	void offstart();
 
 	/**
-	* Controls vehicle starter. No side effects.
-	* @param v 1 to run starter, 0 to stop it.
+	* Controls vehicle m_starter_is_running. No side effects.
+	* @param v 1 to run m_starter_is_running, 0 to stop it.
 	*/
 	void setstarter(int v);
 
@@ -125,155 +124,167 @@ public:
 	void stop();
 
 	// high level controls
-	bool hasContact() { return contact; };
-	bool hasTurbo() { return hasturbo; };
-	bool isRunning() { return running; };
-	char getType() { return type; };
+	bool hasContact() { return m_starter_has_contact; };
+	bool hasTurbo() { return m_conf_engine_has_turbo; };
+	bool isRunning() { return m_is_engine_running; };
+	char getType() { return m_conf_engine_type; };
 	float getAccToHoldRPM(float rpm);
 	float getEnginePower(float rpm);
-	float getEngineTorque() { return engineTorque; };
+	float getEngineTorque() { return m_conf_engine_torque; };
 	float getIdleMixture();
-	float getIdleRPM() { return idleRPM; };
-	float getMaxRPM() { return maxRPM; };
-	float getMinRPM() { return minRPM; };
+	float getIdleRPM() { return m_conf_engine_idle_rpm; };
+	float getMaxRPM() { return m_conf_engine_max_rpm; };
+	float getMinRPM() { return m_conf_engine_min_rpm; };
 	float getPrimeMixture();
 	int getAutoShift();
-	int getNumGears() { return gearsRatio.size() - 2; };
+	int getNumGears() { return m_conf_gear_ratios.size() - 2; };
 	int getNumGearsRanges() { return getNumGears() / 6 + 1; };
-	TorqueCurve *getTorqueCurve() { return torqueCurve; };
+	TorqueCurve *getTorqueCurve() { return m_conf_engine_torque_curve; };
 	void autoSetAcc(float val);
 	void autoShiftDown();
 	void autoShiftSet(int mode);
 	void autoShiftUp();
 	void setManualClutch(float val);
+	inline void SetHydroPump(float value)        { m_engine_hydropump = value; }
+	inline void SetPrime(int prime)              { m_prime = prime; }
+	inline float GetTurboInertiaFactor() const   { return m_conf_turbo_inertia_factor; }
+	inline bool  HasAir() const                  { return m_conf_engine_has_air; }
+	inline void  ScaleEngineTorque(float scale)  { m_conf_engine_torque *= scale; }
+
+	// Intentionally repetitive names, for easier code searching
 
 	/**
 	* Changes gear by a relative offset. Plays sounds.
+	* @param shift_change_relative 1 = shift up by 1, -1 = shift down by 1
 	*/
-	void shift(int val);
+	void BeamEngineShift(int shift_change_relative);
 	
 	/**
 	* Changes gear to given value. Plays sounds.
 	* @see BeamEngine::shift
 	*/
-	void shiftTo(int val);
+	void BeamEngineShiftTo(int val);
 
-	/**
-	* Changes gears. Plays sounds.
-	*/
-	void updateShifts();
-
-	void update(float dt, int doUpdate);
-
-	/**
-	* Updates sound effects (engine/turbo/clutch/etc...)
-	*/
-	void updateAudio(int doUpdate);
+	void UpdateBeamEngine(float dt, int doUpdate);
 
 	enum shiftmodes {AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES};
 	enum autoswitch {REAR, NEUTRAL, DRIVE, TWO, ONE, MANUALMODE};
 
 protected:
 
+	/**
+	* Updates sound effects (engine/turbo/clutch/etc...)
+	*/
+	void UpdateBeamEngineAudio(int doUpdate);
+
+	/**
+	* Changes gears. Plays sounds.
+	*/
+	void UpdateBeamEngineShifts();
+
+	void DEBUG_LogClassState(BeamEngine snapshot_before, float dt, int doUpdate);
+
+	// ================================================================
+	// VARIABLES
+	// NOTE: "conf_" prefix means the value is read-only.
+	// ================================================================
+
 	// gear stuff
-	float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
-	float curWheelRevolutions; //!< Gears; measured wheel revolutions
-	int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
-	int curGearRange; //!< Gears
-	int numGears; //!< Gears
-	std::vector<float> gearsRatio; //!< Gears
+	float   m_ref_wheel_revolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
+	float   m_cur_wheel_revolutions; //!< Gears; measured wheel revolutions
+	int     m_curr_gear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
+	int     m_curr_gear_range; //!< Gears
+
+	int                m_conf_num_gears; //!< Gears
+	std::vector<float> m_conf_gear_ratios; //!< Gears
 
 	// truck stuff
-	float absVelocity; // Vehicle; current velocity of the vehicle
-	float relVelocity; // Vehicle; current velocity of the vehicle along the long axis
+	float   m_abs_velocity; // Vehicle; current velocity of the vehicle
+	float   m_rel_velocity; // Vehicle; current velocity of the vehicle along the long axis
 
 	// clutch stuff
-	float clutchForce; //!< Clutch attribute
-	float clutchTime; //!< Clutch attribute
-	float curClutch;
-	float curClutchTorque;
+	float   m_conf_clutch_force; //!< Clutch attribute
+	float   m_conf_clutch_time; //!< Clutch attribute
+	float   m_curr_clutch;
+	float   m_curr_clutch_torque;
 
 	// engine stuff
-	bool contact; //!< Engine
-	bool hasair; //!< Engine attribute
-	bool hasturbo; //!< Engine attribute
-	bool running; //!< Engine state
-	char type; //!< Engine attribute {'t' = truck (default), 'c' = car}
-	float brakingTorque; //!< Engine
-	float curAcc; //!< Engine
-	float curEngineRPM; //!< Engine
-	float diffRatio; //!< Engine
-	float engineTorque; //!< Engine
-	float hydropump; //!< Engine
-	float idleRPM; //!< Engine attribute
-	float minIdleMixture; //!< Engine attribute
-	float maxIdleMixture; //!< Engine attribute
-	float inertia; //!< Engine attribute
-	float maxRPM; //!< Engine attribute
-	float minRPM; //!< Engine attribute
-	float stallRPM; //!< Engine
-	int prime; //!< Engine
+	TorqueCurve* m_conf_engine_torque_curve;
+	
+	bool    m_conf_engine_has_air; //!< Engine attribute
+	bool    m_conf_engine_has_turbo; //!< Engine attribute
+	char    m_conf_engine_type; //!< Engine attribute {'t' = truck (default), 'c' = car}
+	float   m_conf_engine_braking_torque; //!< Engine
+	
+	float      m_conf_engine_diff_ratio; //!< Engine
+	float      m_conf_engine_torque; //!< Engine
+	float      m_conf_engine_idle_rpm; //!< Engine attribute
+	float      m_conf_engine_min_idle_mixture; //!< Engine attribute
+	float      m_conf_engine_max_idle_mixture; //!< Engine attribute
+	float      m_conf_engine_inertia; //!< Engine attribute
+	float      m_conf_engine_max_rpm; //!< Engine attribute
+	float      m_conf_engine_min_rpm; //!< Engine attribute
+	float      m_conf_engine_stall_rpm; //!< Engine
+	float      m_conf_shift_time; //!< Shift attribute
+	float      m_conf_post_shift_time; //!< Shift attribute
 
-	// shifting
-	float post_shift_time; //!< Shift attribute
-	float postshiftclock;
-	float shift_time; //!< Shift attribute
-	float shiftclock;
-	int postshifting;
-	int shifting;
-	int shiftval;
-
-	// auto
-	autoswitch autoselect;
-	float autocurAcc;
-	int starter;
+	float      m_engine_hydropump; //!< Engine;
+	float      m_post_shift_clock;
+	float      m_shift_clock;
+	bool       m_is_post_shifting;
+	bool       m_is_shifting;
+	int        m_curr_gear_change_relative; //!< 1 = shift up by 1, -1 = shift down by 1
+	bool       m_is_engine_running; //!< Engine state
+	bool       m_starter_has_contact; //!< Engine
+	float      m_curr_acc; //!< Engine
+	float      m_curr_engine_rpm; //!< Engine
+	autoswitch m_autoselect;
+	float      m_auto_curr_acc;
+	bool       m_starter_is_running;
+	int        m_prime;
 
 	// auto transmission
-	float fullRPMRange;
-	float oneThirdRPMRange;
-	float halfRPMRange;
-	float shiftBehaviour;
-	int upShiftDelayCounter;
-	std::deque<float> rpms;
-	std::deque<float> accs;
-	std::deque<float> brakes;
+	float             m_conf_autotrans_full_rpm_range;
+	float             m_autotrans_curr_shift_behavior;
+	int               m_autotrans_up_shift_delay_counter;
+	std::deque<float> m_autotrans_rpm_buffer;
+	std::deque<float> m_autotrans_acc_buffer;
+	std::deque<float> m_autotrans_brake_buffer;
 
 	// turbo
-	//Yeah i know, a bit dirty
-	int turboVer;
-	#define MAXTURBO 4
-	float curTurboRPM[MAXTURBO];
-	float turboInertiaFactor;
-	int numTurbos;
-	int maxTurboRPM;
-	float turbotorque;
-	float turboInertia;
-	float EngineAddiTorque[MAXTURBO];
-	float turboEngineRpmOperation;
-	float turboMaxPSI;
-	float turboPSI;
-	bool b_BOV;
-	float curBOVTurboRPM[MAXTURBO];
-	float turboBOVtorque;
-	int minBOVPsi;
-	bool b_WasteGate;
-	float minWGPsi;
-	bool b_flutter;
-	float wastegate_threshold_p, wastegate_threshold_n;
-	bool b_anti_lag;
-	float minRPM_antilag;
-	float rnd_antilag_chance;
-	float antilag_power_factor;
+	#define   MAX_NUM_TURBOS 4
+	int       m_conf_num_turbos;
+	int       m_conf_turbo_version;
+	float     m_conf_turbo_inertia_factor;
+	int       m_conf_turbo_max_rpm;
+	float     m_conf_turbo_max_psi;
+	bool      m_conf_turbo_has_bov;
+	int       m_conf_turbo_min_bov_psi;
+	float     m_conf_turbo_addi_torque[MAX_NUM_TURBOS];
+	float     m_conf_turbo_engine_rpm_operation;
+	bool      m_conf_turbo_has_wastegate;
+	float     m_conf_turbo_wg_min_psi;
+	float     m_conf_turbo_wg_threshold_p;
+	float     m_conf_turbo_wg_threshold_n;
+	bool      m_conf_turbo_has_antilag;
+	float     m_conf_turbo_antilag_min_rpm;
+	float     m_conf_turbo_antilag_chance_rand;
+	float     m_conf_turbo_antilag_power_factor;
+	bool      m_conf_turbo_has_flutter;
+
+	float     m_turbo_curr_rpm[MAX_NUM_TURBOS];
+	float     m_turbo_torque;
+	float     m_turbo_inertia;
+	float     m_turbo_psi;
+	float     m_turbo_cur_bov_rpm[MAX_NUM_TURBOS];
+	float     m_turbo_bov_torque;
 	
-
 	// air pressure
-	TorqueCurve *torqueCurve;
-	float apressure;
-	int automode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
+	
+	float m_air_pressure; //!< Sound effect only
+	int   m_transmission_mode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
 
-	int trucknum;
-
-	bool is_Electric;
+	int m_vehicle_index;
 };
 
 #endif // __BeamEngine_H_

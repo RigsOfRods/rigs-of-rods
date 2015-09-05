@@ -26,213 +26,231 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, int trucknum) :
-	  apressure(0.0f)
-	, autocurAcc(0.0f)
-	, automode(AUTOMATIC)
-	, autoselect(DRIVE)
-	, brakingTorque(-torque / 5.0f)
-	, clutchForce(10000.0f)
-	, clutchTime(0.2f)
-	, contact(false)
-	, curAcc(0.0f)
-	, curClutch(0.0f)
-	, curClutchTorque(0.0f)
-	, curEngineRPM(0.0f)
-	, curGear(0)
-	, curGearRange(0)
-	, curWheelRevolutions(0.0f)
-	, diffRatio(dratio)
-	, engineTorque(torque - brakingTorque)
-	, gearsRatio(gears)
-	, hasair(true)
-	, hasturbo(false)
-	, hydropump(0.0f)
-	, idleRPM(std::min(minRPM, 800.0f))
-	, inertia(10.0f)
-	, maxIdleMixture(0.2f)
-	, maxRPM(std::abs(maxRPM))
-	, minIdleMixture(0.0f)
-	, minRPM(std::abs(minRPM))
-	, numGears((int)gears.size() - 2)
-	, post_shift_time(0.2f)
-	, postshiftclock(0.0f)
-	, postshifting(0)
-	, prime(0)
-	, running(false)
-	, shiftBehaviour(0.0f)
-	, shift_time(0.5f)
-	, shiftclock(0.0f)
-	, shifting(0)
-	, shiftval(0)
-	, stallRPM(300.0f)
-	, starter(0)
-	, torqueCurve(new TorqueCurve())
-	, trucknum(trucknum)
-	, type('t')
-	, upShiftDelayCounter(0)
-	, is_Electric(false)
-	, turboInertiaFactor(1)
-	, numTurbos(1)
-	, maxTurboRPM(200000.0f)
-	, turboEngineRpmOperation(0.0f)
-	, turboVer(1)
-	, minBOVPsi(11)
-	, minWGPsi(20)
-	, b_WasteGate(false)
-	, b_BOV(false)
-	, b_flutter(false)
-	, wastegate_threshold_p(0)
-	, wastegate_threshold_n(0)
-	, b_anti_lag(false)
-	, rnd_antilag_chance(0.9975)
-	, minRPM_antilag(3000)
-	, antilag_power_factor(170)
-{
-	fullRPMRange = (maxRPM - minRPM);
-	oneThirdRPMRange = fullRPMRange / 3.0f;
-	halfRPMRange = fullRPMRange / 2.0f;
+/*
+ENGINE UPDATE TRACE (static):
+bool RoRFrameListener::frame Started(const FrameEvent& evt)
+	void BeamFactory::calc Physics(float dt)
+		trucks[t]->engine->Update Beam Engine(dt, 1);
+        [Executed for idle vehicles with engine m_is_engine_running (rig_t::state > DESACTIVATED)]
 
-	gearsRatio[0] = -gearsRatio[0];
-	for (std::vector< float >::iterator it = gearsRatio.begin(); it != gearsRatio.end(); ++it)
+void Beam::run()
+bool Beam::frameStep(Real dt)
+
+void Beam::thread entry()
+	void Beam::calc Forces Euler Compute(int doUpdate_int, Real dt, int step, int maxsteps)
+		calc Truck Engine(doUpdate, dt);
+			Update Beam Engine(doUpdate)
+            [Executed for player-driven vehicle, for N steps (N dynamic based on frame-deltatime)]
+			[doUpdate is 1 in first iteration, then 0]
+*/
+
+BeamEngine::BeamEngine(float m_conf_engine_min_rpm, float m_conf_engine_max_rpm, float torque, std::vector<float> gears, float dratio, int m_vehicle_index) :
+	  m_air_pressure(0.0f)
+	, m_auto_curr_acc(0.0f)
+	, m_transmission_mode(AUTOMATIC)
+	, m_autoselect(DRIVE)
+	, m_conf_engine_braking_torque(-torque / 5.0f)
+	, m_conf_clutch_force(10000.0f)
+	, m_conf_clutch_time(0.2f)
+	, m_starter_has_contact(false)
+	, m_curr_acc(0.0f)
+	, m_curr_clutch(0.0f)
+	, m_curr_clutch_torque(0.0f)
+	, m_prime(0)
+	, m_curr_engine_rpm(0.0f)
+	, m_curr_gear(0)
+	, m_curr_gear_range(0)
+	, m_cur_wheel_revolutions(0.0f)
+	, m_conf_engine_diff_ratio(dratio)
+	, m_conf_engine_torque(torque - m_conf_engine_braking_torque)
+	, m_conf_gear_ratios(gears)
+	, m_conf_engine_has_air(true)
+	, m_conf_engine_has_turbo(false)
+	, m_engine_hydropump(0.0f)
+	, m_conf_engine_idle_rpm(std::min(m_conf_engine_min_rpm, 800.0f))
+	, m_conf_engine_inertia(10.0f)
+	, m_conf_engine_max_idle_mixture(0.2f)
+	, m_conf_engine_max_rpm(std::abs(m_conf_engine_max_rpm))
+	, m_conf_engine_min_idle_mixture(0.0f)
+	, m_conf_engine_min_rpm(std::abs(m_conf_engine_min_rpm))
+	, m_conf_num_gears((int)gears.size() - 2)
+	, m_conf_post_shift_time(0.2f)
+	, m_post_shift_clock(0.0f)
+	, m_is_post_shifting(false)
+	, m_is_engine_running(false)
+	, m_autotrans_curr_shift_behavior(0.0f)
+	, m_conf_shift_time(0.5f)
+	, m_shift_clock(0.0f)
+	, m_is_shifting(0)
+	, m_curr_gear_change_relative(0)
+	, m_conf_engine_stall_rpm(300.0f)
+	, m_starter_is_running(0)
+	, m_conf_engine_torque_curve(new TorqueCurve())
+	, m_vehicle_index(m_vehicle_index)
+	, m_conf_engine_type('t')
+	, m_autotrans_up_shift_delay_counter(0)
+	, m_conf_turbo_inertia_factor(1)
+	, m_conf_num_turbos(1)
+	, m_conf_turbo_max_rpm(200000.0f)
+	, m_conf_turbo_engine_rpm_operation(0.0f)
+	, m_conf_turbo_version(1)
+	, m_conf_turbo_min_bov_psi(11)
+	, m_conf_turbo_wg_min_psi(20)
+	, m_conf_turbo_has_wastegate(false)
+	, m_conf_turbo_has_bov(false)
+	, m_conf_turbo_has_flutter(false)
+	, m_conf_turbo_wg_threshold_p(0)
+	, m_conf_turbo_wg_threshold_n(0)
+	, m_conf_turbo_has_antilag(false)
+	, m_conf_turbo_antilag_chance_rand(0.9975)
+	, m_conf_turbo_antilag_min_rpm(3000)
+	, m_conf_turbo_antilag_power_factor(170)
+{
+	m_conf_autotrans_full_rpm_range = (m_conf_engine_max_rpm - m_conf_engine_min_rpm);
+
+	m_conf_gear_ratios[0] = -m_conf_gear_ratios[0];
+	for (std::vector< float >::iterator it = m_conf_gear_ratios.begin(); it != m_conf_gear_ratios.end(); ++it)
 	{
-		(*it) *= diffRatio;
+		(*it) *= m_conf_engine_diff_ratio;
 	}
 
-	for (int i = 0; i < MAXTURBO; i++)
+	for (int i = 0; i < MAX_NUM_TURBOS; i++)
 	{ 
-		EngineAddiTorque[i] = 0;
-		curTurboRPM[i] = 0;
+		m_conf_turbo_addi_torque[i] = 0;
+		m_turbo_curr_rpm[i] = 0;
 	}
 }
 
 BeamEngine::~BeamEngine()
 {
 	// delete NULL is safe
-	delete torqueCurve;
-	torqueCurve = NULL;
+    /* ============== DISABLED for snapshotting, temporary ~only_a_ptr ================== //
+	delete m_conf_engine_torque_curve;
+	m_conf_engine_torque_curve = NULL;
+    */
 }
 
 void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
-	if (!hasturbo)
-		hasturbo = true; //Should have a turbo
+	if (!m_conf_engine_has_turbo)
+		m_conf_engine_has_turbo = true; //Should have a turbo
 
-	if (nturbos > MAXTURBO)
+	if (nturbos > MAX_NUM_TURBOS)
 	{
-		numTurbos = 4;
+		m_conf_num_turbos = 4;
 		LOG("Turbo: No more than 4 turbos allowed"); //TODO: move this under RigParser
 	} else
-		numTurbos = nturbos;
+		m_conf_num_turbos = nturbos;
 
-	turboVer = type;
-	turboInertiaFactor = tinertiaFactor;
+	m_conf_turbo_version = type;
+	m_conf_turbo_inertia_factor = tinertiaFactor;
 
 	if (param2 != 9999)
-		turboEngineRpmOperation = param2;
+		m_conf_turbo_engine_rpm_operation = param2;
 	
 
-	if (turboVer == 1)
+	if (m_conf_turbo_version == 1)
 	{
-		for (int i = 0; i < numTurbos; i++)
-			EngineAddiTorque[i] = param1 / numTurbos; //Additional torque
+		for (int i = 0; i < m_conf_num_turbos; i++)
+			m_conf_turbo_addi_torque[i] = param1 / m_conf_num_turbos; //Additional torque
 	}
 	else
 	{
-		turboMaxPSI = param1; //maxPSI
-		maxTurboRPM = turboMaxPSI * 10000;
+		m_conf_turbo_max_psi = param1; //maxPSI
+		m_conf_turbo_max_rpm = m_conf_turbo_max_psi * 10000;
 
 		//Duh
 		if (param3 == 1)
-			b_BOV = true;
+			m_conf_turbo_has_bov = true;
 		else
-			b_BOV = false;
+			m_conf_turbo_has_bov = false;
 
 		if (param3 != 9999)
-			minBOVPsi = param4;
+			m_conf_turbo_min_bov_psi = param4;
 
 		if (param5 == 1)
-			b_WasteGate = true;
+			m_conf_turbo_has_wastegate = true;
 		else
-			b_WasteGate = false;
+			m_conf_turbo_has_wastegate = false;
 
 		if (param6 != 9999)
-			minWGPsi = param6 * 10000;
+			m_conf_turbo_wg_min_psi = param6 * 10000;
 
 		if (param7 != 9999)
 		{
-			wastegate_threshold_n = 1 - param7;
-			wastegate_threshold_p = 1 + param7;
+			m_conf_turbo_wg_threshold_n = 1 - param7;
+			m_conf_turbo_wg_threshold_p = 1 + param7;
 		}
 
 		if (param8 == 1)
-			b_anti_lag = true;
+			m_conf_turbo_has_antilag = true;
 		else
-			b_anti_lag = false;
+			m_conf_turbo_has_antilag = false;
 
 		if (param9 != 9999)
-			rnd_antilag_chance = param9;
+			m_conf_turbo_antilag_chance_rand = param9;
 
 		if (param10 != 9999)
-			minRPM_antilag = param10;
+			m_conf_turbo_antilag_min_rpm = param10;
 
 		if (param11 != 9999)
-			antilag_power_factor = param11;
+			m_conf_turbo_antilag_power_factor = param11;
 	}
 }
 
 void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
 {
-	inertia = einertia;
-	type = etype;
-	clutchForce = eclutch;
+	m_conf_engine_inertia = einertia;
+	m_conf_engine_type = etype;
+	m_conf_clutch_force = eclutch;
 
-	if (ctime > 0)  clutchTime = ctime;
-	if (pstime > 0) post_shift_time = pstime;
-	if (stime > 0)  shift_time = stime;
-	if (irpm > 0) idleRPM = irpm;
-	if (srpm > 0) idleRPM = srpm;
-	if (maximix > 0) maxIdleMixture = maximix;
-	if (minimix > 0) minIdleMixture = minimix;
+	if (ctime > 0)  m_conf_clutch_time = ctime;
+	if (pstime > 0) m_conf_post_shift_time = pstime;
+	if (stime > 0)  m_conf_shift_time = stime;
+	if (irpm > 0) m_conf_engine_idle_rpm = irpm;
+	if (srpm > 0) m_conf_engine_idle_rpm = srpm;
+	if (maximix > 0) m_conf_engine_max_idle_mixture = maximix;
+	if (minimix > 0) m_conf_engine_min_idle_mixture = minimix;
 
 	if (etype == 'c')
 	{
 		// it's a car!
-		hasair = false;
-		is_Electric = false;
+		m_conf_engine_has_air = false;
 		// set default clutch force
-		if (clutchForce < 0.0f)
+		if (m_conf_clutch_force < 0.0f)
 		{
-			clutchForce = 5000.0f;
+			m_conf_clutch_force = 5000.0f;
 		}
 	}
 	else if (etype == 'e') //electric
 	{
-		is_Electric = true;
-		hasair = false;
-		if (clutchForce < 0.0f)
+		m_conf_engine_has_air = false;
+		if (m_conf_clutch_force < 0.0f)
 		{
-			clutchForce = 5000.0f;
+			m_conf_clutch_force = 5000.0f;
 		}
 	}
 	else
 	{
-		is_Electric = false;
 		// it's a truck
-		if (clutchForce < 0.0f)
+		if (m_conf_clutch_force < 0.0f)
 		{
-			clutchForce = 10000.0f;
+			m_conf_clutch_force = 10000.0f;
 		}
 	}
 }
 
-void BeamEngine::update(float dt, int doUpdate)
+// TIGHT-LOOP: Called at least once per frame.
+void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 {
-	Beam* truck = BeamFactory::getSingleton().getTruck(trucknum);
+	BeamEngine snapshot_before = *this;
+
+	Beam* truck = BeamFactory::getSingleton().getTruck(this->m_vehicle_index);
 
 	if (!truck) return;
 
-	float acc = curAcc;
+	float acc = this->m_curr_acc;
+	bool engine_is_electric = (m_conf_engine_type == 'e');
 
 	acc = std::max(getIdleMixture(), acc);
 	acc = std::max(getPrimeMixture(), acc);
@@ -240,137 +258,137 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (doUpdate)
 	{
 #ifdef USE_OPENAL
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_INJECTOR, acc);
+		SoundScriptManager::getSingleton().modulate(m_vehicle_index, SS_MOD_INJECTOR, acc);
 #endif // USE_OPENAL
 	}
 
-	if (hasair)
+	if (m_conf_engine_has_air)
 	{
 		// air pressure
-		apressure += dt * curEngineRPM;
-		if (apressure > 50000.0f)
+		m_air_pressure += dt * m_curr_engine_rpm;
+		if (m_air_pressure > 50000.0f)
 		{
 #ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_AIR_PURGE);
+			SoundScriptManager::getSingleton().trigOnce(m_vehicle_index, SS_TRIG_AIR_PURGE);
 #endif // USE_OPENAL
-			apressure = 0.0f;
+			m_air_pressure = 0.0f;
 		}
 	}
 
-	if (hasturbo)
+	if (m_conf_engine_has_turbo)
 	{
-		for (int i = 0; i < numTurbos; i++)
+		for (int i = 0; i < m_conf_num_turbos; i++)
 		{
 			// update turbo speed (lag)
 			// reset each of the values for each turbo
-			turbotorque = 0.0f;
-			turboBOVtorque = 0.0f;
+			m_turbo_torque = 0.0f;
+			m_turbo_bov_torque = 0.0f;
 
-			turboInertia = 0.000003f * turboInertiaFactor;
+			m_turbo_inertia = 0.000003f * m_conf_turbo_inertia_factor;
 
 			// braking (compression)
-			turbotorque -= curTurboRPM[i] / maxTurboRPM;
-			turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
+			m_turbo_torque -= m_turbo_curr_rpm[i] / m_conf_turbo_max_rpm;
+			m_turbo_bov_torque -= m_turbo_cur_bov_rpm[i] / m_conf_turbo_max_rpm;
 
 			// powering (exhaust) with limiter
-			if (curEngineRPM >= turboEngineRpmOperation)
+			if (m_curr_engine_rpm >= m_conf_turbo_engine_rpm_operation)
 			{
-				if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
+				if (m_turbo_curr_rpm[i] <= m_conf_turbo_max_rpm && m_is_engine_running && acc > 0.06f)
 				{
-					if (b_WasteGate)
+					if (m_conf_turbo_has_wastegate)
 					{
-						if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
+						if (m_turbo_curr_rpm[i] < m_conf_turbo_wg_min_psi * m_conf_turbo_wg_threshold_p && !m_conf_turbo_has_flutter)
 						{
-							turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+							m_turbo_torque += 1.5f * acc * (((m_curr_engine_rpm - m_conf_turbo_engine_rpm_operation) / (m_conf_engine_max_rpm - m_conf_turbo_engine_rpm_operation)));
 						}
 						else
 						{
-							b_flutter = true;
-							turbotorque -= (curTurboRPM[i] / maxTurboRPM) *1.5;
+							m_conf_turbo_has_flutter = true;
+							m_turbo_torque -= (m_turbo_curr_rpm[i] / m_conf_turbo_max_rpm) *1.5;
 						}	
 
-						if (b_flutter)
+						if (m_conf_turbo_has_flutter)
 						{
-							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
-							if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
+							SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_TURBOWASTEGATE);
+							if (m_turbo_curr_rpm[i] < m_conf_turbo_wg_min_psi * m_conf_turbo_wg_threshold_n)
 							{
-								b_flutter = false;
-								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
+								m_conf_turbo_has_flutter = false;
+								SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_TURBOWASTEGATE);
 							}
 								
 						}
 					}
 					else
-						turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+						m_turbo_torque += 1.5f * acc * (((m_curr_engine_rpm - m_conf_turbo_engine_rpm_operation) / (m_conf_engine_max_rpm - m_conf_turbo_engine_rpm_operation)));
 				}
 				else
 				{
-					turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+					m_turbo_torque += 0.1f * (((m_curr_engine_rpm - m_conf_turbo_engine_rpm_operation) / (m_conf_engine_max_rpm - m_conf_turbo_engine_rpm_operation)));
 				}
 
 				//Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
-				if (b_WasteGate)
+				if (m_conf_turbo_has_wastegate)
 				{
-					if (curTurboRPM[i] > minWGPsi * 0.95)
-						turboInertia = turboInertia *0.7; //Kill inertia so it flutters
+					if (m_turbo_curr_rpm[i] > m_conf_turbo_wg_min_psi * 0.95)
+						m_turbo_inertia = m_turbo_inertia *0.7; //Kill m_conf_engine_inertia so it flutters
 					else
-						turboInertia = turboInertia *1.3; //back to normal inertia
+						m_turbo_inertia = m_turbo_inertia *1.3; //back to normal m_conf_engine_inertia
 				}
 			}
 			
 			//simulate compressor surge
-			if (!b_BOV)
+			if (!m_conf_turbo_has_bov)
 			{
-				if (curTurboRPM[i] > 13 * 10000 && curAcc < 0.06f)
+				if (m_turbo_curr_rpm[i] > 13 * 10000 && m_curr_acc < 0.06f)
 				{
-					turbotorque += (turbotorque * 2.5);
+					m_turbo_torque += (m_turbo_torque * 2.5);
 				}
 			}
 
 			// anti lag
-			if (b_anti_lag && curAcc < 0.5)
+			if (m_conf_turbo_has_antilag && m_curr_acc < 0.5)
 			{
 				float f = frand();
-				if (curEngineRPM > minRPM_antilag && f > rnd_antilag_chance)
+				if (m_curr_engine_rpm > m_conf_turbo_antilag_min_rpm && f > m_conf_turbo_antilag_chance_rand)
 				{
-					if (curTurboRPM[i] > maxTurboRPM*0.35 && curTurboRPM[i] < maxTurboRPM)
+					if (m_turbo_curr_rpm[i] > m_conf_turbo_max_rpm*0.35 && m_turbo_curr_rpm[i] < m_conf_turbo_max_rpm)
 					{
-						turbotorque -= (turbotorque * (f * antilag_power_factor));
-						SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+						m_turbo_torque -= (m_turbo_torque * (f * m_conf_turbo_antilag_power_factor));
+						SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_TURBOBACKFIRE);
 					}
 				}
 				else
-					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
+					SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_TURBOBACKFIRE);
 			}
 
 			// update main turbo rpm
-			curTurboRPM[i] += dt * turbotorque / turboInertia;
+			m_turbo_curr_rpm[i] += dt * m_turbo_torque / m_turbo_inertia;
 
 			//Update BOV
 			//It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
 			//This one is used to simulate the pressure between the engine and the compressor.
 			//I should make the whole turbo code work this way. -Max98
-			if (b_BOV)
+			if (m_conf_turbo_has_bov)
 			{
 				
-				if (curBOVTurboRPM[i] < curTurboRPM[i])
-					turboBOVtorque += 1.5f * acc * (((curEngineRPM) / (maxRPM)));
+				if (m_turbo_cur_bov_rpm[i] < m_turbo_curr_rpm[i])
+					m_turbo_bov_torque += 1.5f * acc * (((m_curr_engine_rpm) / (m_conf_engine_max_rpm)));
 				else
-					turboBOVtorque += 0.07f * (((curEngineRPM) / (maxRPM)));
+					m_turbo_bov_torque += 0.07f * (((m_curr_engine_rpm) / (m_conf_engine_max_rpm)));
 
 
-				if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000) 
+				if (m_curr_acc < 0.06 && m_turbo_curr_rpm[i] > m_conf_turbo_min_bov_psi * 10000) 
 				{
-					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
-					curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
+					SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_TURBOBOV);
+					m_turbo_cur_bov_rpm[i] += dt * m_turbo_bov_torque / (m_turbo_inertia * 0.1);
 				}
 				else
 				{
-					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
-					if (curBOVTurboRPM[i] < curTurboRPM[i])
-						curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
+					SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_TURBOBOV);
+					if (m_turbo_cur_bov_rpm[i] < m_turbo_curr_rpm[i])
+						m_turbo_cur_bov_rpm[i] += dt * m_turbo_bov_torque / (m_turbo_inertia * 0.05);
 					else
-						curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
+						m_turbo_cur_bov_rpm[i] += dt * m_turbo_bov_torque / m_turbo_inertia;
 				}	
 			}
 		}
@@ -380,44 +398,44 @@ void BeamEngine::update(float dt, int doUpdate)
 	float totaltorque = 0.0f;
 
 	// engine braking
-	if (contact)
+	if (m_starter_has_contact)
 	{
-		totaltorque += brakingTorque * curEngineRPM / maxRPM;
+		totaltorque += m_conf_engine_braking_torque * m_curr_engine_rpm / m_conf_engine_max_rpm;
 	} else
 	{
-		totaltorque += 10.0f * brakingTorque * curEngineRPM / maxRPM;
+		totaltorque += 10.0f * m_conf_engine_braking_torque * m_curr_engine_rpm / m_conf_engine_max_rpm;
 	}
 
-	// braking by hydropump
-	if (curEngineRPM > 100.0f)
+	// braking by m_conf_engine_hydropump
+	if (m_curr_engine_rpm > 100.0f)
 	{
-		totaltorque -= 8.0f * hydropump / (curEngineRPM * 0.105f * dt);
+		totaltorque -= 8.0f * m_engine_hydropump / (m_curr_engine_rpm * 0.105f * dt);
 	}
 
-	if (running && contact && curEngineRPM < (maxRPM * 1.25f))
+	if (m_is_engine_running && m_starter_has_contact && m_curr_engine_rpm < (m_conf_engine_max_rpm * 1.25f))
 	{
-		totaltorque += getEnginePower(curEngineRPM) * acc;
+		totaltorque += getEnginePower(m_curr_engine_rpm) * acc;
 	}
 
-	if (!is_Electric)
+	if (!engine_is_electric)
 	{
-		if (running && curEngineRPM < stallRPM)
+		if (m_is_engine_running && m_curr_engine_rpm < m_conf_engine_stall_rpm)
 		{
 			stop(); //No, electric engine has no stop
 		}
-		// starter
+		// m_starter_is_running
 
-		if (contact && starter && curEngineRPM < stallRPM * 1.5f)
+		if (m_starter_has_contact && m_starter_is_running && m_curr_engine_rpm < m_conf_engine_stall_rpm * 1.5f)
 		{
-			totaltorque += -brakingTorque; //No starter in electric engines
+			totaltorque += -m_conf_engine_braking_torque; //No m_starter_is_running in electric engines
 		}
 		// restart
 
-		if (!running && curEngineRPM > stallRPM && contact)
+		if (!m_is_engine_running && m_curr_engine_rpm > m_conf_engine_stall_rpm && m_starter_has_contact)
 		{
-			running = true;
+			m_is_engine_running = true;
 #ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
+			SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 		}
 	}
@@ -425,165 +443,168 @@ void BeamEngine::update(float dt, int doUpdate)
 	// clutch
 	float retorque = 0.0f;
 
-	if (curGear)
+	if (m_curr_gear)
 	{
-		retorque = curClutchTorque / gearsRatio[curGear + 1];
+		retorque = m_curr_clutch_torque / m_conf_gear_ratios[m_curr_gear + 1];
 	}
 
 	totaltorque -= retorque;
 
 	// integration
-	curEngineRPM += dt * totaltorque / inertia;
+	m_curr_engine_rpm += dt * totaltorque / m_conf_engine_inertia;
 
 	// update clutch torque
-	if (curGear)
+	if (m_curr_gear)
 	{
-		float gearboxspinner = curEngineRPM / gearsRatio[curGear + 1];
-		curClutchTorque = (gearboxspinner - curWheelRevolutions) * curClutch * curClutch * clutchForce;
+		float gearboxspinner = m_curr_engine_rpm / m_conf_gear_ratios[m_curr_gear + 1];
+		m_curr_clutch_torque = (gearboxspinner - m_cur_wheel_revolutions) * m_curr_clutch * m_curr_clutch * m_conf_clutch_force;
 	} else
 	{
-		curClutchTorque = 0.0f;
+		m_curr_clutch_torque = 0.0f;
 	}
 
-	curEngineRPM = std::max(0.0f, curEngineRPM);
+	m_curr_engine_rpm = std::max(0.0f, m_curr_engine_rpm);
 
-	if (automode < MANUAL)
+	if (m_transmission_mode < MANUAL)
 	{
 		// auto-shift
-		if (shifting && !is_Electric) //No shifting in electric cars
+		if (m_is_shifting && !engine_is_electric) //No m_is_shifting in electric cars
 		{
-			shiftclock += dt;
+			m_shift_clock += dt;
 
 			// clutch
-			if (shiftclock < clutchTime)
+			if (m_shift_clock < m_conf_clutch_time)
 			{
-				curClutch = 1.0f - (shiftclock / clutchTime);
-			} else if (shiftclock > (shift_time - clutchTime))
+				m_curr_clutch = 1.0f - (m_shift_clock / m_conf_clutch_time);
+			} else if (m_shift_clock > (m_conf_shift_time - m_conf_clutch_time))
 			{
-				curClutch = 1.0f - (shift_time - shiftclock) / clutchTime;
+				m_curr_clutch = 1.0f - (m_conf_shift_time - m_shift_clock) / m_conf_clutch_time;
 			} else
 			{
-				curClutch = 0.0f;
+				m_curr_clutch = 0.0f;
 			}
 
 			// shift
-			if (shiftval && shiftclock > clutchTime / 2.0f)
+			if (m_curr_gear_change_relative && m_shift_clock > m_conf_clutch_time / 2.0f)
 			{
 #ifdef USE_OPENAL
-				SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
+				SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-				curGear += shiftval;
-				curGear = std::max(-1, curGear);
-				curGear = std::min(curGear, numGears);
-				shiftval = 0;
+				m_curr_gear += m_curr_gear_change_relative;
+				m_curr_gear = std::max(-1, m_curr_gear);
+				m_curr_gear = std::min(m_curr_gear, m_conf_num_gears);
+				m_curr_gear_change_relative = 0;
 			}
 
-			// end of shifting
-			if (shiftclock > shift_time)
+			// end of m_is_shifting
+			if (m_shift_clock > m_conf_shift_time)
 			{
 #ifdef USE_OPENAL
-				SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_SHIFT);
+				SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-				setAcc(autocurAcc);
-				shifting = 0;
-				curClutch = 1.0f;
-				postshifting = 1;
-				postshiftclock = 0.0f;
+				setAcc(m_auto_curr_acc);
+				m_is_shifting = 0;
+				m_curr_clutch = 1.0f;
+				m_is_post_shifting = true;
+				m_post_shift_clock = 0.0f;
 			}
 		} else
-			setAcc(autocurAcc);
+			setAcc(m_auto_curr_acc);
 
 
 
 		// auto declutch
-		if (!is_Electric)
+		if (!engine_is_electric)
 		{
-			if (postshifting)
+			if (m_is_post_shifting)
 			{
-				postshiftclock += dt;
-				if (postshiftclock > post_shift_time)
+				m_post_shift_clock += dt;
+				if (m_post_shift_clock > m_conf_post_shift_time)
 				{
-					postshifting = 0;
+					m_is_post_shifting = false;
 				}
 			}
-			if (shifting)
+			if (m_is_shifting)
 			{
-				// we are shifting, just avoid stalling in worst case
-				if (curEngineRPM < stallRPM * 1.2f)
+				// we are m_is_shifting, just avoid stalling in worst case
+				if (m_curr_engine_rpm < m_conf_engine_stall_rpm * 1.2f)
 				{
-					curClutch = 0.0f;
+					m_curr_clutch = 0.0f;
 				}
 			}
-			else if (postshifting)
+			else if (m_is_post_shifting)
 			{
-				// we are postshifting, no gear change
-				if (curEngineRPM < stallRPM * 1.2f && acc < 0.5f)
+				// we are m_is_post_shifting, no gear change
+				if (m_curr_engine_rpm < m_conf_engine_stall_rpm * 1.2f && acc < 0.5f)
 				{
-					curClutch = 0.0f;
+					m_curr_clutch = 0.0f;
 				}
 				else
 				{
-					curClutch = 1.0f;
+					m_curr_clutch = 1.0f;
 				}
 			}
-			else if (curEngineRPM < stallRPM * 1.2f && acc < 0.5f)
+			else if (m_curr_engine_rpm < m_conf_engine_stall_rpm * 1.2f && acc < 0.5f)
 			{
-				curClutch = 0.0f;
+				m_curr_clutch = 0.0f;
 			}
-			else if (std::abs(curGear) == 1)
+			else if (std::abs(m_curr_gear) == 1)
 			{
 				// 1st gear : special
-				if (curEngineRPM > minRPM)
+				if (m_curr_engine_rpm > m_conf_engine_min_rpm)
 				{
-					curClutch = (curEngineRPM - minRPM) / (maxRPM - minRPM);
-					curClutch = std::min(curClutch, 1.0f);
+					m_curr_clutch = (m_curr_engine_rpm - m_conf_engine_min_rpm) / (m_conf_engine_max_rpm - m_conf_engine_min_rpm);
+					m_curr_clutch = std::min(m_curr_clutch, 1.0f);
 				}
 				else
 				{
-					curClutch = 0.0f;
+					m_curr_clutch = 0.0f;
 				}
 			}
 			else
 			{
-				curClutch = 1.0f;
+				m_curr_clutch = 1.0f;
 			}
 		} else
-			curClutch = 1.0f;
+			m_curr_clutch = 1.0f;
 	}
 
-	if (doUpdate && !shifting && !postshifting)
+	if (doUpdate && !m_is_shifting && !m_is_post_shifting)
 	{
+		float halfRPMRange     = m_conf_autotrans_full_rpm_range / 2.f;
+		float oneThirdRPMRange = m_conf_autotrans_full_rpm_range / 3.f;
+
 		// gear hack
-		absVelocity = truck->nodes[0].Velocity.length();
-		float velocity = absVelocity;
+		this->m_abs_velocity = truck->nodes[0].Velocity.length();
+		float velocity = m_abs_velocity;
 
 		if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >=0)
 		{
 			Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
 			velocity = hdir.dotProduct(truck->nodes[0].Velocity);
 		}
-		relVelocity = std::abs(velocity);
+		m_rel_velocity = std::abs(velocity);
 
 		if (truck->wheels[0].radius != 0)
 		{
-			refWheelRevolutions = velocity / truck->wheels[0].radius * RAD_PER_SEC_TO_RPM;
+			m_ref_wheel_revolutions = velocity / truck->wheels[0].radius * RAD_PER_SEC_TO_RPM;
 		}
 
-		if (automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
+		if (m_transmission_mode == AUTOMATIC && (m_autoselect == DRIVE || m_autoselect == TWO) && m_curr_gear > 0)
 		{
-			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
+			if ((m_curr_engine_rpm > m_conf_engine_max_rpm - 100.0f && m_curr_gear > 1) || m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1] > m_conf_engine_max_rpm - 100.0f)
 			{
-				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears)) && !is_Electric)
+				if ((m_autoselect == DRIVE && m_curr_gear < m_conf_num_gears) || (m_autoselect == TWO && m_curr_gear < std::min(2, m_conf_num_gears)) && !engine_is_electric)
 				{
-					shift(1);
+					this->BeamEngineShift(1);
 				}
-			} else if (curGear > 1 && refWheelRevolutions * gearsRatio[curGear] < maxRPM && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
-				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear + 1]))) && !is_Electric)
+			} else if (m_curr_gear > 1 && m_ref_wheel_revolutions * m_conf_gear_ratios[m_curr_gear] < m_conf_engine_max_rpm && (m_curr_engine_rpm < m_conf_engine_min_rpm || (m_curr_engine_rpm < m_conf_engine_min_rpm + m_autotrans_curr_shift_behavior * halfRPMRange / 2.0f &&
+				getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear]) > getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1]))) && !engine_is_electric)
 			{
-				shift(-1);
+				this->BeamEngineShift(-1);
 			}
 
-			int newGear = curGear;
+			int newGear = m_curr_gear;
 			
 			float brake = 0.0f;
 
@@ -592,9 +613,9 @@ void BeamEngine::update(float dt, int doUpdate)
 				brake = truck->brake / truck->brakeforce;
 			}
 
-			rpms.push_front(curEngineRPM);
-			accs.push_front(acc);
-			brakes.push_front(brake);
+			m_autotrans_rpm_buffer.push_front(m_curr_engine_rpm);
+			m_autotrans_acc_buffer.push_front(acc);
+			m_autotrans_brake_buffer.push_front(brake);
 
 			float avgRPM50 = 0.0f;
 			float avgRPM200 = 0.0f;
@@ -603,185 +624,290 @@ void BeamEngine::update(float dt, int doUpdate)
 			float avgBrake50 = 0.0f;
 			float avgBrake200 = 0.0f;
 
-			for (unsigned int i=0; i < accs.size(); i++)
+			for (unsigned int i=0; i < m_autotrans_acc_buffer.size(); i++)
 			{
 				if (i < 50)
 				{
-					avgRPM50 += rpms[i];
-					avgAcc50 += accs[i];
-					avgBrake50 += brakes[i];
+					avgRPM50 += m_autotrans_rpm_buffer[i];
+					avgAcc50 += m_autotrans_acc_buffer[i];
+					avgBrake50 += m_autotrans_brake_buffer[i];
 				}
 
-				avgRPM200 += rpms[i];
-				avgAcc200 += accs[i];
-				avgBrake200 += brakes[i];
+				avgRPM200 += m_autotrans_rpm_buffer[i];
+				avgAcc200 += m_autotrans_acc_buffer[i];
+				avgBrake200 += m_autotrans_brake_buffer[i];
 			}
 
-			avgRPM50 /= std::min(rpms.size(), (std::deque<float>::size_type)50);
-			avgAcc50 /= std::min(accs.size(), (std::deque<float>::size_type)50);
-			avgBrake50 /= std::min(brakes.size(), (std::deque<float>::size_type)50);
+			avgRPM50 /= std::min(m_autotrans_rpm_buffer.size(), (std::deque<float>::size_type)50);
+			avgAcc50 /= std::min(m_autotrans_acc_buffer.size(), (std::deque<float>::size_type)50);
+			avgBrake50 /= std::min(m_autotrans_brake_buffer.size(), (std::deque<float>::size_type)50);
 
-			avgRPM200 /= rpms.size();
-			avgAcc200 /= accs.size();
-			avgBrake200 /= brakes.size();
+			avgRPM200 /= m_autotrans_rpm_buffer.size();
+			avgAcc200 /= m_autotrans_acc_buffer.size();
+			avgBrake200 /= m_autotrans_brake_buffer.size();
 
-			if (!is_Electric)
+			if (!engine_is_electric)
 			{
 
 				if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
 				{
-					shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
+					m_autotrans_curr_shift_behavior = std::min(m_autotrans_curr_shift_behavior + 0.01f, 1.0f);
 				}
 				else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5 )
 				{
-					shiftBehaviour /= 1.01;
+					m_autotrans_curr_shift_behavior /= 1.01;
 				}
 			
 
-				if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
+				if (avgAcc50 > 0.8f && m_curr_engine_rpm < m_conf_engine_max_rpm - oneThirdRPMRange)
 				{
-					while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+					while (newGear > 1 && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear] < m_conf_engine_max_rpm - oneThirdRPMRange &&
+						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
+						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
 					{
 						newGear--;
 					}
-				} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+				} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_curr_engine_rpm < m_conf_engine_min_rpm + halfRPMRange)
 				{
-					if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+					if (newGear > 1 && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear] < m_conf_engine_min_rpm + halfRPMRange &&
+						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
+						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
 					{
 						newGear--;
 					}
-				} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+				} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_curr_engine_rpm < m_conf_engine_min_rpm + halfRPMRange)
 				{
-					if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+					if (newGear > 1 && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear] < m_conf_engine_min_rpm + oneThirdRPMRange &&
+						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
+						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
 					{
 						newGear--;
 					}
 				}
-				else if (curGear < (autoselect == TWO ? std::min(2, numGears) : numGears) &&
-					avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
+				else if (m_curr_gear < (m_autoselect == TWO ? std::min(2, m_conf_num_gears) : m_conf_num_gears) &&
+					avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && m_curr_engine_rpm > avgRPM200 - m_conf_autotrans_full_rpm_range / 20.0f)
 				{
-					if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
+					if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && m_curr_engine_rpm > m_conf_engine_min_rpm + oneThirdRPMRange && m_curr_engine_rpm < m_conf_engine_max_rpm - oneThirdRPMRange)
 					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
+						if (m_cur_wheel_revolutions * m_conf_gear_ratios[newGear + 2] > m_conf_engine_min_rpm + oneThirdRPMRange)
 						{
 							newGear++;
 						}
 					}
-					else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
+					else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && m_curr_engine_rpm > m_conf_engine_min_rpm + oneThirdRPMRange)
 					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+						if (m_cur_wheel_revolutions * m_conf_gear_ratios[newGear + 2] > m_conf_engine_min_rpm + oneThirdRPMRange / 2.0f)
 						{
 							newGear++;
 						}
 					}
-					else if (avgAcc200 < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
+					else if (avgAcc200 < 0.2f && m_curr_engine_rpm > m_conf_engine_min_rpm + oneThirdRPMRange / 2.0f && m_curr_engine_rpm < m_conf_engine_min_rpm + halfRPMRange)
 					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+						if (m_cur_wheel_revolutions * m_conf_gear_ratios[newGear + 2] > m_conf_engine_min_rpm + oneThirdRPMRange / 2.0f)
 						{
 							newGear++;
 						}
 					}
 
-					if (newGear > curGear)
+					if (newGear > m_curr_gear)
 					{
-						upShiftDelayCounter++;
-						if (upShiftDelayCounter <= 100 * shiftBehaviour)
+						m_autotrans_up_shift_delay_counter++;
+						if (m_autotrans_up_shift_delay_counter <= 100 * m_autotrans_curr_shift_behavior)
 						{
-							newGear = curGear;
+							newGear = m_curr_gear;
 						}
 					}
 					else
 					{
-						upShiftDelayCounter = 0;
+						m_autotrans_up_shift_delay_counter = 0;
 					}
 				}
-				if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
-					newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f && !is_Electric)
+				if (newGear < m_curr_gear && std::abs(m_cur_wheel_revolutions * (m_conf_gear_ratios[newGear + 1] - m_conf_gear_ratios[m_curr_gear + 1])) > oneThirdRPMRange / 6.0f ||
+					newGear > m_curr_gear && std::abs(m_cur_wheel_revolutions * (m_conf_gear_ratios[newGear + 1] - m_conf_gear_ratios[m_curr_gear + 1])) > oneThirdRPMRange / 3.0f && !engine_is_electric)
 				{
-					if (absVelocity - relVelocity < 0.5f)
-						shiftTo(newGear);
+					if (m_abs_velocity - m_rel_velocity < 0.5f)
+						this->BeamEngineShiftTo(newGear);
 				}
 			}
 
 
-			if (accs.size() > 200)
+			if (m_autotrans_acc_buffer.size() > 200)
 			{
-				rpms.pop_back();
-				accs.pop_back();
-				brakes.pop_back();
+				m_autotrans_rpm_buffer.pop_back();
+				m_autotrans_acc_buffer.pop_back();
+				m_autotrans_brake_buffer.pop_back();
 			}
 			// avoid over-revving
-			if (automode <= SEMIAUTO && curGear != 0)
+			if (m_transmission_mode <= SEMIAUTO && m_curr_gear != 0)
 			{
-				if (std::abs(curWheelRevolutions * gearsRatio[curGear + 1]) > maxRPM * 1.25f)
+				if (std::abs(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1]) > m_conf_engine_max_rpm * 1.25f)
 				{
-					float clutch = 0.0f + 1.0f / (1.0f + std::abs(curWheelRevolutions * gearsRatio[curGear + 1] - maxRPM * 1.25f) / 2.0f);
-					curClutch = std::min(clutch, curClutch);
+					float clutch = 0.0f + 1.0f / (1.0f + std::abs(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1] - m_conf_engine_max_rpm * 1.25f) / 2.0f);
+					m_curr_clutch = std::min(clutch, m_curr_clutch);
 				}
-				if (curGear * curWheelRevolutions < -10.0f)
+				if (m_curr_gear * m_cur_wheel_revolutions < -10.0f)
 				{
-					float clutch = 0.0f + 1.0f / (1.0f + std::abs(-10.0f - curGear * curWheelRevolutions) / 2.0f);
-					curClutch = std::min(clutch, curClutch);
+					float clutch = 0.0f + 1.0f / (1.0f + std::abs(-10.0f - m_curr_gear * m_cur_wheel_revolutions) / 2.0f);
+					m_curr_clutch = std::min(clutch, m_curr_clutch);
 				}
 			}
 		}
 	}
 
 	// audio stuff
-	updateAudio(doUpdate);
+	UpdateBeamEngineAudio(doUpdate);
+
+	// ============ DEBUG =================
+	// Print all contents
+    //this->DEBUG_LogClassState(snapshot_before, dt, doUpdate);
 }
 
-void BeamEngine::updateAudio(int doUpdate)
+#define LOG_DEQUE_FLOAT(sstream, var) { \
+    auto itor = var.begin();\
+    auto iend = var.end();\
+    sstream << "[size: "<<var.size()<<"]";\
+    for (; itor != iend; ++itor) { sstream << std::setw(10) << *itor << ""; } \
+    } 
+
+void BeamEngine::DEBUG_LogClassState(BeamEngine snapshot_before, float dt, int doUpdate)
+{
+    using namespace std;
+    int width = 20;
+	std::stringstream msg;
+	msg.str().reserve(5000);
+    pthread_t thread = pthread_self();
+	
+	msg << " ====== Engine updated (thread: " << thread.p 
+        << ", truck: " << m_vehicle_index << ", deltatime: " << dt  
+        << ", doUpdate: " << doUpdate << ") =========";
+        /*
+	<<"\nrefWheelRevolutions       "<< setw(width) << snapshot_before.m_ref_wheel_revolutions                      << ", " << setw(width) << m_ref_wheel_revolutions
+	<<"\ncurWheelRevolutions       "<< setw(width) << snapshot_before.m_cur_wheel_revolutions                      << ", " << setw(width) << m_cur_wheel_revolutions 
+	<<"\ncurGear                   "<< setw(width) << snapshot_before.m_curr_gear                                  << ", " << setw(width) << m_curr_gear
+	<<"\ncurGearRange              "<< setw(width) << snapshot_before.m_curr_gear_range                             << ", " << setw(width) << m_curr_gear_range 
+	<<"\nnumGears                  "<< setw(width) << snapshot_before.m_conf_num_gears                                 << ", " << setw(width) << m_conf_num_gears 
+	<<"\nabsVelocity               "<< setw(width) << snapshot_before.m_abs_velocity                              << ", " << setw(width) << m_abs_velocity 
+	<<"\nrelVelocity               "<< setw(width) << snapshot_before.m_rel_velocity                              << ", " << setw(width) << m_rel_velocity 
+	<<"\nclutchForce               "<< setw(width) << snapshot_before.m_conf_clutch_force                              << ", " << setw(width) << m_conf_clutch_force
+	<<"\nclutchTime                "<< setw(width) << snapshot_before.m_conf_clutch_time                               << ", " << setw(width) << m_conf_clutch_time
+	<<"\ncurClutch                 "<< setw(width) << snapshot_before.m_curr_clutch                                << ", " << setw(width) << m_curr_clutch
+	<<"\ncurClutchTorque           "<< setw(width) << snapshot_before.m_curr_clutch_torque                          << ", " << setw(width) << m_curr_clutch_torque
+	<<"\ncontact                   "<< setw(width) << snapshot_before.m_starter_has_contact                                  << ", " << setw(width) << m_starter_has_contact 
+	<<"\nhasair                    "<< setw(width) << snapshot_before.m_conf_engine_has_air                                   << ", " << setw(width) << m_conf_engine_has_air 
+	<<"\nhasturbo                  "<< setw(width) << snapshot_before.m_conf_engine_has_turbo                                 << ", " << setw(width) << m_conf_engine_has_turbo 
+	<<"\nrunning                   "<< setw(width) << snapshot_before.m_is_engine_running                                  << ", " << setw(width) << m_is_engine_running 
+	<<"\ntype                      "<< setw(width) << snapshot_before.type                                     << ", " << setw(width) << type 
+	<<"\nbrakingTorque             "<< setw(width) << snapshot_before.m_conf_engine_braking_torque                            << ", " << setw(width) << m_conf_engine_braking_torque 
+	<<"\ncurAcc                    "<< setw(width) << snapshot_before.m_curr_acc                                   << ", " << setw(width) << m_curr_acc 
+	<<"\ncurEngineRPM              "<< setw(width) << snapshot_before.m_curr_engine_rpm                             << ", " << setw(width) << m_curr_engine_rpm 
+	<<"\ndiffRatio                 "<< setw(width) << snapshot_before.m_conf_engine_diff_ratio                                << ", " << setw(width) << m_conf_engine_diff_ratio 
+	<<"\nengineTorque              "<< setw(width) << snapshot_before.m_conf_engine_torque                             << ", " << setw(width) << m_conf_engine_torque 
+	<<"\nhydropump                 "<< setw(width) << snapshot_before.m_conf_engine_hydropump                                << ", " << setw(width) << m_conf_engine_hydropump 
+	<<"\nidleRPM                   "<< setw(width) << snapshot_before.m_conf_engine_idle_rpm                                  << ", " << setw(width) << m_conf_engine_idle_rpm 
+	<<"\nminIdleMixture            "<< setw(width) << snapshot_before.m_conf_engine_min_idle_mixture                           << ", " << setw(width) << m_conf_engine_min_idle_mixture 
+	<<"\nmaxIdleMixture            "<< setw(width) << snapshot_before.m_conf_engine_max_idle_mixture                           << ", " << setw(width) << m_conf_engine_max_idle_mixture 
+	<<"\ninertia                   "<< setw(width) << snapshot_before.m_conf_engine_inertia                                  << ", " << setw(width) << m_conf_engine_inertia 
+	<<"\nmaxRPM                    "<< setw(width) << snapshot_before.m_conf_engine_max_rpm                                   << ", " << setw(width) << m_conf_engine_max_rpm 
+	<<"\nminRPM                    "<< setw(width) << snapshot_before.m_conf_engine_min_rpm                                   << ", " << setw(width) << m_conf_engine_min_rpm 
+	<<"\nstallRPM                  "<< setw(width) << snapshot_before.m_conf_engine_stall_rpm                                 << ", " << setw(width) << m_conf_engine_stall_rpm 
+	<<"\nprime                     "<< setw(width) << snapshot_before.prime                                    << ", " << setw(width) << prime 
+	<<"\npost_shift_time           "<< setw(width) << snapshot_before.m_conf_post_shift_time                          << ", " << setw(width) << m_conf_post_shift_time 
+	<<"\npostshiftclock            "<< setw(width) << snapshot_before.m_post_shift_clock                           << ", " << setw(width) << m_post_shift_clock
+	<<"\nshift_time                "<< setw(width) << snapshot_before.m_conf_shift_time                               << ", " << setw(width) << m_conf_shift_time 
+	<<"\nshiftclock                "<< setw(width) << snapshot_before.m_shift_clock                               << ", " << setw(width) << m_shift_clock
+	<<"\npostshifting              "<< setw(width) << snapshot_before.m_is_post_shifting                             << ", " << setw(width) << m_is_post_shifting
+	<<"\nshifting                  "<< setw(width) << snapshot_before.m_is_shifting                                 << ", " << setw(width) << m_is_shifting
+	<<"\nshiftval                  "<< setw(width) << snapshot_before.m_curr_gear_change_relative                                 << ", " << setw(width) << m_curr_gear_change_relative
+	<<"\nautoselect                "<< setw(width) << snapshot_before.m_autoselect                               << ", " << setw(width) << m_autoselect
+	<<"\nautocurAcc                "<< setw(width) << snapshot_before.m_auto_curr_acc                               << ", " << setw(width) << m_auto_curr_acc
+	<<"\nstarter                   "<< setw(width) << snapshot_before.m_starter_is_running                                  << ", " << setw(width) << m_starter_is_running
+	<<"\nfullRPMRange              "<< setw(width) << snapshot_before.m_conf_autotrans_full_rpm_range                             << ", " << setw(width) << m_conf_autotrans_full_rpm_range
+	<<"\noneThirdRPMRange          "<< setw(width) << snapshot_before.oneThirdRPMRange                         << ", " << setw(width) << oneThirdRPMRange
+	<<"\nhalfRPMRange              "<< setw(width) << snapshot_before.halfRPMRange                             << ", " << setw(width) << halfRPMRange
+	<<"\nshiftBehaviour            "<< setw(width) << snapshot_before.m_autotrans_curr_shift_behavior                           << ", " << setw(width) << m_autotrans_curr_shift_behavior
+	<<"\nupShiftDelayCounter       "<< setw(width) << snapshot_before.m_autotrans_up_shift_delay_counter                      << ", " << setw(width) << m_autotrans_up_shift_delay_counter
+	<<"\nturboVer                  "<< setw(width) << snapshot_before.m_conf_turbo_version                                 << ", " << setw(width) << m_conf_turbo_version
+	<<"\ncurTurboRPM[MAX_NUM_TURBOS]     "<< setw(width) << snapshot_before.m_turbo_curr_rpm[MAX_NUM_TURBOS]                    << ", " << setw(width) << m_turbo_curr_rpm[MAX_NUM_TURBOS]
+	<<"\nturboInertiaFactor        "<< setw(width) << snapshot_before.m_conf_turbo_inertia_factor                       << ", " << setw(width) << m_conf_turbo_inertia_factor
+	<<"\nnumTurbos                 "<< setw(width) << snapshot_before.m_conf_num_turbos                                << ", " << setw(width) << m_conf_num_turbos
+	<<"\nmaxTurboRPM               "<< setw(width) << snapshot_before.m_conf_turbo_max_rpm                              << ", " << setw(width) << m_conf_turbo_max_rpm
+	<<"\nturbotorque               "<< setw(width) << snapshot_before.m_turbo_torque                              << ", " << setw(width) << m_turbo_torque
+	<<"\nturboInertia              "<< setw(width) << snapshot_before.m_turbo_inertia                             << ", " << setw(width) << m_turbo_inertia
+	<<"\nEngineAddiTorque[MAX_NUM_TURBOS]"<< setw(width) << snapshot_before.m_conf_turbo_addi_torque[MAX_NUM_TURBOS]               << ", " << setw(width) << m_conf_turbo_addi_torque[MAX_NUM_TURBOS]
+	<<"\nturboEngineRpmOperation   "<< setw(width) << snapshot_before.m_conf_turbo_engine_rpm_operation                  << ", " << setw(width) << m_conf_turbo_engine_rpm_operation
+	<<"\nturboMaxPSI               "<< setw(width) << snapshot_before.m_conf_turbo_max_psi                              << ", " << setw(width) << m_conf_turbo_max_psi
+	<<"\nturboPSI                  "<< setw(width) << snapshot_before.m_turbo_psi                                 << ", " << setw(width) << m_turbo_psi
+	<<"\nb_BOV                     "<< setw(width) << snapshot_before.m_conf_turbo_has_bov                                    << ", " << setw(width) << m_conf_turbo_has_bov
+	<<"\ncurBOVTurboRPM[MAX_NUM_TURBOS]  "<< setw(width) << snapshot_before.m_turbo_cur_bov_rpm[MAX_NUM_TURBOS]                 << ", " << setw(width) << m_turbo_cur_bov_rpm[MAX_NUM_TURBOS]
+	<<"\nturboBOVtorque            "<< setw(width) << snapshot_before.m_turbo_bov_torque                           << ", " << setw(width) << m_turbo_bov_torque
+	<<"\nminBOVPsi                 "<< setw(width) << snapshot_before.m_conf_turbo_min_bov_psi                                << ", " << setw(width) << m_conf_turbo_min_bov_psi
+	<<"\nb_WasteGate               "<< setw(width) << snapshot_before.m_conf_turbo_has_wastegate                              << ", " << setw(width) << m_conf_turbo_has_wastegate
+	<<"\nminWGPsi                  "<< setw(width) << snapshot_before.m_conf_turbo_wg_min_psi                                 << ", " << setw(width) << m_conf_turbo_wg_min_psi
+	<<"\nb_flutter                 "<< setw(width) << snapshot_before.m_conf_turbo_has_flutter                                << ", " << setw(width) << m_conf_turbo_has_flutter
+	<<"\nwastegate_threshold_p     "<< setw(width) << snapshot_before.m_conf_turbo_wg_threshold_p                    << ", " << setw(width) << m_conf_turbo_wg_threshold_p
+    <<"\nwastegate_threshold_n     "<< setw(width) << snapshot_before.m_conf_turbo_wg_threshold_n                    << ", " << setw(width) << m_conf_turbo_wg_threshold_n
+	<<"\nb_anti_lag                "<< setw(width) << snapshot_before.m_conf_turbo_has_antilag                               << ", " << setw(width) << m_conf_turbo_has_antilag
+	<<"\nminRPM_antilag            "<< setw(width) << snapshot_before.m_conf_turbo_antilag_min_rpm                           << ", " << setw(width) << m_conf_turbo_antilag_min_rpm
+	<<"\nrnd_antilag_chance        "<< setw(width) << snapshot_before.m_conf_turbo_antilag_chance_rand                       << ", " << setw(width) << m_conf_turbo_antilag_chance_rand
+	<<"\nantilag_power_factor      "<< setw(width) << snapshot_before.m_conf_turbo_antilag_power_factor                     << ", " << setw(width) << m_conf_turbo_antilag_power_factor
+	<<"\nm_air_pressure            "<< setw(width) << snapshot_before.m_air_pressure                           << ", " << setw(width) << m_air_pressure
+	<<"\nautomode                  "<< setw(width) << snapshot_before.m_transmission_mode                                 << ", " << setw(width) << m_transmission_mode
+    ;*/
+    //msg << "\nDEQUE m_autotrans_rpm_buffer BEFORE"; LOG_DEQUE_FLOAT(msg, snapshot_before.m_autotrans_rpm_buffer); 
+    //msg << "\nDEQUE m_autotrans_rpm_buffer   AFTER"; LOG_DEQUE_FLOAT(msg, m_autotrans_rpm_buffer);
+    //msg << "\nDEQUE m_autotrans_acc_buffer BEFORE"; LOG_DEQUE_FLOAT(msg, snapshot_before.m_autotrans_acc_buffer); 
+    //msg << "\nDEQUE m_autotrans_acc_buffer   AFTER"; LOG_DEQUE_FLOAT(msg, m_autotrans_acc_buffer);
+    //msg << "\nDEQUE m_autotrans_brake_buffer BEFORE"; LOG_DEQUE_FLOAT(msg, snapshot_before.m_autotrans_brake_buffer); 
+    //msg << "\nDEQUE m_autotrans_brake_buffer AFTER"; LOG_DEQUE_FLOAT(msg, m_autotrans_brake_buffer);
+
+    LOG(msg.str());
+}
+
+void BeamEngine::UpdateBeamEngineAudio(int doUpdate)
 {
 #ifdef USE_OPENAL
-	if (hasturbo)
+	if (m_conf_engine_has_turbo)
 	{
-		for (int i = 0; i < numTurbos; i++)
-			 SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM[i]);
+		for (int i = 0; i < m_conf_num_turbos; i++)
+			 SoundScriptManager::getSingleton().modulate(m_vehicle_index, SS_MOD_TURBO, m_turbo_curr_rpm[i]);
 	}
 
 	if (doUpdate)
 	{
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, curEngineRPM);
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TORQUE, curClutchTorque);
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_GEARBOX, curWheelRevolutions);
+		SoundScriptManager::getSingleton().modulate(m_vehicle_index, SS_MOD_ENGINE, m_curr_engine_rpm);
+		SoundScriptManager::getSingleton().modulate(m_vehicle_index, SS_MOD_TORQUE, m_curr_clutch_torque);
+		SoundScriptManager::getSingleton().modulate(m_vehicle_index, SS_MOD_GEARBOX, m_cur_wheel_revolutions);
 	}
 	// reverse gear beep
-	if (curGear == -1 && running)
+	if (m_curr_gear == -1 && m_is_engine_running)
 	{
-		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_REVERSE_GEAR);
+		SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_REVERSE_GEAR);
 	} else
 	{
-		SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_REVERSE_GEAR);
+		SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_REVERSE_GEAR);
 	}
 #endif // USE_OPENAL
 }
 
 float BeamEngine::getRPM()
 {
-	return curEngineRPM;
+	return m_curr_engine_rpm;
 }
 
 void BeamEngine::toggleAutoMode()
 {
-	automode = (automode + 1) % (MANUAL_RANGES + 1);
+	m_transmission_mode = (m_transmission_mode + 1) % (MANUAL_RANGES + 1);
 
 	// this switches off all automatic symbols when in manual mode
-	if (automode != AUTOMATIC)
+	if (m_transmission_mode != AUTOMATIC)
 	{
-		autoselect = MANUALMODE;
+		m_autoselect = MANUALMODE;
 	} else
 	{
-		autoselect = NEUTRAL;
+		m_autoselect = NEUTRAL;
 	}
 
-	if (automode == MANUAL_RANGES)
+	if (m_transmission_mode == MANUAL_RANGES)
 	{
 		this->setGearRange(0);
 		this->setGear(0);
@@ -790,62 +916,62 @@ void BeamEngine::toggleAutoMode()
 
 int BeamEngine::getAutoMode()
 {
-	return automode;
+	return m_transmission_mode;
 }
 
 void BeamEngine::setAutoMode(int mode)
 {
-	automode = mode;
+	m_transmission_mode = mode;
 }
 
 void BeamEngine::setAcc(float val)
 {
-	curAcc = val;
+	m_curr_acc = val;
 }
 
 float BeamEngine::getTurboPSI()
 {
-	turboPSI = 0;
+	m_turbo_psi = 0;
 
-	if (b_BOV)
+	if (m_conf_turbo_has_bov)
 	{
-		for (int i = 0; i < numTurbos; i++)
-			turboPSI += curBOVTurboRPM[i] / 10000.0f;
+		for (int i = 0; i < m_conf_num_turbos; i++)
+			m_turbo_psi += m_turbo_cur_bov_rpm[i] / 10000.0f;
 	}
 	else
 	{
-		for (int i = 0; i < numTurbos; i++)
-			turboPSI += curTurboRPM[i] / 10000.0f;
+		for (int i = 0; i < m_conf_num_turbos; i++)
+			m_turbo_psi += m_turbo_curr_rpm[i] / 10000.0f;
 	}
 
-	return turboPSI;
+	return m_turbo_psi;
 }
 
 float BeamEngine::getAcc()
 {
-	return curAcc;
+	return m_curr_acc;
 }
 
 // this is mainly for smoke...
 void BeamEngine::netForceSettings(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
 {
-	curEngineRPM = rpm;
-	curAcc       = force;
-	curClutch    = clutch;
-	curGear      = gear;
-	running      = _running; //(fabs(rpm)>10.0);
-	contact      = _contact;
+	m_curr_engine_rpm = rpm;
+	m_curr_acc       = force;
+	m_curr_clutch    = clutch;
+	m_curr_gear      = gear;
+	m_is_engine_running      = _running; //(fabs(rpm)>10.0);
+	m_starter_has_contact      = _contact;
 	if (_automode != -1)
 	{
-		automode = _automode;
+		m_transmission_mode = _automode;
 	}
 }
 
 float BeamEngine::getSmoke()
 {
-	if (running)
+	if (m_is_engine_running)
 	{
-		return curAcc * (1.0f - curTurboRPM[0] /* doesn't matter */ / maxTurboRPM);// * engineTorque / 5000.0f;
+		return m_curr_acc * (1.0f - m_turbo_curr_rpm[0] /* doesn't matter */ / m_conf_turbo_max_rpm);// * m_conf_engine_torque / 5000.0f;
 	}
 
 	return -1;
@@ -853,29 +979,29 @@ float BeamEngine::getSmoke()
 
 float BeamEngine::getTorque()
 {
-	if (curClutchTorque >  1000000.0) return  1000000.0;
-	if (curClutchTorque < -1000000.0) return -1000000.0;
-	return curClutchTorque;
+	if (m_curr_clutch_torque >  1000000.0) return  1000000.0;
+	if (m_curr_clutch_torque < -1000000.0) return -1000000.0;
+	return m_curr_clutch_torque;
 }
 
 void BeamEngine::setRPM(float rpm)
 {
-	curEngineRPM = rpm;
+	m_curr_engine_rpm = rpm;
 }
 
 void BeamEngine::setSpin(float rpm)
 {
-	curWheelRevolutions = rpm;
+	m_cur_wheel_revolutions = rpm;
 }
 
 // for hydros acceleration
 float BeamEngine::getCrankFactor()
 {
-	float minWorkingRPM = idleRPM * 1.1f; // minWorkingRPM > idleRPM avoids commands deadlocking the engine
+	float minWorkingRPM = m_conf_engine_idle_rpm * 1.1f; // minWorkingRPM > m_conf_engine_idle_rpm avoids commands deadlocking the engine
 
-	float rpmRatio = (curEngineRPM - minWorkingRPM) / (maxRPM - minWorkingRPM);
-	rpmRatio = std::max(0.0f, rpmRatio); // Avoids a negative rpmRatio when curEngineRPM < minWorkingRPM
-	rpmRatio = std::min(rpmRatio, 1.0f); // Avoids a rpmRatio > 1.0f when curEngineRPM > maxRPM
+	float rpmRatio = (m_curr_engine_rpm - minWorkingRPM) / (m_conf_engine_max_rpm - minWorkingRPM);
+	rpmRatio = std::max(0.0f, rpmRatio); // Avoids a negative rpmRatio when m_curr_engine_rpm < minWorkingRPM
+	rpmRatio = std::min(rpmRatio, 1.0f); // Avoids a rpmRatio > 1.0f when m_curr_engine_rpm > m_conf_engine_max_rpm
 
 	float crankfactor = 5.0f * rpmRatio;
 
@@ -884,29 +1010,29 @@ float BeamEngine::getCrankFactor()
 
 void BeamEngine::setClutch(float clutch)
 {
-	curClutch = clutch;
+	m_curr_clutch = clutch;
 }
 
 float BeamEngine::getClutch()
 {
-	return curClutch;
+	return m_curr_clutch;
 }
 
 float BeamEngine::getClutchForce()
 {
-	return clutchForce;
+	return m_conf_clutch_force;
 }
 
 void BeamEngine::toggleContact()
 {
-	contact = !contact;
+	m_starter_has_contact = !m_starter_has_contact;
 #ifdef USE_OPENAL
-	if (contact)
+	if (m_starter_has_contact)
 	{
-		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_IGNITION);
+		SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_IGNITION);
 	} else
 	{
-		SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_IGNITION);
+		SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_IGNITION);
 	}
 #endif // USE_OPENAL
 }
@@ -914,63 +1040,63 @@ void BeamEngine::toggleContact()
 // quick start
 void BeamEngine::start()
 {
-	if (automode == AUTOMATIC)
+	if (m_transmission_mode == AUTOMATIC)
 	{
-		curGear = 1;
-		autoselect = DRIVE;
+		m_curr_gear = 1;
+		m_autoselect = DRIVE;
 	} else
 	{
-		if (automode == SEMIAUTO)
+		if (m_transmission_mode == SEMIAUTO)
 		{
-			curGear = 1;
+			m_curr_gear = 1;
 		} else
 		{
-			curGear = 0;
+			m_curr_gear = 0;
 		}
-		autoselect = MANUALMODE;
+		m_autoselect = MANUALMODE;
 	}
-	curClutch = 0.0f;
-	curEngineRPM = 750.0f;
-	curClutchTorque = 0.0f;
+	m_curr_clutch = 0.0f;
+	m_curr_engine_rpm = 750.0f;
+	m_curr_clutch_torque = 0.0f;
 
-	for (int i = 0; i < numTurbos; i++)
+	for (int i = 0; i < m_conf_num_turbos; i++)
 	{
-		curTurboRPM[i] = 0.0f;
-		curBOVTurboRPM[i] = 0.0f;
+		m_turbo_curr_rpm[i] = 0.0f;
+		m_turbo_cur_bov_rpm[i] = 0.0f;
 	}
 
-	apressure = 0.0f;
-	running = true;
-	contact = true;
+	m_air_pressure = 0.0f;
+	m_is_engine_running = true;
+	m_starter_has_contact = true;
 #ifdef USE_OPENAL
-	SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_IGNITION);
+	SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_IGNITION);
 	setAcc(0.0f);
-	SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
+	SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
 void BeamEngine::offstart()
 {
-	curGear = 0;
-	curClutch = 0.0f;
-	if (!is_Electric)
-		autoselect = NEUTRAL; //no Neutral in electric engines
+	m_curr_gear = 0;
+	m_curr_clutch = 0.0f;
+	if (m_conf_engine_type != 'e') // e = Electric engine
+		m_autoselect = NEUTRAL; //no Neutral in electric engines
 	else
-		autoselect = ONE;
+		m_autoselect = ONE;
 
-	curEngineRPM = 0.0f;
-	running = false;
-	contact = false;
+	m_curr_engine_rpm = 0.0f;
+	m_is_engine_running = false;
+	m_starter_has_contact = false;
 #ifdef USE_OPENAL
-	SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_IGNITION);
-	SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_ENGINE);
+	SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_IGNITION);
+	SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
 void BeamEngine::setstarter(int v)
 {
-	starter = v;
-	if (v && curEngineRPM < 750.0f)
+	m_starter_is_running = (v == 1);
+	if (v && m_curr_engine_rpm < 750.0f)
 	{
 		setAcc(1.0f);
 	}
@@ -978,153 +1104,154 @@ void BeamEngine::setstarter(int v)
 
 int BeamEngine::getGear()
 {
-	return curGear;
+	return m_curr_gear;
 }
 
 // low level gear changing
 void BeamEngine::setGear(int v)
 {
-	curGear = v;
+	m_curr_gear = v;
 }
 
 int BeamEngine::getGearRange()
 {
-	return curGearRange;
+	return m_curr_gear_range;
 }
 
 void BeamEngine::setGearRange(int v)
 {
-	curGearRange = v;
+	m_curr_gear_range = v;
 }
 
 void BeamEngine::stop()
 {
-	if (!running) return;
+	if (!m_is_engine_running) return;
 
-	running = false;
+	m_is_engine_running = false;
 	// Script Event - engine death
-	TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, trucknum);
+	TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_vehicle_index);
 #ifdef USE_OPENAL
-	SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_ENGINE);
+	SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
 // high level controls
 void BeamEngine::autoSetAcc(float val)
 {
-	autocurAcc = val;
-	if (!shifting)
+	m_auto_curr_acc = val;
+	if (!m_is_shifting)
 	{
 		setAcc(val);
 	}
 }
 
-void BeamEngine::shift(int val)
+void BeamEngine::BeamEngineShift(int val)
 {
-	if (!val || curGear + val < -1 || curGear + val > getNumGears()) return;
-	if (automode < MANUAL)
+	if (!val || m_curr_gear + val < -1 || m_curr_gear + val > getNumGears()) return;
+	if (m_transmission_mode < MANUAL)
 	{
 #ifdef USE_OPENAL
-		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
+		SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-		shiftval = val;
-		shifting = 1;
-		shiftclock = 0.0f;
+		m_curr_gear_change_relative = val;
+		m_is_shifting = 1;
+		m_shift_clock = 0.0f;
 		setAcc(0.0f);
 	} else
 	{
-		if (curClutch > 0.25f)
+		if (m_curr_clutch > 0.25f)
 		{
 #ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_GEARSLIDE);
+			SoundScriptManager::getSingleton().trigOnce(m_vehicle_index, SS_TRIG_GEARSLIDE);
 #endif // USE_OPENAL
 		} else
 		{
 #ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SHIFT);
+			SoundScriptManager::getSingleton().trigOnce(m_vehicle_index, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-			curGear += val;
+			m_curr_gear += val;
 		}
 	}
 }
 
-void BeamEngine::shiftTo(int newGear)
+void BeamEngine::BeamEngineShiftTo(int newGear)
 {
-	shift(newGear - curGear);
+	this->BeamEngineShift(newGear - m_curr_gear);
 }
 
-void BeamEngine::updateShifts()
+void BeamEngine::UpdateBeamEngineShifts()
 {
-	if (autoselect == MANUALMODE) return;
+	if (m_autoselect == MANUALMODE) return;
 
 #ifdef USE_OPENAL
-	SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SHIFT);
+	SoundScriptManager::getSingleton().trigOnce(m_vehicle_index, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
+	bool engine_is_electric = (m_conf_engine_type == 'e');
 
-	if (autoselect == REAR)
+	if (m_autoselect == REAR)
 	{
-		curGear = -1;
-	} else if (autoselect == NEUTRAL && !is_Electric)
+		m_curr_gear = -1;
+	} else if (m_autoselect == NEUTRAL && !engine_is_electric)
 	{
-		curGear =  0;
-	} else if (autoselect == ONE)
+		m_curr_gear =  0;
+	} else if (m_autoselect == ONE)
 	{
-		curGear =  1;
+		m_curr_gear =  1;
 	}
-	else if (!is_Electric) //no other gears for electric cars
+	else if (!engine_is_electric) //no other gears for electric cars
 	{
 		// search for an appropriate gear
 		int newGear = 1;
 
-		while (newGear < numGears && curWheelRevolutions > 0.0f && curWheelRevolutions * gearsRatio[newGear + 1] > maxRPM - 100.0f)
+		while (newGear < m_conf_num_gears && m_cur_wheel_revolutions > 0.0f && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear + 1] > m_conf_engine_max_rpm - 100.0f)
 		{
 			newGear++;
 		}
 
-		curGear = newGear;
+		m_curr_gear = newGear;
 		
-		if (autoselect == TWO)
+		if (m_autoselect == TWO)
 		{
-			curGear = std::min(curGear, 2);
+			m_curr_gear = std::min(m_curr_gear, 2);
 		}
 	}
 }
 
 void BeamEngine::autoShiftSet(int mode)
 {
-	autoselect = (autoswitch)mode;
-	updateShifts();
+	m_autoselect = (autoswitch)mode;
+	this->UpdateBeamEngineShifts();
 }
 
 void BeamEngine::autoShiftUp()
 {
-	if (autoselect != REAR)
+	if (m_autoselect != REAR)
 	{
-		autoselect = (autoswitch)(autoselect-1);
-		updateShifts();
+		m_autoselect = (autoswitch)(m_autoselect-1);
+		this->UpdateBeamEngineShifts();
 	}
 }
 
 void BeamEngine::autoShiftDown()
 {
-	if (autoselect != ONE)
+	if (m_autoselect != ONE)
 	{
-		autoselect = (autoswitch)(autoselect+1);
-		updateShifts();
+		m_autoselect = (autoswitch)(m_autoselect+1);
+		this->UpdateBeamEngineShifts();
 	}
 }
 
 int BeamEngine::getAutoShift()
 {
-	return (int)autoselect;
+	return (int)m_autoselect;
 }
 
 void BeamEngine::setManualClutch(float val)
 {
-	if (automode >= MANUAL)
+	if (m_transmission_mode >= MANUAL)
 	{
 		val = std::max(0.0f, val);
-		curClutch = 1.0 - val;
+		m_curr_clutch = 1.0 - val;
 	}
 }
 
@@ -1135,53 +1262,53 @@ float BeamEngine::getEnginePower(float rpm)
 
 	float atValue = 0.0f; //Additional torque (turbo integreation)
 
-	float rpmRatio = rpm / (maxRPM * 1.25f);
+	float rpmRatio = rpm / (m_conf_engine_max_rpm * 1.25f);
 
 	rpmRatio = std::min(rpmRatio, 1.0f);
 
-	if (torqueCurve)
+	if (m_conf_engine_torque_curve)
 	{
-		tqValue = torqueCurve->getEngineTorque(rpmRatio);
+		tqValue = m_conf_engine_torque_curve->getEngineTorque(rpmRatio);
 	}
 
-	if (hasturbo)
+	if (m_conf_engine_has_turbo)
 	{
-		if (turboVer == 1)
+		if (m_conf_turbo_version == 1)
 		{
-			for (int i = 0; i < numTurbos; i++)
-				atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+			for (int i = 0; i < m_conf_num_turbos; i++)
+				atValue = m_conf_turbo_addi_torque[i] * (m_turbo_curr_rpm[i] / m_conf_turbo_max_rpm);
 		}
 		else
 		{
-			atValue = (((getTurboPSI() * 6.8) * engineTorque) / 100); //1psi = 6% more power
+			atValue = (((getTurboPSI() * 6.8) * m_conf_engine_torque) / 100); //1psi = 6% more power
 		}
 	}
 
-	return (engineTorque * tqValue) + atValue;
+	return (m_conf_engine_torque * tqValue) + atValue;
 }
 
 float BeamEngine::getAccToHoldRPM(float rpm)
 {
-	float rpmRatio = rpm / (maxRPM * 1.25f);
+	float rpmRatio = rpm / (m_conf_engine_max_rpm * 1.25f);
 
 	rpmRatio = std::min(rpmRatio, 1.0f);
 
-	return (-brakingTorque * rpmRatio) / getEnginePower(curEngineRPM);
+	return (-m_conf_engine_braking_torque * rpmRatio) / getEnginePower(m_curr_engine_rpm);
 }
 
 float BeamEngine::getIdleMixture()
 {
-	if (curEngineRPM < idleRPM)
+	if (m_curr_engine_rpm < m_conf_engine_idle_rpm)
 	{
 		// determine the fuel injection needed to counter the engine braking force
-		float idleMix = getAccToHoldRPM(curEngineRPM);
+		float idleMix = getAccToHoldRPM(m_curr_engine_rpm);
 
 		idleMix = std::max(0.06f, idleMix);
 
-		idleMix = idleMix * (1.0f + (idleRPM - curEngineRPM) / 100.0f);
+		idleMix = idleMix * (1.0f + (m_conf_engine_idle_rpm - m_curr_engine_rpm) / 100.0f);
 
-		idleMix = std::max(minIdleMixture, idleMix);
-		idleMix = std::min(idleMix, maxIdleMixture);
+		idleMix = std::max(m_conf_engine_min_idle_mixture, idleMix);
+		idleMix = std::min(idleMix, m_conf_engine_max_idle_mixture);
 
 		return idleMix;
 	}
@@ -1191,7 +1318,7 @@ float BeamEngine::getIdleMixture()
 
 float BeamEngine::getPrimeMixture()
 {
-	if (prime)
+	if (m_prime)
 	{
 		float crankfactor = getCrankFactor();
 
