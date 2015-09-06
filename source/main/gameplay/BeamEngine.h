@@ -129,13 +129,13 @@ public:
 	bool isRunning() { return m_is_engine_running; };
 	char getType() { return m_conf_engine_type; };
 	float getAccToHoldRPM(float rpm);
-	float getEnginePower(float rpm);
+	float CalcEnginePower(float rpm);
 	float getEngineTorque() { return m_conf_engine_torque; };
-	float getIdleMixture();
+	float CalcIdleMixture();
 	float getIdleRPM() { return m_conf_engine_idle_rpm; };
 	float getMaxRPM() { return m_conf_engine_max_rpm; };
 	float getMinRPM() { return m_conf_engine_min_rpm; };
-	float getPrimeMixture();
+	float CalcPrimeMixture();
 	int getAutoShift();
 	int getNumGears() { return m_conf_gear_ratios.size() - 2; };
 	int getNumGearsRanges() { return getNumGears() / 6 + 1; };

@@ -252,8 +252,8 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 	float acc = this->m_curr_acc;
 	bool engine_is_electric = (m_conf_engine_type == 'e');
 
-	acc = std::max(getIdleMixture(), acc);
-	acc = std::max(getPrimeMixture(), acc);
+	acc = std::max(CalcIdleMixture(), acc);
+	acc = std::max(CalcPrimeMixture(), acc);
 
 	if (doUpdate)
 	{
@@ -414,7 +414,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 
 	if (m_is_engine_running && m_starter_has_contact && m_curr_engine_rpm < (m_conf_engine_max_rpm * 1.25f))
 	{
-		totaltorque += getEnginePower(m_curr_engine_rpm) * acc;
+		totaltorque += CalcEnginePower(m_curr_engine_rpm) * acc;
 	}
 
 	if (!engine_is_electric)
@@ -468,7 +468,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 	if (m_transmission_mode < MANUAL)
 	{
 		// auto-shift
-		if (m_is_shifting && !engine_is_electric) //No m_is_shifting in electric cars
+		if (m_is_shifting && !engine_is_electric) //No shifting in electric cars
 		{
 			m_shift_clock += dt;
 
@@ -496,7 +496,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 				m_curr_gear_change_relative = 0;
 			}
 
-			// end of m_is_shifting
+			// end of shifting
 			if (m_shift_clock > m_conf_shift_time)
 			{
 #ifdef USE_OPENAL
@@ -526,7 +526,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 			}
 			if (m_is_shifting)
 			{
-				// we are m_is_shifting, just avoid stalling in worst case
+				// we are shifting, just avoid stalling in worst case
 				if (m_curr_engine_rpm < m_conf_engine_stall_rpm * 1.2f)
 				{
 					m_curr_clutch = 0.0f;
@@ -534,7 +534,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 			}
 			else if (m_is_post_shifting)
 			{
-				// we are m_is_post_shifting, no gear change
+				// we are postshifting, no gear change
 				if (m_curr_engine_rpm < m_conf_engine_stall_rpm * 1.2f && acc < 0.5f)
 				{
 					m_curr_clutch = 0.0f;
@@ -599,7 +599,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 					this->BeamEngineShift(1);
 				}
 			} else if (m_curr_gear > 1 && m_ref_wheel_revolutions * m_conf_gear_ratios[m_curr_gear] < m_conf_engine_max_rpm && (m_curr_engine_rpm < m_conf_engine_min_rpm || (m_curr_engine_rpm < m_conf_engine_min_rpm + m_autotrans_curr_shift_behavior * halfRPMRange / 2.0f &&
-				getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear]) > getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1]))) && !engine_is_electric)
+				CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear]) > CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1]))) && !engine_is_electric)
 			{
 				this->BeamEngineShift(-1);
 			}
@@ -662,24 +662,24 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 				if (avgAcc50 > 0.8f && m_curr_engine_rpm < m_conf_engine_max_rpm - oneThirdRPMRange)
 				{
 					while (newGear > 1 && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear] < m_conf_engine_max_rpm - oneThirdRPMRange &&
-						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
-						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
+						CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
+						CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
 					{
 						newGear--;
 					}
 				} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_curr_engine_rpm < m_conf_engine_min_rpm + halfRPMRange)
 				{
 					if (newGear > 1 && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear] < m_conf_engine_min_rpm + halfRPMRange &&
-						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
-						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
+						CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
+						CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
 					{
 						newGear--;
 					}
 				} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_curr_engine_rpm < m_conf_engine_min_rpm + halfRPMRange)
 				{
 					if (newGear > 1 && m_cur_wheel_revolutions * m_conf_gear_ratios[newGear] < m_conf_engine_min_rpm + oneThirdRPMRange &&
-						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
-						getEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
+						CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear])   * m_conf_gear_ratios[newGear] >
+						CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[newGear+1]) * m_conf_gear_ratios[newGear+1])
 					{
 						newGear--;
 					}
@@ -1255,7 +1255,7 @@ void BeamEngine::setManualClutch(float val)
 	}
 }
 
-float BeamEngine::getEnginePower(float rpm)
+float BeamEngine::CalcEnginePower(float rpm)
 {
 	// engine power with limiter
 	float tqValue = 0.0f; //This is not a value, it's more of a ratio(0-1), really got me lost..
@@ -1293,10 +1293,10 @@ float BeamEngine::getAccToHoldRPM(float rpm)
 
 	rpmRatio = std::min(rpmRatio, 1.0f);
 
-	return (-m_conf_engine_braking_torque * rpmRatio) / getEnginePower(m_curr_engine_rpm);
+	return (-m_conf_engine_braking_torque * rpmRatio) / CalcEnginePower(m_curr_engine_rpm);
 }
 
-float BeamEngine::getIdleMixture()
+float BeamEngine::CalcIdleMixture()
 {
 	if (m_curr_engine_rpm < m_conf_engine_idle_rpm)
 	{
@@ -1316,7 +1316,7 @@ float BeamEngine::getIdleMixture()
 	return 0.0f;
 }
 
-float BeamEngine::getPrimeMixture()
+float BeamEngine::CalcPrimeMixture()
 {
 	if (m_prime)
 	{
