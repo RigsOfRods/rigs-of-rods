@@ -1,4 +1,4 @@
-# Authors of Rigs of Rods
+﻿# Authors of Rigs of Rods
 Rigs of Rods is licensed under GPLv3 or later by the following authors (in no particular order) if not stated otherwise. A copy of the license can be found in [COPYING](COPYING) or online at http://www.gnu.org/licenses/gpl-3.0.en.html
 
 ##### Previous authors of the source code
@@ -40,6 +40,8 @@ If you are one of the previous authors and happen to come across this list pleas
 | ?                              | 09Challenger            | ?                      | ?                                |
 | Speciesx                       | klink                   | ?                      | ?                                |
 | ?                              | hagdervriese            | ?                      | ?                                |
+| ?				 | zikmester96		   | ?			    | ?				       |
+| ?				 | ashes48		   | ?			    | ? 			       |
 
 ##### authors of the source code since reboot (move to git)
 | GitHub nickname                | RoR forum nickname      | real name              | email                            |
