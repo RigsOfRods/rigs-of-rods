@@ -28,13 +28,13 @@
 #pragma once
 
 #include <unordered_map>
+#include <OgreAxisAlignedBox.h>
 
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
-#include "OgreAxisAlignedBox.h"
 #include "RigEditor_Node.h"
 
 namespace RoR

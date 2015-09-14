@@ -22,8 +22,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __HeatHaze_H_
 #define __HeatHaze_H_
 
+#include <Ogre.h>
+
 #include "RoRPrerequisites.h"
-#include "Ogre.h"
 
 class HeatHazeListener : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator
 {

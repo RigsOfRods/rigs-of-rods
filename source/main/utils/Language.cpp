@@ -22,8 +22,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Language.h"
 
-#include "OgreFontManager.h"
-#include "Settings.h"
+#include <Overlay/OgreFontManager.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreTextAreaOverlayElement.h>
 
 #ifdef USE_MYGUI
 #include <MyGUI.h>
@@ -32,16 +33,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI_FontManager.h>
 #endif // USE_MYGUI
 
-#include <OgreTextAreaOverlayElement.h>
-
 #include "FontTextureHelper.h"
+#include "Settings.h"
 
 using namespace Ogre;
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-#define strnlen(str,len) strlen(str)
-#endif
-
 
 LanguageEngine::LanguageEngine() : working(false), myguiConfigFilename("MyGUI_FontsEnglish.xml")
 {

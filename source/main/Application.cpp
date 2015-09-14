@@ -27,6 +27,8 @@
 
 #include "Application.h"
 
+#include <OgreException.h>
+
 #include "CacheSystem.h"
 #include "Console.h"
 #include "ContentManager.h"
@@ -35,8 +37,6 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
-
-#include <OgreException.h>
 
 namespace RoR
 {

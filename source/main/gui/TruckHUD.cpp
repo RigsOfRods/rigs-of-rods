@@ -19,6 +19,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TruckHUD.h"
 
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayElement.h>
+#include <Overlay/OgreOverlayManager.h>
+
 #include "AeroEngine.h"
 #include "Application.h"
 #include "Beam.h"
@@ -27,14 +31,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "Utils.h"
 
-#include <OgreOverlayManager.h>
-
 using namespace Ogre;
 
-TruckHUD::TruckHUD() :
-	  border(0)	
-	, updatetime(0.0f)
-	, width(450)
+TruckHUD::TruckHUD() : border(0), updatetime(0.0f), width(450)
 {
 	// init counters
 	for (int i=NOT_DRIVEABLE; i < AI; i++)

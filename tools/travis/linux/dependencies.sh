@@ -7,7 +7,6 @@ libfreetype6-dev libfreeimage-dev libzzip-dev libois-dev \
 libgl1-mesa-dev libglu1-mesa-dev libopenal-dev  \
 libx11-dev libxt-dev libxaw7-dev libxrandr-dev \
 libssl-dev libcurl4-openssl-dev libgtk2.0-dev libwxgtk3.0-dev
-# libboost-all-dev (too old) nvidia-cg-toolkit (needed only at runtime, does not affect RoR build)
 
 cd ~/
 mkdir ~/ror-deps
@@ -15,7 +14,7 @@ mkdir ~/.rigsofrods
 cd ~/ror-deps
 
 #OGRE
-wget -O ogre.zip http://bitbucket.org/sinbad/ogre/get/v1-8.zip
+wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9-0.zip
 unzip -qq ogre.zip
 rm ogre.zip
 cd sinbad-ogre-*
@@ -26,10 +25,10 @@ make -s -j2
 sudo make -s install
 cd ..
 
-#MyGUI (needs specific revision)
-wget -O mygui.zip https://github.com/MyGUI/mygui/archive/a790944c344c686805d074d7fc1d7fc13df98c37.zip
-unzip -qq mygui.zip
-rm mygui.zip
+#MyGUI
+wget -O mygui.tar.gz https://github.com/MyGUI/mygui/archive/MyGUI3.2.2.tar.gz
+tar -xvf mygui.tar.gz
+rm mygui.tar.gz
 cd mygui-*
 cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DCMAKE_BUILD_TYPE:STRING=Release \
@@ -42,20 +41,18 @@ make -s -j2
 sudo make -s install
 cd ..
 
-#Paged Geometry
-git clone -q --depth=1 https://github.com/Hiradur/ogre-paged.git
-cd ogre-paged
+#PagedGeometry
+git clone -q --depth=1 https://github.com/RigsOfRods/PagedGeometry.git
+cd PagedGeometry
 cmake -DCMAKE_BUILD_TYPE:STRING=Release \
 -DPAGEDGEOMETRY_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
 sudo make -s install
 cd ..
 
-#Caelum (needs specific revision for OGRE-1.8)
-wget -O caelum.zip http://caelum.googlecode.com/archive/3b0f1afccf5cb75c65d812d0361cce61b0e82e52.zip
-unzip -qq caelum.zip
-rm caelum.zip
-cd caelum-*
+#Caelum
+git clone -q --depth=1 https://github.com/RigsOfRods/caelum.git
+cd caelum
 cmake -DCaelum_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
 sudo make -s install
@@ -83,10 +80,3 @@ sudo SHARED=1 VERSION=2.22.1 make -s install
 #cleanup files made by root
 rm -f ../../lib/*
 cd ../../../../../
-
-#Hydrax (included in RoR's source tree)
-#git clone --depth=1 https://github.com/imperative/CommunityHydrax.git
-#cd CommunityHydrax
-#make PREFIX=/usr/local
-#sudo make install PREFIX=/usr/local
-#cd ..

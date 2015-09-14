@@ -22,12 +22,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #ifndef SCRIPTENGINE_H__
 #define SCRIPTENGINE_H__
+#include <Ogre.h>
 
 #include "RoRPrerequisites.h"
 
 #include "Collisions.h"
 #include "InterThreadStoreVector.h"
-#include "Ogre.h"
 #include "Singleton.h"
 
 #include "scriptdictionary/scriptdictionary.h"

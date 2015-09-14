@@ -178,6 +178,7 @@ ELSEIF(UNIX)
    # Ogre components
    PKG_CHECK_MODULES  (Ogre_Terrain  OGRE-Terrain         REQUIRED)
    PKG_CHECK_MODULES  (Ogre_Paging   OGRE-Paging          REQUIRED)
+   PKG_CHECK_MODULES  (Ogre_Overlay  OGRE-Overlay         REQUIRED)
    PKG_CHECK_MODULES  (Ogre_RTShader OGRE-RTShaderSystem  REQUIRED)
    
 

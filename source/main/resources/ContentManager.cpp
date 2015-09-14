@@ -21,6 +21,9 @@
 
 #include "ContentManager.h"
 
+#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
+#include <Overlay/OgreOverlayManager.h>
+
 #include "Application.h"
 #include "Settings.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
@@ -32,7 +35,6 @@
 #include "CacheSystem.h"
 
 #include "OgreShaderParticleRenderer.h"
-#include "OgreBoxEmitterFactory.h"
 
 #ifdef USE_ANGELSCRIPT
 #include "FireExtinguisherAffectorFactory.h"

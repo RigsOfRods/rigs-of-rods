@@ -23,10 +23,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AS_OGRE_H_
 #define AS_OGRE_H_
 
-#include "RoRPrerequisites.h"
+#include <angelscript.h>
+#include <Ogre.h>
 
-#include "angelscript.h"
-#include "Ogre.h"
+#include "RoRPrerequisites.h"
 
 // This function will register the following objects with the scriptengine:
 //    - Ogre::Vector3

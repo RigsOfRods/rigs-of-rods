@@ -19,6 +19,16 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "GameScript.h"
 
+#ifdef USE_CURL
+#define CURL_STATICLIB
+#include <stdio.h>
+#include <curl/curl.h>
+//#include <curl/types.h>
+#include <curl/easy.h>
+#endif //USE_CURL
+
+#include "OgreSubsystem.h"
+
 // AS addons start
 #include "contextmgr/contextmgr.h"
 #include "scriptany/scriptany.h"
@@ -28,14 +38,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "scriptstdstring/scriptstdstring.h"
 #include "scriptstring/scriptstring.h"
 // AS addons end
-
-#ifdef USE_CURL
-#define CURL_STATICLIB
-#include <stdio.h>
-#include <curl/curl.h>
-//#include <curl/types.h>
-#include <curl/easy.h>
-#endif //USE_CURL
 
 #include "Application.h"
 #include "Beam.h"
@@ -47,7 +49,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
-#include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "Settings.h"

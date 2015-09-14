@@ -21,9 +21,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __Road2_H_
 #define __Road2_H_
 
-#include "RoRPrerequisites.h"
+#include <Ogre.h>
 
-#include "Ogre.h"
+#include "RoRPrerequisites.h"
 
 // dynamic roads
 class Road2 : public ZeroedMemoryAllocator

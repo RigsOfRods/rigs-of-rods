@@ -20,12 +20,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_ANGELSCRIPT
 
 #include "FireExtinguisherAffector.h"
-#include "OgreParticleSystem.h"
-#include "OgreParticle.h"
-#include "OgreStringConverter.h"
-#include "ExtinguishableFireAffectorFactory.h"
-#include "OgreParticleSystemManager.h"
+
+#include <OgreParticleSystem.h>
+#include <OgreParticle.h>
+#include <OgreStringConverter.h>
+#include <OgreParticleSystemManager.h>
+
 #include "RoRPrerequisites.h"
+
+#include "ExtinguishableFireAffectorFactory.h"
 
 namespace Ogre {
 

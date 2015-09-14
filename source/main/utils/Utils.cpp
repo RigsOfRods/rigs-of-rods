@@ -19,7 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Utils.h"
 
-#include "Ogre.h"
+#include <Ogre.h>
+
 #include "rornet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"

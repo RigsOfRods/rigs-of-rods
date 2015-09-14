@@ -21,9 +21,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "TextureToolWindow.h"
 
+#include <Ogre.h>
+
 #include "Application.h"
 #include "Console.h"
-#include "Ogre.h"
 #include "Settings.h"
 #include "Language.h"
 #include "Utils.h"
@@ -69,7 +70,7 @@ void TextureToolWindow::fillCombo()
 
 	while (it.hasMoreElements())
 	{
-		TexturePtr txt = (TexturePtr)it.getNext();
+		TexturePtr txt(it.getNext().staticCast<Texture>());
 		
 		if (dynamicOnly && ((txt->getUsage() & TU_STATIC) != 0)) continue;
 		

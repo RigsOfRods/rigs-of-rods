@@ -24,11 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef USE_ANGELSCRIPT
 
-#include "OgreParticleAffector.h"
-#include "OgreVector3.h"
-#include "OgreVector2.h"
-
-
+#include <OgreParticleAffector.h>
+#include <OgreVector3.h>
+#include <OgreVector2.h>
 
 namespace Ogre {
 

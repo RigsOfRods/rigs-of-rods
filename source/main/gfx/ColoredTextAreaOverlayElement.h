@@ -22,10 +22,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __ColoredTextAreaOverlayElement_H_
 #define __ColoredTextAreaOverlayElement_H_
 
-#include "RoRPrerequisites.h"
-
 #include <vector>
-#include "OgreTextAreaOverlayElement.h"
+#include <OgreTextAreaOverlayElement.h>
+
+#include "RoRPrerequisites.h"
 
 
 class ColoredTextAreaOverlayElement : public Ogre::TextAreaOverlayElement

@@ -198,7 +198,7 @@ void Console::eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender)
 
 void Console::eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
-	switch (_key.toValue())
+	switch (_key.getValue())
 	{
 		case MyGUI::KeyCode::ArrowUp:
 		{

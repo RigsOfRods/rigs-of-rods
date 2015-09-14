@@ -21,9 +21,10 @@
 
 #pragma once
 
+#include <OgreResourceManager.h>
+
 #include "RoRPrerequisites.h"
 
-#include "OgreResourceManager.h"
 #include "Skin.h"
 
 namespace RoR

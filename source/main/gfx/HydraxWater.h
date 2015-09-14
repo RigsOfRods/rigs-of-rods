@@ -18,6 +18,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __HydraxWater_H_
 #define __HydraxWater_H_
 
+#include <Ogre.h>
+
 #include "Prerequisites.h"
 #include "Hydrax.h"
 #include "MaterialManager.h"
@@ -27,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ProjectedGrid.h"
 #include "SimpleGrid.h"
 
-#include "Ogre.h"
 #include "Water.h"
 #include "IWater.h"
 #include "TerrainManager.h"

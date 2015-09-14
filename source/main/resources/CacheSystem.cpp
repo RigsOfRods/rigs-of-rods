@@ -27,6 +27,8 @@
 
 #include "CacheSystem.h"
 
+#include <OgreFileSystem.h>
+
 #include "BeamData.h"
 #include "BeamEngine.h"
 #include "ErrorUtils.h"
@@ -39,12 +41,10 @@
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
-	
+
 #ifdef USE_MYGUI
 #include "LoadingWindow.h"
 #endif // USE_MYGUI
-
-#include <OgreFileSystem.h>
 
 using namespace Ogre;
 
@@ -585,19 +585,19 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 		if (params.size() != 2) { logBadTruckAttrib(line, t); return; } else  t.numgears = StringConverter::parseInt(params[1]);
 	else if (attrib == "enginetype")
 		if (params.size() != 2) { logBadTruckAttrib(line, t); return; } else  t.enginetype = StringConverter::parseInt(params[1]);
-	else if (attrib == "materials")
-		if (params.size() < 2)
-		{
+	else if (attrib == "materials") {
+		if (params.size() < 2) {
 			logBadTruckAttrib(line, t);
 			return;
 		}
-		else
-		{
+		else {
 			String mat = params[1];
-			Ogre::StringVector ar = StringUtil::split(mat," ");
-			for (Ogre::StringVector::iterator it = ar.begin(); it!=ar.end(); it++)
+			Ogre::StringVector ar = StringUtil::split(mat, " ");
+			for (Ogre::StringVector::iterator it = ar.begin(); it != ar.end(); it++) {
 				t.materials.insert(*it);
+			}
 		}
+	}
 }
 
 bool CacheSystem::loadCache()
@@ -2248,7 +2248,7 @@ void CacheSystem::checkForNewContent()
 std::time_t CacheSystem::fileTime(Ogre::String filename)
 {
 	FileSystemArchiveFactory FSAF;
-	Archive *fsa = FSAF.createInstance(filename);
+	Archive *fsa = FSAF.createInstance(filename, true);
 
 	std::time_t ft = fsa->getModifiedTime(filename);
 

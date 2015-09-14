@@ -22,7 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __FireExtinguisherAffectorFactory_H__
 #define __FireExtinguisherAffectorFactory_H__
 
-#include "OgreParticleAffectorFactory.h"
+#include <OgreParticleAffectorFactory.h>
+
 #include "FireExtinguisherAffector.h"
 
 namespace Ogre {

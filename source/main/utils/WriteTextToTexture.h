@@ -22,10 +22,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "RoRPrerequisites.h"
-
-#include "OgrePrerequisites.h"
 #include <OgreImage.h>
+#include <OgrePrerequisites.h>
+
+#include "RoRPrerequisites.h"
 
 void SaveImage(Ogre::TexturePtr TextureToSave, Ogre::String filename);
 void WriteToTexture(const Ogre::String &str, Ogre::TexturePtr destTexture, Ogre::Image::Box destRectangle, Ogre::Font* font, const Ogre::ColourValue &color, char justify = 'l',  bool wordwrap = true);

@@ -24,6 +24,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DepthOfFieldEffect.h"
 
+#include <Ogre.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
+
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Character.h"
@@ -31,21 +35,19 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "OgreSubsystem.h"
 #include "Settings.h"
 
-#include <Ogre.h>
-
 using namespace Ogre;
 
 const int DepthOfFieldEffect::BLUR_DIVISOR = 2;
 
 DepthOfFieldEffect::DepthOfFieldEffect() :
-	  mCompositor(NULL)
-	, mDepthTarget(NULL)
-	, mDepthTechnique(NULL)
-	, mDepthViewport(NULL)
-	, mFarBlurCutoff(1.0)
-	, mFarDepth(190.0)
-	, mFocalDepth(100.0)
-	, mNearDepth(10.0)
+	mCompositor(NULL),
+	mDepthTarget(NULL),
+	mDepthTechnique(NULL),
+	mDepthViewport(NULL),
+	mFarBlurCutoff(1.0),
+	mFarDepth(190.0),
+	mFocalDepth(100.0),
+	mNearDepth(10.0)
 {
 	mWidth = RoR::Application::GetOgreSubsystem()->GetViewport()->getActualWidth();
 	mHeight = RoR::Application::GetOgreSubsystem()->GetViewport()->getActualHeight();
