@@ -19,6 +19,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PreviewRenderer.h"
 
+#include <Ogre.h>
+#include <OgreBuildSettings.h>
+
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "PlatformUtils.h"

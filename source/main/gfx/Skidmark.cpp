@@ -19,9 +19,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Skidmark.h"
 
+#include <Ogre.h>
+
 #include "BeamData.h"
 #include "IHeightFinder.h"
-#include "Ogre.h"
 #include "Settings.h"
 
 using namespace Ogre;

@@ -19,8 +19,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "EnvironmentMap.h"
 
+#include <Ogre.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
+
 #include "Beam.h"
-#include "Ogre.h"
 #include "Settings.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"

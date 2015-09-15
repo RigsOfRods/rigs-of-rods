@@ -99,7 +99,7 @@
                 <UserString key="link" value="low_pressure"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="RotatingSkin" position="769 544 248 248" align="Right Bottom" layer="Main" name="SpeedoNeedle">
+        <Widget type="ImageBox" skin="RotatingSkin" position="771 544 248 248" align="Right Bottom" layer="Main" name="SpeedoNeedle">
             <Property key="ImageTexture" value="redneedle_v2.png"/>
             <UserString key="anim" value="rotate"/>
             <UserString key="vmin" value="0"/>
@@ -111,11 +111,11 @@
                 <Property key="ImageTexture" value="needle_prt2.png"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="910 416 112 112" align="Right Bottom" layer="Back" name="TurboGauge">
+        <Widget type="ImageBox" skin="ImageBox" position="910 440 112 112" align="Right Bottom" layer="Back" name="TurboGauge">
             <Property key="ImageTexture" value="turbo_v4.png"/>
             <UserString key="link" value="engine_turbo"/>
         </Widget>
-        <Widget type="ImageBox" skin="RotatingSkin" position="916 422 100 100" align="Right Bottom" layer="Overlapped" name="needle_bottom">
+        <Widget type="ImageBox" skin="RotatingSkin" position="917 447 99 99" align="Right Bottom" layer="Overlapped" name="needle_bottom">
             <Property key="ImageTexture" value="redneedle_v2.png"/>
             <UserString key="link" value="engine_turbo"/>
             <UserString key="anim" value="rotate"/>
@@ -123,7 +123,7 @@
             <UserString key="vmin" value="0"/>
             <UserString key="min" value="-130"/>
             <UserString key="max" value="130"/>
-            <Widget type="ImageBox" skin="ImageBox" position="42 42 16 16">
+            <Widget type="ImageBox" skin="ImageBox" position="42 42 15 15">
                 <Property key="ImageTexture" value="needle_prt2.png"/>
             </Widget>
         </Widget>

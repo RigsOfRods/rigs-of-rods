@@ -25,7 +25,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // Author: Ryan Booker (eyevee99)
 
 #include "Lens.h"
-#include "Ogre.h"
+
+#include <Ogre.h>
 
 using namespace Ogre;
 

@@ -26,15 +26,16 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 #include "OgreTerrainPSSMMaterialGenerator.h"
-#include "OgreTerrain.h"
-#include "OgreMaterialManager.h"
-#include "OgreTechnique.h"
-#include "OgrePass.h"
-#include "OgreTextureUnitState.h"
-#include "OgreGpuProgramManager.h"
-#include "OgreHighLevelGpuProgramManager.h"
-#include "OgreHardwarePixelBuffer.h"
-#include "OgreShadowCameraSetupPSSM.h"
+
+#include <OgreTerrain.h>
+#include <OgreMaterialManager.h>
+#include <OgreTechnique.h>
+#include <OgrePass.h>
+#include <OgreTextureUnitState.h>
+#include <OgreGpuProgramManager.h>
+#include <OgreHighLevelGpuProgramManager.h>
+#include <OgreHardwarePixelBuffer.h>
+#include <OgreShadowCameraSetupPSSM.h>
 
 namespace Ogre
 {

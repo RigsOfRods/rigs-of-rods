@@ -22,8 +22,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __PositionStorage_H__
 #define __PositionStorage_H__
 
+#include <OgrePrerequisites.h>
+
 #include "RoRPrerequisites.h"
-#include "OgrePrerequisites.h"
 
 
 class PositionStorage : public ZeroedMemoryAllocator

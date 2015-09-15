@@ -19,7 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "MaterialFunctionMapper.h"
 
-#include "Ogre.h"
+#include <Ogre.h>
+
 #include "Settings.h"
 
 using namespace Ogre;

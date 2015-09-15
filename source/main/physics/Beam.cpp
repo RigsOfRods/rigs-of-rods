@@ -20,6 +20,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Beam.h"
 
+#include <Ogre.h>
+#include <Overlay/OgreOverlayElement.h>
+#include <Overlay/OgreOverlayManager.h>
+
 #include "AirBrake.h"
 #include "Airfoil.h"
 #include "Application.h"
@@ -51,7 +55,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MeshObject.h"
 #include "MovableText.h"
 #include "Network.h"
-#include "Ogre.h"
 #include "PointColDetector.h"
 #include "PositionStorage.h"
 #include "Replay.h"

@@ -19,10 +19,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TurboJet.h"
 
+#include <Ogre.h>
+
 #include "BeamData.h"
 #include "MaterialFunctionMapper.h"
 #include "MaterialReplacer.h"
-#include "Ogre.h"
 #include "Skin.h"
 #include "SoundScriptManager.h"
 

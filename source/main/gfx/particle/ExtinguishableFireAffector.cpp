@@ -20,11 +20,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_ANGELSCRIPT
 
 #include "ExtinguishableFireAffector.h"
-#include "OgreParticleSystem.h"
-#include "OgreParticle.h"
-#include "OgreStringConverter.h"
-#include "OgreSceneNode.h"
+
+#include <OgreParticleSystem.h>
+#include <OgreParticle.h>
+#include <OgreStringConverter.h>
+#include <OgreSceneNode.h>
+
 #include "RoRPrerequisites.h"
+
 #include "ScriptEngine.h"
 
 

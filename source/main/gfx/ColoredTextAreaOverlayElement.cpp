@@ -19,7 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ColoredTextAreaOverlayElement.h"
-#include "OgreRoot.h"
+
+#include <OgreRoot.h>
 
 #define POS_TEX_BINDING 0
 #define COLOUR_BINDING 1

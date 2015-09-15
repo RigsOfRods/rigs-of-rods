@@ -22,9 +22,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __Water_H_
 #define __Water_H_
 
+#include <Ogre.h>
+
 #include "RoRPrerequisites.h"
 
-#include "Ogre.h"
 #include "IWater.h"
 
 class Water : public IWater, public ZeroedMemoryAllocator

@@ -26,20 +26,20 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __DepthOfFieldEffect_H_
 #define __DepthOfFieldEffect_H_
 
-#include "RoRPrerequisites.h"
+#include <OgrePrerequisites.h>
+#include <OgreCompositorInstance.h>
+#include <OgreRenderTargetListener.h>
+#include <OgreFrameListener.h>
+#include <OgreRenderQueue.h>
 
-#include "OgrePrerequisites.h"
-#include "OgreCompositorInstance.h"
-#include "OgreRenderTargetListener.h"
-#include "OgreFrameListener.h"
-#include "OgreRenderQueue.h"
+#include "RoRPrerequisites.h"
 
 class Lens;
 
 class DepthOfFieldEffect : public Ogre::CompositorInstance::Listener,
-						   public Ogre::RenderTargetListener,
-						   public Ogre::RenderQueue::RenderableListener,
-						   public ZeroedMemoryAllocator
+                           public Ogre::RenderTargetListener,
+                           public Ogre::RenderQueue::RenderableListener,
+                           public ZeroedMemoryAllocator
 {
 public:
 

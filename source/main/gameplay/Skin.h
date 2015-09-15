@@ -21,12 +21,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _Skin_H__
 #define _Skin_H__
 
+#include <OgrePrerequisites.h>
+#include <OgreResource.h>
+#include <OgreTexture.h>
+#include <OgreMaterial.h>
+#include <OgreCommon.h>
+
 #include "RoRPrerequisites.h"
-#include "OgrePrerequisites.h"
-#include "OgreResource.h"
-#include "OgreTexture.h"
-#include "OgreMaterial.h"
-#include "OgreCommon.h"
 
 class Skin : public Ogre::Resource
 {

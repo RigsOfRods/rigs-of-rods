@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "OgrePrerequisites.h"
+#include <OgrePrerequisites.h>
 
 /**
 * SIM-CORE; Node.

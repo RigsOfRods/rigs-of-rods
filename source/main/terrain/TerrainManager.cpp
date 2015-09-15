@@ -19,6 +19,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TerrainManager.h"
 
+#include <Terrain/OgreTerrainPaging.h>
+
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
@@ -41,7 +43,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
-#include "OgreTerrainPaging.h"
 
 using namespace Ogre;
 

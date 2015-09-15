@@ -31,7 +31,6 @@ int SurveyMapTextureCreator::mCounter = 0;
 
 SurveyMapTextureCreator::SurveyMapTextureCreator() :
 	  mCamera(NULL)
-	, mMaterial(NULL)
 	, mRttTex(NULL)
 	, mStatics(NULL)
 	, mTextureUnitState(NULL)

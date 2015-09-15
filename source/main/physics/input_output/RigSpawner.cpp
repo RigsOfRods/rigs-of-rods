@@ -2597,7 +2597,7 @@ Ogre::MaterialPtr RigSpawner::CloneMaterial(Ogre::String const & source_name, Og
 		std::stringstream msg;
 		msg << "Built-in material '" << source_name << "' missing! Skipping...";
 		AddMessage(Message::TYPE_ERROR, msg.str());
-		return Ogre::MaterialPtr(nullptr);
+		return Ogre::MaterialPtr();
 	}
 	return src_mat->clone(clone_name);
 }

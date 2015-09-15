@@ -19,13 +19,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorFree.h"
 
+#include <Ogre.h>
+
 #include "Application.h"
 #include "Console.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "mygui/BaseLayout.h"
-#include "Ogre.h"
 #include "TerrainManager.h"
 #include "GUIManager.h"
 

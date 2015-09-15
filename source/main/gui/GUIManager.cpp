@@ -26,6 +26,8 @@
 
 #include "GUIManager.h"
 
+#include <MyGUI_OgrePlatform.h>
+
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
@@ -36,8 +38,6 @@
 #include "RTTLayer.h"
 #include "Settings.h"
 #include "TerrainManager.h"
-
-#include <MyGUI_OgrePlatform.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -88,7 +88,7 @@ void GUIManager::createGui()
 {
 	String gui_logfilename = SSETTING("Log Path", "") + "mygui.log";
 	mPlatform = new MyGUI::OgrePlatform();
-	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->sceneManager, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, gui_logfilename); // use cache resource group so preview images are working
+	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->sceneManager, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME); // use cache resource group so preview images are working
 	mGUI = new MyGUI::Gui();
 
 	// empty init

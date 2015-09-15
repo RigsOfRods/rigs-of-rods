@@ -19,12 +19,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorVehicleSpline.h"
 
+#include <Ogre.h>
+
 #include "Application.h"
 #include "Beam.h"
 #include "Console.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "Ogre.h"
 #include "Settings.h"
 
 using namespace Ogre;

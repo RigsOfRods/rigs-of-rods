@@ -25,6 +25,11 @@
 	@date   6th of May 2010
 */
 
+#include <Ogre.h>
+#include <Overlay/OgreFontManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayManager.h>
+
 #include "OverlayWrapper.h"
 
 #include "AeroEngine.h"
@@ -39,7 +44,6 @@
 #include "GlobalEnvironment.h"
 #include "IHeightFinder.h"
 #include "Language.h"
-#include "OgreFontManager.h"
 #include "OgreSubsystem.h"
 #include "RoRVersion.h"
 #include "ScrewProp.h"

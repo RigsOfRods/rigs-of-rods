@@ -19,10 +19,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorStatic.h"
 
+#include <Ogre.h>
+
 #include "Beam.h"
 #include "Character.h"
 #include "IHeightFinder.h"
-#include "Ogre.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;

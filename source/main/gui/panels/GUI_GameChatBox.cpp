@@ -27,7 +27,12 @@
 
 #include "GUI_GameChatBox.h"
 
+#include <OgreRenderTarget.h>
+#include <OgreRenderWindow.h>
+#include <OgreRoot.h>
+
 #include "RoRPrerequisites.h"
+
 #include "ChatSystem.h"
 #include "Network.h"
 #include "Utils.h"
@@ -36,10 +41,6 @@
 #include "GUIManager.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
-#include "OgreRenderWindow.h"
-
-#include <OgreRenderTarget.h>
-#include <OgreRoot.h>
 
 using namespace RoR;
 using namespace GUI;

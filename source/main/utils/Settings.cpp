@@ -20,6 +20,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // created by thomas fischer, 4th of January 2009
 #include "Settings.h"
 
+#include <Ogre.h>
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <shlobj.h> // for CoCreateGuid and SHGetFolderPathA
 #include <direct.h> // for _chdir
@@ -28,7 +30,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define _L
 
 #include "ErrorUtils.h"
-#include "Ogre.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "SHA1.h"

@@ -31,23 +31,24 @@
 */
 #include "GUI_SimUtils.h"
 
+#include <MyGUI.h>
+#include <OgreRenderTarget.h>
+#include <OgreRenderWindow.h>
+#include <OgreRoot.h>
+
 #include "RoRPrerequisites.h"
+
 #include "Utils.h"
 #include "RoRVersion.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
-#include "OgreRenderWindow.h"
 #include "Beam.h"
 
 #include "AeroEngine.h"
 #include "BeamEngine.h"
 #include "ScrewProp.h"
-
-#include <MyGUI.h>
-#include <OgreRenderTarget.h>
-#include <OgreRoot.h>
 
 using namespace RoR;
 using namespace GUI;
