@@ -29,7 +29,9 @@ Based on HydraxWater.cpp/.h
 #include "Settings.h"
 #include "SkyManager.h"
 
-#include <Caelum.h>
+#ifdef USE_CAELUM
+  #include <Caelum.h>
+#endif // USE_CAELUM
 
 using namespace Ogre;
 
@@ -114,6 +116,7 @@ void HydraxWater::showWave(Vector3 refpos)
 void HydraxWater::update()
 {
 	//This has to change in the next versions when SkyX will be added.
+#ifdef USE_CAELUM
 	if (gEnv->sky) //Caelum way of doing things
 	{
 		Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
@@ -122,6 +125,7 @@ void HydraxWater::update()
 		mHydrax->setSunColor(Ogre::Vector3(gEnv->sky->getCaelumSys()->getSun()->getBodyColour().r, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().g, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().b));
 	}
 	else
+#endif // USE_CAELUM
 	{
 		mHydrax->setSunPosition(gEnv->sceneManager->getLight("MainLight")->getPosition());
 	}
