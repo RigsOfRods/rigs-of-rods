@@ -8,6 +8,8 @@
 // License: MIT
 // ===========================================================================
 
+#if defined(_X86_) || defined(__i386__) || defined(__386__) // Profiler is only compatible with x86
+
 #define __PROFILER_SMP__
 #define __PROFILER_CONSOLIDATE_THREADS__
 
@@ -1236,3 +1238,5 @@ namespace Profiler {
 #endif
 
 }; // namespace Profiler
+
+#endif // defined(_X86_) || defined(__i386__) || defined(__386__))
