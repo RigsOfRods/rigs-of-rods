@@ -20,4 +20,5 @@ bin/RelWithDebInfo/
 ror-dependencies-*.zip
 dependencies-*.zip
 _build
+0_build
 libangelscript_addons*.a
