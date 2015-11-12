@@ -22,9 +22,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Language.h"
 
-#include <Overlay/OgreFontManager.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreTextAreaOverlayElement.h>
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#	include <OgreTextAreaOverlayElement.h>
+#endif
 
 #ifdef USE_MYGUI
 #include <MyGUI.h>

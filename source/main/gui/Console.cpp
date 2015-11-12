@@ -36,6 +36,7 @@
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
+#include "RoRPrerequisites.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
@@ -198,7 +199,7 @@ void Console::eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender)
 
 void Console::eventButtonPressed(MyGUI::Widget* _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
-	switch (_key.getValue())
+	switch (MYGUI_GET_SCANCODE(_key))
 	{
 		case MyGUI::KeyCode::ArrowUp:
 		{

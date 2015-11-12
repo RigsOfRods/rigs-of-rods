@@ -21,8 +21,16 @@
 
 #include "ContentManager.h"
 
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
-#include <Overlay/OgreOverlayManager.h>
+
+
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#	include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "Application.h"
 #include "Settings.h"
@@ -35,6 +43,10 @@
 #include "CacheSystem.h"
 
 #include "OgreShaderParticleRenderer.h"
+
+// Removed by Skybon as part of OGRE 1.9 port 
+// Disabling temporarily for 1.8.1 as well. ~ only_a_ptr, 2015-11
+//#include "OgreBoxEmitterFactory.h"
 
 #ifdef USE_ANGELSCRIPT
 #include "FireExtinguisherAffectorFactory.h"
@@ -174,9 +186,13 @@ bool ContentManager::init(void)
 	// register particle classes
 	LOG("RoR|ContentManager: Registering Particle Box Emitter");
 	ParticleSystemRendererFactory *mParticleSystemRendererFact = OGRE_NEW ShaderParticleRendererFactory();
-	ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
 	ParticleSystemManager::getSingleton().addRendererFactory(mParticleSystemRendererFact);
-	ParticleSystemManager::getSingleton().addEmitterFactory(mParticleEmitterFact);
+
+	// Removed by Skybon as part of OGRE 1.9 port 
+	// Disabling temporarily for 1.8.1 as well.  ~ only_a_ptr, 2015-11
+	//ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
+	//ParticleSystemManager::getSingleton().addEmitterFactory(mParticleEmitterFact);
+	
 #endif // _WIN32
 
 #ifdef USE_ANGELSCRIPT

@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgrePrerequisites.h>
 #include <OgreTimer.h>
-#include <Overlay/OgreOverlayElement.h>
 #include <vector>
 
 #include "RoRPrerequisites.h"

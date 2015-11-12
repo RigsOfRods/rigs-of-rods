@@ -26,9 +26,16 @@
 */
 
 #include <Ogre.h>
-#include <Overlay/OgreFontManager.h>
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreOverlayManager.h>
+
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#	include <Overlay/OgreFontManager.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#	include <OgreFontManager.h>
+#endif
 
 #include "OverlayWrapper.h"
 

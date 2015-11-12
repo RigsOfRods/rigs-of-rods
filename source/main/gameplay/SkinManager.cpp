@@ -81,7 +81,11 @@ void SkinManager::parseScript(DataStreamPtr& stream, const String& groupName)
 			{
 				// No current skin
 				// So first valid data should be skin name
+#ifdef ROR_USE_OGRE_1_9
 				pSkin = (Skin *)createResource(line, groupName).getPointer();
+#else
+				pSkin = (Skin *)create(line, groupName).getPointer();
+#endif
 				if (pSkin)
 				{
 					pSkin->_notifyOrigin(stream->getName());

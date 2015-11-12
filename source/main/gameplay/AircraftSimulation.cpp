@@ -21,7 +21,12 @@
 
 #include "AircraftSimulation.h"
 
-#include <Overlay/OgreOverlayManager.h>
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "AeroEngine.h"
 #include "Application.h"

@@ -19,7 +19,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Dashboard.h"
 
-#include <Overlay/OgreOverlayManager.h>
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "Console.h"
 #include "ResourceBuffer.h"

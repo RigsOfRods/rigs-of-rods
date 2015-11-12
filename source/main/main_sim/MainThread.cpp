@@ -110,7 +110,9 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
+#if ROR_USE_OGRE_1_9
 	Ogre::OverlaySystem* overlay_system = new OverlaySystem(); //Overlay init
+#endif
 
 	Application::CreateContentManager();
 
@@ -126,10 +128,11 @@ void MainThread::Go()
 	// Setup rendering (menu + simulation)
 	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
+#if ROR_USE_OGRE_1_9
 	if (overlay_system) {
 		scene_manager->addRenderQueueListener(overlay_system);
-		gEnv->overlaySystem = overlay_system;
 	}
+#endif
 
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
 	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
@@ -643,8 +646,9 @@ void MainThread::Go()
 
 	scene_manager->destroyCamera(camera);
 	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
-
+#ifdef ROR_USE_OGRE_1_9
 	delete overlay_system;
+#endif
 
 	Application::DestroyContentManager();
 
