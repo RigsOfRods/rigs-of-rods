@@ -298,7 +298,6 @@ void RigSpawner::InitializeRig()
 	m_rig->netCustomLightArray_counter = 0;
 	m_rig->materialFunctionMapper = nullptr;
 
-	m_rig->driversseatfound=false;
 	m_rig->ispolice=false;
 	m_rig->state=SLEEPING;
 	m_rig->heathaze=false;
@@ -2015,14 +2014,28 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	}
 	else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT)
 	{
-		m_rig->driversseatfound = true;
-		m_rig->driverSeat = & prop;
-		prop.mo->setMaterialName("driversseat");
+		//driver seat, used to position the driver and make the seat translucent at times
+		if (m_rig->driverSeat == nullptr)
+		{
+			m_rig->driverSeat = & prop;
+			prop.mo->setMaterialName("driversseat");
+		}
+		else
+		{
+			this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
+		}
 	}
-	else if(def.special == RigDef::Prop::SPECIAL_SPINPROP)
+	else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT_2)
 	{
-		m_rig->driversseatfound = true;
-		m_rig->driverSeat = & prop;
+		// Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
+		if (m_rig->driverSeat == nullptr)
+		{
+			m_rig->driverSeat = & prop;
+		}
+		else
+		{
+			this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
+		}
 	}
 	else if (m_rig->flaresMode > 0)
 	{

@@ -385,7 +385,7 @@ public:
 	float refpressure;
 
 	bool hasDriverSeat();
-	int calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
+	void calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
 	float getSteeringAngle();
 	void triggerGUIFeaturesChanged();
 

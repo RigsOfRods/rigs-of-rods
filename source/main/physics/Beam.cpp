@@ -1214,28 +1214,37 @@ bool Beam::hasDriverSeat()
 	return driverSeat != 0;
 }
 
-int Beam::calculateDriverPos(Vector3 &pos, Quaternion &rot)
+void Beam::calculateDriverPos(Vector3 &out_pos, Quaternion &out_rot)
 {
+	assert(this->driverSeat != nullptr);
+
 	BES_GFX_START(BES_GFX_calculateDriverPos);
-	if (!hasDriverSeat()) return 1;
 
-	Vector3 diffY = nodes[driverSeat->nodey].smoothpos - nodes[driverSeat->noderef].smoothpos;
-	Vector3 diffX = nodes[driverSeat->nodex].smoothpos - nodes[driverSeat->noderef].smoothpos;
+	Vector3 x_pos = nodes[driverSeat->nodex].smoothpos;
+	Vector3 y_pos = nodes[driverSeat->nodey].smoothpos;
+	Vector3 center_pos = nodes[driverSeat->noderef].smoothpos;
 
-	Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
+	Vector3 x_vec = x_pos - center_pos;
+	Vector3 y_vec = y_pos - center_pos;
 
-	// position
-	Vector3 position = nodes[driverSeat->noderef].smoothpos + driverSeat->offsetx * diffX + driverSeat->offsety * diffY;
+	Vector3 normal = (y_vec.crossProduct(x_vec)).normalisedCopy();
 
-	pos = position + normal * driverSeat->offsetz;
+	// Output position
+	Vector3 pos = center_pos;
+	pos += (this->driverSeat->offsetx * x_vec);
+	pos += (this->driverSeat->offsety * y_vec);
+	pos += (this->driverSeat->offsetz * normal);
+	out_pos = pos;
 
-	// orientation
-	Vector3 refx = diffX.normalisedCopy();
-	Vector3 refy = refx.crossProduct(normal);
+	// Output orientation
+	Vector3 x_vec_norm = x_vec.normalisedCopy();
+	Vector3 y_vec_norm = x_vec_norm.crossProduct(normal);
+	Quaternion rot(x_vec_norm, normal, y_vec_norm);
+	rot = rot * driverSeat->rot;
+	rot = rot * Quaternion(Degree(180), Vector3::UNIT_Y); // rotate towards the driving direction
+	out_rot = rot;
 
-	rot = Quaternion(refx, normal, refy) * driverSeat->rot * Quaternion(Degree(180), Vector3::UNIT_Y); // rotate towards the driving direction
 	BES_GFX_STOP(BES_GFX_calculateDriverPos);
-	return 0;
 }
 
 void Beam::resetAutopilot()
