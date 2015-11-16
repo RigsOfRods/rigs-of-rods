@@ -49,7 +49,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // gettext
 
 #ifdef _WIN32
-#error please use MOFILEREADER (neable in cmake) when compiling for windows
+#error please use MOFILEREADER (enable in cmake) when compiling for windows
 #endif // _WIN32
 
 # include <libintl.h>

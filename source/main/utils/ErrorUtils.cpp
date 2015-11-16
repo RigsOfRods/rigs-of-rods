@@ -104,7 +104,7 @@ int ErrorUtils::ShowWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::U
 	// NO logmanager use, because it could be that its not initialized yet!
 	//LOG("web message box: " + title + ": " + err + " / url: " + url);
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	Ogre::UTFString additional = _L("\n\nYou can eventually get help here:\n\n") + url + _L("\n\nDo you want to open that address in your default browser now?");
+	Ogre::UTFString additional = _L("\n\nYou may find help here:\n\n") + url + _L("\n\nDo you want to open this address in your default browser now?");
 	err = err + additional;
 	int Response = MessageBoxW( NULL, err.asWStr_c_str(), title.asWStr_c_str(), MB_YESNO | MB_ICONERROR | MB_TOPMOST | MB_SYSTEMMODAL | MB_SETFOREGROUND );
 	// 6 (IDYES) = yes, 7 (IDNO) = no

@@ -369,7 +369,7 @@ void MainThread::Go()
 		if (!connres)
 		{
 			LOG("connection failed. server down?");
-			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It is certainly down or you have network problems."));
+			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It may be offline or you have network problems."));
 			//fatal
 			exit(1);
 		}

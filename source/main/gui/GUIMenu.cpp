@@ -374,12 +374,12 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} else if (miname == _L("Activated vehicles never sleep")) 
 	{
 		BeamFactory::getSingleton().setTrucksForcedActive(true);
-		_item->setCaption(_L("Activated Vehicles can sleep"));
+		_item->setCaption(_L("Activated vehicles can sleep"));
 
-	} else if (miname == _L("Activated Vehicles can sleep")) 
+	} else if (miname == _L("Activated vehicles can sleep")) 
 	{
 		BeamFactory::getSingleton().setTrucksForcedActive(false);
-		_item->setCaption(_L("Activated Vehicles never sleep"));
+		_item->setCaption(_L("Activated vehicles never sleep"));
 
 	} else if (miname == _L("Send all vehicles to sleep"))
 	{
