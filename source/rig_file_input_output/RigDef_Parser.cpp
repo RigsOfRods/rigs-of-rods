@@ -1288,12 +1288,12 @@ void Parser::ParseWheel2(Ogre::String const & line)
 	wheel_2.beam_defaults = m_user_beam_defaults;
 
 	wheel_2.rim_radius    = STR_PARSE_REAL(results[1]);
-	wheel_2.tyre_radius   = STR_PARSE_REAL(results[2]);
-	wheel_2.width         = STR_PARSE_REAL(results[3]);
-	wheel_2.num_rays      = STR_PARSE_INT(results[4]);
-	wheel_2.nodes[0]      = _ParseNodeRef(results[5]);
-	wheel_2.nodes[1]      = _ParseNodeRef(results[6]);
-	wheel_2.rigidity_node = _ParseNodeRef(results[7]);
+	wheel_2.tyre_radius   = STR_PARSE_REAL(results[3]);
+	wheel_2.width         = STR_PARSE_REAL(results[5]);
+	wheel_2.num_rays      = STR_PARSE_INT(results[7]);
+	wheel_2.nodes[0]      = _ParseNodeRef(results[9]);
+	wheel_2.nodes[1]      = _ParseNodeRef(results[11]);
+	wheel_2.rigidity_node = _ParseNodeRef(results[13]);
 	if (wheel_2.rigidity_node.Num() == 9999) /* Special null value */
 	{
 		wheel_2.rigidity_node.Invalidate();
@@ -1304,7 +1304,7 @@ void Parser::ParseWheel2(Ogre::String const & line)
         m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS2, wheel_2.num_rays, wheel_2.rigidity_node.IsValidAnyState());
     }
 
-	unsigned int braking = STR_PARSE_INT(results[8]);
+	unsigned int braking = STR_PARSE_INT(results[15]);
 	if (braking >= 0 && braking <= 4)
 	{
 		wheel_2.braking = Wheels::Braking(braking);
@@ -1314,7 +1314,7 @@ void Parser::ParseWheel2(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'braking' value, setting BRAKING_NO (0).");
 	}
 
-	unsigned int propulsion = STR_PARSE_INT(results[9]);
+	unsigned int propulsion = STR_PARSE_INT(results[17]);
 	if (propulsion >= 0 && propulsion <= 2)
 	{
 		wheel_2.propulsion = Wheels::Propulsion(propulsion);
@@ -1323,15 +1323,15 @@ void Parser::ParseWheel2(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'propulsion' value, setting PROPULSION_NONE (0).");
 	}
-	wheel_2.reference_arm_node = _ParseNodeRef(results[10]);
+	wheel_2.reference_arm_node = _ParseNodeRef(results[19]);
 
-	wheel_2.mass               = STR_PARSE_REAL(results[11]);
-	wheel_2.rim_springiness    = STR_PARSE_REAL(results[12]);
-	wheel_2.rim_damping        = STR_PARSE_REAL(results[13]);
-	wheel_2.tyre_springiness   = STR_PARSE_REAL(results[14]);
-	wheel_2.tyre_damping       = STR_PARSE_REAL(results[15]);
-	wheel_2.face_material_name = results[16];
-	wheel_2.band_material_name = results[17];
+	wheel_2.mass               = STR_PARSE_REAL(results[21]);
+	wheel_2.rim_springiness    = STR_PARSE_REAL(results[23]);
+	wheel_2.rim_damping        = STR_PARSE_REAL(results[25]);
+	wheel_2.tyre_springiness   = STR_PARSE_REAL(results[27]);
+	wheel_2.tyre_damping       = STR_PARSE_REAL(results[29]);
+	wheel_2.face_material_name = results[31];
+	wheel_2.band_material_name = results[33];
 
 	m_current_module->wheels_2.push_back(wheel_2);
 }
