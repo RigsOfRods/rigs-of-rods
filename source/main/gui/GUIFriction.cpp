@@ -148,7 +148,7 @@ GUI_Friction::GUI_Friction() :
 		h = p->createWidget<MyGUI::ScrollBar>("ScrollBarH", lx, ly, 60, 20,  MyGUI::Align::Default, "solid_adhension_velo_scroll"); lx+=65;
 		h->eventScrollChangePosition += MyGUI::newDelegate(this, &GUI_Friction::event_scroll_value);
 		h->setScrollRange(1000);
-		helpTexts["solid_adhension_velo"] = std::pair<UTFString,UTFString>(_L("Adhesion velocity"), _L("Below this velocity, static friction rules, above it dynamic friction takes command. It should be something small, in the range of 0.1-0.4 . This velocity threshold is also used by the fluid physics, so you should always define it. NEVER have it at 0."));
+		helpTexts["solid_adhension_velo"] = std::pair<UTFString,UTFString>(_L("Adhesion velocity"), _L("Below this value static friction laws apply, above it dynamic friction laws apply. Value should be small, in the range of 0.1-0.4 . This velocity threshold is also used by fluid dynamics so you should always define it. NEVER set it to 0."));
 		minMaxs["solid_adhension_velo"] = std::pair<Real,Real>(0.1f, 0.5f);
 		b = p->createWidget<MyGUI::Button>("Button", lx, ly, 20, 20,  MyGUI::Align::Default, "solid_adhension_velo_help"); lx+=20;
 		b->eventMouseButtonClick += MyGUI::newDelegate(this, &GUI_Friction::event_btn_MouseButtonClick);

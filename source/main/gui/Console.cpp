@@ -249,7 +249,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 		if (args[0] == "/help")
 		{
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Available commands:"), "help.png");
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/help - this help information"), "help.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/help - information on commands (this)"), "help.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/ver - shows the Rigs of Rods version"), "information.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/pos - outputs the current position"), "world.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
@@ -260,13 +260,13 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/log - toggles log output on the console"), "table_save.png");
 
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/quit - exits"), "table_save.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/quit - exit Rigs of Rods"), "table_save.png");
 
 #ifdef USE_ANGELSCRIPT	
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/as <code here> - interpret angel code using console"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
-			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/gravity <real> or <text string> - changes terrain's gravity, if no value is entred, shows current gravity"), "script_go.png");
+			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/gravity <real> or <text string> - changes gravity constant. Outputs current value if no argument is given"), "script_go.png");
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
 
 			putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setwaterlevel <real> - changes water's level"), "script_go.png");

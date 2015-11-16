@@ -25,6 +25,7 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
 * [doc/](doc/)
+* Translation interface: https://www.transifex.com/rigsofrods/rigs-of-rods/
 
 
 ## Paths
@@ -105,7 +106,7 @@ If you want to get going quickly have a look at modpacks which can be found in t
 	
 ## Compiling
 For instructions refer to [BUILDING.md](BUILDING.md)
-	
+
 
 ## License of Rigs of Rods
 
