@@ -5628,6 +5628,7 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
 	InitBeam(beam, node_1, node_2);
 	beam.type = BEAM_INVISIBLE;
 	SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold_constant);
+	SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
 	return index;
 }
 
