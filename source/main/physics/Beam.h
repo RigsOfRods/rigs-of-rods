@@ -585,6 +585,8 @@ protected:
 
 	void SyncReset(); //this one should be called only synchronously (without physics running in background)
 
+	void SetPropsCastShadows(bool do_cast_shadows);
+
 	float dtperstep;
 	int curtstep;
 	int tsteps;
@@ -656,7 +658,7 @@ protected:
 	int detailLevel;
 	bool increased_accuracy;
 	bool isInside;
-	bool beacon;
+	bool m_beacon_light_is_active;
 	float totalmass;
 
 	int mousenode;
