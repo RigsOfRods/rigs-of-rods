@@ -3614,8 +3614,8 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 }
 
 void RigSpawner::_ProcessCommandKeyInertia(
-	RigDef::OptionalInertia & inertia, 
-	RigDef::DefaultInertia & inertia_defaults, 
+	RigDef::Inertia & inertia,
+	RigDef::Inertia & inertia_defaults,
 	int contract_key, 
 	int extend_key
 )
@@ -3653,7 +3653,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 				stop_function
 			);
 		}
-		else if (inertia._start_delay_factor_set || inertia._stop_delay_factor_set)
+		else if (inertia_defaults._start_delay_factor_set || inertia_defaults._stop_delay_factor_set)
 		{
 			m_rig->cmdInertia->setCmdKeyDelay(
 				contract_key,

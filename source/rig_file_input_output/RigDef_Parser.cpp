@@ -67,7 +67,7 @@ Parser::Parser():
 	m_ror_minimass(0)
 {
 	/* Push defaults */
-	m_ror_default_inertia = boost::shared_ptr<DefaultInertia>(new DefaultInertia);
+	m_ror_default_inertia = boost::shared_ptr<Inertia>(new Inertia);
 	m_ror_beam_defaults = boost::shared_ptr<BeamDefaults>(new BeamDefaults);
 	m_ror_node_defaults = boost::shared_ptr<NodeDefaults>(new NodeDefaults);
 }
@@ -4655,11 +4655,13 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 	else
 	{
 		// Create
-		m_user_default_inertia = boost::shared_ptr<DefaultInertia>(new DefaultInertia(*m_user_default_inertia.get()));
+		m_user_default_inertia = boost::shared_ptr<Inertia>(new Inertia(*m_user_default_inertia.get()));
 
 		// Update
 		m_user_default_inertia->start_delay_factor = start_delay;
+		m_user_default_inertia->_start_delay_factor_set = true;
 		m_user_default_inertia->stop_delay_factor = stop_delay;
+		m_user_default_inertia->_stop_delay_factor_set = true;
 
 		if (results[7].matched)
 		{
@@ -5630,7 +5632,7 @@ void Parser::ParseHydros(Ogre::String const & line)
 	m_current_module->hydros.push_back(hydro);
 }
 
-bool Parser::_ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & results, unsigned int start_index)
+bool Parser::_ParseOptionalInertia(Inertia & inertia, boost::smatch & results, unsigned int start_index)
 {
 	unsigned int result_index = start_index;
 
