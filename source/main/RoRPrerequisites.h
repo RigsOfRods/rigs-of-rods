@@ -60,8 +60,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI_Prerequest.h> // Forward declarations
 
-// #define MYGUI_GET_SCANCODE(KEY) (key.getValue()) // Newer version of MyGUI
-#define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
+#if MYGUI_VERSION >= 0x030202
+#	define MYGUI_GET_SCANCODE(KEY) (KEY.getValue())
+#else
+#	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
+#endif
 
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
