@@ -110,7 +110,7 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
-#if ROR_USE_OGRE_1_9
+#ifdef ROR_USE_OGRE_1_9
 	Ogre::OverlaySystem* overlay_system = new OverlaySystem(); //Overlay init
 #endif
 
@@ -128,7 +128,7 @@ void MainThread::Go()
 	// Setup rendering (menu + simulation)
 	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
-#if ROR_USE_OGRE_1_9
+#ifdef ROR_USE_OGRE_1_9
 	if (overlay_system) {
 		scene_manager->addRenderQueueListener(overlay_system);
 	}
