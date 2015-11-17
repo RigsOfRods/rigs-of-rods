@@ -2103,18 +2103,17 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		}
 		else if(def.special == RigDef::Prop::SPECIAL_LIGHTBAR)
 		{
-			int k;
 			m_rig->ispolice = true;
 			prop.beacontype='p';
-			for (k=0; k<4; k++)
+			for (int k=0; k<4; k++)
 			{
-				prop.beacon_light_rotation_angle[k]=2.0*3.14*(std::rand()/RAND_MAX);
-				prop.beacon_light_rotation_rate[k]=4.0*3.14+(std::rand()/RAND_MAX)-0.5;
-				prop.beacon_flares_billboard_system[k]=0;
+				// Randomize rotation speed and timing, 
+				// IMPORTANT: Do not remove the (Ogre::Real) casts, they affect result!
+				prop.beacon_light_rotation_angle[k]=2.0*3.14*((Ogre::Real)std::rand()/(Ogre::Real)RAND_MAX);
+				prop.beacon_light_rotation_rate[k]=4.0*3.14+((Ogre::Real)std::rand()/(Ogre::Real)RAND_MAX)-0.5;
+				prop.beacon_flares_billboard_system[k]=nullptr;
 				//the light
-				//char rpname[256];
-				//sprintf(rpname,"%s-%i", propname, k);
-				prop.beacon_light[k]=gEnv->sceneManager->createLight(); //rpname);
+				prop.beacon_light[k]=gEnv->sceneManager->createLight();
 				prop.beacon_light[k]->setType(Ogre::Light::LT_SPOTLIGHT);
 				if (k>1)
 				{
@@ -2132,7 +2131,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 				prop.beacon_light[k]->setVisible(false);
 				//the flare billboard
 				prop.beacon_flare_billboard_scene_node[k] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-				prop.beacon_flares_billboard_system[k]=gEnv->sceneManager->createBillboardSet(1); //rpname,1);
+				prop.beacon_flares_billboard_system[k]=gEnv->sceneManager->createBillboardSet(1);
 				prop.beacon_flares_billboard_system[k]->createBillboard(0,0,0);
 				if (prop.beacon_flares_billboard_system[k])
 				{
@@ -2145,11 +2144,8 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 						prop.beacon_flares_billboard_system[k]->setMaterialName("tracks/brightblueflare");
 					}
 
-					if (prop.beacon_flares_billboard_system[k])
-					{
-						prop.beacon_flares_billboard_system[k]->setVisibilityFlags(DEPTHMAP_DISABLED);
-						prop.beacon_flare_billboard_scene_node[k]->attachObject(prop.beacon_flares_billboard_system[k]);
-					}
+					prop.beacon_flares_billboard_system[k]->setVisibilityFlags(DEPTHMAP_DISABLED);
+					prop.beacon_flare_billboard_scene_node[k]->attachObject(prop.beacon_flares_billboard_system[k]);
 				}
 				prop.beacon_flare_billboard_scene_node[k]->setVisible(false);
 			}
