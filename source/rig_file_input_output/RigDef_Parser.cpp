@@ -5073,7 +5073,7 @@ void Parser::ParseProps(Ogre::String const & line)
 				else if (i == 9) /* Beacon */
 				{
 					prop.special = Prop::Special(i);
-					std::string special_params = results[15];
+					std::string special_params = results[21];
 					boost::smatch beacon_results;
 					if (boost::regex_search(special_params, beacon_results, Regexes::SPECIAL_PROP_BEACON))
 					{
