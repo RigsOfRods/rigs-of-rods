@@ -4812,7 +4812,48 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_FILEINFO))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Inline-section 'fileinfo' has invalid format, ignoring...");
+		// Do exactly what legacy parser would.
+		PARSE_UNSAFE(line, 2,
+		{
+			Fileinfo fileinfo;
+
+			std::string unique_id = values[1];
+			Ogre::StringUtil::trim(unique_id);
+			std::stringstream report;
+			report << "Check:";
+			if (unique_id.length() > 0)
+			{
+				fileinfo.unique_id = unique_id;
+				fileinfo._has_unique_id = true;
+				report << "\n\tUID: " << unique_id;
+			}
+			else
+			{
+				report << "\n\tUID: [empty]";
+			}
+			if (values.size() > 2)
+			{
+				fileinfo.category_id = PARSEINT(values[2]);
+				fileinfo._has_category_id = true;
+				report << "\n\tCategoryID: " << fileinfo.category_id;
+			}
+			else
+			{
+				report << "\n\tCategoryID: [not set]";
+			}
+			if (values.size() > 3)
+			{
+				fileinfo.file_version = PARSEINT(values[3]);
+				fileinfo._has_file_version_set = true;
+				report << "\n\tFile version:: " << fileinfo.file_version;
+			}
+			else
+			{
+				report << "\n\tFile version: [not set]";
+			}
+			this->AddMessage(line, Message::TYPE_INVALID, report.str());
+			m_definition->file_info = boost::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
+		})
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
