@@ -101,6 +101,9 @@ protected:
 
 	std::map <int , IBehavior<CameraContext> *> globalBehaviors;
 
+	bool m_config_enter_vehicle_keep_fixedfreecam;
+	bool m_config_exit_vehicle_keep_fixedfreecam;
+
 	bool mouseMoved(const OIS::MouseEvent& _arg);
 	bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 	bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);

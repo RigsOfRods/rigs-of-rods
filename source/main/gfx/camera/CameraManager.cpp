@@ -47,6 +47,8 @@ CameraManager::CameraManager(DOFManager *dof) :
 	, mTransScale(1.0f)
 	, mTransSpeed(50.0f)
 	, mRotScale(0.1f)
+	, m_config_enter_vehicle_keep_fixedfreecam(false)
+	, m_config_exit_vehicle_keep_fixedfreecam(false)
 	, mRotateSpeed(100.0f)
 {
 	gEnv->cameraManager = this;
@@ -61,6 +63,9 @@ CameraManager::CameraManager(DOFManager *dof) :
 	{
 		ctx.mDof->setFocusMode(DOFManager::Auto);
 	}
+
+	m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", false);
+	m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
 }
 
 CameraManager::~CameraManager()
@@ -278,26 +283,34 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 	if (new_vehicle == nullptr)
 	{
 		ctx.mCurrTruck = nullptr;
-		this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
+		if (! (this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam))
+		{
+			this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
+		}
 		return;
 	}
 
 	// Getting in vehicle
-	switch (new_vehicle->GetCameraContext()->behavior)
+	if (! (this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam))
 	{
-	case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_3rdPERSON:
-		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
-		break;
+		// Change camera
+		switch (new_vehicle->GetCameraContext()->behavior)
+		{
+		case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_3rdPERSON:
+			this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
+			break;
 
-	case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE:
-		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_SPLINE, true, old_vehicle, new_vehicle);
-		break;
+		case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+			this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_SPLINE, true, old_vehicle, new_vehicle);
+			break;
 
-	case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM:
-		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_CINECAM, true, old_vehicle, new_vehicle);
-		break;
+		case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+			this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_CINECAM, true, old_vehicle, new_vehicle);
+			break;
 
-	default:
-		this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
+		default:
+			this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
+		}
 	}
+	
 }
