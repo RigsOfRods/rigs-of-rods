@@ -393,7 +393,8 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		GUI_Friction::getSingleton().setVisible(true);
 	} else if (miname == _L("Exit"))
 	{
-		gEnv->frameListener->shutdown_final();
+		Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+		Application::GetMainThreadLogic()->RequestShutdown();
 	} else if (miname == _L("Show Console"))
 	{
 		Console *c = RoR::Application::GetConsole();

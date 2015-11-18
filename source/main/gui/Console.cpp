@@ -33,6 +33,7 @@
 #include "IHeightFinder.h"
 #include "HighScoreWindow.h"
 #include "Language.h"
+#include "MainThread.h"
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
@@ -384,7 +385,8 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 		}
 		else if (args[0] == "/quit")
 		{
-			gEnv->frameListener->shutdown_final();
+			Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+			Application::GetMainThreadLogic()->RequestShutdown();
 			return;
 
 		}
