@@ -3039,7 +3039,7 @@ void Beam::updateSkidmarks()
 		// create skidmark object for wheels with data if not existing
 		if (!skidtrails[i])
 		{
-			skidtrails[i] = new Skidmark(&wheels[i], beamsRoot, 300, 200);
+			skidtrails[i] = new Skidmark(&wheels[i], beamsRoot, 300, 20);
 		}
 
 		skidtrails[i]->updatePoint();

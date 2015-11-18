@@ -165,7 +165,8 @@ void Skidmark::addObject(Vector3 start, String texture)
 	skid.lastPointAv=start;
 	skid.facecounter=0;
 
-	for (int i = 0; i<3; i++) skid.face[i] = Vector3::ZERO;
+	skid.face[0] = Vector3::ZERO;
+	skid.face[1] = Vector3::ZERO;
 
 	skid.colour = ColourValue(Math::RangeRandom(0, 100)/100.0f, Math::RangeRandom(0, 100)/100.0f, Math::RangeRandom(0, 100)/100.0f, 0.8f);
 
@@ -188,7 +189,7 @@ void Skidmark::addObject(Vector3 start, String texture)
 	skid.groundTexture.resize(lenght);
 	skid.obj = gEnv->sceneManager->createManualObject("skidmark" + TOSTRING(instanceCounter++));
 	skid.obj->setDynamic(true);
-	skid.obj->setRenderingDistance(2000); //2km sight range
+	skid.obj->setRenderingDistance(800); // 800m view distance
 	skid.obj->begin(bname, RenderOperation::OT_TRIANGLE_STRIP);
 	for (int i = 0; i < lenght; i++)
 	{
@@ -198,7 +199,7 @@ void Skidmark::addObject(Vector3 start, String texture)
 		skid.obj->position(start);
 		skid.obj->textureCoord(0,0);
 	}
-    skid.obj->end();
+    	skid.obj->end();
 	mNode->attachObject(skid.obj);
 
 
