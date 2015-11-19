@@ -165,9 +165,6 @@ void Skidmark::addObject(Vector3 start, String texture)
 	skid.lastPointAv=start;
 	skid.facecounter=0;
 
-	skid.face[0] = Vector3::ZERO;
-	skid.face[1] = Vector3::ZERO;
-
 	skid.colour = ColourValue(Math::RangeRandom(0, 100)/100.0f, Math::RangeRandom(0, 100)/100.0f, Math::RangeRandom(0, 100)/100.0f, 0.8f);
 
 
