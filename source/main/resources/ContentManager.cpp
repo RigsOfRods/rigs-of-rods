@@ -371,3 +371,23 @@ void ContentManager::exploreFolders(Ogre::String rg)
 		LOG("catched error while initializing Resource group '" + rg + "' : " + e.getFullDescription());
 	}
 }
+
+void ContentManager::InitManagedMaterials()
+{
+	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
+
+	//Dirty, needs to be improved
+	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
+	else
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
+
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
+
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
+
+	//Last
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path, "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
+}
