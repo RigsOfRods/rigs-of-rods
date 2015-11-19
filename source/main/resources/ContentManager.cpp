@@ -46,6 +46,7 @@
 
 // Removed by Skybon as part of OGRE 1.9 port 
 // Disabling temporarily for 1.8.1 as well. ~ only_a_ptr, 2015-11
+// TODO: Study the system, then re-enable or remove entirely.
 //#include "OgreBoxEmitterFactory.h"
 
 #ifdef USE_ANGELSCRIPT
