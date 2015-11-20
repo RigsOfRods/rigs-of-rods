@@ -504,6 +504,8 @@ void MainThread::Go()
 			// Simulation
 			// ================================================================
 
+			gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
+
 			if (previous_application_state == Application::STATE_RIG_EDITOR)
 			{
 				/* Restore 3D engine settings */
