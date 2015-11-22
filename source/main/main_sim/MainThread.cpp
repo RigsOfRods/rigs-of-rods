@@ -471,6 +471,12 @@ void MainThread::Go()
 				}
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
+
+				/* Set Mumble to non-positional audio */
+				#ifdef USE_MUMBLE
+					  MumbleIntegration::getSingleton().update(Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f),
+							  	  	  	  	  	  	  	  	  	  Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f));
+				#endif // USE_MUMBLE
 			}
 
 			if (BSETTING("MainMenuMusic", true))
@@ -1107,14 +1113,6 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 			GUI_Multiplayer::getSingleton().update();
 		}
 #endif // USE_SOCKETW
-
-		// now update mumble 3d audio things
-#ifdef USE_MUMBLE
-		if (gEnv->player)
-		{
-			MumbleIntegration::getSingleton().update(gEnv->mainCamera->getPosition(), gEnv->player->getPosition() + Vector3(0, 1.8f, 0));
-		}
-#endif // USE_MUMBLE
 	}
 
 	MainMenuLoopUpdateEvents(seconds_since_last_frame);

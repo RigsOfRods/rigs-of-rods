@@ -28,20 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-// small utility function to convert a char string to a widechar string
-int convertCharSet(wchar_t *wcstring, const char *s)
-{
-#ifdef _WIN32
-	// Convert to a wchar_t*
-	size_t origsize = strlen(s) + 1;
-	size_t convertedChars = 0;
-	mbstowcs_s(&convertedChars, wcstring, origsize, s, _TRUNCATE);
-	return (int)convertedChars;
-#else
-	// TODO
-#endif // _WIN32
-}
-
 MumbleIntegration::MumbleIntegration() : lm(NULL)
 {
 	initMumble();
@@ -86,7 +72,7 @@ void MumbleIntegration::initMumble()
 #endif // _WIN32
 }
 
-void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 avatarPos)
+void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp)
 {
 	if (! lm) return;
 
@@ -98,48 +84,70 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 avatarPos)
 	}
 	lm->uiTick++;
 
-	// Left handed coordinate system.
-	// X positive towards "left".
+	// Left handed coordinate system ( http://wiki.mumble.info/index.php?title=Link#Coordinate_system )
+	// X positive towards "right".
 	// Y positive towards "up".
-	// Z positive towards "into screen".
+	// Z positive towards "front".
 	//
 	// 1 unit = 1 meter
 
-	// Unit vector pointing out of the avatars eyes (here Front looks into scene).
-	lm->fAvatarFront[0] = 0.0f;
-	lm->fAvatarFront[1] = 0.0f;
-	lm->fAvatarFront[2] = 1.0f;
+	// OGRE uses right-handed coordinate system ( http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Basic+Tutorial+1&structure=Tutorials )
+	// X positive towards "right".
+	// Y positive towards "up".
+	// Z positive towards "back". => conversion necessary!
+	//
+	// 1 unit = 1 meter (in RoR)
 
-	// Unit vector pointing out of the top of the avatars head (here Top looks straight up).
-	lm->fAvatarTop[0] = 0.0f;
-	lm->fAvatarTop[1] = 1.0f;
-	lm->fAvatarTop[2] = 0.0f;
+	// We need unit vectors
+	avatarDir.normalise();
+	avatarUp.normalise();
+	cameraDir.normalise();
+	cameraUp.normalise();
 
-	// Position of the avatar (here standing slightly off the origin)
+	// Position of the avatar
 	lm->fAvatarPosition[0] = avatarPos.x;
 	lm->fAvatarPosition[1] = avatarPos.y;
-	lm->fAvatarPosition[2] = avatarPos.z;
+	lm->fAvatarPosition[2] = -avatarPos.z;
+
+	// Unit vector pointing out of the avatars eyes
+	lm->fAvatarFront[0] = avatarDir.x;
+	lm->fAvatarFront[1] = avatarDir.y;
+	lm->fAvatarFront[2] = -avatarDir.z;
+
+	// Unit vector pointing out of the top of the avatars head
+	lm->fAvatarTop[0] = avatarUp.x;
+	lm->fAvatarTop[1] = avatarUp.y;
+	lm->fAvatarTop[2] = -avatarUp.z;
 
 	// Same as avatar but for the camera.
 	lm->fCameraPosition[0] = cameraPos.x;
 	lm->fCameraPosition[1] = cameraPos.y;
-	lm->fCameraPosition[2] = cameraPos.z;
+	lm->fCameraPosition[2] = -cameraPos.z;
 
-	lm->fCameraFront[0] = 0.0f;
-	lm->fCameraFront[1] = 0.0f;
-	lm->fCameraFront[2] = 1.0f;
+	lm->fCameraFront[0] = cameraDir.x;
+	lm->fCameraFront[1] = cameraDir.y;
+	lm->fCameraFront[2] = -cameraDir.z;
 
-	lm->fCameraTop[0] = 0.0f;
-	lm->fCameraTop[1] = 1.0f;
-	lm->fCameraTop[2] = 0.0f;
+	lm->fCameraTop[0] = cameraUp.x;
+	lm->fCameraTop[1] = cameraUp.y;
+	lm->fCameraTop[2] = -cameraUp.z;
 
 	// Identifier which uniquely identifies a certain player in a context (e.g. the ingame Name).
-	convertCharSet(lm->identity, SSETTING("Nickname", "Anonymous").c_str());
+	std::string playername = SSETTING("Nickname", "Anonymous").c_str();
+	std::wstring wplayername;
+	wplayername.assign(playername.begin(), playername.end());
+	wcsncpy(lm->identity, wplayername.c_str(), 256);
 
-	// Context should be equal for players which should be able to hear each other positional and
+	// Context should be equal for players which should be able to hear each other _positional_ and
 	// differ for those who shouldn't (e.g. it could contain the server+port and team)
-	// TODO: separate teams
-	int teamID = 0;
+	// This ensures that Mumble users in the same channel playing on different servers
+	// don't hear each other positional since the positional information would be wrong
+
+	// TODO: Right now we only create contexts based on server identification but
+	// some servers allow players to play on different maps independently
+	// so we should take that into account as well
+
+	int teamID = 0; // RoR currently doesn't have any kind of team-based gameplay
 	sprintf((char *)lm->context, "%s:%s|%d", SSETTING("Server name", "-").c_str(), SSETTING("Server port", "1337").c_str(), teamID);
 	lm->context_len = (int)strnlen((char *)lm->context, 256);
 }
