@@ -21,8 +21,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Beam.h"
 
 #include <Ogre.h>
-#include <Overlay/OgreOverlayElement.h>
-#include <Overlay/OgreOverlayManager.h>
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "AirBrake.h"
 #include "Airfoil.h"
@@ -204,40 +209,30 @@ Beam::~Beam()
 	// delete props
 	for (int i=0; i<free_prop;i++)
 	{
-		if (props[i].bbsnode[0])
+		for (int k = 0; k < 4; ++k)
 		{
-			props[i].bbsnode[0]->removeAndDestroyAllChildren();
-			gEnv->sceneManager->destroySceneNode(props[i].bbsnode[0]);
+			if (props[i].beacon_flare_billboard_scene_node[k])
+			{
+				Ogre::SceneNode* scene_node = props[i].beacon_flare_billboard_scene_node[k];
+				scene_node->removeAndDestroyAllChildren();
+				gEnv->sceneManager->destroySceneNode(scene_node);
+			}
+			if (props[i].beacon_light[k])
+			{
+				gEnv->sceneManager->destroyLight(props[i].beacon_light[k]);
+			}
 		}
-		if (props[i].bbsnode[1])
+
+		if (props[i].scene_node)
 		{
-			props[i].bbsnode[1]->removeAndDestroyAllChildren();
-			gEnv->sceneManager->destroySceneNode(props[i].bbsnode[1]);
-		}
-		if (props[i].bbsnode[2])
-		{
-			props[i].bbsnode[2]->removeAndDestroyAllChildren();
-			gEnv->sceneManager->destroySceneNode(props[i].bbsnode[2]);
-		}
-		if (props[i].bbsnode[3])
-		{
-			props[i].bbsnode[3]->removeAndDestroyAllChildren();
-			gEnv->sceneManager->destroySceneNode(props[i].bbsnode[3]);
-		}
-		if (props[i].snode)
-		{
-			props[i].snode->removeAndDestroyAllChildren();
-			gEnv->sceneManager->destroySceneNode(props[i].snode);
+			props[i].scene_node->removeAndDestroyAllChildren();
+			gEnv->sceneManager->destroySceneNode(props[i].scene_node);
 		}
 		if (props[i].wheel)
 		{
 			props[i].wheel->removeAndDestroyAllChildren();
 			gEnv->sceneManager->destroySceneNode(props[i].wheel);
 		}
-		if (props[i].light[0]) gEnv->sceneManager->destroyLight(props[i].light[0]);
-		if (props[i].light[1]) gEnv->sceneManager->destroyLight(props[i].light[1]);
-		if (props[i].light[2]) gEnv->sceneManager->destroyLight(props[i].light[2]);
-		if (props[i].light[3]) gEnv->sceneManager->destroyLight(props[i].light[3]);
 	}
 
 	// delete flares
@@ -369,13 +364,26 @@ void Beam::scaleTruck(float value)
 	// TOFIX: care about prop positions as well!
 	for (int i=0;i<free_prop;i++)
 	{
-		if (props[i].snode) props[i].snode->scale(value, value, value);
-		if (props[i].wheel) props[i].wheel->scale(value, value, value);
-		if (props[i].wheel) props[i].wheelpos = relpos + (props[i].wheelpos-relpos) * value;
-		if (props[i].bbsnode[0]) props[i].bbsnode[0]->scale(value, value, value);
-		if (props[i].bbsnode[1]) props[i].bbsnode[1]->scale(value, value, value);
-		if (props[i].bbsnode[2]) props[i].bbsnode[2]->scale(value, value, value);
-		if (props[i].bbsnode[3]) props[i].bbsnode[3]->scale(value, value, value);
+		if (props[i].scene_node)
+			props[i].scene_node->scale(value, value, value);
+
+		if (props[i].wheel)
+			props[i].wheel->scale(value, value, value);
+
+		if (props[i].wheel)
+			props[i].wheelpos = relpos + (props[i].wheelpos-relpos) * value;
+
+		if (props[i].beacon_flare_billboard_scene_node[0])
+			props[i].beacon_flare_billboard_scene_node[0]->scale(value, value, value);
+
+		if (props[i].beacon_flare_billboard_scene_node[1])
+			props[i].beacon_flare_billboard_scene_node[1]->scale(value, value, value);
+
+		if (props[i].beacon_flare_billboard_scene_node[2])
+			props[i].beacon_flare_billboard_scene_node[2]->scale(value, value, value);
+
+		if (props[i].beacon_flare_billboard_scene_node[3])
+			props[i].beacon_flare_billboard_scene_node[3]->scale(value, value, value);
 	}
 	// tell the cabmesh that resizing is ok, and they dont need to break ;)
 	if (cabMesh) cabMesh->scale(value);
@@ -725,7 +733,7 @@ void Beam::calcNetwork()
 	// set lights
 	if (((flagmask&NETMASK_LIGHTS)!=0) != lights)
 		lightsToggle();
-	if (((flagmask&NETMASK_BEACONS)!=0) != beacon)
+	if (((flagmask&NETMASK_BEACONS)!=0) != m_beacon_light_is_active)
 		beaconsToggle();
 
 	antilockbrake   = flagmask & NETMASK_ALB_ACTIVE;
@@ -1209,28 +1217,37 @@ bool Beam::hasDriverSeat()
 	return driverSeat != 0;
 }
 
-int Beam::calculateDriverPos(Vector3 &pos, Quaternion &rot)
+void Beam::calculateDriverPos(Vector3 &out_pos, Quaternion &out_rot)
 {
+	assert(this->driverSeat != nullptr);
+
 	BES_GFX_START(BES_GFX_calculateDriverPos);
-	if (!hasDriverSeat()) return 1;
 
-	Vector3 diffY = nodes[driverSeat->nodey].smoothpos - nodes[driverSeat->noderef].smoothpos;
-	Vector3 diffX = nodes[driverSeat->nodex].smoothpos - nodes[driverSeat->noderef].smoothpos;
+	Vector3 x_pos = nodes[driverSeat->nodex].smoothpos;
+	Vector3 y_pos = nodes[driverSeat->nodey].smoothpos;
+	Vector3 center_pos = nodes[driverSeat->noderef].smoothpos;
 
-	Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
+	Vector3 x_vec = x_pos - center_pos;
+	Vector3 y_vec = y_pos - center_pos;
 
-	// position
-	Vector3 position = nodes[driverSeat->noderef].smoothpos + driverSeat->offsetx * diffX + driverSeat->offsety * diffY;
+	Vector3 normal = (y_vec.crossProduct(x_vec)).normalisedCopy();
 
-	pos = position + normal * driverSeat->offsetz;
+	// Output position
+	Vector3 pos = center_pos;
+	pos += (this->driverSeat->offsetx * x_vec);
+	pos += (this->driverSeat->offsety * y_vec);
+	pos += (this->driverSeat->offsetz * normal);
+	out_pos = pos;
 
-	// orientation
-	Vector3 refx = diffX.normalisedCopy();
-	Vector3 refy = refx.crossProduct(normal);
+	// Output orientation
+	Vector3 x_vec_norm = x_vec.normalisedCopy();
+	Vector3 y_vec_norm = x_vec_norm.crossProduct(normal);
+	Quaternion rot(x_vec_norm, normal, y_vec_norm);
+	rot = rot * driverSeat->rot;
+	rot = rot * Quaternion(Degree(180), Vector3::UNIT_Y); // rotate towards the driving direction
+	out_rot = rot;
 
-	rot = Quaternion(refx, normal, refy) * driverSeat->rot * Quaternion(Degree(180), Vector3::UNIT_Y); // rotate towards the driving direction
 	BES_GFX_STOP(BES_GFX_calculateDriverPos);
-	return 0;
 }
 
 void Beam::resetAutopilot()
@@ -3095,7 +3112,39 @@ Quaternion Beam::specialGetRotationTo(const Vector3& src, const Vector3& dest) c
 	return q;
 }
 
-
+void Beam::SetPropsCastShadows(bool do_cast_shadows)
+{
+	if (cabNode && cabNode->numAttachedObjects() && cabNode->getAttachedObject(0))
+	{
+		((Entity*)(cabNode->getAttachedObject(0)))->setCastShadows(do_cast_shadows);
+	}
+	int i;
+	for (i=0; i<free_prop; i++)
+	{
+		if (props[i].scene_node && props[i].scene_node->numAttachedObjects())
+		{
+			props[i].scene_node->getAttachedObject(0)->setCastShadows(do_cast_shadows);
+		}
+		if (props[i].wheel && props[i].wheel->numAttachedObjects())
+		{
+			props[i].wheel->getAttachedObject(0)->setCastShadows(do_cast_shadows);
+		}
+	}
+	for (i=0; i<free_wheel; i++) 
+	{
+		if (vwheels[i].cnode->numAttachedObjects())
+		{
+			vwheels[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
+		}
+	}
+	for (i=0; i<free_beam; i++)
+	{
+		if (beams[i].mEntity)
+		{
+			beams[i].mEntity->setCastShadows(do_cast_shadows);
+		}
+	}
+}
 
 void Beam::prepareInside(bool inside)
 {
@@ -3113,17 +3162,7 @@ void Beam::prepareInside(bool inside)
 
 		if (shadowOptimizations)
 		{
-			//disabling shadow
-			if (cabNode && cabNode->numAttachedObjects() && cabNode->getAttachedObject(0)) ((Entity*)(cabNode->getAttachedObject(0)))->setCastShadows(false);
-			int i;
-			for (i=0; i<free_prop; i++)
-			{
-				if (props[i].snode && props[i].snode->numAttachedObjects()) props[i].snode->getAttachedObject(0)->setCastShadows(false);
-				if (props[i].wheel && props[i].wheel->numAttachedObjects()) props[i].wheel->getAttachedObject(0)->setCastShadows(false);
-			}
-			for (i=0; i<free_wheel; i++) if (vwheels[i].cnode->numAttachedObjects()) vwheels[i].cnode->getAttachedObject(0)->setCastShadows(false);
-			for (i=0; i<free_beam; i++) if (beams[i].mEntity) beams[i].mEntity->setCastShadows(false);
-
+			this->SetPropsCastShadows(false);
 		}
 		if (cabNode)
 		{
@@ -3158,16 +3197,7 @@ void Beam::prepareInside(bool inside)
 
 		if (shadowOptimizations)
 		{
-			//enabling shadow
-			if (cabNode && cabNode->numAttachedObjects() && cabNode->getAttachedObject(0)) ((Entity*)(cabNode->getAttachedObject(0)))->setCastShadows(true);
-			int i;
-			for (i=0; i<free_prop; i++)
-			{
-				if (props[i].snode && props[i].snode->numAttachedObjects()) props[i].snode->getAttachedObject(0)->setCastShadows(true);
-				if (props[i].wheel && props[i].wheel->numAttachedObjects()) props[i].wheel->getAttachedObject(0)->setCastShadows(true);
-			}
-			for (i=0; i<free_wheel; i++) if (vwheels[i].cnode->numAttachedObjects()) vwheels[i].cnode->getAttachedObject(0)->setCastShadows(true);
-			for (i=0; i<free_beam; i++) if (beams[i].mEntity) beams[i].mEntity->setCastShadows(true);
+			this->SetPropsCastShadows(true);
 		}
 
 		if (cabNode)
@@ -3282,95 +3312,115 @@ void Beam::updateFlares(float dt, bool isCurrent)
 	int i;
 	//okay, this is just ugly, we have flares in props!
 	//we have to update them here because they run
-	if (beacon)
+
+	// Get data
+	Ogre::Vector3 camera_position = mCamera->getPosition();
+
+	if (m_beacon_light_is_active)
 	{
 		for (i=0; i<free_prop; i++)
 		{
 			if (props[i].beacontype=='b')
 			{
-				//update light
-				Quaternion orientation=props[i].snode->getOrientation();
-				props[i].light[0]->setPosition(props[i].snode->getPosition()+orientation*Vector3(0,0,0.12));
-				props[i].bpos[0]+=dt*props[i].brate[0];//rotate baby!
-				props[i].light[0]->setDirection(orientation*Vector3(cos(props[i].bpos[0]),sin(props[i].bpos[0]),0));
+				// Get data
+				Ogre::SceneNode* beacon_scene_node     = props[i].scene_node;
+				Quaternion       beacon_orientation    = beacon_scene_node->getOrientation();
+				Ogre::Light*     beacon_light          = props[i].beacon_light[0];
+				float            beacon_rotation_rate  = props[i].beacon_light_rotation_rate[0];
+				float            beacon_rotation_angle = props[i].beacon_light_rotation_angle[0]; // Updated at end of block
+
+				// Transform
+				beacon_light->setPosition(beacon_scene_node->getPosition()+beacon_orientation*Vector3(0,0,0.12));
+				beacon_rotation_angle += dt*beacon_rotation_rate;//rotate baby!
+				beacon_light->setDirection(beacon_orientation*Vector3(cos(beacon_rotation_angle),sin(beacon_rotation_angle),0));
 				//billboard
-				Vector3 vdir=props[i].light[0]->getPosition()-mCamera->getPosition();
+				Vector3 vdir=beacon_light->getPosition()-camera_position; // Any reason to query light position instead of scene node position? Where is light position updated, anyway? ~ only_a_ptr, 2015/11
 				float vlen=vdir.length();
-				if (vlen>100.0) {props[i].bbsnode[0]->setVisible(false);continue;}
+				if (vlen>100.0)
+				{
+					props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
+					continue;
+				}
 				//normalize
 				vdir=vdir/vlen;
-				props[i].bbsnode[0]->setPosition(props[i].light[0]->getPosition()-vdir*0.1);
-				float amplitude=props[i].light[0]->getDirection().dotProduct(vdir);
+				props[i].beacon_flare_billboard_scene_node[0]->setPosition(beacon_light->getPosition() - vdir*0.1);
+				float amplitude=beacon_light->getDirection().dotProduct(vdir);
 				if (amplitude>0)
 				{
-					props[i].bbsnode[0]->setVisible(true);
-					props[i].bbs[0]->setDefaultDimensions(amplitude*amplitude*amplitude, amplitude*amplitude*amplitude);
+					props[i].beacon_flare_billboard_scene_node[0]->setVisible(true);
+					props[i].beacon_flares_billboard_system[0]->setDefaultDimensions(amplitude*amplitude*amplitude, amplitude*amplitude*amplitude);
 				}
 				else
 				{
-					props[i].bbsnode[0]->setVisible(false);
+					props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
 				}
-				props[i].light[0]->setVisible(enableAll);
+				beacon_light->setVisible(enableAll);
+
+				// Update
+				props[i].beacon_light_rotation_angle[0] = beacon_rotation_angle;
+				// NOTE: Light position is not updated here!
 			}
-			if (props[i].beacontype=='p')
+			else if (props[i].beacontype=='p')
 			{
-				int k;
-				for (k=0; k<4; k++)
+				for (int k=0; k<4; k++)
 				{
 					//update light
-					Quaternion orientation=props[i].snode->getOrientation();
+					Quaternion orientation=props[i].scene_node->getOrientation();
 					switch (k)
 					{
-					case 0: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(-0.64,0,0.14));break;
-					case 1: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(-0.32,0,0.14));break;
-					case 2: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(+0.32,0,0.14));break;
-					case 3: props[i].light[k]->setPosition(props[i].snode->getPosition()+orientation*Vector3(+0.64,0,0.14));break;
+					case 0: props[i].beacon_light[k]->setPosition(props[i].scene_node->getPosition()+orientation*Vector3(-0.64,0,0.14));break;
+					case 1: props[i].beacon_light[k]->setPosition(props[i].scene_node->getPosition()+orientation*Vector3(-0.32,0,0.14));break;
+					case 2: props[i].beacon_light[k]->setPosition(props[i].scene_node->getPosition()+orientation*Vector3(+0.32,0,0.14));break;
+					case 3: props[i].beacon_light[k]->setPosition(props[i].scene_node->getPosition()+orientation*Vector3(+0.64,0,0.14));break;
 					}
-					props[i].bpos[k]+=dt*props[i].brate[k];//rotate baby!
-					props[i].light[k]->setDirection(orientation*Vector3(cos(props[i].bpos[k]),sin(props[i].bpos[k]),0));
+					props[i].beacon_light_rotation_angle[k]+=dt*props[i].beacon_light_rotation_rate[k];//rotate baby!
+					props[i].beacon_light[k]->setDirection(orientation*Vector3(cos(props[i].beacon_light_rotation_angle[k]),sin(props[i].beacon_light_rotation_angle[k]),0));
 					//billboard
-					Vector3 vdir=props[i].light[k]->getPosition()-mCamera->getPosition();
+					Vector3 vdir=props[i].beacon_light[k]->getPosition()-mCamera->getPosition();
 					float vlen=vdir.length();
-					if (vlen>100.0) {props[i].bbsnode[k]->setVisible(false);continue;}
+					if (vlen>100.0) 
+					{
+						props[i].beacon_flare_billboard_scene_node[k]->setVisible(false);
+						continue;
+					}
 					//normalize
 					vdir=vdir/vlen;
-					props[i].bbsnode[k]->setPosition(props[i].light[k]->getPosition()-vdir*0.2);
-					float amplitude=props[i].light[k]->getDirection().dotProduct(vdir);
+					props[i].beacon_flare_billboard_scene_node[k]->setPosition(props[i].beacon_light[k]->getPosition()-vdir*0.2);
+					float amplitude=props[i].beacon_light[k]->getDirection().dotProduct(vdir);
 					if (amplitude>0)
 					{
-						props[i].bbsnode[k]->setVisible(true);
-						props[i].bbs[k]->setDefaultDimensions(amplitude*amplitude*amplitude, amplitude*amplitude*amplitude);
+						props[i].beacon_flare_billboard_scene_node[k]->setVisible(true);
+						props[i].beacon_flares_billboard_system[k]->setDefaultDimensions(amplitude*amplitude*amplitude, amplitude*amplitude*amplitude);
 					}
 					else
 					{
-						props[i].bbsnode[k]->setVisible(false);
+						props[i].beacon_flare_billboard_scene_node[k]->setVisible(false);
 					}
-					props[i].light[k]->setVisible(enableAll);
+					props[i].beacon_light[k]->setVisible(enableAll);
 				}
 			}
-			if (props[i].beacontype=='r')
+			else if (props[i].beacontype=='r')
 			{
 				//update light
-				Quaternion orientation=props[i].snode->getOrientation();
-				props[i].light[0]->setPosition(props[i].snode->getPosition()+orientation*Vector3(0,0,0.06));
-				props[i].bpos[0]+=dt*props[i].brate[0];//rotate baby!
+				Quaternion orientation=props[i].scene_node->getOrientation();
+				props[i].beacon_light[0]->setPosition(props[i].scene_node->getPosition()+orientation*Vector3(0,0,0.06));
+				props[i].beacon_light_rotation_angle[0]+=dt*props[i].beacon_light_rotation_rate[0];//rotate baby!
 				//billboard
-				Vector3 vdir=props[i].light[0]->getPosition()-mCamera->getPosition();
+				Vector3 vdir=props[i].beacon_light[0]->getPosition()-mCamera->getPosition();
 				float vlen=vdir.length();
-				if (vlen>100.0) {props[i].bbsnode[0]->setVisible(false);continue;}
+				if (vlen>100.0) {props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);continue;}
 				//normalize
 				vdir=vdir/vlen;
-				props[i].bbsnode[0]->setPosition(props[i].light[0]->getPosition()-vdir*0.1);
+				props[i].beacon_flare_billboard_scene_node[0]->setPosition(props[i].beacon_light[0]->getPosition()-vdir*0.1);
 				bool visible=false;
-				if (props[i].bpos[0]>1.0)
+				if (props[i].beacon_light_rotation_angle[0]>1.0)
 				{
-					props[i].bpos[0]=0.0;
+					props[i].beacon_light_rotation_angle[0]=0.0;
 					visible=true;
 				}
 				visible = visible && enableAll;
-				props[i].light[0]->setVisible(visible);
-				props[i].bbsnode[0]->setVisible(visible);
-
+				props[i].beacon_light[0]->setVisible(visible);
+				props[i].beacon_flare_billboard_scene_node[0]->setVisible(visible);
 			}
 			if (props[i].beacontype=='R' || props[i].beacontype=='L')
 			{
@@ -3378,32 +3428,32 @@ void Beam::updateFlares(float dt, bool isCurrent)
 				//billboard
 				Vector3 vdir=mposition-mCamera->getPosition();
 				float vlen=vdir.length();
-				if (vlen>100.0) {props[i].bbsnode[0]->setVisible(false);continue;}
+				if (vlen>100.0) {props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);continue;}
 				//normalize
 				vdir=vdir/vlen;
-				props[i].bbsnode[0]->setPosition(mposition-vdir*0.1);
+				props[i].beacon_flare_billboard_scene_node[0]->setPosition(mposition-vdir*0.1);
 			}
 			if (props[i].beacontype=='w')
 			{
 				Vector3 mposition=nodes[props[i].noderef].smoothpos+props[i].offsetx*(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos)+props[i].offsety*(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos);
-				props[i].light[0]->setPosition(mposition);
-				props[i].bpos[0]+=dt*props[i].brate[0];//rotate baby!
+				props[i].beacon_light[0]->setPosition(mposition);
+				props[i].beacon_light_rotation_angle[0]+=dt*props[i].beacon_light_rotation_rate[0];//rotate baby!
 				//billboard
 				Vector3 vdir=mposition-mCamera->getPosition();
 				float vlen=vdir.length();
-				if (vlen>100.0) {props[i].bbsnode[0]->setVisible(false);continue;}
+				if (vlen>100.0) {props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);continue;}
 				//normalize
 				vdir=vdir/vlen;
-				props[i].bbsnode[0]->setPosition(mposition-vdir*0.1);
+				props[i].beacon_flare_billboard_scene_node[0]->setPosition(mposition-vdir*0.1);
 				bool visible=false;
-				if (props[i].bpos[0]>1.0)
+				if (props[i].beacon_light_rotation_angle[0]>1.0)
 				{
-					props[i].bpos[0]=0.0;
+					props[i].beacon_light_rotation_angle[0]=0.0;
 					visible=true;
 				}
 				visible = visible && enableAll;
-				props[i].light[0]->setVisible(visible);
-				props[i].bbsnode[0]->setVisible(visible);
+				props[i].beacon_light[0]->setVisible(visible);
+				props[i].beacon_flare_billboard_scene_node[0]->setVisible(visible);
 			}
 		}
 	}
@@ -3603,18 +3653,18 @@ void Beam::updateProps()
 	//the props
 	for (i=0; i<free_prop; i++)
 	{
-		if (!props[i].snode) continue;
+		if (!props[i].scene_node) continue;
 		Vector3 normal=(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos).crossProduct(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos);
 		normal.normalise();
 		//position
 		Vector3 mposition=nodes[props[i].noderef].smoothpos+props[i].offsetx*(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos)+props[i].offsety*(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos);
-		props[i].snode->setPosition(mposition+normal*props[i].offsetz);
+		props[i].scene_node->setPosition(mposition+normal*props[i].offsetz);
 		//orientation
 		Vector3 refx=nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos;
 		refx.normalise();
 		Vector3 refy=refx.crossProduct(normal);
 		Quaternion orientation=Quaternion(refx, normal, refy)*props[i].rot;
-		props[i].snode->setOrientation(orientation);
+		props[i].scene_node->setOrientation(orientation);
 		if (props[i].wheel)
 		{
 			//display wheel
@@ -4007,8 +4057,8 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 	}
 	for (i=0; i<free_prop; i++)
 	{
-		if (props[i].snode)
-			setMeshWireframe(props[i].snode, true);
+		if (props[i].scene_node)
+			setMeshWireframe(props[i].scene_node, true);
 		if (props[i].wheel)
 			setMeshWireframe(props[i].wheel, true);
 	}
@@ -4100,8 +4150,8 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 	}
 	for (i=0; i<free_prop; i++)
 	{
-		if (props[i].snode)
-			setMeshWireframe(props[i].snode, false);
+		if (props[i].scene_node)
+			setMeshWireframe(props[i].scene_node, false);
 		if (props[i].wheel)
 			setMeshWireframe(props[i].wheel, false);
 	}
@@ -4266,10 +4316,10 @@ void Beam::setMeshVisibility(bool visible, bool linked)
 	{
 		if (props[i].mo)			props[i].mo->setVisible(visible);
 		if (props[i].wheel)		props[i].wheel->setVisible(visible);
-		if (props[i].bbsnode[0]) props[i].bbsnode[0]->setVisible(visible);
-		if (props[i].bbsnode[1]) props[i].bbsnode[1]->setVisible(visible);
-		if (props[i].bbsnode[2]) props[i].bbsnode[2]->setVisible(visible);
-		if (props[i].bbsnode[3]) props[i].bbsnode[3]->setVisible(visible);
+		if (props[i].beacon_flare_billboard_scene_node[0]) props[i].beacon_flare_billboard_scene_node[0]->setVisible(visible);
+		if (props[i].beacon_flare_billboard_scene_node[1]) props[i].beacon_flare_billboard_scene_node[1]->setVisible(visible);
+		if (props[i].beacon_flare_billboard_scene_node[2]) props[i].beacon_flare_billboard_scene_node[2]->setVisible(visible);
+		if (props[i].beacon_flare_billboard_scene_node[3]) props[i].beacon_flare_billboard_scene_node[3]->setVisible(visible);
 	}
 	for (int i=0; i < free_flexbody; i++)
 	{
@@ -4754,67 +4804,70 @@ void Beam::beaconsToggle()
 		return;
 	if (flaresMode==1)
 		enableLight=false;
-	int i;
-	beacon = !beacon;
-	for (i=0; i<free_prop; i++)
-	{
-		if (props[i].beacontype=='b')
-		{
-			props[i].light[0]->setVisible(beacon && enableLight);
-			props[i].bbsnode[0]->setVisible(beacon);
-			if (props[i].bbs[0] && beacon && !props[i].bbsnode[0]->numAttachedObjects())
-			{
-				props[i].bbs[0]->setVisible(true);
-				props[i].bbsnode[0]->attachObject(props[i].bbs[0]);
-			} else if (props[i].bbs[0] && !beacon)
-			{
-				props[i].bbsnode[0]->detachAllObjects();
-				props[i].bbs[0]->setVisible(false);
-			}
-		}
-		else if (props[i].beacontype=='R' || props[i].beacontype=='L')
-		{
-			props[i].bbsnode[0]->setVisible(beacon);
-			if (props[i].bbs[0] && beacon && !props[i].bbsnode[0]->numAttachedObjects())
-				props[i].bbsnode[0]->attachObject(props[i].bbs[0]);
-			else if (props[i].bbs[0] && !beacon)
-				props[i].bbsnode[0]->detachAllObjects();
-		}
-		else if (props[i].beacontype=='p')
-		{
-			for (int k=0; k<4; k++)
-			{
-				props[i].light[k]->setVisible(beacon && enableLight);
-				props[i].bbsnode[k]->setVisible(beacon);
-				if (props[i].bbs[k] && beacon && !props[i].bbsnode[k]->numAttachedObjects())
-					props[i].bbsnode[k]->attachObject(props[i].bbs[k]);
-				else if (props[i].bbs[k] && !beacon)
-					props[i].bbsnode[k]->detachAllObjects();
-			}
-		} else
-		{
-			for (int k=0; k<4; k++)
-			{
-				if (props[i].light[k])
-				{
-					props[i].light[k]->setVisible(beacon && enableLight);
-				}
-				if (props[i].bbsnode[k])
-				{
-					props[i].bbsnode[k]->setVisible(beacon);
 
-					if (props[i].bbs[k] && beacon && !props[i].bbsnode[k]->numAttachedObjects())
+	bool beacon_light_is_active = !m_beacon_light_is_active;
+	for (int i=0; i<free_prop; i++)
+	{
+		char beacon_type = props[i].beacontype;
+		if (beacon_type =='b')
+		{
+			props[i].beacon_light[0]->setVisible(beacon_light_is_active && enableLight);
+			props[i].beacon_flare_billboard_scene_node[0]->setVisible(beacon_light_is_active);
+			if (props[i].beacon_flares_billboard_system[0] && beacon_light_is_active && !props[i].beacon_flare_billboard_scene_node[0]->numAttachedObjects())
+			{
+				props[i].beacon_flares_billboard_system[0]->setVisible(true);
+				props[i].beacon_flare_billboard_scene_node[0]->attachObject(props[i].beacon_flares_billboard_system[0]);
+			} else if (props[i].beacon_flares_billboard_system[0] && !beacon_light_is_active)
+			{
+				props[i].beacon_flare_billboard_scene_node[0]->detachAllObjects();
+				props[i].beacon_flares_billboard_system[0]->setVisible(false);
+			}
+		}
+		else if (beacon_type=='R' || beacon_type=='L')
+		{
+			props[i].beacon_flare_billboard_scene_node[0]->setVisible(beacon_light_is_active);
+			if (props[i].beacon_flares_billboard_system[0] && beacon_light_is_active && !props[i].beacon_flare_billboard_scene_node[0]->numAttachedObjects())
+				props[i].beacon_flare_billboard_scene_node[0]->attachObject(props[i].beacon_flares_billboard_system[0]);
+			else if (props[i].beacon_flares_billboard_system[0] && !beacon_light_is_active)
+				props[i].beacon_flare_billboard_scene_node[0]->detachAllObjects();
+		}
+		else if (beacon_type=='p')
+		{
+			for (int k=0; k<4; k++)
+			{
+				props[i].beacon_light[k]->setVisible(beacon_light_is_active && enableLight);
+				props[i].beacon_flare_billboard_scene_node[k]->setVisible(beacon_light_is_active);
+				if (props[i].beacon_flares_billboard_system[k] && beacon_light_is_active && !props[i].beacon_flare_billboard_scene_node[k]->numAttachedObjects())
+					props[i].beacon_flare_billboard_scene_node[k]->attachObject(props[i].beacon_flares_billboard_system[k]);
+				else if (props[i].beacon_flares_billboard_system[k] && !beacon_light_is_active)
+					props[i].beacon_flare_billboard_scene_node[k]->detachAllObjects();
+			}
+		}
+		else
+		{
+			for (int k=0; k<4; k++)
+			{
+				if (props[i].beacon_light[k])
+				{
+					props[i].beacon_light[k]->setVisible(beacon_light_is_active && enableLight);
+				}
+				if (props[i].beacon_flare_billboard_scene_node[k])
+				{
+					props[i].beacon_flare_billboard_scene_node[k]->setVisible(beacon_light_is_active);
+
+					if (props[i].beacon_flares_billboard_system[k] && beacon_light_is_active && !props[i].beacon_flare_billboard_scene_node[k]->numAttachedObjects())
 					{
-						props[i].bbsnode[k]->attachObject(props[i].bbs[k]);
+						props[i].beacon_flare_billboard_scene_node[k]->attachObject(props[i].beacon_flares_billboard_system[k]);
 					}
-					else if (props[i].bbs[k] && !beacon)
+					else if (props[i].beacon_flares_billboard_system[k] && !beacon_light_is_active)
 					{
-						props[i].bbsnode[k]->detachAllObjects();
+						props[i].beacon_flare_billboard_scene_node[k]->detachAllObjects();
 					}
 				}
 			}
 		}
 	}
+	m_beacon_light_is_active = beacon_light_is_active;
 
 	//ScriptEvent - Beacon toggle
 	TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, trucknum);
@@ -5977,7 +6030,7 @@ Beam::Beam(
 	, GUIFeaturesChanged(false)
 	, aileron(0)
 	, avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
-	, beacon(false)
+	, m_beacon_light_is_active(false)
 	, beamsVisible(true)
 	, blinkingtype(BLINK_NONE)
 	, blinktreshpassed(false)
@@ -6728,9 +6781,9 @@ void Beam::setCustomLightVisible(int number, bool visible)
 		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");*/
 }
 
-bool Beam::getBeaconMode()
+bool Beam::getBeaconMode() // Angelscript export
 {
-	return beacon;
+	return m_beacon_light_is_active;
 }
 
 blinktype Beam::getBlinkType()

@@ -19,9 +19,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TruckHUD.h"
 
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreOverlayElement.h>
-#include <Overlay/OgreOverlayManager.h>
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "AeroEngine.h"
 #include "Application.h"

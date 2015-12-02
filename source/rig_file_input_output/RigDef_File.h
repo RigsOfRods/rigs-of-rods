@@ -187,27 +187,15 @@ struct Inertia
 {
 	Inertia():
 		start_delay_factor(0),
-		stop_delay_factor(0)
+		stop_delay_factor(0),
+		_start_delay_factor_set(false),
+		_stop_delay_factor_set(false)
 	{}
 
 	float start_delay_factor;
 	float stop_delay_factor;
 	Ogre::String start_function;
 	Ogre::String stop_function;
-};
-
-struct DefaultInertia: Inertia
-{
-};
-
-struct OptionalInertia: public Inertia
-{
-	OptionalInertia():
-		Inertia(),
-		_start_delay_factor_set(false),
-		_stop_delay_factor_set(false)
-	{}
-
 	bool _start_delay_factor_set;
 	bool _stop_delay_factor_set;
 };
@@ -1155,8 +1143,8 @@ struct Hydro
 	Node::Ref nodes[2];
 	float lenghtening_factor;
 	std::string options;
-	OptionalInertia inertia;
-	boost::shared_ptr<DefaultInertia> inertia_defaults;
+	Inertia inertia;
+	boost::shared_ptr<Inertia> inertia_defaults;
 	boost::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
@@ -1228,7 +1216,7 @@ struct Animator
 	float short_limit;
 	float long_limit;
 	AeroAnimator aero_animator;
-	boost::shared_ptr<DefaultInertia> inertia_defaults;
+	boost::shared_ptr<Inertia> inertia_defaults;
 	boost::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
@@ -1258,11 +1246,11 @@ struct Command2
 	unsigned int extend_key;
 	unsigned int options;
 	Ogre::String description;
-	OptionalInertia inertia;
+	Inertia inertia;
 	float affect_engine;
 	bool needs_engine;
 	boost::shared_ptr<BeamDefaults> beam_defaults;
-	boost::shared_ptr<DefaultInertia> inertia_defaults;
+	boost::shared_ptr<Inertia> inertia_defaults;
 	int detacher_group;
 
 	inline bool HasOption(unsigned int option) const
@@ -1292,8 +1280,8 @@ struct Rotator
 	float rate;
 	unsigned int spin_left_key;
 	unsigned int spin_right_key;
-	OptionalInertia inertia;
-	boost::shared_ptr<DefaultInertia> inertia_defaults;
+	Inertia inertia;
+	boost::shared_ptr<Inertia> inertia_defaults;
 	float engine_coupling;
 	bool needs_engine;
 };

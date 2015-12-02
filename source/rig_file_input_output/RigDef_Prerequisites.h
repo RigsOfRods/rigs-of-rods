@@ -68,7 +68,6 @@ struct Meshwheel;
 struct Meshwheel2;
 struct Node;
 struct NodeDefaults;
-struct OptionalInertia;
 struct Particle;
 struct Pistonprop;
 struct Prop;

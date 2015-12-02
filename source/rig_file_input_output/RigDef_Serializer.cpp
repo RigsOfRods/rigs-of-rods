@@ -2106,7 +2106,7 @@ void Serializer::ProcessHydro(Hydro & def)
 	m_stream << ", ";
 
 	// Inertia
-	OptionalInertia & inertia = def.inertia;
+	Inertia & inertia = def.inertia;
 	m_stream << std::setw(m_float_width) << inertia.start_delay_factor  << ", ";
 	m_stream << std::setw(m_float_width) << inertia.stop_delay_factor;
 	if (!inertia.start_function.empty())
