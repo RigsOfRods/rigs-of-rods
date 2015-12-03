@@ -75,7 +75,6 @@ private:
 		Ogre::Vector3 lastPointAv;
 		int pos;
 		Ogre::ColourValue colour;
-		Ogre::Vector3 face[2];
 		int facecounter;
 	} skidmark_t;
 

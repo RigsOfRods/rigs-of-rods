@@ -112,7 +112,8 @@ void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	gEnv->frameListener->shutdown_final();
+	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+	Application::GetMainThreadLogic()->RequestShutdown();
 }
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)

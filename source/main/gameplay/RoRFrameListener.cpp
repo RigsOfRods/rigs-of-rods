@@ -1288,7 +1288,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #ifdef USE_MUMBLE
 		if (gEnv->player)
 		{
-			MumbleIntegration::getSingleton().update(gEnv->mainCamera->getPosition(), gEnv->player->getPosition() + Vector3(0, 1.8f, 0));
+			// calculate orientation of avatar first
+			Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
+
+			MumbleIntegration::getSingleton().update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
+														gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
 		}
 #endif // USE_MUMBLE
 	}

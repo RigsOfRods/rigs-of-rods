@@ -27,13 +27,19 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
 
-#include <windows.h>
+#ifdef _WIN32
+  #include <windows.h>
+#else
+  #include <sys/mman.h>
+  #include <fcntl.h> /* For O_* constants */
+#endif // _WIN32
+
 
 class MumbleIntegration : public RoRSingleton<MumbleIntegration>, public ZeroedMemoryAllocator
 {
 public:
 	MumbleIntegration();
-    void update(Ogre::Vector3 cameraPos, Ogre::Vector3 avatarPos);
+    void update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir, Ogre::Vector3 cameraUp, Ogre::Vector3 avatarPos, Ogre::Vector3 avatarDir, Ogre::Vector3 avatarUp);
 
 protected:
 	~MumbleIntegration();

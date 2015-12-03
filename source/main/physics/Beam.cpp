@@ -3056,7 +3056,7 @@ void Beam::updateSkidmarks()
 		// create skidmark object for wheels with data if not existing
 		if (!skidtrails[i])
 		{
-			skidtrails[i] = new Skidmark(&wheels[i], beamsRoot, 300, 200);
+			skidtrails[i] = new Skidmark(&wheels[i], beamsRoot, 300, 20);
 		}
 
 		skidtrails[i]->updatePoint();
@@ -5839,11 +5839,18 @@ void Beam::updateDashBoards(float &dt)
 
 Vector3 Beam::getGForces()
 {
-	if (cameranodecount > 0 && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES && cameranoderoll[0] >= 0 && cameranoderoll[0] < MAX_NODES)
+	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES && cameranoderoll[0] >= 0 && cameranoderoll[0] < MAX_NODES)
 	{
-		Vector3 acc      = cameranodeacc / cameranodecount;
-		cameranodeacc    = Vector3::ZERO;
-		cameranodecount  = 0;
+		static Vector3 result = Vector3::ZERO;
+
+		if (cameranodecount == 0) // multiple calls in one single frame, avoid division by 0
+		{
+			return result;
+		}
+
+		Vector3 acc = cameranodeacc / cameranodecount;
+		cameranodeacc      = Vector3::ZERO;
+		cameranodecount    = 0;
 
 		float longacc     = acc.dotProduct((nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy());
 		float latacc      = acc.dotProduct((nodes[cameranodepos[0]].RelPosition - nodes[cameranoderoll[0]].RelPosition).normalisedCopy());
@@ -5863,7 +5870,9 @@ Vector3 Beam::getGForces()
 
 		float vertacc = std::abs(gravity) - acc.dotProduct(-upv);
 
-		return Vector3(vertacc / std::abs(gravity), longacc / std::abs(gravity), latacc / std::abs(gravity));
+		result = Vector3(vertacc / std::abs(gravity), longacc / std::abs(gravity), latacc / std::abs(gravity));
+
+		return result;
 	}
 
 	return Vector3::ZERO;
