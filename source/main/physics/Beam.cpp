@@ -2684,6 +2684,7 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 
 	for (int t=0; t<numtrucks; t++)
 	{
+		if (t % chunk_number != chunk_index) continue;
 		//If you change any of the below "ifs" concerning trucks then you should
 		//also consider changing the parallel "ifs" inside PointColDetector
 		//see "pointCD" above.
@@ -2692,15 +2693,7 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 
 		trwidth=trucks[t]->collrange;
 
-		int chunk_size = trucks[t]->free_collcab / chunk_number;
-		int end_index = (chunk_index+1)*chunk_size;
-
-		if (chunk_index+1 == chunk_number)
-		{
-			end_index = trucks[t]->free_collcab;
-		}
-
-		for (int i=chunk_index*chunk_size; i<end_index; i++)
+		for (int i=0; i<trucks[t]->free_collcab; i++)
 		{
 			trucks[t]->inter_collcabrate[i].update=true;
 			if (trucks[t]->inter_collcabrate[i].rate>0)
