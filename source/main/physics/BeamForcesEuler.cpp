@@ -49,57 +49,27 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-void Beam::calcForcesEulerCompute(int doUpdate_int, Real dt, int step, int maxsteps)
+void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 {
-    bool doUpdate = (doUpdate_int != 0);
-	calcTruckEngine(doUpdate, dt);
+	Beam** trucks = BeamFactory::getSingleton().getTrucks();
+	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
-	// calc
-	calcBeams(doUpdate, dt, step, maxsteps);
+	IWater *water = 0;
+	if (gEnv->terrainManager)
+		water = gEnv->terrainManager->getWater();
 
-	// not related to physics
-	calcAnimatedProps(doUpdate, dt);
+	increased_accuracy = false;
+	float inverted_dt = 1.0f / dt;
 
-	calcMouse();
-
-	calcScrewProp(doUpdate);
-	calcWing();
-	calcFuseDrag();
-	calcAirBrakes();
-	calcBuoyance(doUpdate, dt, step, maxsteps);
-
-	calcAxles(doUpdate, dt);
-	calcWheels(doUpdate, dt, step, maxsteps);
-	calcShocks(doUpdate, dt);
-
-	calcHydros(doUpdate, dt);
-	calcCommands(doUpdate, dt);
-
-	// integration, most likely this needs to be done after all the
-	// forces have been calculated other wise, forces might linger
-	calcNodes_(doUpdate, dt, step, maxsteps);
-
-	//This has to be done after the nodes
-	calcTurboProp(doUpdate, dt);
-
-	calcReplay(doUpdate, dt);
-	BES_STOP(BES_CORE_WholeTruckCalc);
-}
-
-void Beam::calcTruckEngine(bool doUpdate, Real dt)
-{
-	BES_START(BES_CORE_TruckEngine);
 	//engine callback
 	if (engine)
 	{
+		BES_START(BES_CORE_TruckEngine);
 		engine->update(dt, doUpdate);
+		BES_STOP(BES_CORE_TruckEngine);
 	}
-	BES_STOP(BES_CORE_TruckEngine);
-}
 	//if (doUpdate) mWindow->setDebugText(engine->status);
 
-void Beam::calcBeams(bool doUpdate, Real dt, int step, int maxsteps)
-{
 #if BEAMS_INTER_TRUCK_PARALLEL
 #if !BEAMS_INTRA_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
@@ -129,10 +99,7 @@ void Beam::calcBeams(bool doUpdate, Real dt, int step, int maxsteps)
 			it->timer = 0.0f;
 		}
 	}
-}
 
-void Beam::calcAnimatedProps(bool doUpdate, Real dt)
-{
 	BES_START(BES_CORE_AnimatedProps);
 
 	//animate props
@@ -425,10 +392,7 @@ void Beam::calcAnimatedProps(bool doUpdate, Real dt)
 	}
 
 	BES_STOP(BES_CORE_AnimatedProps);
-}
 
-void Beam::calcForceFeedBack(bool doUpdate)
-{
 	if (state==ACTIVATED) //force feedback sensors
 	{
 		if (doUpdate)
@@ -446,28 +410,22 @@ void Beam::calcForceFeedBack(bool doUpdate)
 				affhydro += beams[hydro[i]].hydroRatio * beams[hydro[i]].refL * beams[hydro[i]].stress;
 		}
 	}
-}
 
-void Beam::calcMouse()
-{
 	//mouse stuff
 	if (mousenode != -1)
 	{
 		Vector3 dir = mousepos - nodes[mousenode].AbsPosition;
 		nodes[mousenode].Forces += mousemoveforce * dir;
 	}
-}
-void Beam::calcSlideNodes(Ogre::Real dt)
-{
+
+#if NODES_INTER_TRUCK_PARALLEL
+	// START Slidenode section /////////////////////////////////////////////////
+	// these must be done before the integrator, or else the forces are not calculated properly
 	BES_START(BES_CORE_SlideNodes);
 	updateSlideNodeForces(dt);
 	BES_STOP(BES_CORE_SlideNodes);
-}
+	// END Slidenode section   /////////////////////////////////////////////////
 
-void Beam::calcNodes_(bool doUpdate, Real dt, int step, int maxsteps)
-{
-#if NODES_INTER_TRUCK_PARALLEL
-	calcSlideNodes(dt);
 	BES_START(BES_CORE_Nodes);
 
 	watercontact = false;
@@ -540,17 +498,7 @@ void Beam::calcNodes_(bool doUpdate, Real dt, int step, int maxsteps)
 
 	BES_STOP(BES_CORE_Nodes);
 #endif
-}
-
-void Beam::calcAxles(bool doUpdate, Ogre::Real dt)
-{
-	// TODO Wheels and Axles share many variables, this was moved to calc
-	// Wheels until a better method is devised to share the information
-	// this is kept here to maintain the intended structure
-}
-
-void Beam::calcTurboProp(bool doUpdate, Ogre::Real dt)
-{
+		
 	BES_START(BES_CORE_Turboprop);
 
 	//turboprop forces
@@ -558,10 +506,6 @@ void Beam::calcTurboProp(bool doUpdate, Ogre::Real dt)
 		if (aeroengines[i]) aeroengines[i]->updateForces(dt, doUpdate);
 
 	BES_STOP(BES_CORE_Turboprop);
-}
-
-void Beam::calcScrewProp(bool doUpdate)
-{
 	BES_START(BES_CORE_Screwprop);
 
 	//screwprop forces
@@ -569,10 +513,6 @@ void Beam::calcScrewProp(bool doUpdate)
 		if (screwprops[i]) screwprops[i]->updateForces(doUpdate);
 
 	BES_STOP(BES_CORE_Screwprop);
-}
-
-void Beam::calcWing()
-{
 	BES_START(BES_CORE_Wing);
 
 	//wing forces
@@ -580,10 +520,6 @@ void Beam::calcWing()
 		if (wings[i].fa) wings[i].fa->updateForces();
 
 	BES_STOP(BES_CORE_Wing);
-}
-
-void Beam::calcFuseDrag()
-{
 	BES_START(BES_CORE_FuseDrag);
 
 	//compute fuse drag
@@ -616,11 +552,6 @@ void Beam::calcFuseDrag()
 	}
 
 	BES_STOP(BES_CORE_FuseDrag);
-	
-}
-
-void Beam::calcAirBrakes()
-{
 	BES_START(BES_CORE_Airbrakes);
 
 	//airbrakes
@@ -630,13 +561,8 @@ void Beam::calcAirBrakes()
 	}
 
 	BES_STOP(BES_CORE_Airbrakes);
-}
-
-void Beam::calcBuoyance(bool doUpdate, Ogre::Real dt, int step, int)
-{
 	BES_START(BES_CORE_Buoyance);
 
-	IWater *water = (gEnv->terrainManager ? gEnv->terrainManager->getWater() : nullptr);
 	//water buoyance
 	if (free_buoycab && water)
 	{
@@ -665,11 +591,6 @@ void Beam::calcBuoyance(bool doUpdate, Ogre::Real dt, int step, int)
 	}
 
 	BES_STOP(BES_CORE_Buoyance);
-}
-
-
-void Beam::calcWheels(bool doUpdate, Real dt, int step, int maxsteps)
-{
 	BES_START(BES_CORE_Axles);
 
 	//wheel speed
@@ -1071,11 +992,6 @@ void Beam::calcWheels(bool doUpdate, Real dt, int step, int maxsteps)
 	odometerUser  += distance_driven;
 
 	BES_STOP(BES_CORE_Wheels);
-}
-
-void Beam::calcShocks(bool doUpdate, Ogre::Real dt)
-{
-	
 	BES_START(BES_CORE_Shocks);
 
 	//update position
@@ -1133,18 +1049,7 @@ void Beam::calcShocks(bool doUpdate, Ogre::Real dt)
 	}
 
 	BES_STOP(BES_CORE_Shocks);
-	
-}
-
-void Beam::calcHydros(bool doUpdate, Ogre::Real dt)
-{
 	BES_START(BES_CORE_Hydros);
-
-	// TODO wspeed is calculated in calcwheels, need to find a sane way
-	// to get the value to this function 
-	Real wspeed = 0.0;
-
-	wspeed = WheelSpeed; //getWheelSpeed()
 
 	//direction
 	if (hydrodirstate!=0 || hydrodircommand!=0)
@@ -1286,10 +1191,6 @@ void Beam::calcHydros(bool doUpdate, Ogre::Real dt)
 	}
 
 	BES_STOP(BES_CORE_Hydros);
-}
-
-void Beam::calcCommands(bool doUpdate, Ogre::Real dt)
-{
 	BES_START(BES_CORE_Commands);
 
 	// commands
@@ -1617,11 +1518,7 @@ void Beam::calcCommands(bool doUpdate, Ogre::Real dt)
 		}
 	}
 
-	BES_STOP(BES_CORE_Commands);	
-}
-
-void Beam::calcReplay(bool doUpdate, Ogre::Real dt)
-{
+	BES_STOP(BES_CORE_Commands);
 	BES_START(BES_CORE_Replay);
 
 	// we also store a new replay frame
@@ -1880,21 +1777,19 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 
 			float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
 			beams[i].stress = slen;
-			float len = std::abs(slen);
-			
 
 			// Fast test for deformation
+			float len = std::abs(slen);
 			if (len > beams[i].minmaxposnegstress)
 			{
 				if ((beams[i].type==BEAM_NORMAL || beams[i].type==BEAM_INVISIBLE) && beams[i].bounded!=SHOCK1 && k!=0.0f)
 				{
-					Real deform;
 					// Actual deformation tests
 					if (slen > beams[i].maxposstress && difftoBeamL < 0.0f) // compression
 					{
 						increased_accuracy = true;
 						Real yield_length = beams[i].maxposstress / k;
-						deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
+						Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
 						Real Lold = beams[i].L;
 						beams[i].L += deform;
 						beams[i].L = std::max(MIN_BEAM_LENGTH, beams[i].L);
@@ -1911,7 +1806,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					{
 						increased_accuracy = true;
 						Real yield_length = beams[i].maxnegstress / k;
-						deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
+						Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
 						Real Lold = beams[i].L;
 						beams[i].L += deform;
 						slen = slen - (slen - beams[i].maxnegstress) * 0.5f;
@@ -1925,10 +1820,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 #ifdef USE_OPENAL
 					// Sound effect
 					// Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
-					
+					/*
 					SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
 					SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
-					
+					*/
 #endif  //USE_OPENAL
 					beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
 					beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
@@ -2264,8 +2159,7 @@ void Beam::calcHooks()
 {
 	BES_START(BES_CORE_Hooks);
 	//locks - this is not active in network mode
-	auto hooks_end = hooks.end();
-	for (auto it=hooks.begin(); it != hooks_end; ++it)
+	for (std::vector<hook_t>::iterator it=hooks.begin(); it!=hooks.end(); it++)
 	{
 		if (it->lockNode && it->locked == PRELOCK)
 		{
