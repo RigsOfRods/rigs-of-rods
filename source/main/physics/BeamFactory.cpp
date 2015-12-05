@@ -122,9 +122,10 @@ BeamFactory::BeamFactory() :
 			} else if (num_cpu_cores > 2)
 			{
 				// Use default settings
-				gEnv->threadPool = new ThreadPool(num_cpu_cores);
-				beamThreadPool   = new ThreadPool(num_cpu_cores);
-				LOG("BEAMFACTORY: Creating: " + TOSTRING(num_cpu_cores) + " threads");
+				int num_threads = ceil(num_cpu_cores / 2);
+				gEnv->threadPool = new ThreadPool(num_threads);
+				beamThreadPool   = new ThreadPool(num_threads);
+				LOG("BEAMFACTORY: Creating: " + TOSTRING(num_threads) + " threads");
 			}
 		}
 
