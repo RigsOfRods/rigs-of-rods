@@ -1537,11 +1537,11 @@ bool Beam::frameStep(Real dt)
 	if (mTimeUntilNextToggle > -1)
 		mTimeUntilNextToggle -= dt;
 	
-	dt += dt_rounding_loss;
+	dt += m_dt_remainder;
 
 	int steps = dt / PHYSICS_DT;
 
-	dt_rounding_loss = dt - (steps * PHYSICS_DT);
+	m_dt_remainder = dt - (steps * PHYSICS_DT);
 
 	// TODO: move this to the correct spot
 	// update all dashboards
@@ -6052,7 +6052,6 @@ Beam::Beam(
 	, disableDrag(false)
 	, disableTruckTruckCollisions(false)
 	, disableTruckTruckSelfCollisions(false)
-	, dt_rounding_loss(0.0)
 	, elevator(0)
 	, flap(0)
 	, floating_origin_enable(true)
@@ -6079,6 +6078,7 @@ Beam::Beam(
 	, lockSkeletonchange(false)
 	, locked(0)
 	, lockedold(0)
+	, m_dt_remainder(0.0)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
 	, minCameraRadius(0)

@@ -587,8 +587,8 @@ protected:
 
 	void SetPropsCastShadows(bool do_cast_shadows);
 
-	// Simulation time lost, due to rounding errors
-	float dt_rounding_loss;
+	// Keeps track of the rounding error in the time step calculation
+	float m_dt_remainder;
 
 	float dtperstep;
 	int curtstep;
