@@ -83,6 +83,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
+#define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
+
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 
@@ -1440,7 +1442,7 @@ void Beam::SyncReset()
 void Beam::threadentry()
 {
 	Beam **trucks = ttrucks;
-	dtperstep = global_dt / (Real)tsteps;
+	dtperstep = PHYSICS_DT;
 
 	for (curtstep=0; curtstep<tsteps; curtstep++)
 	{
@@ -1535,7 +1537,11 @@ bool Beam::frameStep(Real dt)
 	if (mTimeUntilNextToggle > -1)
 		mTimeUntilNextToggle -= dt;
 	
-	int steps = 2000.0 * dt;
+	dt += dt_rounding_loss;
+
+	int steps = dt / PHYSICS_DT;
+
+	dt_rounding_loss = dt - (steps * PHYSICS_DT);
 
 	// TODO: move this to the correct spot
 	// update all dashboards
@@ -1603,7 +1609,7 @@ bool Beam::frameStep(Real dt)
 		// simulation update
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
-			dtperstep = dt / (Real)steps;
+			dtperstep = PHYSICS_DT;
 			
 			for (int i=0; i<steps; i++)
 			{
@@ -6058,6 +6064,7 @@ Beam::Beam(
 	, disableDrag(false)
 	, disableTruckTruckCollisions(false)
 	, disableTruckTruckSelfCollisions(false)
+	, dt_rounding_loss(0.0)
 	, elevator(0)
 	, flap(0)
 	, floating_origin_enable(true)
