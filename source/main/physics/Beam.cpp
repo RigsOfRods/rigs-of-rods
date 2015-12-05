@@ -2722,6 +2722,20 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 				, na->AbsPosition
 				, nb->AbsPosition, trwidth*distance);
 
+			if (interPointCD[chunk_index]->hit_count > 0)
+			{
+				//calculate transform matrices
+				bx=na->RelPosition;
+				by=nb->RelPosition;
+				bx-=no->RelPosition;
+				by-=no->RelPosition;
+				bz=bx.crossProduct(by);
+				bz.normalise();
+				//coordinates change matrix
+				forward.FromAxes(bx,by,bz);
+				forward=forward.Inverse();
+			}
+
 			trucks[t]->inter_collcabrate[i].calcforward=true;
 			for (int h=0; h<interPointCD[chunk_index]->hit_count; h++)
 			{
@@ -2734,29 +2748,14 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 
 				hittruck=trucks[hittruckid];
 
-				//calculate transform matrices
-				if (trucks[t]->inter_collcabrate[i].calcforward)
-				{
-					trucks[t]->inter_collcabrate[i].calcforward=false;
-					bx=na->RelPosition;
-					by=nb->RelPosition;
-					bx-=no->RelPosition;
-					by-=no->RelPosition;
-					bz=bx.crossProduct(by);
-					bz=fast_normalise(bz);
-					//coordinates change matrix
-					forward.SetColumn(0, bx);
-					forward.SetColumn(1, by);
-					forward.SetColumn(2, bz);
-					forward=forward.Inverse();
-				}
-
 				//change coordinates
 				point=forward*(hitnode->AbsPosition-no->AbsPosition);
 
 				//test
 				if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<=trwidth && point.z>=-trwidth)
 				{
+					trucks[t]->inter_collcabrate[i].calcforward=false;
+
 					//collision
 					plnormal=bz;
 
@@ -2933,7 +2932,20 @@ void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 			, na->AbsPosition
 			, nb->AbsPosition, trwidth);
 
-		bool calcforward=true;
+		if (intraPointCD[chunk_index]->hit_count > 0)
+		{
+			//calculate transform matrices
+			bx=na->RelPosition;
+			by=nb->RelPosition;
+			bx-=no->RelPosition;
+			by-=no->RelPosition;
+			bz =bx.crossProduct(by);
+			bz.normalise();
+			//coordinates change matrix
+			forward.FromAxes(bx,by,bz);
+			forward=forward.Inverse();
+		}
+
 		intra_collcabrate[i].calcforward=true;
 		for (int h=0; h<intraPointCD[chunk_index]->hit_count;h++)
 		{
@@ -2944,23 +2956,6 @@ void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 			//if (hitnode->iswheel && !(trucks[t]->requires_wheel_contact)) continue;
 			if (hitnode->iswheel) continue;
 			if (no==hitnode || na==hitnode || nb==hitnode) continue;
-
-			//calculate transform matrices
-			if (calcforward)
-			{
-				calcforward=false;
-				bx=na->RelPosition;
-				by=nb->RelPosition;
-				bx-=no->RelPosition;
-				by-=no->RelPosition;
-				bz=bx.crossProduct(by);
-				bz=fast_normalise(bz);
-				//coordinates change matrix
-				forward.SetColumn(0, bx);
-				forward.SetColumn(1, by);
-				forward.SetColumn(2, bz);
-				forward=forward.Inverse();
-			}
 
 			//change coordinates
 			point = forward * (hitnode->AbsPosition - no->AbsPosition);
