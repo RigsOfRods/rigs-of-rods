@@ -28,6 +28,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //#define _SECURE_SCL 0
 //#endif // _WIN32
 
+// OGRE version
+#include <OgrePrerequisites.h>
+#if OGRE_VERSION < 0x010701
+#	error You need at least Ogre version 1.7.1, older versions are not supported
+#elif OGRE_VERSION >= 0x010900
+#	define ROR_USE_OGRE_1_9
+#endif
+
 // add some ogre headers
 #include <OgreAxisAlignedBox.h>
 #include <OgreColourValue.h>
@@ -39,8 +47,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreUTFString.h>
 #include <OgreVector2.h>
 #include <OgreVector3.h>
-#include <OgrePrerequisites.h>
-#include <Overlay/OgreOverlaySystem.h>
+
+
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlaySystem.h>
+#endif
 
 #include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"
@@ -49,17 +60,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI_Prerequest.h> // Forward declarations
 
+#if MYGUI_VERSION >= 0x030202
+#	define MYGUI_GET_SCANCODE(KEY) (KEY.getValue())
+#else
+#	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
+#endif
+
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
 #ifndef AS_USE_NAMESPACE
 #define AS_USE_NAMESPACE
 #endif //AS_USE_NAMESPACE
 #endif // USE_ANGELSCRIPT
-
-// macro that checks for the correct ogre version and aborts compilation if not correct
-#if OGRE_VERSION < 0x010701
-#error You need at least Ogre version 1.7.1, older versions are not supported
-#endif
 
 // version information now residing in RoRVersion.h
 

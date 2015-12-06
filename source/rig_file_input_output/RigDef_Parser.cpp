@@ -67,7 +67,7 @@ Parser::Parser():
 	m_ror_minimass(0)
 {
 	/* Push defaults */
-	m_ror_default_inertia = boost::shared_ptr<DefaultInertia>(new DefaultInertia);
+	m_ror_default_inertia = boost::shared_ptr<Inertia>(new Inertia);
 	m_ror_beam_defaults = boost::shared_ptr<BeamDefaults>(new BeamDefaults);
 	m_ror_node_defaults = boost::shared_ptr<NodeDefaults>(new NodeDefaults);
 }
@@ -1288,12 +1288,12 @@ void Parser::ParseWheel2(Ogre::String const & line)
 	wheel_2.beam_defaults = m_user_beam_defaults;
 
 	wheel_2.rim_radius    = STR_PARSE_REAL(results[1]);
-	wheel_2.tyre_radius   = STR_PARSE_REAL(results[2]);
-	wheel_2.width         = STR_PARSE_REAL(results[3]);
-	wheel_2.num_rays      = STR_PARSE_INT(results[4]);
-	wheel_2.nodes[0]      = _ParseNodeRef(results[5]);
-	wheel_2.nodes[1]      = _ParseNodeRef(results[6]);
-	wheel_2.rigidity_node = _ParseNodeRef(results[7]);
+	wheel_2.tyre_radius   = STR_PARSE_REAL(results[3]);
+	wheel_2.width         = STR_PARSE_REAL(results[5]);
+	wheel_2.num_rays      = STR_PARSE_INT(results[7]);
+	wheel_2.nodes[0]      = _ParseNodeRef(results[9]);
+	wheel_2.nodes[1]      = _ParseNodeRef(results[11]);
+	wheel_2.rigidity_node = _ParseNodeRef(results[13]);
 	if (wheel_2.rigidity_node.Num() == 9999) /* Special null value */
 	{
 		wheel_2.rigidity_node.Invalidate();
@@ -1304,7 +1304,7 @@ void Parser::ParseWheel2(Ogre::String const & line)
         m_sequential_importer.GenerateNodesForWheel(File::KEYWORD_WHEELS2, wheel_2.num_rays, wheel_2.rigidity_node.IsValidAnyState());
     }
 
-	unsigned int braking = STR_PARSE_INT(results[8]);
+	unsigned int braking = STR_PARSE_INT(results[15]);
 	if (braking >= 0 && braking <= 4)
 	{
 		wheel_2.braking = Wheels::Braking(braking);
@@ -1314,7 +1314,7 @@ void Parser::ParseWheel2(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'braking' value, setting BRAKING_NO (0).");
 	}
 
-	unsigned int propulsion = STR_PARSE_INT(results[9]);
+	unsigned int propulsion = STR_PARSE_INT(results[17]);
 	if (propulsion >= 0 && propulsion <= 2)
 	{
 		wheel_2.propulsion = Wheels::Propulsion(propulsion);
@@ -1323,15 +1323,15 @@ void Parser::ParseWheel2(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Invalid 'propulsion' value, setting PROPULSION_NONE (0).");
 	}
-	wheel_2.reference_arm_node = _ParseNodeRef(results[10]);
+	wheel_2.reference_arm_node = _ParseNodeRef(results[19]);
 
-	wheel_2.mass               = STR_PARSE_REAL(results[11]);
-	wheel_2.rim_springiness    = STR_PARSE_REAL(results[12]);
-	wheel_2.rim_damping        = STR_PARSE_REAL(results[13]);
-	wheel_2.tyre_springiness   = STR_PARSE_REAL(results[14]);
-	wheel_2.tyre_damping       = STR_PARSE_REAL(results[15]);
-	wheel_2.face_material_name = results[16];
-	wheel_2.band_material_name = results[17];
+	wheel_2.mass               = STR_PARSE_REAL(results[21]);
+	wheel_2.rim_springiness    = STR_PARSE_REAL(results[23]);
+	wheel_2.rim_damping        = STR_PARSE_REAL(results[25]);
+	wheel_2.tyre_springiness   = STR_PARSE_REAL(results[27]);
+	wheel_2.tyre_damping       = STR_PARSE_REAL(results[29]);
+	wheel_2.face_material_name = results[31];
+	wheel_2.band_material_name = results[33];
 
 	m_current_module->wheels_2.push_back(wheel_2);
 }
@@ -4655,11 +4655,13 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 	else
 	{
 		// Create
-		m_user_default_inertia = boost::shared_ptr<DefaultInertia>(new DefaultInertia(*m_user_default_inertia.get()));
+		m_user_default_inertia = boost::shared_ptr<Inertia>(new Inertia(*m_user_default_inertia.get()));
 
 		// Update
 		m_user_default_inertia->start_delay_factor = start_delay;
+		m_user_default_inertia->_start_delay_factor_set = true;
 		m_user_default_inertia->stop_delay_factor = stop_delay;
+		m_user_default_inertia->_stop_delay_factor_set = true;
 
 		if (results[7].matched)
 		{
@@ -4812,7 +4814,48 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_FILEINFO))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Inline-section 'fileinfo' has invalid format, ignoring...");
+		// Do exactly what legacy parser would.
+		PARSE_UNSAFE(line, 2,
+		{
+			Fileinfo fileinfo;
+
+			std::string unique_id = values[1];
+			Ogre::StringUtil::trim(unique_id);
+			std::stringstream report;
+			report << "Check:";
+			if (unique_id.length() > 0)
+			{
+				fileinfo.unique_id = unique_id;
+				fileinfo._has_unique_id = true;
+				report << "\n\tUID: " << unique_id;
+			}
+			else
+			{
+				report << "\n\tUID: [empty]";
+			}
+			if (values.size() > 2)
+			{
+				fileinfo.category_id = PARSEINT(values[2]);
+				fileinfo._has_category_id = true;
+				report << "\n\tCategoryID: " << fileinfo.category_id;
+			}
+			else
+			{
+				report << "\n\tCategoryID: [not set]";
+			}
+			if (values.size() > 3)
+			{
+				fileinfo.file_version = PARSEINT(values[3]);
+				fileinfo._has_file_version_set = true;
+				report << "\n\tFile version:: " << fileinfo.file_version;
+			}
+			else
+			{
+				report << "\n\tFile version: [not set]";
+			}
+			this->AddMessage(line, Message::TYPE_INVALID, report.str());
+			m_definition->file_info = boost::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
+		})
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
@@ -5032,7 +5075,7 @@ void Parser::ParseProps(Ogre::String const & line)
 				else if (i == 9) /* Beacon */
 				{
 					prop.special = Prop::Special(i);
-					std::string special_params = results[15];
+					std::string special_params = results[21];
 					boost::smatch beacon_results;
 					if (boost::regex_search(special_params, beacon_results, Regexes::SPECIAL_PROP_BEACON))
 					{
@@ -5589,7 +5632,7 @@ void Parser::ParseHydros(Ogre::String const & line)
 	m_current_module->hydros.push_back(hydro);
 }
 
-bool Parser::_ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & results, unsigned int start_index)
+bool Parser::_ParseOptionalInertia(Inertia & inertia, boost::smatch & results, unsigned int start_index)
 {
 	unsigned int result_index = start_index;
 

@@ -14,13 +14,13 @@ macro(add_ror_project BINNAME folder useWxWidgets)
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
     add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
-	
-    # enable mumble on the windows platform for now only, has no dependencies as its only using shared memory and URLs
-    add_definitions("-DUSE_MUMBLE")	
   ELSEIF(UNIX)
     include_directories(${GTK_INCLUDE_DIRS})
-    set(OS_LIBS "X11 -l${CMAKE_DL_LIBS}")
+    set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
   ENDIF(WIN32)
+
+  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
+  add_definitions("-DUSE_MUMBLE")
 
   include_directories(${Ogre_INCLUDE_DIRS})
   link_directories   (${Ogre_LIBRARY_DIRS})

@@ -445,16 +445,28 @@ struct prop_t
 	float orgoffsetY;
 	float orgoffsetZ;
 	Ogre::Quaternion rot;
-	Ogre::SceneNode *snode; //!< The pivot scene node (parented to root-node).
+	Ogre::SceneNode *scene_node; //!< The pivot scene node (parented to root-node).
 	Ogre::SceneNode *wheel; //!< Special prop: custom steering wheel for dashboard
 	Ogre::Vector3 wheelpos; //!< Special prop: custom steering wheel for dashboard
 	int mirror;             //<! Special prop: rear view mirror {0 = disabled, -1 = right, 1 = left}
 	char beacontype;        //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
-	Ogre::BillboardSet *bbs[4];
-	Ogre::SceneNode *bbsnode[4];
-	Ogre::Light *light[4];
-	float brate[4];
-	float bpos[4];
+
+	// formerly named "bbs"
+	Ogre::BillboardSet *beacon_flares_billboard_system[4];
+
+	// formerly named bbsnode
+	Ogre::SceneNode *beacon_flare_billboard_scene_node[4];
+
+	// formerly named "light"
+	Ogre::Light *beacon_light[4];
+
+	// formerly named "brate"
+	float beacon_light_rotation_rate[4]; //<! Radians per second
+	
+	// formerly named "bpos"
+	float beacon_light_rotation_angle[4]; //<! Radians
+	
+
 	int pale;               //!< Is this a pale? (Boolean {0/1})
 	int spinner;            //!< Is this a spinprop? (Boolean {0/1})
 	bool animated;

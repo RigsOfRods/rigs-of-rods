@@ -325,18 +325,15 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 			{
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
 				{
-					if (shiftmode != BeamEngine::AUTOMATIC || curr_truck->engine->getAutoShift() == BeamEngine::DRIVE)
-					{
 						curr_truck->engine->shift(1);
 						gear_changed_rel = true;
-					}
 				} 
 				else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
 				{
 					if (shiftmode  > BeamEngine::SEMIAUTO ||
 						shiftmode == BeamEngine::SEMIAUTO  && !arcadeControls ||
 						shiftmode == BeamEngine::SEMIAUTO  && curr_truck->engine->getGear() > 0 ||
-						shiftmode == BeamEngine::AUTOMATIC && curr_truck->engine->getGear() > 1)
+						shiftmode == BeamEngine::AUTOMATIC)
 					{
 						curr_truck->engine->shift(-1);
 						gear_changed_rel = true;

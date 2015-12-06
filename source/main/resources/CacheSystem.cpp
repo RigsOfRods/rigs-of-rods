@@ -2248,7 +2248,11 @@ void CacheSystem::checkForNewContent()
 std::time_t CacheSystem::fileTime(Ogre::String filename)
 {
 	FileSystemArchiveFactory FSAF;
+#ifdef ROR_USE_OGRE_1_9
 	Archive *fsa = FSAF.createInstance(filename, true);
+#else
+	Archive *fsa = FSAF.createInstance(filename);
+#endif
 
 	std::time_t ft = fsa->getModifiedTime(filename);
 

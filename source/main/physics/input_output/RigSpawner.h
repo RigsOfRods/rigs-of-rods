@@ -967,8 +967,8 @@ protected:
 	);
 
 	void _ProcessCommandKeyInertia(
-		RigDef::OptionalInertia & inertia, 
-		RigDef::DefaultInertia & inertia_defaults, 
+		RigDef::Inertia & inertia, 
+		RigDef::Inertia & inertia_defaults, 
 		int contract_key, 
 		int extend_key
 	);

@@ -20,8 +20,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "EnvironmentMap.h"
 
 #include <Ogre.h>
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreOverlayManager.h>
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "Beam.h"
 #include "Settings.h"

@@ -21,8 +21,16 @@
 
 #include "ContentManager.h"
 
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
-#include <Overlay/OgreOverlayManager.h>
+
+
+#ifdef ROR_USE_OGRE_1_9
+#	include <Overlay/OgreOverlayManager.h>
+#	include <Overlay/OgreOverlay.h>
+#	include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
+#else
+#	include <OgreOverlayManager.h>
+#	include <OgreOverlayElement.h>
+#endif
 
 #include "Application.h"
 #include "Settings.h"
@@ -35,6 +43,11 @@
 #include "CacheSystem.h"
 
 #include "OgreShaderParticleRenderer.h"
+
+// Removed by Skybon as part of OGRE 1.9 port 
+// Disabling temporarily for 1.8.1 as well. ~ only_a_ptr, 2015-11
+// TODO: Study the system, then re-enable or remove entirely.
+//#include "OgreBoxEmitterFactory.h"
 
 #ifdef USE_ANGELSCRIPT
 #include "FireExtinguisherAffectorFactory.h"
@@ -174,9 +187,13 @@ bool ContentManager::init(void)
 	// register particle classes
 	LOG("RoR|ContentManager: Registering Particle Box Emitter");
 	ParticleSystemRendererFactory *mParticleSystemRendererFact = OGRE_NEW ShaderParticleRendererFactory();
-	ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
 	ParticleSystemManager::getSingleton().addRendererFactory(mParticleSystemRendererFact);
-	ParticleSystemManager::getSingleton().addEmitterFactory(mParticleEmitterFact);
+
+	// Removed by Skybon as part of OGRE 1.9 port 
+	// Disabling temporarily for 1.8.1 as well.  ~ only_a_ptr, 2015-11
+	//ParticleEmitterFactory *mParticleEmitterFact = OGRE_NEW BoxEmitterFactory();
+	//ParticleSystemManager::getSingleton().addEmitterFactory(mParticleEmitterFact);
+	
 #endif // _WIN32
 
 #ifdef USE_ANGELSCRIPT
@@ -354,4 +371,24 @@ void ContentManager::exploreFolders(Ogre::String rg)
 	{
 		LOG("catched error while initializing Resource group '" + rg + "' : " + e.getFullDescription());
 	}
+}
+
+void ContentManager::InitManagedMaterials()
+{
+	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
+
+	//Dirty, needs to be improved
+	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
+	else
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
+
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
+
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
+
+	//Last
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path, "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }

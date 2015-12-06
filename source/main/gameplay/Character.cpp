@@ -457,33 +457,30 @@ void Character::update(float dt)
 
 		mCharacterNode->setPosition(position);
 		updateMapIcon();
-	} else if (beamCoupling)
+	} 
+	else if (beamCoupling && beamCoupling->hasDriverSeat()) // beamCoupling = The vehicle or machine which the character occupies
 	{
-		// if physics is disabled, its attached to a beam truck maybe?
 		Vector3 pos;
 		Quaternion rot;
+		beamCoupling->calculateDriverPos(pos, rot);
 		float angle = beamCoupling->hydrodirwheeldisplay * -1.0f; // not getSteeringAngle(), but this, as its smoothed
-		int res = beamCoupling->calculateDriverPos(pos, rot);
-		if (!res)
-		{
-			setPosition(pos + rot * Vector3(0.0f,-0.6f,-0.1f)); // hack to position the character right perfect on the default seat
-			mCharacterNode->setOrientation(rot);
-			setAnimationMode("driving");
-			Real lenght = mAnimState->getAnimationState("driving")->getLength();
-			float timePos = ((angle + 1.0f) * 0.5f) * lenght;
-			//LOG("angle: " + TOSTRING(angle) + " / " + TOSTRING(timePos));
-			// prevent animation flickering on the borders:
-			if (timePos < 0.01f)
-			{
-				timePos = 0.01f;
-			}
-			if (timePos > lenght - 0.01f)
-			{
-				timePos = lenght - 0.01f;
-			}
-			mAnimState->getAnimationState("driving")->setTimePosition(timePos);
-		}
+		mCharacterNode->setOrientation(rot);
+		setPosition(pos + (rot * Vector3(0.f,-0.6f,0.f))); // hack to position the character right perfect on the default seat
 
+		// Animation
+		this->setAnimationMode("driving");
+		Real anim_length = mAnimState->getAnimationState("driving")->getLength();
+		float anim_time_pos = ((angle + 1.0f) * 0.5f) * anim_length;
+		// prevent animation flickering on the borders:
+		if (anim_time_pos < 0.01f)
+		{
+			anim_time_pos = 0.01f;
+		}
+		if (anim_time_pos > anim_length - 0.01f)
+		{
+			anim_time_pos = anim_length - 0.01f;
+		}
+		mAnimState->getAnimationState("driving")->setTimePosition(anim_time_pos);
 	}
 
 #ifdef USE_SOCKETW

@@ -211,7 +211,6 @@ struct rig_t
 	int netCustomLightArray[4];
 	unsigned char netCustomLightArray_counter;
 	MaterialFunctionMapper *materialFunctionMapper;
-	bool driversseatfound;
 	bool ispolice;
 	int state;
 	bool collisionRelevant;

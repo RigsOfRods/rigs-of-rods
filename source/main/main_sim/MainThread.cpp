@@ -110,7 +110,9 @@ void MainThread::Go()
 	}
 
 	Application::StartOgreSubsystem();
+#ifdef ROR_USE_OGRE_1_9
 	Ogre::OverlaySystem* overlay_system = new OverlaySystem(); //Overlay init
+#endif
 
 	Application::CreateContentManager();
 
@@ -126,10 +128,11 @@ void MainThread::Go()
 	// Setup rendering (menu + simulation)
 	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
+#ifdef ROR_USE_OGRE_1_9
 	if (overlay_system) {
 		scene_manager->addRenderQueueListener(overlay_system);
-		gEnv->overlaySystem = overlay_system;
 	}
+#endif
 
 	Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
 	camera->setPosition(Ogre::Vector3(128,25,128)); // Position it at 500 in Z direction
@@ -212,6 +215,13 @@ void MainThread::Go()
 
 	RoR::Application::CreateInputEngine();
 	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
+
+	// Initialize "managed materials"
+	// These are base materials referenced by user content
+	// They must be initialized before any content is loaded, including mod-cache update.
+	// Otherwise material links are unresolved and loading ends with an exception
+	// TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
+	Application::GetContentManager()->InitManagedMaterials();
 
 	if (BSETTING("regen-cache-only", false)) //Can be usefull so we will leave it here -max98
 		MainThread::RegenCache(); 
@@ -369,7 +379,7 @@ void MainThread::Go()
 		if (!connres)
 		{
 			LOG("connection failed. server down?");
-			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It is certainly down or you have network problems."));
+			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It may be offline or you have network problems."));
 			//fatal
 			exit(1);
 		}
@@ -471,6 +481,12 @@ void MainThread::Go()
 				}
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
+
+				/* Set Mumble to non-positional audio */
+				#ifdef USE_MUMBLE
+					  MumbleIntegration::getSingleton().update(Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f),
+							  	  	  	  	  	  	  	  	  	  Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f));
+				#endif // USE_MUMBLE
 			}
 
 			if (BSETTING("MainMenuMusic", true))
@@ -643,8 +659,9 @@ void MainThread::Go()
 
 	scene_manager->destroyCamera(camera);
 	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
-
+#ifdef ROR_USE_OGRE_1_9
 	delete overlay_system;
+#endif
 
 	Application::DestroyContentManager();
 
@@ -670,9 +687,6 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
-
-		//Before loading standard materials
-		initMatManager();
 
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
@@ -728,6 +742,8 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 	Application::CreateOverlayWrapper();
 	Application::GetOverlayWrapper()->SetupDirectionArrow();
+
+	gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
 	if (!m_base_resource_loaded)
 	{
@@ -1105,14 +1121,6 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 			GUI_Multiplayer::getSingleton().update();
 		}
 #endif // USE_SOCKETW
-
-		// now update mumble 3d audio things
-#ifdef USE_MUMBLE
-		if (gEnv->player)
-		{
-			MumbleIntegration::getSingleton().update(gEnv->mainCamera->getPosition(), gEnv->player->getPosition() + Vector3(0, 1.8f, 0));
-		}
-#endif // USE_MUMBLE
 	}
 
 	MainMenuLoopUpdateEvents(seconds_since_last_frame);
@@ -1506,22 +1514,3 @@ void MainThread::RegenCache()
 	}
 }
 
-void MainThread::initMatManager()
-{
-	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
-
-	//Dirty, needs to be improved
-	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
-		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
-	else
-		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
-
-	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
-
-	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture/", "FileSystem", "TextureManager");
-	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
-
-	//Last
-	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path, "FileSystem", "ManagedMats");
-	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
-}

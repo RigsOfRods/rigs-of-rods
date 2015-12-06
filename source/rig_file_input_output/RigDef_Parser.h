@@ -404,13 +404,13 @@ protected:
 	/**
 	* @return True if there could be more results, false if end was hit.
 	*/
-	bool _ParseOptionalInertia(OptionalInertia & inertia, boost::smatch & results, unsigned int start_index);
+	bool _ParseOptionalInertia(Inertia & inertia, boost::smatch & results, unsigned int start_index);
 
 /* -------------------------------------------------------------------------- */
 
 	/* RoR defaults */
 
-	boost::shared_ptr<DefaultInertia>    m_ror_default_inertia;
+	boost::shared_ptr<Inertia>           m_ror_default_inertia;
 	boost::shared_ptr<BeamDefaults>      m_ror_beam_defaults;
 	boost::shared_ptr<NodeDefaults>      m_ror_node_defaults;
 	float                                m_ror_minimass;
@@ -418,7 +418,7 @@ protected:
 
 	/* Data from user directives */
 	/* Each affected section-struct has a shared_ptr to it's respective defaults */
-	boost::shared_ptr<DefaultInertia>    m_user_default_inertia;
+	boost::shared_ptr<Inertia>           m_user_default_inertia;
 	boost::shared_ptr<BeamDefaults>      m_user_beam_defaults;
 	boost::shared_ptr<NodeDefaults>      m_user_node_defaults;
 	int                                  m_current_detacher_group;

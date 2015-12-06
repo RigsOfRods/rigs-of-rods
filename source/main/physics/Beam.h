@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgrePrerequisites.h>
 #include <OgreTimer.h>
-#include <Overlay/OgreOverlayElement.h>
 #include <vector>
 
 #include "RoRPrerequisites.h"
@@ -386,7 +385,7 @@ public:
 	float refpressure;
 
 	bool hasDriverSeat();
-	int calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
+	void calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
 	float getSteeringAngle();
 	void triggerGUIFeaturesChanged();
 
@@ -586,6 +585,8 @@ protected:
 
 	void SyncReset(); //this one should be called only synchronously (without physics running in background)
 
+	void SetPropsCastShadows(bool do_cast_shadows);
+
 	float dtperstep;
 	int curtstep;
 	int tsteps;
@@ -657,7 +658,7 @@ protected:
 	int detailLevel;
 	bool increased_accuracy;
 	bool isInside;
-	bool beacon;
+	bool m_beacon_light_is_active;
 	float totalmass;
 
 	int mousenode;
