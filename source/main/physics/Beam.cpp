@@ -2651,9 +2651,10 @@ void Beam::interTruckCollisionsPrepare(Real dt)
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
-	for (unsigned int i=0; i<interPointCD.size(); i++)
-	{
-		interPointCD[i]->update(trucks, numtrucks);
+	for (int t = 0; t < numtrucks; t++) {
+		if (trucks[t]) {
+			trucks[t]->interPointCD[0]->update(trucks[t], trucks, numtrucks);
+		}
 	}
 }
 
@@ -2682,14 +2683,15 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 	node_t* nb;
 	node_t* no;
 
+	int simulated_trucks = 0;
 	for (int t=0; t<numtrucks; t++)
 	{
-		if (t % chunk_number != chunk_index) continue;
 		//If you change any of the below "ifs" concerning trucks then you should
 		//also consider changing the parallel "ifs" inside PointColDetector
 		//see "pointCD" above.
 		//Performance some times forces ugly architectural designs....
 		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) continue;
+		if (simulated_trucks++ % chunk_number != chunk_index) continue;
 
 		trwidth=trucks[t]->collrange;
 
@@ -2711,11 +2713,11 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 			int distance = trucks[t]->inter_collcabrate[i].distance + std::min(12.0f * no->Velocity.length() / 55.5f, 12.0f);
 			distance = std::max(1, distance);
 
-			interPointCD[chunk_index]->query(no->AbsPosition
+			trucks[t]->interPointCD[0]->query(no->AbsPosition
 				, na->AbsPosition
 				, nb->AbsPosition, trwidth*distance);
 
-			if (interPointCD[chunk_index]->hit_count > 0)
+			if (trucks[t]->interPointCD[0]->hit_count > 0)
 			{
 				//calculate transform matrices
 				bx=na->RelPosition;
@@ -2730,10 +2732,10 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 			}
 
 			trucks[t]->inter_collcabrate[i].calcforward=true;
-			for (int h=0; h<interPointCD[chunk_index]->hit_count; h++)
+			for (int h=0; h<trucks[t]->interPointCD[0]->hit_count; h++)
 			{
-				hitnodeid=interPointCD[chunk_index]->hit_list[h]->nodeid;
-				hittruckid=interPointCD[chunk_index]->hit_list[h]->truckid;
+				hitnodeid=trucks[t]->interPointCD[0]->hit_list[h]->nodeid;
+				hittruckid=trucks[t]->interPointCD[0]->hit_list[h]->truckid;
 				hitnode=&trucks[hittruckid]->nodes[hitnodeid];
 
 				//ignore self-contact here

@@ -85,10 +85,10 @@ void PointColDetector::update(Beam* truck) {
 }
 
 void PointColDetector::update(Beam** trucks, const int numtrucks) {
-	int t, contacters_size=0;
+	int contacters_size = 0;
 
 	//Count the contacters of all trucks
-	for (t = 0; t < numtrucks; t++) {
+	for (int t = 0; t < numtrucks; t++) {
 		if (!trucks[t] || trucks[t]->state >= SLEEPING) {
 			continue;
 		}
@@ -114,6 +114,31 @@ void PointColDetector::update(Beam** trucks, const int numtrucks) {
 	if (contacters_size != object_list_size) {
 		object_list_size = contacters_size;
 		update_structures_for_contacters(trucks, numtrucks);
+	}
+
+	kdtree[0].ref = NULL;
+	kdtree[0].begin = 0;
+	kdtree[0].end = -object_list_size;
+}
+
+void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
+	int contacters_size = 0;
+
+	truck->collisionRelevant = false;
+	if (truck->state < SLEEPING) {
+		//Sweep & prune
+		for (int t = 0; t < numtrucks; t++) {
+			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && BeamFactory::getSingleton().truckIntersectionAABB(t, truck->trucknum)) {
+				truck->collisionRelevant = true;
+				contacters_size += trucks[t]->free_contacter;
+			}
+		}
+	}
+
+	//If the contacter number has changed, its time to update the kdtree structures
+	if (contacters_size != object_list_size) {
+		object_list_size = contacters_size;
+		update_structures_for_contacters(truck, trucks, numtrucks);
 	}
 
 	kdtree[0].ref = NULL;
@@ -186,6 +211,41 @@ void PointColDetector::update_structures_for_contacters(Beam** trucks, const int
 	//Insert all contacters, into the list of points to consider when building the kdtree
 	for (t = 0; t < numtrucks; t++) {
 		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) {
+			continue;
+		}
+
+		for (int i = 0; i < trucks[t]->free_contacter; ++i) {
+			ref_list[refi].pidref = &pointid_list[refi];
+			pointid_list[refi].truckid = t;
+			pointid_list[refi].nodeid = trucks[t]->contacters[i].nodeid;
+			ref_list[refi].point = &(trucks[t]->nodes[pointid_list[refi].nodeid].AbsPosition.x);
+			refi++;
+		}
+	}
+
+	if (exp_factor < 0) {
+		exp_factor = 0;
+	}
+
+	kdtree.resize(pow(2.f, exp_factor), kdelem);
+}
+
+void PointColDetector::update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks) {
+	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
+	hit_list.resize(object_list_size, NULL);
+	int exp_factor = ceil(log2(object_list_size)) + 1;
+
+	ref_list.clear();
+	pointid_list.clear();
+
+	ref_list.resize(object_list_size);
+	pointid_list.resize(object_list_size);
+
+	int refi = 0;
+
+	//Insert all contacters, into the list of points to consider when building the kdtree
+	for (int t = 0; t < numtrucks; t++) {
+		if (t == truck->trucknum || !trucks[t] || trucks[t]->state >= SLEEPING || !BeamFactory::getSingleton().truckIntersectionAABB(t, truck->trucknum)) {
 			continue;
 		}
 
