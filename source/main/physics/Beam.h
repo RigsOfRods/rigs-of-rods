@@ -611,7 +611,7 @@ protected:
 	// inter-/intra truck collision stuff
 	pthread_mutex_t itc_node_access_mutex;
 
-	std::vector<PointColDetector*> interPointCD;
+	PointColDetector* interPointCD;
 	std::vector<PointColDetector*> intraPointCD;
 
 	// flexable stuff

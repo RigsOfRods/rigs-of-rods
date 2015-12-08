@@ -1317,14 +1317,6 @@ void Beam::SyncReset()
 	cc_mode = false;
 	fusedrag=Vector3::ZERO;
 	origin=Vector3::ZERO;
-	for (unsigned int i=0; i<interPointCD.size(); i++)
-	{
-		interPointCD[i]->reset();
-	}
-	for (unsigned int i=0; i<intraPointCD.size(); i++)
-	{
-		intraPointCD[i]->reset();
-	}
 	float yPos = nodes[lowestnode].AbsPosition.y;
 
 	Vector3 cur_position = nodes[0].AbsPosition;
@@ -2653,7 +2645,7 @@ void Beam::interTruckCollisionsPrepare(Real dt)
 
 	for (int t = 0; t < numtrucks; t++) {
 		if (trucks[t]) {
-			trucks[t]->interPointCD[0]->update(trucks[t], trucks, numtrucks);
+			trucks[t]->interPointCD->update(trucks[t], trucks, numtrucks);
 		}
 	}
 }
@@ -2693,148 +2685,143 @@ void Beam::interTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) continue;
 		if (simulated_trucks++ % chunk_number != chunk_index) continue;
 
-		trwidth=trucks[t]->collrange;
+		trwidth = trucks[t]->collrange;
 
 		for (int i=0; i<trucks[t]->free_collcab; i++)
 		{
-			trucks[t]->inter_collcabrate[i].update=true;
-			if (trucks[t]->inter_collcabrate[i].rate>0)
+			trucks[t]->inter_collcabrate[i].update = true;
+			if (trucks[t]->inter_collcabrate[i].rate > 0)
 			{
 				trucks[t]->inter_collcabrate[i].rate--;
-				trucks[t]->inter_collcabrate[i].update=false;
+				trucks[t]->inter_collcabrate[i].update = false;
 				continue;
 			}
 
-			tmpv=trucks[t]->collcabs[i]*3;
-			no=&trucks[t]->nodes[trucks[t]->cabs[tmpv]];
-			na=&trucks[t]->nodes[trucks[t]->cabs[tmpv+1]];
-			nb=&trucks[t]->nodes[trucks[t]->cabs[tmpv+2]];
+			tmpv = trucks[t]->collcabs[i]*3;
+			no = &trucks[t]->nodes[trucks[t]->cabs[tmpv]];
+			na = &trucks[t]->nodes[trucks[t]->cabs[tmpv+1]];
+			nb = &trucks[t]->nodes[trucks[t]->cabs[tmpv+2]];
 
 			int distance = trucks[t]->inter_collcabrate[i].distance + std::min(12.0f * no->Velocity.length() / 55.5f, 12.0f);
 			distance = std::max(1, distance);
 
-			trucks[t]->interPointCD[0]->query(no->AbsPosition
+			trucks[t]->interPointCD->query(no->AbsPosition
 				, na->AbsPosition
 				, nb->AbsPosition, trwidth*distance);
 
-			if (trucks[t]->interPointCD[0]->hit_count > 0)
+			if (trucks[t]->interPointCD->hit_count > 0)
 			{
 				//calculate transform matrices
-				bx=na->RelPosition;
-				by=nb->RelPosition;
-				bx-=no->RelPosition;
-				by-=no->RelPosition;
-				bz=bx.crossProduct(by);
+				bx =  na->RelPosition;
+				by =  nb->RelPosition;
+				bx -= no->RelPosition;
+				by -= no->RelPosition;
+				bz = bx.crossProduct(by);
 				bz.normalise();
 				//coordinates change matrix
 				forward.FromAxes(bx,by,bz);
-				forward=forward.Inverse();
+				forward = forward.Inverse();
 			}
 
-			trucks[t]->inter_collcabrate[i].calcforward=true;
-			for (int h=0; h<trucks[t]->interPointCD[0]->hit_count; h++)
+			trucks[t]->inter_collcabrate[i].calcforward = true;
+			for (int h=0; h<trucks[t]->interPointCD->hit_count; h++)
 			{
-				hitnodeid=trucks[t]->interPointCD[0]->hit_list[h]->nodeid;
-				hittruckid=trucks[t]->interPointCD[0]->hit_list[h]->truckid;
-				hitnode=&trucks[hittruckid]->nodes[hitnodeid];
+				hitnodeid = trucks[t]->interPointCD->hit_list[h]->nodeid;
+				hittruckid = trucks[t]->interPointCD->hit_list[h]->truckid;
+				hitnode = &trucks[hittruckid]->nodes[hitnodeid];
 
 				//ignore self-contact here
-				if (hittruckid==t) continue;
+				if (hittruckid == t) continue;
 
-				hittruck=trucks[hittruckid];
+				hittruck = trucks[hittruckid];
 
 				//change coordinates
-				point=forward*(hitnode->AbsPosition-no->AbsPosition);
+				point = forward * (hitnode->AbsPosition - no->AbsPosition);
 
 				//test
-				if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<=trwidth && point.z>=-trwidth)
+				if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z <= trwidth && point.z >= -trwidth)
 				{
-					trucks[t]->inter_collcabrate[i].calcforward=false;
+					trucks[t]->inter_collcabrate[i].calcforward = false;
 
 					//collision
-					plnormal=bz;
+					plnormal = bz;
 
 					//some more accuracy for the normal
 					plnormal.normalise();
 
-					float penetration=0.0f;
+					float penetration = 0.0f;
 
 					//Find which side most of the connected nodes (through beams) are
-					if (hittruck->nodetonodeconnections[hitnodeid].size()>3)
+					if (hittruck->nodetonodeconnections[hitnodeid].size() > 3)
 					{
-						//float sumofdistances=0.0f;
-						int posside=0;
-						int negside=0;
-						float tmppz=point.z;
-						float distance;
+						int posside = 0;
+						int negside = 0;
 
-						for (unsigned int ni=0;ni<hittruck->nodetonodeconnections[hitnodeid].size();ni++)
+						for (unsigned int ni=0; ni < hittruck->nodetonodeconnections[hitnodeid].size(); ni++)
 						{
-							distance=plnormal.dotProduct(hittruck->nodes[hittruck->nodetonodeconnections[hitnodeid][ni]].AbsPosition-no->AbsPosition);
-							if (distance>=0) posside++; else negside++;
+							if (plnormal.dotProduct(hittruck->nodes[hittruck->nodetonodeconnections[hitnodeid][ni]].AbsPosition-no->AbsPosition) >= 0)
+								posside++;
+							else
+								negside++;
 						}
 
 						//Current hitpoint's position has triple the weight
-						if (point.z>=0) posside+=3;
-						else negside+=3;
+						if (point.z >= 0)
+							posside += 3;
+						else
+							negside += 3;
 
-						if (negside>posside)
+						if (negside > posside)
 						{
-							plnormal=-plnormal;
-							tmppz=-tmppz;
+							plnormal = -plnormal;
+							penetration = (trwidth + point.z);
+						} else
+						{
+							penetration = (trwidth - point.z);
 						}
-
-						penetration=(trwidth-tmppz);
 					} else
 					{
 						//If we are on the other side of the triangle invert the triangle's normal
-						if (point.z<0) plnormal=-plnormal;
-						penetration=(trwidth-fabs(point.z));
+						if (point.z < 0) plnormal = -plnormal;
+						penetration = (trwidth - fabs(point.z));
 					}
 
 					//Find the point's velocity relative to the triangle
-					vecrelVel=(hitnode->Velocity-
-						(no->Velocity*(-point.x-point.y+1.0f)+na->Velocity*point.x
-						+nb->Velocity*point.y));
+					vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
 
 					//Find the velocity perpendicular to the triangle
-					float velForce=vecrelVel.dotProduct(plnormal);
+					float velForce = vecrelVel.dotProduct(plnormal);
 					//if it points away from the triangle the ignore it (set it to 0)
-					if (velForce<0.0f) velForce=-velForce;
-					else velForce=0.0f;
+					if (velForce < 0.0f) velForce = -velForce;
+					else velForce = 0.0f;
 
 					//Velocity impulse
-					float vi=hitnode->mass*inverted_dt*(velForce+inverted_dt*penetration)*0.5f;
+					float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
 
-					//MUTEX_LOCK(&itc_node_access_mutex);
 					//The force that the triangle puts on the point
-					float trfnormal=(no->Forces*(-point.x-point.y+1.0f)+na->Forces*point.x
-						+nb->Forces*point.y).dotProduct(plnormal);
+					float trfnormal = (no->Forces * (-point.x - point.y + 1.0f) + na->Forces * point.x + nb->Forces * point.y).dotProduct(plnormal);
 					//(applied only when it is towards the point)
-					if (trfnormal<0.0f) trfnormal=0.0f;
+					trfnormal = std::max(0.0f, trfnormal);	
 
 					//The force that the point puts on the triangle
 					
-					float pfnormal=hitnode->Forces.dotProduct(plnormal);
+					float pfnormal = hitnode->Forces.dotProduct(plnormal);
 					//(applied only when it is towards the triangle)
-					if (pfnormal>0.0f) pfnormal=0.0f;
+					pfnormal = std::min(pfnormal, 0.0f);	
 
-					float fl=(vi+trfnormal-pfnormal)*0.5f;
+					float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
-					forcevec=Vector3::ZERO;
+					forcevec = Vector3::ZERO;
 					float nso;
 
 					//Calculate the collision forces
 					gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), trucks[t]->submesh_ground_model, &nso, penetration, fl);
 
-					hitnode->Forces+=forcevec;
-					// no network special case for now
-					//if (trucks[t]->state==NETWORKED)
+					hitnode->Forces += forcevec;
 
-					no->Forces-=(-point.x-point.y+1.0f)*forcevec;
-					na->Forces-=(point.x)*forcevec;
-					nb->Forces-=(point.y)*forcevec;
-					//MUTEX_UNLOCK(&itc_node_access_mutex);
+					no->Forces -= (-point.x - point.y + 1.0f) * forcevec;
+					na->Forces -= (point.x) * forcevec;
+					nb->Forces -= (point.y) * forcevec;
 				}
 			}
 		}
@@ -2910,18 +2897,18 @@ void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 
 	for (int i=chunk_index*chunk_size; i<end_index; i++)
 	{
-		intra_collcabrate[i].update=true;
-		if (intra_collcabrate[i].rate>0)
+		intra_collcabrate[i].update = true;
+		if (intra_collcabrate[i].rate > 0)
 		{
 			intra_collcabrate[i].rate--;
-			intra_collcabrate[i].update=false;
+			intra_collcabrate[i].update = false;
 			continue;
 		}
 
-		tmpv=collcabs[i]*3;
-		no=&nodes[cabs[tmpv]];
-		na=&nodes[cabs[tmpv+1]];
-		nb=&nodes[cabs[tmpv+2]];
+		tmpv = collcabs[i]*3;
+		no = &nodes[cabs[tmpv]];
+		na = &nodes[cabs[tmpv+1]];
+		nb = &nodes[cabs[tmpv+2]];
 
 		intraPointCD[chunk_index]->query(no->AbsPosition
 			, na->AbsPosition
@@ -2930,89 +2917,87 @@ void Beam::intraTruckCollisionsCompute(Real dt, int chunk_index /*= 0*/, int chu
 		if (intraPointCD[chunk_index]->hit_count > 0)
 		{
 			//calculate transform matrices
-			bx=na->RelPosition;
-			by=nb->RelPosition;
-			bx-=no->RelPosition;
-			by-=no->RelPosition;
-			bz =bx.crossProduct(by);
+			bx  = na->RelPosition;
+			by  = nb->RelPosition;
+			bx -= no->RelPosition;
+			by -= no->RelPosition;
+			bz = bx.crossProduct(by);
 			bz.normalise();
 			//coordinates change matrix
 			forward.FromAxes(bx,by,bz);
-			forward=forward.Inverse();
+			forward = forward.Inverse();
 		}
 
-		intra_collcabrate[i].calcforward=true;
+		intra_collcabrate[i].calcforward = true;
 		for (int h=0; h<intraPointCD[chunk_index]->hit_count;h++)
 		{
-			hitnodeid=intraPointCD[chunk_index]->hit_list[h]->nodeid;
-			hitnode=&nodes[hitnodeid];
+			hitnodeid = intraPointCD[chunk_index]->hit_list[h]->nodeid;
+			hitnode = &nodes[hitnodeid];
 
 			//ignore wheel/chassis self contact
 			//if (hitnode->iswheel && !(trucks[t]->requires_wheel_contact)) continue;
 			if (hitnode->iswheel) continue;
-			if (no==hitnode || na==hitnode || nb==hitnode) continue;
+			if (no == hitnode || na == hitnode || nb == hitnode) continue;
 
 			//change coordinates
 			point = forward * (hitnode->AbsPosition - no->AbsPosition);
 
 			//test
-			if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<=trwidth && point.z>=-trwidth)
+			if (point.x >= 0 && point.y >= 0 && (point.x+point.y) <= 1.0 && point.z <= trwidth && point.z >= -trwidth)
 			{
 				//collision
-				intra_collcabrate[i].calcforward=false;
-				plnormal=bz;
+				intra_collcabrate[i].calcforward = false;
+				plnormal = bz;
 
 				//some more accuracy for the normal
 				plnormal.normalise();
 
-				float penetration=0.0f;
+				float penetration = 0.0f;
 
-				if (point.z<0) plnormal=-plnormal;
-				penetration=(trwidth-fabs(point.z));
+				if (point.z < 0) plnormal =- plnormal;
+				penetration = (trwidth - fabs(point.z));
 
 				//Find the point's velocity relative to the triangle
-				vecrelVel=(hitnode->Velocity-
-					(no->Velocity*(-point.x-point.y+1.0f)+na->Velocity*point.x
-					+nb->Velocity*point.y));
+				vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
 
 				//Find the velocity perpendicular to the triangle
-				float velForce=vecrelVel.dotProduct(plnormal);
+				float velForce = vecrelVel.dotProduct(plnormal);
 				//if it points away from the triangle the ignore it (set it to 0)
-				if (velForce<0.0f) velForce=-velForce;
-				else velForce=0.0f;
+				if (velForce < 0.0f)
+				{
+					velForce = -velForce;
+				} else
+				{
+					velForce = 0.0f;
+				}
 
 				//Velocity impulse
-				float vi=hitnode->mass*inverted_dt*(velForce+inverted_dt*penetration)*0.5f;
+				float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
 
-				//MUTEX_LOCK(&itc_node_access_mutex);
 				//The force that the triangle puts on the point
-				float trfnormal=(no->Forces*(-point.x-point.y+1.0f)+na->Forces*point.x
-					+nb->Forces*point.y).dotProduct(plnormal);
+				float trfnormal = (no->Forces * (-point.x - point.y + 1.0f) + na->Forces * point.x
+					+ nb->Forces * point.y).dotProduct(plnormal);
 				//(applied only when it is towards the point)
-				if (trfnormal<0.0f) trfnormal=0.0f;
+				trfnormal = std::max(0.0f, trfnormal);
 
 				//The force that the point puts on the triangle
-				float pfnormal=hitnode->Forces.dotProduct(plnormal);
+				float pfnormal = hitnode->Forces.dotProduct(plnormal);
 				//(applied only when it is towards the triangle)
-				if (pfnormal>0.0f) pfnormal=0.0f;
+				pfnormal = std::min(pfnormal, 0.0f);
 
-				float fl=(vi+trfnormal-pfnormal)*0.5f;
+				float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
-				forcevec=Vector3::ZERO;
+				forcevec = Vector3::ZERO;
 				float nso;
 
 				//Calculate the collision forces
 				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
 
-				hitnode->Forces+=forcevec;
+				hitnode->Forces += forcevec;
 
-				// no network special case for now
-				//if (trucks[t]->state==NETWORKED)
-
-				no->Forces-=(-point.x-point.y+1.0f)*forcevec;
-				na->Forces-=(point.x)*forcevec;
-				nb->Forces-=(point.y)*forcevec;
-				//MUTEX_UNLOCK(&itc_node_access_mutex);
+				no->Forces -= (-point.x - point.y + 1.0f) * forcevec;
+				na->Forces -= (point.x) * forcevec;
+				nb->Forces -= (point.y) * forcevec;
 			}
 		}
 	}

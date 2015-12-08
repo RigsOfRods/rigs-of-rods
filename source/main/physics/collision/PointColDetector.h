@@ -36,24 +36,12 @@ public:
 	std::vector< pointid_t* > hit_list;
 	int hit_count;
 
-	PointColDetector(std::vector< Ogre::Vector3 > &o_list);
 	PointColDetector();
 	~PointColDetector();
 
-	void reset();
-	void update();
 	void update(Beam* truck);
-	void update(Beam** trucks, const int numtrucks);
 	void update(Beam* truck, Beam** trucks, const int numtrucks);
-	void update_structures();
-	void update_structures_for_contacters(Beam* truck);
-	void update_structures_for_contacters(Beam** trucks, const int numtrucks);
-	void update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks);
-	void querybb(const Ogre::Vector3 &bmin, const Ogre::Vector3 &bmax);
-	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, float enlargeBB=0.0f);
-	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const float enlargeBB=0.0f);
-	void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
-	void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const float enlargeBB=0.0f);
+	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
 
 private:
 
@@ -78,9 +66,11 @@ private:
 	Ogre::Vector3 bbmin;
 	Ogre::Vector3 bbmax;
 	void queryrec(int kdindex, int axis);
-	void build_kdtree(int begin, int end, int axis, int index);
 	void build_kdtree_incr(int axis, int index);
 	void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
+	void update_structures_for_contacters(Beam* truck);
+	void update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks);
+	void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
 };
 
 #endif // __PointColDetector_H_
