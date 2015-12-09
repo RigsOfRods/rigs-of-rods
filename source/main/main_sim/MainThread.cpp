@@ -750,15 +750,6 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
 	}
 
-	if (!enable_network)
-	{
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-		if (gEnv->player != nullptr)
-		{
-			gEnv->player->setVisible(false);
-		}
-	}
-
 	if (enable_network)
 	{
 		// NOTE: create player _AFTER_ network, important
