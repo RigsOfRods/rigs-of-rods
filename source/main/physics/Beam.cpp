@@ -5960,17 +5960,11 @@ void Beam::run()
 
 		switch (thread_task)
 		{
-		case THREAD_BEAMS:
-			calcBeams(curtstep==0, dtperstep, curtstep, tsteps, index, thread_number);
-			break;
 		case THREAD_INTRA_TRUCK_COLLISIONS:
 			intraTruckCollisionsCompute(dtperstep, index, thread_number);
 			break;
 		case THREAD_INTER_TRUCK_COLLISIONS:
 			interTruckCollisionsCompute(dtperstep, index, thread_number);
-			break;
-		case THREAD_NODES:
-			calcNodes(curtstep==0, dtperstep, curtstep, tsteps, index, thread_number);
 			break;
 		}
 	}

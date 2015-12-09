@@ -69,7 +69,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	//if (doUpdate) mWindow->setDebugText(engine->status);
 
 #if BEAMS_INTER_TRUCK_PARALLEL
-	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
+	calcBeams(doUpdate, dt, step, maxsteps);
 
 	if (doUpdate)
 	{
@@ -82,11 +82,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	for (std::vector <hook_t>::iterator it = hooks.begin(); it!=hooks.end(); it++)
 	{
 		//we need to do this here to avoid countdown speedup by triggers
-		it->timer -= dt;
-		if (it->timer < 0)
-		{
-			it->timer = 0.0f;
-		}
+		it->timer = std::max(0.0f, it->timer - dt);
 	}
 
 	BES_START(BES_CORE_AnimatedProps);
@@ -419,7 +415,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	watercontact = false;
 
-	calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
+	calcNodes(doUpdate, dt, step, maxsteps);
 
 	Ogre::AxisAlignedBox tBoundingBox(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
 
@@ -1543,7 +1539,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	forwardCommands();
 
 #if !BEAMS_INTER_TRUCK_PARALLEL
-	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
+	calcBeams(doUpdate, dt, step, maxsteps);
 
 	if (doUpdate)
 	{
@@ -1571,7 +1567,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 
 	watercontact = false;
 
-	calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
+	calcNodes(doUpdate, dt, step, maxsteps);
 
 	for (int i=0; i<free_node; i++)
 	{
@@ -1634,19 +1630,11 @@ void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxst
 	BES_STOP(BES_CORE_WholeTruckCalc);
 }
 
-void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number)
+void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	BES_START(BES_CORE_Beams);
 	// Springs
-	int chunk_size = free_beam / chunk_number;
-	int end_index = (chunk_index+1)*chunk_size;
-
-	if (chunk_index+1 == chunk_number)
-	{
-		end_index = free_beam;
-	}
-
-	for (int i=chunk_index*chunk_size; i<end_index; i++)
+	for (int i=0; i<free_beam; i++)
 	{
 		Vector3 dis(Vector3::ZERO);
 		// Trick for exploding stuff
@@ -1879,23 +1867,13 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 	BES_STOP(BES_CORE_Beams);
 }
 
-void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number)
+void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	IWater *water = 0;
 	if (gEnv->terrainManager)
 		water = gEnv->terrainManager->getWater();
 
-	int chunk_size = free_node / chunk_number;
-	int end_index = (chunk_index+1)*chunk_size;
-
-	if (chunk_index+1 == chunk_number)
-	{
-		end_index = free_node;
-	}
-
-	doUpdate = (step == chunk_index * (maxsteps / chunk_number));
-
-	for (int i=chunk_index*chunk_size; i<end_index; i++)
+	for (int i=0; i<free_node; i++)
 	{
 		//if (_isnan(nodes[i].Position.length())) LOG("Node is NaN "+TOSTRING(i));
 
