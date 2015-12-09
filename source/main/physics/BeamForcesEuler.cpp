@@ -43,9 +43,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 
 #define BEAMS_INTER_TRUCK_PARALLEL 1
-#define BEAMS_INTRA_TRUCK_PARALLEL 0
 #define NODES_INTER_TRUCK_PARALLEL 1
-#define NODES_INTRA_TRUCK_PARALLEL 0
 
 using namespace Ogre;
 
@@ -71,17 +69,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	//if (doUpdate) mWindow->setDebugText(engine->status);
 
 #if BEAMS_INTER_TRUCK_PARALLEL
-#if !BEAMS_INTRA_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-#else
-	if (free_beam < 100)
-	{
-		calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-	} else
-	{
-		runThreadTask(this, THREAD_BEAMS, true);
-	}
-#endif
+
 	if (doUpdate)
 	{
 		//just call this once per frame to avoid performance impact
@@ -430,17 +419,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	watercontact = false;
 
-#if !NODES_INTRA_TRUCK_PARALLEL
 	calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
-#else
-	if (free_node < 50)
-	{
-		calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
-	} else
-	{
-		runThreadTask(this, THREAD_NODES, true);
-	}
-#endif
 
 	Ogre::AxisAlignedBox tBoundingBox(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
 
@@ -1564,17 +1543,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	forwardCommands();
 
 #if !BEAMS_INTER_TRUCK_PARALLEL
-#if !BEAMS_INTRA_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-#else
-	if (free_beam < 100)
-	{
-		calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-	} else
-	{
-		runThreadTask(this, THREAD_BEAMS, true);
-	}
-#endif
 
 	if (doUpdate)
 	{
@@ -1602,11 +1571,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 
 	watercontact = false;
 
-	#if !NODES_INTRA_TRUCK_PARALLEL
-		calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
-	#else
-		runThreadTask(this, THREAD_NODES, true);
-	#endif
+	calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
 
 	for (int i=0; i<free_node; i++)
 	{
@@ -1757,7 +1722,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 						beams[i].disabled = true;
 						if (beambreakdebug)
 						{
-							LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) + " / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) + 
+									" / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
 					}
 				}
@@ -1829,7 +1795,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
 					if (beamdeformdebug)
 					{
-						LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+						LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
+								" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 					}
 				}
 
@@ -1857,7 +1824,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 
 						if (beambreakdebug)
 						{
-							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + 
+									" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
 
 						// detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
