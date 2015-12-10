@@ -587,6 +587,9 @@ protected:
 
 	void SetPropsCastShadows(bool do_cast_shadows);
 
+	// Keeps track of the rounding error in the time step calculation
+	float m_dt_remainder;
+
 	float dtperstep;
 	int curtstep;
 	int tsteps;
