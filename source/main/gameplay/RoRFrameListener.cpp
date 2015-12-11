@@ -1470,10 +1470,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 	}
 
-
-	// TODO: check if all wheels are on a certain event id
-	// wheels[nodes[i].wheelid].lastEventHandler
-
 #ifdef USE_ANGELSCRIPT
 	ScriptEngine::getSingleton().framestep(dt);
 #endif

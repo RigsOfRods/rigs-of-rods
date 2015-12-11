@@ -52,9 +52,6 @@ struct wheel_t
 	
 	//skidmarks v2
 	bool isSkiding;
-
-	// for improved collision code
-	int lastEventHandler;
 };
 
 /**

@@ -341,7 +341,6 @@ void Beam::scaleTruck(float value)
 		beams[i].hydroRatio *= value;
 
 		beams[i].diameter *= value;
-		beams[i].lastforce *= value;
 	}
 	// scale nodes
 	Vector3 refpos = nodes[0].AbsPosition;
@@ -870,19 +869,6 @@ void Beam::calc_masses2(Real total, bool reCalc)
 		nodes[i].gravimass = Vector3(0.0f, gEnv->terrainManager->getGravity() * nodes[i].mass, 0.0f);
 	}
 
-    // update inverted mass cache
-	for (int i=0; i<free_node; i++)
-	{
-		nodes[i].inverted_mass=1.0f/nodes[i].mass;
-    }
-
-	//update minendmass
-	for (int i=0; i<free_beam; i++)
-	{
-		beams[i].minendmass = beams[i].p1->mass;
-		if (beams[i].p2->mass < beams[i].minendmass)
-			beams[i].minendmass = beams[i].p2->mass;
-	}
 	totalmass = 0;
 	for (int i=0; i<free_node; i++)
 	{
@@ -1351,7 +1337,6 @@ void Beam::SyncReset()
 		beams[i].strength=beams[i].iStrength;
 		beams[i].plastic_coef=beams[i].default_plastic_coef;
 		beams[i].L=beams[i].refL;
-		beams[i].lastforce=Vector3::ZERO;
 		beams[i].stress=0.0;
 		beams[i].disabled=false;
 		if (beams[i].mSceneNode && beams[i].type!=BEAM_VIRTUAL && beams[i].type!=BEAM_INVISIBLE && beams[i].type!=BEAM_INVISIBLE_HYDRO)

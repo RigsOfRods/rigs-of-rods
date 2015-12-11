@@ -417,7 +417,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	calcNodes(doUpdate, dt, step, maxsteps);
 
-	Ogre::AxisAlignedBox tBoundingBox(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+	AxisAlignedBox tBoundingBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
 
 	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
 	{
@@ -429,12 +429,13 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		tBoundingBox.merge(nodes[i].AbsPosition);
 		if (nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
 		{
-			if (collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getSize().length() == 0.0 && collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getMinimum().length() == 0.0)
+			AxisAlignedBox bb = collisionBoundingBoxes[nodes[i].collisionBoundingBoxID];
+			if (bb.getSize().length() == 0.0 && bb.getMinimum().length() == 0.0)
 			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].setExtents(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z);
+				bb.setExtents(nodes[i].AbsPosition, nodes[i].AbsPosition);
 			} else
 			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
+				bb.merge(nodes[i].AbsPosition);
 			}
 		}
 	}
@@ -1975,8 +1976,6 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 						}
 					}
 
-					wheels[nodes[i].wheelid].lastEventHandler = handlernum;
-
 					lastFuzzyGroundModel = gm;
 				}
 				nodes[i].collTestTimer = 0.0;
@@ -1986,14 +1985,14 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		// record g forces on cameras
 		if (i == cameranodepos[0])
 		{
-			cameranodeacc += nodes[i].Forces * nodes[i].inverted_mass;
+			cameranodeacc += nodes[i].Forces / nodes[i].mass;
 			cameranodecount++;
 		}
 
 		// integration
 		if (!nodes[i].locked)
 		{
-			nodes[i].Velocity += nodes[i].Forces * nodes[i].inverted_mass * dt;
+			nodes[i].Velocity += nodes[i].Forces / nodes[i].mass * dt;
 			nodes[i].RelPosition += nodes[i].Velocity * dt;
 			nodes[i].AbsPosition = origin;
 			nodes[i].AbsPosition += nodes[i].RelPosition;

@@ -18,9 +18,7 @@ struct node_t
 	Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
 	Ogre::Vector3 Velocity;
 	Ogre::Vector3 Forces;
-	Ogre::Real inverted_mass;
 	Ogre::Real mass;
-	Ogre::Vector3 lastNormal;
 	int locked;
 	int iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
 	int wheelid; //!< Wheel index
