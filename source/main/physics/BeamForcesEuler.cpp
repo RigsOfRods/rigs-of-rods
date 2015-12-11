@@ -429,7 +429,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		tBoundingBox.merge(nodes[i].AbsPosition);
 		if (nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
 		{
-			AxisAlignedBox bb = collisionBoundingBoxes[nodes[i].collisionBoundingBoxID];
+			AxisAlignedBox &bb = collisionBoundingBoxes[nodes[i].collisionBoundingBoxID];
 			if (bb.getSize().length() == 0.0 && bb.getMinimum().length() == 0.0)
 			{
 				bb.setExtents(nodes[i].AbsPosition, nodes[i].AbsPosition);
