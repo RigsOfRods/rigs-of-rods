@@ -413,15 +413,7 @@ void RigSpawner::InitializeRig()
 	m_rig->disableTruckTruckCollisions = BSETTING("DisableCollisions", false);
 	if (! m_rig->disableTruckTruckCollisions)
 	{
-		m_rig->interPointCD.emplace_back(new PointColDetector());
-
-		if (gEnv->threadPool != nullptr)
-		{
-			for (int i=1; i<gEnv->threadPool->getSize(); i++)
-			{
-				m_rig->interPointCD.emplace_back(new PointColDetector());
-			}
-		}
+		m_rig->interPointCD = new PointColDetector();
 	}
 	m_rig->disableTruckTruckSelfCollisions = BSETTING("DisableSelfCollisions", false);
 	if (! m_rig->disableTruckTruckSelfCollisions)

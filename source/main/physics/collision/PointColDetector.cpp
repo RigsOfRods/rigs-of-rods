@@ -16,8 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <cmath>
-
 #include "PointColDetector.h"
 
 #include "Beam.h"
@@ -34,36 +32,14 @@ double log2(double n)
 
 using namespace Ogre;
 
-PointColDetector::PointColDetector(std::vector < Vector3 > &o_list) : object_list(&o_list) {
+PointColDetector::PointColDetector()
+   	: object_list_size(-1)
+{
 	std::vector< refelem_t > ref_list(1);
 	std::vector< pointid_t > pointid_list(1);
-
-	update();
-}
-
-PointColDetector::PointColDetector() {
-	std::vector< refelem_t > ref_list(1);
-	std::vector< pointid_t > pointid_list(1);
-
-	object_list_size = -1;
 }
 
 PointColDetector::~PointColDetector() {
-}
-
-void PointColDetector::reset() {
-	object_list_size = -1;
-}
-
-void PointColDetector::update() {
-	if (object_list->size() != (unsigned int) object_list_size) {
-		object_list_size = (int) object_list->size();
-		update_structures();
-	}
-
-	kdtree[0].ref = NULL;
-	kdtree[0].begin = 0;
-	kdtree[0].end = -object_list_size;
 }
 
 void PointColDetector::update(Beam* truck) {
@@ -74,7 +50,7 @@ void PointColDetector::update(Beam* truck) {
 	}
 
 	//If the contacter number has changed, its time to update the kdtree structures
-	if (truck->free_contacter != object_list_size) {
+	if (contacters_size != object_list_size) {
 		object_list_size = contacters_size;
 		update_structures_for_contacters(truck);
 	}
@@ -84,36 +60,24 @@ void PointColDetector::update(Beam* truck) {
 	kdtree[0].end = -object_list_size;
 }
 
-void PointColDetector::update(Beam** trucks, const int numtrucks) {
-	int t, contacters_size=0;
+void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
+	int contacters_size = 0;
 
-	//Count the contacters of all trucks
-	for (t = 0; t < numtrucks; t++) {
-		if (!trucks[t] || trucks[t]->state >= SLEEPING) {
-			continue;
-		}
-
+	truck->collisionRelevant = false;
+	if (truck->state < SLEEPING) {
 		//Sweep & prune
-		trucks[t]->collisionRelevant = false;
-		bool skipIt = true;
-		for (int j = 0; j < numtrucks; j++) {
-			if (j != t && trucks[j] && trucks[j]->state < SLEEPING && BeamFactory::getSingleton().truckIntersectionAABB(t, j)) {
-				trucks[t]->collisionRelevant = true;
-				skipIt = false;
-				break;
+		for (int t = 0; t < numtrucks; t++) {
+			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && BeamFactory::getSingleton().truckIntersectionAABB(t, truck->trucknum)) {
+				truck->collisionRelevant = true;
+				contacters_size += trucks[t]->free_contacter;
 			}
 		}
-		if (skipIt) {
-			continue;
-		}
-
-		contacters_size += trucks[t]->free_contacter;
 	}
 
 	//If the contacter number has changed, its time to update the kdtree structures
 	if (contacters_size != object_list_size) {
 		object_list_size = contacters_size;
-		update_structures_for_contacters(trucks, numtrucks);
+		update_structures_for_contacters(truck, trucks, numtrucks);
 	}
 
 	kdtree[0].ref = NULL;
@@ -121,28 +85,10 @@ void PointColDetector::update(Beam** trucks, const int numtrucks) {
 	kdtree[0].end = -object_list_size;
 }
 
-void PointColDetector::update_structures() {
-	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
-	hit_list.resize(object_list_size, NULL);
-	int exp_factor = ceil(log2(object_list_size)) + 1;
-
-	ref_list.clear();
-	pointid_list.clear();
-
-	ref_list.resize(object_list_size);
-	pointid_list.resize(object_list_size);
-
-	if (exp_factor < 0) {
-		exp_factor = 0;
-	}
-
-	kdtree.resize(pow(2.f, exp_factor), kdelem);
-}
-
 void PointColDetector::update_structures_for_contacters(Beam* truck) {
 	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
 	hit_list.resize(object_list_size, NULL);
-	int exp_factor = ceil(log2(object_list_size)) + 1;
+	int exp_factor = std::max(0, (int) ceil(std::log2(object_list_size)) + 1);
 
 	ref_list.clear();
 	pointid_list.clear();
@@ -163,17 +109,13 @@ void PointColDetector::update_structures_for_contacters(Beam* truck) {
 		}
 	}
 
-	if (exp_factor < 0) {
-		exp_factor = 0;
-	}
-
 	kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
-void PointColDetector::update_structures_for_contacters(Beam** trucks, const int numtrucks) {
+void PointColDetector::update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks) {
 	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
 	hit_list.resize(object_list_size, NULL);
-	int exp_factor = ceil(log2(object_list_size)) + 1;
+	int exp_factor = std::max(0, (int) ceil(std::log2(object_list_size)) + 1);
 
 	ref_list.clear();
 	pointid_list.clear();
@@ -181,11 +123,11 @@ void PointColDetector::update_structures_for_contacters(Beam** trucks, const int
 	ref_list.resize(object_list_size);
 	pointid_list.resize(object_list_size);
 
-	int t, refi = 0;
+	int refi = 0;
 
 	//Insert all contacters, into the list of points to consider when building the kdtree
-	for (t = 0; t < numtrucks; t++) {
-		if (!trucks[t] || !trucks[t]->collisionRelevant || trucks[t]->state >= SLEEPING) {
+	for (int t = 0; t < numtrucks; t++) {
+		if (t == truck->trucknum || !trucks[t] || trucks[t]->state >= SLEEPING || !BeamFactory::getSingleton().truckIntersectionAABB(t, truck->trucknum)) {
 			continue;
 		}
 
@@ -198,32 +140,13 @@ void PointColDetector::update_structures_for_contacters(Beam** trucks, const int
 		}
 	}
 
-	if (exp_factor < 0) {
-		exp_factor = 0;
-	}
-
 	kdtree.resize(pow(2.f, exp_factor), kdelem);
-}
-
-void PointColDetector::querybb(const Vector3 &bmin, const Vector3 &bmax) {
-	bbmin = bmin;
-	bbmax = bmax;
-
-	hit_count = 0;
-	queryrec(0, 0);
 }
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB) {
 	calc_bounding_box(bbmin, bbmax, vec1, vec2, vec3, enlargeBB);
 
 	hit_count = 0;
-	queryrec(0, 0);
-}
-
-void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const float enlargeBB) {
-	calc_bounding_box(bbmin, bbmax, vec1, vec2, enlargeBB);
-
-	hit_count=0;
 	queryrec(0, 0);
 }
 
@@ -286,38 +209,6 @@ void PointColDetector::calc_bounding_box(Vector3 &bmin, Vector3 &bmax, const Vec
 	bmax.z+= enlargeBB;
 }
 
-void PointColDetector::calc_bounding_box(Vector3 &bmin, Vector3 &bmax, const Vector3 &vec1, const Vector3 &vec2, const float enlargeBB) {
-	if (vec1.x < vec2.x) {
-		bmin.x= vec1.x; bmax.x=vec2.x;
-	}
-	else {
-		bmin.x= vec2.x; bmax.x=vec1.x;
-	}
-
-	bmin.x-= enlargeBB;
-	bmax.x+= enlargeBB;
-
-	if (vec1.y < vec2.y) {
-		bmin.y= vec1.y; bmax.y=vec2.y;
-	}
-	else {
-		bmin.y= vec2.y; bmax.y=vec1.y;
-	}
-
-	bmin.y-= enlargeBB;
-	bmax.y+= enlargeBB;
-
-	if (vec1.z < vec2.z) {
-		bmin.z= vec1.z; bmax.z=vec2.z;
-	}
-	else {
-		bmin.z= vec2.z; bmax.z=vec1.z;
-	}
-
-	bmin.z-= enlargeBB;
-	bmax.z+= enlargeBB;
-}
-
 void PointColDetector::queryrec(int kdindex, int axis) {
 	for (;;) {
 		if (kdtree[kdindex].end < 0) {
@@ -347,7 +238,7 @@ void PointColDetector::queryrec(int kdindex, int axis) {
 				newaxis = 0;
 			}
 
-			newindex = kdindex+kdindex+1;
+			newindex = kdindex + kdindex + 1;
 
 			if (bbmin[axis] <= kdtree[kdindex].middle) {
 				queryrec(newindex, newaxis);
@@ -371,58 +262,11 @@ void PointColDetector::queryrec(int kdindex, int axis) {
 	}
 }
 
-void PointColDetector::build_kdtree(int begin, int end, int axis, int index) {
-	int median;
-	for (;;) {
-		int slice_size = end - begin;
-		if (slice_size != 1) {
-			if (slice_size == 2) {
-				median = begin + 1;
-
-				if (ref_list[begin].point[axis] > ref_list[median].point[axis]) {
-					std::swap(ref_list[begin],ref_list[median]);
-				}
-
-				kdtree[index].min = ref_list[begin].point[axis];
-				kdtree[index].max = ref_list[median].point[axis];
-			}
-			else {
-				median = begin + (slice_size / 2);
-				partintwo(begin, median, end, axis, kdtree[index].min, kdtree[index].max);
-			}
-
-			kdtree[index].middle = ref_list[median].point[axis];
-			kdtree[index].ref = NULL;
-
-			axis++;
-
-			if (axis == 3) {
-				axis = 0;
-			}
-
-			int newindex = index + index + 1;
-			build_kdtree(begin, median, axis, newindex);
-
-			//Tail cutting
-			index = newindex + 1;
-			begin = median;
-		}
-		else {
-			kdtree[index].middle = ref_list[begin].point[axis];
-			kdtree[index].ref = &ref_list[begin];
-			kdtree[index].min = ref_list[begin].point[axis];
-			kdtree[index].max = ref_list[begin].point[axis];
-
-			return;
-		}
-	}
-}
-
 void PointColDetector::build_kdtree_incr(int axis, int index)
 {
-	int end=-kdtree[index].end;
-	kdtree[index].end=end;
-	int begin=kdtree[index].begin;
+	int end = -kdtree[index].end;
+	kdtree[index].end = end;
+	int begin = kdtree[index].begin;
 	int median;
 	int slice_size = end - begin;
 	if (slice_size != 1) {
@@ -515,14 +359,10 @@ void PointColDetector::partintwo(const int start, const int median, const int en
 
 	minex = x;
 	maxex = x;
-	for (i = start; i < median; ++i) {
-		if (ref_list[i].point[axis] < minex) {
-			minex = ref_list[i].point[axis];
-		}
+	for (int i = start; i < median; ++i) {
+		minex = std::min(ref_list[i].point[axis], minex);
 	}
-	for (i = median+1; i < end; ++i) {
-		if (ref_list[i].point[axis] > maxex) {
-			maxex = ref_list[i].point[axis];
-		}
+	for (int i = median+1; i < end; ++i) {
+		maxex = std::max(maxex, ref_list[i].point[axis]);
 	}
 }
