@@ -101,8 +101,6 @@ protected:
 	int netPointToUID;
 	int raceStartTime;
 
-	unsigned int mNumScreenShots;
-	
 	bool updateTruckMirrors(float dt);
 
 	int setupBenchmark();
@@ -126,9 +124,7 @@ public: // public methods
 	bool frameStarted(const Ogre::FrameEvent& evt); // Override frameStarted event to process that (don't care about frameEnded)
 
 	bool updateEvents(float dt);
-	double getTime() { return rtime; };
-
-	int getLoadingState() { return loading_state; };
+	double getTime() { return rtime; };;
 	int getNetPointToUID() { return netPointToUID; };
 
 	void checkRemoteStreamResultsChanged();
@@ -150,7 +146,7 @@ public: // public methods
 	void removeBeam(Beam *);
 	void RTSSgenerateShaders(Ogre::Entity *entity, Ogre::String normalTextureName);
 	void setDirectionArrow(char *text, Ogre::Vector3 position);
-	void setLoadingState(int value);
+
 	void setNetPointToUID(int uid);
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void showspray(bool s);
