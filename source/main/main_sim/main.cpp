@@ -220,7 +220,7 @@ void showVersion()
 {
 	ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__
-	printf(" * built with gcc %d.%d.%d\n", __GNUC_MINOR__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif //__GNUC__
 }
 
