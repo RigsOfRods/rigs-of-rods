@@ -414,15 +414,14 @@ void Beam::scaleTruck(float value)
 
 void Beam::initSimpleSkeleton()
 {
-	// create
-	simpleSkeletonManualObject =  gEnv->sceneManager->createManualObject();
+	simpleSkeletonManualObject = gEnv->sceneManager->createManualObject();
 
 	simpleSkeletonManualObject->estimateIndexCount(free_beam*2);
 	simpleSkeletonManualObject->setCastShadows(false);
 	simpleSkeletonManualObject->setDynamic(true);
 	simpleSkeletonManualObject->setRenderingDistance(300);
 	simpleSkeletonManualObject->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
-	for (int i=0; i < free_beam; i++)
+	for (int i=0; i<free_beam; i++)
 	{
 		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
 		simpleSkeletonManualObject->colour(1.0f,1.0f,1.0f);
@@ -432,31 +431,28 @@ void Beam::initSimpleSkeleton()
 	simpleSkeletonManualObject->end();
 	simpleSkeletonNode->attachObject(simpleSkeletonManualObject);
 	simpleSkeletonNode->setVisible(false);
-	simpleSkeletonInitiated=true;
+	simpleSkeletonInitiated = true;
 }
 
 void Beam::updateSimpleSkeleton()
 {
 	BES_GFX_START(BES_GFX_UpdateSkeleton);
+
 	ColourValue color;
 
 	if (!simpleSkeletonInitiated)
 		initSimpleSkeleton();
+
 	simpleSkeletonManualObject->beginUpdate(0);
-	// just update
-	for (int i=0; i < free_beam; i++)
+	for (int i=0; i<free_beam; i++)
 	{
-		// calculating colour
-		float scale=beams[i].scale;
-		if (scale>1) scale=1;
-		if (scale<-1) scale=-1;
-		float scaleabs = fabs(scale);
-		if (scale<=0)
-			color = ColourValue(0.2f, 2.0f*(1.0f-scaleabs), 2.0f*scaleabs, 0.8f);
+		float normalized_scale = std::min(std::abs(beams[i].scale), 1.0f);
+
+		if (beams[i].scale <= 0)
+			color = ColourValue(0.2f, 2.0f*(1.0f-normalized_scale), 2.0f*normalized_scale, 0.8f);
 		else
-			color = ColourValue(2.0f*scaleabs, 2.0f*(1.0f-scaleabs), 0.2f, 0.8f);
+			color = ColourValue(2.0f*normalized_scale, 2.0f*(1.0f-normalized_scale), 0.2f, 0.8f);
 		
-		// updating position & color
 		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
 		simpleSkeletonManualObject->colour(color);
 
@@ -465,6 +461,7 @@ void Beam::updateSimpleSkeleton()
 			simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
 		else
 			simpleSkeletonManualObject->position(beams[i].p2->smoothpos);
+
 		simpleSkeletonManualObject->colour(color);
 	}
 	simpleSkeletonManualObject->end();
@@ -3809,55 +3806,47 @@ void Beam::updateVisualPrepare(float dt)
 		wings[i].cnode->setPosition(wings[i].fa->flexit());
 	}
 	//setup commands for hydros
-	hydroaileroncommand=autoaileron;
-	hydroruddercommand=autorudder;
-	hydroelevatorcommand=autoelevator;
+	hydroaileroncommand = autoaileron;
+	hydroruddercommand = autorudder;
+	hydroelevatorcommand = autoelevator;
 
-	if (cabFadeMode>0 && dt > 0)
+	if (cabFadeMode > 0 && dt > 0)
 	{
 		if (cabFadeTimer > 0)
-			cabFadeTimer-=dt;
+			cabFadeTimer -= dt;
+
 		if (cabFadeTimer < 0.1 && cabFadeMode == 1)
 		{
-			cabFadeMode=0;
+			cabFadeMode = 0;
 			cabFade(0.4);
 		} else if (cabFadeTimer < 0.1 && cabFadeMode == 2)
 		{
-			cabFadeMode=0;
+			cabFadeMode = 0;
 			cabFade(1);
 		}
 
 		if (cabFadeMode == 1)
-			cabFade(0.4 + 0.6 * cabFadeTimer/cabFadeTime);
+			cabFade(0.4 + 0.6 * cabFadeTimer / cabFadeTime);
 		else if (cabFadeMode == 2)
-			cabFade(1 - 0.6 * cabFadeTimer/cabFadeTime);
+			cabFade(1 - 0.6 * cabFadeTimer / cabFadeTime);
 	}
 
 	for (int i=0; i<free_beam; i++)
 	{
-		if (!skeleton)
-		{
-			if (beams[i].broken==1 && beams[i].mSceneNode)
-			{
-				beams[i].mSceneNode->detachAllObjects();
-				beams[i].broken = 2;
-			}
-
-			if (beams[i].mSceneNode!=0 && !beams[i].disabled && beams[i].type!=BEAM_INVISIBLE && beams[i].type!=BEAM_INVISIBLE_HYDRO && beams[i].type!=BEAM_VIRTUAL)
-			{
-				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-				//beams[i].mSceneNode->setScale(default_beam_diameter/100.0,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length()/100.0,default_beam_diameter/100.0);
-				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), beams[i].diameter);
-			}
-		} else if (beams[i].mSceneNode!=0 && !beams[i].disabled)
-		{
-			beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-			beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-			//beams[i].mSceneNode->setScale(default_beam_diameter/100.0,(beams[i].p1->smoothpos-beams[i].p2->smoothpos).length()/100.0,default_beam_diameter/100.0);
-			beams[i].mSceneNode->setScale(skeleton_beam_diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), skeleton_beam_diameter);
-		}
-
+        if (!beams[i].disabled && beams[i].mSceneNode)
+        {
+            if (skeleton)
+            {
+                beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
+                beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
+                beams[i].mSceneNode->setScale(skeleton_beam_diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), skeleton_beam_diameter);
+            } else if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
+            {
+                beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
+                beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
+                beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), beams[i].diameter);
+            }
+        }
 	}
 
 	if (skeleton == 2)
@@ -3998,33 +3987,40 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 {
 	if (lockSkeletonchange)
 		return;
-	lockSkeletonchange=true;
+
+	lockSkeletonchange = true;
 	int i;
 
-	skeleton=1;
+	skeleton = 1;
 
 	if (newMode)
-		skeleton=2;
+		skeleton = 2;
 
 	if (meshes)
 	{
-		cabFadeMode=1;
-		cabFadeTimer=cabFadeTime;
+		cabFadeMode = 1;
+		cabFadeTimer = cabFadeTime;
 	} else
 	{
-		cabFadeMode=-1;
+		cabFadeMode = -1;
 		// directly hide meshes, no fading
 		cabFade(0);
 	}
+
 	for (i=0; i<free_wheel; i++)
 	{
-		if (vwheels[i].cnode) vwheels[i].cnode->setVisible(false);
-		if (vwheels[i].fm) vwheels[i].fm->setVisible(false);
+		if (vwheels[i].cnode)
+           vwheels[i].cnode->setVisible(false);
+
+		if (vwheels[i].fm)
+            vwheels[i].fm->setVisible(false);
 	}
+
 	for (i=0; i<free_prop; i++)
 	{
 		if (props[i].scene_node)
 			setMeshWireframe(props[i].scene_node, true);
+
 		if (props[i].wheel)
 			setMeshWireframe(props[i].wheel, true);
 	}
@@ -4037,12 +4033,12 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 			{
 				if (!beams[i].broken && beams[i].mSceneNode->numAttachedObjects()==0)
 					beams[i].mSceneNode->attachObject(beams[i].mEntity);
-				//material
+
 				beams[i].mEntity->setMaterialName("vehicle-skeletonview-material");
 				beams[i].mEntity->setCastShadows(false);
 			}
 		}
-	}else
+	} else
 	{
 		if (simpleSkeletonNode)
 		{
@@ -4066,15 +4062,14 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 	for (i=0; i<free_flexbody; i++)
 	{
 		SceneNode *s = flexbodies[i]->getSceneNode();
-		if (!s)
-			continue;
-		setMeshWireframe(s, true);
+		if (s)
+		    setMeshWireframe(s, true);
 	}
 
 	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
 		if (it->beam->disabled)
 			it->beam->mSceneNode->detachAllObjects();
-	
+
 	if (linked)
 	{
 		// apply to the locked truck
@@ -4084,7 +4079,7 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 		}
 	}
 
-	lockSkeletonchange=false;
+	lockSkeletonchange = false;
 
 	TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
 }
@@ -4093,17 +4088,18 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 {
 	if (lockSkeletonchange)
 		return;
+
 	lockSkeletonchange=true;
 	int i;
-	skeleton=0;
+	skeleton = 0;
 
-	if (cabFadeMode>=0)
+	if (cabFadeMode >= 0)
 	{
-		cabFadeMode=2;
-		cabFadeTimer=cabFadeTime;
+		cabFadeMode = 2;
+		cabFadeTimer = cabFadeTime;
 	} else
 	{
-		cabFadeMode=-1;
+		cabFadeMode = -1;
 		// directly show meshes, no fading
 		cabFade(1);
 	}
@@ -4111,13 +4107,17 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 
 	for (i=0; i<free_wheel; i++)
 	{
-		if (vwheels[i].cnode) vwheels[i].cnode->setVisible(true);
-		if (vwheels[i].fm) vwheels[i].fm->setVisible(true);
+		if (vwheels[i].cnode)
+            vwheels[i].cnode->setVisible(true);
+
+		if (vwheels[i].fm)
+            vwheels[i].fm->setVisible(true);
 	}
 	for (i=0; i<free_prop; i++)
 	{
 		if (props[i].scene_node)
 			setMeshWireframe(props[i].scene_node, false);
+
 		if (props[i].wheel)
 			setMeshWireframe(props[i].wheel, false);
 	}
@@ -4128,13 +4128,16 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 		{
 			if (beams[i].mSceneNode)
 			{
-				if (beams[i].type==BEAM_VIRTUAL || beams[i].type==BEAM_INVISIBLE || beams[i].type==BEAM_INVISIBLE_HYDRO) beams[i].mSceneNode->detachAllObjects();
-				//material
-				if (beams[i].type==BEAM_HYDRO || beams[i].type==BEAM_MARKED) beams[i].mEntity->setMaterialName("tracks/Chrome");
-				else beams[i].mEntity->setMaterialName(default_beam_material);
+				if (beams[i].type == BEAM_VIRTUAL || beams[i].type == BEAM_INVISIBLE || beams[i].type == BEAM_INVISIBLE_HYDRO)
+                    beams[i].mSceneNode->detachAllObjects();
+
+				if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_MARKED)
+                    beams[i].mEntity->setMaterialName("tracks/Chrome");
+				else
+                    beams[i].mEntity->setMaterialName(default_beam_material);
 			}
 		}
-	}else
+	} else
 	{
 		if (simpleSkeletonNode)
 			simpleSkeletonNode->setVisible(false);

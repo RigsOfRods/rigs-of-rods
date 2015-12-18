@@ -2193,27 +2193,25 @@ void Beam::updateSkeletonColouring(int doUpdate)
 	{
 		for (int i=0; i<free_beam; i++)
 		{
-			if (!beams[i].disabled)
-			{
-				if ((skeleton == 2 || replay) && !beams[i].broken && beams[i].mEntity && beams[i].mSceneNode)
-				{
-					float tmp=beams[i].stress/beams[i].minmaxposnegstress;
-					float sqtmp=tmp*tmp;
-					beams[i].scale = (sqtmp*sqtmp)*100.0f*sign(tmp);
-				}
-				if (skeleton == 1 && !beams[i].broken && beams[i].mEntity && beams[i].mSceneNode)
-				{
-					int scale=(int)beams[i].scale * 100;
-					if (scale>100) scale=100;
-					if (scale<-100) scale=-100;
-					char bname[256];
-					sprintf(bname, "mat-beam-%d", scale);
-					beams[i].mEntity->setMaterialName(bname);
-				} else if (beams[i].mSceneNode && (beams[i].broken || beams[i].disabled) && beams[i].mSceneNode)
-				{
-					beams[i].mSceneNode->detachAllObjects();
-				}
-			}
+            if (!beams[i].broken && !beams[i].disabled)
+            {
+                if (skeleton == 2 || replay)
+                {
+                    float ratio = beams[i].stress / beams[i].minmaxposnegstress;
+                    beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
+                }
+                if (skeleton == 1 && beams[i].mEntity)
+                {
+                    int scale = (int)beams[i].scale * 100;
+                    scale = std::max(-100, scale);
+                    scale = std::min(scale, 100);
+                    char bname[256];
+                    sprintf(bname, "mat-beam-%d", scale);
+                    beams[i].mEntity->setMaterialName(bname);
+                }
+            } else if (beams[i].mSceneNode) {
+                beams[i].mSceneNode->detachAllObjects();
+            }
 		}
 	}
 	BES_STOP(BES_CORE_SkeletonColouring);
