@@ -160,7 +160,6 @@ BeamFactory::BeamFactory() :
 		} else if (!disableThreadPool)
 		{
 			gEnv->threadPool = new ThreadPool(num_cpu_cores);
-			beamThreadPool   = new ThreadPool(num_cpu_cores);
 			LOG("BEAMFACTORY: Creating " + TOSTRING(num_cpu_cores) + " threads");
 		}
 

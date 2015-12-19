@@ -1439,7 +1439,7 @@ void Beam::threadentry()
 			if (trucks[t])
 				trucks[t]->num_simulated_trucks = this->num_simulated_trucks;
 		}
-		if (num_simulated_trucks < 2 || !BeamFactory::getSingleton().beamThreadPool)
+		if (num_simulated_trucks < 2 || !gEnv->threadPool)
 		{
 			for (int t=0; t<tnumtrucks; t++)
 			{
@@ -1470,7 +1470,7 @@ void Beam::threadentry()
 				}
 			}
 
-			BeamFactory::getSingleton().beamThreadPool->enqueue(tasks);
+			gEnv->threadPool->enqueue(tasks);
 
 			// Wait for all tasks to complete
 			MUTEX_LOCK(&task_count_mutex[THREAD_BEAMFORCESEULER]);
