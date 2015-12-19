@@ -904,7 +904,7 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
 		// calculate fusedrag by truck size
 		factor = def.area_coefficient;
-		width  =  (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;			
+		width  =  (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;
 		
 		m_rig->fuseAirfoil = new Airfoil(fusefoil);
 		
@@ -912,7 +912,8 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 		m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
 		m_rig->fuseWidth   = width;
 		AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
-	} else
+	} 
+    else
 	{
 		// original fusedrag calculation
 
@@ -6634,6 +6635,12 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		
 	m_rig->smokeRef        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
 	m_rig->smokeId         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
+
+    // Update "fusedrag" autocalc y & z span
+    if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
+    if (def.position.z > m_fuse_z_max) { m_fuse_z_max = def.position.z; }
+    if (def.position.y < m_fuse_y_min) { m_fuse_y_min = def.position.y; }
+    if (def.position.y > m_fuse_y_max) { m_fuse_y_max = def.position.y; }
 
 #ifdef DEBUG_TRUCKPARSER2013
 	// DEBUG
