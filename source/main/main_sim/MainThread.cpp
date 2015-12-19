@@ -1143,8 +1143,6 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 		return;
 	}
 
-	bool dirty = false;
-
 	if (RoR::Application::GetOverlayWrapper() != nullptr)
 	{
 		RoR::Application::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
