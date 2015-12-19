@@ -3833,20 +3833,20 @@ void Beam::updateVisualPrepare(float dt)
 
 	for (int i=0; i<free_beam; i++)
 	{
-        if (!beams[i].disabled && beams[i].mSceneNode)
-        {
-            if (skeleton)
-            {
-                beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-                beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-                beams[i].mSceneNode->setScale(skeleton_beam_diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), skeleton_beam_diameter);
-            } else if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
-            {
-                beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-                beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-                beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), beams[i].diameter);
-            }
-        }
+		if (!beams[i].disabled && beams[i].mSceneNode)
+		{
+			if (skeleton)
+			{
+				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
+				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
+				beams[i].mSceneNode->setScale(skeleton_beam_diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), skeleton_beam_diameter);
+			} else if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
+			{
+				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
+				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
+				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), beams[i].diameter);
+			}
+		}
 	}
 
 	if (skeleton == 2)
@@ -4010,10 +4010,10 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 	for (i=0; i<free_wheel; i++)
 	{
 		if (vwheels[i].cnode)
-           vwheels[i].cnode->setVisible(false);
+			vwheels[i].cnode->setVisible(false);
 
 		if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(false);
+			vwheels[i].fm->setVisible(false);
 	}
 
 	for (i=0; i<free_prop; i++)
@@ -4063,7 +4063,7 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 	{
 		SceneNode *s = flexbodies[i]->getSceneNode();
 		if (s)
-		    setMeshWireframe(s, true);
+			setMeshWireframe(s, true);
 	}
 
 	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
@@ -4108,10 +4108,10 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 	for (i=0; i<free_wheel; i++)
 	{
 		if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(true);
+			vwheels[i].cnode->setVisible(true);
 
 		if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(true);
+			vwheels[i].fm->setVisible(true);
 	}
 	for (i=0; i<free_prop; i++)
 	{
@@ -4129,12 +4129,12 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 			if (beams[i].mSceneNode)
 			{
 				if (beams[i].type == BEAM_VIRTUAL || beams[i].type == BEAM_INVISIBLE || beams[i].type == BEAM_INVISIBLE_HYDRO)
-                    beams[i].mSceneNode->detachAllObjects();
+					beams[i].mSceneNode->detachAllObjects();
 
 				if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_MARKED)
-                    beams[i].mEntity->setMaterialName("tracks/Chrome");
+					beams[i].mEntity->setMaterialName("tracks/Chrome");
 				else
-                    beams[i].mEntity->setMaterialName(default_beam_material);
+					beams[i].mEntity->setMaterialName(default_beam_material);
 			}
 		}
 	} else
