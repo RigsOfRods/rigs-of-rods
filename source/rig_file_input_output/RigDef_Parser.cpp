@@ -1171,7 +1171,7 @@ void Parser::ParseLine(Ogre::String const & line)
 }
 
 /* -------------------------------------------------------------------------- */
-/* Parsing individual keywords
+/* Parsing individual keywords                                                */
 /* -------------------------------------------------------------------------- */
 
 #if 0 /* TEMPLATE */
