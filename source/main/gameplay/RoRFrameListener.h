@@ -117,8 +117,8 @@ public: // public methods
 	bool frameStarted(const Ogre::FrameEvent& evt); // Override frameStarted event to process that (don't care about frameEnded)
 
 	bool updateEvents(float dt);
-	double getTime() { return rtime; };
-	int getNetPointToUID() { return netPointToUID; };
+	double getTime() { return rtime; }
+	int getNetPointToUID() { return netPointToUID; }
 
 	void checkRemoteStreamResultsChanged();
 	void hideGUI(bool visible);
