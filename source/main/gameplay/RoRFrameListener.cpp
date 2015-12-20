@@ -1672,11 +1672,6 @@ void RoRFrameListener::showspray(bool s)
 	DustManager::getSingleton().setVisible(s);
 }
 
-void RoRFrameListener::setLoadingState(int value)
-{
-	loading_state = value;
-}
-
 void RoRFrameListener::setNetPointToUID(int uid)
 {
 	// TODO: setup arrow

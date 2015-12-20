@@ -32,6 +32,7 @@
 #include "RoRPrerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
 
+#include <map>
 #include <pthread.h>
 
 class GameScript;

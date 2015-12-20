@@ -32,12 +32,6 @@
 
 using namespace Ogre;
 
-#if _WIN32
-#include <tchar.h>
-#else
-#define _T
-#endif // _WIN32
-
 #ifdef USE_CRASHRPT
 // see http://code.google.com/p/crashrpt/
 #include "crashrpt.h"
@@ -226,7 +220,7 @@ void showVersion()
 {
 	ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__
-	printf(" * built with gcc %d.%d.%d\n", __GNUC_MINOR__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif //__GNUC__
 }
 

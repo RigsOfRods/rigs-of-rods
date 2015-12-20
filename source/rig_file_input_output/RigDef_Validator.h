@@ -126,7 +126,7 @@ private:
 	void AddMessage(Validator::Message::Type type, Ogre::String const & text);
 
 /* -------------------------------------------------------------------------- */
-/* Individual section checkers.
+/* Individual section checkers.                                               */
 /* -------------------------------------------------------------------------- */	
 
 	bool CheckShock2(RigDef::Shock2 & shock2);
@@ -145,7 +145,7 @@ private:
 	bool CheckFlare2(RigDef::Flare2 & def);
 
 /* -------------------------------------------------------------------------- */
-/* Properties
+/* Properties                                                                 */
 /* -------------------------------------------------------------------------- */
 
 	std::list<Message> m_messages;

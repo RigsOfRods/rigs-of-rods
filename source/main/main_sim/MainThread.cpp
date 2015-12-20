@@ -86,6 +86,7 @@ MainThread::MainThread():
 	m_restart_requested(false),
 	m_start_time(0),
 	m_exit_loop_requested(false),
+	m_base_resource_loaded(false),
 	m_application_state(Application::STATE_NONE),
 	m_next_application_state(Application::STATE_NONE),
 	m_rig_editor(nullptr)
@@ -1141,8 +1142,6 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 	{
 		return;
 	}
-
-	bool dirty = false;
 
 	if (RoR::Application::GetOverlayWrapper() != nullptr)
 	{

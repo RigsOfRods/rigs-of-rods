@@ -101,18 +101,9 @@ protected:
 	int netPointToUID;
 	int raceStartTime;
 
-	unsigned int mNumScreenShots;
-	
 	bool updateTruckMirrors(float dt);
 
-	int setupBenchmark();
-
-	void gridScreenshots(Ogre::RenderWindow* pRenderWindow, Ogre::Camera* pCamera, const int& pGridSize, const Ogre::String& path, const Ogre::String& pFileName, const Ogre::String& pFileExtention, const bool& pStitchGridImages);
-
-	void initSoftShadows();
-	void initializeCompontents();
 	void updateIO(float dt);
-	void updateStats(void);
 
 	// WindowEventListener
 	void windowMoved(Ogre::RenderWindow* rw);
@@ -126,10 +117,8 @@ public: // public methods
 	bool frameStarted(const Ogre::FrameEvent& evt); // Override frameStarted event to process that (don't care about frameEnded)
 
 	bool updateEvents(float dt);
-	double getTime() { return rtime; };
-
-	int getLoadingState() { return loading_state; };
-	int getNetPointToUID() { return netPointToUID; };
+	double getTime() { return rtime; }
+	int getNetPointToUID() { return netPointToUID; }
 
 	void checkRemoteStreamResultsChanged();
 	void hideGUI(bool visible);
@@ -147,10 +136,10 @@ public: // public methods
 	void netDisconnectTruck(int number);
 	void pauseSim(bool value);
 	void reloadCurrentTruck();
-	void removeBeam(Beam *);
+
 	void RTSSgenerateShaders(Ogre::Entity *entity, Ogre::String normalTextureName);
 	void setDirectionArrow(char *text, Ogre::Vector3 position);
-	void setLoadingState(int value);
+
 	void setNetPointToUID(int uid);
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void showspray(bool s);
