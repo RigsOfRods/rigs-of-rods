@@ -6116,7 +6116,6 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	beam.k = def.defaults->GetScaledSpringiness();
 	beam.d = def.defaults->GetScaledDamping();
 	beam.diameter = def.defaults->visual_beam_diameter;
-	beam.minendmass = 1.f; // Orig = hardcoded in add_beam()
 	beam.bounded = NOSHOCK; // Orig: if (shortbound) ... hardcoded in BTS_BEAMS
 
 	/* Deformation */
@@ -6337,9 +6336,6 @@ void RigSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 
 	/* Length */
 	CalculateBeamLength(beam);
-
-	/* Misc */
-	beam.minendmass = 1.f; // Orig = hardcoded in add_beam()
 }
 
 void RigSpawner::AddMessage(RigSpawner::Message::Type type,	Ogre::String const & text)

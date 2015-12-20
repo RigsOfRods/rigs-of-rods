@@ -161,8 +161,6 @@ public:
 	pthread_mutex_t work_done_mutex;
 	pthread_t worker_thread;
 
-	ThreadPool *beamThreadPool;
-	
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
 	void addRef(){};

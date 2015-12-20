@@ -55,7 +55,6 @@ struct beam_t
 	Ogre::Real diameter;
 	bool commandNeedsEngine;
 	int detacher_group;	//!< Attribute: detacher group number (integer)
-	Ogre::Vector3 lastforce;
 	bool isCentering;
 	int isOnePressMode;
 	bool isForceRestricted;
@@ -66,7 +65,6 @@ struct beam_t
 	bool autoMoveLock;
 	bool pressedCenterMode;
 	float centerLength;
-	float minendmass;
 	float scale;
 	shock_t *shock;
 	Ogre::SceneNode *mSceneNode; //!< visual

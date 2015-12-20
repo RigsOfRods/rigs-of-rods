@@ -43,9 +43,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 
 #define BEAMS_INTER_TRUCK_PARALLEL 1
-#define BEAMS_INTRA_TRUCK_PARALLEL 0
 #define NODES_INTER_TRUCK_PARALLEL 1
-#define NODES_INTRA_TRUCK_PARALLEL 0
 
 using namespace Ogre;
 
@@ -71,17 +69,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	//if (doUpdate) mWindow->setDebugText(engine->status);
 
 #if BEAMS_INTER_TRUCK_PARALLEL
-#if !BEAMS_INTRA_TRUCK_PARALLEL
-	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-#else
-	if (free_beam < 100)
-	{
-		calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-	} else
-	{
-		runThreadTask(this, THREAD_BEAMS, true);
-	}
-#endif
+	calcBeams(doUpdate, dt, step, maxsteps);
+
 	if (doUpdate)
 	{
 		//just call this once per frame to avoid performance impact
@@ -93,11 +82,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	for (std::vector <hook_t>::iterator it = hooks.begin(); it!=hooks.end(); it++)
 	{
 		//we need to do this here to avoid countdown speedup by triggers
-		it->timer -= dt;
-		if (it->timer < 0)
-		{
-			it->timer = 0.0f;
-		}
+		it->timer = std::max(0.0f, it->timer - dt);
 	}
 
 	BES_START(BES_CORE_AnimatedProps);
@@ -430,19 +415,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	watercontact = false;
 
-#if !NODES_INTRA_TRUCK_PARALLEL
-	calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
-#else
-	if (free_node < 50)
-	{
-		calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
-	} else
-	{
-		runThreadTask(this, THREAD_NODES, true);
-	}
-#endif
+	calcNodes(doUpdate, dt, step, maxsteps);
 
-	Ogre::AxisAlignedBox tBoundingBox(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
+	AxisAlignedBox tBoundingBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
 
 	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
 	{
@@ -454,12 +429,13 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		tBoundingBox.merge(nodes[i].AbsPosition);
 		if (nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
 		{
-			if (collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getSize().length() == 0.0 && collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getMinimum().length() == 0.0)
+			AxisAlignedBox &bb = collisionBoundingBoxes[nodes[i].collisionBoundingBoxID];
+			if (bb.getSize().length() == 0.0 && bb.getMinimum().length() == 0.0)
 			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].setExtents(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z);
+				bb.setExtents(nodes[i].AbsPosition, nodes[i].AbsPosition);
 			} else
 			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
+				bb.merge(nodes[i].AbsPosition);
 			}
 		}
 	}
@@ -1564,17 +1540,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	forwardCommands();
 
 #if !BEAMS_INTER_TRUCK_PARALLEL
-#if !BEAMS_INTRA_TRUCK_PARALLEL
-	calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-#else
-	if (free_beam < 100)
-	{
-		calcBeams(doUpdate, dt, step, maxsteps, 0, 1);
-	} else
-	{
-		runThreadTask(this, THREAD_BEAMS, true);
-	}
-#endif
+	calcBeams(doUpdate, dt, step, maxsteps);
 
 	if (doUpdate)
 	{
@@ -1602,11 +1568,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 
 	watercontact = false;
 
-	#if !NODES_INTRA_TRUCK_PARALLEL
-		calcNodes(doUpdate, dt, step, maxsteps, 0, 1);
-	#else
-		runThreadTask(this, THREAD_NODES, true);
-	#endif
+	calcNodes(doUpdate, dt, step, maxsteps);
 
 	for (int i=0; i<free_node; i++)
 	{
@@ -1669,19 +1631,11 @@ void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxst
 	BES_STOP(BES_CORE_WholeTruckCalc);
 }
 
-void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number)
+void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	BES_START(BES_CORE_Beams);
 	// Springs
-	int chunk_size = free_beam / chunk_number;
-	int end_index = (chunk_index+1)*chunk_size;
-
-	if (chunk_index+1 == chunk_number)
-	{
-		end_index = free_beam;
-	}
-
-	for (int i=chunk_index*chunk_size; i<end_index; i++)
+	for (int i=0; i<free_beam; i++)
 	{
 		Vector3 dis(Vector3::ZERO);
 		// Trick for exploding stuff
@@ -1757,7 +1711,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 						beams[i].disabled = true;
 						if (beambreakdebug)
 						{
-							LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) + " / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) + 
+									" / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
 					}
 				}
@@ -1829,7 +1784,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 					beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
 					if (beamdeformdebug)
 					{
-						LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+						LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
+								" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 					}
 				}
 
@@ -1857,7 +1813,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 
 						if (beambreakdebug)
 						{
-							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + 
+									" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
 						}
 
 						// detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
@@ -1911,23 +1868,13 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 	BES_STOP(BES_CORE_Beams);
 }
 
-void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number)
+void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	IWater *water = 0;
 	if (gEnv->terrainManager)
 		water = gEnv->terrainManager->getWater();
 
-	int chunk_size = free_node / chunk_number;
-	int end_index = (chunk_index+1)*chunk_size;
-
-	if (chunk_index+1 == chunk_number)
-	{
-		end_index = free_node;
-	}
-
-	doUpdate = (step == chunk_index * (maxsteps / chunk_number));
-
-	for (int i=chunk_index*chunk_size; i<end_index; i++)
+	for (int i=0; i<free_node; i++)
 	{
 		//if (_isnan(nodes[i].Position.length())) LOG("Node is NaN "+TOSTRING(i));
 
@@ -2029,8 +1976,6 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 						}
 					}
 
-					wheels[nodes[i].wheelid].lastEventHandler = handlernum;
-
 					lastFuzzyGroundModel = gm;
 				}
 				nodes[i].collTestTimer = 0.0;
@@ -2040,14 +1985,14 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int ch
 		// record g forces on cameras
 		if (i == cameranodepos[0])
 		{
-			cameranodeacc += nodes[i].Forces * nodes[i].inverted_mass;
+			cameranodeacc += nodes[i].Forces / nodes[i].mass;
 			cameranodecount++;
 		}
 
 		// integration
 		if (!nodes[i].locked)
 		{
-			nodes[i].Velocity += nodes[i].Forces * nodes[i].inverted_mass * dt;
+			nodes[i].Velocity += nodes[i].Forces / nodes[i].mass * dt;
 			nodes[i].RelPosition += nodes[i].Velocity * dt;
 			nodes[i].AbsPosition = origin;
 			nodes[i].AbsPosition += nodes[i].RelPosition;
@@ -2248,27 +2193,25 @@ void Beam::updateSkeletonColouring(int doUpdate)
 	{
 		for (int i=0; i<free_beam; i++)
 		{
-			if (!beams[i].disabled)
-			{
-				if ((skeleton == 2 || replay) && !beams[i].broken && beams[i].mEntity && beams[i].mSceneNode)
-				{
-					float tmp=beams[i].stress/beams[i].minmaxposnegstress;
-					float sqtmp=tmp*tmp;
-					beams[i].scale = (sqtmp*sqtmp)*100.0f*sign(tmp);
-				}
-				if (skeleton == 1 && !beams[i].broken && beams[i].mEntity && beams[i].mSceneNode)
-				{
-					int scale=(int)beams[i].scale * 100;
-					if (scale>100) scale=100;
-					if (scale<-100) scale=-100;
-					char bname[256];
-					sprintf(bname, "mat-beam-%d", scale);
-					beams[i].mEntity->setMaterialName(bname);
-				} else if (beams[i].mSceneNode && (beams[i].broken || beams[i].disabled) && beams[i].mSceneNode)
-				{
-					beams[i].mSceneNode->detachAllObjects();
-				}
-			}
+            if (!beams[i].broken && !beams[i].disabled)
+            {
+                if (skeleton == 2 || replay)
+                {
+                    float ratio = beams[i].stress / beams[i].minmaxposnegstress;
+                    beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
+                }
+                if (skeleton == 1 && beams[i].mEntity)
+                {
+                    int scale = (int)beams[i].scale * 100;
+                    scale = std::max(-100, scale);
+                    scale = std::min(scale, 100);
+                    char bname[256];
+                    sprintf(bname, "mat-beam-%d", scale);
+                    beams[i].mEntity->setMaterialName(bname);
+                }
+            } else if (beams[i].mSceneNode) {
+                beams[i].mSceneNode->detachAllObjects();
+            }
 		}
 	}
 	BES_STOP(BES_CORE_SkeletonColouring);

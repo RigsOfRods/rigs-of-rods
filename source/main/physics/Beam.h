@@ -533,10 +533,8 @@ protected:
 
 	enum ThreadTask {
 		THREAD_BEAMFORCESEULER,
-		THREAD_BEAMS,
 		THREAD_INTER_TRUCK_COLLISIONS,
 		THREAD_INTRA_TRUCK_COLLISIONS,
-		THREAD_NODES,
 		THREAD_MAX
 	};
 
@@ -563,13 +561,13 @@ protected:
 	* TIGHT LOOP; Physics & sound; 
 	* @param doUpdate Only passed to Beam::calcShocks2()
 	*/
-	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number);
+	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps);
 
 	/**
 	* TIGHT LOOP; Physics; 
 	* @param doUpdate Unused (overwritten in function)
 	*/
-	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps, int chunk_index, int chunk_number);
+	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps);
 
 	/**
 	* TIGHT LOOP; Physics; 
