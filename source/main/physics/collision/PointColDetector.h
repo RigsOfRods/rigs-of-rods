@@ -70,7 +70,6 @@ private:
 	void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
 	void update_structures_for_contacters(Beam* truck);
 	void update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks);
-	void calc_bounding_box(Ogre::Vector3 &bmin, Ogre::Vector3 &bmax, const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
 };
 
 #endif // __PointColDetector_H_

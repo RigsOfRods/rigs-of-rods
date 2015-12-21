@@ -144,69 +144,36 @@ void PointColDetector::update_structures_for_contacters(Beam* truck, Beam** truc
 }
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB) {
-	calc_bounding_box(bbmin, bbmax, vec1, vec2, vec3, enlargeBB);
+	Vector3 enlarge = Vector3(enlargeBB, enlargeBB, enlargeBB);
+
+	bbmin = vec1;
+      
+	bbmin.x = std::min(vec2.x, bbmin.x);
+	bbmin.x = std::min(vec3.x, bbmin.x);
+                                
+	bbmin.y = std::min(vec2.y, bbmin.y);
+	bbmin.y = std::min(vec3.y, bbmin.y);
+                                
+	bbmin.z = std::min(vec2.z, bbmin.z);
+	bbmin.z = std::min(vec3.z, bbmin.z);
+      
+	bbmin -= enlarge;
+	 
+	bbmax = vec1;
+      
+	bbmax.x = std::max(bbmax.x, vec2.x);
+	bbmax.x = std::max(bbmax.x, vec3.x);
+                                     
+	bbmax.y = std::max(bbmax.y, vec2.y);
+	bbmax.y = std::max(bbmax.y, vec3.y);
+                                     
+	bbmax.z = std::max(bbmax.z, vec2.z);
+	bbmax.z = std::max(bbmax.z, vec3.z);
+      
+	bbmax += enlarge;
 
 	hit_count = 0;
 	queryrec(0, 0);
-}
-
-void PointColDetector::calc_bounding_box(Vector3 &bmin, Vector3 &bmax, const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, const float enlargeBB) {
-	if (vec1.y < vec2.y) {
-		bmin.y = vec1.y;
-		bmax.y = vec2.y;
-	}
-	else {
-		bmin.y = vec2.y;
-		bmax.y = vec1.y;
-	}
-
-	if (vec3.y < bmin.y) {
-		bmin.y = vec3.y;
-	}
-	else if (vec3.y > bmax.y) {
-		bmax.y = vec3.y;
-	}
-
-	bmin.y -= enlargeBB;
-	bmax.y += enlargeBB;
-
-	if (vec1.x < vec2.x) {
-		bmin.x= vec1.x;
-		bmax.x= vec2.x;
-	}
-	else {
-		bmin.x= vec2.x;
-		bmax.x= vec1.x;
-	}
-
-	if (vec3.x < bmin.x) {
-		bmin.x= vec3.x;
-	}
-	else if (vec3.x > bmax.x) {
-		bmax.x= vec3.x;
-	}
-
-	bmin.x-= enlargeBB;
-	bmax.x+= enlargeBB;
-
-	if (vec1.z < vec2.z) {
-		bmin.z= vec1.z;
-		bmax.z= vec2.z;
-	}
-	else {
-		bmin.z= vec2.z;
-		bmax.z= vec1.z;
-	}
-
-	if (vec3.z < bmin.z) {
-		bmin.z= vec3.z;
-	}
-	else if (vec3.z > bmax.z) {
-		bmax.z= vec3.z;
-	}
-
-	bmin.z-= enlargeBB;
-	bmax.z+= enlargeBB;
 }
 
 void PointColDetector::queryrec(int kdindex, int axis) {
