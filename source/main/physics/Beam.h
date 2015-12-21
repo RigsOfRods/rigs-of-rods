@@ -268,12 +268,12 @@ public:
 	/** 
 	* Display; displays "skeleton" (visual rig) mesh.
 	*/
-	void showSkeleton(bool meshes=true, bool newMode=false, bool linked=true);
+	void showSkeleton(bool meshes=true, bool linked=true);
 
 	/** 
 	* Display; hides "skeleton" (visual rig) mesh.
 	*/
-	void hideSkeleton(bool newMode=false, bool linked=true);
+	void hideSkeleton(bool linked=true);
 
 	/** 
 	* Display; updates the "skeleton" (visual rig) mesh.
@@ -348,7 +348,7 @@ public:
 	Ogre::Vector3 getGForces();
 
 	int stabcommand; //!< Stabilization; values: { -1, 0, 1 }
-	int skeleton; //!< Visibility of "skeleton" (visual rig) { 0 = not visible, 1 = visible, 2 = visible in "newMode" }
+	bool skeleton; //!< Visibility of "skeleton" (visual rig) { false = not visible, true = visible }
 	float stabratio;
 	//direction
 	float hydrodircommand;
