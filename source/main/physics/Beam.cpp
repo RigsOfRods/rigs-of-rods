@@ -2807,7 +2807,7 @@ void Beam::interTruckCollisions(Real dt, int chunk_index /*= 0*/, int chunk_numb
 	}
 }
 
-void Beam::intraTruckCollisions(Real dt, int chunk_index /*= 0*/, int chunk_number /*= 1*/)
+void Beam::intraTruckCollisions(Real dt)
 {
 	intraPointCD->update(this);
 

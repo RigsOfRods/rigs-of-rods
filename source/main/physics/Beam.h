@@ -549,7 +549,7 @@ protected:
 	* TIGHT LOOP; Physics; 
 	*/
 	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
-	void intraTruckCollisions(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
+	void intraTruckCollisions(Ogre::Real dt);
 	void interTruckCollisions(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
 
 	/**
