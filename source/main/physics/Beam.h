@@ -534,7 +534,6 @@ protected:
 	enum ThreadTask {
 		THREAD_BEAMFORCESEULER,
 		THREAD_INTER_TRUCK_COLLISIONS,
-		THREAD_INTRA_TRUCK_COLLISIONS,
 		THREAD_MAX
 	};
 
@@ -550,12 +549,8 @@ protected:
 	* TIGHT LOOP; Physics; 
 	*/
 	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
-	void intraTruckCollisionsPrepare(Ogre::Real dt);
-	void intraTruckCollisionsCompute(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
-	void intraTruckCollisionsFinal(Ogre::Real dt);
-	void interTruckCollisionsPrepare(Ogre::Real dt);
-	void interTruckCollisionsCompute(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
-	void interTruckCollisionsFinal(Ogre::Real dt);
+	void intraTruckCollisions(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
+	void interTruckCollisions(Ogre::Real dt, int chunk_index = 0, int chunk_number = 1);
 
 	/**
 	* TIGHT LOOP; Physics & sound; 
@@ -604,13 +599,13 @@ protected:
 	int thread_index;
 	int thread_number;
 
-	void runThreadTask(Beam* truck, ThreadTask task, bool shared = false);
+	void runThreadTask(Beam* truck, ThreadTask task);
 	
 	// inter-/intra truck collision stuff
 	pthread_mutex_t itc_node_access_mutex;
 
 	PointColDetector* interPointCD;
-	std::vector<PointColDetector*> intraPointCD;
+	PointColDetector* intraPointCD;
 
 	// flexable stuff
 	std::bitset<MAX_WHEELS> flexmesh_prepare;
