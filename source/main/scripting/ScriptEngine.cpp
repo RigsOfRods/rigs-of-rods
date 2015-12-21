@@ -368,14 +368,12 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectProperty("BeamClass", "int done_count", offsetof(Beam, done_count)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int free_prop", offsetof(Beam, free_prop)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "float default_beam_diameter", offsetof(Beam, default_beam_diameter)); MYASSERT(result>=0);
-	result = engine->RegisterObjectProperty("BeamClass", "float skeleton_beam_diameter", offsetof(Beam, skeleton_beam_diameter)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int free_aeroengine", offsetof(Beam, free_aeroengine)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "float elevator", offsetof(Beam, elevator)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "float rudder", offsetof(Beam, rudder)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "float aileron", offsetof(Beam, aileron)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int flap", offsetof(Beam, flap)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int free_wing", offsetof(Beam, free_wing)); MYASSERT(result>=0);
-	result = engine->RegisterObjectProperty("BeamClass", "float fadeDist", offsetof(Beam, fadeDist)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "bool disableDrag", offsetof(Beam, disableDrag)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int currentcamera", offsetof(Beam, currentcamera)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int freecinecamera", offsetof(Beam, freecinecamera)); MYASSERT(result>=0);
