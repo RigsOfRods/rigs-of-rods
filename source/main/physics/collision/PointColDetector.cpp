@@ -21,13 +21,16 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Beam.h"
 #include "BeamFactory.h"
 
-#ifdef WIN32
-//should be more for VS only not windows
-double log2(double n)
-{
-	// log(n)/log(2) is log2.  
-	return log(n) / log(2.f);
-}
+// Microsoft Visual Studio 2010 doesn't have std::log2
+// Version macros: http://stackoverflow.com/a/70630
+#if defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1600
+    double mini_log2(double n)
+    {
+        return log(n) / log(2.f);
+    }
+#   define LOG2(n) (mini_log2(n))
+#else
+#   define LOG2(n) (std::log2(n))
 #endif
 
 using namespace Ogre;
@@ -90,7 +93,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
 void PointColDetector::update_structures_for_contacters(Beam* truck) {
 	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
 	hit_list.resize(object_list_size, NULL);
-	int exp_factor = std::max(0, (int) ceil(std::log2(object_list_size)) + 1);
+	int exp_factor = std::max(0, (int) ceil(LOG2(object_list_size)) + 1);
 
 	ref_list.clear();
 	pointid_list.clear();
@@ -117,7 +120,7 @@ void PointColDetector::update_structures_for_contacters(Beam* truck) {
 void PointColDetector::update_structures_for_contacters(Beam* truck, const std::vector<Beam*> &truckList) {
 	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
 	hit_list.resize(object_list_size, NULL);
-	int exp_factor = std::max(0, (int) ceil(std::log2(object_list_size)) + 1);
+	int exp_factor = std::max(0, (int) ceil(LOG2(object_list_size)) + 1);
 
 	ref_list.clear();
 	pointid_list.clear();
