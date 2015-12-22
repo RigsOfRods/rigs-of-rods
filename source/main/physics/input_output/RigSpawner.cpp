@@ -418,15 +418,7 @@ void RigSpawner::InitializeRig()
 	m_rig->disableTruckTruckSelfCollisions = BSETTING("DisableSelfCollisions", false);
 	if (! m_rig->disableTruckTruckSelfCollisions)
 	{
-		m_rig->intraPointCD.emplace_back(new PointColDetector());
-
-		if (gEnv->threadPool != nullptr)
-		{
-			for (int i=1; i<gEnv->threadPool->getSize(); i++)
-			{
-				m_rig->intraPointCD.emplace_back(new PointColDetector());
-			}
-		}
+		m_rig->intraPointCD = new PointColDetector();
 	}
 
 	m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
