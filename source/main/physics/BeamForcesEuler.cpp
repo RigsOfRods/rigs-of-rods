@@ -2189,7 +2189,7 @@ void Beam::calcRopes()
 void Beam::updateSkeletonColouring(int doUpdate)
 {
 	BES_START(BES_CORE_SkeletonColouring);
-	if ((skeleton && doUpdate) || replay)
+	if ((m_skeletonview_is_active && doUpdate) || replay)
 	{
 		for (int i=0; i<free_beam; i++)
 		{

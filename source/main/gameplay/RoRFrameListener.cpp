@@ -727,7 +727,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
 				{
-					if (curr_truck->skeleton)
+					if (curr_truck->m_skeletonview_is_active)
 						curr_truck->hideSkeleton();
 					else
 						curr_truck->showSkeleton(true);

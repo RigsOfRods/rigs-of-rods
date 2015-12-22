@@ -348,7 +348,7 @@ public:
 	Ogre::Vector3 getGForces();
 
 	int stabcommand; //!< Stabilization; values: { -1, 0, 1 }
-	bool skeleton; //!< Visibility of "skeleton" (visual rig) { false = not visible, true = visible }
+	bool m_skeletonview_is_active; //!< Visibility of "skeleton" (visual rig) { false = not visible, true = visible }
 	float stabratio;
 	//direction
 	float hydrodircommand;

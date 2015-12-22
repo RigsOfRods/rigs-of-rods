@@ -3185,7 +3185,7 @@ void Beam::prepareInside(bool inside)
 void Beam::lightsToggle()
 {
 	// no lights toggling in skeleton mode because of possible bug with emissive texture
-	if (skeleton)
+	if (m_skeletonview_is_active)
 		return;
 
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -3844,7 +3844,7 @@ void Beam::updateVisualPrepare(float dt)
 		}
 	}
 
-	if (skeleton)
+	if (m_skeletonview_is_active)
 		updateSimpleSkeleton();
 
 	BES_GFX_START(BES_GFX_updateFlexBodies);
@@ -3984,7 +3984,7 @@ void Beam::showSkeleton(bool meshes, bool linked)
 		return;
 
 	lockSkeletonchange = true;
-	skeleton = true;
+	m_skeletonview_is_active = true;
 
 	if (meshes)
 	{
@@ -4064,7 +4064,7 @@ void Beam::hideSkeleton(bool linked)
 		return;
 
 	lockSkeletonchange=true;
-	skeleton = false;
+	m_skeletonview_is_active = false;
 
 	if (cabFadeMode >= 0)
 	{
@@ -4669,10 +4669,10 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			{
 				(*it)->determineLinkedBeams();
 
-				if (skeleton && this != (*it) && !(*it)->skeleton)
+				if (m_skeletonview_is_active && this != (*it) && !(*it)->m_skeletonview_is_active)
 				{
 					(*it)->showSkeleton(true, false);
-				} else if (skeleton && this != (*it) && (*it)->skeleton)
+				} else if (m_skeletonview_is_active && this != (*it) && (*it)->m_skeletonview_is_active)
 				{
 					(*it)->hideSkeleton(false);
 				}
@@ -6003,6 +6003,7 @@ Beam::Beam(
 	, locked(0)
 	, lockedold(0)
 	, m_dt_remainder(0.0)
+	, m_skeletonview_is_active(false)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
 	, minCameraRadius(0)
@@ -6035,7 +6036,6 @@ Beam::Beam(
 	, simpleSkeletonInitiated(false)
 	, simpleSkeletonManualObject(0)
 	, simulated(false)
-	, skeleton(false)
 	, sleepcount(0)
 	, smokeNode(NULL)
 	, smoker(NULL)
