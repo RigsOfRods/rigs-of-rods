@@ -69,7 +69,7 @@ private:
 	void build_kdtree_incr(int axis, int index);
 	void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
 	void update_structures_for_contacters(Beam* truck);
-	void update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks);
+	void update_structures_for_contacters(Beam* truck, const std::vector<Beam*> &truckList);
 };
 
 #endif // __PointColDetector_H_

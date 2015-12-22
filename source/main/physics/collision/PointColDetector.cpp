@@ -62,12 +62,14 @@ void PointColDetector::update(Beam* truck) {
 
 void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
 	int contacters_size = 0;
+	std::vector<Beam*> truckList(numtrucks);
 
 	truck->collisionRelevant = false;
 	if (truck->state < SLEEPING) {
 		//Sweep & prune
 		for (int t = 0; t < numtrucks; t++) {
-			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && BeamFactory::getSingleton().truckIntersectionAABB(t, truck->trucknum)) {
+			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
+				truckList[t] = trucks[t];
 				truck->collisionRelevant = true;
 				contacters_size += trucks[t]->free_contacter;
 			}
@@ -77,7 +79,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
 	//If the contacter number has changed, its time to update the kdtree structures
 	if (contacters_size != object_list_size) {
 		object_list_size = contacters_size;
-		update_structures_for_contacters(truck, trucks, numtrucks);
+		update_structures_for_contacters(truck, truckList);
 	}
 
 	kdtree[0].ref = NULL;
@@ -100,7 +102,7 @@ void PointColDetector::update_structures_for_contacters(Beam* truck) {
 
 	//Insert all contacters, into the list of points to consider when building the kdtree
 	if (truck && truck->state < SLEEPING) {
-		for (int i = 0;i < truck->free_contacter; ++i) {
+		for (int i = 0; i < truck->free_contacter; ++i) {
 			ref_list[refi].pidref = &pointid_list[refi];
 			pointid_list[refi].truckid = truck->trucknum;
 			pointid_list[refi].nodeid = truck->contacters[i].nodeid;
@@ -112,7 +114,7 @@ void PointColDetector::update_structures_for_contacters(Beam* truck) {
 	kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
-void PointColDetector::update_structures_for_contacters(Beam* truck, Beam** trucks, const int numtrucks) {
+void PointColDetector::update_structures_for_contacters(Beam* truck, const std::vector<Beam*> &truckList) {
 	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
 	hit_list.resize(object_list_size, NULL);
 	int exp_factor = std::max(0, (int) ceil(std::log2(object_list_size)) + 1);
@@ -126,16 +128,16 @@ void PointColDetector::update_structures_for_contacters(Beam* truck, Beam** truc
 	int refi = 0;
 
 	//Insert all contacters, into the list of points to consider when building the kdtree
-	for (int t = 0; t < numtrucks; t++) {
-		if (t == truck->trucknum || !trucks[t] || trucks[t]->state >= SLEEPING || !BeamFactory::getSingleton().truckIntersectionAABB(t, truck->trucknum)) {
+	for (int t = 0; t < truckList.size(); t++) {
+		if (!truckList[t])
+		{
 			continue;
 		}
-
-		for (int i = 0; i < trucks[t]->free_contacter; ++i) {
+		for (int i = 0; i < truckList[t]->free_contacter; ++i) {
 			ref_list[refi].pidref = &pointid_list[refi];
 			pointid_list[refi].truckid = t;
-			pointid_list[refi].nodeid = trucks[t]->contacters[i].nodeid;
-			ref_list[refi].point = &(trucks[t]->nodes[pointid_list[refi].nodeid].AbsPosition.x);
+			pointid_list[refi].nodeid = truckList[t]->contacters[i].nodeid;
+			ref_list[refi].point = &(truckList[t]->nodes[pointid_list[refi].nodeid].AbsPosition.x);
 			refi++;
 		}
 	}
