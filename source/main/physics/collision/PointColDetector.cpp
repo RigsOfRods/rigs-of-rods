@@ -19,7 +19,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "PointColDetector.h"
 
 #include "Beam.h"
-#include "BeamFactory.h"
 
 // Microsoft Visual Studio 2010 doesn't have std::log2
 // Version macros: http://stackoverflow.com/a/70630
@@ -38,8 +37,6 @@ using namespace Ogre;
 PointColDetector::PointColDetector()
    	: object_list_size(-1)
 {
-	std::vector< refelem_t > ref_list(1);
-	std::vector< pointid_t > pointid_list(1);
 }
 
 PointColDetector::~PointColDetector() {
@@ -49,13 +46,15 @@ void PointColDetector::update(Beam* truck) {
 	int contacters_size = 0;
 
 	if (truck && truck->state < SLEEPING) {
+		m_trucks.resize(1, truck);
 		contacters_size += truck->free_contacter;
+	} else {
+		m_trucks.clear();
 	}
 
-	//If the contacter number has changed, its time to update the kdtree structures
 	if (contacters_size != object_list_size) {
 		object_list_size = contacters_size;
-		update_structures_for_contacters(truck);
+		update_structures_for_contacters();
 	}
 
 	kdtree[0].ref = NULL;
@@ -64,25 +63,29 @@ void PointColDetector::update(Beam* truck) {
 }
 
 void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
+	bool update_required = false;
 	int contacters_size = 0;
-	std::vector<Beam*> truckList(numtrucks);
 
-	truck->collisionRelevant = false;
-	if (truck->state < SLEEPING) {
-		//Sweep & prune
+	if (truck && truck->state < SLEEPING) {
+		truck->collisionRelevant = false;
+		m_trucks.resize(numtrucks);
 		for (int t = 0; t < numtrucks; t++) {
 			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
-				truckList[t] = trucks[t];
+				update_required = update_required || (m_trucks[t] != trucks[t]);
+				m_trucks[t] = trucks[t];
 				truck->collisionRelevant = true;
 				contacters_size += trucks[t]->free_contacter;
+			} else {
+				m_trucks[t] = 0;
 			}
 		}
+	} else {
+		m_trucks.clear();
 	}
 
-	//If the contacter number has changed, its time to update the kdtree structures
-	if (contacters_size != object_list_size) {
+	if (update_required || contacters_size != object_list_size) {
 		object_list_size = contacters_size;
-		update_structures_for_contacters(truck, truckList);
+		update_structures_for_contacters();
 	}
 
 	kdtree[0].ref = NULL;
@@ -90,7 +93,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
 	kdtree[0].end = -object_list_size;
 }
 
-void PointColDetector::update_structures_for_contacters(Beam* truck) {
+void PointColDetector::update_structures_for_contacters() {
 	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
 	hit_list.resize(object_list_size, NULL);
 	int exp_factor = std::max(0, (int) ceil(LOG2(object_list_size)) + 1);
@@ -104,44 +107,15 @@ void PointColDetector::update_structures_for_contacters(Beam* truck) {
 	int refi = 0;
 
 	//Insert all contacters, into the list of points to consider when building the kdtree
-	if (truck && truck->state < SLEEPING) {
-		for (int i = 0; i < truck->free_contacter; ++i) {
-			ref_list[refi].pidref = &pointid_list[refi];
-			pointid_list[refi].truckid = truck->trucknum;
-			pointid_list[refi].nodeid = truck->contacters[i].nodeid;
-			ref_list[refi].point = &(truck->nodes[pointid_list[refi].nodeid].AbsPosition.x);
-			refi++;
-		}
-	}
-
-	kdtree.resize(pow(2.f, exp_factor), kdelem);
-}
-
-void PointColDetector::update_structures_for_contacters(Beam* truck, const std::vector<Beam*> &truckList) {
-	kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
-	hit_list.resize(object_list_size, NULL);
-	int exp_factor = std::max(0, (int) ceil(LOG2(object_list_size)) + 1);
-
-	ref_list.clear();
-	pointid_list.clear();
-
-	ref_list.resize(object_list_size);
-	pointid_list.resize(object_list_size);
-
-	int refi = 0;
-
-	//Insert all contacters, into the list of points to consider when building the kdtree
-	for (int t = 0; t < truckList.size(); t++) {
-		if (!truckList[t])
-		{
-			continue;
-		}
-		for (int i = 0; i < truckList[t]->free_contacter; ++i) {
-			ref_list[refi].pidref = &pointid_list[refi];
-			pointid_list[refi].truckid = t;
-			pointid_list[refi].nodeid = truckList[t]->contacters[i].nodeid;
-			ref_list[refi].point = &(truckList[t]->nodes[pointid_list[refi].nodeid].AbsPosition.x);
-			refi++;
+	for (int t = 0; t < m_trucks.size(); t++) {
+		if (m_trucks[t]) {
+			for (int i = 0; i < m_trucks[t]->free_contacter; ++i) {
+				ref_list[refi].pidref = &pointid_list[refi];
+				pointid_list[refi].truckid = t;
+				pointid_list[refi].nodeid = m_trucks[t]->contacters[i].nodeid;
+				ref_list[refi].point = &(m_trucks[t]->nodes[pointid_list[refi].nodeid].AbsPosition.x);
+				refi++;
+			}
 		}
 	}
 

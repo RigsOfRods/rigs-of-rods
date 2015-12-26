@@ -60,16 +60,19 @@ private:
 	} kdnode_t;
 
 	int object_list_size;
+	std::vector< Beam* > m_trucks;
+
 	std::vector< refelem_t > ref_list;
 	std::vector< pointid_t > pointid_list;
 	std::vector< kdnode_t > kdtree;
+
 	Ogre::Vector3 bbmin;
 	Ogre::Vector3 bbmax;
+
 	void queryrec(int kdindex, int axis);
 	void build_kdtree_incr(int axis, int index);
 	void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
-	void update_structures_for_contacters(Beam* truck);
-	void update_structures_for_contacters(Beam* truck, const std::vector<Beam*> &truckList);
+	void update_structures_for_contacters();
 };
 
 #endif // __PointColDetector_H_
