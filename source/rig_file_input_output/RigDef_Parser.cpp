@@ -2359,26 +2359,26 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 
 	Fusedrag fusedrag;
 	fusedrag.front_node = _ParseNodeRef(results[1]);
-	fusedrag.rear_node = _ParseNodeRef(results[2]);
+	fusedrag.rear_node  = _ParseNodeRef(results[3]);
 
-	if (results[3].matched)
+	if (results[6].matched)
 	{
-		fusedrag.approximate_width = STR_PARSE_REAL(results[4]);
-		fusedrag.airfoil_name = results[5];
+		fusedrag.approximate_width = STR_PARSE_REAL(results[6]);
+		fusedrag.airfoil_name = results[8];
 
 		m_current_module->fusedrag.push_back(fusedrag);
 	}
-	else if (results[6].matched)
+	else if (results[9].matched)
 	{
 		fusedrag.autocalc = true;
 
-		if (results[7].matched)
+		if (results[12].matched)
 		{
-			fusedrag.area_coefficient = STR_PARSE_REAL(results[8]);
+			fusedrag.area_coefficient = STR_PARSE_REAL(results[12]);
 
-			if (results[9].matched)
+			if (results[15].matched)
 			{
-				fusedrag.airfoil_name = results[10];
+				fusedrag.airfoil_name = results[15];
 			}
 		}
 

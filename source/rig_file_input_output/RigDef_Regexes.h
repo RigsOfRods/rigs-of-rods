@@ -1541,25 +1541,25 @@ DEFINE_REGEX( SECTION_FLEXBODYWHEELS,
 
 DEFINE_REGEX( SECTION_FUSEDRAG,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* #1 Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* #2 Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE_OPTIONAL( /* #3 */
-		E_CAPTURE( E_REAL_NUMBER ) /* #4 Approx. width */
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_STRING_NO_SPACES ) /* #5 Airfoil name */
+	E_CAPTURE( E_NODE_ID )                       // #1 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #3 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE_OPTIONAL(
+		E_CAPTURE( E_REAL_NUMBER )               // #6 Approx. width
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_STRING_NO_SPACES )          // #8 Airfoil name
 		E_TRAILING_WHITESPACE
 	)
-	E_CAPTURE_OPTIONAL( /* #6 */
+	E_CAPTURE_OPTIONAL(                          // #9
 		"autocalc"
-		E_CAPTURE_OPTIONAL( /* #7 */
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* #8 Area coeff. */
+		E_CAPTURE_OPTIONAL(
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER )           // #12 Area coeff.
 
-			E_CAPTURE_OPTIONAL( /* #9 */
-				E_DELIMITER_SPACE
-				E_CAPTURE( E_STRING_NO_SPACES ) /* #10 Airfoil name */
+			E_CAPTURE_OPTIONAL(
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_STRING_NO_SPACES )  // #15 Airfoil name
 			)
 		)
 		E_TRAILING_WHITESPACE
