@@ -2660,38 +2660,38 @@ void Parser::ParseFlare2(Ogre::String const & line)
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_FLARES2))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Flare2 flare2;
-	flare2.reference_node = _ParseNodeRef(results[1]);
-	flare2.node_axis_x     = _ParseNodeRef(results[2]);
-	flare2.node_axis_y     = _ParseNodeRef(results[3]);
-	flare2.offset.x = STR_PARSE_REAL(results[4]);
-	flare2.offset.y = STR_PARSE_REAL(results[5]);
-	flare2.offset.z = STR_PARSE_REAL(results[6]);
+	flare2.reference_node  = this->_ParseNodeRef(results[ 1]);
+	flare2.node_axis_x     = this->_ParseNodeRef(results[ 3]);
+	flare2.node_axis_y     = this->_ParseNodeRef(results[ 5]);
+	flare2.offset.x             = STR_PARSE_REAL(results[ 7]);
+	flare2.offset.y             = STR_PARSE_REAL(results[ 9]);
+	flare2.offset.z             = STR_PARSE_REAL(results[11]);
 
-	if (results[7].matched)
+	if (results[14].matched)
 	{
-		flare2.type = Flare2::Type(results[8].str().at(0));
+		flare2.type = Flare2::Type(results[14].str().at(0));
 
-		if (results[9].matched)
+		if (results[17].matched)
 		{
-			flare2.control_number = Flare2::Type(STR_PARSE_INT(results[10]));
+			flare2.control_number = Flare2::Type(STR_PARSE_INT(results[17]));
 
-			if (results[11].matched)
+			if (results[20].matched)
 			{
-				flare2.blink_delay_milis = STR_PARSE_INT(results[12]);
+				flare2.blink_delay_milis = STR_PARSE_INT(results[20]);
 
-				if (results[13].matched)
+				if (results[23].matched)
 				{
-					flare2.size = STR_PARSE_REAL(results[14]);
+					flare2.size = STR_PARSE_REAL(results[23]);
 
-					if (results[15].matched)
+					if (results[26].matched)
 					{
-						flare2.material_name = results[16];
+						flare2.material_name = results[26];
 					}
 				}
 			}

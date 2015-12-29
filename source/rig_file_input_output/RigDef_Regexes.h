@@ -1416,36 +1416,36 @@ DEFINE_REGEX( SECTION_FLARES_TYPE, "[fblrRu]" );
 
 DEFINE_REGEX( SECTION_FLARES2,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID )      /* Reference node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID )      /* X axis node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID )      /* Y axis node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER )  /* #4 X offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER )  /* #5 Y offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER )  /* #6 Z offset */
+	E_CAPTURE( E_NODE_ID )                              // #01 Reference node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                              // #03 X axis node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                              // #05 Y axis node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                          // #07 X offset
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                          // #09 Y offset
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                          // #11 Z offset
 	E_CAPTURE_OPTIONAL(
-		E_DELIMITER_COMMA
-		E_CAPTURE( "[fblrRu]" ) /* #8 Type */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( "[fblrRu]" )                         // #14 Type
 
 		E_CAPTURE_OPTIONAL(
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_DECIMAL_NUMBER ) /* #10 Control number */
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_DECIMAL_NUMBER )               // #17 Control number
 
 			E_CAPTURE_OPTIONAL(
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_DECIMAL_NUMBER ) /* #12 Blink delay */
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_DECIMAL_NUMBER )           // #20 Blink delay
 
 				E_CAPTURE_OPTIONAL(
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_REAL_NUMBER ) /* #14 Size */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_REAL_NUMBER )          // #23 Size
 
-					E_CAPTURE_OPTIONAL( 
-						E_DELIMITER_SPACE 
-						E_CAPTURE( E_STRING_NO_SPACES ) /* #16 Material name */ 
+					E_CAPTURE_OPTIONAL(
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_STRING_NO_SPACES ) // #26 Material name 
 					)
 				)
 			)
