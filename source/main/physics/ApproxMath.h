@@ -25,7 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #ifndef __APPROXMATH_H_
-#define	__APPROXMATH_H_
+#define __APPROXMATH_H_
 
 #include "RoRPrerequisites.h"
 
@@ -69,16 +69,16 @@ inline float frand_11()
 
 // Calculates approximate e^x.
 // Use it in code not requiring precision
-inline float approx_exp (const float x)
+inline float approx_exp(const float x)
 {
-	if (x < -15)
-		return 0.f ;
-	else if (x > 88)
-		return 1e38f ;
-	else {
-		int i=12102203*x+1064652319;
-		return *(float *)&i;
-	}
+    if (x < -15)
+        return 0.f ;
+    else if (x > 88)
+        return 1e38f ;
+    else {
+        int i=12102203*x+1064652319;
+        return *(float *)&i;
+    }
 }
 
 // Calculates approximate 2^x
@@ -113,17 +113,12 @@ inline float approx_sqrt(const float y)
 // Calculates approximate 1/square_root(x)
 // it is faster than fast_invSqrt BUT
 // use it in code not requiring precision
-inline float approx_invSqrt(float x)
+inline float approx_invSqrt(const float y)
 {
-	float xhalf = 0.5f*x;
-	int i = *(int*)&x;         // get bits for floating value
-	i = 0x5f3759df - (i >> 1);   // give initial guess y0
-	x = *(float*)&i;           // convert bits back to float
-	x *= 1.5f - xhalf*x*x;     // newton step, repeating this step
-	// increases accuracy
-	//x *= 1.5f - xhalf*x*x;
+    float f = y;
+    int i = 0x5f3759df - ( (*(int *)&f) >> 1);
 
-	return x;
+    return *(float *)&i;
 }
 
 // This function is a classic 1/square_root(x)code
@@ -143,33 +138,33 @@ inline float fast_invSqrt(const float v)
 // It calculates a fast and accurate square_root(x)
 inline float fast_sqrt(const float x)
 {
-  return x * fast_invSqrt(x);
+    return x * fast_invSqrt(x);
 }
 
 inline float sign(const float x)
 {
-	return (x > 0.0f) ? 1.0f : (x < 0.0f) ? -1.0f : 0.0f;
+    return (x > 0.0f) ? 1.0f : (x < 0.0f) ? -1.0f : 0.0f;
 }
 
 // Ogre3 specific helpers
 inline Ogre::Vector3 approx_normalise(Ogre::Vector3 v)
 {
-	return v*approx_invSqrt(v.squaredLength());
+    return v*approx_invSqrt(v.squaredLength());
 }
 
 inline Ogre::Vector3 fast_normalise(Ogre::Vector3 v)
 {
-	return v*fast_invSqrt(v.squaredLength());
+    return v*fast_invSqrt(v.squaredLength());
 }
 
 inline float approx_length(Ogre::Vector3 v)
 {
-	return approx_sqrt(v.squaredLength());
+    return approx_sqrt(v.squaredLength());
 }
 
 inline float fast_length(Ogre::Vector3 v)
 {
-	return fast_sqrt(v.squaredLength());
+    return fast_sqrt(v.squaredLength());
 }
 
 #endif // __APPROXMATH_H_
