@@ -2189,26 +2189,14 @@ void Beam::calcRopes()
 void Beam::updateSkeletonColouring(int doUpdate)
 {
 	BES_START(BES_CORE_SkeletonColouring);
-	if ((skeleton && doUpdate) || replay)
+	if ((m_skeletonview_is_active && doUpdate) || replay)
 	{
 		for (int i=0; i<free_beam; i++)
 		{
             if (!beams[i].broken && !beams[i].disabled)
             {
-                if (skeleton == 2 || replay)
-                {
-                    float ratio = beams[i].stress / beams[i].minmaxposnegstress;
-                    beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
-                }
-                if (skeleton == 1 && beams[i].mEntity)
-                {
-                    int scale = (int)beams[i].scale * 100;
-                    scale = std::max(-100, scale);
-                    scale = std::min(scale, 100);
-                    char bname[256];
-                    sprintf(bname, "mat-beam-%d", scale);
-                    beams[i].mEntity->setMaterialName(bname);
-                }
+				float ratio = beams[i].stress / beams[i].minmaxposnegstress;
+                beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
             } else if (beams[i].mSceneNode) {
                 beams[i].mSceneNode->detachAllObjects();
             }

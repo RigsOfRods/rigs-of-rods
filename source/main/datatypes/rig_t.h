@@ -174,7 +174,6 @@ struct rig_t
 	int truckversion;
 	int externalcameramode, externalcameranode;
 	std::vector<authorinfo_t> authors;
-	float fadeDist;
 	float collrange;
 	int masscount; //!< Number of nodes loaded with l option
 	bool disable_smoke;
@@ -289,7 +288,6 @@ struct rig_t
 
 	float default_beam_diameter;
 	float default_plastic_coef;
-	float skeleton_beam_diameter;
 
 	char default_beam_material[256];
 	float default_node_friction; //!< TODO: REMOVE! (parser context only)

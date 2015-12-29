@@ -240,7 +240,6 @@ void RigSpawner::InitializeRig()
 	m_rig->slideNodesConnectInstantly=false;
 
 	m_rig->default_beam_diameter=DEFAULT_BEAM_DIAMETER;
-	m_rig->skeleton_beam_diameter=BEAM_SKELETON_DIAMETER;
 	strcpy(m_rig->default_beam_material, "tracks/beam");
 	m_rig->default_plastic_coef=0;
 	m_rig->default_node_friction=NODE_FRICTION_COEF_DEFAULT;
@@ -256,7 +255,6 @@ void RigSpawner::InitializeRig()
 	memset(m_rig->texname, 0, 1023);
 	memset(m_rig->helpmat, 0, 255);
 	
-	m_rig->fadeDist=150.0;
 	m_rig->collrange=DEFAULT_COLLISION_RANGE;
 	m_rig->masscount=0;
 	m_rig->disable_smoke = !SETTINGS.getBooleanSetting("Particles", true);
@@ -851,14 +849,6 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
 	//if (audio) audio->setupAeroengines(TURBOJETS);
 	
 	m_rig->free_aeroengine++;
-}
-
-void RigSpawner::ProcessSkeletonSettings(RigDef::SkeletonSettings & def)
-{
-	SPAWNER_PROFILE_SCOPED();
-
-    m_rig->fadeDist = def.visibility_range_meters;
-	m_rig->skeleton_beam_diameter = def.beam_thickness_meters;
 }
 
 void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)

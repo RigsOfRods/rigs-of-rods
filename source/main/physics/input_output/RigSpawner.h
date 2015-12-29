@@ -378,8 +378,6 @@ protected:
 	*/
 	void ProcessShock2(RigDef::Shock2 & def);
 
-	void ProcessSkeletonSettings(RigDef::SkeletonSettings & def);
-
 	/**
 	* Section 'slidenodes'. Depends on 'railgroups'
 	*/
