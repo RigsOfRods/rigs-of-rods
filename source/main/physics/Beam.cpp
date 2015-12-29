@@ -1369,7 +1369,6 @@ void Beam::SyncReset()
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 	}
 
-	for (int i=0; i<free_contacter; i++) contacters[i].contacted = 0;
 	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++) it->lockedto=0;
 	for (std::vector <tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
 	{

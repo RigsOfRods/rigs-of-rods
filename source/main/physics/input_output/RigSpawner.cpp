@@ -4356,8 +4356,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
 		outer_contacter.nodeid        = outer_node.pos; /* Node index */
-		outer_contacter.contacted     = 0;
-		outer_contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Inner ring */
@@ -4377,8 +4375,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
 		inner_contacter.nodeid        = inner_node.pos; /* Node index */
-		inner_contacter.contacted     = 0;
-		inner_contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Wheel object */
@@ -4849,8 +4845,6 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
 		outer_contacter.nodeid        = outer_node.pos; /* Node index */
-		outer_contacter.contacted     = 0;
-		outer_contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Inner ring */
@@ -4867,8 +4861,6 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 
 		contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
 		contacter.nodeid        = inner_node.pos; /* Node index */
-		contacter.contacted     = 0;
-		contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Wheel object */
@@ -5134,8 +5126,6 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 
 		contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
 		contacter.nodeid        = outer_node.pos; /* Node index */
-		contacter.contacted     = 0;
-		contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Inner ring */
@@ -5151,8 +5141,6 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 
 		contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
 		contacter.nodeid        = inner_node.pos; /* Node index */
-		contacter.contacted     = 0;
-		contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Wheel object */
@@ -5326,8 +5314,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
 		contacter.nodeid        = outer_node.pos; /* Node index */
-		contacter.contacted     = 0;
-		contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Inner ring */
@@ -5345,8 +5331,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
 		inner_contacter.nodeid        = inner_node.pos; /* Node index */
-		inner_contacter.contacted     = 0;
-		inner_contacter.opticontact   = 0;
 		m_rig->free_contacter++;
 
 		/* Wheel object */

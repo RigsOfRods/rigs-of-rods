@@ -304,8 +304,6 @@ struct soundsource_t
 struct contacter_t
 {
 	int nodeid;
-	int contacted;
-	int opticontact;
 };
 
 struct rigidifier_t
