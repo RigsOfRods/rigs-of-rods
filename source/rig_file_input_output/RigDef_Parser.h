@@ -370,6 +370,10 @@ protected:
 	*/
     void _ParseNodesLegacyMethod(Ogre::String line, bool is_version_2);
 
+    /** Print a log INFO message.
+    */
+    void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
+
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
     void _ImportLegacyFlexbodyForsetLine(Ogre::String const & line);

@@ -5157,13 +5157,13 @@ void Parser::ParseParticles(Ogre::String const & line)
 void Parser::ParseNode(Ogre::String const & line)
 {
     const bool version_2 = false;
-	_ParseSectionsNodesNodes2(line, version_2);
+    this->_ParseSectionsNodesNodes2(line, version_2);
 }
 
 void Parser::ParseNode2(Ogre::String const & line)
 {
     const bool version_2 = true;
-	_ParseSectionsNodesNodes2(line, version_2);
+    this->_ParseSectionsNodesNodes2(line, version_2);
 }
 
 // Static
@@ -5207,10 +5207,10 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
         return; // Error already logged
     }
 
-	Node node;
-	node.node_defaults = m_user_node_defaults;
-	node.beam_defaults = m_user_beam_defaults;
-	node.detacher_group = m_current_detacher_group;
+    Node node;
+    node.node_defaults = m_user_node_defaults;
+    node.beam_defaults = m_user_beam_defaults;
+    node.detacher_group = m_current_detacher_group;
 
     if (is_version_2)
     {
@@ -5230,9 +5230,9 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
             m_sequential_importer.AddNumberedNode(node_num);
         }
     }
-	node.position.x = STR_PARSE_REAL(args[1]);
-	node.position.y = STR_PARSE_REAL(args[2]);
-	node.position.z = STR_PARSE_REAL(args[3]);
+    node.position.x = STR_PARSE_REAL(args[1]);
+    node.position.y = STR_PARSE_REAL(args[2]);
+    node.position.z = STR_PARSE_REAL(args[3]);
 
 	if (num_args > 4) /* Has options? */
 	{
@@ -5252,7 +5252,47 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
 		}
 	}
 
-	m_current_module->nodes.push_back(node);
+    this->_PrintNodeDataForVerification(line, args, num_args, node);
+    m_current_module->nodes.push_back(node);
+}
+
+void Parser::_PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node)
+{
+    std::stringstream msg;
+    msg << "Data print for verification:";
+    msg << "\n\tPosition X: " << node.position.x << " (input text: \"" << args[1] << "\"";
+    msg << "\n\tPosition Y: " << node.position.y << " (input text: \"" << args[2] << "\"";
+    msg << "\n\tPosition Z: " << node.position.z << " (input text: \"" << args[3] << "\"";
+    if (num_args > 4) // Has options?
+    {
+        msg << "\n\tOptions: ";
+        if (BITMASK_IS_1(node.options, Node::OPTION_l_LOAD_WEIGHT))          { msg << "l_LOAD_WEIGHT ";        }
+        if (BITMASK_IS_1(node.options, Node::OPTION_n_MOUSE_GRAB))           { msg << "n_MOUSE_GRAB ";         }
+        if (BITMASK_IS_1(node.options, Node::OPTION_m_NO_MOUSE_GRAB))        { msg << "m_NO_MOUSE_GRAB ";      }
+        if (BITMASK_IS_1(node.options, Node::OPTION_f_NO_SPARKS))            { msg << "f_NO_SPARKS ";          }
+        if (BITMASK_IS_1(node.options, Node::OPTION_x_EXHAUST_POINT))        { msg << "x_EXHAUST_POINT ";      }
+        if (BITMASK_IS_1(node.options, Node::OPTION_y_EXHAUST_DIRECTION))    { msg << "y_EXHAUST_DIRECTION ";  }
+        if (BITMASK_IS_1(node.options, Node::OPTION_c_NO_GROUND_CONTACT))    { msg << "c_NO_GROUND_CONTACT ";  }
+        if (BITMASK_IS_1(node.options, Node::OPTION_h_HOOK_POINT))           { msg << "h_HOOK_POINT ";         }
+        if (BITMASK_IS_1(node.options, Node::OPTION_e_TERRAIN_EDIT_POINT))   { msg << "e_TERRAIN_EDIT_POINT "; }
+        if (BITMASK_IS_1(node.options, Node::OPTION_b_EXTRA_BUOYANCY))       { msg << "b_EXTRA_BUOYANCY ";     }
+        if (BITMASK_IS_1(node.options, Node::OPTION_p_NO_PARTICLES))         { msg << "p_NO_PARTICLES ";       }
+        if (BITMASK_IS_1(node.options, Node::OPTION_L_LOG))                  { msg << "L_LOG ";                }
+        msg << "(input text:\"" << args[4] << "\"";
+    }
+    if (num_args > 5) // Has load weight override?
+    {
+        msg << "\n\tLoad weight overide: " << node.load_weight_override << " (input text: \"" << args[5] << "\"";
+    }
+    if (num_args > 6) // Is there invalid trailing text?
+    {
+        msg << "\n\t~Invalid trailing text: ";
+        for (int i = 6; i < num_args; ++i)
+        {
+            msg << args[i];
+        }
+    }
+    this->AddMessage(line, Message::TYPE_WARNING, msg.str());
 }
 
 void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_version_2)
@@ -5261,35 +5301,35 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_ver
     std::string line;
     Parser::_TrimTrailingComments(line_in, line);
 
-	// Parse line
-	boost::smatch results;
+    // Parse line
+    boost::smatch results;
     const boost::regex* regex_ptr = &Regexes::SECTION_NODES;
     if (is_version_2)
     {
         regex_ptr = &Regexes::SECTION_NODES_2;
     }
-	if (! boost::regex_search(line, results, *regex_ptr))
-	{
+    if (! boost::regex_search(line, results, *regex_ptr))
+    {
         if (m_sequential_importer.IsEnabled()) // Are we imporing legacy fileformat?
         {
-		    this->AddMessage(line, Message::TYPE_WARNING, "Failed to parse using safe method, falling back to classic method.");
+            this->AddMessage(line, Message::TYPE_WARNING, "Syntax check failed, falling back to classic unsafe parsing method.");
             this->_ParseNodesLegacyMethod(line, is_version_2);
         }
         else
         {
-            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
         }
-		return;
-	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+        return;
+    }
+    /* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
     const int result_pos_options = 11;
     const int result_pos_loadweightoverride = 15;
 
-	Node node;
-	node.node_defaults = m_user_node_defaults;
-	node.beam_defaults = m_user_beam_defaults;
-	node.detacher_group = m_current_detacher_group;
+    Node node;
+    node.node_defaults = m_user_node_defaults;
+    node.beam_defaults = m_user_beam_defaults;
+    node.detacher_group = m_current_detacher_group;
 
     if (is_version_2)
     {
@@ -5309,9 +5349,9 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_ver
             m_sequential_importer.AddNumberedNode(node_num);
         }
     }
-	node.position.x = STR_PARSE_REAL(results[3]);
-	node.position.y = STR_PARSE_REAL(results[5]);
-	node.position.z = STR_PARSE_REAL(results[7]);
+    node.position.x = STR_PARSE_REAL(results[3]);
+    node.position.y = STR_PARSE_REAL(results[5]);
+    node.position.z = STR_PARSE_REAL(results[7]);
 
 	if (results[result_pos_options].matched) /* Has options? */
 	{
