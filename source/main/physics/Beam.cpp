@@ -1066,7 +1066,7 @@ void Beam::resetAngle(float rot)
 
 	// Set up matrix for yaw rotation
 	Matrix3 matrix;
-	matrix.FromEulerAnglesXYZ(Radian(0), Radian(-rot - Math::HALF_PI), Radian(0));
+	matrix.FromEulerAnglesXYZ(Radian(0), Radian(-rot + m_spawn_rotation), Radian(0));
 
 	for (int i = 0; i < free_node; i++)
 	{
@@ -1304,7 +1304,7 @@ void Beam::SyncReset()
 
 	Vector3 cur_position = nodes[0].AbsPosition;
 	Vector3 cur_dir = nodes[0].AbsPosition;
-	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{
 		cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
 	}
@@ -6048,6 +6048,7 @@ Beam::Beam(
 	, locked(0)
 	, lockedold(0)
 	, m_dt_remainder(0.0)
+	, m_spawn_rotation(0.0)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
 	, minCameraRadius(0)
@@ -6645,6 +6646,12 @@ bool Beam::LoadTruck(
 	}
 #endif // USE_MYGUI
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
+
+	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
+	{
+		Vector3 cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+	}
 
 	return true;
 }
