@@ -1433,7 +1433,8 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 					boost::smatch results;
 					if (! boost::regex_search(*iter, results, Regexes::TRACTION_CONTROL_MODE))
 					{
-						AddMessage(*iter, Message::TYPE_ERROR, "Invalid mode keyword, ignoring whole line...");
+						std::string invalid_keyword = *iter;
+						AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
 						return;
 					}
 					/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
