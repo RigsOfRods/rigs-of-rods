@@ -1309,6 +1309,7 @@ void Beam::SyncReset()
 		cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
 	}
 	float cur_rot = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+	cur_rot = std::round(cur_rot * 100) / 100;
 	if (engine) engine->start();
 	for (int i=0; i<free_node; i++)
 	{
