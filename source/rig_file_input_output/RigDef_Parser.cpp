@@ -4706,33 +4706,33 @@ void Parser::ParseScrewprops(Ogre::String const & line)
 void Parser::_ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, unsigned int inertia_start_index)
 {
 	rotator.axis_nodes[0] = _ParseNodeRef(results[1]);
-	rotator.axis_nodes[1] = _ParseNodeRef(results[2]);
+	rotator.axis_nodes[1] = _ParseNodeRef(results[3]);
 
-	rotator.base_plate_nodes[0] = _ParseNodeRef(results[3]);
-	rotator.base_plate_nodes[1] = _ParseNodeRef(results[4]);
-	rotator.base_plate_nodes[2] = _ParseNodeRef(results[5]);
-	rotator.base_plate_nodes[3] = _ParseNodeRef(results[6]);
+	rotator.base_plate_nodes[0] = _ParseNodeRef(results[ 5]);
+	rotator.base_plate_nodes[1] = _ParseNodeRef(results[ 7]);
+	rotator.base_plate_nodes[2] = _ParseNodeRef(results[ 9]);
+	rotator.base_plate_nodes[3] = _ParseNodeRef(results[11]);
 
-	rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[7]);
-	rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[8]);
-	rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[9]);
-	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[10]);
+	rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[13]);
+	rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[15]);
+	rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[17]);
+	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[21]);
 
-	rotator.rate = STR_PARSE_REAL(results[11]);
+	rotator.rate = STR_PARSE_REAL(results[21]);
 
-	rotator.spin_left_key  = STR_PARSE_INT(results[12]);
-	rotator.spin_right_key = STR_PARSE_INT(results[13]);
+	rotator.spin_left_key  = STR_PARSE_INT(results[23]);
+	rotator.spin_right_key = STR_PARSE_INT(results[25]);
 
 	/* Inertia part */
 
-	if (_ParseOptionalInertia(rotator.inertia, results, inertia_start_index))
+	if (this->_ParseOptionalInertia(rotator.inertia, results, inertia_start_index))
 	{
-		unsigned int i = inertia_start_index + 8;
+		unsigned int i = inertia_start_index + 12;
 
 		if (results[i].matched)
 		{
 			rotator.engine_coupling = STR_PARSE_REAL(results[i]);
-			i += 2;
+			i += 3;
 
 			if (results[i].matched)
 			{
@@ -4750,27 +4750,26 @@ void Parser::ParseRotators(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Rotator rotator;
 	rotator.inertia_defaults = m_user_default_inertia;
-	const unsigned int inertia_start_index = 15;
 
-	_ParseRotatorsCommon(rotator, results, inertia_start_index);
+	const unsigned int inertia_start_index = 29;
+	this->_ParseRotatorsCommon(rotator, results, inertia_start_index);
 
-	/* Backwards compatibility check */
-	/* Parameter "inertia_start_delay" must accept garbage */
+	// Backwards compatibility check
+	// Parameter "inertia_start_delay" must accept garbage
 	if (results[inertia_start_index].matched)
 	{
 		std::string start_delay_str = results[inertia_start_index];
 		if (! boost::regex_match(start_delay_str, Regexes::REAL_NUMBER))
 		{
-			
 			float result = STR_PARSE_REAL(start_delay_str);
 			std::stringstream msg;
 			msg << "Invalid value of parameter ~14 'inertia_start_delay': '" << start_delay_str 
 				<< "', parsing as '" << result << "' for backwards compatibility. Please fix.";
-			AddMessage(line, Message::TYPE_ERROR, msg.str());
+			AddMessage(line, Message::TYPE_WARNING, msg.str());
 		}
 	}
 
@@ -4785,24 +4784,25 @@ void Parser::ParseRotators2(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Rotator2 rotator;
 	rotator.inertia_defaults = m_user_default_inertia;
 
-	_ParseRotatorsCommon(rotator, results, 21);
+	const unsigned int inertia_start_index = 38;
+	this->_ParseRotatorsCommon(rotator, results, inertia_start_index);
 
-	if (results[15].matched)
+	if (results[28].matched)
 	{
-		rotator.rotating_force = STR_PARSE_REAL(results[15]);
+		rotator.rotating_force = STR_PARSE_REAL(results[28]);
 
-		if (results[17].matched)
+		if (results[31].matched)
 		{
-			rotator.tolerance = STR_PARSE_REAL(results[17]);
+			rotator.tolerance = STR_PARSE_REAL(results[31]);
 
-			if (results[19].matched)
+			if (results[34].matched)
 			{
-				rotator.description = results[19];
+				rotator.description = results[34];
 			}
 		}
 	}
