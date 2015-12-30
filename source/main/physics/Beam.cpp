@@ -1351,12 +1351,12 @@ void Beam::SyncReset()
 		if (it->lockTruck)
 		{
 			it->lockTruck->determineLinkedBeams();
-			it->lockTruck->hideSkeleton(it->lockTruck->skeleton==2, false);
+			it->lockTruck->hideSkeleton(false);
 
 			for (std::list<Beam*>::iterator it_truck = it->lockTruck->linkedBeams.begin(); it_truck != it->lockTruck->linkedBeams.end(); ++it)
 			{
 				(*it_truck)->determineLinkedBeams();
-				(*it_truck)->hideSkeleton((*it_truck)->skeleton==2, false);
+				(*it_truck)->hideSkeleton(false);
 			}
 		}
 		it->beam->mSceneNode->detachAllObjects();
@@ -3186,7 +3186,7 @@ void Beam::prepareInside(bool inside)
 void Beam::lightsToggle()
 {
 	// no lights toggling in skeleton mode because of possible bug with emissive texture
-	if (skeleton)
+	if (m_skeletonview_is_active)
 		return;
 
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -3836,12 +3836,7 @@ void Beam::updateVisualPrepare(float dt)
 	{
 		if (!beams[i].disabled && beams[i].mSceneNode)
 		{
-			if (skeleton)
-			{
-				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-				beams[i].mSceneNode->setScale(skeleton_beam_diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), skeleton_beam_diameter);
-			} else if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
+			if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
 			{
 				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
 				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
@@ -3850,7 +3845,7 @@ void Beam::updateVisualPrepare(float dt)
 		}
 	}
 
-	if (skeleton == 2)
+	if (m_skeletonview_is_active)
 		updateSimpleSkeleton();
 
 	BES_GFX_START(BES_GFX_updateFlexBodies);
@@ -3984,18 +3979,13 @@ void Beam::preMapLabelRenderUpdate(bool mode, float charheight)
 	}
 }
 
-void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
+void Beam::showSkeleton(bool meshes, bool linked)
 {
 	if (lockSkeletonchange)
 		return;
 
 	lockSkeletonchange = true;
-	int i;
-
-	skeleton = 1;
-
-	if (newMode)
-		skeleton = 2;
+	m_skeletonview_is_active = true;
 
 	if (meshes)
 	{
@@ -4008,7 +3998,7 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 		cabFade(0);
 	}
 
-	for (i=0; i<free_wheel; i++)
+	for (int i=0; i<free_wheel; i++)
 	{
 		if (vwheels[i].cnode)
 			vwheels[i].cnode->setVisible(false);
@@ -4017,7 +4007,7 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 			vwheels[i].fm->setVisible(false);
 	}
 
-	for (i=0; i<free_prop; i++)
+	for (int i=0; i<free_prop; i++)
 	{
 		if (props[i].scene_node)
 			setMeshWireframe(props[i].scene_node, true);
@@ -4026,30 +4016,14 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 			setMeshWireframe(props[i].wheel, true);
 	}
 
-	if (!newMode)
+	if (simpleSkeletonNode)
 	{
-		for (i=0; i<free_beam; i++)
-		{
-			if (beams[i].mSceneNode && beams[i].mEntity)
-			{
-				if (!beams[i].broken && beams[i].mSceneNode->numAttachedObjects()==0)
-					beams[i].mSceneNode->attachObject(beams[i].mEntity);
-
-				beams[i].mEntity->setMaterialName("vehicle-skeletonview-material");
-				beams[i].mEntity->setCastShadows(false);
-			}
-		}
-	} else
-	{
-		if (simpleSkeletonNode)
-		{
-			updateSimpleSkeleton();
-			simpleSkeletonNode->setVisible(true);
-		}
+		updateSimpleSkeleton();
+		simpleSkeletonNode->setVisible(true);
 	}
 
 	// hide mesh wheels
-	for (i=0; i<free_wheel; i++)
+	for (int i=0; i<free_wheel; i++)
 	{
 		if (vwheels[i].fm && vwheels[i].meshwheel)
 		{
@@ -4060,7 +4034,7 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 	}
 
 	// wireframe drawning for flexbody
-	for (i=0; i<free_flexbody; i++)
+	for (int i=0; i<free_flexbody; i++)
 	{
 		SceneNode *s = flexbodies[i]->getSceneNode();
 		if (s)
@@ -4073,10 +4047,10 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 
 	if (linked)
 	{
-		// apply to the locked truck
+		// apply to all locked trucks
 		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
 		{
-			(*it)->showSkeleton(meshes, newMode, false);
+			(*it)->showSkeleton(meshes, false);
 		}
 	}
 
@@ -4085,14 +4059,13 @@ void Beam::showSkeleton(bool meshes, bool newMode, bool linked)
 	TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
 }
 
-void Beam::hideSkeleton(bool newMode, bool linked)
+void Beam::hideSkeleton(bool linked)
 {
 	if (lockSkeletonchange)
 		return;
 
 	lockSkeletonchange=true;
-	int i;
-	skeleton = 0;
+	m_skeletonview_is_active = false;
 
 	if (cabFadeMode >= 0)
 	{
@@ -4106,7 +4079,7 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 	}
 
 
-	for (i=0; i<free_wheel; i++)
+	for (int i=0; i<free_wheel; i++)
 	{
 		if (vwheels[i].cnode)
 			vwheels[i].cnode->setVisible(true);
@@ -4114,7 +4087,7 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 		if (vwheels[i].fm)
 			vwheels[i].fm->setVisible(true);
 	}
-	for (i=0; i<free_prop; i++)
+	for (int i=0; i<free_prop; i++)
 	{
 		if (props[i].scene_node)
 			setMeshWireframe(props[i].scene_node, false);
@@ -4123,29 +4096,11 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 			setMeshWireframe(props[i].wheel, false);
 	}
 
-	if (!newMode)
-	{
-		for (i=0; i<free_beam; i++)
-		{
-			if (beams[i].mSceneNode)
-			{
-				if (beams[i].type == BEAM_VIRTUAL || beams[i].type == BEAM_INVISIBLE || beams[i].type == BEAM_INVISIBLE_HYDRO)
-					beams[i].mSceneNode->detachAllObjects();
-
-				if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_MARKED)
-					beams[i].mEntity->setMaterialName("tracks/Chrome");
-				else
-					beams[i].mEntity->setMaterialName(default_beam_material);
-			}
-		}
-	} else
-	{
-		if (simpleSkeletonNode)
-			simpleSkeletonNode->setVisible(false);
-	}
+	if (simpleSkeletonNode)
+		simpleSkeletonNode->setVisible(false);
 
 	// show mesh wheels
-	for (i=0; i<free_wheel; i++)
+	for (int i=0; i<free_wheel; i++)
 	{
 		if (vwheels[i].fm && vwheels[i].meshwheel)
 		{
@@ -4156,7 +4111,7 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 	}
 
 	// normal drawning for flexbody
-	for (i=0; i<free_flexbody; i++)
+	for (int i=0; i<free_flexbody; i++)
 	{
 		SceneNode *s = flexbodies[i]->getSceneNode();
 		if (!s)
@@ -4170,14 +4125,14 @@ void Beam::hideSkeleton(bool newMode, bool linked)
 
 	if (linked)
 	{
-		// apply to the locked truck
+		// apply to all locked trucks
 		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
 		{
-			(*it)->hideSkeleton(newMode, false);
+			(*it)->hideSkeleton(false);
 		}
 	}
 
-	lockSkeletonchange=false;
+	lockSkeletonchange = false;
 }
 
 void Beam::fadeMesh(SceneNode *node, float amount)
@@ -4715,12 +4670,12 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			{
 				(*it)->determineLinkedBeams();
 
-				if (skeleton && this != (*it) && !(*it)->skeleton)
+				if (m_skeletonview_is_active && this != (*it) && !(*it)->m_skeletonview_is_active)
 				{
-					(*it)->showSkeleton(true, skeleton==2, false);
-				} else if (skeleton && this != (*it) && (*it)->skeleton)
+					(*it)->showSkeleton(true, false);
+				} else if (m_skeletonview_is_active && this != (*it) && (*it)->m_skeletonview_is_active)
 				{
-					(*it)->hideSkeleton(skeleton==2, false);
+					(*it)->hideSkeleton(false);
 				}
 			}
 		}
@@ -6049,6 +6004,7 @@ Beam::Beam(
 	, locked(0)
 	, lockedold(0)
 	, m_dt_remainder(0.0)
+	, m_skeletonview_is_active(false)
 	, m_spawn_rotation(0.0)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
@@ -6082,7 +6038,6 @@ Beam::Beam(
 	, simpleSkeletonInitiated(false)
 	, simpleSkeletonManualObject(0)
 	, simulated(false)
-	, skeleton(0)
 	, sleepcount(0)
 	, smokeNode(NULL)
 	, smoker(NULL)

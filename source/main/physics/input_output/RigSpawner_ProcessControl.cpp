@@ -318,9 +318,6 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'screwprops'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SCREWPROPS, screwprops, ProcessScrewprop);
 
-	// Section 'set_skeleton_settings'
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SET_SKELETON_SETTINGS, skeleton_settings, ProcessSkeletonSettings);
-
     // Section 'flexbodies' (Uses generated nodes)
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
 
