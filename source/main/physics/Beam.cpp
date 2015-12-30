@@ -1912,9 +1912,9 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//torque
-	if (flag_state & ANIM_FLAG_TORQUE)
+	if (engine && flag_state & ANIM_FLAG_TORQUE)
 	{
-		float torque = engine ? engine->getCrankFactor() : 0.0f;
+		float torque = engine->getCrankFactor();
 		if (torque <= 0.0f) torque = 0.0f;
 		if (torque >= previousCrank)
 			cstate -= torque / 10.0f;
@@ -1927,12 +1927,12 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//shifterseq, to amimate sequentiell shifting
-	if ((flag_state & ANIM_FLAG_SHIFTER) && option3 == 3.0f)
+	if (engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 3.0f)
 	{
 	// opt1 &opt2 = 0   this is a shifter
 		if (!option1 &&  !option2)
 		{
-			int shifter = engine ? engine->getGear() : 0;
+			int shifter = engine->getGear();
 			if (shifter > previousGear)
 			{
 				cstate = 1.0f;
@@ -1973,9 +1973,9 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//shifterman1, left/right
-	if ((flag_state & ANIM_FLAG_SHIFTER) && option3 == 1.0f)
+	if (engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 1.0f)
 	{
-		int shifter = engine ? engine->getGear() : 0;
+		int shifter = engine->getGear();
 		if (!shifter)
 		{
 			cstate = -0.5f;
@@ -1991,9 +1991,9 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//shifterman2, up/down
-	if ((flag_state & ANIM_FLAG_SHIFTER) && option3 == 2.0f)
+	if (engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 2.0f)
 	{
-		int shifter = engine ? engine->getGear() : 0;
+		int shifter = engine->getGear();
 		cstate = 0.5f;
 		if (shifter < 0)
 		{
@@ -2007,10 +2007,10 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
-	if ((flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
+	if (engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
 	{
-		int shifter = engine ? engine->getGear() : 0;
-		int numgears = engine ? engine->getNumGears() : 0;
+		int shifter = engine->getGear();
+		int numgears = engine->getNumGears();
 		cstate -= (shifter + 2.0) / (numgears + 2.0);
 		div++;
 	}
@@ -2032,17 +2032,17 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//engine tacho ( scales with maxrpm, default is 3500 )
-	if (flag_state & ANIM_FLAG_TACHO)
+	if (engine && flag_state & ANIM_FLAG_TACHO)
 	{
-		float tacho = engine ? engine->getRPM()/engine->getMaxRPM() : 0;
+		float tacho = engine->getRPM()/engine->getMaxRPM();
 		cstate -= tacho;
 		div++;
 	}
 
 	//turbo
-	if (flag_state & ANIM_FLAG_TURBO)
+	if (engine && flag_state & ANIM_FLAG_TURBO)
 	{
-		float turbo = engine ? engine->getTurboPSI()*3.34 : 0.0f;
+		float turbo = engine->getTurboPSI()*3.34;
 		cstate -= turbo / 67.0f ;
 		div++;
 	}
@@ -2056,18 +2056,18 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	}
 
 	//accelerator
-	if (flag_state & ANIM_FLAG_ACCEL)
+	if (engine && flag_state & ANIM_FLAG_ACCEL)
 	{
-		float accel = engine ? engine->getAcc() : 0.0f;
+		float accel = engine->getAcc();
 		cstate -= accel + 0.06f;
 		//( small correction, get acc is nver smaller then 0.06.
 		div++;
 	}
 
 		//clutch
-	if (flag_state & ANIM_FLAG_CLUTCH)
+	if (engine && flag_state & ANIM_FLAG_CLUTCH)
 	{
-		float clutch = engine ? engine->getClutch() : 0.0f;
+		float clutch = engine->getClutch();
 		cstate -= abs(1.0f - clutch);
 		div++;
 	}
