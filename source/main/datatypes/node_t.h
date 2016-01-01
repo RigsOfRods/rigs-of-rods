@@ -25,7 +25,6 @@ struct node_t
 	int masstype; //!< Loaded (by vehicle cargo)? {0/1}
 	int wetstate; //!< {DRY | DRIPPING | WET}
 	int contactless; //!< Bool{0/1}
-	int lockednode;
 	int lockgroup;
 	Ogre::Vector3 lockedPosition; //!< absolute
 	Ogre::Vector3 lockedForces;

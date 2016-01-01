@@ -1892,15 +1892,6 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 				if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
 			}
 		}
-		// locked nodes
-		if (nodes[i].lockednode)
-		{
-			nodes[i].AbsPosition = nodes[i].lockedPosition;
-			nodes[i].RelPosition = nodes[i].lockedPosition-origin;
-			nodes[i].Velocity = nodes[i].lockedVelocity;
-			nodes[i].lockedForces = nodes[i].Forces;
-			nodes[i].Forces = Vector3::ZERO;
-		}
 
 		// COLLISION
 		if (!nodes[i].contactless)
@@ -2149,7 +2140,6 @@ void Beam::calcHooks()
 								//force exceeded reset the hook node
 								it->beam->mSceneNode->detachAllObjects();
 								it->locked = UNLOCKED;
-								if (it->lockNode) it->lockNode->lockednode=0;
 								it->lockNode       = 0;
 								it->lockTruck      = 0;
 								it->beam->p2       = &nodes[0];

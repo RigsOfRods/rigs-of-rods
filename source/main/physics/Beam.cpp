@@ -1001,7 +1001,6 @@ int Beam::loadPosition(int indexPosition)
 		nodes[i].lastdrag      = Vector3::ZERO;
 		nodes[i].buoyanceForce = Vector3::ZERO;
 		nodes[i].lastdrag      = Vector3::ZERO;
-		nodes[i].lockednode    = 0;
 		nodes[i].isSkin        = nodes[i].iIsSkin;
 
 		pos = pos + nbuff[i];
@@ -1320,8 +1319,6 @@ void Beam::SyncReset()
 		nodes[i].lastdrag=Vector3::ZERO;
 		nodes[i].buoyanceForce=Vector3::ZERO;
 		nodes[i].lastdrag=Vector3::ZERO;
-		//this is problematic, we should also find what is locked to this, and unlock it
-		nodes[i].lockednode=0;
 		nodes[i].isSkin=nodes[i].iIsSkin;
 	}
 
@@ -4394,7 +4391,6 @@ void Beam::ropeToggle(int group)
 			// we unlock ropes
 			it->locked = UNLOCKED;
 			// remove node locking
-			if (it->lockedto)         it->lockedto->lockednode=0;
 			if (it->lockedto_ropable) it->lockedto_ropable->used--;
 			it->lockedto = &nodes[0];
 			it->lockedtruck = 0;
@@ -4497,11 +4493,6 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 		{
 			// we unlock ropes
 			it->locked = UNLOCKED;
-			// remove node locking
-			if (it->lockNode)
-			{
-				it->lockNode->lockednode = 0;
-			}
 			if (it->group <= -2)
 			{
 				it->timer = it->timer_preset;	//timer reset for autolock nodes
