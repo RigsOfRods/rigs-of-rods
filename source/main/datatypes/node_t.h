@@ -48,7 +48,6 @@ struct node_t
 	float collRadius;
 	float collTestTimer;
 	Ogre::Vector3 iPosition; //!< initial position, absolute
-	Ogre::Real    iDistance; //!< initial distance from node0 during loading - used to check for loose parts
 	Ogre::Vector3 smoothpos; //!< absolute, per-frame smooth, must be used for visual effects only
 	bool iIsSkin;
 	bool isSkin;

@@ -6483,10 +6483,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.RelPosition = node_position - m_rig->origin;
 	node.smoothpos   = node_position;
 	node.iPosition   = node_position;
-	if (node.pos != 0)
-	{
-		node.iDistance = (m_rig->nodes[0].AbsPosition - node_position).squaredLength();
-	}
 		
 	node.wetstate = DRY; // orig = hardcoded (init_node)
 	node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
@@ -6763,10 +6759,6 @@ void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 	node.RelPosition = position - m_rig->origin;
 	node.smoothpos = position;
 	node.iPosition = position;
-	if (node.pos != 0)
-	{
-		node.iDistance = (m_rig->nodes[0].AbsPosition - position).squaredLength();
-	}
 
 	/* Misc. */
 	node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
