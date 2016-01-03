@@ -6632,8 +6632,11 @@ void Beam::setCustomLightVisible(int number, bool visible)
 
 	try
 	{
-		if (flares[netCustomLightArray[number]].snode)
-			flares[netCustomLightArray[number]].controltoggle_status = visible;
+		if (flares.at(netCustomLightArray[number]).snode)
+			flares.at(netCustomLightArray[number]).controltoggle_status = visible;
+	}
+	catch (std::out_of_range oor)
+	{
 	}
 	catch (Exception ex)
 	{
