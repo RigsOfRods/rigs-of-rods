@@ -1349,7 +1349,7 @@ void Beam::SyncReset()
 			it->lockTruck->determineLinkedBeams();
 			it->lockTruck->hideSkeleton(false);
 
-			for (std::list<Beam*>::iterator it_truck = it->lockTruck->linkedBeams.begin(); it_truck != it->lockTruck->linkedBeams.end(); ++it)
+			for (std::list<Beam*>::iterator it_truck = it->lockTruck->linkedBeams.begin(); it_truck != it->lockTruck->linkedBeams.end(); ++it_truck)
 			{
 				(*it_truck)->determineLinkedBeams();
 				(*it_truck)->hideSkeleton(false);
