@@ -1433,7 +1433,8 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 					boost::smatch results;
 					if (! boost::regex_search(*iter, results, Regexes::TRACTION_CONTROL_MODE))
 					{
-						AddMessage(*iter, Message::TYPE_ERROR, "Invalid mode keyword, ignoring whole line...");
+						std::string invalid_keyword = *iter;
+						AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
 						return;
 					}
 					/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
@@ -2359,26 +2360,26 @@ void Parser::ParseFusedrag(Ogre::String const & line)
 
 	Fusedrag fusedrag;
 	fusedrag.front_node = _ParseNodeRef(results[1]);
-	fusedrag.rear_node = _ParseNodeRef(results[2]);
+	fusedrag.rear_node  = _ParseNodeRef(results[3]);
 
-	if (results[3].matched)
+	if (results[6].matched)
 	{
-		fusedrag.approximate_width = STR_PARSE_REAL(results[4]);
-		fusedrag.airfoil_name = results[5];
+		fusedrag.approximate_width = STR_PARSE_REAL(results[6]);
+		fusedrag.airfoil_name = results[8];
 
 		m_current_module->fusedrag.push_back(fusedrag);
 	}
-	else if (results[6].matched)
+	else if (results[9].matched)
 	{
 		fusedrag.autocalc = true;
 
-		if (results[7].matched)
+		if (results[12].matched)
 		{
-			fusedrag.area_coefficient = STR_PARSE_REAL(results[8]);
+			fusedrag.area_coefficient = STR_PARSE_REAL(results[12]);
 
-			if (results[9].matched)
+			if (results[15].matched)
 			{
-				fusedrag.airfoil_name = results[10];
+				fusedrag.airfoil_name = results[15];
 			}
 		}
 
@@ -2660,38 +2661,38 @@ void Parser::ParseFlare2(Ogre::String const & line)
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_FLARES2))
 	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
 		return;
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 	Flare2 flare2;
-	flare2.reference_node = _ParseNodeRef(results[1]);
-	flare2.node_axis_x     = _ParseNodeRef(results[2]);
-	flare2.node_axis_y     = _ParseNodeRef(results[3]);
-	flare2.offset.x = STR_PARSE_REAL(results[4]);
-	flare2.offset.y = STR_PARSE_REAL(results[5]);
-	flare2.offset.z = STR_PARSE_REAL(results[6]);
+	flare2.reference_node  = this->_ParseNodeRef(results[ 1]);
+	flare2.node_axis_x     = this->_ParseNodeRef(results[ 3]);
+	flare2.node_axis_y     = this->_ParseNodeRef(results[ 5]);
+	flare2.offset.x             = STR_PARSE_REAL(results[ 7]);
+	flare2.offset.y             = STR_PARSE_REAL(results[ 9]);
+	flare2.offset.z             = STR_PARSE_REAL(results[11]);
 
-	if (results[7].matched)
+	if (results[14].matched)
 	{
-		flare2.type = Flare2::Type(results[8].str().at(0));
+		flare2.type = Flare2::Type(results[14].str().at(0));
 
-		if (results[9].matched)
+		if (results[17].matched)
 		{
-			flare2.control_number = Flare2::Type(STR_PARSE_INT(results[10]));
+			flare2.control_number = Flare2::Type(STR_PARSE_INT(results[17]));
 
-			if (results[11].matched)
+			if (results[20].matched)
 			{
-				flare2.blink_delay_milis = STR_PARSE_INT(results[12]);
+				flare2.blink_delay_milis = STR_PARSE_INT(results[20]);
 
-				if (results[13].matched)
+				if (results[23].matched)
 				{
-					flare2.size = STR_PARSE_REAL(results[14]);
+					flare2.size = STR_PARSE_REAL(results[23]);
 
-					if (results[15].matched)
+					if (results[26].matched)
 					{
-						flare2.material_name = results[16];
+						flare2.material_name = results[26];
 					}
 				}
 			}
@@ -4705,33 +4706,33 @@ void Parser::ParseScrewprops(Ogre::String const & line)
 void Parser::_ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, unsigned int inertia_start_index)
 {
 	rotator.axis_nodes[0] = _ParseNodeRef(results[1]);
-	rotator.axis_nodes[1] = _ParseNodeRef(results[2]);
+	rotator.axis_nodes[1] = _ParseNodeRef(results[3]);
 
-	rotator.base_plate_nodes[0] = _ParseNodeRef(results[3]);
-	rotator.base_plate_nodes[1] = _ParseNodeRef(results[4]);
-	rotator.base_plate_nodes[2] = _ParseNodeRef(results[5]);
-	rotator.base_plate_nodes[3] = _ParseNodeRef(results[6]);
+	rotator.base_plate_nodes[0] = _ParseNodeRef(results[ 5]);
+	rotator.base_plate_nodes[1] = _ParseNodeRef(results[ 7]);
+	rotator.base_plate_nodes[2] = _ParseNodeRef(results[ 9]);
+	rotator.base_plate_nodes[3] = _ParseNodeRef(results[11]);
 
-	rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[7]);
-	rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[8]);
-	rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[9]);
-	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[10]);
+	rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[13]);
+	rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[15]);
+	rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[17]);
+	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[21]);
 
-	rotator.rate = STR_PARSE_REAL(results[11]);
+	rotator.rate = STR_PARSE_REAL(results[21]);
 
-	rotator.spin_left_key  = STR_PARSE_INT(results[12]);
-	rotator.spin_right_key = STR_PARSE_INT(results[13]);
+	rotator.spin_left_key  = STR_PARSE_INT(results[23]);
+	rotator.spin_right_key = STR_PARSE_INT(results[25]);
 
 	/* Inertia part */
 
-	if (_ParseOptionalInertia(rotator.inertia, results, inertia_start_index))
+	if (this->_ParseOptionalInertia(rotator.inertia, results, inertia_start_index))
 	{
-		unsigned int i = inertia_start_index + 8;
+		unsigned int i = inertia_start_index + 12;
 
 		if (results[i].matched)
 		{
 			rotator.engine_coupling = STR_PARSE_REAL(results[i]);
-			i += 2;
+			i += 3;
 
 			if (results[i].matched)
 			{
@@ -4749,27 +4750,26 @@ void Parser::ParseRotators(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Rotator rotator;
 	rotator.inertia_defaults = m_user_default_inertia;
-	const unsigned int inertia_start_index = 15;
 
-	_ParseRotatorsCommon(rotator, results, inertia_start_index);
+	const unsigned int inertia_start_index = 29;
+	this->_ParseRotatorsCommon(rotator, results, inertia_start_index);
 
-	/* Backwards compatibility check */
-	/* Parameter "inertia_start_delay" must accept garbage */
+	// Backwards compatibility check
+	// Parameter "inertia_start_delay" must accept garbage
 	if (results[inertia_start_index].matched)
 	{
 		std::string start_delay_str = results[inertia_start_index];
 		if (! boost::regex_match(start_delay_str, Regexes::REAL_NUMBER))
 		{
-			
 			float result = STR_PARSE_REAL(start_delay_str);
 			std::stringstream msg;
 			msg << "Invalid value of parameter ~14 'inertia_start_delay': '" << start_delay_str 
 				<< "', parsing as '" << result << "' for backwards compatibility. Please fix.";
-			AddMessage(line, Message::TYPE_ERROR, msg.str());
+			AddMessage(line, Message::TYPE_WARNING, msg.str());
 		}
 	}
 
@@ -4784,24 +4784,25 @@ void Parser::ParseRotators2(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Rotator2 rotator;
 	rotator.inertia_defaults = m_user_default_inertia;
 
-	_ParseRotatorsCommon(rotator, results, 21);
+	const unsigned int inertia_start_index = 38;
+	this->_ParseRotatorsCommon(rotator, results, inertia_start_index);
 
-	if (results[15].matched)
+	if (results[28].matched)
 	{
-		rotator.rotating_force = STR_PARSE_REAL(results[15]);
+		rotator.rotating_force = STR_PARSE_REAL(results[28]);
 
-		if (results[17].matched)
+		if (results[31].matched)
 		{
-			rotator.tolerance = STR_PARSE_REAL(results[17]);
+			rotator.tolerance = STR_PARSE_REAL(results[31]);
 
-			if (results[19].matched)
+			if (results[34].matched)
 			{
-				rotator.description = results[19];
+				rotator.description = results[34];
 			}
 		}
 	}
@@ -5156,13 +5157,13 @@ void Parser::ParseParticles(Ogre::String const & line)
 void Parser::ParseNode(Ogre::String const & line)
 {
     const bool version_2 = false;
-	_ParseSectionsNodesNodes2(line, version_2);
+    this->_ParseSectionsNodesNodes2(line, version_2);
 }
 
 void Parser::ParseNode2(Ogre::String const & line)
 {
     const bool version_2 = true;
-	_ParseSectionsNodesNodes2(line, version_2);
+    this->_ParseSectionsNodesNodes2(line, version_2);
 }
 
 // Static
@@ -5206,10 +5207,10 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
         return; // Error already logged
     }
 
-	Node node;
-	node.node_defaults = m_user_node_defaults;
-	node.beam_defaults = m_user_beam_defaults;
-	node.detacher_group = m_current_detacher_group;
+    Node node;
+    node.node_defaults = m_user_node_defaults;
+    node.beam_defaults = m_user_beam_defaults;
+    node.detacher_group = m_current_detacher_group;
 
     if (is_version_2)
     {
@@ -5229,9 +5230,9 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
             m_sequential_importer.AddNumberedNode(node_num);
         }
     }
-	node.position.x = STR_PARSE_REAL(args[1]);
-	node.position.y = STR_PARSE_REAL(args[2]);
-	node.position.z = STR_PARSE_REAL(args[3]);
+    node.position.x = STR_PARSE_REAL(args[1]);
+    node.position.y = STR_PARSE_REAL(args[2]);
+    node.position.z = STR_PARSE_REAL(args[3]);
 
 	if (num_args > 4) /* Has options? */
 	{
@@ -5251,7 +5252,47 @@ void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
 		}
 	}
 
-	m_current_module->nodes.push_back(node);
+    this->_PrintNodeDataForVerification(line, args, num_args, node);
+    m_current_module->nodes.push_back(node);
+}
+
+void Parser::_PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node)
+{
+    std::stringstream msg;
+    msg << "Data print for verification:";
+    msg << "\n\tPosition X: " << node.position.x << " (input text: \"" << args[1] << "\"";
+    msg << "\n\tPosition Y: " << node.position.y << " (input text: \"" << args[2] << "\"";
+    msg << "\n\tPosition Z: " << node.position.z << " (input text: \"" << args[3] << "\"";
+    if (num_args > 4) // Has options?
+    {
+        msg << "\n\tOptions: ";
+        if (BITMASK_IS_1(node.options, Node::OPTION_l_LOAD_WEIGHT))          { msg << "l_LOAD_WEIGHT ";        }
+        if (BITMASK_IS_1(node.options, Node::OPTION_n_MOUSE_GRAB))           { msg << "n_MOUSE_GRAB ";         }
+        if (BITMASK_IS_1(node.options, Node::OPTION_m_NO_MOUSE_GRAB))        { msg << "m_NO_MOUSE_GRAB ";      }
+        if (BITMASK_IS_1(node.options, Node::OPTION_f_NO_SPARKS))            { msg << "f_NO_SPARKS ";          }
+        if (BITMASK_IS_1(node.options, Node::OPTION_x_EXHAUST_POINT))        { msg << "x_EXHAUST_POINT ";      }
+        if (BITMASK_IS_1(node.options, Node::OPTION_y_EXHAUST_DIRECTION))    { msg << "y_EXHAUST_DIRECTION ";  }
+        if (BITMASK_IS_1(node.options, Node::OPTION_c_NO_GROUND_CONTACT))    { msg << "c_NO_GROUND_CONTACT ";  }
+        if (BITMASK_IS_1(node.options, Node::OPTION_h_HOOK_POINT))           { msg << "h_HOOK_POINT ";         }
+        if (BITMASK_IS_1(node.options, Node::OPTION_e_TERRAIN_EDIT_POINT))   { msg << "e_TERRAIN_EDIT_POINT "; }
+        if (BITMASK_IS_1(node.options, Node::OPTION_b_EXTRA_BUOYANCY))       { msg << "b_EXTRA_BUOYANCY ";     }
+        if (BITMASK_IS_1(node.options, Node::OPTION_p_NO_PARTICLES))         { msg << "p_NO_PARTICLES ";       }
+        if (BITMASK_IS_1(node.options, Node::OPTION_L_LOG))                  { msg << "L_LOG ";                }
+        msg << "(input text:\"" << args[4] << "\"";
+    }
+    if (num_args > 5) // Has load weight override?
+    {
+        msg << "\n\tLoad weight overide: " << node.load_weight_override << " (input text: \"" << args[5] << "\"";
+    }
+    if (num_args > 6) // Is there invalid trailing text?
+    {
+        msg << "\n\t~Invalid trailing text: ";
+        for (int i = 6; i < num_args; ++i)
+        {
+            msg << args[i];
+        }
+    }
+    this->AddMessage(line, Message::TYPE_WARNING, msg.str());
 }
 
 void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_version_2)
@@ -5260,35 +5301,35 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_ver
     std::string line;
     Parser::_TrimTrailingComments(line_in, line);
 
-	// Parse line
-	boost::smatch results;
+    // Parse line
+    boost::smatch results;
     const boost::regex* regex_ptr = &Regexes::SECTION_NODES;
     if (is_version_2)
     {
         regex_ptr = &Regexes::SECTION_NODES_2;
     }
-	if (! boost::regex_search(line, results, *regex_ptr))
-	{
+    if (! boost::regex_search(line, results, *regex_ptr))
+    {
         if (m_sequential_importer.IsEnabled()) // Are we imporing legacy fileformat?
         {
-		    this->AddMessage(line, Message::TYPE_WARNING, "Failed to parse using safe method, falling back to classic method.");
+            this->AddMessage(line, Message::TYPE_WARNING, "Syntax check failed, falling back to classic unsafe parsing method.");
             this->_ParseNodesLegacyMethod(line, is_version_2);
         }
         else
         {
-            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
         }
-		return;
-	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+        return;
+    }
+    /* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
     const int result_pos_options = 11;
     const int result_pos_loadweightoverride = 15;
 
-	Node node;
-	node.node_defaults = m_user_node_defaults;
-	node.beam_defaults = m_user_beam_defaults;
-	node.detacher_group = m_current_detacher_group;
+    Node node;
+    node.node_defaults = m_user_node_defaults;
+    node.beam_defaults = m_user_beam_defaults;
+    node.detacher_group = m_current_detacher_group;
 
     if (is_version_2)
     {
@@ -5308,9 +5349,9 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_ver
             m_sequential_importer.AddNumberedNode(node_num);
         }
     }
-	node.position.x = STR_PARSE_REAL(results[3]);
-	node.position.y = STR_PARSE_REAL(results[5]);
-	node.position.z = STR_PARSE_REAL(results[7]);
+    node.position.x = STR_PARSE_REAL(results[3]);
+    node.position.y = STR_PARSE_REAL(results[5]);
+    node.position.z = STR_PARSE_REAL(results[7]);
 
 	if (results[result_pos_options].matched) /* Has options? */
 	{

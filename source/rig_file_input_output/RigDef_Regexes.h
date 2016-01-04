@@ -327,10 +327,11 @@ DEFINE_REGEX( MINUS_ONE_REAL, E_MINUS_ONE_REAL );
 DEFINE_REGEX( REAL_NUMBER, E_REAL_NUMBER );
 
 DEFINE_REGEX( NODE_LIST,
-	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID )
-	E_TRAILING_WHITESPACE
-	);
+    E_LEADING_WHITESPACE
+    E_CAPTURE( E_NODE_ID )
+    E_CAPTURE_OPTIONAL( E_DELIMITER ) // Tolerate invalid trailing delimiter
+    E_TRAILING_WHITESPACE
+    );
 
 DEFINE_REGEX( NODE_ID_OPTIONAL,
 	E_LEADING_WHITESPACE
@@ -1415,36 +1416,36 @@ DEFINE_REGEX( SECTION_FLARES_TYPE, "[fblrRu]" );
 
 DEFINE_REGEX( SECTION_FLARES2,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID )      /* Reference node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID )      /* X axis node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID )      /* Y axis node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER )  /* #4 X offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER )  /* #5 Y offset */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER )  /* #6 Z offset */
+	E_CAPTURE( E_NODE_ID )                              // #01 Reference node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                              // #03 X axis node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                              // #05 Y axis node
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                          // #07 X offset
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                          // #09 Y offset
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_REAL_NUMBER )                          // #11 Z offset
 	E_CAPTURE_OPTIONAL(
-		E_DELIMITER_COMMA
-		E_CAPTURE( "[fblrRu]" ) /* #8 Type */
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( "[fblrRu]" )                         // #14 Type
 
 		E_CAPTURE_OPTIONAL(
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_DECIMAL_NUMBER ) /* #10 Control number */
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_DECIMAL_NUMBER )               // #17 Control number
 
 			E_CAPTURE_OPTIONAL(
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_DECIMAL_NUMBER ) /* #12 Blink delay */
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_DECIMAL_NUMBER )           // #20 Blink delay
 
 				E_CAPTURE_OPTIONAL(
-					E_DELIMITER_COMMA
-					E_CAPTURE( E_REAL_NUMBER ) /* #14 Size */
+					E_CAPTURE( E_DELIMITER )
+					E_CAPTURE( E_REAL_NUMBER )          // #23 Size
 
-					E_CAPTURE_OPTIONAL( 
-						E_DELIMITER_SPACE 
-						E_CAPTURE( E_STRING_NO_SPACES ) /* #16 Material name */ 
+					E_CAPTURE_OPTIONAL(
+						E_CAPTURE( E_DELIMITER )
+						E_CAPTURE( E_STRING_NO_SPACES ) // #26 Material name 
 					)
 				)
 			)
@@ -1541,25 +1542,25 @@ DEFINE_REGEX( SECTION_FLEXBODYWHEELS,
 
 DEFINE_REGEX( SECTION_FUSEDRAG,
 	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* #1 Node 1 */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_NODE_ID ) /* #2 Node 2 */
-	E_DELIMITER_COMMA
-	E_CAPTURE_OPTIONAL( /* #3 */
-		E_CAPTURE( E_REAL_NUMBER ) /* #4 Approx. width */
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_STRING_NO_SPACES ) /* #5 Airfoil name */
+	E_CAPTURE( E_NODE_ID )                       // #1 Node 1
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE( E_NODE_ID )                       // #3 Node 2
+	E_CAPTURE( E_DELIMITER )
+	E_CAPTURE_OPTIONAL(
+		E_CAPTURE( E_REAL_NUMBER )               // #6 Approx. width
+		E_CAPTURE( E_DELIMITER )
+		E_CAPTURE( E_STRING_NO_SPACES )          // #8 Airfoil name
 		E_TRAILING_WHITESPACE
 	)
-	E_CAPTURE_OPTIONAL( /* #6 */
+	E_CAPTURE_OPTIONAL(                          // #9
 		"autocalc"
-		E_CAPTURE_OPTIONAL( /* #7 */
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* #8 Area coeff. */
+		E_CAPTURE_OPTIONAL(
+			E_CAPTURE( E_DELIMITER )
+			E_CAPTURE( E_REAL_NUMBER )           // #12 Area coeff.
 
-			E_CAPTURE_OPTIONAL( /* #9 */
-				E_DELIMITER_SPACE
-				E_CAPTURE( E_STRING_NO_SPACES ) /* #10 Airfoil name */
+			E_CAPTURE_OPTIONAL(
+				E_CAPTURE( E_DELIMITER )
+				E_CAPTURE( E_STRING_NO_SPACES )  // #15 Airfoil name
 			)
 		)
 		E_TRAILING_WHITESPACE
@@ -2100,86 +2101,89 @@ DEFINE_REGEX( SECTION_ROPES,
 	E_TRAILING_WHITESPACE
 	);
 
-#define E_ROTATORS_R1_R2_COMMON_BASE                                \
-	E_LEADING_WHITESPACE                                            \
-	E_CAPTURE( E_NODE_ID )                 /* Axis node 1 */        \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Axis node 2 */        \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Baseplate node 1 */   \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Baseplate node 2 */   \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Baseplate node 3 */   \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Baseplate node 4 */   \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Rot. plate node 1 */  \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Rot. plate node 2 */  \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Rot. plate node 3 */  \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_NODE_ID )                 /* Rot. plate node 4 */  \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_REAL_NUMBER )             /* Rate */               \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Key left */           \
-	E_DELIMITER_COMMA                                                  \
-	E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #13 Key right */
+#define E_ROTATORS_R1_R2_COMMON_BASE                                    \
+    E_LEADING_WHITESPACE                                                \
+    E_CAPTURE( E_NODE_ID )                 /* #1  Axis node 1 */        \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #3  Axis node 2 */        \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #5  Baseplate node 1 */   \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #7  Baseplate node 2 */   \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #9  Baseplate node 3 */   \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #11 Baseplate node 4 */   \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #13 Rot. plate node 1 */  \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #15 Rot. plate node 2 */  \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #17 Rot. plate node 3 */  \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_NODE_ID )                 /* #19 Rot. plate node 4 */  \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_REAL_NUMBER )             /* #21 Rate */               \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #23 Key left */           \
+    E_CAPTURE( E_DELIMITER )                                            \
+    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #25 Key right */
 
-#define E_ROTATORS_R1_R2_COMMON_INERTIA                                            \
-	E_CAPTURE( E_STRING_NO_SPACES )                           /* #+1 Start delay (real number; accept garbage for backwards compatibility) */     \
-	E_CAPTURE_OPTIONAL(                                                            \
-		E_DELIMITER_COMMA                                                             \
-		E_CAPTURE( E_REAL_NUMBER )                       /* #+3 Stop delay */      \
-		E_CAPTURE_OPTIONAL(                                                        \
-			E_DELIMITER_COMMA                                                         \
-			E_CAPTURE( E_REAL_NUMBER )                   /* #+5 Start fn. */       \
-			E_CAPTURE_OPTIONAL(                                                    \
-				E_DELIMITER_COMMA                                                     \
-				E_CAPTURE( E_INERTIA_FUNCTION )          /* #+7 Stop fn. */        \
-				E_CAPTURE_OPTIONAL(                                                \
-					E_DELIMITER_COMMA                                                 \
-					E_CAPTURE( E_REAL_NUMBER )           /* #+9 Engine coupling */ \
-					E_CAPTURE_OPTIONAL(                                            \
-						E_DELIMITER_COMMA                                             \
-						E_CAPTURE( E_BOOLEAN ) ) ) ) ) ) /* #+11 Needs engine */
-					                                                 
-	
+#define E_ROTATORS_R1_R2_COMMON_INERTIA                                      \
+    E_CAPTURE( E_STRING_NO_SPACES )              /* #+1 Start delay (real number; accept garbage for backwards compatibility) */     \
+    E_CAPTURE_OPTIONAL(                                                      \
+        E_CAPTURE( E_DELIMITER )                                             \
+        E_CAPTURE( E_REAL_NUMBER )               /* #+4 Stop delay */        \
+        E_CAPTURE_OPTIONAL(                                                  \
+            E_CAPTURE( E_DELIMITER )                                         \
+            E_CAPTURE( E_REAL_NUMBER )           /* #+7 Start fn. */         \
+            E_CAPTURE_OPTIONAL(                                              \
+                E_CAPTURE( E_DELIMITER )                                     \
+                E_CAPTURE( E_INERTIA_FUNCTION )  /* #+10 Stop fn. */         \
+                E_CAPTURE_OPTIONAL(                                          \
+                    E_CAPTURE( E_DELIMITER )                                 \
+                    E_CAPTURE( E_REAL_NUMBER )   /* #+13 Engine coupling */  \
+                    E_CAPTURE_OPTIONAL(                                      \
+                        E_CAPTURE( E_DELIMITER )                             \
+                        E_CAPTURE( E_BOOLEAN )   /* #+16 Needs engine */     \
+                    )                                                        \
+                )                                                            \
+            )                                                                \
+        )                                                                    \
+    )
 
 DEFINE_REGEX( SECTION_ROTATORS,
-	E_ROTATORS_R1_R2_COMMON_BASE
-	E_CAPTURE_OPTIONAL( /* #14 */
-		E_DELIMITER_COMMA
-		E_ROTATORS_R1_R2_COMMON_INERTIA
-	)
-	E_TRAILING_WHITESPACE
-	);
+    E_ROTATORS_R1_R2_COMMON_BASE
+    E_CAPTURE_OPTIONAL(                   // #26
+        E_CAPTURE( E_DELIMITER )
+        E_ROTATORS_R1_R2_COMMON_INERTIA   // Base #28
+    )
+    E_TRAILING_WHITESPACE
+    );
 
 DEFINE_REGEX( SECTION_ROTATORS2,
-	E_ROTATORS_R1_R2_COMMON_BASE
-	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_REAL_NUMBER )      /* #15 Rotating force */
-	
-		E_CAPTURE_OPTIONAL( 
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER )      /* Anti-jitter tolerance */
-	
-			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_STRING_NO_SPACES ) /* Description */
-	
-				E_CAPTURE_OPTIONAL( /* #20 */
-					E_DELIMITER_COMMA   
-					E_ROTATORS_R1_R2_COMMON_INERTIA
-				)
-			)
-		)
-	)
-	E_TRAILING_WHITESPACE
-	);
+    E_ROTATORS_R1_R2_COMMON_BASE
+    E_CAPTURE_OPTIONAL(                              // #26
+        E_CAPTURE( E_DELIMITER )
+        E_CAPTURE( E_REAL_NUMBER )                   // #28 Rotating force
+
+        E_CAPTURE_OPTIONAL( 
+            E_CAPTURE( E_DELIMITER )
+            E_CAPTURE( E_REAL_NUMBER )               // #31 Anti-jitter tolerance
+
+            E_CAPTURE_OPTIONAL( 
+                E_CAPTURE( E_DELIMITER )
+                E_CAPTURE( E_STRING_NO_SPACES )      // #34 Description
+
+                E_CAPTURE_OPTIONAL(
+                    E_CAPTURE( E_DELIMITER )
+                    E_ROTATORS_R1_R2_COMMON_INERTIA  // Base #37
+                )
+            )
+        )
+    )
+    E_TRAILING_WHITESPACE
+    );
 
 DEFINE_REGEX( SECTION_SCREWPROPS,
 	E_LEADING_WHITESPACE
