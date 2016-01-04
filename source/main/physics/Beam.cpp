@@ -6618,7 +6618,7 @@ bool Beam::getBrakeLightVisible()
 
 bool Beam::getCustomLightVisible(int number)
 {
-	return netCustomLightArray[number] != -1
+	return netCustomLightArray[number] != UINT_MAX
 			&& flares[netCustomLightArray[number]].controltoggle_status;
 }
 
