@@ -6609,28 +6609,24 @@ bool Beam::getBrakeLightVisible()
 
 bool Beam::getCustomLightVisible(int number)
 {
-	return netCustomLightArray[number] != -1
+	return netCustomLightArray[number] != UINT_MAX
 			&& flares[netCustomLightArray[number]].controltoggle_status;
 }
 
 void Beam::setCustomLightVisible(int number, bool visible)
 {
-	if (number >= 5)
+	if (number < 0 || number > 4)
 	{
-		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") overflow, max: 4...");
+		LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 4)");
 		return;
 	}
 
-	try
+	unsigned int flareID = netCustomLightArray[number];
+
+	if (flareID < flares.size() && flares[flareID].snode)
 	{
-		if (flares[netCustomLightArray[number]].snode)
-			flares[netCustomLightArray[number]].controltoggle_status = visible;
+		flares[flareID].controltoggle_status = visible;
 	}
-	catch (Exception ex)
-	{
-	}
-	/*else
-		LOG("AngelScript: Light ID (" + TOSTRING(number) + ") doesn't exist, ignored...");*/
 }
 
 bool Beam::getBeaconMode() // Angelscript export
