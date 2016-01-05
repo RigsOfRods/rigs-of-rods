@@ -883,11 +883,14 @@ void OverlayWrapper::UpdatePressureTexture(float pressure)
 
 void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 {
+    // Thread: main assumed
+    RoR::PowertrainState powertrain = vehicle->powertrain->GetStateOnMainThread();
+
 	// gears
-	int truck_getgear = vehicle->engine->getGear();
+	int truck_getgear = powertrain.transmission_current_gear;
 	if (truck_getgear>0)
 	{
-		size_t numgears = vehicle->engine->getNumGears();
+		size_t numgears = powertrain.transmission_num_forward_gears;
 		String gearstr = TOSTRING(truck_getgear) + "/" + TOSTRING(numgears);
 		guiGear->setCaption(gearstr);
 		guiGear3D->setCaption(gearstr);
@@ -904,7 +907,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	}
 
 	//autogears
-	int cg = vehicle->engine->getAutoShift();
+	int cg = powertrain.transmission_auto_shift_mode;
 	for (int i=0; i<5; i++)
 	{
 		if (i==cg)
@@ -945,9 +948,11 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	}
 
 	// pedals
-	guipedclutch->setTop(-0.05*vehicle->engine->getClutch()-0.01);
+    guipedclutch->setTop(-0.05*powertrain.transmission_current_clutch-0.01);
+
 	guipedbrake->setTop(-0.05*(1.0-vehicle->brake/vehicle->brakeforce)-0.01);
-	guipedacc->setTop(-0.05*(1.0-vehicle->engine->getAcc())-0.01);
+
+    guipedacc->setTop(-0.05*(1.0-powertrain.current_acceleration)-0.01);
 
 	// speedo / calculate speed
 	Real guiSpeedFactor = 7.0 * (140.0 / vehicle->speedoMax);
@@ -959,9 +964,9 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	Real tachoFactor = 0.072;
 	if (vehicle->useMaxRPMforGUI)
 	{
-		tachoFactor = 0.072 * (3500 / vehicle->engine->getMaxRPM());
+		tachoFactor = 0.072 * (3500 / powertrain.conf_engine_max_rpm);
 	}
-	angle = 126.0 - fabs(vehicle->engine->getRPM() * tachoFactor);
+    angle = 126.0 - fabs(powertrain.engine_current_rpm * tachoFactor);
 	angle = std::max(-120.0f, angle);
 	angle = std::min(angle, 121.0f);
 	tachotexture->setTextureRotate(Degree(angle));
@@ -995,17 +1000,18 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	pitchtexture->setTextureRotate(Radian(angle));
 
 	// turbo
-	angle=40.0-vehicle->engine->getTurboPSI()*3.34;
+    angle=40.0-powertrain.turbo_current_psi*3.34;
 	turbotexture->setTextureRotate(Degree(angle));
 
 	// indicators
-    float vehicle_torque = vehicle->engine->getTorque();
-	igno->setMaterialName(String("tracks/ign-")         + ((vehicle->engine->hasContact())?"on":"off"));
-	batto->setMaterialName(String("tracks/batt-")       + ((vehicle->engine->hasContact() && !vehicle->engine->isRunning())?"on":"off"));
+    float vehicle_torque = powertrain.engine_current_torque;
+    bool has_contact = powertrain.engine_starter_has_contact;
+	igno->setMaterialName(String("tracks/ign-")         + ((has_contact)?"on":"off"));
+	batto->setMaterialName(String("tracks/batt-")       + ((has_contact && !powertrain.engine_is_running)?"on":"off"));
 	pbrakeo->setMaterialName(String("tracks/pbrake-")   + ((vehicle->parkingbrake)?"on":"off"));
 	lockedo->setMaterialName(String("tracks/locked-")   + ((vehicle->isLocked())?"on":"off"));
 	lopresso->setMaterialName(String("tracks/lopress-") + ((!vehicle->canwork)?"on":"off"));
-	clutcho->setMaterialName(String("tracks/clutch-")   + ((fabs(vehicle_torque)>=vehicle->engine->getClutchForce()*10.0f)?"on":"off"));
+	clutcho->setMaterialName(String("tracks/clutch-")   + ((fabs(vehicle_torque)>=powertrain.conf_transmission_clutch_force*10.0f)?"on":"off"));
 	lightso->setMaterialName(String("tracks/lights-")   + ((vehicle->lights)?"on":"off"));
 
 	if (vehicle->tc_present)

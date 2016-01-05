@@ -839,13 +839,8 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 void GameScript::boostCurrentTruck(float factor)
 {
     // add C++ code here
-	Beam *b = BeamFactory::getSingleton().getCurrentTruck();
-	if (b && b->engine)
-	{
-		float rpm = b->engine->getRPM();
-		rpm += 2000.0f * factor;
-		b->engine->setRPM(rpm);
-	}
+
+    // DISABLED for LuaPowertrain project
 }
 
 int GameScript::addScriptFunction(const String &arg)

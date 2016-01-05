@@ -77,12 +77,14 @@ void TwoDReplay::recordFrame()
 	frame.brake    = v->brake;
 	frame.steering = v->hydrodircommand;
 	frame.pbrake   = (v->parkingbrake > 0);
-	if (v->engine)
+	if (v->powertrain != nullptr)
 	{
-		frame.accel  = v->engine->getAcc();
-		frame.clutch = v->engine->getClutch();
-		frame.gear   = v->engine->getGear();
-		frame.gearMode = v->engine->getAutoMode();
+        RoR::PowertrainState pw_state = v->powertrain->GetStateOnMainThread();
+
+		frame.accel    = pw_state.current_acceleration;
+		frame.clutch   = pw_state.transmission_current_clutch;
+		frame.gear     = pw_state.transmission_current_gear;
+		frame.gearMode = pw_state.transmission_auto_shift_mode;
 	}
 	fwrite(&frame, 1, sizeof(frame), file);
 

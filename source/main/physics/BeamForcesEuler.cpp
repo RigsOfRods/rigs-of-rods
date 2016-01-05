@@ -60,10 +60,14 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	float inverted_dt = 1.0f / dt;
 
 	//engine callback
-	if (engine)
+	if (powertrain != nullptr)
 	{
 		BES_START(BES_CORE_TruckEngine);
-		engine->UpdateBeamEngine(dt, doUpdate);
+        if (doUpdate == 1)
+        {
+            this->powertrain->PowertrainProcessInput();
+        }
+		this->powertrain->GetEngine()->UpdateBeamEngine(dt, doUpdate == 1);
 		BES_STOP(BES_CORE_TruckEngine);
 	}
 	//if (doUpdate) mWindow->setDebugText(engine->status);
@@ -576,8 +580,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	float engine_torque = 0.0;
 
 	// calculate torque per wheel
-	if (engine && proped_wheels != 0)
-		engine_torque = engine->getTorque() / proped_wheels;
+	if (this->powertrain != nullptr && proped_wheels != 0)
+		engine_torque = this->powertrain->GetEngine()->getTorque() / proped_wheels;
 
 	int propcounter = 0;
 	float newspeeds[MAX_WHEELS];
@@ -687,9 +691,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	// fix for airplanes crashing when getAcc() is used
 	float currentAcc = 0.0f;
-	if (driveable == TRUCK && engine)
+	if (driveable == TRUCK && this->powertrain != nullptr)
 	{
-		currentAcc = engine->getAcc();
+		currentAcc = this->powertrain->GetEngine()->getAcc();
 	}
 
 	for (int i=0; i<free_wheel; i++)
@@ -957,9 +961,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	// wheel speed  in m/s !
 	WheelSpeed = wspeed;
 
-	if (engine && free_wheel && wheels[0].radius > 0.0f)
+	if (this->powertrain != nullptr && free_wheel && wheels[0].radius > 0.0f)
 	{
-		engine->setSpin(wspeed / wheels[0].radius * RAD_PER_SEC_TO_RPM);
+		this->powertrain->GetEngine()->setSpin(wspeed / wheels[0].radius * RAD_PER_SEC_TO_RPM);
 	}
 
 	// calculate driven distance
@@ -1177,15 +1181,15 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		float work = 0.0;
 
 		// canwork
-		if (engine)
-			canwork = engine->getRPM() > engine->getIdleRPM() * 0.95f;
+		if (powertrain != nullptr)
+			canwork = powertrain->GetEngine()->getRPM() > powertrain->GetEngine()->getIdleRPM() * 0.95f;
 		else
 			canwork = true;
 
 		// crankfactor
 		float crankfactor = 1.0f;
-		if (engine)
-			crankfactor = engine->getCrankFactor();
+		if (powertrain != nullptr)
+			crankfactor = powertrain->GetEngine()->getCrankFactor();
 
 		// speed up machines
 		if (driveable==MACHINE)
@@ -1354,7 +1358,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 						if (bbeam_dir*beams[bbeam].autoMovingMode > 0)
 							v = 1;
 
-						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !canwork)) continue;
+						if (beams[bbeam].commandNeedsEngine && ((powertrain && !powertrain->GetEngine()->isRunning()) || !canwork)) continue;
 
 						if (v > 0.0f && beams[bbeam].commandEngineCoupling > 0.0f)
 							requestpower = true;
@@ -1407,7 +1411,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				float v = 0.0f;
 				int rota = std::abs(commandkey[i].rotators[j]) - 1;
 
-				if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork)) continue;
+				if (rotators[rota].rotatorNeedsEngine && ((powertrain->GetEngine() && !powertrain->GetEngine()->isRunning()) || !canwork)) continue;
 
 				if (rotaInertia)
 				{
@@ -1431,10 +1435,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				requested++;
 		}
 
-		if (engine)
+		if (powertrain != nullptr)
 		{
-			engine->SetHydroPump(work);
-			engine->SetPrime(requested);
+			powertrain->GetEngine()->SetHydroPump(work);
+			powertrain->GetEngine()->SetPrime(requested);
 		}
 		if (doUpdate && state==ACTIVATED)
 		{
@@ -2038,9 +2042,9 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 				}
 			}
 			// engine stall
-			if (i == cinecameranodepos[0] && engine)
+			if (i == cinecameranodepos[0] && powertrain != nullptr)
 			{
-				engine->stop();
+				powertrain->GetEngine()->BeamEngineStop();
 			}
 			// wetness
 			nodes[i].wetstate = WET;

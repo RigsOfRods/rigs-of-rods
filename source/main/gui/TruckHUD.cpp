@@ -260,11 +260,10 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 	overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CurrentRPM");
 	overlayElement->setCaption("");
 	UTFString rpmsstr = _L("current RPM:");
-	if (truck->driveable == TRUCK && truck->engine)
-	{
-		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CurrentRPM");
-		overlayElement->setCaption(rpmsstr + U(" ") + TOUTFSTRING(Round(truck->engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->engine->getMaxRPM())));
-	} else if (truck->driveable == AIRPLANE)
+
+    // Deleted engine update -> this HUD is obsolete anyway
+
+    if (truck->driveable == AIRPLANE)
 	{
 		for (int i=0; i < 8; i++)
 		{

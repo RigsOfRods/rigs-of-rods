@@ -976,9 +976,9 @@ bool RoRFrameListener::updateEvents(float dt)
 				if (local_truck != nullptr && local_truck->driveable != NOT_DRIVEABLE)
 				{
 					/* We are supposed to be in this truck, if it is a truck */
-					if (local_truck->engine != nullptr)
+					if (local_truck->powertrain != nullptr)
 					{
-						local_truck->engine->start();
+						local_truck->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_START);
 					}
 					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
 				} 
@@ -1184,9 +1184,9 @@ void RoRFrameListener::InitTrucks(
 		}
 #endif //USE_MYGUI
 
-		if (b && b->engine)
+		if (b != nullptr && b->powertrain != nullptr)
 		{
-			b->engine->start();
+			b->powertrain->GetEngine()->BeamEngineStart(); // Synchronous access is OK, this function is called before simulation starts.
 		}
 	}
 	
@@ -1458,7 +1458,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					UpdateRacingGui(); //I really think that this should stay here.
 				}
 
-				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)
+				if (vehicle->driveable == TRUCK && vehicle->powertrain != nullptr)
 				{
 					RoR::Application::GetOverlayWrapper()->UpdateLandVehicleHUD(vehicle, flipflop);
 				}

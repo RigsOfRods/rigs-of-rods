@@ -280,7 +280,8 @@ void RigSpawner::InitializeRig()
 	m_rig->origin=Ogre::Vector3::ZERO;
 	m_rig->mSlideNodes.clear();
 
-	m_rig->engine = nullptr;
+    m_rig->powertrain = nullptr;
+
 	m_rig->hascommands=0;
 	m_rig->hashelp=0;
 	m_rig->cinecameranodepos[0]=-1;
@@ -453,12 +454,13 @@ void RigSpawner::FinalizeRig()
 	SPAWNER_PROFILE_SCOPED();
 
     // we should post-process the torque curve if existing
-	if (m_rig->engine)
+	if (m_rig->powertrain)
 	{
-		int result = m_rig->engine->getTorqueCurve()->spaceCurveEvenly(m_rig->engine->getTorqueCurve()->getUsedSpline());
+        BeamEngine* engine = m_rig->powertrain->GetEngine();
+		int result = engine->getTorqueCurve()->spaceCurveEvenly(engine->getTorqueCurve()->getUsedSpline());
 		if (result)
 		{
-			m_rig->engine->getTorqueCurve()->setTorqueModel("default");
+			engine->getTorqueCurve()->setTorqueModel("default");
 			if (result == 1)
 			{
 				AddMessage(Message::TYPE_ERROR, "TorqueCurve: Points (rpm) must be in an ascending order. Using default curve");
@@ -466,7 +468,7 @@ void RigSpawner::FinalizeRig()
 		}
 
 		//Gearbox
-		m_rig->engine->setAutoMode(Settings::getSingleton().GetGearBoxMode());
+		engine->setAutoMode(Settings::getSingleton().GetGearBoxMode());
 	}
 	
 	//calculate gwps height offset
@@ -2860,13 +2862,13 @@ void RigSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->engine == nullptr)
+    if (m_rig->powertrain == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Section 'torquecurve' found but no 'engine' defined, skipping...");
 		return;
 	}
 
-	TorqueCurve *target_torque_curve = m_rig->engine->getTorqueCurve();
+	TorqueCurve *target_torque_curve = m_rig->powertrain->GetEngine()->getTorqueCurve();
 
 	if (def.predefined_func_name.length() != 0)
 	{
@@ -5807,7 +5809,7 @@ void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
 {
 	/* Is this a land vehicle? */
-	if (m_rig->engine == nullptr)
+	if (m_rig->powertrain == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Section 'engturbo' found but no engine defined. Skipping ...");
 		return;
@@ -5825,7 +5827,7 @@ void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
 	}
 	
 		/* Process it */
-	m_rig->engine->setTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7, engturbo->param8, engturbo->param9, engturbo->param10, engturbo->param11);
+	m_rig->powertrain->GetEngine()->setTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7, engturbo->param8, engturbo->param9, engturbo->param10, engturbo->param11);
 };
 
 void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
@@ -5833,7 +5835,7 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	SPAWNER_PROFILE_SCOPED();
 
     /* Is this a land vehicle? */
-	if (m_rig->engine == nullptr)
+	if (m_rig->powertrain == nullptr)
 	{
 		AddMessage(Message::TYPE_WARNING, "Section 'engoption' found but no engine defined. Skipping ...");
 		return;
@@ -5851,7 +5853,7 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	}
 
 	/* Process it */
-	m_rig->engine->setOptions(
+	m_rig->powertrain->GetEngine()->setOptions(
 		engoption->inertia,
 		engoption->type,
 		(engoption->_clutch_force_use_default) ? -1.f : engoption->clutch_force,
@@ -5884,7 +5886,9 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
 		gears_compat.push_back(*itor);
 	}
 
-	m_rig->engine = new BeamEngine(
+    m_rig->powertrain = new Powertrain();
+
+	m_rig->powertrain->m_engine = new BeamEngine( // Friendly access
 		def.shift_down_rpm,
 		def.shift_up_rpm,
 		def.torque,
@@ -5896,13 +5900,13 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
 	/* Are there any startup shifter settings? */
 	Ogre::String gearbox_mode = SSETTING("gearbox_mode", "Automatic shift");
 	if (gearbox_mode == "Manual shift - Auto clutch")
-		m_rig->engine->setAutoMode(BeamEngine::SEMIAUTO);
+		m_rig->powertrain->m_engine->setAutoMode(Gearbox::SHIFTMODE_SEMIAUTO);
 	else if (gearbox_mode == "Fully Manual: sequential shift")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL);
+		m_rig->powertrain->m_engine->setAutoMode(Gearbox::SHIFTMODE_MANUAL);
 	else if (gearbox_mode == "Fully Manual: stick shift")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL_STICK);
+		m_rig->powertrain->m_engine->setAutoMode(Gearbox::SHIFTMODE_MANUAL_STICK);
 	else if (gearbox_mode == "Fully Manual: stick shift with ranges")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL_RANGES);
+		m_rig->powertrain->m_engine->setAutoMode(Gearbox::SHIFTMODE_MANUAL_RANGES);
 };
 
 void RigSpawner::ProcessHelp()
@@ -7232,9 +7236,10 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 	}
 
 	//engine
-	if (vehicle->engine != nullptr) /* Land vehicle */
+	if (vehicle->powertrain != nullptr) /* Land vehicle */
 	{
-		if (vehicle->engine->getType() =='t')
+        BeamEngine* engine = vehicle->powertrain->GetEngine();
+		if (engine->getType() =='t')
 		{
 			AddSoundSourceInstance(vehicle, "tracks/default_diesel", smokeId);
 			AddSoundSourceInstance(vehicle, "tracks/default_force", smokeId);
@@ -7242,23 +7247,33 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 			AddSoundSourceInstance(vehicle, "tracks/default_parkbrakes", 0);
 			AddSoundSourceInstance(vehicle, "tracks/default_reverse_beep", 0);
 		}
-		if (vehicle->engine->getType() =='c')
+		if (engine->getType() =='c')
+        {
 			AddSoundSourceInstance(vehicle, "tracks/default_car", smokeId);
-		if (vehicle->engine->hasTurbo())
+        }
+		if (engine->hasTurbo())
 		{
-			if (vehicle->engine->GetTurboInertiaFactor() >= 3)
+			if (engine->GetTurboInertiaFactor() >= 3)
+            {
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", smokeId);
-			else if (vehicle->engine->GetTurboInertiaFactor() <= 0.5)
+            }
+			else if (engine->GetTurboInertiaFactor() <= 0.5)
+            {
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_small", smokeId);
+            }
 			else
+            {
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_mid", smokeId);
+            }
 
 			AddSoundSourceInstance(vehicle, "tracks/default_turbo_bov", smokeId);
 			AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", smokeId);
 		}
 			
-		if (vehicle->engine->HasAir())
+		if (engine->HasAir())
+        {
 			AddSoundSourceInstance(vehicle, "tracks/default_air_purge", 0);
+        }
 		//starter
 		AddSoundSourceInstance(vehicle, "tracks/default_starter", 0);
 		// turn signals

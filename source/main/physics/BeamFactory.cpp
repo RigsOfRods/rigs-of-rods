@@ -921,8 +921,8 @@ void BeamFactory::calcPhysics(float dt)
 			break;
 
 		default:
-			if (trucks[t]->state > DESACTIVATED && trucks[t]->engine)
-				trucks[t]->engine->UpdateBeamEngine(dt, 1);
+			if (trucks[t]->state > DESACTIVATED && trucks[t]->powertrain != nullptr)
+				trucks[t]->powertrain->GetEngine()->UpdateBeamEngine(dt, 1);
 			if (trucks[t]->networking)
 				trucks[t]->sendStreamData();
 			break;

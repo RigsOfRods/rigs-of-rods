@@ -9,6 +9,7 @@
 
 #include "RoRPrerequisites.h"
 #include "BeamData.h"
+#include "Powertrain.h"
 #include <vector>
 
 #include <OgrePrerequisites.h>
@@ -195,7 +196,9 @@ struct rig_t
 	Buoyance *buoyance;
 
 	int driveable;
-	BeamEngine *engine;
+
+    RoR::Powertrain* powertrain; //!< Land vehicle powertrain
+
 	int hascommands;
 	int hashelp;
 	char helpmat[256];

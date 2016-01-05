@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamEngine.h"
 #include "BeamFactory.h"
+#include "Powertrain.h"
 #include "RoRVersion.h"
 #include "Settings.h"
 
@@ -139,22 +140,26 @@ bool OutProtocol::update(float dt)
 	{
 		// not in a truck?
 		sprintf(gd.Display2, "not in vehicle");
-	} else if ( truck && !truck->engine )
+	} 
+    else if ( truck != nullptr && truck->powertrain == nullptr )
 	{
 		// no engine?
 		sprintf(gd.Display2, "no engine");
-	} else if ( truck && truck->engine )
+	} 
+    else if ( truck != nullptr && truck->powertrain != nullptr )
 	{
 		// truck and engine valid
-		if ( truck->engine->hasTurbo() )
+        RoR::PowertrainState pw_state = truck->powertrain->GetStateOnMainThread();
+
+		if (pw_state.conf_engine_has_turbo)
 		{
 			gd.Flags |= OG_TURBO;
 		}
-		gd.Gear        = std::max(0, truck->engine->getGear() + 1); // we only support one reverse gear
+		gd.Gear        = std::max(0, pw_state.transmission_current_gear + 1); // we only support one reverse gear
 		gd.PLID        = 0;
 		gd.Speed       = fabs(truck->WheelSpeed);
-		gd.RPM         = truck->engine->getRPM();
-		gd.Turbo       = truck->engine->getTurboPSI() * 0.0689475729f;
+		gd.RPM         = pw_state.engine_current_rpm;
+		gd.Turbo       = pw_state.turbo_current_psi * 0.0689475729f;
 		gd.EngTemp     = 0; // TODO
 		gd.Fuel        = 0; // TODO
 		gd.OilPressure = 0; // TODO
@@ -166,22 +171,23 @@ bool OutProtocol::update(float dt)
 		gd.DashLights |= DL_SIGNAL_L;
 		gd.DashLights |= DL_SIGNAL_R;
 		gd.DashLights |= DL_SIGNAL_ANY;
-		if (truck->tc_present)   gd.DashLights |= DL_TC;
-		if (truck->alb_present)  gd.DashLights |= DL_ABS;
 
 		gd.ShowLights = 0;
+		bool const show_lights = pw_state.engine_starter_has_contact && !pw_state.engine_is_running;
 		if (truck->parkingbrake)   gd.ShowLights |= DL_HANDBRAKE;
 		if (truck->lights)         gd.ShowLights |= DL_FULLBEAM;
-		if (truck->engine->hasContact() && !truck->engine->isRunning()) gd.ShowLights |=  DL_BATTERY;
+		if (show_lights)           gd.ShowLights |= DL_BATTERY;
 		if (truck->left_blink_on)  gd.ShowLights |= DL_SIGNAL_L;
 		if (truck->right_blink_on) gd.ShowLights |= DL_SIGNAL_R;
 		if (truck->warn_blink_on)  gd.ShowLights |= DL_SIGNAL_ANY;
 		if (truck->tc_mode)        gd.ShowLights |= DL_TC;
 		if (truck->alb_mode)       gd.ShowLights |= DL_ABS;
+		if (truck->tc_present)     gd.DashLights |= DL_TC;
+		if (truck->alb_present)    gd.DashLights |= DL_ABS;
 
-		gd.Throttle = truck->engine->getAcc();
+		gd.Throttle = pw_state.current_acceleration;
 		gd.Brake    = truck->brake / truck->brakeforce;
-		gd.Clutch   = 1 - truck->engine->getClutch(); // 0-1
+		gd.Clutch   = 1 - pw_state.transmission_current_clutch; // 0-1
 
 		strncpy(gd.Display1, truck->realtruckname.c_str(), 15);
 		if ( truck->realtruckname.length() > 15 )
