@@ -22,6 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __BeamEngine_H_
 
 #include "RoRPrerequisites.h"
+#include <pthread.h>
 
 /**
 * Represents a virtual engine of a vehicle (not "engine" as in "physics engine").
@@ -42,11 +43,11 @@ public:
 	float getAcc();
 	float getClutch();
 	float getClutchForce();
-	float getCrankFactor();
+	float getCrankFactor(bool must_lock = true);
 	float getRPM();
 	float getSmoke();
 	float getTorque();
-	float getTurboPSI();
+	float getTurboPSI(bool must_lock = true);
 	int getAutoMode();
 
 	/**
@@ -160,13 +161,13 @@ public:
 	* Changes gear by a relative offset. Plays sounds.
 	* @param shift_change_relative 1 = shift up by 1, -1 = shift down by 1
 	*/
-	void BeamEngineShift(int shift_change_relative);
+	void BeamEngineShift(int shift_change_relative, bool must_lock = true);
 	
 	/**
 	* Changes gear to given value. Plays sounds.
 	* @see BeamEngine::shift
 	*/
-	void BeamEngineShiftTo(int val);
+	void BeamEngineShiftTo(int val, bool must_lock = true);
 
 	void UpdateBeamEngine(float dt, int doUpdate);
 
@@ -288,6 +289,8 @@ protected:
 	int   m_transmission_mode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
 
 	int m_vehicle_index;
+
+    pthread_mutex_t m_mutex;
 };
 
 #endif // __BeamEngine_H_

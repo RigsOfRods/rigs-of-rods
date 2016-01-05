@@ -26,6 +26,44 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
+#ifdef PTW32_VERSION // Win32 pthreads
+#   define PTHREAD_ID() reinterpret_cast<int32_t>(pthread_self().p)
+#else
+#   define PTHREAD_ID() -1
+#endif
+
+struct BeamEngineScopedLock
+{
+    BeamEngineScopedLock(pthread_mutex_t* mtx, const char* func_name, bool should_lock = true):
+        m_mtx(mtx)
+    {
+        if (should_lock)
+        {
+            MUTEX_LOCK(mtx);
+            m_is_locked = true;
+
+            char msg[500];
+            int32_t tid = PTHREAD_ID();
+            sprintf(msg, "                           ## BeamEngine [thread: %d] %s", tid, func_name);
+            LOG(msg);
+        }
+    }
+    ~BeamEngineScopedLock()
+    {
+        if (m_is_locked)
+        {
+            MUTEX_UNLOCK(m_mtx);
+        }
+    }
+private:
+    pthread_mutex_t* m_mtx;
+    bool m_is_locked;
+};
+
+#define SCOPED_LOCK(func_name) BeamEngineScopedLock beamengine_lock(&m_mutex, func_name);
+
+#define SCOPED_LOCK_OPT(func_name, do_lock) BeamEngineScopedLock beamengine_lock(&m_mutex, func_name, do_lock);
+
 /*
 ENGINE UPDATE TRACE (static):
 bool RoRFrameListener::frame Started(const FrameEvent& evt)
@@ -119,6 +157,8 @@ BeamEngine::BeamEngine(float m_conf_engine_min_rpm, float m_conf_engine_max_rpm,
 		m_conf_turbo_addi_torque[i] = 0;
 		m_turbo_curr_rpm[i] = 0;
 	}
+
+    pthread_mutex_init(&m_mutex, NULL);
 }
 
 BeamEngine::~BeamEngine()
@@ -126,6 +166,7 @@ BeamEngine::~BeamEngine()
 	// delete NULL is safe
 	delete m_conf_engine_torque_curve;
 	m_conf_engine_torque_curve = NULL;
+    pthread_mutex_destroy(&m_mutex);
 }
 
 // Full state logging for debugging LuaPowertrain
@@ -394,19 +435,63 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	}
 }
 
+void DBG_LogProjectedLuaArguments(Beam* truck, int doUpdate)
+{
+    // Log projected Lua arguments
+    // node0_velocity ~~ [number] ~~ truck->nodes[0].Velocity.length();
+    // 
+    // hdir_velocity ~~ [number | nil] ~~ "velocity" below (NOTE: I have no idea what the calculation does ~ only_a_ptr, 12/2015)
+    //     if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >=0)
+    //     {
+    //         Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+    //         velocity = hdir.dotProduct(truck->nodes[0].Velocity);
+    //     }
+    // 
+    // wheel0_radius ~~ [number] ~~ truck->wheels[0].radius
+    // 
+    // vehicle_brake_force ~~ [number] ~~ truck->brakeforce
+    // vehicle_brake_ratio ~~ [number] ~~ truck->brake
+
+    char lua_arg_msg[1000];
+    float hdir_velocity = -1.f;
+    if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >=0)
+    {
+        Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+        hdir_velocity = hdir.dotProduct(truck->nodes[0].Velocity);
+    }
+    sprintf(lua_arg_msg, "do_update: %s | node0_velocity: %12.2f | hdir_velocity: %12.2f "
+        "| wheel0_radius: %12.2f | vehicle_brake_force: %12.2f | vehicle_brake_ratio: %12.2f",
+        (doUpdate == 1) ? " TRUE" : "FALSE",
+        truck->nodes[0].Velocity.length(),
+        hdir_velocity,
+        truck->wheels[0].radius,
+        truck->brakeforce,
+        truck->brake);
+    LOG(lua_arg_msg);
+}
+
 // TIGHT-LOOP: Called at least once per frame.
 void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 {
-    this->LogFullState();
-	Beam* truck = BeamFactory::getSingleton().getTruck(this->m_vehicle_index);
+    SCOPED_LOCK("UpdateBeamEngine() ******************************************************* ")
+    Beam* truck = BeamFactory::getSingleton().getTruck(this->m_vehicle_index);
+
+    // DBG_LogProjectedLuaArguments(truck, doUpdate);
+    //this->LogFullState();
+
 
 	if (!truck) return;
 
 	float acc = this->m_curr_acc;
 	bool engine_is_electric = (m_conf_engine_type == 'e');
 
-	acc = std::max(CalcIdleMixture(), acc);
-	acc = std::max(CalcPrimeMixture(), acc);
+    float idle_mixture = CalcIdleMixture();
+    float prime_mixture = CalcPrimeMixture();
+
+	acc = std::max(idle_mixture, acc);
+    float DBG_acc_snap1 = acc;
+	acc = std::max(prime_mixture, acc);
+    float DBG_acc_snap2 = acc;
 
 	if (doUpdate)
 	{
@@ -559,16 +644,22 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 		totaltorque += 10.0f * m_conf_engine_braking_torque * m_curr_engine_rpm / m_conf_engine_max_rpm;
 	}
 
+    float DBG_totaltorque_sample1 = totaltorque;
+
 	// braking by m_conf_engine_hydropump
 	if (m_curr_engine_rpm > 100.0f)
 	{
 		totaltorque -= 8.0f * m_engine_hydropump / (m_curr_engine_rpm * 0.105f * dt);
 	}
 
+    float DBG_totaltorque_sample2 = totaltorque;
+
 	if (m_is_engine_running && m_starter_has_contact && m_curr_engine_rpm < (m_conf_engine_max_rpm * 1.25f))
 	{
 		totaltorque += CalcEnginePower(m_curr_engine_rpm) * acc;
 	}
+
+    float DBG_totaltorque_sample3 = totaltorque;
 
 	if (!engine_is_electric)
 	{
@@ -593,6 +684,8 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 		}
 	}
 
+    float DBG_totaltorque_sample4 = totaltorque;
+
 	// clutch
 	float retorque = 0.0f;
 
@@ -602,6 +695,21 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 	}
 
 	totaltorque -= retorque;
+
+    /*//  Debugging internal flow
+    char msg[1000] = {0};
+    sprintf(msg, 
+        "Lua - DBG "
+        "| totaltorque { 1: %10.3f | 2: %10.3f | 3: %10.3f | 4: %10.3f } "
+        "| acc: { 1: %10.3f (idlemix: %10.3f) | 2: %10.3f (primemix: %10.3f) | 3: %10.3f } "
+        "| retorque: %10.3f "
+        "| self.curr_engine_rpm: %10.3f "
+        "| self.conf_engine_inertia: %10.3f",
+        DBG_totaltorque_sample1, DBG_totaltorque_sample2, DBG_totaltorque_sample3, DBG_totaltorque_sample4,
+        DBG_acc_snap1, idle_mixture, DBG_acc_snap2, prime_mixture, acc,
+        retorque, m_curr_engine_rpm, m_conf_engine_inertia);
+    LOG(msg);
+    // */
 
 	// integration
 	m_curr_engine_rpm += dt * totaltorque / m_conf_engine_inertia;
@@ -655,14 +763,14 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 #ifdef USE_OPENAL
 				SoundScriptManager::getSingleton().trigStop(m_vehicle_index, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-				setAcc(m_auto_curr_acc);
+				m_curr_acc = m_auto_curr_acc; //INLINED setAcc(m_auto_curr_acc);
 				m_is_shifting = 0;
 				m_curr_clutch = 1.0f;
 				m_is_post_shifting = true;
 				m_post_shift_clock = 0.0f;
 			}
 		} else
-			setAcc(m_auto_curr_acc);
+			m_curr_acc = m_auto_curr_acc; //INLINED setAcc(m_auto_curr_acc);
 
 
 
@@ -749,12 +857,12 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 			{
 				if ((m_autoselect == DRIVE && m_curr_gear < m_conf_num_gears) || (m_autoselect == TWO && m_curr_gear < std::min(2, m_conf_num_gears)) && !engine_is_electric)
 				{
-					this->BeamEngineShift(1);
+					this->BeamEngineShift(1, false);
 				}
 			} else if (m_curr_gear > 1 && m_ref_wheel_revolutions * m_conf_gear_ratios[m_curr_gear] < m_conf_engine_max_rpm && (m_curr_engine_rpm < m_conf_engine_min_rpm || (m_curr_engine_rpm < m_conf_engine_min_rpm + m_autotrans_curr_shift_behavior * halfRPMRange / 2.0f &&
 				CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear]) > CalcEnginePower(m_cur_wheel_revolutions * m_conf_gear_ratios[m_curr_gear + 1]))) && !engine_is_electric)
 			{
-				this->BeamEngineShift(-1);
+				this->BeamEngineShift(-1, false);
 			}
 
 			int newGear = m_curr_gear;
@@ -879,7 +987,7 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 					newGear > m_curr_gear && std::abs(m_cur_wheel_revolutions * (m_conf_gear_ratios[newGear + 1] - m_conf_gear_ratios[m_curr_gear + 1])) > oneThirdRPMRange / 3.0f && !engine_is_electric)
 				{
 					if (m_abs_velocity - m_rel_velocity < 0.5f)
-						this->BeamEngineShiftTo(newGear);
+						this->BeamEngineShiftTo(newGear, false);
 				}
 			}
 
@@ -922,102 +1030,10 @@ void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
     for (; itor != iend; ++itor) { sstream << std::setw(10) << *itor << ""; } \
     } 
 
-void BeamEngine::DEBUG_LogClassState(BeamEngine snapshot_before, float dt, int doUpdate)
-{
-    using namespace std;
-    int width = 20;
-	std::stringstream msg;
-	msg.str().reserve(5000);
-    pthread_t thread = pthread_self();
-	
-	msg << " ====== Engine updated (thread: " << thread.p 
-        << ", truck: " << m_vehicle_index << ", deltatime: " << dt  
-        << ", doUpdate: " << doUpdate << ") =========";
-        /*
-	<<"\nrefWheelRevolutions       "<< setw(width) << snapshot_before.m_ref_wheel_revolutions                      << ", " << setw(width) << m_ref_wheel_revolutions
-	<<"\ncurWheelRevolutions       "<< setw(width) << snapshot_before.m_cur_wheel_revolutions                      << ", " << setw(width) << m_cur_wheel_revolutions 
-	<<"\ncurGear                   "<< setw(width) << snapshot_before.m_curr_gear                                  << ", " << setw(width) << m_curr_gear
-	<<"\ncurGearRange              "<< setw(width) << snapshot_before.m_curr_gear_range                             << ", " << setw(width) << m_curr_gear_range 
-	<<"\nnumGears                  "<< setw(width) << snapshot_before.m_conf_num_gears                                 << ", " << setw(width) << m_conf_num_gears 
-	<<"\nabsVelocity               "<< setw(width) << snapshot_before.m_abs_velocity                              << ", " << setw(width) << m_abs_velocity 
-	<<"\nrelVelocity               "<< setw(width) << snapshot_before.m_rel_velocity                              << ", " << setw(width) << m_rel_velocity 
-	<<"\nclutchForce               "<< setw(width) << snapshot_before.m_conf_clutch_force                              << ", " << setw(width) << m_conf_clutch_force
-	<<"\nclutchTime                "<< setw(width) << snapshot_before.m_conf_clutch_time                               << ", " << setw(width) << m_conf_clutch_time
-	<<"\ncurClutch                 "<< setw(width) << snapshot_before.m_curr_clutch                                << ", " << setw(width) << m_curr_clutch
-	<<"\ncurClutchTorque           "<< setw(width) << snapshot_before.m_curr_clutch_torque                          << ", " << setw(width) << m_curr_clutch_torque
-	<<"\ncontact                   "<< setw(width) << snapshot_before.m_starter_has_contact                                  << ", " << setw(width) << m_starter_has_contact 
-	<<"\nhasair                    "<< setw(width) << snapshot_before.m_conf_engine_has_air                                   << ", " << setw(width) << m_conf_engine_has_air 
-	<<"\nhasturbo                  "<< setw(width) << snapshot_before.m_conf_engine_has_turbo                                 << ", " << setw(width) << m_conf_engine_has_turbo 
-	<<"\nrunning                   "<< setw(width) << snapshot_before.m_is_engine_running                                  << ", " << setw(width) << m_is_engine_running 
-	<<"\ntype                      "<< setw(width) << snapshot_before.type                                     << ", " << setw(width) << type 
-	<<"\nbrakingTorque             "<< setw(width) << snapshot_before.m_conf_engine_braking_torque                            << ", " << setw(width) << m_conf_engine_braking_torque 
-	<<"\ncurAcc                    "<< setw(width) << snapshot_before.m_curr_acc                                   << ", " << setw(width) << m_curr_acc 
-	<<"\ncurEngineRPM              "<< setw(width) << snapshot_before.m_curr_engine_rpm                             << ", " << setw(width) << m_curr_engine_rpm 
-	<<"\ndiffRatio                 "<< setw(width) << snapshot_before.m_conf_engine_diff_ratio                                << ", " << setw(width) << m_conf_engine_diff_ratio 
-	<<"\nengineTorque              "<< setw(width) << snapshot_before.m_conf_engine_torque                             << ", " << setw(width) << m_conf_engine_torque 
-	<<"\nhydropump                 "<< setw(width) << snapshot_before.m_conf_engine_hydropump                                << ", " << setw(width) << m_conf_engine_hydropump 
-	<<"\nidleRPM                   "<< setw(width) << snapshot_before.m_conf_engine_idle_rpm                                  << ", " << setw(width) << m_conf_engine_idle_rpm 
-	<<"\nminIdleMixture            "<< setw(width) << snapshot_before.m_conf_engine_min_idle_mixture                           << ", " << setw(width) << m_conf_engine_min_idle_mixture 
-	<<"\nmaxIdleMixture            "<< setw(width) << snapshot_before.m_conf_engine_max_idle_mixture                           << ", " << setw(width) << m_conf_engine_max_idle_mixture 
-	<<"\ninertia                   "<< setw(width) << snapshot_before.m_conf_engine_inertia                                  << ", " << setw(width) << m_conf_engine_inertia 
-	<<"\nmaxRPM                    "<< setw(width) << snapshot_before.m_conf_engine_max_rpm                                   << ", " << setw(width) << m_conf_engine_max_rpm 
-	<<"\nminRPM                    "<< setw(width) << snapshot_before.m_conf_engine_min_rpm                                   << ", " << setw(width) << m_conf_engine_min_rpm 
-	<<"\nstallRPM                  "<< setw(width) << snapshot_before.m_conf_engine_stall_rpm                                 << ", " << setw(width) << m_conf_engine_stall_rpm 
-	<<"\nprime                     "<< setw(width) << snapshot_before.prime                                    << ", " << setw(width) << prime 
-	<<"\npost_shift_time           "<< setw(width) << snapshot_before.m_conf_post_shift_time                          << ", " << setw(width) << m_conf_post_shift_time 
-	<<"\npostshiftclock            "<< setw(width) << snapshot_before.m_post_shift_clock                           << ", " << setw(width) << m_post_shift_clock
-	<<"\nshift_time                "<< setw(width) << snapshot_before.m_conf_shift_time                               << ", " << setw(width) << m_conf_shift_time 
-	<<"\nshiftclock                "<< setw(width) << snapshot_before.m_shift_clock                               << ", " << setw(width) << m_shift_clock
-	<<"\npostshifting              "<< setw(width) << snapshot_before.m_is_post_shifting                             << ", " << setw(width) << m_is_post_shifting
-	<<"\nshifting                  "<< setw(width) << snapshot_before.m_is_shifting                                 << ", " << setw(width) << m_is_shifting
-	<<"\nshiftval                  "<< setw(width) << snapshot_before.m_curr_gear_change_relative                                 << ", " << setw(width) << m_curr_gear_change_relative
-	<<"\nautoselect                "<< setw(width) << snapshot_before.m_autoselect                               << ", " << setw(width) << m_autoselect
-	<<"\nautocurAcc                "<< setw(width) << snapshot_before.m_auto_curr_acc                               << ", " << setw(width) << m_auto_curr_acc
-	<<"\nstarter                   "<< setw(width) << snapshot_before.m_starter_is_running                                  << ", " << setw(width) << m_starter_is_running
-	<<"\nfullRPMRange              "<< setw(width) << snapshot_before.m_conf_autotrans_full_rpm_range                             << ", " << setw(width) << m_conf_autotrans_full_rpm_range
-	<<"\noneThirdRPMRange          "<< setw(width) << snapshot_before.oneThirdRPMRange                         << ", " << setw(width) << oneThirdRPMRange
-	<<"\nhalfRPMRange              "<< setw(width) << snapshot_before.halfRPMRange                             << ", " << setw(width) << halfRPMRange
-	<<"\nshiftBehaviour            "<< setw(width) << snapshot_before.m_autotrans_curr_shift_behavior                           << ", " << setw(width) << m_autotrans_curr_shift_behavior
-	<<"\nupShiftDelayCounter       "<< setw(width) << snapshot_before.m_autotrans_up_shift_delay_counter                      << ", " << setw(width) << m_autotrans_up_shift_delay_counter
-	<<"\nturboVer                  "<< setw(width) << snapshot_before.m_conf_turbo_version                                 << ", " << setw(width) << m_conf_turbo_version
-	<<"\ncurTurboRPM[MAX_NUM_TURBOS]     "<< setw(width) << snapshot_before.m_turbo_curr_rpm[MAX_NUM_TURBOS]                    << ", " << setw(width) << m_turbo_curr_rpm[MAX_NUM_TURBOS]
-	<<"\nturboInertiaFactor        "<< setw(width) << snapshot_before.m_conf_turbo_inertia_factor                       << ", " << setw(width) << m_conf_turbo_inertia_factor
-	<<"\nnumTurbos                 "<< setw(width) << snapshot_before.m_conf_num_turbos                                << ", " << setw(width) << m_conf_num_turbos
-	<<"\nmaxTurboRPM               "<< setw(width) << snapshot_before.m_conf_turbo_max_rpm                              << ", " << setw(width) << m_conf_turbo_max_rpm
-	<<"\nturbotorque               "<< setw(width) << snapshot_before.m_turbo_torque                              << ", " << setw(width) << m_turbo_torque
-	<<"\nturboInertia              "<< setw(width) << snapshot_before.m_turbo_inertia                             << ", " << setw(width) << m_turbo_inertia
-	<<"\nEngineAddiTorque[MAX_NUM_TURBOS]"<< setw(width) << snapshot_before.m_conf_turbo_addi_torque[MAX_NUM_TURBOS]               << ", " << setw(width) << m_conf_turbo_addi_torque[MAX_NUM_TURBOS]
-	<<"\nturboEngineRpmOperation   "<< setw(width) << snapshot_before.m_conf_turbo_engine_rpm_operation                  << ", " << setw(width) << m_conf_turbo_engine_rpm_operation
-	<<"\nturboMaxPSI               "<< setw(width) << snapshot_before.m_conf_turbo_max_psi                              << ", " << setw(width) << m_conf_turbo_max_psi
-	<<"\nturboPSI                  "<< setw(width) << snapshot_before.m_turbo_psi                                 << ", " << setw(width) << m_turbo_psi
-	<<"\nb_BOV                     "<< setw(width) << snapshot_before.m_conf_turbo_has_bov                                    << ", " << setw(width) << m_conf_turbo_has_bov
-	<<"\ncurBOVTurboRPM[MAX_NUM_TURBOS]  "<< setw(width) << snapshot_before.m_turbo_cur_bov_rpm[MAX_NUM_TURBOS]                 << ", " << setw(width) << m_turbo_cur_bov_rpm[MAX_NUM_TURBOS]
-	<<"\nturboBOVtorque            "<< setw(width) << snapshot_before.m_turbo_bov_torque                           << ", " << setw(width) << m_turbo_bov_torque
-	<<"\nminBOVPsi                 "<< setw(width) << snapshot_before.m_conf_turbo_min_bov_psi                                << ", " << setw(width) << m_conf_turbo_min_bov_psi
-	<<"\nb_WasteGate               "<< setw(width) << snapshot_before.m_conf_turbo_has_wastegate                              << ", " << setw(width) << m_conf_turbo_has_wastegate
-	<<"\nminWGPsi                  "<< setw(width) << snapshot_before.m_conf_turbo_wg_min_psi                                 << ", " << setw(width) << m_conf_turbo_wg_min_psi
-	<<"\nb_flutter                 "<< setw(width) << snapshot_before.m_conf_turbo_has_flutter                                << ", " << setw(width) << m_conf_turbo_has_flutter
-	<<"\nwastegate_threshold_p     "<< setw(width) << snapshot_before.m_conf_turbo_wg_threshold_p                    << ", " << setw(width) << m_conf_turbo_wg_threshold_p
-    <<"\nwastegate_threshold_n     "<< setw(width) << snapshot_before.m_conf_turbo_wg_threshold_n                    << ", " << setw(width) << m_conf_turbo_wg_threshold_n
-	<<"\nb_anti_lag                "<< setw(width) << snapshot_before.m_conf_turbo_has_antilag                               << ", " << setw(width) << m_conf_turbo_has_antilag
-	<<"\nminRPM_antilag            "<< setw(width) << snapshot_before.m_conf_turbo_antilag_min_rpm                           << ", " << setw(width) << m_conf_turbo_antilag_min_rpm
-	<<"\nrnd_antilag_chance        "<< setw(width) << snapshot_before.m_conf_turbo_antilag_chance_rand                       << ", " << setw(width) << m_conf_turbo_antilag_chance_rand
-	<<"\nantilag_power_factor      "<< setw(width) << snapshot_before.m_conf_turbo_antilag_power_factor                     << ", " << setw(width) << m_conf_turbo_antilag_power_factor
-	<<"\nm_air_pressure            "<< setw(width) << snapshot_before.m_air_pressure                           << ", " << setw(width) << m_air_pressure
-	<<"\nautomode                  "<< setw(width) << snapshot_before.m_transmission_mode                                 << ", " << setw(width) << m_transmission_mode
-    ;*/
-    //msg << "\nDEQUE m_autotrans_rpm_buffer BEFORE"; LOG_DEQUE_FLOAT(msg, snapshot_before.m_autotrans_rpm_buffer); 
-    //msg << "\nDEQUE m_autotrans_rpm_buffer   AFTER"; LOG_DEQUE_FLOAT(msg, m_autotrans_rpm_buffer);
-    //msg << "\nDEQUE m_autotrans_acc_buffer BEFORE"; LOG_DEQUE_FLOAT(msg, snapshot_before.m_autotrans_acc_buffer); 
-    //msg << "\nDEQUE m_autotrans_acc_buffer   AFTER"; LOG_DEQUE_FLOAT(msg, m_autotrans_acc_buffer);
-    //msg << "\nDEQUE m_autotrans_brake_buffer BEFORE"; LOG_DEQUE_FLOAT(msg, snapshot_before.m_autotrans_brake_buffer); 
-    //msg << "\nDEQUE m_autotrans_brake_buffer AFTER"; LOG_DEQUE_FLOAT(msg, m_autotrans_brake_buffer);
-
-    LOG(msg.str());
-}
-
 void BeamEngine::UpdateBeamEngineAudio(int doUpdate)
 {
+    // NO LOCK - only called internally
+
 #ifdef USE_OPENAL
 	if (m_conf_engine_has_turbo)
 	{
@@ -1044,11 +1060,13 @@ void BeamEngine::UpdateBeamEngineAudio(int doUpdate)
 
 float BeamEngine::getRPM()
 {
+    SCOPED_LOCK("getRPM()") // only external calls
 	return m_curr_engine_rpm;
 }
 
 void BeamEngine::toggleAutoMode()
 {
+    SCOPED_LOCK("toggleAutoMode()") // only external calls
 	m_transmission_mode = (m_transmission_mode + 1) % (MANUAL_RANGES + 1);
 
 	// this switches off all automatic symbols when in manual mode
@@ -1062,28 +1080,33 @@ void BeamEngine::toggleAutoMode()
 
 	if (m_transmission_mode == MANUAL_RANGES)
 	{
-		this->setGearRange(0);
-		this->setGear(0);
+		m_curr_gear_range = 0.f; //INLINED this->setGearRange(0);
+		m_curr_gear = 0.f; //INLINED this->setGear(0);
 	}
 }
 
 int BeamEngine::getAutoMode()
 {
+    SCOPED_LOCK("getAutoMode()") // only external calls
 	return m_transmission_mode;
 }
 
 void BeamEngine::setAutoMode(int mode)
 {
+    SCOPED_LOCK("setAutoMode()") // OK
 	m_transmission_mode = mode;
 }
 
 void BeamEngine::setAcc(float val)
 {
+    SCOPED_LOCK("setAcc()") // OK
 	m_curr_acc = val;
 }
 
-float BeamEngine::getTurboPSI()
+float BeamEngine::getTurboPSI(bool must_lock /*=true*/)
 {
+    SCOPED_LOCK_OPT("getTurboPSI()", must_lock);
+
 	m_turbo_psi = 0;
 
 	if (m_conf_turbo_has_bov)
@@ -1102,12 +1125,14 @@ float BeamEngine::getTurboPSI()
 
 float BeamEngine::getAcc()
 {
+    SCOPED_LOCK("getAcc()") // OK
 	return m_curr_acc;
 }
 
 // this is mainly for smoke...
 void BeamEngine::netForceSettings(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
 {
+    SCOPED_LOCK("netForceSettings()") // ok
 	m_curr_engine_rpm = rpm;
 	m_curr_acc       = force;
 	m_curr_clutch    = clutch;
@@ -1122,6 +1147,7 @@ void BeamEngine::netForceSettings(float rpm, float force, float clutch, int gear
 
 float BeamEngine::getSmoke()
 {
+    SCOPED_LOCK("getSmoke()") // OK
 	if (m_is_engine_running)
 	{
 		return m_curr_acc * (1.0f - m_turbo_curr_rpm[0] /* doesn't matter */ / m_conf_turbo_max_rpm);// * m_conf_engine_torque / 5000.0f;
@@ -1132,6 +1158,7 @@ float BeamEngine::getSmoke()
 
 float BeamEngine::getTorque()
 {
+    SCOPED_LOCK("getTorque()") // OK
 	if (m_curr_clutch_torque >  1000000.0) return  1000000.0;
 	if (m_curr_clutch_torque < -1000000.0) return -1000000.0;
 	return m_curr_clutch_torque;
@@ -1139,17 +1166,20 @@ float BeamEngine::getTorque()
 
 void BeamEngine::setRPM(float rpm)
 {
+    SCOPED_LOCK("setRPM()") // OK
 	m_curr_engine_rpm = rpm;
 }
 
 void BeamEngine::setSpin(float rpm)
 {
+    SCOPED_LOCK("setSpin()") // OK
 	m_cur_wheel_revolutions = rpm;
 }
 
 // for hydros acceleration
-float BeamEngine::getCrankFactor()
+float BeamEngine::getCrankFactor(bool must_lock /*= true */)
 {
+    SCOPED_LOCK_OPT("getCrankFactor()", must_lock)
 	float minWorkingRPM = m_conf_engine_idle_rpm * 1.1f; // minWorkingRPM > m_conf_engine_idle_rpm avoids commands deadlocking the engine
 
 	float rpmRatio = (m_curr_engine_rpm - minWorkingRPM) / (m_conf_engine_max_rpm - minWorkingRPM);
@@ -1163,21 +1193,25 @@ float BeamEngine::getCrankFactor()
 
 void BeamEngine::setClutch(float clutch)
 {
+    SCOPED_LOCK("setClutch()") // OK
 	m_curr_clutch = clutch;
 }
 
 float BeamEngine::getClutch()
 {
+    SCOPED_LOCK("getClutch()") // OK
 	return m_curr_clutch;
 }
 
 float BeamEngine::getClutchForce()
 {
+    SCOPED_LOCK("getClutchForce()") // OK
 	return m_conf_clutch_force;
 }
 
 void BeamEngine::toggleContact()
 {
+    SCOPED_LOCK("toggleContact()")//OK
 	m_starter_has_contact = !m_starter_has_contact;
 #ifdef USE_OPENAL
 	if (m_starter_has_contact)
@@ -1193,6 +1227,7 @@ void BeamEngine::toggleContact()
 // quick start
 void BeamEngine::start()
 {
+    SCOPED_LOCK("start()") // not verified
 	if (m_transmission_mode == AUTOMATIC)
 	{
 		m_curr_gear = 1;
@@ -1223,13 +1258,14 @@ void BeamEngine::start()
 	m_starter_has_contact = true;
 #ifdef USE_OPENAL
 	SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_IGNITION);
-	setAcc(0.0f);
+	m_curr_acc = 0.f; //INLINED: setAcc(0.0f);
 	SoundScriptManager::getSingleton().trigStart(m_vehicle_index, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
 void BeamEngine::offstart()
 {
+    SCOPED_LOCK("offstart()") // OK
 	m_curr_gear = 0;
 	m_curr_clutch = 0.0f;
 	if (m_conf_engine_type != 'e') // e = Electric engine
@@ -1248,36 +1284,42 @@ void BeamEngine::offstart()
 
 void BeamEngine::setstarter(int v)
 {
+    SCOPED_LOCK("setstarter()") // OK
 	m_starter_is_running = (v == 1);
 	if (v && m_curr_engine_rpm < 750.0f)
 	{
-		setAcc(1.0f);
+		m_curr_acc = 1.f; //INLINED setAcc(1.0f);
 	}
 }
 
 int BeamEngine::getGear()
 {
+    SCOPED_LOCK("getGear()") // OK
 	return m_curr_gear;
 }
 
 // low level gear changing
 void BeamEngine::setGear(int v)
 {
+    SCOPED_LOCK("setGear()") // OK
 	m_curr_gear = v;
 }
 
 int BeamEngine::getGearRange()
 {
+    SCOPED_LOCK("getGearRange()") // OK
 	return m_curr_gear_range;
 }
 
 void BeamEngine::setGearRange(int v)
 {
+    SCOPED_LOCK("setGearRange()") // OK
 	m_curr_gear_range = v;
 }
 
 void BeamEngine::stop()
 {
+    SCOPED_LOCK("stop()") // not verified
 	if (!m_is_engine_running) return;
 
 	m_is_engine_running = false;
@@ -1291,15 +1333,17 @@ void BeamEngine::stop()
 // high level controls
 void BeamEngine::autoSetAcc(float val)
 {
+    SCOPED_LOCK("autoSetAcc()") // only called externally
 	m_auto_curr_acc = val;
 	if (!m_is_shifting)
 	{
-		setAcc(val);
+		m_curr_acc = val; //INLINED setAcc(val);
 	}
 }
 
-void BeamEngine::BeamEngineShift(int val)
+void BeamEngine::BeamEngineShift(int val, bool must_lock /*=true*/)
 {
+    SCOPED_LOCK_OPT("BeamEngineShift()", must_lock)
 	if (!val || m_curr_gear + val < -1 || m_curr_gear + val > getNumGears()) return;
 	if (m_transmission_mode < MANUAL)
 	{
@@ -1309,7 +1353,7 @@ void BeamEngine::BeamEngineShift(int val)
 		m_curr_gear_change_relative = val;
 		m_is_shifting = 1;
 		m_shift_clock = 0.0f;
-		setAcc(0.0f);
+		m_curr_acc = 0.f; //INLINED setAcc(0.0f);
 	} else
 	{
 		if (m_curr_clutch > 0.25f)
@@ -1327,13 +1371,19 @@ void BeamEngine::BeamEngineShift(int val)
 	}
 }
 
-void BeamEngine::BeamEngineShiftTo(int newGear)
+void BeamEngine::BeamEngineShiftTo(int newGear, bool must_lock /*=true*/)
 {
-	this->BeamEngineShift(newGear - m_curr_gear);
+    SCOPED_LOCK_OPT("BeamEngineShiftTo()", must_lock);
+
+    bool const should_lock = false;
+	this->BeamEngineShift(newGear - m_curr_gear, should_lock);
 }
 
 void BeamEngine::UpdateBeamEngineShifts()
 {
+    // NO LOCK - only called internally
+
+
 	if (m_autoselect == MANUALMODE) return;
 
 #ifdef USE_OPENAL
@@ -1372,12 +1422,14 @@ void BeamEngine::UpdateBeamEngineShifts()
 
 void BeamEngine::autoShiftSet(int mode)
 {
+    SCOPED_LOCK("autoShiftSet()") // OK
 	m_autoselect = (autoswitch)mode;
 	this->UpdateBeamEngineShifts();
 }
 
 void BeamEngine::autoShiftUp()
 {
+    SCOPED_LOCK("autoShiftUp()") // OK
 	if (m_autoselect != REAR)
 	{
 		m_autoselect = (autoswitch)(m_autoselect-1);
@@ -1387,6 +1439,7 @@ void BeamEngine::autoShiftUp()
 
 void BeamEngine::autoShiftDown()
 {
+    SCOPED_LOCK("autoShiftDown()") // OK
 	if (m_autoselect != ONE)
 	{
 		m_autoselect = (autoswitch)(m_autoselect+1);
@@ -1396,11 +1449,13 @@ void BeamEngine::autoShiftDown()
 
 int BeamEngine::getAutoShift()
 {
+    SCOPED_LOCK("getAutoShift()") // OK
 	return (int)m_autoselect;
 }
 
 void BeamEngine::setManualClutch(float val)
 {
+    SCOPED_LOCK("setManualClutch()") // OK
 	if (m_transmission_mode >= MANUAL)
 	{
 		val = std::max(0.0f, val);
@@ -1410,6 +1465,9 @@ void BeamEngine::setManualClutch(float val)
 
 float BeamEngine::CalcEnginePower(float rpm)
 {
+    // No lock - only called from BeamEngineUpdate()
+
+
 	// engine power with limiter
 	float tqValue = 0.0f; //This is not a value, it's more of a ratio(0-1), really got me lost..
 
@@ -1433,15 +1491,27 @@ float BeamEngine::CalcEnginePower(float rpm)
 		}
 		else
 		{
-			atValue = (((getTurboPSI() * 6.8) * m_conf_engine_torque) / 100); //1psi = 6% more power
+            bool const lock_mutex = false;
+			atValue = (((getTurboPSI(lock_mutex) * 6.8) * m_conf_engine_torque) / 100); //1psi = 6% more power
 		}
 	}
 
-	return (m_conf_engine_torque * tqValue) + atValue;
+    float result = (m_conf_engine_torque * tqValue) + atValue;
+
+    /*
+    char msg[1000] = {0};
+    sprintf(msg, "Powertrain.CalcEnginePower(): input RPM: %10.3f | rpm_ratio: %10.3f | torque_ratio: %10.3f | addi_torque_value:  %10.3f | RESULT: %10.3f",
+        rpm, rpmRatio, tqValue, atValue, result);
+    LOG(msg);
+    */
+
+	return result;
 }
 
 float BeamEngine::getAccToHoldRPM(float rpm)
 {
+    // NO LOCK --- called from within UpdateBeamEngine() only (through CalcIdleMixture)
+
 	float rpmRatio = rpm / (m_conf_engine_max_rpm * 1.25f);
 
 	rpmRatio = std::min(rpmRatio, 1.0f);
@@ -1451,6 +1521,9 @@ float BeamEngine::getAccToHoldRPM(float rpm)
 
 float BeamEngine::CalcIdleMixture()
 {
+    // NO LOCK --- called from within UpdateBeamEngine() only
+
+
 	if (m_curr_engine_rpm < m_conf_engine_idle_rpm)
 	{
 		// determine the fuel injection needed to counter the engine braking force
@@ -1471,9 +1544,13 @@ float BeamEngine::CalcIdleMixture()
 
 float BeamEngine::CalcPrimeMixture()
 {
+    // NO LOCK --- called from within UpdateBeamEngine() only
+
+
 	if (m_prime)
 	{
-		float crankfactor = getCrankFactor();
+        bool const do_lock = false;
+		float crankfactor = getCrankFactor(do_lock);
 
 		if (crankfactor < 0.9f)
 		{

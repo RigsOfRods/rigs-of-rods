@@ -999,12 +999,13 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	turbotexture->setTextureRotate(Degree(angle));
 
 	// indicators
+    float vehicle_torque = vehicle->engine->getTorque();
 	igno->setMaterialName(String("tracks/ign-")         + ((vehicle->engine->hasContact())?"on":"off"));
 	batto->setMaterialName(String("tracks/batt-")       + ((vehicle->engine->hasContact() && !vehicle->engine->isRunning())?"on":"off"));
 	pbrakeo->setMaterialName(String("tracks/pbrake-")   + ((vehicle->parkingbrake)?"on":"off"));
 	lockedo->setMaterialName(String("tracks/locked-")   + ((vehicle->isLocked())?"on":"off"));
 	lopresso->setMaterialName(String("tracks/lopress-") + ((!vehicle->canwork)?"on":"off"));
-	clutcho->setMaterialName(String("tracks/clutch-")   + ((fabs(vehicle->engine->getTorque())>=vehicle->engine->getClutchForce()*10.0f)?"on":"off"));
+	clutcho->setMaterialName(String("tracks/clutch-")   + ((fabs(vehicle_torque)>=vehicle->engine->getClutchForce()*10.0f)?"on":"off"));
 	lightso->setMaterialName(String("tracks/lights-")   + ((vehicle->lights)?"on":"off"));
 
 	if (vehicle->tc_present)
