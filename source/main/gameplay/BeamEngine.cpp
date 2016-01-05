@@ -124,11 +124,165 @@ BeamEngine::BeamEngine(float m_conf_engine_min_rpm, float m_conf_engine_max_rpm,
 BeamEngine::~BeamEngine()
 {
 	// delete NULL is safe
-    /* ============== DISABLED for snapshotting, temporary ~only_a_ptr ================== //
 	delete m_conf_engine_torque_curve;
 	m_conf_engine_torque_curve = NULL;
-    */
 }
+
+// Full state logging for debugging LuaPowertrain
+// The output is intended for comparsion by DIFF tool, not for reading by human
+const char* str_bool(bool val) { return val ? " TRUE" : "FALSE"; }
+void BeamEngine::LogFullState()
+{
+    char msg[6000];
+    
+    sprintf(msg,"DBG Powertrain "
+        "| ref_wheel_revolutions: "            "%12.2f "
+        "| cur_wheel_revolutions: "            "%12.2f "
+        "| curr_gear: "                        "%9d.00 "
+        "| curr_gear_range: "                  "%9d.00 "
+        "| abs_velocity: "                     "%12.2f "
+        "| rel_velocity: "                     "%12.2f "
+        "| vehicle_index: "                    "%9d.00 "
+        "| curr_clutch: "                      "%12.2f "
+        "| curr_clutch_torque: "               "%40.2f "
+        "| engine_hydropump: "                 "%12.2f "
+        "| post_shift_clock: "                 "%12.2f "
+        "| shift_clock: "                      "%12.2f "
+        "| conf_shift_time: "                  "%12.2f "
+        "| is_post_shifting: "                 "%s "
+        "| is_engine_running: "                "%s "
+        "| curr_gear_change_relative: "        "%9d.00 "
+        "| air_pressure: "                     "%12.2f "
+        "| auto_curr_acc: "                    "%12.2f "
+        "| transmission_mode: "                "%9d.00 "
+        "| autoselect: "                       "%9d.00 "
+        "| starter_has_contact: "              "%s "
+        "| starter_is_running: "               "%s "
+        "| curr_acc: "                         "%12.2f "
+        "| prime: "                            "%9d.00 "
+        "| curr_engine_rpm: "                  "%40.2f "
+        "| is_shifting: "                      "%s "
+        "| autotrans_curr_shift_behavior: "    "%12.2f "
+        "| autotrans_up_shift_delay_counter: " "%9d.00 "
+        "| conf_autotrans_full_rpm_range: "    "%12.2f "
+        "| turbo_curr_rpm[0]: "                "%12.2f "
+        "| turbo_torque: "                     "%12.2f "
+        "| turbo_inertia: "                    "%12.2f "
+        "| turbo_psi: "                        "%12.2f "
+        "| turbo_bov_torque: "                 "%12.2f "
+        "| air_pressure: "                     "%12.2f "
+        "| conf_turbo_has_wastegate "          "%s "
+        "| conf_turbo_has_bov "                "%s "
+        "| conf_turbo_has_flutter "            "%s "
+        "| conf_turbo_has_antilag "            "%s "
+        "| conf_engine_has_air "               "%s "
+        "| conf_engine_has_turbo "             "%s "
+        "| conf_num_turbos "                   "%9d.00 "
+        "| conf_turbo_max_rpm "                "%9d.00 "
+        "| conf_turbo_engine_rpm_operation "   "%12.2f "
+        "| conf_turbo_version "                "%9d.00 "
+        "| conf_turbo_min_bov_psi "            "%9d.00 "
+        "| conf_turbo_wg_max_psi "             "%12.2f "
+        "| conf_turbo_wg_threshold_p "         "%12.2f "
+        "| conf_turbo_wg_threshold_n "         "%12.2f "
+        "| conf_turbo_antilag_chance_rand "    "%12.2f "
+        "| conf_turbo_antilag_min_rpm "        "%12.2f "
+        "| conf_turbo_antilag_power_factor "   "%12.2f "
+        "| conf_turbo_max_psi "                "%12.2f "
+        "| conf_turbo_inertia_factor "         "%12.2f "
+        "| conf_engine_diff_ratio "            "%12.2f "
+        "| conf_engine_torque "                "%12.2f "
+        "| conf_clutch_force "                 "%12.2f "
+        "| conf_clutch_time "                  "%12.2f "
+        "| conf_engine_idle_rpm "              "%12.2f "
+        "| conf_engine_inertia "               "%12.2f "
+        "| conf_engine_max_idle_mixture "      "%12.2f "
+        "| conf_engine_max_rpm "               "%12.2f "
+        "| conf_engine_min_idle_mixture "      "%12.2f "
+        "| conf_engine_min_rpm "               "%12.2f "
+        "| conf_engine_braking_torque "        "%12.2f "
+        "| conf_engine_torque "                "%12.2f "
+        "| conf_engine_stall_rpm "             "%12.2f "
+        "| conf_post_shift_time "              "%12.2f "
+        "| engine_type: "                      "%c",
+
+        m_ref_wheel_revolutions,
+        m_cur_wheel_revolutions,
+        m_curr_gear, // int
+        m_curr_gear_range, // int
+        m_abs_velocity,
+        m_rel_velocity,
+        m_vehicle_index, // int
+        m_curr_clutch,
+        m_curr_clutch_torque,
+        m_engine_hydropump,
+        m_post_shift_clock,
+        m_shift_clock,
+        m_conf_shift_time,
+        str_bool(m_is_post_shifting),
+        str_bool(m_is_engine_running),
+        m_curr_gear_change_relative, // int
+        m_air_pressure,
+        m_auto_curr_acc,
+        m_transmission_mode, // int
+        (int)m_autoselect, // int
+        str_bool(m_starter_has_contact),
+        str_bool(m_starter_is_running),
+        m_curr_acc,
+        m_prime, // int
+        m_curr_engine_rpm,
+        str_bool(m_is_shifting),
+        m_autotrans_curr_shift_behavior,
+        m_autotrans_up_shift_delay_counter, // int
+        m_conf_autotrans_full_rpm_range,
+        m_turbo_curr_rpm[0],
+        m_turbo_torque,
+        m_turbo_inertia,
+        m_turbo_psi,
+        m_turbo_bov_torque,
+        m_air_pressure,
+        
+        str_bool(m_conf_turbo_has_wastegate),
+        str_bool(m_conf_turbo_has_bov),
+        str_bool(m_conf_turbo_has_flutter),
+        str_bool(m_conf_turbo_has_antilag),
+        str_bool(m_conf_engine_has_air),
+        str_bool(m_conf_engine_has_turbo),
+
+        m_conf_num_turbos, // int
+        m_conf_turbo_max_rpm, // int
+        m_conf_turbo_engine_rpm_operation,
+        m_conf_turbo_version, // int
+        m_conf_turbo_min_bov_psi, // int
+        m_conf_turbo_wg_min_psi, // or MAX psi? It's uncertain what exactly this value represents ~ only_a_ptr, 12/2015
+        m_conf_turbo_wg_threshold_p,
+        m_conf_turbo_wg_threshold_n,
+        m_conf_turbo_antilag_chance_rand,
+        m_conf_turbo_antilag_min_rpm,
+        m_conf_turbo_antilag_power_factor,
+        m_conf_turbo_max_psi,
+        m_conf_turbo_inertia_factor,
+        m_conf_engine_diff_ratio,
+        m_conf_engine_torque,
+        m_conf_clutch_force,
+        m_conf_clutch_time,
+        m_conf_engine_idle_rpm,
+        m_conf_engine_inertia,
+        m_conf_engine_max_idle_mixture,
+        m_conf_engine_max_rpm,
+        m_conf_engine_min_idle_mixture,
+        m_conf_engine_min_rpm,
+        m_conf_engine_braking_torque,
+        m_conf_engine_torque,
+        m_conf_engine_stall_rpm,
+        m_conf_post_shift_time,
+        m_conf_engine_type // char
+        );
+
+    LOG(msg);
+}
+
+
 
 void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
@@ -243,8 +397,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 // TIGHT-LOOP: Called at least once per frame.
 void BeamEngine::UpdateBeamEngine(float dt, int doUpdate)
 {
-	BeamEngine snapshot_before = *this;
-
+    this->LogFullState();
 	Beam* truck = BeamFactory::getSingleton().getTruck(this->m_vehicle_index);
 
 	if (!truck) return;

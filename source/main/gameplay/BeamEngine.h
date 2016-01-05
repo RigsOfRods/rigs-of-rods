@@ -36,6 +36,9 @@ public:
 	BeamEngine(float m_conf_engine_min_rpm, float m_conf_engine_max_rpm, float torque, std::vector<float> gears, float dratio, int m_vehicle_index);
 	~BeamEngine();
 
+    // Full state logging for debugging LuaPowertrain
+    void LogFullState();
+
 	float getAcc();
 	float getClutch();
 	float getClutchForce();
