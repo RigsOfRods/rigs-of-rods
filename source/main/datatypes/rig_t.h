@@ -207,7 +207,7 @@ struct rig_t
 	std::vector<Ogre::Entity*> deletion_Entities; //!< For unloading vehicle; filled at spawn.
 	std::vector<Ogre::MovableObject *> deletion_Objects; //!< For unloading vehicle; filled at spawn.
 	std::vector<Ogre::SceneNode*> deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
-	int netCustomLightArray[4];
+	unsigned int netCustomLightArray[4];
 	unsigned char netCustomLightArray_counter;
 	MaterialFunctionMapper *materialFunctionMapper;
 	bool ispolice;

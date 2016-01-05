@@ -289,10 +289,10 @@ void RigSpawner::InitializeRig()
 	m_rig->cablightNode = nullptr;
 	m_rig->deletion_sceneNodes.clear();
 	m_rig->deletion_Objects.clear();
-	m_rig->netCustomLightArray[0] = -1;
-	m_rig->netCustomLightArray[1] = -1;
-	m_rig->netCustomLightArray[2] = -1;
-	m_rig->netCustomLightArray[3] = -1;
+	m_rig->netCustomLightArray[0] = UINT_MAX;
+	m_rig->netCustomLightArray[1] = UINT_MAX;
+	m_rig->netCustomLightArray[2] = UINT_MAX;
+	m_rig->netCustomLightArray[3] = UINT_MAX;
 	m_rig->netCustomLightArray_counter = 0;
 	m_rig->materialFunctionMapper = nullptr;
 
