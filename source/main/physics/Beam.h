@@ -583,10 +583,8 @@ protected:
 	// Keeps track of the rounding error in the time step calculation
 	float m_dt_remainder;
 
-	float dtperstep;
 	int curtstep;
 	int tsteps;
-	int num_simulated_trucks;
 	float avichatter_timer;
 
 	// pthread stuff
@@ -595,6 +593,8 @@ protected:
 	pthread_mutex_t task_count_mutex[THREAD_MAX];
 
 	ThreadTask thread_task;
+
+	void runThreadTask(Beam** trucks, int numtrucks, ThreadTask task);
 
 	// inter-/intra truck collision stuff
 	PointColDetector* interPointCD;

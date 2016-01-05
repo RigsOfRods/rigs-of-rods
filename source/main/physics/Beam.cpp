@@ -1413,28 +1413,20 @@ void Beam::SyncReset()
 void Beam::threadentry()
 {
 	Beam **trucks = ttrucks;
-	dtperstep = PHYSICS_DT;
 
 	for (curtstep=0; curtstep<tsteps; curtstep++)
 	{
-		num_simulated_trucks = 0;
+		int num_simulated_trucks = 0;
 
 		for (int t=0; t<tnumtrucks; t++)
 		{
-			if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(curtstep==0, dtperstep, curtstep, tsteps)))
+			if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(curtstep==0, PHYSICS_DT, curtstep, tsteps)))
 			{
 				num_simulated_trucks++;
 				trucks[t]->calledby    = this;
 				trucks[t]->curtstep    = this->curtstep;
 				trucks[t]->tsteps      = this->tsteps;
-				trucks[t]->dtperstep   = this->dtperstep;
-				trucks[t]->thread_task = THREAD_BEAMFORCESEULER;
 			}
-		}
-		for (int t=0; t<tnumtrucks; t++)
-		{
-			if (trucks[t])
-				trucks[t]->num_simulated_trucks = this->num_simulated_trucks;
 		}
 		if (num_simulated_trucks < 2 || !gEnv->threadPool)
 		{
@@ -1442,73 +1434,28 @@ void Beam::threadentry()
 			{
 				if (trucks[t] && trucks[t]->simulated)
 				{
-					trucks[t]->calcForcesEulerCompute(curtstep==0, dtperstep, curtstep, tsteps);
+					trucks[t]->calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
 					if (!disableTruckTruckSelfCollisions)
 					{
-						trucks[t]->intraTruckCollisions(dtperstep);
+						trucks[t]->intraTruckCollisions(PHYSICS_DT);
 					}
 					break;
 				}
 			}
 		} else
 		{
-			task_count[THREAD_BEAMFORCESEULER] = num_simulated_trucks;
-
-			std::list<IThreadTask*> tasks;
-
-			// Push tasks into thread pool
-			for (int t=0; t<tnumtrucks; t++)
-			{
-				if (trucks[t] && trucks[t]->simulated)
-				{
-					tasks.emplace_back(trucks[t]);
-				}
-			}
-
-			gEnv->threadPool->enqueue(tasks);
-
-			// Wait for all tasks to complete
-			MUTEX_LOCK(&task_count_mutex[THREAD_BEAMFORCESEULER]);
-			while (task_count[THREAD_BEAMFORCESEULER] > 0)
-			{
-				pthread_cond_wait(&task_count_cv[THREAD_BEAMFORCESEULER], &task_count_mutex[THREAD_BEAMFORCESEULER]);
-			}
-			MUTEX_UNLOCK(&task_count_mutex[THREAD_BEAMFORCESEULER]);
+			runThreadTask(trucks, tnumtrucks, THREAD_BEAMFORCESEULER);
 		}
 		for (int t=0; t<tnumtrucks; t++)
 		{
 			if (trucks[t] && trucks[t]->simulated)
-				trucks[t]->calcForcesEulerFinal(curtstep==0, dtperstep, curtstep, tsteps);
+				trucks[t]->calcForcesEulerFinal(curtstep==0, PHYSICS_DT, curtstep, tsteps);
 		}
 
 		if (!disableTruckTruckCollisions && num_simulated_trucks > 1)
 		{
 			BES_START(BES_CORE_Contacters);
-
-			task_count[THREAD_INTER_TRUCK_COLLISIONS] = num_simulated_trucks;
-
-			std::list<IThreadTask*> tasks;
-
-			// Push tasks into thread pool
-			for (int t=0; t<tnumtrucks; t++)
-			{
-				if (trucks[t] && trucks[t]->simulated)
-				{
-					trucks[t]->thread_task = THREAD_INTER_TRUCK_COLLISIONS;
-					tasks.emplace_back(trucks[t]);
-				}
-			}
-
-			gEnv->threadPool->enqueue(tasks);
-
-			// Wait for all tasks to complete
-			MUTEX_LOCK(&task_count_mutex[THREAD_INTER_TRUCK_COLLISIONS]);
-			while (task_count[THREAD_INTER_TRUCK_COLLISIONS] > 0)
-			{
-				pthread_cond_wait(&task_count_cv[THREAD_INTER_TRUCK_COLLISIONS], &task_count_mutex[THREAD_INTER_TRUCK_COLLISIONS]);
-			}
-			MUTEX_UNLOCK(&task_count_mutex[THREAD_INTER_TRUCK_COLLISIONS]);
-	
+			runThreadTask(trucks, tnumtrucks, THREAD_INTER_TRUCK_COLLISIONS);
 			BES_STOP(BES_CORE_Contacters);
 		}
 	}
@@ -1600,22 +1547,20 @@ bool Beam::frameStep(Real dt)
 		// simulation update
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
-			dtperstep = PHYSICS_DT;
-			
 			for (int i=0; i<steps; i++)
 			{
 				int num_simulated_trucks = 0;
 
 				for (int t=0; t<numtrucks; t++)
 				{
-					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, dtperstep, i, steps)))
+					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, steps)))
 					{
 						num_simulated_trucks++;
-						trucks[t]->calcForcesEulerCompute(i==0, dtperstep, i, steps);
-						trucks[t]->calcForcesEulerFinal(i==0, dtperstep, i, steps);
+						trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, steps);
+						trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
 						if (!disableTruckTruckSelfCollisions)
 						{
-							trucks[t]->intraTruckCollisions(dtperstep);
+							trucks[t]->intraTruckCollisions(PHYSICS_DT);
 						}
 					}
 				}
@@ -1626,7 +1571,7 @@ bool Beam::frameStep(Real dt)
 					{
 						if (trucks[t] && trucks[t]->simulated)
 						{
-							trucks[t]->interTruckCollisions(dtperstep);
+							trucks[t]->interTruckCollisions(PHYSICS_DT);
 						}
 					}
 					BES_STOP(BES_CORE_Contacters);
@@ -5806,18 +5751,45 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	}
 }
 
+void Beam::runThreadTask(Beam** trucks, int numtrucks, ThreadTask task)
+{
+	std::list<IThreadTask*> tasks;
+
+	// Push tasks into thread pool
+	for (int t=0; t<numtrucks; t++)
+	{
+		if (trucks[t] && trucks[t]->simulated)
+		{
+			trucks[t]->thread_task = task;
+			tasks.emplace_back(trucks[t]);
+		}
+	}
+
+	task_count[task] = tasks.size();
+
+	gEnv->threadPool->enqueue(tasks);
+
+	// Wait for all tasks to complete
+	MUTEX_LOCK(&task_count_mutex[task]);
+	while (task_count[task] > 0)
+	{
+		pthread_cond_wait(&task_count_cv[task], &task_count_mutex[task]);
+	}
+	MUTEX_UNLOCK(&task_count_mutex[task]);
+}
+
 void Beam::run()
 {
 	if (thread_task == THREAD_BEAMFORCESEULER)
 	{
-		calcForcesEulerCompute(curtstep==0, dtperstep, curtstep, tsteps);
+		calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
 		if (!disableTruckTruckSelfCollisions)
 		{
-			intraTruckCollisions(dtperstep);
+			intraTruckCollisions(PHYSICS_DT);
 		}
 	} else if (thread_task == THREAD_INTER_TRUCK_COLLISIONS)
 	{
-		interTruckCollisions(dtperstep);
+		interTruckCollisions(PHYSICS_DT);
 	}
 }
 
