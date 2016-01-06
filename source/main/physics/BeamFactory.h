@@ -27,10 +27,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
+#include "IThreadTask.h"
 #include "StreamableFactory.h"
 #include "TwoDReplay.h"
 
 #include <pthread.h>
+
+#define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
 /**
 * Builds and manages vehicles; Manages multithreading.
@@ -96,7 +99,7 @@ public:
 	int getPreviousTruckNumber() { return previous_truck; };
 	int getCurrentTruckNumber() { return current_truck; };
 	int getTruckCount() { return free_truck; };
-	bool allTrucksForcedActive() { return forcedActive; };
+	bool allTrucksForcedActive() { return forced_active; };
 
 	void setCurrentTruck(int new_truck);
 
@@ -119,7 +122,7 @@ public:
 	*/
 	void updateVisual(float dt);
 
-	inline unsigned long getPhysFrame() { return physFrame; };
+	inline unsigned long getPhysFrame() { return m_physics_frames; };
 
 	void calcPhysics(float dt);
 	void recalcGravityMasses();
@@ -147,7 +150,7 @@ public:
 	void activateAllTrucks();
 	void checkSleepingState();
 	void sendAllTrucksSleeping();
-	void setTrucksForcedActive(bool forced) { forcedActive = forced; };
+	void setTrucksForcedActive(bool forced) { forced_active = forced; };
 
 	void prepareShutdown();
 
@@ -156,10 +159,19 @@ public:
 	bool thread_done;
 	pthread_cond_t thread_done_cv;
 	pthread_mutex_t thread_done_mutex;
+
 	bool work_done;
 	pthread_cond_t work_done_cv;
 	pthread_mutex_t work_done_mutex;
 	pthread_t worker_thread;
+
+	int task_count;
+	pthread_cond_t task_count_cv;
+	pthread_mutex_t task_count_mutex;
+
+	void onTaskComplete();
+
+	void threadentry();
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -178,11 +190,15 @@ protected:
 	int previous_truck;
 	int current_truck;
 
-	bool forcedActive; // disables sleepcount
+	bool forced_active; // disables sleepcount
 
 	TwoDReplay *tdr;
 
-	unsigned long physFrame;
+	unsigned long m_physics_frames;
+	int m_physics_steps;
+
+	// Keeps track of the rounding error in the time step calculation
+	float m_dt_remainder;
 
 	void LogParserMessages();
 	void LogSpawnerMessages();
@@ -202,6 +218,8 @@ protected:
 	void removeInstance(Beam *b);
 	void removeInstance(stream_del_t *del);
 	void _deleteTruck(Beam *b);
+
+	void runThreadTask(Beam::ThreadTask task);
 };
 
 #endif // __BeamFactory_H_

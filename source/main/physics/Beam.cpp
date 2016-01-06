@@ -83,8 +83,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
-#define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
-
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 
@@ -313,11 +311,6 @@ Beam::~Beam()
 
 	pthread_cond_destroy(&flexable_task_count_cv);
 	pthread_mutex_destroy(&flexable_task_count_mutex);
-	for (int task=0; task < THREAD_MAX; task++)
-	{
-		pthread_cond_destroy(&task_count_cv[task]);
-		pthread_mutex_destroy(&task_count_mutex[task]);
-	}
 }
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
@@ -1408,78 +1401,22 @@ void Beam::SyncReset()
 	reset_requested = 0;
 }
 
-// TODO: Move this to beamfactory
-// this is called by the beamfactory worker thread
-void Beam::threadentry()
-{
-	Beam **trucks = ttrucks;
-
-	for (curtstep=0; curtstep<tsteps; curtstep++)
-	{
-		int num_simulated_trucks = 0;
-
-		for (int t=0; t<tnumtrucks; t++)
-		{
-			if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(curtstep==0, PHYSICS_DT, curtstep, tsteps)))
-			{
-				num_simulated_trucks++;
-				trucks[t]->calledby    = this;
-				trucks[t]->curtstep    = this->curtstep;
-				trucks[t]->tsteps      = this->tsteps;
-			}
-		}
-		if (num_simulated_trucks < 2 || !gEnv->threadPool)
-		{
-			for (int t=0; t<tnumtrucks; t++)
-			{
-				if (trucks[t] && trucks[t]->simulated)
-				{
-					trucks[t]->calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
-					if (!disableTruckTruckSelfCollisions)
-					{
-						trucks[t]->intraTruckCollisions(PHYSICS_DT);
-					}
-					break;
-				}
-			}
-		} else
-		{
-			runThreadTask(trucks, tnumtrucks, THREAD_BEAMFORCESEULER);
-		}
-		for (int t=0; t<tnumtrucks; t++)
-		{
-			if (trucks[t] && trucks[t]->simulated)
-				trucks[t]->calcForcesEulerFinal(curtstep==0, PHYSICS_DT, curtstep, tsteps);
-		}
-
-		if (!disableTruckTruckCollisions && num_simulated_trucks > 1)
-		{
-			BES_START(BES_CORE_Contacters);
-			runThreadTask(trucks, tnumtrucks, THREAD_INTER_TRUCK_COLLISIONS);
-			BES_STOP(BES_CORE_Contacters);
-		}
-	}
-}
-
 //integration loop
 //bool frameStarted(const FrameEvent& evt)
 //this will be called once by frame and is responsible for animation of all the trucks!
 //the instance called is the one of the current ACTIVATED truck
-bool Beam::frameStep(Real dt)
+bool Beam::frameStep(int steps)
 {
 	BES_GFX_START(BES_GFX_framestep);
 
-	if (dt==0) return true;
+	if (steps == 0) return true;
 	if (!loading_finished) return true;
 	if (state >= SLEEPING) return true;
+
+	Real dt = PHYSICS_DT * steps;
+
 	if (mTimeUntilNextToggle > -1)
 		mTimeUntilNextToggle -= dt;
-	
-	dt += m_dt_remainder;
-
-	int steps = dt / PHYSICS_DT;
-
-	m_dt_remainder = dt - (steps * PHYSICS_DT);
 
 	// TODO: move this to the correct spot
 	// update all dashboards
@@ -1640,8 +1577,6 @@ bool Beam::frameStep(Real dt)
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
 		{
 			tsteps = steps;
-			ttrucks = trucks;
-			tnumtrucks = numtrucks;
 			BeamFactory::getSingleton()._WorkerPrepareStart();
 			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
@@ -5751,33 +5686,6 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	}
 }
 
-void Beam::runThreadTask(Beam** trucks, int numtrucks, ThreadTask task)
-{
-	std::list<IThreadTask*> tasks;
-
-	// Push tasks into thread pool
-	for (int t=0; t<numtrucks; t++)
-	{
-		if (trucks[t] && trucks[t]->simulated)
-		{
-			trucks[t]->thread_task = task;
-			tasks.emplace_back(trucks[t]);
-		}
-	}
-
-	task_count[task] = tasks.size();
-
-	gEnv->threadPool->enqueue(tasks);
-
-	// Wait for all tasks to complete
-	MUTEX_LOCK(&task_count_mutex[task]);
-	while (task_count[task] > 0)
-	{
-		pthread_cond_wait(&task_count_cv[task], &task_count_mutex[task]);
-	}
-	MUTEX_UNLOCK(&task_count_mutex[task]);
-}
-
 void Beam::run()
 {
 	if (thread_task == THREAD_BEAMFORCESEULER)
@@ -5789,19 +5697,16 @@ void Beam::run()
 		}
 	} else if (thread_task == THREAD_INTER_TRUCK_COLLISIONS)
 	{
-		interTruckCollisions(PHYSICS_DT);
+		if (!disableTruckTruckCollisions)
+		{
+			interTruckCollisions(PHYSICS_DT);
+		}
 	}
 }
 
 void Beam::onComplete()
 {
-	MUTEX_LOCK(&calledby->task_count_mutex[thread_task]);
-	calledby->task_count[thread_task]--;
-	MUTEX_UNLOCK(&calledby->task_count_mutex[thread_task]);
-	if (!calledby->task_count[thread_task])
-	{
-		pthread_cond_signal(&calledby->task_count_cv[thread_task]);
-	}
+	BeamFactory::getSingleton().onTaskComplete();
 }
 
 Beam::Beam(
@@ -5870,7 +5775,6 @@ Beam::Beam(
 	, lockSkeletonchange(false)
 	, locked(0)
 	, lockedold(0)
-	, m_dt_remainder(0.0)
 	, m_skeletonview_is_active(false)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
@@ -5925,12 +5829,6 @@ Beam::Beam(
 
 	pthread_cond_init(&flexable_task_count_cv, NULL);
 	pthread_mutex_init(&flexable_task_count_mutex, NULL);
-	for (int task=0; task < THREAD_MAX; task++)
-	{
-		task_count[task] = 0;
-		pthread_cond_init(&task_count_cv[task], NULL);
-		pthread_mutex_init(&task_count_mutex[task], NULL);
-	}
 
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_INITTHREADS);
 

@@ -117,11 +117,6 @@ public:
 	void reset(bool keepPosition = false); 
 
 	/**
-	* this is called by the beamfactory worker thread
-	*/
-	void threadentry();
-
-	/**
 	* Spawns vehicle.
 	*/
 	bool LoadTruck(
@@ -139,7 +134,7 @@ public:
 	* TIGHT-LOOP; Called once by frame and is responsible for animation of all the trucks!
 	* the instance called is the one of the current ACTIVATED truck
 	*/
-	bool frameStep(Ogre::Real dt);
+	bool frameStep(int steps);
 
 	void setupDefaultSoundSources();
 
@@ -516,27 +511,6 @@ public:
 	DashBoardManager *dash;
 #endif // USE_MYGUI
 
-	Beam* calledby;
-
-	/**
-	* Overrides IThreadTask::run()
-	*/
-	void run();
-	void onComplete();
-
-	// flexable pthread stuff
-	int flexable_task_count;
-	pthread_cond_t flexable_task_count_cv;
-	pthread_mutex_t flexable_task_count_mutex;
-
-protected:
-
-	enum ThreadTask {
-		THREAD_BEAMFORCESEULER,
-		THREAD_INTER_TRUCK_COLLISIONS,
-		THREAD_MAX
-	};
-
 	//! @{ physic related functions
 	bool calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 
@@ -551,6 +525,29 @@ protected:
 	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 	void intraTruckCollisions(Ogre::Real dt);
 	void interTruckCollisions(Ogre::Real dt);
+
+	/**
+	* Overrides IThreadTask::run()
+	*/
+	void run();
+	void onComplete();
+
+	enum ThreadTask {
+		THREAD_BEAMFORCESEULER,
+		THREAD_INTER_TRUCK_COLLISIONS
+	};
+
+	ThreadTask thread_task;
+
+	int curtstep;
+	int tsteps;
+
+	// flexable pthread stuff
+	int flexable_task_count;
+	pthread_cond_t flexable_task_count_cv;
+	pthread_mutex_t flexable_task_count_mutex;
+
+protected:
 
 	/**
 	* TIGHT LOOP; Physics & sound; 
@@ -580,21 +577,7 @@ protected:
 
 	void SetPropsCastShadows(bool do_cast_shadows);
 
-	// Keeps track of the rounding error in the time step calculation
-	float m_dt_remainder;
-
-	int curtstep;
-	int tsteps;
 	float avichatter_timer;
-
-	// pthread stuff
-	int task_count[THREAD_MAX];
-	pthread_cond_t task_count_cv[THREAD_MAX];
-	pthread_mutex_t task_count_mutex[THREAD_MAX];
-
-	ThreadTask thread_task;
-
-	void runThreadTask(Beam** trucks, int numtrucks, ThreadTask task);
 
 	// inter-/intra truck collision stuff
 	PointColDetector* interPointCD;
@@ -642,8 +625,6 @@ protected:
 	RoR::PerVehicleCameraContext m_camera_context;
 
 	bool cparticle_mode;
-	Beam** ttrucks;
-	int tnumtrucks;
 	int detailLevel;
 	bool increased_accuracy;
 	bool isInside;
