@@ -1110,7 +1110,6 @@ void BeamFactory::threadentry()
 					{
 						trucks[t]->intraTruckCollisions(PHYSICS_DT);
 					}
-					break;
 				}
 			}
 		} else
