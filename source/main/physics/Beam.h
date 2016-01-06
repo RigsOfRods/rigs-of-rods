@@ -661,6 +661,7 @@ protected:
 	Ogre::Vector3 mousepos;
 	float mousemoveforce;
 	int reset_requested;
+	float m_spawn_rotation;
 
 	std::vector<Ogre::String> m_truck_config;
 
