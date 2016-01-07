@@ -178,7 +178,9 @@ ELSEIF(UNIX)
    # Ogre components
    PKG_CHECK_MODULES  (Ogre_Terrain  OGRE-Terrain         REQUIRED)
    PKG_CHECK_MODULES  (Ogre_Paging   OGRE-Paging          REQUIRED)
-   PKG_CHECK_MODULES  (Ogre_Overlay  OGRE-Overlay         REQUIRED)
+   if(NOT (Ogre_VERSION VERSION_LESS 1.9.0))
+	PKG_CHECK_MODULES  (Ogre_Overlay  OGRE-Overlay         REQUIRED)
+   endif()
    PKG_CHECK_MODULES  (Ogre_RTShader OGRE-RTShaderSystem  REQUIRED)
    
 
