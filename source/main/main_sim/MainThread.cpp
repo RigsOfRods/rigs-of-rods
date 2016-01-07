@@ -60,7 +60,6 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
-#include "ScriptEngine.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -73,6 +72,10 @@
 
 #include <OgreRoot.h>
 #include <OgreString.h>
+
+#ifdef USE_ANGELSCRIPT
+#    include "ScriptEngine.h"
+#endif
 
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
@@ -237,7 +240,10 @@ void MainThread::Go()
 	// Create legacy RoRFrameListener
 
 	gEnv->frameListener = new RoRFrameListener();
+
+#ifdef USE_ANGELSCRIPT
 	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+#endif
 
 	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
 
