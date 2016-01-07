@@ -1,6 +1,34 @@
 # Building instructions
 Please refer to http://www.rigsofrods.com/wiki/pages/Compiling_Sources
 
+# Dependencies
+core requirements:
+* C/C++ compiler with support for C++11 (e.g. gcc >= 4.8)
+* boost: >= 1.50
+* cmake: >= 2.8
+* curl
+* libssl
+* libgtk 2.0
+* mygui: >= 3.2.2
+* ogre: 1.8.x or 1.9.x
+* OIS: 1.3
+* openal-soft (any version should work, crashes with 1.15.x)
+* wxWidgets >= 2.6
+
+optional but recommended:
+* angelscript: 2.22.1 
+  * required for scripting (AI, racing, server mods...)
+* caelum: >= 0.6.2, compatible with the OGRE version you chose 
+  * sky plugin: provides dynamic sky with time of day, weather and clouds
+* mysocketw: latest from git
+  * required for network play
+* nvidia-cg-toolkit
+  * required for Cg shader effects which some mods use
+  * Not libre software
+  * Requires Ogre to be compiled by hand
+* paged geometry: latest from git
+  * required to display vegetation
+
 ## CMake options
 ##### Rigs of Rods core:  
 | option                         | effect                                               |
@@ -34,5 +62,7 @@ Please refer to http://www.rigsofrods.com/wiki/pages/Compiling_Sources
 | OPENAL_LIBRARY:FILEPATH        | Path to OpenAL library                               |
 | PAGED_INCLUDE_DIRS:PATH        | Path to Paged Geometry header files                  |
 | PAGED_LIBRARIES:FILEPATH       | Path to Paged Geometry library                       |
+| SOCKETW_INCLUDE_DIRS:PATH      | Path to SocketW header files                         |
+| SOCKETW_LIBRARIES:FILEPATH     | Path to SocketW library                              |
 
 For additional information refer to CMakeCache.txt after CMake has been configured at least once.
