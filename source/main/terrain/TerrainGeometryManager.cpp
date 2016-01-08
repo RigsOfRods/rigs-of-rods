@@ -189,7 +189,12 @@ void TerrainGeometryManager::initTerrain()
 		if (!disableCaching)
 		{
 			LoadingWindow::getSingleton().setProgress(23, _L("saving all terrain pages ..."));
-			mTerrainGroup->saveAllTerrains(false);
+			try
+			{
+				mTerrainGroup->saveAllTerrains(false);
+			} catch(...)
+			{
+			}
 		}
 	} else
 	{
