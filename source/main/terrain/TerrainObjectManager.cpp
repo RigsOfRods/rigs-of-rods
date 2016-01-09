@@ -25,7 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
-#include "ExtinguishableFireAffector.h"
 #include "Language.h"
 #include "LoadingWindow.h"
 #include "MeshObject.h"
@@ -43,6 +42,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgreRTShaderSystem.h>
 #include <OgreFontManager.h>
+
+#ifdef USE_ANGELSCRIPT
+#    include "ExtinguishableFireAffector.h"
+#endif // USE_ANGELSCRIPT
 
 using namespace Ogre;
 
