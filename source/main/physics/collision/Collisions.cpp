@@ -1047,7 +1047,7 @@ int Collisions::enableCollisionTri(int number, bool enable)
 	return 0;
 }
 
-bool Collisions::nodeCollision(node_t *node, bool iscinecam, int contacted, float dt, float* nso, ground_model_t** ogm, int *handlernum)
+bool Collisions::nodeCollision(node_t *node, int contacted, float dt, float* nso, ground_model_t** ogm)
 {
 	bool smoky = false;
 	// float corrf=1.0;
