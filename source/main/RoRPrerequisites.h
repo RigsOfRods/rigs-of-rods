@@ -60,7 +60,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI_Prerequest.h> // Forward declarations
 
-#if MYGUI_VERSION >= 0x030202
+#if MYGUI_VERSION >= 0x030201
 #	define MYGUI_GET_SCANCODE(KEY) (KEY.getValue())
 #else
 #	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
