@@ -49,8 +49,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tn
 	default: mod_id=SS_MOD_NONE;src_id=SS_TRIG_NONE;thr_id=SS_MOD_NONE;ab_id=SS_TRIG_NONE;
 	}
 #endif
-	nodeback=tnodeback; nodes[nodeback].iIsSkin=true;
-	nodefront=tnodefront; nodes[nodefront].iIsSkin=true;
+	nodeback=tnodeback;
+	nodefront=tnodefront;
 	noderef=tnoderef;
 	afterburnable=tafterburnable;
 	reversable=treversable;

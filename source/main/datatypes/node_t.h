@@ -48,8 +48,6 @@ struct node_t
 	float collTestTimer;
 	Ogre::Vector3 iPosition; //!< initial position, absolute
 	Ogre::Vector3 smoothpos; //!< absolute, per-frame smooth, must be used for visual effects only
-	bool iIsSkin;
-	bool isSkin;
 	bool contacter;
 	int mouseGrabMode;           //!< { 0=Mouse grab, 1=No mouse grab, 2=Mouse grab with force display}
 	int pos;                     //!< This node's index in rig_t::nodes array.

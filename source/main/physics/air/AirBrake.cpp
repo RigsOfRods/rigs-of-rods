@@ -30,9 +30,9 @@ Airbrake::Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *
 {
 	snode=0;
 	noderef=ndref;
-	nodex=ndx; nodex->iIsSkin=true;
-	nodey=ndy; nodey->iIsSkin=true;
-	nodea=nda; nodea->iIsSkin=true;
+	nodex=ndx;
+	nodey=ndy;
+	nodea=nda;
 	offset=pos;
 	maxangle=maxang;
 	area=width*length*lift_coef;

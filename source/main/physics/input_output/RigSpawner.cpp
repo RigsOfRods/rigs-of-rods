@@ -1566,8 +1566,6 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
 	
 	ref_node.isHot=true;
 	dir_node.isHot=true;
-	ref_node.iIsSkin=true;
-	dir_node.iIsSkin=true;
 	m_rig->exhausts.push_back(exhaust);
 }
 
@@ -2933,8 +2931,6 @@ void RigSpawner::ProcessRopable(RigDef::Ropable & def)
 	ropable.used = 0; // Hardcoded in BTS_ROPABLES
 	ropable.multilock = def.multilock;
 	m_rig->ropables.push_back(ropable);
-
-	ropable.node->iIsSkin = true;
 }
 
 void RigSpawner::ProcessTie(RigDef::Tie & def)
@@ -3006,9 +3002,6 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 	rope.lockedto = & m_rig->nodes[0]; // Orig: hardcoded in BTS_ROPES
 	rope.group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
 	m_rig->ropes.push_back(rope);
-
-	root_node.iIsSkin = true;
-	end_node.iIsSkin = true;
 }
 
 void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)
@@ -3499,7 +3492,6 @@ void RigSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 
     unsigned int node_index = GetNodeIndexOrThrow(node_ref);
 	m_rig->contacters[m_rig->free_contacter].nodeid = node_index;
-	GetNode(node_index).iIsSkin = true;
 	m_rig->free_contacter++;
 };
 
@@ -6490,7 +6482,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.volume_coef = def.node_defaults->volume;
 	node.surface_coef = def.node_defaults->surface;
 	node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
-	node.iIsSkin = true; // orig = hardcoded (bts_nodes)
 
 	/* Mass */
 	if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
@@ -6670,9 +6661,7 @@ void RigSpawner::AddExhaust(
 	exhaust.smokeNode->setPosition(m_rig->nodes[exhaust.emitterNode].AbsPosition);
 
 	m_rig->nodes[emitter_node_idx].isHot = true;
-	m_rig->nodes[direction_node_idx].iIsSkin = true;
 	m_rig->nodes[emitter_node_idx].isHot = true;
-	m_rig->nodes[direction_node_idx].iIsSkin = true;
 
 	m_rig->exhausts.push_back(exhaust);
 }
