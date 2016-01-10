@@ -1814,8 +1814,8 @@ void RoRFrameListener::reloadCurrentTruck()
 			newBeam->nodes[i].RelPosition = curr_truck->nodes[i].RelPosition;
 			newBeam->nodes[i].Velocity    = curr_truck->nodes[i].Velocity;
 			newBeam->nodes[i].Forces      = curr_truck->nodes[i].Forces;
-			newBeam->nodes[i].iPosition   = curr_truck->nodes[i].iPosition;
 			newBeam->nodes[i].smoothpos   = curr_truck->nodes[i].smoothpos;
+			newBeam->initial_node_pos[i]  = curr_truck->initial_node_pos[i];
 		}
 	}
 
