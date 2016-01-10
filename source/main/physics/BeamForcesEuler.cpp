@@ -42,9 +42,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 #include "ThreadPool.h"
 
-#define BEAMS_INTER_TRUCK_PARALLEL 1
-#define NODES_INTER_TRUCK_PARALLEL 1
-
 using namespace Ogre;
 
 void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
@@ -68,7 +65,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	}
 	//if (doUpdate) mWindow->setDebugText(engine->status);
 
-#if BEAMS_INTER_TRUCK_PARALLEL
 	calcBeams(doUpdate, dt, step, maxsteps);
 
 	if (doUpdate)
@@ -76,7 +72,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		//just call this once per frame to avoid performance impact
 		hookToggle(-2, HOOK_LOCK, -1);
 	}
-#endif
 
 	//auto locks (scan just once per frame, need to use a timer(truck-based) to get
 	for (std::vector <hook_t>::iterator it = hooks.begin(); it!=hooks.end(); it++)
@@ -403,7 +398,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		nodes[mousenode].Forces += mousemoveforce * dir;
 	}
 
-#if NODES_INTER_TRUCK_PARALLEL
 	// START Slidenode section /////////////////////////////////////////////////
 	// these must be done before the integrator, or else the forces are not calculated properly
 	BES_START(BES_CORE_SlideNodes);
@@ -473,7 +467,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	predictedBoundingBox.merge(boundingBox.getMaximum() + nodes[0].Velocity * dt);
 
 	BES_STOP(BES_CORE_Nodes);
-#endif
 		
 	BES_START(BES_CORE_Turboprop);
 
@@ -1539,86 +1532,6 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 
 	forwardCommands();
 
-#if !BEAMS_INTER_TRUCK_PARALLEL
-	calcBeams(doUpdate, dt, step, maxsteps);
-
-	if (doUpdate)
-	{
-		//just call this once per frame to avoid performance impact
-		hookToggle(-2, HOOK_LOCK, -1);
-	}
-#endif
-
-#if !NODES_INTER_TRUCK_PARALLEL
-	// START Slidenode section /////////////////////////////////////////////////
-	// these must be done before the integrator, or else the forces are not calculated properly
-	BES_START(BES_CORE_SlideNodes);
-	updateSlideNodeForces(dt);
-	BES_STOP(BES_CORE_SlideNodes);
-	// END Slidenode section   /////////////////////////////////////////////////
-
-	BES_START(BES_CORE_Nodes);
-
-	Ogre::AxisAlignedBox tBoundingBox(nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z, nodes[0].AbsPosition.x, nodes[0].AbsPosition.y, nodes[0].AbsPosition.z);
-
-	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
-	{
-		collisionBoundingBoxes[i].scale(Ogre::Vector3(0.0));
-	}
-
-	watercontact = false;
-
-	calcNodes(doUpdate, dt, step, maxsteps);
-
-	for (int i=0; i<free_node; i++)
-	{
-		tBoundingBox.merge(nodes[i].AbsPosition);
-		if (nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
-		{
-			if (collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getSize().length() == 0.0 && collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].getMinimum().length() == 0.0)
-			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].setExtents(nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z, nodes[i].AbsPosition.x, nodes[i].AbsPosition.y, nodes[i].AbsPosition.z);
-			} else
-			{
-				collisionBoundingBoxes[nodes[i].collisionBoundingBoxID].merge(nodes[i].AbsPosition);
-			}
-		}
-	}
-
-	for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
-	{
-		collisionBoundingBoxes[i].setMinimum(collisionBoundingBoxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-		collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
-
-		predictedCollisionBoundingBoxes[i].setExtents(collisionBoundingBoxes[i].getMinimum(), collisionBoundingBoxes[i].getMaximum());
-		predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMinimum() + nodes[0].Velocity * dt);
-		predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMaximum() + nodes[0].Velocity * dt);
-	}
-
-	// anti-explosion guard
-	// rationale behind 1e9 number:
-	// - while 1e6 is reachable by a fast vehicle, it will be badly deformed and shaking due to loss of precision in calculations
-	// - at 1e7 any typical RoR vehicle falls apart and stops functioning
-	// - 1e9 may be reachable only by a vehicle that is 1000 times bigger than a typical RoR vehicle, and it will be a loooong trip
-	// to be able to travel such long distances will require switching physics calculations to higher precision numbers
-	// or taking a different approach to the simulation (truck-local coordinate system?)
-	if (!inRange(tBoundingBox.getMinimum().x + tBoundingBox.getMaximum().x +
-		tBoundingBox.getMinimum().y + tBoundingBox.getMaximum().y +
-		tBoundingBox.getMinimum().z + tBoundingBox.getMaximum().z, -1e9, 1e9))
-	{
-		reset_requested = 1; // truck exploded, schedule reset
-		return false; // return early to avoid propagating invalid values
-	}
-
-	boundingBox.setMinimum(tBoundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-	boundingBox.setMaximum(tBoundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
-
-	predictedBoundingBox.setExtents(boundingBox.getMinimum(), boundingBox.getMaximum());
-	predictedBoundingBox.merge(boundingBox.getMinimum() + nodes[0].Velocity * dt);
-	predictedBoundingBox.merge(boundingBox.getMaximum() + nodes[0].Velocity * dt);
-
-	BES_STOP(BES_CORE_Nodes);
-#endif
 	return true;
 }
 
