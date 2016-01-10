@@ -1001,7 +1001,6 @@ int Beam::loadPosition(int indexPosition)
 		nodes[i].lastdrag      = Vector3::ZERO;
 		nodes[i].buoyanceForce = Vector3::ZERO;
 		nodes[i].lastdrag      = Vector3::ZERO;
-		nodes[i].isSkin        = nodes[i].iIsSkin;
 
 		pos = pos + nbuff[i];
 	}
@@ -1320,7 +1319,6 @@ void Beam::SyncReset()
 		nodes[i].lastdrag=Vector3::ZERO;
 		nodes[i].buoyanceForce=Vector3::ZERO;
 		nodes[i].lastdrag=Vector3::ZERO;
-		nodes[i].isSkin=nodes[i].iIsSkin;
 	}
 
 	for (int i=0; i<free_beam; i++)

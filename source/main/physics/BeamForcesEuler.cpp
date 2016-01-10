@@ -1808,8 +1808,6 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 						slen = 0.0f;
 						beams[i].broken     = true;
 						beams[i].disabled   = true;
-						beams[i].p1->isSkin = true;
-						beams[i].p2->isSkin = true;
 
 						if (beambreakdebug)
 						{
@@ -1830,8 +1828,6 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 								{
 									beams[j].broken     = true;
 									beams[j].disabled   = true;
-									beams[j].p1->isSkin = true;
-									beams[j].p2->isSkin = true;
 									if (beambreakdebug)
 									{
 										LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(beams[i].detacher_group)+  ", trucknum: " + TOSTRING(trucknum));

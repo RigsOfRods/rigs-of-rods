@@ -70,10 +70,6 @@ FlexBody::FlexBody(
     TIMER_CREATE();
     FLEXBODY_PROFILER_START("Compute pos + orientation");
 
-	m_nodes[m_node_center].iIsSkin=true;
-	m_nodes[m_node_x].iIsSkin=true;
-	m_nodes[m_node_y].iIsSkin=true;
-
     Ogre::Vector3* vertices = nullptr;
 
 	Vector3 normal = Vector3::UNIT_Y;
@@ -527,7 +523,6 @@ FlexBody::FlexBody(
                 }
 		        if (minnode==-1) { LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found"); }
 		        m_locators[i].ref=minnode;
-		        m_nodes[minnode].iIsSkin=true;
 
                 //search the second nearest node as the X vector
 		        mindist=100000.0;
@@ -551,7 +546,6 @@ FlexBody::FlexBody(
                     LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
                 }
 		        m_locators[i].nx=minnode;
-		        m_nodes[minnode].iIsSkin=true;
 
 		        //search another close, orthogonal node as the Y vector
 		        mindist=100000.0;
@@ -588,7 +582,6 @@ FlexBody::FlexBody(
                     LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
                 }
 		        m_locators[i].ny=minnode;
-		        m_nodes[minnode].iIsSkin=true;
         
 		        Vector3 vz=(m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos).crossProduct(m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
 		        vz.normalise();
@@ -627,10 +620,6 @@ FlexBody::FlexBody(
                 {
                     LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
                 }
-                else
-                {
-                    m_nodes[closest_node_index].iIsSkin=true;
-                }
                 m_locators[i].ref=closest_node_index;            
 
 		        //search the second nearest node as the X vector
@@ -653,10 +642,6 @@ FlexBody::FlexBody(
                 if (closest_node_index==-1)
                 {
                     LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
-                }
-                else
-                {
-                    m_nodes[closest_node_index].iIsSkin=true;
                 }
                 m_locators[i].nx=closest_node_index;
 
@@ -687,10 +672,6 @@ FlexBody::FlexBody(
                 if (closest_node_index==-1)
                 {
                     LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
-                }
-                else
-                {
-                    m_nodes[closest_node_index].iIsSkin=true;
                 }
                 m_locators[i].ny=closest_node_index;
 
