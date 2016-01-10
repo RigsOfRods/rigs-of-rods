@@ -162,16 +162,16 @@ void registerOgreObjects(AngelScript::asIScriptEngine *engine)
 	// We start by registering some data types, so angelscript knows that they exist
 
 	// Ogre::Degree
-	r = engine->RegisterObjectType("degree", sizeof(Degree), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA); MYASSERT( r >= 0 );
+	r = engine->RegisterObjectType("degree", sizeof(Degree), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS); MYASSERT( r >= 0 );
 
 	// Ogre::Radian
-	r = engine->RegisterObjectType("radian", sizeof(Radian), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA); MYASSERT( r >= 0 );
+	r = engine->RegisterObjectType("radian", sizeof(Radian), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS); MYASSERT( r >= 0 );
 
 	// Ogre::Vector3
-	r = engine->RegisterObjectType("vector3", sizeof(Ogre::Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA); MYASSERT( r >= 0 );
+	r = engine->RegisterObjectType("vector3", sizeof(Ogre::Vector3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS); MYASSERT( r >= 0 );
 
 	// Ogre::Quaternion
-	r = engine->RegisterObjectType("quaternion", sizeof(Quaternion), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA); MYASSERT( r >= 0 );
+	r = engine->RegisterObjectType("quaternion", sizeof(Quaternion), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS); MYASSERT( r >= 0 );
 	
 	registerOgreRadian(engine);
 	registerOgreDegree(engine);
