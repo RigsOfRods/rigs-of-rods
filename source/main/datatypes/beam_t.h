@@ -9,8 +9,6 @@
 
 #include <OgrePrerequisites.h>
 
-#include "RoRPrerequisites.h"
-
 /**
 * SIM-CORE; Beam data.
 */
