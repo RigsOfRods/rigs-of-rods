@@ -20,7 +20,7 @@ IF(WIN32)
 macro(importLib libName dirName)
 	message(STATUS "adding imported lib: ${libName} : ${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/${dirName}/Release/${libName}.lib")
 	add_library(${libName} STATIC IMPORTED)
-	
+
 	# default is release mode:
 	SET_PROPERTY(TARGET ${libName} PROPERTY  IMPORTED_LOCATION ${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/${dirName}/Release/${libName}.lib)
 
@@ -54,10 +54,10 @@ macro(importLib libName dirName)
 	endif()
 endmacro(importLib)
 
-		
+
 	set(ROR_USE_OIS_G27      "FALSE" CACHE BOOL "use OIS With G27 patches")
 	set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
-	
+
 	set(ROR_USE_CRASHRPT "FALSE" CACHE BOOL "use crash report tool")
 	# check if dependencies dir is in here
 	set(DEPENDENCIES_DIR_CHECK "${RoR_SOURCE_DIR}/dependencies")
@@ -73,7 +73,7 @@ endmacro(importLib)
 	endif(NOT ROR_DEPENDENCIES_DIR)
 
 	#### REQUIRED COMPONENTS
-	set(Ogre_INCLUDE_DIRS 
+	set(Ogre_INCLUDE_DIRS
 		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/;"
 		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
 		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
@@ -101,7 +101,7 @@ endmacro(importLib)
 		set(CURL_LIBRARIES "libcurl_imp" CACHE STRING "The curl lib to link against")
 		importLib(libcurl_imp curl)
 	endif(ROR_USE_CURL)
-	
+
 	set(PThread_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/pthread" CACHE PATH "The pthread include path to use")
 	set(PThread_LIBRARIES "optimized;${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/pthread/Release/pthreadVC2.lib" CACHE STRING "The pthread lib to link against")
 	include_directories(${PThread_INCLUDE_DIRS})
@@ -163,7 +163,7 @@ endmacro(importLib)
 		importLib(angelscript angelscript)
 		set(ANGELSCRIPT_LIBRARIES    "angelscript" CACHE STRING "The AngelScript libs to link against")
 	endif(ROR_USE_ANGELSCRIPT)
-		
+
 ELSEIF(UNIX)
    find_package(PkgConfig)
    find_package(Boost COMPONENTS system regex REQUIRED)
@@ -182,7 +182,7 @@ ELSEIF(UNIX)
 	PKG_CHECK_MODULES  (Ogre_Overlay  OGRE-Overlay         REQUIRED)
    endif()
    PKG_CHECK_MODULES  (Ogre_RTShader OGRE-RTShaderSystem  REQUIRED)
-   
+
 
    PKG_CHECK_MODULES  (Ois OIS REQUIRED)
 
@@ -195,7 +195,7 @@ ELSEIF(UNIX)
 	set(ROR_USE_CURL OFF)
    endif(CURL_FOUND)
 
-   
+
    # using cmake fingd modules
    # Open-AL
    find_package(OpenAL)
@@ -230,10 +230,10 @@ ELSEIF(UNIX)
    endif(SOCKETW_INCLUDE_DIRS)
 
    # Paged Geometry
-   find_path(PAGED_INCLUDE_DIRS "PagedGeometry/PagedGeometry.h")
+   find_path(PAGED_INCLUDE_DIRS "PagedGeometry/PagedGeometry.h" PATHS /usr/include/OGRE)
    if(PAGED_INCLUDE_DIRS)
       set(PAGED_INCLUDE_DIRS "${PAGED_INCLUDE_DIRS};${PAGED_INCLUDE_DIRS}/PagedGeometry")
-      find_library(PAGED_LIBRARIES "PagedGeometry")
+      find_library(PAGED_LIBRARIES "PagedGeometry" PATHS /usr/lib/OGRE /usr/lib64/OGRE)
       set(ROR_USE_PAGED ON)
    else()
       set(ROR_USE_PAGED OFF)
