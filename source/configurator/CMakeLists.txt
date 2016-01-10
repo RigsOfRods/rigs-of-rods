@@ -96,6 +96,7 @@ IF(WIN32)
 	add_executable(RoRConfig WIN32 ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp)
 	TARGET_LINK_LIBRARIES(RoRConfig Version.lib)
 ELSE(WIN32)
+        add_definitions ("-fPIC")
 	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp)
 ENDIF(WIN32)
 
