@@ -1305,6 +1305,20 @@ void Beam::SyncReset()
 	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{
 		cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+	} else if (free_node > 1)
+	{
+		float max_dist = 0.0f;
+		int furthest_node = 1;
+		for (int i=0; i<free_node; i++)
+		{
+			float dist = nodes[i].RelPosition.squaredDistance(nodes[0].RelPosition);
+			if (dist > max_dist)
+			{
+				max_dist = dist;
+				furthest_node = i;
+			}
+		}
+		cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
 	}
 	float cur_rot = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 	cur_rot = std::round(cur_rot * 100) / 100;
@@ -6528,6 +6542,21 @@ bool Beam::LoadTruck(
 	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{
 		Vector3 cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+	} else if (free_node > 1)
+	{
+		float max_dist = 0.0f;
+		int furthest_node = 1;
+		for (int i=0; i<free_node; i++)
+		{
+			float dist = nodes[i].RelPosition.squaredDistance(nodes[0].RelPosition);
+			if (dist > max_dist)
+			{
+				max_dist = dist;
+				furthest_node = i;
+			}
+		}
+		Vector3 cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
 		m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 	}
 
