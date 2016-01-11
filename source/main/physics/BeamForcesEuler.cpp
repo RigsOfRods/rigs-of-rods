@@ -2011,7 +2011,7 @@ void Beam::calcHooks()
 			{
 				//enable beam if not enabled yet between those 2 nodes
 				it->beam->p2       = it->lockNode;
-				it->beam->p2truck  = it->lockTruck;
+				it->beam->p2truck  = true;
 				it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
 				it->beam->disabled = false;
 				if (it->beam->mSceneNode->numAttachedObjects() == 0 && it->is_hook_visible)
@@ -2051,7 +2051,7 @@ void Beam::calcHooks()
 								it->lockNode       = 0;
 								it->lockTruck      = 0;
 								it->beam->p2       = &nodes[0];
-								it->beam->p2truck  = 0;
+								it->beam->p2truck  = false;
 								it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 								it->beam->disabled = true;
 							}

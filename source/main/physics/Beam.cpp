@@ -1375,7 +1375,7 @@ void Beam::SyncReset()
 		it->lockNode      = 0;
 		it->lockTruck     = 0;
 		it->beam->p2      = &nodes[0];
-		it->beam->p2truck = 0;
+		it->beam->p2truck = false;
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 	}
 
@@ -4309,7 +4309,7 @@ void Beam::tieToggle(int group)
 			if (it->lockedto) it->lockedto->used--;
 			// disable the ties beam
 			it->beam->p2 = &nodes[0];
-			it->beam->p2truck = 0;
+			it->beam->p2truck = false;
 			it->beam->disabled = true;
 			it->beam->mSceneNode->detachAllObjects();
 			istied = true;
@@ -4371,7 +4371,7 @@ void Beam::tieToggle(int group)
 
 					// now trigger the tying action
 					it->beam->p2 = shorter;
-					it->beam->p2truck = shtruck;
+					it->beam->p2truck = true;
 					it->beam->stress = 0;
 					it->beam->L = it->beam->refL;
 					it->tied  = true;
@@ -4515,7 +4515,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			//disable hook-assistance beam
 			it->beam->mSceneNode->detachAllObjects();
 			it->beam->p2       = &nodes[0];
-			it->beam->p2truck  = 0;
+			it->beam->p2truck  = false;
 			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 			it->beam->disabled = true;
 		}
