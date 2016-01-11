@@ -3910,14 +3910,12 @@ beam_t & RigSpawner::AddBeam(
 	/* Breaking threshold (strength) */
 	float strength = beam_defaults->breaking_threshold_constant;
 	beam.strength = strength;
-	beam.iStrength = strength;
 
 	/* Deformation */
 	SetBeamDeformationThreshold(beam, beam_defaults);
 
 	float plastic_coef = beam_defaults->plastic_deformation_coefficient;
 	beam.plastic_coef = plastic_coef;
-	beam.default_plastic_coef = plastic_coef;
 
 	return beam;
 }
@@ -3927,7 +3925,6 @@ void RigSpawner::SetBeamStrength(beam_t & beam, float strength)
 	SPAWNER_PROFILE_SCOPED();
 
     beam.strength = strength;
-	beam.iStrength = strength;
 }
 
 void RigSpawner::ProcessHydro(RigDef::Hydro & def)
@@ -4046,7 +4043,6 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
 	beam.diameter             = DEFAULT_BEAM_DIAMETER;
 
 	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
@@ -4123,7 +4119,6 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	beam.shortbound           = short_bound;
 	beam.longbound            = long_bound;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.default_plastic_coef = def.beam_defaults->plastic_deformation_coefficient;
 	beam.diameter             = DEFAULT_BEAM_DIAMETER;
 
 	/* Length + pre-compression */
@@ -6080,7 +6075,6 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	SetBeamDeformationThreshold(beam, def.defaults);
 			
 	beam.plastic_coef         = def.defaults->plastic_deformation_coefficient;
-	beam.default_plastic_coef = def.defaults->plastic_deformation_coefficient;
 
 	/* Calculate length */
 	// orig = precompression hardcoded to 1
@@ -6092,7 +6086,6 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	/* Strength */
 	float beam_strength = def.defaults->GetScaledBreakingThreshold();
 	beam.strength  = beam_strength;
-	beam.iStrength = beam_strength;
 
 	/* Options */
 	if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
@@ -6236,7 +6229,6 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 
 	float deformation_threshold = default_deform * beam_defaults->scale.deformation_threshold_constant;
 
-	beam.default_deform     = deformation_threshold;
 	beam.minmaxposnegstress = deformation_threshold;
 	beam.maxposstress       = deformation_threshold;
 	beam.maxnegstress       = -(deformation_threshold);

@@ -63,9 +63,6 @@ struct beam_t
 	Ogre::Real maxtiestress;
 	Ogre::Real diameter;
 	float scale;
-	float iStrength; //!< initial strength
-	Ogre::Real default_deform;
-	Ogre::Real default_plastic_coef;
 
 	shock_t *shock;
 	Ogre::SceneNode *mSceneNode; //!< visual

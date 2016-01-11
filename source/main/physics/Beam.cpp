@@ -1338,11 +1338,11 @@ void Beam::SyncReset()
 	for (int i=0; i<free_beam; i++)
 	{
 		beams[i].broken=0;
-		beams[i].maxposstress=beams[i].default_deform;
-		beams[i].maxnegstress=-beams[i].default_deform;
-		beams[i].minmaxposnegstress=beams[i].default_deform;
-		beams[i].strength=beams[i].iStrength;
-		beams[i].plastic_coef=beams[i].default_plastic_coef;
+		beams[i].maxposstress=default_beam_deform[i];
+		beams[i].maxnegstress=-default_beam_deform[i];
+		beams[i].minmaxposnegstress=default_beam_deform[i];
+		beams[i].strength=initial_beam_strength[i];
+		beams[i].plastic_coef=default_beam_plastic_coef[i];
 		beams[i].L=beams[i].refL;
 		beams[i].stress=0.0;
 		beams[i].disabled=false;
@@ -6538,6 +6538,13 @@ bool Beam::LoadTruck(
 	}
 #endif // USE_MYGUI
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
+
+	// Set beam defaults
+	for (int i=0; i<free_beam; i++) {
+		initial_beam_strength[i] = beams[i].strength;
+		default_beam_deform[i] = beams[i].minmaxposnegstress;
+		default_beam_plastic_coef[i] = beams[i].plastic_coef;
+	}
 
 	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{

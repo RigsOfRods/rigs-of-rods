@@ -23,6 +23,9 @@ struct rig_t
 	int free_node;
 
 	beam_t beams[MAX_BEAMS];
+	Ogre::Real initial_beam_strength[MAX_BEAMS];
+	Ogre::Real default_beam_deform[MAX_BEAMS];
+	Ogre::Real default_beam_plastic_coef[MAX_BEAMS];
 	int free_beam;
 
 	contacter_t contacters[MAX_CONTACTERS];
