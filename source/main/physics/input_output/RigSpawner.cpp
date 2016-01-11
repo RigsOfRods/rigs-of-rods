@@ -6474,7 +6474,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.AbsPosition = node_position; 
 	node.RelPosition = node_position - m_rig->origin;
 	node.smoothpos   = node_position;
-	node.iPosition   = node_position;
 		
 	node.wetstate = DRY; // orig = hardcoded (init_node)
 	node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
@@ -6488,22 +6487,14 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	{
 		// orig = further override of hardcoded default.
 		node.mass = def.node_defaults->load_weight; 
-		node.masstype = NODE_LOADED;
 		node.overrideMass = true;
+		node.loadedMass = true;
 	}
 	else
 	{
 		node.mass = 10; // Hardcoded in original (bts_nodes, call to init_node())
-		node.masstype = NODE_NORMAL; // orig = hardcoded (bts_nodes)
+		node.loadedMass = false;
 	}
-
-	/* Gravity */
-	float gravity = -9.81f;
-	if(gEnv->terrainManager)
-	{
-		gravity = gEnv->terrainManager->getGravity();
-	}
-	node.gravimass = Ogre::Vector3(0, node.mass * gravity, 0);
 
 	/* Lockgroup */
 	node.lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
@@ -6512,15 +6503,14 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
 	if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
 	{
+		node.loadedMass = true;
 		if (def._has_load_weight_override)
 		{
-			node.masstype = NODE_LOADED;
 			node.overrideMass = true;
 			node.mass = def.load_weight_override;
 		}
 		else
 		{
-			node.masstype = NODE_LOADED;
 			m_rig->masscount++;
 		}
 	}
@@ -6579,15 +6569,14 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		m_rig->hooks.push_back(hook);
 	}
 	AdjustNodeBuoyancy(node, def, def.node_defaults);
-	node.mouseGrabMode     = (def.options == 0u) ? 2 : node.mouseGrabMode; // 2 = n = mouse grab enabled
-	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_n_MOUSE_GRAB) ? 2 : node.mouseGrabMode;
-	node.mouseGrabMode     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB) ? 1 : node.mouseGrabMode;
-	node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT) ? 1 : 0;
+	node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
 	node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
 	node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
 		
 	m_rig->smokeRef        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
 	m_rig->smokeId         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
+
+	m_rig->node_mouse_grab_disabled[node.pos] = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
     // Update "fusedrag" autocalc y & z span
     if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
@@ -6695,7 +6684,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	/* Node */
 	Ogre::Vector3 node_pos = m_spawn_position + m_spawn_rotation * def.position;
 	node_t & camera_node = GetAndInitFreeNode(node_pos);
-	camera_node.contactless = 1; // Orig: hardcoded in BTS_CINECAM
+	camera_node.contactless = true; // Orig: hardcoded in BTS_CINECAM
 	camera_node.wheelid = -1;
 	camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
 	camera_node.id = -1;
@@ -6747,7 +6736,6 @@ void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 	node.AbsPosition = position;
 	node.RelPosition = position - m_rig->origin;
 	node.smoothpos = position;
-	node.iPosition = position;
 
 	/* Misc. */
 	node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)

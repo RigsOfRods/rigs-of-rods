@@ -171,7 +171,7 @@ public:
 	bool groundCollision(node_t *node, float dt, ground_model_t** gm, float *nso=0);
 	bool isInside(Ogre::Vector3 pos, const Ogre::String &inst, const Ogre::String &box, float border=0);
 	bool isInside(Ogre::Vector3 pos, collision_box_t *cbox, float border=0);
-	bool nodeCollision(node_t *node, int contacted, float dt, float* nso, ground_model_t** ogm);
+	bool nodeCollision(node_t *node, bool contacted, float dt, float* nso, ground_model_t** ogm);
 
 	void clearEventCache();
 	void finishLoadingTerrain();

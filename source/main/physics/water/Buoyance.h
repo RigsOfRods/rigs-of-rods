@@ -31,6 +31,14 @@ public:
 	Buoyance();
 	~Buoyance();
 
+	void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
+
+	void setsink(int v);
+
+	enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
+
+private:
+
 	//compute tetrahedron volume
 	inline float computeVolume(Ogre::Vector3 o, Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c);
 
@@ -40,17 +48,9 @@ public:
 	//compute pressure and drag forces on a random triangle
 	Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
 	
-	void computeNodeForce(node_t *a, node_t *b, node_t *c, int doupdate, int type);
-
-	void setsink(int v);
-
-	enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
-
-private:
-
 	DustPool *splashp, *ripplep;
 	int sink;
-	int update;
+	bool update;
 };
 
 #endif // __Buoyance_H_

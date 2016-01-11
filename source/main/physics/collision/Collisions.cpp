@@ -1047,7 +1047,7 @@ int Collisions::enableCollisionTri(int number, bool enable)
 	return 0;
 }
 
-bool Collisions::nodeCollision(node_t *node, int contacted, float dt, float* nso, ground_model_t** ogm)
+bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* nso, ground_model_t** ogm)
 {
 	bool smoky = false;
 	// float corrf=1.0;
@@ -1099,7 +1099,7 @@ bool Collisions::nodeCollision(node_t *node, int contacted, float dt, float* nso
 							{
 								// collision, process as usual
 								// we have a collision
-								contacted++;
+								contacted=true;
 								// setup smoke
 								//float ns=node->Velocity.length();
 								smoky=true;
@@ -1142,7 +1142,7 @@ bool Collisions::nodeCollision(node_t *node, int contacted, float dt, float* nso
 						if (!cbox->virt)
 						{
 							// we have a collision
-							contacted++;
+							contacted=true;
 							// setup smoke
 							//float ns=node->Velocity.length();
 							smoky=true;
@@ -1193,7 +1193,7 @@ bool Collisions::nodeCollision(node_t *node, int contacted, float dt, float* nso
 	if (minctri)
 	{
 		// we have a contact
-		contacted++;
+		contacted=true;
 		// setup smoke
 		//float ns=node->Velocity.length();
 		smoky=true;

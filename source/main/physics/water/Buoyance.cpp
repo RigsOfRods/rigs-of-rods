@@ -27,12 +27,16 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Buoyance::Buoyance()
+Buoyance::Buoyance() :
+	sink(0),
+	update(false)
 {
-	update=0;
-	sink=0;
 	splashp = DustManager::getSingleton().getDustPool("splash");
 	ripplep = DustManager::getSingleton().getDustPool("ripple");
+}
+
+Buoyance::~Buoyance()
+{
 }
 
 //compute tetrahedron volume
@@ -156,37 +160,40 @@ Vector3 Buoyance::computePressureForce(Vector3 a, Vector3 b, Vector3 c, Vector3 
 		return computePressureForceSub(a,b,c,vel, type);
 	}
 }
-void Buoyance::computeNodeForce(node_t *a, node_t *b, node_t *c, int doupdate, int type)
+void Buoyance::computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type)
 {
-	if (a->AbsPosition.y>gEnv->terrainManager->getWater()->getHeightWaves(a->AbsPosition) && b->AbsPosition.y>gEnv->terrainManager->getWater()->getHeightWaves(b->AbsPosition) && c->AbsPosition.y>gEnv->terrainManager->getWater()->getHeightWaves(c->AbsPosition)) return;
+	if (a->AbsPosition.y > gEnv->terrainManager->getWater()->getHeightWaves(a->AbsPosition) &&
+		b->AbsPosition.y > gEnv->terrainManager->getWater()->getHeightWaves(b->AbsPosition) &&
+		c->AbsPosition.y > gEnv->terrainManager->getWater()->getHeightWaves(c->AbsPosition)) return;
+
+	update = doUpdate;
+
 	//compute center
-	Vector3 m=(a->AbsPosition+b->AbsPosition+c->AbsPosition)/3.0;
+	Vector3 m = (a->AbsPosition + b->AbsPosition + c->AbsPosition) / 3.0;
+
+#if 0
 	//compute projected points
-	/*
-	Vector3 tmp=b->Position-a->Position;
-	Vector3 mab=(tmp.dotProduct(m-a->Position)/tmp.squaredLength())*tmp;
-	tmp=c->Position-b->Position;
-	Vector3 mbc=(tmp.dotProduct(m-b->Position)/tmp.squaredLength())*tmp;
-	tmp=a->Position-c->Position;
-	Vector3 mca=(tmp.dotProduct(m-c->Position)/tmp.squaredLength())*tmp;
-	*/
+	Vector3 tmp = b->Position - a->Position;
+	Vector3 mab = (tmp.dotProduct(m-a->Position) / tmp.squaredLength()) * tmp;
+	tmp = c->Position - b->Position;
+	Vector3 mbc = (tmp.dotProduct(m-b->Position) / tmp.squaredLength()) * tmp;
+	tmp = a->Position - c->Position;
+	Vector3 mca = (tmp.dotProduct(m-c->Position) / tmp.squaredLength()) * tmp;
+#endif
+
 	//suboptimal
-	Vector3 mab=(a->AbsPosition+b->AbsPosition)/2.0;
-	Vector3 mbc=(b->AbsPosition+c->AbsPosition)/2.0;
-	Vector3 mca=(c->AbsPosition+a->AbsPosition)/2.0;
-	Vector3 vel=(a->Velocity+b->Velocity+c->Velocity)/3.0;
+	Vector3 mab = (a->AbsPosition + b->AbsPosition) / 2.0;
+	Vector3 mbc = (b->AbsPosition + c->AbsPosition) / 2.0;
+	Vector3 mca = (c->AbsPosition + a->AbsPosition) / 2.0;
+	Vector3 vel = (a->Velocity + b->Velocity + c->Velocity) / 3.0;
+
 	//apply forces
-	update=doupdate;
-	a->buoyanceForce+=computePressureForce(a->AbsPosition, mab, m, vel, type)+computePressureForce(a->AbsPosition, m, mca, vel, type);
-	b->buoyanceForce+=computePressureForce(b->AbsPosition, mbc, m, vel, type)+computePressureForce(b->AbsPosition, m, mab, vel, type);
-	c->buoyanceForce+=computePressureForce(c->AbsPosition, mca, m, vel, type)+computePressureForce(c->AbsPosition, m, mbc, vel, type);
+	a->Forces += computePressureForce(a->AbsPosition, mab, m, vel, type) + computePressureForce(a->AbsPosition, m, mca, vel, type);
+	b->Forces += computePressureForce(b->AbsPosition, mbc, m, vel, type) + computePressureForce(b->AbsPosition, m, mab, vel, type);
+	c->Forces += computePressureForce(c->AbsPosition, mca, m, vel, type) + computePressureForce(c->AbsPosition, m, mbc, vel, type);
 }
 
 void Buoyance::setsink(int v)
 {
-	sink=v;
-}
-
-Buoyance::~Buoyance()
-{
+	sink = v;
 }
