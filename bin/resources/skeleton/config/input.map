@@ -25,7 +25,7 @@ AIRPLANE_THROTTLE_UP           Keyboard             EXPL+PGUP
 AIRPLANE_TOGGLE_ENGINES        Keyboard             CTRL+HOME 
 
 ; BOAT
-BOAT_CENTER_RUDDER             Keyboard             DOWN 
+BOAT_CENTER_RUDDER             Keyboard             PGUP 
 BOAT_REVERSE                   Keyboard             PGDOWN 
 BOAT_STEER_LEFT                Keyboard             LEFT 
 BOAT_STEER_RIGHT               Keyboard             RIGHT 
