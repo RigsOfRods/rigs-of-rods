@@ -1074,30 +1074,30 @@ void Beam::resetAngle(float rot)
 void Beam::resetPosition(float px, float pz, bool setInitPosition)
 {
 	// horizontal displacement
-	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
-	for (int i=0; i < free_node; i++)
+	Vector3 offset = Vector3(px, 0, pz) - nodes[0].AbsPosition;
+	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition += offset;
 	}
 
 	// vertical displacement
-	float minoffset = nodes[0].AbsPosition.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[0].AbsPosition.x, nodes[0].AbsPosition.z);
-
-	for (int i=1; i < free_node; i++)
-	{
-		Vector3 pos = Vector3(nodes[i].AbsPosition.x, gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z), nodes[i].AbsPosition.z);
-		gEnv->collisions->collisionCorrect(&pos);
-		minoffset = std::min(nodes[i].AbsPosition.y - pos.y, minoffset);
-	}
-
+	float vertical_offset = -nodes[lowestnode].AbsPosition.y;
 	if (gEnv->terrainManager->getWater())
 	{
-		minoffset = std::min(-gEnv->terrainManager->getWater()->getHeight(), minoffset);
+		vertical_offset += gEnv->terrainManager->getWater()->getHeight();
+	}
+
+	for (int i=1; i<free_node; i++)
+	{
+		Vector3 pos = nodes[i].AbsPosition;
+		pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+		gEnv->collisions->collisionCorrect(&pos);
+		vertical_offset += std::max(0.0f, pos.y - (nodes[i].AbsPosition.y + vertical_offset));
 	}
 
 	for (int i=0; i<free_node; i++)
 	{
-		nodes[i].AbsPosition.y -= minoffset;
+		nodes[i].AbsPosition.y += vertical_offset;
 	}
 
 	resetPosition(Vector3::ZERO, setInitPosition);
@@ -1106,28 +1106,22 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition)
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
 	// horizontal displacement
-	Vector3 offset = Vector3(px, -iPosition.y, pz) - nodes[0].AbsPosition;
-	for (int i=0; i < free_node; i++)
+	Vector3 offset = Vector3(px, 0, pz) - nodes[0].AbsPosition;
+	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition += offset;
 	}
 
 	// vertical displacement
-	float minoffset = nodes[0].AbsPosition.y - miny;
-
-	for (int i=1; i < free_node; i++)
-	{
-		minoffset = std::min(nodes[i].AbsPosition.y - miny, minoffset);
-	}
-
+	float vertical_offset = -nodes[lowestnode].AbsPosition.y + miny;
 	if (gEnv->terrainManager->getWater())
 	{
-		minoffset = std::min(-gEnv->terrainManager->getWater()->getHeight(), minoffset);
+		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestnode].AbsPosition.y + vertical_offset));
 	}
 
 	for (int i=0; i<free_node; i++)
 	{
-		nodes[i].AbsPosition.y -= minoffset;
+		nodes[i].AbsPosition.y += vertical_offset;
 	}
 
 	resetPosition(Vector3::ZERO, setInitPosition);
