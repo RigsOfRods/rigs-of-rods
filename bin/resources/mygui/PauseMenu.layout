@@ -8,10 +8,10 @@
             <Property key="Caption" value="Resume Game"/>
             <UserString key="" value=""/>
         </Widget>
-        <Widget type="Button" skin="ButtonSmall" position="10 50 168 25" align="Default" name="change_map">
+        <Widget type="Button" skin="Button" position="10 50 168 25" align="Default" name="change_map">
             <Property key="Caption" value="Change Map"/>
         </Widget>
-        <Widget type="Button" skin="ButtonSmall" position="10 130 168 26" align="Default" name="back_to_menu">
+        <Widget type="Button" skin="Button" position="10 130 168 26" align="Default" name="back_to_menu">
             <Property key="Caption" value="Back to menu"/>
         </Widget>
         <Widget type="Button" skin="Button" position="10 90 168 25" name="rig_editor">
