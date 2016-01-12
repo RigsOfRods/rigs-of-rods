@@ -422,7 +422,7 @@ void RigSpawner::InitializeRig()
 	m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
 	m_rig->cparticle_enabled = BSETTING("Particles", true);
 	m_rig->dustp   = DustManager::getSingleton().getDustPool("dust");
-	m_rig->dripp   = DustManager::getSingleton().getDustPool("dripp");
+	m_rig->dripp   = DustManager::getSingleton().getDustPool("drip");
 	m_rig->sparksp = DustManager::getSingleton().getDustPool("sparks");
 	m_rig->clumpp  = DustManager::getSingleton().getDustPool("clump");
 	m_rig->splashp = DustManager::getSingleton().getDustPool("splash");
