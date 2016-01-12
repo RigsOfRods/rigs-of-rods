@@ -4233,8 +4233,11 @@ void RigSpawner::FetchAxisNodes(
     axis_node_1 = GetNodePointer(axis_node_1_id);
 	axis_node_2 = GetNodePointer(axis_node_2_id);
 
+	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
+	if (pos_1.z > pos_2.z)
 	{
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
@@ -4556,8 +4559,11 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 	node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
+	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
+	if (pos_1.z > pos_2.z)
 	{
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
@@ -4618,8 +4624,11 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         return;
     }
 
+	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
+	if (pos_1.z > pos_2.z)
 	{
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
@@ -5020,8 +5029,11 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 		return -1;
 	}
 
+	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
+	if (pos_1.z > pos_2.z)
 	{
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
@@ -5215,8 +5227,11 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		return -1;
 	}
 
+	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-	if (axis_node_1->RelPosition.z > axis_node_2->RelPosition.z)
+	if (pos_1.z > pos_2.z)
 	{
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
