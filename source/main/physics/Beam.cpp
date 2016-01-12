@@ -4371,7 +4371,7 @@ void Beam::tieToggle(int group)
 
 					// now trigger the tying action
 					it->beam->p2 = shorter;
-					it->beam->p2truck = true;
+					it->beam->p2truck = shtruck != 0;
 					it->beam->stress = 0;
 					it->beam->L = it->beam->refL;
 					it->tied  = true;
