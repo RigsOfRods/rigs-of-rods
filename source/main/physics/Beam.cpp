@@ -5239,11 +5239,11 @@ void Beam::updateDashBoards(float &dt)
 		dash->setFloat(DD_ENGINE_TURBO, turbo);
 
 		// ignition
-		bool ign = engine->contact;
+		bool ign = (engine->contact && !engine->running);
 		dash->setBool(DD_ENGINE_IGNITION, ign);
 
 		// battery
-		bool batt = (engine->contact && !engine->running);
+		bool batt = engine->contact;
 		dash->setBool(DD_ENGINE_BATTERY, batt);
 
 		// clutch warning
