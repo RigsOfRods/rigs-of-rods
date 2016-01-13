@@ -24,8 +24,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __Settings_H_
 
 #include "RoRPrerequisites.h"
-
 #include "Singleton.h"
+#include "transmission.h"
 
 // some shortcuts to improve code readability
 #define SETTINGS          Settings::getSingleton()
@@ -62,7 +62,7 @@ public:
 	void createGUID();
 
 	int GetFlaresMode(int default_value = 2);
-	int GetGearBoxMode(int default_value = 0);
+	RoR::Gearbox::shiftmodes GetGearBoxMode(RoR::Gearbox::shiftmodes default_value = RoR::Gearbox::SHIFTMODE_AUTOMATIC);
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -98,7 +98,7 @@ protected:
 	// Cached config data
 
 	int m_flares_mode; // -1: unknown, -2: default, 0+: mode ID
-	int m_gearbox_mode;
+	RoR::Gearbox::shiftmodes m_gearbox_mode;
 };
 
 #endif // __Settings_H_

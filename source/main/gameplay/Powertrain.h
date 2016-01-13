@@ -8,31 +8,12 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "transmission.h"
 
 #include <vector>
 
 namespace RoR
 {
-
-struct Gearbox
-{
-    enum shiftmodes {
-        SHIFTMODE_AUTOMATIC,
-        SHIFTMODE_SEMIAUTO,
-        SHIFTMODE_MANUAL,
-        SHIFTMODE_MANUAL_STICK,
-        SHIFTMODE_MANUAL_RANGES
-    };
-
-    enum autoswitch {
-        AUTOSWITCH_REAR,
-        AUTOSWITCH_NEUTRAL,
-        AUTOSWITCH_DRIVE,
-        AUTOSWITCH_TWO,
-        AUTOSWITCH_ONE,
-        AUTOSWITCH_MANUALMODE
-    };
-};
 
 /// Powertrain state
 /// Each member replaces a member of legacy class BeamEngine (referenced in doc comments).
@@ -99,6 +80,13 @@ struct PowertrainState
 
     /// Precomputed ```int getNumGearsRanges() { return getNumGears() / 6 + 1; };```
     int conf_transmission_num_gears_ranges;
+
+    // Simthread -> mainthread updates
+
+    bool transmission_shiftmodes_toggled;
+    int  transmission_gear_range_selected; // 0=no change, 1=lowrange, 2=midrange, 3=highrange
+    int  transmission_axlelock_toggled; // 0 = no change, -1 = `no differentials` console message, 1 = toggled, show console message.
+
 };
 
 struct PowertrainCommand
@@ -128,6 +116,42 @@ struct PowertrainCommand
     float value;
 };
 
+struct PowertrainInputStates
+{
+    void Reset()
+    {
+        std::memset(this, 0, sizeof(PowertrainInputStates));
+    }
+
+    bool autoshift_up;
+    bool autoshift_down;
+    bool toggle_contact;
+    bool starter;
+    bool switch_shift_modes;
+    bool shift_up;
+    bool shift_down;
+    bool shift_neutral;
+    bool shift_lowrange;
+    bool shift_midrange;
+    bool shift_highrange;
+    bool toggle_axle_lock;
+    bool parking_brake_toggle;
+    bool antilock_brake_toggle;
+    bool traction_control_toggle;
+    bool cruise_control_toggle;
+    bool shift_gear_reverse;
+    bool cruise_control_accel;
+    bool cruise_control_decel;
+    bool cruise_control_readjust;
+
+    // Direct-to-gear shift
+    bool direct_shift[18];
+
+    float acceleration;
+    float brake;
+    float manual_clutch;
+};
+
 struct PowertrainCommandQueue
 {
     PowertrainCommandQueue()
@@ -135,11 +159,11 @@ struct PowertrainCommandQueue
         this->Reset();
     }
 
-    void AddCommand(PowertrainCommand::CommandType type, float value = 0.f);
+    void  AddCommand(PowertrainCommand::CommandType type, float value = 0.f);
 
-    void NetworkedUpdate(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode);
+    void  NetworkedUpdate(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode);
 
-    void Reset();
+    void  Reset();
 
     std::vector<PowertrainCommand> queue;
 
@@ -152,6 +176,8 @@ struct PowertrainCommandQueue
     bool  net_has_contact;
     char  net_auto_mode;
     bool  was_network_updated;
+
+    PowertrainInputStates input_states;
 };
 
 /// Land vehicle powertrain
@@ -180,6 +206,12 @@ public:
     PowertrainCommandQueue& GetQueueOnSimThread()  { return m_command_queue[m_sim_thread_index];  }
 
 private:
+
+    void PowertrainProcessInputStates();
+    void UpdateCruiseControl(float dt_seconds);
+    void CheckSpeedLimit(float dt_seconds);
+
+    Beam*                    m_vehicle;
     BeamEngine*              m_engine;
     PowertrainState          m_state[2];
     PowertrainCommandQueue   m_command_queue[2];

@@ -71,7 +71,7 @@ bool FolderExists(Ogre::String const & path)
 
 Settings::Settings():
 	m_flares_mode(-1),
-	m_gearbox_mode(-1)
+	m_gearbox_mode(RoR::Gearbox::SHIFTMODE_UNKNOWN)
 {
 }
 
@@ -608,29 +608,29 @@ int Settings::GetFlaresMode(int default_value /*=2*/)
 	return m_flares_mode;
 }
 
-int Settings::GetGearBoxMode(int default_value /*=0*/)
+RoR::Gearbox::shiftmodes Settings::GetGearBoxMode(RoR::Gearbox::shiftmodes default_value /* = RoR::Gearbox::SHIFTMODE_AUTOMATIC */)
 {
-	if (m_gearbox_mode == -1) // -1: unknown, -2: default, 0+: mode ID
-	{
-		auto itor = settings.find("GearboxMode");
-		if (itor == settings.end())
-		{
-			m_gearbox_mode = -2;
-		}
-		else
-		{
-			if (itor->second == "Automatic shift")	{ m_gearbox_mode = 0; }
-			else if (itor->second == "Manual shift - Auto clutch")	{ m_gearbox_mode = 1; }
-			else if (itor->second == "Fully Manual: sequential shift")	{ m_gearbox_mode = 2; }
-			else if (itor->second == "Fully manual: stick shift")	{ m_gearbox_mode = 3; }
-			else if (itor->second == "Fully Manual: stick shift with ranges")	{ m_gearbox_mode = 4; }
+    if (m_gearbox_mode == RoR::Gearbox::SHIFTMODE_UNKNOWN)
+    {
+        auto itor = settings.find("GearboxMode");
+        if (itor == settings.end())
+        {
+            m_gearbox_mode = RoR::Gearbox::SHIFTMODE_DEFAULT;
+        }
+        else
+        {
+            if      (itor->second == "Automatic shift")                       { m_gearbox_mode = RoR::Gearbox::SHIFTMODE_AUTOMATIC;     }
+            else if (itor->second == "Manual shift - Auto clutch")            { m_gearbox_mode = RoR::Gearbox::SHIFTMODE_SEMIAUTO;      }
+            else if (itor->second == "Fully Manual: sequential shift")        { m_gearbox_mode = RoR::Gearbox::SHIFTMODE_MANUAL;        }
+            else if (itor->second == "Fully manual: stick shift")             { m_gearbox_mode = RoR::Gearbox::SHIFTMODE_MANUAL_STICK;  }
+            else if (itor->second == "Fully Manual: stick shift with ranges") { m_gearbox_mode = RoR::Gearbox::SHIFTMODE_MANUAL_RANGES; }
 
-			else { m_gearbox_mode = -2; }
-		}
-	}
-	if (m_gearbox_mode == -2)
-	{
-		return default_value;
-	}
-	return m_gearbox_mode;
+            else { m_gearbox_mode = RoR::Gearbox::SHIFTMODE_DEFAULT; }
+        }
+    }
+    if (m_gearbox_mode == RoR::Gearbox::SHIFTMODE_DEFAULT)
+    {
+        return default_value;
+    }
+    return m_gearbox_mode;
 }

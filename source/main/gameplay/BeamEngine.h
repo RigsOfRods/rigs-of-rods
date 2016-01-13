@@ -49,7 +49,7 @@ public:
 	float getSmoke();
 	float getTorque();
 	float getTurboPSI(bool must_lock = true);
-	int getAutoMode(); // m_transmission_mode
+	RoR::Gearbox::shiftmodes getAutoMode(); // m_transmission_mode
 
 	/**
 	* Sets current engine state; Needed mainly for smoke.
@@ -64,7 +64,7 @@ public:
 	void netForceSettings(float rpm, float force, float clutch, int gear, bool m_is_engine_running, bool m_starter_has_contact, char m_transmission_mode);
 
 	void setAcc(float val);
-	void setAutoMode(int mode);
+	void setAutoMode(RoR::Gearbox::shiftmodes mode);
 	void setClutch(float clutch);
 
 	/**
@@ -282,7 +282,7 @@ protected:
 	// air pressure
 	
 	float m_air_pressure; //!< Sound effect only
-	int   m_transmission_mode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
+	RoR::Gearbox::shiftmodes   m_transmission_mode;
 
 	int m_vehicle_index;
 

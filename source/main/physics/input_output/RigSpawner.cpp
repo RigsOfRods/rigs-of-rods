@@ -5887,7 +5887,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
 	}
 
     m_rig->powertrain = new Powertrain();
-
+    m_rig->powertrain->m_vehicle = m_rig;         // Friendly access
 	m_rig->powertrain->m_engine = new BeamEngine( // Friendly access
 		def.shift_down_rpm,
 		def.shift_up_rpm,

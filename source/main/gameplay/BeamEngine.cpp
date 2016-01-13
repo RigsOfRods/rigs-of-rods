@@ -1053,13 +1053,15 @@ float BeamEngine::getRPM()
 void BeamEngine::toggleAutoMode()
 {
     SCOPED_LOCK("toggleAutoMode()") // only external calls
-	m_transmission_mode = (m_transmission_mode + 1) % (Gearbox::SHIFTMODE_MANUAL_RANGES + 1);
+    int new_mode = (m_transmission_mode + 1) % (Gearbox::SHIFTMODE_MANUAL_RANGES + 1);
+	m_transmission_mode = static_cast<RoR::Gearbox::shiftmodes>(new_mode);
 
 	// this switches off all automatic symbols when in manual mode
 	if (m_transmission_mode != Gearbox::SHIFTMODE_AUTOMATIC)
 	{
 		m_autoselect = Gearbox::AUTOSWITCH_MANUALMODE;
-	} else
+	} 
+    else
 	{
 		m_autoselect = Gearbox::AUTOSWITCH_NEUTRAL;
 	}
@@ -1071,13 +1073,13 @@ void BeamEngine::toggleAutoMode()
 	}
 }
 
-int BeamEngine::getAutoMode()
+RoR::Gearbox::shiftmodes BeamEngine::getAutoMode()
 {
     SCOPED_LOCK("getAutoMode()") // only external calls
 	return m_transmission_mode;
 }
 
-void BeamEngine::setAutoMode(int mode)
+void BeamEngine::setAutoMode(RoR::Gearbox::shiftmodes mode)
 {
     SCOPED_LOCK("setAutoMode()") // OK
 	m_transmission_mode = mode;
@@ -1127,7 +1129,7 @@ void BeamEngine::netForceSettings(float rpm, float force, float clutch, int gear
 	m_starter_has_contact      = _contact;
 	if (_automode != -1)
 	{
-		m_transmission_mode = _automode;
+		m_transmission_mode = static_cast<RoR::Gearbox::shiftmodes>(_automode);
 	}
 }
 
