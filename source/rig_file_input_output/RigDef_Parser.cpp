@@ -4059,7 +4059,7 @@ void Parser::ParseTriggers(Ogre::String const & line)
 		command_keys.extension_trigger_key   = longbound_trigger_action;
 		trigger.SetCommandKeyTrigger(command_keys);
 	}
-	else if (!trigger.IsHookToggleTrigger() && !trigger.HasFlag_E_EngineTrigger())
+	else if (trigger.IsHookToggleTrigger())
 	{
 		Trigger::HookToggleTrigger hook_toggle;
 		hook_toggle.contraction_trigger_hookgroup_id = shortbound_trigger_action;
