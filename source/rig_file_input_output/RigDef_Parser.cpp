@@ -217,6 +217,7 @@ void Parser::ParseLine(Ogre::String const & line)
 				else
 				{
 					AddMessage(line, Message::TYPE_ERROR, "Misplaced sub-section 'cab' (belongs in section 'submesh'), ignoring...");
+					new_section = File::SECTION_NONE;
 				}
 				line_finished = true;
 				break;
@@ -688,6 +689,7 @@ void Parser::ParseLine(Ogre::String const & line)
 				else
 				{
 					AddMessage(line, Message::TYPE_ERROR, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), ignoring...");
+					new_section = File::SECTION_NONE;
 				}
 				line_finished = true;
 				break;
