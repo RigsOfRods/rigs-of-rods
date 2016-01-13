@@ -2218,11 +2218,11 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			BITMASK_SET_1(prop.animFlags[anim_index], ANIM_FLAG_SHIFTER);
 			prop.animOpt3[anim_index] = 2.0f;
 		}
-		if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_SHIFTERLIN)) {
+		if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_SEQUENTIAL_SHIFT)) {
 			BITMASK_SET_1(prop.animFlags[anim_index], ANIM_FLAG_SHIFTER);
 			prop.animOpt3[anim_index] = 3.0f;
 		}
-		if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_SEQUENTIAL_SHIFT)) {
+		if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_SHIFTERLIN)) {
 			BITMASK_SET_1(prop.animFlags[anim_index], ANIM_FLAG_SHIFTER);
 			prop.animOpt3[anim_index] = 4.0f;
 		}
