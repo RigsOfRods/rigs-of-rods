@@ -399,19 +399,19 @@ DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_TOKEN,
 		E_OR
 		E_CAPTURE( /* #6 Mode */
 			"mode"   
-			E_CAPTURE_OPTIONAL( E_OPTIONAL_SPACE ":" ) /* #7 Check format validity, colon is required */
+			E_CAPTURE_OPTIONAL( ":" E_OPTIONAL_SPACE ) /* #7 Check format validity, colon is required */
 			E_CAPTURE( ".*" )                          /* #8 Options or invalid text */
 		)
 		E_OR
 		E_CAPTURE( /* #9 Source */
 			"source"   
-			E_CAPTURE_OPTIONAL( E_OPTIONAL_SPACE ":" ) /* #10 Check format validity, colon is required */
+			E_CAPTURE_OPTIONAL( ":" E_OPTIONAL_SPACE ) /* #10 Check format validity, colon is required */
 			E_CAPTURE( ".*" )                          /* #11 Options or invalid text */
 		)
 		E_OR
 		E_CAPTURE( /* #12 Event */
 			"event"   
-			E_CAPTURE_OPTIONAL( E_OPTIONAL_SPACE ":" ) /* #13 Check format validity, colon is required */
+			E_CAPTURE_OPTIONAL( ":" E_OPTIONAL_SPACE ) /* #13 Check format validity, colon is required */
 			E_CAPTURE( ".*" )                          /* #14 Options or invalid text */
 		)
 	)
