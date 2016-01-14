@@ -145,6 +145,7 @@ BeamFactory::BeamFactory() :
 	, m_dt_remainder(0.0f)
 	, m_physics_frames(0)
 	, m_physics_steps(2000)
+	, m_simulation_speed(1.0f)
 	, num_cpu_cores(0)
 	, previous_truck(-1)
 	, task_count(0)
@@ -913,6 +914,8 @@ void BeamFactory::calcPhysics(float dt)
 
 	// do not allow dt > 1/20
 	dt = std::min(dt, 1.0f / 20.0f);
+
+	dt *= m_simulation_speed;
 
 	dt += m_dt_remainder;
 	m_physics_steps = dt / PHYSICS_DT;

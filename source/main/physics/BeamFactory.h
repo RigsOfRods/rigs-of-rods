@@ -102,6 +102,7 @@ public:
 	bool allTrucksForcedActive() { return forced_active; };
 
 	void setCurrentTruck(int new_truck);
+	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
 
 	bool removeBeam(Beam *b);
 	void removeCurrentTruck();
@@ -205,6 +206,8 @@ protected:
 
 	// Keeps track of the rounding error in the time step calculation
 	float m_dt_remainder;
+
+	float m_simulation_speed; // slow motion < 1.0 < fast motion
 
 	void LogParserMessages();
 	void LogSpawnerMessages();
