@@ -3212,6 +3212,7 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 			else
 			{
 				animation.event = token_results[14];
+				Ogre::StringUtil::toUpperCase(animation.event);
 			}
 		}
 		else 
