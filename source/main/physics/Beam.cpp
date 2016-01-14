@@ -1323,11 +1323,11 @@ void Beam::SyncReset()
 	for (int i=0; i<free_beam; i++)
 	{
 		beams[i].broken=0;
-		beams[i].maxposstress=beams[i].default_deform;
-		beams[i].maxnegstress=-beams[i].default_deform;
-		beams[i].minmaxposnegstress=beams[i].default_deform;
-		beams[i].strength=beams[i].iStrength;
-		beams[i].plastic_coef=beams[i].default_plastic_coef;
+		beams[i].maxposstress=default_beam_deform[i];
+		beams[i].maxnegstress=-default_beam_deform[i];
+		beams[i].minmaxposnegstress=default_beam_deform[i];
+		beams[i].strength=initial_beam_strength[i];
+		beams[i].plastic_coef=default_beam_plastic_coef[i];
 		beams[i].L=beams[i].refL;
 		beams[i].stress=0.0;
 		beams[i].disabled=false;
@@ -1360,7 +1360,7 @@ void Beam::SyncReset()
 		it->lockNode      = 0;
 		it->lockTruck     = 0;
 		it->beam->p2      = &nodes[0];
-		it->beam->p2truck = 0;
+		it->beam->p2truck = false;
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 	}
 
@@ -4204,7 +4204,7 @@ void Beam::tieToggle(int group)
 			if (it->lockedto) it->lockedto->used--;
 			// disable the ties beam
 			it->beam->p2 = &nodes[0];
-			it->beam->p2truck = 0;
+			it->beam->p2truck = false;
 			it->beam->disabled = true;
 			it->beam->mSceneNode->detachAllObjects();
 			istied = true;
@@ -4266,7 +4266,7 @@ void Beam::tieToggle(int group)
 
 					// now trigger the tying action
 					it->beam->p2 = shorter;
-					it->beam->p2truck = shtruck;
+					it->beam->p2truck = shtruck != 0;
 					it->beam->stress = 0;
 					it->beam->L = it->beam->refL;
 					it->tied  = true;
@@ -4410,7 +4410,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			//disable hook-assistance beam
 			it->beam->mSceneNode->detachAllObjects();
 			it->beam->p2       = &nodes[0];
-			it->beam->p2truck  = 0;
+			it->beam->p2truck  = false;
 			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 			it->beam->disabled = true;
 		}
@@ -6361,6 +6361,13 @@ bool Beam::LoadTruck(
 	}
 #endif // USE_MYGUI
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
+
+	// Set beam defaults
+	for (int i=0; i<free_beam; i++) {
+		initial_beam_strength[i] = beams[i].strength;
+		default_beam_deform[i] = beams[i].minmaxposnegstress;
+		default_beam_plastic_coef[i] = beams[i].plastic_coef;
+	}
 
 	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{
