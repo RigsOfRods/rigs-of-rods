@@ -3354,7 +3354,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	}
 	if (def.HasFlag_c_CommandStyle()) // // trigger is set with commandstyle boundaries instead of shocksytle
 	{
-		short_limit = abs(short_limit - 1);
+		short_limit = fabs(short_limit - 1);
 		long_limit = long_limit - 1;
 	}
 	if (def.HasFlag_A_InvTriggerBlocker()) // Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON)
