@@ -4134,7 +4134,7 @@ void Parser::ParseTies(Ogre::String const & line)
             switch (tie_char)
             {
             case 'n':
-                tie.options = Tie::OPTIONS_INVISIBLE;
+                tie.options = Tie::OPTIONS_VISIBLE;
                 break;
             case 'i':
                 tie.options = Tie::OPTIONS_INVISIBLE;
