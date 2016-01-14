@@ -421,7 +421,6 @@ void Beam::initSimpleSkeleton()
 	}
 	simpleSkeletonManualObject->end();
 	simpleSkeletonNode->attachObject(simpleSkeletonManualObject);
-	simpleSkeletonNode->setVisible(false);
 	simpleSkeletonInitiated = true;
 }
 
@@ -3870,7 +3869,6 @@ void Beam::showSkeleton(bool meshes, bool linked)
 
 	if (simpleSkeletonNode)
 	{
-		updateSimpleSkeleton();
 		simpleSkeletonNode->setVisible(true);
 	}
 
