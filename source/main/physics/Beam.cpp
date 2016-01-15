@@ -3830,10 +3830,6 @@ void Beam::preMapLabelRenderUpdate(bool mode, float charheight)
 
 void Beam::showSkeleton(bool meshes, bool linked)
 {
-	if (lockSkeletonchange)
-		return;
-
-	lockSkeletonchange = true;
 	m_skeletonview_is_active = true;
 
 	if (meshes)
@@ -3904,17 +3900,11 @@ void Beam::showSkeleton(bool meshes, bool linked)
 		}
 	}
 
-	lockSkeletonchange = false;
-
 	TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
 }
 
 void Beam::hideSkeleton(bool linked)
 {
-	if (lockSkeletonchange)
-		return;
-
-	lockSkeletonchange=true;
 	m_skeletonview_is_active = false;
 
 	if (cabFadeMode >= 0)
@@ -3982,8 +3972,6 @@ void Beam::hideSkeleton(bool linked)
 			(*it)->hideSkeleton(false);
 		}
 	}
-
-	lockSkeletonchange = false;
 }
 
 void Beam::fadeMesh(SceneNode *node, float amount)
@@ -5756,7 +5744,6 @@ Beam::Beam(
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)
-	, lockSkeletonchange(false)
 	, locked(0)
 	, lockedold(0)
 	, m_request_skeletonview_change(0)
