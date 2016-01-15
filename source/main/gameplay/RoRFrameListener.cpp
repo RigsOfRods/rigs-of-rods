@@ -748,27 +748,32 @@ bool RoRFrameListener::updateEvents(float dt)
 				//camera mode
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS) && curr_truck)
 				{
-					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
+					if (pressure_pressed = curr_truck->addPressure(dt * -10.0))
+					{
+						if (RoR::Application::GetOverlayWrapper())
+							RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
 #ifdef USE_OPENAL
-					SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
+						SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
-					curr_truck->addPressure(-dt*10.0);
-					pressure_pressed=true;
+					}
 				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
 				{
-					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
+					if (pressure_pressed = curr_truck->addPressure(dt * 10.0))
+					{
+						if (RoR::Application::GetOverlayWrapper())
+							RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
 #ifdef USE_OPENAL
-					SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
+						SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
-					curr_truck->addPressure(dt*10.0);
-					pressure_pressed=true;
+					}
 				} else if (pressure_pressed)
 				{
 #ifdef USE_OPENAL
 					SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
-					pressure_pressed=false;
-					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
+					pressure_pressed = false;
+					if (RoR::Application::GetOverlayWrapper())
+						RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
 				}
 
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->network && curr_truck->driveable != AIRPLANE)
