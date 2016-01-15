@@ -78,7 +78,7 @@ private:
 	void OnCategorySelected(int categoryID);
 	void OnEntrySelected(int entryID);
 	void OnSelectionDone();
-	bool SearchCompare(Ogre::String searchString, CacheEntry *ce);
+	size_t SearchCompare(Ogre::String searchString, CacheEntry *ce);
 
 	void UpdateControls(CacheEntry *entry);
 	void SetPreviewImage(Ogre::String texture);

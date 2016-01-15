@@ -39,7 +39,6 @@
 
 #include <MyGUI.h>
 
-
 using namespace RoR;
 using namespace GUI;
 
@@ -335,6 +334,12 @@ struct sort_entries {
 	}
 };
 
+struct sort_search_results {
+	bool operator ()(std::pair<CacheEntry*, size_t> const& a, std::pair<CacheEntry*, size_t> const& b) const {
+		return a.second < b.second;
+	}
+};
+
 void CLASS::UpdateGuiData()
 {
 	std::map<int, int> mCategoryUsage;
@@ -458,7 +463,7 @@ void CLASS::UpdateGuiData()
 	}
 }
 
-bool CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
+size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
 {
 	if (searchString.find(":") == Ogre::String::npos)
 	{
@@ -468,19 +473,19 @@ bool CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
 		Ogre::String dname_lower = ce->dname;
 		Ogre::StringUtil::toLowerCase(dname_lower);
 		if (dname_lower.find(searchString) != Ogre::String::npos)
-			return true;
+			return dname_lower.find(searchString);
 
 		// the filename
 		Ogre::String fname_lower = ce->fname;
 		Ogre::StringUtil::toLowerCase(fname_lower);
 		if (fname_lower.find(searchString) != Ogre::String::npos)
-			return true;
+			return 100 + fname_lower.find(searchString);
 
 		// the description
 		Ogre::String desc = ce->description;
 		Ogre::StringUtil::toLowerCase(desc);
 		if (desc.find(searchString) != Ogre::String::npos)
-			return true;
+			return 200 + desc.find(searchString);
 
 		// the authors
 		if (!ce->authors.empty())
@@ -492,33 +497,33 @@ bool CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
 				Ogre::String aname = it->name;
 				Ogre::StringUtil::toLowerCase(aname);
 				if (aname.find(searchString) != Ogre::String::npos)
-					return true;
+					return 300 + aname.find(searchString);
 
 				// author email
 				Ogre::String aemail = it->email;
 				Ogre::StringUtil::toLowerCase(aemail);
 				if (aemail.find(searchString) != Ogre::String::npos)
-					return true;
+					return 400 + aemail.find(searchString);
 			}
 		}
-		return false;
+		return Ogre::String::npos;
 	}
 	else
 	{
 		Ogre::StringVector v = Ogre::StringUtil::split(searchString, ":");
-		if (v.size() < 2) return false; //invalid syntax
+		if (v.size() < 2) return Ogre::String::npos; //invalid syntax
 
 		if (v[0] == "hash")
 		{
 			Ogre::String hash = ce->hash;
 			Ogre::StringUtil::toLowerCase(hash);
-			return (hash.find(v[1]) != Ogre::String::npos);
+			return hash.find(v[1]);
 		}
 		else if (v[0] == "guid")
 		{
 			Ogre::String guid = ce->guid;
 			Ogre::StringUtil::toLowerCase(guid);
-			return (guid.find(v[1]) != Ogre::String::npos);
+			return guid.find(v[1]);
 		}
 		else if (v[0] == "author")
 		{
@@ -532,32 +537,32 @@ bool CLASS::SearchCompare(Ogre::String searchString, CacheEntry *ce)
 					Ogre::String aname = it->name;
 					Ogre::StringUtil::toLowerCase(aname);
 					if (aname.find(v[1]) != Ogre::String::npos)
-						return true;
+						return aname.find(v[1]);
 
 					// author email
 					Ogre::String aemail = it->email;
 					Ogre::StringUtil::toLowerCase(aemail);
 					if (aemail.find(v[1]) != Ogre::String::npos)
-						return true;
+						return aemail.find(v[1]);
 				}
 			}
-			return false;
+			return Ogre::String::npos;
 		}
 		else if (v[0] == "wheels")
 		{
 			Ogre::String wheelsStr = TOUTFSTRING(ce->wheelcount) + "x" + TOUTFSTRING(ce->propwheelcount);
-			return (wheelsStr == v[1]);
+			return wheelsStr.find(v[1]);
 		}
 		else if (v[0] == "file")
 		{
 			Ogre::String fn = ce->fname;
 			Ogre::StringUtil::toLowerCase(fn);
-			return (fn.find(v[1]) != Ogre::String::npos);
+			return fn.find(v[1]);
 		}
 
 
 	}
-	return false;
+	return Ogre::String::npos;
 }
 
 void CLASS::OnCategorySelected(int categoryID)
@@ -572,21 +577,50 @@ void CLASS::OnCategorySelected(int categoryID)
 
 	m_Model->removeAllItems();
 
-	for (auto it = m_entries.begin(); it != m_entries.end(); it++)
+	if (categoryID == CacheSystem::CID_SearchResults)
 	{
-		if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
-			|| categoryID == CacheSystem::CID_Fresh && (ts - it->addtimestamp < CACHE_FILE_FRESHNESS)
-			|| categoryID == CacheSystem::CID_SearchResults && SearchCompare(search_cmd, &(*it)))
+		std::vector<std::pair<CacheEntry*, size_t> > search_results;
+		search_results.reserve(m_entries.size());
+
+		for (auto it = m_entries.begin(); it != m_entries.end(); it++)
+		{
+			size_t score = SearchCompare(search_cmd, &(*it));
+			if (score != Ogre::String::npos)
+				search_results.push_back(std::make_pair(&(*it), score));
+		}
+
+		std::stable_sort(search_results.begin(), search_results.end(), sort_search_results());
+
+		for (auto it = search_results.begin(); it != search_results.end(); it++)
 		{
 			counter++;
-			Ogre::String txt = TOSTRING(counter) + ". " + it->dname;
+			Ogre::String txt = TOSTRING(counter) + ". " + it->first->dname;
 			try
 			{
-				m_Model->addItem(txt, it->number);
+				m_Model->addItem(txt, it->first->number);
 			}
 			catch (...)
 			{
-				m_Model->addItem("ENCODING ERROR", it->number);
+				m_Model->addItem("ENCODING ERROR", it->first->number);
+			}
+		}
+	} else
+	{
+		for (auto it = m_entries.begin(); it != m_entries.end(); it++)
+		{
+			if (it->categoryid == categoryID || categoryID == CacheSystem::CID_All
+				|| categoryID == CacheSystem::CID_Fresh && (ts - it->addtimestamp < CACHE_FILE_FRESHNESS))
+			{
+				counter++;
+				Ogre::String txt = TOSTRING(counter) + ". " + it->dname;
+				try
+				{
+					m_Model->addItem(txt, it->number);
+				}
+				catch (...)
+				{
+					m_Model->addItem("ENCODING ERROR", it->number);
+				}
 			}
 		}
 	}
