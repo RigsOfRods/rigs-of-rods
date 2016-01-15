@@ -535,27 +535,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	//water buoyance
 	if (free_buoycab && water)
 	{
-		if (!(step%20))
+		for (int i=0; i<free_buoycab; i++)
 		{
-			//clear forces
-			for (int i=0; i<free_buoycab; i++)
-			{
-				int tmpv=buoycabs[i]*3;
-				nodes[cabs[tmpv]].buoyanceForce=0;
-				nodes[cabs[tmpv+1]].buoyanceForce=0;
-				nodes[cabs[tmpv+2]].buoyanceForce=0;
-			}
-			//add forces
-			for (int i=0; i<free_buoycab; i++)
-			{
-				int tmpv=buoycabs[i]*3;
-				buoyance->computeNodeForce(&nodes[cabs[tmpv]], &nodes[cabs[tmpv+1]], &nodes[cabs[tmpv+2]], doUpdate, buoycabtypes[i]);
-			}
-		}
-		//apply forces
-		for (int i=0; i<free_node; i++)
-		{
-			nodes[i].Forces+=nodes[i].buoyanceForce;
+			int tmpv = buoycabs[i] * 3;
+			buoyance->computeNodeForce(&nodes[cabs[tmpv]], &nodes[cabs[tmpv+1]], &nodes[cabs[tmpv+2]], doUpdate, buoycabtypes[i]);
 		}
 	}
 
@@ -1780,25 +1763,29 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	IWater *water = 0;
+	float gravity = -9.81f;
 	if (gEnv->terrainManager)
+	{
 		water = gEnv->terrainManager->getWater();
+		gravity = gEnv->terrainManager->getGravity();
+	}
 
 	for (int i=0; i<free_node; i++)
 	{
-		//if (_isnan(nodes[i].Position.length())) LOG("Node is NaN "+TOSTRING(i));
-
 		// wetness
-		if (nodes[i].wetstate==DRIPPING && !nodes[i].contactless && !nodes[i].disable_particles)
+		if (doUpdate)
 		{
-			nodes[i].wettime += dt;
-			if (nodes[i].wettime > 5.0)
+			if (nodes[i].wetstate == DRIPPING && !nodes[i].contactless && !nodes[i].disable_particles)
 			{
-				nodes[i].wetstate = DRY; //dry!
-			} else if (doUpdate)
-			{
-				if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
-				//also for hot engine
-				if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
+				node_wet_time[i] += dt * maxsteps;
+				if (node_wet_time[i] > 5.0)
+				{
+					nodes[i].wetstate = DRY;
+				} else
+				{
+					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, node_wet_time[i]);
+					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, node_wet_time[i]);
+				}
 			}
 		}
 
@@ -1900,7 +1887,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		// prepare next loop (optimisation)
 		// we start forces from zero
 		// start with gravity
-		nodes[i].Forces = nodes[i].gravimass;
+		nodes[i].Forces = Vector3(0, nodes[i].mass * gravity, 0);
 
 		if (fuseAirfoil)
 		{
@@ -1909,21 +1896,13 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		} else if (!disableDrag)
 		{
 			// add viscous drag (turbulent model)
-			if ((step&7) && !increased_accuracy)
-			{
-				// fasttrack drag
-				nodes[i].Forces += nodes[i].lastdrag;
-			} else
-			{
-				Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-				// plus: turbulences
-				Real defdragxspeed = DEFAULT_DRAG * speed;
-				//Real maxtur=defdragxspeed*speed*0.01f;
-				nodes[i].lastdrag =- defdragxspeed * nodes[i].Velocity;
-				Real maxtur = defdragxspeed * speed * 0.005f;
-				nodes[i].lastdrag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
-				nodes[i].Forces += nodes[i].lastdrag;
-			}
+			Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
+			Real defdragxspeed = DEFAULT_DRAG * speed;
+			Vector3 drag = -defdragxspeed * nodes[i].Velocity;
+			// plus: turbulences
+			Real maxtur = defdragxspeed * speed * 0.005f;
+			drag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
+			nodes[i].Forces += drag;
 		}
 
 		//if in water
@@ -1955,7 +1934,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		} else if (nodes[i].wetstate == WET)
 		{
 			nodes[i].wetstate = DRIPPING;
-			nodes[i].wettime = 0;
+			node_wet_time[i] = 0.0f;
 		}
 	}
 }

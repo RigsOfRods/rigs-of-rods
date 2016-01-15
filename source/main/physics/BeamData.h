@@ -138,10 +138,6 @@ enum {
 	BEAM_INVISIBLE,
 	BEAM_INVISIBLE_HYDRO
 };
-enum {
-	NODE_NORMAL,
-	NODE_LOADED
-};
 
 enum {
 	ACTIVATED,      //!< leading truck

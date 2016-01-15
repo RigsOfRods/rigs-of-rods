@@ -339,15 +339,12 @@ void Beam::scaleTruck(float value)
 	Vector3 smopos = nodes[0].smoothpos;
 	for (int i=1;i<free_node;i++)
 	{
-		nodes[i].iPosition = refpos + (nodes[i].iPosition-refpos) * value;
+		initial_node_pos[i] = refpos + (initial_node_pos[i]-refpos) * value;
 		nodes[i].AbsPosition = refpos + (nodes[i].AbsPosition-refpos) * value;
 		nodes[i].RelPosition = relpos + (nodes[i].RelPosition-relpos) * value;
 		nodes[i].smoothpos = smopos + (nodes[i].smoothpos-smopos) * value;
 		nodes[i].Velocity *= value;
 		nodes[i].Forces *= value;
-		nodes[i].lockedPosition *= value;
-		nodes[i].lockedVelocity *= value;
-		nodes[i].lockedForces *= value;
 		nodes[i].mass *= value;
 	}
 	updateSlideNodePositions();
@@ -795,7 +792,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 	{
 		if (!nodes[i].iswheel)
 		{
-			if (!nodes[i].masstype == NODE_LOADED)
+			if (!nodes[i].loadedMass)
 			{
 				nodes[i].mass = 0;
 			} else if (!nodes[i].overrideMass)
@@ -843,7 +840,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 	//	if (!it->hookNode->overrideMass)
 	//		it->hookNode->mass = 500.0f;
 
-	//update gravimass
+	//update mass
 	for (int i=0; i<free_node; i++)
 	{
 		//LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(nodes[i].mass));
@@ -854,7 +851,6 @@ void Beam::calc_masses2(Real total, bool reCalc)
 				LOG("Node " + TOSTRING(i) +" mass ("+TOSTRING(nodes[i].mass)+"kg) too light. Resetting to minimass ("+ TOSTRING(minimass) +"kg).");
 			nodes[i].mass = minimass;
 		}
-		nodes[i].gravimass = Vector3(0.0f, gEnv->terrainManager->getGravity() * nodes[i].mass, 0.0f);
 	}
 
 	totalmass = 0;
@@ -863,7 +859,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 		if (debugMass)
 		{
 			String msg = "Node " + TOSTRING(i) +" : "+ TOSTRING((int)nodes[i].mass) +" kg";
-			if (nodes[i].masstype == NODE_LOADED)
+			if (nodes[i].loadedMass)
 			{
 				if (nodes[i].overrideMass)
 					msg += " (overriden by node mass)";
@@ -989,9 +985,6 @@ int Beam::loadPosition(int indexPosition)
 		// reset forces
 		nodes[i].Velocity      = Vector3::ZERO;
 		nodes[i].Forces        = Vector3::ZERO;
-		nodes[i].lastdrag      = Vector3::ZERO;
-		nodes[i].buoyanceForce = Vector3::ZERO;
-		nodes[i].lastdrag      = Vector3::ZERO;
 
 		pos = pos + nbuff[i];
 	}
@@ -1145,7 +1138,7 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 	{
 		if (setInitPosition)
 		{
-			nodes[i].iPosition = nodes[i].AbsPosition;
+			initial_node_pos[i] = nodes[i].AbsPosition;
 		}
 		nodes[i].smoothpos   = nodes[i].AbsPosition;
 		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
@@ -1310,14 +1303,11 @@ void Beam::SyncReset()
 	if (engine) engine->start();
 	for (int i=0; i<free_node; i++)
 	{
-		nodes[i].AbsPosition=nodes[i].iPosition;
-		nodes[i].RelPosition=nodes[i].iPosition-origin;
-		nodes[i].smoothpos=nodes[i].iPosition;
+		nodes[i].AbsPosition=initial_node_pos[i];
+		nodes[i].RelPosition=initial_node_pos[i]-origin;
+		nodes[i].smoothpos=initial_node_pos[i];
 		nodes[i].Velocity=Vector3::ZERO;
 		nodes[i].Forces=Vector3::ZERO;
-		nodes[i].lastdrag=Vector3::ZERO;
-		nodes[i].buoyanceForce=Vector3::ZERO;
-		nodes[i].lastdrag=Vector3::ZERO;
 	}
 
 	for (int i=0; i<free_beam; i++)
