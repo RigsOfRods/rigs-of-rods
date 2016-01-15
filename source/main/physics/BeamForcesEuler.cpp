@@ -1777,14 +1777,14 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		{
 			if (nodes[i].wetstate == DRIPPING && !nodes[i].contactless && !nodes[i].disable_particles)
 			{
-				node_wet_time[i] += dt * maxsteps;
-				if (node_wet_time[i] > 5.0)
+				nodes[i].wettime += dt * maxsteps;
+				if (nodes[i].wettime > 5.0)
 				{
 					nodes[i].wetstate = DRY;
 				} else
 				{
-					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, node_wet_time[i]);
-					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, node_wet_time[i]);
+					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
+					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
 				}
 			}
 		}
@@ -1934,7 +1934,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		} else if (nodes[i].wetstate == WET)
 		{
 			nodes[i].wetstate = DRIPPING;
-			node_wet_time[i] = 0.0f;
+			nodes[i].wettime = 0.0f;
 		}
 	}
 }
