@@ -3515,7 +3515,65 @@ void Beam::updateLabels(float dt)
 	}
 }
 
-void Beam::updateVisualPrepare(float dt)
+void Beam::updateFlexbodiesPrepare(float dt)
+{
+	BES_GFX_START(BES_GFX_updateFlexBodies);
+
+	if (cabMesh) cabNode->setPosition(cabMesh->flexit());
+
+	if (gEnv->threadPool)
+	{
+		flexmesh_prepare.reset();
+		for (int i=0; i<free_wheel; i++)
+		{
+			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
+		}
+
+		flexbody_prepare.reset();
+		for (int i=0; i<free_flexbody; i++)
+		{
+			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
+		}
+
+		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
+
+		std::list<IThreadTask*> tasks;
+
+		// Push tasks into thread pool
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+				tasks.emplace_back(vwheels[i].fm);
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbody_prepare[i])
+				tasks.emplace_back(flexbodies[i]);
+		}
+
+		gEnv->threadPool->enqueue(tasks);
+	} else
+	{
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this))
+			{
+				vwheels[i].fm->flexitCompute();
+				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+			}
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbodies[i]->flexitPrepare(this))
+			{
+				flexbodies[i]->flexitCompute();
+				flexbodies[i]->flexitFinal();
+			}
+		}
+	}
+}
+
+void Beam::updateVisual(float dt)
 {
 	BES_GFX_START(BES_GFX_updateVisual);
 
@@ -3678,65 +3736,10 @@ void Beam::updateVisualPrepare(float dt)
 	if (m_skeletonview_is_active)
 		updateSimpleSkeleton();
 
-	BES_GFX_START(BES_GFX_updateFlexBodies);
-	if (cabMesh) cabNode->setPosition(cabMesh->flexit());
-
-	if (gEnv->threadPool)
-	{
-		flexmesh_prepare.reset();
-		for (int i=0; i<free_wheel; i++)
-		{
-			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
-		}
-
-		flexbody_prepare.reset();
-		for (int i=0; i<free_flexbody; i++)
-		{
-			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
-		}
-
-		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
-
-		std::list<IThreadTask*> tasks;
-
-		// Push tasks into thread pool
-		for (int i=0; i<free_wheel; i++)
-		{
-			if (flexmesh_prepare[i])
-				tasks.emplace_back(vwheels[i].fm);
-		}
-		for (int i=0; i<free_flexbody; i++)
-		{
-			if (flexbody_prepare[i])
-				tasks.emplace_back(flexbodies[i]);
-		}
-
-		gEnv->threadPool->enqueue(tasks);
-	} else
-	{
-		for (int i=0; i<free_wheel; i++)
-		{
-			if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this))
-			{
-				vwheels[i].fm->flexitCompute();
-				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
-			}
-		}
-		for (int i=0; i<free_flexbody; i++)
-		{
-			if (flexbodies[i]->flexitPrepare(this))
-			{
-				flexbodies[i]->flexitCompute();
-				flexbodies[i]->flexitFinal();
-			}
-		}
-	}
-	BES_GFX_STOP(BES_GFX_updateFlexBodies);
-
 	BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
-void Beam::updateVisualFinal(float dt)
+void Beam::updateFlexbodiesFinal(float dt)
 {
 	if (gEnv->threadPool)
 	{
@@ -3761,14 +3764,6 @@ void Beam::updateVisualFinal(float dt)
 	} 
 
 	BES_GFX_STOP(BES_GFX_updateFlexBodies);
-
-	BES_GFX_STOP(BES_GFX_updateVisual);
-}
-
-void Beam::updateVisual(float dt)
-{
-	updateVisualPrepare(dt);
-	updateVisualFinal(dt);
 }
 
 //v=0: full detail
@@ -4882,6 +4877,8 @@ void Beam::deleteNetTruck()
 	netMT->setVisible(false);
 	resetPosition(100000, 100000, false, 100000);
 	netLabelNode->setVisible(false);
+	updateFlexbodiesPrepare();
+	updateFlexbodiesFinal();
 	updateVisual();
 }
 
@@ -5863,6 +5860,8 @@ Beam::Beam(
 	//
 	nodebuffersize = sizeof(float) * 3 + (first_wheel_node-1) * sizeof(short int) * 3;
 	netbuffersize  = nodebuffersize + free_wheel * sizeof(float);
+	updateFlexbodiesPrepare();
+	updateFlexbodiesFinal();
 	updateVisual();
 	// stop lights
 	lightsToggle();

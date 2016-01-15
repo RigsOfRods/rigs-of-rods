@@ -731,8 +731,6 @@ bool RoRFrameListener::updateEvents(float dt)
 						curr_truck->hideSkeleton();
 					else
 						curr_truck->showSkeleton(true);
-
-					curr_truck->updateVisual();
 				}
 
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
@@ -1259,6 +1257,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	RoR::Application::GetInputEngine()->Capture();
 
 	//if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
+	//
+	if (loading_state == ALL_LOADED && !this->isSimPaused)
+	{
+		BeamFactory::getSingleton().updateFlexbodiesPrepare(dt); // Pushes all flexbody tasks into the thread pool 
+	}
 
 	// update OutProtocol
 	if (OutProtocol::getSingletonPtr())
@@ -1388,7 +1391,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	//update visual - antishaking
 	if (loading_state == ALL_LOADED && !this->isSimPaused)
 	{
-		BeamFactory::getSingleton().updateVisual(dt); // Updates flexbodies. When using ThreadPool, it pushes tasks and also waits for them to complete (in this single call)
+		BeamFactory::getSingleton().updateFlexbodiesFinal(dt); // Waits until all flexbody tasks are finished 
+		BeamFactory::getSingleton().updateVisual(dt);
 	}
 
 	if (!updateEvents(dt))

@@ -122,6 +122,12 @@ public:
 	*/
 	void updateVisual(float dt);
 
+	/**
+	* TIGHT-LOOP; Logic: flexbodies 
+	*/
+	void updateFlexbodiesPrepare(float dt);
+	void updateFlexbodiesFinal(float dt);
+
 	inline unsigned long getPhysFrame() { return m_physics_frames; };
 
 	void calcPhysics(float dt);
