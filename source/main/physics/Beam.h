@@ -343,6 +343,7 @@ public:
 	Ogre::Vector3 getGForces();
 
 	int stabcommand; //!< Stabilization; values: { -1, 0, 1 }
+	int m_request_skeletonview_change; //!< Request activation(1) / deactivation(-1) of skeletonview
 	bool m_skeletonview_is_active; //!< Visibility of "skeleton" (visual rig) { false = not visible, true = visible }
 	float stabratio;
 	//direction
