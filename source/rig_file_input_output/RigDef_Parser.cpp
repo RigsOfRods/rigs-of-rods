@@ -210,14 +210,12 @@ void Parser::ParseLine(Ogre::String const & line)
 				break;
 
 			case (File::KEYWORD_CAB):
-				if (m_current_section == File::SECTION_SUBMESH)
+				new_subsection = File::SUBSECTION__SUBMESH__CAB;
+				if (m_current_section != File::SECTION_SUBMESH)
 				{
-					new_subsection = File::SUBSECTION__SUBMESH__CAB;
-				}
-				else
-				{
-					AddMessage(line, Message::TYPE_ERROR, "Misplaced sub-section 'cab' (belongs in section 'submesh'), ignoring...");
-					new_section = File::SECTION_NONE;
+					AddMessage(line, Message::TYPE_WARNING, "Misplaced sub-section 'cab' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
+					m_current_section = File::SECTION_SUBMESH;
+					m_current_submesh = boost::shared_ptr<Submesh>( new Submesh() );
 				}
 				line_finished = true;
 				break;
@@ -682,14 +680,12 @@ void Parser::ParseLine(Ogre::String const & line)
 				break;
 
 			case (File::KEYWORD_TEXCOORDS):
-				if (m_current_section == File::SECTION_SUBMESH)
+				new_subsection = File::SUBSECTION__SUBMESH__TEXCOORDS;
+				if (m_current_section != File::SECTION_SUBMESH)
 				{
-					new_subsection = File::SUBSECTION__SUBMESH__TEXCOORDS;
-				}
-				else
-				{
-					AddMessage(line, Message::TYPE_ERROR, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), ignoring...");
-					new_section = File::SECTION_NONE;
+					AddMessage(line, Message::TYPE_WARNING, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
+					m_current_section = File::SECTION_SUBMESH;
+					m_current_submesh = boost::shared_ptr<Submesh>( new Submesh() );
 				}
 				line_finished = true;
 				break;
