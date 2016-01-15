@@ -1,21 +1,6 @@
 project(RoR_Main)
 
 
-set( BINNAME "RoR" )
-
-
-####################################################################################################
-#  FIND EXTERNAL DEPENDENCIES
-####################################################################################################
-
-#  REQUIRED DEPENDENCIES
-# -----------------------
-
-#  OPTIONAL DEPENDENCIES
-# -----------------------
-
-
-
 ####################################################################################################
 #  SOURCE FILES
 ####################################################################################################
@@ -296,54 +281,13 @@ endif()
 #  EXECUTABLE TARGET
 ####################################################################################################
 
-link_directories   (${Ogre_LIBRARY_DIRS})
-link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
-link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
-link_directories   (${Ogre_Paging_LIBRARY_DIRS})
-link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
-link_directories   (${Ois_LIBRARY_DIRS})
-
-
+set( BINNAME "RoR" )
 add_executable(${BINNAME} ${SOURCE_FILES} )
 
 if(WIN32)
   set_target_properties( ${BINNAME} PROPERTIES WIN32_EXECUTABLE YES )
 endif()
 
-
-# Post build actions to be performed
-if(WIN32)
-  # always copy ogre files
-  copy_lib_files_for_target(${BINNAME} Ogre)
-  # platform binaries
-  copy_files_for_target(${BINNAME} ${ROR_BINTOOL_DIR}/$(ConfigurationName)/*)  
-  # then the optional ones
-  if(ROR_USE_MYGUI)
-    copy_lib_files_for_target(${BINNAME} MyGUI)
-  endif()
-  if(ROR_USE_OPENAL)
-    copy_lib_files_for_target(${BINNAME} OpenALSoft)
-  endif()
-  if(ROR_USE_CURL)
-    copy_lib_files_for_target(${BINNAME} Curl)
-  endif()
-  if(ROR_USE_CAELUM)
-    copy_lib_files_for_target(${BINNAME} Caelum)
-  endif()
-  if(ROR_USE_MOFILEREADER)
-    copy_lib_files_for_target(${BINNAME} MoFileReader)
-  endif()
-else()
-  copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
-endif()
-
-# Copy resources needed for execution to the build directory
-add_custom_command(
-  TARGET ${BINNAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/bin/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
-  COMMENT "Copy resources to build directory"
-  VERBATIM
-)
 
 
 ####################################################################################################
@@ -352,24 +296,15 @@ add_custom_command(
 
 target_compile_definitions( ${BINNAME} PRIVATE
   USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
-  USE_RTSHADER_SYSTEM
   #FEAT_DEBUG_MUTEX
 )
 
-if(WIN32)
-  target_compile_definitions( ${BINNAME} PRIVATE MYGUI_STATIC)
-endif()
-
-if(ROR_USE_ANGELSCRIPT)
-  target_compile_definitions( ${BINNAME} PRIVATE AS_USE_NAMESPACE)
+if(ROR_FEAT_TIMING)
+  target_compile_definitions( ${BINNAME} PRIVATE FEAT_TIMING)
 endif()
 
 if(ROR_USE_OIS_G27)
   target_compile_definitions( ${BINNAME} PRIVATE USE_OIS_G27)
-endif()
-
-if(ROR_FEAT_TIMING)
-  target_compile_definitions( ${BINNAME} PRIVATE FEAT_TIMING)
 endif()
 
 
@@ -377,14 +312,6 @@ endif()
 ####################################################################################################
 #  INCLUDE DIRECTORIES
 ####################################################################################################
-
-
-include_directories(${Ogre_INCLUDE_DIRS})
-include_directories(${Ogre_Terrain_INCLUDE_DIRS})
-include_directories(${Ogre_Overlay_INCLUDE_DIRS})
-include_directories(${Ogre_Paging_INCLUDE_DIRS})
-include_directories(${Ogre_RTShader_INCLUDE_DIRS})
-include_directories(${Ois_INCLUDE_DIRS})
 
 
 target_include_directories( ${BINNAME} PRIVATE
@@ -429,9 +356,30 @@ target_include_directories( ${BINNAME} PRIVATE
 
 
 ####################################################################################################
-#  LINK LIBRARIES
+# EXTERNAL DEPENDENCIES
+#
+# In CMake searching for external dependencies is done with the help of FindModule scripts. These
+# are run by calling the find_package() command.
+# CMake already ships with many ready-made FindModules (e.g. for OpenAL). Additional FindModule
+# scripts that can be used are placed in the CMakeModule directory `<ror_root>/cmake`. These
+# scripts typically define a set of variables, such as
+#
+#   <dependency_name>_FOUND           # indicates if the dependecy was found
+#   <dependency_name>_INCLUDE_DIRS    # directories with headers to include
+#   <dependency_name>_LIBRARIES       # libraries to link against
+#
+# Instead of directly using these variables, in modern CMake it is common to use additionally
+# provided 'imported targets' for the sought dependency. This greatly facilitates dealing with
+# dependencies. Adding a dependency to  an executable target is now simply a matter of specifying
+# the imported target of the dependency in the target_link_libraries() command.
+#
 ####################################################################################################
 
+
+#  REQUIRED DEPENDENCIES
+# -----------------------
+
+# TODO
 IF(WIN32)
   set(OS_LIBS "dinput8.lib;dxguid.lib")
 
@@ -440,38 +388,234 @@ IF(WIN32)
   # warning C4305: 'initializing' : truncation from 'double' to 'const float'
   add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
 ELSEIF(UNIX)
-  include_directories(${GTK_INCLUDE_DIRS})
-  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt -lboost_system")
+  #  include_directories(${GTK_INCLUDE_DIRS})
+  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 ENDIF(WIN32)
-
-
-# optional components
-setup_lib(MYGUI)
-setup_lib(OPENAL)
-setup_lib(CURL)
-setup_lib(SOCKETW)
-IF(WIN32)
-  setup_lib(MOFILEREADER)
-ENDIF(WIN32)
-setup_lib(PAGED)
-setup_lib(CAELUM)
-setup_lib(ANGELSCRIPT)
-
-if(ROR_USE_ANGELSCRIPT)
-  # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine
-  set(optional_libs ${optional_libs} angelscript_addons)
-endif()
-
-
-target_link_libraries(${BINNAME}
-  ${Ogre_LIBRARIES}
-  ${Ogre_Terrain_LIBRARIES}
-  ${Ogre_Overlay_LIBRARIES}
-  ${Ogre_Paging_LIBRARIES}
-  ${Ogre_RTShader_LIBRARIES}
-  ${Ois_LIBRARIES}
+target_link_libraries( ${BINNAME} PRIVATE
   ${OS_LIBS}
-  ${optional_libs}
   version_info
 )
 
+# --- Threading support (still needed for GCC even with C++11)
+set( CMAKE_THREAD_PREFER_PTHREAD YES )
+find_package( Threads REQUIRED )
+target_link_libraries( ${BINNAME} PRIVATE
+  Threads::Threads
+)
+
+# --- Ogre 3D graphics engine ---
+find_package( OGRE REQUIRED )
+target_link_libraries( ${BINNAME} PRIVATE
+  ${OGRE_LIBRARIES} 
+  ${OGRE_Paging_LIBRARIES}
+  ${OGRE_RTShaderSystem_LIBRARIES}
+  ${OGRE_Terrain_LIBRARIES}
+)
+target_include_directories( ${BINNAME} PRIVATE
+  ${OGRE_INCLUDE_DIRS} 
+  ${OGRE_Paging_INCLUDE_DIRS}
+  ${OGRE_RTShaderSystem_INCLUDE_DIRS}
+  ${OGRE_Terrain_INCLUDE_DIRS}
+)
+if( OGRE_VERSION VERSION_GREATER 1.8 )
+  target_link_libraries( ${BINNAME} PRIVATE ${OGRE_Overlay_LIBRARIES} )
+  target_include_directories( ${BINNAME} PRIVATE ${OGRE_Overlay_INCLUDE_DIRS} )
+endif()
+
+
+# --- Object Oriented Input System ---
+find_package( OIS REQUIRED )
+target_link_libraries( ${BINNAME} PRIVATE ${OIS_LIBRARIES} )
+target_include_directories( ${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS} )
+
+
+# --- MoFileReader ---
+if( WIN32 )
+  find_package( MoFileReader REQUIRED )
+  target_link_libraries( ${BINNAME} PRIVATE MoFileReader::MoFileReader )
+  target_compile_definitions( ${BINNAME} PRIVATE USE_MOFILEREADER )
+endif()
+
+
+#  OPTIONAL DEPENDENCIES
+# -----------------------
+
+
+# --- MyGUI - graphical user inferface ---
+find_package( MyGUI )
+if( ( TARGET MyGUI::MyGUI ) AND ( TARGET MyGUI::OgrePlatform ) )
+  target_link_libraries( ${BINNAME} PRIVATE
+    MyGUI::MyGUI
+    MyGUI::OgrePlatform
+  )
+  target_compile_definitions( ${BINNAME} PRIVATE
+    USE_MYGUI
+    $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
+  )
+else()
+  message( WARNING "Building ${BINNAME} without MyGUI. Some functionality may be missing." )
+endif()
+
+
+# --- OpenAL - audio library ---
+find_package( OpenAL )
+if(OPENAL_FOUND)
+  target_link_libraries( ${BINNAME} PRIVATE ${OPENAL_LIBRARY} )
+  target_include_directories( ${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR} )
+  target_compile_definitions( ${BINNAME} PRIVATE USE_OPENAL )
+else()
+  message( WARNING "Building ${BINNAME} without OpenAL. Some functionality may be missing." )
+endif()
+
+
+# --- SocketW - networking library ---
+find_package( SocketW )
+if( TARGET SocketW::SocketW)
+  target_link_libraries( ${BINNAME} PRIVATE SocketW::SocketW)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_SOCKETW )
+else()
+  message( WARNING "Building ${BINNAME} without SocketW. Some functionality may be missing." )
+endif()
+
+
+# --- AngelScript - scripting interface ---
+find_package( AngelScript )
+if( TARGET AngelScript::AngelScript)
+  target_link_libraries( ${BINNAME} PRIVATE
+    AngelScript::AngelScript
+    AngelScript::use_namespace
+  )
+  target_compile_definitions( ${BINNAME} PRIVATE USE_ANGELSCRIPT )
+
+  # TODO angelscript_addons
+  target_include_directories( ${BINNAME} PRIVATE ../angelscript_addons )
+  target_link_libraries( ${BINNAME} PRIVATE angelscript_addons )
+else()
+  message( WARNING "Building ${BINNAME} without AngelScript. Some functionality may be missing." )
+endif()
+
+
+# --- cURL ---
+find_package( CURL )
+if(CURL_FOUND)
+  target_link_libraries( ${BINNAME} PRIVATE ${CURL_LIBRARY})
+  target_include_directories( ${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
+  target_compile_definitions( ${BINNAME} PRIVATE USE_CURL )
+else()
+  message( WARNING "Building ${BINNAME} without cURL. Some functionality may be missing." )
+endif()
+
+# --- Caelum -- Ogre addon for realistic sky rendering ---
+find_package( Caelum )
+if( TARGET Caelum::Caelum)
+  target_link_libraries( ${BINNAME} PRIVATE Caelum::Caelum)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_CAELUM )
+else()
+  message( WARNING "Building ${BINNAME} without Caelum. Some functionality may be missing." )
+endif()
+
+
+# --- PagedGeometry -- Ogre addon ---
+find_package( PagedGeometry )
+if( TARGET PagedGeometry::PagedGeometry)
+  target_link_libraries( ${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_PAGED )
+else()
+  message( WARNING "Building ${BINNAME} without PagedGeometry. Some functionality may be missing." )
+endif()
+
+
+
+####################################################################################################
+#  POST-BUILD STEPS
+####################################################################################################
+
+
+if(WIN32)
+	# Copy dynamic libraries from dependencies directory to output directory of the executable target
+
+	# This helper function searches for specified files by looking in several default locations
+	# (e.g. CMAKE_PREFIX_PATH). For each found file a command is generated which copies the file to
+	# the output directory of the target executable. All copy commands are collected in a list for
+	# later use within a custom_command statement.
+	function( post_build_copy_commands command_list target )
+		foreach( source_file IN LISTS ARGN )
+			find_file( PATH_TO_SOURCE ${source_file} PATH_SUFFIXES bin bin/release bin/vc_dll )
+			if( PATH_TO_SOURCE )
+				set( cmd_list ${cmd_list} COMMAND ${CMAKE_COMMAND} -E copy ${PATH_TO_SOURCE} $<TARGET_FILE_DIR:${target}> )
+			else()
+				message( WARNING "Could not copy ${source_file} to output directory!" )
+			endif()
+			unset( PATH_TO_SOURCE CACHE )
+		endforeach( source_file )
+		set( ${command_list} ${cmd_list} PARENT_SCOPE )
+	endfunction()
+
+	# Create list of commands for copying
+	set( WXWIDGETS_VERSION 310u )
+	set( WXWIDGETS_COMPILER vc140 )
+	post_build_copy_commands( DEPENDENCY_COPY_COMMANDS ${BINNAME}
+		# OGRE
+		OgreMain.dll
+		OgreOverlay.dll
+		OgrePaging.dll
+		OgreTerrain.dll
+		OgreRTShaderSystem.dll
+		OgreVolume.dll
+		Plugin_BSPSceneManager.dll
+		Plugin_CgProgramManager.dll
+		Plugin_OctreeSceneManager.dll
+		Plugin_OctreeZone.dll
+		Plugin_ParticleFX.dll
+		Plugin_PCZSceneManager.dll
+		RenderSystem_GL.dll
+		RenderSystem_GL3Plus.dll
+		RenderSystem_Direct3D9.dll
+		plugins.cfg
+		OIS.dll
+		cg.dll
+		# MyGUI
+		MyGUIEngine.dll
+		# Caelum
+		Caelum.dll
+		# Curl
+		libcurl.dll
+		# OpenAL
+		OpenAL32.dll
+		# wxWidgets
+		wxbase${WXWIDGETS_VERSION}_${WXWIDGETS_COMPILER}.dll
+		wxbase${WXWIDGETS_VERSION}_net_${WXWIDGETS_COMPILER}.dll
+		wxbase${WXWIDGETS_VERSION}_xml_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_adv_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_aui_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_core_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_gl_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_html_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_media_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_qa_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_ribbon_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_richtext_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_stc_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_webview_${WXWIDGETS_COMPILER}.dll
+		wxmsw${WXWIDGETS_VERSION}_xrc_${WXWIDGETS_COMPILER}.dll
+	)
+	
+	# Execute the collected copy commands as a post-build step
+	add_custom_command(
+		TARGET ${BINNAME} POST_BUILD
+		${DEPENDENCY_COPY_COMMANDS}
+		VERBATIM
+	)
+endif()
+
+if( UNIX )
+  copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
+endif()
+
+# Copy resources needed for execution to the build directory
+add_custom_command(
+  TARGET ${BINNAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/bin/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
+  COMMENT "Copy resources to build directory"
+  VERBATIM
+)
