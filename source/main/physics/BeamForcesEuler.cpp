@@ -1210,42 +1210,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			}
 		}
 
-		// only process ties if there is enough force available <- why are ties related to engine rpm?
-		if (canwork)
-		{
-			bool requestpower = false;
-			// go through all ties and process them
-			for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
-			{
-				// only process tying ties
-				if (!it->tying) continue;
-
-				// division through zero guard
-				if (it->beam->refL == 0 || it->beam->L == 0) continue;
-
-				float clen = it->beam->L / it->beam->refL;
-				if (clen > it->beam->commandShort)
-				{
-					float dl = it->beam->L;
-					it->beam->L *= (1.0 - it->beam->commandRatioShort * dt / it->beam->L);
-					dl = fabs(dl - it->beam->L);
-					requestpower = true;
-					active++;
-					work += fabs(it->beam->stress) * dl;
-				} else
-				{
-					// tying finished, end reached
-					it->tying = false;
-				}
-
-				// check if we hit a certain force limit, then abort the tying process
-				if (fabs(it->beam->stress) > it->beam->maxtiestress)
-					it->tying = false;
-			}
-			if (requestpower)
-				requested++;
-		}
-
 		// now process normal commands
 		for (int i=0; i<=MAX_COMMANDS; i++)
 		{
@@ -1471,6 +1435,32 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	}
 
 	BES_STOP(BES_CORE_Commands);
+
+	// go through all ties and process them
+	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
+	{
+		// only process tying ties
+		if (!it->tying) continue;
+
+		// division through zero guard
+		if (it->beam->refL == 0 || it->beam->L == 0) continue;
+
+		float clen = it->beam->L / it->beam->refL;
+		if (clen > it->beam->commandShort)
+		{
+			float dl = it->beam->L;
+			it->beam->L *= (1.0 - it->beam->commandRatioShort * dt / it->beam->L);
+		} else
+		{
+			// tying finished, end reached
+			it->tying = false;
+		}
+
+		// check if we hit a certain force limit, then abort the tying process
+		if (fabs(it->beam->stress) > it->beam->maxtiestress)
+			it->tying = false;
+	}
+
 	BES_START(BES_CORE_Replay);
 
 	// we also store a new replay frame
