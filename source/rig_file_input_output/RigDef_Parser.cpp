@@ -288,7 +288,7 @@ void Parser::ParseLine(Ogre::String const & line)
 				break;
 
 			case (File::KEYWORD_END):
-				/* Ignore silently */
+				new_section = File::SECTION_NONE;
 				line_finished = true;
 				break;
 
