@@ -490,10 +490,7 @@ void BeamEngine::update(float dt, int doUpdate)
 				postshifting = 1;
 				postshiftclock = 0.0f;
 			}
-		} else
-			setAcc(autocurAcc);
-
-
+		}
 
 		// auto declutch
 		if (!is_Electric)
