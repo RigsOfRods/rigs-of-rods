@@ -51,7 +51,7 @@ public:
 
 	void allocRipple(Ogre::Vector3 pos, Ogre::Vector3 vel);
 
-	void update(float gspeed);
+	void update();
 
 protected:
 

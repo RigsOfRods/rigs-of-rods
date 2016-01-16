@@ -25,7 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "Collisions.h"
 #include "Dashboard.h"
-#include "DustManager.h"
 #include "EnvironmentMap.h"
 #include "ErrorUtils.h"
 #include "GUIFriction.h"
