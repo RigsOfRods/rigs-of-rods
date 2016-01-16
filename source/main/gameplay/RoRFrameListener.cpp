@@ -1388,13 +1388,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		DustManager::getSingleton().update();
 	}
 
-	//update visual - antishaking
-	if (loading_state == ALL_LOADED && !this->isSimPaused)
-	{
-		BeamFactory::getSingleton().updateFlexbodiesFinal(dt); // Waits until all flexbody tasks are finished 
-		BeamFactory::getSingleton().updateVisual(dt);
-	}
-
 	if (!updateEvents(dt))
 	{
 		LOG("exiting...");
@@ -1425,7 +1418,12 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 		// we simulate one truck, it will take care of the others (except networked ones)
 		if (!isSimPaused)
-			BeamFactory::getSingleton().calcPhysics(dt);
+		{
+			BeamFactory::getSingleton().updateFlexbodiesFinal(dt); // Waits until all flexbody tasks are finished 
+			BeamFactory::getSingleton().updateVisual(dt);          // update visual - antishaking
+			BeamFactory::getSingleton().checkSleepingState();
+			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
+		}
 
 		updateIO(dt);
 
