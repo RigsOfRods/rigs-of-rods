@@ -440,8 +440,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 
 		predictedCollisionBoundingBoxes[i].setExtents(collisionBoundingBoxes[i].getMinimum(), collisionBoundingBoxes[i].getMaximum());
-		predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMinimum() + nodes[0].Velocity * dt);
-		predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMaximum() + nodes[0].Velocity * dt);
+		predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMinimum() + nodes[0].Velocity);
+		predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMaximum() + nodes[0].Velocity);
 	}
 
 	// anti-explosion guard
@@ -463,8 +463,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	boundingBox.setMaximum(tBoundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 
 	predictedBoundingBox.setExtents(boundingBox.getMinimum(), boundingBox.getMaximum());
-	predictedBoundingBox.merge(boundingBox.getMinimum() + nodes[0].Velocity * dt);
-	predictedBoundingBox.merge(boundingBox.getMaximum() + nodes[0].Velocity * dt);
+	predictedBoundingBox.merge(boundingBox.getMinimum() + nodes[0].Velocity);
+	predictedBoundingBox.merge(boundingBox.getMaximum() + nodes[0].Velocity);
 
 	BES_STOP(BES_CORE_Nodes);
 		
