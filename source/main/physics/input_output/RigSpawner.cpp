@@ -6077,26 +6077,15 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 
 	// Beam
 	int beam_index = m_rig->free_beam;
-	beam_t & beam = GetAndInitFreeBeam(*nodes[0], *nodes[1]);
-	beam.disabled = false;
+	beam_t & beam = AddBeam(*nodes[0], *nodes[1], def.defaults, def.detacher_group);
 	beam.type = BEAM_NORMAL;
-	beam.detacher_group = def.detacher_group;
 	beam.k = def.defaults->GetScaledSpringiness();
 	beam.d = def.defaults->GetScaledDamping();
-	beam.diameter = def.defaults->visual_beam_diameter;
 	beam.bounded = NOSHOCK; // Orig: if (shortbound) ... hardcoded in BTS_BEAMS
-
-	/* Deformation */
-	SetBeamDeformationThreshold(beam, def.defaults);
-			
-	beam.plastic_coef         = def.defaults->plastic_deformation_coefficient;
 
 	/* Calculate length */
 	// orig = precompression hardcoded to 1
-	float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
-	beam.L      = beam_length;
-	beam.Lhydro = beam_length;
-	beam.refL   = beam_length;
+	CalculateBeamLength(beam);
 
 	/* Strength */
 	float beam_strength = def.defaults->GetScaledBreakingThreshold();
@@ -6286,7 +6275,7 @@ void RigSpawner::CalculateBeamLength(beam_t & beam)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
+	float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
 	beam.L = beam_length;
 	beam.Lhydro = beam_length;
 	beam.refL = beam_length;
