@@ -1826,6 +1826,10 @@ void Parser::ParseDirectiveSetBeamDefaults(Ogre::String const & line)
 	if (results[4].matched)
 	{
 		float default_deform = STR_PARSE_REAL(results[5]);
+		if (!Ogre::StringConverter::isNumber(results[5]))
+		{
+			default_deform = std::numeric_limits<float>::infinity();
+		}
 		if (default_deform < 0) /* NULL value => reset to default */
 		{
 			m_user_beam_defaults->deformation_threshold_constant = m_ror_beam_defaults->deformation_threshold_constant;
@@ -1846,6 +1850,10 @@ void Parser::ParseDirectiveSetBeamDefaults(Ogre::String const & line)
 	if (results[6].matched)
 	{
 		float default_break = STR_PARSE_REAL(results[7]);
+		if (!Ogre::StringConverter::isNumber(results[7]))
+		{
+			default_break = std::numeric_limits<float>::infinity();
+		}
 		if (default_break < 0) /* NULL value => reset to default */
 		{
 			m_user_beam_defaults->breaking_threshold_constant = m_ror_beam_defaults->breaking_threshold_constant;
