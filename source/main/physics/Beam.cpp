@@ -4159,22 +4159,20 @@ void Beam::cabFade(float amount)
 
 void Beam::tieToggle(int group)
 {
-	//export tie commands
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	int trucksnum = BeamFactory::getSingleton().getTruckCount();
 
-	if (state==ACTIVATED && forwardcommands)
+	// export tie commands
+	if (state == ACTIVATED && forwardcommands)
 	{
-		int i;
-		for (i=0; i<trucksnum; i++)
+		for (int i=0; i<trucksnum; i++)
 		{
-			if (!trucks[i]) continue;
-			if (trucks[i]->state==DESACTIVATED && trucks[i]->importcommands)
+			if (trucks[i] && trucks[i]->state == DESACTIVATED && trucks[i]->importcommands)
 				trucks[i]->tieToggle(group);
 		}
 	}
 
-	//untie all ties if one is tied
+	// untie all ties if one is tied
 	bool istied = false;
 
 	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
@@ -4206,7 +4204,7 @@ void Beam::tieToggle(int group)
 		{
 			// only handle ties with correct group
 			if (group != -1 && (it->group != -1 && it->group != group))
-			continue;
+				continue;
 
 			if (!it->tied)
 			{
@@ -4219,7 +4217,7 @@ void Beam::tieToggle(int group)
 				for (int t=0; t<trucksnum; t++)
 				{
 					if (!trucks[t]) continue;
-					if (trucks[t]->state==SLEEPING) continue;
+					if (trucks[t]->state == SLEEPING) continue;
 					// and their ropables
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
@@ -4245,8 +4243,6 @@ void Beam::tieToggle(int group)
 				// if we found a ropable, then tie towards it
 				if (shorter)
 				{
-					//okay, we have found a rope to tie
-
 					// enable the beam and visually display the beam
 					it->beam->disabled = false;
 					if (it->beam->mSceneNode->numAttachedObjects() == 0)

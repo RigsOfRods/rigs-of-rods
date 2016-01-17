@@ -2070,13 +2070,13 @@ void Beam::updateSkeletonColouring(int doUpdate)
 	{
 		for (int i=0; i<free_beam; i++)
 		{
-            if (!beams[i].broken && !beams[i].disabled)
-            {
+			if (!beams[i].broken && !beams[i].disabled)
+			{
 				float ratio = beams[i].stress / beams[i].minmaxposnegstress;
-                beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
-            } else if (beams[i].mSceneNode) {
-                beams[i].mSceneNode->detachAllObjects();
-            }
+				beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
+			} else if (beams[i].mSceneNode) {
+				beams[i].mSceneNode->detachAllObjects();
+			}
 		}
 	}
 	BES_STOP(BES_CORE_SkeletonColouring);
