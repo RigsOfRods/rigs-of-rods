@@ -1573,7 +1573,6 @@ void CacheSystem::generateFileCache(CacheEntry &entry, Ogre::String directory)
 		if (files->empty())
 		{
 			deleteFileCache(const_cast<char*>(dst.c_str()));
-			return;
 		}
 
 		size_t fsize = 0;
