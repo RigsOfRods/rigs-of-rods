@@ -2961,7 +2961,6 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	beam.commandShort = def.min_length;
 	beam.commandLong = def.max_length;
 	beam.maxtiestress = def.max_stress;
-	beam.diameter = DEFAULT_BEAM_DIAMETER;
 	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 
 	/* Register tie */
@@ -3424,7 +3423,6 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	beam.longbound = long_limit;
 	beam.bounded = SHOCK2;
 	beam.shock = &shock;
-	beam.diameter = DEFAULT_BEAM_DIAMETER;
 
 	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
@@ -3872,7 +3870,6 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 	beam.hydroRatio = def.lenghtening_factor;
 	beam.animFlags = anim_flags;
 	beam.animOption = anim_option;
-	beam.diameter = DEFAULT_BEAM_DIAMETER;
 	CalculateBeamLength(beam);
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
@@ -4043,7 +4040,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = DEFAULT_BEAM_DIAMETER;
+	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
 
@@ -4119,7 +4116,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	beam.shortbound           = short_bound;
 	beam.longbound            = long_bound;
 	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = DEFAULT_BEAM_DIAMETER;
+	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -4195,7 +4192,6 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 	beam.k          = def.spring_rate;
 	beam.d          = def.damping;
 	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
-	beam.diameter   = DEFAULT_BEAM_DIAMETER;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -5533,7 +5529,6 @@ unsigned int RigSpawner::AddWheelBeam(
 	beam.type = type;
 	beam.k = spring;
 	beam.d = damping;
-	beam.diameter = DEFAULT_BEAM_DIAMETER;
 	if (max_contraction > 0.f)
 	{
 		beam.shortbound = max_contraction;
@@ -6543,7 +6538,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		beam.commandShort      = 0.0f;
 		beam.commandLong       = 1.0f;
 		beam.maxtiestress      = HOOK_FORCE_DEFAULT;
-		beam.diameter          = DEFAULT_BEAM_DIAMETER;
 		SetBeamDeformationThreshold(beam, def.beam_defaults);
 		CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 			
@@ -6704,7 +6698,6 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 		CalculateBeamLength(beam);
 		beam.k = def.spring;
 		beam.d = def.damping;
-		beam.diameter = DEFAULT_BEAM_DIAMETER;
 		CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
 	}
 
