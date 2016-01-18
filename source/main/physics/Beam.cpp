@@ -5308,15 +5308,15 @@ void Beam::updateDashBoards(float &dt)
 	}
 
 	// load secured lamp
+	int ties_mode = 0; // 0 = not locked, 1 = prelock, 2 = lock
 	if (isTied())
 	{
-		int ties_mode = 0; // 0 = not locked, 1 = prelock, 2 = lock
 		if (fabs(commandkey[0].commandValue) > 0.000001f)
 			ties_mode = 1;
 		else
 			ties_mode = 2;
-		dash->setInt(DD_TIES_MODE, ties_mode);
 	}
+	dash->setInt(DD_TIES_MODE, ties_mode);
 
 	// Boat things now: screwprops and alike
 	if (free_screwprop)
