@@ -3659,6 +3659,10 @@ void Beam::updateVisualPrepare(float dt)
 
 	for (int i=0; i<free_beam; i++)
 	{
+		if (beams[i].broken && beams[i].mSceneNode)
+		{
+			beams[i].mSceneNode->detachAllObjects();
+		}
 		if (!beams[i].disabled && beams[i].mSceneNode)
 		{
 			if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
@@ -3865,10 +3869,6 @@ void Beam::showSkeleton(bool meshes, bool linked)
 			setMeshWireframe(s, true);
 	}
 
-	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
-		if (it->beam->disabled)
-			it->beam->mSceneNode->detachAllObjects();
-
 	if (linked)
 	{
 		// apply to all locked trucks
@@ -3942,10 +3942,6 @@ void Beam::hideSkeleton(bool linked)
 			continue;
 		setMeshWireframe(s, false);
 	}
-
-	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
-		if (it->beam->disabled)
-			it->beam->mSceneNode->detachAllObjects();
 
 	if (linked)
 	{
