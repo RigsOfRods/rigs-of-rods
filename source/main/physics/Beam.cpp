@@ -6137,7 +6137,7 @@ bool Beam::LoadTruck(
 		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0 - vehicle_position.z;
 		
 		if (freePositioned)
-			resetPosition(vehicle_position.x, vehicle_position.z, true, vehicle_position.y + 0.1f);
+			resetPosition(vehicle_position.x, vehicle_position.z, true, vehicle_position.y);
 		else
 			resetPosition(vehicle_position.x, vehicle_position.z, true, 0.0f);
 
