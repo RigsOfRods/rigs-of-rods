@@ -4173,7 +4173,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_LACTIVE);
 		m_rig->free_active_shock++; /* This has no array associated with it. its just to determine if there are active shocks! */
 	}
-	if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_L_ACTIVE_LEFT))
+	if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_R_ACTIVE_RIGHT))
 	{
 		BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
 		BITMASK_SET_1(shock_flags, SHOCK_FLAG_RACTIVE);
