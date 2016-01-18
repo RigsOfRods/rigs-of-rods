@@ -763,15 +763,22 @@ void Beam::calcNetwork()
 	BES_GFX_STOP(BES_GFX_calcNetwork);
 }
 
-void Beam::addPressure(float v)
+bool Beam::addPressure(float v)
 {
-	refpressure+=v;
-	if (refpressure<0) refpressure=0;
-	if (refpressure>100) refpressure=100;
+	if (!free_pressure_beam)
+		return false;
+
+	float newpressure = std::max(0.0f, std::min(refpressure + v, 100.0f));
+
+	if (newpressure == refpressure)
+		return false;
+
+	refpressure = newpressure;
 	for (int i=0; i<free_pressure_beam; i++)
 	{
-		beams[pressure_beams[i]].k=10000+refpressure*10000;
+		beams[pressure_beams[i]].k = 10000 + refpressure * 10000;
 	}
+	return true;
 }
 
 float Beam::getPressure()

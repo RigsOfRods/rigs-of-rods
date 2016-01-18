@@ -94,7 +94,7 @@ public:
 	
 	void activate();
 	void desactivate();
-	void addPressure(float v);
+	bool addPressure(float v);
 	float getPressure();
 	Ogre::Vector3 getPosition();
 	void resetAngle(float rot);
