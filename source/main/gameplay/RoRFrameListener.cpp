@@ -387,7 +387,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		// get out first
 		if (curr_truck) BeamFactory::getSingleton().setCurrentTruck(-1);
-		reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
+		reload_pos = gEnv->player->getPosition();
 		freeTruckPosition = true;
 		loading_state = RELOADING;
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
@@ -748,27 +748,32 @@ bool RoRFrameListener::updateEvents(float dt)
 				//camera mode
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS) && curr_truck)
 				{
-					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
+					if (pressure_pressed = curr_truck->addPressure(dt * -10.0))
+					{
+						if (RoR::Application::GetOverlayWrapper())
+							RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
 #ifdef USE_OPENAL
-					SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
+						SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
-					curr_truck->addPressure(-dt*10.0);
-					pressure_pressed=true;
+					}
 				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
 				{
-					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
+					if (pressure_pressed = curr_truck->addPressure(dt * 10.0))
+					{
+						if (RoR::Application::GetOverlayWrapper())
+							RoR::Application::GetOverlayWrapper()->showPressureOverlay(true);
 #ifdef USE_OPENAL
-					SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
+						SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
-					curr_truck->addPressure(dt*10.0);
-					pressure_pressed=true;
+					}
 				} else if (pressure_pressed)
 				{
 #ifdef USE_OPENAL
 					SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_AIR);
 #endif // OPENAL
-					pressure_pressed=false;
-					if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
+					pressure_pressed = false;
+					if (RoR::Application::GetOverlayWrapper())
+						RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
 				}
 
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->network && curr_truck->driveable != AIRPLANE)
@@ -1801,6 +1806,9 @@ void RoRFrameListener::reloadCurrentTruck()
 		return;
 	}
 
+	// exit the old truck
+	BeamFactory::getSingleton().setCurrentTruck(-1);
+
 	// remove the old truck
 	curr_truck->state = RECYCLE;
 
@@ -1816,6 +1824,7 @@ void RoRFrameListener::reloadCurrentTruck()
 			newBeam->nodes[i].Forces      = curr_truck->nodes[i].Forces;
 			newBeam->nodes[i].smoothpos   = curr_truck->nodes[i].smoothpos;
 			newBeam->initial_node_pos[i]  = curr_truck->initial_node_pos[i];
+			newBeam->origin               = curr_truck->origin;
 		}
 	}
 
@@ -1835,6 +1844,9 @@ void RoRFrameListener::reloadCurrentTruck()
 	curr_truck->resetPosition(100000, 100000, false, 100000);
 	// note: in some point in the future we would delete the truck here,
 	// but since this function is buggy we don't do it yet.
+
+	// reset the new truck (starts engine, resets gui, ...)
+	newBeam->reset();
 
 	// enter the new truck
 	BeamFactory::getSingleton().setCurrentTruck(newBeam->trucknum);

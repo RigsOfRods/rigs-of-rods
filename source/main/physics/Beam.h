@@ -94,12 +94,11 @@ public:
 	
 	void activate();
 	void desactivate();
-	void addPressure(float v);
+	bool addPressure(float v);
 	float getPressure();
 	Ogre::Vector3 getPosition();
 	void resetAngle(float rot);
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
-	void resetPosition(float px, float pz, bool setInitPosition);
 
 	Ogre::Vector3 getVehiclePosition();
 

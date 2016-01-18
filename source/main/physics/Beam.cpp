@@ -233,6 +233,14 @@ Beam::~Beam()
 			props[i].wheel->removeAndDestroyAllChildren();
 			gEnv->sceneManager->destroySceneNode(props[i].wheel);
 		}
+		if (props[i].mo)
+		{
+			delete props[i].mo;
+		}
+		if (props[i].wheelmo)
+		{
+			delete props[i].wheelmo;
+		}
 	}
 
 	// delete flares
@@ -763,15 +771,22 @@ void Beam::calcNetwork()
 	BES_GFX_STOP(BES_GFX_calcNetwork);
 }
 
-void Beam::addPressure(float v)
+bool Beam::addPressure(float v)
 {
-	refpressure+=v;
-	if (refpressure<0) refpressure=0;
-	if (refpressure>100) refpressure=100;
+	if (!free_pressure_beam)
+		return false;
+
+	float newpressure = std::max(0.0f, std::min(refpressure + v, 100.0f));
+
+	if (newpressure == refpressure)
+		return false;
+
+	refpressure = newpressure;
 	for (int i=0; i<free_pressure_beam; i++)
 	{
-		beams[pressure_beams[i]].k=10000+refpressure*10000;
+		beams[pressure_beams[i]].k = 10000 + refpressure * 10000;
 	}
+	return true;
 }
 
 float Beam::getPressure()
@@ -1063,38 +1078,6 @@ void Beam::resetAngle(float rot)
 	resetSlideNodePositions();
 }
 
-void Beam::resetPosition(float px, float pz, bool setInitPosition)
-{
-	// horizontal displacement
-	Vector3 offset = Vector3(px, 0, pz) - nodes[0].AbsPosition;
-	for (int i=0; i<free_node; i++)
-	{
-		nodes[i].AbsPosition += offset;
-	}
-
-	// vertical displacement
-	float vertical_offset = -nodes[lowestnode].AbsPosition.y;
-	if (gEnv->terrainManager->getWater())
-	{
-		vertical_offset += gEnv->terrainManager->getWater()->getHeight();
-	}
-
-	for (int i=1; i<free_node; i++)
-	{
-		Vector3 pos = nodes[i].AbsPosition;
-		pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
-		gEnv->collisions->collisionCorrect(&pos);
-		vertical_offset += std::max(0.0f, pos.y - (nodes[i].AbsPosition.y + vertical_offset));
-	}
-
-	for (int i=0; i<free_node; i++)
-	{
-		nodes[i].AbsPosition.y += vertical_offset;
-	}
-
-	resetPosition(Vector3::ZERO, setInitPosition);
-}
-
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
 	// horizontal displacement
@@ -1109,6 +1092,11 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	if (gEnv->terrainManager->getWater())
 	{
 		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestnode].AbsPosition.y + vertical_offset));
+	}
+	for (int i=1; i<free_node; i++)
+	{
+		float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z);
+		vertical_offset += std::max(0.0f, terrainHeight - (nodes[i].AbsPosition.y + vertical_offset));
 	}
 
 	for (int i=0; i<free_node; i++)
@@ -1298,7 +1286,7 @@ void Beam::SyncReset()
 		cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
 	}
 	float cur_rot = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
-	cur_rot = std::round(cur_rot * 100) / 100;
+	cur_rot = floor(cur_rot * 100 + 0.5) / 100;
 	if (engine) engine->start();
 	for (int i=0; i<free_node; i++)
 	{
@@ -1375,11 +1363,7 @@ void Beam::SyncReset()
 	if (reset_requested == 2)
 	{
 		resetAngle(cur_rot);
-
-		if (yPos != 0)
-			resetPosition(cur_position.x, cur_position.z, false, yPos + 0.02f);
-		else
-			resetPosition(cur_position.x, cur_position.z, false);
+		resetPosition(cur_position.x, cur_position.z, false, yPos + global_dt * 1.0f);
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -4159,22 +4143,20 @@ void Beam::cabFade(float amount)
 
 void Beam::tieToggle(int group)
 {
-	//export tie commands
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	int trucksnum = BeamFactory::getSingleton().getTruckCount();
 
-	if (state==ACTIVATED && forwardcommands)
+	// export tie commands
+	if (state == ACTIVATED && forwardcommands)
 	{
-		int i;
-		for (i=0; i<trucksnum; i++)
+		for (int i=0; i<trucksnum; i++)
 		{
-			if (!trucks[i]) continue;
-			if (trucks[i]->state==DESACTIVATED && trucks[i]->importcommands)
+			if (trucks[i] && trucks[i]->state == DESACTIVATED && trucks[i]->importcommands)
 				trucks[i]->tieToggle(group);
 		}
 	}
 
-	//untie all ties if one is tied
+	// untie all ties if one is tied
 	bool istied = false;
 
 	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
@@ -4206,7 +4188,7 @@ void Beam::tieToggle(int group)
 		{
 			// only handle ties with correct group
 			if (group != -1 && (it->group != -1 && it->group != group))
-			continue;
+				continue;
 
 			if (!it->tied)
 			{
@@ -4220,7 +4202,7 @@ void Beam::tieToggle(int group)
 				{
 					if (!trucks[t]) continue;
 					if (t == trucknum) continue;
-					if (trucks[t]->state==SLEEPING) continue;
+					if (trucks[t]->state == SLEEPING) continue;
 					// and their ropables
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
@@ -4246,8 +4228,6 @@ void Beam::tieToggle(int group)
 				// if we found a ropable, then tie towards it
 				if (shorter)
 				{
-					//okay, we have found a rope to tie
-
 					// enable the beam and visually display the beam
 					it->beam->disabled = false;
 					if (it->beam->mSceneNode->numAttachedObjects() == 0)
@@ -5084,12 +5064,11 @@ bool Beam::navigateTo(Vector3 &in)
     if (maxvelo < 0)
         maxvelo = 0;
 
-	Vector3 dir;
-	float pitch;
+	float pitch = 0.0f;
 	// pitch
 	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
 	{
-		dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		Vector3 dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
 		dir.normalise();
 		float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
 		if (angle < -1) angle = -1;
@@ -5232,7 +5211,7 @@ void Beam::updateDashBoards(float &dt)
 		dash->setBool(DD_ENGINE_IGNITION, ign);
 
 		// battery
-		bool batt = engine->contact;
+		bool batt = (engine->contact && !engine->running);
 		dash->setBool(DD_ENGINE_BATTERY, batt);
 
 		// clutch warning
@@ -5340,15 +5319,15 @@ void Beam::updateDashBoards(float &dt)
 	}
 
 	// load secured lamp
+	int ties_mode = 0; // 0 = not locked, 1 = prelock, 2 = lock
 	if (isTied())
 	{
-		int ties_mode = 0; // 0 = not locked, 1 = prelock, 2 = lock
 		if (fabs(commandkey[0].commandValue) > 0.000001f)
 			ties_mode = 1;
 		else
 			ties_mode = 2;
-		dash->setInt(DD_TIES_MODE, ties_mode);
 	}
+	dash->setInt(DD_TIES_MODE, ties_mode);
 
 	// Boat things now: screwprops and alike
 	if (free_screwprop)
@@ -6152,12 +6131,12 @@ bool Beam::LoadTruck(
 		// check if over-sized
 		RigSpawner::RecalculateBoundingBoxes(this);
 		vehicle_position.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - vehicle_position.x;
-		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - vehicle_position.z;
+		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0 - vehicle_position.z;
 		
 		if (freePositioned)
-			resetPosition(vehicle_position, true);
+			resetPosition(vehicle_position.x, vehicle_position.z, true, vehicle_position.y);
 		else
-			resetPosition(vehicle_position.x, vehicle_position.z, true);
+			resetPosition(vehicle_position.x, vehicle_position.z, true, 0.0f);
 
 		if (spawn_box != nullptr)
 		{
@@ -6205,7 +6184,10 @@ bool Beam::LoadTruck(
 	if (!subMeshGroundModelName.empty())
 	{
 		submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
-		if (!submesh_ground_model) gEnv->collisions->defaultgm;
+		if (!submesh_ground_model)
+		{
+			submesh_ground_model = gEnv->collisions->defaultgm;
+		}
 	}
     
 

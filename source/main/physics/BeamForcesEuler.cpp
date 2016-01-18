@@ -46,15 +46,11 @@ using namespace Ogre;
 
 void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 {
-	Beam** trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-
 	IWater *water = 0;
 	if (gEnv->terrainManager)
 		water = gEnv->terrainManager->getWater();
 
 	increased_accuracy = false;
-	float inverted_dt = 1.0f / dt;
 
 	//engine callback
 	if (engine)
@@ -2070,13 +2066,13 @@ void Beam::updateSkeletonColouring(int doUpdate)
 	{
 		for (int i=0; i<free_beam; i++)
 		{
-            if (!beams[i].broken && !beams[i].disabled)
-            {
+			if (!beams[i].broken && !beams[i].disabled)
+			{
 				float ratio = beams[i].stress / beams[i].minmaxposnegstress;
-                beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
-            } else if (beams[i].mSceneNode) {
-                beams[i].mSceneNode->detachAllObjects();
-            }
+				beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
+			} else if (beams[i].mSceneNode) {
+				beams[i].mSceneNode->detachAllObjects();
+			}
 		}
 	}
 	BES_STOP(BES_CORE_SkeletonColouring);

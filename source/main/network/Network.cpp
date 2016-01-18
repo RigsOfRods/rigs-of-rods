@@ -641,7 +641,6 @@ void Network::receivethreadstart()
 			{
 				user_info_t *cinfo = (user_info_t*) buffer;
 				// data about someone else, try to update the array
-				bool found = false; // whether to add a new client
 				client_t *client = getClientInfo(header.source);
 				if (client)
 				{
@@ -650,7 +649,6 @@ void Network::receivethreadstart()
 					// inform the streamfactories of a attribute change
 					CharacterFactory::getSingleton().netUserAttributesChanged(header.source, -1);
 					BeamFactory::getSingleton().netUserAttributesChanged(header.source, -1);
-					found = true;
 				} else
 				{
 					// find a free entry

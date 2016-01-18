@@ -708,7 +708,7 @@ void BeamFactory::repairTruck(Collisions *collisions, const Ogre::String &inst, 
 #endif // USE_OPENAL
 		Vector3 ipos=trucks[rtruck]->nodes[0].AbsPosition;
 		trucks[rtruck]->reset();
-		trucks[rtruck]->resetPosition(ipos.x, ipos.z, false);
+		trucks[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);
 		trucks[rtruck]->updateVisual();
 	}
 }
@@ -1059,29 +1059,42 @@ void BeamFactory::onTaskComplete()
 
 void BeamFactory::runThreadTask(Beam::ThreadTask task)
 {
-	std::list<IThreadTask*> tasks;
-
-	// Push tasks into thread pool
-	for (int t=0; t<free_truck; t++)
+	if (gEnv->threadPool)
 	{
-		if (trucks[t] && trucks[t]->simulated)
+		std::list<IThreadTask*> tasks;
+
+		// Push tasks into thread pool
+		for (int t=0; t<free_truck; t++)
 		{
-			trucks[t]->thread_task = task;
-			tasks.emplace_back(trucks[t]);
+			if (trucks[t] && trucks[t]->simulated)
+			{
+				trucks[t]->thread_task = task;
+				tasks.emplace_back(trucks[t]);
+			}
+		}
+
+		task_count = tasks.size();
+
+		gEnv->threadPool->enqueue(tasks);
+
+		// Wait for all tasks to complete
+		MUTEX_LOCK(&task_count_mutex);
+		while (task_count > 0)
+		{
+			pthread_cond_wait(&task_count_cv, &task_count_mutex);
+		}
+		MUTEX_UNLOCK(&task_count_mutex);
+	} else
+	{
+		for (int t=0; t<free_truck; t++)
+		{
+			if (trucks[t] && trucks[t]->simulated)
+			{
+				trucks[t]->thread_task = task;
+				trucks[t]->run();
+			}
 		}
 	}
-
-	task_count = tasks.size();
-
-	gEnv->threadPool->enqueue(tasks);
-
-	// Wait for all tasks to complete
-	MUTEX_LOCK(&task_count_mutex);
-	while (task_count > 0)
-	{
-		pthread_cond_wait(&task_count_cv, &task_count_mutex);
-	}
-	MUTEX_UNLOCK(&task_count_mutex);
 }
 
 void BeamFactory::threadentry()
