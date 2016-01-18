@@ -3885,10 +3885,6 @@ void Beam::showSkeleton(bool meshes, bool linked)
 			setMeshWireframe(s, true);
 	}
 
-	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
-		if (it->beam->disabled)
-			it->beam->mSceneNode->detachAllObjects();
-
 	if (linked)
 	{
 		// apply to all locked trucks
@@ -3962,10 +3958,6 @@ void Beam::hideSkeleton(bool linked)
 			continue;
 		setMeshWireframe(s, false);
 	}
-
-	for (std::vector<tie_t>::iterator it=ties.begin(); it!=ties.end(); it++)
-		if (it->beam->disabled)
-			it->beam->mSceneNode->detachAllObjects();
 
 	if (linked)
 	{
