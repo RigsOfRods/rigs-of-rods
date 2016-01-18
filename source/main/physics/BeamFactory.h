@@ -103,6 +103,7 @@ public:
 
 	void setCurrentTruck(int new_truck);
 	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
+	float getSimulationSpeed() { return m_simulation_speed; };
 
 	bool removeBeam(Beam *b);
 	void removeCurrentTruck();

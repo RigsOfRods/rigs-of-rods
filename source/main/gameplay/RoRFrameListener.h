@@ -74,6 +74,8 @@ protected:
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
 
+	float mLastSimulationSpeed; // remember the last custom simulation speed
+
 	unsigned long      m_race_start_time;
 	bool               m_race_in_progress;
 	float			   m_race_bestlap_time;
