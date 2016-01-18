@@ -49,7 +49,7 @@ void FlexBodyWheel::ReGenerateMeshData()
 	unsigned int axis_index_outer = 1;
 	unsigned int rigidity_index = 2; // Always reserve space for rigidity node, even if unused
 	unsigned int base_node_index = 3;
-	bool rigidity_node_use_outer; // Only relevant if rigidity node exists
+	bool rigidity_node_use_outer = false; // Only relevant if rigidity node exists
 	if (m_rigidity_node != nullptr)
 	{
 		Ogre::Vector3 rigidity_pos = m_rigidity_node->GetPosition();

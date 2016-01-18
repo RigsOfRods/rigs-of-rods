@@ -439,7 +439,7 @@ void CLASS::SetMinimapMode(RigDef::GuiSettings::MapMode mode)
 
 void CLASS::MinimapRadiobuttonClicked(MyGUI::Widget* sender)
 {
-	GuiSettings::MapMode mode;
+	GuiSettings::MapMode mode = GuiSettings::MAP_MODE_INVALID;
 	if (sender == m_radio_guisettings_minimap_off)
 	{
 		mode = GuiSettings::MAP_MODE_OFF;

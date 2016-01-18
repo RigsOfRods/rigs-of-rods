@@ -203,7 +203,8 @@ void SurveyMapManager::setMapCenter(Ogre::Vector3 position, float maxOffset,  bo
 
 void SurveyMapManager::setWindowPosition(int x, int y, float size)
 {
-	int realx, realy;
+	int realx = 0;
+	int realy = 0;
 
 	updateRenderMetrics();
 
@@ -277,7 +278,6 @@ void SurveyMapManager::update(Ogre::Real dt)
 
 	if (mMapMode == SURVEY_MAP_NONE) return;
 
-	static bool needsUpdate = true;
 	switch (mMapMode)
 	{
 	case SURVEY_MAP_SMALL:

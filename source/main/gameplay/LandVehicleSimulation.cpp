@@ -318,7 +318,6 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 			float cval = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
 			curr_truck->engine->setManualClutch(cval);
 
-			bool gear_changed_rel = false;
 			int shiftmode = curr_truck->engine->getAutoMode();
 
 			if (shiftmode <= BeamEngine::MANUAL) // auto, semi auto and sequential shifting
@@ -326,7 +325,6 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
 				{
 						curr_truck->engine->shift(1);
-						gear_changed_rel = true;
 				} 
 				else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
 				{
@@ -336,7 +334,6 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 						shiftmode == BeamEngine::AUTOMATIC)
 					{
 						curr_truck->engine->shift(-1);
-						gear_changed_rel = true;
 					}
 				} 
 				else if (shiftmode != BeamEngine::AUTOMATIC && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))

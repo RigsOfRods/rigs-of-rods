@@ -4363,18 +4363,12 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 	}
 
 	/* Beams */
-	float strength = def.beam_defaults->breaking_threshold_constant;
 	float rim_spring = def.rim_springiness;
 	float rim_damp = def.rim_damping;
 	float tyre_spring = def.tyre_springiness;
 	float tyre_damp = def.tyre_damping;
 	float tread_spring = def.beam_defaults->springiness;
 	float tread_damp = def.beam_defaults->damping_constant;
-	/* 
-		Calculate the point where the support beams get stiff and prevent the tire tread nodes 
-		bounce into the rim rimradius / tire radius and add 5%, this is a shortbound calc in % ! 
-	*/
-	float support_beams_short_bound = 1.0f - ((def.rim_radius / def.tyre_radius) * 0.95f);
 
 	for (unsigned int i = 0; i < def.num_rays; i++)
 	{
@@ -4453,12 +4447,11 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		}
 	}
 
-	//calculate the point where the support beams get stiff and prevent the tire tread nodes bounce into the rim rimradius / tire radius and add 5%, this is a shortbound calc in % !
-	float length = 1.0f - ((def.rim_radius / def.tyre_radius) * 0.95f);
-	float ropespring = def.rim_springiness;
-
-	if (ropespring <= DEFAULT_SPRING)
-		ropespring = DEFAULT_SPRING;
+	/* 
+		Calculate the point where the support beams get stiff and prevent the tire tread nodes 
+		bounce into the rim rimradius / tire radius and add 5%, this is a shortbound calc in % ! 
+	*/
+	float support_beams_short_bound = 1.0f - ((def.rim_radius / def.tyre_radius) * 0.95f);
 
 	for (unsigned int i=0; i<def.num_rays; i++)
 	{
@@ -4467,12 +4460,12 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		unsigned int beam_index;
 
 		beam_index = AddWheelBeam(axis_node_1, &m_rig->nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		GetBeam(beam_index).shortbound = length;
+		GetBeam(beam_index).shortbound = support_beams_short_bound;
 		GetBeam(beam_index).longbound  = 0.f;
 		GetBeam(beam_index).bounded = SHOCK1;
 
 		beam_index = AddWheelBeam(axis_node_2, &m_rig->nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
-		GetBeam(beam_index).shortbound = length;
+		GetBeam(beam_index).shortbound = support_beams_short_bound;
 		GetBeam(beam_index).longbound  = 0.f;
 		GetBeam(beam_index).bounded = SHOCK1;
 	}
