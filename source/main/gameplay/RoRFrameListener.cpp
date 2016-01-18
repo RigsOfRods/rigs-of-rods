@@ -1806,6 +1806,9 @@ void RoRFrameListener::reloadCurrentTruck()
 		return;
 	}
 
+	// exit the old truck
+	BeamFactory::getSingleton().setCurrentTruck(-1);
+
 	// remove the old truck
 	curr_truck->state = RECYCLE;
 
@@ -1821,6 +1824,7 @@ void RoRFrameListener::reloadCurrentTruck()
 			newBeam->nodes[i].Forces      = curr_truck->nodes[i].Forces;
 			newBeam->nodes[i].smoothpos   = curr_truck->nodes[i].smoothpos;
 			newBeam->initial_node_pos[i]  = curr_truck->initial_node_pos[i];
+			newBeam->origin               = curr_truck->origin;
 		}
 	}
 
@@ -1840,6 +1844,9 @@ void RoRFrameListener::reloadCurrentTruck()
 	curr_truck->resetPosition(100000, 100000, false, 100000);
 	// note: in some point in the future we would delete the truck here,
 	// but since this function is buggy we don't do it yet.
+
+	// reset the new truck (starts engine, resets gui, ...)
+	newBeam->reset();
 
 	// enter the new truck
 	BeamFactory::getSingleton().setCurrentTruck(newBeam->trucknum);
