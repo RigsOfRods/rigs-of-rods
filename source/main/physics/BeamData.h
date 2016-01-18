@@ -484,6 +484,7 @@ struct prop_t
 	Ogre::Real wheelrotdegree;
 	int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 	MeshObject *mo;
+	MeshObject *wheelmo;
 };
 
 struct exhaust_t

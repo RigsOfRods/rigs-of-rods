@@ -631,6 +631,11 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		// finish it and start new object
 		if (proceduralManager) proceduralManager->addObject(po);
 	}
+
+	if (proceduralManager)
+	{
+		delete proceduralManager;
+	}
 }
 
 void TerrainObjectManager::postLoad()
