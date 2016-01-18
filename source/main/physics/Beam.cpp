@@ -4201,6 +4201,7 @@ void Beam::tieToggle(int group)
 				for (int t=0; t<trucksnum; t++)
 				{
 					if (!trucks[t]) continue;
+					if (t == trucknum) continue;
 					if (trucks[t]->state == SLEEPING) continue;
 					// and their ropables
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
