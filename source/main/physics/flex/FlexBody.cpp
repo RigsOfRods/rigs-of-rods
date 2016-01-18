@@ -765,6 +765,8 @@ FlexBody::FlexBody(
         }
     }
 
+    if (vertices != nullptr) { free(vertices); }
+
     TIMER_SNAPSHOT(stat_euclidean2_time);
     FLEXBODY_PROFILER_ENTER("Printing time stats");
 
@@ -795,7 +797,7 @@ FlexBody::FlexBody(
 FlexBody::~FlexBody()
 {
     // Stuff using <new>
-    if (m_locators != nullptr) { delete m_locators; }
+    if (m_locators != nullptr) { delete[] m_locators; }
     // Stuff using malloc()
     if (m_src_normals != nullptr) { free(m_src_normals); }
     if (m_dst_normals != nullptr) { free(m_dst_normals); }

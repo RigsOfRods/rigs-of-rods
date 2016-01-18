@@ -233,6 +233,14 @@ Beam::~Beam()
 			props[i].wheel->removeAndDestroyAllChildren();
 			gEnv->sceneManager->destroySceneNode(props[i].wheel);
 		}
+		if (props[i].mo)
+		{
+			delete props[i].mo;
+		}
+		if (props[i].wheelmo)
+		{
+			delete props[i].wheelmo;
+		}
 	}
 
 	// delete flares

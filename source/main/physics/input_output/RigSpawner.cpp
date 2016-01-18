@@ -1955,15 +1955,15 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		prop.wheelrotdegree = def.special_prop_steering_wheel.rotation_angle;
 		prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 		prop.wheelpos = steering_wheel_offset;
-		MeshObject *mesh_object = new MeshObject(
+		prop.wheelmo = new MeshObject(
 			def.special_prop_steering_wheel.mesh_name,
 			"",
 			prop.wheel,
 			m_rig->usedSkin,
 			m_enable_background_loading
 			);
-		mesh_object->setSimpleMaterialColour(Ogre::ColourValue(0, 0.5, 0.5));
-		mesh_object->setMaterialFunctionMapper(m_rig->materialFunctionMapper, m_rig->materialReplacer);
+		prop.wheelmo->setSimpleMaterialColour(Ogre::ColourValue(0, 0.5, 0.5));
+		prop.wheelmo->setMaterialFunctionMapper(m_rig->materialFunctionMapper, m_rig->materialReplacer);
 	}
 
 	/* CREATE THE PROP */
