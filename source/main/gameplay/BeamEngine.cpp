@@ -191,7 +191,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	if (pstime > 0) post_shift_time = pstime;
 	if (stime > 0)  shift_time = stime;
 	if (irpm > 0) idleRPM = irpm;
-	if (srpm > 0) idleRPM = srpm;
+	if (srpm > 0) stallRPM = srpm;
 	if (maximix > 0) maxIdleMixture = maximix;
 	if (minimix > 0) minIdleMixture = minimix;
 
