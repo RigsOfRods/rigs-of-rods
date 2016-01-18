@@ -29,7 +29,7 @@ void defaultEventCallback(int trigger_type, string inst, string box, int nodeid)
 	{
 		game.showChooser("load", inst, "spawnzone");
 		game.clearEventCache();
-	} else if (box == "shopplanes") // deprecated
+	} else if (box == "shopplane") // deprecated
 	{
 		game.showChooser("airplane", inst, "spawnzone");
 		game.clearEventCache();
