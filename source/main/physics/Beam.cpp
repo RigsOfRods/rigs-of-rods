@@ -5200,7 +5200,7 @@ void Beam::updateDashBoards(float &dt)
 		dash->setBool(DD_ENGINE_IGNITION, ign);
 
 		// battery
-		bool batt = engine->contact;
+		bool batt = (engine->contact && !engine->running);
 		dash->setBool(DD_ENGINE_BATTERY, batt);
 
 		// clutch warning
