@@ -46,15 +46,11 @@ using namespace Ogre;
 
 void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 {
-	Beam** trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-
 	IWater *water = 0;
 	if (gEnv->terrainManager)
 		water = gEnv->terrainManager->getWater();
 
 	increased_accuracy = false;
-	float inverted_dt = 1.0f / dt;
 
 	//engine callback
 	if (engine)

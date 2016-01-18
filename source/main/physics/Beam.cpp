@@ -5083,12 +5083,11 @@ bool Beam::navigateTo(Vector3 &in)
     if (maxvelo < 0)
         maxvelo = 0;
 
-	Vector3 dir;
-	float pitch;
+	float pitch = 0.0f;
 	// pitch
 	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
 	{
-		dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+		Vector3 dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
 		dir.normalise();
 		float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
 		if (angle < -1) angle = -1;
@@ -6204,7 +6203,10 @@ bool Beam::LoadTruck(
 	if (!subMeshGroundModelName.empty())
 	{
 		submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
-		if (!submesh_ground_model) gEnv->collisions->defaultgm;
+		if (!submesh_ground_model)
+		{
+			submesh_ground_model = gEnv->collisions->defaultgm;
+		}
 	}
     
 
