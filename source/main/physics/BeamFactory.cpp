@@ -708,7 +708,7 @@ void BeamFactory::repairTruck(Collisions *collisions, const Ogre::String &inst, 
 #endif // USE_OPENAL
 		Vector3 ipos=trucks[rtruck]->nodes[0].AbsPosition;
 		trucks[rtruck]->reset();
-		trucks[rtruck]->resetPosition(ipos.x, ipos.z, false);
+		trucks[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);
 		trucks[rtruck]->updateVisual();
 	}
 }

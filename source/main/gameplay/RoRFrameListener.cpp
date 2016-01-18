@@ -387,7 +387,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		// get out first
 		if (curr_truck) BeamFactory::getSingleton().setCurrentTruck(-1);
-		reload_pos = gEnv->player->getPosition() + Vector3(0.0f, 1.0f, 0.0f); // 1 meter above the character
+		reload_pos = gEnv->player->getPosition();
 		freeTruckPosition = true;
 		loading_state = RELOADING;
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);

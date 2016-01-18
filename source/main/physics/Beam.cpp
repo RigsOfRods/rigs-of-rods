@@ -1063,38 +1063,6 @@ void Beam::resetAngle(float rot)
 	resetSlideNodePositions();
 }
 
-void Beam::resetPosition(float px, float pz, bool setInitPosition)
-{
-	// horizontal displacement
-	Vector3 offset = Vector3(px, 0, pz) - nodes[0].AbsPosition;
-	for (int i=0; i<free_node; i++)
-	{
-		nodes[i].AbsPosition += offset;
-	}
-
-	// vertical displacement
-	float vertical_offset = -nodes[lowestnode].AbsPosition.y;
-	if (gEnv->terrainManager->getWater())
-	{
-		vertical_offset += gEnv->terrainManager->getWater()->getHeight();
-	}
-
-	for (int i=1; i<free_node; i++)
-	{
-		Vector3 pos = nodes[i].AbsPosition;
-		pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
-		gEnv->collisions->collisionCorrect(&pos);
-		vertical_offset += std::max(0.0f, pos.y - (nodes[i].AbsPosition.y + vertical_offset));
-	}
-
-	for (int i=0; i<free_node; i++)
-	{
-		nodes[i].AbsPosition.y += vertical_offset;
-	}
-
-	resetPosition(Vector3::ZERO, setInitPosition);
-}
-
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
 	// horizontal displacement
@@ -1109,6 +1077,11 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	if (gEnv->terrainManager->getWater())
 	{
 		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestnode].AbsPosition.y + vertical_offset));
+	}
+	for (int i=1; i<free_node; i++)
+	{
+		float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z);
+		vertical_offset += std::max(0.0f, terrainHeight - (nodes[i].AbsPosition.y + vertical_offset));
 	}
 
 	for (int i=0; i<free_node; i++)
@@ -1298,7 +1271,7 @@ void Beam::SyncReset()
 		cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
 	}
 	float cur_rot = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
-	cur_rot = std::round(cur_rot * 100) / 100;
+	cur_rot = floor(cur_rot * 100 + 0.5) / 100;
 	if (engine) engine->start();
 	for (int i=0; i<free_node; i++)
 	{
@@ -1375,11 +1348,7 @@ void Beam::SyncReset()
 	if (reset_requested == 2)
 	{
 		resetAngle(cur_rot);
-
-		if (yPos != 0)
-			resetPosition(cur_position.x, cur_position.z, false, yPos + 0.02f);
-		else
-			resetPosition(cur_position.x, cur_position.z, false);
+		resetPosition(cur_position.x, cur_position.z, false, yPos + global_dt * 1.0f);
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -6151,12 +6120,12 @@ bool Beam::LoadTruck(
 		// check if over-sized
 		RigSpawner::RecalculateBoundingBoxes(this);
 		vehicle_position.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - vehicle_position.x;
-		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z)/2.0 - vehicle_position.z;
+		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0 - vehicle_position.z;
 		
 		if (freePositioned)
-			resetPosition(vehicle_position, true);
+			resetPosition(vehicle_position.x, vehicle_position.z, true, vehicle_position.y + 0.1f);
 		else
-			resetPosition(vehicle_position.x, vehicle_position.z, true);
+			resetPosition(vehicle_position.x, vehicle_position.z, true, 0.0f);
 
 		if (spawn_box != nullptr)
 		{
