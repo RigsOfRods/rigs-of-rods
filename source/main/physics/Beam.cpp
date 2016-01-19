@@ -1320,14 +1320,7 @@ void Beam::SyncReset()
 	{
 		if (it->lockTruck)
 		{
-			it->lockTruck->determineLinkedBeams();
-			it->lockTruck->hideSkeleton(false);
-
-			for (std::list<Beam*>::iterator it_truck = it->lockTruck->linkedBeams.begin(); it_truck != it->lockTruck->linkedBeams.end(); ++it_truck)
-			{
-				(*it_truck)->determineLinkedBeams();
-				(*it_truck)->hideSkeleton(false);
-			}
+			it->lockTruck->hideSkeleton(true);
 		}
 		it->beam->mSceneNode->detachAllObjects();
 		it->beam->disabled = true;
@@ -3668,6 +3661,20 @@ void Beam::updateVisualPrepare(float dt)
 		}
 	}
 
+	if (m_request_skeletonview_change)
+	{
+		if (m_skeletonview_is_active && m_request_skeletonview_change < 0)
+		{
+			hideSkeleton(true);
+		}
+		else if (!m_skeletonview_is_active && m_request_skeletonview_change > 0)
+		{
+			showSkeleton(true, true);
+		}
+
+		m_request_skeletonview_change = 0;
+	}
+
 	if (m_skeletonview_is_active)
 		updateSimpleSkeleton();
 
@@ -3804,10 +3811,6 @@ void Beam::preMapLabelRenderUpdate(bool mode, float charheight)
 
 void Beam::showSkeleton(bool meshes, bool linked)
 {
-	if (lockSkeletonchange)
-		return;
-
-	lockSkeletonchange = true;
 	m_skeletonview_is_active = true;
 
 	if (meshes)
@@ -3866,23 +3869,18 @@ void Beam::showSkeleton(bool meshes, bool linked)
 	if (linked)
 	{
 		// apply to all locked trucks
+		determineLinkedBeams();
 		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
 		{
 			(*it)->showSkeleton(meshes, false);
 		}
 	}
 
-	lockSkeletonchange = false;
-
 	TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
 }
 
 void Beam::hideSkeleton(bool linked)
 {
-	if (lockSkeletonchange)
-		return;
-
-	lockSkeletonchange=true;
 	m_skeletonview_is_active = false;
 
 	if (cabFadeMode >= 0)
@@ -3940,13 +3938,12 @@ void Beam::hideSkeleton(bool linked)
 	if (linked)
 	{
 		// apply to all locked trucks
+		determineLinkedBeams();
 		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
 		{
 			(*it)->hideSkeleton(false);
 		}
 	}
-
-	lockSkeletonchange = false;
 }
 
 void Beam::fadeMesh(SceneNode *node, float amount)
@@ -4461,27 +4458,14 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			}
 		}
 
+		// update skeletonview on the (un)hooked truck
 		if (it->lockTruck != lastLockTruck)
 		{
-			std::list<Beam*> linkedBeams (linkedBeams);
-
-			linkedBeams.push_back(this);
-			linkedBeams.push_back(std::max(lastLockTruck, it->lockTruck));
-			linkedBeams.splice(linkedBeams.end(), linkedBeams.back()->linkedBeams);
-			linkedBeams.sort();
-			linkedBeams.unique();
-
-			for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+			if (it->lockTruck)
 			{
-				(*it)->determineLinkedBeams();
-
-				if (m_skeletonview_is_active && this != (*it) && !(*it)->m_skeletonview_is_active)
-				{
-					(*it)->showSkeleton(true, false);
-				} else if (m_skeletonview_is_active && this != (*it) && (*it)->m_skeletonview_is_active)
-				{
-					(*it)->hideSkeleton(false);
-				}
+				it->lockTruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+			} else if (lastLockTruck != this) {
+				lastLockTruck->m_request_skeletonview_change = -1;
 			}
 		}
 	}
@@ -5728,9 +5712,9 @@ Beam::Beam(
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)
-	, lockSkeletonchange(false)
 	, locked(0)
 	, lockedold(0)
+	, m_request_skeletonview_change(0)
 	, m_skeletonview_is_active(false)
 	, m_spawn_rotation(0.0)
 	, mTimeUntilNextToggle(0)
