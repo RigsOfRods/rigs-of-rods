@@ -1380,6 +1380,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		gEnv->terrainManager->update(dt);
 	}
 
+	if (loading_state == ALL_LOADED)
+	{
+		DustManager::getSingleton().update();
+	}
+
 	//update visual - antishaking
 	if (loading_state == ALL_LOADED && !this->isSimPaused)
 	{

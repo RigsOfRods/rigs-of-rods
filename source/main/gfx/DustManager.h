@@ -36,7 +36,7 @@ public:
 
 	DustPool *getGroundModelDustPool(ground_model_t *g);
 	
-	void update(float wspeed);
+	void update();
 
 	void setVisible(bool visible);
 

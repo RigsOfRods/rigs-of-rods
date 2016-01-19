@@ -98,13 +98,13 @@ void DustManager::addNewDustPool(ground_model_t *g)
 }
 */
 
-void DustManager::update(float wspeed)
+void DustManager::update()
 {
 	if (!mEnabled) return;
 	std::map < Ogre::String , DustPool * >::iterator it;
 	for (it=dustpools.begin(); it!=dustpools.end();it++)
 	{
-		it->second->update(wspeed);
+		it->second->update();
 	}
 }
 

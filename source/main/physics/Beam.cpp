@@ -46,7 +46,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Console.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
-#include "DustManager.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
@@ -3529,15 +3528,10 @@ void Beam::updateVisualPrepare(float dt)
 
 	Vector3 ref(Vector3::UNIT_Y);
 	autoBlinkReset();
-	//sounds too
 	updateSoundSources();
 
 	if (deleting) return;
 	if (debugVisuals) updateDebugOverlay();
-
-	//dust
-	// UH - design problem, it updates every truck dust D:
-	DustManager::getSingleton().update(WheelSpeed);
 
 #ifdef USE_OPENAL
 	//airplane radio chatter

@@ -198,9 +198,8 @@ void DustPool::allocRipple(Vector3 pos, Vector3 vel)
 	MUTEX_UNLOCK(&allocation_mutex);
 }
 
-void DustPool::update(float gspeed)
+void DustPool::update()
 {
-	gspeed=fabs(gspeed);
 	for (int i=0; i<allocated; i++)
 	{
 		ParticleEmitter *emit = pss[i]->getEmitter(0);
@@ -221,14 +220,13 @@ void DustPool::update(float gspeed)
 			sns[i]->setPosition(positions[i]);
 		}
 		
-
 		if (types[i]==DUST_NORMAL)
 		{
 			ndir.y=0;
 			ndir=ndir/2.0;
 
-			col.a=(vel+(gspeed/10.0))*0.05;
-			emit->setTimeToLive((vel+(gspeed/10.0))*0.05/0.1);
+			col.a=vel*0.05;
+			emit->setTimeToLive(vel*0.05/0.1);
 		}
 		else if (types[i]==DUST_CLUMP)
 		{
