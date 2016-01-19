@@ -66,7 +66,7 @@ void* threadstart(void* vid);
 void cpuID(unsigned i, unsigned regs[4]) {
 #ifdef _WIN32
 	__cpuid((int *)regs, (int)i);
-#elif __x86_64__
+#elif defined(__x86_64__) || defined(__i386)
 	asm volatile
 		("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
 		 : "a" (i), "c" (0));
@@ -93,7 +93,7 @@ static unsigned hardware_concurrency()
 
 unsigned int getNumberOfCPUCores()
 {
-#if defined(_WIN32) || defined(__x86_64__)
+#if defined(_WIN32) || defined(__x86_64__) || defined(__i386)
 	unsigned regs[4];
 
 	// Get CPU vendor
