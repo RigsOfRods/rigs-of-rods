@@ -1763,14 +1763,14 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		{
 			if (nodes[i].wetstate == DRIPPING && !nodes[i].contactless && !nodes[i].disable_particles)
 			{
-				node_wet_time[i] += dt * maxsteps;
-				if (node_wet_time[i] > 5.0)
+				nodes[i].wettime += dt * maxsteps;
+				if (nodes[i].wettime > 5.0)
 				{
 					nodes[i].wetstate = DRY;
 				} else
 				{
-					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, node_wet_time[i]);
-					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, node_wet_time[i]);
+					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
+					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
 				}
 			}
 		}
@@ -1891,36 +1891,36 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 			nodes[i].Forces += drag;
 		}
 
-		//if in water
-		if (water && water->isUnderWater(nodes[i].AbsPosition))
+		if (water)
 		{
-			//basic buoyance
-			watercontact = true;
-
-			if (free_buoycab == 0)
+			if (water->isUnderWater(nodes[i].AbsPosition))
 			{
-				// water drag (turbulent)
-				Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-				nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * nodes[i].Velocity;
-				nodes[i].Forces += nodes[i].buoyancy * Vector3::UNIT_Y;
-				// basic splashing
-				if (doUpdate && water->getHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
+				watercontact = true;
+				if (free_buoycab == 0)
 				{
-					if (splashp) splashp->allocSplash(nodes[i].AbsPosition, nodes[i].Velocity);
-					if (ripplep) ripplep->allocRipple(nodes[i].AbsPosition, nodes[i].Velocity);
+					// water drag (turbulent)
+					Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
+					nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * nodes[i].Velocity;
+					// basic buoyance
+					nodes[i].Forces += nodes[i].buoyancy * Vector3::UNIT_Y;
+					// basic splashing
+					if (doUpdate && water->getHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
+					{
+						if (splashp) splashp->allocSplash(nodes[i].AbsPosition, nodes[i].Velocity);
+						if (ripplep) ripplep->allocRipple(nodes[i].AbsPosition, nodes[i].Velocity);
+					}
 				}
-			}
-			// engine stall
-			if (i == cinecameranodepos[0] && engine)
+				// engine stall
+				if (i == cinecameranodepos[0] && engine)
+				{
+					engine->stop();
+				}
+				nodes[i].wetstate = WET;
+			} else if (nodes[i].wetstate == WET)
 			{
-				engine->stop();
+				nodes[i].wetstate = DRIPPING;
+				nodes[i].wettime = 0.0f;
 			}
-			// wetness
-			nodes[i].wetstate = WET;
-		} else if (nodes[i].wetstate == WET)
-		{
-			nodes[i].wetstate = DRIPPING;
-			node_wet_time[i] = 0.0f;
 		}
 	}
 }

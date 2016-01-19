@@ -22,7 +22,6 @@ struct rig_t
 	node_t nodes[MAX_NODES];
 	Ogre::Vector3 initial_node_pos[MAX_NODES];
 	bool node_mouse_grab_disabled[MAX_NODES];
-	float node_wet_time[MAX_NODES]; //!< Cumulative time these nodes have been wet. When wet, dripping particles are produced.
 	int free_node;
 
 	beam_t beams[MAX_BEAMS];
