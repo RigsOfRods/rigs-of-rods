@@ -107,7 +107,7 @@ void PointColDetector::update_structures_for_contacters() {
 	int refi = 0;
 
 	//Insert all contacters, into the list of points to consider when building the kdtree
-	for (int t = 0; t < m_trucks.size(); t++) {
+	for (int t = 0; t < static_cast<int>(m_trucks.size()); t++) {
 		if (m_trucks[t]) {
 			for (int i = 0; i < m_trucks[t]->free_contacter; ++i) {
 				ref_list[refi].pidref = &pointid_list[refi];
