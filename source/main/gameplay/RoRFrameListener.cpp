@@ -978,7 +978,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					/* We are supposed to be in this truck, if it is a truck */
 					if (local_truck->powertrain != nullptr)
 					{
-						local_truck->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_START);
+						local_truck->powertrain->GetQueueOnMainThread().command_start = true;
 					}
 					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
 				} 

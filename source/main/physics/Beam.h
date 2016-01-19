@@ -218,7 +218,10 @@ public:
 	*/
 	void updateSkidmarks();
 
-	bool navigateTo(Ogre::Vector3 &in);
+    /**
+    * AngelScript: AI movement.
+    */
+    bool AS_NavigateTo(Ogre::Vector3 &in);
 
 
 	/**

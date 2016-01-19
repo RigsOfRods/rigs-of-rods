@@ -21,9 +21,6 @@ Powertrain::Powertrain():
 {
     m_state[0].Reset();
     m_state[1].Reset();
-
-    m_command_queue[0].queue.reserve(20);
-    m_command_queue[1].queue.reserve(20);
 }
 
 Powertrain::~Powertrain()
@@ -505,64 +502,19 @@ void Powertrain::PowertrainProcessInput()
 
     // Process command queue
     auto& cmd_queue = this->GetQueueOnSimThread();
-    auto itor = cmd_queue.queue.begin();
-    auto endi = cmd_queue.queue.end();
-    for (; itor != endi; ++itor)
+    if (cmd_queue.command_start)
     {
-        auto cmd = *itor;
-        switch (cmd.type)
-        {
-        case PowertrainCommand::COMMAND_AUTO_SET_ACC:
-            m_engine->autoSetAcc(cmd.value);
-            break;
-        case PowertrainCommand::COMMAND_OFFSTART:
-            m_engine->offstart();
-            break;
-        case PowertrainCommand::COMMAND_SET_ACC:
-            m_engine->setAcc(cmd.value);
-            break;
-        case PowertrainCommand::COMMAND_SET_CLUTCH:
-            m_engine->setClutch(cmd.value);
-            break;
-        case PowertrainCommand::COMMAND_SHIFT:
-            m_engine->BeamEngineShift(static_cast<int>(cmd.value));
-            break;
-        case PowertrainCommand::COMMAND_START:
-            m_engine->BeamEngineStart();
-            break;
-        case PowertrainCommand::COMMAND_AUTO_SHIFT_SET:
-            m_engine->autoShiftSet(static_cast<int>(cmd.value));
-            break;
-        case PowertrainCommand::COMMAND_SET_GEAR:
-            m_engine->setGear(static_cast<int>(cmd.value));
-            break;
-        case PowertrainCommand::COMMAND_AUTO_SHIFT_UP:
-            m_engine->autoShiftUp();
-            break;
-        case PowertrainCommand::COMMAND_AUTO_SHIFT_DOWN:
-            m_engine->autoShiftDown();
-            break;
-        case PowertrainCommand::COMMAND_TOGGLE_CONTACT:
-            m_engine->toggleContact();
-            break;
-        case PowertrainCommand::COMMAND_SET_STARTER:
-            m_engine->setstarter(static_cast<int>(cmd.value));
-            break;
-        case PowertrainCommand::COMMAND_TOGGLE_AUTO_MODE:
-            m_engine->toggleAutoMode();
-            break;
-        case PowertrainCommand::COMMAND_SET_MANUAL_CLUTCH:
-            m_engine->setManualClutch(cmd.value);
-            break;
-        case PowertrainCommand::COMMAND_SHIFT_TO:
-            m_engine->BeamEngineShiftTo(static_cast<int>(cmd.value));
-            break;
-        case PowertrainCommand::COMMAND_SET_GEAR_RANGE:
-            m_engine->setGearRange(static_cast<int>(cmd.value));
-            break;
-        }
+        m_engine->BeamEngineStart();
     }
-
+    if (cmd_queue.command_offstart)
+    {
+        m_engine->offstart();
+    }
+    if (cmd_queue.command_auto_set_acc)
+    {
+        m_engine->autoSetAcc(cmd_queue.command_auto_set_acc_value);
+    }
+    
     // Process networked update
     if (cmd_queue.was_network_updated)
     {
@@ -577,14 +529,6 @@ void Powertrain::PowertrainProcessInput()
             );
     }
     cmd_queue.Reset();
-}
-
-void PowertrainCommandQueue::AddCommand(PowertrainCommand::CommandType type, float value /* = 0.f */)
-{
-    PowertrainCommand cmd;
-    cmd.type = type;
-    cmd.value = value;
-    queue.push_back(cmd);
 }
 
 void PowertrainCommandQueue::NetworkedUpdate(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
@@ -602,8 +546,6 @@ void PowertrainCommandQueue::NetworkedUpdate(float rpm, float force, float clutc
 
 void PowertrainCommandQueue::Reset()
 {
-    queue.clear(); // Doesn't affect pre-allocated capacity
-
     was_network_updated = false;
     net_rpm = 0.f;
     net_force = 0.f;
@@ -612,6 +554,11 @@ void PowertrainCommandQueue::Reset()
     net_is_running = false;
     net_has_contact = false;
     net_auto_mode = 0;
+
+    command_auto_set_acc = false;
+    command_auto_set_acc_value = 0.f;
+    command_offstart = false;
+    command_start = false;
 
     input_states.Reset();
 }

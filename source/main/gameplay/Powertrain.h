@@ -89,33 +89,6 @@ struct PowertrainState
 
 };
 
-struct PowertrainCommand
-{
-    enum CommandType
-    {
-        COMMAND_NONE,
-        COMMAND_START,
-        COMMAND_AUTO_SET_ACC,
-        COMMAND_SET_CLUTCH,
-        COMMAND_SET_ACC,
-        COMMAND_SHIFT,
-        COMMAND_OFFSTART,
-        COMMAND_AUTO_SHIFT_SET,
-        COMMAND_SET_GEAR,
-        COMMAND_AUTO_SHIFT_UP,
-        COMMAND_AUTO_SHIFT_DOWN,
-        COMMAND_TOGGLE_CONTACT,
-        COMMAND_SET_STARTER,
-        COMMAND_TOGGLE_AUTO_MODE,
-        COMMAND_SET_MANUAL_CLUTCH,
-        COMMAND_SHIFT_TO,
-        COMMAND_SET_GEAR_RANGE
-    };
-
-    CommandType type;
-    float value;
-};
-
 struct PowertrainInputStates
 {
     void Reset()
@@ -159,13 +132,9 @@ struct PowertrainCommandQueue
         this->Reset();
     }
 
-    void  AddCommand(PowertrainCommand::CommandType type, float value = 0.f);
-
     void  NetworkedUpdate(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode);
 
     void  Reset();
-
-    std::vector<PowertrainCommand> queue;
 
     // Networked update
     float net_rpm;
@@ -176,6 +145,12 @@ struct PowertrainCommandQueue
     bool  net_has_contact;
     char  net_auto_mode;
     bool  was_network_updated;
+
+    // Local update
+    bool  command_auto_set_acc;
+    float command_auto_set_acc_value;
+    bool  command_offstart;
+    bool  command_start;
 
     PowertrainInputStates input_states;
 };

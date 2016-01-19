@@ -5177,12 +5177,14 @@ bool Beam::isLocked()
 	return false;
 }
 
-bool Beam::navigateTo(Vector3 &in)
+bool Beam::AS_NavigateTo(Vector3 &in)
 {
+    // TODO: Move this to sim-thread
+
 	// start engine if not running
 	if (this->powertrain != nullptr && !this->powertrain->GetStateOnMainThread().engine_is_running)
     {
-        this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_START);
+        this->powertrain->GetQueueOnMainThread().command_start = true;
     }
 
 	Vector3 TargetPosition = in;
@@ -5257,34 +5259,30 @@ bool Beam::navigateTo(Vector3 &in)
 	//String txt = "brakePower: "+TOSTRING(brakePower);//+" @ "+TOSTRING(maxvelo)
 	///RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
 
-
 	if (powertrain != nullptr)
 	{
-        PowertrainCommandQueue& queue = this->powertrain->GetQueueOnMainThread();
+		float auto_set_acc_value = 0.f;
 		if (mVectorToTarget.length() > 5.0f)
 		{
 			if(pitch < -5 && WheelSpeed > 10)
 			{
 				if (pitch < 0) pitch = -pitch;
 				brake = pitch * brakeforce / 90;
-                queue.AddCommand(PowertrainCommand::COMMAND_AUTO_SET_ACC, 0.f);
 			}
 			else
 			{
 				if (WheelSpeed < maxvelo - 5)
 				{
 					brake = 0;
-                    queue.AddCommand(PowertrainCommand::COMMAND_AUTO_SET_ACC, power);
+					auto_set_acc_value = power;
 				}
 				else if (WheelSpeed > maxvelo + 5)
 				{
 					brake = brakeforce / 3;
-                    queue.AddCommand(PowertrainCommand::COMMAND_AUTO_SET_ACC, 0.f);
 				}
 				else
 				{
 					brake = 0;
-                    queue.AddCommand(PowertrainCommand::COMMAND_AUTO_SET_ACC, 0.f);
 				}
 			}
 			return false;
@@ -5292,10 +5290,13 @@ bool Beam::navigateTo(Vector3 &in)
 		else
 		{
 			PowertrainCommandQueue& queue = this->powertrain->GetQueueOnMainThread();
-            queue.AddCommand(PowertrainCommand::COMMAND_AUTO_SET_ACC, 0.f);
 			brake = brakeforce;
 			return true;
 		}
+
+        PowertrainCommandQueue& queue = this->powertrain->GetQueueOnMainThread();
+        queue.command_auto_set_acc = true;
+        queue.command_auto_set_acc_value = auto_set_acc_value;
 	}
 	else
 	{
@@ -5799,6 +5800,7 @@ void Beam::triggerGUIFeaturesChanged()
 	GUIFeaturesChanged = true;
 }
 
+// Invoked from calcShocks2() on sim-thread
 void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 {
 	// engineNumber tells us which engine
@@ -5809,7 +5811,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	case TRG_ENGINE_CLUTCH:
         if (en != nullptr)
         {
-            this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_SET_CLUTCH, triggerValue);
+            en->setClutch(triggerValue);
         }
 		break;
 	case TRG_ENGINE_BRAKE:
@@ -5818,7 +5820,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	case TRG_ENGINE_ACC:
         if (en != nullptr)
         {
-            this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_SET_ACC, triggerValue);
+            en->setAcc(triggerValue);
         }
 		break;
 	case TRG_ENGINE_RPM:
@@ -5827,13 +5829,13 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	case TRG_ENGINE_SHIFTUP:
         if (en != nullptr)
         {
-            this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_SHIFT, 1.f); // 1 = shift up
+            en->BeamEngineShift(1);
         }
 		break;
 	case TRG_ENGINE_SHIFTDOWN:
         if (en != nullptr)
         {
-            this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_SHIFT, -1.f); // -1 = shift down
+            en->BeamEngineShift(-1);
         }
 		break;
 	default:
@@ -6158,7 +6160,7 @@ Beam::Beam(
 	updateProps();
 	if (this->powertrain != nullptr)
 	{
-        this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_OFFSTART);
+        this->powertrain->GetQueueOnMainThread().command_offstart = true;
 	}
 	// pressurize tires
 	addPressure(0.0);
@@ -6183,7 +6185,7 @@ Beam::Beam(
 		pthread_mutex_init(&net_mutex, NULL);
 		if (this->powertrain != nullptr)
 		{
-            this->powertrain->GetQueueOnMainThread().AddCommand(PowertrainCommand::COMMAND_START);
+            this->powertrain->GetQueueOnMainThread().command_start = true;
 		}
 	}
 
