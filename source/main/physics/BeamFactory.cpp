@@ -66,15 +66,34 @@ void* threadstart(void* vid);
 void cpuID(unsigned i, unsigned regs[4]) {
 #ifdef _WIN32
 	__cpuid((int *)regs, (int)i);
-#else
+#elif defined(__x86_64__) || defined(__i386)
 	asm volatile
 		("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
 		 : "a" (i), "c" (0));
 #endif
 }
 
+static unsigned hardware_concurrency()
+{
+	#if defined(PTW32_VERSION) || defined(__hpux)
+		return pthread_num_processors_np();
+	#elif defined(_GNU_SOURCE)
+		return get_nprocs();
+	#elif defined(__APPLE__) || defined(__FreeBSD__)
+		int count;
+		size_t size = sizeof(count);
+		return sysctlbyname("hw.ncpu", &count, &size, NULL, 0) ? 0 : count;
+	#elif defined(BOOST_HAS_UNISTD_H) && defined(_SC_NPROCESSORS_ONLN)
+		int const count = sysconf(_SC_NPROCESSORS_ONLN);
+		return (count > 0) ? count : 0;
+	#else
+		return 0;
+	#endif
+} 
+
 unsigned int getNumberOfCPUCores()
 {
+#if defined(_WIN32) || defined(__x86_64__) || defined(__i386)
 	unsigned regs[4];
 
 	// Get CPU vendor
@@ -112,7 +131,10 @@ unsigned int getNumberOfCPUCores()
 	LOG("BEAMFACTORY: " + TOSTRING(logical) + " Logical CPUs" + " found");
 	LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU Cores" + " found");
 	LOG("BEAMFACTORY: Hyper-Threading " + TOSTRING(hyperThreads));
-
+#else
+	unsigned cores = hardware_concurrency();
+	LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU Cores" + " found");
+#endif
 	return cores;
 }
 
