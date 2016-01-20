@@ -240,12 +240,12 @@ void DustPool::update()
 			ndir.y=0;
 			ndir=ndir/4.0;
 
-			col.a = vel*0.05;
+			col.a = sqrt(vel)*0.1;
 			col.b = 0.9;
 			col.g = 0.9;
 			col.r = 0.9;
 
-			emit->setTimeToLive(vel*0.05/0.1);
+			emit->setTimeToLive(vel*0.025/0.1);
 		} 
 		else if (types[i]==DUST_SPARKS)
 		{
