@@ -4,7 +4,7 @@
  * # Rigs of Rods 
  * 
  * Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
- * For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
+ * For a simple overview of the features Rigs of Rods provides please refer to [Things you can do in Rigs of Rods.pdf](https://github.com/RigsOfRods/rigs-of-rods/blob/master/doc/Things you can do in Rigs of Rods.pdf)  
  * 
  * ## Supported platforms:
  * * Windows
@@ -22,34 +22,14 @@
  * * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
  * 
  * 
- * ## Paths
- * $bin  - compiled binaries  
- * $res  - resources/assets for the game  
- * $user - user-created mods, configuration files, logs, screenshots  
- * 
- * Windows:  
- * $bin   = source\bin  
- * $res   = source\bin\resources  
- * $user  = MyDocuments\Rigs of Rods  
- * 
- * Linux:  
- * $bin    = source/bin  
- * $res    = source/bin/resources  
- * $user   = ~/.rigsofrods  
- * 
- * OS X:  
- * $bin    = source/bin  
- * $res    = source/bin/resources  
- * $user   = ~/.rigsofrods  
- * 
  * 
  * ## Controls
- * Available commands depend on the vehicle you are in. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
+ * Available commands depend on the vehicle you are in. For a graphical overview refer to [keysheet.pdf](https://github.com/RigsOfRods/rigs-of-rods/blob/master/doc/keysheet.pdf)  
  * For an indepth view refer to  $user/.rigsofrods/config/input.map   
  * Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or go to Menu -> Simulation -> Show vehicle description.  
  * Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other controllers, including support for Force Feedback.
  * 
- * ##### Basic controls:  
+ * ## Basic controls:  
  * 
  * | key                            | effect                                               |
  * |--------------------------------|------------------------------------------------------|
@@ -101,25 +81,25 @@
  * 
  * ## License of Rigs of Rods
  * 
- * Copyright (c) 2005-2013 Pierre-Michel Ricordel  
- * Copyright (c) 2007-2013 Thomas Fischer  
- * Copyright (c) 2009-2015 Rigs of Rods Contributors
- * 
- * Rigs of Rods went open source under GPLv2 or later on the 8th of February, 2009.
- * 
- * Rigs of Rods is now licensed under GPLv3 or later:
- * 
- * Rigs of Rods is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3, as 
- * published by the Free Software Foundation.
- * 
- * Rigs of Rods is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *  
- * You should have received a copy of the GNU General Public License
- * along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+ * > Copyright (c) 2005-2013 Pierre-Michel Ricordel  
+ * > Copyright (c) 2007-2013 Thomas Fischer  
+ * > Copyright (c) 2009-2015 Rigs of Rods Contributors
+ * > 
+ * > Rigs of Rods went open source under GPLv2 or later on the 8th of February, 2009.
+ * > 
+ * > Rigs of Rods is now licensed under GPLv3 or later:
+ * > 
+ * > Rigs of Rods is free software: you can redistribute it and/or modify
+ * > it under the terms of the GNU General Public License version 3, as 
+ * > published by the Free Software Foundation.
+ * > 
+ * > Rigs of Rods is distributed in the hope that it will be useful,
+ * > but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * > MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * > GNU General Public License for more details.
+ * >  
+ * > You should have received a copy of the GNU General Public License
+ * > along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
  * 
  * 
  *
