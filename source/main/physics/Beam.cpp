@@ -5693,6 +5693,7 @@ Beam::Beam(
 	, flap(0)
 	, floating_origin_enable(true)
 	, fusedrag(Ogre::Vector3::ZERO)
+	, high_res_wheelnode_collisions(false)
 	, hydroaileroncommand(0)
 	, hydroaileronstate(0)
 	, hydrodircommand(0)
@@ -5763,6 +5764,7 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
+	high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
 	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 

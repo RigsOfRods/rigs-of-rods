@@ -1779,7 +1779,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		if (!nodes[i].contactless)
 		{
 			nodes[i].collTestTimer += dt;
-			if (nodes[i].contacted || nodes[i].collTestTimer>0.005 || (nodes[i].iswheel && nodes[i].collTestTimer>0.0025) || increased_accuracy)
+			if (nodes[i].contacted || nodes[i].collTestTimer>0.005 || (nodes[i].iswheel && (high_res_wheelnode_collisions || nodes[i].collTestTimer>0.0025)) || increased_accuracy)
 			{
 				float ns = 0;
 				ground_model_t *gm = 0; // this is used as result storage, so we can use it later on

@@ -609,6 +609,8 @@ protected:
 
 	ground_model_t *lastFuzzyGroundModel;
 
+	bool high_res_wheelnode_collisions;
+
 	// this is for managing the blinkers on the truck:
 	blinktype blinkingtype;
 
