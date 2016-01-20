@@ -867,16 +867,30 @@ bool BeamFactory::enterRescueTruck()
 	return false;
 }
 
-void BeamFactory::updateVisual(float dt)
+void BeamFactory::updateFlexbodiesPrepare(float dt)
 {
 	for (int t=0; t < free_truck; t++)
 	{
 		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
 		{
-			trucks[t]->updateVisualPrepare(dt);
+			trucks[t]->updateFlexbodiesPrepare(dt);
 		}
 	}
+}
 
+void BeamFactory::updateFlexbodiesFinal(float dt)
+{
+	for (int t=0; t < free_truck; t++)
+	{
+		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
+		{
+			trucks[t]->updateFlexbodiesFinal(dt);
+		}
+	}
+}
+
+void BeamFactory::updateVisual(float dt)
+{
 	for (int t=0; t < free_truck; t++)
 	{
 		if (!trucks[t]) continue;
@@ -886,16 +900,9 @@ void BeamFactory::updateVisual(float dt)
 
 		if (trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
 		{
+			trucks[t]->updateVisual(dt);
 			trucks[t]->updateSkidmarks();
 			trucks[t]->updateFlares(dt, (t==current_truck));
-		}
-	}
-
-	for (int t=0; t < free_truck; t++)
-	{
-		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
-		{
-			trucks[t]->updateVisualFinal(dt);
 		}
 	}
 }

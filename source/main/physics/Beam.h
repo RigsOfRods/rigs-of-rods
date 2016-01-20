@@ -232,25 +232,23 @@ public:
 	void updateProps();
 
 	/**
-	* TIGHT-LOOP; Logic: display, sound, particles
-	* @see updateVisualPrepare
-	* @see updateVisualFinal
+	* TIGHT-LOOP; Logic: display (+overlays +particles), sound
+	* Does a mixture of tasks:
+	* - Sound: updates sound sources; plays aircraft radio chatter; 
+	* - Particles: updates particles (dust, exhausts, custom)
+	* - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
 	*/
 	void updateVisual(float dt=0);
 
 	/**
-	* TIGHT-LOOP; Logic: display (+flexbodies +overlays +particles), sound, threading
-	* Does a mixture of tasks:
-	* - Sound: updates sound sources; plays aircraft radio chatter; 
-	* - Particles: updates particles (dust, exhausts, custom)
-	* - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates flexbodies; updates debug overlay
+	* TIGHT-LOOP; Logic: flexbodies, threading
 	*/
-	void updateVisualPrepare(float dt=0);
+	void updateFlexbodiesPrepare(float dt=0);
+	void updateFlexbodiesFinal(float dt=0);
 
 	/**
-	* TIGHT-LOOP; Logic: display (+flexbodies), threading
+	* TIGHT-LOOP; Logic: display
 	*/
-	void updateVisualFinal(float dt=0);
 	void updateLabels(float dt=0);
 
 	/**
