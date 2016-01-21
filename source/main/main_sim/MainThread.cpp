@@ -1206,6 +1206,13 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 	gEnv->terrainManager = new TerrainManager();
 	gEnv->terrainManager->loadTerrain(terrain_file);
 
+#ifdef USE_MYGUI
+	if (GUI_Friction::getSingletonPtr())
+	{
+		GUI_Friction::getSingleton().setCollisions(gEnv->collisions);
+	}
+#endif //USE_MYGUI
+
 	gEnv->frameListener->loading_state=TERRAIN_LOADED;
 	
 	if (gEnv->player != nullptr)
