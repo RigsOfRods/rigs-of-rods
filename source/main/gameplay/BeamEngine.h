@@ -172,6 +172,7 @@ public:
 
 	enum shiftmodes {AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES};
 	enum autoswitch {REAR, NEUTRAL, DRIVE, TWO, ONE, MANUALMODE};
+	enum turbomode {OLD, NEW};
 
 protected:
 
@@ -197,6 +198,7 @@ protected:
 	bool contact; //!< Engine
 	bool hasair; //!< Engine attribute
 	bool hasturbo; //!< Engine attribute
+	int turbomode; //!<Engine attribute
 	bool running; //!< Engine state
 	char type; //!< Engine attribute {'t' = truck (default), 'c' = car}
 	float brakingTorque; //!< Engine
@@ -246,15 +248,11 @@ protected:
 	float turboInertiaFactor;
 	int numTurbos;
 	int maxTurboRPM;
-	float turbotorque;
-	float turboInertia;
 	float EngineAddiTorque[MAXTURBO];
 	float turboEngineRpmOperation;
 	float turboMaxPSI;
-	float turboPSI;
 	bool b_BOV;
 	float curBOVTurboRPM[MAXTURBO];
-	float turboBOVtorque;
 	int minBOVPsi;
 	bool b_WasteGate;
 	float minWGPsi;
