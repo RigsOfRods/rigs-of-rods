@@ -172,14 +172,14 @@ COMMON_REPLAY_BACKWARD         Keyboard             EXPL+LEFT
 COMMON_REPLAY_FAST_BACKWARD    Keyboard             EXPL+SHIFT+LEFT 
 COMMON_REPLAY_FAST_FORWARD     Keyboard             EXPL+SHIFT+RIGHT 
 COMMON_REPLAY_FORWARD          Keyboard             EXPL+RIGHT 
-COMMON_RESCUE_TRUCK            Keyboard             R 
+COMMON_RESCUE_TRUCK            Keyboard             EXPL+R 
 COMMON_RESET_TRUCK             Keyboard             EXPL+I 
 COMMON_SCREENSHOT              Keyboard             SYSRQ 
 COMMON_SECURE_LOAD             Keyboard             O 
 COMMON_SHOW_SKELETON           Keyboard             K 
 COMMON_START_TRUCK_EDITOR      Keyboard             SHIFT+Y 
 COMMON_TOGGLE_CUSTOM_PARTICLES Keyboard             G 
-COMMON_TOGGLE_MAT_DEBUG        Keyboard             EXPL+CTRL+F 
+COMMON_TOGGLE_MAT_DEBUG        Keyboard             EXPL+CTRL+SHIFT+F 
 COMMON_TOGGLE_RENDER_MODE      Keyboard             E 
 COMMON_TOGGLE_REPLAY_MODE      Keyboard             J 
 COMMON_TOGGLE_STATS            Keyboard             EXPL+F 
