@@ -1936,7 +1936,7 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	if (engine && flag_state & ANIM_FLAG_CLUTCH)
 	{
 		float clutch = engine->getClutch();
-		cstate -= abs(1.0f - clutch);
+		cstate -= fabs(1.0f - clutch);
 		div++;
 	}
 
