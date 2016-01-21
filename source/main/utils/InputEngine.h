@@ -219,6 +219,9 @@ enum events
 	EV_COMMANDS_82, //!< Command 82
 	EV_COMMANDS_83, //!< Command 83
 	EV_COMMANDS_84, //!< Command 84
+	EV_COMMON_ACCELERATE_SIMULATION, //!< accelerate the simulation speed
+	EV_COMMON_DECELERATE_SIMULATION, //!< decelerate the simulation speed
+	EV_COMMON_RESET_SIMULATION_PACE, //!< reset the simulation speed
 	EV_COMMON_AUTOLOCK, //!< unlock autolock hook node
 	EV_COMMON_CONSOLEDISPLAY, //!< show / hide the console
 	EV_COMMON_CONSOLEMODE, //!< toggle appearance of console

@@ -890,6 +890,24 @@ eventInfo_t eventInfo[] = {
 		_L("Command 84")
 	},
 	{
+		"COMMON_ACCELERATE_SIMULATION",
+		EV_COMMON_ACCELERATE_SIMULATION,
+		"Keyboard CTRL+EQUALS",
+		_L("accelerate the simulation")
+	},
+	{
+		"COMMON_DECELERATE_SIMULATION",
+		EV_COMMON_DECELERATE_SIMULATION,
+		"Keyboard SHIFT+EQUALS",
+		_L("decelerate the simulation")
+	},
+	{
+		"COMMON_RESET_SIMULATION_PACE",
+		EV_COMMON_RESET_SIMULATION_PACE,
+		"Keyboard BACKSLASH",
+		_L("reset the simulation pace")
+	},
+	{
 		"COMMON_CONSOLEDISPLAY",
 		EV_COMMON_CONSOLEDISPLAY,
 		"Keyboard EXPL+GRAVE",

@@ -270,6 +270,7 @@ void ScriptEngine::init()
 
 	result = engine->RegisterObjectType("BeamFactoryClass", sizeof(BeamFactory), AngelScript::asOBJ_REF); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamFactoryClass", "bool enterRescueTruck()", AngelScript::asMETHOD(BeamFactory,enterRescueTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("BeamFactoryClass", "void setSimulationSpeed(float)", AngelScript::asMETHOD(BeamFactory,setSimulationSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(BeamFactory,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(BeamFactory,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 

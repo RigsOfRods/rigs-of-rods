@@ -171,6 +171,7 @@ RoRFrameListener::RoRFrameListener() :
 	hidegui(false),
 	loading_state(NONE_LOADED),
 	mStatsOn(0),
+	mLastSimulationSpeed(0.1f),
 	mTimeUntilNextToggle(0),
 	mTruckInfoOn(false),
 	netChat(0),
@@ -675,6 +676,48 @@ bool RoRFrameListener::updateEvents(float dt)
 				}
 				//COMMON KEYS
 
+				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
+				{
+					float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * 1.003;
+					BeamFactory::getSingleton().setSimulationSpeed(simulation_speed);
+#ifdef USE_MYGUI
+					String ssmsg = _L("New simulation speed: ") + TOSTRING(floor(simulation_speed * 1000.0f) / 10.0f) + "%";
+					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+					RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+				}
+				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
+				{
+					float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * 0.997;
+					BeamFactory::getSingleton().setSimulationSpeed(simulation_speed);
+#ifdef USE_MYGUI
+					String ssmsg = _L("New simulation speed: ") + TOSTRING(floor(simulation_speed * 1000.0f) / 10.0f) + "%";
+					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+					RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+				}
+				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_SIMULATION_PACE, 0.5f))
+				{
+					float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
+					if (simulation_speed != 1.0f)
+					{
+						mLastSimulationSpeed = simulation_speed;
+						BeamFactory::getSingleton().setSimulationSpeed(1.0f);
+#ifdef USE_MYGUI
+						UTFString ssmsg = _L("Simulation speed reset.");
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+						RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+					} else if (mLastSimulationSpeed != 1.0f)
+					{
+						BeamFactory::getSingleton().setSimulationSpeed(mLastSimulationSpeed);
+#ifdef USE_MYGUI
+						String ssmsg = _L("New simulation speed: ") + TOSTRING(floor(mLastSimulationSpeed * 1000.0f) / 10.0f) + "%";
+						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+						RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+					}
+				}
 				if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
 				{
 					BeamFactory::getSingleton().removeCurrentTruck();
@@ -1260,7 +1303,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	//
 	if (loading_state == ALL_LOADED && !this->isSimPaused)
 	{
-		BeamFactory::getSingleton().updateFlexbodiesPrepare(dt); // Pushes all flexbody tasks into the thread pool 
+		BeamFactory::getSingleton().updateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool 
 	}
 
 	// update OutProtocol
@@ -1419,7 +1462,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		// we simulate one truck, it will take care of the others (except networked ones)
 		if (!isSimPaused)
 		{
-			BeamFactory::getSingleton().updateFlexbodiesFinal(dt); // Waits until all flexbody tasks are finished 
+			BeamFactory::getSingleton().updateFlexbodiesFinal(); // Waits until all flexbody tasks are finished 
 			BeamFactory::getSingleton().updateVisual(dt);          // update visual - antishaking
 			BeamFactory::getSingleton().checkSleepingState();
 			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)

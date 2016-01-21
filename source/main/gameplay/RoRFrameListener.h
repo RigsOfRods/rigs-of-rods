@@ -74,6 +74,8 @@ protected:
 	Ogre::Vector3 dirArrowPointed;
 	Ogre::Vector3 persostart;
 
+	float mLastSimulationSpeed; // previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
+
 	unsigned long      m_race_start_time;
 	bool               m_race_in_progress;
 	float			   m_race_bestlap_time;
