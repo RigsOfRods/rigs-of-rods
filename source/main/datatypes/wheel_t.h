@@ -34,6 +34,8 @@ struct wheel_t
 	int propulsed;
 	Ogre::Real radius;
 	Ogre::Real speed;
+	Ogre::Real lastSpeed;
+	Ogre::Real avgSpeed;
 	Ogre::Real delta_rotation; //!< Difference in wheel position
 	float rp;
 	float rp1; //<! Networking; triple buffer
@@ -44,7 +46,6 @@ struct wheel_t
 	// for skidmarks
 	Ogre::Vector3 lastContactInner;
 	Ogre::Vector3 lastContactOuter;
-	Ogre::Vector3 lastRotationVec;
 	bool firstLock;
 	float lastSlip;
 	int lastContactType;
