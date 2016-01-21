@@ -46,7 +46,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, engineTorque(torque - brakingTorque)
 	, gearsRatio(gears)
 	, hasair(true)
-	, hasturbo(true)
+	, hasturbo(false)
 	, hydropump(0.0f)
 	, idleRPM(std::min(minRPM, 800.0f))
 	, inertia(10.0f)
@@ -69,7 +69,6 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, starter(0)
 	, torqueCurve(new TorqueCurve())
 	, trucknum(trucknum)
-	, turbomode(OLD)
 	, type('t')
 	, upShiftDelayCounter(0)
 	, is_Electric(false)
@@ -116,8 +115,8 @@ BeamEngine::~BeamEngine()
 
 void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
-	hasturbo = true;
-	turbomode = NEW;
+	if (!hasturbo)
+		hasturbo = true; //Should have a turbo
 
 	if (nturbos > MAXTURBO)
 	{
@@ -189,18 +188,27 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	clutchForce = eclutch;
 
 	if (ctime > 0)  clutchTime = ctime;
-	if (pstime > 0) post_shift_time = pstime;
 	if (stime > 0)  shift_time = stime;
+	if (pstime > 0) post_shift_time = pstime;
 	if (irpm > 0) idleRPM = irpm;
 	if (srpm > 0) stallRPM = srpm;
 	if (maximix > 0) maxIdleMixture = maximix;
 	if (minimix > 0) minIdleMixture = minimix;
 
+	clutchTime = std::max(0.0f, clutchTime);
+	shift_time = std::max(0.0f, shift_time);
+	post_shift_time = std::max(0.0f, post_shift_time);
+
+	clutchTime = std::min(clutchTime, shift_time * 0.9f);
+
+	idleRPM = std::max(0.0f, idleRPM);
+	stallRPM = std::max(0.0f, stallRPM);
+	stallRPM = std::min(idleRPM, stallRPM);
+
 	if (etype == 'c')
 	{
 		// it's a car!
 		hasair = false;
-		hasturbo = false;
 		is_Electric = false;
 		// set default clutch force
 		if (clutchForce < 0.0f)
@@ -212,7 +220,6 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	{
 		is_Electric = true;
 		hasair = false;
-		hasturbo = false;
 		if (clutchForce < 0.0f)
 		{
 			clutchForce = 5000.0f;
@@ -262,142 +269,119 @@ void BeamEngine::update(float dt, int doUpdate)
 
 	if (hasturbo)
 	{
-		if (turbomode == OLD)
+		for (int i = 0; i < numTurbos; i++)
 		{
 			// update turbo speed (lag)
-			float turbotorque = 0.0f;
-			float turboInertia = 0.000003f;
+			// reset each of the values for each turbo
+			turbotorque = 0.0f;
+			turboBOVtorque = 0.0f;
+
+			turboInertia = 0.000003f * turboInertiaFactor;
 
 			// braking (compression)
-			turbotorque -= curTurboRPM[0] / 200000.0f;
+			turbotorque -= curTurboRPM[i] / maxTurboRPM;
+			turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
 
 			// powering (exhaust) with limiter
-			if (curTurboRPM[0] < 200000.0f && running && curAcc > 0.06f)
+			if (curEngineRPM >= turboEngineRpmOperation)
 			{
-				turbotorque += 1.5f * curAcc * (curEngineRPM / maxRPM);
-			} else
-			{
-				turbotorque += 0.1f * (curEngineRPM / maxRPM);
-			}
-			
-			// integration
-			curTurboRPM[0] += dt * turbotorque / turboInertia;
-		} else
-		{
-			for (int i = 0; i < numTurbos; i++)
-			{
-				// update turbo speed (lag)
-				// reset each of the values for each turbo
-				float turbotorque = 0.0f;
-				float turboBOVtorque = 0.0f;
-
-				float turboInertia = 0.000003f * turboInertiaFactor;
-
-				// braking (compression)
-				turbotorque -= curTurboRPM[i] / maxTurboRPM;
-				turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
-
-				// powering (exhaust) with limiter
-				if (curEngineRPM >= turboEngineRpmOperation)
+				if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
 				{
-					if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
-					{
-						if (b_WasteGate)
-						{
-							if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
-							{
-								turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
-							}
-							else
-							{
-								b_flutter = true;
-								turbotorque -= (curTurboRPM[i] / maxTurboRPM) *1.5;
-							}	
-
-							if (b_flutter)
-							{
-								SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
-								if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
-								{
-									b_flutter = false;
-									SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
-								}
-									
-							}
-						}
-						else
-							turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
-					}
-					else
-					{
-						turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
-					}
-
-					//Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
 					if (b_WasteGate)
 					{
-						if (curTurboRPM[i] > minWGPsi * 0.95)
-							turboInertia = turboInertia *0.7; //Kill inertia so it flutters
-						else
-							turboInertia = turboInertia *1.3; //back to normal inertia
-					}
-				}
-				
-				//simulate compressor surge
-				if (!b_BOV)
-				{
-					if (curTurboRPM[i] > 13 * 10000 && curAcc < 0.06f)
-					{
-						turbotorque += (turbotorque * 2.5);
-					}
-				}
-
-				// anti lag
-				if (b_anti_lag && curAcc < 0.5)
-				{
-					float f = frand();
-					if (curEngineRPM > minRPM_antilag && f > rnd_antilag_chance)
-					{
-						if (curTurboRPM[i] > maxTurboRPM*0.35 && curTurboRPM[i] < maxTurboRPM)
+						if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
 						{
-							turbotorque -= (turbotorque * (f * antilag_power_factor));
-							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+							turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+						}
+						else
+						{
+							b_flutter = true;
+							turbotorque -= (curTurboRPM[i] / maxTurboRPM) *1.5;
+						}	
+
+						if (b_flutter)
+						{
+							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
+							if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
+							{
+								b_flutter = false;
+								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
+							}
+								
 						}
 					}
 					else
-						SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
+						turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
 				}
-
-				// update main turbo rpm
-				curTurboRPM[i] += dt * turbotorque / turboInertia;
-
-				//Update BOV
-				//It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
-				//This one is used to simulate the pressure between the engine and the compressor.
-				//I should make the whole turbo code work this way. -Max98
-				if (b_BOV)
+				else
 				{
-					
-					if (curBOVTurboRPM[i] < curTurboRPM[i])
-						turboBOVtorque += 1.5f * acc * (((curEngineRPM) / (maxRPM)));
-					else
-						turboBOVtorque += 0.07f * (((curEngineRPM) / (maxRPM)));
-
-
-					if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000) 
-					{
-						SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
-						curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
-					}
-					else
-					{
-						SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
-						if (curBOVTurboRPM[i] < curTurboRPM[i])
-							curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
-						else
-							curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
-					}	
+					turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
 				}
+
+				//Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
+				if (b_WasteGate)
+				{
+					if (curTurboRPM[i] > minWGPsi * 0.95)
+						turboInertia = turboInertia *0.7; //Kill inertia so it flutters
+					else
+						turboInertia = turboInertia *1.3; //back to normal inertia
+				}
+			}
+			
+			//simulate compressor surge
+			if (!b_BOV)
+			{
+				if (curTurboRPM[i] > 13 * 10000 && curAcc < 0.06f)
+				{
+					turbotorque += (turbotorque * 2.5);
+				}
+			}
+
+			// anti lag
+			if (b_anti_lag && curAcc < 0.5)
+			{
+				float f = frand();
+				if (curEngineRPM > minRPM_antilag && f > rnd_antilag_chance)
+				{
+					if (curTurboRPM[i] > maxTurboRPM*0.35 && curTurboRPM[i] < maxTurboRPM)
+					{
+						turbotorque -= (turbotorque * (f * antilag_power_factor));
+						SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+					}
+				}
+				else
+					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
+			}
+
+			// update main turbo rpm
+			curTurboRPM[i] += dt * turbotorque / turboInertia;
+
+			//Update BOV
+			//It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
+			//This one is used to simulate the pressure between the engine and the compressor.
+			//I should make the whole turbo code work this way. -Max98
+			if (b_BOV)
+			{
+				
+				if (curBOVTurboRPM[i] < curTurboRPM[i])
+					turboBOVtorque += 1.5f * acc * (((curEngineRPM) / (maxRPM)));
+				else
+					turboBOVtorque += 0.07f * (((curEngineRPM) / (maxRPM)));
+
+
+				if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000) 
+				{
+					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
+					curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
+				}
+				else
+				{
+					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
+					if (curBOVTurboRPM[i] < curTurboRPM[i])
+						curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
+					else
+						curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
+				}	
 			}
 		}
 	}
@@ -476,102 +460,91 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (automode < MANUAL)
 	{
 		// auto-shift
-		if (shifting && !is_Electric) //No shifting in electric cars
+		if (shifting)
 		{
+			// the whole shifting process takes (1/2 * clutchTime) + shift_time + clutchTime seconds
 			shiftclock += dt;
 
-			// clutch
-			if (shiftclock < clutchTime)
+			if (shiftval)
 			{
-				curClutch = 1.0f - (shiftclock / clutchTime);
-			} else if (shiftclock > (shift_time - clutchTime))
-			{
-				curClutch = 1.0f - (shift_time - shiftclock) / clutchTime;
-			} else
-			{
-				curClutch = 0.0f;
-			}
-
-			// shift
-			if (shiftval && shiftclock > clutchTime / 2.0f)
-			{
+				if (shiftclock <= (shift_time - clutchTime))
+				{
+					// depress the clutch 
+					float ratio = 1.0f - (shiftclock / (shift_time - clutchTime));
+					curClutch = std::min(ratio * ratio, curClutch);
+					curAcc = std::min(ratio, autocurAcc);
+				} else
+				{
+					// engage a gear
 #ifdef USE_OPENAL
-				SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
+					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-				curGear += shiftval;
-				curGear = std::max(-1, curGear);
-				curGear = std::min(curGear, numGears);
-				shiftval = 0;
+					curGear += shiftval;
+					curGear = std::max(-1, curGear);
+					curGear = std::min(curGear, numGears);
+					shiftval = 0;
+				}
 			}
 
-			// end of shifting
 			if (shiftclock > shift_time)
 			{
+				// we're done shifting
 #ifdef USE_OPENAL
 				SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
 				setAcc(autocurAcc);
 				shifting = 0;
-				curClutch = 1.0f;
 				postshifting = 1;
 				postshiftclock = 0.0f;
+			} else if (!shiftval && curGear)
+			{
+				// release the clutch
+				if (autocurAcc > 0.0f)
+				{
+					// the clutch_timer weill be zero when we first come here
+					float clutch_timer = shiftclock - (shift_time - clutchTime);
+					// ratio will be one when we leave this section
+					float ratio = clutch_timer / clutchTime;
+					curClutch = sqrt(ratio);
+					curAcc = std::min(ratio, autocurAcc);
+				}
+			}
+		}
+
+		if (postshifting)
+		{
+			postshiftclock += dt;
+			if (postshiftclock > post_shift_time)
+			{
+				postshifting = 0;
 			}
 		}
 
 		// auto declutch
-		if (!is_Electric)
+		if (curGear == 0 || curEngineRPM < stallRPM * 1.2f)
 		{
-			if (postshifting)
-			{
-				postshiftclock += dt;
-				if (postshiftclock > post_shift_time)
-				{
-					postshifting = 0;
-				}
-			}
-			if (shifting)
-			{
-				// we are shifting, just avoid stalling in worst case
-				if (curEngineRPM < stallRPM * 1.2f)
-				{
-					curClutch = 0.0f;
-				}
-			}
-			else if (postshifting)
-			{
-				// we are postshifting, no gear change
-				if (curEngineRPM < stallRPM * 1.2f && acc < 0.5f)
-				{
-					curClutch = 0.0f;
-				}
-				else
-				{
-					curClutch = 1.0f;
-				}
-			}
-			else if (curEngineRPM < stallRPM * 1.2f && acc < 0.5f)
-			{
-				curClutch = 0.0f;
-			}
-			else if (std::abs(curGear) == 1)
+			curClutch = 0.0f;
+		} else if (!shifting && curAcc > 0.0f)
+		{
+			if (std::abs(curGear) == 1)
 			{
 				// 1st gear : special
-				if (curEngineRPM > minRPM)
+				if (curEngineRPM > minRPM && curAcc > 0.0f)
 				{
 					curClutch = (curEngineRPM - minRPM) / (maxRPM - minRPM);
 					curClutch = std::min(curClutch, 1.0f);
-				}
-				else
+				} else
 				{
 					curClutch = 0.0f;
 				}
-			}
-			else
+			} else
 			{
-				curClutch = 1.0f;
+				curClutch = (curEngineRPM - minRPM) / std::min((maxRPM - minRPM) / 20.0f, 200.0f);
+				curClutch = std::min(curClutch, 1.0f);
 			}
-		} else
-			curClutch = 1.0f;
+		}
+
+		curClutch = std::max(0.0f, curClutch);
 	}
 
 	if (doUpdate && !shifting && !postshifting)
@@ -592,16 +565,16 @@ void BeamEngine::update(float dt, int doUpdate)
 			refWheelRevolutions = velocity / truck->wheels[0].radius * RAD_PER_SEC_TO_RPM;
 		}
 
-		if (automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
+		if (!is_Electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
 		{
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
-				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears)) && !is_Electric)
+				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears)))
 				{
 					shift(1);
 				}
 			} else if (curGear > 1 && refWheelRevolutions * gearsRatio[curGear] < maxRPM && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
-				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear + 1]))) && !is_Electric)
+				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear + 1]))))
 			{
 				shift(-1);
 			}
@@ -648,90 +621,79 @@ void BeamEngine::update(float dt, int doUpdate)
 			avgAcc200 /= accs.size();
 			avgBrake200 /= brakes.size();
 
-			if (!is_Electric)
+			if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
 			{
-
-				if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
-				{
-					shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
-				}
-				else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5 )
-				{
-					shiftBehaviour /= 1.01;
-				}
-			
-
-				if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
-				{
-					while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
-					{
-						newGear--;
-					}
-				} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
-				{
-					if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
-					{
-						newGear--;
-					}
-				} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
-				{
-					if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
-					{
-						newGear--;
-					}
-				}
-				else if (curGear < (autoselect == TWO ? std::min(2, numGears) : numGears) &&
-					avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
-				{
-					if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
-					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
-						{
-							newGear++;
-						}
-					}
-					else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
-					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
-						{
-							newGear++;
-						}
-					}
-					else if (avgAcc200 < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
-					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
-						{
-							newGear++;
-						}
-					}
-
-					if (newGear > curGear)
-					{
-						upShiftDelayCounter++;
-						if (upShiftDelayCounter <= 100 * shiftBehaviour)
-						{
-							newGear = curGear;
-						}
-					}
-					else
-					{
-						upShiftDelayCounter = 0;
-					}
-				}
-				if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
-					newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f && !is_Electric)
-				{
-					if (absVelocity - relVelocity < 0.5f)
-						shiftTo(newGear);
-				}
+				shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
+			} else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5 )
+			{
+				shiftBehaviour /= 1.01;
 			}
 
+			if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
+			{
+				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+				{
+					newGear--;
+				}
+			} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+			{
+				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+				{
+					newGear--;
+				}
+			} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+			{
+				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+				{
+					newGear--;
+				}
+			} else if (curGear < (autoselect == TWO ? std::min(2, numGears) : numGears) &&
+				avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
+			{
+				if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
+				{
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
+					{
+						newGear++;
+					}
+				} else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
+				{
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+					{
+						newGear++;
+					}
+				} else if (avgAcc200 < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
+				{
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+					{
+						newGear++;
+					}
+				}
+
+				if (newGear > curGear)
+				{
+					upShiftDelayCounter++;
+					if (upShiftDelayCounter <= 100 * shiftBehaviour)
+					{
+						newGear = curGear;
+					}
+				} else
+				{
+					upShiftDelayCounter = 0;
+				}
+			}
+			if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
+				newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f)
+			{
+				if (absVelocity - relVelocity < 0.5f)
+					shiftTo(newGear);
+			}
 
 			if (accs.size() > 200)
 			{
@@ -828,12 +790,7 @@ void BeamEngine::setAcc(float val)
 
 float BeamEngine::getTurboPSI()
 {
-	if (turbomode == OLD)
-	{
-		return curTurboRPM[0] / 10000.0f;
-	}
-
-	float turboPSI = 0;
+	turboPSI = 0;
 
 	if (b_BOV)
 	{
@@ -1052,13 +1009,9 @@ void BeamEngine::shift(int val)
 	if (!val || curGear + val < -1 || curGear + val > getNumGears()) return;
 	if (automode < MANUAL)
 	{
-#ifdef USE_OPENAL
-		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
 		shiftval = val;
 		shifting = 1;
 		shiftclock = 0.0f;
-		setAcc(0.0f);
 	} else
 	{
 		if (curClutch > 0.25f)
@@ -1083,6 +1036,7 @@ void BeamEngine::shiftTo(int newGear)
 
 void BeamEngine::updateShifts()
 {
+	if (is_Electric) return;
 	if (autoselect == MANUALMODE) return;
 
 #ifdef USE_OPENAL
@@ -1092,14 +1046,13 @@ void BeamEngine::updateShifts()
 	if (autoselect == REAR)
 	{
 		curGear = -1;
-	} else if (autoselect == NEUTRAL && !is_Electric)
+	} else if (autoselect == NEUTRAL)
 	{
 		curGear =  0;
 	} else if (autoselect == ONE)
 	{
 		curGear =  1;
-	}
-	else if (!is_Electric) //no other gears for electric cars
+	} else
 	{
 		// search for an appropriate gear
 		int newGear = 1;
@@ -1172,7 +1125,7 @@ float BeamEngine::getEnginePower(float rpm)
 		tqValue = torqueCurve->getEngineTorque(rpmRatio);
 	}
 
-	if (hasturbo && turbomode == NEW)
+	if (hasturbo)
 	{
 		if (turboVer == 1)
 		{
