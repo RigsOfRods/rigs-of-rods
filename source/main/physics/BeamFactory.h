@@ -127,8 +127,8 @@ public:
 	/**
 	* TIGHT-LOOP; Logic: flexbodies 
 	*/
-	void updateFlexbodiesPrepare(float dt);
-	void updateFlexbodiesFinal(float dt);
+	void updateFlexbodiesPrepare();
+	void updateFlexbodiesFinal();
 
 	inline unsigned long getPhysFrame() { return m_physics_frames; };
 
