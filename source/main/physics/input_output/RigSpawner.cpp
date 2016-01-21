@@ -7221,7 +7221,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 		}
 		if (vehicle->engine->type=='c')
 			AddSoundSourceInstance(vehicle, "tracks/default_car", smokeId);
-		if (vehicle->engine->hasturbo)
+		if (vehicle->engine->hasTurbo())
 		{
 			if (vehicle->engine->turboInertiaFactor >= 3)
 				AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", smokeId);

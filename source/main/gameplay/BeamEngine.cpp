@@ -46,7 +46,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, engineTorque(torque - brakingTorque)
 	, gearsRatio(gears)
 	, hasair(true)
-	, hasturbo(false)
+	, hasturbo(true)
 	, hydropump(0.0f)
 	, idleRPM(std::min(minRPM, 800.0f))
 	, inertia(10.0f)
@@ -69,6 +69,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, starter(0)
 	, torqueCurve(new TorqueCurve())
 	, trucknum(trucknum)
+	, turbomode(OLD)
 	, type('t')
 	, upShiftDelayCounter(0)
 	, is_Electric(false)
@@ -115,8 +116,8 @@ BeamEngine::~BeamEngine()
 
 void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
-	if (!hasturbo)
-		hasturbo = true; //Should have a turbo
+	hasturbo = true;
+	turbomode = NEW;
 
 	if (nturbos > MAXTURBO)
 	{
@@ -199,6 +200,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	{
 		// it's a car!
 		hasair = false;
+		hasturbo = false;
 		is_Electric = false;
 		// set default clutch force
 		if (clutchForce < 0.0f)
@@ -210,6 +212,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	{
 		is_Electric = true;
 		hasair = false;
+		hasturbo = false;
 		if (clutchForce < 0.0f)
 		{
 			clutchForce = 5000.0f;
@@ -259,119 +262,142 @@ void BeamEngine::update(float dt, int doUpdate)
 
 	if (hasturbo)
 	{
-		for (int i = 0; i < numTurbos; i++)
+		if (turbomode == OLD)
 		{
 			// update turbo speed (lag)
-			// reset each of the values for each turbo
-			turbotorque = 0.0f;
-			turboBOVtorque = 0.0f;
-
-			turboInertia = 0.000003f * turboInertiaFactor;
+			float turbotorque = 0.0f;
+			float turboInertia = 0.000003f;
 
 			// braking (compression)
-			turbotorque -= curTurboRPM[i] / maxTurboRPM;
-			turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
+			turbotorque -= curTurboRPM[0] / 200000.0f;
 
 			// powering (exhaust) with limiter
-			if (curEngineRPM >= turboEngineRpmOperation)
+			if (curTurboRPM[0] < 200000.0f && running && curAcc > 0.06f)
 			{
-				if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
-				{
-					if (b_WasteGate)
-					{
-						if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
-						{
-							turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
-						}
-						else
-						{
-							b_flutter = true;
-							turbotorque -= (curTurboRPM[i] / maxTurboRPM) *1.5;
-						}	
-
-						if (b_flutter)
-						{
-							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
-							if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
-							{
-								b_flutter = false;
-								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
-							}
-								
-						}
-					}
-					else
-						turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
-				}
-				else
-				{
-					turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
-				}
-
-				//Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
-				if (b_WasteGate)
-				{
-					if (curTurboRPM[i] > minWGPsi * 0.95)
-						turboInertia = turboInertia *0.7; //Kill inertia so it flutters
-					else
-						turboInertia = turboInertia *1.3; //back to normal inertia
-				}
+				turbotorque += 1.5f * curAcc * (curEngineRPM / maxRPM);
+			} else
+			{
+				turbotorque += 0.1f * (curEngineRPM / maxRPM);
 			}
 			
-			//simulate compressor surge
-			if (!b_BOV)
+			// integration
+			curTurboRPM[0] += dt * turbotorque / turboInertia;
+		} else
+		{
+			for (int i = 0; i < numTurbos; i++)
 			{
-				if (curTurboRPM[i] > 13 * 10000 && curAcc < 0.06f)
-				{
-					turbotorque += (turbotorque * 2.5);
-				}
-			}
+				// update turbo speed (lag)
+				// reset each of the values for each turbo
+				float turbotorque = 0.0f;
+				float turboBOVtorque = 0.0f;
 
-			// anti lag
-			if (b_anti_lag && curAcc < 0.5)
-			{
-				float f = frand();
-				if (curEngineRPM > minRPM_antilag && f > rnd_antilag_chance)
+				float turboInertia = 0.000003f * turboInertiaFactor;
+
+				// braking (compression)
+				turbotorque -= curTurboRPM[i] / maxTurboRPM;
+				turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
+
+				// powering (exhaust) with limiter
+				if (curEngineRPM >= turboEngineRpmOperation)
 				{
-					if (curTurboRPM[i] > maxTurboRPM*0.35 && curTurboRPM[i] < maxTurboRPM)
+					if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
 					{
-						turbotorque -= (turbotorque * (f * antilag_power_factor));
-						SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+						if (b_WasteGate)
+						{
+							if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
+							{
+								turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+							}
+							else
+							{
+								b_flutter = true;
+								turbotorque -= (curTurboRPM[i] / maxTurboRPM) *1.5;
+							}	
+
+							if (b_flutter)
+							{
+								SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
+								if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
+								{
+									b_flutter = false;
+									SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
+								}
+									
+							}
+						}
+						else
+							turbotorque += 1.5f * acc * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+					}
+					else
+					{
+						turbotorque += 0.1f * (((curEngineRPM - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+					}
+
+					//Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
+					if (b_WasteGate)
+					{
+						if (curTurboRPM[i] > minWGPsi * 0.95)
+							turboInertia = turboInertia *0.7; //Kill inertia so it flutters
+						else
+							turboInertia = turboInertia *1.3; //back to normal inertia
 					}
 				}
-				else
-					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
-			}
-
-			// update main turbo rpm
-			curTurboRPM[i] += dt * turbotorque / turboInertia;
-
-			//Update BOV
-			//It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
-			//This one is used to simulate the pressure between the engine and the compressor.
-			//I should make the whole turbo code work this way. -Max98
-			if (b_BOV)
-			{
 				
-				if (curBOVTurboRPM[i] < curTurboRPM[i])
-					turboBOVtorque += 1.5f * acc * (((curEngineRPM) / (maxRPM)));
-				else
-					turboBOVtorque += 0.07f * (((curEngineRPM) / (maxRPM)));
-
-
-				if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000) 
+				//simulate compressor surge
+				if (!b_BOV)
 				{
-					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
-					curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
+					if (curTurboRPM[i] > 13 * 10000 && curAcc < 0.06f)
+					{
+						turbotorque += (turbotorque * 2.5);
+					}
 				}
-				else
+
+				// anti lag
+				if (b_anti_lag && curAcc < 0.5)
 				{
-					SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
-					if (curBOVTurboRPM[i] < curTurboRPM[i])
-						curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
+					float f = frand();
+					if (curEngineRPM > minRPM_antilag && f > rnd_antilag_chance)
+					{
+						if (curTurboRPM[i] > maxTurboRPM*0.35 && curTurboRPM[i] < maxTurboRPM)
+						{
+							turbotorque -= (turbotorque * (f * antilag_power_factor));
+							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+						}
+					}
 					else
-						curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
-				}	
+						SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
+				}
+
+				// update main turbo rpm
+				curTurboRPM[i] += dt * turbotorque / turboInertia;
+
+				//Update BOV
+				//It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
+				//This one is used to simulate the pressure between the engine and the compressor.
+				//I should make the whole turbo code work this way. -Max98
+				if (b_BOV)
+				{
+					
+					if (curBOVTurboRPM[i] < curTurboRPM[i])
+						turboBOVtorque += 1.5f * acc * (((curEngineRPM) / (maxRPM)));
+					else
+						turboBOVtorque += 0.07f * (((curEngineRPM) / (maxRPM)));
+
+
+					if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000) 
+					{
+						SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
+						curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
+					}
+					else
+					{
+						SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
+						if (curBOVTurboRPM[i] < curTurboRPM[i])
+							curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
+						else
+							curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
+					}	
+				}
 			}
 		}
 	}
@@ -805,7 +831,12 @@ void BeamEngine::setAcc(float val)
 
 float BeamEngine::getTurboPSI()
 {
-	turboPSI = 0;
+	if (turbomode == OLD)
+	{
+		return curTurboRPM[0] / 10000.0f;
+	}
+
+	float turboPSI = 0;
 
 	if (b_BOV)
 	{
@@ -1144,7 +1175,7 @@ float BeamEngine::getEnginePower(float rpm)
 		tqValue = torqueCurve->getEngineTorque(rpmRatio);
 	}
 
-	if (hasturbo)
+	if (hasturbo && turbomode == NEW)
 	{
 		if (turboVer == 1)
 		{

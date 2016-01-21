@@ -5408,7 +5408,7 @@ void Beam::updateDashBoards(float &dt)
 
 		if (hasEngine)
 		{
-			hasturbo = engine->hasturbo;
+			hasturbo = engine->hasTurbo();
 			autogearVisible = (engine->getAutoShift() != BeamEngine::MANUALMODE);
 		}
 
