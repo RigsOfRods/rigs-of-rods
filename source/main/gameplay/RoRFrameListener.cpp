@@ -171,7 +171,7 @@ RoRFrameListener::RoRFrameListener() :
 	hidegui(false),
 	loading_state(NONE_LOADED),
 	mStatsOn(0),
-	mLastSimulationSpeed(0.01f),
+	mLastSimulationSpeed(0.1f),
 	mTimeUntilNextToggle(0),
 	mTruckInfoOn(false),
 	netChat(0),
