@@ -19,12 +19,19 @@ before_install:
   
   # update Boost to fix C++11 bug
   - sudo apt-get install -qq libboost1.55-all-dev
+  
+  # Provide newer Doxygen version
+  - sudo add-apt-repository ppa:libreoffice/ppa -y
+  - sudo apt-get update -qq
 
 install:
   - ./tools/travis/linux/dependencies.sh
 
 script:
   - ./tools/travis/linux/build.sh
+
+after_success:
+- bash ./tools/travis/linux/build_and_deploy_docs.sh
 
 notifications:
   irc:
