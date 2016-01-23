@@ -4,7 +4,7 @@ set -o nounset
 
 # Decode and install the ssh private key which provides access to the
 # ror-documentation repository.
-openssl aes-256-cbc -K $encrypted_60d08e33f760_key -iv $encrypted_60d08e33f760_iv -in tools/travis/linux/deploy_key.enc -out ~/.ssh/id_rsa -d
+openssl aes-256-cbc -K $encrypted_deploy_key_key -iv $encrypted_deploy_key_iv -in tools/travis/linux/deploy_key.enc -out ~/.ssh/id_rsa -d
 chmod 600 ~/.ssh/id_rsa
 
 

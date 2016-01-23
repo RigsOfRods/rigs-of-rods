@@ -25,13 +25,14 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - ./tools/travis/linux/dependencies.sh
+  - sudo apt-get install doxygen graphviz
+    #- ./tools/travis/linux/dependencies.sh
 
 script:
   - ./tools/travis/linux/build.sh
 
 after_success:
-- bash ./tools/travis/linux/build_and_deploy_docs.sh
+- bash ./tools/travis/linux/deploy_docs.sh
 
 notifications:
   irc:
