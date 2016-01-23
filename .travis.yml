@@ -31,7 +31,7 @@ script:
   - ./tools/travis/linux/build.sh
 
 after_success:
-- bash ./tools/travis/linux/build_and_deploy_docs.sh
+- bash ./tools/travis/linux/deploy_docs.sh
 
 notifications:
   irc:
