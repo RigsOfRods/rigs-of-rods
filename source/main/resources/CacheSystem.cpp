@@ -1501,6 +1501,9 @@ Ogre::String CacheSystem::detectFilesMiniType(String filename)
 
 	if (resourceExistsInAllGroups(filename+".png"))
 		return "png";
+	
+	if (resourceExistsInAllGroups(filename+".jpg"))
+		return "jpg";
 
 	return "none";
 }
@@ -1777,7 +1780,7 @@ String CacheSystem::filenamesSHA1()
 					bool vipfile = false;
 					for (std::vector<Ogre::String>::iterator sit=known_extensions.begin();sit!=known_extensions.end();sit++)
 					{
-						if ((iterFiles->filename.find("."+*sit) != String::npos && iterFiles->filename.find(".dds") == String::npos && iterFiles->filename.find(".png") == String::npos)
+						if ((iterFiles->filename.find("."+*sit) != String::npos && iterFiles->filename.find(".dds") == String::npos && iterFiles->filename.find(".png") == String::npos && iterFiles->filename.find(".jpg") == String::npos)
 						 || (iterFiles->filename.find(".zip") != String::npos))
 						{
 							vipfile = true;
