@@ -638,18 +638,19 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	BES_START(BES_CORE_Wheels);
 
 	// driving aids traction control & anti-lock brake pulse
-	tcalb_timer += dt;
-	if (tcalb_timer >= 25.0f)
+	tc_timer  += dt;
+	alb_timer += dt;
+
+	if (alb_timer >= alb_pulse_time)
 	{
-		tcalb_timer = 0.0f;
+		alb_timer = 0.0f;
+		alb_pulse_state = !alb_pulse_state;
 	}
-
-	unsigned int timer = (int)(tcalb_timer * 2000.0f);
-	if (!(timer % tc_pulse)) tc_pulse_state = !tc_pulse_state;
-	if (!(timer % alb_pulse)) alb_pulse_state = !alb_pulse_state;
-
-	tc_pulse_state = std::max(tc_pulse == 1, tc_pulse_state);
-	alb_pulse_state = std::max(alb_pulse == 1, alb_pulse_state);
+	if (tc_timer >= tc_pulse_time)
+	{
+		tc_timer = 0.0f;
+		tc_pulse_state = !tc_pulse_state;
+	}
 
 	bool tc_active = false;
 	bool alb_active = false;
@@ -675,8 +676,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			total_torque = (free_axle == 0) ? engine_torque : intertorque[i];
 		}
 
-		// braking
-		// ignore all braking code if the current wheel is not braked...
 		if (wheels[i].braked)
 		{
 			// handbrake
@@ -696,101 +695,57 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				dbrake = brakeforce * abs(hydrodirstate);
 			}
 
-			if ((brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && braked_wheels != 0)
+			if ((brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && braked_wheels != 0 && fabs(wheels[i].speed) > 0.0f)
 			{
-				if (curspeed > 1.5f)
+				float brake_coef = 1.0f;
+				float antilock_coef = 1.0f;
+				// anti-lock braking
+				if (alb_mode && alb_pulse_state && (brake > 0.0f || dbrake > 0.0f) && curspeed > fabs(wheels[i].speed) && curspeed > alb_minspeed)
 				{
-					float antilock_coef = 1.0f;
-					wheels[i].firstLock = false;
-					if (alb_mode && alb_pulse_state && curspeed > alb_minspeed)
-					{
-						antilock_coef = fabs(wheels[i].speed) / curspeed;
-						antilock_coef = pow(antilock_coef, alb_ratio);
-
-						// limit brakeforce when wheels are in the air
-						antilock_coef = std::min(antilock_coef, 5.0f);
-
-						alb_active = std::max(alb_active, (antilock_coef < 0.9));
-					}
-					// don't use to antilock_coef for handbrake
-					if (wheels[i].speed > 0)
-						total_torque -= brake * antilock_coef + dbrake * antilock_coef + hbrake;
-					else
-						total_torque += brake * antilock_coef + dbrake * antilock_coef + hbrake;
-
-					if (antilock_coef >= 1.0f && antilockbrake)
-					{
-						antilockbrake = !antilockbrake;
-					}
-				} else
-				{
-					if (fabs(wheels[i].speed) > 0.0f)
-					{
-						total_torque -= (wheels[i].speed/fabs(wheels[i].speed))*(brake + dbrake + hbrake);
-					}
-					// new halt position brake
-					if (slopeBrake)
-					{
-						if  (!wheels[i].firstLock)
-						{
-							// first time here after a brake was attached, store the wheels rotation vector
-							wheels[i].firstLock = true;
-							wheels[i].lastRotationVec = fast_normalise(wheels[i].refnode0->RelPosition-wheels[i].nodes[0]->RelPosition);
-						} else
-						{
-							// second time here after a brake was attached, determine offset angle the wheel has from last stored vector
-							Vector3 lastwheelposition = wheels[i].lastRotationVec;
-							Vector3 wheelposition = fast_normalise(wheels[i].refnode0->RelPosition-wheels[i].nodes[0]->RelPosition);
-							Radian anglerad = wheelposition.angleBetween(lastwheelposition);
-							float angle = anglerad.valueDegrees();
-
-							// and now turn the wheel gently back into the stored position
-							if (angle)
-							{
-								Vector3 dirv = (nodes[cameranodepos[0]].RelPosition-nodes[cameranodedir[0]].RelPosition).normalisedCopy();
-								Degree pitchangle = Radian(asin(dirv.dotProduct(Vector3::UNIT_Y)));
-
-								// avoid auto rotating the wheel, especially when steering while slopebraking
-								if (angle > slopeBrakeRelAngle)
-								{
-									wheels[i].firstLock = false;
-								}
-								if (angle > slopeBrakeAttAngle)
-								{
-									float slopetorque = pow(angle - slopeBrakeAttAngle, slopeBrakeFactor);
-									slopetorque = std::min(slopetorque, brakeforce * 2.0f);
-
-									if (pitchangle > Degree(1))       // we are rolling back
-										total_torque += slopetorque;
-									else if (pitchangle < Degree(-1)) // we are rolling forth
-										total_torque -= slopetorque;
-								}
-							}
-						}
-					}
+					antilock_coef = fabs(wheels[i].speed) / curspeed;
+					antilock_coef = pow(antilock_coef, alb_ratio);
+					alb_active = (antilock_coef < 0.9);
 				}
-			} else
-			{
-				// all brakes are released, reset slopebrake firstLock
-				wheels[i].firstLock = false;
+				if (fabs(wheels[i].speed) < 1.0f)
+				{
+					if (currentAcc > 0.1f || wheels[i].firstLock)
+					{
+						wheels[i].avgSpeed = 0.0f;
+						wheels[i].firstLock = false;
+					}
+					// anti-jitter
+					if (fabs(wheels[i].avgSpeed) < 2.0f)
+					{
+						brake_coef = pow(fabs(wheels[i].speed), 2.0f);
+					} else 
+					{
+						brake_coef = pow(fabs(wheels[i].speed), 0.5f);
+					}
+					// anti-skidding
+					wheels[i].avgSpeed += wheels[i].speed;
+					wheels[i].avgSpeed = std::max(-10.0f, std::min(wheels[i].avgSpeed, 10.0f));
+					float speed_diff = wheels[i].speed - wheels[i].lastSpeed;
+					float speed_prediction = wheels[i].speed + 0.5f * speed_diff;
+					if (speed_prediction * wheels[i].avgSpeed < 0.0f)
+					{
+						brake_coef = 0.0f;
+					}
+				} else {
+					wheels[i].firstLock = true;
+				}
+
+				if (wheels[i].speed > 0)
+					total_torque -= ((brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+				else
+					total_torque += ((brake + dbrake) * antilock_coef + hbrake) * brake_coef;
 			}
-			// the truck is still sliding and the brake might not locked the wheel yet (pbrake at high speed?)
-			// or the accelerator is pressed
-			// or the antilockbrake is still active
-			// -> reset firstlock
-			if (fabs(curspeed) > 0.75f || currentAcc > 0.0f || alb_active)
-			{
-				wheels[i].firstLock = false;
-			}
-			// reset alb_actibve after firstLock check!
-			if (hbrake != 0.0)
-			{
-				alb_active = false;
-			}
+		} else
+		{
+			wheels[i].firstLock = true;
 		}
 
-		// traction control, ignore tc code if wheel is not propulsed or accelerator is pressed
-		if (wheels[i].propulsed > 0 && tc_mode && tc_pulse_state && currentAcc > 0.0f)
+		// traction control
+		if (tc_mode && tc_pulse_state && wheels[i].propulsed > 0 && currentAcc > 0.0f && fabs(wheels[i].speed) > curspeed)
 		{
 			curspeed = std::max(0.5f, curspeed);
 
@@ -798,15 +753,13 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			float wheelslip = 1.0f + tc_wheelslip;
 			// wheelslip allowed doubles up to tc_fade, a tribute to RoRs wheelspeed calculation and friction
 			wheelslip += tc_wheelslip * (curspeed / tc_fade);
-			// add wheelslip as activation offset
-			float torque_coef = (curspeed * wheelslip) / fabs(wheels[i].speed);
 
-			if (torque_coef < 1.0f)
+			if (fabs(wheels[i].speed) > curspeed * wheelslip)
 			{
+				float torque_coef = (curspeed * wheelslip) / fabs(wheels[i].speed);
 				torque_coef = pow(torque_coef, tc_ratio);
 				total_torque *= torque_coef;
-
-				tc_active = std::max(tc_active, torque_coef < 0.9f);
+				tc_active = (torque_coef < 0.9f);
 			}
 		}
 
@@ -919,6 +872,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	for (int i=0; i<free_wheel; i++)
 	{
+		wheels[i].lastSpeed = wheels[i].speed;
 		wheels[i].speed = newspeeds[i];
 	}
 	if (proped_wheels)

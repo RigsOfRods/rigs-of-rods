@@ -343,11 +343,11 @@ void RigSpawner::InitializeRig()
 	m_rig->alb_minspeed = 0.0f;
 	m_rig->alb_mode = 0;
 	m_rig->alb_notoggle = false;
-	m_rig->alb_notoggle = false;
 	m_rig->alb_present = false;
-	m_rig->alb_pulse = 1;
+	m_rig->alb_pulse_time = 2000.0f;
 	m_rig->alb_pulse_state = false;
 	m_rig->alb_ratio = 0.0f;
+	m_rig->alb_timer = 0.0f;
 	m_rig->animTimer = 0.0f;
 	m_rig->antilockbrake = 0;
 
@@ -377,12 +377,13 @@ void RigSpawner::InitializeRig()
 
 	m_rig->tc_fade = 0.f;
 	m_rig->tc_mode = 0;
+	m_rig->tc_notoggle = false;
 	m_rig->tc_present = false;
-	m_rig->tc_pulse = 1;
+	m_rig->tc_pulse_time = 2000.0f;
 	m_rig->tc_pulse_state = false;
 	m_rig->tc_ratio = 0.f;
 	m_rig->tc_wheelslip = 0.f;
-	m_rig->tcalb_timer = 0.f;
+	m_rig->tc_timer = 0.f;
 
 	m_rig->tractioncontrol = 0;
 
@@ -5695,12 +5696,9 @@ void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 	float pulse = def.pulse_per_sec;
 	if (pulse <= 1.0f || pulse >= 2000.0f)
 	{
-		m_rig->tc_pulse = 1;
+		pulse = 2000.0f;
 	} 
-	else
-	{
-		m_rig->tc_pulse = static_cast <unsigned int> (2000.f / std::fabs(pulse));
-	}
+	m_rig->tc_pulse_time = 1 / pulse;
 
 	/* #5: mode */
 	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_ON))
@@ -5749,12 +5747,9 @@ void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 	float pulse = def.pulse_per_sec;
 	if (pulse <= 1.0f || pulse >= 2000.0f)
 	{
-		m_rig->alb_pulse = 1;
+		pulse = 2000.0f;
 	} 
-	else
-	{
-		m_rig->alb_pulse = static_cast <unsigned int> (2000.f / std::fabs(pulse));
-	}
+	m_rig->alb_pulse_time = 1 / pulse;
 
 	/* #4: mode */
 	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_ON))

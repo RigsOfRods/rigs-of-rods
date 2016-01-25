@@ -146,7 +146,7 @@ struct rig_t
 	float alb_ratio;        //!< Anti-lock brake attribute: Regulating force
 	float alb_minspeed;     //!< Anti-lock brake attribute;
 	int alb_mode;           //!< Anti-lock brake status; Enabled? {1/0}
-	unsigned int alb_pulse; //!< Anti-lock brake attribute;
+	float alb_pulse_time;   //!< Anti-lock brake attribute;
 	bool alb_pulse_state;   //!< Anti-lock brake status;
 	bool alb_present;       //!< Anti-lock brake attribute: Display the dashboard indicator?
 	bool alb_notoggle;      //!< Anti-lock brake attribute: Disable in-game toggle?
@@ -154,11 +154,12 @@ struct rig_t
 	float tc_wheelslip;
 	float tc_fade;
 	int tc_mode;           //!< Traction control status; Enabled? {1/0}
-	unsigned int tc_pulse; //!< Traction control attribute;
+	float tc_pulse_time;   //!< Traction control attribute;
 	bool tc_pulse_state;
 	bool tc_present;       //!< Traction control attribute; Display the dashboard indicator?
 	bool tc_notoggle;      //!< Traction control attribute; Disable in-game toggle?
-	float tcalb_timer;
+	float tc_timer;
+	float alb_timer;
 	int antilockbrake;
 	int tractioncontrol;
 	float animTimer;
