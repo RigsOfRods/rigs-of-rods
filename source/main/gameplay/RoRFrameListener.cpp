@@ -681,7 +681,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * 1.003;
 					BeamFactory::getSingleton().setSimulationSpeed(simulation_speed);
 #ifdef USE_MYGUI
-					String ssmsg = _L("New simulation speed: ") + TOSTRING(floor(simulation_speed * 1000.0f) / 10.0f) + "%";
+					String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
 					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
 					RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
@@ -691,7 +691,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * 0.997;
 					BeamFactory::getSingleton().setSimulationSpeed(simulation_speed);
 #ifdef USE_MYGUI
-					String ssmsg = _L("New simulation speed: ") + TOSTRING(floor(simulation_speed * 1000.0f) / 10.0f) + "%";
+					String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
 					RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
 					RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
@@ -712,7 +712,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					{
 						BeamFactory::getSingleton().setSimulationSpeed(mLastSimulationSpeed);
 #ifdef USE_MYGUI
-						String ssmsg = _L("New simulation speed: ") + TOSTRING(floor(mLastSimulationSpeed * 1000.0f) / 10.0f) + "%";
+						String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(mLastSimulationSpeed * 100.0f, 1)) + "%";
 						RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
 						RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
