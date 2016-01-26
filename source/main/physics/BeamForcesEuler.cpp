@@ -708,7 +708,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				}
 				if (fabs(wheels[i].speed) < 1.0f)
 				{
-					if (currentAcc > 0.1f || wheels[i].firstLock)
+					if (wheels[i].firstLock)
 					{
 						wheels[i].avgSpeed = 0.0f;
 						wheels[i].firstLock = false;
