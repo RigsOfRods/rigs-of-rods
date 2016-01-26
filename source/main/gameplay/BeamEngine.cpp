@@ -762,19 +762,20 @@ void BeamEngine::update(float dt, int doUpdate)
 
 void BeamEngine::updateAudio(int doUpdate)
 {
+	if (!doUpdate) return;
 #ifdef USE_OPENAL
 	if (hasturbo)
 	{
 		for (int i = 0; i < numTurbos; i++)
-			 SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM[i]);
+		{
+			 SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM[i] / 100.0f);
+		}
 	}
 
-	if (doUpdate)
-	{
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, curEngineRPM);
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TORQUE, curClutchTorque);
-		SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_GEARBOX, curWheelRevolutions);
-	}
+	SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, curEngineRPM);
+	SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TORQUE, curClutchTorque);
+	SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_GEARBOX, curWheelRevolutions);
+
 	// reverse gear beep
 	if (curGear == -1 && running)
 	{
