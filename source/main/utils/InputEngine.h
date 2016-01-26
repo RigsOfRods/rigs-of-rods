@@ -279,6 +279,8 @@ enum events
 	EV_SURVEY_MAP_ZOOM_OUT, //!< decrease survey map scale
 
 	EV_TRUCK_ACCELERATE, //!< accelerate the truck
+	EV_TRUCK_ACCELERATE_MODIFIER_25, //!< accelerate with 25 percent pedal input
+	EV_TRUCK_ACCELERATE_MODIFIER_50, //!< accelerate with 50 percent pedal input
 	EV_TRUCK_ANTILOCK_BRAKE, //!< toggle antilockbrake system
 	EV_TRUCK_AUTOSHIFT_DOWN, //!< shift automatic transmission one gear down
 	EV_TRUCK_AUTOSHIFT_UP, //!< shift automatic transmission one gear up
@@ -286,6 +288,8 @@ enum events
 	EV_TRUCK_BLINK_RIGHT, //!< toggle right direction indicator (blinker)
 	EV_TRUCK_BLINK_WARN, //!< toggle all direction indicators
 	EV_TRUCK_BRAKE, //!< brake
+	EV_TRUCK_BRAKE_MODIFIER_25, //!< brake with 25 percent pedal input
+	EV_TRUCK_BRAKE_MODIFIER_50, //!< brake with 50 percent pedal input
 	EV_TRUCK_CRUISE_CONTROL, //!< toggle cruise control
 	EV_TRUCK_CRUISE_CONTROL_ACCL,//!< increase target speed / rpm
 	EV_TRUCK_CRUISE_CONTROL_DECL,//!< decrease target speed / rpm
