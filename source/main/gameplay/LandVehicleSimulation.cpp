@@ -178,6 +178,36 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 			float accl  = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
 			float brake = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
 
+			if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25) ||
+				RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+			{
+				float acclModifier = 0.0f;
+				if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_25))
+				{
+					acclModifier += 0.25f;
+				}
+				if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE_MODIFIER_50))
+				{
+					acclModifier += 0.50f;
+				}
+				accl *= acclModifier;
+			}
+
+			if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25) ||
+				RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+			{
+				float brakeModifier = 0.0f;
+				if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_25))
+				{
+					brakeModifier += 0.25f;
+				}
+				if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE_MODIFIER_50))
+				{
+					brakeModifier += 0.50f;
+				}
+				brake *= brakeModifier;
+			}
+
 			// arcade controls are only working with auto-clutch!
 			if (!arcadeControls || curr_truck->engine->getAutoMode() > BeamEngine::SEMIAUTO)
 			{

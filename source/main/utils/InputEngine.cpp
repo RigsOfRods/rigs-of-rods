@@ -1196,6 +1196,18 @@ eventInfo_t eventInfo[] = {
 		_L("accelerate the truck")
 	},
 	{
+		"TRUCK_ACCELERATE_MODIFIER_25",
+		EV_TRUCK_ACCELERATE_MODIFIER_25,
+		"Keyboard ALT+UP",
+		_L("accelerate with 25 percent pedal input")
+	},
+	{
+		"TRUCK_ACCELERATE_MODIFIER_50",
+		EV_TRUCK_ACCELERATE_MODIFIER_50,
+		"Keyboard CTRL+UP",
+		_L("accelerate with 50 percent pedal input")
+	},
+	{
 		"TRUCK_AUTOSHIFT_DOWN",
 		EV_TRUCK_AUTOSHIFT_DOWN,
 		"Keyboard PGDOWN",
@@ -1230,6 +1242,18 @@ eventInfo_t eventInfo[] = {
 		EV_TRUCK_BRAKE,
 		"Keyboard DOWN",
 		_L("brake")
+	},
+	{
+		"TRUCK_BRAKE_MODIFIER_25",
+		EV_TRUCK_BRAKE_MODIFIER_25,
+		"Keyboard ALT+DOWN",
+		_L("brake with 25 percent pedal input")
+	},
+	{
+		"TRUCK_BRAKE_MODIFIER_50",
+		EV_TRUCK_BRAKE_MODIFIER_50,
+		"Keyboard CTRL+DOWN",
+		_L("brake with 50 percent pedal input")
 	},
 	{
 		"TRUCK_HORN",
