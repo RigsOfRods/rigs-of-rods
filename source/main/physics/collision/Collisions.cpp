@@ -911,6 +911,8 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 	float minctridist=100.0;
 	Vector3 minctripoint;
 
+	bool isScriptCallbackEnvoked = false;
+
 	for (k=0; k<cell->size(); k++)
 	{
 		if ((*cell)[k] != (int)UNUSED_CELLELEMENT && (*cell)[k]<MAX_COLLISION_BOXES)
@@ -935,6 +937,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 					if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
 					{
 						envokeScriptCallback(cbox);
+						isScriptCallbackEnvoked = true;
 					}
 					if (cbox->camforced && !forcecam)
 					{
@@ -966,6 +969,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 				if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
 				{
 					envokeScriptCallback(cbox);
+					isScriptCallbackEnvoked = true;
 				}
 				if (cbox->camforced && !forcecam)
 				{
@@ -1000,7 +1004,10 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 			}
 		}
 	}
-		
+
+	if (!isScriptCallbackEnvoked)
+		clearEventCache();
+
 	// process minctri collision
 	if (minctri)
 	{
