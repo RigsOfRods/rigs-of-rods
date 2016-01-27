@@ -449,7 +449,15 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 		// Set
 		t.categoryid = StringConverter::parseInt(params[1]);
 		category_usage[t.categoryid] = category_usage[t.categoryid] + 1;
-		t.categoryname=categories[t.categoryid].title;
+		if (categories.find(t.categoryid) != categories.end())
+		{
+			t.categoryname = categories[t.categoryid].title;
+		}
+		else
+		{
+			t.categoryid = -1;
+			t.categoryname = "Unsorted";
+		}
 	}
 	else if (attrib == "uniqueid")
 	{
