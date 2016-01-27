@@ -53,7 +53,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 			float accl = (curr_truck->cc_target_speed - curr_truck->WheelSpeed) * 2.0f;
 			accl = std::max(curr_truck->engine->getAcc(), accl);
 			accl = std::min(accl, 1.0f);
-			curr_truck->engine->setAcc(accl);
+			curr_truck->engine->autoSetAcc(accl);
 		}
 	} else if (curr_truck->engine->getGear() == 0) // out of gear
 	{
@@ -63,7 +63,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 			float accl = (curr_truck->cc_target_rpm - curr_truck->engine->getRPM()) * 0.01f;
 			accl = std::max(curr_truck->engine->getAcc(), accl);
 			accl = std::min(accl, 1.0f);
-			curr_truck->engine->setAcc(accl);
+			curr_truck->engine->autoSetAcc(accl);
 		}
 	}
 
