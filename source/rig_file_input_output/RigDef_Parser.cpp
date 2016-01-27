@@ -755,28 +755,7 @@ void Parser::ParseLine(Ogre::String const & line)
 	if (new_section != File::SECTION_INVALID)
 	{
 		/* Exit sections */
-		if (m_current_section == File::SECTION_SUBMESH)
-		{
-			m_current_module->submeshes.push_back(*m_current_submesh);
-			m_current_submesh.reset();
-			m_current_subsection = File::SUBSECTION_NONE;
-		}
-		else if (m_current_section == File::SECTION_CAMERA_RAIL)
-		{
-			if (m_current_camera_rail->nodes.size() == 0)
-			{
-				AddMessage(line, Message::TYPE_WARNING, "Empty section 'camerarail', ignoring...");
-			}
-			else
-			{
-				m_current_module->camera_rails.push_back(*m_current_camera_rail);
-				m_current_camera_rail.reset();
-			}
-		}
-		else if (m_current_section == File::SECTION_FLEXBODIES)
-		{
-			m_current_subsection = File::SUBSECTION_NONE;
-		}
+		_ExitSections(line);
 		
 		/* Enter sections */
 		if (new_section == File::SECTION_SUBMESH)
@@ -6044,13 +6023,37 @@ void Parser::Prepare()
     m_messages_num_other = 0;
 }
 
-void Parser::Finalize()
+void Parser::_ExitSections(Ogre::String const & line)
 {
 	if (m_current_submesh != nullptr)
 	{
 		m_current_module->submeshes.push_back(*m_current_submesh);
 		m_current_submesh.reset(); // Set to nullptr
+		m_current_subsection = File::SUBSECTION_NONE;
 	}
+
+	if (m_current_camera_rail != nullptr)
+	{
+		if (m_current_camera_rail->nodes.size() == 0)
+		{
+			AddMessage(line, Message::TYPE_WARNING, "Empty section 'camerarail', ignoring...");
+		}
+		else
+		{
+			m_current_module->camera_rails.push_back(*m_current_camera_rail);
+			m_current_camera_rail.reset();
+		}
+	}
+	if (m_current_section == File::SECTION_FLEXBODIES)
+	{
+		m_current_subsection = File::SUBSECTION_NONE;
+	}
+}
+
+void Parser::Finalize()
+{
+	Ogre::String line;
+    _ExitSections(line);
 
     if (m_sequential_importer.IsEnabled())
     {

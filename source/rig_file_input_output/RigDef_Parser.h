@@ -398,6 +398,8 @@ protected:
 
 	void SetCurrentModule(Ogre::String const & name);
 
+	void _ExitSections(Ogre::String const & line);
+
 	void RestoreRootModule();
 
 	bool _IsCurrentModuleRoot()
