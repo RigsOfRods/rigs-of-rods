@@ -330,7 +330,11 @@ struct sort_cats {
 template <typename T1>
 struct sort_entries {
 	bool operator ()(CacheEntry const& a, CacheEntry const& b) const {
-		return a.dname < b.dname;
+		Ogre::String first = a.dname;
+		Ogre::String second = b.dname;
+		Ogre::StringUtil::toLowerCase(first);
+		Ogre::StringUtil::toLowerCase(second);
+		return first < second;
 	}
 };
 
