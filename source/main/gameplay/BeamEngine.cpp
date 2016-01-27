@@ -189,12 +189,22 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 	clutchForce = eclutch;
 
 	if (ctime > 0)  clutchTime = ctime;
-	if (pstime > 0) post_shift_time = pstime;
 	if (stime > 0)  shift_time = stime;
+	if (pstime > 0) post_shift_time = pstime;
 	if (irpm > 0) idleRPM = irpm;
 	if (srpm > 0) stallRPM = srpm;
 	if (maximix > 0) maxIdleMixture = maximix;
 	if (minimix > 0) minIdleMixture = minimix;
+
+	clutchTime = std::max(0.0f, clutchTime);
+	shift_time = std::max(0.0f, shift_time);
+	post_shift_time = std::max(0.0f, post_shift_time);
+
+	clutchTime = std::min(clutchTime, shift_time * 0.9f);
+
+	idleRPM = std::max(0.0f, idleRPM);
+	stallRPM = std::max(0.0f, stallRPM);
+	stallRPM = std::min(idleRPM, stallRPM);
 
 	if (etype == 'c')
 	{
@@ -465,7 +475,7 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (curGear)
 	{
 		float gearboxspinner = curEngineRPM / gearsRatio[curGear + 1];
-		curClutchTorque = (gearboxspinner - curWheelRevolutions) * curClutch * curClutch * clutchForce;
+		curClutchTorque = (gearboxspinner - curWheelRevolutions) * curClutch * clutchForce;
 	} else
 	{
 		curClutchTorque = 0.0f;
@@ -476,102 +486,100 @@ void BeamEngine::update(float dt, int doUpdate)
 	if (automode < MANUAL)
 	{
 		// auto-shift
-		if (shifting && !is_Electric) //No shifting in electric cars
+		if (shifting)
 		{
 			shiftclock += dt;
 
-			// clutch
-			if (shiftclock < clutchTime)
+			if (shiftval)
 			{
-				curClutch = 1.0f - (shiftclock / clutchTime);
-			} else if (shiftclock > (shift_time - clutchTime))
-			{
-				curClutch = 1.0f - (shift_time - shiftclock) / clutchTime;
-			} else
-			{
-				curClutch = 0.0f;
-			}
-
-			// shift
-			if (shiftval && shiftclock > clutchTime / 2.0f)
-			{
+				float declutchTime = std::min(shift_time - clutchTime, clutchTime);
+				if (shiftclock <= declutchTime)
+				{
+					// depress the clutch 
+					float ratio = pow(1.0f - (shiftclock / declutchTime), 2);
+					curClutch = std::min(ratio, curClutch);
+					curAcc = std::min(ratio, autocurAcc);
+				} else
+				{
+					// engage a gear
 #ifdef USE_OPENAL
-				SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
+					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-				curGear += shiftval;
-				curGear = std::max(-1, curGear);
-				curGear = std::min(curGear, numGears);
-				shiftval = 0;
+					curGear += shiftval;
+					curGear = std::max(-1, curGear);
+					curGear = std::min(curGear, numGears);
+					shiftval = 0;
+				}
 			}
 
-			// end of shifting
 			if (shiftclock > shift_time)
 			{
+				// we're done shifting
 #ifdef USE_OPENAL
 				SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
 				setAcc(autocurAcc);
 				shifting = 0;
-				curClutch = 1.0f;
 				postshifting = 1;
 				postshiftclock = 0.0f;
+			} else if (!shiftval && curGear && shiftclock >= (shift_time - clutchTime))
+			{
+				// release the clutch <-- Done below
 			}
 		}
 
-		// auto declutch
-		if (!is_Electric)
+		if (postshifting)
 		{
-			if (postshifting)
+			postshiftclock += dt;
+			if (postshiftclock > post_shift_time)
 			{
-				postshiftclock += dt;
-				if (postshiftclock > post_shift_time)
-				{
-					postshifting = 0;
-				}
-			}
-			if (shifting)
+				postshifting = 0;
+			} else if (autocurAcc > 0.0f)
 			{
-				// we are shifting, just avoid stalling in worst case
-				if (curEngineRPM < stallRPM * 1.2f)
-				{
-					curClutch = 0.0f;
-				}
-			}
-			else if (postshifting)
+				float ratio = sqrt(postshiftclock / post_shift_time);
+				curAcc = std::min(ratio, autocurAcc);
+			} else
 			{
-				// we are postshifting, no gear change
-				if (curEngineRPM < stallRPM * 1.2f && acc < 0.5f)
-				{
-					curClutch = 0.0f;
-				}
-				else
-				{
-					curClutch = 1.0f;
-				}
+				float ratio = sqrt(postshiftclock / post_shift_time);
+				curClutch = std::max(curClutch, ratio);
 			}
-			else if (curEngineRPM < stallRPM * 1.2f && acc < 0.5f)
+		}
+
+		// auto clutch
+		float declutchRPM = std::min(stallRPM * 1.2f, (minRPM + stallRPM) / 2.0f);
+		if (curGear == 0 || curEngineRPM < declutchRPM)
+		{
+			curClutch = 0.0f;
+		} else if (curEngineRPM < minRPM && minRPM > declutchRPM)
+		{
+			float clutch = (curEngineRPM - declutchRPM) / (minRPM - declutchRPM);
+			curClutch = std::min(clutch * clutch, curClutch);
+		} else if (!shiftval && curEngineRPM > minRPM && curClutch < 1.0f)
+		{
+			float range = (maxRPM - minRPM);
+			float tAcc = std::max(0.2f, acc);
+			if (abs(curGear) == 1)
 			{
-				curClutch = 0.0f;
-			}
-			else if (std::abs(curGear) == 1)
+				range *= 0.8f * sqrt(tAcc);
+			} else 
 			{
-				// 1st gear : special
-				if (curEngineRPM > minRPM)
-				{
-					curClutch = (curEngineRPM - minRPM) / (maxRPM - minRPM);
-					curClutch = std::min(curClutch, 1.0f);
-				}
-				else
-				{
-					curClutch = 0.0f;
-				}
+				range *= 0.4f * sqrt(tAcc);
 			}
-			else
-			{
-				curClutch = 1.0f;
-			}
-		} else
-			curClutch = 1.0f;
+			float powerRatio = std::min((curEngineRPM - minRPM) / range, 1.0f);
+			float enginePower = getEnginePower(curEngineRPM) * tAcc * powerRatio;
+
+			float gearboxspinner = curEngineRPM / gearsRatio[curGear + 1];
+			float clutchTorque = (gearboxspinner - curWheelRevolutions) * clutchForce;
+			float reTorque = clutchTorque / gearsRatio[curGear + 1];
+
+			float torqueDiff = std::min(enginePower * 0.9f, std::abs(reTorque));
+			float newClutch = torqueDiff * gearsRatio[curGear + 1] / ((gearboxspinner - curWheelRevolutions) * clutchForce);
+
+			curClutch = std::max(curClutch, newClutch);
+		}
+
+		curClutch = std::max(0.0f, curClutch);
+		curClutch = std::min(curClutch, 1.0f);
 	}
 
 	if (doUpdate && !shifting && !postshifting)
@@ -1041,13 +1049,9 @@ void BeamEngine::shift(int val)
 	if (!val || curGear + val < -1 || curGear + val > getNumGears()) return;
 	if (automode < MANUAL)
 	{
-#ifdef USE_OPENAL
-		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
 		shiftval = val;
 		shifting = 1;
 		shiftclock = 0.0f;
-		setAcc(0.0f);
 	} else
 	{
 		if (curClutch > 0.25f)
