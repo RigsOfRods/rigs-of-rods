@@ -592,16 +592,16 @@ void BeamEngine::update(float dt, int doUpdate)
 			refWheelRevolutions = velocity / truck->wheels[0].radius * RAD_PER_SEC_TO_RPM;
 		}
 
-		if (automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
+		if (!is_Electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
 		{
 			if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
 			{
-				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears)) && !is_Electric)
+				if ((autoselect == DRIVE && curGear < numGears) || (autoselect == TWO && curGear < std::min(2, numGears)))
 				{
 					shift(1);
 				}
 			} else if (curGear > 1 && refWheelRevolutions * gearsRatio[curGear] < maxRPM && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
-				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear + 1]))) && !is_Electric)
+				getEnginePower(curWheelRevolutions * gearsRatio[curGear]) > getEnginePower(curWheelRevolutions * gearsRatio[curGear + 1]))))
 			{
 				shift(-1);
 			}
@@ -648,90 +648,79 @@ void BeamEngine::update(float dt, int doUpdate)
 			avgAcc200 /= accs.size();
 			avgBrake200 /= brakes.size();
 
-			if (!is_Electric)
+			if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
 			{
-
-				if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
-				{
-					shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
-				}
-				else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5 )
-				{
-					shiftBehaviour /= 1.01;
-				}
-			
-
-				if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
-				{
-					while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
-					{
-						newGear--;
-					}
-				} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
-				{
-					if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
-					{
-						newGear--;
-					}
-				} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
-				{
-					if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
-						getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
-					{
-						newGear--;
-					}
-				}
-				else if (curGear < (autoselect == TWO ? std::min(2, numGears) : numGears) &&
-					avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
-				{
-					if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
-					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
-						{
-							newGear++;
-						}
-					}
-					else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
-					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
-						{
-							newGear++;
-						}
-					}
-					else if (avgAcc200 < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
-					{
-						if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
-						{
-							newGear++;
-						}
-					}
-
-					if (newGear > curGear)
-					{
-						upShiftDelayCounter++;
-						if (upShiftDelayCounter <= 100 * shiftBehaviour)
-						{
-							newGear = curGear;
-						}
-					}
-					else
-					{
-						upShiftDelayCounter = 0;
-					}
-				}
-				if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
-					newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f && !is_Electric)
-				{
-					if (absVelocity - relVelocity < 0.5f)
-						shiftTo(newGear);
-				}
+				shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
+			} else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5 )
+			{
+				shiftBehaviour /= 1.01;
 			}
 
+			if (avgAcc50 > 0.8f && curEngineRPM < maxRPM - oneThirdRPMRange)
+			{
+				while (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < maxRPM - oneThirdRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+				{
+					newGear--;
+				}
+			} else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+			{
+				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + halfRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+				{
+					newGear--;
+				}
+			} else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && curEngineRPM < minRPM + halfRPMRange)
+			{
+				if (newGear > 1 && curWheelRevolutions * gearsRatio[newGear] < minRPM + oneThirdRPMRange &&
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear])   * gearsRatio[newGear] >
+					getEnginePower(curWheelRevolutions * gearsRatio[newGear+1]) * gearsRatio[newGear+1])
+				{
+					newGear--;
+				}
+			} else if (curGear < (autoselect == TWO ? std::min(2, numGears) : numGears) &&
+				avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && curEngineRPM > avgRPM200 - fullRPMRange / 20.0f)
+			{
+				if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && curEngineRPM > minRPM + oneThirdRPMRange && curEngineRPM < maxRPM - oneThirdRPMRange)
+				{
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange)
+					{
+						newGear++;
+					}
+				} else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && curEngineRPM > minRPM + oneThirdRPMRange)
+				{
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+					{
+						newGear++;
+					}
+				} else if (avgAcc200 < 0.2f && curEngineRPM > minRPM + oneThirdRPMRange / 2.0f && curEngineRPM < minRPM + halfRPMRange)
+				{
+					if (curWheelRevolutions * gearsRatio[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+					{
+						newGear++;
+					}
+				}
+
+				if (newGear > curGear)
+				{
+					upShiftDelayCounter++;
+					if (upShiftDelayCounter <= 100 * shiftBehaviour)
+					{
+						newGear = curGear;
+					}
+				} else
+				{
+					upShiftDelayCounter = 0;
+				}
+			}
+			if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
+				newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f)
+			{
+				if (absVelocity - relVelocity < 0.5f)
+					shiftTo(newGear);
+			}
 
 			if (accs.size() > 200)
 			{
@@ -1083,6 +1072,7 @@ void BeamEngine::shiftTo(int newGear)
 
 void BeamEngine::updateShifts()
 {
+	if (is_Electric) return;
 	if (autoselect == MANUALMODE) return;
 
 #ifdef USE_OPENAL
@@ -1092,14 +1082,13 @@ void BeamEngine::updateShifts()
 	if (autoselect == REAR)
 	{
 		curGear = -1;
-	} else if (autoselect == NEUTRAL && !is_Electric)
+	} else if (autoselect == NEUTRAL)
 	{
 		curGear =  0;
 	} else if (autoselect == ONE)
 	{
 		curGear =  1;
-	}
-	else if (!is_Electric) //no other gears for electric cars
+	} else
 	{
 		// search for an appropriate gear
 		int newGear = 1;
