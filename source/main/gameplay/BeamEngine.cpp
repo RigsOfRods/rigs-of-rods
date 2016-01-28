@@ -525,6 +525,9 @@ void BeamEngine::update(float dt, int doUpdate)
 			} else if (!shiftval && curGear && shiftclock >= (shift_time - clutchTime))
 			{
 				// release the clutch <-- Done below
+				float timer = shiftclock - (shift_time - clutchTime);
+				float ratio = sqrt(timer / clutchTime);
+				curAcc = (autocurAcc / 2.0f) * ratio;
 			}
 		}
 
@@ -536,8 +539,8 @@ void BeamEngine::update(float dt, int doUpdate)
 				postshifting = 0;
 			} else if (autocurAcc > 0.0f)
 			{
-				float ratio = sqrt(postshiftclock / post_shift_time);
-				curAcc = std::min(ratio, autocurAcc);
+				float ratio = postshiftclock / post_shift_time;
+				curAcc = (autocurAcc / 2.0f) + (autocurAcc / 2.0f) * ratio;
 			} else if (curGear)
 			{
 				float gearboxspinner = curEngineRPM / gearsRatio[curGear + 1];
