@@ -1440,6 +1440,7 @@ void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
 			return;
 		}
 		m_rig->cameraRail[m_rig->free_camerarail] = GetNodeIndexOrThrow(*itor);
+		m_rig->free_camerarail++;
 	}
 }
 
