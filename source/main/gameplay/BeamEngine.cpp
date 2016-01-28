@@ -553,8 +553,8 @@ void BeamEngine::update(float dt, int doUpdate)
 		}
 
 		// auto clutch
-		float declutchRPM = std::min(stallRPM * 1.2f, (minRPM + stallRPM) / 2.0f);
-		if (curGear == 0 || curEngineRPM < declutchRPM)
+		float declutchRPM = (minRPM + stallRPM) / 2.0f;
+		if (curGear == 0 || curEngineRPM < declutchRPM || (curEngineRPM < minRPM * 1.01f && fabs(curWheelRevolutions) < 1.0f))
 		{
 			curClutch = 0.0f;
 		} else if (curEngineRPM < minRPM && minRPM > declutchRPM)
