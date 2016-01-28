@@ -26,6 +26,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "GUIManager.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -103,10 +104,12 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 #ifdef USE_MYGUI
 		if ( limitMinCamDist )
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom enabled"), "camera_go.png", 3000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom enabled"), "camera_go.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera zoom enabled"));
 		} else
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("limited camera zoom disabled"), "camera_go.png", 3000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom disabled"), "camera_go.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera zoom disabled"));
 		}
 #endif // USE_MYGUI
 	}
