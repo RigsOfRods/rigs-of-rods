@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "Beam.h"
 #include "Console.h"
+#include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "Settings.h"
@@ -75,10 +76,12 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 #ifdef USE_MYGUI
 		if ( autoTracking )
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("auto tracking enabled"), "camera_go.png", 3000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking enabled"));
 		} else
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("auto tracking disabled"), "camera_go.png", 3000);
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking disabled"));
 		}
 #endif // USE_MYGUI
 	}

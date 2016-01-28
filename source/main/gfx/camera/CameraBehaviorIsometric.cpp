@@ -21,21 +21,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Console.h"
-#include "Language.h"
 #include "GUIManager.h"
+#include "Language.h"
 
 using namespace Ogre;
 
 void CameraBehaviorIsometric::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
 #ifdef USE_MYGUI
-	RoR::Application::GetConsole()->putMessage(
-		RoR::Console::CONSOLE_MSGTYPE_INFO, 
-		RoR::Console::CONSOLE_SYSTEM_NOTICE, 
-		_L("fixed free camera"), 
-		"camera_link.png", 
-		3000
-	);
-	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("fixed free camera"));
+	RoR::Application::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Fixed camera"), "camera_link.png", 3000);
+	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Fixed camera"));
 #endif // USE_MYGUI
 }
