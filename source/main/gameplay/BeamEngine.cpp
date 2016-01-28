@@ -538,10 +538,14 @@ void BeamEngine::update(float dt, int doUpdate)
 			{
 				float ratio = sqrt(postshiftclock / post_shift_time);
 				curAcc = std::min(ratio, autocurAcc);
-			} else
+			} else if (curGear)
 			{
-				float ratio = sqrt(postshiftclock / post_shift_time);
-				curClutch = std::max(curClutch, ratio);
+				float gearboxspinner = curEngineRPM / gearsRatio[curGear + 1];
+				if (curWheelRevolutions > gearboxspinner)
+				{
+					float ratio = sqrt(postshiftclock / post_shift_time);
+					curClutch = std::max(curClutch, ratio);
+				}
 			}
 		}
 
