@@ -45,7 +45,7 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	, camRotXSwivel(0.0f)
 	, camRotY(0.3f)
 	, camRotYSwivel(0.0f)
-	, limitMinCamDist(true)
+	, limitCamMovement(true)
 	, targetDirection(0.0f)
 	, targetPitch(0.0f)
 {
@@ -100,25 +100,25 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 
 	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
 	{
-		limitMinCamDist = !limitMinCamDist;
+		limitCamMovement = !limitCamMovement;
 #ifdef USE_MYGUI
-		if ( limitMinCamDist )
+		if ( limitCamMovement )
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom enabled"), "camera_go.png", 3000);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera zoom enabled"));
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement enabled"), "camera_go.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement enabled"));
 		} else
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera zoom disabled"), "camera_go.png", 3000);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera zoom disabled"));
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement disabled"), "camera_go.png", 3000);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement disabled"));
 		}
 #endif // USE_MYGUI
 	}
 
-	if ( limitMinCamDist && camDistMin > 0.0f )
+	if ( limitCamMovement && camDistMin > 0.0f )
 	{
 		camDist = std::max(camDistMin, camDist);
 	}
-	if ( limitMinCamDist && camDistMax > 0.0f )
+	if ( limitCamMovement && camDistMax > 0.0f )
 	{
 		camDist = std::min(camDist, camDistMax);
 	}
@@ -131,7 +131,7 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 			, cos(targetDirection.valueRadians() + (camRotX - camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
 			);
 
-	if ( gEnv->terrainManager && gEnv->terrainManager->getHeightFinder() )
+	if ( limitCamMovement && gEnv->terrainManager && gEnv->terrainManager->getHeightFinder() )
 	{
 		float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
