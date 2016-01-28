@@ -64,6 +64,8 @@ tracks/default_turbo_mid
 {
 	trigger_source engine
 	pitch_source	turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors	0.0	0.0	1.852E-12
 	sound	80000.0	default_turbo.wav
 }
 
@@ -71,6 +73,8 @@ tracks/default_turbo_big
 {
 	trigger_source engine
 	pitch_source	turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors	0.0	0.0	1.852E-12
 	sound	150000.0 default_turbo.wav
 }
 
