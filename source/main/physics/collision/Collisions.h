@@ -108,6 +108,7 @@ private:
 	// collision boxes pool
 	collision_box_t collision_boxes[MAX_COLLISION_BOXES];
 	collision_box_t *last_called_cbox;
+	Ogre::Timer *last_script_event_time;
 	int free_collision_box;
 
 	// collision tris pool;
