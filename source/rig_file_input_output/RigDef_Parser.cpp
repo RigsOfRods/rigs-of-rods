@@ -4028,14 +4028,7 @@ void Parser::ParseTriggers(Ogre::String const & line)
 	}
 
 	// Handle actions
-	if (!trigger.IsHookToggleTrigger() && !trigger.HasFlag_E_EngineTrigger())
-	{
-		Trigger::CommandKeyTrigger command_keys;
-		command_keys.contraction_trigger_key = shortbound_trigger_action;
-		command_keys.extension_trigger_key   = longbound_trigger_action;
-		trigger.SetCommandKeyTrigger(command_keys);
-	}
-	else if (trigger.IsHookToggleTrigger())
+	if (trigger.IsHookToggleTrigger())
 	{
 		Trigger::HookToggleTrigger hook_toggle;
 		hook_toggle.contraction_trigger_hookgroup_id = shortbound_trigger_action;
@@ -4048,6 +4041,13 @@ void Parser::ParseTriggers(Ogre::String const & line)
 		engine_trigger.function = Trigger::EngineTrigger::Function(shortbound_trigger_action);
 		engine_trigger.motor_index = longbound_trigger_action;
 		trigger.SetEngineTrigger(engine_trigger);
+	}
+	else
+	{
+		Trigger::CommandKeyTrigger command_keys;
+		command_keys.contraction_trigger_key = shortbound_trigger_action;
+		command_keys.extension_trigger_key   = longbound_trigger_action;
+		trigger.SetCommandKeyTrigger(command_keys);
 	}
 
 
