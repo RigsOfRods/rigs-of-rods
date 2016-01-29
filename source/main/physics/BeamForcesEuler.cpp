@@ -1573,7 +1573,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 			float len = std::abs(slen);
 			if (len > beams[i].minmaxposnegstress)
 			{
-				if ((beams[i].type==BEAM_NORMAL || beams[i].type==BEAM_INVISIBLE) && beams[i].bounded!=SHOCK1 && k!=0.0f)
+				if ((beams[i].type == BEAM_NORMAL || beams[i].type == BEAM_INVISIBLE) && beams[i].bounded != SHOCK1 && k != 0.0f)
 				{
 					// Actual deformation tests
 					if (slen > beams[i].maxposstress && difftoBeamL < 0.0f) // compression
@@ -1589,10 +1589,17 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 						if (beams[i].L > 0.0f && Lold > beams[i].L)
 						{
 							beams[i].maxposstress *= Lold / beams[i].L;
+							beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
+							beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
 						}
 						// For the compression case we do not remove any of the beam's
 						// strength for structure stability reasons
 						//beams[i].strength += deform * k * 0.5f;
+						if (beamdeformdebug)
+						{
+							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
+									" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+						}
 					} else if (slen < beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
 					{
 						increased_accuracy = true;
@@ -1605,23 +1612,15 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 						if (Lold > 0.0f && beams[i].L > Lold)
 						{
 							beams[i].maxnegstress *= beams[i].L / Lold;
+							beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
+							beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
 						}
 						beams[i].strength -= deform * k;
-					}
-#ifdef USE_OPENAL
-					// Sound effect
-					// Sound volume depends on the energy lost due to deformation (which gets converted to sound (and thermal) energy)
-					/*
-					SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_CREAK, deform*k*(difftoBeamL+deform*0.5f));
-					SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_CREAK);
-					*/
-#endif  //USE_OPENAL
-					beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
-					beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
-					if (beamdeformdebug)
-					{
-						LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
-								" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+						if (beamdeformdebug)
+						{
+							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
+									" / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+						}
 					}
 				}
 
