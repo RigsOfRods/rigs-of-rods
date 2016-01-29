@@ -4028,7 +4028,7 @@ void Parser::ParseTriggers(Ogre::String const & line)
 	}
 
 	// Handle actions
-	if (!trigger.IsTriggerBlockerAnyType() && !trigger.IsHookToggleTrigger() && !trigger.HasFlag_E_EngineTrigger())
+	if (!trigger.IsHookToggleTrigger() && !trigger.HasFlag_E_EngineTrigger())
 	{
 		Trigger::CommandKeyTrigger command_keys;
 		command_keys.contraction_trigger_key = shortbound_trigger_action;
