@@ -3390,7 +3390,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 			return;
 		}
 	}
-	else if (!def.IsHookToggleTrigger() && !def.HasFlag_E_EngineTrigger())
+	else if (def.IsTriggerBlockerAnyType())
 	{
 		// this is a Trigger-Blocker, make special check
 		if (def.shortbound_trigger_action < 0 || def.longbound_trigger_action < 0)
