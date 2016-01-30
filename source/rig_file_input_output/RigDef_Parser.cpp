@@ -4692,7 +4692,7 @@ void Parser::_ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, un
 	rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[13]);
 	rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[15]);
 	rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[17]);
-	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[21]);
+	rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[19]);
 
 	rotator.rate = STR_PARSE_REAL(results[21]);
 
