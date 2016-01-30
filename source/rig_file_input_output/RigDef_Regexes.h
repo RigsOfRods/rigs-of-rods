@@ -1,22 +1,22 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -2411,32 +2411,33 @@ DEFINE_REGEX( INLINE_SECTION_SUBMESH_GROUNDMODEL,
 	);
 
 DEFINE_REGEX( SECTION_TIES,
-	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Root node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Max. reach length */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Auto shorten rate */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Min length */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Max length */
-	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_STRING_NO_SPACES ) /* Options */
+    E_LEADING_WHITESPACE
+    E_CAPTURE( E_NODE_ID )       // #1 Root node
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #3 Max. reach length
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #5 Auto shorten rate
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #7 Min length
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #9 Max length
+    E_CAPTURE_OPTIONAL(
+        E_CAPTURE( E_DELIMITER )
+        E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )   // #12 Options
 
-		E_CAPTURE_OPTIONAL( 
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* Max stress */
+        E_CAPTURE_OPTIONAL(
+            E_CAPTURE( E_DELIMITER )
+            E_CAPTURE( E_REAL_NUMBER )                 // #15 Max stress
 
-			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Group */
-			)
-		)
-	)
-	E_TRAILING_WHITESPACE
-	);
+            E_CAPTURE_OPTIONAL(
+                E_CAPTURE( E_DELIMITER )
+                E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #18 Group
+            )
+        )
+    )
+    E_CAPTURE_OPTIONAL( E_DELIMITER ) // Tolerate trailing delimiter
+    E_TRAILING_WHITESPACE
+    );
 
 DEFINE_REGEX( SECTION_TORQUECURVE,
 	E_LEADING_WHITESPACE
