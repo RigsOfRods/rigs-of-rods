@@ -98,6 +98,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SurveyMapEntity.h"
 #endif //USE_MYGUI
 
+#include <sstream>
+#include <iomanip>
+#include <ctime>
+
 #ifdef USE_MPLATFORM
 #include "MPlatformFD.h"
 #endif //USE_MPLATFORM
@@ -314,22 +318,34 @@ bool RoRFrameListener::updateEvents(float dt)
 		gEnv->player->update(dt);
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.5f))
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
 	{
-		int mNumScreenShots=0;
-		String tmpfn = SSETTING("User Path", "") + String("screenshot_") + TOSTRING(++mNumScreenShots) + String(".") + String(screenshotformat);
-		while(RoR::PlatformUtils::FileExists(tmpfn.c_str()))
+		int mNumScreenShots = 0;
+
+		std::time_t t = std::time(nullptr);
+		std::stringstream date;
+		date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H:%M:%S");
+
+		String fn_prefix = SSETTING("User Path", "") + String("screenshot_");
+		String fn_name = date.str() + String("_");
+		String fn_suffix = String(".") + String(screenshotformat);
+
+		String tmpfn = fn_prefix + fn_name + TOSTRING(++mNumScreenShots) + fn_suffix;
+
+		while (RoR::PlatformUtils::FileExists(tmpfn.c_str()))
 		{
-			tmpfn = SSETTING("User Path", "") + String("screenshot_") + TOSTRING(++mNumScreenShots) + String(".") + String(screenshotformat);
+			tmpfn = fn_prefix + fn_name + TOSTRING(++mNumScreenShots) + fn_suffix;
 		}
 
+		fn_name = fn_name + TOSTRING(mNumScreenShots) + fn_suffix;
+
 #ifdef USE_MYGUI
+		RoR::Application::GetGuiManager()->HideNotification();
 		MyGUI::PointerManager::getInstance().setVisible(false);
 #endif // USE_MYGUI
+
 		if (String(screenshotformat) == "png")
 		{
-
-
 			// add some more data into the image
 			AdvancedScreen *as = new AdvancedScreen(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
 			//as->addData("terrain_Name", loadedTerrain);
@@ -370,7 +386,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif // USE_MYGUI
 
 		// show new flash message
-		String ssmsg = _L("Screenshot:") + TOSTRING(mNumScreenShots);
+		String ssmsg = _L("Screenshot:") + String(" ") + fn_name;
 		LOG(ssmsg);
 #ifdef USE_MYGUI
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);

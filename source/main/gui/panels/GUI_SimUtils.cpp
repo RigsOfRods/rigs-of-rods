@@ -119,6 +119,11 @@ void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 	pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 }
 
+void CLASS::HideNotification()
+{
+	m_notification->setVisible(false);
+}
+
 void CLASS::framestep(float dt)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
