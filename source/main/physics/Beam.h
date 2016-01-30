@@ -243,8 +243,8 @@ public:
 	/**
 	* TIGHT-LOOP; Logic: flexbodies, threading
 	*/
-	void updateFlexbodiesPrepare(float dt=0);
-	void updateFlexbodiesFinal(float dt=0);
+	void updateFlexbodiesPrepare();
+	void updateFlexbodiesFinal();
 
 	/**
 	* TIGHT-LOOP; Logic: display

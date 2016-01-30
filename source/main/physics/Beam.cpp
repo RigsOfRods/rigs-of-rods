@@ -3515,7 +3515,7 @@ void Beam::updateLabels(float dt)
 	}
 }
 
-void Beam::updateFlexbodiesPrepare(float dt)
+void Beam::updateFlexbodiesPrepare()
 {
 	BES_GFX_START(BES_GFX_updateFlexBodies);
 
@@ -3739,7 +3739,7 @@ void Beam::updateVisual(float dt)
 	BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
-void Beam::updateFlexbodiesFinal(float dt)
+void Beam::updateFlexbodiesFinal()
 {
 	if (gEnv->threadPool)
 	{
