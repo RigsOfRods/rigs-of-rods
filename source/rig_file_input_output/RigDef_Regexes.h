@@ -1479,10 +1479,14 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 	);
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
-	"^forset[:]?" // Tolerate invalid ":" after keyword, observed i.e. in http://www.rigsofrods.com/repository/view/2497
-	E_CAPTURE( E_DELIMITER )
-	E_CAPTURE( ".*$" ) /* #2 Entire line */
-	);
+    // Compatibility rules:
+    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.com/repository/view/2497
+    // 2. Tolerate missing keyword/numbers separator
+    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.com/repository/view/5282)
+    "forset"
+    E_CAPTURE_OPTIONAL( E_DELIMITER E_OR E_DELIMITER_COLON ) // #1 Delimiter
+    E_CAPTURE( ".*$" )                                       // #2 Entire line
+    );
 
 DEFINE_REGEX( FORSET_ELEMENT,
 	E_CAPTURE( /* #1 Range with numbered nodes */
