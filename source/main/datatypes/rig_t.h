@@ -282,6 +282,7 @@ struct rig_t
 	std::vector<Ogre::AxisAlignedBox> predictedCollisionBoundingBoxes;
 	bool freePositioned;
 	int lowestnode; //!< never updated after truck init!?!
+	int lowestcontactingnode;
 
 	float default_spring; //!< TODO: REMOVE! (parser context only)
 	float default_spring_scale; //!< TODO: REMOVE! (parser context only)
