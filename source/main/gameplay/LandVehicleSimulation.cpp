@@ -34,10 +34,10 @@ using namespace RoR;
 
 void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 {
-	if (RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f ||
-		RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f ||
+	if ((curr_truck->engine->getGear() > 0 && RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
+		(curr_truck->engine->getGear() > 0 && RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
+		(curr_truck->engine->getGear() > 0 && curr_truck->parkingbrake) ||
 		(curr_truck->cc_target_speed < curr_truck->cc_target_speed_lower_limit) ||
-		(curr_truck->parkingbrake && curr_truck->engine->getGear() > 0) ||
 		!curr_truck->engine->isRunning() ||
 		!curr_truck->engine->hasContact())
 	{
