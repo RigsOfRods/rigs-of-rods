@@ -1510,7 +1510,7 @@ bool Beam::frameStep(int steps)
 				trucks[t]->lastposition = trucks[t]->position;
 				trucks[t]->updateTruckPosition();
 			}
-			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
+			if (trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
 			{
 				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
 			}
@@ -5689,7 +5689,6 @@ Beam::Beam(
 	, disableTruckTruckSelfCollisions(false)
 	, elevator(0)
 	, flap(0)
-	, floating_origin_enable(true)
 	, fusedrag(Ogre::Vector3::ZERO)
 	, high_res_wheelnode_collisions(false)
 	, hydroaileroncommand(0)
