@@ -670,7 +670,6 @@ protected:
 	float cabFadeTime;
 	int cabFadeMode; //<! Cab fading effect; values { -1, 0, 1, 2 }
 	// cab fading stuff - end
-	bool floating_origin_enable;
 
 	Ogre::ManualObject *simpleSkeletonManualObject;
 	Ogre::SceneNode *simpleSkeletonNode;
