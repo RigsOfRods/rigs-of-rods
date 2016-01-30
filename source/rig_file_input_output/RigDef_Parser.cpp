@@ -2112,84 +2112,86 @@ void Parser::VerifyAndProcessMeshWheel2(Ogre::String const & line, MeshWheel2& m
 
 void Parser::ParseHook(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_HOOKS))
-	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-		return;
-	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+    boost::smatch results;
+    if (! boost::regex_search(line, results, Regexes::SECTION_HOOKS))
+    {
+        this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        return;
+    }
+    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
-	Hook hook;
-	hook.node = _ParseNodeRef(results[1]);
+    Hook hook;
+    hook.node = this->_ParseNodeRef(results[1]);
 
-	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
-	Ogre::StringVector::iterator iter = tokens.begin();
-	for ( ; iter != tokens.end(); iter++)
-	{
-		boost::smatch results;
-		if (! boost::regex_search(*iter, results, Regexes::HOOKS_OPTIONS))
-		{
-			AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
-			return;
-		}
+    Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
+    Ogre::StringVector::iterator iter = tokens.begin();
+    for ( ; iter != tokens.end(); iter++)
+    {
+        boost::smatch results;
+        Ogre::String entry = *iter;
+        Ogre::StringUtil::trim(entry);
+        if (! boost::regex_search(entry, results, Regexes::HOOKS_OPTIONS))
+        {
+            this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
+            return;
+        }
 
-		if (! results[1].matched) 
-		{
-			AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
-			return;
-		}
-		else if (results[2].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);
-		}
-		else if (results[3].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);
-		}
-		else if (results[4].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE);
-		}
-		else if (results[5].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);
-		}
-		else if (results[6].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);
-		}
-		else if (results[7].matched) 
-		{
-			hook.option_hook_range = STR_PARSE_REAL(results[8]);
-		}
-		else if (results[9].matched) 
-		{
-			hook.option_max_force = STR_PARSE_REAL(results[10]);
-		}
-		else if (results[11].matched) 
-		{
-			hook.option_hookgroup = STR_PARSE_INT(results[12]);
-		}
-		else if (results[13].matched) 
-		{
-			hook.option_lockgroup = STR_PARSE_INT(results[14]);
-		}
-		else if (results[15].matched) 
-		{
-			hook.option_timer = STR_PARSE_REAL(results[16]);
-		}
-		else if (results[17].matched) 
-		{
-			hook.option_minimum_range_meters = STR_PARSE_REAL(results[18]);
-		}
-		else if (results[19].matched) 
-		{
-			hook.option_speed_coef = STR_PARSE_REAL(results[20]);
-		}
-	}
+        if (! results[1].matched) 
+        {
+            this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
+            return;
+        }
+        else if (results[2].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);
+        }
+        else if (results[3].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);
+        }
+        else if (results[4].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE);
+        }
+        else if (results[5].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);
+        }
+        else if (results[6].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);
+        }
+        else if (results[9].matched) 
+        {
+            hook.option_hook_range = STR_PARSE_REAL(results[9]);
+        }
+        else if (results[12].matched) 
+        {
+            hook.option_max_force = STR_PARSE_REAL(results[12]);
+        }
+        else if (results[15].matched) 
+        {
+            hook.option_hookgroup = STR_PARSE_INT(results[15]);
+        }
+        else if (results[18].matched) 
+        {
+            hook.option_lockgroup = STR_PARSE_INT(results[18]);
+        }
+        else if (results[21].matched) 
+        {
+            hook.option_timer = STR_PARSE_REAL(results[21]);
+        }
+        else if (results[24].matched) 
+        {
+            hook.option_minimum_range_meters = STR_PARSE_REAL(results[24]);
+        }
+        else if (results[27].matched) 
+        {
+            hook.option_speed_coef = STR_PARSE_REAL(results[27]);
+        }
+    }
 
-	m_current_module->hooks.push_back(hook);
+    m_current_module->hooks.push_back(hook);
 }
 
 void Parser::ParseHelp(Ogre::String const & line)
