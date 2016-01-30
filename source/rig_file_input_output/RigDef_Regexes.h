@@ -214,7 +214,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("end_section")                                \
     E_KEYWORD_BLOCK("engine")                                     \
     E_KEYWORD_BLOCK("engoption")                                  \
-	E_KEYWORD_BLOCK("engturbo")									  \
+    E_KEYWORD_BLOCK("engturbo")                                   \
     E_KEYWORD_BLOCK("envmap")                                     \
     E_KEYWORD_BLOCK("exhausts")                                   \
     E_KEYWORD_INLINE("extcamera")                                 \
