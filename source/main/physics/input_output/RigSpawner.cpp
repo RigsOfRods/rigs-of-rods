@@ -3026,7 +3026,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 	SlideNode slide_node(& node, nullptr);
 	slide_node.setThreshold(def.tolerance);
 	slide_node.setSpringRate(def.spring_rate);
-	slide_node.setAttachmentRate(def.spring_rate);
+	slide_node.setAttachmentRate(def.attachment_rate);
 	if (def._break_force_set)
 	{
 		slide_node.setBreakForce(def.break_force);
