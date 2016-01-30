@@ -841,6 +841,11 @@ protected:
 	*/
 	int FindLowestNodeInRig();
 
+	/**
+	* Finds node (contactless == false) with lowest Y in spawned rig.
+	*/
+	int FindLowestContactingNodeInRig();
+
 	//void SetBeamPlasticCoefficient(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
 	/**

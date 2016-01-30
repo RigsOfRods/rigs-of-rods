@@ -1080,20 +1080,21 @@ void Beam::resetAngle(float rot)
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
 	// horizontal displacement
-	Vector3 offset = Vector3(px, 0, pz) - nodes[0].AbsPosition;
+	Vector3 offset = Vector3(px, nodes[0].AbsPosition.y, pz) - nodes[0].AbsPosition;
 	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition += offset;
 	}
 
 	// vertical displacement
-	float vertical_offset = -nodes[lowestnode].AbsPosition.y + miny;
+	float vertical_offset = -nodes[lowestcontactingnode].AbsPosition.y + miny;
 	if (gEnv->terrainManager->getWater())
 	{
-		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestnode].AbsPosition.y + vertical_offset));
+		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
 	}
 	for (int i=1; i<free_node; i++)
 	{
+		if (nodes[i].contactless) continue;
 		float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z);
 		vertical_offset += std::max(0.0f, terrainHeight - (nodes[i].AbsPosition.y + vertical_offset));
 	}
@@ -1262,7 +1263,7 @@ void Beam::SyncReset()
 	cc_mode = false;
 	fusedrag=Vector3::ZERO;
 	origin=Vector3::ZERO;
-	float yPos = nodes[lowestnode].AbsPosition.y;
+	float yPos = nodes[lowestcontactingnode].AbsPosition.y;
 
 	Vector3 cur_position = nodes[0].AbsPosition;
 	Vector3 cur_dir = nodes[0].AbsPosition;

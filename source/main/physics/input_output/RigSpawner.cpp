@@ -711,6 +711,7 @@ void RigSpawner::FinalizeRig()
 	}
 
 	m_rig->lowestnode = FindLowestNodeInRig();
+	m_rig->lowestcontactingnode = FindLowestContactingNodeInRig();
 
 	UpdateCollcabContacterNodes();
 
@@ -4891,6 +4892,27 @@ int RigSpawner::FindLowestNodeInRig()
 
 	for (int i = 0; i < m_rig->free_node; i++)
 	{
+		float y = m_rig->nodes[i].AbsPosition.y;
+		if (y < lowest_y)
+		{
+			lowest_y = y;
+			lowest_node_index = i;
+		}
+	}
+
+	return lowest_node_index;
+}
+
+int RigSpawner::FindLowestContactingNodeInRig()
+{
+	SPAWNER_PROFILE_SCOPED();
+
+    int lowest_node_index = FindLowestNodeInRig();
+	float lowest_y = std::numeric_limits<float>::max();
+
+	for (int i = 0; i < m_rig->free_node; i++)
+	{
+		if (m_rig->nodes[i].contactless) continue;
 		float y = m_rig->nodes[i].AbsPosition.y;
 		if (y < lowest_y)
 		{
