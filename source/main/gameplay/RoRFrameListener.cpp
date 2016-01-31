@@ -348,6 +348,8 @@ bool RoRFrameListener::updateEvents(float dt)
 		MyGUI::PointerManager::getInstance().setVisible(false);
 #endif // USE_MYGUI
 
+		BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished
+
 		if (String(screenshotformat) == "png")
 		{
 			// add some more data into the image
@@ -1451,6 +1453,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		DustManager::getSingleton().update();
 	}
 
+	if (loading_state == ALL_LOADED && !this->isSimPaused)
+	{
+		BeamFactory::getSingleton().updateVisual(dt); // update visual - antishaking
+	}
+
 	if (!updateEvents(dt))
 	{
 		LOG("exiting...");
@@ -1482,9 +1489,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		// we simulate one truck, it will take care of the others (except networked ones)
 		if (!isSimPaused)
 		{
-			BeamFactory::getSingleton().updateFlexbodiesFinal(); // Waits until all flexbody tasks are finished 
-			BeamFactory::getSingleton().updateVisual(dt);          // update visual - antishaking
 			BeamFactory::getSingleton().checkSleepingState();
+			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
 			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
 		}
 
