@@ -1484,8 +1484,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	// one of the input modes is immediate, so update the movement vector
 	if (loading_state == ALL_LOADED)
 	{
-		BeamFactory::getSingleton().checkSleepingState();
-
 		// we simulate one truck, it will take care of the others (except networked ones)
 		if (!isSimPaused)
 		{
