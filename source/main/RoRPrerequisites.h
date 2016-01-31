@@ -56,7 +56,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"
 #include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
-#include "../common/BitFlags.h"
+#include "BitFlags.h"
 
 #include <MyGUI_Prerequest.h> // Forward declarations
 
