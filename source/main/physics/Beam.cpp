@@ -1326,7 +1326,6 @@ void Beam::SyncReset()
 		it->beam->mSceneNode->detachAllObjects();
 		it->beam->disabled = true;
 		it->locked        = UNLOCKED;
-		it->lockNodes     = true;
 		it->lockNode      = 0;
 		it->lockTruck     = 0;
 		it->beam->p2      = &nodes[0];
