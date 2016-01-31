@@ -174,8 +174,10 @@ RoRFrameListener::RoRFrameListener() :
 	heathaze(0),
 	hidegui(false),
 	loading_state(NONE_LOADED),
-	mStatsOn(0),
+	mLastScreenShotID(1),
+	mLastScreenShotDate(""),
 	mLastSimulationSpeed(0.1f),
+	mStatsOn(0),
 	mTimeUntilNextToggle(0),
 	mTruckInfoOn(false),
 	netChat(0),
@@ -320,8 +322,6 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
 	{
-		int mNumScreenShots = 0;
-
 		std::time_t t = std::time(nullptr);
 		std::stringstream date;
 		date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
@@ -330,14 +330,18 @@ bool RoRFrameListener::updateEvents(float dt)
 		String fn_name = date.str() + String("_");
 		String fn_suffix = String(".") + String(screenshotformat);
 
-		String tmpfn = fn_prefix + fn_name + TOSTRING(++mNumScreenShots) + fn_suffix;
-
-		while (RoR::PlatformUtils::FileExists(tmpfn.c_str()))
+		if (mLastScreenShotDate == date.str())
 		{
-			tmpfn = fn_prefix + fn_name + TOSTRING(++mNumScreenShots) + fn_suffix;
+			mLastScreenShotID++;
+		} else
+		{
+			mLastScreenShotID = 1;
 		}
+		mLastScreenShotDate = date.str();
 
-		fn_name = fn_name + TOSTRING(mNumScreenShots) + fn_suffix;
+		fn_name = fn_name + TOSTRING(mLastScreenShotID);
+
+		String tmpfn = fn_prefix + fn_name + fn_suffix;
 
 #ifdef USE_MYGUI
 		RoR::Application::GetGuiManager()->HideNotification();
@@ -386,7 +390,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif // USE_MYGUI
 
 		// show new flash message
-		String ssmsg = _L("Screenshot:") + String(" ") + fn_name;
+		String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;
 		LOG(ssmsg);
 #ifdef USE_MYGUI
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
