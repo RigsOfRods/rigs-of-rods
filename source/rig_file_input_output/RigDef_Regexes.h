@@ -125,7 +125,9 @@ namespace Regexes
 
 #define E_DELIMITER_COLON "[[:blank:]]*:[[:blank:]]*"
 
-#define E_DELIMITER E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE /* Uses |, MUST be enclosed in E_CAPTURE() */
+// Universal delimiter - at least 1 space or comma
+// Multiple delimiters in row are merged into one (backwards compatibility)
+#define E_DELIMITER "[[:blank:],]+"
 
 /* VALUE TYPES */
 
