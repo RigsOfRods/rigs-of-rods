@@ -14,6 +14,8 @@ do
 done
 
 # danger zone, check everything went well first
+# and make a backup (Transifex has no version control)
+cd ../tx
 # tx push -t --skip
 
 # Don't forget to update source file (ror.pot) if necessary
