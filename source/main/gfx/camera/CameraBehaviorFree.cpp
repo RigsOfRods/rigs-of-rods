@@ -23,12 +23,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Console.h"
-#include "IHeightFinder.h"
+#include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "mygui/BaseLayout.h"
-#include "TerrainManager.h"
-#include "GUIManager.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -103,13 +100,6 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 	gEnv->mainCamera->pitch(mRotY);
 
 	Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * mTransScale;
-
-	if ( gEnv->terrainManager && gEnv->terrainManager->getHeightFinder() )
-	{
-		float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(camPosition.x, camPosition.z) + 1.0f;
-
-		camPosition.y = std::max(h, camPosition.y);
-	}
 
 	gEnv->mainCamera->setPosition(camPosition);
 }
