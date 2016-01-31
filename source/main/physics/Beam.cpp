@@ -1332,6 +1332,7 @@ void Beam::SyncReset()
 		it->beam->p2      = &nodes[0];
 		it->beam->p2truck = false;
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+		removeInterTruckBeam(it->beam);
 	}
 
 	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++) it->lockedto=0;
@@ -4124,6 +4125,24 @@ void Beam::cabFade(float amount)
 	}
 }
 
+void Beam::addInterTruckBeam(beam_t* beam)
+{
+	auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
+	if (pos == interTruckBeams.end())
+	{
+		interTruckBeams.push_back(beam);
+	}
+}
+
+void Beam::removeInterTruckBeam(beam_t* beam)
+{
+	auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
+	if (pos != interTruckBeams.end())
+	{
+		interTruckBeams.erase(pos);
+	}
+}
+
 void Beam::tieToggle(int group)
 {
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -4161,6 +4180,7 @@ void Beam::tieToggle(int group)
 			it->beam->disabled = true;
 			it->beam->mSceneNode->detachAllObjects();
 			istied = true;
+			removeInterTruckBeam(it->beam);
 		}
 	}
 
@@ -4225,6 +4245,7 @@ void Beam::tieToggle(int group)
 					it->tying = true;
 					it->lockedto = locktedto;
 					it->lockedto->used++;
+					addInterTruckBeam(it->beam);
 				}
 			}
 		}
@@ -4365,6 +4386,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			it->beam->p2truck  = false;
 			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 			it->beam->disabled = true;
+			removeInterTruckBeam(it->beam);
 		}
 		// do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
 		else if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
