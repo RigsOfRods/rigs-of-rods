@@ -1,22 +1,22 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -125,7 +125,9 @@ namespace Regexes
 
 #define E_DELIMITER_COLON "[[:blank:]]*:[[:blank:]]*"
 
-#define E_DELIMITER E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE /* Uses |, MUST be enclosed in E_CAPTURE() */
+// Universal delimiter - at least 1 space or comma
+// Multiple delimiters in row are merged into one (backwards compatibility)
+#define E_DELIMITER "[[:blank:],]+"
 
 /* VALUE TYPES */
 
@@ -214,7 +216,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("end_section")                                \
     E_KEYWORD_BLOCK("engine")                                     \
     E_KEYWORD_BLOCK("engoption")                                  \
-	E_KEYWORD_BLOCK("engturbo")									  \
+    E_KEYWORD_BLOCK("engturbo")                                   \
     E_KEYWORD_BLOCK("envmap")                                     \
     E_KEYWORD_BLOCK("exhausts")                                   \
     E_KEYWORD_INLINE("extcamera")                                 \
@@ -1479,10 +1481,14 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 	);
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
-	"^forset[:]?" // Tolerate invalid ":" after keyword, observed i.e. in http://www.rigsofrods.com/repository/view/2497
-	E_CAPTURE( E_DELIMITER )
-	E_CAPTURE( ".*$" ) /* #2 Entire line */
-	);
+    // Compatibility rules:
+    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.com/repository/view/2497
+    // 2. Tolerate missing keyword/numbers separator
+    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.com/repository/view/5282)
+    "forset"
+    E_CAPTURE_OPTIONAL( E_DELIMITER E_OR E_DELIMITER_COLON ) // #1 Delimiter
+    E_CAPTURE( ".*$" )                                       // #2 Entire line
+    );
 
 DEFINE_REGEX( FORSET_ELEMENT,
 	E_CAPTURE( /* #1 Range with numbered nodes */
@@ -1675,62 +1681,62 @@ DEFINE_REGEX( SECTION_HOOKS,
 	);
 
 DEFINE_REGEX( HOOKS_OPTIONS,
-	E_LEADING_WHITESPACE
-	E_CAPTURE( /* #1 */
-		E_CAPTURE("self-lock") /* #2 This hook can lock to the truck its placed on too */
-		E_OR
-		E_CAPTURE("auto-lock") /* This hook will lock automatically to valid nodes in range */
-		E_OR
-		E_CAPTURE("nodisable") /* Linkage beam won't be disabled, but hook will stop pulling node to lock */
-		E_OR
-		E_CAPTURE("norope")    /* Linkage will act like a beam and not like a rope */
-		E_OR
-		E_CAPTURE("visible")   /* #6 Linkage will be visible while locking process and locked */
-		E_OR
-		E_CAPTURE(
-				"hookrange"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_REAL_NUMBER ) /* #8 The range a hook scans for a valid node to lock to */
-			)
-		E_OR
-		E_CAPTURE(
-				"maxforce"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_REAL_NUMBER ) /* #10 The force limit where a locking attempt is canceld */
-			)
-		E_OR
-		E_CAPTURE(
-				"hookgroup"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_DECIMAL_NUMBER ) /* #12 The hookgroup a hook belongs to */
-			)
-		E_OR
-		E_CAPTURE(
-				"lockgroup"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_DECIMAL_NUMBER ) /* #14 The lockgroup a hook belongs */
-			)
-		E_OR
-		E_CAPTURE(
-				"timer"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_REAL_NUMBER ) /* #16 Delay timer for autolocking hooks before they attempt to relock. */
-			)
-		E_OR
-		E_CAPTURE(
-				"shortlimit"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_REAL_NUMBER ) /* #18 Minimum range in meters the hook will pull the node to lock to */
-			)
-		E_OR
-		E_CAPTURE(
-				"speedcoef"
-				E_DELIMITER_COLON
-				E_CAPTURE( E_REAL_NUMBER ) /* #20 The speed a hook pulls the node to lock into locking position */
-			)
-	)
-	E_TRAILING_WHITESPACE
-	);
+    E_LEADING_WHITESPACE
+    E_CAPTURE(
+        E_CAPTURE("self-lock|selflock|self_lock")    // #2 This hook can lock to the truck its placed on too
+        E_OR
+        E_CAPTURE("auto-lock|autolock|auto_lock")    // #3 This hook will lock automatically to valid nodes in range
+        E_OR
+        E_CAPTURE("nodisable|no-disable|no_disable") // #4 Linkage beam won't be disabled, but hook will stop pulling node to lock
+        E_OR
+        E_CAPTURE("norope|no-rope|no_rope")          // #5 Linkage will act like a beam and not like a rope
+        E_OR
+        E_CAPTURE("visible|vis")                     // #6 Linkage will be visible while locking process and locked
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("hookrange")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_REAL_NUMBER ) // #9 The range a hook scans for a valid node to lock to
+        )
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("maxforce")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_REAL_NUMBER ) // #12 The force limit where a locking attempt is canceld
+        )
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("hookgroup|hgroup")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_DECIMAL_NUMBER ) // #15 The hookgroup a hook belongs to
+        )
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("lockgroup|lgroup")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_DECIMAL_NUMBER ) // #18 The lockgroup a hook belongs
+        )
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("timer")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_REAL_NUMBER ) // #21 Delay timer for autolocking hooks before they attempt to relock.
+        )
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("shortlimit|short_limit")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_REAL_NUMBER ) // #24 Minimum range in meters the hook will pull the node to lock to
+        )
+        E_OR
+        E_CAPTURE(
+            E_CAPTURE("speedcoef")
+            E_DELIMITER_COLON
+            E_CAPTURE( E_REAL_NUMBER ) // #27 The speed a hook pulls the node to lock into locking position
+        )
+    )
+    E_TRAILING_WHITESPACE
+    );
 
 DEFINE_REGEX( SECTION_HYDROS,
 	E_LEADING_WHITESPACE
@@ -2411,32 +2417,33 @@ DEFINE_REGEX( INLINE_SECTION_SUBMESH_GROUNDMODEL,
 	);
 
 DEFINE_REGEX( SECTION_TIES,
-	E_LEADING_WHITESPACE
-	E_CAPTURE( E_NODE_ID ) /* Root node */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Max. reach length */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Auto shorten rate */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Min length */
-	E_DELIMITER_COMMA
-	E_CAPTURE( E_REAL_NUMBER ) /* Max length */
-	E_CAPTURE_OPTIONAL( 
-		E_DELIMITER_COMMA
-		E_CAPTURE( E_STRING_NO_SPACES ) /* Options */
+    E_LEADING_WHITESPACE
+    E_CAPTURE( E_NODE_ID )       // #1 Root node
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #3 Max. reach length
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #5 Auto shorten rate
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #7 Min length
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )   // #9 Max length
+    E_CAPTURE_OPTIONAL(
+        E_CAPTURE( E_DELIMITER )
+        E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )   // #12 Options
 
-		E_CAPTURE_OPTIONAL( 
-			E_DELIMITER_COMMA
-			E_CAPTURE( E_REAL_NUMBER ) /* Max stress */
+        E_CAPTURE_OPTIONAL(
+            E_CAPTURE( E_DELIMITER )
+            E_CAPTURE( E_REAL_NUMBER )                 // #15 Max stress
 
-			E_CAPTURE_OPTIONAL( 
-				E_DELIMITER_COMMA
-				E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* Group */
-			)
-		)
-	)
-	E_TRAILING_WHITESPACE
-	);
+            E_CAPTURE_OPTIONAL(
+                E_CAPTURE( E_DELIMITER )
+                E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #18 Group
+            )
+        )
+    )
+    E_CAPTURE_OPTIONAL( E_DELIMITER ) // Tolerate trailing delimiter
+    E_TRAILING_WHITESPACE
+    );
 
 DEFINE_REGEX( SECTION_TORQUECURVE,
 	E_LEADING_WHITESPACE

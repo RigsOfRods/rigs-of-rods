@@ -1,22 +1,22 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
@@ -2112,84 +2112,86 @@ void Parser::VerifyAndProcessMeshWheel2(Ogre::String const & line, MeshWheel2& m
 
 void Parser::ParseHook(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_HOOKS))
-	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-		return;
-	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+    boost::smatch results;
+    if (! boost::regex_search(line, results, Regexes::SECTION_HOOKS))
+    {
+        this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        return;
+    }
+    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
-	Hook hook;
-	hook.node = _ParseNodeRef(results[1]);
+    Hook hook;
+    hook.node = this->_ParseNodeRef(results[1]);
 
-	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
-	Ogre::StringVector::iterator iter = tokens.begin();
-	for ( ; iter != tokens.end(); iter++)
-	{
-		boost::smatch results;
-		if (! boost::regex_search(*iter, results, Regexes::HOOKS_OPTIONS))
-		{
-			AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
-			return;
-		}
+    Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
+    Ogre::StringVector::iterator iter = tokens.begin();
+    for ( ; iter != tokens.end(); iter++)
+    {
+        boost::smatch results;
+        Ogre::String entry = *iter;
+        Ogre::StringUtil::trim(entry);
+        if (! boost::regex_search(entry, results, Regexes::HOOKS_OPTIONS))
+        {
+            this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
+            return;
+        }
 
-		if (! results[1].matched) 
-		{
-			AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
-			return;
-		}
-		else if (results[2].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);
-		}
-		else if (results[3].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);
-		}
-		else if (results[4].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE);
-		}
-		else if (results[5].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);
-		}
-		else if (results[6].matched) 
-		{
-			BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);
-		}
-		else if (results[7].matched) 
-		{
-			hook.option_hook_range = STR_PARSE_REAL(results[8]);
-		}
-		else if (results[9].matched) 
-		{
-			hook.option_max_force = STR_PARSE_REAL(results[10]);
-		}
-		else if (results[11].matched) 
-		{
-			hook.option_hookgroup = STR_PARSE_INT(results[12]);
-		}
-		else if (results[13].matched) 
-		{
-			hook.option_lockgroup = STR_PARSE_INT(results[14]);
-		}
-		else if (results[15].matched) 
-		{
-			hook.option_timer = STR_PARSE_REAL(results[16]);
-		}
-		else if (results[17].matched) 
-		{
-			hook.option_minimum_range_meters = STR_PARSE_REAL(results[18]);
-		}
-		else if (results[19].matched) 
-		{
-			hook.option_speed_coef = STR_PARSE_REAL(results[20]);
-		}
-	}
+        if (! results[1].matched) 
+        {
+            this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
+            return;
+        }
+        else if (results[2].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);
+        }
+        else if (results[3].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);
+        }
+        else if (results[4].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE);
+        }
+        else if (results[5].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);
+        }
+        else if (results[6].matched) 
+        {
+            BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);
+        }
+        else if (results[9].matched) 
+        {
+            hook.option_hook_range = STR_PARSE_REAL(results[9]);
+        }
+        else if (results[12].matched) 
+        {
+            hook.option_max_force = STR_PARSE_REAL(results[12]);
+        }
+        else if (results[15].matched) 
+        {
+            hook.option_hookgroup = STR_PARSE_INT(results[15]);
+        }
+        else if (results[18].matched) 
+        {
+            hook.option_lockgroup = STR_PARSE_INT(results[18]);
+        }
+        else if (results[21].matched) 
+        {
+            hook.option_timer = STR_PARSE_REAL(results[21]);
+        }
+        else if (results[24].matched) 
+        {
+            hook.option_minimum_range_meters = STR_PARSE_REAL(results[24]);
+        }
+        else if (results[27].matched) 
+        {
+            hook.option_speed_coef = STR_PARSE_REAL(results[27]);
+        }
+    }
 
-	m_current_module->hooks.push_back(hook);
+    m_current_module->hooks.push_back(hook);
 }
 
 void Parser::ParseHelp(Ogre::String const & line)
@@ -4084,26 +4086,27 @@ void Parser::ParseTorqueCurve(Ogre::String const & line)
 
 void Parser::ParseTies(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_TIES))
-	{
-		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-		return;
-	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+    boost::smatch results;
+    if (! boost::regex_search(line, results, Regexes::SECTION_TIES))
+    {
+        this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        return;
+    }
+    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
-	Tie tie;
-	tie.beam_defaults = m_user_beam_defaults;
-	tie.detacher_group = m_current_detacher_group;
+    Tie tie;
+    tie.beam_defaults     = m_user_beam_defaults;
+    tie.detacher_group    = m_current_detacher_group;
 
-	tie.root_node = _ParseNodeRef(results[1]);
-	tie.max_reach_length = STR_PARSE_REAL(results[2]);
-	tie.auto_shorten_rate = STR_PARSE_REAL(results[3]);
-	tie.min_length = STR_PARSE_REAL(results[4]);
-	tie.max_length = STR_PARSE_REAL(results[5]);
-	if (results[6].matched)
-	{
-        std::string tie_options = results[7];
+    tie.root_node         = this->_ParseNodeRef(results[1]);
+    tie.max_reach_length  =      STR_PARSE_REAL(results[3]);
+    tie.auto_shorten_rate =      STR_PARSE_REAL(results[5]);
+    tie.min_length        =      STR_PARSE_REAL(results[7]);
+    tie.max_length        =      STR_PARSE_REAL(results[9]);
+
+    if (results[12].matched)
+    {
+        std::string tie_options = results[12];
         for (unsigned i = 0; i < tie_options.size(); ++i)
         {
             const char tie_char = tie_options.at(i);
@@ -4120,19 +4123,19 @@ void Parser::ParseTies(Ogre::String const & line)
                 break;
             }
         }
-		
-		if (results[8].matched)
-		{
-			tie.max_stress = STR_PARSE_REAL(results[9]);
 
-			if (results[10].matched)
-			{
-				tie.group = STR_PARSE_INT(results[11]);
-			}
-		}
-	}
+        if (results[15].matched)
+        {
+            tie.max_stress = STR_PARSE_REAL(results[15]);
 
-	m_current_module->ties.push_back(tie);
+            if (results[18].matched)
+            {
+                tie.group = STR_PARSE_INT(results[18]);
+            }
+        }
+    }
+
+    m_current_module->ties.push_back(tie);
 }
 
 void Parser::ParseSoundsources(Ogre::String const & line)

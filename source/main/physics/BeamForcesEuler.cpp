@@ -534,7 +534,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		for (int i=0; i<free_buoycab; i++)
 		{
 			int tmpv = buoycabs[i] * 3;
-			buoyance->computeNodeForce(&nodes[cabs[tmpv]], &nodes[cabs[tmpv+1]], &nodes[cabs[tmpv+2]], doUpdate, buoycabtypes[i]);
+			buoyance->computeNodeForce(&nodes[cabs[tmpv]], &nodes[cabs[tmpv+1]], &nodes[cabs[tmpv+2]], doUpdate == 1, buoycabtypes[i]);
 		}
 	}
 
