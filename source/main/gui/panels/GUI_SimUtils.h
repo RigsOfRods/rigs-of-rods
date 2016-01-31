@@ -62,6 +62,7 @@ public:
 	void framestep(float dt);
 
 	void PushNotification(Ogre::String Title, Ogre::String text);
+	void HideNotification();
 	
 private:
 	bool b_fpsbox;

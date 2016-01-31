@@ -98,6 +98,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SurveyMapEntity.h"
 #endif //USE_MYGUI
 
+#include <sstream>
+#include <iomanip>
+#include <ctime>
+
 #ifdef USE_MPLATFORM
 #include "MPlatformFD.h"
 #endif //USE_MPLATFORM
@@ -170,8 +174,10 @@ RoRFrameListener::RoRFrameListener() :
 	heathaze(0),
 	hidegui(false),
 	loading_state(NONE_LOADED),
-	mStatsOn(0),
+	mLastScreenShotID(1),
+	mLastScreenShotDate(""),
 	mLastSimulationSpeed(0.1f),
+	mStatsOn(0),
 	mTimeUntilNextToggle(0),
 	mTruckInfoOn(false),
 	netChat(0),
@@ -314,22 +320,38 @@ bool RoRFrameListener::updateEvents(float dt)
 		gEnv->player->update(dt);
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.5f))
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
 	{
-		int mNumScreenShots=0;
-		String tmpfn = SSETTING("User Path", "") + String("screenshot_") + TOSTRING(++mNumScreenShots) + String(".") + String(screenshotformat);
-		while(RoR::PlatformUtils::FileExists(tmpfn.c_str()))
+		std::time_t t = std::time(nullptr);
+		std::stringstream date;
+		date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
+
+		String fn_prefix = SSETTING("User Path", "") + String("screenshot_");
+		String fn_name = date.str() + String("_");
+		String fn_suffix = String(".") + String(screenshotformat);
+
+		if (mLastScreenShotDate == date.str())
 		{
-			tmpfn = SSETTING("User Path", "") + String("screenshot_") + TOSTRING(++mNumScreenShots) + String(".") + String(screenshotformat);
+			mLastScreenShotID++;
+		} else
+		{
+			mLastScreenShotID = 1;
 		}
+		mLastScreenShotDate = date.str();
+
+		fn_name = fn_name + TOSTRING(mLastScreenShotID);
+
+		String tmpfn = fn_prefix + fn_name + fn_suffix;
 
 #ifdef USE_MYGUI
+		RoR::Application::GetGuiManager()->HideNotification();
 		MyGUI::PointerManager::getInstance().setVisible(false);
 #endif // USE_MYGUI
+
+		BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished
+
 		if (String(screenshotformat) == "png")
 		{
-
-
 			// add some more data into the image
 			AdvancedScreen *as = new AdvancedScreen(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
 			//as->addData("terrain_Name", loadedTerrain);
@@ -370,7 +392,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif // USE_MYGUI
 
 		// show new flash message
-		String ssmsg = _L("Screenshot:") + TOSTRING(mNumScreenShots);
+		String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;
 		LOG(ssmsg);
 #ifdef USE_MYGUI
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "camera.png", 10000, false);
@@ -1431,6 +1453,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		DustManager::getSingleton().update();
 	}
 
+	if (loading_state == ALL_LOADED && !this->isSimPaused)
+	{
+		BeamFactory::getSingleton().updateVisual(dt); // update visual - antishaking
+	}
+
 	if (!updateEvents(dt))
 	{
 		LOG("exiting...");
@@ -1457,14 +1484,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	// one of the input modes is immediate, so update the movement vector
 	if (loading_state == ALL_LOADED)
 	{
-		BeamFactory::getSingleton().checkSleepingState();
-
 		// we simulate one truck, it will take care of the others (except networked ones)
 		if (!isSimPaused)
 		{
-			BeamFactory::getSingleton().updateFlexbodiesFinal(); // Waits until all flexbody tasks are finished 
-			BeamFactory::getSingleton().updateVisual(dt);          // update visual - antishaking
 			BeamFactory::getSingleton().checkSleepingState();
+			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
 			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
 		}
 
