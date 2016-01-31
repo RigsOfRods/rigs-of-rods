@@ -667,7 +667,8 @@ void MainThread::Go()
 	scene_manager->destroyCamera(camera);
 	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 #ifdef ROR_USE_OGRE_1_9
-	delete overlay_system;
+	// Produces a segfault
+	// delete overlay_system;
 #endif
 
 	Application::DestroyContentManager();
