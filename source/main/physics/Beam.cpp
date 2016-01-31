@@ -1079,6 +1079,8 @@ void Beam::resetAngle(float rot)
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
+	int reference_node = setInitPosition ? lowestnode : lowestcontactingnode;
+
 	// horizontal displacement
 	Vector3 offset = Vector3(px, nodes[0].AbsPosition.y, pz) - nodes[0].AbsPosition;
 	for (int i=0; i<free_node; i++)
@@ -1087,10 +1089,10 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	}
 
 	// vertical displacement
-	float vertical_offset = -nodes[lowestcontactingnode].AbsPosition.y + miny;
+	float vertical_offset = -nodes[reference_node].AbsPosition.y + miny;
 	if (gEnv->terrainManager->getWater())
 	{
-		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
+		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[reference_node].AbsPosition.y + vertical_offset));
 	}
 	for (int i=1; i<free_node; i++)
 	{
