@@ -306,29 +306,29 @@ int IRCWrapper::processAuthenticationResults(String &results)
 	// fatal error?
 	if (cfg.hasSetting("fatalError"))
 	{
-		ErrorUtils::ShowOgreWebError(cfg.getSetting("fatalErrorTitle"), cfg.getSetting("fatalError"), cfg.getSetting("fatalErrorURL"));
+		ErrorUtils::ShowOgreWebError(cfg.GetString("fatalErrorTitle"), cfg.GetString("fatalError"), cfg.GetString("fatalErrorURL"));
 		return 1;
 	}
 
 	// non-fatal error?
 	if (cfg.hasSetting("error"))
 	{
-		push(constructMessage(MT_ErrorAuth, 0, 0, cfg.getSetting("error").c_str()));
+		push(constructMessage(MT_ErrorAuth, 0, 0, cfg.GetString("error").c_str()));
 		return 1;
 	}
 
 	if (!cfg.hasSetting("serverName") || !cfg.hasSetting("serverPort"))
 		return 1;
 
-	serverName     = cfg.getSetting("serverName");
-	serverPort     = cfg.getSettingInt("serverPort");
-	serverPassword = cfg.getSetting("serverPassword");
-	nick           = cfg.getSetting("nick");
-	userName       = cfg.getSetting("userName");
-	realName       = cfg.getSetting("realName");
-	channel        = cfg.getSetting("channel");
-	reJoin         = cfg.getSettingBool("reJoin");
-	reConnect      = cfg.getSettingBool("reConnect");
+	serverName     = cfg.GetString("serverName");
+	serverPort     = cfg.GetInt   ("serverPort");
+	serverPassword = cfg.GetString("serverPassword");
+	nick           = cfg.GetString("nick");
+	userName       = cfg.GetString("userName");
+	realName       = cfg.GetString("realName");
+	channel        = cfg.GetString("channel");
+	reJoin         = cfg.GetBool  ("reJoin");
+	reConnect      = cfg.GetBool  ("reConnect");
 	
 	// TODO:
 	//userAuth = cfg.getSetting("userAuth");

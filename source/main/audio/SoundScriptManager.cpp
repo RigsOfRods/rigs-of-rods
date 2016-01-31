@@ -25,6 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "Sound.h"
 #include "SoundManager.h"
+#include "Utils.h"
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -413,7 +414,7 @@ void SoundScriptManager::parseScript(DataStreamPtr& stream, const String& groupN
 
 	while(!stream->eof())
 	{
-		line = stream->getLine();
+		line = RoR::Utils::SanitizeUtf8String(stream->getLine());
 		// ignore comments & blanks
 		if (!(line.length() == 0 || line.substr(0,2) == "//"))
 		{

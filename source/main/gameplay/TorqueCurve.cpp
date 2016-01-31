@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "TorqueCurve.h"
+#include "Utils.h"
 
 #include <Ogre.h>
 
@@ -69,7 +70,7 @@ int TorqueCurve::loadDefaultTorqueModels()
 
 	while (!ds->eof())
 	{
-		line=ds->getLine();
+		line = RoR::Utils::SanitizeUtf8String(ds->getLine());
 		StringUtil::trim(line);
 
 		if (line.empty() || line[0]==';')

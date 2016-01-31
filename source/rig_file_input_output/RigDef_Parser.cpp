@@ -31,6 +31,7 @@
 #include "RigDef_Regexes.h"
 #include "BitFlags.h"
 #include "RoRPrerequisites.h"
+#include "Utils.h"
 
 #include <OgreException.h>
 #include <OgreString.h>
@@ -75,14 +76,16 @@ Parser::Parser():
 Parser::~Parser()
 {}
 
-void Parser::ParseLine(Ogre::String const & line)
+void Parser::ParseLine(Ogre::String const & line_unchecked)
 {
-	unsigned int line_length = line.length();
+	unsigned int line_length = line_unchecked.length();
 	if (line_length == 0)
 	{
 		m_current_line_number++;
 		return;
 	}
+
+	std::string line = RoR::Utils::SanitizeUtf8String(line_unchecked);
 
 	bool line_finished = false;
 	bool scan_for_keyword = true;
