@@ -4373,8 +4373,6 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			// we lock hooks
 			// search new remote ropable to lock to
 			float mindist = it->lockrange;
-			node_t *shorter=0;
-			Beam *shtruck=0;
 			float distance = 100000000.0f;
 			// iterate over all trucks
 			for (int t=0; t<trucksnum; t++)
@@ -4427,6 +4425,9 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 				{
 					// we lock against ropables
 
+					node_t *shorter = 0;
+					Beam *shtruck = 0;
+
 					// and their ropables
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
@@ -4443,14 +4444,14 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 							shtruck = trucks[t];
 						}
 					}
-				}
-				// if we found a ropable, then lock it
-				if (shorter)
-				{
-					// we found a ropable, lock to it
-					it->lockNode  = shorter;
-					it->lockTruck = shtruck;
-					it->locked    = PRELOCK;
+
+					if (shorter)
+					{
+						// we found a ropable, lock to it
+						it->lockNode  = shorter;
+						it->lockTruck = shtruck;
+						it->locked    = PRELOCK;
+					}
 				}
 			}
 		}
