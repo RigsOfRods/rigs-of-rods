@@ -168,9 +168,10 @@ bool CameraBehaviorOrbit::mouseMoved(const CameraManager::CameraContext &ctx, co
 
 	if ( ms.buttonDown(OIS::MB_Right) )
 	{
+		float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
 		camRotX += Degree( ms.X.rel * 0.13f);
 		camRotY += Degree(-ms.Y.rel * 0.13f);
-		camDist +=        -ms.Z.rel * 0.02f;
+		camDist +=        -ms.Z.rel * scale;
 		return true;
 	}
 
