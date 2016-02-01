@@ -86,6 +86,7 @@ public:
 	void framestep(float dt);
 
 	void PushNotification(Ogre::String Title, Ogre::UTFString text);
+	void HideNotification();
 
 	void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
 	void UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible);
@@ -108,6 +109,8 @@ public:
 	bool GetPauseMenuVisible();
 
 	void ShowVehicleDescription();
+	void HideVehicleDescription();
+	void ToggleVehicleDescription();
 
 	virtual void UnfocusGui();
 

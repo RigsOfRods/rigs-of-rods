@@ -294,7 +294,7 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'cruisecontrol' in any module.
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_CRUISECONTROL, cruise_control, ProcessCruiseControl);
 
-	// Section 'cruisecontrol' in any module.
+	// Section 'speedlimiter' in any module.
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SPEEDLIMITER, speed_limiter, ProcessSpeedLimiter);
 
 	// Section 'collisionboxes'

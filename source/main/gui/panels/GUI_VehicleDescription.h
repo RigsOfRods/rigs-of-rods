@@ -46,6 +46,8 @@ public:
 	void Show();
 	void Hide();
 
+	bool getVisible();
+
 private:
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void CenterToScreen();

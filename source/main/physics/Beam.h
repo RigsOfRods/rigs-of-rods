@@ -243,8 +243,8 @@ public:
 	/**
 	* TIGHT-LOOP; Logic: flexbodies, threading
 	*/
-	void updateFlexbodiesPrepare(float dt=0);
-	void updateFlexbodiesFinal(float dt=0);
+	void updateFlexbodiesPrepare();
+	void updateFlexbodiesFinal();
 
 	/**
 	* TIGHT-LOOP; Logic: display
@@ -300,7 +300,6 @@ public:
 	
 	//! @{ calc forces euler division
 	void calcTruckEngine(bool doUpdate, Ogre::Real dt);
-	void calcBeams(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
 	void calcAnimatedProps(bool doUpdate, Ogre::Real dt);
 	void calcHooks(bool doUpdate);
 	void calcForceFeedBack(bool doUpdate);
@@ -554,8 +553,12 @@ protected:
 	void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps);
 
 	/**
+	* TIGHT LOOP; Physics & sound - only beams between multiple truck (noshock or ropes)
+	*/
+	void calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps);
+
+	/**
 	* TIGHT LOOP; Physics; 
-	* @param doUpdate Unused (overwritten in function)
 	*/
 	void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps);
 
@@ -608,6 +611,9 @@ protected:
 	ground_model_t *lastFuzzyGroundModel;
 
 	bool high_res_wheelnode_collisions;
+
+	void addInterTruckBeam(beam_t* beam);
+	void removeInterTruckBeam(beam_t* beam);
 
 	// this is for managing the blinkers on the truck:
 	blinktype blinkingtype;
@@ -670,7 +676,6 @@ protected:
 	float cabFadeTime;
 	int cabFadeMode; //<! Cab fading effect; values { -1, 0, 1, 2 }
 	// cab fading stuff - end
-	bool floating_origin_enable;
 
 	Ogre::ManualObject *simpleSkeletonManualObject;
 	Ogre::SceneNode *simpleSkeletonNode;

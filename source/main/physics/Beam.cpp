@@ -1079,21 +1079,24 @@ void Beam::resetAngle(float rot)
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
+	int reference_node = setInitPosition ? lowestnode : lowestcontactingnode;
+
 	// horizontal displacement
-	Vector3 offset = Vector3(px, 0, pz) - nodes[0].AbsPosition;
+	Vector3 offset = Vector3(px, nodes[0].AbsPosition.y, pz) - nodes[0].AbsPosition;
 	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition += offset;
 	}
 
 	// vertical displacement
-	float vertical_offset = -nodes[lowestnode].AbsPosition.y + miny;
+	float vertical_offset = -nodes[reference_node].AbsPosition.y + miny;
 	if (gEnv->terrainManager->getWater())
 	{
-		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestnode].AbsPosition.y + vertical_offset));
+		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[reference_node].AbsPosition.y + vertical_offset));
 	}
 	for (int i=1; i<free_node; i++)
 	{
+		if (nodes[i].contactless) continue;
 		float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z);
 		vertical_offset += std::max(0.0f, terrainHeight - (nodes[i].AbsPosition.y + vertical_offset));
 	}
@@ -1262,7 +1265,7 @@ void Beam::SyncReset()
 	cc_mode = false;
 	fusedrag=Vector3::ZERO;
 	origin=Vector3::ZERO;
-	float yPos = nodes[lowestnode].AbsPosition.y;
+	float yPos = nodes[lowestcontactingnode].AbsPosition.y;
 
 	Vector3 cur_position = nodes[0].AbsPosition;
 	Vector3 cur_dir = nodes[0].AbsPosition;
@@ -1325,12 +1328,12 @@ void Beam::SyncReset()
 		it->beam->mSceneNode->detachAllObjects();
 		it->beam->disabled = true;
 		it->locked        = UNLOCKED;
-		it->lockNodes     = true;
 		it->lockNode      = 0;
 		it->lockTruck     = 0;
 		it->beam->p2      = &nodes[0];
 		it->beam->p2truck = false;
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+		removeInterTruckBeam(it->beam);
 	}
 
 	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++) it->lockedto=0;
@@ -1509,7 +1512,7 @@ bool Beam::frameStep(int steps)
 				trucks[t]->lastposition = trucks[t]->position;
 				trucks[t]->updateTruckPosition();
 			}
-			if (floating_origin_enable && trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
+			if (trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
 			{
 				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
 			}
@@ -3515,7 +3518,7 @@ void Beam::updateLabels(float dt)
 	}
 }
 
-void Beam::updateFlexbodiesPrepare(float dt)
+void Beam::updateFlexbodiesPrepare()
 {
 	BES_GFX_START(BES_GFX_updateFlexBodies);
 
@@ -3739,7 +3742,7 @@ void Beam::updateVisual(float dt)
 	BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
-void Beam::updateFlexbodiesFinal(float dt)
+void Beam::updateFlexbodiesFinal()
 {
 	if (gEnv->threadPool)
 	{
@@ -4123,6 +4126,24 @@ void Beam::cabFade(float amount)
 	}
 }
 
+void Beam::addInterTruckBeam(beam_t* beam)
+{
+	auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
+	if (pos == interTruckBeams.end())
+	{
+		interTruckBeams.push_back(beam);
+	}
+}
+
+void Beam::removeInterTruckBeam(beam_t* beam)
+{
+	auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
+	if (pos != interTruckBeams.end())
+	{
+		interTruckBeams.erase(pos);
+	}
+}
+
 void Beam::tieToggle(int group)
 {
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -4160,6 +4181,7 @@ void Beam::tieToggle(int group)
 			it->beam->disabled = true;
 			it->beam->mSceneNode->detachAllObjects();
 			istied = true;
+			removeInterTruckBeam(it->beam);
 		}
 	}
 
@@ -4224,6 +4246,7 @@ void Beam::tieToggle(int group)
 					it->tying = true;
 					it->lockedto = locktedto;
 					it->lockedto->used++;
+					addInterTruckBeam(it->beam);
 				}
 			}
 		}
@@ -4364,6 +4387,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			it->beam->p2truck  = false;
 			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 			it->beam->disabled = true;
+			removeInterTruckBeam(it->beam);
 		}
 		// do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
 		else if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
@@ -4371,8 +4395,6 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			// we lock hooks
 			// search new remote ropable to lock to
 			float mindist = it->lockrange;
-			node_t *shorter=0;
-			Beam *shtruck=0;
 			float distance = 100000000.0f;
 			// iterate over all trucks
 			for (int t=0; t<trucksnum; t++)
@@ -4425,6 +4447,9 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 				{
 					// we lock against ropables
 
+					node_t *shorter = 0;
+					Beam *shtruck = 0;
+
 					// and their ropables
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
@@ -4441,14 +4466,14 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 							shtruck = trucks[t];
 						}
 					}
-				}
-				// if we found a ropable, then lock it
-				if (shorter)
-				{
-					// we found a ropable, lock to it
-					it->lockNode  = shorter;
-					it->lockTruck = shtruck;
-					it->locked    = PRELOCK;
+
+					if (shorter)
+					{
+						// we found a ropable, lock to it
+						it->lockNode  = shorter;
+						it->lockTruck = shtruck;
+						it->locked    = PRELOCK;
+					}
 				}
 			}
 		}
@@ -5688,7 +5713,6 @@ Beam::Beam(
 	, disableTruckTruckSelfCollisions(false)
 	, elevator(0)
 	, flap(0)
-	, floating_origin_enable(true)
 	, fusedrag(Ogre::Vector3::ZERO)
 	, high_res_wheelnode_collisions(false)
 	, hydroaileroncommand(0)

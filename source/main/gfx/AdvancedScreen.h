@@ -32,6 +32,44 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define CLEAR_LSB(var)      ((var) &= ~1)
 #define CHECK_BIT(var,pos)  ((var) & (1<<(pos)))
 
+void save(Ogre::uchar *data, Ogre::uchar *databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename)
+{
+	Ogre::Image img;
+	img.loadDynamicImage(data, mWidth, mHeight, 1, pf, false, 1, 0);
+	img.save(filename);
+
+	OGRE_FREE(data, Ogre::MEMCATEGORY_RENDERSYS);
+	OGRE_FREE(databuf, Ogre::MEMCATEGORY_RENDERSYS);
+}
+
+struct wrap {
+	Ogre::uchar *data;
+	Ogre::uchar *databuf;
+	int mWidth;
+	int mHeight;
+	Ogre::PixelFormat pf;
+	Ogre::String filename;
+
+    wrap(Ogre::uchar *data, Ogre::uchar *databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename) :
+		data(data),
+		databuf(databuf),
+		mWidth(mWidth),
+		mHeight(mHeight),
+		pf(pf),
+		filename(filename)
+	{
+	}
+};
+
+void* save_img(void *arg)
+{
+	std::auto_ptr< wrap > img(static_cast< wrap* >(arg));
+	save(img->data, img->databuf, img->mWidth, img->mHeight, img->pf, img->filename);
+
+	pthread_exit(NULL);
+	return NULL;
+}
+
 // this only works with lossless image compression (png)
 
 class AdvancedScreen : public ZeroedMemoryAllocator
@@ -111,12 +149,12 @@ public:
 		//LOG("used " + TOSTRING(used_per) + " %");
 
 		//save it
-		Ogre::Image img;
-		img.loadDynamicImage(data, mWidth, mHeight, 1, pf, false, 1, 0);
-		img.save(filename);
+		wrap* img = new wrap(data, databuf, mWidth, mHeight, pf, filename);
+		pthread_t pt;
+		pthread_create(&pt, NULL, save_img, img);
 
-		OGRE_FREE(data, Ogre::MEMCATEGORY_RENDERSYS);
-		OGRE_FREE(databuf, Ogre::MEMCATEGORY_RENDERSYS);
+		// C++11 alternative
+		//std::thread{save, data, databuf, mWidth, mHeight, pf, filename}.detach();
 	}
 
 protected:

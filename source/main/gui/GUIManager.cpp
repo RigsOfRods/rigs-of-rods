@@ -193,6 +193,13 @@ void GUIManager::PushNotification(String Title, UTFString text)
 	m_gui_SimUtils->PushNotification(Title, text);
 }
 
+void GUIManager::HideNotification()
+{
+	if (!m_gui_SimUtils) return;
+
+	m_gui_SimUtils->HideNotification();
+}
+
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
 {
 	int width = (int)rw->getWidth();
@@ -481,4 +488,18 @@ void GUIManager::ShowVehicleDescription()
 		m_vehicle_description = std::unique_ptr<GUI::VehicleDescription>(new GUI::VehicleDescription());
 
 	m_vehicle_description->Show();
+}
+
+void GUIManager::HideVehicleDescription()
+{
+	if (m_vehicle_description.get() != nullptr)
+		m_vehicle_description->Hide();
+}
+
+void GUIManager::ToggleVehicleDescription()
+{
+	if (m_vehicle_description.get() == nullptr || !m_vehicle_description->getVisible())
+		ShowVehicleDescription();
+	else
+		HideVehicleDescription();
 }

@@ -480,14 +480,10 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 				if (pitchAngle.valueDegrees() > +1.0f)
 				{
-					if (sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass() > curr_truck->engine->getTorque() / 2.0f)
-					{
-						curr_truck->brake = curr_truck->brakeforce;
-					} 
-					else
-					{
-						curr_truck->brake = curr_truck->brakeforce * (1.0f - accl);
-					}
+					float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
+					float engine_force = std::abs(curr_truck->engine->getTorque());
+					float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
+					curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
 				}
 			}
 
@@ -502,14 +498,10 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 				if (pitchAngle.valueDegrees() < -1.0f)
 				{
-					if (sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass() < curr_truck->engine->getTorque() / 2.0f)
-					{
-						curr_truck->brake = curr_truck->brakeforce;
-					} 
-					else
-					{
-						curr_truck->brake = curr_truck->brakeforce * (1.0f - accl);
-					}
+					float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
+					float engine_force = std::abs(curr_truck->engine->getTorque());
+					float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
+					curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
 				}
 			}
 		} // end of ->engine

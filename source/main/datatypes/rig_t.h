@@ -30,6 +30,8 @@ struct rig_t
 	Ogre::Real default_beam_plastic_coef[MAX_BEAMS];
 	int free_beam;
 
+	std::vector<beam_t*> interTruckBeams;
+
 	contacter_t contacters[MAX_CONTACTERS];
 	int free_contacter;
 
@@ -282,6 +284,7 @@ struct rig_t
 	std::vector<Ogre::AxisAlignedBox> predictedCollisionBoundingBoxes;
 	bool freePositioned;
 	int lowestnode; //!< never updated after truck init!?!
+	int lowestcontactingnode;
 
 	float default_spring; //!< TODO: REMOVE! (parser context only)
 	float default_spring_scale; //!< TODO: REMOVE! (parser context only)

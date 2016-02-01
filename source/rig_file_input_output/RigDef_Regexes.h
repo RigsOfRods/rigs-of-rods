@@ -1010,7 +1010,7 @@ DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
     "[Cc][Rr][Uu][Ii][Ss][Ee][Cc][Oo][Nn][Tt][Rr][Oo][Ll]"
     E_DELIMITER_SPACE
     E_CAPTURE( E_REAL_NUMBER ) // Min speed
-    E_DELIMITER_COMMA
+    E_DELIMITER_SPACE
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Autobrake on/off
     E_2xCAPTURE_TRAILING_COMMENT
     );
@@ -1030,59 +1030,59 @@ DEFINE_REGEX( SECTION_ENGINE,
     E_CAPTURE( E_REAL_NUMBER ) // #11 Neutral
     E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_REAL_NUMBER ) // #13 1st gear
-    E_CAPTURE_OPTIONAL( 
+    E_CAPTURE_OPTIONAL(
         E_CAPTURE( E_DELIMITER )
         E_CAPTURE( E_REAL_NUMBER ) // #16 2nd gear ...
 
-        E_CAPTURE_OPTIONAL( 
+        E_CAPTURE_OPTIONAL(
             E_CAPTURE( E_DELIMITER )
             E_CAPTURE( E_REAL_NUMBER ) // #19
 
-            E_CAPTURE_OPTIONAL( 
+            E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )
-                E_CAPTURE( E_REAL_NUMBER ) // #22*/
+                E_CAPTURE( E_REAL_NUMBER ) // #22
 
-                E_CAPTURE_OPTIONAL( 
+                E_CAPTURE_OPTIONAL(
                     E_CAPTURE( E_DELIMITER )
                     E_CAPTURE( E_REAL_NUMBER ) // #25
 
-                    E_CAPTURE_OPTIONAL( 
+                    E_CAPTURE_OPTIONAL(
                         E_CAPTURE( E_DELIMITER )
                         E_CAPTURE( E_REAL_NUMBER ) // #28
 
-                        E_CAPTURE_OPTIONAL( 
+                        E_CAPTURE_OPTIONAL(
                             E_CAPTURE( E_DELIMITER )
                             E_CAPTURE( E_REAL_NUMBER ) // #31
 
-                            E_CAPTURE_OPTIONAL( 
+                            E_CAPTURE_OPTIONAL(
                                 E_CAPTURE( E_DELIMITER )
                                 E_CAPTURE( E_REAL_NUMBER ) // #34
 
-                                E_CAPTURE_OPTIONAL( 
+                                E_CAPTURE_OPTIONAL(
                                     E_CAPTURE( E_DELIMITER )
                                     E_CAPTURE( E_REAL_NUMBER ) // #37
 
-                                    E_CAPTURE_OPTIONAL( 
+                                    E_CAPTURE_OPTIONAL(
                                         E_CAPTURE( E_DELIMITER )
                                         E_CAPTURE( E_REAL_NUMBER ) // #40
 
-                                        E_CAPTURE_OPTIONAL( 
+                                        E_CAPTURE_OPTIONAL(
                                             E_CAPTURE( E_DELIMITER )
                                             E_CAPTURE( E_REAL_NUMBER ) // #43
 
-                                            E_CAPTURE_OPTIONAL( 
+                                            E_CAPTURE_OPTIONAL(
                                                 E_CAPTURE( E_DELIMITER )
                                                 E_CAPTURE( E_REAL_NUMBER ) // #46
 
-                                                E_CAPTURE_OPTIONAL( 
+                                                E_CAPTURE_OPTIONAL(
                                                     E_CAPTURE( E_DELIMITER )
                                                     E_CAPTURE( E_REAL_NUMBER ) // #49
 
-                                                    E_CAPTURE_OPTIONAL( 
+                                                    E_CAPTURE_OPTIONAL(
                                                         E_CAPTURE( E_DELIMITER )
                                                         E_CAPTURE( E_REAL_NUMBER ) // #52
 
-                                                        E_CAPTURE_OPTIONAL( 
+                                                        E_CAPTURE_OPTIONAL(
                                                             E_CAPTURE( E_DELIMITER )
                                                             E_CAPTURE( E_REAL_NUMBER ) // #55 15th gear, max
 
@@ -1162,11 +1162,11 @@ DEFINE_REGEX( SECTION_ENGOPTION,
 
                         E_CAPTURE_OPTIONAL(
                             E_CAPTURE( E_DELIMITER )
-                            E_CAPTURE( E_REAL_NUMBER ) // #19 Idle RPM
+                            E_CAPTURE( E_REAL_NUMBER ) // #19 Stall RPM
 
                             E_CAPTURE_OPTIONAL(
                                 E_CAPTURE( E_DELIMITER )
-                                E_CAPTURE( E_REAL_NUMBER ) // #22 Stall RMP
+                                E_CAPTURE( E_REAL_NUMBER ) // #22 Idle RMP
 
                                 E_CAPTURE_OPTIONAL(
                                     E_CAPTURE( E_DELIMITER )
@@ -2451,11 +2451,11 @@ DEFINE_REGEX( SECTION_TRIGGERS,
     E_DELIMITER_COMMA
     E_CAPTURE( E_DECIMAL_NUMBER ) // #6 Extension trigger action
 
-    E_CAPTURE_OPTIONAL( 
+    E_CAPTURE_OPTIONAL(
         E_DELIMITER_COMMA
         E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #8 Options
-    
-        E_CAPTURE_OPTIONAL( 
+
+        E_CAPTURE_OPTIONAL(
             E_DELIMITER_COMMA
             E_CAPTURE( E_REAL_NUMBER ) // #10 Boundary timer
         )
@@ -2568,7 +2568,7 @@ DEFINE_REGEX( SECTION_WHEELS,
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Braking
     E_DELIMITER_COMMA
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Propulsion
-    E_DELIMITER_COMMA    
+    E_DELIMITER_COMMA
     E_CAPTURE( E_NODE_ID ) // Reference arm node
     E_DELIMITER_COMMA
     E_CAPTURE( E_REAL_NUMBER ) // #10 Mass
@@ -2627,33 +2627,33 @@ DEFINE_REGEX( SECTION_WINGS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Box node 1
     E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // 
+    E_CAPTURE( E_NODE_ID )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // 
+    E_CAPTURE( E_NODE_ID )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // 
+    E_CAPTURE( E_NODE_ID )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // 
+    E_CAPTURE( E_NODE_ID )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // 
+    E_CAPTURE( E_NODE_ID )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // 
+    E_CAPTURE( E_NODE_ID )
     E_DELIMITER_COMMA
     E_CAPTURE( E_NODE_ID ) // Box node 8
     E_DELIMITER_COMMA
     E_CAPTURE( E_REAL_NUMBER ) // #9 Tex. coord 1
     E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // 
+    E_CAPTURE( E_REAL_NUMBER )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // 
+    E_CAPTURE( E_REAL_NUMBER )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // 
+    E_CAPTURE( E_REAL_NUMBER )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // 
+    E_CAPTURE( E_REAL_NUMBER )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // 
+    E_CAPTURE( E_REAL_NUMBER )
     E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // 
+    E_CAPTURE( E_REAL_NUMBER )
     E_DELIMITER_COMMA
     E_CAPTURE( E_REAL_NUMBER ) // #16 Tex. coord 8
     E_CAPTURE_OPTIONAL(
@@ -2688,9 +2688,9 @@ DEFINE_REGEX( SECTION_WINGS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-// --------------------------------------------------------------------------
-// Cleanup                                                                   
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------- //
+// Cleanup                                                                    //
+// -------------------------------------------------------------------------- //
 
 #undef E_BACKSLASH
 #undef E_SLASH
