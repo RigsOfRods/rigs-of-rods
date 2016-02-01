@@ -1061,7 +1061,19 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif //MYGUI
 	}
 
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
+	{
+		if (loading_state == ALL_LOADED && gEnv->player && !curr_truck)
+		{
+			reload_pos = gEnv->player->getPosition();
+			freeTruckPosition = true;
+			loading_state = RELOADING;
 
+			dirty=true;
+
+			Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
+		}
+	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && curr_truck)
 	{
@@ -1069,6 +1081,13 @@ bool RoRFrameListener::updateEvents(float dt)
 		dirty=true;
 		
 		Application::GetGuiManager()->ToggleTruckInfoBox();
+	}
+
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && curr_truck)
+	{
+		dirty=true;
+
+		Application::GetGuiManager()->ToggleVehicleDescription();
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))

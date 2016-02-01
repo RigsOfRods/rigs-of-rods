@@ -968,6 +968,12 @@ eventInfo_t eventInfo[] = {
 		_L("write current position to log (you can open the logfile and reuse the position)")
 	},
 	{
+		"COMMON_GET_NEW_VEHICLE",
+		EV_COMMON_GET_NEW_VEHICLE,
+		"Keyboard EXPL+CTRL+N",
+		_L("open vehicle selector")
+	},
+	{
 		"COMMON_PRESSURE_LESS",
 		EV_COMMON_PRESSURE_LESS,
 		"Keyboard LBRACKET",
@@ -1086,6 +1092,12 @@ eventInfo_t eventInfo[] = {
 		EV_COMMON_TRUCK_INFO,
 		"Keyboard EXPL+T",
 		_L("toggle truck HUD")
+	},
+	{
+		"COMMON_TRUCK_DESCRIPTION",
+		EV_COMMON_TRUCK_DESCRIPTION,
+		"Keyboard EXPL+CTRL+T",
+		_L("toggle truck description")
 	},
 	{
 		"COMMON_FOV_LESS",

@@ -235,6 +235,7 @@ enum events
 	EV_COMMON_NETCHATDISPLAY,
 	EV_COMMON_NETCHATMODE,
 	EV_COMMON_OUTPUT_POSITION, //!< write current position to log (you can open the logfile and reuse the position)
+	EV_COMMON_GET_NEW_VEHICLE, //!< open vehicle selector
 	EV_COMMON_PRESSURE_LESS, //!< decrease tire pressure (note: only very few trucks support this)
 	EV_COMMON_PRESSURE_MORE, //!< increase tire pressure (note: only very few trucks support this)
 	EV_COMMON_QUIT_GAME, //!< exit the game
@@ -261,6 +262,7 @@ enum events
 	EV_COMMON_TOGGLE_TRUCK_BEACONS, //!< toggle truck beacons
 	EV_COMMON_TOGGLE_TRUCK_LIGHTS, //!< toggle truck front lights
 	EV_COMMON_TRUCK_INFO, //!< toggle truck HUD
+	EV_COMMON_TRUCK_DESCRIPTION, //!< toggle truck description
 	EV_COMMON_TRUCK_REMOVE,
 	EV_GRASS_LESS, //!< EXPERIMENTAL: remove some grass
 	EV_GRASS_MORE, //!< EXPERIMENTAL: add some grass

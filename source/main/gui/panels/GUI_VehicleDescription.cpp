@@ -131,14 +131,19 @@ void CLASS::LoadText()
 
 void CLASS::Show()
 {
-	MAIN_WIDGET->setVisibleSmooth(true);
+	MAIN_WIDGET->setVisible(true);
 	currTruck = BeamFactory::getSingleton().getCurrentTruck();
 	LoadText();
 }
 
 void CLASS::Hide()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
+}
+
+bool CLASS::getVisible()
+{
+	MAIN_WIDGET->getVisible();
 }
 
 void CLASS::CenterToScreen()
