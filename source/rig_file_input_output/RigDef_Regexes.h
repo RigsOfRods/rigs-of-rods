@@ -595,7 +595,7 @@ DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS_SCALE, 
+DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS_SCALE,
     E_LEADING_WHITESPACE
     "[Ss][Ee][Tt]_[Bb][Ee][Aa][Mm]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]_[Ss][Cc][Aa][Ll][Ee]" 
     E_DELIMITER_SPACE
@@ -617,26 +617,26 @@ DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS_SCALE,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( DIRECTIVE_SET_INERTIA_DEFAULTS, 
+DEFINE_REGEX( DIRECTIVE_SET_INERTIA_DEFAULTS,
     E_LEADING_WHITESPACE
     "[Ss][Ee][Tt]_[Ii][Nn][Ee][Rr][Tt][Ii][Aa]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]"
     E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) /* #1 Start delay OR -1 */
-    E_CAPTURE_OPTIONAL( 
-        E_CAPTURE( E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE ) /* #3 Delimiter */
-        E_CAPTURE( E_REAL_NUMBER ) /* #4 Stop delay */
+    E_CAPTURE( E_REAL_NUMBER )                                        // #1 Start delay OR -1
+    E_CAPTURE_OPTIONAL(
+        E_CAPTURE( E_DELIMITER )                                      // #3 Delimiter
+        E_CAPTURE( E_REAL_NUMBER )                                    // #4 Stop delay
 
-        E_CAPTURE_OPTIONAL( 
-            E_CAPTURE( E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE ) /* #6 Delimiter */
-            E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION ) /* #7 Start function */
+        E_CAPTURE_OPTIONAL(
+            E_CAPTURE( E_DELIMITER )                                  // #6 Delimiter
+            E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION )                  // #7 Start function
 
-            E_CAPTURE_OPTIONAL( 
-                E_CAPTURE( E_DELIMITER_COMMA E_OR E_DELIMITER_SPACE ) /* #9 Delimiter */
-                E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION ) /* #10 Stop function */
+            E_CAPTURE_OPTIONAL(
+                E_CAPTURE( E_DELIMITER )                              // #9 Delimiter
+                E_CAPTURE_OPTIONAL( E_INERTIA_FUNCTION )              // #10 Stop function
             )
         )
     )
-    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) /* #11 Invalid text */
+    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING )                   // #11 Invalid text
     E_TRAILING_WHITESPACE
     );
 
