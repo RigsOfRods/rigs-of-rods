@@ -1501,7 +1501,6 @@ void Parser::ParseSlopeBrake(Ogre::String const & line)
 			}
 		}
 	}
-
 }
 
 void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
