@@ -2587,6 +2587,38 @@ void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
 	}
 }
 
+void Parser::ParseFlexbodyUnsafe(Ogre::String const & line)
+{
+    PARSE_UNSAFE(line, 10,
+    {
+        int num_args = values.size();
+
+        Flexbody flexbody;
+        flexbody.reference_node =  _ParseNodeRef(values[0]);
+        flexbody.x_axis_node    =  _ParseNodeRef(values[1]);
+        flexbody.y_axis_node    =  _ParseNodeRef(values[2]);
+
+        flexbody.offset.x       = STR_PARSE_REAL(values[3]);
+        flexbody.offset.y       = STR_PARSE_REAL(values[4]);
+        flexbody.offset.z       = STR_PARSE_REAL(values[5]);
+        flexbody.rotation.x     = STR_PARSE_REAL(values[6]);
+        flexbody.rotation.y     = STR_PARSE_REAL(values[7]);
+        flexbody.rotation.z     = STR_PARSE_REAL(values[8]);
+        flexbody.mesh_name      =                values[9];
+
+        this->ProcessFlexbody(flexbody);
+    });
+}
+
+void Parser::ProcessFlexbody(Flexbody& flexbody)
+{
+    m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
+    m_current_module->flexbodies.push_back(m_last_flexbody);
+
+    // Switch subsection
+    m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
+}
+
 void Parser::ParseFlexbody(Ogre::String const & line)
 {
 	if (m_current_subsection == File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
@@ -2594,7 +2626,7 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 		boost::smatch results;
 		if (! boost::regex_search(line, results, Regexes::FLEXBODIES_SUBSECTION_PROPLIKE_LINE))
 		{
-			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+			this->ParseFlexbodyUnsafe(line);
 			return;
 		}
 		/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
@@ -2617,8 +2649,7 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 		m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
 		m_current_module->flexbodies.push_back(m_last_flexbody);
 
-		/* Switch subsection */
-		m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
+        this->ProcessFlexbody(flexbody);
 	}
 	else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
 	{

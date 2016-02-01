@@ -213,6 +213,8 @@ protected:
 	void ParseFlare2(Ogre::String const & line);
 
 	void ParseFlexbody(Ogre::String const & line);
+	void ParseFlexbodyUnsafe(Ogre::String const & line);
+	void ProcessFlexbody(Flexbody& flexbody);
 
 	// FlexBodyWheels
 	void ParseFlexBodyWheel(Ogre::String const & line);
