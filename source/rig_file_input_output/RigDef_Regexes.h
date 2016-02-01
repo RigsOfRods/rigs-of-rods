@@ -524,38 +524,38 @@ DEFINE_REGEX( DIRECTIVE_DETACHER_GROUP,
     E_LEADING_WHITESPACE
     "[Dd][Ee][Tt][Aa][Cc][Hh][Ee][Rr]_[Gg][Rr][Oo][Uu][Pp]"
     E_DELIMITER_SPACE
-    E_CAPTURE( /* #1 Wrapper */
-        E_CAPTURE( E_DECIMAL_NUMBER ) /* #2 Detacher group ID */
+    E_CAPTURE(                        // #1 Wrapper
+        E_CAPTURE( E_DECIMAL_NUMBER ) // #2 Detacher group ID
         E_OR
-        E_CAPTURE( "end" )            /* #3 End of group */
+        E_CAPTURE( "end" )            // #3 End of group
     )
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( DIRECTIVE_FLEXBODY_CAMERA_MODE,
     E_LEADING_WHITESPACE
     "[Ff][Ll][Ee][Xx][Bb][Oo][Dd][Yy]_[Cc][Aa][Mm][Ee][Rr][Aa]_[Mm][Oo][Dd][Ee]"
     E_DELIMITER_SPACE
-    E_CAPTURE( E_DECIMAL_NUMBER ) /* #1 Mode/cinecam index */
-    E_TRAILING_WHITESPACE
+    E_CAPTURE( E_DECIMAL_NUMBER ) // #1 Mode/cinecam index
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( DIRECTIVE_PROP_CAMERA_MODE,
     E_LEADING_WHITESPACE
     "[Pp][Rr][Oo][Pp]_[Cc][Aa][Mm][Ee][Rr][Aa]_[Mm][Oo][Dd][Ee]"
     E_DELIMITER_SPACE
-    E_CAPTURE( E_DECIMAL_NUMBER ) /* #1 Mode/cinecam index */
-    E_TRAILING_WHITESPACE
+    E_CAPTURE( E_DECIMAL_NUMBER ) // #1 Mode/cinecam index
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( DIRECTIVE_SECTION,
     E_LEADING_WHITESPACE
     "[Ss][Ee][Cc][Tt][Ii][Oo][Nn]"
     E_DELIMITER_SPACE
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #1 Unused (version) */
+    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #1 Unused (version)
     E_DELIMITER_SPACE
-    E_CAPTURE( E_STRING_NO_SPACES )        /* #2 Module name */
-    E_TRAILING_WHITESPACE
+    E_CAPTURE( E_STRING_NO_SPACES )        // #2 Module name
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS, 
