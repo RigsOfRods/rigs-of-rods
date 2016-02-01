@@ -109,6 +109,8 @@ public:
 	bool GetPauseMenuVisible();
 
 	void ShowVehicleDescription();
+	void HideVehicleDescription();
+	void ToggleVehicleDescription();
 
 	virtual void UnfocusGui();
 

@@ -489,3 +489,17 @@ void GUIManager::ShowVehicleDescription()
 
 	m_vehicle_description->Show();
 }
+
+void GUIManager::HideVehicleDescription()
+{
+	if (m_vehicle_description.get() != nullptr)
+		m_vehicle_description->Hide();
+}
+
+void GUIManager::ToggleVehicleDescription()
+{
+	if (m_vehicle_description.get() == nullptr || !m_vehicle_description->getVisible())
+		ShowVehicleDescription();
+	else
+		HideVehicleDescription();
+}

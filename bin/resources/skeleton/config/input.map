@@ -168,6 +168,7 @@ COMMON_LOCK                    Keyboard             EXPL+L
 COMMON_AUTOLOCK                Keyboard             EXPL+ALT+L 
 COMMON_ROPELOCK                Keyboard             EXPL+CTRL+L 
 COMMON_OUTPUT_POSITION         Keyboard             H 
+COMMON_GET_NEW_VEHICLE         Keyboard             EXPL+CTRL+N 
 COMMON_PRESSURE_LESS           Keyboard             LBRACKET 
 COMMON_PRESSURE_MORE           Keyboard             RBRACKET 
 COMMON_QUIT_GAME               Keyboard             ESCAPE 
@@ -189,6 +190,7 @@ COMMON_TOGGLE_STATS            Keyboard             EXPL+F
 COMMON_TOGGLE_TRUCK_BEACONS    Keyboard             M 
 COMMON_TOGGLE_TRUCK_LIGHTS     Keyboard             N 
 COMMON_TRUCK_INFO              Keyboard             EXPL+T 
+COMMON_TRUCK_DESCRIPTION       Keyboard             EXPL+CTRL+T 
 COMMON_FOV_LESS                Keyboard             EXPL+NUMPAD7 
 COMMON_FOV_MORE                Keyboard             EXPL+CTRL+NUMPAD7
 
