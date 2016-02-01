@@ -3801,25 +3801,23 @@ void Parser::ParseAirbrakes(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Airbrake airbrake;
-	airbrake.reference_node = _ParseNodeRef(results[1]);
-	airbrake.x_axis_node    = _ParseNodeRef(results[2]);
-	airbrake.y_axis_node    = _ParseNodeRef(results[3]);
-	airbrake.aditional_node = _ParseNodeRef(results[4]);
-
-	airbrake.offset.x = STR_PARSE_REAL(results[5]);
-	airbrake.offset.y = STR_PARSE_REAL(results[6]);
-	airbrake.offset.z = STR_PARSE_REAL(results[7]);
-
-	airbrake.width = STR_PARSE_REAL(results[8]);
-	airbrake.height = STR_PARSE_REAL(results[9]);
-	airbrake.max_inclination_angle = STR_PARSE_REAL(results[10]);
-	airbrake.texcoord_x1 = STR_PARSE_REAL(results[11]);
-	airbrake.texcoord_y1 = STR_PARSE_REAL(results[12]);
-	airbrake.texcoord_x2 = STR_PARSE_REAL(results[13]);
-	airbrake.texcoord_y2 = STR_PARSE_REAL(results[14]);
+	airbrake.reference_node        =  _ParseNodeRef(results[ 1]);
+	airbrake.x_axis_node           =  _ParseNodeRef(results[ 3]);
+	airbrake.y_axis_node           =  _ParseNodeRef(results[ 5]);
+	airbrake.aditional_node        =  _ParseNodeRef(results[ 7]);
+	airbrake.offset.x              = STR_PARSE_REAL(results[ 9]);
+	airbrake.offset.y              = STR_PARSE_REAL(results[11]);
+	airbrake.offset.z              = STR_PARSE_REAL(results[13]);
+	airbrake.width                 = STR_PARSE_REAL(results[15]);
+	airbrake.height                = STR_PARSE_REAL(results[17]);
+	airbrake.max_inclination_angle = STR_PARSE_REAL(results[19]);
+	airbrake.texcoord_x1           = STR_PARSE_REAL(results[21]);
+	airbrake.texcoord_y1           = STR_PARSE_REAL(results[23]);
+	airbrake.texcoord_x2           = STR_PARSE_REAL(results[25]);
+	airbrake.texcoord_y2           = STR_PARSE_REAL(results[26]);
 
 	m_current_module->airbrakes.push_back(airbrake);
 }
