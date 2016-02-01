@@ -558,61 +558,63 @@ DEFINE_REGEX( DIRECTIVE_SECTION,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS, 
+DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS,
     E_LEADING_WHITESPACE
-    "[Ss][Ee][Tt]_[Bb][Ee][Aa][Mm]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]" 
+    "[Ss][Ee][Tt]_[Bb][Ee][Aa][Mm]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]"
     E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) /* #1 Spring */
+    E_CAPTURE( E_REAL_NUMBER )                          // #1 Spring
     E_CAPTURE_OPTIONAL(
         E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER ) /* #3 Damping */
+        E_CAPTURE( E_REAL_NUMBER )                      // #3 Damping
 
         E_CAPTURE_OPTIONAL(
             E_DELIMITER_COMMA
-            E_CAPTURE( E_REAL_NUMBER ) /* #5 Deformation threshold constant */
+            E_CAPTURE( E_REAL_NUMBER )                  // #5 Deformation threshold constant
 
             E_CAPTURE_OPTIONAL(
                 E_DELIMITER_COMMA
-                E_CAPTURE( E_REAL_NUMBER ) /* #7 Breaking threshold constant */
+                E_CAPTURE( E_REAL_NUMBER )              // #7 Breaking threshold constant
 
                 E_CAPTURE_OPTIONAL(
                     E_DELIMITER_COMMA
-                    E_CAPTURE( E_REAL_NUMBER ) /* #9 Beam diameter */
+                    E_CAPTURE( E_REAL_NUMBER )          // #9 Beam diameter
 
                     E_CAPTURE_OPTIONAL(
                         E_DELIMITER_COMMA
-                        E_CAPTURE( E_STRING_NO_SPACES ) /* #11 Beam material */
+                        E_CAPTURE( E_STRING_NO_SPACES ) // #11 Beam material
 
                         E_CAPTURE_OPTIONAL(
                             E_DELIMITER_COMMA
-                            E_CAPTURE( E_REAL_NUMBER ) /* #13 Plastic deformation coefficient */
+                            E_CAPTURE( E_REAL_NUMBER )  // #13 Plastic deformation coefficient
                         )
                     )
                 )
             )
         )
     )
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS_SCALE, 
     E_LEADING_WHITESPACE
     "[Ss][Ee][Tt]_[Bb][Ee][Aa][Mm]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]_[Ss][Cc][Aa][Ll][Ee]" 
     E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) /* #1 Spring scale */
+    E_CAPTURE( E_REAL_NUMBER )             // #1 Spring scale
     E_CAPTURE_OPTIONAL(
         E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER ) /* #3 Damping scale */
+        E_CAPTURE( E_REAL_NUMBER )         // #3 Damping scale
 
         E_CAPTURE_OPTIONAL(
             E_DELIMITER_COMMA
-            E_CAPTURE( E_REAL_NUMBER ) /* #5 Deformation threshold constant scale */
+            E_CAPTURE( E_REAL_NUMBER )     // #5 Deformation threshold constant scale
 
             E_CAPTURE_OPTIONAL(
                 E_DELIMITER_COMMA
-                E_CAPTURE( E_REAL_NUMBER ) /* #7 Breaking threshold constant scale */
+                E_CAPTURE( E_REAL_NUMBER ) // #7 Breaking threshold constant scale
             )
         )
     )
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( DIRECTIVE_SET_INERTIA_DEFAULTS, 
