@@ -64,6 +64,7 @@ CLASS::~CLASS()
 
 void CLASS::LoadText()
 {
+	m_vehicle_title->setMaxTextLength(33);
 	m_vehicle_title->setCaptionWithReplacing(currTruck->getTruckName());
 
 	Ogre::String txt;

@@ -168,6 +168,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 	if (b_truckinfo && truck != nullptr)
 	{
+		m_truck_name->setMaxTextLength(28);
 		m_truck_name->setCaptionWithReplacing(truck->getTruckName());
 		truckstats = "\n"; //always reset on each frame + space
 
