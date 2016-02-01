@@ -30,6 +30,8 @@ struct rig_t
 	Ogre::Real default_beam_plastic_coef[MAX_BEAMS];
 	int free_beam;
 
+	std::vector<beam_t*> interTruckBeams;
+
 	contacter_t contacters[MAX_CONTACTERS];
 	int free_contacter;
 

@@ -1454,6 +1454,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	BES_START(BES_CORE_WholeTruckCalc);
 
 	forwardCommands();
+	calcBeamsInterTruck(doUpdate, dt, step, maxsteps);
 
 	return true;
 }
@@ -1473,15 +1474,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 	// Springs
 	for (int i=0; i<free_beam; i++)
 	{
-		Vector3 dis(Vector3::ZERO);
-		// Trick for exploding stuff
-		if (!beams[i].disabled)
+		if (!beams[i].disabled && !beams[i].p2truck)
 		{
 			// Calculate beam length
-			if (!beams[i].p2truck)
-				dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
-			else
-				dis = beams[i].p1->AbsPosition - beams[i].p2->AbsPosition;
+			Vector3 dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
 
 			Real dislen = dis.squaredLength();
 			Real inverted_dislen = fast_invSqrt(dislen);
@@ -1699,6 +1695,152 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 	BES_STOP(BES_CORE_Beams);
 }
 
+void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+{
+	for (int i=0; i<interTruckBeams.size(); i++)
+	{
+		if (!interTruckBeams[i]->disabled && interTruckBeams[i]->p2truck)
+		{
+			// Calculate beam length
+			Vector3 dis = interTruckBeams[i]->p1->AbsPosition - interTruckBeams[i]->p2->AbsPosition;
+
+			Real dislen = dis.squaredLength();
+			Real inverted_dislen = fast_invSqrt(dislen);
+			
+			dislen *= inverted_dislen;
+
+			// Calculate beam's deviation from normal
+			Real difftoBeamL = dislen - interTruckBeams[i]->L;
+
+			Real k = interTruckBeams[i]->k;
+			Real d = interTruckBeams[i]->d;
+
+			if (interTruckBeams[i]->bounded == ROPE && difftoBeamL < 0.0f)
+			{
+				k  = 0.0f;
+				d *= 0.1f;
+			}
+
+			// Calculate beam's rate of change
+			Vector3 v = interTruckBeams[i]->p1->Velocity - interTruckBeams[i]->p2->Velocity;
+
+			float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
+			interTruckBeams[i]->stress = slen;
+
+			// Fast test for deformation
+			float len = std::abs(slen);
+			if (len > interTruckBeams[i]->minmaxposnegstress)
+			{
+				if ((interTruckBeams[i]->type == BEAM_NORMAL || interTruckBeams[i]->type == BEAM_INVISIBLE) && interTruckBeams[i]->bounded != SHOCK1 && k != 0.0f)
+				{
+					// Actual deformation tests
+					if (slen > interTruckBeams[i]->maxposstress && difftoBeamL < 0.0f) // compression
+					{
+						Real yield_length = interTruckBeams[i]->maxposstress / k;
+						Real deform = difftoBeamL + yield_length * (1.0f - interTruckBeams[i]->plastic_coef);
+						Real Lold = interTruckBeams[i]->L;
+						interTruckBeams[i]->L += deform;
+						interTruckBeams[i]->L = std::max(MIN_BEAM_LENGTH, interTruckBeams[i]->L);
+						slen = slen - (slen - interTruckBeams[i]->maxposstress) * 0.5f;
+						len = slen;
+						if (interTruckBeams[i]->L > 0.0f && Lold > interTruckBeams[i]->L)
+						{
+							interTruckBeams[i]->maxposstress *= Lold / interTruckBeams[i]->L;
+							interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->maxposstress, -interTruckBeams[i]->maxnegstress);
+							interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->minmaxposnegstress, interTruckBeams[i]->strength);
+						}
+						// For the compression case we do not remove any of the beam's
+						// strength for structure stability reasons
+						//interTruckBeams[i]->strength += deform * k * 0.5f;
+						if (beamdeformdebug)
+						{
+							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
+									" / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
+						}
+					} else if (slen < interTruckBeams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
+					{
+						Real yield_length = interTruckBeams[i]->maxnegstress / k;
+						Real deform = difftoBeamL + yield_length * (1.0f - interTruckBeams[i]->plastic_coef);
+						Real Lold = interTruckBeams[i]->L;
+						interTruckBeams[i]->L += deform;
+						slen = slen - (slen - interTruckBeams[i]->maxnegstress) * 0.5f;
+						len = -slen;
+						if (Lold > 0.0f && interTruckBeams[i]->L > Lold)
+						{
+							interTruckBeams[i]->maxnegstress *= interTruckBeams[i]->L / Lold;
+							interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->maxposstress, -interTruckBeams[i]->maxnegstress);
+							interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->minmaxposnegstress, interTruckBeams[i]->strength);
+						}
+						interTruckBeams[i]->strength -= deform * k;
+						if (beamdeformdebug)
+						{
+							LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) + 
+									" / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
+						}
+					}
+				}
+
+				// Test if the beam should break
+				if (len > interTruckBeams[i]->strength)
+				{
+					// Sound effect.
+					// Sound volume depends on springs stored energy
+#ifdef USE_OPENAL
+					SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_BREAK, 0.5*k*difftoBeamL*difftoBeamL);
+					SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_BREAK);
+#endif //OPENAL
+
+					//Break the beam only when it is not connected to a node
+					//which is a part of a collision triangle and has 2 "live" beams or less
+					//connected to it.
+					if (!((interTruckBeams[i]->p1->contacter && nodeBeamConnections(interTruckBeams[i]->p1->pos)<3) || (interTruckBeams[i]->p2->contacter && nodeBeamConnections(interTruckBeams[i]->p2->pos)<3)))
+					{
+						slen = 0.0f;
+						interTruckBeams[i]->broken     = true;
+						interTruckBeams[i]->disabled   = true;
+
+						if (beambreakdebug)
+						{
+							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + 
+									" / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
+						}
+
+						// detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
+						// only perform this check if this is a master detacher beams (positive detacher group id > 0)
+						if (interTruckBeams[i]->detacher_group > 0)
+						{
+							// cycle once through the other beams
+							for (int j = 0; j < free_beam; j++)
+							{
+								// beam[i] detacher group# == checked beams detacher group# -> delete & disable checked beam
+								// do this with all master(positive id) and minor(negative id) beams of this detacher group
+								if (abs(beams[j].detacher_group) == interTruckBeams[i]->detacher_group)
+								{
+									beams[j].broken     = true;
+									beams[j].disabled   = true;
+									if (beambreakdebug)
+									{
+										LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(interTruckBeams[i]->detacher_group)+  ", trucknum: " + TOSTRING(trucknum));
+									}
+								}
+							}
+						}
+					} else
+					{
+						interTruckBeams[i]->strength = 2.0f * interTruckBeams[i]->minmaxposnegstress;
+					}
+				}
+			}
+
+			// At last update the beam forces
+			Vector3 f = dis;
+			f *= (slen * inverted_dislen);
+			interTruckBeams[i]->p1->Forces += f;
+			interTruckBeams[i]->p2->Forces -= f;
+		}
+	}
+}
+
 void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	IWater *water = 0;
@@ -1722,8 +1864,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 					nodes[i].wetstate = DRY;
 				} else
 				{
-					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
-					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].smoothpos, nodes[i].Velocity, nodes[i].wettime);
+					if (!nodes[i].iswheel && dripp) dripp->allocDrip(nodes[i].AbsPosition, nodes[i].Velocity, nodes[i].wettime);
+					if (nodes[i].isHot && dustp) dustp->allocVapour(nodes[i].AbsPosition, nodes[i].Velocity, nodes[i].wettime);
 				}
 			}
 		}
@@ -1936,6 +2078,7 @@ void Beam::calcHooks()
 				{
 					it->beam->mSceneNode->attachObject(it->beam->mEntity);
 				}
+				addInterTruckBeam(it->beam);
 			} else
 			{
 				if (it->beam->L < it->beam->commandShort)
@@ -1972,6 +2115,7 @@ void Beam::calcHooks()
 								it->beam->p2truck  = false;
 								it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 								it->beam->disabled = true;
+								removeInterTruckBeam(it->beam);
 							}
 						}
 					}
