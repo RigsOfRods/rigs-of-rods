@@ -822,19 +822,19 @@ DEFINE_REGEX( SECTION_AXLES_PROPERTY,
 DEFINE_REGEX( SECTION_BEAMS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID )                     // #1 Node 1
-    E_CAPTURE( E_DELIMITER )                   
+    E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_NODE_ID )                     // #3 Node 2
 
     E_CAPTURE_OPTIONAL(
         E_CAPTURE( E_DELIMITER )               // #5 Delimiter (possibly dangling)
 
-        E_CAPTURE_OPTIONAL( 
+        E_CAPTURE_OPTIONAL(
             E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #7 Options
 
-            E_CAPTURE_OPTIONAL( 
+            E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )       // #9 Delimiter (possibly dangling)
 
-                E_CAPTURE_OPTIONAL( 
+                E_CAPTURE_OPTIONAL(
                     E_CAPTURE( E_REAL_NUMBER ) // #11 User-defined extension break limit
                 )
             )
@@ -847,7 +847,7 @@ DEFINE_REGEX( SECTION_BRAKES,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_REAL_NUMBER ) // #1 Default brake force
     E_CAPTURE_OPTIONAL( // #2
-        E_DELIMITER_COMMA 
+        E_DELIMITER_COMMA
         E_CAPTURE( E_REAL_NUMBER ) // #3 Parking brake force
     )
     E_2xCAPTURE_TRAILING_COMMENT
@@ -871,37 +871,37 @@ DEFINE_REGEX( SECTION_CAMERAS,
 
 DEFINE_REGEX( SECTION_CINECAM,
     E_LEADING_WHITESPACE
-    E_CAPTURE( E_REAL_NUMBER ) // X
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Y
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Z
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Node 1 ...
-    E_DELIMITER_COMMA
+    E_CAPTURE( E_REAL_NUMBER ) // #1 X
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER ) // #3 Y
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER ) // #5 Z
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_NODE_ID )     // #7 Node 1 ...
+    E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_NODE_ID )
-    E_DELIMITER_COMMA
+    E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_NODE_ID )
-    E_DELIMITER_COMMA
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_NODE_ID )     // #13 Node 4
+    E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_NODE_ID )
-    E_DELIMITER_COMMA
+    E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_NODE_ID )
-    E_DELIMITER_COMMA
+    E_CAPTURE( E_DELIMITER )
     E_CAPTURE( E_NODE_ID )
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // #10
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Node 8
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER )    // Spring
-    
-        E_CAPTURE_OPTIONAL( 
-            E_DELIMITER_COMMA
-            E_CAPTURE( E_REAL_NUMBER )    // #15 Damping
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_NODE_ID )     // #21 Node 8
+    E_CAPTURE_OPTIONAL(
+        E_CAPTURE( E_DELIMITER )
+        E_CAPTURE( E_REAL_NUMBER )     // #24 Spring
+
+        E_CAPTURE_OPTIONAL(
+            E_CAPTURE( E_DELIMITER )
+            E_CAPTURE( E_REAL_NUMBER ) // #27 Damping
         )
     )
-    E_CAPTURE_OPTIONAL( E_STRING_ANYTHING_BUT_WHITESPACE ) // #16 Illegal characters
+    E_CAPTURE_OPTIONAL( E_STRING_ANYTHING_BUT_WHITESPACE ) // Illegal characters
     E_TRAILING_WHITESPACE
     );
 

@@ -3706,28 +3706,28 @@ void Parser::ParseCinecam(Ogre::String const & line)
 	cinecam.node_defaults = m_user_node_defaults;
 
 	cinecam.position.x = STR_PARSE_REAL(results[1]);
-	cinecam.position.y = STR_PARSE_REAL(results[2]);
-	cinecam.position.z = STR_PARSE_REAL(results[3]);
+	cinecam.position.y = STR_PARSE_REAL(results[3]);
+	cinecam.position.z = STR_PARSE_REAL(results[5]);
     if (m_sequential_importer.IsEnabled())
     {
         m_sequential_importer.AddGeneratedNode(File::KEYWORD_CINECAM);
     }
-	cinecam.nodes[0] = _ParseNodeRef(results[4]);
-	cinecam.nodes[1] = _ParseNodeRef(results[5]);
-	cinecam.nodes[2] = _ParseNodeRef(results[6]);
-	cinecam.nodes[3] = _ParseNodeRef(results[7]);
-	cinecam.nodes[4] = _ParseNodeRef(results[8]);
-	cinecam.nodes[5] = _ParseNodeRef(results[9]);
-	cinecam.nodes[6] = _ParseNodeRef(results[10]);
-	cinecam.nodes[7] = _ParseNodeRef(results[11]);
+	cinecam.nodes[0] = _ParseNodeRef(results[ 7]);
+	cinecam.nodes[1] = _ParseNodeRef(results[ 9]);
+	cinecam.nodes[2] = _ParseNodeRef(results[11]);
+	cinecam.nodes[3] = _ParseNodeRef(results[13]);
+	cinecam.nodes[4] = _ParseNodeRef(results[15]);
+	cinecam.nodes[5] = _ParseNodeRef(results[17]);
+	cinecam.nodes[6] = _ParseNodeRef(results[19]);
+	cinecam.nodes[7] = _ParseNodeRef(results[21]);
 
-	if (results[13].matched)
+	if (results[24].matched)
 	{
-		cinecam.spring = STR_PARSE_REAL(results[13]);
+		cinecam.spring = STR_PARSE_REAL(results[24]);
 		
-		if (results[15].matched)
+		if (results[27].matched)
 		{
-			cinecam.damping = STR_PARSE_REAL(results[15]);
+			cinecam.damping = STR_PARSE_REAL(results[27]);
 		}
 	}
 
