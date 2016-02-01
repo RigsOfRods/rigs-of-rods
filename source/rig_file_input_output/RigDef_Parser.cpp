@@ -3311,13 +3311,13 @@ void Parser::ParseEngoption(Ogre::String const & line)
 	i += 3;
 	if (results[i].matched)
 	{
-		engoption.idle_rpm = STR_PARSE_REAL(results[i]);
+		engoption.stall_rpm = STR_PARSE_REAL(results[i]);
 	}
 	
 	i += 3;
 	if (results[i].matched)
 	{
-		engoption.stall_rpm = STR_PARSE_REAL(results[i]);	
+		engoption.idle_rpm = STR_PARSE_REAL(results[i]);	
 	}
 	
 	i += 3;
