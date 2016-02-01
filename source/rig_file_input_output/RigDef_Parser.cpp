@@ -2687,19 +2687,19 @@ void Parser::ParseFlare(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Flare2 flare;
 	flare.reference_node = _ParseNodeRef(results[1]);
-	flare.node_axis_x    = _ParseNodeRef(results[5]);
-	flare.node_axis_y    = _ParseNodeRef(results[9]);
+	flare.node_axis_x    = _ParseNodeRef(results[3]);
+	flare.node_axis_y    = _ParseNodeRef(results[5]);
 
-	flare.offset.x = STR_PARSE_REAL(results[13]);
-	flare.offset.y = STR_PARSE_REAL(results[17]);
+	flare.offset.x = STR_PARSE_REAL(results[7]);
+	flare.offset.y = STR_PARSE_REAL(results[9]);
 
-	if (results[22].matched)
+	if (results[12].matched)
 	{
-		char in = results[22].str().at(0);
+		char in = results[12].str().at(0);
 		if (in != 'f' && in != 'b' && in != 'l' && in != 'r' && in != 'R' && in != 'u')
 		{
 			std::stringstream msg;
@@ -2710,21 +2710,21 @@ void Parser::ParseFlare(Ogre::String const & line)
 		}
 		flare.type = Flare2::Type(in);
 
-		if (results[27].matched)
+		if (results[15].matched)
 		{
-			flare.control_number = Flare2::Type(STR_PARSE_INT(results[27]));
+			flare.control_number = Flare2::Type(STR_PARSE_INT(results[15]));
 
-			if (results[32].matched)
+			if (results[18].matched)
 			{
-				flare.blink_delay_milis = STR_PARSE_INT(results[32]);
+				flare.blink_delay_milis = STR_PARSE_INT(results[18]);
 
-				if (results[37].matched)
+				if (results[21].matched)
 				{
-					flare.size = STR_PARSE_REAL(results[37]);
+					flare.size = STR_PARSE_REAL(results[21]);
 
-					if (results[42].matched)
+					if (results[24].matched)
 					{
-						flare.material_name = results[42];
+						flare.material_name = results[24];
 					}
 				}
 			}

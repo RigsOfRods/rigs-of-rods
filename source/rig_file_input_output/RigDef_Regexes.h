@@ -737,7 +737,7 @@ DEFINE_REGEX( PARSE_ANIMATORS_KEY_COLON_VALUE,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_ANTI_LOCK_BRAKES, 
+DEFINE_REGEX( INLINE_SECTION_ANTI_LOCK_BRAKES,
     E_LEADING_WHITESPACE
     "[Aa][Nn][Tt][Ii][Ll][Oo][Cc][Kk][Bb][Rr][Aa][Kk][Ee][Ss]"
     E_DELIMITER_SPACE
@@ -752,7 +752,7 @@ DEFINE_REGEX( INLINE_SECTION_ANTI_LOCK_BRAKES,
         E_CAPTURE_OPTIONAL(
             E_DELIMITER_COMMA
             "mode:"
-            E_CAPTURE("[[:blank:]ONFDASHTGLEonfdashtgle&]*") // #6 Mode string    
+            E_CAPTURE("[[:blank:]ONFDASHTGLEonfdashtgle&]*") // #6 Mode string
         )
     )
     );
@@ -770,9 +770,9 @@ DEFINE_REGEX_IGNORECASE( ANTI_LOCK_BRAKES_MODE,
         E_CAPTURE( "notoggle" )
     )
     E_TRAILING_WHITESPACE
-    ); 
+    );
 
-DEFINE_REGEX( INLINE_SECTION_AUTHOR, 
+DEFINE_REGEX( INLINE_SECTION_AUTHOR,
     "^author"
 
     E_CAPTURE_OPTIONAL(
@@ -816,12 +816,7 @@ DEFINE_REGEX( SECTION_AXLES_PROPERTY,
         "\\)"
         E_OPTIONAL_SPACE
     )
-    E_CAPTURE_OPTIONAL(
-        "[[:blank:];].*" // Any string starting with space or semicolon (tolerate comment)
-    )
-    E_CAPTURE_OPTIONAL(
-        E_TRAILING_WHITESPACE // Optional whitespace + end-of-line
-    )
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_BEAMS,
@@ -830,7 +825,7 @@ DEFINE_REGEX( SECTION_BEAMS,
     E_CAPTURE( E_DELIMITER )                   
     E_CAPTURE( E_NODE_ID )                     // #3 Node 2
 
-    E_CAPTURE_OPTIONAL(       
+    E_CAPTURE_OPTIONAL(
         E_CAPTURE( E_DELIMITER )               // #5 Delimiter (possibly dangling)
 
         E_CAPTURE_OPTIONAL( 
@@ -845,7 +840,7 @@ DEFINE_REGEX( SECTION_BEAMS,
             )
         )
     )
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_BRAKES,
@@ -855,13 +850,13 @@ DEFINE_REGEX( SECTION_BRAKES,
         E_DELIMITER_COMMA 
         E_CAPTURE( E_REAL_NUMBER ) // #3 Parking brake force
     )
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_CAMERARAILS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Node
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_CAMERAS,
@@ -871,7 +866,7 @@ DEFINE_REGEX( SECTION_CAMERAS,
     E_CAPTURE( E_NODE_ID ) // Back node
     E_DELIMITER_COMMA
     E_CAPTURE( E_NODE_ID ) // Left node
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_CINECAM,
@@ -917,25 +912,24 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
     );
 
 // Syntax: startDelay, stopDelay, startFunction  stopFunction affectEngine needsEngine
-// valid separator is comma or space, because the original documentation was confusing and nobody got it right
 #define E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART                  \
-    E_CAPTURE_OPTIONAL( /* #1 */                                                  \
-        E_CAPTURE( E_REAL_NUMBER ) /* #2 Start delay */                           \
-        E_CAPTURE_OPTIONAL( /* #3 */                                              \
-            E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )                    \
-            E_CAPTURE( E_REAL_NUMBER ) /* #5 Stop delay */                        \
-            E_CAPTURE_OPTIONAL( /* #6 */                                          \
-                E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )                \
-                E_CAPTURE( E_INERTIA_FUNCTION ) /* #8 Start function */           \
-                E_CAPTURE_OPTIONAL( /* #9 */                                      \
-                    E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )            \
-                    E_CAPTURE( E_INERTIA_FUNCTION ) /* #11 Stop function */       \
-                    E_CAPTURE_OPTIONAL( /* #12 */                                 \
-                        E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )        \
-                        E_CAPTURE( E_DECIMAL_NUMBER ) /* #14 Affect engine */     \
-                        E_CAPTURE_OPTIONAL( /* #15 */                             \
-                            E_CAPTURE( E_DELIMITER_SPACE E_OR E_DELIMITER_COMMA )    \
-                            E_CAPTURE( E_DECIMAL_NUMBER ) /* #17 Needs engine */  \
+    E_CAPTURE_OPTIONAL(                                   /* #1                */ \
+        E_CAPTURE( E_REAL_NUMBER )                        /* #2 Start delay    */ \
+        E_CAPTURE_OPTIONAL(                               /* #3                */ \
+            E_CAPTURE( E_DELIMITER )                                              \
+            E_CAPTURE( E_REAL_NUMBER )                    /* #5 Stop delay     */ \
+            E_CAPTURE_OPTIONAL(                           /* #6                */ \
+                E_CAPTURE( E_DELIMITER )                                          \
+                E_CAPTURE( E_INERTIA_FUNCTION )           /* #8 Start function */ \
+                E_CAPTURE_OPTIONAL(                       /* #9                */ \
+                    E_CAPTURE( E_DELIMITER )                                      \
+                    E_CAPTURE( E_INERTIA_FUNCTION )       /* #11 Stop function */ \
+                    E_CAPTURE_OPTIONAL(                   /* #12               */ \
+                        E_CAPTURE( E_DELIMITER )                                  \
+                        E_CAPTURE( E_DECIMAL_NUMBER )     /* #14 Affect engine */ \
+                        E_CAPTURE_OPTIONAL(               /* #15               */ \
+                            E_CAPTURE( E_DELIMITER )                              \
+                            E_CAPTURE( E_DECIMAL_NUMBER ) /* #17 Needs engine  */ \
                         )                                                         \
                     )                                                             \
                 )                                                                 \
@@ -943,8 +937,8 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
         )                                                                         \
     )
 
-DEFINE_REGEX( SECTION_COMMANDS2_INERTIA_ENGINE_PART, 
-    E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART 
+DEFINE_REGEX( SECTION_COMMANDS2_INERTIA_ENGINE_PART,
+    E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART
     );
 
 DEFINE_REGEX( SECTION_COMMANDS,
@@ -973,6 +967,7 @@ DEFINE_REGEX( SECTION_COMMANDS,
             )
         )
     )
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_COMMANDS_2,
@@ -1007,6 +1002,7 @@ DEFINE_REGEX( SECTION_COMMANDS_2,
             )            
         )
     )
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
@@ -1016,7 +1012,7 @@ DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
     E_CAPTURE( E_REAL_NUMBER ) // Min speed
     E_DELIMITER_COMMA
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Autobrake on/off
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_ENGINE,
@@ -1089,30 +1085,30 @@ DEFINE_REGEX( SECTION_ENGINE,
                                                         E_CAPTURE_OPTIONAL( 
                                                             E_CAPTURE( E_DELIMITER )
                                                             E_CAPTURE( E_REAL_NUMBER ) // #55 15th gear, max
-                                                        
+
                                                             E_CAPTURE_OPTIONAL(
                                                                 E_CAPTURE(E_DELIMITER)
-                                                                E_CAPTURE(E_REAL_NUMBER) // #55 16th gear, max
-                                                        
+                                                                E_CAPTURE(E_REAL_NUMBER) // #58 16th gear, max
+
                                                                 E_CAPTURE_OPTIONAL(
                                                                     E_CAPTURE(E_DELIMITER)
-                                                                    E_CAPTURE(E_REAL_NUMBER) // #55 17th gear, max
-                                                        
+                                                                    E_CAPTURE(E_REAL_NUMBER) // #61 17th gear, max
+
                                                                     E_CAPTURE_OPTIONAL(
                                                                         E_CAPTURE(E_DELIMITER)
-                                                                        E_CAPTURE(E_REAL_NUMBER) // #55 18th gear, max
-                                                        
+                                                                        E_CAPTURE(E_REAL_NUMBER) // #64 18th gear, max
+
                                                                         E_CAPTURE_OPTIONAL(
                                                                             E_CAPTURE(E_DELIMITER)
-                                                                            E_CAPTURE(E_REAL_NUMBER) // #55 19th gear, max
-                                                        
+                                                                            E_CAPTURE(E_REAL_NUMBER) // #67 19th gear, max
+
                                                                             E_CAPTURE_OPTIONAL(
                                                                                 E_CAPTURE(E_DELIMITER)
-                                                                                E_CAPTURE(E_REAL_NUMBER) // #55 20th gear, max
-                                                                            
+                                                                                E_CAPTURE(E_REAL_NUMBER) // #69 20th gear, max
+
                                                                                 E_CAPTURE_OPTIONAL(
                                                                                     E_CAPTURE(E_DELIMITER)
-                                                                                    E_CAPTURE(E_REAL_NUMBER) // #55 21st gear, max
+                                                                                    E_CAPTURE(E_REAL_NUMBER) // #72 21st gear, max
                                                                                 )
                                                                             )
                                                                         )
@@ -1144,39 +1140,39 @@ DEFINE_REGEX( SECTION_ENGINE,
 DEFINE_REGEX( SECTION_ENGOPTION,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_REAL_NUMBER ) // #1 Inertia
-    E_CAPTURE_OPTIONAL( 
-        E_CAPTURE( E_DELIMITER ) 
+    E_CAPTURE_OPTIONAL(
+        E_CAPTURE( E_DELIMITER )
         E_CAPTURE( "[cet]" ) // #4 Type
 
-        E_CAPTURE_OPTIONAL( 
+        E_CAPTURE_OPTIONAL(
             E_CAPTURE( E_DELIMITER )
             E_CAPTURE( E_REAL_NUMBER ) // #7 Clutch force
 
-            E_CAPTURE_OPTIONAL( 
+            E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )
                 E_CAPTURE( E_REAL_NUMBER ) // #10 Shift time
 
-                E_CAPTURE_OPTIONAL( 
+                E_CAPTURE_OPTIONAL(
                     E_CAPTURE( E_DELIMITER )
                     E_CAPTURE( E_REAL_NUMBER ) // #13 Clutch time
 
-                    E_CAPTURE_OPTIONAL( 
+                    E_CAPTURE_OPTIONAL(
                         E_CAPTURE( E_DELIMITER )
                         E_CAPTURE( E_REAL_NUMBER ) // #16 Post shift time
 
-                        E_CAPTURE_OPTIONAL( 
+                        E_CAPTURE_OPTIONAL(
                             E_CAPTURE( E_DELIMITER )
                             E_CAPTURE( E_REAL_NUMBER ) // #19 Idle RPM
 
-                            E_CAPTURE_OPTIONAL( 
+                            E_CAPTURE_OPTIONAL(
                                 E_CAPTURE( E_DELIMITER )
                                 E_CAPTURE( E_REAL_NUMBER ) // #22 Stall RMP
 
-                                E_CAPTURE_OPTIONAL( 
+                                E_CAPTURE_OPTIONAL(
                                     E_CAPTURE( E_DELIMITER )
                                     E_CAPTURE( E_REAL_NUMBER ) // #25 Max idle mixture
 
-                                    E_CAPTURE_OPTIONAL( 
+                                    E_CAPTURE_OPTIONAL(
                                         E_CAPTURE( E_DELIMITER )
                                         E_CAPTURE_OPTIONAL( E_REAL_NUMBER ) // #28 Min idle mixture
                                     )
@@ -1188,7 +1184,7 @@ DEFINE_REGEX( SECTION_ENGOPTION,
             )
         )
     )
-    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) // #29 Illegal text 
+    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) // #29 Illegal text
     E_TRAILING_WHITESPACE
     );
 
@@ -1249,8 +1245,8 @@ DEFINE_REGEX( SECTION_EXHAUSTS,
     E_CAPTURE( E_NODE_ID )   // Reference node
     E_DELIMITER_COMMA
     E_CAPTURE( E_NODE_ID )   // Direction node
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA 
+    E_CAPTURE_OPTIONAL(
+        E_DELIMITER_COMMA
         E_CAPTURE( E_REAL_NUMBER ) // #4 Factor
 
         E_CAPTURE_OPTIONAL( 
@@ -1258,7 +1254,7 @@ DEFINE_REGEX( SECTION_EXHAUSTS,
             E_CAPTURE( E_STRING_NO_SPACES ) // #6 Material name
         )
     )
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( INLINE_SECTION_EXTCAMERA,
@@ -1301,103 +1297,66 @@ DEFINE_REGEX( INLINE_SECTION_FILEINFO,
     "[Ff][Ii][Ll][Ee][Ii][Nn][Ff][Oo]"
     E_DELIMITER_SPACE
     E_CAPTURE(
-        E_CAPTURE( E_MINUS_ONE_REAL )   // #2 No UID
+        E_CAPTURE( E_MINUS_ONE_REAL )                // #2 No UID
         E_OR
         E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #3 UID 
     )
-    E_CAPTURE_OPTIONAL( // #4 Wrapper
+    E_CAPTURE_OPTIONAL(                              // #4 Wrapper
         E_DELIMITER_COMMA
-        E_CAPTURE(      // #5 Wrapper
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #6 Category
+        E_CAPTURE(                                   // #5 Wrapper
+            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )   // #6 Category
             E_OR
-            E_CAPTURE( E_MINUS_ONE_REAL )          // #7 No category
+            E_CAPTURE( E_MINUS_ONE_REAL )            // #7 No category
         )
 
-        E_CAPTURE_OPTIONAL( // #8 Wrapper
+        E_CAPTURE_OPTIONAL(                          // #8 Wrapper
             E_DELIMITER_COMMA
-            E_CAPTURE(      // #9 Wrapper
-                E_CAPTURE( E_DECIMAL_NUMBER ) // #10 File version, integer
+            E_CAPTURE(                               // #9 Wrapper
+                E_CAPTURE( E_DECIMAL_NUMBER )        // #10 File version, integer
                 E_OR
-                E_CAPTURE( E_REAL_NUMBER ) // #11 File version, float (backwards compatibility)
+                E_CAPTURE( E_REAL_NUMBER )           // #11 File version, float (backwards compatibility)
             )
         )
     )
     E_TRAILING_WHITESPACE
     );
 
-// This section accepts both space and comma as valid separators. It checks which one is used, hence the complexity
 DEFINE_REGEX( SECTION_FLARES,
     E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID )      // Reference node
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_NODE_ID )      // #5 X axis node
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_NODE_ID )      // #9 Y axis node
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_REAL_NUMBER )  // #13 X offset
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_REAL_NUMBER )  // #17 Y offset
+    E_CAPTURE( E_NODE_ID )      // #1 Reference node
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_NODE_ID )      // #3 X axis node
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_NODE_ID )      // #5 Y axis node
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )  // #7 X offset
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER )  // #9 Y offset
     E_CAPTURE_OPTIONAL(
-        E_CAPTURE( 
-            E_CAPTURE( E_DELIMITER_SPACE )
-            E_OR 
-            E_CAPTURE( E_DELIMITER_COMMA )
-        )
-        E_CAPTURE( "[[:alnum:]]+" ) // #22 Type flags (for backwards compatibility, accept anything)
+        E_CAPTURE( E_DELIMITER )
+        E_CAPTURE( "[[:alnum:]]+" )            // #12 Type flags (for backwards compatibility, accept anything)
 
         E_CAPTURE_OPTIONAL(
-            E_CAPTURE( 
-                E_CAPTURE( E_DELIMITER_SPACE )
-                E_OR 
-                E_CAPTURE( E_DELIMITER_COMMA )
-            )
-            E_CAPTURE( E_DECIMAL_NUMBER ) // #27 Control number
+            E_CAPTURE( E_DELIMITER )
+            E_CAPTURE( E_DECIMAL_NUMBER )      // #15 Control number
 
             E_CAPTURE_OPTIONAL(
-                E_CAPTURE( 
-                    E_CAPTURE( E_DELIMITER_SPACE )
-                    E_OR 
-                    E_CAPTURE( E_DELIMITER_COMMA )
-                )
-                E_CAPTURE( E_DECIMAL_NUMBER ) // #32 Blink delay
+                E_CAPTURE( E_DELIMITER )
+                E_CAPTURE( E_DECIMAL_NUMBER )  // #18 Blink delay
 
                 E_CAPTURE_OPTIONAL(
-                    E_CAPTURE( 
-                        E_CAPTURE( E_DELIMITER_SPACE )
-                        E_OR 
-                        E_CAPTURE( E_DELIMITER_COMMA )
-                    )
-                    E_CAPTURE( E_REAL_NUMBER ) // #37 Size
+                    E_CAPTURE( E_DELIMITER )
+                    E_CAPTURE( E_REAL_NUMBER ) // #21 Size
 
-                    E_CAPTURE_OPTIONAL( 
-                        E_CAPTURE( 
-                            E_CAPTURE( E_DELIMITER_SPACE )
-                            E_OR 
-                            E_CAPTURE( E_DELIMITER_COMMA )
-                        ) 
-                        E_CAPTURE( E_STRING_NO_SPACES ) // #42 Material name 
+                    E_CAPTURE_OPTIONAL(
+                        E_CAPTURE( E_DELIMITER )
+                        E_CAPTURE( E_STRING_NO_SPACES ) // #24 Material name
                     )
                 )
             )
         )
     )
-    E_TRAILING_WHITESPACE
+    E_2xCAPTURE_TRAILING_COMMENT
     );
 
 DEFINE_REGEX( SECTION_FLARES_TYPE, "[fblrRu]" );
