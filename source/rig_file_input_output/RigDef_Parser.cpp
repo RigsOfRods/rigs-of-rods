@@ -1373,12 +1373,6 @@ void Parser::ParseWheel(Ogre::String const & line)
 
 void Parser::ParseTractionControl(Ogre::String const & line)
 {
-	if (m_current_module->traction_control != nullptr)
-	{
-		AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
-	}
-	m_current_module->traction_control = boost::shared_ptr<TractionControl>( new TractionControl() );
-
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::SECTION_TRACTION_CONTROL))
 	{
@@ -1387,16 +1381,17 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_current_module->traction_control->regulation_force = STR_PARSE_REAL(results[1]);
-	m_current_module->traction_control->wheel_slip = STR_PARSE_REAL(results[2]);
+	TractionControl traction_control;
+	traction_control.regulation_force = STR_PARSE_REAL(results[1]);
+	traction_control.wheel_slip = STR_PARSE_REAL(results[2]);
 
 	if (results[3].matched)
 	{
-		m_current_module->traction_control->fade_speed = STR_PARSE_REAL(results[4]);
+		traction_control.fade_speed = STR_PARSE_REAL(results[4]);
 
 		if (results[5].matched)
 		{
-			m_current_module->traction_control->pulse_per_sec = STR_PARSE_REAL(results[6]);
+			traction_control.pulse_per_sec = STR_PARSE_REAL(results[6]);
 
 			if (results[7].matched)
 			{
@@ -1410,32 +1405,38 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 					{
 						std::string invalid_keyword = *iter;
 						AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
-						return;
+						continue;
 					}
 					/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 					if (results[1].matched)
 					{
-						BITMASK_SET_1(m_current_module->traction_control->mode, AntiLockBrakes::MODE_ON);
-						BITMASK_SET_0(m_current_module->traction_control->mode, AntiLockBrakes::MODE_OFF);
+						BITMASK_SET_1(traction_control.mode, TractionControl::MODE_ON);
+						BITMASK_SET_0(traction_control.mode, TractionControl::MODE_OFF);
 					}
 					else if (results[2].matched)
 					{
-						BITMASK_SET_1(m_current_module->traction_control->mode, AntiLockBrakes::MODE_OFF);
-						BITMASK_SET_0(m_current_module->traction_control->mode, AntiLockBrakes::MODE_ON);
+						BITMASK_SET_1(traction_control.mode, TractionControl::MODE_OFF);
+						BITMASK_SET_0(traction_control.mode, TractionControl::MODE_ON);
 					}
 					else if (results[3].matched)
 					{
-						BITMASK_SET_1(m_current_module->traction_control->mode, AntiLockBrakes::MODE_NO_DASHBOARD);
+						BITMASK_SET_1(traction_control.mode, TractionControl::MODE_NO_DASHBOARD);
 					}
 					else if (results[4].matched)
 					{
-						BITMASK_SET_1(m_current_module->traction_control->mode, AntiLockBrakes::MODE_NO_TOGGLE);
+						BITMASK_SET_1(traction_control.mode, TractionControl::MODE_NO_TOGGLE);
 					}
 				}
 			}
 		}
 	}
+
+	if (m_current_module->traction_control != nullptr)
+	{
+		AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
+	}
+	m_current_module->traction_control = boost::shared_ptr<TractionControl>( new TractionControl(traction_control) );
 }
 
 void Parser::ParseSubmeshGroundModel(Ogre::String const & line)
@@ -3228,26 +3229,29 @@ void Parser::ParseAntiLockBrakes(Ogre::String const & line)
 				boost::smatch results;
 				if (! boost::regex_search(*iter, results, Regexes::ANTI_LOCK_BRAKES_MODE))
 				{
-					AddMessage(*iter, Message::TYPE_ERROR, "Invalid mode keyword, ignoring whole line...");
-					return;
+					std::string invalid_keyword = *iter;
+					AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
+					continue;
 				}
 				/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
 				if (results[2].matched)
 				{
-					anti_lock_brakes.mode |= AntiLockBrakes::MODE_ON;
+					BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_ON);
+					BITMASK_SET_0(anti_lock_brakes.mode, AntiLockBrakes::MODE_OFF);
 				}
 				else if (results[3].matched)
 				{
-					anti_lock_brakes.mode |= AntiLockBrakes::MODE_OFF;
+					BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_OFF);
+					BITMASK_SET_0(anti_lock_brakes.mode, AntiLockBrakes::MODE_ON);
 				}
 				else if (results[4].matched)
 				{
-					anti_lock_brakes.mode |= AntiLockBrakes::MODE_NO_DASHBOARD;
+					BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_NO_DASHBOARD);
 				}
 				else if (results[5].matched)
 				{
-					anti_lock_brakes.mode |= AntiLockBrakes::MODE_NO_TOGGLE;
+					BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_NO_TOGGLE);
 				}
 			}
 		}
