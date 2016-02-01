@@ -168,7 +168,7 @@ COMMON_LOCK                    Keyboard             EXPL+L
 COMMON_AUTOLOCK                Keyboard             EXPL+ALT+L 
 COMMON_ROPELOCK                Keyboard             EXPL+CTRL+L 
 COMMON_OUTPUT_POSITION         Keyboard             H 
-COMMON_GET_NEW_VEHICLE         Keyboard             EXPL+CTRL+N 
+COMMON_GET_NEW_VEHICLE         Keyboard             EXPL+CTRL+G 
 COMMON_PRESSURE_LESS           Keyboard             LBRACKET 
 COMMON_PRESSURE_MORE           Keyboard             RBRACKET 
 COMMON_QUIT_GAME               Keyboard             ESCAPE 

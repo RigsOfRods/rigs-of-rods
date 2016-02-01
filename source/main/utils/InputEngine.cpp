@@ -970,8 +970,8 @@ eventInfo_t eventInfo[] = {
 	{
 		"COMMON_GET_NEW_VEHICLE",
 		EV_COMMON_GET_NEW_VEHICLE,
-		"Keyboard EXPL+CTRL+N",
-		_L("open vehicle selector")
+		"Keyboard EXPL+CTRL+G",
+		_L("get new vehicle")
 	},
 	{
 		"COMMON_PRESSURE_LESS",
@@ -1758,8 +1758,6 @@ eventInfo_t eventInfo[] = {
 	{ "TRUCKEDIT_RELOAD", EV_TRUCKEDIT_RELOAD, "Keyboard EXPL+SHIFT+CTRL+R", _L("reload truck") },
 	
 	{ "TOGGLESHADERS", EV_TOGGLESHADERS, "Keyboard EXPL+SHIFT+CTRL+S", _L("toggle shader usage") },
-
-	{ "GETNEWVEHICLE", EV_GETNEWVEHICLE, "Keyboard EXPL+CTRL+G", _L("get new vehicle") },
 
 
 	// the end, DO NOT MODIFY

@@ -406,17 +406,6 @@ bool RoRFrameListener::updateEvents(float dt)
 		return true;
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_GETNEWVEHICLE, 0.5f) && loading_state != NONE_LOADED)
-	{
-		// get out first
-		if (curr_truck) BeamFactory::getSingleton().setCurrentTruck(-1);
-		reload_pos = gEnv->player->getPosition();
-		freeTruckPosition = true;
-		loading_state = RELOADING;
-		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
-		return true;
-	}
-
 	// position storage
 	if (enablePosStor && curr_truck)
 	{
@@ -1063,8 +1052,13 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
 	{
-		if (loading_state == ALL_LOADED && gEnv->player && !curr_truck)
+		if (loading_state == ALL_LOADED && gEnv->player)
 		{
+			if (curr_truck)
+			{
+				BeamFactory::getSingleton().setCurrentTruck(-1);
+			}
+
 			reload_pos = gEnv->player->getPosition();
 			freeTruckPosition = true;
 			loading_state = RELOADING;
