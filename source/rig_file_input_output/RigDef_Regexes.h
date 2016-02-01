@@ -362,59 +362,43 @@ DEFINE_REGEX( NODE_ID_OPTIONAL,
 DEFINE_REGEX( DIRECTIVE_ADD_ANIMATION,
     E_LEADING_WHITESPACE
     "[aA][dD][dD]_[aA][nN][iI][mM][aA][tT][iI][oO][nN]"
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_REAL_NUMBER ) /* #4 Ratio */
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_REAL_NUMBER ) /* #8 Lower limit */
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( E_REAL_NUMBER ) /* #12 Upper limit */
-    E_CAPTURE( 
-        E_CAPTURE( E_DELIMITER_SPACE )
-        E_OR 
-        E_CAPTURE( E_DELIMITER_COMMA )
-    )
-    E_CAPTURE( ".*$" )         /* #16 All the rest, parsed later */
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER ) // #2 Ratio
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER ) // #4 Lower limit
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( E_REAL_NUMBER ) // #6 Upper limit
+    E_CAPTURE( E_DELIMITER )
+    E_CAPTURE( ".*$" )         // #8 All the rest, parsed later
     );
 
 DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_TOKEN,
     E_LEADING_WHITESPACE
-    E_CAPTURE( /* #1 Wrapper */
-        E_CAPTURE( "autoanimate" E_OPTIONAL_SPACE ) /* #2 Mode option */
+    E_CAPTURE( // #1 Wrapper
+        E_CAPTURE( "autoanimate" E_OPTIONAL_SPACE ) // #2 Mode option
         E_OR
-        E_CAPTURE( "noflip" E_OPTIONAL_SPACE )      /* #3 Mode option */
+        E_CAPTURE( "noflip" E_OPTIONAL_SPACE )      // #3 Mode option
         E_OR
-        E_CAPTURE( "bounce" E_OPTIONAL_SPACE )      /* #4 Mode option */
+        E_CAPTURE( "bounce" E_OPTIONAL_SPACE )      // #4 Mode option
         E_OR
-        E_CAPTURE( "eventlock" E_OPTIONAL_SPACE )   /* #5 Mode option */
+        E_CAPTURE( "eventlock" E_OPTIONAL_SPACE )   // #5 Mode option
         E_OR
-        E_CAPTURE( /* #6 Mode */
-            "mode"   
-            E_CAPTURE_OPTIONAL( E_DELIMITER_COLON ) /* #7 Check format validity, colon is required */
-            E_CAPTURE( ".*" )                       /* #8 Options or invalid text */
+        E_CAPTURE( // #6 Mode
+            "mode"
+            E_CAPTURE_OPTIONAL( E_DELIMITER_COLON ) // #7 Check format validity, colon is required
+            E_CAPTURE( ".*" )                       // #8 Options or invalid text
         )
         E_OR
-        E_CAPTURE( /* #9 Source */
-            "source"   
-            E_CAPTURE_OPTIONAL( E_DELIMITER_COLON ) /* #10 Check format validity, colon is required */
-            E_CAPTURE( ".*" )                       /* #11 Options or invalid text */
+        E_CAPTURE( // #9 Source
+            "source"
+            E_CAPTURE_OPTIONAL( E_DELIMITER_COLON ) // #10 Check format validity, colon is required
+            E_CAPTURE( ".*" )                       // #11 Options or invalid text
         )
         E_OR
-        E_CAPTURE( /* #12 Event */
-            "event"   
-            E_CAPTURE_OPTIONAL( E_DELIMITER_COLON ) /* #13 Check format validity, colon is required */
-            E_CAPTURE( ".*" )                       /* #14 Options or invalid text */
+        E_CAPTURE( // #12 Event
+            "event"
+            E_CAPTURE_OPTIONAL( E_DELIMITER_COLON ) // #13 Check format validity, colon is required
+            E_CAPTURE( ".*" )                       // #14 Options or invalid text
         )
     )
     E_TRAILING_WHITESPACE
@@ -422,7 +406,7 @@ DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_TOKEN,
 
 DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_MODE,
     E_LEADING_WHITESPACE
-    E_CAPTURE( /* Wrapper */
+    E_CAPTURE( // Wrapper
         E_CAPTURE( "x-rotation" )
         E_OR
         E_CAPTURE( "y-rotation" )
@@ -435,15 +419,15 @@ DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_MODE,
         E_OR
         E_CAPTURE( "z-offset" )
         E_OR
-        E_OPTIONAL_SPACE /* Ignore blank string */
+        E_OPTIONAL_SPACE // Ignore blank string
     )
     E_TRAILING_WHITESPACE
     );
 
 DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_SOURCE,
     E_LEADING_WHITESPACE
-    E_CAPTURE( /* #1 Wrapper */
-        E_CAPTURE( "airspeed" ) /* #2 */
+    E_CAPTURE( // #1 Wrapper
+        E_CAPTURE( "airspeed" ) // #2
         E_OR
         E_CAPTURE( "vvi" )
         E_OR
@@ -459,9 +443,9 @@ DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_SOURCE,
         E_OR
         E_CAPTURE( "airbrake" )
         E_OR
-        E_CAPTURE( "roll" ) /* #10 */
+        E_CAPTURE( "roll" ) // #10
         E_OR
-        E_CAPTURE( "pitch" ) 
+        E_CAPTURE( "pitch" )
         E_OR
         E_CAPTURE( "brakes" )
         E_OR
@@ -479,9 +463,9 @@ DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_SOURCE,
         E_OR
         E_CAPTURE( "shifterman1" )
         E_OR
-        E_CAPTURE( "shifterman2" ) /* #20 */
+        E_CAPTURE( "shifterman2" ) // #20
         E_OR
-        E_CAPTURE( "sequential" ) 
+        E_CAPTURE( "sequential" )
         E_OR
         E_CAPTURE( "shifterlin" )
         E_OR
@@ -499,39 +483,39 @@ DEFINE_REGEX( IDENTIFY_ADD_ANIMATION_SOURCE,
         E_OR
         E_CAPTURE( "aileron" )
         E_OR
-        E_CAPTURE( "elevator" ) /* #30 */
+        E_CAPTURE( "elevator" ) // #30
         E_OR
-        E_CAPTURE( "rudderair" ) 
+        E_CAPTURE( "rudderair" )
         E_OR
         E_CAPTURE( "permanent" )
-        /* [Source: event] intentionally left out */
+        // [Source: event] intentionally left out
         E_OR
         E_CAPTURE(
             "throttle"
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #34 Motor number */
+            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #34 Motor number
         )
         E_OR
         E_CAPTURE(
             "rpm"
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #36 Motor number */
+            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #36 Motor number
         )
         E_OR
         E_CAPTURE(
             "aerotorq"
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #38 Motor number */
+            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #38 Motor number
         )
         E_OR
         E_CAPTURE(
             "aeropit"
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #40 Motor number */
+            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #40 Motor number
         )
         E_OR
         E_CAPTURE(
             "aerostatus"
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) /* #42 Motor number */
+            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #42 Motor number
         )
         E_OR
-        E_OPTIONAL_SPACE /* Ignore blank input */
+        E_OPTIONAL_SPACE // Ignore blank input
     )
     E_TRAILING_WHITESPACE
     );

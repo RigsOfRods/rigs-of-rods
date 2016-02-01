@@ -3115,14 +3115,14 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'add_animation', ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Animation animation;
-	animation.ratio       = STR_PARSE_REAL(results[4]);
-	animation.lower_limit = STR_PARSE_REAL(results[8]);
-	animation.upper_limit = STR_PARSE_REAL(results[12]);
+	animation.ratio       = STR_PARSE_REAL(results[2]);
+	animation.lower_limit = STR_PARSE_REAL(results[4]);
+	animation.upper_limit = STR_PARSE_REAL(results[6]);
 
-	Ogre::StringVector tokens = Ogre::StringUtil::split(results[16], ",");
+	Ogre::StringVector tokens = Ogre::StringUtil::split(results[8], ",");
 
 	for (Ogre::StringVector::iterator itor = tokens.begin(); itor != tokens.end(); itor++)
 	{
