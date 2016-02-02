@@ -1039,12 +1039,6 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
 				} 
-				else if (gEnv->player != nullptr)
-				{
-					// if it is a load or trailer, then stay in player mode
-					// but relocate to the new position, so we don't spawn the dialog again
-					gEnv->player->move(Vector3(3.0, 0.2, 0.0));
-				}
 			}
 		}
 #endif //MYGUI
