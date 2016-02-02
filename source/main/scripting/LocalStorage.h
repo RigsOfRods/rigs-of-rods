@@ -35,8 +35,8 @@ void scriptLocalStorageFactory3_Generic(AngelScript::asIScriptGeneric *gen);
 /**
  *  @brief A class that allows scripts to store data persistently
  */
-class LocalStorage : public Ogre::ImprovedConfigFile
-{	
+class LocalStorage : public ImprovedConfigFile
+{
 public:
 	// Memory management
 	void AddRef() const;
