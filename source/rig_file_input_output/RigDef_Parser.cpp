@@ -2591,6 +2591,38 @@ void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
 	}
 }
 
+void Parser::ParseFlexbodyUnsafe(Ogre::String const & line)
+{
+    PARSE_UNSAFE(line, 10,
+    {
+        int num_args = values.size();
+
+        Flexbody flexbody;
+        flexbody.reference_node =  _ParseNodeRef(values[0]);
+        flexbody.x_axis_node    =  _ParseNodeRef(values[1]);
+        flexbody.y_axis_node    =  _ParseNodeRef(values[2]);
+
+        flexbody.offset.x       = STR_PARSE_REAL(values[3]);
+        flexbody.offset.y       = STR_PARSE_REAL(values[4]);
+        flexbody.offset.z       = STR_PARSE_REAL(values[5]);
+        flexbody.rotation.x     = STR_PARSE_REAL(values[6]);
+        flexbody.rotation.y     = STR_PARSE_REAL(values[7]);
+        flexbody.rotation.z     = STR_PARSE_REAL(values[8]);
+        flexbody.mesh_name      =                values[9];
+
+        this->ProcessFlexbody(flexbody);
+    });
+}
+
+void Parser::ProcessFlexbody(Flexbody& flexbody)
+{
+    m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
+    m_current_module->flexbodies.push_back(m_last_flexbody);
+
+    // Switch subsection
+    m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
+}
+
 void Parser::ParseFlexbody(Ogre::String const & line)
 {
 	if (m_current_subsection == File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
@@ -2598,7 +2630,7 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 		boost::smatch results;
 		if (! boost::regex_search(line, results, Regexes::FLEXBODIES_SUBSECTION_PROPLIKE_LINE))
 		{
-			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+			this->ParseFlexbodyUnsafe(line);
 			return;
 		}
 		/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
@@ -2618,11 +2650,7 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 
 		flexbody.mesh_name = results[19];
 
-		m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
-		m_current_module->flexbodies.push_back(m_last_flexbody);
-
-		/* Switch subsection */
-		m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
+        this->ProcessFlexbody(flexbody);
 	}
 	else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
 	{
@@ -2691,19 +2719,19 @@ void Parser::ParseFlare(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Flare2 flare;
 	flare.reference_node = _ParseNodeRef(results[1]);
-	flare.node_axis_x    = _ParseNodeRef(results[5]);
-	flare.node_axis_y    = _ParseNodeRef(results[9]);
+	flare.node_axis_x    = _ParseNodeRef(results[3]);
+	flare.node_axis_y    = _ParseNodeRef(results[5]);
 
-	flare.offset.x = STR_PARSE_REAL(results[13]);
-	flare.offset.y = STR_PARSE_REAL(results[17]);
+	flare.offset.x = STR_PARSE_REAL(results[7]);
+	flare.offset.y = STR_PARSE_REAL(results[9]);
 
-	if (results[22].matched)
+	if (results[12].matched)
 	{
-		char in = results[22].str().at(0);
+		char in = results[12].str().at(0);
 		if (in != 'f' && in != 'b' && in != 'l' && in != 'r' && in != 'R' && in != 'u')
 		{
 			std::stringstream msg;
@@ -2714,21 +2742,21 @@ void Parser::ParseFlare(Ogre::String const & line)
 		}
 		flare.type = Flare2::Type(in);
 
-		if (results[27].matched)
+		if (results[15].matched)
 		{
-			flare.control_number = Flare2::Type(STR_PARSE_INT(results[27]));
+			flare.control_number = Flare2::Type(STR_PARSE_INT(results[15]));
 
-			if (results[32].matched)
+			if (results[18].matched)
 			{
-				flare.blink_delay_milis = STR_PARSE_INT(results[32]);
+				flare.blink_delay_milis = STR_PARSE_INT(results[18]);
 
-				if (results[37].matched)
+				if (results[21].matched)
 				{
-					flare.size = STR_PARSE_REAL(results[37]);
+					flare.size = STR_PARSE_REAL(results[21]);
 
-					if (results[42].matched)
+					if (results[24].matched)
 					{
-						flare.material_name = results[42];
+						flare.material_name = results[24];
 					}
 				}
 			}
@@ -3119,14 +3147,14 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'add_animation', ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Animation animation;
-	animation.ratio       = STR_PARSE_REAL(results[4]);
-	animation.lower_limit = STR_PARSE_REAL(results[8]);
-	animation.upper_limit = STR_PARSE_REAL(results[12]);
+	animation.ratio       = STR_PARSE_REAL(results[2]);
+	animation.lower_limit = STR_PARSE_REAL(results[4]);
+	animation.upper_limit = STR_PARSE_REAL(results[6]);
 
-	Ogre::StringVector tokens = Ogre::StringUtil::split(results[16], ",");
+	Ogre::StringVector tokens = Ogre::StringUtil::split(results[8], ",");
 
 	for (Ogre::StringVector::iterator itor = tokens.begin(); itor != tokens.end(); itor++)
 	{
@@ -3682,28 +3710,28 @@ void Parser::ParseCinecam(Ogre::String const & line)
 	cinecam.node_defaults = m_user_node_defaults;
 
 	cinecam.position.x = STR_PARSE_REAL(results[1]);
-	cinecam.position.y = STR_PARSE_REAL(results[2]);
-	cinecam.position.z = STR_PARSE_REAL(results[3]);
+	cinecam.position.y = STR_PARSE_REAL(results[3]);
+	cinecam.position.z = STR_PARSE_REAL(results[5]);
     if (m_sequential_importer.IsEnabled())
     {
         m_sequential_importer.AddGeneratedNode(File::KEYWORD_CINECAM);
     }
-	cinecam.nodes[0] = _ParseNodeRef(results[4]);
-	cinecam.nodes[1] = _ParseNodeRef(results[5]);
-	cinecam.nodes[2] = _ParseNodeRef(results[6]);
-	cinecam.nodes[3] = _ParseNodeRef(results[7]);
-	cinecam.nodes[4] = _ParseNodeRef(results[8]);
-	cinecam.nodes[5] = _ParseNodeRef(results[9]);
-	cinecam.nodes[6] = _ParseNodeRef(results[10]);
-	cinecam.nodes[7] = _ParseNodeRef(results[11]);
+	cinecam.nodes[0] = _ParseNodeRef(results[ 7]);
+	cinecam.nodes[1] = _ParseNodeRef(results[ 9]);
+	cinecam.nodes[2] = _ParseNodeRef(results[11]);
+	cinecam.nodes[3] = _ParseNodeRef(results[13]);
+	cinecam.nodes[4] = _ParseNodeRef(results[15]);
+	cinecam.nodes[5] = _ParseNodeRef(results[17]);
+	cinecam.nodes[6] = _ParseNodeRef(results[19]);
+	cinecam.nodes[7] = _ParseNodeRef(results[21]);
 
-	if (results[13].matched)
+	if (results[24].matched)
 	{
-		cinecam.spring = STR_PARSE_REAL(results[13]);
+		cinecam.spring = STR_PARSE_REAL(results[24]);
 		
-		if (results[15].matched)
+		if (results[27].matched)
 		{
-			cinecam.damping = STR_PARSE_REAL(results[15]);
+			cinecam.damping = STR_PARSE_REAL(results[27]);
 		}
 	}
 
@@ -3808,25 +3836,23 @@ void Parser::ParseAirbrakes(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
 	}
-	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
+	// NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
 	Airbrake airbrake;
-	airbrake.reference_node = _ParseNodeRef(results[1]);
-	airbrake.x_axis_node    = _ParseNodeRef(results[2]);
-	airbrake.y_axis_node    = _ParseNodeRef(results[3]);
-	airbrake.aditional_node = _ParseNodeRef(results[4]);
-
-	airbrake.offset.x = STR_PARSE_REAL(results[5]);
-	airbrake.offset.y = STR_PARSE_REAL(results[6]);
-	airbrake.offset.z = STR_PARSE_REAL(results[7]);
-
-	airbrake.width = STR_PARSE_REAL(results[8]);
-	airbrake.height = STR_PARSE_REAL(results[9]);
-	airbrake.max_inclination_angle = STR_PARSE_REAL(results[10]);
-	airbrake.texcoord_x1 = STR_PARSE_REAL(results[11]);
-	airbrake.texcoord_y1 = STR_PARSE_REAL(results[12]);
-	airbrake.texcoord_x2 = STR_PARSE_REAL(results[13]);
-	airbrake.texcoord_y2 = STR_PARSE_REAL(results[14]);
+	airbrake.reference_node        =  _ParseNodeRef(results[ 1]);
+	airbrake.x_axis_node           =  _ParseNodeRef(results[ 3]);
+	airbrake.y_axis_node           =  _ParseNodeRef(results[ 5]);
+	airbrake.aditional_node        =  _ParseNodeRef(results[ 7]);
+	airbrake.offset.x              = STR_PARSE_REAL(results[ 9]);
+	airbrake.offset.y              = STR_PARSE_REAL(results[11]);
+	airbrake.offset.z              = STR_PARSE_REAL(results[13]);
+	airbrake.width                 = STR_PARSE_REAL(results[15]);
+	airbrake.height                = STR_PARSE_REAL(results[17]);
+	airbrake.max_inclination_angle = STR_PARSE_REAL(results[19]);
+	airbrake.texcoord_x1           = STR_PARSE_REAL(results[21]);
+	airbrake.texcoord_y1           = STR_PARSE_REAL(results[23]);
+	airbrake.texcoord_x2           = STR_PARSE_REAL(results[25]);
+	airbrake.texcoord_y2           = STR_PARSE_REAL(results[26]);
 
 	m_current_module->airbrakes.push_back(airbrake);
 }

@@ -144,7 +144,7 @@ void CLASS::Hide()
 
 bool CLASS::getVisible()
 {
-	MAIN_WIDGET->getVisible();
+	return MAIN_WIDGET->getVisible();
 }
 
 void CLASS::CenterToScreen()
