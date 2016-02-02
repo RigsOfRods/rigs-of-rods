@@ -23,12 +23,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __IMPROVEDCONFIGFILE_H_
 
 #include "RoRPrerequisites.h"
+#include "ConfigFile.h"
+
 #include <Ogre.h>
 
 namespace Ogre
 {
 
-class ImprovedConfigFile : public Ogre::ConfigFile
+class ImprovedConfigFile : public RoR::ConfigFile
 {
 public:
 	ImprovedConfigFile() : separators("="), filename()
@@ -120,43 +122,43 @@ public:
 	}
 
 	// type specific implementations
-	Radian getSettingRadian(String key, String section = StringUtil::BLANK) { return StringConverter::parseAngle(getSetting(key, section));	}
+	Radian getSettingRadian(String key, String section = StringUtil::BLANK) { return StringConverter::parseAngle(GetStringEx(key, section));	}
 	void setSetting(String key, Radian value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section);	}
 
-	bool getSettingBool(String key, String section = StringUtil::BLANK) { return StringConverter::parseBool(getSetting(key, section)); }
+	bool getSettingBool(String key, String section = StringUtil::BLANK) { return StringConverter::parseBool(GetStringEx(key, section)); }
 	void setSetting(String key, bool value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	Real getSettingReal(String key, String section = StringUtil::BLANK) { return StringConverter::parseReal(getSetting(key, section)); }
+	Real getSettingReal(String key, String section = StringUtil::BLANK) { return StringConverter::parseReal(GetStringEx(key, section)); }
 	void setSetting(String key, Real value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	int getSettingInt(String key, String section = StringUtil::BLANK) { return StringConverter::parseInt(getSetting(key, section)); }
+	int getSettingInt(String key, String section = StringUtil::BLANK) { return StringConverter::parseInt(GetStringEx(key, section)); }
 	void setSetting(String key, int value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	unsigned int getSettingUnsignedInt(String key, String section = StringUtil::BLANK) { return StringConverter::parseUnsignedInt(getSetting(key, section)); }
+	unsigned int getSettingUnsignedInt(String key, String section = StringUtil::BLANK) { return StringConverter::parseUnsignedInt(GetStringEx(key, section)); }
 	void setSetting(String key, unsigned int value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	long getSettingLong(String key, String section = StringUtil::BLANK) { return StringConverter::parseLong(getSetting(key, section)); }
+	long getSettingLong(String key, String section = StringUtil::BLANK) { return StringConverter::parseLong(GetStringEx(key, section)); }
 	void setSetting(String key, long value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	unsigned long getSettingUnsignedLong(String key, String section = StringUtil::BLANK) { return StringConverter::parseUnsignedLong(getSetting(key, section)); }
+	unsigned long getSettingUnsignedLong(String key, String section = StringUtil::BLANK) { return StringConverter::parseUnsignedLong(GetStringEx(key, section)); }
 	void setSetting(String key, unsigned long value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	Vector3 getSettingVector3(String key, String section = StringUtil::BLANK) { return StringConverter::parseVector3(getSetting(key, section)); }
+	Vector3 getSettingVector3(String key, String section = StringUtil::BLANK) { return StringConverter::parseVector3(GetStringEx(key, section)); }
 	void setSetting(String key, Vector3 value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	Matrix3 getSettingMatrix3(String key, String section = StringUtil::BLANK) { return StringConverter::parseMatrix3(getSetting(key, section)); }
+	Matrix3 getSettingMatrix3(String key, String section = StringUtil::BLANK) { return StringConverter::parseMatrix3(GetStringEx(key, section)); }
 	void setSetting(String key, Matrix3 value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	Matrix4 getSettingMatrix4(String key, String section = StringUtil::BLANK) { return StringConverter::parseMatrix4(getSetting(key, section)); }
+	Matrix4 getSettingMatrix4(String key, String section = StringUtil::BLANK) { return StringConverter::parseMatrix4(GetStringEx(key, section)); }
 	void setSetting(String key, Matrix4 value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	Quaternion getSettingQuaternion(String key, String section = StringUtil::BLANK) { return StringConverter::parseQuaternion(getSetting(key, section)); }
+	Quaternion getSettingQuaternion(String key, String section = StringUtil::BLANK) { return StringConverter::parseQuaternion(GetStringEx(key, section)); }
 	void setSetting(String key, Quaternion value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	ColourValue getSettingColorValue(String key, String section = StringUtil::BLANK) { return StringConverter::parseColourValue(getSetting(key, section)); }
+	ColourValue getSettingColorValue(String key, String section = StringUtil::BLANK) { return StringConverter::parseColourValue(GetStringEx(key, section)); }
 	void setSetting(String key, ColourValue value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
-	StringVector getSettingStringVector(String key, String section = StringUtil::BLANK) { return StringConverter::parseStringVector(getSetting(key, section)); }
+	StringVector getSettingStringVector(String key, String section = StringUtil::BLANK) { return StringConverter::parseStringVector(GetStringEx(key, section)); }
 	void setSetting(String key, StringVector value, String section = StringUtil::BLANK) { setSetting(key, TOSTRING(value), section); }
 
 protected:

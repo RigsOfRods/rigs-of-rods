@@ -20,6 +20,7 @@
 */
 
 #include "SkinManager.h"
+#include "Utils.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -69,7 +70,7 @@ void SkinManager::parseScript(DataStreamPtr& stream, const String& groupName)
 
 		while(!stream->eof())
 		{
-			line = stream->getLine();
+			line = RoR::Utils::SanitizeUtf8String(stream->getLine());
 
 			// Ignore blanks & comments
 			if (!line.length() || line.substr(0, 2) == "//")

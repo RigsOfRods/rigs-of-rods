@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CmdKeyInertia.h"
+#include "Utils.h"
 
 #include <Ogre.h>
 
@@ -139,7 +140,7 @@ int CmdKeyInertia::loadDefaultInertiaModels()
 
 	while (!ds->eof())
 	{
-		line=ds->getLine();
+		line=RoR::Utils::SanitizeUtf8String(ds->getLine());
 		StringUtil::trim(line);
 
 		if (line.empty() || line[0]==';')

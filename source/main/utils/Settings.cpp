@@ -1,24 +1,32 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by thomas fischer, 4th of January 2009
+
+/**
+    @file
+    @date   4th of January 2009
+    @author Thomas Fischer
+*/
+
 #include "Settings.h"
+#include "Utils.h"
 
 #include <Ogre.h>
 
@@ -225,26 +233,26 @@ void Settings::saveSettings(String configFile)
 
 void Settings::loadSettings(String configFile, bool overwrite)
 {
-	//printf("trying to load configfile: %s...\n", configFile.c_str());
 	ConfigFile cfg;
 	cfg.load(configFile, "=:\t", false);
 
 	// load all settings into a map!
 	ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
-	String svalue, sname;
+	String s_value, s_name;
 	while (i.hasMoreElements())
 	{
-		sname = i.peekNextKey();
-		svalue = i.getNext();
-		if (!overwrite && settings[sname] != "") continue;
-		settings[sname] = svalue;
-		//logfile->AddLine(conv("### ") + conv(sname) + conv(" : ") + conv(svalue));logfile->Write();
+		s_name  = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
+		s_value = RoR::Utils::SanitizeUtf8String(i.getNext());
+		if (!overwrite && !settings[s_name].empty())
+		{
+			continue;
+		}
+		settings[s_name] = s_value;
 	}
 	// add a GUID if not there
 	checkGUID();
 	generateBinaryHash();
 
-#ifndef NOOGRE
 	// generate hash of the token
 	String usertoken = SSETTING("User Token", "");
 	char usertokensha1result[250];
@@ -258,7 +266,6 @@ void Settings::loadSettings(String configFile, bool overwrite)
 	}
 
 	setSetting("User Token Hash", String(usertokensha1result));
-#endif // NOOGRE
 }
 
 int Settings::generateBinaryHash()

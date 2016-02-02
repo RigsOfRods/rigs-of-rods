@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "IHeightFinder.h"
 #include "Settings.h"
+#include "Utils.h"
 
 using namespace Ogre;
 
@@ -65,7 +66,7 @@ int SkidmarkManager::loadDefaultModels()
 
 	while (!ds->eof())
 	{	
-		line=ds->getLine();
+		line = RoR::Utils::SanitizeUtf8String(ds->getLine());
 		StringUtil::trim(line);
 		
 		if (line.empty() || line[0]==';')

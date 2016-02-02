@@ -246,7 +246,6 @@ CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
 {
 	String cfgfilename = getCacheConfigFilename(false);
 	ImprovedConfigFile cfg;
-	ConfigFile ff;
 	if (!resourceExistsInAllGroups(cfgfilename))
 	{
 		LOG("unable to load config file: "+cfgfilename);
@@ -256,8 +255,8 @@ CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
 	String group = ResourceGroupManager::getSingleton().findGroupContainingResource(cfgfilename);
 	DataStreamPtr stream=ResourceGroupManager::getSingleton().openResource(cfgfilename, group);
 	cfg.load(stream, "\t:=", false);
-	String shaone = cfg.getSetting("shaone");
-	String cacheformat = cfg.getSetting("cacheformat");
+	String shaone = cfg.GetString("shaone");
+	String cacheformat = cfg.GetString("cacheformat");
 
 	if (shaone == "" || shaone != currentSHA1)
 	{

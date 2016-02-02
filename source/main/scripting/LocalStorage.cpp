@@ -122,7 +122,7 @@ std::string LocalStorage::get(std::string &key)
 {
 	std::string sec;
 	parseKey(key, sec);
-	return getSetting(key, sec);
+	return GetStringEx(key, sec);
 }
 
 void LocalStorage::set(std::string &key, const std::string &value)

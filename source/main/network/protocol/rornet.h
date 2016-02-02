@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../common/BitFlags.h"
+#include "BitFlags.h"
 
 // fix unused variable warning
 // see http://stackoverflow.com/questions/386220/hide-defined-but-not-used-warning-with-gcc

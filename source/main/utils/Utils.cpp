@@ -1,29 +1,31 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal
 
-For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Utils.h"
 
-#include <Ogre.h>
+#include "Utils.h"
 
 #include "rornet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
+
+#include <Ogre.h>
 
 #ifndef _WIN32
 #include <iconv.h>
@@ -89,18 +91,8 @@ String hexdump(void *pAddressIn, long  lSize)
 
 UTFString tryConvertUTF(const char *buffer)
 {
-	try
-	{
-		UTFString s = UTFString(buffer);
-		if (s.empty())
-			s = UTFString("(UTF conversion error 1)");
-		return s;
-
-	} catch(...)
-	{
-		return UTFString("(UTF conversion error 2)");
-	}
-	//return UTFString("(UTF conversion error 3)");
+    std::string str_in(buffer);
+    return UTFString(RoR::Utils::SanitizeUtf8String(str_in));
 }
 
 UTFString formatBytes(double bytes)
@@ -237,74 +229,12 @@ void fixRenderWindowIcon (RenderWindow *rw)
 
 UTFString ANSI_TO_UTF(const String source)
 {
-	return UTFString(ANSI_TO_WCHAR(source)); // UTF converts from wstring
+    return UTFString(RoR::Utils::SanitizeUtf8String(source));
 }
 
-// TODO: Make it bulletproof! <Bad Ptr> e.g kills this
 std::wstring ANSI_TO_WCHAR(const String source)
 {
-#ifdef _WIN32
-	const char* srcPtr = source.c_str();
-	int tmpSize = MultiByteToWideChar( CP_ACP, 0, srcPtr, -1, 0, 0 );
-	WCHAR* tmpBuff = new WCHAR [ tmpSize + 1 ];
-	MultiByteToWideChar( CP_ACP, 0, srcPtr, -1, tmpBuff, tmpSize );
-	std::wstring ret = tmpBuff;
-	delete[] tmpBuff;
-	return ret;
-#if 0
-	// does not make much of a difference
-	int retval = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, _source.c_str(), -1, NULL, 0);
-	if (!SUCCEEDED(retval))
-	{
-		return std::wstring(L"ERR");
-	}
-	WCHAR* wstr = new WCHAR [ retval + 1 ];
-	if (wstr == NULL)
-	{
-		return std::wstring(L"ERR");
-	}
-	std::fill_n(wstr, retval+1, '\0' );
-	retval = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, _source.c_str(), -1, wstr, retval);
-	if (!SUCCEEDED(retval))
-	{
-		delete[] wstr;
-		return std::wstring(L"ERR");
-	}
-	std::wstring ret = wstr;
-	delete[] wstr;
-	return ret;
-#endif
-#else
-	// TODO: GET THIS WORKING
-	/*
-	const char* srcPtr = source.c_str();
-	iconv_t icv = iconv_open("ASCII", "UTF-8");
-	if ( icv == (iconv_t) -1 )
-	{
-		return std::wstring(L"ERR1");
-	}
-
-	char *inpbuf    = const_cast<char *>(source.c_str());
-	size_t inbytes  = source.size();
-	size_t outbytes = inbytes;
-	size_t nread    = 0;
-	char *outbuf    = (char *)calloc((outbytes*4+1)*sizeof(char), 1);
-
-	size_t res = iconv(icv, &inpbuf, &inbytes, &outbuf, &outbytes);
-	if (res == (size_t) -1)
-	{
-		//free(outbuf);
-		return std::wstring(L"ERR2");
-	}
-	iconv_close(icv);
-	//free(outbuf);
-	*/
-
-	// hacky!
-	std::wstring str2(source.length(), L' '); // Make room for characters
-	std::copy(source.begin(), source.end(), str2.begin());
-	return str2;
-#endif // _WIN32
+    return ANSI_TO_UTF(source).asWStr();
 }
 
 void trimUTFString( UTFString &str, bool left, bool right)
@@ -429,6 +359,14 @@ namespace Utils
 		}
 		return input.substr(substr_start, substr_count);
 	}
+
+    std::string SanitizeUtf8String(std::string const& str_in)
+    {
+        // Cloned from UTFCPP tutorial: http://utfcpp.sourceforge.net/#fixinvalid
+        std::string str_out;
+        utf8::replace_invalid(str_in.begin(), str_in.end(), std::back_inserter(str_out));
+        return str_out;
+    }
 }
 
 }
