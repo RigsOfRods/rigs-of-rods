@@ -532,6 +532,7 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 
 			case (File::KEYWORD_RIGIDIFIERS):
 				AddMessage(line, Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring...");
+				new_section = File::SECTION_NONE;
 				line_finished = true;
 				break;
 
@@ -723,6 +724,7 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 
 			case (File::KEYWORD_TURBOPROPS2):
 				AddMessage(line, Message::TYPE_WARNING, "Turboprops2 are not supported, ignoring...");
+				new_section = File::SECTION_NONE;
 				line_finished = true;
 				break;
 
@@ -2532,11 +2534,10 @@ void Parser::ParseSubmesh(Ogre::String const & line)
 
 		m_current_submesh->texcoords.push_back(texcoord);
 	}
-    // Experiment, left here for future use
-    //else if (this->_TryParseCab(line))
-    //{
-    //    AddMessage(line, Message::TYPE_WARNING, "Section submesh has no subsection defined, but subsequent line matches 'cab' entry. Parsed as 'cab'.");
-    //}
+	else if (this->_TryParseCab(line))
+	{
+		AddMessage(line, Message::TYPE_WARNING, "Section submesh has no subsection defined, but subsequent line matches 'cab' entry. Parsed as 'cab'.");
+	}
 	else
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
