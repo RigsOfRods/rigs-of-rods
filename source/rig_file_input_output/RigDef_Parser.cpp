@@ -2650,9 +2650,6 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 
 		flexbody.mesh_name = results[19];
 
-		m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
-		m_current_module->flexbodies.push_back(m_last_flexbody);
-
         this->ProcessFlexbody(flexbody);
 	}
 	else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
