@@ -1,63 +1,64 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
-	@file   ConfigFile.cpp
-	@date   06/2014
-	@author Petr Ohlidal
+    @file   ConfigFile.cpp
+    @date   06/2014
+    @author Petr Ohlidal
 */
 
 #include "ConfigFile.h"
+#include "Utils.h"
 
 #include <OgreString.h>
 #include <OgreStringConverter.h>
 
 using namespace RoR;
 
-float ConfigFile::GetFloat(Ogre::String const & key, float defaultValue)
+float ConfigFile::GetFloat(Ogre::String const & key, Ogre::String const & section, float defaultValue)
 {
-	return Ogre::StringConverter::parseReal(getSetting(key), defaultValue);
+    return Ogre::StringConverter::parseReal(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key, Ogre::ColourValue const & defaultValue)
+Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key, Ogre::String const & section, Ogre::ColourValue const & defaultValue)
 {
-	return Ogre::StringConverter::parseColourValue(getSetting(key), defaultValue);
+    return Ogre::StringConverter::parseColourValue(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-int ConfigFile::GetInt(Ogre::String const & key, int defaultValue)
+int ConfigFile::GetInt(Ogre::String const & key, Ogre::String const & section, int defaultValue)
 {
-	return Ogre::StringConverter::parseInt(getSetting(key), defaultValue);
+    return Ogre::StringConverter::parseInt(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-bool ConfigFile::GetBool(Ogre::String const & key, bool defaultValue)
+bool ConfigFile::GetBool(Ogre::String const & key, Ogre::String const & section, bool defaultValue)
 {
-	return Ogre::StringConverter::parseBool(getSetting(key), defaultValue);
+    return Ogre::StringConverter::parseBool(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-Ogre::String ConfigFile::GetString(Ogre::String const & key, Ogre::String const & defaultValue)
+Ogre::String ConfigFile::GetStringEx(Ogre::String const & key, Ogre::String const & section, Ogre::String const & defaultValue)
 {
-	auto setting = getSetting(key);
-	if (setting.empty())
-	{
-		return defaultValue;
-	}
-	return setting;
+    auto setting = Ogre::ConfigFile::getSetting(key, section);
+    if (setting.empty())
+    {
+        return defaultValue;
+    }
+    return RoR::Utils::SanitizeUtf8String(setting);
 }

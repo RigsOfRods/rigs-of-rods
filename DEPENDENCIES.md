@@ -17,6 +17,7 @@ Rigs of Rods uses 3rd party libraries licensed under the following licenses:
 | boost                           | advanced C++ functions                               | Boost Software License 1.0 |
 | wxWidgets                       | cross-platform GUI system                            | wxWindows 3.1              |
 | CrashRpt                        | Crash reporting system                               | BSD New                    |
+| UTFCpp                          | UTF-8 validation/conversion                          | Boost Software License 1.0 | 
 
 
 

@@ -1009,6 +1009,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
+					reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, selection->fname, selection->number, reload_box, false, config_ptr, skin, freeTruckPosition);
 					freeTruckPosition = false; // reset this, only to be used once
 				}
@@ -1039,12 +1040,6 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
 				} 
-				else if (gEnv->player != nullptr)
-				{
-					// if it is a load or trailer, then stay in player mode
-					// but relocate to the new position, so we don't spawn the dialog again
-					gEnv->player->move(Vector3(3.0, 0.2, 0.0));
-				}
 			}
 		}
 #endif //MYGUI

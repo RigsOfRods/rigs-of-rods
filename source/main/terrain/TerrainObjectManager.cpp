@@ -38,6 +38,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
+#include "Utils.h"
 #include "WriteTextToTexture.h"
 
 #include <OgreRTShaderSystem.h>
@@ -711,15 +712,8 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		return;
 	}
 
-	// nice idea, but too many random hits
-	//if (abs(rot.x+1) < 0.001) rot.x = Math::RangeRandom(0, 360);
-	//if (abs(rot.y+1) < 0.001) rot.y = Math::RangeRandom(0, 360);
-	//if (abs(rot.z+1) < 0.001) rot.z = Math::RangeRandom(0, 360);
-
 	if (name.empty()) return;
 
-	//FILE *fd;
-	//char oname[1024] = {};
 	char mesh[1024] = {};
 	char line[1024] = {};
 	char collmesh[1024] = {};
@@ -768,7 +762,8 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		//scale
 		ds->readLine(line, 1023);
 		sscanf(line, "%f, %f, %f",&sc.x, &sc.y, &sc.z);
-		String entityName = "object" + TOSTRING(objcounter) + "(" + name + ")";
+		String entity_name = "object" + TOSTRING(objcounter) + "(" + name + ")";
+		RoR::Utils::SanitizeUtf8String(entity_name);
 		objcounter++;
 
 		SceneNode *tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -777,7 +772,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		MeshObject *mo = NULL;
 		if (String(mesh) != "none")
 		{
-			mo = new MeshObject(mesh, entityName, tenode, NULL, background_loading);
+			mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
 		}
 
 		//mo->setQueryFlags(OBJECTS_MASK);
@@ -803,14 +798,10 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				SubEntity *se = mo->getEntity()->getSubEntity(i);
 				String matname = se->getMaterialName();
 				String newmatname = matname + "/" + instancename;
-				//LOG("subentity " + TOSTRING(i) + ": "+ matname + " -> " + newmatname);
 				se->getMaterial()->clone(newmatname);
 				se->setMaterialName(newmatname);
 			}
 		}
-
-		//String meshGroup = ResourceGroupManager::getSingleton().findGroupContainingResource(mesh);
-		//MeshPtr mainMesh = mo->getMesh();
 
 		//collision box(es)
 		bool virt=false;
@@ -824,10 +815,11 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 			size_t ll=ds->readLine(line, 1023);
 
 			// little workaround to trim it
-			String lineStr = String(line);
-			Ogre::StringUtil::trim(lineStr);
+			String line_str = String(line);
+			Ogre::StringUtil::trim(line_str);
+            RoR::Utils::SanitizeUtf8String(line_str);
 
-			const char* ptline = lineStr.c_str();
+			const char* ptline = line_str.c_str();
 			if (ll==0 || line[0]=='/' || line[0]==';') continue;
 
 			if (!strcmp("end",ptline)) break;

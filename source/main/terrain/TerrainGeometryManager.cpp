@@ -24,6 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 #include "ShadowManager.h"
 #include "OgreTerrainPSSMMaterialGenerator.h"
+#include "Utils.h"
 
 using namespace Ogre;
 
@@ -115,7 +116,7 @@ Ogre::String TerrainGeometryManager::getPageHeightmap(int x, int z)
 
 	char buf[4096];
 	ds->readLine(buf, 4096);
-	return String(buf);
+	return RoR::Utils::SanitizeUtf8String(String(buf));
 }
 
 void TerrainGeometryManager::initTerrain()
@@ -312,11 +313,11 @@ void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 	if (ds.isNull())
 		return;
 
-	char line[4096];
-	ds->readLine(line, 4096);
-	String heightmapImage = String(line);
-	ds->readLine(line, 4096);
-	terrainLayers = PARSEINT(String(line));
+	char line_buf[4096];
+	ds->readLine(line_buf, 4096);
+	String heightmapImage = RoR::Utils::SanitizeUtf8String(String(line_buf));
+	ds->readLine(line_buf, 4096);
+	terrainLayers = PARSEINT(RoR::Utils::SanitizeUtf8String(String(line_buf)));
 
 	if (terrainLayers == 0)
 		return;
@@ -333,7 +334,8 @@ void TerrainGeometryManager::loadLayers(int x, int z, Terrain *terrain)
 
 	while (!ds->eof())
 	{
-		size_t ll = ds->readLine(line, 4096);
+		size_t ll = ds->readLine(line_buf, 4096);
+		std::string line = RoR::Utils::SanitizeUtf8String(std::string(line_buf));
 		if (ll==0 || line[0]=='/' || line[0]==';') continue;
 
 		StringVector args = StringUtil::split(String(line), ",");

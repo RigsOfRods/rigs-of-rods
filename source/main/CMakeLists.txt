@@ -74,7 +74,6 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   
   include_directories(${RoR_Main_SOURCE_DIR})
   add_sub_dir(${BINNAME} audio)
-  add_sub_dir(${BINNAME} ../common)
   add_sub_dir(${BINNAME} datatypes)
   add_sub_dir(${BINNAME} gameplay)
   add_sub_dir(${BINNAME} terrain)
