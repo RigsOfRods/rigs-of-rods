@@ -69,11 +69,6 @@ public:
         return this->GetStringEx(key, Ogre::StringUtil::BLANK, defaultValue);
     }
     Ogre::String GetStringEx(Ogre::String const & key, Ogre::String const & section, Ogre::String const & defaultValue = "");
-
-private:
-    //Block access to Ogre::ConfigFile::getSetting() - not UTF8 safe!
-    Ogre::String getSetting(Ogre::String, Ogre::String);
-    Ogre::String getSetting(Ogre::String, Ogre::String, Ogre::String);
 };
 
 } // namespace RoR
