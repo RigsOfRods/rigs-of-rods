@@ -1009,6 +1009,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
+					reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, selection->fname, selection->number, reload_box, false, config_ptr, skin, freeTruckPosition);
 					freeTruckPosition = false; // reset this, only to be used once
 				}
