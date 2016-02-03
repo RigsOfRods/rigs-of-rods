@@ -4528,7 +4528,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		axis_node_2->pos,
 		static_cast<int>(base_node_index),
 		Ogre::Vector3(0.5,0,0),
-		Ogre::Quaternion::ZERO,
+		Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
 		node_indices
 		);
 
