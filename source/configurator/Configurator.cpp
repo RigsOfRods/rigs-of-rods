@@ -549,10 +549,10 @@ void initLanguage(wxString languagePath, wxString userpath)
 	try
 	{
 		wxString rorcfg=userpath + dirsep + wxT("config") + dirsep + wxT("RoR.cfg");
-		Ogre::ImprovedConfigFile cfg;
+		ImprovedConfigFile cfg;
 		// Don't trim whitespace
 		cfg.load((const char*)rorcfg.mb_str(wxConvUTF8), "=:\t", false);
-		wxString langSavedName = conv(cfg.getSetting("Language"));
+		wxString langSavedName = conv(cfg.GetString("Language"));
 
 		if(langSavedName.size() > 0)
 			language = const_cast<wxLanguageInfo *>(getLanguageInfoByName(langSavedName));
@@ -2312,7 +2312,7 @@ void MyDialog::updateSettingsControls()
 bool MyDialog::LoadConfig()
 {
 	//RoR config
-	Ogre::ImprovedConfigFile cfg;
+	ImprovedConfigFile cfg;
 	try
 	{
 		wxLogStatus(wxT("Loading RoR.cfg"));
