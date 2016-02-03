@@ -1010,39 +1010,28 @@ int Beam::loadPosition(int indexPosition)
 
 void Beam::updateTruckPosition()
 {
-	// calculate average position (and smooth)
-	if (externalcameramode == 0)
+	// calculate average position (and smooth) !< smooth is sth. different
+
+	for (int n=0; n<free_node; n++)
 	{
-		// the classic approach: average over all nodes and beams
-		Vector3 aposition = Vector3::ZERO;
-		for (int n=0; n < free_node; n++)
-		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
-			aposition += nodes[n].smoothpos;
-		}
-		position = aposition / free_node;
-	} else if (externalcameramode == 1 && freecinecamera > 0)
+		nodes[n].smoothpos = nodes[n].AbsPosition;
+		nodes[n].RelPosition = nodes[n].AbsPosition - origin;
+	}
+
+	if (externalcameramode == 1 && freecinecamera > 0)
 	{
 		// the new (strange) approach: reuse the cinecam node
-		for (int n=0; n < free_node; n++)
-		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
-		}
 		position = nodes[cinecameranodepos[0]].AbsPosition;
 	} else if (externalcameramode == 2 && externalcameranode >= 0)
 	{
 		// the new (strange) approach #2: reuse a specified node
-		for (int n=0; n < free_node; n++)
-		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
-		}
 		position = nodes[externalcameranode].AbsPosition;
 	} else
 	{
+		// the classic approach: average over all nodes and beams
 		Vector3 aposition = Vector3::ZERO;
-		for (int n=0; n < free_node; n++)
+		for (int n=0; n<free_node; n++)
 		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
 			aposition += nodes[n].smoothpos;
 		}
 		position = aposition / free_node;
