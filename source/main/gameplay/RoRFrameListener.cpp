@@ -541,6 +541,51 @@ bool RoRFrameListener::updateEvents(float dt)
 					curr_truck->reset();
 				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
 				{
+					Vector3 translation = Vector3::ZERO;
+					float rotation = 0.0f;
+
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
+					{
+						translation += 2.0f * Vector3::UNIT_Y * dt;
+					} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_BRAKE))
+					{
+						translation -= 2.0f * Vector3::UNIT_Y * dt;
+					}
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT))
+					{
+						rotation += 0.5f * dt;
+					} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_RIGHT))
+					{
+						rotation -= 0.5f * dt;
+					}
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
+					{
+						float curRot = curr_truck->getRotation();
+						translation.x += 2.0f * cos(curRot - Ogre::Math::HALF_PI) * dt;
+						translation.z += 2.0f * sin(curRot - Ogre::Math::HALF_PI) * dt;
+					} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
+					{
+						float curRot = curr_truck->getRotation();
+						translation.x -= 2.0f * cos(curRot - Ogre::Math::HALF_PI) * dt;
+						translation.z -= 2.0f * sin(curRot - Ogre::Math::HALF_PI) * dt;
+					}
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
+					{
+						float curRot = curr_truck->getRotation();
+						translation.x += 2.0f * cos(curRot) * dt;
+						translation.z += 2.0f * sin(curRot) * dt;
+					} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
+					{
+						float curRot = curr_truck->getRotation();
+						translation.x -= 2.0f * cos(curRot) * dt;
+						translation.z -= 2.0f * sin(curRot) * dt;
+					}
+
+					if (translation != Vector3::ZERO || rotation != 0.0f)
+					{
+						curr_truck->displace(translation, rotation);
+					}
+
 					curr_truck->reset(true);
 				} else
 				{
