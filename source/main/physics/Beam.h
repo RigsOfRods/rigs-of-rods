@@ -116,6 +116,11 @@ public:
 	void reset(bool keepPosition = false); 
 
 	/**
+	* Call this one to displace a truck
+	*/
+	void displace(Ogre::Vector3 translation, float rotation); 
+
+	/**
 	* Spawns vehicle.
 	*/
 	bool LoadTruck(

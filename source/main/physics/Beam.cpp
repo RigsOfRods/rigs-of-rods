@@ -1256,6 +1256,41 @@ void Beam::reset(bool keepPosition)
 	reset_requested = keepPosition ? 2 : 1;
 }
 
+void Beam::displace(Vector3 translation, float rotation)
+{
+	if (rotation != 0.0f)
+	{
+		AxisAlignedBox bb(nodes[0].AbsPosition, nodes[0].AbsPosition);
+		for (int i=0; i<free_node; i++)
+		{
+			bb.merge(nodes[i].AbsPosition);
+		}
+		Vector3 center = boundingBox.getCenter();
+
+		Quaternion matrix = Quaternion(Radian(rotation), Vector3::UNIT_Y);
+
+		for (int i=0; i<free_node; i++)
+		{
+			nodes[i].AbsPosition -= center;
+			nodes[i].AbsPosition  = matrix * nodes[i].AbsPosition;
+			nodes[i].AbsPosition += center;
+		}
+	}
+
+	if (translation != Vector3::ZERO)
+	{
+		for (int i=0; i<free_node; i++)
+		{
+			nodes[i].AbsPosition += translation;
+		}
+	}
+
+	if (rotation != 0.0f || translation != Vector3::ZERO)
+	{
+		updateTruckPosition();
+	}
+}
+
 void Beam::SyncReset()
 {
 	hydrodirstate=0.0;
