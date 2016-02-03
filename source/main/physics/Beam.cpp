@@ -1268,7 +1268,7 @@ void Beam::displace(Vector3 translation, float rotation)
 		{
 			bb.merge(nodes[i].AbsPosition);
 		}
-		Vector3 center = boundingBox.getCenter();
+		Vector3 center = bb.getCenter();
 
 		Quaternion matrix = Quaternion(Radian(rotation), Vector3::UNIT_Y);
 
