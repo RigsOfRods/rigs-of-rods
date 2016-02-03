@@ -93,11 +93,11 @@ FILE(GLOB sources "*.cpp")
 FILE(GLOB headers "*.h")
 
 IF(WIN32)
-	add_executable(RoRConfig WIN32 ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp)
+	add_executable(RoRConfig WIN32 ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp ../main/utils/ConfigFile.cpp)
 	TARGET_LINK_LIBRARIES(RoRConfig Version.lib)
 ELSE(WIN32)
         add_definitions ("-fPIC")
-	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp)
+	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp ../main/utils/ConfigFile.cpp)
 ENDIF(WIN32)
 
 TARGET_LINK_LIBRARIES(RoRConfig ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES} ${Boost_LIBRARIES})
