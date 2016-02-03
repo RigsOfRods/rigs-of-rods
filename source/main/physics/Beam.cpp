@@ -1253,7 +1253,10 @@ String Beam::getAxleLockName()
 
 void Beam::reset(bool keepPosition)
 {
-	reset_requested = keepPosition ? 2 : 1;
+	if (keepPosition)
+		m_reset_request = REQUEST_RESET_ON_SPOT;
+	else
+		m_reset_request = REQUEST_RESET_ON_INIT_POS;
 }
 
 void Beam::displace(Vector3 translation, float rotation)
@@ -1373,7 +1376,7 @@ void Beam::SyncReset()
 	for (int i=0; i<free_flexbody; i++) flexbodies[i]->reset();
 
 	// reset on spot with backspace
-	if (reset_requested > 1)
+	if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
 	{
 		resetAngle(cur_rot);
 		resetPosition(cur_position.x, cur_position.z, false, yPos);
@@ -1389,12 +1392,12 @@ void Beam::SyncReset()
 
 	resetSlideNodes();
 
-	if (reset_requested != 2)
+	if (m_reset_request != REQUEST_RESET_ON_SPOT)
 	{
-		reset_requested = 0;
+		m_reset_request = REQUEST_RESET_NONE;
 	} else
 	{
-		reset_requested = 3;
+		m_reset_request = REQUEST_RESET_FINAL;
 	}
 }
 
@@ -1527,7 +1530,7 @@ bool Beam::frameStep(int steps)
 		{
 			if (!trucks[t]) continue;
 
-			if (trucks[t]->reset_requested)
+			if (trucks[t]->m_reset_request)
 			{
 				trucks[t]->SyncReset();
 			}
@@ -5762,6 +5765,7 @@ Beam::Beam(
 	, locked(0)
 	, lockedold(0)
 	, m_request_skeletonview_change(0)
+	, m_reset_request(REQUEST_RESET_NONE)
 	, m_skeletonview_is_active(false)
 	, m_spawn_rotation(0.0)
 	, mTimeUntilNextToggle(0)
@@ -5789,7 +5793,6 @@ Beam::Beam(
 	, replaymode(false)
 	, replaypos(0)
 	, requires_wheel_contact(false)
-	, reset_requested(0)
 	, reverselight(false)
 	, rightMirrorAngle(-0.52)
 	, rudder(0)

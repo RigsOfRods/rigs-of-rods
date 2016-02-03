@@ -645,8 +645,16 @@ protected:
 	int mousenode;
 	Ogre::Vector3 mousepos;
 	float mousemoveforce;
-	int reset_requested;
 	float m_spawn_rotation;
+
+	enum ResetRequest {
+		REQUEST_RESET_NONE,
+		REQUEST_RESET_ON_INIT_POS,
+		REQUEST_RESET_ON_SPOT,
+		REQUEST_RESET_FINAL
+	};
+
+	ResetRequest m_reset_request;
 
 	std::vector<Ogre::String> m_truck_config;
 
