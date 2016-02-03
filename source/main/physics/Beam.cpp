@@ -1338,10 +1338,10 @@ void Beam::SyncReset()
 	for (int i=0; i<free_flexbody; i++) flexbodies[i]->reset();
 
 	// reset on spot with backspace
-	if (reset_requested == 2)
+	if (reset_requested > 1)
 	{
 		resetAngle(cur_rot);
-		resetPosition(cur_position.x, cur_position.z, false, yPos + global_dt * 1.0f);
+		resetPosition(cur_position.x, cur_position.z, false, yPos);
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -1353,7 +1353,14 @@ void Beam::SyncReset()
 	}
 
 	resetSlideNodes();
-	reset_requested = 0;
+
+	if (reset_requested != 2)
+	{
+		reset_requested = 0;
+	} else
+	{
+		reset_requested = 3;
+	}
 }
 
 //integration loop
