@@ -96,11 +96,11 @@ public:
 	void desactivate();
 	bool addPressure(float v);
 	float getPressure();
-	Ogre::Vector3 getPosition();
 	void resetAngle(float rot);
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
 
-	Ogre::Vector3 getVehiclePosition();
+	float getRotation();
+	Ogre::Vector3 getPosition();
 
 
 	/**
@@ -114,6 +114,11 @@ public:
 	* Call this one to reset a truck from any context
 	*/
 	void reset(bool keepPosition = false); 
+
+	/**
+	* Call this one to displace a truck
+	*/
+	void displace(Ogre::Vector3 translation, float rotation); 
 
 	/**
 	* Spawns vehicle.
@@ -640,8 +645,16 @@ protected:
 	int mousenode;
 	Ogre::Vector3 mousepos;
 	float mousemoveforce;
-	int reset_requested;
 	float m_spawn_rotation;
+
+	enum ResetRequest {
+		REQUEST_RESET_NONE,
+		REQUEST_RESET_ON_INIT_POS,
+		REQUEST_RESET_ON_SPOT,
+		REQUEST_RESET_FINAL
+	};
+
+	ResetRequest m_reset_request;
 
 	std::vector<Ogre::String> m_truck_config;
 

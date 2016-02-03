@@ -74,6 +74,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
+#include "Utils.h"
 #include "Water.h"
 #include "GUIManager.h"
 
@@ -477,12 +478,32 @@ void Beam::changeOrigin(Vector3 newOrigin)
 	moveOrigin(newOrigin - origin);
 }
 
-Vector3 Beam::getPosition()
+float Beam::getRotation()
 {
-	return position; //the position is already in absolute position
+	Vector3 cur_dir = nodes[0].smoothpos;
+	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
+	{
+		cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+	} else if (free_node > 1)
+	{
+		float max_dist = 0.0f;
+		int furthest_node = 1;
+		for (int i=0; i<free_node; i++)
+		{
+			float dist = nodes[i].RelPosition.squaredDistance(nodes[0].RelPosition);
+			if (dist > max_dist)
+			{
+				max_dist = dist;
+				furthest_node = i;
+			}
+		}
+		cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
+	}
+
+	return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 }
 
-Vector3 Beam::getVehiclePosition()
+Vector3 Beam::getPosition()
 {
 	return position; //the position is already in absolute position
 }
@@ -1010,39 +1031,28 @@ int Beam::loadPosition(int indexPosition)
 
 void Beam::updateTruckPosition()
 {
-	// calculate average position (and smooth)
-	if (externalcameramode == 0)
+	// calculate average position (and smooth) !< smooth is sth. different
+
+	for (int n=0; n<free_node; n++)
 	{
-		// the classic approach: average over all nodes and beams
-		Vector3 aposition = Vector3::ZERO;
-		for (int n=0; n < free_node; n++)
-		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
-			aposition += nodes[n].smoothpos;
-		}
-		position = aposition / free_node;
-	} else if (externalcameramode == 1 && freecinecamera > 0)
+		nodes[n].smoothpos = nodes[n].AbsPosition;
+		nodes[n].RelPosition = nodes[n].AbsPosition - origin;
+	}
+
+	if (externalcameramode == 1 && freecinecamera > 0)
 	{
 		// the new (strange) approach: reuse the cinecam node
-		for (int n=0; n < free_node; n++)
-		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
-		}
 		position = nodes[cinecameranodepos[0]].AbsPosition;
 	} else if (externalcameramode == 2 && externalcameranode >= 0)
 	{
 		// the new (strange) approach #2: reuse a specified node
-		for (int n=0; n < free_node; n++)
-		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
-		}
 		position = nodes[externalcameranode].AbsPosition;
 	} else
 	{
+		// the classic approach: average over all nodes and beams
 		Vector3 aposition = Vector3::ZERO;
-		for (int n=0; n < free_node; n++)
+		for (int n=0; n<free_node; n++)
 		{
-			nodes[n].smoothpos = nodes[n].AbsPosition;
 			aposition += nodes[n].smoothpos;
 		}
 		position = aposition / free_node;
@@ -1069,12 +1079,11 @@ void Beam::resetAngle(float rot)
 		nodes[i].AbsPosition -= origin;
 		nodes[i].AbsPosition  = matrix * nodes[i].AbsPosition;
 		nodes[i].AbsPosition += origin;
-		// Update related values
-		nodes[i].RelPosition  = nodes[i].AbsPosition;
-		nodes[i].smoothpos    = nodes[i].AbsPosition;
 	}
 
 	resetSlideNodePositions();
+
+	updateTruckPosition();
 }
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
@@ -1121,19 +1130,15 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 		}
 	}
 
-	// calculate average position
-	Vector3 apos(Vector3::ZERO);
-	for (int i=0; i<free_node; i++)
+	if (setInitPosition)
 	{
-		if (setInitPosition)
+		for (int i=0; i<free_node; i++)
 		{
 			initial_node_pos[i] = nodes[i].AbsPosition;
 		}
-		nodes[i].smoothpos   = nodes[i].AbsPosition;
-		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
-		apos += nodes[i].AbsPosition;
 	}
-	position = apos / free_node;
+
+	updateTruckPosition();
 
 	// calculate min camera radius for truck
 	if (minCameraRadius < 0.01f)
@@ -1149,8 +1154,6 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 		}
 		minCameraRadius *= 1.2f; // ten percent buffer
 	}
-
-	//if (netLabelNode) netLabelNode->setPosition(nodes[0].Position);
 
 	resetSlideNodePositions();
 }
@@ -1250,7 +1253,45 @@ String Beam::getAxleLockName()
 
 void Beam::reset(bool keepPosition)
 {
-	reset_requested = keepPosition ? 2 : 1;
+	if (keepPosition)
+		m_reset_request = REQUEST_RESET_ON_SPOT;
+	else
+		m_reset_request = REQUEST_RESET_ON_INIT_POS;
+}
+
+void Beam::displace(Vector3 translation, float rotation)
+{
+	if (rotation != 0.0f)
+	{
+		AxisAlignedBox bb(nodes[0].AbsPosition, nodes[0].AbsPosition);
+		for (int i=0; i<free_node; i++)
+		{
+			bb.merge(nodes[i].AbsPosition);
+		}
+		Vector3 center = bb.getCenter();
+
+		Quaternion matrix = Quaternion(Radian(rotation), Vector3::UNIT_Y);
+
+		for (int i=0; i<free_node; i++)
+		{
+			nodes[i].AbsPosition -= center;
+			nodes[i].AbsPosition  = matrix * nodes[i].AbsPosition;
+			nodes[i].AbsPosition += center;
+		}
+	}
+
+	if (translation != Vector3::ZERO)
+	{
+		for (int i=0; i<free_node; i++)
+		{
+			nodes[i].AbsPosition += translation;
+		}
+	}
+
+	if (rotation != 0.0f || translation != Vector3::ZERO)
+	{
+		updateTruckPosition();
+	}
 }
 
 void Beam::SyncReset()
@@ -1268,27 +1309,7 @@ void Beam::SyncReset()
 	float yPos = nodes[lowestcontactingnode].AbsPosition.y;
 
 	Vector3 cur_position = nodes[0].AbsPosition;
-	Vector3 cur_dir = nodes[0].AbsPosition;
-	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
-	{
-		cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
-	} else if (free_node > 1)
-	{
-		float max_dist = 0.0f;
-		int furthest_node = 1;
-		for (int i=0; i<free_node; i++)
-		{
-			float dist = nodes[i].RelPosition.squaredDistance(nodes[0].RelPosition);
-			if (dist > max_dist)
-			{
-				max_dist = dist;
-				furthest_node = i;
-			}
-		}
-		cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
-	}
-	float cur_rot = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
-	cur_rot = floor(cur_rot * 100 + 0.5) / 100;
+	float cur_rot = Round(getRotation(), 2);
 	if (engine) engine->start();
 	for (int i=0; i<free_node; i++)
 	{
@@ -1355,10 +1376,10 @@ void Beam::SyncReset()
 	for (int i=0; i<free_flexbody; i++) flexbodies[i]->reset();
 
 	// reset on spot with backspace
-	if (reset_requested == 2)
+	if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
 	{
 		resetAngle(cur_rot);
-		resetPosition(cur_position.x, cur_position.z, false, yPos + global_dt * 1.0f);
+		resetPosition(cur_position.x, cur_position.z, false, yPos);
 	}
 
 	// reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -1370,7 +1391,14 @@ void Beam::SyncReset()
 	}
 
 	resetSlideNodes();
-	reset_requested = 0;
+
+	if (m_reset_request != REQUEST_RESET_ON_SPOT)
+	{
+		m_reset_request = REQUEST_RESET_NONE;
+	} else
+	{
+		m_reset_request = REQUEST_RESET_FINAL;
+	}
 }
 
 //integration loop
@@ -1502,7 +1530,7 @@ bool Beam::frameStep(int steps)
 		{
 			if (!trucks[t]) continue;
 
-			if (trucks[t]->reset_requested)
+			if (trucks[t]->m_reset_request)
 			{
 				trucks[t]->SyncReset();
 			}
@@ -5737,6 +5765,7 @@ Beam::Beam(
 	, locked(0)
 	, lockedold(0)
 	, m_request_skeletonview_change(0)
+	, m_reset_request(REQUEST_RESET_NONE)
 	, m_skeletonview_is_active(false)
 	, m_spawn_rotation(0.0)
 	, mTimeUntilNextToggle(0)
@@ -5764,7 +5793,6 @@ Beam::Beam(
 	, replaymode(false)
 	, replaypos(0)
 	, requires_wheel_contact(false)
-	, reset_requested(0)
 	, reverselight(false)
 	, rightMirrorAngle(-0.52)
 	, rudder(0)

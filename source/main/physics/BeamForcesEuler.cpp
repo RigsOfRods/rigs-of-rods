@@ -451,7 +451,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		tBoundingBox.getMinimum().y + tBoundingBox.getMaximum().y +
 		tBoundingBox.getMinimum().z + tBoundingBox.getMaximum().z, -1e9, 1e9))
 	{
-		reset_requested = 1; // truck exploded, schedule reset
+		m_reset_request = REQUEST_RESET_ON_INIT_POS; // truck exploded, schedule reset
 		return; // return early to avoid propagating invalid values
 	}
 
@@ -1449,7 +1449,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	if (dt==0.0) return false;
 	if (state >= SLEEPING) return false;
 	if (deleting) return false;
-	if (reset_requested) return false;
+	if (m_reset_request) return false;
 
 	BES_START(BES_CORE_WholeTruckCalc);
 
