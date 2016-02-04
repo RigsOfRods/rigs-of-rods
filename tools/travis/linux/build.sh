@@ -1,3 +1,5 @@
+set -eu
+
 mkdir -p ./build
 cd ./build
 
