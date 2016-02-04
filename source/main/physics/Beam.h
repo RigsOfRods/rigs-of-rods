@@ -397,6 +397,7 @@ public:
 	bool disableTruckTruckCollisions;
 	bool disableTruckTruckSelfCollisions;
 	int currentcamera;
+	int m_custom_camera_node;
 	
 	int first_wheel_node;
 	int netbuffersize;

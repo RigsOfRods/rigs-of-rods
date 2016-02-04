@@ -19,8 +19,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorVehicle.h"
 
+#include <Ogre.h>
+
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "InputEngine.h"
 #include "Settings.h"
 
 using namespace Ogre;
@@ -77,4 +81,26 @@ void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)
 	camRotY = 0.35f;
 	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
 	camDist = camDistMin * 1.5f + 2.0f;
+}
+
+bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+{
+	const OIS::MouseState ms = _arg.state;
+
+	if ( ms.buttonDown(OIS::MB_Middle) && RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
+	{
+		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
+		{
+			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].smoothpos;
+			Vector3 old_direction = camLookAt - gEnv->mainCamera->getPosition();
+			Vector3 new_direction =    lookAt - gEnv->mainCamera->getPosition();
+			Quaternion rotation = old_direction.getRotationTo(new_direction);
+
+			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
+			camRotX += rotation.getYaw();
+			camRotY += rotation.getPitch();
+		}
+	}
+
+	return false;
 }
