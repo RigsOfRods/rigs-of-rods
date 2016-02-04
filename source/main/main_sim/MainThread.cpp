@@ -1322,12 +1322,18 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		// get player out of the vehicle
 		if (previous_vehicle && gEnv->player)
 		{
-			// detach from truck
+			float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
+			Vector3 position = previous_vehicle->nodes[0].AbsPosition;
+			if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->cameranodepos[0] != -1 && previous_vehicle->cameranoderoll[0] != -1)
+			{
+				// truck has a cinecam
+				position  = previous_vehicle->nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
+				position += -2.0 * ((previous_vehicle->nodes[previous_vehicle->cameranodepos[0]].RelPosition - previous_vehicle->nodes[previous_vehicle->cameranoderoll[0]].RelPosition).normalisedCopy());
+				position += Vector3(0.0, -1.0, 0.0);
+			}
 			gEnv->player->setBeamCoupling(false);
-			// update position
-			gEnv->player->setPosition(previous_vehicle->getPosition());
-			// update rotation
-			gEnv->player->updateCharacterRotation();
+			gEnv->player->setRotation(Radian(rotation));
+			gEnv->player->setPosition(position);
 		}
 
 		//force feedback
@@ -1340,7 +1346,6 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
 
 		//getting outside
-		Vector3 position = Vector3::ZERO;
 		if (previous_vehicle)
 		{
 			previous_vehicle->prepareInside(false);
@@ -1349,27 +1354,8 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			{
 				previous_vehicle->dash->setVisible(false);
 			}
-
-			// this workaround enables trucks to spawn that have no cinecam. required for cmdline options
-			if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->cameranodepos[0] != -1 && previous_vehicle->cameranoderoll[0] != -1)
-			{
-				// truck has a cinecam
-				position=previous_vehicle->nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
-				position+=-2.0*((previous_vehicle->nodes[previous_vehicle->cameranodepos[0]].RelPosition-previous_vehicle->nodes[previous_vehicle->cameranoderoll[0]].RelPosition).normalisedCopy());
-				position+=Vector3(0.0, -1.0, 0.0);
-			} 
-			else
-			{
-				// truck has no cinecam
-				position=previous_vehicle->nodes[0].AbsPosition;
-			}
 		}
 
-		if (gEnv->player && position != Vector3::ZERO)
-		{
-			gEnv->player->setPosition(position);
-			gEnv->player->updateCharacterRotation();
-		}
 		if (RoR::Application::GetOverlayWrapper())
 		{
 			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, current_vehicle);
