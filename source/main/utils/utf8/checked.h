@@ -107,7 +107,9 @@ namespace utf8
                         *out++ = *it;
                     break;
                 case internal::NOT_ENOUGH_ROOM:
-                    throw not_enough_room();
+                    // RoR patch // not_enough_room means 'incomplete Unicode character at the end of string'.
+                    // RoR patch // just append replacement character and return early.
+                    return utf8::append (replacement, out);
                 case internal::INVALID_LEAD:
                     out = utf8::append (replacement, out);
                     ++start;
