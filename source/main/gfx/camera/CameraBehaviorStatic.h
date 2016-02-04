@@ -27,9 +27,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraManager.h"
 #include "IBehavior.h"
 
+#include <Ogre.h>
+
 class CameraBehaviorStatic : public IBehavior<CameraManager::CameraContext>
 {
 public:
+
+	CameraBehaviorStatic();
 
 	void update(const CameraManager::CameraContext &ctx);
 
@@ -46,6 +50,8 @@ public:
 protected:
 
 	Ogre::Radian fovPreviously;
+	Ogre::Vector3 camPosition;
+	Ogre::Timer updateTimer;
 };
 
 #endif // __CAMERA_BEHAVIOR_STATIC_H_
