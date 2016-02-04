@@ -324,7 +324,11 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		std::time_t t = std::time(nullptr);
 		std::stringstream date;
+#if defined(__GNUC__) && (__GNUC__ < 5)
+		date << std::asctime(std::localtime(&t));
+#else
 		date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
+#endif
 
 		String fn_prefix = SSETTING("User Path", "") + String("screenshot_");
 		String fn_name = date.str() + String("_");
