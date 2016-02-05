@@ -30,20 +30,19 @@
 #include "ChatSystem.h"
 #include "GUIManager.h"
 #include "GUIMenu.h"
-#include "IHeightFinder.h"
 #include "HighScoreWindow.h"
+#include "IHeightFinder.h"
+#include "IWater.h"
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
-#include "RoRPrerequisites.h"
+#include "RoRVersion.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "Utils.h"
-#include "RoRVersion.h"
-#include "IWater.h"
 
 #include <boost/lexical_cast.hpp>
 

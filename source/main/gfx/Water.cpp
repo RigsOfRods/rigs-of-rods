@@ -20,9 +20,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Water.h"
 
 #include "Application.h"
+#include "DustManager.h"
 #include "OgreSubsystem.h"
 #include "ResourceBuffer.h"
-#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 
@@ -47,7 +47,7 @@ public:
 		// Hide plane
 		pPlaneEnt->setVisible(false);
 		//hide Water spray
-		if (gEnv->frameListener) gEnv->frameListener->showspray(false);
+		DustManager::getSingleton().setVisible(false);
 	}
 
 	void postRenderTargetUpdate(const RenderTargetEvent& evt)
@@ -55,8 +55,8 @@ public:
 		// Show plane
 		pPlaneEnt->setVisible(true);
 		waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
-		//restore Water spray
-		if (gEnv->frameListener) gEnv->frameListener->showspray(true);
+		//restore Water spray;
+		DustManager::getSingleton().setVisible(true);
 	}
 };
 

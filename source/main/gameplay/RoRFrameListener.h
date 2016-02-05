@@ -72,7 +72,6 @@ protected:
 	Ogre::Quaternion reload_dir;
 	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
 	Ogre::Vector3 dirArrowPointed;
-	Ogre::Vector3 persostart;
 
 	float mLastSimulationSpeed; // previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
 
@@ -142,7 +141,6 @@ public: // public methods
 
 	void setNetPointToUID(int uid);
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
-	void showspray(bool s);
 	void shutdown_final();
 	void Restart();
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.

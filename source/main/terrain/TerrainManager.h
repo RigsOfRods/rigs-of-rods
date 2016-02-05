@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ConfigFile.h"
 #include "IManager.h"
-#include "RoRFrameListener.h"
 
 #include "OgreTerrainPSSMMaterialGenerator.h"
 
@@ -60,13 +59,7 @@ public:
 	Ogre::Light *getMainLight() { return main_light; };
 	Ogre::Vector3 getSpawnPos() { return start_position; };
 
-	SkyManager *getSkyManager() 
-	{ 
-		if (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED)
-			return sky_manager;
-		else
-			return nullptr;
-	};
+	SkyManager *getSkyManager();
 
 	TerrainGeometryManager *getGeometryManager() { return geometry_manager; };
 	TerrainObjectManager *getObjectManager() { return object_manager; };

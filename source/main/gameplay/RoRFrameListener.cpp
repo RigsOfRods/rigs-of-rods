@@ -134,8 +134,6 @@ void RoRFrameListener::updateIO(float dt)
 	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 	if (current_truck && current_truck->driveable == TRUCK)
 	{
-
-
 		// force feedback
 		if (forcefeedback)
 		{
@@ -167,14 +165,16 @@ void RoRFrameListener::updateIO(float dt)
 
 RoRFrameListener::RoRFrameListener() :
 	dashboard(0),
+	dirArrowPointed(Vector3::ZERO),
 	dof(0),
 	forcefeedback(0),
 	freeTruckPosition(false),
 	heathaze(0),
 	hidegui(false),
+	isSimPaused(false),
 	loading_state(NONE_LOADED),
-	mLastScreenShotID(1),
 	mLastScreenShotDate(""),
+	mLastScreenShotID(1),
 	mLastSimulationSpeed(0.1f),
 	mStatsOn(0),
 	mTimeUntilNextToggle(0),
@@ -182,12 +182,10 @@ RoRFrameListener::RoRFrameListener() :
 	netChat(0),
 	netPointToUID(-1),
 	netcheckGUITimer(0),
-	persostart(Vector3(0,0,0)),
 	pressure_pressed(false),
 	raceStartTime(-1),
 	reload_box(0),
-	rtime(0),
-	isSimPaused(false)
+	rtime(0)
 {
 
 }
@@ -1332,12 +1330,6 @@ void RoRFrameListener::InitTrucks(
 		BeamFactory::getSingleton().setCurrentTruck(-1);
 	}
 
-	//force perso start
-	if (persostart != Vector3(0,0,0) && gEnv->player)
-	{
-		gEnv->player->setPosition(persostart);
-	}
-
 	loading_state = ALL_LOADED;
 
 	if (ISETTING("OutGauge Mode", 0) > 0)
@@ -1801,12 +1793,6 @@ void RoRFrameListener::hideGUI(bool visible)
 #endif // USE_SOCKETW
 	}
 #endif // USE_MYGUI
-}
-
-// show/hide all particle systems
-void RoRFrameListener::showspray(bool s)
-{
-	DustManager::getSingleton().setVisible(s);
 }
 
 void RoRFrameListener::setNetPointToUID(int uid)

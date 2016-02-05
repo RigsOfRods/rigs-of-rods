@@ -27,25 +27,28 @@
 
 #include "GUI_GameSettings.h"
 
-#include "RoRPrerequisites.h"
-#include "Utils.h"
-#include "RoRVersion.h"
-#include "rornet.h"
-#include "Language.h"
-#include "GlobalEnvironment.h"
+#include <Ogre.h>
+
 #include "Application.h"
-#include "RoRFrameListener.h"
-#include "MainThread.h"
-#include "OgreSubsystem.h"
-#include "ImprovedConfigFile.h"
 #include "FileSystemInfo.h"
 #include "GUIManager.h"
+#include "GlobalEnvironment.h"
+#include "ImprovedConfigFile.h"
+#include "Language.h"
+#include "MainThread.h"
+#include "OgreSubsystem.h"
+#include "RoRPrerequisites.h"
+#include "RoRVersion.h"
 #include "Settings.h"
 #include "TerrainManager.h"
+#include "Utils.h"
+#include "rornet.h"
 
 #include <MyGUI.h>
+
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
+
 #ifdef USE_OPENAL
 #include <AL/al.h>
 #include <AL/alc.h>
