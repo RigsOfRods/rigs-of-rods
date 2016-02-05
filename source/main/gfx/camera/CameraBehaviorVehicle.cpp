@@ -91,14 +91,32 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 	{
 		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
 		{
+			// Calculate new camera distance
 			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].smoothpos;
-			Vector3 old_direction = camLookAt - gEnv->mainCamera->getPosition();
-			Vector3 new_direction =    lookAt - gEnv->mainCamera->getPosition();
-			Quaternion rotation = old_direction.getRotationTo(new_direction);
-
 			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
-			camRotX += rotation.getYaw();
-			camRotY += rotation.getPitch();
+
+			// Calculate new camera pitch
+			Vector3 camDir = (gEnv->mainCamera->getPosition() - lookAt).normalisedCopy();
+			camRotY = asin(camDir.y);
+
+			// Calculate new camera yaw
+			Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos  - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos).normalisedCopy();
+			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
+			camRotX = rotX.getYaw();
+
+			// Corner case handling
+			Radian angle = dir.angleBetween(camDir);
+			if (angle > Radian(Math::HALF_PI))
+			{
+				if (std::abs(Radian(camRotX).valueRadians()) < Math::HALF_PI)
+				{
+					if (camRotX < Radian(0.0f))
+						camRotX -= Radian(Math::HALF_PI);
+					else
+						camRotX += Radian(Math::HALF_PI);
+				}
+			}
+
 		}
 	}
 
