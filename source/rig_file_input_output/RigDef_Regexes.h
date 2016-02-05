@@ -962,7 +962,7 @@ DEFINE_REGEX( SECTION_COMMANDS,
         E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #16 Options
         E_CAPTURE_OPTIONAL(                 // #17
             E_CAPTURE( E_DELIMITER )
-            E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #19 Description
+            E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #19 Description
             E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )
                 E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART // Result index += ( 3[outside] + 1[inside] )
@@ -997,7 +997,7 @@ DEFINE_REGEX( SECTION_COMMANDS_2,
         E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #18 Options
         E_CAPTURE_OPTIONAL(                   // #19
             E_CAPTURE( E_DELIMITER )          // #20
-            E_CAPTURE( E_STRING_NO_SPACES )   // #21 Description
+            E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )   // #21 Description
             E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )      // #23 Delimiter
                 E_CAPTURE( ".*" )             // #24 The rest of the line (for further processing)
