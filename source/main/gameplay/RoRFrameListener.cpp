@@ -166,7 +166,6 @@ void RoRFrameListener::updateIO(float dt)
 }
 
 RoRFrameListener::RoRFrameListener() :
-	clutch(0),
 	dashboard(0),
 	dof(0),
 	forcefeedback(0),
@@ -1469,12 +1468,13 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 				gEnv->terrainManager->getEnvmap()->update(curr_truck->getPosition(), curr_truck);
 			} else
 			{
-				float height = gEnv->terrainManager->getMaxTerrainSize().y;
+				Vector3 maxTerrainSize = gEnv->terrainManager->getMaxTerrainSize();
+				float height = maxTerrainSize.y;
 				if (gEnv->terrainManager->getHeightFinder())
 				{
-					height = gEnv->terrainManager->getHeightFinder()->getHeightAt(terrainxsize / 2.0f, terrainzsize / 2.0f );
+					height = gEnv->terrainManager->getHeightFinder()->getHeightAt(maxTerrainSize.x / 2.0f, maxTerrainSize.z / 2.0f);
 				}
-				gEnv->terrainManager->getEnvmap()->update(Vector3(terrainxsize / 2.0f, height + 50.0f, terrainzsize / 2.0f));
+				gEnv->terrainManager->getEnvmap()->update(Vector3(maxTerrainSize.x / 2.0f, height + 50.0f, maxTerrainSize.z / 2.0f));
 			}
 		}
 

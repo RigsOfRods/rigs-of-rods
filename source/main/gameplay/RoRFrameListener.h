@@ -97,11 +97,6 @@ protected:
 	collision_box_t *reload_box;
 	double rtime;
 
-	float clutch;
-	float terrainxsize;
-	float terrainzsize;
-	//float truckx, trucky, truckz;
-
 	int mStatsOn;
 	int netPointToUID;
 	int raceStartTime;
