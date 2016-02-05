@@ -354,13 +354,8 @@ int GUI_Multiplayer::update()
 	int height = lineheight * (slotid + 1);
 	mpPanel->setSize(sidebarWidth, height);
 	
-	if (gEnv->frameListener && gEnv->network->getNetQuality(true) != 0)
-	{
-		netmsgwin->setVisible(true);
-	} else if (gEnv->frameListener && gEnv->network->getNetQuality(true) == 0)
-	{
-		netmsgwin->setVisible(false);
-	}
+	netmsgwin->setVisible(gEnv->network->getNetQuality(true) != 0);
+
 	return 0;
 }
 

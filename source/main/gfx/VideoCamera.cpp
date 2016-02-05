@@ -20,19 +20,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VideoCamera.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamData.h"
+#include "GUIManager.h"
 #include "MaterialReplacer.h"
 #include "ResourceBuffer.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SkyManager.h"
 #include "Utils.h"
-#include "RoRFrameListener.h"
-#include "Application.h"
-#include "GUIManager.h"
-
 
 using namespace Ogre;
 

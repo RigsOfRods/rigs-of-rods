@@ -32,6 +32,7 @@
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
+#include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "ShadowManager.h"
@@ -774,6 +775,14 @@ Ogre::Vector3 TerrainManager::getMaxTerrainSize()
 IHeightFinder* TerrainManager::getHeightFinder()
 {
 	return geometry_manager;
+}
+
+SkyManager* TerrainManager::getSkyManager()
+{ 
+	if (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED)
+		return sky_manager;
+	else
+		return nullptr;
 }
 
 size_t TerrainManager::getMemoryUsage()
