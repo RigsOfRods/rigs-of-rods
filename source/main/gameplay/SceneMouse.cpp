@@ -219,6 +219,41 @@ void SceneMouse::update(float dt)
 
 bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
+	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+
+	const OIS::MouseState ms = _arg.state;
+
+	if (ms.buttonDown(OIS::MB_Middle))
+	{
+		Beam *truck = BeamFactory::getSingleton().getCurrentTruck();
+
+		if (truck)
+		{
+			lastMouseY = ms.Y.abs;
+			lastMouseX = ms.X.abs;
+			Ray mouseRay = getMouseRay();
+
+			float nearest_distance = std::numeric_limits<float>::max();
+			float nearest_node_index = -1;
+
+			for (int i = 0; i < truck->free_node; i++)
+			{
+				std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.1f));
+				if (pair.first && pair.second < nearest_distance)
+				{
+					nearest_distance   = pair.second;
+					nearest_node_index = i;
+				}
+			}
+			truck->m_custom_camera_node = nearest_node_index;
+		}
+	}
+
+	if (gEnv->cameraManager)
+	{
+		gEnv->cameraManager->mousePressed(_arg, _id);
+	}
+
 	return true;
 }
 
@@ -229,6 +264,11 @@ bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _
 	if (mouseGrabState == 1)
 	{
 		releaseMousePick();
+	}
+
+	if (gEnv->cameraManager)
+	{
+		gEnv->cameraManager->mouseReleased(_arg, _id);
 	}
 
 	return true;

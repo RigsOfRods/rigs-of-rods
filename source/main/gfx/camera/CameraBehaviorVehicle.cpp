@@ -19,8 +19,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CameraBehaviorVehicle.h"
 
+#include <Ogre.h>
+
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "InputEngine.h"
 #include "Settings.h"
 
 using namespace Ogre;
@@ -77,4 +81,44 @@ void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)
 	camRotY = 0.35f;
 	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
 	camDist = camDistMin * 1.5f + 2.0f;
+}
+
+bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+{
+	const OIS::MouseState ms = _arg.state;
+
+	if ( ms.buttonDown(OIS::MB_Middle) && RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
+	{
+		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
+		{
+			// Calculate new camera distance
+			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].smoothpos;
+			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
+
+			// Calculate new camera pitch
+			Vector3 camDir = (gEnv->mainCamera->getPosition() - lookAt).normalisedCopy();
+			camRotY = asin(camDir.y);
+
+			// Calculate new camera yaw
+			Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos  - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos).normalisedCopy();
+			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
+			camRotX = rotX.getYaw();
+
+			// Corner case handling
+			Radian angle = dir.angleBetween(camDir);
+			if (angle > Radian(Math::HALF_PI))
+			{
+				if (std::abs(Radian(camRotX).valueRadians()) < Math::HALF_PI)
+				{
+					if (camRotX < Radian(0.0f))
+						camRotX -= Radian(Math::HALF_PI);
+					else
+						camRotX += Radian(Math::HALF_PI);
+				}
+			}
+
+		}
+	}
+
+	return false;
 }

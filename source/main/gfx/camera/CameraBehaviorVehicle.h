@@ -39,6 +39,8 @@ public:
 
 	bool switchBehavior(const CameraManager::CameraContext &ctx) { return true; };
 
+	bool mousePressed(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+
 protected:
 
 	bool camPitching;

@@ -1039,7 +1039,10 @@ void Beam::updateTruckPosition()
 		nodes[n].RelPosition = nodes[n].AbsPosition - origin;
 	}
 
-	if (externalcameramode == 1 && freecinecamera > 0)
+	if (m_custom_camera_node >= 0)
+	{
+		position = nodes[m_custom_camera_node].AbsPosition;
+	} else if (externalcameramode == 1 && freecinecamera > 0)
 	{
 		// the new (strange) approach: reuse the cinecam node
 		position = nodes[cinecameranodepos[0]].AbsPosition;
@@ -5764,6 +5767,7 @@ Beam::Beam(
 	, lights(1)
 	, locked(0)
 	, lockedold(0)
+	, m_custom_camera_node(-1)
 	, m_request_skeletonview_change(0)
 	, m_reset_request(REQUEST_RESET_NONE)
 	, m_skeletonview_is_active(false)
