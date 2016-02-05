@@ -45,7 +45,7 @@ public:
 	
 	Ogre::Vector3 reload_pos;
 
-	void setSimPaused(bool state) { isSimPaused = state; }
+	void setSimPaused(bool state);
 
 	void StartRaceTimer();
 
@@ -89,7 +89,7 @@ protected:
 	bool mTruckInfoOn;
 	bool pressure_pressed;
 
-	bool isSimPaused;
+	bool m_is_sim_paused;
 
 	char screenshotformat[256];
 	
