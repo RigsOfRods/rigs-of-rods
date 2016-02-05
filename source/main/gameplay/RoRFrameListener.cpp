@@ -542,8 +542,17 @@ bool RoRFrameListener::updateEvents(float dt)
 				{
 					StopRaceTimer();
 					curr_truck->reset();
-				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
+				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair)
 				{
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
+					{
+						m_advanced_truck_repair = m_advanced_truck_repair_timer > 1.0f;
+						m_advanced_truck_repair_timer += dt;
+					} else
+					{
+						m_advanced_truck_repair_timer = 0.0f;
+					}
+
 					Vector3 translation = Vector3::ZERO;
 					float rotation = 0.0f;
 

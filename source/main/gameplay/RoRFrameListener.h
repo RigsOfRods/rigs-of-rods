@@ -97,6 +97,9 @@ protected:
 	collision_box_t *reload_box;
 	double rtime;
 
+	bool m_advanced_truck_repair;
+	float m_advanced_truck_repair_timer;
+
 	int mStatsOn;
 	int netPointToUID;
 	int raceStartTime;
