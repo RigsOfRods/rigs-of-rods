@@ -171,8 +171,8 @@ RoRFrameListener::RoRFrameListener() :
 	freeTruckPosition(false),
 	heathaze(0),
 	hidegui(false),
-	isSimPaused(false),
 	loading_state(NONE_LOADED),
+	m_is_sim_paused(false),
 	mLastScreenShotDate(""),
 	mLastScreenShotID(1),
 	mLastSimulationSpeed(0.1f),
@@ -187,12 +187,20 @@ RoRFrameListener::RoRFrameListener() :
 	reload_box(0),
 	rtime(0)
 {
-
 }
 
 RoRFrameListener::~RoRFrameListener()
 {
+}
 
+void RoRFrameListener::setSimPaused(bool paused)
+{
+	if (paused)
+	{
+		BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished
+	}
+
+	m_is_sim_paused = paused;
 }
 
 void RoRFrameListener::StartRaceTimer()
@@ -1381,7 +1389,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	//if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
 	//
-	if (loading_state == ALL_LOADED && !this->isSimPaused)
+	if (loading_state == ALL_LOADED && !m_is_sim_paused)
 	{
 		BeamFactory::getSingleton().updateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool 
 	}
@@ -1512,7 +1520,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		DustManager::getSingleton().update();
 	}
 
-	if (loading_state == ALL_LOADED && !this->isSimPaused)
+	if (loading_state == ALL_LOADED && !m_is_sim_paused)
 	{
 		BeamFactory::getSingleton().updateVisual(dt); // update visual - antishaking
 	}
@@ -1544,7 +1552,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	if (loading_state == ALL_LOADED)
 	{
 		// we simulate one truck, it will take care of the others (except networked ones)
-		if (!isSimPaused)
+		if (!m_is_sim_paused)
 		{
 			BeamFactory::getSingleton().checkSleepingState();
 			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
