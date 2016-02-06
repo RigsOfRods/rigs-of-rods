@@ -647,6 +647,7 @@ protected:
 	Ogre::Vector3 mousepos;
 	float mousemoveforce;
 	float m_spawn_rotation;
+	bool m_is_cinecam_rotation_center;
 
 	enum ResetRequest {
 		REQUEST_RESET_NONE,
