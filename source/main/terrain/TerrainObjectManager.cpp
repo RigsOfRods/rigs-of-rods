@@ -946,6 +946,10 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				if (strlen(ts) == 0)
 					event_filter=EVENT_ALL;
 
+				// hack to avoid fps drops near spawnzones
+				if (!strncmp(eventname, "spawnzone", 9))
+					event_filter=EVENT_AVATAR;
+
 				continue;
 			}
 			if (!strcmp("endbox", ptline))
