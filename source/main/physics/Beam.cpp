@@ -479,7 +479,7 @@ void Beam::changeOrigin(Vector3 newOrigin)
 
 float Beam::getRotation()
 {
-	Vector3 cur_dir = nodes[0].smoothpos;
+	Vector3 cur_dir = nodes[0].AbsPosition;
 	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{
 		cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
@@ -1265,20 +1265,33 @@ void Beam::displace(Vector3 translation, float rotation)
 {
 	if (rotation != 0.0f)
 	{
-		AxisAlignedBox bb(nodes[0].AbsPosition, nodes[0].AbsPosition);
-		for (int i=0; i<free_node; i++)
+		Vector3 rotation_center = Vector3::ZERO;
+
+		if (m_is_cinecam_rotation_center)
 		{
-			bb.merge(nodes[i].AbsPosition);
+			Vector3 cinecam = nodes[0].AbsPosition;
+			if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+			{
+				cinecam = nodes[cameranodepos[0]].AbsPosition;
+			}
+			rotation_center = cinecam;
+		} else
+		{
+			Vector3 sum = Vector3::ZERO;
+			for (int i=0; i<free_node; i++)
+			{
+				sum += nodes[i].AbsPosition;
+			}
+			rotation_center = sum / free_node;
 		}
-		Vector3 center = bb.getCenter();
 
-		Quaternion matrix = Quaternion(Radian(rotation), Vector3::UNIT_Y);
+		Quaternion rot = Quaternion(Radian(rotation), Vector3::UNIT_Y);
 
 		for (int i=0; i<free_node; i++)
 		{
-			nodes[i].AbsPosition -= center;
-			nodes[i].AbsPosition  = matrix * nodes[i].AbsPosition;
-			nodes[i].AbsPosition += center;
+			nodes[i].AbsPosition -= rotation_center;
+			nodes[i].AbsPosition  = rot * nodes[i].AbsPosition;
+			nodes[i].AbsPosition += rotation_center;
 		}
 	}
 
@@ -6390,6 +6403,38 @@ bool Beam::LoadTruck(
 		Vector3 cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
 		m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 	}
+
+	Vector3 cinecam = nodes[0].AbsPosition;
+	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+	{
+		cinecam = nodes[cameranodepos[0]].AbsPosition;
+	}
+
+	// Calculate the approximate median
+	std::vector<Real> mx(free_node, 0.0f);
+	std::vector<Real> my(free_node, 0.0f);
+	std::vector<Real> mz(free_node, 0.0f);
+	for (int i=0; i<free_node; i++)
+	{
+		mx[i] = nodes[i].AbsPosition.x;
+		my[i] = nodes[i].AbsPosition.y;
+		mz[i] = nodes[i].AbsPosition.z;
+	}
+	std::nth_element(mx.begin(), mx.begin() + free_node / 2, mx.end());
+	std::nth_element(my.begin(), my.begin() + free_node / 2, my.end());
+	std::nth_element(mz.begin(), mz.begin() + free_node / 2, mz.end());
+	Vector3 median = Vector3(mx[free_node / 2], my[free_node / 2], mz[free_node / 2]);
+
+	// Calculate the average
+	Vector3 sum = Vector3::ZERO;
+	for (int i=0; i<free_node; i++)
+	{
+		sum += nodes[i].AbsPosition;
+	}
+	Vector3 average = sum / free_node;
+
+	// Decide whether or not the cinecam node is an appropriate rotation center
+	m_is_cinecam_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
 
 	return true;
 }
