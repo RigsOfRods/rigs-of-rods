@@ -892,7 +892,7 @@ void Collisions::clearEventCache()
 	last_called_cbox = 0;
 }
 
-bool Collisions::collisionCorrect(Vector3 *refpos)
+bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 {
 	// find the correct cell
 	bool contacted=false;
@@ -934,7 +934,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 				// now test with the inner box
 				if (Pos > cbox->relo && Pos < cbox->rehi)
 				{
-					if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
+					if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
 					{
 						envokeScriptCallback(cbox);
 						isScriptCallbackEnvoked = true;
@@ -966,7 +966,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 
 			} else
 			{
-				if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
+				if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
 				{
 					envokeScriptCallback(cbox);
 					isScriptCallbackEnvoked = true;
@@ -1005,7 +1005,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 		}
 	}
 
-	if (!isScriptCallbackEnvoked)
+	if (envokeScriptCallbacks && !isScriptCallbackEnvoked)
 		clearEventCache();
 
 	// process minctri collision

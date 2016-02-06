@@ -284,7 +284,7 @@ void Character::update(float dt)
 		if (gEnv->collisions->collisionCorrect(&position))
 		{
 			characterVSpeed = std::max(0.0f, characterVSpeed);
-			if (gEnv->collisions->collisionCorrect(&position2) && !gEnv->collisions->collisionCorrect(&position3))
+			if (gEnv->collisions->collisionCorrect(&position2, false) && !gEnv->collisions->collisionCorrect(&position3, false))
 			{
 				characterVSpeed = 2.0f; // autojump
 			} else
@@ -301,7 +301,7 @@ void Character::update(float dt)
 				for (int i=1; i <= numstep; i++)
 				{
 					Vector3 cposition = mLastPosition + dvec * ((float)i / numstep);
-					if (gEnv->collisions->collisionCorrect(&cposition))
+					if (gEnv->collisions->collisionCorrect(&cposition, false))
 					{
 						position = cposition;
 						characterVSpeed = std::max(0.0f, characterVSpeed);

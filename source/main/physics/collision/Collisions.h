@@ -167,7 +167,7 @@ public:
 
 	eventsource_t *isTruckInEventBox(Beam *truck);
 
-	bool collisionCorrect(Ogre::Vector3 *refpos);
+	bool collisionCorrect(Ogre::Vector3 *refpos, bool envokeScriptCallbacks = true);
 	bool groundCollision(node_t *node, float dt, ground_model_t** gm, float *nso=0);
 	bool isInside(Ogre::Vector3 pos, const Ogre::String &inst, const Ogre::String &box, float border=0);
 	bool isInside(Ogre::Vector3 pos, collision_box_t *cbox, float border=0);
