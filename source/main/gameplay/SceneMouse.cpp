@@ -132,17 +132,18 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 		// walk all trucks
 		Beam **trucks = BeamFactory::getSingleton().getTrucks();
 		int trucksnum = BeamFactory::getSingleton().getTruckCount();
+		minnode = -1;
 		grab_truck = NULL;
 		for (int i = 0; i < trucksnum; i++)
 		{
-			if (!trucks[i]) continue;
-			if (trucks[i] && (trucks[i]->state == ACTIVATED || trucks[i]->state == DESACTIVATED))
+			if (trucks[i] && trucks[i]->state <= DESACTIVATED)
 			{
-				minnode = -1;
-				// walk all nodes
+				// check if our ray intersects with the bounding box of the truck
+				std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->boundingBox);
+				if (!pair.first) continue;
+
 				for (int j = 0; j < trucks[i]->free_node; j++)
 				{
-					// check if the mouse grab mode is ok
 					if (trucks[i]->node_mouse_grab_disabled[j]) continue;
 
 					// check if our ray intersects with the node
@@ -225,27 +226,37 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 	if (ms.buttonDown(OIS::MB_Middle))
 	{
-		Beam *truck = BeamFactory::getSingleton().getCurrentTruck();
-
-		if (truck)
+		if (gEnv->cameraManager && gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
 		{
-			lastMouseY = ms.Y.abs;
-			lastMouseX = ms.X.abs;
-			Ray mouseRay = getMouseRay();
+			Beam *truck = BeamFactory::getSingleton().getCurrentTruck();
 
-			float nearest_distance = std::numeric_limits<float>::max();
-			float nearest_node_index = -1;
-
-			for (int i = 0; i < truck->free_node; i++)
+			if (truck)
 			{
-				std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.1f));
-				if (pair.first && pair.second < nearest_distance)
+				lastMouseY = ms.Y.abs;
+				lastMouseX = ms.X.abs;
+				Ray mouseRay = getMouseRay();
+
+				Real nearest_camera_distance = std::numeric_limits<float>::max();
+				Real nearest_ray_distance = std::numeric_limits<float>::max();
+				int nearest_node_index = -1;
+
+				for (int i = 0; i < truck->free_node; i++)
 				{
-					nearest_distance   = pair.second;
-					nearest_node_index = i;
+					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.5f));
+					if (pair.first)
+					{
+						Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].smoothpos - mouseRay.getOrigin()).length();
+						if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
+						{
+							nearest_camera_distance = pair.second;
+							nearest_ray_distance    = ray_distance;
+							nearest_node_index      = i;
+						}
+						LOG("ray_distance: " + TOSTRING(ray_distance));
+					}
 				}
+				truck->m_custom_camera_node = nearest_node_index;
 			}
-			truck->m_custom_camera_node = nearest_node_index;
 		}
 	}
 
