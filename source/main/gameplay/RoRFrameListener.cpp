@@ -604,7 +604,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
 
 						curr_truck->updateFlexbodiesFinal();
-						curr_truck->displace(translation * scale, rotation * std::max(1.0f, scale));
+						curr_truck->displace(translation * scale, rotation * scale);
 
 						m_advanced_truck_repair_timer = 0.0f;
 					} else

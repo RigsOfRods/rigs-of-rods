@@ -74,7 +74,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadPool.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
-#include "Utils.h"
 #include "Water.h"
 #include "GUIManager.h"
 
@@ -1312,7 +1311,7 @@ void Beam::SyncReset()
 	float yPos = nodes[lowestcontactingnode].AbsPosition.y;
 
 	Vector3 cur_position = nodes[0].AbsPosition;
-	float cur_rot = Round(getRotation(), 2);
+	float cur_rot = getRotation();
 	if (engine) engine->start();
 	for (int i=0; i<free_node; i++)
 	{
