@@ -553,7 +553,6 @@ bool RoRFrameListener::updateEvents(float dt)
 					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
 					{
 						m_advanced_truck_repair = m_advanced_truck_repair_timer > 1.0f;
-						m_advanced_truck_repair_timer += dt;
 					} else
 					{
 						m_advanced_truck_repair_timer = 0.0f;
@@ -606,6 +605,11 @@ bool RoRFrameListener::updateEvents(float dt)
 
 						curr_truck->updateFlexbodiesFinal();
 						curr_truck->displace(translation * scale, rotation * std::max(1.0f, scale));
+
+						m_advanced_truck_repair_timer = 0.0f;
+					} else
+					{
+						m_advanced_truck_repair_timer += dt;
 					}
 
 					curr_truck->reset(true);
