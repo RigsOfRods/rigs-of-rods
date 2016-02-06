@@ -56,13 +56,18 @@ public:
 	void HideMain();
 	
 	void ToggleFPSBox();
+	void HideFPSBox();
+
 	void ToggleTruckInfoBox();
+	void HideTruckInfoBox();
 
 	void UpdateStats(float dt, Beam *truck); //different from Framestep!
 	void framestep(float dt);
 
 	void PushNotification(Ogre::String Title, Ogre::String text);
 	void HideNotification();
+
+	void DisableNotifications(bool disabled);
 	
 private:
 	bool b_fpsbox;
@@ -93,6 +98,7 @@ private:
 	// logic
 	float alpha;
 	long pushTime;
+	bool m_notifications_disabled;
 };
 
 } // namespace GUI

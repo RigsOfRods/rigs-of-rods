@@ -1786,14 +1786,14 @@ void RoRFrameListener::pauseSim(bool value)
 	}
 }
 
-void RoRFrameListener::hideGUI(bool visible)
+void RoRFrameListener::hideGUI(bool hidden)
 {
 #ifdef USE_MYGUI
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 	//Console *c = RoR::Application::GetConsole();
 	//if (c) c->setVisible(!visible);
 
-	if (visible)
+	if (hidden)
 	{
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, curr_truck);
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
@@ -1814,6 +1814,7 @@ void RoRFrameListener::hideGUI(bool visible)
 		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(true);
 #endif // USE_SOCKETW
 	}
+	Application::GetGuiManager()->hideGUI(hidden);
 #endif // USE_MYGUI
 }
 
@@ -1822,7 +1823,6 @@ void RoRFrameListener::setNetPointToUID(int uid)
 	// TODO: setup arrow
 	netPointToUID = uid;
 }
-
 
 void RoRFrameListener::checkRemoteStreamResultsChanged()
 {

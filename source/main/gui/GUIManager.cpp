@@ -503,3 +503,17 @@ void GUIManager::ToggleVehicleDescription()
 	else
 		HideVehicleDescription();
 }
+
+void GUIManager::hideGUI(bool hidden)
+{
+	if (m_gui_SimUtils)
+	{
+		if (hidden)
+		{
+			m_gui_SimUtils->HideNotification();
+			m_gui_SimUtils->HideFPSBox();
+			m_gui_SimUtils->HideTruckInfoBox();
+		}
+		m_gui_SimUtils->DisableNotifications(hidden);
+	}
+}

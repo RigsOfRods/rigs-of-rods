@@ -123,7 +123,7 @@ public: // public methods
 	int getNetPointToUID() { return netPointToUID; }
 
 	void checkRemoteStreamResultsChanged();
-	void hideGUI(bool visible);
+	void hideGUI(bool hidden);
 	void hideMap();
 	void InitTrucks(
         bool loadmanual, 
