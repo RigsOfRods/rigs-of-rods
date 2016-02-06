@@ -41,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "OgreAngelscript.h"
 #include "Beam.h"
+#include "Collisions.h"
 #include "Console.h"
 #include "LocalStorage.h"
 #include "Settings.h"
