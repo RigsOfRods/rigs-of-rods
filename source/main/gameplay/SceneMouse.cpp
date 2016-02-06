@@ -252,7 +252,6 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 							nearest_ray_distance    = ray_distance;
 							nearest_node_index      = i;
 						}
-						LOG("ray_distance: " + TOSTRING(ray_distance));
 					}
 				}
 				truck->m_custom_camera_node = nearest_node_index;
