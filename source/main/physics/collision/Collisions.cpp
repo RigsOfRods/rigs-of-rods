@@ -897,6 +897,11 @@ void Collisions::clearEventCache()
 	last_called_cbox = 0;
 }
 
+void Collisions::resetEventTimer()
+{
+	last_script_event_time->reset();
+}
+
 bool Collisions::collisionCorrect(Vector3 *refpos)
 {
 	// find the correct cell

@@ -1108,7 +1108,11 @@ bool RoRFrameListener::updateEvents(float dt)
 						local_truck->engine->start();
 					}
 					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
-				} 
+				}
+				else if (gEnv->collisions)
+				{
+					gEnv->collisions->resetEventTimer();
+				}
 			}
 		}
 #endif //MYGUI
