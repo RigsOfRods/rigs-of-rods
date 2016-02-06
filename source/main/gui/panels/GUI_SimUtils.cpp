@@ -77,6 +77,8 @@ CLASS::CLASS()
 
 	alpha = 1.0f;
 
+	m_notifications_disabled = false;
+
 	ShowMain(); //It's invisible and unclickable, so no worrys
 }
 
@@ -103,15 +105,28 @@ void CLASS::ToggleFPSBox()
 	m_fpscounter_box->setVisible(b_fpsbox);
 }
 
+void CLASS::HideFPSBox()
+{
+	if (b_fpsbox)
+		ToggleFPSBox();
+}
+
 void CLASS::ToggleTruckInfoBox()
 {
 	b_truckinfo = !b_truckinfo;
 	m_truckinfo_box->setVisible(b_truckinfo);
 }
 
+void CLASS::HideTruckInfoBox()
+{
+	if (b_truckinfo)
+		ToggleTruckInfoBox();
+}
+
 void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
+	if (m_notifications_disabled) return;
 
 	m_not_title->setCaption(Title);
 	m_not_text->setCaption(text);
@@ -122,6 +137,11 @@ void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 void CLASS::HideNotification()
 {
 	m_notification->setVisible(false);
+}
+
+void CLASS::DisableNotifications(bool disabled)
+{
+	m_notifications_disabled = disabled;
 }
 
 void CLASS::framestep(float dt)
