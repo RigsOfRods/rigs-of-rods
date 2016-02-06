@@ -57,7 +57,7 @@ namespace MyGUI
 struct node_t;
 struct beam_t;
 struct shock_t;
-struct collcab_rate_t;
+struct eventsource_t;
 struct soundsource_t;
 struct contacter_t;
 struct rigidifier_t;

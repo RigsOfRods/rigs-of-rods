@@ -20,13 +20,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ChatSystem.h"
 
 #include "Application.h"
-#include "Collisions.h"
 #include "Console.h"
+#include "GUIManager.h"
 #include "Language.h"
 #include "Network.h"
 #include "PlayerColours.h"
 #include "Utils.h"
-#include "GUIManager.h"
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"

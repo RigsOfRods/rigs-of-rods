@@ -44,7 +44,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "Character.h"
+#include "Collisions.h"
 #include "Console.h"
+#include "GUIManager.h"
 #include "IHeightFinder.h"
 #include "Language.h"
 #include "MainThread.h"
@@ -57,7 +59,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
-#include "GUIManager.h"
 
 using namespace Ogre;
 using namespace RoR;
