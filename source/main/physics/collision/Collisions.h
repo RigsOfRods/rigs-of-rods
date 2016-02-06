@@ -175,6 +175,7 @@ public:
 	bool nodeCollision(node_t *node, bool contacted, float dt, float* nso, ground_model_t** ogm);
 
 	void clearEventCache();
+	void resetEventTimer();
 	void finishLoadingTerrain();
 	void primitiveCollision(node_t *node, Ogre::Vector3 &normal, Ogre::Vector3 &force, Ogre::Vector3 &velocity, float dt, ground_model_t* gm, float* nso, float penetration=0, float reaction=-1.0f);
 	void printStats();
