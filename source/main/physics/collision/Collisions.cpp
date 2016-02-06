@@ -119,13 +119,10 @@ Collisions::Collisions() :
 	, landuse(0)
 	, largest_cellcount(0)
 	, last_called_cbox(0)
-	, last_script_event_time(0)
 	, last_used_ground_model(0)
 	, max_col_tris(MAX_COLLISION_TRIS)
 {
 	hFinder = gEnv->terrainManager->getHeightFinder();
-
-	last_script_event_time = new Ogre::Timer();
 
 	debugMode = BSETTING("Debug Collisions", false);
 	for (int i=0; i < HASH_POWER; i++)
@@ -156,7 +153,6 @@ Collisions::Collisions() :
 
 Collisions::~Collisions()
 {
-	delete last_script_event_time;
 	pthread_mutex_destroy(&scriptcallback_mutex);
 }
 
@@ -878,14 +874,13 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 	
 	MUTEX_LOCK(&scriptcallback_mutex);
 	// this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
-	if (last_called_cbox != cbox || last_script_event_time->getMilliseconds() > 5000)
+	if (last_called_cbox != cbox)
 	{
 #ifdef USE_ANGELSCRIPT
 		if (!ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
 			handled = true;
 #endif //USE_ANGELSCRIPT
 		last_called_cbox = cbox;
-		last_script_event_time->reset();
 	}
 	MUTEX_UNLOCK(&scriptcallback_mutex);
 
@@ -916,6 +911,8 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 	float minctridist=100.0;
 	Vector3 minctripoint;
 
+	bool isScriptCallbackEnvoked = false;
+
 	for (k=0; k<cell->size(); k++)
 	{
 		if ((*cell)[k] != (int)UNUSED_CELLELEMENT && (*cell)[k]<MAX_COLLISION_BOXES)
@@ -940,6 +937,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 					if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
 					{
 						envokeScriptCallback(cbox);
+						isScriptCallbackEnvoked = true;
 					}
 					if (cbox->camforced && !forcecam)
 					{
@@ -971,6 +969,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 				if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
 				{
 					envokeScriptCallback(cbox);
+					isScriptCallbackEnvoked = true;
 				}
 				if (cbox->camforced && !forcecam)
 				{
@@ -1005,6 +1004,9 @@ bool Collisions::collisionCorrect(Vector3 *refpos)
 			}
 		}
 	}
+
+	if (!isScriptCallbackEnvoked)
+		clearEventCache();
 
 	// process minctri collision
 	if (minctri)
