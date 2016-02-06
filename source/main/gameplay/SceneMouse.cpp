@@ -242,7 +242,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 				for (int i = 0; i < truck->free_node; i++)
 				{
-					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.5f));
+					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.25f));
 					if (pair.first)
 					{
 						Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].smoothpos - mouseRay.getOrigin()).length();
