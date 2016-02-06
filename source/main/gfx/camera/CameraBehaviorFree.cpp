@@ -34,9 +34,9 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 {
 	Degree mRotX(0.0f);
 	Degree mRotY(0.0f);
-	Degree mRotScale(ctx.mRotScale * 0.25f);
+	Degree mRotScale(ctx.mRotScale * 10.0f * ctx.mDt);
 	Vector3 mTrans(Vector3::ZERO);
-	Real mTransScale(ctx.mTransScale * 0.25f);
+	Real mTransScale(ctx.mTransScale * 10.0f * ctx.mDt);
 
 	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
 	{
@@ -45,7 +45,7 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 	}
 	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) )
 	{
-		mRotScale   *= 20.0f;
+		mRotScale   *= 6.0f;
 		mTransScale *= 20.0f;
 	}
 	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
