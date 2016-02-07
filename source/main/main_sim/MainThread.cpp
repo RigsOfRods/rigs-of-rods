@@ -869,20 +869,6 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		Skin* selected_skin = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
 		gEnv->frameListener->InitTrucks(false, map_file_name, -1, "", 0, false, selected_skin);
 	}
-	else
-	{
-		// show truck selector
-		if (gEnv->terrainManager->getWater())
-		{
-			ShowSurveyMap(false);
-			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_NetworkWithBoat);
-		} 
-		else
-		{
-			ShowSurveyMap(false);
-			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Network);
-		}
-	}
 
 	if (BSETTING("MainMenuMusic", true))
 		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);

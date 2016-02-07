@@ -338,7 +338,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		// get out first
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1) BeamFactory::getSingleton().setCurrentTruck(-1);
 		gEnv->frameListener->reload_pos = gEnv->player->getPosition();
-		gEnv->frameListener->freeTruckPosition = true;
 		gEnv->frameListener->loading_state = RELOADING;
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 

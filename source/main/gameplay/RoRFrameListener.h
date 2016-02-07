@@ -37,8 +37,6 @@ public:
 
 	ChatSystem *netChat;
 
-	bool freeTruckPosition; // Used for initial truck loading
-
 	float netcheckGUITimer;
 
 	int loading_state;

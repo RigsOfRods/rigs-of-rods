@@ -168,7 +168,6 @@ RoRFrameListener::RoRFrameListener() :
 	dirArrowPointed(Vector3::ZERO),
 	dof(0),
 	forcefeedback(0),
-	freeTruckPosition(false),
 	heathaze(0),
 	hidegui(false),
 	loading_state(NONE_LOADED),
@@ -1055,20 +1054,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 		if (Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
 		{
-			if (loading_state==TERRAIN_LOADED)
-			{
-				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
-				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
-				std::vector<String> config = Application::GetGuiManager()->getMainSelector()->GetVehicleConfigs();
-				std::vector<String> *configptr = &config;
-				if (config.size() == 0) configptr = 0;
-				if (selection)
-					this->InitTrucks(true, selection->fname, selection->number, selection->fext, configptr, false, skin);
-				else
-					this->InitTrucks(false, "");
-
-			} 
-			else if (loading_state == RELOADING)
+			if (loading_state == RELOADING)
 			{
 				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
@@ -1083,12 +1069,12 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
-					if (freeTruckPosition)
+					if (reload_box == nullptr)
 					{
 						reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					}
-					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, selection->fname, selection->number, reload_box, false, config_ptr, skin, freeTruckPosition);
-					freeTruckPosition = false; // reset this, only to be used once
+					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, selection->fname, selection->number, reload_box, false, config_ptr, skin);
+					reload_box = 0;
 				}
 
 				if (gEnv->surveyMap && local_truck)
@@ -1103,11 +1089,6 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 				}
 
-				Application::GetGuiManager()->getMainSelector()->Hide();
-				loading_state = ALL_LOADED;
-
-				RoR::Application::GetGuiManager()->UnfocusGui();
-
 				if (local_truck != nullptr && local_truck->driveable != NOT_DRIVEABLE)
 				{
 					/* We are supposed to be in this truck, if it is a truck */
@@ -1118,6 +1099,9 @@ bool RoRFrameListener::updateEvents(float dt)
 					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
 				} 
 			}
+			Application::GetGuiManager()->getMainSelector()->Hide();
+			RoR::Application::GetGuiManager()->UnfocusGui();
+			loading_state = ALL_LOADED;
 		}
 #endif //MYGUI
 	}
@@ -1132,7 +1116,6 @@ bool RoRFrameListener::updateEvents(float dt)
 			}
 
 			reload_pos = gEnv->player->getPosition();
-			freeTruckPosition = true;
 			loading_state = RELOADING;
 
 			dirty=true;

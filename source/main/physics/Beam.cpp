@@ -6183,11 +6183,23 @@ bool Beam::LoadTruck(
 		RigSpawner::RecalculateBoundingBoxes(this);
 		vehicle_position.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - vehicle_position.x;
 		vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0 - vehicle_position.z;
-		
+
+		float miny = 0.0f;
+
+		if (!preloaded_with_terrain)
+		{
+			miny = vehicle_position.y;
+		}
+
+		if (spawn_box != nullptr)
+		{
+			miny = spawn_box->relo.y + spawn_box->center.y;
+		}
+
 		if (freePositioned)
-			resetPosition(vehicle_position.x, vehicle_position.z, true, vehicle_position.y);
+			resetPosition(vehicle_position, true);
 		else
-			resetPosition(vehicle_position.x, vehicle_position.z, true, 0.0f);
+			resetPosition(vehicle_position.x, vehicle_position.z, true, miny);
 
 		if (spawn_box != nullptr)
 		{
@@ -6198,7 +6210,6 @@ bool Beam::LoadTruck(
 
 			if (!inside)
 			{
-				float miny = spawn_box->relo.y + spawn_box->center.y + 0.01f;
 				Vector3 gpos = Vector3(vehicle_position.x, 0.0f, vehicle_position.z);
 
 				gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6f, 0.0f, 0.0f);
