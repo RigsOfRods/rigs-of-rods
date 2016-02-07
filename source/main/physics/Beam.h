@@ -465,7 +465,9 @@ public:
 	void preMapLabelRenderUpdate(bool mode, float cheight=0);
 	
 	float global_dt;
+	float global_simulation_speed;
 	float oldframe_global_dt;
+	float oldframe_global_simulation_speed;
 	bool simulated;
 	int airbrakeval;
 	Ogre::Vector3 cameranodeacc;

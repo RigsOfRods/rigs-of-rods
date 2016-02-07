@@ -1536,7 +1536,9 @@ bool Beam::frameStep(int steps)
 		}
 		
 		oldframe_global_dt = global_dt;
+		oldframe_global_simulation_speed = global_simulation_speed;
 		global_dt = dt;
+		global_simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
 
 		ffforce = affforce / steps;
 		ffhydro = affhydro / steps;
@@ -5826,10 +5828,12 @@ Beam::Beam(
 	, stabratio(0.0)
 	, stabsleep(0.0)
 	, global_dt(0.1)
+	, global_simulation_speed(1.0)
 	, thread_task(THREAD_BEAMFORCESEULER)
 	, totalmass(0)
 	, tsteps(100)
 	, oldframe_global_dt(0.1)
+	, oldframe_global_simulation_speed(1.0)
 	, watercontact(false)
 	, watercontactold(false)
 {
