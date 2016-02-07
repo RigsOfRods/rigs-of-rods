@@ -277,10 +277,6 @@ public:
 	*/
 	void updateSimpleSkeleton();
 
-	/** 
-	* TIGHT-LOOP; Display; changes coloring of the "skeleton" (visual rig) mesh.
-	*/
-	void updateSkeletonColouring(int doUpdate);
 	void resetAutopilot();
 	void disconnectAutopilot();
 	void scaleTruck(float value);

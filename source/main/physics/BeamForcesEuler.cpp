@@ -1430,7 +1430,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				beam_simple_t *bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
 				for (int i=0; i<free_beam; i++)
 				{
-					bbuff[i].scale = beams[i].scale;
 					bbuff[i].broken = beams[i].broken;
 					bbuff[i].disabled = beams[i].disabled;
 				}
@@ -1463,7 +1462,6 @@ void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxst
 {
 	calcHooks();
 	calcRopes();
-	updateSkeletonColouring(doUpdate);
 
 	BES_STOP(BES_CORE_WholeTruckCalc);
 }
@@ -2146,21 +2144,3 @@ void Beam::calcRopes()
 	BES_STOP(BES_CORE_Ropes);
 }
 
-void Beam::updateSkeletonColouring(int doUpdate)
-{
-	BES_START(BES_CORE_SkeletonColouring);
-	if ((m_skeletonview_is_active && doUpdate) || replay)
-	{
-		for (int i=0; i<free_beam; i++)
-		{
-			if (!beams[i].broken && !beams[i].disabled)
-			{
-				float ratio = beams[i].stress / beams[i].minmaxposnegstress;
-				beams[i].scale = pow(ratio, 4) * 100.0f * sign(ratio);
-			} else if (beams[i].mSceneNode) {
-				beams[i].mSceneNode->detachAllObjects();
-			}
-		}
-	}
-	BES_STOP(BES_CORE_SkeletonColouring);
-}
