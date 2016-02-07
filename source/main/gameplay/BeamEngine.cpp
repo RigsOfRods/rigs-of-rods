@@ -943,69 +943,47 @@ void BeamEngine::toggleContact()
 #endif // USE_OPENAL
 }
 
-// quick start
 void BeamEngine::start()
 {
-	if (automode == AUTOMATIC)
+	offstart();
+	contact = true;
+	curEngineRPM = idleRPM;
+	running = true;
+	if (automode <= SEMIAUTO)
 	{
 		curGear = 1;
-		autoselect = DRIVE;
-	} else
-	{
-		if (automode == SEMIAUTO)
-		{
-			curGear = 1;
-		} else
-		{
-			curGear = 0;
-		}
-		autoselect = MANUALMODE;
 	}
-	curClutch = 0.0f;
-	curEngineRPM = 750.0f;
-	curClutchTorque = 0.0f;
-
-	for (int i = 0; i < numTurbos; i++)
-	{
-		curTurboRPM[i] = 0.0f;
-		curBOVTurboRPM[i] = 0.0f;
-	}
-
-	apressure = 0.0f;
-	running = true;
-	contact = true;
 #ifdef USE_OPENAL
 	SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_IGNITION);
-	setAcc(0.0f);
 	SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
 void BeamEngine::offstart()
 {
-	curGear = 0;
-	curClutch = 0.0f;
-	if (!is_Electric)
-		autoselect = NEUTRAL; //no Neutral in electric engines
-	else
-		autoselect = ONE;
-
-	curEngineRPM = 0.0f;
-	running = false;
+	apressure = 0.0f;
+	autoselect = MANUALMODE;
 	contact = false;
-#ifdef USE_OPENAL
-	SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_IGNITION);
-	SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_ENGINE);
-#endif // USE_OPENAL
+	curAcc = 0.0f;
+	curClutch = 0.0f;
+	curClutchTorque = 0.0f;
+	curEngineRPM = 0.0f;
+	curGear = 0;
+	running = false;
+	if (automode == AUTOMATIC)
+	{
+		autoselect = DRIVE;
+	}
+	for (int i = 0; i < numTurbos; i++)
+	{
+		curTurboRPM[i] = 0.0f;
+		curBOVTurboRPM[i] = 0.0f;
+	}
 }
 
 void BeamEngine::setstarter(int v)
 {
 	starter = v;
-	if (v && curEngineRPM < 750.0f)
-	{
-		setAcc(1.0f);
-	}
 }
 
 int BeamEngine::getGear()
