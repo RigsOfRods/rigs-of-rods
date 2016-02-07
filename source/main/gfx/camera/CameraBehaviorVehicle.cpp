@@ -106,17 +106,16 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 
 			// Corner case handling
 			Radian angle = dir.angleBetween(camDir);
-			if (angle > Radian(Math::HALF_PI))
+			if ( angle > Radian(Math::HALF_PI) )
 			{
-				if (std::abs(Radian(camRotX).valueRadians()) < Math::HALF_PI)
+				if ( std::abs(Radian(camRotX).valueRadians()) < Math::HALF_PI )
 				{
-					if (camRotX < Radian(0.0f))
+					if ( camRotX < Radian(0.0f) )
 						camRotX -= Radian(Math::HALF_PI);
 					else
 						camRotX += Radian(Math::HALF_PI);
 				}
 			}
-
 		}
 	}
 
