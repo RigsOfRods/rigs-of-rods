@@ -440,12 +440,14 @@ void Beam::updateSimpleSkeleton()
 	simpleSkeletonManualObject->beginUpdate(0);
 	for (int i=0; i<free_beam; i++)
 	{
-		float normalized_scale = std::min(std::abs(beams[i].scale), 1.0f);
+		float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
+		float color_scale = std::abs(stress_ratio);
+		color_scale = std::min(color_scale, 1.0f);
 
-		if (beams[i].scale <= 0)
-			color = ColourValue(0.2f, 2.0f*(1.0f-normalized_scale), 2.0f*normalized_scale, 0.8f);
+		if (stress_ratio <= 0)
+			color = ColourValue(0.2f, 1.0f - color_scale, color_scale, 0.8f);
 		else
-			color = ColourValue(2.0f*normalized_scale, 2.0f*(1.0f-normalized_scale), 0.2f, 0.8f);
+			color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
 		
 		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
 		simpleSkeletonManualObject->colour(color);
@@ -1486,7 +1488,6 @@ bool Beam::frameStep(int steps)
 				beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
 				for (int i=0; i<free_beam; i++)
 				{
-					beams[i].scale = bbuff[i].scale;
 					beams[i].broken = bbuff[i].broken;
 					beams[i].disabled = bbuff[i].disabled;
 				}
@@ -4804,7 +4805,10 @@ void Beam::updateDebugOverlay()
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
 		{
 			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
-			int scale=(int)(beams[it->id].scale * 100);
+			float stress_ratio = beams[it->id].stress / beams[it->id].minmaxposnegstress;
+			float color_scale = std::abs(stress_ratio);
+			color_scale = std::min(color_scale, 1.0f);
+			int scale = (int)(color_scale * 100);
 			it->txt->setCaption(TOSTRING(scale));
 		}
 		break;

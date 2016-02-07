@@ -62,7 +62,6 @@ struct beam_t
 
 	Ogre::Real maxtiestress;
 	Ogre::Real diameter;
-	float scale;
 
 	shock_t *shock;
 	Ogre::SceneNode *mSceneNode; //!< visual
