@@ -1092,8 +1092,6 @@ void Beam::resetAngle(float rot)
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
-	int reference_node = setInitPosition ? lowestnode : lowestcontactingnode;
-
 	// horizontal displacement
 	Vector3 offset = Vector3(px, nodes[0].AbsPosition.y, pz) - nodes[0].AbsPosition;
 	for (int i=0; i<free_node; i++)
@@ -1102,10 +1100,10 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	}
 
 	// vertical displacement
-	float vertical_offset = -nodes[reference_node].AbsPosition.y + miny;
+	float vertical_offset = -nodes[lowestcontactingnode].AbsPosition.y + miny;
 	if (gEnv->terrainManager->getWater())
 	{
-		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[reference_node].AbsPosition.y + vertical_offset));
+		vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
 	}
 	for (int i=1; i<free_node; i++)
 	{
@@ -1113,10 +1111,32 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 		float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z);
 		vertical_offset += std::max(0.0f, terrainHeight - (nodes[i].AbsPosition.y + vertical_offset));
 	}
-
 	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition.y += vertical_offset;
+	}
+
+	// mesh displacement
+	float mesh_offset = 0.0f;
+	for (int i=0; i<free_node; i++)
+	{
+		if (mesh_offset >= 1.0f) break;
+		if (nodes[i].contactless) continue;
+		float offset = mesh_offset;
+		while (offset < 1.0f)
+		{
+			Vector3 query = nodes[i].AbsPosition + Vector3(0.0f, offset, 0.0f);
+			if (!gEnv->collisions->collisionCorrect(&query, false))
+			{
+				mesh_offset = offset;
+				break;
+			}
+			offset += 0.001f;
+		}
+	}
+	for (int i=0; i<free_node; i++)
+	{
+		nodes[i].AbsPosition.y += mesh_offset;
 	}
 
 	resetPosition(Vector3::ZERO, setInitPosition);
