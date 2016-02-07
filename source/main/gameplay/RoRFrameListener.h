@@ -78,9 +78,9 @@ protected:
 	int mLastScreenShotID;
 	Ogre::String mLastScreenShotDate;
 
-	unsigned long      m_race_start_time;
-	bool               m_race_in_progress;
-	float			   m_race_bestlap_time;
+	unsigned long m_race_start_time;
+	bool          m_race_in_progress;
+	float         m_race_bestlap_time;
 
 	bool dirvisible;
 	bool enablePosStor;
@@ -96,8 +96,10 @@ protected:
 	collision_box_t *reload_box;
 	double rtime;
 
-	bool m_advanced_truck_repair;
-	float m_advanced_truck_repair_timer;
+	bool m_advanced_truck_repair;
+	float m_advanced_truck_repair_timer;
+
+	bool m_is_pace_reset_pressed;
 
 	int mStatsOn;
 	int netPointToUID;

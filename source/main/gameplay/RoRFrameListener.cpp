@@ -172,6 +172,7 @@ RoRFrameListener::RoRFrameListener() :
 	heathaze(0),
 	hidegui(false),
 	loading_state(NONE_LOADED),
+	m_is_pace_reset_pressed(false),
 	m_is_sim_paused(false),
 	mLastScreenShotDate(""),
 	mLastScreenShotID(1),
@@ -768,7 +769,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
 					{
-						float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * 1.003;
+						float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * pow(2.0f, dt / 2.0f);
 						BeamFactory::getSingleton().setSimulationSpeed(simulation_speed);
 #ifdef USE_MYGUI
 						String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
@@ -778,7 +779,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
 					{
-						float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * 0.997;
+						float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed() * pow(0.5f, dt / 2.0f);
 						BeamFactory::getSingleton().setSimulationSpeed(simulation_speed);
 #ifdef USE_MYGUI
 						String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
@@ -786,27 +787,34 @@ bool RoRFrameListener::updateEvents(float dt)
 						RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
 					}
-					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_SIMULATION_PACE, 0.5f))
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
 					{
-						float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
-						if (simulation_speed != 1.0f)
+						if (!m_is_pace_reset_pressed)
 						{
-							mLastSimulationSpeed = simulation_speed;
-							BeamFactory::getSingleton().setSimulationSpeed(1.0f);
+							float simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
+							if (simulation_speed != 1.0f)
+							{
+								mLastSimulationSpeed = simulation_speed;
+								BeamFactory::getSingleton().setSimulationSpeed(1.0f);
 #ifdef USE_MYGUI
-							UTFString ssmsg = _L("Simulation speed reset.");
-							RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-							RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+								UTFString ssmsg = _L("Simulation speed reset.");
+								RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+								RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
-						} else if (mLastSimulationSpeed != 1.0f)
-						{
-							BeamFactory::getSingleton().setSimulationSpeed(mLastSimulationSpeed);
+							} else if (mLastSimulationSpeed != 1.0f)
+							{
+								BeamFactory::getSingleton().setSimulationSpeed(mLastSimulationSpeed);
 #ifdef USE_MYGUI
-							String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(mLastSimulationSpeed * 100.0f, 1)) + "%";
-							RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-							RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+								String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(mLastSimulationSpeed * 100.0f, 1)) + "%";
+								RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+								RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
+							}
 						}
+						m_is_pace_reset_pressed = true;
+					} else
+					{
+						m_is_pace_reset_pressed = false;
 					}
 					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
 					{
