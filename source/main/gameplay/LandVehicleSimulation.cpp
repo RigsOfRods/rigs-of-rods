@@ -294,7 +294,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				curr_truck->engine->toggleContact();
 			}
 
-			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && curr_truck->engine->hasContact())
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && curr_truck->engine->hasContact() && !curr_truck->engine->isRunning())
 			{
 				// starter
 				curr_truck->engine->setstarter(1);
