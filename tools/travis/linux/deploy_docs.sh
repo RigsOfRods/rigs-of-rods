@@ -18,7 +18,9 @@ then
   git config user.email "deploy@ror-documentation.org"
   
   # Add and commit the the newly generated documentation.
+  # Adding the .nojekyll file prevents files with leading underscore to be ommitted on the gh-pages website
   cp -R ../doc/doxygen/html/* .
+  touch .nojekyll
   git add -A
   git commit -m "[Automatic] Documentation update."
   
