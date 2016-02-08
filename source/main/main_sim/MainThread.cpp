@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
@@ -849,25 +850,31 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	// ========================================================================
 
 	Ogre::String preselected_truck = SSETTING("Preselected Truck", "");
-	Ogre::String preselected_truckConfig = SSETTING("Preselected TruckConfig", "");
-	bool enterTruck = (BSETTING("Enter Preselected Truck", false));
-	if (preselected_truckConfig != "")
+	if (!preselected_truck.empty() && preselected_truck != "none")
 	{
-		LOG("Preselected Truck Config: " + (preselected_truckConfig));
-	}
-	if (! preselected_truck.empty() && preselected_truck != "none")
-	{
+		Ogre::String preselected_truck_config = SSETTING("Preselected TruckConfig", "");
+		if (preselected_truck_config != "")
+		{
+			LOG("Preselected Truck Config: " + (preselected_truck_config));
+		}
 		LOG("Preselected Truck: " + (preselected_truck));
 
-		// load preselected truck
-		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truckConfig);
-		gEnv->frameListener->loading_state = TERRAIN_LOADED;
-		gEnv->frameListener->InitTrucks(true, preselected_truck, -1, "", &truckConfig, enterTruck);
-	}
-	else if (gEnv->terrainManager->hasPreloadedTrucks())
-	{
-		Skin* selected_skin = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
-		gEnv->frameListener->InitTrucks(false, map_file_name, -1, "", 0, false, selected_skin);
+		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truck_config);
+		bool enterTruck = (BSETTING("Enter Preselected Truck", false));
+
+		Vector3 pos = gEnv->terrainManager->getSpawnPos();
+		Quaternion rot = Quaternion::ZERO;
+
+		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, preselected_truck, -1, nullptr, false, &truckConfig);
+
+		if (enterTruck && b && b->free_node > 0)
+		{
+			BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
+		}
+		if (b && b->engine)
+		{
+			b->engine->start();
+		}
 	}
 
 	gEnv->terrainManager->loadPreloadedTrucks();
@@ -1239,7 +1246,9 @@ void MainThread::ChangeMap()
 }
 void MainThread::UnloadTerrain()
 {
-	gEnv->frameListener->hideMap();
+#ifdef USE_MYGUI
+	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
+#endif //USE_MYGUI
 
 	gEnv->frameListener->loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));

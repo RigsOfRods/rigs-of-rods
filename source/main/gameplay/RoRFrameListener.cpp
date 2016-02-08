@@ -1269,80 +1269,6 @@ void RoRFrameListener::Restart() // TODO: Remove this "restart" functionality ->
 	//RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
-void RoRFrameListener::hideMap()
-{
-#ifdef USE_MYGUI
-	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
-#endif //USE_MYGUI
-}
-
-void RoRFrameListener::InitTrucks(
-    bool loadmanual, 
-    std::string const & selected, 
-    int cache_entry_number, // = -1 
-    std::string const & selectedExtension, // = ""
-    const std::vector<Ogre::String> *truckconfig, // = nullptr 
-    bool enterTruck, // = false 
-    Skin *skin // = nullptr
-    )
-{
-	//we load truck
-	if (loadmanual)
-	{
-		Beam *b = 0;
-		Vector3 spawnpos = gEnv->terrainManager->getSpawnPos();
-		Quaternion spawnrot = Quaternion::ZERO;
-
-		b = BeamFactory::getSingleton().CreateLocalRigInstance(spawnpos, spawnrot, selected, cache_entry_number, nullptr, false, truckconfig, skin);
-
-		if (enterTruck)
-		{
-			if (b) {
-				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
-				b->activate();
-			}
-			else
-				BeamFactory::getSingleton().setCurrentTruck(-1);
-		}
-
-#ifdef USE_MYGUI
-		if (b && gEnv->surveyMap)
-		{
-			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
-			if (e)
-			{
-				e->setState(DESACTIVATED);
-				e->setVisibility(true);
-				e->setPosition(spawnpos.x, spawnpos.z);
-				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
-			}
-		}
-#endif //USE_MYGUI
-
-		if (b && b->engine)
-		{
-			b->engine->start();
-		}
-	}
-
-	LOG("EFL: beam instanciated");
-
-	if (!enterTruck)
-	{
-		BeamFactory::getSingleton().setCurrentTruck(-1);
-	}
-
-	// fix for problem on loading
-	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-
-	if (enterTruck && curr_truck && curr_truck->free_node == 0)
-	{
-		BeamFactory::getSingleton().setCurrentTruck(-1);
-	}
-
-	LOG("initTrucks done");
-}
-
 bool RoRFrameListener::updateTruckMirrors(float dt)
 {
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
@@ -1665,7 +1591,9 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	reload_dir = gEnv->collisions->getDirection(instance, box);
 	reload_box = gEnv->collisions->getBox(instance, box);
 	loading_state = RELOADING;
-	hideMap();
+#ifdef USE_MYGUI
+		if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
+#endif //USE_MYGUI
 
 #ifdef USE_MYGUI
 	Application::GetGuiManager()->getMainSelector()->Show(LoaderType(type));
