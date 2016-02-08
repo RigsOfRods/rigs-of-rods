@@ -1276,7 +1276,6 @@ void RoRFrameListener::hideMap()
 #endif //USE_MYGUI
 }
 
-
 void RoRFrameListener::InitTrucks(
     bool loadmanual, 
     std::string const & selected, 
@@ -1325,8 +1324,6 @@ void RoRFrameListener::InitTrucks(
 			b->engine->start();
 		}
 	}
-	
-	gEnv->terrainManager->loadPreloadedTrucks();
 
 	LOG("EFL: beam instanciated");
 
@@ -1343,22 +1340,8 @@ void RoRFrameListener::InitTrucks(
 		BeamFactory::getSingleton().setCurrentTruck(-1);
 	}
 
-	loading_state = ALL_LOADED;
-
-	if (ISETTING("OutGauge Mode", 0) > 0)
-	{
-		new OutProtocol();
-	}
-
 	LOG("initTrucks done");
-
-#ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->UnfocusGui();
-#endif //USE_MYGUI
 }
-
-
-
 
 bool RoRFrameListener::updateTruckMirrors(float dt)
 {

@@ -870,6 +870,13 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		gEnv->frameListener->InitTrucks(false, map_file_name, -1, "", 0, false, selected_skin);
 	}
 
+	gEnv->terrainManager->loadPreloadedTrucks();
+
+	if (ISETTING("OutGauge Mode", 0) > 0)
+	{
+		new OutProtocol();
+	}
+
 	if (BSETTING("MainMenuMusic", true))
 		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
 		//SoundScriptManager::getSingleton().modulate(nullptr, SS_MOD_MUSIC_VOLUME, 0);
