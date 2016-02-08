@@ -284,8 +284,6 @@ struct collcab_rate_t
 {
 	int rate;
 	int distance;
-	bool update;
-	bool calcforward;
 };
 
 #include "datatypes/beam_t.h"
