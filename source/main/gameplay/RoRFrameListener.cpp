@@ -600,8 +600,9 @@ bool RoRFrameListener::updateEvents(float dt)
 
 					if (translation != Vector3::ZERO || rotation != 0.0f)
 					{
-						float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU)  ? 0.1f : 1.0f;
-						scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
+						float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU)    ? 0.1f : 1.0f;
+						scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT)   ? 3.0f : 1.0f;
+						scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
 						curr_truck->updateFlexbodiesFinal();
 						curr_truck->displace(translation * scale, rotation * scale);
