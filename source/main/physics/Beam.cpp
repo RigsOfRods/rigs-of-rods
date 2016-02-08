@@ -2592,11 +2592,9 @@ void Beam::interTruckCollisions(Real dt)
 
 	for (int i=0; i<free_collcab; i++)
 	{
-		inter_collcabrate[i].update = true;
 		if (inter_collcabrate[i].rate > 0)
 		{
 			inter_collcabrate[i].rate--;
-			inter_collcabrate[i].update = false;
 			continue;
 		}
 
@@ -2605,12 +2603,13 @@ void Beam::interTruckCollisions(Real dt)
 		na = &nodes[cabs[tmpv+1]];
 		nb = &nodes[cabs[tmpv+2]];
 
-		int distance = inter_collcabrate[i].distance + std::min(12.0f * no->Velocity.length() / 55.5f, 12.0f);
-		distance = std::max(1, distance);
+		inter_collcabrate[i].distance = std::max(1, inter_collcabrate[i].distance);
 
 		interPointCD->query(no->AbsPosition
 			, na->AbsPosition
-			, nb->AbsPosition, trwidth*distance);
+			, nb->AbsPosition, trwidth * inter_collcabrate[i].distance);
+
+		bool calcforward = true;
 
 		if (interPointCD->hit_count > 0)
 		{
@@ -2626,7 +2625,6 @@ void Beam::interTruckCollisions(Real dt)
 			forward = forward.Inverse();
 		}
 
-		inter_collcabrate[i].calcforward = true;
 		for (int h=0; h<interPointCD->hit_count; h++)
 		{
 			hitnodeid = interPointCD->hit_list[h]->nodeid;
@@ -2644,8 +2642,7 @@ void Beam::interTruckCollisions(Real dt)
 			//test
 			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z <= trwidth && point.z >= -trwidth)
 			{
-				inter_collcabrate[i].calcforward = false;
-
+				calcforward = false;
 				//collision
 				plnormal = bz;
 
@@ -2727,20 +2724,15 @@ void Beam::interTruckCollisions(Real dt)
 				nb->Forces -= (point.y) * forcevec;
 			}
 		}
-		if (inter_collcabrate[i].update)
+
+		if (calcforward)
 		{
-			if (inter_collcabrate[i].calcforward)
-			{
-				inter_collcabrate[i].rate = inter_collcabrate[i].distance - 1;
-				if (inter_collcabrate[i].distance < 13)
-				{
-					inter_collcabrate[i].distance++;
-				}
-			} else
-			{
-				inter_collcabrate[i].distance /= 2;
-				inter_collcabrate[i].rate = 0;
-			}
+			inter_collcabrate[i].rate = inter_collcabrate[i].distance - 1;
+			inter_collcabrate[i].distance = std::min(inter_collcabrate[i].distance++, 13);
+		} else
+		{
+			inter_collcabrate[i].distance /= 2;
+			inter_collcabrate[i].rate = 0;
 		}
 	}
 }
@@ -2767,15 +2759,13 @@ void Beam::intraTruckCollisions(Real dt)
 	node_t* nb;
 	node_t* no;
 
-	trwidth=collrange;
+	trwidth = collrange;
 
 	for (int i=0; i<free_collcab; i++)
 	{
-		intra_collcabrate[i].update = true;
 		if (intra_collcabrate[i].rate > 0)
 		{
 			intra_collcabrate[i].rate--;
-			intra_collcabrate[i].update = false;
 			continue;
 		}
 
@@ -2784,9 +2774,13 @@ void Beam::intraTruckCollisions(Real dt)
 		na = &nodes[cabs[tmpv+1]];
 		nb = &nodes[cabs[tmpv+2]];
 
+		intra_collcabrate[i].distance = std::max(1, intra_collcabrate[i].distance);
+
 		intraPointCD->query(no->AbsPosition
 			, na->AbsPosition
-			, nb->AbsPosition, trwidth);
+			, nb->AbsPosition, trwidth * intra_collcabrate[i].distance);
+
+		bool calcforward = true;
 
 		if (intraPointCD->hit_count > 0)
 		{
@@ -2802,7 +2796,6 @@ void Beam::intraTruckCollisions(Real dt)
 			forward = forward.Inverse();
 		}
 
-		intra_collcabrate[i].calcforward = true;
 		for (int h=0; h<intraPointCD->hit_count;h++)
 		{
 			hitnodeid = intraPointCD->hit_list[h]->nodeid;
@@ -2819,8 +2812,8 @@ void Beam::intraTruckCollisions(Real dt)
 			//test
 			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z <= trwidth && point.z >= -trwidth)
 			{
+				calcforward = false;
 				//collision
-				intra_collcabrate[i].calcforward = false;
 				plnormal = bz;
 
 				//some more accuracy for the normal
@@ -2874,20 +2867,15 @@ void Beam::intraTruckCollisions(Real dt)
 				nb->Forces -= (point.y) * forcevec;
 			}
 		}
-		if (intra_collcabrate[i].update)
+
+		if (calcforward)
 		{
-			if (intra_collcabrate[i].calcforward)
-			{
-				intra_collcabrate[i].rate = intra_collcabrate[i].distance - 1;
-				if (intra_collcabrate[i].distance < 13)
-				{
-					intra_collcabrate[i].distance++;
-				}
-			} else
-			{
-				intra_collcabrate[i].distance /= 2;
-				intra_collcabrate[i].rate = 0;
-			}
+			intra_collcabrate[i].rate = intra_collcabrate[i].distance - 1;
+			intra_collcabrate[i].distance = std::min(intra_collcabrate[i].distance++, 13);
+		} else
+		{
+			intra_collcabrate[i].distance /= 2;
+			intra_collcabrate[i].rate = 0;
 		}
 	}
 }
