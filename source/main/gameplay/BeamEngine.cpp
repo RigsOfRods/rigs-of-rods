@@ -421,7 +421,7 @@ void BeamEngine::update(float dt, int doUpdate)
 		totaltorque += brakingTorque * curEngineRPM / maxRPM;
 	} else
 	{
-		totaltorque += 10.0f * brakingTorque * curEngineRPM / maxRPM;
+		totaltorque += brakingTorque;
 	}
 
 	// braking by hydropump
@@ -439,22 +439,21 @@ void BeamEngine::update(float dt, int doUpdate)
 	{
 		if (running && curEngineRPM < stallRPM)
 		{
-			stop(); //No, electric engine has no stop
+			stop();
 		}
-		// starter
 
-		if (contact && starter && curEngineRPM < stallRPM * 1.5f)
+		if (contact && starter && !running)
 		{
-			totaltorque += -brakingTorque; //No starter in electric engines
-		}
-		// restart
-
-		if (!running && curEngineRPM > stallRPM && contact)
-		{
-			running = true;
+			if (curEngineRPM < stallRPM)
+			{
+				totaltorque += -brakingTorque;
+			} else
+			{
+				running = true;
 #ifdef USE_OPENAL
-			SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
+				SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
+			}
 		}
 	}
 
