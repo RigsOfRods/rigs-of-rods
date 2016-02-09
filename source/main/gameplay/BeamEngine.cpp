@@ -952,6 +952,10 @@ void BeamEngine::start()
 	{
 		curGear = 1;
 	}
+	if (automode == AUTOMATIC)
+	{
+		autoselect = DRIVE;
+	}
 #ifdef USE_OPENAL
 	SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_IGNITION);
 	SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
@@ -971,7 +975,7 @@ void BeamEngine::offstart()
 	running = false;
 	if (automode == AUTOMATIC)
 	{
-		autoselect = DRIVE;
+		autoselect = NEUTRAL;
 	}
 	for (int i = 0; i < numTurbos; i++)
 	{
