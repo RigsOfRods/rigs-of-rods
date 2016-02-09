@@ -2572,10 +2572,8 @@ void Beam::interTruckCollisions(Real dt)
 	Vector3 plnormal;
 	Vector3 point;
 	Vector3 vecrelVel;
-	float trwidth;
 	int hitnodeid;
 	int hittruckid;
-	int tmpv;
 	node_t* hitnode;
 	node_t* na;
 	node_t* nb;
@@ -2588,64 +2586,54 @@ void Beam::interTruckCollisions(Real dt)
 	//see "pointCD" above.
 	//Performance some times forces ugly architectural designs....
 
-	trwidth = collrange;
-
 	for (int i=0; i<free_collcab; i++)
 	{
-		inter_collcabrate[i].update = true;
 		if (inter_collcabrate[i].rate > 0)
 		{
+			inter_collcabrate[i].distance++;
 			inter_collcabrate[i].rate--;
-			inter_collcabrate[i].update = false;
 			continue;
 		}
+		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, 12);
+		inter_collcabrate[i].distance = 0;
 
-		tmpv = collcabs[i]*3;
+		int tmpv = collcabs[i]*3;
 		no = &nodes[cabs[tmpv]];
 		na = &nodes[cabs[tmpv+1]];
 		nb = &nodes[cabs[tmpv+2]];
 
-		int distance = inter_collcabrate[i].distance + std::min(12.0f * no->Velocity.length() / 55.5f, 12.0f);
-		distance = std::max(1, distance);
-
 		interPointCD->query(no->AbsPosition
 			, na->AbsPosition
-			, nb->AbsPosition, trwidth*distance);
+			, nb->AbsPosition, collrange);
 
 		if (interPointCD->hit_count > 0)
 		{
 			//calculate transform matrices
-			bx  =  na->RelPosition;
-			by  =  nb->RelPosition;
-			bx -= no->RelPosition;
-			by -= no->RelPosition;
-			bz  = bx.crossProduct(by);
-			bz.normalise();
+			bx = na->RelPosition - no->RelPosition;
+			by = nb->RelPosition - no->RelPosition;
+			bz = fast_normalise(bx.crossProduct(by));
 			//coordinates change matrix
 			forward.FromAxes(bx,by,bz);
 			forward = forward.Inverse();
+		} else
+		{
+			inter_collcabrate[i].rate++;
 		}
 
-		inter_collcabrate[i].calcforward = true;
 		for (int h=0; h<interPointCD->hit_count; h++)
 		{
 			hitnodeid = interPointCD->hit_list[h]->nodeid;
 			hittruckid = interPointCD->hit_list[h]->truckid;
 			hitnode = &trucks[hittruckid]->nodes[hitnodeid];
-
-			//ignore self-contact here
-			if (hittruckid == trucknum) continue;
-
 			hittruck = trucks[hittruckid];
 
 			//change coordinates
 			point = forward * (hitnode->AbsPosition - no->AbsPosition);
 
 			//test
-			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z <= trwidth && point.z >= -trwidth)
+			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && std::abs(point.z) <= collrange)
 			{
-				inter_collcabrate[i].calcforward = false;
-
+				inter_collcabrate[i].rate = 0;
 				//collision
 				plnormal = bz;
 
@@ -2677,16 +2665,16 @@ void Beam::interTruckCollisions(Real dt)
 					if (negside > posside)
 					{
 						plnormal = -plnormal;
-						penetration = (trwidth + point.z);
+						penetration = (collrange + point.z);
 					} else
 					{
-						penetration = (trwidth - point.z);
+						penetration = (collrange - point.z);
 					}
 				} else
 				{
 					//If we are on the other side of the triangle invert the triangle's normal
 					if (point.z < 0) plnormal = -plnormal;
-					penetration = (trwidth - fabs(point.z));
+					penetration = (collrange - fabs(point.z));
 				}
 
 				//Find the point's velocity relative to the triangle
@@ -2727,21 +2715,6 @@ void Beam::interTruckCollisions(Real dt)
 				nb->Forces -= (point.y) * forcevec;
 			}
 		}
-		if (inter_collcabrate[i].update)
-		{
-			if (inter_collcabrate[i].calcforward)
-			{
-				inter_collcabrate[i].rate = inter_collcabrate[i].distance - 1;
-				if (inter_collcabrate[i].distance < 13)
-				{
-					inter_collcabrate[i].distance++;
-				}
-			} else
-			{
-				inter_collcabrate[i].distance /= 2;
-				inter_collcabrate[i].rate = 0;
-			}
-		}
 	}
 }
 
@@ -2759,68 +2732,64 @@ void Beam::intraTruckCollisions(Real dt)
 	Vector3 plnormal;
 	Vector3 point;
 	Vector3 vecrelVel;
-	float trwidth;
 	int hitnodeid;
-	int tmpv;
 	node_t* hitnode;
 	node_t* na;
 	node_t* nb;
 	node_t* no;
 
-	trwidth=collrange;
-
 	for (int i=0; i<free_collcab; i++)
 	{
-		intra_collcabrate[i].update = true;
 		if (intra_collcabrate[i].rate > 0)
 		{
+			intra_collcabrate[i].distance++;
 			intra_collcabrate[i].rate--;
-			intra_collcabrate[i].update = false;
 			continue;
 		}
+		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
+		intra_collcabrate[i].distance = 0;
 
-		tmpv = collcabs[i]*3;
+		int tmpv = collcabs[i]*3;
 		no = &nodes[cabs[tmpv]];
 		na = &nodes[cabs[tmpv+1]];
 		nb = &nodes[cabs[tmpv+2]];
 
 		intraPointCD->query(no->AbsPosition
 			, na->AbsPosition
-			, nb->AbsPosition, trwidth);
+			, nb->AbsPosition, collrange);
 
-		if (intraPointCD->hit_count > 0)
-		{
-			//calculate transform matrices
-			bx  = na->RelPosition;
-			by  = nb->RelPosition;
-			bx -= no->RelPosition;
-			by -= no->RelPosition;
-			bz  = bx.crossProduct(by);
-			bz.normalise();
-			//coordinates change matrix
-			forward.FromAxes(bx,by,bz);
-			forward = forward.Inverse();
-		}
+		bool collision = false;
+		bool calcforward = true;
 
-		intra_collcabrate[i].calcforward = true;
-		for (int h=0; h<intraPointCD->hit_count;h++)
+		for (int h=0; h<intraPointCD->hit_count; h++)
 		{
 			hitnodeid = intraPointCD->hit_list[h]->nodeid;
 			hitnode = &nodes[hitnodeid];
 
 			//ignore wheel/chassis self contact
-			//if (hitnode->iswheel && !(trucks[t]->requires_wheel_contact)) continue;
 			if (hitnode->iswheel) continue;
 			if (no == hitnode || na == hitnode || nb == hitnode) continue;
+
+			if (calcforward)
+			{
+				calcforward = false;
+				//calculate transform matrices
+				bx = na->RelPosition - no->RelPosition;
+				by = nb->RelPosition - no->RelPosition;
+				bz = fast_normalise(bx.crossProduct(by));
+				//coordinates change matrix
+				forward.FromAxes(bx,by,bz);
+				forward = forward.Inverse();
+			}
 
 			//change coordinates
 			point = forward * (hitnode->AbsPosition - no->AbsPosition);
 
 			//test
-			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z <= trwidth && point.z >= -trwidth)
+			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && std::abs(point.z) <= collrange)
 			{
+				collision = true;
 				//collision
-				intra_collcabrate[i].calcforward = false;
 				plnormal = bz;
 
 				//some more accuracy for the normal
@@ -2829,7 +2798,7 @@ void Beam::intraTruckCollisions(Real dt)
 				float penetration = 0.0f;
 
 				if (point.z < 0) plnormal =- plnormal;
-				penetration = (trwidth - fabs(point.z));
+				penetration = (collrange - fabs(point.z));
 
 				//Find the point's velocity relative to the triangle
 				vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
@@ -2874,20 +2843,13 @@ void Beam::intraTruckCollisions(Real dt)
 				nb->Forces -= (point.y) * forcevec;
 			}
 		}
-		if (intra_collcabrate[i].update)
+
+		if (collision)
 		{
-			if (intra_collcabrate[i].calcforward)
-			{
-				intra_collcabrate[i].rate = intra_collcabrate[i].distance - 1;
-				if (intra_collcabrate[i].distance < 13)
-				{
-					intra_collcabrate[i].distance++;
-				}
-			} else
-			{
-				intra_collcabrate[i].distance /= 2;
-				intra_collcabrate[i].rate = 0;
-			}
+			intra_collcabrate[i].rate = 0;
+		} else
+		{
+			intra_collcabrate[i].rate++;
 		}
 	}
 }

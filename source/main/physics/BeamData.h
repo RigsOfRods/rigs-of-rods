@@ -282,10 +282,8 @@ static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 
 struct collcab_rate_t
 {
-	int rate;
-	int distance;
-	bool update;
-	bool calcforward;
+	int rate;     // remaining amount of physics cycles to be skipped
+	int distance; // distance (in physics cycles) to the previous collision check
 };
 
 #include "datatypes/beam_t.h"
