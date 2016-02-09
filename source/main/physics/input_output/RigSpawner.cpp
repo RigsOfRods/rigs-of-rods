@@ -4109,17 +4109,14 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	}
 	
 	int beam_index = m_rig->free_beam;
-	beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
+	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
 	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
-	SetBeamDeformationThreshold(beam, def.beam_defaults);
 	beam.type                 = hydro_type;
 	beam.bounded              = SHOCK2;
 	beam.k                    = def.spring_in;
 	beam.d                    = def.damp_in;
 	beam.shortbound           = short_bound;
 	beam.longbound            = long_bound;
-	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -4187,7 +4184,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 	}
 	
 	int beam_index = m_rig->free_beam;
-	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, DEFAULT_DETACHER_GROUP);
+	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
 	beam.shortbound = short_bound;
 	beam.longbound  = long_bound;
 	beam.bounded    = SHOCK1;
