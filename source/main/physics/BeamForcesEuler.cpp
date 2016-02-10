@@ -509,7 +509,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 		// TODO Unused Varaible
 		//float airtemperature=sea_level_temperature-altitude*0.0065f; //in Kelvin
-		float airpressure=sea_level_pressure*approx_pow(1.0-0.0065*altitude/288.1, 5.24947); //in Pa
+		float airpressure=sea_level_pressure*std::pow(1.0-0.0065*altitude/288.1, 5.24947); //in Pa
 		float airdensity=airpressure*0.0000120896f;//1.225 at sea level
 
 		//fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)

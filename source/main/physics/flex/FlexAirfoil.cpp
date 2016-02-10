@@ -783,7 +783,7 @@ void FlexAirfoil::updateForces()
 	//float sea_level_temperature=273.15+15.0; //in Kelvin (not used)
 	float sea_level_pressure=101325; //in Pa
 	//float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin (not used)
-	float airpressure=sea_level_pressure*approx_pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
+	float airpressure=sea_level_pressure*std::pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
 	float airdensity=airpressure*0.0000120896;//1.225 at sea level
 
 	Vector3 wforce=Vector3::ZERO;

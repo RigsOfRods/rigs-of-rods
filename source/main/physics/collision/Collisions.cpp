@@ -1386,7 +1386,7 @@ void Collisions::primitiveCollision(node_t *node, Vector3 &force, Vector3 &veloc
 
 		float Vsquared = velocity.squaredLength();
 		// First of all calculate power law fluid viscosity
-		float m = gm->flow_consistency_index * approx_pow(Vsquared, (gm->flow_behavior_index - 1.0f)*0.5f);
+		float m = gm->flow_consistency_index * std::pow(Vsquared, (gm->flow_behavior_index - 1.0f)*0.5f);
 
 		// Then calculate drag based on above. We'are using a simplified Stokes' drag.
 		// Per node fluid drag surface coefficient set by node property applies here
@@ -1469,12 +1469,12 @@ void Collisions::primitiveCollision(node_t *node, Vector3 &force, Vector3 &veloc
 		if (slipv < (gm->va) && Greaction > 0.0f && (force - Fdnormal * normal).squaredLength() <= msGreaction * msGreaction)
 		{
 			// Static friction model (with a little smoothing to help the integrator deal with it)
-			ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
+			ff = -msGreaction * (1.0f - std::exp(-slipv / gm->va));
 			force = (Fnormal + Freaction) * normal + ff*slip;
 		} else
 		{
 			// Stribek model. It also comes directly from textbooks.
-			float g = gm->mc + (gm->ms - gm->mc) * std::min(1.0f, approx_exp(-approx_pow(slipv / gm->vs, gm->alpha)));
+			float g = gm->mc + (gm->ms - gm->mc) * std::exp(-std::pow(slipv / gm->vs, gm->alpha));
 			ff = -(g + gm->t2 * slipv) * Greaction;
 			force += Freaction * normal + ff*slip;
 		}
