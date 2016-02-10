@@ -2591,12 +2591,10 @@ void Beam::interTruckCollisions(Real dt)
 
 		// upper bound of the relative collision velocity
 		float vdiff = interPointCD->max_contacter_speed + no->Velocity.length();
-		if (vdiff > 0.0f)
-		{
-			// upper bound of the amount of physics cycles which can be skipped
-			int skip_rate = floor(collrange / (vdiff * PHYSICS_DT));
-			inter_collcabrate[i].rate = std::min(skip_rate - inter_collcabrate[i].distance, inter_collcabrate[i].rate);
-		}
+		if (vdiff == 0.0f) continue;
+		// upper bound of the amount of physics cycles which can be skipped
+		int max_rate = floor(collrange / (vdiff * PHYSICS_DT));
+		inter_collcabrate[i].rate = std::min(max_rate - inter_collcabrate[i].distance, inter_collcabrate[i].rate);
 
 		if (inter_collcabrate[i].rate > 0)
 		{
@@ -2604,7 +2602,7 @@ void Beam::interTruckCollisions(Real dt)
 			inter_collcabrate[i].rate--;
 			continue;
 		}
-		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, 80);
+		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, max_rate);
 		inter_collcabrate[i].distance = 0;
 
 		interPointCD->query(no->AbsPosition
@@ -2752,12 +2750,10 @@ void Beam::intraTruckCollisions(Real dt)
 
 		// upper bound of the relative collision velocity
 		float vdiff = intraPointCD->max_contacter_speed + (no->Velocity - nodes[0].Velocity).length();
-		if (vdiff > 0.0f)
-		{
-			// upper bound of the amount of physics cycles which can be skipped
-			int skip_rate = floor(collrange / (vdiff * PHYSICS_DT));
-			intra_collcabrate[i].rate = std::min(skip_rate - intra_collcabrate[i].distance, intra_collcabrate[i].rate);
-		}
+		if (vdiff == 0.0f) continue;
+		// upper bound of the amount of physics cycles which can be skipped
+		int max_rate = floor(collrange / (vdiff * PHYSICS_DT));
+		intra_collcabrate[i].rate = std::min(max_rate - intra_collcabrate[i].distance, intra_collcabrate[i].rate);
 
 		if (intra_collcabrate[i].rate > 0)
 		{
@@ -2766,7 +2762,7 @@ void Beam::intraTruckCollisions(Real dt)
 			continue;
 		}
 
-		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 80);
+		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, max_rate);
 		intra_collcabrate[i].distance = 0;
 
 		intraPointCD->query(no->AbsPosition
