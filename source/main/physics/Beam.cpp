@@ -2588,19 +2588,28 @@ void Beam::interTruckCollisions(Real dt)
 
 	for (int i=0; i<free_collcab; i++)
 	{
+		int tmpv = collcabs[i]*3;
+		no = &nodes[cabs[tmpv]];
+		na = &nodes[cabs[tmpv+1]];
+		nb = &nodes[cabs[tmpv+2]];
+
+		// upper bound of the relative collision velocity
+		float vdiff = interPointCD->max_contacter_speed + no->Velocity.length();
+		if (vdiff > 0.0f)
+		{
+			// upper bound of the amount of physics cycles which can be skipped
+			int skip_rate = floor(collrange / (vdiff * PHYSICS_DT));
+			inter_collcabrate[i].rate = std::min(skip_rate - inter_collcabrate[i].distance, inter_collcabrate[i].rate);
+		}
+
 		if (inter_collcabrate[i].rate > 0)
 		{
 			inter_collcabrate[i].distance++;
 			inter_collcabrate[i].rate--;
 			continue;
 		}
-		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, 12);
+		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, 80);
 		inter_collcabrate[i].distance = 0;
-
-		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
 
 		interPointCD->query(no->AbsPosition
 			, na->AbsPosition
@@ -2740,19 +2749,29 @@ void Beam::intraTruckCollisions(Real dt)
 
 	for (int i=0; i<free_collcab; i++)
 	{
+		int tmpv = collcabs[i]*3;
+		no = &nodes[cabs[tmpv]];
+		na = &nodes[cabs[tmpv+1]];
+		nb = &nodes[cabs[tmpv+2]];
+
+		// upper bound of the relative collision velocity
+		float vdiff = intraPointCD->max_contacter_speed + (no->Velocity - nodes[0].Velocity).length();
+		if (vdiff > 0.0f)
+		{
+			// upper bound of the amount of physics cycles which can be skipped
+			int skip_rate = floor(collrange / (vdiff * PHYSICS_DT));
+			intra_collcabrate[i].rate = std::min(skip_rate - intra_collcabrate[i].distance, intra_collcabrate[i].rate);
+		}
+
 		if (intra_collcabrate[i].rate > 0)
 		{
 			intra_collcabrate[i].distance++;
 			intra_collcabrate[i].rate--;
 			continue;
 		}
-		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
-		intra_collcabrate[i].distance = 0;
 
-		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
+		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 80);
+		intra_collcabrate[i].distance = 0;
 
 		intraPointCD->query(no->AbsPosition
 			, na->AbsPosition
