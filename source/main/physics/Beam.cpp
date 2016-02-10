@@ -2581,10 +2581,6 @@ void Beam::interTruckCollisions(Real dt)
 
 	interPointCD->update(this, trucks, numtrucks);
 	if (!collisionRelevant) return;
-	//If you change any of the below "ifs" concerning trucks then you should
-	//also consider changing the parallel "ifs" inside PointColDetector
-	//see "pointCD" above.
-	//Performance some times forces ugly architectural designs....
 
 	for (int i=0; i<free_collcab; i++)
 	{
