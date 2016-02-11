@@ -1156,7 +1156,7 @@ float BeamEngine::getTurboPower()
 	{
 		for (int i = 0; i < numTurbos; i++)
 		{
-			atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+			atValue += EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
 		}
 	} else
 	{
