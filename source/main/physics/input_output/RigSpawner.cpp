@@ -4009,19 +4009,18 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 
 	_ProcessKeyInertia(m_rig->hydroInertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
 
+	node_t & node_1 = GetNode(def.nodes[0]);
+	node_t & node_2 = GetNode(def.nodes[1]);
+
 	int beam_index = m_rig->free_beam;
-	beam_t & beam = GetAndInitFreeBeam(GetNode(def.nodes[0]), GetNode(def.nodes[1]));
+	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	CalculateBeamLength(beam);
-	SetBeamDeformationThreshold(beam, def.beam_defaults);
 	beam.type                 = hydro_type;
 	beam.k                    = def.beam_defaults->GetScaledSpringiness();
 	beam.d                    = def.beam_defaults->GetScaledDamping();
-	beam.detacher_group       = def.detacher_group;
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
-	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
 
