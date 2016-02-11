@@ -2706,10 +2706,9 @@ void Beam::interTruckCollisions(Real dt)
 				float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
 				forcevec = Vector3::ZERO;
-				float nso;
 
 				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, dt, submesh_ground_model, 0, penetration, fl);
 
 				hitnode->Forces += forcevec;
 
@@ -2842,10 +2841,9 @@ void Beam::intraTruckCollisions(Real dt)
 				float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
 				forcevec = Vector3::ZERO;
-				float nso;
 
 				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, dt, submesh_ground_model, 0, penetration, fl);
 
 				hitnode->Forces += forcevec;
 
