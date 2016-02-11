@@ -959,7 +959,7 @@ DEFINE_REGEX( SECTION_COMMANDS,
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )  // #13 Expand key
     E_CAPTURE_OPTIONAL(                     // #14
         E_CAPTURE( E_DELIMITER )
-        E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #16 Options
+        E_CAPTURE( E_STRING_NO_SPACES )     // #16 Options
         E_CAPTURE_OPTIONAL(                 // #17
             E_CAPTURE( E_DELIMITER )
             E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #19 Description
@@ -994,7 +994,7 @@ DEFINE_REGEX( SECTION_COMMANDS_2,
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )    // #15 Expand key
     E_CAPTURE_OPTIONAL(                       // #16
         E_CAPTURE( E_DELIMITER ) 
-        E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #18 Options
+        E_CAPTURE( E_STRING_NO_SPACES )       // #18 Options
         E_CAPTURE_OPTIONAL(                   // #19
             E_CAPTURE( E_DELIMITER )          // #20
             E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )   // #21 Description
