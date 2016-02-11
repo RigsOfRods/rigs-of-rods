@@ -579,7 +579,7 @@ void BeamEngine::update(float dt, int doUpdate)
 			float reTorque = clutchTorque / gearsRatio[curGear + 1];
 
 			float torqueDiff = std::abs(reTorque);
-			float newRPM = curWheelRevolutions * gearsRatio[curGear + 1];
+			float newRPM = std::abs(curWheelRevolutions * gearsRatio[curGear + 1]);
 			if (getEnginePower(newRPM) >= getEnginePower(curEngineRPM))
 			{
 				torqueDiff = std::min(enginePower * 2.0f, torqueDiff);
