@@ -130,6 +130,7 @@ public:
 	bool isRunning() { return running; };
 	char getType() { return type; };
 	float getAccToHoldRPM(float rpm);
+	float getTurboPower();
 	float getEnginePower(float rpm);
 	float getEngineTorque() { return engineTorque; };
 	float getIdleMixture();
