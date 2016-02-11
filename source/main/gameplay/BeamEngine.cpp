@@ -1173,6 +1173,7 @@ float BeamEngine::getEnginePower(float rpm)
 
 	float rpmRatio = rpm / (maxRPM * 1.25f);
 
+	rpmRatio = std::max(0.0f, rpmRatio);
 	rpmRatio = std::min(rpmRatio, 1.0f);
 
 	if (torqueCurve)
