@@ -3530,7 +3530,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 	/* Rotate right key */
 	m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
 
-	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+	_ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
 	m_rig->hascommands = 1;
 }
@@ -3576,12 +3576,13 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 	/* Rotate right key */
 	m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
 
-	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+	_ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
 	m_rig->hascommands = 1;
 }
 
-void RigSpawner::_ProcessCommandKeyInertia(
+void RigSpawner::_ProcessKeyInertia(
+	CmdKeyInertia * key_inertia,
 	RigDef::Inertia & inertia,
 	RigDef::Inertia & inertia_defaults,
 	int contract_key, 
@@ -3590,7 +3591,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->cmdInertia != nullptr)
+    if (key_inertia != nullptr)
 	{
 		/* Handle placeholders */
 		Ogre::String start_function;
@@ -3605,7 +3606,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 		}
 		if (inertia._start_delay_factor_set && inertia._stop_delay_factor_set)
 		{
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				contract_key,
 				inertia.start_delay_factor,
 				inertia.stop_delay_factor,
@@ -3613,7 +3614,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 				stop_function
 			);
 
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				extend_key,
 				inertia.start_delay_factor,
 				inertia.stop_delay_factor,
@@ -3623,7 +3624,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 		}
 		else if (inertia_defaults._start_delay_factor_set || inertia_defaults._stop_delay_factor_set)
 		{
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				contract_key,
 				inertia_defaults.start_delay_factor,
 				inertia_defaults.stop_delay_factor,
@@ -3631,7 +3632,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 				inertia_defaults.stop_function
 			);
 
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				extend_key,
 				inertia_defaults.start_delay_factor,
 				inertia_defaults.stop_delay_factor,
@@ -3703,7 +3704,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 		beam.centerLength = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
 	}
 
-	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
+	_ProcessKeyInertia(m_rig->cmdInertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
 	/* Add keys */
 	command_t* contract_command = &m_rig->commandkey[def.contract_key];
@@ -4006,30 +4007,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 		}
 	}
 
-	/* Inertia */
-	if (m_rig->hydroInertia != nullptr)
-	{
-		if (def.inertia._start_delay_factor_set && def.inertia._stop_delay_factor_set)
-		{
-			m_rig->hydroInertia->setCmdKeyDelay(
-				m_rig->free_hydro,	
-				def.inertia_defaults->start_delay_factor,
-				def.inertia_defaults->stop_delay_factor,
-				def.inertia_defaults->start_function,
-				def.inertia_defaults->stop_function
-			);
-		}
-		else if (def.inertia._start_delay_factor_set || def.inertia._stop_delay_factor_set)
-		{
-			m_rig->hydroInertia->setCmdKeyDelay(
-				m_rig->free_hydro,	
-				def.inertia_defaults->start_delay_factor,
-				def.inertia_defaults->stop_delay_factor,
-				def.inertia_defaults->start_function,
-				def.inertia_defaults->stop_function
-			);
-		}
-	}
+	_ProcessKeyInertia(m_rig->hydroInertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
 
 	int beam_index = m_rig->free_beam;
 	beam_t & beam = GetAndInitFreeBeam(GetNode(def.nodes[0]), GetNode(def.nodes[1]));
