@@ -1145,12 +1145,31 @@ void BeamEngine::setManualClutch(float val)
 	}
 }
 
+float BeamEngine::getTurboPower()
+{
+	if (!hasturbo) return 0.0f;
+	if (turbomode != NEW) return 0.0f;
+
+	float atValue = 0.0f; // torque (turbo integreation)
+
+	if (turboVer == 1)
+	{
+		for (int i = 0; i < numTurbos; i++)
+		{
+			atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+		}
+	} else
+	{
+		atValue = (((getTurboPSI() * 6.8) * engineTorque) / 100); //1psi = 6% more power
+	}
+
+	return atValue;
+}
+
 float BeamEngine::getEnginePower(float rpm)
 {
 	// engine power with limiter
-	float tqValue = 0.0f; //This is not a value, it's more of a ratio(0-1), really got me lost..
-
-	float atValue = 0.0f; //Additional torque (turbo integreation)
+	float tqValue = 1.0f; // ratio (0-1)
 
 	float rpmRatio = rpm / (maxRPM * 1.25f);
 
@@ -1161,20 +1180,7 @@ float BeamEngine::getEnginePower(float rpm)
 		tqValue = torqueCurve->getEngineTorque(rpmRatio);
 	}
 
-	if (hasturbo && turbomode == NEW)
-	{
-		if (turboVer == 1)
-		{
-			for (int i = 0; i < numTurbos; i++)
-				atValue = EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
-		}
-		else
-		{
-			atValue = (((getTurboPSI() * 6.8) * engineTorque) / 100); //1psi = 6% more power
-		}
-	}
-
-	return (engineTorque * tqValue) + atValue;
+	return (engineTorque * tqValue) + getTurboPower();
 }
 
 float BeamEngine::getAccToHoldRPM(float rpm)
