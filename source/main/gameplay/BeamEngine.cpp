@@ -578,7 +578,15 @@ void BeamEngine::update(float dt, int doUpdate)
 			float clutchTorque = (gearboxspinner - curWheelRevolutions) * clutchForce;
 			float reTorque = clutchTorque / gearsRatio[curGear + 1];
 
-			float torqueDiff = std::min(enginePower * 0.9f, std::abs(reTorque));
+			float torqueDiff = std::abs(reTorque);
+			float newRPM = curWheelRevolutions * gearsRatio[curGear + 1];
+			if (getEnginePower(newRPM) >= getEnginePower(curEngineRPM))
+			{
+				torqueDiff = std::min(enginePower * 2.0f, torqueDiff);
+			} else
+			{
+				torqueDiff = std::min(enginePower * 0.9f, torqueDiff);
+			}
 			float newClutch = torqueDiff * gearsRatio[curGear + 1] / ((gearboxspinner - curWheelRevolutions) * clutchForce);
 
 			curClutch = std::max(curClutch, newClutch);
