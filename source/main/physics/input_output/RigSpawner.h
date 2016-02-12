@@ -969,7 +969,8 @@ protected:
 		RigDef::Node::Ref const & axis_node_2_id
 	);
 
-	void _ProcessCommandKeyInertia(
+	void _ProcessKeyInertia(
+		CmdKeyInertia * key_inertia,
 		RigDef::Inertia & inertia, 
 		RigDef::Inertia & inertia_defaults, 
 		int contract_key, 

@@ -3530,7 +3530,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 	/* Rotate right key */
 	m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
 
-	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+	_ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
 	m_rig->hascommands = 1;
 }
@@ -3576,12 +3576,13 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 	/* Rotate right key */
 	m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
 
-	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+	_ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
 	m_rig->hascommands = 1;
 }
 
-void RigSpawner::_ProcessCommandKeyInertia(
+void RigSpawner::_ProcessKeyInertia(
+	CmdKeyInertia * key_inertia,
 	RigDef::Inertia & inertia,
 	RigDef::Inertia & inertia_defaults,
 	int contract_key, 
@@ -3590,7 +3591,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->cmdInertia != nullptr)
+    if (key_inertia != nullptr)
 	{
 		/* Handle placeholders */
 		Ogre::String start_function;
@@ -3605,7 +3606,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 		}
 		if (inertia._start_delay_factor_set && inertia._stop_delay_factor_set)
 		{
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				contract_key,
 				inertia.start_delay_factor,
 				inertia.stop_delay_factor,
@@ -3613,7 +3614,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 				stop_function
 			);
 
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				extend_key,
 				inertia.start_delay_factor,
 				inertia.stop_delay_factor,
@@ -3623,7 +3624,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 		}
 		else if (inertia_defaults._start_delay_factor_set || inertia_defaults._stop_delay_factor_set)
 		{
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				contract_key,
 				inertia_defaults.start_delay_factor,
 				inertia_defaults.stop_delay_factor,
@@ -3631,7 +3632,7 @@ void RigSpawner::_ProcessCommandKeyInertia(
 				inertia_defaults.stop_function
 			);
 
-			m_rig->cmdInertia->setCmdKeyDelay(
+			key_inertia->setCmdKeyDelay(
 				extend_key,
 				inertia_defaults.start_delay_factor,
 				inertia_defaults.stop_delay_factor,
@@ -3703,7 +3704,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 		beam.centerLength = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
 	}
 
-	_ProcessCommandKeyInertia(def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
+	_ProcessKeyInertia(m_rig->cmdInertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
 	/* Add keys */
 	command_t* contract_command = &m_rig->commandkey[def.contract_key];
@@ -4006,44 +4007,20 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 		}
 	}
 
-	/* Inertia */
-	if (m_rig->hydroInertia != nullptr)
-	{
-		if (def.inertia._start_delay_factor_set && def.inertia._stop_delay_factor_set)
-		{
-			m_rig->hydroInertia->setCmdKeyDelay(
-				m_rig->free_hydro,	
-				def.inertia_defaults->start_delay_factor,
-				def.inertia_defaults->stop_delay_factor,
-				def.inertia_defaults->start_function,
-				def.inertia_defaults->stop_function
-			);
-		}
-		else if (def.inertia._start_delay_factor_set || def.inertia._stop_delay_factor_set)
-		{
-			m_rig->hydroInertia->setCmdKeyDelay(
-				m_rig->free_hydro,	
-				def.inertia_defaults->start_delay_factor,
-				def.inertia_defaults->stop_delay_factor,
-				def.inertia_defaults->start_function,
-				def.inertia_defaults->stop_function
-			);
-		}
-	}
+	_ProcessKeyInertia(m_rig->hydroInertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
+
+	node_t & node_1 = GetNode(def.nodes[0]);
+	node_t & node_2 = GetNode(def.nodes[1]);
 
 	int beam_index = m_rig->free_beam;
-	beam_t & beam = GetAndInitFreeBeam(GetNode(def.nodes[0]), GetNode(def.nodes[1]));
+	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	CalculateBeamLength(beam);
-	SetBeamDeformationThreshold(beam, def.beam_defaults);
 	beam.type                 = hydro_type;
 	beam.k                    = def.beam_defaults->GetScaledSpringiness();
 	beam.d                    = def.beam_defaults->GetScaledDamping();
-	beam.detacher_group       = def.detacher_group;
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
-	beam.plastic_coef         = def.beam_defaults->plastic_deformation_coefficient;
-	beam.diameter             = def.beam_defaults->visual_beam_diameter;
 
 	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
 
