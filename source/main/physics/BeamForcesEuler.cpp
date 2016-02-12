@@ -779,7 +779,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		// application to wheel
 		Vector3 axis = wheels[i].refnode1->RelPosition - wheels[i].refnode0->RelPosition;
 		float axis_precalc = total_torque/(Real)(wheels[i].nbnodes);
-		axis = fast_normalise(axis);
+		axis.normalise();
 
 		for (int j=0; j<wheels[i].nbnodes; j++)
 		{
@@ -1345,8 +1345,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		{
 			// compute rotation axis
 			Vector3 axis=nodes[rotators[i].axis1].RelPosition-nodes[rotators[i].axis2].RelPosition;
-			//axis.normalise();
-			axis=fast_normalise(axis);
+			axis.normalise();
 			// find the reference plane
 			Plane pl=Plane(axis, 0);
 			// for each pair
@@ -1363,11 +1362,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				// exert forces
 				float rigidity=rotators[i].force;
 				Vector3 dir1=ref1.crossProduct(axis);
-				//dir1.normalise();
-				dir1=fast_normalise(dir1);
+				dir1.normalise();
 				Vector3 dir2=ref2.crossProduct(axis);
-				//dir2.normalise();
-				dir2=fast_normalise(dir2);
+				dir2.normalise();
 				float ref1len=ref1.length();
 				float ref2len=ref2.length();
 

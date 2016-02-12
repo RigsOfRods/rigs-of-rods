@@ -351,7 +351,7 @@ Ogre::Real SlideNode::getLenTo( const beam_t* beam, const Ogre::Vector3& point )
 {
     if ( !beam ) return std::numeric_limits<Ogre::Real>::infinity();
     	
-    return fast_length( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point );	
+    return ( nearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point)- point ).length();	
 }
 
 Ogre::Real SlideNode::getLenTo( const RailGroup* group ) const
