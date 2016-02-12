@@ -3529,7 +3529,7 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 	command2.extend_key      = STR_PARSE_INT(results[result_index]);
 
 	/* Options */
-	result_index += 3;
+	result_index += 4;
 	if (results[result_index].matched)
 	{
 		std::string options_str = results[result_index].str();
@@ -3605,14 +3605,14 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 			}
 		}
 
-		result_index += 3;
+		result_index += 4;
 		if (results[result_index].matched)
 		{
 			command2.description = results[result_index];
 
 			if (format_version == 1)
 			{
-				result_index += 5;
+				result_index += 6;
 				if (_ParseOptionalInertia(command2.inertia, results, result_index))
 				{
 					result_index += 12;
@@ -3631,7 +3631,7 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 			}
 			else if (format_version == 2)
 			{
-				result_index += 3;
+				result_index += 4;
 				if (results[result_index].matched)
 				{
 					std::string rest_of_line = results[result_index];
