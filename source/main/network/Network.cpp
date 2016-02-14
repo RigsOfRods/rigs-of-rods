@@ -49,29 +49,45 @@ Network *net_instance;
 
 void *s_sendthreadstart(void* vid)
 {
+
 #ifdef USE_CRASHRPT
-	if (!BSETTING("NoCrashRpt"))
+	if (!BSETTING("NoCrashRpt", "No"))
 	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper;
-		assert(cr_thread_install_helper.m_nInstallStatus==0);
+		crInstallToCurrentThread2(0);
 	}
-#endif //USE_CRASHRPT
+#endif // USE_CRASHRPT
+
 	net_instance->sendthreadstart();
+
+#ifdef USE_CRASHRPT
+	if (!BSETTING("NoCrashRpt", "No"))
+	{
+		crUninstallFromCurrentThread();
+	}
+#endif // USE_CRASHRPT
+
 	return NULL;
 }
 
 void *s_receivethreadstart(void* vid)
 {
+
 #ifdef USE_CRASHRPT
-	if (!BSETTING("NoCrashRpt"))
+	if (!BSETTING("NoCrashRpt", "No"))
 	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper(0);
-		assert(cr_thread_install_helper.m_nInstallStatus==0);
+		crInstallToCurrentThread2(0);
 	}
-#endif //USE_CRASHRPT
+#endif // USE_CRASHRPT
+
 	net_instance->receivethreadstart();
+
+#ifdef USE_CRASHRPT
+	if (!BSETTING("NoCrashRpt", "No"))
+	{
+		crUninstallFromCurrentThread();
+	}
+#endif // USE_CRASHRPT
+
 	return NULL;
 }
 

@@ -1180,12 +1180,11 @@ void BeamFactory::threadentry()
 
 void* threadstart(void* vid)
 {
+
 #ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
+	if (!BSETTING("NoCrashRpt", "No"))
 	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper;
-		MYASSERT(cr_thread_install_helper.m_nInstallStatus==0);
+		crInstallToCurrentThread2(0);
 	}
 #endif // USE_CRASHRPT
 
@@ -1212,6 +1211,13 @@ void* threadstart(void* vid)
 			bf->threadentry();
 		}
 	}
+
+#ifdef USE_CRASHRPT
+	if (!BSETTING("NoCrashRpt", "No"))
+	{
+		crUninstallFromCurrentThread();
+	}
+#endif // USE_CRASHRPT
 
 	pthread_exit(NULL);
 	return NULL;

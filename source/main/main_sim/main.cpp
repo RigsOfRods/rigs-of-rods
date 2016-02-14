@@ -33,40 +33,41 @@
 using namespace Ogre;
 
 #ifdef USE_CRASHRPT
-// see http://code.google.com/p/crashrpt/
+// see http://crashrpt.sourceforge.net/
 #include "crashrpt.h"
 
 // Define the crash callback
-BOOL WINAPI crashCallback(LPVOID /*lpvState*/)
+int CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
 {
 	// Now add these two files to the error report
-	
+
 	// logs
-	crAddFile((SSETTING("Log Path") + "RoR.log").c_str(), "Rigs of Rods Log");
-	crAddFile((SSETTING("Log Path") + "mygui.log").c_str(), "Rigs of Rods GUI Log");
-	crAddFile((SSETTING("Log Path") + "configlog.txt").c_str(), "Rigs of Rods Configurator Log");
-	crAddFile((SSETTING("Program Path") + "wizard.log").c_str(), "Rigs of Rods Installer Log");
+	crAddFile2((SSETTING("Log Path", "") + "RoR.log").c_str(), "RoR.log", "Rigs of Rods Log", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((SSETTING("Log Path", "") + "mygui.log").c_str(), "mygui.log", "Rigs of Rods GUI Log", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((SSETTING("Log Path", "") + "configlog.txt").c_str(), "configlog.txt", "Rigs of Rods Configurator Log", CR_AF_FILE_MUST_EXIST);
+	//crAddFile2((SSETTING("Program Path", "") + "wizard.log").c_str(), "wizard.log", "Rigs of Rods Installer Log", CR_AF_FILE_MUST_EXIST);
 
 	// cache
-	crAddFile((SSETTING("Cache Path") + "mods.cache").c_str(), "Rigs of Rods Cache File");
+	crAddFile2((SSETTING("Cache Path", "") + "mods.cache").c_str(), "mods.cache", "Rigs of Rods Cache File", CR_AF_FILE_MUST_EXIST);
 
 	// configs
-	crAddFile((SSETTING("Config Root") + "ground_models.cfg").c_str(), "Rigs of Rods Ground Configuration");
-	crAddFile((SSETTING("Config Root") + "input.map").c_str(), "Rigs of Rods Input Configuration");
-	crAddFile((SSETTING("Config Root") + "ogre.cfg").c_str(), "Rigs of Rods Renderer Configuration");
-	crAddFile((SSETTING("Config Root") + "RoR.cfg").c_str(), "Rigs of Rods Configuration");
+	crAddFile2((SSETTING("Config Root", "") + "ground_models.cfg").c_str(), "ground_models.cfg", "Rigs of Rods Ground Configuration", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((SSETTING("Config Root", "") + "input.map").c_str(), "input.map", "Rigs of Rods Input Configuration", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((SSETTING("Config Root", "") + "ogre.cfg").c_str(), "ogre.cfg", "Rigs of Rods Renderer Configuration", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((SSETTING("Config Root", "") + "RoR.cfg").c_str(), "RoR.cfg", "Rigs of Rods Configuration", CR_AF_FILE_MUST_EXIST);
 
 	crAddProperty("Version", ROR_VERSION_STRING);
 	crAddProperty("protocol_version", RORNET_VERSION);
 	crAddProperty("build_date", __DATE__);
 	crAddProperty("build_time", __TIME__);
 
-	crAddProperty("System_GUID", SSETTING("GUID").c_str());
-	crAddProperty("Multiplayer", (BSETTING("Network enable"))?"1":"0");
-	
-	crAddScreenshot(CR_AS_MAIN_WINDOW);
-	// Return TRUE to allow crash report generation
-	return TRUE;
+	crAddProperty("System_GUID", SSETTING("GUID", "None").c_str());
+	crAddProperty("Multiplayer", (BSETTING("Network enable", "No")) ? "1" : "0");
+
+	crAddScreenshot2(CR_AS_MAIN_WINDOW, 0);
+
+	// Return CR_CB_DODEFAULT to generate error report
+	return CR_CB_DODEFAULT;
 }
 
 void install_crashrpt()
@@ -89,12 +90,13 @@ void install_crashrpt()
 	}
 
 	info.pszUrl = tmp;
-	info.pfnCrashCallback = crashCallback;
 	info.uPriorities[CR_HTTP]  = 3;  // Try HTTP the first
 	info.uPriorities[CR_SMTP]  = 2;  // Try SMTP the second
 	info.uPriorities[CR_SMAPI] = 1; // Try Simple MAPI the last
-	info.dwFlags = 0; // Install all available exception handlers
+	info.dwFlags = CR_INST_ALL_POSSIBLE_HANDLERS; // Install all available exception handlers
 	info.pszPrivacyPolicyURL = "http://wiki.rigsofrods.com/pages/Crash_Report_Privacy_Policy"; // URL for the Privacy Policy link
+
+	crSetCrashCallback(CrashCallback, NULL);
 
 	int nInstResult = crInstall(&info);
 	if (nInstResult!=0)
@@ -115,15 +117,13 @@ void install_crashrpt()
 
 void uninstall_crashrpt()
 {
-	// Unset crash handlers
-	int nUninstResult = crUninstall();
-	assert(nUninstResult==0);
+	crUninstall();
 }
 
 void test_crashrpt()
 {
-	// emulate null pointer exception (access violation)
-	crEmulateCrash(CR_WIN32_STRUCTURED_EXCEPTION);
+	//generate a null pointer exception.
+	crEmulateCrash(CR_SEH_EXCEPTION);
 }
 #endif
 
@@ -192,7 +192,7 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
-	
+
 SO_END_OF_OPTIONS
 };
 
@@ -303,8 +303,8 @@ int main(int argc, char *argv[])
 				showVersion();
 				return 0;
 			}
-		} 
-		else 
+		}
+		else
 		{
 			showUsage();
 			return 1;
@@ -313,16 +313,16 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
+	if (!BSETTING("NoCrashRpt", "No"))
 		install_crashrpt();
 
 	//test_crashrpt();
 #endif //USE_CRASHRPT
 
-	try 
+	try
 	{
 		main_thread_object.Go();
-	} 
+	}
 	catch (Ogre::Exception& e)
 	{
 		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
+	if (!BSETTING("NoCrashRpt", "No"))
 		uninstall_crashrpt();
 #endif //USE_CRASHRPT
 
