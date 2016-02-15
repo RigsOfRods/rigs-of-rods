@@ -1,61 +1,25 @@
 project(RoR_Main)
 
+
 set( BINNAME "RoR" )
 
-#setup libraries
 
-# config below
-IF(WIN32)
-  include_directories(${PThread_INCLUDE_DIRS})
-  link_directories   (${PThread_LIBRARY_DIRS})
-  set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
+####################################################################################################
+#  FIND EXTERNAL DEPENDENCIES
+####################################################################################################
 
-  # disable some annoying VS warnings:
-  # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-  # warning C4305: 'initializing' : truncation from 'double' to 'const float'
-  add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
-ELSEIF(UNIX)
-  include_directories(${GTK_INCLUDE_DIRS})
-  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
-ENDIF(WIN32)
+#  REQUIRED DEPENDENCIES
+# -----------------------
+
+#  OPTIONAL DEPENDENCIES
+# -----------------------
 
 
-include_directories(${Ogre_INCLUDE_DIRS})
-link_directories   (${Ogre_LIBRARY_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories   (${Boost_LIBRARY_DIRS})
 
-include_directories(${Ogre_Terrain_INCLUDE_DIRS})
-link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
-include_directories(${Ogre_Overlay_INCLUDE_DIRS})
-link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
-include_directories(${Ogre_Paging_INCLUDE_DIRS})
-link_directories   (${Ogre_Paging_LIBRARY_DIRS})
-include_directories(${Ogre_RTShader_INCLUDE_DIRS})
-link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
-include_directories(${Ois_INCLUDE_DIRS})
-link_directories   (${Ois_LIBRARY_DIRS})
+####################################################################################################
+#  SOURCE FILES
+####################################################################################################
 
-# optional components
-setup_lib(MYGUI)
-setup_lib(OPENAL)
-setup_lib(CURL)
-setup_lib(SOCKETW)
-IF(WIN32)
-  setup_lib(MOFILEREADER)
-  setup_lib(CRASHRPT)
-ENDIF(WIN32)
-setup_lib(PAGED)
-setup_lib(CAELUM)
-setup_lib(ANGELSCRIPT)
-
-if(ROR_USE_ANGELSCRIPT)
-  # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine
-  set(optional_libs ${optional_libs} angelscript_addons)
-endif()
-
-
-include_directories(${RoR_Main_SOURCE_DIR})
 add_sub_dir(${BINNAME} audio)
 add_sub_dir(${BINNAME} ../common)
 add_sub_dir(${BINNAME} datatypes)
@@ -96,61 +60,33 @@ add_sub_dir(${BINNAME} resources)
 add_main_dir(${BINNAME})
 
 
-
-
 if(WIN32)
   list( APPEND ${BINNAME}_sources "icon.rc")
 endif()
 
 
-add_executable(${BINNAME} ${${BINNAME}_headers} ${${BINNAME}_sources} )
 
+####################################################################################################
+#  EXECUTABLE TARGET
+####################################################################################################
+
+link_directories   (${Ogre_LIBRARY_DIRS})
+link_directories   (${Boost_LIBRARY_DIRS})
+link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
+link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
+link_directories   (${Ogre_Paging_LIBRARY_DIRS})
+link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
+link_directories   (${Ois_LIBRARY_DIRS})
+
+
+add_executable(${BINNAME} ${${BINNAME}_headers} ${${BINNAME}_sources} )
 
 if(WIN32)
   set_target_properties( ${BINNAME} PROPERTIES WIN32_EXECUTABLE YES )
 endif()
 
 
-# --- Setup preprocessor definitions ---
-
-target_compile_definitions( ${BINNAME} PRIVATE
-  USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
-  BOOST_ALL_NO_LIB
-  USE_RTSHADER_SYSTEM
-  #FEAT_DEBUG_MUTEX
-)
-
-if(WIN32)
-  target_compile_definitions( ${BINNAME} PRIVATE MYGUI_STATIC)
-endif()
-
-if(ROR_USE_ANGELSCRIPT)
-  target_compile_definitions( ${BINNAME} PRIVATE AS_USE_NAMESPACE)
-endif()
-
-if(ROR_USE_OIS_G27)
-  target_compile_definitions( ${BINNAME} PRIVATE USE_OIS_G27)
-endif()
-
-if(ROR_FEAT_TIMING)
-  target_compile_definitions( ${BINNAME} PRIVATE FEAT_TIMING)
-endif()
-
-
-target_link_libraries(${BINNAME}
-  ${Boost_LIBRARIES}
-  ${Ogre_LIBRARIES}
-  ${Ogre_Terrain_LIBRARIES}
-  ${Ogre_Overlay_LIBRARIES}
-  ${Ogre_Paging_LIBRARIES}
-  ${Ogre_RTShader_LIBRARIES}
-  ${Ois_LIBRARIES}
-  ${OS_LIBS}
-  ${optional_libs}
-  version_info
-)
-
-
+# Post build actions to be performed
 if(WIN32)
   # always copy ogre files
   copy_lib_files_for_target(${BINNAME} Ogre)
@@ -180,3 +116,100 @@ if(WIN32)
 else()
   copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
 endif()
+
+
+
+####################################################################################################
+#  PREPROCESSOR DEFINITIONS
+####################################################################################################
+
+target_compile_definitions( ${BINNAME} PRIVATE
+  USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
+  BOOST_ALL_NO_LIB
+  USE_RTSHADER_SYSTEM
+  #FEAT_DEBUG_MUTEX
+)
+
+if(WIN32)
+  target_compile_definitions( ${BINNAME} PRIVATE MYGUI_STATIC)
+endif()
+
+if(ROR_USE_ANGELSCRIPT)
+  target_compile_definitions( ${BINNAME} PRIVATE AS_USE_NAMESPACE)
+endif()
+
+if(ROR_USE_OIS_G27)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_OIS_G27)
+endif()
+
+if(ROR_FEAT_TIMING)
+  target_compile_definitions( ${BINNAME} PRIVATE FEAT_TIMING)
+endif()
+
+
+
+####################################################################################################
+#  INCLUDE DIRECTORIES
+####################################################################################################
+
+include_directories(.)
+include_directories(${Ogre_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Ogre_Terrain_INCLUDE_DIRS})
+include_directories(${Ogre_Overlay_INCLUDE_DIRS})
+include_directories(${Ogre_Paging_INCLUDE_DIRS})
+include_directories(${Ogre_RTShader_INCLUDE_DIRS})
+include_directories(${Ois_INCLUDE_DIRS})
+
+
+
+####################################################################################################
+#  LINK LIBRARIES
+####################################################################################################
+
+IF(WIN32)
+  include_directories(${PThread_INCLUDE_DIRS})
+  set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
+
+  # disable some annoying VS warnings:
+  # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+  # warning C4305: 'initializing' : truncation from 'double' to 'const float'
+  add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
+ELSEIF(UNIX)
+  include_directories(${GTK_INCLUDE_DIRS})
+  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
+ENDIF(WIN32)
+
+
+# optional components
+setup_lib(MYGUI)
+setup_lib(OPENAL)
+setup_lib(CURL)
+setup_lib(SOCKETW)
+IF(WIN32)
+  setup_lib(MOFILEREADER)
+  setup_lib(CRASHRPT)
+ENDIF(WIN32)
+setup_lib(PAGED)
+setup_lib(CAELUM)
+setup_lib(ANGELSCRIPT)
+
+if(ROR_USE_ANGELSCRIPT)
+  # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine
+  set(optional_libs ${optional_libs} angelscript_addons)
+endif()
+
+
+target_link_libraries(${BINNAME}
+  ${Boost_LIBRARIES}
+  ${Ogre_LIBRARIES}
+  ${Ogre_Terrain_LIBRARIES}
+  ${Ogre_Overlay_LIBRARIES}
+  ${Ogre_Paging_LIBRARIES}
+  ${Ogre_RTShader_LIBRARIES}
+  ${Ois_LIBRARIES}
+  ${OS_LIBS}
+  ${optional_libs}
+  version_info
+)
+
