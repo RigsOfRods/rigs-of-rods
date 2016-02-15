@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 cd ~/
 mkdir ~/ror-deps
 mkdir ~/.rigsofrods
@@ -34,8 +36,8 @@ sudo make -s install
 cd ..
 
 #PagedGeometry
-git clone -q --depth=1 https://github.com/RigsOfRods/PagedGeometry.git
-cd PagedGeometry
+git clone -q --depth=1 https://github.com/RigsOfRods/ogre-pagedgeometry.git
+cd ogre-pagedgeometry
 cmake -DCMAKE_BUILD_TYPE:STRING=Release \
 -DPAGEDGEOMETRY_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
