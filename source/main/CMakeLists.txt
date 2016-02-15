@@ -325,9 +325,13 @@ if(ROR_USE_ANGELSCRIPT)
 endif()
 
 
-# Expand file extensions (i.e. path/to/file.{h,cpp} becomes path/to/file.h;path/to/file.cpp)
 include( SourceFileUtils )
+
+# Expand file extensions (i.e. path/to/file.{h,cpp} becomes path/to/file.h;path/to/file.cpp)
 expand_file_extensions( SOURCE_FILES ${SOURCE_FILES} )
+
+# Generate source groups for use in IDEs
+generate_source_groups( ${SOURCE_FILES} )
 
 
 if(WIN32)
