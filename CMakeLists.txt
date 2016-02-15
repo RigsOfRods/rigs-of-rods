@@ -1,9 +1,14 @@
 cmake_minimum_required( VERSION 3.0.2 )
 
+
+set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
+
+
 # WIN32: remove MinSizeRel, Debug builds : unsupported
 if (WIN32) 
 	set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)
 endif()
+
 
 ################################################################################
 # Project definition
@@ -21,8 +26,7 @@ option( BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF )
 
 
 
-
-include(CMakeMacros.txt)
+include(Macros)
 
 
 # check 64 bit
@@ -122,7 +126,7 @@ endif(WIN32)
 ################################################################################
 # Check for dependencies
 ################################################################################
-include(CMakeDependenciesConfig.txt)
+include(DependenciesConfig)
 
 
 ################################################################################
