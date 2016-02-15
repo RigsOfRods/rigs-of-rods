@@ -1,9 +1,4 @@
-# ensure cmake features we need
-CMAKE_MINIMUM_REQUIRED( VERSION 2.6.2 )
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
-# done with cmake check
+cmake_minimum_required( VERSION 3.0.2 )
 
 # WIN32: remove MinSizeRel, Debug builds : unsupported
 if (WIN32) 
