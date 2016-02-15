@@ -391,6 +391,13 @@ else()
   copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
 endif()
 
+# Copy resources needed for execution to the build directory
+add_custom_command(
+  TARGET ${BINNAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/bin/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
+  COMMENT "Copy resources to build directory"
+  VERBATIM
+)
 
 
 ####################################################################################################
