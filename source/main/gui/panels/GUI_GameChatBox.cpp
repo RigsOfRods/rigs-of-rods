@@ -136,7 +136,8 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 		{
 			if (args.size() != 3)
 			{
-				pushMsg("usage: /whisper username message");
+				Ogre::UTFString trmsg = _L("usage: /whisper username message");
+				pushMsg(trmsg);
 				return;
 			}
 			netChat->sendPrivateChat(args[1], args[2]);

@@ -1,28 +1,28 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+This source file is part of Rigs of Rods
+Copyright 2005-2012 Pierre-Michel Ricordel
+Copyright 2007-2012 Thomas Fischer
+Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+Rigs of Rods is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3, as
+published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+Rigs of Rods is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-	@file   GUI_VehicleDescription.cpp
-	@author Moncef Ben Slimane
-	@date   11/2014
+/**
+@file   GUI_VehicleDescription.cpp
+@author Moncef Ben Slimane
+@date   11/2014
 */
 
 #include "GUI_VehicleDescription.h"
@@ -67,8 +67,8 @@ void CLASS::LoadText()
 	m_vehicle_title->setMaxTextLength(33);
 	m_vehicle_title->setCaptionWithReplacing(currTruck->getTruckName());
 
-	Ogre::String txt;
-	
+	Ogre::UTFString txt;
+
 	std::vector<authorinfo_t> file_authors = currTruck->getAuthors();
 	if (!file_authors.empty())
 	{
@@ -77,21 +77,22 @@ void CLASS::LoadText()
 		{
 			authors += "* " + (*it).name + " \n";
 		}
-		txt += "Authors: \n" + authors;
-	} else
-		txt += "(no author information available) ";
+		txt = txt + _L("Authors: \n") + authors;
+	}
+	else
+		txt = txt + _L("(no author information available) ");
 
 	std::vector<std::string> description = currTruck->getDescription();
 	for (unsigned int i = 1; i < 3; i++)
 	{
 		if (i < description.size())
 		{
-			txt += "\nDescription: \n";
-			txt += (ANSI_TO_UTF(description[i])) + "\n";
+			txt = txt + _L("\nDescription: \n");
+			txt = txt + (ANSI_TO_UTF(description[i])) + "\n";
 		}
 	}
 
-	txt += "\nCommands: \n";
+	txt = txt + _L("\nCommands: \n");
 
 	int filledCommands = 0;
 	for (int i = 1; i < MAX_COMMANDS && filledCommands < COMMANDS_VISIBLE; i += 2)
@@ -117,17 +118,17 @@ void CLASS::LoadText()
 
 		if (currTruck->commandkey[i].description.empty())
 		{
-			txt += "* " + keyStr + ": " + "unknown function";
+			txt = txt + "* " + keyStr + ": " + _L("unknown function");
 		}
 		else
 		{
-			txt += "* " + keyStr + ": " + currTruck->commandkey[i].description;
+			txt = txt + "* " + keyStr + ": " + currTruck->commandkey[i].description;
 		}
 
-		txt += "\n";
+		txt = txt + "\n";
 	}
 
-	m_vehicle_desc->setCaption(txt);
+	m_vehicle_desc->setCaption(Ogre::String(txt));
 }
 
 void CLASS::Show()
