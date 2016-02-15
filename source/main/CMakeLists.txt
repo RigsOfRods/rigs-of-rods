@@ -20,48 +20,318 @@ set( BINNAME "RoR" )
 #  SOURCE FILES
 ####################################################################################################
 
-add_sub_dir(${BINNAME} audio)
-add_sub_dir(${BINNAME} ../common)
-add_sub_dir(${BINNAME} datatypes)
-add_sub_dir(${BINNAME} gameplay)
-add_sub_dir(${BINNAME} terrain)
-add_sub_dir(${BINNAME} terrain/map)
-add_sub_dir(${BINNAME} threadpool)
-add_sub_dir(${BINNAME} gfx)
-add_sub_dir(${BINNAME} gfx/camera)
-add_sub_dir(${BINNAME} gfx/dof)
-add_sub_dir(${BINNAME} gfx/particle)
-add_sub_dir(${BINNAME} gfx/hydrax)
-add_sub_dir(${BINNAME} gfx/procedural)
-add_sub_dir(${BINNAME} gui)
-add_sub_dir(${BINNAME} gui/panels)
-add_sub_dir(${BINNAME} gui/mygui)
-add_sub_dir(${BINNAME} physics)
-add_sub_dir(${BINNAME} physics/air)
-add_sub_dir(${BINNAME} physics/collision)
-add_sub_dir(${BINNAME} physics/flex)
-add_sub_dir(${BINNAME} physics/input_output)
-add_sub_dir(${BINNAME} physics/mplatform)
-add_sub_dir(${BINNAME} physics/threading)
-add_sub_dir(${BINNAME} physics/utils)
-add_sub_dir(${BINNAME} physics/water)
-add_sub_dir(${BINNAME} ../rig_file_input_output)
-add_sub_dir(${BINNAME} rig_editor)
-add_sub_dir(${BINNAME} rig_editor/rig_data)
+set( SOURCE_FILES
+  main.cpp
+  Application.{h,cpp}
+  ForwardDeclarations.h
+  GlobalEnvironment.h
+  MainThread.{h,cpp}
+  RoRPrerequisites.h
+  audio/Sound.{h,cpp}
+  audio/SoundManager.{h,cpp}
+  audio/SoundScriptManager.{h,cpp}
+  datatypes/beam_t.h
+  datatypes/node_t.h
+  datatypes/rig_t.h
+  datatypes/shock_t.h
+  datatypes/wheel_t.h
+  gameplay/AircraftSimulation.{h,cpp}
+  gameplay/AutoPilot.{h,cpp}
+  gameplay/BeamEngine.{h,cpp}
+  gameplay/Character.{h,cpp}
+  gameplay/CharacterFactory.{h,cpp}
+  gameplay/ChatSystem.{h,cpp}
+  gameplay/Landusemap.{h,cpp}
+  gameplay/LandVehicleSimulation.{h,cpp}
+  gameplay/MaterialReplacer.{h,cpp}
+  gameplay/OutProtocol.{h,cpp}
+  gameplay/PlayerColours.{h,cpp}
+  gameplay/PositionStorage.{h,cpp}
+  gameplay/ProceduralManager.{h,cpp}
+  gameplay/Replay.{h,cpp}
+  gameplay/Road.{h,cpp}
+  gameplay/Road2.{h,cpp}
+  gameplay/RoRFrameListener.{h,cpp}
+  gameplay/SceneMouse.{h,cpp}
+  gameplay/ScriptEvents.h
+  gameplay/Scripting.h
+  gameplay/Skin.{h,cpp}
+  gameplay/SkinManager.{h,cpp}
+  gameplay/TorqueCurve.{h,cpp}
+  gameplay/TwoDReplay.{h,cpp}
+  gfx/AdvancedScreen.h
+  gfx/ColoredTextAreaOverlayElement.{h,cpp}
+  gfx/ColoredTextAreaOverlayElementFactory.h
+  gfx/DecalManager.{h,cpp}
+  gfx/DustManager.{h,cpp}
+  gfx/DustPool.{h,cpp}
+  gfx/DynamicLines.{h,cpp}
+  gfx/DynamicRenderable.{h,cpp}
+  gfx/EnvironmentMap.{h,cpp}
+  gfx/GlowMaterialListener.h
+  gfx/HDRListener.{h,cpp}
+  gfx/Heathaze.{h,cpp}
+  gfx/HydraxWater.{h,cpp}
+  gfx/IWater.h
+  gfx/MaterialFunctionMapper.{h,cpp}
+  gfx/MovableText.{h,cpp}
+  gfx/OgreSubsystem.{h,cpp}
+  gfx/PreviewRenderer.{h,cpp}
+  gfx/ShadowManager.{h,cpp}
+  gfx/Skidmark.{h,cpp}
+  gfx/SkyManager.{h,cpp}
+  gfx/VideoCamera.{h,cpp}
+  gfx/Water.{h,cpp}
+  gfx/camera/CameraBehaviorCharacter.{h,cpp}
+  gfx/camera/CameraBehaviorFixed.{h,cpp}
+  gfx/camera/CameraBehaviorFree.{h,cpp}
+  gfx/camera/CameraBehaviorIsometric.{h,cpp}
+  gfx/camera/CameraBehaviorOrbit.{h,cpp}
+  gfx/camera/CameraBehaviorStatic.{h,cpp}
+  gfx/camera/CameraBehaviorVehicle.{h,cpp}
+  gfx/camera/CameraBehaviorVehicleCineCam.{h,cpp}
+  gfx/camera/CameraBehaviorVehicleSpline.{h,cpp}
+  gfx/camera/CameraManager.{h,cpp}
+  gfx/camera/PerVehicleCameraContext.h
+  gfx/dof/DepthOfFieldEffect.{h,cpp}
+  gfx/dof/Lens.{h,cpp}
+  gfx/hydrax/CfgFileManager.{h,cpp}
+  gfx/hydrax/DecalsManager.{h,cpp}
+  gfx/hydrax/Enums.{h,cpp}
+  gfx/hydrax/FFT.{h,cpp}
+  gfx/hydrax/GodRaysManager.{h,cpp}
+  gfx/hydrax/GPUNormalMapManager.{h,cpp}
+  gfx/hydrax/Help.{h,cpp}
+  gfx/hydrax/Hydrax.{h,cpp}
+  gfx/hydrax/Image.{h,cpp}
+  gfx/hydrax/MaterialManager.{h,cpp}
+  gfx/hydrax/Mesh.{h,cpp}
+  gfx/hydrax/Module.{h,cpp}
+  gfx/hydrax/Noise.{h,cpp}
+  gfx/hydrax/Perlin.{h,cpp}
+  gfx/hydrax/Prerequisites.{h,cpp}
+  gfx/hydrax/PressurePoint.{h,cpp}
+  gfx/hydrax/ProjectedGrid.{h,cpp}
+  gfx/hydrax/RadialGrid.{h,cpp}
+  gfx/hydrax/Real.{h,cpp}
+  gfx/hydrax/RttManager.{h,cpp}
+  gfx/hydrax/SimpleGrid.{h,cpp}
+  gfx/hydrax/TextureManager.{h,cpp}
+  gfx/hydrax/Wave.{h,cpp}
+  gfx/particle/ExtinguishableFireAffector.{h,cpp}
+  gfx/particle/ExtinguishableFireAffectorFactory.h
+  gfx/particle/FireExtinguisherAffector.{h,cpp}
+  gfx/particle/FireExtinguisherAffectorFactory.h
+  gfx/particle/OgreParticleCustomParam.h
+  gfx/particle/OgreShaderParticleRenderer.{h,cpp}
+  gui/Console.{h,cpp}
+  gui/Dashboard.{h,cpp}
+  gui/DashBoardManager.{h,cpp}
+  gui/GUIFriction.{h,cpp}
+  gui/GUIInputManager.{h,cpp}
+  gui/GUIManager.{h,cpp}
+  gui/GUIMenu.{h,cpp}
+  gui/GUIMp.{h,cpp}
+  gui/GuiManagerInterface.h
+  gui/HighScoreWindow.{h,cpp}
+  gui/LoadingWindow.{h,cpp}
+  gui/LobbyGUI.{h,cpp}
+  gui/OverlayWrapper.{h,cpp}
+  gui/RTTLayer.{h,cpp}
+  gui/TextureToolWindow.{h,cpp}
+  gui/TruckHUD.{h,cpp}
+  gui/mygui/Attribute.h
+  gui/mygui/BaseLayout.h
+  gui/mygui/Dialog.{h,cpp}
+  gui/mygui/GuiPanelBase.h
+  gui/mygui/WrapsAttribute.h
+  gui/panels/GUI_DebugOptions.{h,cpp}
+  gui/panels/GUI_DebugOptionsLayout.{h,cpp}
+  gui/panels/GUI_GameAbout.{h,cpp}
+  gui/panels/GUI_GameAboutLayout.{h,cpp}
+  gui/panels/GUI_GameChatBox.{h,cpp}
+  gui/panels/GUI_GameChatBoxLayout.{h,cpp}
+  gui/panels/GUI_GameConsoleLayout.{h,cpp}
+  gui/panels/GUI_GameMainMenu.{h,cpp}
+  gui/panels/GUI_GameMainMenuLayout.{h,cpp}
+  gui/panels/GUI_GamePauseMenu.{h,cpp}
+  gui/panels/GUI_GamePauseMenuLayout.{h,cpp}
+  gui/panels/GUI_GameSettings.{h,cpp}
+  gui/panels/GUI_GameSettingsLayout.{h,cpp}
+  gui/panels/GUI_MainSelector.{h,cpp}
+  gui/panels/GUI_MainSelectorLayout.{h,cpp}
+  gui/panels/GUI_MessageBox.{h,cpp}
+  gui/panels/GUI_MessageBoxLayout.{h,cpp}
+  gui/panels/GUI_MultiplayerSelector.{h,cpp}
+  gui/panels/GUI_MultiplayerSelectorLayout.{h,cpp}
+  gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
+  gui/panels/GUI_RigEditorBeamsPanel.{h,cpp}
+  gui/panels/GUI_RigEditorBeamsPanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorCommands2Panel.{h,cpp}
+  gui/panels/GUI_RigEditorCommands2PanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorDeleteMenu.{h,cpp}
+  gui/panels/GUI_RigEditorDeleteMenuLayout.{h,cpp}
+  gui/panels/GUI_RigEditorFlexBodyWheelsPanel.{h,cpp}
+  gui/panels/GUI_RigEditorFlexBodyWheelsPanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorHelpWindow.{h,cpp}
+  gui/panels/GUI_RigEditorHelpWindowLayout.{h,cpp}
+  gui/panels/GUI_RigEditorHydrosPanel.{h,cpp}
+  gui/panels/GUI_RigEditorHydrosPanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorLandVehiclePropertiesWindow.{h,cpp}
+  gui/panels/GUI_RigEditorLandVehiclePropertiesWindowLayout.{h,cpp}
+  gui/panels/GUI_RigEditorMenubar.{h,cpp}
+  gui/panels/GUI_RigEditorMenubarLayout.{h,cpp}
+  gui/panels/GUI_RigEditorMeshWheels2Panel.{h,cpp}
+  gui/panels/GUI_RigEditorMeshWheels2PanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorNodePanel.{h,cpp}
+  gui/panels/GUI_RigEditorNodePanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorRigPropertiesWindow.{h,cpp}
+  gui/panels/GUI_RigEditorRigPropertiesWindowLayout.{h,cpp}
+  gui/panels/GUI_RigEditorShocks2Panel.{h,cpp}
+  gui/panels/GUI_RigEditorShocks2PanelLayout.{h,cpp}
+  gui/panels/GUI_RigEditorShocksPanel.{h,cpp}
+  gui/panels/GUI_RigEditorShocksPanelLayout.{h,cpp}
+  gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
+  gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
+  gui/panels/GUI_SimUtils.{h,cpp}
+  gui/panels/GUI_SimUtilsLayout.{h,cpp}
+  gui/panels/GUI_VehicleDescription.{h,cpp}
+  gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
+  network/IRCWrapper.{h,cpp}
+  network/Network.{h,cpp}
+  network/NetworkStreamManager.{h,cpp}
+  network/Streamable.{h,cpp}
+  network/StreamableFactory.h
+  network/StreamableFactoryInterface.h
+  network/IRC/libircclient.{h,cpp}
+  physics/ApproxMath.h
+  physics/Beam.{h,cpp}
+  physics/BeamData.h
+  physics/BeamFactory.{h,cpp}
+  physics/BeamForcesEuler.cpp
+  physics/BeamSlideNode.cpp
+  physics/CmdKeyInertia.{h,cpp}
+  physics/Differentials.{h,cpp}
+  physics/SlideNode.{h,cpp}
+  physics/air/AeroEngine.h
+  physics/air/AirBrake.{h,cpp}
+  physics/air/Airfoil.{h,cpp}
+  physics/air/TurboJet.{h,cpp}
+  physics/air/TurboProp.{h,cpp}
+  physics/collision/Collisions.{h,cpp}
+  physics/collision/PointColDetector.{h,cpp}
+  physics/flex/Flexable.{h,cpp}
+  physics/flex/FlexAirfoil.{h,cpp}
+  physics/flex/FlexBody.{h,cpp}
+  physics/flex/FlexFactory.{h,cpp}
+  physics/flex/FlexMesh.{h,cpp}
+  physics/flex/FlexMeshWheel.{h,cpp}
+  physics/flex/FlexObj.{h,cpp}
+  physics/flex/Locator_t.h
+  physics/input_output/ForceFeedback.{h,cpp}
+  physics/input_output/RigSpawner.{h,cpp}
+  physics/input_output/RigSpawner_ProcessControl.cpp
+  physics/mplatform/MPlatformBase.{h,cpp}
+  physics/mplatform/MPlatformFD.{h,cpp}
+  physics/utils/BeamStats.{h,cpp}
+  physics/utils/RigLoadingProfiler.h
+  physics/water/Buoyance.{h,cpp}
+  physics/water/ScrewProp.{h,cpp}
+  resources/CacheSystem.{h,cpp}
+  resources/CacheSystemTable.h
+  resources/ContentManager.{h,cpp}
+  rig_editor/RigEditor_CameraHandler.{h,cpp}
+  rig_editor/RigEditor_Config.{h,cpp}
+  rig_editor/RigEditor_ForwardDeclarations.h
+  rig_editor/RigEditor_GuiPopupDynamicListBase.{h,cpp}
+  rig_editor/RigEditor_GuiPopupWheelsList.{h,cpp}
+  rig_editor/RigEditor_HighlightBoxesDynamicMesh.{h,cpp}
+  rig_editor/RigEditor_IMain.h
+  rig_editor/RigEditor_InputHandler.{h,cpp}
+  rig_editor/RigEditor_Main.{h,cpp}
+  rig_editor/RigEditor_RigElementGuiPanelBase.{h,cpp}
+  rig_editor/RigEditor_RigElementsAggregateData.h
+  rig_editor/RigEditor_RigWheelVisuals.{h,cpp}
+  rig_editor/RigEditor_RigWheelsAggregateData.{h,cpp}
+  rig_editor/RigEditor_Types.h
+  rig_editor/rig_data/RigEditor_Beam.{h,cpp}
+  rig_editor/rig_data/RigEditor_CineCamera.h
+  rig_editor/rig_data/RigEditor_FlexBodyWheel.{h,cpp}
+  rig_editor/rig_data/RigEditor_LandVehicleWheel.{h,cpp}
+  rig_editor/rig_data/RigEditor_MeshWheel.{h,cpp}
+  rig_editor/rig_data/RigEditor_MeshWheel2.{h,cpp}
+  rig_editor/rig_data/RigEditor_Node.{h,cpp}
+  rig_editor/rig_data/RigEditor_Rig.{h,cpp}
+  rig_editor/rig_data/RigEditor_RigProperties.{h,cpp}
+  terrain/IHeightFinder.h
+  terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
+  terrain/TerrainGeometryManager.{h,cpp}
+  terrain/TerrainManager.{h,cpp}
+  terrain/TerrainObjectManager.{h,cpp}
+  terrain/map/SurveyMapEntity.{h,cpp}
+  terrain/map/SurveyMapManager.{h,cpp}
+  terrain/map/SurveyMapTextureCreator.{h,cpp}
+  threadpool/IThreadTask.h
+  threadpool/ThreadPool.{h,cpp}
+  threadpool/ThreadWorker.{h,cpp}
+  utils/CollisionTools.{h,cpp}
+  utils/ConfigFile.{h,cpp}
+  utils/ErrorUtils.{h,cpp}
+  utils/FileSystemInfo.h
+  utils/FontTextureHelper.h
+  utils/IBehavior.h
+  utils/IBehaviorManager.h
+  utils/IManager.h
+  utils/ImprovedConfigFile.h
+  utils/InputEngine.{h,cpp}
+  utils/InterThreadStoreVector.h
+  utils/Language.{h,cpp}
+  utils/MeshObject.{h,cpp}
+  utils/MumbleIntegration.{h,cpp}
+  utils/PlatformUtils.{h,cpp}
+  utils/RoRWindowEventUtilities.{h,cpp}
+  utils/ScopeLog.{h,cpp}
+  utils/Settings.{h,cpp}
+  utils/SHA1.{h,cpp}
+  utils/SimpleGlob.h
+  utils/SimpleOpt.h
+  utils/Singleton.h
+  utils/Timer.h
+  utils/Utils.{h,cpp}
+  utils/WriteTextToTexture.{h,cpp}
+  utils/ZeroedMemoryAllocator.h
+  utils/profiler/Profiler.{h,cpp}
+  utils/profiler/RigLoadingProfilerControl.h
+  ../rig_file_input_output/RigDef_File.{h,cpp}
+  ../rig_file_input_output/RigDef_Limits.h
+  ../rig_file_input_output/RigDef_Node.{h,cpp}
+  ../rig_file_input_output/RigDef_Parser.{h,cpp}
+  ../rig_file_input_output/RigDef_Prerequisites.h
+  ../rig_file_input_output/RigDef_Regexes.h
+  ../rig_file_input_output/RigDef_SequentialImporter.{h,cpp}
+  ../rig_file_input_output/RigDef_Serializer.{h,cpp}
+  ../rig_file_input_output/RigDef_Validator.{h,cpp}
+  )
+
 if(ROR_USE_ANGELSCRIPT)
-  add_sub_dir(${BINNAME} scripting)
+  list( APPEND SOURCE_FILES
+    scripting/CBytecodeStream.{h,cpp}
+    scripting/GameScript.{h,cpp}
+    scripting/LocalStorage.{h,cpp}
+    scripting/OgreAngelscript.{h,cpp}
+    scripting/OgreScriptBuilder.{h,cpp}
+    scripting/ScriptEngine.{h,cpp}
+  )
 endif()
-add_sub_dir(${BINNAME} utils)
-add_sub_dir(${BINNAME} utils/profiler)
-add_sub_dir(${BINNAME} network)
-add_sub_dir(${BINNAME} network/protocol)
-add_sub_dir(${BINNAME} network/IRC)
-add_sub_dir(${BINNAME} resources)
-add_main_dir(${BINNAME})
+
+
+# Expand file extensions (i.e. path/to/file.{h,cpp} becomes path/to/file.h;path/to/file.cpp)
+include( SourceFileUtils )
+expand_file_extensions( SOURCE_FILES ${SOURCE_FILES} )
 
 
 if(WIN32)
-  list( APPEND ${BINNAME}_sources "icon.rc")
+  list( APPEND SOURCE_FILES "icon.rc")
 endif()
 
 
@@ -79,7 +349,7 @@ link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
 link_directories   (${Ois_LIBRARY_DIRS})
 
 
-add_executable(${BINNAME} ${${BINNAME}_headers} ${${BINNAME}_sources} )
+add_executable(${BINNAME} ${SOURCE_FILES} )
 
 if(WIN32)
   set_target_properties( ${BINNAME} PROPERTIES WIN32_EXECUTABLE YES )
@@ -152,7 +422,7 @@ endif()
 #  INCLUDE DIRECTORIES
 ####################################################################################################
 
-include_directories(.)
+
 include_directories(${Ogre_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${Ogre_Terrain_INCLUDE_DIRS})
@@ -160,6 +430,46 @@ include_directories(${Ogre_Overlay_INCLUDE_DIRS})
 include_directories(${Ogre_Paging_INCLUDE_DIRS})
 include_directories(${Ogre_RTShader_INCLUDE_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
+
+
+target_include_directories( ${BINNAME} PRIVATE
+ .
+ ../common
+ ../rig_file_input_output
+ audio
+ datatypes
+ gameplay
+ gfx
+ gfx/camera
+ gfx/dof
+ gfx/hydrax
+ gfx/particle
+ gfx/procedural
+ gui
+ gui/mygui
+ gui/panels
+ network
+ network/IRC
+ network/protocol
+ physics
+ physics/air
+ physics/collision
+ physics/flex
+ physics/input_output
+ physics/mplatform
+ physics/threading
+ physics/utils
+ physics/water
+ resources
+ rig_editor
+ rig_editor/rig_data
+ scripting
+ terrain
+ terrain/map
+ threadpool
+ utils
+ utils/profiler
+)
 
 
 
