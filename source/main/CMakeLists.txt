@@ -19,8 +19,6 @@ ELSEIF(UNIX)
   set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 ENDIF(WIN32)
 
-# build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
-add_definitions("-DUSE_MUMBLE")
 
 include_directories(${Ogre_INCLUDE_DIRS})
 link_directories   (${Ogre_LIBRARY_DIRS})
@@ -53,24 +51,8 @@ setup_lib(ANGELSCRIPT)
 
 if(ROR_USE_ANGELSCRIPT)
   # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine
-  add_definitions("-DAS_USE_NAMESPACE")
   set(optional_libs ${optional_libs} angelscript_addons)
 endif()
-
-if(ROR_USE_OIS_G27)
-  add_definitions("-DUSE_OIS_G27")
-endif(ROR_USE_OIS_G27)
-
-if(ROR_FEAT_TIMING)
-  add_definitions("-DFEAT_TIMING")
-endif(ROR_FEAT_TIMING)
-
-
-#add_definitions("-DFEAT_DEBUG_MUTEX")
-
-
-add_definitions("-DBOOST_ALL_NO_LIB")
-add_definitions("-DUSE_RTSHADER_SYSTEM")
 
 
 include_directories(${RoR_Main_SOURCE_DIR})
@@ -113,9 +95,7 @@ add_sub_dir(${BINNAME} network/IRC)
 add_sub_dir(${BINNAME} resources)
 add_main_dir(${BINNAME})
 
-if(WIN32)
-  add_definitions("-DMYGUI_STATIC")
-endif()
+
 
 
 if(WIN32)
@@ -130,6 +110,33 @@ if(WIN32)
   set_target_properties( ${BINNAME} PROPERTIES WIN32_EXECUTABLE YES )
 endif()
 
+
+# --- Setup preprocessor definitions ---
+
+target_compile_definitions( ${BINNAME} PRIVATE
+  USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
+  BOOST_ALL_NO_LIB
+  USE_RTSHADER_SYSTEM
+  #FEAT_DEBUG_MUTEX
+)
+
+if(WIN32)
+  target_compile_definitions( ${BINNAME} PRIVATE MYGUI_STATIC)
+endif()
+
+if(ROR_USE_ANGELSCRIPT)
+  target_compile_definitions( ${BINNAME} PRIVATE AS_USE_NAMESPACE)
+endif()
+
+if(ROR_USE_OIS_G27)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_OIS_G27)
+endif()
+
+if(ROR_FEAT_TIMING)
+  target_compile_definitions( ${BINNAME} PRIVATE FEAT_TIMING)
+endif()
+
+
 target_link_libraries(${BINNAME}
   ${Boost_LIBRARIES}
   ${Ogre_LIBRARIES}
@@ -142,7 +149,8 @@ target_link_libraries(${BINNAME}
   ${optional_libs}
   version_info
 )
-	
+
+
 if(WIN32)
   # always copy ogre files
   copy_lib_files_for_target(${BINNAME} Ogre)
