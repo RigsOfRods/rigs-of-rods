@@ -1,9 +1,9 @@
 project(RoR_Main)
 
+set( BINNAME "RoR" )
+
 #setup libraries
 
-
-macro(add_ror_project BINNAME folder useWxWidgets)
   # config below
   IF(WIN32)
     include_directories(${PThread_INCLUDE_DIRS})
@@ -71,6 +71,7 @@ macro(add_ror_project BINNAME folder useWxWidgets)
 
   add_definitions("-DBOOST_ALL_NO_LIB")
   add_definitions("-DUSE_RTSHADER_SYSTEM")
+
   
   include_directories(${RoR_Main_SOURCE_DIR})
   add_sub_dir(${BINNAME} audio)
@@ -109,28 +110,12 @@ macro(add_ror_project BINNAME folder useWxWidgets)
   add_sub_dir(${BINNAME} network/protocol)
   add_sub_dir(${BINNAME} network/IRC)
   add_sub_dir(${BINNAME} resources)
-  add_sub_dir(${BINNAME} ${folder})
+  add_sub_dir(${BINNAME} main_sim)
   add_main_dir(${BINNAME})
   
-  if(${useWxWidgets})
-    # find wxWidgets
-    SET(wxWidgets_USE_UNICODE ON)
-    # message("project ${BINNAME} using wxwidgets")
-    FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS base core html net adv propgrid aui)
-    include_directories(${wxWidgets_INCLUDE_DIRS})
-    add_definitions(${wxWidgets_CXX_FLAGS})
-    if(DEFINED wxWidgets_DEFINITIONS)
-      add_definitions("-D${wxWidgets_DEFINITIONS}")
-    endif()
-    link_directories (${wxWidgets_LIB_DIR})
-    set(optional_libs ${optional_libs};${wxWidgets_LIBRARIES})
-	
-	add_definitions("-DROR_EMBEDDED")
-  endif()
-
   IF(WIN32)
 	add_definitions("-DMYGUI_STATIC")
-    add_executable(${BINNAME} WIN32 ${${BINNAME}_headers} ${${BINNAME}_sources} ${RoR_Main_SOURCE_DIR}/${folder}/icon.rc)
+    add_executable(${BINNAME} WIN32 ${${BINNAME}_headers} ${${BINNAME}_sources} ${RoR_Main_SOURCE_DIR}/main_sim/icon.rc)
   ELSE(WIN32)
     add_executable(${BINNAME}       ${${BINNAME}_headers} ${${BINNAME}_sources})
   ENDIF(WIN32)
@@ -167,11 +152,4 @@ if(WIN32)
   endif()
 else()
   copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
-endif()
-	
-endmacro(add_ror_project)
-
-
-IF(ROR_BUILD_SIM)
-	add_subdirectory(main_sim)
 endif()

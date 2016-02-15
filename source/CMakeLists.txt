@@ -1,4 +1,6 @@
-add_subdirectory(main)
+if(ROR_BUILD_SIM)
+  add_subdirectory(main)
+endif()
 
 if(ROR_USE_SKIA)
 add_subdirectory(OgreCanvas)
