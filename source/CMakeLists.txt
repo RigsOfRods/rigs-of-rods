@@ -1,3 +1,5 @@
+add_subdirectory( version_info )
+
 if(ROR_BUILD_SIM)
   add_subdirectory(main)
 endif()

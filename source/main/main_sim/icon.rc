@@ -3,7 +3,7 @@
 // Microsoft Visual C++ generated resource script.
 //
 #include <Windows.h>
-#include "RoRVersion.h"
+#include "version_def.h"
 #include "resource.h"
 /////////////////////////////////////////////////////////////////////////////
 // English (United States) resources
@@ -52,8 +52,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION ROR_VERSION_STRING_WIN
- PRODUCTVERSION ROR_VERSION_STRING_WIN
+ FILEVERSION ROR_RESOURCE_VERSION
+ PRODUCTVERSION ROR_RESOURCE_VERSION
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -70,12 +70,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "rigsofrods.com"
             VALUE "FileDescription", "Rigs of Rods Simulator"
-            VALUE "FileVersion", ROR_VERSION_STRING
+            VALUE "FileVersion", ROR_RESOURCE_VERSION_STRING
             VALUE "InternalName", "RoR"
             VALUE "LegalCopyright", "Copyright (C) 2005-2015 rigsofrods.com"
             VALUE "OriginalFilename", "RoR.exe"
             VALUE "ProductName", "Rigs of Rods"
-            VALUE "ProductVersion", ROR_VERSION_STRING
+            VALUE "ProductVersion", ROR_RESOURCE_VERSION_STRING
 			
         END
     END

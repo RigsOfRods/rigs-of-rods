@@ -131,6 +131,7 @@ target_link_libraries(${BINNAME}
   ${Ois_LIBRARIES}
   ${OS_LIBS}
   ${optional_libs}
+  version_info
 )
 	
 if(WIN32)

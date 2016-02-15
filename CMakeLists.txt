@@ -16,14 +16,14 @@ endif()
 set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_LONG  "Rigs of Rods")
 
-project( ${PROJECT_NAME_SHORT} )
+project( ${PROJECT_NAME_SHORT} VERSION 0.4.6.0 )
 
 
 ################################################################################
 # Available build options
 ################################################################################
-option( BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF )
-
+option( BUILD_DEV_VERSION  "Disable this for official releases"            ON  )
+option( BUILD_DOC_DOXYGEN  "Build documentation from sources with Doxygen" OFF )
 
 
 include(Macros)
