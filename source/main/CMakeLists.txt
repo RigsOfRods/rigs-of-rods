@@ -9,7 +9,7 @@ IF(WIN32)
   include_directories(${PThread_INCLUDE_DIRS})
   link_directories   (${PThread_LIBRARY_DIRS})
   set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
-  
+
   # disable some annoying VS warnings:
   # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
   # warning C4305: 'initializing' : truncation from 'double' to 'const float'
@@ -113,12 +113,22 @@ add_sub_dir(${BINNAME} network/IRC)
 add_sub_dir(${BINNAME} resources)
 add_main_dir(${BINNAME})
 
-IF(WIN32)
+if(WIN32)
   add_definitions("-DMYGUI_STATIC")
-  add_executable(${BINNAME} WIN32 ${${BINNAME}_headers} ${${BINNAME}_sources} ${RoR_Main_SOURCE_DIR}/icon.rc)
-ELSE(WIN32)
-  add_executable(${BINNAME}       ${${BINNAME}_headers} ${${BINNAME}_sources})
-ENDIF(WIN32)
+endif()
+
+
+if(WIN32)
+  list( APPEND ${BINNAME}_sources "icon.rc")
+endif()
+
+
+add_executable(${BINNAME} ${${BINNAME}_headers} ${${BINNAME}_sources} )
+
+
+if(WIN32)
+  set_target_properties( ${BINNAME} PROPERTIES WIN32_EXECUTABLE YES )
+endif()
 
 target_link_libraries(${BINNAME}
   ${Boost_LIBRARIES}
