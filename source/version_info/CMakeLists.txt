@@ -6,10 +6,17 @@
 set( VERSION_INFO_CPP ${CMAKE_CURRENT_BINARY_DIR}/version_info.cpp )
 set( VERSION_DEF_H ${CMAKE_CURRENT_BINARY_DIR}/version_def.h )
 
+# Search for Git executable
+find_package( Git )
+if( WIN32 AND NOT GIT_FOUND )
+  message( "Searching for git.exe provided by Github Client" )
+  file( GLOB_RECURSE GIT_EXECUTABLE "$ENV{LOCALAPPDATA}/GitHub/PortableGit_*/cmd/git.exe" )
+  list( GET GIT_EXECUTABLE 0 GIT_EXECUTABLE )
+endif()
+
 # CMake custom targets are always out of date. Therefore the following target will update the
 # versioning information on each build. It executes the GenerateVersionInfo.cmake script which
 # generates the version_info.cpp and version_def.h files.
-find_package( Git )
 set( VERSION_FLAGS 
   -DVERSION_MAJOR=${PROJECT_VERSION_MAJOR}
   -DVERSION_MINOR=${PROJECT_VERSION_MINOR}
