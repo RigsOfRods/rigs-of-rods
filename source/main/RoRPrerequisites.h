@@ -47,6 +47,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreUTFString.h>
 #include <OgreVector2.h>
 #include <OgreVector3.h>
+#include <OgreCamera.h>
 
 
 #ifdef ROR_USE_OGRE_1_9
