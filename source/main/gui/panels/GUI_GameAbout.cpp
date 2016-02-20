@@ -92,23 +92,22 @@ bool CLASS::IsVisible()
 void CLASS::initMisc()
 {
 	Ogre::UTFString AuthorsText = "";
-	Ogre::UTFString orange      = U("#FF7D02"); // colour key shortcut
-	Ogre::UTFString white       = U("#FFFFFF"); // colour key shortcut
-	Ogre::UTFString color1      = U("#66FF33"); // colour key shortcut
-	Ogre::UTFString newline     = U("\n");
+	Ogre::UTFString orange = U("#FF7D02"); // colour key shortcut
+	Ogre::UTFString white = U("#FFFFFF"); // colour key shortcut
+	Ogre::UTFString color1 = U("#66FF33"); // colour key shortcut
+	Ogre::UTFString newline = U("\n");
 
 	//Authors:
 	AuthorsText = orange + "Authors:" + newline;
 	AuthorsText = AuthorsText + color1 + "Pierre-Michel Ricordel (pricorde):" + white + " Physics Genius, Original Author, Core Developer, retired" + newline;
-	AuthorsText = AuthorsText + color1 + "Thomas Fischer (tdev):" + white + " Core Developer, inactive" + newline;	
-	
+	AuthorsText = AuthorsText + color1 + "Thomas Fischer (tdev):" + white + " Core Developer, inactive" + newline;
+
 	//Current Project devs:
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
 	AuthorsText = AuthorsText + color1 + "Petr Ohlidal (only_a_ptr):" + white + " Core Developer, active" + newline;
 	AuthorsText = AuthorsText + color1 + "Niklas Kersten (Hiradur):" + white + " Linux fixes, few tweaks, active" + newline;
-	AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul, active" + newline;
-	AuthorsText = AuthorsText + color1 + "Artem Vorotnikov (skybon):" + white + " Web services, fixes, utilities, active" + newline;
+	AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul, active" + newline;	
 
 	//Server Contributors
 	AuthorsText = AuthorsText + newline;
@@ -121,7 +120,7 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + color1 + "Estama:" + white + " Physics Core Optimizations, Collision/Friction code, Support Beams" + newline;
 	AuthorsText = AuthorsText + color1 + "Lifter:" + white + " Triggers, Animators, Animated Props, Shocks2" + newline;
 	AuthorsText = AuthorsText + color1 + "Aperion:" + white + " Slidenodes, Axles, Improved Engine code, Rigidifiers, Networking code" + newline;
-	AuthorsText = AuthorsText + color1 + "FlyPiper:" + white + " Inertia Code, minor patches" + newline; 
+	AuthorsText = AuthorsText + color1 + "FlyPiper:" + white + " Inertia Code, minor patches" + newline;
 	AuthorsText = AuthorsText + color1 + "knied:" + white + " MacOSX Patches" + newline;
 	AuthorsText = AuthorsText + color1 + "altren:" + white + " Coded some MyGUI windows" + newline;
 	AuthorsText = AuthorsText + color1 + "petern:" + white + " Repair on spot, Linux patches" + newline;
@@ -131,18 +130,20 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + color1 + "cptf:" + white + " Several Linux gcc fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "88Toyota:" + white + " Clutch force patches" + newline;
 	AuthorsText = AuthorsText + color1 + "synthead:" + white + " Minor Linux fixes" + newline;
-	AuthorsText = AuthorsText + color1 + "ulteq:" + white + " sound engine, lots of fixes" + newline;
-	AuthorsText = AuthorsText + color1 + "theshark:" + white + " various fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Sound engine, lots of fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "theshark:" + white + " Various fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "skybon:" + white + " Fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker" + newline;
 	AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
 	AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "AnotherFoxGuy:" + white + " Various fixes" + newline;
 
 	//Core Content Contributors
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Core Content Contributors:" + newline;
 	AuthorsText = AuthorsText + color1 + "donoteat:" + white + " Improved spawner models, terrain work" + newline;
-	AuthorsText = AuthorsText + color1 + "kevinmce:" + white + " old Character" + newline;
-	AuthorsText = AuthorsText + color1 + "09Challenger:" + white + " new character animations" + newline;
+	AuthorsText = AuthorsText + color1 + "kevinmce:" + white + " Old Character" + newline;
+	AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " New character animations" + newline;
 
 	//Mod Contributors
 	AuthorsText = AuthorsText + newline;
@@ -159,20 +160,32 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Used Libs:" + newline;
 	AuthorsText = AuthorsText + color1 + "Ogre3D:" + white + " 3D rendering engine" + newline;
+#ifdef USE_CAELUM
 	AuthorsText = AuthorsText + color1 + "Caelum:" + white + " Atmospheric effects" + newline;
+#endif
 	AuthorsText = AuthorsText + color1 + "Hydrax:" + white + " Water rendering" + newline;
+#ifdef USE_ANGELSCRIPT 
 	AuthorsText = AuthorsText + color1 + "AngelScript:" + white + " Scripting Backend" + newline;
+#endif  
 #ifdef USE_OPENAL
 	AuthorsText = AuthorsText + color1 + "OpenAL Soft:" + white + " Sound engine" + newline;
 #endif
 	AuthorsText = AuthorsText + color1 + "MyGUI:" + white + " GUI System" + newline;
+#ifdef USE_CRASHRPT
 	AuthorsText = AuthorsText + color1 + "CrashRpt:" + white + " Crash Reporting system" + newline;
+#endif
 	AuthorsText = AuthorsText + color1 + "mofilereader:" + white + " Used for Internationalization" + newline;
 	AuthorsText = AuthorsText + color1 + "OIS:" + white + " Used as Input System" + newline;
+#ifdef USE_PAGED
 	AuthorsText = AuthorsText + color1 + "pagedGeometry:" + white + " Used for foliage (grass, trees, etc)" + newline;
+#endif
 	AuthorsText = AuthorsText + color1 + "pthreads:" + white + " Used for threading" + newline;
+#ifdef USE_CURL
 	AuthorsText = AuthorsText + color1 + "curl:" + white + " Used for www-server communication" + newline;
+#endif
+#ifdef USE_SOCKETW 
 	AuthorsText = AuthorsText + color1 + "SocketW:" + white + " Used as cross-platform socket abstraction" + newline;
+#endif
 	AuthorsText = AuthorsText + color1 + "boost:" + white + " Used as glue in between the components" + newline;
 	AuthorsText = AuthorsText + color1 + "wxWidgets:" + white + " Used as cross platform user interface toolkit" + newline;
 
