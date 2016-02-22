@@ -3631,7 +3631,7 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 			}
 			else if (format_version == 2)
 			{
-				result_index += 4;
+				result_index += 3;
 				if (results[result_index].matched)
 				{
 					std::string rest_of_line = results[result_index];
