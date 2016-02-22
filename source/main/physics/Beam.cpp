@@ -504,11 +504,6 @@ float Beam::getRotation()
 	return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 }
 
-Vector3 Beam::getPosition()
-{
-	return position; //the position is already in absolute position
-}
-
 void Beam::CreateSimpleSkeletonMaterial()
 {
 	if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
@@ -1063,6 +1058,18 @@ void Beam::updateTruckPosition()
 	}
 }
 
+void Beam::updateTruckVelocity()
+{
+	// calculate average velocity
+
+	Vector3 avelocity = Vector3::ZERO;
+	for (int n=0; n<free_node; n++)
+	{
+		avelocity += nodes[n].Velocity;
+	}
+	velocity = avelocity / free_node;
+}
+
 void Beam::resetAngle(float rot)
 {
 	// Set origin of rotation to camera node
@@ -1577,6 +1584,7 @@ bool Beam::frameStep(int steps)
 				trucks[t]->lastlastposition = trucks[t]->lastposition;
 				trucks[t]->lastposition = trucks[t]->position;
 				trucks[t]->updateTruckPosition();
+				trucks[t]->updateTruckVelocity();
 			}
 			if (trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
 			{
@@ -2748,7 +2756,7 @@ void Beam::intraTruckCollisions(Real dt)
 		nb = &nodes[cabs[tmpv+2]];
 
 		// upper bound of the relative collision velocity
-		float vdiff = intraPointCD->max_contacter_speed + (no->Velocity - nodes[0].Velocity).length();
+		float vdiff = intraPointCD->max_contacter_speed + (no->Velocity - this->velocity).length();
 		if (vdiff == 0.0f) continue;
 		// upper bound of the amount of physics cycles which can be skipped
 		int max_rate = floor(collrange / (vdiff * PHYSICS_DT));
@@ -5825,6 +5833,7 @@ Beam::Beam(
 	, tsteps(100)
 	, oldframe_global_dt(0.1)
 	, oldframe_global_simulation_speed(1.0)
+	, velocity(Vector3::ZERO)
 	, watercontact(false)
 	, watercontactold(false)
 {

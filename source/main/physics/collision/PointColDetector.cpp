@@ -50,7 +50,7 @@ void PointColDetector::update(Beam* truck) {
 		max_contacter_speed = 0.0f;
 		contacters_size += truck->free_contacter;
 		for (int i = 0; i < truck->free_contacter; ++i) {
-			max_contacter_speed = std::max(max_contacter_speed, (truck->nodes[truck->contacters[i].nodeid].Velocity - truck->nodes[0].Velocity).squaredLength());
+			max_contacter_speed = std::max(max_contacter_speed, (truck->nodes[truck->contacters[i].nodeid].Velocity - truck->getVelocity()).squaredLength());
 		}
 		max_contacter_speed = std::sqrt(max_contacter_speed);
 	} else {
@@ -82,7 +82,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
 				truck->collisionRelevant = true;
 				contacters_size += trucks[t]->free_contacter;
 				for (int i = 0; i < trucks[t]->free_contacter; ++i) {
-					Vector3 relative_contacter_speed = trucks[t]->nodes[trucks[t]->contacters[i].nodeid].Velocity - truck->nodes[0].Velocity;
+					Vector3 relative_contacter_speed = trucks[t]->nodes[trucks[t]->contacters[i].nodeid].Velocity - truck->getVelocity();
 					max_contacter_speed = std::max(max_contacter_speed, relative_contacter_speed.squaredLength());
 				}
 			} else {

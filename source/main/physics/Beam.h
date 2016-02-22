@@ -100,8 +100,8 @@ public:
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
 
 	float getRotation();
-	Ogre::Vector3 getPosition();
-
+	Ogre::Vector3 getPosition() { return position; };
+	Ogre::Vector3 getVelocity() { return velocity; };
 
 	/**
 	* Moves vehicle.
@@ -206,6 +206,7 @@ public:
 	int savePosition(int position);
 	int loadPosition(int position);
 	void updateTruckPosition();
+	void updateTruckVelocity();
 
 	/**
 	* Ground.
@@ -603,6 +604,7 @@ protected:
 
 	void updateDashBoards(float &dt);
 	
+	Ogre::Vector3 velocity;
 	Ogre::Vector3 position;
 	Ogre::Vector3 iPosition; // initial position
 	Ogre::Vector3 lastposition;
