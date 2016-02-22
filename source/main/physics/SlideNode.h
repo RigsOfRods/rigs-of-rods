@@ -72,7 +72,7 @@ static inline Ogre::Vector3 nearestPoint(const Ogre::Vector3& pt1,
 		const Ogre::Vector3& tp)
 {	
 	const Ogre::Vector3 a = tp - pt1;
-	const Ogre::Vector3 b = fast_normalise(pt2-pt1);
+	const Ogre::Vector3 b = (pt2 - pt1).normalisedCopy();
 
 	return pt1 + (a.dotProduct(b)) * b;
 }
@@ -83,9 +83,9 @@ static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
 {	
 	Ogre::Vector3 a = tp - pt1;
 	Ogre::Vector3 b = pt2 - pt1;
-	Ogre::Real len = fast_length(b);
+	Ogre::Real len = b.length();
 
-	b = fast_normalise(b);
+	b.normalise();
 	len = std::max(0.0f, std::min(a.dotProduct(b), len));	
 	b *= len;
 	

@@ -2611,7 +2611,8 @@ void Beam::interTruckCollisions(Real dt)
 			//calculate transform matrices
 			bx = na->RelPosition - no->RelPosition;
 			by = nb->RelPosition - no->RelPosition;
-			bz = fast_normalise(bx.crossProduct(by));
+			bz = bx.crossProduct(by);
+			bz.normalise();
 			//coordinates change matrix
 			forward.FromAxes(bx,by,bz);
 			forward = forward.Inverse();
@@ -2636,9 +2637,6 @@ void Beam::interTruckCollisions(Real dt)
 				inter_collcabrate[i].rate = 0;
 				//collision
 				plnormal = bz;
-
-				//some more accuracy for the normal
-				plnormal.normalise();
 
 				float penetration = 0.0f;
 
@@ -2776,7 +2774,8 @@ void Beam::intraTruckCollisions(Real dt)
 				//calculate transform matrices
 				bx = na->RelPosition - no->RelPosition;
 				by = nb->RelPosition - no->RelPosition;
-				bz = fast_normalise(bx.crossProduct(by));
+				bz = bx.crossProduct(by);
+				bz.normalise();
 				//coordinates change matrix
 				forward.FromAxes(bx,by,bz);
 				forward = forward.Inverse();
@@ -2791,9 +2790,6 @@ void Beam::intraTruckCollisions(Real dt)
 				collision = true;
 				//collision
 				plnormal = bz;
-
-				//some more accuracy for the normal
-				plnormal.normalise();
 
 				float penetration = 0.0f;
 
@@ -2909,7 +2905,7 @@ Quaternion Beam::specialGetRotationTo(const Vector3& src, const Vector3& dest) c
 	}
 	else
 	{
-		Real s = fast_sqrt( (1+d)*2 );
+		Real s = std::sqrt((1 + d) * 2);
 		if (s==0) return Quaternion::IDENTITY;
 
 		Vector3 c = v0.crossProduct(v1);
@@ -3634,8 +3630,7 @@ void Beam::updateVisual(float dt)
 	{
 		Vector3 pos=nodes[cparticles[i].emitterNode].smoothpos;
 		Vector3 dir=pos-nodes[cparticles[i].directionNode].smoothpos;
-		//dir.normalise();
-		dir=fast_normalise(dir);
+		dir.normalise();
 		cparticles[i].snode->setPosition(pos);
 		for (int j=0; j<cparticles[i].psys->getNumEmitters(); j++)
 		{

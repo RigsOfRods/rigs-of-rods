@@ -100,14 +100,14 @@ FlexBody::FlexBody(
 		    Vector3 diffX = m_nodes[nx].smoothpos-m_nodes[ref].smoothpos;
 		    Vector3 diffY = m_nodes[ny].smoothpos-m_nodes[ref].smoothpos;
 
-		    normal = fast_normalise(diffY.crossProduct(diffX));
+		    normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
 		    // position
 		    position = m_nodes[ref].smoothpos + offset.x*diffX + offset.y*diffY;
 		    position = position + offset.z*normal;
 
 		    // orientation
-		    Vector3 refX = fast_normalise(diffX);
+		    Vector3 refX = diffX.normalisedCopy();
 		    Vector3 refY = refX.crossProduct(normal);
 		    orientation  = Quaternion(refX, normal, refY) * rot;
         }
@@ -649,7 +649,7 @@ FlexBody::FlexBody(
                 closest_node_distance=1000000.0;
 		        closest_node_index=-1;
                 itor = node_indices.begin();
-                Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+                Vector3 vx = (m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos).normalisedCopy();
                 for (; itor != end; ++itor)
                 {
                     if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
@@ -659,7 +659,7 @@ FlexBody::FlexBody(
                     float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
                     if (node_distance < closest_node_distance)
                     {
-                        Vector3 vt = fast_normalise(m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+                        Vector3 vt = (m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos).normalisedCopy();
                         float cost = vx.dotProduct(vt);
                         if (cost>0.707 || cost<-0.707)
                         {
@@ -675,23 +675,15 @@ FlexBody::FlexBody(
                 }
                 m_locators[i].ny=closest_node_index;
 
-		        // If something unexpected happens here, then
-		        // replace fast_normalise(a) with a.normalisedCopy()
-
 		        Matrix3 mat;
-		        Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		        Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		        Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		        Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
 
-		        mat.SetColumn(0, diffX);
-		        mat.SetColumn(1, diffY);
-		        mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
-
+				mat.FromAxes(diffX, diffY, (diffX.crossProduct(diffY)).normalisedCopy());
 		        mat = mat.Inverse();
 
 		        //compute coordinates in the newly formed Euclidean basis
 		        m_locators[i].coords= mat * (vertices[i] - m_nodes[m_locators[i].ref].smoothpos);
-
-		        // that's it!
 	        }
         }
         TIMER_SNAPSHOT_REF(stat_located_time);
@@ -745,17 +737,13 @@ FlexBody::FlexBody(
         }
         else
         { // v0.4.0.7
-	        // If something unexpected happens here, then
-	        // replace fast_normalise(a) with a.normalisedCopy()
 	        for (int i=0; i<(int)m_vertex_count; i++)
 	        {
 		        Matrix3 mat;
-		        Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		        Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+		        Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		        Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
 
-		        mat.SetColumn(0, diffX);
-		        mat.SetColumn(1, diffY);
-		        mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+				mat.FromAxes(diffX, diffY, (diffX.crossProduct(diffY)).normalisedCopy());
 
 		        mat = mat.Inverse();
 
@@ -927,10 +915,10 @@ bool FlexBody::flexitPrepare(Beam* b)
 	{
 		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
 		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
-		flexit_normal = fast_normalise(diffY.crossProduct(diffX));
+		flexit_normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
 		flexit_center = m_nodes[m_node_center].smoothpos + m_center_offset.x*diffX + m_center_offset.y*diffY;
-		flexit_center += m_center_offset.z*flexit_normal;
+		flexit_center += m_center_offset.z * flexit_normal;
 	} else
 	{
 		flexit_normal = Vector3::UNIT_Y;
@@ -946,7 +934,7 @@ void FlexBody::flexitCompute()
 	{
 		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
 		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 nCross = fast_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
+		Vector3 nCross = (diffX.crossProduct(diffY)).normalisedCopy();
 
 		m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
 		m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
@@ -958,23 +946,8 @@ void FlexBody::flexitCompute()
 		m_dst_normals[i].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
 		m_dst_normals[i].z = diffX.z * m_src_normals[i].x + diffY.z * m_src_normals[i].y + nCross.z * m_src_normals[i].z;
 
-		m_dst_normals[i] = fast_normalise(m_dst_normals[i]);
+		m_dst_normals[i] = (m_dst_normals[i]).normalisedCopy();
 	}
-#if 0
-	for (int i=0; i<(int)m_vertex_count; i++)
-	{
-		Matrix3 mat;
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-
-		mat.SetColumn(0, diffX);
-		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
-
-		m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].smoothpos - flexit_center;
-		m_dst_normals[i] = fast_normalise(mat * m_src_normals[i]);
-	}
-#endif
 }
 
 #endif // #ifdef FLEX_COMPAT_v0_38_67
