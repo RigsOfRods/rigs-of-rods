@@ -217,7 +217,12 @@ bool ContentManager::init(void)
 	// streams path, to be processed later by the cache system
 	LOG("RoR|ContentManager: Loading filesystems");
 
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"cache", "FileSystem", "cache",false,false);
+#if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 9
+	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "") + "cache", "FileSystem", "cache", false, false);
+#else
+	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "") + "cache", "FileSystem", "cache");
+#endif
+
 	// config, flat
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"config", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"alwaysload", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
