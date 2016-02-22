@@ -129,7 +129,6 @@ void TerrainGeometryManager::initTerrain()
 
 	worldSize = std::max(mapsizex, mapsizez);
 
-	String filenameSuffix = "mapbin";
 	pageMinX = 0;
 	pageMaxX = m_terrain_config.GetInt("PagesX", 0);
 	pageMinZ = 0;
@@ -141,8 +140,10 @@ void TerrainGeometryManager::initTerrain()
 
 	terrainPos = Vector3(mapsizex / 2.0f, 0.0f, mapsizez / 2.0f);
 
+	String Filename = baseName + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
+
 	mTerrainGroup = OGRE_NEW TerrainGroup(gEnv->sceneManager, Terrain::ALIGN_X_Z, terrainSize, worldSize);
-	mTerrainGroup->setFilenameConvention(baseName, filenameSuffix);
+	mTerrainGroup->setFilenameConvention(Filename, "mapbin");
 	mTerrainGroup->setOrigin(terrainPos);
 	mTerrainGroup->setResourceGroup("cache");
 
