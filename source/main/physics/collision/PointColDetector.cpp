@@ -47,7 +47,12 @@ void PointColDetector::update(Beam* truck) {
 
 	if (truck && truck->state < SLEEPING) {
 		m_trucks.resize(1, truck);
+		max_contacter_speed = 0.0f;
 		contacters_size += truck->free_contacter;
+		for (int i = 0; i < truck->free_contacter; ++i) {
+			max_contacter_speed = std::max(max_contacter_speed, (truck->nodes[truck->contacters[i].nodeid].Velocity - truck->getVelocity()).squaredLength());
+		}
+		max_contacter_speed = std::sqrt(max_contacter_speed);
 	} else {
 		m_trucks.clear();
 	}
@@ -69,29 +74,22 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
 	if (truck && truck->state < SLEEPING) {
 		truck->collisionRelevant = false;
 		m_trucks.resize(numtrucks);
+		max_contacter_speed = 0.0f;
 		for (int t = 0; t < numtrucks; t++) {
 			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
 				update_required = update_required || (m_trucks[t] != trucks[t]);
 				m_trucks[t] = trucks[t];
 				truck->collisionRelevant = true;
 				contacters_size += trucks[t]->free_contacter;
-				if (truck->nodes[0].Velocity.squaredDistance(trucks[t]->nodes[0].Velocity) > 25)
-				{
-					for (int i=0; i<truck->free_collcab; i++)
-					{
-						truck->intra_collcabrate[i].rate = 0;
-						truck->inter_collcabrate[i].rate = 0;
-					}
-					for (int i=0; i<trucks[t]->free_collcab; i++)
-					{
-						trucks[t]->intra_collcabrate[i].rate = 0;
-						trucks[t]->inter_collcabrate[i].rate = 0;
-					}
+				for (int i = 0; i < trucks[t]->free_contacter; ++i) {
+					Vector3 relative_contacter_speed = trucks[t]->nodes[trucks[t]->contacters[i].nodeid].Velocity - truck->getVelocity();
+					max_contacter_speed = std::max(max_contacter_speed, relative_contacter_speed.squaredLength());
 				}
 			} else {
 				m_trucks[t] = 0;
 			}
 		}
+		max_contacter_speed = std::sqrt(max_contacter_speed);
 	} else {
 		m_trucks.clear();
 	}

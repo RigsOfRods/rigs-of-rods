@@ -100,7 +100,6 @@ struct rig_t
 	int free_sub;
 
 	int collcabs[MAX_CABS];
-	int collcabstype[MAX_CABS];
 	collcab_rate_t inter_collcabrate[MAX_CABS];
 	collcab_rate_t intra_collcabrate[MAX_CABS];
 	int free_collcab;

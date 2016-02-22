@@ -202,7 +202,6 @@ void RigSpawner::InitializeRig()
 	m_rig->free_sub = 0;
 	memset(m_rig->subcabs, 0, sizeof(int) * MAX_SUBMESHES);
 	memset(m_rig->collcabs, 0, sizeof(int) * MAX_CABS);
-	memset(m_rig->collcabstype, 0, sizeof(int) * MAX_CABS);
 	memset(m_rig->inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
 	m_rig->free_collcab = 0;
 	memset(m_rig->intra_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
@@ -1647,28 +1646,24 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 		if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT))
 		{
 			m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
-			m_rig->collcabstype[m_rig->free_collcab]=0; 
 			m_rig->free_collcab++;
 		}
 		//if (type=='p') 
 		if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER))
 		{
 			m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
-			m_rig->collcabstype[m_rig->free_collcab]=1; 
 			m_rig->free_collcab++;
 		}
 		//if (type=='u') 
 		if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
 		{
 			m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
-			m_rig->collcabstype[m_rig->free_collcab]=2; 
 			m_rig->free_collcab++;
 		}
 		//if (type=='b')
 		if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
 		{
 			m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-			m_rig->collcabstype[m_rig->free_collcab]=0; 
 			m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 
 			m_rig->free_buoycab++;   
 			if (m_rig->buoyance == nullptr)
@@ -1680,7 +1675,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 		if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
 		{
 			m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-			m_rig->collcabstype[m_rig->free_collcab]=0; 
 			m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGONLY; 
 			m_rig->free_buoycab++; 
 			if (m_rig->buoyance == nullptr)
@@ -1692,7 +1686,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 		if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
 		{
 			m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-			m_rig->collcabstype[m_rig->free_collcab]=0; 
 			m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGLESS; 
 			m_rig->free_buoycab++; 
 			if (m_rig->buoyance == nullptr)
@@ -1735,7 +1728,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 			}
 
 			m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab;
-			m_rig->collcabstype[m_rig->free_collcab]=collcabs_type;
 			m_rig->free_collcab++;
 			m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
 			m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 

@@ -32,9 +32,10 @@ public:
 		int truckid;
 	} pointid_t;
 
-	std::vector< Ogre::Vector3 > *object_list;
 	std::vector< pointid_t* > hit_list;
 	int hit_count;
+
+	float max_contacter_speed;
 
 	PointColDetector();
 	~PointColDetector();

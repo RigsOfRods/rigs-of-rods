@@ -504,11 +504,6 @@ float Beam::getRotation()
 	return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 }
 
-Vector3 Beam::getPosition()
-{
-	return position; //the position is already in absolute position
-}
-
 void Beam::CreateSimpleSkeletonMaterial()
 {
 	if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
@@ -1063,6 +1058,18 @@ void Beam::updateTruckPosition()
 	}
 }
 
+void Beam::updateTruckVelocity()
+{
+	// calculate average velocity
+
+	Vector3 avelocity = Vector3::ZERO;
+	for (int n=0; n<free_node; n++)
+	{
+		avelocity += nodes[n].Velocity;
+	}
+	velocity = avelocity / free_node;
+}
+
 void Beam::resetAngle(float rot)
 {
 	// Set origin of rotation to camera node
@@ -1577,6 +1584,7 @@ bool Beam::frameStep(int steps)
 				trucks[t]->lastlastposition = trucks[t]->lastposition;
 				trucks[t]->lastposition = trucks[t]->position;
 				trucks[t]->updateTruckPosition();
+				trucks[t]->updateTruckVelocity();
 			}
 			if (trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
 			{
@@ -2581,26 +2589,29 @@ void Beam::interTruckCollisions(Real dt)
 
 	interPointCD->update(this, trucks, numtrucks);
 	if (!collisionRelevant) return;
-	//If you change any of the below "ifs" concerning trucks then you should
-	//also consider changing the parallel "ifs" inside PointColDetector
-	//see "pointCD" above.
-	//Performance some times forces ugly architectural designs....
 
 	for (int i=0; i<free_collcab; i++)
 	{
+		int tmpv = collcabs[i]*3;
+		no = &nodes[cabs[tmpv]];
+		na = &nodes[cabs[tmpv+1]];
+		nb = &nodes[cabs[tmpv+2]];
+
+		// upper bound of the relative collision velocity
+		float vdiff = interPointCD->max_contacter_speed + no->Velocity.length();
+		if (vdiff == 0.0f) continue;
+		// upper bound of the amount of physics cycles which can be skipped
+		int max_rate = floor(collrange / (vdiff * PHYSICS_DT));
+		inter_collcabrate[i].rate = std::min(max_rate - inter_collcabrate[i].distance, inter_collcabrate[i].rate);
+
 		if (inter_collcabrate[i].rate > 0)
 		{
 			inter_collcabrate[i].distance++;
 			inter_collcabrate[i].rate--;
 			continue;
 		}
-		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, 12);
+		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, max_rate);
 		inter_collcabrate[i].distance = 0;
-
-		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
 
 		interPointCD->query(no->AbsPosition
 			, na->AbsPosition
@@ -2703,10 +2714,9 @@ void Beam::interTruckCollisions(Real dt)
 				float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
 				forcevec = Vector3::ZERO;
-				float nso;
 
 				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, dt, submesh_ground_model, 0, penetration, fl);
 
 				hitnode->Forces += forcevec;
 
@@ -2740,19 +2750,27 @@ void Beam::intraTruckCollisions(Real dt)
 
 	for (int i=0; i<free_collcab; i++)
 	{
+		int tmpv = collcabs[i]*3;
+		no = &nodes[cabs[tmpv]];
+		na = &nodes[cabs[tmpv+1]];
+		nb = &nodes[cabs[tmpv+2]];
+
+		// upper bound of the relative collision velocity
+		float vdiff = intraPointCD->max_contacter_speed + (no->Velocity - this->velocity).length();
+		if (vdiff == 0.0f) continue;
+		// upper bound of the amount of physics cycles which can be skipped
+		int max_rate = floor(collrange / (vdiff * PHYSICS_DT));
+		intra_collcabrate[i].rate = std::min(max_rate - intra_collcabrate[i].distance, intra_collcabrate[i].rate);
+
 		if (intra_collcabrate[i].rate > 0)
 		{
 			intra_collcabrate[i].distance++;
 			intra_collcabrate[i].rate--;
 			continue;
 		}
-		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
-		intra_collcabrate[i].distance = 0;
 
-		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
+		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, max_rate);
+		intra_collcabrate[i].distance = 0;
 
 		intraPointCD->query(no->AbsPosition
 			, na->AbsPosition
@@ -2831,10 +2849,9 @@ void Beam::intraTruckCollisions(Real dt)
 				float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
 				forcevec = Vector3::ZERO;
-				float nso;
 
 				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, dt, submesh_ground_model, 0, penetration, fl);
 
 				hitnode->Forces += forcevec;
 
@@ -5816,6 +5833,7 @@ Beam::Beam(
 	, tsteps(100)
 	, oldframe_global_dt(0.1)
 	, oldframe_global_simulation_speed(1.0)
+	, velocity(Vector3::ZERO)
 	, watercontact(false)
 	, watercontactold(false)
 {
