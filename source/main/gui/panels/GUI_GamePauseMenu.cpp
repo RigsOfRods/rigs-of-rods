@@ -58,6 +58,13 @@ CLASS::CLASS()
 	m_back_to_menu->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackToMenuButton);
 	m_rig_editor->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
 	m_quit_game->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickQuitButton);
+
+	win->setCaption(_L("Pause"));
+	m_resume_game->setCaption(_L("Resume Game"));
+	m_change_map->setCaption(_L("Change Map"));
+	m_back_to_menu->setCaption(_L("Back to menu"));
+	m_rig_editor->setCaption(_L("Rig Editor"));
+	m_quit_game->setCaption(_L("Quit to Desktop"));
 }
 
 CLASS::~CLASS()

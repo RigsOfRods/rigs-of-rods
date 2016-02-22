@@ -32,6 +32,7 @@
 #include "MainThread.h"
 
 #include <MyGUI.h>
+#include <utils/Language.h>
 
 using namespace RoR;
 using namespace GUI;
@@ -44,11 +45,20 @@ CLASS::CLASS()
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 
 	m_single_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSelectTerrainButton);
-	m_rig_editor->eventMouseButtonClick    += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
-	m_settings->eventMouseButtonClick      += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSettingButton);
-	m_about->eventMouseButtonClick         += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
-	m_exit->eventMouseButtonClick          += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
-	m_multi_player->eventMouseButtonClick  += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
+	m_rig_editor->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
+	m_settings->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSettingButton);
+	m_about->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
+	m_exit->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
+	m_multi_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
+
+	m_single_player->setCaption(_L("Singleplayer"));
+	m_rig_editor->setCaption(_L("Rig-Editor"));
+	m_settings->setCaption(_L("Settings"));
+	m_about->setCaption(_L("About"));
+	m_exit->setCaption(_L("Quit"));
+	m_multi_player->setCaption(_L("Multiplayer"));
+
+	win->setCaption(_L("Main Menu"));
 	win->setMovable(false);
 
 	if (!BSETTING("DevMode", false))
