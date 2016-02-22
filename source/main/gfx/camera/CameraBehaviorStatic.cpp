@@ -63,7 +63,7 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext &ctx)
 	if ( ctx.mCurrTruck )
 	{
 		lookAt   = ctx.mCurrTruck->getPosition();
-		velocity = ctx.mCurrTruck->nodes[0].Velocity;
+		velocity = ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->global_simulation_speed;
 		rotation = ctx.mCurrTruck->getRotation();
 		angle    = (lookAt - camPosition).angleBetween(velocity);
 		speed    = velocity.length();
