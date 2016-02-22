@@ -187,14 +187,12 @@ void TerrainGeometryManager::initTerrain()
 			}
 		}
 		
-#ifdef _WIN32
 		// always save the results when it was imported
 		if (!disableCaching)
 		{
 			LoadingWindow::getSingleton().setProgress(23, _L("saving all terrain pages ..."));
 			mTerrainGroup->saveAllTerrains(false);
 		}
-#endif // _WIN32
 	} else
 	{
 		LOG(" *** Terrain loaded from cache ***");
