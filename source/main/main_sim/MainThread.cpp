@@ -1220,6 +1220,10 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 	{
 		gEnv->player->setVisible(true);
 		gEnv->player->setPosition(gEnv->terrainManager->getSpawnPos());
+		if (!gEnv->terrainManager->hasPreloadedTrucks())
+		{
+			gEnv->player->setRotation(Degree(180));
+		}
 	}
 
 	// hide loading window
