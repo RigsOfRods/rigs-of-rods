@@ -159,7 +159,8 @@ enum {
 	OPT_REPOMODE,
 	OPT_VEHICLEOUT,
 	OPT_NOCACHE,
-	OPT_IMGPATH
+	OPT_IMGPATH,
+	OPT_JOINMPSERVER
 };
 
 // option array
@@ -192,7 +193,8 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
-	
+	{ OPT_JOINMPSERVER,	  ("-joinserver"),		SO_REQ_CMB },
+
 SO_END_OF_OPTIONS
 };
 
@@ -231,9 +233,9 @@ int main(int argc, char *argv[])
 	//oh, thats quite hacked - thomas
 	char str[256];
 	strcpy(str, argv[0]);
-	char *pt=str+strlen(str);
-	while (*pt!='/') pt--;
-	*pt=0;
+	char *pt = str + strlen(str);
+	while (*pt != '/') pt--;
+	*pt = 0;
 	chdir(str);
 	chdir("../../..");
 	getwd(str);
@@ -242,7 +244,7 @@ int main(int argc, char *argv[])
 
 	RoR::MainThread main_thread_object;
 
-//MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
+	//MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE
 	CSimpleOpt args(argc, argv, cmdline_options);
 	while (args.Next()) {
@@ -250,61 +252,91 @@ int main(int argc, char *argv[])
 			if (args.OptionId() == OPT_HELP) {
 				showUsage();
 				return 0;
-			} else if (args.OptionId() == OPT_TRUCK) {
+			}
+			else if (args.OptionId() == OPT_TRUCK) {
 				SETTINGS.setSetting("Preselected Truck", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_TRUCKCONFIG) {
+			}
+			else if (args.OptionId() == OPT_TRUCKCONFIG) {
 				SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_MAP) {
+			}
+			else if (args.OptionId() == OPT_MAP) {
 				SETTINGS.setSetting("Preselected Map", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_CMD) {
+			}
+			else if (args.OptionId() == OPT_CMD) {
 				SETTINGS.setSetting("cmdline CMD", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCH) {
+			}
+			else if (args.OptionId() == OPT_BENCH) {
 				SETTINGS.setSetting("Benchmark", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHNUM) {
+			}
+			else if (args.OptionId() == OPT_BENCHNUM) {
 				SETTINGS.setSetting("BenchmarkTrucks", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHPOS) {
+			}
+			else if (args.OptionId() == OPT_BENCHPOS) {
 				SETTINGS.setSetting("BenchmarkFinalPosition", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHPOSERR) {
+			}
+			else if (args.OptionId() == OPT_BENCHPOSERR) {
 				SETTINGS.setSetting("BenchmarkFinalPositionError", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_NOCRASHCRPT) {
+			}
+			else if (args.OptionId() == OPT_NOCRASHCRPT) {
 				SETTINGS.setSetting("NoCrashRpt", "Yes");
-			} else if (args.OptionId() == OPT_USERPATH) {
+			}
+			else if (args.OptionId() == OPT_USERPATH) {
 				SETTINGS.setSetting("userpath", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_CONFIG) {
+			}
+			else if (args.OptionId() == OPT_CONFIG) {
 				SETTINGS.setSetting("configfile", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_IMGPATH) {
+			}
+			else if (args.OptionId() == OPT_IMGPATH) {
 				SETTINGS.setSetting("OPT_IMGPATH", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_WDIR) {
+			}
+			else if (args.OptionId() == OPT_WDIR) {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 				SetCurrentDirectory(args.OptionArg());
 #endif
-			} else if (args.OptionId() == OPT_STATE) {
+			}
+			else if (args.OptionId() == OPT_STATE) {
 				SETTINGS.setSetting("StartState", args.OptionArg());
-			} else if (args.OptionId() == OPT_NOCACHE) {
+			}
+			else if (args.OptionId() == OPT_NOCACHE) {
 				SETTINGS.setSetting("NOCACHE", "Yes");
-			} else if (args.OptionId() == OPT_LOGPATH) {
+			}
+			else if (args.OptionId() == OPT_LOGPATH) {
 				SETTINGS.setSetting("Enforce Log Path", args.OptionArg());
-			} else if (args.OptionId() == OPT_ADVLOG) {
+			}
+			else if (args.OptionId() == OPT_ADVLOG) {
 				SETTINGS.setSetting("Advanced Logging", "Yes");
-			} else if (args.OptionId() == OPT_INCLUDEPATH) {
+			}
+			else if (args.OptionId() == OPT_INCLUDEPATH) {
 				SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
-			} else if (args.OptionId() == OPT_STREAMCACHEGEN) {
+			}
+			else if (args.OptionId() == OPT_STREAMCACHEGEN) {
 				SETTINGS.setSetting("streamCacheGenerationOnly", "Yes");
-			} else if (args.OptionId() == OPT_CHECKCACHE) {
+			}
+			else if (args.OptionId() == OPT_CHECKCACHE) {
 				// just regen cache and exit
 				SETTINGS.setSetting("regen-cache-only", "Yes");
-			} else if (args.OptionId() == OPT_ENTERTRUCK) {
+			}
+			else if (args.OptionId() == OPT_ENTERTRUCK) {
 				SETTINGS.setSetting("Enter Preselected Truck", "Yes");
-			} else if (args.OptionId() == OPT_SETUP) {
+			}
+			else if (args.OptionId() == OPT_SETUP) {
 				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-			} else if (args.OptionId() == OPT_VEHICLEOUT) {
+			}
+			else if (args.OptionId() == OPT_VEHICLEOUT) {
 				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
-			} else if (args.OptionId() == OPT_VER) {
+			}
+			else if (args.OptionId() == OPT_JOINMPSERVER) {
+				String serveragrs = args.OptionArg();
+				SETTINGS.setSetting("Network enable", "Yes");
+				SETTINGS.setSetting("Server name", serveragrs.substr(0, serveragrs.find(":")));
+				SETTINGS.setSetting("Server port", serveragrs.substr(serveragrs.find(":") + 1, serveragrs.length()));
+			}
+			else if (args.OptionId() == OPT_VER) {
 				showVersion();
 				return 0;
 			}
-		} 
-		else 
+		}
+		else
 		{
 			showUsage();
 			return 1;
@@ -319,13 +351,13 @@ int main(int argc, char *argv[])
 	//test_crashrpt();
 #endif //USE_CRASHRPT
 
-	try 
+	try
 	{
 		main_thread_object.Go();
-	} 
+	}
 	catch (Ogre::Exception& e)
 	{
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
+		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber()) + "#" + e.getSource();
 		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
 	}
 	catch (std::runtime_error& e)
