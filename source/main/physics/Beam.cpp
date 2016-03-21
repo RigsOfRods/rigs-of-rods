@@ -41,6 +41,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Buoyance.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
+#include "CartesianToTriangleTransform.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Console.h"
@@ -72,6 +73,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "ThreadPool.h"
+#include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
@@ -2564,13 +2566,8 @@ void Beam::interTruckCollisions(Real dt)
 	float inverted_dt = 1.0f / dt;
 
 	Beam* hittruck;
-	Matrix3 forward;
-	Vector3 bx;
-	Vector3 by;
-	Vector3 bz;
 	Vector3 forcevec;
 	Vector3 plnormal;
-	Vector3 point;
 	Vector3 vecrelVel;
 	int hitnodeid;
 	int hittruckid;
@@ -2608,113 +2605,105 @@ void Beam::interTruckCollisions(Real dt)
 
 		if (interPointCD->hit_count > 0)
 		{
-			//calculate transform matrices
-			bx = na->RelPosition - no->RelPosition;
-			by = nb->RelPosition - no->RelPosition;
-			bz = fast_normalise(bx.crossProduct(by));
-			//coordinates change matrix
-			forward.FromAxes(bx,by,bz);
-			forward = forward.Inverse();
+                    // setup transformation of points to triangle local coordinates
+                    const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
+                    const CartesianToTriangleTransform transform(triangle);
+
+                    for (int h=0; h<interPointCD->hit_count; h++)
+                    {
+                            hitnodeid = interPointCD->hit_list[h]->nodeid;
+                            hittruckid = interPointCD->hit_list[h]->truckid;
+                            hitnode = &trucks[hittruckid]->nodes[hitnodeid];
+                            hittruck = trucks[hittruckid];
+
+                            // transform point to triangle local coordinates
+                            const auto coord = transform(hitnode->AbsPosition);
+
+                            // collision test
+                            if ( (coord.alpha >= 0) && (coord.beta >= 0) && (coord.gamma >= 0) && (std::abs(coord.dist) <= collrange) )
+                            {
+                                    inter_collcabrate[i].rate = 0;
+                                    float penetration = 0.0f;
+                                    plnormal = triangle.normal();
+
+                                    //Find which side most of the connected nodes (through beams) are
+                                    if (hittruck->nodetonodeconnections[hitnodeid].size() > 3)
+                                    {
+                                            int posside = 0;
+                                            int negside = 0;
+
+                                            for (unsigned int ni=0; ni < hittruck->nodetonodeconnections[hitnodeid].size(); ni++)
+                                            {
+                                                    if (plnormal.dotProduct(hittruck->nodes[hittruck->nodetonodeconnections[hitnodeid][ni]].AbsPosition-no->AbsPosition) >= 0)
+                                                            posside++;
+                                                    else
+                                                            negside++;
+                                            }
+
+                                            //Current hitpoint's position has triple the weight
+                                            if (coord.dist >= 0)
+                                                    posside += 3;
+                                            else
+                                                    negside += 3;
+
+                                            if (negside > posside)
+                                            {
+                                                    plnormal = -plnormal;
+                                                    penetration = (collrange + coord.dist);
+                                            } else
+                                            {
+                                                    penetration = (collrange - coord.dist);
+                                            }
+                                    } else
+                                    {
+                                            //If we are on the other side of the triangle invert the triangle's normal
+                                            if (coord.dist < 0) plnormal = -plnormal;
+                                            penetration = (collrange - std::abs(coord.dist));
+                                    }
+
+                                    //Find the point's velocity relative to the triangle
+                                    vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
+
+                                    //Find the velocity perpendicular to the triangle
+                                    float velForce = vecrelVel.dotProduct(plnormal);
+                                    //if it points away from the triangle the ignore it (set it to 0)
+                                    if (velForce < 0.0f) velForce = -velForce;
+                                    else velForce = 0.0f;
+
+                                    //Velocity impulse
+                                    float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
+
+                                    //The force that the triangle puts on the point
+                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(plnormal);
+                                    //(applied only when it is towards the point)
+                                    trfnormal = std::max(0.0f, trfnormal);	
+
+                                    //The force that the point puts on the triangle
+                                    
+                                    float pfnormal = hitnode->Forces.dotProduct(plnormal);
+                                    //(applied only when it is towards the triangle)
+                                    pfnormal = std::min(pfnormal, 0.0f);	
+
+                                    float fl = (vi + trfnormal - pfnormal) * 0.5f;
+
+                                    forcevec = Vector3::ZERO;
+                                    float nso;
+
+                                    //Calculate the collision forces
+                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+
+                                    hitnode->Forces += forcevec;
+
+                                    na->Forces -= coord.alpha * forcevec;
+                                    nb->Forces -= coord.beta * forcevec;
+                                    no->Forces -= coord.gamma * forcevec;
+                            }
+                    }
 		} else
 		{
 			inter_collcabrate[i].rate++;
 		}
 
-		for (int h=0; h<interPointCD->hit_count; h++)
-		{
-			hitnodeid = interPointCD->hit_list[h]->nodeid;
-			hittruckid = interPointCD->hit_list[h]->truckid;
-			hitnode = &trucks[hittruckid]->nodes[hitnodeid];
-			hittruck = trucks[hittruckid];
-
-			//change coordinates
-			point = forward * (hitnode->AbsPosition - no->AbsPosition);
-
-			//test
-			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && std::abs(point.z) <= collrange)
-			{
-				inter_collcabrate[i].rate = 0;
-				//collision
-				plnormal = bz;
-
-				//some more accuracy for the normal
-				plnormal.normalise();
-
-				float penetration = 0.0f;
-
-				//Find which side most of the connected nodes (through beams) are
-				if (hittruck->nodetonodeconnections[hitnodeid].size() > 3)
-				{
-					int posside = 0;
-					int negside = 0;
-
-					for (unsigned int ni=0; ni < hittruck->nodetonodeconnections[hitnodeid].size(); ni++)
-					{
-						if (plnormal.dotProduct(hittruck->nodes[hittruck->nodetonodeconnections[hitnodeid][ni]].AbsPosition-no->AbsPosition) >= 0)
-							posside++;
-						else
-							negside++;
-					}
-
-					//Current hitpoint's position has triple the weight
-					if (point.z >= 0)
-						posside += 3;
-					else
-						negside += 3;
-
-					if (negside > posside)
-					{
-						plnormal = -plnormal;
-						penetration = (collrange + point.z);
-					} else
-					{
-						penetration = (collrange - point.z);
-					}
-				} else
-				{
-					//If we are on the other side of the triangle invert the triangle's normal
-					if (point.z < 0) plnormal = -plnormal;
-					penetration = (collrange - fabs(point.z));
-				}
-
-				//Find the point's velocity relative to the triangle
-				vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
-
-				//Find the velocity perpendicular to the triangle
-				float velForce = vecrelVel.dotProduct(plnormal);
-				//if it points away from the triangle the ignore it (set it to 0)
-				if (velForce < 0.0f) velForce = -velForce;
-				else velForce = 0.0f;
-
-				//Velocity impulse
-				float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
-
-				//The force that the triangle puts on the point
-				float trfnormal = (no->Forces * (-point.x - point.y + 1.0f) + na->Forces * point.x + nb->Forces * point.y).dotProduct(plnormal);
-				//(applied only when it is towards the point)
-				trfnormal = std::max(0.0f, trfnormal);	
-
-				//The force that the point puts on the triangle
-				
-				float pfnormal = hitnode->Forces.dotProduct(plnormal);
-				//(applied only when it is towards the triangle)
-				pfnormal = std::min(pfnormal, 0.0f);	
-
-				float fl = (vi + trfnormal - pfnormal) * 0.5f;
-
-				forcevec = Vector3::ZERO;
-				float nso;
-
-				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
-
-				hitnode->Forces += forcevec;
-
-				no->Forces -= (-point.x - point.y + 1.0f) * forcevec;
-				na->Forces -= (point.x) * forcevec;
-				nb->Forces -= (point.y) * forcevec;
-			}
-		}
 	}
 }
 
@@ -2724,13 +2713,8 @@ void Beam::intraTruckCollisions(Real dt)
 
 	float inverted_dt = 1.0f / dt;
 
-	Matrix3 forward;
-	Vector3 bx;
-	Vector3 by;
-	Vector3 bz;
 	Vector3 forcevec;
 	Vector3 plnormal;
-	Vector3 point;
 	Vector3 vecrelVel;
 	int hitnodeid;
 	node_t* hitnode;
@@ -2759,90 +2743,78 @@ void Beam::intraTruckCollisions(Real dt)
 			, nb->AbsPosition, collrange);
 
 		bool collision = false;
-		bool calcforward = true;
 
-		for (int h=0; h<intraPointCD->hit_count; h++)
-		{
-			hitnodeid = intraPointCD->hit_list[h]->nodeid;
-			hitnode = &nodes[hitnodeid];
+                if (intraPointCD->hit_count > 0)
+                {
+                    // setup transformation of points to triangle local coordinates
+                    const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
+                    const CartesianToTriangleTransform transform(triangle);
 
-			//ignore wheel/chassis self contact
-			if (hitnode->iswheel) continue;
-			if (no == hitnode || na == hitnode || nb == hitnode) continue;
+                    for (int h=0; h<intraPointCD->hit_count; h++)
+                    {
+                            hitnodeid = intraPointCD->hit_list[h]->nodeid;
+                            hitnode = &nodes[hitnodeid];
 
-			if (calcforward)
-			{
-				calcforward = false;
-				//calculate transform matrices
-				bx = na->RelPosition - no->RelPosition;
-				by = nb->RelPosition - no->RelPosition;
-				bz = fast_normalise(bx.crossProduct(by));
-				//coordinates change matrix
-				forward.FromAxes(bx,by,bz);
-				forward = forward.Inverse();
-			}
+                            //ignore wheel/chassis self contact
+                            if (hitnode->iswheel) continue;
+                            if (no == hitnode || na == hitnode || nb == hitnode) continue;
 
-			//change coordinates
-			point = forward * (hitnode->AbsPosition - no->AbsPosition);
+                            // transform point to triangle local coordinates
+                            const auto coord = transform(hitnode->AbsPosition);
 
-			//test
-			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && std::abs(point.z) <= collrange)
-			{
-				collision = true;
-				//collision
-				plnormal = bz;
+                            // collision test
+                            if ( (coord.alpha >= 0) && (coord.beta >= 0) && (coord.gamma >= 0) && (std::abs(coord.dist) <= collrange) )
+                            {
+                                    collision = true;
+                                    plnormal = triangle.normal();
+                                    float penetration = 0.0f;
 
-				//some more accuracy for the normal
-				plnormal.normalise();
+                                    if (coord.dist < 0) plnormal =- plnormal;
+                                    penetration = (collrange - fabs(coord.dist));
 
-				float penetration = 0.0f;
+                                    //Find the point's velocity relative to the triangle
+                                    vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
 
-				if (point.z < 0) plnormal =- plnormal;
-				penetration = (collrange - fabs(point.z));
+                                    //Find the velocity perpendicular to the triangle
+                                    float velForce = vecrelVel.dotProduct(plnormal);
+                                    //if it points away from the triangle the ignore it (set it to 0)
+                                    if (velForce < 0.0f)
+                                    {
+                                            velForce = -velForce;
+                                    } else
+                                    {
+                                            velForce = 0.0f;
+                                    }
 
-				//Find the point's velocity relative to the triangle
-				vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
+                                    //Velocity impulse
+                                    float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
 
-				//Find the velocity perpendicular to the triangle
-				float velForce = vecrelVel.dotProduct(plnormal);
-				//if it points away from the triangle the ignore it (set it to 0)
-				if (velForce < 0.0f)
-				{
-					velForce = -velForce;
-				} else
-				{
-					velForce = 0.0f;
-				}
+                                    //The force that the triangle puts on the point
+                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(plnormal);
+                                    //(applied only when it is towards the point)
+                                    trfnormal = std::max(0.0f, trfnormal);
 
-				//Velocity impulse
-				float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
+                                    //The force that the point puts on the triangle
+                                    float pfnormal = hitnode->Forces.dotProduct(plnormal);
+                                    //(applied only when it is towards the triangle)
+                                    pfnormal = std::min(pfnormal, 0.0f);
 
-				//The force that the triangle puts on the point
-				float trfnormal = (no->Forces * (-point.x - point.y + 1.0f) + na->Forces * point.x
-					+ nb->Forces * point.y).dotProduct(plnormal);
-				//(applied only when it is towards the point)
-				trfnormal = std::max(0.0f, trfnormal);
+                                    float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
-				//The force that the point puts on the triangle
-				float pfnormal = hitnode->Forces.dotProduct(plnormal);
-				//(applied only when it is towards the triangle)
-				pfnormal = std::min(pfnormal, 0.0f);
+                                    forcevec = Vector3::ZERO;
+                                    float nso;
 
-				float fl = (vi + trfnormal - pfnormal) * 0.5f;
+                                    //Calculate the collision forces
+                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
 
-				forcevec = Vector3::ZERO;
-				float nso;
+                                    hitnode->Forces += forcevec;
 
-				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
-
-				hitnode->Forces += forcevec;
-
-				no->Forces -= (-point.x - point.y + 1.0f) * forcevec;
-				na->Forces -= (point.x) * forcevec;
-				nb->Forces -= (point.y) * forcevec;
-			}
-		}
+                                    na->Forces -= coord.alpha * forcevec;
+                                    nb->Forces -= coord.beta * forcevec;
+                                    no->Forces -= coord.gamma * forcevec;
+                            }
+                    }
+                }
 
 		if (collision)
 		{
