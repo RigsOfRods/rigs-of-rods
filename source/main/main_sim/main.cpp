@@ -326,11 +326,22 @@ extern "C" {
 					SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
 				}
 				else if (args.OptionId() == OPT_JOINMPSERVER) {
-					String serveragrs = args.OptionArg();
 					SETTINGS.setSetting("Network enable", "Yes");
-					SETTINGS.setSetting("Server name", serveragrs.substr(0, serveragrs.find(":")));
-					SETTINGS.setSetting("Server port", serveragrs.substr(serveragrs.find(":") + 1, serveragrs.length()));
+					String sagrs = args.OptionArg();
+
+					// Windows URI Scheme retuns rorserver://server:port/
+					if (sagrs.find("rorserver://") != String::npos)
+					{
+						SETTINGS.setSetting("Server name", sagrs.substr(12, sagrs.rfind(":") - 12));
+						SETTINGS.setSetting("Server port", sagrs.substr(sagrs.rfind(":") + 1, sagrs.length() - sagrs.rfind(":") - 2));
+					}
+					else
+					{
+						SETTINGS.setSetting("Server name", sagrs.substr(0, sagrs.find(":")));
+						SETTINGS.setSetting("Server port", sagrs.substr(sagrs.find(":") + 1, sagrs.length()));
+					}
 				}
+
 				else if (args.OptionId() == OPT_VER) {
 					showVersion();
 					return 0;
