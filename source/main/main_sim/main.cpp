@@ -1,22 +1,22 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+This source file is part of Rigs of Rods
+Copyright 2005-2012 Pierre-Michel Ricordel
+Copyright 2007-2012 Thomas Fischer
+Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.com/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+Rigs of Rods is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3, as
+published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+Rigs of Rods is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RoRPrerequisites.h"
@@ -40,7 +40,7 @@ using namespace Ogre;
 BOOL WINAPI crashCallback(LPVOID /*lpvState*/)
 {
 	// Now add these two files to the error report
-	
+
 	// logs
 	crAddFile((SSETTING("Log Path") + "RoR.log").c_str(), "Rigs of Rods Log");
 	crAddFile((SSETTING("Log Path") + "mygui.log").c_str(), "Rigs of Rods GUI Log");
@@ -62,8 +62,8 @@ BOOL WINAPI crashCallback(LPVOID /*lpvState*/)
 	crAddProperty("build_time", __TIME__);
 
 	crAddProperty("System_GUID", SSETTING("GUID").c_str());
-	crAddProperty("Multiplayer", (BSETTING("Network enable"))?"1":"0");
-	
+	crAddProperty("Multiplayer", (BSETTING("Network enable")) ? "1" : "0");
+
 	crAddScreenshot(CR_AS_MAIN_WINDOW);
 	// Return TRUE to allow crash report generation
 	return TRUE;
@@ -80,9 +80,9 @@ void install_crashrpt()
 	info.pszEmailSubject = "Error Report for Rigs of Rods";
 	info.pszEmailTo = "error-report@rigsofrods.com";
 
-	char tmp[512]="";
+	char tmp[512] = "";
 	sprintf(tmp, "http://api.rigsofrods.com/crashreport/?version=%s_%s", __DATE__, __TIME__);
-	for (unsigned int i=0;i<strnlen(tmp, 512);i++)
+	for (unsigned int i = 0; i<strnlen(tmp, 512); i++)
 	{
 		if (tmp[i] == ' ')
 			tmp[i] = '_';
@@ -90,18 +90,18 @@ void install_crashrpt()
 
 	info.pszUrl = tmp;
 	info.pfnCrashCallback = crashCallback;
-	info.uPriorities[CR_HTTP]  = 3;  // Try HTTP the first
-	info.uPriorities[CR_SMTP]  = 2;  // Try SMTP the second
+	info.uPriorities[CR_HTTP] = 3;  // Try HTTP the first
+	info.uPriorities[CR_SMTP] = 2;  // Try SMTP the second
 	info.uPriorities[CR_SMAPI] = 1; // Try Simple MAPI the last
 	info.dwFlags = 0; // Install all available exception handlers
 	info.pszPrivacyPolicyURL = "http://wiki.rigsofrods.com/pages/Crash_Report_Privacy_Policy"; // URL for the Privacy Policy link
 
 	int nInstResult = crInstall(&info);
-	if (nInstResult!=0)
+	if (nInstResult != 0)
 	{
 		// Something goes wrong!
 		TCHAR szErrorMsg[512];
-		szErrorMsg[0]=0;
+		szErrorMsg[0] = 0;
 
 		crGetLastErrorMsg(szErrorMsg, 512);
 		printf("%s\n", szErrorMsg);
@@ -109,7 +109,7 @@ void install_crashrpt()
 
 		ErrorUtils::ShowError(_L("Exception handling registration problem"), String(szErrorMsg));
 
-		assert(nInstResult==0);
+		assert(nInstResult == 0);
 	}
 }
 
@@ -117,7 +117,7 @@ void uninstall_crashrpt()
 {
 	// Unset crash handlers
 	int nUninstResult = crUninstall();
-	assert(nUninstResult==0);
+	assert(nUninstResult == 0);
 }
 
 void test_crashrpt()
@@ -137,7 +137,6 @@ enum {
 	OPT_MAP,
 	OPT_TRUCK,
 	OPT_SETUP,
-	OPT_CMD,
 	OPT_WDIR,
 	OPT_ETM,
 	OPT_CONFIG,
@@ -169,33 +168,32 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_MAP,            ("-terrain"),     SO_REQ_SEP },
 	{ OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
 	{ OPT_ENTERTRUCK,     ("-enter"),       SO_NONE },
-	{ OPT_CMD,            ("-cmd"),         SO_REQ_SEP },
 	{ OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
-	{ OPT_SETUP,          ("-setup"),       SO_NONE    },
-	{ OPT_CONFIG,         ("-config"),      SO_NONE    },
-	{ OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP    },
-	{ OPT_HELP,           ("--help"),       SO_NONE    },
-	{ OPT_HELP,           ("-help"),        SO_NONE    },
-	{ OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
-	{ OPT_VER,            ("-version"),     SO_NONE    },
-	{ OPT_USERPATH,       ("-userpath"),   SO_REQ_SEP    },
-	{ OPT_BENCH,          ("-benchmark"),   SO_REQ_SEP    },
-	{ OPT_BENCHPOS,       ("-benchmark-final-position"),   SO_REQ_SEP    },
-	{ OPT_BENCHPOSERR,    ("-benchmark-final-position-error"),   SO_REQ_SEP    },
+	{ OPT_SETUP,          ("-setup"),       SO_NONE },
+	{ OPT_CONFIG,         ("-config"),      SO_NONE },
+	{ OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP },
+	{ OPT_HELP,           ("--help"),       SO_NONE },
+	{ OPT_HELP,           ("-help"),        SO_NONE },
+	{ OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE },
+	{ OPT_VER,            ("-version"),     SO_NONE },
+	{ OPT_USERPATH,       ("-userpath"),   SO_REQ_SEP },
+	{ OPT_BENCH,          ("-benchmark"),   SO_REQ_SEP },
+	{ OPT_BENCHPOS,       ("-benchmark-final-position"),   SO_REQ_SEP },
+	{ OPT_BENCHPOSERR,    ("-benchmark-final-position-error"),   SO_REQ_SEP },
 	{ OPT_BENCHNUM,       ("-benchmarktrucks"),       SO_REQ_SEP },
 	{ OPT_BENCHNUM,       ("-benchmark-trucks"),       SO_REQ_SEP },
-	{ OPT_STREAMCACHEGEN, ("-streamcachegen"),   SO_NONE    },
-	{ OPT_NOCRASHCRPT,    ("-nocrashrpt"),   SO_NONE    },
-	{ OPT_ADVLOG,         ("-advlog"),   SO_NONE    },
-	{ OPT_STATE,          ("-state"),     SO_REQ_SEP    },
-	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP    },
+	{ OPT_STREAMCACHEGEN, ("-streamcachegen"),   SO_NONE },
+	{ OPT_NOCRASHCRPT,    ("-nocrashrpt"),   SO_NONE },
+	{ OPT_ADVLOG,         ("-advlog"),   SO_NONE },
+	{ OPT_STATE,          ("-state"),     SO_REQ_SEP },
+	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP },
 	{ OPT_LOGPATH,        ("-logpath"),       SO_REQ_SEP },
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
 	{ OPT_JOINMPSERVER,	  ("-joinserver"),		SO_REQ_CMB },
 
-SO_END_OF_OPTIONS
+	SO_END_OF_OPTIONS
 };
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -213,174 +211,171 @@ SO_END_OF_OPTIONS
 extern "C" {
 #endif
 
-void showUsage()
-{
-	ErrorUtils::ShowInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
-}
+	void showUsage()
+	{
+		ErrorUtils::ShowInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
+	}
 
-void showVersion()
-{
-	ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
+	void showVersion()
+	{
+		ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__
-	printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif //__GNUC__
-}
+	}
 
-int main(int argc, char *argv[])
-{
+	int main(int argc, char *argv[])
+	{
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	//start working dir is highly unpredictable in MacOSX (typically you start in "/"!)
-	//oh, thats quite hacked - thomas
-	char str[256];
-	strcpy(str, argv[0]);
-	char *pt = str + strlen(str);
-	while (*pt != '/') pt--;
-	*pt = 0;
-	chdir(str);
-	chdir("../../..");
-	getwd(str);
-	printf("GETWD=%s\n", str);
+		//start working dir is highly unpredictable in MacOSX (typically you start in "/"!)
+		//oh, thats quite hacked - thomas
+		char str[256];
+		strcpy(str, argv[0]);
+		char *pt = str + strlen(str);
+		while (*pt != '/') pt--;
+		*pt = 0;
+		chdir(str);
+		chdir("../../..");
+		getwd(str);
+		printf("GETWD=%s\n", str);
 #endif
 
-	RoR::MainThread main_thread_object;
+		RoR::MainThread main_thread_object;
 
-	//MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
+		//MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE
-	CSimpleOpt args(argc, argv, cmdline_options);
-	while (args.Next()) {
-		if (args.LastError() == SO_SUCCESS) {
-			if (args.OptionId() == OPT_HELP) {
+		CSimpleOpt args(argc, argv, cmdline_options);
+		while (args.Next()) {
+			if (args.LastError() == SO_SUCCESS) {
+				if (args.OptionId() == OPT_HELP) {
+					showUsage();
+					return 0;
+				}
+				else if (args.OptionId() == OPT_TRUCK) {
+					SETTINGS.setSetting("Preselected Truck", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_TRUCKCONFIG) {
+					SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_MAP) {
+					SETTINGS.setSetting("Preselected Map", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_BENCH) {
+					SETTINGS.setSetting("Benchmark", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_BENCHNUM) {
+					SETTINGS.setSetting("BenchmarkTrucks", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_BENCHPOS) {
+					SETTINGS.setSetting("BenchmarkFinalPosition", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_BENCHPOSERR) {
+					SETTINGS.setSetting("BenchmarkFinalPositionError", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_NOCRASHCRPT) {
+					SETTINGS.setSetting("NoCrashRpt", "Yes");
+				}
+				else if (args.OptionId() == OPT_USERPATH) {
+					SETTINGS.setSetting("userpath", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_CONFIG) {
+					SETTINGS.setSetting("configfile", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_IMGPATH) {
+					SETTINGS.setSetting("OPT_IMGPATH", String(args.OptionArg()));
+				}
+				else if (args.OptionId() == OPT_WDIR) {
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+					SetCurrentDirectory(args.OptionArg());
+#endif
+				}
+				else if (args.OptionId() == OPT_STATE) {
+					SETTINGS.setSetting("StartState", args.OptionArg());
+				}
+				else if (args.OptionId() == OPT_NOCACHE) {
+					SETTINGS.setSetting("NOCACHE", "Yes");
+				}
+				else if (args.OptionId() == OPT_LOGPATH) {
+					SETTINGS.setSetting("Enforce Log Path", args.OptionArg());
+				}
+				else if (args.OptionId() == OPT_ADVLOG) {
+					SETTINGS.setSetting("Advanced Logging", "Yes");
+				}
+				else if (args.OptionId() == OPT_INCLUDEPATH) {
+					SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
+				}
+				else if (args.OptionId() == OPT_STREAMCACHEGEN) {
+					SETTINGS.setSetting("streamCacheGenerationOnly", "Yes");
+				}
+				else if (args.OptionId() == OPT_CHECKCACHE) {
+					// just regen cache and exit
+					SETTINGS.setSetting("regen-cache-only", "Yes");
+				}
+				else if (args.OptionId() == OPT_ENTERTRUCK) {
+					SETTINGS.setSetting("Enter Preselected Truck", "Yes");
+				}
+				else if (args.OptionId() == OPT_SETUP) {
+					SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
+				}
+				else if (args.OptionId() == OPT_VEHICLEOUT) {
+					SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
+				}
+				else if (args.OptionId() == OPT_JOINMPSERVER) {
+					String serveragrs = args.OptionArg();
+					SETTINGS.setSetting("Network enable", "Yes");
+					SETTINGS.setSetting("Server name", serveragrs.substr(0, serveragrs.find(":")));
+					SETTINGS.setSetting("Server port", serveragrs.substr(serveragrs.find(":") + 1, serveragrs.length()));
+				}
+				else if (args.OptionId() == OPT_VER) {
+					showVersion();
+					return 0;
+				}
+			}
+			else
+			{
 				showUsage();
-				return 0;
-			}
-			else if (args.OptionId() == OPT_TRUCK) {
-				SETTINGS.setSetting("Preselected Truck", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_TRUCKCONFIG) {
-				SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_MAP) {
-				SETTINGS.setSetting("Preselected Map", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_CMD) {
-				SETTINGS.setSetting("cmdline CMD", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_BENCH) {
-				SETTINGS.setSetting("Benchmark", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_BENCHNUM) {
-				SETTINGS.setSetting("BenchmarkTrucks", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_BENCHPOS) {
-				SETTINGS.setSetting("BenchmarkFinalPosition", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_BENCHPOSERR) {
-				SETTINGS.setSetting("BenchmarkFinalPositionError", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_NOCRASHCRPT) {
-				SETTINGS.setSetting("NoCrashRpt", "Yes");
-			}
-			else if (args.OptionId() == OPT_USERPATH) {
-				SETTINGS.setSetting("userpath", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_CONFIG) {
-				SETTINGS.setSetting("configfile", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_IMGPATH) {
-				SETTINGS.setSetting("OPT_IMGPATH", String(args.OptionArg()));
-			}
-			else if (args.OptionId() == OPT_WDIR) {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-				SetCurrentDirectory(args.OptionArg());
-#endif
-			}
-			else if (args.OptionId() == OPT_STATE) {
-				SETTINGS.setSetting("StartState", args.OptionArg());
-			}
-			else if (args.OptionId() == OPT_NOCACHE) {
-				SETTINGS.setSetting("NOCACHE", "Yes");
-			}
-			else if (args.OptionId() == OPT_LOGPATH) {
-				SETTINGS.setSetting("Enforce Log Path", args.OptionArg());
-			}
-			else if (args.OptionId() == OPT_ADVLOG) {
-				SETTINGS.setSetting("Advanced Logging", "Yes");
-			}
-			else if (args.OptionId() == OPT_INCLUDEPATH) {
-				SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
-			}
-			else if (args.OptionId() == OPT_STREAMCACHEGEN) {
-				SETTINGS.setSetting("streamCacheGenerationOnly", "Yes");
-			}
-			else if (args.OptionId() == OPT_CHECKCACHE) {
-				// just regen cache and exit
-				SETTINGS.setSetting("regen-cache-only", "Yes");
-			}
-			else if (args.OptionId() == OPT_ENTERTRUCK) {
-				SETTINGS.setSetting("Enter Preselected Truck", "Yes");
-			}
-			else if (args.OptionId() == OPT_SETUP) {
-				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-			}
-			else if (args.OptionId() == OPT_VEHICLEOUT) {
-				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
-			}
-			else if (args.OptionId() == OPT_JOINMPSERVER) {
-				String serveragrs = args.OptionArg();
-				SETTINGS.setSetting("Network enable", "Yes");
-				SETTINGS.setSetting("Server name", serveragrs.substr(0, serveragrs.find(":")));
-				SETTINGS.setSetting("Server port", serveragrs.substr(serveragrs.find(":") + 1, serveragrs.length()));
-			}
-			else if (args.OptionId() == OPT_VER) {
-				showVersion();
-				return 0;
+				return 1;
 			}
 		}
-		else
+#endif
+
+#ifdef USE_CRASHRPT
+		if (SSETTING("NoCrashRpt").empty())
+			install_crashrpt();
+
+		//test_crashrpt();
+#endif //USE_CRASHRPT
+
+		try
 		{
-			showUsage();
-			return 1;
+			main_thread_object.Go();
 		}
-	}
-#endif
+		catch (Ogre::Exception& e)
+		{
+			String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber()) + "#" + e.getSource();
+			ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
+		}
+		catch (std::runtime_error& e)
+		{
+			ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
+		}
 
 #ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
-		install_crashrpt();
-
-	//test_crashrpt();
+		if (SSETTING("NoCrashRpt").empty())
+			uninstall_crashrpt();
 #endif //USE_CRASHRPT
 
-	try
-	{
-		main_thread_object.Go();
-	}
-	catch (Ogre::Exception& e)
-	{
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber()) + "#" + e.getSource();
-		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
-	}
-	catch (std::runtime_error& e)
-	{
-		ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
-	}
+		// show errors before we give up
+		ErrorUtils::ShowStoredOgreWebErrors();
 
-#ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
-		uninstall_crashrpt();
-#endif //USE_CRASHRPT
-
-	// show errors before we give up
-	ErrorUtils::ShowStoredOgreWebErrors();
-
-	return 0;
-}
+		return 0;
+	}
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
-{
-	return main(__argc, __argv);
-}
+	INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
+	{
+		return main(__argc, __argv);
+	}
 #endif
 
 
