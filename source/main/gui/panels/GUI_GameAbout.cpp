@@ -114,7 +114,16 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + orange + "Server Contributors:" + newline;
 	AuthorsText = AuthorsText + color1 + "CProgrammer3088:" + white + " Provides us with a server to host updater's files." + newline;
 
-	//Code Contributors:
+	//Active Code Contributors:
+	AuthorsText = AuthorsText + newline;
+	AuthorsText = AuthorsText + orange + "Active Code Contributors:" + newline;
+	AuthorsText = AuthorsText + color1 + "AnotherFoxGuy:" + white + " Various fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Sound engine, lots of fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker" + newline;
+	AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
+	AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
+
+	//Inactive Code Contributors:
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Code Contributors:" + newline;
 	AuthorsText = AuthorsText + color1 + "Estama:" + white + " Physics Core Optimizations, Collision/Friction code, Support Beams" + newline;
@@ -130,13 +139,8 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + color1 + "cptf:" + white + " Several Linux gcc fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "88Toyota:" + white + " Clutch force patches" + newline;
 	AuthorsText = AuthorsText + color1 + "synthead:" + white + " Minor Linux fixes" + newline;
-	AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Sound engine, lots of fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "theshark:" + white + " Various fixes" + newline;
-	AuthorsText = AuthorsText + color1 + "skybon:" + white + " Fixes" + newline;
-	AuthorsText = AuthorsText + color1 + "Clockwork (a.k.a VeyronEB):" + white + " GUI Designer and tweaker" + newline;
-	AuthorsText = AuthorsText + color1 + "Klink:" + white + " Terrains conversion, few fixes and tweaks, dashboard designer" + newline;
-	AuthorsText = AuthorsText + color1 + "hagdervriese:" + white + " Linux fixes" + newline;
-	AuthorsText = AuthorsText + color1 + "AnotherFoxGuy:" + white + " Various fixes" + newline;
+	AuthorsText = AuthorsText + color1 + "skybon (Artem Vorotnikov):" + white + " Web services, fixes, utilities" + newline;		
 
 	//Core Content Contributors
 	AuthorsText = AuthorsText + newline;
