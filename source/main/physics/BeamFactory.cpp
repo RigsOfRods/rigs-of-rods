@@ -48,6 +48,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef __FreeBSD__
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#endif
 
 #ifdef USE_MYGUI
 #include "GUIMp.h"
