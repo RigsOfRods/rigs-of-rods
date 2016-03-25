@@ -493,6 +493,12 @@ public:
 
 	bool inRange(float num, float min, float max);
 
+	/**
+	* Returns the position of the node
+	* @param the nuber of the node
+    * @return vector3 of the world position for the node
+	*/	
+	Ogre::Vector3 getNodePosition(int nodeNumber);
 	int getTruckTime();
 	int getNetTruckTimeOffset();
 	Ogre::Real getMinimalCameraRadius();
