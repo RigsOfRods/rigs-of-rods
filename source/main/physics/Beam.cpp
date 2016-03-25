@@ -2559,6 +2559,48 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 }
 
 
+/// Determine on which side of a triangle an occuring collision takes place.
+/**
+ * The frontface of the triangle is the side towards which the surface normal is pointing.
+ * The backface is the opposite side.
+ *
+ * \note This implementation is a heuristic, not an accurate calculation.
+ *
+ * @param distance      Signed shortest distance from collision point to triangle plane.
+ * @param normal        Surface normal of the triangle.
+ * @param surface_point Arbitrary point within the triangle plane.
+ * @param neighbour_node_ids Indices of neighbouring nodes connected to the colliding node.
+ * @param nodes         
+ */
+static bool BackfaceCollisionTest(const float distance,
+                                  const Ogre::Vector3 &normal,
+                                  const node_t &surface_point,
+                                  const std::vector<int> &neighbour_node_ids,
+                                  const node_t nodes[])
+{
+    auto sign = [](float x){ return (x >= 0) ? 1 : -1; };
+
+    // Summarize over the collision node and its connected neighbour nodes to infer on which side
+    // of the collision plane most of these nodes are located.
+    // Nodes in front contribute positively, nodes on the backface contribute negatively.
+
+    // the contribution of the collision node itself has triple weight in this heuristic
+    const int weight = 3;
+    int face_indicator = weight * sign(distance);
+
+    // calculate the contribution of neighbouring nodes (if it can still change the final outcome)
+    if (neighbour_node_ids.size() > weight) {
+        for (auto id : neighbour_node_ids) {
+            const auto neighbour_distance = normal.dotProduct(nodes[id].AbsPosition - surface_point.AbsPosition);
+            face_indicator += sign(neighbour_distance);
+        }
+    }
+
+    // a negative sum indicates that the collision is occuring on the backface
+    return (face_indicator < 0);
+}
+
+
 /// Test if a point given in triangle local coordinates lies within the triangle itself.
 /**
  * A point (within in the triangle plane) is located inside the triangle if its barycentric coordinates
@@ -2586,7 +2628,6 @@ void Beam::interTruckCollisions(Real dt)
 
 	Beam* hittruck;
 	Vector3 forcevec;
-	Vector3 plnormal;
 	Vector3 vecrelVel;
 	int hitnodeid;
 	int hittruckid;
@@ -2643,52 +2684,28 @@ void Beam::interTruckCollisions(Real dt)
                             if (is_colliding)
                             {
                                     inter_collcabrate[i].rate = 0;
-                                    float penetration = 0.0f;
-                                    plnormal = triangle.normal();
 
                                     const auto coord = local_point.barycentric;
-                                    auto distance    = local_point.distance;
+                                    auto distance   = local_point.distance;
+                                    auto normal     = triangle.normal();
 
-                                    //Find which side most of the connected nodes (through beams) are
-                                    if (hittruck->nodetonodeconnections[hitnodeid].size() > 3)
-                                    {
-                                            int posside = 0;
-                                            int negside = 0;
-
-                                            for (unsigned int ni=0; ni < hittruck->nodetonodeconnections[hitnodeid].size(); ni++)
-                                            {
-                                                    if (plnormal.dotProduct(hittruck->nodes[hittruck->nodetonodeconnections[hitnodeid][ni]].AbsPosition-no->AbsPosition) >= 0)
-                                                            posside++;
-                                                    else
-                                                            negside++;
-                                            }
-
-                                            //Current hitpoint's position has triple the weight
-                                            if (distance >= 0)
-                                                    posside += 3;
-                                            else
-                                                    negside += 3;
-
-                                            if (negside > posside)
-                                            {
-                                                    plnormal = -plnormal;
-                                                    penetration = (collrange + distance);
-                                            } else
-                                            {
-                                                    penetration = (collrange - distance);
-                                            }
-                                    } else
-                                    {
-                                            //If we are on the other side of the triangle invert the triangle's normal
-                                            if (distance < 0) plnormal = -plnormal;
-                                            penetration = (collrange - std::abs(distance));
+                                    // adapt in case the collision is occuring on the backface of the triangle
+                                    const auto neighbour_node_ids = hittruck->nodetonodeconnections[hitnodeid];
+                                    const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hittruck->nodes); 
+                                    if (is_backface) {
+                                        // flip surface normal and distance to triangle plane
+                                        normal   = -normal;
+                                        distance = -distance;
                                     }
+
+                                    const float penetration = collrange - distance;
+                                    
 
                                     //Find the point's velocity relative to the triangle
                                     vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
 
                                     //Find the velocity perpendicular to the triangle
-                                    float velForce = vecrelVel.dotProduct(plnormal);
+                                    float velForce = vecrelVel.dotProduct(normal);
                                     //if it points away from the triangle the ignore it (set it to 0)
                                     if (velForce < 0.0f) velForce = -velForce;
                                     else velForce = 0.0f;
@@ -2697,13 +2714,13 @@ void Beam::interTruckCollisions(Real dt)
                                     float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
 
                                     //The force that the triangle puts on the point
-                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(plnormal);
+                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(normal);
                                     //(applied only when it is towards the point)
                                     trfnormal = std::max(0.0f, trfnormal);	
 
                                     //The force that the point puts on the triangle
                                     
-                                    float pfnormal = hitnode->Forces.dotProduct(plnormal);
+                                    float pfnormal = hitnode->Forces.dotProduct(normal);
                                     //(applied only when it is towards the triangle)
                                     pfnormal = std::min(pfnormal, 0.0f);	
 
@@ -2713,7 +2730,7 @@ void Beam::interTruckCollisions(Real dt)
                                     float nso;
 
                                     //Calculate the collision forces
-                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, normal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
 
                                     hitnode->Forces += forcevec;
 
@@ -2737,7 +2754,6 @@ void Beam::intraTruckCollisions(Real dt)
 	float inverted_dt = 1.0f / dt;
 
 	Vector3 forcevec;
-	Vector3 plnormal;
 	Vector3 vecrelVel;
 	int hitnodeid;
 	node_t* hitnode;
@@ -2790,20 +2806,27 @@ void Beam::intraTruckCollisions(Real dt)
                             if (is_colliding)
                             {
                                     collision = true;
-                                    plnormal = triangle.normal();
                                     float penetration = 0.0f;
 
-                                    const auto coord    = local_point.barycentric;
-                                    const auto distance = local_point.distance;
+                                    const auto coord = local_point.barycentric;
+                                    auto distance = local_point.distance;
+                                    auto normal   = triangle.normal();
 
-                                    if (distance < 0) plnormal =- plnormal;
-                                    penetration = (collrange - std::abs(distance));
+                                    // adapt in case the collision is occuring on the backface of the triangle
+                                    if (distance < 0) 
+                                    {
+                                        // flip surface normal and distance to triangle plane
+                                        normal   = -normal;
+                                        distance = -distance;
+                                    }
+
+                                    penetration = collrange - distance;
 
                                     //Find the point's velocity relative to the triangle
                                     vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
 
                                     //Find the velocity perpendicular to the triangle
-                                    float velForce = vecrelVel.dotProduct(plnormal);
+                                    float velForce = vecrelVel.dotProduct(normal);
                                     //if it points away from the triangle the ignore it (set it to 0)
                                     if (velForce < 0.0f)
                                     {
@@ -2817,12 +2840,12 @@ void Beam::intraTruckCollisions(Real dt)
                                     float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
 
                                     //The force that the triangle puts on the point
-                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(plnormal);
+                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(normal);
                                     //(applied only when it is towards the point)
                                     trfnormal = std::max(0.0f, trfnormal);
 
                                     //The force that the point puts on the triangle
-                                    float pfnormal = hitnode->Forces.dotProduct(plnormal);
+                                    float pfnormal = hitnode->Forces.dotProduct(normal);
                                     //(applied only when it is towards the triangle)
                                     pfnormal = std::min(pfnormal, 0.0f);
 
@@ -2832,7 +2855,7 @@ void Beam::intraTruckCollisions(Real dt)
                                     float nso;
 
                                     //Calculate the collision forces
-                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
+                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, normal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
 
                                     hitnode->Forces += forcevec;
 
