@@ -2654,7 +2654,7 @@ void ResolveCollisionForces(const float penetration_depth,
     float nso;  // TODO unused
 
     //Calculate the collision forces
-    gEnv->collisions->primitiveCollision(&hitnode, forcevec, vecrelVel, normal, ((float) dt), &submesh_ground_model, &nso, penetration_depth, fl);
+    primitiveCollision(&hitnode, forcevec, vecrelVel, normal, ((float) dt), &submesh_ground_model, &nso, penetration_depth, fl);
 
     // apply resulting collision force
     hitnode.Forces += forcevec;
