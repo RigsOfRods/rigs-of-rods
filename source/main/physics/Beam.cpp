@@ -95,6 +95,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 using namespace RoR;
 
+
+void interTruckCollisions(const float dt, PointColDetector &interPointCD,
+                          const int free_collcab, int collcabs[], int cabs[],
+                          collcab_rate_t inter_collcabrate[], node_t nodes[],
+                          const float collrange, Beam **trucks,
+                          const int numtrucks,
+                          ground_model_t &submesh_ground_model);
+
+
 Beam::~Beam()
 {
 	// TODO: IMPROVE below: delete/destroy prop entities, etc
@@ -1546,7 +1555,20 @@ bool Beam::frameStep(int steps)
 					{
 						if (trucks[t] && trucks[t]->simulated)
 						{
-							trucks[t]->interTruckCollisions(PHYSICS_DT);
+							trucks[t]->interPointCD->update(trucks[t], trucks, numtrucks);
+							if (collisionRelevant) {
+								interTruckCollisions(
+										PHYSICS_DT,
+										*(trucks[t]->interPointCD),
+										trucks[t]->free_collcab,
+										trucks[t]->collcabs,
+										trucks[t]->cabs,
+										trucks[t]->inter_collcabrate,
+										trucks[t]->nodes,
+										trucks[t]->collrange,
+										trucks, numtrucks,
+										*(trucks[t]->submesh_ground_model));
+							}
 						}
 					}
 					BES_STOP(BES_CORE_Contacters);
@@ -2664,13 +2686,13 @@ void ResolveCollisionForces(const float penetration_depth,
 }
 
 
-void Beam::interTruckCollisions(Real dt)
+void interTruckCollisions(const float dt, PointColDetector &interPointCD,
+                          const int free_collcab, int collcabs[], int cabs[],
+                          collcab_rate_t inter_collcabrate[], node_t nodes[],
+                          const float collrange, Beam **trucks,
+                          const int numtrucks,
+                          ground_model_t &submesh_ground_model)
 {
-	Beam** trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-
-	interPointCD->update(this, trucks, numtrucks);
-	if (!collisionRelevant) return;
 	//If you change any of the below "ifs" concerning trucks then you should
 	//also consider changing the parallel "ifs" inside PointColDetector
 	//see "pointCD" above.
@@ -2692,20 +2714,20 @@ void Beam::interTruckCollisions(Real dt)
 		const auto na = &nodes[cabs[tmpv+1]];
 		const auto nb = &nodes[cabs[tmpv+2]];
 
-		interPointCD->query(no->AbsPosition
+		interPointCD.query(no->AbsPosition
 			, na->AbsPosition
 			, nb->AbsPosition, collrange);
 
-		if (interPointCD->hit_count > 0)
+		if (interPointCD.hit_count > 0)
 		{
                     // setup transformation of points to triangle local coordinates
                     const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
                     const CartesianToTriangleTransform transform(triangle);
 
-                    for (int h=0; h<interPointCD->hit_count; h++)
+                    for (int h=0; h<interPointCD.hit_count; h++)
                     {
-                            const auto hitnodeid = interPointCD->hit_list[h]->nodeid;
-                            const auto hittruckid = interPointCD->hit_list[h]->truckid;
+                            const auto hitnodeid = interPointCD.hit_list[h]->nodeid;
+                            const auto hittruckid = interPointCD.hit_list[h]->truckid;
                             const auto hitnode = &trucks[hittruckid]->nodes[hitnodeid];
                             const auto hittruck = trucks[hittruckid];
 
@@ -2734,16 +2756,16 @@ void Beam::interTruckCollisions(Real dt)
                                     const auto penetration_depth = collrange - distance;
 
                                     ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
-                                            coord.beta, coord.gamma, normal, dt, *submesh_ground_model);
+                                            coord.beta, coord.gamma, normal, dt, submesh_ground_model);
                             }
                     }
 		} else
 		{
 			inter_collcabrate[i].rate++;
 		}
-
 	}
 }
+
 
 void Beam::intraTruckCollisions(Real dt)
 {
@@ -5663,7 +5685,13 @@ void Beam::run()
 	{
 		if (!disableTruckTruckCollisions)
 		{
-			interTruckCollisions(PHYSICS_DT);
+			Beam** trucks = BeamFactory::getSingleton().getTrucks();
+			int numtrucks = BeamFactory::getSingleton().getTruckCount();
+			interPointCD->update(this, trucks, numtrucks);
+			if (collisionRelevant) {
+				interTruckCollisions( PHYSICS_DT, *interPointCD, free_collcab, collcabs,
+						cabs, inter_collcabrate, nodes, collrange, trucks, numtrucks, *submesh_ground_model);
+		    }
 		}
 	}
 }

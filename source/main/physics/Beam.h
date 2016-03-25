@@ -525,7 +525,6 @@ public:
 	*/
 	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 	void intraTruckCollisions(Ogre::Real dt);
-	void interTruckCollisions(Ogre::Real dt);
 
 	/**
 	* Overrides IThreadTask::run()
