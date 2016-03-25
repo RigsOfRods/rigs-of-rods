@@ -2619,6 +2619,51 @@ static bool InsideTriangleTest(const CartesianToTriangleTransform::TriangleCoord
 }
 
 
+/// Calculate collision forces and apply them to the collision node and the three vertex nodes of the collision triangle.
+void ResolveCollisionForces(const float penetration_depth,
+                            node_t &hitnode, node_t &na, node_t &nb, node_t &no,
+                            const float alpha, const float beta, const float gamma,
+                            const Ogre::Vector3 &normal,
+                            const float dt,
+                            ground_model_t &submesh_ground_model)
+{
+
+    //Find the point's velocity relative to the triangle
+    const auto vecrelVel = (hitnode.Velocity - (na.Velocity * alpha + nb.Velocity * beta + no.Velocity * gamma));
+
+    //Find the velocity perpendicular to the triangle
+    //if it points away from the triangle the ignore it (set it to 0)
+    const float velForce = std::max(0.0f, -vecrelVel.dotProduct(normal));
+
+    //Velocity impulse
+    const auto inv_dt = 1.0 / dt;
+    const float vi = hitnode.mass * inv_dt * (velForce + inv_dt * penetration_depth) * 0.5f;
+
+    //The force that the triangle puts on the point
+    //(applied only when it is towards the point)
+    const auto triangle_force = na.Forces * alpha + nb.Forces * beta + no.Forces * gamma;
+    const float trfnormal = std::max(0.0f, triangle_force.dotProduct(normal));
+
+    //The force that the point puts on the triangle
+    //(applied only when it is towards the triangle)
+    const float pfnormal = std::min(0.0f, hitnode.Forces.dotProduct(normal));
+
+    const float fl = (vi + trfnormal - pfnormal) * 0.5f;
+
+    auto forcevec = Vector3::ZERO;
+    float nso;  // TODO unused
+
+    //Calculate the collision forces
+    gEnv->collisions->primitiveCollision(&hitnode, forcevec, vecrelVel, normal, ((float) dt), &submesh_ground_model, &nso, penetration_depth, fl);
+
+    // apply resulting collision force
+    hitnode.Forces += forcevec;
+    na.Forces -= alpha * forcevec;
+    nb.Forces -= beta * forcevec;
+    no.Forces -= gamma * forcevec;
+}
+
+
 void Beam::interTruckCollisions(Real dt)
 {
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
@@ -2686,46 +2731,10 @@ void Beam::interTruckCollisions(Real dt)
                                         distance = -distance;
                                     }
 
-                                    const float penetration = collrange - distance;
-                                    
+                                    const auto penetration_depth = collrange - distance;
 
-                                    //Find the point's velocity relative to the triangle
-                                    const auto vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
-
-                                    //Find the velocity perpendicular to the triangle
-                                    float velForce = vecrelVel.dotProduct(normal);
-                                    //if it points away from the triangle the ignore it (set it to 0)
-                                    if (velForce < 0.0f) velForce = -velForce;
-                                    else velForce = 0.0f;
-
-                                    //Velocity impulse
-                                    const float inv_dt = 1.0f / dt;
-                                    float vi = hitnode->mass * inv_dt * (velForce + inv_dt * penetration) * 0.5f;
-
-                                    //The force that the triangle puts on the point
-                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(normal);
-                                    //(applied only when it is towards the point)
-                                    trfnormal = std::max(0.0f, trfnormal);	
-
-                                    //The force that the point puts on the triangle
-                                    
-                                    float pfnormal = hitnode->Forces.dotProduct(normal);
-                                    //(applied only when it is towards the triangle)
-                                    pfnormal = std::min(pfnormal, 0.0f);	
-
-                                    float fl = (vi + trfnormal - pfnormal) * 0.5f;
-
-                                    auto forcevec = Vector3::ZERO;
-                                    float nso;
-
-                                    //Calculate the collision forces
-                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, normal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
-
-                                    hitnode->Forces += forcevec;
-
-                                    na->Forces -= coord.alpha * forcevec;
-                                    nb->Forces -= coord.beta * forcevec;
-                                    no->Forces -= coord.gamma * forcevec;
+                                    ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
+                                            coord.beta, coord.gamma, normal, dt, *submesh_ground_model);
                             }
                     }
 		} else
@@ -2785,7 +2794,6 @@ void Beam::intraTruckCollisions(Real dt)
                             if (is_colliding)
                             {
                                     collision = true;
-                                    float penetration = 0.0f;
 
                                     const auto coord = local_point.barycentric;
                                     auto distance = local_point.distance;
@@ -2799,49 +2807,10 @@ void Beam::intraTruckCollisions(Real dt)
                                         distance = -distance;
                                     }
 
-                                    penetration = collrange - distance;
+                                    const auto penetration_depth = collrange - distance;
 
-                                    //Find the point's velocity relative to the triangle
-                                    const auto vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
-
-                                    //Find the velocity perpendicular to the triangle
-                                    float velForce = vecrelVel.dotProduct(normal);
-                                    //if it points away from the triangle the ignore it (set it to 0)
-                                    if (velForce < 0.0f)
-                                    {
-                                            velForce = -velForce;
-                                    } else
-                                    {
-                                            velForce = 0.0f;
-                                    }
-
-                                    //Velocity impulse
-                                    const float inv_dt = 1.0f / dt;
-                                    float vi = hitnode->mass * inv_dt * (velForce + inv_dt * penetration) * 0.5f;
-
-                                    //The force that the triangle puts on the point
-                                    float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(normal);
-                                    //(applied only when it is towards the point)
-                                    trfnormal = std::max(0.0f, trfnormal);
-
-                                    //The force that the point puts on the triangle
-                                    float pfnormal = hitnode->Forces.dotProduct(normal);
-                                    //(applied only when it is towards the triangle)
-                                    pfnormal = std::min(pfnormal, 0.0f);
-
-                                    float fl = (vi + trfnormal - pfnormal) * 0.5f;
-
-                                    auto forcevec = Vector3::ZERO;
-                                    float nso;
-
-                                    //Calculate the collision forces
-                                    gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, normal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
-
-                                    hitnode->Forces += forcevec;
-
-                                    na->Forces -= coord.alpha * forcevec;
-                                    nb->Forces -= coord.beta * forcevec;
-                                    no->Forces -= coord.gamma * forcevec;
+                                    ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
+                                            coord.beta, coord.gamma, normal, dt, *submesh_ground_model);
                             }
                     }
                 }

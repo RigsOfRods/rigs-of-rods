@@ -175,7 +175,7 @@ public:
 
 	void clearEventCache();
 	void finishLoadingTerrain();
-	void primitiveCollision(node_t *node,  Ogre::Vector3 &force, const Ogre::Vector3 &velocity, const Ogre::Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration=0, float reaction=-1.0f);
+    void primitiveCollision(node_t *node, Ogre::Vector3 &force, const Ogre::Vector3 &velocity, const Ogre::Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration=0, float reaction=-1.0f);
 	void printStats();
 
 	int addCollisionBox(Ogre::SceneNode *tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, int event_filter = EVENT_ALL, int scripthandler = -1);
