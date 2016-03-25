@@ -2558,6 +2558,25 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 	beams[i].shock->lastpos = difftoBeamL;
 }
 
+
+/// Test if a point given in triangle local coordinates lies within the triangle itself.
+/**
+ * A point (within in the triangle plane) is located inside the triangle if its barycentric coordinates
+ * \f$\alpha, \beta, \gamma\f$ are all positive. The margin additionally defines the maximum distance
+ * from the triangle plane within which a three-dimensional point is still considered to be close
+ * enough to be inside the triangle.
+ *
+ * @param local Point in triangle local coordinates.
+ * @param margin Range within which a point is considered to be close enough to the triangle plane.
+ */
+static bool InsideTriangleTest(const CartesianToTriangleTransform::TriangleCoord &local, const float margin)
+{
+    const auto coord    = local.barycentric;
+    const auto distance = local.distance;
+    return (coord.alpha >= 0) && (coord.beta >= 0) && (coord.gamma >= 0) && (std::abs(distance) <= margin);
+}
+
+
 void Beam::interTruckCollisions(Real dt)
 {
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
@@ -2617,14 +2636,18 @@ void Beam::interTruckCollisions(Real dt)
                             hittruck = trucks[hittruckid];
 
                             // transform point to triangle local coordinates
-                            const auto coord = transform(hitnode->AbsPosition);
+                            const auto local_point = transform(hitnode->AbsPosition);
 
                             // collision test
-                            if ( (coord.alpha >= 0) && (coord.beta >= 0) && (coord.gamma >= 0) && (std::abs(coord.dist) <= collrange) )
+                            const bool is_colliding = InsideTriangleTest(local_point, collrange);
+                            if (is_colliding)
                             {
                                     inter_collcabrate[i].rate = 0;
                                     float penetration = 0.0f;
                                     plnormal = triangle.normal();
+
+                                    const auto coord = local_point.barycentric;
+                                    auto distance    = local_point.distance;
 
                                     //Find which side most of the connected nodes (through beams) are
                                     if (hittruck->nodetonodeconnections[hitnodeid].size() > 3)
@@ -2641,7 +2664,7 @@ void Beam::interTruckCollisions(Real dt)
                                             }
 
                                             //Current hitpoint's position has triple the weight
-                                            if (coord.dist >= 0)
+                                            if (distance >= 0)
                                                     posside += 3;
                                             else
                                                     negside += 3;
@@ -2649,16 +2672,16 @@ void Beam::interTruckCollisions(Real dt)
                                             if (negside > posside)
                                             {
                                                     plnormal = -plnormal;
-                                                    penetration = (collrange + coord.dist);
+                                                    penetration = (collrange + distance);
                                             } else
                                             {
-                                                    penetration = (collrange - coord.dist);
+                                                    penetration = (collrange - distance);
                                             }
                                     } else
                                     {
                                             //If we are on the other side of the triangle invert the triangle's normal
-                                            if (coord.dist < 0) plnormal = -plnormal;
-                                            penetration = (collrange - std::abs(coord.dist));
+                                            if (distance < 0) plnormal = -plnormal;
+                                            penetration = (collrange - std::abs(distance));
                                     }
 
                                     //Find the point's velocity relative to the triangle
@@ -2760,17 +2783,21 @@ void Beam::intraTruckCollisions(Real dt)
                             if (no == hitnode || na == hitnode || nb == hitnode) continue;
 
                             // transform point to triangle local coordinates
-                            const auto coord = transform(hitnode->AbsPosition);
+                            const auto local_point = transform(hitnode->AbsPosition);
 
                             // collision test
-                            if ( (coord.alpha >= 0) && (coord.beta >= 0) && (coord.gamma >= 0) && (std::abs(coord.dist) <= collrange) )
+                            const bool is_colliding = InsideTriangleTest(local_point, collrange);
+                            if (is_colliding)
                             {
                                     collision = true;
                                     plnormal = triangle.normal();
                                     float penetration = 0.0f;
 
-                                    if (coord.dist < 0) plnormal =- plnormal;
-                                    penetration = (collrange - fabs(coord.dist));
+                                    const auto coord    = local_point.barycentric;
+                                    const auto distance = local_point.distance;
+
+                                    if (distance < 0) plnormal =- plnormal;
+                                    penetration = (collrange - std::abs(distance));
 
                                     //Find the point's velocity relative to the triangle
                                     vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));

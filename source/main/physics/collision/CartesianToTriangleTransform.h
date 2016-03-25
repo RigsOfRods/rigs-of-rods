@@ -52,13 +52,15 @@ public:
     /**
      * Describes the position of a three-dimensional point relative to a triangle.
      * The position on the triangle plane is defined by the barycentric coordinates #alpha, #beta and #gamma.
-     * The perpendicular offset of the point from this plane is given by the value of #dist.
+     * The perpendicular offset of the point from this plane is given by the value of #distance.
      */
     struct TriangleCoord {
-        const Real alpha,  ///< Barycentric coordinate
-                   beta,   ///< Barycentric coordinate
-                   gamma;  ///< Barycentric coordinate
-        const Real dist;   ///< Shortest (signed) distance to triangle plane
+        const struct {
+            Real alpha,  ///< Barycentric coordinate
+                 beta,   ///< Barycentric coordinate
+                 gamma;  ///< Barycentric coordinate
+        } barycentric;
+        const Real distance;  ///< Shortest (signed) distance to triangle plane
     };
 
     /// Construct transformation for specified triangle.
