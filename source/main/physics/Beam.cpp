@@ -2624,18 +2624,6 @@ void Beam::interTruckCollisions(Real dt)
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
-	float inverted_dt = 1.0f / dt;
-
-	Beam* hittruck;
-	Vector3 forcevec;
-	Vector3 vecrelVel;
-	int hitnodeid;
-	int hittruckid;
-	node_t* hitnode;
-	node_t* na;
-	node_t* nb;
-	node_t* no;
-
 	interPointCD->update(this, trucks, numtrucks);
 	if (!collisionRelevant) return;
 	//If you change any of the below "ifs" concerning trucks then you should
@@ -2655,9 +2643,9 @@ void Beam::interTruckCollisions(Real dt)
 		inter_collcabrate[i].distance = 0;
 
 		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
+		const auto no = &nodes[cabs[tmpv]];
+		const auto na = &nodes[cabs[tmpv+1]];
+		const auto nb = &nodes[cabs[tmpv+2]];
 
 		interPointCD->query(no->AbsPosition
 			, na->AbsPosition
@@ -2671,10 +2659,10 @@ void Beam::interTruckCollisions(Real dt)
 
                     for (int h=0; h<interPointCD->hit_count; h++)
                     {
-                            hitnodeid = interPointCD->hit_list[h]->nodeid;
-                            hittruckid = interPointCD->hit_list[h]->truckid;
-                            hitnode = &trucks[hittruckid]->nodes[hitnodeid];
-                            hittruck = trucks[hittruckid];
+                            const auto hitnodeid = interPointCD->hit_list[h]->nodeid;
+                            const auto hittruckid = interPointCD->hit_list[h]->truckid;
+                            const auto hitnode = &trucks[hittruckid]->nodes[hitnodeid];
+                            const auto hittruck = trucks[hittruckid];
 
                             // transform point to triangle local coordinates
                             const auto local_point = transform(hitnode->AbsPosition);
@@ -2702,7 +2690,7 @@ void Beam::interTruckCollisions(Real dt)
                                     
 
                                     //Find the point's velocity relative to the triangle
-                                    vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
+                                    const auto vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
 
                                     //Find the velocity perpendicular to the triangle
                                     float velForce = vecrelVel.dotProduct(normal);
@@ -2711,7 +2699,8 @@ void Beam::interTruckCollisions(Real dt)
                                     else velForce = 0.0f;
 
                                     //Velocity impulse
-                                    float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
+                                    const float inv_dt = 1.0f / dt;
+                                    float vi = hitnode->mass * inv_dt * (velForce + inv_dt * penetration) * 0.5f;
 
                                     //The force that the triangle puts on the point
                                     float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(normal);
@@ -2726,7 +2715,7 @@ void Beam::interTruckCollisions(Real dt)
 
                                     float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
-                                    forcevec = Vector3::ZERO;
+                                    auto forcevec = Vector3::ZERO;
                                     float nso;
 
                                     //Calculate the collision forces
@@ -2751,16 +2740,6 @@ void Beam::intraTruckCollisions(Real dt)
 {
 	intraPointCD->update(this);
 
-	float inverted_dt = 1.0f / dt;
-
-	Vector3 forcevec;
-	Vector3 vecrelVel;
-	int hitnodeid;
-	node_t* hitnode;
-	node_t* na;
-	node_t* nb;
-	node_t* no;
-
 	for (int i=0; i<free_collcab; i++)
 	{
 		if (intra_collcabrate[i].rate > 0)
@@ -2773,9 +2752,9 @@ void Beam::intraTruckCollisions(Real dt)
 		intra_collcabrate[i].distance = 0;
 
 		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
+		const auto no = &nodes[cabs[tmpv]];
+		const auto na = &nodes[cabs[tmpv+1]];
+		const auto nb = &nodes[cabs[tmpv+2]];
 
 		intraPointCD->query(no->AbsPosition
 			, na->AbsPosition
@@ -2791,8 +2770,8 @@ void Beam::intraTruckCollisions(Real dt)
 
                     for (int h=0; h<intraPointCD->hit_count; h++)
                     {
-                            hitnodeid = intraPointCD->hit_list[h]->nodeid;
-                            hitnode = &nodes[hitnodeid];
+                            const auto hitnodeid = intraPointCD->hit_list[h]->nodeid;
+                            const auto hitnode = &nodes[hitnodeid];
 
                             //ignore wheel/chassis self contact
                             if (hitnode->iswheel) continue;
@@ -2823,7 +2802,7 @@ void Beam::intraTruckCollisions(Real dt)
                                     penetration = collrange - distance;
 
                                     //Find the point's velocity relative to the triangle
-                                    vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
+                                    const auto vecrelVel = (hitnode->Velocity - (na->Velocity * coord.alpha + nb->Velocity * coord.beta + no->Velocity * coord.gamma));
 
                                     //Find the velocity perpendicular to the triangle
                                     float velForce = vecrelVel.dotProduct(normal);
@@ -2837,7 +2816,8 @@ void Beam::intraTruckCollisions(Real dt)
                                     }
 
                                     //Velocity impulse
-                                    float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
+                                    const float inv_dt = 1.0f / dt;
+                                    float vi = hitnode->mass * inv_dt * (velForce + inv_dt * penetration) * 0.5f;
 
                                     //The force that the triangle puts on the point
                                     float trfnormal = (na->Forces * coord.alpha + nb->Forces * coord.beta + no->Forces * coord.gamma).dotProduct(normal);
@@ -2851,7 +2831,7 @@ void Beam::intraTruckCollisions(Real dt)
 
                                     float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
-                                    forcevec = Vector3::ZERO;
+                                    auto forcevec = Vector3::ZERO;
                                     float nso;
 
                                     //Calculate the collision forces
