@@ -103,7 +103,6 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
                           const int numtrucks,
                           ground_model_t &submesh_ground_model);
 
-
 Beam::~Beam()
 {
 	// TODO: IMPROVE below: delete/destroy prop entities, etc
@@ -1544,7 +1543,16 @@ bool Beam::frameStep(int steps)
 						trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
 						if (!disableTruckTruckSelfCollisions)
 						{
-							trucks[t]->intraTruckCollisions(PHYSICS_DT);
+							trucks[t]->intraPointCD->update(trucks[t]);
+							intraTruckCollisions(PHYSICS_DT,
+									*(trucks[t]->intraPointCD),
+									trucks[t]->free_collcab,
+									trucks[t]->collcabs,
+									trucks[t]->cabs,
+									trucks[t]->intra_collcabrate,
+									trucks[t]->nodes,
+									trucks[t]->collrange,
+									*(trucks[t]->submesh_ground_model));
 						}
 					}
 				}
@@ -2767,10 +2775,12 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
 }
 
 
-void Beam::intraTruckCollisions(Real dt)
+void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
+                          const int free_collcab, int collcabs[], int cabs[],
+                          collcab_rate_t intra_collcabrate[], node_t nodes[],
+                          const float collrange,
+                          ground_model_t &submesh_ground_model)
 {
-	intraPointCD->update(this);
-
 	for (int i=0; i<free_collcab; i++)
 	{
 		if (intra_collcabrate[i].rate > 0)
@@ -2787,21 +2797,21 @@ void Beam::intraTruckCollisions(Real dt)
 		const auto na = &nodes[cabs[tmpv+1]];
 		const auto nb = &nodes[cabs[tmpv+2]];
 
-		intraPointCD->query(no->AbsPosition
+		intraPointCD.query(no->AbsPosition
 			, na->AbsPosition
 			, nb->AbsPosition, collrange);
 
 		bool collision = false;
 
-                if (intraPointCD->hit_count > 0)
+                if (intraPointCD.hit_count > 0)
                 {
                     // setup transformation of points to triangle local coordinates
                     const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
                     const CartesianToTriangleTransform transform(triangle);
 
-                    for (int h=0; h<intraPointCD->hit_count; h++)
+                    for (int h=0; h<intraPointCD.hit_count; h++)
                     {
-                            const auto hitnodeid = intraPointCD->hit_list[h]->nodeid;
+                            const auto hitnodeid = intraPointCD.hit_list[h]->nodeid;
                             const auto hitnode = &nodes[hitnodeid];
 
                             //ignore wheel/chassis self contact
@@ -2832,7 +2842,7 @@ void Beam::intraTruckCollisions(Real dt)
                                     const auto penetration_depth = collrange - distance;
 
                                     ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
-                                            coord.beta, coord.gamma, normal, dt, *submesh_ground_model);
+                                            coord.beta, coord.gamma, normal, dt, submesh_ground_model);
                             }
                     }
                 }
@@ -5679,7 +5689,9 @@ void Beam::run()
 		calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
 		if (!disableTruckTruckSelfCollisions)
 		{
-			intraTruckCollisions(PHYSICS_DT);
+			intraPointCD->update(this);
+			intraTruckCollisions(PHYSICS_DT, *intraPointCD, free_collcab, collcabs,
+					cabs, intra_collcabrate, nodes, collrange, *submesh_ground_model);
 		}
 	} else if (thread_task == THREAD_INTER_TRUCK_COLLISIONS)
 	{

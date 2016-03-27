@@ -524,7 +524,9 @@ public:
 	* TIGHT LOOP; Physics; 
 	*/
 	void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
-	void intraTruckCollisions(Ogre::Real dt);
+
+        // TODO may be removed soon
+	PointColDetector* IntraPointCD() { return intraPointCD; }
 
 	/**
 	* Overrides IThreadTask::run()
@@ -747,3 +749,9 @@ protected:
 	 */
 	std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 };
+
+void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
+                          const int free_collcab, int collcabs[], int cabs[],
+                          collcab_rate_t intra_collcabrate[], node_t nodes[],
+                          const float collrange,
+                          ground_model_t &submesh_ground_model);
