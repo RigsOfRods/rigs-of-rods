@@ -27,6 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamStats.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
+#include "DynamicCollisions.h"
 #include "ErrorUtils.h"
 #include "InputEngine.h"
 #include "Language.h"

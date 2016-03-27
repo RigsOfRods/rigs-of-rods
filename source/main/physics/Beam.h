@@ -749,9 +749,3 @@ protected:
 	 */
 	std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 };
-
-void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
-                          const int free_collcab, int collcabs[], int cabs[],
-                          collcab_rate_t intra_collcabrate[], node_t nodes[],
-                          const float collrange,
-                          ground_model_t &submesh_ground_model);
