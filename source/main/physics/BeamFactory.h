@@ -87,7 +87,6 @@ public:
 	*/
 	void _WorkerSignalStart(); 
 
-	bool asynchronousPhysics() { return async_physics; };
 	int getNumCpuCores() { return num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
@@ -182,7 +181,6 @@ public:
 
 protected:
 	
-	bool async_physics;
 	bool thread_mode;
 	int num_cpu_cores;
 

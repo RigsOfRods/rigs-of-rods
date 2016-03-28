@@ -166,8 +166,6 @@ BeamFactory::BeamFactory() :
 	if (BSETTING("2DReplay", false))
 		tdr = new TwoDReplay();
 
-	async_physics = BSETTING("AsynchronousPhysics", false);
-
 	// Create worker thread (used for physics calculations)
 	if (thread_mode == THREAD_MULTI)
 	{
