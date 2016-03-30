@@ -24,9 +24,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "IThreadTask.h"
-
-class Flexable : public IThreadTask
+class Flexable
 {
 public:
 

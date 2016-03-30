@@ -29,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDef_Prerequisites.h"
 
 #include "BeamData.h"
-#include "IThreadTask.h"
 #include "Streamable.h"
 
 /** 
@@ -37,7 +36,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 * Contains logic related to physics, network, sound, threading, rendering. It's a bit of a monster class :(
 */
 class Beam :
-	public IThreadTask,
 	public rig_t,
 	public Streamable
 {
@@ -527,19 +525,7 @@ public:
 
         // TODO may be removed soon
 	PointColDetector* IntraPointCD() { return intraPointCD; }
-
-	/**
-	* Overrides IThreadTask::run()
-	*/
-	void run();
-	void onComplete();
-
-	enum ThreadTask {
-		THREAD_BEAMFORCESEULER,
-		THREAD_INTER_TRUCK_COLLISIONS
-	};
-
-	ThreadTask thread_task;
+	PointColDetector* InterPointCD() { return interPointCD; }
 
 	int curtstep;
 	int tsteps;

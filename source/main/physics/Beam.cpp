@@ -73,7 +73,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "ThreadPool.h"
 #include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
@@ -3281,38 +3280,39 @@ void Beam::updateFlexbodiesPrepare()
 
 	if (cabMesh) cabNode->setPosition(cabMesh->flexit());
 
-	if (gEnv->threadPool)
-	{
-		flexmesh_prepare.reset();
-		for (int i=0; i<free_wheel; i++)
-		{
-			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
-		}
-
-		flexbody_prepare.reset();
-		for (int i=0; i<free_flexbody; i++)
-		{
-			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
-		}
-
-		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
-
-		std::list<IThreadTask*> tasks;
-
-		// Push tasks into thread pool
-		for (int i=0; i<free_wheel; i++)
-		{
-			if (flexmesh_prepare[i])
-				tasks.emplace_back(vwheels[i].fm);
-		}
-		for (int i=0; i<free_flexbody; i++)
-		{
-			if (flexbody_prepare[i])
-				tasks.emplace_back(flexbodies[i]);
-		}
-
-		gEnv->threadPool->enqueue(tasks);
-	} else
+/* TODO temporarily disabled parallel computation of flexbodies */
+//	if (gEnv->threadPool)
+///	{
+//		flexmesh_prepare.reset();
+//		for (int i=0; i<free_wheel; i++)
+//		{
+//			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
+//		}
+//
+//		flexbody_prepare.reset();
+//		for (int i=0; i<free_flexbody; i++)
+//		{
+//			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
+//		}
+//
+//		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
+//
+//		std::list<IThreadTask*> tasks;
+//
+//		// Push tasks into thread pool
+//		for (int i=0; i<free_wheel; i++)
+//		{
+//			if (flexmesh_prepare[i])
+//				tasks.emplace_back(vwheels[i].fm);
+//		}
+//		for (int i=0; i<free_flexbody; i++)
+//		{
+//			if (flexbody_prepare[i])
+//				tasks.emplace_back(flexbodies[i]);
+//		}
+//
+//		gEnv->threadPool->enqueue(tasks);
+//	} else
 	{
 		for (int i=0; i<free_wheel; i++)
 		{
@@ -3501,27 +3501,28 @@ void Beam::updateVisual(float dt)
 
 void Beam::updateFlexbodiesFinal()
 {
-	if (gEnv->threadPool)
-	{
-		// Wait for all tasks to complete
-		MUTEX_LOCK(&flexable_task_count_mutex);
-		while (flexable_task_count > 0)
-		{
-			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
-		}
-		MUTEX_UNLOCK(&flexable_task_count_mutex);
-
-		for (int i=0; i<free_wheel; i++)
-		{
-			if (flexmesh_prepare[i])
-				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
-		}
-		for (int i=0; i<free_flexbody; i++)
-		{
-			if (flexbody_prepare[i])
-				flexbodies[i]->flexitFinal();
-		}
-	} 
+/* TODO temporarily disabled parallel computation of flexbodies */
+//	if (gEnv->threadPool)
+//	{
+//		// Wait for all tasks to complete
+//		MUTEX_LOCK(&flexable_task_count_mutex);
+//		while (flexable_task_count > 0)
+//		{
+//			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
+//		}
+//		MUTEX_UNLOCK(&flexable_task_count_mutex);
+//
+//		for (int i=0; i<free_wheel; i++)
+//		{
+//			if (flexmesh_prepare[i])
+//				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+//		}
+//		for (int i=0; i<free_flexbody; i++)
+//		{
+//			if (flexbody_prepare[i])
+//				flexbodies[i]->flexitFinal();
+//		}
+//	} 
 
 	BES_GFX_STOP(BES_GFX_updateFlexBodies);
 }
@@ -5408,36 +5409,6 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	}
 }
 
-void Beam::run()
-{
-	if (thread_task == THREAD_BEAMFORCESEULER)
-	{
-		calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
-		if (!disableTruckTruckSelfCollisions)
-		{
-			intraPointCD->update(this);
-			intraTruckCollisions(PHYSICS_DT, *intraPointCD, free_collcab, collcabs,
-					cabs, intra_collcabrate, nodes, collrange, *submesh_ground_model);
-		}
-	} else if (thread_task == THREAD_INTER_TRUCK_COLLISIONS)
-	{
-		if (!disableTruckTruckCollisions)
-		{
-			Beam** trucks = BeamFactory::getSingleton().getTrucks();
-			int numtrucks = BeamFactory::getSingleton().getTruckCount();
-			interPointCD->update(this, trucks, numtrucks);
-			if (collisionRelevant) {
-				interTruckCollisions( PHYSICS_DT, *interPointCD, free_collcab, collcabs,
-						cabs, inter_collcabrate, nodes, collrange, trucks, numtrucks, *submesh_ground_model);
-		    }
-		}
-	}
-}
-
-void Beam::onComplete()
-{
-	BeamFactory::getSingleton().onTaskComplete();
-}
 
 Beam::Beam(
 	int truck_number, 
@@ -5548,7 +5519,6 @@ Beam::Beam(
 	, stabsleep(0.0)
 	, global_dt(0.1)
 	, global_simulation_speed(1.0)
-	, thread_task(THREAD_BEAMFORCESEULER)
 	, totalmass(0)
 	, tsteps(100)
 	, oldframe_global_dt(0.1)
