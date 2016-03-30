@@ -1441,6 +1441,63 @@ void Beam::SyncReset()
 	}
 }
 
+
+static void UpdatePhysicsSimulation(const int steps, Beam* trucks[], const int numtrucks)
+{
+		for (int i=0; i<steps; i++)
+		{
+			int num_simulated_trucks = 0;
+
+			for (int t=0; t<numtrucks; t++)
+			{
+				if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, steps)))
+				{
+					num_simulated_trucks++;
+					trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, steps);
+					trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
+					if (!trucks[t]->disableTruckTruckSelfCollisions)
+					{
+						trucks[t]->IntraPointCD()->update(trucks[t]);
+						intraTruckCollisions(PHYSICS_DT,
+								*(trucks[t]->IntraPointCD()),
+								trucks[t]->free_collcab,
+								trucks[t]->collcabs,
+								trucks[t]->cabs,
+								trucks[t]->intra_collcabrate,
+								trucks[t]->nodes,
+								trucks[t]->collrange,
+								*(trucks[t]->submesh_ground_model));
+					}
+				}
+			}
+			BES_START(BES_CORE_Contacters);
+			for (int t=0; t<numtrucks; t++)
+			{
+				if (!trucks[t]->disableTruckTruckCollisions && num_simulated_trucks > 1)
+				{
+					if (trucks[t] && trucks[t]->simulated)
+					{
+						trucks[t]->InterPointCD()->update(trucks[t], trucks, numtrucks);
+						if (trucks[t]->collisionRelevant) {
+							interTruckCollisions(
+									PHYSICS_DT,
+									*(trucks[t]->InterPointCD()),
+									trucks[t]->free_collcab,
+									trucks[t]->collcabs,
+									trucks[t]->cabs,
+									trucks[t]->inter_collcabrate,
+									trucks[t]->nodes,
+									trucks[t]->collrange,
+									trucks, numtrucks,
+									*(trucks[t]->submesh_ground_model));
+						}
+					}
+				}
+				BES_STOP(BES_CORE_Contacters);
+			}
+		}
+}
+
 //integration loop
 //bool frameStarted(const FrameEvent& evt)
 //this will be called once by frame and is responsible for animation of all the trucks!
@@ -1523,63 +1580,12 @@ bool Beam::frameStep(int steps)
 		// simulation update
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
-			for (int i=0; i<steps; i++)
-			{
-				int num_simulated_trucks = 0;
-
-				for (int t=0; t<numtrucks; t++)
-				{
-					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, steps)))
-					{
-						num_simulated_trucks++;
-						trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, steps);
-						trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
-						if (!disableTruckTruckSelfCollisions)
-						{
-							trucks[t]->intraPointCD->update(trucks[t]);
-							intraTruckCollisions(PHYSICS_DT,
-									*(trucks[t]->intraPointCD),
-									trucks[t]->free_collcab,
-									trucks[t]->collcabs,
-									trucks[t]->cabs,
-									trucks[t]->intra_collcabrate,
-									trucks[t]->nodes,
-									trucks[t]->collrange,
-									*(trucks[t]->submesh_ground_model));
-						}
-					}
-				}
-				if (!disableTruckTruckCollisions && num_simulated_trucks > 1)
-				{
-					BES_START(BES_CORE_Contacters);
-					for (int t=0; t<numtrucks; t++)
-					{
-						if (trucks[t] && trucks[t]->simulated)
-						{
-							trucks[t]->interPointCD->update(trucks[t], trucks, numtrucks);
-							if (collisionRelevant) {
-								interTruckCollisions(
-										PHYSICS_DT,
-										*(trucks[t]->interPointCD),
-										trucks[t]->free_collcab,
-										trucks[t]->collcabs,
-										trucks[t]->cabs,
-										trucks[t]->inter_collcabrate,
-										trucks[t]->nodes,
-										trucks[t]->collrange,
-										trucks, numtrucks,
-										*(trucks[t]->submesh_ground_model));
-							}
-						}
-					}
-					BES_STOP(BES_CORE_Contacters);
-				}
-			}
+			UpdatePhysicsSimulation(steps, trucks, numtrucks);
 		} else
 		{
 			BeamFactory::getSingleton()._WorkerWaitForSync();
 		}
-		
+
 		oldframe_global_dt = global_dt;
 		oldframe_global_simulation_speed = global_simulation_speed;
 		global_dt = dt;
