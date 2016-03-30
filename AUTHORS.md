@@ -6,7 +6,8 @@ Rigs of Rods is licensed under GPLv3 or later by the following authors (in no pa
 | GitHub nickname                | RoR forum nickname      | real name              | email                            |
 |--------------------------------|-------------------------|------------------------|----------------------------------|
 | ?                              | pricorde                | ?                      | ?                                |
-| tdev                           | tdev                    | Thomas Fischer         | tfischer{at}beamng{dot}com       | 
+| tdev                           | tdev                    | Thomas Fischer         | tfischer{at}beamng{dot}com       |
+| Aperion                        | Aperion                 | Chris Ritchey          | ?                                | 
 | ?                              | estama                  | ?                      | ?                                |
 | ?                              | Lifter                  | ?                      | ?                                |
 | ?                              | FlyPiper                | ?                      | ?                                |
