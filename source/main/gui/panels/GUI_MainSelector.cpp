@@ -652,6 +652,7 @@ void CLASS::OnEntrySelected(int entryID)
 		if (entryID == 0)
 		{
 			// default, default infos
+			m_selected_skin = 0;
 			this->UpdateControls(m_selected_entry);
 			return;
 		}
