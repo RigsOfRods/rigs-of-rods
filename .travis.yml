@@ -1,4 +1,5 @@
 language: cpp
+dist: trusty
 sudo: required
 
 compiler:
@@ -12,7 +13,6 @@ before_install:
   # The following updates are needed for Travis VM running Ubuntu 12.04 and should be removed when Travis updates their OS
   # update gcc for C++11 support
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
