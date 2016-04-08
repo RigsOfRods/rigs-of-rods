@@ -146,11 +146,6 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
         const int numtrucks,
         ground_model_t &submesh_ground_model)
 {
-    //If you change any of the below "ifs" concerning trucks then you should
-    //also consider changing the parallel "ifs" inside PointColDetector
-    //see "pointCD" above.
-    //Performance some times forces ugly architectural designs....
-
     for (int i=0; i<free_collcab; i++)
     {
         if (inter_collcabrate[i].rate > 0)
