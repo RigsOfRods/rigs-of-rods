@@ -120,7 +120,7 @@ public:
 
         // apply transformation matrix and extract alpha, beta, gamma and perpendicular offset
         const Vector result = *m_matrix * (p - m_triangle.c);
-        return {result[0], result[1], (1.0 - result[0] - result[1]), result[2]};
+        return {result[0], result[1], (1.f - result[0] - result[1]), result[2]};
     }
 
 private:
