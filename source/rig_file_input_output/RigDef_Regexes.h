@@ -1256,11 +1256,11 @@ DEFINE_REGEX( SECTION_EXHAUSTS,
     E_DELIMITER_COMMA
     E_CAPTURE( E_NODE_ID )   // Direction node
     E_CAPTURE_OPTIONAL(
-        E_DELIMITER_COMMA
+        E_DELIMITER
         E_CAPTURE( E_REAL_NUMBER ) // #4 Factor
 
         E_CAPTURE_OPTIONAL( 
-            E_DELIMITER_SPACE
+            E_DELIMITER
             E_CAPTURE( E_STRING_NO_SPACES ) // #6 Material name
         )
     )
