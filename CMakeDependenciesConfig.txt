@@ -73,20 +73,47 @@ endmacro(importLib)
 	endif(NOT ROR_DEPENDENCIES_DIR)
 
 	#### REQUIRED COMPONENTS
-	set(Ogre_INCLUDE_DIRS
-		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/;"
-		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
-		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
-		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
-		"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
-		"The ogre include path to use")
-	importLib(OgreMain Ogre)
-	importLib(OgreTerrain Ogre)
-	importLib(OgrePaging Ogre)
-	importLib(OgreRTShaderSystem Ogre)
-	importLib(OgreProperty Ogre)
-	set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty" CACHE STRING "The Ogre libs to link against")
+	
+	set(ROR_OGRE_VERSION_18     "FALSE" CACHE BOOL "Enable this if you are building with ogre 1.8")
+	
+	if(ROR_OGRE_VERSION_18)
+		
+		set(Ogre_INCLUDE_DIRS
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
+			"The ogre include path to use")
+		importLib(OgreMain Ogre)
+		importLib(OgreTerrain Ogre)
+		importLib(OgrePaging Ogre)
+		importLib(OgreRTShaderSystem Ogre)
+		importLib(OgreProperty Ogre)
+		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty" CACHE STRING "The Ogre libs to link against")
+			
+	else()
+	
+		set(Ogre_INCLUDE_DIRS
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
+			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Overlay;"
+			"The ogre include path to use")
 
+		importLib(OgreMain Ogre)
+		importLib(OgreTerrain Ogre)
+		importLib(OgrePaging Ogre)
+		importLib(OgreRTShaderSystem Ogre)
+		importLib(OgreProperty Ogre)
+		importLib(OgreOverlay Ogre)
+		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty;OgreOverlay" CACHE STRING "The Ogre libs to link against")
+		
+	endif()
+	
+	
 	set(Ois_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/ois" CACHE PATH "The OIS include path to use")
 	importLib(ois_static OIS)
 	set(Ois_LIBRARIES "ois_static" CACHE STRING "The OIS libs to link against")
