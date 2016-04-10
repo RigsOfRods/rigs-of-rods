@@ -8,6 +8,7 @@
 #pragma once
 
 #include <OgrePrerequisites.h>
+#include <OGRE/OgreVector3.h>
 
 /**
 * SIM-CORE; Node.

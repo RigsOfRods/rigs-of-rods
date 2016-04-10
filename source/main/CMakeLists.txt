@@ -218,8 +218,11 @@ set( SOURCE_FILES
   physics/air/Airfoil.{h,cpp}
   physics/air/TurboJet.{h,cpp}
   physics/air/TurboProp.{h,cpp}
+  physics/collision/CartesianToTriangleTransform.h
   physics/collision/Collisions.{h,cpp}
+  physics/collision/DynamicCollisions.{h,cpp}
   physics/collision/PointColDetector.{h,cpp}
+  physics/collision/Triangle.h
   physics/flex/Flexable.{h,cpp}
   physics/flex/FlexAirfoil.{h,cpp}
   physics/flex/FlexBody.{h,cpp}

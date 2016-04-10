@@ -27,11 +27,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamStats.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
+#include "DynamicCollisions.h"
 #include "ErrorUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MainThread.h"
 #include "Network.h"
+#include "PointColDetector.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -1155,7 +1157,16 @@ void BeamFactory::threadentry()
 					trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
 					if (!trucks[t]->disableTruckTruckSelfCollisions)
 					{
-						trucks[t]->intraTruckCollisions(PHYSICS_DT);
+						trucks[t]->IntraPointCD()->update(trucks[t]);
+						intraTruckCollisions(PHYSICS_DT,
+								*(trucks[t]->IntraPointCD()),
+								trucks[t]->free_collcab,
+								trucks[t]->collcabs,
+								trucks[t]->cabs,
+								trucks[t]->intra_collcabrate,
+								trucks[t]->nodes,
+								trucks[t]->collrange,
+								*(trucks[t]->submesh_ground_model));
 					}
 				}
 			}

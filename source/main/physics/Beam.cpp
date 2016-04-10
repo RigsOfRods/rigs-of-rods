@@ -41,11 +41,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Buoyance.h"
 #include "CacheSystem.h"
 #include "CameraManager.h"
+#include "CartesianToTriangleTransform.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Console.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
+#include "DynamicCollisions.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
@@ -72,6 +74,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "ThreadPool.h"
+#include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Water.h"
@@ -92,6 +95,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 using namespace RoR;
+
 
 Beam::~Beam()
 {
@@ -1533,7 +1537,16 @@ bool Beam::frameStep(int steps)
 						trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
 						if (!disableTruckTruckSelfCollisions)
 						{
-							trucks[t]->intraTruckCollisions(PHYSICS_DT);
+							trucks[t]->intraPointCD->update(trucks[t]);
+							intraTruckCollisions(PHYSICS_DT,
+									*(trucks[t]->intraPointCD),
+									trucks[t]->free_collcab,
+									trucks[t]->collcabs,
+									trucks[t]->cabs,
+									trucks[t]->intra_collcabrate,
+									trucks[t]->nodes,
+									trucks[t]->collrange,
+									*(trucks[t]->submesh_ground_model));
 						}
 					}
 				}
@@ -1544,7 +1557,20 @@ bool Beam::frameStep(int steps)
 					{
 						if (trucks[t] && trucks[t]->simulated)
 						{
-							trucks[t]->interTruckCollisions(PHYSICS_DT);
+							trucks[t]->interPointCD->update(trucks[t], trucks, numtrucks);
+							if (collisionRelevant) {
+								interTruckCollisions(
+										PHYSICS_DT,
+										*(trucks[t]->interPointCD),
+										trucks[t]->free_collcab,
+										trucks[t]->collcabs,
+										trucks[t]->cabs,
+										trucks[t]->inter_collcabrate,
+										trucks[t]->nodes,
+										trucks[t]->collrange,
+										trucks, numtrucks,
+										*(trucks[t]->submesh_ground_model));
+							}
 						}
 					}
 					BES_STOP(BES_CORE_Contacters);
@@ -2556,303 +2582,6 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real &k, Real &d, Real dt, 
 	beams[i].shock->lastpos = difftoBeamL;
 }
 
-void Beam::interTruckCollisions(Real dt)
-{
-	Beam** trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
-
-	float inverted_dt = 1.0f / dt;
-
-	Beam* hittruck;
-	Matrix3 forward;
-	Vector3 bx;
-	Vector3 by;
-	Vector3 bz;
-	Vector3 forcevec;
-	Vector3 plnormal;
-	Vector3 point;
-	Vector3 vecrelVel;
-	int hitnodeid;
-	int hittruckid;
-	node_t* hitnode;
-	node_t* na;
-	node_t* nb;
-	node_t* no;
-
-	interPointCD->update(this, trucks, numtrucks);
-	if (!collisionRelevant) return;
-	//If you change any of the below "ifs" concerning trucks then you should
-	//also consider changing the parallel "ifs" inside PointColDetector
-	//see "pointCD" above.
-	//Performance some times forces ugly architectural designs....
-
-	for (int i=0; i<free_collcab; i++)
-	{
-		if (inter_collcabrate[i].rate > 0)
-		{
-			inter_collcabrate[i].distance++;
-			inter_collcabrate[i].rate--;
-			continue;
-		}
-		inter_collcabrate[i].rate = std::min(inter_collcabrate[i].distance, 12);
-		inter_collcabrate[i].distance = 0;
-
-		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
-
-		interPointCD->query(no->AbsPosition
-			, na->AbsPosition
-			, nb->AbsPosition, collrange);
-
-		if (interPointCD->hit_count > 0)
-		{
-			//calculate transform matrices
-			bx = na->RelPosition - no->RelPosition;
-			by = nb->RelPosition - no->RelPosition;
-			bz = fast_normalise(bx.crossProduct(by));
-			//coordinates change matrix
-			forward.FromAxes(bx,by,bz);
-			forward = forward.Inverse();
-		} else
-		{
-			inter_collcabrate[i].rate++;
-		}
-
-		for (int h=0; h<interPointCD->hit_count; h++)
-		{
-			hitnodeid = interPointCD->hit_list[h]->nodeid;
-			hittruckid = interPointCD->hit_list[h]->truckid;
-			hitnode = &trucks[hittruckid]->nodes[hitnodeid];
-			hittruck = trucks[hittruckid];
-
-			//change coordinates
-			point = forward * (hitnode->AbsPosition - no->AbsPosition);
-
-			//test
-			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && std::abs(point.z) <= collrange)
-			{
-				inter_collcabrate[i].rate = 0;
-				//collision
-				plnormal = bz;
-
-				//some more accuracy for the normal
-				plnormal.normalise();
-
-				float penetration = 0.0f;
-
-				//Find which side most of the connected nodes (through beams) are
-				if (hittruck->nodetonodeconnections[hitnodeid].size() > 3)
-				{
-					int posside = 0;
-					int negside = 0;
-
-					for (unsigned int ni=0; ni < hittruck->nodetonodeconnections[hitnodeid].size(); ni++)
-					{
-						if (plnormal.dotProduct(hittruck->nodes[hittruck->nodetonodeconnections[hitnodeid][ni]].AbsPosition-no->AbsPosition) >= 0)
-							posside++;
-						else
-							negside++;
-					}
-
-					//Current hitpoint's position has triple the weight
-					if (point.z >= 0)
-						posside += 3;
-					else
-						negside += 3;
-
-					if (negside > posside)
-					{
-						plnormal = -plnormal;
-						penetration = (collrange + point.z);
-					} else
-					{
-						penetration = (collrange - point.z);
-					}
-				} else
-				{
-					//If we are on the other side of the triangle invert the triangle's normal
-					if (point.z < 0) plnormal = -plnormal;
-					penetration = (collrange - fabs(point.z));
-				}
-
-				//Find the point's velocity relative to the triangle
-				vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
-
-				//Find the velocity perpendicular to the triangle
-				float velForce = vecrelVel.dotProduct(plnormal);
-				//if it points away from the triangle the ignore it (set it to 0)
-				if (velForce < 0.0f) velForce = -velForce;
-				else velForce = 0.0f;
-
-				//Velocity impulse
-				float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
-
-				//The force that the triangle puts on the point
-				float trfnormal = (no->Forces * (-point.x - point.y + 1.0f) + na->Forces * point.x + nb->Forces * point.y).dotProduct(plnormal);
-				//(applied only when it is towards the point)
-				trfnormal = std::max(0.0f, trfnormal);	
-
-				//The force that the point puts on the triangle
-				
-				float pfnormal = hitnode->Forces.dotProduct(plnormal);
-				//(applied only when it is towards the triangle)
-				pfnormal = std::min(pfnormal, 0.0f);	
-
-				float fl = (vi + trfnormal - pfnormal) * 0.5f;
-
-				forcevec = Vector3::ZERO;
-				float nso;
-
-				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
-
-				hitnode->Forces += forcevec;
-
-				no->Forces -= (-point.x - point.y + 1.0f) * forcevec;
-				na->Forces -= (point.x) * forcevec;
-				nb->Forces -= (point.y) * forcevec;
-			}
-		}
-	}
-}
-
-void Beam::intraTruckCollisions(Real dt)
-{
-	intraPointCD->update(this);
-
-	float inverted_dt = 1.0f / dt;
-
-	Matrix3 forward;
-	Vector3 bx;
-	Vector3 by;
-	Vector3 bz;
-	Vector3 forcevec;
-	Vector3 plnormal;
-	Vector3 point;
-	Vector3 vecrelVel;
-	int hitnodeid;
-	node_t* hitnode;
-	node_t* na;
-	node_t* nb;
-	node_t* no;
-
-	for (int i=0; i<free_collcab; i++)
-	{
-		if (intra_collcabrate[i].rate > 0)
-		{
-			intra_collcabrate[i].distance++;
-			intra_collcabrate[i].rate--;
-			continue;
-		}
-		intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
-		intra_collcabrate[i].distance = 0;
-
-		int tmpv = collcabs[i]*3;
-		no = &nodes[cabs[tmpv]];
-		na = &nodes[cabs[tmpv+1]];
-		nb = &nodes[cabs[tmpv+2]];
-
-		intraPointCD->query(no->AbsPosition
-			, na->AbsPosition
-			, nb->AbsPosition, collrange);
-
-		bool collision = false;
-		bool calcforward = true;
-
-		for (int h=0; h<intraPointCD->hit_count; h++)
-		{
-			hitnodeid = intraPointCD->hit_list[h]->nodeid;
-			hitnode = &nodes[hitnodeid];
-
-			//ignore wheel/chassis self contact
-			if (hitnode->iswheel) continue;
-			if (no == hitnode || na == hitnode || nb == hitnode) continue;
-
-			if (calcforward)
-			{
-				calcforward = false;
-				//calculate transform matrices
-				bx = na->RelPosition - no->RelPosition;
-				by = nb->RelPosition - no->RelPosition;
-				bz = fast_normalise(bx.crossProduct(by));
-				//coordinates change matrix
-				forward.FromAxes(bx,by,bz);
-				forward = forward.Inverse();
-			}
-
-			//change coordinates
-			point = forward * (hitnode->AbsPosition - no->AbsPosition);
-
-			//test
-			if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && std::abs(point.z) <= collrange)
-			{
-				collision = true;
-				//collision
-				plnormal = bz;
-
-				//some more accuracy for the normal
-				plnormal.normalise();
-
-				float penetration = 0.0f;
-
-				if (point.z < 0) plnormal =- plnormal;
-				penetration = (collrange - fabs(point.z));
-
-				//Find the point's velocity relative to the triangle
-				vecrelVel = (hitnode->Velocity - (no->Velocity * (-point.x - point.y + 1.0f) + na->Velocity * point.x + nb->Velocity * point.y));
-
-				//Find the velocity perpendicular to the triangle
-				float velForce = vecrelVel.dotProduct(plnormal);
-				//if it points away from the triangle the ignore it (set it to 0)
-				if (velForce < 0.0f)
-				{
-					velForce = -velForce;
-				} else
-				{
-					velForce = 0.0f;
-				}
-
-				//Velocity impulse
-				float vi = hitnode->mass * inverted_dt * (velForce + inverted_dt * penetration) * 0.5f;
-
-				//The force that the triangle puts on the point
-				float trfnormal = (no->Forces * (-point.x - point.y + 1.0f) + na->Forces * point.x
-					+ nb->Forces * point.y).dotProduct(plnormal);
-				//(applied only when it is towards the point)
-				trfnormal = std::max(0.0f, trfnormal);
-
-				//The force that the point puts on the triangle
-				float pfnormal = hitnode->Forces.dotProduct(plnormal);
-				//(applied only when it is towards the triangle)
-				pfnormal = std::min(pfnormal, 0.0f);
-
-				float fl = (vi + trfnormal - pfnormal) * 0.5f;
-
-				forcevec = Vector3::ZERO;
-				float nso;
-
-				//Calculate the collision forces
-				gEnv->collisions->primitiveCollision(hitnode, forcevec, vecrelVel, plnormal, ((float) dt), submesh_ground_model, &nso, penetration, fl);
-
-				hitnode->Forces += forcevec;
-
-				no->Forces -= (-point.x - point.y + 1.0f) * forcevec;
-				na->Forces -= (point.x) * forcevec;
-				nb->Forces -= (point.y) * forcevec;
-			}
-		}
-
-		if (collision)
-		{
-			intra_collcabrate[i].rate = 0;
-		} else
-		{
-			intra_collcabrate[i].rate++;
-		}
-	}
-}
 
 // call this once per frame in order to update the skidmarks
 void Beam::updateSkidmarks()
@@ -5686,13 +5415,21 @@ void Beam::run()
 		calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
 		if (!disableTruckTruckSelfCollisions)
 		{
-			intraTruckCollisions(PHYSICS_DT);
+			intraPointCD->update(this);
+			intraTruckCollisions(PHYSICS_DT, *intraPointCD, free_collcab, collcabs,
+					cabs, intra_collcabrate, nodes, collrange, *submesh_ground_model);
 		}
 	} else if (thread_task == THREAD_INTER_TRUCK_COLLISIONS)
 	{
 		if (!disableTruckTruckCollisions)
 		{
-			interTruckCollisions(PHYSICS_DT);
+			Beam** trucks = BeamFactory::getSingleton().getTrucks();
+			int numtrucks = BeamFactory::getSingleton().getTruckCount();
+			interPointCD->update(this, trucks, numtrucks);
+			if (collisionRelevant) {
+				interTruckCollisions( PHYSICS_DT, *interPointCD, free_collcab, collcabs,
+						cabs, inter_collcabrate, nodes, collrange, trucks, numtrucks, *submesh_ground_model);
+		    }
 		}
 	}
 }
