@@ -3,7 +3,8 @@ set -eu
 mkdir -p ./build
 cd ./build
 
-cmake -DROR_USE_MYGUI="TRUE" \
+cmake -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
+-DROR_USE_MYGUI="TRUE" \
 -DROR_USE_OPENAL="TRUE" \
 -DROR_USE_SOCKETW="TRUE" \
 -DROR_USE_PAGED="TRUE" \

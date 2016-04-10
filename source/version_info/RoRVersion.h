@@ -17,22 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
-// created on 17th of May 2011 by Thomas Fischer
 
 #pragma once
-#ifndef RORVERSION_H__
-#define RORVERSION_H__
-// the version is in its own file so that you dont recompile everything when changing the version
 
-// this defines the version that is used for the scripts and console stuff.
-// $LastChangedDate:$
-// $LastChangedRevision:$
-// $LastChangedBy:$
-// $Id:$
-// $Rev:$
-
-#define ROR_VERSION_STRING_SHORT      "0.4"
-#define ROR_VERSION_STRING            "0.4.6.0-dev"
-#define ROR_VERSION_STRING_WIN         0,4,6,0
-
-#endif //RORVERSION_H__
+extern const char* const ROR_VERSION_STRING_SHORT;
+extern const char* const ROR_VERSION_STRING;

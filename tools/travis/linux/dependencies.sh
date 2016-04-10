@@ -1,39 +1,29 @@
 #!/bin/bash
 
-#Precompiled dependencies
-#sudo apt-get update
-sudo apt-get install -qq build-essential git cmake pkg-config \
-libfreetype6-dev libfreeimage-dev libzzip-dev libois-dev \
-libgl1-mesa-dev libglu1-mesa-dev libopenal-dev  \
-libx11-dev libxt-dev libxaw7-dev libxrandr-dev \
-libssl-dev libcurl4-openssl-dev libgtk2.0-dev libwxgtk3.0-dev
+set -eu
 
-# dependencies for building documentation
-sudo apt-get install doxygen graphviz
-
-cd ~/
-mkdir ~/ror-deps
-mkdir ~/.rigsofrods
-cd ~/ror-deps
+mkdir $DEPS_BUILD_DIR
+mkdir $DEPS_INSTALL_DIR
 
 #OGRE
+cd $DEPS_BUILD_DIR
 wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9-0.zip
-unzip -qq ogre.zip
-rm ogre.zip
-cd sinbad-ogre-*
-cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
+unzip -qq ogre.zip && rm ogre.zip && mv sinbad-ogre-* ogre
+cd ogre
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
+-DOGRE_BUILD_TOOLS=OFF \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
-sudo make -s install
-cd ..
+make install
 
 #MyGUI
+cd $DEPS_BUILD_DIR
 wget -O mygui.tar.gz https://github.com/MyGUI/mygui/archive/MyGUI3.2.2.tar.gz
-tar -xvf mygui.tar.gz
-rm mygui.tar.gz
-cd mygui-*
-cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
+tar -xvf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
+cd mygui
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
+-DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
 -DMYGUI_BUILD_DEMOS:BOOL=OFF \
 -DMYGUI_BUILD_DOCS:BOOL=OFF \
@@ -41,45 +31,55 @@ cmake -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2/ \
 -DMYGUI_BUILD_TOOLS:BOOL=OFF \
 -DMYGUI_BUILD_PLUGINS:BOOL=OFF .
 make -s -j2
-sudo make -s install
-cd ..
+make install
 
 #PagedGeometry
-git clone -q --depth=1 https://github.com/RigsOfRods/PagedGeometry.git
-cd PagedGeometry
-cmake -DCMAKE_BUILD_TYPE:STRING=Release \
+cd $DEPS_BUILD_DIR
+git clone -q --depth=1 https://github.com/RigsOfRods/ogre-pagedgeometry.git
+cd ogre-pagedgeometry
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
+-DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
+-DCMAKE_BUILD_TYPE:STRING=Release \
 -DPAGEDGEOMETRY_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
-sudo make -s install
-cd ..
+make -s install
 
 #Caelum
+cd $DEPS_BUILD_DIR
 git clone -q --depth=1 https://github.com/RigsOfRods/caelum.git
 cd caelum
-cmake -DCaelum_BUILD_SAMPLES:BOOL=OFF .
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
+-DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
+-DCaelum_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
-sudo make -s install
-cd .. 
+make -s install
 # important step, so the plugin can load:
-sudo ln -s /usr/local/lib/libCaelum.so /usr/local/lib/OGRE/
+#sudo ln -s /usr/local/lib/libCaelum.so /usr/local/lib/OGRE/
 
 #MySocketW
+cd $DEPS_BUILD_DIR
 git clone -q --depth=1 https://github.com/Hiradur/mysocketw.git
-cd mysocketw
-make shared -s -j2
-sudo make -s install
-cd ..
+mkdir -p mysocketw/build
+cd mysocketw/build
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR ..
+make -s -j2
+make install
 
 #Angelscript
+cd $DEPS_BUILD_DIR
 mkdir angelscript
 cd angelscript
 wget http://www.angelcode.com/angelscript/sdk/files/angelscript_2.22.1.zip
 unzip -qq angelscript_*.zip
-cd sdk/angelscript/projects/gnuc
-SHARED=1 VERSION=2.22.1 make --silent -j2 
+cd sdk/angelscript/projects/cmake
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR .
+make -s -j2 
+cp -r ../../lib/libAngelscript.a $DEPS_INSTALL_DIR/lib/libangelscript.a
+cp -r ../../include $DEPS_INSTALL_DIR
+
+ls $DEPS_INSTALL_DIR/lib
 # sudo make install fails when making the symbolic link, this removes the existing versions
-rm -f ../../lib/*
-sudo SHARED=1 VERSION=2.22.1 make -s install 
+#rm -f ../../lib/*
+#make -s install 
 #cleanup files made by root
-rm -f ../../lib/*
-cd ../../../../../
+#rm -f ../../lib/*

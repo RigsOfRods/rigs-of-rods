@@ -840,7 +840,7 @@ bool MyApp::OnInit()
 
 		wxLogStatus(wxT("Creating dialog"));
 		// create the main application window
-		wxString title = wxString::Format(_("Rigs of Rods version %s configuration"), wxT(ROR_VERSION_STRING));
+		wxString title = wxString::Format(_("Rigs of Rods version %s configuration"), wxString(ROR_VERSION_STRING, wxConvUTF8).c_str());
 		MyDialog *dialog = new MyDialog(title, this);
 
 		// and show it (the frames, unlike simple controls, are not shown when
@@ -1087,7 +1087,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	x_row2 = 300;
 
 	addAboutTitle(_("Version"), x_row1, y);
-	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Rigs of Rods version: %s"), wxT(ROR_VERSION_STRING)), wxPoint(x_row1 + 15, y));
+	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Rigs of Rods version: %s"), wxString(ROR_VERSION_STRING, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));
 	y += dText->GetSize().GetHeight() + 2;
 
 	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Network Protocol version: %s"), wxString(RORNET_VERSION, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));

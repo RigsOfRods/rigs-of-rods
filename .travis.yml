@@ -1,37 +1,60 @@
 language: cpp
-sudo: required
+sudo: false
 
 compiler:
   - gcc
 #  - clang
 
-before_install:
-  - chmod +x ./tools/travis/linux/dependencies.sh
-  - chmod +x ./tools/travis/linux/build.sh
-
+addons:
   # The following updates are needed for Travis VM running Ubuntu 12.04 and should be removed when Travis updates their OS
   # update gcc for C++11 support
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:boost-latest/ppa -y
-  - sudo apt-get update -qq
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - boost-latest
+      - george-edison55-precise-backports
+    packages:
+      - g++-4.8
+      - libboost1.55-all-dev
+      - cmake
+      - cmake-data
+      - doxygen
+      - graphviz
+      - build-essential
+      - git
+      - pkg-config
+      - libfreetype6-dev
+      - libfreeimage-dev
+      - libzzip-dev
+      - libois-dev
+      - libgl1-mesa-dev
+      - libglu1-mesa-dev
+      - libopenal-dev
+      - libx11-dev
+      - libxt-dev
+      - libxaw7-dev
+      - libxrandr-dev
+      - libssl-dev
+      - libcurl4-openssl-dev
+      - libgtk2.0-dev
+      - libwxgtk2.8-dev
+
+
+before_install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  
-  # update Boost to fix C++11 bug
-  - sudo apt-get install -qq libboost1.55-all-dev
-  
-  # Provide newer Doxygen version
-  - sudo add-apt-repository ppa:libreoffice/ppa -y
-  - sudo apt-get update -qq
+
 
 install:
-  - ./tools/travis/linux/dependencies.sh
-
+  - export DEPS_BUILD_DIR=$(pwd)/deps-build
+  - export DEPS_INSTALL_DIR=$(pwd)/deps-install
+  - export PKG_CONFIG_PATH=$DEPS_INSTALL_DIR/lib/pkgconfig
+  - bash ./tools/travis/linux/dependencies.sh
 script:
-  - ./tools/travis/linux/build.sh
+  - bash ./tools/travis/linux/build.sh
 
 after_success:
 - bash ./tools/travis/linux/deploy_docs.sh
+
 
 notifications:
   irc:
