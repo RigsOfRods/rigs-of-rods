@@ -274,9 +274,7 @@ set( SOURCE_FILES
   terrain/map/SurveyMapEntity.{h,cpp}
   terrain/map/SurveyMapManager.{h,cpp}
   terrain/map/SurveyMapTextureCreator.{h,cpp}
-  threadpool/IThreadTask.h
-  threadpool/ThreadPool.{h,cpp}
-  threadpool/ThreadWorker.{h,cpp}
+  threadpool/ThreadPool.h
   utils/CollisionTools.{h,cpp}
   utils/ConfigFile.{h,cpp}
   utils/ErrorUtils.{h,cpp}

@@ -22,7 +22,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgrePrerequisites.h>
 #include <OgreTimer.h>
+
 #include <vector>
+#include <thread>
 
 #include "RoRPrerequisites.h"
 #include "PerVehicleCameraContext.h"
@@ -30,6 +32,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamData.h"
 #include "Streamable.h"
+
+class Task;
 
 /** 
 * Represents an entire rig (any vehicle type)
@@ -530,11 +534,6 @@ public:
 	int curtstep;
 	int tsteps;
 
-	// flexable pthread stuff
-	int flexable_task_count;
-	pthread_cond_t flexable_task_count_cv;
-	pthread_mutex_t flexable_task_count_mutex;
-
 protected:
 
 	/**
@@ -578,6 +577,7 @@ protected:
 	// flexable stuff
 	std::bitset<MAX_WHEELS> flexmesh_prepare;
 	std::bitset<MAX_FLEXBODIES> flexbody_prepare;
+	std::vector<std::shared_ptr<Task>> flexbody_tasks;
 
 	// linked beams (hooks)
 	std::list<Beam*> linkedBeams;

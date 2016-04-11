@@ -73,6 +73,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
+#include "ThreadPool.h"
 #include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
@@ -318,9 +319,6 @@ Beam::~Beam()
 	{
 		pthread_mutex_destroy(&net_mutex);
 	}
-
-	pthread_cond_destroy(&flexable_task_count_cv);
-	pthread_mutex_destroy(&flexable_task_count_mutex);
 }
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
@@ -3286,39 +3284,44 @@ void Beam::updateFlexbodiesPrepare()
 
 	if (cabMesh) cabNode->setPosition(cabMesh->flexit());
 
-/* TODO temporarily disabled parallel computation of flexbodies */
-//	if (gEnv->threadPool)
-///	{
-//		flexmesh_prepare.reset();
-//		for (int i=0; i<free_wheel; i++)
-//		{
-//			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
-//		}
-//
-//		flexbody_prepare.reset();
-//		for (int i=0; i<free_flexbody; i++)
-//		{
-//			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
-//		}
-//
-//		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
-//
-//		std::list<IThreadTask*> tasks;
-//
-//		// Push tasks into thread pool
-//		for (int i=0; i<free_wheel; i++)
-//		{
-//			if (flexmesh_prepare[i])
-//				tasks.emplace_back(vwheels[i].fm);
-//		}
-//		for (int i=0; i<free_flexbody; i++)
-//		{
-//			if (flexbody_prepare[i])
-//				tasks.emplace_back(flexbodies[i]);
-//		}
-//
-//		gEnv->threadPool->enqueue(tasks);
-//	} else
+	if (gEnv->threadPool)
+	{
+		flexmesh_prepare.reset();
+		for (int i=0; i<free_wheel; i++)
+		{
+			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
+		}
+
+		flexbody_prepare.reset();
+		for (int i=0; i<free_flexbody; i++)
+		{
+			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
+		}
+
+		// Push tasks into thread pool
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+			{
+				auto func = std::function<void(int)>([this](int i) {
+					vwheels[i].fm->flexitCompute();
+				});
+				auto task_handle = gEnv->threadPool->RunTask(std::bind(func, i));
+				flexbody_tasks.push_back(task_handle);
+			}
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbody_prepare[i])
+			{
+				auto func = std::function<void(int)>([this](int i) {
+					flexbodies[i]->flexitCompute();
+				});
+				auto task_handle = gEnv->threadPool->RunTask(std::bind(func, i));
+				flexbody_tasks.push_back(task_handle);
+			}
+		}
+	} else
 	{
 		for (int i=0; i<free_wheel; i++)
 		{
@@ -3507,28 +3510,25 @@ void Beam::updateVisual(float dt)
 
 void Beam::updateFlexbodiesFinal()
 {
-/* TODO temporarily disabled parallel computation of flexbodies */
-//	if (gEnv->threadPool)
-//	{
-//		// Wait for all tasks to complete
-//		MUTEX_LOCK(&flexable_task_count_mutex);
-//		while (flexable_task_count > 0)
-//		{
-//			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
-//		}
-//		MUTEX_UNLOCK(&flexable_task_count_mutex);
-//
-//		for (int i=0; i<free_wheel; i++)
-//		{
-//			if (flexmesh_prepare[i])
-//				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
-//		}
-//		for (int i=0; i<free_flexbody; i++)
-//		{
-//			if (flexbody_prepare[i])
-//				flexbodies[i]->flexitFinal();
-//		}
-//	} 
+	if (gEnv->threadPool)
+	{
+		for (const auto &t : flexbody_tasks)
+		{
+			t->join();
+		}
+		flexbody_tasks.clear();
+
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+		}
+		for (int i=0; i<free_flexbody; i++)
+		{
+			if (flexbody_prepare[i])
+				flexbodies[i]->flexitFinal();
+		}
+	}
 
 	BES_GFX_STOP(BES_GFX_updateFlexBodies);
 }
@@ -5537,9 +5537,6 @@ Beam::Beam(
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* class <Beam> mutexes */
-
-	pthread_cond_init(&flexable_task_count_cv, NULL);
-	pthread_mutex_init(&flexable_task_count_mutex, NULL);
 
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_INITTHREADS);
 

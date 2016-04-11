@@ -35,10 +35,6 @@ public:
 
 	virtual void setVisible(bool visible) = 0;
 
-	// IThreadTask
-	void run();
-	void onComplete();
-
 protected:
 
 	Beam* beamid;
