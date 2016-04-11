@@ -1096,10 +1096,12 @@ void BeamFactory::threadentry()
 			std::vector<std::function<void()>> tasks;
 			for (int t=0; t<free_truck; t++)
 			{
-				if (trucks[t] && trucks[t]->simulated && !trucks[t]->disableTruckTruckSelfCollisions)
+				if (trucks[t] && trucks[t]->simulated)
 				{
 					auto func = std::function<void(int)>([this, i](int t){
-							trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
+						trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
+						if (!trucks[t]->disableTruckTruckSelfCollisions)
+						{
 							trucks[t]->IntraPointCD()->update(trucks[t]);
 							intraTruckCollisions(PHYSICS_DT,
 									*(trucks[t]->IntraPointCD()),
@@ -1110,7 +1112,8 @@ void BeamFactory::threadentry()
 									trucks[t]->nodes,
 									trucks[t]->collrange,
 									*(trucks[t]->submesh_ground_model));
-							});
+						}
+					});
 					tasks.push_back(std::bind(func, t));
 				}
 			}
