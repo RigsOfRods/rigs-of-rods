@@ -16,4 +16,11 @@ cmake -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
 
 make -j2
 
+# Generate documentation (except for pull requests)
+if [ "${TRAVIS_PULL_REQUEST}" == "false" ]
+then
+  # Supress output from doxygen in order not to exceed the log size limit of Travis
+  make doc-doxygen > /dev/null 2>&1
+fi
+
 cd ..

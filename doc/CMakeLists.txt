@@ -14,8 +14,8 @@ if( BUILD_DOC_DOXYGEN )
   # to the directory where the documentation is going to be built.
   configure_file( ${DOXYGEN_SOURCE_DIR}/Doxyfile.conf.in ${DOXYGEN_BUILD_DIR}/Doxyfile.conf @ONLY )
 
-  # Build Doxygen documentation using the generated configuration file.
-  add_custom_target( doc-doxygen ALL
+  # Provide custom target which allows to build the documentation using the generated configuration file.
+  add_custom_target( doc-doxygen
     COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile.conf
     WORKING_DIRECTORY ${DOXYGEN_BUILD_DIR}
     COMMENT "Generating documentation with Doxygen."
