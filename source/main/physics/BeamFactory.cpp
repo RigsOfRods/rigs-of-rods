@@ -176,7 +176,9 @@ BeamFactory::BeamFactory() :
 			num_cpu_cores = numThreadsInPool;
 		} else 
 		{
-			num_cpu_cores = getNumberOfCPUCores();
+			int logical_cpus = hardware_concurrency();
+			int physical_cpus = getNumberOfCPUCores();
+			num_cpu_cores = std::max(physical_cpus, logical_cpus - 1);
 		}
 
 		if (num_cpu_cores < 2)
