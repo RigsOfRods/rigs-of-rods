@@ -27,7 +27,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
-#include "IThreadTask.h"
 #include "StreamableFactory.h"
 #include "TwoDReplay.h"
 
@@ -88,7 +87,6 @@ public:
 	*/
 	void _WorkerSignalStart(); 
 
-	bool asynchronousPhysics() { return async_physics; };
 	int getNumCpuCores() { return num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
@@ -173,12 +171,6 @@ public:
 	pthread_mutex_t work_done_mutex;
 	pthread_t worker_thread;
 
-	int task_count;
-	pthread_cond_t task_count_cv;
-	pthread_mutex_t task_count_mutex;
-
-	void onTaskComplete();
-
 	void threadentry();
 
 #ifdef USE_ANGELSCRIPT
@@ -189,7 +181,6 @@ public:
 
 protected:
 	
-	bool async_physics;
 	bool thread_mode;
 	int num_cpu_cores;
 
@@ -228,8 +219,6 @@ protected:
 	void removeInstance(Beam *b);
 	void removeInstance(stream_del_t *del);
 	void _deleteTruck(Beam *b);
-
-	void runThreadTask(Beam::ThreadTask task);
 };
 
 #endif // __BeamFactory_H_

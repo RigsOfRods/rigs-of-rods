@@ -27,19 +27,3 @@ bool Flexable::flexitPrepare(Beam* b)
 
 	return true;
 }
-
-void Flexable::run()
-{
-	flexitCompute();
-}
-
-void Flexable::onComplete()
-{
-	MUTEX_LOCK(&beamid->flexable_task_count_mutex);
-	beamid->flexable_task_count--;
-	MUTEX_UNLOCK(&beamid->flexable_task_count_mutex);
-	if (!beamid->flexable_task_count)
-	{
-		pthread_cond_signal(&beamid->flexable_task_count_cv);
-	}
-}

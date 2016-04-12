@@ -66,7 +66,6 @@
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "ThreadPool.h"
 #include "TorqueCurve.h"
 #include "TurboJet.h"
 #include "TurboProp.h"

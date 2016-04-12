@@ -319,9 +319,6 @@ Beam::~Beam()
 	{
 		pthread_mutex_destroy(&net_mutex);
 	}
-
-	pthread_cond_destroy(&flexable_task_count_cv);
-	pthread_mutex_destroy(&flexable_task_count_mutex);
 }
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
@@ -1442,6 +1439,63 @@ void Beam::SyncReset()
 	}
 }
 
+
+static void UpdatePhysicsSimulation(const int steps, Beam* trucks[], const int numtrucks)
+{
+		for (int i=0; i<steps; i++)
+		{
+			int num_simulated_trucks = 0;
+
+			for (int t=0; t<numtrucks; t++)
+			{
+				if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, steps)))
+				{
+					num_simulated_trucks++;
+					trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, steps);
+					trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
+					if (!trucks[t]->disableTruckTruckSelfCollisions)
+					{
+						trucks[t]->IntraPointCD()->update(trucks[t]);
+						intraTruckCollisions(PHYSICS_DT,
+								*(trucks[t]->IntraPointCD()),
+								trucks[t]->free_collcab,
+								trucks[t]->collcabs,
+								trucks[t]->cabs,
+								trucks[t]->intra_collcabrate,
+								trucks[t]->nodes,
+								trucks[t]->collrange,
+								*(trucks[t]->submesh_ground_model));
+					}
+				}
+			}
+			BES_START(BES_CORE_Contacters);
+			for (int t=0; t<numtrucks; t++)
+			{
+				if (!trucks[t]->disableTruckTruckCollisions && num_simulated_trucks > 1)
+				{
+					if (trucks[t] && trucks[t]->simulated)
+					{
+						trucks[t]->InterPointCD()->update(trucks[t], trucks, numtrucks);
+						if (trucks[t]->collisionRelevant) {
+							interTruckCollisions(
+									PHYSICS_DT,
+									*(trucks[t]->InterPointCD()),
+									trucks[t]->free_collcab,
+									trucks[t]->collcabs,
+									trucks[t]->cabs,
+									trucks[t]->inter_collcabrate,
+									trucks[t]->nodes,
+									trucks[t]->collrange,
+									trucks, numtrucks,
+									*(trucks[t]->submesh_ground_model));
+						}
+					}
+				}
+				BES_STOP(BES_CORE_Contacters);
+			}
+		}
+}
+
 //integration loop
 //bool frameStarted(const FrameEvent& evt)
 //this will be called once by frame and is responsible for animation of all the trucks!
@@ -1524,63 +1578,12 @@ bool Beam::frameStep(int steps)
 		// simulation update
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
 		{
-			for (int i=0; i<steps; i++)
-			{
-				int num_simulated_trucks = 0;
-
-				for (int t=0; t<numtrucks; t++)
-				{
-					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, steps)))
-					{
-						num_simulated_trucks++;
-						trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, steps);
-						trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, steps);
-						if (!disableTruckTruckSelfCollisions)
-						{
-							trucks[t]->intraPointCD->update(trucks[t]);
-							intraTruckCollisions(PHYSICS_DT,
-									*(trucks[t]->intraPointCD),
-									trucks[t]->free_collcab,
-									trucks[t]->collcabs,
-									trucks[t]->cabs,
-									trucks[t]->intra_collcabrate,
-									trucks[t]->nodes,
-									trucks[t]->collrange,
-									*(trucks[t]->submesh_ground_model));
-						}
-					}
-				}
-				if (!disableTruckTruckCollisions && num_simulated_trucks > 1)
-				{
-					BES_START(BES_CORE_Contacters);
-					for (int t=0; t<numtrucks; t++)
-					{
-						if (trucks[t] && trucks[t]->simulated)
-						{
-							trucks[t]->interPointCD->update(trucks[t], trucks, numtrucks);
-							if (collisionRelevant) {
-								interTruckCollisions(
-										PHYSICS_DT,
-										*(trucks[t]->interPointCD),
-										trucks[t]->free_collcab,
-										trucks[t]->collcabs,
-										trucks[t]->cabs,
-										trucks[t]->inter_collcabrate,
-										trucks[t]->nodes,
-										trucks[t]->collrange,
-										trucks, numtrucks,
-										*(trucks[t]->submesh_ground_model));
-							}
-						}
-					}
-					BES_STOP(BES_CORE_Contacters);
-				}
-			}
-		} else if (!BeamFactory::getSingleton().asynchronousPhysics())
+			UpdatePhysicsSimulation(steps, trucks, numtrucks);
+		} else
 		{
 			BeamFactory::getSingleton()._WorkerWaitForSync();
 		}
-		
+
 		oldframe_global_dt = global_dt;
 		oldframe_global_simulation_speed = global_simulation_speed;
 		global_dt = dt;
@@ -3295,23 +3298,29 @@ void Beam::updateFlexbodiesPrepare()
 			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
 		}
 
-		flexable_task_count = flexmesh_prepare.count() + flexbody_prepare.count();
-
-		std::list<IThreadTask*> tasks;
-
 		// Push tasks into thread pool
 		for (int i=0; i<free_wheel; i++)
 		{
 			if (flexmesh_prepare[i])
-				tasks.emplace_back(vwheels[i].fm);
+			{
+				auto func = std::function<void(int)>([this](int i) {
+					vwheels[i].fm->flexitCompute();
+				});
+				auto task_handle = gEnv->threadPool->RunTask(std::bind(func, i));
+				flexbody_tasks.push_back(task_handle);
+			}
 		}
 		for (int i=0; i<free_flexbody; i++)
 		{
 			if (flexbody_prepare[i])
-				tasks.emplace_back(flexbodies[i]);
+			{
+				auto func = std::function<void(int)>([this](int i) {
+					flexbodies[i]->flexitCompute();
+				});
+				auto task_handle = gEnv->threadPool->RunTask(std::bind(func, i));
+				flexbody_tasks.push_back(task_handle);
+			}
 		}
-
-		gEnv->threadPool->enqueue(tasks);
 	} else
 	{
 		for (int i=0; i<free_wheel; i++)
@@ -3503,13 +3512,11 @@ void Beam::updateFlexbodiesFinal()
 {
 	if (gEnv->threadPool)
 	{
-		// Wait for all tasks to complete
-		MUTEX_LOCK(&flexable_task_count_mutex);
-		while (flexable_task_count > 0)
+		for (const auto &t : flexbody_tasks)
 		{
-			pthread_cond_wait(&flexable_task_count_cv, &flexable_task_count_mutex);
+			t->join();
 		}
-		MUTEX_UNLOCK(&flexable_task_count_mutex);
+		flexbody_tasks.clear();
 
 		for (int i=0; i<free_wheel; i++)
 		{
@@ -3521,7 +3528,7 @@ void Beam::updateFlexbodiesFinal()
 			if (flexbody_prepare[i])
 				flexbodies[i]->flexitFinal();
 		}
-	} 
+	}
 
 	BES_GFX_STOP(BES_GFX_updateFlexBodies);
 }
@@ -5408,36 +5415,6 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 	}
 }
 
-void Beam::run()
-{
-	if (thread_task == THREAD_BEAMFORCESEULER)
-	{
-		calcForcesEulerCompute(curtstep==0, PHYSICS_DT, curtstep, tsteps);
-		if (!disableTruckTruckSelfCollisions)
-		{
-			intraPointCD->update(this);
-			intraTruckCollisions(PHYSICS_DT, *intraPointCD, free_collcab, collcabs,
-					cabs, intra_collcabrate, nodes, collrange, *submesh_ground_model);
-		}
-	} else if (thread_task == THREAD_INTER_TRUCK_COLLISIONS)
-	{
-		if (!disableTruckTruckCollisions)
-		{
-			Beam** trucks = BeamFactory::getSingleton().getTrucks();
-			int numtrucks = BeamFactory::getSingleton().getTruckCount();
-			interPointCD->update(this, trucks, numtrucks);
-			if (collisionRelevant) {
-				interTruckCollisions( PHYSICS_DT, *interPointCD, free_collcab, collcabs,
-						cabs, inter_collcabrate, nodes, collrange, trucks, numtrucks, *submesh_ground_model);
-		    }
-		}
-	}
-}
-
-void Beam::onComplete()
-{
-	BeamFactory::getSingleton().onTaskComplete();
-}
 
 Beam::Beam(
 	int truck_number, 
@@ -5548,7 +5525,6 @@ Beam::Beam(
 	, stabsleep(0.0)
 	, global_dt(0.1)
 	, global_simulation_speed(1.0)
-	, thread_task(THREAD_BEAMFORCESEULER)
 	, totalmass(0)
 	, tsteps(100)
 	, oldframe_global_dt(0.1)
@@ -5561,9 +5537,6 @@ Beam::Beam(
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* class <Beam> mutexes */
-
-	pthread_cond_init(&flexable_task_count_cv, NULL);
-	pthread_mutex_init(&flexable_task_count_mutex, NULL);
 
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_INITTHREADS);
 

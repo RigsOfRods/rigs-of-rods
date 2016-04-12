@@ -22,22 +22,24 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgrePrerequisites.h>
 #include <OgreTimer.h>
+
 #include <vector>
+#include <thread>
 
 #include "RoRPrerequisites.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
 
 #include "BeamData.h"
-#include "IThreadTask.h"
 #include "Streamable.h"
+
+class Task;
 
 /** 
 * Represents an entire rig (any vehicle type)
 * Contains logic related to physics, network, sound, threading, rendering. It's a bit of a monster class :(
 */
 class Beam :
-	public IThreadTask,
 	public rig_t,
 	public Streamable
 {
@@ -527,27 +529,10 @@ public:
 
         // TODO may be removed soon
 	PointColDetector* IntraPointCD() { return intraPointCD; }
-
-	/**
-	* Overrides IThreadTask::run()
-	*/
-	void run();
-	void onComplete();
-
-	enum ThreadTask {
-		THREAD_BEAMFORCESEULER,
-		THREAD_INTER_TRUCK_COLLISIONS
-	};
-
-	ThreadTask thread_task;
+	PointColDetector* InterPointCD() { return interPointCD; }
 
 	int curtstep;
 	int tsteps;
-
-	// flexable pthread stuff
-	int flexable_task_count;
-	pthread_cond_t flexable_task_count_cv;
-	pthread_mutex_t flexable_task_count_mutex;
 
 protected:
 
@@ -592,6 +577,7 @@ protected:
 	// flexable stuff
 	std::bitset<MAX_WHEELS> flexmesh_prepare;
 	std::bitset<MAX_FLEXBODIES> flexbody_prepare;
+	std::vector<std::shared_ptr<Task>> flexbody_tasks;
 
 	// linked beams (hooks)
 	std::list<Beam*> linkedBeams;
