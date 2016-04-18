@@ -322,11 +322,11 @@ void GameScript::destroyObject(const String &instanceName)
 	}
 }
 
-void GameScript::moveObject(const String &instanceName, const Vector3 &pos)
+void GameScript::moveObjectVisuals(const String &instanceName, const Vector3 &pos)
 {
 	if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
 	{
-		gEnv->terrainManager->getObjectManager()->moveObject(instanceName,pos);
+		gEnv->terrainManager->getObjectManager()->moveObjectVisuals(instanceName,pos);
 	}
 }
 

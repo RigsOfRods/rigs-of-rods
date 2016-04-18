@@ -323,7 +323,7 @@ public:
 	* @param instanceName The unique name that you chose when spawning this object
 	* @param pos The position where the object should be moved to
 	*/
-	void moveObject(const Ogre::String& instanceName, const Ogre::Vector3& pos);
+	void moveObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
 
 
 	// new things, not documented yet
