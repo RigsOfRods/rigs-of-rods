@@ -6307,3 +6307,15 @@ bool Beam::inRange(float num, float min, float max)
 {
 	return (num <= max && num >= min);
 }
+
+Vector3 Beam::getNodePosition(int nodeNumber)
+{
+	if(nodeNumber >= 0 && nodeNumber < free_node)
+	{
+		return nodes[nodeNumber].AbsPosition;
+	}
+	else
+	{
+		return Ogre::Vector3();
+	}
+}
