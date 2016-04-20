@@ -35,10 +35,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SHA1.h"
 #include "Utils.h"
 
-#ifdef USE_CRASHRPT
-# include "crashrpt.h"
-#endif
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 //#include <CFUserNotification.h>
 #endif
@@ -49,28 +45,12 @@ Network *net_instance;
 
 void *s_sendthreadstart(void* vid)
 {
-#ifdef USE_CRASHRPT
-	if (!BSETTING("NoCrashRpt"))
-	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper;
-		assert(cr_thread_install_helper.m_nInstallStatus==0);
-	}
-#endif //USE_CRASHRPT
 	net_instance->sendthreadstart();
 	return NULL;
 }
 
 void *s_receivethreadstart(void* vid)
 {
-#ifdef USE_CRASHRPT
-	if (!BSETTING("NoCrashRpt"))
-	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper(0);
-		assert(cr_thread_install_helper.m_nInstallStatus==0);
-	}
-#endif //USE_CRASHRPT
 	net_instance->receivethreadstart();
 	return NULL;
 }

@@ -58,10 +58,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "DashBoardManager.h"
 #endif // USE_MYGUI
 
-#ifdef USE_CRASHRPT
-# include "crashrpt.h"
-#endif
-
 using namespace Ogre;
 using namespace RoR;
 
@@ -1168,15 +1164,6 @@ void BeamFactory::threadentry()
 
 void* threadstart(void* vid)
 {
-#ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
-	{
-		// add the crash handler for this thread
-		CrThreadAutoInstallHelper cr_thread_install_helper;
-		MYASSERT(cr_thread_install_helper.m_nInstallStatus==0);
-	}
-#endif // USE_CRASHRPT
-
 	BeamFactory *bf = static_cast<BeamFactory*>(vid);
 
 	while (1)

@@ -59,8 +59,6 @@ IF(WIN32)
       set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DELAYLOAD:OpenCL.dll")
       set(OS_LIBS ${OS_LIBS} Delayimp.lib)
    endif(ROR_USE_OPENCL)
-   
-   setup_lib(CRASHRPT)
 ELSEIF(UNIX)
    find_package(PkgConfig)
    PKG_CHECK_MODULES  (GTK gtk+-2.0 REQUIRED)
