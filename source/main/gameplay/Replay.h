@@ -52,6 +52,8 @@ public:
 	unsigned long getLastReadTime();
 	void writeDone();
 
+	void setHidden(bool value);
+
 	void setVisible(bool value);
 	bool getVisible();
 
@@ -63,6 +65,8 @@ protected:
 	int numFrames;
 	bool outOfMemory;
 
+	bool hidden;
+	bool visible;
 
 	int writeIndex;
 	int firstRun;
