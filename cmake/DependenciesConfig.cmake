@@ -58,7 +58,6 @@ endmacro(importLib)
 	set(ROR_USE_OIS_G27      "FALSE" CACHE BOOL "use OIS With G27 patches")
 	set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
 
-	set(ROR_USE_CRASHRPT "FALSE" CACHE BOOL "use crash report tool")
 	# check if dependencies dir is in here
 	set(DEPENDENCIES_DIR_CHECK "${RoR_SOURCE_DIR}/dependencies")
 	set(DEPENDENCIES_DIR "")

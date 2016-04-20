@@ -166,7 +166,6 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + color1 + "OpenAL Soft:" + white + " Sound engine" + newline;
 #endif
 	AuthorsText = AuthorsText + color1 + "MyGUI:" + white + " GUI System" + newline;
-	AuthorsText = AuthorsText + color1 + "CrashRpt:" + white + " Crash Reporting system" + newline;
 	AuthorsText = AuthorsText + color1 + "mofilereader:" + white + " Used for Internationalization" + newline;
 	AuthorsText = AuthorsText + color1 + "OIS:" + white + " Used as Input System" + newline;
 	AuthorsText = AuthorsText + color1 + "pagedGeometry:" + white + " Used for foliage (grass, trees, etc)" + newline;

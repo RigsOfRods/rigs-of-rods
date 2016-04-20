@@ -32,101 +32,6 @@
 
 using namespace Ogre;
 
-#ifdef USE_CRASHRPT
-// see http://code.google.com/p/crashrpt/
-#include "crashrpt.h"
-
-// Define the crash callback
-BOOL WINAPI crashCallback(LPVOID /*lpvState*/)
-{
-	// Now add these two files to the error report
-	
-	// logs
-	crAddFile((SSETTING("Log Path") + "RoR.log").c_str(), "Rigs of Rods Log");
-	crAddFile((SSETTING("Log Path") + "mygui.log").c_str(), "Rigs of Rods GUI Log");
-	crAddFile((SSETTING("Log Path") + "configlog.txt").c_str(), "Rigs of Rods Configurator Log");
-	crAddFile((SSETTING("Program Path") + "wizard.log").c_str(), "Rigs of Rods Installer Log");
-
-	// cache
-	crAddFile((SSETTING("Cache Path") + "mods.cache").c_str(), "Rigs of Rods Cache File");
-
-	// configs
-	crAddFile((SSETTING("Config Root") + "ground_models.cfg").c_str(), "Rigs of Rods Ground Configuration");
-	crAddFile((SSETTING("Config Root") + "input.map").c_str(), "Rigs of Rods Input Configuration");
-	crAddFile((SSETTING("Config Root") + "ogre.cfg").c_str(), "Rigs of Rods Renderer Configuration");
-	crAddFile((SSETTING("Config Root") + "RoR.cfg").c_str(), "Rigs of Rods Configuration");
-
-	crAddProperty("Version", ROR_VERSION_STRING);
-	crAddProperty("protocol_version", RORNET_VERSION);
-	crAddProperty("build_date", __DATE__);
-	crAddProperty("build_time", __TIME__);
-
-	crAddProperty("System_GUID", SSETTING("GUID").c_str());
-	crAddProperty("Multiplayer", (BSETTING("Network enable"))?"1":"0");
-	
-	crAddScreenshot(CR_AS_MAIN_WINDOW);
-	// Return TRUE to allow crash report generation
-	return TRUE;
-}
-
-void install_crashrpt()
-{
-	// Install CrashRpt support
-	CR_INSTALL_INFO info;
-	memset(&info, 0, sizeof(CR_INSTALL_INFO));
-	info.cb = sizeof(CR_INSTALL_INFO);
-	info.pszAppName = "Rigs of Rods";
-	info.pszAppVersion = ROR_VERSION_STRING;
-	info.pszEmailSubject = "Error Report for Rigs of Rods";
-	info.pszEmailTo = "error-report@rigsofrods.com";
-
-	char tmp[512]="";
-	sprintf(tmp, "http://api.rigsofrods.com/crashreport/?version=%s_%s", __DATE__, __TIME__);
-	for (unsigned int i=0;i<strnlen(tmp, 512);i++)
-	{
-		if (tmp[i] == ' ')
-			tmp[i] = '_';
-	}
-
-	info.pszUrl = tmp;
-	info.pfnCrashCallback = crashCallback;
-	info.uPriorities[CR_HTTP]  = 3;  // Try HTTP the first
-	info.uPriorities[CR_SMTP]  = 2;  // Try SMTP the second
-	info.uPriorities[CR_SMAPI] = 1; // Try Simple MAPI the last
-	info.dwFlags = 0; // Install all available exception handlers
-	info.pszPrivacyPolicyURL = "http://wiki.rigsofrods.com/pages/Crash_Report_Privacy_Policy"; // URL for the Privacy Policy link
-
-	int nInstResult = crInstall(&info);
-	if (nInstResult!=0)
-	{
-		// Something goes wrong!
-		TCHAR szErrorMsg[512];
-		szErrorMsg[0]=0;
-
-		crGetLastErrorMsg(szErrorMsg, 512);
-		printf("%s\n", szErrorMsg);
-
-
-		ErrorUtils::ShowError(_L("Exception handling registration problem"), String(szErrorMsg));
-
-		assert(nInstResult==0);
-	}
-}
-
-void uninstall_crashrpt()
-{
-	// Unset crash handlers
-	int nUninstResult = crUninstall();
-	assert(nUninstResult==0);
-}
-
-void test_crashrpt()
-{
-	// emulate null pointer exception (access violation)
-	crEmulateCrash(CR_WIN32_STRUCTURED_EXCEPTION);
-}
-#endif
-
 // simpleopt by http://code.jellycan.com/simpleopt/
 // license: MIT
 #include "SimpleOpt.h"
@@ -184,7 +89,6 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_BENCHNUM,       ("-benchmarktrucks"),       SO_REQ_SEP },
 	{ OPT_BENCHNUM,       ("-benchmark-trucks"),       SO_REQ_SEP },
 	{ OPT_STREAMCACHEGEN, ("-streamcachegen"),   SO_NONE    },
-	{ OPT_NOCRASHCRPT,    ("-nocrashrpt"),   SO_NONE    },
 	{ OPT_ADVLOG,         ("-advlog"),   SO_NONE    },
 	{ OPT_STATE,          ("-state"),     SO_REQ_SEP    },
 	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP    },
@@ -312,13 +216,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-#ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
-		install_crashrpt();
-
-	//test_crashrpt();
-#endif //USE_CRASHRPT
-
 	try 
 	{
 		main_thread_object.Go();
@@ -332,11 +229,6 @@ int main(int argc, char *argv[])
 	{
 		ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
 	}
-
-#ifdef USE_CRASHRPT
-	if (SSETTING("NoCrashRpt").empty())
-		uninstall_crashrpt();
-#endif //USE_CRASHRPT
 
 	// show errors before we give up
 	ErrorUtils::ShowStoredOgreWebErrors();
