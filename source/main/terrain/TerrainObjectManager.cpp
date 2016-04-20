@@ -670,6 +670,23 @@ void removeCollisionBox(int number)
 	if (gEnv->collisions) gEnv->collisions->removeCollisionBox(number);
 }
 
+void TerrainObjectManager::moveObjectVisuals(const String &instancename, const Ogre::Vector3 &pos)
+{
+	if (loadedObjects.find(instancename) == loadedObjects.end())
+	{
+		LOG(instancename+ " not found!");
+		return;
+	}
+
+	loadedObject_t obj = loadedObjects[instancename];
+
+	if (!obj.enabled)
+		return;
+
+	obj.sceneNode->setPosition(pos);
+
+}
+
 void TerrainObjectManager::unloadObject(const String &instancename)
 {
 	if (loadedObjects.find(instancename) == loadedObjects.end())

@@ -322,6 +322,14 @@ void GameScript::destroyObject(const String &instanceName)
 	}
 }
 
+void GameScript::moveObjectVisuals(const String &instanceName, const Vector3 &pos)
+{
+	if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
+	{
+		gEnv->terrainManager->getObjectManager()->moveObjectVisuals(instanceName,pos);
+	}
+}
+
 void GameScript::spawnObject(const String &objectName, const String &instanceName, const Vector3 &pos, const Vector3 &rot, const String &eventhandler, bool uniquifyMaterials)
 {
 	AngelScript::asIScriptModule *mod = 0;
