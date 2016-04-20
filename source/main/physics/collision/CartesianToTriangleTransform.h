@@ -27,10 +27,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/optional.hpp>
 
 
-using Vector = Ogre::Vector3;
-using Matrix = Ogre::Matrix3;
-using Real = float;
-
 /// Defines a linear transformation from cartesian coordinates to local (barycentric) coordinates of a specified triangle.
 /**
  * The barycentric coordinate system of the triangle is defined in terms of its three vertices
@@ -47,6 +43,10 @@ using Real = float;
  */
 class CartesianToTriangleTransform
 {
+using Vector = Ogre::Vector3;
+using Matrix = Ogre::Matrix3;
+using Real = float;
+
 public:
     /// Return type of CartesianToTriangleTransform transformation.
     /**
