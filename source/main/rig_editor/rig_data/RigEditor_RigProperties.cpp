@@ -47,7 +47,7 @@ RigProperties::RigProperties():
 RigProperties::~RigProperties()
 {}
 
-void RigProperties::Import(boost::shared_ptr<RigDef::File> def_file)
+void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
 {
 	m_title             = def_file->name;
 	m_guid              = def_file->guid;
@@ -104,7 +104,7 @@ void RigProperties::Import(boost::shared_ptr<RigDef::File> def_file)
 	m_engoption = def_file->root_module->engoption;
 }
 
-void RigProperties::Export(boost::shared_ptr<RigDef::File> def_file)
+void RigProperties::Export(std::shared_ptr<RigDef::File> def_file)
 {
 	def_file->name              = m_title;           
 	def_file->guid              = m_guid;            
@@ -119,18 +119,18 @@ void RigProperties::Export(boost::shared_ptr<RigDef::File> def_file)
 	def_file->disable_default_sounds      = m_disable_default_sounds;
 
 	def_file->file_info 
-		= boost::shared_ptr<RigDef::Fileinfo>(new RigDef::Fileinfo(m_fileinfo));
+		= std::shared_ptr<RigDef::Fileinfo>(new RigDef::Fileinfo(m_fileinfo));
 	def_file->root_module->ext_camera 
-		= boost::shared_ptr<RigDef::ExtCamera>(new RigDef::ExtCamera(m_extcamera));
+		= std::shared_ptr<RigDef::ExtCamera>(new RigDef::ExtCamera(m_extcamera));
 	def_file->root_module->skeleton_settings 
-		= boost::shared_ptr<RigDef::SkeletonSettings>(new RigDef::SkeletonSettings(m_skeleton_settings));
+		= std::shared_ptr<RigDef::SkeletonSettings>(new RigDef::SkeletonSettings(m_skeleton_settings));
 
 	// Globals
 	RigDef::Globals globals;
 	globals.cargo_mass               = m_globals_load_mass;
 	globals.dry_mass                 = m_globals_dry_mass;
 	globals.material_name            = m_globals_cab_material_name;
-	def_file->root_module->globals   = boost::shared_ptr<RigDef::Globals>(new RigDef::Globals(globals));
+	def_file->root_module->globals   = std::shared_ptr<RigDef::Globals>(new RigDef::Globals(globals));
 
 	// Description
 	for (auto itor = m_description.begin(); itor != m_description.end(); ++itor)
@@ -149,12 +149,12 @@ void RigProperties::Export(boost::shared_ptr<RigDef::File> def_file)
 	def_file->root_module->engoption   = m_engoption;
 }
 
-boost::shared_ptr<RigDef::Engine> RigProperties::GetEngine()
+std::shared_ptr<RigDef::Engine> RigProperties::GetEngine()
 {
 	return m_engine;
 }
 
-boost::shared_ptr<RigDef::Engoption> RigProperties::GetEngoption()
+std::shared_ptr<RigDef::Engoption> RigProperties::GetEngoption()
 {
 	return m_engoption;
 }

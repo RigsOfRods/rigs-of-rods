@@ -43,7 +43,7 @@ MeshWheel2::MeshWheel2(RigDef::MeshWheel2 const & def,  Node* inner, Node* outer
 	m_rigidity_node = rigidity;
 	m_reference_arm_node = reference_arm_node;
     // Create private copy of BeamDefaults, which act as additional data container (rim parameters)
-    m_definition.beam_defaults = boost::shared_ptr<RigDef::BeamDefaults>(new RigDef::BeamDefaults(*def.beam_defaults));
+    m_definition.beam_defaults = std::shared_ptr<RigDef::BeamDefaults>(new RigDef::BeamDefaults(*def.beam_defaults));
 }
 
 void MeshWheel2::ReGenerateMeshData()

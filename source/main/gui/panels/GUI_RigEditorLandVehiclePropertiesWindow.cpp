@@ -133,8 +133,8 @@ void CLASS::ResetEngineEngoptionForm()
 }
 
 void CLASS::Import(
-	boost::shared_ptr<RigDef::Engine> engine,
-	boost::shared_ptr<RigDef::Engoption> engoption
+	std::shared_ptr<RigDef::Engine> engine,
+	std::shared_ptr<RigDef::Engoption> engoption
 	)
 {
     if (!engine || !engoption)
@@ -184,13 +184,13 @@ void CLASS::Import(
     this->SetEngineType(engoption->type);
 }
 
-boost::shared_ptr<RigDef::Engine>    CLASS::ExportEngine()
+std::shared_ptr<RigDef::Engine>    CLASS::ExportEngine()
 {
     if (!m_vehicle_has_engine)
     {
-        return boost::shared_ptr<RigDef::Engine>();
+        return std::shared_ptr<RigDef::Engine>();
     }
-    auto engine = boost::shared_ptr<RigDef::Engine>(new RigDef::Engine());
+    auto engine = std::shared_ptr<RigDef::Engine>(new RigDef::Engine());
 
     engine->shift_down_rpm   = PARSEREAL(m_editbox_shift_down_rpm->getCaption());
 	engine->shift_up_rpm     = PARSEREAL(m_editbox_shift_up_rpm->getCaption());
@@ -217,13 +217,13 @@ boost::shared_ptr<RigDef::Engine>    CLASS::ExportEngine()
     return engine;
 }
 
-boost::shared_ptr<RigDef::Engoption> CLASS::ExportEngoption()
+std::shared_ptr<RigDef::Engoption> CLASS::ExportEngoption()
 {
     if (!m_vehicle_has_engine)
     {
-        return boost::shared_ptr<RigDef::Engoption>();
+        return std::shared_ptr<RigDef::Engoption>();
     }
-    auto engoption = boost::shared_ptr<RigDef::Engoption>(new RigDef::Engoption());
+    auto engoption = std::shared_ptr<RigDef::Engoption>(new RigDef::Engoption());
 
     engoption->inertia           = PARSEREAL(m_editbox_engoption_engine_inertia  ->getCaption());
 	engoption->clutch_force      = PARSEREAL(m_editbox_engoption_clutch_force    ->getCaption());

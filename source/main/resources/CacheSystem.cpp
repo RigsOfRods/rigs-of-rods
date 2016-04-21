@@ -1319,7 +1319,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 
 	/* RETRIEVE DATA */
 
-	boost::shared_ptr<RigDef::File> def = parser.GetFile();
+	std::shared_ptr<RigDef::File> def = parser.GetFile();
 
 	/* Description */
 	std::vector<Ogre::String>::iterator desc_itor = def->description.begin();
@@ -1342,7 +1342,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 	}
 
 	/* Modules (previously called "sections") */
-	std::map<Ogre::String, boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->modules.begin();
+	std::map<Ogre::String, std::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->modules.begin();
 	for ( ; module_itor != def->modules.end(); module_itor++ )
 	{
 		entry.sectionconfigs.push_back(module_itor->second->name);
@@ -1352,7 +1352,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 	/* TODO: Handle engines in modules */
 	if (def->root_module->engine != nullptr)
 	{
-		boost::shared_ptr<RigDef::Engine> engine = def->root_module->engine;
+		std::shared_ptr<RigDef::Engine> engine = def->root_module->engine;
 		entry.numgears   = engine->gear_ratios.size();
 		entry.minrpm     = engine->shift_down_rpm;
 		entry.maxrpm     = engine->shift_up_rpm;
@@ -1448,7 +1448,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 		+ def->root_module->mesh_wheels_2.size() 
 		);
 
-	/* NOTE: boost::shared_ptr cleans everything up. */
+	/* NOTE: std::shared_ptr cleans everything up. */
 }
 
 int CacheSystem::addUniqueString(std::set<Ogre::String> &list, Ogre::String str)

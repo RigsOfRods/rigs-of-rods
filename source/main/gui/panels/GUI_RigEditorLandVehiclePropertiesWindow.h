@@ -48,13 +48,13 @@ public:
 	RigEditorLandVehiclePropertiesWindow(RigEditor::IMain* rig_editor_interface);
 
 	void Import(
-			boost::shared_ptr<RigDef::Engine> engine,
-			boost::shared_ptr<RigDef::Engoption> engoption
+			std::shared_ptr<RigDef::Engine> engine,
+			std::shared_ptr<RigDef::Engoption> engoption
 		);
     
     // Export
-	boost::shared_ptr<RigDef::Engine>    ExportEngine();
-    boost::shared_ptr<RigDef::Engoption> ExportEngoption();
+	std::shared_ptr<RigDef::Engine>    ExportEngine();
+    std::shared_ptr<RigDef::Engoption> ExportEngoption();
 
 private:
 

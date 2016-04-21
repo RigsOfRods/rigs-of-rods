@@ -85,7 +85,7 @@ void SequentialImporter::GenerateNodesForWheel(File::Keyword generated_from, int
     }
 }
 
-void SequentialImporter::Process(boost::shared_ptr<RigDef::File> def)
+void SequentialImporter::Process(std::shared_ptr<RigDef::File> def)
 {
     this->ProcessModule(def->root_module);
 
@@ -378,7 +378,7 @@ void SequentialImporter::ResolveNodeRanges(std::vector<Node::Range>& ranges)
 // airbrakes = yes,yes
 // axles = NO, NO
 
-void SequentialImporter::ProcessModule(boost::shared_ptr<RigDef::File::Module> module)
+void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> module)
 {
     m_current_module = module;
 
