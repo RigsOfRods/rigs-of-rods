@@ -1693,17 +1693,18 @@ void RoRFrameListener::hideGUI(bool hidden)
 {
 #ifdef USE_MYGUI
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	//Console *c = RoR::Application::GetConsole();
-	//if (c) c->setVisible(!visible);
+
+	if (curr_truck && curr_truck->getReplay()) curr_truck->getReplay()->setHidden(hidden);
+
+#ifdef USE_SOCKETW
+		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(!hidden);
+#endif // USE_SOCKETW
 
 	if (hidden)
 	{
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, curr_truck);
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
 		if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
-#ifdef USE_SOCKETW
-		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(false);
-#endif // USE_SOCKETW
 	} else
 	{
 		if (curr_truck
@@ -1713,9 +1714,6 @@ void RoRFrameListener::hideGUI(bool hidden)
 		{
 			if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, curr_truck);
 		}
-#ifdef USE_SOCKETW
-		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(true);
-#endif // USE_SOCKETW
 	}
 	Application::GetGuiManager()->hideGUI(hidden);
 #endif // USE_MYGUI
