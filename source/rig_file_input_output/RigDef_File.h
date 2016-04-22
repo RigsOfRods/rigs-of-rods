@@ -1426,10 +1426,10 @@ struct Lockgroup
 		nodes.reserve(20);
 	}
 
-	static const unsigned int LOCKGROUP_DEFAULT        = -1;
-	static const unsigned int LOCKGROUP_NOLOCK         = 9999;
+	static const int LOCKGROUP_DEFAULT        = -1;
+	static const int LOCKGROUP_NOLOCK         = 9999;
 
-	unsigned int number;
+	int number;
 	std::vector<Node::Ref> nodes;
 };
 
