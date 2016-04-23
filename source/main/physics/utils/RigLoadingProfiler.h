@@ -29,8 +29,6 @@
 
 #include "Timer.h"
 
-#include <cstdio>
-
 namespace RoR
 {
 

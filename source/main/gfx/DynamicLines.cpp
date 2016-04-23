@@ -1,8 +1,5 @@
 // from Ogre wiki: http://www.ogre3d.org/tikiwiki/DynamicLineDrawing
 #include "DynamicLines.h"
-#include <Ogre.h>
-#include <cassert>
-#include <cmath>
 
 using namespace Ogre;
 
