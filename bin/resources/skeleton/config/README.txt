@@ -1,12 +1,6 @@
 ROR CONFIGURATION FILES
 =======================
 
-rig_editor.cfg
---------------
-
-    Controls the built-in rig editor.
-    For reference, see comments in the file.
-
 RoR.cfg
 -------
 

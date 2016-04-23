@@ -49,7 +49,6 @@ public:
 		STATE_MAIN_MENU,
 		STATE_CHANGEMAP,
 		STATE_SIMULATION,
-		STATE_RIG_EDITOR
 	};
 
 	static OgreSubsystem* GetOgreSubsystem()

@@ -31,7 +31,6 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
-#include "GUI_RigEditorMenubar.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"

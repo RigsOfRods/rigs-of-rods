@@ -62,7 +62,10 @@ CLASS::CLASS()
 	win->setMovable(false);
 
 	if (!BSETTING("DevMode", false))
+	{
 		m_multi_player->setEnabled(false);
+		m_rig_editor->setEnabled(false);
+	}
 
 	Hide();
 }
@@ -124,8 +127,5 @@ void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
-	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 

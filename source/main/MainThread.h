@@ -30,7 +30,6 @@
 
 #include "Application.h"
 #include "RoRPrerequisites.h"
-#include "RigEditor_ForwardDeclarations.h"
 
 #include <map>
 #include <pthread.h>
@@ -98,7 +97,6 @@ protected:
 	unsigned long      m_start_time;
 	Application::State m_next_application_state;
 	Application::State m_application_state;
-	RigEditor::Main*   m_rig_editor;
 	bool			   m_base_resource_loaded;
 
 	std::map<std::string, bool> isLoadedMap;

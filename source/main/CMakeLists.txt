@@ -165,32 +165,6 @@ set( SOURCE_FILES
   gui/panels/GUI_MultiplayerSelector.{h,cpp}
   gui/panels/GUI_MultiplayerSelectorLayout.{h,cpp}
   gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
-  gui/panels/GUI_RigEditorBeamsPanel.{h,cpp}
-  gui/panels/GUI_RigEditorBeamsPanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorCommands2Panel.{h,cpp}
-  gui/panels/GUI_RigEditorCommands2PanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorDeleteMenu.{h,cpp}
-  gui/panels/GUI_RigEditorDeleteMenuLayout.{h,cpp}
-  gui/panels/GUI_RigEditorFlexBodyWheelsPanel.{h,cpp}
-  gui/panels/GUI_RigEditorFlexBodyWheelsPanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorHelpWindow.{h,cpp}
-  gui/panels/GUI_RigEditorHelpWindowLayout.{h,cpp}
-  gui/panels/GUI_RigEditorHydrosPanel.{h,cpp}
-  gui/panels/GUI_RigEditorHydrosPanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorLandVehiclePropertiesWindow.{h,cpp}
-  gui/panels/GUI_RigEditorLandVehiclePropertiesWindowLayout.{h,cpp}
-  gui/panels/GUI_RigEditorMenubar.{h,cpp}
-  gui/panels/GUI_RigEditorMenubarLayout.{h,cpp}
-  gui/panels/GUI_RigEditorMeshWheels2Panel.{h,cpp}
-  gui/panels/GUI_RigEditorMeshWheels2PanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorNodePanel.{h,cpp}
-  gui/panels/GUI_RigEditorNodePanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorRigPropertiesWindow.{h,cpp}
-  gui/panels/GUI_RigEditorRigPropertiesWindowLayout.{h,cpp}
-  gui/panels/GUI_RigEditorShocks2Panel.{h,cpp}
-  gui/panels/GUI_RigEditorShocks2PanelLayout.{h,cpp}
-  gui/panels/GUI_RigEditorShocksPanel.{h,cpp}
-  gui/panels/GUI_RigEditorShocksPanelLayout.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
   gui/panels/GUI_SimUtils.{h,cpp}
@@ -243,29 +217,6 @@ set( SOURCE_FILES
   resources/CacheSystem.{h,cpp}
   resources/CacheSystemTable.h
   resources/ContentManager.{h,cpp}
-  rig_editor/RigEditor_CameraHandler.{h,cpp}
-  rig_editor/RigEditor_Config.{h,cpp}
-  rig_editor/RigEditor_ForwardDeclarations.h
-  rig_editor/RigEditor_GuiPopupDynamicListBase.{h,cpp}
-  rig_editor/RigEditor_GuiPopupWheelsList.{h,cpp}
-  rig_editor/RigEditor_HighlightBoxesDynamicMesh.{h,cpp}
-  rig_editor/RigEditor_IMain.h
-  rig_editor/RigEditor_InputHandler.{h,cpp}
-  rig_editor/RigEditor_Main.{h,cpp}
-  rig_editor/RigEditor_RigElementGuiPanelBase.{h,cpp}
-  rig_editor/RigEditor_RigElementsAggregateData.h
-  rig_editor/RigEditor_RigWheelVisuals.{h,cpp}
-  rig_editor/RigEditor_RigWheelsAggregateData.{h,cpp}
-  rig_editor/RigEditor_Types.h
-  rig_editor/rig_data/RigEditor_Beam.{h,cpp}
-  rig_editor/rig_data/RigEditor_CineCamera.h
-  rig_editor/rig_data/RigEditor_FlexBodyWheel.{h,cpp}
-  rig_editor/rig_data/RigEditor_LandVehicleWheel.{h,cpp}
-  rig_editor/rig_data/RigEditor_MeshWheel.{h,cpp}
-  rig_editor/rig_data/RigEditor_MeshWheel2.{h,cpp}
-  rig_editor/rig_data/RigEditor_Node.{h,cpp}
-  rig_editor/rig_data/RigEditor_Rig.{h,cpp}
-  rig_editor/rig_data/RigEditor_RigProperties.{h,cpp}
   terrain/IHeightFinder.h
   terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
   terrain/TerrainGeometryManager.{h,cpp}
