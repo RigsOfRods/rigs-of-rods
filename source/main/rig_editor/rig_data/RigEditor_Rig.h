@@ -147,7 +147,7 @@ public:
 	void DeleteBeam(std::vector<RigEditor::Beam*>::iterator & delete_itor);
 
 	void Build(
-		boost::shared_ptr<RigDef::File> rig_def, 
+		std::shared_ptr<RigDef::File> rig_def, 
 		RigEditor::Main* rig_editor,
 		Ogre::SceneNode* parent_scene_node,
 		RigBuildingReport* report // = nullptr
@@ -165,7 +165,7 @@ public:
 
 	RigProperties* GetProperties();
 
-	boost::shared_ptr<RigDef::File> Export();
+	std::shared_ptr<RigDef::File> Export();
 
 	void QuerySelectedNodesData(RigAggregateNodesData* result);
 

@@ -1106,9 +1106,9 @@ void Main::CommandCreateNewEmptyRig()
 
     m_rig = new RigEditor::Rig(m_config);
     // Create definition
-	auto def = boost::shared_ptr<RigDef::File>(new RigDef::File());
+	auto def = std::shared_ptr<RigDef::File>(new RigDef::File());
     def->name = "Unnamed rig (created in editor)";
-	auto module = boost::shared_ptr<RigDef::File::Module>(new RigDef::File::Module("_Root_"));
+	auto module = std::shared_ptr<RigDef::File::Module>(new RigDef::File::Module("_Root_"));
 	def->root_module = module;
     // Create special node 0 in _Root_ module
     RigDef::Node node_0;

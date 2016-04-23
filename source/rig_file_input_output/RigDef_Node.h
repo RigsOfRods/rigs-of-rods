@@ -31,9 +31,9 @@
 
 #include "RigDef_Prerequisites.h"
 
+#include <memory>
 #include <OgreVector3.h>
 #include <string>
-#include <boost/shared_ptr.hpp>
 
 namespace RigDef
 {
@@ -163,8 +163,8 @@ struct Node
 	unsigned int options; ///< Bit flags
 	float load_weight_override;
 	bool _has_load_weight_override;
-	boost::shared_ptr<NodeDefaults> node_defaults;
-	boost::shared_ptr<BeamDefaults> beam_defaults; /* Needed for hook */
+	std::shared_ptr<NodeDefaults> node_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults; /* Needed for hook */
 	int detacher_group;
 };
 

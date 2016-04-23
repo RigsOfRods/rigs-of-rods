@@ -32,7 +32,7 @@
 #include "RigEditor_ForwardDeclarations.h"
 #include "RoRPrerequisites.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace RoR
 {
@@ -51,15 +51,15 @@ public:
 
 	~RigProperties();
 
-	boost::shared_ptr<RigDef::Engine>    GetEngine();
-	boost::shared_ptr<RigDef::Engoption> GetEngoption();
-    inline void SetEngine(boost::shared_ptr<RigDef::Engine> engine) { m_engine = engine; }
-    inline void SetEngoption(boost::shared_ptr<RigDef::Engoption> engoption) { m_engoption = engoption; }
+	std::shared_ptr<RigDef::Engine>    GetEngine();
+	std::shared_ptr<RigDef::Engoption> GetEngoption();
+    inline void SetEngine(std::shared_ptr<RigDef::Engine> engine) { m_engine = engine; }
+    inline void SetEngoption(std::shared_ptr<RigDef::Engoption> engoption) { m_engoption = engoption; }
 
 protected:	
 
-	void Import(boost::shared_ptr<RigDef::File> def_file);
-	void Export(boost::shared_ptr<RigDef::File> def_file);
+	void Import(std::shared_ptr<RigDef::File> def_file);
+	void Export(std::shared_ptr<RigDef::File> def_file);
 
 	// BASIC tab
 	
@@ -95,8 +95,8 @@ protected:
 
 	// LAND VEHICLE window
 
-	boost::shared_ptr<RigDef::Engine>      m_engine;
-	boost::shared_ptr<RigDef::Engoption>   m_engoption;
+	std::shared_ptr<RigDef::Engine>      m_engine;
+	std::shared_ptr<RigDef::Engoption>   m_engoption;
 };
 
 } // namespace RigEditor

@@ -86,7 +86,7 @@ using namespace RoR;
 
 void RigSpawner::Setup( 
 	Beam *rig,
-	boost::shared_ptr<RigDef::File> file,
+	std::shared_ptr<RigDef::File> file,
 	Ogre::SceneNode *parent,
 	Ogre::Vector3 const & spawn_position,
 	Ogre::Quaternion const & spawn_rotation,
@@ -1817,7 +1817,7 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 	}
 }
 
-void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
+void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -3895,7 +3895,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 beam_t & RigSpawner::AddBeam(
 	node_t & node_1, 
 	node_t & node_2, 
-	boost::shared_ptr<RigDef::BeamDefaults> & beam_defaults,
+	std::shared_ptr<RigDef::BeamDefaults> & beam_defaults,
 	int detacher_group
 )
 {
@@ -4722,7 +4722,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	float wheel_radius,
 	RigDef::Wheels::Propulsion propulsion,
 	RigDef::Wheels::Braking braking,
-	boost::shared_ptr<RigDef::NodeDefaults> node_defaults,
+	std::shared_ptr<RigDef::NodeDefaults> node_defaults,
 	float wheel_mass,
 	bool set_param_iswheel, /* Default: true */
 	float wheel_width       /* Default: -1.f */
@@ -4841,7 +4841,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	return wheel_index;
 }
 
-void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -4849,7 +4849,7 @@ void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boos
 	node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
 }
 
-void RigSpawner::AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -4906,7 +4906,7 @@ void RigSpawner::BuildWheelBeams(
 	float tyre_damping,
 	float rim_spring,
 	float rim_damping,
-	boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+	std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
 	RigDef::Node::Ref const & rigidity_node_id,
 	float max_extension // = 0.f
 )
@@ -5513,7 +5513,7 @@ unsigned int RigSpawner::AddWheelBeam(
 	node_t *node_2, 
 	float spring, 
 	float damping, 
-	boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+	std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
 	float max_contraction,   /* Default: -1.f */
 	float max_extension,     /* Default: -1.f */
 	int type                 /* Default: BEAM_INVISIBLE */
@@ -5795,8 +5795,8 @@ void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
 	}
 	
 		/* Find it */
-	boost::shared_ptr<RigDef::Engturbo> engturbo;
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::shared_ptr<RigDef::Engturbo> engturbo;
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (module_itor->get()->engturbo != nullptr)
@@ -5821,8 +5821,8 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	}
 
 	/* Find it */
-	boost::shared_ptr<RigDef::Engoption> engoption;
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::shared_ptr<RigDef::Engoption> engoption;
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (module_itor->get()->engoption != nullptr)
@@ -5893,7 +5893,7 @@ void RigSpawner::ProcessHelp()
     SetCurrentKeyword(RigDef::File::KEYWORD_HELP);
 	unsigned int material_count = 0;
 
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		auto module = module_itor->get();
@@ -6088,7 +6088,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	CreateBeamVisuals(beam, beam_index, def.defaults, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
 }
 
-void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults)
+void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -6217,7 +6217,7 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 	beam.maxnegstress       = -(deformation_threshold);
 }
 
-void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate)
+void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -6633,7 +6633,7 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    std::map< Ogre::String, boost::shared_ptr<RigDef::File::Module> >::iterator result 
+    std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
 		= m_file->modules.find(module_name);
 
 	if (result != m_file->modules.end())
@@ -6718,7 +6718,7 @@ void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 void RigSpawner::InitNode(
 	node_t & node, 
 	Ogre::Vector3 const & position,
-	boost::shared_ptr<RigDef::NodeDefaults> node_defaults
+	std::shared_ptr<RigDef::NodeDefaults> node_defaults
 )
 {
 	SPAWNER_PROFILE_SCOPED();

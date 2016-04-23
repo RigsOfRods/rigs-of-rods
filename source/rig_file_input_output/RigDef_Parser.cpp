@@ -68,9 +68,9 @@ Parser::Parser():
 	m_ror_minimass(0)
 {
 	/* Push defaults */
-	m_ror_default_inertia = boost::shared_ptr<Inertia>(new Inertia);
-	m_ror_beam_defaults = boost::shared_ptr<BeamDefaults>(new BeamDefaults);
-	m_ror_node_defaults = boost::shared_ptr<NodeDefaults>(new NodeDefaults);
+	m_ror_default_inertia = std::shared_ptr<Inertia>(new Inertia);
+	m_ror_beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
+	m_ror_node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults);
 }
 
 Parser::~Parser()
@@ -765,11 +765,11 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 		/* Enter sections */
 		if (new_section == File::SECTION_SUBMESH)
 		{
-			m_current_submesh = boost::shared_ptr<Submesh>( new Submesh() );
+			m_current_submesh = std::shared_ptr<Submesh>( new Submesh() );
 		}
 		else if (new_section == File::SECTION_CAMERA_RAIL)
 		{
-			m_current_camera_rail = boost::shared_ptr<CameraRail>( new CameraRail() );
+			m_current_camera_rail = std::shared_ptr<CameraRail>( new CameraRail() );
 		}
 		else if (new_section == File::SECTION_FLEXBODIES)
 		{
@@ -779,7 +779,7 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 		{
 			if (m_current_module->gui_settings == nullptr)
 			{
-				m_current_module->gui_settings = boost::shared_ptr<GuiSettings> ( new GuiSettings() );
+				m_current_module->gui_settings = std::shared_ptr<GuiSettings> ( new GuiSettings() );
 			}
 		}
 
@@ -1441,7 +1441,7 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
 	}
-	m_current_module->traction_control = boost::shared_ptr<TractionControl>( new TractionControl(traction_control) );
+	m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(traction_control) );
 }
 
 void Parser::ParseSubmeshGroundModel(Ogre::String const & line)
@@ -1463,7 +1463,7 @@ void Parser::ParseSpeedLimiter(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
 	}
-	m_current_module->speed_limiter = boost::shared_ptr<SpeedLimiter>( new SpeedLimiter() );
+	m_current_module->speed_limiter = std::shared_ptr<SpeedLimiter>( new SpeedLimiter() );
 
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SPEEDLIMITER))
@@ -1482,7 +1482,7 @@ void Parser::ParseSlopeBrake(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'SlopeBrake' in a module, using last one ...");
 	}
-	m_current_module->slope_brake = boost::shared_ptr<SlopeBrake>( new SlopeBrake() );
+	m_current_module->slope_brake = std::shared_ptr<SlopeBrake>( new SlopeBrake() );
 
 	boost::smatch results;
 	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SLOPE_BRAKE))
@@ -1520,7 +1520,7 @@ void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
 
 	if (m_current_module->skeleton_settings == nullptr)
 	{
-		m_current_module->skeleton_settings = boost::shared_ptr<RigDef::SkeletonSettings>(new SkeletonSettings());
+		m_current_module->skeleton_settings = std::shared_ptr<RigDef::SkeletonSettings>(new SkeletonSettings());
 	}
 
 	float visibility_meters = STR_PARSE_REAL(results[1]);
@@ -1555,7 +1555,7 @@ void Parser::VerifyAndProcessDirectiveSetNodeDefaults(
 	float surface, 
 	unsigned int options)
 {
-	m_user_node_defaults = boost::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
+	m_user_node_defaults = std::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
 
 	m_user_node_defaults->load_weight = (load_weight < 0) ? m_ror_node_defaults->load_weight : load_weight;
 	m_user_node_defaults->friction    = (friction    < 0) ? m_ror_node_defaults->friction    : friction;
@@ -1724,7 +1724,7 @@ void Parser::ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_user_beam_defaults = boost::shared_ptr<BeamDefaults>( new BeamDefaults(*m_user_beam_defaults) );
+	m_user_beam_defaults = std::shared_ptr<BeamDefaults>( new BeamDefaults(*m_user_beam_defaults) );
 
 	m_user_beam_defaults->scale.springiness = STR_PARSE_REAL(results[1]);
 
@@ -1754,7 +1754,7 @@ void Parser::ParseDirectiveSetBeamDefaults(Ogre::String const & line)
 	}
 	/* NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. */
 
-	m_user_beam_defaults = boost::shared_ptr<BeamDefaults>( new BeamDefaults(*m_user_beam_defaults) );
+	m_user_beam_defaults = std::shared_ptr<BeamDefaults>( new BeamDefaults(*m_user_beam_defaults) );
 	/*
 	What's the state of "enable_advanced_deformation" feature at this point?
 	Directive "enable_advanced_deformation" alters the effects of BeamDefaults
@@ -2327,7 +2327,7 @@ void Parser::ParseGlobals(Ogre::String const & line)
 		globals.material_name = results[4];
 	}
 
-	m_current_module->globals = boost::shared_ptr<Globals>( new Globals(globals) );
+	m_current_module->globals = std::shared_ptr<Globals>( new Globals(globals) );
 }
 
 void Parser::ParseFusedrag(Ogre::String const & line)
@@ -2616,7 +2616,7 @@ void Parser::ParseFlexbodyUnsafe(Ogre::String const & line)
 
 void Parser::ProcessFlexbody(Flexbody& flexbody)
 {
-    m_last_flexbody = boost::shared_ptr<Flexbody>( new Flexbody(flexbody) );
+    m_last_flexbody = std::shared_ptr<Flexbody>( new Flexbody(flexbody) );
     m_current_module->flexbodies.push_back(m_last_flexbody);
 
     // Switch subsection
@@ -2791,7 +2791,7 @@ void Parser::ParseExtCamera(Ogre::String const & line)
 
 	if (m_current_module->ext_camera == nullptr)
 	{
-		m_current_module->ext_camera = boost::shared_ptr<RigDef::ExtCamera>( new RigDef::ExtCamera() );
+		m_current_module->ext_camera = std::shared_ptr<RigDef::ExtCamera>( new RigDef::ExtCamera() );
 	}
 
 	if (results[2].matched)
@@ -2897,7 +2897,7 @@ void Parser::ParseCruiseControl(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Found multiple inline sections 'cruise_control' in one module, using last one.");
 	}
-	m_current_module->cruise_control = boost::shared_ptr<CruiseControl>( new CruiseControl(cruise_control) );
+	m_current_module->cruise_control = std::shared_ptr<CruiseControl>( new CruiseControl(cruise_control) );
 }
 
 void Parser::_ParseDirectiveAddAnimationMode(Animation & animation, Ogre::String mode_string)
@@ -3292,7 +3292,7 @@ void Parser::ParseAntiLockBrakes(Ogre::String const & line)
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Found multiple sections 'AntiLockBrakes' in one module, using last one.");
 	}
-	m_current_module->anti_lock_brakes = boost::shared_ptr<AntiLockBrakes>( new AntiLockBrakes(anti_lock_brakes) );
+	m_current_module->anti_lock_brakes = std::shared_ptr<AntiLockBrakes>( new AntiLockBrakes(anti_lock_brakes) );
 }
 
 void Parser::ParseEngoption(Ogre::String const & line)
@@ -3372,7 +3372,7 @@ void Parser::ParseEngoption(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, msg.str());
 	}
 	
-	m_current_module->engoption = boost::shared_ptr<Engoption>( new Engoption(engoption) );
+	m_current_module->engoption = std::shared_ptr<Engoption>( new Engoption(engoption) );
 }
 
 void Parser::ParseEngturbo(Ogre::String const & line)
@@ -3408,7 +3408,7 @@ void Parser::ParseEngturbo(Ogre::String const & line)
 	engturbo.param10 = STR_PARSE_REAL(results[22]);
 	engturbo.param11 = STR_PARSE_REAL(results[24]);
 
-	m_current_module->engturbo = boost::shared_ptr<Engturbo>(new Engturbo(engturbo));
+	m_current_module->engturbo = std::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
 
 void Parser::ParseEngine(Ogre::String const & line)
@@ -3462,7 +3462,7 @@ void Parser::ParseEngine(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Forward gears list is not terminated using '-1.0'. Please fix.");
 	}
 
-	m_current_module->engine = boost::shared_ptr<Engine>( new Engine(engine) );
+	m_current_module->engine = std::shared_ptr<Engine>( new Engine(engine) );
 }
 
 void Parser::ParseContacter(Ogre::String const & line)
@@ -3765,7 +3765,7 @@ void Parser::ParseBrakes(Ogre::String line)
 
 	if (m_current_module->brakes == nullptr)
 	{
-		m_current_module->brakes = boost::shared_ptr<Brakes>( new Brakes() );
+		m_current_module->brakes = std::shared_ptr<Brakes>( new Brakes() );
 	}
 
 	m_current_module->brakes->default_braking_force = STR_PARSE_REAL(results[1]);
@@ -4101,7 +4101,7 @@ void Parser::ParseTorqueCurve(Ogre::String const & line)
 
 	if (m_current_module->torque_curve == nullptr)
 	{
-		m_current_module->torque_curve = boost::shared_ptr<RigDef::TorqueCurve>(new RigDef::TorqueCurve());
+		m_current_module->torque_curve = std::shared_ptr<RigDef::TorqueCurve>(new RigDef::TorqueCurve());
 	}
 
 	if (results[1].matched)
@@ -4668,7 +4668,7 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 	else
 	{
 		// Create
-		m_user_default_inertia = boost::shared_ptr<Inertia>(new Inertia(*m_user_default_inertia.get()));
+		m_user_default_inertia = std::shared_ptr<Inertia>(new Inertia(*m_user_default_inertia.get()));
 
 		// Update
 		m_user_default_inertia->start_delay_factor = start_delay;
@@ -4867,7 +4867,7 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 				report << "\n\tFile version: [not set]";
 			}
 			this->AddMessage(line, Message::TYPE_INVALID, report.str());
-			m_definition->file_info = boost::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
+			m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
 		})
 		return;
 	}
@@ -4931,7 +4931,7 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 		fileinfo._has_file_version_set = true;
 	}
 
-	m_definition->file_info = boost::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
+	m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
 }
 
 void Parser::ParseRopes(Ogre::String const & line)
@@ -5942,7 +5942,7 @@ std::pair<bool, Ogre::String> Parser::GetModuleName(Ogre::String const & line)
 void Parser::SetCurrentModule(Ogre::String const & name)
 {
 
-	std::map< Ogre::String, boost::shared_ptr<File::Module> >::iterator itor
+	std::map< Ogre::String, std::shared_ptr<File::Module> >::iterator itor
 		= m_definition->modules.find(name);
 
 	if (itor != m_definition->modules.end())
@@ -5951,9 +5951,9 @@ void Parser::SetCurrentModule(Ogre::String const & name)
 	}
 	else
 	{
-		m_current_module = boost::shared_ptr<File::Module>( new File::Module(name) );
+		m_current_module = std::shared_ptr<File::Module>( new File::Module(name) );
 		m_definition->modules.insert( 
-				std::pair< Ogre::String, boost::shared_ptr<File::Module> >(name, m_current_module) 
+				std::pair< Ogre::String, std::shared_ptr<File::Module> >(name, m_current_module) 
 			);
 	}
 }
@@ -6036,7 +6036,7 @@ void Parser::Prepare()
 	m_current_subsection = File::SUBSECTION_NONE;
 	m_current_line_number = 1;
 	m_num_contiguous_blank_lines = 0;
-	m_definition = boost::shared_ptr<File>(new File());
+	m_definition = std::shared_ptr<File>(new File());
 	m_in_block_comment = false;
 	m_in_description_section = false;
     m_any_named_node_defined = false;
@@ -6048,7 +6048,7 @@ void Parser::Prepare()
 	m_user_node_defaults = m_ror_node_defaults;
 	m_current_managed_material_options = ManagedMaterialsOptions();
 
-	m_root_module = boost::shared_ptr<File::Module>( new File::Module("_Root_") );
+	m_root_module = std::shared_ptr<File::Module>( new File::Module("_Root_") );
 	m_definition->root_module = m_root_module;
 	m_current_module = m_root_module;
 

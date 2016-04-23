@@ -30,7 +30,7 @@
 #include "RigDef_Prerequisites.h"
 #include "RigDef_File.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <vector>
 
 namespace RigDef
@@ -141,7 +141,7 @@ public:
     void GenerateNodesForWheel(File::Keyword generated_from, int num_rays, bool has_rigidity_node);
 
     /// Traverse whole rig definition and resolve all node references
-    void Process(boost::shared_ptr<RigDef::File> def);
+    void Process(std::shared_ptr<RigDef::File> def);
 
     int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
     int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
@@ -153,7 +153,7 @@ public:
 
 private:
 
-    void ProcessModule(boost::shared_ptr<RigDef::File::Module> module);
+    void ProcessModule(std::shared_ptr<RigDef::File::Module> module);
 
     Node::Ref ResolveNode(Node::Ref const & noderef_in);
     Node::Ref ResolveNodeByIndex(unsigned int index, unsigned int def_line_number);
@@ -179,7 +179,7 @@ private:
     int                                 m_total_resolved;
     int                                 m_num_resolved_to_self;
     File::Keyword                       m_current_keyword;
-    boost::shared_ptr<File::Module>     m_current_module;
+    std::shared_ptr<File::Module>       m_current_module;
     std::list<Message>                  m_messages;
     int                                 m_messages_num_errors;
     int                                 m_messages_num_warnings;

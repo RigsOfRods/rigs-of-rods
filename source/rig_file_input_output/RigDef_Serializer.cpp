@@ -35,7 +35,7 @@
 using namespace RigDef;
 using namespace std;
 
-Serializer::Serializer(boost::shared_ptr<RigDef::File> def_file, Ogre::String const & file_path):
+Serializer::Serializer(std::shared_ptr<RigDef::File> def_file, Ogre::String const & file_path):
 	m_file_path(file_path),
 	m_rig_def(def_file),
 	m_node_id_width(5),
