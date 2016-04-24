@@ -27,10 +27,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/optional.hpp>
 
 
-using Vector = Ogre::Vector3;
-using Matrix = Ogre::Matrix3;
-using Real = float;
-
 /// Defines a linear transformation from cartesian coordinates to local (barycentric) coordinates of a specified triangle.
 /**
  * The barycentric coordinate system of the triangle is defined in terms of its three vertices
@@ -56,11 +52,11 @@ public:
      */
     struct TriangleCoord {
         const struct {
-            Real alpha,  ///< Barycentric coordinate
-                 beta,   ///< Barycentric coordinate
-                 gamma;  ///< Barycentric coordinate
+            Ogre::Real alpha,  ///< Barycentric coordinate
+                       beta,   ///< Barycentric coordinate
+                       gamma;  ///< Barycentric coordinate
         } barycentric;
-        const Real distance;  ///< Shortest (signed) distance to triangle plane
+        const Ogre::Real distance;  ///< Shortest (signed) distance to triangle plane
     };
 
     /// Construct transformation for specified triangle.
@@ -111,7 +107,7 @@ public:
      * \f$\gamma\f$ can be immediately calculated from known values \f$\alpha\f$ and \f$\beta\f$ because
      * \f$\alpha + \beta + \gamma = 1\f$ always holds.
      */
-    TriangleCoord operator() (const Vector &p) const
+    TriangleCoord operator() (const Ogre::Vector3 &p) const
     {
         // lazy initialization of transformation matrix
         if (!m_matrix) {
@@ -119,7 +115,7 @@ public:
         }
 
         // apply transformation matrix and extract alpha, beta, gamma and perpendicular offset
-        const Vector result = *m_matrix * (p - m_triangle.c);
+        const Ogre::Vector3 result = *m_matrix * (p - m_triangle.c);
         return {result[0], result[1], (1.f - result[0] - result[1]), result[2]};
     }
 
@@ -127,16 +123,16 @@ private:
     /// Initialize the transformation matrix
     void InitMatrix() const {
         // determine span and normal vectors
-        const Vector u = m_triangle.u;
-        const Vector v = m_triangle.v;
-        const Vector n = m_triangle.normal();
+        const Ogre::Vector3 u = m_triangle.u;
+        const Ogre::Vector3 v = m_triangle.v;
+        const Ogre::Vector3 n = m_triangle.normal();
         
         // construct and invert matrix
-        m_matrix = Matrix{ u[0], v[0], n[0],
-                           u[1], v[1], n[1],
-                           u[2], v[2], n[2] }.Inverse();
+        m_matrix = Ogre::Matrix3{ u[0], v[0], n[0],
+                                  u[1], v[1], n[1],
+                                  u[2], v[2], n[2] }.Inverse();
     }
 
     const Triangle m_triangle;                 ///< The triangle on which the transformation is based.
-    mutable boost::optional<Matrix> m_matrix;  ///< Cached transformation matrix.
+    mutable boost::optional<Ogre::Matrix3> m_matrix;  ///< Cached transformation matrix.
 };

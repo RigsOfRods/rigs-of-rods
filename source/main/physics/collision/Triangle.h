@@ -23,8 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/optional.hpp>
 
-using Vector = Ogre::Vector3;
-
 /// Represents a triangle in three-dimensional space.
 /**
  * Stores the three vertices #a, #b ,#c of the triangle and two
@@ -34,14 +32,14 @@ using Vector = Ogre::Vector3;
 class Triangle {
 public:
   /// Construct triangle from three given vertices.
-  explicit Triangle(const Vector &a, const Vector &b, const Vector &c)
+  explicit Triangle(const Ogre::Vector3 &a, const Ogre::Vector3 &b, const Ogre::Vector3 &c)
       : a{a}, b{b}, c{c}, u{a - c}, v{b - c} {}
 
   /// Return normal vector of the triangle.
   /**
    * The normal vector has unit length.
    * \warning Not thread-safe due to caching implementation! */
-  Vector normal() const {
+  Ogre::Vector3 normal() const {
     if (!m_normal) {
       m_normal = u.crossProduct(v);
       m_normal->normalise();
@@ -49,13 +47,13 @@ public:
     return *m_normal;
   }
 
-  const Vector a,  ///< Vertex a
-               b,  ///< Vertex b
-               c;  ///< Vertex c
+  const Ogre::Vector3 a,  ///< Vertex a
+                      b,  ///< Vertex b
+                      c;  ///< Vertex c
 
-  const Vector u,  ///< Span vector u
-               v;  ///< Span vector v
+  const Ogre::Vector3 u,  ///< Span vector u
+                      v;  ///< Span vector v
 
 private:
-  mutable boost::optional<Vector> m_normal;  ///< Cached normal vector
+  mutable boost::optional<Ogre::Vector3> m_normal;  ///< Cached normal vector
 };

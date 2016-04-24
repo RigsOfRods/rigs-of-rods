@@ -21,17 +21,16 @@
 
 #include "DynamicCollisions.h"
 
-#include "../../datatypes/node_t.h"
-#include "../Beam.h"
-#include "../BeamData.h"
+#include "Beam.h"
+#include "BeamData.h"
 #include "CartesianToTriangleTransform.h"
 #include "Collisions.h"
 #include "PointColDetector.h"
 #include "Triangle.h"
+#include "node_t.h"
 
-#include <OGRE/OgreVector3.h>
 
-using Vector = Ogre::Vector3;
+using namespace Ogre;
 
 
 /// Determine on which side of a triangle an occuring collision takes place.
@@ -48,7 +47,7 @@ using Vector = Ogre::Vector3;
  * @param nodes         
  */
 static bool BackfaceCollisionTest(const float distance,
-        const Vector &normal,
+        const Vector3 &normal,
         const node_t &surface_point,
         const std::vector<int> &neighbour_node_ids,
         const node_t nodes[])
@@ -98,7 +97,7 @@ static bool InsideTriangleTest(const CartesianToTriangleTransform::TriangleCoord
 void ResolveCollisionForces(const float penetration_depth,
         node_t &hitnode, node_t &na, node_t &nb, node_t &no,
         const float alpha, const float beta, const float gamma,
-        const Vector &normal,
+        const Vector3 &normal,
         const float dt,
         ground_model_t &submesh_ground_model)
 {
@@ -125,7 +124,7 @@ void ResolveCollisionForces(const float penetration_depth,
 
     const float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
-    auto forcevec = Vector::ZERO;
+    auto forcevec = Vector3::ZERO;
     float nso;  // TODO unused
 
     //Calculate the collision forces
