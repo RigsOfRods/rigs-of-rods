@@ -94,10 +94,11 @@ void CLASS::Show()
 	gEnv->frameListener->setSimPaused(true);
 	BeamFactory::getSingleton().MuteAllTrucks();
 
+	m_rig_editor->setEnabled(false);
+
 	if (gEnv->network)
 	{
 		m_back_to_menu->setEnabled(false);
-		m_rig_editor->setEnabled(false);
 		m_change_map->setEnabled(false);
 	}
 }
@@ -140,9 +141,6 @@ void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
-	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)

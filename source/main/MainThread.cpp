@@ -58,8 +58,6 @@
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
 #include "PlayerColours.h"
-#include "RigEditor_Config.h"
-#include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -92,8 +90,7 @@ MainThread::MainThread():
 	m_exit_loop_requested(false),
 	m_base_resource_loaded(false),
 	m_application_state(Application::STATE_NONE),
-	m_next_application_state(Application::STATE_NONE),
-	m_rig_editor(nullptr)
+	m_next_application_state(Application::STATE_NONE)
 {
 	pthread_mutex_init(&m_lock, nullptr);
 	RoR::Application::SetMainThreadLogic(this);
@@ -454,28 +451,7 @@ void MainThread::Go()
 			OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 			assert(ror_ogre_subsystem != nullptr);
 
-			if (previous_application_state == Application::STATE_RIG_EDITOR)
-			{
-				/* Restore 3D engine settings */
-				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
-				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
-				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
-				camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
-				ror_ogre_subsystem->SetViewport(viewport);
-				viewport->setCamera(gEnv->mainCamera);
-
-				/* Restore GUI */
-				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
-				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
-
-				/* Restore input */
-				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
-				RoR::Application::GetInputEngine()->RestoreMouseListener();
-
-				/* Restore wallpaper */
-				menu_wallpaper_widget->setVisible(true);
-			}
-			else if (previous_application_state == Application::STATE_SIMULATION)
+			if (previous_application_state == Application::STATE_SIMULATION)
 			{
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
@@ -528,32 +504,6 @@ void MainThread::Go()
 			// Simulation
 			// ================================================================
 
-			if (previous_application_state == Application::STATE_RIG_EDITOR)
-			{
-				/* Restore 3D engine settings */
-				OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
-				assert(ror_ogre_subsystem != nullptr);
-				ror_ogre_subsystem->GetRenderWindow()->removeAllViewports();
-				Ogre::Viewport* viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
-				viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
-				camera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
-				ror_ogre_subsystem->SetViewport(viewport);
-				viewport->setCamera(gEnv->mainCamera);
-
-				/* Restore GUI */
-				RoR::Application::GetGuiManager()->SetSceneManager(gEnv->sceneManager);
-
-				/* Restore input */
-				RoR::Application::GetInputEngine()->RestoreKeyboardListener();
-				RoR::Application::GetInputEngine()->RestoreMouseListener();
-
-				/* Restore overlays */
-				RoR::Application::GetOverlayWrapper()->RestoreOverlaysVisibility( BeamFactory::getSingleton().getCurrentTruck() );
-
-				/* Setup GUI manager updates */
-				Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::Application::GetGuiManager());
-			}
-
 			if (SetupGameplayLoop(enable_network, preselected_map))
 			{
 				previous_application_state = Application::STATE_SIMULATION;
@@ -563,60 +513,6 @@ void MainThread::Go()
 			{
 				m_next_application_state = Application::STATE_MAIN_MENU;
 			}
-		}
-		else if (m_next_application_state == Application::STATE_RIG_EDITOR)
-		{
-			// ================================================================
-			// Rig editor
-			// ================================================================
-
-			if (m_rig_editor == nullptr)
-			{
-				RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RIG_EDITOR);
-				Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("RigEditor");
-
-				RigEditor::Config* rig_editor_config = new RigEditor::Config(SSETTING("Config Root", "") + "rig_editor.cfg");
-				assert(rig_editor_config != nullptr);
-				m_rig_editor = new RigEditor::Main(rig_editor_config);
-				assert(m_rig_editor != nullptr);
-			}
-			if (previous_application_state == Application::STATE_SIMULATION)
-			{
-				/* Remove viewports */
-				assert(RoR::Application::GetOgreSubsystem() != nullptr);
-				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
-
-				/* Hide overlays */
-				assert(RoR::Application::GetOverlayWrapper() != nullptr);
-				RoR::Application::GetOverlayWrapper()->TemporarilyHideAllOverlays( BeamFactory::getSingleton().getCurrentTruck() );
-
-				/* Stop GUI manager updates */
-				Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(RoR::Application::GetGuiManager());
-
-				/* Hide top menu */
-				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
-				if (top_menu != nullptr)
-				{
-					top_menu->setVisible(false);
-				}
-			}
-			else if (previous_application_state == Application::STATE_MAIN_MENU)
-			{
-				/* Remove viewports */
-				assert(RoR::Application::GetOgreSubsystem() != nullptr);
-				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
-
-				/* Stop GUI manager updates */
-				Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(RoR::Application::GetGuiManager());
-
-				menu_wallpaper_widget->setVisible(false);
-			}
-
-			m_rig_editor->EnterMainLoop();
-
-			m_application_state = Application::STATE_NONE;
-			m_next_application_state = previous_application_state;
-			previous_application_state = Application::STATE_RIG_EDITOR;
 		}
 		else if (m_next_application_state == Application::STATE_CHANGEMAP)
 		{

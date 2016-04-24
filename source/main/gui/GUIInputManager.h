@@ -24,7 +24,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define __GUI_InputManager_H_
 
 #include "RoRPrerequisites.h"
-#include "RigEditor_ForwardDeclarations.h"
 
 #include <OIS.h>
 #include <OgreTimer.h>
@@ -32,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class GUIInputManager
 {
 	friend class InputEngine;
-	friend class RoR::RigEditor::InputHandler;
 
 public:
 

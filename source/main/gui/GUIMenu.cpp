@@ -461,11 +461,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		if (BeamFactory::getSingleton().getCurrentTruck() != 0)
 			Application::GetGuiManager()->ShowVehicleDescription();
 	}
-	else if (id == "rig-editor-enter")
-	{
-		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
-		RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-	}
 
 	//LOG(" menu button pressed: " + _item->getCaption());
 }
