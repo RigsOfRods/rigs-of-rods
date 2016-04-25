@@ -33,7 +33,7 @@
 
 #include <memory>
 #include <string>
-#include <boost/regex.hpp>
+#include <regex>
 
 namespace RigDef
 {
@@ -346,7 +346,7 @@ protected:
 
 	unsigned int _ParseCabOptions(Ogre::String const & options_str);
 
-	void _CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index);
+	void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
 
 	/** Keyword scan function. 
 	*/
@@ -354,7 +354,7 @@ protected:
 
     /** Keyword scan utility function. 
 	*/
-    File::Keyword FindKeywordMatch(boost::smatch& search_results);
+    File::Keyword FindKeywordMatch(std::smatch& search_results);
 
 	/** Adds a message to parser report.
 	*/
@@ -362,7 +362,7 @@ protected:
 
 	/** Helper - parses stuff common to ROTATORS & ROTATORS2
 	*/
-	void _ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, unsigned int inertia_start_index);
+	void _ParseRotatorsCommon(Rotator & rotator, std::smatch & results, unsigned int inertia_start_index);
 
 	/** Nodes and Nodes2 are unified with this parser.
 	*/
@@ -382,7 +382,7 @@ protected:
 
 	/** Commands and Commands2 are unified with this parser.
 	*/
-	void _ParseSectionsCommandsCommands2(Ogre::String const & line, boost::regex const & regex, unsigned int format_version);
+	void _ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version);
 
 	Node::Ref _ParseNodeRef(std::string const & node_id_str);
 
@@ -412,7 +412,7 @@ protected:
 	/**
 	* @return True if there could be more results, false if end was hit.
 	*/
-	bool _ParseOptionalInertia(Inertia & inertia, boost::smatch & results, unsigned int start_index);
+	bool _ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index);
 
 /* -------------------------------------------------------------------------- */
 
