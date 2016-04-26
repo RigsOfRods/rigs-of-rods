@@ -44,8 +44,6 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 
-#include <boost/lexical_cast.hpp>
-
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_LINUX
 #include <iconv.h>
 #endif // LINUX
@@ -288,7 +286,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 				else if (args[1] == "jupiter")
 					gValue = -50;
 				else
-					gValue = boost::lexical_cast<float>(args[1].c_str());
+					gValue = std::stof(args[1]);
 			} else
 			{
 				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Current gravity is: ") + StringConverter::toString(gEnv->terrainManager->getGravity()), "information.png");
@@ -304,7 +302,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			{
 				IWater* water = gEnv->terrainManager->getWater();
 				water->setCamera(gEnv->mainCamera);
-				water->setHeight(boost::lexical_cast<float>(args[1].c_str()));
+				water->setHeight(std::stof(args[1]));
 				water->update();
 				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Water level set to: ") + StringConverter::toString(water->getHeight()), "information.png");
 			}
