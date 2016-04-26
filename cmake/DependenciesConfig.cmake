@@ -116,10 +116,6 @@ endmacro(importLib)
 	importLib(ois_static OIS)
 	set(Ois_LIBRARIES "ois_static" CACHE STRING "The OIS libs to link against")
 
-	set(Boost_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/boost" CACHE PATH "The boost include path to use")
-	set(Boost_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/boost" CACHE PATH "The boost lib path to use")
-	set(Boost_LIBRARIES "optimized;libboost_date_time-vc100-mt-1_48;libboost_filesystem-vc100-mt-1_48;libboost_regex-vc100-mt-1_48.lib" CACHE STRING "The boost libs to link against")
-
 	# special include path for curl ...
 	if(ROR_USE_CURL)
 		set(CURL_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/curl" CACHE PATH "The curl include path to use")
@@ -191,7 +187,6 @@ endmacro(importLib)
 
 ELSEIF(UNIX)
    find_package(PkgConfig)
-   find_package(Boost COMPONENTS system regex REQUIRED)
    PKG_CHECK_MODULES  (GTK gtk+-2.0 REQUIRED)
    PKG_CHECK_MODULES  (GTK_PIXBUF gdk-pixbuf-2.0 REQUIRED)
    include_directories(${GTK_INCLUDE_DIRS})
