@@ -37,8 +37,6 @@
 #include <MyGUI.h>
 #endif //USE_MYGUI
 
-#include <pthread.h>
-
 #if _WIN32
 # include <windows.h> // Sleep()
 #endif // _WIN32
@@ -118,20 +116,6 @@ inline void sleepMilliSeconds(unsigned int ms)
 	// accepts microseconds
 	usleep(ms * 1000);
 #endif
-}
-
-inline unsigned long getThreadID()
-{
-#ifdef _WIN32
-	return (unsigned long)pthread_self().p;
-#else
-	return (unsigned long)pthread_self();
-#endif // _WIN32
-}
-
-inline Ogre::String getThreadIDAsString()
-{
-	return TOSTRING(getThreadID());
 }
 
 Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
