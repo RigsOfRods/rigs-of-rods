@@ -24,8 +24,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreMatrix3.h>
 #include <OgreVector3.h>
 
-#include <boost/optional.hpp>
-
 
 /// Defines a linear transformation from cartesian coordinates to local (barycentric) coordinates of a specified triangle.
 /**
@@ -60,7 +58,7 @@ public:
     };
 
     /// Construct transformation for specified triangle.
-    explicit CartesianToTriangleTransform(const Triangle &triangle) : m_triangle{triangle} {}
+    explicit CartesianToTriangleTransform(const Triangle &triangle) : m_triangle{triangle}, m_initialized{false} {}
 
     /// Transform point into local triangle coordinates.
     /**
@@ -110,12 +108,13 @@ public:
     TriangleCoord operator() (const Ogre::Vector3 &p) const
     {
         // lazy initialization of transformation matrix
-        if (!m_matrix) {
+        if (!m_initialized) {
             InitMatrix();
+            m_initialized = true;
         }
 
         // apply transformation matrix and extract alpha, beta, gamma and perpendicular offset
-        const Ogre::Vector3 result = *m_matrix * (p - m_triangle.c);
+        const Ogre::Vector3 result = m_matrix * (p - m_triangle.c);
         return {result[0], result[1], (1.f - result[0] - result[1]), result[2]};
     }
 
@@ -133,6 +132,7 @@ private:
                                   u[2], v[2], n[2] }.Inverse();
     }
 
-    const Triangle m_triangle;                 ///< The triangle on which the transformation is based.
-    mutable boost::optional<Ogre::Matrix3> m_matrix;  ///< Cached transformation matrix.
+    const Triangle m_triangle;       //< The triangle on which the transformation is based.
+    mutable bool m_initialized;
+    mutable Ogre::Matrix3 m_matrix;  ///< Cached transformation matrix.
 };
