@@ -128,7 +128,7 @@ endmacro(importLib)
 	endif(ROR_USE_CURL)
 
 	set(PThread_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/pthread" CACHE PATH "The pthread include path to use")
-	set(PThread_LIBRARIES "optimized;${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/pthread/Release/pthreadVC2.lib" CACHE STRING "The pthread lib to link against")
+	set(PThread_LIBRARIES "optimized;${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/pthread/Release/pthreadsVC2.lib" CACHE STRING "The pthread lib to link against")
 	include_directories(${PThread_INCLUDE_DIRS})
 
 	# directX
@@ -143,8 +143,8 @@ endmacro(importLib)
 		set(MYGUI_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/MyGUI" CACHE PATH "The mygui include path to use")
 		importLib(MyGUIEngineStatic MyGUI)
 		importLib(MyGUI.OgrePlatform MyGUI)
-		importLib(freetype2311 MyGUI)
-		set(MYGUI_LIBRARIES "MyGUI.OgrePlatform;MyGUIEngineStatic;freetype2311" CACHE STRING "The mygui libs to link against")
+		importLib(freetype MyGUI)
+		set(MYGUI_LIBRARIES "MyGUI.OgrePlatform;MyGUIEngineStatic;freetype" CACHE STRING "The mygui libs to link against")
 	endif(ROR_USE_MYGUI)
 
 	if(ROR_USE_OPENAL)
@@ -155,8 +155,8 @@ endmacro(importLib)
 
 	if(ROR_USE_SOCKETW)
 		set(SOCKETW_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/SocketW" CACHE PATH "The socketw include path to use")
-		importLib(mysocketw SocketW)
-		set(SOCKETW_LIBRARIES    "mysocketw;Ws2_32.lib" CACHE STRING "The socketw lib to link against")
+		importLib(SocketW SocketW)
+		set(SOCKETW_LIBRARIES    "SocketW;Ws2_32.lib" CACHE STRING "The socketw lib to link against")
 	endif(ROR_USE_SOCKETW)
 
 	if(ROR_USE_MOFILEREADER)
