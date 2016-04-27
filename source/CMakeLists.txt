@@ -4,10 +4,6 @@ if(ROR_BUILD_SIM)
   add_subdirectory(main)
 endif()
 
-if(ROR_USE_SKIA)
-add_subdirectory(OgreCanvas)
-endif()
-
 if(ROR_USE_ANGELSCRIPT)
 	add_subdirectory(angelscript_addons)
 endif()
