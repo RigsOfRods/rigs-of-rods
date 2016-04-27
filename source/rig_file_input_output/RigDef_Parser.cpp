@@ -91,10 +91,10 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 	bool scan_for_keyword = true;
 
 	/* Check line type */
-	boost::smatch line_type_result;
+	std::smatch line_type_result;
 	if (m_in_block_comment)
 	{
-		if (boost::regex_match(line, Regexes::CHECK_BLOCK_COMMENT_END))
+		if (std::regex_match(line, Regexes::CHECK_BLOCK_COMMENT_END))
 		{
 			m_in_block_comment = false;
 		}
@@ -102,7 +102,7 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 	}
 	else if (m_in_description_section)
 	{
-		if (boost::regex_match(line, Regexes::CHECK_END_DESCRIPTION))
+		if (std::regex_match(line, Regexes::CHECK_END_DESCRIPTION))
 		{
 			m_in_description_section = false;
 		}
@@ -114,7 +114,7 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 	}
 	else
 	{
-		if (boost::regex_search(line, line_type_result, Regexes::IDENTIFY_LINE_TYPE))
+		if (std::regex_search(line, line_type_result, Regexes::IDENTIFY_LINE_TYPE))
 		{
 			if (line_type_result[1].matched) /* Block comment start */
 			{
@@ -1158,8 +1158,8 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
 
 void Parser::Parse(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes:))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes:))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1172,10 +1172,10 @@ void Parser::Parse(Ogre::String const & line)
 void Parser::ParseWing(Ogre::String const & line)
 {
 	
-	boost::smatch results;
+	std::smatch results;
 	try
 	{
-		if (! boost::regex_search(line, results, Regexes::SECTION_WINGS))
+		if (! std::regex_search(line, results, Regexes::SECTION_WINGS))
 		{
 			AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 			return;
@@ -1238,8 +1238,8 @@ void Parser::ParseWing(Ogre::String const & line)
 
 void Parser::ParseSetCollisionRange(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SET_COLLISION_RANGE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SET_COLLISION_RANGE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1255,8 +1255,8 @@ void Parser::ParseSetCollisionRange(Ogre::String const & line)
 
 void Parser::ParseWheel2(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_WHEELS2))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_WHEELS2))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1318,8 +1318,8 @@ void Parser::ParseWheel2(Ogre::String const & line)
 
 void Parser::ParseWheel(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_WHEELS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_WHEELS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1378,8 +1378,8 @@ void Parser::ParseWheel(Ogre::String const & line)
 
 void Parser::ParseTractionControl(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_TRACTION_CONTROL))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_TRACTION_CONTROL))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1405,8 +1405,8 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 				Ogre::StringVector::iterator iter = tokens.begin();
 				for ( ; iter != tokens.end(); iter++)
 				{
-					boost::smatch results;
-					if (! boost::regex_search(*iter, results, Regexes::TRACTION_CONTROL_MODE))
+					std::smatch results;
+					if (! std::regex_search(*iter, results, Regexes::TRACTION_CONTROL_MODE))
 					{
 						std::string invalid_keyword = *iter;
 						AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
@@ -1446,8 +1446,8 @@ void Parser::ParseTractionControl(Ogre::String const & line)
 
 void Parser::ParseSubmeshGroundModel(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SUBMESH_GROUNDMODEL))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SUBMESH_GROUNDMODEL))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid format of inline-section 'submesh_groundmodel', ignoring...");
 		return;
@@ -1465,8 +1465,8 @@ void Parser::ParseSpeedLimiter(Ogre::String const & line)
 	}
 	m_current_module->speed_limiter = std::shared_ptr<SpeedLimiter>( new SpeedLimiter() );
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SPEEDLIMITER))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SPEEDLIMITER))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1484,8 +1484,8 @@ void Parser::ParseSlopeBrake(Ogre::String const & line)
 	}
 	m_current_module->slope_brake = std::shared_ptr<SlopeBrake>( new SlopeBrake() );
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SLOPE_BRAKE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SLOPE_BRAKE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1510,8 +1510,8 @@ void Parser::ParseSlopeBrake(Ogre::String const & line)
 
 void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_SET_SKELETON_DISPLAY))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SET_SKELETON_DISPLAY))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1612,8 +1612,8 @@ void Parser::ParseDirectiveSetNodeDefaultsUnsafe(Ogre::String const & line)
 
 void Parser::ParseDirectiveSetNodeDefaults(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SET_NODE_DEFAULTS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_NODE_DEFAULTS))
 	{
 		this->ParseDirectiveSetNodeDefaultsUnsafe(line);
 		return;
@@ -1690,8 +1690,8 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 
 void Parser::ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1701,7 +1701,7 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line)
 	/* Param 1: double-sided */
 	Ogre::String input = results[1];
 	int double_sided = STR_PARSE_INT(input); /* Let's do it the way old parser did, even though "input" can be any string */
-	if (! boost::regex_match(input, boost::regex("0|1", boost::regex::extended)))
+	if (! std::regex_match(input, std::regex("0|1", std::regex::ECMAScript)))
 	{
 		AddMessage(
 			line, 
@@ -1716,8 +1716,8 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line)
 
 void Parser::ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SET_BEAM_DEFAULTS_SCALE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_BEAM_DEFAULTS_SCALE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1746,8 +1746,8 @@ void Parser::ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line)
 
 void Parser::ParseDirectiveSetBeamDefaults(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SET_BEAM_DEFAULTS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_BEAM_DEFAULTS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -1898,8 +1898,8 @@ void Parser::ParseDirectivePropCameraMode(Ogre::String const & line)
 		return;
 	}
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_PROP_CAMERA_MODE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_PROP_CAMERA_MODE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid format of directive 'prop_camera_mode', ignoring...");
 		return;
@@ -1980,8 +1980,8 @@ void Parser::ParseMeshWheelUnsafe(Ogre::String const & line)
 
 void Parser::ParseMeshWheel(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_MESHWHEELS_MESHWHEELS2))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_MESHWHEELS_MESHWHEELS2))
 	{
 		this->ParseMeshWheelUnsafe(line);
 		return;
@@ -2043,8 +2043,8 @@ void Parser::ParseMeshWheel2Unsafe(Ogre::String const & line)
 
 void Parser::ParseMeshWheel2(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (!boost::regex_search(line, results, Regexes::SECTION_MESHWHEELS_MESHWHEELS2))
+	std::smatch results;
+	if (!std::regex_search(line, results, Regexes::SECTION_MESHWHEELS_MESHWHEELS2))
 	{
 		this->ParseMeshWheel2Unsafe(line);
 		return;
@@ -2117,8 +2117,8 @@ void Parser::VerifyAndProcessMeshWheel2(Ogre::String const & line, MeshWheel2& m
 
 void Parser::ParseHook(Ogre::String const & line)
 {
-    boost::smatch results;
-    if (! boost::regex_search(line, results, Regexes::SECTION_HOOKS))
+    std::smatch results;
+    if (! std::regex_search(line, results, Regexes::SECTION_HOOKS))
     {
         this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
         return;
@@ -2132,10 +2132,10 @@ void Parser::ParseHook(Ogre::String const & line)
     Ogre::StringVector::iterator iter = tokens.begin();
     for ( ; iter != tokens.end(); iter++)
     {
-        boost::smatch results;
+        std::smatch results;
         Ogre::String entry = *iter;
         Ogre::StringUtil::trim(entry);
-        if (! boost::regex_search(entry, results, Regexes::HOOKS_OPTIONS))
+        if (! std::regex_search(entry, results, Regexes::HOOKS_OPTIONS))
         {
             this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
             return;
@@ -2206,8 +2206,8 @@ void Parser::ParseHelp(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Multiple lines of section 'help', using the last found...");
 	}
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_HELP))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_HELP))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2219,8 +2219,8 @@ void Parser::ParseHelp(Ogre::String const & line)
 
 void Parser::ParseGuiSettings(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_GUISETTINGS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_GUISETTINGS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2290,8 +2290,8 @@ void Parser::ParseGuid(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'guid', using the last defined...");
 	}
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_GUID))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_GUID))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid inline-section 'guid', ignoring...");
 		return;
@@ -2303,9 +2303,9 @@ void Parser::ParseGuid(Ogre::String const & line)
 
 void Parser::ParseGlobals(Ogre::String const & line)
 {
-	boost::smatch results;
-	const boost::regex & regex = Regexes::SECTION_GLOBALS;
-	if (! boost::regex_search(line, results, Regexes::SECTION_GLOBALS))
+	std::smatch results;
+	const std::regex & regex = Regexes::SECTION_GLOBALS;
+	if (! std::regex_search(line, results, Regexes::SECTION_GLOBALS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2332,8 +2332,8 @@ void Parser::ParseGlobals(Ogre::String const & line)
 
 void Parser::ParseFusedrag(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_FUSEDRAG))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_FUSEDRAG))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2401,8 +2401,8 @@ void Parser::ParseDirectiveFlexbodyCameraMode(Ogre::String const & line)
 		return;
 	}
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_FLEXBODY_CAMERA_MODE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_FLEXBODY_CAMERA_MODE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2455,8 +2455,8 @@ unsigned int Parser::_ParseCabOptions(Ogre::String const & options_str)
 
 bool Parser::_TryParseCab(Ogre::String const & line)
 {
-    boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_CAB))
+    std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_CAB))
 	{
 		return false;
 	}
@@ -2519,8 +2519,8 @@ void Parser::ParseSubmesh(Ogre::String const & line)
 	}
 	else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
 	{
-		boost::smatch results;
-		if (! boost::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_TEXCOORDS))
+		std::smatch results;
+		if (! std::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_TEXCOORDS))
 		{
 			this->ParseSubmeshUnsafe(line);
 			return;
@@ -2549,8 +2549,8 @@ void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
     // "forset" keyword is obsolete in fileformatversion >= 450
     // This code is import-only
 
-	boost::smatch line_results;
-	if (! boost::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
+	std::smatch line_results;
+	if (! std::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2563,8 +2563,8 @@ void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
 	for ( ; itor != end; ++itor)
 	{
         unsigned noderef_flags = Node::Ref::IMPORT_STATE_IS_VALID;
-		boost::smatch results;
-		if (! boost::regex_search(*itor, results, Regexes::FORSET_ELEMENT))
+		std::smatch results;
+		if (! std::regex_search(*itor, results, Regexes::FORSET_ELEMENT))
 		{
 			/* Invalid element, attempt to parse as node number for backwards compatibility */
 			unsigned int result = strtoul((*itor).c_str(), nullptr, 10);
@@ -2627,8 +2627,8 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 {
 	if (m_current_subsection == File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
 	{
-		boost::smatch results;
-		if (! boost::regex_search(line, results, Regexes::FLEXBODIES_SUBSECTION_PROPLIKE_LINE))
+		std::smatch results;
+		if (! std::regex_search(line, results, Regexes::FLEXBODIES_SUBSECTION_PROPLIKE_LINE))
 		{
 			this->ParseFlexbodyUnsafe(line);
 			return;
@@ -2667,8 +2667,8 @@ void Parser::ParseFlexbody(Ogre::String const & line)
 
 void Parser::ParseFlare2(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_FLARES2))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_FLARES2))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
 		return;
@@ -2713,8 +2713,8 @@ void Parser::ParseFlare2(Ogre::String const & line)
 
 void Parser::ParseFlare(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_FLARES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_FLARES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2768,8 +2768,8 @@ void Parser::ParseFlare(Ogre::String const & line)
 
 void Parser::ParseFixes(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::NODE_LIST))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::NODE_LIST))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2781,8 +2781,8 @@ void Parser::ParseFixes(Ogre::String const & line)
 
 void Parser::ParseExtCamera(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_EXTCAMERA))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_EXTCAMERA))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Inline-section 'ext_camera' has incorrect format, ignoring...");
 		return;
@@ -2811,8 +2811,8 @@ void Parser::ParseExtCamera(Ogre::String const & line)
 
 void Parser::ParseExhaust(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_EXHAUSTS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_EXHAUSTS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2838,8 +2838,8 @@ void Parser::ParseExhaust(Ogre::String const & line)
 
 void Parser::ParseFileFormatVersion(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_FILE_FORMAT_VERSION))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_FILE_FORMAT_VERSION))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2857,8 +2857,8 @@ void Parser::ParseFileFormatVersion(Ogre::String const & line)
 
 void Parser::ParseDirectiveDetacherGroup(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_DETACHER_GROUP))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_DETACHER_GROUP))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'detacher_group', ignoring...");
 		return;
@@ -2881,8 +2881,8 @@ void Parser::ParseDirectiveDetacherGroup(Ogre::String const & line)
 
 void Parser::ParseCruiseControl(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_CRUISECONTROL))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_CRUISECONTROL))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -2908,8 +2908,8 @@ void Parser::_ParseDirectiveAddAnimationMode(Animation & animation, Ogre::String
 	Ogre::StringVector::iterator iter = tokens.begin();
 	for ( ; iter != tokens.end(); iter++)
 	{
-		boost::smatch results;
-		if (! boost::regex_search(*iter, results, Regexes::IDENTIFY_ADD_ANIMATION_MODE))
+		std::smatch results;
+		if (! std::regex_search(*iter, results, Regexes::IDENTIFY_ADD_ANIMATION_MODE))
 		{
 			AddMessage(*iter, Message::TYPE_ERROR, "Invalid mode for directive 'add_animation', ignoring...");
 			return;
@@ -2960,8 +2960,8 @@ void Parser::_ParseDirectiveAddAnimationSource(Animation & animation, Ogre::Stri
 	Ogre::StringVector::iterator iter = tokens.begin();
 	for ( ; iter != tokens.end(); iter++)
 	{
-		boost::smatch results;
-		if (! boost::regex_search(*iter, results, Regexes::IDENTIFY_ADD_ANIMATION_SOURCE))
+		std::smatch results;
+		if (! std::regex_search(*iter, results, Regexes::IDENTIFY_ADD_ANIMATION_SOURCE))
 		{
 			AddMessage(*iter, Message::TYPE_ERROR, "Invalid source for directive 'add_animation', ignoring...");
 			return;
@@ -3141,8 +3141,8 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 		return;
 	}
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_ADD_ANIMATION))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_ADD_ANIMATION))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'add_animation', ignoring...");
 		return;
@@ -3158,8 +3158,8 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 
 	for (Ogre::StringVector::iterator itor = tokens.begin(); itor != tokens.end(); itor++)
 	{
-		boost::smatch token_results;
-		if (! boost::regex_search(*itor, token_results, Regexes::IDENTIFY_ADD_ANIMATION_TOKEN))
+		std::smatch token_results;
+		if (! std::regex_search(*itor, token_results, Regexes::IDENTIFY_ADD_ANIMATION_TOKEN))
 		{
 			std::stringstream msg;
 			msg << "Directive 'add_animation': Unrecognized/misplaced token '" << *itor << "', ignoring....";
@@ -3233,8 +3233,8 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
 
 void Parser::ParseAntiLockBrakes(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_ANTI_LOCK_BRAKES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_ANTI_LOCK_BRAKES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3257,8 +3257,8 @@ void Parser::ParseAntiLockBrakes(Ogre::String const & line)
 			Ogre::StringVector::iterator iter = tokens.begin();
 			for ( ; iter != tokens.end(); iter++)
 			{
-				boost::smatch results;
-				if (! boost::regex_search(*iter, results, Regexes::ANTI_LOCK_BRAKES_MODE))
+				std::smatch results;
+				if (! std::regex_search(*iter, results, Regexes::ANTI_LOCK_BRAKES_MODE))
 				{
 					std::string invalid_keyword = *iter;
 					AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
@@ -3297,8 +3297,8 @@ void Parser::ParseAntiLockBrakes(Ogre::String const & line)
 
 void Parser::ParseEngoption(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ENGOPTION))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ENGOPTION))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3377,8 +3377,8 @@ void Parser::ParseEngoption(Ogre::String const & line)
 
 void Parser::ParseEngturbo(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (!boost::regex_search(line, results, Regexes::SECTION_ENGTURBO))
+	std::smatch results;
+	if (!std::regex_search(line, results, Regexes::SECTION_ENGTURBO))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3413,8 +3413,8 @@ void Parser::ParseEngturbo(Ogre::String const & line)
 
 void Parser::ParseEngine(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ENGINE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ENGINE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3467,8 +3467,8 @@ void Parser::ParseEngine(Ogre::String const & line)
 
 void Parser::ParseContacter(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::NODE_LIST))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::NODE_LIST))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3488,10 +3488,10 @@ void Parser::ParseCommand2(Ogre::String const & line)
 	_ParseSectionsCommandsCommands2(line, Regexes::SECTION_COMMANDS_2, 2);
 }
 
-void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::regex const & regex, unsigned int format_version)
+void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, regex))
+	std::smatch results;
+	if (! std::regex_search(line, results, regex))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3635,9 +3635,9 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 				if (results[result_index].matched)
 				{
 					std::string rest_of_line = results[result_index];
-					boost::smatch rest_of_results;
+					std::smatch rest_of_results;
 					result_index = 0;
-					if (boost::regex_search(rest_of_line, rest_of_results, Regexes::SECTION_COMMANDS2_INERTIA_ENGINE_PART))
+					if (std::regex_search(rest_of_line, rest_of_results, Regexes::SECTION_COMMANDS2_INERTIA_ENGINE_PART))
 					{
 						if (_ParseOptionalInertia(command2.inertia, rest_of_results, 2))
 						{
@@ -3675,8 +3675,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, boost::r
 
 void Parser::ParseCollisionBox(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_COLLISIONBOXES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_COLLISIONBOXES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3697,8 +3697,8 @@ void Parser::ParseCollisionBox(Ogre::String const & line)
 
 void Parser::ParseCinecam(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_CINECAM))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_CINECAM))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3740,8 +3740,8 @@ void Parser::ParseCinecam(Ogre::String const & line)
 
 void Parser::ParseCameraRails(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_CAMERARAILS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_CAMERARAILS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3753,8 +3753,8 @@ void Parser::ParseCameraRails(Ogre::String const & line)
 
 void Parser::ParseBrakes(Ogre::String line)
 {
-	boost::smatch results;
-	bool result = boost::regex_search(line, results, Regexes::SECTION_BRAKES);
+	std::smatch results;
+	bool result = std::regex_search(line, results, Regexes::SECTION_BRAKES);
 	if (! result)
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
@@ -3787,8 +3787,8 @@ void Parser::ParseAxles(Ogre::String const & line)
 	Ogre::StringVector::iterator iter = tokens.begin();
 	for ( ; iter != tokens.end(); iter++)
 	{
-		boost::smatch results;
-		if (! boost::regex_search(*iter, results, Regexes::SECTION_AXLES_PROPERTY))
+		std::smatch results;
+		if (! std::regex_search(*iter, results, Regexes::SECTION_AXLES_PROPERTY))
 		{
 			AddMessage(line, Message::TYPE_ERROR, "Invalid property, ignoring whole line...");
 			return;
@@ -3830,8 +3830,8 @@ void Parser::ParseAxles(Ogre::String const & line)
 
 void Parser::ParseAirbrakes(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_AIRBRAKES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_AIRBRAKES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3859,8 +3859,8 @@ void Parser::ParseAirbrakes(Ogre::String const & line)
 
 void Parser::ParseVideoCamera(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_VIDEOCAMERA))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_VIDEOCAMERA))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3874,13 +3874,13 @@ void Parser::ParseVideoCamera(Ogre::String const & line)
 	videocamera.bottom_node          = _ParseNodeRef(results[3]);
 
 	std::string param_4 = results[4];
-	if (! boost::regex_match(param_4, Regexes::MINUS_ONE_REAL))
+	if (! std::regex_match(param_4, Regexes::MINUS_ONE_REAL))
 	{
 		videocamera.alt_reference_node = _ParseNodeRef(param_4);
 	}
 
 	std::string param_5 = results[5];
-	if (! boost::regex_match(param_5, Regexes::MINUS_ONE_REAL))
+	if (! std::regex_match(param_5, Regexes::MINUS_ONE_REAL))
 	{
 		videocamera.alt_orientation_node = _ParseNodeRef(param_5);
 	}
@@ -3927,8 +3927,8 @@ void Parser::ParseCamerasUnsafe(Ogre::String const & line)
 
 void Parser::ParseCameras(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_CAMERAS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_CAMERAS))
 	{
 		this->ParseCamerasUnsafe(line);
 		return;
@@ -3945,8 +3945,8 @@ void Parser::ParseCameras(Ogre::String const & line)
 
 void Parser::ParseTurboprops(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_TURBOPROPS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_TURBOPROPS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3968,8 +3968,8 @@ void Parser::ParseTurboprops(Ogre::String const & line)
 
 void Parser::ParseTurbojets(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_TURBOJETS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_TURBOJETS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -3992,8 +3992,8 @@ void Parser::ParseTurbojets(Ogre::String const & line)
 
 void Parser::ParseTriggers(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_TRIGGERS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_TRIGGERS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4091,8 +4091,8 @@ void Parser::ParseTriggers(Ogre::String const & line)
 
 void Parser::ParseTorqueCurve(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_TORQUECURVE))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_TORQUECURVE))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4119,8 +4119,8 @@ void Parser::ParseTorqueCurve(Ogre::String const & line)
 
 void Parser::ParseTies(Ogre::String const & line)
 {
-    boost::smatch results;
-    if (! boost::regex_search(line, results, Regexes::SECTION_TIES))
+    std::smatch results;
+    if (! std::regex_search(line, results, Regexes::SECTION_TIES))
     {
         this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
         return;
@@ -4173,8 +4173,8 @@ void Parser::ParseTies(Ogre::String const & line)
 
 void Parser::ParseSoundsources(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_SOUNDSOURCES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_SOUNDSOURCES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4191,8 +4191,8 @@ void Parser::ParseSoundsources(Ogre::String const & line)
 void Parser::ParseSoundsources2(Ogre::String const & line)
 {
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_SOUNDSOURCES2))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_SOUNDSOURCES2))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4206,7 +4206,7 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 	/* Mode */
 	int mode = 0;
 	Ogre::String mode_str = results[3];
-	if (! boost::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
+	if (! std::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
 	{
 		AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter ~2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
 	}
@@ -4236,8 +4236,8 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
 
 void Parser::ParseSlidenodes(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_SLIDENODES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_SLIDENODES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4251,8 +4251,8 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 	Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
 	for (Ogre::StringVector::iterator itor = tokens.begin(); itor != tokens.end(); ++itor)
 	{
-		boost::smatch token_results;
-		if (boost::regex_search(*itor, token_results, Regexes::SLIDENODES_IDENTIFY_OPTION))
+		std::smatch token_results;
+		if (std::regex_search(*itor, token_results, Regexes::SLIDENODES_IDENTIFY_OPTION))
 		{
 			in_rail_node_list = false;
 
@@ -4326,8 +4326,8 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
 
 void Parser::ParseShock2(Ogre::String const & line)
 {
-    boost::smatch results;
-    if (!boost::regex_search(line, results, Regexes::SECTION_SHOCKS2))
+    std::smatch results;
+    if (!std::regex_search(line, results, Regexes::SECTION_SHOCKS2))
     {
         this->ParseShock2Unsafe(line);
         return;
@@ -4513,8 +4513,8 @@ unsigned int Parser::ParseShockOptions(Ogre::String const & line, std::string co
 
 void Parser::ParseShock(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_SHOCKS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_SHOCKS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4603,7 +4603,7 @@ void Parser::ParseShockUnsafe(Ogre::String const & line)
 	});
 }
 
-void Parser::_CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index)
+void Parser::_CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index)
 {
 	if (results[index].matched) /* Invalid trailing text */
 	{
@@ -4646,8 +4646,8 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
 
 void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SET_INERTIA_DEFAULTS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_INERTIA_DEFAULTS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4697,8 +4697,8 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 
 void Parser::ParseScrewprops(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_SCREWPROPS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_SCREWPROPS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4715,7 +4715,7 @@ void Parser::ParseScrewprops(Ogre::String const & line)
 	m_current_module->screwprops.push_back(screwprop);
 }
 
-void Parser::_ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, unsigned int inertia_start_index)
+void Parser::_ParseRotatorsCommon(Rotator & rotator, std::smatch & results, unsigned int inertia_start_index)
 {
 	rotator.axis_nodes[0] = _ParseNodeRef(results[1]);
 	rotator.axis_nodes[1] = _ParseNodeRef(results[3]);
@@ -4756,8 +4756,8 @@ void Parser::_ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, un
 
 void Parser::ParseRotators(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ROTATORS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ROTATORS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4775,7 +4775,7 @@ void Parser::ParseRotators(Ogre::String const & line)
 	if (results[inertia_start_index].matched)
 	{
 		std::string start_delay_str = results[inertia_start_index];
-		if (! boost::regex_match(start_delay_str, Regexes::REAL_NUMBER))
+		if (! std::regex_match(start_delay_str, Regexes::REAL_NUMBER))
 		{
 			float result = STR_PARSE_REAL(start_delay_str);
 			std::stringstream msg;
@@ -4790,8 +4790,8 @@ void Parser::ParseRotators(Ogre::String const & line)
 
 void Parser::ParseRotators2(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ROTATORS2))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ROTATORS2))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4824,8 +4824,8 @@ void Parser::ParseRotators2(Ogre::String const & line)
 
 void Parser::ParseFileinfo(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_FILEINFO))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_FILEINFO))
 	{
 		// Do exactly what legacy parser would.
 		PARSE_UNSAFE(line, 2,
@@ -4936,8 +4936,8 @@ void Parser::ParseFileinfo(Ogre::String const & line)
 
 void Parser::ParseRopes(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ROPES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ROPES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4970,8 +4970,8 @@ void Parser::ParseRopes(Ogre::String const & line)
 
 void Parser::ParseRopables(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ROPABLES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ROPABLES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -4999,8 +4999,8 @@ void Parser::ParseRopables(Ogre::String const & line)
 
 void Parser::ParseRailGroups(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_RAILGROUPS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_RAILGROUPS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5023,8 +5023,8 @@ void Parser::ParseRailGroups(Ogre::String const & line)
 
 void Parser::ParseProps(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_PROPS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_PROPS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5047,8 +5047,8 @@ void Parser::ParseProps(Ogre::String const & line)
 	prop.mesh_name = results[19];
 
 	/* Special props */
-	boost::smatch special_results;
-	if (boost::regex_search(prop.mesh_name, special_results, Regexes::SPECIAL_PROPS))
+	std::smatch special_results;
+	if (std::regex_search(prop.mesh_name, special_results, Regexes::SPECIAL_PROPS))
 	{
 		for (int i = 1; i <= 11; i++)
 		{
@@ -5059,8 +5059,8 @@ void Parser::ParseProps(Ogre::String const & line)
 					prop.special = Prop::Special(i);
 
 					std::string special_params = results[21];
-					boost::smatch dashboard_results;
-					if (boost::regex_search(special_params, dashboard_results, Regexes::SPECIAL_PROP_DASHBOARD))
+					std::smatch dashboard_results;
+					if (std::regex_search(special_params, dashboard_results, Regexes::SPECIAL_PROP_DASHBOARD))
 					{
 						if ( dashboard_results[4].matched )
 						{
@@ -5089,8 +5089,8 @@ void Parser::ParseProps(Ogre::String const & line)
 				{
 					prop.special = Prop::Special(i);
 					std::string special_params = results[21];
-					boost::smatch beacon_results;
-					if (boost::regex_search(special_params, beacon_results, Regexes::SPECIAL_PROP_BEACON))
+					std::smatch beacon_results;
+					if (std::regex_search(special_params, beacon_results, Regexes::SPECIAL_PROP_BEACON))
 					{
 						/* Flare material name */
 						prop.special_prop_beacon.flare_material_name = beacon_results[1];
@@ -5117,8 +5117,8 @@ void Parser::ParseProps(Ogre::String const & line)
 
 void Parser::ParsePistonprops(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_PISTONPROPS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_PISTONPROPS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5150,8 +5150,8 @@ void Parser::ParsePistonprops(Ogre::String const & line)
 
 void Parser::ParseParticles(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_PARTICLES))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_PARTICLES))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5314,13 +5314,13 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_ver
     Parser::_TrimTrailingComments(line_in, line);
 
     // Parse line
-    boost::smatch results;
-    const boost::regex* regex_ptr = &Regexes::SECTION_NODES;
+    std::smatch results;
+    const std::regex* regex_ptr = &Regexes::SECTION_NODES;
     if (is_version_2)
     {
         regex_ptr = &Regexes::SECTION_NODES_2;
     }
-    if (! boost::regex_search(line, results, *regex_ptr))
+    if (! std::regex_search(line, results, *regex_ptr))
     {
         if (m_sequential_importer.IsEnabled()) // Are we imporing legacy fileformat?
         {
@@ -5388,8 +5388,8 @@ void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_ver
 
 void Parser::ParseNodeCollision(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_NODECOLLISION))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_NODECOLLISION))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5404,8 +5404,8 @@ void Parser::ParseNodeCollision(Ogre::String const & line)
 
 void Parser::ParseMinimass(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_MINIMASS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_MINIMASS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5424,8 +5424,8 @@ void Parser::ParseMinimass(Ogre::String const & line)
 
 void Parser::ParseFlexBodyWheel(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_FLEXBODYWHEELS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_FLEXBODYWHEELS))
 	{
 		this->ParseFlexBodyWheelUnsafe(line);
 		return;
@@ -5536,8 +5536,8 @@ void Parser::VerifyAndProcessFlexBodyWheel(Ogre::String const & line, FlexBodyWh
 
 void Parser::ParseMaterialFlareBindings(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_MATERIALFLAREBINDINGS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_MATERIALFLAREBINDINGS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5558,8 +5558,8 @@ void Parser::ParseMaterialFlareBindings(Ogre::String const & line)
 
 void Parser::ParseManagedMaterials(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_MANAGEDMATERIALS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_MANAGEDMATERIALS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5630,8 +5630,8 @@ void Parser::ParseManagedMaterials(Ogre::String const & line)
 
 void Parser::ParseLockgroups(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_LOCKGROUPS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_LOCKGROUPS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5657,8 +5657,8 @@ void Parser::ParseLockgroups(Ogre::String const & line)
 
 void Parser::ParseHydros(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_HYDROS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_HYDROS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5685,7 +5685,7 @@ void Parser::ParseHydros(Ogre::String const & line)
 	m_current_module->hydros.push_back(hydro);
 }
 
-bool Parser::_ParseOptionalInertia(Inertia & inertia, boost::smatch & results, unsigned int start_index)
+bool Parser::_ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index)
 {
 	unsigned int result_index = start_index;
 
@@ -5728,8 +5728,8 @@ void Parser::ParseBeams(Ogre::String const & _line)
     Parser::_TrimTrailingComments(_line, line);
 
 	// Parse arguments
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_BEAMS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_BEAMS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5781,8 +5781,8 @@ void Parser::ParseBeams(Ogre::String const & _line)
 
 void Parser::ParseAnimator(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::SECTION_ANIMATORS))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::SECTION_ANIMATORS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5807,7 +5807,7 @@ void Parser::ParseAnimator(Ogre::String const & line)
 		Ogre::StringUtil::trim(token);
 
 		/* Numbered keywords */
-		if (boost::regex_search(token, results, Regexes::PARSE_ANIMATORS_NUMBERED_KEYWORD))
+		if (std::regex_search(token, results, Regexes::PARSE_ANIMATORS_NUMBERED_KEYWORD))
 		{
 			AeroAnimator aero_animator;
 			
@@ -5819,7 +5819,7 @@ void Parser::ParseAnimator(Ogre::String const & line)
 
 			animator.aero_animator.motor = STR_PARSE_INT(results[2]);
 		}
-		else if (boost::regex_search(token, results, Regexes::PARSE_ANIMATORS_KEY_COLON_VALUE))
+		else if (std::regex_search(token, results, Regexes::PARSE_ANIMATORS_KEY_COLON_VALUE))
 		{
 			if (results[1] == "shortlimit")
 			{
@@ -5877,8 +5877,8 @@ void Parser::ParseAuthor(Ogre::String const & line)
 		AddMessage(line, Message::TYPE_WARNING, "Inline-section 'author' has global effect and should not appear in a module");
 	}
 
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::INLINE_SECTION_AUTHOR))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::INLINE_SECTION_AUTHOR))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return;
@@ -5928,8 +5928,8 @@ void Parser::ParseAuthor(Ogre::String const & line)
 
 std::pair<bool, Ogre::String> Parser::GetModuleName(Ogre::String const & line)
 {
-	boost::smatch results;
-	if (! boost::regex_search(line, results, Regexes::DIRECTIVE_SECTION))
+	std::smatch results;
+	if (! std::regex_search(line, results, Regexes::DIRECTIVE_SECTION))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
 		return std::make_pair(false, "");
@@ -5994,8 +5994,8 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
 File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
 {
     // Search with correct lettercase
-	boost::smatch results;
-	boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
+	std::smatch results;
+	std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
     File::Keyword keyword = FindKeywordMatch(results);
     if (keyword != File::KEYWORD_INVALID)
     {
@@ -6003,7 +6003,7 @@ File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
     }
 
     // Search and ignore lettercase
-    boost::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
+    std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
     keyword = FindKeywordMatch(results);
     if (keyword != File::KEYWORD_INVALID)
     {
@@ -6013,14 +6013,14 @@ File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
     return keyword;
 }
 
-File::Keyword Parser::FindKeywordMatch(boost::smatch& search_results)
+File::Keyword Parser::FindKeywordMatch(std::smatch& search_results)
 {
     /* The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
 		so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
 		*/
 	for (unsigned int i = 1; i < search_results.size(); i++)
 	{
-		boost::ssub_match sub  = search_results[i];
+		std::ssub_match sub  = search_results[i];
 		if (sub.matched)
 		{
 			/* Build enum value directly from result offset */
