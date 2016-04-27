@@ -3,8 +3,6 @@ project(OgreCanvas)
 FILE(GLOB_RECURSE sources *.cpp *.h)
 
 include_directories(${Ogre_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${SKIA_INCLUDE_DIRS})
 
 add_definitions(-DOGRE_CANVAS_LIB)
 
