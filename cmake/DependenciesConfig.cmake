@@ -82,14 +82,12 @@ endmacro(importLib)
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
-			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
 			"The ogre include path to use")
 		importLib(OgreMain Ogre)
 		importLib(OgreTerrain Ogre)
 		importLib(OgrePaging Ogre)
 		importLib(OgreRTShaderSystem Ogre)
-		importLib(OgreProperty Ogre)
-		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty" CACHE STRING "The Ogre libs to link against")
+		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem" CACHE STRING "The Ogre libs to link against")
 			
 	else()
 	
@@ -98,7 +96,6 @@ endmacro(importLib)
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
-			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Overlay;"
 			"The ogre include path to use")
 
@@ -106,19 +103,14 @@ endmacro(importLib)
 		importLib(OgreTerrain Ogre)
 		importLib(OgrePaging Ogre)
 		importLib(OgreRTShaderSystem Ogre)
-		importLib(OgreProperty Ogre)
 		importLib(OgreOverlay Ogre)
-		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty;OgreOverlay" CACHE STRING "The Ogre libs to link against")
+		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreOverlay" CACHE STRING "The Ogre libs to link against")
 		
 	endif()
 
 	set(Ois_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/ois" CACHE PATH "The OIS include path to use")
 	importLib(ois_static OIS)
 	set(Ois_LIBRARIES "ois_static" CACHE STRING "The OIS libs to link against")
-
-	set(Boost_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/boost" CACHE PATH "The boost include path to use")
-	set(Boost_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/boost" CACHE PATH "The boost lib path to use")
-	set(Boost_LIBRARIES "optimized;libboost_date_time-vc100-mt-1_48;libboost_filesystem-vc100-mt-1_48;libboost_regex-vc100-mt-1_48.lib" CACHE STRING "The boost libs to link against")
 
 	# special include path for curl ...
 	if(ROR_USE_CURL)
@@ -191,7 +183,6 @@ endmacro(importLib)
 
 ELSEIF(UNIX)
    find_package(PkgConfig)
-   find_package(Boost COMPONENTS system regex REQUIRED)
    PKG_CHECK_MODULES  (GTK gtk+-2.0 REQUIRED)
    PKG_CHECK_MODULES  (GTK_PIXBUF gdk-pixbuf-2.0 REQUIRED)
    include_directories(${GTK_INCLUDE_DIRS})
