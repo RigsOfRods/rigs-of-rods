@@ -82,14 +82,12 @@ endmacro(importLib)
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
-			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
 			"The ogre include path to use")
 		importLib(OgreMain Ogre)
 		importLib(OgreTerrain Ogre)
 		importLib(OgrePaging Ogre)
 		importLib(OgreRTShaderSystem Ogre)
-		importLib(OgreProperty Ogre)
-		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty" CACHE STRING "The Ogre libs to link against")
+		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem" CACHE STRING "The Ogre libs to link against")
 			
 	else()
 	
@@ -98,7 +96,6 @@ endmacro(importLib)
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Paging;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/RTShaderSystem;"
-			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Property;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Overlay;"
 			"The ogre include path to use")
 
@@ -106,9 +103,8 @@ endmacro(importLib)
 		importLib(OgreTerrain Ogre)
 		importLib(OgrePaging Ogre)
 		importLib(OgreRTShaderSystem Ogre)
-		importLib(OgreProperty Ogre)
 		importLib(OgreOverlay Ogre)
-		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreProperty;OgreOverlay" CACHE STRING "The Ogre libs to link against")
+		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreOverlay" CACHE STRING "The Ogre libs to link against")
 		
 	endif()
 
