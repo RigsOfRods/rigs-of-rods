@@ -30,7 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "StreamableFactory.h"
 #include "TwoDReplay.h"
 
-#include <pthread.h>
+#include <future>
 
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
@@ -77,11 +77,6 @@ public:
 	*/
 	void _WorkerWaitForSync();
 	
-	/**
-	* Threading; Prepare to start working
-	*/
-	void _WorkerPrepareStart(); 
-
 	/**
 	* Threading; Signals to start working
 	*/
@@ -162,15 +157,6 @@ public:
 
 	void windowResized();
 
-	bool thread_done;
-	pthread_cond_t thread_done_cv;
-	pthread_mutex_t thread_done_mutex;
-
-	bool work_done;
-	pthread_cond_t work_done_cv;
-	pthread_mutex_t work_done_mutex;
-	pthread_t worker_thread;
-
 	void threadentry();
 
 #ifdef USE_ANGELSCRIPT
@@ -181,6 +167,8 @@ public:
 
 protected:
 	
+	std::shared_future<void> thread_future;
+
 	bool thread_mode;
 	int num_cpu_cores;
 
@@ -188,6 +176,7 @@ protected:
 	int free_truck;
 	int previous_truck;
 	int current_truck;
+	int simulatedTruck;
 
 	bool forced_active; // disables sleepcount
 

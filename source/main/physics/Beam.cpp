@@ -1644,7 +1644,6 @@ bool Beam::frameStep(int steps)
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
 		{
 			tsteps = steps;
-			BeamFactory::getSingleton()._WorkerPrepareStart();
 			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
 	}

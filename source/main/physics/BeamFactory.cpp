@@ -63,9 +63,6 @@ using namespace RoR;
 
 template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
 
-int simulatedTruck;
-void* threadstart(void* vid);
-
 void cpuID(unsigned i, unsigned regs[4]) {
 #ifdef _WIN32
 	__cpuid((int *)regs, (int)i);
@@ -152,9 +149,7 @@ BeamFactory::BeamFactory() :
 	, num_cpu_cores(0)
 	, previous_truck(-1)
 	, tdr(0)
-	, thread_done(true)
 	, thread_mode(THREAD_SINGLE)
-	, work_done(false)
 {
 	bool disableThreadPool = BSETTING("DisableThreadPool", false);
 
@@ -191,27 +186,11 @@ BeamFactory::BeamFactory() :
 			gEnv->threadPool = new ThreadPool(num_cpu_cores);
 			LOG("BEAMFACTORY: Creating " + TOSTRING(num_cpu_cores) + " threads");
 		}
-
-		pthread_cond_init(&thread_done_cv, NULL);
-		pthread_cond_init(&work_done_cv, NULL);
-		pthread_mutex_init(&thread_done_mutex, NULL);
-		pthread_mutex_init(&work_done_mutex, NULL);
-
-		if (pthread_create(&worker_thread, NULL, threadstart, this))
-		{
-			LOG("BEAMFACTORY: Can not start a thread");
-			ErrorUtils::ShowError(UTFString("Error"), _L("Failed to start a thread."));
-			exit(1);
-		}
 	}
 }
 
 BeamFactory::~BeamFactory()
 {
-	pthread_cond_destroy(&thread_done_cv);
-	pthread_cond_destroy(&work_done_cv);
-	pthread_mutex_destroy(&thread_done_mutex);
-	pthread_mutex_destroy(&work_done_mutex);
 }
 
 bool BeamFactory::removeBeam(Beam *b)
@@ -1027,24 +1006,9 @@ void BeamFactory::windowResized()
 
 void BeamFactory::_WorkerWaitForSync()
 {
-	if (thread_mode == THREAD_MULTI)
+	if (thread_future.valid())
 	{
-		MUTEX_LOCK(&thread_done_mutex);
-		while (!thread_done)
-		{
-			pthread_cond_wait(&thread_done_cv, &thread_done_mutex);
-		}
-		MUTEX_UNLOCK(&thread_done_mutex);
-	}
-}
-
-void BeamFactory::_WorkerPrepareStart()
-{
-	if (thread_mode == THREAD_MULTI)
-	{
-		MUTEX_LOCK(&thread_done_mutex);
-		thread_done = false;
-		MUTEX_UNLOCK(&thread_done_mutex);
+		thread_future.get();
 	}
 }
 
@@ -1052,10 +1016,9 @@ void BeamFactory::_WorkerSignalStart()
 {
 	if (thread_mode == THREAD_MULTI)
 	{
-		MUTEX_LOCK(&work_done_mutex);
-		work_done = true;
-		MUTEX_UNLOCK(&work_done_mutex);
-		pthread_cond_signal(&work_done_cv);
+		thread_future = std::async(std::launch::async, [this]() {
+			threadentry();
+		});
 	}
 }
 
@@ -1160,34 +1123,4 @@ void BeamFactory::threadentry()
 			gEnv->threadPool->Parallelize(tasks);
 		}
 	}
-}
-
-void* threadstart(void* vid)
-{
-	BeamFactory *bf = static_cast<BeamFactory*>(vid);
-
-	while (1)
-	{
-		MUTEX_LOCK(&bf->work_done_mutex);
-
-		MUTEX_LOCK(&bf->thread_done_mutex);
-		bf->thread_done = true;
-		MUTEX_UNLOCK(&bf->thread_done_mutex);
-		pthread_cond_signal(&bf->thread_done_cv);
-
-		while (!bf->work_done)
-		{
-			pthread_cond_wait(&bf->work_done_cv, &bf->work_done_mutex);
-		}
-		bf->work_done = false;
-		MUTEX_UNLOCK(&bf->work_done_mutex);
-
-		if (bf->getTruck(simulatedTruck))
-		{
-			bf->threadentry();
-		}
-	}
-
-	pthread_exit(NULL);
-	return NULL;
 }
