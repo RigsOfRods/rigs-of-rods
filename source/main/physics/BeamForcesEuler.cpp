@@ -1450,7 +1450,6 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 	if (deleting) return false;
 	if (m_reset_request) return false;
 	if (state >= SLEEPING) return false;
-	if (!loading_finished) return false;
 
 	BES_START(BES_CORE_WholeTruckCalc);
 

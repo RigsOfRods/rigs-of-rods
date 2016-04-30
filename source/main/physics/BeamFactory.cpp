@@ -832,7 +832,7 @@ void BeamFactory::updateFlexbodiesPrepare()
 {
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && trucks[t]->state < SLEEPING && trucks[t]->loading_finished)
+		if (trucks[t] && trucks[t]->state < SLEEPING)
 		{
 			trucks[t]->updateFlexbodiesPrepare();
 		}
@@ -843,7 +843,7 @@ void BeamFactory::updateFlexbodiesFinal()
 {
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && trucks[t]->state < SLEEPING && trucks[t]->loading_finished)
+		if (trucks[t] && trucks[t]->state < SLEEPING)
 		{
 			trucks[t]->updateFlexbodiesFinal();
 		}
@@ -861,7 +861,7 @@ void BeamFactory::updateVisual(float dt)
 		// always update the labels
 		trucks[t]->updateLabels(dt);
 
-		if (trucks[t]->state < SLEEPING && trucks[t]->loading_finished)
+		if (trucks[t]->state < SLEEPING)
 		{
 			trucks[t]->updateVisual(dt);
 			trucks[t]->updateSkidmarks();
@@ -896,7 +896,6 @@ void BeamFactory::calcPhysics(float dt)
 	for (int t=0; t < free_truck; t++)
 	{
 		if (!trucks[t]) continue;
-		if (!trucks[t]->loading_finished) continue;
 
 		trucks[t]->handleResetRequests(dt);
 		trucks[t]->handleTruckPosition(dt);
@@ -937,7 +936,7 @@ void BeamFactory::calcPhysics(float dt)
 		}
 	}
 
-	if (simulatedTruck >= 0 && simulatedTruck < free_truck && trucks[simulatedTruck]->loading_finished)
+	if (simulatedTruck >= 0 && simulatedTruck < free_truck)
 	{
 		if (simulatedTruck == current_truck)
 		{
