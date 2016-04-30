@@ -104,6 +104,10 @@ public:
 	float getRotation();
 	Ogre::Vector3 getPosition();
 
+	/**
+	* Returns the average truck velocity calculated using the truck positions of the last two frames
+	*/
+	Ogre::Vector3 getVelocity() { return velocity; };
 
 	/**
 	* Moves vehicle.
@@ -136,11 +140,13 @@ public:
         int cache_entry_number = -1
 	);
 
-	/**
-	* TIGHT-LOOP; Called once by frame and is responsible for animation of all the trucks!
-	* the instance called is the one of the current ACTIVATED truck
-	*/
-	bool frameStep(int steps);
+	bool replayStep();
+
+	void updateForceFeedback(int steps);
+	void updateAngelScriptEvents(float dt);
+	void updateFrameTimeInformation(float dt);
+	void handleResetRequests(float dt);
+	void handleTruckPosition(float dt);
 
 	void setupDefaultSoundSources();
 
@@ -519,6 +525,8 @@ public:
 	DashBoardManager *dash;
 #endif // USE_MYGUI
 
+	void updateDashBoards(float dt);
+
 	//! @{ physic related functions
 	bool calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 
@@ -590,13 +598,12 @@ protected:
 	void moveOrigin(Ogre::Vector3 offset); //move physics origin
 	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 
-	void updateDashBoards(float &dt);
-	
-	Ogre::Vector3 position;
+	Ogre::Vector3 position; // average node position
 	Ogre::Vector3 iPosition; // initial position
-	Ogre::Vector3 lastposition;
-	Ogre::Vector3 lastlastposition;
 	Ogre::Real minCameraRadius;
+
+	Ogre::Vector3 lastposition;
+	Ogre::Vector3 velocity; // average node velocity (compared to the previous frame step)
 
 	Ogre::Real replayTimer;
 	Ogre::Real replayPrecision;

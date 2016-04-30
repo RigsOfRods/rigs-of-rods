@@ -1439,32 +1439,54 @@ void Beam::SyncReset()
 	}
 }
 
-//integration loop
-//bool frameStarted(const FrameEvent& evt)
-//this will be called once by frame and is responsible for animation of all the trucks!
-//the instance called is the one of the current ACTIVATED truck
-bool Beam::frameStep(int steps)
+bool Beam::replayStep()
 {
-	BES_GFX_START(BES_GFX_framestep);
+	if (!replaymode || !replay || !replay->isValid())
+		return false;
 
-	if (steps == 0) return true;
-	if (!loading_finished) return true;
-	if (state >= SLEEPING) return true;
+	// no replay update needed if position was not changed
+	if (replaypos != oldreplaypos)
+	{
+		unsigned long time = 0;
+		node_simple_t *nbuff = (node_simple_t *)replay->getReadBuffer(replaypos, 0, time);
+		if (nbuff)
+		{
+			Vector3 pos = Vector3::ZERO;
+			for (int i=0; i<free_node; i++)
+			{
+				nodes[i].AbsPosition = nbuff[i].pos;
+				nodes[i].RelPosition = nbuff[i].pos - origin;
+				nodes[i].smoothpos = nbuff[i].pos;
+				pos = pos + nbuff[i].pos;
+			}
+			updateSlideNodePositions();
 
-	Real dt = PHYSICS_DT * steps;
+			position = pos / (float)(free_node);
 
-	if (mTimeUntilNextToggle > -1)
-		mTimeUntilNextToggle -= dt;
+			beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
+			for (int i=0; i<free_beam; i++)
+			{
+				beams[i].broken = bbuff[i].broken;
+				beams[i].disabled = bbuff[i].disabled;
+			}
 
-	// TODO: move this to the correct spot
-	// update all dashboards
-#ifdef USE_MYGUI
-	updateDashBoards(dt);
-#endif // USE_MYGUI
+			oldreplaypos = replaypos;
+		}
+	}
 
-	// some scripting stuff:
+	return true;
+}
+
+void Beam::updateForceFeedback(int steps)
+{
+	ffforce = affforce / steps;
+	ffhydro = affhydro / steps;
+	if (free_hydro) ffhydro = ffhydro / free_hydro;
+}
+
+void Beam::updateAngelScriptEvents(float dt)
+{
 #ifdef USE_ANGELSCRIPT
-	// TODO: Update locked
 	if (locked != lockedold)
 	{
 		if (locked == LOCKED) ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_LOCKED, trucknum);
@@ -1473,124 +1495,39 @@ bool Beam::frameStep(int steps)
 	}
 	if (watercontact && !watercontactold)
 	{
+		watercontactold = watercontact;
 		ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, trucknum);
 	}
-	watercontactold = watercontact;
-#endif
+#endif // USE_ANGELSCRIPT
+}
 
-	BES_GFX_STOP(BES_GFX_framestep);
+void Beam::updateFrameTimeInformation(float dt)
+{
+	// Used in the CameraManager
+	oldframe_global_dt = global_dt;
+	oldframe_global_simulation_speed = global_simulation_speed;
+	global_dt = dt;
+	global_simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
+}
 
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-	int numtrucks = BeamFactory::getSingleton().getTruckCount();
+void Beam::handleResetRequests(float dt)
+{
+	if (m_reset_request)
+		SyncReset();
+}
 
-	stabsleep -= dt;
-	if (replaymode && replay && replay->isValid())
+void Beam::handleTruckPosition(float dt)
+{
+	if (simulated)
 	{
-		// no replay update needed if position was not changed
-		if (replaypos != oldreplaypos)
-		{
-			unsigned long time=0;
-			//replay update
-			node_simple_t *nbuff = (node_simple_t *)replay->getReadBuffer(replaypos, 0, time);
-			if (nbuff)
-			{
-				Vector3 pos = Vector3::ZERO;
-				for (int i=0; i<free_node; i++)
-				{
-					nodes[i].AbsPosition = nbuff[i].pos;
-					nodes[i].RelPosition = nbuff[i].pos - origin;
-					nodes[i].smoothpos = nbuff[i].pos;
-					pos = pos + nbuff[i].pos;
-				}
-				updateSlideNodePositions();
-
-				position=pos/(float)(free_node);
-				// now beams
-				beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
-				for (int i=0; i<free_beam; i++)
-				{
-					beams[i].broken = bbuff[i].broken;
-					beams[i].disabled = bbuff[i].disabled;
-				}
-				//LOG("replay: " + TOSTRING(time));
-				oldreplaypos = replaypos;
-			}
-		}
-	} else
-	{
-		// simulation update
-		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_SINGLE)
-		{
-			BeamFactory::getSingleton().UpdatePhysicsSimulation();
-		} else
-		{
-			BeamFactory::getSingleton()._WorkerWaitForSync();
-		}
-
-		oldframe_global_dt = global_dt;
-		oldframe_global_simulation_speed = global_simulation_speed;
-		global_dt = dt;
-		global_simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
-
-		ffforce = affforce / steps;
-		ffhydro = affhydro / steps;
-		if (free_hydro) ffhydro = ffhydro / free_hydro;
-
-		for (int t=0; t<numtrucks; t++)
-		{
-			if (!trucks[t]) continue;
-
-			if (trucks[t]->m_reset_request)
-			{
-				trucks[t]->SyncReset();
-			}
-			if (trucks[t]->simulated)
-			{
-				trucks[t]->lastlastposition = trucks[t]->lastposition;
-				trucks[t]->lastposition = trucks[t]->position;
-				trucks[t]->updateTruckPosition();
-			}
-			if (trucks[t]->nodes[0].RelPosition.squaredLength() > 10000.0)
-			{
-				trucks[t]->moveOrigin(trucks[t]->nodes[0].RelPosition);
-			}
-		}
-
-#ifdef FEAT_TIMING
-		if (statistics)     statistics->frameStep(dt);
-		if (statistics_gfx) statistics_gfx->frameStep(dt);
-#endif // FEAT_TIMING
-		
-		// we must take care of this
-		for (int t=0; t<numtrucks; t++)
-		{
-			if (!trucks[t]) continue;
-
-			// synchronous sleep
-			if (trucks[t]->state == GOSLEEP) trucks[t]->state = SLEEPING;
-
-			if (!BeamFactory::getSingleton().allTrucksForcedActive() && trucks[t]->state == DESACTIVATED)
-			{
-				trucks[t]->sleepcount++;
-				if ((trucks[t]->lastposition - trucks[t]->lastlastposition).length() / dt > 0.1f)
-				{
-					trucks[t]->sleepcount = 7;
-				}
-				if (trucks[t]->sleepcount > 10)
-				{
-					trucks[t]->state = MAYSLEEP;
-					trucks[t]->sleepcount = 0;
-				}
-			}
-		}
-
-		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
-		{
-			BeamFactory::getSingleton()._WorkerSignalStart();
-		}
+		velocity = (position - lastposition) / dt;
+		lastposition = position;
+		updateTruckPosition();
 	}
-
-	return true;
+	if (nodes[0].RelPosition.squaredLength() > 10000.0)
+	{
+		moveOrigin(nodes[0].RelPosition);
+	}
 }
 
 void Beam::sendStreamSetup()
@@ -2788,22 +2725,26 @@ void Beam::lightsToggle()
 
 void Beam::updateFlares(float dt, bool isCurrent)
 {
-	bool enableAll = true;
-	if (flaresMode==0)
+	if (mTimeUntilNextToggle > -1)
+		mTimeUntilNextToggle -= dt;
+
+	if (flaresMode == 0)
 		return;
-	if (flaresMode==2 && !isCurrent)
-		enableAll=false;
+
+	bool enableAll = true;
+	if (flaresMode == 2 && !isCurrent)
+		enableAll = false;
+
 	BES_GFX_START(BES_GFX_updateFlares);
-	int i;
+
 	//okay, this is just ugly, we have flares in props!
 	//we have to update them here because they run
 
-	// Get data
 	Ogre::Vector3 camera_position = mCamera->getPosition();
 
 	if (m_beacon_light_is_active)
 	{
-		for (i=0; i<free_prop; i++)
+		for (int i=0; i<free_prop; i++)
 		{
 			if (props[i].beacontype=='b')
 			{
@@ -2944,7 +2885,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 	}
 	//the flares
 	bool keysleep=false;
-	for (i=0; i<free_flare; i++)
+	for (int i=0; i<free_flare; i++)
 	{
 		// let the light blink
 		if (flares[i].blinkdelay != 0)
@@ -4835,7 +4776,7 @@ bool Beam::navigateTo(Vector3 &in)
 
 }
 
-void Beam::updateDashBoards(float &dt)
+void Beam::updateDashBoards(float dt)
 {
 #ifdef USE_MYGUI
 	if (!dash) return;
@@ -5416,12 +5357,12 @@ Beam::Beam(
 	, intraPointCD()
 	, isInside(false)
 	, last_net_time(0)
-	, lastlastposition(pos)
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)
 	, locked(0)
 	, lockedold(0)
+	, velocity(Ogre::Vector3::ZERO)
 	, m_custom_camera_node(-1)
 	, m_request_skeletonview_change(0)
 	, m_reset_request(REQUEST_RESET_NONE)

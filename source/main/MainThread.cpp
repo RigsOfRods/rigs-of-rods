@@ -1266,20 +1266,8 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_PUMP);
 #endif // OPENAL
 
-		if (!BeamFactory::getSingleton().allTrucksForcedActive())
-		{
-			int free_truck = BeamFactory::getSingleton().getTruckCount();
-			Beam **trucks =  BeamFactory::getSingleton().getTrucks();
-
-			for (int t = 0; t < free_truck; t++)
-			{
-				if (!trucks[t]) continue;
-				trucks[t]->sleepcount = 9;
-			} // make trucks synchronous
-		}
-
 		TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
-	} 
+	}
 	else
 	{
 		//getting inside

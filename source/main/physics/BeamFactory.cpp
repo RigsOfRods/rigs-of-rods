@@ -454,18 +454,9 @@ bool BeamFactory::syncRemoteStreams()
 	bool changes = StreamableFactory <BeamFactory, Beam>::syncRemoteStreams();
 
 	if (changes)
-		updateGUI();
+		GUI_Multiplayer::getSingleton().update();
 
 	return changes;
-}
-
-void BeamFactory::updateGUI()
-{
-#ifdef USE_MYGUI
-#ifdef USE_SOCKETW
-	GUI_Multiplayer::getSingleton().update();
-#endif // USE_SOCKETW
-#endif // USE_MYGUI	
 }
 
 bool BeamFactory::truckIntersectionAABB(int a, int b)
@@ -558,29 +549,34 @@ void BeamFactory::recursiveActivation(int j)
 			predictTruckIntersectionCollAABB(t, j))
 		{
 			trucks[t]->desactivate(); // make the truck not leading but active
-
-			if (getTruck(simulatedTruck))
-			{
-				trucks[t]->disableDrag = getTruck(simulatedTruck)->driveable==AIRPLANE;
-			}
-
 			recursiveActivation(t);
 		}
 	}
 }
 
-void BeamFactory::checkSleepingState()
+void BeamFactory::updateSleepingState(float dt)
 {
-	if (getTruck(simulatedTruck))
+	for (int t=0; t<free_truck; t++)
 	{
-		getTruck(simulatedTruck)->disableDrag = false;
-	}
+		if (!trucks[t]) continue;
 
-	for (int t=0; t < free_truck; t++)
-	{
-		if (trucks[t] && trucks[t]->state <= DESACTIVATED && (t == simulatedTruck || trucks[t]->sleepcount <= 7))
-		{
+		if (trucks[t]->state <= DESACTIVATED && (t == simulatedTruck || trucks[t]->sleepcount <= 7))
 			recursiveActivation(t);
+
+		// synchronous sleep
+		if (trucks[t]->state == GOSLEEP) trucks[t]->state = SLEEPING;
+
+		if (!forced_active && trucks[t]->state == DESACTIVATED)
+		{
+			trucks[t]->sleepcount++;
+			if (trucks[t]->getVelocity().squaredLength() > 0.01f)
+			{
+				trucks[t]->sleepcount = 7;
+			} else if (trucks[t]->sleepcount > 10)
+			{
+				trucks[t]->state = MAYSLEEP;
+				trucks[t]->sleepcount = 0;
+			}
 		}
 	}
 
@@ -764,7 +760,7 @@ void BeamFactory::_deleteTruck(Beam *b)
 {
 	if (b == 0)	return;
 
-	_WorkerWaitForSync();
+	syncWithSimThread();
 
 	trucks[b->trucknum] = 0;
 	delete b;
@@ -836,7 +832,7 @@ void BeamFactory::updateFlexbodiesPrepare()
 {
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
+		if (trucks[t] && trucks[t]->state < SLEEPING && trucks[t]->loading_finished)
 		{
 			trucks[t]->updateFlexbodiesPrepare();
 		}
@@ -847,7 +843,7 @@ void BeamFactory::updateFlexbodiesFinal()
 {
 	for (int t=0; t < free_truck; t++)
 	{
-		if (trucks[t] && trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
+		if (trucks[t] && trucks[t]->state < SLEEPING && trucks[t]->loading_finished)
 		{
 			trucks[t]->updateFlexbodiesFinal();
 		}
@@ -865,7 +861,7 @@ void BeamFactory::updateVisual(float dt)
 		// always update the labels
 		trucks[t]->updateLabels(dt);
 
-		if (trucks[t]->state != SLEEPING && trucks[t]->loading_finished)
+		if (trucks[t]->state < SLEEPING && trucks[t]->loading_finished)
 		{
 			trucks[t]->updateVisual(dt);
 			trucks[t]->updateSkidmarks();
@@ -890,36 +886,22 @@ void BeamFactory::calcPhysics(float dt)
 
 	gEnv->mrTime += dt;
 
-	simulatedTruck = current_truck;
+	syncWithSimThread();
 
-	if (simulatedTruck == -1)
-	{
-		for (int t=0; t < free_truck; t++)
-		{
-			if (!trucks[t]) continue;
-
-			if (trucks[t]->state <= DESACTIVATED)
-			{
-				simulatedTruck = t;
-				break;
-			}
-		}
-	}
-
-	if (simulatedTruck >= 0 && simulatedTruck < free_truck)
-	{
-		trucks[simulatedTruck]->frameStep(m_physics_steps);
-	}
-
-	// update 2D replay if activated
+	// 2D replay
 	if (tdr) tdr->update(dt);
 
-	// things always on
+	updateSleepingState(dt);
+
 	for (int t=0; t < free_truck; t++)
 	{
 		if (!trucks[t]) continue;
+		if (!trucks[t]->loading_finished) continue;
 
-		// networked trucks must be taken care of
+		trucks[t]->handleResetRequests(dt);
+		trucks[t]->handleTruckPosition(dt);
+		trucks[t]->updateAngelScriptEvents(dt);
+
 		switch(trucks[t]->state)
 		{
 		case NETWORKED:
@@ -938,6 +920,48 @@ void BeamFactory::calcPhysics(float dt)
 			if (trucks[t]->networking)
 				trucks[t]->sendStreamData();
 			break;
+		}
+	}
+
+	simulatedTruck = current_truck;
+
+	if (simulatedTruck == -1)
+	{
+		for (int t=0; t < free_truck; t++)
+		{
+			if (trucks[t] && trucks[t]->state <= DESACTIVATED)
+			{
+				simulatedTruck = t;
+				break;
+			}
+		}
+	}
+
+	if (simulatedTruck >= 0 && simulatedTruck < free_truck && trucks[simulatedTruck]->loading_finished)
+	{
+		if (simulatedTruck == current_truck)
+		{
+#ifdef USE_MYGUI
+		trucks[simulatedTruck]->updateDashBoards(dt);
+#endif // USE_MYGUI
+#ifdef FEAT_TIMING
+			if (trucks[simulatedTruck]->statistics)     trucks[simulatedTruck]->statistics->frameStep(dt);
+			if (trucks[simulatedTruck]->statistics_gfx) trucks[simulatedTruck]->statistics_gfx->frameStep(dt);
+#endif // FEAT_TIMING
+		}
+		if (!trucks[simulatedTruck]->replayStep())
+		{
+			trucks[simulatedTruck]->updateFrameTimeInformation(dt);
+			trucks[simulatedTruck]->updateForceFeedback(m_physics_steps);
+			if (thread_mode == THREAD_MULTI)
+			{
+				thread_future = std::async(std::launch::async, [this]() {
+					UpdatePhysicsSimulation();
+				});
+			} else
+			{
+				UpdatePhysicsSimulation();
+			}
 		}
 	}
 }
@@ -991,27 +1015,9 @@ void BeamFactory::windowResized()
 #endif // USE_MYGUI
 }
 
-void BeamFactory::_WorkerWaitForSync()
-{
-	if (thread_future.valid())
-	{
-		thread_future.get();
-	}
-}
-
-void BeamFactory::_WorkerSignalStart()
-{
-	if (thread_mode == THREAD_MULTI)
-	{
-		thread_future = std::async(std::launch::async, [this]() {
-			UpdatePhysicsSimulation();
-		});
-	}
-}
-
 void BeamFactory::prepareShutdown()
 {
-	_WorkerWaitForSync();
+	syncWithSimThread();
 }
 
 Beam* BeamFactory::getCurrentTruck()
@@ -1036,19 +1042,13 @@ void BeamFactory::UpdatePhysicsSimulation()
 		for (int i=0; i<m_physics_steps; i++)
 		{
 			int num_simulated_trucks = 0;
-
-			for (int t=0; t<free_truck; t++)
-			{
-				if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
-					num_simulated_trucks++;
-			}
-
 			{
 				std::vector<std::function<void()>> tasks;
 				for (int t=0; t<free_truck; t++)
 				{
-					if (trucks[t] && trucks[t]->simulated)
+					if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
 					{
+						num_simulated_trucks++;
 						auto func = std::function<void(int)>([this, i](int t){
 							trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
 							if (!trucks[t]->disableTruckTruckSelfCollisions)
@@ -1162,4 +1162,10 @@ void BeamFactory::UpdatePhysicsSimulation()
 			}
 		}
 	}
+}
+
+void BeamFactory::syncWithSimThread()
+{
+	if (thread_future.valid())
+		thread_future.get();
 }

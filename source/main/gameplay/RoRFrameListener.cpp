@@ -129,7 +129,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 using namespace RoR;
 
-void RoRFrameListener::updateIO(float dt)
+void RoRFrameListener::updateForceFeedback(float dt)
 {
 	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 	if (current_truck && current_truck->driveable == TRUCK)
@@ -1288,10 +1288,12 @@ bool RoRFrameListener::updateTruckMirrors(float dt)
 // Override frameStarted event to process that (don't care about frameEnded)
 bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 {
-	float dt=evt.timeSinceLastFrame;
-	if (dt==0) return true;
-	if (dt>1.0/20.0) dt=1.0/20.0;
-	m_time+=dt; //real time
+	float dt = evt.timeSinceLastFrame;
+	if (dt == 0.0f) return true;
+	dt = std::min(dt, 0.05f);
+	m_time += dt;
+
+	BeamFactory::getSingleton().syncWithSimThread();
 
 	// update GUI
 	RoR::Application::GetInputEngine()->Capture();
@@ -1359,7 +1361,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
 	lastCameraPosition = gEnv->mainCamera->getPosition();
 
-	if(m_loading_state == ALL_LOADED)
+	if (m_loading_state == ALL_LOADED)
 		SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
 #endif // USE_OPENAL
 	
@@ -1422,6 +1424,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		DustManager::getSingleton().update();
 	}
 
+	{
+		DustManager::getSingleton().update();
+	}
+
 	if (m_loading_state == ALL_LOADED && !m_is_sim_paused)
 	{
 		BeamFactory::getSingleton().updateVisual(dt); // update visual - antishaking
@@ -1456,12 +1462,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		// we simulate one truck, it will take care of the others (except networked ones)
 		if (!m_is_sim_paused)
 		{
-			BeamFactory::getSingleton().checkSleepingState();
 			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
 			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
 		}
 
-		updateIO(dt);
+		updateForceFeedback(dt);
 
 		//// updateGUI(dt); (refactored into pieces)
 

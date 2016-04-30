@@ -72,16 +72,6 @@ public:
 
 	bool getThreadingMode() { return thread_mode; };
 
-	/**
-	* Threading; Waits until work is done
-	*/
-	void _WorkerWaitForSync();
-	
-	/**
-	* Threading; Signals to start working
-	*/
-	void _WorkerSignalStart(); 
-
 	int getNumCpuCores() { return num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
@@ -92,7 +82,6 @@ public:
 	int getPreviousTruckNumber() { return previous_truck; };
 	int getCurrentTruckNumber() { return current_truck; };
 	int getTruckCount() { return free_truck; };
-	bool allTrucksForcedActive() { return forced_active; };
 
 	void setCurrentTruck(int new_truck);
 	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
@@ -151,7 +140,6 @@ public:
 	bool predictTruckIntersectionCollAABB(int a, int b);
 
 	void activateAllTrucks();
-	void checkSleepingState();
 	void sendAllTrucksSleeping();
 	void setTrucksForcedActive(bool forced) { forced_active = forced; };
 
@@ -164,6 +152,8 @@ public:
 	void addRef(){};
 	void release(){};
 #endif
+
+	void syncWithSimThread();
 
 protected:
 	
@@ -196,6 +186,8 @@ protected:
 	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
 	void recursiveActivation(int j);
 
+	void updateSleepingState(float dt);
+
 	int getFreeTruckSlot();
 	int findTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 
@@ -204,7 +196,6 @@ protected:
 	void localUserAttributesChanged(int newid);
 
 	bool syncRemoteStreams();
-	void updateGUI();
 	void removeInstance(Beam *b);
 	void removeInstance(stream_del_t *del);
 	void _deleteTruck(Beam *b);
