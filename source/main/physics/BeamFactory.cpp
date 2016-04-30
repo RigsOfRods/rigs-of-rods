@@ -1017,7 +1017,7 @@ void BeamFactory::_WorkerSignalStart()
 	if (thread_mode == THREAD_MULTI)
 	{
 		thread_future = std::async(std::launch::async, [this]() {
-			threadentry();
+			UpdatePhysicsSimulation();
 		});
 	}
 }
@@ -1042,70 +1042,127 @@ Beam* BeamFactory::getTruck(int number)
 }
 
 
-void BeamFactory::threadentry()
+void BeamFactory::UpdatePhysicsSimulation()
 {
-	for (int i=0; i<m_physics_steps; i++)
+	if (gEnv->threadPool)
 	{
-		int num_simulated_trucks = 0;
-
-		for (int t=0; t<free_truck; t++)
+		for (int i=0; i<m_physics_steps; i++)
 		{
-			if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
+			int num_simulated_trucks = 0;
+
+			for (int t=0; t<free_truck; t++)
 			{
-				num_simulated_trucks++;
-				trucks[t]->curtstep = i;
-				trucks[t]->tsteps   = m_physics_steps;
+				if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
+				{
+					num_simulated_trucks++;
+					trucks[t]->curtstep = i;
+					trucks[t]->tsteps   = m_physics_steps;
+				}
 			}
-		}
 
-		{
-			std::vector<std::function<void()>> tasks;
+			{
+				std::vector<std::function<void()>> tasks;
+				for (int t=0; t<free_truck; t++)
+				{
+					if (trucks[t] && trucks[t]->simulated)
+					{
+						auto func = std::function<void(int)>([this, i](int t){
+							trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
+							if (!trucks[t]->disableTruckTruckSelfCollisions)
+							{
+								trucks[t]->IntraPointCD()->update(trucks[t]);
+								intraTruckCollisions(PHYSICS_DT,
+										*(trucks[t]->IntraPointCD()),
+										trucks[t]->free_collcab,
+										trucks[t]->collcabs,
+										trucks[t]->cabs,
+										trucks[t]->intra_collcabrate,
+										trucks[t]->nodes,
+										trucks[t]->collrange,
+										*(trucks[t]->submesh_ground_model));
+							}
+						});
+						tasks.push_back(std::bind(func, t));
+					}
+				}
+				gEnv->threadPool->Parallelize(tasks);
+			}
+
 			for (int t=0; t<free_truck; t++)
 			{
 				if (trucks[t] && trucks[t]->simulated)
-				{
-					auto func = std::function<void(int)>([this, i](int t){
-						trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
-						if (!trucks[t]->disableTruckTruckSelfCollisions)
-						{
-							trucks[t]->IntraPointCD()->update(trucks[t]);
-							intraTruckCollisions(PHYSICS_DT,
-									*(trucks[t]->IntraPointCD()),
-									trucks[t]->free_collcab,
-									trucks[t]->collcabs,
-									trucks[t]->cabs,
-									trucks[t]->intra_collcabrate,
-									trucks[t]->nodes,
-									trucks[t]->collrange,
-									*(trucks[t]->submesh_ground_model));
-						}
-					});
-					tasks.push_back(std::bind(func, t));
-				}
+					trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, m_physics_steps);
 			}
-			gEnv->threadPool->Parallelize(tasks);
+
+			if (num_simulated_trucks > 1)
+			{
+				std::vector<std::function<void()>> tasks;
+				for (int t=0; t<free_truck; t++)
+				{
+					if (trucks[t] && trucks[t]->simulated && !trucks[t]->disableTruckTruckCollisions)
+					{
+						auto func = std::function<void(int)>([this](int t){
+							trucks[t]->InterPointCD()->update(trucks[t], trucks, free_truck);
+							if (trucks[t]->collisionRelevant)
+							{
+								interTruckCollisions(PHYSICS_DT,
+										*(trucks[t]->InterPointCD()),
+										trucks[t]->free_collcab,
+										trucks[t]->collcabs,
+										trucks[t]->cabs,
+										trucks[t]->inter_collcabrate,
+										trucks[t]->nodes,
+										trucks[t]->collrange,
+										trucks, free_truck,
+										*(trucks[t]->submesh_ground_model));
+							}
+						});
+						tasks.push_back(std::bind(func, t));
+					}
+				}
+				gEnv->threadPool->Parallelize(tasks);
+			}
 		}
-
-
-		for (int t=0; t<free_truck; t++)
+	} else
+	{
+		for (int i=0; i<m_physics_steps; i++)
 		{
-			if (trucks[t] && trucks[t]->simulated)
-				trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, m_physics_steps);
-		}
+			int num_simulated_trucks = 0;
 
-
-		if (num_simulated_trucks > 1)
-		{
-			std::vector<std::function<void()>> tasks;
 			for (int t=0; t<free_truck; t++)
 			{
-				if (trucks[t] && trucks[t]->simulated && !trucks[t]->disableTruckTruckCollisions)
+				if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
 				{
-					auto func = std::function<void(int)>([this](int t){
+					num_simulated_trucks++;
+					trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
+					trucks[t]->calcForcesEulerFinal(i==0, PHYSICS_DT, i, m_physics_steps);
+					if (!trucks[t]->disableTruckTruckSelfCollisions)
+					{
+						trucks[t]->IntraPointCD()->update(trucks[t]);
+						intraTruckCollisions(PHYSICS_DT,
+								*(trucks[t]->IntraPointCD()),
+								trucks[t]->free_collcab,
+								trucks[t]->collcabs,
+								trucks[t]->cabs,
+								trucks[t]->intra_collcabrate,
+								trucks[t]->nodes,
+								trucks[t]->collrange,
+								*(trucks[t]->submesh_ground_model));
+					}
+				}
+			}
+
+			if (num_simulated_trucks > 1)
+			{
+				BES_START(BES_CORE_Contacters);
+				for (int t=0; t<free_truck; t++)
+				{
+					if (trucks[t] && trucks[t]->simulated && !trucks[t]->disableTruckTruckCollisions)
+					{
 						trucks[t]->InterPointCD()->update(trucks[t], trucks, free_truck);
-						if (trucks[t]->collisionRelevant)
-						{
-							interTruckCollisions(PHYSICS_DT,
+						if (trucks[t]->collisionRelevant) {
+							interTruckCollisions(
+									PHYSICS_DT,
 									*(trucks[t]->InterPointCD()),
 									trucks[t]->free_collcab,
 									trucks[t]->collcabs,
@@ -1116,11 +1173,10 @@ void BeamFactory::threadentry()
 									trucks, free_truck,
 									*(trucks[t]->submesh_ground_model));
 						}
-					});
-					tasks.push_back(std::bind(func, t));
+					}
 				}
+				BES_STOP(BES_CORE_Contacters);
 			}
-			gEnv->threadPool->Parallelize(tasks);
 		}
 	}
 }

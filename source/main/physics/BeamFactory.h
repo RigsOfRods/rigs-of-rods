@@ -123,6 +123,8 @@ public:
 	void updateFlexbodiesPrepare();
 	void updateFlexbodiesFinal();
 
+	void UpdatePhysicsSimulation();
+
 	inline unsigned long getPhysFrame() { return m_physics_frames; };
 
 	void calcPhysics(float dt);
@@ -156,8 +158,6 @@ public:
 	void prepareShutdown();
 
 	void windowResized();
-
-	void threadentry();
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
