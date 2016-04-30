@@ -606,19 +606,6 @@ void BeamFactory::checkSleepingState()
 			}
 		}
 	}
-
-#if 0   // obsolete for now
-	// special stuff for rollable gear
-	bool rollmode = false;
-	for (int t=0; t < free_truck; t++)
-	{
-		if (!trucks[t]) continue;
-		if (trucks[t]->state != SLEEPING)
-			rollmode = rollmode || trucks[t]->wheel_contact_requested;
-
-		trucks[t]->requires_wheel_contact = rollmode;// && !trucks[t]->wheel_contact_requested;
-	}
-#endif
 }
 
 int BeamFactory::getFreeTruckSlot()
@@ -1053,11 +1040,7 @@ void BeamFactory::UpdatePhysicsSimulation()
 			for (int t=0; t<free_truck; t++)
 			{
 				if (trucks[t] && (trucks[t]->simulated = trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
-				{
 					num_simulated_trucks++;
-					trucks[t]->curtstep = i;
-					trucks[t]->tsteps   = m_physics_steps;
-				}
 			}
 
 			{

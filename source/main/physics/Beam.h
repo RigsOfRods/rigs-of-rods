@@ -371,7 +371,6 @@ public:
 	//can this be driven?
 	int previousGear;
 	ground_model_t *submesh_ground_model;
-	bool requires_wheel_contact;
 	int parkingbrake;
 	int lights;
 	bool reverselight;
@@ -536,9 +535,6 @@ public:
         // TODO may be removed soon
 	PointColDetector* IntraPointCD() { return intraPointCD; }
 	PointColDetector* InterPointCD() { return interPointCD; }
-
-	int curtstep;
-	int tsteps;
 
 protected:
 

@@ -1586,7 +1586,6 @@ bool Beam::frameStep(int steps)
 
 		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
 		{
-			tsteps = steps;
 			BeamFactory::getSingleton()._WorkerSignalStart();
 		}
 	}
@@ -5452,7 +5451,6 @@ Beam::Beam(
 	, replaylen(10000)
 	, replaymode(false)
 	, replaypos(0)
-	, requires_wheel_contact(false)
 	, reverselight(false)
 	, rightMirrorAngle(-0.52)
 	, rudder(0)
@@ -5468,7 +5466,6 @@ Beam::Beam(
 	, global_dt(0.1)
 	, global_simulation_speed(1.0)
 	, totalmass(0)
-	, tsteps(100)
 	, oldframe_global_dt(0.1)
 	, oldframe_global_simulation_speed(1.0)
 	, watercontact(false)
