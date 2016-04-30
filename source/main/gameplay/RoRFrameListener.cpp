@@ -1295,7 +1295,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	BeamFactory::getSingleton().syncWithSimThread();
 
-	// update GUI
 	RoR::Application::GetInputEngine()->Capture();
 
 	//if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
@@ -1305,14 +1304,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		BeamFactory::getSingleton().updateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool 
 	}
 
-	// update OutProtocol
 	if (OutProtocol::getSingletonPtr())
 	{
 		OutProtocol::getSingleton().update(dt);
 	}
-	// the truck we use got deleted D:
-	//if (current_truck != -1 && trucks[current_truck] == 0)
-	//	BeamFactory::getSingleton().setCurrentTruck(-1);
 
 	// update network gui if required, at most every 2 seconds
 	if (gEnv->network)
@@ -1424,10 +1419,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		DustManager::getSingleton().update();
 	}
 
-	{
-		DustManager::getSingleton().update();
-	}
-
 	if (m_loading_state == ALL_LOADED && !m_is_sim_paused)
 	{
 		BeamFactory::getSingleton().updateVisual(dt); // update visual - antishaking
@@ -1451,7 +1442,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		m_time_until_next_toggle -= dt;
 	}
 
-	if (BeamFactory::getSingleton().getCurrentTruck() == nullptr)
+	if (curr_truck)
 		RoR::Application::GetGuiManager()->UpdateSimUtils(dt, nullptr);
 	
 	RoR::Application::GetGuiManager()->framestep(dt);
@@ -1467,8 +1458,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		updateForceFeedback(dt);
-
-		//// updateGUI(dt); (refactored into pieces)
 
 		if (RoR::Application::GetOverlayWrapper() != nullptr)
 		{
@@ -1486,12 +1475,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 #endif // USE_MYGUI
 
-			Beam* vehicle = BeamFactory::getSingleton().getCurrentTruck();
-			if (vehicle != nullptr)
+			if (curr_truck != nullptr)
 			{
 				//update the truck info gui (also if not displayed!)
-				RoR::Application::GetOverlayWrapper()->truckhud->update(dt, vehicle, m_truck_info_on);
-				RoR::Application::GetGuiManager()->UpdateSimUtils(dt, vehicle);
+				RoR::Application::GetOverlayWrapper()->truckhud->update(dt, curr_truck, m_truck_info_on);
+				RoR::Application::GetGuiManager()->UpdateSimUtils(dt, curr_truck);
 #ifdef FEAT_TIMING
 				BES.updateGUI(dt);
 #endif // FEAT_TIMING
@@ -1503,7 +1491,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 				if (m_pressure_pressed)
 				{
-					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(vehicle->getPressure());
+					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(curr_truck->getPressure());
 				}
 
 				if (IsRaceInProgress() && !RoR::Application::GetGuiManager()->GetPauseMenuVisible())
@@ -1511,13 +1499,13 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					UpdateRacingGui(); //I really think that this should stay here.
 				}
 
-				if (vehicle->driveable == TRUCK && vehicle->engine != nullptr)
+				if (curr_truck->driveable == TRUCK && curr_truck->engine != nullptr)
 				{
-					RoR::Application::GetOverlayWrapper()->UpdateLandVehicleHUD(vehicle);
+					RoR::Application::GetOverlayWrapper()->UpdateLandVehicleHUD(curr_truck);
 				}
-				else if (vehicle->driveable == AIRPLANE)
+				else if (curr_truck->driveable == AIRPLANE)
 				{
-					RoR::Application::GetOverlayWrapper()->UpdateAerialHUD(vehicle);
+					RoR::Application::GetOverlayWrapper()->UpdateAerialHUD(curr_truck);
 				}
 			}
 		}
