@@ -1442,34 +1442,23 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		m_time_until_next_toggle -= dt;
 	}
 
-	if (curr_truck)
-		RoR::Application::GetGuiManager()->UpdateSimUtils(dt, nullptr);
-	
 	RoR::Application::GetGuiManager()->framestep(dt);
 
 	// one of the input modes is immediate, so update the movement vector
 	if (m_loading_state == ALL_LOADED)
 	{
-		// we simulate one truck, it will take care of the others (except networked ones)
-		if (!m_is_sim_paused)
-		{
-			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
-			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
-		}
-
 		updateForceFeedback(dt);
 
 		if (RoR::Application::GetOverlayWrapper() != nullptr)
 		{
 
 #ifdef USE_MYGUI
-
-			Beam** vehicles  = BeamFactory::getSingleton().getTrucks();
-			int num_vehicles = BeamFactory::getSingleton().getTruckCount();
-
-			// Update survey map
+			// update survey map
 			if (gEnv->surveyMap != nullptr && gEnv->surveyMap->getVisibility())
 			{
+				Beam** vehicles  = BeamFactory::getSingleton().getTrucks();
+				int num_vehicles = BeamFactory::getSingleton().getTruckCount();
+
 				gEnv->surveyMap->Update(vehicles, num_vehicles);
 			}
 
@@ -1477,9 +1466,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 			if (curr_truck != nullptr)
 			{
-				//update the truck info gui (also if not displayed!)
+				// update the truck info gui (also if not displayed!)
 				RoR::Application::GetOverlayWrapper()->truckhud->update(dt, curr_truck, m_truck_info_on);
-				RoR::Application::GetGuiManager()->UpdateSimUtils(dt, curr_truck);
 #ifdef FEAT_TIMING
 				BES.updateGUI(dt);
 #endif // FEAT_TIMING
@@ -1508,6 +1496,13 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					RoR::Application::GetOverlayWrapper()->UpdateAerialHUD(curr_truck);
 				}
 			}
+			RoR::Application::GetGuiManager()->UpdateSimUtils(dt, curr_truck);
+		}
+
+		if (!m_is_sim_paused)
+		{
+			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
+			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
 		}
 	}
 
