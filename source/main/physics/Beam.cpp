@@ -1284,7 +1284,7 @@ void Beam::reset(bool keepPosition)
 		m_reset_request = REQUEST_RESET_ON_INIT_POS;
 }
 
-void Beam::displace(Vector3 translation, float rotation)
+void Beam::displace(Vector3 translation, float rotation, bool setInitPosition)
 {
 	if (rotation != 0.0f)
 	{
@@ -1329,6 +1329,11 @@ void Beam::displace(Vector3 translation, float rotation)
 	if (rotation != 0.0f || translation != Vector3::ZERO)
 	{
 		updateTruckPosition();
+		if (setInitPosition)
+		{
+			m_spawn_rotation -= rotation;
+			resetPosition(Vector3::ZERO, true);
+		}
 	}
 }
 

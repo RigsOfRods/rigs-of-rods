@@ -605,7 +605,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
 						curr_truck->updateFlexbodiesFinal();
-						curr_truck->displace(translation * scale, rotation * scale);
+						curr_truck->displace(translation * scale, rotation * scale, false);
 
 						m_advanced_truck_repair_timer = 0.0f;
 					} else
@@ -1070,11 +1070,21 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
+					// TODO: Fix this
+					// Produces misplaced props/flexbodies (https://github.com/RigsOfRods/rigs-of-rods/issues/820)
+					// Example truck: Thomas Saf-T-Liner HDX
+#if 0
 					if (reload_box == nullptr)
 					{
 						reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					}
+#endif
 					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(reload_pos, reload_dir, selection->fname, selection->number, reload_box, false, config_ptr, skin);
+					if (reload_box == nullptr)
+					{
+						// TODO: Remove this once reload_dir works
+						local_truck->displace(Vector3::ZERO, Degree(180).valueRadians() - gEnv->player->getRotation().valueRadians(), true);
+					}
 					reload_box = 0;
 				}
 
