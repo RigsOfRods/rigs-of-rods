@@ -28,18 +28,11 @@ class Flexable
 {
 public:
 
-	// Flexable
-	virtual bool flexitPrepare(Beam* b);
+	virtual bool flexitPrepare() = 0;
 	virtual void flexitCompute() = 0;
 	virtual Ogre::Vector3 flexitFinal() = 0;
 
 	virtual void setVisible(bool visible) = 0;
-
-protected:
-
-	Beam* beamid;
-
-	Ogre::Vector3 flexit_center;
 };
 
 #endif // __Flexable_H_

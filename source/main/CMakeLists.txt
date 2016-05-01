@@ -197,7 +197,7 @@ set( SOURCE_FILES
   physics/collision/DynamicCollisions.{h,cpp}
   physics/collision/PointColDetector.{h,cpp}
   physics/collision/Triangle.h
-  physics/flex/Flexable.{h,cpp}
+  physics/flex/Flexable.h
   physics/flex/FlexAirfoil.{h,cpp}
   physics/flex/FlexBody.{h,cpp}
   physics/flex/FlexFactory.{h,cpp}

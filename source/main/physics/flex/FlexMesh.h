@@ -53,12 +53,15 @@ public:
 	Ogre::Vector3 updateShadowVertices();
 
 	// Flexable
+	bool flexitPrepare() { return true; };
 	void flexitCompute();
 	Ogre::Vector3 flexitFinal();
 
 	void setVisible(bool visible);
 
 private:
+
+	Ogre::Vector3 flexit_center;
 
 	struct CoVertice_t
 	{
