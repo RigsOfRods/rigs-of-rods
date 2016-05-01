@@ -198,7 +198,7 @@ protected:
 
 	// undocumented debugging functions below, not working.
 	void ExceptionCallback(AngelScript::asIScriptContext *ctx, void *param);
-	void PrintVariables(AngelScript::asIScriptContext *ctx, int stackLevel);
+	void PrintVariables(AngelScript::asIScriptContext *ctx, AngelScript::asUINT stackLevel);
 	void LineCallback(AngelScript::asIScriptContext *ctx, unsigned long *timeOut);
 };
 

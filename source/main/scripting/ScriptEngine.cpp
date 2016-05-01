@@ -129,19 +129,17 @@ void ScriptEngine::ExceptionCallback(AngelScript::asIScriptContext *ctx, void *p
 	int col, line = ctx->GetExceptionLineNumber(&col);
 	SLOG("line: "+TOSTRING(line)+","+TOSTRING(col));
 
-	// Print the variables in the current function
-	//PrintVariables(ctx, -1);
-
 	// Show the call stack with the variables
 	SLOG("--- call stack ---");
 	char tmp[2048]="";
-    for ( AngelScript::asUINT n = 1; n < ctx->GetCallstackSize(); n++ )
-    {
-    	function = ctx->GetFunction(n);
-		sprintf(tmp, "%s (%d): %s\n", function->GetScriptSectionName(), ctx->GetLineNumber(n), function->GetDeclaration());
+	for (AngelScript::asUINT n = 0; n < ctx->GetCallstackSize(); n++)
+	{
+		function = ctx->GetFunction(n);
+		sprintf(tmp, "%s (%d): %s", function->GetScriptSectionName(), ctx->GetLineNumber(n), function->GetDeclaration());
 		SLOG(String(tmp));
-		//PrintVariables(ctx, n);
-    }
+		PrintVariables(ctx, n);
+	}
+	SLOG("--- end of script exception message ---");
 }
 
 void ScriptEngine::exploreScripts()
@@ -172,47 +170,62 @@ void ScriptEngine::LineCallback(AngelScript::asIScriptContext *ctx, unsigned lon
 	// time, by simply calling Execute() again.
 }
 
-/*
-void ScriptEngine::PrintVariables(asIScriptContext *ctx, int stackLevel)
+
+void ScriptEngine::PrintVariables(AngelScript::asIScriptContext *ctx, AngelScript::asUINT stackLevel)
 {
 	char tmp[1024]="";
-	asIScriptEngine *engine = ctx->GetEngine();
+	AngelScript::asIScriptEngine *engine = ctx->GetEngine();
 
+	// First print the this pointer if this is a class method
 	int typeId = ctx->GetThisTypeId(stackLevel);
 	void *varPointer = ctx->GetThisPointer(stackLevel);
-	if ( typeId )
+	if (typeId)
 	{
-		sprintf(tmp," this = %p", varPointer);
+		sprintf(tmp, " this = 0x%x", varPointer);
 		SLOG(tmp);
 	}
 
+	// Print the value of each variable, including parameters
 	int numVars = ctx->GetVarCount(stackLevel);
-	for ( int n = 0; n < numVars; n++ )
+	for (int n = 0; n < numVars; n++)
 	{
 		int typeId = ctx->GetVarTypeId(n, stackLevel);
 		void *varPointer = ctx->GetAddressOfVar(n, stackLevel);
-		if ( typeId == engine->GetTypeIdByDecl("int") )
+		if (typeId == AngelScript::asTYPEID_INT32)
 		{
 			sprintf(tmp, " %s = %d", ctx->GetVarDeclaration(n, stackLevel), *(int*)varPointer);
 			SLOG(tmp);
 		}
-		else if ( typeId == engine->GetTypeIdByDecl("string") )
+		else if (typeId == AngelScript::asTYPEID_FLOAT)
+		{
+			sprintf(tmp, " %s = %f", ctx->GetVarDeclaration(n, stackLevel), *(float*)varPointer);
+			SLOG(tmp);
+		}
+		else if (typeId & AngelScript::asTYPEID_SCRIPTOBJECT)
+		{
+			AngelScript::asIScriptObject *obj = (AngelScript::asIScriptObject*)varPointer;
+			if (obj)
+				sprintf(tmp, " %s = {...}", ctx->GetVarDeclaration(n, stackLevel));
+			else
+				sprintf(tmp, " %s = <null>", ctx->GetVarDeclaration(n, stackLevel));
+			SLOG(tmp);
+		}
+		else if (typeId == engine->GetTypeIdByDecl("string"))
 		{
 			std::string *str = (std::string*)varPointer;
 			if ( str )
-			{
 				sprintf(tmp, " %s = '%s'", ctx->GetVarDeclaration(n, stackLevel), str->c_str());
-				SLOG(tmp);
-			} else
-			{
+			else
 				sprintf(tmp, " %s = <null>", ctx->GetVarDeclaration(n, stackLevel));
-				SLOG(tmp);
-			}
-		SLOG(tmp);
+			SLOG(tmp);
+		}
+		else
+		{
+			sprintf(tmp, " %s = {...}", ctx->GetVarDeclaration(n, stackLevel));
+			SLOG(tmp);
 		}
 	}
-};
-*/
+}
 
 // continue with initializing everything
 void ScriptEngine::init()
@@ -965,7 +978,7 @@ int ScriptEngine::loadScript(String _scriptName)
 		SLOG("Failed to set the line callback function.");
 		context->Release();
 		return -1;
-	}
+	}*/
 
 	result = context->SetExceptionCallback(AngelScript::asMETHOD(ScriptEngine,ExceptionCallback), this, AngelScript::asCALL_THISCALL);
 	if (result < 0)
@@ -974,7 +987,6 @@ int ScriptEngine::loadScript(String _scriptName)
 		context->Release();
 		return -1;
 	}
-	*/
 
 	// Prepare the script context with the function we wish to execute. Prepare()
 	// must be called on the context before each new script function that will be
