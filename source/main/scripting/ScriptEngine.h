@@ -44,6 +44,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 class GameScript;
+
+struct scriptModuleUserData_t
+{
+	Ogre::String scriptName;
+	Ogre::String scriptHash;
+};
+
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
  */
@@ -64,6 +71,7 @@ public:
 	 * @return 0 on success, everything else on error
 	 */
 	int loadScript(Ogre::String scriptname);
+	int loadScript(Ogre::String scriptname, Ogre::String moduleName);
 
 	/**
 	 * Calls the script's framestep function to be able to use timed things inside the script
@@ -86,7 +94,7 @@ public:
 	 * executes a string (useful for the console)
 	 * @param command string to execute
 	 */
-	int executeString(Ogre::String command);
+	int executeString(Ogre::String moduleName, Ogre::String command);
 	
 	/**
 	 * Queues a string for execution.
@@ -100,31 +108,31 @@ public:
 	 * Adds a global function to the script
 	 * @param arg A declaration for the function.
 	*/
-	int addFunction(const Ogre::String& arg);
+	int addFunction(const Ogre::String &moduleName, const Ogre::String& arg);
 	
 	/**
 	 * Checks if a global function exists
 	 * @param arg A declaration for the function.
 	*/
-	bool functionExists(const Ogre::String& arg);
+	bool functionExists(const Ogre::String &moduleName, const Ogre::String& arg);
 	
 	/**
 	 * Deletes a global function from the script
 	 * @param arg A declaration for the function.
 	*/
-	int deleteFunction(const Ogre::String& arg);
+	int deleteFunction(const Ogre::String &moduleName, const Ogre::String& arg);
 	
 	/**
 	 * Adds a global variable to the script
 	 * @param arg A declaration for the variable.
 	*/
-	int addVariable(const Ogre::String& arg);
+	int addVariable(const Ogre::String &moduleName, const Ogre::String& arg);
 	
 	/**
 	 * Deletes a global variable from the script
 	 * @param arg A declaration for the variable.
 	*/
-	int deleteVariable(const Ogre::String& arg);
+	int deleteVariable(const Ogre::String &moduleName, const Ogre::String& arg);
 
 	Ogre::StringVector getAutoComplete(Ogre::String command);
 
@@ -134,8 +142,11 @@ public:
 
 	AngelScript::asIScriptEngine *getEngine() { return engine; };
 
-	Ogre::String getScriptName() { return scriptName; };
-	Ogre::String getScriptHash() { return scriptHash; };
+	AngelScript::asIScriptModule *getCurrentModule();
+
+	// TODO: fix these
+	Ogre::String getScriptName() { return ""; };
+	Ogre::String getScriptHash() { return ""; };
 
 	// method from Ogre::LogListener
 #if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
@@ -161,10 +172,9 @@ protected:
 	Collisions *coll;
     AngelScript::asIScriptEngine *engine;   //!< instance of the scripting engine
 	AngelScript::asIScriptContext *context; //!< context in which all scripting happens
-	Ogre::String scriptName;
-	Ogre::String scriptHash;
 	std::map <std::string, std::vector<AngelScript::asIScriptFunction*> > callbacks;
-	
+	const char* defaultModuleName;
+
 	InterThreadStoreVector< Ogre::String > stringExecutionQueue;     //!< The string execution queue \see queueStringForExecution
 
 	static const char *moduleName;

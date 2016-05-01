@@ -53,8 +53,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamFactory.h"
 
-const char *ScriptEngine::moduleName = "RoRScript";
-
 using namespace Ogre;
 using namespace RoR;
 
@@ -65,6 +63,16 @@ void logString(const std::string &str)
 	SLOG(str);
 }
 
+void moduleUserDataCleanupCallback(AngelScript::asIScriptModule *mod)
+{
+	scriptModuleUserData_t *userdata = (scriptModuleUserData_t*)mod->GetUserData();
+	if (userdata != NULL)
+	{
+		delete userdata;
+		mod->SetUserData((void*)NULL);
+	}
+}
+
 // the class implementation
 
 ScriptEngine::ScriptEngine(Collisions *coll) :
@@ -73,9 +81,8 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
 	, context(0)
 	, engine(0)
 	, eventMask(0)
-	, scriptHash()
 	, scriptLog(0)
-	, scriptName()
+	, defaultModuleName(0)
 {
 	setSingleton(this);
 
@@ -556,6 +563,33 @@ void ScriptEngine::init()
 	result = engine->RegisterGlobalProperty("SettingsClass settings", &SETTINGS); MYASSERT(result>=0);
 
 	SLOG("Type registrations done. If you see no error above everything should be working");
+
+	// Register a callback to delete our user data from it when the module gets destroyed
+	engine->SetModuleUserDataCleanupCallback(moduleUserDataCleanupCallback);
+
+	// Create our context
+	context = engine->CreateContext();
+
+	// Initialize timeout system
+	unsigned long timeOut = 0;
+	/*
+	// TOFIX: AS crashes badly when using these :-\
+	result = context->SetLineCallback(AngelScript::asMETHOD(ScriptEngine, LineCallback), &timeOut, AngelScript::asCALL_THISCALL);
+	if (result < 0)
+	{
+		SLOG("Failed to set the line callback function.");
+		context->Release();
+		return -1;
+	}*/
+
+	// Initialize the exception handling
+	result = context->SetExceptionCallback(AngelScript::asMETHOD(ScriptEngine, ExceptionCallback), this, AngelScript::asCALL_THISCALL);
+	if (result < 0)
+	{
+		SLOG("Failed to set the exception callback function.");
+		context->Release();
+		return;
+	}
 }
 
 void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
@@ -581,7 +615,13 @@ int ScriptEngine::framestep(Real dt)
 	std::vector<String>::iterator it;
 	for (it=tmpQueue.begin(); it!=tmpQueue.end();it++)
 	{
-		executeString(*it);
+		// TODO: allow different modules
+		if (!defaultModuleName)
+		{
+			SLOG("Cannot execute string. No module available.");
+		}
+		else
+			executeString(defaultModuleName, *it);
 	}
 
 	// framestep stuff below
@@ -694,24 +734,52 @@ void ScriptEngine::queueStringForExecution(const String command)
 	stringExecutionQueue.push(command);
 }
 
-int ScriptEngine::executeString(String command)
+int ScriptEngine::executeString(String moduleName, String code)
 {
 	if (!engine) return 1;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
-	int result = ExecuteString(engine, command.c_str(), mod, context);
-	if (result < 0)
+	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+
+	// Wrap the code in a function so that it can be compiled and executed
+	code = String("void ExecuteString() {\n") + code + String("\n;}");
+
+	// Compile the function that can be executed
+	AngelScript::asIScriptFunction *func = 0;
+	int r = mod->CompileFunction("ExecuteString", code.c_str(), -1, 0, &func);
+	if (r < 0 || func == NULL)
+		return r;
+
+	// This function isn't part of the module that we'll execute it in
+	// So we'll add the module as user data to the function
+	func->SetUserData((void*)mod);
+
+	// Prepare to execute
+	r = context->Prepare(func);
+	if (r < 0)
 	{
-		SLOG("error " + TOSTRING(result) + " while executing string: " + command + ".");
+		func->Release();
+		return r;
 	}
-	return result;
+
+	// Execute the function
+	r = context->Execute();
+
+	// Clean up
+	func->Release();
+
+	if (r < 0)
+	{
+		SLOG("error " + TOSTRING(r) + " while executing string: " + code + ".");
+	}
+	return r;
+
 }
 
-int ScriptEngine::addFunction(const String &arg)
+int ScriptEngine::addFunction(const String &moduleName, const String &arg)
 {
 	if (!engine) return 1;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_CREATE_IF_NOT_EXISTS);
 
 	AngelScript::asIScriptFunction *func = 0;
 	int r = mod->CompileFunction("addfunc", arg.c_str(), 0, AngelScript::asCOMP_ADD_TO_MODULE, &func);
@@ -758,26 +826,26 @@ int ScriptEngine::addFunction(const String &arg)
 	return r;
 }
 
-bool ScriptEngine::functionExists(const String &arg)
+bool ScriptEngine::functionExists(const String &moduleName, const String &arg)
 {
 	if (!engine) return -1;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
 
 	if (mod == 0) return false;
 	else return (mod->GetFunctionByDecl(arg.c_str()) != NULL);
 }
 
-int ScriptEngine::deleteFunction(const String &arg)
+int ScriptEngine::deleteFunction(const String &moduleName, const String &arg)
 {
 	if (!engine) return 1;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
 
 	if ( mod == 0 || mod->GetFunctionCount() == 0 )
 	{
 		char tmp[512] = "";
-		sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s': No functions have been added (and consequently: the function does not exist).", arg.c_str(), moduleName);
+		sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), moduleName.c_str());
 		SLOG(tmp);
 		return AngelScript::asNO_FUNCTION;
 	}
@@ -815,33 +883,33 @@ int ScriptEngine::deleteFunction(const String &arg)
 	return 0;
 }
 
-int ScriptEngine::addVariable(const String &arg)
+int ScriptEngine::addVariable(const String &moduleName, const String &arg)
 {
 	if (!engine) return 1;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_CREATE_IF_NOT_EXISTS);
 
 	int r = mod->CompileGlobalVar("addvar", arg.c_str(), 0);
 	if ( r < 0 )
 	{
 		char tmp[512] = "";
-		sprintf(tmp, "An error occurred while trying to add a variable ('%s') to script module '%s'.", arg.c_str(), moduleName);
+		sprintf(tmp, "An error occurred while trying to add a variable ('%s') to script module '%s'.", arg.c_str(), moduleName.c_str());
 		SLOG(tmp);
 	}
 
 	return r;
 }
 
-int ScriptEngine::deleteVariable(const String &arg)
+int ScriptEngine::deleteVariable(const String &moduleName, const String &arg)
 {
 	if (!engine) return 1;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
 
 	if ( mod == 0 || mod->GetGlobalVarCount() == 0 )
 	{
 		char tmp[512] = "";
-		sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s': No variables have been added (and consequently: the variable does not exist).", arg.c_str(), moduleName);
+		sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s'.", arg.c_str(), moduleName.c_str());
 		SLOG(tmp);
 		return AngelScript::asNO_GLOBAL_VAR;
 	}
@@ -898,32 +966,44 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
 	}
 }
 
-int ScriptEngine::loadScript(String _scriptName)
+int ScriptEngine::loadScript(String scriptName)
 {
-	AngelScript::asIScriptFunction* func;
 
-	scriptName = _scriptName;
+	String moduleName = scriptName + "_module";
 
-	// Load the entire script file into the buffer
-	int result=0;
+	// use the first module that we encounter as default (for now)
+	if (!defaultModuleName)
+		defaultModuleName = moduleName.c_str();
+
+	return loadScript(scriptName, moduleName);
+}
+
+int ScriptEngine::loadScript(String scriptName, String moduleName)
+{
+	AngelScript::asIScriptFunction* func = 0;
+	AngelScript::asIScriptModule*   mod = 0;
+	int result = 0;
 
 	// The builder is a helper class that will load the script file,
 	// search for #include directives, and load any included files as
 	// well.
 	OgreScriptBuilder builder;
-
-	AngelScript::asIScriptModule *mod = 0;
-
-
-	// not cached so dynamically load and compile it
-	result = builder.StartNewModule(engine, moduleName);
+	result = builder.StartNewModule(engine, moduleName.c_str());
 	if (result < 0)
 	{
 		SLOG("Failed to start new module");
 		return result;
 	}
 
-	mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+	// Get the newly created module
+	mod = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
+	if (result < 0)
+	{
+		SLOG("Failed to get the new module");
+		return result;
+	}
+
+	// Load the script
 
 	result = builder.AddSectionFromFile(scriptName.c_str());
 	if (result < 0)
@@ -933,7 +1013,13 @@ int ScriptEngine::loadScript(String _scriptName)
 		return result;
 	}
 
-	// try to load precompiled bytecode
+	// Set the module user data
+	scriptModuleUserData_t *userdata = new scriptModuleUserData_t();
+	userdata->scriptName = scriptName;
+	userdata->scriptHash = builder.getHash();
+	mod->SetUserData((void*)userdata);
+
+	// Try to load precompiled bytecode
 	bool cached = false;
 	String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_" + scriptName + "c";
 	CBytecodeStream bstream(fn, std::string("r"));
@@ -960,9 +1046,8 @@ int ScriptEngine::loadScript(String _scriptName)
 		}
 
 		// save the bytecode
-		scriptHash = builder.getHash();
 		{
-			String fn = SSETTING("Cache Path", "") + "script" + scriptHash + "_" + scriptName + "c";
+			String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_" + scriptName + "c";
 			SLOG("saving script bytecode to file " + fn);
 			CBytecodeStream bstream(fn, std::string("w"));
 			mod->SaveByteCode(&bstream);
@@ -995,45 +1080,20 @@ int ScriptEngine::loadScript(String _scriptName)
 		return 0;
 	}
 
-	// Create our context, prepare it, and then execute
-	context = engine->CreateContext();
-
-
-	unsigned long timeOut = 0;
-	/*
-	// TOFIX: AS crashes badly when using these :-\
-	result = context->SetLineCallback(AngelScript::asMETHOD(ScriptEngine, LineCallback), &timeOut, AngelScript::asCALL_THISCALL);
-	if (result < 0)
-	{
-		SLOG("Failed to set the line callback function.");
-		context->Release();
-		return -1;
-	}*/
-
-	result = context->SetExceptionCallback(AngelScript::asMETHOD(ScriptEngine,ExceptionCallback), this, AngelScript::asCALL_THISCALL);
-	if (result < 0)
-	{
-		SLOG("Failed to set the exception callback function.");
-		context->Release();
-		return -1;
-	}
-
-	// Prepare the script context with the function we wish to execute. Prepare()
-	// must be called on the context before each new script function that will be
-	// executed. Note, that if you intend to execute the same function several
-	// times, it might be a good idea to store the function id returned by
-	// GetFunctionIDByDecl(), so that this relatively slow call can be skipped.
+	// This should never happen
+	if (!context) context = engine->CreateContext();
+	
+	// Prepare the script context with the function we wish to execute.
 	result = context->Prepare(func);
 	if (result < 0)
 	{
 		SLOG("Failed to prepare the context.");
-		context->Release();
 		return -1;
 	}
 
 	// Set the timeout before executing the function. Give the function 1 sec
 	// to return before we'll abort it.
-	timeOut = RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
+	//timeOut = RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
 
 	SLOG("Executing main()");
 	result = context->Execute();
@@ -1068,13 +1128,38 @@ int ScriptEngine::loadScript(String _scriptName)
 	return 0;
 }
 
+AngelScript::asIScriptModule *ScriptEngine::getCurrentModule()
+{
+	if (!engine) return NULL;
+	//if(!context) return NULL;
+
+	// We cannot use our ScriptEngine::context variable here.
+	// While compiling, global variables get initialized outside of that context
+	// asGetActiveContext will get the context that is currently active in this thread
+	AngelScript::asIScriptContext *ctx = AngelScript::asGetActiveContext();
+	if (!ctx) return NULL;
+
+	AngelScript::asIScriptFunction *func = ctx->GetFunction();
+	if (!func) return NULL;
+
+	AngelScript::asIScriptModule *mod = engine->GetModule(func->GetModuleName(), AngelScript::asGM_ONLY_IF_EXISTS);
+	if (!mod)
+	{
+		// This function isn't part of any module.
+		// In this case, the module should have been set as user data
+		mod = (AngelScript::asIScriptModule*)func->GetUserData();
+	}
+
+	return mod;
+}
 
 StringVector ScriptEngine::getAutoComplete(String command)
 {
 	StringVector result;
 	if (!engine) return result;
+	if (!defaultModuleName) return result;
 	if (!context) context = engine->CreateContext();
-	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+	AngelScript::asIScriptModule *mod = engine->GetModule(defaultModuleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
 
 	for (unsigned int i = 0; i < mod->GetGlobalVarCount(); i++)
 	{

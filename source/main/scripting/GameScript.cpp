@@ -331,16 +331,13 @@ void GameScript::moveObjectVisuals(const String &instanceName, const Vector3 &po
 
 void GameScript::spawnObject(const String &objectName, const String &instanceName, const Vector3 &pos, const Vector3 &rot, const String &eventhandler, bool uniquifyMaterials)
 {
-	AngelScript::asIScriptModule *mod = 0;
-	try
+	// Get the callback function
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
 	{
-		mod = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
-	}catch(std::exception e)
-	{
-		SLOG("Exception in spawnObject(): " + String(e.what()));
+		SLOG("Failure in GameScript::spawnObject(): Couldn't get the current module.");
 		return;
 	}
-	if (!mod) return;
 	AngelScript::asIScriptFunction* functionPtr = mod->GetFunctionByName(eventhandler.c_str());
 
 	// trying to create the new object
@@ -666,8 +663,8 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileName", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileName.c_str(), CURLFORM_END);
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileHash.c_str(), CURLFORM_END);
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ModHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainModHash.c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
+	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
+	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, SSETTING("Nickname", "Anonymous").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, SSETTING("Language", "English").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
@@ -832,6 +829,14 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 		}
 	}
 
+	// Add script hash and script name to the object (in this thread!)
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (mod == NULL) return 2;
+	scriptModuleUserData_t *userdata = (scriptModuleUserData_t*)mod->GetUserData();
+	if (userdata == NULL) return 3;
+	params->dict->Set("terrain_ScriptHash", (void *)new String(userdata->scriptHash), mse->getEngine()->GetTypeIdByDecl("string"));
+	params->dict->Set("terrain_ScriptName", (void *)new String(userdata->scriptName), mse->getEngine()->GetTypeIdByDecl("string"));
+
 	// create the thread
 	LOG("creating thread for online API usage...");
 	int rc = pthread_create(&apiThread, NULL, onlineAPIThread, (void *)params);
@@ -858,27 +863,62 @@ void GameScript::boostCurrentTruck(float factor)
 
 int GameScript::addScriptFunction(const String &arg)
 {
-	return mse->addFunction(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::addScriptFunction(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->addFunction(String(mod->GetName()), arg);
 }
 
 int GameScript::scriptFunctionExists(const String &arg)
 {
-	return mse->functionExists(arg) ? 1 : -1;
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::scriptFunctionExists(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->functionExists(String(mod->GetName()), arg) ? 1 : -1;
 }
 
 int GameScript::deleteScriptFunction(const String &arg)
 {
-	return mse->deleteFunction(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::deleteScriptFunction(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->deleteFunction(String(mod->GetName()), arg);
 }
 
 int GameScript::addScriptVariable(const String &arg)
 {
-	return mse->addVariable(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::addScriptVariable(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->addVariable(String(mod->GetName()), arg);
 }
 
 int GameScript::deleteScriptVariable(const String &arg)
 {
-	return mse->deleteVariable(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::deleteScriptVariable(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->deleteVariable(String(mod->GetName()), arg);
 }
 
 int GameScript::sendGameCmd(const String& message)
