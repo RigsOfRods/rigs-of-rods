@@ -119,8 +119,11 @@ public:
 
 	/**
 	* Call this one to displace a truck
+	* @param translation Offset to move vehicle.
+	* @param rotation Angle to rotate vehicle.
+	* @param setInitPosition Set initial positions of nodes to current position and rotation?
 	*/
-	void displace(Ogre::Vector3 translation, float rotation); 
+	void displace(Ogre::Vector3 translation, float rotation, bool setInitPosition); 
 
 	/**
 	* Spawns vehicle.
