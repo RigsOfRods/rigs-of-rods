@@ -71,21 +71,20 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
 	  mefl(nullptr)
 	, coll(coll)
 	, context(0)
-	, defaultEventCallbackFunctionPtr(NULL)
 	, engine(0)
-	, eventCallbackFunctionPtr(NULL)
 	, eventMask(0)
-	, frameStepFunctionPtr(NULL)
 	, scriptHash()
 	, scriptLog(0)
 	, scriptName()
-	, wheelEventFunctionPtr(NULL)
 {
 	setSingleton(this);
+
+	// Initialize callbacks vector
 	callbacks["on_terrain_loading"] = std::vector<AngelScript::asIScriptFunction*>();
 	callbacks["frameStep"] = std::vector<AngelScript::asIScriptFunction*>();
 	callbacks["wheelEvents"] = std::vector<AngelScript::asIScriptFunction*>();
 	callbacks["eventCallback"] = std::vector<AngelScript::asIScriptFunction*>();
+	callbacks["defaultEventCallback"] = std::vector<AngelScript::asIScriptFunction*>();
 
 	// create our own log
 	scriptLog = LogManager::getSingleton().createLog(SSETTING("Log Path", "")+"/Angelscript.log", false);
@@ -574,6 +573,8 @@ void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
 
 int ScriptEngine::framestep(Real dt)
 {
+	int r;
+
 	// Check if we need to execute any strings
 	std::vector<String> tmpQueue;
 	stringExecutionQueue.pull(tmpQueue);
@@ -584,26 +585,43 @@ int ScriptEngine::framestep(Real dt)
 	}
 
 	// framestep stuff below
-	if (frameStepFunctionPtr == NULL) return 1;
+	if (callbacks["frameStep"].empty()) return 1;
 	if (!engine) return 0;
 	if (!context) context = engine->CreateContext();
-	context->Prepare(frameStepFunctionPtr);
 
-	// Set the function arguments
-	context->SetArgFloat(0, dt);
-
-	//SLOG("Executing framestep()");
-	int r = context->Execute();
-	if ( r == AngelScript::asEXECUTION_FINISHED )
+	// loop over all callbacks
+	for (unsigned int i = 0; i<callbacks["frameStep"].size(); ++i)
 	{
-	  // The return value is only valid if the execution finished successfully
-		AngelScript::asDWORD ret = context->GetReturnDWord();
+		// prepare the call
+		r = context->Prepare(callbacks["frameStep"][i]);
+		if (r<0)
+		{
+			SLOG("Failed to prepare frameStep function.");
+			continue;
+		}
+
+		// Set the arguments
+		context->SetArgFloat(0, dt);
+
+		// Execute it
+		r = context->Execute();
+		if (r != AngelScript::asEXECUTION_FINISHED)
+		{
+			SLOG("Failed to execute frameStep function.");
+			continue;
+		}
 	}
+
+	// Collect garbage in frameStep
+	engine->GarbageCollect(AngelScript::asGC_ONE_STEP);
+
 	return 0;
 }
 
 int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 {
+// TODO: update fire
+#if 0
 	if (!engine) return 0;
 	AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
 	AngelScript::asIScriptFunction* functionPtr = mod->GetFunctionByDecl("void fireEvent(string, float)"); // TODO: this shouldn't be hard coded --neorej16
@@ -623,6 +641,7 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 		AngelScript::asDWORD ret = context->GetReturnDWord();
 	}
 	delete(instance_name);
+#endif //0
 
 	return 0;
 }
@@ -630,18 +649,22 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 int ScriptEngine::envokeCallback(void* functionPtr, eventsource_t *source, node_t *node, int type)
 {
 	if (!engine) return 0;
-	AngelScript::asIScriptFunction* func = (AngelScript::asIScriptFunction*)functionPtr;
-	if (func == NULL && defaultEventCallbackFunctionPtr != NULL)
+
+	if (functionPtr == NULL && callbacks["defaultEventCallback"].empty())
 	{
-		// use the default event handler instead then
-		func = defaultEventCallbackFunctionPtr;
-	}	else if (func == NULL)
+		// no callback available, discard the event
+		return 0;
+	}
+	else if (functionPtr == NULL)
 	{
-		// no default callback available, discard the event
+		// We'll call the default event callback functions recursively
+		for (unsigned int i = 0; i<callbacks["defaultEventCallback"].size(); ++i)
+			if (callbacks["defaultEventCallback"][i] != NULL)
+					envokeCallback((void*)callbacks["defaultEventCallback"][i], source, node, type);
 		return 0;
 	}
 	if (!context) context = engine->CreateContext();
-	context->Prepare(func);
+	context->Prepare((AngelScript::asIScriptFunction*)functionPtr);
 
 	// Set the function arguments
 	std::string *instance_name = new std::string(source->instancename);
@@ -708,22 +731,18 @@ int ScriptEngine::addFunction(const String &arg)
 		// compare the id of the newly added function with the special functions
 		if (func == mod->GetFunctionByDecl("void frameStep(float)"))
 		{	
-			if (frameStepFunctionPtr == NULL) frameStepFunctionPtr = func;
 			callbacks["frameStep"].push_back(func);
 		}
 		else if (func == mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)"))
 		{	
-			if (wheelEventFunctionPtr == NULL) wheelEventFunctionPtr = func;
 			callbacks["wheelEvents"].push_back(func);
 		}
 		else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
 		{
-			if (eventCallbackFunctionPtr == NULL) eventCallbackFunctionPtr = func;
 			callbacks["eventCallback"].push_back(func);
 		}
 		else if (func == mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)"))
-		{	
-			if (defaultEventCallbackFunctionPtr == NULL) defaultEventCallbackFunctionPtr = func;
+		{
 			callbacks["defaultEventCallback"].push_back(func);
 		}
 		else if (func == mod->GetFunctionByDecl("void on_terrain_loading(string lines)"))
@@ -780,14 +799,6 @@ int ScriptEngine::deleteFunction(const String &arg)
 			if (*key == func)
 				it->second.erase(key);
 		}
-		if (frameStepFunctionPtr == func)
-				frameStepFunctionPtr = NULL;
-		if (wheelEventFunctionPtr == func)
-				 wheelEventFunctionPtr = NULL;
-		if (eventCallbackFunctionPtr == func)
-				eventCallbackFunctionPtr = NULL;
-		if (defaultEventCallbackFunctionPtr == func)
-				defaultEventCallbackFunctionPtr = NULL;
 
 			return 1;
 	}
@@ -853,22 +864,35 @@ int ScriptEngine::deleteVariable(const String &arg)
 void ScriptEngine::triggerEvent(int eventnum, int value)
 {
 	if (!engine) return;
-	if (eventCallbackFunctionPtr == NULL) return;
+	if (callbacks["eventCallback"].empty()) return;
 	if (eventMask & eventnum)
 	{
 		// script registered for that event, so sent it
+
+		int r;
 		if (!context) context = engine->CreateContext();
-		context->Prepare(eventCallbackFunctionPtr);
-
-		// Set the function arguments
-		context->SetArgDWord(0, eventnum);
-		context->SetArgDWord(1, value);
-
-		int r = context->Execute();
-		if ( r == AngelScript::asEXECUTION_FINISHED )
+		// loop over all callbacks
+		for (unsigned int i = 0; i<callbacks["eventCallback"].size(); ++i)
 		{
-		  // The return value is only valid if the execution finished successfully
-			AngelScript::asDWORD ret = context->GetReturnDWord();
+			// prepare the call
+			r = context->Prepare(callbacks["eventCallback"][i]);
+			if (r<0)
+			{
+				SLOG("Failed to prepare eventCallback function.");
+				continue;
+			}
+
+			// Set the arguments
+			context->SetArgDWord(0, eventnum);
+			context->SetArgDWord(1, value);
+
+			// Execute it
+			r = context->Execute();
+			if (r != AngelScript::asEXECUTION_FINISHED)
+			{
+				SLOG("Failed to execute eventCallback function.");
+				continue;
+			}
 		}
 		return;
 	}
@@ -876,6 +900,8 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
 
 int ScriptEngine::loadScript(String _scriptName)
 {
+	AngelScript::asIScriptFunction* func;
+
 	scriptName = _scriptName;
 
 	// Load the entire script file into the buffer
@@ -944,23 +970,23 @@ int ScriptEngine::loadScript(String _scriptName)
 	}
 
 	// get some other optional functions
-	frameStepFunctionPtr = mod->GetFunctionByDecl("void frameStep(float)");
-	if (frameStepFunctionPtr != NULL) callbacks["frameStep"].push_back(frameStepFunctionPtr);
+	func = mod->GetFunctionByDecl("void frameStep(float)");
+	if (func != NULL) callbacks["frameStep"].push_back(func);
 
-	wheelEventFunctionPtr = mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)");
-	if (wheelEventFunctionPtr != NULL) callbacks["wheelEvents"].push_back(wheelEventFunctionPtr);
+	func = mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)");
+	if (func != NULL) callbacks["wheelEvents"].push_back(func);
 
-	eventCallbackFunctionPtr = mod->GetFunctionByDecl("void eventCallback(int, int)");
-	if (eventCallbackFunctionPtr != NULL) callbacks["eventCallback"].push_back(eventCallbackFunctionPtr);
+	func = mod->GetFunctionByDecl("void eventCallback(int, int)");
+	if (func != NULL) callbacks["eventCallback"].push_back(func);
 
-	defaultEventCallbackFunctionPtr = mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
-	if (defaultEventCallbackFunctionPtr != NULL) callbacks["defaultEventCallback"].push_back(defaultEventCallbackFunctionPtr);
+	func = mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
+	if (func != NULL) callbacks["defaultEventCallback"].push_back(func);
 
-	AngelScript::asIScriptFunction* cb = mod->GetFunctionByDecl("void on_terrain_loading(string lines)");
-	if (cb != NULL) callbacks["on_terrain_loading"].push_back(cb);
+	func = mod->GetFunctionByDecl("void on_terrain_loading(string lines)");
+	if (func != NULL) callbacks["on_terrain_loading"].push_back(func);
 
 	// Find the function that is to be called.
-	AngelScript::asIScriptFunction* func = mod->GetFunctionByDecl("void main()");
+	func = mod->GetFunctionByDecl("void main()");
 	if (func == NULL)
 	{
 		// The function couldn't be found. Instruct the script writer to include the
