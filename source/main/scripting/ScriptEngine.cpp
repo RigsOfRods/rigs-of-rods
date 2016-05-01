@@ -887,41 +887,45 @@ int ScriptEngine::loadScript(String _scriptName)
 	OgreScriptBuilder builder;
 
 	AngelScript::asIScriptModule *mod = 0;
-	// try to load bytecode
-	bool cached = false;
+
+
+	// not cached so dynamically load and compile it
+	result = builder.StartNewModule(engine, moduleName);
+	if (result < 0)
 	{
-		// the code below should load a compilation result but it crashes for some reason atm ...
-		//AngelScript::asIScriptModule *mod = engine->GetModule("RoRScript", AngelScript::asGM_ALWAYS_CREATE);
-		/*
-		String fn = SSETTING("Cache Path") + "script" + hash + "_" + scriptName + "c";
-		CBytecodeStream bstream(fn);
-		if (bstream.Existing())
-		{
-			// CRASHES here :(
-			int res = mod->LoadByteCode(&bstream);
-			cached = !res;
-		}
-		*/
+		SLOG("Failed to start new module");
+		return result;
 	}
+
+	mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+
+	result = builder.AddSectionFromFile(scriptName.c_str());
+	if (result < 0)
+	{
+		SLOG("Unkown error while loading script file: " + scriptName);
+		SLOG("Failed to add script file (error " + TOSTRING(result) + ")");
+		return result;
+	}
+
+	// try to load precompiled bytecode
+	bool cached = false;
+	String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_" + scriptName + "c";
+	CBytecodeStream bstream(fn, std::string("r"));
+	if (bstream.Existing())
+	{
+		int res = mod->LoadByteCode(&bstream);
+		if (res<0)
+		 {
+			SLOG("Failed to load the precompiled script: " + TOSTRING(res));
+		}
+		cached = !res;
+	}
+
+	// Compile the script if we couldn't load the bytecode
 	if (!cached)
 	{
-		// not cached so dynamically load and compile it
-		result = builder.StartNewModule(engine, moduleName);
-		if ( result < 0 )
-		{
-			SLOG("Failed to start new module");
-			return result;
-		}
+		SLOG("Compiling script for first time use...");
 
-		mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
-
-		result = builder.AddSectionFromFile(scriptName.c_str());
-		if ( result < 0 )
-		{
-			SLOG("Unkown error while loading script file: "+scriptName);
-			SLOG("Failed to add script file (error " + TOSTRING(result) + ")");
-			return result;
-		}
 		result = builder.BuildModule();
 		if ( result < 0 )
 		{
@@ -934,7 +938,7 @@ int ScriptEngine::loadScript(String _scriptName)
 		{
 			String fn = SSETTING("Cache Path", "") + "script" + scriptHash + "_" + scriptName + "c";
 			SLOG("saving script bytecode to file " + fn);
-			CBytecodeStream bstream(fn);
+			CBytecodeStream bstream(fn, std::string("w"));
 			mod->SaveByteCode(&bstream);
 		}
 	}
