@@ -687,8 +687,16 @@ void DashBoard::loadLayout( Ogre::String filename )
 
 void DashBoard::setVisible(bool v, bool smooth)
 {
-	if (!mainWidget) return;
 	visible = v;
+
+	if (!mainWidget)
+	{
+		for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
+		{
+			(*iter)->setVisible(v);
+		}
+		return;
+	}
 
 	/*
 	// buggy for some reason
