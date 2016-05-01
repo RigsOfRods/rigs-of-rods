@@ -1021,7 +1021,7 @@ int ScriptEngine::loadScript(String scriptName, String moduleName)
 
 	// Try to load precompiled bytecode
 	bool cached = false;
-	String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_" + scriptName + "c";
+	String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_as" + TOSTRING(ANGELSCRIPT_VERSION) + "_" + scriptName + "c";
 	CBytecodeStream bstream(fn, std::string("r"));
 	if (bstream.Existing())
 	{
@@ -1047,7 +1047,7 @@ int ScriptEngine::loadScript(String scriptName, String moduleName)
 
 		// save the bytecode
 		{
-			String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_" + scriptName + "c";
+			String fn = SSETTING("Cache Path", "") + "script" + builder.getHash() + "_as" + TOSTRING(ANGELSCRIPT_VERSION) + "_" + scriptName + "c";
 			SLOG("saving script bytecode to file " + fn);
 			CBytecodeStream bstream(fn, std::string("w"));
 			mod->SaveByteCode(&bstream);
