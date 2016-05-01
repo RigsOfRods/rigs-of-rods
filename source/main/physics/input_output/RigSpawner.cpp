@@ -88,8 +88,6 @@ void RigSpawner::Setup(
 	Beam *rig,
 	std::shared_ptr<RigDef::File> file,
 	Ogre::SceneNode *parent,
-	Ogre::Vector3 const & spawn_position,
-	Ogre::Quaternion const & spawn_rotation,
     int cache_entry_number
 )
 {
@@ -99,8 +97,6 @@ void RigSpawner::Setup(
 	m_file = file;
     m_cache_entry_number = cache_entry_number;
 	m_parent_scene_node = parent;
-	m_spawn_position = spawn_position;
-	m_spawn_rotation = spawn_rotation;
 	m_current_keyword = RigDef::File::KEYWORD_INVALID;
 	m_enable_background_loading = BSETTING("Background Loading", false);
 	m_wing_area = 0.f;
@@ -527,7 +523,7 @@ void RigSpawner::FinalizeRig()
 		m_rig->wings[m_rig->wingstart].fa->enableInducedDrag(span,m_wing_area, false);
 		m_rig->wings[m_rig->free_wing-1].fa->enableInducedDrag(span,m_wing_area, true);
 		//wash calculator
-		WashCalculator(m_spawn_rotation);
+		WashCalculator();
 	}
 	//add the cab visual
 	if (m_rig->free_texcoord>0 && m_rig->free_cab>0)
@@ -759,21 +755,20 @@ void RigSpawner::FinalizeRig()
 /* Processing functions and utilities.
 /* -------------------------------------------------------------------------- */
 
-void RigSpawner::WashCalculator(Ogre::Quaternion const & rot)
+void RigSpawner::WashCalculator()
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    Ogre::Quaternion invrot=rot.Inverse();
 	//we will compute wash
 	int w,p;
 	for (p=0; p<m_rig->free_aeroengine; p++)
 	{
-		Ogre::Vector3 prop=invrot*m_rig->nodes[m_rig->aeroengines[p]->getNoderef()].RelPosition;
+		Ogre::Vector3 prop=m_rig->nodes[m_rig->aeroengines[p]->getNoderef()].RelPosition;
 		float radius=m_rig->aeroengines[p]->getRadius();
 		for (w=0; w<m_rig->free_wing; w++)
 		{
 			//left wash
-			Ogre::Vector3 wcent=invrot*((m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition+m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition)/2.0);
+			Ogre::Vector3 wcent=((m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition+m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition)/2.0);
 			//check if wing is near enough along X (less than 15m back)
 			if (wcent.x>prop.x && wcent.x<prop.x+15.0)
 			{
@@ -781,8 +776,8 @@ void RigSpawner::WashCalculator(Ogre::Quaternion const & rot)
 				if (wcent.y>prop.y-radius && wcent.y<prop.y+radius)
 				{
 					//okay, compute wash coverage ratio along Z
-					float wleft=(invrot*m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition).z;
-					float wright=(invrot*m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition).z;
+					float wleft=(m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition).z;
+					float wright=(m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition).z;
 					float pleft=prop.z+radius;
 					float pright=prop.z-radius;
 					float aleft=wleft;
@@ -4200,8 +4195,8 @@ void RigSpawner::FetchAxisNodes(
     axis_node_1 = GetNodePointer(axis_node_1_id);
 	axis_node_2 = GetNodePointer(axis_node_2_id);
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -4519,8 +4514,8 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 	node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -4584,8 +4579,8 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         return;
     }
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -5010,8 +5005,8 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 		return -1;
 	}
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -5208,8 +5203,8 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		return -1;
 	}
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -6445,7 +6440,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.id = static_cast<int>(def.id.Num());
 
 	/* Positioning */
-	Ogre::Vector3 node_position = m_spawn_position + m_spawn_rotation * def.position;
+	Ogre::Vector3 node_position = def.position;
 	node.AbsPosition = node_position; 
 	node.RelPosition = node_position - m_rig->origin;
 	node.smoothpos   = node_position;
@@ -6656,7 +6651,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	}
 			
 	/* Node */
-	Ogre::Vector3 node_pos = m_spawn_position + m_spawn_rotation * def.position;
+	Ogre::Vector3 node_pos = def.position;
 	node_t & camera_node = GetAndInitFreeNode(node_pos);
 	camera_node.contactless = true; // Orig: hardcoded in BTS_CINECAM
 	camera_node.wheelid = -1;
