@@ -36,7 +36,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "scripthelper/scripthelper.h"
 #include "scriptmath/scriptmath.h"
 #include "scriptstdstring/scriptstdstring.h"
-#include "scriptstring/scriptstring.h"
 // AS addons end
 
 #include "Application.h"
@@ -342,14 +341,14 @@ void GameScript::spawnObject(const String &objectName, const String &instanceNam
 		return;
 	}
 	if (!mod) return;
-	int functionPtr = mod->GetFunctionIdByName(eventhandler.c_str());
+	AngelScript::asIScriptFunction* functionPtr = mod->GetFunctionByName(eventhandler.c_str());
 
 	// trying to create the new object
 	SceneNode *bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
 	{
 		const String type = "";
-		gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, functionPtr, uniquifyMaterials);
+		gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, (void*)functionPtr, uniquifyMaterials);
 	}
 }
 
@@ -864,7 +863,7 @@ int GameScript::addScriptFunction(const String &arg)
 
 int GameScript::scriptFunctionExists(const String &arg)
 {
-	return mse->functionExists(arg);
+	return mse->functionExists(arg) ? 1 : -1;
 }
 
 int GameScript::deleteScriptFunction(const String &arg)

@@ -711,7 +711,7 @@ void TerrainObjectManager::unloadObject(const String &instancename)
 	obj.enabled = false;
 }
 
-void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
+void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions /* = true */, void* scripthandler /* = NULL */, bool uniquifyMaterial /* = false */)
 {
 	ScopeLog log("object_"+name);
 

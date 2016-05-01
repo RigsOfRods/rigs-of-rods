@@ -5,324 +5,115 @@
 #include <stdio.h>	// sprintf()
 #include <stdlib.h> // strtod()
 #include <locale.h> // setlocale()
-#ifdef __UNIX__
-#include <unistd.h>
-#endif
+#include <map>      // std::map
 
 using namespace std;
 
 BEGIN_AS_NAMESPACE
 
-static void StringFactoryGeneric(asIScriptGeneric *gen) {
-  asUINT length = gen->GetArgDWord(0);
-  const char *s = (const char*)gen->GetArgAddress(1);
-  string str(s, length);
-  gen->SetReturnObject(&str);
-}
+#if AS_USE_STRINGPOOL == 1
 
-static void ConstructStringGeneric(asIScriptGeneric * gen) {
-  new (gen->GetObject()) string();
-}
+// By keeping the literal strings in a pool the application
+// performance is improved as there are less string copies created.
 
-static void CopyConstructStringGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetArgObject(0));
-  new (gen->GetObject()) string(*a);
-}
+// The string pool will be kept as user data in the engine. We'll
+// need a specific type to identify the string pool user data.
+// We just define a number here that we assume nobody else is using for 
+// object type user data. The add-ons have reserved the numbers 1000 
+// through 1999 for this purpose, so we should be fine.
+const asPWORD STRING_POOL = 1001;
 
-static void DestructStringGeneric(asIScriptGeneric * gen) {
-  string * ptr = static_cast<string *>(gen->GetObject());
-  ptr->~string();
-}
+// This global static variable is placed here rather than locally within the
+// StringFactory, due to memory leak detectors that don't see the deallocation
+// of global variables. By placing the variable globally it will be initialized
+// before the memory leak detector starts, thus it won't report the missing 
+// deallocation. An example of this the Marmalade leak detector initialized with
+// IwGxInit() and finished with IwGxTerminate().
+static const string emptyString;
 
-static void AssignStringGeneric(asIScriptGeneric *gen) {
-  string * a = static_cast<string *>(gen->GetArgObject(0));
-  string * self = static_cast<string *>(gen->GetObject());
-  *self = *a;
-  gen->SetReturnAddress(self);
-}
-
-static void AddAssignStringGeneric(asIScriptGeneric *gen) {
-  string * a = static_cast<string *>(gen->GetArgObject(0));
-  string * self = static_cast<string *>(gen->GetObject());
-  *self += *a;
-  gen->SetReturnAddress(self);
-}
-
-static void StringEqualsGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  string * b = static_cast<string *>(gen->GetArgAddress(0));
-  *(bool*)gen->GetAddressOfReturnLocation() = (*a == *b);
-}
-
-static void StringCmpGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  string * b = static_cast<string *>(gen->GetArgAddress(0));
-
-  int cmp = 0;
-  if( *a < *b ) cmp = -1;
-  else if( *a > *b ) cmp = 1;
-
-  *(int*)gen->GetAddressOfReturnLocation() = cmp;
-}
-
-static void StringAddGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  string * b = static_cast<string *>(gen->GetArgAddress(0));
-  string ret_val = *a + *b;
-  gen->SetReturnObject(&ret_val);
-}
-
-static void StringLengthGeneric(asIScriptGeneric * gen) {
-  string * self = static_cast<string *>(gen->GetObject());
-  *static_cast<asUINT *>(gen->GetAddressOfReturnLocation()) = (asUINT)self->length();
-}
-
-static void StringResizeGeneric(asIScriptGeneric * gen) {
-  string * self = static_cast<string *>(gen->GetObject());
-  self->resize(*static_cast<asUINT *>(gen->GetAddressOfArg(0)));
-}
-
-static void StringCharAtGeneric(asIScriptGeneric * gen) {
-  unsigned int index = gen->GetArgDWord(0);
-  string * self = static_cast<string *>(gen->GetObject());
-
-  if (index >= self->size()) {
-    // Set a script exception
-    asIScriptContext *ctx = asGetActiveContext();
-    ctx->SetException("Out of range");
-
-    gen->SetReturnAddress(0);
-  } else {
-    gen->SetReturnAddress(&(self->operator [](index)));
-  }
-}
-
-static void AssignInt2StringGeneric(asIScriptGeneric *gen)
+static const string &StringFactory(asUINT length, const char *s)
 {
-	int *a = static_cast<int*>(gen->GetAddressOfArg(0));
-	string *self = static_cast<string*>(gen->GetObject());
-	std::stringstream sstr;
-	sstr << *a;
-	*self = sstr.str();
-	gen->SetReturnAddress(self);
+	// Each engine instance has its own string pool
+	asIScriptContext *ctx = asGetActiveContext();
+	if( ctx == 0 )
+	{
+		// The string factory can only be called from a script
+		assert( ctx );
+		return emptyString;
+	}
+	asIScriptEngine *engine = ctx->GetEngine();
+
+	// TODO: runtime optimize: Use unordered_map if C++11 is supported, i.e. MSVC10+, gcc 4.?+
+	map<const char *, string> *pool = reinterpret_cast< map<const char *, string>* >(engine->GetUserData(STRING_POOL));
+
+	if( !pool )
+	{
+		// The string pool hasn't been created yet, so we'll create it now
+		asAcquireExclusiveLock();
+
+		// Make sure the string pool wasn't created while we were waiting for the lock
+		pool = reinterpret_cast< map<const char *, string>* >(engine->GetUserData(STRING_POOL));
+		if( !pool )
+		{
+			#if defined(__S3E__)
+			pool = new map<const char *, string>;
+			#else
+			pool = new (nothrow) map<const char *, string>;
+			#endif
+			if( pool == 0 )
+			{
+				ctx->SetException("Out of memory");
+				asReleaseExclusiveLock();
+				return emptyString;
+			}
+			engine->SetUserData(pool, STRING_POOL);
+		}
+
+		asReleaseExclusiveLock();
+	}
+
+	// We can't let other threads modify the pool while we query it
+	asAcquireSharedLock();
+
+	// First check if a string object hasn't been created already
+	map<const char *, string>::iterator it;
+	it = pool->find(s);
+	if( it != pool->end() )
+	{
+		asReleaseSharedLock();
+		return it->second;
+	}
+
+	asReleaseSharedLock();
+
+	// Acquire an exclusive lock so we can add the new string to the pool
+	asAcquireExclusiveLock();
+
+	// Make sure the string wasn't created while we were waiting for the exclusive lock
+	it = pool->find(s);
+	if( it == pool->end() )
+	{
+		// Create a new string object
+		it = pool->insert(map<const char *, string>::value_type(s, string(s, length))).first;
+	}
+
+	asReleaseExclusiveLock();
+	return it->second;
 }
 
-static void AssignUInt2StringGeneric(asIScriptGeneric *gen)
+static void CleanupEngineStringPool(asIScriptEngine *engine)
 {
-	unsigned int *a = static_cast<unsigned int*>(gen->GetAddressOfArg(0));
-	string *self = static_cast<string*>(gen->GetObject());
-	std::stringstream sstr;
-	sstr << *a;
-	*self = sstr.str();
-	gen->SetReturnAddress(self);
+	map<const char *, string> *pool = reinterpret_cast< map<const char *, string>* >(engine->GetUserData(STRING_POOL));
+	if( pool )
+		delete pool;
 }
 
-static void AssignDouble2StringGeneric(asIScriptGeneric *gen)
-{
-	double *a = static_cast<double*>(gen->GetAddressOfArg(0));
-	string *self = static_cast<string*>(gen->GetObject());
-	std::stringstream sstr;
-	sstr << *a;
-	*self = sstr.str();
-	gen->SetReturnAddress(self);
-}
-
-static void AssignBool2StringGeneric(asIScriptGeneric *gen)
-{
-	bool *a = static_cast<bool*>(gen->GetAddressOfArg(0));
-	string *self = static_cast<string*>(gen->GetObject());
-	std::stringstream sstr;
-	sstr << (*a ? "true" : "false");
-	*self = sstr.str();
-	gen->SetReturnAddress(self);
-}
-
-static void AddAssignDouble2StringGeneric(asIScriptGeneric * gen) {
-  double * a = static_cast<double *>(gen->GetAddressOfArg(0));
-  string * self = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << *a;
-  *self += sstr.str();
-  gen->SetReturnAddress(self);
-}
-
-static void AddAssignInt2StringGeneric(asIScriptGeneric * gen) {
-  int * a = static_cast<int *>(gen->GetAddressOfArg(0));
-  string * self = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << *a;
-  *self += sstr.str();
-  gen->SetReturnAddress(self);
-}
-
-static void AddAssignUInt2StringGeneric(asIScriptGeneric * gen) {
-  unsigned int * a = static_cast<unsigned int *>(gen->GetAddressOfArg(0));
-  string * self = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << *a;
-  *self += sstr.str();
-  gen->SetReturnAddress(self);
-}
-
-static void AddAssignBool2StringGeneric(asIScriptGeneric * gen) {
-  bool * a = static_cast<bool *>(gen->GetAddressOfArg(0));
-  string * self = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << (*a ? "true" : "false");
-  *self += sstr.str();
-  gen->SetReturnAddress(self);
-}
-
-static void AddString2DoubleGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  double * b = static_cast<double *>(gen->GetAddressOfArg(0));
-  std::stringstream sstr;
-  sstr << *a << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddString2IntGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  int * b = static_cast<int *>(gen->GetAddressOfArg(0));
-  std::stringstream sstr;
-  sstr << *a << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddString2UIntGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  unsigned int * b = static_cast<unsigned int *>(gen->GetAddressOfArg(0));
-  std::stringstream sstr;
-  sstr << *a << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddString2BoolGeneric(asIScriptGeneric * gen) {
-  string * a = static_cast<string *>(gen->GetObject());
-  bool * b = static_cast<bool *>(gen->GetAddressOfArg(0));
-  std::stringstream sstr;
-  sstr << *a << (*b ? "true" : "false");
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddDouble2StringGeneric(asIScriptGeneric * gen) {
-  double* a = static_cast<double *>(gen->GetAddressOfArg(0));
-  string * b = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << *a << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddInt2StringGeneric(asIScriptGeneric * gen) {
-  int* a = static_cast<int *>(gen->GetAddressOfArg(0));
-  string * b = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << *a << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddUInt2StringGeneric(asIScriptGeneric * gen) {
-  unsigned int* a = static_cast<unsigned int *>(gen->GetAddressOfArg(0));
-  string * b = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << *a << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-static void AddBool2StringGeneric(asIScriptGeneric * gen) {
-  bool* a = static_cast<bool *>(gen->GetAddressOfArg(0));
-  string * b = static_cast<string *>(gen->GetObject());
-  std::stringstream sstr;
-  sstr << (*a ? "true" : "false") << *b;
-  std::string ret_val = sstr.str();
-  gen->SetReturnObject(&ret_val);
-}
-
-// This function returns a string containing the substring of the input string
-// determined by the starting index and count of characters.
-//
-// AngelScript signature:
-// string string::substr(uint start = 0, int count = -1) const
-static void StringSubString_Generic(asIScriptGeneric *gen)
-{
-    // Get the arguments
-    string *str   = (string*)gen->GetObject();
-    asUINT  start = *(int*)gen->GetAddressOfArg(0);
-    int     count = *(int*)gen->GetAddressOfArg(1);
-
-	// Check for out-of-bounds
-	string ret;
-	if( start < str->length() && count != 0 )
-		ret = str->substr(start, count);
-
-	// Return the substring
-    new(gen->GetAddressOfReturnLocation()) string(ret);
-}
-
-void RegisterStdString_Generic(asIScriptEngine *engine)
-{
-	int r;
-
-	// Register the string type
-	r = engine->RegisterObjectType("string", sizeof(string), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK); assert( r >= 0 );
-
-	// Register the string factory
-	r = engine->RegisterStringFactory("string", asFUNCTION(StringFactoryGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	// Register the object operator overloads
-	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ConstructStringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f(const string &in)",    asFUNCTION(CopyConstructStringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("string", asBEHAVE_DESTRUCT,   "void f()",                    asFUNCTION(DestructStringGeneric),  asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAssign(const string &in)", asFUNCTION(AssignStringGeneric),    asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asFUNCTION(AddAssignStringGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTION(StringEqualsGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmpGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd(const string &in) const", asFUNCTION(StringAddGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	// Register the object methods
-	r = engine->RegisterObjectMethod("string", "uint length() const", asFUNCTION(StringLengthGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "void resize(uint)",   asFUNCTION(StringResizeGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	// Register the index operator, both as a mutator and as an inspector
-	r = engine->RegisterObjectMethod("string", "uint8 &opIndex(uint)", asFUNCTION(StringCharAtGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "const uint8 &opIndex(uint) const", asFUNCTION(StringCharAtGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	// Automatic conversion from values
-	r = engine->RegisterObjectMethod("string", "string &opAssign(double)", asFUNCTION(AssignDouble2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAddAssign(double)", asFUNCTION(AddAssignDouble2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd(double) const", asFUNCTION(AddString2DoubleGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd_r(double) const", asFUNCTION(AddDouble2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	r = engine->RegisterObjectMethod("string", "string &opAssign(int)", asFUNCTION(AssignInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAddAssign(int)", asFUNCTION(AddAssignInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd(int) const", asFUNCTION(AddString2IntGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd_r(int) const", asFUNCTION(AddInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	r = engine->RegisterObjectMethod("string", "string &opAssign(uint)", asFUNCTION(AssignUInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAddAssign(uint)", asFUNCTION(AddAssignUInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd(uint) const", asFUNCTION(AddString2UIntGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd_r(uint) const", asFUNCTION(AddUInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	r = engine->RegisterObjectMethod("string", "string &opAssign(bool)", asFUNCTION(AssignBool2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAddAssign(bool)", asFUNCTION(AddAssignBool2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd(bool) const", asFUNCTION(AddString2BoolGeneric), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string opAdd_r(bool) const", asFUNCTION(AddBool2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	r = engine->RegisterObjectMethod("string", "string substr(uint start = 0, int count = -1) const", asFUNCTION(StringSubString_Generic), asCALL_GENERIC); assert( r >= 0 );
-}
-
+#else
 static string StringFactory(asUINT length, const char *s)
 {
 	return string(s, length);
 }
+#endif
 
 static void ConstructString(string *thisPointer)
 {
@@ -337,6 +128,27 @@ static void CopyConstructString(const string &other, string *thisPointer)
 static void DestructString(string *thisPointer)
 {
 	thisPointer->~string();
+}
+
+static string &AddAssignStringToString(const string &str, string &dest)
+{
+	// We don't register the method directly because some compilers 
+	// and standard libraries inline the definition, resulting in the 
+	// linker being unable to find the declaration.
+	// Example: CLang/LLVM with XCode 4.3 on OSX 10.7
+	dest += str;
+	return dest;
+}
+
+// bool string::isEmpty()
+// bool string::empty() // if AS_USE_STLNAMES == 1
+static bool StringIsEmpty(const string &str)
+{
+	// We don't register the method directly because some compilers 
+	// and standard libraries inline the definition, resulting in the 
+	// linker being unable to find the declaration
+	// Example: CLang/LLVM with XCode 4.3 on OSX 10.7
+	return str.empty();
 }
 
 static string &AssignUIntToString(unsigned int i, string &dest)
@@ -474,7 +286,6 @@ static char *StringCharAt(unsigned int i, string &str)
 	return &str[i];
 }
 
-
 // AngelScript signature:
 // int string::opCmp(const string &in) const
 static int StringCmp(const string &a, const string &b)
@@ -519,7 +330,7 @@ static asUINT StringLength(const string &str)
 
 
 // AngelScript signature:
-// void string::resize(uint l)
+// void string::resize(uint l) 
 static void StringResize(asUINT l, string &str)
 {
 	// We don't register the method directly because the argument types change between 32bit and 64bit platforms
@@ -530,12 +341,12 @@ static void StringResize(asUINT l, string &str)
 // string formatInt(int64 val, const string &in options, uint width)
 static string formatInt(asINT64 value, const string &options, asUINT width)
 {
-	bool leftJustify = options.find("l") != -1;
-	bool padWithZero = options.find("0") != -1;
-	bool alwaysSign  = options.find("+") != -1;
-	bool spaceOnSign = options.find(" ") != -1;
-	bool hexSmall    = options.find("h") != -1;
-	bool hexLarge    = options.find("H") != -1;
+	bool leftJustify = options.find("l") != string::npos;
+	bool padWithZero = options.find("0") != string::npos;
+	bool alwaysSign  = options.find("+") != string::npos;
+	bool spaceOnSign = options.find(" ") != string::npos;
+	bool hexSmall    = options.find("h") != string::npos;
+	bool hexLarge    = options.find("H") != string::npos;
 
 	string fmt = "%";
 	if( leftJustify ) fmt += "-";
@@ -559,7 +370,8 @@ static string formatInt(asINT64 value, const string &options, asUINT width)
 
 	string buf;
 	buf.resize(width+20);
-#if _MSC_VER >= 1400 // MSVC 8.0 / 2005
+#if _MSC_VER >= 1400 && !defined(__S3E__)
+	// MSVC 8.0 / 2005 or newer
 	sprintf_s(&buf[0], buf.size(), fmt.c_str(), width, value);
 #else
 	sprintf(&buf[0], fmt.c_str(), width, value);
@@ -573,12 +385,12 @@ static string formatInt(asINT64 value, const string &options, asUINT width)
 // string formatFloat(double val, const string &in options, uint width, uint precision)
 static string formatFloat(double value, const string &options, asUINT width, asUINT precision)
 {
-	bool leftJustify = options.find("l") != -1;
-	bool padWithZero = options.find("0") != -1;
-	bool alwaysSign  = options.find("+") != -1;
-	bool spaceOnSign = options.find(" ") != -1;
-	bool expSmall    = options.find("e") != -1;
-	bool expLarge    = options.find("E") != -1;
+	bool leftJustify = options.find("l") != string::npos;
+	bool padWithZero = options.find("0") != string::npos;
+	bool alwaysSign  = options.find("+") != string::npos;
+	bool spaceOnSign = options.find(" ") != string::npos;
+	bool expSmall    = options.find("e") != string::npos;
+	bool expLarge    = options.find("E") != string::npos;
 
 	string fmt = "%";
 	if( leftJustify ) fmt += "-";
@@ -594,7 +406,8 @@ static string formatFloat(double value, const string &options, asUINT width, asU
 
 	string buf;
 	buf.resize(width+precision+50);
-#if _MSC_VER >= 1400 // MSVC 8.0 / 2005
+#if _MSC_VER >= 1400 && !defined(__S3E__)
+	// MSVC 8.0 / 2005 or newer
 	sprintf_s(&buf[0], buf.size(), fmt.c_str(), width, precision, value);
 #else
 	sprintf(&buf[0], fmt.c_str(), width, precision, value);
@@ -653,7 +466,7 @@ static asINT64 parseInt(const string &val, asUINT base, asUINT *byteCount)
 	}
 
 	if( byteCount )
-		*byteCount = end - val.c_str();
+		*byteCount = asUINT(size_t(end - val.c_str()));
 
 	if( sign )
 		res = -res;
@@ -684,39 +497,78 @@ double parseFloat(const string &val, asUINT *byteCount)
 #endif
 
 	if( byteCount )
-		*byteCount = end - val.c_str();
+		*byteCount = asUINT(size_t(end - val.c_str()));
 
 	return res;
+}
+
+// This function returns a string containing the substring of the input string
+// determined by the starting index and count of characters.
+//
+// AngelScript signature:
+// string string::substr(uint start = 0, int count = -1) const
+static string StringSubString(asUINT start, int count, const string &str)
+{
+	// Check for out-of-bounds
+	string ret;
+	if( start < str.length() && count != 0 )
+		ret = str.substr(start, count);
+
+	return ret;
+}
+
+// String equality comparison.
+// Returns true iff lhs is equal to rhs.
+//
+// For some reason gcc 4.7 has difficulties resolving the 
+// asFUNCTIONPR(operator==, (const string &, const string &) 
+// makro, so this wrapper was introduced as work around.
+static bool StringEquals(const std::string& lhs, const std::string& rhs)
+{
+    return lhs == rhs;
 }
 
 void RegisterStdString_Native(asIScriptEngine *engine)
 {
 	int r;
 
+
 	// Register the string type
 	r = engine->RegisterObjectType("string", sizeof(string), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK); assert( r >= 0 );
 
+#if AS_USE_STRINGPOOL == 1
+	// Register the string factory
+	r = engine->RegisterStringFactory("const string &", asFUNCTION(StringFactory), asCALL_CDECL); assert( r >= 0 );
+
+	// Register the cleanup callback for the string pool
+	engine->SetEngineUserDataCleanupCallback(CleanupEngineStringPool, STRING_POOL);
+#else
 	// Register the string factory
 	r = engine->RegisterStringFactory("string", asFUNCTION(StringFactory), asCALL_CDECL); assert( r >= 0 );
+#endif
 
 	// Register the object operator overloads
 	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ConstructString), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f(const string &in)",    asFUNCTION(CopyConstructString), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("string", asBEHAVE_DESTRUCT,   "void f()",                    asFUNCTION(DestructString),  asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "string &opAssign(const string &in)", asMETHODPR(string, operator =, (const string&), string&), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asMETHODPR(string, operator+=, (const string&), string&), asCALL_THISCALL); assert( r >= 0 );
+	// Need to use a wrapper on Mac OS X 10.7/XCode 4.3 and CLang/LLVM, otherwise the linker fails
+	r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asFUNCTION(AddAssignStringToString), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+//	r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asMETHODPR(string, operator+=, (const string&), string&), asCALL_THISCALL); assert( r >= 0 );
 
-#ifdef _WIN32
-	r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTIONPR(operator ==, (const string &, const string &), bool), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
+	// Need to use a wrapper for operator== otherwise gcc 4.7 fails to compile
+	r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTIONPR(StringEquals, (const string &, const string &), bool), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmp), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "string opAdd(const string &in) const", asFUNCTIONPR(operator +, (const string &, const string &), string), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
-#endif // _WIN32
 
 	// The string length can be accessed through methods or through virtual property
 	r = engine->RegisterObjectMethod("string", "uint length() const", asFUNCTION(StringLength), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "void resize(uint)", asFUNCTION(StringResize), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "uint get_length() const", asFUNCTION(StringLength), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "void set_length(uint)", asFUNCTION(StringResize), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	// Need to use a wrapper on Mac OS X 10.7/XCode 4.3 and CLang/LLVM, otherwise the linker fails
+//	r = engine->RegisterObjectMethod("string", "bool isEmpty() const", asMETHOD(string, empty), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "bool isEmpty() const", asFUNCTION(StringIsEmpty), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
 	// Register the index operator, both as a mutator and as an inspector
 	// Note that we don't register the operator[] directly, as it doesn't do bounds checking
@@ -745,7 +597,7 @@ void RegisterStdString_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("string", "string opAdd_r(bool) const", asFUNCTION(AddBoolString), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
 	// Utilities
-	r = engine->RegisterObjectMethod("string", "string substr(uint start = 0, int count = -1) const", asFUNCTION(StringSubString_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string substr(uint start = 0, int count = -1) const", asFUNCTION(StringSubString), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "int findFirst(const string &in, uint start = 0) const", asFUNCTION(StringFindFirst), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("string", "int findLast(const string &in, int start = -1) const", asFUNCTION(StringFindLast), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
@@ -754,27 +606,441 @@ void RegisterStdString_Native(asIScriptEngine *engine)
 	r = engine->RegisterGlobalFunction("int64 parseInt(const string &in, uint base = 10, uint &out byteCount = 0)", asFUNCTION(parseInt), asCALL_CDECL); assert(r >= 0);
 	r = engine->RegisterGlobalFunction("double parseFloat(const string &in, uint &out byteCount = 0)", asFUNCTION(parseFloat), asCALL_CDECL); assert(r >= 0);
 
+#if AS_USE_STLNAMES == 1
+	// Same as length
+	r = engine->RegisterObjectMethod("string", "uint size() const", asFUNCTION(StringLength), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	// Same as isEmpty
+	r = engine->RegisterObjectMethod("string", "bool empty() const", asFUNCTION(StringIsEmpty), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	// Same as findFirst
+	r = engine->RegisterObjectMethod("string", "int find(const string &in, uint start = 0) const", asFUNCTION(StringFindFirst), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	// Same as findLast
+	r = engine->RegisterObjectMethod("string", "int rfind(const string &in, int start = -1) const", asFUNCTION(StringFindLast), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+#endif
+
 	// TODO: Implement the following
 	// findFirstOf
 	// findLastOf
 	// findFirstNotOf
 	// findLastNotOf
-	// replace - replaces a text found in the string
+	// findAndReplace - replaces a text found in the string
 	// replaceRange - replaces a range of bytes in the string
 	// trim/trimLeft/trimRight
 	// multiply/times/opMul/opMul_r - takes the string and multiplies it n times, e.g. "-".multiply(5) returns "-----"
 }
 
+#if AS_USE_STRINGPOOL == 1
+static void StringFactoryGeneric(asIScriptGeneric *gen) 
+{
+  asUINT length = gen->GetArgDWord(0);
+  const char *s = (const char*)gen->GetArgAddress(1);
+
+  // Return a reference to a string
+  gen->SetReturnAddress(const_cast<string*>(&StringFactory(length, s)));
+}
+#else
+static void StringFactoryGeneric(asIScriptGeneric *gen) 
+{
+  asUINT length = gen->GetArgDWord(0);
+  const char *s = (const char*)gen->GetArgAddress(1);
+
+  // Return a string value
+  new (gen->GetAddressOfReturnLocation()) string(StringFactory(length, s));
+}
+#endif
+
+static void ConstructStringGeneric(asIScriptGeneric * gen) 
+{
+  new (gen->GetObject()) string();
+}
+
+static void CopyConstructStringGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetArgObject(0));
+  new (gen->GetObject()) string(*a);
+}
+
+static void DestructStringGeneric(asIScriptGeneric * gen) 
+{
+  string * ptr = static_cast<string *>(gen->GetObject());
+  ptr->~string();
+}
+
+static void AssignStringGeneric(asIScriptGeneric *gen) 
+{
+  string * a = static_cast<string *>(gen->GetArgObject(0));
+  string * self = static_cast<string *>(gen->GetObject());
+  *self = *a;
+  gen->SetReturnAddress(self);
+}
+
+static void AddAssignStringGeneric(asIScriptGeneric *gen) 
+{
+  string * a = static_cast<string *>(gen->GetArgObject(0));
+  string * self = static_cast<string *>(gen->GetObject());
+  *self += *a;
+  gen->SetReturnAddress(self);
+}
+
+static void StringEqualsGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  string * b = static_cast<string *>(gen->GetArgAddress(0));
+  *(bool*)gen->GetAddressOfReturnLocation() = (*a == *b);
+}
+
+static void StringCmpGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  string * b = static_cast<string *>(gen->GetArgAddress(0));
+
+  int cmp = 0;
+  if( *a < *b ) cmp = -1;
+  else if( *a > *b ) cmp = 1;
+
+  *(int*)gen->GetAddressOfReturnLocation() = cmp;
+}
+
+static void StringAddGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  string * b = static_cast<string *>(gen->GetArgAddress(0));
+  string ret_val = *a + *b;
+  gen->SetReturnObject(&ret_val);
+}
+
+static void StringLengthGeneric(asIScriptGeneric * gen) 
+{
+  string * self = static_cast<string *>(gen->GetObject());
+  *static_cast<asUINT *>(gen->GetAddressOfReturnLocation()) = (asUINT)self->length();
+}
+
+static void StringIsEmptyGeneric(asIScriptGeneric * gen) 
+{
+  string * self = reinterpret_cast<string *>(gen->GetObject());
+  *reinterpret_cast<bool *>(gen->GetAddressOfReturnLocation()) = StringIsEmpty(*self);
+}
+
+static void StringResizeGeneric(asIScriptGeneric * gen) 
+{
+  string * self = static_cast<string *>(gen->GetObject());
+  self->resize(*static_cast<asUINT *>(gen->GetAddressOfArg(0)));
+}
+
+static void StringFindFirst_Generic(asIScriptGeneric * gen) 
+{
+	string *find = reinterpret_cast<string*>(gen->GetArgAddress(0));
+	asUINT start = gen->GetArgDWord(1);
+	string *self = reinterpret_cast<string *>(gen->GetObject());
+	*reinterpret_cast<int *>(gen->GetAddressOfReturnLocation()) = StringFindFirst(*find, start, *self);
+}
+
+static void StringFindLast_Generic(asIScriptGeneric * gen) 
+{
+	string *find = reinterpret_cast<string*>(gen->GetArgAddress(0));
+	asUINT start = gen->GetArgDWord(1);
+	string *self = reinterpret_cast<string *>(gen->GetObject());
+	*reinterpret_cast<int *>(gen->GetAddressOfReturnLocation()) = StringFindLast(*find, start, *self);
+}
+
+static void formatInt_Generic(asIScriptGeneric * gen) 
+{
+	asINT64 val = gen->GetArgQWord(0);
+	string *options = reinterpret_cast<string*>(gen->GetArgAddress(1));
+	asUINT width = gen->GetArgDWord(2);
+	new(gen->GetAddressOfReturnLocation()) string(formatInt(val, *options, width));
+}
+
+static void formatFloat_Generic(asIScriptGeneric *gen) 
+{
+	double val = gen->GetArgDouble(0);
+	string *options = reinterpret_cast<string*>(gen->GetArgAddress(1));
+	asUINT width = gen->GetArgDWord(2);
+	asUINT precision = gen->GetArgDWord(3);
+	new(gen->GetAddressOfReturnLocation()) string(formatFloat(val, *options, width, precision));
+}
+
+static void parseInt_Generic(asIScriptGeneric *gen)
+{
+	string *str = reinterpret_cast<string*>(gen->GetArgAddress(0));
+	asUINT base = gen->GetArgDWord(1);
+	asUINT *byteCount = reinterpret_cast<asUINT*>(gen->GetArgAddress(2));
+	gen->SetReturnQWord(parseInt(*str,base,byteCount));
+}
+
+static void parseFloat_Generic(asIScriptGeneric *gen)
+{
+	string *str = reinterpret_cast<string*>(gen->GetArgAddress(0));
+	asUINT *byteCount = reinterpret_cast<asUINT*>(gen->GetArgAddress(1));
+	gen->SetReturnDouble(parseFloat(*str,byteCount));
+}
+
+static void StringCharAtGeneric(asIScriptGeneric * gen) 
+{
+  unsigned int index = gen->GetArgDWord(0);
+  string * self = static_cast<string *>(gen->GetObject());
+
+  if (index >= self->size()) 
+  {
+    // Set a script exception
+    asIScriptContext *ctx = asGetActiveContext();
+    ctx->SetException("Out of range");
+
+    gen->SetReturnAddress(0);
+  } 
+  else 
+  {
+    gen->SetReturnAddress(&(self->operator [](index)));
+  }
+}
+
+static void AssignInt2StringGeneric(asIScriptGeneric *gen) 
+{
+	int *a = static_cast<int*>(gen->GetAddressOfArg(0));
+	string *self = static_cast<string*>(gen->GetObject());
+	std::stringstream sstr;
+	sstr << *a;
+	*self = sstr.str();
+	gen->SetReturnAddress(self);
+}
+
+static void AssignUInt2StringGeneric(asIScriptGeneric *gen) 
+{
+	unsigned int *a = static_cast<unsigned int*>(gen->GetAddressOfArg(0));
+	string *self = static_cast<string*>(gen->GetObject());
+	std::stringstream sstr;
+	sstr << *a;
+	*self = sstr.str();
+	gen->SetReturnAddress(self);
+}
+
+static void AssignDouble2StringGeneric(asIScriptGeneric *gen) 
+{
+	double *a = static_cast<double*>(gen->GetAddressOfArg(0));
+	string *self = static_cast<string*>(gen->GetObject());
+	std::stringstream sstr;
+	sstr << *a;
+	*self = sstr.str();
+	gen->SetReturnAddress(self);
+}
+
+static void AssignBool2StringGeneric(asIScriptGeneric *gen) 
+{
+	bool *a = static_cast<bool*>(gen->GetAddressOfArg(0));
+	string *self = static_cast<string*>(gen->GetObject());
+	std::stringstream sstr;
+	sstr << (*a ? "true" : "false");
+	*self = sstr.str();
+	gen->SetReturnAddress(self);
+}
+
+static void AddAssignDouble2StringGeneric(asIScriptGeneric * gen) 
+{
+  double * a = static_cast<double *>(gen->GetAddressOfArg(0));
+  string * self = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << *a;
+  *self += sstr.str();
+  gen->SetReturnAddress(self);
+}
+
+static void AddAssignInt2StringGeneric(asIScriptGeneric * gen) 
+{
+  int * a = static_cast<int *>(gen->GetAddressOfArg(0));
+  string * self = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << *a;
+  *self += sstr.str();
+  gen->SetReturnAddress(self);
+}
+
+static void AddAssignUInt2StringGeneric(asIScriptGeneric * gen) 
+{
+  unsigned int * a = static_cast<unsigned int *>(gen->GetAddressOfArg(0));
+  string * self = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << *a;
+  *self += sstr.str();
+  gen->SetReturnAddress(self);
+}
+
+static void AddAssignBool2StringGeneric(asIScriptGeneric * gen) 
+{
+  bool * a = static_cast<bool *>(gen->GetAddressOfArg(0));
+  string * self = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << (*a ? "true" : "false");
+  *self += sstr.str();
+  gen->SetReturnAddress(self);
+}
+
+static void AddString2DoubleGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  double * b = static_cast<double *>(gen->GetAddressOfArg(0));
+  std::stringstream sstr;
+  sstr << *a << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddString2IntGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  int * b = static_cast<int *>(gen->GetAddressOfArg(0));
+  std::stringstream sstr;
+  sstr << *a << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddString2UIntGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  unsigned int * b = static_cast<unsigned int *>(gen->GetAddressOfArg(0));
+  std::stringstream sstr;
+  sstr << *a << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddString2BoolGeneric(asIScriptGeneric * gen) 
+{
+  string * a = static_cast<string *>(gen->GetObject());
+  bool * b = static_cast<bool *>(gen->GetAddressOfArg(0));
+  std::stringstream sstr;
+  sstr << *a << (*b ? "true" : "false");
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddDouble2StringGeneric(asIScriptGeneric * gen) 
+{
+  double* a = static_cast<double *>(gen->GetAddressOfArg(0));
+  string * b = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << *a << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddInt2StringGeneric(asIScriptGeneric * gen) 
+{
+  int* a = static_cast<int *>(gen->GetAddressOfArg(0));
+  string * b = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << *a << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddUInt2StringGeneric(asIScriptGeneric * gen) 
+{
+  unsigned int* a = static_cast<unsigned int *>(gen->GetAddressOfArg(0));
+  string * b = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << *a << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void AddBool2StringGeneric(asIScriptGeneric * gen) 
+{
+  bool* a = static_cast<bool *>(gen->GetAddressOfArg(0));
+  string * b = static_cast<string *>(gen->GetObject());
+  std::stringstream sstr;
+  sstr << (*a ? "true" : "false") << *b;
+  std::string ret_val = sstr.str();
+  gen->SetReturnObject(&ret_val);
+}
+
+static void StringSubString_Generic(asIScriptGeneric *gen)
+{
+    // Get the arguments
+    string *str   = (string*)gen->GetObject();
+    asUINT  start = *(int*)gen->GetAddressOfArg(0);
+    int     count = *(int*)gen->GetAddressOfArg(1);
+
+	// Return the substring
+    new(gen->GetAddressOfReturnLocation()) string(StringSubString(start, count, *str));
+}
+
+void RegisterStdString_Generic(asIScriptEngine *engine) 
+{
+	int r;
+
+	// Register the string type
+	r = engine->RegisterObjectType("string", sizeof(string), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK); assert( r >= 0 );
+
+#if AS_USE_STRINGPOOL == 1
+	// Register the string factory
+	r = engine->RegisterStringFactory("const string &", asFUNCTION(StringFactoryGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	// Register the cleanup callback for the string pool
+	engine->SetEngineUserDataCleanupCallback(CleanupEngineStringPool, STRING_POOL);
+#else
+	// Register the string factory
+	r = engine->RegisterStringFactory("string", asFUNCTION(StringFactoryGeneric), asCALL_GENERIC); assert( r >= 0 );
+#endif
+
+	// Register the object operator overloads
+	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ConstructStringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f(const string &in)",    asFUNCTION(CopyConstructStringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("string", asBEHAVE_DESTRUCT,   "void f()",                    asFUNCTION(DestructStringGeneric),  asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string &opAssign(const string &in)", asFUNCTION(AssignStringGeneric),    asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asFUNCTION(AddAssignStringGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTION(StringEqualsGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmpGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd(const string &in) const", asFUNCTION(StringAddGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	// Register the object methods
+	r = engine->RegisterObjectMethod("string", "uint length() const", asFUNCTION(StringLengthGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "void resize(uint)",   asFUNCTION(StringResizeGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "uint get_length() const", asFUNCTION(StringLengthGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "void set_length(uint)", asFUNCTION(StringResizeGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "bool isEmpty() const", asFUNCTION(StringIsEmptyGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	// Register the index operator, both as a mutator and as an inspector
+	r = engine->RegisterObjectMethod("string", "uint8 &opIndex(uint)", asFUNCTION(StringCharAtGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "const uint8 &opIndex(uint) const", asFUNCTION(StringCharAtGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	// Automatic conversion from values
+	r = engine->RegisterObjectMethod("string", "string &opAssign(double)", asFUNCTION(AssignDouble2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string &opAddAssign(double)", asFUNCTION(AddAssignDouble2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd(double) const", asFUNCTION(AddString2DoubleGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd_r(double) const", asFUNCTION(AddDouble2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterObjectMethod("string", "string &opAssign(int)", asFUNCTION(AssignInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string &opAddAssign(int)", asFUNCTION(AddAssignInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd(int) const", asFUNCTION(AddString2IntGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd_r(int) const", asFUNCTION(AddInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterObjectMethod("string", "string &opAssign(uint)", asFUNCTION(AssignUInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string &opAddAssign(uint)", asFUNCTION(AddAssignUInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd(uint) const", asFUNCTION(AddString2UIntGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd_r(uint) const", asFUNCTION(AddUInt2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterObjectMethod("string", "string &opAssign(bool)", asFUNCTION(AssignBool2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string &opAddAssign(bool)", asFUNCTION(AddAssignBool2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd(bool) const", asFUNCTION(AddString2BoolGeneric), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "string opAdd_r(bool) const", asFUNCTION(AddBool2StringGeneric), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterObjectMethod("string", "string substr(uint start = 0, int count = -1) const", asFUNCTION(StringSubString_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "int findFirst(const string &in, uint start = 0) const", asFUNCTION(StringFindFirst_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("string", "int findLast(const string &in, int start = -1) const", asFUNCTION(StringFindLast_Generic), asCALL_GENERIC); assert( r >= 0 );
+
+	r = engine->RegisterGlobalFunction("string formatInt(int64 val, const string &in options, uint width = 0)", asFUNCTION(formatInt_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterGlobalFunction("string formatFloat(double val, const string &in options, uint width = 0, uint precision = 0)", asFUNCTION(formatFloat_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterGlobalFunction("int64 parseInt(const string &in, uint base = 10, uint &out byteCount = 0)", asFUNCTION(parseInt_Generic), asCALL_GENERIC); assert(r >= 0);
+	r = engine->RegisterGlobalFunction("double parseFloat(const string &in, uint &out byteCount = 0)", asFUNCTION(parseFloat_Generic), asCALL_GENERIC); assert(r >= 0);
+}
+
 void RegisterStdString(asIScriptEngine * engine)
 {
-#ifdef _WIN32
 	if (strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY"))
 		RegisterStdString_Generic(engine);
 	else
 		RegisterStdString_Native(engine);
-#else
-	RegisterStdString_Generic(engine);
-#endif
 }
 
 END_AS_NAMESPACE

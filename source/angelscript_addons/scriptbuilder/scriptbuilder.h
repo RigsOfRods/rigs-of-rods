@@ -20,9 +20,13 @@
 // Declaration
 //
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
 
-#if defined(_MSC_VER) && _MSC_VER <= 1200
+
+#if defined(_MSC_VER) && _MSC_VER <= 1200 
 // disable the annoying warnings on MSVC 6
 #pragma warning (disable:4786)
 #endif
@@ -42,7 +46,7 @@ class CScriptBuilder;
 // then the function should return a negative value to abort the compilation.
 typedef int (*INCLUDECALLBACK_t)(const char *include, const char *from, CScriptBuilder *builder, void *userParam);
 
-// Helper class for loading and pre-processing script files to
+// Helper class for loading and pre-processing script files to 
 // support include directives and metadata declarations
 class CScriptBuilder
 {
@@ -53,11 +57,18 @@ public:
 	int StartNewModule(asIScriptEngine *engine, const char *moduleName);
 
 	// Load a script section from a file on disk
+	// Returns  1 if the file was included
+	//          0 if the file had already been included before
+	//         <0 on error
 	int AddSectionFromFile(const char *filename);
 
 	// Load a script section from memory
-	int AddSectionFromMemory(const char *scriptCode,
-							 const char *sectionName = "");
+	// Returns  1 if the section was included
+	//          0 if a section with the same name had already been included before
+	//         <0 on error
+	int AddSectionFromMemory(const char *sectionName,
+							 const char *scriptCode, 
+							 unsigned int scriptLength = 0);
 
 	// Build the added script sections
 	int BuildModule();
@@ -76,7 +87,7 @@ public:
 	const char *GetMetadataStringForType(int typeId);
 
 	// Get metadata declared for functions
-	const char *GetMetadataStringForFunc(int funcId);
+	const char *GetMetadataStringForFunc(asIScriptFunction *func);
 
 	// Get metadata declared for global variables
 	const char *GetMetadataStringForVar(int varIdx);
@@ -85,14 +96,14 @@ public:
 	const char *GetMetadataStringForTypeProperty(int typeId, int varIdx);
 
 	// Get metadata declared for class functions
-	const char *GetMetadataStringForTypeMethod(int typeId, int methodIdx);
+	const char *GetMetadataStringForTypeMethod(int typeId, asIScriptFunction *method);
 #endif
 
 protected:
 	void ClearAll();
 	int  Build();
-	int  ProcessScriptSection(const char *script, const char *sectionname);
-	virtual int  LoadScriptSection(const char *filename) = 0;
+	int  ProcessScriptSection(const char *script, unsigned int length, const char *sectionname);
+	virtual int  LoadScriptSection(const char *filename);
 	bool IncludeIfNotAlreadyIncluded(const char *filename);
 
 	int  SkipStatement(int pos);
@@ -114,13 +125,23 @@ protected:
 	// Temporary structure for storing metadata and declaration
 	struct SMetadataDecl
 	{
-		SMetadataDecl(std::string m, std::string d, int t, std::string c) : metadata(m), declaration(d), type(t), parentClass(c) {}
+		SMetadataDecl(std::string m, std::string d, int t, std::string c, std::string ns) : metadata(m), declaration(d), type(t), parentClass(c), nameSpace(ns) {}
 		std::string metadata;
 		std::string declaration;
 		int         type;
 		std::string parentClass;
+		std::string nameSpace;
 	};
+	std::vector<SMetadataDecl> foundDeclarations;
+	std::string currentClass;
+	std::string currentNamespace;
 
+	// Storage of metadata for global declarations
+	std::map<int, std::string> typeMetadataMap;
+	std::map<int, std::string> funcMetadataMap;
+	std::map<int, std::string> varMetadataMap;
+
+	// Storage of metadata for class member declarations
 	struct SClassMetadata
 	{
 		SClassMetadata(const std::string& aName) : className(aName) {}
@@ -128,15 +149,8 @@ protected:
 		std::map<int, std::string> funcMetadataMap;
 		std::map<int, std::string> varMetadataMap;
 	};
-
-	std::string currentClass;
-
-	std::vector<SMetadataDecl> foundDeclarations;
-
-	std::map<int, std::string> typeMetadataMap;
-	std::map<int, std::string> funcMetadataMap;
-	std::map<int, std::string> varMetadataMap;
 	std::map<int, SClassMetadata> classMetadataMap;
+
 #endif
 
 	std::set<std::string>      includedScripts;

@@ -1,11 +1,15 @@
 #ifndef SCRIPTMATHCOMPLEX_H
 #define SCRIPTMATHCOMPLEX_H
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
+
 
 BEGIN_AS_NAMESPACE
 
-// This class implements complex numbers and the common
+// This class implements complex numbers and the common 
 // operations that can be done with it.
 //
 // Ref: http://mathworld.wolfram.com/ComplexNumber.html
@@ -26,6 +30,7 @@ struct Complex
 	Complex &operator/=(const Complex &other);
 
 	float length() const;
+	float squaredLength() const;
 
 	// Swizzle operators
 	Complex get_ri() const;

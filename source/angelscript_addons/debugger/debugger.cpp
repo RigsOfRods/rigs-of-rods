@@ -1,8 +1,11 @@
 #include "debugger.h"
 #include <iostream>  // cout
 #include <sstream> // stringstream
+#include <stdlib.h> // atoi
 
 using namespace std;
+
+BEGIN_AS_NAMESPACE
 
 CDebugger::CDebugger()
 {
@@ -102,6 +105,12 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 
 void CDebugger::LineCallback(asIScriptContext *ctx)
 {
+	// By default we ignore callbacks when the context is not active.
+	// An application might override this to for example disconnect the
+	// debugger as the execution finished.
+	if( ctx->GetState() != asEXECUTION_ACTIVE )
+		return;
+
 	if( m_action == CONTINUE )
 	{
 		if( !CheckBreakPoint(ctx) )
@@ -127,7 +136,7 @@ void CDebugger::LineCallback(asIScriptContext *ctx)
 	{
 		CheckBreakPoint(ctx);
 
-		// Always break, but we call the check break point anyway
+		// Always break, but we call the check break point anyway 
 		// to tell user when break point has been reached
 	}
 
@@ -150,7 +159,7 @@ bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 	int lineNbr = ctx->GetLineNumber(0, 0, &tmp);
 
 	// Consider just filename, not the full path
-	string file = tmp;
+	string file = tmp ? tmp : "";
 	size_t r = file.find_last_of("\\/");
 	if( r != string::npos )
 		file = file.substr(r+1);
@@ -185,13 +194,16 @@ bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 				int line = func->FindNextLineWithCode(breakPoints[n].lineNbr);
 				if( line >= 0 )
 				{
-					stringstream s;
-					s << "Moving break point " << n << " in file '" << file << "' to next line with code at line " << line << endl;
-					Output(s.str());
-
-					// Move the breakpoint to the next line
 					breakPoints[n].needsAdjusting = false;
-					breakPoints[n].lineNbr = line;
+					if( line != breakPoints[n].lineNbr )
+					{
+						stringstream s;
+						s << "Moving break point " << n << " in file '" << file << "' to next line with code at line " << line << endl;
+						Output(s.str());
+
+						// Move the breakpoint to the next line
+						breakPoints[n].lineNbr = line;
+					}
 				}
 			}
 		}
@@ -259,7 +271,7 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 	case 'b':
 		{
 			// Set break point
-			size_t div = cmd.find(':');
+			size_t div = cmd.find(':'); 
 			if( div != string::npos && div > 2 )
 			{
 				string file = cmd.substr(2, div-2);
@@ -349,7 +361,7 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 						   "s - statistics\n");
 				}
 			}
-			else
+			else 
 			{
 				Output("Incorrect format for list, expected:\n"
 				       "l <list option>\n");
@@ -365,7 +377,7 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 
 	case 'p':
 		{
-			// Print a value
+			// Print a value 
 			size_t p = cmd.find_first_not_of(" \t", 1);
 			if( p != string::npos )
 			{
@@ -409,6 +421,7 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 	asETokenClass t = engine->ParseToken(expr.c_str(), 0, &len);
 
 	// TODO: If the expression starts with :: we should only look for global variables
+	// TODO: If the expression starts with identifier followed by ::, then use that as namespace
 	if( t == asTC_IDENTIFIER )
 	{
 		string name(expr.c_str(), len);
@@ -466,8 +479,9 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 			{
 				for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 				{
-					const char *varName = 0;
-					mod->GetGlobalVar(n, &varName, &typeId);
+					// TODO: Handle namespace too
+					const char *varName = 0, *nameSpace = 0;
+					mod->GetGlobalVar(n, &varName, &nameSpace, &typeId);
 					if( name == varName )
 					{
 						ptr = mod->GetAddressOfGlobalVar(n);
@@ -542,7 +556,7 @@ void CDebugger::ListGlobalVariables(asIScriptContext *ctx)
 	for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 	{
 		int typeId;
-		mod->GetGlobalVar(n, 0, &typeId);
+		mod->GetGlobalVar(n, 0, 0, &typeId);
 		s << mod->GetGlobalVarDeclaration(n) << " = " << ToString(mod->GetAddressOfGlobalVar(n), typeId, false, ctx->GetEngine()) << endl;
 	}
 	Output(s.str());
@@ -637,3 +651,5 @@ void CDebugger::Output(const string &str)
 	// By default we just output to stdout
 	cout << str;
 }
+
+END_AS_NAMESPACE
