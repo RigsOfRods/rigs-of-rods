@@ -70,18 +70,18 @@ public:
 	
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
-	bool getThreadingMode() { return thread_mode; };
+	bool getThreadingMode() { return m_thread_mode; };
 
-	int getNumCpuCores() { return num_cpu_cores; };
+	int getNumCpuCores() { return m_num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
 
 	Beam *getCurrentTruck();
 	Beam *getTruck(int number);
-	Beam **getTrucks() { return trucks; };
-	int getPreviousTruckNumber() { return previous_truck; };
-	int getCurrentTruckNumber() { return current_truck; };
-	int getTruckCount() { return free_truck; };
+	Beam **getTrucks() { return m_trucks; };
+	int getPreviousTruckNumber() { return m_previous_truck; };
+	int getCurrentTruckNumber() { return m_current_truck; };
+	int getTruckCount() { return m_free_truck; };
 
 	void setCurrentTruck(int new_truck);
 	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
@@ -141,7 +141,7 @@ public:
 
 	void activateAllTrucks();
 	void sendAllTrucksSleeping();
-	void setTrucksForcedActive(bool forced) { forced_active = forced; };
+	void setTrucksForcedActive(bool forced) { m_forced_active = forced; };
 
 	void prepareShutdown();
 
@@ -157,20 +157,20 @@ public:
 
 protected:
 	
-	std::shared_future<void> thread_future;
+	std::shared_future<void> m_thread_future;
 
-	bool thread_mode;
-	int num_cpu_cores;
+	bool m_thread_mode;
+	int m_num_cpu_cores;
 
-	Beam *trucks[MAX_TRUCKS];
-	int free_truck;
-	int previous_truck;
-	int current_truck;
-	int simulatedTruck;
+	Beam *m_trucks[MAX_TRUCKS];
+	int m_free_truck;
+	int m_previous_truck;
+	int m_current_truck;
+	int m_simulated_truck;
 
-	bool forced_active; // disables sleepcount
+	bool m_forced_active; // disables sleepcount
 
-	TwoDReplay *tdr;
+	TwoDReplay *m_tdr;
 
 	unsigned long m_physics_frames;
 	int m_physics_steps;
