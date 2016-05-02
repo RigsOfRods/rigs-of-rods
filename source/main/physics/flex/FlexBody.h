@@ -83,13 +83,15 @@ public:
 	int getCameraMode() { return m_camera_mode; };
 
 	// Flexable
-	bool flexitPrepare(Beam* b);
+	bool flexitPrepare();
 	void flexitCompute();
 	Ogre::Vector3 flexitFinal();
 
 	void setVisible(bool visible);
 
 private:
+
+	Ogre::Vector3 flexit_center;
 
 	node_t*           m_nodes;
 	size_t            m_vertex_count;

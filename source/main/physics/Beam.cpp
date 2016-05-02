@@ -3289,13 +3289,13 @@ void Beam::updateFlexbodiesPrepare()
 		flexmesh_prepare.reset();
 		for (int i=0; i<free_wheel; i++)
 		{
-			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this));
+			flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare());
 		}
 
 		flexbody_prepare.reset();
 		for (int i=0; i<free_flexbody; i++)
 		{
-			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare(this));
+			flexbody_prepare.set(i, flexbodies[i]->flexitPrepare());
 		}
 
 		// Push tasks into thread pool
@@ -3325,7 +3325,7 @@ void Beam::updateFlexbodiesPrepare()
 	{
 		for (int i=0; i<free_wheel; i++)
 		{
-			if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare(this))
+			if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare())
 			{
 				vwheels[i].fm->flexitCompute();
 				vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
@@ -3333,7 +3333,7 @@ void Beam::updateFlexbodiesPrepare()
 		}
 		for (int i=0; i<free_flexbody; i++)
 		{
-			if (flexbodies[i]->flexitPrepare(this))
+			if (flexbodies[i]->flexitPrepare())
 			{
 				flexbodies[i]->flexitCompute();
 				flexbodies[i]->flexitFinal();

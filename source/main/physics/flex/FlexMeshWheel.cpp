@@ -304,7 +304,7 @@ void FlexMeshWheel::setVisible(bool visible)
 	if (rnode) rnode->setVisible(visible);
 }
 
-bool FlexMeshWheel::flexitPrepare(Beam* b)
+bool FlexMeshWheel::flexitPrepare()
 {
 	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
 	rnode->setPosition(center);
@@ -319,7 +319,7 @@ bool FlexMeshWheel::flexitPrepare(Beam* b)
 	ray = axis.crossProduct(onormal);
 	rnode->setOrientation(Quaternion(axis, onormal, ray));
 
-	return Flexable::flexitPrepare(b);
+	return true;
 }
 
 void FlexMeshWheel::flexitCompute()
