@@ -65,7 +65,7 @@ ELSEIF(UNIX)
    PKG_CHECK_MODULES  (Ogre OGRE REQUIRED)
    PKG_CHECK_MODULES  (Ois OIS REQUIRED)
 
-   set(OS_LIBS "")
+   set(OS_LIBS "-lboost_system")
 
 ENDIF(WIN32)
 
