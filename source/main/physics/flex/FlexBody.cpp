@@ -79,14 +79,14 @@ FlexBody::FlexBody(
 		Vector3 diffX = m_nodes[nx].smoothpos-m_nodes[ref].smoothpos;
 		Vector3 diffY = m_nodes[ny].smoothpos-m_nodes[ref].smoothpos;
 
-		normal = (diffY.crossProduct(diffX)).normalisedCopy();
+		normal = fast_normalise(diffY.crossProduct(diffX));
 
 		// position
 		position = m_nodes[ref].smoothpos + offset.x * diffX + offset.y * diffY;
 		position = position + offset.z * normal;
 
 		// orientation
-		Vector3 refX = diffX.normalisedCopy();
+		Vector3 refX = fast_normalise(diffX);
 		Vector3 refY = refX.crossProduct(normal);
 		orientation  = Quaternion(refX, normal, refY) * rot;
 	} else
@@ -559,7 +559,7 @@ FlexBody::FlexBody(
 
 			mat.SetColumn(0, diffX);
 			mat.SetColumn(1, diffY);
-			mat.SetColumn(2, (diffX.crossProduct(diffY)).normalisedCopy()); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
 			mat = mat.Inverse();
 
@@ -609,7 +609,7 @@ FlexBody::FlexBody(
 
 			mat.SetColumn(0, diffX);
 			mat.SetColumn(1, diffY);
-			mat.SetColumn(2, (diffX.crossProduct(diffY)).normalisedCopy()); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
 
 			mat = mat.Inverse();
 
@@ -726,7 +726,7 @@ bool FlexBody::flexitPrepare()
 	{
 		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
 		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
-		flexit_normal = (diffY.crossProduct(diffX)).normalisedCopy();
+		flexit_normal = fast_normalise(diffY.crossProduct(diffX));
 
 		flexit_center = m_nodes[m_node_center].smoothpos + m_center_offset.x * diffX + m_center_offset.y * diffY;
 		flexit_center += m_center_offset.z * flexit_normal;
