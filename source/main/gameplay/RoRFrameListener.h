@@ -35,94 +35,13 @@ public:
 	RoRFrameListener();
 	virtual ~RoRFrameListener();
 
-	ChatSystem *netChat;
-
-	float netcheckGUITimer;
-
-	int loading_state;
-	
-	Ogre::Vector3 reload_pos;
-
-	void setSimPaused(bool state);
-
-	void StartRaceTimer();
-
-	float StopRaceTimer();
-
-	void UpdateRacingGui();
-
-	bool IsRaceInProgress()
-	{
-		return m_race_in_progress;
-	}
-
-protected:
-
-#ifdef USE_MPLATFORM
-	MPlatform_Base *mplatform;
-#endif //USE_MPLATFORM
-
-	Dashboard *dashboard;
-	DOFManager *dof;
-	ForceFeedback *forcefeedback;
-	HeatHaze *heathaze;
-
-	Ogre::Quaternion reload_dir;
-	Ogre::Real mTimeUntilNextToggle; // just to stop toggles flipping too fast
-	Ogre::Vector3 dirArrowPointed;
-
-	float mLastSimulationSpeed; // previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
-
-	int mLastScreenShotID;
-	Ogre::String mLastScreenShotDate;
-
-	unsigned long m_race_start_time;
-	bool          m_race_in_progress;
-	float         m_race_bestlap_time;
-
-	bool dirvisible;
-	bool enablePosStor;
-	bool flipflop;
-	bool hidegui;
-	bool mTruckInfoOn;
-	bool pressure_pressed;
-
-	bool m_is_sim_paused;
-
-	char screenshotformat[256];
-	
-	collision_box_t *reload_box;
-	double rtime;
-
-	bool m_advanced_truck_repair;
-	float m_advanced_truck_repair_timer;
-
-	bool m_is_pace_reset_pressed;
-
-	int mStatsOn;
-	int netPointToUID;
-	int raceStartTime;
-
-	bool updateTruckMirrors(float dt);
-
-	void updateIO(float dt);
-
-	// WindowEventListener
-	void windowMoved(Ogre::RenderWindow* rw);
-	void windowClosed(Ogre::RenderWindow* rw);
-	void windowFocusChange(Ogre::RenderWindow* rw);
-
-public: // public methods
-
 	bool RTSSgenerateShadersForMaterial(Ogre::String curMaterialName, Ogre::String normalTextureName);
 	bool frameEnded(const Ogre::FrameEvent& evt);
 	bool frameStarted(const Ogre::FrameEvent& evt); // Override frameStarted event to process that (don't care about frameEnded)
 
 	bool updateEvents(float dt);
-	double getTime() { return rtime; }
-	int getNetPointToUID() { return netPointToUID; }
+	double getTime() { return m_time; }
 
-	void checkRemoteStreamResultsChanged();
 	void hideGUI(bool hidden);
 
 	void netDisconnectTruck(int number);
@@ -132,11 +51,79 @@ public: // public methods
 	void RTSSgenerateShaders(Ogre::Entity *entity, Ogre::String normalTextureName);
 	void setDirectionArrow(char *text, Ogre::Vector3 position);
 
-	void setNetPointToUID(int uid);
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void shutdown_final();
 	void Restart();
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
+
+	void setSimPaused(bool state);
+
+	void StartRaceTimer();
+
+	float StopRaceTimer();
+
+	void UpdateRacingGui();
+
+	bool IsRaceInProgress() { return m_race_in_progress; }
+
+	void SetReloadPos(Ogre::Vector3 position) { m_reload_pos = position; }
+
+	int m_loading_state;
+
+protected:
+
+	// WindowEventListener
+	void windowMoved(Ogre::RenderWindow* rw);
+	void windowClosed(Ogre::RenderWindow* rw);
+	void windowFocusChange(Ogre::RenderWindow* rw);
+
+	bool updateTruckMirrors(float dt);
+	void updateIO(float dt);
+
+#ifdef USE_MPLATFORM
+	MPlatform_Base *m_mplatform;
+#endif //USE_MPLATFORM
+
+	Dashboard *m_dashboard;
+	DOFManager *m_dof;
+	ForceFeedback *m_forcefeedback;
+	HeatHaze *m_heathaze;
+
+	Ogre::Real m_time_until_next_toggle; // just to stop toggles flipping too fast
+
+	bool m_is_dir_arrow_visible;
+	Ogre::Vector3 m_dir_arrow_pointed;
+
+	float m_last_simulation_speed; // previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
+
+	int m_last_screenshot_id;
+	Ogre::String m_last_screenshot_date;
+
+	unsigned long m_race_start_time;
+	bool          m_race_in_progress;
+	float         m_race_bestlap_time;
+
+	double        m_time;
+
+	bool m_hide_gui;
+	bool m_truck_info_on;
+	bool m_pressure_pressed;
+	bool m_is_sim_paused;
+	
+	collision_box_t *m_reload_box;
+
+	bool m_advanced_truck_repair;
+	float m_advanced_truck_repair_timer;
+
+	bool m_is_pace_reset_pressed;
+
+	int m_stats_on;
+	int m_net_point_to_uid;
+
+	char m_screenshot_format[256];
+
+	Ogre::Vector3 m_reload_pos;
+	Ogre::Quaternion m_reload_dir;
 };
 
 #endif // __RoRFrameListener_H_

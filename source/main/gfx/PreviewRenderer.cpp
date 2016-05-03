@@ -258,7 +258,7 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 
 #ifdef USE_CAELUM
 	
-	if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
+	if (gEnv->sky && gEnv->frameListener->m_loading_state == TERRAIN_LOADED)
 	{
 		gEnv->sky->notifyCameraChanged(renderCamera);
 //		gEnv->terrainManager->getSkyManager()->forceUpdate(0.01f);
@@ -317,7 +317,7 @@ void PreviewRenderer::render3dpreview(Beam *truck, Camera *renderCamera, float m
 				renderTarget->update();
 #ifdef USE_CAELUM
 				
-				if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
+				if (gEnv->sky && gEnv->frameListener->m_loading_state == TERRAIN_LOADED)
 				{
 					gEnv->sky->forceUpdate(0.01f);
 				}

@@ -186,7 +186,7 @@ void VideoCamera::update(float dt)
 
 #ifdef USE_CAELUM
 	// caelum needs to know that we changed the cameras
-	if (gEnv->sky && gEnv->frameListener->loading_state == TERRAIN_LOADED)
+	if (gEnv->sky && gEnv->frameListener->m_loading_state == TERRAIN_LOADED)
 		gEnv->sky->notifyCameraChanged(mVidCam);
 		
 #endif // USE_CAELUM
