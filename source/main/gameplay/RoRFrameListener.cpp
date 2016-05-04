@@ -1502,7 +1502,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		if (!m_is_sim_paused)
 		{
 			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
-			BeamFactory::getSingleton().calcPhysics(dt);           // we simulate one truck, it will take care of the others (except networked ones)
+			BeamFactory::getSingleton().calcPhysics(dt);
 		}
 	}
 
