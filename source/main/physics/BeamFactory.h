@@ -29,10 +29,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Beam.h"
 #include "StreamableFactory.h"
 
-#include <future>
-
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
+class ThreadPool;
 class TwoDReplay;
 
 /**
@@ -155,9 +154,10 @@ public:
 	void SyncWithSimThread();
 
 protected:
-	
-	std::shared_future<void> m_thread_future;
 
+	ThreadPool* m_sim_thread_pool;
+	std::shared_ptr<Task> m_sim_task;
+	
 	bool m_thread_mode;
 	int m_num_cpu_cores;
 

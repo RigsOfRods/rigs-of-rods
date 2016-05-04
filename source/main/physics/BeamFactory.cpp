@@ -182,12 +182,15 @@ BeamFactory::BeamFactory() :
 			gEnv->threadPool = new ThreadPool(m_num_cpu_cores);
 			LOG("BEAMFACTORY: Creating " + TOSTRING(m_num_cpu_cores) + " threads");
 		}
+
+		m_sim_thread_pool = new ThreadPool(1);
 	}
 }
 
 BeamFactory::~BeamFactory()
 {
 	delete gEnv->threadPool;
+	delete m_sim_thread_pool;
 }
 
 bool BeamFactory::RemoveBeam(Beam *b)
@@ -936,9 +939,10 @@ void BeamFactory::calcPhysics(float dt)
 			m_trucks[m_simulated_truck]->updateForceFeedback(m_physics_steps);
 			if (m_thread_mode == THREAD_MULTI)
 			{
-				m_thread_future = std::async(std::launch::async, [this]() {
+				auto func = std::function<void(int)>([this](float dt) {
 					this->UpdatePhysicsSimulation();
 				});
+				m_sim_task = m_sim_thread_pool->RunTask(std::bind(func, dt));
 			} else
 			{
 				this->UpdatePhysicsSimulation();
@@ -1014,7 +1018,6 @@ Beam* BeamFactory::getTruck(int number)
 	}
 	return 0;
 }
-
 
 void BeamFactory::UpdatePhysicsSimulation()
 {
@@ -1147,6 +1150,6 @@ void BeamFactory::UpdatePhysicsSimulation()
 
 void BeamFactory::SyncWithSimThread()
 {
-	if (m_thread_future.valid())
-		m_thread_future.get();
+	if (m_sim_task)
+		m_sim_task->join();
 }
