@@ -28,11 +28,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Beam.h"
 #include "StreamableFactory.h"
-#include "TwoDReplay.h"
 
 #include <future>
 
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
+
+class TwoDReplay;
 
 /**
 * Builds and manages vehicles; Manages multithreading.
@@ -40,7 +41,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public ZeroedMemoryAllocator
 {
 	friend class Network;
-	friend class RoRFrameListener;
 
 public:
 
@@ -87,7 +87,6 @@ public:
 	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
 	float getSimulationSpeed() { return m_simulation_speed; };
 
-	bool removeBeam(Beam *b);
 	void removeCurrentTruck();
 	void removeAllTrucks();
 	void removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
@@ -153,7 +152,7 @@ public:
 	void release(){};
 #endif
 
-	void syncWithSimThread();
+	void SyncWithSimThread();
 
 protected:
 	
@@ -183,22 +182,22 @@ protected:
 	void LogParserMessages();
 	void LogSpawnerMessages();
 
-	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
-	void recursiveActivation(int j);
+	bool CheckForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
+	void RecursiveActivation(int j);
 
-	void updateSleepingState(float dt);
+	void UpdateSleepingState(float dt);
 
-	int getFreeTruckSlot();
-	int findTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
+	int GetFreeTruckSlot();
+	int FindTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 
 	// functions used by friends
 	void netUserAttributesChanged(int source, int streamid);
 	void localUserAttributesChanged(int newid);
 
-	bool syncRemoteStreams();
-	void removeInstance(Beam *b);
-	void removeInstance(stream_del_t *del);
-	void _deleteTruck(Beam *b);
+	void RemoveInstance(Beam *b);
+	void RemoveInstance(stream_del_t *del);
+	bool RemoveBeam(Beam *b);
+	void DeleteTruck(Beam *b);
 };
 
 #endif // __BeamFactory_H_

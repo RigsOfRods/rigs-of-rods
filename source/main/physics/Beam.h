@@ -23,9 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgrePrerequisites.h>
 #include <OgreTimer.h>
 
-#include <vector>
-#include <thread>
-
 #include "RoRPrerequisites.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"

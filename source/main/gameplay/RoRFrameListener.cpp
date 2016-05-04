@@ -1293,7 +1293,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	dt = std::min(dt, 0.05f);
 	m_time += dt;
 
-	BeamFactory::getSingleton().syncWithSimThread();
+	BeamFactory::getSingleton().SyncWithSimThread();
 
 	RoR::Application::GetInputEngine()->Capture();
 
