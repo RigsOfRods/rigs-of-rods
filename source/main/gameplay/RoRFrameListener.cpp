@@ -172,6 +172,7 @@ RoRFrameListener::RoRFrameListener() :
 	m_hide_gui(false),
 	m_is_dir_arrow_visible(false),
 	m_is_pace_reset_pressed(false),
+	m_is_position_storage_enabled(BSETTING("Position Storage", false)),
 	m_is_sim_paused(false),
 	m_last_screenshot_date(""),
 	m_last_screenshot_id(1),
@@ -418,7 +419,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 	// position storage
-	if (BSETTING("Position Storage", false) && curr_truck)
+	if (curr_truck && m_is_position_storage_enabled)
 	{
 		int res = -10, slot=-1;
 		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS01, 0.5f)) { slot=0; res = curr_truck->savePosition(slot); };

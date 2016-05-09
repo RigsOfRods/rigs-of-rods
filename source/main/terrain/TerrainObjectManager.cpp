@@ -65,6 +65,8 @@ inline float getTerrainHeight(Real x, Real z, void *unused=0)
 
 
 TerrainObjectManager::TerrainObjectManager(TerrainManager *terrainManager) :
+	background_loading(BSETTING("Background Loading", false)),
+	use_rt_shader_system(BSETTING("Use RTShader System", false)),
 	terrainManager(terrainManager)
 {
 	//prepare for baking
@@ -784,7 +786,6 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		objcounter++;
 
 		SceneNode *tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		bool background_loading = BSETTING("Background Loading", false);
 
 		MeshObject *mo = NULL;
 		if (String(mesh) != "none")
@@ -1038,7 +1039,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 			{
 				char mat[256]="";
 				sscanf(ptline, "generateMaterialShaders %s", mat);
-				if (BSETTING("Use RTShader System", false))
+				if (use_rt_shader_system)
 				{
 					Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(String(mat), Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 					Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(mat));
