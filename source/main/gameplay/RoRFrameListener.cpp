@@ -19,18 +19,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "RoRFrameListener.h"
 
-#include <OgreFontManager.h>
-
-#include <OgreRTShaderSystem.h>
-#include <OgreTerrain.h>
-#include <OgreTerrainMaterialGeneratorA.h>
-#include <OgreTerrainPaging.h>
-#include <OgreTerrainQuadTreeNode.h>
-
 #include "AdvancedScreen.h"
 #include "AircraftSimulation.h"
 #include "Application.h"
-#include "AutoPilot.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
@@ -39,60 +30,45 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Character.h"
 #include "CharacterFactory.h"
 #include "ChatSystem.h"
-#include "Collisions.h"
 #include "CollisionTools.h"
-#include "Dashboard.h"
+#include "Collisions.h"
 #include "DashBoardManager.h"
+#include "Dashboard.h"
 #include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "EnvironmentMap.h"
-#include "ErrorUtils.h"
-#include "FlexAirfoil.h"
 #include "ForceFeedback.h"
-#include "GlowMaterialListener.h"
-#include "HDRListener.h"
 #include "Heathaze.h"
 #include "IHeightFinder.h"
-#include "InputEngine.h"
 #include "IWater.h"
+#include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MainThread.h"
-#include "MeshObject.h"
 #include "MumbleIntegration.h"
 #include "Network.h"
 #include "OgreSubsystem.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
-#include "PlatformUtils.h"
-#include "PlayerColours.h"
-#include "PreviewRenderer.h"
 #include "Replay.h"
-#include "Road.h"
-#include "Road2.h"
 #include "RoRVersion.h"
 #include "SceneMouse.h"
 #include "ScopeLog.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Settings.h"
-#include "ShadowManager.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TruckHUD.h"
-#include "TurboProp.h"
 #include "Utils.h"
 #include "VideoCamera.h"
 #include "Water.h"
-#include "WriteTextToTexture.h"
 
 #ifdef USE_MYGUI
 #include "GUIManager.h"
-#include "GUIMenu.h"
 #include "GUIFriction.h"
 #include "GUIMp.h"
-#include "LoadingWindow.h"
 #include "Console.h"
 #include "SurveyMapManager.h"
 #include "SurveyMapEntity.h"
@@ -305,10 +281,8 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 	if (GUI_Friction::getSingletonPtr() && GUI_Friction::getSingleton().getVisible() && curr_truck)
 	{
-		// friction GUI active
 		ground_model_t *gm = curr_truck->getLastFuzzyGroundModel();
-		if (gm)
-			GUI_Friction::getSingleton().setActiveCol(gm);
+		GUI_Friction::getSingleton().setActiveCol(gm);
 	}
 #endif //USE_MYGUI
 
@@ -1702,99 +1676,6 @@ void RoRFrameListener::hideGUI(bool hidden)
 	}
 	Application::GetGuiManager()->hideGUI(hidden);
 #endif // USE_MYGUI
-}
-
-bool RoRFrameListener::RTSSgenerateShadersForMaterial(String curMaterialName, String normalTextureName)
-{
-	if (!BSETTING("Use RTShader System", false)) return false;
-	bool success;
-
-	// Create the shader based technique of this material.
-	success = RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(curMaterialName,
-			 			MaterialManager::DEFAULT_SCHEME_NAME,
-			 			RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-	if (!success)
-		return false;
-
-	// Setup custom shader sub render states according to current setup.
-	MaterialPtr curMaterial = MaterialManager::getSingleton().getByName(curMaterialName);
-
-
-	// Grab the first pass render state.
-	// NOTE: For more complicated samples iterate over the passes and build each one of them as desired.
-	RTShader::RenderState* renderState = RTShader::ShaderGenerator::getSingleton().getRenderState(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, curMaterialName, 0);
-
-	// Remove all sub render states.
-	renderState->reset();
-
-
-#ifdef RTSHADER_SYSTEM_BUILD_CORE_SHADERS
-	// simple vertex lightning
-	/*
-	{
-		RTShader::SubRenderState* perPerVertexLightModel = RTShader::ShaderGenerator::getSingleton().createSubRenderState(RTShader::FFPLighting::Type);
-		renderState->addTemplateSubRenderState(perPerVertexLightModel);
-	}
-	*/
-#endif
-#ifdef RTSHADER_SYSTEM_BUILD_EXT_SHADERS
-	if (normalTextureName.empty())
-	{
-		// SSLM_PerPixelLighting
-		RTShader::SubRenderState* perPixelLightModel = RTShader::ShaderGenerator::getSingleton().createSubRenderState(RTShader::PerPixelLighting::Type);
-
-		renderState->addTemplateSubRenderState(perPixelLightModel);
-	} else
-	{
-		// SSLM_NormalMapLightingTangentSpace
-		RTShader::SubRenderState* subRenderState = RTShader::ShaderGenerator::getSingleton().createSubRenderState(RTShader::NormalMapLighting::Type);
-		RTShader::NormalMapLighting* normalMapSubRS = static_cast<RTShader::NormalMapLighting*>(subRenderState);
-
-		normalMapSubRS->setNormalMapSpace(RTShader::NormalMapLighting::NMS_TANGENT);
-		normalMapSubRS->setNormalMapTextureName(normalTextureName);
-
-		renderState->addTemplateSubRenderState(normalMapSubRS);
-	}
-	// SSLM_NormalMapLightingObjectSpace
-	/*
-	{
-		// Apply normal map only on main entity.
-		if (entity->getName() == MAIN_ENTITY_NAME)
-		{
-			RTShader::SubRenderState* subRenderState = mShaderGenerator->createSubRenderState(RTShader::NormalMapLighting::Type);
-			RTShader::NormalMapLighting* normalMapSubRS = static_cast<RTShader::NormalMapLighting*>(subRenderState);
-
-			normalMapSubRS->setNormalMapSpace(RTShader::NormalMapLighting::NMS_OBJECT);
-			normalMapSubRS->setNormalMapTextureName("Panels_Normal_Obj.png");
-
-			renderState->addTemplateSubRenderState(normalMapSubRS);
-		}
-
-		// It is secondary entity -> use simple per pixel lighting.
-		else
-		{
-			RTShader::SubRenderState* perPixelLightModel = mShaderGenerator->createSubRenderState(RTShader::PerPixelLighting::Type);
-			renderState->addTemplateSubRenderState(perPixelLightModel);
-		}
-	} */
-
-#endif
-
-	// Invalidate this material in order to re-generate its shaders.
-	RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, curMaterialName);
-	return true;
-}
-
-void RoRFrameListener::RTSSgenerateShaders(Entity* entity, String normalTextureName)
-{
-	if (!BSETTING("Use RTShader System", false)) return;
-	for (unsigned int i=0; i < entity->getNumSubEntities(); ++i)
-	{
-		SubEntity* curSubEntity = entity->getSubEntity(i);
-		const String& curMaterialName = curSubEntity->getMaterialName();
-
-		RTSSgenerateShadersForMaterial(curMaterialName, normalTextureName);
-	}
 }
 
 void RoRFrameListener::reloadCurrentTruck()

@@ -35,7 +35,6 @@ public:
 	RoRFrameListener();
 	virtual ~RoRFrameListener();
 
-	bool RTSSgenerateShadersForMaterial(Ogre::String curMaterialName, Ogre::String normalTextureName);
 	bool frameEnded(const Ogre::FrameEvent& evt);
 	bool frameStarted(const Ogre::FrameEvent& evt); // Override frameStarted event to process that (don't care about frameEnded)
 
@@ -48,7 +47,6 @@ public:
 	void pauseSim(bool value);
 	void reloadCurrentTruck();
 
-	void RTSSgenerateShaders(Ogre::Entity *entity, Ogre::String normalTextureName);
 	void setDirectionArrow(char *text, Ogre::Vector3 position);
 
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
