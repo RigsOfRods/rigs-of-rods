@@ -122,7 +122,7 @@ public:
 		//float used_per = ((float)(dsize * 8 + 40) / (float)isize) * 100.0f;
 		//LOG("used " + TOSTRING(used_per) + " %");
 
-		std::thread{save, data, databuf, mWidth, mHeight, pf, filename}.detach();
+		std::thread (save, data, databuf, mWidth, mHeight, pf, filename).detach();
 	}
 
 protected:
