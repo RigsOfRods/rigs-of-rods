@@ -3390,7 +3390,7 @@ void Beam::updateVisual(float dt)
 	BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
-void Beam::updateFlexbodiesFinal()
+void Beam::joinFlexbodyTasks()
 {
 	if (gEnv->threadPool)
 	{
@@ -3399,6 +3399,14 @@ void Beam::updateFlexbodiesFinal()
 			t->join();
 		}
 		flexbody_tasks.clear();
+	}
+}
+
+void Beam::updateFlexbodiesFinal()
+{
+	if (gEnv->threadPool)
+	{
+		joinFlexbodyTasks();
 
 		for (int i=0; i<free_wheel; i++)
 		{

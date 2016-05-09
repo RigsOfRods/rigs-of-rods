@@ -110,6 +110,11 @@ public:
 	void updateFlexbodiesPrepare();
 	void updateFlexbodiesFinal();
 
+	/**
+	 * Waits until all flexbody tasks are finished, but does not update the hardware buffers
+	 */
+	void joinFlexbodyTasks();
+
 	void UpdatePhysicsSimulation();
 
 	inline unsigned long getPhysFrame() { return m_physics_frames; };

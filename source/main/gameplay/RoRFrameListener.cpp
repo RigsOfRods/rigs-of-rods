@@ -1501,8 +1501,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 		if (!m_is_sim_paused)
 		{
-			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished 
+			BeamFactory::getSingleton().joinFlexbodyTasks();       // Waits until all flexbody tasks are finished
 			BeamFactory::getSingleton().calcPhysics(dt);
+			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Updates the harware buffers 
 		}
 	}
 

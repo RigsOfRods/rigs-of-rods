@@ -251,10 +251,15 @@ public:
 	void updateVisual(float dt=0);
 
 	/**
-	* TIGHT-LOOP; Logic: flexbodies, threading
+	* TIGHT-LOOP; Logic: flexbodies
 	*/
 	void updateFlexbodiesPrepare();
 	void updateFlexbodiesFinal();
+
+	/**
+	 * Waits until all flexbody tasks are finished, but does not update the hardware buffers
+	 */
+	void joinFlexbodyTasks();
 
 	/**
 	* TIGHT-LOOP; Logic: display
