@@ -23,7 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamFactory.h"
 #include "Collisions.h"
 #include "Console.h"
 #include "GUIManager.h"
@@ -49,6 +48,7 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	, targetDirection(0.0f)
 	, targetPitch(0.0f)
 {
+	isMultiThreaded = BSETTING("Multi-threading", true);
 }
 
 void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
@@ -142,7 +142,7 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 	
 	if ( ctx.mCurrTruck )
 	{
-		if (BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI)
+		if ( isMultiThreaded )
 			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->oldframe_global_dt;
 		else
 			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->global_dt;

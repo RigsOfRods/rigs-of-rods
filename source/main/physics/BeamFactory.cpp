@@ -144,23 +144,18 @@ BeamFactory::BeamFactory() :
 	, m_physics_steps(2000)
 	, m_previous_truck(-1)
 	, m_simulation_speed(1.0f)
-	, m_tdr(0)
-	, m_thread_mode(THREAD_SINGLE)
 {
 	bool disableThreadPool = BSETTING("DisableThreadPool", false);
 
 	for (int t=0; t < MAX_TRUCKS; t++)
 		m_trucks[t] = 0;
 
-	if (BSETTING("Multi-threading", true))
-		m_thread_mode = THREAD_MULTI;
-
 	if (BSETTING("2DReplay", false))
-		m_tdr = new TwoDReplay();
+		m_tdr = std::unique_ptr<TwoDReplay>();
 
-	// Create worker thread (used for physics calculations)
-	if (m_thread_mode == THREAD_MULTI)
+	if (BSETTING("Multi-threading", true))
 	{
+		// Create thread pool
 		int numThreadsInPool = ISETTING("NumThreadsInThreadPool", 0);
 
 		if (numThreadsInPool > 1)
@@ -183,14 +178,14 @@ BeamFactory::BeamFactory() :
 			LOG("BEAMFACTORY: Creating " + TOSTRING(m_num_cpu_cores) + " threads");
 		}
 
-		m_sim_thread_pool = new ThreadPool(1);
+		// Create worker thread (used for physics calculations)
+		m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
 	}
 }
 
 BeamFactory::~BeamFactory()
 {
 	delete gEnv->threadPool;
-	delete m_sim_thread_pool;
 }
 
 bool BeamFactory::RemoveBeam(Beam *b)
@@ -948,7 +943,7 @@ void BeamFactory::calcPhysics(float dt)
 		{
 			m_trucks[m_simulated_truck]->updateFrameTimeInformation(dt);
 			m_trucks[m_simulated_truck]->updateForceFeedback(m_physics_steps);
-			if (m_thread_mode == THREAD_MULTI)
+			if (m_sim_thread_pool)
 			{
 				auto func = std::function<void(int)>([this](float dt) {
 					this->UpdatePhysicsSimulation();

@@ -69,8 +69,6 @@ public:
 	
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
-	bool getThreadingMode() { return m_thread_mode; };
-
 	int getNumCpuCores() { return m_num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
@@ -160,10 +158,9 @@ public:
 
 protected:
 
-	ThreadPool* m_sim_thread_pool;
+	std::unique_ptr<ThreadPool> m_sim_thread_pool;
 	std::shared_ptr<Task> m_sim_task;
 	
-	bool m_thread_mode;
 	int m_num_cpu_cores;
 
 	Beam *m_trucks[MAX_TRUCKS];
@@ -174,7 +171,7 @@ protected:
 
 	bool m_forced_active; // disables sleepcount
 
-	TwoDReplay *m_tdr;
+	std::unique_ptr<TwoDReplay> m_tdr;
 
 	unsigned long m_physics_frames;
 	int m_physics_steps;
