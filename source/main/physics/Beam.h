@@ -38,7 +38,8 @@ class Task;
 */
 class Beam :
 	public rig_t,
-	public Streamable
+	public Streamable,
+	public ZeroedMemoryAllocator
 {
 	friend class RigSpawner;
 	friend class RigInspector; // Debug utility class
