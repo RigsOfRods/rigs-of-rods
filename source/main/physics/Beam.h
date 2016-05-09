@@ -30,6 +30,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "Streamable.h"
 
+#include <mutex>
+
 class Task;
 
 /** 
@@ -663,8 +665,7 @@ protected:
 	char *netb1; //!< Network; Triple buffer for incoming data
 	char *netb2; //!< Network; Triple buffer for incoming data
 	char *netb3; //!< Network; Triple buffer for incoming data
-	pthread_mutex_t net_mutex;
-	Ogre::Timer *nettimer;
+	std::mutex m_net_mutex;
 	int net_toffset;
 	int netcounter;
 	Ogre::MovableText *netMT; //, *netDist;

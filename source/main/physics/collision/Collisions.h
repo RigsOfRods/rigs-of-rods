@@ -26,13 +26,14 @@
 
 #include "BeamData.h" // for collision_box_t
 
-#include <pthread.h>
 #include <OgrePrerequisites.h>
 #include <OgreString.h>
 #include <OgreEntity.h>
 #include <OgreVector3.h>
 #include <OgreSceneNode.h>
 #include <OgreQuaternion.h>
+
+#include <mutex>
 
 struct eventsource_t
 {
@@ -148,9 +149,9 @@ private:
 
 	Ogre::Vector3 calcCollidedSide(const Ogre::Vector3& pos, const Ogre::Vector3& lo, const Ogre::Vector3& hi);
 
-	pthread_mutex_t scriptcallback_mutex;
-
 public:
+
+	std::mutex m_scriptcallback_mutex;
 
 	bool forcecam;
 	Ogre::Vector3 forcecampos;

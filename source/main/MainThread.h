@@ -32,7 +32,6 @@
 #include "RoRPrerequisites.h"
 
 #include <map>
-#include <pthread.h>
 
 class GameScript;
 
@@ -93,7 +92,6 @@ protected:
 	bool               m_exit_loop_requested;
 	bool               m_shutdown_requested;
 	bool               m_restart_requested;
-	pthread_mutex_t    m_lock;
 	unsigned long      m_start_time;
 	Application::State m_next_application_state;
 	Application::State m_application_state;

@@ -56,7 +56,6 @@ GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 	, m_gui_manager_interface(gui_manager_interface)
 {
 	setSingleton(this);
-	pthread_mutex_init(&m_update_lock, NULL);
 
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR */
@@ -178,7 +177,6 @@ GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 
 GUI_MainMenu::~GUI_MainMenu()
 {
-	pthread_mutex_destroy(&m_update_lock);
 	m_menubar_widget->setVisible(false);
 	m_menubar_widget->_shutdown();
 	m_menubar_widget = nullptr;
@@ -500,17 +498,13 @@ void GUI_MainMenu::updatePositionUponMousePosition(int x, int y)
 	if (m_vehicle_list_needs_update)
 	{
 		vehiclesListUpdate();
-		MUTEX_LOCK(&m_update_lock);
 		m_vehicle_list_needs_update = false;
-		MUTEX_UNLOCK(&m_update_lock);
 	}
 }
 
 void GUI_MainMenu::triggerUpdateVehicleList()
 {
-	MUTEX_LOCK(&m_update_lock);
 	m_vehicle_list_needs_update = true;
-	MUTEX_UNLOCK(&m_update_lock);
 }
 
 void GUI_MainMenu::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)

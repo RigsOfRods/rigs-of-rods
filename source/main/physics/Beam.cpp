@@ -122,7 +122,6 @@ Beam::~Beam()
 #endif // USE_OPENAL
 
 	// destruct and remove every tiny bit of stuff we created :-|
-	if (nettimer) delete nettimer; nettimer=0;
 	if (engine) delete engine; engine=0;
 	if (buoyance) delete buoyance; buoyance=0;
 	if (autopilot) delete autopilot;
@@ -313,11 +312,6 @@ Beam::~Beam()
 		netMT->setVisible(false);
 		delete netMT;
 		netMT = 0;
-	}
-
-	if (state == NETWORKED) // int rig_t::state
-	{
-		pthread_mutex_destroy(&net_mutex);
 	}
 }
 
@@ -578,8 +572,8 @@ void Beam::pushNetwork(char* data, int size)
 		state = NETWORKED_INVALID;
 		return;
 	}
-	//okay, the big switch
-	MUTEX_LOCK(&net_mutex);
+
+	std::lock_guard<std::mutex> net_lock(m_net_mutex);
 
 	// and the buffer switching to have linear smoothing
 	oob_t *ot;
@@ -603,7 +597,7 @@ void Beam::pushNetwork(char* data, int size)
 		wheels[i].rp3 = rp;
 	}
 	netcounter++;
-	MUTEX_UNLOCK(&net_mutex);
+
 	BES_GFX_STOP(BES_GFX_pushNetwork);
 }
 
@@ -614,8 +608,8 @@ void Beam::calcNetwork()
 	if (netcounter<4) return;
 	//we must update Nodes positions from available network informations
 	//we must lock as long as we use oob1, oob2, netb1, netb2
-	MUTEX_LOCK(&net_mutex);
-	int tnow=nettimer->getMilliseconds();
+	std::lock_guard<std::mutex> net_lock(m_net_mutex);
+	int tnow=netTimer.getMilliseconds();
 	//adjust offset to match remote time
 	int rnow=tnow+net_toffset;
 	//if we receive older data from the future, we must correct the offset
@@ -708,7 +702,6 @@ void Beam::calcNetwork()
 	int gear = oob1->engine_gear;
 	unsigned int flagmask = oob1->flagmask;
 
-	MUTEX_UNLOCK(&net_mutex);
 #ifdef USE_OPENAL
 	if (engine)
 	{
@@ -5552,11 +5545,8 @@ Beam::Beam(
 		netb1=(char*)malloc(netbuffersize);
 		netb2=(char*)malloc(netbuffersize);
 		netb3=(char*)malloc(netbuffersize);
-		nettimer = new Ogre::Timer();
 		net_toffset = 0;
 		netcounter = 0;
-		// init mutex
-		pthread_mutex_init(&net_mutex, NULL);
 		if (engine)
 		{
 			engine->start();
@@ -6181,7 +6171,7 @@ int Beam::getLowestNode()
 
 int Beam::getTruckTime()
 {
-	return nettimer->getMilliseconds();
+	return netTimer.getMilliseconds();
 }
 
 int Beam::getNetTruckTimeOffset()

@@ -29,12 +29,12 @@
 
 #pragma once
 
-#include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
 
 #include <MyGUI.h>
-#include <pthread.h>
+
+#include <atomic>
 
 class GUI_MainMenu : public RoRSingletonNoCreation< GUI_MainMenu >, public ZeroedMemoryAllocator
 {
@@ -76,8 +76,7 @@ protected:
 	MyGUI::MenuBarPtr                m_menubar_widget;
 	int                              m_menu_width;
 	int                              m_menu_height;
-	pthread_mutex_t                  m_update_lock;
-	bool                             m_vehicle_list_needs_update;
+	std::atomic<bool>                m_vehicle_list_needs_update;
 	RoR::GuiManagerInterface*        m_gui_manager_interface;
 };
 
