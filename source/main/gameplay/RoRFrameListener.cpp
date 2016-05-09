@@ -1051,31 +1051,35 @@ bool RoRFrameListener::updateEvents(float dt)
 					{
 						m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					}
+
 					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
-					m_reload_box = 0;
-				}
 
-				if (gEnv->surveyMap && local_truck)
-				{
-					SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
-					if (e)
+					if (local_truck != nullptr)
 					{
-						e->setState(DESACTIVATED);
-						e->setVisibility(true);
-						e->setPosition(m_reload_pos);
-						e->setRotation(-Radian(local_truck->getHeadingDirectionAngle()));
+						if (gEnv->surveyMap)
+						{
+							SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
+							if (e)
+							{
+								e->setState(DESACTIVATED);
+								e->setVisibility(true);
+								e->setPosition(m_reload_pos);
+								e->setRotation(-Radian(local_truck->getHeadingDirectionAngle()));
+							}
+						}
+						if (local_truck->driveable != NOT_DRIVEABLE)
+						{
+							/* We are supposed to be in this truck, if it is a truck */
+							if (local_truck->engine != nullptr)
+							{
+								local_truck->engine->start();
+							}
+							BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
+						} 
 					}
 				}
 
-				if (local_truck != nullptr && local_truck->driveable != NOT_DRIVEABLE)
-				{
-					/* We are supposed to be in this truck, if it is a truck */
-					if (local_truck->engine != nullptr)
-					{
-						local_truck->engine->start();
-					}
-					BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
-				} 
+				m_reload_box = 0;
 			}
 			Application::GetGuiManager()->getMainSelector()->Hide();
 			RoR::Application::GetGuiManager()->UnfocusGui();
