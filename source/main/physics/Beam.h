@@ -337,7 +337,7 @@ public:
 	std::vector< std::vector< int > > nodebeamconnections;
 
 	// wheel speed in m/s
-	float WheelSpeed;
+	float WheelSpeed = 0.f;
 	float getWheelSpeed() { return WheelSpeed; }
 	Ogre::Vector3 getGForces();
 
