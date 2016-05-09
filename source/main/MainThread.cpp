@@ -92,7 +92,6 @@ MainThread::MainThread():
 	m_application_state(Application::STATE_NONE),
 	m_next_application_state(Application::STATE_NONE)
 {
-	pthread_mutex_init(&m_lock, nullptr);
 	RoR::Application::SetMainThreadLogic(this);
 }
 
@@ -893,25 +892,14 @@ void MainThread::EnterGameplayLoop()
 			continue;
 		}
 
-		////update(timeSinceLastFrame);
-		MUTEX_LOCK(&m_lock);
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 		RoRWindowEventUtilities::messagePump();
 #endif
 		Ogre::RenderWindow* rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 		if (rw->isClosed())
 		{
-			// TODO: is this locking circus needed?
-
-			// unlock before shutdown
-			MUTEX_UNLOCK(&m_lock);
-			// shutdown locks the mutex itself
-			
-			// shutdown needs to be synced
-			MUTEX_LOCK(&m_lock);
 			m_shutdown_requested = true;
 			printf(">SH\n");
-			MUTEX_UNLOCK(&m_lock);
 			return;
 		}
 
@@ -919,8 +907,6 @@ void MainThread::EnterGameplayLoop()
 
 		if (!rw->isActive() && rw->isVisible())
 			rw->update(); // update even when in background !
-
-		MUTEX_UNLOCK(&m_lock);
 
 		if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
 		{
