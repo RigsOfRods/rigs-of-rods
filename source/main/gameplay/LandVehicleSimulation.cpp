@@ -173,7 +173,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 		if (curr_truck->engine)
 		{
-			bool arcadeControls = BSETTING("ArcadeControls", false);
+			static bool arcadeControls = BSETTING("ArcadeControls", false);
 
 			float accl  = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
 			float brake = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);

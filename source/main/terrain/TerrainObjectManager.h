@@ -95,6 +95,8 @@ protected:
 
 	std::vector<truck_prepare_t> truck_preload;
 
+	bool background_loading;
+	bool use_rt_shader_system;
 
 #ifdef USE_PAGED
 	typedef struct

@@ -117,6 +117,8 @@ protected:
 
 	bool m_is_pace_reset_pressed;
 
+	bool m_is_position_storage_enabled;
+
 	int m_stats_on;
 	int m_net_point_to_uid;
 
