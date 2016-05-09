@@ -3075,33 +3075,38 @@ void Beam::autoBlinkReset()
 void Beam::updateProps()
 {
 	BES_GFX_START(BES_GFX_updateProps);
-	int i;
-	//the props
-	for (i=0; i<free_prop; i++)
+
+	for (int i=0; i<free_prop; i++)
 	{
 		if (!props[i].scene_node) continue;
-		Vector3 normal=(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos).crossProduct(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos);
-		normal.normalise();
-		//position
-		Vector3 mposition=nodes[props[i].noderef].smoothpos+props[i].offsetx*(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos)+props[i].offsety*(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos);
-		props[i].scene_node->setPosition(mposition+normal*props[i].offsetz);
-		//orientation
-		Vector3 refx=nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos;
-		refx.normalise();
-		Vector3 refy=refx.crossProduct(normal);
-		Quaternion orientation=Quaternion(refx, normal, refy)*props[i].rot;
+
+		Vector3 diffX = nodes[props[i].nodex].smoothpos - nodes[props[i].noderef].smoothpos;
+		Vector3 diffY = nodes[props[i].nodey].smoothpos - nodes[props[i].noderef].smoothpos;
+
+		Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
+
+		Vector3 mposition = nodes[props[i].noderef].smoothpos + props[i].offsetx * diffX + props[i].offsety * diffY;
+		props[i].scene_node->setPosition(mposition + normal * props[i].offsetz);
+
+		Vector3 refx = diffX.normalisedCopy();
+		Vector3 refy = refx.crossProduct(normal);
+		Quaternion orientation = Quaternion(refx, normal, refy) * props[i].rot;
 		props[i].scene_node->setOrientation(orientation);
+
 		if (props[i].wheel)
 		{
-			//display wheel
-			Quaternion brot=Quaternion(Degree(-59.0), Vector3::UNIT_X);
-			brot=brot*Quaternion(Degree(hydrodirwheeldisplay*props[i].wheelrotdegree), Vector3::UNIT_Y);
-			props[i].wheel->setPosition(mposition+normal*props[i].offsetz+orientation*props[i].wheelpos);
-			props[i].wheel->setOrientation(orientation*brot);
+			Quaternion brot = Quaternion(Degree(-59.0), Vector3::UNIT_X);
+			brot = brot * Quaternion(Degree(hydrodirwheeldisplay * props[i].wheelrotdegree), Vector3::UNIT_Y);
+			props[i].wheel->setPosition(mposition + normal * props[i].offsetz + orientation * props[i].wheelpos);
+			props[i].wheel->setOrientation(orientation * brot);
 		}
 	}
-	//we also consider airbrakes as props
-	for (i=0; i<free_airbrake; i++) airbrakes[i]->updatePosition((float)airbrakeval/5.0);
+
+	for (int i=0; i<free_airbrake; i++)
+	{
+		airbrakes[i]->updatePosition((float)airbrakeval / 5.0);
+	}
+
 	BES_GFX_STOP(BES_GFX_updateProps);
 }
 
