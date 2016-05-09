@@ -334,11 +334,11 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 
 	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
-		if (gEnv->frameListener->loading_state == NONE_LOADED) return;
+		if (gEnv->frameListener->m_loading_state == NONE_LOADED) return;
 		// get out first
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1) BeamFactory::getSingleton().setCurrentTruck(-1);
-		gEnv->frameListener->reload_pos = gEnv->player->getPosition();
-		gEnv->frameListener->loading_state = RELOADING;
+		gEnv->frameListener->SetReloadPos(gEnv->player->getPosition());
+		gEnv->frameListener->m_loading_state = RELOADING;
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 
 	} else if (miname == _L("Reload current vehicle") && gEnv->player)
@@ -350,7 +350,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		}
 	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
 	{
-		if (gEnv->frameListener->loading_state != ALL_LOADED)
+		if (gEnv->frameListener->m_loading_state != ALL_LOADED)
 		{
 			LOG("you need to open a map before trying to save or load its scenery.");
 			return;

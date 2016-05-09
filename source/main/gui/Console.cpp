@@ -312,7 +312,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			}
 			return;
 		}
-		else if (args[0] == "/pos" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
+		else if (args[0] == "/pos" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
 		{
 			Beam *b = BeamFactory::getSingleton().getCurrentTruck();
 			if (!b && gEnv->player)
@@ -328,7 +328,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			return;
 		}
-		else if (args[0] == "/goto" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
+		else if (args[0] == "/goto" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
 		{
 			if (args.size() != 4)
 			{
@@ -352,7 +352,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			return;
 		}
-		else if (args[0] == "/terrainheight" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
+		else if (args[0] == "/terrainheight" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
 		{
 			if (!gEnv->terrainManager->getHeightFinder()) return;
 			Vector3 pos = Vector3::ZERO;
@@ -389,7 +389,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 		}
 #ifdef USE_ANGELSCRIPT
-		else if (args[0] == "/as" && (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED))
+		else if (args[0] == "/as" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
 		{
 			// we want to notify any running scripts that we might change something (prevent cheating)
 			ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);

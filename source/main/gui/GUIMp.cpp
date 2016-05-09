@@ -284,28 +284,6 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 	
 	// user go img
 	row->usergoimg->setVisible(false);
-	/*
-	// disabled for now, since no use
-	if (!self)
-	{
-		row->usergoimg->setVisible(true);
-		row->usergoimg->setPosition(x, y);
-		x -= 18;
-		row->usergoimg->setUserString("uid", TOSTRING(c->uniqueid));
-		if (eflsingleton && eflsingleton->getNetPointToUID() == c->uniqueid)
-		{
-			// active for this user
-			row->usergoimg->setAlpha(1.0f);
-		} else
-		{
-			// inactive for this user
-			row->usergoimg->setAlpha(0.4f);
-		}
-	} else
-	{
-		row->usergoimg->setVisible(false);
-	}
-	*/
 }
 
 int GUI_Multiplayer::update()
@@ -362,14 +340,7 @@ int GUI_Multiplayer::update()
 
 void GUI_Multiplayer::clickUserGoIcon(MyGUI::WidgetPtr sender)
 {
-	int uid = StringConverter::parseInt(sender->getUserString("uid"));
-
-	if (!gEnv->frameListener) return;
-
-	if (gEnv->frameListener->getNetPointToUID() == uid)
-		gEnv->frameListener->setNetPointToUID(-1);
-	else
-		gEnv->frameListener->setNetPointToUID(uid);
+	//int uid = StringConverter::parseInt(sender->getUserString("uid"));
 }
 
 void GUI_Multiplayer::clickInfoIcon(MyGUI::WidgetPtr sender)

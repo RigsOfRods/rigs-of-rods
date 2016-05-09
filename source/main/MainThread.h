@@ -99,6 +99,8 @@ protected:
 	Application::State m_application_state;
 	bool			   m_base_resource_loaded;
 
+	float netcheck_gui_timer;
+
 	std::map<std::string, bool> isLoadedMap;
 };
 

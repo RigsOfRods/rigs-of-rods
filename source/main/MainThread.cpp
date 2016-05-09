@@ -243,19 +243,13 @@ void MainThread::Go()
 	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
 #endif
 
-	gEnv->frameListener->enablePosStor = BSETTING("Position Storage", false);
-
 #ifdef USE_MPLATFORM
-	gEnv->frameListener->mplatform = new MPlatform_FD();
-	if (gEnv->frameListener->mplatform) 
+	gEnv->frameListener->m_platform = new MPlatform_FD();
+	if (gEnv->frameListener->m_platform) 
 	{
-		mplatform->connect();
+		m_platform->connect();
 	}
 #endif
-
-	// setup direction arrow overlay
-	gEnv->frameListener->dirvisible = false;
-	gEnv->frameListener->dirArrowPointed = Vector3::ZERO;
 
 	new GUI_MainMenu(Application::GetGuiManagerInterface()); /* Top menubar */
 	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
@@ -274,18 +268,18 @@ void MainThread::Go()
 			float centg   = FSETTING("Force Feedback Centering", 0  ) / 100.0f;
 			float camg    = FSETTING("Force Feedback Camera",    100) / 100.0f;
 
-			gEnv->frameListener->forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
+			gEnv->frameListener->m_forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
 		}
 	}
 #endif // _WIN32
 
 	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
 	if     (screenshotFormatString == "jpg (smaller, default)")
-		strcpy(gEnv->frameListener->screenshotformat, "jpg");
+		strcpy(gEnv->frameListener->m_screenshot_format, "jpg");
 	else if (screenshotFormatString =="png (bigger, no quality loss)")
-		strcpy(gEnv->frameListener->screenshotformat, "png");
+		strcpy(gEnv->frameListener->m_screenshot_format, "png");
 	else
-		strncpy(gEnv->frameListener->screenshotformat, screenshotFormatString.c_str(), 10);
+		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
 
 	// PROCESS COMMAND LINE ARGUMENTS
 
@@ -407,11 +401,12 @@ void MainThread::Go()
 		{
 			colourNum = gEnv->network->getLocalUserData()->colournum;
 		}
-		gEnv->frameListener->netChat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
-		//TODO: separate console and chatbox.
+		ChatSystem* net_chat = ChatSystemFactory::getSingleton().createLocal(colourNum);
 
-		Application::GetGuiManager()->SetNetChat(gEnv->frameListener->netChat);
+		// TODO: separate console and chatbox.
+
+		Application::GetGuiManager()->SetNetChat(net_chat);
 		wchar_t tmp[255] = L"";
 		UTFString format = _L("Press %ls to start chatting");
 		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
@@ -677,20 +672,20 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	// heathaze effect
 	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 	{
-		gEnv->frameListener->heathaze = new HeatHaze();
-		gEnv->frameListener->heathaze->setEnable(true);
+		gEnv->frameListener->m_heathaze = new HeatHaze();
+		gEnv->frameListener->m_heathaze->setEnable(true);
 	}
 
 	// depth of field effect
 	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 	{
-		gEnv->frameListener->dof = new DOFManager();
+		gEnv->frameListener->m_dof = new DOFManager();
 	}
 
 	if (!m_base_resource_loaded)
 	{
 		// init camera manager after mygui and after we have a character
-		new CameraManager(gEnv->frameListener->dof);
+		new CameraManager(gEnv->frameListener->m_dof);
 	}
 	
 	// ============================================================================
@@ -995,18 +990,18 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 	// update network gui if required, at most every 2 seconds
 	if (gEnv->network)
 	{
-		gEnv->frameListener->netcheckGUITimer += seconds_since_last_frame;
-		if (gEnv->frameListener->netcheckGUITimer > 2)
+		netcheck_gui_timer += seconds_since_last_frame;
+		if (netcheck_gui_timer > 2.0f)
 		{
-			//// RoRFrameListener::checkRemoteStreamResultsChanged()
-
+#ifdef USE_MYGUI
 #ifdef USE_SOCKETW
 			if (BeamFactory::getSingleton().checkStreamsResultsChanged())
 			{
 				GUI_Multiplayer::getSingleton().update();
 			}
 #endif // USE_SOCKETW
-			gEnv->frameListener->netcheckGUITimer=0;
+#endif // USE_MYGUI
+			netcheck_gui_timer = 0.0f;
 		}
 
 #ifdef USE_SOCKETW
@@ -1051,7 +1046,7 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 		RoR::Application::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !gEnv->frameListener->hidegui)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !gEnv->frameListener->m_hide_gui)
 	{
 		//TODO: Separate Chat and console
 	}
@@ -1110,7 +1105,7 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 	}
 #endif //USE_MYGUI
 
-	gEnv->frameListener->loading_state=TERRAIN_LOADED;
+	gEnv->frameListener->m_loading_state = TERRAIN_LOADED;
 	
 	if (gEnv->player != nullptr)
 	{
@@ -1153,7 +1148,7 @@ void MainThread::UnloadTerrain()
 	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #endif //USE_MYGUI
 
-	gEnv->frameListener->loading_state = NONE_LOADED;
+	gEnv->frameListener->m_loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	
 	RoR::Application::GetGuiManager()->getMainSelector()->Reset();
@@ -1242,9 +1237,9 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 
 		//force feedback
-		if (gEnv->frameListener->forcefeedback)
+		if (gEnv->frameListener->m_forcefeedback)
 		{
-			gEnv->frameListener->forcefeedback->setEnabled(false);
+			gEnv->frameListener->m_forcefeedback->setEnabled(false);
 		}
 
 		// hide truckhud
@@ -1290,7 +1285,7 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		//getting inside
 		current_vehicle->desactivate();
 
-		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->hidegui)
+		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->m_hide_gui)
 		{
 			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
 		}
@@ -1304,9 +1299,9 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 		
 		//force feedback
-		if (gEnv->frameListener->forcefeedback)
+		if (gEnv->frameListener->m_forcefeedback)
 		{
-			gEnv->frameListener->forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
+			gEnv->frameListener->m_forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
 		}
 
 		// attach player to truck

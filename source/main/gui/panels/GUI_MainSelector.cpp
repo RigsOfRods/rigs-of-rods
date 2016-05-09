@@ -262,7 +262,7 @@ void CLASS::EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 	m_selection_done = true;
 	Hide();
 	//Do this on cancel only
-	if (gEnv->frameListener->loading_state == NONE_LOADED)
+	if (gEnv->frameListener->m_loading_state == NONE_LOADED)
 		Application::GetGuiManager()->ShowMainMenu(true);
 }
 
@@ -1006,7 +1006,7 @@ void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
 		m_selection_done = true;
 		Hide();
 		//Do this on cancel only
-		if (gEnv->frameListener->loading_state == NONE_LOADED)
+		if (gEnv->frameListener->m_loading_state == NONE_LOADED)
 			Application::GetGuiManager()->ShowMainMenu(true);
 	}
 }

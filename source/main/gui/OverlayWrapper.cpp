@@ -65,7 +65,8 @@ using namespace Ogre;
 OverlayWrapper::OverlayWrapper():
 	m_direction_arrow_node(nullptr),
 	mTimeUntilNextToggle(0),
-	m_visible_overlays(0)
+	m_visible_overlays(0),
+	m_flipflop(false)
 {
 	win = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 	init();
@@ -881,7 +882,7 @@ void OverlayWrapper::UpdatePressureTexture(float pressure)
 	pressuretexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
+void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle)
 {
 	// gears
 	int truck_getgear = vehicle->engine->getGear();
@@ -1049,8 +1050,8 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	{
 		if (fabs(vehicle->commandkey[0].commandValue) > 0.000001f)
 		{
-			flipflop = !flipflop;
-			if (flipflop)
+			m_flipflop = !m_flipflop;
+			if (m_flipflop)
 				securedo->setMaterialName("tracks/secured-on");
 			else
 				securedo->setMaterialName("tracks/secured-off");

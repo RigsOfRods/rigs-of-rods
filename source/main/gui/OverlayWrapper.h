@@ -71,7 +71,7 @@ public:
 
 	void UpdatePressureTexture(float pressure);
 
-	void UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop);
+	void UpdateLandVehicleHUD(Beam * vehicle);
 
 	void UpdateAerialHUD(Beam * vehicle);
 
@@ -251,10 +251,10 @@ protected:
 	float thrheight;
 	float throffset;
 
+	bool m_flipflop;
+
 	// Truck m_racing_overlay overlay
 	Ogre::SceneNode* m_direction_arrow_node;
-
-protected:
 
 	std::vector<LoadedOverlay> m_loaded_overlays;
 };
