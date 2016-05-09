@@ -1053,7 +1053,6 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 
 					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
-					m_reload_box = 0;
 
 					if (local_truck != nullptr)
 					{
@@ -1079,6 +1078,8 @@ bool RoRFrameListener::updateEvents(float dt)
 						} 
 					}
 				}
+
+				m_reload_box = 0;
 			}
 			Application::GetGuiManager()->getMainSelector()->Hide();
 			RoR::Application::GetGuiManager()->UnfocusGui();
