@@ -52,6 +52,7 @@ protected:
 	Ogre::Vector3 camLookAt;
 
 	bool limitCamMovement;
+	bool isMultiThreaded;
 };
 
 #endif // __CAMERA_BEHAVIOR_ORBIT_H_

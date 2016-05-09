@@ -357,7 +357,6 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectProperty("BeamClass", "int sleepcount", offsetof(Beam, sleepcount)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int driveable", offsetof(Beam, driveable)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int importcommands", offsetof(Beam, importcommands)); MYASSERT(result>=0);
-	result = engine->RegisterObjectProperty("BeamClass", "bool requires_wheel_contact", offsetof(Beam, requires_wheel_contact)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "bool wheel_contact_requested", offsetof(Beam, wheel_contact_requested)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "bool rescuer", offsetof(Beam, rescuer)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int parkingbrake", offsetof(Beam, parkingbrake)); MYASSERT(result>=0);

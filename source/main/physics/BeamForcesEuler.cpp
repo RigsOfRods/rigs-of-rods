@@ -915,6 +915,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	//auto shock adjust
 	if (free_active_shock && doUpdate)
 	{
+		stabsleep -= dt * maxsteps;
+
 		Vector3 dir = nodes[cameranodepos[0]].RelPosition-nodes[cameranoderoll[0]].RelPosition;
 		dir.normalise();
 		float roll = asin(dir.dotProduct(Vector3::UNIT_Y));
@@ -1445,9 +1447,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	if (dt==0.0) return false;
-	if (state >= SLEEPING) return false;
 	if (deleting) return false;
 	if (m_reset_request) return false;
+	if (state >= SLEEPING) return false;
 
 	BES_START(BES_CORE_WholeTruckCalc);
 

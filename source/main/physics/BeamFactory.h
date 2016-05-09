@@ -28,11 +28,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Beam.h"
 #include "StreamableFactory.h"
-#include "TwoDReplay.h"
-
-#include <pthread.h>
 
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
+
+class ThreadPool;
+class TwoDReplay;
 
 /**
 * Builds and manages vehicles; Manages multithreading.
@@ -40,7 +40,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public ZeroedMemoryAllocator
 {
 	friend class Network;
-	friend class RoRFrameListener;
 
 public:
 
@@ -70,40 +69,21 @@ public:
 	
 	Beam *createRemoteInstance(stream_reg_t *reg);
 
-	bool getThreadingMode() { return thread_mode; };
-
-	/**
-	* Threading; Waits until work is done
-	*/
-	void _WorkerWaitForSync();
-	
-	/**
-	* Threading; Prepare to start working
-	*/
-	void _WorkerPrepareStart(); 
-
-	/**
-	* Threading; Signals to start working
-	*/
-	void _WorkerSignalStart(); 
-
-	int getNumCpuCores() { return num_cpu_cores; };
+	int getNumCpuCores() { return m_num_cpu_cores; };
 
 	Beam *getBeam(int source_id, int stream_id); // used by character
 
 	Beam *getCurrentTruck();
 	Beam *getTruck(int number);
-	Beam **getTrucks() { return trucks; };
-	int getPreviousTruckNumber() { return previous_truck; };
-	int getCurrentTruckNumber() { return current_truck; };
-	int getTruckCount() { return free_truck; };
-	bool allTrucksForcedActive() { return forced_active; };
+	Beam **getTrucks() { return m_trucks; };
+	int getPreviousTruckNumber() { return m_previous_truck; };
+	int getCurrentTruckNumber() { return m_current_truck; };
+	int getTruckCount() { return m_free_truck; };
 
 	void setCurrentTruck(int new_truck);
 	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
 	float getSimulationSpeed() { return m_simulation_speed; };
 
-	bool removeBeam(Beam *b);
 	void removeCurrentTruck();
 	void removeAllTrucks();
 	void removeTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
@@ -127,6 +107,13 @@ public:
 	*/
 	void updateFlexbodiesPrepare();
 	void updateFlexbodiesFinal();
+
+	/**
+	 * Waits until all flexbody tasks are finished, but does not update the hardware buffers
+	 */
+	void joinFlexbodyTasks();
+
+	void UpdatePhysicsSimulation();
 
 	inline unsigned long getPhysFrame() { return m_physics_frames; };
 
@@ -154,24 +141,12 @@ public:
 	bool predictTruckIntersectionCollAABB(int a, int b);
 
 	void activateAllTrucks();
-	void checkSleepingState();
 	void sendAllTrucksSleeping();
-	void setTrucksForcedActive(bool forced) { forced_active = forced; };
+	void setTrucksForcedActive(bool forced) { m_forced_active = forced; };
 
 	void prepareShutdown();
 
 	void windowResized();
-
-	bool thread_done;
-	pthread_cond_t thread_done_cv;
-	pthread_mutex_t thread_done_mutex;
-
-	bool work_done;
-	pthread_cond_t work_done_cv;
-	pthread_mutex_t work_done_mutex;
-	pthread_t worker_thread;
-
-	void threadentry();
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -179,19 +154,24 @@ public:
 	void release(){};
 #endif
 
+	void SyncWithSimThread();
+
 protected:
+
+	std::unique_ptr<ThreadPool> m_sim_thread_pool;
+	std::shared_ptr<Task> m_sim_task;
 	
-	bool thread_mode;
-	int num_cpu_cores;
+	int m_num_cpu_cores;
 
-	Beam *trucks[MAX_TRUCKS];
-	int free_truck;
-	int previous_truck;
-	int current_truck;
+	Beam *m_trucks[MAX_TRUCKS];
+	int m_free_truck;
+	int m_previous_truck;
+	int m_current_truck;
+	int m_simulated_truck;
 
-	bool forced_active; // disables sleepcount
+	bool m_forced_active; // disables sleepcount
 
-	TwoDReplay *tdr;
+	std::unique_ptr<TwoDReplay> m_tdr;
 
 	unsigned long m_physics_frames;
 	int m_physics_steps;
@@ -204,21 +184,22 @@ protected:
 	void LogParserMessages();
 	void LogSpawnerMessages();
 
-	bool checkForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
-	void recursiveActivation(int j);
+	bool CheckForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
+	void RecursiveActivation(int j);
 
-	int getFreeTruckSlot();
-	int findTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
+	void UpdateSleepingState(float dt);
+
+	int GetFreeTruckSlot();
+	int FindTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 
 	// functions used by friends
 	void netUserAttributesChanged(int source, int streamid);
 	void localUserAttributesChanged(int newid);
 
-	bool syncRemoteStreams();
-	void updateGUI();
-	void removeInstance(Beam *b);
-	void removeInstance(stream_del_t *del);
-	void _deleteTruck(Beam *b);
+	void RemoveInstance(Beam *b);
+	void RemoveInstance(stream_del_t *del);
+	bool RemoveBeam(Beam *b);
+	void DeleteTruck(Beam *b);
 };
 
 #endif // __BeamFactory_H_

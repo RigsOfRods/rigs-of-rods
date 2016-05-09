@@ -78,7 +78,7 @@ protected:
 	void windowFocusChange(Ogre::RenderWindow* rw);
 
 	bool updateTruckMirrors(float dt);
-	void updateIO(float dt);
+	void updateForceFeedback(float dt);
 
 #ifdef USE_MPLATFORM
 	MPlatform_Base *m_mplatform;

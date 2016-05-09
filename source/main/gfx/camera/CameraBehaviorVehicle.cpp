@@ -23,7 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamFactory.h"
 #include "InputEngine.h"
 #include "Settings.h"
 
@@ -54,7 +53,7 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 
 	float dt = ctx.mDt;
 
-	if ( BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI )
+	if ( isMultiThreaded )
 		dt = ctx.mCurrTruck->oldframe_global_dt / ctx.mCurrTruck->oldframe_global_simulation_speed;
 	else
 		dt = ctx.mCurrTruck->global_dt / ctx.mCurrTruck->global_simulation_speed;

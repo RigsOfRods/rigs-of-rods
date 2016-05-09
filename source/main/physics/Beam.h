@@ -23,9 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgrePrerequisites.h>
 #include <OgreTimer.h>
 
-#include <vector>
-#include <thread>
-
 #include "RoRPrerequisites.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
@@ -104,6 +101,10 @@ public:
 	float getRotation();
 	Ogre::Vector3 getPosition();
 
+	/**
+	* Returns the average truck velocity calculated using the truck positions of the last two frames
+	*/
+	Ogre::Vector3 getVelocity() { return velocity; };
 
 	/**
 	* Moves vehicle.
@@ -136,11 +137,13 @@ public:
         int cache_entry_number = -1
 	);
 
-	/**
-	* TIGHT-LOOP; Called once by frame and is responsible for animation of all the trucks!
-	* the instance called is the one of the current ACTIVATED truck
-	*/
-	bool frameStep(int steps);
+	bool replayStep();
+
+	void updateForceFeedback(int steps);
+	void updateAngelScriptEvents(float dt);
+	void updateFrameTimeInformation(float dt);
+	void handleResetRequests(float dt);
+	void handleTruckPosition(float dt);
 
 	void setupDefaultSoundSources();
 
@@ -248,10 +251,15 @@ public:
 	void updateVisual(float dt=0);
 
 	/**
-	* TIGHT-LOOP; Logic: flexbodies, threading
+	* TIGHT-LOOP; Logic: flexbodies
 	*/
 	void updateFlexbodiesPrepare();
 	void updateFlexbodiesFinal();
+
+	/**
+	 * Waits until all flexbody tasks are finished, but does not update the hardware buffers
+	 */
+	void joinFlexbodyTasks();
 
 	/**
 	* TIGHT-LOOP; Logic: display
@@ -371,7 +379,6 @@ public:
 	//can this be driven?
 	int previousGear;
 	ground_model_t *submesh_ground_model;
-	bool requires_wheel_contact;
 	int parkingbrake;
 	int lights;
 	bool reverselight;
@@ -520,6 +527,8 @@ public:
 	DashBoardManager *dash;
 #endif // USE_MYGUI
 
+	void updateDashBoards(float dt);
+
 	//! @{ physic related functions
 	bool calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 
@@ -536,9 +545,6 @@ public:
         // TODO may be removed soon
 	PointColDetector* IntraPointCD() { return intraPointCD; }
 	PointColDetector* InterPointCD() { return interPointCD; }
-
-	int curtstep;
-	int tsteps;
 
 protected:
 
@@ -594,13 +600,12 @@ protected:
 	void moveOrigin(Ogre::Vector3 offset); //move physics origin
 	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 
-	void updateDashBoards(float &dt);
-	
-	Ogre::Vector3 position;
+	Ogre::Vector3 position; // average node position
 	Ogre::Vector3 iPosition; // initial position
-	Ogre::Vector3 lastposition;
-	Ogre::Vector3 lastlastposition;
 	Ogre::Real minCameraRadius;
+
+	Ogre::Vector3 lastposition;
+	Ogre::Vector3 velocity; // average node velocity (compared to the previous frame step)
 
 	Ogre::Real replayTimer;
 	Ogre::Real replayPrecision;
