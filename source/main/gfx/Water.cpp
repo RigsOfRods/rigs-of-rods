@@ -490,6 +490,7 @@ void Water::update()
 		lastWaterMode = underwater;
 	}
 
+#if 0
 	static ColourValue savedFogColor;
 	static int savedFogMode=0;
 	static float savedFogStart, savedFogEnd, savedFogDensity;
@@ -510,6 +511,7 @@ void Water::update()
 		// TODO!
 		//gEnv->sceneManager->setFog((FogMode)savedFogMode, savedFogColor, savedFogDensity, savedFogStart, savedFogEnd);
 	}
+#endif
 
 	framecounter++;
 	if (mType==WATER_FULL_SPEED)

@@ -113,7 +113,7 @@ void DepthOfFieldEffect::createDepthRenderTexture()
 	mDepthTechnique = mDepthMaterial->getBestTechnique();
 
 	// Create a custom render queue invocation sequence for the depth render texture
-    RenderQueueInvocationSequence* invocationSequence = Root::getSingleton().createRenderQueueInvocationSequence("DoF_Depth");
+    //RenderQueueInvocationSequence* invocationSequence = Root::getSingleton().createRenderQueueInvocationSequence("DoF_Depth");
 
 	// Add a render queue invocation to the sequence, and disable shadows for it
 	/*

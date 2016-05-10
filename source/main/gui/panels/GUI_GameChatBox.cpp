@@ -51,7 +51,6 @@ using namespace GUI;
 CLASS::CLASS():
  netChat(0)
 {
-	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
 
 	alpha = 1.0f;

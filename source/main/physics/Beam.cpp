@@ -834,7 +834,6 @@ void Beam::calc_masses2(Real total, bool reCalc)
 	Real len = 0.0f;
 	for (int i=0; i<free_beam; i++)
 	{
-		float dbg_old_len = len;
 		if (beams[i].type!=BEAM_VIRTUAL)
 		{
 			Real half_newlen = beams[i].L / 2.0;

@@ -2304,7 +2304,6 @@ void Parser::ParseGuid(Ogre::String const & line)
 void Parser::ParseGlobals(Ogre::String const & line)
 {
 	std::smatch results;
-	const std::regex & regex = Regexes::SECTION_GLOBALS;
 	if (! std::regex_search(line, results, Regexes::SECTION_GLOBALS))
 	{
 		AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
@@ -2595,8 +2594,6 @@ void Parser::ParseFlexbodyUnsafe(Ogre::String const & line)
 {
     PARSE_UNSAFE(line, 10,
     {
-        int num_args = values.size();
-
         Flexbody flexbody;
         flexbody.reference_node =  _ParseNodeRef(values[0]);
         flexbody.x_axis_node    =  _ParseNodeRef(values[1]);

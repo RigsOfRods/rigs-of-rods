@@ -548,10 +548,10 @@ void CollisionTools::getStaticGeometry(
 	std::vector<unsigned int> indices;
 	//size_t next_offset = 0;
 
+#if 0
 	Ogre::Vector3 center = rg->getCentre();
 	Ogre::StaticGeometry::Region::LODIterator lit(rg->getLODIterator());
 
-#if 0
 	// use the closest LOD of each block
 	Ogre::StaticGeometry::LODBucket *theBucket = 0;
 	float sqdist = 1e24;

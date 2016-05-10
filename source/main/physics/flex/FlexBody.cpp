@@ -477,7 +477,6 @@ FlexBody::FlexBody(
 
         FLEXBODY_PROFILER_ENTER("Locate nodes")
 	    m_locators = new Locator_t[m_vertex_count];
-        int vertex_count = m_vertex_count;
 		for (int i=0; i<(int)m_vertex_count; i++)
 		{
 			//search nearest node as the local origin
