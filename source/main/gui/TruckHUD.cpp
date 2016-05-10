@@ -333,7 +333,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/MaxVelocity");
 		float velocityMaxKN = maxVelos[truck->driveable] * 1.94384449f;
 		float velocityMinKN = minVelos[truck->driveable] * 1.94384449f;
-		overlayElement->setCaption(mspeedstr + TOUTFSTRING(Round(maxVelos[truck->driveable])) + U(" kn, min: ") + TOUTFSTRING(Round(minVelos[truck->driveable])) + U(" kn"));
+		overlayElement->setCaption(mspeedstr + TOUTFSTRING(Round(velocityMaxKN)) + U(" kn, min: ") + TOUTFSTRING(Round(velocityMinKN)) + U(" kn"));
 		checkOverflow(overlayElement);
 
 		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/AverageVelocity");
