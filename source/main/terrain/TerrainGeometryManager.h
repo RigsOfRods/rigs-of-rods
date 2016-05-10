@@ -42,22 +42,15 @@ public:
 
 	void loadOgreTerrainConfig(Ogre::String filename);
 
-	inline Ogre::TerrainGroup *getTerrainGroup() { return mTerrainGroup; };
+	Ogre::TerrainGroup *getTerrainGroup() { return mTerrainGroup; };
 
+	float getHeightAt(float x, float z);
+	float getHeightAtPoint(long x, long z);
+	float getHeightAtTerrainPosition(float x, float z);
+	float getHeightAtWorldPosition(float x, float z);
+	void getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align, Ogre::Vector3* outWSpos);
 
-	inline float getHeightAt(float x, float z)
-	{
-		return mTerrainGroup->getHeightAtWorldPosition(x, 1000, z);
-	}
-
-	inline Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f)
-	{
-		Ogre::Vector3 left(-precision, getHeightAt(x - precision, z) - y, 0.0f);
-		Ogre::Vector3 down(0.0f, getHeightAt(x, z + precision) - y, precision);
-		down = left.crossProduct(down);
-		down.normalise();
-		return down;
-	}
+	Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
 
 	Ogre::String getCompositeMaterialName();
 
@@ -86,6 +79,17 @@ protected:
 	int terrainLayers;
 
 	Ogre::Vector3 terrainPos;
+
+	bool m_is_flat;
+	Ogre::Terrain* mTerrain;
+
+	Ogre::Terrain::Alignment mAlign;
+	Ogre::Vector3 mPos;
+	Ogre::Real mBase;
+	Ogre::Real mScale;
+	Ogre::uint16 mSize;
+	Ogre::Real mWorldSize;
+	float* mHeightData;
 
 	// terrain engine specific
 	Ogre::TerrainGroup *mTerrainGroup;
