@@ -64,7 +64,8 @@ enum {
 	OPT_REPOMODE,
 	OPT_VEHICLEOUT,
 	OPT_NOCACHE,
-	OPT_IMGPATH
+	OPT_IMGPATH,
+	OPT_JOINMPSERVER
 };
 
 // option array
@@ -96,6 +97,7 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
+	{ OPT_JOINMPSERVER,	  ("-joinserver"),		SO_REQ_CMB },
 	
 SO_END_OF_OPTIONS
 };
@@ -203,6 +205,11 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
 			} else if (args.OptionId() == OPT_VEHICLEOUT) {
 				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
+			} else if (args.OptionId() == OPT_JOINMPSERVER) {
+				String serveragrs = args.OptionArg();
+				SETTINGS.setSetting("Network enable", "Yes");
+				SETTINGS.setSetting("Server name", serveragrs.substr(0, serveragrs.find(":")));
+				SETTINGS.setSetting("Server port", serveragrs.substr(serveragrs.find(":") + 1, serveragrs.length()));
 			} else if (args.OptionId() == OPT_VER) {
 				showVersion();
 				return 0;
