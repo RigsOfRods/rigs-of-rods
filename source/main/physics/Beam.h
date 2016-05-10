@@ -30,6 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "Streamable.h"
 
+#include <memory>
 #include <mutex>
 
 class Task;
