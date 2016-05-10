@@ -119,7 +119,9 @@ void MeshObject::setVisible(bool b)
 
 void MeshObject::postProcess()
 {
-	loaded=true;
+	static const float sightrange = FSETTING("SightRange", 2000);
+
+	loaded = true;
 	if (!sceneNode) return;
 
 	// important: you need to add the LODs before creating the entity
@@ -144,8 +146,6 @@ void MeshObject::postProcess()
 			float distance = 3;
 
 			// we need to tune this according to our sightrange
-			float sightrange = FSETTING("SightRange", 2000);
-
 			if (sightrange > gEnv->terrainManager->UNLIMITED_SIGHTRANGE)
 			{
 				// unlimited
