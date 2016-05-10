@@ -282,7 +282,6 @@ private:
 	wxCheckBox *dev_mode;
 	wxCheckBox *mblur;
 	wxCheckBox *mirror;
-	wxCheckBox *nocrashrpt;
 	wxCheckBox *particles;
 	wxCheckBox *posstor;
 	wxCheckBox *replaymode;
@@ -827,12 +826,6 @@ bool MyApp::OnInit()
 		initLogging();
 		initLanguage(wxT("languages"), UserPath);
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-		// add windows specific crash handler. It will create nice memory dumps, so we can track the error
-		//LPVOID lpvState = Install(NULL, NULL, NULL);
-		//AddFile(lpvState, conv("configlog.txt"), conv("Rigs of Rods Configurator Crash log"));
-#endif
-
 		// call the base class initialization method, currently it only parses a
 		// few common command-line options but it could be do more in the future
 		if ( !wxApp::OnInit() )
@@ -1196,10 +1189,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	dofdebug->SetToolTip(_("Shows the DOF debug display on the screen in order to identify DOF problems"));
 	y+=15;
 
-	nocrashrpt=new wxCheckBox(debugPanel, -1, _("Disable Crash Reporting"), wxPoint(10, y));
-	nocrashrpt->SetToolTip(_("Disables the crash handling system. Only use for debugging purposes"));
-	y+=25;
-	
 	dText = new wxStaticText(debugPanel, -1, _("Input Grabbing:"), wxPoint(10,y+3));
 	inputgrab=new wxValueChoice(debugPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
 	inputgrab->AppendValueItem(wxT("All"),         _("All"));
@@ -2054,7 +2043,6 @@ void MyDialog::SetDefaults()
 	inputgrab->SetSelection(0);          // All
 	mblur->SetValue(false);
 	mirror->SetValue(true);
-	nocrashrpt->SetValue(false);
 	particles->SetValue(true);
 	posstor->SetValue(false);
 	presel_map->SetValue(wxString());
@@ -2131,7 +2119,6 @@ void MyDialog::getSettingsControls()
 	settings["Mirrors"] = (mirror->GetValue()) ? "Yes" : "No";
 	settings["Motion blur"] = (mblur->GetValue()) ? "Yes" : "No";
 	settings["Multi-threading"] = (thread->GetValue()) ? "No" : "Yes";
-	settings["NoCrashRpt"] = (nocrashrpt->GetValue()) ? "Yes" : "No";
 	settings["Particles"] = (particles->GetValue()) ? "Yes" : "No";
 	settings["Position Storage"] = (posstor->GetValue()) ? "Yes" : "No";
 	settings["Preselected Map"] = conv(presel_map->GetValue());
@@ -2253,7 +2240,6 @@ void MyDialog::updateSettingsControls()
 	st = settings["Mirrors"]; if (st.length()>0) mirror->SetValue(st=="Yes");
 	st = settings["Motion blur"]; if (st.length()>0) mblur->SetValue(st=="Yes");
 	st = settings["Multi-threading"]; if (st.length()>0) thread->SetValue(st=="No");
-	st = settings["NoCrashRpt"]; if (st.length()>0) nocrashrpt->SetValue(st=="Yes");
 	st = settings["Particles"]; if (st.length()>0) particles->SetValue(st=="Yes");
 	st = settings["Position Storage"]; if (st.length()>0) posstor->SetValue(st=="Yes");
 	st = settings["Replay mode"]; if (st.length()>0) replaymode->SetValue(st=="Yes");
