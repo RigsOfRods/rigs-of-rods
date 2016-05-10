@@ -280,49 +280,7 @@ void MainThread::Go()
 	else
 		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
 
-	// PROCESS COMMAND LINE ARGUMENTS
-
-	String cmd = SSETTING("cmdline CMD", "");
-	String cmdAction = "";
-	String cmdServerIP = "";
-	String modName = "";
-	long cmdServerPort = 0;
-	Vector3 spawnLocation = Vector3::ZERO;
-	if (!cmd.empty())
-	{
-		StringVector str = StringUtil::split(cmd, "/");
-		// process args now
-		for (StringVector::iterator it = str.begin(); it!=str.end(); it++)
-		{
-
-			String argstr = *it;
-			StringVector args = StringUtil::split(argstr, ":");
-			if (args.size()<2) continue;
-			if (args[0] == "action" && args.size() == 2) cmdAction = args[1];
-			if (args[0] == "serverpass" && args.size() == 2) SETTINGS.setSetting("Server password", args[1]);
-			if (args[0] == "modname" && args.size() == 2) modName = args[1];
-			if (args[0] == "ipport" && args.size() == 3)
-			{
-				cmdServerIP = args[1];
-				cmdServerPort = StringConverter::parseLong(args[2]);
-			}
-			if (args[0] == "loc" && args.size() == 4)
-			{
-				spawnLocation = Vector3(StringConverter::parseInt(args[1]), StringConverter::parseInt(args[2]), StringConverter::parseInt(args[3]));
-				SETTINGS.setSetting("net spawn location", TOSTRING(spawnLocation));
-			}
-		}
-	}
-
-	if (cmdAction == "regencache") SETTINGS.setSetting("regen-cache-only", "Yes");
-	if (cmdAction == "installmod")
-	{
-		// use modname!
-	}
 	bool enable_network = BSETTING("Network enable", false);
-	// check if we enable netmode based on cmdline
-	if (!enable_network && cmdAction == "joinserver")
-		enable_network = true;
 
 	String preselected_map = SSETTING("Preselected Map", "");
 
@@ -343,14 +301,10 @@ void MainThread::Go()
 	{
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-		// cmdline overrides config
+
 		std::string server_name = SSETTING("Server name", "").c_str();
-		if (cmdAction == "joinserver" && !cmdServerIP.empty())
-			server_name = cmdServerIP;
 
 		long server_port = ISETTING("Server port", 1337);
-		if (cmdAction == "joinserver" && cmdServerPort)
-			server_port = cmdServerPort;
 
 		if (server_port==0)
 		{

@@ -64,7 +64,8 @@ enum {
 	OPT_REPOMODE,
 	OPT_VEHICLEOUT,
 	OPT_NOCACHE,
-	OPT_IMGPATH
+	OPT_IMGPATH,
+	OPT_JOINMPSERVER
 };
 
 // option array
@@ -96,6 +97,7 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
 	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
 	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
+	{ OPT_JOINMPSERVER,	  ("-joinserver"),		SO_REQ_CMB },
 	
 SO_END_OF_OPTIONS
 };
@@ -203,6 +205,22 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
 			} else if (args.OptionId() == OPT_VEHICLEOUT) {
 				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
+			} else if (args.OptionId() == OPT_JOINMPSERVER) {
+				SETTINGS.setSetting("Network enable", "Yes");
+
+				String server_args = args.OptionArg();
+				const int colon = server_args.rfind(":");
+
+				// Windows URI Scheme retuns rorserver://server:port/
+				if (server_args.find("rorserver://") != String::npos)
+				{
+					SETTINGS.setSetting("Server name", server_args.substr(12, colon - 12));
+					SETTINGS.setSetting("Server port", server_args.substr(colon + 1, server_args.length() - colon - 2));
+				} else
+				{
+					SETTINGS.setSetting("Server name", server_args.substr(0, colon));
+					SETTINGS.setSetting("Server port", server_args.substr(colon + 1, server_args.length()));
+				}
 			} else if (args.OptionId() == OPT_VER) {
 				showVersion();
 				return 0;
