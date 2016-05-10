@@ -1399,7 +1399,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		float clen = it->beam->L / it->beam->refL;
 		if (clen > it->beam->commandShort)
 		{
-			float dl = it->beam->L;
 			it->beam->L *= (1.0 - it->beam->commandRatioShort * dt / it->beam->L);
 		} else
 		{

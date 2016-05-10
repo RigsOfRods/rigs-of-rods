@@ -494,7 +494,6 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 			{
 				Vector3 dirDiff = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
 				Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
-				float accl = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
 
 				if (pitchAngle.valueDegrees() < -1.0f)
 				{

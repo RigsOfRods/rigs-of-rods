@@ -1089,7 +1089,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 
 	//tropospheric model valid up to 11.000m (33.000ft)
 	float altitude=vehicle->nodes[0].AbsPosition.y;
-	float sea_level_temperature=273.15+15.0; //in Kelvin
+	//float sea_level_temperature=273.15+15.0; //in Kelvin
 	float sea_level_pressure=101325; //in Pa
 	//float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
 	float airpressure=sea_level_pressure*pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
