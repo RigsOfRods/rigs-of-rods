@@ -206,10 +206,21 @@ int main(int argc, char *argv[])
 			} else if (args.OptionId() == OPT_VEHICLEOUT) {
 				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
 			} else if (args.OptionId() == OPT_JOINMPSERVER) {
-				String serveragrs = args.OptionArg();
 				SETTINGS.setSetting("Network enable", "Yes");
-				SETTINGS.setSetting("Server name", serveragrs.substr(0, serveragrs.find(":")));
-				SETTINGS.setSetting("Server port", serveragrs.substr(serveragrs.find(":") + 1, serveragrs.length()));
+
+				String server_args = args.OptionArg();
+				const int colon = server_args.rfind(":");
+
+				// Windows URI Scheme retuns rorserver://server:port/
+				if (server_args.find("rorserver://") != String::npos)
+				{
+					SETTINGS.setSetting("Server name", server_args.substr(12, colon - 12));
+					SETTINGS.setSetting("Server port", server_args.substr(colon + 1, server_args.length() - colon - 2));
+				} else
+				{
+					SETTINGS.setSetting("Server name", server_args.substr(0, colon));
+					SETTINGS.setSetting("Server port", server_args.substr(colon + 1, server_args.length()));
+				}
 			} else if (args.OptionId() == OPT_VER) {
 				showVersion();
 				return 0;
