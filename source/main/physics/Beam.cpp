@@ -1495,6 +1495,7 @@ void Beam::updateAngelScriptEvents(float dt)
 
 void Beam::updateFrameTimeInformation(float dt)
 {
+	if (dt == 0.0f) return;
 	// Used in the CameraManager
 	oldframe_global_dt = global_dt;
 	oldframe_global_simulation_speed = global_simulation_speed;
