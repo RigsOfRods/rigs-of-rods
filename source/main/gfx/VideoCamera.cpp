@@ -25,7 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 #include "GUIManager.h"
 #include "MaterialReplacer.h"
-#include "ResourceBuffer.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
@@ -76,8 +75,7 @@ void VideoCamera::init()
 			, mirrorSize.y
 			, 0 // no mip maps
 			, Ogre::PF_R8G8B8
-			, Ogre::TU_RENDERTARGET
-			, new ResourceBuffer());
+			, Ogre::TU_RENDERTARGET);
 		rttTex = rttTexPtr->getBuffer()->getRenderTarget();
 		rttTex->setAutoUpdated(false);
 	} else

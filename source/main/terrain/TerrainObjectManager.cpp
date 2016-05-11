@@ -29,7 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "LoadingWindow.h"
 #include "MeshObject.h"
 #include "ProceduralManager.h"
-#include "ResourceBuffer.h"
 #include "Road2.h"
 #include "ScopeLog.h"
 #include "Settings.h"
@@ -1108,7 +1107,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				char tmpTextName[256]="", tmpMatName[256]="";
 				sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
 				sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber);			// Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
-				TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED , PF_X8R8G8B8, Ogre::TU_STATIC|Ogre::TU_AUTOMIPMAP, new ResourceBuffer());
+				TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED , PF_X8R8G8B8, Ogre::TU_STATIC|Ogre::TU_AUTOMIPMAP);
 				if (texture.getPointer() == 0)
 				{
 					LOG("ODEF: problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));

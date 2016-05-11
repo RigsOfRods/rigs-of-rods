@@ -24,10 +24,11 @@
 #include "ApproxMath.h"
 #include "FlexFactory.h"
 #include "MaterialReplacer.h"
-#include "ResourceBuffer.h"
 #include "RigLoadingProfilerControl.h"
 #include "Skin.h"
 #include "BeamData.h"
+
+#include <Ogre.h>
 
 using namespace Ogre;
 

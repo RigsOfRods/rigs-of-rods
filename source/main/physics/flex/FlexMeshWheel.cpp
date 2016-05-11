@@ -22,12 +22,11 @@
 #include "FlexMeshWheel.h"
 
 #include "MaterialReplacer.h"
-#include "ResourceBuffer.h"
 #include "Skin.h"
 #include "MaterialFunctionMapper.h"
 #include "BeamData.h"
 
-#include <sstream>
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -57,9 +56,8 @@ FlexMeshWheel::FlexMeshWheel(
 {
 
 	//the rim object
-	std::stringstream rim_name;
-	rim_name << "rim-" << name;
-	rimEnt = gEnv->sceneManager->createEntity(rim_name.str(), mesh_name);
+	Ogre::String rim_name = "rim-" + name;
+	rimEnt = gEnv->sceneManager->createEntity(rim_name, mesh_name);
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(rimEnt, ColourValue(0, 0.5, 0.8));
 	if (material_function_mapper != nullptr)
 	{
@@ -77,7 +75,7 @@ FlexMeshWheel::FlexMeshWheel(
 	rnode->attachObject(rimEnt);
 
 	/// Create the mesh via the MeshManager
-	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	/// Create submeshes
 	sub = msh->createSubMesh();

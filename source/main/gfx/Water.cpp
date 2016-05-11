@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "DustManager.h"
 #include "OgreSubsystem.h"
-#include "ResourceBuffer.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 
@@ -244,7 +243,7 @@ void Water::processWater(int mType)
 
 		if (mType == WATER_FULL_QUALITY || mType == WATER_FULL_SPEED)
 		{
-			TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+			TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 			rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
 			{
 				mRefractCam = gEnv->sceneManager->createCamera("RefractCam");
@@ -278,7 +277,7 @@ void Water::processWater(int mType)
 			}
 		}
 
-		TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+		TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 		rttTex2 = rttTex2Ptr->getBuffer()->getRenderTarget();
 		{
 			mReflectCam = gEnv->sceneManager->createCamera("ReflectCam");

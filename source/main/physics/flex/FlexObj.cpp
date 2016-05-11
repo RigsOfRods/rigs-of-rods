@@ -19,13 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FlexObj.h"
 
-#include "ApproxMath.h"
-#include "ResourceBuffer.h"
-
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif //OGRE_PLATFORM_LINUX
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -85,7 +79,7 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
 	gEnv->sceneManager=gEnv->sceneManager;
 	nodes=nds;
 	/// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     /// Create submeshes
 	subs=(SubMesh**)malloc(numsubmeshes*sizeof(SubMesh*));

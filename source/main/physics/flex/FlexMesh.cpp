@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 #include "ApproxMath.h"
-#include "ResourceBuffer.h"
 #include "BeamData.h"
 
 using namespace Ogre;
@@ -45,7 +44,7 @@ FlexMesh::FlexMesh(
 	, rim_ratio(rimratio)
 {
 	/// Create the mesh via the MeshManager
-	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	/// Create submeshes
 	subface = msh->createSubMesh();
