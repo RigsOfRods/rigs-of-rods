@@ -812,7 +812,7 @@ void BeamFactory::updateFlexbodiesPrepare()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
+		if (m_trucks[t] && m_trucks[t]->state != SLEEPING)
 		{
 			m_trucks[t]->updateFlexbodiesPrepare();
 		}
@@ -823,7 +823,7 @@ void BeamFactory::joinFlexbodyTasks()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
+		if (m_trucks[t] && m_trucks[t]->state != SLEEPING)
 		{
 			m_trucks[t]->joinFlexbodyTasks();
 		}
@@ -834,7 +834,7 @@ void BeamFactory::updateFlexbodiesFinal()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
+		if (m_trucks[t] && m_trucks[t]->state != SLEEPING)
 		{
 			m_trucks[t]->updateFlexbodiesFinal();
 		}
