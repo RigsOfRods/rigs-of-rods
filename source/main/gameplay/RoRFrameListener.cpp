@@ -1483,6 +1483,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 			RoR::Application::GetGuiManager()->UpdateSimUtils(dt, curr_truck);
 		}
 
+		BeamFactory::getSingleton().handleTruckDeletion();
+
 		if (!m_is_sim_paused)
 		{
 			BeamFactory::getSingleton().joinFlexbodyTasks();       // Waits until all flexbody tasks are finished
