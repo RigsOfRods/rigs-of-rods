@@ -810,7 +810,7 @@ void BeamFactory::updateFlexbodiesPrepare()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state != SLEEPING)
+		if (m_trucks[t] && (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED))
 		{
 			m_trucks[t]->updateFlexbodiesPrepare();
 		}
@@ -821,7 +821,7 @@ void BeamFactory::joinFlexbodyTasks()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state != SLEEPING)
+		if (m_trucks[t] && (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED))
 		{
 			m_trucks[t]->joinFlexbodyTasks();
 		}
@@ -832,7 +832,7 @@ void BeamFactory::updateFlexbodiesFinal()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state != SLEEPING)
+		if (m_trucks[t] && (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED))
 		{
 			m_trucks[t]->updateFlexbodiesFinal();
 		}
@@ -905,7 +905,7 @@ void BeamFactory::calcPhysics(float dt)
 		default:
 			if (m_trucks[t]->state > DESACTIVATED && m_trucks[t]->engine)
 				m_trucks[t]->engine->update(dt, 1);
-			if (m_trucks[t]->networking)
+			if (m_trucks[t]->state < SLEEPING && m_trucks[t]->networking)
 				m_trucks[t]->sendStreamData();
 			break;
 		}
