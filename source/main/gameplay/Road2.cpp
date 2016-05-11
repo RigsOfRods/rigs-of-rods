@@ -20,7 +20,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Road2.h"
 
 #include "Collisions.h"
-#include "ResourceBuffer.h"
 #include "IHeightFinder.h"
 #include "TerrainManager.h"
 
@@ -551,7 +550,7 @@ void Road2::createMesh()
 	};
 	/// Create the mesh via the MeshManager
 	Ogre::String mesh_name = Ogre::String("RoadSystem-").append(Ogre::StringConverter::toString(mid));
-	msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, new ResourceBuffer());
+	msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	mainsub = msh->createSubMesh();
 	mainsub->setMaterialName("road2");

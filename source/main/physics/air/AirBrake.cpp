@@ -20,7 +20,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "AirBrake.h"
 
 #include "BeamData.h"
-#include "ResourceBuffer.h"
 
 #include <Ogre.h>
 
@@ -39,7 +38,7 @@ Airbrake::Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *
 	char meshname[256];
 	sprintf(meshname, "airbrakemesh-%s-%i", basename, num);
 	/// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, new ResourceBuffer());
+    msh = MeshManager::getSingleton().createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	union
 	{

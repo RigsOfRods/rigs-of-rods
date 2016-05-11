@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "Console.h"
-#include "ResourceBuffer.h"
 #include "TruckHUD.h"
 
 using namespace Ogre;
@@ -40,7 +39,7 @@ Dashboard::Dashboard() :
 	, mDashboardListener(0)
 	, rttTex(0)
 {
-	TexturePtr rttTexPtr = TextureManager::getSingleton().createManual("dashtexture", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 1024, 512, 0, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+	TexturePtr rttTexPtr = TextureManager::getSingleton().createManual("dashtexture", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 1024, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 	rttTex = rttTexPtr->getBuffer()->getRenderTarget();
 
 	mDashCam = gEnv->sceneManager->createCamera("DashCam");

@@ -21,7 +21,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BeamFactory.h"
 #include "IWater.h"
-#include "ResourceBuffer.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 
@@ -45,7 +44,7 @@ SurveyMapTextureCreator::SurveyMapTextureCreator() :
 
 bool SurveyMapTextureCreator::init()
 {
-	TexturePtr texture = TextureManager::getSingleton().createManual(getTextureName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 2048, 2048, TU_RENDERTARGET, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+	TexturePtr texture = TextureManager::getSingleton().createManual(getTextureName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 2048, 2048, TU_RENDERTARGET, PF_R8G8B8, TU_RENDERTARGET);
 	
 	if ( texture.isNull() ) return false;;
 

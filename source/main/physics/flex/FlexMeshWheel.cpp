@@ -22,12 +22,11 @@
 #include "FlexMeshWheel.h"
 
 #include "MaterialReplacer.h"
-#include "ResourceBuffer.h"
 #include "Skin.h"
 #include "MaterialFunctionMapper.h"
 #include "BeamData.h"
 
-#include <sstream>
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -77,7 +76,7 @@ FlexMeshWheel::FlexMeshWheel(
 	rnode->attachObject(rimEnt);
 
 	/// Create the mesh via the MeshManager
-	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	/// Create submeshes
 	sub = msh->createSubMesh();
