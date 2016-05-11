@@ -203,9 +203,6 @@ bool BeamFactory::RemoveBeam(Beam *b)
 				this->DeleteTruck(it2->second);
 				it1->second.erase(it2);
 				unlockStreams();
-#ifdef USE_MYGUI
-				GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
-#endif // USE_MYGUI
 				return true;
 			}
 		}

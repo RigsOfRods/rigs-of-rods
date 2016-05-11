@@ -1274,6 +1274,15 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	BeamFactory::getSingleton().SyncWithSimThread();
 
+#ifdef USE_SOCKETW
+	if (gEnv->network)
+	{
+		// process all packets and streams received
+		NetworkStreamManager::getSingleton().update();
+		CharacterFactory::getSingleton().updateLabels();
+	}
+#endif //SOCKETW
+
 	RoR::Application::GetInputEngine()->Capture();
 
 	//if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
@@ -1291,16 +1300,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	// update network gui if required, at most every 2 seconds
 	if (gEnv->network)
 	{
-#ifdef USE_SOCKETW
-#ifdef USE_MYGUI
-		// update net quality icon
-		if (gEnv->network->getNetQualityChanged())
-		{
-			GUI_Multiplayer::getSingleton().update();
-		}
-#endif // USE_MYGUI
-#endif // USE_SOCKETW
-
 		// now update mumble 3d audio things
 #ifdef USE_MUMBLE
 		if (gEnv->player)
@@ -1396,6 +1395,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	if (m_loading_state == ALL_LOADED)
 	{
 		DustManager::getSingleton().update();
+
+		if (m_heathaze) m_heathaze->update();
 	}
 
 	if (m_loading_state == ALL_LOADED && !m_is_sim_paused)
@@ -1422,6 +1423,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	RoR::Application::GetGuiManager()->framestep(dt);
+
+#ifdef USE_ANGELSCRIPT
+	ScriptEngine::getSingleton().framestep(dt);
+#endif
 
 	// one of the input modes is immediate, so update the movement vector
 	if (m_loading_state == ALL_LOADED)
@@ -1486,42 +1491,16 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 	}
 
-#ifdef USE_ANGELSCRIPT
-	ScriptEngine::getSingleton().framestep(dt);
-#endif
-
-	// update network labels
-	if (gEnv->network)
-	{
-		CharacterFactory::getSingleton().updateLabels();
-	}
-
 	return true;
 }
 
 bool RoRFrameListener::frameEnded(const FrameEvent& evt)
 {
 	// TODO: IMPROVE STATS
-	if (RoR::Application::GetOverlayWrapper() && m_stats_on) RoR::Application::GetOverlayWrapper()->updateStats();
-
-	//		moveCamera();
-
-	// workaround to be able to show a single waiting sign before working on the files
-	//if (uiloader && uiloader->hasWork())
-	//	uiloader->dowork();
-
-	if (m_heathaze)
+	if (m_stats_on && RoR::Application::GetOverlayWrapper())
 	{
-		m_heathaze->update();
+		RoR::Application::GetOverlayWrapper()->updateStats();
 	}
-
-#ifdef USE_SOCKETW
-	if (gEnv->network)
-	{
-		// process all packets and streams received
-		NetworkStreamManager::getSingleton().update();
-	}
-#endif //SOCKETW
 
 	return true;
 }
