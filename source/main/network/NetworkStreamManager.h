@@ -26,14 +26,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include <pthread.h>
-
 #include "rornet.h"
 #include "Singleton.h"
 
 #ifdef USE_SOCKETW
 #include "SocketW.h"
 #endif // USE_SOCKETW
+
+#include <condition_variable>
+#include <mutex>
 
 class Streamable;
 class StreamableFactoryInterface;
@@ -70,9 +71,9 @@ public:
 
 protected:
 
-	pthread_mutex_t stream_mutex;
-	pthread_mutex_t send_work_mutex;
-	pthread_cond_t send_work_cv;
+	std::mutex m_stream_mutex;
+	std::mutex m_send_work_mutex;
+	std::condition_variable m_send_work_cv;
 
 	bool send_start;
 

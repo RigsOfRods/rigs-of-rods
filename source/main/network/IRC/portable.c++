@@ -31,15 +31,6 @@
 	#include <errno.h>
 	#include <ctype.h>
 	#include <time.h>
-
-	#if defined (ENABLE_THREADS)
-		#include <pthread.h>
-		typedef pthread_mutex_t		port_mutex_t;
-
-		#if !defined (PTHREAD_MUTEX_RECURSIVE) && defined (PTHREAD_MUTEX_RECURSIVE_NP)
-			#define PTHREAD_MUTEX_RECURSIVE		PTHREAD_MUTEX_RECURSIVE_NP
-		#endif
-	#endif // ENABLE_THREADS
 #else
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
@@ -51,10 +42,6 @@
 	#include <stdlib.h>
 	#include <sys/stat.h>
 
-	#if defined (ENABLE_THREADS)
-		typedef CRITICAL_SECTION	port_mutex_t;
-	#endif // ENABLE_THREADS
-
 	#define inline
 	#define snprintf			_snprintf
 	#define vsnprintf			_vsnprintf
@@ -63,53 +50,29 @@
 
 #if defined (ENABLE_THREADS)
 
+#include <mutex>
+
+typedef std::mutex port_mutex_t
 
 static inline int libirc_mutex_init (port_mutex_t * mutex)
 {
-#if defined (_WIN32)
-	InitializeCriticalSection (mutex);
 	return 0;
-#elif defined (PTHREAD_MUTEX_RECURSIVE)
-	pthread_mutexattr_t	attr;
-
-	return (pthread_mutexattr_init (&attr)
-		|| pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE)
-		|| pthread_mutex_init (mutex, &attr));
-#else /* !defined (PTHREAD_MUTEX_RECURSIVE) */
-
-	return pthread_mutex_init (mutex, 0);
-
-#endif /* defined (_WIN32) */
 }
 
 
 static inline void libirc_mutex_destroy (port_mutex_t * mutex)
 {
-#if defined (_WIN32)
-	DeleteCriticalSection (mutex);
-#else
-	pthread_mutex_destroy (mutex);
-#endif // _WIN32
 }
-
 
 static inline void libirc_mutex_lock (port_mutex_t * mutex)
 {
-#if defined (_WIN32)
-	EnterCriticalSection (mutex);
-#else
-	pthread_mutex_lock (mutex);
-#endif // _WIN32
+	mutex.lock();
 }
 
 
 static inline void libirc_mutex_unlock (port_mutex_t * mutex)
 {
-#if defined (_WIN32)
-	LeaveCriticalSection (mutex);
-#else
-	pthread_mutex_unlock (mutex);
-#endif // _WIN32
+	mutex.unlock();
 }
 
 #else

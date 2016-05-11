@@ -32,22 +32,16 @@ NetworkStreamManager::NetworkStreamManager() :
 	  send_start(false)
 	, streamid(10)
 {
-	pthread_cond_init(&send_work_cv, NULL);
-	pthread_mutex_init(&send_work_mutex, NULL);
-	pthread_mutex_init(&stream_mutex, NULL);
 }
 
 NetworkStreamManager::~NetworkStreamManager()
 {
-	pthread_cond_destroy(&send_work_cv);
-	pthread_mutex_destroy(&send_work_mutex);
-	pthread_mutex_destroy(&stream_mutex);
 }
 
 void NetworkStreamManager::addLocalStream(Streamable *stream, stream_register_t *reg, unsigned int size)
 {
 #ifdef USE_SOCKETW
-	MUTEX_LOCK(&stream_mutex);
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 	// for own streams: count stream id up ...
 	int mysourceid = gEnv->network->getUserID();
 
@@ -75,16 +69,13 @@ void NetworkStreamManager::addLocalStream(Streamable *stream, stream_register_t 
 
 	// increase stream counter
 	streamid++;
-	MUTEX_UNLOCK(&stream_mutex);
 #endif // USE_SOCKETW
 }
 
 void NetworkStreamManager::addRemoteStream(Streamable *stream, int rsource, int rstreamid)
 {
-	//MUTEX_LOCK(&stream_mutex);
 	streams[rsource][rstreamid] = stream;
 	LOG("adding remote stream: " + TOSTRING(rsource) + ":"+ TOSTRING(rstreamid));
-	//MUTEX_UNLOCK(&stream_mutex);
 }
 
 void NetworkStreamManager::removeStream(int sourceid, int streamid)
@@ -97,7 +88,7 @@ void NetworkStreamManager::removeStream(int sourceid, int streamid)
 		sourceid = mysourceid;
 	}
 
-	MUTEX_LOCK(&stream_mutex);
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 
 	std::map < int, std::map < unsigned int, Streamable *> >::iterator it_source = streams.find(sourceid);
 	std::map < unsigned int, Streamable *>::iterator it_stream;
@@ -118,8 +109,6 @@ void NetworkStreamManager::removeStream(int sourceid, int streamid)
 			(*it)->deleteRemote(sourceid, streamid);
 		}
 	}
-
-	MUTEX_UNLOCK(&stream_mutex);
 #endif // USE_SOCKETW
 }
 
@@ -135,11 +124,10 @@ void NetworkStreamManager::resumeStream(Streamable *stream)
 #ifdef USE_SOCKETW
 void NetworkStreamManager::removeUser(int sourceID)
 {
-	MUTEX_LOCK(&stream_mutex);
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 	if (streams.find(sourceID) == streams.end())
 	{
 		// no such stream?!
-		MUTEX_UNLOCK(&stream_mutex);
 		return;
 	}
 	// found and deleted
@@ -151,18 +139,16 @@ void NetworkStreamManager::removeUser(int sourceID)
 	{
 		(*it)->deleteRemote(sourceID, -1); // -1 = all streams
 	}
-	MUTEX_UNLOCK(&stream_mutex);
 }
 #endif // USE_SOCKETW
 
 void NetworkStreamManager::pushReceivedStreamMessage(header_t header, char *buffer)
 {
-	MUTEX_LOCK(&stream_mutex);
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 	if (streams.find(header.source) == streams.end())
 	{
 		// no such stream?!
 		LOG("EEE Source not found: "+TOSTRING(header.source)+":"+TOSTRING(header.streamid));
-		MUTEX_UNLOCK(&stream_mutex);
 		return;
 	}
 	if (streams.find(header.source)->second.find(header.streamid) == streams.find(header.source)->second.end())
@@ -173,35 +159,30 @@ void NetworkStreamManager::pushReceivedStreamMessage(header_t header, char *buff
 		//if (header.streamid != 0)
 		//	LOG("EEE Stream not found: "+TOSTRING(header.source)+":"+TOSTRING(header.streamid));
 		
-		MUTEX_UNLOCK(&stream_mutex);
 		return;
 	}
 	streams[header.source][header.streamid]->addReceivedPacket(header, buffer);
-	MUTEX_UNLOCK(&stream_mutex);
 }
 
 void NetworkStreamManager::triggerSend()
 {
-	MUTEX_LOCK(&send_work_mutex);
-	send_start = true;
-	pthread_cond_broadcast(&send_work_cv);
-	MUTEX_UNLOCK(&send_work_mutex);
+	{
+		std::lock_guard<std::mutex> lock(m_send_work_mutex);
+		send_start = true;
+	}
+	m_send_work_cv.notify_all();
 }
 
 #ifdef USE_SOCKETW
 void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 {
-	MUTEX_LOCK(&send_work_mutex);
-	while (!send_start)
 	{
-		pthread_cond_wait(&send_work_cv, &send_work_mutex);
+		std::unique_lock<std::mutex> ss_lock(m_send_work_mutex);
+		m_send_work_cv.wait(ss_lock, [this]{ return send_start; });
+		send_start = false;
 	}
-	send_start = false;
-	MUTEX_UNLOCK(&send_work_mutex);
 
-	MUTEX_LOCK(&stream_mutex);
-	//char *buffer = 0;
-	//int bufferSize=0;
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 
 	std::map < int, std::map < unsigned int, Streamable *> >::iterator it;
 	for (it=streams.begin(); it!=streams.end(); it++)
@@ -224,7 +205,6 @@ void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 					UTFString tmp = _L("Error %i while sending data packet");
 					swprintf(emsg, 256, tmp.asWStr_c_str(), etype);
 					net->netFatalError(UTFString(emsg));
-					MUTEX_UNLOCK(&stream_mutex);
 					return;
 				}
 
@@ -233,7 +213,6 @@ void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 
 		}
 	}
-	MUTEX_UNLOCK(&stream_mutex);
 }
 #else
 void NetworkStreamManager::sendStreams(Network *net, void *socket)
@@ -251,21 +230,18 @@ void NetworkStreamManager::update()
 
 void NetworkStreamManager::syncRemoteStreams()
 {
-	MUTEX_LOCK(&stream_mutex);
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 	// iterate over all factories
 	std::vector < StreamableFactoryInterface * >::iterator it;
 	for (it=factories.begin(); it!=factories.end(); it++)
 	{
 		(*it)->syncRemoteStreams();
 	}
-	MUTEX_UNLOCK(&stream_mutex);
 }
 
 void NetworkStreamManager::receiveStreams()
 {
-	MUTEX_LOCK(&stream_mutex);
-	//char *buffer = 0;
-	//int bufferSize=0;
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 	std::map < int, std::map < unsigned int, Streamable *> >::iterator it;
 	for (it=streams.begin(); it!=streams.end(); it++)
 	{
@@ -290,13 +266,11 @@ void NetworkStreamManager::receiveStreams()
 			it2->second->unlockReceiveQueue();
 		}
 	}
-	MUTEX_UNLOCK(&stream_mutex);
 }
 
 void NetworkStreamManager::addFactory(StreamableFactoryInterface *factory)
 {
-	MUTEX_LOCK(&stream_mutex);
+	std::lock_guard<std::mutex> lock(m_stream_mutex);
 	this->factories.push_back(factory);
-	MUTEX_UNLOCK(&stream_mutex);
 }
 

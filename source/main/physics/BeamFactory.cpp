@@ -71,9 +71,7 @@ void cpuID(unsigned i, unsigned regs[4]) {
 
 static unsigned hardware_concurrency()
 {
-	#if defined(PTW32_VERSION) || defined(__hpux)
-		return pthread_num_processors_np();
-	#elif defined(_GNU_SOURCE)
+	#if defined(_GNU_SOURCE)
 		return get_nprocs();
 	#elif defined(__APPLE__) || defined(__FreeBSD__)
 		int count;
@@ -83,9 +81,9 @@ static unsigned hardware_concurrency()
 		int const count = sysconf(_SC_NPROCESSORS_ONLN);
 		return (count > 0) ? count : 0;
 	#else
-		return 0;
+		return std::thread::hardware_concurrency();
 	#endif
-} 
+}
 
 unsigned int getNumberOfCPUCores()
 {

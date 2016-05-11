@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "InterThreadStoreVector.h"
 
 #include <libircclient.h>
-#include <pthread.h>
 
 enum message_types {
 	MT_Channel,             // someone said something in a channel
@@ -103,8 +102,8 @@ public:
 	bool reJoin, reConnect, wasConnected;
 
 	irc_session_t *irc_session;
+
 protected:
-	pthread_t ircthread;
 
 	int processAuthenticationResults(Ogre::String &results);
 };

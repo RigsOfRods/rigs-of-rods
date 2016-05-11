@@ -41,7 +41,6 @@ namespace Hydrax{namespace Noise
 		, magnitude(n_dec_magn * 0.085f)
 		, mGPUNormalMapManager(0)
 	{
-		pthread_mutex_init(&work_mutex, NULL);
 	}
 
 	Perlin::Perlin(const Options &Options)
@@ -52,7 +51,6 @@ namespace Hydrax{namespace Noise
 		, magnitude(n_dec_magn * Options.Scale)
 		, mGPUNormalMapManager(0)
 	{
-		pthread_mutex_init(&work_mutex, NULL);
 	}
 
 	Perlin::~Perlin()
@@ -369,9 +367,7 @@ namespace Hydrax{namespace Noise
 	void Perlin::update(const Ogre::Real &timeSinceLastFrame)
 	{
 		time += timeSinceLastFrame*mOptions.Animspeed;
-		pthread_mutex_lock(&work_mutex);
 		_calculeNoise();
-		pthread_mutex_unlock(&work_mutex);
 
 		if (areGPUNormalMapResourcesCreated())
 		{
@@ -406,10 +402,8 @@ namespace Hydrax{namespace Noise
 
 	float Perlin::getValue(const float &x, const float &y)
 	{
-		pthread_mutex_lock(&work_mutex);
-		float h = _getHeigthDual(x, y);
-		pthread_mutex_unlock(&work_mutex);
-		return h;
+		std::lock_guard<std::mutex> lock(m_work_mutex);
+		return _getHeigthDual(x, y);
 	}
 
 	void Perlin::_initNoise()
@@ -453,6 +447,7 @@ namespace Hydrax{namespace Noise
 
 	void Perlin::_calculeNoise()
 	{
+		std::lock_guard<std::mutex> lock(m_work_mutex);
 		int i, o, v, u,
 			multitable[max_octaves],
 			amount[3],

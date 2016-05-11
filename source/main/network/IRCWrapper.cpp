@@ -36,6 +36,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <curl/easy.h>
 #endif //USE_CURL
 
+#include <thread>
+
 // some function forward declarations
 void *s_ircthreadstart(void* arg);
 
@@ -88,7 +90,7 @@ IRCWrapper::~IRCWrapper()
 void IRCWrapper::initIRC()
 {
 	// authenticate before doing anything else
-	pthread_create(&ircthread, NULL, s_ircthreadstart, (void *)this);
+	std::thread (s_ircthreadstart, this).detach();
 }
 
 void IRCWrapper::process()

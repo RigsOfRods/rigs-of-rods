@@ -315,8 +315,6 @@ endif()
 if(WIN32)
   # always copy ogre files
   copy_lib_files_for_target(${BINNAME} Ogre)
-  # and pthread
-  copy_lib_files_for_target(${BINNAME} PThread)
   # platform binaries
   copy_files_for_target(${BINNAME} ${ROR_BINTOOL_DIR}/$(ConfigurationName)/*)  
   # then the optional ones
@@ -435,8 +433,7 @@ target_include_directories( ${BINNAME} PRIVATE
 ####################################################################################################
 
 IF(WIN32)
-  include_directories(${PThread_INCLUDE_DIRS})
-  set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
+  set(OS_LIBS "dinput8.lib;dxguid.lib")
 
   # disable some annoying VS warnings:
   # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
@@ -444,7 +441,7 @@ IF(WIN32)
   add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
 ELSEIF(UNIX)
   include_directories(${GTK_INCLUDE_DIRS})
-  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt -lpthread -lboost_system")
+  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt -lboost_system")
 ENDIF(WIN32)
 
 

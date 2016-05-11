@@ -27,7 +27,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "rornet.h"
-#include <pthread.h>
+
+#include <mutex>
 
 typedef struct recvPacket_t
 {
@@ -90,7 +91,8 @@ protected:
 
 	std::deque < bufferedPacket_t > *getPacketQueue();
 	std::deque < recvPacket_t > *getReceivePacketQueue();
-	pthread_mutex_t recv_work_mutex;
+
+	std::mutex m_recv_work_mutex;
 
 	void lockReceiveQueue();
 	void unlockReceiveQueue();
