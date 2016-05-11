@@ -60,13 +60,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Water.h"
 
+#include <thread>
+
 using namespace Ogre;
 using namespace RoR;
 
 /* class that implements the interface for the scripts */
 GameScript::GameScript(ScriptEngine *se) :
 	  mse(se)
-	, apiThread()
 {
 }
 
@@ -599,23 +600,6 @@ static size_t curlWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void
 }
 #endif //USE_CURL
 
-void *onlineAPIThread(void *_params)
-{
-	// copy over params
-	GameScript::OnlineAPIParams_t params = *(GameScript::OnlineAPIParams_t *)_params;
-
-	// call the function
-	params.cls->useOnlineAPIDirectly(params);
-
-	// free the params
-	params.dict->Release();
-	free(_params);
-	_params = NULL;
-
-	pthread_exit(NULL);
-	return NULL;
-}
-
 int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 {
 #ifdef USE_CURL
@@ -835,12 +819,15 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 
 	// create the thread
 	LOG("creating thread for online API usage...");
-	int rc = pthread_create(&apiThread, NULL, onlineAPIThread, (void *)params);
-	if (rc)
-	{
-		LOG("useOnlineAPI/pthread error code: " + TOSTRING(rc));
-		return 1;
-	}
+
+	std::thread ([params](){
+		// call the function
+		params->cls->useOnlineAPIDirectly(*params);
+
+		// free the params
+		params->dict->Release();
+		free(params);
+	}).detach();
 
 	return 0;
 }

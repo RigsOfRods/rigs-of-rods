@@ -119,10 +119,6 @@ endmacro(importLib)
 		importLib(libcurl_imp curl)
 	endif(ROR_USE_CURL)
 
-	set(PThread_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/pthread" CACHE PATH "The pthread include path to use")
-	set(PThread_LIBRARIES "optimized;${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/pthread/Release/pthreadsVC2.lib" CACHE STRING "The pthread lib to link against")
-	include_directories(${PThread_INCLUDE_DIRS})
-
 	# directX
 	set(DirectX_INCLUDE_DIRS "$ENV{DXSDK_DIR}/Include" CACHE PATH "The DirectX include path to use")
 	set(DirectX_LIBRARY_DIRS "$ENV{DXSDK_DIR}/lib/${ARCH_DIR}/" CACHE PATH "The DirectX lib path to use")

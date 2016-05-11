@@ -29,11 +29,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "NetworkStreamManager.h"
 #include "StreamableFactoryInterface.h"
 
-#include <pthread.h>
-
 #ifdef USE_SOCKETW
 #include "SocketW.h"
 #endif //SOCKETW
+
+#include <mutex>
 
 template<class T, class X> class StreamableFactory : public StreamableFactoryInterface
 {
@@ -44,7 +44,6 @@ public:
 	{
 		MYASSERT( !_instance );
 		_instance = static_cast< T* >( this );
-		pthread_mutex_init(&stream_reg_mutex, NULL);
 
 		// add self to factory list
 		NetworkStreamManager::getSingleton().addFactory(this);
@@ -328,7 +327,7 @@ public:
 
 protected:
 	static T* _instance;
-	pthread_mutex_t stream_reg_mutex;
+	std::mutex stream_reg_mutex;
 	bool locked;
 
 	std::deque < stream_reg_t > stream_registrations;
@@ -344,15 +343,13 @@ protected:
 
 	void lockStreams()
 	{
-		// double locking is not healthy!
-		//MYASSERT(!this->locked);
-		MUTEX_LOCK(&stream_reg_mutex);
+		stream_reg_mutex.lock();
 		this->locked=true;
 	}
 
 	void unlockStreams()
 	{
-		MUTEX_UNLOCK(&stream_reg_mutex);
+		stream_reg_mutex.unlock();
 		this->locked=false;
 	}
 

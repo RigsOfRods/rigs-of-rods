@@ -35,6 +35,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SHA1.h"
 #include "Utils.h"
 
+#include <thread>
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 //#include <CFUserNotification.h>
 #endif
@@ -43,13 +45,13 @@ using namespace Ogre;
 
 Network *net_instance;
 
-void *s_sendthreadstart(void* vid)
+void *s_sendthreadstart()
 {
 	net_instance->sendthreadstart();
 	return NULL;
 }
 
-void *s_receivethreadstart(void* vid)
+void *s_receivethreadstart()
 {
 	net_instance->receivethreadstart();
 	return NULL;
@@ -64,8 +66,6 @@ Network::Network(String servername, long server_port) :
 	, net_quality(0)
 	, net_quality_changed(false)
 {
-
-	pthread_mutex_init(&mutex_data, NULL);
 
 	// update factories network objects
 
@@ -86,32 +86,22 @@ Network::Network(String servername, long server_port) :
 	rconauthed=0;
 	last_time=0;
 	send_buffer=0;
-	pthread_cond_init(&send_work_cv, NULL);
-	pthread_mutex_init(&msgsend_mutex, NULL);
-	pthread_mutex_init(&send_work_mutex, NULL);
-	pthread_mutex_init(&dl_data_mutex, NULL);
-	pthread_mutex_init(&clients_mutex, NULL);
+
+	// direct start, no vehicle required
+	initiated = true;
 
 	// reset client list
-	MUTEX_LOCK(&clients_mutex);
+	std::lock_guard<std::mutex> lock(clients_mutex);
 	for (int i=0; i<MAX_PEERS; i++)
 	{
 		clients[i].used=false;
 		memset(&clients[i].user, 0, sizeof(user_info_t));
 	}
-	MUTEX_UNLOCK(&clients_mutex);
-
-	// direct start, no vehicle required
-	initiated = true;
 }
 
 Network::~Network()
 {
 	shutdown=true;
-	pthread_mutex_destroy(&clients_mutex);
-	pthread_mutex_destroy(&send_work_mutex);
-	pthread_mutex_destroy(&dl_data_mutex);
-	pthread_cond_destroy(&send_work_cv);
 }
 
 void Network::netFatalError(UTFString errormsg, bool exitProgram)
@@ -287,8 +277,8 @@ bool Network::connect()
 	memcpy(&userdata, buffer, std::min<int>(sizeof(user_info_t), header.size));
 
 	//start the handling threads
-	pthread_create(&sendthread, NULL, s_sendthreadstart, (void*)(0));
-	pthread_create(&receivethread, NULL, s_receivethreadstart, (void*)(0));
+	std::thread (s_sendthreadstart).detach();
+	std::thread (s_receivethreadstart).detach();
 
 	return true;
 }
@@ -305,7 +295,7 @@ int Network::sendMessageRaw(SWInetSocket *socket, char *buffer, unsigned int msg
 {
 	//LOG("* sending raw message: " + TOSTRING(msgsize));
 
-	MUTEX_LOCK(&msgsend_mutex); //we use a mutex because a chat message can be sent asynchronously
+	std::lock_guard<std::mutex> lock(msgsend_mutex);
 	SWBaseSocket::SWBaseError error;
 
 	int rlen=0;
@@ -319,13 +309,12 @@ int Network::sendMessageRaw(SWInetSocket *socket, char *buffer, unsigned int msg
 		}
 		rlen+=sendnum;
 	}
-	MUTEX_UNLOCK(&msgsend_mutex);
 	return 0;
 }
 
 int Network::sendmessage(SWInetSocket *socket, int type, unsigned int streamid, unsigned int len, char* content)
 {
-	MUTEX_LOCK(&msgsend_mutex); //we use a mutex because a chat message can be sent asynchronously
+	std::lock_guard<std::mutex> lock(msgsend_mutex);
 	SWBaseSocket::SWBaseError error;
 	header_t head;
 	memset(&head, 0, sizeof(header_t));
@@ -360,7 +349,6 @@ int Network::sendmessage(SWInetSocket *socket, int type, unsigned int streamid, 
 		}
 		rlen+=sendnum;
 	}
-	MUTEX_UNLOCK(&msgsend_mutex);
 	calcSpeed();
 	return 0;
 }
@@ -632,7 +620,7 @@ void Network::receivethreadstart()
 				} else
 				{
 					// find a free entry
-					MUTEX_LOCK(&clients_mutex);
+					std::lock_guard<std::mutex> lock(clients_mutex);
 					for (int i=0; i<MAX_PEERS; i++)
 					{
 						if (clients[i].used)
@@ -645,7 +633,6 @@ void Network::receivethreadstart()
 						BeamFactory::getSingleton().netUserAttributesChanged(header.source, -1);
 						break;
 					}
-					MUTEX_UNLOCK(&clients_mutex);
 				}
 			}
 #ifdef USE_MYGUI
@@ -674,24 +661,22 @@ void Network::receivethreadstart()
 int Network::getClientInfos(client_t c[MAX_PEERS])
 {
 	if (!initiated) return 1;
-	MUTEX_LOCK(&clients_mutex);
+	std::lock_guard<std::mutex> lock(clients_mutex);
 	for (int i=0;i<MAX_PEERS;i++)
 		c[i] = clients[i]; // copy the whole client list
-	MUTEX_UNLOCK(&clients_mutex);
 	return 0;
 }
 
 client_t *Network::getClientInfo(unsigned int uid)
 {
 // this is a deadlock here
-//	MUTEX_LOCK(&clients_mutex);
+//	std::lock_guard<std::mutex> lock(clients_mutex);
 	client_t *c = 0;
 	for (int i=0; i<MAX_PEERS; i++)
 	{
 		if (clients[i].user.uniqueid == uid)
 			c = &clients[i];
 	}
-//	MUTEX_UNLOCK(&clients_mutex);
 	return c;
 }
 
@@ -716,29 +701,22 @@ void Network::debugPacket(const char *name, header_t *header, char *buffer)
 
 void Network::setNetQuality(int q)
 {
-	MUTEX_LOCK(&mutex_data);
+	std::lock_guard<std::mutex> lock(mutex_data);
 	net_quality = q;
 	net_quality_changed = true;
-	MUTEX_UNLOCK(&mutex_data);
 }
 
 int Network::getNetQuality(bool ack)
 {
-	int res = 0;
-	MUTEX_LOCK(&mutex_data);
-	res = net_quality;
+	std::lock_guard<std::mutex> lock(mutex_data);
 	if (ack) net_quality_changed=false;
-	MUTEX_UNLOCK(&mutex_data);
-	return res;
+	return net_quality;
 }
 
 bool Network::getNetQualityChanged()
 {
-	bool res = false;
-	MUTEX_LOCK(&mutex_data);
-	res = net_quality_changed;
-	MUTEX_UNLOCK(&mutex_data);
-	return res;
+	std::lock_guard<std::mutex> lock(mutex_data);
+	return net_quality_changed;
 }
 
 #endif // USE_SOCKETW

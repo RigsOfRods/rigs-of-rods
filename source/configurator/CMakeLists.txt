@@ -37,10 +37,7 @@ else(WIN32)
 endif(WIN32)
 
 IF(WIN32)
-   include_directories(${PThread_INCLUDE_DIRS})
-   link_directories   (${PThread_LIBRARY_DIRS})
-
-   set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
+   set(OS_LIBS "dinput8.lib;dxguid.lib")
    set(OS_SOURCE "icon.rc")
 
    # disable some annoying VS warnings:

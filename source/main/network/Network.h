@@ -28,7 +28,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "rornet.h"
 #include "SocketW.h"
 
-#include <pthread.h>
+#include <condition_variable>
+#include <mutex>
 
 class Network : public ZeroedMemoryAllocator
 {
@@ -85,14 +86,11 @@ private:
 	int speed_time;
 	long m_server_port;
 	oob_t send_oob;
-	pthread_cond_t send_work_cv;
-	pthread_mutex_t clients_mutex;
-	pthread_mutex_t dl_data_mutex;
-	pthread_mutex_t msgsend_mutex;
-	pthread_mutex_t send_work_mutex;
-	pthread_t downloadthread;
-	pthread_t receivethread;
-	pthread_t sendthread;
+	std::condition_variable send_work_cv;
+	std::mutex clients_mutex;
+	std::mutex dl_data_mutex;
+	std::mutex msgsend_mutex;
+	std::mutex send_work_mutex;
 	server_info_t server_settings;
 	static Ogre::Timer timer;
 	static unsigned int myuid;
@@ -107,7 +105,7 @@ private:
 	// mutex'ed data
 	bool net_quality_changed;
 	int net_quality;
-	pthread_mutex_t mutex_data;
+	std::mutex mutex_data;
 
 	void setNetQuality(int q);
 };

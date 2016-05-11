@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ScriptEngine.h"
 
 #include <angelscript.h>
-#include <pthread.h>
 
 struct curlMemoryStruct {
   char *memory;
@@ -367,7 +366,6 @@ public:
 protected:
 
 	ScriptEngine *mse;          //!< local script engine pointer, used as proxy mostly
-	pthread_t apiThread;
 };
 
 #endif // __GameScript_H_
