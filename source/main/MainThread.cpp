@@ -935,7 +935,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		{
 #ifdef USE_MYGUI
 #ifdef USE_SOCKETW
-			if (BeamFactory::getSingleton().checkStreamsResultsChanged())
+			if (BeamFactory::getSingleton().checkStreamsResultsChanged() || gEnv->network->getNetQualityChanged())
 			{
 				GUI_Multiplayer::getSingleton().update();
 			}
@@ -958,13 +958,6 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 #ifdef USE_ANGELSCRIPT
 	ScriptEngine::getSingleton().framestep(seconds_since_last_frame);
 #endif
-
-	// update network labels
-	if (gEnv->network) // TODO: Does this have any sense for menu?
-	{
-		CharacterFactory::getSingleton().updateLabels();
-	}
-
 }
 
 void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
