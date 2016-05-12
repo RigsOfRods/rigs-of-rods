@@ -276,16 +276,16 @@ Beam::~Beam()
 	// delete cparticles
 	for (int i=0; i<free_cparticle; i++)
 	{
-		if (cparticles[free_cparticle].snode)
+		if (cparticles[i].snode)
 		{
-			cparticles[free_cparticle].snode->removeAndDestroyAllChildren();
-			gEnv->sceneManager->destroySceneNode(cparticles[free_cparticle].snode);
+			cparticles[i].snode->removeAndDestroyAllChildren();
+			gEnv->sceneManager->destroySceneNode(cparticles[i].snode);
 		}
-		if (cparticles[free_cparticle].psys)
+		if (cparticles[i].psys)
 		{
-			cparticles[free_cparticle].psys->removeAllAffectors();
-			cparticles[free_cparticle].psys->removeAllEmitters();
-			gEnv->sceneManager->destroyParticleSystem(cparticles[free_cparticle].psys);
+			cparticles[i].psys->removeAllAffectors();
+			cparticles[i].psys->removeAllEmitters();
+			gEnv->sceneManager->destroyParticleSystem(cparticles[i].psys);
 		}
 	}
 
