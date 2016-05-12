@@ -119,6 +119,7 @@ Beam::~Beam()
 	{
 		SoundScriptManager::getSingleton().trigStop(this->trucknum, i);
 	}
+	StopAllSounds();
 #endif // USE_OPENAL
 
 	// destruct and remove every tiny bit of stuff we created :-|
@@ -4560,6 +4561,7 @@ void Beam::deleteNetTruck()
 	updateFlexbodiesPrepare();
 	updateFlexbodiesFinal();
 	updateVisual();
+	StopAllSounds();
 }
 
 float Beam::getHeadingDirectionAngle()
