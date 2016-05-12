@@ -1563,21 +1563,6 @@ void RoRFrameListener::setDirectionArrow(char *text, Vector3 position)
 
 }
 
-void RoRFrameListener::netDisconnectTruck(int number)
-{
-	// we will remove the truck completely
-	// TODO: fix that below!
-	//removeTruck(number);
-#ifdef USE_MYGUI
-	if (gEnv->surveyMap)
-	{
-		SurveyMapEntity *e = gEnv->surveyMap->getMapEntityByName("Truck"+TOSTRING(number));
-		if (e)
-			e->setVisibility(false);
-	}
-#endif //USE_MYGUI
-}
-
 /* --- Window Events ------------------------------------------ */
 void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
 {
@@ -1611,25 +1596,6 @@ void RoRFrameListener::windowFocusChange(Ogre::RenderWindow* rw)
 {
 	LOG("*** windowFocusChange");
 	RoR::Application::GetInputEngine()->resetKeys();
-}
-
-void RoRFrameListener::pauseSim(bool value)
-{
-	// TODO: implement this (how to do so?)
-	static int savedmode = -1;
-	if (value && m_loading_state == PAUSE)
-		// already paused
-		return;
-	if (value)
-	{
-		savedmode = m_loading_state;
-		m_loading_state = PAUSE;
-		LOG("** pausing game");
-	} else if (!value && savedmode != -1)
-	{
-		m_loading_state = savedmode;
-		LOG("** unpausing game");
-	}
 }
 
 void RoRFrameListener::hideGUI(bool hidden)

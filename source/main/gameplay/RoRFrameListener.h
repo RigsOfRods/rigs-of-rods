@@ -42,8 +42,6 @@ public:
 
 	void hideGUI(bool hidden);
 
-	void netDisconnectTruck(int number);
-	void pauseSim(bool value);
 	void reloadCurrentTruck();
 
 	void setDirectionArrow(char *text, Ogre::Vector3 position);
