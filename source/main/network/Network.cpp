@@ -43,20 +43,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Network *net_instance;
-
-void *s_sendthreadstart()
-{
-	net_instance->sendthreadstart();
-	return NULL;
-}
-
-void *s_receivethreadstart()
-{
-	net_instance->receivethreadstart();
-	return NULL;
-}
-
 Timer Network::timer = Ogre::Timer();
 unsigned int Network::myuid=0;
 
@@ -76,7 +62,6 @@ Network::Network(String servername, long server_port) :
 	m_server_name = servername;
 	m_server_port = server_port;
 	myauthlevel = AUTH_NONE;
-	net_instance=this;
 	nickname = "";
 	myuid=0;
 
@@ -277,8 +262,8 @@ bool Network::connect()
 	memcpy(&userdata, buffer, std::min<int>(sizeof(user_info_t), header.size));
 
 	//start the handling threads
-	std::thread (s_sendthreadstart).detach();
-	std::thread (s_receivethreadstart).detach();
+	std::thread ([this](){ this->sendthreadstart(); }).detach();
+	std::thread ([this](){ this->receivethreadstart(); }).detach();
 
 	return true;
 }
@@ -436,7 +421,6 @@ void Network::sendthreadstart()
 	{
 		// wait for data...
 		NetworkStreamManager::getSingleton().sendStreams(this, &socket);
-
 	}
 }
 
