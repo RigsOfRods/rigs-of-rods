@@ -191,6 +191,7 @@ void CLASS::initMisc()
 #endif
 	AuthorsText = AuthorsText + color1 + "wxWidgets:" + white + " Used as cross platform user interface toolkit" + newline;
 
+	m_authors->setMaxTextLength(4096);
 	m_authors->setCaption(Ogre::String(AuthorsText));
 	m_authors->setVScrollPosition(0);
 }
