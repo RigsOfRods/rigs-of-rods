@@ -847,7 +847,7 @@ void BeamFactory::updateVisual(float dt)
 		// always update the labels
 		m_trucks[t]->updateLabels(dt);
 
-		if (m_trucks[t]->state < SLEEPING)
+		if (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED)
 		{
 			m_trucks[t]->updateVisual(dt);
 			m_trucks[t]->updateSkidmarks();
