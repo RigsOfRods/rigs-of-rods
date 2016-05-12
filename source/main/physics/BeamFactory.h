@@ -200,7 +200,6 @@ protected:
 	void localUserAttributesChanged(int newid);
 
 	void RemoveInstance(stream_del_t *del);
-	bool RemoveBeam(Beam *b);
 	void DeleteTruck(Beam *b);
 };
 
