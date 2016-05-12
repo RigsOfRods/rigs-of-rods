@@ -5497,13 +5497,13 @@ Beam::Beam(
 		posStorage = new PositionStorage(free_node, 10);
 	}
 
-	//search first_wheel_node
-	first_wheel_node=free_node;
+	// search first_wheel_node
+	first_wheel_node = free_node;
 	for (int i=0; i<free_node; i++)
 	{
-		if (nodes[i].iswheel)
+		if (nodes[i].iswheel == WHEEL_DEFAULT || nodes[i].iswheel == WHEEL_2)
 		{
-			first_wheel_node=i;
+			first_wheel_node = i;
 			break;
 		}
 	}

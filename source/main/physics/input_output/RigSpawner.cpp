@@ -4298,6 +4298,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		outer_node.friction_coef = def.node_defaults->friction;
 		outer_node.volume_coef   = def.node_defaults->volume;
 		outer_node.surface_coef  = def.node_defaults->surface;
+		outer_node.iswheel       = WHEEL_FLEXBODY;
 		AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
@@ -4316,6 +4317,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		inner_node.friction_coef = def.node_defaults->friction;
 		inner_node.volume_coef   = def.node_defaults->volume;
 		inner_node.surface_coef  = def.node_defaults->surface;
+		inner_node.iswheel       = WHEEL_FLEXBODY;
 		AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
@@ -4782,7 +4784,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point, node_defaults);
 		outer_node.mass    = wheel_mass / (2.f * num_rays);
-		outer_node.iswheel = (set_param_iswheel) ? (m_rig->free_wheel * 2) + 1 : 0;
+		outer_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
 		outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
 		outer_node.wheelid = m_rig->free_wheel;
 		AdjustNodeBuoyancy(outer_node, node_defaults);
@@ -4798,7 +4800,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point, node_defaults);
 		inner_node.mass    = wheel_mass / (2.f * num_rays);
-		inner_node.iswheel = (set_param_iswheel) ? (m_rig->free_wheel * 2) + 2 : 0;
+		inner_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
 		inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
 		inner_node.wheelid = m_rig->free_wheel; 
 		AdjustNodeBuoyancy(inner_node, node_defaults);
@@ -5242,7 +5244,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
 		outer_node.mass    = node_mass;
-		outer_node.iswheel = (m_rig->free_wheel * 2) + 1;
+		outer_node.iswheel = WHEEL_2;
 		outer_node.id      = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid = m_rig->free_wheel;
 
@@ -5252,7 +5254,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
 		inner_node.mass    = node_mass;
-		inner_node.iswheel = (m_rig->free_wheel * 2) + 2;
+		inner_node.iswheel = WHEEL_2; 
 		inner_node.id      = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid = m_rig->free_wheel;
 
@@ -5276,7 +5278,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point);
 		outer_node.mass          = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
-		outer_node.iswheel       = (m_rig->free_wheel * 2) + 1;
+		outer_node.iswheel       = WHEEL_2;
 		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid       = m_rig->free_wheel;
 		outer_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
@@ -5293,7 +5295,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point);
 		inner_node.mass          = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
-		inner_node.iswheel       = (m_rig->free_wheel * 2) + 2;
+		inner_node.iswheel       = WHEEL_2;
 		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid       = m_rig->free_wheel;
 		inner_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
@@ -6444,6 +6446,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.smoothpos   = node_position;
 		
 	node.wetstate = DRY; // orig = hardcoded (init_node)
+	node.iswheel = NOWHEEL;
 	node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
 	node.friction_coef = def.node_defaults->friction;
 	node.volume_coef = def.node_defaults->volume;
