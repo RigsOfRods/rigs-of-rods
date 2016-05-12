@@ -4298,7 +4298,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		outer_node.friction_coef = def.node_defaults->friction;
 		outer_node.volume_coef   = def.node_defaults->volume;
 		outer_node.surface_coef  = def.node_defaults->surface;
-		outer_node.iswheel       = m_rig->free_wheel*2+1;
 		AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
@@ -4317,7 +4316,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		inner_node.friction_coef = def.node_defaults->friction;
 		inner_node.volume_coef   = def.node_defaults->volume;
 		inner_node.surface_coef  = def.node_defaults->surface;
-		inner_node.iswheel       = m_rig->free_wheel*2+2;
 		AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
