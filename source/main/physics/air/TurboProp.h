@@ -56,6 +56,7 @@ public:
 		float fpitch, 
 		bool heathaze
 	);
+	~Turboprop();
 
 	void updateVisuals();
 	void updateForces(float dt, int doUpdate);
