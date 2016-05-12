@@ -147,6 +147,20 @@ Turboprop::Turboprop(
 	reset();
 }
 
+Turboprop::~Turboprop()
+{
+	//A fast work around 
+	//
+	SoundScriptManager::getSingleton().modulate(trucknum, thr_id, 0);
+	SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
+	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
+
+	delete heathazePS;
+
+	delete smokePS;
+	delete smokeNode;
+}
+
 void Turboprop::updateVisuals()
 {
 	//visuals
