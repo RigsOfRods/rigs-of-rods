@@ -893,16 +893,16 @@ void BeamFactory::calcPhysics(float dt)
 			m_trucks[t]->calcNetwork();
 			break;
 
-		case RECYCLE:
+		case NETWORKED_INVALID:
 			break;
 
-		case NETWORKED_INVALID:
+		case DELETED:
 			break;
 
 		default:
 			if (m_trucks[t]->state > DESACTIVATED && m_trucks[t]->engine)
 				m_trucks[t]->engine->update(dt, 1);
-			if (m_trucks[t]->state < SLEEPING && m_trucks[t]->networking)
+			if (m_trucks[t]->networking)
 				m_trucks[t]->sendStreamData();
 			break;
 		}
