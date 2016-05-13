@@ -194,7 +194,6 @@ protected:
 	void netUserAttributesChanged(int source, int streamid);
 	void localUserAttributesChanged(int newid);
 
-	void RemoveInstance(Beam *b);
 	void RemoveInstance(stream_del_t *del);
 	void DeleteTruck(Beam *b);
 };
