@@ -186,32 +186,6 @@ BeamFactory::~BeamFactory()
 	delete gEnv->threadPool;
 }
 
-bool BeamFactory::RemoveBeam(Beam *b)
-{
-	lockStreams();
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Beam *> >::iterator it1;
-	std::map < unsigned int, Beam *>::iterator it2;
-
-	for (it1=streamables.begin(); it1!=streamables.end(); it1++)
-	{
-		for (it2=it1->second.begin(); it2!=it1->second.end(); it2++)
-		{
-			if (it2->second == b)
-			{
-				NetworkStreamManager::getSingleton().removeStream(it1->first, it2->first);
-				this->DeleteTruck(it2->second);
-				it1->second.erase(it2);
-				unlockStreams();
-				return true;
-			}
-		}
-	}
-	unlockStreams();
-
-	return false;
-}
-
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
 
 Beam *BeamFactory::CreateLocalRigInstance(
@@ -706,44 +680,13 @@ void BeamFactory::removeTruck(int truck)
 	if (m_current_truck == truck)
 		setCurrentTruck(-1);
 
-	if (!this->RemoveBeam(m_trucks[truck]))
-		// deletion over beamfactory failed, delete by hand
-		// then delete the class
-		this->DeleteTruck(m_trucks[truck]);
-}
-
-void BeamFactory::p_removeAllTrucks()
-{
-	for (int i = 0; i < m_free_truck; i++)
-	{
-		if (m_trucks[i])
-		{
-			m_trucks[i]->StopAllSounds();
-
-			if (m_current_truck == i)
-				setCurrentTruck(-1);
-
-			if (!this->RemoveBeam(m_trucks[i]))
-				// deletion over beamfactory failed, delete by hand
-				// then delete the class
-				this->DeleteTruck(m_trucks[i]);
-		}
-	}
+	this->DeleteTruck(m_trucks[truck]);
 }
 
 void BeamFactory::DeleteTruck(Beam *b)
 {
-	if (b == 0)	return;
-
-	this->SyncWithSimThread();
-
-	m_trucks[b->trucknum] = 0;
-	delete b;
-	//m_free_truck = m_free_truck - 1;
-
-#ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
-#endif // USE_MYGUI
+	std::lock_guard<std::mutex> lock(m_delete_queue_mutex);
+	m_delete_queue.push_back(b);
 }
 
 void BeamFactory::removeCurrentTruck()
@@ -753,7 +696,10 @@ void BeamFactory::removeCurrentTruck()
 
 void BeamFactory::removeAllTrucks()
 {
-	p_removeAllTrucks();
+	for (int i = 0; i < m_free_truck; i++)
+	{
+		removeTruck(i);
+	}
 }
 
 void BeamFactory::setCurrentTruck(int new_truck)
@@ -856,6 +802,33 @@ void BeamFactory::updateVisual(float dt)
 	}
 }
 
+void BeamFactory::handleTruckDeletion()
+{
+	this->SyncWithSimThread();
+
+	std::lock_guard<std::mutex> lock(m_delete_queue_mutex);
+
+	for (Beam* b : m_delete_queue)
+	{
+		if (b)
+		{
+			if (!b->networking)
+			{
+				m_trucks[b->trucknum] = 0;
+				delete b;
+			} else
+			{
+				b->deleteNetTruck();
+			}
+		}
+	}
+	m_delete_queue.clear();
+
+#ifdef USE_MYGUI
+	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+#endif // USE_MYGUI
+}
+
 void BeamFactory::calcPhysics(float dt)
 {
 	m_physics_frames++;
@@ -952,14 +925,6 @@ void BeamFactory::calcPhysics(float dt)
 	}
 }
 
-void BeamFactory::RemoveInstance(Beam *b)
-{
-	if (b == 0) return;
-	// hide the truck
-	b->deleteNetTruck();
-	//this->DeleteTruck(b);
-}
-
 void BeamFactory::RemoveInstance(stream_del_t *del)
 {
 	// we override this here so we can also delete the truck array content
@@ -977,13 +942,13 @@ void BeamFactory::RemoveInstance(stream_del_t *del)
 	{
 		// delete all streams
 		for (it_beam=it_stream->second.begin(); it_beam != it_stream->second.end(); it_beam++)
-			this->RemoveInstance(it_beam->second);
+			this->DeleteTruck(it_beam->second);
 	} else
 	{
 		// find the stream matching the streamid
 		it_beam = it_stream->second.find(del->streamid);
 		if (it_beam != it_stream->second.end())
-			this->RemoveInstance(it_beam->second);
+			this->DeleteTruck(it_beam->second);
 	}
 	// unlockStreams();
 }
@@ -1003,7 +968,6 @@ void BeamFactory::windowResized()
 
 void BeamFactory::prepareShutdown()
 {
-	this->SyncWithSimThread();
 }
 
 Beam* BeamFactory::getCurrentTruck()

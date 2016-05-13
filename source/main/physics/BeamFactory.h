@@ -92,8 +92,6 @@ public:
 	void MuteAllTrucks();
 	void UnmuteAllTrucks();
 
-	void p_removeAllTrucks();
-
 	bool enterRescueTruck();
 	void repairTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box, bool keepPosition=false);
 
@@ -144,6 +142,8 @@ public:
 	void sendAllTrucksSleeping();
 	void setTrucksForcedActive(bool forced) { m_forced_active = forced; };
 
+	void handleTruckDeletion();
+
 	void prepareShutdown();
 
 	void windowResized();
@@ -157,6 +157,9 @@ public:
 	void SyncWithSimThread();
 
 protected:
+
+	std::mutex m_delete_queue_mutex;
+	std::vector<Beam*> m_delete_queue;
 
 	std::unique_ptr<ThreadPool> m_sim_thread_pool;
 	std::shared_ptr<Task> m_sim_task;
@@ -196,9 +199,7 @@ protected:
 	void netUserAttributesChanged(int source, int streamid);
 	void localUserAttributesChanged(int newid);
 
-	void RemoveInstance(Beam *b);
 	void RemoveInstance(stream_del_t *del);
-	bool RemoveBeam(Beam *b);
 	void DeleteTruck(Beam *b);
 };
 
