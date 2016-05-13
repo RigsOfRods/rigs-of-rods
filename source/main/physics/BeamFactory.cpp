@@ -683,7 +683,7 @@ void BeamFactory::removeTruck(int truck)
 	this->DeleteTruck(m_trucks[truck]);
 }
 
-void BeamFactory::p_removeAllTrucks()
+void BeamFactory::removeAllTrucks()
 {
 	for (int i = 0; i < m_free_truck; i++)
 	{
@@ -709,11 +709,6 @@ void BeamFactory::DeleteTruck(Beam *b)
 void BeamFactory::removeCurrentTruck()
 {
 	removeTruck(m_current_truck);
-}
-
-void BeamFactory::removeAllTrucks()
-{
-	p_removeAllTrucks();
 }
 
 void BeamFactory::setCurrentTruck(int new_truck)
