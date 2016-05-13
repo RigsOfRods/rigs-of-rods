@@ -92,8 +92,6 @@ public:
 	void MuteAllTrucks();
 	void UnmuteAllTrucks();
 
-	void p_removeAllTrucks();
-
 	bool enterRescueTruck();
 	void repairTruck(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box, bool keepPosition=false);
 
@@ -198,7 +196,6 @@ protected:
 
 	void RemoveInstance(Beam *b);
 	void RemoveInstance(stream_del_t *del);
-	bool RemoveBeam(Beam *b);
 	void DeleteTruck(Beam *b);
 };
 
