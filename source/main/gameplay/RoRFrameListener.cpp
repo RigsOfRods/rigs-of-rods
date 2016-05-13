@@ -1388,8 +1388,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		if (sky && (m_loading_state == TERRAIN_LOADED || m_loading_state == ALL_LOADED))
 			sky->detectUpdate();
 #endif
-		
-		gEnv->terrainManager->update(dt);
 	}
 
 	if (m_loading_state == ALL_LOADED)
