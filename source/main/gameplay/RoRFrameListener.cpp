@@ -1642,12 +1642,6 @@ void RoRFrameListener::reloadCurrentTruck()
 		return;
 	}
 
-	// exit the old truck
-	BeamFactory::getSingleton().setCurrentTruck(-1);
-
-	// remove the old truck
-	curr_truck->state = RECYCLE;
-
 	// copy over the most basic info
 	if (curr_truck->free_node == newBeam->free_node)
 	{
@@ -1676,10 +1670,7 @@ void RoRFrameListener::reloadCurrentTruck()
 	RoR::Application::GetGuiManager()->PushNotification("Notice:", msg);
 #endif //USE_MYGUI
 
-	// dislocate the old truck, so its out of sight
-	curr_truck->resetPosition(100000, 100000, false, 100000);
-	// note: in some point in the future we would delete the truck here,
-	// but since this function is buggy we don't do it yet.
+	BeamFactory::getSingleton().removeCurrentTruck();
 
 	// reset the new truck (starts engine, resets gui, ...)
 	newBeam->reset();
