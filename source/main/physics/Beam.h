@@ -550,6 +550,9 @@ public:
 	PointColDetector* IntraPointCD() { return intraPointCD; }
 	PointColDetector* InterPointCD() { return interPointCD; }
 
+
+	void UpdatePropAnimations(const float dt);
+
 protected:
 
 	/**
