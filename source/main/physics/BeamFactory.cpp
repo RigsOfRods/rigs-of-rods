@@ -697,9 +697,14 @@ void BeamFactory::DeleteTruck(Beam *b)
 
 	this->SyncWithSimThread();
 
-	m_trucks[b->trucknum] = 0;
-	delete b;
-	//m_free_truck = m_free_truck - 1;
+	if (!b->networking)
+	{
+		m_trucks[b->trucknum] = 0;
+		delete b;
+	} else
+	{
+		b->deleteNetTruck();
+	}
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
@@ -907,14 +912,6 @@ void BeamFactory::calcPhysics(float dt)
 	}
 }
 
-void BeamFactory::RemoveInstance(Beam *b)
-{
-	if (b == 0) return;
-	// hide the truck
-	b->deleteNetTruck();
-	//this->DeleteTruck(b);
-}
-
 void BeamFactory::RemoveInstance(stream_del_t *del)
 {
 	// we override this here so we can also delete the truck array content
@@ -932,13 +929,13 @@ void BeamFactory::RemoveInstance(stream_del_t *del)
 	{
 		// delete all streams
 		for (it_beam=it_stream->second.begin(); it_beam != it_stream->second.end(); it_beam++)
-			this->RemoveInstance(it_beam->second);
+			this->DeleteTruck(it_beam->second);
 	} else
 	{
 		// find the stream matching the streamid
 		it_beam = it_stream->second.find(del->streamid);
 		if (it_beam != it_stream->second.end())
-			this->RemoveInstance(it_beam->second);
+			this->DeleteTruck(it_beam->second);
 	}
 	// unlockStreams();
 }
