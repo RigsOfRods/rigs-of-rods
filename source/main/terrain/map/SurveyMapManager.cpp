@@ -56,6 +56,14 @@ SurveyMapManager::SurveyMapManager() :
 	init();
 }
 
+SurveyMapManager::~SurveyMapManager()
+{
+	for (SurveyMapEntity *e : mMapEntities)
+	{
+		if (e) delete e;
+	}
+}
+
 void SurveyMapManager::init()
 {
 	mMapSize = gEnv->terrainManager->getMaxTerrainSize();

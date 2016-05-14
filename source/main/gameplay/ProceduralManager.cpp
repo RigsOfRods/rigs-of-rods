@@ -23,15 +23,18 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-ProceduralManager::ProceduralManager()
+ProceduralManager::ProceduralManager() :
+	objectcounter(0)
 {
-	// set values
-	objectcounter = 0;
 }
 
 
 ProceduralManager::~ProceduralManager()
 {
+	for (ProceduralObject po : pObjects)
+	{
+		if (po.road) delete po.road;
+	}
 }
 
 int ProceduralManager::deleteObject(ProceduralObject &po)

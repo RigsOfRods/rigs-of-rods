@@ -98,6 +98,10 @@ TerrainObjectManager::~TerrainObjectManager()
 		gEnv->sceneManager->destroyStaticGeometry("bakeSG");
 		bakesg = nullptr;
 	}
+	if (proceduralManager != nullptr)
+	{
+		delete proceduralManager;
+	}
 	gEnv->sceneManager->destroyAllEntities();
 }
 
@@ -133,7 +137,10 @@ void TerrainObjectManager::proceduralTests()
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 {
-	proceduralManager = new ProceduralManager();
+	if (proceduralManager == nullptr)
+	{
+		proceduralManager = new ProceduralManager();
+	}
 
 	objcounter = 0;
 	free_localizer = 0;
@@ -636,11 +643,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 		// finish it and start new object
 		if (proceduralManager) proceduralManager->addObject(po);
-	}
-
-	if (proceduralManager)
-	{
-		delete proceduralManager;
 	}
 }
 
