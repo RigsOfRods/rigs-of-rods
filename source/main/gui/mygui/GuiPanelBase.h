@@ -52,7 +52,7 @@ public:
 	
 	inline void HideTemporarily()
 	{ 
-		if (m_panel_widget->isVisible())
+		if (m_panel_widget->getVisible())
 		{
 			m_panel_widget->setVisible(false); 
 			m_is_temporarily_hidden = true; 
@@ -68,7 +68,7 @@ public:
 	}
 
 	inline void Hide()                    { m_panel_widget->setVisible(false); }
-	inline bool IsVisible() const         { return m_panel_widget->isVisible(); }
+	inline bool IsVisible() const         { return m_panel_widget->getVisible(); }
 	inline int  GetWidthPixels() const    { return GetSizePixels().width; }
 	inline int  GetHeightPixels() const   { return GetSizePixels().height; }
 

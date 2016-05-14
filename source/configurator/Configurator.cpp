@@ -650,7 +650,7 @@ bool MyApp::extractZipFiles(const wxString& aZipFile, const wxString& aTargetDir
 {
 	bool ret = true;
 	//wxFileSystem fs;
-	std::auto_ptr<wxZipEntry> entry(new wxZipEntry());
+	std::unique_ptr<wxZipEntry> entry(new wxZipEntry());
 	do
 	{
 		wxFileInputStream in(aZipFile);
@@ -710,7 +710,7 @@ bool MyApp::checkUserPath()
 		if(!wxFileName::DirExists(UserPath))
 			wxFileName::Mkdir(UserPath);
 
-		std::auto_ptr< wxZipEntry > entry;
+		std::unique_ptr< wxZipEntry > entry;
 
 		// first: figure out the zip path
 		wxFileName skeletonZip = wxFileName(ProgramPath, wxEmptyString);
