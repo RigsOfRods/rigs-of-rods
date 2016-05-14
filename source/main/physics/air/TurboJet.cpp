@@ -133,25 +133,15 @@ Turbojet::~Turbojet()
 	SoundScriptManager::getSingleton().trigStop(trucknum, ab_id);
 	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
 
-	if (heathazePS != nullptr) delete heathazePS;
-	if (smokePS != nullptr) delete smokePS;
-
-	if (smokeNode != nullptr) delete smokeNode;
-
 	if (flameMesh != nullptr)
 	{
 		flameMesh->setVisible(false);
-		delete flameMesh;
 	}
 
 	if (nozzleMesh != nullptr)
 	{
 		nozzleMesh->setVisible(false);
-		delete nozzleMesh;
 	}
-
-	if (absnode != nullptr) delete absnode;
-	if (nzsnode != nullptr) delete nzsnode;
 }
 
 void Turbojet::updateVisuals()

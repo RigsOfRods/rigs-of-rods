@@ -152,16 +152,8 @@ Airbrake::~Airbrake()
 {
 	if (!msh.isNull()) msh->unload();
 
-	if (ec)
-	{
-		ec->setVisible(false);
-		delete ec;
-	}
-	if (snode)
-	{
-		snode->setVisible(false);
-		delete snode;
-	}
+	if (ec) ec->setVisible(false);
+	if (snode) snode->setVisible(false);
 }
 
 void Airbrake::updatePosition(float amount)
