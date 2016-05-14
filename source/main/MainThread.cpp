@@ -430,9 +430,9 @@ void MainThread::Go()
 			//if (!RoR::Application::GetGuiManager()->getMainSelector()->IsVisible())
 			RoR::Application::GetGuiManager()->ShowMainMenu(true);
 
-			if (gEnv->network != nullptr)
+			if (gEnv->network != nullptr || BSETTING("SkipMainMenu", false))
 			{
-				// Multiplayer started from configurator -> go directly to map selector (traditional behavior)
+				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
 				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
 				RoR::Application::GetGuiManager()->ShowMainMenu(false);
 			}
