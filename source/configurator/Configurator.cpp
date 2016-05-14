@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <memory>
 
 mode_t getumask(void)
 {
@@ -40,6 +39,8 @@ mode_t getumask(void)
 	return mask;
 }
 #endif
+
+#include <memory>
 
 #include "statpict.h"
 #include <wx/cmdline.h>
