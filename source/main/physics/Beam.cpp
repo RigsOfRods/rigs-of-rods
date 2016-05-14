@@ -2548,7 +2548,7 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
 	}
 	for (i=0; i<free_wheel; i++) 
 	{
-		if (vwheels[i].cnode->numAttachedObjects())
+		if (vwheels[i].cnode && vwheels[i].cnode->numAttachedObjects())
 		{
 			vwheels[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
 		}
