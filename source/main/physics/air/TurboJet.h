@@ -60,7 +60,6 @@ public:
 
 private:
 
-	MaterialReplacer *mr;
 	Ogre::ParticleSystem* heathazePS;
 	Ogre::ParticleSystem* smokePS;
 	Ogre::SceneNode *absnode;

@@ -122,8 +122,8 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
     /// Create submeshes
     subface = msh->createSubMesh();
     subband = msh->createSubMesh();
-	subcup=msh->createSubMesh();
-	subcdn=msh->createSubMesh();
+	subcup = msh->createSubMesh();
+	subcdn = msh->createSubMesh();
 
 	//materials
 	subface->setMaterialName(texband);
@@ -409,7 +409,6 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
 	msh->load();
 	//MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes()
 }
-
 
 Vector3 FlexAirfoil::updateVertices()
 {
@@ -849,6 +848,14 @@ void FlexAirfoil::updateForces()
 
 FlexAirfoil::~FlexAirfoil()
 {
-	if (airfoil) delete airfoil; airfoil=0;
+	if (airfoil) delete airfoil;
 	if (!msh.isNull()) msh->unload();
+
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (facefaces         != nullptr) { free (facefaces); }
+	if (bandfaces         != nullptr) { free (bandfaces); }
+	if (cupfaces          != nullptr) { free (cupfaces); }
+	if (cdnfaces          != nullptr) { free (cdnfaces); }
 }

@@ -74,6 +74,10 @@ TerrainObjectManager::TerrainObjectManager(TerrainManager *terrainManager) :
 
 TerrainObjectManager::~TerrainObjectManager()
 {
+	for (MeshObject* mo : meshObjects)
+	{
+		if (mo) delete mo;
+	}
 #ifdef USE_PAGED
 	for (std::vector<paged_geometry_t>::iterator it=pagedGeometry.begin(); it!=pagedGeometry.end(); it++)
 	{
@@ -790,6 +794,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		if (String(mesh) != "none")
 		{
 			mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
+			meshObjects.push_back(mo);
 		}
 
 		//mo->setQueryFlags(OBJECTS_MASK);

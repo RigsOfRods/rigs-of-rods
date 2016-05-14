@@ -51,8 +51,6 @@ CameraManager::CameraManager(DOFManager *dof) :
 	, m_config_exit_vehicle_keep_fixedfreecam(false)
 	, mRotateSpeed(100.0f)
 {
-	gEnv->cameraManager = this;
-
 	createGlobalBehaviors();
 
 	ctx.mCurrTruck = 0;

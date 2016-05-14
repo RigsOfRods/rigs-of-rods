@@ -49,6 +49,8 @@ public:
 		float rimratio = 1.f
 	);
 
+	~FlexMesh ();
+
 	Ogre::Vector3 updateVertices();
 	Ogre::Vector3 updateShadowVertices();
 

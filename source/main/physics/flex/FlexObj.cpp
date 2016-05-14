@@ -354,4 +354,12 @@ Vector3 FlexObj::flexit()
 FlexObj::~FlexObj()
 {
 	if (!msh.isNull()) msh->unload();
+
+	if (subs              != nullptr) { free (subs); }
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (nodeIDs           != nullptr) { free (nodeIDs); }
+	if (faces             != nullptr) { free (faces); }
+	if (sref              != nullptr) { free (sref); }
 }

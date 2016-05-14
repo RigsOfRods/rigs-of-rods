@@ -200,6 +200,14 @@ FlexMeshWheel::FlexMeshWheel(
 			//msh->buildEdgeList();
 }
 
+FlexMeshWheel::~FlexMeshWheel()
+{
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (faces             != nullptr) { free (faces); }
+}
+
 Vector3 FlexMeshWheel::updateVertices()
 {
 	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;

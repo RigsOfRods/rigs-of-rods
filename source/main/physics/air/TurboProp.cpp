@@ -155,10 +155,7 @@ Turboprop::~Turboprop()
 	SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
 	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
 
-	delete heathazePS;
-
-	delete smokePS;
-	delete smokeNode;
+	if (airfoil != nullptr) delete airfoil;
 }
 
 void Turboprop::updateVisuals()
@@ -166,15 +163,13 @@ void Turboprop::updateVisuals()
 	//visuals
 	if (rpm>200)
 	{
-		int i;
-		for (i=0; i<free_vpale; i++) vpales[i]->setVisible(false);
-		vspinner->setVisible(true);
+		for (int i=0; i<free_vpale; i++) vpales[i]->setVisible(false);
+		if (vspinner) vspinner->setVisible(true);
 	}
 	else
 	{
-		int i;
-		for (i=0; i<free_vpale; i++) vpales[i]->setVisible(true);
-		vspinner->setVisible(false);
+		for (int i=0; i<free_vpale; i++) vpales[i]->setVisible(true);
+		if (vspinner) vspinner->setVisible(false);
 	}
 	//smoke
 	if (smokeNode)

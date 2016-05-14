@@ -521,6 +521,9 @@ void MainThread::Go()
 	delete gEnv->frameListener;
 	gEnv->frameListener = nullptr;
 
+	delete gEnv->cameraManager;
+	gEnv->cameraManager = nullptr;
+
 	delete gEnv;
 	gEnv = nullptr;
 
@@ -638,7 +641,7 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 	if (!m_base_resource_loaded)
 	{
 		// init camera manager after mygui and after we have a character
-		new CameraManager(gEnv->frameListener->m_dof);
+		gEnv->cameraManager = new CameraManager(gEnv->frameListener->m_dof);
 	}
 	
 	// ============================================================================
