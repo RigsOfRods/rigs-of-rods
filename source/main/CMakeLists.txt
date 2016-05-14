@@ -296,6 +296,9 @@ endif()
 #  EXECUTABLE TARGET
 ####################################################################################################
 
+if(Boost_FOUND)
+  link_directories   (${Boost_LIBRARY_DIRS})
+endif()
 link_directories   (${Ogre_LIBRARY_DIRS})
 link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
 link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
@@ -351,6 +354,7 @@ add_custom_command(
 ####################################################################################################
 
 target_compile_definitions( ${BINNAME} PRIVATE
+  BOOST_ALL_NO_LIB
   USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
   USE_RTSHADER_SYSTEM
   #FEAT_DEBUG_MUTEX
@@ -378,7 +382,9 @@ endif()
 #  INCLUDE DIRECTORIES
 ####################################################################################################
 
-
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
 include_directories(${Ogre_INCLUDE_DIRS})
 include_directories(${Ogre_Terrain_INCLUDE_DIRS})
 include_directories(${Ogre_Overlay_INCLUDE_DIRS})
@@ -441,7 +447,7 @@ IF(WIN32)
   add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
 ELSEIF(UNIX)
   include_directories(${GTK_INCLUDE_DIRS})
-  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt -lboost_system")
+  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 ENDIF(WIN32)
 
 
@@ -464,6 +470,7 @@ endif()
 
 
 target_link_libraries(${BINNAME}
+  ${Boost_LIBRARIES}
   ${Ogre_LIBRARIES}
   ${Ogre_Terrain_LIBRARIES}
   ${Ogre_Overlay_LIBRARIES}

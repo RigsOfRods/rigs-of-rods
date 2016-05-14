@@ -179,6 +179,7 @@ endmacro(importLib)
 
 ELSEIF(UNIX)
    find_package(PkgConfig)
+   find_package(Boost COMPONENTS system)
    PKG_CHECK_MODULES  (GTK gtk+-2.0 REQUIRED)
    PKG_CHECK_MODULES  (GTK_PIXBUF gdk-pixbuf-2.0 REQUIRED)
    include_directories(${GTK_INCLUDE_DIRS})
