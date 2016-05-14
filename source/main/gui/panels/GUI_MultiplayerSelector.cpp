@@ -91,7 +91,7 @@ void CLASS::CenterToScreen()
 
 bool CLASS::IsVisible()
 {
-	return MAIN_WIDGET->isVisible();
+	return MAIN_WIDGET->getVisible();
 }
 
 void CLASS::eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender)
