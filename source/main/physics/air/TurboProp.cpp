@@ -155,10 +155,10 @@ Turboprop::~Turboprop()
 	SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
 	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
 
-	delete heathazePS;
-
-	delete smokePS;
-	delete smokeNode;
+	if (heathazePS != nullptr) delete heathazePS;
+	if (smokePS    != nullptr) delete smokePS;
+	if (smokeNode  != nullptr) delete smokeNode;
+	if (airfoil    != nullptr) delete airfoil;
 }
 
 void Turboprop::updateVisuals()

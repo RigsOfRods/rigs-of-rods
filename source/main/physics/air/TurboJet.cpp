@@ -29,7 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool _heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr) : mr(mr)
+Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool _heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr)
 {
 	heathaze=_heathaze;
 	nodes=nd;
@@ -133,18 +133,25 @@ Turbojet::~Turbojet()
 	SoundScriptManager::getSingleton().trigStop(trucknum, ab_id);
 	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
 
-	delete heathazePS;
+	if (heathazePS != nullptr) delete heathazePS;
+	if (smokePS != nullptr) delete smokePS;
 
-	delete smokePS;
-	delete smokeNode;
+	if (smokeNode != nullptr) delete smokeNode;
 
-	flameMesh->setVisible(false);
-	delete flameMesh;
-	delete absnode;
+	if (flameMesh != nullptr)
+	{
+		flameMesh->setVisible(false);
+		delete flameMesh;
+	}
 
-	nozzleMesh->setVisible(false);
-	delete nozzleMesh;
-	delete nzsnode;
+	if (nozzleMesh != nullptr)
+	{
+		nozzleMesh->setVisible(false);
+		delete nozzleMesh;
+	}
+
+	if (absnode != nullptr) delete absnode;
+	if (nzsnode != nullptr) delete nzsnode;
 }
 
 void Turbojet::updateVisuals()

@@ -52,6 +52,8 @@ public:
 		MaterialReplacer *material_replacer
 	);
 
+	~FlexMeshWheel();
+
 	Ogre::Entity *getRimEntity() { return rimEnt; };
 
 	Ogre::Vector3 updateVertices();

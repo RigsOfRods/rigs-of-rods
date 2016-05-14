@@ -43,6 +43,12 @@ CameraBehaviorVehicleSpline::CameraBehaviorVehicleSpline() :
 {
 }
 
+CameraBehaviorVehicleSpline::~CameraBehaviorVehicleSpline()
+{
+	if (spline) delete spline;
+	if (splineObject) delete splineObject;
+}
+
 void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx)
 {
 	if ( ctx.mCurrTruck->free_camerarail <= 0 )

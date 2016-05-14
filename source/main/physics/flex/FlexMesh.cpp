@@ -229,6 +229,16 @@ FlexMesh::FlexMesh(
 	//msh->buildEdgeList();
 }
 
+FlexMesh::~FlexMesh()
+{
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (nodeIDs           != nullptr) { free (nodeIDs); }
+	if (facefaces         != nullptr) { free (facefaces); }
+	if (bandfaces         != nullptr) { free (bandfaces); }
+}
+
 Vector3 FlexMesh::updateVertices()
 {
 	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;

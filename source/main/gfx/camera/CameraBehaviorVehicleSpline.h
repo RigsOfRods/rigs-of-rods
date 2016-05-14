@@ -31,6 +31,7 @@ class CameraBehaviorVehicleSpline : public CameraBehaviorVehicle
 public:
 
 	CameraBehaviorVehicleSpline();
+	~CameraBehaviorVehicleSpline();
 
 	void update(const CameraManager::CameraContext &ctx);
 	

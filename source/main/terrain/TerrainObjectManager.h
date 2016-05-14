@@ -115,6 +115,7 @@ protected:
 	int free_localizer;
 
 	std::vector<animated_object_t> animatedObjects;
+	std::vector<MeshObject*> meshObjects;
 
 	typedef struct loadedObject_t
 	{

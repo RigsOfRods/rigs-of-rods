@@ -27,6 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class Flexable
 {
 public:
+	virtual ~Flexable() {};
 
 	virtual bool flexitPrepare() = 0;
 	virtual void flexitCompute() = 0;

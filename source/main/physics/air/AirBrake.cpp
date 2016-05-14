@@ -139,18 +139,29 @@ Airbrake::Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *
 	char entname[256];
 	sprintf(entname, "airbrakenode-%s-%i", basename, num);
 	ec = gEnv->sceneManager->createEntity(entname, meshname);
-	snode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+	snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	snode->attachObject(ec);
 
 	updatePosition(0.0);
+
+	free (vertices);
+	free (faces);
 }
 
 Airbrake::~Airbrake()
 {
-	ec->setVisible(false);
-	delete ec;
-	snode->setVisible(false);
-	delete snode;
+	if (!msh.isNull()) msh->unload();
+
+	if (ec)
+	{
+		ec->setVisible(false);
+		delete ec;
+	}
+	if (snode)
+	{
+		snode->setVisible(false);
+		delete snode;
+	}
 }
 
 void Airbrake::updatePosition(float amount)

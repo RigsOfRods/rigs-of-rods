@@ -58,6 +58,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "MaterialReplacer.h"
 #include "MeshObject.h"
 #include "MovableText.h"
 #include "Network.h"
@@ -77,6 +78,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
+#include "VideoCamera.h"
 #include "Water.h"
 #include "GUIManager.h"
 
@@ -125,11 +127,11 @@ Beam::~Beam()
 	// destruct and remove every tiny bit of stuff we created :-|
 	if (engine) delete engine; engine=0;
 	if (buoyance) delete buoyance; buoyance=0;
-	if (autopilot) delete autopilot;
-	if (fuseAirfoil) delete fuseAirfoil;
-	if (cabMesh) delete cabMesh;
-	if (materialFunctionMapper) delete materialFunctionMapper;
-	if (replay) delete replay;
+	if (autopilot) delete autopilot; autopilot=0;
+	if (fuseAirfoil) delete fuseAirfoil; fuseAirfoil=0;
+	if (cabMesh) delete cabMesh; cabMesh=0;
+	if (materialFunctionMapper) delete materialFunctionMapper; materialFunctionMapper=0;
+	if (replay) delete replay; replay=0;
 
 	// TODO: Make sure we catch everything here
 	// remove all scene nodes
@@ -161,7 +163,7 @@ Beam::~Beam()
 	for (int i=0; i<free_wing;i++)
 	{
 		// flexAirfoil, airfoil
-		if (wings[i].fa) delete wings[i].fa; wings[i].fa=0;
+		if (wings[i].fa) delete wings[i].fa;
 		if (wings[i].cnode)
 		{
 			wings[i].cnode->removeAndDestroyAllChildren();
@@ -198,7 +200,7 @@ Beam::~Beam()
 	for (int i=0; i<free_wheel;i++)
 	{
 
-		//if (vwheels[i].fm) delete vwheels[i].fm; // CRASH!
+		if (vwheels[i].fm) delete vwheels[i].fm;
 		if (vwheels[i].cnode)
 		{
 			vwheels[i].cnode->removeAndDestroyAllChildren();
@@ -313,6 +315,25 @@ Beam::~Beam()
 		netMT->setVisible(false);
 		delete netMT;
 		netMT = 0;
+	}
+
+	for (VideoCamera* v : vidcams)
+	{
+		delete v;
+	}
+
+	if (materialReplacer) delete materialReplacer;
+
+	if (intraPointCD) delete intraPointCD;
+	if (interPointCD) delete interPointCD;
+
+	if (cmdInertia) delete cmdInertia;
+	if (hydroInertia) delete hydroInertia;
+	if (rotaInertia) delete rotaInertia;
+
+	for (int i = 0; i < free_axle; ++i)
+	{
+		if (axles[i] != nullptr) delete (axles[i]);
 	}
 }
 
