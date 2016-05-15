@@ -62,5 +62,5 @@ int OgreScriptBuilder::LoadScriptSection(const char *filename)
 		hash = String(hash_result);
 	}
 
-	return ProcessScriptSection(code.c_str(), (unsigned int)(code.length()), filename);
+	return ProcessScriptSection(code.c_str(), (unsigned int)(code.length()), filename, 0);
 }

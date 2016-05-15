@@ -609,14 +609,14 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	struct curl_httppost *lastptr=NULL;
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	std::map<String, AngelScript::CScriptDictionary::valueStruct>::const_iterator it;
+	dictMap_t::const_iterator it;
 	for (it = params.dict->dict.begin(); it != params.dict->dict.end(); it++)
 	{
-		int typeId = it->second.typeId;
+		int typeId = it->second.m_typeId;
 		if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
 		{
 			// its a String
-			String *str = (String *)it->second.valueObj;
+			String *str = (String *)it->second.m_valueObj;
 			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, str->c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_INT8 \
@@ -625,7 +625,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 			|| typeId == AngelScript::asTYPEID_INT64)
 		{
 			// its an integer
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)it->second.valueInt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)it->second.m_valueInt).c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_UINT8 \
 			|| typeId == AngelScript::asTYPEID_UINT16 \
@@ -633,12 +633,12 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 			|| typeId == AngelScript::asTYPEID_UINT64)
 		{
 			// its an unsigned integer
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)it->second.valueInt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)it->second.m_valueInt).c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_FLOAT || typeId == AngelScript::asTYPEID_DOUBLE)
 		{
 			// its a float or double
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)it->second.valueFlt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)it->second.m_valueFlt).c_str(), CURLFORM_END);
 		}
 	}
 
@@ -801,15 +801,15 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	// why we need to do this: when we copy the std::map (dict) over, we calso jsut copy the pointers to String in it.
 	// when this continues and forks, AS releases the strings.
 	// so we will allocate new strings that are persistent.
-	std::map<String, AngelScript::CScriptDictionary::valueStruct>::iterator it;
+	dictMap_t::const_iterator it;
 	for (it = params->dict->dict.begin(); it != params->dict->dict.end(); it++)
 	{
-		int typeId = it->second.typeId;
+		int typeId = it->second.m_typeId;
 		if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
 		{
 			// its a String, copy it over
-			String *str = (String *)it->second.valueObj;
-			it->second.valueObj = (void *)new String(*str);
+			String *str = (String *)it->second.m_valueObj;
+			it->second.m_valueObj = (void *)new String(*str);
 		}
 	}
 
