@@ -130,6 +130,12 @@ TerrainManager::~TerrainManager()
 		delete(geometry_manager);
 		geometry_manager = nullptr;
 	}
+
+	if (shadow_manager != nullptr)
+	{
+		delete(shadow_manager);
+		shadow_manager = nullptr;
+	}
 }
 
 // some shortcut to remove ugly code

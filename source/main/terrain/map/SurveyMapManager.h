@@ -36,6 +36,7 @@ class SurveyMapManager : public wraps::BaseLayout // TODO: public IManager ...
 public:
 
 	SurveyMapManager();
+	~SurveyMapManager();
 
 	SurveyMapEntity *createMapEntity(Ogre::String type);
 	SurveyMapEntity *createNamedMapEntity(Ogre::String name, Ogre::String type);

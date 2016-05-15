@@ -205,6 +205,12 @@ Water::~Water()
 		rttTex2->removeAllListeners();
 		rttTex2 = nullptr;
 	}
+
+	if (wbuffer)
+	{
+		free (wbuffer);
+		wbuffer = nullptr;
+	}
 }
 
 void Water::processWater(int mType)

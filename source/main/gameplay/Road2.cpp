@@ -40,8 +40,6 @@ Road2::~Road2()
 	if (snode)
 	{
 		snode->removeAndDestroyAllChildren();
-		delete snode;
-		snode=0;
 	}
 	if (!msh.isNull())
 	{
@@ -50,10 +48,9 @@ Road2::~Road2()
 	}
 	if (registeredCollTris.size() > 0)
 	{
-		for (std::vector<int>::iterator it = registeredCollTris.begin(); it != registeredCollTris.end(); it++)
+		for (int number : registeredCollTris)
 		{
-			//coll->enableCollisionTri(*it, false);
-			gEnv->collisions->removeCollisionTri(*it);
+			gEnv->collisions->removeCollisionTri(number);
 		}
 	}
 }
@@ -641,4 +638,6 @@ void Road2::createMesh()
 
 	/// Notify Mesh object that it has been loaded
 	msh->load();
+
+	free (vertices);
 };
