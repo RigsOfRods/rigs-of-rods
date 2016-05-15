@@ -1048,6 +1048,12 @@ bool RoRFrameListener::updateEvents(float dt)
 						config_ptr = & config;
 					}
 
+					if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+					{
+						BeamFactory::getSingleton().setCurrentTruck(-1);
+					}
+					m_reload_pos = gEnv->player->getPosition();
+
 					if (m_reload_box == nullptr)
 					{
 						m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
@@ -1093,12 +1099,6 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		if (m_loading_state == ALL_LOADED && gEnv->player)
 		{
-			if (curr_truck)
-			{
-				BeamFactory::getSingleton().setCurrentTruck(-1);
-			}
-
-			m_reload_pos = gEnv->player->getPosition();
 			m_loading_state = RELOADING;
 
 			dirty=true;
