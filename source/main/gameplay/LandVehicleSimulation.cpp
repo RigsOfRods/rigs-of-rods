@@ -468,39 +468,30 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				} // end of if (gear_changed)
 			} // end of shitmode > BeamEngine::MANUAL
 
-			// anti roll back in BeamEngine::AUTOMATIC (DRIVE, TWO, ONE) mode
-			if (curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
-				(curr_truck->engine->getAutoShift() == BeamEngine::DRIVE ||
-				curr_truck->engine->getAutoShift() == BeamEngine::TWO ||
-				curr_truck->engine->getAutoShift() == BeamEngine::ONE) &&
-				curr_truck->WheelSpeed < +0.1f)
+			if (curr_truck->engine->hasContact() &&
+				curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
+				curr_truck->engine->getAutoShift() != BeamEngine::NEUTRAL &&
+				std::abs(curr_truck->WheelSpeed) < 0.1f)
 			{
 				Vector3 dirDiff = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
 				Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
 
-				if (pitchAngle.valueDegrees() > +1.0f)
+				if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
 				{
-					float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
-					float engine_force = std::abs(curr_truck->engine->getTorque());
-					float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
-					curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
-				}
-			}
-
-			// anti roll forth in BeamEngine::AUTOMATIC (REAR) mode
-			if (curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
-				curr_truck->engine->getAutoShift() == BeamEngine::REAR &&
-				curr_truck->WheelSpeed > -0.1f)
-			{
-				Vector3 dirDiff = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
-				Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
-
-				if (pitchAngle.valueDegrees() < -1.0f)
+					if (curr_truck->engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->WheelSpeed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
+					    curr_truck->engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->WheelSpeed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+					{
+						// anti roll back in BeamEngine::AUTOMATIC (DRIVE, TWO, ONE) mode
+						// anti roll forth in BeamEngine::AUTOMATIC (REAR) mode
+						float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
+						float engine_force = std::abs(curr_truck->engine->getTorque());
+						float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
+						curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
+					}
+				} else if (brake == 0.0f && accl == 0.0f)
 				{
-					float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
-					float engine_force = std::abs(curr_truck->engine->getTorque());
-					float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
-					curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
+					float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->WheelSpeed)) * 5.0f;
+					curr_truck->brake = curr_truck->brakeforce * ratio;
 				}
 			}
 		} // end of ->engine
