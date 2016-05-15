@@ -333,9 +333,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
 		if (gEnv->frameListener->m_loading_state == NONE_LOADED) return;
-		// get out first
-		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1) BeamFactory::getSingleton().setCurrentTruck(-1);
-		gEnv->frameListener->SetReloadPos(gEnv->player->getPosition());
 		gEnv->frameListener->m_loading_state = RELOADING;
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 
