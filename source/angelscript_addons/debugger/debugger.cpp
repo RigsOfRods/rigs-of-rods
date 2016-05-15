@@ -1,7 +1,8 @@
 #include "debugger.h"
 #include <iostream>  // cout
-#include <sstream> // stringstream
-#include <stdlib.h> // atoi
+#include <sstream>   // stringstream
+#include <stdlib.h>  // atoi
+#include <assert.h>  // assert
 
 using namespace std;
 
@@ -11,14 +12,23 @@ CDebugger::CDebugger()
 {
 	m_action = CONTINUE;
 	m_lastFunction = 0;
+	m_engine = 0;
 }
 
 CDebugger::~CDebugger()
 {
+	SetEngine(0);
 }
 
-string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asIScriptEngine *engine)
+string CDebugger::ToString(void *value, asUINT typeId, int expandMembers, asIScriptEngine *engine)
 {
+	if( value == 0 )
+		return "<null>";
+
+	// If no engine pointer was provided use the default
+	if( engine == 0 )
+		engine = m_engine;
+
 	stringstream s;
 	if( typeId == asTYPEID_VOID )
 		return "<void>";
@@ -58,14 +68,18 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 		s << *(asUINT*)value;
 
 		// Check if the value matches one of the defined enums
-		for( int n = engine->GetEnumValueCount(typeId); n-- > 0; )
+		if( engine )
 		{
-			int enumVal;
-			const char *enumName = engine->GetEnumValueByIndex(typeId, n, &enumVal);
-			if( enumVal == *(int*)value )
+			asITypeInfo *t = engine->GetTypeInfoById(typeId);
+			for( int n = t->GetEnumValueCount(); n-- > 0; )
 			{
-				s << ", " << enumName;
-				break;
+				int enumVal;
+				const char *enumName = t->GetEnumValueByIndex(n, &enumVal);
+				if( enumVal == *(int*)value )
+				{
+					s << ", " << enumName;
+					break;
+				}
 			}
 		}
 	}
@@ -76,15 +90,22 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 			value = *(void**)value;
 
 		asIScriptObject *obj = (asIScriptObject *)value;
-
+		
+		// Print the address of the object
 		s << "{" << obj << "}";
 
-		if( obj && expandMembers )
+		// Print the members
+		if( obj && expandMembers > 0 )
 		{
-			asIObjectType *type = obj->GetObjectType();
+			asITypeInfo *type = obj->GetObjectType();
 			for( asUINT n = 0; n < obj->GetPropertyCount(); n++ )
 			{
-				s << endl << "  " << type->GetPropertyDeclaration(n) << " = " << ToString(obj->GetAddressOfProperty(n), obj->GetPropertyTypeId(n), false, engine);
+				if( n == 0 )
+					s << " ";
+				else
+					s << ", ";
+
+				s << type->GetPropertyDeclaration(n) << " = " << ToString(obj->GetAddressOfProperty(n), obj->GetPropertyTypeId(n), expandMembers - 1, type->GetEngine());
 			}
 		}
 	}
@@ -94,17 +115,61 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 		if( typeId & asTYPEID_OBJHANDLE )
 			value = *(void**)value;
 
-		// TODO: Value types can have their properties expanded by default
-		
-		// Just print the address
-		s << "{" << value << "}";
+		// Print the address for reference types so it will be
+		// possible to see when handles point to the same object
+		if( engine )
+		{
+			asITypeInfo *type = engine->GetTypeInfoById(typeId);
+			if( type->GetFlags() & asOBJ_REF )
+				s << "{" << value << "}";
+
+			if( value )
+			{
+				// Check if there is a registered to-string callback
+				map<const asITypeInfo*, ToStringCallback>::iterator it = m_toStringCallbacks.find(type);
+				if( it == m_toStringCallbacks.end() )
+				{
+					// If the type is a template instance, there might be a
+					// to-string callback for the generic template type
+					if( type->GetFlags() & asOBJ_TEMPLATE )
+					{
+						asITypeInfo *tmplType = engine->GetTypeInfoByName(type->GetName());
+						it = m_toStringCallbacks.find(tmplType);
+					}
+				}
+
+				if( it != m_toStringCallbacks.end() )
+				{
+					if( type->GetFlags() & asOBJ_REF )
+						s << " ";
+
+					// Invoke the callback to get the string representation of this type
+					string str = it->second(value, expandMembers, this);
+					s << str;
+				}
+			}
+		}
+		else
+			s << "{no engine}";
 	}
 
 	return s.str();
 }
 
+void CDebugger::RegisterToStringCallback(const asITypeInfo *ot, ToStringCallback callback)
+{
+	if( m_toStringCallbacks.find(ot) == m_toStringCallbacks.end() )
+		m_toStringCallbacks.insert(map<const asITypeInfo*, ToStringCallback>::value_type(ot, callback));
+}
+
 void CDebugger::LineCallback(asIScriptContext *ctx)
 {
+	assert( ctx );
+
+	// This should never happen, but it doesn't hurt to validate it
+	if( ctx == 0 )
+		return;
+
 	// By default we ignore callbacks when the context is not active.
 	// An application might override this to for example disconnect the
 	// debugger as the execution finished.
@@ -141,9 +206,9 @@ void CDebugger::LineCallback(asIScriptContext *ctx)
 	}
 
 	stringstream s;
-	const char *file;
+	const char *file = 0;
 	int lineNbr = ctx->GetLineNumber(0, 0, &file);
-	s << file << ":" << lineNbr << "; " << ctx->GetFunction()->GetDeclaration() << endl;
+	s << (file ? file : "{unnamed}") << ":" << lineNbr << "; " << ctx->GetFunction()->GetDeclaration() << endl;
 	Output(s.str());
 
 	TakeCommands(ctx);
@@ -151,6 +216,9 @@ void CDebugger::LineCallback(asIScriptContext *ctx)
 
 bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+		return false;
+
 	// TODO: Should cache the break points in a function by checking which possible break points
 	//       can be hit when entering a function. If there are no break points in the current function
 	//       then there is no need to check every line.
@@ -169,40 +237,40 @@ bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 	if( m_lastFunction != func )
 	{
 		// Check if any breakpoints need adjusting
-		for( size_t n = 0; n < breakPoints.size(); n++ )
+		for( size_t n = 0; n < m_breakPoints.size(); n++ )
 		{
 			// We need to check for a breakpoint at entering the function
-			if( breakPoints[n].func )
+			if( m_breakPoints[n].func )
 			{
-				if( breakPoints[n].name == func->GetName() )
+				if( m_breakPoints[n].name == func->GetName() )
 				{
 					stringstream s;
-					s << "Entering function '" << breakPoints[n].name << "'. Transforming it into break point" << endl;
+					s << "Entering function '" << m_breakPoints[n].name << "'. Transforming it into break point" << endl;
 					Output(s.str());
 
 					// Transform the function breakpoint into a file breakpoint
-					breakPoints[n].name           = file;
-					breakPoints[n].lineNbr        = lineNbr;
-					breakPoints[n].func           = false;
-					breakPoints[n].needsAdjusting = false;
+					m_breakPoints[n].name           = file;
+					m_breakPoints[n].lineNbr        = lineNbr;
+					m_breakPoints[n].func           = false;
+					m_breakPoints[n].needsAdjusting = false;
 				}
 			}
 			// Check if a given breakpoint fall on a line with code or else adjust it to the next line
-			else if( breakPoints[n].needsAdjusting &&
-					 breakPoints[n].name == file )
+			else if( m_breakPoints[n].needsAdjusting &&
+					 m_breakPoints[n].name == file )
 			{
-				int line = func->FindNextLineWithCode(breakPoints[n].lineNbr);
+				int line = func->FindNextLineWithCode(m_breakPoints[n].lineNbr);
 				if( line >= 0 )
 				{
-					breakPoints[n].needsAdjusting = false;
-					if( line != breakPoints[n].lineNbr )
+					m_breakPoints[n].needsAdjusting = false;
+					if( line != m_breakPoints[n].lineNbr )
 					{
 						stringstream s;
 						s << "Moving break point " << n << " in file '" << file << "' to next line with code at line " << line << endl;
 						Output(s.str());
 
 						// Move the breakpoint to the next line
-						breakPoints[n].lineNbr = line;
+						m_breakPoints[n].lineNbr = line;
 					}
 				}
 			}
@@ -211,14 +279,14 @@ bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 	m_lastFunction = func;
 
 	// Determine if there is a breakpoint at the current line
-	for( size_t n = 0; n < breakPoints.size(); n++ )
+	for( size_t n = 0; n < m_breakPoints.size(); n++ )
 	{
 		// TODO: do case-less comparison for file name
 
 		// Should we break?
-		if( !breakPoints[n].func &&
-			breakPoints[n].lineNbr == lineNbr &&
-			breakPoints[n].name == file )
+		if( !m_breakPoints[n].func &&
+			m_breakPoints[n].lineNbr == lineNbr &&
+			m_breakPoints[n].name == file )
 		{
 			stringstream s;
 			s << "Reached break point " << n << " in file '" << file << "' at line " << lineNbr << endl;
@@ -259,11 +327,21 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 		break;
 
 	case 'n':
+		if( ctx == 0 )
+		{
+			Output("No script is running\n");
+			return false;
+		}
 		m_action = STEP_OVER;
 		m_lastCommandAtStackLevel = ctx->GetCallstackSize();
 		break;
 
 	case 'o':
+		if( ctx == 0 )
+		{
+			Output("No script is running\n");
+			return false;
+		}
 		m_action = STEP_OUT;
 		m_lastCommandAtStackLevel = ctx->GetCallstackSize();
 		break;
@@ -305,14 +383,14 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 				string br = cmd.substr(2);
 				if( br == "all" )
 				{
-					breakPoints.clear();
+					m_breakPoints.clear();
 					Output("All break points have been removed\n");
 				}
 				else
 				{
 					int nbr = atoi(br.c_str());
-					if( nbr >= 0 && nbr < (int)breakPoints.size() )
-						breakPoints.erase(breakPoints.begin()+nbr);
+					if( nbr >= 0 && nbr < (int)m_breakPoints.size() )
+						m_breakPoints.erase(m_breakPoints.begin()+nbr);
 					ListBreakPoints();
 				}
 			}
@@ -400,6 +478,11 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 
 	case 'a':
 		// abort the execution
+		if( ctx == 0 )
+		{
+			Output("No script is running\n");
+			return false;
+		}
 		ctx->Abort();
 		break;
 
@@ -415,57 +498,86 @@ bool CDebugger::InterpretCommand(const string &cmd, asIScriptContext *ctx)
 
 void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+	{
+		Output("No script is running\n");
+		return;
+	}
+
 	asIScriptEngine *engine = ctx->GetEngine();
 
-	int len;
-	asETokenClass t = engine->ParseToken(expr.c_str(), 0, &len);
-
-	// TODO: If the expression starts with :: we should only look for global variables
-	// TODO: If the expression starts with identifier followed by ::, then use that as namespace
-	if( t == asTC_IDENTIFIER )
+	// Tokenize the input string to get the variable scope and name
+	asUINT len = 0;
+	string scope;
+	string name;
+	string str = expr;
+	asETokenClass t = engine->ParseToken(str.c_str(), 0, &len);
+	while( t == asTC_IDENTIFIER || (t == asTC_KEYWORD && len == 2 && str.compare("::")) )
 	{
-		string name(expr.c_str(), len);
+		if( t == asTC_KEYWORD )
+		{
+			if( scope == "" && name == "" )
+				scope = "::";			// global scope
+			else if( scope == "::" || scope == "" )
+				scope = name;			// namespace
+			else
+				scope += "::" + name;	// nested namespace
+			name = "";
+		}
+		else if( t == asTC_IDENTIFIER )
+			name.assign(str.c_str(), len);
 
+		// Skip the parsed token and get the next one
+		str = str.substr(len);
+		t = engine->ParseToken(str.c_str(), 0, &len);
+	}
+
+	if( name.size() )
+	{
 		// Find the variable
 		void *ptr = 0;
-		int typeId;
+		int typeId = 0;
 
 		asIScriptFunction *func = ctx->GetFunction();
 		if( !func ) return;
 
-		// We start from the end, in case the same name is reused in different scopes
-		for( asUINT n = func->GetVarCount(); n-- > 0; )
+		// skip local variables if a scope was informed
+		if( scope == "" )
 		{
-			if( ctx->IsVarInScope(n) && name == ctx->GetVarName(n) )
+			// We start from the end, in case the same name is reused in different scopes
+			for( asUINT n = func->GetVarCount(); n-- > 0; )
 			{
-				ptr = ctx->GetAddressOfVar(n);
-				typeId = ctx->GetVarTypeId(n);
-				break;
-			}
-		}
-
-		// Look for class members, if we're in a class method
-		if( !ptr && func->GetObjectType() )
-		{
-			if( name == "this" )
-			{
-				ptr = ctx->GetThisPointer();
-				typeId = ctx->GetThisTypeId();
-			}
-			else
-			{
-				asIObjectType *type = engine->GetObjectTypeById(ctx->GetThisTypeId());
-				for( asUINT n = 0; n < type->GetPropertyCount(); n++ )
+				if( ctx->IsVarInScope(n) && name == ctx->GetVarName(n) )
 				{
-					const char *propName = 0;
-					int offset = 0;
-					bool isReference = 0;
-					type->GetProperty(n, &propName, &typeId, 0, &offset, &isReference);
-					if( name == propName )
+					ptr = ctx->GetAddressOfVar(n);
+					typeId = ctx->GetVarTypeId(n);
+					break;
+				}
+			}
+
+			// Look for class members, if we're in a class method
+			if( !ptr && func->GetObjectType() )
+			{
+				if( name == "this" )
+				{
+					ptr = ctx->GetThisPointer();
+					typeId = ctx->GetThisTypeId();
+				}
+				else
+				{
+					asITypeInfo *type = engine->GetTypeInfoById(ctx->GetThisTypeId());
+					for( asUINT n = 0; n < type->GetPropertyCount(); n++ )
 					{
-						ptr = (void*)(((asBYTE*)ctx->GetThisPointer())+offset);
-						if( isReference ) ptr = *(void**)ptr;
-						break;
+						const char *propName = 0;
+						int offset = 0;
+						bool isReference = 0;
+						type->GetProperty(n, &propName, &typeId, 0, 0, &offset, &isReference);
+						if( name == propName )
+						{
+							ptr = (void*)(((asBYTE*)ctx->GetThisPointer())+offset);
+							if( isReference ) ptr = *(void**)ptr;
+							break;
+						}
 					}
 				}
 			}
@@ -474,15 +586,27 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 		// Look for global variables
 		if( !ptr )
 		{
-			asIScriptModule *mod = ctx->GetEngine()->GetModule(func->GetModuleName(), asGM_ONLY_IF_EXISTS);
+			if( scope == "" )
+			{
+				// If no explicit scope was informed then use the namespace of the current function by default
+				scope = func->GetNamespace();
+			}
+			else if( scope == "::" )
+			{
+				// The global namespace will be empty
+				scope = "";
+			}
+
+			asIScriptModule *mod = func->GetModule();
 			if( mod )
 			{
 				for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 				{
-					// TODO: Handle namespace too
 					const char *varName = 0, *nameSpace = 0;
 					mod->GetGlobalVar(n, &varName, &nameSpace, &typeId);
-					if( name == varName )
+
+					// Check if both name and namespace match
+					if( name == varName && scope == nameSpace )
 					{
 						ptr = mod->GetAddressOfGlobalVar(n);
 						break;
@@ -494,9 +618,12 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 		if( ptr )
 		{
 			// TODO: If there is a . after the identifier, check for members
+			// TODO: If there is a [ after the identifier try to call the 'opIndex(expr) const' method 
 
 			stringstream s;
-			s << ToString(ptr, typeId, true, engine) << endl;
+			// TODO: Allow user to set if members should be expanded
+			// Expand members by default to 3 recursive levels only
+			s << ToString(ptr, typeId, 3, engine) << endl;
 			Output(s.str());
 		}
 	}
@@ -510,27 +637,41 @@ void CDebugger::ListBreakPoints()
 {
 	// List all break points
 	stringstream s;
-	for( size_t b = 0; b < breakPoints.size(); b++ )
-		if( breakPoints[b].func )
-			s << b << " - " << breakPoints[b].name << endl;
+	for( size_t b = 0; b < m_breakPoints.size(); b++ )
+		if( m_breakPoints[b].func )
+			s << b << " - " << m_breakPoints[b].name << endl;
 		else
-			s << b << " - " << breakPoints[b].name << ":" << breakPoints[b].lineNbr << endl;
+			s << b << " - " << m_breakPoints[b].name << ":" << m_breakPoints[b].lineNbr << endl;
 	Output(s.str());
 }
 
 void CDebugger::ListMemberProperties(asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+	{
+		Output("No script is running\n");
+		return;
+	}
+
 	void *ptr = ctx->GetThisPointer();
 	if( ptr )
 	{
 		stringstream s;
-		s << "this = " << ToString(ptr, ctx->GetThisTypeId(), true, ctx->GetEngine()) << endl;
+		// TODO: Allow user to define if members should be expanded or not
+		// Expand members by default to 3 recursive levels only
+		s << "this = " << ToString(ptr, ctx->GetThisTypeId(), 3, ctx->GetEngine()) << endl;
 		Output(s.str());
 	}
 }
 
 void CDebugger::ListLocalVariables(asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+	{
+		Output("No script is running\n");
+		return;
+	}
+
 	asIScriptFunction *func = ctx->GetFunction();
 	if( !func ) return;
 
@@ -538,32 +679,50 @@ void CDebugger::ListLocalVariables(asIScriptContext *ctx)
 	for( asUINT n = 0; n < func->GetVarCount(); n++ )
 	{
 		if( ctx->IsVarInScope(n) )
-			s << func->GetVarDecl(n) << " = " << ToString(ctx->GetAddressOfVar(n), ctx->GetVarTypeId(n), false, ctx->GetEngine()) << endl;
+		{
+			// TODO: Allow user to set if members should be expanded or not
+			// Expand members by default to 3 recursive levels only
+			s << func->GetVarDecl(n) << " = " << ToString(ctx->GetAddressOfVar(n), ctx->GetVarTypeId(n), 3, ctx->GetEngine()) << endl;
+		}
 	}
 	Output(s.str());
 }
 
 void CDebugger::ListGlobalVariables(asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+	{
+		Output("No script is running\n");
+		return;
+	}
+
 	// Determine the current module from the function
 	asIScriptFunction *func = ctx->GetFunction();
 	if( !func ) return;
 
-	asIScriptModule *mod = ctx->GetEngine()->GetModule(func->GetModuleName(), asGM_ONLY_IF_EXISTS);
+	asIScriptModule *mod = func->GetModule();
 	if( !mod ) return;
 
 	stringstream s;
 	for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 	{
-		int typeId;
+		int typeId = 0;
 		mod->GetGlobalVar(n, 0, 0, &typeId);
-		s << mod->GetGlobalVarDeclaration(n) << " = " << ToString(mod->GetAddressOfGlobalVar(n), typeId, false, ctx->GetEngine()) << endl;
+		// TODO: Allow user to set how many recursive expansions should be done
+		// Expand members by default to 3 recursive levels only
+		s << mod->GetGlobalVarDeclaration(n) << " = " << ToString(mod->GetAddressOfGlobalVar(n), typeId, 3, ctx->GetEngine()) << endl;
 	}
 	Output(s.str());
 }
 
 void CDebugger::ListStatistics(asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+	{
+		Output("No script is running\n");
+		return;
+	}
+
 	asIScriptEngine *engine = ctx->GetEngine();
 	
 	asUINT gcCurrSize, gcTotalDestr, gcTotalDet, gcNewObjects, gcTotalNewDestr;
@@ -582,9 +741,15 @@ void CDebugger::ListStatistics(asIScriptContext *ctx)
 
 void CDebugger::PrintCallstack(asIScriptContext *ctx)
 {
+	if( ctx == 0 )
+	{
+		Output("No script is running\n");
+		return;
+	}
+
 	stringstream s;
-	const char *file;
-	int lineNbr;
+	const char *file = 0;
+	int lineNbr = 0;
 	for( asUINT n = 0; n < ctx->GetCallstackSize(); n++ )
 	{
 		lineNbr = ctx->GetLineNumber(n, 0, &file);
@@ -605,7 +770,7 @@ void CDebugger::AddFuncBreakPoint(const string &func)
 	Output(s.str());
 
 	BreakPoint bp(actual, 0, true);
-	breakPoints.push_back(bp);
+	m_breakPoints.push_back(bp);
 }
 
 void CDebugger::AddFileBreakPoint(const string &file, int lineNbr)
@@ -628,7 +793,7 @@ void CDebugger::AddFileBreakPoint(const string &file, int lineNbr)
 	Output(s.str());
 
 	BreakPoint bp(actual, lineNbr, false);
-	breakPoints.push_back(bp);
+	m_breakPoints.push_back(bp);
 }
 
 void CDebugger::PrintHelp()
@@ -650,6 +815,23 @@ void CDebugger::Output(const string &str)
 {
 	// By default we just output to stdout
 	cout << str;
+}
+
+void CDebugger::SetEngine(asIScriptEngine *engine)
+{
+	if( m_engine != engine )
+	{
+		if( m_engine )
+			m_engine->Release();
+		m_engine = engine;
+		if( m_engine )
+			m_engine->AddRef();
+	}
+}
+
+asIScriptEngine *CDebugger::GetEngine()
+{
+	return m_engine;
 }
 
 END_AS_NAMESPACE

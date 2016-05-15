@@ -18,7 +18,7 @@ BEGIN_AS_NAMESPACE
 
 CScriptFile *ScriptFile_Factory()
 {
-    return new CScriptFile();
+	return new CScriptFile();
 }
 
 void ScriptFile_Factory_Generic(asIScriptGeneric *gen)
@@ -65,17 +65,15 @@ void ScriptFile_ReadString_Generic(asIScriptGeneric *gen)
 {
 	CScriptFile *file = (CScriptFile*)gen->GetObject();
 	int len = gen->GetArgDWord(0);
-	std::string *str = (std::string*)gen->GetArgAddress(1);
-	len = file->ReadString(len, *str);
-	gen->SetReturnDWord(len);
+	string str = file->ReadString(len);
+	gen->SetReturnObject(&str);
 }
 
 void ScriptFile_ReadLine_Generic(asIScriptGeneric *gen)
 {
 	CScriptFile *file = (CScriptFile*)gen->GetObject();
-	std::string *str = (std::string*)gen->GetArgAddress(0);
-	int len = file->ReadLine(*str);
-	gen->SetReturnDWord(len);
+	std::string str = file->ReadLine();
+	gen->SetReturnObject(&str);
 }
 
 void ScriptFile_ReadInt_Generic(asIScriptGeneric *gen)
@@ -181,8 +179,8 @@ void RegisterScriptFile_Native(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("file", "int close()", asMETHOD(CScriptFile,Close), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "int getSize() const", asMETHOD(CScriptFile,GetSize), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "bool isEndOfFile() const", asMETHOD(CScriptFile,IsEOF), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("file", "int readString(uint, string &out)", asMETHOD(CScriptFile,ReadString), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("file", "int readLine(string &out)", asMETHOD(CScriptFile,ReadLine), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("file", "string readString(uint)", asMETHOD(CScriptFile,ReadString), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("file", "string readLine()", asMETHOD(CScriptFile,ReadLine), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "int64 readInt(uint)", asMETHOD(CScriptFile,ReadInt), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "uint64 readUInt(uint)", asMETHOD(CScriptFile,ReadUInt), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "float readFloat()", asMETHOD(CScriptFile,ReadFloat), asCALL_THISCALL); assert( r >= 0 );
@@ -214,8 +212,8 @@ void RegisterScriptFile_Generic(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("file", "int close()", asFUNCTION(ScriptFile_Close_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "int getSize() const", asFUNCTION(ScriptFile_GetSize_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "bool isEndOfFile() const", asFUNCTION(ScriptFile_IsEOF_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("file", "int readString(uint, string &out)", asFUNCTION(ScriptFile_ReadString_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("file", "int readLine(string &out)", asFUNCTION(ScriptFile_ReadLine_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("file", "string readString(uint)", asFUNCTION(ScriptFile_ReadString_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("file", "string readLine()", asFUNCTION(ScriptFile_ReadLine_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "int64 readInt(uint)", asFUNCTION(ScriptFile_ReadInt_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "uint64 readUInt(uint)", asFUNCTION(ScriptFile_ReadUInt_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "float readFloat()", asFUNCTION(ScriptFile_ReadFloat_Generic), asCALL_GENERIC); assert( r >= 0 );
@@ -244,14 +242,14 @@ void RegisterScriptFile(asIScriptEngine *engine)
 
 CScriptFile::CScriptFile()
 {
-    refCount = 1;
-    file = 0;
+	refCount = 1;
+	file = 0;
 	mostSignificantByteFirst = false;
 }
 
 CScriptFile::~CScriptFile()
 {
-    Close();
+	Close();
 }
 
 void CScriptFile::AddRef() const
@@ -261,83 +259,83 @@ void CScriptFile::AddRef() const
 
 void CScriptFile::Release() const
 {
-    if( asAtomicDec(refCount) == 0 )
-        delete this;
+	if( asAtomicDec(refCount) == 0 )
+		delete this;
 }
 
 int CScriptFile::Open(const std::string &filename, const std::string &mode)
 {
-    // Close the previously opened file handle
-    if( file )
-        Close();
+	// Close the previously opened file handle
+	if( file )
+		Close();
 
-    std::string myFilename = filename;
+	std::string myFilename = filename;
 
-    // Validate the mode
+	// Validate the mode
 	string m;
 #if AS_WRITE_OPS == 1
-    if( mode != "r" && mode != "w" && mode != "a" )
+	if( mode != "r" && mode != "w" && mode != "a" )
 #else
 	if( mode != "r" )
 #endif
-        return -1;
+		return -1;
 	else
 		m = mode;
 
 #ifdef _WIN32_WCE
-    // no relative pathing on CE
-    char buf[MAX_PATH];
-    static TCHAR apppath[MAX_PATH] = TEXT("");
-    if (!apppath[0])
-    {
-        GetModuleFileName(NULL, apppath, MAX_PATH);
-        
-        int appLen = _tcslen(apppath);
-        while (appLen > 1)
-        {
-            if (apppath[appLen-1] == TEXT('\\'))
-                break;
-            appLen--;
-        }
+	// no relative pathing on CE
+	char buf[MAX_PATH];
+	static TCHAR apppath[MAX_PATH] = TEXT("");
+	if (!apppath[0])
+	{
+		GetModuleFileName(NULL, apppath, MAX_PATH);
 
-        // Terminate the string after the trailing backslash
-        apppath[appLen] = TEXT('\0');
-    }
+		int appLen = _tcslen(apppath);
+		while (appLen > 1)
+		{
+			if (apppath[appLen-1] == TEXT('\\'))
+				break;
+			appLen--;
+		}
+
+		// Terminate the string after the trailing backslash
+		apppath[appLen] = TEXT('\0');
+	}
 #ifdef _UNICODE
-    wcstombs(buf, apppath, wcslen(apppath)+1);
+	wcstombs(buf, apppath, wcslen(apppath)+1);
 #else
-    memcpy(buf, apppath, strlen(apppath));
+	memcpy(buf, apppath, strlen(apppath));
 #endif
-    myFilename = buf + myFilename;
+	myFilename = buf + myFilename;
 #endif
 
 
 	// By default windows translates "\r\n" to "\n", but we want to read the file as-is.
 	m += "b";
 
-    // Open the file
+	// Open the file
 #if _MSC_VER >= 1400 && !defined(__S3E__) 
 	// MSVC 8.0 / 2005 introduced new functions 
 	// Marmalade doesn't use these, even though it uses the MSVC compiler
 	fopen_s(&file, myFilename.c_str(), m.c_str());
 #else
-    file = fopen(myFilename.c_str(), m.c_str());
+	file = fopen(myFilename.c_str(), m.c_str());
 #endif
-    if( file == 0 )
-        return -1;
+	if( file == 0 )
+		return -1;
 
-    return 0;
+	return 0;
 }
 
 int CScriptFile::Close()
 {
-    if( file == 0 )
-        return -1;
+	if( file == 0 )
+		return -1;
 
-    fclose(file);
-    file = 0;
+	fclose(file);
+	file = 0;
 
-    return 0;
+	return 0;
 }
 
 int CScriptFile::GetSize() const
@@ -383,26 +381,27 @@ int CScriptFile::MovePos(int delta)
 	return r ? -1 : 0;
 }
 
-int CScriptFile::ReadString(unsigned int length, std::string &str)
+string CScriptFile::ReadString(unsigned int length)
 {
 	if( file == 0 )
-		return 0;
+		return "";
 
 	// Read the string
+	string str;
 	str.resize(length);
 	int size = (int)fread(&str[0], 1, length, file); 
 	str.resize(size);
 
-	return size;
+	return str;
 }
 
-int CScriptFile::ReadLine(std::string &str)
+string CScriptFile::ReadLine()
 {
 	if( file == 0 )
-		return 0;
+		return "";
 
 	// Read until the first new-line character
-	str = "";
+	string str;
 	char buf[256];
 
 	do
@@ -425,7 +424,7 @@ int CScriptFile::ReadLine(std::string &str)
 	}
 	while( !feof(file) && buf[255] == 0 && buf[254] != '\n' );
 
-	return int(str.size());
+	return str;
 }
 
 asINT64 CScriptFile::ReadInt(asUINT bytes)
@@ -446,6 +445,9 @@ asINT64 CScriptFile::ReadInt(asUINT bytes)
 		unsigned int n = 0;
 		for( ; n < bytes; n++ )
 			val |= asQWORD(buf[n]) << ((bytes-n-1)*8);
+
+		// Check the most significant byte to determine if the rest 
+		// of the qword must be filled to give a negative value
 		if( buf[0] & 0x80 )
 			for( ; n < 8; n++ )
 				val |= asQWORD(0xFF) << (n*8);
@@ -455,7 +457,10 @@ asINT64 CScriptFile::ReadInt(asUINT bytes)
 		unsigned int n = 0;
 		for( ; n < bytes; n++ )
 			val |= asQWORD(buf[n]) << (n*8);
-		if( buf[0] & 0x80 )
+
+		// Check the most significant byte to determine if the rest 
+		// of the qword must be filled to give a negative value
+		if( buf[bytes-1] & 0x80 )
 			for( ; n < 8; n++ )
 				val |= asQWORD(0xFF) << (n*8);
 	}

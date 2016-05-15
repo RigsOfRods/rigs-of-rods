@@ -28,13 +28,13 @@ template <typename T> struct ObjLast {};
 template <typename T> struct Constructor {};
 
 template <typename T>
-void destroy(asIScriptGeneric * gen) {
+void destroy(AS_NAMESPACE_QUALIFIER asIScriptGeneric * gen) {
   static_cast<T *>(gen->GetObject())->~T();
 }
 template <>
 struct Wrapper<void (*)(void)> {
 	template <void (*fp)(void)>
-	static void f(AS_NAMESPACE_QUALIFIER asIScriptGeneric * gen) {
+	static void f(AS_NAMESPACE_QUALIFIER asIScriptGeneric * /*gen*/) {
 		((fp)());
 	}
 };
@@ -549,7 +549,7 @@ struct Id {
 };
 
 template <typename T>
-Id<T> id(T fn_ptr) { return Id<T>(); }
+Id<T> id(T /*fn_ptr*/) { return Id<T>(); }
 
 // On some versions of GNUC it is necessary to use the template keyword as disambiguator,
 // on others the template keyword gives an error, hence the need for the following define.

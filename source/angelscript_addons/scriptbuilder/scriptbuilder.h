@@ -20,13 +20,13 @@
 // Declaration
 //
 
-#ifndef ANGELSCRIPT_H 
+#ifndef ANGELSCRIPT_H
 // Avoid having to inform include path if header is already include before
 #include <angelscript.h>
 #endif
 
 
-#if defined(_MSC_VER) && _MSC_VER <= 1200 
+#if defined(_MSC_VER) && _MSC_VER <= 1200
 // disable the annoying warnings on MSVC 6
 #pragma warning (disable:4786)
 #endif
@@ -35,6 +35,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <string.h> // _strcmpi
 
 BEGIN_AS_NAMESPACE
 
@@ -46,7 +47,7 @@ class CScriptBuilder;
 // then the function should return a negative value to abort the compilation.
 typedef int (*INCLUDECALLBACK_t)(const char *include, const char *from, CScriptBuilder *builder, void *userParam);
 
-// Helper class for loading and pre-processing script files to 
+// Helper class for loading and pre-processing script files to
 // support include directives and metadata declarations
 class CScriptBuilder
 {
@@ -67,8 +68,9 @@ public:
 	//          0 if a section with the same name had already been included before
 	//         <0 on error
 	int AddSectionFromMemory(const char *sectionName,
-							 const char *scriptCode, 
-							 unsigned int scriptLength = 0);
+							 const char *scriptCode,
+							 unsigned int scriptLength = 0,
+							 int lineOffset = 0);
 
 	// Build the added script sections
 	int BuildModule();
@@ -81,6 +83,10 @@ public:
 
 	// Add a pre-processor define for conditional compilation
 	void DefineWord(const char *word);
+
+	// Enumerate included script sections
+	unsigned int GetSectionCount() const;
+	std::string  GetSectionName(unsigned int idx) const;
 
 #if AS_PROCESS_METADATA == 1
 	// Get metadata declared for class types and interfaces
@@ -102,8 +108,8 @@ public:
 protected:
 	void ClearAll();
 	int  Build();
-	int  ProcessScriptSection(const char *script, unsigned int length, const char *sectionname);
-	virtual int  LoadScriptSection(const char *filename);
+	int  ProcessScriptSection(const char *script, unsigned int length, const char *sectionname, int lineOffset);
+	int  LoadScriptSection(const char *filename);
 	bool IncludeIfNotAlreadyIncluded(const char *filename);
 
 	int  SkipStatement(int pos);
@@ -153,7 +159,30 @@ protected:
 
 #endif
 
+#ifdef _WIN32
+	// On Windows the filenames are case insensitive so the comparisons to
+	// avoid duplicate includes must also be case insensitive. True case insensitive
+	// is not easy as it must be language aware, but a simple implementation such
+	// as strcmpi should suffice in almost all cases.
+	//
+	// ref: http://www.gotw.ca/gotw/029.htm
+	// ref: https://msdn.microsoft.com/en-us/library/windows/desktop/dd317761(v=vs.85).aspx
+	// ref: http://site.icu-project.org/
+
+	// TODO: Strings by default are treated as UTF8 encoded. If the application choses to
+	//       use a different encoding, the comparison algorithm should be adjusted as well
+
+	struct ci_less
+	{
+		bool operator()(const std::string &a, const std::string &b) const
+		{
+			return _strcmpi(a.c_str(), b.c_str()) < 0;
+		}
+	};
+	std::set<std::string, ci_less> includedScripts;
+#else
 	std::set<std::string>      includedScripts;
+#endif
 
 	std::set<std::string>      definedWords;
 };

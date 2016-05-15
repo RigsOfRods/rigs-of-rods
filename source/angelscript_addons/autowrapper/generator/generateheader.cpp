@@ -55,7 +55,7 @@ int main()
 	"template <typename T> struct Constructor {};\n"
 	"\n"
 	"template <typename T>\n"
-	"void destroy(asIScriptGeneric * gen) {\n"
+	"void destroy(AS_NAMESPACE_QUALIFIER asIScriptGeneric * gen) {\n"
 	"	static_cast<T *>(gen->GetObject())->~T();\n"
 	"}\n");
 

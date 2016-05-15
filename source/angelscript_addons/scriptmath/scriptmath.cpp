@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <math.h>
+#include <float.h>
 #include <string.h>
 #include "scriptmath.h"
 
@@ -71,9 +72,77 @@ double fraction(double v)
 }
 #endif
 
+// As AngelScript doesn't allow bitwise manipulation of float types we'll provide a couple of
+// functions for converting float values to IEEE 754 formatted values etc. This also allow us to 
+// provide a platform agnostic representation to the script so the scripts don't have to worry
+// about whether the CPU uses IEEE 754 floats or some other representation
+float fpFromIEEE(asUINT raw)
+{
+	// TODO: Identify CPU family to provide proper conversion
+	//        if the CPU doesn't natively use IEEE style floats
+	return *reinterpret_cast<float*>(&raw);
+}
+asUINT fpToIEEE(float fp)
+{
+	return *reinterpret_cast<asUINT*>(&fp);
+}
+double fpFromIEEE(asQWORD raw)
+{
+	return *reinterpret_cast<double*>(&raw);
+}
+asQWORD fpToIEEE(double fp)
+{
+	return *reinterpret_cast<asQWORD*>(&fp);
+}
+
+// closeTo() is used to determine if the binary representation of two numbers are 
+// relatively close to each other. Numerical errors due to rounding errors build
+// up over many operations, so it is almost impossible to get exact numbers and
+// this is where closeTo() comes in.
+//
+// It shouldn't be used to determine if two numbers are mathematically close to 
+// each other.
+//
+// ref: http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+// ref: http://www.gamedev.net/topic/653449-scriptmath-and-closeto/
+bool closeTo(float a, float b, float epsilon)
+{
+	// Equal numbers and infinity will return immediately
+	if( a == b ) return true;
+
+	// When very close to 0, we can use the absolute comparison
+	float diff = fabsf(a - b);
+	if( (a == 0 || b == 0) && (diff < epsilon) )
+		return true;
+	
+	// Otherwise we need to use relative comparison to account for precision
+	return diff / (fabs(a) + fabs(b)) < epsilon;
+}
+
+bool closeTo(double a, double b, double epsilon)
+{
+	if( a == b ) return true;
+
+	double diff = fabs(a - b);
+	if( (a == 0 || b == 0) && (diff < epsilon) )
+		return true;
+	
+	return diff / (fabs(a) + fabs(b)) < epsilon;
+}
+
 void RegisterScriptMath_Native(asIScriptEngine *engine)
 {
 	int r;
+
+	// Conversion between floating point and IEEE bits representations
+	r = engine->RegisterGlobalFunction("float fpFromIEEE(uint)", asFUNCTIONPR(fpFromIEEE, (asUINT), float), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterGlobalFunction("uint fpToIEEE(float)", asFUNCTIONPR(fpToIEEE, (float), asUINT), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterGlobalFunction("double fpFromIEEE(uint64)", asFUNCTIONPR(fpFromIEEE, (asQWORD), double), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterGlobalFunction("uint64 fpToIEEE(double)", asFUNCTIONPR(fpToIEEE, (double), asQWORD), asCALL_CDECL); assert( r >= 0 );
+
+	// Close to comparison with epsilon 
+	r = engine->RegisterGlobalFunction("bool closeTo(float, float, float = 0.00001f)", asFUNCTIONPR(closeTo, (float, float, float), bool), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterGlobalFunction("bool closeTo(double, double, double = 0.0000000001)", asFUNCTIONPR(closeTo, (double, double, double), bool), asCALL_CDECL); assert( r >= 0 );
 
 #if AS_USE_FLOAT
 	// Trigonometric functions

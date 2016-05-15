@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 BEGIN_AS_NAMESPACE
 
@@ -16,6 +17,13 @@ class CDebugger
 public:
 	CDebugger();
 	virtual ~CDebugger();
+
+	// Register callbacks to handle to-string conversions of application types
+	// The expandMembersLevel is a counter for how many recursive levels the members should be expanded.
+	// If the object that is being converted to a string has members of its own the callback should call
+	// the debugger's ToString passing in expandMembersLevel - 1.
+	typedef std::string (*ToStringCallback)(void *obj, int expandMembersLevel, CDebugger *dbg);
+	virtual void RegisterToStringCallback(const asITypeInfo *ti, ToStringCallback callback);
 
 	// User interaction
 	virtual void TakeCommands(asIScriptContext *ctx);
@@ -39,8 +47,13 @@ public:
 	// Helpers
 	virtual bool InterpretCommand(const std::string &cmd, asIScriptContext *ctx);
 	virtual bool CheckBreakPoint(asIScriptContext *ctx);
-	virtual std::string ToString(void *value, asUINT typeId, bool expandMembers, asIScriptEngine *engine);
+	virtual std::string ToString(void *value, asUINT typeId, int expandMembersLevel, asIScriptEngine *engine);
 
+	// Optionally set the engine pointer in the debugger so it can be retrieved
+	// by callbacks that need it. This will hold a reference to the engine.
+	virtual void SetEngine(asIScriptEngine *engine);
+	virtual asIScriptEngine *GetEngine();
+	
 protected:
 	enum DebugAction
 	{
@@ -61,7 +74,12 @@ protected:
 		bool        func;
 		bool        needsAdjusting;
 	};
-	std::vector<BreakPoint> breakPoints;
+	std::vector<BreakPoint> m_breakPoints;
+
+	asIScriptEngine *m_engine;
+
+	// Registered callbacks for converting types to strings
+	std::map<const asITypeInfo*, ToStringCallback> m_toStringCallbacks;
 };
 
 END_AS_NAMESPACE

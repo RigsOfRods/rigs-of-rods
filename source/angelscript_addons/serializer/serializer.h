@@ -30,7 +30,7 @@ struct CUserType
 	virtual ~CUserType() {};
 	virtual void Store(CSerializedValue *val, void *ptr) = 0;
 	virtual void Restore(CSerializedValue *val, void *ptr) = 0;
-	virtual void CleanupUserData(CSerializedValue *val) {}
+	virtual void CleanupUserData(CSerializedValue * /*val*/) {}
 };
 
 
@@ -51,7 +51,7 @@ public:
 	void SetType(int typeId);
 
 	// Returns the object type for non-primitives
-	asIObjectType *GetType();
+	asITypeInfo *GetType();
 
 	// Get child by name variable
 	CSerializedValue *FindByName(const std::string &name, const std::string &nameSpace);

@@ -15,14 +15,14 @@ public:
 	// Constructors
 	CScriptHandle();
 	CScriptHandle(const CScriptHandle &other);
-	CScriptHandle(void *ref, asIObjectType *type);
+	CScriptHandle(void *ref, asITypeInfo *type);
 	~CScriptHandle();
 
 	// Copy the stored value from another any object
 	CScriptHandle &operator=(const CScriptHandle &other);
 
 	// Set the reference
-	void Set(void *ref, asIObjectType *type);
+	void Set(void *ref, asITypeInfo *type);
 
 	// Compare equalness
 	bool operator==(const CScriptHandle &o) const;
@@ -33,7 +33,11 @@ public:
 	void Cast(void **outRef, int typeId);
 
 	// Returns the type of the reference held
-	asIObjectType *GetType();
+	asITypeInfo *GetType() const;
+	int          GetTypeId() const;
+
+	// Get the reference
+	void *GetRef();
 
 protected:
 	// These functions need to have access to protected
@@ -50,8 +54,8 @@ protected:
 	CScriptHandle(void *ref, int typeId);
 	CScriptHandle &Assign(void *ref, int typeId);
 
-	void          *m_ref;
-	asIObjectType *m_type;
+	void        *m_ref;
+	asITypeInfo *m_type;
 };
 
 void RegisterScriptHandle(asIScriptEngine *engine);
