@@ -5,276 +5,162 @@
 // Originally implemented by George Yohng from 4Front Technologies in 2009-03-11
 // Modifications by Pierre Fortin in order to add constructor wrapper generation
 //
+// A completely new implementation of automatic wrapper functions was
+// implemented by SiCrane at GameDev.net in 2011-12-18. The generator was 
+// adapted from Python to C++ by Andreas.
+//
+// ref: http://www.gamedev.net/topic/617111-more-angelscript-binding-wrappers/
+//
+
 
 #include <stdio.h>
+#include <string>
 
 // Generate templates for up to this number of function parameters
-const int MAXPARAM = 10;
+const int max_args = 4;
 
+using namespace std;
+
+void PrintTemplate(const char *base, const char *typeNameList, const char *retType, const char *objType, const char *isConst, const char *newExpr, const char *objExpr, const char *argList1, const char *argList2, const char *wrapName);
+void PrintConstructor(const char *comma, const char *typeNameList, const char *typeList, const char *argList);
 
 int main()
 {
-    printf("#ifndef ASWRAPPEDCALL_H\n"
-           "#define ASWRAPPEDCALL_H\n\n");
+	printf("#ifndef AS_GEN_WRAPPER_H\n"
+	"#define AS_GEN_WRAPPER_H\n"
+	"\n"
+	"#ifndef ANGELSCRIPT_H\n"
+	"// Avoid having to inform include path if header is already include before\n"
+	"#include <angelscript.h>\n"
+	"#endif\n"
+	"#include <new>\n"
+	"\n"
+	"namespace gw {\n"
+	"\n"
+	"template <typename T> class Proxy {\n"
+	"	public:\n"
+	"		T value;\n"
+	"		Proxy(T value) : value(value) {}\n"
+	"		static T cast(void * ptr) {\n"
+	"			return reinterpret_cast<Proxy<T> *>(&ptr)->value;\n"
+	"		}\n"
+	"	private:\n"
+	"		Proxy(const Proxy &);\n"
+	"		Proxy & operator=(const Proxy &);\n"
+	"};\n"
+	"\n"
+	"template <typename T> struct Wrapper {};\n"
+	"template <typename T> struct ObjFirst {};\n"
+	"template <typename T> struct ObjLast {};\n"
+	"template <typename T> struct Constructor {};\n"
+	"\n"
+	"template <typename T>\n"
+	"void destroy(asIScriptGeneric * gen) {\n"
+	"	static_cast<T *>(gen->GetObject())->~T();\n"
+	"}\n");
 
-	// Add some instructions on how to use this
-	printf("// Generate the wrappers by calling the macros in global scope. \n");
-	printf("// Then register the wrapper function with the script engine using the asCALL_GENERIC \n");
-	printf("// calling convention. The wrapper can handle both global functions and class methods.\n");
-	printf("// The wrapper can also handle OBJLAST & OBJFIRST methods as well.\n");
-	printf("// or a asCALL_CDECL_OBJLAST.\n");
-	printf("//\n");
-	printf("// Example:\n");
-	printf("//\n");
-	printf("// asDECLARE_FUNCTION_WRAPPER(MyGenericWrapper, MyRealFunction);\n");
-	printf("// asDECLARE_FUNCTION_WRAPPERPR(MyGenericOverloadedWrapper, MyOverloadedFunction, (int), void);\n");
-	printf("// asDECLARE_METHOD_WRAPPER(MyGenericMethodWrapper, MyClass, Method);\n");
-	printf("// asDECLARE_METHOD_WRAPPERPR(MyGenericOverloadedMethodWrapper, MyClass, Method, (int) const, void);\n");
-	printf("// asDECLARE_FUNCTION_OBJ_WRAPPER(MyGenericMethodWrapper, MyRealFunction);\n");
-	printf("// asDECLARE_FUNCTION_OBJ_WRAPPERPR(MyGenericOverloadedMethodWrapper, MyOverloadedFunction, (int), void);\n");
-	printf("//\n");
-    printf("// This file was generated to accept functions with a maximum of %d parameters.\n\n", MAXPARAM);
+	string typename_list = "typename A0";
+	string type_list     = "A0";
+	string arg_list      = "\n				static_cast<Proxy <A0> *>(gen->GetAddressOfArg(0))->value";
+	string new_exp       = "new (gen->GetAddressOfReturnLocation()) Proxy<R>";
+	string obj_exp       = "static_cast<T *>(gen->GetObject())->*";
+	string obj_arg_exp   = "\n				Proxy<T>::cast(gen->GetObject())";
 
-	// Include files
-	printf("#include <new> // placement new\n");
-    printf("#include <angelscript.h>\n\n");
+	PrintTemplate("",                       "", "void", "",    "",       "",              "",              "void", "", "Wrapper");
+	PrintTemplate("typename R",             "", "R",    "",    "",       new_exp.c_str(), "",              "void", "", "Wrapper");
+	PrintTemplate("typename T",             "", "void", "T::", "",       "",              obj_exp.c_str(), "void", "", "Wrapper");
+	PrintTemplate("typename T, typename R", "", "R",    "T::", "",       new_exp.c_str(), obj_exp.c_str(), "void", "", "Wrapper");
+	PrintTemplate("typename T",             "", "void", "T::", " const", "",              obj_exp.c_str(), "void", "", "Wrapper");
+	PrintTemplate("typename T, typename R", "", "R",    "T::", " const", new_exp.c_str(), obj_exp.c_str(), "void", "", "Wrapper");
 
-	// This is the macro that should be used to implement the wrappers
-    printf("#define asDECLARE_FUNCTION_WRAPPER(wrapper_name,func) \\\n"
-           "    static void wrapper_name(asIScriptGeneric *gen)\\\n"
-           "    { \\\n"
-           "        asCallWrappedFunc(&func,gen);\\\n"
-           "    }\n\n" );
-    printf("#define asDECLARE_FUNCTION_WRAPPERPR(wrapper_name,func,params,rettype) \\\n"
-           "    static void wrapper_name(asIScriptGeneric *gen)\\\n"
-           "    { \\\n"
-		   "        asCallWrappedFunc((rettype (*)params)(&func),gen);\\\n"
-           "    }\n\n" );
-    printf("#define asDECLARE_FUNCTION_OBJ_WRAPPER(wrapper_name,func,objfirst) \\\n"
-        "    static void wrapper_name(asIScriptGeneric *gen)\\\n"
-        "    { \\\n"
-        "        asCallWrappedFuncObj<objfirst>::Call(&func,gen);\\\n"
-        "    }\n\n" );
-    printf("#define asDECLARE_FUNCTION_OBJ_WRAPPERPR(wrapper_name,func,objfirst,params,rettype) \\\n"
-        "    static void wrapper_name(asIScriptGeneric *gen)\\\n"
-        "    { \\\n"
-        "        asCallWrappedFuncObj<objfirst>::Call((rettype (*)params)(&func),gen);\\\n"
-        "    }\n\n" );
-    printf("#define asDECLARE_METHOD_WRAPPER(wrapper_name,cl,func) \\\n"
-           "    static void wrapper_name(asIScriptGeneric *gen)\\\n"
-           "    { \\\n"
-		   "        asCallWrappedFunc(&cl::func,gen);\\\n"
-           "    }\n\n" );
-    printf("#define asDECLARE_METHOD_WRAPPERPR(wrapper_name,cl,func,params,rettype) \\\n"
-           "    static void wrapper_name(asIScriptGeneric *gen)\\\n"
-           "    { \\\n"
-		   "        asCallWrappedFunc((rettype (cl::*)params)(&cl::func),gen);\\\n"
-           "    }\n\n" );
+	PrintTemplate("typename T",             "", "void", "",    "",       "",              "",      "T",    obj_arg_exp.c_str(), "ObjFirst");
+	PrintTemplate("typename T, typename R", "", "R",    "",    "",       new_exp.c_str(), "",      "T",    obj_arg_exp.c_str(), "ObjFirst");
+	PrintTemplate("typename T",             "", "void", "",    "",       "",              "",      "T",    obj_arg_exp.c_str(), "ObjLast");
+	PrintTemplate("typename T, typename R", "", "R",    "",    "",       new_exp.c_str(), "",      "T",    obj_arg_exp.c_str(), "ObjLast");
 
-	printf("// A helper class to accept reference parameters\n");
-    printf("template<typename X>\n"
-           "class as_wrapNative_helper\n"
-           "{\n"
-           "public:\n"
-           "    X d;\n"
-           "    as_wrapNative_helper(X d_) : d(d_) {}\n"
-           "private:\n"
-           "    // These are declared to avoid compiler warnings\n"
-           "    as_wrapNative_helper(const as_wrapNative_helper&);\n"
-           "    as_wrapNative_helper& operator=(const as_wrapNative_helper&);\n"
-           "};\n\n");
+	PrintConstructor("", "", "", "");
 
-    printf("// A helper class to statically branch on the right wrapper for constructors\n");
-    printf("template<bool ObjFirst>\n"
-           "class asCallWrappedFuncObj;\n"
-           "\n"
-           "template<>\n"
-           "struct asCallWrappedFuncObj<true>\n"
-           "{\n"
-           "    template<typename Ctor>\n"
-           "    static void Call(Ctor ctor, asIScriptGeneric *gen)\n"
-           "    {\n"
-           "        asCallWrappedFuncObjFirst(ctor, gen);\n"
-           "    }\n"
-           "};\n"
-           "\n"
-           "template<>\n"
-           "struct asCallWrappedFuncObj<false>\n"
-           "{\n"
-           "    template<typename Ctor>\n"
-           "    static void Call(Ctor ctor, asIScriptGeneric *gen)\n"
-           "    {\n"
-           "        asCallWrappedFuncObjLast(ctor, gen);\n"
-           "    }\n"
-           "};\n"
-           "\n");
+	for( int i = 0; i < max_args; i++ )
+	{
+		PrintTemplate("",                         typename_list.c_str(), "void", "",    "",       "",              "",              type_list.c_str(), arg_list.c_str(), "Wrapper");
+		PrintTemplate("typename R, ",             typename_list.c_str(), "R",    "",    "",       new_exp.c_str(), "",              type_list.c_str(), arg_list.c_str(), "Wrapper");
+		PrintTemplate("typename T, ",             typename_list.c_str(), "void", "T::", "",       "",              obj_exp.c_str(), type_list.c_str(), arg_list.c_str(), "Wrapper");
+		PrintTemplate("typename T, typename R, ", typename_list.c_str(), "R",    "T::", "",       new_exp.c_str(), obj_exp.c_str(), type_list.c_str(), arg_list.c_str(), "Wrapper");
+		PrintTemplate("typename T, ",             typename_list.c_str(), "void", "T::", " const", "",              obj_exp.c_str(), type_list.c_str(), arg_list.c_str(), "Wrapper");
+		PrintTemplate("typename T, typename R, ", typename_list.c_str(), "R",    "T::", " const", new_exp.c_str(), obj_exp.c_str(), type_list.c_str(), arg_list.c_str(), "Wrapper");
 
-	// Iterate over the number of parameters
-    for(int t = 0; t <= MAXPARAM; t++)
-    {
-        int k;
+		PrintTemplate("typename T, ",             typename_list.c_str(), "void", "", "", "",              "", ("T, " + type_list).c_str(), (obj_arg_exp + "," + arg_list).c_str(), "ObjFirst");
+		PrintTemplate("typename T, typename R, ", typename_list.c_str(), "R",    "", "", new_exp.c_str(), "", ("T, " + type_list).c_str(), (obj_arg_exp + "," + arg_list).c_str(), "ObjFirst");
+		PrintTemplate("typename T, ",             typename_list.c_str(), "void", "", "", "",              "", (type_list + ", T").c_str(), (arg_list + "," + obj_arg_exp).c_str(), "ObjLast");
+		PrintTemplate("typename T, typename R, ", typename_list.c_str(), "R",    "", "", new_exp.c_str(), "", (type_list + ", T").c_str(), (arg_list + "," + obj_arg_exp).c_str(), "ObjLast");
 
-		printf("// %d parameter(s)\n\n", t);
+		PrintConstructor(", ", typename_list.c_str(), type_list.c_str(), arg_list.c_str());
 
-        // CDecl methods ( Function receiving a pointer to the object as input )
+		char buf[5];
+		sprintf(buf, "%d", i + 1);
+		typename_list += ", typename A" + string(buf);
+		type_list     += ", A" + string(buf);
+		arg_list      += ",\n				static_cast<Proxy <A" + string(buf) + "> *>(gen->GetAddressOfArg(" + string(buf) + "))->value";
+	}
 
-        // OBJFIRST
-        printf("template<typename C");
+	printf("template <typename T>\n"
+	"struct Id {\n"
+	"	template <T fn_ptr> AS_NAMESPACE_QUALIFIER asSFuncPtr  f(void) { return asFUNCTION(&Wrapper<T>::template f<fn_ptr>); }\n"
+	"	template <T fn_ptr> AS_NAMESPACE_QUALIFIER asSFuncPtr of(void) { return asFUNCTION(&ObjFirst<T>::template f<fn_ptr>); }\n"
+	"	template <T fn_ptr> AS_NAMESPACE_QUALIFIER asSFuncPtr ol(void) { return asFUNCTION(&ObjLast<T>::template f<fn_ptr>); }\n"
+	"};\n"
+	"\n"
+	"template <typename T>\n"
+	"Id<T> id(T fn_ptr) { return Id<T>(); }\n"
+	"\n"
+	"// On some versions of GNUC it is necessary to use the template keyword as disambiguator,\n"
+	"// on others the template keyword gives an error, hence the need for the following define.\n"
+	"// MSVC on the other hand seems to accept both with or without the template keyword.\n"
+	"#if defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4))\n"
+	"	// GNUC 4.4.3 doesn't need the template keyword, and\n"
+	"	// hopefully upcoming versions won't need it either\n"
+	"	#define TMPL template\n"
+	"#else\n"
+	"	#define TMPL\n"
+	"#endif\n"
+	"\n"
+	"#define WRAP_FN(name)             (::gw::id(name).TMPL f< name >())\n"
+	"#define WRAP_MFN(ClassType, name) (::gw::id(&ClassType::name).TMPL f< &ClassType::name >())\n"
+	"#define WRAP_OBJ_FIRST(name)      (::gw::id(name).TMPL of< name >())\n"
+	"#define WRAP_OBJ_LAST(name)       (::gw::id(name).TMPL ol< name >())\n"
+	"\n"
+	"#define WRAP_FN_PR(name, Parameters, ReturnType)             asFUNCTION((::gw::Wrapper<ReturnType (*)Parameters>::TMPL f< name >))\n"
+	"#define WRAP_MFN_PR(ClassType, name, Parameters, ReturnType) asFUNCTION((::gw::Wrapper<ReturnType (ClassType::*)Parameters>::TMPL f< &ClassType::name >))\n"
+	"#define WRAP_OBJ_FIRST_PR(name, Parameters, ReturnType)      asFUNCTION((::gw::ObjFirst<ReturnType (*)Parameters>::TMPL f< name >))\n"
+	"#define WRAP_OBJ_LAST_PR(name, Parameters, ReturnType)       asFUNCTION((::gw::ObjLast<ReturnType (*)Parameters>::TMPL f< name >))\n"
+	"\n"
+	"#define WRAP_CON(ClassType, Parameters) asFUNCTION((::gw::Constructor<ClassType Parameters>::f))\n"
+	"#define WRAP_DES(ClassType)             asFUNCTION((::gw::destroy<ClassType>))\n"
+	"\n"
+	"} // end namespace gw\n"
+	"\n"
+	"#endif\n");
 
-        for (k = 0; k < t; ++k)
-            printf(", typename T%d", k+1);
-
-        printf(">");
-
-        printf("\nstatic void asCallWrappedFuncObjFirst(void (*func)(C*");
-
-        for (k = 0; k < t; ++k)
-            printf(",T%d", k+1);
-
-        printf("),asIScriptGeneric *gen)");
-        printf("\n{");
-        printf("\n    func(static_cast<C*>(gen->GetObject())");
-
-        for (k = 0; k < t; ++k)
-            printf(", ((as_wrapNative_helper<T%d> *)gen->GetAddressOfArg(%d))->d", k+1, k);
-
-        printf(");\n}\n\n");
-
-        // OBJLAST
-        printf("template<typename C");
-
-        for (k = 0; k < t; ++k)
-            printf(", typename T%d", k+1);
-
-        printf(">");
-
-        printf("\nstatic void asCallWrappedFuncObjLast(void (*func)(");
-
-        for (k = 0; k < t; ++k)
-            printf("T%d,", k+1);
-
-        printf("C*),asIScriptGeneric* gen)");
-        printf("\n{");
-        printf("\n    func(");
-
-        for (k = 0; k < t; ++k)
-            printf("((as_wrapNative_helper<T%d> *)gen->GetAddressOfArg(%d))->d,", k+1, k);
-
-        printf("static_cast<C*>(gen->GetObject()));\n}\n\n");
-
-		// Iterate over the different function forms
-        for(int d = 0; d < 6; d++)
-        {
-			// Different forms of the function
-            static const char *start[]=
-            {"template<",                      // global function with no return type
-             "template<typename R",            // global function with return type
-             "template<typename C",            // class method with no return type
-             "template<typename C,typename R", // class method with return type
-             "template<typename C",            // const class method with no return type
-             "template<typename C,typename R"  // const class method with return type
-            };
-
-            static const char *start2[]=
-            {"<",
-             "<R",
-             "<C",
-             "<C,R",
-             "<C",
-             "<C,R"
-            };
-
-            static const char *signature[]=
-            {"_void",
-             "",
-             "_void_this",
-             "_this",
-             "_void_this_const",
-             "_this_const"
-            };
-
-			static const char *constness[] =
-			{"",
-			 "",
-			 "",
-			 "",
-			 " const",
-			 " const"
-			};
-
-			//----------
-			// Generate the function that extracts the parameters from
-			// the asIScriptGeneric interface and calls the native function
-
-			// Build the template declaration
-            if( (t>0) || (d>0) )
-            {
-                printf("%s",start[d]);
-
-                for(int k=0;k<t;k++)
-                    printf("%stypename T%d",(k||(d>0))?",":"",k+1);
-
-                printf(">\n");
-            }
-
-            printf("static void asWrapNative_p%d%s(",t,signature[d]);
-			printf("%s (%s*func)(" ,(d&1)?"R":"void", (d>1)?"C::":"");
-            for(k=0;k<t;k++)
-                printf("%sT%d",k?",":"",k+1);
-            printf(")%s", constness[d]);
-			printf(",asIScriptGeneric *%s)\n",((t>0)||(d>0))?"gen":"");
-            printf("{\n");
-            printf("    %s%s(",(d&1)?"new(gen->GetAddressOfReturnLocation()) as_wrapNative_helper<R>( ":"",
-
-                   (d>1)?"((*((C*)gen->GetObject())).*func)":"func");
-
-            for( k = 0; k < t; k++ )
-                printf("%s ((as_wrapNative_helper<T%d> *)gen->GetAddressOfArg(%d))->d",k?",":"",k+1,k);
-
-            printf(" )%s;\n"
-                   "}\n\n",(d&1)?")":"");
-
-			//----------
-			// Generate the function that calls the templated wrapper function.
-			// This is overloads for the asCallWrappedFunc functions
-
-			// Build the template declaration
-            if( (t>0) || (d>0) )
-            {
-                printf("%s",start[d]);
-
-                for(int k=0;k<t;k++)
-                    printf("%stypename T%d", (k||(d>0))?",":"", k+1);
-
-                printf(">\n");
-            }
-
-            printf("inline void asCallWrappedFunc(%s (%s*func)(", (d&1)?"R":"void", (d>1)?"C::":"");
-
-            for( k =0; k < t; k++ )
-                printf("%sT%d",k?",":"",k+1);
-
-            printf(")%s,asIScriptGeneric *gen)\n"
-                   "{\n"
-                   "    asWrapNative_p%d%s",constness[d],t,signature[d]);
-
-            if( (t>0) || (d>0) )
-            {
-                printf("%s",start2[d]);
-
-                for( int k = 0; k < t; k++ )
-                    printf("%sT%d",(k||(d>0))?",":"",k+1);
-
-                printf(">");
-            }
-            printf("(func,gen);\n"
-                   "}\n\n");
-        }
-
-    }
-
-    printf("#endif // ASWRAPPEDCALL_H\n\n");
-
-    return 0;
+	return 0;
 }
 
+void PrintTemplate(const char *base, const char *typeNameList, const char *retType, const char *objType, const char *isConst, const char *newExpr, const char *objExpr, const char *argList1, const char *argList2, const char *wrapName)
+{
+	printf("template <%s%s>\n", base, typeNameList);
+	printf("struct %s<%s (%s*)(%s)%s> {\n", wrapName, retType, objType, argList1, isConst);
+	printf("	template <%s (%s*fp)(%s)%s>\n", retType, objType, argList1, isConst);
+	printf("	static void f(AS_NAMESPACE_QUALIFIER asIScriptGeneric * gen) {\n");
+	printf("		%s((%sfp)(%s));\n", newExpr, objExpr, argList2);
+	printf("	}\n");
+	printf("};\n");
+}
+
+void PrintConstructor(const char *comma, const char *typeNameList, const char *typeList, const char *argList)
+{
+	printf("template <typename T%s%s>\n", comma, typeNameList);
+	printf("struct Constructor <T (%s)> {\n", typeList);
+	printf("	static void f(AS_NAMESPACE_QUALIFIER asIScriptGeneric * gen) {\n");
+	printf("		new (gen->GetObject()) T(%s);\n", argList);
+	printf("	}\n");
+	printf("};\n");
+}

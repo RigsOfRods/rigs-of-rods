@@ -21,9 +21,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CBytecodeStream.h"
 
-CBytecodeStream::CBytecodeStream(std::string filename) : f(0)
+CBytecodeStream::CBytecodeStream(std::string filename, std::string mode) : f(0)
 {
-	f = fopen(filename.c_str(), "wb");
+	if (mode.find("b") == std::string::npos)
+			mode += "b";
+	f = fopen(filename.c_str(), mode.c_str());
 }
 
 CBytecodeStream::~CBytecodeStream()
