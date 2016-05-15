@@ -271,7 +271,7 @@ void registerOgreRadian(AngelScript::asIScriptEngine *engine)
 	r = engine->RegisterObjectBehaviour("radian", asBEHAVE_CONSTRUCT,  "void f(const radian &in)", asFUNCTION(RadianCopyConstructor), asCALL_CDECL_OBJLAST); MYASSERT( r >= 0 );
 
 	// Register other object behaviours
-	r = engine->RegisterObjectMethod("radian", "double opImplConv() const",	asMETHOD(Radian,valueRadians), asCALL_THISCALL); MYASSERT( r >= 0 );
+	r = engine->RegisterObjectMethod("radian", "float opImplConv() const",	asMETHOD(Radian,valueRadians), asCALL_THISCALL); MYASSERT( r >= 0 );
 	r = engine->RegisterObjectMethod("radian", "double opImplConv() const", asMETHOD(Radian,valueRadians), asCALL_THISCALL); MYASSERT( r >= 0 );
 	
 	// Register the object operators
@@ -322,7 +322,7 @@ void registerOgreDegree(AngelScript::asIScriptEngine *engine)
 	r = engine->RegisterObjectBehaviour("degree", asBEHAVE_CONSTRUCT,  "void f(const degree &in)",   asFUNCTION(DegreeCopyConstructor), asCALL_CDECL_OBJLAST); MYASSERT( r >= 0 );
 
 	// Register other object behaviours
-	r = engine->RegisterObjectMethod("radian", "double opImplConv() const", asMETHOD(Degree,valueDegrees), asCALL_THISCALL); MYASSERT( r >= 0 );
+	r = engine->RegisterObjectMethod("radian", "float opImplConv() const", asMETHOD(Degree,valueDegrees), asCALL_THISCALL); MYASSERT( r >= 0 );
 	r = engine->RegisterObjectMethod("radian", "double opImplConv() const", asMETHOD(Degree,valueDegrees), asCALL_THISCALL); MYASSERT( r >= 0 );
 	
 	// Register the object operators
