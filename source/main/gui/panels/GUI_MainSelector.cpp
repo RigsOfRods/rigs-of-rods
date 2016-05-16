@@ -249,13 +249,7 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 	}
 }
 
-void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
-{
-	if (!m_ready) return;
-	OnSelectionDone();
-}
-
-void CLASS::EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
+void CLASS::Cancel()
 {
 	if (!m_ready) return;
 	m_selected_entry = nullptr;
@@ -264,6 +258,17 @@ void CLASS::EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
 	//Do this on cancel only
 	if (gEnv->frameListener->m_loading_state == NONE_LOADED)
 		Application::GetGuiManager()->ShowMainMenu(true);
+}
+
+void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
+{
+	if (!m_ready) return;
+	OnSelectionDone();
+}
+
+void CLASS::EventMouseButtonClickCancelButton(MyGUI::WidgetPtr _sender)
+{
+	Cancel();
 }
 
 void CLASS::EventComboChangePositionTypeComboBox(MyGUI::ComboBoxPtr _sender, size_t _index)
@@ -1001,12 +1006,6 @@ void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
 {
 	if (_name == "close")
 	{
-		if (!m_ready) return;
-		m_selected_entry = nullptr;
-		m_selection_done = true;
-		Hide();
-		//Do this on cancel only
-		if (gEnv->frameListener->m_loading_state == NONE_LOADED)
-			Application::GetGuiManager()->ShowMainMenu(true);
+		Cancel();
 	}
 }
