@@ -3548,6 +3548,8 @@ void Beam::showSkeleton(bool meshes, bool linked)
 		}
 	}
 
+	updateSimpleSkeleton();
+
 	TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
 }
 
