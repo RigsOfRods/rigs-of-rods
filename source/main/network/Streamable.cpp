@@ -25,10 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Network.h"
 #include "NetworkStreamManager.h"
 
-#ifdef USE_SOCKETW
-#include "SocketW.h"
-#endif // USE_SOCKETW
-
 using namespace Ogre;
 
 Streamable::Streamable() : isOrigin(false), streamResultsChanged(false)
@@ -124,15 +120,14 @@ void Streamable::addReceivedPacket(header_t header, char *buffer)
 	receivedPackets.push_back(packet);
 }
 
-#ifdef USE_SOCKETW
-void Streamable::sendStream(Network *net, SWInetSocket *socket)
+void Streamable::sendStream(Network *net)
 {
 	while (!packets.empty())
 	{
 		// remove oldest packet in queue
 		Streamable::bufferedPacket_t packet = packets.front();
 
-		int etype = net->sendMessageRaw(socket, packet.packetBuffer, packet.size);
+		int etype = net->sendMessageRaw(packet.packetBuffer, packet.size);
 		if (etype)
 		{
 			wchar_t emsg[256];
@@ -145,11 +140,6 @@ void Streamable::sendStream(Network *net, SWInetSocket *socket)
 		packets.pop_front();
 	}
 }
-#else
-void sendStream(Network *net, void *socket)
-{
-}
-#endif //SOCKETW
 
 void Streamable::receiveStream()
 {

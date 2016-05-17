@@ -32,8 +32,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <condition_variable>
 #include <mutex>
 
-class SWInetSocket;
-
 class Streamable;
 class StreamableFactoryInterface;
 
@@ -55,11 +53,7 @@ public:
 	
 	void triggerSend();
 
-#ifdef USE_SOCKETW
-	void sendStreams(Network *net, SWInetSocket *socket);
-#else
-	void sendStreams(Network *net, void *socket);
-#endif //SOCKETW
+	void sendStreams(Network *net);
 
 	void update();
 

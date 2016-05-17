@@ -30,8 +30,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <mutex>
 
-class SWInetSocket;
-
 typedef struct recvPacket_t
 {
 	header_t header;
@@ -92,11 +90,7 @@ protected:
 
 	void receiveStream();
 
-#ifdef USE_SOCKETW
-	void sendStream(Network *net, SWInetSocket *socket);
-#else
-	void sendStream(Network *net, void *socket);
-#endif //SOCKETW
+	void sendStream(Network *net);
 
 	std::mutex m_recv_work_mutex;
 

@@ -25,10 +25,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Streamable.h"
 #include "StreamableFactoryInterface.h"
 
-#ifdef USE_SOCKETW
-#include "SocketW.h"
-#endif // USE_SOCKETW
-
 using namespace Ogre;
 
 NetworkStreamManager::NetworkStreamManager() : 
@@ -176,8 +172,7 @@ void NetworkStreamManager::triggerSend()
 	m_send_work_cv.notify_all();
 }
 
-#ifdef USE_SOCKETW
-void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
+void NetworkStreamManager::sendStreams(Network *net)
 {
 	{
 		std::unique_lock<std::mutex> ss_lock(m_send_work_mutex);
@@ -194,15 +189,10 @@ void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 		for (it2=it->second.begin(); it2!=it->second.end(); it2++)
 		{
 			if (!it2->second) continue;
-			it2->second->sendStream(net, socket);
+			it2->second->sendStream(net);
 		}
 	}
 }
-#else
-void NetworkStreamManager::sendStreams(Network *net, void *socket)
-{
-}
-#endif // USE_SOCKETW
 
 #ifdef USE_SOCKETW
 void NetworkStreamManager::update()
