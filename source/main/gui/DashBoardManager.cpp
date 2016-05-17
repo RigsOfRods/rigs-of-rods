@@ -211,7 +211,8 @@ void DashBoardManager::windowResized()
 {
 	for (int i=0; i < free_dashboard; i++)
 	{
-		dashboards[i]->windowResized();
+		if (dashboards[i])
+			dashboards[i]->windowResized();
 	}
 }
 

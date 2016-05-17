@@ -2693,7 +2693,7 @@ void Beam::lightsToggle()
 		{
 			char clomatname[256] = {};
 			sprintf(clomatname, "%s-noem", texname);
-			if (cabNode->numAttachedObjects())
+			if (cabNode && cabNode->numAttachedObjects())
 			{
 				Entity* ent=((Entity*)(cabNode->getAttachedObject(0)));
 				int numsubent=ent->getNumSubEntities();
@@ -2721,7 +2721,7 @@ void Beam::lightsToggle()
 		{
 			char clomatname[256] = {};
 			sprintf(clomatname, "%s-noem", texname);
-			if (cabNode->numAttachedObjects())
+			if (cabNode && cabNode->numAttachedObjects())
 			{
 				Entity* ent=((Entity*)(cabNode->getAttachedObject(0)));
 				int numsubent=ent->getNumSubEntities();
@@ -3184,7 +3184,7 @@ void Beam::updateFlexbodiesPrepare()
 {
 	BES_GFX_START(BES_GFX_updateFlexBodies);
 
-	if (cabMesh) cabNode->setPosition(cabMesh->flexit());
+	if (cabNode && cabMesh) cabNode->setPosition(cabMesh->flexit());
 
 	if (gEnv->threadPool)
 	{
@@ -3744,7 +3744,7 @@ void Beam::setMeshVisibility(bool visible, bool linked)
 			vwheels[i].fm->setVisible(visible);
 		}
 	}
-	if (cabMesh)
+	if (cabNode)
 	{
 		cabNode->setVisible(visible);
 	}
@@ -3766,7 +3766,7 @@ void Beam::cabFade(float amount)
 	static float savedCabAlphaRejection = 0;
 
 	// truck cab
-	if (cabMesh)
+	if (cabNode)
 	{
 		if (amount == 0)
 		{
