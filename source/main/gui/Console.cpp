@@ -30,7 +30,6 @@
 #include "ChatSystem.h"
 #include "GUIManager.h"
 #include "GUIMenu.h"
-#include "HighScoreWindow.h"
 #include "IHeightFinder.h"
 #include "IWater.h"
 #include "Language.h"
