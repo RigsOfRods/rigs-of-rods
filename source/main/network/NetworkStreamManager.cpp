@@ -22,9 +22,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "NetworkStreamManager.h"
 
 #include "Network.h"
-#include "Language.h"
 #include "Streamable.h"
 #include "StreamableFactoryInterface.h"
+
+#ifdef USE_SOCKETW
+#include "SocketW.h"
+#endif // USE_SOCKETW
 
 using namespace Ogre;
 
@@ -191,26 +194,7 @@ void NetworkStreamManager::sendStreams(Network *net, SWInetSocket *socket)
 		for (it2=it->second.begin(); it2!=it->second.end(); it2++)
 		{
 			if (!it2->second) continue;
-			std::deque <Streamable::bufferedPacket_t> *packets = it2->second->getPacketQueue();
-
-			while (!packets->empty())
-			{
-				// remove oldest packet in queue
-				Streamable::bufferedPacket_t packet = packets->front();
-
-				int etype = net->sendMessageRaw(socket, packet.packetBuffer, packet.size);
-				if (etype)
-				{
-					wchar_t emsg[256];
-					UTFString tmp = _L("Error %i while sending data packet");
-					swprintf(emsg, 256, tmp.asWStr_c_str(), etype);
-					net->netFatalError(UTFString(emsg));
-					return;
-				}
-
-				packets->pop_front();
-			}
-
+			it2->second->sendStream(net, socket);
 		}
 	}
 }
@@ -249,21 +233,7 @@ void NetworkStreamManager::receiveStreams()
 		for (it2=it->second.begin(); it2!=it->second.end(); it2++)
 		{
 			if (!it2->second) continue;
-			it2->second->lockReceiveQueue();
-			std::deque <recvPacket_t> *packets = it2->second->getReceivePacketQueue();
-
-			while (!packets->empty())
-			{
-				// remove oldest packet in queue
-				recvPacket_t packet = packets->front();
-
-				//Network::debugPacket("receive-2", &packet.header, (char *)packet.buffer);
-
-				if (it2->second) it2->second->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, (char*)packet.buffer, packet.header.size);
-
-				packets->pop_front();
-			}
-			it2->second->unlockReceiveQueue();
+			it2->second->receiveStream();
 		}
 	}
 }

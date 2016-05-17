@@ -29,12 +29,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "rornet.h"
 #include "Singleton.h"
 
-#ifdef USE_SOCKETW
-#include "SocketW.h"
-#endif // USE_SOCKETW
-
 #include <condition_variable>
 #include <mutex>
+
+class SWInetSocket;
 
 class Streamable;
 class StreamableFactoryInterface;

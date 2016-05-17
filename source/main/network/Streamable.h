@@ -30,6 +30,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <mutex>
 
+class SWInetSocket;
+
 typedef struct recvPacket_t
 {
 	header_t header;
@@ -80,7 +82,6 @@ protected:
 	
 	unsigned int sourceid, streamid;
 
-
 	// virtual interface methods
 	virtual void sendStreamData() = 0;
 	virtual void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len) = 0;
@@ -89,13 +90,15 @@ protected:
 	void addPacket(int type, unsigned int len, char *content);
 	void addReceivedPacket(header_t header, char *buffer);
 
-	std::deque < bufferedPacket_t > *getPacketQueue();
-	std::deque < recvPacket_t > *getReceivePacketQueue();
+	void receiveStream();
+
+#ifdef USE_SOCKETW
+	void sendStream(Network *net, SWInetSocket *socket);
+#else
+	void sendStream(Network *net, void *socket);
+#endif //SOCKETW
 
 	std::mutex m_recv_work_mutex;
-
-	void lockReceiveQueue();
-	void unlockReceiveQueue();
 
 private:
 
