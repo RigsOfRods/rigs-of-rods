@@ -272,8 +272,13 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
-		//shutdown_final();
-		Application::GetGuiManager()->TogglePauseMenu();
+		if (Application::GetGuiManager()->getMainSelector()->IsVisible())
+		{
+			Application::GetGuiManager()->getMainSelector()->Cancel();
+		} else
+		{
+			Application::GetGuiManager()->TogglePauseMenu();
+		}
 	}
 
 	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
