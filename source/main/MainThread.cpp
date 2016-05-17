@@ -1050,6 +1050,12 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 		{
 			gEnv->player->setRotation(Degree(180));
 		}
+
+		// Small hack to prevent spawning the Character in mid-air
+		for (int i=0; i<100; i++)
+		{
+			gEnv->player->update(0.05f);
+		}
 	}
 
 	// hide loading window
