@@ -135,7 +135,6 @@ set( SOURCE_FILES
   gui/GuiManagerInterface.h
   gui/HighScoreWindow.{h,cpp}
   gui/LoadingWindow.{h,cpp}
-  gui/LobbyGUI.{h,cpp}
   gui/OverlayWrapper.{h,cpp}
   gui/RTTLayer.{h,cpp}
   gui/TextureToolWindow.{h,cpp}
@@ -171,13 +170,11 @@ set( SOURCE_FILES
   gui/panels/GUI_SimUtilsLayout.{h,cpp}
   gui/panels/GUI_VehicleDescription.{h,cpp}
   gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
-  network/IRCWrapper.{h,cpp}
   network/Network.{h,cpp}
   network/NetworkStreamManager.{h,cpp}
   network/Streamable.{h,cpp}
   network/StreamableFactory.h
   network/StreamableFactoryInterface.h
-  network/IRC/libircclient.{h,cpp}
   physics/ApproxMath.h
   physics/Beam.{h,cpp}
   physics/BeamData.h
