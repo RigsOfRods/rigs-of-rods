@@ -5447,10 +5447,6 @@ Beam::Beam(
 	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
-	/* class <Beam> mutexes */
-
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_INITTHREADS);
-
 	/* struct <rig_t> parameters */
 	
 	trucknum = truck_number;
