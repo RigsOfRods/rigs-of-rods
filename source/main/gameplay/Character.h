@@ -126,6 +126,8 @@ protected:
 	Ogre::Timer netTimer;
 	int last_net_time;
 
+	bool mHideOwnNetLabel;
+
 	void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len);
 	void sendStreamData();
 	void sendStreamSetup();

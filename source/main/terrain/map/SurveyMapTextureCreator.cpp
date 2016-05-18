@@ -133,12 +133,6 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
 {
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 
-	float f = 20.0f + 30.0f * mMapZoom;
-
-	for (int i=0; i < BeamFactory::getSingleton().getTruckCount(); i++)
-		if (trucks[i])
-			trucks[i]->preMapLabelRenderUpdate(true, f);
-
 	if (mStatics)
 		mStatics->setRenderingDistance(0);
 
@@ -154,10 +148,6 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
 void SurveyMapTextureCreator::postRenderTargetUpdate()
 {
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-
-	for (int i=0; i < BeamFactory::getSingleton().getTruckCount(); i++)
-		if (trucks[i])
-			trucks[i]->preMapLabelRenderUpdate(false);
 
 	if (mStatics)
 		mStatics->setRenderingDistance(1000);
