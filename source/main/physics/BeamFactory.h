@@ -80,7 +80,10 @@ public:
 	int getCurrentTruckNumber() { return m_current_truck; };
 	int getTruckCount() { return m_free_truck; };
 
+	void enterNextTruck();
+	void enterPreviousTruck();
 	void setCurrentTruck(int new_truck);
+
 	void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
 	float getSimulationSpeed() { return m_simulation_speed; };
 
@@ -186,6 +189,8 @@ protected:
 	void RecursiveActivation(int j);
 
 	void UpdateSleepingState(float dt);
+
+	int GetMostRecentTruckSlot();
 
 	int GetFreeTruckSlot();
 	int FindTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);

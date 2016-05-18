@@ -938,6 +938,30 @@ eventInfo_t eventInfo[] = {
 		_L("enter or exit a truck")
 	},
 	{
+		"COMMON_ENTER_NEXT_TRUCK",
+		EV_COMMON_ENTER_NEXT_TRUCK,
+		"Keyboard EXPL+CTRL+RBRACKET",
+		_L("enter next truck")
+	},
+	{
+		"COMMON_ENTER_PREVIOUS_TRUCK",
+		EV_COMMON_ENTER_PREVIOUS_TRUCK,
+		"Keyboard EXPL+CTRL+LBRACKET",
+		_L("enter previous truck")
+	},
+	{
+		"COMMON_REMOVE_CURRENT_TRUCK",
+		EV_COMMON_REMOVE_CURRENT_TRUCK,
+		"Keyboard EXPL+CTRL+DELETE",
+		_L("remove current truck")
+	},
+	{
+		"COMMON_RESPAWN_LAST_TRUCK",
+		EV_COMMON_RESPAWN_LAST_TRUCK,
+		"Keyboard EXPL+CTRL+PERIOD",
+		_L("respawn last truck")
+	},
+	{
 		"COMMON_HIDE_GUI",
 		EV_COMMON_HIDE_GUI,
 		"Keyboard EXPL+U",
