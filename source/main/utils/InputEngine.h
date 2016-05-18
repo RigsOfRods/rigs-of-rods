@@ -227,6 +227,10 @@ enum events
 	EV_COMMON_CONSOLEMODE, //!< toggle appearance of console
 	EV_COMMON_ENTER_CHATMODE, //!< enter the chat mode
 	EV_COMMON_ENTER_OR_EXIT_TRUCK, //!< enter or exit a truck
+	EV_COMMON_ENTER_NEXT_TRUCK, //!< enter next truck
+	EV_COMMON_ENTER_PREVIOUS_TRUCK, //!< enter previous truck
+	EV_COMMON_REMOVE_CURRENT_TRUCK, //!< remove current truck
+	EV_COMMON_RESPAWN_LAST_TRUCK, //!< respawn last truck
 	EV_COMMON_FOV_LESS, //!<decreases the current FOV value
 	EV_COMMON_FOV_MORE, //!<increases the current FOV value
 	EV_COMMON_FULLSCREEN_TOGGLE,

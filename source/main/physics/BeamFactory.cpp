@@ -716,6 +716,65 @@ void BeamFactory::removeCurrentTruck()
 	removeTruck(m_current_truck);
 }
 
+int BeamFactory::GetMostRecentTruckSlot()
+{
+	if (getTruck(m_current_truck))
+	{
+		return m_current_truck;
+	} else if (getTruck(m_previous_truck))
+	{
+		return m_previous_truck;
+	}
+
+	return -1;
+}
+
+void BeamFactory::enterNextTruck()
+{
+	int pivot_index = this->GetMostRecentTruckSlot();
+
+	for (int i = pivot_index + 1; i < m_free_truck; i++)
+	{
+		if (m_trucks[i])
+		{
+			setCurrentTruck(i);
+			return;
+		}
+	}
+
+	for (int i = 0; i < pivot_index; i++)
+	{
+		if (m_trucks[i])
+		{
+			setCurrentTruck(i);
+			return;
+		}
+	}
+}
+
+void BeamFactory::enterPreviousTruck()
+{
+	int pivot_index = this->GetMostRecentTruckSlot();
+
+	for (int i = pivot_index - 1; i >= 0; i--)
+	{
+		if (m_trucks[i])
+		{
+			setCurrentTruck(i);
+			return;
+		}
+	}
+
+	for (int i = m_free_truck - 1; i > pivot_index; i--)
+	{
+		if (m_trucks[i])
+		{
+			setCurrentTruck(i);
+			return;
+		}
+	}
+}
+
 void BeamFactory::setCurrentTruck(int new_truck)
 {
 	if (m_current_truck >= 0 && m_current_truck < m_free_truck && m_trucks[m_current_truck])

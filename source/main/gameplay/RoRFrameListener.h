@@ -84,6 +84,10 @@ protected:
 	ForceFeedback *m_forcefeedback;
 	HeatHaze *m_heathaze;
 
+	CacheEntry *m_last_cache_selection;
+	Skin *m_last_skin_selection;
+	std::vector<Ogre::String> m_last_vehicle_configs;
+
 	Ogre::Real m_time_until_next_toggle; // just to stop toggles flipping too fast
 
 	bool m_is_dir_arrow_visible;

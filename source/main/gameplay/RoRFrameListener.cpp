@@ -150,9 +150,11 @@ RoRFrameListener::RoRFrameListener() :
 	m_is_pace_reset_pressed(false),
 	m_is_position_storage_enabled(BSETTING("Position Storage", false)),
 	m_is_sim_paused(false),
+	m_last_cache_selection(nullptr),
 	m_last_screenshot_date(""),
 	m_last_screenshot_id(1),
 	m_last_simulation_speed(0.1f),
+	m_last_skin_selection(nullptr),
 	m_loading_state(NONE_LOADED),
 	m_pressure_pressed(false),
 	m_race_bestlap_time(0),
@@ -530,8 +532,13 @@ bool RoRFrameListener::updateEvents(float dt)
 				{
 					StopRaceTimer();
 					curr_truck->reset();
-				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair)
+				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !curr_truck->replaymode)
 				{
+					StopRaceTimer();
+					BeamFactory::getSingleton().removeCurrentTruck();
+				} else if ((RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair) && !curr_truck->replaymode)
+				{
+					StopRaceTimer();
 					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
 					{
 						m_advanced_truck_repair = m_advanced_truck_repair_timer > 1.0f;
@@ -1030,6 +1037,50 @@ bool RoRFrameListener::updateEvents(float dt)
 				curr_truck->brake    = curr_truck->brakeforce * 0.66;
 				m_time_until_next_toggle = 0.0; // No delay in this case: the truck must brake like braking normally
 			}
+		} else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
+		{
+			BeamFactory::getSingleton().enterNextTruck();
+		} else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
+		{
+			BeamFactory::getSingleton().enterPreviousTruck();
+		} else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
+		{
+			if (m_last_cache_selection != nullptr)
+			{
+				/* We load an extra truck */
+				std::vector<String> *config_ptr = nullptr;
+				if (m_last_vehicle_configs.size() > 0)
+				{
+					config_ptr = & m_last_vehicle_configs;
+				}
+
+				if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+				{
+					BeamFactory::getSingleton().setCurrentTruck(-1);
+				}
+
+				m_reload_pos = gEnv->player->getPosition();
+				m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+
+				Beam *local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
+
+				if (local_truck != nullptr)
+				{
+					if (gEnv->surveyMap)
+					{
+						gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
+					}
+					if (local_truck->driveable != NOT_DRIVEABLE)
+					{
+						/* We are supposed to be in this truck, if it is a truck */
+						if (local_truck->engine != nullptr)
+						{
+							local_truck->engine->start();
+						}
+						BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
+					} 
+				}
+			}
 		}
 	} else
 	{
@@ -1042,7 +1093,6 @@ bool RoRFrameListener::updateEvents(float dt)
 			{
 				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
-				Beam *local_truck = nullptr;
 				if (selection != nullptr)
 				{
 					/* We load an extra truck */
@@ -1052,6 +1102,10 @@ bool RoRFrameListener::updateEvents(float dt)
 					{
 						config_ptr = & config;
 					}
+
+					m_last_cache_selection = selection;
+					m_last_skin_selection = skin;
+					m_last_vehicle_configs = config;
 
 					if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
 					{
@@ -1064,7 +1118,7 @@ bool RoRFrameListener::updateEvents(float dt)
 						m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					}
 
-					local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
+					Beam *local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
 
 					if (local_truck != nullptr)
 					{

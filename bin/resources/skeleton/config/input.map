@@ -162,6 +162,10 @@ COMMON_RESET_SIMULATION_PACE   Keyboard             BACKSLASH
 COMMON_CONSOLEDISPLAY          Keyboard             EXPL+GRAVE 
 COMMON_CONSOLEMODE             Keyboard             EXPL+CTRL+GRAVE 
 COMMON_ENTER_OR_EXIT_TRUCK     Keyboard             RETURN 
+COMMON_ENTER_NEXT_TRUCK        Keyboard             EXPL+CTRL+RBRACKET 
+COMMON_ENTER_PREVIOUS_TRUCK    Keyboard             EXPL+CTRL+LBRACKET 
+COMMON_REMOVE_CURRENT_TRUCK    Keyboard             EXPL+CTRL+DELETE 
+COMMON_RESPAWN_LAST_TRUCK      Keyboard             EXPL+CTRL+PERIOD 
 COMMON_FULLSCREEN_TOGGLE       Keyboard             EXPL+ALT+RETURN 
 COMMON_HIDE_GUI                Keyboard             U 
 COMMON_LOCK                    Keyboard             EXPL+L 
