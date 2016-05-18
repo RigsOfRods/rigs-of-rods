@@ -29,10 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "rornet.h"
 #include "Singleton.h"
 
-#ifdef USE_SOCKETW
-#include "SocketW.h"
-#endif // USE_SOCKETW
-
 #include <condition_variable>
 #include <mutex>
 
@@ -57,11 +53,7 @@ public:
 	
 	void triggerSend();
 
-#ifdef USE_SOCKETW
-	void sendStreams(Network *net, SWInetSocket *socket);
-#else
-	void sendStreams(Network *net, void *socket);
-#endif //SOCKETW
+	void sendStreams(Network *net);
 
 	void update();
 

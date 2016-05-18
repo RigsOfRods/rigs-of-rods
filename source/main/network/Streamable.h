@@ -30,12 +30,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <mutex>
 
-typedef struct recvPacket_t
-{
-	header_t header;
-	char *buffer[MAX_MESSAGE_LENGTH];
-} recvPacket_t;
-
 /**
  * This class defines a standard interface and a buffer between the actual network code and the class that handles it.
  * The buffer must be decoupled from the separately running network thread.
@@ -67,20 +61,6 @@ protected:
 	static const unsigned int packetBufferSizeDiscardData = 20; //!< we will discard all data packets after hitting this border. Then we have still some packets left for registration purposes.
 	static const unsigned int maxPacketLen     = 8192;
 
-	// custom types
-	typedef struct _bufferedPacket
-	{
-		char packetBuffer[maxPacketLen];
-		unsigned int size;
-	} bufferedPacket_t;
-
-	// normal members
-	std::deque < bufferedPacket_t > packets;
-	std::deque < recvPacket_t > receivedPackets;
-	
-	unsigned int sourceid, streamid;
-
-
 	// virtual interface methods
 	virtual void sendStreamData() = 0;
 	virtual void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len) = 0;
@@ -89,15 +69,30 @@ protected:
 	void addPacket(int type, unsigned int len, char *content);
 	void addReceivedPacket(header_t header, char *buffer);
 
-	std::deque < bufferedPacket_t > *getPacketQueue();
-	std::deque < recvPacket_t > *getReceivePacketQueue();
+private:
+
+	void receiveStream();
+	void sendStream(Network *net);
 
 	std::mutex m_recv_work_mutex;
+	std::mutex m_send_work_mutex;
 
-	void lockReceiveQueue();
-	void unlockReceiveQueue();
+	typedef struct _bufferedPacket
+	{
+		char packetBuffer[maxPacketLen];
+		unsigned int size;
+	} bufferedPacket_t;
 
-private:
+	typedef struct recvPacket_t
+	{
+		header_t header;
+		char *buffer[MAX_MESSAGE_LENGTH];
+	} recvPacket_t;
+
+	std::deque < bufferedPacket_t > packets;
+	std::deque < recvPacket_t > receivedPackets;
+	
+	unsigned int sourceid, streamid;
 
 	std::map < int, stream_register_t > mStreamableResults;
 	bool isOrigin, streamResultsChanged;

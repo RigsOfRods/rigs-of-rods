@@ -118,7 +118,7 @@ bool Network::connect()
 		return false;
 	}
 	//say hello to the server
-	if (sendmessage(&socket, MSG2_HELLO, 0, (unsigned int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
+	if (sendmessage(MSG2_HELLO, 0, (unsigned int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
 	{
 		//this is an error!
 		netFatalError(_L("Establishing network session: error sending hello"), false);
@@ -128,7 +128,7 @@ bool Network::connect()
 	header_t header;
 	char buffer[MAX_MESSAGE_LENGTH];
 	//get server version
-	if (receivemessage(&socket, &header, buffer, 255))
+	if (receivemessage(&header, buffer, 255))
 	{
 		//this is an error!
 		netFatalError(_L("Establishing network session: error getting server version"), false);
@@ -201,14 +201,14 @@ bool Network::connect()
 	String guid = SSETTING("GUID", "");
 	strncpy(c.clientGUID, guid.c_str(), std::min<int>((int)guid.size(), 10));
 	strcpy(c.sessiontype, "normal");
-	if (sendmessage(&socket, MSG2_USER_INFO, 0, sizeof(user_info_t), (char*)&c))
+	if (sendmessage(MSG2_USER_INFO, 0, sizeof(user_info_t), (char*)&c))
 	{
 		//this is an error!
 		netFatalError(_L("Establishing network session: error sending user info"), false);
 		return false;
 	}
 	//now this is important, getting authorization
-	if (receivemessage(&socket, &header, buffer, 255))
+	if (receivemessage(&header, buffer, 255))
 	{
 		//this is an error!
 		netFatalError(_L("Establishing network session: error getting server authorization"), false);
@@ -276,7 +276,7 @@ Ogre::UTFString Network::getNickname(bool colour)
 		return nickname;
 }
 
-int Network::sendMessageRaw(SWInetSocket *socket, char *buffer, unsigned int msgsize)
+int Network::sendMessageRaw(char *buffer, unsigned int msgsize)
 {
 	//LOG("* sending raw message: " + TOSTRING(msgsize));
 
@@ -286,7 +286,7 @@ int Network::sendMessageRaw(SWInetSocket *socket, char *buffer, unsigned int msg
 	int rlen=0;
 	while (rlen<(int)msgsize)
 	{
-		int sendnum=socket->send(buffer+rlen, msgsize-rlen, &error);
+		int sendnum=socket.send(buffer+rlen, msgsize-rlen, &error);
 		if (sendnum<0)
 		{
 			LOG("NET send error: " + TOSTRING(sendnum));
@@ -297,7 +297,7 @@ int Network::sendMessageRaw(SWInetSocket *socket, char *buffer, unsigned int msg
 	return 0;
 }
 
-int Network::sendmessage(SWInetSocket *socket, int type, unsigned int streamid, unsigned int len, char* content)
+int Network::sendmessage(int type, unsigned int streamid, unsigned int len, char* content)
 {
 	std::lock_guard<std::mutex> lock(msgsend_mutex);
 	SWBaseSocket::SWBaseError error;
@@ -326,7 +326,7 @@ int Network::sendmessage(SWInetSocket *socket, int type, unsigned int streamid, 
 	speed_bytes_sent_tmp += msgsize;
 	while (rlen<(int)msgsize)
 	{
-		int sendnum=socket->send(buffer+rlen, msgsize-rlen, &error);
+		int sendnum=socket.send(buffer+rlen, msgsize-rlen, &error);
 		if (sendnum<0)
 		{
 			LOG("NET send error: " + TOSTRING(sendnum));
@@ -338,7 +338,7 @@ int Network::sendmessage(SWInetSocket *socket, int type, unsigned int streamid, 
 	return 0;
 }
 
-int Network::receivemessage(SWInetSocket *socket, header_t *head, char* content, unsigned int bufferlen)
+int Network::receivemessage(header_t *head, char* content, unsigned int bufferlen)
 {
 	SWBaseSocket::SWBaseError error;
 
@@ -349,7 +349,7 @@ int Network::receivemessage(SWInetSocket *socket, header_t *head, char* content,
 	int hlen=0;
 	while (hlen<(int)sizeof(header_t))
 	{
-		int recvnum=socket->recv(buffer+hlen, sizeof(header_t)-hlen,&error);
+		int recvnum=socket.recv(buffer+hlen, sizeof(header_t)-hlen,&error);
 		if (recvnum<0)
 		{
 			LOG("NET receive error 1: " + TOSTRING(recvnum));
@@ -372,7 +372,7 @@ int Network::receivemessage(SWInetSocket *socket, header_t *head, char* content,
 			//read the rest
 			while (hlen<(int)sizeof(header_t)+(int)head->size)
 			{
-				int recvnum=socket->recv(buffer+hlen, (head->size+sizeof(header_t))-hlen,&error);
+				int recvnum=socket.recv(buffer+hlen, (head->size+sizeof(header_t))-hlen,&error);
 				if (recvnum<0)
 				{
 					LOG("NET receive error 2: "+ TOSTRING(recvnum));
@@ -420,14 +420,14 @@ void Network::sendthreadstart()
 	while (!shutdown)
 	{
 		// wait for data...
-		NetworkStreamManager::getSingleton().sendStreams(this, &socket);
+		NetworkStreamManager::getSingleton().sendStreams(this);
 	}
 }
 
 void Network::disconnect()
 {
 	shutdown=true;
-	sendmessage(&socket, MSG2_USER_LEAVE, 0, 0, 0);
+	sendmessage(MSG2_USER_LEAVE, 0, 0, 0);
 	SWBaseSocket::SWBaseError error;
 	socket.set_timeout(1, 1000);
 	socket.disconnect(&error);
@@ -436,7 +436,7 @@ void Network::disconnect()
 
 int Network::sendScriptMessage(char* content, unsigned int len)
 {
-	int result = sendmessage(&socket, MSG2_GAME_CMD, 0, len, content);
+	int result = sendmessage(MSG2_GAME_CMD, 0, len, content);
 	if (result<0) LOG("An error occurred while sending a script message to the server.");
 	return result;
 }
@@ -468,7 +468,7 @@ void Network::receivethreadstart()
 	while (!shutdown)
 	{
 		//get one message
-		int err=receivemessage(&socket, &header, buffer, MAX_MESSAGE_LENGTH);
+		int err=receivemessage(&header, buffer, MAX_MESSAGE_LENGTH);
 		//LOG("received data: " + TOSTRING(header.command) + ", source: "+TOSTRING(header.source) + ":"+TOSTRING(header.streamid) + ", size: "+TOSTRING(header.size));
 		if (err)
 		{
@@ -486,7 +486,7 @@ void Network::receivethreadstart()
 			{
 				stream_reg_t r = streamCreationResults.front();
 				stream_register_t reg = r.reg;
-				sendmessage(&socket, MSG2_STREAM_REGISTER_RESULT, 0, sizeof(stream_register_t), (char *)&reg);
+				sendmessage(MSG2_STREAM_REGISTER_RESULT, 0, sizeof(stream_register_t), (char *)&reg);
 				streamCreationResults.pop_front();
 			}
 		}

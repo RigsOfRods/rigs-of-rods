@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Streamable.h"
 
+#include "Language.h"
 #include "Network.h"
 #include "NetworkStreamManager.h"
 
@@ -35,19 +36,11 @@ Streamable::~Streamable()
 {
 }
 
-std::deque < Streamable::bufferedPacket_t > *Streamable::getPacketQueue()
-{
-	return &packets;
-}
-
-std::deque < recvPacket_t > *Streamable::getReceivePacketQueue()
-{
-	return &receivedPackets;
-}
-
 void Streamable::addPacket(int type, unsigned int len, char* content)
 {
 #ifdef USE_SOCKETW
+	std::lock_guard<std::mutex> lock(m_send_work_mutex);
+
 	if (packets.size() > packetBufferSizeDiscardData && type == MSG2_STREAM_DATA)
 		// discard unimportant data packets for some while
 		return;
@@ -110,6 +103,8 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 
 void Streamable::addReceivedPacket(header_t header, char *buffer)
 {
+	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
+
 	if (packets.size() > packetBufferSizeDiscardData && header.command == MSG2_STREAM_DATA)
 		// discard unimportant data packets for some while
 		return;
@@ -117,8 +112,6 @@ void Streamable::addReceivedPacket(header_t header, char *buffer)
 	if (receivedPackets.size() > packetBufferSize)
 		// buffer full, packet discarded
 		return;
-
-	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
 
 	// construct the data holding struct
 	recvPacket_t packet;
@@ -129,14 +122,44 @@ void Streamable::addReceivedPacket(header_t header, char *buffer)
 	receivedPackets.push_back(packet);
 }
 
-void Streamable::lockReceiveQueue()
+void Streamable::sendStream(Network *net)
 {
-	m_recv_work_mutex.lock();
+	std::lock_guard<std::mutex> lock(m_send_work_mutex);
+
+	while (!packets.empty())
+	{
+		// remove oldest packet in queue
+		Streamable::bufferedPacket_t packet = packets.front();
+
+		int etype = net->sendMessageRaw(packet.packetBuffer, packet.size);
+		if (etype)
+		{
+			wchar_t emsg[256];
+			UTFString tmp = _L("Error %i while sending data packet");
+			swprintf(emsg, 256, tmp.asWStr_c_str(), etype);
+			net->netFatalError(UTFString(emsg));
+			return;
+		}
+
+		packets.pop_front();
+	}
 }
 
-void Streamable::unlockReceiveQueue()
+void Streamable::receiveStream()
 {
-	m_recv_work_mutex.unlock();
+	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
+
+	while (!receivedPackets.empty())
+	{
+		// remove oldest packet in queue
+		recvPacket_t packet = receivedPackets.front();
+
+		//Network::debugPacket("receive-2", &packet.header, (char *)packet.buffer);
+
+		receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, (char*)packet.buffer, packet.header.size);
+
+		receivedPackets.pop_front();
+	}
 }
 
 void Streamable::addStreamRegistrationResult(int sourceid, stream_register_t reg)

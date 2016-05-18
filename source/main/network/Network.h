@@ -39,10 +39,10 @@ public:
 	~Network();
 
 	// messaging functions
-	int sendMessageRaw(SWInetSocket *socket, char *content, unsigned int msgsize);
-	int sendmessage(SWInetSocket *socket, int type, unsigned int streamid, unsigned int len, char* content);
+	int sendMessageRaw(char *content, unsigned int msgsize);
+	int sendmessage(int type, unsigned int streamid, unsigned int len, char* content);
 	int sendScriptMessage(char* content, unsigned int len);
-	int receivemessage(SWInetSocket *socket, header_t *header, char* content, unsigned int bufferlen);
+	int receivemessage(header_t *header, char* content, unsigned int bufferlen);
 
 	// methods
 	bool connect();
