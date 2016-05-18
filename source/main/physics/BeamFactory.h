@@ -32,7 +32,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
 class ThreadPool;
-class TwoDReplay;
 
 /**
 * Builds and manages vehicles; Manages multithreading.
@@ -168,8 +167,6 @@ protected:
 	int m_simulated_truck;
 
 	bool m_forced_active; // disables sleepcount
-
-	std::unique_ptr<TwoDReplay> m_tdr;
 
 	unsigned long m_physics_frames;
 	int m_physics_steps;

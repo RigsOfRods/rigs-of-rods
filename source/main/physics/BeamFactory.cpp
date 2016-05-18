@@ -39,7 +39,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
-#include "TwoDReplay.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -147,9 +146,6 @@ BeamFactory::BeamFactory() :
 
 	for (int t=0; t < MAX_TRUCKS; t++)
 		m_trucks[t] = 0;
-
-	if (BSETTING("2DReplay", false))
-		m_tdr = std::unique_ptr<TwoDReplay>();
 
 	if (BSETTING("Multi-threading", true))
 	{
@@ -833,9 +829,6 @@ void BeamFactory::calcPhysics(float dt)
 	gEnv->mrTime += dt;
 
 	this->SyncWithSimThread();
-
-	// 2D replay
-	if (m_tdr) m_tdr->update(dt);
 
 	this->UpdateSleepingState(dt);
 
