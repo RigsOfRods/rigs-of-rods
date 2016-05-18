@@ -1702,10 +1702,7 @@ void Beam::receiveStreamData(unsigned int &type, int &source, unsigned int &_str
 	// TODO: FIX
 	//if (this->source != source || this->streamid != streamid) return; // data not for us
 
-	if (type == MSG2_STREAM_DATA
-	   && source == (int)this->sourceid
-	   && _streamid == this->streamid
-	  )
+	if (type == MSG2_STREAM_DATA && source == (int)this->getSourceID() && _streamid == this->getStreamID())
 	{
 		pushNetwork(buffer, len);
 	}
@@ -4504,7 +4501,7 @@ void Beam::updateNetworkInfo()
 	bool remote = (state == NETWORKED);
 	if (remote)
 	{
-		client_t *c = gEnv->network->getClientInfo(sourceid);
+		client_t *c = gEnv->network->getClientInfo(this->getSourceID());
 		if (!c) return;
 		networkUsername = UTFString(c->user.username);
 		networkAuthlevel = c->user.authstatus;
