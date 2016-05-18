@@ -475,7 +475,6 @@ public:
 	float getHeadingDirectionAngle();
 	bool getCustomParticleMode();
 	int getLowestNode();
-	void preMapLabelRenderUpdate(bool mode, float cheight=0);
 	
 	float global_dt;
 	float global_simulation_speed;
@@ -670,6 +669,7 @@ protected:
 	int net_toffset;
 	int netcounter;
 	Ogre::MovableText *netMT; //, *netDist;
+	bool m_hide_own_net_label;
 
 	// network properties
 	Ogre::String networkUsername;

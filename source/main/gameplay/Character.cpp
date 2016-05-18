@@ -50,6 +50,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, mAnimState(0)
 	, mCamera(gEnv->mainCamera)
 	, mCharacterNode(0)
+	, mHideOwnNetLabel(BSETTING("HideOwnNetLabel", false))
 	, mLastPosition(Vector3::ZERO)
 	, mMoveableText(0)
 	, networkAuthLevel(0)
@@ -92,7 +93,21 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	MaterialPtr mat2 = mat1->clone("tracks/"+myName);
 	entity->setMaterialName("tracks/"+myName);
 
-	updateNetLabel();
+#ifdef USE_SOCKETW
+	if (gEnv->network && (remote || !mHideOwnNetLabel))
+	{
+		mMoveableText = new MovableText("netlabel-"+myName, "");
+		mCharacterNode->attachObject(mMoveableText);
+		mMoveableText->setFontName("CyberbitEnglish");
+		mMoveableText->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+		mMoveableText->setAdditionalHeight(2);
+		mMoveableText->showOnTop(false);
+		mMoveableText->setCharacterHeight(8);
+		mMoveableText->setColor(ColourValue::Black);
+
+		updateNetLabel();
+	}
+#endif //SOCKETW
 }
 
 Character::~Character()
@@ -137,9 +152,9 @@ void Character::setUID(int uid)
 
 void Character::updateNetLabel()
 {
-#ifdef USE_SOCKETW
-	// label above head
 	if (!gEnv->network) return;
+
+#ifdef USE_SOCKETW
 	if (remote)
 	{
 		client_t *info = gEnv->network->getClientInfo(this->source);
@@ -158,24 +173,11 @@ void Character::updateNetLabel()
 		networkAuthLevel = info->authstatus;
 	}
 
-	//LOG(" * updateNetLabel : " + TOSTRING(this->source));
-	if (!mMoveableText)
-	{
-		mMoveableText = new MovableText("netlabel-"+myName, networkUsername);
-		mCharacterNode->attachObject(mMoveableText);
-		mMoveableText->setFontName("CyberbitEnglish");
-		mMoveableText->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-		mMoveableText->setAdditionalHeight(2);
-		mMoveableText->showOnTop(false);
-		mMoveableText->setCharacterHeight(8);
-		mMoveableText->setColor(ColourValue::Black);
-	}
-
-	//LOG(" *label caption: " + String(networkUsername));
-	try
+	if (mMoveableText)
 	{
 		mMoveableText->setCaption(networkUsername);
-	} catch (...) {}
+	}
+
 	/*
 	if (networkAuthLevel & AUTH_ADMIN)
 	{
@@ -189,7 +191,6 @@ void Character::updateNetLabel()
 	}
 	*/
 
-	// update character colour
 	updateCharacterColour();
 #endif //SOCKETW
 }
@@ -586,11 +587,7 @@ void Character::receiveStreamData(unsigned int &type, int &source, unsigned int 
 
 void Character::updateNetLabelSize()
 {
-	if (!this || !gEnv->network || !mMoveableText) return;
-
-	mMoveableText->setVisible(getVisible());
-
-	if (!mMoveableText->isVisible()) return; // why not getVisible()?
+	if (!mMoveableText) return;
 
 	float camDist = (mCharacterNode->getPosition() - mCamera->getPosition()).length();
 	float h = std::max(9.0f, camDist * 1.2f);

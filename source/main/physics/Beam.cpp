@@ -1547,10 +1547,6 @@ void Beam::handleTruckPosition(float dt)
 
 void Beam::sendStreamSetup()
 {
-	if (!gEnv->network || state == NETWORKED ) return;
-	// only init stream if its local.
-	// the stream is local when networking=true and networked=false
-
 	// register the local stream
 	stream_register_trucks_t reg;
 	memset(&reg, 0, sizeof(stream_register_trucks_t));
@@ -3159,7 +3155,7 @@ void Beam::updateSoundSources()
 
 void Beam::updateLabels(float dt)
 {
-	if (netLabelNode && netMT && netMT->isVisible())
+	if (netLabelNode && netMT)
 	{
 		// this ensures that the nickname is always in a readable size
 		netLabelNode->setPosition(position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
@@ -3176,7 +3172,6 @@ void Beam::updateLabels(float dt)
 			netMT->setCaption(networkUsername);
 
 		//netMT->setAdditionalHeight((boundingBox.getMaximum().y - boundingBox.getMinimum().y) + h + 0.1);
-		netMT->setVisible(true);
 	}
 }
 
@@ -3460,24 +3455,6 @@ void Beam::setDetailLevel(int v)
 			gEnv->sceneManager->getRootSceneNode()->addChild(beamsRoot);
 		}
 		detailLevel = v;
-	}
-}
-
-void Beam::preMapLabelRenderUpdate(bool mode, float charheight)
-{
-	static float orgcharheight=0;
-	if (mode && netLabelNode)
-	{
-		netMT->showOnTop(true);
-		orgcharheight = netMT->getCharacterHeight();
-		netMT->setCharacterHeight(charheight);
-		//netMT->setAdditionalHeight(0);
-		netMT->setVisible(false);
-	} else if (!mode && netLabelNode)
-	{
-		netMT->showOnTop(false);
-		netMT->setCharacterHeight(orgcharheight);
-		netMT->setVisible(true);
 	}
 }
 
@@ -4500,10 +4477,13 @@ void Beam::updateDebugOverlay()
 
 void Beam::updateNetworkInfo()
 {
-	BES_GFX_START(BES_GFX_updateNetworkInfo);
-#ifdef USE_SOCKETW
 	if (!gEnv->network) return;
+
+#ifdef USE_SOCKETW
+	BES_GFX_START(BES_GFX_updateNetworkInfo);
+
 	bool remote = (state == NETWORKED);
+
 	if (remote)
 	{
 		client_t *c = gEnv->network->getClientInfo(sourceid);
@@ -4519,10 +4499,8 @@ void Beam::updateNetworkInfo()
 		networkAuthlevel = info->authstatus;
 	}
 
-	if (netLabelNode && netMT)
+	if (netMT)
 	{
-		// ha, this caused the empty caption bug, but fixed now since we change the caption if its empty:
-		netMT->setCaption(networkUsername);
 		/*
 		if (networkAuthlevel & AUTH_ADMIN)
 		{
@@ -4535,42 +4513,10 @@ void Beam::updateNetworkInfo()
 			netMT->setFontName("highcontrast_black");
 		}
 		*/
-		netLabelNode->setVisible(true);
 	}
-	else
-	{
-		char wname[256];
-		sprintf(wname, "netlabel-%s", truckname);
-		netMT = new MovableText(wname, networkUsername);
-		netMT->setFontName("CyberbitEnglish");
-		netMT->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-		//netMT->setAdditionalHeight(2);
-		netMT->showOnTop(false);
-		netMT->setCharacterHeight(2);
-		netMT->setColor(ColourValue::Black);
 
-		/*
-		if (networkAuthlevel & AUTH_ADMIN)
-		{
-			netMT->setFontName("highcontrast_red");
-		} else if (networkAuthlevel & AUTH_RANKED)
-		{
-			netMT->setFontName("highcontrast_green");
-		} else
-		{
-			netMT->setFontName("highcontrast_black");
-		}
-		*/
-
-		netLabelNode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		netLabelNode->attachObject(netMT);
-		netLabelNode->setPosition(position);
-		netLabelNode->setVisible(true);
-		deletion_sceneNodes.emplace_back(netLabelNode);
-		deletion_Objects.emplace_back(netMT);
-	}
-#endif //SOCKETW
 	BES_GFX_STOP(BES_GFX_updateNetworkInfo);
+#endif //SOCKETW
 }
 
 void Beam::deleteNetTruck()
@@ -4578,9 +4524,9 @@ void Beam::deleteNetTruck()
 	// TODO: properly delete things ...
 	//park and recycle vehicle
 	state = RECYCLE;
-	netMT->setVisible(false);
+	if (netMT) netMT->setVisible(false);
 	resetPosition(100000, 100000, false, 100000);
-	netLabelNode->setVisible(false);
+	if (netLabelNode) netLabelNode->setVisible(false);
 	updateFlexbodiesPrepare();
 	updateFlexbodiesFinal();
 	updateVisual();
@@ -5395,6 +5341,7 @@ Beam::Beam(
 	, lockedold(0)
 	, velocity(Ogre::Vector3::ZERO)
 	, m_custom_camera_node(-1)
+	, m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
 	, m_request_skeletonview_change(0)
 	, m_reset_request(REQUEST_RESET_NONE)
 	, m_skeletonview_is_active(false)
@@ -5576,7 +5523,42 @@ Beam::Beam(
 
 	if (networking)
 	{
-		sendStreamSetup();
+		if (state != NETWORKED)
+		{
+			sendStreamSetup();
+		}
+
+		if (state == NETWORKED || !m_hide_own_net_label)
+		{
+			char wname[256];
+			sprintf(wname, "netlabel-%s", truckname);
+			netMT = new MovableText(wname, networkUsername);
+			netMT->setFontName("CyberbitEnglish");
+			netMT->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+			//netMT->setAdditionalHeight(2);
+			netMT->showOnTop(false);
+			netMT->setCharacterHeight(2);
+			netMT->setColor(ColourValue::Black);
+			netMT->setVisible(true);
+
+			/*
+			if (networkAuthlevel & AUTH_ADMIN)
+			{
+				netMT->setFontName("highcontrast_red");
+			} else if (networkAuthlevel & AUTH_RANKED)
+			{
+				netMT->setFontName("highcontrast_green");
+			} else
+			{
+				netMT->setFontName("highcontrast_black");
+			}
+			*/
+
+			netLabelNode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+			netLabelNode->attachObject(netMT);
+			netLabelNode->setVisible(true);
+			deletion_sceneNodes.emplace_back(netLabelNode);
+		}
 	}
 
 	mCamera = gEnv->mainCamera;
