@@ -75,6 +75,7 @@ private:
 	void sendStream(Network *net);
 
 	std::mutex m_recv_work_mutex;
+	std::mutex m_send_work_mutex;
 
 	typedef struct _bufferedPacket
 	{

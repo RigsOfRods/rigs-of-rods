@@ -39,6 +39,8 @@ Streamable::~Streamable()
 void Streamable::addPacket(int type, unsigned int len, char* content)
 {
 #ifdef USE_SOCKETW
+	std::lock_guard<std::mutex> lock(m_send_work_mutex);
+
 	if (packets.size() > packetBufferSizeDiscardData && type == MSG2_STREAM_DATA)
 		// discard unimportant data packets for some while
 		return;
@@ -122,6 +124,8 @@ void Streamable::addReceivedPacket(header_t header, char *buffer)
 
 void Streamable::sendStream(Network *net)
 {
+	std::lock_guard<std::mutex> lock(m_send_work_mutex);
+
 	while (!packets.empty())
 	{
 		// remove oldest packet in queue
