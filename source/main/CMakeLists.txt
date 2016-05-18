@@ -133,7 +133,6 @@ set( SOURCE_FILES
   gui/GUIMenu.{h,cpp}
   gui/GUIMp.{h,cpp}
   gui/GuiManagerInterface.h
-  gui/HighScoreWindow.{h,cpp}
   gui/LoadingWindow.{h,cpp}
   gui/OverlayWrapper.{h,cpp}
   gui/RTTLayer.{h,cpp}
