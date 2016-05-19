@@ -5580,7 +5580,7 @@ Beam::Beam(
 	, watercontact(false)
 	, watercontactold(false)
 {
-	high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
+	high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", true);
 	useSkidmarks = BSETTING("Skidmarks", false);
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
