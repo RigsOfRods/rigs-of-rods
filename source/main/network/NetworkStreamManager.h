@@ -46,7 +46,7 @@ public:
 	
 	void addLocalStream(Streamable *stream, stream_register_t *reg, unsigned int size=0);
 	void addRemoteStream(Streamable *stream, int source=-1, int streamid=-1);
-	void removeStream(int sourceid, int streamid);
+	void removeLocalStream(Streamable *stream);
 
 	void pauseStream(Streamable *stream);
 	void resumeStream(Streamable *stream);
@@ -78,6 +78,8 @@ protected:
 
 	void syncRemoteStreams();
 	void receiveStreams();
+
+	void removeStream(int sourceid, int streamid);
 };
 
 #endif // __NetworkStreamManager_H_

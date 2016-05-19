@@ -677,9 +677,6 @@ void BeamFactory::removeTruck(int truck)
 	if (truck < 0 || truck > m_free_truck)
 		return;
 
-	if (m_current_truck == truck)
-		setCurrentTruck(-1);
-
 	this->DeleteTruck(m_trucks[truck]);
 }
 
@@ -697,14 +694,16 @@ void BeamFactory::DeleteTruck(Beam *b)
 
 	this->SyncWithSimThread();
 
-	if (!b->networking)
+	if (b->networking && b->state < NETWORKED)
 	{
-		m_trucks[b->trucknum] = 0;
-		delete b;
-	} else
-	{
-		b->deleteNetTruck();
+		NetworkStreamManager::getSingleton().removeLocalStream(b);
 	}
+
+	if (m_current_truck == b->trucknum)
+		setCurrentTruck(-1);
+
+	m_trucks[b->trucknum] = 0;
+	delete b;
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
@@ -915,9 +914,6 @@ void BeamFactory::calcPhysics(float dt)
 		case NETWORKED_INVALID:
 			break;
 
-		case DELETED:
-			break;
-
 		default:
 			if (m_trucks[t]->state > DESACTIVATED && m_trucks[t]->engine)
 				m_trucks[t]->engine->update(dt, 1);
@@ -971,7 +967,7 @@ void BeamFactory::calcPhysics(float dt)
 	}
 }
 
-void BeamFactory::RemoveInstance(stream_del_t *del)
+void BeamFactory::removeInstance(stream_del_t *del)
 {
 	// we override this here so we can also delete the truck array content
 	// already locked
@@ -988,13 +984,19 @@ void BeamFactory::RemoveInstance(stream_del_t *del)
 	{
 		// delete all streams
 		for (it_beam=it_stream->second.begin(); it_beam != it_stream->second.end(); it_beam++)
+		{
 			this->DeleteTruck(it_beam->second);
+			it_beam->second = 0;
+		}
 	} else
 	{
 		// find the stream matching the streamid
 		it_beam = it_stream->second.find(del->streamid);
 		if (it_beam != it_stream->second.end())
+		{
 			this->DeleteTruck(it_beam->second);
+			it_beam->second = 0;
+		}
 	}
 	// unlockStreams();
 }

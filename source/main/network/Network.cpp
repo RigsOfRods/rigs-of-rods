@@ -532,6 +532,13 @@ void Network::receivethreadstart()
 			stream_register_t *reg = (stream_register_t *)buffer;
 			BeamFactory::getSingleton().addStreamRegistrationResults(header.source, reg);
 			LOG(" * received stream registration result: " + TOSTRING(header.source) + ": "+TOSTRING(header.streamid));
+			continue;
+		}
+		else if (header.command == MSG2_STREAM_UNREGISTER)
+		{
+			NetworkStreamManager::getSingleton().removeStream(header.source, header.streamid);
+			LOG(" * received stream deregistration: " + TOSTRING(header.source) + ": "+TOSTRING(header.streamid));
+			continue;
 		}
 		else if (header.source == -1 && (header.command == MSG2_UTF_CHAT || header.command == MSG2_UTF_PRIVCHAT))
 		{

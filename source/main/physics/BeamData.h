@@ -143,9 +143,7 @@ enum {
 	GOSLEEP,        //!< active but ordered to sleep ASAP (synchronously)
 	SLEEPING,       //!< not active, sleeping
 	NETWORKED,      //!< not calculated, gets remote data
-	NETWORKED_INVALID,	//!< not calculated, size differs from expected
-	RECYCLE,        //!< waiting for reusage
-	DELETED,        //!< special used when truck pointer is 0
+	NETWORKED_INVALID //!< not calculated, size differs from expected
 };
 
 enum {

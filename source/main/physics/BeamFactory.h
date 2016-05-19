@@ -199,8 +199,10 @@ protected:
 	void netUserAttributesChanged(int source, int streamid);
 	void localUserAttributesChanged(int newid);
 
-	void RemoveInstance(stream_del_t *del);
 	void DeleteTruck(Beam *b);
+
+	// Overrides StreamableFactory::removeInstance
+	void removeInstance(stream_del_t *del);
 };
 
 #endif // __BeamFactory_H_

@@ -493,8 +493,7 @@ public:
 	bool getBeaconMode();
 	void setBlinkType(blinktype blink);
 	blinktype getBlinkType();
-	void deleteNetTruck();
-	
+
 	float getHeadingDirectionAngle();
 	bool getCustomParticleMode();
 	int getLowestNode();
@@ -646,8 +645,6 @@ protected:
 	// this is for managing the blinkers on the truck:
 	blinktype blinkingtype;
 
-	bool deleting;
-	
 	Ogre::Real hydrolen;
 	
 	Ogre::SceneNode *smokeNode;
