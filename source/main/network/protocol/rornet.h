@@ -38,7 +38,7 @@ static const int   LAN_BROADCAST_PORT = 13000;  //!< port used to send the broad
 static const int   MAX_USERNAME_LEN   = 40;  //!< port used to send the broadcast announcement in LAN mode
 
 // protocol version
-static const char VARIABLE_IS_NOT_USED *RORNET_VERSION = "RoRnet_2.37"; //!< the protocol version information
+static const char VARIABLE_IS_NOT_USED *RORNET_VERSION = "RoRnet_2.38"; //!< the protocol version information
 
 // REGISTRY STUFF
 static const char VARIABLE_IS_NOT_USED *REPO_SERVER = "api.rigsofrods.com"; //!< the web API URL
@@ -82,7 +82,7 @@ enum {
 	//MSG2_STREAM_REGISTER_RESP,         //!< reply from server to registering client
 	//MSG2_STREAM_CONTROL_FLOW,          //!< suspend/unsuspend streams
 	//MSG2_STREAM_CONTROL_FLOW_RESP,     //!< reply from server to requesting client
-	//MSG2_STREAM_UNREGISTER,            //!< remove stream
+	MSG2_STREAM_UNREGISTER,            //!< remove stream
 	//MSG2_STREAM_UNREGISTER_RESP,       //!< remove stream response from server to requsting client
 	//MSG2_STREAM_TAKEOVER,              //!< stream takeover
 	//MSG2_STREAM_TAKEOVER_RESP,         //!< stream takeover response from server
