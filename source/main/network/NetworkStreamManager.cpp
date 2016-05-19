@@ -73,6 +73,15 @@ void NetworkStreamManager::addRemoteStream(Streamable *stream, int rsource, int 
 	LOG("adding remote stream: " + TOSTRING(rsource) + ":"+ TOSTRING(rstreamid));
 }
 
+void NetworkStreamManager::removeLocalStream(Streamable *stream)
+{
+#ifdef USE_SOCKETW
+	gEnv->network->sendmessage(MSG2_STREAM_UNREGISTER, stream->streamid, 0, 0);
+
+	this->removeStream(stream->sourceid, stream->streamid);
+#endif // USE_SOCKETW
+}
+
 void NetworkStreamManager::removeStream(int sourceid, int streamid)
 {
 #ifdef USE_SOCKETW

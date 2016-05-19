@@ -103,9 +103,6 @@ Beam::~Beam()
 {
 	// TODO: IMPROVE below: delete/destroy prop entities, etc
 
-	deleting = true;
-	state = DELETED;
-
 	// hide everything, prevents deleting stuff while drawing
 	this->setBeamVisibility(false);
 	this->setMeshVisibility(false);
@@ -3437,7 +3434,6 @@ void Beam::updateVisual(float dt)
 	autoBlinkReset();
 	updateSoundSources();
 
-	if (deleting) return;
 	if (debugVisuals) updateDebugOverlay();
 
 #ifdef USE_OPENAL
@@ -4709,20 +4705,6 @@ void Beam::updateNetworkInfo()
 #endif //SOCKETW
 }
 
-void Beam::deleteNetTruck()
-{
-	// TODO: properly delete things ...
-	//park and recycle vehicle
-	state = RECYCLE;
-	if (netMT) netMT->setVisible(false);
-	resetPosition(100000, 100000, false, 100000);
-	if (netLabelNode) netLabelNode->setVisible(false);
-	updateFlexbodiesPrepare();
-	updateFlexbodiesFinal();
-	updateVisual();
-	StopAllSounds();
-}
-
 float Beam::getHeadingDirectionAngle()
 {
 	if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
@@ -5482,8 +5464,7 @@ Beam::Beam(
     int cache_entry_number /* = -1 */
 ) :
 
-	  deleting(false)
-	, GUIFeaturesChanged(false)
+	  GUIFeaturesChanged(false)
 	, aileron(0)
 	, avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
 	, m_beacon_light_is_active(false)

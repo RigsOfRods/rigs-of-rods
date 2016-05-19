@@ -1446,7 +1446,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	if (dt==0.0) return false;
-	if (deleting) return false;
 	if (m_reset_request) return false;
 	if (state >= SLEEPING) return false;
 
