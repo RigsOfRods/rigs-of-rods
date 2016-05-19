@@ -47,8 +47,6 @@ public:
 	void setDirectionArrow(char *text, Ogre::Vector3 position);
 
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
-	void shutdown_final();
-	void Restart();
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 
 	void setSimPaused(bool state);
