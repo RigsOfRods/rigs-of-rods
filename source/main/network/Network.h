@@ -61,10 +61,8 @@ public:
 	int getSpeedDown();
 	int getSpeedUp();
 	static unsigned long getNetTime();
-	unsigned int getUserID() { return myuid; };
+	unsigned int getUID() { return myuid; };
 	user_info_t *getLocalUserData() { return &userdata; };
-
-	static unsigned int getUID() { return myuid; };
 
 	static void debugPacket(const char *name, header_t *header, char *buffer);
 
@@ -93,7 +91,7 @@ private:
 	std::mutex send_work_mutex;
 	server_info_t server_settings;
 	static Ogre::Timer timer;
-	static unsigned int myuid;
+	unsigned int myuid;
 	std::map<int, float> lagDataClients;
 	user_info_t userdata;
 

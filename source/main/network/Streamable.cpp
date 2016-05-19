@@ -52,7 +52,7 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 		// packet too big, discarded
 		return;
 
-	int uid = Network::getUID();
+	int uid = gEnv->network->getUID();
 	unsigned int streamid = this->streamid; //we stored the streamid upon stream registration in this class
 
 	bufferedPacket_t packet;
