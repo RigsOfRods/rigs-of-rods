@@ -125,6 +125,8 @@ protected:
 
 	Ogre::Vector3 m_reload_pos;
 	Ogre::Quaternion m_reload_dir;
+
+	void finalizeTruckSpawning(Beam *local_truck, Beam *previous_truck);
 };
 
 #endif // __RoRFrameListener_H_

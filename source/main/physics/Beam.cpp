@@ -498,6 +498,13 @@ void Beam::changeOrigin(Vector3 newOrigin)
 
 float Beam::getRotation()
 {
+	Vector3 cur_dir = getDirection();
+
+	return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+}
+
+Vector3 Beam::getDirection()
+{
 	Vector3 cur_dir = nodes[0].AbsPosition;
 	if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
 	{
@@ -518,7 +525,9 @@ float Beam::getRotation()
 		cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
 	}
 
-	return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+	cur_dir.normalise();
+
+	return cur_dir;
 }
 
 Vector3 Beam::getPosition()
@@ -1007,6 +1016,176 @@ void Beam::calcNodeConnectivityGraph()
 	BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
 }
 
+Vector3 Beam::calculateCollisionOffset(Vector3 direction)
+{
+	if (direction == Vector3::ZERO)
+		return Vector3::ZERO;
+
+	AxisAlignedBox bb = boundingBox;
+	bb.merge(boundingBox.getMinimum() + direction);
+	bb.merge(boundingBox.getMaximum() + direction);
+
+	Real max_distance = direction.length();
+	direction.normalise();
+
+	Beam **trucks = BeamFactory::getSingleton().getTrucks();
+	int trucksnum = BeamFactory::getSingleton().getTruckCount();
+
+	intraPointCD->update(this, true);
+	interPointCD->update(this, trucks, trucksnum, true);
+
+	// collision displacement
+	Vector3 collision_offset = Vector3::ZERO;
+
+	for (int t=0; t<trucksnum; t++)
+	{
+		if (!trucks[t]) continue;
+		if (t == trucknum) continue;
+		if (!bb.intersects(trucks[t]->boundingBox)) continue;
+
+		// Test own contacters against others cabs
+		for (int i=0; i<trucks[t]->free_collcab; i++)
+		{
+			if (collision_offset.length() >= max_distance) break;
+			Vector3 offset = collision_offset;
+			while (offset.length() < max_distance)
+			{
+				int tmpv = trucks[t]->collcabs[i]*3;
+				node_t* no = &trucks[t]->nodes[cabs[tmpv]];
+				node_t* na = &trucks[t]->nodes[cabs[tmpv+1]];
+				node_t* nb = &trucks[t]->nodes[cabs[tmpv+2]];
+
+				intraPointCD->query(no->AbsPosition + offset,
+									na->AbsPosition + offset,
+									nb->AbsPosition + offset,
+									collrange);
+
+				if (intraPointCD->hit_count == 0)
+				{
+					collision_offset = offset;
+					break;
+				}
+				offset += direction * 0.01f;
+			}
+		}
+
+		float proximity = 0.05f;
+		proximity = std::max(proximity, boundingBox.getSize().length() / 50.0f);
+		proximity = std::max(proximity, trucks[t]->boundingBox.getSize().length() / 50.0f);
+
+		// Test proximity of own nodes against others nodes
+		for (int i=0; i<free_node; i++)
+		{
+			if (nodes[i].contactless) continue;
+			if (collision_offset.length() >= max_distance) break;
+			Vector3 offset = collision_offset;
+			while (offset.length() < max_distance)
+			{
+				Vector3 query_position = nodes[i].AbsPosition + offset;
+
+				bool node_proximity = false;
+
+				for (int j=0; j<trucks[t]->free_node; j++)
+				{
+					if (trucks[t]->nodes[j].contactless) continue;
+					if (query_position.squaredDistance(trucks[t]->nodes[j].AbsPosition) < proximity)
+					{
+						node_proximity = true;
+						break;
+					}
+				}
+
+				if (!node_proximity)
+				{
+					collision_offset = offset;
+					break;
+				}
+				offset += direction * 0.01f;
+			}
+		}
+	}
+
+	// Test own cabs against others contacters
+	for (int i=0; i<free_collcab; i++)
+	{
+		if (collision_offset.length() >= max_distance) break;
+		Vector3 offset = collision_offset;
+		while (offset.length() < max_distance)
+		{
+			int tmpv = collcabs[i]*3;
+			node_t* no = &nodes[cabs[tmpv]];
+			node_t* na = &nodes[cabs[tmpv+1]];
+			node_t* nb = &nodes[cabs[tmpv+2]];
+
+			interPointCD->query(no->AbsPosition + offset,
+								na->AbsPosition + offset,
+								nb->AbsPosition + offset,
+								collrange);
+
+			if (interPointCD->hit_count == 0)
+			{
+				collision_offset = offset;
+				break;
+			}
+			offset += direction * 0.01f;
+		}
+	}
+
+	return collision_offset;
+}
+
+void Beam::resolveCollisions(Vector3 direction)
+{
+	Vector3 offset = calculateCollisionOffset(direction);
+
+	if (offset == Vector3::ZERO)
+		return;
+
+	// Additional 20 cm safe-guard (horizontally)
+	Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
+	offset += 0.2f * dir;
+
+	resetPosition(nodes[0].AbsPosition.x + offset.x, nodes[0].AbsPosition.z + offset.z, true, nodes[lowestcontactingnode].AbsPosition.y + offset.y);
+}
+
+void Beam::resolveCollisions(float max_distance, bool consider_up)
+{
+	Vector3 offset = Vector3::ZERO;
+
+	Vector3 f = max_distance * getDirection();
+	Vector3 l = max_distance * Vector3(-sin(getRotation() + Math::HALF_PI), 0.0f, cos(getRotation() + Math::HALF_PI));
+	Vector3 u = max_distance * Vector3::UNIT_Y;
+
+	// Calculate an ideal collision avoidance direction (prefer left over right over [front / back / up])
+
+	Vector3 front = calculateCollisionOffset(+f);
+	Vector3 back  = calculateCollisionOffset(-f);
+	Vector3 left  = calculateCollisionOffset(+l);
+	Vector3 right = calculateCollisionOffset(-l);
+
+	offset = front.length() < back.length() * 1.2f ? front : back;
+	
+	Vector3 side = left.length() < right.length() * 1.1f ? left : right;
+	if (side.length() < offset.length() + minCameraRadius / 2.0f)
+		offset = side;
+
+	if (consider_up)
+	{
+		Vector3 up = calculateCollisionOffset(+u);
+		if (up.length() < offset.length())
+			offset = up;
+	}
+
+	if (offset == Vector3::ZERO)
+		return;
+
+	// Additional 20 cm safe-guard (horizontally)
+	Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
+	offset += 0.2f * dir;
+
+	resetPosition(nodes[0].AbsPosition.x + offset.x, nodes[0].AbsPosition.z + offset.z, true, nodes[lowestcontactingnode].AbsPosition.y + offset.y);
+}
+
 int Beam::savePosition(int indexPosition)
 {
 	if (!posStorage) return -1;
@@ -1076,6 +1255,15 @@ void Beam::updateTruckPosition()
 		}
 		position = aposition / free_node;
 	}
+
+	// update bounding box
+	boundingBox = AxisAlignedBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
+	for (int i=0; i<free_node; i++)
+	{
+		boundingBox.merge(nodes[i].AbsPosition);
+	}
+	boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+	boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 }
 
 void Beam::resetAngle(float rot)
@@ -1179,19 +1367,18 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 
 	updateTruckPosition();
 
-	// calculate min camera radius for truck
-	if (minCameraRadius < 0.01f)
+	// calculate minimum camera radius
+	if (minCameraRadius < 0.0f)
 	{
-		// recalc
 		for (int i=0; i<free_node; i++)
 		{
-			Real dist = nodes[i].AbsPosition.distance(position);
+			Real dist = nodes[i].AbsPosition.squaredDistance(position);
 			if (dist > minCameraRadius)
 			{
 				minCameraRadius = dist;
 			}
 		}
-		minCameraRadius *= 1.2f; // ten percent buffer
+		minCameraRadius = std::sqrt(minCameraRadius) * 1.2f; // twenty percent buffer
 	}
 
 	resetSlideNodePositions();
@@ -1302,26 +1489,7 @@ void Beam::displace(Vector3 translation, float rotation)
 {
 	if (rotation != 0.0f)
 	{
-		Vector3 rotation_center = Vector3::ZERO;
-
-		if (m_is_cinecam_rotation_center)
-		{
-			Vector3 cinecam = nodes[0].AbsPosition;
-			if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
-			{
-				cinecam = nodes[cameranodepos[0]].AbsPosition;
-			}
-			rotation_center = cinecam;
-		} else
-		{
-			Vector3 sum = Vector3::ZERO;
-			for (int i=0; i<free_node; i++)
-			{
-				sum += nodes[i].AbsPosition;
-			}
-			rotation_center = sum / free_node;
-		}
-
+		Vector3 rotation_center = getRotationCenter();
 		Quaternion rot = Quaternion(Radian(rotation), Vector3::UNIT_Y);
 
 		for (int i=0; i<free_node; i++)
@@ -1344,6 +1512,31 @@ void Beam::displace(Vector3 translation, float rotation)
 	{
 		updateTruckPosition();
 	}
+}
+
+Ogre::Vector3 Beam::getRotationCenter()
+{
+	Vector3 rotation_center = Vector3::ZERO;
+
+	if (m_is_cinecam_rotation_center)
+	{
+		Vector3 cinecam = nodes[0].AbsPosition;
+		if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+		{
+			cinecam = nodes[cameranodepos[0]].AbsPosition;
+		}
+		rotation_center = cinecam;
+	} else
+	{
+		Vector3 sum = Vector3::ZERO;
+		for (int i=0; i<free_node; i++)
+		{
+			sum += nodes[i].AbsPosition;
+		}
+		rotation_center = sum / free_node;
+	}
+
+	return rotation_center;
 }
 
 void Beam::SyncReset()
@@ -5348,7 +5541,7 @@ Beam::Beam(
 	, m_spawn_rotation(0.0)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
-	, minCameraRadius(0)
+	, minCameraRadius(-1.0f)
 	, mousemoveforce(0.0f)
 	, mousenode(-1)
 	, mousepos(Ogre::Vector3::ZERO)
