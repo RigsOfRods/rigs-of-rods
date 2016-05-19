@@ -44,13 +44,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 
 Timer Network::timer = Ogre::Timer();
-unsigned int Network::myuid=0;
 
 Network::Network(String servername, long server_port) :
 	  lagDataClients()
 	, initiated(false)
+	, myuid(0)
 	, net_quality(0)
-	, net_quality_changed(false)
 {
 
 	// update factories network objects
@@ -63,7 +62,6 @@ Network::Network(String servername, long server_port) :
 	m_server_port = server_port;
 	myauthlevel = AUTH_NONE;
 	nickname = "";
-	myuid=0;
 
 	speed_time=0;
 	speed_bytes_sent = speed_bytes_sent_tmp = speed_bytes_recv = speed_bytes_recv_tmp = 0;
@@ -685,22 +683,12 @@ void Network::debugPacket(const char *name, header_t *header, char *buffer)
 
 void Network::setNetQuality(int q)
 {
-	std::lock_guard<std::mutex> lock(mutex_data);
 	net_quality = q;
-	net_quality_changed = true;
 }
 
-int Network::getNetQuality(bool ack)
+int Network::getNetQuality()
 {
-	std::lock_guard<std::mutex> lock(mutex_data);
-	if (ack) net_quality_changed=false;
 	return net_quality;
-}
-
-bool Network::getNetQualityChanged()
-{
-	std::lock_guard<std::mutex> lock(mutex_data);
-	return net_quality_changed;
 }
 
 #endif // USE_SOCKETW

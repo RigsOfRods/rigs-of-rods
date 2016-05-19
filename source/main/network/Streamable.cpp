@@ -39,20 +39,11 @@ Streamable::~Streamable()
 void Streamable::addPacket(int type, unsigned int len, char* content)
 {
 #ifdef USE_SOCKETW
-	std::lock_guard<std::mutex> lock(m_send_work_mutex);
-
-	if (packets.size() > packetBufferSizeDiscardData && type == MSG2_STREAM_DATA)
-		// discard unimportant data packets for some while
-		return;
-
-	if (packets.size() > packetBufferSize)
-		// buffer full, packet discarded
-		return;
 	if (len > maxPacketLen)
 		// packet too big, discarded
 		return;
 
-	int uid = Network::getUID();
+	int uid = gEnv->network->getUID();
 	unsigned int streamid = this->streamid; //we stored the streamid upon stream registration in this class
 
 	bufferedPacket_t packet;
@@ -94,7 +85,19 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 	LOG("S|HASH: " + String(hash));
 	*/
 
-	packets.push_back(packet);
+	{
+		std::lock_guard<std::mutex> lock(m_send_work_mutex);
+
+		if (packets.size() > packetBufferSizeDiscardData && type == MSG2_STREAM_DATA)
+			// discard unimportant data packets for some while
+			return;
+
+		if (packets.size() > packetBufferSize)
+			// buffer full, packet discarded
+			return;
+
+		packets.push_back(packet);
+	}
 
 	// trigger buffer clearing
 	NetworkStreamManager::getSingleton().triggerSend();
@@ -104,10 +107,6 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 void Streamable::addReceivedPacket(header_t header, char *buffer)
 {
 	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
-
-	if (packets.size() > packetBufferSizeDiscardData && header.command == MSG2_STREAM_DATA)
-		// discard unimportant data packets for some while
-		return;
 
 	if (receivedPackets.size() > packetBufferSize)
 		// buffer full, packet discarded
