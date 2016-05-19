@@ -50,7 +50,6 @@ Network::Network(String servername, long server_port) :
 	  lagDataClients()
 	, initiated(false)
 	, net_quality(0)
-	, net_quality_changed(false)
 {
 
 	// update factories network objects
@@ -685,22 +684,12 @@ void Network::debugPacket(const char *name, header_t *header, char *buffer)
 
 void Network::setNetQuality(int q)
 {
-	std::lock_guard<std::mutex> lock(mutex_data);
 	net_quality = q;
-	net_quality_changed = true;
 }
 
-int Network::getNetQuality(bool ack)
+int Network::getNetQuality()
 {
-	std::lock_guard<std::mutex> lock(mutex_data);
-	if (ack) net_quality_changed=false;
 	return net_quality;
-}
-
-bool Network::getNetQualityChanged()
-{
-	std::lock_guard<std::mutex> lock(mutex_data);
-	return net_quality_changed;
 }
 
 #endif // USE_SOCKETW

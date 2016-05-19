@@ -28,6 +28,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "rornet.h"
 #include "SocketW.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 
@@ -52,12 +53,11 @@ public:
 	void sendthreadstart();
 	void receivethreadstart();
 
-	bool getNetQualityChanged();
 	Ogre::UTFString getNickname(bool colour=false);
 	char *getTerrainName() { return server_settings.terrain; };
 	client_t *getClientInfo(unsigned int uid);
 	int getClientInfos(client_t c[MAX_PEERS]);
-	int getNetQuality(bool ack=false);
+	int getNetQuality();
 	int getSpeedDown();
 	int getSpeedUp();
 	static unsigned long getNetTime();
@@ -102,10 +102,7 @@ private:
 
 	Ogre::UTFString getUserChatName(client_t *c);
 
-	// mutex'ed data
-	bool net_quality_changed;
-	int net_quality;
-	std::mutex mutex_data;
+	std::atomic<int> net_quality;
 
 	void setNetQuality(int q);
 };
