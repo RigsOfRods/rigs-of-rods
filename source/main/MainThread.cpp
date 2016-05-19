@@ -918,39 +918,23 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		return;
 	}
 
-/*	if (RoR::Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
-	{
-		RequestExitCurrentLoop();
-	}*/
-
 	// update GUI
 	RoR::Application::GetInputEngine()->Capture();
 
-	// update network gui if required, at most every 2 seconds
+#ifdef USE_SOCKETW
+#ifdef USE_MYGUI
+	// Update network gui every two seconds
 	if (gEnv->network)
 	{
 		netcheck_gui_timer += seconds_since_last_frame;
 		if (netcheck_gui_timer > 2.0f)
 		{
-#ifdef USE_MYGUI
-#ifdef USE_SOCKETW
-			if (BeamFactory::getSingleton().checkStreamsResultsChanged() || gEnv->network->getNetQualityChanged())
-			{
-				GUI_Multiplayer::getSingleton().update();
-			}
-#endif // USE_SOCKETW
-#endif // USE_MYGUI
+			GUI_Multiplayer::getSingleton().update();
 			netcheck_gui_timer = 0.0f;
 		}
-
-#ifdef USE_SOCKETW
-		// update net quality icon
-		if (gEnv->network->getNetQualityChanged())
-		{
-			GUI_Multiplayer::getSingleton().update();
-		}
-#endif // USE_SOCKETW
 	}
+#endif // USE_MYGUI
+#endif // USE_SOCKETW
 
 	MainMenuLoopUpdateEvents(seconds_since_last_frame);
 
