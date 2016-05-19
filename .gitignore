@@ -14,9 +14,12 @@ dependencies/
 bin/RoR
 bin/RoRConfig
 bin/libangelscript_addons.a
+bin/libversion_info.a
 bin/Release/
 bin/plugins.cfg
 bin/RelWithDebInfo/
+source/version_info/version_def.h
+source/version_info/version_info.cpp
 ror-dependencies-*.zip
 dependencies-*.zip
 _build
