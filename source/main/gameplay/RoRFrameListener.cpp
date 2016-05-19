@@ -535,7 +535,9 @@ bool RoRFrameListener::updateEvents(float dt)
 				} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !curr_truck->replaymode)
 				{
 					StopRaceTimer();
+					Vector3 center = curr_truck->getRotationCenter();
 					BeamFactory::getSingleton().removeCurrentTruck();
+					gEnv->player->setPosition(center);
 				} else if ((RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair) && !curr_truck->replaymode)
 				{
 					StopRaceTimer();
@@ -1054,32 +1056,21 @@ bool RoRFrameListener::updateEvents(float dt)
 					config_ptr = & m_last_vehicle_configs;
 				}
 
-				if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+				Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
+				if (current_truck != nullptr)
 				{
-					BeamFactory::getSingleton().setCurrentTruck(-1);
-				}
+					m_reload_pos = current_truck->getRotationCenter();
 
-				m_reload_pos = gEnv->player->getPosition();
+					// TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
+					m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+				} else {
+					m_reload_pos = gEnv->player->getPosition();
+				}
 				m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
 				Beam *local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
 
-				if (local_truck != nullptr)
-				{
-					if (gEnv->surveyMap)
-					{
-						gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
-					}
-					if (local_truck->driveable != NOT_DRIVEABLE)
-					{
-						/* We are supposed to be in this truck, if it is a truck */
-						if (local_truck->engine != nullptr)
-						{
-							local_truck->engine->start();
-						}
-						BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
-					} 
-				}
+				finalizeTruckSpawning(local_truck, current_truck);
 			}
 		}
 	} else
@@ -1107,42 +1098,32 @@ bool RoRFrameListener::updateEvents(float dt)
 					m_last_skin_selection = skin;
 					m_last_vehicle_configs = config;
 
-					if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+					Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
+					if (current_truck != nullptr)
 					{
-						BeamFactory::getSingleton().setCurrentTruck(-1);
+						m_reload_pos = current_truck->getRotationCenter();
+
+						// TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
+						m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+					} else {
+						m_reload_pos = gEnv->player->getPosition();
 					}
-					m_reload_pos = gEnv->player->getPosition();
 
 					if (m_reload_box == nullptr)
 					{
-						m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+						if (current_truck != nullptr)
+						{
+							float rotation = current_truck->getRotation() - Math::HALF_PI;
+							m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
+						} else
+						{
+							m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+						}
 					}
 
 					Beam *local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
 
-					if (local_truck != nullptr)
-					{
-						if (gEnv->surveyMap)
-						{
-							SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
-							if (e)
-							{
-								e->setState(DESACTIVATED);
-								e->setVisibility(true);
-								e->setPosition(m_reload_pos);
-								e->setRotation(-Radian(local_truck->getHeadingDirectionAngle()));
-							}
-						}
-						if (local_truck->driveable != NOT_DRIVEABLE)
-						{
-							/* We are supposed to be in this truck, if it is a truck */
-							if (local_truck->engine != nullptr)
-							{
-								local_truck->engine->start();
-							}
-							BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
-						} 
-					}
+					finalizeTruckSpawning(local_truck, current_truck);
 				}
 
 				m_reload_box = 0;
@@ -1237,6 +1218,37 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 	// Return true to continue rendering
 	return true;
+}
+
+void RoRFrameListener::finalizeTruckSpawning(Beam *local_truck, Beam *previous_truck)
+{
+	if (local_truck != nullptr)
+	{
+		// Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
+		Vector3 translation = m_reload_pos - local_truck->getRotationCenter();
+		local_truck->resetPosition(local_truck->nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+
+		local_truck->updateFlexbodiesPrepare();
+		local_truck->updateFlexbodiesFinal();
+		local_truck->updateVisual();
+
+		if (gEnv->surveyMap)
+		{
+			gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
+		}
+		if (local_truck->driveable != NOT_DRIVEABLE)
+		{
+			// Try to resolve collisions with other trucks
+			local_truck->resolveCollisions(50.0f, previous_truck == nullptr);
+
+			/* We are supposed to be in this truck, if it is a truck */
+			if (local_truck->engine != nullptr)
+			{
+				local_truck->engine->start();
+			}
+			BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
+		}
+	}
 }
 
 void RoRFrameListener::shutdown_final()

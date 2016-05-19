@@ -103,6 +103,7 @@ public:
 	void resetPosition(float px, float pz, bool setInitPosition, float miny);
 
 	float getRotation();
+	Ogre::Vector3 getDirection();
 	Ogre::Vector3 getPosition();
 
 	/**
@@ -126,6 +127,11 @@ public:
 	* Call this one to displace a truck
 	*/
 	void displace(Ogre::Vector3 translation, float rotation); 
+
+	/**
+	 * Return the rotation center of the truck
+	 */
+	Ogre::Vector3 getRotationCenter();
 
 	/**
 	* Spawns vehicle.
@@ -215,6 +221,23 @@ public:
 	int savePosition(int position);
 	int loadPosition(int position);
 	void updateTruckPosition();
+
+	/**
+	 * Virtually moves the truck at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
+	 * Returns a minimal offset by which the truck needs to be moved to resolve any collisions
+	 */
+	Ogre::Vector3 calculateCollisionOffset(Ogre::Vector3 direction);
+
+	/**
+	 * Moves the truck at most 'direction.length()' meters towards 'direction' to resolve any collisions
+	 */
+	void resolveCollisions(Ogre::Vector3 direction);
+
+	/**
+	 * Auto detects an ideal collision avoidance direction (front, back, left, right, up)
+	 * Then moves the truck at most 'max_distance' meters towards that direction to resolve any collisions
+	 */
+	void resolveCollisions(float max_distance, bool consider_up);
 
 	/**
 	* Ground.

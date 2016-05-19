@@ -39,8 +39,8 @@ public:
 	PointColDetector();
 	~PointColDetector();
 
-	void update(Beam* truck);
-	void update(Beam* truck, Beam** trucks, const int numtrucks);
+	void update(Beam* truck, bool ignorestate = false);
+	void update(Beam* truck, Beam** trucks, const int numtrucks, bool ignorestate = false);
 	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
 
 private:
