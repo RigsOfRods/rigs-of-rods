@@ -488,7 +488,12 @@ void MainThread::Go()
 	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
-	if (gEnv->network) delete (gEnv->network);
+	if (gEnv->network)
+	{
+		gEnv->network->disconnect();
+		delete gEnv->network;
+		gEnv->network = nullptr;
+	}
 #endif //SOCKETW
 
 	//TODO: we should destroy OIS here
