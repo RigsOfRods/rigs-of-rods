@@ -36,6 +36,9 @@ Plane reflectionPlane;
 Plane refractionPlane;
 SceneManager *waterSceneMgr;
 
+const int Water::WAVEREZ;
+const int Water::MAX_WAVETRAINS;
+
 class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
 {
 public:
@@ -140,6 +143,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 				wavetrains[free_wavetrain].amplitude=amp;
 				wavetrains[free_wavetrain].maxheight=mx;
 				wavetrains[free_wavetrain].direction=dir/57.0;
+				wavetrains[free_wavetrain].dir_sin=sin(wavetrains[free_wavetrain].direction);
+				wavetrains[free_wavetrain].dir_cos=cos(wavetrains[free_wavetrain].direction);
 				free_wavetrain++;
 			}
 			fclose(fd);
@@ -412,36 +417,39 @@ void Water::moveTo(float centerheight)
 
 void Water::showWave(Vector3 refpos)
 {
-	int px,pz;
 	if (!wbuffer) return;
-	for (px=0; px<WAVEREZ+1; px++)
+
+	float xScaled = mapSize.x * mScale;
+	float zScaled = mapSize.z * mScale;
+
+	for (int pz=0; pz<WAVEREZ+1; pz++)
 	{
-		for (pz=0; pz<WAVEREZ+1; pz++)
+		for (int px=0; px<WAVEREZ+1; px++)
 		{
-			Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+1]=getHeightWaves(refpos + Vector3((mapsize.x * mScale)*0.5-(float)px*(mapsize.x * mScale)/WAVEREZ, 0, (float)pz*(mapsize.z * mScale)/WAVEREZ-(mapsize.z * mScale)*0.5)) - wHeight;
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+1] = getHeightWaves(refpos + Vector3(xScaled*0.5-(float)px * xScaled / WAVEREZ, 0, (float)pz * zScaled / WAVEREZ - zScaled * 0.5)) - wHeight;
 		}
 	}
+
 	//normals
-	for (px=0; px<WAVEREZ+1; px++)
+	for (int pz=0; pz<WAVEREZ+1; pz++)
 	{
-		for (pz=0; pz<WAVEREZ+1; pz++)
+		for (int px=0; px<WAVEREZ+1; px++)
 		{
-			int left=px-1; if (left<0) left=0;
-			int right=px+1; if (right>WAVEREZ) right=WAVEREZ;
-			int up=pz-1; if (up<0) up=0;
-			int down=pz+1; if (down>WAVEREZ) down=WAVEREZ;
-			Vector3 normal=(Vector3(wbuffer+((pz*(WAVEREZ+1)+left)*8))-Vector3(wbuffer+((pz*(WAVEREZ+1)+right)*8))).crossProduct(Vector3(wbuffer+((up*(WAVEREZ+1)+px)*8))-Vector3(wbuffer+((down*(WAVEREZ+1)+px)*8)));
+			int left  = std::max(0, px-1);
+			int right = std::min(px+1, WAVEREZ);
+			int up    = std::max(0, pz-1);
+			int down  = std::min(pz+1, WAVEREZ);
+
+			Vector3 normal = (Vector3(wbuffer+((pz*(WAVEREZ+1)+left)*8))-Vector3(wbuffer+((pz*(WAVEREZ+1)+right)*8))).crossProduct(Vector3(wbuffer+((up*(WAVEREZ+1)+px)*8))-Vector3(wbuffer+((down*(WAVEREZ+1)+px)*8)));
 			normal.normalise();
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+3]=normal.x;
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+4]=normal.y;
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+5]=normal.z;
+
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+3] = normal.x;
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+4] = normal.y;
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+5] = normal.z;
 		}
 	}
-//	wbuf->lock(HardwareBuffer::HBL_DISCARD);
+
 	wbuf->writeData(0, (WAVEREZ+1)*(WAVEREZ+1)*32, wbuffer, true);
-//	if (wbuf->isLocked())
-//		wbuf->unlock();
 }
 
 bool Water::isCameraUnderWater()
@@ -460,7 +468,6 @@ void Water::update()
 	
 	if (pWaterNode)
 	{
-		Vector3 mapSize = gEnv->terrainManager->getMaxTerrainSize();
 		Vector3 cameraPos(mRenderCamera->getPosition().x, wHeight, mRenderCamera->getPosition().z);
 		Vector3 sightPos(cameraPos);
 
@@ -603,19 +610,11 @@ float Water::getHeightWaves(Vector3 pos)
 	for (int i=0; i<free_wavetrain; i++)
 	{
 		// calculate the amplitude that this wave will have. wavetrains[i].amplitude is read from the config
-		float amp = wavetrains[i].amplitude * waveheight;
 		// upper limit: prevent too big waves by setting an upper limit
-		if (amp > wavetrains[i].maxheight)
-			amp = wavetrains[i].maxheight;
+		float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
 		// now the main thing:
 		// calculate the sinus with the values of the config file and add it to the result
-		result += amp * sin(Math::TWO_PI * ( \
-											(gEnv->mrTime * wavetrains[i].wavespeed \
-											+ sin(wavetrains[i].direction) * pos.x \
-											+ cos(wavetrains[i].direction) * pos.z \
-											) \
-											/ wavetrains[i].wavelength) \
-											);
+		result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength));
 	}
 	// return the summed up waves
 	return result;
@@ -650,11 +649,11 @@ Vector3 Water::getVelocity(Vector3 pos)
 
 	for (int i=0; i<free_wavetrain; i++)
 	{
-		float amp=wavetrains[i].amplitude*waveheight;
-		if (amp>wavetrains[i].maxheight) amp=wavetrains[i].maxheight;
-		float speed=6.28318*amp/(wavetrains[i].wavelength/wavetrains[i].wavespeed);
-		result.y+=speed*cos(6.28318*((gEnv->mrTime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
-		result+=Vector3(sin(wavetrains[i].direction), 0, cos(wavetrains[i].direction))*speed*sin(6.28318*((gEnv->mrTime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
+		float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
+		float speed = Math::TWO_PI * amp / (wavetrains[i].wavelength / wavetrains[i].wavespeed);
+		float coeff = Math::TWO_PI * (gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength;
+		result.y += speed * cos(coeff);
+		result += Vector3(wavetrains[i].dir_sin, 0, wavetrains[i].dir_cos) * speed * sin(coeff);
 	}
 
 	return result;

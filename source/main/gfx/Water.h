@@ -70,6 +70,8 @@ private:
 		float wavelength;
 		float wavespeed;
 		float direction;
+		float dir_sin;
+		float dir_cos;
 	} wavetrain_t;
 
 	static const int WAVEREZ = 100;
