@@ -1099,15 +1099,6 @@ bool RoRFrameListener::updateEvents(float dt)
 					m_last_vehicle_configs = config;
 
 					Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
-					if (current_truck != nullptr)
-					{
-						m_reload_pos = current_truck->getRotationCenter();
-
-						// TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-						m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
-					} else {
-						m_reload_pos = gEnv->player->getPosition();
-					}
 
 					if (m_reload_box == nullptr)
 					{
@@ -1115,9 +1106,12 @@ bool RoRFrameListener::updateEvents(float dt)
 						{
 							float rotation = current_truck->getRotation() - Math::HALF_PI;
 							m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
-						} else
-						{
+							m_reload_pos = current_truck->getRotationCenter();
+							// TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
+							m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+						} else {
 							m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+							m_reload_pos = gEnv->player->getPosition();
 						}
 					}
 
@@ -1224,23 +1218,26 @@ void RoRFrameListener::finalizeTruckSpawning(Beam *local_truck, Beam *previous_t
 {
 	if (local_truck != nullptr)
 	{
-		// Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
-		Vector3 translation = m_reload_pos - local_truck->getRotationCenter();
-		local_truck->resetPosition(local_truck->nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+		if (m_reload_box == nullptr)
+		{
+			// Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
+			Vector3 translation = m_reload_pos - local_truck->getRotationCenter();
+			local_truck->resetPosition(local_truck->nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
-		local_truck->updateFlexbodiesPrepare();
-		local_truck->updateFlexbodiesFinal();
-		local_truck->updateVisual();
+			if (local_truck->driveable != NOT_DRIVEABLE || (previous_truck && previous_truck->driveable != NOT_DRIVEABLE))
+			{
+				// Try to resolve collisions with other trucks
+				local_truck->resolveCollisions(50.0f, previous_truck == nullptr);
+			}
+		}
 
 		if (gEnv->surveyMap)
 		{
 			gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
 		}
+
 		if (local_truck->driveable != NOT_DRIVEABLE)
 		{
-			// Try to resolve collisions with other trucks
-			local_truck->resolveCollisions(50.0f, previous_truck == nullptr);
-
 			/* We are supposed to be in this truck, if it is a truck */
 			if (local_truck->engine != nullptr)
 			{
@@ -1248,6 +1245,10 @@ void RoRFrameListener::finalizeTruckSpawning(Beam *local_truck, Beam *previous_t
 			}
 			BeamFactory::getSingleton().setCurrentTruck(local_truck->trucknum);
 		}
+
+		local_truck->updateFlexbodiesPrepare();
+		local_truck->updateFlexbodiesFinal();
+		local_truck->updateVisual();
 	}
 }
 
