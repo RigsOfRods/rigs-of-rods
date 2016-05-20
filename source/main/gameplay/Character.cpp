@@ -210,9 +210,10 @@ void Character::setVisible(bool visible)
 {
 	mCharacterNode->setVisible(visible);
 #ifdef USE_MYGUI
-	if (gEnv->surveyMap && gEnv->surveyMap->getMapEntityByName(myName))
+	if (gEnv->surveyMap)
 	{
-		gEnv->surveyMap->getMapEntityByName(myName)->setVisibility(visible);
+		SurveyMapEntity *e = gEnv->surveyMap->getMapEntityByName(myName);
+		if (e) e->setVisibility(visible);
 	}	
 #endif // USE_MYGUI
 }

@@ -136,6 +136,12 @@ TerrainManager::~TerrainManager()
 		delete(shadow_manager);
 		shadow_manager = nullptr;
 	}
+
+	if (survey_map != nullptr)
+	{
+		delete survey_map;
+		survey_map = nullptr;
+	}
 }
 
 // some shortcut to remove ugly code

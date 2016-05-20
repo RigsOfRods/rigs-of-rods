@@ -27,6 +27,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreOverlay.h>
 #include <OgreOverlayElement.h>
 
+#include <memory>
+
 class TruckHUD : public ZeroedMemoryAllocator
 {
 public:
@@ -56,7 +58,7 @@ protected:
 
 	void checkOverflow(Ogre::OverlayElement* e);
 
-	static TruckHUD *myInstance;
+	static std::unique_ptr<TruckHUD> myInstance;
 	static const unsigned int COMMANDS_VISIBLE = 25;
 
 	Ogre::String lastTorqueModel; //!< name of the last used torque model, needed to detect a change in the model
