@@ -517,6 +517,8 @@ void MainThread::Go()
 	// delete overlay_system;
 #endif
 
+	Application::DestroyOverlayWrapper();
+
 	Application::DestroyContentManager();
 
 	delete gEnv->frameListener;
@@ -1112,11 +1114,6 @@ void MainThread::UnloadTerrain()
 	LoadingWindow::getSingleton().setProgress(75, _L("Unloading Terrain"));
 
 	//Reinit few things
-	gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-	if (gEnv->player != nullptr)
-	{
-		gEnv->player->setVisible(false);
-	}
 	LoadingWindow::getSingleton().setProgress(100, _L("Unloading Terrain"));
 	// hide loading window
 	LoadingWindow::getSingleton().hide();

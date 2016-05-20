@@ -74,6 +74,11 @@ OverlayWrapper::OverlayWrapper():
 
 OverlayWrapper::~OverlayWrapper()
 {
+	if (truckhud != nullptr)
+	{
+		delete truckhud;
+		truckhud = nullptr;
+	}
 }
 
 void OverlayWrapper::resizePanel(OverlayElement *oe)

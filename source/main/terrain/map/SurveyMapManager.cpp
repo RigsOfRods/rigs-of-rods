@@ -58,6 +58,8 @@ SurveyMapManager::SurveyMapManager() :
 
 SurveyMapManager::~SurveyMapManager()
 {
+	gEnv->surveyMap = nullptr;
+
 	for (SurveyMapEntity *e : mMapEntities)
 	{
 		if (e) delete e;
@@ -101,7 +103,7 @@ SurveyMapEntity *SurveyMapManager::getMapEntityByName(String name)
 	{
 		return mNamedEntities[name];
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool SurveyMapManager::getVisibility()
