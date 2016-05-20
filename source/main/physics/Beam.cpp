@@ -5878,7 +5878,7 @@ bool Beam::LoadTruck(
 	LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
 	RigSpawner spawner;
-	spawner.Setup(this, parser.GetFile(), parent_scene_node, cache_entry_number);
+	spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, cache_entry_number);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
 	/* Setup modules */
 	spawner.AddModule(parser.GetFile()->root_module);
@@ -5926,7 +5926,7 @@ bool Beam::LoadTruck(
 	// Apply spawn position & spawn rotation
 	for (int i=0; i<free_node; i++)
 	{
-		nodes[i].AbsPosition = spawn_position + spawn_rotation * nodes[i].AbsPosition;
+		nodes[i].AbsPosition = spawn_position + spawn_rotation * (nodes[i].AbsPosition - spawn_position);
 		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 		nodes[i].smoothpos   = nodes[i].AbsPosition;
 	};

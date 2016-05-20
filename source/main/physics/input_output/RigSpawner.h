@@ -97,6 +97,7 @@ public:
 		Beam *rig,
 		std::shared_ptr<RigDef::File> file,
 		Ogre::SceneNode *parent,
+		Ogre::Vector3 const & spawn_position,
         int cache_entry_number = -1
 		);
 
@@ -1013,6 +1014,7 @@ protected:
 	/* RIG CONTEXT */
 
 	Ogre::SceneNode *m_parent_scene_node;
+	Ogre::Vector3 m_spawn_position;
 	float m_wing_area;
 	int m_airplane_left_light;
 	int m_airplane_right_light;
