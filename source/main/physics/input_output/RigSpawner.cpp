@@ -88,6 +88,7 @@ void RigSpawner::Setup(
 	Beam *rig,
 	std::shared_ptr<RigDef::File> file,
 	Ogre::SceneNode *parent,
+	Ogre::Vector3 const & spawn_position,
     int cache_entry_number
 )
 {
@@ -97,6 +98,7 @@ void RigSpawner::Setup(
 	m_file = file;
     m_cache_entry_number = cache_entry_number;
 	m_parent_scene_node = parent;
+	m_spawn_position = spawn_position;
 	m_current_keyword = RigDef::File::KEYWORD_INVALID;
 	m_enable_background_loading = BSETTING("Background Loading", false);
 	m_wing_area = 0.f;
@@ -6440,7 +6442,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.id = static_cast<int>(def.id.Num());
 
 	/* Positioning */
-	Ogre::Vector3 node_position = def.position;
+	Ogre::Vector3 node_position = m_spawn_position + def.position;
 	node.AbsPosition = node_position; 
 	node.RelPosition = node_position - m_rig->origin;
 	node.smoothpos   = node_position;
@@ -6652,7 +6654,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	}
 			
 	/* Node */
-	Ogre::Vector3 node_pos = def.position;
+	Ogre::Vector3 node_pos = m_spawn_position + def.position;
 	node_t & camera_node = GetAndInitFreeNode(node_pos);
 	camera_node.contactless = true; // Orig: hardcoded in BTS_CINECAM
 	camera_node.wheelid = -1;
