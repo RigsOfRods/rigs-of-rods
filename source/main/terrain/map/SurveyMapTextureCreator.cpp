@@ -19,7 +19,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SurveyMapTextureCreator.h"
 
-#include "BeamFactory.h"
 #include "IWater.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
@@ -131,8 +130,6 @@ String SurveyMapTextureCreator::getTextureName()
 
 void SurveyMapTextureCreator::preRenderTargetUpdate()
 {
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-
 	if (mStatics)
 		mStatics->setRenderingDistance(0);
 
@@ -147,8 +144,6 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
 
 void SurveyMapTextureCreator::postRenderTargetUpdate()
 {
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-
 	if (mStatics)
 		mStatics->setRenderingDistance(1000);
 
