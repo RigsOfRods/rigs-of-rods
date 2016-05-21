@@ -143,7 +143,6 @@ public:
 		Ogre::Vector3 const & spawn_position,
 		Ogre::Quaternion & spawn_rotation,
 		collision_box_t *spawn_box,
-		bool preloaded_with_terrain = false,
         int cache_entry_number = -1
 	);
 
@@ -544,6 +543,8 @@ public:
 	bool isTied();
 	bool isLocked();
 
+	bool isPreloadedWithTerrain() { return m_preloaded_with_terrain; };
+
 	// Inline getters
 	inline Ogre::SceneNode*                 getSceneNode()            { return beamsRoot; }
 	inline RoR::PerVehicleCameraContext*    GetCameraContext()        { return &m_camera_context; }
@@ -667,6 +668,7 @@ protected:
 	float mousemoveforce;
 	float m_spawn_rotation;
 	bool m_is_cinecam_rotation_center;
+	bool m_preloaded_with_terrain;
 
 	enum ResetRequest {
 		REQUEST_RESET_NONE,
