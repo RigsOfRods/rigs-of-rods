@@ -734,7 +734,7 @@ void BeamFactory::enterNextTruck()
 
 	for (int i = pivot_index + 1; i < m_free_truck; i++)
 	{
-		if (m_trucks[i])
+		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
@@ -743,7 +743,7 @@ void BeamFactory::enterNextTruck()
 
 	for (int i = 0; i < pivot_index; i++)
 	{
-		if (m_trucks[i])
+		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
@@ -757,7 +757,7 @@ void BeamFactory::enterPreviousTruck()
 
 	for (int i = pivot_index - 1; i >= 0; i--)
 	{
-		if (m_trucks[i])
+		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
@@ -766,7 +766,7 @@ void BeamFactory::enterPreviousTruck()
 
 	for (int i = m_free_truck - 1; i > pivot_index; i--)
 	{
-		if (m_trucks[i])
+		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;

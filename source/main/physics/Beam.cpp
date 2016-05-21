@@ -5513,6 +5513,7 @@ Beam::Beam(
 	, velocity(Ogre::Vector3::ZERO)
 	, m_custom_camera_node(-1)
 	, m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
+	, m_preloaded_with_terrain(preloaded_with_terrain)
 	, m_request_skeletonview_change(0)
 	, m_reset_request(REQUEST_RESET_NONE)
 	, m_skeletonview_is_active(false)
@@ -5604,7 +5605,7 @@ Beam::Beam(
 	
 	if (strnlen(fname, 200) > 0)
 	{
-		if(! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, preloaded_with_terrain, cache_entry_number))
+		if(! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, cache_entry_number))
 		{
 			return;
 		}
@@ -5747,7 +5748,6 @@ bool Beam::LoadTruck(
 	Ogre::Vector3 const & spawn_position,
 	Ogre::Quaternion & spawn_rotation,
 	collision_box_t *spawn_box,
-	bool preloaded_with_terrain, // = false
     int cache_entry_number // = -1
 )
 {
@@ -5856,7 +5856,7 @@ bool Beam::LoadTruck(
 	Ogre::String file_extension = file_name.substr(file_name.find_last_of('.'));
 	Ogre::StringUtil::toLowerCase(file_extension);
 	bool extension_matches = (file_extension == ".load") | (file_extension == ".fixed");
-	if (preloaded_with_terrain && extension_matches)
+	if (m_preloaded_with_terrain && extension_matches)
 	{
 		validator.SetCheckBeams(false);
 	}
@@ -5943,7 +5943,7 @@ bool Beam::LoadTruck(
 
 		float miny = 0.0f;
 
-		if (!preloaded_with_terrain)
+		if (!m_preloaded_with_terrain)
 		{
 			miny = vehicle_position.y;
 		}
