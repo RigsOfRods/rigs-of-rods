@@ -1245,7 +1245,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 						if (bbeam_dir*beams[bbeam].autoMovingMode > 0)
 							v = 1;
 
-						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
+						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !canwork)) continue;
 
 						if (v > 0.0f && beams[bbeam].commandEngineCoupling > 0.0f)
 							requestpower = true;
@@ -1298,7 +1298,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				float v = 0.0f;
 				int rota = std::abs(commandkey[i].rotators[j]) - 1;
 
-				if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
+				if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork)) continue;
 
 				if (rotaInertia)
 				{
@@ -1324,9 +1324,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 		if (engine)
 		{
-			engine->hydropump = work;
-			engine->prime     = requested;
+			engine->setHydroPumpWork(work);
+			engine->setPrime(requested);
 		}
+
 		if (doUpdate && state==ACTIVATED)
 		{
 #ifdef USE_OPENAL
