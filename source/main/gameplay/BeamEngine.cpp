@@ -805,20 +805,12 @@ float BeamEngine::getRPM()
 void BeamEngine::toggleAutoMode()
 {
 	automode = (automode + 1) % (MANUAL_RANGES + 1);
-
-	// this switches off all automatic symbols when in manual mode
-	if (automode != AUTOMATIC)
-	{
-		autoselect = MANUALMODE;
-	} else
-	{
-		autoselect = NEUTRAL;
-	}
+	autoselect = (automode == AUTOMATIC) ? DRIVE : MANUALMODE;
+	curGear = (automode < MANUAL) ? 1 : 0;
 
 	if (automode == MANUAL_RANGES)
 	{
-		this->setGearRange(0);
-		this->setGear(0);
+		curGearRange = 0;
 	}
 }
 
