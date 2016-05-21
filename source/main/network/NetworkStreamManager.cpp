@@ -77,8 +77,6 @@ void NetworkStreamManager::removeLocalStream(Streamable *stream)
 {
 #ifdef USE_SOCKETW
 	gEnv->network->sendmessage(MSG2_STREAM_UNREGISTER, stream->streamid, 0, 0);
-
-	this->removeStream(stream->sourceid, stream->streamid);
 #endif // USE_SOCKETW
 }
 
