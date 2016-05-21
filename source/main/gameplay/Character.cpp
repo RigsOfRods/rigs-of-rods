@@ -264,6 +264,18 @@ void Character::setAnimationMode(String mode, float time)
 	}
 }
 
+float calculate_collision_depth(Vector3 pos)
+{
+	Vector3 query = pos + Vector3::UNIT_Y;
+	while (query.y > pos.y)
+	{
+		if (gEnv->collisions->collisionCorrect(&query, false))
+			break;
+		query.y -= 0.01f;
+	}
+	return query.y - pos.y;
+}
+
 void Character::update(float dt)
 {
 	if (physicsEnabled && !remote)
@@ -272,47 +284,45 @@ void Character::update(float dt)
 		// TODO: check for menu being opened
 		if (gEnv->cameraManager && gEnv->cameraManager->gameControlsLocked()) return;
 
-		// small hack: if not visible do not apply physics
 		Vector3 position = mCharacterNode->getPosition();
 
 		// gravity force is always on
 		position.y += characterVSpeed * dt;
 		characterVSpeed += dt * -9.8f;
 
-		// object contact
-		Vector3 position2 = position + Vector3(0.0f, 0.075f, 0.0f);
-		Vector3 position3 = position + Vector3(0.0f, 0.25, 0.0f);
+		// Trigger script events
+		{
+			Vector3 query = position;
+			gEnv->collisions->collisionCorrect(&query);
+		}
 
-		if (gEnv->collisions->collisionCorrect(&position))
+		// Auto compensate minor height differences
+		float depth = calculate_collision_depth(position);
+		if (depth > 0.0f)
 		{
 			characterVSpeed = std::max(0.0f, characterVSpeed);
-			if (gEnv->collisions->collisionCorrect(&position2, false) && !gEnv->collisions->collisionCorrect(&position3, false))
+			canJump = true;
+			if (depth < 0.3f)
 			{
-				characterVSpeed = 2.0f; // autojump
-			} else
-			{
-				canJump = true;
+				position.y += depth;
 			}
-		} else
+		}
+
+		// Obstacle detection
+		Vector3 diff = mCharacterNode->getPosition() - mLastPosition;
+		if (diff.squaredLength() < 25.0f)
 		{
-			// double check
-			if (mLastPosition.squaredDistance(position) < 25.0f)
+			const int numstep = 100;
+			Vector3 base = mLastPosition + Vector3::UNIT_Y * 0.5f;
+			for (int i=1; i<numstep; i++)
 			{
-				const int numstep = 100;
-				Vector3 dvec = (position - mLastPosition);
-				for (int i=1; i <= numstep; i++)
+				Vector3 query = base + diff * ((float)i / numstep);
+				if (gEnv->collisions->collisionCorrect(&query, false))
 				{
-					Vector3 cposition = mLastPosition + dvec * ((float)i / numstep);
-					if (gEnv->collisions->collisionCorrect(&cposition, false))
-					{
-						position = cposition;
-						characterVSpeed = std::max(0.0f, characterVSpeed);
-						canJump = true;
-						break;
-					}
+					position = mLastPosition + diff * ((float)(i-1) / numstep);;
+					break;
 				}
 			}
-
 		}
 
 		mLastPosition = position;
