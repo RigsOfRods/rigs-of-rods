@@ -1139,13 +1139,26 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 	{
 		current_vehicle->dash->setVisible3d(true);
 	}
-	
-	// normal workflow
+
+	if (previous_vehicle)
+	{
+		if (RoR::Application::GetOverlayWrapper())
+		{
+			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, previous_vehicle);
+		}
+
+#ifdef USE_OPENAL
+		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_AIR);
+		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_PUMP);
+#endif // OPENAL
+	}
+
 	if (current_vehicle == nullptr)
 	{
-		// get player out of the vehicle
+		// getting outside
 		if (previous_vehicle && gEnv->player)
 		{
+			// get player out of the vehicle
 			float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
 			Vector3 position = previous_vehicle->nodes[0].AbsPosition;
 			if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->cameranodepos[0] != -1 && previous_vehicle->cameranoderoll[0] != -1)
@@ -1160,7 +1173,7 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			gEnv->player->setPosition(position);
 		}
 
-		//force feedback
+		// force feedback
 		if (gEnv->frameListener->m_forcefeedback)
 		{
 			gEnv->frameListener->m_forcefeedback->setEnabled(false);
@@ -1169,48 +1182,24 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		// hide truckhud
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
 
-		//getting outside
-		if (previous_vehicle)
-		{
-			previous_vehicle->prepareInside(false);
-
-			if (previous_vehicle->dash)
-			{
-				previous_vehicle->dash->setVisible(false);
-			}
-		}
-
-		if (RoR::Application::GetOverlayWrapper())
-		{
-			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, current_vehicle);
-		}
-
-#ifdef USE_OPENAL
-		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_AIR);
-		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_PUMP);
-#endif // OPENAL
-
 		TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
-	}
-	else
+	} else
 	{
-		//getting inside
-		current_vehicle->desactivate();
+		// getting inside
+		current_vehicle->activate();
 
 		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->m_hide_gui)
 		{
 			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
 		}
 
-		current_vehicle->activate();
-		
-		//hide unused items
+		// hide unused items
 		if (RoR::Application::GetOverlayWrapper() && current_vehicle->free_active_shock==0)
 		{
 			(OverlayManager::getSingleton().getOverlayElement("tracks/rollcorneedle"))->hide();
 		}
-		
-		//force feedback
+
+		// force feedback
 		if (gEnv->frameListener->m_forcefeedback)
 		{
 			gEnv->frameListener->m_forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
@@ -1230,14 +1219,12 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 				{
 					OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName(current_vehicle->helpmat);
 					OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(current_vehicle->helpmat);
-				}
-				else
+				} else
 				{
 					OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName("tracks/black");
 					OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
 				}
-			} 
-			catch(Ogre::Exception& ex)
+			} catch(Ogre::Exception& ex)
 			{
 				// Report the error
 				std::stringstream msg;
@@ -1254,8 +1241,7 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			if (! current_vehicle->speedomat.empty())
 			{
 				OverlayManager::getSingleton().getOverlayElement("tracks/speedo")->setMaterialName(current_vehicle->speedomat);
-			}
-			else
+			} else
 			{
 				OverlayManager::getSingleton().getOverlayElement("tracks/speedo")->setMaterialName("tracks/Speedo");
 			}
@@ -1263,13 +1249,12 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			if (! current_vehicle->tachomat.empty())
 			{
 				OverlayManager::getSingleton().getOverlayElement("tracks/tacho")->setMaterialName(current_vehicle->tachomat);
-			}
-			else
+			} else
 			{
 				OverlayManager::getSingleton().getOverlayElement("tracks/tacho")->setMaterialName("tracks/Tacho");
 			}
 		}
-		
+
 		TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->trucknum:-1);
 	}
 
