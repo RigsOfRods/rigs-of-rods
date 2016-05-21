@@ -902,6 +902,16 @@ void BeamEngine::setRPM(float rpm)
 	curEngineRPM = rpm;
 }
 
+void BeamEngine::setPrime(int p)
+{
+	prime = p;
+}
+
+void BeamEngine::setHydroPumpWork(float work)
+{
+	hydropump = work;
+}
+
 void BeamEngine::setSpin(float rpm)
 {
 	curWheelRevolutions = rpm;

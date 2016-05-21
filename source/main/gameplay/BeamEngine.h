@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 class BeamEngine : public ZeroedMemoryAllocator
 {
-	friend class Beam;
 	friend class RigSpawner;
 	friend class RigInspector; // Debug utility class
 
@@ -90,6 +89,16 @@ public:
 	* Set current engine RPM.
 	*/
 	void setRPM(float rpm);
+
+	/**
+	* Set current engine prime.
+	*/
+	void setPrime(int p);
+
+	/**
+	* Set current hydro pump work.
+	*/
+	void setHydroPumpWork(float work);
 
 	/**
 	* Set current wheel spinning speed.

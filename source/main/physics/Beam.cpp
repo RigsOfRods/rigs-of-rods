@@ -402,7 +402,7 @@ void Beam::scaleTruck(float value)
 	{
 		//engine->maxRPM *= value;
 		//engine->iddleRPM *= value;
-		engine->engineTorque *= value;
+		//engine->engineTorque *= value;
 		//engine->stallRPM *= value;
 		//engine->brakingTorque *= value;
 	}
@@ -1792,8 +1792,8 @@ void Beam::sendStreamData()
 			send_oob->engine_clutch  = engine->getClutch();
 			send_oob->engine_gear    = engine->getGear();
 
-			if (engine->contact) send_oob->flagmask += NETMASK_ENGINE_CONT;
-			if (engine->running) send_oob->flagmask += NETMASK_ENGINE_RUN;
+			if (engine->hasContact()) send_oob->flagmask += NETMASK_ENGINE_CONT;
+			if (engine->isRunning()) send_oob->flagmask += NETMASK_ENGINE_RUN;
 
 			if      (engine->getAutoMode() == BeamEngine::AUTOMATIC)     send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
 			else if (engine->getAutoMode() == BeamEngine::SEMIAUTO)      send_oob->flagmask += NETMASK_ENGINE_MODE_SEMIAUTO;
@@ -4805,7 +4805,7 @@ bool Beam::isLocked()
 bool Beam::navigateTo(Vector3 &in)
 {
 	// start engine if not running
-	if (engine && !engine->running)
+	if (engine && !engine->isRunning())
 		engine->start();
 
 	Vector3 TargetPosition = in;
@@ -5001,11 +5001,11 @@ void Beam::updateDashBoards(float dt)
 		dash->setFloat(DD_ENGINE_TURBO, turbo);
 
 		// ignition
-		bool ign = (engine->contact && !engine->running);
+		bool ign = (engine->hasContact() && !engine->isRunning());
 		dash->setBool(DD_ENGINE_IGNITION, ign);
 
 		// battery
-		bool batt = (engine->contact && !engine->running);
+		bool batt = (engine->hasContact() && !engine->isRunning());
 		dash->setBool(DD_ENGINE_BATTERY, batt);
 
 		// clutch warning
