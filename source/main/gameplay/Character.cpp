@@ -290,13 +290,6 @@ void Character::update(float dt)
 		position.y += characterVSpeed * dt;
 		characterVSpeed += dt * -9.8f;
 
-		// Trigger script events and handle mesh (ground) collision
-		{
-			Vector3 query = position;
-			gEnv->collisions->collisionCorrect(&query);
-			position.y = query.y;
-		}
-
 		// Auto compensate minor height differences
 		float depth = calculate_collision_depth(position);
 		if (depth > 0.0f)
@@ -307,6 +300,13 @@ void Character::update(float dt)
 			{
 				position.y += depth;
 			}
+		}
+
+		// Trigger script events and handle mesh (ground) collision
+		{
+			Vector3 query = position;
+			gEnv->collisions->collisionCorrect(&query);
+			position.y = query.y;
 		}
 
 		// Obstacle detection
