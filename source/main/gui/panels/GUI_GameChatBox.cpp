@@ -49,10 +49,9 @@ using namespace GUI;
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
 CLASS::CLASS() :
-	  alpha = 1.0f
-	, isTyping = false
+	  alpha(1.0f)
 	, netChat(0)
-	, newMsg = false
+	, newMsg(false)
 {
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
 
@@ -66,14 +65,7 @@ CLASS::CLASS() :
 
 	m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
 	autoHide = BSETTING("ChatAutoHide", true);
-
-	if (autoHide)
-	{
-		Hide();
-	} else
-	{
-		Show();
-	}
+	MAIN_WIDGET->setVisible(!autoHide);
 }
 
 CLASS::~CLASS()
@@ -92,7 +84,6 @@ void CLASS::Show()
 		MAIN_WIDGET->setVisibleSmooth(true);
 	}
 
-	isTyping = true;
 	m_Chatbox_TextBox->setEnabled(true);
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(m_Chatbox_TextBox);
 }
@@ -111,14 +102,12 @@ void CLASS::pushMsg(Ogre::String txt)
 {
 	mHistory += txt + " \n";
 	newMsg = true;
-	pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 	m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
 }
 
 void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 {
 	Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
-	isTyping = false;
 	_sender->setCaption("");
 
 	if (autoHide)
@@ -158,39 +147,44 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 
 void CLASS::Update(float dt)
 {
-	if (autoHide)
-	{
-		unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-		if (newMsg || !isTyping)
-		{
-			if (!MAIN_WIDGET->getVisible())
-			{
-				MAIN_WIDGET->setVisible(true);
-			}
-
-			unsigned long endTime = pushTime + 5000;
-			unsigned long startTime = endTime - (long)1000.0f;
-			if (ot < startTime)
-			{
-				alpha = 1.0f;
-			} else
-			{
-				alpha = 1 - ((ot - startTime) / 1000.0f);
-			}
-
-			MAIN_WIDGET->setAlpha(alpha);
-
-			if (alpha <= 0.1)
-			{
-				newMsg = false;
-				MAIN_WIDGET->setVisible(false);
-			}
-		} else if (isTyping)
-		{
-			MAIN_WIDGET->setAlpha(1);
-		}
-	} else if (!MAIN_WIDGET->getVisible())
+	if (!autoHide)
 	{
 		MAIN_WIDGET->setVisible(true);
+		return;
+	}
+
+	if (newMsg)
+	{
+		newMsg = false;
+		pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+		MAIN_WIDGET->setAlpha(1);
+		MAIN_WIDGET->setVisible(true);
+		return;
+	}
+
+	if (!MyGUI::InputManager::getInstance().isFocusKey())
+	{
+		unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+		unsigned long endTime = pushTime + 5000;
+		unsigned long startTime = endTime - (long)1000.0f;
+		if (ot < startTime)
+		{
+			alpha = 1.0f;
+		} else
+		{
+			alpha = 1 - ((ot - startTime) / 1000.0f);
+		}
+
+		MAIN_WIDGET->setAlpha(alpha);
+
+		if (alpha <= 0.1)
+		{
+			MAIN_WIDGET->setVisible(false);
+		}
+	} else if (MAIN_WIDGET->getVisible())
+	{
+		pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+		m_Chatbox_TextBox->setEnabled(true);
+		MAIN_WIDGET->setAlpha(1);
 	}
 }
