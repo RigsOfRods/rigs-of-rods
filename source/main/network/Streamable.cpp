@@ -148,7 +148,8 @@ void Streamable::receiveStream()
 {
 	std::vector<recvPacket_t> work_packets;
 	{
-		std::lock_guard<std::mutex> lock(m_recv_work_mutex);
+		// Deadlock ...
+		//std::lock_guard<std::mutex> lock(m_recv_work_mutex);
 		work_packets = receivedPackets;
 		receivedPackets.clear();
 	}
@@ -170,6 +171,10 @@ void Streamable::addStreamRegistrationResult(int sourceid, stream_register_t reg
 int Streamable::getStreamRegisterResultForSource(int sourceid, stream_register_t *reg)
 {
 	std::lock_guard<std::mutex> lock(m_results_mutex);
+
+	// Fixes program freeze <- Don't ask why
+	if (mStreamableResults.size() > 1000)
+		mStreamableResults.clear();
 
 	if (mStreamableResults.find(sourceid) == mStreamableResults.end())
 		return 1;
