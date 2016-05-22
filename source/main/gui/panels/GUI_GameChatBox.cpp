@@ -48,14 +48,13 @@ using namespace GUI;
 #define CLASS        GameChatBox
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS():
- netChat(0)
+CLASS::CLASS() :
+	  alpha = 1.0f
+	, isTyping = false
+	, netChat(0)
+	, newMsg = false
 {
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
-
-	alpha = 1.0f;
-	isTyping = false;
-	newMsg = false;
 
 	/* Adjust menu position */
 	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
@@ -68,16 +67,17 @@ CLASS::CLASS():
 	m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
 	autoHide = BSETTING("ChatAutoHide", true);
 
-	if (!autoHide)
+	if (autoHide)
+	{
+		Hide();
+	} else
+	{
 		Show();
-
-
-	Hide();
+	}
 }
 
 CLASS::~CLASS()
 {
-
 }
 
 void CLASS::setNetChat(ChatSystem *c)
@@ -88,7 +88,9 @@ void CLASS::setNetChat(ChatSystem *c)
 void CLASS::Show()
 {
 	if (!MAIN_WIDGET->getVisible())
+	{
 		MAIN_WIDGET->setVisibleSmooth(true);
+	}
 
 	isTyping = true;
 	m_Chatbox_TextBox->setEnabled(true);
@@ -162,15 +164,16 @@ void CLASS::Update(float dt)
 		if (newMsg || !isTyping)
 		{
 			if (!MAIN_WIDGET->getVisible())
+			{
 				MAIN_WIDGET->setVisible(true);
+			}
 
 			unsigned long endTime = pushTime + 5000;
 			unsigned long startTime = endTime - (long)1000.0f;
 			if (ot < startTime)
 			{
 				alpha = 1.0f;
-			}
-			else
+			} else
 			{
 				alpha = 1 - ((ot - startTime) / 1000.0f);
 			}
@@ -182,10 +185,12 @@ void CLASS::Update(float dt)
 				newMsg = false;
 				MAIN_WIDGET->setVisible(false);
 			}
-		}
-		else if (isTyping)
+		} else if (isTyping)
+		{
 			MAIN_WIDGET->setAlpha(1);
-
+		}
 	} else if (!MAIN_WIDGET->getVisible())
+	{
 		MAIN_WIDGET->setVisible(true);
+	}
 }
