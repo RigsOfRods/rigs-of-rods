@@ -58,7 +58,6 @@ set( SOURCE_FILES
   gameplay/Skin.{h,cpp}
   gameplay/SkinManager.{h,cpp}
   gameplay/TorqueCurve.{h,cpp}
-  gameplay/TwoDReplay.{h,cpp}
   gfx/AdvancedScreen.h
   gfx/ColoredTextAreaOverlayElement.{h,cpp}
   gfx/ColoredTextAreaOverlayElementFactory.h

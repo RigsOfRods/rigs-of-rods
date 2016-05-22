@@ -36,7 +36,6 @@ optional but recommended:
 |--------------------------------|------------------------------------------------------|
 | CMAKE_BUILD_TYPE:STRING        | Build Type (DEBUG, RELEASE, RelWithDebInfo)          |
 | ROR_BUILD_CONFIGURATOR:BOOL    | Build RoRConfig                                      |
-| ROR_BUILD_TWODREPLAY:BOOL      | Build 2D Replay tool                                 |
 | ROR_USE_ANGELSCRIPT:BOOL       | Build with Angelscript support                       |
 | ROR_USE_CAELUM:BOOL            | Build with OGRE:Caelum sky plugin                    |
 | ROR_USE_CURL:BOOL              | Build with curl for online services                  |
