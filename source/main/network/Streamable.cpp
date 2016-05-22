@@ -163,13 +163,19 @@ void Streamable::receiveStream()
 
 void Streamable::addStreamRegistrationResult(int sourceid, stream_register_t reg)
 {
+	std::lock_guard<std::mutex> lock(m_results_mutex);
+
 	mStreamableResults[sourceid] = reg;
 }
 
 int Streamable::getStreamRegisterResultForSource(int sourceid, stream_register_t *reg)
 {
+	std::lock_guard<std::mutex> lock(m_results_mutex);
+
 	if (mStreamableResults.find(sourceid) == mStreamableResults.end())
 		return 1;
+
 	*reg = mStreamableResults[sourceid];
+
 	return 0;
 }

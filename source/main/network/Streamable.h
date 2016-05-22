@@ -75,6 +75,7 @@ private:
 
 	std::mutex m_recv_work_mutex;
 	std::mutex m_send_work_mutex;
+	std::mutex m_results_mutex;
 
 	typedef struct _bufferedPacket
 	{
