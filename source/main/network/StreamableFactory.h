@@ -39,7 +39,7 @@ template<class T, class X> class StreamableFactory : public StreamableFactoryInt
 {
 public:
 	// constructor, destructor and singleton
-	StreamableFactory( void ) : locked(false)
+	StreamableFactory( void )
 	{
 		MYASSERT( !_instance );
 		_instance = static_cast< T* >( this );
@@ -73,7 +73,7 @@ public:
 	// common functions
 	void createRemote(int sourceid, int streamid, stream_register_t *reg, int colour)
 	{
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 
 		stream_reg_t registration;
 		registration.sourceid = sourceid;
@@ -81,25 +81,21 @@ public:
 		registration.reg      = *reg; // really store the data
 		registration.colour   = colour;
 		stream_registrations.push_back(registration);
-
-		unlockStreams();
 	}
 
 	void deleteRemote(int sourceid, int streamid)
 	{
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 
 		stream_del_t deletion;
 		deletion.sourceid = sourceid;
 		deletion.streamid = streamid;
 		stream_deletions.push_back(deletion);
-
-		unlockStreams();
 	}
 
 	virtual bool syncRemoteStreams()
 	{
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		// first registrations
 		int changes = 0;
 		while (!stream_registrations.empty())
@@ -144,14 +140,13 @@ public:
 			stream_deletions.pop_front();
 			changes++;
 		}
-		unlockStreams();
 		return (changes > 0);
 	}
 
 	void removeInstance(stream_del_t *del)
 	{
 		// already locked
-		//lockStreams();
+		//std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		typename std::map < int, std::map < unsigned int, X *> > &streamables = getStreams();
 		typename std::map < int, std::map < unsigned int, X *> >::iterator it1;
 		typename std::map < unsigned int, X *>::iterator it2;
@@ -171,13 +166,12 @@ public:
 			}
 			break;
 		}
-		//unlockStreams();
 	}
 
 	int checkStreamsOK(int sourceid)
 	{
 		// walk client and the streams and checks for errors
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		typename std::map < int, std::map < unsigned int, X *> > &streamables = getStreams();
 		typename std::map < int, std::map < unsigned int, X *> >::iterator it1;
 		typename std::map < unsigned int, X *>::iterator it2;
@@ -200,14 +194,13 @@ public:
 		}
 		if (!num)
 			ok = 2;
-		unlockStreams();
 		return ok;
 	}
 
 	int checkStreamsRemoteOK(int sourceid)
 	{
 		// walk client and the streams and checks for errors
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		typename std::map < int, std::map < unsigned int, X *> > &streamables = getStreams();
 		typename std::map < int, std::map < unsigned int, X *> >::iterator it1;
 		typename std::map < unsigned int, X *>::iterator it2;
@@ -237,21 +230,19 @@ public:
 		}
 		if (!originstreams)
 			ok = 2;
-		unlockStreams();
 		return ok;
 	}
 
 	int clearStreamRegistrationResults()
 	{
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		stream_creation_results.clear();
-		unlockStreams();
 		return 0;
 	}
 
 	int getStreamRegistrationResults(std::deque < stream_reg_t > *net_results)
 	{
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		// move list entries over to the list in the networking thread
 		int res = 0;
 		while (!stream_creation_results.empty())
@@ -261,13 +252,12 @@ public:
 			stream_creation_results.pop_front();
 			res++;
 		}
-		unlockStreams();
 		return res;
 	}
 
 	int addStreamRegistrationResults(int sourceid, stream_register_t *reg)
 	{
-		lockStreams();
+		std::lock_guard<std::mutex> lock(m_stream_reg_mutex);
 		typename std::map < int, std::map < unsigned int, X *> > &streamables = getStreams();
 		typename std::map < int, std::map < unsigned int, X *> >::iterator it1;
 		typename std::map < unsigned int, X *>::iterator it2;
@@ -297,14 +287,13 @@ public:
 			}
 			break;
 		}
-		unlockStreams();
 		return res;
 	}
 
 protected:
+
 	static T* _instance;
-	std::mutex stream_reg_mutex;
-	bool locked;
+	std::mutex m_stream_reg_mutex;
 
 	std::deque < stream_reg_t > stream_registrations;
 	std::deque < stream_del_t > stream_deletions;
@@ -312,27 +301,22 @@ protected:
 
 	std::map < int, std::map < unsigned int, X *> > &getStreams()
 	{
-		// ensure we only access the map when we locked it before
-		MYASSERT(locked);
 		return mStreamables;
 	}
 
 	void lockStreams()
 	{
-		stream_reg_mutex.lock();
-		this->locked=true;
+		m_stream_reg_mutex.lock();
 	}
 
 	void unlockStreams()
 	{
-		stream_reg_mutex.unlock();
-		this->locked=false;
+		m_stream_reg_mutex.unlock();
 	}
 
 private:
 	// no direct access to it, helps with locking it before using it
 	std::map < int, std::map < unsigned int, X *> > mStreamables;
-
 };
 
 #endif // __StreamableFactory_H_
