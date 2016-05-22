@@ -89,8 +89,8 @@ private:
 		char *buffer[MAX_MESSAGE_LENGTH];
 	} recvPacket_t;
 
-	std::deque < bufferedPacket_t > packets;
-	std::deque < recvPacket_t > receivedPackets;
+	std::vector < bufferedPacket_t > packets;
+	std::vector < recvPacket_t > receivedPackets;
 	
 	unsigned int sourceid, streamid;
 
