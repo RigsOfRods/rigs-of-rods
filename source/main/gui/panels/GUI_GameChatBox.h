@@ -57,7 +57,6 @@ private:
 
 	Ogre::String mHistory;
 	bool newMsg;
-	bool isTyping;
 
 	// logic
 	bool autoHide;
