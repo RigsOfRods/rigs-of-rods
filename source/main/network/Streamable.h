@@ -49,7 +49,6 @@ public:
 
 	void addStreamRegistrationResult(int source, stream_register_t reg);
 	int getStreamRegisterResultForSource(int sourceid, stream_register_t *reg);
-	bool getStreamResultsChanged();
 
 protected:
 	// constructor/destructor are protected, so you cannot create instances without using the factory
@@ -76,6 +75,7 @@ private:
 
 	std::mutex m_recv_work_mutex;
 	std::mutex m_send_work_mutex;
+	std::mutex m_results_mutex;
 
 	typedef struct _bufferedPacket
 	{
@@ -89,13 +89,13 @@ private:
 		char *buffer[MAX_MESSAGE_LENGTH];
 	} recvPacket_t;
 
-	std::deque < bufferedPacket_t > packets;
-	std::deque < recvPacket_t > receivedPackets;
+	std::vector < bufferedPacket_t > packets;
+	std::vector < recvPacket_t > receivedPackets;
 	
 	unsigned int sourceid, streamid;
 
 	std::map < int, stream_register_t > mStreamableResults;
-	bool isOrigin, streamResultsChanged;
+	bool isOrigin;
 };
 
 #endif // __Streamable_H_

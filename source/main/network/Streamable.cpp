@@ -27,7 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Streamable::Streamable() : isOrigin(false), streamResultsChanged(false)
+Streamable::Streamable() : isOrigin(false)
 {
 	//NetworkStreamManager::getSingleton().addStream(this);
 }
@@ -41,6 +41,14 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 #ifdef USE_SOCKETW
 	if (len > maxPacketLen)
 		// packet too big, discarded
+		return;
+
+	if (packets.size() > packetBufferSizeDiscardData && type == MSG2_STREAM_DATA)
+		// discard unimportant data packets for some while
+		return;
+
+	if (packets.size() > packetBufferSize)
+		// buffer full, packet discarded
 		return;
 
 	int uid = gEnv->network->getUID();
@@ -88,14 +96,6 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 	{
 		std::lock_guard<std::mutex> lock(m_send_work_mutex);
 
-		if (packets.size() > packetBufferSizeDiscardData && type == MSG2_STREAM_DATA)
-			// discard unimportant data packets for some while
-			return;
-
-		if (packets.size() > packetBufferSize)
-			// buffer full, packet discarded
-			return;
-
 		packets.push_back(packet);
 	}
 
@@ -106,8 +106,6 @@ void Streamable::addPacket(int type, unsigned int len, char* content)
 
 void Streamable::addReceivedPacket(header_t header, char *buffer)
 {
-	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
-
 	if (receivedPackets.size() > packetBufferSize)
 		// buffer full, packet discarded
 		return;
@@ -118,18 +116,22 @@ void Streamable::addReceivedPacket(header_t header, char *buffer)
 	packet.header = header;
 	memcpy(packet.buffer, buffer, header.size);
 
+	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
+
 	receivedPackets.push_back(packet);
 }
 
 void Streamable::sendStream(Network *net)
 {
-	std::lock_guard<std::mutex> lock(m_send_work_mutex);
-
-	while (!packets.empty())
+	std::vector<bufferedPacket_t> work_packets;
 	{
-		// remove oldest packet in queue
-		Streamable::bufferedPacket_t packet = packets.front();
+		std::lock_guard<std::mutex> lock(m_send_work_mutex);
+		work_packets = packets;
+		packets.clear();
+	}
 
+	for (bufferedPacket_t packet : work_packets)
+	{
 		int etype = net->sendMessageRaw(packet.packetBuffer, packet.size);
 		if (etype)
 		{
@@ -139,48 +141,45 @@ void Streamable::sendStream(Network *net)
 			net->netFatalError(UTFString(emsg));
 			return;
 		}
-
-		packets.pop_front();
 	}
 }
 
 void Streamable::receiveStream()
 {
-	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
-
-	while (!receivedPackets.empty())
+	std::vector<recvPacket_t> work_packets;
 	{
-		// remove oldest packet in queue
-		recvPacket_t packet = receivedPackets.front();
+		// Deadlock ...
+		//std::lock_guard<std::mutex> lock(m_recv_work_mutex);
+		work_packets = receivedPackets;
+		receivedPackets.clear();
+	}
 
+	for (recvPacket_t packet : work_packets)
+	{
 		//Network::debugPacket("receive-2", &packet.header, (char *)packet.buffer);
-
 		receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, (char*)packet.buffer, packet.header.size);
-
-		receivedPackets.pop_front();
 	}
 }
 
 void Streamable::addStreamRegistrationResult(int sourceid, stream_register_t reg)
 {
+	std::lock_guard<std::mutex> lock(m_results_mutex);
+
 	mStreamableResults[sourceid] = reg;
-	streamResultsChanged=true;
 }
 
 int Streamable::getStreamRegisterResultForSource(int sourceid, stream_register_t *reg)
 {
+	std::lock_guard<std::mutex> lock(m_results_mutex);
+
+	// Fixes program freeze <- Don't ask why
+	if (mStreamableResults.size() > 1000)
+		mStreamableResults.clear();
+
 	if (mStreamableResults.find(sourceid) == mStreamableResults.end())
 		return 1;
-	*reg = mStreamableResults[sourceid];
-	return 0;
-}
 
-bool Streamable::getStreamResultsChanged()
-{
-	if (streamResultsChanged)
-	{
-		streamResultsChanged = false;
-		return true;
-	}
-	return false;
+	*reg = mStreamableResults[sourceid];
+
+	return 0;
 }
