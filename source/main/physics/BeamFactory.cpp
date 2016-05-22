@@ -677,6 +677,12 @@ void BeamFactory::removeTruck(int truck)
 	if (truck < 0 || truck > m_free_truck)
 		return;
 
+	if (!m_trucks[truck])
+		return;
+
+	if (m_trucks[truck]->state == NETWORKED)
+		return;
+
 	this->DeleteTruck(m_trucks[truck]);
 }
 

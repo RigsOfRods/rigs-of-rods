@@ -1630,6 +1630,7 @@ void RoRFrameListener::reloadCurrentTruck()
 {
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 	if (!curr_truck) return;
+	if (curr_truck->state == NETWORKED) return;
 
 	// try to load the same truck again
 	Beam *newBeam = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, curr_truck->realtruckfilename, -1);
