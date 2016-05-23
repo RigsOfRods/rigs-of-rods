@@ -55,7 +55,7 @@ public:
 	CacheEntry *GetSelectedEntry() { return m_selected_entry; }
 	Skin *GetSelectedSkin() { return m_selected_skin; }
 	std::vector<Ogre::String> GetVehicleConfigs() { return m_vehicle_configs; }
-	int ConvertType(LoaderType type) { return LoaderType(type); }
+
 private:
 
 	void NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
@@ -90,13 +90,10 @@ private:
 	Ogre::String               m_preview_image_texture;
 	Skin*                      m_selected_skin;
 	bool                       m_selection_done;
-	bool                       m_ready;
 	std::vector<CacheEntry>    m_entries;
 	std::vector<Ogre::String>  m_vehicle_configs;
 	std::vector<Skin *>        m_current_skins;
 	bool                       m_keys_bound;
-	float                      m_ready_time;
-	float                      m_deltatime_sum;
 	RoR::SkinManager*          m_skin_manager;
 };
 
