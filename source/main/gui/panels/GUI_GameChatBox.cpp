@@ -79,18 +79,14 @@ void CLASS::setNetChat(ChatSystem *c)
 
 void CLASS::Show()
 {
-	if (!MAIN_WIDGET->getVisible())
-	{
-		MAIN_WIDGET->setVisibleSmooth(true);
-	}
-
+	MAIN_WIDGET->setVisible(true);
 	m_Chatbox_TextBox->setEnabled(true);
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(m_Chatbox_TextBox);
 }
 
 void CLASS::Hide()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
 }
 
 bool CLASS::IsVisible()
@@ -174,12 +170,11 @@ void CLASS::Update(float dt)
 		{
 			alpha = 1 - ((ot - startTime) / 1000.0f);
 		}
-
-		MAIN_WIDGET->setAlpha(alpha);
-
-		if (alpha <= 0.1)
+		if (alpha <= 0.0f)
 		{
 			MAIN_WIDGET->setVisible(false);
+		} else {
+			MAIN_WIDGET->setAlpha(alpha);
 		}
 	} else if (MAIN_WIDGET->getVisible())
 	{
