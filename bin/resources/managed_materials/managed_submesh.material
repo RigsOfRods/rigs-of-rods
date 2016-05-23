@@ -1,4 +1,6 @@
 import * from "managed_mats.material"
+
+//author: derbymutt (Alexander Scheiner)
 material RoR/Submesh/Body :  RoR/Managed_Mats/Base
 {
     receive_shadows on 
