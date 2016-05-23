@@ -1,33 +1,54 @@
 #ifndef SCRIPTHANDLE_H
 #define SCRIPTHANDLE_H
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
+
 
 BEGIN_AS_NAMESPACE
 
-class CScriptHandle
+class CScriptHandle 
 {
 public:
 	// Constructors
 	CScriptHandle();
 	CScriptHandle(const CScriptHandle &other);
-	CScriptHandle(void *ref, int typeId);
+	CScriptHandle(void *ref, asIObjectType *type);
 	~CScriptHandle();
 
 	// Copy the stored value from another any object
 	CScriptHandle &operator=(const CScriptHandle &other);
-	CScriptHandle &opAssign(void *ref, int typeId);
+
+	// Set the reference
+	void Set(void *ref, asIObjectType *type);
 
 	// Compare equalness
-	bool opEquals(const CScriptHandle &o) const;
-	bool opEquals(void *ref, int typeId) const;
+	bool operator==(const CScriptHandle &o) const;
+	bool operator!=(const CScriptHandle &o) const;
+	bool Equals(void *ref, int typeId) const;
 
 	// Dynamic cast to desired handle type
-	void opCast(void **outRef, int typeId);
+	void Cast(void **outRef, int typeId);
+
+	// Returns the type of the reference held
+	asIObjectType *GetType();
 
 protected:
+	// These functions need to have access to protected
+	// members in order to call them from the script engine
+	friend void Construct(CScriptHandle *self, void *ref, int typeId);
+	friend void RegisterScriptHandle_Native(asIScriptEngine *engine);
+	friend void CScriptHandle_AssignVar_Generic(asIScriptGeneric *gen);
+
 	void ReleaseHandle();
 	void AddRefHandle();
+
+	// These shouldn't be called directly by the 
+	// application as they requires an active context
+	CScriptHandle(void *ref, int typeId);
+	CScriptHandle &Assign(void *ref, int typeId);
 
 	void          *m_ref;
 	asIObjectType *m_type;

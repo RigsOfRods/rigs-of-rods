@@ -240,24 +240,26 @@ CScriptAny::CScriptAny(asIScriptEngine *engine)
 {
 	this->engine = engine;
 	refCount = 1;
+	gcFlag = false;
 
 	value.typeId = 0;
 	value.valueInt = 0;
 
 	// Notify the garbage collector of this object
-	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("any"));		
+	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetObjectTypeByName("any"));		
 }
 
 CScriptAny::CScriptAny(void *ref, int refTypeId, asIScriptEngine *engine)
 {
 	this->engine = engine;
 	refCount = 1;
+	gcFlag = false;
 
 	value.typeId = 0;
 	value.valueInt = 0;
 
 	// Notify the garbage collector of this object
-	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("any"));		
+	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetObjectTypeByName("any"));		
 
 	Store(ref, refTypeId);
 }
@@ -322,7 +324,7 @@ bool CScriptAny::Retrieve(void *ref, int refTypeId) const
 
 		// A handle can be retrieved if the stored type is a handle of same or compatible type
 		// or if the stored type is an object that implements the interface that the handle refer to.
-		if( (value.typeId & asTYPEID_MASK_OBJECT) &&
+		if( (value.typeId & asTYPEID_MASK_OBJECT) && 
 			engine->IsHandleCompatibleWithObject(value.valueObj, value.typeId, refTypeId) )
 		{
 			engine->AddRefScriptObject(value.valueObj, value.typeId);
@@ -338,7 +340,7 @@ bool CScriptAny::Retrieve(void *ref, int refTypeId) const
 		// Copy the object into the given reference
 		if( value.typeId == refTypeId )
 		{
-			engine->CopyScriptObject(ref, value.valueObj, value.typeId);
+			engine->AssignScriptObject(ref, value.valueObj, value.typeId);
 
 			return true;
 		}
@@ -428,16 +430,17 @@ void CScriptAny::ReleaseAllHandles(asIScriptEngine * /*engine*/)
 int CScriptAny::AddRef() const
 {
 	// Increase counter and clear flag set by GC
-	refCount = (refCount & 0x7FFFFFFF) + 1;
-	return refCount;
+	gcFlag = false;
+	return asAtomicInc(refCount);
 }
 
 int CScriptAny::Release() const
 {
-	// Now do the actual releasing (clearing the flag set by GC)
-	refCount = (refCount & 0x7FFFFFFF) - 1;
-	if( refCount == 0 )
+	// Decrease the ref counter
+	gcFlag = false;
+	if( asAtomicDec(refCount) == 0 )
 	{
+		// Delete this object as no more references to it exists
 		delete this;
 		return 0;
 	}
@@ -447,17 +450,17 @@ int CScriptAny::Release() const
 
 int CScriptAny::GetRefCount()
 {
-	return refCount & 0x7FFFFFFF;
+	return refCount;
 }
 
 void CScriptAny::SetFlag()
 {
-	refCount |= 0x80000000;
+	gcFlag = true;
 }
 
 bool CScriptAny::GetFlag()
 {
-	return (refCount & 0x80000000) ? true : false;
+	return gcFlag;
 }
 
 

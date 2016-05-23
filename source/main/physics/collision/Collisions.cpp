@@ -509,7 +509,7 @@ cell_t *Collisions::hash_find(int cell_x, int cell_z)
 	return NULL;
 }
 
-int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc /* = Vector3::UNIT_SCALE */, Ogre::Vector3 dr /* = Vector3::ZERO */, int event_filter /* = EVENT_ALL */, int scripthandler /* = -1 */)
+int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc /* = Vector3::UNIT_SCALE */, Ogre::Vector3 dr /* = Vector3::ZERO */, int event_filter /* = EVENT_ALL */, void* scripthandler /* = NULL */)
 {
 	Quaternion rotation  = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 	Quaternion direction = Quaternion(Degree(dr.x), Vector3::UNIT_X) * Quaternion(Degree(dr.y), Vector3::UNIT_Y) * Quaternion(Degree(dr.z), Vector3::UNIT_Z);
@@ -650,7 +650,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 		// box content
 		ManualObject *mo = gEnv->sceneManager->createManualObject();
 		String matName = "tracks/debug/collision/box";
-		if (virt && scripthandler == -1)
+		if (virt && scripthandler == NULL)
 			matName = "tracks/debug/eventbox/unused";
 		else if (virt)
 			matName = "tracks/debug/eventbox/used";
@@ -725,8 +725,8 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 		{
 			String labelName = "collision_box_label_"+TOSTRING(free_collision_box);
 			String labelCaption = "EVENTBOX\nevent:"+String(eventname) + "\ninstance:" + String(instancename);
-			if (scripthandler != -1)
-				labelCaption += "\nhandler:" + TOSTRING(scripthandler);
+			if (scripthandler != NULL)
+					labelCaption += "\nhandler:" /*+ TOSTRING(scripthandler)*/; // TODO: convert function pointer to function name --neorej16
 			MovableText *mt = new MovableText(labelName, labelCaption);
 			mt->setFontName("highcontrast_black");
 			mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);

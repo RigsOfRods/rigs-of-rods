@@ -400,7 +400,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			String nmsg = ChatSystem::scriptCommandColour + ">>> " + ChatSystem::normalColour + command;
 			putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_LOCAL_SCRIPT, nmsg, "script_go.png");
-			int res = ScriptEngine::getSingleton().executeString(command);
+			ScriptEngine::getSingleton().queueStringForExecution(command);
 			return;
 		}
 #endif //ANGELSCRIPT
