@@ -512,6 +512,7 @@ void GUIManager::hideGUI(bool hidden)
 			m_gui_SimUtils->HideNotification();
 			m_gui_SimUtils->HideFPSBox();
 			m_gui_SimUtils->HideTruckInfoBox();
+			m_gui_ChatBox->Hide();
 		}
 		m_gui_SimUtils->DisableNotifications(hidden);
 	}
