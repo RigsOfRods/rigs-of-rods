@@ -1725,6 +1725,8 @@ void Beam::updateFrameTimeInformation(float dt)
 
 void Beam::updateTruckMirrors(float dt)
 {
+	if (m_is_videocamera_disabled) return;
+
 	for (VideoCamera* v : vidcams)
 	{
 		v->update(dt);
@@ -5529,6 +5531,8 @@ Beam::Beam(
 	, velocity(Ogre::Vector3::ZERO)
 	, m_custom_camera_node(-1)
 	, m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
+	, m_is_cinecam_rotation_center(false)
+	, m_is_videocamera_disabled(false)
 	, m_preloaded_with_terrain(preloaded_with_terrain)
 	, m_request_skeletonview_change(0)
 	, m_reset_request(REQUEST_RESET_NONE)

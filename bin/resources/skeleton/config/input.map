@@ -260,4 +260,5 @@ TRUCK_TOGGLE_AXLE_LOCK         Keyboard             W
 TRUCK_TOGGLE_CONTACT           Keyboard             X 
 TRUCK_TOGGLE_FORWARDCOMMANDS   Keyboard             EXPL+CTRL+SHIFT+F 
 TRUCK_TOGGLE_IMPORTCOMMANDS    Keyboard             EXPL+CTRL+SHIFT+I 
+TRUCK_TOGGLE_VIDEOCAMERA       Keyboard             EXPL+CTRL+V 
 TRUCK_TRACTION_CONTROL         Keyboard             EXPL+SHIFT+V 

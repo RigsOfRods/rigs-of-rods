@@ -507,6 +507,8 @@ public:
 	Ogre::Vector3 cameranodeacc;
 	int cameranodecount;
 
+	bool m_is_videocamera_disabled;
+
 	/**
 	* Sets visibility of all beams on this vehicle
 	* @param visible Toggle
