@@ -360,11 +360,6 @@ void MainThread::Go()
 		// TODO: separate console and chatbox.
 
 		Application::GetGuiManager()->SetNetChat(net_chat);
-		wchar_t tmp[255] = L"";
-		UTFString format = _L("Press %ls to start chatting");
-		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
-		Application::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
-
 #ifdef USE_MUMBLE
 		new MumbleIntegration();
 #endif // USE_MUMBLE
@@ -611,6 +606,11 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 
 	if (enable_network)
 	{
+		wchar_t tmp[255] = L"";
+		UTFString format = _L("Press %ls to start chatting");
+		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
+		Application::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
+
 		// NOTE: create player _AFTER_ network, important
 		int colourNum = 0;
 		if (gEnv->network->getLocalUserData())
