@@ -281,33 +281,31 @@ int Network::sendMessageRaw(char *buffer, unsigned int msgsize)
 	std::lock_guard<std::mutex> lock(msgsend_mutex);
 	SWBaseSocket::SWBaseError error;
 
-	int rlen=0;
-	while (rlen<(int)msgsize)
+	int rlen = 0;
+	speed_bytes_sent_tmp += msgsize;
+	while (rlen < (int)msgsize)
 	{
-		int sendnum=socket.send(buffer+rlen, msgsize-rlen, &error);
-		if (sendnum<0)
+		int sendnum = socket.send(buffer+rlen, msgsize-rlen, &error);
+		if (sendnum < 0)
 		{
 			LOG("NET send error: " + TOSTRING(sendnum));
 			return -1;
 		}
-		rlen+=sendnum;
+		rlen += sendnum;
 	}
+	calcSpeed();
 	return 0;
 }
 
 int Network::sendmessage(int type, unsigned int streamid, unsigned int len, char* content)
 {
-	std::lock_guard<std::mutex> lock(msgsend_mutex);
-	SWBaseSocket::SWBaseError error;
 	header_t head;
 	memset(&head, 0, sizeof(header_t));
-	head.command=type;
-	head.source=myuid;
-	head.size=len;
-	head.streamid=streamid;
-	//int hlen=0;
+	head.command = type;
+	head.source = myuid;
+	head.size = len;
+	head.streamid = streamid;
 
-	// construct buffer
 	const int msgsize = sizeof(header_t) + len;
 
 	if (msgsize >= MAX_MESSAGE_LENGTH)
@@ -320,20 +318,7 @@ int Network::sendmessage(int type, unsigned int streamid, unsigned int len, char
 	memcpy(buffer, (char *)&head, sizeof(header_t));
 	memcpy(buffer+sizeof(header_t), content, len);
 
-	int rlen=0;
-	speed_bytes_sent_tmp += msgsize;
-	while (rlen<(int)msgsize)
-	{
-		int sendnum=socket.send(buffer+rlen, msgsize-rlen, &error);
-		if (sendnum<0)
-		{
-			LOG("NET send error: " + TOSTRING(sendnum));
-			return -1;
-		}
-		rlen+=sendnum;
-	}
-	calcSpeed();
-	return 0;
+	return sendMessageRaw(buffer, msgsize);
 }
 
 int Network::receivemessage(header_t *head, char* content, unsigned int bufferlen)
