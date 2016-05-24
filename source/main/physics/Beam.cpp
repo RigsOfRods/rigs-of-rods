@@ -1715,6 +1715,14 @@ void Beam::updateFrameTimeInformation(float dt)
 	global_simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
 }
 
+void Beam::updateTruckMirrors(float dt)
+{
+	for (VideoCamera* v : vidcams)
+	{
+		v->update(dt);
+	}
+}
+
 void Beam::handleResetRequests(float dt)
 {
 	if (m_reset_request)
