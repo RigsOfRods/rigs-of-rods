@@ -32,8 +32,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ChatSystem.h"
 #include "CollisionTools.h"
 #include "Collisions.h"
-#include "DashBoardManager.h"
-#include "Dashboard.h"
 #include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "EnvironmentMap.h"
@@ -139,7 +137,6 @@ void RoRFrameListener::updateForceFeedback(float dt)
 }
 
 RoRFrameListener::RoRFrameListener() :
-	m_dashboard(0),
 	m_dir_arrow_pointed(Vector3::ZERO),
 	m_dof(0),
 	m_forcefeedback(0),

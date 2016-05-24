@@ -83,7 +83,6 @@ private:
 	int speed_bytes_sent, speed_bytes_sent_tmp, speed_bytes_recv, speed_bytes_recv_tmp;
 	int speed_time;
 	long m_server_port;
-	oob_t send_oob;
 	std::condition_variable send_work_cv;
 	std::mutex clients_mutex;
 	std::mutex dl_data_mutex;

@@ -72,11 +72,6 @@ protected:
 
 	void updateForceFeedback(float dt);
 
-#ifdef USE_MPLATFORM
-	MPlatform_Base *m_mplatform;
-#endif //USE_MPLATFORM
-
-	Dashboard *m_dashboard;
 	DOFManager *m_dof;
 	ForceFeedback *m_forcefeedback;
 	HeatHaze *m_heathaze;
@@ -116,7 +111,6 @@ protected:
 	bool m_is_position_storage_enabled;
 
 	int m_stats_on;
-	int m_net_point_to_uid;
 
 	char m_screenshot_format[256];
 

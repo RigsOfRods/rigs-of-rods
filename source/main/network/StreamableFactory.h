@@ -37,7 +37,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 template<class T, class X> class StreamableFactory : public StreamableFactoryInterface
 {
-	friend class Network;
 public:
 	// constructor, destructor and singleton
 	StreamableFactory( void ) : locked(false)
@@ -203,29 +202,6 @@ public:
 			ok = 2;
 		unlockStreams();
 		return ok;
-	}
-
-	int checkStreamsResultsChanged()
-	{
-		lockStreams();
-		typename std::map < int, std::map < unsigned int, X *> > &streamables = getStreams();
-		typename std::map < int, std::map < unsigned int, X *> >::iterator it1;
-		typename std::map < unsigned int, X *>::iterator it2;
-
-		for (it1=streamables.begin(); it1!=streamables.end();++it1)
-		{
-			for (it2=it1->second.begin(); it2!=it1->second.end();++it2)
-			{
-				if (!it2->second) continue;
-				if (it2->second->getStreamResultsChanged())
-				{
-					unlockStreams();
-					return 1;
-				}
-			}
-		}
-		unlockStreams();
-		return 0;
 	}
 
 	int checkStreamsRemoteOK(int sourceid)

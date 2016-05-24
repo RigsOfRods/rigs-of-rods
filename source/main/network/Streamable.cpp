@@ -27,7 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Streamable::Streamable() : isOrigin(false), streamResultsChanged(false)
+Streamable::Streamable() : isOrigin(false)
 {
 	//NetworkStreamManager::getSingleton().addStream(this);
 }
@@ -123,6 +123,8 @@ void Streamable::addReceivedPacket(header_t header, char *buffer)
 
 void Streamable::sendStream(Network *net)
 {
+	if (packets.size() == 0) return;
+
 	std::lock_guard<std::mutex> lock(m_send_work_mutex);
 
 	while (!packets.empty())
@@ -146,6 +148,8 @@ void Streamable::sendStream(Network *net)
 
 void Streamable::receiveStream()
 {
+	if (receivedPackets.size() == 0) return;
+
 	std::lock_guard<std::mutex> lock(m_recv_work_mutex);
 
 	while (!receivedPackets.empty())
@@ -164,7 +168,6 @@ void Streamable::receiveStream()
 void Streamable::addStreamRegistrationResult(int sourceid, stream_register_t reg)
 {
 	mStreamableResults[sourceid] = reg;
-	streamResultsChanged=true;
 }
 
 int Streamable::getStreamRegisterResultForSource(int sourceid, stream_register_t *reg)
@@ -173,14 +176,4 @@ int Streamable::getStreamRegisterResultForSource(int sourceid, stream_register_t
 		return 1;
 	*reg = mStreamableResults[sourceid];
 	return 0;
-}
-
-bool Streamable::getStreamResultsChanged()
-{
-	if (streamResultsChanged)
-	{
-		streamResultsChanged = false;
-		return true;
-	}
-	return false;
 }
