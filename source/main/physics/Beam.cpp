@@ -631,31 +631,41 @@ void Beam::pushNetwork(char* data, int size)
 
 void Beam::calcNetwork()
 {
+	if (netcounter < 4) return;
+
 	BES_GFX_START(BES_GFX_calcNetwork);
-	Vector3 apos=Vector3::ZERO;
-	if (netcounter<4) return;
-	//we must update Nodes positions from available network informations
-	//we must lock as long as we use oob1, oob2, netb1, netb2
+
+	// we must update Nodes positions from available network informations
+	// we must lock as long as we use oob1, oob2, netb1, netb2
 	std::lock_guard<std::mutex> net_lock(m_net_mutex);
-	int tnow=netTimer.getMilliseconds();
-	//adjust offset to match remote time
-	int rnow=tnow+net_toffset;
-	//if we receive older data from the future, we must correct the offset
-	if (oob1->time>rnow) {net_toffset=oob1->time-tnow; rnow=tnow+net_toffset;}
+
+	int tnow = netTimer.getMilliseconds();
+	// adjust offset to match remote time
+	int rnow = tnow + net_toffset;
+	// if we receive older data from the future, we must correct the offset
+	if (oob1->time > rnow)
+	{
+		net_toffset = oob1->time - tnow;
+		rnow = tnow + net_toffset;
+	}
 	//if we receive last data from the past, we must correct the offset
-	if (oob2->time<rnow) {net_toffset=oob2->time-tnow; rnow=tnow+net_toffset;}
-	float tratio=(float)(rnow-oob1->time)/(float)(oob2->time-oob1->time);
-	//LOG(" network time diff: "+ TOSTRING(net_toffset));
-	Vector3 p1ref = Vector3::ZERO;
-	Vector3 p2ref = Vector3::ZERO;
+	if (oob2->time < rnow)
+	{
+		net_toffset = oob2->time - tnow;
+		rnow = tnow + net_toffset;
+	}
+	float tratio = (float)(rnow - oob1->time) / (float)(oob2->time - oob1->time);
+
 	short *sp1 = (short*)(netb1 + sizeof(float) * 3);
 	short *sp2 = (short*)(netb2 + sizeof(float) * 3);
-
+	Vector3 p1ref = Vector3::ZERO;
+	Vector3 p2ref = Vector3::ZERO;
+	Vector3 apos = Vector3::ZERO;
 	Vector3 p1 = Vector3::ZERO;
 	Vector3 p2 = Vector3::ZERO;
+
 	for (int i = 0; i < first_wheel_node; i++)
 	{
-		//linear interpolation
 		if (i == 0)
 		{
 			// first node is uncompressed
@@ -663,12 +673,12 @@ void Beam::calcNetwork()
 			p1.y  = ((float*)netb1)[1];
 			p1.z  = ((float*)netb1)[2];
 			p1ref = p1;
+
 			p2.x  = ((float*)netb2)[0];
 			p2.y  = ((float*)netb2)[1];
 			p2.z  = ((float*)netb2)[2];
 			p2ref = p2;
-		}
-		else
+		} else
 		{
 			// all other nodes are compressed:
 			// short int compared to previous node
@@ -682,47 +692,48 @@ void Beam::calcNetwork()
 			p2.z = (float)(sp2[(i - 1) *3 + 2]) / 300.0f;
 			p2   = p2 + p2ref;
 		}
+
+		// linear interpolation
 		nodes[i].AbsPosition  = p1 + tratio * (p2 - p1);
 		nodes[i].smoothpos    = nodes[i].AbsPosition;
 		nodes[i].RelPosition  = nodes[i].AbsPosition - origin;
 
-		// calculate the average beside ...
 		apos += nodes[i].AbsPosition;
 	}
-	// set average position
 	position = apos / first_wheel_node;
 
-	// take care of the wheels
 	for (int i=0; i<free_wheel; i++)
 	{
-		float rp=wheels[i].rp1+tratio*(wheels[i].rp2-wheels[i].rp1);
+		float rp = wheels[i].rp1 + tratio * (wheels[i].rp2 - wheels[i].rp1);
 		//compute ideal positions
-		Vector3 axis=wheels[i].refnode1->RelPosition-wheels[i].refnode0->RelPosition;
+		Vector3 axis = wheels[i].refnode1->RelPosition - wheels[i].refnode0->RelPosition;
 		axis.normalise();
-		Plane pplan=Plane(axis, wheels[i].refnode0->AbsPosition);
-		Vector3 ortho=-pplan.projectVector(wheels[i].near_attach->AbsPosition)-wheels[i].refnode0->AbsPosition;
-		Vector3 ray=ortho.crossProduct(axis);
+		Plane pplan = Plane(axis, wheels[i].refnode0->AbsPosition);
+		Vector3 ortho = -pplan.projectVector(wheels[i].near_attach->AbsPosition) - wheels[i].refnode0->AbsPosition;
+		Vector3 ray = ortho.crossProduct(axis);
 		ray.normalise();
-		ray=ray*wheels[i].radius;
-		float drp=2.0*3.14159/(wheels[i].nbnodes/2);
+		ray *= wheels[i].radius;
+		float drp = Math::TWO_PI / (wheels[i].nbnodes/2);
 		for (int j=0; j<wheels[i].nbnodes/2; j++)
 		{
-			Vector3 uray=Quaternion(Radian(rp-drp*j), axis)*ray;
-			wheels[i].nodes[j*2]->AbsPosition=wheels[i].refnode0->AbsPosition+uray;
-			wheels[i].nodes[j*2]->smoothpos=wheels[i].nodes[j*2]->AbsPosition;
-			wheels[i].nodes[j*2]->RelPosition=wheels[i].nodes[j*2]->AbsPosition-origin;
+			Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
-			wheels[i].nodes[j*2+1]->AbsPosition=wheels[i].refnode1->AbsPosition+uray;
-			wheels[i].nodes[j*2+1]->smoothpos=wheels[i].nodes[j*2+1]->AbsPosition;
-			wheels[i].nodes[j*2+1]->RelPosition=wheels[i].nodes[j*2+1]->AbsPosition-origin;
+			wheels[i].nodes[j*2+0]->AbsPosition = wheels[i].refnode0->AbsPosition + uray;
+			wheels[i].nodes[j*2+0]->smoothpos   = wheels[i].nodes[j*2]->AbsPosition;
+			wheels[i].nodes[j*2+0]->RelPosition = wheels[i].nodes[j*2]->AbsPosition - origin;
+
+			wheels[i].nodes[j*2+1]->AbsPosition = wheels[i].refnode1->AbsPosition + uray;
+			wheels[i].nodes[j*2+1]->smoothpos   = wheels[i].nodes[j*2+1]->AbsPosition;
+			wheels[i].nodes[j*2+1]->RelPosition = wheels[i].nodes[j*2+1]->AbsPosition - origin;
 		}
 	}
+
 	//give some slack to the mutex
-	float engspeed  = oob1->engine_speed+tratio*(oob2->engine_speed-oob1->engine_speed);
-	float engforce  = oob1->engine_force+tratio*(oob2->engine_force-oob1->engine_force);
-	float engclutch = oob1->engine_clutch+tratio*(oob2->engine_clutch-oob1->engine_clutch);
-	float netwspeed = oob1->wheelspeed+tratio*(oob2->wheelspeed-oob1->wheelspeed);
-	float netbrake  = oob1->brake+tratio*(oob2->brake-oob1->brake);
+	float engspeed  = oob1->engine_speed  + tratio * (oob2->engine_speed  - oob1->engine_speed);
+	float engforce  = oob1->engine_force  + tratio * (oob2->engine_force  - oob1->engine_force);
+	float engclutch = oob1->engine_clutch + tratio * (oob2->engine_clutch - oob1->engine_clutch);
+	float netwspeed = oob1->wheelspeed    + tratio * (oob2->wheelspeed    - oob1->wheelspeed);
+	float netbrake  = oob1->brake         + tratio * (oob2->brake         - oob1->brake);
 
 	hydrodirwheeldisplay = oob1->hydrodirstate;
 	WheelSpeed           = netwspeed;
@@ -761,7 +772,6 @@ void Beam::calcNetwork()
 		engine->netForceSettings(engspeed, engforce, engclutch, gear, running, contact, automode);
 	}
 
-
 	// set particle cannon
 	if (((flagmask&NETMASK_PARTICLE)!=0) != cparticle_mode)
 		toggleCustomParticles();
@@ -775,7 +785,6 @@ void Beam::calcNetwork()
 	antilockbrake   = flagmask & NETMASK_ALB_ACTIVE;
 	tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
 	parkingbrake    = flagmask & NETMASK_PBRAKE;
-
 
 	blinktype btype = BLINK_NONE;
 	if ((flagmask&NETMASK_BLINK_LEFT)!=0)
@@ -791,16 +800,15 @@ void Beam::calcNetwork()
 	setCustomLightVisible(2, ((flagmask&NETMASK_CLIGHT3)>0));
 	setCustomLightVisible(3, ((flagmask&NETMASK_CLIGHT4)>0));
 
+	netBrakeLight   = ((flagmask&NETMASK_BRAKES)!=0);
+	netReverseLight = ((flagmask&NETMASK_REVERSE)!=0);
+
 #ifdef USE_OPENAL
 	if ((flagmask & NETMASK_HORN))
 		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_HORN);
 	else
 		SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_HORN);
-#endif //OPENAL
-	netBrakeLight   = ((flagmask&NETMASK_BRAKES)!=0);
-	netReverseLight = ((flagmask&NETMASK_REVERSE)!=0);
 
-#ifdef USE_OPENAL
 	if (netReverseLight)
 		SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_REVERSE_GEAR);
 	else
@@ -1759,7 +1767,7 @@ void Beam::sendStreamData()
 	BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
 	int t = netTimer.getMilliseconds();
-	if (t-last_net_time < 100)
+	if (t - last_net_time < 100)
 		return;
 
 	last_net_time = t;
@@ -6341,16 +6349,6 @@ bool Beam::getCustomParticleMode()
 int Beam::getLowestNode()
 {
 	return lowestnode;
-}
-
-int Beam::getTruckTime()
-{
-	return netTimer.getMilliseconds();
-}
-
-int Beam::getNetTruckTimeOffset()
-{
-	return net_toffset;
 }
 
 Ogre::Real Beam::getMinimalCameraRadius()

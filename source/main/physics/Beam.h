@@ -532,8 +532,6 @@ public:
     * @return vector3 of the world position for the node
 	*/	
 	Ogre::Vector3 getNodePosition(int nodeNumber);
-	int getTruckTime();
-	int getNetTruckTimeOffset();
 	Ogre::Real getMinimalCameraRadius();
 
 	Replay *getReplay();
