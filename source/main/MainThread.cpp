@@ -76,6 +76,9 @@
 #    include "ScriptEngine.h"
 #endif
 
+#include <chrono>
+#include <thread>
+
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
 
@@ -771,7 +774,7 @@ void MainThread::EnterMainMenuLoop()
 		// no more actual rendering?
 		if (m_no_rendering)
 		{
-			sleepMilliSeconds(100);
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			continue;
 		}
 
@@ -808,7 +811,8 @@ void MainThread::EnterMainMenuLoop()
 		if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
 		{
 			// Sleep twice as long as we were too fast.
-			sleepMilliSeconds((minTimePerFrame - timeSinceLastFrame) << 1);
+			int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
+			std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 		}
 
 		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
@@ -848,7 +852,7 @@ void MainThread::EnterGameplayLoop()
 		// no more actual rendering?
 		if (m_no_rendering)
 		{
-			sleepMilliSeconds(100);
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			continue;
 		}
 
@@ -871,7 +875,8 @@ void MainThread::EnterGameplayLoop()
 		if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
 		{
 			// Sleep twice as long as we were too fast.
-			sleepMilliSeconds((minTimePerFrame - timeSinceLastFrame) << 1);
+			int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
+			std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 		}
 
 
