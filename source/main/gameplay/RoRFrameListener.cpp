@@ -1388,6 +1388,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		LOG("exiting...");
 		return false;
 	}
+	// update 'curr_truck', since 'updateEvents' might have changed it
+	curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 
 	// update gui 3d arrow
 	if (RoR::Application::GetOverlayWrapper() && m_is_dir_arrow_visible && m_loading_state==ALL_LOADED)
