@@ -350,6 +350,7 @@ enum events
 	EV_TRUCK_TOGGLE_CONTACT, //!< toggle ignition
 	EV_TRUCK_TOGGLE_FORWARDCOMMANDS, //!< toggle forwardcommands
 	EV_TRUCK_TOGGLE_IMPORTCOMMANDS, //!< toggle importcommands
+	EV_TRUCK_TOGGLE_VIDEOCAMERA, //!< toggle videocamera update
 	EV_TRUCK_TRACTION_CONTROL, //!< toggle antilockbrake system
 
 	// position storage now

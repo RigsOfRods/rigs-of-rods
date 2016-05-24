@@ -1376,6 +1376,12 @@ eventInfo_t eventInfo[] = {
 		_L("toggle antilock brake")
 	},
 	{
+		"TRUCK_TOGGLE_VIDEOCAMERA",
+		EV_TRUCK_TOGGLE_VIDEOCAMERA,
+		"Keyboard EXPL+CTRL+V",
+		_L("toggle videocamera")
+	},
+	{
 		"TRUCK_TRACTION_CONTROL",
 		EV_TRUCK_TRACTION_CONTROL,
 		"Keyboard EXPL+SHIFT+T",

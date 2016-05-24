@@ -900,6 +900,12 @@ bool RoRFrameListener::updateEvents(float dt)
 						}
 					}
 
+					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
+					{
+						curr_truck->m_is_videocamera_disabled = !curr_truck->m_is_videocamera_disabled;
+						LOG("m_is_videocamera_disabled: " + TOSTRING(curr_truck->m_is_videocamera_disabled));
+					}
+
 					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
 					{
 						if (curr_truck->getBlinkType() == BLINK_LEFT)
