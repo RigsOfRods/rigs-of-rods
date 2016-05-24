@@ -62,7 +62,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 #include "TruckHUD.h"
 #include "Utils.h"
-#include "VideoCamera.h"
 #include "Water.h"
 
 #ifdef USE_MYGUI
@@ -1252,18 +1251,6 @@ void RoRFrameListener::finalizeTruckSpawning(Beam *local_truck, Beam *previous_t
 	}
 }
 
-bool RoRFrameListener::updateTruckMirrors(float dt)
-{
-	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
-	if (!curr_truck) return false;
-
-	for (std::vector<VideoCamera *>::iterator it=curr_truck->vidcams.begin(); it!=curr_truck->vidcams.end(); it++)
-	{
-		(*it)->update(dt);
-	}
-	return true;
-}
-
 // Override frameStarted event to process that (don't care about frameEnded)
 bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 {
@@ -1324,9 +1311,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 			gEnv->surveyMap->update(dt);
 		}
 	}
-
-	// update mirrors after moving the camera as we use the camera position in mirrors
-	updateTruckMirrors(dt);
 
 #ifdef USE_OPENAL
 	// update audio listener position
