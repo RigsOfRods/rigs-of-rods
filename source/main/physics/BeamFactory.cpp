@@ -533,7 +533,7 @@ void BeamFactory::UpdateSleepingState(float dt)
 			if (m_trucks[t] && m_trucks[t]->state == MAYSLEEP)
 			{
 				std::bitset<MAX_TRUCKS> sleepy;
-				if (!this-CheckForActive(t, sleepy))
+				if (!this->CheckForActive(t, sleepy))
 				{
 					// no active truck in the set, put everybody to sleep
 					for (int i=0; i < m_free_truck; i++)
