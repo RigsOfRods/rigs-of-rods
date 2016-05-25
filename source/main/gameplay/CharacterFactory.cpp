@@ -51,13 +51,18 @@ Character *CharacterFactory::createLocal(int playerColour)
 Character *CharacterFactory::createRemoteInstance(stream_reg_t *reg)
 {
 	// NO LOCKS IN HERE, already locked
+	//lockStreams();
+	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
+
+	if (streamables[reg->sourceid][reg->streamid] != nullptr)
+	{
+		// TODO: Find out why this can happen.
+		return nullptr;
+	}
 
 	LOG(" new character for " + TOSTRING(reg->sourceid) + ":" + TOSTRING(reg->streamid) + ", colour: " + TOSTRING(reg->colour));
 	Character *ch = new Character(reg->sourceid, reg->streamid, reg->colour, true);
 
-	// already locked
-	//lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
 	streamables[reg->sourceid][reg->streamid] = ch;
 	//unlockStreams();
 	return ch;
