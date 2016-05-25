@@ -244,8 +244,6 @@ bool RoRFrameListener::updateEvents(float dt)
 	RoR::Application::GetInputEngine()->updateKeyBounces(dt);
 	if (!RoR::Application::GetInputEngine()->getInputsChanged()) return true;
 
-	bool dirty = false;
-
 	//update joystick readings
 	//	joy->UpdateInputState();
 
@@ -1137,8 +1135,6 @@ bool RoRFrameListener::updateEvents(float dt)
 		{
 			m_loading_state = RELOADING;
 
-			dirty=true;
-
 			Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 		}
 	}
@@ -1146,15 +1142,11 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && curr_truck)
 	{
 		m_truck_info_on = ! m_truck_info_on;
-		dirty=true;
-		
 		Application::GetGuiManager()->ToggleTruckInfoBox();
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && curr_truck)
 	{
-		dirty=true;
-
 		Application::GetGuiManager()->ToggleVehicleDescription();
 	}
 
@@ -1162,13 +1154,10 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		m_hide_gui = !m_hide_gui;
 		hideGUI(m_hide_gui);
-		dirty=true;
 	}
 
 	if (m_loading_state == ALL_LOADED && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
 	{
-		dirty=true; //What's this for?
-
 		Application::GetGuiManager()->ToggleFPSBox();
 	}
 
@@ -1180,7 +1169,6 @@ bool RoRFrameListener::updateEvents(float dt)
 			m_stats_on=2;
 		else if (m_stats_on==2)
 			m_stats_on=0;
-		dirty=true;
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDebugOverlay(m_stats_on);
 	}
 
@@ -1204,14 +1192,6 @@ bool RoRFrameListener::updateEvents(float dt)
 		LOG("Position: " + TOSTRING(position.x) + ", "+ TOSTRING(position.y) + ", " + TOSTRING(position.z) + ", 0, " + TOSTRING(rotation.valueDegrees()) + ", 0");
 	}
 
-	//update window
-	if (!RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isAutoUpdated())
-	{
-		if (dirty)
-			RoR::Application::GetOgreSubsystem()->GetRenderWindow()->update();
-		else
-			sleepMilliSeconds(10);
-	}
 	// Return true to continue rendering
 	return true;
 }
