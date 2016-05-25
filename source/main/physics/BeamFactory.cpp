@@ -58,8 +58,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-template<> BeamFactory *StreamableFactory < BeamFactory, Beam >::_instance = 0;
-
 void cpuID(unsigned i, unsigned regs[4]) {
 #ifdef _WIN32
 	__cpuid((int *)regs, (int)i);
@@ -218,7 +216,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		fname.c_str(),
         &rig_loading_profiler,
 		false, // networked
-		gEnv->network != nullptr, // networking
+		gEnv->multiplayer != nullptr, // networking
 		spawnbox,
 		ismachine,
 		truckconfig,
@@ -235,17 +233,12 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		b->toggleSlideNodeLock();
 	}
 
-	lockStreams();
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-	streamables[-1][10 + truck_num] = b; // 10 streams offset for beam constructions
-	unlockStreams();
-
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	// add own username to truck
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
 		b->updateNetworkInfo();
 	}
@@ -261,18 +254,18 @@ Beam *BeamFactory::CreateLocalRigInstance(
 
 #undef LOADRIG_PROFILER_CHECKPOINT
 
-Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
+Beam *BeamFactory::createRemoteInstance()
 {
-	// NO LOCKS IN HERE, already locked
-
+#if 0
 	stream_register_trucks_t *treg = (stream_register_trucks_t *)&reg->reg;
 
 	LOG(" new beam truck for " + TOSTRING(reg->sourceid) + ":" + TOSTRING(reg->streamid));
 
 #ifdef USE_SOCKETW
 	// log a message about this
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
+#if 0
 		client_t *c = gEnv->network->getClientInfo(reg->sourceid);
 		if (c)
 		{
@@ -282,6 +275,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 			RoR::Application::GetGuiManager()->pushMessageChatBox(message);
 #endif // USE_MYGUI
 		}
+#endif
 	}
 #endif // USE_SOCKETW
 
@@ -291,13 +285,6 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(filename, group))
 	{
 		LOG("wont add remote stream (truck not existing): '"+filename+"'");
-
-		// add 0 to the map so we know its stream is existing but not usable for us
-		// already locked
-		//lockStreams();
-		std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-		streamables[reg->sourceid][reg->streamid] = 0;
-		//unlockStreams();
 
 		return 0;
 	}
@@ -330,7 +317,7 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 		reg->reg.name,
         &p,
 		true, // networked
-		gEnv->network != nullptr, // networking
+		gEnv->multiplayer != nullptr, // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,
@@ -339,71 +326,24 @@ Beam *BeamFactory::createRemoteInstance(stream_reg_t *reg)
 
 	m_trucks[truck_num] = b;
 
+#if 0
 	b->setSourceID(reg->sourceid);
 	b->setStreamID(reg->streamid);
-
-	// already locked
-	//lockStreams();
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-	streamables[reg->sourceid][reg->streamid] = b;
-	//unlockStreams();
+#endif
 
 	b->updateNetworkInfo();
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
 #endif // USE_MYGUI
-
 	return b;
-}
-
-void BeamFactory::localUserAttributesChanged(int new_id)
-{
-	lockStreams();
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-
-	if (streamables.find(-1) != streamables.end())
-	{
-		//Beam *b = streamables[-1][0];
-		streamables[new_id][0] = streamables[-1][0]; // add alias :)
-		//b->setUID(newid);
-		//b->updateNetLabel();
-	}
-	unlockStreams();
-}
-
-void BeamFactory::netUserAttributesChanged(int source_id, int stream_id)
-{
-	lockStreams();
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Beam *> >::iterator it_source = streamables.find(source_id);
-	std::map < unsigned int, Beam *>::iterator it_stream;
-
-	if (it_source != streamables.end() && !it_source->second.empty())
-	{
-		it_stream = it_source->second.find(stream_id);
-		if (it_stream != it_source->second.end() && it_stream->second)
-			it_stream->second->updateNetworkInfo();
-	}
-	unlockStreams();
+#endif
+	return nullptr;
 }
 
 Beam *BeamFactory::getBeam(int source_id, int stream_id)
 {
-	lockStreams();
-	Beam *retVal = 0;
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Beam *> >::iterator it_source = streamables.find(source_id);
-	std::map < unsigned int, Beam *>::iterator it_stream;
-
-	if (it_source != streamables.end() && !it_source->second.empty())
-	{
-		it_stream = it_source->second.find(stream_id);
-		if (it_stream != it_source->second.end() && it_stream->second)
-			retVal = it_stream->second;
-	}
-	unlockStreams();
-	return retVal;
+	return nullptr;
 }
 
 bool BeamFactory::truckIntersectionAABB(int a, int b)
@@ -670,7 +610,7 @@ void BeamFactory::DeleteTruck(Beam *b)
 
 	if (b->networking && b->state != NETWORKED && b->state != INVALID)
 	{
-		NetworkStreamManager::getSingleton().removeLocalStream(b);
+		//NetworkStreamManager::getSingleton().removeLocalStream(b);
 	}
 
 	if (m_current_truck == b->trucknum)
@@ -939,39 +879,6 @@ void BeamFactory::calcPhysics(float dt)
 			}
 		}
 	}
-}
-void BeamFactory::removeInstance(stream_del_t *del)
-{
-	// we override this here so we can also delete the truck array content
-	// already locked
-	// lockStreams();
-	std::map < int, std::map < unsigned int, Beam *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Beam *> >::iterator it_stream = streamables.find(del->sourceid);;
-	std::map < unsigned int, Beam *>::iterator it_beam;
-
-	if (it_stream == streamables.end() || it_stream->second.empty())
-		// no stream for this source id
-		return;
-
-	if (del->streamid == -1)
-	{
-		// delete all streams
-		for (it_beam=it_stream->second.begin(); it_beam != it_stream->second.end(); it_beam++)
-		{
-			this->DeleteTruck(it_beam->second);
-			it_beam->second = 0;
-		}
-	} else
-	{
-		// find the stream matching the streamid
-		it_beam = it_stream->second.find(del->streamid);
-		if (it_beam != it_stream->second.end())
-		{
-			this->DeleteTruck(it_beam->second);
-			it_beam->second = 0;
-		}
-	}
-	// unlockStreams();
 }
 
 void BeamFactory::windowResized()

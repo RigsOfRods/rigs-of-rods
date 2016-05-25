@@ -32,7 +32,6 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Character.h"
-#include "ChatSystem.h"
 #include "Console.h"
 #include "GUIFriction.h"
 #include "GUIManager.h"
@@ -184,7 +183,7 @@ GUI_MainMenu::~GUI_MainMenu()
 
 UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 {
-	UTFString tmp = ChatSystem::getColouredName(user);
+	UTFString tmp = "John Doe";
 
 	tmp = tmp + U(": ");
 
@@ -227,11 +226,13 @@ void GUI_MainMenu::addUserToMenu(user_info_t &user)
 	{
 		if (!trucks[j]) continue;
 
+#if 0
 		if (trucks[j]->getSourceID() == user.uniqueid)
 		{
 			// match, found truck :)
 			matches.push_back(j);
 		}
+#endif
 	}
 
 	// now add this user to the list
@@ -258,7 +259,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 {
 	m_vehicles_menu_widget->removeAllItems();
 	
-	if (!gEnv->network)
+	if (!gEnv->multiplayer)
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();
@@ -278,6 +279,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 		}
 	} else
 	{
+#if 0
 		// sort the list according to the network users
 
 		// add self first
@@ -293,6 +295,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 			if (!c[i].used) continue;
 			addUserToMenu(c[i].user);
 		}
+#endif
 	}
 }
 
@@ -321,8 +324,10 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	{
 		int user_uid = PARSEINT(id.substr(5));
 
+#if 0
 		// cannot whisper with self...
 		if (user_uid == gEnv->network->getUID()) return;
+#endif
 
 		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
 		//TODO: Separate Chat and console

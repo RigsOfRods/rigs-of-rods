@@ -34,9 +34,8 @@
 #include "RoRPrerequisites.h"
 
 #include "ChatSystem.h"
-#include "Network.h"
 #include "Utils.h"
-#include "rornet.h"
+//#include "rornet.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
@@ -50,7 +49,6 @@ using namespace GUI;
 
 CLASS::CLASS() :
 	  alpha(1.0f)
-	, netChat(0)
 	, newMsg(false)
 {
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
@@ -70,11 +68,6 @@ CLASS::CLASS() :
 
 CLASS::~CLASS()
 {
-}
-
-void CLASS::setNetChat(ChatSystem *c)
-{
-	netChat = c;
 }
 
 void CLASS::Show()
@@ -126,14 +119,14 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 				pushMsg(trmsg);
 				return;
 			}
-			netChat->sendPrivateChat(args[1], args[2]);
+			//netChat->sendPrivateChat(args[1], args[2]);
 			return;
 		}
 	}
 
-	if (gEnv->network && netChat)
+	if (gEnv->multiplayer)
 	{
-		netChat->sendChat(msg.c_str());
+		//netChat->sendChat(msg.c_str());
 		return;
 	}
 

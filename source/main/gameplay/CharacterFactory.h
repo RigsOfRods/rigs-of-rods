@@ -27,28 +27,24 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Character.h"
-#include "StreamableFactory.h"
+#include "Network.h"
+#include "Singleton.h"
 
-class CharacterFactory : public StreamableFactory < CharacterFactory, Character >, public ZeroedMemoryAllocator
+class CharacterFactory : public RoRSingleton< CharacterFactory >, public ZeroedMemoryAllocator
 {
-	friend class Network;
-
 public:
 
 	CharacterFactory();
 	~CharacterFactory();
 
 	Character *createLocal(int playerColour);
-	Character *createRemoteInstance(stream_reg_t *reg);
+	Character *createRemoteInstance();
 
-	void updateCharacters(float dt);
+	void update(float dt);
+
+private:
+
 	void updateLabels();
-
-protected:
-
-	// functions used by friends
-	void netUserAttributesChanged(int source, int streamid);
-	void localUserAttributesChanged(int newid);
 };
 
 #endif // __CharacterFactory_H_

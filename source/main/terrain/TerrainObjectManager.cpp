@@ -1224,7 +1224,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
 	// in netmode, don't load other trucks!
-	if (gEnv->network != nullptr)
+	if (gEnv->multiplayer)
 	{
 		return;
 	}

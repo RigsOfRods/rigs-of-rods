@@ -23,11 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CharacterFactory.h"
 
 #include "Character.h"
-
-using namespace Ogre;
-
-
-template<> CharacterFactory *StreamableFactory < CharacterFactory, Character >::_instance = 0;
+#include "Network.h"
 
 CharacterFactory::CharacterFactory()
 {
@@ -40,104 +36,19 @@ CharacterFactory::~CharacterFactory()
 Character *CharacterFactory::createLocal(int playerColour)
 {
 	Character *ch = new Character(-1, 0, playerColour, false);
-
-	lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
-	streamables[-1][0] = ch;
-	unlockStreams();
 	return ch;
 }
 
-Character *CharacterFactory::createRemoteInstance(stream_reg_t *reg)
+Character *CharacterFactory::createRemoteInstance()
 {
-	// NO LOCKS IN HERE, already locked
-	//lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
-
-	if (streamables[reg->sourceid][reg->streamid] != nullptr)
-	{
-		// TODO: Find out why this can happen.
-		return nullptr;
-	}
-
-	LOG(" new character for " + TOSTRING(reg->sourceid) + ":" + TOSTRING(reg->streamid) + ", colour: " + TOSTRING(reg->colour));
-	Character *ch = new Character(reg->sourceid, reg->streamid, reg->colour, true);
-
-	streamables[reg->sourceid][reg->streamid] = ch;
-	//unlockStreams();
-	return ch;
+	return nullptr;
 }
 
-void CharacterFactory::localUserAttributesChanged(int newid)
+void CharacterFactory::update(float dt)
 {
-	lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Character *> >::iterator it1;
-	std::map < unsigned int, Character *>::iterator it2;
-
-	if (streamables.find(-1) == streamables.end())
-	{
-		unlockStreams();
-		return;
-	}
-
-	Character *c = streamables[-1][0];
-	streamables[newid][0] = streamables[-1][0]; // add alias :)
-	c->setUID(newid);
-	c->updateNetLabel();
-	unlockStreams();
-}
-
-void CharacterFactory::netUserAttributesChanged(int source, int streamid)
-{
-	lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Character *> >::iterator it1;
-	std::map < unsigned int, Character *>::iterator it2;
-
-	for (it1=streamables.begin(); it1!=streamables.end();it1++)
-	{
-		for (it2=it1->second.begin(); it2!=it1->second.end();it2++)
-		{
-			Character *c = dynamic_cast<Character*>(it2->second);
-			if (c) c->updateNetLabel();
-		}
-	}
-	unlockStreams();
-}
-
-void CharacterFactory::updateCharacters(float dt)
-{
-	lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Character *> >::iterator it1;
-	std::map < unsigned int, Character *>::iterator it2;
-
-	for (it1=streamables.begin(); it1!=streamables.end();it1++)
-	{
-		for (it2=it1->second.begin(); it2!=it1->second.end();it2++)
-		{
-			Character *c = dynamic_cast<Character*>(it2->second);
-			if (c) c->update(dt);
-		}
-	}
-	unlockStreams();
+	gEnv->player->update(dt);
 }
 
 void CharacterFactory::updateLabels()
 {
-	lockStreams();
-	std::map < int, std::map < unsigned int, Character *> > &streamables = getStreams();
-	std::map < int, std::map < unsigned int, Character *> >::iterator it1;
-	std::map < unsigned int, Character *>::iterator it2;
-
-	for (it1=streamables.begin(); it1!=streamables.end();it1++)
-	{
-		for (it2=it1->second.begin(); it2!=it1->second.end();it2++)
-		{
-			Character *c = dynamic_cast<Character*>(it2->second);
-			if (c) c->updateNetLabelSize();
-		}
-	}
-	unlockStreams();
 }

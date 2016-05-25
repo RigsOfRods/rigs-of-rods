@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RigDef_Prerequisites.h"
 
 #include "BeamData.h"
-#include "Streamable.h"
 
 #include <memory>
 
@@ -40,7 +39,6 @@ class Task;
 */
 class Beam :
 	public rig_t,
-	public Streamable,
 	public ZeroedMemoryAllocator
 {
 	friend class RigSpawner;
@@ -727,7 +725,6 @@ protected:
 
 	// overloaded from Streamable:
 	Ogre::Timer netTimer;
-	int last_net_time;
 	void sendStreamSetup();
 	void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len);
 

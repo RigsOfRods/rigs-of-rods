@@ -284,25 +284,22 @@ void MainThread::Go()
 	else
 		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
 
-	bool enable_network = BSETTING("Network enable", false);
+	gEnv->multiplayer = BSETTING("Network enable", false);
 
 	String preselected_map = SSETTING("Preselected Map", "");
 
 	// initiate player colours
 	PlayerColours::getSingleton();
 
-	// you always need that, even if you are not using the network
-	NetworkStreamManager::getSingleton();
-
 	// new factory for characters, net is INVALID, will be set later
 	new CharacterFactory();
-	new ChatSystemFactory();
 
 	// notice: all factories must be available before starting the network!
 #ifdef USE_SOCKETW
 	
-	if (enable_network)
+	if (gEnv->multiplayer)
 	{
+#if 0
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
 
@@ -367,8 +364,8 @@ void MainThread::Go()
 #ifdef USE_MUMBLE
 		new MumbleIntegration();
 #endif // USE_MUMBLE
-
-	} 
+#endif
+	}
 #endif //SOCKETW	
 
 	new BeamFactory();
@@ -427,7 +424,7 @@ void MainThread::Go()
 				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
 			}
 
-			if (gEnv->network != nullptr || BSETTING("SkipMainMenu", false))
+			if (gEnv->multiplayer || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
 				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
@@ -448,7 +445,7 @@ void MainThread::Go()
 			// Simulation
 			// ================================================================
 
-			if (SetupGameplayLoop(enable_network, preselected_map))
+			if (SetupGameplayLoop(preselected_map))
 			{
 				previous_application_state = Application::STATE_SIMULATION;
 				EnterGameplayLoop();	
@@ -488,11 +485,11 @@ void MainThread::Go()
 	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
+#if 0
 		gEnv->network->disconnect();
-		delete gEnv->network;
-		gEnv->network = nullptr;
+#endif
 	}
 #endif //SOCKETW
 
@@ -532,7 +529,7 @@ void MainThread::Go()
 
 }
 
-bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected_map)
+bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 {
 	if (!m_base_resource_loaded)
 	{
@@ -609,29 +606,23 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
 	}
 
-	if (enable_network)
+	int colourNum = -1;
+	if (gEnv->multiplayer)
 	{
 		wchar_t tmp[255] = L"";
 		UTFString format = _L("Press %ls to start chatting");
 		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
 		Application::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
 
+#if 0
 		// NOTE: create player _AFTER_ network, important
-		int colourNum = 0;
 		if (gEnv->network->getLocalUserData())
 		{
 			colourNum = gEnv->network->getLocalUserData()->colournum;
 		}
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+#endif
 	}
-	else
-	{
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-		if (gEnv->player != nullptr)
-		{
-			gEnv->player->setVisible(false);
-		}
-	}
+	gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
 
 	// heathaze effect
 	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
@@ -940,7 +931,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 #ifdef USE_SOCKETW
 #ifdef USE_MYGUI
 	// Update network gui every two seconds
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
 		netcheck_gui_timer += seconds_since_last_frame;
 		if (netcheck_gui_timer > 2.0f)

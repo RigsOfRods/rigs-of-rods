@@ -27,7 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
-#include "StreamableFactory.h"
+#include "Singleton.h"
 
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
@@ -36,10 +36,8 @@ class ThreadPool;
 /**
 * Builds and manages vehicles; Manages multithreading.
 */
-class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public ZeroedMemoryAllocator
+class BeamFactory : public RoRSingleton< BeamFactory >, public ZeroedMemoryAllocator
 {
-	friend class Network;
-
 public:
 
 	BeamFactory();
@@ -66,7 +64,7 @@ public:
 		bool preloaded_with_terrain = false
 		);
 	
-	Beam *createRemoteInstance(stream_reg_t *reg);
+	Beam *createRemoteInstance();
 
 	int getNumCpuCores() { return m_num_cpu_cores; };
 
@@ -190,14 +188,7 @@ protected:
 	int GetFreeTruckSlot();
 	int FindTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 
-	// functions used by friends
-	void netUserAttributesChanged(int source, int streamid);
-	void localUserAttributesChanged(int newid);
-
 	void DeleteTruck(Beam *b);
-
-	// Overrides StreamableFactory::removeInstance
-	void removeInstance(stream_del_t *del);
 };
 
 #endif // __BeamFactory_H_

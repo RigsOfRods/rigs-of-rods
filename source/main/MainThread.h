@@ -70,7 +70,7 @@ public:
 	/**
 	* @return True if everything was prepared OK and simulation may start.
 	*/
-	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
+	bool SetupGameplayLoop(Ogre::String preselected_map);
 
 	void UnloadTerrain();
 

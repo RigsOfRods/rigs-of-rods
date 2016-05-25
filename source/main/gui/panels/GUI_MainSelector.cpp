@@ -934,7 +934,7 @@ void CLASS::Show(LoaderType type)
 
 	BindKeys();
 
-	if (type == LT_Terrain && gEnv->network)
+	if (type == LT_Terrain && gEnv->multiplayer)
 		m_Cancel->setEnabled(false);
 	else
 		m_Cancel->setEnabled(true);

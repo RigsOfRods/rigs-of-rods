@@ -27,8 +27,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "InputEngine.h"
 #include "SurveyMapManager.h"
 #include "SurveyMapEntity.h"
-#include "Network.h"
-#include "NetworkStreamManager.h"
 #include "PlayerColours.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -46,7 +44,6 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, characterSpeed(2.0f)
 	, characterVSpeed(0.0f)
 	, colourNumber(colourNumber)
-	, last_net_time(0)
 	, mAnimState(0)
 	, mCamera(gEnv->mainCamera)
 	, mCharacterNode(0)
@@ -80,7 +77,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	mCharacterNode->setScale(0.02f, 0.02f, 0.02f);
 	mAnimState = entity->getAllAnimationStates();
 
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
 		sendStreamSetup();
 	}
@@ -94,7 +91,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	entity->setMaterialName("tracks/"+myName);
 
 #ifdef USE_SOCKETW
-	if (gEnv->network && (remote || !mHideOwnNetLabel))
+	if (gEnv->multiplayer && (remote || !mHideOwnNetLabel))
 	{
 		mMoveableText = new MovableText("netlabel-"+myName, "");
 		mCharacterNode->attachObject(mMoveableText);
@@ -152,9 +149,10 @@ void Character::setUID(int uid)
 
 void Character::updateNetLabel()
 {
-	if (!gEnv->network) return;
+	if (!gEnv->multiplayer) return;
 
 #ifdef USE_SOCKETW
+#if 0
 	if (remote)
 	{
 		client_t *info = gEnv->network->getClientInfo(this->source);
@@ -172,6 +170,7 @@ void Character::updateNetLabel()
 		networkUsername = tryConvertUTF(info->username);
 		networkAuthLevel = info->authstatus;
 	}
+#endif
 
 	if (mMoveableText)
 	{
@@ -497,7 +496,7 @@ void Character::update(float dt)
 	}
 
 #ifdef USE_SOCKETW
-	if (gEnv->network && !remote)
+	if (gEnv->multiplayer && !remote)
 	{
 		sendStreamData();
 	}
@@ -537,19 +536,13 @@ void Character::sendStreamSetup()
 	reg.type = 1;
 	reg.data[0] = 2;
 
-	NetworkStreamManager::getSingleton().addLocalStream(this, &reg);
+	//NetworkStreamManager::getSingleton().addLocalStream(this, &reg);
 }
 
 void Character::sendStreamData()
 {
-	int t = netTimer.getMilliseconds();
-	if (t-last_net_time < 100)
-		return;
-
 	// do not send position data if coupled to a truck already
 	if (beamCoupling) return;
-
-	last_net_time = t;
 
 	pos_netdata_t data;
 	data.command = CHARCMD_POSITION;
@@ -564,7 +557,7 @@ void Character::sendStreamData()
 	data.animationTime = mAnimState->getAnimationState(mLastAnimMode)->getTimePosition();
 
 	//LOG("sending character stream data: " + TOSTRING(net->getUserID()) + ":"+ TOSTRING(streamid));
-	this->addPacket(MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
+	//this->addPacket(MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
 }
 
 void Character::receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len)
@@ -625,14 +618,14 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		{
 			mMoveableText->setVisible(false);
 		}
-		if (gEnv->network && !remote)
+		if (gEnv->multiplayer && !remote)
 		{
 			attach_netdata_t data;
 			data.command = CHARCMD_ATTACH;
 			data.enabled = true;
-			data.source_id = beamCoupling->getSourceID();
-			data.stream_id = beamCoupling->getStreamID();
-			this->addPacket(MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+			//data.source_id = beamCoupling->getSourceID();
+			//data.stream_id = beamCoupling->getStreamID();
+			//this->addPacket(MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
 		}
 
 		// do not cast shadows inside of a truck
@@ -654,12 +647,12 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		{
 			mMoveableText->setVisible(true);
 		}
-		if (gEnv->network && !remote)
+		if (gEnv->multiplayer && !remote)
 		{
 			attach_netdata_t data;
 			data.command = CHARCMD_ATTACH;
 			data.enabled = false;
-			this->addPacket(MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+			//this->addPacket(MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
 		}
 
 		// show character

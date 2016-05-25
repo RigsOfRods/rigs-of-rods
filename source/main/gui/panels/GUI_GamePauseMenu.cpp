@@ -96,7 +96,7 @@ void CLASS::Show()
 
 	m_rig_editor->setEnabled(false);
 
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
 		m_back_to_menu->setEnabled(false);
 		m_change_map->setEnabled(false);

@@ -38,8 +38,8 @@ namespace GUI
 
 class GameChatBox: public GameChatBoxLayout
 {
-
 public:
+
 	GameChatBox();
 	~GameChatBox();
 
@@ -48,12 +48,10 @@ public:
 	bool IsVisible();
 	void pushMsg(Ogre::String txt);
 	void Update(float dt);
-	void setNetChat(ChatSystem *c);
 
 private:
-	void eventCommandAccept(MyGUI::Edit* _sender);
 
-	ChatSystem *netChat;
+	void eventCommandAccept(MyGUI::Edit* _sender);
 
 	Ogre::String mHistory;
 	bool newMsg;

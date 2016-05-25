@@ -24,12 +24,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "MovableText.h"
-#include "Streamable.h"
 
-class Character : public Streamable, public ZeroedMemoryAllocator
+class Character : public ZeroedMemoryAllocator
 {
 	friend class CharacterFactory;
-	friend class Network;
 
 public:
 
@@ -121,10 +119,6 @@ protected:
 	} attach_netdata_t;
 
 	enum {CHARCMD_POSITION, CHARCMD_ATTACH};
-
-	// overloaded from Streamable:
-	Ogre::Timer netTimer;
-	int last_net_time;
 
 	bool mHideOwnNetLabel;
 

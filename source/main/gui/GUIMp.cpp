@@ -26,7 +26,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "Network.h"
 #include "PlayerColours.h"
 #include "RoRFrameListener.h"
 
@@ -241,7 +240,7 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 		row->userTruckOKRemoteImg->setPosition(x, y);
 		x -= 10;
 
-		int ok = BeamFactory::getSingleton().checkStreamsOK(c->uniqueid);
+		int ok = true;//BeamFactory::getSingleton().checkStreamsOK(c->uniqueid);
 		if (ok == 0)
 		{
 			row->userTruckOKImg->setImageTexture("arrow_down_red.png");
@@ -259,7 +258,7 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 			row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
 		}
 
-		int rok = BeamFactory::getSingleton().checkStreamsRemoteOK(c->uniqueid);
+		int rok = true;//BeamFactory::getSingleton().checkStreamsRemoteOK(c->uniqueid);
 		if (rok == 0)
 		{
 			row->userTruckOKRemoteImg->setImageTexture("arrow_up_red.png");
@@ -288,6 +287,7 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 
 int GUI_Multiplayer::update()
 {
+#if 0
 	int slotid = 0;
 	
 	MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
@@ -333,6 +333,7 @@ int GUI_Multiplayer::update()
 	mpPanel->setSize(sidebarWidth, height);
 	
 	netmsgwin->setVisible(gEnv->network->getNetQuality() != 0);
+#endif
 
 	return 0;
 }
