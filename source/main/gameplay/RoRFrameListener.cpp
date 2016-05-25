@@ -857,7 +857,7 @@ bool RoRFrameListener::updateEvents(float dt)
 					}
 
 					//camera mode
-					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS) && curr_truck)
+					if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS))
 					{
 						if (m_pressure_pressed = curr_truck->addPressure(dt * -10.0))
 						{
