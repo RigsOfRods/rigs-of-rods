@@ -35,6 +35,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SHA1.h"
 #include "Utils.h"
 
+#include <chrono>
 #include <thread>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
@@ -443,7 +444,7 @@ void Network::receivethreadstart()
 	// otherwise you can get runtime conditions
 	while(!BeamFactory::getSingletonPtr())
 	{
-		sleepMilliSeconds(1000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	};
 
 

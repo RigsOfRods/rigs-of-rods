@@ -107,17 +107,6 @@ inline void replaceString(std::string &str, std::string searchString, std::strin
 	}
 }
 
-inline void sleepMilliSeconds(unsigned int ms)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// accepts milliseconds
-	Sleep(ms);
-#else
-	// accepts microseconds
-	usleep(ms * 1000);
-#endif
-}
-
 Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
 
 // generates a hash from a DataStream, beware, its loading the whole thing into a buffer, so its not suited for big files
