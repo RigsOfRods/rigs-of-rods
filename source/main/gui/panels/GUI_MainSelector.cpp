@@ -27,8 +27,6 @@
 
 #include "RoRPrerequisites.h"
 #include "Utils.h"
-#include "RoRVersion.h"
-#include "rornet.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
@@ -46,13 +44,10 @@ using namespace GUI;
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
 CLASS::CLASS(RoR::SkinManager* skin_manager) :
-m_deltatime_sum(0)
-, m_keys_bound(false)
+  m_keys_bound(false)
 , m_selected_skin(nullptr)
 , m_selected_entry(nullptr)
 , m_selection_done(true)
-, m_ready(false)
-, m_ready_time(1.0f)
 , m_skin_manager(skin_manager)
 {
 	MAIN_WIDGET->setVisible(false);
@@ -76,8 +71,6 @@ m_deltatime_sum(0)
 	m_SearchLine->eventEditTextChange += MyGUI::newDelegate(this, &CLASS::EventSearchTextChange);
 	m_SearchLine->eventMouseSetFocus += MyGUI::newDelegate(this, &CLASS::EventSearchTextGotFocus);
 	m_SearchLine->eventKeySetFocus += MyGUI::newDelegate(this, &CLASS::EventSearchTextGotFocus);
-
-	m_ready_time = 0.5f;
 
 	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
 	
@@ -103,28 +96,10 @@ CLASS::~CLASS()
 
 void CLASS::Reset()
 {
-	m_deltatime_sum = 0;
 	m_keys_bound = false;
 	m_selected_skin = nullptr;
 	m_selected_entry = nullptr;
 	m_selection_done = true;
-	m_ready = false;
-	m_ready_time = 1.0f;
-}
-
-void CLASS::FrameEntered(float dt)
-{
-	if (m_deltatime_sum < m_ready_time)
-	{
-		m_deltatime_sum += dt;
-	}
-	else
-	{
-		m_ready_time = 0;
-		m_deltatime_sum = 0;
-		m_ready = true;
-		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
-	}
 }
 
 void CLASS::BindKeys(bool bind)
@@ -152,7 +127,7 @@ void CLASS::NotifyWindowChangeCoord(MyGUI::Window* _sender)
 
 void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
 {
-	if (!m_ready || !mMainWidget->getVisible()) return;
+	if (!mMainWidget->getVisible()) return;
 	int cid = (int)m_Type->getIndexSelected();
 	int iid = (int)m_Model->getIndexSelected();
 
@@ -251,7 +226,6 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 
 void CLASS::Cancel()
 {
-	if (!m_ready) return;
 	m_selected_entry = nullptr;
 	m_selection_done = true;
 	Hide();
@@ -262,7 +236,6 @@ void CLASS::Cancel()
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
 {
-	if (!m_ready) return;
 	OnSelectionDone();
 }
 
@@ -694,7 +667,7 @@ void CLASS::OnEntrySelected(int entryID)
 
 void CLASS::OnSelectionDone()
 {
-	if (!m_ready || !m_selected_entry || m_selection_done)
+	if (!m_selected_entry || m_selection_done)
 		return;
 
 	m_selection_done = true;
@@ -959,9 +932,6 @@ void CLASS::Show(LoaderType type)
 	m_loader_type = type;
 	UpdateGuiData();
 
-	// so want to sleep 0.5 before the controls start working
-	m_ready_time = 0.5f;
-	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::FrameEntered);
 	BindKeys();
 
 	if (type == LT_Terrain && gEnv->network)
@@ -976,7 +946,6 @@ void CLASS::Hide()
 	RoR::Application::GetGuiManager()->UnfocusGui();
 	MAIN_WIDGET->setVisibleSmooth(false);
 	MAIN_WIDGET->setEnabledSilent(false);
-	m_ready = false;
 	BindKeys(false);
 }
 
