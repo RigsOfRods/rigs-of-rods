@@ -52,7 +52,7 @@ Module=ProjectedGridVertex
 
 <float>PG_ChoopyStrength=0.375
 <bool>PG_ChoppyWaves=true
-<int>PG_Complexity=264
+<int>PG_Complexity=200
 <float>PG_Elevation=5
 <bool>PG_ForceRecalculateGeometry=false
 <bool>PG_Smooth=true
