@@ -248,9 +248,6 @@ public:
 	*/
 	void updateSkidmarks();
 
-	bool navigateTo(Ogre::Vector3 &in);
-
-
 	/**
 	* Prepares vehicle for in-cabin camera use.
 	*/
