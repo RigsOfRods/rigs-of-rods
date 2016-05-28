@@ -465,14 +465,7 @@ struct prop_t
 
 	int pale;               //!< Is this a pale? (Boolean {0/1})
 	int spinner;            //!< Is this a spinprop? (Boolean {0/1})
-	bool animated;
-	float anim_x_Rot;
-	float anim_y_Rot;
-	float anim_z_Rot;
-	float anim_x_Off;
-	float anim_y_Off;
-	float anim_z_Off;
-	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset. 
+	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
 	int animFlags[10];
 	int animMode[10];
 	float animOpt1[10]; //!< The lower limit for the animation
