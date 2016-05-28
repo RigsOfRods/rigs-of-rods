@@ -96,7 +96,7 @@ bool CLASS::IsVisible()
 
 void CLASS::pushMsg(Ogre::String txt)
 {
-	mHistory += txt + " \n";
+	mHistory += ChatSystem::normalColour + txt + " \n";
 	newMsg = true;
 	m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
 }
