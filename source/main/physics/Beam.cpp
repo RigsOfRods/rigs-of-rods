@@ -6292,21 +6292,24 @@ void Beam::UpdatePropAnimations(const float dt)
 			if ((props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) || (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) || (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z))
 			{
 				float limiter = 0.0f;
+				// This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
+				// This is now taken into account by factoring in the respective fraction of the variable timestep.
+				float const dt_frac = dt * 2000.f;
 				if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
 				{
 					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
 					{
-						props[propi].rotaX += cstate;
+						props[propi].rotaX += cstate * dt_frac;
 						limiter = props[propi].rotaX;
 					}
 					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
 					{
-						props[propi].rotaY += cstate;
+						props[propi].rotaY += cstate * dt_frac;
 						limiter = props[propi].rotaY;
 					}
 					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
 					{
-						props[propi].rotaZ += cstate;
+						props[propi].rotaZ += cstate * dt_frac;
 						limiter = props[propi].rotaZ;
 					}
 				} else
@@ -6411,10 +6414,12 @@ void Beam::UpdatePropAnimations(const float dt)
 				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y) offset = props[propi].orgoffsetY;
 				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z) offset = props[propi].orgoffsetZ;
 
-				offset += cstate;
 				if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
 				{
-					autooffset = offset;
+					// This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
+					// This is now taken into account by factoring in the respective fraction of the variable timestep.
+					float const dt_frac = dt * 2000.f;
+					autooffset = offset + cstate * dt_frac;
 					// check if a positive custom limit is set to evaluate/calc flip back
 					if (props[propi].animOpt2[animnum] - props[propi].animOpt4[animnum])
 					{
@@ -6464,6 +6469,7 @@ void Beam::UpdatePropAnimations(const float dt)
 						}
 					}
 				}
+				offset += cstate;
 
 				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X)
 				{
