@@ -33,6 +33,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "contextmgr/contextmgr.h"
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
+#include "scriptdictionary/scriptdictionary.h"
 #include "scripthelper/scripthelper.h"
 #include "scriptmath/scriptmath.h"
 #include "scriptstdstring/scriptstdstring.h"
@@ -609,15 +610,14 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	struct curl_httppost *lastptr=NULL;
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	dictMap_t::const_iterator it;
-	for (it = params.dict->dict.begin(); it != params.dict->dict.end(); it++)
+	for (auto it = params.dict->begin(); it != params.dict->end(); it++)
 	{
-		int typeId = it->second.m_typeId;
+		int typeId = it.GetTypeId();
 		if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
 		{
 			// its a String
-			String *str = (String *)it->second.m_valueObj;
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, str->c_str(), CURLFORM_END);
+			String *str = (String *)it.GetAddressOfValue();
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, str->c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_INT8 \
 			|| typeId == AngelScript::asTYPEID_INT16 \
@@ -625,7 +625,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 			|| typeId == AngelScript::asTYPEID_INT64)
 		{
 			// its an integer
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)it->second.m_valueInt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)*(int*)it.GetAddressOfValue()).c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_UINT8 \
 			|| typeId == AngelScript::asTYPEID_UINT16 \
@@ -633,12 +633,12 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 			|| typeId == AngelScript::asTYPEID_UINT64)
 		{
 			// its an unsigned integer
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)it->second.m_valueInt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)*(int*)it.GetAddressOfValue()).c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_FLOAT || typeId == AngelScript::asTYPEID_DOUBLE)
 		{
 			// its a float or double
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)it->second.m_valueFlt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)*(float*)it.GetAddressOfValue()).c_str(), CURLFORM_END);
 		}
 	}
 
@@ -783,9 +783,9 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	strncpy(params->apiquery, apiquery.c_str(), 2048);
 
 	//wrap a new dict around this, as we dont know if or when the script will release it
-	AngelScript::CScriptDictionary *newDict = new AngelScript::CScriptDictionary(mse->getEngine());
+	AngelScript::CScriptDictionary *newDict = AngelScript::CScriptDictionary::Create(mse->getEngine());
 	// copy over the dict, the main data
-	newDict->dict    = d.dict;
+	*newDict         = d;
 	// assign it to the data container
 	params->dict     = newDict;
 	// tell the script that there will be no direct feedback
@@ -801,15 +801,15 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	// why we need to do this: when we copy the std::map (dict) over, we calso jsut copy the pointers to String in it.
 	// when this continues and forks, AS releases the strings.
 	// so we will allocate new strings that are persistent.
-	dictMap_t::const_iterator it;
-	for (it = params->dict->dict.begin(); it != params->dict->dict.end(); it++)
+	for (auto it = params->dict->begin(); it != params->dict->end(); it++)
 	{
-		int typeId = it->second.m_typeId;
+		int typeId = it.GetTypeId();
 		if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
 		{
 			// its a String, copy it over
-			String *str = (String *)it->second.m_valueObj;
-			it->second.m_valueObj = (void *)new String(*str);
+			String *str = (String *)it.GetAddressOfValue();
+			// TODO: Fix it
+			//it->second.m_valueObj = (void *)new String(*str);
 		}
 	}
 
