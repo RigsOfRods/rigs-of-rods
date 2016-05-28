@@ -6296,19 +6296,16 @@ void Beam::UpdatePropAnimations(const float dt)
 				{
 					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
 					{
-						props[propi].rot = props[propi].rot * (Quaternion(Degree(0), Vector3::UNIT_Z) * Quaternion(Degree(0), Vector3::UNIT_Y) * Quaternion(Degree(cstate), Vector3::UNIT_X));
 						props[propi].rotaX += cstate;
 						limiter = props[propi].rotaX;
 					}
 					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
 					{
-						props[propi].rot = props[propi].rot * (Quaternion(Degree(0), Vector3::UNIT_Z) * Quaternion(Degree(cstate), Vector3::UNIT_Y) * Quaternion(Degree(0), Vector3::UNIT_X));
 						props[propi].rotaY += cstate;
 						limiter = props[propi].rotaY;
 					}
 					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
 					{
-						props[propi].rot = props[propi].rot * (Quaternion(Degree(cstate), Vector3::UNIT_Z) * Quaternion(Degree(0), Vector3::UNIT_Y) * Quaternion(Degree(0), Vector3::UNIT_X));
 						props[propi].rotaZ += cstate;
 						limiter = props[propi].rotaZ;
 					}
