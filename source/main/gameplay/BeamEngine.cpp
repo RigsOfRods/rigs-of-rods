@@ -553,7 +553,7 @@ void BeamEngine::update(float dt, int doUpdate)
 
 		// auto clutch
 		float declutchRPM = (minRPM + stallRPM) / 2.0f;
-		if (curGear == 0 || curEngineRPM < declutchRPM || (fabs(curWheelRevolutions) < 1.0f && (curEngineRPM < minRPM * 1.01f || autocurAcc == 0.0f)))
+		if (curGear == 0 || curEngineRPM < declutchRPM || (fabs(curWheelRevolutions) < 1.0f && (curEngineRPM < minRPM * 1.01f || autocurAcc == 0.0f)) || (autocurAcc == 0.0f && truck->brake > 0.0f && retorque >= 0.0f))
 		{
 			curClutch = 0.0f;
 		} else if (curEngineRPM < minRPM && minRPM > declutchRPM)
