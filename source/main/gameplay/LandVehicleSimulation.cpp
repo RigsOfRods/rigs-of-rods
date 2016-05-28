@@ -488,7 +488,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 						float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
 						curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
 					}
-				} else if (brake == 0.0f && accl == 0.0f)
+				} else if (brake == 0.0f && accl == 0.0f && curr_truck->parkingbrake == 0)
 				{
 					float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->WheelSpeed)) * 5.0f;
 					curr_truck->brake = curr_truck->brakeforce * ratio;
