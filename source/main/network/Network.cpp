@@ -35,10 +35,11 @@
 
 #include <Ogre.h>
 
+#include <algorithm>
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
-#include <queue>
+#include <deque>
 #include <thread>
 
 namespace RoR {
@@ -80,7 +81,7 @@ static std::mutex m_send_packetqueue_mutex;
 static std::condition_variable m_send_packet_available_cv;
 
 static std::vector<recv_packet_t> m_recv_packet_buffer;
-static std::queue <send_packet_t> m_send_packet_buffer;
+static std::deque <send_packet_t> m_send_packet_buffer;
 
 static const unsigned int m_packet_buffer_size = 20;
 
@@ -143,6 +144,9 @@ int SendMessageRaw(char *buffer, int msgsize)
 		}
 		rlen += sendnum;
 	}
+
+	// TODO: Think about sleeping here to avoid network congestion
+	// The sleep time could be based on how much time was spent in socket.send()
 
 	return 0;
 }
@@ -241,7 +245,7 @@ void SendThread()
 		while (!m_send_packet_buffer.empty())
 		{
 			send_packet_t packet = m_send_packet_buffer.front();
-			m_send_packet_buffer.pop();
+			m_send_packet_buffer.pop_front();
 
 			queue_lock.unlock();
 			SendMessageRaw(packet.buffer, packet.size);
@@ -567,8 +571,17 @@ void AddPacket(int streamid, int type, int len, char *content)
 
 	{
 		std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
-		m_send_packet_buffer.push(packet);
-		// TODO: Overwrite old stream data packets with newer ones ...
+		if (type == MSG2_STREAM_DATA)
+		{
+			auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(), [packet](const send_packet_t& p) { return memcmp(packet.buffer, p.buffer, sizeof(header_t)) == 0; });
+			if (search != m_send_packet_buffer.end())
+			{
+				// Found an older packet with the same header -> replace it
+				(*search) = packet;
+				return;
+			}
+		}
+		m_send_packet_buffer.push_back(packet);
 	}
 	
 	m_send_packet_available_cv.notify_one();
