@@ -26,11 +26,37 @@
 
 #include "RoRPrerequisites.h"
 
-#include "rornet.h"
 #include "SocketW.h"
+#include "rornet.h"
 
 namespace RoR {
 namespace Networking {
+
+typedef struct recv_packet_t
+{
+	header_t header;
+	char buffer[MAX_MESSAGE_LENGTH];
+} recv_packet_t;
+
+bool Connect();
+void Disconnect();
+
+void AddPacket(int streamid, int type, int len, char *content);
+void AddLocalStream(stream_register_t *reg, int size);
+
+void HandleStreamData();
+
+int GetUID();
+int GetNetQuality();
+
+Ogre::String GetTerrainName();
+
+int GetUserColor();
+Ogre::UTFString GetUsername();
+user_info_t GetLocalUserData();
+
+std::vector<user_info_t> GetUserInfos();
+bool GetUserInfo(int uid, user_info_t &result);
 
 } // namespace Networking
 } // namespace RoR

@@ -26,8 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "Network.h"
 #include "PlayerColours.h"
-#include "RoRFrameListener.h"
 
 using namespace Ogre;
 
@@ -168,21 +168,21 @@ GUI_Multiplayer::~GUI_Multiplayer()
 	}
 }
 
-void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
+void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t c, bool self)
 {
-	if (!row || !c) return;
+	if (!row) return;
 
 	int x = 100;
 	int y = row->playername->getPosition().top;
 	// name
-	row->playername->setCaption(c->username);
-	ColourValue col = PlayerColours::getSingleton().getColour(c->colournum);
+	row->playername->setCaption(c.username);
+	ColourValue col = PlayerColours::getSingleton().getColour(c.colournum);
 	row->playername->setTextColour(MyGUI::Colour(col.r, col.g, col.b, col.a));
 	row->playername->setVisible(true);
 	x -= 18;
 	
 	// flag
-	StringVector parts = StringUtil::split(String(c->language), "_");
+	StringVector parts = StringUtil::split(String(c.language), "_");
 	if (parts.size() == 2)
 	{
 		String lang = parts[1];
@@ -199,10 +199,10 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 	
 	UTFString tmp;
 	// auth
-	if (c->authstatus == AUTH_NONE)
+	if (c.authstatus == AUTH_NONE)
 	{
 		row->statimg->setVisible(false);
-	} else if (c->authstatus & AUTH_ADMIN)
+	} else if (c.authstatus & AUTH_ADMIN)
 	{
 		row->statimg->setVisible(true);
 		row->statimg->setImageTexture("flag_red.png");
@@ -210,7 +210,7 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 		row->statimg->setUserString("tooltip", tmp.asUTF8());
 		row->statimg->setPosition(x, y);
 		x -= 18;
-	} else if (c->authstatus & AUTH_MOD)
+	} else if (c.authstatus & AUTH_MOD)
 	{
 		row->statimg->setVisible(true);
 		row->statimg->setImageTexture("flag_blue.png");
@@ -218,7 +218,7 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 		row->statimg->setUserString("tooltip", tmp.asUTF8());
 		row->statimg->setPosition(x, y);
 		x -= 18;
-	} else if (c->authstatus & AUTH_RANKED)
+	} else if (c.authstatus & AUTH_RANKED)
 	{
 		row->statimg->setVisible(true);
 		row->statimg->setImageTexture("flag_green.png");
@@ -233,14 +233,14 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 	{
 		row->userTruckOKImg->setVisible(true);
 		row->userTruckOKRemoteImg->setVisible(true);
-		row->userTruckOKImg->setUserString("uid", TOSTRING(c->uniqueid));
-		row->userTruckOKRemoteImg->setUserString("uid", TOSTRING(c->uniqueid));
+		row->userTruckOKImg->setUserString("uid", TOSTRING(c.uniqueid));
+		row->userTruckOKRemoteImg->setUserString("uid", TOSTRING(c.uniqueid));
 		row->userTruckOKImg->setPosition(x, y);
 		x -= 10;
 		row->userTruckOKRemoteImg->setPosition(x, y);
 		x -= 10;
 
-		int ok = true;//BeamFactory::getSingleton().checkStreamsOK(c->uniqueid);
+		int ok = BeamFactory::getSingleton().checkStreamsOK(c.uniqueid);
 		if (ok == 0)
 		{
 			row->userTruckOKImg->setImageTexture("arrow_down_red.png");
@@ -258,7 +258,7 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 			row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
 		}
 
-		int rok = true;//BeamFactory::getSingleton().checkStreamsRemoteOK(c->uniqueid);
+		int rok = BeamFactory::getSingleton().checkStreamsRemoteOK(c.uniqueid);
 		if (rok == 0)
 		{
 			row->userTruckOKRemoteImg->setImageTexture("arrow_up_red.png");
@@ -285,9 +285,8 @@ void GUI_Multiplayer::updateSlot(player_row_t *row, user_info_t *c, bool self)
 	row->usergoimg->setVisible(false);
 }
 
-int GUI_Multiplayer::update()
+void GUI_Multiplayer::update()
 {
-#if 0
 	int slotid = 0;
 	
 	MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
@@ -295,49 +294,41 @@ int GUI_Multiplayer::update()
 	mpPanel->setPosition(x,y);
 
 	// add local player to first slot always
-	user_info_t *lu = gEnv->network->getLocalUserData();
+	user_info_t lu = RoR::Networking::GetLocalUserData();
 	updateSlot(&player_rows[slotid], lu, true);
 	slotid++;
 
 	// add remote players
-	int res = gEnv->network->getClientInfos(clients);
-	if (res) return 1;
-	for (int i = 0; i < MAX_PEERS; i++)
+	std::vector<user_info_t> users = RoR::Networking::GetUserInfos();
+	for (user_info_t user : users)
 	{
-		client_t *c = &clients[i];
 		player_row_t *row = &player_rows[slotid];
-		// only count up slotid for used slots, so there are no gap in the list
-		if (c->used)
+		slotid++;
+		try
 		{
-			// used
-			slotid++;
-			try
-			{
-				updateSlot(row, &c->user, false);
-			} catch(...)
-			{
-			}
-		} else
+			updateSlot(row, user, false);
+		} catch(...)
 		{
-			// not used, hide everything
-			row->flagimg->setVisible(false);
-			row->playername->setVisible(false);
-			row->statimg->setVisible(false);
-			row->usergoimg->setVisible(false);
-			row->userTruckOKImg->setVisible(false);
-			row->userTruckOKRemoteImg->setVisible(false);
 		}
+		
 	}
+	for (int i = slotid; i < MAX_PEERS; i++)
+	{
+		player_row_t *row = &player_rows[i];
+		// not used, hide everything
+		row->flagimg->setVisible(false);
+		row->playername->setVisible(false);
+		row->statimg->setVisible(false);
+		row->usergoimg->setVisible(false);
+		row->userTruckOKImg->setVisible(false);
+		row->userTruckOKRemoteImg->setVisible(false);
+	}
+
+	netmsgwin->setVisible(RoR::Networking::GetNetQuality() != 0);
 
 	int height = lineheight * (slotid + 1);
 	mpPanel->setSize(sidebarWidth, height);
-	
-	netmsgwin->setVisible(gEnv->network->getNetQuality() != 0);
-#endif
-
-	return 0;
 }
-
 
 void GUI_Multiplayer::clickUserGoIcon(MyGUI::WidgetPtr sender)
 {

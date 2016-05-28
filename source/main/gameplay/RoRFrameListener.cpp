@@ -151,6 +151,7 @@ RoRFrameListener::RoRFrameListener() :
 	m_last_simulation_speed(0.1f),
 	m_last_skin_selection(nullptr),
 	m_loading_state(NONE_LOADED),
+	m_netcheck_gui_timer(0.0f),
 	m_pressure_pressed(false),
 	m_race_bestlap_time(0),
 	m_race_in_progress(false),
@@ -1239,10 +1240,15 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #ifdef USE_SOCKETW
 	if (gEnv->multiplayer)
 	{
-#if 0
-		// process all packets and streams received
-		NetworkStreamManager::getSingleton().update();
-#endif
+		RoR::Networking::HandleStreamData();
+#ifdef USE_MYGUI
+		m_netcheck_gui_timer += dt;
+		if (m_netcheck_gui_timer > 2.0f)
+		{
+			GUI_Multiplayer::getSingleton().update();
+			m_netcheck_gui_timer = 0.0f;
+		}
+#endif // USE_MYGUI
 	}
 #endif //SOCKETW
 
@@ -1446,7 +1452,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		if (!m_is_sim_paused)
 		{
 			BeamFactory::getSingleton().joinFlexbodyTasks();       // Waits until all flexbody tasks are finished
-			BeamFactory::getSingleton().calcPhysics(dt);
+			BeamFactory::getSingleton().update(dt);
 			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Updates the harware buffers 
 		}
 	}
@@ -1554,7 +1560,8 @@ void RoRFrameListener::windowMoved(Ogre::RenderWindow* rw)
 
 void RoRFrameListener::windowFocusChange(Ogre::RenderWindow* rw)
 {
-	LOG("*** windowFocusChange");
+	// Too verbose
+	//LOG("*** windowFocusChange");
 	RoR::Application::GetInputEngine()->resetKeys();
 }
 

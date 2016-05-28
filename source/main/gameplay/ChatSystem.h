@@ -24,8 +24,19 @@
 
 #include "RoRPrerequisites.h"
 
+#include "Network.h"
+
 namespace RoR {
-namespace Chatsystem {
+namespace ChatSystem {
+
+void SendChat(Ogre::UTFString chatline);
+void SendPrivateChat(Ogre::UTFString target_username, Ogre::UTFString chatline);
+
+void SendStreamSetup();
+
+void HandleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
+
+Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number);
 
 } // namespace Networking
 } // namespace Chatsystem

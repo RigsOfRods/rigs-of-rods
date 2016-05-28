@@ -40,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
+#include "Utils.h"
 #include "VehicleAI.h"
 
 #ifdef _GNU_SOURCE
@@ -55,6 +56,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIMenu.h"
 #include "DashBoardManager.h"
 #endif // USE_MYGUI
+
+#include <algorithm>
 
 using namespace Ogre;
 
@@ -216,7 +219,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		fname.c_str(),
         &rig_loading_profiler,
 		false, // networked
-		gEnv->multiplayer != nullptr, // networking
+		gEnv->multiplayer, // networking
 		spawnbox,
 		ismachine,
 		truckconfig,
@@ -254,50 +257,37 @@ Beam *BeamFactory::CreateLocalRigInstance(
 
 #undef LOADRIG_PROFILER_CHECKPOINT
 
-Beam *BeamFactory::createRemoteInstance()
+int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 {
-#if 0
-	stream_register_trucks_t *treg = (stream_register_trucks_t *)&reg->reg;
-
-	LOG(" new beam truck for " + TOSTRING(reg->sourceid) + ":" + TOSTRING(reg->streamid));
+	LOG(" new beam truck for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
 #ifdef USE_SOCKETW
-	// log a message about this
-	if (gEnv->multiplayer)
-	{
-#if 0
-		client_t *c = gEnv->network->getClientInfo(reg->sourceid);
-		if (c)
-		{
-			UTFString username = ChatSystem::getColouredName(*c);
-			UTFString message = username + ChatSystem::commandColour + _L(" spawned a new vehicle: ") + ChatSystem::normalColour + treg->name;
+	user_info_t info;
+	RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
+
+	UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
 #ifdef USE_MYGUI
-			RoR::Application::GetGuiManager()->pushMessageChatBox(message);
+	RoR::Application::GetGuiManager()->pushMessageChatBox(message);
 #endif // USE_MYGUI
-		}
-#endif
-	}
 #endif // USE_SOCKETW
 
 	// check if we got this truck installed
-	String filename = String(treg->name);
+	String filename = String(reg->name);
 	String group = "";
 	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(filename, group))
 	{
 		LOG("wont add remote stream (truck not existing): '"+filename+"'");
-
-		return 0;
+		return -1;
 	}
 
 	// fill truckconfig
 	std::vector<String> truckconfig;
 	for (int t=0; t<10; t++)
 	{
-		if (!strnlen(treg->truckconfig[t], 60))
+		if (!strnlen(reg->truckconfig[t], 60))
 			break;
-		truckconfig.push_back(String(treg->truckconfig[t]));
+		truckconfig.push_back(String(reg->truckconfig[t]));
 	}
-
 
 	// DO NOT spawn the truck far off anywhere
 	// the truck parsing will break flexbodies initialization when using huge numbers here
@@ -307,17 +297,17 @@ Beam *BeamFactory::createRemoteInstance()
 	if (truck_num == -1)
 	{
 		LOG("ERROR: could not add beam to main list");
-		return 0;
+		return -1;
 	}
 	RoR::RigLoadingProfiler p; // TODO: Placeholder. Use it
 	Beam *b = new Beam(
 		truck_num,
 		pos,
 		Quaternion::ZERO,
-		reg->reg.name,
+		reg->name,
         &p,
 		true, // networked
-		gEnv->multiplayer != nullptr, // networking
+		gEnv->multiplayer, // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,
@@ -326,23 +316,147 @@ Beam *BeamFactory::createRemoteInstance()
 
 	m_trucks[truck_num] = b;
 
-#if 0
-	b->setSourceID(reg->sourceid);
-	b->setStreamID(reg->streamid);
-#endif
-
+	b->m_source_id = reg->origin_sourceid;
+	b->m_stream_id = reg->origin_streamid;
 	b->updateNetworkInfo();
 
 #ifdef USE_MYGUI
 	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
 #endif // USE_MYGUI
-	return b;
-#endif
-	return nullptr;
+
+	return 1;
+}
+
+void BeamFactory::RemoveStreamSource(int sourceid)
+{
+	m_stream_mismatches.erase(sourceid);
+
+	for (int t=0; t < m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		if (m_trucks[t]->state != NETWORKED) continue;
+
+		if (m_trucks[t]->m_source_id == sourceid)
+		{
+			this->DeleteTruck(m_trucks[t]);
+		}
+	}
+}
+
+void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
+{
+	for (auto packet : packet_buffer)
+	{
+		if (packet.header.command == MSG2_STREAM_REGISTER)
+		{
+			stream_register_t *reg = (stream_register_t *)packet.buffer;
+			if (reg->type == 0)
+			{
+				reg->status = this->CreateRemoteInstance((stream_register_trucks_t *)packet.buffer);
+				RoR::Networking::AddPacket(0, MSG2_STREAM_REGISTER_RESULT, sizeof(stream_register_t), (char *)reg);
+			}
+		} else if (packet.header.command == MSG2_STREAM_REGISTER_RESULT)
+		{
+			stream_register_t *reg = (stream_register_t *)packet.buffer;
+			for (int t=0; t < m_free_truck; t++)
+			{
+				if (!m_trucks[t]) continue;
+				if (m_trucks[t]->state == NETWORKED) continue;
+				if (m_trucks[t]->m_stream_id == reg->origin_streamid)
+				{
+					int sourceid = packet.header.source;
+					m_trucks[t]->m_stream_results[sourceid] = reg->status;
+
+					if (reg->status == 1)
+						LOG("Client " + TOSTRING(sourceid) + " successfully loaded stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
+					else
+						LOG("Client " + TOSTRING(sourceid) + " could not load stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
+
+					break;
+				}
+			}
+		} else if (packet.header.command == MSG2_STREAM_UNREGISTER)
+		{
+			Beam *b = this->getBeam(packet.header.source, packet.header.streamid);
+			if (b && b->state == NETWORKED)
+			{
+				this->DeleteTruck(b);
+			}
+			auto search = m_stream_mismatches.find(packet.header.source);
+			if (search != m_stream_mismatches.end())
+			{
+				auto &mismatches = search->second;
+				auto it = std::find(mismatches.begin(), mismatches.end(), packet.header.streamid);
+				if (it != mismatches.end())
+					mismatches.erase(it);
+			}
+		} else if (packet.header.command == MSG2_USER_LEAVE)
+		{
+			this->RemoveStreamSource(packet.header.source);
+		} else
+		{
+			for (int t=0; t < m_free_truck; t++)
+			{
+				if (!m_trucks[t]) continue;
+				if (m_trucks[t]->state != NETWORKED) continue;
+
+				m_trucks[t]->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
+			}
+		}
+	}
+}
+
+int BeamFactory::checkStreamsOK(int sourceid)
+{
+	if (m_stream_mismatches[sourceid].size() > 0)
+		return 0;
+
+	for (int t=0; t < m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		if (m_trucks[t]->state != NETWORKED) continue;
+
+		if (m_trucks[t]->m_source_id == sourceid)
+		{
+			return 1;
+		}
+	}
+
+	return 2;
+}
+
+int BeamFactory::checkStreamsRemoteOK(int sourceid)
+{
+	int result = 2;
+
+	for (int t=0; t < m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		if (m_trucks[t]->state == NETWORKED) continue;
+
+		int stream_result = m_trucks[t]->m_stream_results[sourceid];
+		if (stream_result == -1)
+			return 0;
+		if (stream_result == 1)
+			result = 1;
+	}
+
+	return result;
 }
 
 Beam *BeamFactory::getBeam(int source_id, int stream_id)
 {
+	for (int t=0; t < m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		if (m_trucks[t]->state != NETWORKED) continue;
+
+		if (m_trucks[t]->m_source_id == source_id && m_trucks[t]->m_stream_id == stream_id)
+		{
+			return m_trucks[t];
+		}
+	}
+
 	return nullptr;
 }
 
@@ -610,7 +724,7 @@ void BeamFactory::DeleteTruck(Beam *b)
 
 	if (b->networking && b->state != NETWORKED && b->state != INVALID)
 	{
-		//NetworkStreamManager::getSingleton().removeLocalStream(b);
+		RoR::Networking::AddPacket(b->m_stream_id, MSG2_STREAM_UNREGISTER, 0, 0);
 	}
 
 	if (m_current_truck == b->trucknum)
@@ -787,7 +901,7 @@ void BeamFactory::updateVisual(float dt)
 	RoR::Mirrors::Update(getCurrentTruck());
 }
 
-void BeamFactory::calcPhysics(float dt)
+void BeamFactory::update(float dt)
 {
 	m_physics_frames++;
 

@@ -100,6 +100,8 @@ protected:
 	bool m_truck_info_on;
 	bool m_pressure_pressed;
 	bool m_is_sim_paused;
+
+	float m_netcheck_gui_timer;
 	
 	collision_box_t *m_reload_box;
 

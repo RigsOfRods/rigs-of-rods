@@ -35,7 +35,6 @@
 
 #include "ChatSystem.h"
 #include "Utils.h"
-//#include "rornet.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
@@ -89,7 +88,7 @@ bool CLASS::IsVisible()
 
 void CLASS::pushMsg(Ogre::String txt)
 {
-	mHistory += ChatSystem::normalColour + txt + " \n";
+	mHistory += RoR::Color::NormalColour + txt + " \n";
 	newMsg = true;
 	m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
 }
@@ -119,14 +118,14 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 				pushMsg(trmsg);
 				return;
 			}
-			//netChat->sendPrivateChat(args[1], args[2]);
+			RoR::ChatSystem::SendPrivateChat(args[1], args[2]);
 			return;
 		}
 	}
 
 	if (gEnv->multiplayer)
 	{
-		//netChat->sendChat(msg.c_str());
+		RoR::ChatSystem::SendChat(msg.c_str());
 		return;
 	}
 

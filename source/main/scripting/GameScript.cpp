@@ -873,9 +873,8 @@ int GameScript::sendGameCmd(const String& message)
 {
 	if (gEnv->multiplayer)
 	{
-#if 0
-		return gEnv->network->sendScriptMessage(const_cast<char*>(message.c_str()), (unsigned int)message.size());
-#endif
+		RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
+		return 0;
 	}
 
 	return -11;

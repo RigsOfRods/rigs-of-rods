@@ -500,6 +500,12 @@ public:
 
 	bool m_is_videocamera_disabled;
 
+	int m_source_id;
+	int m_stream_id;
+	std::map<int, int> m_stream_results;
+
+	void receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
+
 	/**
 	* Sets visibility of all beams on this vehicle
 	* @param visible Toggle
@@ -725,8 +731,8 @@ protected:
 
 	// overloaded from Streamable:
 	Ogre::Timer netTimer;
+	int last_net_time;
 	void sendStreamSetup();
-	void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len);
 
 	// dustpools
 	DustPool *dustp;
