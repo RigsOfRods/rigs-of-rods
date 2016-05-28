@@ -1690,14 +1690,10 @@ void Beam::receiveStreamData(unsigned int &type, int &source, unsigned int &_str
 	BES_GFX_STOP(BES_GFX_receiveStreamData);
 }
 
-void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, float opt1, float opt2, float opt3)
+void Beam::calcAnimators(const int flag_state, float &cstate, int &div, Real timer, const float option1, const float option2, const float option3)
 {
 	BES_GFX_START(BES_GFX_calcAnimators);
-	int flag_state=flagstate;
 	Real dt = timer;
-	float option1 = opt1;
-	float option2 = opt2;
-	float option3 = opt3;
 
 	//boat rudder
 	if (flag_state & ANIM_FLAG_BRUDDER)
