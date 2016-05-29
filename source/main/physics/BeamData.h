@@ -468,8 +468,8 @@ struct prop_t
 	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
 	int animFlags[10];
 	int animMode[10];
-	float animOpt1[10]; //!< The lower limit for the animation
-	float animOpt2[10]; //!< The upper limit for the animation
+	float lower_limit[10]; //!< The lower limit for the animation
+	float upper_limit[10]; //!< The upper limit for the animation
 	float animOpt3[10]; //!< Various purposes
 	float animOpt4[10]; 
 	float animOpt5[10];

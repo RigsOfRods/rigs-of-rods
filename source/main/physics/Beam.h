@@ -581,7 +581,7 @@ protected:
 	*/
 	void calcRopes();
 	void calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
-	void calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float option1, const float option2, const float option3);
+	void calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
 
 	void SyncReset(); //this one should be called only synchronously (without physics running in background)
 

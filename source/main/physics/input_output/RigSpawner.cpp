@@ -2147,10 +2147,10 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		}
 
 		/* Arg #2: option1 (lower limit) */
-		prop.animOpt1[anim_index] = anim_itor->lower_limit; /* Handles default */
+		prop.lower_limit[anim_index] = anim_itor->lower_limit; /* Handles default */
 
 		/* Arg #3: option2 (upper limit) */
-		prop.animOpt2[anim_index] = anim_itor->upper_limit; /* Handles default */
+		prop.upper_limit[anim_index] = anim_itor->upper_limit; /* Handles default */
 
 		/* Arg #4: source */
 		if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_AIRSPEED)) { /* (NOTE: code formatting relaxed) */
@@ -2315,33 +2315,33 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			BITMASK_SET_1(prop.animMode[anim_index], ANIM_MODE_AUTOANIMATE);
 
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_X)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.rotaX;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.rotaX;
+				prop.lower_limit[anim_index] = anim_itor->lower_limit + prop.rotaX;
+				prop.upper_limit[anim_index] = anim_itor->upper_limit + prop.rotaX;
 				prop.animOpt4[anim_index] = prop.rotaX;
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_Y)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.rotaY;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.rotaY;
+				prop.lower_limit[anim_index] = anim_itor->lower_limit + prop.rotaY;
+				prop.upper_limit[anim_index] = anim_itor->upper_limit + prop.rotaY;
 				prop.animOpt4[anim_index] = prop.rotaY;
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_Z)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.rotaZ;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.rotaZ;
+				prop.lower_limit[anim_index] = anim_itor->lower_limit + prop.rotaZ;
+				prop.upper_limit[anim_index] = anim_itor->upper_limit + prop.rotaZ;
 				prop.animOpt4[anim_index] = prop.rotaZ;
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_X)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.orgoffsetX;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.orgoffsetX;
+				prop.lower_limit[anim_index] = anim_itor->lower_limit + prop.orgoffsetX;
+				prop.upper_limit[anim_index] = anim_itor->upper_limit + prop.orgoffsetX;
 				prop.animOpt4[anim_index] = prop.orgoffsetX;
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_Y)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.orgoffsetY;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.orgoffsetY;
+				prop.lower_limit[anim_index] = anim_itor->lower_limit + prop.orgoffsetY;
+				prop.upper_limit[anim_index] = anim_itor->upper_limit + prop.orgoffsetY;
 				prop.animOpt4[anim_index] = prop.orgoffsetY;
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_Z)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.orgoffsetZ;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.orgoffsetZ;
+				prop.lower_limit[anim_index] = anim_itor->lower_limit + prop.orgoffsetZ;
+				prop.upper_limit[anim_index] = anim_itor->upper_limit + prop.orgoffsetZ;
 				prop.animOpt4[anim_index] = prop.orgoffsetZ;
 			}
 		}
