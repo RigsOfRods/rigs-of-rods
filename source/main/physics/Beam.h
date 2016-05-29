@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Streamable.h"
 
 #include <memory>
-#include <mutex>
 
 class Task;
 
@@ -688,7 +687,6 @@ protected:
 	char *netb1; //!< Network; Triple buffer for incoming data
 	char *netb2; //!< Network; Triple buffer for incoming data
 	char *netb3; //!< Network; Triple buffer for incoming data
-	std::mutex m_net_mutex;
 	int net_toffset;
 	int netcounter;
 	Ogre::MovableText *netMT; //, *netDist;

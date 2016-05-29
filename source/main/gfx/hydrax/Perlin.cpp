@@ -402,7 +402,6 @@ namespace Hydrax{namespace Noise
 
 	float Perlin::getValue(const float &x, const float &y)
 	{
-		std::lock_guard<std::mutex> lock(m_work_mutex);
 		return _getHeigthDual(x, y);
 	}
 
@@ -447,7 +446,6 @@ namespace Hydrax{namespace Noise
 
 	void Perlin::_calculeNoise()
 	{
-		std::lock_guard<std::mutex> lock(m_work_mutex);
 		int i, o, v, u,
 			multitable[max_octaves],
 			amount[3],
