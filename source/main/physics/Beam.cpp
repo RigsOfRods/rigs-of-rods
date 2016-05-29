@@ -565,7 +565,6 @@ void Beam::desactivate()
 	}
 }
 
-//called by the network thread
 void Beam::pushNetwork(char* data, int size)
 {
 	BES_GFX_START(BES_GFX_pushNetwork);
@@ -601,8 +600,6 @@ void Beam::pushNetwork(char* data, int size)
 		return;
 	}
 
-	std::lock_guard<std::mutex> net_lock(m_net_mutex);
-
 	// and the buffer switching to have linear smoothing
 	oob_t *ot;
 	ot   = oob1;
@@ -636,9 +633,6 @@ void Beam::calcNetwork()
 	BES_GFX_START(BES_GFX_calcNetwork);
 
 	// we must update Nodes positions from available network informations
-	// we must lock as long as we use oob1, oob2, netb1, netb2
-	std::lock_guard<std::mutex> net_lock(m_net_mutex);
-
 	int tnow = netTimer.getMilliseconds();
 	// adjust offset to match remote time
 	int rnow = tnow + net_toffset;
@@ -728,7 +722,6 @@ void Beam::calcNetwork()
 		}
 	}
 
-	//give some slack to the mutex
 	float engspeed  = oob1->engine_speed  + tratio * (oob2->engine_speed  - oob1->engine_speed);
 	float engforce  = oob1->engine_force  + tratio * (oob2->engine_force  - oob1->engine_force);
 	float engclutch = oob1->engine_clutch + tratio * (oob2->engine_clutch - oob1->engine_clutch);
@@ -1901,11 +1894,9 @@ void Beam::sendStreamData()
 
 void Beam::receiveStreamData(unsigned int &type, int &source, unsigned int &_streamid, char *buffer, unsigned int &len)
 {
-	BES_GFX_START(BES_GFX_receiveStreamData);
-	if (state != NETWORKED) return; // this should not happen
-	// TODO: FIX
-	//if (this->source != source || this->streamid != streamid) return; // data not for us
+	if (state != NETWORKED) return;
 
+	BES_GFX_START(BES_GFX_receiveStreamData);
 	if (type == MSG2_STREAM_DATA && source == (int)this->getSourceID() && _streamid == this->getStreamID())
 	{
 		pushNetwork(buffer, len);
