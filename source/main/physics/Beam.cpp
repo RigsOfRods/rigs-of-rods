@@ -6321,66 +6321,32 @@ void Beam::UpdatePropAnimations(const float dt)
 
 				bool limiterchanged = false;
 				// check if a positive custom limit is set to evaluate/calc flip back
-				if (props[propi].constraints[animnum].has_upper_limit)
+
+				if (limiter > upper_limit)
 				{
-					if (limiter > upper_limit)
+					if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
 					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-						{
-							limiter = upper_limit;				// stop at limit
-							props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-						} else
-						{
-							limiter = lower_limit;				// flip to other side at limit
-						}
-						limiterchanged = true;
-					}
-				} else
-				{																	// no custom limit set, use 360�
-					while (limiter > 180.0f)
+						limiter = upper_limit;				// stop at limit
+						props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
+					} else
 					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-						{
-							limiter = 180.0f;										// stop at limit
-							props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-						} else
-						{
-							limiter -= 360.0f;										// flip to other side at limit
-						}
-						limiterchanged = true;
+						limiter = lower_limit;				// flip to other side at limit
 					}
+					limiterchanged = true;
 				}
 
-				// check if a negative custom limit is set to evaluate/calc flip back
-				if (props[propi].constraints[animnum].has_lower_limit)
+
+				if (limiter < lower_limit)
 				{
-					if (limiter < lower_limit)
+					if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
 					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-						{
-							limiter = lower_limit;				// stop at limit
-							props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
-						} else
-						{
-							limiter = upper_limit;				// flip to other side at limit
-						}
-						limiterchanged = true;
-					}
-				} else																// no custom limit set, use 360�
-				{
-					while (limiter < -180.0f)
+						limiter = lower_limit;				// stop at limit
+						props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
+					} else
 					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-						{
-							limiter = -180.0f;										// stop at limit
-							props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
-							limiterchanged = true;
-						} else
-						{
-							limiter += 360.0f;										// flip to other side at limit including overflow
-							limiterchanged = true;
-						}
+						limiter = upper_limit;				// flip to other side at limit
 					}
+					limiterchanged = true;
 				}
 
 				if (limiterchanged)
@@ -6417,9 +6383,7 @@ void Beam::UpdatePropAnimations(const float dt)
 					// This is now taken into account by factoring in the respective fraction of the variable timestep.
 					float const dt_frac = dt * 2000.f;
 					autooffset = offset + cstate * dt_frac;
-					// check if a positive custom limit is set to evaluate/calc flip back
-					if (props[propi].constraints[animnum].has_upper_limit)
-					{
+
 						if (autooffset > upper_limit)
 						{
 							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
@@ -6430,22 +6394,7 @@ void Beam::UpdatePropAnimations(const float dt)
 								autooffset = lower_limit;            // flip to other side at limit
 							}
 						}
-					} else																// no custom limit set, use 10x as default
-					{
-						while (autooffset > 10.0f)
-						{
-							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-							{
-								autooffset = 10.0f;										// stop at limit
-								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-							} else {
-								autooffset -= 20.0f;                                    // flip to other side at limit including overflow
-							}
-						}
-					}
-					// check if a negative custom limit is set to evaluate/calc flip back
-					if (props[propi].constraints[animnum].has_lower_limit)
-					{
+
 						if (autooffset < lower_limit)
 						{
 							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
@@ -6456,19 +6405,6 @@ void Beam::UpdatePropAnimations(const float dt)
 								autooffset = upper_limit;            // flip to other side at limit
 							}
 						}
-					} else																// no custom limit set, use -10x�
-					{
-						while (autooffset < -10.0f)
-						{
-							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-							{
-								autooffset = -10.0f;									// stop at limit
-								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-							} else {
-								autooffset += 20.0f;                                    // flip to other side at limit including overflow
-							}
-						}
-					}
 				}
 				offset += cstate;
 

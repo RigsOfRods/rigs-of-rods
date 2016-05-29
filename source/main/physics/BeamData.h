@@ -481,8 +481,6 @@ struct prop_t
 	struct {
 		float lower_limit;  //!< The lower limit for the animation
 		float upper_limit;  //!< The upper limit for the animation
-		bool has_lower_limit : 1;
-		bool has_upper_limit : 1;
 	} constraints[10];
 };
 

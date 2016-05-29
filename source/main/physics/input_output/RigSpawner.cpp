@@ -2314,33 +2314,33 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		{
 			BITMASK_SET_1(prop.animMode[anim_index], ANIM_MODE_AUTOANIMATE);
 
-			// Flag whether lower and/or upper animation limit constraints are effective
-			prop.constraints[anim_index].has_lower_limit = (anim_itor->lower_limit != 0.f);
-			prop.constraints[anim_index].has_upper_limit = (anim_itor->upper_limit != 0.f);
+			// Flag whether default lower and/or upper animation limit constraints are effective
+			const bool use_default_lower_limit = (anim_itor->lower_limit == 0.f);
+			const bool use_default_upper_limit = (anim_itor->upper_limit == 0.f);
 
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_X)) {
-				prop.constraints[anim_index].lower_limit = anim_itor->lower_limit + prop.rotaX;
-				prop.constraints[anim_index].upper_limit = anim_itor->upper_limit + prop.rotaX;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_itor->lower_limit + prop.rotaX);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_itor->upper_limit + prop.rotaX);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_Y)) {
-				prop.constraints[anim_index].lower_limit = anim_itor->lower_limit + prop.rotaY;
-				prop.constraints[anim_index].upper_limit = anim_itor->upper_limit + prop.rotaY;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_itor->lower_limit + prop.rotaY);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_itor->upper_limit + prop.rotaY);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_Z)) {
-				prop.constraints[anim_index].lower_limit = anim_itor->lower_limit + prop.rotaZ;
-				prop.constraints[anim_index].upper_limit = anim_itor->upper_limit + prop.rotaZ;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_itor->lower_limit + prop.rotaZ);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_itor->upper_limit + prop.rotaZ);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_X)) {
-				prop.constraints[anim_index].lower_limit = anim_itor->lower_limit + prop.orgoffsetX;
-				prop.constraints[anim_index].upper_limit = anim_itor->upper_limit + prop.orgoffsetX;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_itor->lower_limit + prop.orgoffsetX);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_itor->upper_limit + prop.orgoffsetX);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_Y)) {
-				prop.constraints[anim_index].lower_limit = anim_itor->lower_limit + prop.orgoffsetY;
-				prop.constraints[anim_index].upper_limit = anim_itor->upper_limit + prop.orgoffsetY;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_itor->lower_limit + prop.orgoffsetY);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_itor->upper_limit + prop.orgoffsetY);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_Z)) {
-				prop.constraints[anim_index].lower_limit = anim_itor->lower_limit + prop.orgoffsetZ;
-				prop.constraints[anim_index].upper_limit = anim_itor->upper_limit + prop.orgoffsetZ;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_itor->lower_limit + prop.orgoffsetZ);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_itor->upper_limit + prop.orgoffsetZ);
 			}
 		}
 		if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_NO_FLIP)) 
