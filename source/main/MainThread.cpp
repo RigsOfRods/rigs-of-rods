@@ -1163,6 +1163,8 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		// getting outside
 		if (previous_vehicle && gEnv->player)
 		{
+			previous_vehicle->prepareInside(false);
+
 			// get player out of the vehicle
 			float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
 			Vector3 position = previous_vehicle->nodes[0].AbsPosition;
