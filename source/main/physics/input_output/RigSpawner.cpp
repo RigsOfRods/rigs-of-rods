@@ -39,6 +39,7 @@
 #include "Airfoil.h"
 #include "Application.h"
 #include "AutoPilot.h"
+#include "VehicleAI.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BitFlags.h"
@@ -77,6 +78,7 @@
 #include <OgreMovableObject.h>
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
+
 
 using namespace RoR;
 
@@ -334,6 +336,8 @@ void RigSpawner::InitializeRig()
 
 	m_rig->beamHash = "";
 
+	m_rig->vehicle_ai = new VehicleAI(m_rig);
+
 	/* Init code from Beam::Beam() */
 
 	m_rig->airbrakeval = 0;
@@ -444,6 +448,8 @@ void RigSpawner::InitializeRig()
         );
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
+
+	
 }
 
 void RigSpawner::FinalizeRig()

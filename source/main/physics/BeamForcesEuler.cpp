@@ -40,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "Water.h"
 #include "TerrainManager.h"
+#include "VehicleAI.h"
 
 using namespace Ogre;
 
@@ -50,6 +51,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		water = gEnv->terrainManager->getWater();
 
 	increased_accuracy = false;
+
 
 	//engine callback
 	if (engine)

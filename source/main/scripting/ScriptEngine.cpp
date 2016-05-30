@@ -53,6 +53,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ScriptEvents.h"
 
 #include "BeamFactory.h"
+#include "VehicleAI.h"
 
 const char *ScriptEngine::moduleName = "RoRScript";
 
@@ -275,6 +276,26 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(BeamFactory,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(BeamFactory,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
+	// enum aiEvents
+	result = engine->RegisterEnum("aiEvents"); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("aiEvents", "AI_LIGHTSTOGGLE", AI_LIGHTSTOGGLE); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("aiEvents", "AI_WAIT_SECONDS", AI_WAIT_SECONDS); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("aiEvents", "AI_BEACONSTOGGLE", AI_BEACONSTOGGLE); MYASSERT(result >= 0);
+
+	// enum aiEvents
+	result = engine->RegisterEnum("AiValues"); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("AiValues", "AI_SPEED", AI_SPEED); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("AiValues", "AI_POWER", AI_POWER); MYASSERT(result >= 0);
+
+	result = engine->RegisterObjectType("VehicleAIClass", sizeof(VehicleAI), AngelScript::asOBJ_REF); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void addWaypoint(string &in, vector3 &in)", AngelScript::asMETHOD(VehicleAI, AddWaypoint), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void addWaypoints(dictionary &in)", AngelScript::asMETHOD(VehicleAI, AddWaypoint), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void setActive(bool)", AngelScript::asMETHOD(VehicleAI, SetActive), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void addEvent(string &in,int &in)", AngelScript::asMETHOD(VehicleAI, AddEvent), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void setValueAtWaypoint(string &in, int &in, float &in)", AngelScript::asMETHOD(VehicleAI, SetValueAtWaypoint), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectBehaviour("VehicleAIClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(VehicleAI, addRef), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectBehaviour("VehicleAIClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(VehicleAI, release), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+
 
 
 	// Register everything
@@ -319,9 +340,7 @@ void ScriptEngine::init()
 
 	result = engine->RegisterObjectMethod("BeamClass", "float getRotation()", AngelScript::asMETHOD(Beam,getRotation), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "vector3 getVehiclePosition()", AngelScript::asMETHOD(Beam,getPosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-	result = engine->RegisterObjectMethod("BeamClass", "bool navigateTo(vector3 &in)", AngelScript::asMETHOD(Beam,navigateTo), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", AngelScript::asMETHOD(Beam,getNodePosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-
 	
 
 	/*
@@ -487,7 +506,10 @@ void ScriptEngine::init()
 	
 	result = engine->RegisterObjectMethod("GameScriptClass", "int sendGameCmd(const string &in)", AngelScript::asMETHOD(GameScript,sendGameCmd), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "int useOnlineAPI(const string &in, const dictionary &in, string &out)", AngelScript::asMETHOD(GameScript,useOnlineAPI), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-	
+
+	result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClass @getCurrentTruckAI()", AngelScript::asMETHOD(GameScript, getCurrentTruckAI), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClass @getTruckAIByNum(int)", AngelScript::asMETHOD(GameScript, getTruckAIByNum), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+
 
 	
 	// enum scriptEvents

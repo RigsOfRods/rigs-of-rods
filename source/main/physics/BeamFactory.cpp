@@ -39,6 +39,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
+#include "VehicleAI.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -904,6 +905,9 @@ void BeamFactory::calcPhysics(float dt)
 		m_trucks[t]->handleTruckPosition(dt);
 		m_trucks[t]->updateAngelScriptEvents(dt);
 
+		if (m_trucks[t]->vehicle_ai && (m_trucks[t]->vehicle_ai->IsActive()))
+			m_trucks[t]->vehicle_ai->update(dt, 0);
+
 		switch(m_trucks[t]->state)
 		{
 		case NETWORKED:
@@ -965,7 +969,6 @@ void BeamFactory::calcPhysics(float dt)
 		}
 	}
 }
-
 void BeamFactory::removeInstance(stream_del_t *del)
 {
 	// we override this here so we can also delete the truck array content

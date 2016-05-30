@@ -89,6 +89,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
+#include <VehicleAI.h>
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -129,6 +130,9 @@ Beam::~Beam()
 	if (cabMesh) delete cabMesh; cabMesh=0;
 	if (materialFunctionMapper) delete materialFunctionMapper; materialFunctionMapper=0;
 	if (replay) delete replay; replay=0;
+
+	if (vehicle_ai) delete vehicle_ai; vehicle_ai = 0;
+
 
 	// TODO: Make sure we catch everything here
 	// remove all scene nodes
