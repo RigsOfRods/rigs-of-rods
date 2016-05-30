@@ -2777,73 +2777,56 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
 
 void Beam::prepareInside(bool inside)
 {
-	isInside=inside;
+	isInside = inside;
+
 	if (inside)
 	{
-		//going inside
-
-		// activate cabin lights if lights are turned on
 		if (lights && cablightNode && cablight)
 		{
 			cablightNode->setVisible(true);
 			cablight->setVisible(true);
 		}
 
-		if (shadowOptimizations)
-		{
-			this->SetPropsCastShadows(false);
-		}
-		if (cabNode)
-		{
-			char transmatname[256];
-			sprintf(transmatname, "%s-trans", texname);
-			MaterialPtr transmat=(MaterialPtr)(MaterialManager::getSingleton().getByName(transmatname));
-			transmat->setReceiveShadows(false);
-		}
-		//setting camera
-		mCamera->setNearClipDistance( 0.1 );
-		//activate mirror
-		//if (mirror) mirror->setActive(true);
-		//enable transparent seat
+		mCamera->setNearClipDistance(0.1f);
+
+		// enable transparent seat
 		MaterialPtr seatmat=(MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
 		seatmat->setDepthWriteEnabled(false);
 		seatmat->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-	}
-	else
+	} else
 	{
-		//going outside
 #ifdef USE_MYGUI
 		if (dash)
+		{
 			dash->setVisible(false);
+		}
 #endif // USE_MYGUI
 
-		// disable cabin light before going out
 		if (cablightNode && cablight)
 		{
 			cablightNode->setVisible(false);
 			cablight->setVisible(false);
 		}
 
-		if (shadowOptimizations)
-		{
-			this->SetPropsCastShadows(true);
-		}
+		mCamera->setNearClipDistance(0.5f);
 
-		if (cabNode)
-		{
-			char transmatname[256];
-			sprintf(transmatname, "%s-trans", texname);
-			MaterialPtr transmat=(MaterialPtr)(MaterialManager::getSingleton().getByName(transmatname));
-			transmat->setReceiveShadows(true);
-		}
-		//setting camera
-		mCamera->setNearClipDistance( 0.5 );
-		//desactivate mirror
-		//if (mirror) mirror->setActive(false);
-		//disable transparent seat
-		MaterialPtr seatmat=(MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
+		// disable transparent seat
+		MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
 		seatmat->setDepthWriteEnabled(true);
 		seatmat->setSceneBlending(SBT_REPLACE);
+	}
+
+	if (cabNode)
+	{
+		char transmatname[256];
+		sprintf(transmatname, "%s-trans", texname);
+		MaterialPtr transmat = (MaterialPtr)(MaterialManager::getSingleton().getByName(transmatname));
+		transmat->setReceiveShadows(!inside);
+	}
+
+	if (shadowOptimizations)
+	{
+		SetPropsCastShadows(!inside);
 	}
 }
 
