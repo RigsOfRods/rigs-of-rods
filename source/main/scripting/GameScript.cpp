@@ -879,3 +879,19 @@ int GameScript::sendGameCmd(const String& message)
 		return gEnv->network->sendScriptMessage(const_cast<char*>(message.c_str()), (unsigned int)message.size());
 	}
 }
+
+VehicleAI *GameScript::getCurrentTruckAI()
+{
+	Beam* b = BeamFactory::getSingleton().getCurrentTruck();
+	if (b)
+		return b->vehicle_ai;
+	return nullptr;
+}
+
+VehicleAI *GameScript::getTruckAIByNum(int num)
+{
+	Beam* b = BeamFactory::getSingleton().getTruck(num);
+	if(b)
+		return b->vehicle_ai;
+	return nullptr;
+}

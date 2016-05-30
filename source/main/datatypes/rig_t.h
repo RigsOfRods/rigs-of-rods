@@ -316,4 +316,6 @@ struct rig_t
 
 	std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
 	Ogre::String beamHash; //!< Unused
+
+	VehicleAI *vehicle_ai;
 };

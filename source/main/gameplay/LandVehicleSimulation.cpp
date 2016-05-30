@@ -29,6 +29,7 @@
 #include "Language.h"
 #include "SoundScriptManager.h"
 #include "GUIManager.h"
+#include "VehicleAI.h"
 
 using namespace RoR;
 
@@ -147,7 +148,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 	} // end of (!curr_truck->replaymode) block
 
-	if (!curr_truck->replaymode)
+	if (!curr_truck->replaymode && !curr_truck->vehicle_ai->IsActive())
 	{
 		// steering
 		float tmp_left_digital  = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT,  false, InputEngine::ET_DIGITAL);

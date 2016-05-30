@@ -90,6 +90,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
+#include <VehicleAI.h>
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -130,6 +131,9 @@ Beam::~Beam()
 	if (cabMesh) delete cabMesh; cabMesh=0;
 	if (materialFunctionMapper) delete materialFunctionMapper; materialFunctionMapper=0;
 	if (replay) delete replay; replay=0;
+
+	if (vehicle_ai) delete vehicle_ai; vehicle_ai = 0;
+
 
 	// TODO: Make sure we catch everything here
 	// remove all scene nodes
@@ -4808,128 +4812,6 @@ bool Beam::isLocked()
 	return false;
 }
 
-bool Beam::navigateTo(Vector3 &in)
-{
-	// start engine if not running
-	if (engine && !engine->isRunning())
-		engine->start();
-
-	Vector3 TargetPosition = in;
-	TargetPosition.y=0;	//Vector3 > Vector2
-	Quaternion TargetOrientation = Quaternion::ZERO;
-
-	Vector3 mAgentPosition        = position;
-	mAgentPosition.y=0;	//Vector3 > Vector2
-	Quaternion mAgentOrientation  = Quaternion(Radian(getHeadingDirectionAngle()), Vector3::NEGATIVE_UNIT_Y);
-	mAgentOrientation.normalise();
-
-	Vector3 mVectorToTarget       = TargetPosition - mAgentPosition; // A-B = B->A
-	mAgentPosition.normalise();
-
-	Vector3 mAgentHeading         = mAgentOrientation * mAgentPosition;
-	Vector3 mTargetHeading        = TargetOrientation * TargetPosition;
-	mAgentHeading.normalise();
-	mTargetHeading.normalise();
-
-	// Orientation control - Vector3::UNIT_Y is common up vector.
-	Vector3 mAgentVO        = mAgentOrientation.Inverse() * Vector3::UNIT_Y;
-	Vector3 mTargetVO       = TargetOrientation * Vector3::UNIT_Y;
-
-	// Compute new torque scalar (-1.0 to 1.0) based on heading vector to target.
-	Vector3 mSteeringForce = mAgentOrientation.Inverse() * mVectorToTarget;
-	mSteeringForce.normalise();
-
-	float mYaw    = mSteeringForce.x;
-	float mPitch  = mSteeringForce.z;
-	//float mRoll   = mTargetVO.getRotationTo( mAgentVO ).getRoll().valueRadians();
-
-	if(mPitch > 0)
-    {
-        if (mYaw > 0)
-            mYaw = 1;
-        else
-            mYaw = -1;
-    }
-
-	// actually steer
-	hydrodircommand = mYaw;//mYaw
-
-	// accelerate / brake
-	float maxvelo = 1;
-
-	maxvelo = std::max<float>(0.2f, 1-fabs(mYaw)) * 50;
-
-	maxvelo += std::max<float>(5, std::min<float>(mVectorToTarget.length(), 50)) - 50;
-
-    if (maxvelo < 0)
-        maxvelo = 0;
-
-	float pitch = 0.0f;
-	// pitch
-	if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
-	{
-		Vector3 dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
-		dir.normalise();
-		float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
-		if (angle < -1) angle = -1;
-		if (angle >  1) angle =  1;
-
-		pitch = Radian(angle).valueDegrees();
-	}
-
-	//More power for uphill
-	float power = 80 + pitch;
-	power = power/100;
-
-
-	//String txt = "brakePower: "+TOSTRING(brakePower);//+" @ "+TOSTRING(maxvelo)
-	///RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
-
-
-	if (engine)
-	{
-		if (mVectorToTarget.length() > 5.0f)
-		{
-			if(pitch < -5 && WheelSpeed > 10)
-			{
-				if (pitch < 0) pitch = -pitch;
-				brake = pitch * brakeforce / 90;
-				engine->autoSetAcc(0);
-			}
-			else
-			{
-				if (WheelSpeed < maxvelo - 5)
-				{
-					brake = 0;
-					engine->autoSetAcc(power);
-				}
-				else if (WheelSpeed > maxvelo + 5)
-				{
-					brake = brakeforce / 3;
-					engine->autoSetAcc(0);
-				}
-				else
-				{
-					brake = 0;
-					engine->autoSetAcc(0);
-				}
-			}
-			return false;
-		} 
-		else
-		{
-			engine->autoSetAcc(0);
-			brake = brakeforce;
-			return true;
-		}
-	}
-	else
-	{
-		return true;
-	}
-
-
-}
 
 void Beam::updateDashBoards(float dt)
 {

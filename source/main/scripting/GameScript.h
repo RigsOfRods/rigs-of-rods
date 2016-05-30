@@ -363,6 +363,9 @@ public:
 	void clearEventCache();
 	int sendGameCmd(const Ogre::String& message);
 
+	VehicleAI* getCurrentTruckAI();
+	VehicleAI* getTruckAIByNum(int num);
+
 protected:
 
 	ScriptEngine *mse;          //!< local script engine pointer, used as proxy mostly
