@@ -140,7 +140,7 @@ class MapTextureCreator;
 class MaterialFunctionMapper;
 class MaterialReplacer;
 class MeshObject;
-class Mirrors;
+class Mirror;
 class Network;
 class OverlayWrapper;
 class OutProtocol;

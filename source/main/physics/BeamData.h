@@ -442,7 +442,7 @@ struct prop_t
 	Ogre::SceneNode *scene_node; //!< The pivot scene node (parented to root-node).
 	Ogre::SceneNode *wheel; //!< Special prop: custom steering wheel for dashboard
 	Ogre::Vector3 wheelpos; //!< Special prop: custom steering wheel for dashboard
-	int mirror;             //<! Special prop: rear view mirror {0 = disabled, -1 = right, 1 = left}
+	Mirror* mirror;         //<! Special prop: rear view mirror {0 = disabled, -1 = right, 1 = left}
 	char beacontype;        //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
 
 	// formerly named "bbs"

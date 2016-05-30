@@ -872,6 +872,7 @@ void BeamFactory::updateVisual(float dt)
 			m_trucks[t]->updateVisual(dt);
 			m_trucks[t]->updateSkidmarks();
 			m_trucks[t]->updateFlares(dt, (t==m_current_truck));
+			m_trucks[t]->updateTruckMirrors(dt);
 		}
 	}
 }
@@ -943,7 +944,7 @@ void BeamFactory::calcPhysics(float dt)
 #ifdef USE_MYGUI
 		m_trucks[m_simulated_truck]->updateDashBoards(dt);
 #endif // USE_MYGUI
-		m_trucks[m_simulated_truck]->updateTruckMirrors(dt);
+		m_trucks[m_simulated_truck]->updateVideocameras(dt);
 #ifdef FEAT_TIMING
 			if (m_trucks[m_simulated_truck]->statistics)     m_trucks[m_simulated_truck]->statistics->frameStep(dt);
 			if (m_trucks[m_simulated_truck]->statistics_gfx) m_trucks[m_simulated_truck]->statistics_gfx->frameStep(dt);
