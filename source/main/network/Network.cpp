@@ -547,10 +547,6 @@ void AddPacket(int streamid, int type, int len, char *content)
 		// packet too big, discarded
 		return;
 
-	if (type == MSG2_STREAM_DATA && m_send_packet_buffer.size() > m_packet_buffer_size)
-		// buffer full, discard unimportant data packets
-		return;
-
 	send_packet_t packet;
 	memset(&packet, 0, sizeof(send_packet_t));
 
@@ -573,6 +569,11 @@ void AddPacket(int streamid, int type, int len, char *content)
 		std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
 		if (type == MSG2_STREAM_DATA)
 		{
+			if (m_send_packet_buffer.size() > m_packet_buffer_size)
+			{
+				// buffer full, discard unimportant data packets
+				return;
+			}
 			auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(), [packet](const send_packet_t& p) { return memcmp(packet.buffer, p.buffer, sizeof(header_t)) == 0; });
 			if (search != m_send_packet_buffer.end())
 			{
