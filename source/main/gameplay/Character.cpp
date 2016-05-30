@@ -48,7 +48,6 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, mCamera(gEnv->mainCamera)
 	, mCharacterNode(0)
 	, mHideOwnNetLabel(BSETTING("HideOwnNetLabel", false))
-	, mLastNetTime(0)
 	, mLastPosition(Vector3::ZERO)
 	, mMoveableText(0)
 	, networkAuthLevel(0)
@@ -539,13 +538,6 @@ void Character::sendStreamSetup()
 
 void Character::sendStreamData()
 {
-	// TODO: Remove this and let the network code handle packet congestion
-	int t = mNetTimer.getMilliseconds();
-		if (t - mLastNetTime < 200)
-			return;
-	
-	mLastNetTime = t;
-
 	// do not send position data if coupled to a truck already
 	if (beamCoupling) return;
 

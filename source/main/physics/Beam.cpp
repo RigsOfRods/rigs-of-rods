@@ -1764,14 +1764,7 @@ void Beam::sendStreamData()
 {
 	BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
-
-	// TODO: Remove this and let the network code handle packet congestion
-	int t = netTimer.getMilliseconds();
-	if (t - last_net_time < 100)
-		return;
-
-	last_net_time = t;
-
+	//look if the packet is too big first
 	int final_packet_size = sizeof(oob_t) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
 	if (final_packet_size > 8192)
 	{
@@ -5371,7 +5364,6 @@ Beam::Beam(
 	, interPointCD()
 	, intraPointCD()
 	, isInside(false)
-	, last_net_time(0)
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)

@@ -122,7 +122,6 @@ protected:
 	enum {CHARCMD_POSITION, CHARCMD_ATTACH};
 
 	Ogre::Timer mNetTimer;
-	int mLastNetTime;
 
 	bool mHideOwnNetLabel;
 

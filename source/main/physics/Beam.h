@@ -731,7 +731,6 @@ protected:
 
 	// overloaded from Streamable:
 	Ogre::Timer netTimer;
-	int last_net_time;
 	void sendStreamSetup();
 
 	// dustpools

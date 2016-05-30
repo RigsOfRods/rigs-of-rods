@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <deque>
@@ -251,6 +252,9 @@ void SendThread()
 			SendMessageRaw(packet.buffer, packet.size);
 			queue_lock.lock();
 		}
+		queue_lock.unlock();
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		queue_lock.lock();
 	}
 	LOG("SendThread stopped");
 }
