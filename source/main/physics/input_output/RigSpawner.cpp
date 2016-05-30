@@ -58,6 +58,7 @@
 #include "MaterialFunctionMapper.h"
 #include "MaterialReplacer.h"
 #include "MeshObject.h"
+#include "Mirror.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfilerControl.h"
 #include "ScrewProp.h"
@@ -211,6 +212,7 @@ void RigSpawner::InitializeRig()
 	memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
 	memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
 	m_rig->free_flexbody = 0;
+	m_rig->mirrors.clear();
 	m_rig->vidcams.clear();
 	m_rig->description.clear();
 	m_rig->free_axle = 0;
@@ -1187,7 +1189,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				left_green_prop.rot=Ogre::Quaternion::IDENTITY;
 				left_green_prop.wheel=nullptr;
 				left_green_prop.wheelrotdegree=0.0;
-				left_green_prop.mirror=0;
+				left_green_prop.mirror=nullptr;
 				left_green_prop.pale=0;
 				left_green_prop.spinner=0;
 				left_green_prop.scene_node=nullptr; //no visible prop
@@ -1225,7 +1227,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				left_flash_prop.rot=Ogre::Quaternion::IDENTITY;
 				left_flash_prop.wheel=nullptr;
 				left_flash_prop.wheelrotdegree=0.0;
-				left_flash_prop.mirror=0;
+				left_flash_prop.mirror=nullptr;
 				left_flash_prop.pale=0;
 				left_flash_prop.spinner=0;
 				left_flash_prop.scene_node=nullptr; //no visible prop
@@ -1269,7 +1271,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				right_red_prop.rot=Ogre::Quaternion::IDENTITY;
 				right_red_prop.wheel=nullptr;
 				right_red_prop.wheelrotdegree=0.0;
-				right_red_prop.mirror=0;
+				right_red_prop.mirror=nullptr;
 				right_red_prop.pale=0;
 				right_red_prop.spinner=0;
 				right_red_prop.scene_node=nullptr; //no visible prop
@@ -1306,7 +1308,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				right_flash_prop.rot=Ogre::Quaternion::IDENTITY;
 				right_flash_prop.wheel=nullptr;
 				right_flash_prop.wheelrotdegree=0.0;
-				right_flash_prop.mirror=0;
+				right_flash_prop.mirror=nullptr;
 				right_flash_prop.pale=0;
 				right_flash_prop.spinner=0;
 				right_flash_prop.scene_node=nullptr; //no visible prop
@@ -1921,20 +1923,6 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	prop.animKey[0]      = -1;
 	prop.animKeyState[0] = -1.f;
 
-	/* SPECIAL PROPS */
-
-	/* Rear view mirror (left) */
-	if (def.special == RigDef::Prop::SPECIAL_LEFT_REAR_VIEW_MIRROR)
-	{
-		prop.mirror = 1;
-	}
-
-	/* Rear view mirror (right) */
-	if (def.special == RigDef::Prop::SPECIAL_RIGHT_REAR_VIEW_MIRROR)
-	{
-		prop.mirror = -1;
-	}
-
 	/* Custom steering wheel */
 	Ogre::Vector3 steering_wheel_offset = Ogre::Vector3::ZERO;
 	if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED)
@@ -1973,6 +1961,22 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	prop.mo->setMaterialFunctionMapper(m_rig->materialFunctionMapper, m_rig->materialReplacer);
 	prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
 	prop.beacontype = 'n'; // Orig: hardcoded in BTS_PROPS
+
+	if (BSETTING("Mirrors", false))
+	{
+		/* Rear view mirror (left) */
+		if (def.special == RigDef::Prop::SPECIAL_LEFT_REAR_VIEW_MIRROR)
+		{
+			prop.mirror = new Mirror(prop.scene_node, +1);
+			m_rig->mirrors.push_back(prop.mirror);
+		}
+		/* Rear view mirror (right) */
+		if (def.special == RigDef::Prop::SPECIAL_RIGHT_REAR_VIEW_MIRROR)
+		{
+			prop.mirror = new Mirror(prop.scene_node, -1);
+			m_rig->mirrors.push_back(prop.mirror);
+		}
+	}
 
 	if (def.special == RigDef::Prop::SPECIAL_SPINPROP)
 	{

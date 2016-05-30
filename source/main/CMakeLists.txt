@@ -73,6 +73,7 @@ set( SOURCE_FILES
   gfx/HydraxWater.{h,cpp}
   gfx/IWater.h
   gfx/MaterialFunctionMapper.{h,cpp}
+  gfx/Mirror.{h,cpp}
   gfx/MovableText.{h,cpp}
   gfx/OgreSubsystem.{h,cpp}
   gfx/PreviewRenderer.{h,cpp}
