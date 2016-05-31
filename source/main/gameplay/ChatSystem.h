@@ -38,7 +38,7 @@ void HandleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
 
 Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number);
 
-} // namespace Networking
 } // namespace Chatsystem
+} // namespace RoR
 
 #endif // __ChatSystem_H_

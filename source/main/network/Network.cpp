@@ -130,7 +130,7 @@ int GetUID()
 	return m_uid;
 }
 
-int SendMessageRaw(char *buffer, int msgsize)
+bool SendMessageRaw(char *buffer, int msgsize)
 {
 	SWBaseSocket::SWBaseError error;
 
@@ -141,18 +141,15 @@ int SendMessageRaw(char *buffer, int msgsize)
 		if (sendnum < 0)
 		{
 			LOG("NET send error: " + TOSTRING(sendnum));
-			return -1;
+			return false;
 		}
 		rlen += sendnum;
 	}
 
-	// TODO: Think about sleeping here to avoid network congestion
-	// The sleep time could be based on how much time was spent in socket.send()
-
-	return 0;
+	return true;
 }
 
-int SendMessage(int type, unsigned int streamid, int len, char* content)
+bool SendMessage(int type, unsigned int streamid, int len, char* content)
 {
 	header_t head;
 	memset(&head, 0, sizeof(header_t));
@@ -165,11 +162,10 @@ int SendMessage(int type, unsigned int streamid, int len, char* content)
 
 	if (msgsize >= MAX_MESSAGE_LENGTH)
 	{
-    	return -1;
+		return false;
 	}
 
 	char buffer[MAX_MESSAGE_LENGTH] = {0};
-	memset(buffer, 0, MAX_MESSAGE_LENGTH);
 	memcpy(buffer, (char *)&head, sizeof(header_t));
 	memcpy(buffer + sizeof(header_t), content, len);
 
@@ -314,21 +310,18 @@ void RecvThread()
 
 			{
 				std::lock_guard<std::mutex> lock(m_users_mutex);
-				for (auto it = m_users.begin(); it != m_users.end(); it++)
+				auto user = std::find_if(m_users.begin(), m_users.end(), [header](const user_info_t u) { return static_cast<int>(u.uniqueid) == header.source; });
+				if (user != m_users.end())
 				{
-					if ((int)(*it).uniqueid == header.source)
-					{
-						Ogre::UTFString msg = RoR::ChatSystem::GetColouredName((*it).username, (*it).colournum) + RoR::Color::CommandColour + _L(" left the game");
-						const char *utf8_line = msg.asUTF8_c_str();
-						header_t head;
-						head.command = MSG2_UTF_CHAT;
-						head.source  = -1;
-						head.size    = (int)strlen(utf8_line);
-						QueueStreamData(head, (char *)utf8_line);
-						LOG(Ogre::UTFString((*it).username) + _L(" left the game"));
-						m_users.erase(it);
-						break;
-					}
+					Ogre::UTFString msg = RoR::ChatSystem::GetColouredName(user->username, user->colournum) + RoR::Color::CommandColour + _L(" left the game");
+					const char *utf8_line = msg.asUTF8_c_str();
+					header_t head;
+					head.command = MSG2_UTF_CHAT;
+					head.source  = -1;
+					head.size    = (int)strlen(utf8_line);
+					QueueStreamData(head, (char *)utf8_line);
+					LOG(Ogre::UTFString(user->username) + _L(" left the game"));
+					m_users.erase(user);
 				}
 			}
 		} else if (header.command == MSG2_USER_INFO || header.command == MSG2_USER_JOIN)
@@ -403,7 +396,7 @@ bool Connect()
 		NetFatalError(_L("Establishing network session: "), false);
 		return false;
 	}
-	if (SendMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
+	if (!SendMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
 	{
 		NetFatalError(_L("Establishing network session: error sending hello"), false);
 		return false;
@@ -474,7 +467,7 @@ bool Connect()
 	Ogre::String guid = SSETTING("GUID", "");
 	strncpy(c.clientGUID, guid.c_str(), std::min<int>((int)guid.size(), 10));
 	strcpy(c.sessiontype, "normal");
-	if (SendMessage(MSG2_USER_INFO, 0, sizeof(user_info_t), (char*)&c))
+	if (!SendMessage(MSG2_USER_INFO, 0, sizeof(user_info_t), (char*)&c))
 	{
 		NetFatalError(_L("Establishing network session: error sending user info"), false);
 		return false;
