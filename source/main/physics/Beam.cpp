@@ -1658,30 +1658,35 @@ bool Beam::replayStep()
 	if (replaypos != oldreplaypos)
 	{
 		unsigned long time = 0;
+
 		node_simple_t *nbuff = (node_simple_t *)replay->getReadBuffer(replaypos, 0, time);
 		if (nbuff)
 		{
-			Vector3 pos = Vector3::ZERO;
 			for (int i=0; i<free_node; i++)
 			{
-				nodes[i].AbsPosition = nbuff[i].pos;
-				nodes[i].RelPosition = nbuff[i].pos - origin;
-				nodes[i].smoothpos = nbuff[i].pos;
-				pos = pos + nbuff[i].pos;
+				nodes[i].AbsPosition = nbuff[i].position;
+				nodes[i].RelPosition = nbuff[i].position - origin;
+				nodes[i].smoothpos   = nbuff[i].position;
+
+				nodes[i].Velocity = nbuff[i].velocity;
+				nodes[i].Forces   = nbuff[i].forces;
 			}
+
 			updateSlideNodePositions();
+			updateTruckPosition();
+		}
 
-			position = pos / (float)(free_node);
-
-			beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
+		beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
+		if (bbuff)
+		{
 			for (int i=0; i<free_beam; i++)
 			{
 				beams[i].broken = bbuff[i].broken;
 				beams[i].disabled = bbuff[i].disabled;
 			}
 
-			oldreplaypos = replaypos;
 		}
+		oldreplaypos = replaypos;
 	}
 
 	return true;

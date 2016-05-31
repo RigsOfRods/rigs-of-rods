@@ -156,7 +156,10 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		gEnv->collisions->forcecam = false;
 	} else
 	{
-		gEnv->mainCamera->setPosition(camPosition);
+		if ( ctx.mCurrTruck && ctx.mCurrTruck->replaymode )
+			gEnv->mainCamera->setPosition(desiredPosition);
+		else
+			gEnv->mainCamera->setPosition(camPosition);
 	}
 
 	gEnv->mainCamera->lookAt(camLookAt);
