@@ -129,25 +129,17 @@ void SurveyMapEntity::setState(int truckstate)
 	if (mIsStatic) return;
 
 	EntityStates mapstate = Sleeping;
-
+	
 	switch (truckstate)
 	{
-	case ACTIVATED:
-		mapstate = Activated;
-		break;
-	case DESACTIVATED:
-	case MAYSLEEP:
-	case GOSLEEP:
-		mapstate = Deactivated;
-		break;
-	case SLEEPING:
-		mapstate = Sleeping;
-		break;
-	case NETWORKED:
-		mapstate = Networked;
-		break;
-	default:
-		mapstate = Sleeping;
+		case SIMULATED:
+			mapstate = Activated;
+			break;
+		case NETWORKED:
+			mapstate = Networked;
+		default:
+			mapstate = Sleeping;
+			break;
 	}
 
 	if (mState != mapstate)

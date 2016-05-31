@@ -542,10 +542,7 @@ void ScriptEngine::init()
 	
 	// enum truckStates
 	result = engine->RegisterEnum("truckStates"); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_ACTIVATED", ACTIVATED); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_DESACTIVATED", DESACTIVATED); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_MAYSLEEP", MAYSLEEP); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_GOSLEEP", GOSLEEP); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckStates", "TS_SIMULATED", SIMULATED); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("truckStates", "TS_SLEEPING", SLEEPING); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", NETWORKED); MYASSERT(result>=0);
 

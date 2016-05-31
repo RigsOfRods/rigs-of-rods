@@ -371,6 +371,7 @@ void MainThread::Go()
 #endif //SOCKETW	
 
 	new BeamFactory();
+
 	// ========================================================================
 	// Main loop (switches application states)
 	// ========================================================================
@@ -1193,8 +1194,6 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 	} else
 	{
 		// getting inside
-		current_vehicle->activate();
-
 		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->m_hide_gui)
 		{
 			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);

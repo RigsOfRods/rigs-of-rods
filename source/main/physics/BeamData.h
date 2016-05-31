@@ -137,13 +137,10 @@ enum {
 };
 
 enum {
-	ACTIVATED,      //!< leading truck
-	DESACTIVATED,   //!< not leading but active
-	MAYSLEEP,       //!< active but wanting to sleep
-	GOSLEEP,        //!< active but ordered to sleep ASAP (synchronously)
-	SLEEPING,       //!< not active, sleeping
-	NETWORKED,      //!< not calculated, gets remote data
-	NETWORKED_INVALID //!< not calculated, size differs from expected
+	SIMULATED,      //!< simulated (local) truck
+	NETWORKED,      //!< not simulated (remote) truck
+	SLEEPING,       //!< sleeping (local) truck
+	INVALID         //!< not simulated and not updated via the network (e.g. size differs from expected)
 };
 
 enum {
