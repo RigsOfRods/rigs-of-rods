@@ -53,6 +53,7 @@
 #include "Language.h"
 #include "LoadingWindow.h"
 #include "MumbleIntegration.h"
+#include "Mirrors.h"
 #include "Network.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
@@ -826,6 +827,8 @@ void MainThread::EnterMainMenuLoop()
 void MainThread::EnterGameplayLoop()
 {
 	/* SETUP */
+	RoR::Mirrors::Init();
+
 	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
 
 	unsigned long timeSinceLastFrame = 1;

@@ -150,7 +150,6 @@ public:
 	void updateForceFeedback(int steps);
 	void updateAngelScriptEvents(float dt);
 	void updateFrameTimeInformation(float dt);
-	void updateTruckMirrors(float dt);
 	void updateVideocameras(float dt);
 	void handleResetRequests(float dt);
 	void handleTruckPosition(float dt);

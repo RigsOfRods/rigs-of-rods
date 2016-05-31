@@ -32,6 +32,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIManager.h"
 #include "Language.h"
 #include "MainThread.h"
+#include "Mirrors.h"
 #include "Network.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfiler.h"
@@ -873,9 +874,10 @@ void BeamFactory::updateVisual(float dt)
 			m_trucks[t]->updateVisual(dt);
 			m_trucks[t]->updateSkidmarks();
 			m_trucks[t]->updateFlares(dt, (t==m_current_truck));
-			m_trucks[t]->updateTruckMirrors(dt);
 		}
 	}
+
+	RoR::Mirrors::Update(getCurrentTruck());
 }
 
 void BeamFactory::calcPhysics(float dt)
