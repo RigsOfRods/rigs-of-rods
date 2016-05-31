@@ -1427,19 +1427,26 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			if (nbuff)
 			{
 				for (int i=0; i<free_node; i++)
-					nbuff[i].pos = nodes[i].AbsPosition;
+				{
+					nbuff[i].position = nodes[i].AbsPosition;
+					nbuff[i].velocity = nodes[i].Velocity;
+					nbuff[i].forces   = nodes[i].Forces;
+				}
+			}
 
-				// store beams
-				beam_simple_t *bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
+			// store beams
+			beam_simple_t *bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
+			if (bbuff)
+			{
 				for (int i=0; i<free_beam; i++)
 				{
 					bbuff[i].broken = beams[i].broken;
 					bbuff[i].disabled = beams[i].disabled;
 				}
-
-				replay->writeDone();
-				replayTimer = 0.0f;
 			}
+
+			replay->writeDone();
+			replayTimer = 0.0f;
 		}
 	}
 
