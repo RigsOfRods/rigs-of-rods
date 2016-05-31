@@ -960,10 +960,10 @@ void BeamFactory::calcPhysics(float dt)
 			m_trucks[m_simulated_truck]->updateForceFeedback(m_physics_steps);
 			if (m_sim_thread_pool)
 			{
-				auto func = std::function<void(int)>([this](float dt) {
+				auto func = std::function<void()>([this]() {
 					this->UpdatePhysicsSimulation();
 				});
-				m_sim_task = m_sim_thread_pool->RunTask(std::bind(func, dt));
+				m_sim_task = m_sim_thread_pool->RunTask(func);
 			} else
 			{
 				this->UpdatePhysicsSimulation();
