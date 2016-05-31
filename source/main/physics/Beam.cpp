@@ -1661,17 +1661,14 @@ bool Beam::replayStep()
 		node_simple_t *nbuff = (node_simple_t *)replay->getReadBuffer(replaypos, 0, time);
 		if (nbuff)
 		{
-			Vector3 pos = Vector3::ZERO;
 			for (int i=0; i<free_node; i++)
 			{
 				nodes[i].AbsPosition = nbuff[i].pos;
 				nodes[i].RelPosition = nbuff[i].pos - origin;
 				nodes[i].smoothpos = nbuff[i].pos;
-				pos = pos + nbuff[i].pos;
 			}
 			updateSlideNodePositions();
-
-			position = pos / (float)(free_node);
+			updateTruckPosition();
 
 			beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
 			for (int i=0; i<free_beam; i++)
