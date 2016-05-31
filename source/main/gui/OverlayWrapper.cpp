@@ -852,7 +852,7 @@ void OverlayWrapper::UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & p
 {
 	m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD,Vector3::UNIT_Y);
 	Real distance = 0.0f;
-	if (vehicle != nullptr && vehicle->state == ACTIVATED)
+	if (vehicle != nullptr && vehicle->state == SIMULATED)
 	{
 		distance = vehicle->getPosition().distance(point_to);
 	} 

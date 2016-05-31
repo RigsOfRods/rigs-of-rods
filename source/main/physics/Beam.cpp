@@ -553,23 +553,6 @@ void Beam::CreateSimpleSkeletonMaterial()
 	mat->setReceiveShadows(false);
 }
 
-void Beam::activate()
-{
-	if (state < NETWORKED)
-	{
-		state = ACTIVATED;
-	}
-}
-
-void Beam::desactivate()
-{
-	if (state < NETWORKED)
-	{
-		state = DESACTIVATED;
-		sleepcount = 0;
-	}
-}
-
 void Beam::pushNetwork(char* data, int size)
 {
 	BES_GFX_START(BES_GFX_pushNetwork);
@@ -601,7 +584,7 @@ void Beam::pushNetwork(char* data, int size)
 	{
 		// TODO: show the user the problem in the GUI
 		LOG("WRONG network size: we expected " + TOSTRING(netbuffersize+sizeof(oob_t)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
-		state = NETWORKED_INVALID;
+		state = INVALID;
 		return;
 	}
 
@@ -2852,13 +2835,14 @@ void Beam::lightsToggle()
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	int trucksnum = BeamFactory::getSingleton().getTruckCount();
 
-	//export light command
-	if (trucks!=0 && state==ACTIVATED && forwardcommands)
+	// export light command
+	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
+	if (trucks!=0 && state == SIMULATED && this == current_truck && forwardcommands)
 	{
 		for (int i=0; i<trucksnum; i++)
 		{
 			if (!trucks[i]) continue;
-			if (trucks[i]->state==DESACTIVATED && trucks[i]->importcommands) trucks[i]->lightsToggle();
+			if (trucks[i]->state == SIMULATED && this != current_truck && trucks[i]->importcommands) trucks[i]->lightsToggle();
 		}
 	}
 	lights = !lights;
@@ -3118,7 +3102,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			else
 				isvisible=false;
 		} else if (flares[i].type == 'u' && flares[i].controlnumber != -1) {
-			if (state==ACTIVATED) // no network!!
+			if (state == SIMULATED && this == BeamFactory::getSingleton().getCurrentTruck()) // no network!!
 			{
 				// networked customs are set directly, so skip this
 				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
@@ -3993,11 +3977,12 @@ void Beam::tieToggle(int group)
 	int trucksnum = BeamFactory::getSingleton().getTruckCount();
 
 	// export tie commands
-	if (state == ACTIVATED && forwardcommands)
+	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
+	if (state == SIMULATED && this == current_truck && forwardcommands)
 	{
 		for (int i=0; i<trucksnum; i++)
 		{
-			if (trucks[i] && trucks[i]->state == DESACTIVATED && trucks[i]->importcommands)
+			if (trucks[i] && trucks[i]->state == SIMULATED && this != current_truck && trucks[i]->importcommands)
 				trucks[i]->tieToggle(group);
 		}
 	}
@@ -5432,7 +5417,7 @@ Beam::Beam(
 	, simpleSkeletonInitiated(false)
 	, simpleSkeletonManualObject(0)
 	, simulated(false)
-	, sleepcount(0)
+	, sleeptime(0.0f)
 	, smokeNode(NULL)
 	, smoker(NULL)
 	, stabcommand(0)
@@ -5557,6 +5542,8 @@ Beam::Beam(
 	addPressure(0.0);
 
 	CreateSimpleSkeletonMaterial();
+
+	state = SLEEPING;
 
 	// start network stuff
 	if (_networked)

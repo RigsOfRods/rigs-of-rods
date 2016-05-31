@@ -182,9 +182,7 @@ protected:
 	void LogParserMessages();
 	void LogSpawnerMessages();
 
-	bool CheckForActive(int j, std::bitset<MAX_TRUCKS> &sleepyList);
 	void RecursiveActivation(int j);
-
 	void UpdateSleepingState(float dt);
 
 	int GetMostRecentTruckSlot();

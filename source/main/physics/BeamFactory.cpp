@@ -144,8 +144,6 @@ BeamFactory::BeamFactory() :
 	, m_previous_truck(-1)
 	, m_simulation_speed(1.0f)
 {
-	bool disableThreadPool = BSETTING("DisableThreadPool", false);
-
 	for (int t=0; t < MAX_TRUCKS; t++)
 		m_trucks[t] = 0;
 
@@ -163,6 +161,8 @@ BeamFactory::BeamFactory() :
 			int physical_cpus = getNumberOfCPUCores();
 			m_num_cpu_cores = std::max(physical_cpus, logical_cpus - 1);
 		}
+
+		bool disableThreadPool = BSETTING("DisableThreadPool", false);
 
 		if (m_num_cpu_cores < 2)
 		{
@@ -468,86 +468,55 @@ bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b)
 	return false;
 }
 
-// j is the index of a MAYSLEEP truck, returns true if one active was found in the set
-bool BeamFactory::CheckForActive(int j, std::bitset<MAX_TRUCKS> &sleepy)
-{
-	sleepy.set(j, true);
-	for (int t=0; t < m_free_truck; t++)
-	{
-		if (m_trucks[t] && !sleepy[t] && predictTruckIntersectionCollAABB(t, j))
-		{
-			if (m_trucks[t]->state == SLEEPING || m_trucks[t]->state == MAYSLEEP || m_trucks[t]->state == GOSLEEP || (m_trucks[t]->state == DESACTIVATED && m_trucks[t]->sleepcount >= 5))
-				return this->CheckForActive(t, sleepy);
-			else
-				return true;
-		}
-	}
-	return false;
-}
-
 void BeamFactory::RecursiveActivation(int j)
 {
-	if (!m_trucks[j] || m_trucks[j]->state > DESACTIVATED) return;
+	if (!m_trucks[j] || m_trucks[j]->state != SIMULATED) return;
 
 	for (int t=0; t < m_free_truck; t++)
 	{
 		if (t == j || !m_trucks[t]) continue;
-		if ((m_trucks[t]->state == SLEEPING || m_trucks[t]->state == MAYSLEEP || m_trucks[t]->state == GOSLEEP || (m_trucks[t]->state == DESACTIVATED && m_trucks[t]->sleepcount >= 5)) &&
-			predictTruckIntersectionCollAABB(t, j))
+		if (predictTruckIntersectionCollAABB(t, j))
 		{
-			m_trucks[t]->desactivate(); // make the truck not leading but active
-			this->RecursiveActivation(t);
+			m_trucks[t]->sleeptime = 0.0f;
+			if (m_trucks[t]->state == SLEEPING)
+			{
+				m_trucks[t]->state = SIMULATED;
+				this->RecursiveActivation(t);
+			}
 		}
 	}
 }
 
 void BeamFactory::UpdateSleepingState(float dt)
 {
-	for (int t=0; t<m_free_truck; t++)
+	if (!m_forced_active)
 	{
-		if (!m_trucks[t]) continue;
-
-		if (m_trucks[t]->state <= DESACTIVATED && (t == m_simulated_truck || m_trucks[t]->sleepcount <= 7))
-			this->RecursiveActivation(t);
-
-		// synchronous sleep
-		if (m_trucks[t]->state == GOSLEEP) m_trucks[t]->state = SLEEPING;
-
-		if (!m_forced_active && m_trucks[t]->state == DESACTIVATED)
+		for (int t=0; t<m_free_truck; t++)
 		{
-			m_trucks[t]->sleepcount++;
-			if (m_trucks[t]->getVelocity().squaredLength() > 0.01f)
+			if (!m_trucks[t]) continue;
+			if (m_trucks[t]->state != SIMULATED) continue;
+			if (m_trucks[t]->getVelocity().squaredLength() > 0.01f) continue;
+
+			m_trucks[t]->sleeptime += dt;
+
+			if (m_trucks[t]->sleeptime >= 1.0f)
 			{
-				m_trucks[t]->sleepcount = 7;
-			} else if (m_trucks[t]->sleepcount > 10)
-			{
-				m_trucks[t]->state = MAYSLEEP;
-				m_trucks[t]->sleepcount = 0;
+				m_trucks[t]->state = SLEEPING;
 			}
 		}
 	}
 
-	if (!m_forced_active)
+	Beam *current_truck = getCurrentTruck();
+	if (current_truck && current_truck->state == SLEEPING)
 	{
-		// put to sleep
-		for (int t=0; t < m_free_truck; t++)
-		{
-			if (m_trucks[t] && m_trucks[t]->state == MAYSLEEP)
-			{
-				std::bitset<MAX_TRUCKS> sleepy;
-				if (!this->CheckForActive(t, sleepy))
-				{
-					// no active truck in the set, put everybody to sleep
-					for (int i=0; i < m_free_truck; i++)
-					{
-						if (m_trucks[i] && sleepy[i])
-						{
-							m_trucks[i]->state = GOSLEEP;
-						}
-					}
-				}
-			}
-		}
+		current_truck->state = SIMULATED;
+		current_truck->sleeptime = 0.0f;
+	}
+
+	for (int t=0; t<m_free_truck; t++)
+	{
+		if (m_trucks[t] && m_trucks[t]->state == SIMULATED)
+			this->RecursiveActivation(t);
 	}
 }
 
@@ -571,9 +540,10 @@ void BeamFactory::activateAllTrucks()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state >= DESACTIVATED && m_trucks[t]->state <= SLEEPING)
+		if (m_trucks[t] && m_trucks[t]->state == SLEEPING)
 		{
-			m_trucks[t]->desactivate(); // make the truck not leading but active
+			m_trucks[t]->state = SIMULATED;
+			m_trucks[t]->sleeptime = 0.0f;
 
 			if (this->getTruck(m_simulated_truck))
 			{
@@ -588,7 +558,7 @@ void BeamFactory::sendAllTrucksSleeping()
 	m_forced_active = false;
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
+		if (m_trucks[t] && m_trucks[t]->state == SIMULATED)
 		{
 			m_trucks[t]->state = SLEEPING;
 		}
@@ -698,7 +668,7 @@ void BeamFactory::DeleteTruck(Beam *b)
 
 	this->SyncWithSimThread();
 
-	if (b->networking && b->state < NETWORKED)
+	if (b->networking && b->state != NETWORKED && b->state != INVALID)
 	{
 		NetworkStreamManager::getSingleton().removeLocalStream(b);
 	}
@@ -780,11 +750,6 @@ void BeamFactory::enterPreviousTruck()
 
 void BeamFactory::setCurrentTruck(int new_truck)
 {
-	if (m_current_truck >= 0 && m_current_truck < m_free_truck && m_trucks[m_current_truck])
-	{
-		m_trucks[m_current_truck]->desactivate();
-	}
-
 	m_previous_truck = m_current_truck;
 	m_current_truck = new_truck;
 
@@ -806,6 +771,8 @@ void BeamFactory::setCurrentTruck(int new_truck)
 			RoR::MainThread::ChangedCurrentVehicle(nullptr, nullptr);
 		}
 	}
+
+	this->UpdateSleepingState(0.0f);
 }
 
 bool BeamFactory::enterRescueTruck()
@@ -829,7 +796,7 @@ void BeamFactory::updateFlexbodiesPrepare()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED))
+		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
 		{
 			m_trucks[t]->updateFlexbodiesPrepare();
 		}
@@ -840,7 +807,7 @@ void BeamFactory::joinFlexbodyTasks()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED))
+		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
 		{
 			m_trucks[t]->joinFlexbodyTasks();
 		}
@@ -851,7 +818,7 @@ void BeamFactory::updateFlexbodiesFinal()
 {
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (m_trucks[t] && (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED))
+		if (m_trucks[t] && m_trucks[t]->state < SLEEPING)
 		{
 			m_trucks[t]->updateFlexbodiesFinal();
 		}
@@ -869,7 +836,7 @@ void BeamFactory::updateVisual(float dt)
 		// always update the labels
 		m_trucks[t]->updateLabels(dt);
 
-		if (m_trucks[t]->state < SLEEPING || m_trucks[t]->state == NETWORKED)
+		if (m_trucks[t]->state < SLEEPING)
 		{
 			m_trucks[t]->updateVisual(dt);
 			m_trucks[t]->updateSkidmarks();
@@ -917,13 +884,13 @@ void BeamFactory::calcPhysics(float dt)
 			m_trucks[t]->calcNetwork();
 			break;
 
-		case NETWORKED_INVALID:
+		case INVALID:
 			break;
 
 		default:
-			if (m_trucks[t]->state > DESACTIVATED && m_trucks[t]->engine)
+			if (m_trucks[t]->state != SIMULATED && m_trucks[t]->engine)
 				m_trucks[t]->engine->update(dt, 1);
-			if (m_trucks[t]->state < SLEEPING && m_trucks[t]->networking)
+			if (m_trucks[t]->state == SIMULATED && m_trucks[t]->networking)
 				m_trucks[t]->sendStreamData();
 			break;
 		}
@@ -935,7 +902,7 @@ void BeamFactory::calcPhysics(float dt)
 	{
 		for (int t=0; t < m_free_truck; t++)
 		{
-			if (m_trucks[t] && m_trucks[t]->state <= DESACTIVATED)
+			if (m_trucks[t] && m_trucks[t]->state == SIMULATED)
 			{
 				m_simulated_truck = t;
 				break;

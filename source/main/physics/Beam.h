@@ -93,9 +93,6 @@ public:
 
 	void updateNetworkInfo();
 
-	
-	void activate();
-	void desactivate();
 	bool addPressure(float v);
 	float getPressure();
 	void resetAngle(float rot);
@@ -398,7 +395,7 @@ public:
 	int oldreplaypos;
 	int replaylen;
 	int replaypos;
-	int sleepcount;
+	float sleeptime;
 	//can this be driven?
 	int previousGear;
 	ground_model_t *submesh_ground_model;

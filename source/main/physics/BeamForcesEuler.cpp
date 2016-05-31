@@ -370,7 +370,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 	BES_STOP(BES_CORE_AnimatedProps);
 
-	if (state==ACTIVATED) //force feedback sensors
+	if (this == BeamFactory::getSingleton().getCurrentTruck()) //force feedback sensors
 	{
 		if (doUpdate)
 		{
@@ -1330,7 +1330,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			engine->setPrime(requested);
 		}
 
-		if (doUpdate && state==ACTIVATED)
+		if (doUpdate && this == BeamFactory::getSingleton().getCurrentTruck())
 		{
 #ifdef USE_OPENAL
 			if (active > 0)
@@ -1457,7 +1457,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
 {
 	if (dt==0.0) return false;
 	if (m_reset_request) return false;
-	if (state >= SLEEPING) return false;
+	if (state != SIMULATED) return false;
 
 	BES_START(BES_CORE_WholeTruckCalc);
 
@@ -2029,16 +2029,17 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::forwardCommands()
 {
+	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
 	// forward things to trailers
-	if (numtrucks > 1 && state==ACTIVATED && forwardcommands)
+	if (numtrucks > 1 && this == current_truck && forwardcommands)
 	{
 		for (int i=0; i<numtrucks; i++)
 		{
 			if (!trucks[i]) continue;
-			if (trucks[i]->state==DESACTIVATED && trucks[i]->importcommands)
+			if (trucks[i] != current_truck && trucks[i]->importcommands)
 			{
 				// forward commands
 				for (int j=1; j<=MAX_COMMANDS; j++)
