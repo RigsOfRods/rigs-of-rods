@@ -19,29 +19,21 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#ifndef __Mirror_H_
-#define __Mirror_H_
+#ifndef __Mirrors_H_
+#define __Mirrors_H_
 
 #include "RoRPrerequisites.h"
 
-#include <OgreMaterial.h>
+namespace RoR {
+namespace Mirrors {
 
-class Mirror : public ZeroedMemoryAllocator
-{
-public:
+void Init();
 
-	Mirror(Ogre::SceneNode *sceneNode, int mirrorType);
-	~Mirror();
+void Update(Beam* truck);
 
-	void update(Beam* truck);
+void SetActive(bool state);
 
-private:
+} // namespace Mirrors
+} // namespace RoR
 
-	int mMirrorType;
-	Ogre::Camera *mMirrorCam;
-	Ogre::RenderTexture* mRttTex;
-	Ogre::MaterialPtr mMat;
-	Ogre::SceneNode *mMirrorNode;
-};
-
-#endif // __Mirror_H_
+#endif // __Mirrors_H_

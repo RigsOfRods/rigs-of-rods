@@ -118,7 +118,6 @@ struct rig_t
 	FlexBody *flexbodies[MAX_FLEXBODIES];
 	int free_flexbody;
 
-	std::vector <Mirror *> mirrors;
 	std::vector <VideoCamera *> vidcams;
 
 	std::vector<std::string> description;

@@ -60,7 +60,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MaterialReplacer.h"
 #include "MeshObject.h"
-#include "Mirror.h"
+#include "Mirrors.h"
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
@@ -317,11 +317,6 @@ Beam::~Beam()
 		netMT->setVisible(false);
 		delete netMT;
 		netMT = 0;
-	}
-
-	for (Mirror* m : mirrors)
-	{
-		delete m;
 	}
 
 	for (VideoCamera* v : vidcams)
@@ -1726,14 +1721,6 @@ void Beam::updateFrameTimeInformation(float dt)
 	global_simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
 }
 
-void Beam::updateTruckMirrors(float dt)
-{
-	for (Mirror* m : mirrors)
-	{
-		m->update(this);
-	}
-}
-
 void Beam::updateVideocameras(float dt)
 {
 	if (m_is_videocamera_disabled) return;
@@ -2846,6 +2833,8 @@ void Beam::prepareInside(bool inside)
 	{
 		SetPropsCastShadows(!inside);
 	}
+
+	RoR::Mirrors::SetActive(inside);
 }
 
 
