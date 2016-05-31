@@ -74,7 +74,6 @@ unzip -qq angelscript_*.zip
 cd sdk/angelscript/projects/cmake
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR .
 make -s -j2 
-cp -r ../../lib/libAngelscript.a $DEPS_INSTALL_DIR/lib/libangelscript.a
 cp -r ../../include $DEPS_INSTALL_DIR
 
 ls $DEPS_INSTALL_DIR/lib
