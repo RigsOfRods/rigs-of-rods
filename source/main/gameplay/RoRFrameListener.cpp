@@ -1059,14 +1059,15 @@ bool RoRFrameListener::updateEvents(float dt)
 				Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 				if (current_truck != nullptr)
 				{
+					m_reload_dir = Quaternion(Degree(270) - Radian(current_truck->getRotation()), Vector3::UNIT_Y);
 					m_reload_pos = current_truck->getRotationCenter();
 
 					// TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
 					m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
 				} else {
+					m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 					m_reload_pos = gEnv->player->getPosition();
 				}
-				m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
 				Beam *local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
 
