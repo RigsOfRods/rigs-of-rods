@@ -291,7 +291,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 	if (new_vehicle == nullptr)
 	{
 		ctx.mCurrTruck = nullptr;
-		if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) )
+		if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
+		     !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
+		     !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
 		{
 			this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
 		}
@@ -299,7 +301,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 	}
 
 	// Getting in vehicle
-	if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) )
+	if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
+		 !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
+		 !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
 	{
 		// Change camera
 		switch (new_vehicle->GetCameraContext()->behavior)
