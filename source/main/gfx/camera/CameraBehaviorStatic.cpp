@@ -64,15 +64,18 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext &ctx)
 	if ( ctx.mCurrTruck )
 	{
 		lookAt   = ctx.mCurrTruck->getPosition();
-		velocity = ctx.mCurrTruck->nodes[0].Velocity * BeamFactory::getSingleton().getSimulationSpeed();
 		rotation = ctx.mCurrTruck->getRotation();
+		velocity = ctx.mCurrTruck->nodes[0].Velocity * BeamFactory::getSingleton().getSimulationSpeed();
 		angle    = (lookAt - camPosition).angleBetween(velocity);
 		speed    = velocity.length();
+		if ( ctx.mCurrTruck->replaymode )
+		{
+			speed *= ctx.mCurrTruck->replayPrecision;
+		}
 	} else
 	{
 		lookAt   = gEnv->player->getPosition();
 		rotation = gEnv->player->getRotation().valueRadians();
-		angle    = (lookAt - camPosition).angleBetween(velocity);
 	}
 
 	bool forceUpdate = RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 2.0f);

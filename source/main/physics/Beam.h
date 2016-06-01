@@ -387,6 +387,7 @@ public:
 
 	bool canwork;
 	bool replaymode;
+	Ogre::Real replayPrecision;
 	bool watercontact;
 	bool watercontactold;
 	int locked;
@@ -623,7 +624,6 @@ protected:
 	Ogre::Vector3 velocity; // average node velocity (compared to the previous frame step)
 
 	Ogre::Real replayTimer;
-	Ogre::Real replayPrecision;
 
 	ground_model_t *lastFuzzyGroundModel;
 
