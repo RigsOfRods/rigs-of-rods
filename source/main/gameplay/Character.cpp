@@ -373,7 +373,8 @@ void Character::update(float dt)
 		tmpJoy = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_RIGHT);
 		if (tmpJoy > 0.0f)
 		{
-			setRotation(characterRotation + dt * 2.0f * Radian(tmpJoy));
+			float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
+			setRotation(characterRotation + dt * 2.0f * scale * Radian(tmpJoy));
 			if (!isswimming)
 			{
 				setAnimationMode("Turn", -dt);
@@ -384,7 +385,8 @@ void Character::update(float dt)
 		tmpJoy = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_LEFT);
 		if (tmpJoy > 0.0f)
 		{
-			setRotation(characterRotation - dt * 2.0f * Radian(tmpJoy));
+			float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
+			setRotation(characterRotation - dt * scale * 2.0f * Radian(tmpJoy));
 			if (!isswimming)
 			{
 				setAnimationMode("Turn", dt);
