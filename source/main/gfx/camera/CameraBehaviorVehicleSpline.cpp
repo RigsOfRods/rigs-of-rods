@@ -114,6 +114,8 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext 
 {
 	const OIS::MouseState ms = _arg.state;
 
+	camRatio = 1.0f / (ctx.mDt * 4.0f);
+
 	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right) )
 	{
 		Real splinePosDiff = ms.X.rel * std::max(0.00005f, splineLength * 0.0000001f);
@@ -153,13 +155,9 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext 
 		splinePos  = std::max(0.0f, splinePos);
 		splinePos  = std::min(splinePos, 1.0f);
 
-		camRatio = 0.0f;
-
 		return true;
 	} else
 	{
-		camRatio = 5.0f;
-
 		return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
 	}
 }

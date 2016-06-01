@@ -161,6 +161,10 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
 {
 	if (newBehaviorID == currentBehaviorID)
 	{
+		if (old_vehicle != new_vehicle)
+		{
+			currentBehavior->notifyContextChange(ctx);
+		}
 		return;
 	}
 

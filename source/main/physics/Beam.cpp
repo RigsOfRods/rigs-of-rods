@@ -1699,16 +1699,6 @@ void Beam::updateAngelScriptEvents(float dt)
 #endif // USE_ANGELSCRIPT
 }
 
-void Beam::updateFrameTimeInformation(float dt)
-{
-	if (dt == 0.0f) return;
-	// Used in the CameraManager
-	oldframe_global_dt = global_dt;
-	oldframe_global_simulation_speed = global_simulation_speed;
-	global_dt = dt;
-	global_simulation_speed = BeamFactory::getSingleton().getSimulationSpeed();
-}
-
 void Beam::updateVideocameras(float dt)
 {
 	if (m_is_videocamera_disabled) return;
@@ -5423,11 +5413,7 @@ Beam::Beam(
 	, stabcommand(0)
 	, stabratio(0.0)
 	, stabsleep(0.0)
-	, global_dt(0.1)
-	, global_simulation_speed(1.0)
 	, totalmass(0)
-	, oldframe_global_dt(0.1)
-	, oldframe_global_simulation_speed(1.0)
 	, watercontact(false)
 	, watercontactold(false)
 {

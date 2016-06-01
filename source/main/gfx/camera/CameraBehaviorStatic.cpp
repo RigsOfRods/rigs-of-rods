@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "Character.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
@@ -63,7 +64,7 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext &ctx)
 	if ( ctx.mCurrTruck )
 	{
 		lookAt   = ctx.mCurrTruck->getPosition();
-		velocity = ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->global_simulation_speed;
+		velocity = ctx.mCurrTruck->nodes[0].Velocity * BeamFactory::getSingleton().getSimulationSpeed();
 		rotation = ctx.mCurrTruck->getRotation();
 		angle    = (lookAt - camPosition).angleBetween(velocity);
 		speed    = velocity.length();

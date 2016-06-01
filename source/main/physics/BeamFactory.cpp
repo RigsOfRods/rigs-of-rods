@@ -925,7 +925,6 @@ void BeamFactory::calcPhysics(float dt)
 		}
 		if (!m_trucks[m_simulated_truck]->replayStep())
 		{
-			m_trucks[m_simulated_truck]->updateFrameTimeInformation(dt);
 			m_trucks[m_simulated_truck]->updateForceFeedback(m_physics_steps);
 			if (m_sim_thread_pool)
 			{

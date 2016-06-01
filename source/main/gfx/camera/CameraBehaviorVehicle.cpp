@@ -51,14 +51,7 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	float dt = ctx.mDt;
-
-	if ( isMultiThreaded )
-		dt = ctx.mCurrTruck->oldframe_global_dt / ctx.mCurrTruck->oldframe_global_simulation_speed;
-	else
-		dt = ctx.mCurrTruck->global_dt / ctx.mCurrTruck->global_simulation_speed;
-
-	camRatio = 1.0f / (dt * 4.0f);
+	camRatio = 1.0f / (ctx.mDt * 4.0f);
 
 	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
 

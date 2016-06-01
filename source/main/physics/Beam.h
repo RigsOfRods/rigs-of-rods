@@ -146,7 +146,6 @@ public:
 
 	void updateForceFeedback(int steps);
 	void updateAngelScriptEvents(float dt);
-	void updateFrameTimeInformation(float dt);
 	void updateVideocameras(float dt);
 	void handleResetRequests(float dt);
 	void handleTruckPosition(float dt);
@@ -491,10 +490,6 @@ public:
 	bool getCustomParticleMode();
 	int getLowestNode();
 	
-	float global_dt;
-	float global_simulation_speed;
-	float oldframe_global_dt;
-	float oldframe_global_simulation_speed;
 	bool simulated;
 	int airbrakeval;
 	Ogre::Vector3 cameranodeacc;
