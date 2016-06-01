@@ -79,6 +79,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
+#include "VehicleAI.h"
 #include "VideoCamera.h"
 #include "Water.h"
 #include "GUIManager.h"
@@ -90,16 +91,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
-#include <VehicleAI.h>
-
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif //OGRE_PLATFORM_LINUX
 
 using namespace Ogre;
 using namespace RoR;
-
 
 Beam::~Beam()
 {
