@@ -184,7 +184,7 @@ GUI_MainMenu::~GUI_MainMenu()
 
 UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 {
-	UTFString tmp = ChatSystem::getColouredName(user);
+	UTFString tmp = RoR::ChatSystem::GetColouredName(user.username, user.colournum);
 
 	tmp = tmp + U(": ");
 
@@ -227,7 +227,7 @@ void GUI_MainMenu::addUserToMenu(user_info_t &user)
 	{
 		if (!trucks[j]) continue;
 
-		if (trucks[j]->getSourceID() == user.uniqueid)
+		if (trucks[j]->m_source_id == user.uniqueid)
 		{
 			// match, found truck :)
 			matches.push_back(j);
@@ -258,7 +258,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 {
 	m_vehicles_menu_widget->removeAllItems();
 	
-	if (!gEnv->network)
+	if (!gEnv->multiplayer)
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();
@@ -280,18 +280,13 @@ void GUI_MainMenu::vehiclesListUpdate()
 	{
 		// sort the list according to the network users
 
-		// add self first
-		user_info_t *local_user = gEnv->network->getLocalUserData();
-		addUserToMenu(*local_user);
+		user_info_t local_user = RoR::Networking::GetLocalUserData();
+		addUserToMenu(local_user);
 
-		// get network clients
-		client_t c[MAX_PEERS];
-		gEnv->network->getClientInfos(c);
-		// iterate over them
-		for (int i = 0; i < MAX_PEERS; i++)
+		auto users = RoR::Networking::GetUserInfos();
+		for (auto user : users)
 		{
-			if (!c[i].used) continue;
-			addUserToMenu(c[i].user);
+			addUserToMenu(user);
 		}
 	}
 }
@@ -322,7 +317,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		int user_uid = PARSEINT(id.substr(5));
 
 		// cannot whisper with self...
-		if (user_uid == gEnv->network->getUID()) return;
+		if (user_uid == RoR::Networking::GetUID()) return;
 
 		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
 		//TODO: Separate Chat and console

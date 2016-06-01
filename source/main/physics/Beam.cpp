@@ -1741,11 +1741,10 @@ void Beam::handleTruckPosition(float dt)
 
 void Beam::sendStreamSetup()
 {
-	// register the local stream
 	stream_register_trucks_t reg;
 	memset(&reg, 0, sizeof(stream_register_trucks_t));
 	reg.status = 0;
-	reg.type   = 0; // 0 = truck
+	reg.type   = 0;
 	reg.bufferSize = netbuffersize;
 	strncpy(reg.name, realtruckfilename.c_str(), 128);
 	if (!m_truck_config.empty())
@@ -1755,29 +1754,25 @@ void Beam::sendStreamSetup()
 			strncpy(reg.truckconfig[i], m_truck_config[i].c_str(), 60);
 	}
 
-	NetworkStreamManager::getSingleton().addLocalStream(this, (stream_register_t *)&reg, sizeof(reg));
+	RoR::Networking::AddLocalStream((stream_register_t *)&reg, sizeof(stream_register_trucks_t));
+
+	m_source_id = reg.origin_sourceid;
+	m_stream_id = reg.origin_streamid;
 }
 
 void Beam::sendStreamData()
 {
 	BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
-	int t = netTimer.getMilliseconds();
-	if (t - last_net_time < 100)
-		return;
-
-	last_net_time = t;
-
 	//look if the packet is too big first
 	int final_packet_size = sizeof(oob_t) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
-	if (final_packet_size > (int)maxPacketLen)
+	if (final_packet_size > 8192)
 	{
 		ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
 		exit(126);
 	}
 
-	char send_buffer[maxPacketLen];
-	memset(send_buffer, 0, maxPacketLen);
+	char send_buffer[8192] = {0};
 
 	unsigned int packet_len = 0;
 
@@ -1788,7 +1783,7 @@ void Beam::sendStreamData()
 
 		send_oob->flagmask = 0;
 
-		send_oob->time = Network::getNetTime();
+		send_oob->time = netTimer.getMilliseconds();
 		if (engine)
 		{
 			send_oob->engine_speed   = engine->getRPM();
@@ -1842,7 +1837,6 @@ void Beam::sendStreamData()
 #endif //OPENAL
 	}
 
-
 	// then process the contents
 	{
 		char *ptr = send_buffer + sizeof(oob_t);
@@ -1880,17 +1874,17 @@ void Beam::sendStreamData()
 		}
 	}
 
-	this->addPacket(MSG2_STREAM_DATA, packet_len, send_buffer);
+	RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, packet_len, send_buffer);
 #endif //SOCKETW
 	BES_GFX_STOP(BES_GFX_sendStreamData);
 }
 
-void Beam::receiveStreamData(unsigned int &type, int &source, unsigned int &_streamid, char *buffer, unsigned int &len)
+void Beam::receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len)
 {
 	if (state != NETWORKED) return;
 
 	BES_GFX_START(BES_GFX_receiveStreamData);
-	if (type == MSG2_STREAM_DATA && source == (int)this->getSourceID() && _streamid == this->getStreamID())
+	if (type == MSG2_STREAM_DATA && source == m_source_id && streamid == m_stream_id)
 	{
 		pushNetwork(buffer, len);
 	}
@@ -4652,31 +4646,30 @@ void Beam::updateDebugOverlay()
 
 void Beam::updateNetworkInfo()
 {
-	if (!gEnv->network) return;
+	if (!gEnv->multiplayer) return;
 
 #ifdef USE_SOCKETW
 	BES_GFX_START(BES_GFX_updateNetworkInfo);
 
-	bool remote = (state == NETWORKED);
+	user_info_t info;
 
-	if (remote)
+	if (state == NETWORKED)
 	{
-		client_t *c = gEnv->network->getClientInfo(this->getSourceID());
-		if (!c) return;
-		networkUsername = UTFString(c->user.username);
-		networkAuthlevel = c->user.authstatus;
+		if (!RoR::Networking::GetUserInfo(m_source_id, info))
+		{
+			return;
+		}
 	} else
 	{
-		user_info_t *info = gEnv->network->getLocalUserData();
-		if (!info) return;
-		if (UTFString(info->username).empty()) return;
-		networkUsername = UTFString(info->username);
-		networkAuthlevel = info->authstatus;
+		info = RoR::Networking::GetLocalUserData();
 	}
 
+	networkUsername = UTFString(info.username);
+	networkAuthlevel = info.authstatus;
+
+#if 0
 	if (netMT)
 	{
-		/*
 		if (networkAuthlevel & AUTH_ADMIN)
 		{
 			netMT->setFontName("highcontrast_red");
@@ -4687,8 +4680,8 @@ void Beam::updateNetworkInfo()
 		{
 			netMT->setFontName("highcontrast_black");
 		}
-		*/
 	}
+#endif
 
 	BES_GFX_STOP(BES_GFX_updateNetworkInfo);
 #endif //SOCKETW
@@ -5371,7 +5364,6 @@ Beam::Beam(
 	, interPointCD()
 	, intraPointCD()
 	, isInside(false)
-	, last_net_time(0)
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)
@@ -5386,7 +5378,9 @@ Beam::Beam(
 	, m_request_skeletonview_change(0)
 	, m_reset_request(REQUEST_RESET_NONE)
 	, m_skeletonview_is_active(false)
+	, m_source_id(0)
 	, m_spawn_rotation(0.0)
+	, m_stream_id(0)
 	, mTimeUntilNextToggle(0)
 	, meshesVisible(true)
 	, minCameraRadius(-1.0f)

@@ -2,6 +2,7 @@
 This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
+Copyright 2013-2016 Petr Ohlidal
 
 For more information, see http://www.rigsofrods.com/
 
@@ -18,8 +19,6 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 17th of August 2009
-
 #pragma once
 #ifndef __CharacterFactory_H_
 #define __CharacterFactory_H_
@@ -27,28 +26,26 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Character.h"
-#include "StreamableFactory.h"
+#include "Network.h"
+#include "Singleton.h"
 
-class CharacterFactory : public StreamableFactory < CharacterFactory, Character >, public ZeroedMemoryAllocator
+#include <memory>
+
+class CharacterFactory : public RoRSingleton< CharacterFactory >, public ZeroedMemoryAllocator
 {
-	friend class Network;
-
 public:
 
-	CharacterFactory();
-	~CharacterFactory();
-
 	Character *createLocal(int playerColour);
-	Character *createRemoteInstance(stream_reg_t *reg);
 
-	void updateCharacters(float dt);
-	void updateLabels();
+	void update(float dt);
+	void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
 
-protected:
+private:
 
-	// functions used by friends
-	void netUserAttributesChanged(int source, int streamid);
-	void localUserAttributesChanged(int newid);
+	std::vector<std::unique_ptr<Character>> m_characters;
+
+	void createRemoteInstance(int sourceid, int streamid);
+	void removeStreamSource(int sourceid);
 };
 
 #endif // __CharacterFactory_H_

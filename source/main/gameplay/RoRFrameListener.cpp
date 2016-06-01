@@ -44,7 +44,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Language.h"
 #include "MainThread.h"
 #include "MumbleIntegration.h"
-#include "Network.h"
 #include "OgreSubsystem.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
@@ -152,6 +151,7 @@ RoRFrameListener::RoRFrameListener() :
 	m_last_simulation_speed(0.1f),
 	m_last_skin_selection(nullptr),
 	m_loading_state(NONE_LOADED),
+	m_netcheck_gui_timer(0.0f),
 	m_pressure_pressed(false),
 	m_race_bestlap_time(0),
 	m_race_in_progress(false),
@@ -288,20 +288,12 @@ bool RoRFrameListener::updateEvents(float dt)
 #endif //USE_MYGUI
 
 #ifdef USE_MYGUI
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && gEnv->network)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && gEnv->multiplayer)
 	{
 		RoR::Application::GetInputEngine()->resetKeys();
 		RoR::Application::GetGuiManager()->ShowChatBox();
 	}
 #endif //USE_MYGUI
-	// update characters
-	if (m_loading_state==ALL_LOADED && gEnv->network)
-	{
-		CharacterFactory::getSingleton().updateCharacters(dt);
-	} else if (m_loading_state==ALL_LOADED && !gEnv->network)
-	{
-		gEnv->player->update(dt);
-	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SCREENSHOT, 0.25f))
 	{
@@ -509,8 +501,9 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 
-	if (m_loading_state==ALL_LOADED)
+	if (m_loading_state == ALL_LOADED)
 	{
+		CharacterFactory::getSingleton().update(dt);
 		if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
 		{
 			if (!curr_truck)
@@ -887,7 +880,7 @@ bool RoRFrameListener::updateEvents(float dt)
 							RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
 					}
 
-					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->network && curr_truck->driveable != AIRPLANE)
+					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->multiplayer && curr_truck->driveable != AIRPLANE)
 					{
 						if (!BeamFactory::getSingleton().enterRescueTruck())
 						{
@@ -1245,11 +1238,17 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	BeamFactory::getSingleton().SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
-		// process all packets and streams received
-		NetworkStreamManager::getSingleton().update();
-		CharacterFactory::getSingleton().updateLabels();
+		RoR::Networking::HandleStreamData();
+#ifdef USE_MYGUI
+		m_netcheck_gui_timer += dt;
+		if (m_netcheck_gui_timer > 2.0f)
+		{
+			GUI_Multiplayer::getSingleton().update();
+			m_netcheck_gui_timer = 0.0f;
+		}
+#endif // USE_MYGUI
 	}
 #endif //SOCKETW
 
@@ -1268,7 +1267,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// update network gui if required, at most every 2 seconds
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
 		// now update mumble 3d audio things
 #ifdef USE_MUMBLE
@@ -1453,7 +1452,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		if (!m_is_sim_paused)
 		{
 			BeamFactory::getSingleton().joinFlexbodyTasks();       // Waits until all flexbody tasks are finished
-			BeamFactory::getSingleton().calcPhysics(dt);
+			BeamFactory::getSingleton().update(dt);
 			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Updates the harware buffers 
 		}
 	}
@@ -1478,7 +1477,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	Beam **trucks     = BeamFactory::getSingleton().getTrucks();
 
 	// first, test if the place if clear, BUT NOT IN MULTIPLAYER
-	if (!gEnv->network)
+	if (!gEnv->multiplayer)
 	{
 		collision_box_t *spawnbox = gEnv->collisions->getBox(instance, box);
 		for (int t=0; t < free_truck; t++)
@@ -1561,7 +1560,8 @@ void RoRFrameListener::windowMoved(Ogre::RenderWindow* rw)
 
 void RoRFrameListener::windowFocusChange(Ogre::RenderWindow* rw)
 {
-	LOG("*** windowFocusChange");
+	// Too verbose
+	//LOG("*** windowFocusChange");
 	RoR::Application::GetInputEngine()->resetKeys();
 }
 
@@ -1573,7 +1573,7 @@ void RoRFrameListener::hideGUI(bool hidden)
 	if (curr_truck && curr_truck->getReplay()) curr_truck->getReplay()->setHidden(hidden);
 
 #ifdef USE_SOCKETW
-		if (gEnv->network) GUI_Multiplayer::getSingleton().setVisible(!hidden);
+		if (gEnv->multiplayer) GUI_Multiplayer::getSingleton().setVisible(!hidden);
 #endif // USE_SOCKETW
 
 	if (hidden)

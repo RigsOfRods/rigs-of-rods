@@ -97,7 +97,7 @@ void PreviewRenderer::render()
 	while(time < 10)
 	{
 		// run the engine for ten virtual seconds
-		BeamFactory::getSingleton().calcPhysics(dt);
+		BeamFactory::getSingleton().update(dt);
 		time += dt;
 	}
 	BeamFactory::getSingleton().updateVisual(dt);

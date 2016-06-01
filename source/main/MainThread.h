@@ -70,7 +70,7 @@ public:
 	/**
 	* @return True if everything was prepared OK and simulation may start.
 	*/
-	bool SetupGameplayLoop(bool enable_network, Ogre::String preselected_map);
+	bool SetupGameplayLoop(Ogre::String preselected_map);
 
 	void UnloadTerrain();
 
@@ -96,8 +96,6 @@ protected:
 	Application::State m_next_application_state;
 	Application::State m_application_state;
 	bool			   m_base_resource_loaded;
-
-	float netcheck_gui_timer;
 
 	std::map<std::string, bool> isLoadedMap;
 };

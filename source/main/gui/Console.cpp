@@ -27,7 +27,6 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
-#include "ChatSystem.h"
 #include "GUIManager.h"
 #include "GUIMenu.h"
 #include "IHeightFinder.h"
@@ -331,7 +330,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 		{
 			if (args.size() != 4)
 			{
-				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, ChatSystem::commandColour + _L("usage: /goto x y z"), "information.png");
+				putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, RoR::Color::CommandColour + _L("usage: /goto x y z"), "information.png");
 				return;
 			}
 
@@ -398,7 +397,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			StringUtil::trim(command);
 			if (command.empty()) return;
 
-			String nmsg = ChatSystem::scriptCommandColour + ">>> " + ChatSystem::normalColour + command;
+			String nmsg = RoR::Color::ScriptCommandColour + ">>> " + RoR::Color::NormalColour + command;
 			putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_LOCAL_SCRIPT, nmsg, "script_go.png");
 			int res = ScriptEngine::getSingleton().executeString(command);
 			return;

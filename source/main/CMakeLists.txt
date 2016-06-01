@@ -171,10 +171,6 @@ set( SOURCE_FILES
   gui/panels/GUI_VehicleDescription.{h,cpp}
   gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
   network/Network.{h,cpp}
-  network/NetworkStreamManager.{h,cpp}
-  network/Streamable.{h,cpp}
-  network/StreamableFactory.h
-  network/StreamableFactoryInterface.h
   physics/ApproxMath.h
   physics/Beam.{h,cpp}
   physics/BeamData.h

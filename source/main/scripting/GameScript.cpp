@@ -871,13 +871,13 @@ int GameScript::deleteScriptVariable(const String &arg)
 
 int GameScript::sendGameCmd(const String& message)
 {
-	if (!gEnv->network)
+	if (gEnv->multiplayer)
 	{
-		return -11;
-	} else 
-	{
-		return gEnv->network->sendScriptMessage(const_cast<char*>(message.c_str()), (unsigned int)message.size());
+		RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
+		return 0;
 	}
+
+	return -11;
 }
 
 VehicleAI *GameScript::getCurrentTruckAI()

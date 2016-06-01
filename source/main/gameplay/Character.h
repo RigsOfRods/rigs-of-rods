@@ -24,13 +24,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "MovableText.h"
-#include "Streamable.h"
 
-class Character : public Streamable, public ZeroedMemoryAllocator
+class Character : public ZeroedMemoryAllocator
 {
-	friend class CharacterFactory;
-	friend class Network;
-
 public:
 
 	Character(int source=-1, unsigned int streamid=0, int colourNumber=0, bool remote=true);
@@ -40,8 +36,11 @@ public:
 	Ogre::Vector3 getPosition();
 	bool getPhysicsEnabled() { return physicsEnabled; };
 	bool getVisible();
-	int getUID() { return source; };
-	
+
+	void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer);
+
+	int getSourceID() { return m_source_id; };
+
 	bool isRemote() { return remote; };
 	bool getBeamCoupling() { return isCoupled; };
 
@@ -58,13 +57,14 @@ public:
 	void updateCharacterColour();
 	void updateCharacterRotation();
 	void updateMapIcon();
-	void updateNetLabel();
+	void updateLabels();
 
 	static unsigned int characterCounter;
 
 protected:
 
 	void createMapEntity();
+	void updateNetLabelSize();
 
 	Beam *beamCoupling;
 	bool isCoupled;
@@ -78,9 +78,11 @@ protected:
 	Ogre::Real characterSpeed;
 	Ogre::Real characterVSpeed;
 	
+	unsigned int myNumber;
 	int colourNumber;
 	int networkAuthLevel;
-	int source;
+	int m_stream_id;
+	int m_source_id;
 
 	Ogre::AnimationStateSet *mAnimState;
 	Ogre::Camera *mCamera;
@@ -91,9 +93,6 @@ protected:
 	Ogre::UTFString networkUsername;
 	Ogre::Vector3 mLastPosition;
 
-	unsigned int myNumber;
-	unsigned int streamid;
-	
 	void setAnimationMode(Ogre::String mode, float time=0);
 
 	// network stuff
@@ -122,18 +121,12 @@ protected:
 
 	enum {CHARCMD_POSITION, CHARCMD_ATTACH};
 
-	// overloaded from Streamable:
-	Ogre::Timer netTimer;
-	int last_net_time;
+	Ogre::Timer mNetTimer;
 
 	bool mHideOwnNetLabel;
 
-	void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len);
 	void sendStreamData();
 	void sendStreamSetup();
-	void setUID(int uid);
-
-	void updateNetLabelSize();
 };
 
 #endif // __Character_H_

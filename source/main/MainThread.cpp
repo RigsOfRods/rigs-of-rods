@@ -284,53 +284,31 @@ void MainThread::Go()
 	else
 		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
 
-	bool enable_network = BSETTING("Network enable", false);
+	gEnv->multiplayer = BSETTING("Network enable", false);
 
 	String preselected_map = SSETTING("Preselected Map", "");
 
 	// initiate player colours
 	PlayerColours::getSingleton();
 
-	// you always need that, even if you are not using the network
-	NetworkStreamManager::getSingleton();
-
 	// new factory for characters, net is INVALID, will be set later
 	new CharacterFactory();
-	new ChatSystemFactory();
+
+	new BeamFactory();
 
 	// notice: all factories must be available before starting the network!
 #ifdef USE_SOCKETW
 	
-	if (enable_network)
+	if (gEnv->multiplayer)
 	{
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-
-		std::string server_name = SSETTING("Server name", "").c_str();
-
-		long server_port = ISETTING("Server port", 1337);
-
-		if (server_port==0)
-		{
-			ErrorUtils::ShowError(_L("A network error occured"), _L("Bad server port"));
-			exit(123);
-			return;
-		}
-		LOG("trying to join server '" + String(server_name) + "' on port " + TOSTRING(server_port) + "'...");
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
 
 		LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
 
-		// important note: all new network code is written in order to allow also the old network protocol to further exist.
-		// at some point you need to decide with what type of server you communicate below and choose the correct class
-
-		gEnv->network = new Network(server_name, server_port);
-
-		bool connres = gEnv->network->connect();
-
-		LoadingWindow::getSingleton().hide();
-
-		new GUI_Multiplayer();
-		GUI_Multiplayer::getSingleton().update();
+		bool connres = RoR::Networking::Connect();
 
 		if (!connres)
 		{
@@ -339,39 +317,25 @@ void MainThread::Go()
 			//fatal
 			exit(1);
 		}
-		char *terrn = gEnv->network->getTerrainName();
-		bool isAnyTerrain = (terrn && !strcmp(terrn, "any"));
-		if (preselected_map.empty() && isAnyTerrain)
+
+		LoadingWindow::getSingleton().hide();
+
+		new GUI_Multiplayer();
+		GUI_Multiplayer::getSingleton().update();
+
+		String terrain_name = RoR::Networking::GetTerrainName();
+		if (terrain_name != "any")
 		{
-			// so show the terrain selection
-			preselected_map = "";
-		} 
-		else if (!isAnyTerrain)
-		{
-			preselected_map = getASCIIFromCharString(terrn, 255);
+			preselected_map = terrain_name;
 		}
 
-		// --------------------------------------------------------------------
-		// network chat stuff
-		int colourNum = 0;
-		if (gEnv->network->getLocalUserData())
-		{
-			colourNum = gEnv->network->getLocalUserData()->colournum;
-		}
+		RoR::ChatSystem::SendStreamSetup();
 
-		ChatSystem* net_chat = ChatSystemFactory::getSingleton().createLocal(colourNum);
-
-		// TODO: separate console and chatbox.
-
-		Application::GetGuiManager()->SetNetChat(net_chat);
 #ifdef USE_MUMBLE
 		new MumbleIntegration();
 #endif // USE_MUMBLE
-
-	} 
+	}
 #endif //SOCKETW	
-
-	new BeamFactory();
 
 	// ========================================================================
 	// Main loop (switches application states)
@@ -427,7 +391,7 @@ void MainThread::Go()
 				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
 			}
 
-			if (gEnv->network != nullptr || BSETTING("SkipMainMenu", false))
+			if (gEnv->multiplayer || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
 				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
@@ -448,7 +412,7 @@ void MainThread::Go()
 			// Simulation
 			// ================================================================
 
-			if (SetupGameplayLoop(enable_network, preselected_map))
+			if (SetupGameplayLoop(preselected_map))
 			{
 				previous_application_state = Application::STATE_SIMULATION;
 				EnterGameplayLoop();	
@@ -488,11 +452,9 @@ void MainThread::Go()
 	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
-		gEnv->network->disconnect();
-		delete gEnv->network;
-		gEnv->network = nullptr;
+		RoR::Networking::Disconnect();
 	}
 #endif //SOCKETW
 
@@ -532,7 +494,7 @@ void MainThread::Go()
 
 }
 
-bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected_map)
+bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 {
 	if (!m_base_resource_loaded)
 	{
@@ -609,29 +571,19 @@ bool MainThread::SetupGameplayLoop(bool enable_network, Ogre::String preselected
 		new DustManager(); // setup particle manager singleton. TODO: Move under Application
 	}
 
-	if (enable_network)
+	int colourNum = -1;
+	if (gEnv->multiplayer)
 	{
 		wchar_t tmp[255] = L"";
 		UTFString format = _L("Press %ls to start chatting");
 		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
 		Application::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
 
-		// NOTE: create player _AFTER_ network, important
-		int colourNum = 0;
-		if (gEnv->network->getLocalUserData())
-		{
-			colourNum = gEnv->network->getLocalUserData()->colournum;
-		}
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(colourNum);
+		user_info_t info = RoR::Networking::GetLocalUserData();
+		colourNum = info.colournum;
 	}
-	else
-	{
-		gEnv->player = (Character *)CharacterFactory::getSingleton().createLocal(-1);
-		if (gEnv->player != nullptr)
-		{
-			gEnv->player->setVisible(false);
-		}
-	}
+	// NOTE: create player _AFTER_ network, important
+	gEnv->player = CharacterFactory::getSingleton().createLocal(colourNum);
 
 	// heathaze effect
 	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
@@ -934,23 +886,12 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		return;
 	}
 
-	// update GUI
-	RoR::Application::GetInputEngine()->Capture();
-
-#ifdef USE_SOCKETW
-#ifdef USE_MYGUI
-	// Update network gui every two seconds
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
-		netcheck_gui_timer += seconds_since_last_frame;
-		if (netcheck_gui_timer > 2.0f)
-		{
-			GUI_Multiplayer::getSingleton().update();
-			netcheck_gui_timer = 0.0f;
-		}
+		GUI_Multiplayer::getSingleton().update();
 	}
-#endif // USE_MYGUI
-#endif // USE_SOCKETW
+
+	RoR::Application::GetInputEngine()->Capture();
 
 	MainMenuLoopUpdateEvents(seconds_since_last_frame);
 

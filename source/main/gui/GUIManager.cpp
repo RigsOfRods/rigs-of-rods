@@ -473,14 +473,6 @@ void GUIManager::pushMessageChatBox(Ogre::String txt)
 	m_gui_ChatBox->pushMsg(txt);
 }
 
-void GUIManager::SetNetChat(ChatSystem *c)
-{
-	if (m_gui_ChatBox.get() == nullptr)
-		m_gui_ChatBox = std::unique_ptr<GUI::GameChatBox>(new GUI::GameChatBox());
-
-	m_gui_ChatBox->setNetChat(c);
-}
-
 void GUIManager::ShowVehicleDescription()
 {
 	if (m_vehicle_description.get() == nullptr)

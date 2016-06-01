@@ -25,17 +25,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Collisions.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
-#include "SurveyMapManager.h"
-#include "SurveyMapEntity.h"
 #include "Network.h"
-#include "NetworkStreamManager.h"
 #include "PlayerColours.h"
+#include "SurveyMapEntity.h"
+#include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
 #include "Water.h"
 
 using namespace Ogre;
-
 
 unsigned int Character::characterCounter = 0;
 
@@ -46,7 +44,6 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, characterSpeed(2.0f)
 	, characterVSpeed(0.0f)
 	, colourNumber(colourNumber)
-	, last_net_time(0)
 	, mAnimState(0)
 	, mCamera(gEnv->mainCamera)
 	, mCharacterNode(0)
@@ -57,8 +54,8 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, networkUsername("")
 	, physicsEnabled(true)
 	, remote(remote)
-	, source(source)
-	, streamid(streamid)
+	, m_source_id(source)
+	, m_stream_id(streamid)
 	, isCoupled(0)
 {
 	myNumber = characterCounter++;
@@ -80,7 +77,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	mCharacterNode->setScale(0.02f, 0.02f, 0.02f);
 	mAnimState = entity->getAllAnimationStates();
 
-	if (gEnv->network)
+	if (gEnv->multiplayer)
 	{
 		sendStreamSetup();
 	}
@@ -94,7 +91,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	entity->setMaterialName("tracks/"+myName);
 
 #ifdef USE_SOCKETW
-	if (gEnv->network && (remote || !mHideOwnNetLabel))
+	if (gEnv->multiplayer && (remote || !mHideOwnNetLabel))
 	{
 		mMoveableText = new MovableText("netlabel-"+myName, "");
 		mCharacterNode->attachObject(mMoveableText);
@@ -105,7 +102,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 		mMoveableText->setCharacterHeight(8);
 		mMoveableText->setColor(ColourValue::Black);
 
-		updateNetLabel();
+		updateLabels();
 	}
 #endif //SOCKETW
 }
@@ -145,33 +142,29 @@ void Character::updateCharacterColour()
 	PlayerColours::getSingleton().updateMaterial(colourNumber, matName, 2);
 }
 
-void Character::setUID(int uid)
+void Character::updateLabels()
 {
-	this->source = uid;
-}
-
-void Character::updateNetLabel()
-{
-	if (!gEnv->network) return;
+	if (!gEnv->multiplayer) return;
 
 #ifdef USE_SOCKETW
+	user_info_t info;
+
 	if (remote)
 	{
-		client_t *info = gEnv->network->getClientInfo(this->source);
-		if (!info) return;
-		if (tryConvertUTF(info->user.username).empty()) return;
-		this->colourNumber = info->user.colournum;
-		networkUsername = tryConvertUTF(info->user.username);
-		networkAuthLevel = info->user.authstatus;
+		if (!RoR::Networking::GetUserInfo(m_source_id, info))
+			return;
 	} else
 	{
-		user_info_t *info = gEnv->network->getLocalUserData();
-		if (!info) return;
-		if (String(info->username).empty()) return;
-		this->colourNumber = info->colournum;
-		networkUsername = tryConvertUTF(info->username);
-		networkAuthLevel = info->authstatus;
+		info = RoR::Networking::GetLocalUserData();
 	}
+
+	networkAuthLevel = info.authstatus;
+
+	colourNumber = info.colournum;
+	updateCharacterColour();
+
+	if (String(info.username).empty()) return;
+	networkUsername = tryConvertUTF(info.username);
 
 	if (mMoveableText)
 	{
@@ -191,7 +184,7 @@ void Character::updateNetLabel()
 	}
 	*/
 
-	updateCharacterColour();
+	updateNetLabelSize();
 #endif //SOCKETW
 }
 
@@ -499,7 +492,7 @@ void Character::update(float dt)
 	}
 
 #ifdef USE_SOCKETW
-	if (gEnv->network && !remote)
+	if (gEnv->multiplayer && !remote)
 	{
 		sendStreamData();
 	}
@@ -531,7 +524,7 @@ void Character::move(Vector3 offset)
 void Character::sendStreamSetup()
 {
 	if (remote) return;
-	// new local stream
+
 	stream_register_t reg;
 	memset(&reg, 0, sizeof(reg));
 	reg.status = 1;
@@ -539,19 +532,16 @@ void Character::sendStreamSetup()
 	reg.type = 1;
 	reg.data[0] = 2;
 
-	NetworkStreamManager::getSingleton().addLocalStream(this, &reg);
+	RoR::Networking::AddLocalStream(&reg, sizeof(stream_register_t));
+
+	m_source_id = reg.origin_sourceid;
+	m_stream_id = reg.origin_streamid;
 }
 
 void Character::sendStreamData()
 {
-	int t = netTimer.getMilliseconds();
-	if (t-last_net_time < 100)
-		return;
-
 	// do not send position data if coupled to a truck already
 	if (beamCoupling) return;
-
-	last_net_time = t;
 
 	pos_netdata_t data;
 	data.command = CHARCMD_POSITION;
@@ -565,27 +555,25 @@ void Character::sendStreamData()
 	strncpy(data.animationMode, mLastAnimMode.c_str(), 254);
 	data.animationTime = mAnimState->getAnimationState(mLastAnimMode)->getTimePosition();
 
-	//LOG("sending character stream data: " + TOSTRING(net->getUserID()) + ":"+ TOSTRING(streamid));
-	this->addPacket(MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
+	//LOG("sending character stream data: " + TOSTRING(RoR::Networking::GetUID()) + ":" + TOSTRING(m_stream_id));
+	RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
 }
 
-void Character::receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer, unsigned int &len)
+void Character::receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer)
 {
-	if (type == MSG2_STREAM_DATA && this->source == source && this->streamid == streamid)
+	if (type == MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
 	{
 		header_netdata_t *header = (header_netdata_t *)buffer;
 		if (header->command == CHARCMD_POSITION)
 		{
-			// position
 			pos_netdata_t *data = (pos_netdata_t *)buffer;
 			Vector3 pos(data->posx, data->posy, data->posz);
-			this->setPosition(pos);
+			setPosition(pos);
 			Quaternion rot(data->rotw, data->rotx, data->roty, data->rotz);
 			mCharacterNode->setOrientation(rot);
 			setAnimationMode(getASCIIFromCharString(data->animationMode, 255), data->animationTime);
 		} else if (header->command == CHARCMD_ATTACH)
 		{
-			// attach
 			attach_netdata_t *data = (attach_netdata_t *)buffer;
 			if (data->enabled)
 			{
@@ -602,6 +590,7 @@ void Character::receiveStreamData(unsigned int &type, int &source, unsigned int 
 void Character::updateNetLabelSize()
 {
 	if (!mMoveableText) return;
+	if (networkUsername.empty()) return;
 
 	float camDist = (mCharacterNode->getPosition() - mCamera->getPosition()).length();
 	float h = std::max(9.0f, camDist * 1.2f);
@@ -627,14 +616,14 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		{
 			mMoveableText->setVisible(false);
 		}
-		if (gEnv->network && !remote)
+		if (gEnv->multiplayer && !remote)
 		{
 			attach_netdata_t data;
 			data.command = CHARCMD_ATTACH;
 			data.enabled = true;
-			data.source_id = beamCoupling->getSourceID();
-			data.stream_id = beamCoupling->getStreamID();
-			this->addPacket(MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+			data.source_id = beamCoupling->m_source_id;
+			data.stream_id = beamCoupling->m_stream_id;
+			RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
 		}
 
 		// do not cast shadows inside of a truck
@@ -656,12 +645,12 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		{
 			mMoveableText->setVisible(true);
 		}
-		if (gEnv->network && !remote)
+		if (gEnv->multiplayer && !remote)
 		{
 			attach_netdata_t data;
 			data.command = CHARCMD_ATTACH;
 			data.enabled = false;
-			this->addPacket(MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+			RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
 		}
 
 		// show character

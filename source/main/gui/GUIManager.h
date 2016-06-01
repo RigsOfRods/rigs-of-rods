@@ -104,7 +104,6 @@ public:
 
 	void ShowChatBox();
 	void pushMessageChatBox(Ogre::String txt);
-	void SetNetChat(ChatSystem *c);
 
 	bool GetPauseMenuVisible();
 

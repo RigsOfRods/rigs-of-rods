@@ -27,7 +27,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
-#include "StreamableFactory.h"
+#include "Network.h"
+#include "Singleton.h"
 
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
@@ -36,19 +37,12 @@ class ThreadPool;
 /**
 * Builds and manages vehicles; Manages multithreading.
 */
-class BeamFactory : public StreamableFactory < BeamFactory, Beam >, public ZeroedMemoryAllocator
+class BeamFactory : public RoRSingleton< BeamFactory >, public ZeroedMemoryAllocator
 {
-	friend class Network;
-
 public:
 
 	BeamFactory();
 	~BeamFactory();
-
-	/**
-	* Does nothing; empty implementation of interface function.
-	*/
-	Beam *createLocal(int slotid) { return 0; }
 
     /**
     * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
@@ -66,7 +60,11 @@ public:
 		bool preloaded_with_terrain = false
 		);
 	
-	Beam *createRemoteInstance(stream_reg_t *reg);
+	void update(float dt);
+
+	void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
+	int checkStreamsOK(int sourceid);
+	int checkStreamsRemoteOK(int sourceid);
 
 	int getNumCpuCores() { return m_num_cpu_cores; };
 
@@ -117,7 +115,6 @@ public:
 
 	inline unsigned long getPhysFrame() { return m_physics_frames; };
 
-	void calcPhysics(float dt);
 	void recalcGravityMasses();
 
 	/** 
@@ -158,6 +155,12 @@ public:
 
 protected:
 
+	int CreateRemoteInstance(stream_register_trucks_t *reg);
+	void RemoveStreamSource(int sourceid);
+
+	// A list of streams without a corresponding truck in the truck array for each stream source
+	std::map<int, std::vector<int>> m_stream_mismatches;
+
 	std::unique_ptr<ThreadPool> m_sim_thread_pool;
 	std::shared_ptr<Task> m_sim_task;
 	
@@ -190,14 +193,7 @@ protected:
 	int GetFreeTruckSlot();
 	int FindTruckInsideBox(Collisions *collisions, const Ogre::String &inst, const Ogre::String &box);
 
-	// functions used by friends
-	void netUserAttributesChanged(int source, int streamid);
-	void localUserAttributesChanged(int newid);
-
 	void DeleteTruck(Beam *b);
-
-	// Overrides StreamableFactory::removeInstance
-	void removeInstance(stream_del_t *del);
 };
 
 #endif // __BeamFactory_H_

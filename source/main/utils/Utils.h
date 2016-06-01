@@ -115,12 +115,17 @@ void generateHashFromFile(Ogre::String filename, Ogre::String &hash);
 
 namespace RoR
 {
-
 namespace Utils
 {
     std::string TrimBlanksAndLinebreaks(std::string const & input);
     
     std::string SanitizeUtf8String(std::string const& str_in);
 }
-
+namespace Color
+{
+	const Ogre::UTFString CommandColour       = Ogre::UTFString("#00FF00");
+	const Ogre::UTFString NormalColour        = Ogre::UTFString("#FFFFFF");
+	const Ogre::UTFString WhisperColour       = Ogre::UTFString("#FFCC00");
+	const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
+}
 }

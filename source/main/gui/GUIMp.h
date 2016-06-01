@@ -39,9 +39,10 @@ public:
 	GUI_Multiplayer();
 	~GUI_Multiplayer();
 
-	int update();
-	void setVisible(bool value);
+	void update();
+
 	bool getVisible();
+	void setVisible(bool value);
 
 protected:
 
@@ -68,7 +69,7 @@ protected:
 	MyGUI::WindowPtr netmsgwin;
 	MyGUI::StaticTextPtr netmsgtext;
 	
-	void updateSlot(player_row_t *row, user_info_t *c, bool self);
+	void updateSlot(player_row_t *row, user_info_t c, bool self);
 
 	client_t *clients;
 	int lineheight;
