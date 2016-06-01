@@ -299,6 +299,10 @@ void Character::update(float dt)
 			if (depth < 0.3f)
 			{
 				position.y += depth;
+				if (depth > 0.01f && gEnv->cameraManager)
+				{
+					gEnv->cameraManager->NotifyContextChange();
+				}
 			}
 		}
 
@@ -306,6 +310,10 @@ void Character::update(float dt)
 		{
 			Vector3 query = position;
 			gEnv->collisions->collisionCorrect(&query);
+			if (std::abs(position.y - query.y) > 0.1f && gEnv->cameraManager)
+			{
+				gEnv->cameraManager->NotifyContextChange();
+			}
 			position.y = query.y;
 		}
 

@@ -279,6 +279,12 @@ void CameraManager::OnReturnToMainMenu()
 	currentBehaviorID = -1;
 }
 
+void CameraManager::NotifyContextChange()
+{
+	if ( !currentBehavior ) return;
+	currentBehavior->notifyContextChange(ctx);
+}
+
 void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 {
 	// Getting out of vehicle
