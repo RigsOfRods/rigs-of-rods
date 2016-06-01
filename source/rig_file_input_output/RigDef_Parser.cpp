@@ -3609,6 +3609,8 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, std::reg
 
 			if (format_version == 1)
 			{
+				// Breaks 'Mitsubishi L200 DI-D' parsing
+#if 0
 				result_index += 6;
 				if (_ParseOptionalInertia(command2.inertia, results, result_index))
 				{
@@ -3625,6 +3627,7 @@ void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, std::reg
 						}
 					}
 				}
+#endif
 			}
 			else if (format_version == 2)
 			{
