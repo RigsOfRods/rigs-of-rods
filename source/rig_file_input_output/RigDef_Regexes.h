@@ -965,10 +965,18 @@ DEFINE_REGEX( SECTION_COMMANDS,
                 E_CAPTURE( E_DELIMITER )
                 E_CAPTURE_OPTIONAL(
                     E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #21 Description
+#if 1
+                    E_CAPTURE_OPTIONAL(
+                        E_CAPTURE( E_DELIMITER )
+                        E_CAPTURE( ".*" )                        // #24 The rest of the line (for further processing)
+                    )
+#else
+					// Breaks 'Mitsubishi L200 DI-D' parsing
                     E_CAPTURE_OPTIONAL(
                         E_CAPTURE( E_DELIMITER )
                         E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART // Result index += ( 3[outside] + 1[inside] )
                     )
+#endif
                 )
             )
         )
