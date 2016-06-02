@@ -40,6 +40,7 @@
 #include "SHA1.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
+#include "ThreadPool.h"
 #include "Utils.h"
 
 #ifdef USE_MYGUI
@@ -2045,20 +2046,25 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 #endif
 
 	String realzipPath = getRealPath(zippath);
-	char hash[256] = {};
 
-	RoR::CSHA1 sha1;
-	sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
-	sha1.Final();
-	sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
-	zipHashes[getVirtualPath(zippath)] = hash;
+	String fileHash = zipHashes[getVirtualPath(zippath)];
+	if (fileHash == "")
+	{
+		char hash[256] = {0};
+		RoR::CSHA1 sha1;
+		sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
+		sha1.Final();
+		sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
+		zipHashes[getVirtualPath(zippath)] = hash;
+		fileHash = hash;
+	}
 
 	String compr = "";
 	if (cfactor > 99)
 		compr = "(No Compression)";
 	else if (cfactor > 0)
 		compr = "(Compression: " + TOSTRING(cfactor) + ")";
-	LOG("Adding archive " + realzipPath + " (hash: "+String(hash)+") " + compr);
+	LOG("Adding archive " + realzipPath + " (hash: "+String(fileHash)+") " + compr);
 
 	rgcounter++;
 	String rgname = "General-"+TOSTRING(rgcounter);
@@ -2115,25 +2121,39 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
 	std::map<String, bool> loadedZips;
 	ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
 	FileInfoListPtr files = rgm.findResourceFileInfo(group, "*.zip");
-	FileInfoList::iterator iterFiles = files->begin();
-	size_t i=0, filecount=files->size();
-	for (; iterFiles!= files->end(); ++iterFiles, i++)
+	if (gEnv->threadPool && BSETTING("MultithreadedCacheGeneration", false))
 	{
-		if (loadedZips[iterFiles->filename])
+		std::vector<std::function<void()>> tasks;
+		for (auto it=files->begin(); it!=files->end(); ++it)
 		{
-			LOG(" zip already loaded: " + iterFiles->filename);
-			// already loaded for some strange reason
-			continue;
+			auto func = std::function<void()>([this, it](){
+				loadSingleZip((Ogre::FileInfo)*it);
+			});
+			tasks.push_back(func);
 		}
-		// update loader
-		int progress = ((float)i/(float)filecount)*100;
+		gEnv->threadPool->Parallelize(tasks);
+	} else
+	{
+		FileInfoList::iterator iterFiles = files->begin();
+		size_t i=0, filecount=files->size();
+		for (; iterFiles!= files->end(); ++iterFiles, i++)
+		{
+			if (loadedZips[iterFiles->filename])
+			{
+				LOG(" zip already loaded: " + iterFiles->filename);
+				// already loaded for some strange reason
+				continue;
+			}
+			// update loader
+			int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
-		UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" + ANSI_TO_UTF(iterFiles->filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(filecount));
-		LoadingWindow::getSingleton().setProgress(progress, tmp);
+			UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" + ANSI_TO_UTF(iterFiles->filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(filecount));
+			LoadingWindow::getSingleton().setProgress(progress, tmp);
 #endif //USE_MYGUI
 
-		loadSingleZip((Ogre::FileInfo)*iterFiles);
-		loadedZips[iterFiles->filename] = true;
+			loadSingleZip((Ogre::FileInfo)*iterFiles);
+			loadedZips[iterFiles->filename] = true;
+		}
 	}
 	// hide loader again
 #ifdef USE_MYGUI
