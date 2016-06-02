@@ -777,6 +777,12 @@ void BeamFactory::enterNextTruck()
 			return;
 		}
 	}
+
+	if (m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+	{
+		setCurrentTruck(pivot_index);
+		return;
+	}
 }
 
 void BeamFactory::enterPreviousTruck()
@@ -799,6 +805,12 @@ void BeamFactory::enterPreviousTruck()
 			setCurrentTruck(i);
 			return;
 		}
+	}
+
+	if (m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+	{
+		setCurrentTruck(pivot_index);
+		return;
 	}
 }
 
