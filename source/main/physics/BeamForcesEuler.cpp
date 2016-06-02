@@ -1704,7 +1704,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
-	for (int i=0; i<interTruckBeams.size(); i++)
+	for (int i=0; i<static_cast<int>(interTruckBeams.size()); i++)
 	{
 		if (!interTruckBeams[i]->disabled && interTruckBeams[i]->p2truck)
 		{
