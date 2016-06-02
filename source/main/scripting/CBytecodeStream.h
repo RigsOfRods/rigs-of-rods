@@ -30,7 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class CBytecodeStream : public AngelScript::asIBinaryStream
 {
 public:
-	CBytecodeStream(std::string filename);
+	CBytecodeStream(std::string filename, std::string mode);
 	~CBytecodeStream();
 	void Read(void *ptr, AngelScript::asUINT size);
 	void Write(const void *ptr, AngelScript::asUINT size);

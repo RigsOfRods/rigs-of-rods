@@ -73,36 +73,37 @@ Complex &Complex::operator/=(const Complex &other)
 	return *this;
 }
 
+float Complex::squaredLength() const
+{
+	return r*r + i*i;
+}
+
 float Complex::length() const
 {
-	return sqrtf(r*r + i*i);
+	return sqrtf(squaredLength());
 }
 
 Complex Complex::operator+(const Complex &other) const
 {
-	Complex res(r + other.r, i + other.i);
-	return res;
+	return Complex(r + other.r, i + other.i);
 }
 
 Complex Complex::operator-(const Complex &other) const
 {
-	Complex res(r - other.r, i + other.i);
-	return res;
+	return Complex(r - other.r, i + other.i);
 }
 
 Complex Complex::operator*(const Complex &other) const
 {
-	Complex res(r*other.r - i*other.i, r*other.i + i*other.r);
-	return res;
+	return Complex(r*other.r - i*other.i, r*other.i + i*other.r);
 }
 
 Complex Complex::operator/(const Complex &other) const
 {
-	float len = other.length();
-	if( len == 0 ) return Complex(0,0);
+	float squaredLen = other.squaredLength();
+	if( squaredLen == 0 ) return Complex(0,0);
 
-	Complex res((r*other.r + i*other.i)/len, (i*other.r - r*other.i)/len);
-	return res;
+	return Complex((r*other.r + i*other.i)/squaredLen, (i*other.r - r*other.i)/squaredLen);
 }
 
 //-----------------------
@@ -141,9 +142,19 @@ static void ComplexCopyConstructor(const Complex &other, Complex *self)
 	new(self) Complex(other);
 }
 
+static void ComplexConvConstructor(float r, Complex *self)
+{
+	new(self) Complex(r);
+}
+
 static void ComplexInitConstructor(float r, float i, Complex *self)
 {
 	new(self) Complex(r,i);
+}
+
+static void ComplexListConstructor(float *list, Complex *self)
+{
+	new(self) Complex(list[0], list[1]);
 }
 
 //--------------------------------
@@ -155,16 +166,23 @@ static void RegisterScriptMathComplex_Native(asIScriptEngine *engine)
 	int r;
 
 	// Register the type
+#if AS_CAN_USE_CPP11
+	// With C++11 it is possible to use asGetTypeTraits to determine the correct flags to represent the C++ class, except for the asOBJ_APP_CLASS_ALLFLOATS
+	r = engine->RegisterObjectType("complex", sizeof(Complex), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<Complex>() | asOBJ_APP_CLASS_ALLFLOATS); assert( r >= 0 );
+#else
 	r = engine->RegisterObjectType("complex", sizeof(Complex), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CAK | asOBJ_APP_CLASS_ALLFLOATS); assert( r >= 0 );
+#endif
 
 	// Register the object properties
 	r = engine->RegisterObjectProperty("complex", "float r", asOFFSET(Complex, r)); assert( r >= 0 );
 	r = engine->RegisterObjectProperty("complex", "float i", asOFFSET(Complex, i)); assert( r >= 0 );
 
 	// Register the constructors
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ComplexDefaultConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f(const complex &in)",   asFUNCTION(ComplexCopyConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f(float, float i = 0)",  asFUNCTION(ComplexInitConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f()",                             asFUNCTION(ComplexDefaultConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f(const complex &in)",            asFUNCTION(ComplexCopyConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f(float)",                        asFUNCTION(ComplexConvConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f(float, float)",                 asFUNCTION(ComplexInitConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_LIST_CONSTRUCT, "void f(const int &in) {float, float}", asFUNCTION(ComplexListConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
 	// Register the operator overloads
 	r = engine->RegisterObjectMethod("complex", "complex &opAddAssign(const complex &in)", asMETHODPR(Complex, operator+=, (const Complex &), Complex&), asCALL_THISCALL); assert( r >= 0 );

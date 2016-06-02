@@ -69,12 +69,12 @@ make install
 cd $DEPS_BUILD_DIR
 mkdir angelscript
 cd angelscript
-wget http://www.angelcode.com/angelscript/sdk/files/angelscript_2.22.1.zip
+wget http://www.angelcode.com/angelscript/sdk/files/angelscript_2.31.0.zip
 unzip -qq angelscript_*.zip
 cd sdk/angelscript/projects/cmake
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR .
 make -s -j2 
-cp -r ../../lib/libAngelscript.a $DEPS_INSTALL_DIR/lib/libangelscript.a
+cp -r ../../lib/libangelscript.a $DEPS_INSTALL_DIR/lib/libangelscript.a
 cp -r ../../include $DEPS_INSTALL_DIR
 
 ls $DEPS_INSTALL_DIR/lib

@@ -33,10 +33,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "contextmgr/contextmgr.h"
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
+#include "scriptdictionary/scriptdictionary.h"
 #include "scripthelper/scripthelper.h"
 #include "scriptmath/scriptmath.h"
 #include "scriptstdstring/scriptstdstring.h"
-#include "scriptstring/scriptstring.h"
 // AS addons end
 
 #include "Application.h"
@@ -333,24 +333,21 @@ void GameScript::moveObjectVisuals(const String &instanceName, const Vector3 &po
 
 void GameScript::spawnObject(const String &objectName, const String &instanceName, const Vector3 &pos, const Vector3 &rot, const String &eventhandler, bool uniquifyMaterials)
 {
-	AngelScript::asIScriptModule *mod = 0;
-	try
+	// Get the callback function
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
 	{
-		mod = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
-	}catch(std::exception e)
-	{
-		SLOG("Exception in spawnObject(): " + String(e.what()));
+		SLOG("Failure in GameScript::spawnObject(): Couldn't get the current module.");
 		return;
 	}
-	if (!mod) return;
-	int functionPtr = mod->GetFunctionIdByName(eventhandler.c_str());
+	AngelScript::asIScriptFunction* functionPtr = mod->GetFunctionByName(eventhandler.c_str());
 
 	// trying to create the new object
 	SceneNode *bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
 	{
 		const String type = "";
-		gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, functionPtr, uniquifyMaterials);
+		gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, (void*)functionPtr, uniquifyMaterials);
 	}
 }
 
@@ -613,15 +610,14 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	struct curl_httppost *lastptr=NULL;
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	std::map<String, AngelScript::CScriptDictionary::valueStruct>::const_iterator it;
-	for (it = params.dict->dict.begin(); it != params.dict->dict.end(); it++)
+	for (auto it = params.dict->begin(); it != params.dict->end(); it++)
 	{
-		int typeId = it->second.typeId;
+		int typeId = it.GetTypeId();
 		if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
 		{
 			// its a String
-			String *str = (String *)it->second.valueObj;
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, str->c_str(), CURLFORM_END);
+			String *str = (String *)it.GetAddressOfValue();
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, str->c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_INT8 \
 			|| typeId == AngelScript::asTYPEID_INT16 \
@@ -629,7 +625,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 			|| typeId == AngelScript::asTYPEID_INT64)
 		{
 			// its an integer
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)it->second.valueInt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, TOSTRING((int)*(int*)it.GetAddressOfValue()).c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_UINT8 \
 			|| typeId == AngelScript::asTYPEID_UINT16 \
@@ -637,12 +633,12 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 			|| typeId == AngelScript::asTYPEID_UINT64)
 		{
 			// its an unsigned integer
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)it->second.valueInt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, TOSTRING((unsigned int)*(int*)it.GetAddressOfValue()).c_str(), CURLFORM_END);
 		}
 		else if (typeId == AngelScript::asTYPEID_FLOAT || typeId == AngelScript::asTYPEID_DOUBLE)
 		{
 			// its a float or double
-			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it->first.c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)it->second.valueFlt).c_str(), CURLFORM_END);
+			curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, it.GetKey().c_str(), CURLFORM_COPYCONTENTS, TOSTRING((float)*(float*)it.GetAddressOfValue()).c_str(), CURLFORM_END);
 		}
 	}
 
@@ -651,8 +647,8 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileName", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileName.c_str(), CURLFORM_END);
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileHash.c_str(), CURLFORM_END);
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ModHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainModHash.c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
+	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
+	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, SSETTING("Nickname", "Anonymous").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, SSETTING("Language", "English").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
@@ -787,9 +783,9 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	strncpy(params->apiquery, apiquery.c_str(), 2048);
 
 	//wrap a new dict around this, as we dont know if or when the script will release it
-	AngelScript::CScriptDictionary *newDict = new AngelScript::CScriptDictionary(mse->getEngine());
+	AngelScript::CScriptDictionary *newDict = AngelScript::CScriptDictionary::Create(mse->getEngine());
 	// copy over the dict, the main data
-	newDict->dict    = d.dict;
+	*newDict         = d;
 	// assign it to the data container
 	params->dict     = newDict;
 	// tell the script that there will be no direct feedback
@@ -805,17 +801,25 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	// why we need to do this: when we copy the std::map (dict) over, we calso jsut copy the pointers to String in it.
 	// when this continues and forks, AS releases the strings.
 	// so we will allocate new strings that are persistent.
-	std::map<String, AngelScript::CScriptDictionary::valueStruct>::iterator it;
-	for (it = params->dict->dict.begin(); it != params->dict->dict.end(); it++)
+	for (auto it = params->dict->begin(); it != params->dict->end(); it++)
 	{
-		int typeId = it->second.typeId;
+		int typeId = it.GetTypeId();
 		if (typeId == mse->getEngine()->GetTypeIdByDecl("string"))
 		{
 			// its a String, copy it over
-			String *str = (String *)it->second.valueObj;
-			it->second.valueObj = (void *)new String(*str);
+			String *str = (String *)it.GetAddressOfValue();
+			// TODO: Fix it
+			//it->second.m_valueObj = (void *)new String(*str);
 		}
 	}
+
+	// Add script hash and script name to the object (in this thread!)
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (mod == NULL) return 2;
+	scriptModuleUserData_t *userdata = (scriptModuleUserData_t*)mod->GetUserData();
+	if (userdata == NULL) return 3;
+	params->dict->Set("terrain_ScriptHash", (void *)new String(userdata->scriptHash), mse->getEngine()->GetTypeIdByDecl("string"));
+	params->dict->Set("terrain_ScriptName", (void *)new String(userdata->scriptName), mse->getEngine()->GetTypeIdByDecl("string"));
 
 	// create the thread
 	LOG("creating thread for online API usage...");
@@ -846,27 +850,62 @@ void GameScript::boostCurrentTruck(float factor)
 
 int GameScript::addScriptFunction(const String &arg)
 {
-	return mse->addFunction(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::addScriptFunction(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->addFunction(String(mod->GetName()), arg);
 }
 
 int GameScript::scriptFunctionExists(const String &arg)
 {
-	return mse->functionExists(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::scriptFunctionExists(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->functionExists(String(mod->GetName()), arg) ? 1 : -1;
 }
 
 int GameScript::deleteScriptFunction(const String &arg)
 {
-	return mse->deleteFunction(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::deleteScriptFunction(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->deleteFunction(String(mod->GetName()), arg);
 }
 
 int GameScript::addScriptVariable(const String &arg)
 {
-	return mse->addVariable(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::addScriptVariable(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->addVariable(String(mod->GetName()), arg);
 }
 
 int GameScript::deleteScriptVariable(const String &arg)
 {
-	return mse->deleteVariable(arg);
+	AngelScript::asIScriptModule *mod = mse->getCurrentModule();
+	if (!mod)
+	{
+		SLOG("Failure in GameScript::deleteScriptVariable(): Couldn't get the current module.");
+		return -2;
+	}
+
+	return mse->deleteVariable(String(mod->GetName()), arg);
 }
 
 int GameScript::sendGameCmd(const String& message)

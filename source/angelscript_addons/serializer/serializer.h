@@ -8,7 +8,11 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
+
 #include <vector>
 #include <string>
 #include <map>
@@ -26,7 +30,7 @@ struct CUserType
 	virtual ~CUserType() {};
 	virtual void Store(CSerializedValue *val, void *ptr) = 0;
 	virtual void Restore(CSerializedValue *val, void *ptr) = 0;
-	virtual void CleanupUserData(CSerializedValue *val) {}
+	virtual void CleanupUserData(CSerializedValue * /*val*/) {}
 };
 
 
@@ -34,7 +38,7 @@ class CSerializedValue
 {
 public:
 	CSerializedValue();
-	CSerializedValue(CSerializedValue *parent, const std::string &name, void *ref, int typeId);
+	CSerializedValue(CSerializedValue *parent, const std::string &name, const std::string &nameSpace, void *ref, int typeId);
 	~CSerializedValue();
 
 	// Save the object and its children
@@ -47,10 +51,10 @@ public:
 	void SetType(int typeId);
 
 	// Returns the object type for non-primitives
-	asIObjectType *GetType();
+	asITypeInfo *GetType();
 
 	// Get child by name variable
-	CSerializedValue *FindByName(const std::string &name);
+	CSerializedValue *FindByName(const std::string &name, const std::string &nameSpace);
 
 	// Find variable by ptr
 	CSerializedValue *FindByPtr(void *ptr);
@@ -59,8 +63,8 @@ public:
 	void *GetUserData();
 	void  SetUserData(void *data);
 
-	// Children, e.g. properties of a script class, or elements
-	// of an array, or object pointed to by a handle unless it
+	// Children, e.g. properties of a script class, or elements 
+	// of an array, or object pointed to by a handle unless it 
 	// is already a variable)
 	std::vector<CSerializedValue*> m_children;
 
@@ -73,17 +77,17 @@ protected:
 	// you first need to save all the objects before you can save references to objects
 	void ReplaceHandles();
 
-	// After the objects has been restored, the handles needs to
+	// After the objects has been restored, the handles needs to 
 	// be updated to point to the right objects
-	void RestoreHandles();
+	void RestoreHandles(); 
 
 	// Recursively get all ptrs of the children
 	void  GetAllPointersOfChildren(std::vector<void*> *ptrs);
 
-	// may be that the two references refer to the same variable.
-	// But this variable is not available in the global list.
-	// According to this reference will be restores it.
-	// And so two links are not created 2 variables,
+	// may be that the two references refer to the same variable. 
+	// But this variable is not available in the global list. 
+	// According to this reference will be restores it. 
+	// And so two links are not created 2 variables, 
 	// it is necessary to cancel the creation of one of them.
 	void CancelDuplicates(CSerializedValue *from);
 
@@ -96,8 +100,6 @@ protected:
 	// Cleanup children
 	void ClearChildren();
 
-
-
 	// The serializer object
 	CSerializer *m_serializer;
 
@@ -107,20 +109,21 @@ protected:
 	// The type id of the stored value
 	int m_typeId;
 
-	// For non-primitives the typeId may change if the module is reloaded so
+	// For non-primitives the typeId may change if the module is reloaded so 
 	// it is necessary to store the type name to determine the new type id
 	std::string m_typeName;
 	
 	// Name of variable or property
 	std::string m_name;
+	std::string m_nameSpace;
 
 	// Is initialized
 	bool m_isInit;
 
-	// 'this' pointer to variable.
-	// While storing, this points to the actual variable that was stored.
+	// 'this' pointer to variable. 
+	// While storing, this points to the actual variable that was stored. 
 	// While restoring, it is just a unique identifier.
-	void *m_ptr;
+	void *m_originalPtr;
 
 	// where handle references
 	// While storing, this points to the actual object.
@@ -137,13 +140,13 @@ protected:
 };
 
 
-// This class keeps a list of variables, then restores them after the reboot script.
-// But you have to be careful with the change of signature classes, or
-// changing the types of objects. You can remove or add variables, functions,
-// methods. But you can not (yet) to change the variable type.
+// This class keeps a list of variables, then restores them after the script is rebuilt.
+// But you have to be careful with the change of signature in classes, or 
+// changing the types of objects. You can remove or add variables, functions, 
+// methods, but you can not (yet) change the type of variables. 
 //
-// You also need to understand that after a reboot you should get a new id
-// FUNCTIONS, or class to call them from C + + code.
+// You also need to understand that after a rebuild you should get  
+// new functions and typeids from the module.
 class CSerializer
 {
 public:
@@ -159,14 +162,29 @@ public:
 	// Restore all global variables after reloading script
 	int Restore(asIScriptModule *mod);
 
+	// Store extra objects that are not seen from the module's global variables
+	void AddExtraObjectToStore(asIScriptObject *object);
+
+	// Return new pointer to restored object
+	void *GetPointerToRestoredObject(void *originalObject);
+
 protected:
 	friend class CSerializedValue;
 
-	CSerializedValue   m_root;
-	asIScriptEngine *m_engine;
-	asIScriptModule *m_mod;
+	CSerializedValue  m_root;
+	asIScriptEngine  *m_engine;
+	asIScriptModule  *m_mod;
 
 	std::map<std::string, CUserType*> m_userTypes;
+
+	struct SExtraObject
+	{
+		asIScriptObject *originalObject;
+		std::string      originalClassName;
+		int              originalTypeId;
+	};
+
+	std::vector<SExtraObject> m_extraObjects;
 };
 
 
