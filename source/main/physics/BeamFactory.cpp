@@ -1041,7 +1041,7 @@ void BeamFactory::UpdatePhysicsSimulation()
 					if (m_trucks[t] && (m_trucks[t]->simulated = m_trucks[t]->calcForcesEulerPrepare(i==0, PHYSICS_DT, i, m_physics_steps)))
 					{
 						num_simulated_trucks++;
-						auto func = std::function<void(int)>([this, i](int t){
+						auto func = std::function<void()>([this, i, t](){
 							m_trucks[t]->calcForcesEulerCompute(i==0, PHYSICS_DT, i, m_physics_steps);
 							if (!m_trucks[t]->disableTruckTruckSelfCollisions)
 							{
@@ -1057,7 +1057,7 @@ void BeamFactory::UpdatePhysicsSimulation()
 										*(m_trucks[t]->submesh_ground_model));
 							}
 						});
-						tasks.push_back(std::bind(func, t));
+						tasks.push_back(func);
 					}
 				}
 				gEnv->threadPool->Parallelize(tasks);
@@ -1076,7 +1076,7 @@ void BeamFactory::UpdatePhysicsSimulation()
 				{
 					if (m_trucks[t] && m_trucks[t]->simulated && !m_trucks[t]->disableTruckTruckCollisions)
 					{
-						auto func = std::function<void(int)>([this](int t){
+						auto func = std::function<void()>([this, t](){
 							m_trucks[t]->InterPointCD()->update(m_trucks[t], m_trucks, m_free_truck);
 							if (m_trucks[t]->collisionRelevant)
 							{
@@ -1092,7 +1092,7 @@ void BeamFactory::UpdatePhysicsSimulation()
 										*(m_trucks[t]->submesh_ground_model));
 							}
 						});
-						tasks.push_back(std::bind(func, t));
+						tasks.push_back(func);
 					}
 				}
 				gEnv->threadPool->Parallelize(tasks);
