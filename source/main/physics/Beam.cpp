@@ -1011,8 +1011,8 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
 	Beam **trucks = BeamFactory::getSingleton().getTrucks();
 	int trucksnum = BeamFactory::getSingleton().getTruckCount();
 
-	intraPointCD->update(this, true);
-	interPointCD->update(this, trucks, trucksnum, true);
+	if (intraPointCD) intraPointCD->update(this, true);
+	if (interPointCD) interPointCD->update(this, trucks, trucksnum, true);
 
 	// collision displacement
 	Vector3 collision_offset = Vector3::ZERO;
@@ -1024,28 +1024,31 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
 		if (!bb.intersects(trucks[t]->boundingBox)) continue;
 
 		// Test own contacters against others cabs
-		for (int i=0; i<trucks[t]->free_collcab; i++)
+		if (intraPointCD)
 		{
-			if (collision_offset.length() >= max_distance) break;
-			Vector3 offset = collision_offset;
-			while (offset.length() < max_distance)
+			for (int i=0; i<trucks[t]->free_collcab; i++)
 			{
-				int tmpv = trucks[t]->collcabs[i]*3;
-				node_t* no = &trucks[t]->nodes[cabs[tmpv]];
-				node_t* na = &trucks[t]->nodes[cabs[tmpv+1]];
-				node_t* nb = &trucks[t]->nodes[cabs[tmpv+2]];
-
-				intraPointCD->query(no->AbsPosition + offset,
-									na->AbsPosition + offset,
-									nb->AbsPosition + offset,
-									collrange);
-
-				if (intraPointCD->hit_count == 0)
+				if (collision_offset.length() >= max_distance) break;
+				Vector3 offset = collision_offset;
+				while (offset.length() < max_distance)
 				{
-					collision_offset = offset;
-					break;
+					int tmpv = trucks[t]->collcabs[i]*3;
+					node_t* no = &trucks[t]->nodes[cabs[tmpv]];
+					node_t* na = &trucks[t]->nodes[cabs[tmpv+1]];
+					node_t* nb = &trucks[t]->nodes[cabs[tmpv+2]];
+
+					intraPointCD->query(no->AbsPosition + offset,
+										na->AbsPosition + offset,
+										nb->AbsPosition + offset,
+										collrange);
+
+					if (intraPointCD->hit_count == 0)
+					{
+						collision_offset = offset;
+						break;
+					}
+					offset += direction * 0.01f;
 				}
-				offset += direction * 0.01f;
 			}
 		}
 
@@ -1086,28 +1089,31 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
 	}
 
 	// Test own cabs against others contacters
-	for (int i=0; i<free_collcab; i++)
+	if (interPointCD)
 	{
-		if (collision_offset.length() >= max_distance) break;
-		Vector3 offset = collision_offset;
-		while (offset.length() < max_distance)
+		for (int i=0; i<free_collcab; i++)
 		{
-			int tmpv = collcabs[i]*3;
-			node_t* no = &nodes[cabs[tmpv]];
-			node_t* na = &nodes[cabs[tmpv+1]];
-			node_t* nb = &nodes[cabs[tmpv+2]];
-
-			interPointCD->query(no->AbsPosition + offset,
-								na->AbsPosition + offset,
-								nb->AbsPosition + offset,
-								collrange);
-
-			if (interPointCD->hit_count == 0)
+			if (collision_offset.length() >= max_distance) break;
+			Vector3 offset = collision_offset;
+			while (offset.length() < max_distance)
 			{
-				collision_offset = offset;
-				break;
+				int tmpv = collcabs[i]*3;
+				node_t* no = &nodes[cabs[tmpv]];
+				node_t* na = &nodes[cabs[tmpv+1]];
+				node_t* nb = &nodes[cabs[tmpv+2]];
+
+				interPointCD->query(no->AbsPosition + offset,
+									na->AbsPosition + offset,
+									nb->AbsPosition + offset,
+									collrange);
+
+				if (interPointCD->hit_count == 0)
+				{
+					collision_offset = offset;
+					break;
+				}
+				offset += direction * 0.01f;
 			}
-			offset += direction * 0.01f;
 		}
 	}
 
