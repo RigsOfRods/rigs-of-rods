@@ -11,8 +11,7 @@ wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9.zip
 unzip -qq ogre.zip && rm ogre.zip && mv sinbad-ogre-* ogre
 cd ogre
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Debug \
--DCMAKE_CXX_FLAGS="-w" \
+-DCMAKE_CXX_FLAGS="-w -O0" \
 -DOGRE_BUILD_TOOLS=OFF \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
@@ -25,8 +24,7 @@ tar -xvf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
 cd mygui
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Debug \
--DCMAKE_CXX_FLAGS="-w" \
+-DCMAKE_CXX_FLAGS="-w -O0" \
 -DMYGUI_BUILD_DEMOS:BOOL=OFF \
 -DMYGUI_BUILD_DOCS:BOOL=OFF \
 -DMYGUI_BUILD_TEST_APP:BOOL=OFF \
