@@ -3355,25 +3355,25 @@ void Beam::updateFlexbodiesPrepare()
 		}
 
 		// Push tasks into thread pool
-		for (int i=0; i<free_wheel; i++)
-		{
-			if (flexmesh_prepare[i])
-			{
-				auto func = std::function<void(int)>([this](int i) {
-					vwheels[i].fm->flexitCompute();
-				});
-				auto task_handle = gEnv->threadPool->RunTask(std::bind(func, i));
-				flexbody_tasks.push_back(task_handle);
-			}
-		}
 		for (int i=0; i<free_flexbody; i++)
 		{
 			if (flexbody_prepare[i])
 			{
-				auto func = std::function<void(int)>([this](int i) {
+				auto func = std::function<void()>([this, i]() {
 					flexbodies[i]->flexitCompute();
 				});
-				auto task_handle = gEnv->threadPool->RunTask(std::bind(func, i));
+				auto task_handle = gEnv->threadPool->RunTask(func);
+				flexbody_tasks.push_back(task_handle);
+			}
+		}
+		for (int i=0; i<free_wheel; i++)
+		{
+			if (flexmesh_prepare[i])
+			{
+				auto func = std::function<void()>([this, i]() {
+					vwheels[i].fm->flexitCompute();
+				});
+				auto task_handle = gEnv->threadPool->RunTask(func);
 				flexbody_tasks.push_back(task_handle);
 			}
 		}
