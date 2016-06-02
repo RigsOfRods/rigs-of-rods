@@ -7,7 +7,7 @@ mkdir $DEPS_INSTALL_DIR
 
 #OGRE
 cd $DEPS_BUILD_DIR
-wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9-0.zip
+wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9.zip
 unzip -qq ogre.zip && rm ogre.zip && mv sinbad-ogre-* ogre
 cd ogre
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
