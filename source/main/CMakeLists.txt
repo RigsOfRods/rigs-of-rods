@@ -223,7 +223,6 @@ set( SOURCE_FILES
   utils/ConfigFile.{h,cpp}
   utils/ErrorUtils.{h,cpp}
   utils/FileSystemInfo.h
-  utils/FontTextureHelper.h
   utils/IBehavior.h
   utils/IBehaviorManager.h
   utils/IManager.h
