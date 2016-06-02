@@ -14,7 +14,8 @@ addons:
       - boost-latest
       - george-edison55-precise-backports
     packages:
-      - g++-4.8
+      - gcc-6
+      - g++-6
       - libboost1.55-all-dev
       - cmake
       - cmake-data
@@ -41,8 +42,9 @@ addons:
 
 
 before_install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-
+  # show some information about the build host
+  - cat /proc/cpuinfo | grep -m1 "model name"  # CPU model
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
 
 install:
   - export DEPS_BUILD_DIR=$(pwd)/deps-build
@@ -53,7 +55,7 @@ script:
   - bash ./tools/travis/linux/build.sh
 
 after_success:
-- bash ./tools/travis/linux/deploy_docs.sh
+  - bash ./tools/travis/linux/deploy_docs.sh
 
 
 notifications:
@@ -63,7 +65,6 @@ notifications:
     channels:
       - "irc.freenode.org#rigsofrods-dev"
     use_notice: true
-    skip_join: true
 
   webhooks:
     urls:
