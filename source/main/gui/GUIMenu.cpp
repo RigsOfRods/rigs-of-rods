@@ -307,7 +307,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		int truck = PARSEINT(id.substr(6));
 		if (truck >= 0 && truck < BeamFactory::getSingleton().getTruckCount())
 		{
-			BeamFactory::getSingleton().setCurrentTruck(-1);
 			BeamFactory::getSingleton().setCurrentTruck(truck);
 		}
 	}

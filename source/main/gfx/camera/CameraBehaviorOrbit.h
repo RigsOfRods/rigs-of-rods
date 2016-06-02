@@ -38,6 +38,7 @@ public:
 	void activate(const CameraManager::CameraContext &ctx, bool reset = true) {};
 	void deactivate(const CameraManager::CameraContext &ctx) {};
 	void reset(const CameraManager::CameraContext &ctx);
+	void notifyContextChange(const CameraManager::CameraContext &ctx);
 
 	bool mouseMoved(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg);
 	bool mousePressed(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };
@@ -52,7 +53,12 @@ protected:
 	Ogre::Vector3 camLookAt;
 
 	bool limitCamMovement;
-	bool isMultiThreaded;
+
+private:
+
+	Ogre::Vector3 camLookAtLast;
+	Ogre::Vector3 camLookAtSmooth;
+	Ogre::Vector3 camLookAtSmoothLast;
 };
 
 #endif // __CAMERA_BEHAVIOR_ORBIT_H_

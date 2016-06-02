@@ -144,7 +144,6 @@ public:
 
 	void updateForceFeedback(int steps);
 	void updateAngelScriptEvents(float dt);
-	void updateFrameTimeInformation(float dt);
 	void updateVideocameras(float dt);
 	void handleResetRequests(float dt);
 	void handleTruckPosition(float dt);
@@ -386,6 +385,7 @@ public:
 
 	bool canwork;
 	bool replaymode;
+	Ogre::Real replayPrecision;
 	bool watercontact;
 	bool watercontactold;
 	int locked;
@@ -489,10 +489,6 @@ public:
 	bool getCustomParticleMode();
 	int getLowestNode();
 	
-	float global_dt;
-	float global_simulation_speed;
-	float oldframe_global_dt;
-	float oldframe_global_simulation_speed;
 	bool simulated;
 	int airbrakeval;
 	Ogre::Vector3 cameranodeacc;
@@ -632,7 +628,6 @@ protected:
 	Ogre::Vector3 velocity; // average node velocity (compared to the previous frame step)
 
 	Ogre::Real replayTimer;
-	Ogre::Real replayPrecision;
 
 	ground_model_t *lastFuzzyGroundModel;
 

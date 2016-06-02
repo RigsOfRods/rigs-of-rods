@@ -62,7 +62,7 @@ CameraManager::CameraManager(DOFManager *dof) :
 		ctx.mDof->setFocusMode(DOFManager::Auto);
 	}
 
-	m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", false);
+	m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
 	m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
 }
 
@@ -161,6 +161,10 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
 {
 	if (newBehaviorID == currentBehaviorID)
 	{
+		if (old_vehicle != new_vehicle)
+		{
+			currentBehavior->notifyContextChange(ctx);
+		}
 		return;
 	}
 
@@ -275,13 +279,21 @@ void CameraManager::OnReturnToMainMenu()
 	currentBehaviorID = -1;
 }
 
+void CameraManager::NotifyContextChange()
+{
+	if ( !currentBehavior ) return;
+	currentBehavior->notifyContextChange(ctx);
+}
+
 void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 {
 	// Getting out of vehicle
 	if (new_vehicle == nullptr)
 	{
 		ctx.mCurrTruck = nullptr;
-		if (! (this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam))
+		if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
+		     !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
+		     !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
 		{
 			this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
 		}
@@ -289,7 +301,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 	}
 
 	// Getting in vehicle
-	if (! (this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam))
+	if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
+		 !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
+		 !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
 	{
 		// Change camera
 		switch (new_vehicle->GetCameraContext()->behavior)

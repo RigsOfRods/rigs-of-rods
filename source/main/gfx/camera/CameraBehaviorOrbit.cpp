@@ -39,6 +39,9 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	, camDistMax(0.0f)
 	, camDistMin(0.0f)
 	, camLookAt(Vector3::ZERO)
+	, camLookAtLast(Vector3::ZERO)
+	, camLookAtSmooth(Vector3::ZERO)
+	, camLookAtSmoothLast(Vector3::ZERO)
 	, camRatio(11.0f)
 	, camRotX(0.0f)
 	, camRotXSwivel(0.0f)
@@ -48,7 +51,6 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 	, targetDirection(0.0f)
 	, targetPitch(0.0f)
 {
-	isMultiThreaded = BSETTING("Multi-threading", true);
 }
 
 void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
@@ -138,15 +140,22 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		desiredPosition.y = std::max(h, desiredPosition.y);
 	}
 
-	Vector3 precedingPosition = gEnv->mainCamera->getPosition(); 
-	
-	if ( ctx.mCurrTruck )
+	if ( camLookAtLast == Vector3::ZERO )
 	{
-		if ( isMultiThreaded )
-			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->oldframe_global_dt;
-		else
-			precedingPosition += ctx.mCurrTruck->nodes[0].Velocity * ctx.mCurrTruck->global_dt;
+		camLookAtLast = camLookAt;
 	}
+	if ( camLookAtSmooth == Vector3::ZERO )
+	{
+		camLookAtSmooth = camLookAt;
+	}
+	if ( camLookAtSmoothLast == Vector3::ZERO )
+	{
+		camLookAtSmoothLast = camLookAtSmooth;
+	}
+
+	Vector3 camDisplacement = camLookAt - camLookAtLast;
+	Vector3 precedingLookAt = camLookAtSmoothLast + camDisplacement;
+	Vector3 precedingPosition = gEnv->mainCamera->getPosition() + camDisplacement;
 
 	Vector3 camPosition = (1.0f / (camRatio + 1.0f)) * desiredPosition + (camRatio / (camRatio + 1.0f)) * precedingPosition;
 
@@ -156,13 +165,17 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		gEnv->collisions->forcecam = false;
 	} else
 	{
-		if ( ctx.mCurrTruck && ctx.mCurrTruck->replaymode )
+		if ( ctx.mCurrTruck && ctx.mCurrTruck->replaymode && camDisplacement != Vector3::ZERO )
 			gEnv->mainCamera->setPosition(desiredPosition);
 		else
 			gEnv->mainCamera->setPosition(camPosition);
 	}
 
-	gEnv->mainCamera->lookAt(camLookAt);
+	camLookAtSmooth = (1.0f / (camRatio + 1.0f)) * camLookAt + (camRatio / (camRatio + 1.0f)) * precedingLookAt;
+
+	camLookAtLast = camLookAt;
+	camLookAtSmoothLast = camLookAtSmooth;
+	gEnv->mainCamera->lookAt(camLookAtSmooth);
 }
 
 bool CameraBehaviorOrbit::mouseMoved(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg)
@@ -187,5 +200,13 @@ void CameraBehaviorOrbit::reset(const CameraManager::CameraContext &ctx)
 	camRotXSwivel = 0.0f;
 	camRotY = 0.3f;
 	camRotYSwivel = 0.0f;
+	camLookAtLast = Vector3::ZERO;
+	camLookAtSmooth = Vector3::ZERO;
+	camLookAtSmoothLast = Vector3::ZERO;
 	gEnv->mainCamera->setFOVy(ctx.fovExternal);
+}
+
+void CameraBehaviorOrbit::notifyContextChange(const CameraManager::CameraContext &ctx)
+{
+	camLookAtLast = Vector3::ZERO;
 }
