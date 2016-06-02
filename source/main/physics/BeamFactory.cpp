@@ -778,7 +778,7 @@ void BeamFactory::enterNextTruck()
 		}
 	}
 
-	if (m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+	if (pivot_index >= 0 && m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
 	{
 		setCurrentTruck(pivot_index);
 		return;
@@ -807,7 +807,7 @@ void BeamFactory::enterPreviousTruck()
 		}
 	}
 
-	if (m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+	if (pivot_index >= 0 && m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
 	{
 		setCurrentTruck(pivot_index);
 		return;
