@@ -4549,7 +4549,7 @@ void Parser::LogParsedShockDataForChecking(Ogre::String const & line, Shock& sho
 		"\n\t        Spring: %f"
 		"\n\t       Damping: %f"
 		"\n\t    ShortBound: %f"
-		"\n\t     LongBound: %f",
+		"\n\t     LongBound: %f"
 		"\n\tPrecompression: %f"
 		"\n\t       Options: ", 
 		shock.nodes[0].ToString().c_str(), shock.nodes[1].ToString().c_str(), 
