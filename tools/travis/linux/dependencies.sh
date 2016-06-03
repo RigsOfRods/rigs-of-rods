@@ -11,7 +11,7 @@ wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9.zip
 unzip -qq ogre.zip && rm ogre.zip && mv sinbad-ogre-* ogre
 cd ogre
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0" \
 -DOGRE_BUILD_TOOLS=OFF \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
@@ -24,7 +24,7 @@ tar -xvf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
 cd mygui
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0" \
 -DMYGUI_BUILD_DEMOS:BOOL=OFF \
 -DMYGUI_BUILD_DOCS:BOOL=OFF \
 -DMYGUI_BUILD_TEST_APP:BOOL=OFF \
@@ -39,7 +39,8 @@ git clone -q --depth=1 https://github.com/RigsOfRods/ogre-pagedgeometry.git
 cd ogre-pagedgeometry
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_BUILD_TYPE:STRING=Debug \
+-DCMAKE_CXX_FLAGS="-w" \
 -DPAGEDGEOMETRY_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
 make -s install
@@ -50,6 +51,8 @@ git clone -q --depth=1 https://github.com/RigsOfRods/caelum.git
 cd caelum
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
+-DCMAKE_BUILD_TYPE:STRING=Debug \
+-DCMAKE_CXX_FLAGS="-w" \
 -DCaelum_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
 make -s install
@@ -61,7 +64,10 @@ cd $DEPS_BUILD_DIR
 git clone -q --depth=1 https://github.com/Hiradur/mysocketw.git
 mkdir -p mysocketw/build
 cd mysocketw/build
-cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR ..
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
+-DCMAKE_BUILD_TYPE:STRING=Debug \
+-DCMAKE_CXX_FLAGS="-w" \
+..
 make -s -j2
 make install
 
