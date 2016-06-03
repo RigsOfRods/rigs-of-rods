@@ -16,7 +16,7 @@ cmake -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
 -DBUILD_DOC_DOXYGEN="TRUE" \
 ..
 
-make -j2
+time make -j2
 
 # Generate documentation (except for pull requests)
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]

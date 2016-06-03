@@ -15,7 +15,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 -DOGRE_BUILD_TOOLS=OFF \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
-make -s -j2
+time make -s -j2
 make install
 
 #MyGUI
@@ -32,7 +32,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DMYGUI_BUILD_TEST_APP:BOOL=OFF \
 -DMYGUI_BUILD_TOOLS:BOOL=OFF \
 -DMYGUI_BUILD_PLUGINS:BOOL=OFF .
-make -s -j2
+time make -s -j2
 make install
 
 #PagedGeometry
@@ -44,7 +44,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
 -DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 -DPAGEDGEOMETRY_BUILD_SAMPLES:BOOL=OFF .
-make -s -j2
+time make -s -j2
 make install
 
 #Caelum
@@ -56,7 +56,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
 -DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 -DCaelum_BUILD_SAMPLES:BOOL=OFF .
-make -s -j2
+time make -s -j2
 make install
 # important step, so the plugin can load:
 #sudo ln -s /usr/local/lib/libCaelum.so /usr/local/lib/OGRE/
@@ -70,7 +70,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
 -DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 ..
-make -s -j2
+time make -s -j2
 make install
 
 #Angelscript
@@ -84,7 +84,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
 -DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 .
-make -s -j2 
+time make -s -j2 
 cp -r ../../lib/libAngelscript.a $DEPS_INSTALL_DIR/lib/libangelscript.a
 cp -r ../../include $DEPS_INSTALL_DIR
 
