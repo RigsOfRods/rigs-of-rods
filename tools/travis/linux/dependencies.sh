@@ -28,7 +28,7 @@ make install
 #MyGUI
 cd $DEPS_BUILD_DIR
 wget -O mygui.tar.gz https://github.com/MyGUI/mygui/archive/MyGUI3.2.2.tar.gz
-tar -xvf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
+tar -xf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
 cd mygui
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
