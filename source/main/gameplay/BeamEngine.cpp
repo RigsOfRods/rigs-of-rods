@@ -982,7 +982,10 @@ void BeamEngine::offstart()
 	curClutchTorque = 0.0f;
 	curEngineRPM = 0.0f;
 	curGear = 0;
+	postshifting = 0;
 	running = false;
+	shifting = 0;
+	shiftval = 0;
 	if (automode == AUTOMATIC)
 	{
 		autoselect = NEUTRAL;
