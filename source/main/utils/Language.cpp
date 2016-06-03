@@ -40,6 +40,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Settings.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 
 LanguageEngine::LanguageEngine() : working(false), myguiConfigFilename("MyGUI_FontsEnglish.xml")
