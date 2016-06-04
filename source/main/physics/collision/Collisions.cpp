@@ -1073,7 +1073,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
 			if ((*cell)[k] != (int)UNUSED_CELLELEMENT && (*cell)[k] < MAX_COLLISION_BOXES)
 			{
 				collision_box_t *cbox = &collision_boxes[(*cell)[k]];
-				if (node->AbsPosition > cbox->lo - node->collRadius && node->AbsPosition < cbox->hi + node->collRadius)
+				if (node->AbsPosition > cbox->lo && node->AbsPosition < cbox->hi)
 				{
 					if (cbox->refined || cbox->selfrotated)
 					{
@@ -1087,7 +1087,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
 							Pos=Pos+cbox->selfcenter;
 						}
 						// now test with the inner box
-						if (Pos > cbox->relo - node->collRadius && Pos < cbox->rehi + node->collRadius)
+						if (Pos > cbox->relo && Pos < cbox->rehi)
 						{
 							if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
 							{
@@ -1108,17 +1108,17 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
 								smoky=true;
 								//*nso=ns;
 								// determine which side collided
-								float min=Pos.z-(cbox->relo - node->collRadius).z;
+								float min=Pos.z-(cbox->relo).z;
 								Vector3 normal=Vector3(0,0,-1);
-								float t=(cbox->rehi + node->collRadius).z-Pos.z;
+								float t=(cbox->rehi).z-Pos.z;
 								if (t<min){min=t; normal=Vector3(0,0,1);}; //north
-								t=Pos.x-(cbox->relo - node->collRadius).x;
+								t=Pos.x-(cbox->relo).x;
 								if (t<min) {min=t; normal=Vector3(-1,0,0);}; //west
-								t=(cbox->rehi + node->collRadius).x-Pos.x;
+								t=(cbox->rehi).x-Pos.x;
 								if (t<min) {min=t; normal=Vector3(1,0,0);}; //east
-								t=Pos.y-(cbox->relo - node->collRadius).y;
+								t=Pos.y-(cbox->relo).y;
 								if (t<min) {min=t; normal=Vector3(0,-1,0);}; //down
-								t=(cbox->rehi + node->collRadius).y-Pos.y;
+								t=(cbox->rehi).y-Pos.y;
 								if (t<min) {min=t; normal=Vector3(0,1,0);}; //up
 
 								// we need the normal, and the depth

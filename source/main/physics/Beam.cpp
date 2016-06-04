@@ -4464,19 +4464,6 @@ void Beam::setDebugOverlayState(int mode)
 			s->attachObject(b);
 			float f = 0.005f;
 			s->setScale(f,f,f);
-
-			/*
-			// collision nodes
-			if (nodes[i].collRadius > 0.00001)
-			{
-				b->setMaterialName("tracks/transred");
-				f = nodes[i].collRadius;
-			} else
-			{
-				b->setMaterialName("tracks/transgreen");
-			}
-			*/
-
 			nodes_debug.push_back(t);
 		}
 

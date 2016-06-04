@@ -22,8 +22,8 @@ struct node_t
 	Ogre::Vector3 Velocity;
 	Ogre::Vector3 Forces;
 	
+	Ogre::Real mass;
 	float collTestTimer;
-	float collRadius;
 	short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
 	short locked;  //!< {UNLOCKED | PRELOCK | LOCKED}
 
@@ -34,7 +34,6 @@ struct node_t
 
 	// <-- 64 Bytes -->
 
-	Ogre::Real mass;
 	Ogre::Real buoyancy;
 	Ogre::Real friction_coef;
 	Ogre::Real surface_coef;
