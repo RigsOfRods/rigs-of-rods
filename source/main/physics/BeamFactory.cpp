@@ -762,7 +762,7 @@ void BeamFactory::enterNextTruck()
 
 	for (int i = pivot_index + 1; i < m_free_truck; i++)
 	{
-		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
+		if (m_trucks[i] && m_trucks[i]->state != NETWORKED && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
@@ -771,14 +771,14 @@ void BeamFactory::enterNextTruck()
 
 	for (int i = 0; i < pivot_index; i++)
 	{
-		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
+		if (m_trucks[i] && m_trucks[i]->state != NETWORKED && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
 		}
 	}
 
-	if (pivot_index >= 0 && m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+	if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->state != NETWORKED && !m_trucks[pivot_index]->isPreloadedWithTerrain())
 	{
 		setCurrentTruck(pivot_index);
 		return;
@@ -791,7 +791,7 @@ void BeamFactory::enterPreviousTruck()
 
 	for (int i = pivot_index - 1; i >= 0; i--)
 	{
-		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
+		if (m_trucks[i] && m_trucks[i]->state != NETWORKED && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
@@ -800,14 +800,14 @@ void BeamFactory::enterPreviousTruck()
 
 	for (int i = m_free_truck - 1; i > pivot_index; i--)
 	{
-		if (m_trucks[i] && !m_trucks[i]->isPreloadedWithTerrain())
+		if (m_trucks[i] && m_trucks[i]->state != NETWORKED && !m_trucks[i]->isPreloadedWithTerrain())
 		{
 			setCurrentTruck(i);
 			return;
 		}
 	}
 
-	if (pivot_index >= 0 && m_trucks[pivot_index] && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+	if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->state != NETWORKED && !m_trucks[pivot_index]->isPreloadedWithTerrain())
 	{
 		setCurrentTruck(pivot_index);
 		return;
