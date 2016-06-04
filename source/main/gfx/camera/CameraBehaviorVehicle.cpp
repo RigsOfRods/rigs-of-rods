@@ -40,8 +40,7 @@ CameraBehaviorVehicle::CameraBehaviorVehicle() :
 
 void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 {
-	Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos
-				 - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos).normalisedCopy();
+	Vector3 dir = ctx.mCurrTruck->getDirection();
 
 	targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	targetPitch     = 0.0f;
@@ -99,7 +98,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 			camRotY = asin(camDir.y);
 
 			// Calculate new camera yaw
-			Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos  - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos).normalisedCopy();
+			Vector3 dir = -ctx.mCurrTruck->getDirection();
 			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
 			camRotX = rotX.getYaw();
 

@@ -994,7 +994,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle)
 	}
 
 	// pitch
-	Vector3 dir = (vehicle->nodes[vehicle->cameranodepos[0]].RelPosition - vehicle->nodes[vehicle->cameranodedir[0]].RelPosition).normalisedCopy();
+	Vector3 dir = vehicle->getDirection();
 	angle = asin(dir.dotProduct(Vector3::UNIT_Y));
 	angle = std::max(-1.0f, angle);
 	angle = std::min(angle, 1.0f);
@@ -1148,8 +1148,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 	float rollangle=asin(rollv.dotProduct(Vector3::UNIT_Y));
 
 	//pitch
-	Vector3 dirv=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	dirv.normalise();
+	Vector3 dirv=vehicle->getDirection();
 	float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
 	Vector3 upv=dirv.crossProduct(-rollv);
 	if (upv.y<0) rollangle=3.14159-rollangle;
@@ -1158,9 +1157,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 	aditapetexture->setTextureRotate(Radian(-rollangle));
 
 	//hsi
-	Vector3 idir=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	//			idir.normalise();
-	float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
+	float dirangle=atan2(dirv.dotProduct(Vector3::UNIT_X), dirv.dotProduct(-Vector3::UNIT_Z));
 	hsirosetexture->setTextureRotate(Radian(dirangle));
 	if (vehicle->autopilot)
 	{
@@ -1281,8 +1278,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam * vehicle)
 	}
 
 	//position
-	Vector3 dir=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	dir.normalise();
+	Vector3 dir=vehicle->getDirection();
 
 	char tmp[50]="";
 	if (vehicle->getLowestNode() != -1)
@@ -1301,9 +1297,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam * vehicle)
 
 	//waterspeed
 	float angle=0.0;
-	Vector3 hdir=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	hdir.normalise();
-	float kt=hdir.dotProduct(vehicle->nodes[vehicle->cameranodepos[0]].Velocity)*1.9438;
+	float kt=dir.dotProduct(vehicle->nodes[vehicle->cameranodepos[0]].Velocity)*1.9438;
 	angle=kt*4.2;
 	boatspeedtexture->setTextureRotate(Degree(-angle));
 	boatsteertexture->setTextureRotate(Degree(vehicle->screwprops[0]->getRudder() * 170));
