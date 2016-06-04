@@ -254,7 +254,12 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 						}
 					}
 				}
-				truck->m_custom_camera_node = nearest_node_index;
+				if (truck->m_custom_camera_node != nearest_node_index)
+				{
+					truck->m_custom_camera_node = nearest_node_index;
+					truck->updateTruckPosition();
+					gEnv->cameraManager->NotifyContextChange();
+				}
 			}
 		}
 	}
