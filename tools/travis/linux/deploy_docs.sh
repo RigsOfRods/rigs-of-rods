@@ -1,9 +1,9 @@
-#!/usr/env bash
+#!/bin/sh
 
 set -eu
 
 # Only deploy documentation if not building Pull Request
-if [ "${TRAVIS_PULL_REQUEST}" == "false" ]
+if [ "${TRAVIS_PULL_REQUEST}" = "false" ]
 then
   # Decode and install the ssh private key which provides access to the
   # ror-documentation repository.

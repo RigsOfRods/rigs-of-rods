@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 set -eu
 
 mkdir $DEPS_BUILD_DIR
-mkdir $DEPS_INSTALL_DIR
+#mkdir $DEPS_INSTALL_DIR
 
 #OGRE
 cd $DEPS_BUILD_DIR
@@ -11,7 +11,13 @@ wget -O ogre.zip https://bitbucket.org/sinbad/ogre/get/v1-9.zip
 unzip -qq ogre.zip && rm ogre.zip && mv sinbad-ogre-* ogre
 cd ogre
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
--DCMAKE_CXX_FLAGS="-w -O0" \
+-DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
+-DOGRE_BUILD_PLUGIN_BSP:BOOL=OFF \
+-DOGRE_BUILD_PLUGIN_CG:BOOL=OFF \
+-DOGRE_BUILD_PLUGIN_PCZ:BOOL=OFF \
+-DOGRE_BUILD_COMPONENT_VOLUME:BOOL=OFF \
+-DOGRE_BUILD_TESTS:BOOL=OFF \
 -DOGRE_BUILD_TOOLS=OFF \
 -DOGRE_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
@@ -20,11 +26,12 @@ make install
 #MyGUI
 cd $DEPS_BUILD_DIR
 wget -O mygui.tar.gz https://github.com/MyGUI/mygui/archive/MyGUI3.2.2.tar.gz
-tar -xvf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
+tar -xf mygui.tar.gz && rm mygui.tar.gz && mv mygui-* mygui
 cd mygui
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
--DCMAKE_CXX_FLAGS="-w -O0" \
+-DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 -DMYGUI_BUILD_DEMOS:BOOL=OFF \
 -DMYGUI_BUILD_DOCS:BOOL=OFF \
 -DMYGUI_BUILD_TEST_APP:BOOL=OFF \
@@ -39,11 +46,11 @@ git clone -q --depth=1 https://github.com/RigsOfRods/ogre-pagedgeometry.git
 cd ogre-pagedgeometry
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Debug \
--DCMAKE_CXX_FLAGS="-w" \
+-DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 -DPAGEDGEOMETRY_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
-make -s install
+make install
 
 #Caelum
 cd $DEPS_BUILD_DIR
@@ -51,11 +58,11 @@ git clone -q --depth=1 https://github.com/RigsOfRods/caelum.git
 cd caelum
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Debug \
--DCMAKE_CXX_FLAGS="-w" \
+-DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 -DCaelum_BUILD_SAMPLES:BOOL=OFF .
 make -s -j2
-make -s install
+make install
 # important step, so the plugin can load:
 #sudo ln -s /usr/local/lib/libCaelum.so /usr/local/lib/OGRE/
 
@@ -65,8 +72,8 @@ git clone -q --depth=1 https://github.com/Hiradur/mysocketw.git
 mkdir -p mysocketw/build
 cd mysocketw/build
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
--DCMAKE_BUILD_TYPE:STRING=Debug \
--DCMAKE_CXX_FLAGS="-w" \
+-DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
 ..
 make -s -j2
 make install
@@ -78,7 +85,10 @@ cd angelscript
 wget http://www.angelcode.com/angelscript/sdk/files/angelscript_2.22.1.zip
 unzip -qq angelscript_*.zip
 cd sdk/angelscript/projects/cmake
-cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR .
+cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
+-DCMAKE_BUILD_TYPE:STRING=Release \
+-DCMAKE_CXX_FLAGS="-w -O0 -pipe" \
+.
 make -s -j2 
 cp -r ../../lib/libAngelscript.a $DEPS_INSTALL_DIR/lib/libangelscript.a
 cp -r ../../include $DEPS_INSTALL_DIR
