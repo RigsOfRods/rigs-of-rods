@@ -3,7 +3,7 @@
 set -eu
 
 mkdir $DEPS_BUILD_DIR
-mkdir $DEPS_INSTALL_DIR
+#mkdir $DEPS_INSTALL_DIR
 
 #OGRE
 cd $DEPS_BUILD_DIR
