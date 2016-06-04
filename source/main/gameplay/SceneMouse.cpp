@@ -257,7 +257,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 				if (truck->m_custom_camera_node != nearest_node_index)
 				{
 					truck->m_custom_camera_node = nearest_node_index;
-					truck->updateTruckPosition();
+					truck->calculateAveragePosition();
 					gEnv->cameraManager->NotifyContextChange();
 				}
 			}

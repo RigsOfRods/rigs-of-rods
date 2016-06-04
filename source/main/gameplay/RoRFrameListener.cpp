@@ -1237,7 +1237,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	m_time += dt;
 
 	BeamFactory::getSingleton().SyncWithSimThread();
-	BeamFactory::getSingleton().updateTruckPositions();
 
 #ifdef USE_SOCKETW
 	if (gEnv->multiplayer)

@@ -485,11 +485,6 @@ void Beam::moveOrigin(Vector3 offset)
 	}
 }
 
-void Beam::changeOrigin(Vector3 newOrigin)
-{
-	moveOrigin(newOrigin - origin);
-}
-
 float Beam::getRotation()
 {
 	Vector3 cur_dir = getDirection();
@@ -1204,7 +1199,7 @@ int Beam::loadPosition(int indexPosition)
 	return 0;
 }
 
-void Beam::updateTruckPosition()
+void Beam::calculateAveragePosition()
 {
 	// calculate average position
 	if (m_custom_camera_node >= 0)
@@ -1228,8 +1223,10 @@ void Beam::updateTruckPosition()
 		}
 		position = aposition / free_node;
 	}
+}
 
-	// update bounding box
+void Beam::updateBoundingBox()
+{
 	boundingBox = AxisAlignedBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
 	for (int i=0; i<free_node; i++)
 	{
@@ -1237,6 +1234,24 @@ void Beam::updateTruckPosition()
 	}
 	boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
 	boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+}
+
+void Beam::preUpdatePhysics(float dt)
+{
+	lastposition = position;
+
+	if (nodes[0].RelPosition.squaredLength() > 10000.0)
+	{
+		moveOrigin(nodes[0].RelPosition);
+	}
+}
+
+void Beam::postUpdatePhysics(float dt)
+{
+	calculateAveragePosition();
+
+	// Calculate average truck velocity
+	velocity = (position - lastposition) / dt;
 }
 
 void Beam::resetAngle(float rot)
@@ -1264,7 +1279,8 @@ void Beam::resetAngle(float rot)
 
 	resetSlideNodePositions();
 
-	updateTruckPosition();
+	updateBoundingBox();
+	calculateAveragePosition();
 }
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
@@ -1343,7 +1359,8 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 		}
 	}
 
-	updateTruckPosition();
+	updateBoundingBox();
+	calculateAveragePosition();
 
 	// calculate minimum camera radius
 	if (minCameraRadius < 0.0f)
@@ -1490,7 +1507,8 @@ void Beam::displace(Vector3 translation, float rotation)
 
 	if (rotation != 0.0f || translation != Vector3::ZERO)
 	{
-		updateTruckPosition();
+		updateBoundingBox();
+		calculateAveragePosition();
 	}
 }
 
@@ -1648,7 +1666,8 @@ bool Beam::replayStep()
 			}
 
 			updateSlideNodePositions();
-			updateTruckPosition();
+			updateBoundingBox();
+			calculateAveragePosition();
 		}
 
 		beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
@@ -1705,19 +1724,6 @@ void Beam::handleResetRequests(float dt)
 {
 	if (m_reset_request)
 		SyncReset();
-}
-
-void Beam::handleTruckPosition(float dt)
-{
-	if (simulated)
-	{
-		velocity = (position - lastposition) / dt;
-		lastposition = position;
-	}
-	if (nodes[0].RelPosition.squaredLength() > 10000.0)
-	{
-		moveOrigin(nodes[0].RelPosition);
-	}
 }
 
 void Beam::sendStreamSetup()
