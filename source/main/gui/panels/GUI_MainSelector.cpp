@@ -96,7 +96,6 @@ CLASS::~CLASS()
 
 void CLASS::Reset()
 {
-	m_keys_bound = false;
 	m_selected_skin = nullptr;
 	m_selected_entry = nullptr;
 	m_selection_done = true;
