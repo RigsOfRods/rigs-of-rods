@@ -24,13 +24,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "IManager.h"
-
-class IBehaviorManager : public IManager
+class IBehaviorManager : public ZeroedMemoryAllocator
 {
 public:
 
 	virtual ~IBehaviorManager() {}
+
+	virtual bool update(float dt) = 0;
 
 	virtual void switchBehavior(int newBehavior, bool reset = true) = 0;
 	virtual void switchToNextBehavior(bool force = true) = 0;

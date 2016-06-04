@@ -22,9 +22,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __TerrainGeometryManager_H_
 #define __TerrainGeometryManager_H_
 
+#include "RoRPrerequisites.h"
+
 #include "ConfigFile.h"
 #include "IHeightFinder.h"
-#include "IManager.h"
 
 #include <OgreTerrain.h>
 #include <OgreTerrainMaterialGeneratorA.h>
@@ -33,7 +34,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrainGroup.h>
 
 // this class handles all interactions with the Ogre Terrain system
-class TerrainGeometryManager : public IManager, public IHeightFinder
+class TerrainGeometryManager : public ZeroedMemoryAllocator, public IHeightFinder
 {
 public:
 
@@ -59,10 +60,6 @@ public:
 
 	bool update(float dt);
 	void updateLightMap();
-
-
-	size_t getMemoryUsage();
-	void freeResources();
 
 protected:
 

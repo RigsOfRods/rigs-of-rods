@@ -797,17 +797,6 @@ SkyManager* TerrainManager::getSkyManager()
 		return nullptr;
 }
 
-size_t TerrainManager::getMemoryUsage()
-{
-	// TODO: FIX
-	return 0;
-}
-
-void TerrainManager::freeResources()
-{
-	// TODO
-}
-
 void TerrainManager::loadPreloadedTrucks()
 {
 	if (object_manager)

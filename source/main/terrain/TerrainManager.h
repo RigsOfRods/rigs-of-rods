@@ -20,12 +20,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "RoRPrerequisites.h"
+
 #include "ConfigFile.h"
-#include "IManager.h"
 
-#include "OgreTerrainPSSMMaterialGenerator.h"
-
-class TerrainManager : public IManager
+class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
 
@@ -69,9 +68,6 @@ public:
 	// preloaded trucks
 	void loadPreloadedTrucks();
 	bool hasPreloadedTrucks();
-
-	size_t getMemoryUsage();
-	void freeResources();
 
 	static const int UNLIMITED_SIGHTRANGE = 4999;
 
