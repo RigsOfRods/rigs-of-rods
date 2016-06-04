@@ -50,7 +50,6 @@ const float SoundManager::REFERENCE_DISTANCE = 7.5f;
 
 SoundManager::SoundManager() :
 	  audio_buffers_in_use_count(0)
-	, audio_sources_in_use_count(0)
 	, hardware_sources_in_use_count(0)
 	, hardware_sources_num(0)
 	, sound_context(NULL)
@@ -159,7 +158,7 @@ void SoundManager::recomputeAllSources()
 {
 	if (!audio_device) return;
 
-	for (int i=0; i < audio_sources_in_use_count; i++)
+	for (int i=0; i < audio_buffers_in_use_count; i++)
 	{
 		audio_sources[i]->computeAudibility(camera_position);
 		audio_sources_most_audible[i].first = i;
@@ -167,18 +166,18 @@ void SoundManager::recomputeAllSources()
 	}
 	// sort first 'num_hardware_sources' sources by audibility
 	// see: https://en.wikipedia.org/wiki/Selection_algorithm
-	if ((audio_sources_in_use_count - 1) > hardware_sources_num)
+	if ((audio_buffers_in_use_count - 1) > hardware_sources_num)
 	{
-		std::nth_element(audio_sources_most_audible, audio_sources_most_audible+hardware_sources_num, audio_sources_most_audible+audio_sources_in_use_count-1, compareByAudibility);
+		std::nth_element(audio_sources_most_audible, audio_sources_most_audible+hardware_sources_num, audio_sources_most_audible + audio_buffers_in_use_count - 1, compareByAudibility);
 	}
 	// retire out of range sources first
-	for (int i=0; i < audio_sources_in_use_count; i++)
+	for (int i=0; i < audio_buffers_in_use_count; i++)
 	{
 		if (audio_sources[audio_sources_most_audible[i].first]->hardware_index != -1 && (i >= hardware_sources_num || audio_sources_most_audible[i].second == 0))
 			retire(audio_sources_most_audible[i].first);
 	}
 	// assign new sources
-	for (int i=0; i < std::min(audio_sources_in_use_count, hardware_sources_num); i++)
+	for (int i=0; i < std::min(audio_buffers_in_use_count, hardware_sources_num); i++)
 	{
 		if (audio_sources[audio_sources_most_audible[i].first]->hardware_index == -1 && audio_sources_most_audible[i].second > 0)
 		{
