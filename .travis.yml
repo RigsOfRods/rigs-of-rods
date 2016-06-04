@@ -1,6 +1,10 @@
 language: cpp
 sudo: false
 
+cache:
+  directories:
+    - $HOME/deps-install
+
 compiler:
   - gcc
 #  - clang
@@ -47,10 +51,10 @@ before_install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 install:
-  - export DEPS_BUILD_DIR=$(pwd)/deps-build
-  - export DEPS_INSTALL_DIR=$(pwd)/deps-install
+  - export DEPS_BUILD_DIR=$HOME/deps-build
+  - export DEPS_INSTALL_DIR=$HOME/deps-install
   - export PKG_CONFIG_PATH=$DEPS_INSTALL_DIR/lib/pkgconfig
-  - sh ./tools/travis/linux/dependencies.sh
+  - if [ ! -d $HOME/deps-install ]; then sh ./tools/travis/linux/dependencies.sh; fi
 script:
   - sh ./tools/travis/linux/build.sh
 
