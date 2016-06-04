@@ -234,7 +234,6 @@ set( SOURCE_FILES
   utils/MumbleIntegration.{h,cpp}
   utils/PlatformUtils.{h,cpp}
   utils/RoRWindowEventUtilities.{h,cpp}
-  utils/ScopeLog.{h,cpp}
   utils/Settings.{h,cpp}
   utils/SHA1.{h,cpp}
   utils/SimpleGlob.h
