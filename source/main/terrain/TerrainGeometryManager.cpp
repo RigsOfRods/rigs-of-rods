@@ -670,17 +670,6 @@ Ogre::Vector3 TerrainGeometryManager::getTerrainPosition()
 	return terrainPos;
 }
 
-size_t TerrainGeometryManager::getMemoryUsage()
-{
-	// TODO
-	return 0;
-}
-
-void TerrainGeometryManager::freeResources()
-{
-	// TODO
-}
-
 Ogre::String TerrainGeometryManager::getCompositeMaterialName()
 {
 	TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();

@@ -225,7 +225,6 @@ set( SOURCE_FILES
   utils/FileSystemInfo.h
   utils/IBehavior.h
   utils/IBehaviorManager.h
-  utils/IManager.h
   utils/ImprovedConfigFile.h
   utils/InputEngine.{h,cpp}
   utils/InterThreadStoreVector.h

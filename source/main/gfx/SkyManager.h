@@ -26,9 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "CaelumPrerequisites.h"
-#include "IManager.h"
 
-class SkyManager : public IManager
+class SkyManager : public ZeroedMemoryAllocator
 {
 public:
 
@@ -47,8 +46,6 @@ public:
 	Ogre::String getPrettyTime();
 	
 	bool update( float dt );
-	size_t getMemoryUsage();
-	void freeResources();
 
 	void forceUpdate(float dt);
 

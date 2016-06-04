@@ -181,20 +181,4 @@ String SkyManager::getPrettyTime()
 	+ ":" + StringConverter::toString( (int)second, 2, '0' );
 }
 
-bool SkyManager::update( float dt )
-{
-	// TODO
-	return true;
-}
-
-size_t SkyManager::getMemoryUsage()
-{
-	return 0;
-}
-
-void SkyManager::freeResources()
-{
-	// TODO
-}
-
 #endif //USE_CAELUM

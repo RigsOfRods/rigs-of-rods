@@ -24,8 +24,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include "IManager.h"
-
 #ifdef USE_PAGED
 #include "BatchPage.h"
 #include "GrassLoader.h"
@@ -35,7 +33,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TreeLoader3D.h"
 #endif //USE_PAGED
 
-class TerrainObjectManager : public IManager
+class TerrainObjectManager : public ZeroedMemoryAllocator
 {
 public:
 
@@ -128,9 +126,6 @@ protected:
 	} loadedObject_t;
 	std::map< std::string, loadedObject_t> loadedObjects;
 
-	virtual size_t getMemoryUsage();
-
-	virtual void freeResources();
 	void proceduralTests();
 };
 
