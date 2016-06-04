@@ -146,6 +146,12 @@ https://repofiles.avrintech.net/repofiles-1st-batch/1cd8142f8696880c1abbde48c752
 Plane:
 http://www.rigsofrods.org/old-forum/forums/106-General-Chat/120737/page-0001.html
 ------------------------
+loading_23.jpg:
+Map:
+https://repofiles.avrintech.net/repofiles-4th-batch/RiverRock.zip
+Vehicle:
+http://www.rigsofrods.org/old-forum/forums/117-Light-Vehicles/66028/page-0001.html
+------------------------
 
 Please update this readme if I have forgot any links. Thanks.
 
