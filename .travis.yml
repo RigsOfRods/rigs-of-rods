@@ -14,8 +14,8 @@ addons:
       - boost-latest
       - george-edison55-precise-backports
     packages:
-      - gcc-6
-      - g++-6
+      - gcc-4.8
+      - g++-4.8
       - libboost1.55-all-dev
       - cmake
       - cmake-data
@@ -44,7 +44,7 @@ addons:
 before_install:
   # show some information about the build host
   - cat /proc/cpuinfo | grep -m1 "model name"  # CPU model
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 install:
   - export DEPS_BUILD_DIR=$(pwd)/deps-build
