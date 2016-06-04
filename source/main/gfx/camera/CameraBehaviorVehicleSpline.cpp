@@ -57,8 +57,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 		return;
 	}
 
-	Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos
-		- ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos).normalisedCopy();
+	Vector3 dir = ctx.mCurrTruck->getDirection();
 
 	targetPitch = 0.0f;
 

@@ -2642,14 +2642,6 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
 			}
-			if (def.options.double_sided)
-			{
-				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-				if (def.HasSpecularMap())
-				{
-					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-				}
-			}
 		}
 		else
 		{
@@ -2673,14 +2665,6 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 					return;
 				}
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-			}
-			if (def.options.double_sided)
-			{
-				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-				if (def.HasSpecularMap())
-				{
-					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-				}
 			}
 		}
 	}
@@ -2712,13 +2696,17 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 			}
 			material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
 
-			if (def.options.double_sided)
+		}
+	}
+
+	if (def.type != RigDef::ManagedMaterial::TYPE_INVALID)
+	{
+		if (def.options.double_sided)
+		{
+			material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+			if (def.HasSpecularMap())
 			{
-				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-				if (def.HasSpecularMap())
-				{
-					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-				}
+				material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
 			}
 		}
 	}

@@ -1180,7 +1180,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		} else
 		{
 			position = curr_truck->getPosition();
-			Vector3 idir = curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
+			Vector3 idir = curr_truck->getDirection();
 			rotation = atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
 		}
 		LOG("Position: " + TOSTRING(position.x) + ", "+ TOSTRING(position.y) + ", " + TOSTRING(position.z) + ", 0, " + TOSTRING(rotation.valueDegrees()) + ", 0");

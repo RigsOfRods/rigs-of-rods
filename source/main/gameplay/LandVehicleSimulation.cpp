@@ -241,13 +241,8 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				// only when the truck really is not moving anymore
 				if (fabs(curr_truck->WheelSpeed) <= 1.0f)
 				{
-					float velocity = 0.0f;
-
-					if (curr_truck->cameranodepos[0] >= 0 && curr_truck->cameranodedir[0] >= 0)
-					{
-						Vector3 hdir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
-						velocity = hdir.dotProduct(curr_truck->nodes[0].Velocity);
-					}
+					Vector3 hdir = curr_truck->getDirection();
+					float velocity = hdir.dotProduct(curr_truck->nodes[0].Velocity);
 
 					// switching point, does the user want to drive forward from backward or the other way round? change gears?
 					if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() > 0)
@@ -474,7 +469,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				curr_truck->engine->getAutoShift() != BeamEngine::NEUTRAL &&
 				std::abs(curr_truck->WheelSpeed) < 0.1f)
 			{
-				Vector3 dirDiff = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
+				Vector3 dirDiff = curr_truck->getDirection();
 				Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
 
 				if (std::abs(pitchAngle.valueDegrees()) > 1.0f)

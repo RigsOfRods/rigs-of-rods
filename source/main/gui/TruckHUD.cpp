@@ -249,12 +249,6 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		}
 	}
 
-	Vector3 hdir = Vector3::ZERO;
-	if (truck->cameranodepos[0] >= 0 && truck->cameranodepos[0] < MAX_NODES)
-	{
-		hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
-	}
-
 	// always update these statistics, also if not visible!
 	overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CurrentRPM");
 	overlayElement->setCaption("");
@@ -314,6 +308,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		
 		if (truck->cameranodepos[0] >= 0 && truck->cameranodepos[0] < MAX_NODES && truck->driveable == BOAT)
 		{
+			Vector3 hdir = truck->getDirection();
 			velocity = hdir.dotProduct(truck->nodes[truck->cameranodepos[0]].Velocity);
 		}
 		
