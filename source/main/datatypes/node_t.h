@@ -40,12 +40,12 @@ struct node_t
 	Ogre::Real volume_coef;
 
 	float wettime; //!< Cumulative time this node has been wet. When wet, dripping particles are produced.
-	int wetstate;  //!< {DRY | DRIPPING | WET}
-	int wheelid;   //!< Wheel index
-	int lockgroup;
-	int pos;       //!< This node's index in rig_t::nodes array.
-	int id;        //!< Numeric identifier assigned in rig-definition file (if used), or -1 if the node was generated dynamically.
-	int collisionBoundingBoxID;
+	short wheelid; //!< Wheel index
+	short lockgroup;
+	short pos;     //!< This node's index in rig_t::nodes array.
+	short id;      //!< Numeric identifier assigned in rig-definition file (if used), or -1 if the node was generated dynamically.
+	char wetstate; //!< {DRY | DRIPPING | WET}
+	char collisionBoundingBoxID;
 
 	bool contacter;
 	bool overrideMass;
