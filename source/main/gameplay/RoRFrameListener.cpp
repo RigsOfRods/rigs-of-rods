@@ -50,7 +50,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Replay.h"
 #include "RoRVersion.h"
 #include "SceneMouse.h"
-#include "ScopeLog.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Settings.h"

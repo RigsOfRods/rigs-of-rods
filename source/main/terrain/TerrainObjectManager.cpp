@@ -30,7 +30,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "MeshObject.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
-#include "ScopeLog.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapEntity.h"
@@ -720,8 +719,6 @@ void TerrainObjectManager::unloadObject(const String &instancename)
 
 void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
-	ScopeLog log("object_"+name);
-
 	if (type == "grid")
 	{
 		// some fast grid object hacks :)
