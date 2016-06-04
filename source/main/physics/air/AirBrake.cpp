@@ -160,16 +160,16 @@ void Airbrake::updatePosition(float amount)
 {
 	ratio=amount;
 	if (!snode) return;
-	Vector3 normal=(nodey->smoothpos-noderef->smoothpos).crossProduct(nodex->smoothpos-noderef->smoothpos);
+	Vector3 normal=(nodey->AbsPosition-noderef->AbsPosition).crossProduct(nodex->AbsPosition-noderef->AbsPosition);
 	normal.normalise();
 	//position
-	Vector3 mposition=noderef->smoothpos+offset.x*(nodex->smoothpos-noderef->smoothpos)+offset.y*(nodey->smoothpos-noderef->smoothpos);
+	Vector3 mposition=noderef->AbsPosition+offset.x*(nodex->AbsPosition-noderef->AbsPosition)+offset.y*(nodey->AbsPosition-noderef->AbsPosition);
 	snode->setPosition(mposition+normal*offset.z);
 	//orientation
-	Vector3 refx=nodex->smoothpos-noderef->smoothpos;
+	Vector3 refx=nodex->AbsPosition-noderef->AbsPosition;
 	refx.normalise();
 	Vector3 refy=refx.crossProduct(normal);
-	Quaternion orientation=Quaternion(Degree(-ratio*maxangle), (nodex->smoothpos-noderef->smoothpos).normalisedCopy())*Quaternion(refx, normal, refy);
+	Quaternion orientation=Quaternion(Degree(-ratio*maxangle), (nodex->AbsPosition-noderef->AbsPosition).normalisedCopy())*Quaternion(refx, normal, refy);
 	snode->setOrientation(orientation);
 }
 

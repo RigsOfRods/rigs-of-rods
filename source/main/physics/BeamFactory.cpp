@@ -938,7 +938,6 @@ void BeamFactory::update(float dt)
 		if (!m_trucks[t]) continue;
 
 		m_trucks[t]->handleResetRequests(dt);
-		m_trucks[t]->handleTruckPosition(dt);
 		m_trucks[t]->updateAngelScriptEvents(dt);
 
 		if (m_trucks[t]->vehicle_ai && (m_trucks[t]->vehicle_ai->IsActive()))
@@ -1040,6 +1039,11 @@ Beam* BeamFactory::getTruck(int number)
 
 void BeamFactory::UpdatePhysicsSimulation()
 {
+	for (int t=0; t<m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		m_trucks[t]->preUpdatePhysics(m_physics_steps * PHYSICS_DT);
+	}
 	if (gEnv->threadPool)
 	{
 		for (int i=0; i<m_physics_steps; i++)
@@ -1164,6 +1168,12 @@ void BeamFactory::UpdatePhysicsSimulation()
 				BES_STOP(BES_CORE_Contacters);
 			}
 		}
+	}
+	for (int t=0; t<m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		if (!m_trucks[t]->simulated) continue;
+		m_trucks[t]->postUpdatePhysics(m_physics_steps * PHYSICS_DT);
 	}
 }
 

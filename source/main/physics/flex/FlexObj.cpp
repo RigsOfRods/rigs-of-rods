@@ -250,11 +250,11 @@ Vector3 FlexObj::updateVertices()
 {
 	unsigned int i;
 	Vector3 center;
-	center=(nodes[nodeIDs[0]].smoothpos+nodes[nodeIDs[1]].smoothpos)/2.0;
+	center=(nodes[nodeIDs[0]].AbsPosition+nodes[nodeIDs[1]].AbsPosition)/2.0;
 	for (i=0; i<nVertices; i++)
 	{
 		//set position
-		covertices[i].vertex=nodes[nodeIDs[i]].smoothpos-center;
+		covertices[i].vertex=nodes[nodeIDs[i]].AbsPosition-center;
 		//reset normals
 		covertices[i].normal=Vector3::ZERO;
 	}
@@ -262,8 +262,8 @@ Vector3 FlexObj::updateVertices()
 	for (i=0; i<ibufCount/3; i++)
 	{
 		Vector3 v1, v2;
-		v1=nodes[nodeIDs[faces[i*3+1]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
-		v2=nodes[nodeIDs[faces[i*3+2]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
+		v1=nodes[nodeIDs[faces[i*3+1]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
+		v2=nodes[nodeIDs[faces[i*3+2]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
 		v1=v1.crossProduct(v2);
 		float s=v1.length();
 		//avoid large tris
@@ -292,13 +292,13 @@ Vector3 FlexObj::updateVertices()
 //with normals
 Vector3 FlexObj::updateShadowVertices()
 {
-	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+	Vector3 center = (nodes[nodeIDs[0]].AbsPosition + nodes[nodeIDs[1]].AbsPosition) / 2.0;
 
 	for (unsigned int i=0; i<nVertices; i++)
 	{
 		//set position
-		coshadowposvertices[i].vertex=nodes[nodeIDs[i]].smoothpos-center;
-		coshadowposvertices[i+nVertices].vertex=nodes[nodeIDs[i]].smoothpos-center;
+		coshadowposvertices[i].vertex=nodes[nodeIDs[i]].AbsPosition-center;
+		coshadowposvertices[i+nVertices].vertex=nodes[nodeIDs[i]].AbsPosition-center;
 		//reset normals
 		coshadownorvertices[i].normal=Vector3::ZERO;
 	}
@@ -306,8 +306,8 @@ Vector3 FlexObj::updateShadowVertices()
 	for (unsigned int i=0; i<ibufCount/3; i++)
 	{
 		Vector3 v1, v2;
-		v1=nodes[nodeIDs[faces[i*3+1]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
-		v2=nodes[nodeIDs[faces[i*3+2]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
+		v1=nodes[nodeIDs[faces[i*3+1]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
+		v2=nodes[nodeIDs[faces[i*3+2]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
 		v1=v1.crossProduct(v2);
 		float s=v1.length();
 		//avoid large tris

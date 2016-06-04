@@ -356,13 +356,11 @@ void Beam::scaleTruck(float value)
 	// scale nodes
 	Vector3 refpos = nodes[0].AbsPosition;
 	Vector3 relpos = nodes[0].RelPosition;
-	Vector3 smopos = nodes[0].smoothpos;
 	for (int i=1;i<free_node;i++)
 	{
 		initial_node_pos[i] = refpos + (initial_node_pos[i]-refpos) * value;
 		nodes[i].AbsPosition = refpos + (nodes[i].AbsPosition-refpos) * value;
 		nodes[i].RelPosition = relpos + (nodes[i].RelPosition-relpos) * value;
-		nodes[i].smoothpos = smopos + (nodes[i].smoothpos-smopos) * value;
 		nodes[i].Velocity *= value;
 		nodes[i].Forces *= value;
 		nodes[i].mass *= value;
@@ -431,9 +429,9 @@ void Beam::initSimpleSkeleton()
 	simpleSkeletonManualObject->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
 	for (int i=0; i<free_beam; i++)
 	{
-		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
+		simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
 		simpleSkeletonManualObject->colour(1.0f,1.0f,1.0f);
-		simpleSkeletonManualObject->position(beams[i].p2->smoothpos);
+		simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
 		simpleSkeletonManualObject->colour(0.0f,0.0f,0.0f);
 	}
 	simpleSkeletonManualObject->end();
@@ -462,14 +460,14 @@ void Beam::updateSimpleSkeleton()
 		else
 			color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
 		
-		simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
+		simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
 		simpleSkeletonManualObject->colour(color);
 
 		// remove broken beams
 		if (beams[i].broken || beams[i].disabled)
-			simpleSkeletonManualObject->position(beams[i].p1->smoothpos);
+			simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
 		else
-			simpleSkeletonManualObject->position(beams[i].p2->smoothpos);
+			simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
 
 		simpleSkeletonManualObject->colour(color);
 	}
@@ -485,11 +483,6 @@ void Beam::moveOrigin(Vector3 offset)
 	{
 		nodes[i].RelPosition -= offset;
 	}
-}
-
-void Beam::changeOrigin(Vector3 newOrigin)
-{
-	moveOrigin(newOrigin - origin);
 }
 
 float Beam::getRotation()
@@ -671,7 +664,6 @@ void Beam::calcNetwork()
 
 		// linear interpolation
 		nodes[i].AbsPosition  = p1 + tratio * (p2 - p1);
-		nodes[i].smoothpos    = nodes[i].AbsPosition;
 		nodes[i].RelPosition  = nodes[i].AbsPosition - origin;
 
 		apos += nodes[i].AbsPosition;
@@ -695,11 +687,9 @@ void Beam::calcNetwork()
 			Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
 			wheels[i].nodes[j*2+0]->AbsPosition = wheels[i].refnode0->AbsPosition + uray;
-			wheels[i].nodes[j*2+0]->smoothpos   = wheels[i].nodes[j*2]->AbsPosition;
 			wheels[i].nodes[j*2+0]->RelPosition = wheels[i].nodes[j*2]->AbsPosition - origin;
 
 			wheels[i].nodes[j*2+1]->AbsPosition = wheels[i].refnode1->AbsPosition + uray;
-			wheels[i].nodes[j*2+1]->smoothpos   = wheels[i].nodes[j*2+1]->AbsPosition;
 			wheels[i].nodes[j*2+1]->RelPosition = wheels[i].nodes[j*2+1]->AbsPosition - origin;
 		}
 	}
@@ -1195,7 +1185,6 @@ int Beam::loadPosition(int indexPosition)
 	{
 		nodes[i].AbsPosition   = nbuff[i];
 		nodes[i].RelPosition   = nbuff[i] - origin;
-		nodes[i].smoothpos     = nbuff[i];
 
 		// reset forces
 		nodes[i].Velocity      = Vector3::ZERO;
@@ -1210,16 +1199,9 @@ int Beam::loadPosition(int indexPosition)
 	return 0;
 }
 
-void Beam::updateTruckPosition()
+void Beam::calculateAveragePosition()
 {
-	// calculate average position (and smooth) !< smooth is sth. different
-
-	for (int n=0; n<free_node; n++)
-	{
-		nodes[n].smoothpos = nodes[n].AbsPosition;
-		nodes[n].RelPosition = nodes[n].AbsPosition - origin;
-	}
-
+	// calculate average position
 	if (m_custom_camera_node >= 0)
 	{
 		position = nodes[m_custom_camera_node].AbsPosition;
@@ -1237,12 +1219,14 @@ void Beam::updateTruckPosition()
 		Vector3 aposition = Vector3::ZERO;
 		for (int n=0; n<free_node; n++)
 		{
-			aposition += nodes[n].smoothpos;
+			aposition += nodes[n].AbsPosition;
 		}
 		position = aposition / free_node;
 	}
+}
 
-	// update bounding box
+void Beam::updateBoundingBox()
+{
 	boundingBox = AxisAlignedBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
 	for (int i=0; i<free_node; i++)
 	{
@@ -1250,6 +1234,24 @@ void Beam::updateTruckPosition()
 	}
 	boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
 	boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+}
+
+void Beam::preUpdatePhysics(float dt)
+{
+	lastposition = position;
+
+	if (nodes[0].RelPosition.squaredLength() > 10000.0)
+	{
+		moveOrigin(nodes[0].RelPosition);
+	}
+}
+
+void Beam::postUpdatePhysics(float dt)
+{
+	calculateAveragePosition();
+
+	// Calculate average truck velocity
+	velocity = (position - lastposition) / dt;
 }
 
 void Beam::resetAngle(float rot)
@@ -1272,11 +1274,13 @@ void Beam::resetAngle(float rot)
 		nodes[i].AbsPosition -= origin;
 		nodes[i].AbsPosition  = matrix * nodes[i].AbsPosition;
 		nodes[i].AbsPosition += origin;
+		nodes[i].RelPosition = nodes[i].AbsPosition - this->origin;
 	}
 
 	resetSlideNodePositions();
 
-	updateTruckPosition();
+	updateBoundingBox();
+	calculateAveragePosition();
 }
 
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
@@ -1286,6 +1290,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition += offset;
+		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 	}
 
 	// vertical displacement
@@ -1303,6 +1308,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition.y += vertical_offset;
+		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 	}
 
 	// mesh displacement
@@ -1326,6 +1332,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 	for (int i=0; i<free_node; i++)
 	{
 		nodes[i].AbsPosition.y += mesh_offset;
+		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 	}
 
 	resetPosition(Vector3::ZERO, setInitPosition);
@@ -1340,6 +1347,7 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 		for (int i=0; i<free_node; i++)
 		{
 			nodes[i].AbsPosition += offset;
+			nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 		}
 	}
 
@@ -1351,7 +1359,8 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 		}
 	}
 
-	updateTruckPosition();
+	updateBoundingBox();
+	calculateAveragePosition();
 
 	// calculate minimum camera radius
 	if (minCameraRadius < 0.0f)
@@ -1388,9 +1397,9 @@ void Beam::calculateDriverPos(Vector3 &out_pos, Quaternion &out_rot)
 
 	BES_GFX_START(BES_GFX_calculateDriverPos);
 
-	Vector3 x_pos = nodes[driverSeat->nodex].smoothpos;
-	Vector3 y_pos = nodes[driverSeat->nodey].smoothpos;
-	Vector3 center_pos = nodes[driverSeat->noderef].smoothpos;
+	Vector3 x_pos = nodes[driverSeat->nodex].AbsPosition;
+	Vector3 y_pos = nodes[driverSeat->nodey].AbsPosition;
+	Vector3 center_pos = nodes[driverSeat->noderef].AbsPosition;
 
 	Vector3 x_vec = x_pos - center_pos;
 	Vector3 y_vec = y_pos - center_pos;
@@ -1483,6 +1492,7 @@ void Beam::displace(Vector3 translation, float rotation)
 			nodes[i].AbsPosition -= rotation_center;
 			nodes[i].AbsPosition  = rot * nodes[i].AbsPosition;
 			nodes[i].AbsPosition += rotation_center;
+			nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 		}
 	}
 
@@ -1491,12 +1501,14 @@ void Beam::displace(Vector3 translation, float rotation)
 		for (int i=0; i<free_node; i++)
 		{
 			nodes[i].AbsPosition += translation;
+			nodes[i].RelPosition = nodes[i].AbsPosition - origin;
 		}
 	}
 
 	if (rotation != 0.0f || translation != Vector3::ZERO)
 	{
-		updateTruckPosition();
+		updateBoundingBox();
+		calculateAveragePosition();
 	}
 }
 
@@ -1546,7 +1558,6 @@ void Beam::SyncReset()
 	{
 		nodes[i].AbsPosition=initial_node_pos[i];
 		nodes[i].RelPosition=initial_node_pos[i]-origin;
-		nodes[i].smoothpos=initial_node_pos[i];
 		nodes[i].Velocity=Vector3::ZERO;
 		nodes[i].Forces=Vector3::ZERO;
 	}
@@ -1649,14 +1660,14 @@ bool Beam::replayStep()
 			{
 				nodes[i].AbsPosition = nbuff[i].position;
 				nodes[i].RelPosition = nbuff[i].position - origin;
-				nodes[i].smoothpos   = nbuff[i].position;
 
 				nodes[i].Velocity = nbuff[i].velocity;
 				nodes[i].Forces   = nbuff[i].forces;
 			}
 
 			updateSlideNodePositions();
-			updateTruckPosition();
+			updateBoundingBox();
+			calculateAveragePosition();
 		}
 
 		beam_simple_t *bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
@@ -1713,20 +1724,6 @@ void Beam::handleResetRequests(float dt)
 {
 	if (m_reset_request)
 		SyncReset();
-}
-
-void Beam::handleTruckPosition(float dt)
-{
-	if (simulated)
-	{
-		velocity = (position - lastposition) / dt;
-		lastposition = position;
-		updateTruckPosition();
-	}
-	if (nodes[0].RelPosition.squaredLength() > 10000.0)
-	{
-		moveOrigin(nodes[0].RelPosition);
-	}
 }
 
 void Beam::sendStreamSetup()
@@ -3020,7 +3017,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			}
 			if (props[i].beacontype=='R' || props[i].beacontype=='L')
 			{
-				Vector3 mposition=nodes[props[i].noderef].smoothpos+props[i].offsetx*(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos)+props[i].offsety*(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos);
+				Vector3 mposition=nodes[props[i].noderef].AbsPosition+props[i].offsetx*(nodes[props[i].nodex].AbsPosition-nodes[props[i].noderef].AbsPosition)+props[i].offsety*(nodes[props[i].nodey].AbsPosition-nodes[props[i].noderef].AbsPosition);
 				//billboard
 				Vector3 vdir=mposition-mCamera->getPosition();
 				float vlen=vdir.length();
@@ -3031,7 +3028,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			}
 			if (props[i].beacontype=='w')
 			{
-				Vector3 mposition=nodes[props[i].noderef].smoothpos+props[i].offsetx*(nodes[props[i].nodex].smoothpos-nodes[props[i].noderef].smoothpos)+props[i].offsety*(nodes[props[i].nodey].smoothpos-nodes[props[i].noderef].smoothpos);
+				Vector3 mposition=nodes[props[i].noderef].AbsPosition+props[i].offsetx*(nodes[props[i].nodex].AbsPosition-nodes[props[i].noderef].AbsPosition)+props[i].offsety*(nodes[props[i].nodey].AbsPosition-nodes[props[i].noderef].AbsPosition);
 				props[i].beacon_light[0]->setPosition(mposition);
 				props[i].beacon_light_rotation_angle[0]+=dt*props[i].beacon_light_rotation_rate[0];//rotate baby!
 				//billboard
@@ -3142,9 +3139,9 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			flares[i].light->setVisible(isvisible && enableAll);
 		flares[i].isVisible=isvisible;
 
-		Vector3 normal=(nodes[flares[i].nodey].smoothpos-nodes[flares[i].noderef].smoothpos).crossProduct(nodes[flares[i].nodex].smoothpos-nodes[flares[i].noderef].smoothpos);
+		Vector3 normal=(nodes[flares[i].nodey].AbsPosition-nodes[flares[i].noderef].AbsPosition).crossProduct(nodes[flares[i].nodex].AbsPosition-nodes[flares[i].noderef].AbsPosition);
 		normal.normalise();
-		Vector3 mposition=nodes[flares[i].noderef].smoothpos+flares[i].offsetx*(nodes[flares[i].nodex].smoothpos-nodes[flares[i].noderef].smoothpos)+flares[i].offsety*(nodes[flares[i].nodey].smoothpos-nodes[flares[i].noderef].smoothpos);
+		Vector3 mposition=nodes[flares[i].noderef].AbsPosition+flares[i].offsetx*(nodes[flares[i].nodex].AbsPosition-nodes[flares[i].noderef].AbsPosition)+flares[i].offsety*(nodes[flares[i].nodey].AbsPosition-nodes[flares[i].noderef].AbsPosition);
 		Vector3 vdir=mposition-mCamera->getPosition();
 		float vlen=vdir.length();
 		// not visible from 500m distance
@@ -3250,12 +3247,12 @@ void Beam::updateProps()
 	{
 		if (!props[i].scene_node) continue;
 
-		Vector3 diffX = nodes[props[i].nodex].smoothpos - nodes[props[i].noderef].smoothpos;
-		Vector3 diffY = nodes[props[i].nodey].smoothpos - nodes[props[i].noderef].smoothpos;
+		Vector3 diffX = nodes[props[i].nodex].AbsPosition - nodes[props[i].noderef].AbsPosition;
+		Vector3 diffY = nodes[props[i].nodey].AbsPosition - nodes[props[i].noderef].AbsPosition;
 
 		Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
-		Vector3 mposition = nodes[props[i].noderef].smoothpos + props[i].offsetx * diffX + props[i].offsety * diffY;
+		Vector3 mposition = nodes[props[i].noderef].AbsPosition + props[i].offsetx * diffX + props[i].offsety * diffY;
 		props[i].scene_node->setPosition(mposition + normal * props[i].offsetz);
 
 		Vector3 refx = diffX.normalisedCopy();
@@ -3425,8 +3422,8 @@ void Beam::updateVisual(float dt)
 	//update custom particle systems
 	for (int i=0; i<free_cparticle; i++)
 	{
-		Vector3 pos=nodes[cparticles[i].emitterNode].smoothpos;
-		Vector3 dir=pos-nodes[cparticles[i].directionNode].smoothpos;
+		Vector3 pos=nodes[cparticles[i].emitterNode].AbsPosition;
+		Vector3 dir=pos-nodes[cparticles[i].directionNode].AbsPosition;
 		//dir.normalise();
 		dir=fast_normalise(dir);
 		cparticles[i].snode->setPosition(pos);
@@ -3443,10 +3440,10 @@ void Beam::updateVisual(float dt)
 		{
 			if (!it->smoker)
 				continue;
-			Vector3 dir=nodes[it->emitterNode].smoothpos-nodes[it->directionNode].smoothpos;
+			Vector3 dir=nodes[it->emitterNode].AbsPosition-nodes[it->directionNode].AbsPosition;
 			//			dir.normalise();
 			ParticleEmitter *emit = it->smoker->getEmitter(0);
-			it->smokeNode->setPosition(nodes[it->emitterNode].smoothpos);
+			it->smokeNode->setPosition(nodes[it->emitterNode].AbsPosition);
 			emit->setDirection(dir);
 			if (engine->getSmoke()!=-1.0)
 			{
@@ -3536,9 +3533,9 @@ void Beam::updateVisual(float dt)
 		{
 			if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
 			{
-				beams[i].mSceneNode->setPosition(beams[i].p1->smoothpos.midPoint(beams[i].p2->smoothpos));
-				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->smoothpos-beams[i].p2->smoothpos));
-				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->smoothpos-beams[i].p2->smoothpos).length(), beams[i].diameter);
+				beams[i].mSceneNode->setPosition(beams[i].p1->AbsPosition.midPoint(beams[i].p2->AbsPosition));
+				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->AbsPosition-beams[i].p2->AbsPosition));
+				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->AbsPosition-beams[i].p2->AbsPosition).length(), beams[i].diameter);
 			}
 		}
 	}
@@ -4461,7 +4458,7 @@ void Beam::setDebugOverlayState(int mode)
 			t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 			deletion_sceneNodes.emplace_back(t.node);
 			t.node->attachObject(t.txt);
-			t.node->setPosition(nodes[i].smoothpos);
+			t.node->setPosition(nodes[i].AbsPosition);
 			t.node->setScale(Vector3(0.5,0.5,0.5));
 
 			// collision nodes debug, also mimics as node visual
@@ -4473,19 +4470,6 @@ void Beam::setDebugOverlayState(int mode)
 			s->attachObject(b);
 			float f = 0.005f;
 			s->setScale(f,f,f);
-
-			/*
-			// collision nodes
-			if (nodes[i].collRadius > 0.00001)
-			{
-				b->setMaterialName("tracks/transred");
-				f = nodes[i].collRadius;
-			} else
-			{
-				b->setMaterialName("tracks/transgreen");
-			}
-			*/
-
 			nodes_debug.push_back(t);
 		}
 
@@ -4509,7 +4493,7 @@ void Beam::setDebugOverlayState(int mode)
 			deletion_sceneNodes.emplace_back(t.node);
 			t.node->attachObject(t.txt);
 
-			Vector3 pos = beams[i].p1->smoothpos - (beams[i].p1->smoothpos - beams[i].p2->smoothpos)/2;
+			Vector3 pos = beams[i].p1->AbsPosition - (beams[i].p1->AbsPosition - beams[i].p2->AbsPosition)/2;
 			t.node->setPosition(pos);
 			t.node->setVisible(false);
 			t.node->setScale(Vector3(0.1,0.1,0.1));
@@ -4541,24 +4525,24 @@ void Beam::updateDebugOverlay()
 	case 1: // node-numbers
 		// not written dynamically
 		for (std::vector<debugtext_t>::iterator it=nodes_debug.begin(); it!=nodes_debug.end();it++)
-			it->node->setPosition(nodes[it->id].smoothpos);
+			it->node->setPosition(nodes[it->id].AbsPosition);
 		break;
 	case 2: // beam-numbers
 		// not written dynamically
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 		break;
 	case 3: // node-and-beam-numbers
 		// not written dynamically
 		for (std::vector<debugtext_t>::iterator it=nodes_debug.begin(); it!=nodes_debug.end();it++)
-			it->node->setPosition(nodes[it->id].smoothpos);
+			it->node->setPosition(nodes[it->id].AbsPosition);
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 		break;
 	case 4: // node-mass
 		for (std::vector<debugtext_t>::iterator it=nodes_debug.begin(); it!=nodes_debug.end();it++)
 		{
-			it->node->setPosition(nodes[it->id].smoothpos);
+			it->node->setPosition(nodes[it->id].AbsPosition);
 			it->txt->setCaption(TOSTRING(nodes[it->id].mass));
 		}
 		break;
@@ -4566,13 +4550,13 @@ void Beam::updateDebugOverlay()
 		for (std::vector<debugtext_t>::iterator it=nodes_debug.begin(); it!=nodes_debug.end();it++)
 		{
 			it->txt->setCaption((nodes[it->id].locked)?"locked":"unlocked");
-			it->node->setPosition(nodes[it->id].smoothpos);
+			it->node->setPosition(nodes[it->id].AbsPosition);
 		}
 		break;
 	case 6: // beam-compression
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
 		{
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 			float stress_ratio = beams[it->id].stress / beams[it->id].minmaxposnegstress;
 			float color_scale = std::abs(stress_ratio);
 			color_scale = std::min(color_scale, 1.0f);
@@ -4583,7 +4567,7 @@ void Beam::updateDebugOverlay()
 	case 7: // beam-broken
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
 		{
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 			if (beams[it->id].broken)
 			{
 				it->node->setVisible(true);
@@ -4597,14 +4581,14 @@ void Beam::updateDebugOverlay()
 	case 8: // beam-stress
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
 		{
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 			it->txt->setCaption(TOSTRING((float) fabs(beams[it->id].stress)));
 		}
 		break;
 	case 9: // beam-strength
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
 		{
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 			it->txt->setCaption(TOSTRING(beams[it->id].strength));
 		}
 		break;
@@ -4613,7 +4597,7 @@ void Beam::updateDebugOverlay()
 		{
 			if (beams[it->id].type == BEAM_HYDRO || beams[it->id].type == BEAM_INVISIBLE_HYDRO)
 			{
-				it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+				it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 				int v = (beams[it->id].L / beams[it->id].Lhydro) * 100;
 				it->txt->setCaption(TOSTRING(v));
 				it->node->setVisible(true);
@@ -4626,7 +4610,7 @@ void Beam::updateDebugOverlay()
 	case 11: // beam-commands
 		for (std::vector<debugtext_t>::iterator it=beams_debug.begin(); it!=beams_debug.end();it++)
 		{
-			it->node->setPosition(beams[it->id].p1->smoothpos - (beams[it->id].p1->smoothpos - beams[it->id].p2->smoothpos)/2);
+			it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition)/2);
 			int v = (beams[it->id].L / beams[it->id].commandLong) * 100;
 			it->txt->setCaption(TOSTRING(v));
 		}
@@ -5779,7 +5763,6 @@ bool Beam::LoadTruck(
 	{
 		nodes[i].AbsPosition = spawn_position + spawn_rotation * (nodes[i].AbsPosition - spawn_position);
 		nodes[i].RelPosition = nodes[i].AbsPosition - origin;
-		nodes[i].smoothpos   = nodes[i].AbsPosition;
 	};
 
 	/* Place correctly */

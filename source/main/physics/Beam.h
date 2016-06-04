@@ -146,7 +146,6 @@ public:
 	void updateAngelScriptEvents(float dt);
 	void updateVideocameras(float dt);
 	void handleResetRequests(float dt);
-	void handleTruckPosition(float dt);
 
 	void setupDefaultSoundSources();
 
@@ -213,7 +212,6 @@ public:
 	void setReplayMode(bool rm);
 	int savePosition(int position);
 	int loadPosition(int position);
-	void updateTruckPosition();
 
 	/**
 	 * Virtually moves the truck at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
@@ -549,7 +547,16 @@ public:
 
 	void updateDashBoards(float dt);
 
+	void updateBoundingBox();
+	void calculateAveragePosition();
+
 	//! @{ physic related functions
+	void preUpdatePhysics(float dt);
+	void postUpdatePhysics(float dt);
+
+	/**
+	* TIGHT LOOP; Physics; 
+	*/
 	bool calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 
 	/**
@@ -618,7 +625,6 @@ protected:
 	void calc_masses2(Ogre::Real total, bool reCalc=false);
 	void calcNodeConnectivityGraph();
 	void moveOrigin(Ogre::Vector3 offset); //move physics origin
-	void changeOrigin(Ogre::Vector3 newOrigin); //change physics origin
 
 	Ogre::Vector3 position; // average node position
 	Ogre::Vector3 iPosition; // initial position

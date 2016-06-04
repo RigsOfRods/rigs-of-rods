@@ -77,13 +77,13 @@ FlexBody::FlexBody(
 
 	if (ref >= 0)
 	{
-		Vector3 diffX = m_nodes[nx].smoothpos-m_nodes[ref].smoothpos;
-		Vector3 diffY = m_nodes[ny].smoothpos-m_nodes[ref].smoothpos;
+		Vector3 diffX = m_nodes[nx].AbsPosition-m_nodes[ref].AbsPosition;
+		Vector3 diffY = m_nodes[ny].AbsPosition-m_nodes[ref].AbsPosition;
 
 		normal = fast_normalise(diffY.crossProduct(diffX));
 
 		// position
-		position = m_nodes[ref].smoothpos + offset.x * diffX + offset.y * diffY;
+		position = m_nodes[ref].AbsPosition + offset.x * diffX + offset.y * diffY;
 		position = position + offset.z * normal;
 
 		// orientation
@@ -94,7 +94,7 @@ FlexBody::FlexBody(
 	{
 		// special case!
 		normal = Vector3::UNIT_Y;
-		position = m_nodes[0].smoothpos + offset;
+		position = m_nodes[0].AbsPosition + offset;
 		orientation = rot;
 	}
     FLEXBODY_PROFILER_ENTER("Find mesh resource");
@@ -487,7 +487,7 @@ FlexBody::FlexBody(
 			auto itor = node_indices.begin();
 			for (; itor != end; ++itor)
 			{
-				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
 				if (node_distance < closest_node_distance)
 				{
 					closest_node_distance = node_distance;
@@ -510,7 +510,7 @@ FlexBody::FlexBody(
 				{
 					continue;
 				}
-				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
 				if (node_distance < closest_node_distance)
 				{
 					closest_node_distance = node_distance;
@@ -527,17 +527,17 @@ FlexBody::FlexBody(
 			closest_node_distance=1000000.0;
 			closest_node_index=-1;
 			itor = node_indices.begin();
-			Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+			Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition);
 			for (; itor != end; ++itor)
 			{
 				if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
 				{
 					continue;
 				}
-				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
+				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
 				if (node_distance < closest_node_distance)
 				{
-					Vector3 vt = fast_normalise(m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
+					Vector3 vt = fast_normalise(m_nodes[*itor].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition);
 					float cost = vx.dotProduct(vt);
 					if (cost>0.707 || cost<-0.707)
 					{
@@ -554,17 +554,17 @@ FlexBody::FlexBody(
 			m_locators[i].ny=closest_node_index;
 
 			Matrix3 mat;
-			Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-			Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+			Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
+			Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
 
 			mat.SetColumn(0, diffX);
 			mat.SetColumn(1, diffY);
-			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
 
 			mat = mat.Inverse();
 
 			//compute coordinates in the newly formed Euclidean basis
-			m_locators[i].coords = mat * (vertices[i] - m_nodes[m_locators[i].ref].smoothpos);
+			m_locators[i].coords = mat * (vertices[i] - m_nodes[m_locators[i].ref].AbsPosition);
 
 			// that's it!
 		}
@@ -604,12 +604,12 @@ FlexBody::FlexBody(
 		for (int i=0; i<(int)m_vertex_count; i++)
 		{
 			Matrix3 mat;
-			Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-			Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+			Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
+			Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
 
 			mat.SetColumn(0, diffX);
 			mat.SetColumn(1, diffY);
-			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
 
 			mat = mat.Inverse();
 
@@ -724,16 +724,16 @@ bool FlexBody::flexitPrepare()
 
 	if (m_node_center >= 0)
 	{
-		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
-		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
+		Vector3 diffX = m_nodes[m_node_x].AbsPosition - m_nodes[m_node_center].AbsPosition;
+		Vector3 diffY = m_nodes[m_node_y].AbsPosition - m_nodes[m_node_center].AbsPosition;
 		flexit_normal = fast_normalise(diffY.crossProduct(diffX));
 
-		flexit_center = m_nodes[m_node_center].smoothpos + m_center_offset.x * diffX + m_center_offset.y * diffY;
+		flexit_center = m_nodes[m_node_center].AbsPosition + m_center_offset.x * diffX + m_center_offset.y * diffY;
 		flexit_center += m_center_offset.z * flexit_normal;
 	} else
 	{
 		flexit_normal = Vector3::UNIT_Y;
-		flexit_center = m_nodes[0].smoothpos;
+		flexit_center = m_nodes[0].AbsPosition;
 	}
 
 	return true;
@@ -743,15 +743,15 @@ void FlexBody::flexitCompute()
 {
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
+		Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
 		Vector3 nCross = fast_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
 
 		m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
 		m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
 		m_dst_pos[i].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
 
-		m_dst_pos[i] += m_nodes[m_locators[i].ref].smoothpos - flexit_center;
+		m_dst_pos[i] += m_nodes[m_locators[i].ref].AbsPosition - flexit_center;
 
 		m_dst_normals[i].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
 		m_dst_normals[i].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
@@ -763,14 +763,14 @@ void FlexBody::flexitCompute()
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		Matrix3 mat;
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
+		Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
 
-		m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].smoothpos - flexit_center;
+		m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].AbsPosition - flexit_center;
 		m_dst_normals[i] = fast_normalise(mat * m_src_normals[i]);
 	}
 #endif
