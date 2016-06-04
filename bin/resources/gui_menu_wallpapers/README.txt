@@ -140,6 +140,12 @@ loading_21.jpg:
 Map:
 https://repofiles.avrintech.net/repofiles-1st-batch/1cd8142f8696880c1abbde48c75249f0dd4b5b0c_IslandRoads.zip
 ------------------------
+loading_22.jpg:
+Map:
+https://repofiles.avrintech.net/repofiles-1st-batch/1cd8142f8696880c1abbde48c75249f0dd4b5b0c_IslandRoads.zip
+Plane:
+http://www.rigsofrods.org/old-forum/forums/106-General-Chat/120737/page-0001.html
+------------------------
 
-Please update this readme if I have forgot any. Thanks.
+Please update this readme if I have forgot any links. Thanks.
 
