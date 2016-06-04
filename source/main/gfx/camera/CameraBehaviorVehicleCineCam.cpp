@@ -40,11 +40,11 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 {
 	CameraBehaviorOrbit::update(ctx);
 
-	Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[ctx.mCurrTruck->currentcamera]].smoothpos
-				 - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[ctx.mCurrTruck->currentcamera]].smoothpos).normalisedCopy();
+	Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[ctx.mCurrTruck->currentcamera]].AbsPosition
+				 - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[ctx.mCurrTruck->currentcamera]].AbsPosition).normalisedCopy();
 
-	Vector3 roll = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[ctx.mCurrTruck->currentcamera]].smoothpos
-				  - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranoderoll[ctx.mCurrTruck->currentcamera]].smoothpos).normalisedCopy();
+	Vector3 roll = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[ctx.mCurrTruck->currentcamera]].AbsPosition
+				  - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranoderoll[ctx.mCurrTruck->currentcamera]].AbsPosition).normalisedCopy();
 
 	if ( ctx.mCurrTruck->revroll[ctx.mCurrTruck->currentcamera] )
 	{
@@ -57,7 +57,7 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
 	Quaternion orientation = Quaternion(camRotX + camRotXSwivel, up) * Quaternion(Degree(180.0) + camRotY + camRotYSwivel, roll) * Quaternion(roll, up, dir);
 
-	gEnv->mainCamera->setPosition(ctx.mCurrTruck->nodes[ctx.mCurrTruck->cinecameranodepos[ctx.mCurrTruck->currentcamera]].smoothpos);
+	gEnv->mainCamera->setPosition(ctx.mCurrTruck->nodes[ctx.mCurrTruck->cinecameranodepos[ctx.mCurrTruck->currentcamera]].AbsPosition);
 	gEnv->mainCamera->setOrientation(orientation);
 }
 

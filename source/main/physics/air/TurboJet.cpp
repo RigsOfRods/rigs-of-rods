@@ -147,7 +147,7 @@ Turbojet::~Turbojet()
 void Turbojet::updateVisuals()
 {
 	//nozzle
-	nzsnode->setPosition(nodes[nodeback].smoothpos);
+	nzsnode->setPosition(nodes[nodeback].AbsPosition);
 	//build a local system
 	Vector3 laxis=nodes[nodefront].RelPosition-nodes[nodeback].RelPosition;
 	laxis.normalise();
@@ -163,14 +163,14 @@ void Turbojet::updateVisuals()
 		float flamelength=(afterburnthrust/15.0)*(rpm/100.0);
 		flamelength=flamelength*(1.0+(((Real)rand()/(Real)RAND_MAX)-0.5)/10.0);
 		absnode->setScale(flamelength, radius*2.0, radius*2.0);
-		absnode->setPosition(nodes[nodeback].smoothpos+dir*Vector3(-0.2, 0.0, 0.0));
+		absnode->setPosition(nodes[nodeback].AbsPosition+dir*Vector3(-0.2, 0.0, 0.0));
 		absnode->setOrientation(dir);
 	}
 	else absnode->setVisible(false);
 	//smoke
 	if (smokeNode)
 	{
-		smokeNode->setPosition(nodes[nodeback].smoothpos);
+		smokeNode->setPosition(nodes[nodeback].AbsPosition);
 		ParticleEmitter *emit=smokePS->getEmitter(0);
 		ParticleEmitter *hemit=0;
 		if (heathazePS)

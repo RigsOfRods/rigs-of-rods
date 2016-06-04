@@ -107,6 +107,11 @@ public:
 	void updateFlexbodiesFinal();
 
 	/**
+	* TIGHT-LOOP; Logic: average truck positions 
+	*/
+	void updateTruckPositions();
+
+	/**
 	 * Waits until all flexbody tasks are finished, but does not update the hardware buffers
 	 */
 	void joinFlexbodyTasks();

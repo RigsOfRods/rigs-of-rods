@@ -90,7 +90,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
 		{
 			// Calculate new camera distance
-			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].smoothpos;
+			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].AbsPosition;
 			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch

@@ -414,13 +414,13 @@ Vector3 FlexAirfoil::updateVertices()
 {
 	int i;
 	Vector3 center;
-	center=nodes[nfld].smoothpos;
+	center=nodes[nfld].AbsPosition;
 
-	Vector3 vx=nodes[nfrd].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyl=nodes[nflu].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vzl=nodes[nbld].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyr=nodes[nfru].smoothpos-nodes[nfrd].smoothpos;
-	Vector3 vzr=nodes[nbrd].smoothpos-nodes[nfrd].smoothpos;
+	Vector3 vx=nodes[nfrd].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyl=nodes[nflu].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vzl=nodes[nbld].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyr=nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition;
+	Vector3 vzr=nodes[nbrd].AbsPosition-nodes[nfrd].AbsPosition;
 
 	if (breakable) {broken=broken || (vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
 	else {broken=(vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
@@ -475,13 +475,13 @@ Vector3 FlexAirfoil::updateVertices()
 		Vector3 rcent, raxis;
 		if (!stabilleft)
 		{
-			rcent=((nodes[nflu].smoothpos+nodes[nbld].smoothpos)/2.0+(nodes[nflu].smoothpos-nodes[nblu].smoothpos)/4.0)-center;
-			raxis=(nodes[nflu].smoothpos-nodes[nfld].smoothpos).crossProduct(nodes[nflu].smoothpos-nodes[nblu].smoothpos);
+			rcent=((nodes[nflu].AbsPosition+nodes[nbld].AbsPosition)/2.0+(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition)/4.0)-center;
+			raxis=(nodes[nflu].AbsPosition-nodes[nfld].AbsPosition).crossProduct(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition);
 		}
 		else
 		{
-			rcent=((nodes[nfru].smoothpos+nodes[nbrd].smoothpos)/2.0+(nodes[nfru].smoothpos-nodes[nbru].smoothpos)/4.0)-center;
-			raxis=(nodes[nfru].smoothpos-nodes[nfrd].smoothpos).crossProduct(nodes[nfru].smoothpos-nodes[nbru].smoothpos);
+			rcent=((nodes[nfru].AbsPosition+nodes[nbrd].AbsPosition)/2.0+(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition)/4.0)-center;
+			raxis=(nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition).crossProduct(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition);
 		}
 		raxis.normalise();
 		Quaternion rot=Quaternion(Degree(deflection), raxis);
@@ -553,13 +553,13 @@ Vector3 FlexAirfoil::updateShadowVertices()
 {
 	 int i;
 	Vector3 center;
-	center=nodes[nfld].smoothpos;
+	center=nodes[nfld].AbsPosition;
 
-	Vector3 vx=nodes[nfrd].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyl=nodes[nflu].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vzl=nodes[nbld].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyr=nodes[nfru].smoothpos-nodes[nfrd].smoothpos;
-	Vector3 vzr=nodes[nbrd].smoothpos-nodes[nfrd].smoothpos;
+	Vector3 vx=nodes[nfrd].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyl=nodes[nflu].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vzl=nodes[nbld].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyr=nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition;
+	Vector3 vzr=nodes[nbrd].AbsPosition-nodes[nfrd].AbsPosition;
 
 	if (breakable) {broken=broken || (vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
 	else {broken=(vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
@@ -614,13 +614,13 @@ Vector3 FlexAirfoil::updateShadowVertices()
 		Vector3 rcent, raxis;
 		if (!stabilleft)
 		{
-			rcent=((nodes[nflu].smoothpos+nodes[nbld].smoothpos)/2.0+(nodes[nflu].smoothpos-nodes[nblu].smoothpos)/4.0)-center;
-			raxis=(nodes[nflu].smoothpos-nodes[nfld].smoothpos).crossProduct(nodes[nflu].smoothpos-nodes[nblu].smoothpos);
+			rcent=((nodes[nflu].AbsPosition+nodes[nbld].AbsPosition)/2.0+(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition)/4.0)-center;
+			raxis=(nodes[nflu].AbsPosition-nodes[nfld].AbsPosition).crossProduct(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition);
 		}
 		else
 		{
-			rcent=((nodes[nfru].smoothpos+nodes[nbrd].smoothpos)/2.0+(nodes[nfru].smoothpos-nodes[nbru].smoothpos)/4.0)-center;
-			raxis=(nodes[nfru].smoothpos-nodes[nfrd].smoothpos).crossProduct(nodes[nfru].smoothpos-nodes[nbru].smoothpos);
+			rcent=((nodes[nfru].AbsPosition+nodes[nbrd].AbsPosition)/2.0+(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition)/4.0)-center;
+			raxis=(nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition).crossProduct(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition);
 		}
 		raxis.normalise();
 		Quaternion rot=Quaternion(Degree(deflection), raxis);

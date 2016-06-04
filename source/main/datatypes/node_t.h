@@ -34,8 +34,6 @@ struct node_t
 
 	// <-- 64 Bytes -->
 
-	Ogre::Vector3 smoothpos; //!< absolute, per-frame smooth, must be used for visual effects only
-
 	Ogre::Real mass;
 	Ogre::Real buoyancy;
 	Ogre::Real friction_coef;
@@ -54,6 +52,4 @@ struct node_t
 	bool overrideMass;
 	bool loadedMass;
 	bool isHot;    //!< Makes this node emit vapour particles when in contact with water.
-
-	// <-- 128 Bytes -->
 };

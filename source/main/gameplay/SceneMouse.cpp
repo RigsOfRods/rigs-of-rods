@@ -147,7 +147,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 					if (trucks[i]->node_mouse_grab_disabled[j]) continue;
 
 					// check if our ray intersects with the node
-					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->nodes[j].smoothpos, 0.1f));
+					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->nodes[j].AbsPosition, 0.1f));
 					if (pair.first)
 					{
 						// we hit it, check if its the nearest node
@@ -242,10 +242,10 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 				for (int i = 0; i < truck->free_node; i++)
 				{
-					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.25f));
+					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].AbsPosition, 0.25f));
 					if (pair.first)
 					{
-						Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].smoothpos - mouseRay.getOrigin()).length();
+						Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].AbsPosition - mouseRay.getOrigin()).length();
 						if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
 						{
 							nearest_camera_distance = pair.second;

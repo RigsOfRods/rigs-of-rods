@@ -913,6 +913,15 @@ void BeamFactory::updateVisual(float dt)
 	RoR::Mirrors::Update(getCurrentTruck());
 }
 
+void BeamFactory::updateTruckPositions()
+{
+	for (int t=0; t < m_free_truck; t++)
+	{
+		if (!m_trucks[t]) continue;
+		m_trucks[t]->updateTruckPosition();
+	}
+}
+
 void BeamFactory::update(float dt)
 {
 	m_physics_frames++;
