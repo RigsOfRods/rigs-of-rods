@@ -10,9 +10,9 @@ https://repofiles.avrintech.net/gabester-vehicles/Burnside.zip
 -------------------------
 loading_02.jpg:
 Map:
-Simple Test Terrain, packaged with RoR by default
+https://repofiles.avrintech.net/repofiles-1st-batch/24d1a55fae944c0120bca694b8e844c8d253cc95_Jalkkusrallymap0.4.zip
 Vehicle:
-https://repofiles.avrintech.net/gabester-vehicles/gavrilmv4.zip
+https://repofiles.avrintech.net/gabester-vehicles/gavril.zip
 -------------------------
 loading_03.jpg:
 Map:
