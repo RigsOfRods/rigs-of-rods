@@ -266,12 +266,6 @@ bool CameraManager::gameControlsLocked()
 	return (currentBehaviorID == CAMERA_BEHAVIOR_FREE);
 }
 
-size_t CameraManager::getMemoryUsage()
-{
-	// TODO
-	return 0;
-}
-
 void CameraManager::OnReturnToMainMenu()
 {
 	ctx.mCurrTruck = nullptr;
