@@ -7,7 +7,7 @@ cache:
 
 compiler:
   - gcc
-#  - clang
+  - clang
 
 addons:
   # The following updates are needed for Travis VM running Ubuntu 12.04 and should be removed when Travis updates their OS
