@@ -916,7 +916,7 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
 // Syntax: startDelay, stopDelay, startFunction  stopFunction affectEngine needsEngine
 #define E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART                  \
     E_CAPTURE_OPTIONAL(                                   /* #1                */ \
-        E_CAPTURE( E_REAL_NUMBER )                        /* #2 Start delay    */ \
+        E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY )  /* #2 Start delay    */ \
         E_CAPTURE_OPTIONAL(                               /* #3                */ \
             E_CAPTURE( E_DELIMITER )                                              \
             E_CAPTURE( E_REAL_NUMBER )                    /* #5 Stop delay     */ \
