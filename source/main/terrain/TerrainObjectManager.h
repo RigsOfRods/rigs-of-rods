@@ -60,6 +60,14 @@ public:
 		Ogre::Quaternion rotation;
 	} localizer_t;
 
+	typedef struct object_t
+	{
+		Ogre::String name;
+		Ogre::SceneNode *node;
+	} object_t;
+
+	std::vector<object_t> getObjects() { return objects; };
+
 	bool update(float dt);
 
 protected:
@@ -120,11 +128,13 @@ protected:
 		Ogre::SceneNode *sceneNode;
 		Ogre::String instanceName;
 		bool enabled;
-		int loadType;
 		std::vector <int> collBoxes;
 		std::vector <int> collTris;
 	} loadedObject_t;
+
 	std::map< std::string, loadedObject_t> loadedObjects;
+
+	std::vector< object_t > objects;
 
 	void proceduralTests();
 };

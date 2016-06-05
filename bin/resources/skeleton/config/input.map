@@ -185,7 +185,7 @@ COMMON_RESET_TRUCK             Keyboard             EXPL+I
 COMMON_SCREENSHOT              Keyboard             SYSRQ 
 COMMON_SECURE_LOAD             Keyboard             O 
 COMMON_SHOW_SKELETON           Keyboard             K 
-COMMON_START_TRUCK_EDITOR      Keyboard             SHIFT+Y 
+COMMON_TOGGLE_TERRAIN_EDITOR   Keyboard             EXPL+CTRL+Y 
 COMMON_TOGGLE_CUSTOM_PARTICLES Keyboard             G 
 COMMON_TOGGLE_MAT_DEBUG        Keyboard             EXPL+CTRL+SHIFT+F 
 COMMON_TOGGLE_RENDER_MODE      Keyboard             E 

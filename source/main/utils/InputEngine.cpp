@@ -1064,10 +1064,10 @@ eventInfo_t eventInfo[] = {
 		_L("toggle skeleton display mode")
 	},
 	{
-		"COMMON_START_TRUCK_EDITOR",
-		EV_COMMON_START_TRUCK_EDITOR,
+		"COMMON_TOGGLE_TERRAIN_EDITOR",
+		EV_COMMON_TOGGLE_TERRAIN_EDITOR,
 		"Keyboard EXPL+SHIFT+Y",
-		_L("start the old truck editor")
+		_L("toggle terrain editor")
 	},
 	{
 		"COMMON_TOGGLE_CUSTOM_PARTICLES",

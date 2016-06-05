@@ -257,7 +257,7 @@ enum events
 	EV_COMMON_SECURE_LOAD, //!< tie a load to the truck
 	EV_COMMON_SEND_CHAT, //!< send the chat text
 	EV_COMMON_SHOW_SKELETON, //!< toggle skeleton display mode
-	EV_COMMON_START_TRUCK_EDITOR, //!< start the old truck editor
+	EV_COMMON_TOGGLE_TERRAIN_EDITOR, //!< toggle terrain editor
 	EV_COMMON_TOGGLE_CUSTOM_PARTICLES, //!< toggle particle cannon
 	EV_COMMON_TOGGLE_MAT_DEBUG, //!< debug purpose - dont use
 	EV_COMMON_TOGGLE_RENDER_MODE, //!< toggle render mode (solid, wireframe and points)
