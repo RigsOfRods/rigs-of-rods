@@ -77,7 +77,7 @@ CLASS::CLASS(RoR::SkinManager* skin_manager) :
 	//From old file
 	MAIN_WIDGET->setCaption(_L("Loader"));
 
-	m_SearchLine->setCaption(_L("Search ..."));
+	m_SearchLine->setCaption("");
 	m_Ok->setCaption(_L("OK"));
 	m_Cancel->setCaption(_L("Cancel"));
 
@@ -130,16 +130,26 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 	int cid = (int)m_Type->getIndexSelected();
 	int iid = (int)m_Model->getIndexSelected();
 
-	bool searching = (m_Type->getCaption() == _L("Search Results"));
+	bool searching = MyGUI::InputManager::getInstance().getKeyFocusWidget() == m_SearchLine;
 
-	// search
 	if (_key == MyGUI::KeyCode::Slash)
 	{
 		MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
 		m_SearchLine->setCaption("");
 		searching = true;
+	} else if (_key == MyGUI::KeyCode::Tab)
+	{
+		if (searching)
+		{
+			MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
+			m_SearchLine->setCaption(_L("Search ..."));
+		} else
+		{
+			MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
+			m_SearchLine->setCaption("");
+		}
+		searching = !searching;
 	}
-
 
 	// category
 	if (!searching && (_key == MyGUI::KeyCode::ArrowLeft || _key == MyGUI::KeyCode::ArrowRight))
@@ -916,12 +926,12 @@ void CLASS::Show(LoaderType type)
 	m_selection_done = false;
 
 	m_selected_skin = 0;
-	m_SearchLine->setCaption(_L("Search ..."));
+	m_SearchLine->setCaption("");
 	RoR::Application::GetInputEngine()->resetKeys();
 	LoadingWindow::getSingleton().hide();
-	// focus main mMainWidget (for key input)
 	m_vehicle_configs.clear();
-	MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
+	//MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
+	MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
 	mMainWidget->setEnabledSilent(true);
 
 	MAIN_WIDGET->setVisibleSmooth(true);
@@ -952,7 +962,10 @@ void CLASS::EventSearchTextChange(MyGUI::EditBox *_sender)
 {
 	if (!MAIN_WIDGET->getVisible()) return;
 	OnCategorySelected(CacheSystem::CID_SearchResults);
-	m_Type->setCaption(_L("Search Results"));
+	if (m_SearchLine->getTextLength() > 0)
+	{
+		m_Type->setCaption(_L("Search Results"));
+	}
 }
 
 void CLASS::EventSearchTextGotFocus(MyGUI::WidgetPtr _sender, MyGUI::WidgetPtr oldWidget)
