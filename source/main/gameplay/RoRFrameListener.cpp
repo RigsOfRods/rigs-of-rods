@@ -512,7 +512,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	{
 		terrain_editing_mode = !terrain_editing_mode;
 #ifdef USE_MYGUI
-		String ssmsg = terrain_editing_mode ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
+		UTFString ssmsg = terrain_editing_mode ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
 		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
 		RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
@@ -583,7 +583,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		{
 			terrain_editing_track_object = !terrain_editing_track_object;
 #ifdef USE_MYGUI
-			String ssmsg = terrain_editing_track_object ? _L("Enabled object tracking") : _L("Disabled object tracking");
+			UTFString ssmsg = terrain_editing_track_object ? _L("Enabled object tracking") : _L("Disabled object tracking");
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
 			RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
