@@ -1352,7 +1352,7 @@ DEFINE_REGEX( SECTION_FLARES,
 
             E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )
-                E_CAPTURE( E_DECIMAL_NUMBER )  // #18 Blink delay
+                E_CAPTURE( E_REAL_NUMBER )  // #18 Blink delay
 
                 E_CAPTURE_OPTIONAL(
                     E_CAPTURE( E_DELIMITER )
