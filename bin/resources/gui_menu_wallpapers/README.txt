@@ -111,14 +111,22 @@ https://repofiles.avrintech.net/repofiles-1st-batch/55afe179d15f28e3f789115e9a41
 loading_17.jpg:
 Map:
 https://repofiles.avrintech.net/repofiles-1st-batch/336005c127f7e6a5f2d1b76c955559ab311fc773_Penguinville_1.zip
-Vehicles:
-[Not found/unknown]
+Vehicles [Not everything is listed]:
+https://repofiles.avrintech.net/repofiles-2nd-batch/9f8b7ef06b9bb018603b3a877134eabaa2f0e68a_sennebogen.zip
+https://repofiles.avrintech.net/repofiles-3rd-batch/d7658c474a1cbfd3376ead7a8958fab44f8372b0_Lenni-MAN-TGX-Semipack-1312UID.zip
+https://repofiles.avrintech.net/repofiles-2nd-batch/a337c74f26ce932c66dfaeef7e5809b80f18cab0_Lenni-Nachlaeufer-3344UID.zip
+https://repofiles.avrintech.net/repofiles-3rd-batch/ff93af55fab716f036b74638f337f9945acf784c_Manitou_731.zip
+
 ------------------------
 loading_18.jpg:
 Map:
 https://repofiles.avrintech.net/repofiles-1st-batch/336005c127f7e6a5f2d1b76c955559ab311fc773_Penguinville_1.zip
-Vehicles:
-[Not found/unknown]
+Vehicles [Not everything is listed]:
+https://repofiles.avrintech.net/repofiles-2nd-batch/9f8b7ef06b9bb018603b3a877134eabaa2f0e68a_sennebogen.zip
+https://repofiles.avrintech.net/repofiles-3rd-batch/d7658c474a1cbfd3376ead7a8958fab44f8372b0_Lenni-MAN-TGX-Semipack-1312UID.zip
+https://repofiles.avrintech.net/repofiles-2nd-batch/a337c74f26ce932c66dfaeef7e5809b80f18cab0_Lenni-Nachlaeufer-3344UID.zip
+http://www.rigsofrods.org/old-forum/forums/110-Mods-Skins/70506/attached-files/1994__Dodge_Ram_Pack.zip
+
 ------------------------
 loading_19.jpg:
 Map:
