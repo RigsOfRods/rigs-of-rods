@@ -95,7 +95,7 @@ loading_15.jpg:
 Map:
 https://repofiles.avrintech.net/repofiles-1st-batch/27fee1e0785f52fcdfd15976f5af490cd38ee1f8_LJGreece.zip
 Vehicles:
-[Rollback - Link not found/unknown]
+https://repofiles.avrintech.net/repofiles-1st-batch/5935ea2c2e69dfbbd2845509590d1490e9febc05_Lenni-AtegoWrecker-f719UID.zip
 https://repofiles.avrintech.net/gabester-vehicles/49ford.zip
 https://repofiles.avrintech.net/gabester-vehicles/gavril.zip
 https://repofiles.avrintech.net/gabester-vehicles/Burnside.zip
