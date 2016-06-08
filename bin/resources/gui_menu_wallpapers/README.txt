@@ -59,7 +59,7 @@ loading_09.jpg:
 Map:
 http://www.rigsofrods.org/old-forum/forums/128-Terrains-objects/103446/page-0001.html
 Vehicles:
-[Kenworth Dump Truck - Link not found/unknown]
+http://www.rigsofrods.org/old-forum/forums/116-Trucks/88541/page-0001.html
 http://www.rigsofrods.org/old-forum/forums/106-General-Chat/120809/page-0001.html
 -------------------------
 loading_10.jpg:
