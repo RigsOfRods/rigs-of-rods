@@ -325,7 +325,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 	if (b->state == INVALID)
 	{
 		this->DeleteTruck(b);
-		return nullptr;
+		return -1;
 	}
 	m_trucks[truck_num] = b;
 
