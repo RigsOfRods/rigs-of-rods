@@ -63,6 +63,8 @@ public:
 	typedef struct object_t
 	{
 		Ogre::String name;
+		Ogre::Vector3 position;
+		Ogre::Vector3 rotation;
 		Ogre::SceneNode *node;
 	} object_t;
 

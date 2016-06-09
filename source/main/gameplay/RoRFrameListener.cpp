@@ -504,9 +504,9 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 	static std::vector<TerrainObjectManager::object_t> object_list;
-	static Vector3 terrain_editing_rotation_axis = Vector3::UNIT_Y;
 	static bool terrain_editing_track_object = true;
 	static bool terrain_editing_mode = false;
+	static int terrain_editing_rotation_axis = 2;
 	static int object_index = -1;
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
@@ -533,13 +533,8 @@ bool RoRFrameListener::updateEvents(float dt)
 					SceneNode *sn = object.node; 
 					if (sn != nullptr)
 					{
-						String pos = TOSTRING(sn->getPosition().x) + ", " + TOSTRING(sn->getPosition().y) + ", " + TOSTRING(sn->getPosition().z);
-
-						float rotX = sn->getOrientation().getPitch().valueDegrees() + 90.0f;
-						float rotY = sn->getOrientation().getYaw().valueDegrees();
-						float rotZ = sn->getOrientation().getRoll().valueDegrees();
-
-						String rot = TOSTRING(Round(rotX, 4)) + ", " + TOSTRING(Round(rotY, 4)) + ", " + TOSTRING(Round(rotZ, 4));
+						String pos = TOSTRING(object.position.x) + ", " + TOSTRING(object.position.y) + ", " + TOSTRING(object.position.z);
+						String rot = TOSTRING(object.rotation.x) + ", " + TOSTRING(object.rotation.y) + ", " + TOSTRING(object.rotation.z);
 
 						file << pos + ", " + rot + ", " + object.name + "\n";
 					}
@@ -587,22 +582,22 @@ bool RoRFrameListener::updateEvents(float dt)
 		}
 		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
 		{
-			UTFString axis = _L("y-axis");
-			if (terrain_editing_rotation_axis == Vector3::UNIT_X)
+			UTFString axis = _L("rz");
+			if (terrain_editing_rotation_axis == 0)
 			{
-				axis = _L("y-axis");
-				terrain_editing_rotation_axis = Vector3::UNIT_Y;
-			} else if (terrain_editing_rotation_axis == Vector3::UNIT_Y)
+				axis = _L("ry");
+				terrain_editing_rotation_axis = 1;
+			} else if (terrain_editing_rotation_axis == 1)
 			{
-				axis = _L("z-axis");
-				terrain_editing_rotation_axis = Vector3::UNIT_Z;
-			} else if (terrain_editing_rotation_axis == Vector3::UNIT_Z)
+				axis = _L("rz");
+				terrain_editing_rotation_axis = 2;
+			} else if (terrain_editing_rotation_axis == 2)
 			{
-				axis = _L("x-axis");
-				terrain_editing_rotation_axis = Vector3::UNIT_X;
+				axis = _L("rx");
+				terrain_editing_rotation_axis = 0;
 			}
 #ifdef USE_MYGUI
-			UTFString ssmsg = _L("Rotating around: ") + axis;
+			UTFString ssmsg = _L("Rotating: ") + axis;
 			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
 			RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
 #endif //USE_MYGUI
@@ -639,10 +634,10 @@ bool RoRFrameListener::updateEvents(float dt)
 
 			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT))
 			{
-				rotation += 0.25f;
+				rotation += 2.0f;
 			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_RIGHT))
 			{
-				rotation -= 0.25f;
+				rotation -= 2.0f;
 			}
 			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
 			{
@@ -672,8 +667,13 @@ bool RoRFrameListener::updateEvents(float dt)
 				scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT)   ? 3.0f : 1.0f;
 				scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-				sn->setPosition(sn->getPosition() + translation * scale * dt);
-				sn->setOrientation(Quaternion(Radian(rotation) * scale * dt, terrain_editing_rotation_axis) * sn->getOrientation());
+				object_list[object_index].position += translation * scale * dt;
+				sn->setPosition(object_list[object_index].position);
+
+				object_list[object_index].rotation[terrain_editing_rotation_axis] += rotation * scale * dt;
+				Vector3 rot = object_list[object_index].rotation;
+				sn->setOrientation(Quaternion(Degree(rot.x - 90), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+
 				if (terrain_editing_track_object)
 				{
 					gEnv->player->setPosition(object_list[object_index].node->getPosition());
