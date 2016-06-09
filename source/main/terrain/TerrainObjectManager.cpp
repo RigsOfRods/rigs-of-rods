@@ -815,6 +815,8 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		object.name = name; 
 		object.position = pos;
 		object.rotation = rot;
+		object.initial_position = pos;
+		object.initial_rotation = rot;
 		object.node = tenode; 
 		objects.push_back(object);
 

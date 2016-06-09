@@ -65,6 +65,8 @@ public:
 		Ogre::String name;
 		Ogre::Vector3 position;
 		Ogre::Vector3 rotation;
+		Ogre::Vector3 initial_position;
+		Ogre::Vector3 initial_rotation;
 		Ogre::SceneNode *node;
 	} object_t;
 

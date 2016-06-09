@@ -506,7 +506,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	static std::vector<TerrainObjectManager::object_t> object_list;
 	static bool terrain_editing_track_object = true;
 	static bool terrain_editing_mode = false;
-	static int terrain_editing_rotation_axis = 2;
+	static int terrain_editing_rotation_axis = 1;
 	static int object_index = -1;
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
@@ -582,7 +582,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		}
 		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
 		{
-			UTFString axis = _L("rz");
+			UTFString axis = _L("ry");
 			if (terrain_editing_rotation_axis == 0)
 			{
 				axis = _L("ry");
@@ -624,7 +624,18 @@ bool RoRFrameListener::updateEvents(float dt)
 				//gEnv->cameraManager->NotifyContextChange();
 			}
 		}
+		if (object_index != -1 && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
+		{
+			SceneNode *sn = object_list[object_index].node; 
 
+			object_list[object_index].position = object_list[object_index].initial_position;
+			sn->setPosition(object_list[object_index].position);
+
+			object_list[object_index].rotation = object_list[object_index].initial_rotation;
+			Vector3 rot = object_list[object_index].rotation;
+			sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+			sn->pitch(Degree(-90));
+		}
 		if (object_index != -1 && gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
 		{
 			SceneNode *sn = object_list[object_index].node; 
@@ -641,24 +652,24 @@ bool RoRFrameListener::updateEvents(float dt)
 			}
 			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
 			{
-				translation.y += 1.0f;
+				translation.y += 0.5f;
 			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_BRAKE))
 			{
-				translation.y -= 1.0f;
+				translation.y -= 0.5f;
 			}
 			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
 			{
-				translation.x += 1.0f;
+				translation.x += 0.5f;
 			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
 			{
-				translation.x -= 1.0f;
+				translation.x -= 0.5f;
 			}
 			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
 			{
-				translation.z += 1.0f;
+				translation.z += 0.5f;
 			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
 			{
-				translation.z -= 1.0f;
+				translation.z -= 0.5f;
 			}
 
 			if (translation != Vector3::ZERO || rotation != 0.0f)
@@ -672,7 +683,8 @@ bool RoRFrameListener::updateEvents(float dt)
 
 				object_list[object_index].rotation[terrain_editing_rotation_axis] += rotation * scale * dt;
 				Vector3 rot = object_list[object_index].rotation;
-				sn->setOrientation(Quaternion(Degree(rot.x - 90), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+				sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+				sn->pitch(Degree(-90));
 
 				if (terrain_editing_track_object)
 				{
