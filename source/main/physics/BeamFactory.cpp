@@ -228,6 +228,14 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		preloaded_with_terrain,
         cache_entry_number
 		);
+
+
+	if (b->state == INVALID)
+	{
+		this->DeleteTruck(b);
+		return nullptr;
+	}
+
 	m_trucks[truck_num] = b;
 
 	// lock slide nodes after spawning the truck?
@@ -314,6 +322,11 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 		nullptr // skin
 		);
 
+	if (b->state == INVALID)
+	{
+		this->DeleteTruck(b);
+		return nullptr;
+	}
 	m_trucks[truck_num] = b;
 
 	b->m_source_id = reg->origin_sourceid;
