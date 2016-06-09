@@ -669,18 +669,29 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truck_config);
 		bool enterTruck = (BSETTING("Enter Preselected Truck", false));
 
-		Vector3 pos = gEnv->terrainManager->getSpawnPos();
-		Quaternion rot = Quaternion::ZERO;
+		Vector3 pos = gEnv->player->getPosition();
+		Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
 		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, preselected_truck, -1, nullptr, false, &truckConfig);
 
-		if (enterTruck && b && b->free_node > 0)
+		if (b != nullptr)
 		{
-			BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
-		}
-		if (b && b->engine)
-		{
-			b->engine->start();
+			// Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
+			Vector3 translation = pos - b->getRotationCenter();
+			b->resetPosition(b->nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+
+			b->updateFlexbodiesPrepare();
+			b->updateFlexbodiesFinal();
+			b->updateVisual();
+
+			if (enterTruck && b->free_node > 0)
+			{
+				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
+			}
+			if (b->engine)
+			{
+				b->engine->start();
+			}
 		}
 	}
 
