@@ -5440,6 +5440,8 @@ Beam::Beam(
 	{
 		if(! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, cache_entry_number))
 		{
+			LOG(" ===== FAILED LOADING VEHICLE: " + Ogre::String(fname));
+			state = INVALID;
 			return;
 		}
 	}
