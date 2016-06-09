@@ -504,6 +504,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 	static std::vector<TerrainObjectManager::object_t> object_list;
+	static Vector3 terrain_editing_rotation_axis = Vector3::UNIT_Y;
 	static bool terrain_editing_track_object = true;
 	static bool terrain_editing_mode = false;
 	static int object_index = -1;
@@ -533,7 +534,12 @@ bool RoRFrameListener::updateEvents(float dt)
 					if (sn != nullptr)
 					{
 						String pos = TOSTRING(sn->getPosition().x) + ", " + TOSTRING(sn->getPosition().y) + ", " + TOSTRING(sn->getPosition().z);
-						String rot = TOSTRING(sn->getOrientation().getPitch().valueDegrees()) + ", " + TOSTRING(sn->getOrientation().getYaw().valueDegrees()) + ", " + TOSTRING(sn->getOrientation().getRoll().valueDegrees());
+
+						float rotX = sn->getOrientation().getPitch().valueDegrees() + 90.0f;
+						float rotY = sn->getOrientation().getYaw().valueDegrees();
+						float rotZ = sn->getOrientation().getRoll().valueDegrees();
+
+						String rot = TOSTRING(Round(rotX, 4)) + ", " + TOSTRING(Round(rotY, 4)) + ", " + TOSTRING(Round(rotZ, 4));
 
 						file << pos + ", " + rot + ", " + object.name + "\n";
 					}
@@ -578,6 +584,28 @@ bool RoRFrameListener::updateEvents(float dt)
 		{
 			object_index = (object_index - 1 + (int)object_list.size()) % object_list.size(); 
 			update = true;
+		}
+		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
+		{
+			UTFString axis = _L("y-axis");
+			if (terrain_editing_rotation_axis == Vector3::UNIT_X)
+			{
+				axis = _L("y-axis");
+				terrain_editing_rotation_axis = Vector3::UNIT_Y;
+			} else if (terrain_editing_rotation_axis == Vector3::UNIT_Y)
+			{
+				axis = _L("z-axis");
+				terrain_editing_rotation_axis = Vector3::UNIT_Z;
+			} else if (terrain_editing_rotation_axis == Vector3::UNIT_Z)
+			{
+				axis = _L("x-axis");
+				terrain_editing_rotation_axis = Vector3::UNIT_X;
+			}
+#ifdef USE_MYGUI
+			UTFString ssmsg = _L("Rotating around: ") + axis;
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
 		}
 		if (RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
 		{
@@ -645,7 +673,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
 				sn->setPosition(sn->getPosition() + translation * scale * dt);
-				sn->setOrientation(Quaternion(Radian(rotation) * scale * dt, Vector3::UNIT_Y) * sn->getOrientation());
+				sn->setOrientation(Quaternion(Radian(rotation) * scale * dt, terrain_editing_rotation_axis) * sn->getOrientation());
 				if (terrain_editing_track_object)
 				{
 					gEnv->player->setPosition(object_list[object_index].node->getPosition());
