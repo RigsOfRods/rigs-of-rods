@@ -807,10 +807,18 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		// register in map
 		loadedObject_t *obj = &loadedObjects[instancename];
 		obj->instanceName = instancename;
-		obj->loadType     = 0;
 		obj->enabled      = true;
 		obj->sceneNode    = tenode;
 		obj->collTris.clear();
+
+		object_t object;
+		object.name = name; 
+		object.position = pos;
+		object.rotation = rot;
+		object.initial_position = pos;
+		object.initial_rotation = rot;
+		object.node = tenode; 
+		objects.push_back(object);
 
 		if (mo && uniquifyMaterial && !instancename.empty())
 		{
@@ -1259,13 +1267,13 @@ void TerrainObjectManager::loadPreloadedTrucks()
 
 }
 
-bool TerrainObjectManager::update( float dt )
+bool TerrainObjectManager::update(float dt)
 {
 #ifdef USE_PAGED
 	// paged geometry
-	for (std::vector<paged_geometry_t>::iterator it=pagedGeometry.begin();it!=pagedGeometry.end();it++)
+	for (auto it : pagedGeometry)
 	{
-		if (it->geom) it->geom->update();
+		if (it.geom) it.geom->update();
 	}
 #endif //USE_PAGED
 

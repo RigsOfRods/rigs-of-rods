@@ -56,6 +56,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
+#include "TerrainObjectManager.h"
 #include "TruckHUD.h"
 #include "Utils.h"
 #include "Water.h"
@@ -69,9 +70,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SurveyMapEntity.h"
 #endif //USE_MYGUI
 
-#include <sstream>
-#include <iomanip>
 #include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
 
 #ifdef USE_MPLATFORM
 #include "MPlatformFD.h"
@@ -499,8 +503,199 @@ bool RoRFrameListener::updateEvents(float dt)
 		}
 	}
 
+	static std::vector<TerrainObjectManager::object_t> object_list;
+	static bool terrain_editing_track_object = true;
+	static bool terrain_editing_mode = false;
+	static int terrain_editing_rotation_axis = 1;
+	static int object_index = -1;
 
-	if (m_loading_state == ALL_LOADED)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
+	{
+		terrain_editing_mode = !terrain_editing_mode;
+#ifdef USE_MYGUI
+		UTFString ssmsg = terrain_editing_mode ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
+		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+		RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+
+		if (terrain_editing_mode)
+		{
+			object_list = gEnv->terrainManager->getObjectManager()->getObjects();
+			object_index = -1;
+		} else
+		{
+			String path = SSETTING("Config Root", "") + "editor_out.cfg";
+			std::ofstream file (path);
+			if (file.is_open())
+			{
+				for (auto object : object_list)
+				{
+					SceneNode *sn = object.node; 
+					if (sn != nullptr)
+					{
+						String pos = TOSTRING(object.position.x) + ", " + TOSTRING(object.position.y) + ", " + TOSTRING(object.position.z);
+						String rot = TOSTRING(object.rotation.x) + ", " + TOSTRING(object.rotation.y) + ", " + TOSTRING(object.rotation.z);
+
+						file << pos + ", " + rot + ", " + object.name + "\n";
+					}
+				}
+				file.close();
+			} else
+			{
+				LOG("Cannot write '" + path + "'");
+			}
+		}
+	}
+
+	if (m_loading_state == ALL_LOADED && terrain_editing_mode && object_list.size() > 0)
+	{
+		bool update = false;
+		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
+		{
+			if (object_index == -1)
+			{
+				// Select nearest object
+				Vector3 ref_pos = gEnv->cameraManager->gameControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
+				float min_dist = std::numeric_limits<float>::max();
+				for (int i=0; i < (int)object_list.size(); i++)
+				{
+					float dist = ref_pos.squaredDistance(object_list[i].node->getPosition());
+					if (dist < min_dist)
+					{
+						object_index = i;
+						min_dist = dist;
+						update = true;
+					}
+				}
+			} else
+			{
+				object_index = -1;
+			}
+		} else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
+		{
+			object_index = (object_index + 1 + (int)object_list.size()) % object_list.size(); 
+			update = true;
+		} else if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
+		{
+			object_index = (object_index - 1 + (int)object_list.size()) % object_list.size(); 
+			update = true;
+		}
+		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
+		{
+			UTFString axis = _L("ry");
+			if (terrain_editing_rotation_axis == 0)
+			{
+				axis = _L("ry");
+				terrain_editing_rotation_axis = 1;
+			} else if (terrain_editing_rotation_axis == 1)
+			{
+				axis = _L("rz");
+				terrain_editing_rotation_axis = 2;
+			} else if (terrain_editing_rotation_axis == 2)
+			{
+				axis = _L("rx");
+				terrain_editing_rotation_axis = 0;
+			}
+#ifdef USE_MYGUI
+			UTFString ssmsg = _L("Rotating: ") + axis;
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+		}
+		if (RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+		{
+			terrain_editing_track_object = !terrain_editing_track_object;
+#ifdef USE_MYGUI
+			UTFString ssmsg = terrain_editing_track_object ? _L("Enabled object tracking") : _L("Disabled object tracking");
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+		}
+		if (object_index != -1 && update)
+		{
+#ifdef USE_MYGUI
+			String ssmsg = _L("Selected object: [") + TOSTRING(object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[object_index].name + ")";
+			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+			RoR::Application::GetGuiManager()->PushNotification("Notice:", ssmsg);
+#endif //USE_MYGUI
+			if (terrain_editing_track_object)
+			{
+				gEnv->player->setPosition(object_list[object_index].node->getPosition());
+				//gEnv->cameraManager->NotifyContextChange();
+			}
+		}
+		if (object_index != -1 && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
+		{
+			SceneNode *sn = object_list[object_index].node; 
+
+			object_list[object_index].position = object_list[object_index].initial_position;
+			sn->setPosition(object_list[object_index].position);
+
+			object_list[object_index].rotation = object_list[object_index].initial_rotation;
+			Vector3 rot = object_list[object_index].rotation;
+			sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+			sn->pitch(Degree(-90));
+		}
+		if (object_index != -1 && gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
+		{
+			SceneNode *sn = object_list[object_index].node; 
+
+			Vector3 translation = Vector3::ZERO;
+			float rotation = 0.0f;
+
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_LEFT))
+			{
+				rotation += 2.0f;
+			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_STEER_RIGHT))
+			{
+				rotation -= 2.0f;
+			}
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_ACCELERATE))
+			{
+				translation.y += 0.5f;
+			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_BRAKE))
+			{
+				translation.y -= 0.5f;
+			}
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
+			{
+				translation.x += 0.5f;
+			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
+			{
+				translation.x -= 0.5f;
+			}
+			if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
+			{
+				translation.z += 0.5f;
+			} else if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
+			{
+				translation.z -= 0.5f;
+			}
+
+			if (translation != Vector3::ZERO || rotation != 0.0f)
+			{
+				float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU)    ? 0.1f : 1.0f;
+				scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT)   ? 3.0f : 1.0f;
+				scale      *= RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
+
+				object_list[object_index].position += translation * scale * dt;
+				sn->setPosition(object_list[object_index].position);
+
+				object_list[object_index].rotation[terrain_editing_rotation_axis] += rotation * scale * dt;
+				Vector3 rot = object_list[object_index].rotation;
+				sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+				sn->pitch(Degree(-90));
+
+				if (terrain_editing_track_object)
+				{
+					gEnv->player->setPosition(object_list[object_index].node->getPosition());
+				}
+			}
+		} else
+		{
+			CharacterFactory::getSingleton().update(dt);
+		}
+	} else if (m_loading_state == ALL_LOADED)
 	{
 		CharacterFactory::getSingleton().update(dt);
 		if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
@@ -1069,7 +1264,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	} else
 	{
 		//no terrain or truck loaded
-
+		terrain_editing_mode = false;
 #ifdef USE_MYGUI
 		if (Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
 		{
