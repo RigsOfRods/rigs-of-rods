@@ -54,8 +54,8 @@ make install
 
 #Caelum
 cd $DEPS_BUILD_DIR
-git clone -q --depth=1 https://github.com/RigsOfRods/caelum.git
-cd caelum
+git clone -q --depth=1 https://github.com/RigsOfRods/ogre-caelum.git
+cd ogre-caelum
 cmake -DCMAKE_INSTALL_PREFIX=$DEPS_INSTALL_DIR \
 -DCMAKE_PREFIX_PATH=$DEPS_INSTALL_DIR \
 -DCMAKE_BUILD_TYPE:STRING=Release \
