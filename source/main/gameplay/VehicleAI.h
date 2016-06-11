@@ -30,6 +30,8 @@
 
 #pragma once
 
+#ifdef USE_ANGELSCRIPT
+
 #include "RoRPrerequisites.h"
 #include "scriptdictionary/scriptdictionary.h"
 
@@ -142,3 +144,5 @@ private:
 	int free_waypoints = 0;//!< The amount of waypoints.
 	float acc_power = 0.8;//!< The engine power.
 };
+
+#endif // USE_ANGELSCRIPT

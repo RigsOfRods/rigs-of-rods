@@ -20,6 +20,7 @@
 	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef USE_ANGELSCRIPT
 
 #include "VehicleAI.h"
 
@@ -336,3 +337,5 @@ void VehicleAI::update(float dt, int doUpdate)
 		}
 		*/
 }
+
+#endif // USE_ANGELSCRIPT

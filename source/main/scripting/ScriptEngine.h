@@ -22,6 +22,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #ifndef SCRIPTENGINE_H__
 #define SCRIPTENGINE_H__
+
+#ifdef USE_ANGELSCRIPT
+
 #include <Ogre.h>
 
 #include "RoRPrerequisites.h"
@@ -202,5 +205,6 @@ protected:
 	void LineCallback(AngelScript::asIScriptContext *ctx, unsigned long *timeOut);
 };
 
+#endif // USE_ANGELSCRIPT
 
 #endif //SCRIPTENGINE_H__

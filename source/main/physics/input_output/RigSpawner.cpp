@@ -336,7 +336,9 @@ void RigSpawner::InitializeRig()
 
 	m_rig->beamHash = "";
 
+#ifdef USE_ANGELSCRIPT
 	m_rig->vehicle_ai = new VehicleAI(m_rig);
+#endif // USE_ANGELSCRIPT
 
 	/* Init code from Beam::Beam() */
 

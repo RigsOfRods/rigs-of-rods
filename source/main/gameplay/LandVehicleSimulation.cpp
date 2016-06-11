@@ -148,7 +148,11 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 	} // end of (!curr_truck->replaymode) block
 
+#ifdef USE_ANGELSCRIPT
 	if (!curr_truck->replaymode && !curr_truck->vehicle_ai->IsActive())
+#else
+    if (!curr_truck->replaymode)
+#endif // USE_ANGELSCRIPT
 	{
 		// steering
 		float tmp_left_digital  = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT,  false, InputEngine::ET_DIGITAL);

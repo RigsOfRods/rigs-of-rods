@@ -953,8 +953,10 @@ void BeamFactory::update(float dt)
 		m_trucks[t]->handleResetRequests(dt);
 		m_trucks[t]->updateAngelScriptEvents(dt);
 
+#ifdef USE_ANGELSCRIPT
 		if (m_trucks[t]->vehicle_ai && (m_trucks[t]->vehicle_ai->IsActive()))
 			m_trucks[t]->vehicle_ai->update(dt, 0);
+#endif // USE_ANGELSCRIPT
 
 		switch(m_trucks[t]->state)
 		{
