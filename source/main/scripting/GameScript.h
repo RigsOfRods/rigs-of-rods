@@ -366,6 +366,10 @@ public:
 	VehicleAI* getCurrentTruckAI();
 	VehicleAI* getTruckAIByNum(int num);
 
+	Beam* spawnTruck(Ogre::String &truckName, Ogre::Vector3 &pos, Ogre::Vector3 &rot);
+
+	void showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2);
+
 protected:
 
 	ScriptEngine *mse;          //!< local script engine pointer, used as proxy mostly

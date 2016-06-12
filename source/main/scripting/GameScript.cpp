@@ -895,3 +895,14 @@ VehicleAI *GameScript::getTruckAIByNum(int num)
 		return b->vehicle_ai;
 	return nullptr;
 }
+
+Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
+{
+	//todo
+	return nullptr;
+}
+
+void GameScript::showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2)
+{
+	RoR::Application::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+}

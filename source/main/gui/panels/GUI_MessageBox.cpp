@@ -32,9 +32,12 @@
 #include "RoRVersion.h"
 #include "rornet.h"
 #include "Language.h"
-#include "GUIManager.h" 
+#include "GUIManager.h"
+#include "ScriptEvents.h"
+#include "Scripting.h"
 
 #include <MyGUI.h>
+
 
 
 using namespace RoR;
@@ -117,17 +120,22 @@ void CLASS::Hide()
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
 	if (_name == "close" && !b_AllowClose)
+	{
+		TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 0);
 		Hide();
+	}		
 }
 
 void CLASS::eventMouseButton1ClickSaveButton(MyGUI::WidgetPtr _sender)
 {
+	TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 1);
 	i_Results = 1;
 	Hide();
 }
 
 void CLASS::eventMouseButton2ClickSaveButton(MyGUI::WidgetPtr _sender)
 {
+	TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 2);
 	i_Results = 2;
 	Hide();
 }
