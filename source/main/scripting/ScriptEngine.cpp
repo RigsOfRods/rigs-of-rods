@@ -341,6 +341,8 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectMethod("BeamClass", "float getRotation()", AngelScript::asMETHOD(Beam,getRotation), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "vector3 getVehiclePosition()", AngelScript::asMETHOD(Beam,getPosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", AngelScript::asMETHOD(Beam,getNodePosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+
+	result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClass @getVehicleAI()", AngelScript::asMETHOD(Beam,getVehicleAI), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	
 
 	/*
