@@ -44,7 +44,7 @@ If you are one of the previous authors and happen to come across this list pleas
 ##### authors of the source code since reboot (move to git)
 | GitHub nickname                | RoR forum nickname      | real name              | email                            |
 |--------------------------------|-------------------------|------------------------|----------------------------------|
-| Hiradur                        | Hiradur                 | Niklas Kersten         | n\<surname\>.dev@gmail.com       |
+| Hiradur                        | Hiradur                 | Niklas Kersten         | n.\<surname\>@xyz.de              |
 | only-a-ptr                     | only_a_ptr              | Petr Ohlídal           | my-name@my-surname.cz            |
 | Aperion                        | Aperion                 | <uncompleted>          | <uncompleted>                    |
 | Max98                          | max98                   | Moncef Ben Slimane     | moncefbenslimane{at}yahoo{dot}fr |
