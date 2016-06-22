@@ -62,7 +62,9 @@ public:
 	
 	void update(float dt);
 
+#ifdef USE_SOCKETW
 	void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
+#endif // USE_SOCKETW
 	int checkStreamsOK(int sourceid);
 	int checkStreamsRemoteOK(int sourceid);
 

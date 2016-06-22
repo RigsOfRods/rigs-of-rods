@@ -18,6 +18,7 @@
 	You should have received a copy of the GNU General Public License
 	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "ChatSystem.h"
 
 #include "Application.h"
@@ -31,6 +32,7 @@ namespace ChatSystem {
 
 static int m_stream_id;
 
+#ifdef USE_SOCKETW
 void SendStreamSetup()
 {
 	stream_register_t reg;
@@ -42,7 +44,9 @@ void SendStreamSetup()
 	RoR::Networking::AddLocalStream(&reg, sizeof(stream_register_t));
 
 	m_stream_id = reg.origin_streamid;
+
 }
+#endif // USE_SOCKETW
 
 Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number)
 {
@@ -57,10 +61,11 @@ Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number)
 	return tryConvertUTF(tmp) + nick;
 }
 
+#ifdef USE_SOCKETW
 void ReceiveStreamData(unsigned int type, int source, char *buffer)
 {
 	if (type != MSG2_UTF_CHAT && type != MSG2_UTF_PRIVCHAT) return;
-#ifdef USE_SOCKETW
+
 	Ogre::UTFString msg = tryConvertUTF(buffer);
 
 	if (type == MSG2_UTF_CHAT)
@@ -99,9 +104,10 @@ void ReceiveStreamData(unsigned int type, int source, char *buffer)
 #ifdef USE_MYGUI
 	RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
 #endif //USE_MYGUI
-#endif // USE_SOCKETW
 }
+#endif // USE_SOCKETW
 
+#ifdef USE_SOCKETW
 void HandleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
 	for (auto packet : packet_buffer)
@@ -109,6 +115,7 @@ void HandleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 		ReceiveStreamData(packet.header.command, packet.header.source, packet.buffer);
 	}
 }
+#endif // USE_SOCKETW
 
 void SendChat(Ogre::UTFString chatline)
 {

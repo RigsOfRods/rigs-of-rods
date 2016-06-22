@@ -531,6 +531,7 @@ void Character::move(Vector3 offset)
 
 void Character::sendStreamSetup()
 {
+#ifdef USE_SOCKETW
 	if (remote) return;
 
 	stream_register_t reg;
@@ -544,10 +545,12 @@ void Character::sendStreamSetup()
 
 	m_source_id = reg.origin_sourceid;
 	m_stream_id = reg.origin_streamid;
+#endif // USE_SOCKETW
 }
 
 void Character::sendStreamData()
 {
+#ifdef USE_SOCKETW
 	// do not send position data if coupled to a truck already
 	if (beamCoupling) return;
 
@@ -565,6 +568,7 @@ void Character::sendStreamData()
 
 	//LOG("sending character stream data: " + TOSTRING(RoR::Networking::GetUID()) + ":" + TOSTRING(m_stream_id));
 	RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
+#endif // USE_SOCKETW
 }
 
 void Character::receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer)
@@ -626,12 +630,14 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		}
 		if (gEnv->multiplayer && !remote)
 		{
+#ifdef USE_SOCKETW
 			attach_netdata_t data;
 			data.command = CHARCMD_ATTACH;
 			data.enabled = true;
 			data.source_id = beamCoupling->m_source_id;
 			data.stream_id = beamCoupling->m_stream_id;
 			RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+#endif // USE_SOCKETW
 		}
 
 		// do not cast shadows inside of a truck
@@ -655,10 +661,12 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		}
 		if (gEnv->multiplayer && !remote)
 		{
+#ifdef USE_SOCKETW
 			attach_netdata_t data;
 			data.command = CHARCMD_ATTACH;
 			data.enabled = false;
 			RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+#endif // USE_SOCKETW
 		}
 
 		// show character

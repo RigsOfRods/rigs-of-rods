@@ -572,6 +572,8 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 	}
 
 	int colourNum = -1;
+
+#ifdef USE_SOCKETW
 	if (gEnv->multiplayer)
 	{
 		wchar_t tmp[255] = L"";
@@ -582,6 +584,8 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 		user_info_t info = RoR::Networking::GetLocalUserData();
 		colourNum = info.colournum;
 	}
+#endif // USE_SOCKETW
+
 	// NOTE: create player _AFTER_ network, important
 	gEnv->player = CharacterFactory::getSingleton().createLocal(colourNum);
 
@@ -897,10 +901,12 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		return;
 	}
 
+#ifdef USE_SOCKETW
 	if (gEnv->multiplayer)
 	{
 		GUI_Multiplayer::getSingleton().update();
 	}
+#endif // USE_SOCKETW
 
 	RoR::Application::GetInputEngine()->Capture();
 

@@ -1741,7 +1741,9 @@ void Beam::sendStreamSetup()
 			strncpy(reg.truckconfig[i], m_truck_config[i].c_str(), 60);
 	}
 
+#ifdef USE_SOCKETW
 	RoR::Networking::AddLocalStream((stream_register_t *)&reg, sizeof(stream_register_trucks_t));
+#endif // USE_SOCKETW
 
 	m_source_id = reg.origin_sourceid;
 	m_stream_id = reg.origin_streamid;
