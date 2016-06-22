@@ -278,6 +278,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 		}
 	} else
 	{
+#ifdef USE_SOCKETW
 		// sort the list according to the network users
 
 		user_info_t local_user = RoR::Networking::GetLocalUserData();
@@ -288,6 +289,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 		{
 			addUserToMenu(user);
 		}
+#endif // USE_SOCKETW
 	}
 }
 
@@ -316,7 +318,9 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		int user_uid = PARSEINT(id.substr(5));
 
 		// cannot whisper with self...
+#ifdef USE_SOCKETW
 		if (user_uid == RoR::Networking::GetUID()) return;
+#endif // USE_SOCKETW
 
 		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
 		//TODO: Separate Chat and console

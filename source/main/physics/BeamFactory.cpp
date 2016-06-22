@@ -356,6 +356,7 @@ void BeamFactory::RemoveStreamSource(int sourceid)
 	}
 }
 
+#ifdef USE_SOCKETW
 void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
 	for (auto packet : packet_buffer)
@@ -418,6 +419,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
 		}
 	}
 }
+#endif // USE_SOCKETW
 
 int BeamFactory::checkStreamsOK(int sourceid)
 {
@@ -735,10 +737,12 @@ void BeamFactory::DeleteTruck(Beam *b)
 
 	this->SyncWithSimThread();
 
+#ifdef USE_SOCKETW
 	if (b->networking && b->state != NETWORKED && b->state != INVALID)
 	{
 		RoR::Networking::AddPacket(b->m_stream_id, MSG2_STREAM_UNREGISTER, 0, 0);
 	}
+#endif // USE_SOCKETW
 
 	if (m_current_truck == b->trucknum)
 		setCurrentTruck(-1);

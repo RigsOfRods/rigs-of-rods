@@ -123,11 +123,13 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 		}
 	}
 
+#ifdef USE_SOCKETW
 	if (gEnv->multiplayer)
 	{
 		RoR::ChatSystem::SendChat(msg.c_str());
 		return;
 	}
+#endif // USE_SOCKETW
 
 	//MyGUI::InputManager::getInstance().resetKeyFocusWidget();
 	RoR::Application::GetGuiManager()->UnfocusGui();
