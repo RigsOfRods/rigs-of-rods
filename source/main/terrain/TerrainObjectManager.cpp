@@ -1176,6 +1176,83 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				continue;
 			}
 
+			if (!strncmp("spotlight", ptline, 9))
+			{
+				Vector3 lpos, ldir;
+				float lrange = 10, innerAngle = 45, outerAngle = 45;
+				ColourValue lcol;
+				String lname = "spotlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
+
+				int res = sscanf(ptline, "spotlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
+					&lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange, &innerAngle, &outerAngle);
+				if (res < 12)
+				{
+					LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
+					continue;
+				}
+
+				Light* spotLight = gEnv->sceneManager->createLight(lname);
+
+				spotLight->setType(Light::LT_SPOTLIGHT);
+				spotLight->setPosition(lpos);
+				spotLight->setDirection(ldir);
+				spotLight->setAttenuation(lrange, 1.0, 0.3, 0.0);
+				spotLight->setDiffuseColour(lcol);
+				spotLight->setSpecularColour(lcol);
+				spotLight->setSpotlightRange(Degree(innerAngle), Degree(outerAngle));
+
+				BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+				lflare->createBillboard(lpos, lcol);
+				lflare->setMaterialName("tracks/flare");
+				lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+				float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
+				lflare->setDefaultDimensions(fsize, fsize);
+
+				SceneNode *sn = tenode->createChildSceneNode();
+				sn->attachObject(spotLight);
+				sn->attachObject(lflare);
+				continue;
+			}
+
+			if (!strncmp("pointlight", ptline, 10))
+			{
+				Vector3 lpos, ldir;
+				float lrange = 10;
+				ColourValue lcol;
+				String lname = "pointlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
+
+				int res = sscanf(ptline, "pointlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
+					&lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange);
+				if (res < 10)
+				{
+					LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
+					continue;
+				}
+
+				Light* pointlight = gEnv->sceneManager->createLight(lname);
+
+				pointlight->setType(Light::LT_POINT);
+				pointlight->setPosition(lpos);
+				pointlight->setDirection(ldir);
+				pointlight->setAttenuation(lrange, 1.0, 0.3, 0.0);
+				pointlight->setDiffuseColour(lcol);
+				pointlight->setSpecularColour(lcol);
+
+				BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+				lflare->createBillboard(lpos, lcol);
+				lflare->setMaterialName("tracks/flare");
+				lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+				float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
+				lflare->setDefaultDimensions(fsize, fsize);
+
+				SceneNode *sn = tenode->createChildSceneNode();
+				sn->attachObject(pointlight);
+				sn->attachObject(lflare);
+				continue;
+			}
+
 			LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
 		}
 
