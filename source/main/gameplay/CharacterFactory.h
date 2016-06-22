@@ -38,7 +38,9 @@ public:
 	Character *createLocal(int playerColour);
 
 	void update(float dt);
+#ifdef USE_SOCKETW
 	void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
+#endif // USE_SOCKETW
 
 private:
 

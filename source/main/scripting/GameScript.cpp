@@ -871,11 +871,14 @@ int GameScript::deleteScriptVariable(const String &arg)
 
 int GameScript::sendGameCmd(const String& message)
 {
+#ifdef USE_SOCKETW
 	if (gEnv->multiplayer)
 	{
+
 		RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
 		return 0;
 	}
+#endif // USE_SOCKETW
 
 	return -11;
 }

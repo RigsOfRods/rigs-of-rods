@@ -31,6 +31,7 @@ Character *CharacterFactory::createLocal(int playerColour)
 
 void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 {
+#ifdef USE_SOCKETW
 	user_info_t info;
 	RoR::Networking::GetUserInfo(sourceid, info);
 	int colour = info.colournum;
@@ -38,6 +39,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 	LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
 	m_characters.push_back(std::unique_ptr<Character>(new Character(sourceid, streamid, colour, true)));
+#endif // USE_SOCKETW
 }
 
 void CharacterFactory::removeStreamSource(int sourceid)
@@ -65,6 +67,7 @@ void CharacterFactory::update(float dt)
 	}
 }
 
+#ifdef USE_SOCKETW
 void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
 	for (auto packet : packet_buffer)
@@ -88,3 +91,4 @@ void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet
 		}
 	}
 }
+#endif USE_SOCKETW
