@@ -1959,9 +1959,9 @@ DEFINE_REGEX( SPECIAL_PROPS,
     E_OR
     E_CAPTURE( "^rightmirror.*$" )
     E_OR
-    E_CAPTURE( "^dashboard.*$" )
+    E_CAPTURE( ".*dashboard.*$" )
     E_OR
-    E_CAPTURE( "^dashboard-rh.*$" )
+    E_CAPTURE( ".*dashboard-rh.*$" )
     E_OR
     E_CAPTURE( "^spinprop.*$" ) 
     E_OR
