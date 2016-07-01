@@ -99,9 +99,15 @@ std::vector<wxLanguageInfo*> avLanguages;
 std::map<std::string, std::string> settings;
 
 #ifdef USE_OPENAL
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+  #ifdef __APPLE__
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+    #include <OpenAL/MacOSX_OALExtensions.h>
+  #else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+    #include <AL/alext.h>
+  #endif // __APPLE__
 #endif // USE_OPENAL
 
 #ifdef USE_OPENCL

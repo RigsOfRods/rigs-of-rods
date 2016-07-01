@@ -47,10 +47,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/sysinfo.h>
 #endif
 
-#ifdef __FreeBSD__
+#if defined(__APPLE__) || defined (__FreeBSD__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#endif
+#endif // __APPLE__ || __FREEBSD__
 
 #ifdef USE_MYGUI
 #include "GUIMenu.h"
