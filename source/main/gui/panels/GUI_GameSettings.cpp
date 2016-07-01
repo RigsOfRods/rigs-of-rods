@@ -47,9 +47,15 @@
 #include <MyGUI.h>
 
 #ifdef USE_OPENAL
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+  #ifdef __APPLE__
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+    #include <OpenAL/MacOSX_OALExtensions.h>
+  #else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+    #include <AL/alext.h>
+  #endif // __APPLE__
 #endif // USE_OPENAL
 
 using namespace RoR;

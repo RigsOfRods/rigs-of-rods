@@ -25,7 +25,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-#include <AL/al.h>
+#ifdef __APPLE__
+  #include <OpenAL/al.h>
+#else
+  #include <AL/al.h>
+#endif // __APPLE__
 
 class Sound : public ZeroedMemoryAllocator
 {
