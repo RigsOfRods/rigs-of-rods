@@ -91,4 +91,4 @@ void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet
 		}
 	}
 }
-#endif USE_SOCKETW
+#endif // USE_SOCKETW

@@ -35,6 +35,10 @@
 #include <direct.h> // for _chdir
 #endif
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#include <mach-o/dyld.h>
+#endif
+
 #define _L
 
 #include "ErrorUtils.h"
@@ -353,53 +357,32 @@ bool Settings::get_system_paths(char *program_path, char *user_path)
 	//sprintf(user_path, "%s/RigsOfRods/", home_path); // old version
 	sprintf(user_path, "%s/.rigsofrods/", home_path);
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	//found this code, will look later
-	String path = "./";
-	ProcessSerialNumber PSN;
-	ProcessInfoRec pinfo;
-	FSSpec pspec;
-	FSRef fsr;
-	OSStatus err;
-	/* set up process serial number */
-	PSN.highLongOfPSN = 0;
-	PSN.lowLongOfPSN = kCurrentProcess;
-	/* set up info block */
-	pinfo.processInfoLength = sizeof(pinfo);
-	pinfo.processName = NULL;
-	pinfo.processAppSpec = &pspec;
-	/* grab the vrefnum and directory */
-	
-	//path = "~/RigsOfRods/";
-	//strcpy(user_path, path.c_str());
-	
-	err = GetProcessInformation(&PSN, &pinfo);
-	if (! err ) {
-		char c_path[2048];
-		FSSpec fss2;
-		int tocopy;
-		err = FSMakeFSSpec(pspec.vRefNum, pspec.parID, 0, &fss2);
-		if ( ! err ) {
-			err = FSpMakeFSRef(&fss2, &fsr);
-			if ( ! err ) {
-				err = (OSErr)FSRefMakePath(&fsr, (UInt8*)c_path, 2048);
-				if (! err ) {
-					path = c_path;
-					path += "/";
-					strcpy(program_path, path.c_str());
-				}
-				
-				err = FSFindFolder(kOnAppropriateDisk, kDocumentsFolderType, kDontCreateFolder, &fsr);
-				if (! err ) {
-					FSRefMakePath(&fsr, (UInt8*)c_path, 2048);
-					if (! err ) {
-						path = c_path;
-						path += "/Rigs\ of\ Rods/";
-						strcpy(user_path, path.c_str());
-					}
-				}
-			}
-		}
-	}
+	int cx;
+
+    // program path
+    const int len = 256;
+    uint32_t lenb = (uint32_t) len;
+    char procpath[len];
+    
+    if (_NSGetExecutablePath(procpath, &lenb) == -1)
+        return false;
+
+    /*  
+     *  _NSGetExecutablePath returns the absolute path to the binary so procpath
+     *  has "./RoR" at its end. We only want the path to the directory so we
+     *  cut off the last 5 characters of the string.
+     */
+    assert(strlen(procpath) > 5);
+    procpath[strlen(procpath) - 4] = '\0';
+
+    cx = snprintf(program_path, len, "%s", procpath);
+    if ( cx < 0 || cx >= len)
+        return false;
+    
+    // user path
+    cx = snprintf(user_path, 256, "%s/RigsOfRods/", getenv("HOME"));
+    if ( cx < 0 || cx >= 256)
+        return false;
 #endif
 	return true;
 }
