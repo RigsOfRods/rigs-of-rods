@@ -224,7 +224,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		float health = ((float)beambroken / (float)beamCount) * 10.0f + ((float)beamdeformed / (float)beamCount);
 		if (health < 1.0f)
 		{
-			truckstats = truckstats + MainThemeColor + _L("Vehicle's health: ") + WhiteColor + TOUTFSTRING(Round((1.0f - health) * 100.0f, 2)) + U("%") + "\n";
+			truckstats = truckstats + MainThemeColor + _L("Vehicle health: ") + WhiteColor + TOUTFSTRING(Round((1.0f - health) * 100.0f, 2)) + U("%") + "\n";
 		}
 		else if (health >= 1.0f)
 		{
@@ -233,14 +233,14 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		}
 
 		truckstats = truckstats + MainThemeColor + _L("Beam count: ") + WhiteColor + TOUTFSTRING(beamCount) + "\n";
-		truckstats = truckstats + MainThemeColor + _L("Broken Beams count: ") + WhiteColor + TOUTFSTRING(beambroken) + U(" (") + TOUTFSTRING(Round((float)beambroken / (float)beamCount, 2) * 100.0f) + U("%)") + "\n";
-		truckstats = truckstats + MainThemeColor + _L("Deformed Beams count: ") + WhiteColor + TOUTFSTRING(beamdeformed) + U(" (") + TOUTFSTRING(Round((float)beamdeformed / (float)beamCount, 2) * 100.0f) + U("%)") + "\n";
-		truckstats = truckstats + MainThemeColor + _L("Average Deformation: ") + WhiteColor + TOUTFSTRING(Round((float)average_deformation / (float)beamCount, 4) * 100.0f) + "\n";
+		truckstats = truckstats + MainThemeColor + _L("Broken beams count: ") + WhiteColor + TOUTFSTRING(beambroken) + U(" (") + TOUTFSTRING(Round((float)beambroken / (float)beamCount, 2) * 100.0f) + U("%)") + "\n";
+		truckstats = truckstats + MainThemeColor + _L("Deformed beams count: ") + WhiteColor + TOUTFSTRING(beamdeformed) + U(" (") + TOUTFSTRING(Round((float)beamdeformed / (float)beamCount, 2) * 100.0f) + U("%)") + "\n";
+		truckstats = truckstats + MainThemeColor + _L("Average deformation: ") + WhiteColor + TOUTFSTRING(Round((float)average_deformation / (float)beamCount, 4) * 100.0f) + "\n";
 
 		//Taken from TruckHUD.cpp ..
 		wchar_t beamstressstr[256];
 		swprintf(beamstressstr, 256, L"%+08.0f", 1 - (float)beamstress / (float)beamCount);
-		truckstats = truckstats + MainThemeColor + _L("Average Stress: ") + WhiteColor + Ogre::UTFString(beamstressstr) + "\n";
+		truckstats = truckstats + MainThemeColor + _L("Average stress: ") + WhiteColor + Ogre::UTFString(beamstressstr) + "\n";
 
 		truckstats = truckstats + "\n"; //Some space
 
@@ -266,7 +266,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 			float currentKw = (((truck->engine->getRPM() * (truck->engine->getEngineTorque() + ((truck->engine->getTurboPSI() * 6.8) * truck->engine->getEngineTorque()) / 100) *(3.14159265358979323846 /* pi.. */ / 30)) / 1000));
 
-			truckstats = truckstats + MainThemeColor + _L("Current Power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
+			truckstats = truckstats + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
 
 			float velocityKMH = truck->WheelSpeed* 3.6f;
 			float velocityMPH = truck->WheelSpeed * 2.23693629f;
@@ -292,12 +292,12 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 			else
 				truckstats = truckstats + MainThemeColor + wsmsg + WhiteColor + TOUTFSTRING(Round(velocityKMH)) + U(" km/h (") + TOUTFSTRING(Round(velocityMPH)) + U(" mph)") + "\n";
 
-			truckstats = truckstats + MainThemeColor + _L("Car speed: ") + WhiteColor + TOUTFSTRING(Round(carSpeedKPH)) + U(" km/h (") + TOUTFSTRING(Round(carSpeedMPH)) + U(" mph)") + "\n";
+			truckstats = truckstats + MainThemeColor + _L("Vehicle speed: ") + WhiteColor + TOUTFSTRING(Round(carSpeedKPH)) + U(" km/h (") + TOUTFSTRING(Round(carSpeedMPH)) + U(" mph)") + "\n";
 		}
 		else
 		{
 			float speedKN = truck->nodes[0].Velocity.length() * 1.94384449f;
-			truckstats = truckstats + MainThemeColor + _L("Current Speed: ") + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
+			truckstats = truckstats + MainThemeColor + _L("Current speed: ") + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
 
 			Ogre::UTFString engmsg = _L("Engine ");
 			if (truck->driveable == AIRPLANE)
