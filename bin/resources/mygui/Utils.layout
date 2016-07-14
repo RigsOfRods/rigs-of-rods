@@ -41,7 +41,10 @@
                 <Property key="FontName" value="DefaultBig"/>
             </Widget>
             <Widget type="ScrollBar" skin="SliderV" position="10 35 320 1"/>
-            <Widget type="EditBox" skin="WordWrapEmpty" position="10 30 320 360" name="truck_stats"/>
+            <Widget type="EditBox" skin="WordWrapEmpty" position="10 30 320 400" name="truck_stats">
+              <Property key="FontName" value="DefaultSmall"/>
+              <Property key="MaxTextLength" value="99999"/>
+            </Widget>
         </Widget>
         <Widget type="ImageBox" skin="ImageBox" position="535 5 485 100" align="Right Top" name="notification">
             <Property key="ImageTexture" value="NotificationBg.png"/>
