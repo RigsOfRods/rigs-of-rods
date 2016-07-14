@@ -12,9 +12,7 @@
         </Widget>
     </Widget>
     <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
         <Property key="PanelName" value="VehicleDescriptionLayout"/>
-        <Property key="PanelNamespace" value="lol"/>
-        <Property key="SourceDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+        <Property key="PanelNamespace" value="VehicleDescription"/>
     </CodeGeneratorSettings>
 </MyGUI>
