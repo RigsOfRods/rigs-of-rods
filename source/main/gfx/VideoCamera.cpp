@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -237,7 +237,7 @@ void VideoCamera::update(float dt)
 			normal.normalise();
 			Vector3 refx = truck->nodes[nz].AbsPosition - truck->nodes[nref].AbsPosition;
 			refx.normalise();
-			// why does this flip ~2-3° around zero orientation and only with trackercam. back to slower crossproduct calc, a bit slower but better .. sigh
+			// why does this flip ~2-3Â° around zero orientation and only with trackercam. back to slower crossproduct calc, a bit slower but better .. sigh
 			// Vector3 refy = truck->nodes[nref].AbsPosition - truck->nodes[ny].AbsPosition;
 			Vector3 refy = refx.crossProduct(normal);
 			refy.normalise();
@@ -305,7 +305,7 @@ VideoCamera *VideoCamera::Setup(RigSpawner *rig_spawner, RigDef::VideoCamera & d
 			v->vidCamName = def.material_name; /* Fallback */
 		}
 
-		//rotate camera picture 180°, skip for mirrors
+		//rotate camera picture 180ï¿½, skip for mirrors
 		float rotation_z = (def.camera_role != 1) ? def.rotation.z + 180 : def.rotation.z;
 		v->rotation 
 			= Ogre::Quaternion(Ogre::Degree(rotation_z), Ogre::Vector3::UNIT_Z) 

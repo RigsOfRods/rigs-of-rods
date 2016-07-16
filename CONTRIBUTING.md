@@ -38,7 +38,7 @@ e.g. screenshot of graphical glitch
 
   <br>
   <br>
-  
+
 ## Contribute code
 
 
@@ -63,8 +63,8 @@ e.g. screenshot of graphical glitch
 * [Developer Wiki Portal][devwiki]
 * [Doxygen documentation][doxy]
 
-[compile]: http://www.rigsofrods.com/wiki/pages/Compiling_Sources
-[style]: http://www.rigsofrods.com/wiki/pages/Coding_style
-[commit]: http://www.rigsofrods.com/wiki/pages/Commit_style
-[devwiki]: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
-[doxy]: http://ror.ezzg.be/docs/
+[compile]: https://github.com/RigsOfRods/rigs-of-rods/wiki
+[style]: https://github.com/RigsOfRods/rigs-of-rods/wiki/Coding-style
+[commit]: https://github.com/RigsOfRods/rigs-of-rods/wiki/Commit-style
+[devwiki]: http://www.developer.rigsofrods.org/
+[doxy]: http://www.developer.rigsofrods.org/doxygen/
