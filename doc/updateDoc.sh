@@ -2,7 +2,7 @@
 
 # update trunk first
 BASE=/var/svn-co/trunk
-WEBDIR=/var/www/docs.rigsofrods.com/htdocs
+WEBDIR=/var/www/docs.rigsofrods.org/htdocs
 WEBUSER=lighttpd
 WEBGROUP=lighttpd
 INDEX=${WEBDIR}/index.html

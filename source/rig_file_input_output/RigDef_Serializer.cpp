@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -61,11 +61,11 @@ void Serializer::Serialize()
 	// Write banner
 	m_stream
 		<< "; ---------------------------------------------------------------------------- ;" << endl
-		<< "; Rigs of Rods project (www.rigsofrods.com)                                    ;" << endl
+		<< "; Rigs of Rods project (www.rigsofrods.org)                                    ;" << endl
 		<< "; =========================================                                    ;" << endl
 		<< ";                                                                              ;" << endl
 		<< "; This is a rig definition file.                                               ;" << endl
-		<< "; See http://www.rigsofrods.com/wiki/pages/Truck_Description_File for details. ;" << endl
+		<< "; See http://www.rigsofrods.org/wiki/pages/Truck_Description_File for details. ;" << endl
 		<< "; ---------------------------------------------------------------------------- ;" << endl
 		<< endl;
 

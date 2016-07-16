@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -291,7 +291,7 @@ bool Validator::CheckShock2(RigDef::Shock2 & shock2)
 {
 	std::list<Ogre::String> bad_fields;
 
-	/* Keep these in sync with wiki doc: http://www.rigsofrods.com/wiki/pages/Truck_Description_File#Shocks2 */
+	/* Keep these in sync with wiki doc: http://www.rigsofrods.org/wiki/pages/Truck_Description_File#Shocks2 */
 	/* We safely check for value -1.f */
 	if (shock2.spring_in < -0.8f)
 	{

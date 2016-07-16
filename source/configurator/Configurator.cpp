@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005,2006,2007,2008,2009 Pierre-Michel Ricordel
 Copyright 2007,2008,2009 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -1071,7 +1071,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	dText = new wxStaticText(gamePanel, -1, _("User Token: "), wxPoint(10,y+3));
 	usertoken=new wxTextCtrl(gamePanel, -1, wxString(), wxPoint(x_row1, y), wxSize(200, -1));
-	usertoken->SetToolTip(_("Your rigsofrods.com User Token."));
+	usertoken->SetToolTip(_("Your rigsofrods.org User Token."));
 	btnToken = new wxButton(gamePanel, button_get_user_token, _("Get Token"), wxPoint(x_row1+210, y), wxSize(90,25));
 	y+=35;
 
@@ -1129,12 +1129,12 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y += 20;
 
 	addAboutTitle(_("Authors"), x_row1, y);
-	addAboutEntry(_("Authors"), _("You can find a complete list of the RoR's authors ingame: about->credits."), wxT("mailto:support@rigsofrods.com"), x_row1, y);
+	addAboutEntry(_("Authors"), _("You can find a complete list of the RoR's authors ingame: about->credits."), wxT("mailto:support@rigsofrods.org"), x_row1, y);
 
 	y += 20;
 
 	addAboutTitle(_("Missing someone?"), x_row1, y);
-	addAboutEntry(_("Missing someone?"), _("If we are missing someone on this list, please drop us a line at:\nsupport@rigsofrods.com"), wxT("mailto:support@rigsofrods.com"), x_row1, y);
+	addAboutEntry(_("Missing someone?"), _("If we are missing someone on this list, please drop us a line at:\nsupport@rigsofrods.org"), wxT("mailto:support@rigsofrods.org"), x_row1, y);
 
 	wxSize size = nbook->GetBestVirtualSize();
 	size.x = 400;
@@ -1216,7 +1216,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y+=25;
 
 #if wxCHECK_VERSION(2, 8, 0)
-	wxHyperlinkCtrl *link = new wxHyperlinkCtrl(debugPanel, -1, _("(Read more on how to use these options here)"), _("http://www.rigsofrods.com/wiki/pages/Debugging_Trucks"), wxPoint(10, y));
+	wxHyperlinkCtrl *link = new wxHyperlinkCtrl(debugPanel, -1, _("(Read more on how to use these options here)"), _("http://www.rigsofrods.org/wiki/pages/Debugging_Trucks"), wxPoint(10, y));
 #endif // version 2.8
 
 	// graphics panel
@@ -3034,7 +3034,7 @@ void MyDialog::OnTimerReset(wxTimerEvent& event)
 
 void MyDialog::OnButGetUserToken(wxCommandEvent& event)
 {
-	wxLaunchDefaultBrowser(wxT("http://usertoken.rigsofrods.com"));
+	wxLaunchDefaultBrowser(wxT("http://usertoken.rigsofrods.org"));
 }
 
 void MyDialog::OnButTestNet(wxCommandEvent& event)

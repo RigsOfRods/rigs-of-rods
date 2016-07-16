@@ -6,7 +6,7 @@ This is stand-aloner parser for rig-definition file format (called '.truck')
 used in Rigs of Rods game.
 
 Discussion on RoR forums:
-http://www.rigsofrods.com/threads/108818
+http://www.rigsofrods.org/threads/108818
 
 ________________________________________________________________________________
 TERMINOLOGY:
