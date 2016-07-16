@@ -1,5 +1,5 @@
 ================================================================================
-  Rigs of Rods project (www.rigsofrods.com)
+  Rigs of Rods project (www.rigsofrods.org)
   Code template for MyGUI's Layout Editor
   
   Installation:

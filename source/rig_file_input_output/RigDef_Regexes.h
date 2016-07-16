@@ -4,7 +4,7 @@
     Copyright 2007-2012 Thomas Fischer
     Copyright 2013-2016 Petr Ohlidal
 
-    For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.org/
 
     Rigs of Rods is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 3, as
@@ -83,7 +83,7 @@ namespace Regexes
 
 #define E_REAL_NUMBER_WITH_EXPONENT_NO_FRACTION "-?[[:digit:]]*[eE][-+]?[[:digit:]]+"
 
-// NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.com/repository/view/2389
+// NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.org/repository/view/2389
 #define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]*"
 
 //NOTE: Uses |, MUST be enclosed in E_CAPTURE()
@@ -1437,9 +1437,9 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
     // Compatibility rules:
-    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.com/repository/view/2497
+    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.org/repository/view/2497
     // 2. Tolerate missing keyword/numbers separator
-    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.com/repository/view/5282)
+    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.org/repository/view/5282)
     "forset"
     E_CAPTURE_OPTIONAL( E_DELIMITER E_OR E_DELIMITER_COLON ) // #1 Delimiter
     E_CAPTURE( ".*$" )                                       // #2 Entire line

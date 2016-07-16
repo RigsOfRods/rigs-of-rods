@@ -10,7 +10,7 @@ Basically these steps are required to get up to date translations:
 - compile \<lang.mo\> for these translations (see below)
 - put \<lang\>.mo in ```bin/languages/<lang>/LC_MESSAGES/ ```
 
-Additional information: http://www.rigsofrods.com/wiki/pages/Language_Translation#How_it_works
+Additional information: http://www.rigsofrods.org/wiki/pages/Language_Translation#How_it_works
 
 ### Update source file on Transifex
 The source file (ror.pot) on Transifex serves as the base for all translations and

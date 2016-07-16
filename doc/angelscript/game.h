@@ -1,7 +1,7 @@
 /*
 This source file is part of Rigs of Rods
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as 
@@ -25,7 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 	If you cannot find the answer here, then search the forum for your question.
 	If that didn't provide an answer either, then ask your question in the Scripting forum:
-	http://www.rigsofrods.com/forums/167-Scripting
+	http://www.rigsofrods.org/forums/167-Scripting
 
 	Please note that the documentation is work in progress.
 */

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -194,7 +194,7 @@ void CacheSystem::Startup(bool force_check)
 	// show error on zero content
 	if (entries.empty())
 	{
-		ErrorUtils::ShowOgreWebError(_L("No content installed"), _L("You have no content installed"), _L("http://www.rigsofrods.com/wiki/pages/Install_Content"));
+		ErrorUtils::ShowOgreWebError(_L("No content installed"), _L("You have no content installed"), _L("http://www.rigsofrods.org/wiki/pages/Install_Content"));
 		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(1337);
 	}
