@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -228,7 +228,7 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
 	if (this->collision_version != LATEST_GROUND_MODEL_VERSION)
 	{
 		// message box
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_Old_ground_model#"+TOSTRING(this->collision_version)+"to"+TOSTRING(LATEST_GROUND_MODEL_VERSION);
+		String url = "http://wiki.rigsofrods.org/index.php?title=Error_Old_ground_model#"+TOSTRING(this->collision_version)+"to"+TOSTRING(LATEST_GROUND_MODEL_VERSION);
 		ErrorUtils::ShowOgreWebError(_L("Configuration error"), _L("Your ground configuration is too old, please copy skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"), url);
 		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(124);

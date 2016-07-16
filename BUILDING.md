@@ -1,5 +1,5 @@
 # Building instructions
-Please refer to http://www.rigsofrods.com/wiki/pages/Compiling_Sources
+Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 
 # Dependencies
 core requirements:
@@ -16,10 +16,10 @@ core requirements:
 * wxWidgets >= 2.6
 
 optional but recommended:
-* angelscript: 2.22.1 
+* angelscript: 2.22.1
   * required for scripting (AI, racing, server mods...)
   * when building without AS this has to be removed in resources/particles/water.particle: "affector FireExtinguisher {	effectiveness 	1 }"
-* caelum: >= 0.6.2, compatible with the OGRE version you chose 
+* caelum: >= 0.6.2, compatible with the OGRE version you chose
   * sky plugin: provides dynamic sky with time of day, weather and clouds
 * mysocketw: latest from git
   * required for network play

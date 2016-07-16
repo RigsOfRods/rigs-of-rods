@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -154,7 +154,7 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
 	} 
 	catch(Ogre::Exception& e)
 	{
-		Ogre::String url = "http://wiki.rigsofrods.com/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
+		Ogre::String url = "http://wiki.rigsofrods.org/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
 		ErrorUtils::ShowOgreWebError(_L("A fatal exception has occured!"), ANSI_TO_UTF(e.getFullDescription()), ANSI_TO_UTF(url));
 		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(1);
