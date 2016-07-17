@@ -976,7 +976,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	wxPanel *ctsetPanel=new wxPanel(ctbook, -1);
 	ctbook->AddPage(ctsetPanel, _("Info"), false);
-	wxStaticText *dText2 = new wxStaticText(ctsetPanel, -1, _("Since 0.4.5, you can use the ingame key mapping system. \nYou can also edit the input mappings by hand by using a texteditor.\nThe input mappings are stored in the following file:\nMy Documents\\Rigs of Rods\\config\\input.map"), wxPoint(10,10));
+	wxStaticText *dText2 = new wxStaticText(ctsetPanel, -1, _("To change the keymap edit input.map with a texteditor.\ninput.map is located at: \nMy Documents\\Rigs of Rods\\config\\input.map (Windows)\n~/.rigsofrods/config/input.map (Linux)\n~/RigsOfRods/config/input.map (OS X)"), wxPoint(10,10));
 
 #if wxCHECK_VERSION(2, 8, 0)
 	wxHyperlinkCtrl *link1 = new wxHyperlinkCtrl(ctsetPanel, -1, _("(more help here)"), _("http://docs.rigsofrods.org/gameplay/controls-config/#config-file-inputmap"), wxPoint(10, 100));

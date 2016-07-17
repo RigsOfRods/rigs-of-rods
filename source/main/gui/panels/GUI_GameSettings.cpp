@@ -121,7 +121,7 @@ CLASS::CLASS()
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
-	m_change_key->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReMapPress);
+	// FIXME: m_change_key->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReMapPress);
 	startCounter = false;
 
 	//Sliders
@@ -1150,6 +1150,7 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 
 }
 
+/* FIXME
 void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 {
 		Ogre::String str_text = "";
@@ -1168,6 +1169,7 @@ void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 
 		str_text = "";
 }
+*/
 
 void CLASS::FrameEntered(float dt)
 {
