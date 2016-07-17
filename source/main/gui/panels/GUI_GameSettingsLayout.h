@@ -200,8 +200,10 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_keymap_group, "keymap_group");
 	MyGUI::ComboBox* m_keymap_group;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_change_key, "change_key");
-	MyGUI::Button* m_change_key;
+/* FIXME
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_change_key, "change_key");
+    MyGUI::Button* m_change_key;
+*/
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_savebtn, "savebtn");
 	MyGUI::Button* m_savebtn;
