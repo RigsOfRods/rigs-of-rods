@@ -229,7 +229,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 		else if (health >= 1.0f)
 		{
 			//When this condition is true, it means that health is at 0% which means 100% of destruction.
-			truckstats = truckstats + MainThemeColor + _L("Vehicle's destruction: ") + WhiteColor + U("100%") + "\n";
+			truckstats = truckstats + MainThemeColor + _L("Vehicle destruction: ") + WhiteColor + U("100%") + "\n";
 		}
 
 		truckstats = truckstats + MainThemeColor + _L("Beam count: ") + WhiteColor + TOUTFSTRING(beamCount) + "\n";
