@@ -103,7 +103,7 @@ private:
 	void LoadKeyMap();
 	void OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index);
 	bool isKeyMapLoaded;
-	void OnReMapPress(MyGUI::WidgetPtr _sender);
+	// FIXME: void OnReMapPress(MyGUI::WidgetPtr _sender);
 	void FrameEntered(float dt);
 	bool startCounter;
 	unsigned long endTime;
