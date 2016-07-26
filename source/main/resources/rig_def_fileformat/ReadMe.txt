@@ -1,184 +1,322 @@
 ================================================================================
-    RoR Rig Definition Parser
+    Softbody definition file format "Truck" specification
+    Project Rigs of Rods (http://www.rigsofrods.org)
 ================================================================================
 
-This is stand-aloner parser for rig-definition file format (called '.truck')
-used in Rigs of Rods game.
+INTRO
+=====
 
-Discussion on RoR forums:
-http://www.rigsofrods.org/threads/108818
+"Truck" is a human-friendly custom format for defining softbody game entities
+- trucks, cars, boats, airplanes, loads and fixed objects.
 
-________________________________________________________________________________
-TERMINOLOGY:
-    Logical parts of rig-def file are refered to as follows:
+VERSION
+=======
 
-        Section (block section)
-            Example: nodes.
-            Has a keyword at the beginning line and subsequent lines carry data.
-        Inline-section
-            Example: author.
-            Has a keyword at start of line and data follow on the same line.
-        Directive
-            Example: set_beam_defaults
-            Like inline-section, but it's data change results of subsequent or previous parsing.
+This spec applies to Rigs of Rods version 0.4.5 and further.
+This spec covers all prior versions of the format: 1, 2, 3, 450
 
-        Module
-            Keywords: 'section' and 'end_section'
-            A chunk of file which represents an optional modification of the vehicle.
+SYNTAX
+======
 
-________________________________________________________________________________
-COMPATIBILITY NOTES:
-    All elements now fully support named nodes.
+The format is line-based.
 
-    All elements are order-independent, except:
-        add_animation (must be after section 'prop')
-        flexbody_camera_mode (must be after section 'flexbody')
+Lines starting with semicolon ";" or slash "/" are comments.
+NOTE: The "/" comments were documented as "//", but the parser
+only ever checked the first character.
+IMPORTANT: Comments MUST be on separate line! Trailing comments are not supported. 
 
-    All elements can be modularized using 'section' keyword, except:
-        author
-        description
-        disabledefaultsounds
-        enable_advanced_deformation
-        fileformatversion
-        fileinfo
-        forwardcommands
-        guid
-        hideInChooser
-        importcommands
-        lockgroup_default_nolock
-        minimass
-        rescuer
-        rollon
+There are several syntaxes for parsing a line:
+	
+	Default - The most usual and relaxed one
+		Entire line is treated as values separated by separators. 
+		Possible separators: space, tabulator, comma ",", colon ":" or pipe "|".
+		Whitespace and "," are well known, others weren't documented as generic.
+		Multiple separators in a row squash into one, i.e. this is a valid line:
+    		set_beam_defaults |,| -1 -1 ,,,,, -1, -1
+		
+	Keyword-Space-CSV - More complex sections
+		Line consists of: keyword, space (separator), CSV (comma sep. values)
+		The keyword is cut away, the rest is split along ",".
+        
+    Keyword-CSV - Like above, except the space is optional.
+		  
 
-    Keyword 'sectionconfig' is no longer necessary and parser silently ignores it.
-        Modules are created as keyword 'section' is encountered.
+The format consists of these elements:
 
-    Keywords 'nodes' and 'nodes2' have been unified. Both support named nodes.
+    Title
+        The first line of the file is a title. 
+	
+    Inline-section
+        Example: author.
+        Has a keyword at start of line and data follow on the same line.
+        Following lines do not belong to any section.
 
-    Sections 'commands' & 'commands2' are unified; the only difference is in compress & expand ratios.
-        Both support the same flags and can use multiple flags at once.
+    Block-section
+        Example: nodes.
+        Begins with a line containing nothing but a keyword.
+        All subsequent lines belong to it until another
+          section (any type) is encountered or module closed.            
 
-    Subsection 'flexbodies'/'forset' supports named nodes.
-        However, ranges are only supported for nubered nodes.
+    Multiline-section
+        Single instance: "description/end_description".
+        Begins with a line containing nothing but "description".
+        Ends with a line containing nothing but "end_description".
+        All lines in between belong to it. Keywords inside it are ignored.
+        Subsequent lines belong to no section.
+    	
+    Multiline-comment
+        Single instance: "comment/end_comment".
+        Begins with a line containing nothing but "description".
+        Ends with a line containing nothing but "end_description".
+        All lines in between belong to it. Keywords inside it are ignored.
+        Can appear inside any block-section, does not affect it.
 
-    The 'end' keyword is no longer needed. Parser silently ignores it.
+    Directive
+        Example: set_beam_defaults
+        Consists of keyword at the beginning of the line and data on the same line.
+        May perform various task, usualy set global attributes or change
+          behavior of the parsing.
+        Directive may appear in any block-section.
 
-    The optional param 'wings/control_type' now has default 'n'
-        Old parser had no default, though the param is optional.
+    Module
+        Begins with a line containing nothing but "section".
+        Ends with a line containing nothing but "end_section".
+        A chunk of file which represents an optional modification of the vehicle.
+        See below for details.
 
-________________________________________________________________________________
-PROJECT STATUS:
+COMPATIBILITY
+=============
 
-	--------------------
-	s = has struct
-	_ = needs no struct
-	r = has regex
-	~ = needs no regex
-	p = has parser logic
-	t = tested
-    C = correct(ed) regex (final check)
+Since RoR v0.4.5, all elements fully support named nodes.
+In previous RoR versions, support was partial and undocumented.
 
-	X = not supported
-	--------------------
+Since RoR v0.4.5 the order of elements in truckfile doesn't matter.
+The spawn process follows a pre-defined order of elements. 
+Exceptions:
+    add_animation (must be after section 'prop')
+    flexbody_camera_mode (must be after section 'flexbody')
+In previous versions, the order of elements defined the final result
+and some combinations resulted in a crash.
 
+Since v0.4.5, all elements can be modularized using 'section' keyword, except:
+    author
+    description
+    disabledefaultsounds
+    enable_advanced_deformation
+    fileformatversion
+    fileinfo
+    forwardcommands
+    guid
+    hideInChooser
+    importcommands
+    lockgroup_default_nolock
+    minimass
+    rescuer
+    rollon
+In previous versions, this was undocumented.
 
-X       SECTION        advdrag
-srptC   DIRECTIVE      add_animation
-srptC   SECTION        airbrakes
-srptC   SECTION        animators
-srptC   SECTION        AntiLockBrakes                (defaults in: SerializedRig::loadTruck)
-srptC   INLINE-SECTION author
-srptC   SECTION        axles
-srptC   SECTION        beams
-srptC   SECTION        brakes
-srptC   SECTION        camerarail
-srptC   SECTION        cameras
-srptC   SECTION        cinecam
-srptC   SECTION        collisionboxes
-srptC   SECTION        commands
-srptC   SECTION        commands2
-_~ptC   BLOCK-COMMENT  comment
-_~ptC   SECTION        contacters
-srptC   SECTION        cruisecontrol
-_rptC   SECTION        description
-_rptC   DIRECTIVE      detacher_group
-_rptC   DIRECTIVE      disabledefaultsounds
-_rptC   DIRECTIVE      enable_advanced_deformation
-srptC   SECTION        engine
-srptC   SECTION        engoption
-_~X     SECTION        envmap
-srptC   SECTION        exhausts
-srptC   INLINE-SECTION extcamera                    (Defaults: SerializedRig ctor)
-_rptC   DIRECTIVE      forwardcommands
-_rptC   INLINE-SECTION fileformatversion
-srptC   INLINE-SECTION fileinfo                     (Defaults: SerializedRig ctor)
-_~ptC   SECTION        fixes
-srptC   SECTION        flares
-srptC   SECTION        flares2
-srptC   SECTION        flexbodies
-srptC   DIRECTIVE      flexbody_camera_mode
-rsptC   SECTION        flexbodywheels
-srptC   SECTION        fusedrag
-srptC   SECTION        globals
-_rptC   INLINE-SECTION guid
-srptC   SECTION        guisettings
-srptC   SECTION        help
-_rptC   DIRECTIVE      hideInChooser
-X       SECTION        hookgroup
-srptC   SECTION        hooks
-srptC   SECTION        hydros
-_rptC   DIRECTIVE      importcommands
-srptC   SECTION        lockgroups
-srptC   DIRECTIVE      lockgroup_default_nolock
-srptC   SECTION        managedmaterials
-srptC   SECTION        materialflarebindings
-srptC   SECTION        meshwheels
-srptC   SECTION        meshwheels2
-_rptC   SECTION        minimass
-srptC   SECTION        nodecollision
-srptC   SECTION        nodes
-srptC   SECTION        nodes2
-srptC   SECTION        particles
-srptC   SECTION        pistonprops
-srptC   DIRECTIVE      prop_camera_mode
-srptC   SECTION        props
-srpC    SECTION        railgroups
-_rptC   DIRECTIVE      rescuer
-X       SECTION        rigidifiers
-_rptC   DIRECTIVE      rollon
-srptC   SECTION        ropables
-srptC   SECTION        ropes
-srptC   SECTION        rotators
-srptC   SECTION        rotators2
-srptC   SECTION        screwprops
-_rptC   CONFIGURATOR   sectionconfig
-srptC   CONFIGURATOR   section
-srptC   DIRECTIVE      set_beam_defaults
-srptC   DIRECTIVE      set_beam_defaults_scale
-srptC   DIRECTIVE      set_inertia_defaults
-srptC   DIRECTIVE      set_managedmaterials_options
-srptC   DIRECTIVE      set_node_defaults
-X       DIRECTIVE      set_shadows
-srptC   DIRECTIVE      set_skeleton_settings
-srptC   SECTION        shocks
-srptC   SECTION        shocks2
-_rptC   DIRECTIVE      slidenode_connect_instantly
-srpt    SECTION        slidenodes
-srptC   SECTION        SlopeBrake
-srptC   SECTION        soundsources
-srptC   SECTION        soundsources2
-X       SECTION        soundsources3
-srptC   SECTION        speedlimiter
-srptC   SECTION        submesh
-srptC   SECTION        submesh_groundmodel
-srptC   SECTION        ties
-stpt    SECTION        torquecurve
-srptC   SECTION        TractionControl
-srptC   SECTION        triggers
-srptC   SECTION        turbojets
-srptC   SECTION        turboprops
-X       SECTION        turboprops2
-srptC   SECTION        videocamera
-srptC   SECTION        wheels
-srptC   SECTION        wheels2
-srptC   SECTION        wings
+Since v0.4.5, keyword 'sectionconfig' is no longer necessary and parser silently ignores it.
+Modules are created as keyword 'section' is encountered.    
+
+Since v0.4.5 sections 'nodes' and 'nodes2' both support named nodes.
+
+Since v0.4.5 sections 'commands' & 'commands2' are unified.
+The only difference is in compress & expand ratios.
+Both support the same flags and can use multiple flags at once.
+
+Since v0.4.5 subsection 'flexbodies'/'forset' supports named nodes.
+However, ranges are only supported for nubered nodes.
+
+Since v0.4.5 the 'end' keyword is no longer needed. Parser silently ignores it.
+In previous versions, it was critical - without it, RoR crashed.
+
+Since v0.4.5 the optional param 'wings/control_type' now has default 'n'
+Old parser had no default, though the param is optional.
+
+DOCUMENTATION
+=============
+
+See http://docs.rigsofrods.org/technical/fileformat-truck
+
+Below is a list of all supported elements.
+NOTE: All keywords are case insensitive, 
+the lettercase in this list corresponds to original documentation.
+
+    TYPE         NAME                           SYNTAX
+
+    BLOCK        advdrag
+    DIRECTIVE    add_animation                  Keyword-Space-CSV + custom proc.
+    BLOCK        airbrakes                      Default
+    ANIMATORS    animators
+    BLOCK        AntiLockBrakes
+    INLINE       author                         Default
+    BLOCK        axles
+    BLOCK        beams
+    BLOCK        brakes
+    BLOCK        camerarail
+    BLOCK        cameras
+    BLOCK        cinecam
+    BLOCK        collisionboxes
+    BLOCK        commands
+    BLOCK        commands2
+    COMMENT      comment
+    BLOCK        contacters
+    BLOCK        cruisecontrol
+    DESCRIPTION  description
+    DIRECTIVE    detacher_group
+    DIRECTIVE    disabledefaultsounds
+    DIRECTIVE    enable_advanced_deformation
+    BLOCK        engine
+    BLOCK        engoption
+    BLOCK        engturbo
+    BLOCK        envmap
+    BLOCK        exhausts
+    INLINE       extcamera
+    DIRECTIVE    forwardcommands
+    INLINE       fileformatversion
+    INLINE       fileinfo
+    BLOCK        fixes
+    BLOCK        flares
+    BLOCK        flares2
+    BLOCK        flexbodies
+    DIRECTIVE    flexbody_camera_mode
+    BLOCK        flexbodywheels
+    INLINE       forset                         Keyword-CSV
+    BLOCK        fusedrag
+    BLOCK        globals
+    INLINE       guid
+    BLOCK        guisettings
+    BLOCK        help
+    DIRECTIVE    hideInChooser
+    BLOCK        hookgroup
+    BLOCK        hooks
+    BLOCK        hydros
+    DIRECTIVE    importcommands
+    BLOCK        lockgroups
+    DIRECTIVE    lockgroup_default_nolock
+    BLOCK        managedmaterials
+    BLOCK        materialflarebindings
+    BLOCK        meshwheels
+    BLOCK        meshwheels2
+    BLOCK        minimass
+    BLOCK        nodecollision
+    BLOCK        nodes
+    BLOCK        nodes2
+    BLOCK        particles
+    BLOCK        pistonprops
+    DIRECTIVE    prop_camera_mode               Default
+    BLOCK        props
+    BLOCK        railgroups
+    DIRECTIVE    rescuer
+    BLOCK        rigidifiers
+    DIRECTIVE    rollon
+    BLOCK        ropables
+    BLOCK        ropes
+    BLOCK        rotators
+    BLOCK        rotators2
+    BLOCK        screwprops
+    MODULE       sectionconfig
+    MODULE       section
+    DIRECTIVE    set_beam_defaults
+    DIRECTIVE    set_beam_defaults_scale
+    DIRECTIVE    set_inertia_defaults
+    DIRECTIVE    set_managedmaterials_options
+    DIRECTIVE    set_node_defaults
+    DIRECTIVE    set_shadows
+    DIRECTIVE    set_skeleton_settings
+    BLOCK        shocks
+    BLOCK        shocks2
+    DIRECTIVE    slidenode_connect_instantly
+    BLOCK        slidenodes
+    BLOCK        SlopeBrake
+    BLOCK        soundsources
+    BLOCK        soundsources2
+    BLOCK        soundsources3
+    BLOCK        speedlimiter
+    BLOCK        submesh
+    BLOCK        submesh_groundmodel
+    BLOCK        ties
+    BLOCK        torquecurve
+    BLOCK        TractionControl
+    BLOCK        triggers
+    BLOCK        turbojets
+    BLOCK        turboprops
+    BLOCK        turboprops2
+    BLOCK        videocamera
+    BLOCK        wheels
+    BLOCK        wheels2
+    BLOCK        wings
+
+SPECIAL SYNTAXES
+================
+
+SECTION ANIMATOR
+----------------
+
+All whitespace is ignored.
+Args 0 - 2 are processed normally.
+Arg 3 is split along "|", valid elements are (written as regexes):
+    * /(throttle|rpm|aerotorq|aeropit|aerostatus)([12345678])/ ~ For example `throttle2`
+    * /shortlimit[:]+([.]*)/ ~ Value should be real number, example: `shortlimit: 0.5`
+    * /longlimit[:]+([.]*)/  ~ Value should be real number, example: `longlimit: 0.5`
+    * KEYWORD:  vis,inv,airspeed,vvi,
+                altimeter100k,altimeter10k,altimeter1k,
+                aoa,flap,airbrake,roll,pitch,brakes,accel,clutch,
+                speedo,tacho,turbo,parking,shifterman1,shifterman2,
+                sequential,shifterlin,torque,difflock,
+                rudderboat,throttleboat            
+
+SECTION `FORSET`
+----------------
+
+Keyword: `forset`
+
+Parsing as pseudocode:
+~~~~~~~~~~~~~~~~~~~~~
+    line.trim()
+    IF (line == "forset"):  // Keyword "forset" alone
+        abort("Invalid line.")
+    line = line.substring(6) // Strip "forset"
+    FOR EACH tok IN line.split(","): // Including empty strings
+        IF tok.contains("-"):
+            values = tok.split("-")
+            node_a = 0;
+            IF (values[0] == ""):
+                node_a = values[0].to_uint();
+            ADD_RANGE(node_a, values[1].to_uint())
+        ELSE:
+            ADD_NODE(tok.to_uint())
+~~~~~~~~~~~~~~~~~~~~~
+
+All whitespace on the line is ignored. 
+Int parsing: `std::strtoul()`, bad trailing chars are silently ignored.
+Syntax: 
+    1.  "forset" string (6 characters), no space at the end.
+    2.  Items delimited by ",". On each side of each "," there is
+        max 1 item. Empty/invalid string parses as node num `0`.
+        Examples: "forset," -> 2 items `0`, "forset,," -> 3 items '0'
+Acceptable item forms:
+    *  Single node number (int >= 0): 123
+    *  Node range (int >= 0): "123-456"
+    *  Single node ID (string) 
+Line containing only "forset" is skipped with warning.
+When multiple nodes are separated just by space/tab, the 1st node
+    is parsed, the others ignored: `forset1 2 3, 4` -> "1, 4"
+When a node range has more than 2 nodes, they're ignored.
+    `forset1-2-3,4-5-6` -> [1-2],[4-5]
+
+Hyphen rules:
+    * Item "---" (at least 1 hyphen) parse as [0]
+    * Item "-1" parses as [0-1], "--1" and longer parse as `-1` and return
+        value around  4294967286 (unsigned int overflow).
+    * Item "1-" (any number of "-") parse as [1-0]
+    Valid examples:
+        
+        `forset1-5, 10 - 20 ,roof123, 1 2,3 4, 1-2-3,4-5-6,-----,`
+            -> [1-5],[10-20],[roof123],[1],[3],[1-2],[4-5],[0],[0]
+        
+        `forset 1-2-3 , 4-5-6,   -7,   8-,  -9-,          --10,  11--, 100`
+            -> [1-2]  ,[4-5] ,[0-7],[8-0],[0-9],[0-4294967286],[11-0],[100]
+
+        `forset6--,-66--,--66--,---6--,--7-, ---,7-`
+            -> [6-0], [0-66], [0-4294967230],[0-0],[0-4294967289],[0-0],[7-0]
