@@ -899,12 +899,12 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_ENGINE):
-            ParseEngine(line);
+            ParseEngine();
             line_finished = true;
             break;
 
         case (File::SECTION_ENGOPTION):
-            ParseEngoption(line);
+            ParseEngoption();
             line_finished = true;
             break;
 
@@ -3293,83 +3293,27 @@ void Parser::ParseAntiLockBrakes(Ogre::String const & line)
     m_current_module->anti_lock_brakes = std::shared_ptr<AntiLockBrakes>( new AntiLockBrakes(anti_lock_brakes) );
 }
 
-void Parser::ParseEngoption(Ogre::String const & line)
+void Parser::ParseEngoption()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ENGOPTION))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(1)) { return; }
 
-    unsigned int i = 1;
     Engoption engoption;
-    engoption.inertia = STR_PARSE_REAL(results[i]);
-    
-    i += 3;
-    if (results[i].matched)
+    engoption.inertia = this->GetArgFloat(0);
+
+    if (m_num_args > 1)
     {
-        engoption.type = Engoption::EngineType(results[i].str().at(0));	
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.clutch_force = STR_PARSE_REAL(results[i]);	
-        engoption._clutch_force_use_default = false;
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.shift_time = STR_PARSE_REAL(results[i]);	
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.clutch_time = STR_PARSE_REAL(results[i]);	
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.post_shift_time = STR_PARSE_REAL(results[i]);	
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.stall_rpm = STR_PARSE_REAL(results[i]);
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.idle_rpm = STR_PARSE_REAL(results[i]);	
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.max_idle_mixture = STR_PARSE_REAL(results[i]);	
-    }
-    
-    i += 3;
-    if (results[i].matched)
-    {
-        engoption.min_idle_mixture = STR_PARSE_REAL(results[i]);	
+        engoption.type = Engoption::EngineType(this->GetArgChar(1));
     }
 
-    i += 1;
-    if (results[i].matched)
-    {
-        std::stringstream msg;
-        msg << "Illegal text after parameters: \"" << results[i] << "\", please remove.";
-        AddMessage(line, Message::TYPE_WARNING, msg.str());
-    }
-    
+    if (m_num_args > 2) { engoption.clutch_force     = this->GetArgFloat(2); }
+    if (m_num_args > 3) { engoption.shift_time       = this->GetArgFloat(3); }
+    if (m_num_args > 4) { engoption.clutch_time      = this->GetArgFloat(4); }
+    if (m_num_args > 5) { engoption.post_shift_time  = this->GetArgFloat(5); }
+    if (m_num_args > 6) { engoption.stall_rpm        = this->GetArgFloat(6); }
+    if (m_num_args > 7) { engoption.idle_rpm         = this->GetArgFloat(7); }
+    if (m_num_args > 8) { engoption.max_idle_mixture = this->GetArgFloat(8); }
+    if (m_num_args > 9) { engoption.min_idle_mixture = this->GetArgFloat(9); }
+
     m_current_module->engoption = std::shared_ptr<Engoption>( new Engoption(engoption) );
 }
 
@@ -3409,55 +3353,32 @@ void Parser::ParseEngturbo(Ogre::String const & line)
     m_current_module->engturbo = std::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
 
-void Parser::ParseEngine(Ogre::String const & line)
+void Parser::ParseEngine()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ENGINE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(6)) { return; }
 
     Engine engine;
-    engine.shift_down_rpm = STR_PARSE_REAL(results[1]);
-    engine.shift_up_rpm = STR_PARSE_REAL(results[3]);
-    engine.torque = STR_PARSE_REAL(results[5]);
-    engine.global_gear_ratio = STR_PARSE_REAL(results[7]);
-    engine.reverse_gear_ratio = STR_PARSE_REAL(results[9]);
-    engine.neutral_gear_ratio = STR_PARSE_REAL(results[11]);
+    engine.shift_down_rpm     = this->GetArgFloat(0);
+    engine.shift_up_rpm       = this->GetArgFloat(1);
+    engine.torque             = this->GetArgFloat(2);
+    engine.global_gear_ratio  = this->GetArgFloat(3);
+    engine.reverse_gear_ratio = this->GetArgFloat(4);
+    engine.neutral_gear_ratio = this->GetArgFloat(5);
 
-    // Forward gears 
-    bool terminator_found = false;
-    for (unsigned int gear_index = 0; gear_index < 21; ++gear_index)
+    // Forward gears (max 21)
+    int gear_index = 0;
+    while ((gear_index < 21) && (m_num_args > (6 + gear_index)))
     {
-        unsigned int result_index = 13 + (gear_index * 3);
-
-        if (results[result_index].matched)
-        {
-            float value = STR_PARSE_REAL(results[result_index]);
-            if (value <= 0.f)
-            {
-                terminator_found = true;
-                break;
-            }
-            engine.gear_ratios.push_back(value);
-        }
-        else
-        {
-            break;
-        }
+        float ratio = this->GetArgFloat(gear_index + 6);
+        if (ratio < 0.f) { break; } // Optional terminator argument
+        engine.gear_ratios.push_back(ratio);
+        ++gear_index;
     }
 
     if (engine.gear_ratios.size() == 0)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Engine has no forward gear, ignoring...");
+        AddMessage(Message::TYPE_ERROR, "Engine has no forward gear, ignoring...");
         return;
-    }
-
-    if (! terminator_found && ! results[42].matched) // Terminator, required, absence tolerated for compatibility 
-    {
-        AddMessage(line, Message::TYPE_WARNING, "Forward gears list is not terminated using '-1.0'. Please fix.");
     }
 
     m_current_module->engine = std::shared_ptr<Engine>( new Engine(engine) );
@@ -6064,6 +5985,11 @@ int Parser::_ParseArgs(std::string const & line, Ogre::StringVector &args, unsig
 std::string Parser::GetArgStr(int index)
 {
     return std::string(m_args[index].start, m_args[index].length);
+}
+
+char Parser::GetArgChar(int index)
+{
+    return *(m_args[index].start);
 }
 
 long Parser::GetArgLong(int index)

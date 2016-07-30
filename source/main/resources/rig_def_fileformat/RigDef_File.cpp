@@ -78,8 +78,7 @@ Command2::Command2():
 
 Engoption::Engoption():
 	inertia(10.f),
-	clutch_force(0.f), /* Default = 10000 for trucks, 5000 for cars */
-	_clutch_force_use_default(true),
+	clutch_force(-1.f), /* Default = 10000 for trucks, 5000 for cars */
 	shift_time(0.2f),
 	clutch_time(0.5f),
 	type(ENGINE_TYPE_t_TRUCK),
