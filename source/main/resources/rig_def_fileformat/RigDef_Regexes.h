@@ -1836,60 +1836,6 @@ DEFINE_REGEX( SECTION_NODECOLLISION,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_NODES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_DECIMAL_NUMBER ) // #1 Node id - integer
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #3 X
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #5 Y
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #7 Z
-    E_CAPTURE_OPTIONAL( 
-        E_CAPTURE( E_DELIMITER ) // #9 Tolerage dangling delimiter
-
-        E_CAPTURE_OPTIONAL( 
-            E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #11 Options
-
-            E_CAPTURE_OPTIONAL( 
-                E_CAPTURE( E_DELIMITER ) // #13 Tolerage dangling delimiter
-
-                E_CAPTURE_OPTIONAL( 
-                    E_CAPTURE( E_REAL_NUMBER ) // #15 Load weight override
-                )
-            )
-        )
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
-DEFINE_REGEX( SECTION_NODES_2,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // #1 Node id (string)
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #3 X
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #5 Y
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #7 Z
-    E_CAPTURE_OPTIONAL( 
-        E_CAPTURE( E_DELIMITER ) // #9 Tolerage dangling delimiter
-
-        E_CAPTURE_OPTIONAL( 
-            E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #11 Options
-
-            E_CAPTURE_OPTIONAL( 
-                E_CAPTURE( E_DELIMITER ) // #13 Tolerage dangling delimiter
-
-                E_CAPTURE_OPTIONAL( 
-                    E_CAPTURE( E_REAL_NUMBER ) // #15 Load weight override
-                )
-            )
-        )
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_PARTICLES,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Emit node

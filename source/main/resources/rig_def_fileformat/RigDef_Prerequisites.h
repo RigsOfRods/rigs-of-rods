@@ -25,6 +25,11 @@
 	@date   12/2013
 */
 
+namespace Ogre
+{
+    class DataStream;
+}
+
 namespace RigDef
 {
 
