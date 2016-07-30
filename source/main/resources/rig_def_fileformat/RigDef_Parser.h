@@ -325,9 +325,9 @@ protected:
 
     void ParseVideoCamera(Ogre::String const & line);
 
-    void ParseWheel(Ogre::String const & line);
+    void ParseWheel();
 
-    void ParseWheel2(Ogre::String const & line);
+    void ParseWheel2();
 
     void ParseWing(Ogre::String const & line);
 
@@ -339,12 +339,16 @@ protected:
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
 
-    std::string      GetArgStr   (int index);
-    inline int       GetArgInt   (int index);
-    inline unsigned  GetArgUint  (int index);
-    long             GetArgLong  (int index);
-    float            GetArgFloat (int index);
-    char             GetArgChar  (int index);
+    std::string        GetArgStr          (int index);
+    inline int         GetArgInt          (int index);
+    inline unsigned    GetArgUint         (int index);
+    long               GetArgLong         (int index);
+    float              GetArgFloat        (int index);
+    char               GetArgChar         (int index);
+    Wheels::Propulsion GetArgPropulsion   (int index);
+    Wheels::Braking    GetArgBraking      (int index);
+    Node::Ref          GetArgNodeRef      (int index);
+    Node::Ref          GetArgRigidityNode (int index);
 
     /// The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
     /// @return -1 on error (error logged). Otherwise, number of arguments
