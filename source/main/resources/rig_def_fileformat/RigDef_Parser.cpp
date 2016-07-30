@@ -41,6 +41,16 @@
 namespace RigDef
 {
 
+inline bool IsWhitespace(char c)
+{
+    return (c == ' ') || (c == '\t');
+}
+
+inline bool IsSeparator(char c)
+{
+    return IsWhitespace(c) || (c == ':') || (c == '|') || (c == ',');
+}
+
 #define STR_PARSE_INT(_STR_)  Ogre::StringConverter::parseInt(_STR_)
 
 #define STR_PARSE_REAL(_STR_) Ogre::StringConverter::parseReal(_STR_)
@@ -73,19 +83,9 @@ Parser::Parser():
     m_ror_node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults);
 }
 
-Parser::~Parser()
-{}
-
-void Parser::ParseLine(Ogre::String const & line_unchecked)
+void Parser::ProcessCurrentLine()
 {
-    unsigned int line_length = line_unchecked.length();
-    if (line_length == 0)
-    {
-        m_current_line_number++;
-        return;
-    }
-
-    std::string line = RoR::Utils::SanitizeUtf8String(line_unchecked);
+    std::string line = m_current_line;
 
     bool line_finished = false;
     bool scan_for_keyword = true;
@@ -136,7 +136,6 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
     // Continue? 
     if (line_finished)
     {
-        m_current_line_number++;
         return;
     }
 
@@ -822,9 +821,10 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
     // Continue? 
     if (line_finished)
     {
-        m_current_line_number++;
         return;
     }
+
+    this->TokenizeCurrentLine();
 
     // Parse current section, if any 
     // NOTE: Please maintain alphabetical order 
@@ -1009,12 +1009,8 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
             break;
 
         case (File::SECTION_NODES):
-            ParseNode(line);
-            line_finished = true;
-            break;
-
         case (File::SECTION_NODES_2):
-            ParseNode2(line);
+            ParseNodesUnified();
             line_finished = true;
             break;
 
@@ -1141,13 +1137,18 @@ void Parser::ParseLine(Ogre::String const & line_unchecked)
         default:
             break;
     };
+}
 
-    // Continue? 
-    if (line_finished)
+bool Parser::CheckNumArguments(int num_required_args)
+{
+    if (num_required_args > m_num_args)
     {
-        m_current_line_number++;
-        return;
+        char msg[200];
+        snprintf(msg, 200, "Not enough arguments, %d required, got %d. Skipping line.", num_required_args, m_num_args);
+        this->AddMessage(Message::TYPE_WARNING, msg);
+        return false;
     }
+    return true;
 }
 
 // -------------------------------------------------------------------------- 
@@ -5163,18 +5164,6 @@ void Parser::ParseParticles(Ogre::String const & line)
     m_current_module->particles.push_back(particle);
 }
 
-void Parser::ParseNode(Ogre::String const & line)
-{
-    const bool version_2 = false;
-    this->_ParseSectionsNodesNodes2(line, version_2);
-}
-
-void Parser::ParseNode2(Ogre::String const & line)
-{
-    const bool version_2 = true;
-    this->_ParseSectionsNodesNodes2(line, version_2);
-}
-
 // Static
 void Parser::_TrimTrailingComments(std::string const & line_in, std::string & line_out)
 {
@@ -5204,65 +5193,6 @@ void Parser::_TrimTrailingComments(std::string const & line_in, std::string & li
     }
     // No comment found
     line_out = line_in;
-}
-
-void Parser::_ParseNodesLegacyMethod(Ogre::String line, bool is_version_2)
-{
-    Ogre::StringUtil::trim(line);
-    Ogre::StringVector args;
-    int num_args = this->_ParseArgs(line, args, 4u);
-    if (num_args == -1)
-    {
-        return; // Error already logged
-    }
-
-    Node node;
-    node.node_defaults = m_user_node_defaults;
-    node.beam_defaults = m_user_beam_defaults;
-    node.detacher_group = m_current_detacher_group;
-
-    if (is_version_2)
-    {
-        node.id.SetStr(args[0]);
-        if (m_sequential_importer.IsEnabled())
-        {
-            m_sequential_importer.AddNamedNode(args[0]);
-        }
-        m_any_named_node_defined = true; // For import logic
-    }
-    else
-    {
-        const unsigned int node_num = static_cast<unsigned int>(STR_PARSE_INT(args[0]));
-        node.id.SetNum(node_num);
-        if (m_sequential_importer.IsEnabled())
-        {
-            m_sequential_importer.AddNumberedNode(node_num);
-        }
-    }
-    node.position.x = STR_PARSE_REAL(args[1]);
-    node.position.y = STR_PARSE_REAL(args[2]);
-    node.position.z = STR_PARSE_REAL(args[3]);
-
-    if (num_args > 4) // Has options? 
-    {
-        _ParseNodeOptions(node.options, args[4]);
-
-        if (num_args > 5) // Has load weight override? 
-        {
-            if (node.options & Node::OPTION_l_LOAD_WEIGHT)
-            {
-                node.load_weight_override = STR_PARSE_REAL(args[5]);
-                node._has_load_weight_override = true;
-            }
-            else
-            {
-                AddMessage(line, Message::TYPE_WARNING, "Node has load-weight-override value specified, but option 'l' is not present. Ignoring value...");
-            }
-        }
-    }
-
-    this->_PrintNodeDataForVerification(line, args, num_args, node);
-    m_current_module->nodes.push_back(node);
 }
 
 void Parser::_PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node)
@@ -5304,79 +5234,53 @@ void Parser::_PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVecto
     this->AddMessage(line, Message::TYPE_WARNING, msg.str());
 }
 
-void Parser::_ParseSectionsNodesNodes2(Ogre::String const & line_in, bool is_version_2)
+void Parser::ParseNodesUnified()
 {
-    // Strip trailing comments
-    std::string line;
-    Parser::_TrimTrailingComments(line_in, line);
-
-    // Parse line
-    std::smatch results;
-    const std::regex* regex_ptr = &Regexes::SECTION_NODES;
-    if (is_version_2)
-    {
-        regex_ptr = &Regexes::SECTION_NODES_2;
-    }
-    if (! std::regex_search(line, results, *regex_ptr))
-    {
-        if (m_sequential_importer.IsEnabled()) // Are we imporing legacy fileformat?
-        {
-            this->AddMessage(line, Message::TYPE_WARNING, "Syntax check failed, falling back to classic unsafe parsing method.");
-            this->_ParseNodesLegacyMethod(line, is_version_2);
-        }
-        else
-        {
-            this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
-        }
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    const int result_pos_options = 11;
-    const int result_pos_loadweightoverride = 15;
+    if (! this->CheckNumArguments(4)) { return; }
 
     Node node;
     node.node_defaults = m_user_node_defaults;
     node.beam_defaults = m_user_beam_defaults;
     node.detacher_group = m_current_detacher_group;
 
-    if (is_version_2)
+    if (m_current_section == File::SECTION_NODES_2)
     {
-        node.id.SetStr(results[1]);
+        std::string node_name = this->GetArgStr(0);
+        node.id.SetStr(node_name);
         if (m_sequential_importer.IsEnabled())
         {
-            m_sequential_importer.AddNamedNode(results[1]);
+            m_sequential_importer.AddNamedNode(node_name);
         }
         m_any_named_node_defined = true; // For import logic
     }
     else
     {
-        const unsigned int node_num = static_cast<unsigned int>(STR_PARSE_INT(results[1]));
+        const unsigned int node_num = this->GetArgUint(0);
         node.id.SetNum(node_num);
         if (m_sequential_importer.IsEnabled())
         {
             m_sequential_importer.AddNumberedNode(node_num);
         }
     }
-    node.position.x = STR_PARSE_REAL(results[3]);
-    node.position.y = STR_PARSE_REAL(results[5]);
-    node.position.z = STR_PARSE_REAL(results[7]);
 
-    if (results[result_pos_options].matched) // Has options? 
+    node.position.x = this->GetArgFloat(1);
+    node.position.y = this->GetArgFloat(2);
+    node.position.z = this->GetArgFloat(3);
+    if (m_num_args > 4)
     {
-        _ParseNodeOptions(node.options, results[result_pos_options]);
-
-        if (results[result_pos_loadweightoverride].matched) // Has load weight override? 
+        this->_ParseNodeOptions(node.options, this->GetArgStr(4));
+    }
+    if (m_num_args > 5)
+    {
+        if (node.options & Node::OPTION_l_LOAD_WEIGHT)
         {
-            if (node.options & Node::OPTION_l_LOAD_WEIGHT)
-            {
-                node.load_weight_override = STR_PARSE_REAL(results[result_pos_loadweightoverride]);
-                node._has_load_weight_override = true;
-            }
-            else
-            {
-                AddMessage(line, Message::TYPE_WARNING, "Node has load-weight-override value specified, but option 'l' is not present. Ignoring value...");
-            }
+            node.load_weight_override = this->GetArgFloat(5);
+            node._has_load_weight_override = true;
+        }
+        else
+        {
+            this->AddMessage(Message::TYPE_WARNING, 
+                "Node has load-weight-override value specified, but option 'l' is not present. Ignoring value...");
         }
     }
 
@@ -6155,6 +6059,164 @@ int Parser::_ParseArgs(std::string const & line, Ogre::StringVector &args, unsig
         args.clear();
         return -1;
     }
+}
+
+std::string Parser::GetArgStr(int index)
+{
+    return std::string(m_args[index].start, m_args[index].length);
+}
+
+long Parser::GetArgLong(int index)
+{
+    errno = 0;
+    char* out_end = nullptr;
+    const int MSG_LEN = 200;
+    char msg[MSG_LEN];
+    long res = std::strtol(m_args[index].start, &out_end, 10);
+    if (errno != 0)
+    {
+        snprintf(msg, MSG_LEN, "Cannot parse argument [%d] as integer, errno: %d", index + 1, errno);
+        this->AddMessage(Message::TYPE_ERROR, msg);
+        return 0; // Compatibility
+    }
+    if (out_end == m_args[index].start)
+    {
+        snprintf(msg, MSG_LEN, "Argument [%d] is not valid integer", index + 1);
+        this->AddMessage(Message::TYPE_ERROR, msg);
+        return 0; // Compatibility
+    }
+    else if (out_end != (m_args[index].start + m_args[index].length))
+    {
+        snprintf(msg, MSG_LEN, "Integer argument [%d] has invalid trailing characters", index + 1);
+        this->AddMessage(Message::TYPE_WARNING, msg);
+    }
+    return res;
+}
+
+int Parser::GetArgInt(int index)
+{
+    return static_cast<int>(this->GetArgLong(index));
+}
+
+unsigned Parser::GetArgUint(int index)
+{
+    return static_cast<unsigned>(this->GetArgLong(index));
+}
+
+float Parser::GetArgFloat(int index)
+{
+    errno = 0;
+    char* out_end = nullptr;
+    float res = std::strtod(m_args[index].start, &out_end);
+    const int MSG_LEN = LINE_BUFFER_LENGTH +100;
+    char msg_buf[MSG_LEN];
+    if (errno != 0)
+    {
+        snprintf(msg_buf, MSG_LEN, "Cannot parse argument [%d] as float, errno: %d", index + 1, errno);
+        this->AddMessage(Message::TYPE_ERROR, msg_buf);
+        return 0.f; // Compatibility
+    }
+    if (out_end == m_args[index].start)
+    {
+        char arg[LINE_BUFFER_LENGTH] = "";
+        strncpy(arg, m_args[index].start, m_args[index].length);
+        snprintf(msg_buf, MSG_LEN, "Argument [%d] (\"%s\") is not valid float", index + 1, arg);
+        this->AddMessage(Message::TYPE_ERROR, msg_buf);
+        return 0.f; // Compatibility
+    }
+    else if (out_end != (m_args[index].start + m_args[index].length))
+    {
+        char arg[LINE_BUFFER_LENGTH] = "";
+        ptrdiff_t offset = (out_end - m_args[index].start);
+        strncpy(arg, out_end, m_args[index].length - offset);
+        snprintf(msg_buf, MSG_LEN, "Argument [%d] (type: float) has invalid trailing characters (\"%s\")", index + 1, arg);
+        this->AddMessage(Message::TYPE_WARNING, msg_buf);
+    }
+    return static_cast<float>(res);
+}
+
+int Parser::TokenizeCurrentLine()
+{
+    int cur_arg = 0;
+    const char* cur_char = m_current_line;
+    int arg_len = 0;
+    while ((*cur_char != '\0') && (cur_arg < Parser::LINE_MAX_ARGS))
+    {
+        const bool is_arg = !IsSeparator(*cur_char);
+        if ((arg_len == 0) && is_arg)
+        {
+            m_args[cur_arg].start = cur_char;
+            arg_len = 1;
+        }
+        else if ((arg_len > 0) && !is_arg)
+        {
+            m_args[cur_arg].length = arg_len;
+            arg_len = 0;
+            ++cur_arg;
+        }
+        else if (is_arg)
+        {
+            ++arg_len;
+        }
+        ++cur_char;
+    }
+    if (arg_len > 0)
+    {
+        m_args[cur_arg].length = arg_len;
+        ++cur_arg;
+    }
+
+    m_num_args = cur_arg;
+    return cur_arg;
+}
+
+void Parser::ProcessOgreStream(Ogre::DataStream* stream)
+{
+    char raw_line_buf[LINE_BUFFER_LENGTH];
+    while (!stream->eof())
+    {
+        try
+        {
+            stream->readLine(raw_line_buf, LINE_BUFFER_LENGTH);
+        }
+        catch (Ogre::Exception &ex)
+        {
+            std::string msg = "Error reading truckfile! Message:\n";
+            msg += ex.getFullDescription();
+            this->AddMessage(Message::TYPE_FATAL_ERROR, msg.c_str());
+            break;
+        }
+
+        this->ProcessRawLine(raw_line_buf);
+    }
+}
+
+void Parser::ProcessRawLine(const char* raw_line_buf)
+{
+    const char* raw_start = raw_line_buf;
+    const char* raw_end = raw_line_buf + strnlen(raw_line_buf, LINE_BUFFER_LENGTH);
+
+    // Trim leading whitespace
+    while (IsWhitespace(*raw_start) && (raw_start != raw_end))
+    {
+        ++raw_start;
+    }
+
+    // Skip empty/comment lines
+    if ((raw_start == raw_end) || (*raw_start == ';') || (*raw_start == '/'))
+    {
+        ++m_current_line_number;
+        return;
+    }
+
+    // Sanitize UTF-8
+    memset(m_current_line, 0, LINE_BUFFER_LENGTH);
+    char* out_start = m_current_line;
+    utf8::replace_invalid(raw_start, raw_end, out_start, '?');
+
+    // Process
+    this->ProcessCurrentLine();
+    ++m_current_line_number;
 }
 
 } // namespace RigDef
