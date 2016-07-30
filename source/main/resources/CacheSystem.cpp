@@ -1276,10 +1276,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 	/* LOAD AND PARSE THE VEHICLE */
 	RigDef::Parser parser;
 	parser.Prepare();
-	while(! stream->eof())
-	{
-		parser.ParseLine(stream->getLine());
-	}
+	parser.ProcessOgreStream(stream.getPointer());
 	parser.Finalize();
 
 	/* Report messages */
