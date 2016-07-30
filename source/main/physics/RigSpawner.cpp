@@ -5826,7 +5826,7 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	m_rig->engine->setOptions(
 		engoption->inertia,
 		engoption->type,
-		(engoption->_clutch_force_use_default) ? -1.f : engoption->clutch_force,
+		engoption->clutch_force,
 		engoption->shift_time,
 		engoption->clutch_time,
 		engoption->post_shift_time,
