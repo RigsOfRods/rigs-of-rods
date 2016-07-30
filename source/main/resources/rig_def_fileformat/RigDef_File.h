@@ -588,12 +588,10 @@ struct Engoption
 	float inertia;
 	EngineType type;
 	float clutch_force;
-	bool _clutch_force_use_default;
 	float shift_time;       ///< Seconds
 	float clutch_time;      ///< Seconds
 	float post_shift_time;  ///< Seconds
 	float idle_rpm;
-	bool _idle_rpm_use_default;
 	float stall_rpm;
 	float max_idle_mixture;
 	float min_idle_mixture;

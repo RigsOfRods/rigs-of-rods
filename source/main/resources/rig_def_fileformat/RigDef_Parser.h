@@ -196,9 +196,9 @@ protected:
 
     void ParseCruiseControl(Ogre::String const & line);
 
-    void ParseEngine(Ogre::String const & line);
+    void ParseEngine();
 
-    void ParseEngoption(Ogre::String const & line);
+    void ParseEngoption();
 
     void ParseEngturbo(Ogre::String const & line);
 
@@ -344,6 +344,7 @@ protected:
     inline unsigned  GetArgUint  (int index);
     long             GetArgLong  (int index);
     float            GetArgFloat (int index);
+    char             GetArgChar  (int index);
 
     /// The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
     /// @return -1 on error (error logged). Otherwise, number of arguments
