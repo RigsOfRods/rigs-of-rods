@@ -80,6 +80,9 @@ class Parser
 
 public:
 
+    static const int LINE_BUFFER_LENGTH = 2000;
+    static const int LINE_MAX_ARGS = 100;
+
     struct Message
     {
         enum Type
@@ -100,15 +103,18 @@ public:
         Ogre::String     module;
     };
 
+    struct Token
+    {
+        const char* start;
+        int         length;
+    };
+
     Parser();
 
-    virtual ~Parser();
-
     void Prepare();
-
     void Finalize();
-
-    void ParseLine(Ogre::String const & line);
+    void ProcessOgreStream(Ogre::DataStream* stream);
+    void ProcessRawLine(const char* line);
 
     std::list<Message> const & GetMessages()
     {
@@ -251,9 +257,7 @@ protected:
 
     void ParseMinimass(Ogre::String const & line);
 
-    void ParseNode(Ogre::String const & line);
-
-    void ParseNode2(Ogre::String const & line);
+    void ParseNodesUnified();
 
     void ParseNodeCollision(Ogre::String const & line);
 
@@ -331,6 +335,16 @@ protected:
 //  Utilities
 // --------------------------------------------------------------------------
 
+    void             ProcessCurrentLine();
+    int              TokenizeCurrentLine();
+    bool             CheckNumArguments(int num_required_args);
+
+    std::string      GetArgStr   (int index);
+    inline int       GetArgInt   (int index);
+    inline unsigned  GetArgUint  (int index);
+    long             GetArgLong  (int index);
+    float            GetArgFloat (int index);
+
     /// The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
     /// @return -1 on error (error logged). Otherwise, number of arguments
     int _ParseArgs(std::string const & line, Ogre::StringVector &args, unsigned min_num_args);
@@ -350,15 +364,13 @@ protected:
 
     /// Adds a message to parser report.
     void AddMessage(std::string const & line, Message::Type type, std::string const & message);
+    void AddMessage(Message::Type type, const char* msg)
+    {
+        this->AddMessage(m_current_line, type, msg);
+    }
 
     /// Helper - parses stuff common to ROTATORS & ROTATORS2
     void _ParseRotatorsCommon(Rotator & rotator, std::smatch & results, unsigned int inertia_start_index);
-
-    /// Nodes and Nodes2 are unified with this parser.
-    void _ParseSectionsNodesNodes2(Ogre::String const & line, bool is_version_2);
-
-    /// The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
-    void _ParseNodesLegacyMethod(Ogre::String line, bool is_version_2);
 
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
@@ -371,8 +383,6 @@ protected:
     void _ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version);
 
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
-
-    Node::Id _ParseOptionalNodeId(std::string const & node_id_str);
 
     void _ParseDirectiveAddAnimationMode(Animation & animation, Ogre::String mode_string);
 
@@ -420,6 +430,10 @@ protected:
     std::shared_ptr<File::Module>        m_root_module;
     std::shared_ptr<File::Module>        m_current_module;
 
+    unsigned int                         m_current_line_number;
+    char                                 m_current_line[LINE_BUFFER_LENGTH];
+    Token                                m_args[LINE_MAX_ARGS];    ///< Tokens of current line.
+    int                                  m_num_args;               ///< Number of tokens on current line.
     File::Section                        m_current_section;        ///< Parser state.
     File::Subsection                     m_current_subsection;     ///< Parser state.
     bool                                 m_in_block_comment;       ///< Parser state.
@@ -432,7 +446,6 @@ protected:
 
     SequentialImporter                   m_sequential_importer;
 
-    unsigned int                         m_current_line_number; ///< Only for reports. Initialised to 1
     std::shared_ptr<RigDef::File>        m_definition;
     std::list<Message>                   m_messages;
     int                                  m_messages_num_errors;
