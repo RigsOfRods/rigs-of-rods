@@ -654,38 +654,6 @@ DEFINE_REGEX( DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS,
 // Regexes for parsing sections                                               //
 // -------------------------------------------------------------------------- //
 
-DEFINE_REGEX( SECTION_AIRBRAKES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID )     // #1 Ref. node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )     // #3 X axis node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )     // #5 Y axis node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )     // #7 Additional node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #9 X offset
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #11 Y offset
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #13 Z offset
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #15 Panel width
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #17 Panel height
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #19 Maximum inclination angle
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #21 Texcoord x1
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #23 Texcoord y1
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #25 Texcoord x2
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #27 Texcoord y2
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_ANIMATORS, 
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Node 1
