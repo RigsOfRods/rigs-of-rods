@@ -55,7 +55,7 @@ The format consists of these elements:
         Example: nodes.
         Begins with a line containing nothing but a keyword.
         All subsequent lines belong to it until another
-          section (any type) is encountered or module closed.            
+          section (any type) is encountered or module closed.
 
     Multiline-section
         Single instance: "description/end_description".
