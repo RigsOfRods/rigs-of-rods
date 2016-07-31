@@ -4506,9 +4506,15 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 {
+	if (meshwheel_def._is_meshwheel2)
+	{
+		this->ProcessMeshWheel2(meshwheel_def);
+		return;
+	}
+
 	SPAWNER_PROFILE_SCOPED();
 
-    unsigned int base_node_index = m_rig->free_node;
+	unsigned int base_node_index = m_rig->free_node;
 	node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
@@ -4521,7 +4527,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
 		axis_node_2 = swap;
-	}	
+	}
 
 	unsigned int wheel_index = BuildWheelObjectAndNodes(
 		meshwheel_def.num_rays,
@@ -4563,7 +4569,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 		);
 }
 
-void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
+void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -4604,8 +4610,8 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 
 	/* --- Beams --- */
 	/* Use data from directive 'set_beam_defaults' for the tiretread beams */
-	float tyre_spring = def.tyre_springiness;
-	float tyre_damp = def.tyre_damping;
+	float tyre_spring = def.spring;
+	float tyre_damp = def.damping;
 	float rim_spring = def.beam_defaults->springiness;
 	float rim_damp = def.beam_defaults->damping_constant;
 

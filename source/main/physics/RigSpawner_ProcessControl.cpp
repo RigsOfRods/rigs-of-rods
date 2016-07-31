@@ -85,6 +85,35 @@
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
 }
 
+#define PROCESS_SECTION_IN_ALL_MODULES_COND(_KEYWORD_, _FIELD_, _COND_, _FUNCTION_)        \
+{                                                                                          \
+    SetCurrentKeyword(_KEYWORD_);                                                          \
+    auto module_itor=m_selected_modules.begin();                                           \
+    for(; module_itor != m_selected_modules.end(); ++module_itor)                          \
+    {                                                                                      \
+        auto itor = module_itor->get()->_FIELD_.begin();                                   \
+        auto endi = module_itor->get()->_FIELD_.end();                                     \
+        for (; itor != endi; ++itor)                                                       \
+        {                                                                                  \
+            if (_COND_)                                                                    \
+            {                                                                              \
+                try{                                                                       \
+                    this->_FUNCTION_(*itor);                                               \
+                }                                                                          \
+                catch(Exception& ex)                                                       \
+                {                                                                          \
+                    AddMessage(Message::TYPE_ERROR,ex.what());                             \
+                }                                                                          \
+                catch(...)                                                                 \
+                {                                                                          \
+                    AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");   \
+                }                                                                          \
+            }                                                                              \
+        }                                                                                  \
+    }                                                                                      \
+    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
+}
+
 rig_t *RigSpawner::SpawnRig()
 {
 	InitializeRig();
@@ -178,10 +207,10 @@ rig_t *RigSpawner::SpawnRig()
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, wheels_2, ProcessWheel2);
 
 	// Section 'meshwheels'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS, mesh_wheels, ProcessMeshWheel);
+	PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS, mesh_wheels, (!itor->_is_meshwheel2), ProcessMeshWheel);
 
 	// Section 'meshwheels2'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, mesh_wheels_2, ProcessMeshWheel2);
+	PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS2, mesh_wheels, (itor->_is_meshwheel2), ProcessMeshWheel2);
 
 	// Section 'flexbodywheels'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);

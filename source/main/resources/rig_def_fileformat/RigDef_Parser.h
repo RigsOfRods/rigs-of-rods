@@ -245,15 +245,7 @@ protected:
 
     void ParseMaterialFlareBindings(Ogre::String const & line);
 
-    // MeshWheels
-    void ParseMeshWheel(Ogre::String const & line);
-    void ParseMeshWheelUnsafe(Ogre::String const & line);
-    void VerifyAndProcessMeshWheel(Ogre::String const & line, MeshWheel& mesh_wheel_def, int braking, int propulsion, char side);
-
-    // MeshWheels2
-    void ParseMeshWheel2(Ogre::String const & line);
-    void ParseMeshWheel2Unsafe(Ogre::String const & line);
-    void VerifyAndProcessMeshWheel2(Ogre::String const & line, MeshWheel2& mesh_wheel_2_def, int braking, int propulsion, char side);
+    void ParseMeshWheelUnified();
 
     void ParseMinimass(Ogre::String const & line);
 
@@ -349,6 +341,7 @@ protected:
     Wheels::Braking    GetArgBraking      (int index);
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
+    MeshWheel::Side    GetArgWheelSide    (int index);
 
     /// The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
     /// @return -1 on error (error logged). Otherwise, number of arguments
