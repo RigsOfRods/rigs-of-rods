@@ -102,8 +102,7 @@ protected:
 	void ProcessAxles(File::Module* module);
 
 	// Wheels
-	void ProcessMeshWheels2(File::Module* module);
-	void ProcessMeshWheels(File::Module* module);
+	void ProcessMeshWheels(File::Module* module); // And meshwheels2
 	void ProcessWheels(File::Module* module);
 	void ProcessWheels2(File::Module* module);
 	void ProcessFlexBodyWheels(File::Module* module);

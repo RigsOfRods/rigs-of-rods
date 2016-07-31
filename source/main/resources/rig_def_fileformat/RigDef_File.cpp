@@ -566,7 +566,6 @@ File::Module::Module(Ogre::String const & name):
 	managed_materials.reserve(25);
 	material_flare_bindings.reserve(10);
 	mesh_wheels.reserve(10);
-	mesh_wheels_2.reserve(10);
 	nodes.reserve(2000);
 	node_collisions.reserve(100);
 	particles.reserve(25);
