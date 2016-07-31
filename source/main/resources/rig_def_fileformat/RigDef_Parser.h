@@ -220,10 +220,7 @@ protected:
     void ParseFlexbodyUnsafe(Ogre::String const & line);
     void ProcessFlexbody(Flexbody& flexbody);
 
-    // FlexBodyWheels
-    void ParseFlexBodyWheel(Ogre::String const & line);
-    void ParseFlexBodyWheelUnsafe(Ogre::String const & line);
-    void VerifyAndProcessFlexBodyWheel(Ogre::String const & line, FlexBodyWheel& def, int braking, int propulsion, char side);
+    void ParseFlexBodyWheel();
 
     void ParseFusedrag(Ogre::String const & line);
 

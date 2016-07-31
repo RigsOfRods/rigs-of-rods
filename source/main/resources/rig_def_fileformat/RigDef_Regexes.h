@@ -1288,46 +1288,6 @@ DEFINE_REGEX( FORSET_ELEMENT,
     )
     );
 
-DEFINE_REGEX( SECTION_FLEXBODYWHEELS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_REAL_NUMBER )                   // #1 Tire radius
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #3 Rim radius
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #5 Width
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #7 Num rays
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #9 Node 1
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #11 Node 2
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #13 Rigidity node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #15 Braked?
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #17 Propulsed?
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #19 Reference arm node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #21 Weight
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #23 Tire spring
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #25 Tire damp
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #27 Rim spring
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )                   // #29 Rim damp
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( "[lr]" )                          // #31 Rim orientation
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #33 Rim mesh
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #35 Tire mesh
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_FUSEDRAG,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID )                       // #1 Node 1
