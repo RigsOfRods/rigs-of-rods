@@ -163,7 +163,7 @@ protected:
 //  Section parsers
 // --------------------------------------------------------------------------
 
-    void ParseAirbrakes(Ogre::String const & line);
+    void ParseAirbrakes();
 
     void ParseAnimator(Ogre::String const & line);
 

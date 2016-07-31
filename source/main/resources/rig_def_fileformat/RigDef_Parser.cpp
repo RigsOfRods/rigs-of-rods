@@ -833,7 +833,7 @@ void Parser::ProcessCurrentLine()
     {
 
         case (File::SECTION_AIRBRAKES):
-            ParseAirbrakes(line);
+            ParseAirbrakes();
             line_finished = true;
             break;
 
@@ -3380,31 +3380,25 @@ void Parser::ParseAxles(Ogre::String const & line)
     m_current_module->axles.push_back(axle);	
 }
 
-void Parser::ParseAirbrakes(Ogre::String const & line)
+void Parser::ParseAirbrakes()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_AIRBRAKES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
+    if (! this->CheckNumArguments(14)) { return; }
 
     Airbrake airbrake;
-    airbrake.reference_node        =  _ParseNodeRef(results[ 1]);
-    airbrake.x_axis_node           =  _ParseNodeRef(results[ 3]);
-    airbrake.y_axis_node           =  _ParseNodeRef(results[ 5]);
-    airbrake.aditional_node        =  _ParseNodeRef(results[ 7]);
-    airbrake.offset.x              = STR_PARSE_REAL(results[ 9]);
-    airbrake.offset.y              = STR_PARSE_REAL(results[11]);
-    airbrake.offset.z              = STR_PARSE_REAL(results[13]);
-    airbrake.width                 = STR_PARSE_REAL(results[15]);
-    airbrake.height                = STR_PARSE_REAL(results[17]);
-    airbrake.max_inclination_angle = STR_PARSE_REAL(results[19]);
-    airbrake.texcoord_x1           = STR_PARSE_REAL(results[21]);
-    airbrake.texcoord_y1           = STR_PARSE_REAL(results[23]);
-    airbrake.texcoord_x2           = STR_PARSE_REAL(results[25]);
-    airbrake.texcoord_y2           = STR_PARSE_REAL(results[26]);
+    airbrake.reference_node        = this->GetArgNodeRef( 0);
+    airbrake.x_axis_node           = this->GetArgNodeRef( 1);
+    airbrake.y_axis_node           = this->GetArgNodeRef( 2);
+    airbrake.aditional_node        = this->GetArgNodeRef( 3);
+    airbrake.offset.x              = this->GetArgFloat  ( 4);
+    airbrake.offset.y              = this->GetArgFloat  ( 5);
+    airbrake.offset.z              = this->GetArgFloat  ( 6);
+    airbrake.width                 = this->GetArgFloat  ( 7);
+    airbrake.height                = this->GetArgFloat  ( 8);
+    airbrake.max_inclination_angle = this->GetArgFloat  ( 9);
+    airbrake.texcoord_x1           = this->GetArgFloat  (10);
+    airbrake.texcoord_y1           = this->GetArgFloat  (11);
+    airbrake.texcoord_x2           = this->GetArgFloat  (12);
+    airbrake.texcoord_y2           = this->GetArgFloat  (13);
 
     m_current_module->airbrakes.push_back(airbrake);
 }
