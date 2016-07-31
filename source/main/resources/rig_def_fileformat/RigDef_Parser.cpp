@@ -1056,12 +1056,12 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_SHOCKS):
-            ParseShock(line);
+            ParseShock();
             line_finished = true;
             break;
 
         case (File::SECTION_SHOCKS_2):
-            ParseShock2(line);
+            ParseShock2();
             line_finished = true;
             break;
 
@@ -4021,283 +4021,108 @@ void Parser::ParseSlidenodes(Ogre::String const & line)
     m_current_module->slidenodes.push_back(slidenode);
 }
 
-void Parser::ParseShock2(Ogre::String const & line)
+void Parser::ParseShock2()
 {
-    std::smatch results;
-    if (!std::regex_search(line, results, Regexes::SECTION_SHOCKS2))
-    {
-        this->ParseShock2Unsafe(line);
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
     Shock2 shock_2;
     shock_2.beam_defaults  = m_user_beam_defaults;
     shock_2.detacher_group = m_current_detacher_group;
 
-    shock_2.nodes[0]                   = _ParseNodeRef (results[ 1]);
-    shock_2.nodes[1]                   = _ParseNodeRef (results[ 3]);
-    shock_2.spring_in                  = STR_PARSE_REAL(results[ 5]);
-    shock_2.damp_in                    = STR_PARSE_REAL(results[ 7]);
-    shock_2.progress_factor_spring_in  = STR_PARSE_REAL(results[ 9]);
-    shock_2.progress_factor_damp_in    = STR_PARSE_REAL(results[11]);
-    shock_2.spring_out                 = STR_PARSE_REAL(results[13]);
-    shock_2.damp_out                   = STR_PARSE_REAL(results[15]);
-    shock_2.progress_factor_spring_out = STR_PARSE_REAL(results[17]);
-    shock_2.progress_factor_damp_out   = STR_PARSE_REAL(results[19]);
-    shock_2.short_bound                = STR_PARSE_REAL(results[21]);
-    shock_2.long_bound                 = STR_PARSE_REAL(results[23]);
-    shock_2.precompression             = STR_PARSE_REAL(results[25]);
+    shock_2.nodes[0]                   = this->GetArgNodeRef( 0);
+    shock_2.nodes[1]                   = this->GetArgNodeRef( 1);
+    shock_2.spring_in                  = this->GetArgFloat  ( 2);
+    shock_2.damp_in                    = this->GetArgFloat  ( 3);
+    shock_2.progress_factor_spring_in  = this->GetArgFloat  ( 4);
+    shock_2.progress_factor_damp_in    = this->GetArgFloat  ( 5);
+    shock_2.spring_out                 = this->GetArgFloat  ( 6);
+    shock_2.damp_out                   = this->GetArgFloat  ( 7);
+    shock_2.progress_factor_spring_out = this->GetArgFloat  ( 8);
+    shock_2.progress_factor_damp_out   = this->GetArgFloat  ( 9);
+    shock_2.short_bound                = this->GetArgFloat  (10);
+    shock_2.long_bound                 = this->GetArgFloat  (11);
+    shock_2.precompression             = this->GetArgFloat  (12);
 
-    if (results[29].matched) // Has options? 
+    shock_2.options = 0u;
+    if (m_num_args > 13)
     {
-        shock_2.options = this->ParseShock2Options(line, results[29].str());
+        std::string options_str = this->GetArgStr(13);
+        auto itor = options_str.begin();
+        auto endi = options_str.end();
+        while (itor != endi)
+        {
+            char c = *itor++; // ++
+            switch (c)
+            {
+                case 'n': 
+                    break; // Placeholder, does nothing.
+                case 'i': BITMASK_SET_1(shock_2.options, Shock2::OPTION_i_INVISIBLE);
+                    break;
+                case 'm': BITMASK_SET_1(shock_2.options, Shock2::OPTION_m_METRIC);
+                    break;
+                case 'M': BITMASK_SET_1(shock_2.options, Shock2::OPTION_M_ABSOLUTE_METRIC);
+                    break;
+                case 's': BITMASK_SET_1(shock_2.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS);
+                    break;
+                default: {
+                        char msg[100] = "";
+                        snprintf(msg, 100, "Invalid option: '%c', ignoring...", c);
+                        AddMessage(Message::TYPE_WARNING, msg);
+                    }
+                    break;
+            }
+        }
     }
 
     m_current_module->shocks_2.push_back(shock_2);
+    
 }
 
-void Parser::ParseShock2Unsafe(Ogre::String const & line)
+void Parser::ParseShock()
 {
-    PARSE_UNSAFE(line, 13,
-    {
-        Shock2 shock_2;
-        shock_2.beam_defaults  = m_user_beam_defaults;
-        shock_2.detacher_group = m_current_detacher_group;
-
-        shock_2.nodes[0]                   = _ParseNodeRef (values[0]);
-        shock_2.nodes[1]                   = _ParseNodeRef (values[1]);
-        shock_2.spring_in                  = STR_PARSE_REAL(values[2]);
-        shock_2.damp_in                    = STR_PARSE_REAL(values[3]);
-        shock_2.progress_factor_spring_in  = STR_PARSE_REAL(values[4]);
-        shock_2.progress_factor_damp_in    = STR_PARSE_REAL(values[5]);
-        shock_2.spring_out                 = STR_PARSE_REAL(values[6]);
-        shock_2.damp_out                   = STR_PARSE_REAL(values[7]);
-        shock_2.progress_factor_spring_out = STR_PARSE_REAL(values[8]);
-        shock_2.progress_factor_damp_out   = STR_PARSE_REAL(values[9]);
-        shock_2.short_bound                = STR_PARSE_REAL(values[10]);
-        shock_2.long_bound                 = STR_PARSE_REAL(values[11]);
-        shock_2.precompression             = STR_PARSE_REAL(values[12]);
-        shock_2.options                    = (values.size() > 11) ? this->ParseShock2Options(line, values[13]) : 0u;
-
-        this->LogParsedShock2DataForChecking(line, shock_2);
-        m_current_module->shocks_2.push_back(shock_2);
-    });
-}
-
-unsigned int Parser::ParseShock2Options(Ogre::String const & line, std::string const & options_str)
-{
-    unsigned int options = 0u;
-    for (unsigned int i = 0; i < options_str.length(); i++)
-    {
-        switch (options_str.at(i))
-        {
-        case 'i':
-            BITMASK_SET_1(options, Shock2::OPTION_i_INVISIBLE);
-            break;
-
-        case 'm':
-            BITMASK_SET_1(options, Shock2::OPTION_m_METRIC);
-            break;
-
-        case 'M':
-            BITMASK_SET_1(options, Shock2::OPTION_M_ABSOLUTE_METRIC);
-            break;
-
-        case 's':
-            BITMASK_SET_1(options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS);
-            break;
-
-        case 'n':
-            break; // Placeholder, does nothing.
-
-        default:
-            std::stringstream msg;
-            msg << "Invalid option: '" << options_str.at(i) << "', ignoring...";
-            AddMessage(line, Message::TYPE_WARNING, msg.str());
-            break;
-        }
-    }
-    return options;
-}
-
-void Parser::LogParsedShock2DataForChecking(Ogre::String const & line, Shock2& shock)
-{
-    char msg[1024];
-    sprintf(msg, "Parsed data for checking:"
-        "\n\t              Nodes: %s %s"
-        "\n\t          Spring-In: %f"
-        "\n\t         Damping-In: %f"
-        "\n\t Spring-In-Progress: %f"
-        "\n\t   Damp-In-Progress: %f"
-        "\n\t         Spring-Out: %f"
-        "\n\t        Damping-Out: %f"
-        "\n\tSpring-Out-Progress: %f"
-        "\n\t  Damp-Out-Progress: %f"
-        "\n\t         ShortBound: %f"
-        "\n\t          LongBound: %f"
-        "\n\t     Precompression: %f"
-        "\n\t            Options: ",
-        shock.nodes[0].ToString().c_str(), shock.nodes[1].ToString().c_str(),
-        shock.spring_in,
-        shock.damp_in,
-        shock.progress_factor_spring_in,
-        shock.progress_factor_damp_in,
-        shock.spring_out,
-        shock.damp_out,
-        shock.progress_factor_spring_out,
-        shock.progress_factor_damp_out,
-        shock.short_bound,
-        shock.long_bound,
-        shock.precompression);
-
-    if (BITMASK_IS_1(shock.options, Shock2::OPTION_i_INVISIBLE))
-    {
-        strcat(msg, " i_INVISIBLE");
-    }
-    if (BITMASK_IS_1(shock.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS))
-    {
-        strcat(msg, " s_SOFT_BUMP_BOUNDS");
-    }
-    if (BITMASK_IS_1(shock.options, Shock2::OPTION_M_ABSOLUTE_METRIC))
-    {
-        strcat(msg, " M_ABSOLUTE_METRIC");
-    }
-    if (BITMASK_IS_1(shock.options, Shock2::OPTION_m_METRIC))
-    {
-        strcat(msg, " m_METRIC");
-    }
-    AddMessage(line, Message::TYPE_WARNING, msg);
-}
-
-unsigned int Parser::ParseShockOptions(Ogre::String const & line, std::string const & options_str)
-{
-    unsigned int options = 0u;
-    for (unsigned int i = 0; i < options_str.length(); i++)
-    {
-        switch (options_str.at(i))
-        {
-        case 'i':
-            BITMASK_SET_1(options, Shock::OPTION_i_INVISIBLE);
-            break;
-
-        case 'r':
-        case 'R':
-            BITMASK_SET_1(options, Shock::OPTION_R_ACTIVE_RIGHT);
-            break;
-
-        case 'l':
-        case 'L':
-            BITMASK_SET_1(options, Shock::OPTION_L_ACTIVE_LEFT);
-            break;
-
-        case 'm':
-            BITMASK_SET_1(options, Shock::OPTION_m_METRIC);
-            break;
-
-        case 'n':
-            break; // Placeholder, does nothing.
-
-        default:
-            std::stringstream msg;
-            msg << "Invalid option: '" << options_str.at(i) << "', ignoring...";
-            AddMessage(line, Message::TYPE_WARNING, msg.str());
-            break;
-        }
-    }
-    return options;
-}
-
-void Parser::ParseShock(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_SHOCKS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(7)) { return; }
 
     Shock shock;
     shock.beam_defaults  = m_user_beam_defaults;
     shock.detacher_group = m_current_detacher_group;
 
-    shock.nodes[0]       =  _ParseNodeRef(results[1]);
-    shock.nodes[1]       =  _ParseNodeRef(results[3]);
-    shock.spring_rate    = STR_PARSE_REAL(results[5]);
-    shock.damping        = STR_PARSE_REAL(results[7]);
-    shock.short_bound    = STR_PARSE_REAL(results[9]);
-    shock.long_bound     = STR_PARSE_REAL(results[11]);
-    shock.precompression = STR_PARSE_REAL(results[13]);
-    if (results[17].matched) // Has options?
+    shock.nodes[0]       = this->GetArgNodeRef(0);
+    shock.nodes[1]       = this->GetArgNodeRef(1);
+    shock.spring_rate    = this->GetArgFloat  (2);
+    shock.damping        = this->GetArgFloat  (3);
+    shock.short_bound    = this->GetArgFloat  (4);
+    shock.long_bound     = this->GetArgFloat  (5);
+    shock.precompression = this->GetArgFloat  (6);
+    shock.options = 0u;
+    if (m_num_args > 7)
     {
-        shock.options = this->ParseShockOptions(line, results[17].str());
+        std::string options_str = this->GetArgStr(7);
+        auto itor = options_str.begin();
+        auto endi = options_str.end();
+        while (itor != endi)
+        {
+            char c = *itor++;
+            switch (c)
+            {
+                case 'n': break; // Placeholder, does nothing.
+                case 'i': BITMASK_SET_1(shock.options, Shock::OPTION_i_INVISIBLE);
+                    break;
+                case 'm': BITMASK_SET_1(shock.options, Shock::OPTION_m_METRIC);
+                    break;
+                case 'r':
+                case 'R': BITMASK_SET_1(shock.options, Shock::OPTION_R_ACTIVE_RIGHT);
+                    break;
+                case 'l':
+                case 'L': BITMASK_SET_1(shock.options, Shock::OPTION_L_ACTIVE_LEFT);
+                    break;
+                default: {
+                    char msg[100] = "";
+                    snprintf(msg, 100, "Invalid option: '%c', ignoring...", c);
+                    AddMessage(Message::TYPE_WARNING, msg);
+                }
+                break;
+            }
+        }
     }
-    else
-    {
-        shock.options = 0u;
-    }
-
     m_current_module->shocks.push_back(shock);
-}
-
-void Parser::LogParsedShockDataForChecking(Ogre::String const & line, Shock& shock)
-{
-    char msg[1024];
-    sprintf(msg, "Parsed data for checking:"
-        "\n\t         Nodes: %s %s"
-        "\n\t        Spring: %f"
-        "\n\t       Damping: %f"
-        "\n\t    ShortBound: %f"
-        "\n\t     LongBound: %f"
-        "\n\tPrecompression: %f"
-        "\n\t       Options: ", 
-        shock.nodes[0].ToString().c_str(), shock.nodes[1].ToString().c_str(), 
-        shock.spring_rate, 
-        shock.damping, 
-        shock.short_bound, 
-        shock.long_bound, 
-        shock.precompression);
-
-    if (BITMASK_IS_1(shock.options, Shock::OPTION_i_INVISIBLE))
-    {
-        strcat(msg, " i_INVISIBLE");
-    }
-    if (BITMASK_IS_1(shock.options, Shock::OPTION_R_ACTIVE_RIGHT))
-    {
-        strcat(msg, " R_ACTIVE_RIGHT");
-    }
-    if (BITMASK_IS_1(shock.options, Shock::OPTION_L_ACTIVE_LEFT))
-    {
-        strcat(msg, " L_ACTIVE_LEFT");
-    }
-    if (BITMASK_IS_1(shock.options, Shock::OPTION_m_METRIC))
-    {
-        strcat(msg, " m_METRIC");
-    }
-    AddMessage(line, Message::TYPE_WARNING, msg);
-}
-
-void Parser::ParseShockUnsafe(Ogre::String const & line)
-{
-    PARSE_UNSAFE(line, 7,
-    {
-        Shock shock;
-        shock.beam_defaults = m_user_beam_defaults;
-        shock.detacher_group = m_current_detacher_group;
-
-        shock.nodes[0]       =  _ParseNodeRef(values[0]);
-        shock.nodes[1]       =  _ParseNodeRef(values[1]);
-        shock.spring_rate    = STR_PARSE_REAL(values[2]);
-        shock.damping        = STR_PARSE_REAL(values[3]);
-        shock.short_bound    = STR_PARSE_REAL(values[4]);
-        shock.long_bound     = STR_PARSE_REAL(values[5]);
-        shock.precompression = STR_PARSE_REAL(values[6]);
-        shock.options        = (values.size() > 7) ? this->ParseShockOptions(line, values[7]) : 0u;
-
-        this->LogParsedShockDataForChecking(line, shock);
-        m_current_module->shocks.push_back(shock);
-    });
 }
 
 void Parser::_CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index)
