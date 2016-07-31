@@ -838,7 +838,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_ANIMATORS):
-            ParseAnimator(line);
+            ParseAnimator();
             line_finished = true;
             break;
 
@@ -4975,57 +4975,58 @@ void Parser::ParseBeams(Ogre::String const & _line)
     m_current_module->beams.push_back(beam);
 }
 
-void Parser::ParseAnimator(Ogre::String const & line)
+void Parser::ParseAnimator()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ANIMATORS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(4)) { return; }
 
     Animator animator;
     animator.inertia_defaults   = m_user_default_inertia;
     animator.beam_defaults      = m_user_beam_defaults;
     animator.detacher_group     = m_current_detacher_group;
-    animator.nodes[0]           = _ParseNodeRef(results[1]);
-    animator.nodes[1]           = _ParseNodeRef(results[2]);
-    animator.lenghtening_factor = STR_PARSE_REAL(results[3]);
+
+    animator.nodes[0]           = this->GetArgNodeRef(0);
+    animator.nodes[1]           = this->GetArgNodeRef(1);
+    animator.lenghtening_factor = this->GetArgFloat  (2);
 
     // Parse options 
     // Just use the split/trim/compare method 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(results[4].str(), "|");
-    Ogre::StringVector::iterator iter = tokens.begin();
-    while (iter != tokens.end())
+    Ogre::StringVector attrs = Ogre::StringUtil::split(this->GetArgStr(3), "|");
+
+    auto itor = attrs.begin();
+    auto endi = attrs.end();
+    for (; itor != endi; ++itor)
     {
-        Ogre::String token = *iter;
+        Ogre::String token = *itor;
         Ogre::StringUtil::trim(token);
+        std::smatch results;
+        bool is_shortlimit = false;
 
         // Numbered keywords 
         if (std::regex_search(token, results, Regexes::PARSE_ANIMATORS_NUMBERED_KEYWORD))
         {
-            AeroAnimator aero_animator;
-            
                  if (results[1] == "throttle")   animator.aero_animator.flags |= AeroAnimator::OPTION_THROTTLE;
             else if (results[1] == "rpm")        animator.aero_animator.flags |= AeroAnimator::OPTION_RPM;
             else if (results[1] == "aerotorq")   animator.aero_animator.flags |= AeroAnimator::OPTION_TORQUE;
             else if (results[1] == "aeropit")    animator.aero_animator.flags |= AeroAnimator::OPTION_PITCH;
             else if (results[1] == "aerostatus") animator.aero_animator.flags |= AeroAnimator::OPTION_STATUS;
 
-            animator.aero_animator.motor = STR_PARSE_INT(results[2]);
+            animator.aero_animator.motor = static_cast<unsigned>(std::strtol(results[2].str().c_str(), nullptr, 10));
         }
-        else if (std::regex_search(token, results, Regexes::PARSE_ANIMATORS_KEY_COLON_VALUE))
+        else if ((is_shortlimit = token.compare(0, 10, "shortlimit")) || token.compare(0, 9, "longlimit"))
         {
-            if (results[1] == "shortlimit")
+            Ogre::StringVector fields = Ogre::StringUtil::split(token, ":");
+            if (fields.size() > 1)
             {
-                animator.short_limit = STR_PARSE_REAL(results[2]);
-                animator.flags |= Animator::OPTION_SHORT_LIMIT;
-            }
-            else if(results[1] == "longlimit")
-            {
-                animator.long_limit = STR_PARSE_REAL(results[2]);
-                animator.flags |= Animator::OPTION_LONG_LIMIT;
+                if (is_shortlimit)
+                {
+                    animator.short_limit = std::strtod(fields[1].c_str(), nullptr);
+                    animator.flags |= Animator::OPTION_SHORT_LIMIT;
+                }
+                else
+                {
+                    animator.long_limit = std::strtod(fields[1].c_str(), nullptr);
+                    animator.flags |= Animator::OPTION_LONG_LIMIT;
+                }
             }
         }
         else
@@ -5059,8 +5060,6 @@ void Parser::ParseAnimator(Ogre::String const & line)
             else if (token == "rudderboat")    animator.flags |= Animator::OPTION_BOAT_RUDDER;
             else if (token == "throttleboat")  animator.flags |= Animator::OPTION_BOAT_THROTTLE;
         }
-
-        iter++;
     }
 
     m_current_module->animators.push_back(animator);

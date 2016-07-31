@@ -654,29 +654,10 @@ DEFINE_REGEX( DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS,
 // Regexes for parsing sections                                               //
 // -------------------------------------------------------------------------- //
 
-DEFINE_REGEX( SECTION_ANIMATORS, 
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Node 1
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Node 2
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Lenghtening factor
-    E_DELIMITER_COMMA
-    E_CAPTURE(".*$") // Options string
-    );
-
 DEFINE_REGEX( PARSE_ANIMATORS_NUMBERED_KEYWORD,
     E_LEADING_WHITESPACE
     E_CAPTURE( "throttle|rpm|aerotorq|aeropit|aerostatus" )
     E_CAPTURE( "[[:digit:]]" )
-    E_TRAILING_WHITESPACE
-    );
-
-DEFINE_REGEX( PARSE_ANIMATORS_KEY_COLON_VALUE,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( "shortlimit|longlimit" )
-    E_DELIMITER_COLON
-    E_CAPTURE( E_REAL_NUMBER )
     E_TRAILING_WHITESPACE
     );
 
