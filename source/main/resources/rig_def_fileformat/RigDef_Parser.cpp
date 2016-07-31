@@ -57,24 +57,6 @@ inline bool IsSeparator(char c)
 
 #define STR_PARSE_BOOL(_STR_) Ogre::StringConverter::parseBool(_STR_)
 
-/// Parses line into "values[]" array and checks number of arguments
-#define PARSE_UNSAFE(VAR_LINE, MIN_ARGS, _BLOCK_)                      \
-    this->AddMessage(line, Message::TYPE_WARNING,                      \
-        "Syntax check failed, parsing by legacy unsafe method...");    \
-    const int min_args = MIN_ARGS;                                     \
-    Ogre::StringVector values;                                         \
-    if (this->_ParseArgs(VAR_LINE, values, min_args) < min_args)       \
-    {                                                                  \
-        std::stringstream msg;                                         \
-        msg << "Too few arguments, required number is " << min_args;   \
-        this->AddMessage(VAR_LINE, Message::TYPE_WARNING, msg.str());  \
-    }                                                                  \
-    else                                                               \
-    {                                                                  \
-        _BLOCK_                                                        \
-    }
-
-
 Parser::Parser():
     m_ror_minimass(0)
 {
@@ -341,11 +323,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_FILEINFO):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Inline-section 'fileinfo' has global effect and should not appear in a module");
-                }
-                ParseFileinfo(line);
+                ParseFileinfo();
                 line_finished = true;
                 break;
 
@@ -4175,114 +4153,23 @@ void Parser::ParseRotators2(Ogre::String const & line)
     m_current_module->rotators_2.push_back(rotator);
 }
 
-void Parser::ParseFileinfo(Ogre::String const & line)
+void Parser::ParseFileinfo()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_FILEINFO))
-    {
-        // Do exactly what legacy parser would.
-        PARSE_UNSAFE(line, 2,
-        {
-            Fileinfo fileinfo;
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; }
 
-            std::string unique_id = values[1];
-            Ogre::StringUtil::trim(unique_id);
-            std::stringstream report;
-            report << "Check:";
-            if (unique_id.length() > 0)
-            {
-                fileinfo.unique_id = unique_id;
-                fileinfo._has_unique_id = true;
-                report << "\n\tUID: " << unique_id;
-            }
-            else
-            {
-                report << "\n\tUID: [empty]";
-            }
-            if (values.size() > 2)
-            {
-                fileinfo.category_id = PARSEINT(values[2]);
-                fileinfo._has_category_id = true;
-                report << "\n\tCategoryID: " << fileinfo.category_id;
-            }
-            else
-            {
-                report << "\n\tCategoryID: [not set]";
-            }
-            if (values.size() > 3)
-            {
-                fileinfo.file_version = PARSEINT(values[3]);
-                fileinfo._has_file_version_set = true;
-                report << "\n\tFile version:: " << fileinfo.file_version;
-            }
-            else
-            {
-                report << "\n\tFile version: [not set]";
-            }
-            this->AddMessage(line, Message::TYPE_INVALID, report.str());
-            m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
-        })
-        return;
+    if (m_current_module != m_root_module)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Inline-section 'fileinfo' has global effect and should not appear in a module");
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
     Fileinfo fileinfo;
-    bool go_next = false;
 
-    // UID 
-    if (results[3].matched)
-    {
-        fileinfo.unique_id = results[3];
-        fileinfo._has_unique_id = true;
-        go_next = true;
-    }
-    else if (results[2].matched)
-    {
-        go_next = true;
-    }
+    fileinfo.unique_id = this->GetArgStr(1);
+    Ogre::StringUtil::trim(fileinfo.unique_id);
 
-    if (!go_next)
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Inline-section 'fileinfo' has invalid UID, ignoring line...");
-    }
-    go_next = false;
-
-    // category id 
-    if (results[6].matched)
-    {
-        fileinfo.category_id = STR_PARSE_INT(results[6]);
-        fileinfo._has_category_id = true;
-        go_next = true;
-    }
-    else if (results[7].matched)
-    {
-        go_next = true;
-    }
-
-    if (!go_next)
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Inline-section 'fileinfo' has invalid category id, ignoring line...");
-    }
-    go_next = false;
-
-    // file version 
-    int version = -1;
-    if (results[10].matched)
-    {
-        // Integer input
-        version = STR_PARSE_INT(results[10]);
-    }
-    else if (results[11].matched)
-    {
-        // Float input, silently parse as int.
-        version = STR_PARSE_INT(results[11]);
-    }
-
-    if (version >= 0)
-    {
-        fileinfo.file_version = static_cast<unsigned int>(version);
-        fileinfo._has_file_version_set = true;
-    }
+    if (m_num_args > 2) { fileinfo.category_id  = this->GetArgInt(2); }
+    if (m_num_args > 3) { fileinfo.file_version = this->GetArgInt(3); }
 
     m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
 }
@@ -5312,31 +5199,6 @@ std::string Parser::ProcessMessagesToString()
     }
 
     return report.str();
-}
-
-int Parser::_ParseArgs(std::string const & line, Ogre::StringVector &args, unsigned min_num_args)
-{
-    // Note: This splitting silently ignores multiple consecutive separators.
-    //       For example "A,|,B" will produce results[0] = "A", results[1] = "B"
-    try
-    {
-        args = Ogre::StringUtil::split(line, ":|, \t");
-        if (args.size() < min_num_args)
-        {
-            std::stringstream msg;
-            msg << "Too few arguments, minimum is: " << min_num_args;
-            this->AddMessage(line, Message::TYPE_ERROR, msg.str());
-            args.clear();
-            return -1;
-        }
-        return args.size();
-    } 
-    catch(Ogre::Exception &e)
-    {
-        this->AddMessage(line, Message::TYPE_ERROR, "Unexpected error while parsing line: "+e.getFullDescription());
-        args.clear();
-        return -1;
-    }
 }
 
 std::string Parser::GetArgStr(int index)
