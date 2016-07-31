@@ -56,6 +56,11 @@ The format consists of these elements:
         Begins with a line containing nothing but a keyword.
         All subsequent lines belong to it until another
           section (any type) is encountered or module closed.
+          
+    Animator-section
+        Keyword: `animators`
+        Works like block-section, except lines have special syntax.
+        See chapter "SECTION ANIMATORS" for details.                
 
     Multiline-section
         Single instance: "description/end_description".
