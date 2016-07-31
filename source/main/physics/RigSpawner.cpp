@@ -5914,25 +5914,15 @@ void RigSpawner::ProcessHelp()
 
 void RigSpawner::ProcessFileInfo()
 {
-	SPAWNER_PROFILE_SCOPED();
+    SPAWNER_PROFILE_SCOPED();
 
     if (m_file->file_info != nullptr)
-	{
-		if (m_file->file_info->_has_unique_id)
-		{
-			strncpy(m_rig->uniquetruckid, m_file->file_info->unique_id.c_str(), 254);
-		}
-
-		if (m_file->file_info->_has_category_id)
-		{
-			m_rig->categoryid = m_file->file_info->category_id;
-		}
-
-		if (m_file->file_info->_has_file_version_set)
-		{
-			m_rig->truckversion = m_file->file_info->file_version;
-		}
-	}
+    {
+        // Do it the 0.3x way ... no error check!
+        strncpy(m_rig->uniquetruckid, m_file->file_info->unique_id.c_str(), 254);
+        m_rig->categoryid = m_file->file_info->category_id;
+        m_rig->truckversion = m_file->file_info->file_version;
+    }
 }
 
 void RigSpawner::ProcessAuthors()
