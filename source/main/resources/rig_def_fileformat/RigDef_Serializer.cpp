@@ -2462,35 +2462,15 @@ void Serializer::WriteFlags()
 
 void Serializer::ProcessFileinfo()
 {
-	if (m_rig_def->file_info.get() != nullptr)
-	{
-		m_stream << "fileinfo ";
-		// UID
-		if (m_rig_def->file_info->_has_unique_id)
-		{
-			m_stream << m_rig_def->file_info->unique_id;
-		}
-		else
-		{
-			m_stream << "-1";
-		}
-		// Category ID
-		if (m_rig_def->file_info->_has_category_id)
-		{
-			m_stream << ", " << m_rig_def->file_info->category_id;
-		}
-		else if (m_rig_def->file_info->_has_file_version_set)
-		{
-			m_stream << ", -1";
-		}
-		// Version
-		if (m_rig_def->file_info->_has_file_version_set)
-		{
-			m_stream << ", " << m_rig_def->file_info->file_version;
-		}
+    if (m_rig_def->file_info.get() != nullptr)
+    {
+        m_stream << "fileinfo ";
+        m_stream << m_rig_def->file_info->unique_id;
+        m_stream << ", " << m_rig_def->file_info->category_id;
+        m_stream << ", " << m_rig_def->file_info->file_version;
 
-		m_stream << endl << endl;
-	}
+        m_stream << endl << endl;
+    }
 }
 
 void Serializer::ProcessGuid()

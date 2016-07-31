@@ -527,19 +527,13 @@ struct Author
 struct Fileinfo
 {
 	Fileinfo():
-		category_id(0),
-		file_version(0), /* Default */
-		_has_unique_id(false),
-		_has_category_id(false),
-		_has_file_version_set(false)
+		category_id(-1),
+		file_version(0) /* Default */
 	{}
 
 	Ogre::String unique_id;
-	unsigned int category_id;
-	unsigned int file_version;
-	bool _has_unique_id;
-	bool _has_category_id;
-	bool _has_file_version_set;
+	int category_id;
+	int file_version;
 };
 
 /* -------------------------------------------------------------------------- */
