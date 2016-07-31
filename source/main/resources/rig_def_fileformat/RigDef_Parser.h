@@ -205,7 +205,7 @@ protected:
 
     void ParseFileFormatVersion(Ogre::String const & line);
 
-    void ParseFileinfo(Ogre::String const & line);
+    void ParseFileinfo();
 
     void ParseFixes(Ogre::String const & line);
 
@@ -325,10 +325,6 @@ protected:
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
-
-    /// The old, unsafe method of parsing, used in v0.38 + v0.4.0.7
-    /// @return -1 on error (error logged). Otherwise, number of arguments
-    int _ParseArgs(std::string const & line, Ogre::StringVector &args, unsigned min_num_args);
 
     /// Attempts to parse cab line. Returns true if successful.
     bool _TryParseCab(Ogre::String const & line);

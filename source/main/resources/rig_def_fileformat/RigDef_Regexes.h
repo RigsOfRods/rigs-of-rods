@@ -1041,35 +1041,6 @@ DEFINE_REGEX( INLINE_SECTION_FILE_FORMAT_VERSION,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_FILEINFO,
-    E_LEADING_WHITESPACE
-    "[Ff][Ii][Ll][Ee][Ii][Nn][Ff][Oo]"
-    E_DELIMITER_SPACE
-    E_CAPTURE(
-        E_CAPTURE( E_MINUS_ONE_REAL )                // #2 No UID
-        E_OR
-        E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #3 UID 
-    )
-    E_CAPTURE_OPTIONAL(                              // #4 Wrapper
-        E_DELIMITER_COMMA
-        E_CAPTURE(                                   // #5 Wrapper
-            E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )   // #6 Category
-            E_OR
-            E_CAPTURE( E_MINUS_ONE_REAL )            // #7 No category
-        )
-
-        E_CAPTURE_OPTIONAL(                          // #8 Wrapper
-            E_DELIMITER_COMMA
-            E_CAPTURE(                               // #9 Wrapper
-                E_CAPTURE( E_DECIMAL_NUMBER )        // #10 File version, integer
-                E_OR
-                E_CAPTURE( E_REAL_NUMBER )           // #11 File version, float (backwards compatibility)
-            )
-        )
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( SECTION_FLARES,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID )      // #1 Reference node
