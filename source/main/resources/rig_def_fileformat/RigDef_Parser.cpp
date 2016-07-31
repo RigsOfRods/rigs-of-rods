@@ -934,7 +934,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_FLEXBODIES):
-            ParseFlexbody(line);
+            ParseFlexbody();
             line_finished = true;
             break;
 
@@ -2322,122 +2322,89 @@ void Parser::ParseSubmesh(Ogre::String const & line)
     }
 }
 
-void Parser::_ImportLegacyFlexbodyForsetLine(Ogre::String const & line)
-{
-    // "forset" keyword is obsolete in fileformatversion >= 450
-    // This code is import-only
-
-    std::smatch line_results;
-    if (! std::regex_search(line, line_results, Regexes::FLEXBODIES_SUBSECTION_FORSET_LINE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-
-    Ogre::StringVector tokens = Ogre::StringUtil::split(line_results[2], ",");
-    // NOTE: This splitting process silently ignores duplicate comma ",,". Empty string element is not generated.
-    auto itor = tokens.begin();
-    auto end  = tokens.end();
-    for ( ; itor != end; ++itor)
-    {
-        unsigned noderef_flags = Node::Ref::IMPORT_STATE_IS_VALID;
-        std::smatch results;
-        if (! std::regex_search(*itor, results, Regexes::FORSET_ELEMENT))
-        {
-            // Invalid element, attempt to parse as node number for backwards compatibility 
-            unsigned int result = strtoul((*itor).c_str(), nullptr, 10);
-            std::stringstream msg;
-            msg << "Subsection 'forset': Invalid element '" << *itor << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
-            AddMessage(line, Message::TYPE_WARNING, msg.str());
-                
-            m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(TOSTRING(result), result, noderef_flags, m_current_line_number)));
-        }
-        else if (results[1].matched) // Range of numbered nodes 
-        {
-            int start_node_index = STR_PARSE_INT(results[2]);
-            int end_node_index = STR_PARSE_INT(results[3]);
-            m_last_flexbody->node_list_to_import.push_back(
-                Node::Range(
-                    Node::Ref(results[2], static_cast<unsigned>(start_node_index), noderef_flags, m_current_line_number), 
-                    Node::Ref(results[3], static_cast<unsigned>(end_node_index), noderef_flags, m_current_line_number)));
-        }
-        else if(results[4].matched) // Single numbered node 
-        {
-            int node_index = STR_PARSE_INT(results[4]);
-            m_last_flexbody->node_list_to_import.push_back(Node::Range(Node::Ref(results[4], static_cast<unsigned>(node_index), noderef_flags, m_current_line_number)));
-        }			
-    }
-}
-
-void Parser::ParseFlexbodyUnsafe(Ogre::String const & line)
-{
-    PARSE_UNSAFE(line, 10,
-    {
-        Flexbody flexbody;
-        flexbody.reference_node =  _ParseNodeRef(values[0]);
-        flexbody.x_axis_node    =  _ParseNodeRef(values[1]);
-        flexbody.y_axis_node    =  _ParseNodeRef(values[2]);
-
-        flexbody.offset.x       = STR_PARSE_REAL(values[3]);
-        flexbody.offset.y       = STR_PARSE_REAL(values[4]);
-        flexbody.offset.z       = STR_PARSE_REAL(values[5]);
-        flexbody.rotation.x     = STR_PARSE_REAL(values[6]);
-        flexbody.rotation.y     = STR_PARSE_REAL(values[7]);
-        flexbody.rotation.z     = STR_PARSE_REAL(values[8]);
-        flexbody.mesh_name      =                values[9];
-
-        this->ProcessFlexbody(flexbody);
-    });
-}
-
-void Parser::ProcessFlexbody(Flexbody& flexbody)
-{
-    m_last_flexbody = std::shared_ptr<Flexbody>( new Flexbody(flexbody) );
-    m_current_module->flexbodies.push_back(m_last_flexbody);
-
-    // Switch subsection
-    m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
-}
-
-void Parser::ParseFlexbody(Ogre::String const & line)
+void Parser::ParseFlexbody()
 {
     if (m_current_subsection == File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE)
     {
-        std::smatch results;
-        if (! std::regex_search(line, results, Regexes::FLEXBODIES_SUBSECTION_PROPLIKE_LINE))
-        {
-            this->ParseFlexbodyUnsafe(line);
-            return;
-        }
-        // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+        if (! this->CheckNumArguments(10)) { return; }
 
         Flexbody flexbody;
-        flexbody.reference_node = _ParseNodeRef(results[1]);
-        flexbody.x_axis_node    = _ParseNodeRef(results[3]);
-        flexbody.y_axis_node    = _ParseNodeRef(results[5]);
+        flexbody.reference_node = this->GetArgNodeRef (0);
+        flexbody.x_axis_node    = this->GetArgNodeRef (1);
+        flexbody.y_axis_node    = this->GetArgNodeRef (2);
+        flexbody.offset.x       = this->GetArgFloat   (3);
+        flexbody.offset.y       = this->GetArgFloat   (4);
+        flexbody.offset.z       = this->GetArgFloat   (5);
+        flexbody.rotation.x     = this->GetArgFloat   (6);
+        flexbody.rotation.y     = this->GetArgFloat   (7);
+        flexbody.rotation.z     = this->GetArgFloat   (8);
+        flexbody.mesh_name      = this->GetArgStr     (9);
 
-        flexbody.offset.x = STR_PARSE_REAL(results[7]);
-        flexbody.offset.y = STR_PARSE_REAL(results[9]);
-        flexbody.offset.z = STR_PARSE_REAL(results[11]);
+        m_last_flexbody = std::shared_ptr<Flexbody>( new Flexbody(flexbody) );
+        m_current_module->flexbodies.push_back(m_last_flexbody);
 
-        flexbody.rotation.x = STR_PARSE_REAL(results[13]);
-        flexbody.rotation.y = STR_PARSE_REAL(results[15]);
-        flexbody.rotation.z = STR_PARSE_REAL(results[17]);
-
-        flexbody.mesh_name = results[19];
-
-        this->ProcessFlexbody(flexbody);
+        // Switch subsection
+        m_current_subsection =  File::SUBSECTION__FLEXBODIES__FORSET_LINE;
     }
     else if (m_current_subsection == File::SUBSECTION__FLEXBODIES__FORSET_LINE)
     {
-        this->_ImportLegacyFlexbodyForsetLine(line);
+        // Syntax: "forset", followed by space/comma, followed by ","-separated items.
+        // Acceptable item forms:
+        // * Single node number / node name
+        // * Pair of node numbers:" 123 - 456 ". Whitespace is optional.
+
+        char setdef[LINE_BUFFER_LENGTH] = ""; // strtok() is destructive, we need own buffer.
+        strncpy_s(setdef, m_current_line + 6, LINE_BUFFER_LENGTH); // Cut away "forset"
+        const char* item = std::strtok(setdef, ",");
+
+        // TODO: Add error reporting
+        // It appears strtoul() sets no ERRNO for input 'x1' (parsed -> '0')
+
+        while (item != nullptr)
+        {
+            const char* hyphen = strchr(item, '-');
+            if (hyphen != nullptr)
+            {
+                unsigned a = 0; 
+                char* a_end = nullptr;
+                std::string a_text;
+                std::string b_text;
+                if (hyphen != item)
+                {
+                    a = ::strtoul(item, &a_end, 10);
+                    size_t length = std::max(a_end - item, 200);
+                    a_text = std::string(item, length);
+                }
+                char* b_end = nullptr;
+                const char* item2 = hyphen + 1;
+                unsigned b = ::strtoul(item2, &b_end, 10);
+                size_t length = std::max(b_end - item2, 200);
+                b_text = std::string(item2, length);
+
+                // Add interval [a-b]
+                m_last_flexbody->node_list_to_import.push_back(
+                    Node::Range(
+                        Node::Ref(a_text, a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
+                        Node::Ref(b_text, b, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
+            }
+            else
+            {
+                errno = 0;
+                unsigned a = 0;
+                a = ::strtoul(item, nullptr, 10);
+                // Add interval [a-a]
+                Node::Range range_a = Node::Range(Node::Ref(std::string(item), a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
+                m_last_flexbody->node_list_to_import.push_back(range_a);
+            }
+            item = strtok(nullptr, ",");
+        }
 
         // Switch subsection 
         m_current_subsection =  File::SUBSECTION__FLEXBODIES__PROPLIKE_LINE;
     }
     else
     {
-        AddMessage(line, Message::TYPE_FATAL_ERROR, "Internal parser failure, section 'flexbodies' not parsed.");
+        AddMessage(Message::TYPE_FATAL_ERROR, "Internal parser failure, section 'flexbodies' not parsed.");
     }
 }
 
