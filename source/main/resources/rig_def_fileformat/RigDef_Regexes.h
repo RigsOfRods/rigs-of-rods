@@ -661,41 +661,6 @@ DEFINE_REGEX( PARSE_ANIMATORS_NUMBERED_KEYWORD,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_ANTI_LOCK_BRAKES,
-    E_LEADING_WHITESPACE
-    "[Aa][Nn][Tt][Ii][Ll][Oo][Cc][Kk][Bb][Rr][Aa][Kk][Ee][Ss]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) // Regulating force
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Min. speed
-
-    E_CAPTURE_OPTIONAL(
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER ) // #4 Pulse/sec
-
-        E_CAPTURE_OPTIONAL(
-            E_DELIMITER_COMMA
-            "mode:"
-            E_CAPTURE("[[:blank:]ONFDASHTGLEonfdashtgle&]*") // #6 Mode string
-        )
-    )
-    );
-
-// Case insensitive
-DEFINE_REGEX_IGNORECASE( ANTI_LOCK_BRAKES_MODE,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( // Wrapper
-        E_CAPTURE( "on" )
-        E_OR
-        E_CAPTURE( "off" )
-        E_OR
-        E_CAPTURE( "nodash" )
-        E_OR
-        E_CAPTURE( "notoggle" )
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( INLINE_SECTION_AUTHOR,
     "^author"
 
@@ -1849,41 +1814,6 @@ DEFINE_REGEX( SECTION_TORQUECURVE,
     E_CAPTURE( E_STRING_NO_SPACES ) // #4 Known function
     E_2xCAPTURE_TRAILING_COMMENT
     );
-
-DEFINE_REGEX( SECTION_TRACTION_CONTROL,
-    E_LEADING_WHITESPACE
-    "[Tt][Rr][Aa][Cc][Tt][Ii][Oo][Nn][Cc][Oo][Nn][Tt][Rr][Oo][Ll]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) // Force
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Wheelslip
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA 
-        E_CAPTURE( E_REAL_NUMBER ) // #4 Fade speed
-
-        E_CAPTURE_OPTIONAL( 
-            E_DELIMITER_COMMA 
-            E_CAPTURE( E_REAL_NUMBER ) // #6 Pulse/sec
-
-            E_CAPTURE_OPTIONAL(
-                E_DELIMITER_COMMA
-                "mode[[:blank:]]*:"
-                E_CAPTURE("[[:blank:]ONFDASHTGLEonfdashtgle&]*") // #8 Mode string    
-            )
-        )
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
-// Case insensitive
-DEFINE_REGEX_IGNORECASE( TRACTION_CONTROL_MODE,
-    E_LEADING_WHITESPACE
-    E_CAPTURE_OPTIONAL( "on" )
-    E_CAPTURE_OPTIONAL( "off" )
-    E_CAPTURE_OPTIONAL( "nodash" )
-    E_CAPTURE_OPTIONAL( "notoggle" )
-    E_TRAILING_WHITESPACE
-    ); 
 
 DEFINE_REGEX( SECTION_TRIGGERS,
     E_LEADING_WHITESPACE

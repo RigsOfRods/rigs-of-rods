@@ -5687,27 +5687,11 @@ void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 	} 
 	m_rig->tc_pulse_time = 1 / pulse;
 
-	/* #5: mode */
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_ON))
-	{
-		m_rig->tc_mode = 1;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_OFF))
-	{
-		m_rig->tc_mode = 0;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_TOGGLE))
-	{
-		m_rig->tc_notoggle = true;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_DASHBOARD))
-	{
-		m_rig->tc_present = false;
-	}
-	else
-	{
-		m_rig->tc_present = true;
-	}
+    /* #4: mode */
+    m_rig->tc_mode = static_cast<int>(def.attr_is_on);
+    m_rig->tc_present = def.attr_is_on;
+    m_rig->tc_notoggle = def.attr_no_toggle;
+    if (def.attr_no_dashboard) { m_rig->tc_present = false; } // Override
 };
 
 void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
@@ -5738,27 +5722,11 @@ void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 	} 
 	m_rig->alb_pulse_time = 1 / pulse;
 
-	/* #4: mode */
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_ON))
-	{
-		m_rig->alb_mode = 1;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_OFF))
-	{
-		m_rig->alb_mode = 0;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_TOGGLE))
-	{
-		m_rig->alb_notoggle = true;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_DASHBOARD))
-	{
-		m_rig->alb_present = false;
-	}
-	else
-	{
-		m_rig->alb_present = true;
-	}
+    /* #4: mode */
+    m_rig->alb_mode = static_cast<int>(def.attr_is_on);
+    m_rig->alb_present = def.attr_is_on;
+    m_rig->alb_notoggle = def.attr_no_toggle;
+    if (def.attr_no_dashboard) { m_rig->alb_present = false; } // Override
 }
 
 void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
