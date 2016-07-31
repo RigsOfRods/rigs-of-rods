@@ -1238,56 +1238,6 @@ DEFINE_REGEX( SECTION_FLARES2,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID )          // #1 Reference node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )          // #3 X node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )          // #5 Y node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )      // #7 X offset 
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )      // #9 Y offset 
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )      // #11 Z offset 
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )      // #13 X rotation 
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )      // #15 Y rotation 
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )      // #17 Z rotation 
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_NO_SPACES ) // #19 Mesh name 
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
-DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
-    // Compatibility rules:
-    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.org/repository/view/2497
-    // 2. Tolerate missing keyword/numbers separator
-    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.org/repository/view/5282)
-    "forset"
-    E_CAPTURE_OPTIONAL( E_DELIMITER E_OR E_DELIMITER_COLON ) // #1 Delimiter
-    E_CAPTURE( ".*$" )                                       // #2 Entire line
-    );
-
-DEFINE_REGEX( FORSET_ELEMENT,
-    E_CAPTURE( // #1 Range with numbered nodes
-        E_LEADING_WHITESPACE
-        E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #2 Range start
-        "[[:blank:]]*-[[:blank:]]*"
-        E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #3 Range end
-        E_TRAILING_WHITESPACE
-    )
-    E_OR
-    E_CAPTURE( // #4 Solitary numbered node
-        E_LEADING_WHITESPACE
-        E_POSITIVE_DECIMAL_NUMBER
-        E_TRAILING_WHITESPACE
-    )
-    );
-
 DEFINE_REGEX( SECTION_FUSEDRAG,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID )                       // #1 Node 1

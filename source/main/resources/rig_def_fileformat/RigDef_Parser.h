@@ -216,9 +216,7 @@ protected:
 
     void ParseFlare2(Ogre::String const & line);
 
-    void ParseFlexbody(Ogre::String const & line);
-    void ParseFlexbodyUnsafe(Ogre::String const & line);
-    void ProcessFlexbody(Flexbody& flexbody);
+    void ParseFlexbody();
 
     void ParseFlexBodyWheel();
 
@@ -363,8 +361,6 @@ protected:
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
 
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
-
-    void _ImportLegacyFlexbodyForsetLine(Ogre::String const & line);
 
     /// Commands and Commands2 are unified with this parser.
     void _ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version);
