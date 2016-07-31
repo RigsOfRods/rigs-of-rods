@@ -1082,7 +1082,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_SUBMESH):
-            ParseSubmesh(line);
+            ParseSubmesh();
             line_finished = true;
             break;
 
@@ -2156,135 +2156,58 @@ void Parser::ParseDirectiveFlexbodyCameraMode(Ogre::String const & line)
     _ParseCameraSettings(m_last_flexbody->camera_settings, results[1]);
 }
 
-unsigned int Parser::_ParseCabOptions(Ogre::String const & options_str)
-{
-    unsigned int cab_options = 0;
-    for (unsigned int i = 0; i < options_str.length(); i++)
-    {
-        switch (options_str.at(i))
-        {
-        case 'c':
-            cab_options |= Cab::OPTION_c_CONTACT;
-            break;
-        case 'b':
-            cab_options |= Cab::OPTION_b_BUOYANT;
-            break;
-        case 'D':
-            cab_options |= (Cab::OPTION_c_CONTACT | Cab::OPTION_b_BUOYANT);
-            break;
-        case 'p':
-            cab_options |= Cab::OPTION_p_10xTOUGHER;
-            break;
-        case 'u':
-            cab_options |= Cab::OPTION_u_INVULNERABLE;
-            break;
-        case 'F':
-            cab_options |= (Cab::OPTION_p_10xTOUGHER | Cab::OPTION_b_BUOYANT);
-            break;
-        case 'S':
-            cab_options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT);
-            break;
-        case 'n':
-            break; // Placeholder, does nothing 
-
-        default:
-            std::stringstream msg;
-            msg << "Subsection 'submesh/cab': Invalid option '" << options_str.at(i) << "', ignoring...";
-            this->AddMessage(options_str, Message::TYPE_WARNING, msg.str());
-            break;
-        }
-    }
-    return cab_options;
-}
-
-bool Parser::_TryParseCab(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_CAB))
-    {
-        return false;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    Cab cab;
-    cab.nodes[0] = _ParseNodeRef(results[1]);
-    cab.nodes[1] = _ParseNodeRef(results[3]);
-    cab.nodes[2] = _ParseNodeRef(results[5]);
-
-    if (results[6].matched)
-    {
-        cab.options = this->_ParseCabOptions(results[8].str());
-    }
-
-    m_current_submesh->cab_triangles.push_back(cab);
-    return true;
-}
-
-void Parser::ParseSubmeshUnsafe(Ogre::String const & line)
+void Parser::ParseSubmesh()
 {
     if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
     {
-        PARSE_UNSAFE(line, 3,
+        if (! this->CheckNumArguments(3)) { return; }
+
+        Cab cab;
+        cab.nodes[0] = this->GetArgNodeRef(0);
+        cab.nodes[1] = this->GetArgNodeRef(1);
+        cab.nodes[2] = this->GetArgNodeRef(2);
+        if (m_num_args > 3)
         {
-            Cab cab;
-            cab.nodes[0] = this->_ParseNodeRef(values[0]);
-            cab.nodes[1] = this->_ParseNodeRef(values[1]);
-            cab.nodes[2] = this->_ParseNodeRef(values[2]);
-            if (values.size() > 3)
+            cab.options = 0;
+            std::string options_str = this->GetArgStr(3);
+            for (unsigned int i = 0; i < options_str.length(); i++)
             {
-                cab.options = this->_ParseCabOptions(values[3]);
+                switch (options_str.at(i))
+                {
+                case 'c': cab.options |=  Cab::OPTION_c_CONTACT;                               break;
+                case 'b': cab.options |=  Cab::OPTION_b_BUOYANT;                               break;
+                case 'D': cab.options |= (Cab::OPTION_c_CONTACT      | Cab::OPTION_b_BUOYANT); break;
+                case 'p': cab.options |=  Cab::OPTION_p_10xTOUGHER;                            break;
+                case 'u': cab.options |=  Cab::OPTION_u_INVULNERABLE;                          break;
+                case 'F': cab.options |= (Cab::OPTION_p_10xTOUGHER   | Cab::OPTION_b_BUOYANT); break;
+                case 'S': cab.options |= (Cab::OPTION_u_INVULNERABLE | Cab::OPTION_b_BUOYANT); break; 
+                case 'n': break; // Placeholder, does nothing 
+
+                default:
+                    char msg[200] = "";
+                    sprintf_s(msg, "'submesh/cab' Ignoring invalid option '%c', ignoring...", options_str.at(i));
+                    this->AddMessage(Message::TYPE_WARNING, msg);
+                    break;
+                }
             }
+        }
 
-            m_current_submesh->cab_triangles.push_back(cab);
-        });
+        m_current_submesh->cab_triangles.push_back(cab);
     }
     else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
     {
-        PARSE_UNSAFE(line, 3,
-        {
-            Texcoord texcoord;
-            texcoord.node = this->_ParseNodeRef(values[0]);
-            texcoord.u    =      STR_PARSE_REAL(values[1]);
-            texcoord.v    =      STR_PARSE_REAL(values[2]);
-
-            m_current_submesh->texcoords.push_back(texcoord);
-        });
-    }
-}
-
-void Parser::ParseSubmesh(Ogre::String const & line)
-{
-    if (m_current_subsection == File::SUBSECTION__SUBMESH__CAB)
-    {
-        if (!this->_TryParseCab(line))
-        {
-            this->ParseSubmeshUnsafe(line);
-        }
-    }
-    else if (m_current_subsection == File::SUBSECTION__SUBMESH__TEXCOORDS)
-    {
-        std::smatch results;
-        if (! std::regex_search(line, results, Regexes::SUBMESH_SUBSECTION_TEXCOORDS))
-        {
-            this->ParseSubmeshUnsafe(line);
-            return;
-        }
-        // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+        if (! this->CheckNumArguments(3)) { return; }
 
         Texcoord texcoord;
-        texcoord.node = _ParseNodeRef(results[1]);
-        texcoord.u = STR_PARSE_REAL(results[2]);
-        texcoord.v = STR_PARSE_REAL(results[3]);
+        texcoord.node = this->GetArgNodeRef(0);
+        texcoord.u    = this->GetArgFloat  (1);
+        texcoord.v    = this->GetArgFloat  (2);
 
         m_current_submesh->texcoords.push_back(texcoord);
     }
-    else if (this->_TryParseCab(line))
-    {
-        AddMessage(line, Message::TYPE_WARNING, "Section submesh has no subsection defined, but subsequent line matches 'cab' entry. Parsed as 'cab'.");
-    }
     else
     {
-        AddMessage(line, Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
+        AddMessage(Message::TYPE_ERROR, "Section submesh has no subsection defined, line not parsed.");
     }
 }
 
