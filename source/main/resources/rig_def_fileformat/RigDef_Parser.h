@@ -165,7 +165,7 @@ protected:
 
     void ParseAirbrakes();
 
-    void ParseAnimator(Ogre::String const & line);
+    void ParseAnimator();
 
     void ParseAntiLockBrakes(Ogre::String const & line);
 
