@@ -322,7 +322,7 @@ protected:
 	/**
 	* Section 'meshwheels2'.
 	*/
-	void ProcessMeshWheel2(RigDef::MeshWheel2 & def);
+	void ProcessMeshWheel2(RigDef::MeshWheel & def);
 
 	/**
 	* Section 'minimass'.

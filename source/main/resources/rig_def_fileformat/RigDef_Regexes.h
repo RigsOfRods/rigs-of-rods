@@ -1612,42 +1612,6 @@ DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_MESHWHEELS_MESHWHEELS2,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_REAL_NUMBER )                   // #1 Tyre radius
-    E_CAPTURE( E_DELIMITER )                     
-    E_CAPTURE( E_REAL_NUMBER )                   // #3 Rim radius
-    E_CAPTURE( E_DELIMITER )                     
-    E_CAPTURE( E_REAL_NUMBER )                   // #5 Width
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #7 Num rays
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #9 Node 1
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #11 Node 2
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #13 Rigidity node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #15 Braked?
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER )       // #17 Propulsed?
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                       // #19 Reference arm node
-    E_CAPTURE( E_DELIMITER )                     
-    E_CAPTURE( E_REAL_NUMBER )                   // #21 Mass
-    E_CAPTURE( E_DELIMITER )                     
-    E_CAPTURE( E_REAL_NUMBER )                   // #23 Tyre spring
-    E_CAPTURE( E_DELIMITER )                     
-    E_CAPTURE( E_REAL_NUMBER )                   // #25 Tyre damping
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #27 Rim orientation
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #29 Rim mesh name
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #31 Tyre material name
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_MINIMASS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_REAL_NUMBER ) // Min. default mass

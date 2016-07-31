@@ -1440,8 +1440,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr str
 	entry.wheelcount        = static_cast<int>( 
 		  def->root_module->wheels.size() 
 		+ def->root_module->wheels_2.size() 
-		+ def->root_module->mesh_wheels.size() 
-		+ def->root_module->mesh_wheels_2.size() 
+		+ def->root_module->mesh_wheels.size() // Also meshwheels2
 		);
 
 	/* NOTE: std::shared_ptr cleans everything up. */

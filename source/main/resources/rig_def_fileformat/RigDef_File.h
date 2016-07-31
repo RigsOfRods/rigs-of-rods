@@ -861,7 +861,8 @@ struct MeshWheel: BaseWheel
 		BaseWheel(),
 		side(SIDE_INVALID),
 		rim_radius(0),
-		tyre_radius(0)
+		tyre_radius(0),
+		_is_meshwheel2(false)
 	{}
 
 	enum Side
@@ -878,22 +879,7 @@ struct MeshWheel: BaseWheel
 	float tyre_radius;
 	float spring;
 	float damping;
-};
-
-/* -------------------------------------------------------------------------- */
-/* Section MESHWHEELS_2                                                       */
-/* -------------------------------------------------------------------------- */
-
-struct MeshWheel2: BaseWheel2
-{
-	MeshWheel2():
-		side(MeshWheel::SIDE_INVALID)
-	{}
-
-	/* Rim is set-up by `beam_defaults`, params in section are for tire. */
-	MeshWheel::Side side;
-	Ogre::String mesh_name;
-	Ogre::String material_name;
+	bool _is_meshwheel2;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2017,7 +2003,6 @@ struct File
 		std::vector<ManagedMaterial>       managed_materials;
 		std::vector<MaterialFlareBinding>  material_flare_bindings;
 		std::vector<MeshWheel>             mesh_wheels;
-		std::vector<MeshWheel2>            mesh_wheels_2;
 		std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
 		std::vector<NodeCollision>         node_collisions;
 		std::vector<Particle>              particles;
