@@ -74,6 +74,7 @@ inline bool IsSeparator(char c)
         _BLOCK_                                                        \
     }
 
+
 Parser::Parser():
     m_ror_minimass(0)
 {
@@ -612,7 +613,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_NODE_DEFAULTS):
-                ParseDirectiveSetNodeDefaults(line);
+                ParseDirectiveSetNodeDefaults();
                 line_finished = true;
                 break;
 
@@ -1496,25 +1497,7 @@ void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
     }
 }
 
-void Parser::VerifyAndProcessDirectiveSetNodeDefaults(
-    Ogre::String const & line,
-    float load_weight,
-    float friction,
-    float volume, 
-    float surface, 
-    unsigned int options)
-{
-    m_user_node_defaults = std::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
-
-    m_user_node_defaults->load_weight = (load_weight < 0) ? m_ror_node_defaults->load_weight : load_weight;
-    m_user_node_defaults->friction    = (friction    < 0) ? m_ror_node_defaults->friction    : friction;
-    m_user_node_defaults->volume      = (volume      < 0) ? m_ror_node_defaults->volume      : volume;
-    m_user_node_defaults->surface     = (surface     < 0) ? m_ror_node_defaults->surface     : surface;
-
-    m_user_node_defaults->options     = options;
-}
-
-void Parser::LogParsedDirectiveSetNodeDefaultsData(Ogre::String const & line, float load_weight, float friction, float volume, float surface, unsigned int options)
+void Parser::LogParsedDirectiveSetNodeDefaultsData(float load_weight, float friction, float volume, float surface, unsigned int options)
 {
     std::stringstream msg;
     msg << "Parsed data for verification:"
@@ -1537,51 +1520,32 @@ void Parser::LogParsedDirectiveSetNodeDefaultsData(Ogre::String const & line, fl
     if (BITMASK_IS_1(options, Node::OPTION_p_NO_PARTICLES)      )  { msg << " p_NO_PARTICLES"; }
     if (BITMASK_IS_1(options, Node::OPTION_L_LOG)               )  { msg << " L_LOG"; }
 
-    this->AddMessage(line, Message::TYPE_WARNING, msg.str());
+    this->AddMessage(m_current_line, Message::TYPE_WARNING, msg.str());
 }
 
-void Parser::ParseDirectiveSetNodeDefaultsUnsafe(Ogre::String const & line)
+void Parser::ParseDirectiveSetNodeDefaults()
 {
-    PARSE_UNSAFE(line, 2,
+    if (!this->CheckNumArguments(2)) { return; }
+
+    float load_weight   =                    this->GetArgFloat(1);
+    float friction      = (m_num_args > 2) ? this->GetArgFloat(2) : -1;
+    float volume        = (m_num_args > 3) ? this->GetArgFloat(3) : -1;
+    float surface       = (m_num_args > 4) ? this->GetArgFloat(4) : -1;
+    std::string opt_str = (m_num_args > 5) ? this->GetArgStr  (5) : "";
+
+    m_user_node_defaults = std::shared_ptr<NodeDefaults>( new NodeDefaults(*m_user_node_defaults) );
+
+    m_user_node_defaults->load_weight = (load_weight < 0) ? m_ror_node_defaults->load_weight : load_weight;
+    m_user_node_defaults->friction    = (friction    < 0) ? m_ror_node_defaults->friction    : friction;
+    m_user_node_defaults->volume      = (volume      < 0) ? m_ror_node_defaults->volume      : volume;
+    m_user_node_defaults->surface     = (surface     < 0) ? m_ror_node_defaults->surface     : surface;
+
+    if (!opt_str.empty())
     {
-        int num_args = values.size();
-
-        // NOTE: Arguments start at index [1], [0] is the keyword
-        float load_weight =                  STR_PARSE_REAL(values[1]);
-        float friction    = (num_args > 2) ? STR_PARSE_REAL(values[2]) : -1;
-        float volume      = (num_args > 3) ? STR_PARSE_REAL(values[3]) : -1;
-        float surface     = (num_args > 4) ? STR_PARSE_REAL(values[4]) : -1;
-        unsigned int options = 0;
-        if (num_args > 5) { this->_ParseNodeOptions(options, values[5]); }
-
-        this->LogParsedDirectiveSetNodeDefaultsData(line, load_weight, friction, volume, surface, options);
-        this->VerifyAndProcessDirectiveSetNodeDefaults(line, load_weight, friction, volume, surface, options);
-    });
-}
-
-void Parser::ParseDirectiveSetNodeDefaults(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_NODE_DEFAULTS))
-    {
-        this->ParseDirectiveSetNodeDefaultsUnsafe(line);
-        return;
+        this->_ParseNodeOptions(m_user_node_defaults->options, opt_str);
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    // NOTE: -1 resets to default value
-    float load_weight = STR_PARSE_REAL(results[1]);
-    float friction    = (results[2].matched) ? STR_PARSE_REAL(results[4])  : -1;
-    float volume      = (results[4].matched) ? STR_PARSE_REAL(results[7])  : -1;
-    float surface     = (results[6].matched) ? STR_PARSE_REAL(results[10]) : -1;
-    
-    unsigned int options = 0;
-    if (results[11].matched)
-    {
-        this->_ParseNodeOptions(options, results[13]);
-    }
-
-    this->VerifyAndProcessDirectiveSetNodeDefaults(line, load_weight, friction, volume, surface, options);
+    this->LogParsedDirectiveSetNodeDefaultsData(
+        load_weight, friction, volume, surface, m_user_node_defaults->options);
 }
 
 void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
