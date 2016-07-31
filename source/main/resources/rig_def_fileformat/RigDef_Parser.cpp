@@ -865,7 +865,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_CAMERAS):
-            ParseCameras(line);
+            ParseCameras();
             line_finished = true;
             break;
 
@@ -3458,33 +3458,14 @@ void Parser::ParseVideoCamera(Ogre::String const & line)
     m_current_module->videocameras.push_back(videocamera);
 }
 
-void Parser::ParseCamerasUnsafe(Ogre::String const & line)
+void Parser::ParseCameras()
 {
-    PARSE_UNSAFE(line, 3,
-    {
-        Camera camera;
-        camera.center_node = this->_ParseNodeRef(values[0]);
-        camera.back_node   = this->_ParseNodeRef(values[1]);
-        camera.left_node   = this->_ParseNodeRef(values[2]);
-
-        m_current_module->cameras.push_back(camera);
-    });
-}
-
-void Parser::ParseCameras(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_CAMERAS))
-    {
-        this->ParseCamerasUnsafe(line);
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(3)) { return; }
 
     Camera camera;
-    camera.center_node = _ParseNodeRef(results[1]);
-    camera.back_node   = _ParseNodeRef(results[2]);
-    camera.left_node   = _ParseNodeRef(results[3]);
+    camera.center_node = this->GetArgNodeRef(0);
+    camera.back_node   = this->GetArgNodeRef(1);
+    camera.left_node   = this->GetArgNodeRef(2);
 
     m_current_module->cameras.push_back(camera);
 }
