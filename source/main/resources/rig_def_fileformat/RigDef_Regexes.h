@@ -650,33 +650,6 @@ DEFINE_REGEX( DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( DIRECTIVE_SET_NODE_DEFAULTS, 
-    E_LEADING_WHITESPACE
-    "[Ss][Ee][Tt]_[Nn][Oo][Dd][Ee]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]" 
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER )                                   // #1 Load weight
-    E_CAPTURE_OPTIONAL(
-        E_CAPTURE( E_DELIMITER )
-        E_CAPTURE( E_REAL_NUMBER )                               // #4 Friction
-
-        E_CAPTURE_OPTIONAL(
-            E_CAPTURE( E_DELIMITER )
-            E_CAPTURE( E_REAL_NUMBER )                           // #7 Volume
-
-            E_CAPTURE_OPTIONAL(
-                E_CAPTURE( E_DELIMITER )
-                E_CAPTURE( E_REAL_NUMBER )                       // #10 Surface
-
-                E_CAPTURE_OPTIONAL(
-                    E_CAPTURE( E_DELIMITER )
-                    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #13 Options
-                )
-            )
-        )
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Regexes for parsing sections                                               //
 // -------------------------------------------------------------------------- //
