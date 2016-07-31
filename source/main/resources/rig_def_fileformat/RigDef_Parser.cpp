@@ -158,7 +158,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_ANTI_LOCK_BRAKES):
-                ParseAntiLockBrakes(line);
+                ParseAntiLockBrakes();
                 line_finished = true;
                 break;
 
@@ -681,7 +681,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_TRACTION_CONTROL):
-                ParseTractionControl(line);
+                ParseTractionControl();
                 line_finished = true;
                 break;
 
@@ -1304,72 +1304,42 @@ void Parser::ParseWheel()
     m_current_module->wheels.push_back(wheel);
 }
 
-void Parser::ParseTractionControl(Ogre::String const & line)
+void Parser::ParseTractionControl()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_TRACTION_CONTROL))
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 15, ","); // "TractionControl" = 15 characters
+    if (tokens.size() < 2)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        this->AddMessage(Message::TYPE_ERROR, "Too few arguments");
         return;
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
-    TractionControl traction_control;
-    traction_control.regulation_force = STR_PARSE_REAL(results[1]);
-    traction_control.wheel_slip = STR_PARSE_REAL(results[2]);
+    TractionControl tc;
+                             tc.regulation_force = this->ParseArgFloat(tokens[0].c_str());
+                             tc.wheel_slip       = this->ParseArgFloat(tokens[1].c_str());
+    if (tokens.size() > 2) { tc.fade_speed       = this->ParseArgFloat(tokens[2].c_str()); }
+    if (tokens.size() > 3) { tc.pulse_per_sec    = this->ParseArgFloat(tokens[3].c_str()); }
 
-    if (results[3].matched)
+    if (tokens.size() > 4)
     {
-        traction_control.fade_speed = STR_PARSE_REAL(results[4]);
-
-        if (results[5].matched)
+        Ogre::StringVector attrs = Ogre::StringUtil::split(tokens[4], "&");
+        auto itor = attrs.begin();
+        auto endi = attrs.end();
+        for (; itor != endi; ++itor)
         {
-            traction_control.pulse_per_sec = STR_PARSE_REAL(results[6]);
-
-            if (results[7].matched)
-            {
-                // parse mode 
-                Ogre::StringVector tokens = Ogre::StringUtil::split(results[8], "&");
-                Ogre::StringVector::iterator iter = tokens.begin();
-                for ( ; iter != tokens.end(); iter++)
-                {
-                    std::smatch results;
-                    if (! std::regex_search(*iter, results, Regexes::TRACTION_CONTROL_MODE))
-                    {
-                        std::string invalid_keyword = *iter;
-                        AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
-                        continue;
-                    }
-                    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-                    if (results[1].matched)
-                    {
-                        BITMASK_SET_1(traction_control.mode, TractionControl::MODE_ON);
-                        BITMASK_SET_0(traction_control.mode, TractionControl::MODE_OFF);
-                    }
-                    else if (results[2].matched)
-                    {
-                        BITMASK_SET_1(traction_control.mode, TractionControl::MODE_OFF);
-                        BITMASK_SET_0(traction_control.mode, TractionControl::MODE_ON);
-                    }
-                    else if (results[3].matched)
-                    {
-                        BITMASK_SET_1(traction_control.mode, TractionControl::MODE_NO_DASHBOARD);
-                    }
-                    else if (results[4].matched)
-                    {
-                        BITMASK_SET_1(traction_control.mode, TractionControl::MODE_NO_TOGGLE);
-                    }
-                }
-            }
+            std::string attr = *itor;
+            Ogre::StringUtil::trim(attr);
+                 if (strnicmp(attr.c_str(), "nodash", 6)   == 0) { tc.attr_no_dashboard = true;  }
+            else if (strnicmp(attr.c_str(), "notoggle", 8) == 0) { tc.attr_no_toggle    = true;  }
+            else if (strnicmp(attr.c_str(), "on", 2)       == 0) { tc.attr_is_on        = true;  }
+            else if (strnicmp(attr.c_str(), "off", 3)      == 0) { tc.attr_is_on        = false; }
         }
     }
 
     if (m_current_module->traction_control != nullptr)
     {
-        AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
+        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
     }
-    m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(traction_control) );
+    m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(tc) );
 }
 
 void Parser::ParseSubmeshGroundModel(Ogre::String const & line)
@@ -2840,68 +2810,41 @@ void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
     m_current_module->props.back().animations.push_back(animation);
 }
 
-void Parser::ParseAntiLockBrakes(Ogre::String const & line)
+void Parser::ParseAntiLockBrakes()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_ANTI_LOCK_BRAKES))
+    AntiLockBrakes alb;
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 15, ","); // "AntiLockBrakes " = 15 characters
+    if (tokens.size() < 2)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        this->AddMessage(Message::TYPE_ERROR, "Too few arguments for `AntiLockBrakes`");
         return;
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
-    AntiLockBrakes anti_lock_brakes;
-    anti_lock_brakes.regulation_force = STR_PARSE_REAL(results[1]);
-    anti_lock_brakes.min_speed = static_cast<unsigned int>(STR_PARSE_REAL(results[2]));
+    alb.regulation_force = this->ParseArgFloat(tokens[0].c_str());
+    alb.min_speed        = this->ParseArgInt  (tokens[1].c_str());
 
-    if (results[4].matched)
+    if (tokens.size() > 3) { alb.pulse_per_sec = this->ParseArgFloat(tokens[2].c_str()); }
+    if (tokens.size() > 4)
     {
-        anti_lock_brakes.pulse_per_sec = STR_PARSE_REAL(results[4]);
-        anti_lock_brakes._pulse_per_sec_set = true;
-
-        if (results[6].matched)
+        Ogre::StringVector attrs = Ogre::StringUtil::split(tokens[4], "&");
+        auto itor = attrs.begin();
+        auto endi = attrs.end();
+        for (; itor != endi; ++itor)
         {
-            // parse mode 
-            Ogre::StringVector tokens = Ogre::StringUtil::split(results[6], "&");
-            Ogre::StringVector::iterator iter = tokens.begin();
-            for ( ; iter != tokens.end(); iter++)
-            {
-                std::smatch results;
-                if (! std::regex_search(*iter, results, Regexes::ANTI_LOCK_BRAKES_MODE))
-                {
-                    std::string invalid_keyword = *iter;
-                    AddMessage(line, Message::TYPE_WARNING, "Ignoring invalid mode attribute: \"" + invalid_keyword + "\"");
-                    continue;
-                }
-                // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-                if (results[2].matched)
-                {
-                    BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_ON);
-                    BITMASK_SET_0(anti_lock_brakes.mode, AntiLockBrakes::MODE_OFF);
-                }
-                else if (results[3].matched)
-                {
-                    BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_OFF);
-                    BITMASK_SET_0(anti_lock_brakes.mode, AntiLockBrakes::MODE_ON);
-                }
-                else if (results[4].matched)
-                {
-                    BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_NO_DASHBOARD);
-                }
-                else if (results[5].matched)
-                {
-                    BITMASK_SET_1(anti_lock_brakes.mode, AntiLockBrakes::MODE_NO_TOGGLE);
-                }
-            }
+            std::string attr = *itor;
+            Ogre::StringUtil::trim(attr);
+                 if (strnicmp(attr.c_str(), "nodash", 6)   == 0) { alb.attr_no_dashboard = true;  }
+            else if (strnicmp(attr.c_str(), "notoggle", 8) == 0) { alb.attr_no_toggle    = true;  }
+            else if (strnicmp(attr.c_str(), "on", 2)       == 0) { alb.attr_is_on        = true;  }
+            else if (strnicmp(attr.c_str(), "off", 3)      == 0) { alb.attr_is_on        = false; }
         }
     }
 
     if (m_current_module->anti_lock_brakes != nullptr)
     {
-        AddMessage(line, Message::TYPE_WARNING, "Found multiple sections 'AntiLockBrakes' in one module, using last one.");
+        this->AddMessage(Message::TYPE_WARNING, "Found multiple sections 'AntiLockBrakes' in one module, using last one.");
     }
-    m_current_module->anti_lock_brakes = std::shared_ptr<AntiLockBrakes>( new AntiLockBrakes(anti_lock_brakes) );
+    m_current_module->anti_lock_brakes = std::shared_ptr<AntiLockBrakes>( new AntiLockBrakes(alb) );
 }
 
 void Parser::ParseEngoption()
@@ -4876,9 +4819,9 @@ void Parser::ParseAnimator()
             else if (results[1] == "aeropit")    animator.aero_animator.flags |= AeroAnimator::OPTION_PITCH;
             else if (results[1] == "aerostatus") animator.aero_animator.flags |= AeroAnimator::OPTION_STATUS;
 
-            animator.aero_animator.motor = static_cast<unsigned>(std::strtol(results[2].str().c_str(), nullptr, 10));
+            animator.aero_animator.motor = this->ParseArgInt(results[2].str().c_str());
         }
-        else if ((is_shortlimit = token.compare(0, 10, "shortlimit")) || token.compare(0, 9, "longlimit"))
+        else if ((is_shortlimit = (token.compare(0, 10, "shortlimit") == 0)) || (token.compare(0, 9, "longlimit") == 0))
         {
             Ogre::StringVector fields = Ogre::StringUtil::split(token, ":");
             if (fields.size() > 1)
@@ -5330,6 +5273,34 @@ float Parser::GetArgFloat(int index)
         this->AddMessage(Message::TYPE_WARNING, msg);
     }
     return static_cast<float>(res);
+}
+
+float Parser::ParseArgFloat(const char* str)
+{
+    errno = 0;
+    float res = std::strtod(str, nullptr);
+    if (errno != 0)
+    {
+        char msg[100];
+        sprintf_s(msg, "Cannot parse argument '%s' as float, errno: %d", str, errno);
+        this->AddMessage(Message::TYPE_ERROR, msg);
+        return 0.f; // Compatibility
+    }
+    return static_cast<float>(res);
+}
+
+int Parser::ParseArgInt(const char* str)
+{
+    errno = 0;
+    long res = std::strtol(str, nullptr, 10);
+    if (errno != 0)
+    {
+        char msg[100];
+        sprintf_s(msg, "Cannot parse argument '%s' as int, errno: %d", str, errno);
+        this->AddMessage(Message::TYPE_ERROR, msg);
+        return 0.f; // Compatibility
+    }
+    return static_cast<int>(res);
 }
 
 int Parser::TokenizeCurrentLine()

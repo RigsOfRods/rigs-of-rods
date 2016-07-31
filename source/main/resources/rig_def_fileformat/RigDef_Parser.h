@@ -167,7 +167,7 @@ protected:
 
     void ParseAnimator();
 
-    void ParseAntiLockBrakes(Ogre::String const & line);
+    void ParseAntiLockBrakes();
 
     void ParseAuthor(Ogre::String const & line);
 
@@ -289,7 +289,7 @@ protected:
 
     void ParseTorqueCurve(Ogre::String const & line);
 
-    void ParseTractionControl(Ogre::String const & line);
+    void ParseTractionControl();
 
     void ParseTriggers(Ogre::String const & line);
 
@@ -325,6 +325,9 @@ protected:
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
+
+    float              ParseArgFloat      (const char* str);
+    int                ParseArgInt        (const char* str);
 
     /// Attempts to parse cab line. Returns true if successful.
     bool _TryParseCab(Ogre::String const & line);

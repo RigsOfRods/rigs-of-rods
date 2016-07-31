@@ -1457,25 +1457,18 @@ void Serializer::ProcessSlopeBrake(File::Module* module)
 
 void Serializer::ProcessTractionControl(File::Module* module)
 {
-	if (module->traction_control)
-	{
-		RigDef::TractionControl* alb = module->traction_control.get();
+    if (module->traction_control == nullptr) { return; }
 
-		m_stream << "TractionControl "
-			<< alb->regulation_force << ", "
-			<< alb->wheel_slip << ", "
-			<< alb->fade_speed << ", "
-			<< alb->pulse_per_sec << ", mode: ";
-		// Modes
-		bool bAnd = false;
-		if (alb->GetModeIsOn())        { m_stream << " ON ";       bAnd = true; }
-		if (bAnd) { m_stream << "&"; }
-		if (alb->GetModeIsOff())       { m_stream << " OFF ";      bAnd = true; }
-		if (bAnd) { m_stream << "&"; }
-		if (alb->GetModeNoDashboard()) { m_stream << " NODASH ";   bAnd = true; }
-		if (bAnd) { m_stream << "&"; }
-		if (alb->GetModeNoToggle())    { m_stream << " NOTOGGLE "; bAnd = true; }
-	}
+    RigDef::TractionControl* tc = module->traction_control.get();
+
+    m_stream << "TractionControl "
+        << tc->regulation_force << ", "
+        << tc->wheel_slip << ", "
+        << tc->fade_speed << ", "
+        << tc->pulse_per_sec << ", mode: " << (tc->attr_is_on ? "ON" : "OFF");
+    // Modes
+    if (tc->attr_no_dashboard) { m_stream << " & NODASH ";   }
+    if (tc->attr_no_toggle)    { m_stream << " & NOTOGGLE "; }
 }
 
 void Serializer::ProcessBrakes(File::Module* module)
@@ -1490,25 +1483,17 @@ void Serializer::ProcessBrakes(File::Module* module)
 
 void Serializer::ProcessAntiLockBrakes(File::Module* module)
 {
-	if (module->anti_lock_brakes == nullptr)
-	{
-		return;
-	}
-	RigDef::AntiLockBrakes* alb = module->anti_lock_brakes.get();
+    if (module->anti_lock_brakes == nullptr) { return; }
 
-	m_stream << "AntiLockBrakes "
-		<< alb->regulation_force << ", "
-		<< alb->min_speed << ", "
-		<< alb->pulse_per_sec << ", mode: ";
-	// Modes
-	bool bAnd = false;
-	if (alb->GetModeIsOn())        { m_stream << " ON ";       bAnd = true; }
-	if (bAnd) { m_stream << "&"; }
-	if (alb->GetModeIsOff())       { m_stream << " OFF ";      bAnd = true; }
-	if (bAnd) { m_stream << "&"; }
-	if (alb->GetModeNoDashboard()) { m_stream << " NODASH ";   bAnd = true; }
-	if (bAnd) { m_stream << "&"; }
-	if (alb->GetModeNoToggle())    { m_stream << " NOTOGGLE "; bAnd = true; }
+    RigDef::AntiLockBrakes* alb = module->anti_lock_brakes.get();
+
+    m_stream << "AntiLockBrakes "
+        << alb->regulation_force << ", "
+        << alb->min_speed << ", "
+        << alb->pulse_per_sec << ", mode: " << (alb->attr_is_on ? "ON" : "OFF");
+    // Modes
+    if (alb->attr_no_dashboard) { m_stream << " & NODASH ";   }
+    if (alb->attr_no_toggle)    { m_stream << " & NOTOGGLE "; }
 }
 
 void Serializer::ProcessEngine(File::Module* module)

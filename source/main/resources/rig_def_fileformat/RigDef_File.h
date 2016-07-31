@@ -672,18 +672,14 @@ struct Brakes
 
 struct AntiLockBrakes
 {
-	AntiLockBrakes();
+    AntiLockBrakes();
 
-	BITMASK_PROPERTY(mode,  1, MODE_ON           , GetModeIsOn,        SetModeIsOn)
-	BITMASK_PROPERTY(mode,  2, MODE_OFF          , GetModeIsOff,       SetModeIsOff)
-	BITMASK_PROPERTY(mode,  3, MODE_NO_DASHBOARD , GetModeNoDashboard, SetModeNoDashboard)
-	BITMASK_PROPERTY(mode,  4, MODE_NO_TOGGLE    , GetModeNoToggle,    SetModeNoToggle)
-
-	float regulation_force;
-	unsigned int min_speed;
-	float pulse_per_sec;
-	bool _pulse_per_sec_set;
-	unsigned int mode; ///< Bit flags
+    float regulation_force;
+    unsigned int min_speed;
+    float pulse_per_sec;
+    bool attr_is_on;
+    bool attr_no_dashboard;
+    bool attr_no_toggle;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -692,18 +688,15 @@ struct AntiLockBrakes
 
 struct TractionControl
 {
-	TractionControl();
-	
-	BITMASK_PROPERTY(mode,  1, MODE_ON           , GetModeIsOn,        SetModeIsOn)
-	BITMASK_PROPERTY(mode,  2, MODE_OFF          , GetModeIsOff,       SetModeIsOff)
-	BITMASK_PROPERTY(mode,  3, MODE_NO_DASHBOARD , GetModeNoDashboard, SetModeNoDashboard)
-	BITMASK_PROPERTY(mode,  4, MODE_NO_TOGGLE    , GetModeNoToggle,    SetModeNoToggle)
+    TractionControl();
 
-	float regulation_force;
-	float wheel_slip;
-	float fade_speed;
-	float pulse_per_sec;
-	unsigned int mode; ///< Bit flags
+    float regulation_force;
+    float wheel_slip;
+    float fade_speed;
+    float pulse_per_sec;
+    bool attr_is_on;
+    bool attr_no_dashboard;
+    bool attr_no_toggle;
 };
 
 /* -------------------------------------------------------------------------- */
