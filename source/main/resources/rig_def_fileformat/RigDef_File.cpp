@@ -55,11 +55,12 @@ Airbrake::Airbrake():
 {}
 
 AntiLockBrakes::AntiLockBrakes():
-	regulation_force(0),
-	min_speed(0),
-	pulse_per_sec(0),
-	mode(MODE_ON),
-	_pulse_per_sec_set(false)
+    regulation_force(0),
+    min_speed(0),
+    pulse_per_sec(0),
+    attr_is_on(true),
+    attr_no_dashboard(false),
+    attr_no_toggle(false)
 {}
 
 Command2::Command2():
@@ -184,11 +185,13 @@ Tie::Tie():
 {}
 
 TractionControl::TractionControl():
-	regulation_force(0),
-	wheel_slip(0),
-	fade_speed(0),
-	pulse_per_sec(0),
-	mode(0)
+    regulation_force(0),
+    wheel_slip(0),
+    fade_speed(0),
+    pulse_per_sec(0),
+    attr_is_on(false),
+    attr_no_dashboard(false),
+    attr_no_toggle(false)
 {}
 
 Trigger::Trigger():
