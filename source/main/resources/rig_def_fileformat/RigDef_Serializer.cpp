@@ -728,13 +728,13 @@ void Serializer::ProcessPropsAndAnimations(File::Module* module)
 				<< ", " << def.special_prop_beacon.color.g
 				<< ", " << def.special_prop_beacon.color.b;
 		}
-		else if (def.special == Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED || def.special == Prop::SPECIAL_STEERING_WHEEL_RIGHT_HANDED)
+		else if (def.special == Prop::SPECIAL_DASHBOARD_LEFT || def.special == Prop::SPECIAL_DASHBOARD_RIGHT)
 		{
-			m_stream << " " << def.special_prop_steering_wheel.mesh_name
-				<< " " << def.special_prop_steering_wheel.offset.x
-				<< ", " << def.special_prop_steering_wheel.offset.y
-				<< ", " << def.special_prop_steering_wheel.offset.z
-				<< ", " << def.special_prop_steering_wheel.rotation_angle;
+			m_stream << " " << def.special_prop_dashboard.mesh_name
+				<< " " << def.special_prop_dashboard.offset.x
+				<< ", " << def.special_prop_dashboard.offset.y
+				<< ", " << def.special_prop_dashboard.offset.z
+				<< ", " << def.special_prop_dashboard.rotation_angle;
 		}
 
 		// Animations

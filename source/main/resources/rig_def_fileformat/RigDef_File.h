@@ -1508,10 +1508,10 @@ struct Pistonprop
 
 struct Prop
 {
-	struct SteeringWheelSpecial
+	struct DashboardSpecial
 	{
-		SteeringWheelSpecial():
-			offset(Ogre::Vector3::ZERO), /* This is default */
+		DashboardSpecial():
+			offset(Ogre::Vector3::ZERO), // Default depends on right/left-hand dashboard placement
 			rotation_angle(160.f),
 			_offset_is_set(false),
 			mesh_name("dirwheel.mesh")
@@ -1526,7 +1526,7 @@ struct Prop
 	struct BeaconSpecial
 	{
 		BeaconSpecial():
-			color(1.0, 0.5, 0.0),
+			color(0.0, 0.5, 0.0),
 			flare_material_name("tracks/beaconflare")
 		{}
 
@@ -1543,10 +1543,10 @@ struct Prop
 	/* IMPORTANT! Values must match results from Regexes::SPECIAL_PROPS */
 	enum Special
 	{
-		SPECIAL_LEFT_REAR_VIEW_MIRROR = 1,
-		SPECIAL_RIGHT_REAR_VIEW_MIRROR,
-		SPECIAL_STEERING_WHEEL_LEFT_HANDED,
-		SPECIAL_STEERING_WHEEL_RIGHT_HANDED,
+		SPECIAL_MIRROR_LEFT = 1,
+		SPECIAL_MIRROR_RIGHT,
+		SPECIAL_DASHBOARD_LEFT,
+		SPECIAL_DASHBOARD_RIGHT,
 		SPECIAL_SPINPROP,
 		SPECIAL_PALE,
 		SPECIAL_DRIVER_SEAT,
@@ -1568,7 +1568,7 @@ struct Prop
 	CameraSettings camera_settings;
 	Special special;
 	BeaconSpecial special_prop_beacon;
-	SteeringWheelSpecial special_prop_steering_wheel;
+	DashboardSpecial special_prop_dashboard;
 };
 
 /* -------------------------------------------------------------------------- */

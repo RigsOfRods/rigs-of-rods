@@ -1000,7 +1000,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_PROPS):
-            ParseProps(line);
+            ParseProps();
             line_finished = true;
             break;
 
@@ -1156,7 +1156,6 @@ void Parser::Parse()
 
 void Parser::ParseWing(Ogre::String const & line)
 {
-    
     std::smatch results;
     try
     {
@@ -4178,95 +4177,52 @@ void Parser::ParseRailGroups(Ogre::String const & line)
     m_current_module->railgroups.push_back(railgroup);
 }
 
-void Parser::ParseProps(Ogre::String const & line)
+void Parser::ParseProps()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_PROPS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(10)) { return; }
 
     Prop prop;
-    prop.reference_node = _ParseNodeRef(results[1]);
-    prop.x_axis_node = _ParseNodeRef(results[3]);
-    prop.y_axis_node = _ParseNodeRef(results[5]);
+    prop.reference_node = this->GetArgNodeRef(0);
+    prop.x_axis_node    = this->GetArgNodeRef(1);
+    prop.y_axis_node    = this->GetArgNodeRef(2);
+    prop.offset.x       = this->GetArgFloat  (3);
+    prop.offset.y       = this->GetArgFloat  (4);
+    prop.offset.z       = this->GetArgFloat  (5);
+    prop.rotation.x     = this->GetArgFloat  (6);
+    prop.rotation.y     = this->GetArgFloat  (7);
+    prop.rotation.z     = this->GetArgFloat  (8);
+    prop.mesh_name      = this->GetArgStr    (9);
 
-    prop.offset.x = STR_PARSE_REAL(results[7]);
-    prop.offset.y = STR_PARSE_REAL(results[9]);
-    prop.offset.z = STR_PARSE_REAL(results[11]);
+    bool is_dash = false;
+         if (prop.mesh_name.find("leftmirror"  ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_LEFT; }
+    else if (prop.mesh_name.find("rightmirror" ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_RIGHT; }
+    else if (prop.mesh_name.find("dashboard-rh") != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_RIGHT; is_dash = true; }
+    else if (prop.mesh_name.find("dashboard"   ) != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_LEFT;  is_dash = true; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "spinprop", false) ) { prop.special = Prop::SPECIAL_SPINPROP; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "pale", false)     ) { prop.special = Prop::SPECIAL_PALE; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "seat", false)     ) { prop.special = Prop::SPECIAL_DRIVER_SEAT; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "seat2", false)    ) { prop.special = Prop::SPECIAL_DRIVER_SEAT_2; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "beacon", false)   ) { prop.special = Prop::SPECIAL_BEACON; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "redbeacon", false)) { prop.special = Prop::SPECIAL_REDBEACON; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "lightb", false)   ) { prop.special = Prop::SPECIAL_LIGHTBAR; } // Previously: 'strncmp("lightbar", meshname, 6)'
 
-    prop.rotation.x = STR_PARSE_REAL(results[13]);
-    prop.rotation.y = STR_PARSE_REAL(results[15]);
-    prop.rotation.z = STR_PARSE_REAL(results[17]);
-
-    prop.mesh_name = results[19];
-
-    // Special props 
-    std::smatch special_results;
-    if (std::regex_search(prop.mesh_name, special_results, Regexes::SPECIAL_PROPS))
+    if ((prop.special == Prop::SPECIAL_BEACON) && (m_num_args >= 14))
     {
-        for (int i = 1; i <= 11; i++)
+        prop.special_prop_beacon.flare_material_name = this->GetArgStr(10);
+        Ogre::StringUtil::trim(prop.special_prop_beacon.flare_material_name);
+
+        prop.special_prop_beacon.color = Ogre::ColourValue(
+            this->GetArgFloat(11), this->GetArgFloat(12), this->GetArgFloat(13));
+    }
+    else if (is_dash)
+    {
+        if (m_num_args > 10) prop.special_prop_dashboard.mesh_name = this->GetArgStr(10);
+        if (m_num_args > 13)
         {
-            if (special_results[i].matched)
-            {
-                if (i == 3 || i == 4) // Custom steering wheel 
-                {
-                    prop.special = Prop::Special(i);
-
-                    std::string special_params = results[21];
-                    std::smatch dashboard_results;
-                    if (std::regex_search(special_params, dashboard_results, Regexes::SPECIAL_PROP_DASHBOARD))
-                    {
-                        if ( dashboard_results[4].matched )
-                        {
-                            prop.special_prop_steering_wheel.offset.x = STR_PARSE_REAL(dashboard_results[4]);
-
-                            if ( dashboard_results[7].matched )
-                            {
-                                prop.special_prop_steering_wheel.offset.y = STR_PARSE_REAL(dashboard_results[7]);
-
-                                if ( dashboard_results[10].matched )
-                                {
-                                    prop.special_prop_steering_wheel.offset.z = STR_PARSE_REAL(dashboard_results[10]);
-                                    prop.special_prop_steering_wheel._offset_is_set = true;
-                                    prop.special_prop_steering_wheel.mesh_name = dashboard_results[1];
-
-                                    if ( dashboard_results[13].matched )
-                                    {
-                                        prop.special_prop_steering_wheel.rotation_angle = STR_PARSE_REAL(dashboard_results[13]);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (i == 9) // Beacon 
-                {
-                    prop.special = Prop::Special(i);
-                    std::string special_params = results[21];
-                    std::smatch beacon_results;
-                    if (std::regex_search(special_params, beacon_results, Regexes::SPECIAL_PROP_BEACON))
-                    {
-                        // Flare material name 
-                        prop.special_prop_beacon.flare_material_name = beacon_results[1];
-                        Ogre::StringUtil::trim(prop.special_prop_beacon.flare_material_name);
-                        // Color 
-                        prop.special_prop_beacon.color = Ogre::ColourValue(
-                            STR_PARSE_REAL(beacon_results[3]),
-                            STR_PARSE_REAL(beacon_results[5]),
-                            STR_PARSE_REAL(beacon_results[7])
-                        );
-                    }
-                }
-                else
-                {
-                    prop.special = Prop::Special(i);
-                }
-                break;
-            }
+            prop.special_prop_dashboard.offset = Ogre::Vector3(this->GetArgFloat(11), this->GetArgFloat(12), this->GetArgFloat(13));
+            prop.special_prop_dashboard._offset_is_set = true;
         }
+        if (m_num_args > 14) prop.special_prop_dashboard.rotation_angle = this->GetArgFloat(14);
     }
 
     m_current_module->props.push_back(prop);
