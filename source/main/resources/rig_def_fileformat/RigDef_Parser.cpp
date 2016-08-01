@@ -838,7 +838,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_BRAKES):
-            ParseBrakes(line);
+            ParseBrakes();
             line_finished = true;
             break;
 
@@ -3226,32 +3226,16 @@ void Parser::ParseCameraRails(Ogre::String const & line)
     m_current_camera_rail->nodes.push_back( _ParseNodeRef(results[1]) );
 }
 
-void Parser::ParseBrakes(Ogre::String line)
+void Parser::ParseBrakes()
 {
-    std::smatch results;
-    bool result = std::regex_search(line, results, Regexes::SECTION_BRAKES);
-    if (! result)
+    if (!this->CheckNumArguments(1)) { return; }
+
+    m_current_module->brakes.default_braking_force = this->GetArgFloat(0);
+
+    if (m_num_args > 1)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
+        m_current_module->brakes.parking_brake_force = this->GetArgFloat(1);
     }
-
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    if (m_current_module->brakes == nullptr)
-    {
-        m_current_module->brakes = std::shared_ptr<Brakes>( new Brakes() );
-    }
-
-    m_current_module->brakes->default_braking_force = STR_PARSE_REAL(results[1]);
-
-    if (results[3].matched)
-    {
-        m_current_module->brakes->parking_brake_force = STR_PARSE_REAL(results[3]); 
-        m_current_module->brakes->_parking_brake_force_set = true;
-    }
-    
-    
 }
 
 void Parser::ParseAxles(Ogre::String const & line)
