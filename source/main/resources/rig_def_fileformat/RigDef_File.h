@@ -656,14 +656,12 @@ struct ExtCamera
 struct Brakes
 {
 	Brakes():
-		default_braking_force(30000),
-		parking_brake_force(0),
-		_parking_brake_force_set(false)
+		default_braking_force(30000), // Default
+		parking_brake_force(-1.f) // Empty value
 	{}
 
 	float default_braking_force;
 	float parking_brake_force;
-	bool _parking_brake_force_set;
 };
 
 /* -------------------------------------------------------------------------- */

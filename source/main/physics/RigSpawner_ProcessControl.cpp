@@ -57,6 +57,28 @@
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
 }
 
+#define PROCESS_MSTRUCT_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)                      \
+{                                                                                          \
+    SetCurrentKeyword(_KEYWORD_);                                                          \
+    auto module_itor = m_selected_modules.begin();                                         \
+    auto module_end  = m_selected_modules.end();                                           \
+    for (; module_itor != module_end; ++module_itor)                                       \
+    {                                                                                      \
+        try {                                                                              \
+            _FUNCTION_(module_itor->get()->_FIELD_);                                       \
+        }                                                                                  \
+        catch (Exception ex)                                                               \
+        {                                                                                  \
+            AddMessage(Message::TYPE_ERROR, ex.what());                                    \
+        }                                                                                  \
+        catch (...)                                                                        \
+        {                                                                                  \
+            AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");           \
+        }                                                                                  \
+    }                                                                                      \
+    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
+}
+
 #define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _FIELD_, _FUNCTION_)                     \
 {                                                                                          \
     SetCurrentKeyword(_KEYWORD_);                                                          \

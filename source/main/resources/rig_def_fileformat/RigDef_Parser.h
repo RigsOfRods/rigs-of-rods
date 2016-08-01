@@ -175,7 +175,7 @@ protected:
 
     void ParseBeams(Ogre::String const & line);
 
-    void ParseBrakes(Ogre::String line);
+    void ParseBrakes();
 
     void ParseCameras();
 
