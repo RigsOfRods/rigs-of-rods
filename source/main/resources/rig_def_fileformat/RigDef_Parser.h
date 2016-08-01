@@ -249,7 +249,7 @@ protected:
 
     void ParsePistonprops(Ogre::String const & line);
 
-    void ParseProps(Ogre::String const & line);
+    void ParseProps();
 
     void ParseRailGroups(Ogre::String const & line);
 
