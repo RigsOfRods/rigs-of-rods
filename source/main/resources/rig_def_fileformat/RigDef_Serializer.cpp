@@ -1473,12 +1473,9 @@ void Serializer::ProcessTractionControl(File::Module* module)
 
 void Serializer::ProcessBrakes(File::Module* module)
 {
-	if (module->brakes)
-	{
-		m_stream << "brakes\n\t" 
-			<< module->brakes->default_braking_force << ", "
-			<< module->brakes->parking_brake_force;
-	}
+	m_stream << "brakes\n\t" 
+		<< module->brakes.default_braking_force << ", "
+		<< module->brakes.parking_brake_force;
 }
 
 void Serializer::ProcessAntiLockBrakes(File::Module* module)
