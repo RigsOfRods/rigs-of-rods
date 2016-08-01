@@ -943,7 +943,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_HOOKS):
-            ParseHook(line);
+            ParseHook(); 
             line_finished = true;
             break;
 
@@ -1807,85 +1807,40 @@ void Parser::ParseMeshWheelUnified()
     m_current_module->mesh_wheels.push_back(mesh_wheel);
 }
 
-void Parser::ParseHook(Ogre::String const & line)
+void Parser::ParseHook()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_HOOKS))
-    {
-        this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
+    if (! this->CheckNumArguments(1)) { return; }
 
     Hook hook;
-    hook.node = this->_ParseNodeRef(results[1]);
+    hook.node = this->GetArgNodeRef(0);
 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
-    Ogre::StringVector::iterator iter = tokens.begin();
-    for ( ; iter != tokens.end(); iter++)
+    int i = 1;
+    while (i < m_num_args)
     {
-        std::smatch results;
-        Ogre::String entry = *iter;
-        Ogre::StringUtil::trim(entry);
-        if (! std::regex_search(entry, results, Regexes::HOOKS_OPTIONS))
-        {
-            this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
-            return;
-        }
+        std::string attr = this->GetArgStr(i);
+        Ogre::StringUtil::trim(attr);
+        const bool has_value = (i < (m_num_args - 1));
 
-        if (! results[1].matched) 
+        // Values
+             if (has_value && (attr == "hookrange")                          ) { hook.option_hook_range       = this->GetArgFloat(++i); }
+        else if (has_value && (attr == "speedcoef")                          ) { hook.option_speed_coef       = this->GetArgFloat(++i); }
+        else if (has_value && (attr == "maxforce")                           ) { hook.option_max_force        = this->GetArgFloat(++i); }
+        else if (has_value && (attr == "timer")                              ) { hook.option_timer            = this->GetArgFloat(++i); }
+        else if (has_value && (attr == "hookgroup"  || attr == "hgroup")     ) { hook.option_hookgroup        = this->GetArgInt  (++i); }
+        else if (has_value && (attr == "lockgroup"  || attr == "lgroup")     ) { hook.option_lockgroup        = this->GetArgInt  (++i); }
+        else if (has_value && (attr == "shortlimit" || attr == "short_limit")) { hook.option_min_range_meters = this->GetArgFloat(++i); }
+        // Flags
+        else if ((attr == "selflock") ||(attr == "self-lock") ||(attr == "self_lock") ) { BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);  }
+        else if ((attr == "autolock") ||(attr == "auto-lock") ||(attr == "auto_lock") ) { BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);  }
+        else if ((attr == "nodisable")||(attr == "no-disable")||(attr == "no_disable")) { BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE); }
+        else if ((attr == "norope")   ||(attr == "no-rope")   ||(attr == "no_rope")   ) { BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);    }
+        else if ((attr == "visible")  ||(attr == "vis")                               ) { BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);    }
+        else
         {
-            this->AddMessage(*iter, Message::TYPE_ERROR, "Invalid option of 'hooks', ignoring...");
-            return;
+            std::string msg = "Ignoring invalid option: " + attr;
+            this->AddMessage(Message::TYPE_ERROR, msg.c_str());
         }
-        else if (results[2].matched) 
-        {
-            BITMASK_SET_1(hook.flags, Hook::FLAG_SELF_LOCK);
-        }
-        else if (results[3].matched) 
-        {
-            BITMASK_SET_1(hook.flags, Hook::FLAG_AUTO_LOCK);
-        }
-        else if (results[4].matched) 
-        {
-            BITMASK_SET_1(hook.flags, Hook::FLAG_NO_DISABLE);
-        }
-        else if (results[5].matched) 
-        {
-            BITMASK_SET_1(hook.flags, Hook::FLAG_NO_ROPE);
-        }
-        else if (results[6].matched) 
-        {
-            BITMASK_SET_1(hook.flags, Hook::FLAG_VISIBLE);
-        }
-        else if (results[9].matched) 
-        {
-            hook.option_hook_range = STR_PARSE_REAL(results[9]);
-        }
-        else if (results[12].matched) 
-        {
-            hook.option_max_force = STR_PARSE_REAL(results[12]);
-        }
-        else if (results[15].matched) 
-        {
-            hook.option_hookgroup = STR_PARSE_INT(results[15]);
-        }
-        else if (results[18].matched) 
-        {
-            hook.option_lockgroup = STR_PARSE_INT(results[18]);
-        }
-        else if (results[21].matched) 
-        {
-            hook.option_timer = STR_PARSE_REAL(results[21]);
-        }
-        else if (results[24].matched) 
-        {
-            hook.option_minimum_range_meters = STR_PARSE_REAL(results[24]);
-        }
-        else if (results[27].matched) 
-        {
-            hook.option_speed_coef = STR_PARSE_REAL(results[27]);
-        }
+        i++;
     }
 
     m_current_module->hooks.push_back(hook);

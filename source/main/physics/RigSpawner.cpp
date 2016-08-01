@@ -3270,7 +3270,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	hook->lockgroup = def.option_lockgroup;
 	hook->timer     = 0.f; // Hardcoded in BTS_HOOKS
 	hook->timer_preset = def.option_timer;
-	hook->beam->commandShort = def.option_minimum_range_meters;
+	hook->beam->commandShort = def.option_min_range_meters;
 	hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
 	hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
 	hook->is_hook_visible = false;
