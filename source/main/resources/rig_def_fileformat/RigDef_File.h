@@ -988,7 +988,7 @@ struct Hook
 	int option_hookgroup;
 	int option_lockgroup;
 	float option_timer;
-	float option_minimum_range_meters;
+	float option_min_range_meters;
 };
 
 /* -------------------------------------------------------------------------- */
