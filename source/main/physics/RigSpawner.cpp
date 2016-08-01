@@ -5739,17 +5739,14 @@ void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 
 void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 {
-	SPAWNER_PROFILE_SCOPED();
+    SPAWNER_PROFILE_SCOPED();
 
     m_rig->brakeforce = def.default_braking_force;
-	if (def._parking_brake_force_set)
-	{
-		m_rig->hbrakeforce = def.parking_brake_force;
-	}
-	else
-	{
-		m_rig->hbrakeforce = 2.f * m_rig->brakeforce;
-	}
+    m_rig->hbrakeforce = 2.f * m_rig->brakeforce;
+    if (def.parking_brake_force != -1.f)
+    {
+        m_rig->hbrakeforce = def.parking_brake_force;
+    }
 };
 
 void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
