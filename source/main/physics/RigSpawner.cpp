@@ -1932,38 +1932,38 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	/* SPECIAL PROPS */
 
 	/* Rear view mirror (left) */
-	if (def.special == RigDef::Prop::SPECIAL_LEFT_REAR_VIEW_MIRROR)
+	if (def.special == RigDef::Prop::SPECIAL_MIRROR_LEFT)
 	{
 		prop.mirror = 1;
 	}
 
 	/* Rear view mirror (right) */
-	if (def.special == RigDef::Prop::SPECIAL_RIGHT_REAR_VIEW_MIRROR)
+	if (def.special == RigDef::Prop::SPECIAL_MIRROR_RIGHT)
 	{
 		prop.mirror = -1;
 	}
 
 	/* Custom steering wheel */
 	Ogre::Vector3 steering_wheel_offset = Ogre::Vector3::ZERO;
-	if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED)
+	if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_LEFT)
 	{
 		steering_wheel_offset = Ogre::Vector3(-0.67, -0.61,0.24);
 	}
-	if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_RIGHT_HANDED)
+	if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_RIGHT)
 	{
 		steering_wheel_offset = Ogre::Vector3(0.67, -0.61,0.24);
 	}
 	if (steering_wheel_offset != Ogre::Vector3::ZERO)
 	{
-		if (def.special_prop_steering_wheel._offset_is_set)
+		if (def.special_prop_dashboard._offset_is_set)
 		{
-			steering_wheel_offset = def.special_prop_steering_wheel.offset;
+			steering_wheel_offset = def.special_prop_dashboard.offset;
 		}
-		prop.wheelrotdegree = def.special_prop_steering_wheel.rotation_angle;
+		prop.wheelrotdegree = def.special_prop_dashboard.rotation_angle;
 		prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 		prop.wheelpos = steering_wheel_offset;
 		prop.wheelmo = new MeshObject(
-			def.special_prop_steering_wheel.mesh_name,
+			def.special_prop_dashboard.mesh_name,
 			"",
 			prop.wheel,
 			m_rig->usedSkin,
