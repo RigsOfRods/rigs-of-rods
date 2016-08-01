@@ -1156,7 +1156,7 @@ void Serializer::ProcessHooks(File::Module* module)
 			<< ", hookgroup: " << def.option_hookgroup
 			<< ", lockgroup: " << def.option_lockgroup
 			<< ", timer: "     << def.option_timer
-			<< ", shortlimit: "<< def.option_minimum_range_meters;
+			<< ", shortlimit: "<< def.option_min_range_meters;
 	}
 	m_stream << endl << endl; // Empty line
 }

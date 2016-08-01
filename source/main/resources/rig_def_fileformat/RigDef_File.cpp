@@ -121,7 +121,7 @@ Hook::Hook():
 	option_hookgroup(-1),
 	option_lockgroup(-1),
 	option_timer(5.f),
-	option_minimum_range_meters(0.f)
+	option_min_range_meters(0.f)
 {}
 
 NodeDefaults::NodeDefaults():
