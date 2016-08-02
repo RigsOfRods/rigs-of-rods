@@ -187,17 +187,13 @@ struct Inertia
 {
 	Inertia():
 		start_delay_factor(0),
-		stop_delay_factor(0),
-		_start_delay_factor_set(false),
-		_stop_delay_factor_set(false)
+		stop_delay_factor(0)
 	{}
 
 	float start_delay_factor;
 	float stop_delay_factor;
 	Ogre::String start_function;
 	Ogre::String stop_function;
-	bool _start_delay_factor_set;
-	bool _stop_delay_factor_set;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -1198,13 +1194,6 @@ struct Command2
 {
 	Command2();
 
-	BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE        , HasOption_i_Invisible,       SetOption_i_Invisible      )
-	BITMASK_PROPERTY(options, 2, OPTION_r_ROPE             , HasOption_r_Rope,            SetOption_r_Rope           )
-	BITMASK_PROPERTY(options, 3, OPTION_c_AUTO_CENTER      , HasOption_c_AutoCenter,      SetOption_c_AutoCenter     )
-	BITMASK_PROPERTY(options, 4, OPTION_f_NOT_FASTER       , HasOption_f_NotFaster,       SetOption_f_NotFaster      )
-	BITMASK_PROPERTY(options, 5, OPTION_p_PRESS_ONCE       , HasOption_p_PressOnce,       SetOption_p_PressOnce      )
-	BITMASK_PROPERTY(options, 6, OPTION_o_PRESS_ONCE_CENTER, HasOption_o_PressOnceCenter, SetOption_o_PressOnceCenter)
-
 	unsigned int _format_version;
 	Node::Ref nodes[2];
 	float shorten_rate;
@@ -1213,7 +1202,6 @@ struct Command2
 	float max_extension;
 	unsigned int contract_key;
 	unsigned int extend_key;
-	unsigned int options;
 	Ogre::String description;
 	Inertia inertia;
 	float affect_engine;
@@ -1222,10 +1210,12 @@ struct Command2
 	std::shared_ptr<Inertia> inertia_defaults;
 	int detacher_group;
 
-	inline bool HasOption(unsigned int option) const
-	{
-		return BITMASK_IS_1(options, option);
-	}
+    bool option_i_invisible;
+    bool option_r_rope;
+    bool option_c_auto_center;
+    bool option_f_not_faster;
+    bool option_p_1press;
+    bool option_o_1press_center;
 };
 
 /* -------------------------------------------------------------------------- */
