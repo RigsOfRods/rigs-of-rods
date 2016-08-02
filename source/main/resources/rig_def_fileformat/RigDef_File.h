@@ -1712,7 +1712,13 @@ struct SoundSource2: SoundSource
 
 struct SpeedLimiter
 {
-	float max_speed;
+    SpeedLimiter():
+        max_speed(0.f),
+        is_enabled(false)
+    {}
+
+    float max_speed;
+    bool is_enabled;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2008,7 +2014,7 @@ struct File
 		std::shared_ptr<SlopeBrake>        slope_brake;
 		std::vector<SoundSource>           soundsources;
 		std::vector<SoundSource2>          soundsources2;
-		std::shared_ptr<SpeedLimiter>      speed_limiter;
+		SpeedLimiter                       speed_limiter;
 		Ogre::String                       submeshes_ground_model_name;
 		std::vector<Submesh>               submeshes;
 		std::vector<Tie>                   ties;

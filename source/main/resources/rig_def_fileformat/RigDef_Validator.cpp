@@ -236,7 +236,7 @@ bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, R
 			return ! module->nodes.empty();
 
 		case (File::KEYWORD_SPEEDLIMITER):
-			return (module->speed_limiter != nullptr);
+			return (module->speed_limiter.is_enabled);
 
 		case (File::KEYWORD_TORQUECURVE):
 			return (module->torque_curve != nullptr);
