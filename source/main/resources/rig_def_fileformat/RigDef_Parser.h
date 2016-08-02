@@ -263,7 +263,7 @@ protected:
 
     void ParseScrewprops(Ogre::String const & line);
 
-    void ParseSetCollisionRange(Ogre::String const & line);
+    void ParseSetCollisionRange();
 
     void ParseSetSkeletonSettings(Ogre::String const & line);
 

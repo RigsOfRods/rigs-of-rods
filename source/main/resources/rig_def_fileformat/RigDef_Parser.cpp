@@ -576,7 +576,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_COLLISION_RANGE):
-                ParseSetCollisionRange(line);
+                ParseSetCollisionRange();
                 line_finished = true;
                 break;
 
@@ -1174,20 +1174,14 @@ void Parser::ParseWing()
     m_current_module->wings.push_back(wing);
 }
 
-void Parser::ParseSetCollisionRange(Ogre::String const & line)
+void Parser::ParseSetCollisionRange()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SET_COLLISION_RANGE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (!this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    if (results[1].matched)
+    float value = this->GetArgFloat(1);
+    if (value >= 0)
     {
-        m_definition->collision_range = STR_PARSE_REAL(results[1]);
-        m_definition->_collision_range_set = true;
+        m_definition->collision_range = value;
     }
 }
 
