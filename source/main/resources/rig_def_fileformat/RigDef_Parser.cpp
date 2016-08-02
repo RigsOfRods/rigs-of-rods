@@ -858,12 +858,8 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_COMMANDS):
-            ParseCommand(line);
-            line_finished = true;
-            break;
-
         case (File::SECTION_COMMANDS_2):
-            ParseCommand2(line);
+            ParseCommandsUnified();
             line_finished = true;
             break;
 
@@ -2851,199 +2847,104 @@ void Parser::ParseContacter(Ogre::String const & line)
     m_current_module->contacters.push_back( _ParseNodeRef(results[1]) );
 }
 
-void Parser::ParseCommand(Ogre::String const & line)
+void Parser::ParseCommandsUnified()
 {
-    _ParseSectionsCommandsCommands2(line, Regexes::SECTION_COMMANDS, 1);
-}
-
-void Parser::ParseCommand2(Ogre::String const & line)
-{
-    _ParseSectionsCommandsCommands2(line, Regexes::SECTION_COMMANDS_2, 2);
-}
-
-void Parser::_ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, regex))
+    bool is_commands2 = (m_current_section == File::KEYWORD_COMMANDS2);
+    if (!this->CheckNumArguments(is_commands2 ? 8 : 7))
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
         return;
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
     Command2 command2;
     command2.beam_defaults     = m_user_beam_defaults;
     command2.detacher_group    = m_current_detacher_group;
-    command2._format_version   = format_version;
+    command2._format_version   = (is_commands2) ? 2 : 1;
     command2.inertia_defaults  = m_user_default_inertia;
-    command2.nodes[0]          = _ParseNodeRef(results[1]);
-    command2.nodes[1]          = _ParseNodeRef(results[3]);
 
-    // Shorten/lenghten rate 
-    command2.shorten_rate = STR_PARSE_REAL(results[5]);
-    unsigned int result_index;
-    if (format_version == 2)
+    int pos = 0;
+    command2.nodes[0]          = this->GetArgNodeRef(pos++);
+    command2.nodes[1]          = this->GetArgNodeRef(pos++);
+    command2.shorten_rate      = this->GetArgFloat  (pos++);
+
+    if (is_commands2)
     {
-        command2.lengthen_rate = STR_PARSE_REAL(results[7]);
-        result_index = 9;
+        command2.lengthen_rate = this->GetArgFloat(pos++);
     }
     else
     {
         command2.lengthen_rate = command2.shorten_rate;
-        result_index = 7;
     }
-    
-    command2.max_contraction = STR_PARSE_REAL(results[result_index]);
-    result_index +=2;
-    command2.max_extension   = STR_PARSE_REAL(results[result_index]);
-    result_index +=2;
-    command2.contract_key    = STR_PARSE_INT(results[result_index]);
-    result_index +=2;
-    command2.extend_key      = STR_PARSE_INT(results[result_index]);
 
-    // Options 
-    result_index += 4;
-    if (results[result_index].matched)
+    command2.max_contraction = this->GetArgFloat(pos++);
+    command2.max_extension   = this->GetArgFloat(pos++);
+    command2.contract_key    = this->GetArgInt  (pos++);
+    command2.extend_key      = this->GetArgInt  (pos++);
+
+    if (m_num_args <= (is_commands2 ? 8 : 7)) // No more args?
     {
-        std::string options_str = results[result_index].str();
-        bool centering = false;
-        bool one_press_mode = false;
-        for (unsigned int i = 0; i < options_str.length(); i++)
+        m_current_module->commands_2.push_back(command2);
+        return;
+    }
+
+    // Parse options
+    char warn_msg[200] = "";
+    std::string options_str = this->GetArgStr(pos++);
+    char winner = 0;
+    for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
+    {
+        const char c = *itor;
+        if ((winner == 0) && (c == 'o' || c == 'p' || c == 'c')) { winner = c; }
+        
+             if (c == 'n') {} // Filler, does nothing
+        else if (c == 'i') { command2.option_i_invisible     = true; }
+        else if (c == 'r') { command2.option_r_rope          = true; }
+        else if (c == 'f') { command2.option_f_not_faster    = true; }
+        else if (c == 'c') { command2.option_c_auto_center   = true; }
+        else if (c == 'p') { command2.option_p_1press        = true; }
+        else if (c == 'o') { command2.option_o_1press_center = true; }
+        else
         {
-            const char c = options_str.at(i);
-            switch(c)
-            {
-                case 'n': // Filler 
-                    break;
-
-                case 'i':
-                    command2.options |= Command2::OPTION_i_INVISIBLE;
-                    break;
-
-                case 'r':
-                    command2.options |= Command2::OPTION_r_ROPE;
-                    break;
-
-                case 'c':
-                    if (! one_press_mode)
-                    {
-                        command2.options |= Command2::OPTION_c_AUTO_CENTER;
-                        centering = true;
-                    }
-                    else
-                    {
-                        AddMessage(line, Message::TYPE_WARNING, "Command cannot be one-pressed and self centering at the same time, ignoring flag 'c'");
-                    }
-                    break;
-
-                case 'f':
-                    command2.options |= Command2::OPTION_f_NOT_FASTER;
-                    break;
-
-                case 'p':
-                    if (centering)
-                    {
-                        AddMessage(line, Message::TYPE_WARNING, "Command cannot be one-pressed and self centering at the same time, ignoring flag 'p'");
-                    }
-                    else if (one_press_mode)
-                    {
-                        AddMessage(line, Message::TYPE_WARNING, "Command already has a one-pressed c.mode, ignoring flag 'p'");
-                    }
-                    else
-                    {
-                        command2.options |= Command2::OPTION_p_PRESS_ONCE;
-                        one_press_mode = true;
-                    }
-                    break;
-
-                case 'o':
-                    if (centering)
-                    {
-                        AddMessage(line, Message::TYPE_WARNING, "Command cannot be one-pressed and self centering at the same time, ignoring flag 'o'");
-                    }
-                    else if (one_press_mode)
-                    {
-                        AddMessage(line, Message::TYPE_WARNING, "Command already has a one-pressed c.mode, ignoring flag 'o'");
-                    }
-                    else
-                    {
-                        command2.options |= Command2::OPTION_o_PRESS_ONCE_CENTER;
-                        one_press_mode = true;
-                    }
-                    break;
-                
-                default:
-                    this->AddMessage(options_str, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + c);
-                    break;
-            }
-        }
-
-        result_index += 4;
-        if (results[result_index].matched)
-        {
-            command2.description = results[result_index];
-
-            if (format_version == 1)
-            {
-                result_index += 6;
-                if (_ParseOptionalInertia(command2.inertia, results, result_index))
-                {
-                    result_index += 12;
-            
-                    if (results[result_index].matched)
-                    {
-                        command2.affect_engine = STR_PARSE_REAL(results[result_index]);
-
-                        result_index += 3;
-                        if (results[result_index].matched)
-                        {
-                            command2.needs_engine = STR_PARSE_BOOL(results[result_index]);
-                        }
-                    }
-                }
-            }
-            else if (format_version == 2)
-            {
-                result_index += 3;
-                if (results[result_index].matched)
-                {
-                    std::string rest_of_line = results[result_index];
-                    std::smatch rest_of_results;
-                    result_index = 0;
-                    if (std::regex_search(rest_of_line, rest_of_results, Regexes::SECTION_COMMANDS2_INERTIA_ENGINE_PART))
-                    {
-                        if (_ParseOptionalInertia(command2.inertia, rest_of_results, 2))
-                        {
-                            result_index += 12;
-            
-                            if (rest_of_results[result_index].matched)
-                            {
-                                command2.affect_engine = STR_PARSE_REAL(rest_of_results[result_index]);
-
-                                result_index += 3;
-                                if (rest_of_results[result_index].matched)
-                                {
-                                    command2.needs_engine = STR_PARSE_BOOL(rest_of_results[result_index]);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Ogre::StringUtil::trim(rest_of_line);
-                        if (! rest_of_line.empty()) // Could happen with invalid trailing delimiter and I don't want to look like an idiot
-                        {
-                            std::stringstream msg;
-                            msg << "Please remove: Invalid string after parameter \"description\": \"" << rest_of_line << "\""; 
-                            AddMessage(line, Message::TYPE_WARNING, msg.str());
-                        }
-                    }
-                }
-            }
+            sprintf_s(warn_msg, "Ignoring unknown flag '%c'", c);
+            this->AddMessage(Message::TYPE_WARNING, warn_msg);
         }
     }
 
-    m_current_module->commands_2.push_back(command2);
+    // Resolve option conflicts
+    if (command2.option_c_auto_center && winner != 'c' && winner != 0)
+    {
+        AddMessage(Message::TYPE_WARNING, "Command cannot be one-pressed and self centering at the same time, ignoring flag 'c'");
+        command2.option_c_auto_center = false;
+    }
+    char ignored = '\0';
+    if (command2.option_o_1press_center && winner != 'o' && winner != 0)
+    {
+        command2.option_o_1press_center = false;
+        ignored = 'o';
+    }
+    else if (command2.option_p_1press && winner != 'p' && winner != 0)
+    {
+        command2.option_p_1press = false;
+        ignored = 'p';
+    }
+
+    // Report conflicts
+    if (ignored != 0 && winner == 'c')
+    {
+        sprintf_s(warn_msg, "Command cannot be one-pressed and self centering at the same time, ignoring flag '%c'", ignored);
+        AddMessage(Message::TYPE_WARNING, warn_msg);
+    }
+    else if (ignored != 0 && (winner == 'o' || winner == 'p'))
+    {
+        sprintf_s(warn_msg, "Command already has a one-pressed c.mode, ignoring flag '%c'", ignored);
+        AddMessage(Message::TYPE_WARNING, warn_msg);
+    }
+
+    if (m_num_args > pos) { command2.description   = this->GetArgStr  (pos++);}
+
+    if (m_num_args > pos) { ParseOptionalInertia(command2.inertia, pos); pos += 4; }
+
+    if (m_num_args > pos) { command2.affect_engine = this->GetArgFloat(pos++);}
+    if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
 }
 
 void Parser::ParseCollisionBox(Ogre::String const & line)
@@ -3829,9 +3730,7 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
 
         // Update
         m_user_default_inertia->start_delay_factor = start_delay;
-        m_user_default_inertia->_start_delay_factor_set = true;
         m_user_default_inertia->stop_delay_factor = stop_delay;
-        m_user_default_inertia->_stop_delay_factor_set = true;
 
         if (results[7].matched)
         {
@@ -4538,6 +4437,14 @@ void Parser::ParseHydros(Ogre::String const & line)
     m_current_module->hydros.push_back(hydro);
 }
 
+void Parser::ParseOptionalInertia(Inertia & inertia, int index)
+{
+    if (m_num_args > index) { inertia.start_delay_factor = this->GetArgFloat(index++); }
+    if (m_num_args > index) { inertia.stop_delay_factor  = this->GetArgFloat(index++); }
+    if (m_num_args > index) { inertia.start_function     = this->GetArgStr  (index++); }
+    if (m_num_args > index) { inertia.stop_function      = this->GetArgStr  (index++); }
+}
+
 bool Parser::_ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index)
 {
     unsigned int result_index = start_index;
@@ -4546,14 +4453,12 @@ bool Parser::_ParseOptionalInertia(Inertia & inertia, std::smatch & results, uns
     {
         Ogre::String start_delay_str = results[result_index];
         inertia.start_delay_factor = STR_PARSE_REAL(start_delay_str);
-        inertia._start_delay_factor_set = true;
 
         result_index += 3;
         if (results[result_index].matched)
         {
             Ogre::String stop_delay_str = results[result_index];
             inertia.stop_delay_factor = STR_PARSE_REAL(stop_delay_str);
-            inertia._stop_delay_factor_set = true;
 
             result_index +=3;
             if (results[result_index].matched)
@@ -5154,6 +5059,11 @@ int Parser::ParseArgInt(const char* str)
         return 0.f; // Compatibility
     }
     return static_cast<int>(res);
+}
+
+bool Parser::GetArgBool(int index)
+{
+    return Ogre::StringConverter::parseBool(this->GetArgStr(index));
 }
 
 Wing::Control Parser::GetArgWingSurface(int index)

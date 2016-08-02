@@ -185,9 +185,7 @@ protected:
 
     void ParseCollisionBox(Ogre::String const & line);
 
-    void ParseCommand(Ogre::String const & line);
-
-    void ParseCommand2(Ogre::String const & line);
+    void ParseCommandsUnified();
 
     void ParseContacter(Ogre::String const & line);
 
@@ -320,6 +318,7 @@ protected:
     long               GetArgLong         (int index);
     float              GetArgFloat        (int index);
     char               GetArgChar         (int index);
+    bool               GetArgBool         (int index);
     Wheels::Propulsion GetArgPropulsion   (int index);
     Wheels::Braking    GetArgBraking      (int index);
     Node::Ref          GetArgNodeRef      (int index);
@@ -356,9 +355,6 @@ protected:
 
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
-    /// Commands and Commands2 are unified with this parser.
-    void _ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version);
-
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
 
     void _ParseDirectiveAddAnimationMode(Animation & animation, Ogre::String mode_string);
@@ -383,7 +379,10 @@ protected:
     }
 
     /// @return True if there could be more results, false if end was hit.
+    /// TO BE REMOVED
     bool _ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index);
+
+    void ParseOptionalInertia(Inertia& inertia, int index);
 
 // --------------------------------------------------------------------------
 
