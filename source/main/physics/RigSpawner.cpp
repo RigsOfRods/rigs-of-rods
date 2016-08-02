@@ -3588,7 +3588,7 @@ void RigSpawner::_ProcessKeyInertia(
 		{
 			stop_function = inertia.stop_function;
 		}
-		if (inertia._start_delay_factor_set && inertia._stop_delay_factor_set)
+		if (inertia.start_delay_factor != 0.f && inertia.stop_delay_factor != 0.f)
 		{
 			key_inertia->setCmdKeyDelay(
 				contract_key,
@@ -3606,7 +3606,7 @@ void RigSpawner::_ProcessKeyInertia(
 				stop_function
 			);
 		}
-		else if (inertia_defaults._start_delay_factor_set || inertia_defaults._stop_delay_factor_set)
+		else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
 		{
 			key_inertia->setCmdKeyDelay(
 				contract_key,
@@ -3652,24 +3652,12 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 	beam.type = BEAM_HYDRO;
 
 	/* Options */
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_i_INVISIBLE)) {
-		beam.type = BEAM_INVISIBLE_HYDRO;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_r_ROPE)) {
-		beam.bounded = ROPE;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_p_PRESS_ONCE)) {
-		beam.isOnePressMode = 1;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_o_PRESS_ONCE_CENTER)) {
-		beam.isOnePressMode = 2;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_f_NOT_FASTER)) {
-		beam.isForceRestricted = true;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_c_AUTO_CENTER)) {
-		beam.isCentering = true;
-	}
+	if (def.option_i_invisible)     { beam.type = BEAM_INVISIBLE_HYDRO; }
+	if (def.option_r_rope)          { beam.bounded = ROPE; }
+	if (def.option_p_1press)        { beam.isOnePressMode = 1; }
+	if (def.option_o_1press_center) { beam.isOnePressMode = 2; }
+	if (def.option_f_not_faster)    { beam.isForceRestricted = true; }
+	if (def.option_c_auto_center)   { beam.isCentering = true; }
 
 	beam.commandRatioShort     = def.shorten_rate;
 	beam.commandRatioLong      = def.lengthen_rate;
