@@ -26,6 +26,7 @@
 */
 
 #include "RigDef_File.h"
+#include "BeamConstants.h"
 
 namespace RigDef
 {
@@ -609,12 +610,11 @@ File::File():
 	rescuer(false),
 	disable_default_sounds(false),
 	slide_nodes_connect_instantly(false),
-	collision_range(0),
-	_collision_range_set(false),
+	collision_range(DEFAULT_COLLISION_RANGE),
 	minimum_mass(0.f),
 	_minimum_mass_set(false)
 {
-	authors.reserve(10);	
+	authors.reserve(10);
 	description.reserve(20);
 }
 
