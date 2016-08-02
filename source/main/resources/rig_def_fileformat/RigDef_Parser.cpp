@@ -646,7 +646,7 @@ void Parser::ProcessCurrentLine()
                 break;
 #endif
             case (File::KEYWORD_SPEEDLIMITER):
-                ParseSpeedLimiter(line);
+                ParseSpeedLimiter();
                 line_finished = true;
                 break;
 
@@ -1295,23 +1295,24 @@ void Parser::ParseSubmeshGroundModel()
     m_current_module->submeshes_ground_model_name = this->GetArgStr(1);
 }
 
-void Parser::ParseSpeedLimiter(Ogre::String const & line)
+void Parser::ParseSpeedLimiter()
 {
-    if (m_current_module->speed_limiter != nullptr)
-    {
-        AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
-    }
-    m_current_module->speed_limiter = std::shared_ptr<SpeedLimiter>( new SpeedLimiter() );
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SPEEDLIMITER))
+    SpeedLimiter& sl = m_current_module->speed_limiter;
+    if (sl.is_enabled)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
+        AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
-    m_current_module->speed_limiter->max_speed = STR_PARSE_REAL(results[1]);
+    sl.is_enabled = true;
+    sl.max_speed = this->GetArgFloat(1);
+    if (sl.max_speed <= 0.f)
+    {
+        char msg[200];
+        sprintf_s(msg, "Invalid 'max_speed' (%f), must be > 0.0. Using it anyway (compatibility)", sl.max_speed);
+        this->AddMessage(Message::TYPE_WARNING, msg);
+    }
 }
 
 void Parser::ParseSlopeBrake(Ogre::String const & line)

@@ -279,7 +279,7 @@ protected:
 
     void ParseSoundsources2(Ogre::String const & line);
 
-    void ParseSpeedLimiter(Ogre::String const & line);
+    void ParseSpeedLimiter();
 
     void ParseSubmesh();
 

@@ -2825,14 +2825,8 @@ void RigSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    m_rig->sl_enabled = true;
-	m_rig->sl_speed_limit = def.max_speed;
-	if (def.max_speed <= 0.f)
-	{
-		std::stringstream msg;
-		msg << "Invalid parameter 'max_speed' (" << def.max_speed 
-			<< ") must be positive nonzero number. Using it anyway (compatibility)";
-	}
+    m_rig->sl_enabled     = def.is_enabled;
+    m_rig->sl_speed_limit = def.max_speed;
 }
 
 void RigSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
