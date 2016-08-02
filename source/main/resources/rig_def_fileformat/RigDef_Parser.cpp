@@ -899,12 +899,8 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_FLARES):
-            ParseFlare(line);
-            line_finished = true;
-            break;
-
         case (File::SECTION_FLARES_2):
-            ParseFlare2(line);
+            ParseFlaresUnified();
             line_finished = true;
             break;
 
@@ -2140,105 +2136,31 @@ void Parser::ParseFlexbody()
     }
 }
 
-void Parser::ParseFlare2(Ogre::String const & line)
+void Parser::ParseFlaresUnified()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_FLARES2))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring it...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    const bool is_flares2 = (m_current_section == File::SECTION_FLARES_2);
+    if (! this->CheckNumArguments(is_flares2 ? 6 : 5)) { return; }
 
     Flare2 flare2;
-    flare2.reference_node  = this->_ParseNodeRef(results[ 1]);
-    flare2.node_axis_x     = this->_ParseNodeRef(results[ 3]);
-    flare2.node_axis_y     = this->_ParseNodeRef(results[ 5]);
-    flare2.offset.x             = STR_PARSE_REAL(results[ 7]);
-    flare2.offset.y             = STR_PARSE_REAL(results[ 9]);
-    flare2.offset.z             = STR_PARSE_REAL(results[11]);
+    int pos = 0;
+    flare2.reference_node = this->GetArgNodeRef(pos++);
+    flare2.node_axis_x    = this->GetArgNodeRef(pos++);
+    flare2.node_axis_y    = this->GetArgNodeRef(pos++);
+    flare2.offset.x       = this->GetArgFloat  (pos++);
+    flare2.offset.y       = this->GetArgFloat  (pos++);
 
-    if (results[14].matched)
+    if (m_current_section == File::SECTION_FLARES_2)
     {
-        flare2.type = Flare2::Type(results[14].str().at(0));
-
-        if (results[17].matched)
-        {
-            flare2.control_number = Flare2::Type(STR_PARSE_INT(results[17]));
-
-            if (results[20].matched)
-            {
-                flare2.blink_delay_milis = STR_PARSE_INT(results[20]);
-
-                if (results[23].matched)
-                {
-                    flare2.size = STR_PARSE_REAL(results[23]);
-
-                    if (results[26].matched)
-                    {
-                        flare2.material_name = results[26];
-                    }
-                }
-            }
-        }
+        flare2.offset.z = this->GetArgFloat(pos++);
     }
-    
+
+    if (m_num_args > pos) { flare2.type              = this->GetArgFlareType(pos++); }
+    if (m_num_args > pos) { flare2.control_number    = this->GetArgInt      (pos++); }
+    if (m_num_args > pos) { flare2.blink_delay_milis = this->GetArgInt      (pos++); }
+    if (m_num_args > pos) { flare2.size              = this->GetArgFloat    (pos++); }
+    if (m_num_args > pos) { flare2.material_name     = this->GetArgStr      (pos++); }
+
     m_current_module->flares_2.push_back(flare2);
-}
-
-void Parser::ParseFlare(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_FLARES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
-
-    Flare2 flare;
-    flare.reference_node = _ParseNodeRef(results[1]);
-    flare.node_axis_x    = _ParseNodeRef(results[3]);
-    flare.node_axis_y    = _ParseNodeRef(results[5]);
-
-    flare.offset.x = STR_PARSE_REAL(results[7]);
-    flare.offset.y = STR_PARSE_REAL(results[9]);
-
-    if (results[12].matched)
-    {
-        char in = results[12].str().at(0);
-        if (in != 'f' && in != 'b' && in != 'l' && in != 'r' && in != 'R' && in != 'u')
-        {
-            std::stringstream msg;
-            msg << "Invalid flare type '" << in << "', falling back to type 'f' (front light)...";
-            AddMessage(line, Message::TYPE_WARNING, msg.str());
-
-            in = 'f';
-        }
-        flare.type = Flare2::Type(in);
-
-        if (results[15].matched)
-        {
-            flare.control_number = Flare2::Type(STR_PARSE_INT(results[15]));
-
-            if (results[18].matched)
-            {
-                flare.blink_delay_milis = STR_PARSE_INT(results[18]);
-
-                if (results[21].matched)
-                {
-                    flare.size = STR_PARSE_REAL(results[21]);
-
-                    if (results[24].matched)
-                    {
-                        flare.material_name = results[24];
-                    }
-                }
-            }
-        }
-    }
-    
-    m_current_module->flares_2.push_back(flare);
 }
 
 void Parser::ParseFixes(Ogre::String const & line)
@@ -4998,6 +4920,20 @@ Node::Ref Parser::GetArgNodeRef(int index)
 unsigned Parser::GetArgUint(int index)
 {
     return static_cast<unsigned>(this->GetArgLong(index));
+}
+
+Flare2::Type Parser::GetArgFlareType(int index)
+{
+    char in = this->GetArgChar(index);
+    if (in != 'f' && in != 'b' && in != 'l' && in != 'r' && in != 'R' && in != 'u')
+    {
+        char msg[100];
+        sprintf_s(msg, "Invalid flare type '%c', falling back to type 'f' (front light)...", in);
+        AddMessage(Message::TYPE_WARNING, msg);
+
+        in = 'f';
+    }
+    return Flare2::Type(in);
 }
 
 float Parser::GetArgFloat(int index)
