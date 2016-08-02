@@ -1990,38 +1990,15 @@ void Serializer::ProcessCommand2(Command2 & def)
 	m_stream << std::setw(m_command_key_width) << def.extend_key    << ", ";
 
 	// Options
-	unsigned int options = def.options;
-	if (options == 0)
-	{
-		m_stream << "n"; // Placeholder, does nothing.
-	}
-	else
-	{
-		if (BITMASK_IS_1(options, Command2::OPTION_c_AUTO_CENTER))
-		{
-			m_stream << "c";
-		}
-		if (BITMASK_IS_1(options, Command2::OPTION_f_NOT_FASTER))
-		{
-			m_stream << "f";
-		}
-		if (BITMASK_IS_1(options, Command2::OPTION_i_INVISIBLE))
-		{
-			m_stream << "i";
-		}
-		if (BITMASK_IS_1(options, Command2::OPTION_o_PRESS_ONCE_CENTER))
-		{
-			m_stream << "o";
-		}
-		if (BITMASK_IS_1(options, Command2::OPTION_p_PRESS_ONCE))
-		{
-			m_stream << "p";
-		}
-		if (BITMASK_IS_1(options, Command2::OPTION_r_ROPE))
-		{
-			m_stream << "r";
-		}
-	}
+    bool dummy = true;
+    if (def.option_c_auto_center)   { m_stream << "c"; dummy = false; }
+    if (def.option_f_not_faster)    { m_stream << "f"; dummy = false; }
+    if (def.option_i_invisible)     { m_stream << "i"; dummy = false; }
+    if (def.option_o_1press_center) { m_stream << "o"; dummy = false; }
+    if (def.option_p_1press)        { m_stream << "p"; dummy = false; }
+    if (def.option_r_rope)          { m_stream << "r"; dummy = false; }
+    if (dummy)                      { m_stream << "n"; } // Placeholder, does nothing
+
 	m_stream << ", ";
 
 	// Description
