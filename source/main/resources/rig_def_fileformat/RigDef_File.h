@@ -2248,7 +2248,6 @@ struct File
 	bool disable_default_sounds;
 	Ogre::String name;
 	float collision_range;
-	bool _collision_range_set;
 	float minimum_mass;
 	bool _minimum_mass_set;
 
