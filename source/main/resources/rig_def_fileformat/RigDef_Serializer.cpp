@@ -910,12 +910,12 @@ void Serializer::ProcessCruiseControl(File::Module* module)
 
 void Serializer::ProcessSpeedLimiter(File::Module* module)
 {
-	if (! module->speed_limiter)
+	if (! module->speed_limiter.is_enabled)
 	{
 		return;
 	}
 	m_stream << "speedlimiter " 
-		<< module->speed_limiter->max_speed
+		<< module->speed_limiter.max_speed
 		<< endl << endl;
 }
 
