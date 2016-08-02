@@ -1105,7 +1105,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_WINGS):
-            ParseWing(line);
+            ParseWing();
             line_finished = true;
             break;
 
@@ -1154,68 +1154,21 @@ void Parser::Parse()
 
 #endif
 
-void Parser::ParseWing(Ogre::String const & line)
+void Parser::ParseWing()
 {
-    std::smatch results;
-    try
-    {
-        if (! std::regex_search(line, results, Regexes::SECTION_WINGS))
-        {
-            AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-            return;
-        }
-    }
-    catch(std::runtime_error e)
-    {
-        std::stringstream msg;
-        msg << "Wing not parsed, internal parser failure occured, message: " << e.what();
-        AddMessage(line, Message::TYPE_FATAL_ERROR, msg.str());
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (!this->CheckNumArguments(16)) { return; }
 
     Wing wing;
 
-    for (unsigned int i = 0; i < 8; i++)
-    {
-        wing.nodes[i] = _ParseNodeRef(results[i + 1]);
-    }
+    for (int i = 0; i <  8; i++) { wing.nodes[i]        = this->GetArgNodeRef     (i);  }
+    for (int i = 8; i < 16; i++) { wing.tex_coords[i-8] = this->GetArgFloat       (i);  }
 
-    for (unsigned int i = 0; i < 8; i++)
-    {
-        wing.tex_coords[i] = STR_PARSE_REAL(results[i + 9]);
-    }
-
-    if (results[17].matched)
-    {
-        std::string control_surface_str = results[18];
-        wing.control_surface = Wing::Control(control_surface_str.at(0));
-
-        if (results[19].matched)
-        {
-            wing.chord_point = STR_PARSE_REAL(results[20]);
-
-            if (results[21].matched)
-            {
-                wing.min_deflection = STR_PARSE_REAL(results[22]);
-
-                if (results[23].matched)
-                {
-                    wing.max_deflection = STR_PARSE_REAL(results[24]);
-
-                    if (results[25].matched)
-                    {
-                        wing.airfoil = results[26];
-
-                        if (results[27].matched)
-                        {
-                            wing.efficacy_coef = STR_PARSE_REAL(results[28]);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    if (m_num_args > 16)         { wing.control_surface = this->GetArgWingSurface (16); }
+    if (m_num_args > 17)         { wing.chord_point     = this->GetArgFloat       (17); }
+    if (m_num_args > 18)         { wing.min_deflection  = this->GetArgFloat       (18); }
+    if (m_num_args > 19)         { wing.max_deflection  = this->GetArgFloat       (19); }
+    if (m_num_args > 20)         { wing.airfoil         = this->GetArgStr         (20); }
+    if (m_num_args > 21)         { wing.efficacy_coef   = this->GetArgFloat       (21); }
 
     m_current_module->wings.push_back(wing);
 }
@@ -5207,6 +5160,27 @@ int Parser::ParseArgInt(const char* str)
         return 0.f; // Compatibility
     }
     return static_cast<int>(res);
+}
+
+Wing::Control Parser::GetArgWingSurface(int index)
+{
+    std::string str = this->GetArgStr(index);
+    size_t bad_pos = str.find_first_not_of(Wing::CONTROL_LEGAL_FLAGS);
+    const int MSG_LEN = 300;
+    char msg_buf[MSG_LEN] = "";
+    if (bad_pos == 0)
+    {
+        snprintf(msg_buf, MSG_LEN, "Invalid argument ~%d 'control surface' (value: %s), allowed are: <%s>, ignoring...",
+            index + 1, str.c_str(), Wing::CONTROL_LEGAL_FLAGS.c_str());
+        this->AddMessage(Message::TYPE_ERROR, msg_buf);
+        return Wing::CONTROL_n_NONE;
+    }
+    if (str.size() > 1)
+    {
+        snprintf(msg_buf, MSG_LEN, "Argument ~%d 'control surface' (value: %s), should be only 1 letter.", index, str.c_str());
+        this->AddMessage(Message::TYPE_WARNING, msg_buf);
+    }
+    return Wing::Control(str.at(0));
 }
 
 int Parser::TokenizeCurrentLine()
