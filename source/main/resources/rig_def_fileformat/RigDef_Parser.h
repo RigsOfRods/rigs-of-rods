@@ -304,7 +304,7 @@ protected:
 
     void ParseWheel2();
 
-    void ParseWing(Ogre::String const & line);
+    void ParseWing();
 
 // --------------------------------------------------------------------------
 //  Utilities
@@ -325,6 +325,7 @@ protected:
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
+    Wing::Control      GetArgWingSurface  (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);

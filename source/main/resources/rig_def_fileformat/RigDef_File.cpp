@@ -216,6 +216,8 @@ VideoCamera::VideoCamera():
 	camera_mode(0)
 {}
 
+const std::string Wing::CONTROL_LEGAL_FLAGS("nabferSTcdghUVij"); // Static member init
+
 Wing::Wing():
 	control_surface(CONTROL_n_NONE),
 	chord_point(-1.f),
