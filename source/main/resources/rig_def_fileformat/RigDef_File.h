@@ -1905,6 +1905,8 @@ struct VideoCamera
 
 struct Wing
 {
+    static const std::string CONTROL_LEGAL_FLAGS;
+
 	Wing();
 
 	enum Control
