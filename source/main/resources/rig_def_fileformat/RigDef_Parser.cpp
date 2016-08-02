@@ -651,7 +651,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SUBMESH_GROUNDMODEL):
-                ParseSubmeshGroundModel(line);
+                ParseSubmeshGroundModel();
                 line_finished = true;
                 break;
 
@@ -1288,17 +1288,11 @@ void Parser::ParseTractionControl()
     m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(tc) );
 }
 
-void Parser::ParseSubmeshGroundModel(Ogre::String const & line)
+void Parser::ParseSubmeshGroundModel()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SUBMESH_GROUNDMODEL))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid format of inline-section 'submesh_groundmodel', ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (!this->CheckNumArguments(2)) { return; } // Items: keyword, arg
 
-    m_current_module->submeshes_ground_model_name = results[1];
+    m_current_module->submeshes_ground_model_name = this->GetArgStr(1);
 }
 
 void Parser::ParseSpeedLimiter(Ogre::String const & line)
