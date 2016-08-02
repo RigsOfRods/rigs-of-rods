@@ -283,7 +283,7 @@ protected:
 
     void ParseSubmesh();
 
-    void ParseSubmeshGroundModel(Ogre::String const & line);
+    void ParseSubmeshGroundModel();
 
     void ParseTies(Ogre::String const & line);
 
