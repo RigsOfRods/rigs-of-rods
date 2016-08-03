@@ -140,7 +140,7 @@ protected:
 //  Directive parsers
 // --------------------------------------------------------------------------
 
-    void ParseDirectiveAddAnimation(Ogre::String const & line);
+    void ParseDirectiveAddAnimation();
 
     void ParseDirectiveDetacherGroup(Ogre::String const & line);
 
@@ -327,6 +327,9 @@ protected:
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
+    unsigned           ParseArgUint       (const char* str);
+
+    unsigned           ParseArgUint       (const std::string& s);
 
     /// Attempts to parse cab line. Returns true if successful.
     bool _TryParseCab(Ogre::String const & line);
@@ -355,10 +358,6 @@ protected:
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
     Node::Ref _ParseNodeRef(std::string const & node_id_str);
-
-    void _ParseDirectiveAddAnimationMode(Animation & animation, Ogre::String mode_string);
-
-    void _ParseDirectiveAddAnimationSource(Animation & animation, Ogre::String source_string);
 
     void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
 

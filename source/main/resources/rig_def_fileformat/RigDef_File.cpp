@@ -236,6 +236,14 @@ Wing::Wing():
 	tex_coords[7] = 0.f;
 }
 
+void Animation::AddMotorSource(unsigned int source, unsigned int motor)
+{
+    Animation::MotorSource motor_source;
+    motor_source.source = source;
+    motor_source.motor = motor;
+    this->motor_sources.push_back(motor_source);
+}
+
 /* -------------------------------------------------------------------------- */
 /* File                                                                       */
 /* -------------------------------------------------------------------------- */
