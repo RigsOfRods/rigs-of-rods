@@ -326,14 +326,14 @@ struct Animation
 	{}
 
 	BITMASK_PROPERTY( source,  1, SOURCE_AIRSPEED          , HasSource_AirSpeed            , SetHasSource_AirSpeed )
-	BITMASK_PROPERTY( source,  2, SOURCE_VERTICAL_VELOCITY , HasSource_VerticalVelocity	   , SetHasSource_VerticalVelocity )
+	BITMASK_PROPERTY( source,  2, SOURCE_VERTICAL_VELOCITY , HasSource_VerticalVelocity    , SetHasSource_VerticalVelocity )
 	BITMASK_PROPERTY( source,  3, SOURCE_ALTIMETER_100K    , HasSource_AltiMeter100k       , SetHasSource_AltiMeter100k )
 	BITMASK_PROPERTY( source,  4, SOURCE_ALTIMETER_10K     , HasSource_AltiMeter10k        , SetHasSource_AltiMeter10k )
 	BITMASK_PROPERTY( source,  5, SOURCE_ALTIMETER_1K      , HasSource_AltiMeter1k         , SetHasSource_AltiMeter1k )
 	BITMASK_PROPERTY( source,  6, SOURCE_ANGLE_OF_ATTACK   , HasSource_AOA                 , SetHasSource_AOA )
 	BITMASK_PROPERTY( source,  7, SOURCE_FLAP              , HasSource_Flap                , SetHasSource_Flap )
-	BITMASK_PROPERTY( source,  8, SOURCE_AIR_BRAKE         , HasSource_AirBrake	           , SetHasSource_AirBrake )
-	BITMASK_PROPERTY( source,  9, SOURCE_ROLL              , HasSource_Roll	               , SetHasSource_Roll )
+	BITMASK_PROPERTY( source,  8, SOURCE_AIR_BRAKE         , HasSource_AirBrake            , SetHasSource_AirBrake )
+	BITMASK_PROPERTY( source,  9, SOURCE_ROLL              , HasSource_Roll                , SetHasSource_Roll )
 	BITMASK_PROPERTY( source, 10, SOURCE_PITCH             , HasSource_Pitch               , SetHasSource_Pitch )
 	BITMASK_PROPERTY( source, 11, SOURCE_BRAKES            , HasSource_Brakes              , SetHasSource_Brakes )
 	BITMASK_PROPERTY( source, 12, SOURCE_ACCEL             , HasSource_Accel               , SetHasSource_Accel )
@@ -348,13 +348,13 @@ struct Animation
 	BITMASK_PROPERTY( source, 21, SOURCE_SHIFTERLIN        , HasSource_ShifterLin          , SetHasSource_ShifterLin )
 	BITMASK_PROPERTY( source, 22, SOURCE_TORQUE            , HasSource_Torque              , SetHasSource_Torque )
 	BITMASK_PROPERTY( source, 23, SOURCE_HEADING           , HasSource_Heading             , SetHasSource_Heading )
-	BITMASK_PROPERTY( source, 24, SOURCE_DIFFLOCK          , HasSource_DiffLock	           , SetHasSource_DiffLock )
+	BITMASK_PROPERTY( source, 24, SOURCE_DIFFLOCK          , HasSource_DiffLock            , SetHasSource_DiffLock )
 	BITMASK_PROPERTY( source, 25, SOURCE_BOAT_RUDDER       , HasSource_BoatRudder          , SetHasSource_BoatRudder )
 	BITMASK_PROPERTY( source, 26, SOURCE_BOAT_THROTTLE     , HasSource_BoatThrottle        , SetHasSource_BoatThrottle )
 	BITMASK_PROPERTY( source, 27, SOURCE_STEERING_WHEEL    , HasSource_SteeringWheel       , SetHasSource_SteeringWheel )
 	BITMASK_PROPERTY( source, 28, SOURCE_AILERON           , HasSource_Aileron             , SetHasSource_Aileron )
-	BITMASK_PROPERTY( source, 29, SOURCE_ELEVATOR          , HasSource_Elevator	           , SetHasSource_Elevator )
-	BITMASK_PROPERTY( source, 30, SOURCE_AIR_RUDDER        , HasSource_AerialRudder	       , SetHasSource_AerialRudder )
+	BITMASK_PROPERTY( source, 29, SOURCE_ELEVATOR          , HasSource_Elevator            , SetHasSource_Elevator )
+	BITMASK_PROPERTY( source, 30, SOURCE_AIR_RUDDER        , HasSource_AerialRudder        , SetHasSource_AerialRudder )
 	BITMASK_PROPERTY( source, 31, SOURCE_PERMANENT         , HasSource_Permanent           , SetHasSource_Permanent )
 	BITMASK_PROPERTY( source, 32, SOURCE_EVENT             , HasSource_Event               , SetHasSource_Event ) // Full house32
 
@@ -362,7 +362,7 @@ struct Animation
 	static const unsigned int MODE_ROTATION_Y          = BITMASK(2);
 	static const unsigned int MODE_ROTATION_Z          = BITMASK(3);
 	static const unsigned int MODE_OFFSET_X            = BITMASK(4);
-	static const unsigned int MODE_OFFSET_Y            = BITMASK(5);	
+	static const unsigned int MODE_OFFSET_Y            = BITMASK(5);
 	static const unsigned int MODE_OFFSET_Z            = BITMASK(6);
 	static const unsigned int MODE_AUTO_ANIMATE        = BITMASK(7);
 	static const unsigned int MODE_NO_FLIP             = BITMASK(8);
@@ -379,6 +379,8 @@ struct Animation
 	// NOTE: MSVC highlights 'event' as keyword: http://msdn.microsoft.com/en-us/library/4b612y2s%28v=vs.100%29.aspx
 	// But it's ok to use as identifier in this context: http://msdn.microsoft.com/en-us/library/8d7y7wz6%28v=vs.100%29.aspx
 	Ogre::String event;
+
+    void AddMotorSource(unsigned int source, unsigned int motor);
 };
 
 /* -------------------------------------------------------------------------- */
