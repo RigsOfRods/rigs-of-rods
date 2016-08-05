@@ -142,7 +142,7 @@ protected:
 
     void ParseDirectiveAddAnimation();
 
-    void ParseDirectiveDetacherGroup(Ogre::String const & line);
+    void ParseDirectiveDetacherGroup();
 
     void ParseDirectiveFlexbodyCameraMode(Ogre::String const & line);
 
