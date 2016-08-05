@@ -359,14 +359,6 @@ DEFINE_REGEX( NODE_ID_OPTIONAL,
 // Regexes for parsing directives                                             //
 // -------------------------------------------------------------------------- //
 
-DEFINE_REGEX( DIRECTIVE_FLEXBODY_CAMERA_MODE,
-    E_LEADING_WHITESPACE
-    "[Ff][Ll][Ee][Xx][Bb][Oo][Dd][Yy]_[Cc][Aa][Mm][Ee][Rr][Aa]_[Mm][Oo][Dd][Ee]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_DECIMAL_NUMBER ) // #1 Mode/cinecam index
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( DIRECTIVE_PROP_CAMERA_MODE,
     E_LEADING_WHITESPACE
     "[Pp][Rr][Oo][Pp]_[Cc][Aa][Mm][Ee][Rr][Aa]_[Mm][Oo][Dd][Ee]"
