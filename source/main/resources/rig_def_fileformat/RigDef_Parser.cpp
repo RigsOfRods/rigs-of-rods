@@ -485,7 +485,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_PROP_CAMERA_MODE):
-                ParseDirectivePropCameraMode(line);
+                ParseDirectivePropCameraMode();
                 line_finished = true;
                 break;
 
@@ -1682,25 +1682,17 @@ void Parser::ParseDirectiveSetBeamDefaults(Ogre::String const & line)
     return;
 }
 
-void Parser::ParseDirectivePropCameraMode(Ogre::String const & line)
+void Parser::ParseDirectivePropCameraMode()
 {
     assert(m_current_module != nullptr);
-
     if (m_current_module->props.size() == 0)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Directive 'prop_camera_mode' found but no 'prop' defined, ignoring...");
+        this->AddMessage(Message::TYPE_ERROR, "Directive 'prop_camera_mode' found but no 'prop' defined, ignoring...");
         return;
     }
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_PROP_CAMERA_MODE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid format of directive 'prop_camera_mode', ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    _ParseCameraSettings(m_current_module->props.back().camera_settings, results[1]);
+    this->_ParseCameraSettings(m_current_module->props.back().camera_settings, this->GetArgStr(1));
 }
 
 void Parser::ParseMeshWheelUnified()
