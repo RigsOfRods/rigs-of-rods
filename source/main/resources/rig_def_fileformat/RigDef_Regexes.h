@@ -359,18 +359,6 @@ DEFINE_REGEX( NODE_ID_OPTIONAL,
 // Regexes for parsing directives                                             //
 // -------------------------------------------------------------------------- //
 
-DEFINE_REGEX( DIRECTIVE_DETACHER_GROUP,
-    E_LEADING_WHITESPACE
-    "[Dd][Ee][Tt][Aa][Cc][Hh][Ee][Rr]_[Gg][Rr][Oo][Uu][Pp]"
-    E_DELIMITER_SPACE
-    E_CAPTURE(                        // #1 Wrapper
-        E_CAPTURE( E_DECIMAL_NUMBER ) // #2 Detacher group ID
-        E_OR
-        E_CAPTURE( "end" )            // #3 End of group
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( DIRECTIVE_FLEXBODY_CAMERA_MODE,
     E_LEADING_WHITESPACE
     "[Ff][Ll][Ee][Xx][Bb][Oo][Dd][Yy]_[Cc][Aa][Mm][Ee][Rr][Aa]_[Mm][Oo][Dd][Ee]"
