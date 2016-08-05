@@ -148,7 +148,7 @@ protected:
 
     void ParseDirectivePropCameraMode();
 
-    void ParseDirectiveSetBeamDefaults(Ogre::String const & line);
+    void ParseDirectiveSetBeamDefaults();
 
     void ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line);
 
