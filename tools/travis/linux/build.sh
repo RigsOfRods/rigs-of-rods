@@ -24,4 +24,6 @@ then
   make doc-doxygen > /dev/null 2>&1
 fi
 
+sudo make install
+
 cd ..
