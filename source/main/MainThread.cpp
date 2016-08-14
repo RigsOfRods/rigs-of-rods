@@ -94,7 +94,8 @@ MainThread::MainThread():
 	m_exit_loop_requested(false),
 	m_base_resource_loaded(false),
 	m_application_state(Application::STATE_NONE),
-	m_next_application_state(Application::STATE_NONE)
+	m_next_application_state(Application::STATE_NONE),
+    m_is_mumble_created(false)
 {
 	RoR::Application::SetMainThreadLogic(this);
 }
@@ -284,10 +285,6 @@ void MainThread::Go()
 	else
 		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
 
-	gEnv->multiplayer = BSETTING("Network enable", false);
-
-	String preselected_map = SSETTING("Preselected Map", "");
-
 	// initiate player colours
 	PlayerColours::getSingleton();
 
@@ -296,58 +293,24 @@ void MainThread::Go()
 
 	new BeamFactory();
 
-	// notice: all factories must be available before starting the network!
-#ifdef USE_SOCKETW
-	
-	if (gEnv->multiplayer)
-	{
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-
-		LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
-
-		bool connres = RoR::Networking::Connect();
-
-		if (!connres)
-		{
-			LOG("connection failed. server down?");
-			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It may be offline or you have network problems."));
-			//fatal
-			exit(1);
-		}
-
-		LoadingWindow::getSingleton().hide();
-
-		new GUI_Multiplayer();
-		GUI_Multiplayer::getSingleton().update();
-
-		String terrain_name = RoR::Networking::GetTerrainName();
-		if (terrain_name != "any")
-		{
-			preselected_map = terrain_name;
-		}
-
-		RoR::ChatSystem::SendStreamSetup();
-
-#ifdef USE_MUMBLE
-		new MumbleIntegration();
-#endif // USE_MUMBLE
-	}
-#endif //SOCKETW	
-
 	// ========================================================================
 	// Main loop (switches application states)
 	// ========================================================================
 
 	Application::State previous_application_state(m_application_state);
 	m_next_application_state = Application::STATE_MAIN_MENU;
+
+    String preselected_map = SSETTING("Preselected Map", "");
 	if (! preselected_map.empty())
 	{
 		LOG("Preselected Map: " + (preselected_map));
 		m_next_application_state = Application::STATE_SIMULATION;
 	}
+    gEnv->multiplayer = BSETTING("Network enable", false);
+    if (gEnv->multiplayer)
+    {
+        m_next_application_state = Application::STATE_SIMULATION;
+    }
 	m_base_resource_loaded = false;
 	while (! m_shutdown_requested)
 	{
@@ -556,6 +519,47 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 		*/
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
+
+    // ============================================================================
+    // Connect to server if desired
+    // ============================================================================
+
+#ifdef USE_SOCKETW
+    if (gEnv->multiplayer)
+    {
+        LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
+
+        if (!RoR::Networking::Connect())
+        {
+            gEnv->multiplayer = false;
+            LOG("connection failed. server down?");
+            LoadingWindow::getSingleton().hide();
+            Application::GetGuiManager()->ShowMessageBox("Connection failed",
+                RoR::Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
+            return false;
+        }
+
+        LoadingWindow::getSingleton().hide();
+        Application::GetGuiManager()->CheckAndCreateMultiplayer();
+        GUI_Multiplayer::getSingleton().update();
+
+        String terrain_name = RoR::Networking::GetTerrainName();
+        if (terrain_name != "any")
+        {
+            preselected_map = terrain_name;
+        }
+
+        RoR::ChatSystem::SendStreamSetup();
+
+#ifdef USE_MUMBLE
+        if (! m_is_mumble_created)
+        {
+            new MumbleIntegration();
+            m_is_mumble_created = true;
+        }
+#endif // USE_MUMBLE
+    }
+#endif //SOCKETW
 
 	// ============================================================================
 	// Setup

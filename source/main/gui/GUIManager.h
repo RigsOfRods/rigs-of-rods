@@ -111,6 +111,8 @@ public:
 	void HideVehicleDescription();
 	void ToggleVehicleDescription();
 
+    void CheckAndCreateMultiplayer();
+
 	void hideGUI(bool visible);
 
 	virtual void UnfocusGui();
@@ -155,6 +157,7 @@ private:
 	std::unique_ptr<GUI::VehicleDescription> m_vehicle_description;
 
 	bool isSimUtilsVisible;
+    bool m_is_multiplayer_created;
 };
 
 } // namespace RoR

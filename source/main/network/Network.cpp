@@ -86,6 +86,13 @@ static std::deque <send_packet_t> m_send_packet_buffer;
 
 static const unsigned int m_packet_buffer_size = 20;
 
+static Ogre::UTFString m_error_msg;
+
+Ogre::UTFString const & GetErrorMessage()
+{
+    return m_error_msg;
+}
+
 void DebugPacket(const char *name, header_t *header, char *buffer)
 {
 	char sha1result[250] = {0};
@@ -99,6 +106,13 @@ void DebugPacket(const char *name, header_t *header, char *buffer)
 	char tmp[256] = {0};
 	sprintf(tmp, "++ %s: %d:%d, %d, %d, hash: %s", name, header->source, header->streamid, header->command, header->size, sha1result);
 	LOG(tmp);
+}
+
+void NetError(Ogre::UTFString const & error_msg)
+{
+    socket.set_timeout(1, 1000);
+    socket.disconnect();
+    m_error_msg = error_msg;
 }
 
 void NetFatalError(Ogre::UTFString errormsg, bool exit_program)
@@ -393,12 +407,15 @@ bool Connect()
 	socket.connect(m_server_port, m_server_name, &error);
 	if (error != SWBaseSocket::ok)
 	{
-		NetFatalError(_L("Establishing network session: "), false);
-		return false;
+        char msg[200];
+        sprintf_s(msg, "Error creating network connection\n\nServer: [%s:%d]",
+            SSETTING("Server name", "").c_str(), m_server_port);
+        m_error_msg = msg;
+        return false;
 	}
 	if (!SendMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
 	{
-		NetFatalError(_L("Establishing network session: error sending hello"), false);
+		NetError(_L("Establishing network session: error sending hello"));
 		return false;
 	}
 

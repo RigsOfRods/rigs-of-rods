@@ -95,7 +95,8 @@ protected:
 	unsigned long      m_start_time;
 	Application::State m_next_application_state;
 	Application::State m_application_state;
-	bool			   m_base_resource_loaded;
+	bool               m_base_resource_loaded;
+    bool               m_is_mumble_created;
 
 	std::map<std::string, bool> isLoadedMap;
 };

@@ -58,6 +58,8 @@ user_info_t GetLocalUserData();
 std::vector<user_info_t> GetUserInfos();
 bool GetUserInfo(int uid, user_info_t &result);
 
+Ogre::UTFString const & GetErrorMessage();
+
 } // namespace Networking
 } // namespace RoR
 

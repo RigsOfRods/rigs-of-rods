@@ -31,6 +31,7 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
+#include "GUIMp.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
@@ -46,7 +47,8 @@ GUIManager::GUIManager() :
 	mGUI(nullptr),
 	mPlatform(nullptr),
 	mResourceFileName("MyGUI_Core.xml"),
-	isSimUtilsVisible(false)
+	isSimUtilsVisible(false),
+    m_is_multiplayer_created(false)
 {
 	create();
 }
@@ -511,4 +513,13 @@ void GUIManager::hideGUI(bool hidden)
 		}
 		m_gui_SimUtils->DisableNotifications(hidden);
 	}
+}
+
+void GUIManager::CheckAndCreateMultiplayer()
+{
+    if (! m_is_multiplayer_created)
+    {
+        new GUI_Multiplayer(); // It's a singleton...
+        m_is_multiplayer_created = true;
+    }
 }
