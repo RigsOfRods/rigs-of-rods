@@ -2,13 +2,14 @@
 <MyGUI type="Layout" version="3.2.0">
     <Widget type="Window" skin="WindowCSX" position="125 240 820 480" layer="Middle" name="_Main">
         <Property key="Caption" value="Multiplayer"/>
+        <Property key="MinSize" value="350 200"/>
         <Widget type="EditBox" skin="WordWrapEmpty" position="10 5 170 20">
             <Property key="Caption" value="Available Servers:"/>
         </Widget>
-        <Widget type="Button" skin="Button" position="700 405 100 35" name="joinbutton">
+        <Widget type="Button" skin="Button" position="700 405 100 35" align="Right Bottom" name="joinbutton">
             <Property key="Caption" value="Join"/>
         </Widget>
-        <Widget type="MultiListBox" skin="MultiListBox" position="5 25 795 375" name="servers_list">
+        <Widget type="MultiListBox" skin="MultiListBox" position="5 25 795 375" align="HStretch VStretch" name="servers_list">
             <Widget type="MultiListItem" skin="skin_Default" position="0 0 284 346" name="server_name">
                 <Property key="ItemResizingPolicy" value="Fixed"/>
                 <Property key="ItemWidth" value="284"/>
@@ -30,10 +31,10 @@
                 <Property key="ItemResizingPolicy" value="Fixed"/>
             </Widget>
         </Widget>
-        <Widget type="Button" skin="Button" position="595 405 100 35" name="settingsbutton">
+        <Widget type="Button" skin="Button" position="595 405 100 35" align="Right Bottom" name="settingsbutton">
             <Property key="Caption" value="Settings"/>
         </Widget>
-        <Widget type="EditBox" skin="WordWrapEmpty" position="680 5 115 20" name="ror_net_ver">
+        <Widget type="EditBox" skin="WordWrapEmpty" position="680 5 115 20" align="Right Top" name="ror_net_ver">
             <Property key="Caption" value="RoR_Net 2.37"/>
             <Property key="TextAlign" value="Right Top"/>
         </Widget>

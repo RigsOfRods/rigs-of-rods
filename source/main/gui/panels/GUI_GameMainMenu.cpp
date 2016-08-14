@@ -61,9 +61,12 @@ CLASS::CLASS()
 	win->setCaption(_L("Main Menu"));
 	win->setMovable(false);
 
+#ifndef USE_SOCKETW
+    m_multi_player->setEnabled(false);
+#endif
+
 	if (!BSETTING("DevMode", false))
 	{
-		m_multi_player->setEnabled(false);
 		m_rig_editor->setEnabled(false);
 	}
 
