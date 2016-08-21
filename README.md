@@ -1,10 +1,16 @@
 # Rigs of Rods
 
-[![Build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)
 [![Join the chat at https://gitter.im/RigsOfRods/rigs-of-rods](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RigsOfRods/rigs-of-rods?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+|  Build status 	|                                                                                                                                                                             	|
+|---------------	|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| Linux:        	| [![travis build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
+| Windows:      	| [![appveyor build Status](https://ci.appveyor.com/api/projects/status/github/RigsOfRods/rigs-of-rods?svg=true)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
+
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
 For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
+
 
 #### Trailer:
 
@@ -14,7 +20,6 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * Windows
 * Linux
 * OS X
-
 
 ## Further documentation
 * Website: http://www.rigsofrods.org/

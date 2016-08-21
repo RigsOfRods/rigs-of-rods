@@ -97,6 +97,8 @@ using namespace RoR;
 
 Beam::~Beam()
 {
+	TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, trucknum);
+
 	// TODO: IMPROVE below: delete/destroy prop entities, etc
 
 	// hide everything, prevents deleting stuff while drawing
@@ -6048,6 +6050,8 @@ bool Beam::LoadTruck(
 
 	// Decide whether or not the cinecam node is an appropriate rotation center
 	m_is_cinecam_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
+
+	TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, trucknum);
 
 	return true;
 }

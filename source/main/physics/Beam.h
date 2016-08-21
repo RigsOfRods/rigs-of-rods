@@ -140,6 +140,8 @@ public:
         int cache_entry_number = -1
 	);
 
+	VehicleAI* getVehicleAI() { return vehicle_ai; }
+
 	bool replayStep();
 
 	void updateForceFeedback(int steps);

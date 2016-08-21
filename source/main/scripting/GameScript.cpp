@@ -898,3 +898,14 @@ VehicleAI *GameScript::getTruckAIByNum(int num)
 		return b->vehicle_ai;
 	return nullptr;
 }
+
+Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
+{
+	Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+	return BeamFactory::getSingleton().CreateLocalRigInstance(pos, rotation,truckName);
+}
+
+void GameScript::showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2)
+{
+	RoR::Application::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+}
