@@ -96,6 +96,7 @@ public:
 
 	void InitMainSelector(RoR::SkinManager* skin_manager);
 	std::shared_ptr<GUI::MainSelector> getMainSelector() { return m_gui_MainSelector; }
+    GUI::MultiplayerSelector* GetMultiplayerSelector() { return m_gui_MultiplayerSelector.get(); }
 
 	void initSimUtils();
 	void killSimUtils();

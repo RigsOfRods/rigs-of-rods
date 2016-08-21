@@ -378,8 +378,11 @@ void GUIManager::ShowMultiPlayerSelector(bool isVisible)
 {
 	if (isVisible == true)
 	{
-		if (m_gui_MultiplayerSelector.get() == nullptr)
-			m_gui_MultiplayerSelector = std::unique_ptr<GUI::MultiplayerSelector>(new GUI::MultiplayerSelector());
+        if (m_gui_MultiplayerSelector.get() == nullptr)
+        {
+            auto ptr = new GUI::MultiplayerSelector(Application::GetMainThreadLogic());
+            m_gui_MultiplayerSelector = std::unique_ptr<GUI::MultiplayerSelector>(ptr);
+        }
 
 		m_gui_MultiplayerSelector->Show();
 	}

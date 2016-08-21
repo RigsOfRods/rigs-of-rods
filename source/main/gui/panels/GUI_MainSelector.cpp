@@ -34,6 +34,7 @@
 #include "SkinManager.h"
 #include "LoadingWindow.h"
 #include "RoRFrameListener.h"
+#include "MainThread.h"
 
 #include <MyGUI.h>
 
@@ -238,9 +239,17 @@ void CLASS::Cancel()
 	m_selected_entry = nullptr;
 	m_selection_done = true;
 	Hide();
+
+    if (gEnv->multiplayer)
+    {
+        RoR::Application::GetMainThreadLogic()->LeaveMultiplayerServer();
+    }
+
 	//Do this on cancel only
 	if (gEnv->frameListener->m_loading_state == NONE_LOADED)
+    {
 		Application::GetGuiManager()->ShowMainMenu(true);
+    }
 }
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
@@ -944,9 +953,13 @@ void CLASS::Show(LoaderType type)
 	BindKeys();
 
 	if (type == LT_Terrain && gEnv->multiplayer)
-		m_Cancel->setEnabled(false);
-	else
-		m_Cancel->setEnabled(true);
+    {
+        m_Cancel->setCaption(_L("Cancel (disconnect)"));
+    }
+    else
+    {
+        m_Cancel->setCaption(_L("Cancel"));
+    }
 }
 
 void CLASS::Hide()

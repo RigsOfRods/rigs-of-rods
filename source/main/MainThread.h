@@ -66,11 +66,14 @@ public:
 	void RegenCache();
 
 	void BackToMenu();
+
 	void ChangeMap();
-	/**
-	* @return True if everything was prepared OK and simulation may start.
-	*/
-	bool SetupGameplayLoop(Ogre::String preselected_map);
+
+    void JoinMultiplayerServer(std::string ip, std::string port);
+    void LeaveMultiplayerServer();
+
+	/// @return True if everything was prepared OK and simulation may start.
+	bool SetupGameplayLoop();
 
 	void UnloadTerrain();
 
@@ -79,7 +82,7 @@ protected:
 	void EnterMainMenuLoop();
 
 	void MainMenuLoopUpdate(float seconds_since_last_frame);
-	
+
 	void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
 	void EnterGameplayLoop();

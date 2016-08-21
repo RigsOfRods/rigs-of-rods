@@ -40,20 +40,23 @@ class MultiplayerSelector : public MultiplayerSelectorLayout
 {
 
 public:
-	MultiplayerSelector();
+	MultiplayerSelector(MainThread* main_class);
 	~MultiplayerSelector();
 
 	void Show();
 	void Hide();
+    void SetVisibleImmediately(bool visible);
 
 private:
 	void eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender);
-	void eventMouseButtonClickConfigButton(MyGUI::WidgetPtr _sender);
+    void eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender);
 
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void CenterToScreen();
 	bool IsVisible();
 	void init();
+
+    MainThread* m_main_class;
 };
 
 } // namespace GUI

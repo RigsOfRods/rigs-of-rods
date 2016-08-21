@@ -300,10 +300,9 @@ void MainThread::Go()
 	Application::State previous_application_state(m_application_state);
 	m_next_application_state = Application::STATE_MAIN_MENU;
 
-    String preselected_map = SSETTING("Preselected Map", "");
-	if (! preselected_map.empty())
+	if (! SSETTING("Preselected Map", "").empty())
 	{
-		LOG("Preselected Map: " + (preselected_map));
+		LOG("Preselected Map: " + SSETTING("Preselected Map", ""));
 		m_next_application_state = Application::STATE_SIMULATION;
 	}
     gEnv->multiplayer = BSETTING("Network enable", false);
@@ -374,8 +373,7 @@ void MainThread::Go()
 			// ================================================================
 			// Simulation
 			// ================================================================
-
-			if (SetupGameplayLoop(preselected_map))
+			if (SetupGameplayLoop())
 			{
 				previous_application_state = Application::STATE_SIMULATION;
 				EnterGameplayLoop();	
@@ -457,7 +455,7 @@ void MainThread::Go()
 
 }
 
-bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
+bool MainThread::SetupGameplayLoop()
 {
 	if (!m_base_resource_loaded)
 	{
@@ -520,47 +518,6 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
 
-    // ============================================================================
-    // Connect to server if desired
-    // ============================================================================
-
-#ifdef USE_SOCKETW
-    if (gEnv->multiplayer)
-    {
-        LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
-
-        if (!RoR::Networking::Connect())
-        {
-            gEnv->multiplayer = false;
-            LOG("connection failed. server down?");
-            LoadingWindow::getSingleton().hide();
-            Application::GetGuiManager()->ShowMessageBox("Connection failed",
-                RoR::Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
-            return false;
-        }
-
-        LoadingWindow::getSingleton().hide();
-        Application::GetGuiManager()->CheckAndCreateMultiplayer();
-        GUI_Multiplayer::getSingleton().update();
-
-        String terrain_name = RoR::Networking::GetTerrainName();
-        if (terrain_name != "any")
-        {
-            preselected_map = terrain_name;
-        }
-
-        RoR::ChatSystem::SendStreamSetup();
-
-#ifdef USE_MUMBLE
-        if (! m_is_mumble_created)
-        {
-            new MumbleIntegration();
-            m_is_mumble_created = true;
-        }
-#endif // USE_MUMBLE
-    }
-#endif //SOCKETW
-
 	// ============================================================================
 	// Setup
 	// ============================================================================
@@ -617,7 +574,7 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 	// ============================================================================
 
 	Ogre::String map_file_name;
-	if (preselected_map.empty())
+	if (SSETTING("Preselected Map", "").empty())
 	{
 		CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 		if (selected_map != nullptr)
@@ -634,6 +591,7 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 	}
 	else
 	{
+		std::string preselected_map = SSETTING("Preselected Map", "");
 		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
 		{
 			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn2", "");
@@ -908,6 +866,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 #ifdef USE_SOCKETW
 	if (gEnv->multiplayer)
 	{
+        Application::GetGuiManager()->CheckAndCreateMultiplayer(); // Init singleton if not already
 		GUI_Multiplayer::getSingleton().update();
 	}
 #endif // USE_SOCKETW
@@ -1034,6 +993,12 @@ void MainThread::BackToMenu()
 {
 	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_MAIN_MENU);
 	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+    if (gEnv->multiplayer)
+    {
+        RoR::Networking::Disconnect();
+        gEnv->multiplayer = false;
+        GUI_Multiplayer::getSingleton().setVisible(false);
+    }
 }
 
 void MainThread::ChangeMap()
@@ -1096,6 +1061,70 @@ void MainThread::ShowSurveyMap(bool be_visible)
 	{
 		gEnv->surveyMap->setVisibility(be_visible);
 	}
+}
+
+void MainThread::JoinMultiplayerServer(std::string hostname, std::string port)
+{
+#ifdef USE_SOCKETW
+    assert(m_application_state == Application::STATE_MAIN_MENU);
+
+    gEnv->multiplayer = true;
+    Settings::getSingleton().setSetting("Server name", hostname);
+    Settings::getSingleton().setSetting("Server port", port);
+    RoR::Application::GetGuiManager()->GetMultiplayerSelector()->SetVisibleImmediately(false);
+    RoR::Application::GetGuiManager()->ShowMainMenu(false);
+
+    LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
+
+    if (!RoR::Networking::Connect())
+    {
+        gEnv->multiplayer = false;
+        LOG("connection failed. server down?");
+        LoadingWindow::getSingleton().hide();
+        Application::GetGuiManager()->ShowMessageBox("Connection failed",
+            RoR::Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
+        RoR::Application::GetGuiManager()->ShowMainMenu(true);
+        return;
+    }
+
+    LoadingWindow::getSingleton().hide();
+    Application::GetGuiManager()->CheckAndCreateMultiplayer();
+    GUI_Multiplayer::getSingleton().update();
+
+    String terrain_name = RoR::Networking::GetTerrainName();
+    if (terrain_name != "any")
+    {
+        Settings::getSingleton().setSetting("Preselected Map", terrain_name);
+    }
+
+    RoR::ChatSystem::SendStreamSetup();
+
+#ifdef USE_MUMBLE
+    if (! m_is_mumble_created)
+    {
+        new MumbleIntegration();
+        m_is_mumble_created = true;
+    }
+#endif // USE_MUMBLE
+
+    // Connected -> go directly to map selector
+    RoR::Application::GetGuiManager()->getMainSelector()->Reset();
+    RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+#endif //SOCKETW
+}
+
+void MainThread::LeaveMultiplayerServer()
+{
+#ifdef USE_SOCKETW
+    if (gEnv->multiplayer)
+    {
+        LoadingWindow::getSingleton().setAutotrack(_L("Disconnecting, wait 10 seconds ..."));
+        RoR::Networking::Disconnect();
+        gEnv->multiplayer = false;
+        GUI_Multiplayer::getSingleton().setVisible(false);
+        LoadingWindow::getSingleton().hide();
+    }
+#endif //SOCKETW
 }
 
 void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle)

@@ -34,6 +34,7 @@
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
+#include "MainThread.h"
 
 #include <MyGUI.h>
 
@@ -43,13 +44,14 @@ using namespace GUI;
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS()
+CLASS::CLASS(MainThread* main_class):
+    m_main_class(main_class)
 {
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
 	
 	m_joinbutton->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickJoinButton);
-	m_settingsbutton->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickConfigButton);
+    m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseClickEntertabConnect);
 
 	m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
 
@@ -81,6 +83,11 @@ void CLASS::Hide()
 	Application::GetGuiManager()->ShowMainMenu(true);
 }
 
+void CLASS::SetVisibleImmediately(bool visible)
+{
+    MAIN_WIDGET->setVisible(visible);
+}
+
 void CLASS::CenterToScreen()
 {
 	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
@@ -99,9 +106,12 @@ void CLASS::eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender)
 
 }
 
-void CLASS::eventMouseButtonClickConfigButton(MyGUI::WidgetPtr _sender)
+void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
 {
-
+    this->Hide();
+    m_main_class->JoinMultiplayerServer(
+        m_entertab_ip_editbox->getCaption().asUTF8(),
+        m_entertab_port_editbox->getCaption().asUTF8());
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
