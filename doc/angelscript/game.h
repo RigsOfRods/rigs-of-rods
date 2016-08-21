@@ -288,7 +288,7 @@ public:
 	 * @param instanceName The unique name that you chose when spawning this object
 	 * @param pos The position where the object should be moved to
 	 */
-	void moveObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
+	void moveObjectVisuals(const string instanceName, const vector3 pos);
 
 	/**
 	 * This destroys an object
@@ -412,4 +412,29 @@ public:
 	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
 	 */
 	int deleteScriptVariable(const string var);
+
+	/**
+	 *  Shows a message box
+	 *  
+	 *  @param mTitle The box title
+	 *  @param mText The box content text
+	 *  @param button1 Set to true to show the first button
+	 *  @param mButton1 The text in the first button
+	 *  @param AllowClose If set to true the user can close the box by pressing the X in the top-right
+	 *  @param button2 Set to true to show the second button
+	 *  @param mButton2 The text in the second button
+	 *  
+	 *  @see scriptEvents
+	 */
+	void showMessageBox(string mTitle, stringmText, bool button1, stringmButton1, bool AllowClose, bool button2, stringmButton2);
+	
+	/**
+	 *  Spawns a truck by filename
+	 *  
+	 *  @param truckName The filename of the truck
+	 *  @param pos The position where the truck should be spawned
+	 *  @param rot The rotation in which the truck should be spawned
+	 *  @return reference to Beam object
+	 */
+	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
 };
