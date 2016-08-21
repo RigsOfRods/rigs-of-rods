@@ -88,6 +88,10 @@ static const unsigned int m_packet_buffer_size = 20;
 
 static Ogre::UTFString m_error_msg;
 
+#define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
+
+static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
+
 Ogre::UTFString const & GetErrorMessage()
 {
     return m_error_msg;
@@ -202,6 +206,8 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
 	char buffer[MAX_MESSAGE_LENGTH] = {0};
 
+    LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
+
 	int hlen = 0;
 	while (hlen < (int)sizeof(header_t))
 	{
@@ -214,7 +220,15 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 		hlen += recvnum;
 	}
 
+    if (m_shutdown)
+    {
+        LOG_THREAD("[RoR|Networking] ReceiveMessage() Shutdown!");
+        return RECVMESSAGE_RETVAL_SHUTDOWN;
+    }
+
 	memcpy(head, buffer, sizeof(header_t));
+
+    LOG_THREAD("[RoR|Networking] ReceiveMessage() header received");
 
 	if (head->size >= MAX_MESSAGE_LENGTH)
 	{
@@ -229,7 +243,7 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 			int recvnum = socket.recv(buffer + hlen, (head->size + sizeof(header_t)) - hlen, &error);
 			if (recvnum < 0 && !m_shutdown)
 			{
-				LOG("NET receive error 2: "+ TOSTRING(recvnum));
+				LOG_THREAD("NET receive error 2: "+ TOSTRING(recvnum));
 				return -1;
 			}
 			hlen += recvnum;
@@ -238,12 +252,14 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
 	memcpy(content, buffer + sizeof(header_t), bufferlen);
 
+    LOG_THREAD("[RoR|Networking] ReceiveMessage() body received");
+
 	return 0;
 }
 
 void SendThread()
 {
-	LOG("SendThread started");
+	LOG("[RoR|Networking] SendThread started");
 	while (!m_shutdown)
 	{
 		std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
@@ -266,12 +282,12 @@ void SendThread()
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		queue_lock.lock();
 	}
-	LOG("SendThread stopped");
+	LOG("[RoR|Networking] SendThread stopped");
 }
 
 void RecvThread()
 {
-	LOG("RecvThread started");
+	LOG_THREAD("[RoR|Networking] RecvThread starting...");
 
 	header_t header;
 
@@ -281,12 +297,19 @@ void RecvThread()
 	{
 		int err = ReceiveMessage(&header, buffer, MAX_MESSAGE_LENGTH);
 		//LOG("Received data: " + TOSTRING(header.command) + ", source: " + TOSTRING(header.source) + ":" + TOSTRING(header.streamid) + ", size: " + TOSTRING(header.size));
-		if (err)
-		{
-			char errmsg[256] = {0};
-			sprintf(errmsg, "Error %i while receiving data", err);
-			NetFatalError(errmsg, true);
-			return;
+        if (err != 0)
+        {
+            if (err == RECVMESSAGE_RETVAL_SHUTDOWN)
+            {
+                LOG_THREAD("[RoR|Networking] RecvThread: Shutdown!");
+            }
+            else
+            {
+                std::stringstream s;
+                s << "[RoR|Networking] RecvThread: Error while receiving data: " << err << ", tid: " <<std::this_thread::get_id();
+                NetFatalError(s.str(), true);
+            }
+            return; // Die!
 		}
 
 		if (header.command == MSG2_STREAM_REGISTER)
@@ -334,7 +357,7 @@ void RecvThread()
 					head.source  = -1;
 					head.size    = (int)strlen(utf8_line);
 					QueueStreamData(head, (char *)utf8_line);
-					LOG(Ogre::UTFString(user->username) + _L(" left the game"));
+					LOG_THREAD(Ogre::UTFString(user->username) + _L(" left the game"));
 					m_users.erase(user);
 				}
 			}
@@ -390,7 +413,7 @@ void RecvThread()
 
 		QueueStreamData(header, buffer);
 	}
-	LOG("RecvThread stopped");
+	LOG_THREAD("[RoR|Networking] RecvThread stopped");
 }
 
 bool Connect()
@@ -399,7 +422,7 @@ bool Connect()
 	m_server_port = ISETTING("Server port", 0);
 	m_username = SSETTING("Nickname", "Anonymous");
 
-	LOG("Trying to join server '" + m_server_name + "' on port " + TOSTRING(m_server_port) + "'...");
+	LOG("[RoR|Networking] Trying to join server '" + m_server_name + "' on port " + TOSTRING(m_server_port) + "'...");
 
 	SWBaseSocket::SWBaseError error;
 
@@ -537,6 +560,7 @@ bool Connect()
 
 	m_shutdown = false;
 
+    LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
 	m_send_thread = std::thread(SendThread);
 	m_recv_thread = std::thread(RecvThread);
 
@@ -545,14 +569,23 @@ bool Connect()
 
 void Disconnect()
 {
-	m_shutdown = true;
-	m_send_packet_available_cv.notify_one();
-	m_send_thread.join();
-	m_recv_thread.detach();
+    LOG("[RoR|Networking] Disconnect() disconnecting...");
 
-	SendMessage(MSG2_USER_LEAVE, 0, 0, 0);
-	socket.set_timeout(1, 1000);
-	socket.disconnect();
+    m_shutdown = true; // Instruct Send/Recv threads to shut down.
+
+    m_send_packet_available_cv.notify_one();
+    m_send_thread.join();
+    LOG("[RoR|Networking] Disconnect() sender thread stopped...");
+
+    SendMessage(MSG2_USER_LEAVE, 0, 0, 0);
+    socket.set_timeout(1, 1000);
+    
+    m_recv_thread.join();
+    socket.disconnect();
+
+    m_shutdown = false;
+
+    LOG("[RoR|Networking] Disconnect() done");
 }
 
 void AddPacket(int streamid, int type, int len, char *content)

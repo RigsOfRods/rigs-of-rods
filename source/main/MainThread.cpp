@@ -1089,6 +1089,7 @@ void MainThread::JoinMultiplayerServer(std::string hostname, std::string port)
 
     LoadingWindow::getSingleton().hide();
     Application::GetGuiManager()->CheckAndCreateMultiplayer();
+    GUI_Multiplayer::getSingleton().setVisible(true);
     GUI_Multiplayer::getSingleton().update();
 
     String terrain_name = RoR::Networking::GetTerrainName();
