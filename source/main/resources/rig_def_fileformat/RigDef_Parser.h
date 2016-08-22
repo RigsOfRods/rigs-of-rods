@@ -199,7 +199,7 @@ protected:
 
     void ParseExhaust();
 
-    void ParseExtCamera(Ogre::String const & line);
+    void ParseExtCamera();
 
     void ParseFileFormatVersion(Ogre::String const & line);
 
