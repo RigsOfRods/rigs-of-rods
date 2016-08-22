@@ -299,25 +299,6 @@ namespace Regexes
 DEFINE_REGEX(            IDENTIFY_KEYWORD_RESPECT_CASE, IDENTIFY_KEYWORD_REGEX_STRING )
 DEFINE_REGEX_IGNORECASE( IDENTIFY_KEYWORD_IGNORE_CASE,  IDENTIFY_KEYWORD_REGEX_STRING )
 
-DEFINE_REGEX( CHECK_BLOCK_COMMENT_END,
-    E_LEADING_WHITESPACE
-    "[Ee][Nn][Dd]_[Cc][Oo][Mm][Mm][Ee][Nn][Tt]"
-    E_TRAILING_WHITESPACE
-    );
-
-DEFINE_REGEX( CHECK_END_DESCRIPTION, 
-    E_LEADING_WHITESPACE
-    "[Ee][Nn][Dd]_[Dd][Ee][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]"
-    E_TRAILING_WHITESPACE
-    );
-
-DEFINE_REGEX( IDENTIFY_LINE_TYPE,
-    E_CAPTURE_OPTIONAL( "^[Cc][Oo][Mm][Mm][Ee][Nn][Tt]" E_TRAILING_WHITESPACE ) // Block comment start
-    E_CAPTURE_OPTIONAL( "^[[:blank:]]*;.*$" )              // Single line comment
-    E_CAPTURE_OPTIONAL( "^[[:blank:]]*" E_SLASH ".*$" )    // Single line comment (legacy format)
-    E_CAPTURE_OPTIONAL( "^[[:blank:]]*$"  )                // Blank line 
-    );
-
 DEFINE_REGEX( POSITIVE_DECIMAL_NUMBER, E_POSITIVE_DECIMAL_NUMBER );
 
 DEFINE_REGEX( NEGATIVE_DECIMAL_NUMBER, E_NEGATIVE_DECIMAL_NUMBER );

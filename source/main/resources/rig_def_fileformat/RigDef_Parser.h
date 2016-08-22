@@ -416,7 +416,6 @@ protected:
     std::shared_ptr<Submesh>             m_current_submesh;        ///< Parser state.
     std::shared_ptr<CameraRail>          m_current_camera_rail;    ///< Parser state.
     std::shared_ptr<Flexbody>            m_last_flexbody;
-    unsigned int                         m_num_contiguous_blank_lines; ///< Parser state; Num. blank lines right above the current one
 
     SequentialImporter                   m_sequential_importer;
 
