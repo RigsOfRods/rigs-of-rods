@@ -991,52 +991,6 @@ DEFINE_REGEX( SECTION_TRIGGERS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_VIDEOCAMERA,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Ref. node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // X node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Y node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Alt. ref. node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // alt. orientation node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Offset X
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Offset Y
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Offset Z
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Rot. X
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // #10 Rot. Y
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Rot. Z
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // FOV
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Tex. width
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Tex. height
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Min. clip dist.
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Max. clip dist.
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_DECIMAL_NUMBER ) // Camera role
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_DECIMAL_NUMBER ) // Camera mode
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_STRING_NO_SPACES ) // Material name
-    E_CAPTURE_OPTIONAL(  // #20
-        E_DELIMITER_COMMA 
-        E_CAPTURE( E_STRING_NO_SPACES ) // #21 Camera name
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
