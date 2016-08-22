@@ -841,7 +841,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_CINECAM):
-            ParseCinecam(line);
+            ParseCinecam();
             line_finished = true;
             break;
 
@@ -2579,44 +2579,32 @@ void Parser::ParseCollisionBox(Ogre::String const & line)
     m_current_module->collision_boxes.push_back(collisionbox);
 }
 
-void Parser::ParseCinecam(Ogre::String const & line)
+void Parser::ParseCinecam()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_CINECAM))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(11)) { return; }
 
     Cinecam cinecam;
     cinecam.beam_defaults = m_user_beam_defaults;
     cinecam.node_defaults = m_user_node_defaults;
 
-    cinecam.position.x = STR_PARSE_REAL(results[1]);
-    cinecam.position.y = STR_PARSE_REAL(results[3]);
-    cinecam.position.z = STR_PARSE_REAL(results[5]);
+    cinecam.position.x = this->GetArgFloat  ( 0);
+    cinecam.position.y = this->GetArgFloat  ( 1);
+    cinecam.position.z = this->GetArgFloat  ( 2);
+    cinecam.nodes[0]   = this->GetArgNodeRef( 3);
+    cinecam.nodes[1]   = this->GetArgNodeRef( 4);
+    cinecam.nodes[2]   = this->GetArgNodeRef( 5);
+    cinecam.nodes[3]   = this->GetArgNodeRef( 6);
+    cinecam.nodes[4]   = this->GetArgNodeRef( 7);
+    cinecam.nodes[5]   = this->GetArgNodeRef( 8);
+    cinecam.nodes[6]   = this->GetArgNodeRef( 9);
+    cinecam.nodes[7]   = this->GetArgNodeRef(10);
+    
+    if (m_num_args > 10) { cinecam.spring  = this->GetArgFloat(11); }
+    if (m_num_args > 11) { cinecam.damping = this->GetArgFloat(12); }
+    
     if (m_sequential_importer.IsEnabled())
     {
         m_sequential_importer.AddGeneratedNode(File::KEYWORD_CINECAM);
-    }
-    cinecam.nodes[0] = _ParseNodeRef(results[ 7]);
-    cinecam.nodes[1] = _ParseNodeRef(results[ 9]);
-    cinecam.nodes[2] = _ParseNodeRef(results[11]);
-    cinecam.nodes[3] = _ParseNodeRef(results[13]);
-    cinecam.nodes[4] = _ParseNodeRef(results[15]);
-    cinecam.nodes[5] = _ParseNodeRef(results[17]);
-    cinecam.nodes[6] = _ParseNodeRef(results[19]);
-    cinecam.nodes[7] = _ParseNodeRef(results[21]);
-
-    if (results[24].matched)
-    {
-        cinecam.spring = STR_PARSE_REAL(results[24]);
-        
-        if (results[27].matched)
-        {
-            cinecam.damping = STR_PARSE_REAL(results[27]);
-        }
     }
 
     m_current_module->cinecam.push_back(cinecam);
