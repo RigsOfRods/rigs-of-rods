@@ -297,7 +297,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_EXTCAMERA):
-                ParseExtCamera(line);
+                ParseExtCamera();
                 line_finished = true;
                 break;
 
@@ -2037,33 +2037,29 @@ void Parser::ParseFixes(Ogre::String const & line)
     m_current_module->fixes.push_back(_ParseNodeRef(results[1]));
 }
 
-void Parser::ParseExtCamera(Ogre::String const & line)
+void Parser::ParseExtCamera()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_EXTCAMERA))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Inline-section 'ext_camera' has incorrect format, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(2)) { return; }
+    
     if (m_current_module->ext_camera == nullptr)
     {
         m_current_module->ext_camera = std::shared_ptr<RigDef::ExtCamera>( new RigDef::ExtCamera() );
     }
-
-    if (results[2].matched)
+    ExtCamera* extcam = m_current_module->ext_camera.get();
+    
+    auto mode_str = this->GetArgStr(1);
+    if (mode_str == "classic")
     {
-        m_current_module->ext_camera->mode = ExtCamera::MODE_CLASSIC;
+        extcam->mode = ExtCamera::MODE_CLASSIC;
     }
-    else if (results[3].matched)
+    else if (mode_str == "cinecam")
     {
-        m_current_module->ext_camera->mode = ExtCamera::MODE_CINECAM;
+        extcam->mode = ExtCamera::MODE_CINECAM;
     }
-    if (results[4].matched)
+    else if ((mode_str == "node") && (m_num_args > 2))
     {
-        m_current_module->ext_camera->mode = ExtCamera::MODE_NODE;
-        m_current_module->ext_camera->node = _ParseNodeRef(results[6]);
+        extcam->mode = ExtCamera::MODE_NODE;
+        extcam->node = this->GetArgNodeRef(2);
     }
 }
 
