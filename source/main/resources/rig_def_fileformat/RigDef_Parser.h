@@ -173,7 +173,7 @@ protected:
 
     void ParseAxles(Ogre::String const & line);
 
-    void ParseBeams(Ogre::String const & line);
+    void ParseBeams();
 
     void ParseBrakes();
 
