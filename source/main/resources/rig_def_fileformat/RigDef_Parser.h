@@ -292,7 +292,7 @@ protected:
     void ParseTurbojets();
 
     /// Sections 'turboprops' & 'turboprops2'.
-    void ParseTurboprops(Ogre::String const & line);
+    void ParseTurbopropsUnified();
 
     void ParseVideoCamera(Ogre::String const & line);
 
