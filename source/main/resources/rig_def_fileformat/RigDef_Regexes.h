@@ -437,30 +437,6 @@ DEFINE_REGEX( SECTION_AXLES_PROPERTY,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_BEAMS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID )                     // #1 Node 1
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID )                     // #3 Node 2
-
-    E_CAPTURE_OPTIONAL(
-        E_CAPTURE( E_DELIMITER )               // #5 Delimiter (possibly dangling)
-
-        E_CAPTURE_OPTIONAL(
-            E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #7 Options
-
-            E_CAPTURE_OPTIONAL(
-                E_CAPTURE( E_DELIMITER )       // #9 Delimiter (possibly dangling)
-
-                E_CAPTURE_OPTIONAL(
-                    E_CAPTURE( E_REAL_NUMBER ) // #11 User-defined extension break limit
-                )
-            )
-        )
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_CAMERARAILS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Node
