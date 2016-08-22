@@ -2733,7 +2733,7 @@ void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 			msg << "Invalid node '" << itor->ToString() << "'";
 			continue;
 		}
-		m_rig->nodes[node_result.first].collisionBoundingBoxID = m_rig->collisionBoundingBoxes.size();
+		m_rig->nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_rig->collisionBoundingBoxes.size());
 	}
 
 	m_rig->collisionBoundingBoxes.resize(m_rig->collisionBoundingBoxes.size() + 1);
