@@ -415,31 +415,6 @@ DEFINE_REGEX( PARSE_ANIMATORS_NUMBERED_KEYWORD,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_AUTHOR,
-    "^author"
-
-    E_CAPTURE_OPTIONAL(
-        E_DELIMITER_SPACE
-        E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) // #2 Role
-
-        E_CAPTURE_OPTIONAL( 
-            E_DELIMITER_SPACE
-            E_CAPTURE( E_DECIMAL_NUMBER )   // #4 Forum ID
-
-            E_CAPTURE_OPTIONAL( 
-                E_DELIMITER_SPACE
-                E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) // #6 Name
-                
-                E_CAPTURE_OPTIONAL( 
-                    E_DELIMITER_SPACE
-                    E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) // #8 Email
-                )
-            )
-        )
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( SECTION_AXLES_PROPERTY,
     E_LEADING_WHITESPACE
     E_CAPTURE_OPTIONAL( // #1

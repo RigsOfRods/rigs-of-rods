@@ -156,7 +156,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_AUTHOR):
-                ParseAuthor(line);
+                ParseAuthor();
                 line_finished = true;
                 break;
 
@@ -4236,55 +4236,18 @@ void Parser::ParseAnimator()
     m_current_module->animators.push_back(animator);
 }
 
-void Parser::ParseAuthor(Ogre::String const & line)
+void Parser::ParseAuthor()
 {
-    if (! _IsCurrentModuleRoot())
+    if (! this->_IsCurrentModuleRoot())
     {
-        AddMessage(line, Message::TYPE_WARNING, "Inline-section 'author' has global effect and should not appear in a module");
-    }
-
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_AUTHOR))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
+        this->AddMessage(Message::TYPE_WARNING, "Inline-section 'author' has global effect and should not appear in a module");
     }
 
     Author author;
-
-    if (results[1].matched)
-    {
-        author.type = results[2].str();
-    }
-    else
-    {
-        AddMessage(line, Message::TYPE_WARNING, "Inline-section 'author' has no parameters specified, ignoring...");
-        return;
-    }
-
-    // Forum account id 
-    if (results[3].matched)
-    {
-        int user_id = STR_PARSE_INT(results[4]);
-        if (user_id != -1)
-        {
-            author._has_forum_account = true;
-            author.forum_account_id = user_id;
-        }
-
-        // Name 
-        if (results[5].matched)
-        {
-            author.name = results[6].str();
-
-            // Email 
-            if (results[7].matched)
-            {
-                author.email = results[8].str();
-            }
-        }
-    }
-
+    if (m_num_args > 1) { author.type             = this->GetArgStr(1); }
+    if (m_num_args > 2) { author.forum_account_id = this->GetArgInt(2); author._has_forum_account = true; }
+    if (m_num_args > 3) { author.name             = this->GetArgStr(3); }
+    if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
     m_definition->authors.push_back(author);
 }
 
