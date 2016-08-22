@@ -289,7 +289,7 @@ protected:
 
     void ParseTriggers(Ogre::String const & line);
 
-    void ParseTurbojets(Ogre::String const & line);
+    void ParseTurbojets();
 
     /// Sections 'turboprops' & 'turboprops2'.
     void ParseTurboprops(Ogre::String const & line);
