@@ -169,7 +169,7 @@ protected:
 
     void ParseAntiLockBrakes();
 
-    void ParseAuthor(Ogre::String const & line);
+    void ParseAuthor();
 
     void ParseAxles(Ogre::String const & line);
 
