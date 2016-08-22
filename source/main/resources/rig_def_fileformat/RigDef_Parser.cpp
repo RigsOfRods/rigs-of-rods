@@ -1060,7 +1060,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_TURBOJETS):
-            ParseTurbojets(line);
+            ParseTurbojets();
             line_finished = true;
             break;
 
@@ -2765,26 +2765,20 @@ void Parser::ParseTurboprops(Ogre::String const & line)
     m_current_module->turboprops_2.push_back(turboprop);
 }
 
-void Parser::ParseTurbojets(Ogre::String const & line)
+void Parser::ParseTurbojets()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_TURBOJETS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(9)) { return; }
 
     Turbojet turbojet;
-    turbojet.front_node     = _ParseNodeRef(results[1]);
-    turbojet.back_node      = _ParseNodeRef(results[2]);
-    turbojet.side_node      = _ParseNodeRef(results[3]);
-    turbojet.is_reversable  = STR_PARSE_INT(results[4]);
-    turbojet.dry_thrust     = STR_PARSE_REAL(results[5]);
-    turbojet.wet_thrust     = STR_PARSE_REAL(results[6]);
-    turbojet.front_diameter = STR_PARSE_REAL(results[7]);
-    turbojet.back_diameter  = STR_PARSE_REAL(results[8]);
-    turbojet.nozzle_length  = STR_PARSE_REAL(results[9]);
+    turbojet.front_node     = this->GetArgNodeRef(0);
+    turbojet.back_node      = this->GetArgNodeRef(1);
+    turbojet.side_node      = this->GetArgNodeRef(2);
+    turbojet.is_reversable  = this->GetArgInt    (3);
+    turbojet.dry_thrust     = this->GetArgFloat  (4);
+    turbojet.wet_thrust     = this->GetArgFloat  (5);
+    turbojet.front_diameter = this->GetArgFloat  (6);
+    turbojet.back_diameter  = this->GetArgFloat  (7);
+    turbojet.nozzle_length  = this->GetArgFloat  (8);
 
     m_current_module->turbojets.push_back(turbojet);
 }
