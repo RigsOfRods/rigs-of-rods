@@ -877,7 +877,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_EXHAUSTS):
-            ParseExhaust(line);
+            ParseExhaust();
             line_finished = true;
             break;
 
@@ -2067,29 +2067,16 @@ void Parser::ParseExtCamera(Ogre::String const & line)
     }
 }
 
-void Parser::ParseExhaust(Ogre::String const & line)
+void Parser::ParseExhaust()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_EXHAUSTS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(2)) { return; }
 
     Exhaust exhaust;
-    exhaust.reference_node = _ParseNodeRef(results[1]);
-    exhaust.direction_node = _ParseNodeRef(results[2]);
+    exhaust.reference_node = this->GetArgNodeRef(0);
+    exhaust.direction_node = this->GetArgNodeRef(1);
     
-    if (results[3].matched)
-    {
-        // #4 Unused param 
-
-        if (results[5].matched)
-        {
-            exhaust.material_name = results[6];
-        }
-    }
+    // Param [2] is unused
+    if (m_num_args > 3) { exhaust.material_name = this->GetArgStr(3); }
 
     m_current_module->exhausts.push_back(exhaust);
 }
