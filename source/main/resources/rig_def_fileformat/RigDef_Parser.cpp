@@ -1065,7 +1065,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_TURBOPROPS):
-            ParseTurboprops(line);
+            ParseTurbopropsUnified();
             line_finished = true;
             break;
 
@@ -2751,26 +2751,21 @@ void Parser::ParseCameras()
     m_current_module->cameras.push_back(camera);
 }
 
-void Parser::ParseTurboprops(Ogre::String const & line)
+void Parser::ParseTurbopropsUnified()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_TURBOPROPS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(8)) { return; }
 
     Turboprop2 turboprop;
-    turboprop.reference_node = _ParseNodeRef(results[1]);
-    turboprop.axis_node = _ParseNodeRef(results[2]);
-    turboprop.blade_tip_nodes[0] = _ParseNodeRef(results[3]);
-    turboprop.blade_tip_nodes[1] = _ParseNodeRef(results[4]);
-    turboprop.blade_tip_nodes[2] = _ParseNodeRef(results[5]);
-    turboprop.blade_tip_nodes[3] = _ParseNodeRef(results[6]);
-    turboprop.turbine_power_kW = STR_PARSE_REAL(results[7]);
-    turboprop.airfoil = results[8];
-
+    
+    turboprop.reference_node     = this->GetArgNodeRef(0);
+    turboprop.axis_node          = this->GetArgNodeRef(1);
+    turboprop.blade_tip_nodes[0] = this->GetArgNodeRef(2);
+    turboprop.blade_tip_nodes[1] = this->GetArgNodeRef(3);
+    turboprop.blade_tip_nodes[2] = this->GetArgNodeRef(4);
+    turboprop.blade_tip_nodes[3] = this->GetArgNodeRef(5);
+    turboprop.turbine_power_kW   = this->GetArgFloat  (6);
+    turboprop.airfoil            = this->GetArgStr    (7);
+    
     m_current_module->turboprops_2.push_back(turboprop);
 }
 

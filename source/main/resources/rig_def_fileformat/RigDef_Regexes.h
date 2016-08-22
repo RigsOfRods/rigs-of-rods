@@ -991,26 +991,6 @@ DEFINE_REGEX( SECTION_TRIGGERS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_TURBOPROPS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Reference node (center of the prop)
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Prop axis node (back of the prop)
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Blade 1 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Blade 2 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Blade 3 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Blade 4 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Power of the turbine (in kW)
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_STRING_NO_SPACES ) // Airfoil of the blades
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_VIDEOCAMERA,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Ref. node
