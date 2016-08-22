@@ -459,33 +459,6 @@ DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( INLINE_SECTION_EXTCAMERA,
-    E_LEADING_WHITESPACE
-    "[Ee][Xx][Tt][Cc][Aa][Mm][Ee][Rr][Aa]"
-    E_CAPTURE( // #1 Wrap
-        E_CAPTURE( // #2
-            E_DELIMITER_SPACE 
-            "classic"
-        )
-        E_OR
-        E_CAPTURE( // #3
-            E_DELIMITER_SPACE 
-            "cinecam"
-        )
-        E_OR
-        E_CAPTURE( // #4
-            E_DELIMITER_SPACE 
-            "node"
-
-            E_CAPTURE( // #5
-                E_DELIMITER_SPACE
-                E_CAPTURE( E_NODE_ID ) // #6
-            )
-        )
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( INLINE_SECTION_FILE_FORMAT_VERSION,
     E_LEADING_WHITESPACE
     "[Ff][Ii][Ll][Ee][Ff][Oo][Rr][Mm][Aa][Tt][Vv][Ee][Rr][Ss][Ii][Oo][Nn]"
