@@ -181,7 +181,7 @@ protected:
 
     void ParseCameraRails(Ogre::String const & line);
 
-    void ParseCinecam(Ogre::String const & line);
+    void ParseCinecam();
 
     void ParseCollisionBox(Ogre::String const & line);
 
