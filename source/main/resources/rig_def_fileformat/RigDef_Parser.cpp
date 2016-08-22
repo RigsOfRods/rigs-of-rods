@@ -52,6 +52,16 @@ inline bool IsSeparator(char c)
     return IsWhitespace(c) || (c == ':') || (c == '|') || (c == ',');
 }
 
+inline bool StrEqualsNocase(std::string const & s1, std::string const & s2)
+{
+    if (s1.size() != s2.size()) { return false; }
+    for (size_t i = 0; i < s1.size(); ++i)
+    {
+        if (tolower(s1[i]) != tolower(s2[i])) { return false; }
+    }
+    return true;
+}
+
 #define STR_PARSE_INT(_STR_)  Ogre::StringConverter::parseInt(_STR_)
 
 #define STR_PARSE_REAL(_STR_) Ogre::StringConverter::parseReal(_STR_)
@@ -69,59 +79,36 @@ Parser::Parser():
 
 void Parser::ProcessCurrentLine()
 {
-    std::string line = m_current_line;
-
-    bool line_finished = false;
-    bool scan_for_keyword = true;
-
     // Check line type 
     std::smatch line_type_result;
-    if (m_in_block_comment)
+    if (m_in_block_comment && StrEqualsNocase(m_current_line, "end_comment"))
     {
-        if (std::regex_match(line, Regexes::CHECK_BLOCK_COMMENT_END))
-        {
-            m_in_block_comment = false;
-        }
-        line_finished = true;
+        m_in_block_comment = false;
+        return;
+    }
+    else if (m_in_description_section && StrEqualsNocase(m_current_line, "end_description"))
+    {
+        m_in_description_section = false;
+        return;
     }
     else if (m_in_description_section)
     {
-        if (std::regex_match(line, Regexes::CHECK_END_DESCRIPTION))
-        {
-            m_in_description_section = false;
-        }
-        else
-        {
-            m_definition->description.push_back(line);
-        }
-        line_finished = true;
+        m_definition->description.push_back(m_current_line);
+        return;
     }
-    else
+    else if (StrEqualsNocase(m_current_line, "comment"))
     {
-        if (std::regex_search(line, line_type_result, Regexes::IDENTIFY_LINE_TYPE))
-        {
-            if (line_type_result[1].matched) // Block comment start 
-            {
-                m_in_block_comment = true;
-                line_finished = true;
-            }
-            else if (line_type_result[2].matched || line_type_result[3].matched || line_type_result[4].matched) // Comment line || blank line 
-            {
-                m_num_contiguous_blank_lines++;
-                line_finished = true;
-            }
-            else // Line has content 
-            {
-                m_num_contiguous_blank_lines = 0;
-            }
-        }
+        m_in_block_comment = true;
+        return;        
     }
-
-    // Continue? 
-    if (line_finished)
+    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/')) // Comment line
     {
         return;
     }
+
+    bool line_finished = false;
+    bool scan_for_keyword = true;
+    std::string line = m_current_line;
 
     // Prepare for switching file section 
     Ogre::String const & current_module_name = m_current_module->name;
@@ -4424,7 +4411,6 @@ void Parser::Prepare()
     m_current_section = File::SECTION_TRUCK_NAME;
     m_current_subsection = File::SUBSECTION_NONE;
     m_current_line_number = 1;
-    m_num_contiguous_blank_lines = 0;
     m_definition = std::shared_ptr<File>(new File());
     m_in_block_comment = false;
     m_in_description_section = false;
