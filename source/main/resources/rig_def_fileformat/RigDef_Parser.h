@@ -294,7 +294,7 @@ protected:
     /// Sections 'turboprops' & 'turboprops2'.
     void ParseTurbopropsUnified();
 
-    void ParseVideoCamera(Ogre::String const & line);
+    void ParseVideoCamera();
 
     void ParseWheel();
 
@@ -311,8 +311,8 @@ protected:
     bool             CheckNumArguments(int num_required_args);
 
     std::string        GetArgStr          (int index);
-    inline int         GetArgInt          (int index);
-    inline unsigned    GetArgUint         (int index);
+    int                GetArgInt          (int index);
+    unsigned           GetArgUint         (int index);
     long               GetArgLong         (int index);
     float              GetArgFloat        (int index);
     char               GetArgChar         (int index);
@@ -321,6 +321,7 @@ protected:
     Wheels::Braking    GetArgBraking      (int index);
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
+    Node::Ref          GetArgNullableNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
     Wing::Control      GetArgWingSurface  (int index);
     Flare2::Type       GetArgFlareType    (int index);

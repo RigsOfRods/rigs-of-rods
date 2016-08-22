@@ -1069,7 +1069,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_VIDEO_CAMERA):
-            ParseVideoCamera(line);
+            ParseVideoCamera();
             line_finished = true;
             break;
 
@@ -2684,57 +2684,33 @@ void Parser::ParseAirbrakes()
     m_current_module->airbrakes.push_back(airbrake);
 }
 
-void Parser::ParseVideoCamera(Ogre::String const & line)
+void Parser::ParseVideoCamera()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_VIDEOCAMERA))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(19)) { return; }
 
     VideoCamera videocamera;
 
-    videocamera.reference_node       = _ParseNodeRef(results[1]);
-    videocamera.left_node            = _ParseNodeRef(results[2]);
-    videocamera.bottom_node          = _ParseNodeRef(results[3]);
+    videocamera.reference_node       = this->GetArgNodeRef     ( 0);
+    videocamera.left_node            = this->GetArgNodeRef     ( 1);
+    videocamera.bottom_node          = this->GetArgNodeRef     ( 2);
+    videocamera.alt_reference_node   = this->GetArgNullableNode( 3);
+    videocamera.alt_orientation_node = this->GetArgNullableNode( 4);
+    videocamera.offset.x             = this->GetArgFloat       ( 5);
+    videocamera.offset.y             = this->GetArgFloat       ( 6);
+    videocamera.offset.z             = this->GetArgFloat       ( 7);
+    videocamera.rotation.x           = this->GetArgFloat       ( 8);
+    videocamera.rotation.y           = this->GetArgFloat       ( 9);
+    videocamera.rotation.z           = this->GetArgFloat       (10);
+    videocamera.field_of_view        = this->GetArgFloat       (11);
+    videocamera.texture_width        = this->GetArgInt         (12);
+    videocamera.texture_height       = this->GetArgInt         (13);
+    videocamera.min_clip_distance    = this->GetArgFloat       (14);
+    videocamera.max_clip_distance    = this->GetArgFloat       (15);
+    videocamera.camera_role          = this->GetArgInt         (16);
+    videocamera.camera_mode          = this->GetArgInt         (17);
+    videocamera.material_name        = this->GetArgStr         (18);
 
-    std::string param_4 = results[4];
-    if (! std::regex_match(param_4, Regexes::MINUS_ONE_REAL))
-    {
-        videocamera.alt_reference_node = _ParseNodeRef(param_4);
-    }
-
-    std::string param_5 = results[5];
-    if (! std::regex_match(param_5, Regexes::MINUS_ONE_REAL))
-    {
-        videocamera.alt_orientation_node = _ParseNodeRef(param_5);
-    }
-
-    videocamera.offset.x = STR_PARSE_REAL(results[6]);
-    videocamera.offset.y = STR_PARSE_REAL(results[7]);
-    videocamera.offset.z = STR_PARSE_REAL(results[8]);
-
-    videocamera.rotation.x = STR_PARSE_REAL(results[9]);
-    videocamera.rotation.y = STR_PARSE_REAL(results[10]);
-    videocamera.rotation.z = STR_PARSE_REAL(results[11]);
-    
-    videocamera.field_of_view = STR_PARSE_REAL(results[12]);
-
-    videocamera.texture_width  = STR_PARSE_INT(results[13]);
-    videocamera.texture_height = STR_PARSE_INT(results[14]);
-
-    videocamera.min_clip_distance = STR_PARSE_REAL(results[15]);
-    videocamera.max_clip_distance = STR_PARSE_REAL(results[16]);
-
-    videocamera.camera_role = STR_PARSE_INT(results[17]);
-    videocamera.camera_mode = STR_PARSE_INT(results[18]);
-    videocamera.material_name = results[19];
-    if (results[21].matched)
-    {
-        videocamera.camera_name = results[21];
-    }
+    if (m_num_args > 19) { videocamera.camera_name = this->GetArgStr(19); }
 
     m_current_module->videocameras.push_back(videocamera);
 }
@@ -4505,6 +4481,15 @@ Wheels::Braking Parser::GetArgBraking(int index)
 Node::Ref Parser::GetArgNodeRef(int index)
 {
     return this->_ParseNodeRef(this->GetArgStr(index));
+}
+
+Node::Ref Parser::GetArgNullableNode(int index)
+{
+    if (! (Ogre::StringConverter::parseReal(this->GetArgStr(index)) == -1.f))
+    {
+        return this->GetArgNodeRef(index);
+    }
+    return Node::Ref(); // Defaults to empty ref.
 }
 
 unsigned Parser::GetArgUint(int index)
