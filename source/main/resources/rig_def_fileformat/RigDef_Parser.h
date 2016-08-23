@@ -249,7 +249,7 @@ protected:
 
     void ParseRailGroups(Ogre::String const & line);
 
-    void ParseRopables(Ogre::String const & line);
+    void ParseRopables();
 
     void ParseRopes(Ogre::String const & line);
 
