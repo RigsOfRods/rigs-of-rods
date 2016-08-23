@@ -928,7 +928,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_HYDROS):
-            ParseHydros(line);
+            ParseHydros();
             line_finished = true;
             break;
 
@@ -3921,32 +3921,22 @@ void Parser::ParseLockgroups(Ogre::String const & line)
     m_current_module->lockgroups.push_back(lockgroup);
 }
 
-void Parser::ParseHydros(Ogre::String const & line)
+void Parser::ParseHydros()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_HYDROS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(3)) { return; }
 
     Hydro hydro;
     hydro.inertia_defaults   = m_user_default_inertia;
     hydro.detacher_group     = m_current_detacher_group;
     hydro.beam_defaults      = m_user_beam_defaults;
-    hydro.nodes[0]           = _ParseNodeRef(results[1]);
-    hydro.nodes[1]           = _ParseNodeRef(results[3]);
-    hydro.lenghtening_factor = STR_PARSE_REAL(results[5]);
-
-    // Flags 
-    if (results[8].matched)
-    {
-        hydro.options = results[8];
-    }
-
-    // Inertia part 
-    _ParseOptionalInertia(hydro.inertia, results, 11);
+    
+    hydro.nodes[0]           = this->GetArgNodeRef(0);
+    hydro.nodes[1]           = this->GetArgNodeRef(1);
+    hydro.lenghtening_factor = this->GetArgFloat  (2);
+    
+    if (m_num_args > 3) { hydro.options = this->GetArgStr(3); }
+    
+    this->ParseOptionalInertia(hydro.inertia, 4);
 
     m_current_module->hydros.push_back(hydro);
 }
