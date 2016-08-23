@@ -1050,7 +1050,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_TRIGGERS):
-            ParseTriggers(line);
+            ParseTriggers();
             line_finished = true;
             break;
 
@@ -2760,76 +2760,50 @@ void Parser::ParseTurbojets()
     m_current_module->turbojets.push_back(turbojet);
 }
 
-void Parser::ParseTriggers(Ogre::String const & line)
+void Parser::ParseTriggers()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_TRIGGERS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(6)) { return; }
 
     Trigger trigger;
-    trigger.beam_defaults = m_user_beam_defaults;
-    trigger.detacher_group = m_current_detacher_group;
-    trigger.nodes[0] = _ParseNodeRef(results[1]);
-    trigger.nodes[1] = _ParseNodeRef(results[2]);
-    trigger.contraction_trigger_limit = STR_PARSE_REAL(results[3]);
-    trigger.expansion_trigger_limit = STR_PARSE_REAL(results[4]);
-    int shortbound_trigger_action = STR_PARSE_INT(results[5]);
-    int longbound_trigger_action = STR_PARSE_INT(results[6]);
-
-    if (results[8].matched)
+    trigger.beam_defaults             = m_user_beam_defaults;
+    trigger.detacher_group            = m_current_detacher_group;
+    trigger.nodes[0]                  = this->GetArgNodeRef(0);
+    trigger.nodes[1]                  = this->GetArgNodeRef(1);
+    trigger.contraction_trigger_limit = this->GetArgFloat  (2);
+    trigger.expansion_trigger_limit   = this->GetArgFloat  (3);
+    
+    int shortbound_trigger_action = this->GetArgInt(4); 
+    int longbound_trigger_action  = this->GetArgInt(5); 
+    if (m_num_args > 6)
     {
-        std::string options_str = results[8].str();
+        std::string options_str = this->GetArgStr(6);
         for (unsigned int i = 0; i < options_str.length(); i++)
         {
             switch(options_str.at(i))
             {
-                case 'i':
-                    trigger.options |= Trigger::OPTION_i_INVISIBLE;
-                    break;
-                case 'c':
-                    trigger.options |= Trigger::OPTION_c_COMMAND_STYLE;
-                    break;
-                case 'x':
-                    trigger.options |= Trigger::OPTION_x_START_OFF;
-                    break;
-                case 'b':
-                    trigger.options |= Trigger::OPTION_b_BLOCK_KEYS;
-                    break;
-                case 'B':
-                    trigger.options |= Trigger::OPTION_B_BLOCK_TRIGGERS;
-                    break;
-                case 'A':
-                    trigger.options |= Trigger::OPTION_A_INV_BLOCK_TRIGGERS;
-                    break;
-                case 's':
-                    trigger.options |= Trigger::OPTION_s_SWITCH_CMD_NUM;
-                    break;
-                case 'h':
-                    trigger.options |= Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY;
-                    break;
-                case 'H':
-                    trigger.options |= Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY;
-                    break;
-                case 't':
-                    trigger.options |= Trigger::OPTION_t_CONTINUOUS;
-                    break;
-                case 'E':
-                    trigger.options |= Trigger::OPTION_E_ENGINE_TRIGGER;
-                    break;
+                case 'i': trigger.options |= Trigger::OPTION_i_INVISIBLE;             break;
+                case 'c': trigger.options |= Trigger::OPTION_c_COMMAND_STYLE;         break;
+                case 'x': trigger.options |= Trigger::OPTION_x_START_OFF;             break;
+                case 'b': trigger.options |= Trigger::OPTION_b_BLOCK_KEYS;            break;
+                case 'B': trigger.options |= Trigger::OPTION_B_BLOCK_TRIGGERS;        break;
+                case 'A': trigger.options |= Trigger::OPTION_A_INV_BLOCK_TRIGGERS;    break;
+                case 's': trigger.options |= Trigger::OPTION_s_SWITCH_CMD_NUM;        break;
+                case 'h': trigger.options |= Trigger::OPTION_h_UNLOCK_HOOKGROUPS_KEY; break;
+                case 'H': trigger.options |= Trigger::OPTION_H_LOCK_HOOKGROUPS_KEY;   break;
+                case 't': trigger.options |= Trigger::OPTION_t_CONTINUOUS;            break;
+                case 'E': trigger.options |= Trigger::OPTION_E_ENGINE_TRIGGER;        break;
 
                 default:
-                    AddMessage(line, Message::TYPE_WARNING, Ogre::String("Invalid trigger option: " + options_str.at(i)));
-                    break;
+                    this->AddMessage(Message::TYPE_WARNING, Ogre::String("Invalid trigger option: " + options_str.at(i)));
             }
         }
     }
-    if (results[10].matched)
+
+    if (m_num_args > 7)
     {
-        trigger.boundary_timer = STR_PARSE_REAL(results[10]);
+        float boundary_timer = this->GetArgFloat(7);
+        if (boundary_timer > 0.0f)
+            trigger.boundary_timer = boundary_timer;
     }
 
     // Handle actions
@@ -2854,7 +2828,6 @@ void Parser::ParseTriggers(Ogre::String const & line)
         command_keys.extension_trigger_key   = longbound_trigger_action;
         trigger.SetCommandKeyTrigger(command_keys);
     }
-
 
     m_current_module->triggers.push_back(trigger);
 }
