@@ -577,33 +577,6 @@ DEFINE_REGEX( SECTION_HELP,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( SECTION_MANAGEDMATERIALS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // #1 Material name
-    E_CAPTURE( E_DELIMITER )        // #2
-    E_CAPTURE(                      // #3 Type wrapper
-        E_CAPTURE( "mesh_standard" )        // #4
-        E_OR
-        E_CAPTURE( "mesh_transparent" )     // #5
-        E_OR
-        E_CAPTURE( "flexmesh_standard" )    // #6
-        E_OR
-        E_CAPTURE( "flexmesh_transparent" ) // #7
-    )
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_STRING_NO_SPACES )         // #9 Diffuse map filename
-    E_CAPTURE_OPTIONAL(
-        E_CAPTURE( E_DELIMITER )
-        E_CAPTURE( E_STRING_NO_SPACES )     // #12
-        E_CAPTURE_OPTIONAL( 
-            E_CAPTURE( E_DELIMITER )
-            E_CAPTURE( E_STRING_NO_SPACES ) // #15
-        )
-    )
-    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #1 Flare number

@@ -229,7 +229,7 @@ protected:
 
     void ParseLockgroups();
 
-    void ParseManagedMaterials(Ogre::String const & line);
+    void ParseManagedMaterials();
 
     void ParseMaterialFlareBindings(Ogre::String const & line);
 
@@ -325,6 +325,7 @@ protected:
     MeshWheel::Side    GetArgWheelSide    (int index);
     Wing::Control      GetArgWingSurface  (int index);
     Flare2::Type       GetArgFlareType    (int index);
+    std::string        GetArgManagedTex   (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
