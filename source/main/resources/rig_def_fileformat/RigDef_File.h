@@ -1585,22 +1585,13 @@ struct RailGroup
 struct Ropable
 {
 	Ropable():
-		group(-1), /* Default */
-		_has_group_set(false),
-		multilock(0),
-		_has_multilock_set(false)
+		group(-1), // = value not set
+		has_multilock(false)
 	{}
-
-	bool use_default_group()
-	{
-		return group == -1;
-	}
 
 	Node::Ref node;
 	int group;
-	bool _has_group_set;
-	bool multilock;
-	bool _has_multilock_set;
+	bool has_multilock;
 };
 
 /* -------------------------------------------------------------------------- */
