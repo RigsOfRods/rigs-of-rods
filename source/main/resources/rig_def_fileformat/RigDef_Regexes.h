@@ -577,22 +577,6 @@ DEFINE_REGEX( SECTION_RAILGROUPS,
     E_CAPTURE( "([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*,)*([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*)+$" ) // Node list
     );
 
-DEFINE_REGEX( SECTION_ROPABLES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Node
-
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_DECIMAL_NUMBER ) // Group
-    
-        E_CAPTURE_OPTIONAL( 
-            E_DELIMITER_COMMA
-            E_CAPTURE( "[01]" )
-        )
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( SECTION_ROPES,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Root node

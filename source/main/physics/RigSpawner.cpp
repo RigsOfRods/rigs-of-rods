@@ -2918,7 +2918,7 @@ void RigSpawner::ProcessRopable(RigDef::Ropable & def)
 	ropable.node = GetNodePointerOrThrow(def.node);
 	ropable.group = def.group;
 	ropable.used = 0; // Hardcoded in BTS_ROPABLES
-	ropable.multilock = def.multilock;
+	ropable.multilock = def.has_multilock;
 	m_rig->ropables.push_back(ropable);
 }
 
