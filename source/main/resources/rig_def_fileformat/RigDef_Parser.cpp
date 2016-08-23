@@ -989,7 +989,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_ROPABLES):
-            ParseRopables(line);
+            ParseRopables();
             line_finished = true;
             break;
 
@@ -3298,31 +3298,15 @@ void Parser::ParseRopes(Ogre::String const & line)
     m_current_module->ropes.push_back(rope);
 }
 
-void Parser::ParseRopables(Ogre::String const & line)
+void Parser::ParseRopables()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ROPABLES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(1)) { return; }
 
     Ropable ropable;
-    ropable.node = _ParseNodeRef(results[1]);
-
-    if (results[3].matched)
-    {
-        ropable.group = STR_PARSE_INT(results[3]);
-        ropable._has_group_set = true;
-
-        if (results[5].matched)
-        {
-            unsigned int multilock = STR_PARSE_INT(results[5]);
-            ropable.multilock = multilock > 0;
-            ropable._has_multilock_set = true;
-        }
-    }
+    ropable.node = this->GetArgNodeRef(0);
+    
+    if (m_num_args > 1) { ropable.group         =  this->GetArgInt(1); }
+    if (m_num_args > 2) { ropable.has_multilock = (this->GetArgInt(2) == 1); }
 
     m_current_module->ropables.push_back(ropable);
 }
