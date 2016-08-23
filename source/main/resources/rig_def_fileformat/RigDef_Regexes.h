@@ -587,41 +587,6 @@ DEFINE_REGEX( SECTION_HELP,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( SECTION_HYDROS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // #1 Node 1
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_NODE_ID ) // #3 Node 2
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER ) // #5 Lengthening factor
-    E_CAPTURE_OPTIONAL( 
-        E_CAPTURE( E_DELIMITER )
-        E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) // #8 Flags
-
-        E_CAPTURE_OPTIONAL(
-            E_CAPTURE( E_DELIMITER )
-            E_CAPTURE( E_REAL_NUMBER ) // #11 Inertia: start delay
-
-            E_CAPTURE_OPTIONAL(
-                E_CAPTURE( E_DELIMITER )
-                E_CAPTURE( E_REAL_NUMBER ) // #14 Inertia: stop delay
-
-                E_CAPTURE_OPTIONAL(
-                    E_CAPTURE( E_DELIMITER )
-                    E_CAPTURE( E_STRING_NO_SPACES ) // #17 Inertia: start function
-
-                    E_CAPTURE_OPTIONAL(
-                        E_CAPTURE( E_DELIMITER )
-                        E_CAPTURE( E_STRING_NO_SPACES ) // #20 Inertia: stop function
-                    )
-                )
-            )
-        )
-    )
-    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING ) // #21 Invalid text
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( SECTION_LOCKGROUPS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_DECIMAL_NUMBER ) // #1 Group number
