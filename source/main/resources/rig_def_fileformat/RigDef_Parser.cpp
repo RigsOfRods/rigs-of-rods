@@ -999,12 +999,8 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_ROTATORS):
-            ParseRotators(line);
-            line_finished = true;
-            break;
-
         case (File::SECTION_ROTATORS_2):
-            ParseRotators2(line);
+            ParseRotatorsUnified();
             line_finished = true;
             break;
 
@@ -3330,111 +3326,54 @@ void Parser::ParseScrewprops(Ogre::String const & line)
     m_current_module->screwprops.push_back(screwprop);
 }
 
-void Parser::_ParseRotatorsCommon(Rotator & rotator, std::smatch & results, unsigned int inertia_start_index)
+void Parser::ParseRotatorsUnified()
 {
-    rotator.axis_nodes[0] = _ParseNodeRef(results[1]);
-    rotator.axis_nodes[1] = _ParseNodeRef(results[3]);
-
-    rotator.base_plate_nodes[0] = _ParseNodeRef(results[ 5]);
-    rotator.base_plate_nodes[1] = _ParseNodeRef(results[ 7]);
-    rotator.base_plate_nodes[2] = _ParseNodeRef(results[ 9]);
-    rotator.base_plate_nodes[3] = _ParseNodeRef(results[11]);
-
-    rotator.rotating_plate_nodes[0] = _ParseNodeRef(results[13]);
-    rotator.rotating_plate_nodes[1] = _ParseNodeRef(results[15]);
-    rotator.rotating_plate_nodes[2] = _ParseNodeRef(results[17]);
-    rotator.rotating_plate_nodes[3] = _ParseNodeRef(results[19]);
-
-    rotator.rate = STR_PARSE_REAL(results[21]);
-
-    rotator.spin_left_key  = STR_PARSE_INT(results[23]);
-    rotator.spin_right_key = STR_PARSE_INT(results[25]);
-
-    // Inertia part 
-
-    if (this->_ParseOptionalInertia(rotator.inertia, results, inertia_start_index))
-    {
-        unsigned int i = inertia_start_index + 12;
-
-        if (results[i].matched)
-        {
-            rotator.engine_coupling = STR_PARSE_REAL(results[i]);
-            i += 3;
-
-            if (results[i].matched)
-            {
-                rotator.needs_engine = STR_PARSE_BOOL(results[i]);
-            }
-        }
-    }
-}
-
-void Parser::ParseRotators(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ROTATORS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
+    if (! this->CheckNumArguments(13)) { return; }
 
     Rotator rotator;
     rotator.inertia_defaults = m_user_default_inertia;
-
-    const unsigned int inertia_start_index = 29;
-    this->_ParseRotatorsCommon(rotator, results, inertia_start_index);
-
-    // Backwards compatibility check
-    // Parameter "inertia_start_delay" must accept garbage
-    if (results[inertia_start_index].matched)
+    
+    rotator.axis_nodes[0]           = this->GetArgNodeRef( 0);
+    rotator.axis_nodes[1]           = this->GetArgNodeRef( 1);
+    rotator.base_plate_nodes[0]     = this->GetArgNodeRef( 2);
+    rotator.base_plate_nodes[1]     = this->GetArgNodeRef( 3);
+    rotator.base_plate_nodes[2]     = this->GetArgNodeRef( 4);
+    rotator.base_plate_nodes[3]     = this->GetArgNodeRef( 5);
+    rotator.rotating_plate_nodes[0] = this->GetArgNodeRef( 6);
+    rotator.rotating_plate_nodes[1] = this->GetArgNodeRef( 7);
+    rotator.rotating_plate_nodes[2] = this->GetArgNodeRef( 8);
+    rotator.rotating_plate_nodes[3] = this->GetArgNodeRef( 9);
+    rotator.rate                    = this->GetArgFloat  (10);
+    rotator.spin_left_key           = this->GetArgInt    (11);
+    rotator.spin_right_key          = this->GetArgInt    (12);
+    
+    if (m_current_section == File::SECTION_ROTATORS_2)
     {
-        std::string start_delay_str = results[inertia_start_index];
-        if (! std::regex_match(start_delay_str, Regexes::REAL_NUMBER))
+        Rotator2* rotator2 = static_cast<Rotator2*>(&rotator);
+        if (m_num_args > 13) { rotator2->rotating_force  = this->GetArgFloat(13); }
+        if (m_num_args > 14) { rotator2->tolerance       = this->GetArgFloat(14); }
+        if (m_num_args > 15) { rotator2->description     = this->GetArgStr  (15); }
+        this->ParseOptionalInertia(rotator2->inertia, 16);
+        if (m_num_args > 20) { rotator2->engine_coupling = this->GetArgFloat(20); }
+        if (m_num_args > 21) { rotator2->needs_engine    = this->GetArgBool (21); }
+        
+        m_current_module->rotators_2.push_back(*rotator2);
+    }
+    else
+    {
+        this->ParseOptionalInertia(rotator.inertia, 13);
+        if (m_num_args > 17) { rotator.engine_coupling = this->GetArgFloat(17); }
+        if (m_num_args > 18) { rotator.needs_engine    = this->GetArgBool (18); }
+
+        if (m_current_section == File::SECTION_ROTATORS_2)
         {
-            float result = STR_PARSE_REAL(start_delay_str);
-            std::stringstream msg;
-            msg << "Invalid value of parameter ~14 'inertia_start_delay': '" << start_delay_str 
-                << "', parsing as '" << result << "' for backwards compatibility. Please fix.";
-            AddMessage(line, Message::TYPE_WARNING, msg.str());
+            m_current_module->rotators_2.push_back(rotator);
+        }
+        else
+        {
+            m_current_module->rotators.push_back(rotator);
         }
     }
-
-    m_current_module->rotators.push_back(rotator);
-}
-
-void Parser::ParseRotators2(Ogre::String const & line)
-{
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ROTATORS2))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
-
-    Rotator2 rotator;
-    rotator.inertia_defaults = m_user_default_inertia;
-
-    const unsigned int inertia_start_index = 38;
-    this->_ParseRotatorsCommon(rotator, results, inertia_start_index);
-
-    if (results[28].matched)
-    {
-        rotator.rotating_force = STR_PARSE_REAL(results[28]);
-
-        if (results[31].matched)
-        {
-            rotator.tolerance = STR_PARSE_REAL(results[31]);
-
-            if (results[34].matched)
-            {
-                rotator.description = results[34];
-            }
-        }
-    }
-
-    m_current_module->rotators_2.push_back(rotator);
 }
 
 void Parser::ParseFileinfo()
@@ -3945,38 +3884,6 @@ void Parser::ParseOptionalInertia(Inertia & inertia, int index)
     if (m_num_args > index) { inertia.stop_delay_factor  = this->GetArgFloat(index++); }
     if (m_num_args > index) { inertia.start_function     = this->GetArgStr  (index++); }
     if (m_num_args > index) { inertia.stop_function      = this->GetArgStr  (index++); }
-}
-
-bool Parser::_ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index)
-{
-    unsigned int result_index = start_index;
-
-    if (results[result_index].matched)
-    {
-        Ogre::String start_delay_str = results[result_index];
-        inertia.start_delay_factor = STR_PARSE_REAL(start_delay_str);
-
-        result_index += 3;
-        if (results[result_index].matched)
-        {
-            Ogre::String stop_delay_str = results[result_index];
-            inertia.stop_delay_factor = STR_PARSE_REAL(stop_delay_str);
-
-            result_index +=3;
-            if (results[result_index].matched)
-            {
-                inertia.start_function = results[result_index];
-
-                result_index += 3;
-                if (results[result_index].matched)
-                {
-                    inertia.stop_function = results[result_index];
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
 }
 
 void Parser::ParseBeams()
