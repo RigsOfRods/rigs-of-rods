@@ -253,9 +253,7 @@ protected:
 
     void ParseRopes(Ogre::String const & line);
 
-    void ParseRotators(Ogre::String const & line);
-
-    void ParseRotators2(Ogre::String const & line);
+    void ParseRotatorsUnified();
 
     void ParseScrewprops(Ogre::String const & line);
 
@@ -351,9 +349,6 @@ protected:
         this->AddMessage(m_current_line, type, msg);
     }
 
-    /// Helper - parses stuff common to ROTATORS & ROTATORS2
-    void _ParseRotatorsCommon(Rotator & rotator, std::smatch & results, unsigned int inertia_start_index);
-
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
 
@@ -377,10 +372,6 @@ protected:
     {
         return m_root_module == m_current_module;
     }
-
-    /// @return True if there could be more results, false if end was hit.
-    /// TO BE REMOVED
-    bool _ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index);
 
     void ParseOptionalInertia(Inertia& inertia, int index);
 
