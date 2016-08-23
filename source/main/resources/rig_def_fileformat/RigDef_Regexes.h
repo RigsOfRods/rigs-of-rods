@@ -756,26 +756,6 @@ DEFINE_REGEX( SLIDENODES_IDENTIFY_OPTION,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_SLOPE_BRAKE,
-    E_LEADING_WHITESPACE
-    "[Ss][Ll][Oo][Pp][Ee][Bb][Rr][Aa][Kk][Ee]"
-    E_CAPTURE_OPTIONAL(
-        E_DELIMITER_SPACE
-        E_CAPTURE( E_REAL_NUMBER ) // #2 Regulating force
-
-        E_CAPTURE_OPTIONAL(
-            E_DELIMITER_COMMA
-            E_CAPTURE( E_REAL_NUMBER ) // #4 Attach-angle
-
-            E_CAPTURE_OPTIONAL(
-                E_DELIMITER_COMMA
-                E_CAPTURE( E_REAL_NUMBER ) // #6 Detach-angle
-            )
-        )
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( SECTION_TORQUECURVE,
     E_LEADING_WHITESPACE
     E_CAPTURE( // #1 Whole custom-curve line
