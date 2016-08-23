@@ -178,11 +178,10 @@ Tie::Tie():
 	auto_shorten_rate(0),
 	min_length(0),
 	max_length(0),
-	options(OPTIONS_VISIBLE),
+	is_invisible(false),
 	max_stress(100000.0f), // default, hardcoded in legacy SerializedRig.cpp, BTS_TIES
 	detacher_group(0), /* Global detacher group */
-	group(-1), // default value
-	_group_set(false)
+	group(-1) // = group not set
 {}
 
 TractionControl::TractionControl():
