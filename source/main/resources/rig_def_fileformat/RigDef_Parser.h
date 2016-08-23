@@ -187,7 +187,7 @@ protected:
 
     void ParseCommandsUnified();
 
-    void ParseContacter(Ogre::String const & line);
+    void ParseContacter();
 
     void ParseCruiseControl(Ogre::String const & line);
 
@@ -205,7 +205,7 @@ protected:
 
     void ParseFileinfo();
 
-    void ParseFixes(Ogre::String const & line);
+    void ParseFixes();
 
     void ParseFlaresUnified();
 
