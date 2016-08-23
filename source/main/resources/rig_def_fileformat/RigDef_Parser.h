@@ -267,7 +267,7 @@ protected:
 
     void ParseSlidenodes(Ogre::String const & line);
 
-    void ParseSlopeBrake(Ogre::String const & line);
+    void ParseSlopeBrake();
 
     void ParseSoundsources();
 
