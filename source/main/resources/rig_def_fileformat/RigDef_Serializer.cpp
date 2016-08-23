@@ -976,7 +976,7 @@ void Serializer::ProcessRopables(File::Module* module)
 
 		m_stream << "\n\t" << def.node.ToString()
 			<< ", " << def.group
-			<< ", " << (int) def.multilock;
+			<< ", " << (int) def.has_multilock;
 	}
 	m_stream << endl << endl; // Empty line
 }
