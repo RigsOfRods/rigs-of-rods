@@ -219,7 +219,7 @@ protected:
 
     void ParseGuid(Ogre::String const & line);
 
-    void ParseGuiSettings(Ogre::String const & line);
+    void ParseGuiSettings();
 
     void ParseHelp(Ogre::String const & line);
 

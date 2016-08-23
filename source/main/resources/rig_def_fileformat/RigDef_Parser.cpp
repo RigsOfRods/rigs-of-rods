@@ -913,7 +913,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_GUI_SETTINGS):
-            ParseGuiSettings(line);
+            ParseGuiSettings();
             line_finished = true;
             break;
 
@@ -1653,69 +1653,38 @@ void Parser::ParseHelp(Ogre::String const & line)
     m_current_module->help_panel_material_name = results[1];
 }
 
-void Parser::ParseGuiSettings(Ogre::String const & line)
+void Parser::ParseGuiSettings()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_GUISETTINGS))
+    if (! this->CheckNumArguments(2)) { return; }
+    
+    GuiSettings* gui_settings = m_current_module->gui_settings.get();
+   
+    std::string key = this->GetArgStr(1);
+    
+    if (key == "debugBeams") {} // Obsolete, ignored
+    
+    else if (key == "tachoMaterial")  { gui_settings->tacho_material     =  this->GetArgStr(1); }
+    else if (key == "speedoMaterial") { gui_settings->speedo_material    =  this->GetArgStr(1); }
+    else if (key == "speedoMax")      { gui_settings->speedo_highest_kph =  this->GetArgInt(1); }
+    else if (key == "useMaxRPM")      { gui_settings->use_max_rpm        = (this->GetArgInt(1) == 1); }
+    else if (key == "helpMaterial")   { gui_settings->help_material      =  this->GetArgStr(1); }
+    
+    else if (key == "dashboard")        { gui_settings->dashboard_layouts    .push_back(this->GetArgStr(1)); }
+    else if (key == "texturedashboard") { gui_settings->rtt_dashboard_layouts.push_back(this->GetArgStr(1)); }
+    
+    else if (key == "interactiveOverviewMap")
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    if (results[3].matched)
-    {
-        m_current_module->gui_settings->tacho_material = results[3];
-    }
-    else if (results[5].matched)
-    {
-        m_current_module->gui_settings->speedo_material = results[5];
-    }
-    else if (results[7].matched)
-    {
-        m_current_module->gui_settings->speedo_highest_kph = STR_PARSE_INT(results[7]);
-    }
-    else if (results[9].matched)
-    {
-        int input = STR_PARSE_INT(results[9]);
-        if ( input != 0 && input != 1 ) // This is backwards compatible, legacy check was: 1. parse VALUE_STR as int 2. compare (VALUE_INT == 1)
-        {
-            std::stringstream msg;
-            msg << "Param 'Use Max RPM' has invalid value '" << results[9] << "'. Valid values are '0' (no) or '1' (yes). Parsing as '0' (no). Please fix.";
-            AddMessage(line, Message::TYPE_WARNING, msg.str());
-        }
-        m_current_module->gui_settings->use_max_rpm = (input == 1);
-    }
-    else if (results[11].matched)
-    {
-        m_current_module->gui_settings->help_material = results[11];
-    }
-    else if (results[12].matched)
-    {
-        if (results[14].matched)
-        {
-            m_current_module->gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_OFF;
-        }
-        else if (results[15].matched)
-        {
-            m_current_module->gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_SIMPLE;
-        }
-        else if (results[16].matched)
-        {
-            m_current_module->gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_ZOOM;
-        }
-    }
-    else if (results[18].matched)
-    {
-        m_current_module->gui_settings->dashboard_layouts.push_back(results[18]);
-    }
-    else if (results[20].matched)
-    {
-        m_current_module->gui_settings->rtt_dashboard_layouts.push_back(results[20]);
+        std::string val = this->GetArgStr(1);
+        
+             if (val == "off"   ) { gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_OFF;    }
+        else if (val == "simple") { gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_SIMPLE; }
+        else if (val == "zoom"  ) { gui_settings->interactive_overview_map_mode = GuiSettings::MAP_MODE_ZOOM;   }
+        
+        else { this->AddMessage(Message::TYPE_ERROR, "Unknown map mode [" + val + "], ignoring..."); }
     }
     else
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        this->AddMessage(Message::TYPE_ERROR, "Unknown setting [" + key + "], ignoring...");
     }
 }
 
