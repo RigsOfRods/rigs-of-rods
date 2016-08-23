@@ -225,7 +225,7 @@ protected:
 
     void ParseHook();
 
-    void ParseHydros(Ogre::String const & line);
+    void ParseHydros();
 
     void ParseLockgroups(Ogre::String const & line);
 
