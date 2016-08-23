@@ -856,7 +856,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_CONTACTERS):
-            ParseContacter(line);
+            ParseContacter();
             line_finished = true;
             break;
 
@@ -881,7 +881,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_FIXES):
-            ParseFixes(line);
+            ParseFixes();
             line_finished = true;
             break;
 
@@ -2046,17 +2046,9 @@ void Parser::ParseFlaresUnified()
     m_current_module->flares_2.push_back(flare2);
 }
 
-void Parser::ParseFixes(Ogre::String const & line)
+void Parser::ParseFixes()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::NODE_LIST))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    m_current_module->fixes.push_back(_ParseNodeRef(results[1]));
+    m_current_module->fixes.push_back(this->GetArgNodeRef(0));
 }
 
 void Parser::ParseExtCamera()
@@ -2455,17 +2447,11 @@ void Parser::ParseEngine()
     m_current_module->engine = std::shared_ptr<Engine>( new Engine(engine) );
 }
 
-void Parser::ParseContacter(Ogre::String const & line)
+void Parser::ParseContacter()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::NODE_LIST))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(1)) { return; }
 
-    m_current_module->contacters.push_back( _ParseNodeRef(results[1]) );
+    m_current_module->contacters.push_back(this->GetArgNodeRef(0));
 }
 
 void Parser::ParseCommandsUnified()
