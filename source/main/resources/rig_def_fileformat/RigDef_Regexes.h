@@ -768,32 +768,6 @@ DEFINE_REGEX( SECTION_TORQUECURVE,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_TRIGGERS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Node 1
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Node 2
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Contraction trigger limit
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Extension trigger limit
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_DECIMAL_NUMBER ) // #5 Contraction trigger action
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_DECIMAL_NUMBER ) // #6 Extension trigger action
-
-    E_CAPTURE_OPTIONAL(
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY ) // #8 Options
-
-        E_CAPTURE_OPTIONAL(
-            E_DELIMITER_COMMA
-            E_CAPTURE( E_REAL_NUMBER ) // #10 Boundary timer
-        )
-    )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
