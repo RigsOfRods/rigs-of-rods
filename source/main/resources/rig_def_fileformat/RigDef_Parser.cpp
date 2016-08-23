@@ -933,7 +933,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_LOCKGROUPS):
-            ParseLockgroups(line);
+            ParseLockgroups();
             line_finished = true;
             break;
 
@@ -3894,29 +3894,17 @@ void Parser::ParseManagedMaterials(Ogre::String const & line)
     m_current_module->managed_materials.push_back(managed_material);
 }
 
-void Parser::ParseLockgroups(Ogre::String const & line)
+void Parser::ParseLockgroups()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_LOCKGROUPS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(2)) { return; } // Lockgroup num. + at least 1 node...
 
     Lockgroup lockgroup;
-    lockgroup.number = STR_PARSE_INT(results[1]);
-
-    // Node list 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(results[2].str(), ",");
-    Ogre::StringVector::iterator iter = tokens.begin();
-    for ( ; iter != tokens.end(); iter++)
+    lockgroup.number = this->GetArgInt(0);
+    
+    for (int i = 1; i < m_num_args; ++i)
     {
-        Ogre::String token = *iter;
-        lockgroup.nodes.push_back(_ParseNodeRef(token));
+        lockgroup.nodes.push_back(this->GetArgNodeRef(i));
     }
-
-    _CheckInvalidTrailingText(line, results, 5);
     
     m_current_module->lockgroups.push_back(lockgroup);
 }
