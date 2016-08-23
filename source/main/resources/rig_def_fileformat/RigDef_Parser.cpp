@@ -938,7 +938,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_MANAGED_MATERIALS):
-            ParseManagedMaterials(line);
+            ParseManagedMaterials();
             line_finished = true;
             break;
 
@@ -3835,73 +3835,44 @@ void Parser::ParseMaterialFlareBindings(Ogre::String const & line)
     m_current_module->material_flare_bindings.push_back(binding);
 }
 
-void Parser::ParseManagedMaterials(Ogre::String const & line)
+void Parser::ParseManagedMaterials()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_MANAGEDMATERIALS))
+    if (! this->CheckNumArguments(2)) { return; }
+
+    ManagedMaterial managed_mat;
+    
+    managed_mat.options = m_current_managed_material_options;
+    managed_mat.name    = this->GetArgStr(0);
+
+    const std::string type_str = this->GetArgStr(1);
+    if (type_str == "mesh_standard" || type_str == "mesh_transparent")
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
+        managed_mat.type = (type_str == "mesh_standard")
+            ? ManagedMaterial::TYPE_MESH_STANDARD
+            : ManagedMaterial::TYPE_MESH_TRANSPARENT;
+        
+        managed_mat.diffuse_map = this->GetArgStr(2);
+        
+        if (m_num_args > 3) { managed_mat.specular_map = this->GetArgManagedTex(3); }
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    ManagedMaterial managed_material;
-    managed_material.options = m_current_managed_material_options;
-    managed_material.name = results[1].str();
-
-    managed_material.type = (results[4].matched) ? ManagedMaterial::TYPE_MESH_STANDARD        : managed_material.type;
-    managed_material.type = (results[5].matched) ? ManagedMaterial::TYPE_MESH_TRANSPARENT     : managed_material.type;
-    managed_material.type = (results[6].matched) ? ManagedMaterial::TYPE_FLEXMESH_STANDARD    : managed_material.type;
-    managed_material.type = (results[7].matched) ? ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT : managed_material.type;
-
-    managed_material.diffuse_map = results[9];
-
-    if	(	managed_material.type == ManagedMaterial::TYPE_MESH_STANDARD
-        ||	managed_material.type == ManagedMaterial::TYPE_MESH_TRANSPARENT)
+    else if (type_str == "flexmesh_standard" || type_str == "flexmesh_transparent")
     {
-        if (results[12].matched)
-        {
-            Ogre::String input = results[12];
-            Ogre::StringUtil::trim(input);
-
-            //    According to documentation, '-' is a placeholder for no texture.
-            //    However, for compatibility with old parser, we need to only check the first letter and ignore the rest.
+        managed_mat.type = (type_str == "flexmesh_standard")
+            ? ManagedMaterial::TYPE_FLEXMESH_STANDARD
+            : ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT;
             
-            if (input.at(0) != '-')
-            {
-                managed_material.specular_map = input;
-            }
-        }
+        managed_mat.diffuse_map = this->GetArgStr(2);
+        
+        if (m_num_args > 3) { managed_mat.damaged_diffuse_map = this->GetArgManagedTex(3); }
+        if (m_num_args > 4) { managed_mat.specular_map        = this->GetArgManagedTex(4); }
     }
     else
     {
-        if (results[12].matched)
-        {
-            Ogre::String input = results[12];
-
-            //    According to documentation, '-' is a placeholder for no texture.
-            //    However, for compatibility with old parser, we need to only check the first letter and ignore the rest.
-            
-            if (input.at(0) != '-')
-            {
-                managed_material.damaged_diffuse_map = input;
-            }
-        }
-        if (results[15].matched)
-        {
-            Ogre::String input = results[15];
-
-            //    According to documentation, '-' is a placeholder for no texture.
-            //    However, for compatibility with old parser, we need to only check the first letter and ignore the rest.
-            
-            if (input.at(0) != '-')
-            {
-                managed_material.specular_map = input;
-            }
-        }
+        this->AddMessage(Message::TYPE_ERROR, type_str + " is an invalid effect");
+        return;
     }
 
-    m_current_module->managed_materials.push_back(managed_material);
+    m_current_module->managed_materials.push_back(managed_mat);
 }
 
 void Parser::ParseLockgroups()
@@ -4563,6 +4534,12 @@ Wing::Control Parser::GetArgWingSurface(int index)
         this->AddMessage(Message::TYPE_WARNING, msg);
     }
     return Wing::Control(str.at(0));
+}
+
+std::string Parser::GetArgManagedTex(int index)
+{
+    std::string tex_name = this->GetArgStr(index);
+    return (tex_name.at(0) != '-') ? tex_name : "";
 }
 
 int Parser::TokenizeCurrentLine()
