@@ -279,7 +279,7 @@ protected:
 
     void ParseSubmeshGroundModel();
 
-    void ParseTies(Ogre::String const & line);
+    void ParseTies();
 
     void ParseTorqueCurve(Ogre::String const & line);
 

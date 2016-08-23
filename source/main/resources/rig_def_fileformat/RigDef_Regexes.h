@@ -766,35 +766,6 @@ DEFINE_REGEX( INLINE_SECTION_SLOPE_BRAKE,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( SECTION_TIES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID )       // #1 Root node
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )   // #3 Max. reach length
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )   // #5 Auto shorten rate
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )   // #7 Min length
-    E_CAPTURE( E_DELIMITER )
-    E_CAPTURE( E_REAL_NUMBER )   // #9 Max length
-    E_CAPTURE_OPTIONAL(
-        E_CAPTURE( E_DELIMITER )
-        E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )   // #12 Options
-
-        E_CAPTURE_OPTIONAL(
-            E_CAPTURE( E_DELIMITER )
-            E_CAPTURE( E_REAL_NUMBER )                 // #15 Max stress
-
-            E_CAPTURE_OPTIONAL(
-                E_CAPTURE( E_DELIMITER )
-                E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #18 Group
-            )
-        )
-    )
-    E_CAPTURE_OPTIONAL( E_DELIMITER ) // Tolerate trailing delimiter
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_TORQUECURVE,
     E_LEADING_WHITESPACE
     E_CAPTURE( // #1 Whole custom-curve line

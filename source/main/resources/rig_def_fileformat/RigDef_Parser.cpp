@@ -1041,7 +1041,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_TIES):
-            ParseTies(line);
+            ParseTies();
             line_finished = true;
             break;
 
@@ -2870,56 +2870,23 @@ void Parser::ParseTorqueCurve(Ogre::String const & line)
     }
 }
 
-void Parser::ParseTies(Ogre::String const & line)
+void Parser::ParseTies()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_TIES))
-    {
-        this->AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
+    if (! this->CheckNumArguments(5)) { return; }
 
     Tie tie;
     tie.beam_defaults     = m_user_beam_defaults;
     tie.detacher_group    = m_current_detacher_group;
 
-    tie.root_node         = this->_ParseNodeRef(results[1]);
-    tie.max_reach_length  =      STR_PARSE_REAL(results[3]);
-    tie.auto_shorten_rate =      STR_PARSE_REAL(results[5]);
-    tie.min_length        =      STR_PARSE_REAL(results[7]);
-    tie.max_length        =      STR_PARSE_REAL(results[9]);
-
-    if (results[12].matched)
-    {
-        std::string tie_options = results[12];
-        for (unsigned i = 0; i < tie_options.size(); ++i)
-        {
-            const char tie_char = tie_options.at(i);
-            switch (tie_char)
-            {
-            case 'n':
-                tie.options = Tie::OPTIONS_VISIBLE;
-                break;
-            case 'i':
-                tie.options = Tie::OPTIONS_INVISIBLE;
-                break;
-            default:
-                this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + tie_char);
-                break;
-            }
-        }
-
-        if (results[15].matched)
-        {
-            tie.max_stress = STR_PARSE_REAL(results[15]);
-
-            if (results[18].matched)
-            {
-                tie.group = STR_PARSE_INT(results[18]);
-            }
-        }
-    }
+    tie.root_node         = this->GetArgNodeRef(0);
+    tie.max_reach_length  = this->GetArgFloat  (1);
+    tie.auto_shorten_rate = this->GetArgFloat  (2);
+    tie.min_length        = this->GetArgFloat  (3);
+    tie.max_length        = this->GetArgFloat  (4);
+    
+    if (m_num_args > 5) { tie.is_invisible = (this->GetArgChar  (5) == 'i'); }
+    if (m_num_args > 6) { tie.max_stress   =  this->GetArgFloat (6); }
+    if (m_num_args > 7) { tie.group        =  this->GetArgInt   (7); }
 
     m_current_module->ties.push_back(tie);
 }
