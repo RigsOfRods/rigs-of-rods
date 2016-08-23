@@ -285,7 +285,7 @@ protected:
 
     void ParseTractionControl();
 
-    void ParseTriggers(Ogre::String const & line);
+    void ParseTriggers();
 
     void ParseTurbojets();
 
