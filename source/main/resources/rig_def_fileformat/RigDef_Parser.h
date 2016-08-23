@@ -269,9 +269,9 @@ protected:
 
     void ParseSlopeBrake(Ogre::String const & line);
 
-    void ParseSoundsources(Ogre::String const & line);
+    void ParseSoundsources();
 
-    void ParseSoundsources2(Ogre::String const & line);
+    void ParseSoundsources2();
 
     void ParseSpeedLimiter();
 
