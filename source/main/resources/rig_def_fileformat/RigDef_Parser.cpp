@@ -1025,12 +1025,12 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_SOUNDSOURCES):
-            ParseSoundsources(line);
+            ParseSoundsources();
             line_finished = true;
             break;
 
         case (File::SECTION_SOUNDSOURCES2):
-            ParseSoundsources2(line);
+            ParseSoundsources2();
             line_finished = true;
             break;
 
@@ -2924,55 +2924,33 @@ void Parser::ParseTies(Ogre::String const & line)
     m_current_module->ties.push_back(tie);
 }
 
-void Parser::ParseSoundsources(Ogre::String const & line)
+void Parser::ParseSoundsources()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_SOUNDSOURCES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(2)) { return; }
+    
     SoundSource soundsource;
-    soundsource.node = _ParseNodeRef(results[1]);
-    soundsource.sound_script_name = results[2];
+    soundsource.node              = this->GetArgNodeRef(0);
+    soundsource.sound_script_name = this->GetArgStr(1);
 
     m_current_module->soundsources.push_back(soundsource);
 }
 
-void Parser::ParseSoundsources2(Ogre::String const & line)
+void Parser::ParseSoundsources2()
 {
-
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_SOUNDSOURCES2))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(3)) { return; }
+    
     SoundSource2 soundsource2;
-    soundsource2.node = _ParseNodeRef(results[1]);
-    soundsource2.sound_script_name = results[5];
+    soundsource2.node              = this->GetArgNodeRef(0);
+    soundsource2.sound_script_name = this->GetArgStr(2);
 
-    // Mode 
-    int mode = 0;
-    Ogre::String mode_str = results[3];
-    if (! std::regex_match(mode_str, Regexes::DECIMAL_NUMBER) )
-    {
-        AddMessage(line, Message::TYPE_WARNING, "Invalid value of parameter ~2 'mode': '" + mode_str + "', parsing as '0' for backwards compatibility. Please fix.");
-    }
-    else
-    {
-        mode = STR_PARSE_INT(mode_str);
-    }
+    int mode = this->GetArgInt(1);
     if (mode < 0)
     {
         if (mode < -2)
         {
-            AddMessage(line, Message::TYPE_ERROR, "Invalid soundsources2.mode setting, ignoring whole line...");
-            return;
+            std::string msg = this->GetArgStr(1) + " is invalid soundsources2.mode, falling back to default -2";
+            this->AddMessage(Message::TYPE_ERROR, msg.c_str());
+            mode = -2;
         }
         soundsource2.mode = SoundSource2::Mode(mode);
     }
@@ -2981,8 +2959,6 @@ void Parser::ParseSoundsources2(Ogre::String const & line)
         soundsource2.mode = SoundSource2::MODE_CINECAM;
         soundsource2.cinecam_index = mode;
     }
-
-    _CheckInvalidTrailingText(line, results, 6);
 
     m_current_module->soundsources2.push_back(soundsource2);
 }
