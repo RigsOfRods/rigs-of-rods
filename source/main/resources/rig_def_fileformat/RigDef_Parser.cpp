@@ -613,7 +613,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SLOPE_BRAKE):
-                ParseSlopeBrake(line);
+                ParseSlopeBrake();
                 line_finished = true;
                 break;
 
@@ -1294,36 +1294,18 @@ void Parser::ParseSpeedLimiter()
     }
 }
 
-void Parser::ParseSlopeBrake(Ogre::String const & line)
+void Parser::ParseSlopeBrake()
 {
     if (m_current_module->slope_brake != nullptr)
     {
-        AddMessage(line, Message::TYPE_WARNING, "Multiple inline-sections 'SlopeBrake' in a module, using last one ...");
+        this->AddMessage(Message::TYPE_WARNING, "Multiple definitions 'SlopeBrake' in a module, using last one ...");
     }
     m_current_module->slope_brake = std::shared_ptr<SlopeBrake>( new SlopeBrake() );
-
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SLOPE_BRAKE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    if (results[1].matched)
-    {
-        m_current_module->slope_brake->regulating_force = STR_PARSE_REAL(results[2]);
-        
-        if (results[3].matched)
-        {
-            m_current_module->slope_brake->attach_angle = STR_PARSE_REAL(results[4]);
-
-            if (results[5].matched)
-            {
-                m_current_module->slope_brake->release_angle = STR_PARSE_REAL(results[6]);
-            }
-        }
-    }
+    
+    SlopeBrake* sb = m_current_module->slope_brake.get();
+    if (m_num_args > 1) { sb->regulating_force = this->GetArgFloat(1); }
+    if (m_num_args > 2) { sb->attach_angle     = this->GetArgFloat(2); }
+    if (m_num_args > 3) { sb->release_angle    = this->GetArgFloat(3); }
 }
 
 void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
