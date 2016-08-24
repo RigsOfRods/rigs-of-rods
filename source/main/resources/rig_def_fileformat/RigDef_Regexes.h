@@ -518,16 +518,6 @@ DEFINE_REGEX( SECTION_RAILGROUPS,
     E_CAPTURE( "([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*,)*([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*)+$" ) // Node list
     );
 
-DEFINE_REGEX( INLINE_SECTION_SET_SKELETON_DISPLAY,
-    E_LEADING_WHITESPACE
-    "[Ss][Ee][Tt]_[Ss][Kk][Ee][Ll][Ee][Tt][Oo][Nn]_[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) // View distance
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER ) // Thickness
-    )
-    E_TRAILING_WHITESPACE
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //

@@ -43,6 +43,7 @@
 #include "BitFlags.h"
 
 #include "RigDef_Node.h"
+#include "BeamConstants.h"
 
 #include <list>
 #include <memory>
@@ -1056,7 +1057,7 @@ struct SkeletonSettings
 {
 	SkeletonSettings():
 		visibility_range_meters(150.f),
-		beam_thickness_meters(0.01f)
+		beam_thickness_meters(BEAM_SKELETON_DIAMETER)
 	{}
 
 	float visibility_range_meters;
@@ -1980,7 +1981,7 @@ struct File
 		std::vector<Screwprop>             screwprops;
 		std::vector<Shock>                 shocks;
 		std::vector<Shock2>                shocks_2;
-		std::shared_ptr<SkeletonSettings>  skeleton_settings;
+		SkeletonSettings                   skeleton_settings;
 		std::vector<SlideNode>             slidenodes;
 		std::shared_ptr<SlopeBrake>        slope_brake;
 		std::vector<SoundSource>           soundsources;
