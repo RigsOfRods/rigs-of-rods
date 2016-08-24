@@ -240,7 +240,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        submesh
     BLOCK        submesh_groundmodel
     BLOCK        ties
-    BLOCK        torquecurve
+    BLOCK        torquecurve                    CSV
     BLOCK        TractionControl
     BLOCK        triggers
     BLOCK        turbojets

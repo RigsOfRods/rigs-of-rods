@@ -281,7 +281,7 @@ protected:
 
     void ParseTies();
 
-    void ParseTorqueCurve(Ogre::String const & line);
+    void ParseTorqueCurve();
 
     void ParseTractionControl();
 
