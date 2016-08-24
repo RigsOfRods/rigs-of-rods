@@ -544,18 +544,6 @@ DEFINE_REGEX( SECTION_RAILGROUPS,
     E_CAPTURE( "([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*,)*([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*)+$" ) // Node list
     );
 
-DEFINE_REGEX( SECTION_ROPES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Root node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // End node
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_STRING_NO_SPACES ) // Flags
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 DEFINE_REGEX( INLINE_SECTION_SET_SKELETON_DISPLAY,
     E_LEADING_WHITESPACE
     "[Ss][Ee][Tt]_[Ss][Kk][Ee][Ll][Ee][Tt][Oo][Nn]_[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss]"

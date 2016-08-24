@@ -1602,14 +1602,12 @@ struct Rope
 {
 	Rope():
 		invisible(false),
-		_has_invisible_set(false),
 		detacher_group(0) /* Global detacher group */
 	{}
 
 	Node::Ref root_node;
 	Node::Ref end_node;
 	bool invisible;
-	bool _has_invisible_set;
 	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
