@@ -179,7 +179,7 @@ protected:
 
     void ParseCameras();
 
-    void ParseCameraRails(Ogre::String const & line);
+    void ParseCameraRails();
 
     void ParseCinecam();
 
