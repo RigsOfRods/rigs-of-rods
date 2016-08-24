@@ -228,7 +228,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_CRUISECONTROL):
-                ParseCruiseControl(line);
+                ParseCruiseControl();
                 line_finished = true;
                 break;
 
@@ -2037,23 +2037,17 @@ void Parser::ParseDirectiveDetacherGroup()
     }
 }
 
-void Parser::ParseCruiseControl(Ogre::String const & line)
+void Parser::ParseCruiseControl()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_CRUISECONTROL))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(3)) { return; } // keyword + 2 params
 
     CruiseControl cruise_control;
-    cruise_control.min_speed = STR_PARSE_REAL(results[1]);
-    cruise_control.autobrake = STR_PARSE_INT(results[2]);
+    cruise_control.min_speed = this->GetArgFloat(1);
+    cruise_control.autobrake = this->GetArgInt(2);
 
     if (m_current_module->cruise_control != nullptr)
     {
-        AddMessage(line, Message::TYPE_WARNING, "Found multiple inline sections 'cruise_control' in one module, using last one.");
+        this->AddMessage(Message::TYPE_WARNING, "Section defined multiple times.");
     }
     m_current_module->cruise_control = std::shared_ptr<CruiseControl>( new CruiseControl(cruise_control) );
 }
