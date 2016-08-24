@@ -305,7 +305,7 @@ void Parser::ProcessCurrentLine()
                 {
                     AddMessage(line, Message::TYPE_WARNING, "Inline section 'fileformatversion' has global effect and should not appear in a module");
                 }
-                ParseFileFormatVersion(line);
+                ParseFileFormatVersion();
                 line_finished = true;
                 break;
 
@@ -558,7 +558,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_BEAM_DEFAULTS_SCALE):
-                ParseDirectiveSetBeamDefaultsScale(line);
+                ParseDirectiveSetBeamDefaultsScale();
                 line_finished = true;
                 break;
 
@@ -1456,34 +1456,18 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions()
     }
 }
 
-void Parser::ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line)
+void Parser::ParseDirectiveSetBeamDefaultsScale()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_BEAM_DEFAULTS_SCALE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(5)) { return; }
+    
+    BeamDefaults* b = new BeamDefaults(*m_user_beam_defaults);
+    b->scale.springiness = this->GetArgFloat(1);
+    
+    if (m_num_args > 2) { b->scale.damping_constant               = this->GetArgFloat(2); }
+    if (m_num_args > 3) { b->scale.deformation_threshold_constant = this->GetArgFloat(3); }
+    if (m_num_args > 4) { b->scale.breaking_threshold_constant    = this->GetArgFloat(4); }
 
-    m_user_beam_defaults = std::shared_ptr<BeamDefaults>( new BeamDefaults(*m_user_beam_defaults) );
-
-    m_user_beam_defaults->scale.springiness = STR_PARSE_REAL(results[1]);
-
-    if (results[2].matched)
-    {
-        m_user_beam_defaults->scale.damping_constant = STR_PARSE_REAL(results[3]);
-
-        if (results[4].matched)
-        {
-            m_user_beam_defaults->scale.deformation_threshold_constant = STR_PARSE_REAL(results[5]);
-
-            if (results[6].matched)
-            {
-                m_user_beam_defaults->scale.breaking_threshold_constant = STR_PARSE_REAL(results[7]);
-            }
-        }
-    }
+    m_user_beam_defaults = std::shared_ptr<BeamDefaults>(b);
 }
 
 void Parser::ParseDirectiveSetBeamDefaults()
@@ -1985,20 +1969,13 @@ void Parser::ParseExhaust()
     m_current_module->exhausts.push_back(exhaust);
 }
 
-void Parser::ParseFileFormatVersion(Ogre::String const & line)
+void Parser::ParseFileFormatVersion()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_FILE_FORMAT_VERSION))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(2)) { return; }
 
-    const unsigned version = STR_PARSE_INT(results[1]);
-    m_definition->file_format_version = version;
+    m_definition->file_format_version = this->GetArgUint(1);
 
-    if (version >= 450)
+    if (m_definition->file_format_version >= 450)
     {
         m_sequential_importer.Disable();
     }
