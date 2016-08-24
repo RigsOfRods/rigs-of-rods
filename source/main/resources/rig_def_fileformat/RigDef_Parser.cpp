@@ -995,7 +995,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_ROPES):
-            ParseRopes(line);
+            ParseRopes();
             line_finished = true;
             break;
 
@@ -3153,36 +3153,17 @@ void Parser::ParseFileinfo()
     m_definition->file_info = std::shared_ptr<Fileinfo>( new Fileinfo(fileinfo) );
 }
 
-void Parser::ParseRopes(Ogre::String const & line)
+void Parser::ParseRopes()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_ROPES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(2)) { return; }
+    
     Rope rope;
-    rope.beam_defaults = m_user_beam_defaults;
+    rope.beam_defaults  = m_user_beam_defaults;
     rope.detacher_group = m_current_detacher_group;
-    rope.root_node = _ParseNodeRef(results[1]);
-    rope.end_node = _ParseNodeRef(results[2]);
-
-    if (results[4].matched)
-    {
-        std::string options_str = results[4].str();
-        const char options_char = options_str.at(0);
-        if (options_char == 'i')
-        {
-            rope.invisible = true;
-            rope._has_invisible_set = true;
-        }
-        else
-        {
-            this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid flag: ") + options_char);
-        }
-    }
+    rope.root_node      = this->GetArgNodeRef(1);
+    rope.end_node       = this->GetArgNodeRef(2);
+    
+    if (m_num_args > 2) { rope.invisible  = (this->GetArgChar(3) == 'i'); }
 
     m_current_module->ropes.push_back(rope);
 }
