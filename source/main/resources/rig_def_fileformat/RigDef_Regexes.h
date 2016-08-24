@@ -436,16 +436,6 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_CRUISECONTROL,
-    E_LEADING_WHITESPACE
-    "[Cc][Rr][Uu][Ii][Ss][Ee][Cc][Oo][Nn][Tt][Rr][Oo][Ll]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) // Min speed
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // Autobrake on/off
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( INLINE_SECTION_FILE_FORMAT_VERSION,
     E_LEADING_WHITESPACE
     "[Ff][Ii][Ll][Ee][Ff][Oo][Rr][Mm][Aa][Tt][Vv][Ee][Rr][Ss][Ii][Oo][Nn]"
@@ -524,18 +514,6 @@ DEFINE_REGEX( SECTION_RAILGROUPS,
     E_CAPTURE( E_NODE_ID ) // Id
     E_DELIMITER_COMMA
     E_CAPTURE( "([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*,)*([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*)+$" ) // Node list
-    );
-
-DEFINE_REGEX( INLINE_SECTION_SET_SKELETON_DISPLAY,
-    E_LEADING_WHITESPACE
-    "[Ss][Ee][Tt]_[Ss][Kk][Ee][Ll][Ee][Tt][Oo][Nn]_[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER ) // View distance
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER ) // Thickness
-    )
-    E_TRAILING_WHITESPACE
     );
 
 // -------------------------------------------------------------------------- //

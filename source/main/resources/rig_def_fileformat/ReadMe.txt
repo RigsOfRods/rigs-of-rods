@@ -231,7 +231,7 @@ the lettercase in this list corresponds to original documentation.
     DIRECTIVE    set_managedmaterials_options
     DIRECTIVE    set_node_defaults
     DIRECTIVE    set_shadows
-    DIRECTIVE    set_skeleton_settings
+    DIRECTIVE    set_skeleton_settings          Default
     BLOCK        shocks
     BLOCK        shocks2
     DIRECTIVE    slidenode_connect_instantly
