@@ -243,7 +243,7 @@ protected:
 
     void ParseParticles(Ogre::String const & line);
 
-    void ParsePistonprops(Ogre::String const & line);
+    void ParsePistonprops();
 
     void ParseProps();
 
