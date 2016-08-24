@@ -171,7 +171,7 @@ protected:
 
     void ParseAuthor();
 
-    void ParseAxles(Ogre::String const & line);
+    void ParseAxles();
 
     void ParseBeams();
 
@@ -289,7 +289,6 @@ protected:
 
     void ParseTurbojets();
 
-    /// Sections 'turboprops' & 'turboprops2'.
     void ParseTurbopropsUnified();
 
     void ParseVideoCamera();
