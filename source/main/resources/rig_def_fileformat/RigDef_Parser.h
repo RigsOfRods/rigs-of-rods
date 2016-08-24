@@ -259,7 +259,7 @@ protected:
 
     void ParseSetCollisionRange();
 
-    void ParseSetSkeletonSettings(Ogre::String const & line);
+    void ParseSetSkeletonSettings();
 
     void ParseShock();
 
@@ -386,7 +386,6 @@ protected:
     std::shared_ptr<Inertia>             m_ror_default_inertia;
     std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
     float                                m_ror_minimass;
-    SkeletonSettings                     m_ror_skeleton_settings;
 
     // Data from user directives
     // Each affected section-struct has a shared_ptr to it's respective defaults

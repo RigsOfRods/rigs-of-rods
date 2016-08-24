@@ -583,7 +583,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_SKELETON_SETTINGS):
-                ParseSetSkeletonSettings(line);
+                ParseSetSkeletonSettings();
                 line_finished = true;
                 break;
 
@@ -1322,43 +1322,17 @@ void Parser::ParseSlopeBrake()
     if (m_num_args > 3) { sb->release_angle    = this->GetArgFloat(3); }
 }
 
-void Parser::ParseSetSkeletonSettings(Ogre::String const & line)
+void Parser::ParseSetSkeletonSettings()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::INLINE_SECTION_SET_SKELETON_DISPLAY))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    if (m_current_module->skeleton_settings == nullptr)
-    {
-        m_current_module->skeleton_settings = std::shared_ptr<RigDef::SkeletonSettings>(new SkeletonSettings());
-    }
-
-    float visibility_meters = STR_PARSE_REAL(results[1]);
-    if (visibility_meters < 0)
-    {
-        m_current_module->skeleton_settings->visibility_range_meters = m_ror_skeleton_settings.visibility_range_meters;
-    } 
-    else
-    {
-        m_current_module->skeleton_settings->visibility_range_meters = visibility_meters;
-    }
-
-    if (results[2].matched)
-    {
-        float beam_thickness_meters = STR_PARSE_REAL(results[3]);
-        if (beam_thickness_meters < 0)
-        {
-            m_current_module->skeleton_settings->beam_thickness_meters = m_ror_skeleton_settings.beam_thickness_meters;
-        }
-        else
-        {
-            m_current_module->skeleton_settings->beam_thickness_meters = beam_thickness_meters;
-        }
-    }
+    if (! this->CheckNumArguments(2)) { return; }
+    
+    SkeletonSettings& skel = m_current_module->skeleton_settings;    
+    skel.visibility_range_meters = this->GetArgFloat(1);
+    if (m_num_args > 2) { skel.beam_thickness_meters = this->GetArgFloat(2); }
+    
+    // Defaults
+    if (skel.visibility_range_meters < 0.f) { skel.visibility_range_meters = 150.f; }
+    if (skel.beam_thickness_meters   < 0.f) { skel.beam_thickness_meters   = BEAM_SKELETON_DIAMETER; }
 }
 
 void Parser::LogParsedDirectiveSetNodeDefaultsData(float load_weight, float friction, float volume, float surface, unsigned int options)
