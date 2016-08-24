@@ -169,7 +169,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        commands2
     COMMENT      comment
     BLOCK        contacters
-    BLOCK        cruisecontrol
+    BLOCK        cruisecontrol                  Default
     DESCRIPTION  description
     DIRECTIVE    detacher_group
     DIRECTIVE    disabledefaultsounds
