@@ -389,14 +389,6 @@ DEFINE_REGEX( DIRECTIVE_SET_INERTIA_DEFAULTS,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS,
-    E_LEADING_WHITESPACE
-    "[Ss][Ee][Tt]_[Mm][Aa][Nn][Aa][Gg][Ee][Dd][Mm][Aa][Tt][Ee][Rr][Ii][Aa][Ll][Ss]_[Oo][Pp][Tt][Ii][Oo][Nn][Ss]" 
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_STRING_ANYTHING_BUT_WHITESPACE ) // Double-sided (for backwards compatibility, accept anything)
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Regexes for parsing sections                                               //
 // -------------------------------------------------------------------------- //

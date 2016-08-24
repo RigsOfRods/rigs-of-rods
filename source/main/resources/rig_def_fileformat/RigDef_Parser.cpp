@@ -573,7 +573,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_MANAGEDMATERIALS_OPTIONS):
-                ParseDirectiveSetManagedMaterialsOptions(line);
+                ParseDirectiveSetManagedMaterialsOptions();
                 line_finished = true;
                 break;
 
@@ -1440,30 +1440,20 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
     }
 }
 
-void Parser::ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line)
+void Parser::ParseDirectiveSetManagedMaterialsOptions()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_MANAGEDMATERIALS_OPTIONS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
+    
+    // This is what v0.3x's parser did.
+    char c = this->GetArgChar(1);
+    m_current_managed_material_options.double_sided = (c != '0');
 
-    // Param 1: double-sided 
-    Ogre::String input = results[1];
-    int double_sided = STR_PARSE_INT(input); // Let's do it the way old parser did, even though "input" can be any string 
-    if (! std::regex_match(input, std::regex("0|1", std::regex::ECMAScript)))
+    if (c != '0' && c != '1')
     {
-        AddMessage(
-            line, 
-            Message::TYPE_WARNING, 
-            "Directive 'set_managedmaterials_options':"
-                " Invalid value of parameter ~1: '" + input + "', should be only '0' or '1'."
-                " Interpreting as '0' for backwards compatibility. Please fix."
-            );
+        this->AddMessage(Message::TYPE_WARNING,
+            "Param 'doublesided' should be only 1 or 0, got '" + this->GetArgStr(1) + "', parsing as 0");
     }
-    m_current_managed_material_options.double_sided = double_sided != 0;
 }
 
 void Parser::ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line)
