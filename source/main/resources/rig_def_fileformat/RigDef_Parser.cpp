@@ -1045,7 +1045,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_TORQUE_CURVE):
-            ParseTorqueCurve(line);
+            ParseTorqueCurve();
             line_finished = true;
             break;
 
@@ -2731,31 +2731,30 @@ void Parser::ParseTriggers()
     m_current_module->triggers.push_back(trigger);
 }
 
-void Parser::ParseTorqueCurve(Ogre::String const & line)
+void Parser::ParseTorqueCurve()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_TORQUECURVE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
     if (m_current_module->torque_curve == nullptr)
     {
         m_current_module->torque_curve = std::shared_ptr<RigDef::TorqueCurve>(new RigDef::TorqueCurve());
     }
 
-    if (results[1].matched)
+    Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ",");
+    
+    if (args.size() == 1u)
+    {
+        m_current_module->torque_curve->predefined_func_name = args[0];
+    }
+    else if (args.size() == 2u)
     {
         TorqueCurve::Sample sample;
-        sample.power = STR_PARSE_REAL(results[2]);
-        sample.torque_percent = STR_PARSE_REAL(results[3]);
-        m_current_module->torque_curve->samples.push_back(sample);
+        sample.power          = this->ParseArgFloat(args[0].c_str());
+        sample.torque_percent = this->ParseArgFloat(args[1].c_str());
+        m_current_module->torque_curve->samples.push_back(sample);  
     }
     else
     {
-        m_current_module->torque_curve->predefined_func_name = results[4];
+        // Consistent with 0.38's parser.
+        this->AddMessage(Message::TYPE_ERROR, "Invalid line, too many arguments");   
     }
 }
 
