@@ -634,18 +634,6 @@ DEFINE_REGEX( SLIDENODES_IDENTIFY_OPTION,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( SECTION_TORQUECURVE,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( // #1 Whole custom-curve line
-        E_CAPTURE( E_REAL_NUMBER ) // #2 Power
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER ) // #3 Percentage
-    )
-    E_OR
-    E_CAPTURE( E_STRING_NO_SPACES ) // #4 Known function
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
