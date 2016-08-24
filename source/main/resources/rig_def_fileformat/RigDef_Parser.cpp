@@ -569,7 +569,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_INERTIA_DEFAULTS):
-                ParseDirectiveSetInertiaDefaults(line);
+                ParseDirectiveSetInertiaDefaults();
                 line_finished = true;
                 break;
 
@@ -2983,53 +2983,30 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
     }
 }
 
-void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
+void Parser::ParseDirectiveSetInertiaDefaults()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_INERTIA_DEFAULTS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; }
 
-    float start_delay = STR_PARSE_REAL(results[1]);
+    float start_delay = this->GetArgFloat(1);
     float stop_delay = 0;
-    if (results[4].matched)
-    {
-        stop_delay = STR_PARSE_REAL(results[4]);
-    }
+    if (m_num_args > 2) { stop_delay = this->GetArgFloat(2); }
+
     if (start_delay < 0 || stop_delay < 0)
     {
-        // Reset
-        m_user_default_inertia = m_ror_default_inertia;
-    }
-    else
-    {
-        // Create
-        m_user_default_inertia = std::shared_ptr<Inertia>(new Inertia(*m_user_default_inertia.get()));
-
-        // Update
-        m_user_default_inertia->start_delay_factor = start_delay;
-        m_user_default_inertia->stop_delay_factor = stop_delay;
-
-        if (results[7].matched)
-        {
-            m_user_default_inertia->start_function = results[7];
-
-            if (results[10].matched)
-            {
-                m_user_default_inertia->stop_function = results[10];
-            }
-        }
+        m_user_default_inertia = m_ror_default_inertia; // Reset and return
+        return;
     }
 
-    if (results[11].matched)
-    {
-        std::stringstream msg;
-        msg << "Illegal text after parameters: \"" << results[11] << "\", ignoring...";
-        AddMessage(line, Message::TYPE_WARNING, msg.str());
-    }
+    // Create
+    Inertia* i = new Inertia(*m_user_default_inertia.get());
+    i->start_delay_factor = start_delay;
+    i->stop_delay_factor = stop_delay;
+    
+    if (m_num_args > 3) { i->start_function = this->GetArgStr(3); }
+    if (m_num_args > 4) { i->stop_function  = this->GetArgStr(4); }
+    
+    m_user_default_inertia = std::shared_ptr<Inertia>(i);
 }
 
 void Parser::ParseScrewprops()

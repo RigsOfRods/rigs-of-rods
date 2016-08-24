@@ -152,7 +152,7 @@ protected:
 
     void ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line);
 
-    void ParseDirectiveSetInertiaDefaults(Ogre::String const & line);
+    void ParseDirectiveSetInertiaDefaults();
 
     void ParseDirectiveSetManagedMaterialsOptions();
 
