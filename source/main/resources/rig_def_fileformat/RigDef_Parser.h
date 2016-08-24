@@ -213,7 +213,7 @@ protected:
 
     void ParseFlexBodyWheel();
 
-    void ParseFusedrag(Ogre::String const & line);
+    void ParseFusedrag();
 
     void ParseGlobals(Ogre::String const & line);
 
