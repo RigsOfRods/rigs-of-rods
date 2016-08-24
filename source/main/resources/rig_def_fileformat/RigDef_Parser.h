@@ -154,7 +154,7 @@ protected:
 
     void ParseDirectiveSetInertiaDefaults(Ogre::String const & line);
 
-    void ParseDirectiveSetManagedMaterialsOptions(Ogre::String const & line);
+    void ParseDirectiveSetManagedMaterialsOptions();
 
     void ParseDirectiveSetNodeDefaults();
     void LogParsedDirectiveSetNodeDefaultsData(float loadweight, float friction, float volume, float surface, unsigned int options);
