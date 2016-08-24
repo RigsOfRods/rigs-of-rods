@@ -251,7 +251,7 @@ protected:
 
     void ParseRopables();
 
-    void ParseRopes(Ogre::String const & line);
+    void ParseRopes();
 
     void ParseRotatorsUnified();
 
