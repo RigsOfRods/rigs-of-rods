@@ -158,7 +158,7 @@ the lettercase in this list corresponds to original documentation.
     ANIMATORS    animators
     BLOCK        AntiLockBrakes
     INLINE       author                         Default
-    BLOCK        axles
+    BLOCK        axles                          CSV + custom processing
     BLOCK        beams
     BLOCK        brakes
     BLOCK        camerarail

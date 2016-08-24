@@ -808,7 +808,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_AXLES):
-            ParseAxles(line);
+            ParseAxles();
             line_finished = true;
             break;
 
@@ -2553,18 +2553,18 @@ void Parser::ParseBrakes()
     }
 }
 
-void Parser::ParseAxles(Ogre::String const & line)
+void Parser::ParseAxles()
 {
     Axle axle;
 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(line, ",");
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line, ",");
     Ogre::StringVector::iterator iter = tokens.begin();
     for ( ; iter != tokens.end(); iter++)
     {
         std::smatch results;
         if (! std::regex_search(*iter, results, Regexes::SECTION_AXLES_PROPERTY))
         {
-            AddMessage(line, Message::TYPE_ERROR, "Invalid property, ignoring whole line...");
+            this->AddMessage(Message::TYPE_ERROR, "Invalid property, ignoring whole line...");
             return;
         }
         // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
