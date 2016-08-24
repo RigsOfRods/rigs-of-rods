@@ -1021,7 +1021,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_SLIDENODES):
-            ParseSlidenodes(line);
+            ParseSlidenodes();
             line_finished = true;
             break;
 
@@ -2809,90 +2809,62 @@ void Parser::ParseSoundsources2()
     m_current_module->soundsources2.push_back(soundsource2);
 }
 
-void Parser::ParseSlidenodes(Ogre::String const & line)
+void Parser::ParseSlidenodes()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_SLIDENODES))
+    Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ", ");
+    if (args.size() < 2u)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
+        this->AddMessage(Message::TYPE_ERROR, "Too few arguments");
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
     SlideNode slidenode;
-    slidenode.slide_node = _ParseNodeRef(results[1]);
-
-    bool in_rail_node_list = true;
-    Ogre::StringVector tokens = Ogre::StringUtil::split(results[2], ",");
-    for (Ogre::StringVector::iterator itor = tokens.begin(); itor != tokens.end(); ++itor)
+    slidenode.slide_node = this->_ParseNodeRef(args[0]);
+    
+    for (auto itor = args.begin() + 1; itor != args.end(); ++itor)
     {
-        std::smatch token_results;
-        if (std::regex_search(*itor, token_results, Regexes::SLIDENODES_IDENTIFY_OPTION))
+        char c = toupper(itor->at(0));
+        switch (c)
         {
-            in_rail_node_list = false;
-
-            if (token_results[1].matched)
+        case 'S':
+            slidenode.spring_rate = this->ParseArgFloat(itor->substr(1));
+            break;
+        case 'B':
+            slidenode.break_force = this->ParseArgFloat(itor->substr(1));
+            slidenode._break_force_set = true;
+            break;
+        case 'T':
+            slidenode.tolerance = this->ParseArgFloat(itor->substr(1));
+            break;
+        case 'R':
+            slidenode.attachment_rate = this->ParseArgFloat(itor->substr(1));
+            break;
+        case 'G':
+            slidenode.railgroup_id = this->ParseArgFloat(itor->substr(1));
+            slidenode._railgroup_id_set = true;
+            break;
+        case 'D':
+            slidenode.max_attachment_distance = this->ParseArgFloat(itor->substr(1));
+            break;
+        case 'C':
+            switch (itor->at(1))
             {
-                slidenode.spring_rate = STR_PARSE_REAL(token_results[2]);
+            case 'a':
+                BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_ALL);
+                break;
+            case 'f':
+                BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_FOREIGN);
+                break;
+            case 's':
+                BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_SELF);
+                break;
+            case 'n':
+                BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_NONE);
+                break;
+            default:
+                this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + itor->at(1));
+                break;
             }
-            else if (token_results[3].matched)
-            {
-                slidenode.break_force = STR_PARSE_REAL(token_results[4]);
-                slidenode._break_force_set = true;
-            }
-            else if (token_results[5].matched)
-            {
-                slidenode.tolerance = STR_PARSE_REAL(token_results[6]);
-            }
-            else if (token_results[7].matched)
-            {
-                slidenode.attachment_rate = STR_PARSE_REAL(token_results[8]);
-            }
-            else if (token_results[9].matched)
-            {
-                slidenode.railgroup_id = STR_PARSE_INT(token_results[10]);
-                slidenode._railgroup_id_set = true;
-            }
-            else if (token_results[11].matched)
-            {
-                slidenode.max_attachment_distance = STR_PARSE_REAL(token_results[12]);
-            }
-            // #13, #14 Quantity is ignored 
-            else if (token_results[15].matched)
-            {
-                char option = token_results[16].str().at(0);
-                switch (option)
-                {
-                    case 'a':
-                        BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_ALL);
-                        break;
-                    case 'f':
-                        BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_FOREIGN);
-                        break;
-                    case 's':
-                        BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_SELF);
-                        break;
-                    case 'n':
-                        BITMASK_SET_1(slidenode.constraint_flags, SlideNode::CONSTRAINT_ATTACH_NONE);
-                        break;
-                    default:
-                        this->AddMessage(line, Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + option);
-                        break;
-                }
-            }
-        }
-        else
-        {
-            if (in_rail_node_list)
-            {
-                slidenode.rail_node_ranges.push_back( _ParseNodeRef(*itor));
-            }
-            else
-            {
-                std::stringstream msg;
-                msg << "Invalid token: '" << *itor << "', ignoring...";
-                AddMessage(line, Message::TYPE_WARNING, msg.str());
-            }
+            break;
         }
     }
     
@@ -4182,6 +4154,11 @@ float Parser::ParseArgFloat(const char* str)
         return 0.f; // Compatibility
     }
     return static_cast<float>(res);
+}
+
+float Parser::ParseArgFloat(std::string const & str)
+{
+    return this->ParseArgFloat(str.c_str());
 }
 
 unsigned Parser::ParseArgUint(const char* str)

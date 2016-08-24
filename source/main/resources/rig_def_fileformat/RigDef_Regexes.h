@@ -580,50 +580,6 @@ DEFINE_REGEX( INLINE_SECTION_SET_SKELETON_DISPLAY,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( SECTION_SLIDENODES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // #1 The sliding node
-    E_DELIMITER_COMMA
-    E_CAPTURE( ".*$" ) // #2 All the rest: [rail nodes list] parameters
-    );
-
-DEFINE_REGEX( SLIDENODES_IDENTIFY_OPTION,
-    E_LEADING_WHITESPACE
-    E_CAPTURE_OPTIONAL( // #1 Spring rate entry
-        "[sS]"
-        E_CAPTURE( E_REAL_NUMBER ) // #2 Spring rate value
-    )
-    E_CAPTURE_OPTIONAL( // #3 Break force entry
-        "[bB]"
-        E_CAPTURE( E_REAL_NUMBER ) // #4 Break force value
-    )
-    E_CAPTURE_OPTIONAL( // #5 Tolerance entry
-        "[tT]"
-        E_CAPTURE( E_REAL_NUMBER ) // #6 Tolerance value
-    )
-    E_CAPTURE_OPTIONAL( // #7 Attachment rate entry
-        "[rR]"
-        E_CAPTURE( E_REAL_NUMBER ) // #8 Attachment rate value
-    )
-    E_CAPTURE_OPTIONAL( // #9 Railgroup ID entry
-        "[gG]"
-        E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #10 Railgroup ID value
-    )
-    E_CAPTURE_OPTIONAL( // #11 Max. attachment distance entry
-        "[dD]"
-        E_CAPTURE( E_REAL_NUMBER ) // #12 Max. attachment distance value
-    )
-    E_CAPTURE_OPTIONAL( // #13 Quantity entry
-        "[qQ]"
-        E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #14 Quantity value
-    )
-    E_CAPTURE_OPTIONAL( // #15 Constraints entry
-        "[cC]"
-        E_CAPTURE( E_STRING_NO_SPACES ) // #16 Constraints value
-    )
-    E_TRAILING_WHITESPACE
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
