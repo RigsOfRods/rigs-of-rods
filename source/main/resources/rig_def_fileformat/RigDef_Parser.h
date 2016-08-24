@@ -150,7 +150,7 @@ protected:
 
     void ParseDirectiveSetBeamDefaults();
 
-    void ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line);
+    void ParseDirectiveSetBeamDefaultsScale();
 
     void ParseDirectiveSetInertiaDefaults();
 
@@ -201,7 +201,7 @@ protected:
 
     void ParseExtCamera();
 
-    void ParseFileFormatVersion(Ogre::String const & line);
+    void ParseFileFormatVersion();
 
     void ParseFileinfo();
 

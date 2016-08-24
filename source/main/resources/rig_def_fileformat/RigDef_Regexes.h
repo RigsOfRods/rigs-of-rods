@@ -343,29 +343,6 @@ DEFINE_REGEX( DIRECTIVE_SECTION,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( DIRECTIVE_SET_BEAM_DEFAULTS_SCALE,
-    E_LEADING_WHITESPACE
-    "[Ss][Ee][Tt]_[Bb][Ee][Aa][Mm]_[Dd][Ee][Ff][Aa][Uu][Ll][Tt][Ss]_[Ss][Cc][Aa][Ll][Ee]" 
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_REAL_NUMBER )             // #1 Spring scale
-    E_CAPTURE_OPTIONAL(
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_REAL_NUMBER )         // #3 Damping scale
-
-        E_CAPTURE_OPTIONAL(
-            E_DELIMITER_COMMA
-            E_CAPTURE( E_REAL_NUMBER )     // #5 Deformation threshold constant scale
-
-            E_CAPTURE_OPTIONAL(
-                E_DELIMITER_COMMA
-                E_CAPTURE( E_REAL_NUMBER ) // #7 Breaking threshold constant scale
-            )
-        )
-    )
-    E_CAPTURE_OPTIONAL( E_ILLEGAL_TRAILING_STRING )
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Regexes for parsing sections                                               //
 // -------------------------------------------------------------------------- //
@@ -405,12 +382,6 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( INLINE_SECTION_FILE_FORMAT_VERSION,
-    E_LEADING_WHITESPACE
-    "[Ff][Ii][Ll][Ee][Ff][Oo][Rr][Mm][Aa][Tt][Vv][Ee][Rr][Ss][Ii][Oo][Nn]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #1 The version
-    E_TRAILING_WHITESPACE
     );
 
 DEFINE_REGEX( SECTION_GLOBALS,
