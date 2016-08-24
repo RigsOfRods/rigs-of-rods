@@ -265,7 +265,7 @@ protected:
 
     void ParseShock2();
 
-    void ParseSlidenodes(Ogre::String const & line);
+    void ParseSlidenodes();
 
     void ParseSlopeBrake();
 
@@ -330,6 +330,7 @@ protected:
     unsigned           ParseArgUint       (const char* str);
 
     unsigned           ParseArgUint       (const std::string& s);
+    float              ParseArgFloat      (const std::string& s);
 
     /// Attempts to parse cab line. Returns true if successful.
     bool _TryParseCab(Ogre::String const & line);
