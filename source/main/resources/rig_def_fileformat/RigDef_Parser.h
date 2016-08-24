@@ -189,7 +189,7 @@ protected:
 
     void ParseContacter();
 
-    void ParseCruiseControl(Ogre::String const & line);
+    void ParseCruiseControl();
 
     void ParseEngine();
 
