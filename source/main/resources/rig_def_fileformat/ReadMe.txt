@@ -39,6 +39,10 @@ There are several syntaxes for parsing a line:
 		The keyword is cut away, the rest is split along ",".
 
 	Keyword-CSV - Like above, except the space is optional.
+    
+    CSV - Classic comma-separated-values. Only separator is ','
+    
+    CommaSpaceSV - Separators are space or comma.
 
 The format consists of these elements:
 
@@ -231,7 +235,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        shocks
     BLOCK        shocks2
     DIRECTIVE    slidenode_connect_instantly
-    BLOCK        slidenodes
+    BLOCK        slidenodes                     CommaSpaceSV
     BLOCK        SlopeBrake
     BLOCK        soundsources
     BLOCK        soundsources2
