@@ -835,7 +835,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_CAMERA_RAIL):
-            ParseCameraRails(line);
+            ParseCameraRails();
             line_finished = true;
             break;
 
@@ -2548,17 +2548,9 @@ void Parser::ParseCinecam()
     m_current_module->cinecam.push_back(cinecam);
 }
 
-void Parser::ParseCameraRails(Ogre::String const & line)
+void Parser::ParseCameraRails()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_CAMERARAILS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    m_current_camera_rail->nodes.push_back( _ParseNodeRef(results[1]) );
+    m_current_camera_rail->nodes.push_back( this->GetArgNodeRef(0) );
 }
 
 void Parser::ParseBrakes()
