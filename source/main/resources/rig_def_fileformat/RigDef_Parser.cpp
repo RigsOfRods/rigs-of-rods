@@ -903,7 +903,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_FUSEDRAG):
-            ParseFusedrag(line);
+            ParseFusedrag();
             line_finished = true;
             break;
 
@@ -1727,47 +1727,26 @@ void Parser::ParseGlobals(Ogre::String const & line)
     m_current_module->globals = std::shared_ptr<Globals>( new Globals(globals) );
 }
 
-void Parser::ParseFusedrag(Ogre::String const & line)
+void Parser::ParseFusedrag()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_FUSEDRAG))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(3)) { return; }
 
     Fusedrag fusedrag;
-    fusedrag.front_node = _ParseNodeRef(results[1]);
-    fusedrag.rear_node  = _ParseNodeRef(results[3]);
-
-    if (results[6].matched)
+    fusedrag.front_node = this->GetArgNodeRef(0);
+    fusedrag.rear_node  = this->GetArgNodeRef(1);
+    
+    if (this->GetArgStr(2) == "autocalc")
     {
-        fusedrag.approximate_width = STR_PARSE_REAL(results[6]);
-        fusedrag.airfoil_name = results[8];
-
-        m_current_module->fusedrag.push_back(fusedrag);
-    }
-    else if (results[9].matched)
-    {
-        fusedrag.autocalc = true;
-
-        if (results[12].matched)
-        {
-            fusedrag.area_coefficient = STR_PARSE_REAL(results[12]);
-
-            if (results[15].matched)
-            {
-                fusedrag.airfoil_name = results[15];
-            }
-        }
-
-        m_current_module->fusedrag.push_back(fusedrag);
+        // Fusedrag autocalculation from truck size
+        if (m_num_args > 3) { fusedrag.area_coefficient = this->GetArgFloat(3); }
+        if (m_num_args > 4) { fusedrag.airfoil_name     = this->GetArgStr  (4); }
     }
     else
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
+        // Original calculation
+        fusedrag.approximate_width = this->GetArgFloat(2);
+        
+        if (m_num_args > 3) { fusedrag.airfoil_name = this->GetArgStr(3); }
     }
 }
 
