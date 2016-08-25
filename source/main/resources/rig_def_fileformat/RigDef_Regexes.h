@@ -430,15 +430,6 @@ DEFINE_REGEX( SECTION_MINIMASS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-// FIXME: Undocumented by RoR, may not be correct
-DEFINE_REGEX( SECTION_NODECOLLISION,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Radius
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
     );
 
 // -------------------------------------------------------------------------- //

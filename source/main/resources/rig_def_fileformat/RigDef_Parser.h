@@ -239,7 +239,7 @@ protected:
 
     void ParseNodesUnified();
 
-    void ParseNodeCollision(Ogre::String const & line);
+    void ParseNodeCollision();
 
     void ParseParticles();
 
