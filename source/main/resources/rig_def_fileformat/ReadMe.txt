@@ -214,7 +214,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        pistonprops
     DIRECTIVE    prop_camera_mode               Default
     BLOCK        props
-    BLOCK        railgroups
+    BLOCK        railgroups                     CSV
     DIRECTIVE    rescuer
     BLOCK        rigidifiers
     DIRECTIVE    rollon

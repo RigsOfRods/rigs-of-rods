@@ -247,7 +247,7 @@ protected:
 
     void ParseProps();
 
-    void ParseRailGroups(Ogre::String const & line);
+    void ParseRailGroups();
 
     void ParseRopables();
 
