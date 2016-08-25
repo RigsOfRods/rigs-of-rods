@@ -191,10 +191,10 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        flexbodywheels
     INLINE       forset                         Keyword-CSV
     BLOCK        fusedrag
-    BLOCK        globals
-    INLINE       guid
+    BLOCK        globals                        Default
+    INLINE       guid                           Default
     BLOCK        guisettings
-    BLOCK        help
+    BLOCK        help                           Default
     DIRECTIVE    hideInChooser
     BLOCK        hookgroup
     BLOCK        hooks
