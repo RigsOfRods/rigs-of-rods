@@ -958,7 +958,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_NODE_COLLISION):
-            ParseNodeCollision(line);
+            ParseNodeCollision();
             line_finished = true;
             break;
 
@@ -3325,19 +3325,14 @@ void Parser::ParseNodesUnified()
     m_current_module->nodes.push_back(node);
 }
 
-void Parser::ParseNodeCollision(Ogre::String const & line)
+void Parser::ParseNodeCollision()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_NODECOLLISION))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(2)) { return; }
+    
     NodeCollision node_collision;
-    node_collision.node = _ParseNodeRef(results[1]);
-    node_collision.radius = STR_PARSE_REAL(results[2]);
+    node_collision.node   = this->GetArgNodeRef(0);
+    node_collision.radius = this->GetArgFloat  (1);
+    
     m_current_module->node_collisions.push_back(node_collision);
 }
 
