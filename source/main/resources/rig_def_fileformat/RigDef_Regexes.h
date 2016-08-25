@@ -409,19 +409,6 @@ DEFINE_REGEX( SECTION_HELP,
     E_TRAILING_WHITESPACE
     );
 
-DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #1 Flare number
-    E_CAPTURE_OPTIONAL( "[[:alpha:]]+" )   // #2 Tolerated characters after flare number (backwards compatibility)
-    E_CAPTURE(                             // #3 Separator
-        E_DELIMITER_COMMA
-        E_OR
-        E_DELIMITER_SPACE // Backwards compatibility
-    )
-    E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER )        // #4 Material name
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
