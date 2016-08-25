@@ -203,7 +203,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        lockgroups
     DIRECTIVE    lockgroup_default_nolock
     BLOCK        managedmaterials
-    BLOCK        materialflarebindings
+    BLOCK        materialflarebindings          Default
     BLOCK        meshwheels
     BLOCK        meshwheels2
     BLOCK        minimass                       Default
