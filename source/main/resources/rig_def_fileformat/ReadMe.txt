@@ -207,7 +207,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        meshwheels
     BLOCK        meshwheels2
     BLOCK        minimass
-    BLOCK        nodecollision
+    BLOCK        nodecollision                  Default
     BLOCK        nodes
     BLOCK        nodes2
     BLOCK        particles                      Default
