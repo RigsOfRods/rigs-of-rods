@@ -241,7 +241,7 @@ protected:
 
     void ParseNodeCollision(Ogre::String const & line);
 
-    void ParseParticles(Ogre::String const & line);
+    void ParseParticles();
 
     void ParsePistonprops();
 
