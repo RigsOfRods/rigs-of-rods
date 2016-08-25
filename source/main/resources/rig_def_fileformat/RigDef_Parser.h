@@ -215,13 +215,13 @@ protected:
 
     void ParseFusedrag();
 
-    void ParseGlobals(Ogre::String const & line);
+    void ParseGlobals();
 
-    void ParseGuid(Ogre::String const & line);
+    void ParseGuid();
 
     void ParseGuiSettings();
 
-    void ParseHelp(Ogre::String const & line);
+    void ParseHelp();
 
     void ParseHook();
 
