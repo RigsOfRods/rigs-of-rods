@@ -437,16 +437,6 @@ DEFINE_REGEX( SECTION_NODECOLLISION,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_PARTICLES,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Emit node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Ref node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_STRING_NO_SPACES ) // Particle sys. name
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //
