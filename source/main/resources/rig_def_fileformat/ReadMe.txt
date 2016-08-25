@@ -210,7 +210,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        nodecollision
     BLOCK        nodes
     BLOCK        nodes2
-    BLOCK        particles
+    BLOCK        particles                      Default
     BLOCK        pistonprops
     DIRECTIVE    prop_camera_mode               Default
     BLOCK        props

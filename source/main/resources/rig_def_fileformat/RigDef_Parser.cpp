@@ -969,7 +969,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_PARTICLES):
-            ParseParticles(line);
+            ParseParticles();
             line_finished = true;
             break;
 
@@ -3248,20 +3248,14 @@ void Parser::ParsePistonprops()
 
 }
 
-void Parser::ParseParticles(Ogre::String const & line)
+void Parser::ParseParticles()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_PARTICLES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (!this->CheckNumArguments(3)) { return; }
 
     Particle particle;
-    particle.emitter_node = _ParseNodeRef(results[1]);
-    particle.reference_node = _ParseNodeRef(results[2]);
-    particle.particle_system_name = results[3];
+    particle.emitter_node         = this->GetArgNodeRef(0);
+    particle.reference_node       = this->GetArgNodeRef(1);
+    particle.particle_system_name = this->GetArgStr    (2);
 
     m_current_module->particles.push_back(particle);
 }
