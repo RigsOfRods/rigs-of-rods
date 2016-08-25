@@ -942,7 +942,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_MATERIAL_FLARE_BINDINGS):
-            ParseMaterialFlareBindings(line);
+            ParseMaterialFlareBindings();
             line_finished = true;
             break;
 
@@ -3385,25 +3385,14 @@ void Parser::ParseFlexBodyWheel()
     m_current_module->flex_body_wheels.push_back(flexbody_wheel);
 }
 
-void Parser::ParseMaterialFlareBindings(Ogre::String const & line)
+void Parser::ParseMaterialFlareBindings()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_MATERIALFLAREBINDINGS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (! this->CheckNumArguments(2)) { return; }
 
     MaterialFlareBinding binding;
-    binding.flare_number = STR_PARSE_INT(results[1]);
-    if (results[2].matched)
-    {
-        std::stringstream msg;
-        msg << "Invalid character(s) '" << results[2] << "' after parameter ~1 'Flare index', ingoring...";
-        AddMessage(line, Message::TYPE_WARNING, msg.str());
-    }
-    binding.material_name = results[4];
+    binding.flare_number  = this->GetArgInt(0);
+    binding.material_name = this->GetArgStr(1);
+    
     m_current_module->material_flare_bindings.push_back(binding);
 }
 
