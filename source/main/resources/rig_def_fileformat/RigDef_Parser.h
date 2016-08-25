@@ -231,7 +231,7 @@ protected:
 
     void ParseManagedMaterials();
 
-    void ParseMaterialFlareBindings(Ogre::String const & line);
+    void ParseMaterialFlareBindings();
 
     void ParseMeshWheelUnified();
 
