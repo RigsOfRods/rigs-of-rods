@@ -365,7 +365,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_GUID):
-                ParseGuid(line);
+                ParseGuid();
                 line_finished = true;
                 break;
 
@@ -908,7 +908,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_GLOBALS):
-            ParseGlobals(line);
+            ParseGlobals();
             line_finished = true;
             break;
 
@@ -918,7 +918,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_HELP):
-            ParseHelp(line);
+            ParseHelp();
             line_finished = true;
             break;
 
@@ -1583,22 +1583,14 @@ void Parser::ParseHook()
     m_current_module->hooks.push_back(hook);
 }
 
-void Parser::ParseHelp(Ogre::String const & line)
+void Parser::ParseHelp()
 {
     if (! m_current_module->help_panel_material_name.empty())
     {
-        AddMessage(line, Message::TYPE_WARNING, "Multiple lines of section 'help', using the last found...");
+        this->AddMessage(Message::TYPE_WARNING, "Secton defined more than once.");
     }
 
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_HELP))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    m_current_module->help_panel_material_name = results[1];
+    m_current_module->help_panel_material_name = this->GetArgStr(1);
 }
 
 void Parser::ParseGuiSettings()
@@ -1636,48 +1628,33 @@ void Parser::ParseGuiSettings()
     }
 }
 
-void Parser::ParseGuid(Ogre::String const & line)
+void Parser::ParseGuid()
 {
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; }
+    
     if (! m_definition->guid.empty())
     {
-        AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'guid', using the last defined...");
+        this->AddMessage(Message::TYPE_WARNING, "Guid defined multiple times.");
     }
 
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_GUID))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid inline-section 'guid', ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-    m_definition->guid = results[1];
+    m_definition->guid = this->GetArgStr(1);
 }
 
-void Parser::ParseGlobals(Ogre::String const & line)
+void Parser::ParseGlobals()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_GLOBALS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
+    if (! this->CheckNumArguments(2)) { return; }
 
     if (m_current_module->globals != nullptr)
     {
-        AddMessage(line, Message::TYPE_WARNING, "Multiple sections 'globals' in one module, using the first one found.");
-        return;
+        this->AddMessage(Message::TYPE_WARNING, "Globals defined more than once.");
     }
-
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    
     Globals globals;
-    globals.dry_mass = STR_PARSE_REAL(results[1]);
-    globals.cargo_mass = STR_PARSE_REAL(results[2]);
-    if (results[3].matched)
-    {
-        globals.material_name = results[4];
-    }
+    globals.dry_mass   = this->GetArgFloat(0);
+    globals.cargo_mass = this->GetArgFloat(1);
+    
+    if (m_num_args > 2) { globals.material_name = this->GetArgStr(2); }
 
     m_current_module->globals = std::shared_ptr<Globals>( new Globals(globals) );
 }

@@ -384,33 +384,6 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
 
     );
 
-DEFINE_REGEX( SECTION_GLOBALS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_REAL_NUMBER ) // Dry mass
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // Cargo mass
-    E_CAPTURE_OPTIONAL( 
-        E_DELIMITER_COMMA
-        E_CAPTURE( E_STRING_ANYTHING_BUT_DELIMITER ) // Truck submesh material
-    )
-    E_CAPTURE_OPTIONAL( E_DELIMITER )                      // #5 Illegal characters at the end
-    E_CAPTURE_OPTIONAL( E_STRING_ANYTHING_BUT_WHITESPACE ) // #6 Illegal characters at the end
-    E_TRAILING_WHITESPACE
-    );
-
-DEFINE_REGEX( SECTION_GUID,
-    E_LEADING_WHITESPACE
-    "[Gg][Uu][Ii][Dd]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_STRING_NO_SPACES )
-    E_TRAILING_WHITESPACE
-    );
-
-DEFINE_REGEX( SECTION_HELP,
-    E_CAPTURE( E_STRING_NO_SPACES ) // Material name
-    E_TRAILING_WHITESPACE
-    );
-
     );
 
 // -------------------------------------------------------------------------- //
