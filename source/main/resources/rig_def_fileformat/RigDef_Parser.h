@@ -348,6 +348,10 @@ protected:
     {
         this->AddMessage(m_current_line, type, msg);
     }
+    void AddMessage(Message::Type type, std::string const & msg)
+    {
+        this->AddMessage(m_current_line, type, msg);
+    }
 
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
