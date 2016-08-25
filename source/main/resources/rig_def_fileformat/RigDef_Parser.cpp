@@ -3687,7 +3687,7 @@ void Parser::ParseManagedMaterials()
     }
     else
     {
-        this->AddMessage(Message::TYPE_ERROR, (type_str + " is an invalid effect").c_str());
+        this->AddMessage(Message::TYPE_ERROR, type_str + " is an invalid effect");
         return;
     }
 
