@@ -447,13 +447,6 @@ DEFINE_REGEX( SECTION_PARTICLES,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_RAILGROUPS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Id
-    E_DELIMITER_COMMA
-    E_CAPTURE( "([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*,)*([[:blank:]]*" E_CAPTURE( E_NODE_ID ) "[[:blank:]]*)+$" ) // Node list
-    );
-
 // -------------------------------------------------------------------------- //
 // Cleanup                                                                    //
 // -------------------------------------------------------------------------- //

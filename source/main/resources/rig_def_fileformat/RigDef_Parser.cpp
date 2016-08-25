@@ -984,7 +984,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_RAILGROUPS):
-            ParseRailGroups(line);
+            ParseRailGroups();
             line_finished = true;
             break;
 
@@ -3093,25 +3093,21 @@ void Parser::ParseRopables()
     m_current_module->ropables.push_back(ropable);
 }
 
-void Parser::ParseRailGroups(Ogre::String const & line)
+void Parser::ParseRailGroups()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_RAILGROUPS))
+    Ogre::StringVector args = Ogre::StringUtil::split(m_current_line, ",");
+    if (args.size() < 3u)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
+        this->AddMessage(Message::TYPE_ERROR, "Not enough parameters");
         return;
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
 
     RailGroup railgroup;
-    railgroup.id = STR_PARSE_INT(results[1]);
+    railgroup.id = this->ParseArgInt(args[0].c_str());
 
-    // Node list 
-    // Just use the split/trim/compare method 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(results[2].str(), ",");
-    for (auto itor = tokens.begin(); itor != tokens.end(); itor++)
+    for (auto itor = args.begin() + 1; itor != args.end(); itor++)
     {
-        railgroup.node_list.push_back( _ParseNodeRef(*itor));
+        railgroup.node_list.push_back( this->_ParseNodeRef(*itor));
     }
 
     m_current_module->railgroups.push_back(railgroup);
