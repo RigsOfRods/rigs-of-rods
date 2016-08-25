@@ -424,12 +424,6 @@ DEFINE_REGEX( SECTION_MATERIALFLAREBINDINGS,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_MINIMASS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_REAL_NUMBER ) // Min. default mass
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
     );
 
 // -------------------------------------------------------------------------- //
