@@ -219,7 +219,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		fname.c_str(),
         &rig_loading_profiler,
 		false, // networked
-		gEnv->multiplayer, // networking
+		(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED), // networking
 		spawnbox,
 		ismachine,
 		truckconfig,
@@ -249,7 +249,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 #endif // USE_MYGUI
 
 	// add own username to truck
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
 		b->updateNetworkInfo();
 	}
@@ -315,7 +315,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 		reg->name,
         &p,
 		true, // networked
-		gEnv->multiplayer, // networking
+		(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED), // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,

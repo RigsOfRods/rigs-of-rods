@@ -96,7 +96,7 @@ void CLASS::Show()
 
 	m_rig_editor->setEnabled(false);
 
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
 		m_back_to_menu->setEnabled(false);
 		m_change_map->setEnabled(false);

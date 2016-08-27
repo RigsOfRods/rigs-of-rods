@@ -124,7 +124,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 	}
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
 		RoR::ChatSystem::SendChat(msg.c_str());
 		return;

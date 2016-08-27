@@ -258,7 +258,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 {
 	m_vehicles_menu_widget->removeAllItems();
 	
-	if (!gEnv->multiplayer)
+	if (!(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED))
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();

@@ -56,11 +56,6 @@ public:
 
 	void RequestExitCurrentLoop();
 
-	void SetNextApplicationState(Application::State next_app_state)
-	{
-		m_next_application_state = next_app_state;
-	}
-
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
 	
 	void RegenCache();
@@ -96,8 +91,6 @@ protected:
 	bool               m_shutdown_requested;
 	bool               m_restart_requested;
 	unsigned long      m_start_time;
-	Application::State m_next_application_state;
-	Application::State m_application_state;
 	bool               m_base_resource_loaded;
     bool               m_is_mumble_created;
 

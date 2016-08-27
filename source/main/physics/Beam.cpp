@@ -4647,7 +4647,7 @@ void Beam::updateDebugOverlay()
 
 void Beam::updateNetworkInfo()
 {
-	if (!gEnv->multiplayer) return;
+	if (!(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)) return;
 
 #ifdef USE_SOCKETW
 	BES_GFX_START(BES_GFX_updateNetworkInfo);

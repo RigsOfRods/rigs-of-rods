@@ -872,7 +872,7 @@ int GameScript::deleteScriptVariable(const String &arg)
 int GameScript::sendGameCmd(const String& message)
 {
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
 
 		RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));

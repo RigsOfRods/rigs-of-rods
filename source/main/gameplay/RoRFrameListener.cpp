@@ -290,8 +290,9 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 #endif //USE_MYGUI
 
+    const bool mp_connected = (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED);
 #ifdef USE_MYGUI
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && gEnv->multiplayer)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
 	{
 		RoR::Application::GetInputEngine()->resetKeys();
 		RoR::Application::GetGuiManager()->ShowChatBox();
@@ -1074,7 +1075,7 @@ bool RoRFrameListener::updateEvents(float dt)
 							RoR::Application::GetOverlayWrapper()->showPressureOverlay(false);
 					}
 
-					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !gEnv->multiplayer && curr_truck->driveable != AIRPLANE)
+					if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !mp_connected && curr_truck->driveable != AIRPLANE)
 					{
 						if (!BeamFactory::getSingleton().enterRescueTruck())
 						{
@@ -1432,8 +1433,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	BeamFactory::getSingleton().SyncWithSimThread();
 
+    const bool mp_connected = gEnv->multiplayer_state == Global::MP_STATE_CONNECTED;
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (mp_connected)
 	{
 		RoR::Networking::HandleStreamData();
 #ifdef USE_MYGUI
@@ -1462,7 +1464,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// update network gui if required, at most every 2 seconds
-	if (gEnv->multiplayer)
+	if (mp_connected)
 	{
 		// now update mumble 3d audio things
 #ifdef USE_MUMBLE
@@ -1677,7 +1679,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	Beam **trucks     = BeamFactory::getSingleton().getTrucks();
 
 	// first, test if the place if clear, BUT NOT IN MULTIPLAYER
-	if (!gEnv->multiplayer)
+	if (!(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED))
 	{
 		collision_box_t *spawnbox = gEnv->collisions->getBox(instance, box);
 		for (int t=0; t < free_truck; t++)
@@ -1773,7 +1775,10 @@ void RoRFrameListener::hideGUI(bool hidden)
 	if (curr_truck && curr_truck->getReplay()) curr_truck->getReplay()->setHidden(hidden);
 
 #ifdef USE_SOCKETW
-		if (gEnv->multiplayer) GUI_Multiplayer::getSingleton().setVisible(!hidden);
+		if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+        {
+            GUI_Multiplayer::getSingleton().setVisible(!hidden);
+        }
 #endif // USE_SOCKETW
 
 	if (hidden)

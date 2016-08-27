@@ -112,8 +112,10 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 		mScale = 1.5f;
 
 	// disable waves in multiplayer
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+    {
 		haswaves = false;
+    }
 
 	// and the type
 	String waterSettingsString = SSETTING("Water effects", "Reflection + refraction (speed optimized)");

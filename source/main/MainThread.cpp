@@ -93,8 +93,6 @@ MainThread::MainThread():
 	m_start_time(0),
 	m_exit_loop_requested(false),
 	m_base_resource_loaded(false),
-	m_application_state(Application::STATE_NONE),
-	m_next_application_state(Application::STATE_NONE),
     m_is_mumble_created(false)
 {
 	RoR::Application::SetMainThreadLogic(this);
@@ -105,8 +103,6 @@ void MainThread::Go()
 	// ================================================================================
 	// Bootstrap
 	// ================================================================================
-
-	m_application_state = Application::STATE_BOOTSTRAP;
 
 	gEnv = new GlobalEnvironment(); // Instantiate global environment
 
@@ -297,35 +293,35 @@ void MainThread::Go()
 	// Main loop (switches application states)
 	// ========================================================================
 
-	Application::State previous_application_state(m_application_state);
-	m_next_application_state = Application::STATE_MAIN_MENU;
+	Global::AppState previous_application_state(gEnv->app_state);
+    gEnv->next_app_state = Global::APP_STATE_MAIN_MENU;
 
 	if (! SSETTING("Preselected Map", "").empty())
 	{
 		LOG("Preselected Map: " + SSETTING("Preselected Map", ""));
-		m_next_application_state = Application::STATE_SIMULATION;
+        gEnv->next_app_state = Global::APP_STATE_SIMULATION;
 	}
-    gEnv->multiplayer = BSETTING("Network enable", false);
-    if (gEnv->multiplayer)
+    if (BSETTING("Network enable", false))
     {
-        m_next_application_state = Application::STATE_SIMULATION;
+        gEnv->next_multiplayer_state = Global::MP_STATE_CONNECTED;
+        Settings::getSingleton().setSetting("Network enable", "No");
+        gEnv->next_app_state = Global::APP_STATE_SIMULATION;
     }
 	m_base_resource_loaded = false;
 	while (! m_shutdown_requested)
 	{
-		if (m_next_application_state == Application::STATE_MAIN_MENU)
+		if (gEnv->next_app_state == Global::APP_STATE_MAIN_MENU)
 		{
 			// ================================================================
 			// Main menu
 			// ================================================================
 
-			m_application_state = Application::STATE_MAIN_MENU;
-			m_next_application_state = Application::STATE_MAIN_MENU;
+            gEnv->app_state = Global::APP_STATE_MAIN_MENU;
 
 			OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
 			assert(ror_ogre_subsystem != nullptr);
 
-			if (previous_application_state == Application::STATE_SIMULATION)
+			if (previous_application_state == Global::APP_STATE_SIMULATION)
 			{
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
@@ -353,7 +349,7 @@ void MainThread::Go()
 				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
 			}
 
-			if (gEnv->multiplayer || BSETTING("SkipMainMenu", false))
+			if (gEnv->next_multiplayer_state == Global::MP_STATE_CONNECTED || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
 				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
@@ -365,39 +361,38 @@ void MainThread::Go()
 
 			EnterMainMenuLoop();
 			
-			previous_application_state = Application::STATE_MAIN_MENU;
-			m_application_state = Application::STATE_NONE;
+			previous_application_state = gEnv->app_state;
 		}
-		if (m_next_application_state == Application::STATE_SIMULATION)
+		if (gEnv->next_app_state == Global::APP_STATE_SIMULATION)
 		{
 			// ================================================================
 			// Simulation
 			// ================================================================
 			if (SetupGameplayLoop())
 			{
-				previous_application_state = Application::STATE_SIMULATION;
-				EnterGameplayLoop();	
+				previous_application_state = Global::APP_STATE_SIMULATION;
+				EnterGameplayLoop();
 			}
 			else
 			{
-				m_next_application_state = Application::STATE_MAIN_MENU;
+                gEnv->next_app_state = Global::APP_STATE_MAIN_MENU;
 			}
 		}
-		else if (m_next_application_state == Application::STATE_CHANGEMAP)
+		else if (gEnv->next_app_state == Global::APP_STATE_CHANGEMAP)
 		{
 			//Sim -> change map -> sim
 			//                  -> back to menu
 
-			if (previous_application_state == Application::STATE_SIMULATION)
+			if (previous_application_state == Global::APP_STATE_SIMULATION)
 			{
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
-				m_base_resource_loaded = true;	
+				m_base_resource_loaded = true;
 				
 			}
 			menu_wallpaper_widget->setVisible(true);
-			previous_application_state = Application::STATE_CHANGEMAP;
-			m_next_application_state = Application::STATE_CHANGEMAP;
+			previous_application_state = Global::APP_STATE_CHANGEMAP;
+            gEnv->next_app_state = Global::APP_STATE_CHANGEMAP;
 
 			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
 			//It's the same thing so..
@@ -413,7 +408,7 @@ void MainThread::Go()
 	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
 		RoR::Networking::Disconnect();
 	}
@@ -535,7 +530,7 @@ bool MainThread::SetupGameplayLoop()
 	int colourNum = -1;
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
 		wchar_t tmp[255] = L"";
 		UTFString format = _L("Press %ls to start chatting");
@@ -716,7 +711,7 @@ void MainThread::EnterMainMenuLoop()
 			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 			if (selected_map != nullptr)
 			{
-				SetNextApplicationState(Application::STATE_SIMULATION);
+                gEnv->next_app_state = Global::APP_STATE_SIMULATION;
 				RequestExitCurrentLoop();
 			}
 		}
@@ -864,7 +859,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 	}
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
 	{
         Application::GetGuiManager()->CheckAndCreateMultiplayer(); // Init singleton if not already
 		GUI_Multiplayer::getSingleton().update();
@@ -991,19 +986,18 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 
 void MainThread::BackToMenu()
 {
-	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_MAIN_MENU);
+    gEnv->next_app_state = Global::APP_STATE_MAIN_MENU;
 	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-    if (gEnv->multiplayer)
+    if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
     {
         RoR::Networking::Disconnect();
-        gEnv->multiplayer = false;
         GUI_Multiplayer::getSingleton().setVisible(false);
     }
 }
 
 void MainThread::ChangeMap()
 {
-	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_CHANGEMAP);
+    gEnv->next_app_state = Global::APP_STATE_CHANGEMAP;
 	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 
 }
@@ -1068,7 +1062,6 @@ void MainThread::JoinMultiplayerServer(std::string hostname, std::string port)
 #ifdef USE_SOCKETW
     assert(m_application_state == Application::STATE_MAIN_MENU);
 
-    gEnv->multiplayer = true;
     Settings::getSingleton().setSetting("Server name", hostname);
     Settings::getSingleton().setSetting("Server port", port);
     RoR::Application::GetGuiManager()->GetMultiplayerSelector()->SetVisibleImmediately(false);
@@ -1078,7 +1071,6 @@ void MainThread::JoinMultiplayerServer(std::string hostname, std::string port)
 
     if (!RoR::Networking::Connect())
     {
-        gEnv->multiplayer = false;
         LOG("connection failed. server down?");
         LoadingWindow::getSingleton().hide();
         Application::GetGuiManager()->ShowMessageBox("Connection failed",
@@ -1117,11 +1109,10 @@ void MainThread::JoinMultiplayerServer(std::string hostname, std::string port)
 void MainThread::LeaveMultiplayerServer()
 {
 #ifdef USE_SOCKETW
-    if (gEnv->multiplayer)
+    if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
     {
         LoadingWindow::getSingleton().setAutotrack(_L("Disconnecting, wait 10 seconds ..."));
         RoR::Networking::Disconnect();
-        gEnv->multiplayer = false;
         GUI_Multiplayer::getSingleton().setVisible(false);
         LoadingWindow::getSingleton().hide();
     }

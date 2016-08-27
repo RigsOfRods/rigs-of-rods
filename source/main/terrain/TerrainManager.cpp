@@ -718,7 +718,7 @@ void TerrainManager::initScripting()
 	bool loaded = false;
 
 	// only load terrain scripts while not in multiplayer
-	if (!gEnv->multiplayer)
+	if (gEnv->multiplayer_state != Global::MP_STATE_CONNECTED)
 	{
 		try
 		{

@@ -240,7 +240,7 @@ void CLASS::Cancel()
 	m_selection_done = true;
 	Hide();
 
-    if (gEnv->multiplayer)
+    if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
     {
         RoR::Application::GetMainThreadLogic()->LeaveMultiplayerServer();
     }
@@ -952,7 +952,7 @@ void CLASS::Show(LoaderType type)
 
 	BindKeys();
 
-	if (type == LT_Terrain && gEnv->multiplayer)
+	if (type == LT_Terrain && (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED))
     {
         m_Cancel->setCaption(_L("Cancel (disconnect)"));
     }
