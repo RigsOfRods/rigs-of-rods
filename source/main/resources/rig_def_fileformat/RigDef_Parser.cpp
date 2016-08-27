@@ -3468,9 +3468,8 @@ void Parser::ParseBeams()
     // Flags 
     if (m_num_args > 2)
     {
-        auto itor = this->GetArgStr(2).begin();
-        auto endi = this->GetArgStr(2).end();
-        for (; itor != endi; ++itor)
+        std::string options_str = this->GetArgStr(2);
+        for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
         {
                  if (*itor == 'v') { continue; } // Dummy flag
             else if (*itor == 'i') { beam.options |= Beam::OPTION_i_INVISIBLE; } 
