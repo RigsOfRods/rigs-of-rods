@@ -278,8 +278,11 @@ void GUIManager::ShowMainMenu(bool isVisible)
 			);
 
 		m_gui_GameMainMenu->Show();
-	} else 
+	}
+    else if ((isVisible == false) && (m_gui_GameMainMenu.get() != nullptr))
+    {
 		m_gui_GameMainMenu->Hide();
+    }
 }
 
 void GUIManager::ShowSettingGui(bool isVisible)

@@ -64,7 +64,7 @@ public:
 
 	void ChangeMap();
 
-    void JoinMultiplayerServer(std::string ip, std::string port);
+    void JoinMultiplayerServer();
     void LeaveMultiplayerServer();
 
 	/// @return True if everything was prepared OK and simulation may start.

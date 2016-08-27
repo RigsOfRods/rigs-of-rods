@@ -303,9 +303,12 @@ void MainThread::Go()
 	}
     if (BSETTING("Network enable", false))
     {
-        gEnv->next_multiplayer_state = Global::MP_STATE_CONNECTED;
         Settings::getSingleton().setSetting("Network enable", "No");
-        gEnv->next_app_state = Global::APP_STATE_SIMULATION;
+        this->JoinMultiplayerServer();
+        if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+        {
+            gEnv->next_app_state = Global::APP_STATE_SIMULATION;
+        }
     }
 	m_base_resource_loaded = false;
 	while (! m_shutdown_requested)
@@ -1057,14 +1060,15 @@ void MainThread::ShowSurveyMap(bool be_visible)
 	}
 }
 
-void MainThread::JoinMultiplayerServer(std::string hostname, std::string port)
+void MainThread::JoinMultiplayerServer()
 {
 #ifdef USE_SOCKETW
-    assert(m_application_state == Application::STATE_MAIN_MENU);
 
-    Settings::getSingleton().setSetting("Server name", hostname);
-    Settings::getSingleton().setSetting("Server port", port);
-    RoR::Application::GetGuiManager()->GetMultiplayerSelector()->SetVisibleImmediately(false);
+    auto mp_selector = RoR::Application::GetGuiManager()->GetMultiplayerSelector();
+    if (mp_selector != nullptr)
+    {
+        mp_selector->SetVisibleImmediately(false);
+    }
     RoR::Application::GetGuiManager()->ShowMainMenu(false);
 
     LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));

@@ -109,9 +109,9 @@ void CLASS::eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    m_main_class->JoinMultiplayerServer(
-        m_entertab_ip_editbox->getCaption().asUTF8(),
-        m_entertab_port_editbox->getCaption().asUTF8());
+    Settings::getSingleton().setSetting("Server name", m_entertab_ip_editbox->getCaption().asUTF8());
+    Settings::getSingleton().setSetting("Server port", m_entertab_port_editbox->getCaption().asUTF8());
+    m_main_class->JoinMultiplayerServer();
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
