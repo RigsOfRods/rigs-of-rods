@@ -89,9 +89,7 @@ GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 	p->addItem(_L("Load Scenery"),                    MyGUI::MenuItemType::Normal);
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);*/ //Disabled for the moment as far as i know -max98
 
-	if (!BSETTING("Network enable", false))
-		p->addItem(_L("Back to menu"),					  MyGUI::MenuItemType::Normal);
-
+	p->addItem(_L("Back to menu"),                    MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Exit"),                            MyGUI::MenuItemType::Normal);
 	m_popup_menus.push_back(p);
 
