@@ -25,7 +25,6 @@
 
 #include "RoRPrerequisites.h"
 
-#include "SocketW.h"
 #include "rornet.h"
 
 namespace RoR {
@@ -57,6 +56,7 @@ std::vector<user_info_t> GetUserInfos();
 bool GetUserInfo(int uid, user_info_t &result);
 
 Ogre::UTFString const & GetErrorMessage();
+bool CheckError();
 
 } // namespace Networking
 } // namespace RoR

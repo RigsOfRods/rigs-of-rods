@@ -800,6 +800,15 @@ void MainThread::EnterGameplayLoop()
 
 		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
+        if ((gEnv->multiplayer_state == Global::MP_STATE_CONNECTED) && RoR::Networking::CheckError())
+        {
+            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
+            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
+            Application::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+            gEnv->next_app_state = Global::APP_STATE_MAIN_MENU;
+            this->RequestExitCurrentLoop();
+        }
+
 		if (!rw->isActive() && rw->isVisible())
 			rw->update(); // update even when in background !
 

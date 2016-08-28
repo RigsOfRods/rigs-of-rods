@@ -35,6 +35,7 @@
 #include "Utils.h"
 
 #include <Ogre.h>
+#include <SocketW.h>
 
 #include <algorithm>
 #include <atomic>
@@ -77,6 +78,7 @@ static std::atomic<bool> m_shutdown;
 
 static std::mutex m_users_mutex;
 static std::mutex m_userdata_mutex;
+static std::mutex m_thread_err_mutex;
 static std::mutex m_recv_packetqueue_mutex;
 static std::mutex m_send_packetqueue_mutex;
 
@@ -88,6 +90,8 @@ static std::deque <send_packet_t> m_send_packet_buffer;
 static const unsigned int m_packet_buffer_size = 20;
 
 static Ogre::UTFString m_error_msg;
+static Ogre::UTFString m_thread_error_msg;
+static bool            m_thread_failed;
 
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 
@@ -96,6 +100,18 @@ static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
 Ogre::UTFString const & GetErrorMessage()
 {
     return m_error_msg;
+}
+
+bool CheckError()
+{
+    std::lock_guard<std::mutex> lock(m_thread_err_mutex);
+    if (m_thread_failed)
+    {
+        m_error_msg = m_thread_error_msg;
+        gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
+        return true;
+    }
+    return false;
 }
 
 void DebugPacket(const char *name, header_t *header, char *buffer)
@@ -113,22 +129,18 @@ void DebugPacket(const char *name, header_t *header, char *buffer)
     LOG(tmp);
 }
 
-void NetFatalError(Ogre::UTFString errormsg, bool exit_program)
+void NetFatalError(Ogre::UTFString errormsg)
 {
-    if (m_shutdown)
-    {
-        return;
-    }
+    LOG("[RoR|Networking] NetFatalError(): " + errormsg.asUTF8());
+    std::lock_guard<std::mutex> lock(m_thread_err_mutex);
+    m_thread_error_msg = errormsg;
+    m_thread_failed = true;
+    m_shutdown = true; // Atomic - stop the other thread.
 
-    socket.set_timeout(1, 1000);
-    ErrorUtils::ShowError(_L("Network Connection Problem"), _L("Network fatal error: ") + errormsg);
-
-    socket.disconnect();
-
-    if (exit_program)
-    {
-        exit(124);
-    }
+    // IMPORTANT: Disconnecting here terminates the application for some reason (Windows 7).
+    // Workaround: leave the socket in broken state -> impossible to re-connect. Fix later.
+    //socket.set_timeout(1, 1000);
+    //socket.disconnect();
 }
 
 void SetNetQuality(int quality)
@@ -305,7 +317,7 @@ void RecvThread()
             {
                 std::stringstream s;
                 s << "[RoR|Networking] RecvThread: Error while receiving data: " << err << ", tid: " <<std::this_thread::get_id();
-                NetFatalError(s.str(), true);
+                NetFatalError(s.str());
             }
             return; // Die!
         }
@@ -346,7 +358,7 @@ void RecvThread()
         {
             if (header.source == m_uid)
             {
-                NetFatalError(_L("disconnected: remote side closed the connection"), false);
+                NetFatalError(_L("disconnected: remote side closed the connection"));
                 return;
             }
 
@@ -427,15 +439,18 @@ void RecvThread()
 
 void ConnectionFailed(Ogre::UTFString const & msg)
 {
-    char buff[1000];
-    sprintf_s(buff, "Error connecting to server: [%s:%d]\n\n%s",
-        SSETTING("Server name", "").c_str(), m_server_port, msg.asUTF8_c_str());
-    m_error_msg = buff;
+    m_error_msg = "Error connecting to server: [" 
+        + SSETTING("Server name", "") + ":" + TOSTRING(m_server_port) + "]\n\n" + msg.asUTF8();
     gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
 }
 
 bool Connect()
 {
+    // Reset errors
+    m_thread_error_msg.clear();
+    m_error_msg.clear();
+    m_thread_failed = false;
+
     m_server_name = SSETTING("Server name", "");
     m_server_port = ISETTING("Server port", 0);
     m_username = SSETTING("Nickname", "Anonymous");
