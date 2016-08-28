@@ -46,7 +46,7 @@ public:
 
 	bool IsFinishedSelecting();
 	void Show(LoaderType type);
-	void Hide();
+	void Hide(bool smooth = true);
 	bool IsVisible();
 	void BackToMenu();
 	void Reset();

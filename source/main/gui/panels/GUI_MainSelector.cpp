@@ -711,7 +711,7 @@ void CLASS::OnSelectionDone()
 		else
 		{
 			m_selected_skin = 0;
-			Hide();
+			this->Hide(false); // Hide without fade-out effect
 		}
 	}
 	else
@@ -962,11 +962,18 @@ void CLASS::Show(LoaderType type)
     }
 }
 
-void CLASS::Hide()
+void CLASS::Hide(bool smooth)
 {
 	m_selection_done = true;
 	RoR::Application::GetGuiManager()->UnfocusGui();
-	MAIN_WIDGET->setVisibleSmooth(false);
+    if (smooth)
+    {
+        MAIN_WIDGET->setVisibleSmooth(false);
+    }
+    else
+    {
+        MAIN_WIDGET->setVisible(false);
+    }
 	MAIN_WIDGET->setEnabledSilent(false);
 	BindKeys(false);
 }
