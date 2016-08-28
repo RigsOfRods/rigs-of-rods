@@ -1088,12 +1088,6 @@ void MainThread::JoinMultiplayerServer()
     GUI_Multiplayer::getSingleton().setVisible(true);
     GUI_Multiplayer::getSingleton().update();
 
-    String terrain_name = RoR::Networking::GetTerrainName();
-    if (terrain_name != "any")
-    {
-        Settings::getSingleton().setSetting("Preselected Map", terrain_name);
-    }
-
     RoR::ChatSystem::SendStreamSetup();
 
 #ifdef USE_MUMBLE
@@ -1104,9 +1098,19 @@ void MainThread::JoinMultiplayerServer()
     }
 #endif // USE_MUMBLE
 
-    // Connected -> go directly to map selector
-    RoR::Application::GetGuiManager()->getMainSelector()->Reset();
-    RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+    String terrain_name = RoR::Networking::GetTerrainName();
+    if (terrain_name != "any")
+    {
+        Settings::getSingleton().setSetting("Preselected Map", terrain_name);
+        gEnv->next_app_state = Global::APP_STATE_SIMULATION;
+        this->RequestExitCurrentLoop();
+    }
+    else
+    {
+        // Connected -> go directly to map selector
+        RoR::Application::GetGuiManager()->getMainSelector()->Reset();
+        RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+    }
 #endif //SOCKETW
 }
 
