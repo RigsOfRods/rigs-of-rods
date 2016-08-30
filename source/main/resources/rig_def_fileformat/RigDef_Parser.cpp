@@ -1152,7 +1152,8 @@ void Parser::ParseWing()
 
 void Parser::ParseSetCollisionRange()
 {
-    if (!this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     float value = this->GetArgFloat(1);
     if (value >= 0)
