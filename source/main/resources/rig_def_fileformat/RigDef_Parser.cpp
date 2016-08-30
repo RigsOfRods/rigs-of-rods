@@ -1631,6 +1631,7 @@ void Parser::ParseGuiSettings()
 
 void Parser::ParseGuid()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
     
     if (! m_definition->guid.empty())
