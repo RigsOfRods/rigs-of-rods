@@ -3949,15 +3949,20 @@ float Parser::GetArgFloat(int index)
     }
     if (out_end == m_args[index].start)
     {
-        char msg[200];
-        sprintf_s(msg, "Argument [%d] is not valid float", index + 1);
+        char arg[LINE_BUFFER_LENGTH] = "";
+        strncpy(arg, m_args[index].start, m_args[index].length);
+        char msg[LINE_BUFFER_LENGTH +100];
+        sprintf_s(msg, "Argument [%d] (\"%s\") is not valid float", index + 1, arg);
         this->AddMessage(Message::TYPE_ERROR, msg);
         return 0.f; // Compatibility
     }
     else if (out_end != (m_args[index].start + m_args[index].length))
     {
-        char msg[100];
-        sprintf_s(msg, "Argument [%d] (type: float) has invalid trailing characters", index + 1);
+        char arg[LINE_BUFFER_LENGTH] = "";
+        ptrdiff_t offset = (out_end - m_args[index].start);
+        strncpy(arg, out_end, m_args[index].length - offset);
+        char msg[LINE_BUFFER_LENGTH + 100];
+        sprintf_s(msg, "Argument [%d] (type: float) has invalid trailing characters (\"%s\")", index + 1, arg);
         this->AddMessage(Message::TYPE_WARNING, msg);
     }
     return static_cast<float>(res);
