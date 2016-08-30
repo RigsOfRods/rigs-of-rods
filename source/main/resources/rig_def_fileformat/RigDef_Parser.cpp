@@ -1346,6 +1346,7 @@ void Parser::LogParsedDirectiveSetNodeDefaultsData(float load_weight, float fric
 
 void Parser::ParseDirectiveSetNodeDefaults()
 {
+    this->TokenizeCurrentLine();
     if (!this->CheckNumArguments(2)) { return; }
 
     float load_weight   =                    this->GetArgFloat(1);
