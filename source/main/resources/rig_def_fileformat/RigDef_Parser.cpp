@@ -1934,6 +1934,7 @@ void Parser::ParseFileFormatVersion()
 
 void Parser::ParseDirectiveDetacherGroup()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, param
 
     if (this->GetArgStr(1) == "end")
