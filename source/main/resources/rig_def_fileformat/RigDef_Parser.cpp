@@ -1440,6 +1440,7 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions()
 
 void Parser::ParseDirectiveSetBeamDefaultsScale()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(5)) { return; }
     
     BeamDefaults* b = new BeamDefaults(*m_user_beam_defaults);
