@@ -3307,7 +3307,7 @@ void Parser::ParseMinimass()
         this->AddMessage(Message::TYPE_WARNING, "Minimass defined more than once.");
     }
 
-    m_definition->minimum_mass = this->GetArgFloat(1);
+    m_definition->minimum_mass = this->GetArgFloat(0);
     m_definition->_minimum_mass_set = true;
 }
 
