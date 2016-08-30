@@ -2935,6 +2935,7 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
 
 void Parser::ParseDirectiveSetInertiaDefaults()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
 
     float start_delay = this->GetArgFloat(1);
