@@ -3584,6 +3584,9 @@ void Parser::ParseAuthor()
         this->AddMessage(Message::TYPE_WARNING, "Inline-section 'author' has global effect and should not appear in a module");
     }
 
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; }
+
     Author author;
     if (m_num_args > 1) { author.type             = this->GetArgStr(1); }
     if (m_num_args > 2) { author.forum_account_id = this->GetArgInt(2); author._has_forum_account = true; }
