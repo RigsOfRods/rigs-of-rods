@@ -1275,12 +1275,13 @@ void Parser::ParseSubmeshGroundModel()
 
 void Parser::ParseSpeedLimiter()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     SpeedLimiter& sl = m_current_module->speed_limiter;
     if (sl.is_enabled)
     {
-        AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
+        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'speedlimiter' in a module, using last one ...");
     }
 
     sl.is_enabled = true;
