@@ -1453,6 +1453,7 @@ void Parser::ParseDirectiveSetBeamDefaultsScale()
 
 void Parser::ParseDirectiveSetBeamDefaults()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     BeamDefaults d;
