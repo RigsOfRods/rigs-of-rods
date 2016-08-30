@@ -1702,6 +1702,7 @@ void Parser::ParseDirectiveFlexbodyCameraMode()
         return;
     }
 
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     this->_ParseCameraSettings(m_last_flexbody->camera_settings, this->GetArgStr(1));
