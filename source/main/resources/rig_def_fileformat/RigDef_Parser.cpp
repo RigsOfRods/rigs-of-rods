@@ -3024,6 +3024,7 @@ void Parser::ParseRotatorsUnified()
 
 void Parser::ParseFileinfo()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
 
     if (m_current_module != m_root_module)
