@@ -1425,12 +1425,13 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 
 void Parser::ParseDirectiveSetManagedMaterialsOptions()
 {
+    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
     
     // This is what v0.3x's parser did.
     char c = this->GetArgChar(1);
     m_current_managed_material_options.double_sided = (c != '0');
-    
+
     if (c != '0' && c != '1')
     {
         this->AddMessage(Message::TYPE_WARNING,
