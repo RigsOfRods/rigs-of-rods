@@ -3840,7 +3840,7 @@ long Parser::GetArgLong(int index)
     if (out_end == m_args[index].start)
     {
         char msg[200];
-        sprintf_s(msg, "Argument [%d] is not valid integer");
+        sprintf_s(msg, "Argument [%d] is not valid integer", index + 1);
         this->AddMessage(Message::TYPE_ERROR, msg);
         return 0; // Compatibility
     }
@@ -3941,7 +3941,7 @@ float Parser::GetArgFloat(int index)
     if (out_end == m_args[index].start)
     {
         char msg[200];
-        sprintf_s(msg, "Argument [%d] is not valid float");
+        sprintf_s(msg, "Argument [%d] is not valid float", index + 1);
         this->AddMessage(Message::TYPE_ERROR, msg);
         return 0.f; // Compatibility
     }
