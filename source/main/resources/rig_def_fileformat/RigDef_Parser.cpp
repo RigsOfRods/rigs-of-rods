@@ -1267,6 +1267,7 @@ void Parser::ParseTractionControl()
 
 void Parser::ParseSubmeshGroundModel()
 {
+    this->TokenizeCurrentLine();
     if (!this->CheckNumArguments(2)) { return; } // Items: keyword, arg
 
     m_current_module->submeshes_ground_model_name = this->GetArgStr(1);
