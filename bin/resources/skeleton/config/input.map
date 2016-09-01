@@ -159,8 +159,7 @@ COMMANDS_84                    Keyboard             EXPL+CTRL+SHIFT+ALT+F12
 COMMON_ACCELERATE_SIMULATION   Keyboard             CTRL+EQUALS 
 COMMON_DECELERATE_SIMULATION   Keyboard             SHIFT+EQUALS 
 COMMON_RESET_SIMULATION_PACE   Keyboard             BACKSLASH 
-COMMON_CONSOLEDISPLAY          Keyboard             EXPL+GRAVE 
-COMMON_CONSOLEMODE             Keyboard             EXPL+CTRL+GRAVE 
+COMMON_CONSOLE_TOGGLE          Keyboard             EXPL+GRAVE
 COMMON_ENTER_OR_EXIT_TRUCK     Keyboard             RETURN 
 COMMON_ENTER_NEXT_TRUCK        Keyboard             EXPL+CTRL+RBRACKET 
 COMMON_ENTER_PREVIOUS_TRUCK    Keyboard             EXPL+CTRL+LBRACKET 

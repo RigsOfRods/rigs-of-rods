@@ -280,6 +280,11 @@ bool RoRFrameListener::updateEvents(float dt)
 		}
 	}
 
+    if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
+    {
+        Application::GetConsole()->setVisible(! Application::GetConsole()->getVisible());
+    }
+
 	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
 
 #ifdef USE_MYGUI

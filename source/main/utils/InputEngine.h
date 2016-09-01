@@ -223,8 +223,7 @@ enum events
 	EV_COMMON_DECELERATE_SIMULATION, //!< decelerate the simulation speed
 	EV_COMMON_RESET_SIMULATION_PACE, //!< reset the simulation speed
 	EV_COMMON_AUTOLOCK, //!< unlock autolock hook node
-	EV_COMMON_CONSOLEDISPLAY, //!< show / hide the console
-	EV_COMMON_CONSOLEMODE, //!< toggle appearance of console
+	EV_COMMON_CONSOLE_TOGGLE, //!< show / hide the console
 	EV_COMMON_ENTER_CHATMODE, //!< enter the chat mode
 	EV_COMMON_ENTER_OR_EXIT_TRUCK, //!< enter or exit a truck
 	EV_COMMON_ENTER_NEXT_TRUCK, //!< enter next truck

@@ -919,6 +919,11 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 		return;
 	}
 
+    if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE, 5.f))
+    {
+        Application::GetConsole()->setVisible(! Application::GetConsole()->getVisible());
+    }
+
 	// TODO: screenshot
 
 	// FOV settings disabled in menu

@@ -908,16 +908,10 @@ eventInfo_t eventInfo[] = {
 		_L("reset the simulation pace")
 	},
 	{
-		"COMMON_CONSOLEDISPLAY",
-		EV_COMMON_CONSOLEDISPLAY,
+		"COMMON_CONSOLE_TOGGLE",
+		EV_COMMON_CONSOLE_TOGGLE,
 		"Keyboard EXPL+GRAVE",
 		_L("show / hide the console")
-	},
-	{
-		"COMMON_CONSOLEMODE",
-		EV_COMMON_CONSOLEMODE,
-		"Keyboard EXPL+CTRL+GRAVE",
-		_L("toggle appearance of console")
 	},
 	{
 		"COMMON_ENTER_CHATMODE",
