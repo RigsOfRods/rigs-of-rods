@@ -1882,14 +1882,10 @@ void Beam::receiveStreamData(unsigned int type, int source, unsigned int streami
 	BES_GFX_STOP(BES_GFX_receiveStreamData);
 }
 
-void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, float opt1, float opt2, float opt3)
+void Beam::calcAnimators(const int flag_state, float &cstate, int &div, Real timer, const float lower_limit, const float upper_limit, const float option3)
 {
 	BES_GFX_START(BES_GFX_calcAnimators);
-	int flag_state=flagstate;
 	Real dt = timer;
-	float option1 = opt1;
-	float option2 = opt2;
-	float option3 = opt3;
 
 	//boat rudder
 	if (flag_state & ANIM_FLAG_BRUDDER)
@@ -1959,7 +1955,7 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 	if (engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 3.0f)
 	{
 	// opt1 &opt2 = 0   this is a shifter
-		if (!option1 &&  !option2)
+		if (!lower_limit && !upper_limit)
 		{
 			int shifter = engine->getGear();
 			if (shifter > previousGear)
@@ -1990,12 +1986,12 @@ void Beam::calcAnimators(int flagstate, float &cstate, int &div, Real timer, flo
 			}
 		} else
 		{
-			// check if option1 is a valid to get commandvalue, then get commandvalue
-			if (option1 >= 1.0f && option1 <= 48.0)
-				if (commandkey[int(option1)].commandValue > 0) cstate += 1.0f;
-			// check if option2 is a valid to get commandvalue, then get commandvalue
-			if (option2 >= 1.0f && option2 <= 48.0)
-				if (commandkey[int(option2)].commandValue > 0) cstate -= 1.0f;
+			// check if lower_limit is a valid to get commandvalue, then get commandvalue
+			if (lower_limit >= 1.0f && lower_limit <= 48.0)
+				if (commandkey[int(lower_limit)].commandValue > 0) cstate += 1.0f;
+			// check if upper_limit is a valid to get commandvalue, then get commandvalue
+			if (upper_limit >= 1.0f && upper_limit <= 48.0)
+				if (commandkey[int(upper_limit)].commandValue > 0) cstate -= 1.0f;
 		}
 
 		div++;
@@ -6214,4 +6210,236 @@ Vector3 Beam::getNodePosition(int nodeNumber)
 	{
 		return Ogre::Vector3();
 	}
+}
+
+
+void Beam::UpdatePropAnimations(const float dt)
+{
+	BES_START(BES_CORE_AnimatedProps);
+
+	for (int propi=0; propi<free_prop; propi++)
+	{
+		int animnum=0;
+		float rx = 0.0f;
+		float ry = 0.0f;
+		float rz = 0.0f;
+
+		while (props[propi].animFlags[animnum])
+		{
+			float cstate = 0.0f;
+			int div = 0.0f;
+			int flagstate = props[propi].animFlags[animnum];
+			const float lower_limit = props[propi].constraints[animnum].lower_limit;
+			const float upper_limit = props[propi].constraints[animnum].upper_limit;
+			float animOpt3 = props[propi].animOpt3[animnum];
+
+			calcAnimators(flagstate, cstate, div, dt, lower_limit, upper_limit, animOpt3);
+
+			// key triggered animations
+			if ((props[propi].animFlags[animnum] & ANIM_FLAG_EVENT) && props[propi].animKey[animnum] != -1)
+			{
+				if (RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]))
+				{
+					// keystatelock is disabled then set cstate
+					if (props[propi].animKeyState[animnum] == -1.0f)
+					{
+						cstate += RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]);
+					} else if (!props[propi].animKeyState[animnum])
+					{
+						// a key was pressed and a toggle was done already, so bypass
+						//toggle now
+						if (!props[propi].lastanimKS[animnum])
+						{
+							props[propi].lastanimKS[animnum] = 1.0f;
+							// use animkey as bool to determine keypress / release state of inputengine
+							props[propi].animKeyState[animnum] = 1.0f;
+						}
+						else
+						{
+							props[propi].lastanimKS[animnum] = 0.0f;
+							// use animkey as bool to determine keypress / release state of inputengine
+							props[propi].animKeyState[animnum] = 1.0f;
+						}
+					} else
+					{
+						// bypas mode, get the last set position and set it
+						cstate +=props[propi].lastanimKS[animnum];
+					}
+				} else
+				{
+					// keyevent exists and keylock is enabled but the key isnt pressed right now = get lastanimkeystatus for cstate and reset keypressed bool animkey
+					if (props[propi].animKeyState[animnum] != -1.0f)
+					{
+						cstate +=props[propi].lastanimKS[animnum];
+						props[propi].animKeyState[animnum] = 0.0f;
+					}
+				}
+			}
+
+			//propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
+			//truck steering
+			if (props[propi].animFlags[animnum] & ANIM_FLAG_STEERING) cstate += hydrodirstate;
+			//aileron
+			if (props[propi].animFlags[animnum] & ANIM_FLAG_AILERONS) cstate += hydroaileronstate;
+			//elevator
+			if (props[propi].animFlags[animnum] & ANIM_FLAG_ELEVATORS) cstate += hydroelevatorstate;
+			//rudder
+			if (props[propi].animFlags[animnum] & ANIM_FLAG_ARUDDER) cstate += hydrorudderstate;
+			//permanent
+			if (props[propi].animFlags[animnum] & ANIM_FLAG_PERMANENT) cstate += 1.0f;
+
+			cstate *= props[propi].animratio[animnum];
+
+			// autoanimate noflip_bouncer
+			if (props[propi].animOpt5[animnum]) cstate *= (props[propi].animOpt5[animnum]);
+
+			//rotate prop
+			if ((props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) || (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) || (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z))
+			{
+				float limiter = 0.0f;
+				// This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
+				// This is now taken into account by factoring in the respective fraction of the variable timestep.
+				float const dt_frac = dt * 2000.f;
+				if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+				{
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
+					{
+						props[propi].rotaX += cstate * dt_frac;
+						limiter = props[propi].rotaX;
+					}
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
+					{
+						props[propi].rotaY += cstate * dt_frac;
+						limiter = props[propi].rotaY;
+					}
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
+					{
+						props[propi].rotaZ += cstate * dt_frac;
+						limiter = props[propi].rotaZ;
+					}
+				} else
+				{
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) rx += cstate;
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) ry += cstate;
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z) rz += cstate;
+				}
+
+				bool limiterchanged = false;
+				// check if a positive custom limit is set to evaluate/calc flip back
+
+				if (limiter > upper_limit)
+				{
+					if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
+					{
+						limiter = upper_limit;				// stop at limit
+						props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
+					} else
+					{
+						limiter = lower_limit;				// flip to other side at limit
+					}
+					limiterchanged = true;
+				}
+
+
+				if (limiter < lower_limit)
+				{
+					if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
+					{
+						limiter = lower_limit;				// stop at limit
+						props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
+					} else
+					{
+						limiter = upper_limit;				// flip to other side at limit
+					}
+					limiterchanged = true;
+				}
+
+				if (limiterchanged)
+				{
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) props[propi].rotaX = limiter;
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) props[propi].rotaY = limiter;
+					if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z) props[propi].rotaZ = limiter;
+				}
+			}
+
+			//offset prop
+
+			// TODO Unused Varaible
+			//float ox = props[propi].orgoffsetX;
+
+			// TODO Unused Varaible
+			//float oy = props[propi].orgoffsetY;
+
+			// TODO Unused Varaible
+			//float oz = props[propi].orgoffsetZ;
+
+			if ((props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X) || (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y) || (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z))
+			{
+				float offset = 0.0f;
+				float autooffset = 0.0f;
+
+				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X) offset = props[propi].orgoffsetX;
+				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y) offset = props[propi].orgoffsetY;
+				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z) offset = props[propi].orgoffsetZ;
+
+				if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+				{
+					// This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
+					// This is now taken into account by factoring in the respective fraction of the variable timestep.
+					float const dt_frac = dt * 2000.f;
+					autooffset = offset + cstate * dt_frac;
+
+						if (autooffset > upper_limit)
+						{
+							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
+							{
+								autooffset = upper_limit;			// stop at limit
+								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
+							} else {
+								autooffset = lower_limit;            // flip to other side at limit
+							}
+						}
+
+						if (autooffset < lower_limit)
+						{
+							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
+							{
+								autooffset = lower_limit;			// stop at limit
+								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
+							} else {
+								autooffset = upper_limit;            // flip to other side at limit
+							}
+						}
+				}
+				offset += cstate;
+
+				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X)
+				{
+					props[propi].offsetx = offset;
+					if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+						props[propi].orgoffsetX = autooffset;
+				}
+				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y)
+				{
+					props[propi].offsety = offset;
+					if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+						props[propi].orgoffsetY = autooffset;
+				}
+				if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z)
+				{
+					props[propi].offsetz = offset;
+					if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+						props[propi].orgoffsetZ = autooffset;
+				}
+			}
+			animnum++;
+		}
+		//recalc the quaternions with final stacked rotation values ( rx, ry, rz )
+		rx += props[propi].rotaX;
+		ry += props[propi].rotaY;
+		rz += props[propi].rotaZ;
+		props[propi].rot = Quaternion(Degree(rz), Vector3::UNIT_Z) * Quaternion(Degree(ry), Vector3::UNIT_Y) * Quaternion(Degree(rx), Vector3::UNIT_X);
+	}
+
+	BES_STOP(BES_CORE_AnimatedProps);
 }

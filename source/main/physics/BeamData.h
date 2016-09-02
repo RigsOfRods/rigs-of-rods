@@ -460,20 +460,10 @@ struct prop_t
 
 	int pale;               //!< Is this a pale? (Boolean {0/1})
 	int spinner;            //!< Is this a spinprop? (Boolean {0/1})
-	bool animated;
-	float anim_x_Rot;
-	float anim_y_Rot;
-	float anim_z_Rot;
-	float anim_x_Off;
-	float anim_y_Off;
-	float anim_z_Off;
-	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset. 
+	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
 	int animFlags[10];
 	int animMode[10];
-	float animOpt1[10]; //!< The lower limit for the animation
-	float animOpt2[10]; //!< The upper limit for the animation
 	float animOpt3[10]; //!< Various purposes
-	float animOpt4[10]; 
 	float animOpt5[10];
 	int animKey[10];
 	int animKeyState[10];
@@ -482,6 +472,11 @@ struct prop_t
 	int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 	MeshObject *mo;
 	MeshObject *wheelmo;
+
+	struct {
+		float lower_limit;  //!< The lower limit for the animation
+		float upper_limit;  //!< The upper limit for the animation
+	} constraints[10];
 };
 
 struct exhaust_t

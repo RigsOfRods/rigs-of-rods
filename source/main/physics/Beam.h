@@ -575,6 +575,9 @@ public:
 	PointColDetector* IntraPointCD() { return intraPointCD; }
 	PointColDetector* InterPointCD() { return interPointCD; }
 
+
+	void UpdatePropAnimations(const float dt);
+
 protected:
 
 	/**
@@ -603,7 +606,7 @@ protected:
 	*/
 	void calcRopes();
 	void calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
-	void calcAnimators(int flagstate, float &cstate, int &div, float timer, float opt1, float opt2, float opt3);
+	void calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
 
 	void SyncReset(); //this one should be called only synchronously (without physics running in background)
 
