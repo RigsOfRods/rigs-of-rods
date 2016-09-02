@@ -2332,7 +2332,7 @@ bool MyDialog::LoadConfig()
 		svalue = i.getNext();
 		Ogre::StringUtil::trim(svalue);
 		// filter out some things that shouldnt be in there (since we cannot use RoR normally anymore after those)
-		if(sname == Ogre::String("Benchmark") || sname == Ogre::String("streamCacheGenerationOnly")|| sname == Ogre::String("regen-cache-only"))
+		if(sname == Ogre::String("regen-cache-only"))
 			continue;
 		settings[sname] = svalue;
 	}

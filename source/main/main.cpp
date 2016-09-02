@@ -42,27 +42,17 @@ enum {
 	OPT_MAP,
 	OPT_TRUCK,
 	OPT_SETUP,
-	OPT_CMD,
 	OPT_WDIR,
-	OPT_ETM,
-	OPT_CONFIG,
 	OPT_VER,
 	OPT_CHECKCACHE,
 	OPT_TRUCKCONFIG,
 	OPT_ENTERTRUCK,
-	OPT_BENCH,
-	OPT_STREAMCACHEGEN,
-	OPT_BENCHNUM,
 	OPT_USERPATH,
-	OPT_BENCHPOS,
-	OPT_BENCHPOSERR,
 	OPT_NOCRASHCRPT,
 	OPT_STATE,
 	OPT_INCLUDEPATH,
 	OPT_LOGPATH,
 	OPT_ADVLOG,
-	OPT_REPOMODE,
-	OPT_VEHICLEOUT,
 	OPT_NOCACHE,
 	OPT_JOINMPSERVER
 };
@@ -73,29 +63,20 @@ CSimpleOpt::SOption cmdline_options[] = {
 	{ OPT_MAP,            ("-terrain"),     SO_REQ_SEP },
 	{ OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
 	{ OPT_ENTERTRUCK,     ("-enter"),       SO_NONE },
-	{ OPT_CMD,            ("-cmd"),         SO_REQ_SEP },
 	{ OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
 	{ OPT_SETUP,          ("-setup"),       SO_NONE    },
-	{ OPT_CONFIG,         ("-config"),      SO_NONE    },
 	{ OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP    },
 	{ OPT_HELP,           ("--help"),       SO_NONE    },
 	{ OPT_HELP,           ("-help"),        SO_NONE    },
 	{ OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
 	{ OPT_VER,            ("-version"),     SO_NONE    },
-	{ OPT_USERPATH,       ("-userpath"),   SO_REQ_SEP    },
-	{ OPT_BENCH,          ("-benchmark"),   SO_REQ_SEP    },
-	{ OPT_BENCHPOS,       ("-benchmark-final-position"),   SO_REQ_SEP    },
-	{ OPT_BENCHPOSERR,    ("-benchmark-final-position-error"),   SO_REQ_SEP    },
-	{ OPT_BENCHNUM,       ("-benchmarktrucks"),       SO_REQ_SEP },
-	{ OPT_BENCHNUM,       ("-benchmark-trucks"),       SO_REQ_SEP },
-	{ OPT_STREAMCACHEGEN, ("-streamcachegen"),   SO_NONE    },
-	{ OPT_ADVLOG,         ("-advlog"),   SO_NONE    },
-	{ OPT_STATE,          ("-state"),     SO_REQ_SEP    },
-	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP    },
-	{ OPT_LOGPATH,        ("-logpath"),       SO_REQ_SEP },
-	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
-	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
-	{ OPT_JOINMPSERVER,	  ("-joinserver"),		SO_REQ_CMB },
+	{ OPT_USERPATH,       ("-userpath"),    SO_REQ_SEP    },
+	{ OPT_ADVLOG,         ("-advlog"),      SO_NONE    },
+	{ OPT_STATE,          ("-state"),       SO_REQ_SEP    },
+	{ OPT_INCLUDEPATH,    ("-includepath"), SO_REQ_SEP    },
+	{ OPT_LOGPATH,        ("-logpath"),     SO_REQ_SEP },
+	{ OPT_NOCACHE,        ("-nocache"),     SO_NONE },
+	{ OPT_JOINMPSERVER,	  ("-joinserver"),  SO_REQ_CMB },
 	
 SO_END_OF_OPTIONS
 };
@@ -160,22 +141,10 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
 			} else if (args.OptionId() == OPT_MAP) {
 				SETTINGS.setSetting("Preselected Map", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_CMD) {
-				SETTINGS.setSetting("cmdline CMD", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCH) {
-				SETTINGS.setSetting("Benchmark", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHNUM) {
-				SETTINGS.setSetting("BenchmarkTrucks", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHPOS) {
-				SETTINGS.setSetting("BenchmarkFinalPosition", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHPOSERR) {
-				SETTINGS.setSetting("BenchmarkFinalPositionError", String(args.OptionArg()));
 			} else if (args.OptionId() == OPT_NOCRASHCRPT) {
 				SETTINGS.setSetting("NoCrashRpt", "Yes");
 			} else if (args.OptionId() == OPT_USERPATH) {
 				SETTINGS.setSetting("userpath", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_CONFIG) {
-				SETTINGS.setSetting("configfile", String(args.OptionArg()));
 			} else if (args.OptionId() == OPT_WDIR) {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 				SetCurrentDirectory(args.OptionArg());
@@ -190,8 +159,6 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("Advanced Logging", "Yes");
 			} else if (args.OptionId() == OPT_INCLUDEPATH) {
 				SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
-			} else if (args.OptionId() == OPT_STREAMCACHEGEN) {
-				SETTINGS.setSetting("streamCacheGenerationOnly", "Yes");
 			} else if (args.OptionId() == OPT_CHECKCACHE) {
 				// just regen cache and exit
 				SETTINGS.setSetting("regen-cache-only", "Yes");
@@ -199,8 +166,6 @@ int main(int argc, char *argv[])
 				SETTINGS.setSetting("Enter Preselected Truck", "Yes");
 			} else if (args.OptionId() == OPT_SETUP) {
 				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-			} else if (args.OptionId() == OPT_VEHICLEOUT) {
-				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
 			} else if (args.OptionId() == OPT_JOINMPSERVER) {
 				SETTINGS.setSetting("Network enable", "Yes");
 

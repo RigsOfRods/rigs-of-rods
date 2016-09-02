@@ -720,39 +720,6 @@ void RigSpawner::FinalizeRig()
 	UpdateCollcabContacterNodes();
 
     m_flex_factory.SaveFlexbodiesToCache();
-
-#if 0 // hashing + scope_log disabled
-
-   // now generate the hash of it
-	{
-		// copy whole truck into a string
-		Ogre::String code;
-		ds->seek(0); // from start
-		code.resize(ds->size());
-		ds->read(&code[0], ds->size());
-
-		// and build the hash over it
-		char hash_result[250];
-		memset(hash_result, 0, 249);
-		RoR::CSHA1 sha1;
-		sha1.UpdateHash((uint8_t *)code.c_str(), (uint32_t)code.size());
-		sha1.Final();
-		sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-		beamHash = String(hash_result);
-	}
-
-
-
-
-	// WARNING: this must come LAST
- 	if (!SSETTING("vehicleOutputFile", "").empty())
-	{
-		// serialize the truck in a special format :)
-		String fn = SSETTING("vehicleOutputFile", "");
-		serialize(fn, &scope_log);
-	}
-	
-#endif
 }
 
 /* -------------------------------------------------------------------------- */

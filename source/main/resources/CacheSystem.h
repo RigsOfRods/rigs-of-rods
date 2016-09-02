@@ -228,7 +228,6 @@ protected:
 	void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
 	void deleteFileCache(char *filename); // removed files from cache
 	void writeGeneratedCache();
-	void writeStreamCache();
 	
 	// adds a zip to the cache
 	void loadSingleZip(Ogre::FileInfo f, bool unload=true, bool ownGroup=true);
