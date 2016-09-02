@@ -77,7 +77,6 @@ set( SOURCE_FILES
   gfx/Mirrors.{h,cpp}
   gfx/MovableText.{h,cpp}
   gfx/OgreSubsystem.{h,cpp}
-  gfx/PreviewRenderer.{h,cpp}
   gfx/ShadowManager.{h,cpp}
   gfx/Skidmark.{h,cpp}
   gfx/SkyManager.{h,cpp}
