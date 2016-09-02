@@ -1068,7 +1068,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 					AnimationStateSet *s = mo->getEntity()->getAllAnimationStates();
 					if (!s->hasAnimationState(String(animname)))
 					{
-						LOG("ODEF: animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
+						LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
 						continue;
 					}
 					animated_object_t ao;
@@ -1087,7 +1087,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 					}
 					if (!ao.anim)
 					{
-						LOG("ODEF: animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
+						LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
 						continue;
 					}
 					ao.anim->setEnabled(true);
@@ -1103,14 +1103,14 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
 				if (m.getPointer() == 0)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
 					continue;
 				}
 				String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
 				Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
 				if (!background)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
@@ -1122,19 +1122,20 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED , PF_X8R8G8B8, Ogre::TU_STATIC|Ogre::TU_AUTOMIPMAP);
 				if (texture.getPointer() == 0)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
-				float x=0, y=0, w=0, h=0;
-				float a=0, r=0, g=0, b=0;
+				float x = 0, y = 0, w = 0, h = 0;
+				float a = 0, r = 0, g = 0, b = 0;
+				int fs = 40, fdpi = 144;
 				char fontname[256]="";
 				char text[256]="";
 				char option='l';
-				int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, fontname, text);
-				if (res < 11)
+				int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, &fs, &fdpi, fontname, text);
+				if (res < 13)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
@@ -1149,7 +1150,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				Font* font = (Font *)FontManager::getSingleton().getByName(String(fontname)).getPointer();
 				if (!font)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
@@ -1163,7 +1164,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				h = background->getHeight() * h;
 
 				Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
-				WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), option);
+				WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), fs, fdpi, option);
 
 				// we can save it to disc for debug purposes:
 				//SaveImage(texture, "test.png");
@@ -1176,7 +1177,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				continue;
 			}
 
-			LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
+			LOG("[ODEF] unknown command in "+odefname+" : "+String(ptline));
 		}
 
 		//add icons if type is set
