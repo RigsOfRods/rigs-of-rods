@@ -148,16 +148,6 @@ bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hw
 	m_hwnd = hwnd;
 	m_main_hwnd = mainhwnd;
 
-	try
-	{
-		SETTINGS.loadSettings(SSETTING("Config Root", "")+"RoR.cfg");
-	} 
-	catch(Ogre::Exception& e)
-	{
-		ErrorUtils::ShowError(_L("A fatal exception has occured!"), ANSI_TO_UTF(e.getFullDescription()));
-		exit(1);
-	}
-
 	Ogre::String logFilename   = SSETTING("Log Path", "") + name + Ogre::String(".log");
 	Ogre::String pluginsConfig = SSETTING("plugins.cfg", "plugins.cfg");
 	Ogre::String ogreConfig    = SSETTING("ogre.cfg", "ogre.cfg");

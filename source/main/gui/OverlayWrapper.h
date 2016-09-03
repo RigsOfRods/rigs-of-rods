@@ -35,10 +35,12 @@
 class OverlayWrapper : public ZeroedMemoryAllocator
 {
 	friend class RoRFrameListener;
-	friend class RoR::Application;
 	friend class RoR::MainThread;
 
 public:
+
+	OverlayWrapper();
+	~OverlayWrapper();
 
 	struct LoadedOverlay
 	{
@@ -104,9 +106,6 @@ protected:
 		static const int RACING                       = BITMASK(4);
 		static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
 	};
-
-	OverlayWrapper();
-	~OverlayWrapper();
 
 	int init();
 	void update(float dt);

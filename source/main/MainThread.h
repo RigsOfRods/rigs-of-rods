@@ -50,19 +50,9 @@ public:
 
 	void Exit();
 
-	void RequestShutdown();
-
-	void RequestRestart();
-
-	void RequestExitCurrentLoop();
-
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
 	
 	void RegenCache();
-
-	void BackToMenu();
-
-	void ChangeMap();
 
     void JoinMultiplayerServer();
     void LeaveMultiplayerServer();
@@ -82,13 +72,11 @@ protected:
 
 	void EnterGameplayLoop();
 
-	void LoadTerrain(Ogre::String const & terrain_file);
+	bool LoadTerrain(); ///< Reads GVar 'sim_terrain_pending'
 
 	void ShowSurveyMap(bool hide);
 
 	bool               m_no_rendering;
-	bool               m_exit_loop_requested;
-	bool               m_shutdown_requested;
 	bool               m_restart_requested;
 	unsigned long      m_start_time;
 	bool               m_base_resource_loaded;

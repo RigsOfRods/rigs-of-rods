@@ -34,6 +34,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Water.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 unsigned int Character::characterCounter = 0;
 
@@ -77,7 +78,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	mCharacterNode->setScale(0.02f, 0.02f, 0.02f);
 	mAnimState = entity->getAllAnimationStates();
 
-	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+	if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
 	{
 		sendStreamSetup();
 	}
@@ -91,7 +92,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	entity->setMaterialName("tracks/"+myName);
 
 #ifdef USE_SOCKETW
-	if ((gEnv->multiplayer_state == Global::MP_STATE_CONNECTED) && (remote || !mHideOwnNetLabel))
+	if ((Application::GetActiveMpState() == Application::MP_STATE_CONNECTED) && (remote || !mHideOwnNetLabel))
 	{
 		mMoveableText = new MovableText("netlabel-"+myName, "");
 		mCharacterNode->attachObject(mMoveableText);
@@ -144,7 +145,7 @@ void Character::updateCharacterColour()
 
 void Character::updateLabels()
 {
-    if (gEnv->multiplayer_state != Global::MP_STATE_CONNECTED) { return; }
+    if (Application::GetActiveMpState() != Application::MP_STATE_CONNECTED) { return; }
 
 #ifdef USE_SOCKETW
 	user_info_t info;
@@ -510,7 +511,7 @@ void Character::update(float dt)
 	}
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED && !remote)
+	if ((Application::GetActiveMpState() == Application::MP_STATE_CONNECTED) && !remote)
 	{
 		sendStreamData();
 	}
@@ -638,7 +639,7 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		{
 			mMoveableText->setVisible(false);
 		}
-		if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED && !remote)
+		if ((Application::GetActiveMpState() == Application::MP_STATE_CONNECTED) && !remote)
 		{
 #ifdef USE_SOCKETW
 			attach_netdata_t data;
@@ -669,7 +670,7 @@ void Character::setBeamCoupling(bool enabled, Beam *truck /* = 0 */)
 		{
 			mMoveableText->setVisible(true);
 		}
-		if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED && !remote)
+		if ((Application::GetActiveMpState() == Application::MP_STATE_CONNECTED) && !remote)
 		{
 #ifdef USE_SOCKETW
 			attach_netdata_t data;

@@ -1307,7 +1307,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
 	// in netmode, don't load other trucks!
-	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
 	{
 		return;
 	}

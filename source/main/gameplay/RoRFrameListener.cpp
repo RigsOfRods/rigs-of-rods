@@ -295,7 +295,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 #endif //USE_MYGUI
 
-    const bool mp_connected = (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED);
+    const bool mp_connected = (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED);
 #ifdef USE_MYGUI
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
 	{
@@ -353,14 +353,14 @@ bool RoRFrameListener::updateEvents(float dt)
 				as->addData("Truck_beams", TOSTRING(curr_truck->getBeamCount()));
 				as->addData("Truck_nodes", TOSTRING(curr_truck->getNodeCount()));
 			}
-			as->addData("User_NickName", SSETTING("Nickname", "Anonymous"));
+			as->addData("User_NickName", Application::GetMpPlayerName());
 			as->addData("User_Language", SSETTING("Language", "English"));
 			as->addData("RoR_VersionString", String(ROR_VERSION_STRING));
 			as->addData("RoR_ProtocolVersion", String(RORNET_VERSION));
 			as->addData("RoR_BinaryHash", SSETTING("BinaryHash", ""));
-			as->addData("MP_ServerName", SSETTING("Server name", ""));
-			as->addData("MP_ServerPort", SSETTING("Server port", ""));
-			as->addData("MP_NetworkEnabled", SSETTING("Network enable", "No"));
+			as->addData("MP_ServerName", Application::GetMpServerHost());
+			as->addData("MP_ServerPort", TOSTRING(Application::GetMpServerPort()));
+			as->addData("MP_NetworkEnabled", (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED) ? "Yes" : "No");
 			as->addData("Camera_Mode", gEnv->cameraManager ? TOSTRING(gEnv->cameraManager->getCurrentBehavior()) : "None");
 			as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
@@ -1438,7 +1438,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	BeamFactory::getSingleton().SyncWithSimThread();
 
-    const bool mp_connected = gEnv->multiplayer_state == Global::MP_STATE_CONNECTED;
+    const bool mp_connected = (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED);
 #ifdef USE_SOCKETW
 	if (mp_connected)
 	{
@@ -1684,7 +1684,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	Beam **trucks     = BeamFactory::getSingleton().getTrucks();
 
 	// first, test if the place if clear, BUT NOT IN MULTIPLAYER
-	if (!(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED))
+	if (!(Application::GetActiveMpState() == Application::MP_STATE_CONNECTED))
 	{
 		collision_box_t *spawnbox = gEnv->collisions->getBox(instance, box);
 		for (int t=0; t < free_truck; t++)
@@ -1780,7 +1780,7 @@ void RoRFrameListener::hideGUI(bool hidden)
 	if (curr_truck && curr_truck->getReplay()) curr_truck->getReplay()->setHidden(hidden);
 
 #ifdef USE_SOCKETW
-		if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+		if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
         {
             GUI_Multiplayer::getSingleton().setVisible(!hidden);
         }

@@ -23,6 +23,12 @@
     @file
     @date   4th of January 2009
     @author Thomas Fischer
+    @description This is a global configuration hub.
+        Values from both config file and command line are propagated here
+            and accessed ad-hoc by macros like SSETTING(), BSETTING() etc...
+            See 'ProcessCommandLine()' for details.
+        NOTE: Since 09/2016, this class is being superceded by GlobalEnvironment.
+            See 'ParseGlobalVarSetting()' for details.
 */
 
 #pragma once
@@ -69,6 +75,13 @@ public:
 
 	int GetFlaresMode(int default_value = 2);
 	int GetGearBoxMode(int default_value = 0);
+
+    /// Process command line arguments into settings.
+    void ProcessCommandLine(int argc, char *argv[]);
+
+    /// Process and erase settings which propagate to global vars.
+    /// @return True if the value was processed, false if it remains in settings.
+    bool ParseGlobalVarSetting(std::string const & name, std::string const & value);
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts

@@ -109,8 +109,8 @@ void CLASS::eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    Settings::getSingleton().setSetting("Server name", m_entertab_ip_editbox->getCaption().asUTF8());
-    Settings::getSingleton().setSetting("Server port", m_entertab_port_editbox->getCaption().asUTF8());
+    Application::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
+    Application::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
     m_main_class->JoinMultiplayerServer();
 }
 

@@ -48,7 +48,6 @@ public:
 	void Show(LoaderType type);
 	void Hide(bool smooth = true);
 	bool IsVisible();
-	void BackToMenu();
 	void Reset();
 	void Cancel();
 

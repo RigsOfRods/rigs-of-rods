@@ -23,6 +23,7 @@
 
 #include "Network.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "CharacterFactory.h"
 #include "ChatSystem.h"
@@ -54,11 +55,9 @@ struct send_packet_t
     int size;
 };
 
-static Ogre::UTFString m_server_name;
-static int m_server_port;
 static server_info_t m_server_settings;
 
-static Ogre::UTFString m_username;
+static Ogre::UTFString m_username; // Shadows gEnv->mp_player_name for multithreaded access.
 static int m_uid;
 static int m_authlevel;
 static user_info_t m_userdata;
@@ -108,7 +107,7 @@ bool CheckError()
     if (m_thread_failed)
     {
         m_error_msg = m_thread_error_msg;
-        gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
+        RoR::Application::SetActiveMpState(RoR::Application::MP_STATE_DISABLED);
         return true;
     }
     return false;
@@ -387,7 +386,7 @@ void RecvThread()
                 memcpy(&m_userdata, buffer, sizeof(user_info_t));
                 m_authlevel = m_userdata.authstatus;
                 m_username = Ogre::UTFString(m_userdata.username);
-                SETTINGS.setUTFSetting(L"Nickname", m_username);
+                // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
             }
             else
             {
@@ -439,9 +438,10 @@ void RecvThread()
 
 void ConnectionFailed(Ogre::UTFString const & msg)
 {
-    m_error_msg = "Error connecting to server: [" 
-        + SSETTING("Server name", "") + ":" + TOSTRING(m_server_port) + "]\n\n" + msg.asUTF8();
-    gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
+    m_error_msg = "Error connecting to server: [" + Application::GetMpServerHost() 
+        + ":" + TOSTRING(Application::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
+    RoR::Application::SetActiveMpState(Application::MP_STATE_DISABLED);
+    RoR::Application::SetPendingMpState(Application::MP_STATE_NONE);
 }
 
 bool Connect()
@@ -451,26 +451,22 @@ bool Connect()
     m_error_msg.clear();
     m_thread_failed = false;
 
-    m_server_name = SSETTING("Server name", "");
-    m_server_port = ISETTING("Server port", 0);
-    m_username = SSETTING("Nickname", "Anonymous");
+    m_username = Application::GetMpPlayerName();
 
-    LOG("[RoR|Networking] Trying to join server '" + m_server_name + "' on port " + TOSTRING(m_server_port) + "'...");
+    LOG("[RoR|Networking] Trying to join server '" + Application::GetMpServerHost() + "' on port " + TOSTRING(Application::GetMpServerPort()) + "'...");
 
     SWBaseSocket::SWBaseError error;
 
     socket.set_timeout(10, 10000);
-    socket.connect(m_server_port, m_server_name, &error);
+    socket.connect(Application::GetMpServerPort(), Application::GetMpServerHost(), &error);
     if (error != SWBaseSocket::ok)
     {
         ConnectionFailed("Could not create connection");
-        gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
         return false;
     }
     if (!SendNetMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
     {
         ConnectionFailed(_L("Establishing network session: error sending hello"));
-        gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
         return false;
     }
 
@@ -511,7 +507,7 @@ bool Connect()
 
     // Send credentials
     char pwbuffer[250] = {0};
-    strncpy(pwbuffer, SSETTING("Server password", "").c_str(), 250);
+    strncpy(pwbuffer, Application::GetMpServerPassword().c_str(), 250);
 
     char sha1pwresult[250] = {0};
     if (strnlen(pwbuffer, 250) > 0)
@@ -601,7 +597,8 @@ bool Connect()
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
     m_send_thread = std::thread(SendThread);
     m_recv_thread = std::thread(RecvThread);
-    gEnv->multiplayer_state = Global::MP_STATE_CONNECTED;
+    RoR::Application::SetActiveMpState(RoR::Application::MP_STATE_CONNECTED);
+    RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_NONE);
 
     return true;
 }
@@ -623,7 +620,8 @@ void Disconnect()
     socket.disconnect();
 
     m_shutdown = false;
-    gEnv->multiplayer_state = Global::MP_STATE_DISABLED;
+    RoR::Application::SetActiveMpState(RoR::Application::MP_STATE_DISABLED);
+    RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_NONE);
 
     LOG("[RoR|Networking] Disconnect() done");
 }

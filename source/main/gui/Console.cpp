@@ -381,8 +381,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 		}
 		else if (args[0] == "/quit")
 		{
-			Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-			Application::GetMainThreadLogic()->RequestShutdown();
+            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_SHUTDOWN);
 			return;
 
 		}

@@ -41,11 +41,63 @@
 
 #define _L
 
+#include "Application.h"
 #include "ErrorUtils.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
 #include "Utils.h"
+
+// simpleopt by http://code.jellycan.com/simpleopt/
+// license: MIT
+#ifdef _UNICODE
+#    undef _UNICODE // We want narrow-string args.
+#endif
+#include "SimpleOpt.h"
+
+// option identifiers
+enum {
+    OPT_HELP,
+    OPT_MAP,
+    OPT_TRUCK,
+    OPT_SETUP,
+    OPT_WDIR,
+    OPT_VER,
+    OPT_CHECKCACHE,
+    OPT_TRUCKCONFIG,
+    OPT_ENTERTRUCK,
+    OPT_USERPATH,
+    OPT_NOCRASHCRPT,
+    OPT_STATE,
+    OPT_INCLUDEPATH,
+    OPT_LOGPATH,
+    OPT_ADVLOG,
+    OPT_NOCACHE,
+    OPT_JOINMPSERVER
+};
+
+// option array
+CSimpleOpt::SOption cmdline_options[] = {
+    { OPT_MAP,            ("-map"),         SO_REQ_SEP },
+    { OPT_MAP,            ("-terrain"),     SO_REQ_SEP },
+    { OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
+    { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
+    { OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
+    { OPT_SETUP,          ("-setup"),       SO_NONE    },
+    { OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP },
+    { OPT_HELP,           ("--help"),       SO_NONE    },
+    { OPT_HELP,           ("-help"),        SO_NONE    },
+    { OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
+    { OPT_VER,            ("-version"),     SO_NONE    },
+    { OPT_USERPATH,       ("-userpath"),    SO_REQ_SEP },
+    { OPT_ADVLOG,         ("-advlog"),      SO_NONE    },
+    { OPT_STATE,          ("-state"),       SO_REQ_SEP },
+    { OPT_INCLUDEPATH,    ("-includepath"), SO_REQ_SEP },
+    { OPT_LOGPATH,        ("-logpath"),     SO_REQ_SEP },
+    { OPT_NOCACHE,        ("-nocache"),     SO_NONE    },
+    { OPT_JOINMPSERVER,   ("-joinserver"),  SO_REQ_CMB },
+    SO_END_OF_OPTIONS
+};
 
 using namespace Ogre;
 
@@ -89,6 +141,115 @@ Settings::Settings():
 
 Settings::~Settings()
 {
+}
+
+//RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED
+
+void Settings::ProcessCommandLine(int argc, char *argv[])
+{
+    CSimpleOpt args(argc, argv, cmdline_options);
+
+    while (args.Next())
+    {
+        if (args.LastError() != SO_SUCCESS)
+        {
+            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_PRINT_HELP_EXIT);
+            return;
+        }
+        else if (args.OptionId() == OPT_HELP)
+        {
+            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_PRINT_HELP_EXIT);
+            return;
+        }
+        else if (args.OptionId() == OPT_VER)
+        {
+            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_PRINT_VERSION_EXIT);
+            return;
+        }
+        else if (args.OptionId() == OPT_TRUCK) 
+        {
+            SETTINGS.setSetting("Preselected Truck", String(args.OptionArg()));
+        } 
+        else if (args.OptionId() == OPT_TRUCKCONFIG) 
+        {
+            SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
+        } 
+        else if (args.OptionId() == OPT_MAP) 
+        {
+            RoR::Application::SetPendingTerrain(args.OptionArg());
+        } 
+        else if (args.OptionId() == OPT_NOCRASHCRPT) 
+        {
+            SETTINGS.setSetting("NoCrashRpt", "Yes");
+        } 
+        else if (args.OptionId() == OPT_USERPATH) 
+        {
+            SETTINGS.setSetting("userpath", String(args.OptionArg()));
+        } 
+        else if (args.OptionId() == OPT_WDIR) 
+        {
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+            SetCurrentDirectory(args.OptionArg());
+#endif
+        } 
+        else if (args.OptionId() == OPT_STATE) 
+        {
+            SETTINGS.setSetting("StartState", args.OptionArg());
+        } 
+        else if (args.OptionId() == OPT_NOCACHE) 
+        {
+            SETTINGS.setSetting("NOCACHE", "Yes");
+        } 
+        else if (args.OptionId() == OPT_LOGPATH) 
+        {
+            SETTINGS.setSetting("Enforce Log Path", args.OptionArg());
+        } 
+        else if (args.OptionId() == OPT_ADVLOG) 
+        {
+            SETTINGS.setSetting("Advanced Logging", "Yes");
+        } 
+        else if (args.OptionId() == OPT_INCLUDEPATH) 
+        {
+            SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
+        } 
+        else if (args.OptionId() == OPT_CHECKCACHE) 
+        {
+            // just regen cache and exit
+            SETTINGS.setSetting("regen-cache-only", "Yes");
+        } 
+        else if (args.OptionId() == OPT_ENTERTRUCK) 
+        {
+            SETTINGS.setSetting("Enter Preselected Truck", "Yes");
+        } 
+        else if (args.OptionId() == OPT_SETUP) 
+        {
+            SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
+        } 
+        else if (args.OptionId() == OPT_JOINMPSERVER) 
+        {
+            std::string server_args = args.OptionArg();
+            const int colon = server_args.rfind(":");
+            if (colon != std::string::npos)
+            {
+                RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_CONNECTED);
+
+                std::string host_str;
+                std::string port_str;
+                if (server_args.find("rorserver://") != String::npos) // Windows URI Scheme retuns rorserver://server:port/
+                {
+                    host_str = server_args.substr(12, colon - 12);
+                    port_str = server_args.substr(colon + 1, server_args.length() - colon - 2);
+                }
+                else
+                {
+                    host_str = server_args.substr(0, colon);
+                    port_str = server_args.substr(colon + 1, server_args.length());
+                }
+                RoR::Application::SetMpServerHost(host_str);
+                RoR::Application::SetMpServerPort(Ogre::StringConverter::parseInt(port_str));
+            }
+        }
+    }
 }
 
 String Settings::getSetting(String key, String defaultValue)
@@ -235,6 +396,23 @@ void Settings::saveSettings(String configFile)
 	fclose(fd);*/
 }
 
+bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const & value)
+{
+    // Process and erase settings which propagate to global vars.
+    if (name == "Network enable" && (Ogre::StringConverter::parseBool(value) == true))
+    {
+        RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_CONNECTED);
+        return true;
+    }
+    else if (name == "Preselected Map")   { RoR::Application::SetPendingTerrain(value);                                return true; }
+    else if (name == "Nickname")          { RoR::Application::SetMpPlayerName(value);                                  return true; }
+    else if (name == "Server name")       { RoR::Application::SetMpServerHost(value);                                  return true; }
+    else if (name == "Server port")       { RoR::Application::SetMpServerPort(Ogre::StringConverter::parseInt(value)); return true; }
+    else if (name == "Server password")   { RoR::Application::SetMpServerPassword(value);                              return true; }
+
+    return false;
+}
+
 void Settings::loadSettings(String configFile, bool overwrite)
 {
 	ConfigFile cfg;
@@ -247,6 +425,12 @@ void Settings::loadSettings(String configFile, bool overwrite)
 	{
 		s_name  = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
 		s_value = RoR::Utils::SanitizeUtf8String(i.getNext());
+
+        if (this->ParseGlobalVarSetting(s_name, s_value))
+        {
+            continue;
+        }
+
 		if (!overwrite && !settings[s_name].empty())
 		{
 			continue;
@@ -518,6 +702,7 @@ bool Settings::setupPaths()
 	StringUtil::toLowerCase(settings["Program Path"]);
 #endif
 	// now enable the user to override that:
+    // TODO: Is this still used? Why have 2 config files?
 	if (FileExists("config.cfg"))
 	{
 		loadSettings("config.cfg", true);

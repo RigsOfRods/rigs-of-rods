@@ -96,7 +96,7 @@ void CLASS::Show()
 
 	m_rig_editor->setEnabled(false);
 
-	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
 	{
 		m_back_to_menu->setEnabled(false);
 		m_change_map->setEnabled(false);
@@ -128,15 +128,14 @@ void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
 {
-	//TODO: FIXME
 	Hide();
-	Application::GetMainThreadLogic()->ChangeMap();
+	RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_CHANGE_MAP);
 }
 
 void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	Application::GetMainThreadLogic()->BackToMenu();
+	Application::SetPendingAppState(Application::APP_STATE_MAIN_MENU);
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
@@ -145,7 +144,6 @@ void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetMainThreadLogic()->RequestShutdown();
-	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+    Hide();
+    RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_SHUTDOWN);
 }

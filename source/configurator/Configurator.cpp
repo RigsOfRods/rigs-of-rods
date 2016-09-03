@@ -22,7 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ImprovedConfigFile.h"
 #include "OISKeyboard.h"
 #include "RoRVersion.h"
-#include "Settings.h"
+#include "conf_file.h"
 #include "rornet.h"
 #include "Utils.h" // RoR utils
 #include "wxValueChoice.h" // a control we wrote

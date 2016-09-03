@@ -112,7 +112,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 		mScale = 1.5f;
 
 	// disable waves in multiplayer
-	if (gEnv->multiplayer_state == Global::MP_STATE_CONNECTED)
+	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
     {
 		haswaves = false;
     }

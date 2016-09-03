@@ -453,10 +453,10 @@ class InputEngine :
 	public OIS::JoyStickListener,
 	public ZeroedMemoryAllocator
 {
-	
-	friend class RoR::Application; // Manages lifecycle of this class
-
 public:
+
+    InputEngine();
+    ~InputEngine();
 
 	void Capture();
 
@@ -545,9 +545,6 @@ public:
 
 protected:
 
-	InputEngine();
-	~InputEngine();
-	InputEngine(const InputEngine&);
 	InputEngine& operator= (const InputEngine&);
 
 	//OIS Input devices

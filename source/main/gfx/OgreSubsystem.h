@@ -35,9 +35,10 @@ namespace RoR
 
 class OgreSubsystem : public ZeroedMemoryAllocator
 {
-	friend class Application; // Manages lifecycle of this class
-
 public:
+
+    OgreSubsystem();
+    ~OgreSubsystem();
 
 	bool StartOgre(Ogre::String const & name, Ogre::String const & hwnd, Ogre::String const & mainhwnd);
 
@@ -77,21 +78,17 @@ public:
 
 private:
 
-	OgreSubsystem();
+    Ogre::String        m_hwnd;
+    Ogre::String        m_main_hwnd;
+    Ogre::String        m_name;
 
-	~OgreSubsystem();
+    Ogre::Root*         m_ogre_root;
+    Ogre::RenderWindow* m_render_window;
+    Ogre::Viewport*     m_viewport;
+    Ogre::Timer*        m_timer;
 
-	Ogre::String        m_hwnd; 
-	Ogre::String        m_main_hwnd;
-	Ogre::String        m_name;
-
-	Ogre::Root*		    m_ogre_root;
-	Ogre::RenderWindow*	m_render_window;
-	Ogre::Viewport*		m_viewport;
-	Ogre::Timer*		m_timer;
-
-	bool Configure();
-	bool LoadOgrePlugins(Ogre::String const & pluginsfile);
+    bool Configure();
+    bool LoadOgrePlugins(Ogre::String const & pluginsfile);
 };
 
 } // namespace RoR

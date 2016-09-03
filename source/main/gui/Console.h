@@ -57,7 +57,6 @@ class Console :
 	public GUI::GameConsoleLayout,
 	public ZeroedMemoryAllocator
 {
-	friend class Application;
 
 public:
 

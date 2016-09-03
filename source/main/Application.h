@@ -1,8 +1,6 @@
 /*
 	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2016 Petr Ohlidal
 
 	For more information, see http://www.rigsofrods.org/
 
@@ -12,7 +10,7 @@
 
 	Rigs of Rods is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
@@ -23,7 +21,7 @@
 	@file   Application.h
 	@author Petr Ohlidal
 	@date   05/2014
-	@brief  Central object manager and communications hub.
+	@brief  Central state/object manager and communications hub.
 */
 
 #pragma once
@@ -31,124 +29,84 @@
 #include "RoRPrerequisites.h"
 #include "Settings.h"
 
-namespace RoR
+namespace RoR {
+namespace Application {
+
+enum State
 {
-
-/** Central object manager and communications hub.
-*/
-class Application
-{
-	friend class MainThread; // Manages lifecycle of this class.
-
-public:
-
-	static OgreSubsystem* GetOgreSubsystem()
-	{
-		assert(ms_ogre_subsystem != nullptr && "OgreSubsystem not created");
-		return ms_ogre_subsystem;
-	};
-
-	static Settings& GetSettings()
-	{
-		return Settings::getSingleton(); // Temporary solution
-	};
-
-	static ContentManager* GetContentManager()
-	{
-		return ms_content_manager;
-	}
-
-	static OverlayWrapper* GetOverlayWrapper()
-	{
-		return ms_overlay_wrapper;
-	}
-
-	static SceneMouse* GetSceneMouse()
-	{
-		return ms_scene_mouse;
-	}
-
-	static GUIManager* GetGuiManager()
-	{
-		return ms_gui_manager;
-	}
-
-	static GuiManagerInterface* GetGuiManagerInterface();
-
-	static Console* GetConsole()
-	{
-		return ms_console;
-	}
-
-	static InputEngine* GetInputEngine()
-	{
-		return ms_input_engine;
-	}
-
-	static CacheSystem* GetCacheSystem()
-	{
-		return ms_cache_system;
-	}
-
-	static MainThread* GetMainThreadLogic()
-	{
-		return ms_main_thread_logic;
-	}
-
-private:
-
-	static void StartOgreSubsystem();
-
-	static void ShutdownOgreSubsystem();
-
-	static void CreateContentManager();
-
-	static void DestroyContentManager();
-
-	static void CreateOverlayWrapper();
-
-	static void DestroyOverlayWrapper();
-
-	static void CreateSceneMouse();
-
-	static void DeleteSceneMouse();
-
-	/** Creates instance if it doesn't already exist.
-	*/
-	static void CreateGuiManagerIfNotExists();
-
-	/** Destroys instance if it exists.
-	*/
-	static void DeleteGuiManagerIfExists();
-
-	/** Creates instance if it doesn't already exist.
-	*/
-	static void CreateConsoleIfNotExists();
-
-	/** Destroys instance if it exists.
-	*/
-	static void DeleteConsoleIfExists();
-
-	static void CreateInputEngine();
-
-	static void CreateCacheSystem();
-
-	static void SetMainThreadLogic(MainThread* main_thread_logic)
-	{
-		ms_main_thread_logic = main_thread_logic;
-	}
-
-	/* Properties */
-
-	static OgreSubsystem*   ms_ogre_subsystem;
-	static ContentManager*  ms_content_manager;
-	static OverlayWrapper*  ms_overlay_wrapper;
-	static SceneMouse*      ms_scene_mouse;
-	static GUIManager*      ms_gui_manager;
-	static Console*         ms_console;
-	static InputEngine*     ms_input_engine;
-	static CacheSystem*     ms_cache_system;
-	static MainThread*      ms_main_thread_logic;
+    APP_STATE_NONE,               ///< Only valid for GVar 'app_state_pending'. Means no change is requested.
+    APP_STATE_BOOTSTRAP,          ///< Initial state
+    APP_STATE_MAIN_MENU,
+    APP_STATE_CHANGE_MAP,         ///< Enter main menu & immediatelly launch singleplayer map selector.
+    APP_STATE_SIMULATION,
+    APP_STATE_SHUTDOWN,
+    APP_STATE_PRINT_HELP_EXIT,
+    APP_STATE_PRINT_VERSION_EXIT,
 };
 
+enum MpState
+{
+    MP_STATE_NONE,      ///< Only valid for GVar 'app_state_pending'. Means no change is requested.
+    MP_STATE_DISABLED,  ///< Not connected for whatever reason.
+    MP_STATE_CONNECTED,
+};
+
+void Init();
+
+// Getters
+OgreSubsystem*       GetOgreSubsystem();
+Settings&            GetSettings();
+ContentManager*      GetContentManager();
+OverlayWrapper*      GetOverlayWrapper();
+SceneMouse*          GetSceneMouse();
+GUIManager*          GetGuiManager();
+GuiManagerInterface* GetGuiManagerInterface();
+Console*             GetConsole();
+InputEngine*         GetInputEngine();
+CacheSystem*         GetCacheSystem();
+MainThread*          GetMainThreadLogic();
+
+State                GetActiveAppState();
+State                GetPendingAppState();
+std::string          GetActiveTerrain();
+std::string          GetPendingTerrain();
+MpState              GetActiveMpState();
+MpState              GetPendingMpState();
+std::string          GetMpServerHost();
+std::string          GetMpServerPassword();
+int                  GetMpServerPort();
+std::string          GetMpPlayerName();
+bool                 GetDiagTraceGlobals();
+
+// Setters
+void SetActiveAppState   (State               v);
+void SetPendingAppState  (State               v);
+void SetActiveTerrain    (std::string const & v);
+void SetPendingTerrain   (std::string const & v);
+void SetActiveMpState    (MpState             v);
+void SetPendingMpState   (MpState             v);
+void SetMpServerHost     (std::string const & v);
+void SetMpServerPassword (std::string const & v);
+void SetMpServerPort     (int         const & v);
+void SetMpPlayerName     (std::string const & v);
+void SetDiagTraceGlobals (bool                v);
+void SetMainThreadLogic  (MainThread*       obj);
+
+// Factories
+void StartOgreSubsystem();
+void ShutdownOgreSubsystem();
+void CreateContentManager();
+void DestroyContentManager();
+void CreateOverlayWrapper();
+void DestroyOverlayWrapper();
+void CreateSceneMouse();
+void DeleteSceneMouse();
+void CreateGuiManagerIfNotExists();
+void DeleteGuiManagerIfExists();
+void CreateConsoleIfNotExists();
+void DeleteConsoleIfExists();
+void CreateInputEngine();
+void CreateCacheSystem();
+
+} // namespace Application
 } // namespace RoR

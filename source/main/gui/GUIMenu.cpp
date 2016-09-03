@@ -256,7 +256,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 {
 	m_vehicles_menu_widget->removeAllItems();
 	
-	if (!(gEnv->multiplayer_state == Global::MP_STATE_CONNECTED))
+	if (!(Application::GetActiveMpState() == Application::MP_STATE_CONNECTED))
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();
@@ -351,7 +351,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 	} 
 	else if (miname == _L("Back to menu"))
 	{
-		Application::GetMainThreadLogic()->BackToMenu();
+		Application::SetPendingAppState(Application::APP_STATE_MAIN_MENU);
 	}
 	else if (miname == _L("Remove current vehicle"))
 	{
@@ -383,8 +383,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		GUI_Friction::getSingleton().setVisible(true);
 	} else if (miname == _L("Exit"))
 	{
-		Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-		Application::GetMainThreadLogic()->RequestShutdown();
+        Application::SetPendingAppState(Application::APP_STATE_SHUTDOWN);
 	} else if (miname == _L("Show Console"))
 	{
 		Console *c = RoR::Application::GetConsole();

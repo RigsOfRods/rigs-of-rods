@@ -21,6 +21,7 @@
 
 #include "TerrainManager.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
@@ -718,7 +719,7 @@ void TerrainManager::initScripting()
 	bool loaded = false;
 
 	// only load terrain scripts while not in multiplayer
-	if (gEnv->multiplayer_state != Global::MP_STATE_CONNECTED)
+	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
 	{
 		try
 		{

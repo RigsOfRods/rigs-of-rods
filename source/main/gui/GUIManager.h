@@ -59,9 +59,10 @@ class GUIManager :
 	, public GuiManagerInterface
 {
 
-	friend class RoR::Application; // Manages lifecycle of this class
-
 public:
+
+	GUIManager();
+	virtual ~GUIManager();
 
 	void destroy();
 
@@ -123,9 +124,6 @@ public:
 	virtual void HideRigSpawnerReportWindow();
 
 private:
-
-	GUIManager();
-	virtual ~GUIManager();
 
 	bool create();
 	void createGui();

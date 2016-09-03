@@ -133,9 +133,10 @@ public:
 
 class CacheSystem : public ZeroedMemoryAllocator
 {
-	friend class RoR::Application;
+public:
 
-public:	
+	CacheSystem();
+	~CacheSystem();
 
 	enum CacheValidityState
 	{
@@ -194,11 +195,6 @@ protected:
 	// ================================================================================
 	// Functions
 	// ================================================================================
-
-	CacheSystem();
-	~CacheSystem();
-	CacheSystem(const CacheSystem&);
-	CacheSystem& operator= (const CacheSystem&);
 	
 	int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 

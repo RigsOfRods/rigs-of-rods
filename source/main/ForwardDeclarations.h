@@ -30,7 +30,6 @@
 
 namespace RoR
 {
-	class  Application;
 	class  ContentManager;
 	class  GUIManager;
 	class  GuiManagerInterface;
