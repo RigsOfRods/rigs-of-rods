@@ -49,8 +49,6 @@ public:
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 
-	void setSimPaused(bool state);
-
 	void StartRaceTimer();
 
 	float StopRaceTimer();
@@ -60,8 +58,6 @@ public:
 	bool IsRaceInProgress() { return m_race_in_progress; }
 
 	void SetReloadPos(Ogre::Vector3 position) { m_reload_pos = position; }
-
-	int m_loading_state;
 
 protected:
 
@@ -99,7 +95,6 @@ protected:
 	bool m_hide_gui;
 	bool m_truck_info_on;
 	bool m_pressure_pressed;
-	bool m_is_sim_paused;
 
 	float m_netcheck_gui_timer;
 	

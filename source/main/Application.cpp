@@ -61,6 +61,8 @@ State                   g_app_state_pending;     ///< Requested state change
 // Simulation
 std::string             g_sim_terrain_active;
 std::string             g_sim_terrain_pending;   // Replaces old SSETTING("Preselected Map") See 'Settings.h'
+SimState                g_sim_state_active;      ///< Current state
+SimState                g_sim_state_pending;     ///< Requested state change
 
 // Multiplayer
 MpState                 g_mp_state_active;       ///< Current state
@@ -78,17 +80,20 @@ bool                    g_diag_trace_globals;
 // ================================================================================
 
 // Helpers (forward decl.)
-void SetVarStr      (std::string&          var, const char* var_name, std::string const &  new_value);
-void SetVarInt      (int&                  var, const char* var_name, int                  new_value);
-void SetVarBool     (bool&                 var, const char* var_name, bool                 new_value);
-void SetVarAppState (Application::State&   var, const char* var_name, Application::State   new_value);
-void SetVarMpState  (Application::MpState& var, const char* var_name, Application::MpState new_value);
+void SetVarStr      (std::string&             var, const char* var_name, std::string const &     new_value);
+void SetVarInt      (int&                     var, const char* var_name, int                     new_value);
+void SetVarBool     (bool&                    var, const char* var_name, bool                    new_value);
+void SetVarAppState (Application::State&      var, const char* var_name, Application::State      new_value);
+void SetVarMpState  (Application::MpState&    var, const char* var_name, Application::MpState    new_value);
+void SetVarSimState (Application::SimState&   var, const char* var_name, Application::SimState   new_value);
 
 // Getters
 State         GetActiveAppState()     { return g_app_state_active;      }
 State         GetPendingAppState()    { return g_app_state_pending;     }
 std::string   GetActiveTerrain()      { return g_sim_terrain_active;    }
 std::string   GetPendingTerrain()     { return g_sim_terrain_pending;   }
+SimState      GetActiveSimState()     { return g_sim_state_active;      }
+SimState      GetPendingSimState()    { return g_sim_state_pending;     }
 MpState       GetActiveMpState()      { return g_mp_state_active;       }
 MpState       GetPendingMpState()     { return g_mp_state_pending;      }
 std::string   GetMpServerHost()       { return g_mp_server_host;        }
@@ -102,6 +107,8 @@ void SetActiveAppState    (State               v) { SetVarAppState(g_app_state_a
 void SetPendingAppState   (State               v) { SetVarAppState(g_app_state_pending    , "app_state_pending"    , v); }
 void SetActiveTerrain     (std::string const & v) { SetVarStr     (g_sim_terrain_active   , "sim_terrain_active"   , v); }
 void SetPendingTerrain    (std::string const & v) { SetVarStr     (g_sim_terrain_pending  , "sim_terrain_pending"  , v); }
+void SetActiveSimState    (SimState            v) { SetVarSimState(g_sim_state_active     , "sim_state_active"     , v); }
+void SetPendingSimState   (SimState            v) { SetVarSimState(g_sim_state_pending    , "sim_state_pending"    , v); }
 void SetActiveMpState     (MpState             v) { SetVarMpState (g_mp_state_active      , "mp_state_active"      , v); }
 void SetPendingMpState    (MpState             v) { SetVarMpState (g_mp_state_pending     , "mp_state_pending"     , v); }
 void SetMpServerHost      (std::string const & v) { SetVarStr     (g_mp_server_host       , "mp_server_host"       , v); }
@@ -243,6 +250,9 @@ void Init()
     g_mp_state_pending     = MP_STATE_NONE;
     g_mp_player_name       = "Anonymous";
 
+    g_sim_state_active     = SIM_STATE_NONE;
+    g_sim_state_pending    = SIM_STATE_NONE;
+
     g_diag_trace_globals   = false; // Don't init to 'true', logger is not ready at startup.
 }
 
@@ -310,6 +320,19 @@ const char* MpStateToStr(Application::MpState s)
     }
 }
 
+const char* SimStateToStr(Application::SimState s)
+{
+    switch (s)
+    {
+    case Application::SIM_STATE_NONE       : return "NONE";
+    case Application::SIM_STATE_RUNNING    : return "RUNNING";
+    case Application::SIM_STATE_PAUSED     : return "PAUSED";
+    case Application::SIM_STATE_SELECTING  : return "SELECTING";
+    case Application::SIM_STATE_EDITOR_MODE: return "EDITOR_MODE";
+    default                                : return "~invalid~";
+    }
+}
+
 void SetVarAppState (Application::State& var, const char* var_name, Application::State new_value)
 {
     LogVarUpdate(var_name, AppStateToStr(var), AppStateToStr(new_value));
@@ -319,6 +342,12 @@ void SetVarAppState (Application::State& var, const char* var_name, Application:
 void SetVarMpState (Application::MpState& var, const char* var_name, Application::MpState new_value)
 {
     LogVarUpdate(var_name, MpStateToStr(var), MpStateToStr(new_value));
+    var = new_value;
+}
+
+void SetVarSimState (Application::SimState& var, const char* var_name, Application::SimState new_value)
+{
+    LogVarUpdate(var_name, SimStateToStr(var), SimStateToStr(new_value));
     var = new_value;
 }
 

@@ -51,6 +51,15 @@ enum MpState
     MP_STATE_CONNECTED,
 };
 
+enum SimState
+{
+    SIM_STATE_NONE,
+    SIM_STATE_RUNNING,
+    SIM_STATE_PAUSED,
+    SIM_STATE_SELECTING,  ///< The selector GUI window is displayed.
+    SIM_STATE_EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
+};
+
 void Init();
 
 // Getters
@@ -72,6 +81,8 @@ std::string          GetActiveTerrain();
 std::string          GetPendingTerrain();
 MpState              GetActiveMpState();
 MpState              GetPendingMpState();
+SimState             GetActiveSimState();
+SimState             GetPendingSimState();
 std::string          GetMpServerHost();
 std::string          GetMpServerPassword();
 int                  GetMpServerPort();
@@ -85,6 +96,8 @@ void SetActiveTerrain    (std::string const & v);
 void SetPendingTerrain   (std::string const & v);
 void SetActiveMpState    (MpState             v);
 void SetPendingMpState   (MpState             v);
+void SetActiveSimState   (SimState            v);
+void SetPendingSimState  (SimState            v);
 void SetMpServerHost     (std::string const & v);
 void SetMpServerPassword (std::string const & v);
 void SetMpServerPort     (int         const & v);

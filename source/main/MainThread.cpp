@@ -88,7 +88,8 @@ MainThread::MainThread():
 	m_restart_requested(false),
 	m_start_time(0),
 	m_base_resource_loaded(false),
-    m_is_mumble_created(false)
+    m_is_mumble_created(false),
+    m_frame_listener(nullptr)
 {
 	RoR::Application::SetMainThreadLogic(this);
 }
@@ -225,23 +226,23 @@ void MainThread::Go()
 
 	// Create legacy RoRFrameListener
 
-	gEnv->frameListener = new RoRFrameListener();
+	m_frame_listener = new RoRFrameListener();
 
 #ifdef USE_ANGELSCRIPT
-	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+	ScriptEngine::getSingleton().SetFrameListener(m_frame_listener);
 #endif
 
 #ifdef USE_MPLATFORM
-	gEnv->frameListener->m_platform = new MPlatform_FD();
-	if (gEnv->frameListener->m_platform) 
+	m_frame_listener->m_platform = new MPlatform_FD();
+	if (m_frame_listener->m_platform) 
 	{
 		m_platform->connect();
 	}
 #endif
 
 	new GUI_MainMenu(Application::GetGuiManagerInterface()); /* Top menubar */
-	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
-	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
+	m_frame_listener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
+	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), m_frame_listener);
 
 #ifdef _WIN32
 	// force feedback
@@ -256,18 +257,18 @@ void MainThread::Go()
 			float centg   = FSETTING("Force Feedback Centering", 0  ) / 100.0f;
 			float camg    = FSETTING("Force Feedback Camera",    100) / 100.0f;
 
-			gEnv->frameListener->m_forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
+			m_frame_listener->m_forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
 		}
 	}
 #endif // _WIN32
 
 	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
 	if     (screenshotFormatString == "jpg (smaller, default)")
-		strcpy(gEnv->frameListener->m_screenshot_format, "jpg");
+		strcpy(m_frame_listener->m_screenshot_format, "jpg");
 	else if (screenshotFormatString =="png (bigger, no quality loss)")
-		strcpy(gEnv->frameListener->m_screenshot_format, "png");
+		strcpy(m_frame_listener->m_screenshot_format, "png");
 	else
-		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
+		strncpy(m_frame_listener->m_screenshot_format, screenshotFormatString.c_str(), 10);
 
 	// initiate player colours
 	PlayerColours::getSingleton();
@@ -415,12 +416,12 @@ void MainThread::Go()
 	//TODO: we could also try to destroy SoundScriptManager, but we don't care!
 
 #ifdef USE_MPLATFORM
-	if (gEnv->frameListener->mplatform != nullptr)
+	if (m_frame_listener->mplatform != nullptr)
 	{
-		if (gEnv->frameListener->mplatform->disconnect())
+		if (m_frame_listener->mplatform->disconnect())
 		{
-			delete(gEnv->frameListener->mplatform);
-			gEnv->frameListener->mplatform = nullptr;
+			delete(m_frame_listener->mplatform);
+			m_frame_listener->mplatform = nullptr;
 		}
 	}
 #endif
@@ -436,8 +437,8 @@ void MainThread::Go()
 
 	Application::DestroyContentManager();
 
-	delete gEnv->frameListener;
-	gEnv->frameListener = nullptr;
+	delete m_frame_listener;
+    m_frame_listener = nullptr;
 
 	delete gEnv->cameraManager;
 	gEnv->cameraManager = nullptr;
@@ -537,20 +538,20 @@ bool MainThread::SetupGameplayLoop()
 	// heathaze effect
 	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 	{
-		gEnv->frameListener->m_heathaze = new HeatHaze();
-		gEnv->frameListener->m_heathaze->setEnable(true);
+		m_frame_listener->m_heathaze = new HeatHaze();
+		m_frame_listener->m_heathaze->setEnable(true);
 	}
 
 	// depth of field effect
 	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 	{
-		gEnv->frameListener->m_dof = new DOFManager();
+		m_frame_listener->m_dof = new DOFManager();
 	}
 
 	if (!m_base_resource_loaded)
 	{
 		// init camera manager after mygui and after we have a character
-		gEnv->cameraManager = new CameraManager(gEnv->frameListener->m_dof);
+		gEnv->cameraManager = new CameraManager(m_frame_listener->m_dof);
 	}
 	
 	// ============================================================================
@@ -726,7 +727,7 @@ void MainThread::EnterGameplayLoop()
 	/* SETUP */
 	RoR::Mirrors::Init();
 
-	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
+	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(m_frame_listener);
 
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
@@ -791,14 +792,14 @@ void MainThread::EnterGameplayLoop()
 
 	/* RESTORE ENVIRONMENT */
 
-	Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
+	Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(m_frame_listener);
 }
 
 void MainThread::Exit()
 {
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
-	delete gEnv->frameListener;
-	gEnv->frameListener = nullptr;
+	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(m_frame_listener);
+	delete m_frame_listener;
+	m_frame_listener = nullptr;
 }
 
 void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -854,7 +855,7 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 		RoR::Application::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !gEnv->frameListener->m_hide_gui)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_frame_listener->m_hide_gui)
 	{
 		//TODO: Separate Chat and console
 	}
@@ -920,8 +921,6 @@ bool MainThread::LoadTerrain()
 		GUI_Friction::getSingleton().setCollisions(gEnv->collisions);
 	}
 #endif //USE_MYGUI
-
-	gEnv->frameListener->m_loading_state = TERRAIN_LOADED;
 	
 	if (gEnv->player != nullptr)
 	{
@@ -959,14 +958,13 @@ void MainThread::UnloadTerrain()
 	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #endif //USE_MYGUI
 
-	gEnv->frameListener->m_loading_state = NONE_LOADED;
 	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
 	
 	RoR::Application::GetGuiManager()->getMainSelector()->Reset();
 
 	//First of all..
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
-	gEnv->frameListener->StopRaceTimer();
+	m_frame_listener->StopRaceTimer();
 	ow->HideRacingOverlay();
 	ow->HideDirectionOverlay();
 
@@ -1102,6 +1100,8 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 #endif // OPENAL
 	}
 
+    auto frame_listener = Application::GetMainThreadLogic()->GetFrameListener();
+
 	if (current_vehicle == nullptr)
 	{
 		// getting outside
@@ -1125,19 +1125,20 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 
 		// force feedback
-		if (gEnv->frameListener->m_forcefeedback)
+		if (frame_listener->m_forcefeedback)
 		{
-			gEnv->frameListener->m_forcefeedback->setEnabled(false);
+			frame_listener->m_forcefeedback->setEnabled(false);
 		}
 
 		// hide truckhud
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
 
 		TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
-	} else
+	}
+    else
 	{
 		// getting inside
-		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->m_hide_gui)
+		if (RoR::Application::GetOverlayWrapper() && ! frame_listener->m_hide_gui)
 		{
 			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
 		}
@@ -1149,9 +1150,9 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 
 		// force feedback
-		if (gEnv->frameListener->m_forcefeedback)
+		if (frame_listener->m_forcefeedback)
 		{
-			gEnv->frameListener->m_forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
+			frame_listener->m_forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
 		}
 
 		// attach player to truck

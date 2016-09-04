@@ -93,7 +93,8 @@ void GameScript::setTrucksForcedActive(bool forceActive)
 double GameScript::getTime()
 {
 	double result = 0.0l;
-	if (gEnv->frameListener) result = gEnv->frameListener->getTime();
+    auto fl = mse->GetFrameListener();
+    if (fl != nullptr) { result = fl->getTime(); }
 	return result;
 }
 
@@ -104,11 +105,8 @@ void GameScript::setPersonPosition(const Vector3 &vec)
 
 void GameScript::loadTerrain(const String &terrain)
 {
-	if (gEnv->frameListener)
-    {
-        RoR::Application::SetPendingTerrain(terrain);
-        RoR::Application::GetMainThreadLogic()->LoadTerrain();
-    }
+    RoR::Application::SetPendingTerrain(terrain);
+    RoR::Application::GetMainThreadLogic()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -162,20 +160,12 @@ bool GameScript::getCaelumAvailable()
 
 float GameScript::stopTimer()
 {
-	float result = 0.0f;
-	if (gEnv->frameListener != nullptr)
-	{
-		result = gEnv->frameListener->StopRaceTimer();
-	}
-	return result;
+    return mse->GetFrameListener()->StopRaceTimer();
 }
 
 void GameScript::startTimer()
 {
-	if (gEnv->frameListener != nullptr)
-	{
-		gEnv->frameListener->StartRaceTimer();
-	}
+    return mse->GetFrameListener()->StartRaceTimer();
 }
 
 void GameScript::setWaterHeight(float value)
@@ -210,14 +200,12 @@ Beam *GameScript::getCurrentTruck()
 
 float GameScript::getGravity()
 {
-	float result = 0.0f;
-	if (gEnv->frameListener) result = gEnv->terrainManager->getGravity();
-	return result;
+	return gEnv->terrainManager->getGravity();
 }
 
 void GameScript::setGravity(float value)
 {
-	if (gEnv->terrainManager) gEnv->terrainManager->setGravity(value);
+	gEnv->terrainManager->setGravity(value);
 }
 
 Beam *GameScript::getTruckByNum(int num)
@@ -272,7 +260,7 @@ void GameScript::message(String &txt, String &icon, float timeMilliseconds, bool
 
 void GameScript::setDirectionArrow(String &text, Vector3 &vec)
 {
-	if (gEnv->frameListener) gEnv->frameListener->setDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
+	mse->GetFrameListener()->setDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
 int GameScript::getChatFontSize()
@@ -304,7 +292,7 @@ void GameScript::showChooser(const String &type, const String &instance, const S
 	
 	if (ntype != LT_None)
 	{
-		if (gEnv->frameListener) gEnv->frameListener->showLoad(ntype, instance, box);
+		mse->GetFrameListener()->showLoad(ntype, instance, box);
 	}
 #endif //USE_MYGUI
 }
@@ -360,7 +348,7 @@ void GameScript::spawnObject(const String &objectName, const String &instanceNam
 
 void GameScript::hideDirectionArrow()
 {
-	if (gEnv->frameListener) gEnv->frameListener->setDirectionArrow(0, Vector3::ZERO);
+	mse->GetFrameListener()->setDirectionArrow(0, Vector3::ZERO);
 }
 
 int GameScript::setMaterialAmbient(const String &materialName, float red, float green, float blue)

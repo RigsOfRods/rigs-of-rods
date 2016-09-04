@@ -158,6 +158,8 @@ public:
 		mefl = frame_listener;
 	}
 
+    RoRFrameListener* GetFrameListener() { return mefl; }
+
 protected:
 
     RoRFrameListener *mefl;                 //!< local RoRFrameListener instance, used as proxy for many functions

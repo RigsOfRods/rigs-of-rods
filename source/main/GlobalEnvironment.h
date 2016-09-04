@@ -30,7 +30,6 @@ public:
     GlobalEnvironment() :
           cameraManager(0)
         , collisions(0)
-        , frameListener(0)
         , mainCamera(0)
         , player(0)
         , sceneManager(0)
@@ -48,7 +47,6 @@ public:
     Character*          player;
     Collisions*         collisions;
     SurveyMapManager*   surveyMap;
-    RoRFrameListener*   frameListener;
     SkyManager*         sky;
     TerrainManager*     terrainManager;
     ThreadPool*         threadPool;

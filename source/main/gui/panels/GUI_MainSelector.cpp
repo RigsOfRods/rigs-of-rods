@@ -246,7 +246,7 @@ void CLASS::Cancel()
     }
 
 	//Do this on cancel only
-	if (gEnv->frameListener->m_loading_state == NONE_LOADED)
+	if (Application::GetActiveAppState() == Application::APP_STATE_MAIN_MENU)
     {
 		Application::GetGuiManager()->ShowMainMenu(true);
     }

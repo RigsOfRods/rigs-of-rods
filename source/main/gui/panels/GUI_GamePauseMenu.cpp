@@ -91,7 +91,7 @@ void CLASS::Show()
 		gEnv->player->setPhysicsEnabled(false);
 	}
 
-	gEnv->frameListener->setSimPaused(true);
+	Application::SetPendingSimState(Application::SIM_STATE_PAUSED);
 	BeamFactory::getSingleton().MuteAllTrucks();
 
 	m_rig_editor->setEnabled(false);
@@ -117,7 +117,7 @@ void CLASS::Hide()
 		gEnv->player->setPhysicsEnabled(true);
 	}
 
-	gEnv->frameListener->setSimPaused(false);
+	Application::SetActiveSimState(Application::SIM_STATE_RUNNING); // TODO: Use the 'pending' mechanism
 	BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 

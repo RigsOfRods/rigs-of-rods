@@ -104,6 +104,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 using namespace RoR;
 
+#define simRUNNING(_S_) (_S_ == Application::SIM_STATE_RUNNING    )
+#define  simPAUSED(_S_) (_S_ == Application::SIM_STATE_PAUSED     )
+#define  simSELECT(_S_) (_S_ == Application::SIM_STATE_SELECTING  )
+#define  simEDITOR(_S_) (_S_ == Application::SIM_STATE_EDITOR_MODE)
+
 void RoRFrameListener::updateForceFeedback(float dt)
 {
 	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
@@ -147,13 +152,11 @@ RoRFrameListener::RoRFrameListener() :
 	m_is_dir_arrow_visible(false),
 	m_is_pace_reset_pressed(false),
 	m_is_position_storage_enabled(BSETTING("Position Storage", false)),
-	m_is_sim_paused(false),
 	m_last_cache_selection(nullptr),
 	m_last_screenshot_date(""),
 	m_last_screenshot_id(1),
 	m_last_simulation_speed(0.1f),
 	m_last_skin_selection(nullptr),
-	m_loading_state(NONE_LOADED),
 	m_netcheck_gui_timer(0.0f),
 	m_pressure_pressed(false),
 	m_race_bestlap_time(0),
@@ -171,16 +174,6 @@ RoRFrameListener::RoRFrameListener() :
 
 RoRFrameListener::~RoRFrameListener()
 {
-}
-
-void RoRFrameListener::setSimPaused(bool paused)
-{
-	if (paused)
-	{
-		BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished
-	}
-
-	m_is_sim_paused = paused;
 }
 
 void RoRFrameListener::StartRaceTimer()
@@ -243,6 +236,8 @@ void RoRFrameListener::UpdateRacingGui()
 bool RoRFrameListener::updateEvents(float dt)
 {
 	if (dt==0.0f) return true;
+
+    auto s = Application::GetActiveSimState();
 
 	RoR::Application::GetInputEngine()->updateKeyBounces(dt);
 	if (!RoR::Application::GetInputEngine()->getInputsChanged()) return true;
@@ -553,7 +548,8 @@ bool RoRFrameListener::updateEvents(float dt)
 		}
 	}
 
-	if (m_loading_state == ALL_LOADED && terrain_editing_mode && object_list.size() > 0)
+    //OLD m_loading_state == ALL_LOADED
+	if (simEDITOR(s) && object_list.size() > 0)
 	{
 		bool update = false;
 		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
@@ -701,7 +697,9 @@ bool RoRFrameListener::updateEvents(float dt)
 		{
 			CharacterFactory::getSingleton().update(dt);
 		}
-	} else if (m_loading_state == ALL_LOADED)
+	} 
+    else if (simRUNNING(s) || simPAUSED(s))
+    //else if (m_loading_state == ALL_LOADED)
 	{
 		CharacterFactory::getSingleton().update(dt);
 		if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
@@ -1127,7 +1125,8 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_CAELUM
 		
 		static const bool caelum_enabled = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
-		if (caelum_enabled && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+		//OLD if (caelum_enabled && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+        if (caelum_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
 		{
 			Real time_factor = 1000.0f;
 			Real multiplier = 10;
@@ -1274,7 +1273,7 @@ bool RoRFrameListener::updateEvents(float dt)
 #ifdef USE_MYGUI
 		if (Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
 		{
-			if (m_loading_state == RELOADING)
+			if (simSELECT(s))
 			{
 				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
@@ -1318,16 +1317,16 @@ bool RoRFrameListener::updateEvents(float dt)
 			}
 			Application::GetGuiManager()->getMainSelector()->Hide();
 			RoR::Application::GetGuiManager()->UnfocusGui();
-			m_loading_state = ALL_LOADED;
+			Application::SetActiveSimState(Application::SIM_STATE_RUNNING); // TODO: use pending mechanism
 		}
 #endif //MYGUI
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
 	{
-		if (m_loading_state == ALL_LOADED && gEnv->player)
+		if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && gEnv->player != nullptr)
 		{
-			m_loading_state = RELOADING;
+			Application::SetActiveSimState(Application::SIM_STATE_SELECTING); // TODO: use pending mechanism
 
 			Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 		}
@@ -1350,7 +1349,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		hideGUI(m_hide_gui);
 	}
 
-	if (m_loading_state == ALL_LOADED && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
+	if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
 	{
 		Application::GetGuiManager()->ToggleFPSBox();
 	}
@@ -1366,7 +1365,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->showDebugOverlay(m_stats_on);
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION) && m_loading_state == ALL_LOADED)
+	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
 	{
 		Vector3 position(Vector3::ZERO);
 		Radian rotation(0);
@@ -1455,10 +1454,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif //SOCKETW
 
 	RoR::Application::GetInputEngine()->Capture();
+    auto s = Application::GetActiveSimState();
 
 	//if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
 	//
-	if (m_loading_state == ALL_LOADED && !m_is_sim_paused)
+	if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
 	{
 		BeamFactory::getSingleton().updateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool 
 	}
@@ -1484,7 +1484,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif // USE_MUMBLE
 	}
 
-	if (m_loading_state == ALL_LOADED)
+	if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
 	{
 		if (gEnv->cameraManager != nullptr)
 		{
@@ -1502,8 +1502,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
 	lastCameraPosition = gEnv->mainCamera->getPosition();
 
-	if (m_loading_state == ALL_LOADED)
+	if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
+    {
 		SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
+    }
 #endif // USE_OPENAL
 	
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
@@ -1538,7 +1540,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		// water
-		if (m_loading_state == ALL_LOADED)
+		if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
 		{
 			IWater *water = gEnv->terrainManager->getWater();
 			if (water)
@@ -1558,19 +1560,21 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		// trigger updating of shadows etc
 #ifdef USE_CAELUM
 		SkyManager *sky = gEnv->terrainManager->getSkyManager();
-		if (sky && (m_loading_state == TERRAIN_LOADED || m_loading_state == ALL_LOADED))
+		if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+        {
 			sky->detectUpdate();
+        }
 #endif
 	}
 
-	if (m_loading_state == ALL_LOADED)
+	if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
 	{
 		BeamFactory::getSingleton().GetParticleManager().update();
 
 		if (m_heathaze) m_heathaze->update();
 	}
 
-	if (m_loading_state == ALL_LOADED && !m_is_sim_paused)
+	if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
 	{
 		BeamFactory::getSingleton().updateVisual(dt); // update visual - antishaking
 	}
@@ -1584,7 +1588,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 
 	// update gui 3d arrow
-	if (RoR::Application::GetOverlayWrapper() && m_is_dir_arrow_visible && m_loading_state==ALL_LOADED)
+	if (RoR::Application::GetOverlayWrapper() && m_is_dir_arrow_visible && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
 	{
 		RoR::Application::GetOverlayWrapper()->UpdateDirectionArrow(curr_truck, m_dir_arrow_pointed);
 	}
@@ -1602,7 +1606,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif
 
 	// one of the input modes is immediate, so update the movement vector
-	if (m_loading_state == ALL_LOADED)
+	if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
 	{
 		updateForceFeedback(dt);
 
@@ -1656,12 +1660,18 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 			RoR::Application::GetGuiManager()->UpdateSimUtils(dt, curr_truck);
 		}
 
-		if (!m_is_sim_paused)
+		if (!simPAUSED(s))
 		{
 			BeamFactory::getSingleton().joinFlexbodyTasks();       // Waits until all flexbody tasks are finished
 			BeamFactory::getSingleton().update(dt);
 			BeamFactory::getSingleton().updateFlexbodiesFinal();   // Updates the harware buffers 
 		}
+
+        if (Application::GetPendingSimState() == Application::SIM_STATE_PAUSED)
+        {
+            Application::SetActiveSimState(Application::SIM_STATE_PAUSED);
+            Application::SetPendingSimState(Application::SIM_STATE_NONE);
+        }
 	}
 
 	return true;
@@ -1707,7 +1717,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 	m_reload_pos = gEnv->collisions->getPosition(instance, box);
 	m_reload_dir = gEnv->collisions->getDirection(instance, box);
 	m_reload_box = gEnv->collisions->getBox(instance, box);
-	m_loading_state = RELOADING;
+	Application::SetActiveSimState(Application::SIM_STATE_SELECTING); // TODO: use 'pending' mechanism
 #ifdef USE_MYGUI
 		if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #endif //USE_MYGUI

@@ -324,31 +324,29 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		//TODO: Separate Chat and console
 	}
 	
-	if (!gEnv->frameListener) return;
+    const auto app_state = Application::GetActiveAppState();
+    if (app_state == Application::APP_STATE_BOOTSTRAP)
+    {
+        return;
+    }
 
 	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
-		if (gEnv->frameListener->m_loading_state == NONE_LOADED) return;
-		gEnv->frameListener->m_loading_state = RELOADING;
+		if (app_state != Application::APP_STATE_SIMULATION)
+        {
+            return;
+        }
+        Application::SetActiveSimState(Application::SIM_STATE_SELECTING); // TODO: use 'pending' mechanism
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 
 	} else if (miname == _L("Reload current vehicle") && gEnv->player)
 	{
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 		{
-			gEnv->frameListener->reloadCurrentTruck();
+			Application::GetMainThreadLogic()->GetFrameListener()->reloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
 			RoR::Application::GetGuiManager()->UnfocusGui();
 		}
-	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
-	{
-		if (gEnv->frameListener->m_loading_state != ALL_LOADED)
-		{
-			LOG("you need to open a map before trying to save or load its scenery.");
-			return;
-		}
-		//String fname = SSETTING("Cache Path", "") + gEnv->frameListener->loadedTerrain + ".rorscene";
-
-	} 
+	}
 	else if (miname == _L("Back to menu"))
 	{
 		Application::SetPendingAppState(Application::APP_STATE_MAIN_MENU);

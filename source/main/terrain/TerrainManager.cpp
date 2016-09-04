@@ -792,10 +792,7 @@ IHeightFinder* TerrainManager::getHeightFinder()
 
 SkyManager* TerrainManager::getSkyManager()
 { 
-	if (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED)
-		return sky_manager;
-	else
-		return nullptr;
+    return sky_manager;
 }
 
 void TerrainManager::loadPreloadedTrucks()

@@ -230,6 +230,9 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 {
 	UTFString msg = convertFromMyGUIString(m_Console_TextBox->getCaption());
 
+    const bool is_appstate_sim = (Application::GetActiveAppState() == Application::APP_STATE_SIMULATION);
+    const bool is_sim_select   = (Application::GetActiveSimState() == Application::SIM_STATE_SELECTING);
+
 	// we did not autoComplete, so try to handle the message
 	m_Console_TextBox->setCaption("");
 
@@ -310,7 +313,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 			}
 			return;
 		}
-		else if (args[0] == "/pos" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+		else if (args[0] == "/pos" && (is_appstate_sim && !is_sim_select))
 		{
 			Beam *b = BeamFactory::getSingleton().getCurrentTruck();
 			if (!b && gEnv->player)
@@ -326,7 +329,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			return;
 		}
-		else if (args[0] == "/goto" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+		else if (args[0] == "/goto" && (is_appstate_sim && !is_sim_select))
 		{
 			if (args.size() != 4)
 			{
@@ -350,7 +353,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 			return;
 		}
-		else if (args[0] == "/terrainheight" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+		else if (args[0] == "/terrainheight" && (is_appstate_sim && !is_sim_select))
 		{
 			if (!gEnv->terrainManager->getHeightFinder()) return;
 			Vector3 pos = Vector3::ZERO;
@@ -386,7 +389,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
 		}
 #ifdef USE_ANGELSCRIPT
-		else if (args[0] == "/as" && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+		else if (args[0] == "/as" && (is_appstate_sim && !is_sim_select))
 		{
 			// we want to notify any running scripts that we might change something (prevent cheating)
 			ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);

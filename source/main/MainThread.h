@@ -62,6 +62,8 @@ public:
 
 	void UnloadTerrain();
 
+    RoRFrameListener* GetFrameListener() { return m_frame_listener; }
+
 protected:
 
 	void EnterMainMenuLoop();
@@ -81,6 +83,7 @@ protected:
 	unsigned long      m_start_time;
 	bool               m_base_resource_loaded;
     bool               m_is_mumble_created;
+    RoRFrameListener*  m_frame_listener;
 
 	std::map<std::string, bool> isLoadedMap;
 };

@@ -184,8 +184,10 @@ void VideoCamera::update(float dt)
 
 #ifdef USE_CAELUM
 	// caelum needs to know that we changed the cameras
-	if (gEnv->sky && gEnv->frameListener->m_loading_state == TERRAIN_LOADED)
+	if (gEnv->sky && RoR::Application::GetActiveAppState() == RoR::Application::APP_STATE_SIMULATION)
+    {
 		gEnv->sky->notifyCameraChanged(mVidCam);
+    }
 		
 #endif // USE_CAELUM
 
