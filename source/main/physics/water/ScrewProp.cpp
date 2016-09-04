@@ -20,7 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ScrewProp.h"
 
 #include "BeamData.h"
-#include "DustManager.h"
+#include "BeamFactory.h"
 #include "DustPool.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -36,8 +36,9 @@ Screwprop::Screwprop(node_t *nodes, int noderef, int nodeback, int nodeup, float
 	, fullpower(fullpower)
 	, trucknum(trucknum)
 {
-	splashp = DustManager::getSingleton().getDustPool("splash");
-	ripplep = DustManager::getSingleton().getDustPool("ripple");
+    auto dustman = BeamFactory::getSingleton().GetParticleManager();
+	splashp = dustman.getDustPool("splash");
+	ripplep = dustman.getDustPool("ripple");
 	reset();
 }
 

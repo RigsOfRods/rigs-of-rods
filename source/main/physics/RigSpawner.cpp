@@ -42,6 +42,7 @@
 #include "VehicleAI.h"
 #include "Beam.h"
 #include "BeamEngine.h"
+#include "BeamFactory.h"
 #include "BitFlags.h"
 #include "Buoyance.h"
 #include "CmdKeyInertia.h"
@@ -49,7 +50,6 @@
 #include "Console.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
-#include "DustManager.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
 #include "FlexMesh.h"
@@ -424,12 +424,14 @@ void RigSpawner::InitializeRig()
 
 	m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
 	m_rig->cparticle_enabled = BSETTING("Particles", true);
-	m_rig->dustp   = DustManager::getSingleton().getDustPool("dust");
-	m_rig->dripp   = DustManager::getSingleton().getDustPool("drip");
-	m_rig->sparksp = DustManager::getSingleton().getDustPool("sparks");
-	m_rig->clumpp  = DustManager::getSingleton().getDustPool("clump");
-	m_rig->splashp = DustManager::getSingleton().getDustPool("splash");
-	m_rig->ripplep = DustManager::getSingleton().getDustPool("ripple");
+
+    DustManager& dustman = BeamFactory::getSingleton().GetParticleManager();
+    m_rig->dustp   = dustman.getDustPool("dust");
+    m_rig->dripp   = dustman.getDustPool("drip");
+    m_rig->sparksp = dustman.getDustPool("sparks");
+    m_rig->clumpp  = dustman.getDustPool("clump");
+    m_rig->splashp = dustman.getDustPool("splash");
+    m_rig->ripplep = dustman.getDustPool("ripple");
 
 	m_rig->materialFunctionMapper = new MaterialFunctionMapper();
 	m_rig->cmdInertia   = new CmdKeyInertia();

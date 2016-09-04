@@ -1565,7 +1565,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
 	if (m_loading_state == ALL_LOADED)
 	{
-		DustManager::getSingleton().update();
+		BeamFactory::getSingleton().GetParticleManager().update();
 
 		if (m_heathaze) m_heathaze->update();
 	}

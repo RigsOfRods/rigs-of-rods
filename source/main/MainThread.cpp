@@ -514,15 +514,7 @@ bool MainThread::SetupGameplayLoop()
 	// Setup
 	// ============================================================================
 
-	Application::CreateOverlayWrapper();
-	Application::GetOverlayWrapper()->SetupDirectionArrow();
-
-	gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
-
-	if (!m_base_resource_loaded)
-	{
-		new DustManager(); // setup particle manager singleton. TODO: Move under Application
-	}
+    BeamFactory::getSingleton().GetParticleManager().CheckAndInit();
 
 	int colourNum = -1;
 
@@ -632,17 +624,27 @@ bool MainThread::SetupGameplayLoop()
 
 	gEnv->terrainManager->loadPreloadedTrucks();
 
+	// ========================================================================
+	// Extra setup
+	// ========================================================================
+
 	if (ISETTING("OutGauge Mode", 0) > 0)
 	{
 		new OutProtocol();
 	}
 
+    Application::CreateOverlayWrapper();
+    Application::GetOverlayWrapper()->SetupDirectionArrow();
+
 	if (BSETTING("MainMenuMusic", true))
+    {
 		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
-		//SoundScriptManager::getSingleton().modulate(nullptr, SS_MOD_MUSIC_VOLUME, 0);
+    }
 
 	Application::CreateSceneMouse();
 	Application::GetGuiManager()->initSimUtils();
+
+    gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
 	return true;
 }
@@ -685,7 +687,9 @@ void MainThread::EnterMainMenuLoop()
 			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
 			if (selected_map != nullptr)
 			{
+                RoR::Application::GetGuiManager()->getMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
                 Application::SetPendingAppState(Application::APP_STATE_SIMULATION);
+                Application::SetPendingTerrain(selected_map->fname);
 			}
 		}
 
@@ -879,6 +883,7 @@ bool MainThread::LoadTerrain()
 {
 	// check if the resource is loaded
 	Ogre::String terrain_file = Application::GetPendingTerrain();
+    Application::SetPendingTerrain("");
 	if (! RoR::Application::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
 	{
 		// fallback for terrains, add .terrn if not found and retry
@@ -908,7 +913,6 @@ bool MainThread::LoadTerrain()
 	gEnv->terrainManager = new TerrainManager();
 	gEnv->terrainManager->loadTerrain(terrain_file);
     Application::SetActiveTerrain(terrain_file);
-    Application::SetPendingTerrain("");
 
 #ifdef USE_MYGUI
 	if (GUI_Friction::getSingletonPtr())

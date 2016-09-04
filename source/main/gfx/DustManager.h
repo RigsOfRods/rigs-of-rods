@@ -20,19 +20,22 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 12th of October 2009
 
 #pragma once
-#ifndef __DustManager_H_
-#define __DustManager_H_
 
 #include "RoRPrerequisites.h"
 
 #include "Singleton.h"
 
-class DustManager : public RoRSingletonNoCreation < DustManager >, public ZeroedMemoryAllocator
+class DustManager : public ZeroedMemoryAllocator
 {
 public:
 
-	DustManager();
-	~DustManager();
+    DustManager(): 
+        mEnabled(false),
+        m_is_initialised(false)
+    {}
+	
+    void CheckAndInit();
+    void Shutdown();
 
 	DustPool *getGroundModelDustPool(ground_model_t *g);
 	
@@ -45,7 +48,7 @@ public:
 protected:
 
 	bool mEnabled;
+    bool m_is_initialised;
 	std::map < Ogre::String , DustPool * > dustpools;
 };
 
-#endif // __DustManager_H_

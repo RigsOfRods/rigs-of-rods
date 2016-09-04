@@ -20,6 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Buoyance.h"
 
 #include "BeamData.h"
+#include "BeamFactory.h"
 #include "DustManager.h"
 #include "DustPool.h"
 #include "TerrainManager.h"
@@ -31,8 +32,9 @@ Buoyance::Buoyance() :
 	sink(0),
 	update(false)
 {
-	splashp = DustManager::getSingleton().getDustPool("splash");
-	ripplep = DustManager::getSingleton().getDustPool("ripple");
+    auto dustman = BeamFactory::getSingleton().GetParticleManager();
+	splashp = dustman.getDustPool("splash");
+	ripplep = dustman.getDustPool("ripple");
 }
 
 Buoyance::~Buoyance()
@@ -94,7 +96,7 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
 				if (fxl>1.5) //if enough pushing drag
 				{
 					Vector3 fxdir=fxl*normal;
-					if (fxdir.y<0) fxdir.y=-fxdir.y;
+					if (fxdir.y<0)fxdir.y=-fxdir.y;
 					if (gEnv->terrainManager->getWater()->getHeightWaves(a)-a.y<0.1) splashp->malloc(a, fxdir);
 					else if (gEnv->terrainManager->getWater()->getHeightWaves(b)-b.y<0.1) splashp->malloc(b, fxdir);
 					else if (gEnv->terrainManager->getWater()->getHeightWaves(c)-c.y<0.1) splashp->malloc(c, fxdir);

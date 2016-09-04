@@ -20,7 +20,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Water.h"
 
 #include "Application.h"
-#include "DustManager.h"
+#include "BeamFactory.h"
 #include "OgreSubsystem.h"
 #include "Settings.h"
 #include "TerrainManager.h"
@@ -49,7 +49,7 @@ public:
 		// Hide plane
 		pPlaneEnt->setVisible(false);
 		//hide Water spray
-		DustManager::getSingleton().setVisible(false);
+        BeamFactory::getSingleton().GetParticleManager().setVisible(false);
 	}
 
 	void postRenderTargetUpdate(const RenderTargetEvent& evt)
@@ -58,7 +58,7 @@ public:
 		pPlaneEnt->setVisible(true);
 		waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
 		//restore Water spray;
-		DustManager::getSingleton().setVisible(true);
+		BeamFactory::getSingleton().GetParticleManager().setVisible(true);
 	}
 };
 
