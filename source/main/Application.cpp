@@ -39,9 +39,11 @@
 namespace RoR {
 namespace Application {
 
+
 // ================================================================================
 // Global variables
 // ================================================================================
+
 
 // Object instances
 static OgreSubsystem*   g_ogre_subsystem;
@@ -55,29 +57,31 @@ static CacheSystem*     g_cache_system;
 static MainThread*      g_main_thread_logic;
 
 // App state
-State                   g_app_state_active;      ///< Current state
-State                   g_app_state_pending;     ///< Requested state change
+static State            g_app_state_active;      ///< Current state
+static State            g_app_state_pending;     ///< Requested state change
 
 // Simulation
-std::string             g_sim_terrain_active;
-std::string             g_sim_terrain_pending;   // Replaces old SSETTING("Preselected Map") See 'Settings.h'
-SimState                g_sim_state_active;      ///< Current state
-SimState                g_sim_state_pending;     ///< Requested state change
+static std::string      g_sim_terrain_active;
+static std::string      g_sim_terrain_pending;   // Replaces old SSETTING("Preselected Map") See 'Settings.h'
+static SimState         g_sim_state_active;      ///< Current state
+static SimState         g_sim_state_pending;     ///< Requested state change
 
 // Multiplayer
-MpState                 g_mp_state_active;       ///< Current state
-MpState                 g_mp_state_pending;      ///< Requested state change
-std::string             g_mp_server_host;        // Replaces old SSETTING("Server name")     See 'Settings.h'
-int                     g_mp_server_port;        // Replaces old ISETTING("Server port")     See 'Settings.h'
-std::string             g_mp_server_password;    // Replaces old SSETTING("Server password") See 'Settings.h'
-std::string             g_mp_player_name;        // Replaces old SSETTING("Nickname")        See 'Settings.h'
+static MpState          g_mp_state_active;       ///< Current state
+static MpState          g_mp_state_pending;      ///< Requested state change
+static std::string      g_mp_server_host;        // Replaces old SSETTING("Server name")     See 'Settings.h'
+static int              g_mp_server_port;        // Replaces old ISETTING("Server port")     See 'Settings.h'
+static std::string      g_mp_server_password;    // Replaces old SSETTING("Server password") See 'Settings.h'
+static std::string      g_mp_player_name;        // Replaces old SSETTING("Nickname")        See 'Settings.h'
 
 // Diagnostic
-bool                    g_diag_trace_globals;
+static bool             g_diag_trace_globals;
+
 
 // ================================================================================
 // Access functions
 // ================================================================================
+
 
 // Helpers (forward decl.)
 void SetVarStr      (std::string&             var, const char* var_name, std::string const &     new_value);
@@ -118,17 +122,17 @@ void SetMpPlayerName      (std::string const & v) { SetVarStr     (g_mp_player_n
 void SetDiagTraceGlobals  (bool                v) { SetVarBool    (g_diag_trace_globals   , "diag_trace_globals"   , v); }
 
 // Instance access
-OgreSubsystem*         GetOgreSubsystem      (){ return g_ogre_subsystem; };
-Settings&              GetSettings           (){ return Settings::getSingleton(); } // Temporary solution
-ContentManager*        GetContentManager     (){ return g_content_manager;}
-OverlayWrapper*        GetOverlayWrapper     (){ return g_overlay_wrapper;}
-SceneMouse*            GetSceneMouse         (){ return g_scene_mouse;}
-GUIManager*            GetGuiManager         (){ return g_gui_manager;}
-GuiManagerInterface*   GetGuiManagerInterface(){ return static_cast<GuiManagerInterface*>(g_gui_manager);}
-Console*               GetConsole            (){ return g_console;}
-InputEngine*           GetInputEngine        (){ return g_input_engine;}
-CacheSystem*           GetCacheSystem        (){ return g_cache_system;}
-MainThread*            GetMainThreadLogic    (){ return g_main_thread_logic;}
+OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
+Settings&              GetSettings           () { return Settings::getSingleton(); } // Temporary solution
+ContentManager*        GetContentManager     () { return g_content_manager;}
+OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
+SceneMouse*            GetSceneMouse         () { return g_scene_mouse;}
+GUIManager*            GetGuiManager         () { return g_gui_manager;}
+GuiManagerInterface*   GetGuiManagerInterface() { return static_cast<GuiManagerInterface*>(g_gui_manager);}
+Console*               GetConsole            () { return g_console;}
+InputEngine*           GetInputEngine        () { return g_input_engine;}
+CacheSystem*           GetCacheSystem        () { return g_cache_system;}
+MainThread*            GetMainThreadLogic    () { return g_main_thread_logic;}
 
 // Instance management
 void SetMainThreadLogic(MainThread* obj) { g_main_thread_logic = obj; }
@@ -256,23 +260,25 @@ void Init()
     g_diag_trace_globals   = false; // Don't init to 'true', logger is not ready at startup.
 }
 
+
 // ================================================================================
 // Private helper functions
 // ================================================================================
 
-void LogVarUpdate(const char* name, std::string const & old_value, std::string const & new_value)
+
+void LogVarUpdate(const char* name, const char* old_value, const char* new_value)
 {
-    if (g_diag_trace_globals && (old_value != new_value))
+    if (g_diag_trace_globals && (strcmp(old_value, new_value) != 0))
     {
         char log[1000] = "";
-        snprintf(log, 1000, "[RoR|Globals] Updating \"%s\": [%s] => [%s]", name, old_value.c_str(), new_value.c_str());
+        snprintf(log, 1000, "[RoR|Globals] Updating \"%s\": [%s] => [%s]", name, old_value, new_value);
         LOG(log);
     }
 }
 
 void SetVarStr (std::string& var, const char* var_name, std::string const & new_value)
 {
-    LogVarUpdate(var_name, var, new_value);
+    LogVarUpdate(var_name, var.c_str(), new_value.c_str());
     var = new_value;
 }
 
@@ -313,10 +319,10 @@ const char* MpStateToStr(Application::MpState s)
 {
     switch (s)
     {
-    case Application::MP_STATE_NONE: return "NONE";
-    case Application::MP_STATE_DISABLED: return "DISABLED";
+    case Application::MP_STATE_NONE:      return "NONE";
+    case Application::MP_STATE_DISABLED:  return "DISABLED";
     case Application::MP_STATE_CONNECTED: return "CONNECTED";
-    default: return "~invalid~";
+    default:                              return "~invalid~";
     }
 }
 
