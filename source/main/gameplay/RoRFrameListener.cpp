@@ -525,7 +525,7 @@ bool RoRFrameListener::updateEvents(float dt)
 			object_index = -1;
 		} else
 		{
-			String path = SSETTING("Config Root", "") + "editor_out.cfg";
+            std::string path = Application::GetSysConfigDir() + PATH_SLASH + "editor_out.cfg";
 			std::ofstream file (path);
 			if (file.is_open())
 			{

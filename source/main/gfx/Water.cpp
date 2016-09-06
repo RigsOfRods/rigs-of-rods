@@ -131,7 +131,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 	if (haswaves)
 	{
 		char line[1024] = {};
-		FILE *fd = fopen((SSETTING("Config Root", "")+"wavefield.cfg").c_str(), "r");
+        std::string filepath = RoR::Application::GetSysConfigDir() + PATH_SLASH + "wavefield.cfg";
+		FILE *fd = fopen(filepath.c_str(), "r");
 		if (fd)
 		{
 			while (!feof(fd))

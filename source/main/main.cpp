@@ -25,6 +25,7 @@
 #include "Language.h"
 #include "ErrorUtils.h"
 #include "Utils.h"
+#include "PlatformUtils.h"
 #include "Settings.h"
 #include "rornet.h"
 #include "RoRVersion.h"
@@ -73,6 +74,7 @@ int main(int argc, char *argv[])
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         //start working dir is highly unpredictable in MacOSX (typically you start in "/"!)
         //oh, thats quite hacked - thomas
+        // TODO: Is this even required anymore? ~only_a_ptr, 09/2016
         char str[256];
         strcpy(str, argv[0]);
         char *pt=str+strlen(str);
@@ -86,20 +88,44 @@ int main(int argc, char *argv[])
 
         gEnv = new GlobalEnvironment(); // Instantiate global environment. TODO: Eliminate gEnv
         Application::Init();
+        
+    // ----------------------------------
+    // Detect system paths
+    
+    int res = RoR::System::DetectBasePaths(); // Updates globals
+    if (res == -1)
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program space path"));
+        return -1;
+    }
+    else if (res == -2)
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user space path"));
+        return -1;
+    }
 
-        if (! RoR::Application::GetSettings().setupPaths() )
-        {
-            ErrorUtils::ShowError(_L("FATAL ERROR"), _L("Cannot start RoR: Failure to detect and setup system paths"));
-            return -1;
-        }
+    // --------------------------------
+    // Create OGRE default logger early.
 
-        // Create OGRE default logger early.
-        auto ogre_log_manager = OGRE_NEW LogManager();
-        Ogre::String log_filepath = SSETTING("Log Path", "") + Ogre::String("RoR.log");
-        ogre_log_manager->createLog(log_filepath, true, true);
-        Application::SetDiagTraceGlobals(true); // We have logger -> we can trace.
+    Application::SetSysLogsDir(Application::GetSysUserDir() + PATH_SLASH + "logs");
+    
+    auto ogre_log_manager = OGRE_NEW LogManager();
+    Ogre::String log_filepath = Application::GetSysLogsDir() + PATH_SLASH + "RoR.log";
+    ogre_log_manager->createLog(log_filepath, true, true);
+    Application::SetDiagTraceGlobals(true); // We have logger -> we can trace.
+    
+    // --------------------------------
+    // Setup program paths
 
-        // Process command-line arguments
+    if (! Settings::SetupAllPaths()) // Updates globals
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
+        return -1;
+    }
+
+    // -------------------------------
+    // Process command-line arguments
+    
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
         RoR::Application::GetSettings().ProcessCommandLine(argc, argv);
 #endif
@@ -116,7 +142,8 @@ int main(int argc, char *argv[])
         }
 
         // Load main config file "RoR.cfg"
-        Application::GetSettings().loadSettings(SSETTING("Config Root", "")+"RoR.cfg");
+        Ogre::String conf_filepath = Application::GetSysConfigDir() + PATH_SLASH + "RoR.cfg";
+        Application::GetSettings().loadSettings(conf_filepath);
 
         MainThread main_obj;
         main_obj.Go();

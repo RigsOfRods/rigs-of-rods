@@ -133,6 +133,100 @@ bool FolderExists(Ogre::String const & path)
 	return FolderExists(path.c_str());
 }
 
+namespace RoR{
+namespace System {
+
+inline bool IsWhitespace(char c) { return (c == ' ' || c == '\n' || c == '\t'); }
+inline bool IsSeparator (char c) { return (c == '\\' || c == '/'); }
+
+std::string GetParentDirectory(const char* src_buff)
+{   
+    const char* start = src_buff;
+    int count = strlen(src_buff);
+    // Trim trailing separator(s)
+    for (;;)
+    {
+        if (count == 0) { return ""; }
+        if (!IsSeparator(start[count - 1])) { break; }
+        --count;
+    }
+    // Remove last path entry
+    for (;;)
+    {
+        if (count == 0) { return ""; }
+        if (IsSeparator(start[count - 1])) {break; }
+        --count;
+    }
+    // Trim rear separator(s)
+    for (;;)
+    {
+        if (count == 0) { return ""; }
+        if (!IsSeparator(start[count - 1])) { break; }
+        --count;
+    }
+    return std::string(start, count);
+}
+
+int DetectBasePaths()
+{
+    char buf[1000] = "";
+
+    // Process dir (system)    
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity
+    // Process dir
+    if (!GetModuleFileNameA(nullptr, buf, 1000))
+	{
+		return -1;
+	}
+    
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX // http://stackoverflow.com/a/625523
+    // Process dir
+    if (readlink("/proc/self/exe", buf, 1000) == -1)
+    {
+        return -1;
+    }
+    
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    // Process dir
+    uint32_t length = 1000;
+    if (_NSGetExecutablePath(procpath, &lenb) == -1) // Returns absolute path to binary
+    {
+        return -1;        
+    } 
+#endif
+    Application::SetSysProcessDir(RoR::System::GetParentDirectory(buf));      
+
+    // User directory (local override)
+    std::string local_userdir = Application::GetSysProcessDir() + PATH_SLASH + "config";
+    if (FolderExists(local_userdir.c_str()))
+    {
+        Application::SetSysUserDir(local_userdir);
+        return 0; // Done!
+    }
+    
+    // User directory (system)
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity	
+    if (SHGetFolderPathA(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, buf) != S_OK)
+	{
+		return -2;
+	}
+	sprintf(buf, "%s\\Rigs of Rods %s", buf, ROR_VERSION_STRING_SHORT);
+     
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    snprintf(buf, 1000 "%s/.rigsofrods", getenv("HOME"));
+      
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    snprintf(buf, 1000 "%s/RigsOfRods", getenv("HOME"));
+    
+#endif
+
+    Application::SetSysUserDir(buf);    
+    return 0;
+}
+
+} // namespace System
+} // namespace RoR
+
 Settings::Settings():
 	m_flares_mode(-1),
 	m_gearbox_mode(-1)
@@ -306,7 +400,7 @@ bool Settings::getBooleanSetting(String key, bool defaultValue)
 String Settings::getSettingScriptSafe(const String &key)
 {
 	// hide certain settings for scripts
-	if (key == "User Token" || key == "User Token Hash" || key == "Config Root" || key == "Cache Path" || key == "Log Path" || key == "Resources Path" || key == "Program Path")
+	if (key == "User Token" || key == "User Token Hash")
 		return "permission denied";
 
 	return settings[key];
@@ -315,7 +409,7 @@ String Settings::getSettingScriptSafe(const String &key)
 void Settings::setSettingScriptSafe(const String &key, const String &value)
 {
 	// hide certain settings for scripts
-	if (key == "User Token" || key == "User Token Hash" || key == "Config Root" || key == "Cache Path" || key == "Log Path" || key == "Resources Path" || key == "Program Path")
+	if (key == "User Token" || key == "User Token Hash")
 		return;
 
 	settings[key] = value;
@@ -358,7 +452,7 @@ void Settings::createGUID()
 
 void Settings::saveSettings()
 {
-	saveSettings(getSetting("Config Root", "")+"RoR.cfg");
+	saveSettings(RoR::Application::GetSysConfigDir() + PATH_SLASH + "RoR.cfg");
 }
 
 void Settings::saveSettings(String configFile)
@@ -425,6 +519,9 @@ void Settings::loadSettings(String configFile, bool overwrite)
 	{
 		s_name  = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
 		s_value = RoR::Utils::SanitizeUtf8String(i.getNext());
+
+        // Purge unwanted entries
+        if (s_name == "Program Path") { continue; }
 
         if (this->ParseGlobalVarSetting(s_name, s_value))
         {
@@ -496,264 +593,37 @@ int Settings::generateBinaryHash()
 #endif //NOOGRE
 	return 0;
 }
-
-bool Settings::get_system_paths(char *program_path, char *user_path)
+ 
+bool Settings::SetupAllPaths()
 {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// note: we enforce usage of the non-UNICODE interfaces (since its easier to integrate here)
-	if (!GetModuleFileNameA(NULL, program_path, 512))
-	{
-		ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program space path"));
-		return false;
-	}
-	GetShortPathNameA(program_path, program_path, 512); //this is legal
-	path_descend(program_path);
-
-	if (getSetting("userpath", "").empty())
-	{
-		if (SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, user_path)!=S_OK)
-		{
-			ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user space path"));
-			return false;
-		}
-		GetShortPathNameA(user_path, user_path, 512); //this is legal
-		sprintf(user_path, "%s\\Rigs of Rods %s\\", user_path, ROR_VERSION_STRING_SHORT); // do not use the full string, as same minor versions should share this directory
-	} else
-	{
-		strcpy(user_path, getSetting("userpath", "").c_str());
-	}
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	//true program path is impossible to get from POSIX functions
-	//lets hack!
-	pid_t pid = getpid();
-	char procpath[256];
-	sprintf(procpath, "/proc/%d/exe", pid);
-	int ch = readlink(procpath,program_path,240);
-	if (ch != -1)
-	{
-		program_path[ch] = 0;
-		path_descend(program_path);
-	} else return false;
-	//user path is easy
-	char home_path[256];
-	strncpy(home_path, getenv ("HOME"), 240);
-	//sprintf(user_path, "%s/RigsOfRods/", home_path); // old version
-	sprintf(user_path, "%s/.rigsofrods/", home_path);
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	int cx;
-
-    // program path
-    const int len = 256;
-    uint32_t lenb = (uint32_t) len;
-    char procpath[len];
+    using namespace RoR;
+    std::string user_dir = Application::GetSysUserDir();
+        
+    Application::SetSysConfigDir(user_dir + PATH_SLASH + "config");
+    Application::SetSysCacheDir (user_dir + PATH_SLASH + "cache" );
     
-    if (_NSGetExecutablePath(procpath, &lenb) == -1)
-        return false;
-
-    /*  
-     *  _NSGetExecutablePath returns the absolute path to the binary so procpath
-     *  has "./RoR" at its end. We only want the path to the directory so we
-     *  cut off the last 5 characters of the string.
-     */
-    assert(strlen(procpath) > 5);
-    procpath[strlen(procpath) - 4] = '\0';
-
-    cx = snprintf(program_path, len, "%s", procpath);
-    if ( cx < 0 || cx >= len)
-        return false;
-    
-    // user path
-    cx = snprintf(user_path, 256, "%s/RigsOfRods/", getenv("HOME"));
-    if ( cx < 0 || cx >= 256)
-        return false;
+    std::string process_dir = Application::GetSysProcessDir();
+    std::string resources_dir = process_dir + PATH_SLASH + "resources";
+    if (FolderExists(resources_dir))
+    {
+        Application::SetSysResourcesDir(resources_dir);
+        return true;
+    }
+    resources_dir = System::GetParentDirectory(process_dir.c_str());
+    if (FolderExists(resources_dir))
+    {
+        Application::SetSysResourcesDir(resources_dir);
+        return true;
+    }
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    resources_dir = "/usr/share/rigsofrods/resources/";
+    if (FolderExists(resources_dir))
+    {
+        Application::SetSysResourcesDir(resources_dir);
+        return true;
+    }
 #endif
-	return true;
-}
-
-bool Settings::setupPaths()
-{
-	char program_path[1024] = {};
-	char resources_path[1024] = {};
-	//char streams_path[1024] = {};
-	char user_path[1024] = {};
-	char config_root[1024] = {};
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	const char *dsStr = "\\";
-#else
-	const char *dsStr="/";
-#endif
-
-	if (!get_system_paths(program_path, user_path))
-		return false;
-
-	String local_config = String(program_path) + String(dsStr) + String("config");
-	if (FolderExists(local_config.c_str()))
-	{
-		sprintf(user_path, "%s%sconfig%s",program_path, dsStr, dsStr);
-	}
-
-	// check for resource folder: first the normal version (in the executables directory)
-	strcpy(resources_path, program_path);
-	path_add(resources_path, "resources");
-	if (! FolderExists(resources_path))
-	{
-		// if not existing: check one dir up (dev version)
-		strcpy(resources_path, program_path);
-		path_descend(resources_path);
-		path_add(resources_path, "resources");
-		if (! FolderExists(resources_path))
-		{
-			// 3rd fallback: check the installation path
-#ifndef _WIN32
-			// linux fallback
-			// TODO: use installation patch values from CMake
-			strcpy(resources_path, "/usr/share/rigsofrods/resources/");
-#endif // !_WIN32
-
-			if (! FolderExists(resources_path))
-			{
-				ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
-				exit(1);
-			}
-		}
-	}
-
-	// change working directory to executable path
-#ifdef _WIN32
-	_chdir(program_path);
-#endif // _WIN32
-
-	//setup config files names
-	char plugins_fname[1024] = {};
-
-#ifdef _WIN32
-	// under windows, the plugins.cfg is in the installation directory
-	strcpy(plugins_fname, program_path);
-#else
-	// under linux, the plugins.cfg is somewhere in /usr/share/rigsofrods/resources
-	// we will test both locations: program and resource path
-	char tmppp[1024] = "";
-	strcpy(tmppp, resources_path);	
-	strcat(tmppp, "plugins.cfg");
-	if(FileExists(tmppp))
-	{
-		strcpy(plugins_fname, resources_path);
-	} else
-	{
-		strcpy(tmppp, program_path);	
-		strcat(tmppp, "plugins.cfg");
-		if(FileExists(tmppp))
-			strcpy(plugins_fname, program_path);
-	}
-	
-#endif // _WIN32
-
-
-#ifdef _DEBUG
-	strcat(plugins_fname, "plugins_d.cfg");
-#else
-	strcat(plugins_fname, "plugins.cfg");
-#endif
-
-	char ogreconf_fname[1024] = {};
-	strcpy(ogreconf_fname, user_path);
-	path_add(ogreconf_fname, "config");
-	strcpy(config_root, ogreconf_fname); //setting the config root here
-	strcat(ogreconf_fname, "ogre.cfg");
-
-	char ogrelog_fname[1024] = {};
-	strcpy(ogrelog_fname, user_path);
-	path_add(ogrelog_fname, "logs");
-
-    settings["Log dir"] = ogrelog_fname;
-
-    char profiler_out_dir[1000];
-    strcpy(profiler_out_dir, user_path);
-    path_add(profiler_out_dir, "profiler");
-    settings["Profiler output dir"] = profiler_out_dir;
-
-	char ogrelog_path[1024] = {};
-	strcpy(ogrelog_path, ogrelog_fname);
-	strcat(ogrelog_fname, "RoR.log");
-
-	// now update our settings with the results:
-
-	settings["dirsep"] = String(dsStr);
-	settings["Config Root"] = String(config_root);
-	settings["Cache Path"] = String(user_path) + "cache" + String(dsStr);
-
-	// only set log path if it was not set before
-	settings["Log Path"] = String(ogrelog_path);
-	settings["Resources Path"] = String(resources_path);
-	settings["User Path"] = String(user_path);
-	settings["Program Path"] = String(program_path);
-	settings["plugins.cfg"] = String(plugins_fname);
-	settings["ogre.cfg"] = String(ogreconf_fname);
-	settings["ogre.log"] = String(ogrelog_fname);
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// XXX maybe use StringUtil::standardisePath here?
-	// windows is case insensitive, so norm here
-	StringUtil::toLowerCase(settings["Config Root"]);
-	StringUtil::toLowerCase(settings["Cache Path"]);
-	StringUtil::toLowerCase(settings["Log Path"]);
-	StringUtil::toLowerCase(settings["Resources Path"]);
-	StringUtil::toLowerCase(settings["Program Path"]);
-#endif
-	// now enable the user to override that:
-    // TODO: Is this still used? Why have 2 config files?
-	if (FileExists("config.cfg"))
-	{
-		loadSettings("config.cfg", true);
-
-		// fix up time things...
-		settings["Config Root"] = settings["User Path"]+String(dsStr)+"config"+String(dsStr);
-		settings["Cache Path"]  = settings["User Path"]+String(dsStr)+"cache"+String(dsStr);
-		settings["Log Path"]    = settings["User Path"]+String(dsStr)+"logs"+String(dsStr);
-		settings["ogre.cfg"]    = settings["User Path"]+String(dsStr)+"config"+String(dsStr)+"ogre.cfg";
-		settings["ogre.log"]    = settings["User Path"]+String(dsStr)+"logs"+String(dsStr)+"RoR.log";
-	}
-
-	if (!settings["Enforce Log Path"].empty())
-	{
-		settings["Log Path"] = settings["Enforce Log Path"];
-		settings["ogre.log"] = settings["Log Path"]+String(dsStr)+"RoR.log";
-	}
-
-	printf(" * log path:         %s\n", settings["Log Path"].c_str());
-	printf(" * config path:      %s\n", settings["Config Root"].c_str());
-	printf(" * user path:        %s\n", settings["User Path"].c_str());
-	printf(" * program path:     %s\n", settings["Program Path"].c_str());
-	printf(" * used plugins.cfg: %s\n", settings["plugins.cfg"].c_str());
-	printf(" * used ogre.cfg:    %s\n", settings["ogre.cfg"].c_str());
-	printf(" * used ogre.log:    %s\n", settings["ogre.log"].c_str());
-
-	return true;
-}
-
-
-void Settings::path_descend(char* path)
-{
-	char dirsep='/';
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	dirsep='\\';
-#endif
-	char* pt=path+strlen(path)-1;
-	if (pt>=path && *pt==dirsep) pt--;
-	while (pt>=path && *pt!=dirsep) pt--;
-	if (pt>=path) *(pt+1)=0;
-}
-
-void Settings::path_add(char* path, const char* dirname)
-{
-	char tmp[1024];
-	char dirsep='/';
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	dirsep='\\';
-#endif
-	sprintf(tmp, "%s%s%c", path, dirname, dirsep);
-	strcpy(path, tmp);
+    return false;
 }
 
 int Settings::GetFlaresMode(int default_value /*=2*/)

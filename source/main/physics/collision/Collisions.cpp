@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Collisions.h"
 
+#include "Application.h"
 #include "ApproxMath.h"
 #include "BeamFactory.h"
 #include "ErrorUtils.h"
@@ -177,7 +178,7 @@ void Collisions::resizeMemory(long newSize)
 
 int Collisions::loadDefaultModels()
 {
-	return loadGroundModelsConfigFile(SSETTING("Config Root", "config\\")+"ground_models.cfg");
+	return loadGroundModelsConfigFile(RoR::Application::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg");
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

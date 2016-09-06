@@ -39,6 +39,15 @@
 
 #include "Singleton.h"
 
+namespace RoR{
+namespace System {
+
+std::string    GetParentDirectory(const char* src_buff);
+int            DetectBasePaths();
+
+} // namespace System
+} // namespace RoR
+
 // some shortcuts to improve code readability
 #define SETTINGS          Settings::getSingleton()
 #define SSETTING(x, y)    Settings::getSingleton().getSetting(x, y)            //<! get string setting
@@ -65,7 +74,6 @@ public:
 	void setSetting(Ogre::String key, Ogre::String value);
 	void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 	
-	bool setupPaths();
 	void loadSettings(Ogre::String configFile, bool overwrite=false);
 	void saveSettings();
 	void saveSettings(Ogre::String configFile);
@@ -82,6 +90,8 @@ public:
     /// Process and erase settings which propagate to global vars.
     /// @return True if the value was processed, false if it remains in settings.
     bool ParseGlobalVarSetting(std::string const & name, std::string const & value);
+
+    static bool SetupAllPaths();
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -106,11 +116,6 @@ protected:
 	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
 	settings_map_t settings;
 
-	// methods
-	void path_descend(char* path);
-	void path_add(char* path, const char* dirname);
-
-	bool get_system_paths(char *program_path, char *user_path);
 	int generateBinaryHash();
 
 	// ------------------------------------------------------------

@@ -77,6 +77,14 @@ static std::string      g_mp_player_name;        // Replaces old SSETTING("Nickn
 // Diagnostic
 static bool             g_diag_trace_globals;
 
+// System
+static std::string      g_sys_process_dir;       ///< No ending slash.
+static std::string      g_sys_user_dir;          ///< No ending slash.
+static std::string      g_sys_config_dir;        ///< No ending slash. Replaces settings["Config Root"]
+static std::string      g_sys_cache_dir;         ///< No ending slash. Replaces settings["Cache Path"] 
+static std::string      g_sys_logs_dir;          ///< No ending slash. Replaces settings["Log Path"]
+static std::string      g_sys_resources_dir;     ///< No ending slash. Replaces settings["Resources Path"]
+
 
 // ================================================================================
 // Access functions
@@ -105,6 +113,12 @@ std::string   GetMpServerPassword()   { return g_mp_server_password;    }
 int           GetMpServerPort()       { return g_mp_server_port;        }
 std::string   GetMpPlayerName()       { return g_mp_player_name;        }
 bool          GetDiagTraceGlobals()   { return g_diag_trace_globals;    }
+std::string   GetSysProcessDir()      { return g_sys_process_dir;       }
+std::string   GetSysUserDir()         { return g_sys_user_dir;          }
+std::string   GetSysConfigDir()       { return g_sys_config_dir;        }
+std::string   GetSysCacheDir()        { return g_sys_cache_dir;         }
+std::string   GetSysLogsDir()         { return g_sys_logs_dir;          }
+std::string   GetSysResourcesDir()    { return g_sys_resources_dir;     }
 
 // Setters
 void SetActiveAppState    (State               v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -120,6 +134,12 @@ void SetMpServerPassword  (std::string const & v) { SetVarStr     (g_mp_server_p
 void SetMpServerPort      (int         const & v) { SetVarInt     (g_mp_server_port       , "mp_server_port"       , v); }
 void SetMpPlayerName      (std::string const & v) { SetVarStr     (g_mp_player_name       , "mp_player_name"       , v); }
 void SetDiagTraceGlobals  (bool                v) { SetVarBool    (g_diag_trace_globals   , "diag_trace_globals"   , v); }
+void SetSysProcessDir     (std::string const & v) { SetVarStr     (g_sys_process_dir      , "sys_process_dir"      , v); }
+void SetSysUserDir        (std::string const & v) { SetVarStr     (g_sys_user_dir         , "sys_user_dir"         , v); }
+void SetSysConfigDir      (std::string const & v) { SetVarStr     (g_sys_config_dir       , "sys_config_dir"       , v); }
+void SetSysCacheDir       (std::string const & v) { SetVarStr     (g_sys_cache_dir        , "sys_cache_dir"        , v); }
+void SetSysLogsDir        (std::string const & v) { SetVarStr     (g_sys_logs_dir         , "sys_logs_dir"         , v); }
+void SetSysResourcesDir   (std::string const & v) { SetVarStr     (g_sys_resources_dir    , "sys_resources_dir"    , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -145,7 +165,7 @@ void StartOgreSubsystem()
 		throw std::runtime_error("[RoR] Failed to create OgreSubsystem");
 	}
 
-	if (! g_ogre_subsystem->StartOgre("RoR", "", ""))
+	if (! g_ogre_subsystem->StartOgre("", ""))
 	{
 		throw std::runtime_error("[RoR] Failed to start up OGRE 3D engine");
 	}

@@ -167,7 +167,7 @@ void MainThread::Go()
 
 	RoR::Application::CreateCacheSystem();
 
-	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
+	RoR::Application::GetCacheSystem()->setLocation(Application::GetSysCacheDir() + PATH_SLASH, Application::GetSysConfigDir() + PATH_SLASH);
 
 	Application::GetContentManager()->init();
 

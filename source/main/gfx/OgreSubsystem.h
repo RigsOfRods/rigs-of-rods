@@ -40,7 +40,7 @@ public:
     OgreSubsystem();
     ~OgreSubsystem();
 
-	bool StartOgre(Ogre::String const & name, Ogre::String const & hwnd, Ogre::String const & mainhwnd);
+	bool StartOgre(Ogre::String const & hwnd, Ogre::String const & mainhwnd);
 
 	void WindowResized(Ogre::Vector2 const & size);
 
@@ -80,7 +80,6 @@ private:
 
     Ogre::String        m_hwnd;
     Ogre::String        m_main_hwnd;
-    Ogre::String        m_name;
 
     Ogre::Root*         m_ogre_root;
     Ogre::RenderWindow* m_render_window;

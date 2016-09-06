@@ -80,7 +80,8 @@ void LanguageEngine::setup()
 
 	// Load a .mo-File.
 	LOG("*** Loading Language ***");
-	String langfile = SSETTING("Program Path", "") + String("languages/") + language_short + String("/LC_MESSAGES/ror.mo");
+    std::string lang_dir =  App::GetSysProcessDir() + PATH_SLASH + "languages" + PATH_SLASH;
+	String langfile = lang_dir + language_short + String("/LC_MESSAGES/ror.mo");
 	if (reader->ReadFile(langfile.c_str()) != moFileLib::moFileReader::EC_SUCCESS )
 	{
 		LOG("* error loading language file " + langfile);
@@ -89,7 +90,7 @@ void LanguageEngine::setup()
 	working=true;
 
 	// add resource path
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("Program Path", "") + String("languages/") + language_short + String("/LC_MESSAGES"), "FileSystem", "LanguageFolder");
+	ResourceGroupManager::getSingleton().addResourceLocation(lang_dir + language_short + String("/LC_MESSAGES"), "FileSystem", "LanguageFolder");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("LanguageFolder");
 

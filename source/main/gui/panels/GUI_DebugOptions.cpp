@@ -235,7 +235,7 @@ void CLASS::SaveConfig()
 	// now save the GameSettingsMap
 	for (it = DebugOptionsMap.begin(); it != DebugOptionsMap.end(); it++)
 	{
-		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash" || it->first.c_str() == "Config Root" || it->first.c_str() == "Cache Path" || it->first.c_str() == "Log Path" || it->first.c_str() == "Resources Path" || it->first.c_str() == "Program Path")
+		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash")
 			return;
 
 		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.

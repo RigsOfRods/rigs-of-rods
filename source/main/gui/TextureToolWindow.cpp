@@ -106,7 +106,7 @@ void TextureToolWindow::saveTexture( String texName, bool usePNG )
 		tex->convertToImage(img);
 
 		// Save to disk!
-		String outname = SSETTING("User Path", "") + texName;
+		String outname = App::GetSysUserDir() + PATH_SLASH + texName;
 		if (usePNG) outname += ".png";
 
 		img.save(outname);

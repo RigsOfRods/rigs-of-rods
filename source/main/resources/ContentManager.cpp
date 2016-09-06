@@ -130,7 +130,7 @@ void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
 		return;
 	}
 	log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
-	Ogre::String resources_dir = SSETTING("Resources Path", "resources" + PlatformUtils::DIRECTORY_SEPARATOR);
+    Ogre::String resources_dir = Application::GetSysResourcesDir() + PATH_SLASH;
 	Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
 	if (PlatformUtils::FileExists(zip_path))
 	{
@@ -217,18 +217,18 @@ bool ContentManager::init(void)
 	LOG("RoR|ContentManager: Loading filesystems");
 
 #if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 9
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "") + "cache", "FileSystem", "cache", false, false);
+	ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysCacheDir(), "FileSystem", "cache", false, false);
 #else
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "") + "cache", "FileSystem", "cache");
+	ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysCacheDir(), "FileSystem", "cache");
 #endif
 
 	// config, flat
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"config", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysConfigDir(), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"alwaysload", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	// packs, to be processed later by the cache system
 
 	// add scripts folder
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"scripts", "FileSystem", "Scripts");
+	ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysUserDir() + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
 	// init skin manager, important to happen before trucks resource loading!
 	LOG("RoR|ContentManager: Registering Skin Manager");
@@ -266,12 +266,12 @@ bool ContentManager::init(void)
 #endif // USE_OPENAL
 
 	// and the content
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("Program Path", "")+"packs", "FileSystem", "Packs", true);
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"packs", "FileSystem", "Packs", true);
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"mods",  "FileSystem", "Packs", true);
+    std::string content_base = App::GetSysUserDir() + PATH_SLASH;
+	ResourceGroupManager::getSingleton().addResourceLocation(content_base + "packs", "FileSystem", "Packs", true);
+	ResourceGroupManager::getSingleton().addResourceLocation(content_base + "mods",  "FileSystem", "Packs", true);
 
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"vehicles", "FileSystem", "VehicleFolders");
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"terrains", "FileSystem", "TerrainFolders");
+	ResourceGroupManager::getSingleton().addResourceLocation(content_base + "vehicles", "FileSystem", "VehicleFolders");
+	ResourceGroupManager::getSingleton().addResourceLocation(content_base + "terrains", "FileSystem", "TerrainFolders");
 
 	exploreFolders("VehicleFolders");
 	exploreFolders("TerrainFolders");
@@ -376,20 +376,20 @@ void ContentManager::exploreFolders(Ogre::String rg)
 
 void ContentManager::InitManagedMaterials()
 {
-	Ogre::String managed_materials_dir_path = SSETTING("Resources Path", "") + "managed_materials/";
+	Ogre::String managed_materials_dir = Application::GetSysResourcesDir() + PATH_SLASH + "managed_materials" + PATH_SLASH;
 
 	//Dirty, needs to be improved
 	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
-		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
 	else
-		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
+		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/off/", "FileSystem", "ShadowsMats");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ShadowsMats");
 
-	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path + "texture/", "FileSystem", "TextureManager");
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "texture/", "FileSystem", "TextureManager");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("TextureManager");
 
 	//Last
-	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir_path, "FileSystem", "ManagedMats");
+	ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", "ManagedMats");
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }

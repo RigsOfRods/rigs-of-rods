@@ -88,6 +88,12 @@ std::string          GetMpServerPassword();
 int                  GetMpServerPort();
 std::string          GetMpPlayerName();
 bool                 GetDiagTraceGlobals();
+std::string          GetSysProcessDir();
+std::string          GetSysUserDir();
+std::string          GetSysConfigDir();
+std::string          GetSysCacheDir();
+std::string          GetSysLogsDir();
+std::string          GetSysResourcesDir();
 
 // Setters
 void SetActiveAppState   (State               v);
@@ -103,6 +109,12 @@ void SetMpServerPassword (std::string const & v);
 void SetMpServerPort     (int         const & v);
 void SetMpPlayerName     (std::string const & v);
 void SetDiagTraceGlobals (bool                v);
+void SetSysProcessDir    (std::string const & v);
+void SetSysUserDir       (std::string const & v);
+void SetSysConfigDir     (std::string const & v);
+void SetSysCacheDir      (std::string const & v);
+void SetSysLogsDir       (std::string const & v);
+void SetSysResourcesDir  (std::string const & v);
 void SetMainThreadLogic  (MainThread*       obj);
 
 // Factories

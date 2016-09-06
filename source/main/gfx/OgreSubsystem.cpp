@@ -27,6 +27,7 @@
 
 #include "OgreSubsystem.h"
 
+#include "Application.h"
 #include "Settings.h"
 #include "ErrorUtils.h"
 #include "Language.h"
@@ -92,44 +93,22 @@ bool OgreSubsystem::Configure()
 
 bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
 {
-	Ogre::StringVector pluginList;
-	Ogre::String pluginDir;
 	Ogre::ConfigFile cfg;
 
 	try
 	{
 		cfg.load( pluginsfile );
 	}
-	catch (Ogre::Exception)
+	catch (Ogre::Exception e)
 	{
-		Ogre::LogManager::getSingleton().logMessage(pluginsfile + " not found, automatic plugin loading disabled.");
+		Ogre::LogManager::getSingleton().logMessage(pluginsfile + " not found, automatic plugin loading disabled. Message: " + e.getFullDescription());
 		return false;
 	}
 
-	pluginDir = cfg.getSetting("PluginFolder"); // Ignored on Mac OS X, uses Resources/ directory
-	pluginList = cfg.getMultiSetting("Plugin");
-
-#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE && OGRE_PLATFORM != OGRE_PLATFORM_IPHONE
-	if (pluginDir.empty())
-	{
-		// User didn't specify plugins folder, try current one
-		pluginDir = ".";
-	}
-#endif
-
-	char last_char = pluginDir[pluginDir.length()-1];
-	if (last_char != '/' && last_char != '\\')
-	{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-		pluginDir += "\\";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-		pluginDir += "/";
-#endif
-	}
-
+	Ogre::StringVector pluginList = cfg.getMultiSetting("Plugin");
 	for ( Ogre::StringVector::iterator it = pluginList.begin(); it != pluginList.end(); ++it )
 	{
-		Ogre::String pluginFilename = pluginDir + (*it);
+		Ogre::String pluginFilename = Application::GetSysProcessDir() + PATH_SLASH + (*it); // Always use process directory
 		try
 		{
 			m_ogre_root->loadPlugin(pluginFilename);
@@ -142,22 +121,21 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
 	return true;
 }
 
-bool OgreSubsystem::StartOgre(Ogre::String const & name, Ogre::String const & hwnd, Ogre::String const & mainhwnd)
+bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & mainhwnd)
 {
-	m_name = name;
 	m_hwnd = hwnd;
 	m_main_hwnd = mainhwnd;
 
-	Ogre::String logFilename   = SSETTING("Log Path", "") + name + Ogre::String(".log");
-	Ogre::String pluginsConfig = SSETTING("plugins.cfg", "plugins.cfg");
-	Ogre::String ogreConfig    = SSETTING("ogre.cfg", "ogre.cfg");
-    m_ogre_root = new Ogre::Root("", ogreConfig, logFilename);
+    std::string log_filepath = RoR::Application::GetSysLogsDir()   + PATH_SLASH + "RoR.log";
+    std::string cfg_filepath = RoR::Application::GetSysConfigDir() + PATH_SLASH + "ogre.cfg";
+    m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
 
 	// load plugins manually
-	LoadOgrePlugins(pluginsConfig);
+    std::string plugins_filepath = RoR::Application::GetSysProcessDir() + PATH_SLASH + "plugins.cfg";
+	this->LoadOgrePlugins(plugins_filepath);
 
 	// configure RoR
-	Configure();
+	this->Configure();
 
     m_viewport = m_render_window->addViewport(nullptr);
 	

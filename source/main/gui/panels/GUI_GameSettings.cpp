@@ -991,7 +991,7 @@ void CLASS::SaveSettings()
 	// now save the GameSettingsMap
 	for (it = GameSettingsMap.begin(); it != GameSettingsMap.end(); it++)
 	{
-		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash" || it->first.c_str() == "Config Root" || it->first.c_str() == "Cache Path" || it->first.c_str() == "Log Path" || it->first.c_str() == "Resources Path" || it->first.c_str() == "Program Path")
+		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash" || it->first.c_str() == "Program Path")
 			return;
 
 		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.
@@ -1135,7 +1135,7 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 {
 	// List files in cache
 	RoR::FileSystem::VectorFileInfo cache_files;
-	std::string cache_dir_str = GameSettingsMap["Cache Path"];
+	std::string cache_dir_str = Application::GetSysCacheDir() + PATH_SLASH;
 	std::wstring cache_dir_wstr = MyGUI::UString(cache_dir_str).asWStr();
 	RoR::FileSystem::getSystemFileList(cache_files, cache_dir_wstr, L"*.*");
 
