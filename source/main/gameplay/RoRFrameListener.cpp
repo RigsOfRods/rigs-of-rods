@@ -1501,6 +1501,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 	
 	Beam *curr_truck = BeamFactory::getSingleton().getCurrentTruck();
 
+	if (curr_truck)
+	{
+		curr_truck->updateVideocameras(dt);
+	}
+
 	// terrain updates
 	if (gEnv->terrainManager)
 	{

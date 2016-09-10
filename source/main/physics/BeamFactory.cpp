@@ -1004,7 +1004,6 @@ void BeamFactory::update(float dt)
 #ifdef USE_MYGUI
 		m_trucks[m_simulated_truck]->updateDashBoards(dt);
 #endif // USE_MYGUI
-		m_trucks[m_simulated_truck]->updateVideocameras(dt);
 #ifdef FEAT_TIMING
 			if (m_trucks[m_simulated_truck]->statistics)     m_trucks[m_simulated_truck]->statistics->frameStep(dt);
 			if (m_trucks[m_simulated_truck]->statistics_gfx) m_trucks[m_simulated_truck]->statistics_gfx->frameStep(dt);
