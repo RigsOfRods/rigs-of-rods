@@ -66,14 +66,14 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		}
 	}
 
-	camRotX += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
-	camRotY += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP)   - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN))  * ctx.mRotScale;
+	camRotX += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT)) * ctx.mRotScale;
+	camRotY += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP))    * ctx.mRotScale;
 
 	camRotY = std::max((Radian)Degree(-80), camRotY);
 	camRotY = std::min(camRotY, (Radian)Degree(88));
 
-	camRotXSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-	camRotYSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP)   - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN))  * Degree(60);
+	camRotXSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT)) * Degree(90);
+	camRotYSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP))    * Degree(60);
 
 	camRotYSwivel = std::max((Radian)Degree(-80) - camRotY, camRotYSwivel);
 	camRotYSwivel = std::min(camRotYSwivel, (Radian)Degree(88) - camRotY);
