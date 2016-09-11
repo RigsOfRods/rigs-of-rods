@@ -1600,7 +1600,7 @@ void Parser::ParseGuiSettings()
     
     GuiSettings* gui_settings = m_current_module->gui_settings.get();
    
-    std::string key = this->GetArgStr(1);
+    std::string key = this->GetArgStr(0);
     
     if (key == "debugBeams") {} // Obsolete, ignored
     
