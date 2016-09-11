@@ -2267,8 +2267,9 @@ void Parser::ParseContacter()
 
 void Parser::ParseCommandsUnified()
 {
-    bool is_commands2 = (m_current_section == File::KEYWORD_COMMANDS2);
-    if (!this->CheckNumArguments(is_commands2 ? 8 : 7))
+    const bool is_commands2 = (m_current_section == File::SECTION_COMMANDS_2);
+    const int max_args = (is_commands2 ? 8 : 7);
+    if (!this->CheckNumArguments(max_args))
     {
         return;
     }
@@ -2298,7 +2299,7 @@ void Parser::ParseCommandsUnified()
     command2.contract_key    = this->GetArgInt  (pos++);
     command2.extend_key      = this->GetArgInt  (pos++);
 
-    if (m_num_args <= (is_commands2 ? 8 : 7)) // No more args?
+    if (m_num_args <= max_args) // No more args?
     {
         m_current_module->commands_2.push_back(command2);
         return;
