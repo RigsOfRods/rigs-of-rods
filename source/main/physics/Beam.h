@@ -500,6 +500,8 @@ public:
 	int m_stream_id;
 	std::map<int, int> m_stream_results;
 
+	Ogre::Timer netTimer;
+
 	void receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
 
 	/**
@@ -734,9 +736,6 @@ protected:
 	BeamThreadStats *statistics, *statistics_gfx;
 #endif
 
-
-	// overloaded from Streamable:
-	Ogre::Timer netTimer;
 	void sendStreamSetup();
 
 	// dustpools
