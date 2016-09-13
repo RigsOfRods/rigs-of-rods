@@ -2954,7 +2954,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	beam.commandShort = def.min_length;
 	beam.commandLong = def.max_length;
 	beam.maxtiestress = def.max_stress;
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, beam.type != BEAM_INVISIBLE_HYDRO);
 
 	/* Register tie */
 	tie_t tie;
@@ -4012,7 +4012,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
 
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	m_rig->hydro[m_rig->free_hydro] = beam_index;
 	m_rig->free_hydro++;
@@ -4173,7 +4173,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 
 	/* Create beam visuals, but don't attach them to scene graph */
 	/* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	beam.shock = & shock;
 	shock.beamid = beam_index;
