@@ -974,11 +974,15 @@ void BeamFactory::update(float dt)
 		default:
 			if (m_trucks[t]->state != SIMULATED && m_trucks[t]->engine)
 				m_trucks[t]->engine->update(dt, 1);
-			if (m_trucks[t]->state == SIMULATED && m_trucks[t]->networking)
-				m_trucks[t]->sendStreamData();
-			if (m_trucks[t]->state < SLEEPING) {
+			if (m_trucks[t]->state < SLEEPING)
 			    m_trucks[t]->UpdatePropAnimations(dt);
-                        }
+			if (m_trucks[t]->networking)
+			{
+				if (m_trucks[t]->state == SIMULATED)
+					m_trucks[t]->sendStreamData();
+				if (m_trucks[t]->state == SLEEPING && m_trucks[t]->netTimer.getMilliseconds() < 10000)
+					m_trucks[t]->sendStreamData();
+			}
 			break;
 		}
 	}
