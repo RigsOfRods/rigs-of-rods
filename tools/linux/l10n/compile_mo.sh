@@ -12,5 +12,6 @@ do
 	cd LC_MESSAGES
 	echo "Now compiling $dir"
 	msgfmt -o ror.mo ror.po
+	rm ror.po
 	cd ../../
 done
