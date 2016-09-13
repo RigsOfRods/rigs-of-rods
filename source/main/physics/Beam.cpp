@@ -1575,12 +1575,6 @@ void Beam::SyncReset()
 		beams[i].L=beams[i].refL;
 		beams[i].stress=0.0;
 		beams[i].disabled=false;
-		if (beams[i].mSceneNode && beams[i].type!=BEAM_VIRTUAL && beams[i].type!=BEAM_INVISIBLE && beams[i].type!=BEAM_INVISIBLE_HYDRO)
-		{
-			//reattach possibly detached nodes
-			//beams[i].mSceneNode->setVisible(true);
-			if (beams[i].mSceneNode->numAttachedObjects()==0) beams[i].mSceneNode->attachObject(beams[i].mEntity);
-		}
 	}
 
 	//this is a hook assistance beam and needs to be disabled after reset
@@ -3531,6 +3525,9 @@ void Beam::updateVisual(float dt)
 		}
 		if (!beams[i].disabled && beams[i].mSceneNode)
 		{
+			if (beams[i].mSceneNode->numAttachedObjects() == 0)
+				beams[i].mSceneNode->attachObject(beams[i].mEntity);
+
 			if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
 			{
 				beams[i].mSceneNode->setPosition(beams[i].p1->AbsPosition.midPoint(beams[i].p2->AbsPosition));
@@ -4042,9 +4039,6 @@ void Beam::tieToggle(int group)
 				{
 					// enable the beam and visually display the beam
 					it->beam->disabled = false;
-					if (it->beam->mSceneNode->numAttachedObjects() == 0)
-						it->beam->mSceneNode->attachObject(it->beam->mEntity);
-
 					// now trigger the tying action
 					it->beam->p2 = shorter;
 					it->beam->p2truck = shtruck != 0;
