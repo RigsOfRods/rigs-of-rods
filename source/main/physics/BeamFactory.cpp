@@ -980,7 +980,8 @@ void BeamFactory::update(float dt)
 			{
 				if (m_trucks[t]->state == SIMULATED)
 					m_trucks[t]->sendStreamData();
-				if (m_trucks[t]->state == SLEEPING && m_trucks[t]->netTimer.getMilliseconds() < 10000)
+				else if (m_trucks[t]->state == SLEEPING && m_trucks[t]->netTimer.getMilliseconds() < 10000)
+					// Also send update messages for 'SLEEPING' trucks during the first 10 seconds of lifetime
 					m_trucks[t]->sendStreamData();
 			}
 			break;
