@@ -213,11 +213,11 @@ int DetectBasePaths()
 	sprintf(buf, "%s\\Rigs of Rods %s", buf, ROR_VERSION_STRING_SHORT);
      
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    snprintf(buf, 1000 "%s/.rigsofrods", getenv("HOME"));
-      
+    snprintf(buf, 1000, "%s/.rigsofrods", getenv("HOME"));
+
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    snprintf(buf, 1000 "%s/RigsOfRods", getenv("HOME"));
-    
+    snprintf(buf, 1000, "%s/RigsOfRods", getenv("HOME"));
+
 #endif
 
     Application::SetSysUserDir(buf);    
