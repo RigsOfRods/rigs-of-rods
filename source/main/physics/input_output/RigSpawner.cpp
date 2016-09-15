@@ -2430,7 +2430,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	/* Backwards compatibility */
 	if (blink_delay == -2) 
 	{
-		if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER)
+		if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER)
 		{
 			blink_delay = -1; /* Default blink */
 		}
