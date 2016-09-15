@@ -1799,7 +1799,7 @@ void Parser::ParseFlexbody()
         // * Pair of node numbers:" 123 - 456 ". Whitespace is optional.
 
         char setdef[LINE_BUFFER_LENGTH] = ""; // strtok() is destructive, we need own buffer.
-        strncpy_s(setdef, m_current_line + 6, LINE_BUFFER_LENGTH); // Cut away "forset"
+        strncpy(setdef, m_current_line + 6, LINE_BUFFER_LENGTH - 6); // Cut away "forset"
         const char* item = std::strtok(setdef, ",");
 
         // TODO: Add error reporting
