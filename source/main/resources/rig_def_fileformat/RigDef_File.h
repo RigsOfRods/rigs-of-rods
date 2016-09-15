@@ -1472,7 +1472,6 @@ struct Pistonprop
 {
 	Pistonprop():
 		turbine_power_kW(0),
-		_couple_node_set(false),
 		pitch(0)
 	{}
 
@@ -1480,7 +1479,6 @@ struct Pistonprop
 	Node::Ref axis_node;
 	Node::Ref blade_tip_nodes[4];
 	Node::Ref couple_node;
-	bool _couple_node_set;
 	float turbine_power_kW;
 	float pitch;
 	Ogre::String airfoil;

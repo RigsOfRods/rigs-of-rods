@@ -519,34 +519,6 @@ DEFINE_REGEX( SECTION_PARTICLES,
     E_2xCAPTURE_TRAILING_COMMENT
     );
 
-DEFINE_REGEX( SECTION_PISTONPROPS,
-    E_LEADING_WHITESPACE
-    E_CAPTURE( E_NODE_ID ) // Reference node (center of the prop)
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Prop axis node (back of the prop)
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Blade 1 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // Blade 2 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // #5 Blade 3 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_NODE_ID ) // #6 Blade 4 tip node
-    E_DELIMITER_COMMA
-    E_CAPTURE ( // #7 Wrapper
-        E_CAPTURE( E_MINUS_ONE_REAL ) // #8 Couple node unused
-        E_OR
-        E_CAPTURE( E_NODE_ID ) // #9 Couple node    
-    )
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // #10 Power (in kW)
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_REAL_NUMBER ) // #11 Pitch
-    E_DELIMITER_COMMA
-    E_CAPTURE( E_STRING_NO_SPACES ) // #12 Airfoil
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
 DEFINE_REGEX( SECTION_RAILGROUPS,
     E_LEADING_WHITESPACE
     E_CAPTURE( E_NODE_ID ) // Id

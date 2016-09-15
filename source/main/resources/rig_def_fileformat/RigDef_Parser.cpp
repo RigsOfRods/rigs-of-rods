@@ -974,7 +974,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_PISTONPROPS):
-            ParsePistonprops(line);
+            ParsePistonprops();
             line_finished = true;
             break;
 
@@ -3320,34 +3320,21 @@ void Parser::ParseProps()
     m_current_module->props.push_back(prop);
 }
 
-void Parser::ParsePistonprops(Ogre::String const & line)
+void Parser::ParsePistonprops()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_PISTONPROPS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    if (!this->CheckNumArguments(10)) { return; }
 
     Pistonprop pistonprop;
-    pistonprop.reference_node = _ParseNodeRef(results[1]);
-    pistonprop.axis_node = _ParseNodeRef(results[2]);
-    pistonprop.blade_tip_nodes[0] = _ParseNodeRef(results[3]);
-    pistonprop.blade_tip_nodes[1] = _ParseNodeRef(results[4]);
-    pistonprop.blade_tip_nodes[2] = _ParseNodeRef(results[5]);
-    pistonprop.blade_tip_nodes[3] = _ParseNodeRef(results[6]);
-
-    // Couplenode 
-    if (results[9].matched)
-    {
-        pistonprop.couple_node = _ParseNodeRef(results[9]);
-        pistonprop._couple_node_set = true;
-    }
-
-    pistonprop.turbine_power_kW = STR_PARSE_REAL(results[10]);
-    pistonprop.pitch = STR_PARSE_REAL(results[11]);
-    pistonprop.airfoil = results[12];
+    pistonprop.reference_node     = this->GetArgNodeRef     (0);
+    pistonprop.axis_node          = this->GetArgNodeRef     (1);
+    pistonprop.blade_tip_nodes[0] = this->GetArgNodeRef     (2);
+    pistonprop.blade_tip_nodes[1] = this->GetArgNodeRef     (3);
+    pistonprop.blade_tip_nodes[2] = this->GetArgNullableNode(4);
+    pistonprop.blade_tip_nodes[3] = this->GetArgNullableNode(5);
+    pistonprop.couple_node        = this->GetArgNullableNode(6);
+    pistonprop.turbine_power_kW   = this->GetArgFloat       (7);
+    pistonprop.pitch              = this->GetArgFloat       (8);
+    pistonprop.airfoil            = this->GetArgStr         (9);
 
     m_current_module->pistonprops.push_back(pistonprop);
 
