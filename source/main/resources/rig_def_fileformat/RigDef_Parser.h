@@ -146,7 +146,7 @@ protected:
 
     void ParseDirectiveFlexbodyCameraMode();
 
-    void ParseDirectivePropCameraMode(Ogre::String const & line);
+    void ParseDirectivePropCameraMode();
 
     void ParseDirectiveSetBeamDefaults(Ogre::String const & line);
 
