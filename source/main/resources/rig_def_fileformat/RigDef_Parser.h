@@ -235,7 +235,7 @@ protected:
 
     void ParseMeshWheelUnified();
 
-    void ParseMinimass(Ogre::String const & line);
+    void ParseMinimass();
 
     void ParseNodesUnified();
 
@@ -385,7 +385,6 @@ protected:
 
     std::shared_ptr<Inertia>             m_ror_default_inertia;
     std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
-    float                                m_ror_minimass;
 
     // Data from user directives
     // Each affected section-struct has a shared_ptr to it's respective defaults
