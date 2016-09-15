@@ -255,7 +255,7 @@ protected:
 
     void ParseRotatorsUnified();
 
-    void ParseScrewprops(Ogre::String const & line);
+    void ParseScrewprops();
 
     void ParseSetCollisionRange();
 
