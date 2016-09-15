@@ -1772,25 +1772,16 @@ struct Tie
 {
 	Tie();
 
-	enum Options
-	{
-		OPTIONS_VISIBLE = 'n',
-		OPTIONS_INVISIBLE = 'i',
-
-		OPTIONS_INVALID = 0xFFFFFFFF
-	};
-
 	Node::Ref root_node;
 	float max_reach_length;
 	float auto_shorten_rate;
 	float min_length;
 	float max_length;
-	Options options;
+	bool is_invisible;
 	float max_stress;
 	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
-	unsigned int group;
-	bool _group_set;
+	int group;
 };
 
 /* -------------------------------------------------------------------------- */
