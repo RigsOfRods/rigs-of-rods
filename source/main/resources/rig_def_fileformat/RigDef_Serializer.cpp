@@ -2142,13 +2142,13 @@ void Serializer::ProcessBeamDefaults(BeamDefaults* beam_defaults, const char* pr
 		return;
 	}
 	m_stream << prefix << "set_beam_defaults       " // Align with "set_beam_defaults_scale"
-		<< beam_defaults->springiness << ", "
-		<< beam_defaults->damping_constant << ", "
-		<< beam_defaults->deformation_threshold_constant << ", "
-		<< beam_defaults->breaking_threshold_constant << ", "
-		<< beam_defaults->visual_beam_diameter << ", "
-		<< beam_defaults->beam_material_name << ", "
-		<< beam_defaults->plastic_deformation_coefficient 
+		<< beam_defaults->springiness           << ", "
+		<< beam_defaults->damping_constant      << ", "
+		<< beam_defaults->deformation_threshold << ", "
+		<< beam_defaults->breaking_threshold    << ", "
+		<< beam_defaults->visual_beam_diameter  << ", "
+		<< beam_defaults->beam_material_name    << ", "
+		<< beam_defaults->plastic_deform_coef 
 		<< endl;
 
 	BeamDefaultsScale & scale = beam_defaults->scale;

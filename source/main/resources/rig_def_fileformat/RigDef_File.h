@@ -118,26 +118,17 @@ struct BeamDefaultsScale
 
 struct BeamDefaults
 {
-	BeamDefaults():
-		springiness(9000000.f),
-		damping_constant(12000.f),
-		deformation_threshold_constant(400000.f),
-		visual_beam_diameter(0.05f),
+	BeamDefaults(): // NOTE: -1.f is 'empty value'; replaced by constant in parser.
+		springiness(-1.f),
+		damping_constant(-1.f),
+		deformation_threshold(-1.f),
+		visual_beam_diameter(-1.f),
 		beam_material_name("tracks/beam"),
-		plastic_deformation_coefficient(0.f), /* This is a default */
-		breaking_threshold_constant(1000000.f),
-		_user_specified_fields(0),
+		plastic_deform_coef(0.f), // This is a default
+		breaking_threshold(-1.f),
 		_enable_advanced_deformation(false),
 		_is_user_defined(false)
 	{}
-
-	static const unsigned int PARAM_SPRINGINESS                = BITMASK(1);
-	static const unsigned int PARAM_DAMPING_CONSTANT           = BITMASK(2);
-	static const unsigned int PARAM_DEFORM_THRESHOLD_CONSTANT  = BITMASK(3);
-	static const unsigned int PARAM_BREAK_THRESHOLD_CONSTANT   = BITMASK(4);
-	static const unsigned int PARAM_BEAM_DIAMETER              = BITMASK(5);
-	static const unsigned int PARAM_BEAM_MATERIAL              = BITMASK(6);
-	static const unsigned int PARAM_PLASTIC_DEFORM_COEFFICIENT = BITMASK(7);
 
 	float GetScaledSpringiness()
 	{
@@ -151,22 +142,21 @@ struct BeamDefaults
 
 	float GetScaledBreakingThreshold()
 	{
-		return breaking_threshold_constant * scale.breaking_threshold_constant;
+		return breaking_threshold * scale.breaking_threshold_constant;
 	}
 
     inline float GetScaledDeformThreshold() const
     {
-        return deformation_threshold_constant * scale.deformation_threshold_constant;
+        return deformation_threshold * scale.deformation_threshold_constant;
     }
 
 	float springiness;
 	float damping_constant;
-	float deformation_threshold_constant;
-	float breaking_threshold_constant;
+	float deformation_threshold;
+	float breaking_threshold;
 	float visual_beam_diameter;
 	Ogre::String beam_material_name;
-	float plastic_deformation_coefficient;
-	unsigned int _user_specified_fields; ///< Bit flags
+	float plastic_deform_coef;
 	bool _enable_advanced_deformation; ///< Informs whether "enable_advanced_deformation" directive preceded these defaults.
 	bool _is_user_defined; ///< Informs whether these data were read from "set_beam_defaults" directive or filled in by the parser on startup.
 	BeamDefaultsScale scale;

@@ -148,7 +148,7 @@ protected:
 
     void ParseDirectivePropCameraMode();
 
-    void ParseDirectiveSetBeamDefaults(Ogre::String const & line);
+    void ParseDirectiveSetBeamDefaults();
 
     void ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line);
 
@@ -387,7 +387,6 @@ protected:
     // RoR defaults
 
     std::shared_ptr<Inertia>             m_ror_default_inertia;
-    std::shared_ptr<BeamDefaults>        m_ror_beam_defaults;
     std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
     float                                m_ror_minimass;
     SkeletonSettings                     m_ror_skeleton_settings;
