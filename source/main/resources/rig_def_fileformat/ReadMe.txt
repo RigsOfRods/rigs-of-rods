@@ -32,14 +32,13 @@ There are several syntaxes for parsing a line:
 		Possible separators: space, tabulator, comma ",", colon ":" or pipe "|".
 		Whitespace and "," are well known, others weren't documented as generic.
 		Multiple separators in a row squash into one, i.e. this is a valid line:
-    		set_beam_defaults |,| -1 -1 ,,,,, -1, -1
-		
-	Keyword-Space-CSV - More complex sections
+		set_beam_defaults |,| -1 -1 ,,,,, -1, -1
+
+	Keyword-space-CSV - More complex sections
 		Line consists of: keyword, space (separator), CSV (comma sep. values)
 		The keyword is cut away, the rest is split along ",".
-        
-    Keyword-CSV - Like above, except the space is optional.
-		  
+
+	Keyword-CSV - Like above, except the space is optional.
 
 The format consists of these elements:
 

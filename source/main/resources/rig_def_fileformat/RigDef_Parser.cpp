@@ -143,7 +143,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_ADD_ANIMATION):
-                ParseDirectiveAddAnimation(line);
+                ParseDirectiveAddAnimation();
                 line_finished = true;
                 break;
 
@@ -2297,331 +2297,169 @@ void Parser::ParseCruiseControl(Ogre::String const & line)
     m_current_module->cruise_control = std::shared_ptr<CruiseControl>( new CruiseControl(cruise_control) );
 }
 
-void Parser::_ParseDirectiveAddAnimationMode(Animation & animation, Ogre::String mode_string)
-{
-    unsigned int mode = 0;
-
-    Ogre::StringVector tokens = Ogre::StringUtil::split(mode_string, "|");
-    Ogre::StringVector::iterator iter = tokens.begin();
-    for ( ; iter != tokens.end(); iter++)
-    {
-        std::smatch results;
-        if (! std::regex_search(*iter, results, Regexes::IDENTIFY_ADD_ANIMATION_MODE))
-        {
-            AddMessage(*iter, Message::TYPE_ERROR, "Invalid mode for directive 'add_animation', ignoring...");
-            return;
-        }
-        // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-        if (results[2].matched)
-        {
-            mode |= Animation::MODE_ROTATION_X;
-        }
-        else if (results[3].matched)
-        {
-            mode |= Animation::MODE_ROTATION_Y;
-        }
-        else if (results[4].matched)
-        {
-            mode |= Animation::MODE_ROTATION_Z;
-        }
-        else if (results[5].matched)
-        {
-            mode |= Animation::MODE_OFFSET_X;
-        }
-        else if (results[6].matched)
-        {
-            mode |= Animation::MODE_OFFSET_Y;
-        }
-        else if (results[7].matched)
-        {
-            mode |= Animation::MODE_OFFSET_Z;
-        }
-    }
-
-    animation.mode = mode;
-}
-
-void Parser::_ParseDirectiveAddAnimationSource(Animation & animation, Ogre::String source_string)
-{
-    // Test event (must be solitary) 
-    Ogre::StringUtil::trim(source_string);
-    if (source_string == "event")
-    {
-        BITMASK_SET_1(animation.source, Animation::SOURCE_EVENT);
-        return;
-    }
-
-    // Test other flags (can be combined) 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(source_string, "|");
-    Ogre::StringVector::iterator iter = tokens.begin();
-    for ( ; iter != tokens.end(); iter++)
-    {
-        std::smatch results;
-        if (! std::regex_search(*iter, results, Regexes::IDENTIFY_ADD_ANIMATION_SOURCE))
-        {
-            AddMessage(*iter, Message::TYPE_ERROR, "Invalid source for directive 'add_animation', ignoring...");
-            return;
-        }
-        // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
-        // Boolean options 
-        if (results[2].matched)
-        {
-            animation.source |= Animation::SOURCE_AIRSPEED;
-        }
-        else if (results[3].matched)
-        {
-            animation.source |= Animation::SOURCE_VERTICAL_VELOCITY;
-        }
-        else if (results[4].matched)
-        {
-            animation.source |= Animation::SOURCE_ALTIMETER_100K;
-        }
-        else if (results[5].matched)
-        {
-            animation.source |= Animation::SOURCE_ALTIMETER_10K;
-        }
-        else if (results[6].matched)
-        {
-            animation.source |= Animation::SOURCE_ALTIMETER_1K;
-        }
-        else if (results[7].matched)
-        {
-            animation.source |= Animation::SOURCE_ANGLE_OF_ATTACK;
-        }
-        else if (results[8].matched)
-        {
-            animation.source |= Animation::SOURCE_FLAP;
-        }
-        else if (results[9].matched)
-        {
-            animation.source |= Animation::SOURCE_AIR_BRAKE;
-        }
-        else if (results[10].matched)
-        {
-            animation.source |= Animation::SOURCE_ROLL;
-        }
-        else if (results[11].matched)
-        {
-            animation.source |= Animation::SOURCE_PITCH;
-        }
-        else if (results[12].matched)
-        {
-            animation.source |= Animation::SOURCE_BRAKES;
-        }
-        else if (results[13].matched)
-        {
-            animation.source |= Animation::SOURCE_ACCEL;
-        }
-        else if (results[14].matched)
-        {
-            animation.source |= Animation::SOURCE_CLUTCH;
-        }
-        else if (results[15].matched)
-        {
-            animation.source |= Animation::SOURCE_SPEEDO;
-        }
-        else if (results[16].matched)
-        {
-            animation.source |= Animation::SOURCE_TACHO;
-        }
-        else if (results[17].matched)
-        {
-            animation.source |= Animation::SOURCE_TURBO;
-        }
-        else if (results[18].matched)
-        {
-            animation.source |= Animation::SOURCE_PARKING;
-        }
-        else if (results[19].matched)
-        {
-            animation.source |= Animation::SOURCE_SHIFT_LEFT_RIGHT;
-        }
-        else if (results[20].matched)
-        {
-            animation.source |= Animation::SOURCE_SHIFT_BACK_FORTH;
-        }
-        else if (results[21].matched)
-        {
-            animation.source |= Animation::SOURCE_SEQUENTIAL_SHIFT;
-        }
-        else if (results[22].matched)
-        {
-            animation.source |= Animation::SOURCE_SHIFTERLIN;
-        }
-        else if (results[23].matched)
-        {
-            animation.source |= Animation::SOURCE_TORQUE;
-        }
-        else if (results[24].matched)
-        {
-            animation.source |= Animation::SOURCE_HEADING;
-        }
-        else if (results[25].matched)
-        {
-            animation.source |= Animation::SOURCE_DIFFLOCK;
-        }
-        else if (results[26].matched)
-        {
-            animation.source |= Animation::SOURCE_BOAT_RUDDER;
-        }
-        else if (results[27].matched)
-        {
-            animation.source |= Animation::SOURCE_BOAT_THROTTLE;
-        }
-        else if (results[28].matched)
-        {
-            animation.source |= Animation::SOURCE_STEERING_WHEEL;
-        }
-        else if (results[29].matched)
-        {
-            animation.source |= Animation::SOURCE_AILERON;
-        }
-        else if (results[30].matched)
-        {
-            animation.source |= Animation::SOURCE_ELEVATOR;
-        }
-        else if (results[31].matched)
-        {
-            animation.source |= Animation::SOURCE_AIR_RUDDER;
-        }
-        else if (results[32].matched)
-        {
-            animation.source |= Animation::SOURCE_PERMANENT;
-        }
-        else if (results[33].matched)
-        {
-            Animation::MotorSource motor_source;
-            motor_source.source = Animation::MotorSource::SOURCE_AERO_THROTTLE;
-            motor_source.motor = STR_PARSE_INT(results[34]);
-            animation.motor_sources.push_back(motor_source);
-        }
-        else if (results[35].matched)
-        {
-            Animation::MotorSource motor_source;
-            motor_source.source = Animation::MotorSource::SOURCE_AERO_RPM;
-            motor_source.motor = STR_PARSE_INT(results[36]);
-            animation.motor_sources.push_back(motor_source);
-        }
-        else if (results[37].matched)
-        {
-            Animation::MotorSource motor_source;
-            motor_source.source = Animation::MotorSource::SOURCE_AERO_TORQUE;
-            motor_source.motor = STR_PARSE_INT(results[38]);
-            animation.motor_sources.push_back(motor_source);
-        }
-        else if (results[39].matched)
-        {
-            Animation::MotorSource motor_source;
-            motor_source.source = Animation::MotorSource::SOURCE_AERO_PITCH;
-            motor_source.motor = STR_PARSE_INT(results[40]);
-            animation.motor_sources.push_back(motor_source);
-        }
-        else if (results[41].matched)
-        {
-            Animation::MotorSource motor_source;
-            motor_source.source = Animation::MotorSource::SOURCE_AERO_STATUS;
-            motor_source.motor = STR_PARSE_INT(results[42]);
-            animation.motor_sources.push_back(motor_source);
-        }
-    }
-}
-
-void Parser::ParseDirectiveAddAnimation(Ogre::String const & line)
+void Parser::ParseDirectiveAddAnimation()
 {
     assert(m_current_module != nullptr);
 
     if (m_current_module->props.size() == 0)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Directive 'add_animation' has no prop to animate, ignoring...");
+        AddMessage(Message::TYPE_ERROR, "Directive 'add_animation' has no prop to animate, ignoring...");
         return;
     }
 
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_ADD_ANIMATION))
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 13); // "add_animation" = 13 characters
+
+    if (tokens.size() < 4)
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'add_animation', ignoring...");
+        AddMessage(Message::TYPE_ERROR, "Not enough arguments, skipping...");
         return;
     }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex.
 
     Animation animation;
-    animation.ratio       = STR_PARSE_REAL(results[2]);
-    animation.lower_limit = STR_PARSE_REAL(results[4]);
-    animation.upper_limit = STR_PARSE_REAL(results[6]);
+    animation.ratio       = this->ParseArgFloat(tokens[0].c_str());
+    animation.lower_limit = this->ParseArgFloat(tokens[1].c_str());
+    animation.upper_limit = this->ParseArgFloat(tokens[2].c_str());
 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(results[8], ",");
-
-    for (Ogre::StringVector::iterator itor = tokens.begin(); itor != tokens.end(); itor++)
+    for (auto itor = tokens.begin() + 3; itor != tokens.end(); ++itor)
     {
-        std::smatch token_results;
-        if (! std::regex_search(*itor, token_results, Regexes::IDENTIFY_ADD_ANIMATION_TOKEN))
+        Ogre::StringVector entry = Ogre::StringUtil::split(*itor);
+        Ogre::StringUtil::trim(entry[0]);
+        const int WARN_LEN = 500;
+        char warn_msg[WARN_LEN] = "";
+
+        if (entry.size() == 1) // Single keyword
         {
-            std::stringstream msg;
-            msg << "Directive 'add_animation': Unrecognized/misplaced token '" << *itor << "', ignoring....";
-            AddMessage(line, Message::TYPE_ERROR, msg.str());
-            continue;
+            if      (entry[0] == "autoanimate") { animation.mode |= Animation::MODE_AUTO_ANIMATE; }
+            else if (entry[0] == "noflip")      { animation.mode |= Animation::MODE_NO_FLIP; }
+            else if (entry[0] == "bounce")      { animation.mode |= Animation::MODE_BOUNCE; }
+            else if (entry[0] == "eventlock")   { animation.mode |= Animation::MODE_EVENT_LOCK; }
+
+            else { snprintf(warn_msg, WARN_LEN, "Invalid keyword: %s", entry[0].c_str()); }
+        }
+        else if (entry.size() == 2 && (entry[0] == "mode" || entry[0] == "event" || entry[0] == "source"))
+        {
+            Ogre::StringVector values = Ogre::StringUtil::split(entry[1]);
+            if (entry[0] == "mode")
+            {
+                for (auto itor = values.begin(); itor != values.end(); ++itor)
+                {
+                    std::string value = *itor;
+                    Ogre::StringUtil::trim(value);
+
+                         if (value == "x-rotation") { animation.mode |= Animation::MODE_ROTATION_X; }
+                    else if (value == "y-rotation") { animation.mode |= Animation::MODE_ROTATION_Y; }
+                    else if (value == "z-rotation") { animation.mode |= Animation::MODE_ROTATION_Z; }
+                    else if (value == "x-offset"  ) { animation.mode |= Animation::MODE_OFFSET_X;   }
+                    else if (value == "y-offset"  ) { animation.mode |= Animation::MODE_OFFSET_Y;   }
+                    else if (value == "z-offset"  ) { animation.mode |= Animation::MODE_OFFSET_Z;   }
+
+                    else { snprintf(warn_msg, WARN_LEN, "Invalid 'mode': %s, ignoring...", entry[1].c_str()); }
+                }
+            }
+            else if (entry[0] == "event")
+            {
+                Ogre::StringUtil::trim(entry[1]);
+                animation.event = entry[1];
+            }
+            else if (entry[0] == "source")
+            {
+                // Cannot be combined with "|"
+                Ogre::StringUtil::trim(entry[1]);
+                if (entry[1] == "event")
+                {
+                    animation.source |= Animation::SOURCE_EVENT;
+                    continue;
+                }
+
+                for (auto itor = values.begin(); itor != values.end(); ++itor)
+                {
+                    std::string value = *itor;
+                    Ogre::StringUtil::trim(value);
+
+                         if (entry[1] == "airspeed")      { animation.source |= Animation::SOURCE_AIRSPEED;          }
+                    else if (entry[1] == "vvi")           { animation.source |= Animation::SOURCE_VERTICAL_VELOCITY; }
+                    else if (entry[1] == "altimeter100k") { animation.source |= Animation::SOURCE_ALTIMETER_100K;    }
+                    else if (entry[1] == "altimeter10k")  { animation.source |= Animation::SOURCE_ALTIMETER_10K;     }
+                    else if (entry[1] == "altimeter1k")   { animation.source |= Animation::SOURCE_ALTIMETER_1K;      }
+                    else if (entry[1] == "aoa")           { animation.source |= Animation::SOURCE_ANGLE_OF_ATTACK;   }
+                    else if (entry[1] == "flap")          { animation.source |= Animation::SOURCE_FLAP;              }
+                    else if (entry[1] == "airbrake")      { animation.source |= Animation::SOURCE_AIR_BRAKE;         }
+                    else if (entry[1] == "roll")          { animation.source |= Animation::SOURCE_ROLL;              }
+                    else if (entry[1] == "pitch")         { animation.source |= Animation::SOURCE_PITCH;             }
+                    else if (entry[1] == "brake")         { animation.source |= Animation::SOURCE_BRAKES;            }
+                    else if (entry[1] == "accel")         { animation.source |= Animation::SOURCE_ACCEL;             }
+                    else if (entry[1] == "clutch")        { animation.source |= Animation::SOURCE_CLUTCH;            }
+                    else if (entry[1] == "speedo")        { animation.source |= Animation::SOURCE_SPEEDO;            }
+                    else if (entry[1] == "tacho")         { animation.source |= Animation::SOURCE_TACHO;             }
+                    else if (entry[1] == "turbo")         { animation.source |= Animation::SOURCE_TURBO;             }
+                    else if (entry[1] == "pbrake")        { animation.source |= Animation::SOURCE_PARKING;           }
+                    else if (entry[1] == "shifterman1")   { animation.source |= Animation::SOURCE_SHIFT_LEFT_RIGHT;  }
+                    else if (entry[1] == "shifterman2")   { animation.source |= Animation::SOURCE_SHIFT_BACK_FORTH;  }
+                    else if (entry[1] == "sequential")    { animation.source |= Animation::SOURCE_SEQUENTIAL_SHIFT;  }
+                    else if (entry[1] == "shifterlin")    { animation.source |= Animation::SOURCE_SHIFTERLIN;        }
+                    else if (entry[1] == "torque")        { animation.source |= Animation::SOURCE_TORQUE;            }
+                    else if (entry[1] == "heading")       { animation.source |= Animation::SOURCE_HEADING;           }
+                    else if (entry[1] == "difflock")      { animation.source |= Animation::SOURCE_DIFFLOCK;          }
+                    else if (entry[1] == "rudderboat")    { animation.source |= Animation::SOURCE_BOAT_RUDDER;       }
+                    else if (entry[1] == "throttleboat")  { animation.source |= Animation::SOURCE_BOAT_THROTTLE;     }
+                    else if (entry[1] == "steeringwheel") { animation.source |= Animation::SOURCE_STEERING_WHEEL;    }
+                    else if (entry[1] == "aileron")       { animation.source |= Animation::SOURCE_AILERON;           }
+                    else if (entry[1] == "elevator")      { animation.source |= Animation::SOURCE_ELEVATOR;          }
+                    else if (entry[1] == "rudderair")     { animation.source |= Animation::SOURCE_AIR_RUDDER;        }
+                    else if (entry[1] == "permanent")     { animation.source |= Animation::SOURCE_PERMANENT;         }
+
+                    else
+                    {
+                        Animation::MotorSource motor_source;
+                        if (entry[1].compare(0, 8, "throttle") == 0)
+                        {
+                            motor_source.source = Animation::MotorSource::SOURCE_AERO_THROTTLE;
+                            motor_source.motor = this->ParseArgUint(entry[1].substr(8));
+                        }
+                        else if (entry[1].compare(0, 3, "rpm") == 0)
+                        {
+                            motor_source.source = Animation::MotorSource::SOURCE_AERO_RPM;
+                            motor_source.motor = this->ParseArgUint(entry[1].substr(3));
+                        }
+                        else if (entry[1].compare(0, 8, "aerotorq") == 0)
+                        {
+                            motor_source.source = Animation::MotorSource::SOURCE_AERO_TORQUE;
+                            motor_source.motor = this->ParseArgUint(entry[1].substr(8));
+                        }
+                        else if (entry[1].compare(0, 7, "aeropit") == 0)
+                        {
+                            motor_source.source = Animation::MotorSource::SOURCE_AERO_PITCH;
+                            motor_source.motor = this->ParseArgUint(entry[1].substr(7));
+                        }
+                        else if (entry[1].compare(0, 10, "aerostatus") == 0)
+                        {
+                            motor_source.source = Animation::MotorSource::SOURCE_AERO_STATUS;
+                            motor_source.motor = this->ParseArgUint(entry[1].substr(10));
+                        }
+                        else
+                        {
+                            snprintf(warn_msg, WARN_LEN, "Invalid 'source': %s, ignoring...", entry[1].c_str());
+                            continue;
+                        }
+                        animation.motor_sources.push_back(motor_source);
+                    }
+                }
+            }
+            else
+            {
+                snprintf(warn_msg, WARN_LEN, "Invalid keyword: %s, ignoring...", entry[0].c_str());
+            }
+        }
+        else
+        {
+            snprintf(warn_msg, WARN_LEN, "Invalid item: %s, ignoring...", entry[0].c_str());
         }
 
-        // NOTE: Positions in 'token_results' array match E_CAPTURE*() positions (starting with 1) in Regexes::IDENTIFY_ADD_ANIMATION_TOKEN. 
-
-        if (token_results[2].matched) // autoanimate 
+        if (warn_msg[0] != '\0')
         {
-            BITMASK_SET_1(animation.mode, Animation::MODE_AUTO_ANIMATE);
-        }
-        else if (token_results[3].matched) // noflip 
-        {
-            BITMASK_SET_1(animation.mode, Animation::MODE_NO_FLIP);
-        }
-        else if (token_results[4].matched) // bounce 
-        {
-            BITMASK_SET_1(animation.mode, Animation::MODE_BOUNCE);
-        }
-        else if (token_results[5].matched) // eventlock 
-        {
-            BITMASK_SET_1(animation.mode, Animation::MODE_EVENT_LOCK);
-        }
-        else if (token_results[6].matched) // Mode 
-        {
-            if (! token_results[7].matched)
-            {
-                AddMessage(line, Message::TYPE_ERROR, "Directive 'add_animation': Token 'mode' has invalid format, skipping....");
-                continue;
-            }
-            else
-            {
-                _ParseDirectiveAddAnimationMode(animation, token_results[8]);
-            }
-        }
-        else if (token_results[9].matched) // Source 
-        {
-            if (! token_results[10].matched)
-            {
-                AddMessage(line, Message::TYPE_ERROR, "Directive 'add_animation': Token 'source' has invalid format, skipping....");
-                continue;
-            }
-            else
-            {
-                _ParseDirectiveAddAnimationSource(animation, token_results[11]);
-            }
-        }
-        else if (token_results[12].matched) // Event 
-        {
-            if (! token_results[13].matched)
-            {
-                AddMessage(line, Message::TYPE_ERROR, "Directive 'add_animation': Token 'event' has invalid format, skipping....");
-                continue;
-            }
-            else
-            {
-                animation.event = token_results[14];
-                Ogre::StringUtil::toUpperCase(animation.event);
-            }
-        }
-        else 
-        {
-            AddMessage(line, Message::TYPE_ERROR, "[Internal error] Directive 'add_animation': Token '" + *itor + "' passed syntax check, but wasn't recognized....");
+            char msg[WARN_LEN + 100];
+            snprintf(msg, WARN_LEN + 100, "Invalid token: %s (%s) ignoring....", itor->c_str(), warn_msg);
+            this->AddMessage(Message::TYPE_WARNING, msg);
         }
     }
 
@@ -4983,18 +4821,28 @@ float Parser::ParseArgFloat(const char* str)
     return static_cast<float>(res);
 }
 
-int Parser::ParseArgInt(const char* str)
+unsigned Parser::ParseArgUint(const char* str)
 {
     errno = 0;
     long res = std::strtol(str, nullptr, 10);
     if (errno != 0)
     {
-        char msg[100];
-        sprintf_s(msg, "Cannot parse argument '%s' as int, errno: %d", str, errno);
+        char msg[200];
+        snprintf(msg, 200, "Cannot parse argument '%s' as int, errno: %d", str, errno);
         this->AddMessage(Message::TYPE_ERROR, msg);
         return 0.f; // Compatibility
     }
-    return static_cast<int>(res);
+    return static_cast<unsigned>(res);
+}
+
+unsigned Parser::ParseArgUint(std::string const & str)
+{
+    return this->ParseArgUint(str.c_str());
+}
+
+int Parser::ParseArgInt(const char* str)
+{
+    return static_cast<int>(this->ParseArgUint(str));
 }
 
 bool Parser::GetArgBool(int index)
