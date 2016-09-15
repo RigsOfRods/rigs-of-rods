@@ -150,110 +150,112 @@ Below is a list of all supported elements.
 NOTE: All keywords are case insensitive, 
 the lettercase in this list corresponds to original documentation.
 
-    TYPE         NAME                           SYNTAX
+    NAME                         TYPE       SYNTAX
+                                            
+    advdrag                      BLOCK      
+    add_animation                DIRECTIVE  Keyword-Space-CSV + custom proc.
+    airbrakes                    BLOCK      Default
+    animators                    ANIMATORS  
+    AntiLockBrakes               DIRECTIVE  Keyword-CSV      
+    author                       DIRECTIVE  Default
+    axles                        BLOCK      CSV + custom processing
+    beams                        BLOCK      
+    brakes                       BLOCK      
+    camerarail                   BLOCK      
+    cameras                      BLOCK      
+    cinecam                      BLOCK      
+    collisionboxes               BLOCK      
+    commands                     BLOCK      
+    commands2                    BLOCK      
+    comment                      COMMENT    
+    contacters                   BLOCK      
+    cruisecontrol                BLOCK      Default
+    description                  BLOCK      
+    detacher_group               DIRECTIVE  Default
+    disabledefaultsounds         DIRECTIVE  
+    enable_advanced_deformation  DIRECTIVE  
+    engine                       BLOCK      
+    engoption                    BLOCK      
+    engturbo                     BLOCK      
+    envmap                       BLOCK      
+    exhausts                     BLOCK      
+    extcamera                    INLINE     
+    forwardcommands              DIRECTIVE  
+    fileformatversion            INLINE     
+    fileinfo                     DIRECTIVE     
+    fixes                        BLOCK      
+    flares                       BLOCK      
+    flares2                      BLOCK      
+    flexbodies                   BLOCK      
+    flexbody_camera_mode         DIRECTIVE  Default
+    flexbodywheels               BLOCK      
+    forset                       INLINE     Keyword-CSV
+    fusedrag                     BLOCK      
+    globals                      BLOCK      Default
+    guid                         DIRECTIVE  Default
+    guisettings                  BLOCK      
+    help                         BLOCK      Default
+    hideInChooser                DIRECTIVE  
+    hookgroup                    BLOCK      
+    hooks                        BLOCK      
+    hydros                       BLOCK      
+    importcommands               DIRECTIVE  
+    lockgroups                   BLOCK      
+    lockgroup_default_nolock     DIRECTIVE  
+    managedmaterials             BLOCK      
+    materialflarebindings        BLOCK      Default
+    meshwheels                   BLOCK      
+    meshwheels2                  BLOCK      
+    minimass                     BLOCK      Default
+    nodecollision                BLOCK      Default
+    nodes                        BLOCK      
+    nodes2                       BLOCK      
+    particles                    BLOCK      Default
+    pistonprops                  BLOCK      
+    prop_camera_mode             DIRECTIVE  Default
+    props                        BLOCK      
+    railgroups                   BLOCK      CSV
+    rescuer                      DIRECTIVE  
+    rigidifiers                  BLOCK      
+    rollon                       DIRECTIVE  
+    ropables                     BLOCK      
+    ropes                        BLOCK      
+    rotators                     BLOCK      
+    rotators2                    BLOCK      
+    screwprops                   BLOCK      
+    sectionconfig                MODULE     
+    section                      MODULE     
+    set_beam_defaults            DIRECTIVE  Default
+    set_beam_defaults_scale      DIRECTIVE  Default
+    set_collision_range          DIRECTIVE  Default
+    set_inertia_defaults         DIRECTIVE  Default
+    set_managedmaterials_options DIRECTIVE  Default
+    set_node_defaults            DIRECTIVE  Default
+    set_shadows                  DIRECTIVE  
+    set_skeleton_settings        DIRECTIVE  Default
+    shocks                       BLOCK      
+    shocks2                      BLOCK      
+    slidenode_connect_instantly  DIRECTIVE  
+    slidenodes                   BLOCK      CommaSpaceSV
+    SlopeBrake                   BLOCK      
+    soundsources                 BLOCK      
+    soundsources2                BLOCK      
+    soundsources3                BLOCK      
+    speedlimiter                 DIRECTIVE  Default      
+    submesh                      BLOCK      
+    submesh_groundmodel          DIRECTIVE  Default      
+    ties                         BLOCK      
+    torquecurve                  BLOCK      CSV
+    TractionControl              DIRECTIVE  Keyword-Space-CSV      
+    triggers                     BLOCK      
+    turbojets                    BLOCK      
+    turboprops                   BLOCK      
+    turboprops2                  BLOCK      
+    videocamera                  BLOCK      
+    wheels                       BLOCK      
+    wheels2                      BLOCK      
+    wings                        BLOCK      
 
-    BLOCK        advdrag
-    DIRECTIVE    add_animation                  Keyword-Space-CSV + custom proc.
-    BLOCK        airbrakes                      Default
-    ANIMATORS    animators
-    BLOCK        AntiLockBrakes
-    INLINE       author                         Default
-    BLOCK        axles                          CSV + custom processing
-    BLOCK        beams
-    BLOCK        brakes
-    BLOCK        camerarail
-    BLOCK        cameras
-    BLOCK        cinecam
-    BLOCK        collisionboxes
-    BLOCK        commands
-    BLOCK        commands2
-    COMMENT      comment
-    BLOCK        contacters
-    BLOCK        cruisecontrol                  Default
-    DESCRIPTION  description
-    DIRECTIVE    detacher_group
-    DIRECTIVE    disabledefaultsounds
-    DIRECTIVE    enable_advanced_deformation
-    BLOCK        engine
-    BLOCK        engoption
-    BLOCK        engturbo
-    BLOCK        envmap
-    BLOCK        exhausts
-    INLINE       extcamera
-    DIRECTIVE    forwardcommands
-    INLINE       fileformatversion
-    INLINE       fileinfo
-    BLOCK        fixes
-    BLOCK        flares
-    BLOCK        flares2
-    BLOCK        flexbodies
-    DIRECTIVE    flexbody_camera_mode
-    BLOCK        flexbodywheels
-    INLINE       forset                         Keyword-CSV
-    BLOCK        fusedrag
-    BLOCK        globals                        Default
-    INLINE       guid                           Default
-    BLOCK        guisettings
-    BLOCK        help                           Default
-    DIRECTIVE    hideInChooser
-    BLOCK        hookgroup
-    BLOCK        hooks
-    BLOCK        hydros
-    DIRECTIVE    importcommands
-    BLOCK        lockgroups
-    DIRECTIVE    lockgroup_default_nolock
-    BLOCK        managedmaterials
-    BLOCK        materialflarebindings          Default
-    BLOCK        meshwheels
-    BLOCK        meshwheels2
-    BLOCK        minimass                       Default
-    BLOCK        nodecollision                  Default
-    BLOCK        nodes
-    BLOCK        nodes2
-    BLOCK        particles                      Default
-    BLOCK        pistonprops
-    DIRECTIVE    prop_camera_mode               Default
-    BLOCK        props
-    BLOCK        railgroups                     CSV
-    DIRECTIVE    rescuer
-    BLOCK        rigidifiers
-    DIRECTIVE    rollon
-    BLOCK        ropables
-    BLOCK        ropes
-    BLOCK        rotators
-    BLOCK        rotators2
-    BLOCK        screwprops
-    MODULE       sectionconfig
-    MODULE       section
-    DIRECTIVE    set_beam_defaults
-    DIRECTIVE    set_beam_defaults_scale
-    DIRECTIVE    set_inertia_defaults
-    DIRECTIVE    set_managedmaterials_options
-    DIRECTIVE    set_node_defaults
-    DIRECTIVE    set_shadows
-    DIRECTIVE    set_skeleton_settings          Default
-    BLOCK        shocks
-    BLOCK        shocks2
-    DIRECTIVE    slidenode_connect_instantly
-    BLOCK        slidenodes                     CommaSpaceSV
-    BLOCK        SlopeBrake
-    BLOCK        soundsources
-    BLOCK        soundsources2
-    BLOCK        soundsources3
-    BLOCK        speedlimiter
-    BLOCK        submesh
-    BLOCK        submesh_groundmodel
-    BLOCK        ties
-    BLOCK        torquecurve                    CSV
-    BLOCK        TractionControl
-    BLOCK        triggers
-    BLOCK        turbojets
-    BLOCK        turboprops
-    BLOCK        turboprops2
-    BLOCK        videocamera
-    BLOCK        wheels
-    BLOCK        wheels2
-    BLOCK        wings
 
 SPECIAL SYNTAXES
 ================
