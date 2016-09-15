@@ -820,7 +820,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_BEAMS):
-            ParseBeams(line);
+            ParseBeams();
             line_finished = true;
             break;
 
@@ -4102,61 +4102,46 @@ bool Parser::_ParseOptionalInertia(Inertia & inertia, std::smatch & results, uns
     return false;
 }
 
-void Parser::ParseBeams(Ogre::String const & _line)
+void Parser::ParseBeams()
 {
-    const int FLAGS_INDEX     = 7;
-    const int EXT_LIMIT_INDEX = 11;
-
-    std::string line;
-    Parser::_TrimTrailingComments(_line, line);
-
-    // Parse arguments
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_BEAMS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(2)) { return; }
+    
     Beam beam;
-    beam.defaults = m_user_beam_defaults;
+    beam.defaults       = m_user_beam_defaults;
     beam.detacher_group = m_current_detacher_group;
-    beam.nodes[0] = _ParseNodeRef(results[1]);
-    beam.nodes[1] = _ParseNodeRef(results[3]);
+    
+    beam.nodes[0] = this->GetArgNodeRef(0);
+    beam.nodes[1] = this->GetArgNodeRef(1);
 
     // Flags 
-    if (results[FLAGS_INDEX].matched)
+    if (m_num_args > 2)
     {
-        std::string const & flags_str = results[FLAGS_INDEX];
-        for (unsigned int i = 0; i < flags_str.length(); i++)
+        std::string options_str = this->GetArgStr(2);
+        for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
         {
-            if (flags_str[i] == 'v') 
-            {
-                continue; // Dummy flag
-            }
-            if (flags_str[i] == 'i') 
-            {
-                beam.options |= Beam::OPTION_i_INVISIBLE;
-            }
-            else if (flags_str[i] == 'r')
-            {
-                beam.options |= Beam::OPTION_r_ROPE;
-            }
-            else if (flags_str[i] == 's')
-            {
-                beam.options |= Beam::OPTION_s_SUPPORT;
-                if (results[EXT_LIMIT_INDEX].matched)
-                {
-                    beam._has_extension_break_limit = true;
-                    beam.extension_break_limit = STR_PARSE_REAL(results[EXT_LIMIT_INDEX]);
-                }
-            }
+                 if (*itor == 'v') { continue; } // Dummy flag
+            else if (*itor == 'i') { beam.options |= Beam::OPTION_i_INVISIBLE; } 
+            else if (*itor == 'r') { beam.options |= Beam::OPTION_r_ROPE; }
+            else if (*itor == 's') { beam.options |= Beam::OPTION_s_SUPPORT; }
             else
             {
-                AddMessage(line, Message::TYPE_WARNING, std::string("Invalid flag: ") + flags_str[i]);
+                char msg[200] = "";
+                sprintf(msg, "Invalid flag: %c", *itor);
+                this->AddMessage(Message::TYPE_WARNING, msg);
             }
         }
+    }
+    
+    if ((m_num_args > 3) && (beam.options & Beam::OPTION_s_SUPPORT))
+    {
+        float support_break_limit = 0.0f;
+        float support_break_factor = this->GetArgInt(3);
+        if (support_break_factor > 0.0f)
+        {
+            support_break_limit = support_break_factor;
+        }
+        beam.extension_break_limit = support_break_limit;
+        beam._has_extension_break_limit = true;
     }
 
     m_current_module->beams.push_back(beam);
