@@ -2731,7 +2731,7 @@ void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 			msg << "Invalid node '" << itor->ToString() << "'";
 			continue;
 		}
-		m_rig->nodes[node_result.first].collisionBoundingBoxID = m_rig->collisionBoundingBoxes.size();
+		m_rig->nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_rig->collisionBoundingBoxes.size());
 	}
 
 	m_rig->collisionBoundingBoxes.resize(m_rig->collisionBoundingBoxes.size() + 1);
@@ -3402,7 +3402,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	int beam_index = m_rig->free_beam;
 	beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
 	beam.type = hydro_type;
-	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant);
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
 	SetBeamSpring(beam, 0.f);
 	SetBeamDamping(beam, 0.f);
 	CalculateBeamLength(beam);
@@ -3881,13 +3881,13 @@ beam_t & RigSpawner::AddBeam(
 	beam.disabled = false;
 
 	/* Breaking threshold (strength) */
-	float strength = beam_defaults->breaking_threshold_constant;
+	float strength = beam_defaults->breaking_threshold;
 	beam.strength = strength;
 
 	/* Deformation */
 	SetBeamDeformationThreshold(beam, beam_defaults);
 
-	float plastic_coef = beam_defaults->plastic_deformation_coefficient;
+	float plastic_coef = beam_defaults->plastic_deform_coef;
 	beam.plastic_coef = plastic_coef;
 
 	return beam;
@@ -4059,7 +4059,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	
 	int beam_index = m_rig->free_beam;
 	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
 	beam.type                 = hydro_type;
 	beam.bounded              = SHOCK2;
 	beam.k                    = def.spring_in;
@@ -4140,7 +4140,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 	beam.type       = hydro_type;
 	beam.k          = def.spring_rate;
 	beam.d          = def.damping;
-	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -5333,7 +5333,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 			beam.type = BEAM_VIRTUAL;
 			beam.k = wheel_2_def.rim_springiness;
 			beam.d = wheel_2_def.rim_damping;
-			SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold_constant);
+			SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
 		}
 
 		/* --- Tyre --- */
@@ -5556,7 +5556,7 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
 	beam_t & beam = GetFreeBeam();
 	InitBeam(beam, node_1, node_2);
 	beam.type = BEAM_INVISIBLE;
-	SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold_constant);
+	SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
 	SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
 	return index;
 }
@@ -6125,14 +6125,13 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigD
 	// Old 'set_beam_defaults'
 	if (beam_defaults->_is_user_defined)
 	{
-		default_deform = beam_defaults->deformation_threshold_constant;
+		default_deform = beam_defaults->deformation_threshold;
 		if (!beam_defaults->_enable_advanced_deformation && default_deform < BEAM_DEFORM)
 		{
 			default_deform = BEAM_DEFORM;
 		}
 
-		bool plastic_coef_user_defined = BITMASK_IS_1(beam_defaults->_user_specified_fields, RigDef::BeamDefaults::PARAM_PLASTIC_DEFORM_COEFFICIENT);
-		if (plastic_coef_user_defined && beam_defaults->plastic_deformation_coefficient >= 0.f)
+		if (beam_defaults->plastic_deform_coef >= 0.f)
 		{
 			beam_creak = 0.f;
 		}

@@ -27,6 +27,7 @@
 
 #include "RigDef_Parser.h"
 
+#include "BeamConstants.h"
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
 #include "BitFlags.h"
@@ -62,7 +63,6 @@ Parser::Parser():
 {
     // Push defaults 
     m_ror_default_inertia = std::shared_ptr<Inertia>(new Inertia);
-    m_ror_beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
     m_ror_node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults);
 }
 
@@ -566,7 +566,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_SET_BEAM_DEFAULTS):
-                ParseDirectiveSetBeamDefaults(line);
+                ParseDirectiveSetBeamDefaults();
                 line_finished = true;
                 break;
 
@@ -1542,147 +1542,36 @@ void Parser::ParseDirectiveSetBeamDefaultsScale(Ogre::String const & line)
     }
 }
 
-void Parser::ParseDirectiveSetBeamDefaults(Ogre::String const & line)
+void Parser::ParseDirectiveSetBeamDefaults()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_SET_BEAM_DEFAULTS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    m_user_beam_defaults = std::shared_ptr<BeamDefaults>( new BeamDefaults(*m_user_beam_defaults) );
+    BeamDefaults d(*m_user_beam_defaults);
 
     // What's the state of "enable_advanced_deformation" feature at this point?
     // Directive "enable_advanced_deformation" alters the effects of BeamDefaults
     // Since the old parser worked on-the-fly, only BeamDefaults defined after the directive were affected
-    
-    m_user_beam_defaults->_enable_advanced_deformation = m_definition->enable_advanced_deformation;
 
-    //The "_enable_advanced_deformation" must only be aplied to BeamDefaults supplied by users, 
-    //    not on the initial defaults used by parser.
-    
-    m_user_beam_defaults->_is_user_defined = true;
+    d._enable_advanced_deformation = m_definition->enable_advanced_deformation;
 
-    // Springiness 
-    float default_spring = STR_PARSE_REAL(results[1]);
-    if (default_spring < 0) // NULL value => reset to default 
-    {
-        m_user_beam_defaults->springiness = m_ror_beam_defaults->springiness;
-        BITMASK_SET_0(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_SPRINGINESS);
-    }
-    else
-    {
-        m_user_beam_defaults->springiness = default_spring;
-        BITMASK_SET_1(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_SPRINGINESS);
-    }
+    d._is_user_defined = true; //The "_enable_advanced_deformation" must only be aplied to user-defined values, not defaults.
+    d.springiness      = this->GetArgFloat(1);
 
-    // Damping constant 
-    if (results[2].matched)
-    {
-        float default_damp = STR_PARSE_REAL(results[3]);
-        if (default_damp < 0) // NULL value => reset to default 
-        {
-            m_user_beam_defaults->damping_constant = m_ror_beam_defaults->damping_constant;
-            BITMASK_SET_0(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_DAMPING_CONSTANT);
-        }
-        else
-        {
-            m_user_beam_defaults->damping_constant = default_damp;
-            BITMASK_SET_1(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_DAMPING_CONSTANT);
-        }
-    }
-    else
-    {
-        return;
-    }
+    if (m_num_args > 2) { d.damping_constant       = this->GetArgFloat(2); }
+    if (m_num_args > 3) { d.deformation_threshold  = this->GetArgFloat(3); }
+    if (m_num_args > 4) { d.breaking_threshold     = this->GetArgFloat(4); }
+    if (m_num_args > 5) { d.visual_beam_diameter   = this->GetArgFloat(5); }
+    if (m_num_args > 6) { d.beam_material_name     = this->GetArgStr  (6); }
+    if (m_num_args > 7) { d.plastic_deform_coef    = this->GetArgFloat(7); }
 
-    // Deformation threshold constant 
-    if (results[4].matched)
-    {
-        float default_deform = STR_PARSE_REAL(results[5]);
-        if (default_deform < 0) // NULL value => reset to default 
-        {
-            m_user_beam_defaults->deformation_threshold_constant = m_ror_beam_defaults->deformation_threshold_constant;
-            BITMASK_SET_0(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_DEFORM_THRESHOLD_CONSTANT);
-        }
-        else
-        {
-            m_user_beam_defaults->deformation_threshold_constant = default_deform;
-            BITMASK_SET_1(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_DEFORM_THRESHOLD_CONSTANT);
-        }
-    }
-    else
-    {
-        return;
-    }
+    if (d.springiness           < 0.f) { d.springiness           = DEFAULT_SPRING;        }
+    if (d.damping_constant      < 0.f) { d.damping_constant      = DEFAULT_DAMP;          }
+    if (d.deformation_threshold < 0.f) { d.deformation_threshold = BEAM_DEFORM;           }
+    if (d.breaking_threshold    < 0.f) { d.breaking_threshold    = BEAM_BREAK;            }
+    if (d.visual_beam_diameter  < 0.f) { d.visual_beam_diameter  = DEFAULT_BEAM_DIAMETER; }
 
-    // Breaking threshold constant 
-    if (results[6].matched)
-    {
-        float default_break = STR_PARSE_REAL(results[7]);
-        if (default_break < 0) // NULL value => reset to default 
-        {
-            m_user_beam_defaults->breaking_threshold_constant = m_ror_beam_defaults->breaking_threshold_constant;
-            BITMASK_SET_0(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_DEFORM_THRESHOLD_CONSTANT);
-        }
-        else
-        {
-            m_user_beam_defaults->breaking_threshold_constant = default_break;
-            BITMASK_SET_1(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_BREAK_THRESHOLD_CONSTANT);
-        }
-    }
-    else
-    {
-        return;
-    }
-
-    // Beam diameter 
-    if (results[8].matched)
-    {
-        float default_beam_diameter = STR_PARSE_REAL(results[9]);
-        if (default_beam_diameter < 0) // NULL value => reset to default 
-        {
-            m_user_beam_defaults->visual_beam_diameter = m_ror_beam_defaults->visual_beam_diameter;
-            BITMASK_SET_0(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_BEAM_DIAMETER);
-        }
-        else
-        {
-            m_user_beam_defaults->visual_beam_diameter = default_beam_diameter;
-            BITMASK_SET_1(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_BEAM_DIAMETER);
-        }
-    }
-    else
-    {
-        return;	
-    }
-
-    if (results[10].matched)
-    {
-        m_user_beam_defaults->beam_material_name = results[11];
-    }
-    else
-    {
-        return;
-    }
-
-    // Plastic deformation coefficient 
-    if (results[12].matched)
-    {
-        float default_plastic_coefficient = STR_PARSE_REAL(results[13]);
-        if (default_plastic_coefficient < 0) // NULL value => reset to default 
-        {
-            m_user_beam_defaults->plastic_deformation_coefficient = m_ror_beam_defaults->plastic_deformation_coefficient;
-            BITMASK_SET_0(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_PLASTIC_DEFORM_COEFFICIENT);
-        }
-        else
-        {
-            m_user_beam_defaults->plastic_deformation_coefficient = default_plastic_coefficient;
-            BITMASK_SET_1(m_user_beam_defaults->_user_specified_fields, BeamDefaults::PARAM_PLASTIC_DEFORM_COEFFICIENT);
-        }
-    }
-
+    m_user_beam_defaults = std::shared_ptr<BeamDefaults>( new BeamDefaults(d) );
     return;
 }
 
@@ -4544,9 +4433,15 @@ void Parser::Prepare()
     m_current_detacher_group = 0; // Global detacher group 
 
     m_user_default_inertia = m_ror_default_inertia;
-    m_user_beam_defaults = m_ror_beam_defaults;
     m_user_node_defaults = m_ror_node_defaults;
     m_current_managed_material_options = ManagedMaterialsOptions();
+
+    m_user_beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
+    m_user_beam_defaults->springiness           = DEFAULT_SPRING;       
+    m_user_beam_defaults->damping_constant      = DEFAULT_DAMP;         
+    m_user_beam_defaults->deformation_threshold = BEAM_DEFORM;          
+    m_user_beam_defaults->breaking_threshold    = BEAM_BREAK;           
+    m_user_beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
 
     m_root_module = std::shared_ptr<File::Module>( new File::Module("_Root_") );
     m_definition->root_module = m_root_module;
