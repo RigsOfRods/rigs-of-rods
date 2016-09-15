@@ -250,7 +250,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_DETACHER_GROUP):
-                ParseDirectiveDetacherGroup(line);
+                ParseDirectiveDetacherGroup();
                 line_finished = true;
                 break;
 
@@ -2252,27 +2252,18 @@ void Parser::ParseFileFormatVersion(Ogre::String const & line)
     }
 }
 
-void Parser::ParseDirectiveDetacherGroup(Ogre::String const & line)
+void Parser::ParseDirectiveDetacherGroup()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_DETACHER_GROUP))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'detacher_group', ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, param
 
-    if (results[3].matched)
+    if (this->GetArgStr(1) == "end")
     {
         m_current_detacher_group = 0;
     }
-    else if (results[2].matched)
-    {
-        m_current_detacher_group = STR_PARSE_INT(results[2]);
-    }
     else
     {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid directive 'detacher_group', ignoring...");
+        m_current_detacher_group = this->GetArgInt(1);
     }
 }
 
