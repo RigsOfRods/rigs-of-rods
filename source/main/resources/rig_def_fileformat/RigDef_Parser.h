@@ -144,7 +144,7 @@ protected:
 
     void ParseDirectiveDetacherGroup();
 
-    void ParseDirectiveFlexbodyCameraMode(Ogre::String const & line);
+    void ParseDirectiveFlexbodyCameraMode();
 
     void ParseDirectivePropCameraMode(Ogre::String const & line);
 
