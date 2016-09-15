@@ -207,9 +207,7 @@ protected:
 
     void ParseFixes(Ogre::String const & line);
 
-    void ParseFlare(Ogre::String const & line);
-
-    void ParseFlare2(Ogre::String const & line);
+    void ParseFlaresUnified();
 
     void ParseFlexbody();
 
@@ -325,6 +323,7 @@ protected:
     Node::Ref          GetArgRigidityNode (int index);
     MeshWheel::Side    GetArgWheelSide    (int index);
     Wing::Control      GetArgWingSurface  (int index);
+    Flare2::Type       GetArgFlareType    (int index);
 
     float              ParseArgFloat      (const char* str);
     int                ParseArgInt        (const char* str);
