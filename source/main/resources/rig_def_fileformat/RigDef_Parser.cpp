@@ -348,7 +348,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_FLEXBODY_CAMERA_MODE):
-                ParseDirectiveFlexbodyCameraMode(line);
+                ParseDirectiveFlexbodyCameraMode();
                 line_finished = true;
                 break;
 
@@ -1976,23 +1976,18 @@ void Parser::_ParseCameraSettings(CameraSettings & camera_settings, Ogre::String
     }
 }
 
-void Parser::ParseDirectiveFlexbodyCameraMode(Ogre::String const & line)
+void Parser::ParseDirectiveFlexbodyCameraMode()
 {
     if (m_last_flexbody == nullptr)
     {
-        AddMessage(line, Message::TYPE_ERROR, "No flexbody to update, ignoring...");
+        this->AddMessage(Message::TYPE_ERROR, "No flexbody to update, ignoring...");
         return;
     }
 
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::DIRECTIVE_FLEXBODY_CAMERA_MODE))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+    this->TokenizeCurrentLine();
+    if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    _ParseCameraSettings(m_last_flexbody->camera_settings, results[1]);
+    this->_ParseCameraSettings(m_last_flexbody->camera_settings, this->GetArgStr(1));
 }
 
 void Parser::ParseSubmesh()
