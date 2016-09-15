@@ -183,7 +183,7 @@ protected:
 
     void ParseCinecam();
 
-    void ParseCollisionBox(Ogre::String const & line);
+    void ParseCollisionBox();
 
     void ParseCommandsUnified();
 
