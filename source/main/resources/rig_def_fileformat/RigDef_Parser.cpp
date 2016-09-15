@@ -851,7 +851,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_COLLISION_BOXES):
-            ParseCollisionBox(line);
+            ParseCollisionBox();
             line_finished = true;
             break;
 
@@ -2566,23 +2566,15 @@ void Parser::ParseCommandsUnified()
     if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
 }
 
-void Parser::ParseCollisionBox(Ogre::String const & line)
+void Parser::ParseCollisionBox()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_COLLISIONBOXES))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
     CollisionBox collisionbox;
 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(line, ",");
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line, ",");
     Ogre::StringVector::iterator iter = tokens.begin();
     for ( ; iter != tokens.end(); iter++)
     {
-        collisionbox.nodes.push_back( _ParseNodeRef(*iter) );
+        collisionbox.nodes.push_back( this->_ParseNodeRef(*iter) );
     }
 
     m_current_module->collision_boxes.push_back(collisionbox);
