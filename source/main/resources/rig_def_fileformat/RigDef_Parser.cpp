@@ -1805,6 +1805,7 @@ void Parser::ParseFlexbody()
         // TODO: Add error reporting
         // It appears strtoul() sets no ERRNO for input 'x1' (parsed -> '0')
 
+        const ptrdiff_t MAX_ITEM_LEN = 200;
         while (item != nullptr)
         {
             const char* hyphen = strchr(item, '-');
@@ -1817,13 +1818,13 @@ void Parser::ParseFlexbody()
                 if (hyphen != item)
                 {
                     a = ::strtoul(item, &a_end, 10);
-                    size_t length = std::max(a_end - item, 200);
+                    size_t length = std::min(a_end - item, MAX_ITEM_LEN);
                     a_text = std::string(item, length);
                 }
                 char* b_end = nullptr;
                 const char* item2 = hyphen + 1;
                 unsigned b = ::strtoul(item2, &b_end, 10);
-                size_t length = std::max(b_end - item2, 200);
+                size_t length = std::min(b_end - item2, MAX_ITEM_LEN);
                 b_text = std::string(item2, length);
 
                 // Add interval [a-b]
