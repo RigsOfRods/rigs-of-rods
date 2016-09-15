@@ -1009,7 +1009,7 @@ void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    int couple_node_index = (def._couple_node_set) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+    int couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
 
 	BuildAerialEngine(
 		GetNodeIndexOrThrow(def.reference_node),
