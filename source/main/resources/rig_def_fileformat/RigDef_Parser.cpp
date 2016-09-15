@@ -871,7 +871,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_ENGTURBO) :
-            ParseEngturbo(line);
+            ParseEngturbo();
             line_finished = true;
             break;
 
@@ -2411,38 +2411,32 @@ void Parser::ParseEngoption()
     m_current_module->engoption = std::shared_ptr<Engoption>( new Engoption(engoption) );
 }
 
-void Parser::ParseEngturbo(Ogre::String const & line)
+void Parser::ParseEngturbo()
 {
-    std::smatch results;
-    if (!std::regex_search(line, results, Regexes::SECTION_ENGTURBO))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
+    if (! this->CheckNumArguments(4)) { return; }
 
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
     Engturbo engturbo;
-    engturbo.version = STR_PARSE_REAL(results[1]);
-    engturbo.tinertiaFactor = STR_PARSE_REAL(results[2]);
-    engturbo.nturbos = STR_PARSE_REAL(results[3]);
+    engturbo.version        = this->GetArgInt  ( 0);
+    engturbo.tinertiaFactor = this->GetArgFloat( 1);
+    engturbo.nturbos        = this->GetArgInt  ( 2);
+    engturbo.param1         = this->GetArgFloat( 3);
 
-    if (STR_PARSE_REAL(results[3]) > 4)
+    if (m_num_args >  4) { engturbo.param2  = this->GetArgFloat( 4); }
+    if (m_num_args >  5) { engturbo.param3  = this->GetArgFloat( 5); }
+    if (m_num_args >  6) { engturbo.param4  = this->GetArgFloat( 6); }
+    if (m_num_args >  7) { engturbo.param5  = this->GetArgFloat( 7); }
+    if (m_num_args >  8) { engturbo.param6  = this->GetArgFloat( 8); }
+    if (m_num_args >  9) { engturbo.param7  = this->GetArgFloat( 9); }
+    if (m_num_args > 10) { engturbo.param8  = this->GetArgFloat(10); }
+    if (m_num_args > 11) { engturbo.param9  = this->GetArgFloat(11); }
+    if (m_num_args > 12) { engturbo.param10 = this->GetArgFloat(12); }
+    if (m_num_args > 13) { engturbo.param11 = this->GetArgFloat(13); }
+
+    if (engturbo.nturbos > 4)
     {
-        AddMessage(line, Message::TYPE_WARNING, "You cannot have more than 4 turbos. Fallback: using 4 instead.");
+        this->AddMessage(Message::TYPE_WARNING, "You cannot have more than 4 turbos. Fallback: using 4 instead.");
         engturbo.nturbos = 4;
     }
-
-    engturbo.param1 = STR_PARSE_REAL(results[4]);
-    engturbo.param2 = STR_PARSE_REAL(results[6]);
-    engturbo.param3 = STR_PARSE_REAL(results[8]);
-    engturbo.param4 = STR_PARSE_REAL(results[10]);
-    engturbo.param5 = STR_PARSE_REAL(results[12]);
-    engturbo.param6 = STR_PARSE_REAL(results[14]);
-    engturbo.param7 = STR_PARSE_REAL(results[16]);
-    engturbo.param8 = STR_PARSE_REAL(results[18]);
-    engturbo.param9 = STR_PARSE_REAL(results[20]);
-    engturbo.param10 = STR_PARSE_REAL(results[22]);
-    engturbo.param11 = STR_PARSE_REAL(results[24]);
 
     m_current_module->engturbo = std::shared_ptr<Engturbo>(new Engturbo(engturbo));
 }
