@@ -195,7 +195,7 @@ protected:
 
     void ParseEngoption();
 
-    void ParseEngturbo(Ogre::String const & line);
+    void ParseEngturbo();
 
     void ParseExhaust(Ogre::String const & line);
 
