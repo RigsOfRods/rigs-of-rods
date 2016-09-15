@@ -905,11 +905,20 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 						beams[bbeam].autoMovingMode = 0;
 					} else
 					{
+						int mode = beams[bbeam].autoMovingMode;
+
 						// determine direction
 						if (current > beams[bbeam].centerLength)
 							beams[bbeam].autoMovingMode = -1;
 						else
 							beams[bbeam].autoMovingMode = 1;
+
+						// avoid overshooting
+						if (mode != 0 && mode != beams[bbeam].autoMovingMode)
+						{
+							beams[bbeam].L = beams[bbeam].centerLength * beams[bbeam].refL;
+							beams[bbeam].autoMovingMode = 0;
+						}
 					}
 				}
 
