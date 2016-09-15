@@ -235,7 +235,7 @@ protected:
 
     void ParseMeshWheelUnified();
 
-    void ParseMinimass(Ogre::String const & line);
+    void ParseMinimass();
 
     void ParseNodesUnified();
 

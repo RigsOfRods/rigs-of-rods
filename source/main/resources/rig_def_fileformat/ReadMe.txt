@@ -206,7 +206,7 @@ the lettercase in this list corresponds to original documentation.
     BLOCK        materialflarebindings
     BLOCK        meshwheels
     BLOCK        meshwheels2
-    BLOCK        minimass
+    BLOCK        minimass                       Default
     BLOCK        nodecollision                  Default
     BLOCK        nodes
     BLOCK        nodes2

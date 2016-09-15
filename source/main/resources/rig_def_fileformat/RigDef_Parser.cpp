@@ -953,7 +953,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_MINIMASS):
-            ParseMinimass(line);
+            ParseMinimass();
             line_finished = true;
             break;
 
@@ -3336,23 +3336,14 @@ void Parser::ParseNodeCollision()
     m_current_module->node_collisions.push_back(node_collision);
 }
 
-void Parser::ParseMinimass(Ogre::String const & line)
+void Parser::ParseMinimass()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_MINIMASS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
     if (m_definition->_minimum_mass_set)
     {
-        AddMessage(line, Message::TYPE_WARNING, "Duplicate section 'minimass', ignoring...");
-        return;
+        this->AddMessage(Message::TYPE_WARNING, "Minimass defined more than once.");
     }
 
-    m_definition->minimum_mass = STR_PARSE_REAL(results[1]);
+    m_definition->minimum_mass = this->GetArgFloat(0);
     m_definition->_minimum_mass_set = true;
 }
 
