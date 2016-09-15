@@ -2937,7 +2937,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	beam.k = def.beam_defaults->GetScaledSpringiness();
 	beam.d = def.beam_defaults->GetScaledDamping();
-	beam.type = (def.options == RigDef::Tie::OPTIONS_INVISIBLE) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+	beam.type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
 	beam.L = def.max_reach_length;
 	beam.refL = def.max_reach_length;
 	beam.Lhydro = def.max_reach_length;
