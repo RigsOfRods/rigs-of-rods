@@ -1005,7 +1005,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_SCREWPROPS):
-            ParseScrewprops(line);
+            ParseScrewprops();
             line_finished = true;
             break;
 
@@ -3074,22 +3074,16 @@ void Parser::ParseDirectiveSetInertiaDefaults(Ogre::String const & line)
     }
 }
 
-void Parser::ParseScrewprops(Ogre::String const & line)
+void Parser::ParseScrewprops()
 {
-    std::smatch results;
-    if (! std::regex_search(line, results, Regexes::SECTION_SCREWPROPS))
-    {
-        AddMessage(line, Message::TYPE_ERROR, "Invalid line, ignoring...");
-        return;
-    }
-    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
-
+    if (! this->CheckNumArguments(4)) { return; }
+    
     Screwprop screwprop;
 
-    screwprop.prop_node = _ParseNodeRef(results[1]);
-    screwprop.back_node = _ParseNodeRef(results[2]);
-    screwprop.top_node = _ParseNodeRef(results[3]);
-    screwprop.power = STR_PARSE_REAL(results[4]);
+    screwprop.prop_node = this->GetArgNodeRef(0);
+    screwprop.back_node = this->GetArgNodeRef(1);
+    screwprop.top_node  = this->GetArgNodeRef(2);
+    screwprop.power     = this->GetArgFloat  (3);
 
     m_current_module->screwprops.push_back(screwprop);
 }
