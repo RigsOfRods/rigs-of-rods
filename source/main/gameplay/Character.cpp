@@ -248,7 +248,6 @@ void Character::setAnimationMode(String mode, float time)
 			{
 				as->setEnabled(false);
 				as->setWeight(0);
-				as->setTimePosition(0.f);
 			}
 		}
 		mLastAnimMode = mode;
