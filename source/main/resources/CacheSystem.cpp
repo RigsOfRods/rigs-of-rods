@@ -194,8 +194,7 @@ void CacheSystem::Startup(bool force_check)
 	// show error on zero content
 	if (entries.empty())
 	{
-		ErrorUtils::ShowOgreWebError(_L("No content installed"), _L("You have no content installed"), _L("http://www.rigsofrods.org/wiki/pages/Install_Content"));
-		ErrorUtils::ShowStoredOgreWebErrors();
+		ErrorUtils::ShowError(_L("No content installed"), _L("You have no content installed"));
 		exit(1337);
 	}
 

@@ -57,27 +57,4 @@ struct ErrorUtils
 	 */
 	static int ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type);
 
-	/**
-	 * shows a simple error message box, and allows the user to open a website to help further.
-	 * May not be implemented so that the browers opens for all platforms.
-	 * @param title very short summar of the error
-	 * @param msg error text
-	 * @param url the URL to open if the user wishs
-	 * @return 0 on success, everything else on error
-	 */
-	static int ShowWebError(Ogre::UTFString title, Ogre::UTFString message, Ogre::UTFString url);
-
-
-	/**
-	 * shows a simple error message box, and allows the user to open a website to help further and tries to exit Ogre fullscreen mode
-	 * May not be implemented so that the browers opens for all platforms.
-	 * @param title very short summar of the error
-	 * @param msg error text
-	 * @param url the URL to open if the user wishs
-	 * @return 0 on success, everything else on error
-	 */
-	static int ShowOgreWebError(Ogre::UTFString title, Ogre::UTFString err, Ogre::UTFString url);
-
-	static void ShowStoredOgreWebErrors();
-
 };

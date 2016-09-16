@@ -240,16 +240,12 @@ int main(int argc, char *argv[])
 	} 
 	catch (Ogre::Exception& e)
 	{
-		String url = "http://wiki.rigsofrods.org/index.php?title=Error_" + TOSTRING(e.getNumber())+"#"+e.getSource();
-		ErrorUtils::ShowOgreWebError(_L("An exception has occured!"), e.getFullDescription(), url);
+		ErrorUtils::ShowError(_L("An exception has occured!"), e.getFullDescription());
 	}
 	catch (std::runtime_error& e)
 	{
 		ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
 	}
-
-	// show errors before we give up
-	ErrorUtils::ShowStoredOgreWebErrors();
 
 	return 0;
 }

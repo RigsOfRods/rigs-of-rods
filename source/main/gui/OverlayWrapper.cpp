@@ -158,8 +158,7 @@ int OverlayWrapper::init()
 		directionArrowText = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Text");
 	} catch(...)
 	{
-		String url = "http://wiki.rigsofrods.org/index.php?title=Error_Resources_Not_Found";
-		ErrorUtils::ShowOgreWebError("Resources not found!", "please ensure that your installation is complete and the resources are installed properly. If this error persists please re-install RoR.", url);
+		ErrorUtils::ShowError("Resources not found!", "please ensure that your installation is complete and the resources are installed properly. If this error persists please re-install RoR.");
 	}
 	directionArrowDistance = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Distance");
 
