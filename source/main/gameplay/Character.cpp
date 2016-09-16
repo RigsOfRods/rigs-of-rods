@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+For more information, see http://www.rigsofrods.com/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -248,6 +248,7 @@ void Character::setAnimationMode(String mode, float time)
 			{
 				as->setEnabled(false);
 				as->setWeight(0);
+				as->setTimePosition(0.f);
 			}
 		}
 		mLastAnimMode = mode;
@@ -403,7 +404,12 @@ void Character::update(float dt)
 		{
 			if (tmpRun > 0.0f) accel = 3.0f * tmpRun;
 			// animation missing for that
-			position += dt * characterSpeed *1.5f * accel * Vector3(cos(characterRotation.valueRadians() - Math::HALF_PI), 0.0f, sin(characterRotation.valueRadians() - Math::HALF_PI));
+			position += dt * characterSpeed *0.5f * accel * Vector3(cos(characterRotation.valueRadians() - Math::HALF_PI), 0.0f, sin(characterRotation.valueRadians() - Math::HALF_PI));
+			if (!isswimming)
+                        {
+                                setAnimationMode("Side_step", -dt);
+                                idleanim = false;
+                        }
 		}
 
 		tmpJoy = accel = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_SIDESTEP_RIGHT);
@@ -411,7 +417,12 @@ void Character::update(float dt)
 		{
 			if (tmpRun > 0.0f) accel = 3.0f * tmpRun;
 			// animation missing for that
-			position += dt * characterSpeed * 1.5f * accel * Vector3(cos(characterRotation.valueRadians() + Math::HALF_PI), 0.0f, sin(characterRotation.valueRadians() + Math::HALF_PI));
+			position += dt * characterSpeed * 0.5f * accel * Vector3(cos(characterRotation.valueRadians() + Math::HALF_PI), 0.0f, sin(characterRotation.valueRadians() + Math::HALF_PI));
+			if (!isswimming)
+                        {
+                                setAnimationMode("Side_step", dt);
+                                idleanim = false;
+                        }
 		}
 
 		tmpJoy = accel = RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_FORWARD) + RoR::Application::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_UP);
@@ -464,10 +475,10 @@ void Character::update(float dt)
 		{
 			if (isswimming)
 			{
-				setAnimationMode("Spot_swim", dt * 0.5f);
+				setAnimationMode("Spot_swim", dt * 2.0f);
 			} else
 			{
-				setAnimationMode("Idle_sway", dt * 0.05f);
+				setAnimationMode("Idle_sway", dt * 1.0f);
 			}
 		}
 
@@ -484,8 +495,8 @@ void Character::update(float dt)
 		setPosition(pos + (rot * Vector3(0.f,-0.6f,0.f))); // hack to position the character right perfect on the default seat
 
 		// Animation
-		this->setAnimationMode("driving");
-		Real anim_length = mAnimState->getAnimationState("driving")->getLength();
+		this->setAnimationMode("Driving");
+		Real anim_length = mAnimState->getAnimationState("Driving")->getLength();
 		float anim_time_pos = ((angle + 1.0f) * 0.5f) * anim_length;
 		// prevent animation flickering on the borders:
 		if (anim_time_pos < 0.01f)
@@ -496,7 +507,7 @@ void Character::update(float dt)
 		{
 			anim_time_pos = anim_length - 0.01f;
 		}
-		mAnimState->getAnimationState("driving")->setTimePosition(anim_time_pos);
+		mAnimState->getAnimationState("Driving")->setTimePosition(anim_time_pos);
 	}
 
 #ifdef USE_SOCKETW
