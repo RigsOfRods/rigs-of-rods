@@ -54,12 +54,15 @@ public:
 
 	void ShowMain();
 	void HideMain();
-	
-	void ToggleFPSBox();
-	void HideFPSBox();
 
-	void ToggleTruckInfoBox();
-	void HideTruckInfoBox();
+    void SetVisible(bool v);
+    bool IsVisible();
+	
+	void SetFPSBoxVisible(bool v);
+    bool IsFPSBoxVisible() { return b_fpsbox; }
+
+	void SetTruckInfoBoxVisible(bool v);
+    bool IsTruckInfoBoxVisible() { return b_truckinfo; }
 
 	void UpdateStats(float dt, Beam *truck); //different from Framestep!
 	void framestep(float dt);

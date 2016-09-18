@@ -100,18 +100,18 @@ void CLASS::Hide()
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+	Application::GetGuiManager()->SetVisible_MainSelector(true);
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowSettingGui(true);
+	Application::GetGuiManager()->SetVisible_GameSettings(true);
 	Hide();
 }
 
 void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowAboutGUI(true);
+	Application::GetGuiManager()->SetVisible_GameAbout(true);
 	Hide();
 }
 
@@ -123,11 +123,14 @@ void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
+	Application::GetGuiManager()->SetVisible_MultiplayerSelector(true);
 	Hide();
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
 }
+
+void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }
+bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }
 

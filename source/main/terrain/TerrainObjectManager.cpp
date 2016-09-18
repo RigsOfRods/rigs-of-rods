@@ -26,7 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "Language.h"
-#include "LoadingWindow.h"
+#include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
@@ -177,7 +178,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (progress-lastprogress > 20)
 		{
 #ifdef USE_MYGUI
-			LoadingWindow::getSingleton().setProgress(progress, _L("Loading Terrain Objects"));
+			RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
 #endif //MYGUI
 			lastprogress = progress;
 		}

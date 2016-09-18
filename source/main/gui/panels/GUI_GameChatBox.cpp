@@ -177,3 +177,9 @@ void CLASS::Update(float dt)
 		MAIN_WIDGET->setAlpha(1);
 	}
 }
+
+void CLASS::SetVisible(bool value)
+{
+	MAIN_WIDGET->setVisible(value);
+}
+

@@ -78,7 +78,7 @@ CameraManager::~CameraManager()
 
 bool CameraManager::update(float dt) // Called every frame
 {
-	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+    if (RoR::Application::GetActiveSimState() == RoR::Application::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
 
 	if ( dt == 0 ) return false;
 

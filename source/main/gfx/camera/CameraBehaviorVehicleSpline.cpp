@@ -23,7 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Beam.h"
-#include "Console.h"
+#include "GUI_GameConsole.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"

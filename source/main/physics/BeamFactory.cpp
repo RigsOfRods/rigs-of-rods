@@ -30,6 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Collisions.h"
 #include "DynamicCollisions.h"
 #include "GUIManager.h"
+#include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "MainThread.h"
 #include "Mirrors.h"
@@ -53,7 +54,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif // __APPLE__ || __FREEBSD__
 
 #ifdef USE_MYGUI
-#include "GUIMenu.h"
 #include "DashBoardManager.h"
 #endif // USE_MYGUI
 
@@ -246,7 +246,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 	}
 
 #ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+	RoR::Application::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	// add own username to truck
@@ -335,7 +335,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 	b->updateNetworkInfo();
 
 #ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+	RoR::Application::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	return 1;
@@ -752,7 +752,7 @@ void BeamFactory::DeleteTruck(Beam *b)
 	delete b;
 
 #ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+	RoR::Application::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 }
 

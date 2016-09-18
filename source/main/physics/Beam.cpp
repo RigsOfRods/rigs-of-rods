@@ -44,7 +44,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CartesianToTriangleTransform.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
-#include "Console.h"
+#include "GUI_GameConsole.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DynamicCollisions.h"
@@ -54,7 +54,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
-#include "GuiManagerInterface.h"
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -5773,12 +5772,12 @@ bool Beam::LoadTruck(
         }
     }
 
-	RoR::Application::GetGuiManagerInterface()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
+	RoR::Application::GetGuiManager()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
 	if (report_num_errors != 0)
 	{
 		if (BSETTING("AutoRigSpawnerReport", false))
 		{
-			RoR::Application::GetGuiManagerInterface()->ShowRigSpawnerReportWindow();
+			RoR::Application::GetGuiManager()->SetVisible_SpawnerReport(true);
 		}
 	}
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_LOG);

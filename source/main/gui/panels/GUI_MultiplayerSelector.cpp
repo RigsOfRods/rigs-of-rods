@@ -44,8 +44,7 @@ using namespace GUI;
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS(MainThread* main_class):
-    m_main_class(main_class)
+CLASS::CLASS()
 {
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
@@ -80,7 +79,6 @@ void CLASS::Show()
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	Application::GetGuiManager()->ShowMainMenu(true);
 }
 
 void CLASS::SetVisibleImmediately(bool visible)
@@ -111,7 +109,7 @@ void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
     this->Hide();
     Application::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
     Application::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
-    m_main_class->JoinMultiplayerServer();
+    Application::GetMainThreadLogic()->JoinMultiplayerServer();
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)

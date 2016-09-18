@@ -32,6 +32,7 @@ namespace RoR
 {
 	class  ContentManager;
 	class  GUIManager;
+    struct GuiManagerImpl;
 	class  GuiManagerInterface;
 	class  MainThread;
 	class  OgreSubsystem;
@@ -43,8 +44,13 @@ namespace RoR
 
 	namespace GUI
 	{
-		class  OpenSaveFileDialog;
-		class  Dialog;
+        class  OpenSaveFileDialog;
+        class  Dialog;
+        class  MainSelector;
+        class  LoadingWindow;
+        class  MpClientList;
+        class  MultiplayerSelector;
+        class  FrictionSettings;
 	}
 }
 

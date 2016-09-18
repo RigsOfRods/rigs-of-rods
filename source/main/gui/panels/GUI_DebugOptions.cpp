@@ -243,6 +243,16 @@ void CLASS::SaveConfig()
 	}
 }
 
+void CLASS::SetVisible(bool v)
+{
+    MAIN_WIDGET->setVisible(false);
+}
+
+bool CLASS::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
+}
+
 void CLASS::eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender)
 {
 	SaveConfig();

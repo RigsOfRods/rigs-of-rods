@@ -36,7 +36,6 @@
 #include "Character.h"
 #include "CharacterFactory.h"
 #include "ChatSystem.h"
-#include "Console.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
 #include "DepthOfFieldEffect.h"
@@ -44,14 +43,13 @@
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
 #include "GlobalEnvironment.h"
-#include "GUIFriction.h"
 #include "GUIManager.h"
-#include "GUIMenu.h"
-#include "GUIMp.h"
+#include "GUI_LoadingWindow.h"
+#include "GUI_MainSelector.h"
+#include "GUI_MultiplayerClientList.h"
 #include "Heathaze.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "LoadingWindow.h"
 #include "MumbleIntegration.h"
 #include "Mirrors.h"
 #include "Network.h"
@@ -181,9 +179,6 @@ void MainThread::Go()
 	
 	Application::CreateGuiManagerIfNotExists();
 
-	// create console, must be done early
-	Application::CreateConsoleIfNotExists();
-
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
 	MyGUI::Widget* menu_wallpaper_widget = nullptr;
@@ -219,13 +214,7 @@ void MainThread::Go()
 
 	RoR::Application::GetCacheSystem()->Startup();
 
-	// Init singletons. TODO: Move under Application
-	LoadingWindow::getSingleton();
-	RoR::Application::GetGuiManager()->InitMainSelector(Application::GetContentManager()->GetSkinManager());
-	GUI_Friction::getSingleton();
-
 	// Create legacy RoRFrameListener
-
 	m_frame_listener = new RoRFrameListener();
 
 #ifdef USE_ANGELSCRIPT
@@ -240,7 +229,6 @@ void MainThread::Go()
 	}
 #endif
 
-	new GUI_MainMenu(Application::GetGuiManagerInterface()); /* Top menubar */
 	m_frame_listener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), m_frame_listener);
 
@@ -317,18 +305,14 @@ void MainThread::Go()
                 if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
                 {
                     RoR::Networking::Disconnect();
-                    GUI_Multiplayer::getSingleton().setVisible(false);
+                    Application::GetGuiManager()->SetVisible_MpClientList(false);
                 }
 				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_loaded = true;
 				gEnv->cameraManager->OnReturnToMainMenu();
 				/* Hide top menu */
-				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
-				if (top_menu != nullptr)
-				{
-					top_menu->setVisible(false);
-				}
+                Application::GetGuiManager()->SetVisible_TopMenubar(false);
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
 
@@ -353,11 +337,11 @@ void MainThread::Go()
 			if (Application::GetPendingMpState() == Application::MP_STATE_CONNECTED || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
-				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+				RoR::Application::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
 			}
 			else
 			{
-				RoR::Application::GetGuiManager()->ShowMainMenu(true);
+				RoR::Application::GetGuiManager()->SetVisible_GameMainMenu(true);
 			}
 
 			EnterMainMenuLoop();
@@ -391,7 +375,7 @@ void MainThread::Go()
 			}
 			menu_wallpaper_widget->setVisible(true);
 
-			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+			RoR::Application::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
 			//It's the same thing so..
 			EnterMainMenuLoop();
 		}
@@ -402,8 +386,7 @@ void MainThread::Go()
 	// Cleanup
 	// ========================================================================
 
-	LoadingWindow::freeSingleton();
-	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
+	RoR::Application::GetGuiManager()->GetMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
 	if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
@@ -450,6 +433,7 @@ void MainThread::Go()
 
 bool MainThread::SetupGameplayLoop()
 {
+    auto* loading_window = Application::GetGuiManager()->GetLoadingWindow();
 	if (!m_base_resource_loaded)
 	{
 		LOG("Loading base resources");
@@ -458,7 +442,7 @@ bool MainThread::SetupGameplayLoop()
 		// Loading base resources
 		// ============================================================================
 
-		LoadingWindow::getSingleton().setProgress(0, _L("Loading base resources"));
+		loading_window->setProgress(0, _L("Loading base resources"));
 
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
 		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
@@ -560,7 +544,7 @@ bool MainThread::SetupGameplayLoop()
 
 	if (Application::GetPendingTerrain().empty())
 	{
-		CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
+		CacheEntry* selected_map = RoR::Application::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
 		if (selected_map != nullptr)
 		{
             Application::SetPendingTerrain(selected_map->fname);
@@ -568,7 +552,7 @@ bool MainThread::SetupGameplayLoop()
 		else
 		{
 			LOG("No map selected. Returning to menu.");
-            LoadingWindow::getSingleton().hide();
+            Application::GetGuiManager()->SetVisible_LoadingWindow(false);
 			return false;
 		}
 	}
@@ -576,7 +560,7 @@ bool MainThread::SetupGameplayLoop()
     if(! LoadTerrain())
     {
         LOG("Could not load map. Returning to menu.");
-        LoadingWindow::getSingleton().hide();
+        Application::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
 
@@ -643,7 +627,6 @@ bool MainThread::SetupGameplayLoop()
     }
 
 	Application::CreateSceneMouse();
-	Application::GetGuiManager()->initSimUtils();
 
     gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
@@ -683,12 +666,12 @@ void MainThread::EnterMainMenuLoop()
 
 		MainMenuLoopUpdate(timeSinceLastFrame);
 
-		if (RoR::Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
+		if (RoR::Application::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
 		{
-			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
+			CacheEntry* selected_map = RoR::Application::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
 			if (selected_map != nullptr)
 			{
-                RoR::Application::GetGuiManager()->getMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
+                RoR::Application::GetGuiManager()->GetMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
                 Application::SetPendingAppState(Application::APP_STATE_SIMULATION);
                 Application::SetPendingTerrain(selected_map->fname);
 			}
@@ -822,8 +805,7 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 #ifdef USE_SOCKETW
 	if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
 	{
-        Application::GetGuiManager()->CheckAndCreateMultiplayer(); // Init singleton if not already
-		GUI_Multiplayer::getSingleton().update();
+        Application::GetGuiManager()->GetMpClientList()->update();
 	}
 #endif // USE_SOCKETW
 
@@ -867,9 +849,10 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 		return;
 	}
 
+    auto gui_man = Application::GetGuiManager();
     if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE, 5.f))
     {
-        Application::GetConsole()->setVisible(! Application::GetConsole()->getVisible());
+        gui_man->SetVisible_Console(!gui_man->IsVisible_Console());
     }
 
 	// TODO: screenshot
@@ -901,7 +884,7 @@ bool MainThread::LoadTerrain()
 		}
 	}
 
-	LoadingWindow::getSingleton().setProgress(0, _L("Loading Terrain"));
+	Application::GetGuiManager()->GetLoadingWindow()->setProgress(0, _L("Loading Terrain"));
 
 	LOG("Loading terrain: " + terrain_file);
 
@@ -916,10 +899,7 @@ bool MainThread::LoadTerrain()
     Application::SetActiveTerrain(terrain_file);
 
 #ifdef USE_MYGUI
-	if (GUI_Friction::getSingletonPtr())
-	{
-		GUI_Friction::getSingleton().setCollisions(gEnv->collisions);
-	}
+    Application::GetGuiManager()->FrictionSettingsUpdateCollisions();
 #endif //USE_MYGUI
 	
 	if (gEnv->player != nullptr)
@@ -942,7 +922,7 @@ bool MainThread::LoadTerrain()
 	}
 
 	// hide loading window
-	LoadingWindow::getSingleton().hide();
+	Application::GetGuiManager()->SetVisible_LoadingWindow(false);
 	// hide wallpaper
 	MyGUI::Window *w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
 	if (w != nullptr)
@@ -957,10 +937,11 @@ void MainThread::UnloadTerrain()
 #ifdef USE_MYGUI
 	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #endif //USE_MYGUI
+    auto loading_window = Application::GetGuiManager()->GetLoadingWindow();
 
-	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
+	loading_window->setProgress(0, _L("Unloading Terrain"));
 	
-	RoR::Application::GetGuiManager()->getMainSelector()->Reset();
+	RoR::Application::GetGuiManager()->GetMainSelector()->Reset();
 
 	//First of all..
 	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
@@ -968,11 +949,11 @@ void MainThread::UnloadTerrain()
 	ow->HideRacingOverlay();
 	ow->HideDirectionOverlay();
 
-	LoadingWindow::getSingleton().setProgress(15, _L("Unloading Terrain"));
+	loading_window->setProgress(15, _L("Unloading Terrain"));
 
 	//Unload all vehicules
 	BeamFactory::getSingleton().removeAllTrucks();
-	LoadingWindow::getSingleton().setProgress(30, _L("Unloading Terrain"));
+	loading_window->setProgress(30, _L("Unloading Terrain"));
 
 	if (gEnv->player != nullptr)
 	{
@@ -980,7 +961,7 @@ void MainThread::UnloadTerrain()
 		delete(gEnv->player);
 		gEnv->player = nullptr;
 	}
-	LoadingWindow::getSingleton().setProgress(45, _L("Unloading Terrain"));
+	loading_window->setProgress(45, _L("Unloading Terrain"));
 
 	if (gEnv->terrainManager != nullptr)
 	{
@@ -988,15 +969,15 @@ void MainThread::UnloadTerrain()
 		delete(gEnv->terrainManager);
 		gEnv->terrainManager = nullptr;
 	}
-	LoadingWindow::getSingleton().setProgress(60, _L("Unloading Terrain"));
+	loading_window->setProgress(60, _L("Unloading Terrain"));
 
 	Application::DeleteSceneMouse();
-	LoadingWindow::getSingleton().setProgress(75, _L("Unloading Terrain"));
+	loading_window->setProgress(75, _L("Unloading Terrain"));
 
 	//Reinit few things
-	LoadingWindow::getSingleton().setProgress(100, _L("Unloading Terrain"));
+	loading_window->setProgress(100, _L("Unloading Terrain"));
 	// hide loading window
-	LoadingWindow::getSingleton().hide();
+    Application::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
 void MainThread::ShowSurveyMap(bool be_visible)
@@ -1011,30 +992,26 @@ void MainThread::JoinMultiplayerServer()
 {
 #ifdef USE_SOCKETW
 
-    auto mp_selector = RoR::Application::GetGuiManager()->GetMultiplayerSelector();
-    if (mp_selector != nullptr)
-    {
-        mp_selector->SetVisibleImmediately(false);
-    }
-    RoR::Application::GetGuiManager()->ShowMainMenu(false);
+    RoR::Application::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+    
+    RoR::Application::GetGuiManager()->SetVisible_GameMainMenu(false);
 
-    LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
+    Application::GetGuiManager()->GetLoadingWindow()->setAutotrack(_L("Trying to connect to server ..."));
 
     if (!RoR::Networking::Connect())
     {
         LOG("connection failed. server down?");
-        LoadingWindow::getSingleton().hide();
+        Application::GetGuiManager()->SetVisible_LoadingWindow(false);
         Application::GetGuiManager()->ShowMessageBox("Connection failed",
             RoR::Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
 
-        RoR::Application::GetGuiManager()->ShowMainMenu(true);
+        RoR::Application::GetGuiManager()->SetVisible_GameMainMenu(true);
         return;
     }
 
-    LoadingWindow::getSingleton().hide();
-    Application::GetGuiManager()->CheckAndCreateMultiplayer();
-    GUI_Multiplayer::getSingleton().setVisible(true);
-    GUI_Multiplayer::getSingleton().update();
+    Application::GetGuiManager()->SetVisible_LoadingWindow(false);
+    RoR::Application::GetGuiManager()->SetVisible_MpClientList(true);
+    Application::GetGuiManager()->GetMpClientList()->update();
 
     RoR::ChatSystem::SendStreamSetup();
 
@@ -1055,8 +1032,8 @@ void MainThread::JoinMultiplayerServer()
     else
     {
         // Connected -> go directly to map selector
-        RoR::Application::GetGuiManager()->getMainSelector()->Reset();
-        RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+        RoR::Application::GetGuiManager()->GetMainSelector()->Reset();
+        RoR::Application::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
     }
 #endif //SOCKETW
 }
@@ -1066,10 +1043,10 @@ void MainThread::LeaveMultiplayerServer()
 #ifdef USE_SOCKETW
     if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
     {
-        LoadingWindow::getSingleton().setAutotrack(_L("Disconnecting, wait 10 seconds ..."));
+        Application::GetGuiManager()->GetLoadingWindow()->setAutotrack(_L("Disconnecting, wait 10 seconds ..."));
         RoR::Networking::Disconnect();
-        GUI_Multiplayer::getSingleton().setVisible(false);
-        LoadingWindow::getSingleton().hide();
+        Application::GetGuiManager()->SetVisible_MpClientList(false);
+        Application::GetGuiManager()->SetVisible_LoadingWindow(false);
     }
 #endif //SOCKETW
 }

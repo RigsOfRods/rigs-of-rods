@@ -22,8 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 #include "Application.h"
-#include "Console.h"
 #include "GUIManager.h"
+#include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "Language.h"
 

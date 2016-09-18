@@ -94,33 +94,32 @@ void CLASS::ShowMain()
 	MAIN_WIDGET->setVisible(true);
 }
 
+void CLASS::SetVisible(bool v)
+{
+	//Kinda of initialization
+	MAIN_WIDGET->setVisible(v);
+}
+
+bool CLASS::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
+}
+
 void CLASS::HideMain()
 {
 	MAIN_WIDGET->setVisible(false);
 }
 
-void CLASS::ToggleFPSBox()
+void CLASS::SetFPSBoxVisible(bool v)
 {
-	b_fpsbox = !b_fpsbox;
-	m_fpscounter_box->setVisible(b_fpsbox);
+	b_fpsbox = v;
+	m_fpscounter_box->setVisible(v);
 }
 
-void CLASS::HideFPSBox()
+void CLASS::SetTruckInfoBoxVisible(bool v)
 {
-	if (b_fpsbox)
-		ToggleFPSBox();
-}
-
-void CLASS::ToggleTruckInfoBox()
-{
-	b_truckinfo = !b_truckinfo;
-	m_truckinfo_box->setVisible(b_truckinfo);
-}
-
-void CLASS::HideTruckInfoBox()
-{
-	if (b_truckinfo)
-		ToggleTruckInfoBox();
+	b_truckinfo = v;
+	m_truckinfo_box->setVisible(v);
 }
 
 void CLASS::PushNotification(Ogre::String Title, Ogre::String text)

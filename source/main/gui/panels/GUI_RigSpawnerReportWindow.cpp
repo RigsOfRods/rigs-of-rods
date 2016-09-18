@@ -30,16 +30,15 @@
 using namespace RoR;
 using namespace GUI;
 
-RigSpawnerReportWindow::RigSpawnerReportWindow(GuiManagerInterface* gui_manager_interface):
-	GuiPanelBase(m_rig_spawner_report_window),
-	m_gui_manager_interface(gui_manager_interface)
+RigSpawnerReportWindow::RigSpawnerReportWindow():
+	GuiPanelBase(m_rig_spawner_report_window)
 {
 	// Close window [X] button
 	MyGUI::Window* main_window = m_rig_spawner_report_window->castType<MyGUI::Window>();
 	main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &RigSpawnerReportWindow::WindowButtonClicked);
 
 	// Start hidden
-	Hide();
+	this->Hide();
 }
 
 void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
@@ -77,5 +76,8 @@ void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_nam
 
 void RigSpawnerReportWindow::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)
 {
-	m_gui_manager_interface->HideRigSpawnerReportWindow(); // There's only close [X] button -> hide window.
+	this->Hide();
 }
+
+void RigSpawnerReportWindow::SetVisible(bool v) { m_rig_spawner_report_window->setVisible(v); }
+bool RigSpawnerReportWindow::IsVisible() { return m_rig_spawner_report_window->getVisible(); }

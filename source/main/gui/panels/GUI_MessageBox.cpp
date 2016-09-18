@@ -104,6 +104,11 @@ void CLASS::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1
 	Show(); //Last thing to be done
 }
 
+bool CLASS::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
+}
+
 int CLASS::getResult()
 {
 	if (i_Results > 0)

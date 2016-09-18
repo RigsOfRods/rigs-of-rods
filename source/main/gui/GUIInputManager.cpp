@@ -22,7 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "GUIManager.h"
-#include "GUIMenu.h"
+#include "GUI_TopMenubar.h"
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
 
@@ -104,7 +104,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 	activateGUI();
 	MyGUI::PointerManager::getInstance().setPointer("arrow");
 
-	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible())
+	if (RoR::Application::GetActiveSimState() == RoR::Application::SIM_STATE_PAUSED)
 	{
 		MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
 		mCursorX = _arg.state.X.abs;
@@ -152,8 +152,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 	mCursorX = _arg.state.X.abs;
 	mCursorY = _arg.state.Y.abs;
 
-	GUI_MainMenu *menu =GUI_MainMenu::getSingletonPtr();
-	if (menu) menu->updatePositionUponMousePosition(mCursorX, mCursorY);
+	RoR::Application::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
 
 	checkPosition();
 	return true;
@@ -166,8 +165,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 	mCursorX = _arg.state.X.abs;
 	mCursorY = _arg.state.Y.abs;
 
-	GUI_MainMenu *menu =GUI_MainMenu::getSingletonPtr();
-	if (menu) menu->updatePositionUponMousePosition(mCursorX, mCursorY);
+	RoR::Application::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
 
 	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectMousePress(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
@@ -326,8 +324,7 @@ void GUIInputManager::activateGUI()
 	lastMouseMoveTime->reset();
 	MyGUI::PointerManager::getInstance().setVisible(true);
 
-	GUI_MainMenu *menu =GUI_MainMenu::getSingletonPtr();
-	if (menu) menu->setVisible(true);
+    RoR::Application::GetGuiManager()->SetVisible_TopMenubar(true);
 }
 
 #endif // USE_MYGUI

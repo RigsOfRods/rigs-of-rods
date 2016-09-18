@@ -50,6 +50,9 @@ public:
 
 	void Show();
 	void Hide(bool isMenu = true);
+
+    void SetVisible(bool v);
+    bool IsVisible();
 	
 private:
 	//Basic things

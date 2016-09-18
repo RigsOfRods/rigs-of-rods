@@ -37,7 +37,7 @@
 #include <OgreException.h>
 
 #ifndef NOOGRE
-#include "Console.h"
+
 #include "GUIManager.h"
 #include "Language.h"
 #else
@@ -1804,7 +1804,7 @@ eventInfo_t eventInfo[] = {
 #endif
 
 #ifndef NOOGRE
-#include "Console.h"
+
 #endif
 
 using namespace std;

@@ -20,8 +20,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "CameraBehaviorIsometric.h"
 
 #include "Application.h"
-#include "Console.h"
+
 #include "GUIManager.h"
+#include "GUI_GameConsole.h"
 #include "Language.h"
 
 using namespace Ogre;

@@ -160,7 +160,7 @@ void CLASS::Show()
 void CLASS::Hide(bool isMenu)
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	RoR::Application::GetGuiManager()->ShowMainMenu(isMenu);
+    Application::GetGuiManager()->SetVisible_GameMainMenu(true);
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
@@ -168,7 +168,9 @@ void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
 	if (_sender == mMainWidget)
 	{
 		if (_name == "close")
-			Hide();
+        {
+            this->Hide();
+        }
 	}
 	else if (_sender == m_key_mapping_window)
 	{
@@ -194,7 +196,7 @@ void CLASS::eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender)
 		RoR::Application::GetGuiManager()->ShowMessageBox("Restart required", "You need to restart the game for few settings to apply. You can still play and restart next time, but the game can glitch out.", true, "Ok", true, false, "");
 	}
 
-	Hide();
+	this->Hide();
 }
 
 void CLASS::LoadSettings()
@@ -1222,3 +1224,6 @@ void CLASS::FrameEntered(float dt)
 	}
 
 }
+
+void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }
+bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }

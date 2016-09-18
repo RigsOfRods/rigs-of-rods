@@ -45,7 +45,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "Character.h"
 #include "Collisions.h"
-#include "Console.h"
+#include "GUI_GameConsole.h"
 #include "GUIManager.h"
 #include "IHeightFinder.h"
 #include "Language.h"

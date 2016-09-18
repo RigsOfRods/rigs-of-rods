@@ -29,10 +29,12 @@
 #include "Utils.h"
 #include "Language.h"
 #include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
+#include "InputEngine.h"
 #include "Application.h"
 #include "CacheSystem.h"
+#include "ContentManager.h"
 #include "SkinManager.h"
-#include "LoadingWindow.h"
 #include "RoRFrameListener.h"
 #include "MainThread.h"
 
@@ -44,14 +46,14 @@ using namespace GUI;
 #define CLASS        MainSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS(RoR::SkinManager* skin_manager) :
+CLASS::CLASS() :
   m_keys_bound(false)
 , m_selected_skin(nullptr)
 , m_selected_entry(nullptr)
 , m_selection_done(true)
-, m_skin_manager(skin_manager)
 {
 	MAIN_WIDGET->setVisible(false);
+    m_skin_manager = RoR::Application::GetContentManager()->GetSkinManager();
 
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
@@ -248,7 +250,7 @@ void CLASS::Cancel()
 	//Do this on cancel only
 	if (Application::GetActiveAppState() == Application::APP_STATE_MAIN_MENU)
     {
-		Application::GetGuiManager()->ShowMainMenu(true);
+		Application::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 }
 
@@ -937,7 +939,7 @@ void CLASS::Show(LoaderType type)
 	m_selected_skin = 0;
 	m_SearchLine->setCaption("");
 	RoR::Application::GetInputEngine()->resetKeys();
-	LoadingWindow::getSingleton().hide();
+    Application::GetGuiManager()->SetVisible_LoadingWindow(false);
 	m_vehicle_configs.clear();
 	//MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
@@ -960,6 +962,13 @@ void CLASS::Show(LoaderType type)
     {
         m_Cancel->setCaption(_L("Cancel"));
     }
+}
+
+void CLASS::SetVisible(bool v)
+{
+    m_selection_done = true;
+    this->BindKeys(false);
+    MAIN_WIDGET->setVisible(false);
 }
 
 void CLASS::Hide(bool smooth)

@@ -63,9 +63,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef USE_MYGUI
 #include "GUIManager.h"
-#include "GUIFriction.h"
-#include "GUIMp.h"
-#include "Console.h"
+#include "GUI_GameConsole.h"
+#include "GUI_FrictionSettings.h"
+#include "GUI_MultiplayerClientList.h"
+#include "GUI_MainSelector.h"
+#include "GUI_SimUtils.h"
+
 #include "SurveyMapManager.h"
 #include "SurveyMapEntity.h"
 #endif //USE_MYGUI
@@ -237,7 +240,8 @@ bool RoRFrameListener::updateEvents(float dt)
 {
 	if (dt==0.0f) return true;
 
-    auto s = Application::GetActiveSimState();
+    auto s       = Application::GetActiveSimState();
+    auto gui_man = Application::GetGuiManager();
 
 	RoR::Application::GetInputEngine()->updateKeyBounces(dt);
 	if (!RoR::Application::GetInputEngine()->getInputsChanged()) return true;
@@ -266,27 +270,29 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
-		if (Application::GetGuiManager()->getMainSelector()->IsVisible())
+		if (gui_man->IsVisible_MainSelector())
 		{
-			Application::GetGuiManager()->getMainSelector()->Cancel();
-		} else
+			gui_man->GetMainSelector()->Cancel();
+		} 
+        else
 		{
-			Application::GetGuiManager()->TogglePauseMenu();
+			Application::GetGuiManager()->SetVisible_GamePauseMenu(! gui_man->IsVisible_GamePauseMenu());
 		}
 	}
 
     if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
     {
-        Application::GetConsole()->setVisible(! Application::GetConsole()->getVisible());
+        gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
     }
 
-	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+	if (gui_man->IsVisible_GamePauseMenu()) return true; //Stop everything when pause menu is visible
 
 #ifdef USE_MYGUI
-	if (GUI_Friction::getSingletonPtr() && GUI_Friction::getSingleton().getVisible() && curr_truck)
+	if (gui_man->IsVisible_FrictionSettings() && curr_truck)
 	{
 		ground_model_t *gm = curr_truck->getLastFuzzyGroundModel();
-		GUI_Friction::getSingleton().setActiveCol(gm);
+
+		gui_man->GetFrictionSettings()->setActiveCol(gm);
 	}
 #endif //USE_MYGUI
 
@@ -295,7 +301,7 @@ bool RoRFrameListener::updateEvents(float dt)
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_hide_gui && mp_connected)
 	{
 		RoR::Application::GetInputEngine()->resetKeys();
-		RoR::Application::GetGuiManager()->ShowChatBox();
+		gui_man->SetVisible_ChatBox(true);
 	}
 #endif //USE_MYGUI
 
@@ -708,7 +714,7 @@ bool RoRFrameListener::updateEvents(float dt)
 			{
 				if (gEnv->player)
 				{
-					if (!Application::GetGuiManager()->GetPauseMenuVisible())
+					if (!Application::GetGuiManager()->IsVisible_GamePauseMenu())
 						gEnv->player->setPhysicsEnabled(true);
 				}
 			} else // we are in a vehicle
@@ -1271,17 +1277,17 @@ bool RoRFrameListener::updateEvents(float dt)
 		//no terrain or truck loaded
 		terrain_editing_mode = false;
 #ifdef USE_MYGUI
-		if (Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
+		if (Application::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
 		{
 			if (simSELECT(s))
 			{
-				CacheEntry *selection = Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
-				Skin *skin = Application::GetGuiManager()->getMainSelector()->GetSelectedSkin();
+				CacheEntry *selection = Application::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
+				Skin *skin = Application::GetGuiManager()->GetMainSelector()->GetSelectedSkin();
 				if (selection != nullptr)
 				{
 					/* We load an extra truck */
 					std::vector<String> *config_ptr = nullptr;
-					std::vector<String> config = Application::GetGuiManager()->getMainSelector()->GetVehicleConfigs();
+					std::vector<String> config = Application::GetGuiManager()->GetMainSelector()->GetVehicleConfigs();
 					if (config.size() > 0)
 					{
 						config_ptr = & config;
@@ -1315,7 +1321,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 				m_reload_box = 0;
 			}
-			Application::GetGuiManager()->getMainSelector()->Hide();
+			Application::GetGuiManager()->GetMainSelector()->Hide();
 			RoR::Application::GetGuiManager()->UnfocusGui();
 			Application::SetActiveSimState(Application::SIM_STATE_RUNNING); // TODO: use pending mechanism
 		}
@@ -1328,19 +1334,19 @@ bool RoRFrameListener::updateEvents(float dt)
 		{
 			Application::SetActiveSimState(Application::SIM_STATE_SELECTING); // TODO: use pending mechanism
 
-			Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
+			Application::GetGuiManager()->GetMainSelector()->Show(LT_AllBeam);
 		}
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && curr_truck)
 	{
 		m_truck_info_on = ! m_truck_info_on;
-		Application::GetGuiManager()->ToggleTruckInfoBox();
+        gui_man->GetSimUtils()->SetTruckInfoBoxVisible(m_truck_info_on);
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && curr_truck)
 	{
-		Application::GetGuiManager()->ToggleVehicleDescription();
+        gui_man->SetVisible_VehicleDescription(! gui_man->IsVisible_VehicleDescription());
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_HIDE_GUI))
@@ -1351,7 +1357,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 	if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
 	{
-		Application::GetGuiManager()->ToggleFPSBox();
+        gui_man->GetSimUtils()->SetFPSBoxVisible(! gui_man->GetSimUtils()->IsFPSBoxVisible());
 	}
 
 	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_MAT_DEBUG))
@@ -1446,8 +1452,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 		m_netcheck_gui_timer += dt;
 		if (m_netcheck_gui_timer > 2.0f)
 		{
-			GUI_Multiplayer::getSingleton().update();
-			m_netcheck_gui_timer = 0.0f;
+            Application::GetGuiManager()->GetMpClientList()->update();
+            m_netcheck_gui_timer = 0.0f;
 		}
 #endif // USE_MYGUI
 	}
@@ -1643,7 +1649,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 					RoR::Application::GetOverlayWrapper()->UpdatePressureTexture(curr_truck->getPressure());
 				}
 
-				if (IsRaceInProgress() && !RoR::Application::GetGuiManager()->GetPauseMenuVisible())
+				if (IsRaceInProgress() && !RoR::Application::GetGuiManager()->IsVisible_GamePauseMenu())
 				{
 					UpdateRacingGui(); //I really think that this should stay here.
 				}
@@ -1723,7 +1729,7 @@ void RoRFrameListener::showLoad(int type, const Ogre::String &instance, const Og
 #endif //USE_MYGUI
 
 #ifdef USE_MYGUI
-	Application::GetGuiManager()->getMainSelector()->Show(LoaderType(type));
+	Application::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
 #endif //USE_MYGUI
 }
 
@@ -1792,7 +1798,7 @@ void RoRFrameListener::hideGUI(bool hidden)
 #ifdef USE_SOCKETW
 		if (Application::GetActiveMpState() == Application::MP_STATE_CONNECTED)
         {
-            GUI_Multiplayer::getSingleton().setVisible(!hidden);
+            Application::GetGuiManager()->SetVisible_MpClientList(!hidden);
         }
 #endif // USE_SOCKETW
 

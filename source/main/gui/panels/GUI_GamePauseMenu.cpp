@@ -147,3 +147,6 @@ void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
     Hide();
     RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_SHUTDOWN);
 }
+
+void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }
+bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }

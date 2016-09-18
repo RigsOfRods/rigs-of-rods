@@ -180,7 +180,7 @@ void VideoCamera::setActive(bool state)
 
 void VideoCamera::update(float dt)
 {
-	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+    if (RoR::Application::GetActiveSimState() == RoR::Application::SIM_STATE_PAUSED) { return; } // Do nothing when paused
 
 #ifdef USE_CAELUM
 	// caelum needs to know that we changed the cameras

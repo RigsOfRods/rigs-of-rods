@@ -31,17 +31,14 @@
 #include "GUI_MainSelectorLayout.h"
 
 
-namespace RoR
-{
-
-namespace GUI
-{
+namespace RoR {
+namespace GUI {
 
 class MainSelector : public MainSelectorLayout
 {
 
 public:
-	MainSelector(RoR::SkinManager* skin_manager);
+	MainSelector();
 	~MainSelector();
 
 	bool IsFinishedSelecting();
@@ -50,6 +47,7 @@ public:
 	bool IsVisible();
 	void Reset();
 	void Cancel();
+    void SetVisible(bool v);
 
 	CacheEntry *GetSelectedEntry() { return m_selected_entry; }
 	Skin *GetSelectedSkin() { return m_selected_skin; }
@@ -97,5 +95,4 @@ private:
 };
 
 } // namespace GUI
-
 } // namespace RoR

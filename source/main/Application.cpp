@@ -28,7 +28,7 @@
 #include <OgreException.h>
 
 #include "CacheSystem.h"
-#include "Console.h"
+
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -148,8 +148,7 @@ ContentManager*        GetContentManager     () { return g_content_manager;}
 OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
 SceneMouse*            GetSceneMouse         () { return g_scene_mouse;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
-GuiManagerInterface*   GetGuiManagerInterface() { return static_cast<GuiManagerInterface*>(g_gui_manager);}
-Console*               GetConsole            () { return g_console;}
+Console*               GetConsole            () { return g_gui_manager->GetConsole();}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
 CacheSystem*           GetCacheSystem        () { return g_cache_system;}
 MainThread*            GetMainThreadLogic    () { return g_main_thread_logic;}
@@ -233,23 +232,6 @@ void DeleteGuiManagerIfExists()
 	{
 		delete g_gui_manager;
 		g_gui_manager = nullptr;
-	}
-}
-
-void CreateConsoleIfNotExists()
-{
-	if (g_console == nullptr)
-	{
-		g_console = new Console();
-	}
-}
-
-void DeleteConsoleIfExists()
-{
-	if (g_console != nullptr)
-	{
-		delete g_console;
-		g_console = nullptr;
 	}
 }
 

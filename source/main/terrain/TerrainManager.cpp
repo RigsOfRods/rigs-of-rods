@@ -28,8 +28,9 @@
 #include "Dashboard.h"
 #include "EnvironmentMap.h"
 #include "ErrorUtils.h"
-#include "GUIFriction.h"
 #include "GlowMaterialListener.h"
+#include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
@@ -147,10 +148,9 @@ TerrainManager::~TerrainManager()
 
 // some shortcut to remove ugly code
 #ifdef USE_MYGUI
-#include "LoadingWindow.h"
-#define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); LoadingWindow::getSingleton().setProgress(x, y); }
+#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 #else
-#define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
+#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
 #endif //USE_MYGUI
 
 void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)

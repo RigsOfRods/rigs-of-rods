@@ -69,7 +69,6 @@ ContentManager*      GetContentManager();
 OverlayWrapper*      GetOverlayWrapper();
 SceneMouse*          GetSceneMouse();
 GUIManager*          GetGuiManager();
-GuiManagerInterface* GetGuiManagerInterface();
 Console*             GetConsole();
 InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
@@ -128,8 +127,6 @@ void CreateSceneMouse();
 void DeleteSceneMouse();
 void CreateGuiManagerIfNotExists();
 void DeleteGuiManagerIfExists();
-void CreateConsoleIfNotExists();
-void DeleteConsoleIfExists();
 void CreateInputEngine();
 void CreateCacheSystem();
 

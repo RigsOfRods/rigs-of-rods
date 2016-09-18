@@ -19,18 +19,22 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
-#include "TextureToolWindow.h"
+#include "GUI_TextureToolWindow.h"
 
 #include <Ogre.h>
 
 #include "Application.h"
-#include "Console.h"
-#include "Settings.h"
+#include "GUI_GameConsole.h"
 #include "Language.h"
+#include "Settings.h"
 #include "Utils.h"
 
+namespace RoR {
+namespace GUI {
+
 using namespace Ogre;
-using namespace RoR;
+
+#define MAIN_WIDGET ((MyGUI::Window*)mMainWidget)
 
 TextureToolWindow::TextureToolWindow()
 {
@@ -53,6 +57,16 @@ TextureToolWindow::TextureToolWindow()
 
 TextureToolWindow::~TextureToolWindow()
 {
+}
+
+void TextureToolWindow::SetVisible(bool v)
+{
+    MAIN_WIDGET->setVisible(v);
+}
+
+bool TextureToolWindow::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
 }
 
 void TextureToolWindow::show()
@@ -231,5 +245,8 @@ void TextureToolWindow::eventSelectTexture( MyGUI::WidgetPtr _sender )
 {
 	updateControls(mCBo->getItemNameAt(mCBo->getIndexSelected()));
 }
+
+} // namespace GUI
+} // namespace RoR
 
 #endif // USE_MYGUI

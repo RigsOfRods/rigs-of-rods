@@ -27,16 +27,14 @@ along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GUI_VehicleDescription.h"
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "GUIManager.h"
+#include "InputEngine.h"
 #include "Utils.h"
-#include "RoRVersion.h"
 #include "rornet.h"
 #include "Language.h"
-#include "GUIManager.h"
-#include "Application.h"
-
 
 #include <MyGUI.h>
 
@@ -143,9 +141,17 @@ void CLASS::Hide()
 	MAIN_WIDGET->setVisible(false);
 }
 
-bool CLASS::getVisible()
+bool CLASS::IsVisible()
 {
 	return MAIN_WIDGET->getVisible();
+}
+
+void CLASS::SetVisible(bool vis)
+{
+    if (vis)
+        this->Show();
+    else
+        this->Hide();
 }
 
 void CLASS::CenterToScreen()
