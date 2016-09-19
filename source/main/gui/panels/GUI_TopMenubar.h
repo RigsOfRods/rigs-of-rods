@@ -64,6 +64,8 @@ public:
 
 	void triggerUpdateVehicleList();
 
+	void ReflectMultiplayerState();
+
 protected:
 
 	void onVehicleMenu(MyGUI::MenuControl* _sender, MyGUI::MenuItem* _item);
@@ -77,6 +79,9 @@ protected:
 	std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
 	MyGUI::PopupMenuPtr              m_vehicles_menu_widget;
 	MyGUI::MenuBarPtr                m_menubar_widget;
+	MyGUI::MenuItem*                 m_item_activate_all;
+	MyGUI::MenuItem*                 m_item_never_sleep;
+	MyGUI::MenuItem*                 m_item_sleep_all;
 	int                              m_menu_width;
 	int                              m_menu_height;
 	std::atomic<bool>                m_vehicle_list_needs_update;

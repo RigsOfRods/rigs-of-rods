@@ -67,6 +67,7 @@ CLASS::CLASS()
 	m_quit_game->setCaption(_L("Quit to Desktop"));
 
     MAIN_WIDGET->setVisible(false);
+    m_rig_editor->setEnabled(false);
 }
 
 CLASS::~CLASS()
@@ -96,13 +97,8 @@ void CLASS::Show()
 	Application::SetPendingSimState(Application::SIM_STATE_PAUSED);
 	BeamFactory::getSingleton().MuteAllTrucks();
 
-	m_rig_editor->setEnabled(false);
-
-	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
-	{
-		m_back_to_menu->setEnabled(false);
-		m_change_map->setEnabled(false);
-	}
+	const bool online = RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED;
+	m_change_map->setEnabled(!online);
 }
 
 void CLASS::Hide()
@@ -150,5 +146,5 @@ void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
     RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_SHUTDOWN);
 }
 
-void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }
+void CLASS::SetVisible(bool v) { if (v) { this->Show(); } else { MAIN_WIDGET->setVisible(false); } }
 bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }

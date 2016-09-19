@@ -333,14 +333,12 @@ void MainThread::Go()
 				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
 			}
 
+            Application::GetGuiManager()->ReflectGameState();
 			if (Application::GetPendingMpState() == Application::MP_STATE_CONNECTED || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
+                RoR::Application::GetGuiManager()->SetVisible_GameMainMenu(false);
 				RoR::Application::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
-			}
-			else
-			{
-				RoR::Application::GetGuiManager()->SetVisible_GameMainMenu(true);
 			}
 
 			EnterMainMenuLoop();
@@ -351,6 +349,7 @@ void MainThread::Go()
 			{
                 Application::SetActiveAppState(Application::APP_STATE_SIMULATION);
                 Application::SetPendingAppState(Application::APP_STATE_NONE);
+                Application::GetGuiManager()->ReflectGameState();
                 EnterGameplayLoop();
 			}
 			else
@@ -990,8 +989,7 @@ void MainThread::JoinMultiplayerServer()
 {
 #ifdef USE_SOCKETW
 
-    RoR::Application::GetGuiManager()->SetVisible_MultiplayerSelector(true);
-    
+    RoR::Application::GetGuiManager()->SetVisible_MultiplayerSelector(false);
     RoR::Application::GetGuiManager()->SetVisible_GameMainMenu(false);
 
     Application::GetGuiManager()->GetLoadingWindow()->setAutotrack(_L("Trying to connect to server ..."));

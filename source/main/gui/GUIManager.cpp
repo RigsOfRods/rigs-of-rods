@@ -100,7 +100,6 @@ void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePau
 void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
 void GUIManager::SetVisible_SimUtils            (bool v) { m_impl->panel_SimUtils           .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
-void GUIManager::SetVisible_MainSelector        (bool v) { m_impl->panel_MainSelector       .SetVisible(v); }
 void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
 void GUIManager::SetVisible_SpawnerReport       (bool v) { m_impl->panel_SpawnerReport      .SetVisible(v); }
 void GUIManager::SetVisible_VehicleDescription  (bool v) { m_impl->panel_VehicleDescription .SetVisible(v); }
@@ -358,7 +357,7 @@ void GUIManager::hideGUI(bool hidden)
     if (! hidden) { return; }
 
     m_impl->panel_SimUtils.HideNotification();
-    m_impl->panel_SimUtils.SetFPSBoxVisible(false);
+    m_impl->panel_SimUtils.SetFPSBoxVisible(false); // This doesn't really make sense, but nobody complained ... ~only_a_ptr, 2016/09
     m_impl->panel_SimUtils.SetTruckInfoBoxVisible(false);
     m_impl->panel_ChatBox.Hide();
     m_impl->panel_SimUtils.DisableNotifications(hidden);
@@ -367,6 +366,33 @@ void GUIManager::hideGUI(bool hidden)
 void GUIManager::FrictionSettingsUpdateCollisions()
 {
     Application::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
+}
+
+void GUIManager::ReflectGameState()
+{
+    const auto app_state = Application::GetActiveAppState();
+    if (app_state == Application::APP_STATE_MAIN_MENU)
+    {
+        m_impl->panel_GameMainMenu       .SetVisible(true);
+        m_impl->panel_TopMenubar         .SetVisible(false);
+        m_impl->panel_ChatBox            .SetVisible(false);
+        m_impl->panel_DebugOptions       .SetVisible(false);
+        m_impl->panel_FrictionSettings   .SetVisible(false);
+        m_impl->panel_GamePauseMenu      .SetVisible(false);
+        m_impl->panel_TextureToolWindow  .SetVisible(false);
+        m_impl->panel_VehicleDescription .SetVisible(false);
+        m_impl->panel_SpawnerReport      .SetVisible(false);
+        m_impl->panel_SimUtils           .SetVisible(false);
+        m_impl->panel_MpClientList       .SetVisible(false);
+        return;
+    }
+    if (app_state == Application::APP_STATE_SIMULATION)
+    {
+        m_impl->panel_TopMenubar         .SetVisible(true);
+        m_impl->panel_TopMenubar         .ReflectMultiplayerState();
+        m_impl->panel_GameMainMenu       .SetVisible(false);
+        return;
+    }
 }
 
 } // namespace RoR

@@ -114,6 +114,12 @@ void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
-	if (_name == "close")
-		Hide();
+    if (_name == "close")
+    {
+        this->Hide();
+        if (Application::GetActiveAppState() == Application::APP_STATE_MAIN_MENU)
+        {
+            Application::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+    }
 }

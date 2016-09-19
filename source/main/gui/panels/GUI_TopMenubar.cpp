@@ -51,7 +51,10 @@ namespace GUI {
 using namespace Ogre;
 
 TopMenubar::TopMenubar() :
-	  m_menu_width(800)
+	  m_item_activate_all(nullptr)
+	, m_item_never_sleep(nullptr)
+	, m_item_sleep_all(nullptr)
+	, m_menu_width(800)
 	, m_menu_height(20)
 	, m_vehicle_list_needs_update(false)
 {
@@ -77,12 +80,10 @@ TopMenubar::TopMenubar() :
 	p->addItem(_L("Reload current vehicle"),          MyGUI::MenuItemType::Normal);
 	p->addItem(_L("Remove current vehicle"),          MyGUI::MenuItemType::Normal);
 
-	if (!BSETTING("Network enable", false))
-	{
-		p->addItem(_L("Activate all vehicles"), MyGUI::MenuItemType::Normal);
-		p->addItem(_L("Activated vehicles never sleep"), MyGUI::MenuItemType::Normal);
-		p->addItem(_L("Send all vehicles to sleep"), MyGUI::MenuItemType::Normal);
-	}
+	m_item_activate_all = p->addItem(_L("Activate all vehicles"),          MyGUI::MenuItemType::Normal);
+	m_item_never_sleep  = p->addItem(_L("Activated vehicles never sleep"), MyGUI::MenuItemType::Normal);
+	m_item_sleep_all    = p->addItem(_L("Send all vehicles to sleep"),     MyGUI::MenuItemType::Normal);
+
 	p->addItem("-",                                   MyGUI::MenuItemType::Separator);
 
 	/*p->addItem(_L("Save Scenery"),                    MyGUI::MenuItemType::Normal);
@@ -501,6 +502,14 @@ void TopMenubar::triggerUpdateVehicleList()
 void TopMenubar::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)
 {
     Application::GetGuiManager()->SetVisible_SpawnerReport(true);
+}
+
+void TopMenubar::ReflectMultiplayerState()
+{
+    const bool online = Application::GetActiveMpState() == Application::MP_STATE_CONNECTED;
+    m_item_activate_all->setEnabled(!online);
+    m_item_never_sleep ->setEnabled(!online);
+    m_item_sleep_all   ->setEnabled(!online);
 }
 
 } // namespace GUI

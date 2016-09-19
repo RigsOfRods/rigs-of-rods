@@ -58,7 +58,6 @@ public:
     void SetVisible_DebugOptions        (bool visible);
     void SetVisible_SimUtils            (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
-    void SetVisible_MainSelector        (bool visible);
     void SetVisible_ChatBox             (bool visible);
     void SetVisible_SpawnerReport       (bool visible);
     void SetVisible_VehicleDescription  (bool visible);
@@ -126,8 +125,8 @@ public:
 	void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
     void FrictionSettingsUpdateCollisions();
-
     void ShutdownMyGUI();
+    void ReflectGameState();
 
 	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
 

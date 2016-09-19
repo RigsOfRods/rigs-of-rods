@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "GUIManager.h"
+#include "GUI_MainSelector.h"
 #include "MainThread.h"
 
 #include <MyGUI.h>
@@ -94,8 +95,8 @@ void CLASS::Hide()
 
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetGuiManager()->SetVisible_MainSelector(true);
+    this->Hide();
+    Application::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
