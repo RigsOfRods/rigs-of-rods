@@ -307,7 +307,6 @@ void MainThread::Go()
                     RoR::Networking::Disconnect();
                     Application::GetGuiManager()->SetVisible_MpClientList(false);
                 }
-				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_loaded = true;
 				gEnv->cameraManager->OnReturnToMainMenu();
@@ -368,7 +367,6 @@ void MainThread::Go()
             Application::SetPendingAppState(Application::APP_STATE_NONE);
 			if (previous_application_state == Application::APP_STATE_SIMULATION)
 			{
-				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
 				m_base_resource_loaded = true;
 				

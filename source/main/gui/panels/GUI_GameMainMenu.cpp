@@ -65,12 +65,7 @@ CLASS::CLASS()
     m_multi_player->setEnabled(false);
 #endif
 
-	if (!BSETTING("DevMode", false))
-	{
-		m_rig_editor->setEnabled(false);
-	}
-
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()

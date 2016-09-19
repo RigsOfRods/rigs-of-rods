@@ -53,6 +53,8 @@ TextureToolWindow::TextureToolWindow()
 	mCBo->eventComboChangePosition += MyGUI::newDelegate(this, &TextureToolWindow::eventSelectTexture2);
 
 	mChkDynamic->eventMouseButtonClick += MyGUI::newDelegate(this, &TextureToolWindow::eventClickDynamicButton);
+
+    MAIN_WIDGET->setVisible(false);
 }
 
 TextureToolWindow::~TextureToolWindow()

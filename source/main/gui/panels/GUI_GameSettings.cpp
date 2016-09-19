@@ -141,7 +141,7 @@ CLASS::CLASS()
 		//m_tabCtrl->getItemAt(6)->setEnabled(false);
 	}
 
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()

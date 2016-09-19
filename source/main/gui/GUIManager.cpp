@@ -67,203 +67,147 @@ struct GuiManagerImpl
 {
     GuiManagerImpl():
         mygui(nullptr),
-        mygui_platform(nullptr),
-        is_sim_utils_visible(false),
-        is_mp_client_list_created(false)
+        mygui_platform(nullptr)
     {}
 
-    std::unique_ptr<GUI::GameMainMenu>           panel_GameMainMenu;
-    std::unique_ptr<GUI::GameAbout>              panel_GameAbout;
-    std::unique_ptr<GUI::GameSettings>           panel_GameSettings;
-    std::unique_ptr<GUI::GamePauseMenu>          panel_GamePauseMenu;
-    std::unique_ptr<GUI::DebugOptions>           panel_DebugOptions;
-    std::unique_ptr<GUI::SimUtils>               panel_SimUtils;
-    std::unique_ptr<GUI::gMessageBox>            panel_MessageBox;
-    std::unique_ptr<GUI::MultiplayerSelector>    panel_MultiplayerSelector;
-    std::shared_ptr<GUI::MainSelector>           panel_MainSelector;
-    std::shared_ptr<GUI::GameChatBox>            panel_ChatBox;
-    std::unique_ptr<GUI::RigSpawnerReportWindow> panel_SpawnerReport;
-    std::unique_ptr<GUI::VehicleDescription>     panel_VehicleDescription;
-    std::unique_ptr<GUI::MpClientList>           panel_MpClientList;
-    std::unique_ptr<GUI::FrictionSettings>       panel_FrictionSettings;
-    std::unique_ptr<GUI::TextureToolWindow>      panel_TextureToolWindow;
-    std::unique_ptr<GUI::LoadingWindow>          panel_LoadingWindow;
-    std::unique_ptr<GUI::TopMenubar>             panel_TopMenubar;
-    std::unique_ptr<RoR::Console>                panel_GameConsole;
+    GUI::GameMainMenu           panel_GameMainMenu;
+    GUI::GameAbout              panel_GameAbout;
+    GUI::GameSettings           panel_GameSettings;
+    GUI::GamePauseMenu          panel_GamePauseMenu;
+    GUI::DebugOptions           panel_DebugOptions;
+    GUI::SimUtils               panel_SimUtils;
+    GUI::gMessageBox            panel_MessageBox;
+    GUI::MultiplayerSelector    panel_MultiplayerSelector;
+    GUI::MainSelector           panel_MainSelector;
+    GUI::GameChatBox            panel_ChatBox;
+    GUI::RigSpawnerReportWindow panel_SpawnerReport;
+    GUI::VehicleDescription     panel_VehicleDescription;
+    GUI::MpClientList           panel_MpClientList;
+    GUI::FrictionSettings       panel_FrictionSettings;
+    GUI::TextureToolWindow      panel_TextureToolWindow;
+    GUI::LoadingWindow          panel_LoadingWindow;
+    GUI::TopMenubar             panel_TopMenubar;
+    RoR::Console                panel_GameConsole;
 
-    MyGUI::Gui*                                  mygui;
-    MyGUI::OgrePlatform*                         mygui_platform;
-    bool                                         is_sim_utils_visible;
-    bool                                         is_mp_client_list_created;
+    MyGUI::Gui*                 mygui;
+    MyGUI::OgrePlatform*        mygui_platform;
 };
+
+void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
+void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
+void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
+void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePauseMenu      .SetVisible(v); }
+void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
+void GUIManager::SetVisible_SimUtils            (bool v) { m_impl->panel_SimUtils           .SetVisible(v); }
+void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
+void GUIManager::SetVisible_MainSelector        (bool v) { m_impl->panel_MainSelector       .SetVisible(v); }
+void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
+void GUIManager::SetVisible_SpawnerReport       (bool v) { m_impl->panel_SpawnerReport      .SetVisible(v); }
+void GUIManager::SetVisible_VehicleDescription  (bool v) { m_impl->panel_VehicleDescription .SetVisible(v); }
+void GUIManager::SetVisible_MpClientList        (bool v) { m_impl->panel_MpClientList       .SetVisible(v); }
+void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
+void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
+void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
+void GUIManager::SetVisible_TopMenubar          (bool v) { m_impl->panel_TopMenubar         .SetVisible(v); }
+void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
+
+bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
+bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
+bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
+bool GUIManager::IsVisible_GamePauseMenu        () { return m_impl->panel_GamePauseMenu      .IsVisible(); }
+bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
+bool GUIManager::IsVisible_SimUtils             () { return m_impl->panel_SimUtils           .IsVisible(); }
+bool GUIManager::IsVisible_MessageBox           () { return m_impl->panel_MessageBox         .IsVisible(); }
+bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
+bool GUIManager::IsVisible_MainSelector         () { return m_impl->panel_MainSelector       .IsVisible(); }
+bool GUIManager::IsVisible_ChatBox              () { return m_impl->panel_ChatBox            .IsVisible(); }
+bool GUIManager::IsVisible_SpawnerReport        () { return m_impl->panel_SpawnerReport      .IsVisible(); }
+bool GUIManager::IsVisible_VehicleDescription   () { return m_impl->panel_VehicleDescription .IsVisible(); }
+bool GUIManager::IsVisible_MpClientList         () { return m_impl->panel_MpClientList       .IsVisible(); }
+bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
+bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
+bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
+bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
+bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
+
+// GUI GetInstance*()
+Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
+GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
+GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl->panel_LoadingWindow       ; }
+GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
+GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
+GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
+GUI::SimUtils*              GUIManager::GetSimUtils()          { return &m_impl->panel_SimUtils            ; }
+GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
 
 GUIManager::GUIManager() :
     m_renderwindow_closed(false),
     m_impl(nullptr)
 {
-	m_impl = new GuiManagerImpl();
+    RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+    RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), this);
 
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
-	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), this);
-
-	windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
-	createGui();
-#ifdef _WIN32
-	MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
-#endif // _WIN32
-
-    // Create panels
-    m_impl->panel_SpawnerReport       = std::unique_ptr<GUI::RigSpawnerReportWindow>(new GUI::RigSpawnerReportWindow());
-    m_impl->panel_VehicleDescription  = std::unique_ptr<GUI::VehicleDescription>    (new GUI::VehicleDescription    ());
-    m_impl->panel_ChatBox             = std::unique_ptr<GUI::GameChatBox>           (new GUI::GameChatBox           ());
-    m_impl->panel_DebugOptions        = std::unique_ptr<GUI::DebugOptions>          (new GUI::DebugOptions          ());
-    m_impl->panel_GameMainMenu        = std::unique_ptr<GUI::GameMainMenu>          (new GUI::GameMainMenu          ());
-    m_impl->panel_GameSettings        = std::unique_ptr<GUI::GameSettings>          (new GUI::GameSettings          ());
-    m_impl->panel_GameAbout           = std::unique_ptr<GUI::GameAbout>             (new GUI::GameAbout             ());
-    m_impl->panel_SimUtils            = std::unique_ptr<GUI::SimUtils>              (new GUI::SimUtils              ());
-    m_impl->panel_FrictionSettings    = std::unique_ptr<GUI::FrictionSettings>      (new GUI::FrictionSettings      ());
-    m_impl->panel_MultiplayerSelector = std::unique_ptr<GUI::MultiplayerSelector>   (new GUI::MultiplayerSelector   ());
-    m_impl->panel_MainSelector        = std::shared_ptr<GUI::MainSelector>          (new GUI::MainSelector          ());
-    m_impl->panel_TopMenubar          = std::unique_ptr<GUI::TopMenubar>            (new GUI::TopMenubar            ());
-}
-
-// GUI SetVisible*()
-#define SET_VISIBLE(_VAR_, _VIS_) { assert(m_impl); assert(m_impl->_VAR_.get()); m_impl->_VAR_->SetVisible(_VIS_); }
-
-void GUIManager::SetVisible_GameMainMenu        (bool visible) { SET_VISIBLE(panel_GameMainMenu       , visible) }
-void GUIManager::SetVisible_GameAbout           (bool visible) { SET_VISIBLE(panel_GameAbout          , visible) }
-void GUIManager::SetVisible_GameSettings        (bool visible) { SET_VISIBLE(panel_GameSettings       , visible) }
-void GUIManager::SetVisible_GamePauseMenu       (bool visible) { SET_VISIBLE(panel_GamePauseMenu      , visible) }
-void GUIManager::SetVisible_DebugOptions        (bool visible) { SET_VISIBLE(panel_DebugOptions       , visible) }
-void GUIManager::SetVisible_SimUtils            (bool visible) { SET_VISIBLE(panel_SimUtils           , visible) }
-void GUIManager::SetVisible_MultiplayerSelector (bool visible) { SET_VISIBLE(panel_MultiplayerSelector, visible) }
-void GUIManager::SetVisible_MainSelector        (bool visible) { SET_VISIBLE(panel_MainSelector       , visible) }
-void GUIManager::SetVisible_ChatBox             (bool visible) { SET_VISIBLE(panel_ChatBox            , visible) }
-void GUIManager::SetVisible_SpawnerReport       (bool visible) { SET_VISIBLE(panel_SpawnerReport      , visible) }
-void GUIManager::SetVisible_VehicleDescription  (bool visible) { SET_VISIBLE(panel_VehicleDescription , visible) }
-void GUIManager::SetVisible_MpClientList        (bool visible) { SET_VISIBLE(panel_MpClientList       , visible) }
-void GUIManager::SetVisible_FrictionSettings    (bool visible) { SET_VISIBLE(panel_FrictionSettings   , visible) }
-void GUIManager::SetVisible_TextureToolWindow   (bool visible) { SET_VISIBLE(panel_TextureToolWindow  , visible) }
-void GUIManager::SetVisible_LoadingWindow       (bool visible) { SET_VISIBLE(panel_LoadingWindow      , visible) }
-void GUIManager::SetVisible_TopMenubar          (bool visible) { SET_VISIBLE(panel_TopMenubar         , visible) }
-void GUIManager::SetVisible_Console             (bool visible) { SET_VISIBLE(panel_GameConsole        , visible) }
-
-// GUI IsVisible*()
-#define IS_VISIBLE(_VAR_) assert(m_impl); assert(m_impl->_VAR_.get()); return m_impl->_VAR_->IsVisible();
-
-bool GUIManager::IsVisible_GameMainMenu        () { IS_VISIBLE(panel_GameMainMenu       ) }
-bool GUIManager::IsVisible_GameAbout           () { IS_VISIBLE(panel_GameAbout          ) }
-bool GUIManager::IsVisible_GameSettings        () { IS_VISIBLE(panel_GameSettings       ) }
-bool GUIManager::IsVisible_GamePauseMenu       () { IS_VISIBLE(panel_GamePauseMenu      ) }
-bool GUIManager::IsVisible_DebugOptions        () { IS_VISIBLE(panel_DebugOptions       ) }
-bool GUIManager::IsVisible_SimUtils            () { IS_VISIBLE(panel_SimUtils           ) }
-bool GUIManager::IsVisible_MessageBox          () { IS_VISIBLE(panel_MessageBox         ) }
-bool GUIManager::IsVisible_MultiplayerSelector () { IS_VISIBLE(panel_MultiplayerSelector) }
-bool GUIManager::IsVisible_MainSelector        () { IS_VISIBLE(panel_MainSelector       ) }
-bool GUIManager::IsVisible_ChatBox             () { IS_VISIBLE(panel_ChatBox            ) }
-bool GUIManager::IsVisible_SpawnerReport       () { IS_VISIBLE(panel_SpawnerReport      ) }
-bool GUIManager::IsVisible_VehicleDescription  () { IS_VISIBLE(panel_VehicleDescription ) }
-bool GUIManager::IsVisible_MpClientList        () { IS_VISIBLE(panel_MpClientList       ) }
-bool GUIManager::IsVisible_FrictionSettings    () { IS_VISIBLE(panel_FrictionSettings   ) }
-bool GUIManager::IsVisible_TextureToolWindow   () { IS_VISIBLE(panel_TextureToolWindow  ) }
-bool GUIManager::IsVisible_LoadingWindow       () { IS_VISIBLE(panel_LoadingWindow      ) }
-bool GUIManager::IsVisible_TopMenubar          () { IS_VISIBLE(panel_TopMenubar         ) }
-bool GUIManager::IsVisible_Console             () { IS_VISIBLE(panel_GameConsole        ) }
-
-// GUI GetInstance*()
-Console*                    GUIManager::GetConsole()           { return m_impl->panel_GameConsole         .get(); }
-GUI::MainSelector*          GUIManager::GetMainSelector()      { return m_impl->panel_MainSelector        .get(); }
-GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return m_impl->panel_LoadingWindow       .get(); }
-GUI::MpClientList*          GUIManager::GetMpClientList()      { return m_impl->panel_MpClientList        .get(); }
-GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return m_impl->panel_MultiplayerSelector .get(); }
-GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return m_impl->panel_FrictionSettings    .get(); }
-GUI::SimUtils*              GUIManager::GetSimUtils()          { return m_impl->panel_SimUtils            .get(); }
-GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return m_impl->panel_TopMenubar          .get(); }
-
-void GUIManager::UnfocusGui()
-{
-	MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-	MyGUI::InputManager::getInstance().resetMouseCaptureWidget();
-}
-
-void GUIManager::destroy()
-{
-	destroyGui();
-}
-
-void GUIManager::createGui()
-{
-	std::string gui_logfilename = Application::GetSysLogsDir() + PATH_SLASH + "MyGUI.log";
-	m_impl->mygui_platform = new MyGUI::OgrePlatform();
-	m_impl->mygui_platform->initialise(
+    std::string gui_logfilename = Application::GetSysLogsDir() + PATH_SLASH + "MyGUI.log";
+    auto mygui_platform = new MyGUI::OgrePlatform();
+    mygui_platform->initialise(
         RoR::Application::GetOgreSubsystem()->GetRenderWindow(), 
         gEnv->sceneManager,
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
         gui_logfilename); // use cache resource group so preview images are working
-	m_impl->mygui = new MyGUI::Gui();
+    auto mygui = new MyGUI::Gui();
 
-	// empty init
-	m_impl->mygui->initialise("");
+    // empty init
+    mygui->initialise("");
 
-	// add layer factory
-	MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
-	
-	// then load the actual config
-	MyGUI::ResourceManager::getInstance().load(RESOURCE_FILENAME);
+    // add layer factory
+    MyGUI::FactoryManager::getInstance().registerFactory<MyGUI::RTTLayer>("Layer");
 
-	MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
+    // then load the actual config
+    MyGUI::ResourceManager::getInstance().load(RESOURCE_FILENAME);
 
-	// move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
-	MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
+    MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
 
-	// now find that font texture and save it - for debugging purposes
-	/*
-	ResourceManager::ResourceMapIterator it = TextureManager::getSingleton().getResourceIterator();
-	while (it.hasMoreElements())
-	{
-		ResourcePtr res = it.getNext();
-		if (res->getName().find("TrueTypeFont") != String::npos)
-		{
-			Image image;
-			TexturePtr tex = (TexturePtr)res;
-			tex->convertToImage(image);
-			image.save(res->getName() + ".png");
-			LOG(">> saved TTF texture: " + res->getName());
-		}
-	}
-	*/
+    m_impl = new GuiManagerImpl();
+    m_impl->mygui_platform = mygui_platform;
+    m_impl->mygui = mygui;
 
-	//MyGUI::PluginManager::getInstance().loadPlugin("Plugin_BerkeliumWidget.dll");
-	MyGUI::PointerManager::getInstance().setVisible(true);
-	//Console *c = RoR::Application::GetConsole();
-	//if (c) c->resized();
+    // move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
+    MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
+    MyGUI::PointerManager::getInstance().setVisible(true);
+#ifdef _WIN32
+    MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
+#endif // _WIN32
+    windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
 }
 
-void GUIManager::destroyGui()
+GUIManager::~GUIManager()
 {
-	if (m_impl->mygui)
-	{
-		m_impl->mygui->shutdown();
-		delete m_impl->mygui;
-		m_impl->mygui = nullptr;
-	}
-
-	if (m_impl->mygui_platform)
-	{
-		m_impl->mygui_platform->shutdown();
-		delete m_impl->mygui_platform;
-		m_impl->mygui_platform = nullptr;
-	}
+    delete m_impl;
 }
 
-void GUIManager::initSimUtils()
+void GUIManager::UnfocusGui()
 {
-    m_impl->panel_SimUtils.reset();
+    MyGUI::InputManager::getInstance().resetKeyFocusWidget();
+    MyGUI::InputManager::getInstance().resetMouseCaptureWidget();
 }
 
-void GUIManager::killSimUtils()
+void GUIManager::ShutdownMyGUI()
 {
-    m_impl->panel_SimUtils.reset();
+    delete m_impl;
+
+    if (m_impl->mygui)
+    {
+        m_impl->mygui->shutdown();
+        delete m_impl->mygui;
+        m_impl->mygui = nullptr;
+    }
+
+    if (m_impl->mygui_platform)
+    {
+        m_impl->mygui_platform->shutdown();
+        delete m_impl->mygui_platform;
+        m_impl->mygui_platform = nullptr;
+    }
 }
 
 bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
@@ -289,22 +233,17 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 
 void GUIManager::framestep(float dt)
 {
-	if (m_impl->panel_SimUtils) //Be sure that it exists
-		m_impl->panel_SimUtils->framestep(dt);
+    m_impl->panel_SimUtils.framestep(dt);
 };
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
 {
-	if (!m_impl->panel_SimUtils) return;
-
-	m_impl->panel_SimUtils->PushNotification(Title, text);
+    m_impl->panel_SimUtils.PushNotification(Title, text);
 }
 
 void GUIManager::HideNotification()
 {
-	if (!m_impl->panel_SimUtils) return;
-
-	m_impl->panel_SimUtils->HideNotification();
+    m_impl->panel_SimUtils.HideNotification();
 }
 
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
@@ -316,16 +255,7 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
 	BeamFactory *bf = BeamFactory::getSingletonPtr();
 	if (bf) bf->windowResized();
 
-	if (m_impl->panel_GameMainMenu.get() != nullptr)
-	{
-		/* Adjust menu position */
-		Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-		int margin = (viewport->getActualHeight() / 15);
-		m_impl->panel_GameMainMenu->SetPosition(
-			margin, // left
-			viewport->getActualHeight() - m_impl->panel_GameMainMenu->GetHeight() - margin // top
-			);
-	}
+	this->AdjustMainMenuPosition();
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
@@ -366,100 +296,72 @@ void GUIManager::AdjustMainMenuPosition()
 {
     Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
     int margin = (viewport->getActualHeight() / 15);
-    int top = viewport->getActualHeight() - m_impl->panel_GameMainMenu->GetHeight() - margin;
-    m_impl->panel_GameMainMenu->SetPosition(margin, top);
+    int top = viewport->getActualHeight() - m_impl->panel_GameMainMenu.GetHeight() - margin;
+    m_impl->panel_GameMainMenu.SetPosition(margin, top);
 }
 
 void GUIManager::UpdateSimUtils(float dt, Beam *truck)
 {
-	if (m_impl->is_sim_utils_visible) //Better to update only when it's visible.
-	{
-		if (m_impl->panel_SimUtils) //Be sure that it exists
-			m_impl->panel_SimUtils->UpdateStats(dt, truck);
-	}
+    if (m_impl->panel_SimUtils.IsBaseVisible()) //Better to update only when it's visible.
+    {
+        m_impl->panel_SimUtils.UpdateStats(dt, truck);
+    }
 }
 
 void GUIManager::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "")
 {
-	if (m_impl->panel_MessageBox.get() == nullptr)
-		m_impl->panel_MessageBox = std::unique_ptr<GUI::gMessageBox>(new GUI::gMessageBox());
-
-	m_impl->panel_MessageBox->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+    m_impl->panel_MessageBox.ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
 }
 
 void GUIManager::UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "", bool IsVisible = true)
 {
-	if (m_impl->panel_MessageBox.get() == nullptr)
-		m_impl->panel_MessageBox = std::unique_ptr<GUI::gMessageBox>(new GUI::gMessageBox());
-
-	m_impl->panel_MessageBox->UpdateMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2, IsVisible);
+    m_impl->panel_MessageBox.UpdateMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2, IsVisible);
 }
 
 int GUIManager::getMessageBoxResult()
 {
-	if (m_impl->panel_MessageBox.get() == nullptr)
-		return 0;
-
-	return m_impl->panel_MessageBox->getResult();
+    return m_impl->panel_MessageBox.getResult();
 }
 
 void GUIManager::InitMainSelector(RoR::SkinManager* skin_manager)
 {
-	if (m_impl->panel_MainSelector.get() == nullptr)
-	{
-		
-	}
-	else
-	{
-		assert(false && "ERROR: Trying to init MainSelector more than 1 time.");
-		LOG("ERROR: Trying to init MainSelector more than 1 time.");
-	}
+// todo remove
 }
 
 void GUIManager::AdjustPauseMenuPosition()
 {
 	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
 	int margin = (viewport->getActualHeight() / 15);
-	m_impl->panel_GamePauseMenu->SetPosition(
+	m_impl->panel_GamePauseMenu.SetPosition(
 		margin, // left
-		viewport->getActualHeight() - m_impl->panel_GamePauseMenu->GetHeight() - margin // top
+		viewport->getActualHeight() - m_impl->panel_GamePauseMenu.GetHeight() - margin // top
 		);
 }
 
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
 {
-	m_impl->panel_SpawnerReport->SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
+	m_impl->panel_SpawnerReport.SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
 }
 
 void GUIManager::CenterSpawnerReportWindow()
 {
-	m_impl->panel_SpawnerReport->CenterToScreen();
+	m_impl->panel_SpawnerReport.CenterToScreen();
 }
 
 void GUIManager::pushMessageChatBox(Ogre::String txt)
 {
-	if (m_impl->panel_ChatBox.get() == nullptr)
-		m_impl->panel_ChatBox = std::unique_ptr<GUI::GameChatBox>(new GUI::GameChatBox());
-
-	m_impl->panel_ChatBox->pushMsg(txt);
+    m_impl->panel_ChatBox.pushMsg(txt);
 }
 
 void GUIManager::hideGUI(bool hidden)
 {
-	if (m_impl->panel_SimUtils)
-	{
-		if (hidden)
-		{
-			m_impl->panel_SimUtils->HideNotification();
-			m_impl->panel_SimUtils->SetFPSBoxVisible(false);
-			m_impl->panel_SimUtils->SetTruckInfoBoxVisible(false);
-			if (m_impl->panel_ChatBox.get() != nullptr)
-			{
-				m_impl->panel_ChatBox->Hide();
-			}
-		}
-		m_impl->panel_SimUtils->DisableNotifications(hidden);
-	}
+    if (! hidden) { return; }
+
+    m_impl->panel_SimUtils.HideNotification();
+    m_impl->panel_SimUtils.SetFPSBoxVisible(false);
+    m_impl->panel_SimUtils.SetTruckInfoBoxVisible(false);
+    m_impl->panel_ChatBox.Hide();
+    m_impl->panel_SimUtils.DisableNotifications(hidden);
 }
 
 void GUIManager::FrictionSettingsUpdateCollisions()

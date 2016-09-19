@@ -82,7 +82,7 @@ MpClientList::MpClientList() :
 	ib->setImageTexture("mpbg.png");
 
 	mpPanel = ib; //->createWidget<MyGUI::Widget>("FlowContainer", x, y, sidebarWidth, gui_area.height,  MyGUI::Align::Default, "Main");
-	mpPanel->setVisible(true);
+	mpPanel->setVisible(false);
 
 	y=5;
 	UTFString tmp;

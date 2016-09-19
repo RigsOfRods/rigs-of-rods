@@ -58,7 +58,7 @@ CLASS::CLASS()
     initMisc();
 	CenterToScreen();
 	
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()

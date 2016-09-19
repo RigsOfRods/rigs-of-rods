@@ -84,7 +84,7 @@ void CLASS::Show()
 
 void CLASS::Hide()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
 }
 
 void CLASS::UpdateControls()

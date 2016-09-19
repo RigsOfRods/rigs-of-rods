@@ -58,7 +58,7 @@ CLASS::CLASS()
 
 	init();
 
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()

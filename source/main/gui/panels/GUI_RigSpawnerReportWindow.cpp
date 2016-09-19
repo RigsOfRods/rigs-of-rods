@@ -38,7 +38,7 @@ RigSpawnerReportWindow::RigSpawnerReportWindow():
 	main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &RigSpawnerReportWindow::WindowButtonClicked);
 
 	// Start hidden
-	this->Hide();
+	main_window->setVisible(false);
 }
 
 void RigSpawnerReportWindow::SetRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)

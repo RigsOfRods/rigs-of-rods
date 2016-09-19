@@ -61,6 +61,7 @@ TopMenubar::TopMenubar() :
 
 	m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Main");
 	m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
+    m_menubar_widget->setVisible(false);
 	
 	/* -------------------------------------------------------------------------------- */
 	/* SIMULATION POPUP MENU */

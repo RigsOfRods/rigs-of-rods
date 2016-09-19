@@ -48,6 +48,7 @@ class GUIManager :
 public:
 
     GUIManager();
+    ~GUIManager();
 
     // GUI SetVisible*()
     void SetVisible_GameMainMenu        (bool visible);
@@ -116,9 +117,6 @@ public:
 
 	void InitMainSelector(RoR::SkinManager* skin_manager);
 
-	void initSimUtils();
-	void killSimUtils();
-
 	void hideGUI(bool visible);
 
 	void destroy();
@@ -129,6 +127,8 @@ public:
 
     void FrictionSettingsUpdateCollisions();
 
+    void ShutdownMyGUI();
+
 	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
 
     static Ogre::String getRandomWallpaperImage();
@@ -136,8 +136,6 @@ public:
 private:
 
 	bool create();
-	void createGui();
-	void destroyGui();
 
 	virtual bool frameStarted(const Ogre::FrameEvent& _evt);
 	virtual bool frameEnded(const Ogre::FrameEvent& _evt);

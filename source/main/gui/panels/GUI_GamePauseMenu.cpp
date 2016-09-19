@@ -65,6 +65,8 @@ CLASS::CLASS()
 	m_back_to_menu->setCaption(_L("Back to menu"));
 	m_rig_editor->setCaption(_L("Rig Editor"));
 	m_quit_game->setCaption(_L("Quit to Desktop"));
+
+    MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()

@@ -59,7 +59,7 @@ CLASS::CLASS()
 	m_button1->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButton1ClickSaveButton);
 	m_button2->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButton2ClickSaveButton);
 
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()
