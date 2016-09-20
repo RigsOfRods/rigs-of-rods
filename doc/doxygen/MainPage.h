@@ -13,13 +13,12 @@
  * 
  * 
  * ## Further documentation
- * * Website: http://www.rigsofrods.org/
- * * Wiki: http://www.rigsofrods.org/wiki/
- * * Developer Wiki: http://www.rigsofrods.org/wiki/pages/Developer_Wiki_Portal
- * * Forum: http://www.rigsofrods.org/forum/
- * * Mod Repository: http://www.rigsofrods.org/repository/
+ * * Website: https://rigsofrods.org/
+ * * Wiki: http://docs.rigsofrods.org/
+ * * Developer Wiki: http://developer.rigsofrods.org/
+ * * Forum: https://forum.rigsofrods.org/
+ * * Mod Repository: https://repository.rigsofrods.org/
  * * Github: https://github.com/RigsOfRods/rigs-of-rods
- * * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
  * 
  * 
  * 
