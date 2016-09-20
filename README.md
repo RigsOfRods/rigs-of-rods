@@ -22,11 +22,11 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * OS X
 
 ## Further documentation
-* Website: http://www.rigsofrods.org/
+* Website: https://rigsofrods.org/
 * Wiki: http://docs.rigsofrods.org/
-* Developer Wiki: http://www.developer.rigsofrods.org/
-* Forum: http://www.forum.rigsofrods.org/
-* Mod Repository: http://www.repository.rigsofrods.org/
+* Developer Wiki: http://developer.rigsofrods.org/
+* Forum: https://forum.rigsofrods.org/
+* Mod Repository: https://repository.rigsofrods.org/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
 * [doc/](doc/)
