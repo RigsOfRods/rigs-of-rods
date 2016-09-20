@@ -16,7 +16,7 @@ endif()
 set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_LONG  "Rigs of Rods")
 
-project( ${PROJECT_NAME_SHORT} VERSION 0.4.6.0 )
+project( ${PROJECT_NAME_SHORT} VERSION 0.4.7.0 )
 
 
 ################################################################################
