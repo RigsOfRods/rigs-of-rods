@@ -576,7 +576,8 @@ void initLanguage(wxString languagePath, wxString userpath)
 			wxLogStatus(wxT(" system returned: ") + language->Description + wxT("(") + language->CanonicalName + wxT(")"));
 		} else
 		{
-			wxLogStatus(wxT(" error getting language information!"));
+			wxLogStatus(wxT("Failed to detect system language."));
+			return;
 		}
 	}
 	wxLogStatus(wxT("preferred language: ")+language->Description);
