@@ -408,10 +408,10 @@ void CLASS::UpdateControls()
 		m_sky_type->setIndexSelected(0);
 
 	//Shadow technique
-	Ogre::String shadowtype = GameSettingsMap["Shadow technique"];
-	if (shadowtype == "Texture shadows)")
+	App::GfxShadowType shadow_type = App::GetGfxShadowType();
+	if (shadow_type == App::GFX_SHADOW_TYPE_TEXTURE)
 		m_shadow_type->setIndexSelected(1);
-	else if (shadowtype == "Parallel-split Shadow Maps")
+	else if (shadow_type == App::GFX_SHADOW_TYPE_PSSM)
 		m_shadow_type->setIndexSelected(2);
 	else
 		m_shadow_type->setIndexSelected(0);

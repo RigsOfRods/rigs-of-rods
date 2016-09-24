@@ -63,6 +63,13 @@ enum SimState
     SIM_STATE_EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
 };
 
+enum GfxShadowType
+{
+    GFX_SHADOW_TYPE_NONE,
+    GFX_SHADOW_TYPE_TEXTURE,
+    GFX_SHADOW_TYPE_PSSM
+};
+
 void Init();
 
 // Getters
@@ -101,6 +108,7 @@ float                GetInputFFCamera();
 float                GetInputFFCentering();
 float                GetInputFFGain();
 float                GetInputFFStress();
+GfxShadowType        GetGfxShadowType();
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -127,6 +135,7 @@ void SetInputFFCamera    (float    v);
 void SetInputFFCentering (float    v);
 void SetInputFFGain      (float    v);
 void SetInputFFStress    (float    v);
+void SetGfxShadowType    (GfxShadowType v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

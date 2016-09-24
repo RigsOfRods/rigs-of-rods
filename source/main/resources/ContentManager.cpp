@@ -379,7 +379,7 @@ void ContentManager::InitManagedMaterials()
 	Ogre::String managed_materials_dir = App::GetSysResourcesDir() + PATH_SLASH + "managed_materials" + PATH_SLASH;
 
 	//Dirty, needs to be improved
-	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")
+	if (App::GetGfxShadowType() == App::GFX_SHADOW_TYPE_PSSM)
 		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
 	else
 		ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/off/", "FileSystem", "ShadowsMats");

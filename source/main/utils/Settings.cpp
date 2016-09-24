@@ -99,6 +99,7 @@ CSimpleOpt::SOption cmdline_options[] = {
     SO_END_OF_OPTIONS
 };
 
+using namespace RoR;
 using namespace Ogre;
 
 bool FileExists(const char *path)
@@ -490,14 +491,19 @@ void Settings::saveSettings(String configFile)
 	fclose(fd);*/
 }
 
+inline void App__SetShadowTech(std::string const & s)
+{
+    if      (s == "Texture shadows")            { App::SetGfxShadowType(App::GFX_SHADOW_TYPE_TEXTURE); }
+    else if (s == "Parallel-split Shadow Maps") { App::SetGfxShadowType(App::GFX_SHADOW_TYPE_PSSM   ); }
+    else                                        { App::SetGfxShadowType(App::GFX_SHADOW_TYPE_NONE   ); }
+}
+
 #define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
 
 bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const & value)
 {
-    using namespace RoR;
-
     // Process and erase settings which propagate to global vars.
     if (name == "Network enable" && (Ogre::StringConverter::parseBool(value) == true))
     {
@@ -515,6 +521,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Force Feedback Centering") { App::SetInputFFCentering(STR2FLOAT(value)); return true; }
     else if (name == "Force Feedback Gain"     ) { App::SetInputFFGain     (STR2FLOAT(value)); return true; }
     else if (name == "Force Feedback Stress"   ) { App::SetInputFFStress   (STR2FLOAT(value)); return true; }
+    // Gfx
+    else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
 
     return false;
 }

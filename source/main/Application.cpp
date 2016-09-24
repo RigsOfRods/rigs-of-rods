@@ -93,7 +93,7 @@ static float            g_input_ff_gain;         ///< Config: FSETTING Force Fee
 static float            g_input_ff_stress;       ///< Config: FSETTING Force Feedback Stress
 
 // Graphics
-  //   int              g_gfx_shadow_mode;       ///< Config: STR   Shadow technique
+static int              g_gfx_shadow_type;       ///< Config: STR   Shadow technique
   //   std::string      g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
   //   std::string      g_gfx_sky_effects;       ///< Config: STR   Sky effects
   //   std::string      g_gfx_texture_filter;    ///< Config: STR   Texture Filtering
@@ -112,6 +112,8 @@ static float            g_input_ff_stress;       ///< Config: FSETTING Force Fee
   //   float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
   //   float            g_gfx_fov_internal;      ///< Config: FLOAT FOV Internal
   //   int              g_gfx_fps_limit;         ///< Config: INT   FPS-Limiter
+
+
 // ================================================================================
 // Access functions
 // ================================================================================
@@ -151,6 +153,7 @@ float           GetInputFFCamera()      { return g_input_ff_camera;       }
 float           GetInputFFCentering()   { return g_input_ff_centering;    }
 float           GetInputFFGain()        { return g_input_ff_gain;         }
 float           GetInputFFStress()      { return g_input_ff_stress;       }
+GfxShadowType   GetGfxShadowType()      { return (GfxShadowType)g_gfx_shadow_type; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -177,6 +180,7 @@ void SetInputFFCamera     (float    v) { SetVarFloat   (g_input_ff_camera      ,
 void SetInputFFCentering  (float    v) { SetVarFloat   (g_input_ff_centering   , "input_ff_centering"   , v); }
 void SetInputFFGain       (float    v) { SetVarFloat   (g_input_ff_gain        , "input_ff_gain"        , v); }
 void SetInputFFStress     (float    v) { SetVarFloat   (g_input_ff_stress      , "input_ff_stress"      , v); }
+void SetGfxShadowType     (GfxShadowType  v) { SetVarInt     (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -297,6 +301,8 @@ void Init()
     g_sim_state_pending    = SIM_STATE_NONE;
 
     g_diag_trace_globals   = false; // Don't init to 'true', logger is not ready at startup.
+
+    g_gfx_shadow_type      = GFX_SHADOW_TYPE_PSSM;
 }
 
 
