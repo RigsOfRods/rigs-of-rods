@@ -257,7 +257,7 @@ void TopMenubar::vehiclesListUpdate()
 {
 	m_vehicles_menu_widget->removeAllItems();
 	
-	if (!(Application::GetActiveMpState() == Application::MP_STATE_CONNECTED))
+	if (!(App::GetActiveMpState() == App::MP_STATE_CONNECTED))
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();
@@ -302,7 +302,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 {
 	UTFString miname = UTFString(_item->getCaption().asWStr());
 	String id        = _item->getItemId();
-    auto* gui_man    = RoR::Application::GetGuiManager();
+    auto* gui_man    = RoR::App::GetGuiManager();
 
 	if (id.substr(0,6) == "TRUCK_")
 	{
@@ -322,36 +322,36 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 		if (user_uid == RoR::Networking::GetUID()) return;
 #endif // USE_SOCKETW
 
-		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
+		//RoR::App::GetConsole()->startPrivateChat(user_uid);
 		//TODO: Separate Chat and console
 	}
 	
-    const auto app_state = Application::GetActiveAppState();
-    if (app_state == Application::APP_STATE_BOOTSTRAP)
+    const auto app_state = App::GetActiveAppState();
+    if (app_state == App::APP_STATE_BOOTSTRAP)
     {
         return;
     }
 
 	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
-		if (app_state != Application::APP_STATE_SIMULATION)
+		if (app_state != App::APP_STATE_SIMULATION)
         {
             return;
         }
-        Application::SetActiveSimState(Application::SIM_STATE_SELECTING); // TODO: use 'pending' mechanism
+        App::SetActiveSimState(App::SIM_STATE_SELECTING); // TODO: use 'pending' mechanism
         gui_man->GetMainSelector()->Show(LT_AllBeam);
 
 	} else if (miname == _L("Reload current vehicle") && gEnv->player)
 	{
 		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
 		{
-			Application::GetMainThreadLogic()->GetFrameListener()->reloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
+			App::GetMainThreadLogic()->GetFrameListener()->reloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
 			gui_man->UnfocusGui();
 		}
 	}
 	else if (miname == _L("Back to menu"))
 	{
-		Application::SetPendingAppState(Application::APP_STATE_MAIN_MENU);
+		App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
 	}
 	else if (miname == _L("Remove current vehicle"))
 	{
@@ -380,10 +380,10 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
 	} else if (miname == _L("Friction Settings"))
 	{
-        Application::GetGuiManager()->SetVisible_FrictionSettings(true);
+        App::GetGuiManager()->SetVisible_FrictionSettings(true);
 	} else if (miname == _L("Exit"))
 	{
-        Application::SetPendingAppState(Application::APP_STATE_SHUTDOWN);
+        App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
 	} else if (miname == _L("Show Console"))
 	{
         gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
@@ -458,7 +458,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 void TopMenubar::SetVisible(bool value)
 {
 	m_menubar_widget->setVisible(value);
-	if (!value) RoR::Application::GetGuiManager()->UnfocusGui();
+	if (!value) RoR::App::GetGuiManager()->UnfocusGui();
 	//MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
@@ -501,12 +501,12 @@ void TopMenubar::triggerUpdateVehicleList()
 
 void TopMenubar::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)
 {
-    Application::GetGuiManager()->SetVisible_SpawnerReport(true);
+    App::GetGuiManager()->SetVisible_SpawnerReport(true);
 }
 
 void TopMenubar::ReflectMultiplayerState()
 {
-    const bool online = Application::GetActiveMpState() == Application::MP_STATE_CONNECTED;
+    const bool online = App::GetActiveMpState() == App::MP_STATE_CONNECTED;
     m_item_activate_all->setEnabled(!online);
     m_item_never_sleep ->setEnabled(!online);
     m_item_sleep_all   ->setEnabled(!online);

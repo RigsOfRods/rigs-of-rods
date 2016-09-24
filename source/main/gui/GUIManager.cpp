@@ -143,13 +143,13 @@ GUIManager::GUIManager() :
     m_renderwindow_closed(false),
     m_impl(nullptr)
 {
-    RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
-    RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), this);
+    RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+    RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    std::string gui_logfilename = Application::GetSysLogsDir() + PATH_SLASH + "MyGUI.log";
+    std::string gui_logfilename = App::GetSysLogsDir() + PATH_SLASH + "MyGUI.log";
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
-        RoR::Application::GetOgreSubsystem()->GetRenderWindow(), 
+        RoR::App::GetOgreSubsystem()->GetRenderWindow(), 
         gEnv->sceneManager,
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
         gui_logfilename); // use cache resource group so preview images are working
@@ -171,12 +171,12 @@ GUIManager::GUIManager() :
     m_impl->mygui = mygui;
 
     // move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
-    MyGUI::InputManager::getInstance().injectMouseMove(RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
+    MyGUI::InputManager::getInstance().injectMouseMove(RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
     MyGUI::PointerManager::getInstance().setVisible(true);
 #ifdef _WIN32
     MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
 #endif // _WIN32
-    windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
+    windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
 }
 
 GUIManager::~GUIManager()
@@ -219,7 +219,7 @@ bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
 	if (getLastMouseMoveTime() > 5000)
 	{
 		MyGUI::PointerManager::getInstance().setVisible(false);
-		//RoR::Application::GetGuiManager()->GetTopMenubar()->setVisible(false);
+		//RoR::App::GetGuiManager()->GetTopMenubar()->setVisible(false);
 	}
 
 	return true;
@@ -293,7 +293,7 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
 
 void GUIManager::AdjustMainMenuPosition()
 {
-    Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
     int margin = (viewport->getActualHeight() / 15);
     int top = viewport->getActualHeight() - m_impl->panel_GameMainMenu.GetHeight() - margin;
     m_impl->panel_GameMainMenu.SetPosition(margin, top);
@@ -329,7 +329,7 @@ void GUIManager::InitMainSelector(RoR::SkinManager* skin_manager)
 
 void GUIManager::AdjustPauseMenuPosition()
 {
-	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+	Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
 	int margin = (viewport->getActualHeight() / 15);
 	m_impl->panel_GamePauseMenu.SetPosition(
 		margin, // left
@@ -365,13 +365,13 @@ void GUIManager::hideGUI(bool hidden)
 
 void GUIManager::FrictionSettingsUpdateCollisions()
 {
-    Application::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
+    App::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
 }
 
 void GUIManager::ReflectGameState()
 {
-    const auto app_state = Application::GetActiveAppState();
-    if (app_state == Application::APP_STATE_MAIN_MENU)
+    const auto app_state = App::GetActiveAppState();
+    if (app_state == App::APP_STATE_MAIN_MENU)
     {
         m_impl->panel_GameMainMenu       .SetVisible(true);
         m_impl->panel_TopMenubar         .SetVisible(false);
@@ -386,7 +386,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_MpClientList       .SetVisible(false);
         return;
     }
-    if (app_state == Application::APP_STATE_SIMULATION)
+    if (app_state == App::APP_STATE_SIMULATION)
     {
         m_impl->panel_TopMenubar         .SetVisible(true);
         m_impl->panel_TopMenubar         .ReflectMultiplayerState();

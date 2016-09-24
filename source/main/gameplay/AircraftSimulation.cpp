@@ -49,56 +49,56 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	//turning
 	if (vehicle->replaymode)
 	{
-		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && vehicle->replaypos<=0)
+		if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && vehicle->replaypos<=0)
 		{
 			vehicle->replaypos++;
 		}
-		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && vehicle->replaypos > -vehicle->replaylen)
+		if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && vehicle->replaypos > -vehicle->replaylen)
 		{
 			vehicle->replaypos--;
 		}
-		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && vehicle->replaypos+10<=0)
+		if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && vehicle->replaypos+10<=0)
 		{
 			vehicle->replaypos+=10;
 		}
-		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && vehicle->replaypos-10 > -vehicle->replaylen)
+		if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && vehicle->replaypos-10 > -vehicle->replaylen)
 		{
 			vehicle->replaypos-=10;
 		}
 	} 
 	else
 	{
-		float tmp_left = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
-		float tmp_right = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
+		float tmp_left = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
+		float tmp_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
 		float sum_steer = -tmp_left + tmp_right;
-		RoR::Application::GetInputEngine()->smoothValue(vehicle->aileron, sum_steer, seconds_since_last_frame*commandrate);
+		RoR::App::GetInputEngine()->smoothValue(vehicle->aileron, sum_steer, seconds_since_last_frame*commandrate);
 		vehicle->hydrodircommand = vehicle->aileron;
-		vehicle->hydroSpeedCoupling = !(RoR::Application::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::Application::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
+		vehicle->hydroSpeedCoupling = !(RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
 	}
 
 	//pitch
-	float tmp_pitch_up = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
-	float tmp_pitch_down = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_DOWN);
+	float tmp_pitch_up = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
+	float tmp_pitch_down = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_DOWN);
 	float sum_pitch = tmp_pitch_down - tmp_pitch_up;
-	RoR::Application::GetInputEngine()->smoothValue(vehicle->elevator, sum_pitch, seconds_since_last_frame*commandrate);
+	RoR::App::GetInputEngine()->smoothValue(vehicle->elevator, sum_pitch, seconds_since_last_frame*commandrate);
 
 	//rudder
-	float tmp_rudder_left = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_LEFT);
-	float tmp_rudder_right = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_RIGHT);
+	float tmp_rudder_left = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_LEFT);
+	float tmp_rudder_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_RIGHT);
 	float sum_rudder = tmp_rudder_left - tmp_rudder_right;
-	RoR::Application::GetInputEngine()->smoothValue(vehicle->rudder, sum_rudder, seconds_since_last_frame*commandrate);
+	RoR::App::GetInputEngine()->smoothValue(vehicle->rudder, sum_rudder, seconds_since_last_frame*commandrate);
 
 	//brake
 	if (!vehicle->replaymode && !vehicle->parkingbrake)
 	{
 		vehicle->brake=0.0;
-		float brakevalue = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE);
+		float brakevalue = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE);
 		vehicle->brake=vehicle->brakeforce*0.66*brakevalue;
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
 	{
 		vehicle->parkingbrakeToggle();
-		if (RoR::Application::GetOverlayWrapper())
+		if (RoR::App::GetOverlayWrapper())
 		{
 			if (vehicle->parkingbrake)
 			{
@@ -111,7 +111,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 		}
 	}
 	//reverse
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_REVERSE))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_REVERSE))
 	{
 		for (int i=0; i<vehicle->free_aeroengine; i++)
 		{
@@ -120,7 +120,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	}
 
 	// toggle engines
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_TOGGLE_ENGINES))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_TOGGLE_ENGINES))
 	{
 		for (int i=0; i<vehicle->free_aeroengine; i++)
 		{
@@ -129,28 +129,28 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	}
 
 	//flaps
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_NONE))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_NONE))
 	{
 		if (vehicle->flap>0)
 		{
 			vehicle->flap=0;
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_FULL))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_FULL))
 	{
 		if (vehicle->flap<5)
 		{
 			vehicle->flap=5;
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_LESS))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_LESS))
 	{
 		if (vehicle->flap>0)
 		{
 			vehicle->flap=(vehicle->flap)-1;
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_MORE))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_MORE))
 	{
 		if (vehicle->flap<5)
 		{
@@ -159,28 +159,28 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	}
 
 	//airbrakes
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_NONE))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_NONE))
 	{
 		if (vehicle->airbrakeval>0)
 		{
 			vehicle->airbrakeval=0;
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
 	{
 		if (vehicle->airbrakeval<5)
 		{
 			vehicle->airbrakeval=5;
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
 	{
 		if (vehicle->airbrakeval>0)
 		{
 			vehicle->airbrakeval=(vehicle->airbrakeval)-1;
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
 	{
 		if (vehicle->airbrakeval<5)
 		{
@@ -189,7 +189,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 	}
 
 	//throttle
-	float tmp_throttle = RoR::Application::GetInputEngine()->getEventBoolValue(EV_AIRPLANE_THROTTLE);
+	float tmp_throttle = RoR::App::GetInputEngine()->getEventBoolValue(EV_AIRPLANE_THROTTLE);
 	if (tmp_throttle > 0)
 	{
 		for (int i=0; i<vehicle->free_aeroengine; i++)
@@ -197,15 +197,15 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 			vehicle->aeroengines[i]->setThrottle(tmp_throttle);
 		}
 	}
-	if (RoR::Application::GetInputEngine()->isEventDefined(EV_AIRPLANE_THROTTLE_AXIS))
+	if (RoR::App::GetInputEngine()->isEventDefined(EV_AIRPLANE_THROTTLE_AXIS))
 	{
-		float f = RoR::Application::GetInputEngine()->getEventValue(EV_AIRPLANE_THROTTLE_AXIS);
+		float f = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_THROTTLE_AXIS);
 		for (int i=0; i<vehicle->free_aeroengine; i++)
 		{
 			vehicle->aeroengines[i]->setThrottle(f);
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_DOWN, 0.1f))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_DOWN, 0.1f))
 	{
 		//throttle down
 		for (int i=0; i<vehicle->free_aeroengine; i++)
@@ -213,7 +213,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 			vehicle->aeroengines[i]->setThrottle(vehicle->aeroengines[i]->getThrottle()-0.05);
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_UP, 0.1f))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_UP, 0.1f))
 	{
 		//throttle up
 		for (int i=0; i<vehicle->free_aeroengine; i++)
@@ -221,7 +221,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 			vehicle->aeroengines[i]->setThrottle(vehicle->aeroengines[i]->getThrottle()+0.05);
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_NO, 0.1f))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_NO, 0.1f))
 	{
 		// no throttle
 		for (int i=0; i<vehicle->free_aeroengine; i++)
@@ -229,7 +229,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
 			vehicle->aeroengines[i]->setThrottle(0);
 		}
 	}
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_FULL, 0.1f))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_THROTTLE_FULL, 0.1f))
 	{
 		// full throttle
 		for (int i=0; i<vehicle->free_aeroengine; i++)

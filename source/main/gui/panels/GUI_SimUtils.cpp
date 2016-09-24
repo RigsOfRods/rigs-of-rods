@@ -174,7 +174,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 	if (b_fpsbox)
 	{
-		const Ogre::RenderTarget::FrameStats& stats = Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
+		const Ogre::RenderTarget::FrameStats& stats = App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
 		m_cur_fps->setCaptionWithReplacing(_L("Current FPS: ") + TOUTFSTRING(stats.lastFPS));
 		m_avg_fps->setCaptionWithReplacing(_L("Average FPS: ") + TOUTFSTRING(stats.avgFPS));
 		m_worst_fps->setCaptionWithReplacing(_L("Worst FPS: ") + TOUTFSTRING(stats.worstFPS));

@@ -281,7 +281,7 @@ void TerrainGeometryManager::initTerrain()
 
 	configureTerrainDefaults();
 
-    auto* loading_win = RoR::Application::GetGuiManager()->GetLoadingWindow();
+    auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
 
 	for (long x = pageMinX; x <= pageMaxX; ++x)
 	{

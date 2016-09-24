@@ -178,7 +178,7 @@ void Collisions::resizeMemory(long newSize)
 
 int Collisions::loadDefaultModels()
 {
-	return loadGroundModelsConfigFile(RoR::Application::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg");
+	return loadGroundModelsConfigFile(RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg");
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

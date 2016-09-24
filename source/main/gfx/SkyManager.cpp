@@ -38,11 +38,11 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 {
 	// Initialise CaelumSystem.
 	mCaelumSystem = new Caelum::CaelumSystem (
-		RoR::Application::GetOgreSubsystem()->GetOgreRoot(), 
+		RoR::App::GetOgreSubsystem()->GetOgreRoot(), 
 		gEnv->sceneManager, 
 		Caelum::CaelumSystem::CAELUM_COMPONENTS_DEFAULT
 	);
-	mCaelumSystem->attachViewport(RoR::Application::GetOgreSubsystem()->GetViewport());
+	mCaelumSystem->attachViewport(RoR::App::GetOgreSubsystem()->GetViewport());
 	/*
 	// TODO: set real time, and let the user select his true location
 	mCaelumSystem->getUniversalClock()->setGregorianDateTime(2008, 4, 9, 6, 33, 0);
@@ -52,13 +52,13 @@ SkyManager::SkyManager() : mCaelumSystem(0), lc(0)
 	*/
 
 	// Register caelum as a listener.
-	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->addListener (mCaelumSystem);
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(mCaelumSystem);
+	RoR::App::GetOgreSubsystem()->GetRenderWindow()->addListener (mCaelumSystem);
+	RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(mCaelumSystem);
 }
 
 SkyManager::~SkyManager()
 {
-	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->removeListener(mCaelumSystem);
+	RoR::App::GetOgreSubsystem()->GetRenderWindow()->removeListener(mCaelumSystem);
 	mCaelumSystem->shutdown(false);
 	mCaelumSystem = nullptr;
 }

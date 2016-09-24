@@ -160,7 +160,7 @@ void CLASS::Show()
 void CLASS::Hide(bool isMenu)
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-    Application::GetGuiManager()->SetVisible_GameMainMenu(true);
+    App::GetGuiManager()->SetVisible_GameMainMenu(true);
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
@@ -193,7 +193,7 @@ void CLASS::eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender)
 
 	if (ShowRestartNotice == true)
 	{
-		RoR::Application::GetGuiManager()->ShowMessageBox("Restart required", "You need to restart the game for few settings to apply. You can still play and restart next time, but the game can glitch out.", true, "Ok", true, false, "");
+		RoR::App::GetGuiManager()->ShowMessageBox("Restart required", "You need to restart the game for few settings to apply. You can still play and restart next time, but the game can glitch out.", true, "Ok", true, false, "");
 	}
 
 	this->Hide();
@@ -250,7 +250,7 @@ void CLASS::UpdateControls()
 	// add all rendersystems to the list
 	if (m_render_sys->getItemCount() == 0)
 	{
-		const Ogre::RenderSystemList list = Application::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
+		const Ogre::RenderSystemList list = App::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
 		int selection = 0;
 		for (Ogre::RenderSystemList::const_iterator it = list.begin(); it != list.end(); it++, valuecounter++)
 		{
@@ -961,7 +961,7 @@ void CLASS::SaveSettings()
 
 	if (isKeyMapLoaded)
 	{
-		Application::GetInputEngine()->saveMapping("input.map", RoR::Application::GetOgreSubsystem()->GetMainHWND());
+		App::GetInputEngine()->saveMapping("input.map", RoR::App::GetOgreSubsystem()->GetMainHWND());
 	}
 
 	//Something used by both saves
@@ -1010,22 +1010,22 @@ void CLASS::SaveSettings()
 			Ogre::StringVector args = Ogre::StringUtil::split(OgreSettingsMap["Video Mode"], " ");
 
 			static int org_width = -1, org_height = -1;
-			int width = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth();
-			int height = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight();
+			int width = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth();
+			int height = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight();
 			if (org_width == -1)
 				org_width = width;
 			if (org_height == -1)
 				org_height = height;
-			bool mode = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isFullScreen();
+			bool mode = RoR::App::GetOgreSubsystem()->GetRenderWindow()->isFullScreen();
 			if (!mode)
 			{
-				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(true, (int)args[0].c_str(), (int)args[2].c_str());
+				RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(true, (int)args[0].c_str(), (int)args[2].c_str());
 				LOG(" ** switched to fullscreen: " + TOSTRING(width) + "x" + TOSTRING(height));
 			}
 			else
 			{
-				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, 640, 480);
-				RoR::Application::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
+				RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, 640, 480);
+				RoR::App::GetOgreSubsystem()->GetRenderWindow()->setFullscreen(false, org_width, org_height);
 				LOG(" ** switched to windowed mode: ");
 			}
 			ShowRestartNotice = false;
@@ -1037,9 +1037,9 @@ void CLASS::SaveSettings()
 void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	Application::GetMainThreadLogic()->RegenCache();
+	App::GetMainThreadLogic()->RegenCache();
 	MAIN_WIDGET->setVisibleSmooth(true);
-	RoR::Application::GetGuiManager()->ShowMessageBox("Cache regenerated", "Cache regenerated succesfully!", true, "Ok", true, false, "");
+	RoR::App::GetGuiManager()->ShowMessageBox("Cache regenerated", "Cache regenerated succesfully!", true, "Ok", true, false, "");
 }
 
 void CLASS::OnTabChange(MyGUI::TabControl* _sender, size_t _index)
@@ -1056,7 +1056,7 @@ void CLASS::LoadKeyMap()
 	//Cleanup first
 	m_keymapping->removeAllItems();
 
-	KeyMap = Application::GetInputEngine()->getEvents();
+	KeyMap = App::GetInputEngine()->getEvents();
 
 	std::map<int, std::vector<event_trigger_t>>::iterator it;
 
@@ -1081,9 +1081,9 @@ void CLASS::LoadKeyMap()
 				m_keymap_group->setIndexSelected(0); //at least select something
 
 			std::string prefix = m_keymap_group->getCaption();
-			if (strncasecmp(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), prefix.c_str(), prefix.length()))
+			if (strncasecmp(App::GetInputEngine()->eventIDToName(mapIt->first).c_str(), prefix.c_str(), prefix.length()))
 			{
-				m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
+				m_keymapping->addItem(App::GetInputEngine()->eventIDToName(mapIt->first).c_str());
 				m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() -1, vecIt->configline);
 			}
 
@@ -1123,9 +1123,9 @@ void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
 		for (vecIt = vec.begin(); vecIt != vec.end(); vecIt++, counter++)
 		{
 			std::string prefix = _sender->getItemNameAt(_index);
-			if (strncasecmp(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), prefix.c_str(), prefix.length()))
+			if (strncasecmp(App::GetInputEngine()->eventIDToName(mapIt->first).c_str(), prefix.c_str(), prefix.length()))
 			{
-				m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
+				m_keymapping->addItem(App::GetInputEngine()->eventIDToName(mapIt->first).c_str());
 				m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() - 1, vecIt->configline);
 			}
 		}
@@ -1137,7 +1137,7 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 {
 	// List files in cache
 	RoR::FileSystem::VectorFileInfo cache_files;
-	std::string cache_dir_str = Application::GetSysCacheDir() + PATH_SLASH;
+	std::string cache_dir_str = App::GetSysCacheDir() + PATH_SLASH;
 	std::wstring cache_dir_wstr = MyGUI::UString(cache_dir_str).asWStr();
 	RoR::FileSystem::getSystemFileList(cache_files, cache_dir_wstr, L"*.*");
 
@@ -1148,7 +1148,7 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 	});
 
 	ShowRestartNotice = true;
-	RoR::Application::GetGuiManager()->ShowMessageBox("Cache cleared", "Cache cleared succesfully, you need to restart the game for the changes to apply.", true, "Ok", true, false, "");
+	RoR::App::GetGuiManager()->ShowMessageBox("Cache cleared", "Cache cleared succesfully, you need to restart the game for the changes to apply.", true, "Ok", true, false, "");
 
 }
 
@@ -1177,7 +1177,7 @@ void CLASS::FrameEntered(float dt)
 {
 	unsigned long Timer = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 
-	if (RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RETURN) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_ESCAPE))
+	if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RETURN) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_ESCAPE))
 	{
 		MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &CLASS::FrameEntered);
 		isFrameActivated = false;
@@ -1187,7 +1187,7 @@ void CLASS::FrameEntered(float dt)
 	}
 
 	std::string combo;
-	int keys = RoR::Application::GetInputEngine()->getCurrentKeyCombo(&combo);
+	int keys = RoR::App::GetInputEngine()->getCurrentKeyCombo(&combo);
 	if (keys != 0)
 	{
 		endTime = Timer + 5000;

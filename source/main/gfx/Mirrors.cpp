@@ -59,8 +59,8 @@ void Init()
 	mMirrorCam->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
 	mMirrorCam->setFOVy(Degree(50));
 	mMirrorCam->setAspectRatio(
-		((Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() / 
-		 (Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight()) / 2.0f);
+		((Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() / 
+		 (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight()) / 2.0f);
 
 	Viewport *v = mRttTex->addViewport(mMirrorCam);
 	v->setClearEveryFrame(true);

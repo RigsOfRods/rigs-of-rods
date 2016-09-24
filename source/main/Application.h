@@ -29,8 +29,11 @@
 #include "RoRPrerequisites.h"
 #include "Settings.h"
 
+#define STR       std::string
+#define STR_CREF  std::string const &
+
 namespace RoR {
-namespace Application {
+namespace App {
 
 enum State
 {
@@ -76,23 +79,23 @@ MainThread*          GetMainThreadLogic();
 
 State                GetActiveAppState();
 State                GetPendingAppState();
-std::string          GetActiveTerrain();
-std::string          GetPendingTerrain();
+STR_CREF             GetActiveTerrain();
+STR_CREF             GetPendingTerrain();
 MpState              GetActiveMpState();
 MpState              GetPendingMpState();
 SimState             GetActiveSimState();
 SimState             GetPendingSimState();
-std::string          GetMpServerHost();
-std::string          GetMpServerPassword();
+STR_CREF             GetMpServerHost();
+STR_CREF             GetMpServerPassword();
 int                  GetMpServerPort();
-std::string          GetMpPlayerName();
+STR_CREF             GetMpPlayerName();
 bool                 GetDiagTraceGlobals();
-std::string          GetSysProcessDir();
-std::string          GetSysUserDir();
-std::string          GetSysConfigDir();
-std::string          GetSysCacheDir();
-std::string          GetSysLogsDir();
-std::string          GetSysResourcesDir();
+STR_CREF             GetSysProcessDir();
+STR_CREF             GetSysUserDir();
+STR_CREF             GetSysConfigDir();
+STR_CREF             GetSysCacheDir();
+STR_CREF             GetSysLogsDir();
+STR_CREF             GetSysResourcesDir();
 bool                 GetInputFFEnabled();
 float                GetInputFFCamera();
 float                GetInputFFCentering();
@@ -100,31 +103,32 @@ float                GetInputFFGain();
 float                GetInputFFStress();
 
 // Setters
-void SetActiveAppState   (State               v);
-void SetPendingAppState  (State               v);
-void SetActiveTerrain    (std::string const & v);
-void SetPendingTerrain   (std::string const & v);
-void SetActiveMpState    (MpState             v);
-void SetPendingMpState   (MpState             v);
-void SetActiveSimState   (SimState            v);
-void SetPendingSimState  (SimState            v);
-void SetMpServerHost     (std::string const & v);
-void SetMpServerPassword (std::string const & v);
-void SetMpServerPort     (int         const & v);
-void SetMpPlayerName     (std::string const & v);
-void SetDiagTraceGlobals (bool                v);
-void SetSysProcessDir    (std::string const & v);
-void SetSysUserDir       (std::string const & v);
-void SetSysConfigDir     (std::string const & v);
-void SetSysCacheDir      (std::string const & v);
-void SetSysLogsDir       (std::string const & v);
-void SetSysResourcesDir  (std::string const & v);
-void SetInputFFEnabled   (bool                v);
-void SetInputFFCamera    (float               v);
-void SetInputFFCentering (float               v);
-void SetInputFFGain      (float               v);
-void SetInputFFStress    (float               v);
-void SetMainThreadLogic  (MainThread*       obj);
+void SetActiveAppState   (State    v);
+void SetPendingAppState  (State    v);
+void SetActiveTerrain    (STR_CREF v);
+void SetPendingTerrain   (STR_CREF v);
+void SetActiveMpState    (MpState  v);
+void SetPendingMpState   (MpState  v);
+void SetActiveSimState   (SimState v);
+void SetPendingSimState  (SimState v);
+void SetMpServerHost     (STR_CREF v);
+void SetMpServerPassword (STR_CREF v);
+void SetMpServerPort     (int      v);
+void SetMpPlayerName     (STR_CREF v);
+void SetDiagTraceGlobals (bool     v);
+void SetSysProcessDir    (STR_CREF v);
+void SetSysUserDir       (STR_CREF v);
+void SetSysConfigDir     (STR_CREF v);
+void SetSysCacheDir      (STR_CREF v);
+void SetSysLogsDir       (STR_CREF v);
+void SetSysResourcesDir  (STR_CREF v);
+void SetInputFFEnabled   (bool     v);
+void SetInputFFCamera    (float    v);
+void SetInputFFCentering (float    v);
+void SetInputFFGain      (float    v);
+void SetInputFFStress    (float    v);
+
+void SetMainThreadLogic  (MainThread* obj);
 
 // Factories
 void StartOgreSubsystem();

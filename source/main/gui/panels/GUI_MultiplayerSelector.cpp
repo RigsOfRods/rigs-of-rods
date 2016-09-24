@@ -107,9 +107,9 @@ void CLASS::eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    Application::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
-    Application::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
-    Application::GetMainThreadLogic()->JoinMultiplayerServer();
+    App::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
+    App::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
+    App::GetMainThreadLogic()->JoinMultiplayerServer();
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
@@ -117,9 +117,9 @@ void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
     if (_name == "close")
     {
         this->Hide();
-        if (Application::GetActiveAppState() == Application::APP_STATE_MAIN_MENU)
+        if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
         {
-            Application::GetGuiManager()->SetVisible_GameMainMenu(true);
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
     }
 }

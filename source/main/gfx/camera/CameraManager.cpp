@@ -78,7 +78,7 @@ CameraManager::~CameraManager()
 
 bool CameraManager::update(float dt) // Called every frame
 {
-    if (RoR::Application::GetActiveSimState() == RoR::Application::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
+    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
 
 	if ( dt == 0 ) return false;
 
@@ -92,17 +92,17 @@ bool CameraManager::update(float dt) // Called every frame
 	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f)); // FIXME: No reason for this to be done per frame.
 	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f)); // FIXME: No reason for this to be done per frame.
 
-	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
 	{
 		switchToNextBehavior(false);
 	}
 
-	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FIXED);
 	}
 
-	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
 	{
 		toggleBehavior(CAMERA_BEHAVIOR_FREE);
 	}

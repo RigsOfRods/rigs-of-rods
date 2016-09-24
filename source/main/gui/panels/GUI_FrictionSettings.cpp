@@ -412,7 +412,7 @@ void FrictionSettings::SetVisible(bool value)
 			updateControls(gm, false);
 	} else
 	{
-		RoR::Application::GetGuiManager()->UnfocusGui();
+		RoR::App::GetGuiManager()->UnfocusGui();
 	}
 	win->setVisibleSmooth(value);
 	//win->setVisible(value);

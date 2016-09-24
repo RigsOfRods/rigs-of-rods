@@ -53,7 +53,7 @@ CLASS::CLASS() :
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
 
 	/* Adjust menu position */
-	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+	Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
 	int margin = (viewport->getActualHeight() / 6);
 	MAIN_WIDGET->setPosition(
 		2, // left
@@ -124,7 +124,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 	}
 
 #ifdef USE_SOCKETW
-	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		RoR::ChatSystem::SendChat(msg.c_str());
 		return;
@@ -132,7 +132,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 #endif // USE_SOCKETW
 
 	//MyGUI::InputManager::getInstance().resetKeyFocusWidget();
-	RoR::Application::GetGuiManager()->UnfocusGui();
+	RoR::App::GetGuiManager()->UnfocusGui();
 }
 
 void CLASS::Update(float dt)

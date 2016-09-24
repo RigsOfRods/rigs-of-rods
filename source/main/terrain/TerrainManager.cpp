@@ -148,7 +148,7 @@ TerrainManager::~TerrainManager()
 
 // some shortcut to remove ugly code
 #ifdef USE_MYGUI
-#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
+#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 #else
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
 #endif //USE_MYGUI
@@ -719,7 +719,7 @@ void TerrainManager::initScripting()
 	bool loaded = false;
 
 	// only load terrain scripts while not in multiplayer
-	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		try
 		{

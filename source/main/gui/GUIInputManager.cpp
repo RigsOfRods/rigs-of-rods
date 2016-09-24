@@ -104,7 +104,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 	activateGUI();
 	MyGUI::PointerManager::getInstance().setPointer("arrow");
 
-	if (RoR::Application::GetActiveSimState() == RoR::Application::SIM_STATE_PAUSED)
+	if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED)
 	{
 		MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
 		mCursorX = _arg.state.X.abs;
@@ -126,15 +126,15 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 			handled = false;
 	}
 
-	if (!handled && RoR::Application::GetOverlayWrapper() != nullptr)
+	if (!handled && RoR::App::GetOverlayWrapper() != nullptr)
 	{
 		// update the old airplane / autopilot gui
-		handled = RoR::Application::GetOverlayWrapper()->mouseMoved(_arg);
+		handled = RoR::App::GetOverlayWrapper()->mouseMoved(_arg);
 	}
 
 	if (!handled)
 	{
-		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
+		RoR::SceneMouse *sm = RoR::App::GetSceneMouse();
 		if (sm)
 		{
 			// not handled by gui
@@ -152,7 +152,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 	mCursorX = _arg.state.X.abs;
 	mCursorY = _arg.state.Y.abs;
 
-	RoR::Application::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
+	RoR::App::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
 
 	checkPosition();
 	return true;
@@ -165,7 +165,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 	mCursorX = _arg.state.X.abs;
 	mCursorY = _arg.state.Y.abs;
 
-	RoR::Application::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
+	RoR::App::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
 
 	// fallback, handle by GUI, then by RoR::SceneMouse
 	bool handled = MyGUI::InputManager::getInstance().injectMousePress(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
@@ -180,15 +180,15 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 			handled = false;
 	}
 
-	if (!handled && RoR::Application::GetOverlayWrapper())
+	if (!handled && RoR::App::GetOverlayWrapper())
 	{
 		// update the old airplane / autopilot gui
-		handled = RoR::Application::GetOverlayWrapper()->mousePressed(_arg, _id);
+		handled = RoR::App::GetOverlayWrapper()->mousePressed(_arg, _id);
 	}
 
 	if (!handled)
 	{
-		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
+		RoR::SceneMouse *sm = RoR::App::GetSceneMouse();
 		if (sm) return sm->mousePressed(_arg, _id);
 	}
 	return handled;
@@ -212,15 +212,15 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 			handled = false;
 	}
 
-	if (!handled && RoR::Application::GetOverlayWrapper())
+	if (!handled && RoR::App::GetOverlayWrapper())
 	{
 		// update the old airplane / autopilot gui
-		handled = RoR::Application::GetOverlayWrapper()->mouseReleased(_arg, _id);
+		handled = RoR::App::GetOverlayWrapper()->mouseReleased(_arg, _id);
 	}
 
 	if (!handled)
 	{
-		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
+		RoR::SceneMouse *sm = RoR::App::GetSceneMouse();
 		if (sm) return sm->mouseReleased(_arg, _id);
 	}
 	return handled;
@@ -261,7 +261,7 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
 	if (!handled)
 	{
-		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
+		RoR::SceneMouse *sm = RoR::App::GetSceneMouse();
 		if (sm) return sm->keyPressed(_arg);
 	}
 
@@ -283,7 +283,7 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 
 	if (!handled)
 	{
-		RoR::SceneMouse *sm = RoR::Application::GetSceneMouse();
+		RoR::SceneMouse *sm = RoR::App::GetSceneMouse();
 		if (sm) return sm->keyReleased(_arg);
 	}
 
@@ -324,7 +324,7 @@ void GUIInputManager::activateGUI()
 	lastMouseMoveTime->reset();
 	MyGUI::PointerManager::getInstance().setVisible(true);
 
-    RoR::Application::GetGuiManager()->SetVisible_TopMenubar(true);
+    RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);
 }
 
 #endif // USE_MYGUI

@@ -130,7 +130,7 @@ void ContentManager::AddResourcePack(ResourcePack const & resource_pack)
 		return;
 	}
 	log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
-    Ogre::String resources_dir = Application::GetSysResourcesDir() + PATH_SLASH;
+    Ogre::String resources_dir = App::GetSysResourcesDir() + PATH_SLASH;
 	Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
 	if (PlatformUtils::FileExists(zip_path))
 	{
@@ -376,7 +376,7 @@ void ContentManager::exploreFolders(Ogre::String rg)
 
 void ContentManager::InitManagedMaterials()
 {
-	Ogre::String managed_materials_dir = Application::GetSysResourcesDir() + PATH_SLASH + "managed_materials" + PATH_SLASH;
+	Ogre::String managed_materials_dir = App::GetSysResourcesDir() + PATH_SLASH + "managed_materials" + PATH_SLASH;
 
 	//Dirty, needs to be improved
 	if (SSETTING("Shadow technique", "Parallel-split Shadow Maps") == "Parallel-split Shadow Maps")

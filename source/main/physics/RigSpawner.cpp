@@ -568,7 +568,7 @@ void RigSpawner::FinalizeRig()
 		{
 			
 #ifdef USE_MYGUI
-			RoR::Console *console = RoR::Application::GetConsole();
+			RoR::Console *console = RoR::App::GetConsole();
 			if (console) console->putMessage(
 				Console::CONSOLE_MSGTYPE_INFO, 
 				Console::CONSOLE_SYSTEM_ERROR, 
@@ -577,7 +577,7 @@ void RigSpawner::FinalizeRig()
 				30000, 
 				true
 			);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
+			RoR::App::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
 #endif // USE_MYGUI
 
 			Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";
@@ -2338,7 +2338,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			// we are using keys as source
 			prop.animFlags[anim_index] |= ANIM_FLAG_EVENT;
 
-			int event_id = RoR::Application::GetInputEngine()->resolveEventName(anim_itor->event);
+			int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_itor->event);
 			if (event_id == -1)
 			{
 				AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_itor->event);

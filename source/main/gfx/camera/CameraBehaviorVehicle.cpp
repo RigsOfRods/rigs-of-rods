@@ -85,7 +85,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 {
 	const OIS::MouseState ms = _arg.state;
 
-	if ( ms.buttonDown(OIS::MB_Middle) && RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
+	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
 		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
 		{

@@ -94,10 +94,10 @@ void CLASS::Show()
 		gEnv->player->setPhysicsEnabled(false);
 	}
 
-	Application::SetPendingSimState(Application::SIM_STATE_PAUSED);
+	App::SetPendingSimState(App::SIM_STATE_PAUSED);
 	BeamFactory::getSingleton().MuteAllTrucks();
 
-	const bool online = RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED;
+	const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
 	m_change_map->setEnabled(!online);
 }
 
@@ -115,7 +115,7 @@ void CLASS::Hide()
 		gEnv->player->setPhysicsEnabled(true);
 	}
 
-	Application::SetActiveSimState(Application::SIM_STATE_RUNNING); // TODO: Use the 'pending' mechanism
+	App::SetActiveSimState(App::SIM_STATE_RUNNING); // TODO: Use the 'pending' mechanism
 	BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 
@@ -127,13 +127,13 @@ void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_CHANGE_MAP);
+	RoR::App::SetPendingAppState(RoR::App::APP_STATE_CHANGE_MAP);
 }
 
 void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	Application::SetPendingAppState(Application::APP_STATE_MAIN_MENU);
+	App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
@@ -143,7 +143,7 @@ void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
 {
     Hide();
-    RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_SHUTDOWN);
+    RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
 }
 
 void CLASS::SetVisible(bool v) { if (v) { this->Show(); } else { MAIN_WIDGET->setVisible(false); } }

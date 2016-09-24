@@ -55,7 +55,7 @@ HydraxWater::~HydraxWater()
 
 void HydraxWater::InitHydrax()
 {
-	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::Application::GetOgreSubsystem()->GetViewport());
+	mHydrax = new Hydrax::Hydrax(gEnv->sceneManager, mRenderCamera, RoR::App::GetOgreSubsystem()->GetViewport());
 
 	waternoise = new Hydrax::Noise::Perlin();
 	mModule = new Hydrax::Module::ProjectedGrid(// Hydrax parent pointer

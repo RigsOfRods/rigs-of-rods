@@ -55,7 +55,7 @@ CameraBehaviorOrbit::CameraBehaviorOrbit() :
 
 void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 {
-	if ( RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK) )
 	{
 		if ( camRotX > Degree(0) )
 		{
@@ -66,52 +66,52 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext &ctx)
 		}
 	}
 
-	camRotX += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
-	camRotY += (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP)   - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN))  * ctx.mRotScale;
+	camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
+	camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP)   - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN))  * ctx.mRotScale;
 
 	camRotY = std::max((Radian)Degree(-80), camRotY);
 	camRotY = std::min(camRotY, (Radian)Degree(88));
 
-	camRotXSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-	camRotYSwivel = (RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP)   - RoR::Application::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN))  * Degree(60);
+	camRotXSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
+	camRotYSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP)   - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN))  * Degree(60);
 
 	camRotYSwivel = std::max((Radian)Degree(-80) - camRotY, camRotYSwivel);
 	camRotYSwivel = std::min(camRotYSwivel, (Radian)Degree(88) - camRotY);
 
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1 )
 	{
 		camDist -= ctx.mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && camDist > 1 )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && camDist > 1 )
 	{
 		camDist -= ctx.mTransScale * 10;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT) )
 	{
 		camDist += ctx.mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST) )
 	{
 		camDist += ctx.mTransScale * 10;
 	}
 
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET) )
 	{
 		reset(ctx);
 	}
 
-	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
+	if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
 	{
 		limitCamMovement = !limitCamMovement;
 #ifdef USE_MYGUI
 		if ( limitCamMovement )
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement enabled"), "camera_go.png", 3000);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement enabled"));
+			RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement enabled"), "camera_go.png", 3000);
+			RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement enabled"));
 		} else
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement disabled"), "camera_go.png", 3000);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement disabled"));
+			RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement disabled"), "camera_go.png", 3000);
+			RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement disabled"));
 		}
 #endif // USE_MYGUI
 	}
@@ -184,7 +184,7 @@ bool CameraBehaviorOrbit::mouseMoved(const CameraManager::CameraContext &ctx, co
 
 	if ( ms.buttonDown(OIS::MB_Right) )
 	{
-		float scale = RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
+		float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
 		camRotX += Degree( ms.X.rel * 0.13f);
 		camRotY += Degree(-ms.Y.rel * 0.13f);
 		camDist +=        -ms.Z.rel * scale;

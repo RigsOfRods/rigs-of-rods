@@ -194,13 +194,13 @@ int DetectBasePaths()
         return -1;        
     } 
 #endif
-    Application::SetSysProcessDir(RoR::System::GetParentDirectory(buf));      
+    App::SetSysProcessDir(RoR::System::GetParentDirectory(buf));      
 
     // User directory (local override)
-    std::string local_userdir = Application::GetSysProcessDir() + PATH_SLASH + "config";
+    std::string local_userdir = App::GetSysProcessDir() + PATH_SLASH + "config";
     if (FolderExists(local_userdir.c_str()))
     {
-        Application::SetSysUserDir(local_userdir);
+        App::SetSysUserDir(local_userdir);
         return 0; // Done!
     }
     
@@ -220,7 +220,7 @@ int DetectBasePaths()
 
 #endif
 
-    Application::SetSysUserDir(buf);    
+    App::SetSysUserDir(buf);    
     return 0;
 }
 
@@ -237,7 +237,7 @@ Settings::~Settings()
 {
 }
 
-//RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED
+//RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED
 
 void Settings::ProcessCommandLine(int argc, char *argv[])
 {
@@ -247,17 +247,17 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
     {
         if (args.LastError() != SO_SUCCESS)
         {
-            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_PRINT_HELP_EXIT);
+            RoR::App::SetPendingAppState(RoR::App::APP_STATE_PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_HELP)
         {
-            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_PRINT_HELP_EXIT);
+            RoR::App::SetPendingAppState(RoR::App::APP_STATE_PRINT_HELP_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_VER)
         {
-            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_PRINT_VERSION_EXIT);
+            RoR::App::SetPendingAppState(RoR::App::APP_STATE_PRINT_VERSION_EXIT);
             return;
         }
         else if (args.OptionId() == OPT_TRUCK) 
@@ -270,7 +270,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         } 
         else if (args.OptionId() == OPT_MAP) 
         {
-            RoR::Application::SetPendingTerrain(args.OptionArg());
+            RoR::App::SetPendingTerrain(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_NOCRASHCRPT) 
         {
@@ -325,7 +325,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
             const int colon = server_args.rfind(":");
             if (colon != std::string::npos)
             {
-                RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_CONNECTED);
+                RoR::App::SetPendingMpState(RoR::App::MP_STATE_CONNECTED);
 
                 std::string host_str;
                 std::string port_str;
@@ -339,8 +339,8 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
                     host_str = server_args.substr(0, colon);
                     port_str = server_args.substr(colon + 1, server_args.length());
                 }
-                RoR::Application::SetMpServerHost(host_str);
-                RoR::Application::SetMpServerPort(Ogre::StringConverter::parseInt(port_str));
+                RoR::App::SetMpServerHost(host_str);
+                RoR::App::SetMpServerPort(Ogre::StringConverter::parseInt(port_str));
             }
         }
     }
@@ -452,7 +452,7 @@ void Settings::createGUID()
 
 void Settings::saveSettings()
 {
-	saveSettings(RoR::Application::GetSysConfigDir() + PATH_SLASH + "RoR.cfg");
+	saveSettings(RoR::App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg");
 }
 
 void Settings::saveSettings(String configFile)
@@ -490,8 +490,9 @@ void Settings::saveSettings(String configFile)
 	fclose(fd);*/
 }
 
-#define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool (_VAL_)
+#define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
+#define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
 
 bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const & value)
 {
@@ -500,20 +501,20 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     // Process and erase settings which propagate to global vars.
     if (name == "Network enable" && (Ogre::StringConverter::parseBool(value) == true))
     {
-        RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_CONNECTED);
+        RoR::App::SetPendingMpState(RoR::App::MP_STATE_CONNECTED);
         return true;
     }
-    else if (name == "Preselected Map")   { RoR::Application::SetPendingTerrain(value);                                return true; }
-    else if (name == "Nickname")          { RoR::Application::SetMpPlayerName(value);                                  return true; }
-    else if (name == "Server name")       { RoR::Application::SetMpServerHost(value);                                  return true; }
-    else if (name == "Server port")       { RoR::Application::SetMpServerPort(Ogre::StringConverter::parseInt(value)); return true; }
-    else if (name == "Server password")   { RoR::Application::SetMpServerPassword(value);                              return true; }
+    else if (name == "Preselected Map"         ) { App::SetPendingTerrain            (value);  return true; }
+    else if (name == "Nickname"                ) { App::SetMpPlayerName              (value);  return true; }
+    else if (name == "Server name"             ) { App::SetMpServerHost              (value);  return true; }
+    else if (name == "Server port"             ) { App::SetMpServerPort    (STR2INT32(value)); return true; }
+    else if (name == "Server password"         ) { App::SetMpServerPassword          (value);  return true; }
     // Input
-    else if (name == "Force Feedback"          ) { Application::SetInputFFEnabled  (STR2BOOL_(value)); return true; }
-    else if (name == "Force Feedback Camera"   ) { Application::SetInputFFCamera   (STR2FLOAT(value)); return true; }
-    else if (name == "Force Feedback Centering") { Application::SetInputFFCentering(STR2FLOAT(value)); return true; }
-    else if (name == "Force Feedback Gain"     ) { Application::SetInputFFGain     (STR2FLOAT(value)); return true; }
-    else if (name == "Force Feedback Stress"   ) { Application::SetInputFFStress   (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback"          ) { App::SetInputFFEnabled  (STR2BOOL_(value)); return true; }
+    else if (name == "Force Feedback Camera"   ) { App::SetInputFFCamera   (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Centering") { App::SetInputFFCentering(STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Gain"     ) { App::SetInputFFGain     (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Stress"   ) { App::SetInputFFStress   (STR2FLOAT(value)); return true; }
 
     return false;
 }
@@ -608,29 +609,29 @@ int Settings::generateBinaryHash()
 bool Settings::SetupAllPaths()
 {
     using namespace RoR;
-    std::string user_dir = Application::GetSysUserDir();
+    std::string user_dir = App::GetSysUserDir();
         
-    Application::SetSysConfigDir(user_dir + PATH_SLASH + "config");
-    Application::SetSysCacheDir (user_dir + PATH_SLASH + "cache" );
+    App::SetSysConfigDir(user_dir + PATH_SLASH + "config");
+    App::SetSysCacheDir (user_dir + PATH_SLASH + "cache" );
     
-    std::string process_dir = Application::GetSysProcessDir();
+    std::string process_dir = App::GetSysProcessDir();
     std::string resources_dir = process_dir + PATH_SLASH + "resources";
     if (FolderExists(resources_dir))
     {
-        Application::SetSysResourcesDir(resources_dir);
+        App::SetSysResourcesDir(resources_dir);
         return true;
     }
     resources_dir = System::GetParentDirectory(process_dir.c_str());
     if (FolderExists(resources_dir))
     {
-        Application::SetSysResourcesDir(resources_dir);
+        App::SetSysResourcesDir(resources_dir);
         return true;
     }
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     resources_dir = "/usr/share/rigsofrods/resources/";
     if (FolderExists(resources_dir))
     {
-        Application::SetSysResourcesDir(resources_dir);
+        App::SetSysResourcesDir(resources_dir);
         return true;
     }
 #endif

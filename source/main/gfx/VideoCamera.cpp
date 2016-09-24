@@ -180,11 +180,11 @@ void VideoCamera::setActive(bool state)
 
 void VideoCamera::update(float dt)
 {
-    if (RoR::Application::GetActiveSimState() == RoR::Application::SIM_STATE_PAUSED) { return; } // Do nothing when paused
+    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return; } // Do nothing when paused
 
 #ifdef USE_CAELUM
 	// caelum needs to know that we changed the cameras
-	if (gEnv->sky && RoR::Application::GetActiveAppState() == RoR::Application::APP_STATE_SIMULATION)
+	if (gEnv->sky && RoR::App::GetActiveAppState() == RoR::App::APP_STATE_SIMULATION)
     {
 		gEnv->sky->notifyCameraChanged(mVidCam);
     }

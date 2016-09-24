@@ -112,7 +112,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 		mScale = 1.5f;
 
 	// disable waves in multiplayer
-	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
     {
 		haswaves = false;
     }
@@ -131,7 +131,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 	if (haswaves)
 	{
 		char line[1024] = {};
-        std::string filepath = RoR::Application::GetSysConfigDir() + PATH_SLASH + "wavefield.cfg";
+        std::string filepath = RoR::App::GetSysConfigDir() + PATH_SLASH + "wavefield.cfg";
 		FILE *fd = fopen(filepath.c_str(), "r");
 		if (fd)
 		{
@@ -264,8 +264,8 @@ void Water::processWater(int mType)
 				mRefractCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
 				mRefractCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 				mRefractCam->setAspectRatio(
-					(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-					(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
+					(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+					(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
 				vRtt1 = rttTex1->addViewport(mRefractCam);
 				vRtt1->setClearEveryFrame(true);
@@ -298,8 +298,8 @@ void Water::processWater(int mType)
 			mReflectCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
 			mReflectCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 			mReflectCam->setAspectRatio(
-				(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-				(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
+				(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+				(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
 			vRtt2 = rttTex2->addViewport(mReflectCam);
 			vRtt2->setClearEveryFrame(true);

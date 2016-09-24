@@ -135,7 +135,7 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
 
 	// Identifier which uniquely identifies a certain player in a context (e.g. the ingame Name).
 	std::wstring wplayername;
-	wplayername.assign(RoR::Application::GetMpPlayerName().begin(), RoR::Application::GetMpPlayerName().end());
+	wplayername.assign(RoR::App::GetMpPlayerName().begin(), RoR::App::GetMpPlayerName().end());
 	wcsncpy(lm->identity, wplayername.c_str(), 256);
 
 	// Context should be equal for players which should be able to hear each other _positional_ and
@@ -148,9 +148,9 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
 	// so we should take that into account as well
 
 	int teamID = 0; // RoR currently doesn't have any kind of team-based gameplay
-    int port = RoR::Application::GetMpServerPort();
+    int port = RoR::App::GetMpServerPort();
     port = (port != 0) ? port : 1337;
-	sprintf((char *)lm->context, "%s:%s|%d", RoR::Application::GetMpServerHost().c_str(), TOSTRING(port).c_str(), teamID);
+	sprintf((char *)lm->context, "%s:%s|%d", RoR::App::GetMpServerHost().c_str(), TOSTRING(port).c_str(), teamID);
 	lm->context_len = (int)strnlen((char *)lm->context, 256);
 }
 

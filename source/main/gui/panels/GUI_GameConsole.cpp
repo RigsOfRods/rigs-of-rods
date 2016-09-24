@@ -230,8 +230,8 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 {
 	UTFString msg = convertFromMyGUIString(m_Console_TextBox->getCaption());
 
-    const bool is_appstate_sim = (Application::GetActiveAppState() == Application::APP_STATE_SIMULATION);
-    const bool is_sim_select   = (Application::GetActiveSimState() == Application::SIM_STATE_SELECTING);
+    const bool is_appstate_sim = (App::GetActiveAppState() == App::APP_STATE_SIMULATION);
+    const bool is_sim_select   = (App::GetActiveSimState() == App::SIM_STATE_SELECTING);
 
 	// we did not autoComplete, so try to handle the message
 	m_Console_TextBox->setCaption("");
@@ -384,7 +384,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 		}
 		else if (args[0] == "/quit")
 		{
-            RoR::Application::SetPendingAppState(RoR::Application::APP_STATE_SHUTDOWN);
+            RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
 			return;
 
 		}

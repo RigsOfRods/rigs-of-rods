@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 #endif
 
         gEnv = new GlobalEnvironment(); // Instantiate global environment. TODO: Eliminate gEnv
-        Application::Init();
+        App::Init();
         
     // ----------------------------------
     // Detect system paths
@@ -107,12 +107,12 @@ int main(int argc, char *argv[])
     // --------------------------------
     // Create OGRE default logger early.
 
-    Application::SetSysLogsDir(Application::GetSysUserDir() + PATH_SLASH + "logs");
+    App::SetSysLogsDir(App::GetSysUserDir() + PATH_SLASH + "logs");
     
     auto ogre_log_manager = OGRE_NEW LogManager();
-    Ogre::String log_filepath = Application::GetSysLogsDir() + PATH_SLASH + "RoR.log";
+    Ogre::String log_filepath = App::GetSysLogsDir() + PATH_SLASH + "RoR.log";
     ogre_log_manager->createLog(log_filepath, true, true);
-    Application::SetDiagTraceGlobals(true); // We have logger -> we can trace.
+    App::SetDiagTraceGlobals(true); // We have logger -> we can trace.
     
     // --------------------------------
     // Setup program paths
@@ -127,23 +127,23 @@ int main(int argc, char *argv[])
     // Process command-line arguments
     
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
-        RoR::Application::GetSettings().ProcessCommandLine(argc, argv);
+        RoR::App::GetSettings().ProcessCommandLine(argc, argv);
 #endif
 
-        if (Application::GetPendingAppState() == Application::APP_STATE_PRINT_HELP_EXIT)
+        if (App::GetPendingAppState() == App::APP_STATE_PRINT_HELP_EXIT)
         {
             showUsage();
             return 0;
         }
-        else if (Application::GetPendingAppState() == Application::APP_STATE_PRINT_VERSION_EXIT)
+        else if (App::GetPendingAppState() == App::APP_STATE_PRINT_VERSION_EXIT)
         {
             showVersion();
             return 0;
         }
 
         // Load main config file "RoR.cfg"
-        Ogre::String conf_filepath = Application::GetSysConfigDir() + PATH_SLASH + "RoR.cfg";
-        Application::GetSettings().loadSettings(conf_filepath);
+        Ogre::String conf_filepath = App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg";
+        App::GetSettings().loadSettings(conf_filepath);
 
         MainThread main_obj;
         main_obj.Go();

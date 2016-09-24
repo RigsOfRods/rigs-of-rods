@@ -705,7 +705,7 @@ int CacheSystem::incrementalCacheUpdate()
 	LOG("* incremental check starting ...");
 	LOG("* incremental check (1/5): deleted and changed files ...");
 #ifdef USE_MYGUI
-    auto* loading_win = RoR::Application::GetGuiManager()->GetLoadingWindow();
+    auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
 	loading_win->setProgress(20, _L("incremental check: deleted and changed files"));
 #endif //USE_MYGUI
 	std::vector<CacheEntry> changed_entries;
@@ -896,7 +896,7 @@ int CacheSystem::incrementalCacheUpdate()
 	this->writeGeneratedCache();
 
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->SetVisible_LoadingWindow(false);
+	RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 #endif //USE_MYGUI
 	LOG("* incremental check done.");
 	return 0;
@@ -2080,7 +2080,7 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
 		int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
 		UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" + ANSI_TO_UTF(iterFiles->filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(filecount));
-        auto* loading_win = RoR::Application::GetGuiManager()->GetLoadingWindow();
+        auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
 		loading_win->setProgress(progress, tmp);
 #endif //USE_MYGUI
 
@@ -2089,7 +2089,7 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
 	}
 	// hide loader again
 #ifdef USE_MYGUI
-    RoR::Application::GetGuiManager()->SetVisible_LoadingWindow(false);
+    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 #endif //USE_MYGUI
 }
 
@@ -2104,13 +2104,13 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
 		// update loader
 		int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
-		RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + listitem->filename);
+		RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + listitem->filename);
 #endif //USE_MYGUI
 		loadSingleDirectory(dirname, group, true);
 	}
 	// hide loader again
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->SetVisible_LoadingWindow(false);
+	RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 #endif //USE_MYGUI
 }
 
@@ -2153,12 +2153,12 @@ void CacheSystem::checkForNewZipsInResourceGroup(String group)
 		#endif
 		int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
-		RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + iterFiles->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
+		RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + iterFiles->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
 #endif //USE_MYGUI
 		if (!isZipUsedInEntries(zippath2))
 		{
 #ifdef USE_MYGUI
-			RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + iterFiles->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
+			RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + iterFiles->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
 #endif //USE_MYGUI
 			LOG("- "+zippath+" is new");
 			newFiles++;
@@ -2166,7 +2166,7 @@ void CacheSystem::checkForNewZipsInResourceGroup(String group)
 		}
 	}
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->SetVisible_LoadingWindow(false);
+	RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 #endif //USE_MYGUI
 }
 
@@ -2180,19 +2180,19 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
 		String dirname = listitem->archive->getName() + SSETTING("dirsep", "\\") + listitem->filename;
 		int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
-		RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
+		RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
 #endif //USE_MYGUI
 		if (!isDirectoryUsedInEntries(dirname))
 		{
 #ifdef USE_MYGUI
-			RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
+			RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
 #endif //USE_MYGUI
 			LOG("- "+dirname+" is new");
 			loadSingleDirectory(dirname, group, true);
 		}
 	}
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->SetVisible_LoadingWindow(false);
+	RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 #endif //USE_MYGUI
 }
 

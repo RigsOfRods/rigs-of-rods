@@ -102,11 +102,11 @@ void CLASS::LoadText()
 		Ogre::String keyStr = "";
 
 		sprintf(commandID, "COMMANDS_%02d", i);
-		int eventID = RoR::Application::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-		Ogre::String keya = RoR::Application::GetInputEngine()->getEventCommand(eventID);
+		int eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+		Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
 		sprintf(commandID, "COMMANDS_%02d", i + 1);
-		eventID = RoR::Application::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-		Ogre::String keyb = RoR::Application::GetInputEngine()->getEventCommand(eventID);
+		eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+		Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
 
 		// cut off expl
 		if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+") keya = keya.substr(5);

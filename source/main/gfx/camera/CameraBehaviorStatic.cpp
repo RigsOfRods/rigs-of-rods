@@ -78,7 +78,7 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext &ctx)
 		rotation = gEnv->player->getRotation().valueRadians();
 	}
 
-	bool forceUpdate = RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 2.0f);
+	bool forceUpdate = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 2.0f);
 	forceUpdate = forceUpdate || (camPosition.distance(lookAt) > 200.0f && speed < 1.0f);
 
 	if ( forceUpdate || updateTimer.getMilliseconds() > 2000 )

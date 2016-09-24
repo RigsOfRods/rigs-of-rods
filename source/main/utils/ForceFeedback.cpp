@@ -33,7 +33,7 @@ namespace RoR {
 void ForceFeedback::Setup()
 {
     using namespace Ogre;
-    m_device = RoR::Application::GetInputEngine()->getForceFeedbackDevice();
+    m_device = App::GetInputEngine()->getForceFeedbackDevice();
 	LOG(String("ForceFeedback: ")+TOSTRING(m_device->getFFAxesNumber())+" axe(s)");
 	const OIS::ForceFeedback::SupportedEffectList &supEffects=m_device->getSupportedEffects();
 	if (supEffects.size()>0)
@@ -79,8 +79,8 @@ void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dirco
 	}
 
 	OIS::ConstantEffect* hydroConstForce = dynamic_cast<OIS::ConstantEffect*>(m_hydro_effect->getForceEffect());
-    float stress_gain = Application::GetInputFFStress();
-    float centering_gain = Application::GetInputFFCentering();
+    float stress_gain = App::GetInputFFStress();
+    float centering_gain = App::GetInputFFCentering();
 	float ff=-stress*stress_gain+dircommand*100.0*centering_gain*wspeed*wspeed;
 	if (ff>10000) ff=10000;
 	if (ff<-10000) ff=-10000;
@@ -95,7 +95,7 @@ void ForceFeedback::SetEnabled(bool b)
 
     if (b != m_enabled)
     {
-        float gain = (b) ? Application::GetInputFFGain() : 0.f;
+        float gain = (b) ? App::GetInputFFGain() : 0.f;
         m_device->setMasterGain(gain);
     }
     m_enabled = b;

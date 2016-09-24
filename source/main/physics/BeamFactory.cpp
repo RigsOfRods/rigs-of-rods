@@ -220,7 +220,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		fname.c_str(),
         &rig_loading_profiler,
 		false, // networked
-		(RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED), // networking
+		(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED), // networking
 		spawnbox,
 		ismachine,
 		truckconfig,
@@ -246,11 +246,11 @@ Beam *BeamFactory::CreateLocalRigInstance(
 	}
 
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+	RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	// add own username to truck
-	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		b->updateNetworkInfo();
 	}
@@ -276,14 +276,14 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 
 	UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->pushMessageChatBox(message);
+	RoR::App::GetGuiManager()->pushMessageChatBox(message);
 #endif // USE_MYGUI
 #endif // USE_SOCKETW
 
 	// check if we got this truck installed
 	String filename = String(reg->name);
 	String group = "";
-	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(filename, group))
+	if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename, group))
 	{
 		LOG("wont add remote stream (truck not existing): '"+filename+"'");
 		return -1;
@@ -316,7 +316,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 		reg->name,
         &p,
 		true, // networked
-		(RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED), // networking
+		(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED), // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,
@@ -335,7 +335,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 	b->updateNetworkInfo();
 
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+	RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	return 1;
@@ -752,7 +752,7 @@ void BeamFactory::DeleteTruck(Beam *b)
 	delete b;
 
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+	RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 }
 

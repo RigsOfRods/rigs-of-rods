@@ -75,18 +75,18 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 
 	camLookAt = spline->interpolate(splinePos);
 
-	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::Application::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
+	if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE) )
 	{
 		autoTracking = !autoTracking;
 #ifdef USE_MYGUI
 		if ( autoTracking )
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking enabled"));
+			RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
+			RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking enabled"));
 		} else
 		{
-			RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking disabled"));
+			RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
+			RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking disabled"));
 		}
 #endif // USE_MYGUI
 	}
@@ -115,16 +115,16 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext 
 
 	camRatio = 1.0f / (ctx.mDt * 4.0f);
 
-	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right) )
+	if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right) )
 	{
 		Real splinePosDiff = ms.X.rel * std::max(0.00005f, splineLength * 0.0000001f);
 
-		if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
+		if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
 		{
 			splinePosDiff *= 3.0f;
 		}
 
-		if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
+		if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
 		{
 			splinePosDiff *= 0.1f;
 		}

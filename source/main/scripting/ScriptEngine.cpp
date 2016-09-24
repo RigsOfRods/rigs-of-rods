@@ -90,7 +90,7 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
 	callbacks["eventCallback"] = std::vector<int>();
 
 	// create our own log
-	scriptLog = LogManager::getSingleton().createLog(Application::GetSysLogsDir() + PATH_SLASH + "Angelscript.log", false);
+	scriptLog = LogManager::getSingleton().createLog(App::GetSysLogsDir() + PATH_SLASH + "Angelscript.log", false);
 	
 	scriptLog->logMessage("ScriptEngine initialized");
 
@@ -114,7 +114,7 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
 #endif // OGRE_VERSION
 {
 #ifdef USE_MYGUI
-	Console *c = RoR::Application::GetConsole();
+	Console *c = RoR::App::GetConsole();
 	if (c) c->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_LOGMESSAGE_SCRIPT, message, "page_white_code.png");
 #endif // USE_MYGUI
 }
@@ -164,7 +164,7 @@ void ScriptEngine::exploreScripts()
 void ScriptEngine::LineCallback(AngelScript::asIScriptContext *ctx, unsigned long *timeOut)
 {
 	// If the time out is reached we abort the script
-	if (RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() > *timeOut)
+	if (RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() > *timeOut)
 	{
 		ctx->Abort();
 	}
@@ -926,7 +926,7 @@ int ScriptEngine::loadScript(String _scriptName)
 		// save the bytecode
 		scriptHash = builder.getHash();
 		{
-			String filepath = Application::GetSysCacheDir() + PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
+			String filepath = App::GetSysCacheDir() + PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
 			SLOG("saving script bytecode to file " + filepath);
 			CBytecodeStream bstream(filepath);
 			mod->SaveByteCode(&bstream);
@@ -998,7 +998,7 @@ int ScriptEngine::loadScript(String _scriptName)
 
 	// Set the timeout before executing the function. Give the function 1 sec
 	// to return before we'll abort it.
-	timeOut = RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
+	timeOut = RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
 
 	SLOG("Executing main()");
 	result = context->Execute();

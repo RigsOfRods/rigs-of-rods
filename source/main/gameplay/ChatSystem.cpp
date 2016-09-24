@@ -102,7 +102,7 @@ void ReceiveStreamData(unsigned int type, int source, char *buffer)
 		}
 	}
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->pushMessageChatBox(msg);
+	RoR::App::GetGuiManager()->pushMessageChatBox(msg);
 #endif //USE_MYGUI
 }
 #endif // USE_SOCKETW
@@ -154,7 +154,7 @@ void SendPrivateChat(int target_uid, Ogre::UTFString chatline, Ogre::UTFString t
 	Ogre::UTFString local_username = GetColouredName(RoR::Networking::GetUsername(), RoR::Networking::GetUserColor());
 	Ogre::UTFString nmsg = local_username + RoR::Color::WhisperColour + _L(" [whispered to ") + RoR::Color::NormalColour + target_username + RoR::Color::WhisperColour + "]" + RoR::Color::NormalColour + ": " + chatline;
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->pushMessageChatBox(nmsg);
+	RoR::App::GetGuiManager()->pushMessageChatBox(nmsg);
 #endif // USE_MYGUI
 #endif // USE_SOCKETW
 }
@@ -180,7 +180,7 @@ void SendPrivateChat(Ogre::UTFString target_username, Ogre::UTFString chatline)
 	if (!found_target)
 	{
 #ifdef USE_MYGUI
-		RoR::Application::GetGuiManager()->pushMessageChatBox(RoR::Color::CommandColour + _L("user not found: ") + target_username);
+		RoR::App::GetGuiManager()->pushMessageChatBox(RoR::Color::CommandColour + _L("user not found: ") + target_username);
 #endif // USE_MYGUI
 		return;
 	}

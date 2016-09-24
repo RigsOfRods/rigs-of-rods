@@ -119,7 +119,7 @@ void CLASS::UpdateControls()
 	else 
 		m_input_grabing->setIndexSelected(0);
 
-	m_preselected_map->setCaption(RoR::Application::GetPendingTerrain());
+	m_preselected_map->setCaption(RoR::App::GetPendingTerrain());
 	m_preselected_truck->setCaption(DebugOptionsMap["Preselected Truck"]);
 }
 

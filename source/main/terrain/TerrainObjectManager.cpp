@@ -178,7 +178,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (progress-lastprogress > 20)
 		{
 #ifdef USE_MYGUI
-			RoR::Application::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
+			RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
 #endif //MYGUI
 			lastprogress = progress;
 		}
@@ -540,7 +540,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 			String group = "";
 			String truckname(type);
 
-			if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(truckname, group))
+			if (!RoR::App::GetCacheSystem()->checkResourceLoaded(truckname, group))
 			{
 				LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
 				continue;
@@ -765,7 +765,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		odefFound = true;
 	}
 	
-	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
+	if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
 		if (!odefFound)
 		{
 			LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
@@ -1308,7 +1308,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
 	// in netmode, don't load other trucks!
-	if (RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		return;
 	}

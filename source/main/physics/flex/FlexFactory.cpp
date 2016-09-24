@@ -270,7 +270,7 @@ void FlexBodyFileIO::OpenFile(const char* fopen_mode)
         throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED;
     }
     char path[500];
-    sprintf(path, "%s%cflexbodies_mod_%00d.dat", RoR::Application::GetSysCacheDir().c_str(), PATH_SLASH, m_cache_entry_number);
+    sprintf(path, "%s%cflexbodies_mod_%00d.dat", RoR::App::GetSysCacheDir().c_str(), PATH_SLASH, m_cache_entry_number);
     m_file = fopen(path, fopen_mode);
     if (m_file == nullptr)
     {

@@ -107,7 +107,7 @@ bool CheckError()
     if (m_thread_failed)
     {
         m_error_msg = m_thread_error_msg;
-        RoR::Application::SetActiveMpState(RoR::Application::MP_STATE_DISABLED);
+        RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
         return true;
     }
     return false;
@@ -438,10 +438,10 @@ void RecvThread()
 
 void ConnectionFailed(Ogre::UTFString const & msg)
 {
-    m_error_msg = "Error connecting to server: [" + Application::GetMpServerHost() 
-        + ":" + TOSTRING(Application::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
-    RoR::Application::SetActiveMpState(Application::MP_STATE_DISABLED);
-    RoR::Application::SetPendingMpState(Application::MP_STATE_NONE);
+    m_error_msg = "Error connecting to server: [" + App::GetMpServerHost() 
+        + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
+    RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
+    RoR::App::SetPendingMpState(App::MP_STATE_NONE);
 }
 
 bool Connect()
@@ -451,14 +451,14 @@ bool Connect()
     m_error_msg.clear();
     m_thread_failed = false;
 
-    m_username = Application::GetMpPlayerName();
+    m_username = App::GetMpPlayerName();
 
-    LOG("[RoR|Networking] Trying to join server '" + Application::GetMpServerHost() + "' on port " + TOSTRING(Application::GetMpServerPort()) + "'...");
+    LOG("[RoR|Networking] Trying to join server '" + App::GetMpServerHost() + "' on port " + TOSTRING(App::GetMpServerPort()) + "'...");
 
     SWBaseSocket::SWBaseError error;
 
     socket.set_timeout(10, 10000);
-    socket.connect(Application::GetMpServerPort(), Application::GetMpServerHost(), &error);
+    socket.connect(App::GetMpServerPort(), App::GetMpServerHost(), &error);
     if (error != SWBaseSocket::ok)
     {
         ConnectionFailed("Could not create connection");
@@ -507,7 +507,7 @@ bool Connect()
 
     // Send credentials
     char pwbuffer[250] = {0};
-    strncpy(pwbuffer, Application::GetMpServerPassword().c_str(), 250);
+    strncpy(pwbuffer, App::GetMpServerPassword().c_str(), 250);
 
     char sha1pwresult[250] = {0};
     if (strnlen(pwbuffer, 250) > 0)
@@ -597,8 +597,8 @@ bool Connect()
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
     m_send_thread = std::thread(SendThread);
     m_recv_thread = std::thread(RecvThread);
-    RoR::Application::SetActiveMpState(RoR::Application::MP_STATE_CONNECTED);
-    RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_NONE);
+    RoR::App::SetActiveMpState(RoR::App::MP_STATE_CONNECTED);
+    RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
 
     return true;
 }
@@ -620,8 +620,8 @@ void Disconnect()
     socket.disconnect();
 
     m_shutdown = false;
-    RoR::Application::SetActiveMpState(RoR::Application::MP_STATE_DISABLED);
-    RoR::Application::SetPendingMpState(RoR::Application::MP_STATE_NONE);
+    RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
+    RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
 
     LOG("[RoR|Networking] Disconnect() done");
 }

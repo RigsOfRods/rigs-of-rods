@@ -102,7 +102,7 @@ void VehicleAI::SetValueAtWaypoint(String& id, int& value_id, float& value)
 
 void VehicleAI::updateWaypoint()
 {
-	RoR::Application::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_SCRIPT, RoR::Console::CONSOLE_SYSTEM_NOTICE, "Reached waypoint: " + waypoint_names[current_waypoint_id], "note.png");
+	RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_SCRIPT, RoR::Console::CONSOLE_SYSTEM_NOTICE, "Reached waypoint: " + waypoint_names[current_waypoint_id], "note.png");
 
 	int event = waypoint_events[current_waypoint_id];
 	if (event)
@@ -292,7 +292,7 @@ void VehicleAI::update(float dt, int doUpdate)
 
 
 		//String txt = "brakePower: "+TOSTRING(brakePower);//+" @ "+TOSTRING(maxvelo)
-		//RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
+		//RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "note.png");
 
 
 		if (engine)

@@ -3092,7 +3092,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 			if (state == SIMULATED && this == BeamFactory::getSingleton().getCurrentTruck()) // no network!!
 			{
 				// networked customs are set directly, so skip this
-				if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
+				if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
 				{
 					flares[i].controltoggle_status = ! flares[i].controltoggle_status;
 					keysleep = true;
@@ -4646,7 +4646,7 @@ void Beam::updateDebugOverlay()
 
 void Beam::updateNetworkInfo()
 {
-	if (!(RoR::Application::GetActiveMpState() == RoR::Application::MP_STATE_CONNECTED)) return;
+	if (!(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)) return;
 
 #ifdef USE_SOCKETW
 	BES_GFX_START(BES_GFX_updateNetworkInfo);
@@ -5133,27 +5133,27 @@ void Beam::updateDashBoards(float dt)
 	float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
 	Vector3 upv=dirv.crossProduct(-rollv);
 	if (upv.y<0) rollangle=3.14159-rollangle;
-	RoR::Application::GetOverlayWrapper()->adibugstexture->setTextureRotate(Radian(-rollangle));
-	RoR::Application::GetOverlayWrapper()->aditapetexture->setTextureVScroll(-pitchangle*0.25);
-	RoR::Application::GetOverlayWrapper()->aditapetexture->setTextureRotate(Radian(-rollangle));
+	RoR::App::GetOverlayWrapper()->adibugstexture->setTextureRotate(Radian(-rollangle));
+	RoR::App::GetOverlayWrapper()->aditapetexture->setTextureVScroll(-pitchangle*0.25);
+	RoR::App::GetOverlayWrapper()->aditapetexture->setTextureRotate(Radian(-rollangle));
 
 	// HSI - Horizontal Situation Indicator
 	Vector3 idir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
 	//			idir.normalise();
 	float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
-	RoR::Application::GetOverlayWrapper()->hsirosetexture->setTextureRotate(Radian(dirangle));
+	RoR::App::GetOverlayWrapper()->hsirosetexture->setTextureRotate(Radian(dirangle));
 	if (curr_truck->autopilot)
 	{
-		RoR::Application::GetOverlayWrapper()->hsibugtexture->setTextureRotate(Radian(dirangle)-Degree(curr_truck->autopilot->heading));
+		RoR::App::GetOverlayWrapper()->hsibugtexture->setTextureRotate(Radian(dirangle)-Degree(curr_truck->autopilot->heading));
 		float vdev=0;
 		float hdev=0;
 		curr_truck->autopilot->getRadioFix(localizers, free_localizer, &vdev, &hdev);
 		if (hdev>15) hdev=15;
 		if (hdev<-15) hdev=-15;
-		RoR::Application::GetOverlayWrapper()->hsivtexture->setTextureUScroll(-hdev*0.02);
+		RoR::App::GetOverlayWrapper()->hsivtexture->setTextureUScroll(-hdev*0.02);
 		if (vdev>15) vdev=15;
 		if (vdev<-15) vdev=-15;
-		RoR::Application::GetOverlayWrapper()->hsihtexture->setTextureVScroll(-vdev*0.02);
+		RoR::App::GetOverlayWrapper()->hsihtexture->setTextureVScroll(-vdev*0.02);
 	}
 
 	// VVI - Vertical Velocity Indicator
@@ -5163,66 +5163,66 @@ void Beam::updateDashBoards(float dt)
 	if (vvi>6000.0) angle=105.75;
 	if (vvi<-1000.0 && vvi>-6000.0) angle=-47.0+(vvi+1000.0)*0.01175;
 	if (vvi<-6000.0) angle=-105.75;
-	RoR::Application::GetOverlayWrapper()->vvitexture->setTextureRotate(Degree(-angle+90.0));
+	RoR::App::GetOverlayWrapper()->vvitexture->setTextureRotate(Degree(-angle+90.0));
 
 
 	if (curr_truck->aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[0];
 		//pitch
-		RoR::Application::GetOverlayWrapper()->airpitch1texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::App::GetOverlayWrapper()->airpitch1texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		RoR::Application::GetOverlayWrapper()->airtorque1texture->setTextureRotate(Degree(-angle));
+		RoR::App::GetOverlayWrapper()->airtorque1texture->setTextureRotate(Degree(-angle));
 	}
 
 	if (ftp>1 && curr_truck->aeroengines[1]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[1];
 		//pitch
-		RoR::Application::GetOverlayWrapper()->airpitch2texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::App::GetOverlayWrapper()->airpitch2texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		RoR::Application::GetOverlayWrapper()->airtorque2texture->setTextureRotate(Degree(-angle));
+		RoR::App::GetOverlayWrapper()->airtorque2texture->setTextureRotate(Degree(-angle));
 	}
 
 	if (ftp>2 && curr_truck->aeroengines[2]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[2];
 		//pitch
-		RoR::Application::GetOverlayWrapper()->airpitch3texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::App::GetOverlayWrapper()->airpitch3texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		RoR::Application::GetOverlayWrapper()->airtorque3texture->setTextureRotate(Degree(-angle));
+		RoR::App::GetOverlayWrapper()->airtorque3texture->setTextureRotate(Degree(-angle));
 	}
 
 	if (ftp>3 && curr_truck->aeroengines[3]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
 	{
 		Turboprop *tp=(Turboprop*)curr_truck->aeroengines[3];
 		//pitch
-		RoR::Application::GetOverlayWrapper()->airpitch4texture->setTextureRotate(Degree(-tp->pitch*2.0));
+		RoR::App::GetOverlayWrapper()->airpitch4texture->setTextureRotate(Degree(-tp->pitch*2.0));
 		//torque
 		pcent=100.0*tp->indicated_torque/tp->max_torque;
 		if (pcent<60.0) angle=-5.0+pcent*1.9167;
 		else if (pcent<110.0) angle=110.0+(pcent-60.0)*4.075;
 		else angle=314.0;
-		RoR::Application::GetOverlayWrapper()->airtorque4texture->setTextureRotate(Degree(-angle));
+		RoR::App::GetOverlayWrapper()->airtorque4texture->setTextureRotate(Degree(-angle));
 	}
 
 	//starters
-	if (curr_truck->aeroengines[0]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto1->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto1->setMaterialName("tracks/engstart-off");
-	if (ftp>1 && curr_truck->aeroengines[1]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto2->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto2->setMaterialName("tracks/engstart-off");
-	if (ftp>2 && curr_truck->aeroengines[2]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto3->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto3->setMaterialName("tracks/engstart-off");
-	if (ftp>3 && curr_truck->aeroengines[3]->getIgnition()) RoR::Application::GetOverlayWrapper()->engstarto4->setMaterialName("tracks/engstart-on"); else RoR::Application::GetOverlayWrapper()->engstarto4->setMaterialName("tracks/engstart-off");
+	if (curr_truck->aeroengines[0]->getIgnition()) RoR::App::GetOverlayWrapper()->engstarto1->setMaterialName("tracks/engstart-on"); else RoR::App::GetOverlayWrapper()->engstarto1->setMaterialName("tracks/engstart-off");
+	if (ftp>1 && curr_truck->aeroengines[1]->getIgnition()) RoR::App::GetOverlayWrapper()->engstarto2->setMaterialName("tracks/engstart-on"); else RoR::App::GetOverlayWrapper()->engstarto2->setMaterialName("tracks/engstart-off");
+	if (ftp>2 && curr_truck->aeroengines[2]->getIgnition()) RoR::App::GetOverlayWrapper()->engstarto3->setMaterialName("tracks/engstart-on"); else RoR::App::GetOverlayWrapper()->engstarto3->setMaterialName("tracks/engstart-off");
+	if (ftp>3 && curr_truck->aeroengines[3]->getIgnition()) RoR::App::GetOverlayWrapper()->engstarto4->setMaterialName("tracks/engstart-on"); else RoR::App::GetOverlayWrapper()->engstarto4->setMaterialName("tracks/engstart-off");
 }
 
 #endif //0
@@ -5635,7 +5635,7 @@ bool Beam::LoadTruck(
 
 	try
 	{
-		RoR::Application::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
+		RoR::App::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
 
 		// error on ds open lower
 		// open the stream and start reading :)
@@ -5651,7 +5651,7 @@ bool Beam::LoadTruck(
 	if (ds.isNull() || !ds->isReadable())
 	{
 #ifdef USE_MYGUI
-		Console *console = RoR::Application::GetConsole();
+		Console *console = RoR::App::GetConsole();
 		if (console != nullptr) 
 		{
 			console->putMessage(
@@ -5662,7 +5662,7 @@ bool Beam::LoadTruck(
 				30000, 
 				true
 			);
-			RoR::Application::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
+			RoR::App::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
 		}
 #endif // USE_MYGUI
 		return false;
@@ -5772,12 +5772,12 @@ bool Beam::LoadTruck(
         }
     }
 
-	RoR::Application::GetGuiManager()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
+	RoR::App::GetGuiManager()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
 	if (report_num_errors != 0)
 	{
 		if (BSETTING("AutoRigSpawnerReport", false))
 		{
-			RoR::Application::GetGuiManager()->SetVisible_SpawnerReport(true);
+			RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
 		}
 	}
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_LOG);
@@ -6262,12 +6262,12 @@ void Beam::UpdatePropAnimations(const float dt)
 			// key triggered animations
 			if ((props[propi].animFlags[animnum] & ANIM_FLAG_EVENT) && props[propi].animKey[animnum] != -1)
 			{
-				if (RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]))
+				if (RoR::App::GetInputEngine()->getEventValue(props[propi].animKey[animnum]))
 				{
 					// keystatelock is disabled then set cstate
 					if (props[propi].animKeyState[animnum] == -1.0f)
 					{
-						cstate += RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]);
+						cstate += RoR::App::GetInputEngine()->getEventValue(props[propi].animKey[animnum]);
 					} else if (!props[propi].animKeyState[animnum])
 					{
 						// a key was pressed and a toggle was done already, so bypass
