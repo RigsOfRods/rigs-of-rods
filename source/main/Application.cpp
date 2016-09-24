@@ -92,6 +92,26 @@ static float            g_input_ff_centering;    ///< Config: FSETTING Force Fee
 static float            g_input_ff_gain;         ///< Config: FSETTING Force Feedback Gain
 static float            g_input_ff_stress;       ///< Config: FSETTING Force Feedback Stress
 
+// Graphics
+  //   int              g_gfx_shadow_mode;       ///< Config: STR   Shadow technique
+  //   std::string      g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
+  //   std::string      g_gfx_sky_effects;       ///< Config: STR   Sky effects
+  //   std::string      g_gfx_texture_filter;    ///< Config: STR   Texture Filtering
+  //   std::string      g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
+  //   std::string      g_gfx_water_mode;        ///< Config: STR   Water effects
+  //   bool             g_gfx_enable_sunburn;    ///< Config: BOOL  Sunburn
+  //   bool             g_gfx_water_waves;       ///< Config: BOOL  Waves
+  //   bool             g_gfx_minimap_mode;      ///< Config: BOOL  disableOverViewMap
+  //   bool             g_gfx_particles_mode;    ///< Config: BOOL  Particles
+  //   bool             g_gfx_enable_glow;       ///< Config: BOOL  Glow
+  //   bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
+  //   bool             g_gfx_enable_heathaze;   ///< Config: BOOL  HeatHaze
+  //   bool             g_gfx_envmap_mode;       ///< Config: BOOL  Envmap
+  //   bool             g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
+  //   float            g_gfx_sight_range;       ///< Config: FLOAT SightRange
+  //   float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
+  //   float            g_gfx_fov_internal;      ///< Config: FLOAT FOV Internal
+  //   int              g_gfx_fps_limit;         ///< Config: INT   FPS-Limiter
 // ================================================================================
 // Access functions
 // ================================================================================
