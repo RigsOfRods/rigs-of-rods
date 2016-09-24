@@ -498,6 +498,13 @@ inline void App__SetShadowTech(std::string const & s)
     else                                        { App::SetGfxShadowType(App::GFX_SHADOW_TYPE_NONE   ); }
 }
 
+inline void App__SetExtcamMode(std::string const & s)
+{
+    if (s == "Pitching") { App::SetGfxExternCamMode(App::GFX_EXTCAM_MODE_PITCHING); return; }
+    if (s == "Static")   { App::SetGfxExternCamMode(App::GFX_EXTCAM_MODE_STATIC);   return; }
+    else                 { App::SetGfxExternCamMode(App::GFX_EXTCAM_MODE_NONE    ); return; }
+}
+
 #define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
@@ -523,6 +530,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Force Feedback Stress"   ) { App::SetInputFFStress   (STR2FLOAT(value)); return true; }
     // Gfx
     else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
+    else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }
 
     return false;
 }

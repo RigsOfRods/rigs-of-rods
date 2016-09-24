@@ -94,7 +94,7 @@ static float            g_input_ff_stress;       ///< Config: FSETTING Force Fee
 
 // Graphics
 static int              g_gfx_shadow_type;       ///< Config: STR   Shadow technique
-  //   std::string      g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
+static int              g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
   //   std::string      g_gfx_sky_effects;       ///< Config: STR   Sky effects
   //   std::string      g_gfx_texture_filter;    ///< Config: STR   Texture Filtering
   //   std::string      g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
@@ -154,6 +154,7 @@ float           GetInputFFCentering()   { return g_input_ff_centering;    }
 float           GetInputFFGain()        { return g_input_ff_gain;         }
 float           GetInputFFStress()      { return g_input_ff_stress;       }
 GfxShadowType   GetGfxShadowType()      { return (GfxShadowType)g_gfx_shadow_type; }
+GfxExtCamMode   GetGfxExternCamMode()   { return (GfxExtCamMode)g_gfx_extcam_mode; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -181,6 +182,7 @@ void SetInputFFCentering  (float    v) { SetVarFloat   (g_input_ff_centering   ,
 void SetInputFFGain       (float    v) { SetVarFloat   (g_input_ff_gain        , "input_ff_gain"        , v); }
 void SetInputFFStress     (float    v) { SetVarFloat   (g_input_ff_stress      , "input_ff_stress"      , v); }
 void SetGfxShadowType     (GfxShadowType  v) { SetVarInt     (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v); }
+void SetGfxExternCamMode  (GfxExtCamMode  v) { SetVarInt     (g_gfx_extcam_mode      , "gfx_extcam_mode"      , (int)v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -303,6 +305,7 @@ void Init()
     g_diag_trace_globals   = false; // Don't init to 'true', logger is not ready at startup.
 
     g_gfx_shadow_type      = GFX_SHADOW_TYPE_PSSM;
+    g_gfx_extcam_mode      = GFX_EXTCAM_MODE_PITCHING;
 }
 
 

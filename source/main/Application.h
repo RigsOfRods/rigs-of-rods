@@ -70,6 +70,13 @@ enum GfxShadowType
     GFX_SHADOW_TYPE_PSSM
 };
 
+enum GfxExtCamMode
+{
+    GFX_EXTCAM_MODE_NONE,
+    GFX_EXTCAM_MODE_STATIC,
+    GFX_EXTCAM_MODE_PITCHING,
+};
+
 void Init();
 
 // Getters
@@ -109,6 +116,7 @@ float                GetInputFFCentering();
 float                GetInputFFGain();
 float                GetInputFFStress();
 GfxShadowType        GetGfxShadowType();
+GfxExtCamMode        GetGfxExternCamMode();
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -136,6 +144,7 @@ void SetInputFFCentering (float    v);
 void SetInputFFGain      (float    v);
 void SetInputFFStress    (float    v);
 void SetGfxShadowType    (GfxShadowType v);
+void SetGfxExternCamMode (GfxExtCamMode v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

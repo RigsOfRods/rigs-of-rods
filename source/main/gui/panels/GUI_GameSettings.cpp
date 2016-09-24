@@ -359,7 +359,7 @@ void CLASS::UpdateControls()
 	else
 		m_arc_mode->setStateCheck(false);
 
-	if (GameSettingsMap["External Camera Mode"] == "Static")
+	if (App::GetGfxExternCamMode() == App::GFX_EXTCAM_MODE_PITCHING)
 		m_d_cam_pitch->setStateCheck(true);
 	else
 		m_d_cam_pitch->setStateCheck(false);
