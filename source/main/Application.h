@@ -83,7 +83,15 @@ enum GfxTexFilter
     GFX_TEXFILTER_BILINEAR,
     GFX_TEXFILTER_TRILINEAR,
     GFX_TEXFILTER_ANISOTROPIC,
-}
+};
+
+enum GfxVegetation
+{
+    GFX_VEGETATION_NONE,
+    GFX_VEGETATION_20PERC,
+    GFX_VEGETATION_50PERC,
+    GFX_VEGETATION_FULL,
+};
 
 void Init();
 
@@ -126,6 +134,7 @@ float                GetInputFFStress();
 GfxShadowType        GetGfxShadowType();
 GfxExtCamMode        GetGfxExternCamMode();
 GfxTexFilter         GetGfxTexFiltering();
+GfxVegetation        GetGfxVegetationMode();
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -155,6 +164,7 @@ void SetInputFFStress    (float    v);
 void SetGfxShadowType    (GfxShadowType v);
 void SetGfxExternCamMode (GfxExtCamMode v);
 void SetGfxTexFiltering  (GfxTexFilter  v);
+void SetGfxVegetationMode(GfxVegetation v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

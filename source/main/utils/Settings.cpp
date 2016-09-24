@@ -512,6 +512,14 @@ inline void App__SetTexFiltering(std::string const & s)
     if (s == "Anisotropic (best looking)") { App::SetGfxTexFiltering(App::GFX_TEXFILTER_ANISOTROPIC); return; }
 }
 
+inline void App__SetVegetationMode(std::string const & s)
+{
+    if (s == "None (fastest)")              { App::SetGfxVegetationMode(App::GFX_VEGETATION_NONE);   return; }
+    if (s == "20%")                         { App::SetGfxVegetationMode(App::GFX_VEGETATION_20PERC); return; }
+    if (s == "50%")                         { App::SetGfxVegetationMode(App::GFX_VEGETATION_50PERC); return; }
+    if (s == "Full (best looking, slower)") { App::SetGfxVegetationMode(App::GFX_VEGETATION_FULL);   return; }
+}
+
 #define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
@@ -539,6 +547,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
     else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }
     else if (name == "Texture Filtering"       ) { App__SetTexFiltering              (value);  return true; }
+    else if (name == "Vegetation"              ) { App__SetVegetationMode            (value);  return true; }
 
     return false;
 }

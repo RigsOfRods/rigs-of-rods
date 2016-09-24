@@ -430,12 +430,12 @@ void CLASS::UpdateControls()
 		m_water_type->setIndexSelected(0);
 		
 	//Vegetation
-	Ogre::String vegetationtype = GameSettingsMap["Vegetation"];
-	if (vegetationtype == "20%")
+	App::GfxVegetation veg_mode = App::GetGfxVegetationMode();
+	if (veg_mode == App::GFX_VEGETATION_20PERC)
 		m_vegetation->setIndexSelected(1);
-	else if (vegetationtype == "50%")
+	else if (veg_mode == App::GFX_VEGETATION_50PERC)
 		m_vegetation->setIndexSelected(2);
-	else if (vegetationtype == "Full (best looking, slower)")
+	else if (veg_mode == App::GFX_VEGETATION_FULL)
 		m_vegetation->setIndexSelected(3);
 	else
 		m_vegetation->setIndexSelected(0);

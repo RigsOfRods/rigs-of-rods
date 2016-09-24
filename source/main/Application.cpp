@@ -97,7 +97,7 @@ static int              g_gfx_shadow_type;       ///< Config: STR   Shadow techn
 static int              g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
   //   std::string      g_gfx_sky_effects;       ///< Config: STR   Sky effects
 static int              g_gfx_texture_filter;    ///< Config: STR   Texture Filtering
-  //   std::string      g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
+static int              g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
   //   std::string      g_gfx_water_mode;        ///< Config: STR   Water effects
   //   bool             g_gfx_enable_sunburn;    ///< Config: BOOL  Sunburn
   //   bool             g_gfx_water_waves;       ///< Config: BOOL  Waves
@@ -156,6 +156,7 @@ float           GetInputFFStress()      { return g_input_ff_stress;       }
 GfxShadowType   GetGfxShadowType()      { return (GfxShadowType)g_gfx_shadow_type; }
 GfxExtCamMode   GetGfxExternCamMode()   { return (GfxExtCamMode)g_gfx_extcam_mode; }
 GfxTexFilter    GetGfxTexFiltering()    { return (GfxTexFilter) g_gfx_texture_filter; }
+GfxVegetation   GetGfxVegetationMode()  { return (GfxVegetation)g_gfx_vegetation_mode; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -185,6 +186,7 @@ void SetInputFFStress     (float    v) { SetVarFloat   (g_input_ff_stress      ,
 void SetGfxShadowType     (GfxShadowType  v) { SetVarInt     (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v); }
 void SetGfxExternCamMode  (GfxExtCamMode  v) { SetVarInt     (g_gfx_extcam_mode      , "gfx_extcam_mode"      , (int)v); }
 void SetGfxTexFiltering   (GfxTexFilter   v) { SetVarInt     (g_gfx_texture_filter   , "gfx_texture_filter"   , (int)v); }
+void SetGfxVegetationMode (GfxVegetation  v) { SetVarInt     (g_gfx_vegetation_mode  , "gfx_vegetation_mode"  , (int)v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -309,6 +311,7 @@ void Init()
     g_gfx_shadow_type      = GFX_SHADOW_TYPE_PSSM;
     g_gfx_extcam_mode      = GFX_EXTCAM_MODE_PITCHING;
     g_gfx_texture_filter   = GFX_TEXFILTER_TRILINEAR;
+    g_gfx_vegetation_mode  = GFX_VEGETATION_NONE;
 }
 
 
