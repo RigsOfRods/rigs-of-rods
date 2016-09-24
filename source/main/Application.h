@@ -77,6 +77,14 @@ enum GfxExtCamMode
     GFX_EXTCAM_MODE_PITCHING,
 };
 
+enum GfxTexFilter
+{
+    GFX_TEXFILTER_NONE,
+    GFX_TEXFILTER_BILINEAR,
+    GFX_TEXFILTER_TRILINEAR,
+    GFX_TEXFILTER_ANISOTROPIC,
+}
+
 void Init();
 
 // Getters
@@ -117,6 +125,7 @@ float                GetInputFFGain();
 float                GetInputFFStress();
 GfxShadowType        GetGfxShadowType();
 GfxExtCamMode        GetGfxExternCamMode();
+GfxTexFilter         GetGfxTexFiltering();
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -145,6 +154,7 @@ void SetInputFFGain      (float    v);
 void SetInputFFStress    (float    v);
 void SetGfxShadowType    (GfxShadowType v);
 void SetGfxExternCamMode (GfxExtCamMode v);
+void SetGfxTexFiltering  (GfxTexFilter  v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

@@ -505,6 +505,13 @@ inline void App__SetExtcamMode(std::string const & s)
     else                 { App::SetGfxExternCamMode(App::GFX_EXTCAM_MODE_NONE    ); return; }
 }
 
+inline void App__SetTexFiltering(std::string const & s)
+{
+    if (s == "Bilinear")                   { App::SetGfxTexFiltering(App::GFX_TEXFILTER_BILINEAR);    return; }
+    if (s == "Trilinear")                  { App::SetGfxTexFiltering(App::GFX_TEXFILTER_TRILINEAR);   return; }
+    if (s == "Anisotropic (best looking)") { App::SetGfxTexFiltering(App::GFX_TEXFILTER_ANISOTROPIC); return; }
+}
+
 #define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
@@ -531,6 +538,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     // Gfx
     else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
     else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }
+    else if (name == "Texture Filtering"       ) { App__SetTexFiltering              (value);  return true; }
 
     return false;
 }

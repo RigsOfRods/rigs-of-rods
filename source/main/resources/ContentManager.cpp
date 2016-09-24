@@ -241,11 +241,15 @@ bool ContentManager::init(void)
 	// set default mipmap level (NB some APIs ignore this)
 	if (TextureManager::getSingletonPtr())
 		TextureManager::getSingleton().setDefaultNumMipmaps(5);
-	String tft=SSETTING("Texture Filtering", "Trilinear");
-	TextureFilterOptions tfo=TFO_NONE;
-	if (tft=="Bilinear") tfo=TFO_BILINEAR;
-	if (tft=="Trilinear") tfo=TFO_TRILINEAR;
-	if (tft=="Anisotropic (best looking)") tfo=TFO_ANISOTROPIC;
+
+    TextureFilterOptions tfo = TFO_NONE;
+    switch (App::GetGfxTexFiltering())
+    {
+    case App::GFX_TEXFILTER_ANISOTROPIC: tfo = TFO_ANISOTROPIC; break;
+    case App::GFX_TEXFILTER_TRILINEAR:   tfo = TFO_TRILINEAR;   break;
+    case App::GFX_TEXFILTER_BILINEAR:    tfo = TFO_BILINEAR;    break;
+    case App::GFX_TEXFILTER_NONE:        tfo = TFO_NONE;        break;
+    }
 	MaterialManager::getSingleton().setDefaultAnisotropy(8);
 	MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
 

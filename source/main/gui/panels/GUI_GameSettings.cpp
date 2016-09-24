@@ -375,12 +375,12 @@ void CLASS::UpdateControls()
 
 	
 	//Texture Filtering
-	Ogre::String texfilter = GameSettingsMap["Texture Filtering"];
-	if (texfilter == "Bilinear")
+    App::GfxTexFilter tex_filter = App::GetGfxTexFiltering();
+	if (tex_filter == App::GFX_TEXFILTER_BILINEAR)
 		m_tex_filter->setIndexSelected(1);
-	else if (texfilter == "Trilinear")
+	else if (tex_filter == App::GFX_TEXFILTER_TRILINEAR)
 		m_tex_filter->setIndexSelected(2);
-	else if (texfilter == "Anisotropic (best looking)")
+	else if (tex_filter == App::GFX_TEXFILTER_ANISOTROPIC)
 		m_tex_filter->setIndexSelected(3);
 	else
 		m_tex_filter->setIndexSelected(0);
