@@ -233,21 +233,18 @@ void MainThread::Go()
 	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), m_frame_listener);
 
 #ifdef _WIN32
-	// force feedback
-	if (BSETTING("Force Feedback", true))
-	{
-		//check if a device has been detected
-		if (RoR::Application::GetInputEngine()->getForceFeedbackDevice())
-		{
-			//retrieve gain values
-			float ogain   = FSETTING("Force Feedback Gain",      100) / 100.0f;
-			float stressg = FSETTING("Force Feedback Stress",    100) / 100.0f;
-			float centg   = FSETTING("Force Feedback Centering", 0  ) / 100.0f;
-			float camg    = FSETTING("Force Feedback Camera",    100) / 100.0f;
-
-			m_frame_listener->m_forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
-		}
-	}
+    if (Application::GetInputFFEnabled()) // Force feedback
+    {
+        if (RoR::Application::GetInputEngine()->getForceFeedbackDevice())
+        {
+            m_frame_listener->m_forcefeedback.Setup();
+        }
+        else
+        {
+            LOG("No force feedback device detected, disabling force feedback");
+            Application::SetInputFFEnabled(false);
+        }
+    }
 #endif // _WIN32
 
 	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
@@ -1097,11 +1094,7 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			gEnv->player->setPosition(position);
 		}
 
-		// force feedback
-		if (frame_listener->m_forcefeedback)
-		{
-			frame_listener->m_forcefeedback->setEnabled(false);
-		}
+		frame_listener->m_forcefeedback.SetEnabled(false);
 
 		// hide truckhud
 		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
@@ -1123,10 +1116,7 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		}
 
 		// force feedback
-		if (frame_listener->m_forcefeedback)
-		{
-			frame_listener->m_forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
-		}
+		frame_listener->m_forcefeedback.SetEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
 
 		// attach player to truck
 		if (gEnv->player)

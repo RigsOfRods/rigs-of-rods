@@ -85,6 +85,12 @@ static std::string      g_sys_cache_dir;         ///< No ending slash. Replaces 
 static std::string      g_sys_logs_dir;          ///< No ending slash. Replaces settings["Log Path"]
 static std::string      g_sys_resources_dir;     ///< No ending slash. Replaces settings["Resources Path"]
 
+// Input
+static bool             g_input_ff_enabled;      ///< Config: BSETTING Force Feedback
+static float            g_input_ff_camera;       ///< Config: FSETTING Force Feedback Camera
+static float            g_input_ff_centering;    ///< Config: FSETTING Force Feedback Centering
+static float            g_input_ff_gain;         ///< Config: FSETTING Force Feedback Gain
+static float            g_input_ff_stress;       ///< Config: FSETTING Force Feedback Stress
 
 // ================================================================================
 // Access functions
@@ -95,6 +101,7 @@ static std::string      g_sys_resources_dir;     ///< No ending slash. Replaces 
 void SetVarStr      (std::string&             var, const char* var_name, std::string const &     new_value);
 void SetVarInt      (int&                     var, const char* var_name, int                     new_value);
 void SetVarBool     (bool&                    var, const char* var_name, bool                    new_value);
+void SetVarFloat    (float&                   var, const char* var_name, float                   new_value);
 void SetVarAppState (Application::State&      var, const char* var_name, Application::State      new_value);
 void SetVarMpState  (Application::MpState&    var, const char* var_name, Application::MpState    new_value);
 void SetVarSimState (Application::SimState&   var, const char* var_name, Application::SimState   new_value);
@@ -119,6 +126,11 @@ std::string   GetSysConfigDir()       { return g_sys_config_dir;        }
 std::string   GetSysCacheDir()        { return g_sys_cache_dir;         }
 std::string   GetSysLogsDir()         { return g_sys_logs_dir;          }
 std::string   GetSysResourcesDir()    { return g_sys_resources_dir;     }
+bool          GetInputFFEnabled()     { return g_input_ff_enabled;      }
+float         GetInputFFCamera()      { return g_input_ff_camera;       }
+float         GetInputFFCentering()   { return g_input_ff_centering;    }
+float         GetInputFFGain()        { return g_input_ff_gain;         }
+float         GetInputFFStress()      { return g_input_ff_stress;       }
 
 // Setters
 void SetActiveAppState    (State               v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -140,6 +152,11 @@ void SetSysConfigDir      (std::string const & v) { SetVarStr     (g_sys_config_
 void SetSysCacheDir       (std::string const & v) { SetVarStr     (g_sys_cache_dir        , "sys_cache_dir"        , v); }
 void SetSysLogsDir        (std::string const & v) { SetVarStr     (g_sys_logs_dir         , "sys_logs_dir"         , v); }
 void SetSysResourcesDir   (std::string const & v) { SetVarStr     (g_sys_resources_dir    , "sys_resources_dir"    , v); }
+void SetInputFFEnabled    (bool           v) { SetVarBool    (g_input_ff_enabled     , "input_ff_enabled"     , v); }
+void SetInputFFCamera     (float          v) { SetVarFloat   (g_input_ff_camera      , "input_ff_camera"      , v); }
+void SetInputFFCentering  (float          v) { SetVarFloat   (g_input_ff_centering   , "input_ff_centering"   , v); }
+void SetInputFFGain       (float          v) { SetVarFloat   (g_input_ff_gain        , "input_ff_gain"        , v); }
+void SetInputFFStress     (float          v) { SetVarFloat   (g_input_ff_stress      , "input_ff_stress"      , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -298,6 +315,17 @@ void SetVarInt (int& var, const char* var_name, int new_value)
 void SetVarBool (bool& var, const char* var_name, bool new_value)
 {
     LogVarUpdate(var_name, (var ? "True" : "False"), (new_value ? "True" : "False"));
+    var = new_value;
+}
+
+void SetVarFloat(float& var, const char* var_name, float new_value)
+{
+    if (g_diag_trace_globals && (var != new_value))
+    {
+        char log[1000] = "";
+        snprintf(log, 1000, "[RoR|Globals] Updating \"%s\": [%f] => [%f]", var_name, var, new_value);
+        LOG(log);
+    }
     var = new_value;
 }
 

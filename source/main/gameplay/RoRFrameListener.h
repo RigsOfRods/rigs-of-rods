@@ -18,10 +18,10 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifndef __RoRFrameListener_H_
-#define __RoRFrameListener_H_
+
 
 #include "RoRPrerequisites.h"
+#include "ForceFeedback.h"
 
 #include <Ogre.h>
 
@@ -69,7 +69,7 @@ protected:
 	void updateForceFeedback(float dt);
 
 	DOFManager *m_dof;
-	ForceFeedback *m_forcefeedback;
+	RoR::ForceFeedback m_forcefeedback;
 	HeatHaze *m_heathaze;
 
 	CacheEntry *m_last_cache_selection;
@@ -117,4 +117,3 @@ protected:
 	void finalizeTruckSpawning(Beam *local_truck, Beam *previous_truck);
 };
 
-#endif // __RoRFrameListener_H_

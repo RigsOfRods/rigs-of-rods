@@ -93,6 +93,11 @@ std::string          GetSysConfigDir();
 std::string          GetSysCacheDir();
 std::string          GetSysLogsDir();
 std::string          GetSysResourcesDir();
+bool                 GetInputFFEnabled();
+float                GetInputFFCamera();
+float                GetInputFFCentering();
+float                GetInputFFGain();
+float                GetInputFFStress();
 
 // Setters
 void SetActiveAppState   (State               v);
@@ -114,6 +119,11 @@ void SetSysConfigDir     (std::string const & v);
 void SetSysCacheDir      (std::string const & v);
 void SetSysLogsDir       (std::string const & v);
 void SetSysResourcesDir  (std::string const & v);
+void SetInputFFEnabled   (bool                v);
+void SetInputFFCamera    (float               v);
+void SetInputFFCentering (float               v);
+void SetInputFFGain      (float               v);
+void SetInputFFStress    (float               v);
 void SetMainThreadLogic  (MainThread*       obj);
 
 // Factories

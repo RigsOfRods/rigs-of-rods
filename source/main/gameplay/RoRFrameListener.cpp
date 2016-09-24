@@ -114,12 +114,17 @@ using namespace RoR;
 
 void RoRFrameListener::updateForceFeedback(float dt)
 {
+    if (!Application::GetInputFFEnabled()) { return; }
+    if (!RoR::Application::GetInputEngine()->getForceFeedbackDevice())
+    {
+        LOG("No force feedback device detected, disabling force feedback");
+        Application::SetInputFFEnabled(false);
+        return;
+    }
+
 	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 	if (current_truck && current_truck->driveable == TRUCK)
 	{
-		// force feedback
-		if (m_forcefeedback)
-		{
 			int cameranodepos = 0;
 			int cameranodedir = 0;
 			int cameranoderoll = 0;
@@ -137,19 +142,17 @@ void RoRFrameListener::updateForceFeedback(float dt)
 			udir.normalise();
 			uroll.normalise();
 
-			m_forcefeedback->setForces(-current_truck->ffforce.dotProduct(uroll)/10000.0,
+			m_forcefeedback.SetForces(-current_truck->ffforce.dotProduct(uroll)/10000.0,
 				current_truck->ffforce.dotProduct(udir)/10000.0,
 				current_truck->WheelSpeed,
 				current_truck->hydrodircommand,
 				current_truck->ffhydro);
-		}
 	}
 }
 
 RoRFrameListener::RoRFrameListener() :
 	m_dir_arrow_pointed(Vector3::ZERO),
 	m_dof(0),
-	m_forcefeedback(0),
 	m_heathaze(0),
 	m_hide_gui(false),
 	m_is_dir_arrow_visible(false),

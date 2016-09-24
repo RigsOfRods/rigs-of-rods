@@ -490,8 +490,13 @@ void Settings::saveSettings(String configFile)
 	fclose(fd);*/
 }
 
+#define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool (_VAL_)
+#define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
+
 bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const & value)
 {
+    using namespace RoR;
+
     // Process and erase settings which propagate to global vars.
     if (name == "Network enable" && (Ogre::StringConverter::parseBool(value) == true))
     {
@@ -503,6 +508,12 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Server name")       { RoR::Application::SetMpServerHost(value);                                  return true; }
     else if (name == "Server port")       { RoR::Application::SetMpServerPort(Ogre::StringConverter::parseInt(value)); return true; }
     else if (name == "Server password")   { RoR::Application::SetMpServerPassword(value);                              return true; }
+    // Input
+    else if (name == "Force Feedback"          ) { Application::SetInputFFEnabled  (STR2BOOL_(value)); return true; }
+    else if (name == "Force Feedback Camera"   ) { Application::SetInputFFCamera   (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Centering") { Application::SetInputFFCentering(STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Gain"     ) { Application::SetInputFFGain     (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Stress"   ) { Application::SetInputFFStress   (STR2FLOAT(value)); return true; }
 
     return false;
 }
