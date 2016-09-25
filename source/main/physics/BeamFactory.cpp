@@ -148,7 +148,7 @@ BeamFactory::BeamFactory() :
 	for (int t=0; t < MAX_TRUCKS; t++)
 		m_trucks[t] = 0;
 
-	if (BSETTING("Multi-threading", true))
+	if (RoR::App::GetAppMultithread())
 	{
 		// Create thread pool
 		int numThreadsInPool = ISETTING("NumThreadsInThreadPool", 0);

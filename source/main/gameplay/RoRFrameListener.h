@@ -109,8 +109,6 @@ protected:
 
 	int m_stats_on;
 
-	char m_screenshot_format[256];
-
 	Ogre::Vector3 m_reload_pos;
 	Ogre::Quaternion m_reload_dir;
 

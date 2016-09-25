@@ -247,14 +247,6 @@ void MainThread::Go()
     }
 #endif // _WIN32
 
-	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
-	if     (screenshotFormatString == "jpg (smaller, default)")
-		strcpy(m_frame_listener->m_screenshot_format, "jpg");
-	else if (screenshotFormatString =="png (bigger, no quality loss)")
-		strcpy(m_frame_listener->m_screenshot_format, "png");
-	else
-		strncpy(m_frame_listener->m_screenshot_format, screenshotFormatString.c_str(), 10);
-
 	// initiate player colours
 	PlayerColours::getSingleton();
 

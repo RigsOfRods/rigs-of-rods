@@ -56,9 +56,13 @@ static InputEngine*     g_input_engine;
 static CacheSystem*     g_cache_system;
 static MainThread*      g_main_thread_logic;
 
-// App state
+// App
 static State            g_app_state_active;      ///< Current state
 static State            g_app_state_pending;     ///< Requested state change
+static std::string      g_app_language;          ///< Config: STR Language
+static std::string      g_app_locale;            ///< Config: STR Language Short
+static bool             g_app_multithread;       ///< Config: STR Multi-threading
+static std::string      g_app_screenshot_format; ///< Config: STR Screenshot Format
 
 // Simulation
 static std::string      g_sim_terrain_active;
@@ -86,10 +90,11 @@ static bool             g_diag_envmap             ; ///< Config: BOOL EnvMapDebu
 // System
 static std::string      g_sys_process_dir;       ///< No ending slash.
 static std::string      g_sys_user_dir;          ///< No ending slash.
-static std::string      g_sys_config_dir;        ///< No ending slash. Replaces settings["Config Root"]
-static std::string      g_sys_cache_dir;         ///< No ending slash. Replaces settings["Cache Path"] 
-static std::string      g_sys_logs_dir;          ///< No ending slash. Replaces settings["Log Path"]
-static std::string      g_sys_resources_dir;     ///< No ending slash. Replaces settings["Resources Path"]
+static std::string      g_sys_config_dir;        ///< No ending slash. Config: STR Config Root"
+static std::string      g_sys_cache_dir;         ///< No ending slash. Config: STR Cache Path
+static std::string      g_sys_logs_dir;          ///< No ending slash. Config: STR Log Path
+static std::string      g_sys_resources_dir;     ///< No ending slash. Config: STR Resources Path
+static std::string      g_sys_profiler_dir     ; ///< No ending slash. Config: STR Profiler output dir
 
 // Input
 static bool             g_input_ff_enabled;      ///< Config: BSETTING Force Feedback
@@ -97,6 +102,8 @@ static float            g_input_ff_camera;       ///< Config: FSETTING Force Fee
 static float            g_input_ff_centering;    ///< Config: FSETTING Force Feedback Centering
 static float            g_input_ff_gain;         ///< Config: FSETTING Force Feedback Gain
 static float            g_input_ff_stress;       ///< Config: FSETTING Force Feedback Stress
+static int              g_input_grab_mode ;      ///< Config: BOOL Input Grab
+static bool             g_input_use_arcade;      ///< Config: BOOL ArcadeControls
 
 // Graphics
 static int              g_gfx_shadow_type;       ///< Config: STR   Shadow technique
@@ -118,7 +125,6 @@ static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
   //   float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
   //   float            g_gfx_fov_internal;      ///< Config: FLOAT FOV Internal
   //   int              g_gfx_fps_limit;         ///< Config: INT   FPS-Limiter
-
 
 // ================================================================================
 // Access functions
@@ -178,6 +184,12 @@ bool            GetDiagRigLogMessages   () { return g_diag_rig_log_messages   ; 
 bool            GetDiagCollisions       () { return g_diag_collisions         ; }
 bool            GetDiagTruckMass        () { return g_diag_truck_mass         ; }
 bool            GetDiagEnvmap           () { return g_diag_envmap             ; }
+STR_CREF        GetAppLanguage          () { return g_app_language;             }
+STR_CREF        GetAppLocale            () { return g_app_locale;               }
+bool            GetAppMultithread       () { return g_app_multithread;          }
+STR_CREF        GetAppScreenshotFormat  () { return g_app_screenshot_format;    }
+InputGrabMode   GetInputGrabMode        () { return (InputGrabMode)g_input_grab_mode ; }
+bool            GetInputUseArcade       () { return g_input_use_arcade;         }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -223,6 +235,12 @@ void SetDiagRigLogMessages   (bool        v) { SetVarBool    (g_diag_rig_log_mes
 void SetDiagCollisions       (bool        v) { SetVarBool    (g_diag_collisions           , "diag_collisions"           , v); }
 void SetDiagTruckMass        (bool        v) { SetVarBool    (g_diag_truck_mass           , "diag_truck_mass"           , v); }
 void SetDiagEnvmap           (bool        v) { SetVarBool    (g_diag_envmap               , "diag_envmap"               , v); }
+void SetAppLanguage          (STR_CREF    v) { SetVarStr     (g_app_language              , "app_language"              , v); }
+void SetAppLocale            (STR_CREF    v) { SetVarStr     (g_app_locale                , "app_locale"                , v); }
+void SetAppMultithread       (bool        v) { SetVarBool    (g_app_multithread           , "app_multithread"           , v); }
+void SetAppScreenshotFormat  (STR_CREF    v) { SetVarStr     (g_app_screenshot_format     , "app_screenshot_format"     , v); }
+void SetInputGrabMode      (InputGrabMode v) { SetVarInt     (g_input_grab_mode           , "input_grab_mode"           , (int)v); }
+void SetInputUseArcade     (bool          v) { SetVarBool    (g_input_use_arcade          , "input_use_arcade"          , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -334,6 +352,9 @@ void Init()
 {
     g_app_state_active     = APP_STATE_BOOTSTRAP;
     g_app_state_pending    = APP_STATE_MAIN_MENU;
+    g_app_language         = "English";
+    g_app_locale           = "en";
+    g_app_screenshot_format= "jpg";
 
     g_mp_state_active      = MP_STATE_DISABLED;
     g_mp_state_pending     = MP_STATE_NONE;

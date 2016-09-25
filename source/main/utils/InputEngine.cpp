@@ -1871,9 +1871,8 @@ void InputEngine::destroy()
 }
 
 
-bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabMode, bool captureKbd)
+bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captureKbd)
 {
-	grabMode = _grabMode;
 	
 #ifndef NOOGRE
 	LOG("*** Initializing OIS ***");
@@ -1896,9 +1895,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 #endif // LINUX
 		
 		pl.insert(OIS::ParamList::value_type("WINDOW", hwnd));
-		if (grabMode == GRAB_ALL)
-		{
-		} else if (grabMode == GRAB_DYNAMICALLY || grabMode == GRAB_NONE)
+		if (RoR::App::GetInputGrabMode() != RoR::App::INPUT_GRAB_ALL)
 		{
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 			pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "false"));
@@ -3749,22 +3746,11 @@ void InputEngine::initAllKeys()
 
 void InputEngine::setupDefault(Ogre::String inputhwnd /* = "" */)
 {
-	// setup input
-	int inputGrabMode=GRAB_ALL;
-	String inputGrabSetting = SSETTING("Input Grab", "All");
-
-	if     (inputGrabSetting == "All")
-		inputGrabMode = GRAB_ALL;
-	else if (inputGrabSetting == "Dynamically")
-		inputGrabMode = GRAB_DYNAMICALLY;
-	else if (inputGrabSetting == "None")
-		inputGrabMode = GRAB_NONE;
-
 	// start input engine
 	size_t hWnd = 0;
 	RoR::App::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
 
-	this->setup(TOSTRING(hWnd), true, true, inputGrabMode);
+	this->setup(TOSTRING(hWnd), true, true);
 
 }
 

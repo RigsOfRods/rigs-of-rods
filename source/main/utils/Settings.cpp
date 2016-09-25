@@ -520,6 +520,11 @@ inline void App__SetVegetationMode(std::string const & s)
     if (s == "Full (best looking, slower)") { App::SetGfxVegetationMode(App::GFX_VEGETATION_FULL);   return; }
 }
 
+inline void App__SetScreenshotFormat(std::string const & s)
+{
+    if (s.size() >= 3) { App::SetAppScreenshotFormat(s.substr(0, 3)); }
+}
+
 inline void App__SetEnvMapUpdateRate(std::string const & s)
 {
     int rate = Ogre::StringConverter::parseInt(s);
@@ -539,7 +544,13 @@ inline void App__SetEnvMapEnabled(std::string const & s)
     {
         App::SetGfxEnvmapMode(1);
     }
+}
 
+inline void App__SetInputGrabMode(std::string const & s)
+{
+    if (s == "Dynamically") { App::SetInputGrabMode(App::INPUT_GRAB_DYNAMIC); return; }
+    if (s == "None"       ) { App::SetInputGrabMode(App::INPUT_GRAB_NONE);    return; }
+    else                    { App::SetInputGrabMode(App::INPUT_GRAB_ALL);     return; }
 }
 
 
@@ -570,6 +581,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Force Feedback Centering") { App::SetInputFFCentering(STR2FLOAT(value)); return true; }
     else if (name == "Force Feedback Gain"     ) { App::SetInputFFGain     (STR2FLOAT(value)); return true; }
     else if (name == "Force Feedback Stress"   ) { App::SetInputFFStress   (STR2FLOAT(value)); return true; }
+    else if (name == "Input Grab"              ) { App__SetInputGrabMode             (value);  return true; }
+    else if (name == "ArcadeControls"          ) { App::SetInputUseArcade  (STR2BOOL_(value)); return true; }
     // Gfx
     else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
     else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }
@@ -592,6 +605,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Debug Collisions"        ) { App::SetDiagCollisions       (STR2BOOL_(value)); return true; }
     else if (name == "Debug Truck Mass"        ) { App::SetDiagTruckMass        (STR2BOOL_(value)); return true; }
     else if (name == "EnvMapDebug"             ) { App::SetDiagEnvmap           (STR2BOOL_(value)); return true; }
+    // App
+    else if (name == "Screenshot Format"       ) { App__SetScreenshotFormat               (value);  return true; }
 
     return false;
 }

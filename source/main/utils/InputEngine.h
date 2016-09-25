@@ -44,12 +44,6 @@
 #define MAX_JOYSTICK_SLIDERS 4
 #define MAX_JOYSTICK_AXIS 32
 
-enum grabtypes {
-	GRAB_ALL=0,
-	GRAB_DYNAMICALLY,
-	GRAB_NONE
-};
-
 enum eventtypes
 {
 	ET_NONE=0,
@@ -469,7 +463,7 @@ public:
 	bool getEventBoolValueBounce(int eventID, float time=0.2f);
 	float getEventBounceTime(int eventID);
 	// we need to use hwnd here, as we are also using this in the configurator
-	bool setup(Ogre::String hwnd, bool capture=false, bool capturemouse=false, int grabMode=0, bool captureKbd=true);
+	bool setup(Ogre::String hwnd, bool capture=false, bool capturemouse=false, bool captureKbd=true);
 	Ogre::String getKeyForCommand(int eventID);
 	bool isKeyDown(OIS::KeyCode mod);
 	bool isKeyDownValueBounce(OIS::KeyCode mod, float time=0.2f);
@@ -599,7 +593,6 @@ protected:
 	bool mappingLoaded;
 
 	bool inputsChanged;
-	int grabMode;
 
 	event_trigger_t newEvent();
 };

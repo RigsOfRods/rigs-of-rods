@@ -320,7 +320,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 		String fn_prefix = SSETTING("User Path", "") + String("screenshot_");
 		String fn_name = date.str() + String("_");
-		String fn_suffix = String(".") + String(m_screenshot_format);
+		String fn_suffix = String(".") + App::GetAppScreenshotFormat();
 
 		if (m_last_screenshot_date == date.str())
 		{
@@ -342,7 +342,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 		BeamFactory::getSingleton().updateFlexbodiesFinal();   // Waits until all flexbody tasks are finished
 
-		if (String(m_screenshot_format) == "png")
+		if (App::GetAppScreenshotFormat() == "png")
 		{
 			// add some more data into the image
 			AdvancedScreen *as = new AdvancedScreen(RoR::App::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
@@ -358,7 +358,7 @@ bool RoRFrameListener::updateEvents(float dt)
 				as->addData("Truck_nodes", TOSTRING(curr_truck->getNodeCount()));
 			}
 			as->addData("User_NickName", App::GetMpPlayerName());
-			as->addData("User_Language", SSETTING("Language", "English"));
+			as->addData("User_Language", App::GetAppLanguage());
 			as->addData("RoR_VersionString", String(ROR_VERSION_STRING));
 			as->addData("RoR_ProtocolVersion", String(RORNET_VERSION));
 			as->addData("RoR_BinaryHash", SSETTING("BinaryHash", ""));

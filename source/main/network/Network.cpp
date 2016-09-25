@@ -530,7 +530,7 @@ bool Connect()
     strncpy(c.usertoken, usertokenhash.c_str(), 40);
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strcpy(c.clientname, "RoR");
-    Ogre::String lang = SSETTING("Language Short", "en");
+    Ogre::String lang = App::GetAppLocale();
     strncpy(c.language, lang.c_str(), std::min<int>((int)lang.size(), 10));
     Ogre::String guid = SSETTING("GUID", "");
     strncpy(c.clientGUID, guid.c_str(), std::min<int>((int)guid.size(), 10));

@@ -355,7 +355,7 @@ void CLASS::UpdateControls()
 	}
 
 	//Few GameSettingsMap
-	if (GameSettingsMap["ArcadeControls"] == "Yes")
+	if (App::GetInputUseArcade())
 		m_arc_mode->setStateCheck(true);
 	else
 		m_arc_mode->setStateCheck(false);
@@ -540,7 +540,7 @@ void CLASS::UpdateControls()
 	else
 		m_disable_intra_collision->setStateCheck(false);
 
-	if (GameSettingsMap["Multi-threading"] == "No")
+	if (App::GetAppMultithread())
 		m_disable_multithreading->setStateCheck(true);
 	else
 		m_disable_multithreading->setStateCheck(false);
@@ -595,7 +595,7 @@ void CLASS::UpdateControls()
 	else
 		m_enable_replay->setStateCheck(false);
 
-	if (GameSettingsMap["Screenshot Format"] == "png (bigger, no quality loss)")
+	if (App::GetAppScreenshotFormat() == "png")
 		m_hq_screenshots->setStateCheck(true);
 	else
 		m_hq_screenshots->setStateCheck(false);

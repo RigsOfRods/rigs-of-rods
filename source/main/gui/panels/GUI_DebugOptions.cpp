@@ -113,9 +113,9 @@ void CLASS::UpdateControls()
 	m_disable_crash_reporting->setStateCheck(Settings::getSingleton().getBooleanSetting("NoCrashRpt", true));
 
 
-	if (DebugOptionsMap["Input Grab"] == "Dynamically")
+	if (App::GetInputGrabMode() == App::INPUT_GRAB_DYNAMIC)
 		m_input_grabing->setIndexSelected(1);
-	else if (DebugOptionsMap["Input Grab"] == "None")
+	else if (App::GetInputGrabMode() == App::INPUT_GRAB_NONE)
 		m_input_grabing->setIndexSelected(2);
 	else 
 		m_input_grabing->setIndexSelected(0);

@@ -93,6 +93,13 @@ enum GfxVegetation
     GFX_VEGETATION_FULL,
 };
 
+enum InputGrabMode
+{
+    INPUT_GRAB_NONE,
+    INPUT_GRAB_ALL,
+    INPUT_GRAB_DYNAMIC,
+};
+
 void Init();
 
 // Getters
@@ -150,6 +157,13 @@ bool                 GetDiagRigLogMessages   ();
 bool                 GetDiagCollisions       ();
 bool                 GetDiagTruckMass        ();
 bool                 GetDiagEnvmap           ();
+STR_CREF             GetAppLanguage          ();
+STR_CREF             GetAppLocale            ();
+bool                 GetAppMultithread       ();
+STR_CREF             GetAppScreenshotFormat  ();
+InputGrabMode        GetInputGrabMode        ();
+bool                 GetInputUseArcade       ();
+
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -195,6 +209,12 @@ void SetDiagRigLogMessages   (bool      v);
 void SetDiagCollisions       (bool      v);
 void SetDiagTruckMass    (bool          v);
 void SetDiagEnvmap       (bool          v);
+void SetAppLanguage          (STR_CREF  v);
+void SetAppLocale            (STR_CREF  v);
+void SetAppMultithread       (bool      v);
+void SetAppScreenshotFormat  (STR_CREF  v);
+void SetInputGrabMode        (InputGrabMode  v);
+void SetInputUseArcade       (bool           v);
 
 void SetMainThreadLogic  (MainThread* obj);
 
