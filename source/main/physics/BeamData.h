@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -126,9 +126,6 @@ static const float HOOK_SPEED_DEFAULT           = 0.00025f;
 static const float HOOK_LOCK_TIMER_DEFAULT      = 5.0;
 static const int   NODE_LOCKGROUP_DEFAULT		= -1; // all hooks scan all nodes
 
-#define THREAD_SINGLE false	//!< single threading mode
-#define THREAD_MULTI  true  //!< multi threading mode
-
 /* Enumerations */
 enum {
 	BEAM_NORMAL,
@@ -140,15 +137,10 @@ enum {
 };
 
 enum {
-	ACTIVATED,      //!< leading truck
-	DESACTIVATED,   //!< not leading but active
-	MAYSLEEP,       //!< active but wanting to sleep
-	GOSLEEP,        //!< active but ordered to sleep ASAP (synchronously)
-	SLEEPING,       //!< not active, sleeping
-	NETWORKED,      //!< not calculated, gets remote data
-	NETWORKED_INVALID,	//!< not calculated, size differs from expected
-	RECYCLE,        //!< waiting for reusage
-	DELETED,        //!< special used when truck pointer is 0
+	SIMULATED,      //!< simulated (local) truck
+	NETWORKED,      //!< not simulated (remote) truck
+	SLEEPING,       //!< sleeping (local) truck
+	INVALID         //!< not simulated and not updated via the network (e.g. size differs from expected)
 };
 
 enum {
@@ -270,6 +262,13 @@ enum {
 
 enum {
 	DEFAULT_DETACHER_GROUP  = 0, // default for detaching beam group
+};
+
+enum {
+	NOWHEEL,
+	WHEEL_DEFAULT,
+	WHEEL_2,
+	WHEEL_FLEXBODY
 };
 
 /* some info holding arrays */
@@ -461,20 +460,10 @@ struct prop_t
 
 	int pale;               //!< Is this a pale? (Boolean {0/1})
 	int spinner;            //!< Is this a spinprop? (Boolean {0/1})
-	bool animated;
-	float anim_x_Rot;
-	float anim_y_Rot;
-	float anim_z_Rot;
-	float anim_x_Off;
-	float anim_y_Off;
-	float anim_z_Off;
-	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset. 
+	float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
 	int animFlags[10];
 	int animMode[10];
-	float animOpt1[10]; //!< The lower limit for the animation
-	float animOpt2[10]; //!< The upper limit for the animation
 	float animOpt3[10]; //!< Various purposes
-	float animOpt4[10]; 
 	float animOpt5[10];
 	int animKey[10];
 	int animKeyState[10];
@@ -483,6 +472,11 @@ struct prop_t
 	int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 	MeshObject *mo;
 	MeshObject *wheelmo;
+
+	struct {
+		float lower_limit;  //!< The lower limit for the animation
+		float upper_limit;  //!< The upper limit for the animation
+	} constraints[10];
 };
 
 struct exhaust_t

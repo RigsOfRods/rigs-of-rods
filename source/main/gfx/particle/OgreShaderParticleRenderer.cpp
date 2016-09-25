@@ -10,9 +10,8 @@
 #include <OgreSceneManager.h>
 
 namespace Ogre {
-    String rendererTypeName = "shader";
-
 	//////////////////////////////////////////////////////////////////////////
+
     ShaderParticleRenderer::CmdVertexFormatColour			ShaderParticleRenderer::msVertexFmtColour;
     ShaderParticleRenderer::CmdVertexFormatTexture			ShaderParticleRenderer::msVertexFmtTexture;
     ShaderParticleRenderer::CmdVertexFormatSize				ShaderParticleRenderer::msVertexFmtSize;

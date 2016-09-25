@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -22,12 +22,11 @@
 #include "FlexMeshWheel.h"
 
 #include "MaterialReplacer.h"
-#include "ResourceBuffer.h"
 #include "Skin.h"
 #include "MaterialFunctionMapper.h"
 #include "BeamData.h"
 
-#include <sstream>
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -57,9 +56,8 @@ FlexMeshWheel::FlexMeshWheel(
 {
 
 	//the rim object
-	std::stringstream rim_name;
-	rim_name << "rim-" << name;
-	rimEnt = gEnv->sceneManager->createEntity(rim_name.str(), mesh_name);
+	Ogre::String rim_name = "rim-" + name;
+	rimEnt = gEnv->sceneManager->createEntity(rim_name, mesh_name);
 	MaterialFunctionMapper::replaceSimpleMeshMaterials(rimEnt, ColourValue(0, 0.5, 0.8));
 	if (material_function_mapper != nullptr)
 	{
@@ -77,7 +75,7 @@ FlexMeshWheel::FlexMeshWheel(
 	rnode->attachObject(rimEnt);
 
 	/// Create the mesh via the MeshManager
-	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	/// Create submeshes
 	sub = msh->createSubMesh();
@@ -202,32 +200,40 @@ FlexMeshWheel::FlexMeshWheel(
 			//msh->buildEdgeList();
 }
 
+FlexMeshWheel::~FlexMeshWheel()
+{
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (faces             != nullptr) { free (faces); }
+}
+
 Vector3 FlexMeshWheel::updateVertices()
 {
-	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
-	Vector3 ray = nodes[idstart].smoothpos - nodes[id0].smoothpos;
-	Vector3 axis = nodes[id0].smoothpos - nodes[id1].smoothpos;
+	Vector3 center = (nodes[id0].AbsPosition + nodes[id1].AbsPosition) / 2.0;
+	Vector3 ray = nodes[idstart].AbsPosition - nodes[id0].AbsPosition;
+	Vector3 axis = nodes[id0].AbsPosition - nodes[id1].AbsPosition;
 
 	axis.normalise();
 	
 	for (int i=0; i<nbrays; i++)
 	{
-		Plane pl=Plane(axis, nodes[id0].smoothpos);
-		ray=nodes[idstart+i*2].smoothpos-nodes[id0].smoothpos;
+		Plane pl=Plane(axis, nodes[id0].AbsPosition);
+		ray=nodes[idstart+i*2].AbsPosition-nodes[id0].AbsPosition;
 		ray=pl.projectVector(ray);
 		ray.normalise();
-		covertices[i*6  ].vertex=nodes[id0].smoothpos+rim_radius*ray-center;
+		covertices[i*6  ].vertex=nodes[id0].AbsPosition+rim_radius*ray-center;
 
-		covertices[i*6+1].vertex=nodes[idstart+i*2].smoothpos-0.05*(nodes[idstart+i*2].smoothpos-nodes[id0].smoothpos)-center;
-		covertices[i*6+2].vertex=nodes[idstart+i*2].smoothpos-0.1*(nodes[idstart+i*2].smoothpos-nodes[idstart+i*2+1].smoothpos)-center;
-		covertices[i*6+3].vertex=nodes[idstart+i*2+1].smoothpos-0.1*(nodes[idstart+i*2+1].smoothpos-nodes[idstart+i*2].smoothpos)-center;
-		covertices[i*6+4].vertex=nodes[idstart+i*2+1].smoothpos-0.05*(nodes[idstart+i*2+1].smoothpos-nodes[id1].smoothpos)-center;
+		covertices[i*6+1].vertex=nodes[idstart+i*2].AbsPosition-0.05*(nodes[idstart+i*2].AbsPosition-nodes[id0].AbsPosition)-center;
+		covertices[i*6+2].vertex=nodes[idstart+i*2].AbsPosition-0.1*(nodes[idstart+i*2].AbsPosition-nodes[idstart+i*2+1].AbsPosition)-center;
+		covertices[i*6+3].vertex=nodes[idstart+i*2+1].AbsPosition-0.1*(nodes[idstart+i*2+1].AbsPosition-nodes[idstart+i*2].AbsPosition)-center;
+		covertices[i*6+4].vertex=nodes[idstart+i*2+1].AbsPosition-0.05*(nodes[idstart+i*2+1].AbsPosition-nodes[id1].AbsPosition)-center;
 
-		pl=Plane(-axis, nodes[id1].smoothpos);
-		ray=nodes[idstart+i*2+1].smoothpos-nodes[id1].smoothpos;
+		pl=Plane(-axis, nodes[id1].AbsPosition);
+		ray=nodes[idstart+i*2+1].AbsPosition-nodes[id1].AbsPosition;
 		ray=pl.projectVector(ray);
 		ray.normalise();
-		covertices[i*6+5].vertex=nodes[id1].smoothpos+rim_radius*ray-center;
+		covertices[i*6+5].vertex=nodes[id1].AbsPosition+rim_radius*ray-center;
 
 		//normals
 		covertices[i*6  ].normal=axis;
@@ -248,30 +254,30 @@ Vector3 FlexMeshWheel::updateVertices()
 
 Vector3 FlexMeshWheel::updateShadowVertices()
 {
-	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
-	Vector3 ray = nodes[idstart].smoothpos - nodes[id0].smoothpos;
-	Vector3 axis = nodes[id0].smoothpos - nodes[id1].smoothpos;
+	Vector3 center = (nodes[id0].AbsPosition + nodes[id1].AbsPosition) / 2.0;
+	Vector3 ray = nodes[idstart].AbsPosition - nodes[id0].AbsPosition;
+	Vector3 axis = nodes[id0].AbsPosition - nodes[id1].AbsPosition;
 	
 	axis.normalise();
 
 	for (int i=0; i<nbrays; i++)
 	{
-		Plane pl=Plane(axis, nodes[id0].smoothpos);
-		ray=nodes[idstart+i*2].smoothpos-nodes[id0].smoothpos;
+		Plane pl=Plane(axis, nodes[id0].AbsPosition);
+		ray=nodes[idstart+i*2].AbsPosition-nodes[id0].AbsPosition;
 		ray=pl.projectVector(ray);
 		ray.normalise();
-		coshadowposvertices[i*6  ].vertex=nodes[id0].smoothpos+rim_radius*ray-center;
+		coshadowposvertices[i*6  ].vertex=nodes[id0].AbsPosition+rim_radius*ray-center;
 
-		coshadowposvertices[i*6+1].vertex=nodes[idstart+i*2].smoothpos-0.05*(nodes[idstart+i*2].smoothpos-nodes[id0].smoothpos)-center;
-		coshadowposvertices[i*6+2].vertex=nodes[idstart+i*2].smoothpos-0.1*(nodes[idstart+i*2].smoothpos-nodes[idstart+i*2+1].smoothpos)-center;
-		coshadowposvertices[i*6+3].vertex=nodes[idstart+i*2+1].smoothpos-0.1*(nodes[idstart+i*2+1].smoothpos-nodes[idstart+i*2].smoothpos)-center;
-		coshadowposvertices[i*6+4].vertex=nodes[idstart+i*2+1].smoothpos-0.05*(nodes[idstart+i*2+1].smoothpos-nodes[id1].smoothpos)-center;
+		coshadowposvertices[i*6+1].vertex=nodes[idstart+i*2].AbsPosition-0.05*(nodes[idstart+i*2].AbsPosition-nodes[id0].AbsPosition)-center;
+		coshadowposvertices[i*6+2].vertex=nodes[idstart+i*2].AbsPosition-0.1*(nodes[idstart+i*2].AbsPosition-nodes[idstart+i*2+1].AbsPosition)-center;
+		coshadowposvertices[i*6+3].vertex=nodes[idstart+i*2+1].AbsPosition-0.1*(nodes[idstart+i*2+1].AbsPosition-nodes[idstart+i*2].AbsPosition)-center;
+		coshadowposvertices[i*6+4].vertex=nodes[idstart+i*2+1].AbsPosition-0.05*(nodes[idstart+i*2+1].AbsPosition-nodes[id1].AbsPosition)-center;
 
-		pl=Plane(-axis, nodes[id1].smoothpos);
-		ray=nodes[idstart+i*2+1].smoothpos-nodes[id1].smoothpos;
+		pl=Plane(-axis, nodes[id1].AbsPosition);
+		ray=nodes[idstart+i*2+1].AbsPosition-nodes[id1].AbsPosition;
 		ray=pl.projectVector(ray);
 		ray.normalise();
-		coshadowposvertices[i*6+5].vertex=nodes[id1].smoothpos+rim_radius*ray-center;
+		coshadowposvertices[i*6+5].vertex=nodes[id1].AbsPosition+rim_radius*ray-center;
 
 		//normals
 		coshadownorvertices[i*6  ].normal=axis;
@@ -304,22 +310,22 @@ void FlexMeshWheel::setVisible(bool visible)
 	if (rnode) rnode->setVisible(visible);
 }
 
-bool FlexMeshWheel::flexitPrepare(Beam* b)
+bool FlexMeshWheel::flexitPrepare()
 {
-	Vector3 center = (nodes[id0].smoothpos + nodes[id1].smoothpos) / 2.0;
+	Vector3 center = (nodes[id0].AbsPosition + nodes[id1].AbsPosition) / 2.0;
 	rnode->setPosition(center);
 
-	Vector3 axis = nodes[id0].smoothpos - nodes[id1].smoothpos;
+	Vector3 axis = nodes[id0].AbsPosition - nodes[id1].AbsPosition;
 	axis.normalise();
 
 	if (revrim) axis = -axis;
-	Vector3 ray = nodes[idstart].smoothpos - nodes[id0].smoothpos;
+	Vector3 ray = nodes[idstart].AbsPosition - nodes[id0].AbsPosition;
 	Vector3 onormal = axis.crossProduct(ray);
 	onormal.normalise();
 	ray = axis.crossProduct(onormal);
 	rnode->setOrientation(Quaternion(axis, onormal, ray));
 
-	return Flexable::flexitPrepare(b);
+	return true;
 }
 
 void FlexMeshWheel::flexitCompute()

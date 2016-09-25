@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -65,7 +65,8 @@ using namespace Ogre;
 OverlayWrapper::OverlayWrapper():
 	m_direction_arrow_node(nullptr),
 	mTimeUntilNextToggle(0),
-	m_visible_overlays(0)
+	m_visible_overlays(0),
+	m_flipflop(false)
 {
 	win = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
 	init();
@@ -73,6 +74,11 @@ OverlayWrapper::OverlayWrapper():
 
 OverlayWrapper::~OverlayWrapper()
 {
+	if (truckhud != nullptr)
+	{
+		delete truckhud;
+		truckhud = nullptr;
+	}
 }
 
 void OverlayWrapper::resizePanel(OverlayElement *oe)
@@ -152,7 +158,7 @@ int OverlayWrapper::init()
 		directionArrowText = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Text");
 	} catch(...)
 	{
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_Resources_Not_Found";
+		String url = "http://wiki.rigsofrods.org/index.php?title=Error_Resources_Not_Found";
 		ErrorUtils::ShowOgreWebError("Resources not found!", "please ensure that your installation is complete and the resources are installed properly. If this error persists please re-install RoR.", url);
 	}
 	directionArrowDistance = (TextAreaOverlayElement*)loadOverlayElement("tracks/DirectionArrow/Distance");
@@ -846,7 +852,7 @@ void OverlayWrapper::UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & p
 {
 	m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD,Vector3::UNIT_Y);
 	Real distance = 0.0f;
-	if (vehicle != nullptr && vehicle->state == ACTIVATED)
+	if (vehicle != nullptr && vehicle->state == SIMULATED)
 	{
 		distance = vehicle->getPosition().distance(point_to);
 	} 
@@ -881,7 +887,7 @@ void OverlayWrapper::UpdatePressureTexture(float pressure)
 	pressuretexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
+void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle)
 {
 	// gears
 	int truck_getgear = vehicle->engine->getGear();
@@ -988,7 +994,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	}
 
 	// pitch
-	Vector3 dir = (vehicle->nodes[vehicle->cameranodepos[0]].RelPosition - vehicle->nodes[vehicle->cameranodedir[0]].RelPosition).normalisedCopy();
+	Vector3 dir = vehicle->getDirection();
 	angle = asin(dir.dotProduct(Vector3::UNIT_Y));
 	angle = std::max(-1.0f, angle);
 	angle = std::min(angle, 1.0f);
@@ -1049,8 +1055,8 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop)
 	{
 		if (fabs(vehicle->commandkey[0].commandValue) > 0.000001f)
 		{
-			flipflop = !flipflop;
-			if (flipflop)
+			m_flipflop = !m_flipflop;
+			if (m_flipflop)
 				securedo->setMaterialName("tracks/secured-on");
 			else
 				securedo->setMaterialName("tracks/secured-off");
@@ -1088,7 +1094,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 
 	//tropospheric model valid up to 11.000m (33.000ft)
 	float altitude=vehicle->nodes[0].AbsPosition.y;
-	float sea_level_temperature=273.15+15.0; //in Kelvin
+	//float sea_level_temperature=273.15+15.0; //in Kelvin
 	float sea_level_pressure=101325; //in Pa
 	//float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
 	float airpressure=sea_level_pressure*pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa
@@ -1142,8 +1148,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 	float rollangle=asin(rollv.dotProduct(Vector3::UNIT_Y));
 
 	//pitch
-	Vector3 dirv=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	dirv.normalise();
+	Vector3 dirv=vehicle->getDirection();
 	float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
 	Vector3 upv=dirv.crossProduct(-rollv);
 	if (upv.y<0) rollangle=3.14159-rollangle;
@@ -1152,9 +1157,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam * vehicle)
 	aditapetexture->setTextureRotate(Radian(-rollangle));
 
 	//hsi
-	Vector3 idir=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	//			idir.normalise();
-	float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
+	float dirangle=atan2(dirv.dotProduct(Vector3::UNIT_X), dirv.dotProduct(-Vector3::UNIT_Z));
 	hsirosetexture->setTextureRotate(Radian(dirangle));
 	if (vehicle->autopilot)
 	{
@@ -1275,8 +1278,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam * vehicle)
 	}
 
 	//position
-	Vector3 dir=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	dir.normalise();
+	Vector3 dir=vehicle->getDirection();
 
 	char tmp[50]="";
 	if (vehicle->getLowestNode() != -1)
@@ -1295,9 +1297,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam * vehicle)
 
 	//waterspeed
 	float angle=0.0;
-	Vector3 hdir=vehicle->nodes[vehicle->cameranodepos[0]].RelPosition-vehicle->nodes[vehicle->cameranodedir[0]].RelPosition;
-	hdir.normalise();
-	float kt=hdir.dotProduct(vehicle->nodes[vehicle->cameranodepos[0]].Velocity)*1.9438;
+	float kt=dir.dotProduct(vehicle->nodes[vehicle->cameranodepos[0]].Velocity)*1.9438;
 	angle=kt*4.2;
 	boatspeedtexture->setTextureRotate(Degree(-angle));
 	boatsteertexture->setTextureRotate(Degree(vehicle->screwprops[0]->getRudder() * 170));

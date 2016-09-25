@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -94,7 +94,9 @@ bool Sound::isPlaying()
 
 void Sound::setEnabled(bool e)
 {
-	enabled = e;
+	if (e == this->enabled) return;
+
+	this->enabled = e;
 	sound_manager->recomputeSource(source_index, REASON_PLAY, 0.0f, NULL);
 }
 
@@ -117,30 +119,40 @@ void Sound::stop()
 
 void Sound::setGain(float gain)
 {
+	if (gain == this->gain) return;
+
 	this->gain = gain;
 	sound_manager->recomputeSource(source_index, REASON_GAIN, gain, NULL);
 }
 
 void Sound::setLoop(bool loop)
 {
+	if (loop == this->loop) return;
+
 	this->loop = loop;
 	sound_manager->recomputeSource(source_index, REASON_LOOP, (loop) ? 1.0f : 0.0f, NULL);
 }
 
 void Sound::setPitch(float pitch)
 {
+	if (pitch == this->pitch) return;
+
 	this->pitch = pitch;
 	sound_manager->recomputeSource(source_index, REASON_PTCH, pitch, NULL);
 }
 
 void Sound::setPosition(Ogre::Vector3 pos)
 {
+	if (pos == this->position) return;
+
 	this->position = pos;
 	sound_manager->recomputeSource(source_index, REASON_POSN, 0.0f, &pos);
 }
 
 void Sound::setVelocity(Ogre::Vector3 vel)
 {
+	if (vel == this->velocity) return;
+
 	this->velocity = vel;
 	sound_manager->recomputeSource(source_index, REASON_VLCT, 0.0f, &vel);
 }

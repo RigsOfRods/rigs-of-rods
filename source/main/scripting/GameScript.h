@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -28,7 +28,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ScriptEngine.h"
 
 #include <angelscript.h>
-#include <pthread.h>
 
 struct curlMemoryStruct {
   char *memory;
@@ -301,13 +300,36 @@ public:
 	*/
 	int deleteScriptVariable(const Ogre::String &arg);
 
+	/**
+	* This spawns an object
+	* @param objectName The name of the object (~the name of the odef file, but without the .odef extension)
+	* @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
+	* @param pos The position where the object should be spawned
+	* @param rot The rotation in which the object should be spawned
+	* @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file)
+	* @param uniquifyMaterials Set this to true if you need to uniquify the materials
+	*/
+	void spawnObject(const Ogre::String &objectName, const Ogre::String &instanceName, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, const Ogre::String &eventhandler, bool uniquifyMaterials);
+	/**
+	* This destroys an object
+	* @param instanceName The unique name that you chose when spawning this object
+	* @see spawnObject
+	*/
+	void destroyObject(const Ogre::String &instanceName);
+	/**
+	* This moves an object to a new position
+	* @note This doesn't update the collision box!
+	* @param instanceName The unique name that you chose when spawning this object
+	* @param pos The position where the object should be moved to
+	*/
+	void moveObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
+
+
 	// new things, not documented yet
 	void showChooser(const Ogre::String &type, const Ogre::String &instance, const Ogre::String &box);
 	void repairVehicle(const Ogre::String &instance, const Ogre::String &box, bool keepPosition);
 	void removeVehicle(const Ogre::String &instance, const Ogre::String &box);
 
-	void spawnObject(const Ogre::String &objectName, const Ogre::String &instanceName, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, const Ogre::String &eventhandler, bool uniquifyMaterials);
-	void destroyObject(const Ogre::String &instanceName);
 	int getNumTrucksByFlag(int flag);
 	bool getCaelumAvailable();
 	float stopTimer();
@@ -341,10 +363,16 @@ public:
 	void clearEventCache();
 	int sendGameCmd(const Ogre::String& message);
 
+	VehicleAI* getCurrentTruckAI();
+	VehicleAI* getTruckAIByNum(int num);
+
+	Beam* spawnTruck(Ogre::String &truckName, Ogre::Vector3 &pos, Ogre::Vector3 &rot);
+
+	void showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2);
+
 protected:
 
 	ScriptEngine *mse;          //!< local script engine pointer, used as proxy mostly
-	pthread_t apiThread;
 };
 
 #endif // __GameScript_H_

@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -43,6 +43,12 @@ CameraBehaviorVehicleSpline::CameraBehaviorVehicleSpline() :
 {
 }
 
+CameraBehaviorVehicleSpline::~CameraBehaviorVehicleSpline()
+{
+	if (spline) delete spline;
+	if (splineObject) delete splineObject;
+}
+
 void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx)
 {
 	if ( ctx.mCurrTruck->free_camerarail <= 0 )
@@ -51,8 +57,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 		return;
 	}
 
-	Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos
-		- ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos).normalisedCopy();
+	Vector3 dir = ctx.mCurrTruck->getDirection();
 
 	targetPitch = 0.0f;
 
@@ -108,6 +113,8 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext 
 {
 	const OIS::MouseState ms = _arg.state;
 
+	camRatio = 1.0f / (ctx.mDt * 4.0f);
+
 	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right) )
 	{
 		Real splinePosDiff = ms.X.rel * std::max(0.00005f, splineLength * 0.0000001f);
@@ -147,13 +154,9 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext 
 		splinePos  = std::max(0.0f, splinePos);
 		splinePos  = std::min(splinePos, 1.0f);
 
-		camRatio = 0.0f;
-
 		return true;
 	} else
 	{
-		camRatio = 5.0f;
-
 		return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
 	}
 }

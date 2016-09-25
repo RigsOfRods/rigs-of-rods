@@ -4,7 +4,7 @@
     Copyright 2007-2012 Thomas Fischer
     Copyright 2013-2016 Petr Ohlidal
 
-    For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.org/
 
     Rigs of Rods is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 3, as
@@ -36,8 +36,6 @@
 #ifdef USE_MYGUI
 #include <MyGUI.h>
 #endif //USE_MYGUI
-
-#include <pthread.h>
 
 #if _WIN32
 # include <windows.h> // Sleep()
@@ -109,31 +107,6 @@ inline void replaceString(std::string &str, std::string searchString, std::strin
 	}
 }
 
-inline void sleepMilliSeconds(unsigned int ms)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// accepts milliseconds
-	Sleep(ms);
-#else
-	// accepts microseconds
-	usleep(ms * 1000);
-#endif
-}
-
-inline unsigned long getThreadID()
-{
-#ifdef _WIN32
-	return (unsigned long)pthread_self().p;
-#else
-	return (unsigned long)pthread_self();
-#endif // _WIN32
-}
-
-inline Ogre::String getThreadIDAsString()
-{
-	return TOSTRING(getThreadID());
-}
-
 Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
 
 // generates a hash from a DataStream, beware, its loading the whole thing into a buffer, so its not suited for big files
@@ -142,12 +115,17 @@ void generateHashFromFile(Ogre::String filename, Ogre::String &hash);
 
 namespace RoR
 {
-
 namespace Utils
 {
     std::string TrimBlanksAndLinebreaks(std::string const & input);
     
     std::string SanitizeUtf8String(std::string const& str_in);
 }
-
+namespace Color
+{
+	const Ogre::UTFString CommandColour       = Ogre::UTFString("#00FF00");
+	const Ogre::UTFString NormalColour        = Ogre::UTFString("#FFFFFF");
+	const Ogre::UTFString WhisperColour       = Ogre::UTFString("#FFCC00");
+	const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
+}
 }

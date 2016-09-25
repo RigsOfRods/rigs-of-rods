@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -18,8 +18,6 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Heathaze.h"
-
-#include "ResourceBuffer.h"
 
 using namespace Ogre;
 
@@ -45,7 +43,7 @@ void HeatHazeListener::postRenderTargetUpdate(const RenderTargetEvent& evt)
 
 HeatHaze::HeatHaze() : rttTex(0), listener(0)
 {
-	TexturePtr rttTexPtr = TextureManager::getSingleton().createManual("heathaze_rtt", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, gEnv->mainCamera->getViewport()->getWidth(), gEnv->mainCamera->getViewport()->getHeight(), 0, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+	TexturePtr rttTexPtr = TextureManager::getSingleton().createManual("heathaze_rtt", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, gEnv->mainCamera->getViewport()->getWidth(), gEnv->mainCamera->getViewport()->getHeight(), 0, PF_R8G8B8, TU_RENDERTARGET);
 	rttTex = rttTexPtr->getBuffer()->getRenderTarget();
 	{
 		/*

@@ -4,7 +4,7 @@
     Copyright 2007-2012 Thomas Fischer
     Copyright 2013-2016 Petr Ohlidal
 
-    For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.org/
 
     Rigs of Rods is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 3, as
@@ -129,6 +129,18 @@ TerrainManager::~TerrainManager()
 	{
 		delete(geometry_manager);
 		geometry_manager = nullptr;
+	}
+
+	if (shadow_manager != nullptr)
+	{
+		delete(shadow_manager);
+		shadow_manager = nullptr;
+	}
+
+	if (survey_map != nullptr)
+	{
+		delete survey_map;
+		survey_map = nullptr;
 	}
 }
 
@@ -706,7 +718,7 @@ void TerrainManager::initScripting()
 	bool loaded = false;
 
 	// only load terrain scripts while not in multiplayer
-	if (!gEnv->network)
+	if (!gEnv->multiplayer)
 	{
 		try
 		{
@@ -779,21 +791,10 @@ IHeightFinder* TerrainManager::getHeightFinder()
 
 SkyManager* TerrainManager::getSkyManager()
 { 
-	if (gEnv->frameListener->loading_state == TERRAIN_LOADED || gEnv->frameListener->loading_state == ALL_LOADED)
+	if (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED)
 		return sky_manager;
 	else
 		return nullptr;
-}
-
-size_t TerrainManager::getMemoryUsage()
-{
-	// TODO: FIX
-	return 0;
-}
-
-void TerrainManager::freeResources()
-{
-	// TODO
 }
 
 void TerrainManager::loadPreloadedTrucks()

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -38,8 +38,8 @@ namespace GUI
 
 class GameChatBox: public GameChatBoxLayout
 {
-
 public:
+
 	GameChatBox();
 	~GameChatBox();
 
@@ -48,16 +48,13 @@ public:
 	bool IsVisible();
 	void pushMsg(Ogre::String txt);
 	void Update(float dt);
-	void setNetChat(ChatSystem *c);
 
 private:
-	void eventCommandAccept(MyGUI::Edit* _sender);
 
-	ChatSystem *netChat;
+	void eventCommandAccept(MyGUI::Edit* _sender);
 
 	Ogre::String mHistory;
 	bool newMsg;
-	bool isTyping;
 
 	// logic
 	bool autoHide;

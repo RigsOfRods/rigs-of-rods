@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "DustManager.h"
 #include "OgreSubsystem.h"
-#include "ResourceBuffer.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 
@@ -36,6 +35,9 @@ Plane bottomPlane;
 Plane reflectionPlane;
 Plane refractionPlane;
 SceneManager *waterSceneMgr;
+
+const int Water::WAVEREZ;
+const int Water::MAX_WAVETRAINS;
 
 class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
 {
@@ -110,7 +112,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 		mScale = 1.5f;
 
 	// disable waves in multiplayer
-	if(gEnv->network)
+	if (gEnv->multiplayer)
 		haswaves = false;
 
 	// and the type
@@ -141,6 +143,8 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 				wavetrains[free_wavetrain].amplitude=amp;
 				wavetrains[free_wavetrain].maxheight=mx;
 				wavetrains[free_wavetrain].direction=dir/57.0;
+				wavetrains[free_wavetrain].dir_sin=sin(wavetrains[free_wavetrain].direction);
+				wavetrains[free_wavetrain].dir_cos=cos(wavetrains[free_wavetrain].direction);
 				free_wavetrain++;
 			}
 			fclose(fd);
@@ -206,6 +210,12 @@ Water::~Water()
 		rttTex2->removeAllListeners();
 		rttTex2 = nullptr;
 	}
+
+	if (wbuffer)
+	{
+		free (wbuffer);
+		wbuffer = nullptr;
+	}
 }
 
 void Water::processWater(int mType)
@@ -244,7 +254,7 @@ void Water::processWater(int mType)
 
 		if (mType == WATER_FULL_QUALITY || mType == WATER_FULL_SPEED)
 		{
-			TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+			TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 			rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
 			{
 				mRefractCam = gEnv->sceneManager->createCamera("RefractCam");
@@ -278,7 +288,7 @@ void Water::processWater(int mType)
 			}
 		}
 
-		TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+		TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 		rttTex2 = rttTex2Ptr->getBuffer()->getRenderTarget();
 		{
 			mReflectCam = gEnv->sceneManager->createCamera("ReflectCam");
@@ -407,36 +417,39 @@ void Water::moveTo(float centerheight)
 
 void Water::showWave(Vector3 refpos)
 {
-	int px,pz;
 	if (!wbuffer) return;
-	for (px=0; px<WAVEREZ+1; px++)
+
+	float xScaled = mapSize.x * mScale;
+	float zScaled = mapSize.z * mScale;
+
+	for (int pz=0; pz<WAVEREZ+1; pz++)
 	{
-		for (pz=0; pz<WAVEREZ+1; pz++)
+		for (int px=0; px<WAVEREZ+1; px++)
 		{
-			Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+1]=getHeightWaves(refpos + Vector3((mapsize.x * mScale)*0.5-(float)px*(mapsize.x * mScale)/WAVEREZ, 0, (float)pz*(mapsize.z * mScale)/WAVEREZ-(mapsize.z * mScale)*0.5)) - wHeight;
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+1] = getHeightWaves(refpos + Vector3(xScaled*0.5-(float)px * xScaled / WAVEREZ, 0, (float)pz * zScaled / WAVEREZ - zScaled * 0.5)) - wHeight;
 		}
 	}
+
 	//normals
-	for (px=0; px<WAVEREZ+1; px++)
+	for (int pz=0; pz<WAVEREZ+1; pz++)
 	{
-		for (pz=0; pz<WAVEREZ+1; pz++)
+		for (int px=0; px<WAVEREZ+1; px++)
 		{
-			int left=px-1; if (left<0) left=0;
-			int right=px+1; if (right>WAVEREZ) right=WAVEREZ;
-			int up=pz-1; if (up<0) up=0;
-			int down=pz+1; if (down>WAVEREZ) down=WAVEREZ;
-			Vector3 normal=(Vector3(wbuffer+((pz*(WAVEREZ+1)+left)*8))-Vector3(wbuffer+((pz*(WAVEREZ+1)+right)*8))).crossProduct(Vector3(wbuffer+((up*(WAVEREZ+1)+px)*8))-Vector3(wbuffer+((down*(WAVEREZ+1)+px)*8)));
+			int left  = std::max(0, px-1);
+			int right = std::min(px+1, WAVEREZ);
+			int up    = std::max(0, pz-1);
+			int down  = std::min(pz+1, WAVEREZ);
+
+			Vector3 normal = (Vector3(wbuffer+((pz*(WAVEREZ+1)+left)*8))-Vector3(wbuffer+((pz*(WAVEREZ+1)+right)*8))).crossProduct(Vector3(wbuffer+((up*(WAVEREZ+1)+px)*8))-Vector3(wbuffer+((down*(WAVEREZ+1)+px)*8)));
 			normal.normalise();
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+3]=normal.x;
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+4]=normal.y;
-			wbuffer[(pz*(WAVEREZ+1)+px)*8+5]=normal.z;
+
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+3] = normal.x;
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+4] = normal.y;
+			wbuffer[(pz*(WAVEREZ+1)+px)*8+5] = normal.z;
 		}
 	}
-//	wbuf->lock(HardwareBuffer::HBL_DISCARD);
+
 	wbuf->writeData(0, (WAVEREZ+1)*(WAVEREZ+1)*32, wbuffer, true);
-//	if (wbuf->isLocked())
-//		wbuf->unlock();
 }
 
 bool Water::isCameraUnderWater()
@@ -455,7 +468,6 @@ void Water::update()
 	
 	if (pWaterNode)
 	{
-		Vector3 mapSize = gEnv->terrainManager->getMaxTerrainSize();
 		Vector3 cameraPos(mRenderCamera->getPosition().x, wHeight, mRenderCamera->getPosition().z);
 		Vector3 sightPos(cameraPos);
 
@@ -490,6 +502,7 @@ void Water::update()
 		lastWaterMode = underwater;
 	}
 
+#if 0
 	static ColourValue savedFogColor;
 	static int savedFogMode=0;
 	static float savedFogStart, savedFogEnd, savedFogDensity;
@@ -510,6 +523,7 @@ void Water::update()
 		// TODO!
 		//gEnv->sceneManager->setFog((FogMode)savedFogMode, savedFogColor, savedFogDensity, savedFogStart, savedFogEnd);
 	}
+#endif
 
 	framecounter++;
 	if (mType==WATER_FULL_SPEED)
@@ -596,19 +610,11 @@ float Water::getHeightWaves(Vector3 pos)
 	for (int i=0; i<free_wavetrain; i++)
 	{
 		// calculate the amplitude that this wave will have. wavetrains[i].amplitude is read from the config
-		float amp = wavetrains[i].amplitude * waveheight;
 		// upper limit: prevent too big waves by setting an upper limit
-		if (amp > wavetrains[i].maxheight)
-			amp = wavetrains[i].maxheight;
+		float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
 		// now the main thing:
 		// calculate the sinus with the values of the config file and add it to the result
-		result += amp * sin(Math::TWO_PI * ( \
-											(gEnv->mrTime * wavetrains[i].wavespeed \
-											+ sin(wavetrains[i].direction) * pos.x \
-											+ cos(wavetrains[i].direction) * pos.z \
-											) \
-											/ wavetrains[i].wavelength) \
-											);
+		result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength));
 	}
 	// return the summed up waves
 	return result;
@@ -643,11 +649,11 @@ Vector3 Water::getVelocity(Vector3 pos)
 
 	for (int i=0; i<free_wavetrain; i++)
 	{
-		float amp=wavetrains[i].amplitude*waveheight;
-		if (amp>wavetrains[i].maxheight) amp=wavetrains[i].maxheight;
-		float speed=6.28318*amp/(wavetrains[i].wavelength/wavetrains[i].wavespeed);
-		result.y+=speed*cos(6.28318*((gEnv->mrTime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
-		result+=Vector3(sin(wavetrains[i].direction), 0, cos(wavetrains[i].direction))*speed*sin(6.28318*((gEnv->mrTime*wavetrains[i].wavespeed+sin(wavetrains[i].direction)*pos.x+cos(wavetrains[i].direction)*pos.z)/wavetrains[i].wavelength));
+		float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
+		float speed = Math::TWO_PI * amp / (wavetrains[i].wavelength / wavetrains[i].wavespeed);
+		float coeff = Math::TWO_PI * (gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength;
+		result.y += speed * cos(coeff);
+		result += Vector3(wavetrains[i].dir_sin, 0, wavetrains[i].dir_cos) * speed * sin(coeff);
 	}
 
 	return result;

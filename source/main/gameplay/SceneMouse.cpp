@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -136,7 +136,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 		grab_truck = NULL;
 		for (int i = 0; i < trucksnum; i++)
 		{
-			if (trucks[i] && trucks[i]->state <= DESACTIVATED)
+			if (trucks[i] && trucks[i]->state == SIMULATED)
 			{
 				// check if our ray intersects with the bounding box of the truck
 				std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->boundingBox);
@@ -147,7 +147,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 					if (trucks[i]->node_mouse_grab_disabled[j]) continue;
 
 					// check if our ray intersects with the node
-					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->nodes[j].smoothpos, 0.1f));
+					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->nodes[j].AbsPosition, 0.1f));
 					if (pair.first)
 					{
 						// we hit it, check if its the nearest node
@@ -242,10 +242,10 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 				for (int i = 0; i < truck->free_node; i++)
 				{
-					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].smoothpos, 0.25f));
+					std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].AbsPosition, 0.25f));
 					if (pair.first)
 					{
-						Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].smoothpos - mouseRay.getOrigin()).length();
+						Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].AbsPosition - mouseRay.getOrigin()).length();
 						if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
 						{
 							nearest_camera_distance = pair.second;
@@ -254,7 +254,12 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 						}
 					}
 				}
-				truck->m_custom_camera_node = nearest_node_index;
+				if (truck->m_custom_camera_node != nearest_node_index)
+				{
+					truck->m_custom_camera_node = nearest_node_index;
+					truck->calculateAveragePosition();
+					gEnv->cameraManager->NotifyContextChange();
+				}
 			}
 		}
 	}

@@ -1,177 +1,467 @@
 project(RoR_Main)
 
-#setup libraries
+
+set( BINNAME "RoR" )
 
 
-macro(add_ror_project BINNAME folder useWxWidgets)
-  # config below
-  IF(WIN32)
-    include_directories(${PThread_INCLUDE_DIRS})
-    link_directories   (${PThread_LIBRARY_DIRS})
-    set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
+####################################################################################################
+#  FIND EXTERNAL DEPENDENCIES
+####################################################################################################
 
-    # disable some annoying VS warnings:
-    # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
-    # warning C4305: 'initializing' : truncation from 'double' to 'const float'
-    add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
-  ELSEIF(UNIX)
-    include_directories(${GTK_INCLUDE_DIRS})
-    set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
-  ENDIF(WIN32)
+#  REQUIRED DEPENDENCIES
+# -----------------------
 
-  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
-  add_definitions("-DUSE_MUMBLE")
-
-  include_directories(${Ogre_INCLUDE_DIRS})
-  link_directories   (${Ogre_LIBRARY_DIRS})
-  include_directories(${Boost_INCLUDE_DIRS})
-  link_directories   (${Boost_LIBRARY_DIRS})
-  
-  include_directories(${Ogre_Terrain_INCLUDE_DIRS})
-  link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
-  include_directories(${Ogre_Overlay_INCLUDE_DIRS})
-  link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
-  include_directories(${Ogre_Paging_INCLUDE_DIRS})
-  link_directories   (${Ogre_Paging_LIBRARY_DIRS})
-  include_directories(${Ogre_RTShader_INCLUDE_DIRS})
-  link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
-  include_directories(${Ois_INCLUDE_DIRS})
-  link_directories   (${Ois_LIBRARY_DIRS})
-
-  # optional components
-  setup_lib(MYGUI)
-  setup_lib(OPENAL)
-  setup_lib(CURL)
-  setup_lib(SOCKETW)
-  IF(WIN32)
-    setup_lib(MOFILEREADER)
-    setup_lib(CRASHRPT)
-  ENDIF(WIN32)
-  setup_lib(PAGED)
-  setup_lib(CAELUM)
-  setup_lib(ANGELSCRIPT)
-
-  if(ROR_USE_ANGELSCRIPT)
-    # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine
-    add_definitions("-DAS_USE_NAMESPACE")
-    set(optional_libs ${optional_libs} angelscript_addons)
-  endif()
-
-  if(ROR_USE_OIS_G27)
-    add_definitions("-DUSE_OIS_G27")
-  endif(ROR_USE_OIS_G27)
-
-  if(ROR_FEAT_TIMING)
-    add_definitions("-DFEAT_TIMING")
-  endif(ROR_FEAT_TIMING)
- 
-
-  #add_definitions("-DFEAT_DEBUG_MUTEX")
+#  OPTIONAL DEPENDENCIES
+# -----------------------
 
 
-  add_definitions("-DBOOST_ALL_NO_LIB")
-  add_definitions("-DUSE_RTSHADER_SYSTEM")
-  
-  include_directories(${RoR_Main_SOURCE_DIR})
-  add_sub_dir(${BINNAME} audio)
-  add_sub_dir(${BINNAME} datatypes)
-  add_sub_dir(${BINNAME} gameplay)
-  add_sub_dir(${BINNAME} terrain)
-  add_sub_dir(${BINNAME} terrain/map)
-  add_sub_dir(${BINNAME} threadpool)
-  add_sub_dir(${BINNAME} gfx)
-  add_sub_dir(${BINNAME} gfx/camera)
-  add_sub_dir(${BINNAME} gfx/dof)
-  add_sub_dir(${BINNAME} gfx/particle)
-  add_sub_dir(${BINNAME} gfx/hydrax)
-  add_sub_dir(${BINNAME} gfx/procedural)
-  add_sub_dir(${BINNAME} gui)
-  add_sub_dir(${BINNAME} gui/panels)
-  add_sub_dir(${BINNAME} gui/mygui)
-  add_sub_dir(${BINNAME} physics)
-  add_sub_dir(${BINNAME} physics/air)
-  add_sub_dir(${BINNAME} physics/collision)
-  add_sub_dir(${BINNAME} physics/flex)
-  add_sub_dir(${BINNAME} physics/input_output)
-  add_sub_dir(${BINNAME} physics/mplatform)
-  add_sub_dir(${BINNAME} physics/threading)
-  add_sub_dir(${BINNAME} physics/utils)
-  add_sub_dir(${BINNAME} physics/water)
-  add_sub_dir(${BINNAME} ../rig_file_input_output)
-  add_sub_dir(${BINNAME} rig_editor)
-  add_sub_dir(${BINNAME} rig_editor/rig_data)
-  if(ROR_USE_ANGELSCRIPT)
-    add_sub_dir(${BINNAME} scripting)
-  endif()
-  add_sub_dir(${BINNAME} utils)
-  add_sub_dir(${BINNAME} utils/profiler)
-  add_sub_dir(${BINNAME} network)
-  add_sub_dir(${BINNAME} network/protocol)
-  add_sub_dir(${BINNAME} network/IRC)
-  add_sub_dir(${BINNAME} resources)
-  add_sub_dir(${BINNAME} ${folder})
-  add_main_dir(${BINNAME})
-  
-  if(${useWxWidgets})
-    # find wxWidgets
-    SET(wxWidgets_USE_UNICODE ON)
-    # message("project ${BINNAME} using wxwidgets")
-    FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS base core html net adv propgrid aui)
-    include_directories(${wxWidgets_INCLUDE_DIRS})
-    add_definitions(${wxWidgets_CXX_FLAGS})
-    if(DEFINED wxWidgets_DEFINITIONS)
-      add_definitions("-D${wxWidgets_DEFINITIONS}")
-    endif()
-    link_directories (${wxWidgets_LIB_DIR})
-    set(optional_libs ${optional_libs};${wxWidgets_LIBRARIES})
-	
-	add_definitions("-DROR_EMBEDDED")
-  endif()
 
-  IF(WIN32)
-	add_definitions("-DMYGUI_STATIC")
-    add_executable(${BINNAME} WIN32 ${${BINNAME}_headers} ${${BINNAME}_sources} ${RoR_Main_SOURCE_DIR}/${folder}/icon.rc)
-  ELSE(WIN32)
-    add_executable(${BINNAME}       ${${BINNAME}_headers} ${${BINNAME}_sources})
-  ENDIF(WIN32)
+####################################################################################################
+#  SOURCE FILES
+####################################################################################################
 
-  target_link_libraries(${BINNAME}
-		${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ogre_Terrain_LIBRARIES} ${Ogre_Overlay_LIBRARIES} ${Ogre_Paging_LIBRARIES} ${Ogre_RTShader_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs}
-	)
-	
+set( SOURCE_FILES
+  main.cpp
+  Application.{h,cpp}
+  ForwardDeclarations.h
+  GlobalEnvironment.h
+  MainThread.{h,cpp}
+  RoRPrerequisites.h
+  audio/Sound.{h,cpp}
+  audio/SoundManager.{h,cpp}
+  audio/SoundScriptManager.{h,cpp}
+  datatypes/beam_t.h
+  datatypes/node_t.h
+  datatypes/rig_t.h
+  datatypes/shock_t.h
+  datatypes/wheel_t.h
+  gameplay/AircraftSimulation.{h,cpp}
+  gameplay/AutoPilot.{h,cpp}
+  gameplay/BeamEngine.{h,cpp}
+  gameplay/Character.{h,cpp}
+  gameplay/CharacterFactory.{h,cpp}
+  gameplay/ChatSystem.{h,cpp}
+  gameplay/Landusemap.{h,cpp}
+  gameplay/LandVehicleSimulation.{h,cpp}
+  gameplay/MaterialReplacer.{h,cpp}
+  gameplay/OutProtocol.{h,cpp}
+  gameplay/PlayerColours.{h,cpp}
+  gameplay/PositionStorage.{h,cpp}
+  gameplay/ProceduralManager.{h,cpp}
+  gameplay/Replay.{h,cpp}
+  gameplay/Road.{h,cpp}
+  gameplay/Road2.{h,cpp}
+  gameplay/RoRFrameListener.{h,cpp}
+  gameplay/SceneMouse.{h,cpp}
+  gameplay/ScriptEvents.h
+  gameplay/Scripting.h
+  gameplay/Skin.{h,cpp}
+  gameplay/SkinManager.{h,cpp}
+  gameplay/TorqueCurve.{h,cpp}
+  gameplay/VehicleAI.{h,cpp}
+  gfx/AdvancedScreen.h
+  gfx/ColoredTextAreaOverlayElement.{h,cpp}
+  gfx/ColoredTextAreaOverlayElementFactory.h
+  gfx/DecalManager.{h,cpp}
+  gfx/DustManager.{h,cpp}
+  gfx/DustPool.{h,cpp}
+  gfx/DynamicLines.{h,cpp}
+  gfx/DynamicRenderable.{h,cpp}
+  gfx/EnvironmentMap.{h,cpp}
+  gfx/GlowMaterialListener.h
+  gfx/HDRListener.{h,cpp}
+  gfx/Heathaze.{h,cpp}
+  gfx/HydraxWater.{h,cpp}
+  gfx/IWater.h
+  gfx/MaterialFunctionMapper.{h,cpp}
+  gfx/Mirrors.{h,cpp}
+  gfx/MovableText.{h,cpp}
+  gfx/OgreSubsystem.{h,cpp}
+  gfx/PreviewRenderer.{h,cpp}
+  gfx/ShadowManager.{h,cpp}
+  gfx/Skidmark.{h,cpp}
+  gfx/SkyManager.{h,cpp}
+  gfx/VideoCamera.{h,cpp}
+  gfx/Water.{h,cpp}
+  gfx/camera/CameraBehaviorCharacter.{h,cpp}
+  gfx/camera/CameraBehaviorFixed.{h,cpp}
+  gfx/camera/CameraBehaviorFree.{h,cpp}
+  gfx/camera/CameraBehaviorIsometric.{h,cpp}
+  gfx/camera/CameraBehaviorOrbit.{h,cpp}
+  gfx/camera/CameraBehaviorStatic.{h,cpp}
+  gfx/camera/CameraBehaviorVehicle.{h,cpp}
+  gfx/camera/CameraBehaviorVehicleCineCam.{h,cpp}
+  gfx/camera/CameraBehaviorVehicleSpline.{h,cpp}
+  gfx/camera/CameraManager.{h,cpp}
+  gfx/camera/PerVehicleCameraContext.h
+  gfx/dof/DepthOfFieldEffect.{h,cpp}
+  gfx/dof/Lens.{h,cpp}
+  gfx/hydrax/CfgFileManager.{h,cpp}
+  gfx/hydrax/DecalsManager.{h,cpp}
+  gfx/hydrax/Enums.{h,cpp}
+  gfx/hydrax/FFT.{h,cpp}
+  gfx/hydrax/GodRaysManager.{h,cpp}
+  gfx/hydrax/GPUNormalMapManager.{h,cpp}
+  gfx/hydrax/Help.{h,cpp}
+  gfx/hydrax/Hydrax.{h,cpp}
+  gfx/hydrax/Image.{h,cpp}
+  gfx/hydrax/MaterialManager.{h,cpp}
+  gfx/hydrax/Mesh.{h,cpp}
+  gfx/hydrax/Module.{h,cpp}
+  gfx/hydrax/Noise.{h,cpp}
+  gfx/hydrax/Perlin.{h,cpp}
+  gfx/hydrax/Prerequisites.{h,cpp}
+  gfx/hydrax/PressurePoint.{h,cpp}
+  gfx/hydrax/ProjectedGrid.{h,cpp}
+  gfx/hydrax/RadialGrid.{h,cpp}
+  gfx/hydrax/Real.{h,cpp}
+  gfx/hydrax/RttManager.{h,cpp}
+  gfx/hydrax/SimpleGrid.{h,cpp}
+  gfx/hydrax/TextureManager.{h,cpp}
+  gfx/hydrax/Wave.{h,cpp}
+  gfx/particle/ExtinguishableFireAffector.{h,cpp}
+  gfx/particle/ExtinguishableFireAffectorFactory.h
+  gfx/particle/FireExtinguisherAffector.{h,cpp}
+  gfx/particle/FireExtinguisherAffectorFactory.h
+  gfx/particle/OgreParticleCustomParam.h
+  gfx/particle/OgreShaderParticleRenderer.{h,cpp}
+  gui/Console.{h,cpp}
+  gui/Dashboard.{h,cpp}
+  gui/DashBoardManager.{h,cpp}
+  gui/GUIFriction.{h,cpp}
+  gui/GUIInputManager.{h,cpp}
+  gui/GUIManager.{h,cpp}
+  gui/GUIMenu.{h,cpp}
+  gui/GUIMp.{h,cpp}
+  gui/GuiManagerInterface.h
+  gui/LoadingWindow.{h,cpp}
+  gui/OverlayWrapper.{h,cpp}
+  gui/RTTLayer.{h,cpp}
+  gui/TextureToolWindow.{h,cpp}
+  gui/TruckHUD.{h,cpp}
+  gui/mygui/Attribute.h
+  gui/mygui/BaseLayout.h
+  gui/mygui/Dialog.{h,cpp}
+  gui/mygui/GuiPanelBase.h
+  gui/mygui/WrapsAttribute.h
+  gui/panels/GUI_DebugOptions.{h,cpp}
+  gui/panels/GUI_DebugOptionsLayout.{h,cpp}
+  gui/panels/GUI_GameAbout.{h,cpp}
+  gui/panels/GUI_GameAboutLayout.{h,cpp}
+  gui/panels/GUI_GameChatBox.{h,cpp}
+  gui/panels/GUI_GameChatBoxLayout.{h,cpp}
+  gui/panels/GUI_GameConsoleLayout.{h,cpp}
+  gui/panels/GUI_GameMainMenu.{h,cpp}
+  gui/panels/GUI_GameMainMenuLayout.{h,cpp}
+  gui/panels/GUI_GamePauseMenu.{h,cpp}
+  gui/panels/GUI_GamePauseMenuLayout.{h,cpp}
+  gui/panels/GUI_GameSettings.{h,cpp}
+  gui/panels/GUI_GameSettingsLayout.{h,cpp}
+  gui/panels/GUI_MainSelector.{h,cpp}
+  gui/panels/GUI_MainSelectorLayout.{h,cpp}
+  gui/panels/GUI_MessageBox.{h,cpp}
+  gui/panels/GUI_MessageBoxLayout.{h,cpp}
+  gui/panels/GUI_MultiplayerSelector.{h,cpp}
+  gui/panels/GUI_MultiplayerSelectorLayout.{h,cpp}
+  gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
+  gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
+  gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
+  gui/panels/GUI_SimUtils.{h,cpp}
+  gui/panels/GUI_SimUtilsLayout.{h,cpp}
+  gui/panels/GUI_VehicleDescription.{h,cpp}
+  gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
+  network/Network.{h,cpp}
+  physics/ApproxMath.h
+  physics/Beam.{h,cpp}
+  physics/BeamData.h
+  physics/BeamFactory.{h,cpp}
+  physics/BeamForcesEuler.cpp
+  physics/BeamSlideNode.cpp
+  physics/CmdKeyInertia.{h,cpp}
+  physics/Differentials.{h,cpp}
+  physics/SlideNode.{h,cpp}
+  physics/air/AeroEngine.h
+  physics/air/AirBrake.{h,cpp}
+  physics/air/Airfoil.{h,cpp}
+  physics/air/TurboJet.{h,cpp}
+  physics/air/TurboProp.{h,cpp}
+  physics/collision/CartesianToTriangleTransform.h
+  physics/collision/Collisions.{h,cpp}
+  physics/collision/DynamicCollisions.{h,cpp}
+  physics/collision/PointColDetector.{h,cpp}
+  physics/collision/Triangle.h
+  physics/flex/Flexable.h
+  physics/flex/FlexAirfoil.{h,cpp}
+  physics/flex/FlexBody.{h,cpp}
+  physics/flex/FlexFactory.{h,cpp}
+  physics/flex/FlexMesh.{h,cpp}
+  physics/flex/FlexMeshWheel.{h,cpp}
+  physics/flex/FlexObj.{h,cpp}
+  physics/flex/Locator_t.h
+  physics/input_output/ForceFeedback.{h,cpp}
+  physics/input_output/RigSpawner.{h,cpp}
+  physics/input_output/RigSpawner_ProcessControl.cpp
+  physics/mplatform/MPlatformBase.{h,cpp}
+  physics/mplatform/MPlatformFD.{h,cpp}
+  physics/utils/BeamStats.{h,cpp}
+  physics/utils/RigLoadingProfiler.h
+  physics/water/Buoyance.{h,cpp}
+  physics/water/ScrewProp.{h,cpp}
+  resources/CacheSystem.{h,cpp}
+  resources/CacheSystemTable.h
+  resources/ContentManager.{h,cpp}
+  terrain/IHeightFinder.h
+  terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
+  terrain/TerrainGeometryManager.{h,cpp}
+  terrain/TerrainManager.{h,cpp}
+  terrain/TerrainObjectManager.{h,cpp}
+  terrain/map/SurveyMapEntity.{h,cpp}
+  terrain/map/SurveyMapManager.{h,cpp}
+  terrain/map/SurveyMapTextureCreator.{h,cpp}
+  threadpool/ThreadPool.h
+  utils/CollisionTools.{h,cpp}
+  utils/ConfigFile.{h,cpp}
+  utils/ErrorUtils.{h,cpp}
+  utils/FileSystemInfo.h
+  utils/IBehavior.h
+  utils/IBehaviorManager.h
+  utils/ImprovedConfigFile.h
+  utils/InputEngine.{h,cpp}
+  utils/InterThreadStoreVector.h
+  utils/Language.{h,cpp}
+  utils/MeshObject.{h,cpp}
+  utils/MumbleIntegration.{h,cpp}
+  utils/PlatformUtils.{h,cpp}
+  utils/RoRWindowEventUtilities.{h,cpp}
+  utils/Settings.{h,cpp}
+  utils/SHA1.{h,cpp}
+  utils/SimpleGlob.h
+  utils/SimpleOpt.h
+  utils/Singleton.h
+  utils/Timer.h
+  utils/Utils.{h,cpp}
+  utils/WriteTextToTexture.{h,cpp}
+  utils/ZeroedMemoryAllocator.h
+  utils/profiler/Profiler.{h,cpp}
+  utils/profiler/RigLoadingProfilerControl.h
+  ../rig_file_input_output/RigDef_File.{h,cpp}
+  ../rig_file_input_output/RigDef_Limits.h
+  ../rig_file_input_output/RigDef_Node.{h,cpp}
+  ../rig_file_input_output/RigDef_Parser.{h,cpp}
+  ../rig_file_input_output/RigDef_Prerequisites.h
+  ../rig_file_input_output/RigDef_Regexes.h
+  ../rig_file_input_output/RigDef_SequentialImporter.{h,cpp}
+  ../rig_file_input_output/RigDef_Serializer.{h,cpp}
+  ../rig_file_input_output/RigDef_Validator.{h,cpp}
+  )
+
+if(ROR_USE_ANGELSCRIPT)
+  list( APPEND SOURCE_FILES
+    scripting/CBytecodeStream.{h,cpp}
+    scripting/GameScript.{h,cpp}
+    scripting/LocalStorage.{h,cpp}
+    scripting/OgreAngelscript.{h,cpp}
+    scripting/OgreScriptBuilder.{h,cpp}
+    scripting/ScriptEngine.{h,cpp}
+  )
+endif()
+
+
+include( SourceFileUtils )
+
+# Expand file extensions (i.e. path/to/file.{h,cpp} becomes path/to/file.h;path/to/file.cpp)
+expand_file_extensions( SOURCE_FILES ${SOURCE_FILES} )
+
+# Generate source groups for use in IDEs
+generate_source_groups( ${SOURCE_FILES} )
+
+
+if(WIN32)
+  list( APPEND SOURCE_FILES "icon.rc")
+endif()
+
+
+
+####################################################################################################
+#  EXECUTABLE TARGET
+####################################################################################################
+
+link_directories   (${Ogre_LIBRARY_DIRS})
+link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
+link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
+link_directories   (${Ogre_Paging_LIBRARY_DIRS})
+link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
+link_directories   (${Ois_LIBRARY_DIRS})
+
+
+add_executable(${BINNAME} ${SOURCE_FILES} )
+
+if(WIN32)
+  set_target_properties( ${BINNAME} PROPERTIES WIN32_EXECUTABLE YES )
+endif()
+
+
+# Post build actions to be performed
 if(WIN32)
   # always copy ogre files
   copy_lib_files_for_target(${BINNAME} Ogre)
-  # and pthread
-  copy_lib_files_for_target(${BINNAME} PThread)
   # platform binaries
   copy_files_for_target(${BINNAME} ${ROR_BINTOOL_DIR}/$(ConfigurationName)/*)  
   # then the optional ones
   if(ROR_USE_MYGUI)
-	copy_lib_files_for_target(${BINNAME} MyGUI)
+    copy_lib_files_for_target(${BINNAME} MyGUI)
   endif()
   if(ROR_USE_OPENAL)
-	copy_lib_files_for_target(${BINNAME} OpenALSoft)
+    copy_lib_files_for_target(${BINNAME} OpenALSoft)
   endif()
   if(ROR_USE_CURL)
-	copy_lib_files_for_target(${BINNAME} Curl)
+    copy_lib_files_for_target(${BINNAME} Curl)
   endif()
   if(ROR_USE_CAELUM)
-	copy_lib_files_for_target(${BINNAME} Caelum)
+    copy_lib_files_for_target(${BINNAME} Caelum)
   endif()
   if(ROR_USE_MOFILEREADER)
-	copy_lib_files_for_target(${BINNAME} MoFileReader)
-  endif()
-  if(ROR_USE_CRASHRPT)
-	#copy_lib_files_for_target(${BINNAME} CrashRpt)
+    copy_lib_files_for_target(${BINNAME} MoFileReader)
   endif()
 else()
   copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
 endif()
-	
-endmacro(add_ror_project)
+
+# Copy resources needed for execution to the build directory
+add_custom_command(
+  TARGET ${BINNAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/bin/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
+  COMMENT "Copy resources to build directory"
+  VERBATIM
+)
 
 
-IF(ROR_BUILD_SIM)
-	add_subdirectory(main_sim)
+####################################################################################################
+#  PREPROCESSOR DEFINITIONS
+####################################################################################################
+
+target_compile_definitions( ${BINNAME} PRIVATE
+  USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
+  USE_RTSHADER_SYSTEM
+  #FEAT_DEBUG_MUTEX
+)
+
+if(WIN32)
+  target_compile_definitions( ${BINNAME} PRIVATE MYGUI_STATIC)
 endif()
+
+if(ROR_USE_ANGELSCRIPT)
+  target_compile_definitions( ${BINNAME} PRIVATE AS_USE_NAMESPACE)
+endif()
+
+if(ROR_USE_OIS_G27)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_OIS_G27)
+endif()
+
+if(ROR_FEAT_TIMING)
+  target_compile_definitions( ${BINNAME} PRIVATE FEAT_TIMING)
+endif()
+
+
+
+####################################################################################################
+#  INCLUDE DIRECTORIES
+####################################################################################################
+
+
+include_directories(${Ogre_INCLUDE_DIRS})
+include_directories(${Ogre_Terrain_INCLUDE_DIRS})
+include_directories(${Ogre_Overlay_INCLUDE_DIRS})
+include_directories(${Ogre_Paging_INCLUDE_DIRS})
+include_directories(${Ogre_RTShader_INCLUDE_DIRS})
+include_directories(${Ois_INCLUDE_DIRS})
+
+
+target_include_directories( ${BINNAME} PRIVATE
+ .
+ ../common
+ ../rig_file_input_output
+ audio
+ datatypes
+ gameplay
+ gfx
+ gfx/camera
+ gfx/dof
+ gfx/hydrax
+ gfx/particle
+ gfx/procedural
+ gui
+ gui/mygui
+ gui/panels
+ network
+ network/IRC
+ network/protocol
+ physics
+ physics/air
+ physics/collision
+ physics/flex
+ physics/input_output
+ physics/mplatform
+ physics/threading
+ physics/utils
+ physics/water
+ resources
+ rig_editor
+ rig_editor/rig_data
+ scripting
+ terrain
+ terrain/map
+ threadpool
+ utils
+ utils/profiler
+)
+
+
+
+####################################################################################################
+#  LINK LIBRARIES
+####################################################################################################
+
+IF(WIN32)
+  set(OS_LIBS "dinput8.lib;dxguid.lib")
+
+  # disable some annoying VS warnings:
+  # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
+  # warning C4305: 'initializing' : truncation from 'double' to 'const float'
+  add_definitions("/wd4305 /wd4244 /wd4193 -DNOMINMAX")
+ELSEIF(UNIX)
+  include_directories(${GTK_INCLUDE_DIRS})
+  set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt -lboost_system")
+ENDIF(WIN32)
+
+
+# optional components
+setup_lib(MYGUI)
+setup_lib(OPENAL)
+setup_lib(CURL)
+setup_lib(SOCKETW)
+IF(WIN32)
+  setup_lib(MOFILEREADER)
+ENDIF(WIN32)
+setup_lib(PAGED)
+setup_lib(CAELUM)
+setup_lib(ANGELSCRIPT)
+
+if(ROR_USE_ANGELSCRIPT)
+  # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine
+  set(optional_libs ${optional_libs} angelscript_addons)
+endif()
+
+
+target_link_libraries(${BINNAME}
+  ${Ogre_LIBRARIES}
+  ${Ogre_Terrain_LIBRARIES}
+  ${Ogre_Overlay_LIBRARIES}
+  ${Ogre_Paging_LIBRARIES}
+  ${Ogre_RTShader_LIBRARIES}
+  ${Ois_LIBRARIES}
+  ${OS_LIBS}
+  ${optional_libs}
+  version_info
+)
+

@@ -298,9 +298,6 @@
                 <Widget type="EditBox" skin="WordWrapEmpty" position="0 260 110 20">
                     <Property key="Caption" value="Type:"/>
                 </Widget>
-                <Widget type="Button" skin="Button" position="530 255 90 30" name="change_key">
-                    <Property key="Caption" value="Re-map"/>
-                </Widget>
             </Widget>
         </Widget>
         <Widget type="Button" skin="Button" position="525 320 105 35" align="Default" name="savebtn">

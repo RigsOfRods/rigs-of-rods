@@ -13,13 +13,12 @@
  * 
  * 
  * ## Further documentation
- * * Website: http://www.rigsofrods.com/
- * * Wiki: http://www.rigsofrods.com/wiki/
- * * Developer Wiki: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
- * * Forum: http://www.rigsofrods.com/forum/
- * * Mod Repository: http://www.rigsofrods.com/repository/
+ * * Website: https://rigsofrods.org/
+ * * Wiki: http://docs.rigsofrods.org/
+ * * Developer Wiki: http://developer.rigsofrods.org/
+ * * Forum: https://forum.rigsofrods.org/
+ * * Mod Repository: https://repository.rigsofrods.org/
  * * Github: https://github.com/RigsOfRods/rigs-of-rods
- * * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
  * 
  * 
  * 
@@ -50,7 +49,7 @@
  * 
  * 
  * ## Content/Mods
- * Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.rigsofrods.com/repository/). The [Showroom Subforum](http://www.rigsofrods.com/forums/103-Showrooms-and-WIP) may contain additional content not found in the Mod Repository.  
+ * Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.rigsofrods.org/repository/). The [Showroom Subforum](http://www.rigsofrods.org/forums/103-Showrooms-and-WIP) may contain additional content not found in the Mod Repository.  
  * If you want to get going quickly have a look at modpacks which can be found in the Mod Repository as well.
  * 
  * 

@@ -6,7 +6,6 @@
 
 #include "RoRPrerequisites.h"
 #include "DynamicRenderable.h"
-#include <vector>
 
 class DynamicLines : public DynamicRenderable
 {

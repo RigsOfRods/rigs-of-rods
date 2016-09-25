@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -34,9 +34,7 @@
 #include "RoRPrerequisites.h"
 
 #include "ChatSystem.h"
-#include "Network.h"
 #include "Utils.h"
-#include "rornet.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
@@ -48,15 +46,11 @@ using namespace GUI;
 #define CLASS        GameChatBox
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS():
- netChat(0)
+CLASS::CLASS() :
+	  alpha(1.0f)
+	, newMsg(false)
 {
-	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
-
-	alpha = 1.0f;
-	isTyping = false;
-	newMsg = false;
 
 	/* Adjust menu position */
 	Ogre::Viewport* viewport = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
@@ -68,37 +62,23 @@ CLASS::CLASS():
 
 	m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
 	autoHide = BSETTING("ChatAutoHide", true);
-
-	if (!autoHide)
-		Show();
-
-
-	Hide();
+	MAIN_WIDGET->setVisible(!autoHide);
 }
 
 CLASS::~CLASS()
 {
-
-}
-
-void CLASS::setNetChat(ChatSystem *c)
-{
-	netChat = c;
 }
 
 void CLASS::Show()
 {
-	if (!MAIN_WIDGET->getVisible())
-		MAIN_WIDGET->setVisibleSmooth(true);
-
-	isTyping = true;
+	MAIN_WIDGET->setVisible(true);
 	m_Chatbox_TextBox->setEnabled(true);
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(m_Chatbox_TextBox);
 }
 
 void CLASS::Hide()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
 }
 
 bool CLASS::IsVisible()
@@ -108,16 +88,14 @@ bool CLASS::IsVisible()
 
 void CLASS::pushMsg(Ogre::String txt)
 {
-	mHistory += txt + " \n";
+	mHistory += RoR::Color::NormalColour + txt + " \n";
 	newMsg = true;
-	pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 	m_Chatbox_MainBox->setCaptionWithReplacing(mHistory);
 }
 
 void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 {
 	Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
-	isTyping = false;
 	_sender->setCaption("");
 
 	if (autoHide)
@@ -140,16 +118,18 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 				pushMsg(trmsg);
 				return;
 			}
-			netChat->sendPrivateChat(args[1], args[2]);
+			RoR::ChatSystem::SendPrivateChat(args[1], args[2]);
 			return;
 		}
 	}
 
-	if (gEnv->network && netChat)
+#ifdef USE_SOCKETW
+	if (gEnv->multiplayer)
 	{
-		netChat->sendChat(msg.c_str());
+		RoR::ChatSystem::SendChat(msg.c_str());
 		return;
 	}
+#endif // USE_SOCKETW
 
 	//MyGUI::InputManager::getInstance().resetKeyFocusWidget();
 	RoR::Application::GetGuiManager()->UnfocusGui();
@@ -157,36 +137,43 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 
 void CLASS::Update(float dt)
 {
-	if (autoHide)
+	if (!autoHide)
+	{
+		MAIN_WIDGET->setVisible(true);
+		return;
+	}
+
+	if (newMsg)
+	{
+		newMsg = false;
+		pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+		MAIN_WIDGET->setAlpha(1);
+		MAIN_WIDGET->setVisible(true);
+		return;
+	}
+
+	if (!MyGUI::InputManager::getInstance().isFocusKey())
 	{
 		unsigned long ot = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
-		if (newMsg || !isTyping)
+		unsigned long endTime = pushTime + 5000;
+		unsigned long startTime = endTime - (long)1000.0f;
+		if (ot < startTime)
 		{
-			if (!MAIN_WIDGET->getVisible())
-				MAIN_WIDGET->setVisible(true);
-
-			unsigned long endTime = pushTime + 5000;
-			unsigned long startTime = endTime - (long)1000.0f;
-			if (ot < startTime)
-			{
-				alpha = 1.0f;
-			}
-			else
-			{
-				alpha = 1 - ((ot - startTime) / 1000.0f);
-			}
-
-			MAIN_WIDGET->setAlpha(alpha);
-
-			if (alpha <= 0.1)
-			{
-				newMsg = false;
-				MAIN_WIDGET->setVisible(false);
-			}
+			alpha = 1.0f;
+		} else
+		{
+			alpha = 1 - ((ot - startTime) / 1000.0f);
 		}
-		else if (isTyping)
-			MAIN_WIDGET->setAlpha(1);
-
-	} else if (!MAIN_WIDGET->getVisible())
-		MAIN_WIDGET->setVisible(true);
+		if (alpha <= 0.0f)
+		{
+			MAIN_WIDGET->setVisible(false);
+		} else {
+			MAIN_WIDGET->setAlpha(alpha);
+		}
+	} else if (MAIN_WIDGET->getVisible())
+	{
+		pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
+		m_Chatbox_TextBox->setEnabled(true);
+		MAIN_WIDGET->setAlpha(1);
+	}
 }

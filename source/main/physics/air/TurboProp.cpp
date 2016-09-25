@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -147,20 +147,29 @@ Turboprop::Turboprop(
 	reset();
 }
 
+Turboprop::~Turboprop()
+{
+	//A fast work around 
+	//
+	SoundScriptManager::getSingleton().modulate(trucknum, thr_id, 0);
+	SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
+	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
+
+	if (airfoil != nullptr) delete airfoil;
+}
+
 void Turboprop::updateVisuals()
 {
 	//visuals
 	if (rpm>200)
 	{
-		int i;
-		for (i=0; i<free_vpale; i++) vpales[i]->setVisible(false);
-		vspinner->setVisible(true);
+		for (int i=0; i<free_vpale; i++) vpales[i]->setVisible(false);
+		if (vspinner) vspinner->setVisible(true);
 	}
 	else
 	{
-		int i;
-		for (i=0; i<free_vpale; i++) vpales[i]->setVisible(true);
-		vspinner->setVisible(false);
+		for (int i=0; i<free_vpale; i++) vpales[i]->setVisible(true);
+		if (vspinner) vspinner->setVisible(false);
 	}
 	//smoke
 	if (smokeNode)

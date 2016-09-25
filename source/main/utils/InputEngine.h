@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -227,6 +227,10 @@ enum events
 	EV_COMMON_CONSOLEMODE, //!< toggle appearance of console
 	EV_COMMON_ENTER_CHATMODE, //!< enter the chat mode
 	EV_COMMON_ENTER_OR_EXIT_TRUCK, //!< enter or exit a truck
+	EV_COMMON_ENTER_NEXT_TRUCK, //!< enter next truck
+	EV_COMMON_ENTER_PREVIOUS_TRUCK, //!< enter previous truck
+	EV_COMMON_REMOVE_CURRENT_TRUCK, //!< remove current truck
+	EV_COMMON_RESPAWN_LAST_TRUCK, //!< respawn last truck
 	EV_COMMON_FOV_LESS, //!<decreases the current FOV value
 	EV_COMMON_FOV_MORE, //!<increases the current FOV value
 	EV_COMMON_FULLSCREEN_TOGGLE,
@@ -253,7 +257,7 @@ enum events
 	EV_COMMON_SECURE_LOAD, //!< tie a load to the truck
 	EV_COMMON_SEND_CHAT, //!< send the chat text
 	EV_COMMON_SHOW_SKELETON, //!< toggle skeleton display mode
-	EV_COMMON_START_TRUCK_EDITOR, //!< start the old truck editor
+	EV_COMMON_TOGGLE_TERRAIN_EDITOR, //!< toggle terrain editor
 	EV_COMMON_TOGGLE_CUSTOM_PARTICLES, //!< toggle particle cannon
 	EV_COMMON_TOGGLE_MAT_DEBUG, //!< debug purpose - dont use
 	EV_COMMON_TOGGLE_RENDER_MODE, //!< toggle render mode (solid, wireframe and points)
@@ -346,6 +350,7 @@ enum events
 	EV_TRUCK_TOGGLE_CONTACT, //!< toggle ignition
 	EV_TRUCK_TOGGLE_FORWARDCOMMANDS, //!< toggle forwardcommands
 	EV_TRUCK_TOGGLE_IMPORTCOMMANDS, //!< toggle importcommands
+	EV_TRUCK_TOGGLE_VIDEOCAMERA, //!< toggle videocamera update
 	EV_TRUCK_TRACTION_CONTROL, //!< toggle antilockbrake system
 
 	// position storage now

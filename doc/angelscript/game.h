@@ -1,7 +1,7 @@
 /*
 This source file is part of Rigs of Rods
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as 
@@ -25,7 +25,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 	If you cannot find the answer here, then search the forum for your question.
 	If that didn't provide an answer either, then ask your question in the Scripting forum:
-	http://www.rigsofrods.com/forums/167-Scripting
+	http://www.rigsofrods.org/forums/167-Scripting
 
 	Please note that the documentation is work in progress.
 */
@@ -281,6 +281,14 @@ public:
 	 * @param uniquifyMaterials Set this to true if you need to uniquify the materials
 	 */
 	void spawnObject(const string objectName, const string instanceName, vector3 pos, vector3 rot, const string eventhandler, bool uniquifyMaterials);
+    
+	/**
+	 * This moves an object to a new position
+	 * @note This doesn't update the collision box!
+	 * @param instanceName The unique name that you chose when spawning this object
+	 * @param pos The position where the object should be moved to
+	 */
+	void moveObjectVisuals(const string instanceName, const vector3 pos);
 
 	/**
 	 * This destroys an object
@@ -404,4 +412,29 @@ public:
 	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
 	 */
 	int deleteScriptVariable(const string var);
+
+	/**
+	 *  Shows a message box
+	 *  
+	 *  @param mTitle The box title
+	 *  @param mText The box content text
+	 *  @param button1 Set to true to show the first button
+	 *  @param mButton1 The text in the first button
+	 *  @param AllowClose If set to true the user can close the box by pressing the X in the top-right
+	 *  @param button2 Set to true to show the second button
+	 *  @param mButton2 The text in the second button
+	 *  
+	 *  @see scriptEvents
+	 */
+	void showMessageBox(string mTitle, stringmText, bool button1, stringmButton1, bool AllowClose, bool button2, stringmButton2);
+	
+	/**
+	 *  Spawns a truck by filename
+	 *  
+	 *  @param truckName The filename of the truck
+	 *  @param pos The position where the truck should be spawned
+	 *  @param rot The rotation in which the truck should be spawned
+	 *  @return reference to Beam object
+	 */
+	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
 };

@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -51,6 +51,9 @@ Replay::Replay(Beam *b, int _numFrames)
 
 	writeIndex = 0;
 	firstRun = 1;
+
+	hidden = false;
+	visible = false;
 
 #ifdef USE_MYGUI
 	// windowing
@@ -194,10 +197,17 @@ unsigned long Replay::getLastReadTime()
 	return curFrameTime;
 }
 
+void Replay::setHidden(bool value)
+{
+	hidden = value;
+	panel->setVisible(visible && !hidden);
+}
+
 void Replay::setVisible(bool value)
 {
+	visible = value;
 #ifdef USE_MYGUI
-	panel->setVisible(value);
+	panel->setVisible(visible && !hidden);
 	// we need no mouse yet
 	//MyGUI::PointerManager::getInstance().setVisible(value);
 #endif //MYGUI
@@ -205,11 +215,5 @@ void Replay::setVisible(bool value)
 
 bool Replay::getVisible()
 {
-#ifdef USE_MYGUI
-	return panel->getVisible();
-#else
-	return false;
-#endif //MYGUI
+	return visible;
 }
-
-

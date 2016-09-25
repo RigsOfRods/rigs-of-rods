@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -194,7 +194,7 @@ float Autopilot::getThrottle(float thrtl, float dt)
 	{
 		//tropospheric model valid up to 11.000m (33.000ft)
 		float altitude=ref_l->AbsPosition.y;
-		float sea_level_temperature=273.15+15.0; //in Kelvin
+		//float sea_level_temperature=273.15+15.0; //in Kelvin
 		float sea_level_pressure=101325; //in Pa
 		//float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
 		float airpressure=sea_level_pressure*pow(1.0-0.0065*altitude/288.15, 5.24947); //in Pa

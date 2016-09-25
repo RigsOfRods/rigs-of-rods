@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -53,6 +53,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ScriptEvents.h"
 
 #include "BeamFactory.h"
+#include "VehicleAI.h"
 
 const char *ScriptEngine::moduleName = "RoRScript";
 
@@ -275,6 +276,26 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(BeamFactory,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(BeamFactory,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
+	// enum aiEvents
+	result = engine->RegisterEnum("aiEvents"); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("aiEvents", "AI_LIGHTSTOGGLE", AI_LIGHTSTOGGLE); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("aiEvents", "AI_WAIT_SECONDS", AI_WAIT_SECONDS); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("aiEvents", "AI_BEACONSTOGGLE", AI_BEACONSTOGGLE); MYASSERT(result >= 0);
+
+	// enum aiEvents
+	result = engine->RegisterEnum("AiValues"); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("AiValues", "AI_SPEED", AI_SPEED); MYASSERT(result >= 0);
+	result = engine->RegisterEnumValue("AiValues", "AI_POWER", AI_POWER); MYASSERT(result >= 0);
+
+	result = engine->RegisterObjectType("VehicleAIClass", sizeof(VehicleAI), AngelScript::asOBJ_REF); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void addWaypoint(string &in, vector3 &in)", AngelScript::asMETHOD(VehicleAI, AddWaypoint), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void addWaypoints(dictionary &in)", AngelScript::asMETHOD(VehicleAI, AddWaypoint), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void setActive(bool)", AngelScript::asMETHOD(VehicleAI, SetActive), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void addEvent(string &in,int &in)", AngelScript::asMETHOD(VehicleAI, AddEvent), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("VehicleAIClass", "void setValueAtWaypoint(string &in, int &in, float &in)", AngelScript::asMETHOD(VehicleAI, SetValueAtWaypoint), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectBehaviour("VehicleAIClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(VehicleAI, addRef), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectBehaviour("VehicleAIClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(VehicleAI, release), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+
 
 
 	// Register everything
@@ -319,8 +340,9 @@ void ScriptEngine::init()
 
 	result = engine->RegisterObjectMethod("BeamClass", "float getRotation()", AngelScript::asMETHOD(Beam,getRotation), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("BeamClass", "vector3 getVehiclePosition()", AngelScript::asMETHOD(Beam,getPosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-	result = engine->RegisterObjectMethod("BeamClass", "bool navigateTo(vector3 &in)", AngelScript::asMETHOD(Beam,navigateTo), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", AngelScript::asMETHOD(Beam,getNodePosition), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
+	result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClass @getVehicleAI()", AngelScript::asMETHOD(Beam,getVehicleAI), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	
 
 	/*
@@ -356,7 +378,6 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectProperty("BeamClass", "int sleepcount", offsetof(Beam, sleepcount)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int driveable", offsetof(Beam, driveable)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int importcommands", offsetof(Beam, importcommands)); MYASSERT(result>=0);
-	result = engine->RegisterObjectProperty("BeamClass", "bool requires_wheel_contact", offsetof(Beam, requires_wheel_contact)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "bool wheel_contact_requested", offsetof(Beam, wheel_contact_requested)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "bool rescuer", offsetof(Beam, rescuer)); MYASSERT(result>=0);
 	result = engine->RegisterObjectProperty("BeamClass", "int parkingbrake", offsetof(Beam, parkingbrake)); MYASSERT(result>=0);
@@ -441,6 +462,7 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectMethod("GameScriptClass", "void setGravity(float)", AngelScript::asMETHOD(GameScript,setGravity), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	
 	result = engine->RegisterObjectMethod("GameScriptClass", "void spawnObject(const string &in, const string &in, vector3 &in, vector3 &in, const string &in, bool)", AngelScript::asMETHOD(GameScript,spawnObject), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+	result = engine->RegisterObjectMethod("GameScriptClass", "void moveObjectVisuals(const string &in, vector3 &in)", AngelScript::asMETHOD(GameScript,moveObjectVisuals), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "void destroyObject(const string &in)", AngelScript::asMETHOD(GameScript,destroyObject), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "int setMaterialAmbient(const string &in, float, float, float)", AngelScript::asMETHOD(GameScript,setMaterialAmbient), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "int setMaterialDiffuse(const string &in, float, float, float, float)", AngelScript::asMETHOD(GameScript,setMaterialDiffuse), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
@@ -486,7 +508,13 @@ void ScriptEngine::init()
 	
 	result = engine->RegisterObjectMethod("GameScriptClass", "int sendGameCmd(const string &in)", AngelScript::asMETHOD(GameScript,sendGameCmd), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "int useOnlineAPI(const string &in, const dictionary &in, string &out)", AngelScript::asMETHOD(GameScript,useOnlineAPI), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+
+	result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClass @getCurrentTruckAI()", AngelScript::asMETHOD(GameScript, getCurrentTruckAI), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClass @getTruckAIByNum(int)", AngelScript::asMETHOD(GameScript, getTruckAIByNum), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
 	
+	result = engine->RegisterObjectMethod("GameScriptClass", "void showMessageBox(string &in, string &in, bool button1, string &in, bool AllowClose, bool button2,string &in)", AngelScript::asMETHOD(GameScript, showMessageBox), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+	result = engine->RegisterObjectMethod("GameScriptClass", "BeamClass @spawnTruck(string &in, vector3 &in, vector3 &in)", AngelScript::asMETHOD(GameScript, spawnTruck), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
+
 
 	
 	// enum scriptEvents
@@ -515,18 +543,14 @@ void ScriptEngine::init()
 	result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_INPUT_EVENT", SE_GENERIC_INPUT_EVENT); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MOUSE_BEAM_INTERACTION", SE_GENERIC_MOUSE_BEAM_INTERACTION); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_MANIPULATIONS", SE_ANGELSCRIPT_MANIPULATIONS); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MESSAGEBOX_CLICK", SE_GENERIC_MESSAGEBOX_CLICK); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("scriptEvents", "SE_ALL_EVENTS", SE_ALL_EVENTS); MYASSERT(result>=0);
 	
 	// enum truckStates
 	result = engine->RegisterEnum("truckStates"); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_ACTIVATED", ACTIVATED); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_DESACTIVATED", DESACTIVATED); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_MAYSLEEP", MAYSLEEP); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_GOSLEEP", GOSLEEP); MYASSERT(result>=0);
+	result = engine->RegisterEnumValue("truckStates", "TS_SIMULATED", SIMULATED); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("truckStates", "TS_SLEEPING", SLEEPING); MYASSERT(result>=0);
 	result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", NETWORKED); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_RECYCLE", RECYCLE); MYASSERT(result>=0);
-	result = engine->RegisterEnumValue("truckStates", "TS_DELETED", DELETED); MYASSERT(result>=0);
 
 	// enum truckTypes
 	result = engine->RegisterEnum("truckTypes"); MYASSERT(result>=0);

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -96,7 +96,6 @@ DECLARE_RESOURCE_PACK( 26, SCRIPTS,               "scripts",              "LoadB
 DECLARE_RESOURCE_PACK( 27, SOUNDS,                "sounds",               "General");
 DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "LoadBeforeMap");
 DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 30, RIG_EDITOR,            "rig_editor",           "RigEditor");
 
 // ================================================================================
 // Functions

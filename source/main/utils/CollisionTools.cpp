@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -548,10 +548,10 @@ void CollisionTools::getStaticGeometry(
 	std::vector<unsigned int> indices;
 	//size_t next_offset = 0;
 
+#if 0
 	Ogre::Vector3 center = rg->getCentre();
 	Ogre::StaticGeometry::Region::LODIterator lit(rg->getLODIterator());
 
-#if 0
 	// use the closest LOD of each block
 	Ogre::StaticGeometry::LODBucket *theBucket = 0;
 	float sqdist = 1e24;

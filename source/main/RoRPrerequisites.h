@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -85,17 +85,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define HydraxLOG(msg) Ogre::LogManager::getSingleton().logMessage("[Hydrax] " + Ogre::String(msg));
 
 #define OGREFUNCTIONSTRING  Ogre::String(__FUNCTION__)+" @ "+Ogre::String(__FILE__)+":"+TOSTRING(__LINE__)
-
-// debug for pthread mutexes
-// #define FEAT_DEBUG_MUTEX
-
-#ifdef FEAT_DEBUG_MUTEX
-# define MUTEX_LOCK(x)       do { LOGSAFE("***MUTEX-LOCK  : mutex "+TOSTRING((uintptr_t)x)+" in function "+OGREFUNCTIONSTRING); pthread_mutex_lock(x);   } while(0)
-# define MUTEX_UNLOCK(x)     do { LOGSAFE("***MUTEX-UNLOCK: mutex "+TOSTRING((uintptr_t)x)+" in function "+OGREFUNCTIONSTRING); pthread_mutex_unlock(x); } while(0)
-#else //!FEAT_DEBUG_MUTEX
-# define MUTEX_LOCK(x)       pthread_mutex_lock(x);
-# define MUTEX_UNLOCK(x)     pthread_mutex_unlock(x);
-#endif //FEAT_DEBUG_MUTEX
 
 // debug asserts
 // #define FEAT_DEBUG_ASSERT

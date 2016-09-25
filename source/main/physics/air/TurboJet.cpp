@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -29,7 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace Ogre;
 
-Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool _heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr) : mr(mr)
+Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t *nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool _heathaze, MaterialFunctionMapper *mfm, Skin *usedSkin, MaterialReplacer *mr)
 {
 	heathaze=_heathaze;
 	nodes=nd;
@@ -133,24 +133,21 @@ Turbojet::~Turbojet()
 	SoundScriptManager::getSingleton().trigStop(trucknum, ab_id);
 	SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
 
-	delete heathazePS;
+	if (flameMesh != nullptr)
+	{
+		flameMesh->setVisible(false);
+	}
 
-	delete smokePS;
-	delete smokeNode;
-
-	flameMesh->setVisible(false);
-	delete flameMesh;
-	delete absnode;
-
-	nozzleMesh->setVisible(false);
-	delete nozzleMesh;
-	delete nzsnode;
+	if (nozzleMesh != nullptr)
+	{
+		nozzleMesh->setVisible(false);
+	}
 }
 
 void Turbojet::updateVisuals()
 {
 	//nozzle
-	nzsnode->setPosition(nodes[nodeback].smoothpos);
+	nzsnode->setPosition(nodes[nodeback].AbsPosition);
 	//build a local system
 	Vector3 laxis=nodes[nodefront].RelPosition-nodes[nodeback].RelPosition;
 	laxis.normalise();
@@ -166,14 +163,14 @@ void Turbojet::updateVisuals()
 		float flamelength=(afterburnthrust/15.0)*(rpm/100.0);
 		flamelength=flamelength*(1.0+(((Real)rand()/(Real)RAND_MAX)-0.5)/10.0);
 		absnode->setScale(flamelength, radius*2.0, radius*2.0);
-		absnode->setPosition(nodes[nodeback].smoothpos+dir*Vector3(-0.2, 0.0, 0.0));
+		absnode->setPosition(nodes[nodeback].AbsPosition+dir*Vector3(-0.2, 0.0, 0.0));
 		absnode->setOrientation(dir);
 	}
 	else absnode->setVisible(false);
 	//smoke
 	if (smokeNode)
 	{
-		smokeNode->setPosition(nodes[nodeback].smoothpos);
+		smokeNode->setPosition(nodes[nodeback].AbsPosition);
 		ParticleEmitter *emit=smokePS->getEmitter(0);
 		ParticleEmitter *hemit=0;
 		if (heathazePS)

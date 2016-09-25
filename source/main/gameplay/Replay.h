@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -32,11 +32,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 
 typedef struct node_simple_ {
-	Ogre::Vector3 pos;
+	Ogre::Vector3 position;
+	Ogre::Vector3 velocity;
+	Ogre::Vector3 forces;
 } node_simple_t;
 
 typedef struct beam_simple_ {
-	float scale;
 	bool broken;
 	bool disabled;
 } beam_simple_t;
@@ -52,6 +53,8 @@ public:
 	unsigned long getLastReadTime();
 	void writeDone();
 
+	void setHidden(bool value);
+
 	void setVisible(bool value);
 	bool getVisible();
 
@@ -63,6 +66,8 @@ protected:
 	int numFrames;
 	bool outOfMemory;
 
+	bool hidden;
+	bool visible;
 
 	int writeIndex;
 	int firstRun;

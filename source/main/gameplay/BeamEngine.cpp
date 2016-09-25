@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -553,7 +553,7 @@ void BeamEngine::update(float dt, int doUpdate)
 
 		// auto clutch
 		float declutchRPM = (minRPM + stallRPM) / 2.0f;
-		if (curGear == 0 || curEngineRPM < declutchRPM || (curEngineRPM < minRPM * 1.01f && fabs(curWheelRevolutions) < 1.0f))
+		if (curGear == 0 || curEngineRPM < declutchRPM || (fabs(curWheelRevolutions) < 1.0f && (curEngineRPM < minRPM * 1.01f || autocurAcc == 0.0f)) || (autocurAcc == 0.0f && truck->brake > 0.0f && retorque >= 0.0f))
 		{
 			curClutch = 0.0f;
 		} else if (curEngineRPM < minRPM && minRPM > declutchRPM)
@@ -805,20 +805,12 @@ float BeamEngine::getRPM()
 void BeamEngine::toggleAutoMode()
 {
 	automode = (automode + 1) % (MANUAL_RANGES + 1);
-
-	// this switches off all automatic symbols when in manual mode
-	if (automode != AUTOMATIC)
-	{
-		autoselect = MANUALMODE;
-	} else
-	{
-		autoselect = NEUTRAL;
-	}
+	autoselect = (automode == AUTOMATIC) ? DRIVE : MANUALMODE;
+	curGear = (automode < MANUAL) ? 1 : 0;
 
 	if (automode == MANUAL_RANGES)
 	{
-		this->setGearRange(0);
-		this->setGear(0);
+		curGearRange = 0;
 	}
 }
 
@@ -902,6 +894,16 @@ void BeamEngine::setRPM(float rpm)
 	curEngineRPM = rpm;
 }
 
+void BeamEngine::setPrime(int p)
+{
+	prime = p;
+}
+
+void BeamEngine::setHydroPumpWork(float work)
+{
+	hydropump = work;
+}
+
 void BeamEngine::setSpin(float rpm)
 {
 	curWheelRevolutions = rpm;
@@ -980,7 +982,10 @@ void BeamEngine::offstart()
 	curClutchTorque = 0.0f;
 	curEngineRPM = 0.0f;
 	curGear = 0;
+	postshifting = 0;
 	running = false;
+	shifting = 0;
+	shiftval = 0;
 	if (automode == AUTOMATIC)
 	{
 		autoselect = NEUTRAL;

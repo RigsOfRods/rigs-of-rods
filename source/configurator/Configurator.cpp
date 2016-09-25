@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005,2006,2007,2008,2009 Pierre-Michel Ricordel
 Copyright 2007,2008,2009 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <memory>
 
 mode_t getumask(void)
 {
@@ -40,6 +39,8 @@ mode_t getumask(void)
 	return mask;
 }
 #endif
+
+#include <memory>
 
 #include "statpict.h"
 #include <wx/cmdline.h>
@@ -98,9 +99,15 @@ std::vector<wxLanguageInfo*> avLanguages;
 std::map<std::string, std::string> settings;
 
 #ifdef USE_OPENAL
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+  #ifdef __APPLE__
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+    #include <OpenAL/MacOSX_OALExtensions.h>
+  #else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+    #include <AL/alext.h>
+  #endif // __APPLE__
 #endif // USE_OPENAL
 
 #ifdef USE_OPENCL
@@ -282,7 +289,6 @@ private:
 	wxCheckBox *dev_mode;
 	wxCheckBox *mblur;
 	wxCheckBox *mirror;
-	wxCheckBox *nocrashrpt;
 	wxCheckBox *particles;
 	wxCheckBox *posstor;
 	wxCheckBox *replaymode;
@@ -651,7 +657,7 @@ bool MyApp::extractZipFiles(const wxString& aZipFile, const wxString& aTargetDir
 {
 	bool ret = true;
 	//wxFileSystem fs;
-	std::auto_ptr<wxZipEntry> entry(new wxZipEntry());
+	std::unique_ptr<wxZipEntry> entry(new wxZipEntry());
 	do
 	{
 		wxFileInputStream in(aZipFile);
@@ -711,7 +717,7 @@ bool MyApp::checkUserPath()
 		if(!wxFileName::DirExists(UserPath))
 			wxFileName::Mkdir(UserPath);
 
-		std::auto_ptr< wxZipEntry > entry;
+		std::unique_ptr< wxZipEntry > entry;
 
 		// first: figure out the zip path
 		wxFileName skeletonZip = wxFileName(ProgramPath, wxEmptyString);
@@ -827,12 +833,6 @@ bool MyApp::OnInit()
 		initLogging();
 		initLanguage(wxT("languages"), UserPath);
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-		// add windows specific crash handler. It will create nice memory dumps, so we can track the error
-		//LPVOID lpvState = Install(NULL, NULL, NULL);
-		//AddFile(lpvState, conv("configlog.txt"), conv("Rigs of Rods Configurator Crash log"));
-#endif
-
 		// call the base class initialization method, currently it only parses a
 		// few common command-line options but it could be do more in the future
 		if ( !wxApp::OnInit() )
@@ -840,7 +840,7 @@ bool MyApp::OnInit()
 
 		wxLogStatus(wxT("Creating dialog"));
 		// create the main application window
-		wxString title = wxString::Format(_("Rigs of Rods version %s configuration"), wxT(ROR_VERSION_STRING));
+		wxString title = wxString::Format(_("Rigs of Rods version %s configuration"), wxString(ROR_VERSION_STRING, wxConvUTF8).c_str());
 		MyDialog *dialog = new MyDialog(title, this);
 
 		// and show it (the frames, unlike simple controls, are not shown when
@@ -976,10 +976,10 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	wxPanel *ctsetPanel=new wxPanel(ctbook, -1);
 	ctbook->AddPage(ctsetPanel, _("Info"), false);
-	wxStaticText *dText2 = new wxStaticText(ctsetPanel, -1, _("Since 0.4.5, you can use the ingame key mapping system. \nYou can also edit the input mappings by hand by using a texteditor.\nThe input mappings are stored in the following file:\nMy Documents\\Rigs of Rods\\config\\input.map"), wxPoint(10,10));
+	wxStaticText *dText2 = new wxStaticText(ctsetPanel, -1, _("To change the keymap edit input.map with a texteditor.\ninput.map is located at: \nMy Documents\\Rigs of Rods\\config\\input.map (Windows)\n~/.rigsofrods/config/input.map (Linux)\n~/RigsOfRods/config/input.map (OS X)"), wxPoint(10,10));
 
 #if wxCHECK_VERSION(2, 8, 0)
-	wxHyperlinkCtrl *link1 = new wxHyperlinkCtrl(ctsetPanel, -1, _("(more help here)"), _("http://www.rigsofrods.com/wiki/pages/Input.map"), wxPoint(10, 100));
+	wxHyperlinkCtrl *link1 = new wxHyperlinkCtrl(ctsetPanel, -1, _("(more help here)"), _("http://docs.rigsofrods.org/gameplay/controls-config/#config-file-inputmap"), wxPoint(10, 100));
 #endif // version 2.8
 
 	wxPanel *ffPanel=new wxPanel(ctbook, -1);
@@ -1071,7 +1071,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	dText = new wxStaticText(gamePanel, -1, _("User Token: "), wxPoint(10,y+3));
 	usertoken=new wxTextCtrl(gamePanel, -1, wxString(), wxPoint(x_row1, y), wxSize(200, -1));
-	usertoken->SetToolTip(_("Your rigsofrods.com User Token."));
+	usertoken->SetToolTip(_("Your rigsofrods.org User Token."));
 	btnToken = new wxButton(gamePanel, button_get_user_token, _("Get Token"), wxPoint(x_row1+210, y), wxSize(90,25));
 	y+=35;
 
@@ -1087,7 +1087,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	x_row2 = 300;
 
 	addAboutTitle(_("Version"), x_row1, y);
-	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Rigs of Rods version: %s"), wxT(ROR_VERSION_STRING)), wxPoint(x_row1 + 15, y));
+	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Rigs of Rods version: %s"), wxString(ROR_VERSION_STRING, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));
 	y += dText->GetSize().GetHeight() + 2;
 
 	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Network Protocol version: %s"), wxString(RORNET_VERSION, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));
@@ -1129,12 +1129,12 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y += 20;
 
 	addAboutTitle(_("Authors"), x_row1, y);
-	addAboutEntry(_("Authors"), _("You can find a complete list of the RoR's authors ingame: about->credits."), wxT("mailto:support@rigsofrods.com"), x_row1, y);
+	addAboutEntry(_("Authors"), _("You can find a complete list of the RoR's authors ingame: about->credits."), wxT("mailto:support@rigsofrods.org"), x_row1, y);
 
 	y += 20;
 
 	addAboutTitle(_("Missing someone?"), x_row1, y);
-	addAboutEntry(_("Missing someone?"), _("If we are missing someone on this list, please drop us a line at:\nsupport@rigsofrods.com"), wxT("mailto:support@rigsofrods.com"), x_row1, y);
+	addAboutEntry(_("Missing someone?"), _("If we are missing someone on this list, please drop us a line at:\nsupport@rigsofrods.org"), wxT("mailto:support@rigsofrods.org"), x_row1, y);
 
 	wxSize size = nbook->GetBestVirtualSize();
 	size.x = 400;
@@ -1196,10 +1196,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	dofdebug->SetToolTip(_("Shows the DOF debug display on the screen in order to identify DOF problems"));
 	y+=15;
 
-	nocrashrpt=new wxCheckBox(debugPanel, -1, _("Disable Crash Reporting"), wxPoint(10, y));
-	nocrashrpt->SetToolTip(_("Disables the crash handling system. Only use for debugging purposes"));
-	y+=25;
-	
 	dText = new wxStaticText(debugPanel, -1, _("Input Grabbing:"), wxPoint(10,y+3));
 	inputgrab=new wxValueChoice(debugPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
 	inputgrab->AppendValueItem(wxT("All"),         _("All"));
@@ -1220,7 +1216,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y+=25;
 
 #if wxCHECK_VERSION(2, 8, 0)
-	wxHyperlinkCtrl *link = new wxHyperlinkCtrl(debugPanel, -1, _("(Read more on how to use these options here)"), _("http://www.rigsofrods.com/wiki/pages/Debugging_Trucks"), wxPoint(10, y));
+	wxHyperlinkCtrl *link = new wxHyperlinkCtrl(debugPanel, -1, _("(Read more on how to use these options here)"), _("http://www.rigsofrods.org/wiki/pages/Debugging_Trucks"), wxPoint(10, y));
 #endif // version 2.8
 
 	// graphics panel
@@ -2054,7 +2050,6 @@ void MyDialog::SetDefaults()
 	inputgrab->SetSelection(0);          // All
 	mblur->SetValue(false);
 	mirror->SetValue(true);
-	nocrashrpt->SetValue(false);
 	particles->SetValue(true);
 	posstor->SetValue(false);
 	presel_map->SetValue(wxString());
@@ -2131,7 +2126,6 @@ void MyDialog::getSettingsControls()
 	settings["Mirrors"] = (mirror->GetValue()) ? "Yes" : "No";
 	settings["Motion blur"] = (mblur->GetValue()) ? "Yes" : "No";
 	settings["Multi-threading"] = (thread->GetValue()) ? "No" : "Yes";
-	settings["NoCrashRpt"] = (nocrashrpt->GetValue()) ? "Yes" : "No";
 	settings["Particles"] = (particles->GetValue()) ? "Yes" : "No";
 	settings["Position Storage"] = (posstor->GetValue()) ? "Yes" : "No";
 	settings["Preselected Map"] = conv(presel_map->GetValue());
@@ -2253,7 +2247,6 @@ void MyDialog::updateSettingsControls()
 	st = settings["Mirrors"]; if (st.length()>0) mirror->SetValue(st=="Yes");
 	st = settings["Motion blur"]; if (st.length()>0) mblur->SetValue(st=="Yes");
 	st = settings["Multi-threading"]; if (st.length()>0) thread->SetValue(st=="No");
-	st = settings["NoCrashRpt"]; if (st.length()>0) nocrashrpt->SetValue(st=="Yes");
 	st = settings["Particles"]; if (st.length()>0) particles->SetValue(st=="Yes");
 	st = settings["Position Storage"]; if (st.length()>0) posstor->SetValue(st=="Yes");
 	st = settings["Replay mode"]; if (st.length()>0) replaymode->SetValue(st=="Yes");
@@ -3041,7 +3034,7 @@ void MyDialog::OnTimerReset(wxTimerEvent& event)
 
 void MyDialog::OnButGetUserToken(wxCommandEvent& event)
 {
-	wxLaunchDefaultBrowser(wxT("http://usertoken.rigsofrods.com"));
+	wxLaunchDefaultBrowser(wxT("http://usertoken.rigsofrods.org"));
 }
 
 void MyDialog::OnButTestNet(wxCommandEvent& event)

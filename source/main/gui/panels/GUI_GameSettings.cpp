@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -46,13 +46,16 @@
 
 #include <MyGUI.h>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-
 #ifdef USE_OPENAL
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+  #ifdef __APPLE__
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+    #include <OpenAL/MacOSX_OALExtensions.h>
+  #else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+    #include <AL/alext.h>
+  #endif // __APPLE__
 #endif // USE_OPENAL
 
 using namespace RoR;
@@ -60,6 +63,10 @@ using namespace GUI;
 
 #define CLASS        GameSettings
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+
+#ifdef _WIN32
+	#define strncasecmp _strnicmp
+#endif
 
 CLASS::CLASS()
 {
@@ -114,7 +121,7 @@ CLASS::CLASS()
 	//Key mapping
 	m_tabCtrl->eventTabChangeSelect += MyGUI::newDelegate(this, &CLASS::OnTabChange);
 	m_keymap_group->eventComboChangePosition += MyGUI::newDelegate(this, &CLASS::OnKeymapTypeChange);
-	m_change_key->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReMapPress);
+	// FIXME: m_change_key->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnReMapPress);
 	startCounter = false;
 
 	//Sliders
@@ -1071,17 +1078,11 @@ void CLASS::LoadKeyMap()
 			if (m_keymap_group->getCaption() == "")
 				m_keymap_group->setIndexSelected(0); //at least select something
 
-			//Thanks stackoverflow and boost..
-			try {
-				if (boost::starts_with(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), m_keymap_group->getCaption()))
-				{
-					m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
-					m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() -1, vecIt->configline);
-				}
-				
-			}
-			catch (boost::bad_lexical_cast) {
-				LOG("Keymapping Error #1"); //Temporary
+			std::string prefix = m_keymap_group->getCaption();
+			if (strncasecmp(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), prefix.c_str(), prefix.length()))
+			{
+				m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
+				m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() -1, vecIt->configline);
 			}
 
 			//m_key_name->
@@ -1119,18 +1120,11 @@ void CLASS::OnKeymapTypeChange(MyGUI::ComboBox* _sender, size_t _index)
 
 		for (vecIt = vec.begin(); vecIt != vec.end(); vecIt++, counter++)
 		{
-			//Thanks stackoverflow and boost..
-			try 
+			std::string prefix = _sender->getItemNameAt(_index);
+			if (strncasecmp(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), prefix.c_str(), prefix.length()))
 			{
-				if (boost::starts_with(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str(), _sender->getItemNameAt(_index)))
-				{
-					m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
-					m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() - 1, vecIt->configline);
-				}
-
-			}
-			catch (boost::bad_lexical_cast) {
-				LOG("Keymapping Error #2"); //Temporary
+				m_keymapping->addItem(Application::GetInputEngine()->eventIDToName(mapIt->first).c_str());
+				m_keymapping->setSubItemNameAt(1, m_keymapping->getItemCount() - 1, vecIt->configline);
 			}
 		}
 	}
@@ -1156,6 +1150,7 @@ void CLASS::eventMouseButtonClickClearCache(MyGUI::WidgetPtr _sender)
 
 }
 
+/* FIXME
 void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 {
 		Ogre::String str_text = "";
@@ -1174,6 +1169,7 @@ void CLASS::OnReMapPress(MyGUI::WidgetPtr _sender)
 
 		str_text = "";
 }
+*/
 
 void CLASS::FrameEntered(float dt)
 {

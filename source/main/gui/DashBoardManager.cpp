@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -211,7 +211,8 @@ void DashBoardManager::windowResized()
 {
 	for (int i=0; i < free_dashboard; i++)
 	{
-		dashboards[i]->windowResized();
+		if (dashboards[i])
+			dashboards[i]->windowResized();
 	}
 }
 
@@ -687,8 +688,16 @@ void DashBoard::loadLayout( Ogre::String filename )
 
 void DashBoard::setVisible(bool v, bool smooth)
 {
-	if (!mainWidget) return;
 	visible = v;
+
+	if (!mainWidget)
+	{
+		for (MyGUI::VectorWidgetPtr::iterator iter = widgets.begin(); iter != widgets.end(); ++iter)
+		{
+			(*iter)->setVisible(v);
+		}
+		return;
+	}
 
 	/*
 	// buggy for some reason

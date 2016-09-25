@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -35,8 +35,8 @@
 
 #include "RigDef_File.h"
 
+#include <memory>
 #include <OgreString.h>
-#include <boost/shared_ptr.hpp>
 
 namespace RigDef
 {
@@ -72,7 +72,7 @@ public:
 	/**
 	* Prepares the validation.
 	*/
-	void Setup(boost::shared_ptr<RigDef::File> file);
+	void Setup(std::shared_ptr<RigDef::File> file);
 
 	/**
 	* Adds a vehicle module to the validated configuration.
@@ -111,7 +111,7 @@ private:
 	/**
 	* Checks if a module contains a section.
 	*/
-	bool HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword);
+	bool HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword);
 
 	/**
 	* Inline-ection 'submesh_groundmodel', unique across all modules.
@@ -152,8 +152,8 @@ private:
     int m_messages_num_errors;
     int m_messages_num_warnings;
     int m_messages_num_other;
-	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
-	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
+	std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
+	std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	bool m_check_beams;
 
 };

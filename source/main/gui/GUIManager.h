@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -104,7 +104,6 @@ public:
 
 	void ShowChatBox();
 	void pushMessageChatBox(Ogre::String txt);
-	void SetNetChat(ChatSystem *c);
 
 	bool GetPauseMenuVisible();
 

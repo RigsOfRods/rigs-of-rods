@@ -1,9 +1,9 @@
-#!/usr/env bash
+#!/bin/sh
 
 set -eu
 
 # Only deploy documentation if not building Pull Request
-if [ "${TRAVIS_PULL_REQUEST}" == "false" ]
+if [ "${TRAVIS_PULL_REQUEST}" = "false" ]
 then
   # Decode and install the ssh private key which provides access to the
   # ror-documentation repository.
@@ -22,7 +22,7 @@ then
   cp -R ../doc/doxygen/html/* .
   touch .nojekyll
   git add -A
-  git commit -m "[Automatic] Documentation update."
+  git commit --quiet -m "[Automatic] Documentation update."
   
   # Deploy the resulting changes by pushing them to the gh-pages branch of the
   # ror-documenation repository. The new documentation is then available on the

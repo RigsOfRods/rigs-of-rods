@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -125,7 +125,7 @@ void SkyManager::loadScript(String script, int fogStart, int fogEnd)
 			mCaelumSystem->setManageSceneFog(FOG_NONE);
 		}
 #else
-#error please use a recent Caelum version, see http://www.rigsofrods.com/wiki/pages/Compiling_3rd_party_libraries#Caelum
+#error please use a recent Caelum version, see http://www.rigsofrods.org/wiki/pages/Compiling_3rd_party_libraries#Caelum
 #endif // CAELUM_VERSION
 		// now optimize the moon a bit
 		if (mCaelumSystem->getMoon())
@@ -179,22 +179,6 @@ String SkyManager::getPrettyTime()
 	return StringConverter::toString( hour, 2, '0' )
 	+ ":" + StringConverter::toString( minute, 2, '0' )
 	+ ":" + StringConverter::toString( (int)second, 2, '0' );
-}
-
-bool SkyManager::update( float dt )
-{
-	// TODO
-	return true;
-}
-
-size_t SkyManager::getMemoryUsage()
-{
-	return 0;
-}
-
-void SkyManager::freeResources()
-{
-	// TODO
 }
 
 #endif //USE_CAELUM

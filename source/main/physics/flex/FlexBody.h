@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -83,13 +83,15 @@ public:
 	int getCameraMode() { return m_camera_mode; };
 
 	// Flexable
-	bool flexitPrepare(Beam* b);
+	bool flexitPrepare();
 	void flexitCompute();
 	Ogre::Vector3 flexitFinal();
 
 	void setVisible(bool visible);
 
 private:
+
+	Ogre::Vector3 flexit_center;
 
 	node_t*           m_nodes;
 	size_t            m_vertex_count;

@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -249,13 +249,6 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		}
 	}
 
-	Vector3 hdir = Vector3::ZERO;
-	if (truck->cameranodepos[0] >= 0 && truck->cameranodepos[0] < MAX_NODES)
-	{
-		hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
-	}
-	float g_along_hdir = hdir.dotProduct(truck->ffforce / 10000.0f);
-
 	// always update these statistics, also if not visible!
 	overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CurrentRPM");
 	overlayElement->setCaption("");
@@ -313,9 +306,9 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 	{
 		float velocity = truck->nodes[0].Velocity.length();
 		
-		if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] && truck->driveable == BOAT)
+		if (truck->cameranodepos[0] >= 0 && truck->cameranodepos[0] < MAX_NODES && truck->driveable == BOAT)
 		{
-			hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+			Vector3 hdir = truck->getDirection();
 			velocity = hdir.dotProduct(truck->nodes[truck->cameranodepos[0]].Velocity);
 		}
 		
@@ -335,7 +328,7 @@ bool TruckHUD::update(float dt, Beam *truck, bool visible)
 		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/MaxVelocity");
 		float velocityMaxKN = maxVelos[truck->driveable] * 1.94384449f;
 		float velocityMinKN = minVelos[truck->driveable] * 1.94384449f;
-		overlayElement->setCaption(mspeedstr + TOUTFSTRING(Round(maxVelos[truck->driveable])) + U(" kn, min: ") + TOUTFSTRING(Round(minVelos[truck->driveable])) + U(" kn"));
+		overlayElement->setCaption(mspeedstr + TOUTFSTRING(Round(velocityMaxKN)) + U(" kn, min: ") + TOUTFSTRING(Round(velocityMinKN)) + U(" kn"));
 		checkOverflow(overlayElement);
 
 		overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/AverageVelocity");

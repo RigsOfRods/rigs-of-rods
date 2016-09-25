@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -29,8 +29,6 @@
 
 #include "Timer.h"
 
-#include <cstdio>
-
 namespace RoR
 {
 
@@ -40,7 +38,6 @@ class RigLoadingProfiler
     enum EntryId
     {
         ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS,
-        ENTRY_BEAM_CTOR_INITTHREADS,
         ENTRY_BEAM_CTOR_PREPARE_LOADTRUCK,
         ENTRY_BEAM_LOADTRUCK_OPENFILE,
         ENTRY_BEAM_LOADTRUCK_PARSER_CREATE,
@@ -75,7 +72,6 @@ class RigLoadingProfiler
         char* dst = m_report;
         dst += sprintf(dst, "Rig loading profiler report:");
         
-        dst += sprintf(dst, "\n\tBeam::Beam()                 | init threads:    %f sec", m_entries[ENTRY_BEAM_CTOR_INITTHREADS]);
         dst += sprintf(dst, "\n\tBeam::Beam()                 | prepare loading: %f sec", m_entries[ENTRY_BEAM_CTOR_PREPARE_LOADTRUCK]);
         dst += sprintf(dst, "\n\tBeam::LoadTruck()            | open file:       %f sec", m_entries[ENTRY_BEAM_LOADTRUCK_OPENFILE]);
         dst += sprintf(dst, "\n\tBeam::LoadTruck()            | create parser:   %f sec", m_entries[ENTRY_BEAM_LOADTRUCK_PARSER_CREATE]);

@@ -172,4 +172,10 @@ public:
 	 * @return a vector3 representing the G-forces
 	 */
 	vector3 getGForces();
+   /**
+	* Returns the position of the node
+	* @param the nuber of the node
+    * @return vector3 of the world position for the node
+	*/	
+	Ogre::Vector3 getNodePosition(int nodeNumber);
 }

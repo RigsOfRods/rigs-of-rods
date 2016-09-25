@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -26,8 +26,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include <Ogre.h>
-#include <AL/al.h>
-#include <AL/alc.h>
+
+#ifdef __APPLE__
+  #include <OpenAL/al.h>
+  #include <OpenAL/alc.h>
+#else
+  #include <AL/al.h>
+  #include <AL/alc.h>
+#endif // __APPLE__
+
 
 class SoundManager : public ZeroedMemoryAllocator
 {
@@ -71,7 +78,6 @@ private:
 	ALuint hardware_sources[MAX_HARDWARE_SOURCES];     // this buffer contains valid AL handles up to m_hardware_sources_num
 
 	// audio sources
-	int    audio_sources_in_use_count;
 	Sound* audio_sources[MAX_AUDIO_BUFFERS];
 	// helper for calculating the most audible sources
 	std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];

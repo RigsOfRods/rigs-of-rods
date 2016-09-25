@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -19,13 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FlexObj.h"
 
-#include "ApproxMath.h"
-#include "ResourceBuffer.h"
-
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif //OGRE_PLATFORM_LINUX
+#include <Ogre.h>
 
 using namespace Ogre;
 
@@ -85,7 +79,7 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
 	gEnv->sceneManager=gEnv->sceneManager;
 	nodes=nds;
 	/// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     /// Create submeshes
 	subs=(SubMesh**)malloc(numsubmeshes*sizeof(SubMesh*));
@@ -256,11 +250,11 @@ Vector3 FlexObj::updateVertices()
 {
 	unsigned int i;
 	Vector3 center;
-	center=(nodes[nodeIDs[0]].smoothpos+nodes[nodeIDs[1]].smoothpos)/2.0;
+	center=(nodes[nodeIDs[0]].AbsPosition+nodes[nodeIDs[1]].AbsPosition)/2.0;
 	for (i=0; i<nVertices; i++)
 	{
 		//set position
-		covertices[i].vertex=nodes[nodeIDs[i]].smoothpos-center;
+		covertices[i].vertex=nodes[nodeIDs[i]].AbsPosition-center;
 		//reset normals
 		covertices[i].normal=Vector3::ZERO;
 	}
@@ -268,8 +262,8 @@ Vector3 FlexObj::updateVertices()
 	for (i=0; i<ibufCount/3; i++)
 	{
 		Vector3 v1, v2;
-		v1=nodes[nodeIDs[faces[i*3+1]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
-		v2=nodes[nodeIDs[faces[i*3+2]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
+		v1=nodes[nodeIDs[faces[i*3+1]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
+		v2=nodes[nodeIDs[faces[i*3+2]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
 		v1=v1.crossProduct(v2);
 		float s=v1.length();
 		//avoid large tris
@@ -298,13 +292,13 @@ Vector3 FlexObj::updateVertices()
 //with normals
 Vector3 FlexObj::updateShadowVertices()
 {
-	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+	Vector3 center = (nodes[nodeIDs[0]].AbsPosition + nodes[nodeIDs[1]].AbsPosition) / 2.0;
 
 	for (unsigned int i=0; i<nVertices; i++)
 	{
 		//set position
-		coshadowposvertices[i].vertex=nodes[nodeIDs[i]].smoothpos-center;
-		coshadowposvertices[i+nVertices].vertex=nodes[nodeIDs[i]].smoothpos-center;
+		coshadowposvertices[i].vertex=nodes[nodeIDs[i]].AbsPosition-center;
+		coshadowposvertices[i+nVertices].vertex=nodes[nodeIDs[i]].AbsPosition-center;
 		//reset normals
 		coshadownorvertices[i].normal=Vector3::ZERO;
 	}
@@ -312,8 +306,8 @@ Vector3 FlexObj::updateShadowVertices()
 	for (unsigned int i=0; i<ibufCount/3; i++)
 	{
 		Vector3 v1, v2;
-		v1=nodes[nodeIDs[faces[i*3+1]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
-		v2=nodes[nodeIDs[faces[i*3+2]]].smoothpos-nodes[nodeIDs[faces[i*3]]].smoothpos;
+		v1=nodes[nodeIDs[faces[i*3+1]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
+		v2=nodes[nodeIDs[faces[i*3+2]]].AbsPosition-nodes[nodeIDs[faces[i*3]]].AbsPosition;
 		v1=v1.crossProduct(v2);
 		float s=v1.length();
 		//avoid large tris
@@ -360,4 +354,12 @@ Vector3 FlexObj::flexit()
 FlexObj::~FlexObj()
 {
 	if (!msh.isNull()) msh->unload();
+
+	if (subs              != nullptr) { free (subs); }
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (nodeIDs           != nullptr) { free (nodeIDs); }
+	if (faces             != nullptr) { free (faces); }
+	if (sref              != nullptr) { free (sref); }
 }

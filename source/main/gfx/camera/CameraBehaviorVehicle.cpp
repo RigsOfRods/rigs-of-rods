@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -23,7 +23,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamFactory.h"
 #include "InputEngine.h"
 #include "Settings.h"
 
@@ -41,8 +40,7 @@ CameraBehaviorVehicle::CameraBehaviorVehicle() :
 
 void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 {
-	Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos
-				 - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos).normalisedCopy();
+	Vector3 dir = ctx.mCurrTruck->getDirection();
 
 	targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	targetPitch     = 0.0f;
@@ -52,14 +50,7 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	float dt = ctx.mDt;
-
-	if ( BeamFactory::getSingleton().getThreadingMode() == THREAD_MULTI )
-		dt = ctx.mCurrTruck->oldframe_global_dt / ctx.mCurrTruck->oldframe_global_simulation_speed;
-	else
-		dt = ctx.mCurrTruck->global_dt / ctx.mCurrTruck->global_simulation_speed;
-
-	camRatio = 1.0f / (dt * 4.0f);
+	camRatio = 1.0f / (ctx.mDt * 4.0f);
 
 	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
 
@@ -99,7 +90,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
 		{
 			// Calculate new camera distance
-			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].smoothpos;
+			Vector3 lookAt = ctx.mCurrTruck->nodes[ctx.mCurrTruck->m_custom_camera_node].AbsPosition;
 			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
@@ -107,7 +98,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 			camRotY = asin(camDir.y);
 
 			// Calculate new camera yaw
-			Vector3 dir = (ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodedir[0]].smoothpos  - ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameranodepos[0]].smoothpos).normalisedCopy();
+			Vector3 dir = -ctx.mCurrTruck->getDirection();
 			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
 			camRotX = rotX.getYaw();
 

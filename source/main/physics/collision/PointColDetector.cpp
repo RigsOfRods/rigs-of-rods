@@ -2,7 +2,7 @@
 This source file is part of Rigs of Rods
 Copyright 2009 Lefteris Stamatogiannakis
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -42,10 +42,10 @@ PointColDetector::PointColDetector()
 PointColDetector::~PointColDetector() {
 }
 
-void PointColDetector::update(Beam* truck) {
+void PointColDetector::update(Beam* truck, bool ignorestate) {
 	int contacters_size = 0;
 
-	if (truck && truck->state < SLEEPING) {
+	if (truck && (ignorestate || truck->state < SLEEPING)) {
 		m_trucks.resize(1, truck);
 		contacters_size += truck->free_contacter;
 	} else {
@@ -62,15 +62,15 @@ void PointColDetector::update(Beam* truck) {
 	kdtree[0].end = -object_list_size;
 }
 
-void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks) {
+void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks, bool ignorestate) {
 	bool update_required = false;
 	int contacters_size = 0;
 
-	if (truck && truck->state < SLEEPING) {
+	if (truck && (ignorestate || truck->state < SLEEPING)) {
 		truck->collisionRelevant = false;
 		m_trucks.resize(numtrucks);
 		for (int t = 0; t < numtrucks; t++) {
-			if (t != truck->trucknum && trucks[t] && trucks[t]->state < SLEEPING && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
+			if (t != truck->trucknum && trucks[t] && (ignorestate || trucks[t]->state < SLEEPING) && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
 				update_required = update_required || (m_trucks[t] != trucks[t]);
 				m_trucks[t] = trucks[t];
 				truck->collisionRelevant = true;

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -50,11 +50,12 @@ public:
 	bool IsVisible();
 	void BackToMenu();
 	void Reset();
+	void Cancel();
 
 	CacheEntry *GetSelectedEntry() { return m_selected_entry; }
 	Skin *GetSelectedSkin() { return m_selected_skin; }
 	std::vector<Ogre::String> GetVehicleConfigs() { return m_vehicle_configs; }
-	int ConvertType(LoaderType type) { return LoaderType(type); }
+
 private:
 
 	void NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
@@ -89,13 +90,10 @@ private:
 	Ogre::String               m_preview_image_texture;
 	Skin*                      m_selected_skin;
 	bool                       m_selection_done;
-	bool                       m_ready;
 	std::vector<CacheEntry>    m_entries;
 	std::vector<Ogre::String>  m_vehicle_configs;
 	std::vector<Skin *>        m_current_skins;
 	bool                       m_keys_bound;
-	float                      m_ready_time;
-	float                      m_deltatime_sum;
 	RoR::SkinManager*          m_skin_manager;
 };
 

@@ -15,7 +15,7 @@
                 <Widget type="EditBox" skin="WordWrapEmpty" position="25 35 125 20">
                     <Property key="Caption" value="Version:"/>
                 </Widget>
-                <Widget type="EditBox" skin="WordWrapEmpty" position="150 35 145 20" name="ror_version">
+                <Widget type="EditBox" skin="WordWrapEmpty" position="150 35 185 20" name="ror_version">
                     <Property key="Caption" value="Unknown"/>
                 </Widget>
                 <Widget type="EditBox" skin="WordWrapEmpty" position="150 60 145 20" name="net_version">

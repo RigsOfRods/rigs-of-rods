@@ -1,7 +1,7 @@
 /*
 This file is part of "Rigs of Rods Server" (Relay mode)
 Copyright 2007 Pierre-Michel Ricordel
-Contact: pricorde@rigsofrods.com
+Contact: pricorde@rigsofrods.org
 "Rigs of Rods Server" is distributed under the terms of the GNU General Public License.
 
 "Rigs of Rods Server" is free software; you can redistribute it and/or modify
@@ -38,15 +38,15 @@ static const int   LAN_BROADCAST_PORT = 13000;  //!< port used to send the broad
 static const int   MAX_USERNAME_LEN   = 40;  //!< port used to send the broadcast announcement in LAN mode
 
 // protocol version
-static const char VARIABLE_IS_NOT_USED *RORNET_VERSION = "RoRnet_2.37"; //!< the protocol version information
+static const char VARIABLE_IS_NOT_USED *RORNET_VERSION = "RoRnet_2.38"; //!< the protocol version information
 
 // REGISTRY STUFF
-static const char VARIABLE_IS_NOT_USED *REPO_SERVER = "api.rigsofrods.com"; //!< the web API URL
+static const char VARIABLE_IS_NOT_USED *REPO_SERVER = "api.rigsofrods.org"; //!< the web API URL
 static const char VARIABLE_IS_NOT_USED *REPO_URLPREFIX = "";                //!< prefix for the API
 
 // used by configurator
-static const char VARIABLE_IS_NOT_USED *REPO_HTML_SERVERLIST = "http://api.rigsofrods.com/serverlist/"; //!< server list URL
-static const char VARIABLE_IS_NOT_USED *NEWS_HTML_PAGE = "http://api.rigsofrods.com/news/"; //!< news html page URL
+static const char VARIABLE_IS_NOT_USED *REPO_HTML_SERVERLIST = "http://multiplayer.rigsofrods.org/server-list/"; //!< server list URL
+static const char VARIABLE_IS_NOT_USED *NEWS_HTML_PAGE = "http://api.rigsofrods.org/news/"; //!< news html page URL
 
 // ENUMs
 
@@ -82,7 +82,7 @@ enum {
 	//MSG2_STREAM_REGISTER_RESP,         //!< reply from server to registering client
 	//MSG2_STREAM_CONTROL_FLOW,          //!< suspend/unsuspend streams
 	//MSG2_STREAM_CONTROL_FLOW_RESP,     //!< reply from server to requesting client
-	//MSG2_STREAM_UNREGISTER,            //!< remove stream
+	MSG2_STREAM_UNREGISTER,            //!< remove stream
 	//MSG2_STREAM_UNREGISTER_RESP,       //!< remove stream response from server to requsting client
 	//MSG2_STREAM_TAKEOVER,              //!< stream takeover
 	//MSG2_STREAM_TAKEOVER_RESP,         //!< stream takeover response from server

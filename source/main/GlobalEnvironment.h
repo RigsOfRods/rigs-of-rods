@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -33,7 +33,7 @@ public:
 		, frameListener(0)
 		, mainCamera(0)
 		, mrTime(0)
-		, network(0)
+		, multiplayer(false)
 		, player(0)
 		, sceneManager(0)
 		, sky(0)
@@ -50,11 +50,11 @@ public:
 	Character *player;
 	Collisions *collisions;
 	SurveyMapManager *surveyMap;
-	Network *network;
 	RoRFrameListener *frameListener;
 	SkyManager *sky;
 	TerrainManager *terrainManager;
 	ThreadPool *threadPool;
 
 	float mrTime;
+	bool multiplayer;
 };

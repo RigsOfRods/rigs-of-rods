@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -22,9 +22,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __TerrainGeometryManager_H_
 #define __TerrainGeometryManager_H_
 
+#include "RoRPrerequisites.h"
+
 #include "ConfigFile.h"
 #include "IHeightFinder.h"
-#include "IManager.h"
 
 #include <OgreTerrain.h>
 #include <OgreTerrainMaterialGeneratorA.h>
@@ -33,7 +34,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTerrainGroup.h>
 
 // this class handles all interactions with the Ogre Terrain system
-class TerrainGeometryManager : public IManager, public IHeightFinder
+class TerrainGeometryManager : public ZeroedMemoryAllocator, public IHeightFinder
 {
 public:
 
@@ -42,22 +43,15 @@ public:
 
 	void loadOgreTerrainConfig(Ogre::String filename);
 
-	inline Ogre::TerrainGroup *getTerrainGroup() { return mTerrainGroup; };
+	Ogre::TerrainGroup *getTerrainGroup() { return mTerrainGroup; };
 
+	float getHeightAt(float x, float z);
+	float getHeightAtPoint(long x, long z);
+	float getHeightAtTerrainPosition(float x, float z);
+	float getHeightAtWorldPosition(float x, float z);
+	void getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align, Ogre::Vector3* outWSpos);
 
-	inline float getHeightAt(float x, float z)
-	{
-		return mTerrainGroup->getHeightAtWorldPosition(x, 1000, z);
-	}
-
-	inline Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f)
-	{
-		Ogre::Vector3 left(-precision, getHeightAt(x - precision, z) - y, 0.0f);
-		Ogre::Vector3 down(0.0f, getHeightAt(x, z + precision) - y, precision);
-		down = left.crossProduct(down);
-		down.normalise();
-		return down;
-	}
+	Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
 
 	Ogre::String getCompositeMaterialName();
 
@@ -66,10 +60,6 @@ public:
 
 	bool update(float dt);
 	void updateLightMap();
-
-
-	size_t getMemoryUsage();
-	void freeResources();
 
 protected:
 
@@ -86,6 +76,17 @@ protected:
 	int terrainLayers;
 
 	Ogre::Vector3 terrainPos;
+
+	bool m_is_flat;
+	Ogre::Terrain* mTerrain;
+
+	Ogre::Terrain::Alignment mAlign;
+	Ogre::Vector3 mPos;
+	Ogre::Real mBase;
+	Ogre::Real mScale;
+	Ogre::uint16 mSize;
+	Ogre::Real mWorldSize;
+	float* mHeightData;
 
 	// terrain engine specific
 	Ogre::TerrainGroup *mTerrainGroup;

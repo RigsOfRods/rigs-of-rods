@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -29,6 +29,7 @@
 #include "Language.h"
 #include "SoundScriptManager.h"
 #include "GUIManager.h"
+#include "VehicleAI.h"
 
 using namespace RoR;
 
@@ -147,7 +148,11 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 	} // end of (!curr_truck->replaymode) block
 
-	if (!curr_truck->replaymode)
+#ifdef USE_ANGELSCRIPT
+	if (!curr_truck->replaymode && !curr_truck->vehicle_ai->IsActive())
+#else
+    if (!curr_truck->replaymode)
+#endif // USE_ANGELSCRIPT
 	{
 		// steering
 		float tmp_left_digital  = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT,  false, InputEngine::ET_DIGITAL);
@@ -173,7 +178,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 		if (curr_truck->engine)
 		{
-			bool arcadeControls = BSETTING("ArcadeControls", false);
+			static bool arcadeControls = BSETTING("ArcadeControls", false);
 
 			float accl  = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
 			float brake = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
@@ -240,13 +245,8 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				// only when the truck really is not moving anymore
 				if (fabs(curr_truck->WheelSpeed) <= 1.0f)
 				{
-					float velocity = 0.0f;
-
-					if (curr_truck->cameranodepos[0] >= 0 && curr_truck->cameranodedir[0] >= 0)
-					{
-						Vector3 hdir = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
-						velocity = hdir.dotProduct(curr_truck->nodes[0].Velocity);
-					}
+					Vector3 hdir = curr_truck->getDirection();
+					float velocity = hdir.dotProduct(curr_truck->nodes[0].Velocity);
 
 					// switching point, does the user want to drive forward from backward or the other way round? change gears?
 					if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() > 0)
@@ -468,40 +468,30 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				} // end of if (gear_changed)
 			} // end of shitmode > BeamEngine::MANUAL
 
-			// anti roll back in BeamEngine::AUTOMATIC (DRIVE, TWO, ONE) mode
-			if (curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
-				(curr_truck->engine->getAutoShift() == BeamEngine::DRIVE ||
-				curr_truck->engine->getAutoShift() == BeamEngine::TWO ||
-				curr_truck->engine->getAutoShift() == BeamEngine::ONE) &&
-				curr_truck->WheelSpeed < +0.1f)
+			if (curr_truck->engine->hasContact() &&
+				curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
+				curr_truck->engine->getAutoShift() != BeamEngine::NEUTRAL &&
+				std::abs(curr_truck->WheelSpeed) < 0.1f)
 			{
-				Vector3 dirDiff = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
+				Vector3 dirDiff = curr_truck->getDirection();
 				Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
 
-				if (pitchAngle.valueDegrees() > +1.0f)
+				if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
 				{
-					float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
-					float engine_force = std::abs(curr_truck->engine->getTorque());
-					float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
-					curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
-				}
-			}
-
-			// anti roll forth in BeamEngine::AUTOMATIC (REAR) mode
-			if (curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
-				curr_truck->engine->getAutoShift() == BeamEngine::REAR &&
-				curr_truck->WheelSpeed > -0.1f)
-			{
-				Vector3 dirDiff = (curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition - curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition).normalisedCopy();
-				Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
-				float accl = RoR::Application::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
-
-				if (pitchAngle.valueDegrees() < -1.0f)
+					if (curr_truck->engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->WheelSpeed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
+					    curr_truck->engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->WheelSpeed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+					{
+						// anti roll back in BeamEngine::AUTOMATIC (DRIVE, TWO, ONE) mode
+						// anti roll forth in BeamEngine::AUTOMATIC (REAR) mode
+						float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
+						float engine_force = std::abs(curr_truck->engine->getTorque());
+						float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
+						curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
+					}
+				} else if (brake == 0.0f && accl == 0.0f && curr_truck->parkingbrake == 0)
 				{
-					float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
-					float engine_force = std::abs(curr_truck->engine->getTorque());
-					float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
-					curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
+					float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->WheelSpeed)) * 5.0f;
+					curr_truck->brake = curr_truck->brakeforce * ratio;
 				}
 			}
 		} // end of ->engine

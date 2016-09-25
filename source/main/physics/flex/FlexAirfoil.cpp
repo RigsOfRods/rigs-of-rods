@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "AeroEngine.h"
 #include "Airfoil.h"
 #include "ApproxMath.h"
-#include "ResourceBuffer.h"
 #include "BeamData.h"
 
 float refairfoilpos[90]={
@@ -118,13 +117,13 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
 		for (i=0; i<12; i++) airfoilpos[54+12+i]=airfoilpos[54+i];
 	}
 	/// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, new ResourceBuffer());
+    msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     /// Create submeshes
     subface = msh->createSubMesh();
     subband = msh->createSubMesh();
-	subcup=msh->createSubMesh();
-	subcdn=msh->createSubMesh();
+	subcup = msh->createSubMesh();
+	subcdn = msh->createSubMesh();
 
 	//materials
 	subface->setMaterialName(texband);
@@ -411,18 +410,17 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, node_t *nds, int pnfld, int 
 	//MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes()
 }
 
-
 Vector3 FlexAirfoil::updateVertices()
 {
 	int i;
 	Vector3 center;
-	center=nodes[nfld].smoothpos;
+	center=nodes[nfld].AbsPosition;
 
-	Vector3 vx=nodes[nfrd].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyl=nodes[nflu].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vzl=nodes[nbld].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyr=nodes[nfru].smoothpos-nodes[nfrd].smoothpos;
-	Vector3 vzr=nodes[nbrd].smoothpos-nodes[nfrd].smoothpos;
+	Vector3 vx=nodes[nfrd].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyl=nodes[nflu].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vzl=nodes[nbld].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyr=nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition;
+	Vector3 vzr=nodes[nbrd].AbsPosition-nodes[nfrd].AbsPosition;
 
 	if (breakable) {broken=broken || (vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
 	else {broken=(vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
@@ -477,13 +475,13 @@ Vector3 FlexAirfoil::updateVertices()
 		Vector3 rcent, raxis;
 		if (!stabilleft)
 		{
-			rcent=((nodes[nflu].smoothpos+nodes[nbld].smoothpos)/2.0+(nodes[nflu].smoothpos-nodes[nblu].smoothpos)/4.0)-center;
-			raxis=(nodes[nflu].smoothpos-nodes[nfld].smoothpos).crossProduct(nodes[nflu].smoothpos-nodes[nblu].smoothpos);
+			rcent=((nodes[nflu].AbsPosition+nodes[nbld].AbsPosition)/2.0+(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition)/4.0)-center;
+			raxis=(nodes[nflu].AbsPosition-nodes[nfld].AbsPosition).crossProduct(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition);
 		}
 		else
 		{
-			rcent=((nodes[nfru].smoothpos+nodes[nbrd].smoothpos)/2.0+(nodes[nfru].smoothpos-nodes[nbru].smoothpos)/4.0)-center;
-			raxis=(nodes[nfru].smoothpos-nodes[nfrd].smoothpos).crossProduct(nodes[nfru].smoothpos-nodes[nbru].smoothpos);
+			rcent=((nodes[nfru].AbsPosition+nodes[nbrd].AbsPosition)/2.0+(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition)/4.0)-center;
+			raxis=(nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition).crossProduct(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition);
 		}
 		raxis.normalise();
 		Quaternion rot=Quaternion(Degree(deflection), raxis);
@@ -555,13 +553,13 @@ Vector3 FlexAirfoil::updateShadowVertices()
 {
 	 int i;
 	Vector3 center;
-	center=nodes[nfld].smoothpos;
+	center=nodes[nfld].AbsPosition;
 
-	Vector3 vx=nodes[nfrd].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyl=nodes[nflu].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vzl=nodes[nbld].smoothpos-nodes[nfld].smoothpos;
-	Vector3 vyr=nodes[nfru].smoothpos-nodes[nfrd].smoothpos;
-	Vector3 vzr=nodes[nbrd].smoothpos-nodes[nfrd].smoothpos;
+	Vector3 vx=nodes[nfrd].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyl=nodes[nflu].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vzl=nodes[nbld].AbsPosition-nodes[nfld].AbsPosition;
+	Vector3 vyr=nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition;
+	Vector3 vzr=nodes[nbrd].AbsPosition-nodes[nfrd].AbsPosition;
 
 	if (breakable) {broken=broken || (vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
 	else {broken=(vx.crossProduct(vzl).squaredLength()>sref)||(vx.crossProduct(vzr).squaredLength()>sref);}
@@ -616,13 +614,13 @@ Vector3 FlexAirfoil::updateShadowVertices()
 		Vector3 rcent, raxis;
 		if (!stabilleft)
 		{
-			rcent=((nodes[nflu].smoothpos+nodes[nbld].smoothpos)/2.0+(nodes[nflu].smoothpos-nodes[nblu].smoothpos)/4.0)-center;
-			raxis=(nodes[nflu].smoothpos-nodes[nfld].smoothpos).crossProduct(nodes[nflu].smoothpos-nodes[nblu].smoothpos);
+			rcent=((nodes[nflu].AbsPosition+nodes[nbld].AbsPosition)/2.0+(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition)/4.0)-center;
+			raxis=(nodes[nflu].AbsPosition-nodes[nfld].AbsPosition).crossProduct(nodes[nflu].AbsPosition-nodes[nblu].AbsPosition);
 		}
 		else
 		{
-			rcent=((nodes[nfru].smoothpos+nodes[nbrd].smoothpos)/2.0+(nodes[nfru].smoothpos-nodes[nbru].smoothpos)/4.0)-center;
-			raxis=(nodes[nfru].smoothpos-nodes[nfrd].smoothpos).crossProduct(nodes[nfru].smoothpos-nodes[nbru].smoothpos);
+			rcent=((nodes[nfru].AbsPosition+nodes[nbrd].AbsPosition)/2.0+(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition)/4.0)-center;
+			raxis=(nodes[nfru].AbsPosition-nodes[nfrd].AbsPosition).crossProduct(nodes[nfru].AbsPosition-nodes[nbru].AbsPosition);
 		}
 		raxis.normalise();
 		Quaternion rot=Quaternion(Degree(deflection), raxis);
@@ -850,6 +848,14 @@ void FlexAirfoil::updateForces()
 
 FlexAirfoil::~FlexAirfoil()
 {
-	if (airfoil) delete airfoil; airfoil=0;
+	if (airfoil) delete airfoil;
 	if (!msh.isNull()) msh->unload();
+
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (facefaces         != nullptr) { free (facefaces); }
+	if (bandfaces         != nullptr) { free (bandfaces); }
+	if (cupfaces          != nullptr) { free (cupfaces); }
+	if (cdnfaces          != nullptr) { free (cdnfaces); }
 }

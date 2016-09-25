@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -19,9 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SurveyMapTextureCreator.h"
 
-#include "BeamFactory.h"
 #include "IWater.h"
-#include "ResourceBuffer.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 
@@ -45,7 +43,7 @@ SurveyMapTextureCreator::SurveyMapTextureCreator() :
 
 bool SurveyMapTextureCreator::init()
 {
-	TexturePtr texture = TextureManager::getSingleton().createManual(getTextureName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 2048, 2048, TU_RENDERTARGET, PF_R8G8B8, TU_RENDERTARGET, new ResourceBuffer());
+	TexturePtr texture = TextureManager::getSingleton().createManual(getTextureName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 2048, 2048, TU_RENDERTARGET, PF_R8G8B8, TU_RENDERTARGET);
 	
 	if ( texture.isNull() ) return false;;
 
@@ -132,14 +130,6 @@ String SurveyMapTextureCreator::getTextureName()
 
 void SurveyMapTextureCreator::preRenderTargetUpdate()
 {
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-
-	float f = 20.0f + 30.0f * mMapZoom;
-
-	for (int i=0; i < BeamFactory::getSingleton().getTruckCount(); i++)
-		if (trucks[i])
-			trucks[i]->preMapLabelRenderUpdate(true, f);
-
 	if (mStatics)
 		mStatics->setRenderingDistance(0);
 
@@ -154,12 +144,6 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
 
 void SurveyMapTextureCreator::postRenderTargetUpdate()
 {
-	Beam **trucks = BeamFactory::getSingleton().getTrucks();
-
-	for (int i=0; i < BeamFactory::getSingleton().getTruckCount(); i++)
-		if (trucks[i])
-			trucks[i]->preMapLabelRenderUpdate(false);
-
 	if (mStatics)
 		mStatics->setRenderingDistance(1000);
 

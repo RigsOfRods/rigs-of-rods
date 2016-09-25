@@ -4,7 +4,7 @@
     Copyright 2007-2012 Thomas Fischer
     Copyright 2013-2016 Petr Ohlidal
 
-    For more information, see http://www.rigsofrods.com/
+    For more information, see http://www.rigsofrods.org/
 
     Rigs of Rods is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 3, as
@@ -50,7 +50,7 @@
 
 #pragma once
 
-#include <boost/regex.hpp>
+#include <regex>
 
 namespace RigDef
 {
@@ -83,7 +83,7 @@ namespace Regexes
 
 #define E_REAL_NUMBER_WITH_EXPONENT_NO_FRACTION "-?[[:digit:]]*[eE][-+]?[[:digit:]]+"
 
-// NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.com/repository/view/2389
+// NOTE: Intentionally accepting format "1." for backwards compatibility, observed in http://www.rigsofrods.org/repository/view/2389
 #define E_REAL_NUMBER_SIMPLE "-?[[:digit:]]*\\.[[:digit:]]*"
 
 //NOTE: Uses |, MUST be enclosed in E_CAPTURE()
@@ -178,10 +178,10 @@ namespace Regexes
 
 /// Actual regex definition macro.
 #define DEFINE_REGEX(_NAME_,_REGEXP_) \
-    const boost::regex _NAME_ = boost::regex( _REGEXP_, boost::regex::extended);
+    const std::regex _NAME_ = std::regex( _REGEXP_, std::regex::ECMAScript);
 
 #define DEFINE_REGEX_IGNORECASE(_NAME_,_REGEXP_) \
-    const boost::regex _NAME_ = boost::regex( _REGEXP_, boost::regex::extended | boost::regex::icase);
+    const std::regex _NAME_ = std::regex( _REGEXP_, std::regex::ECMAScript | std::regex::icase);
 
 // -------------------------------------------------------------------------- //
 // Utility regexes                                                            //
@@ -916,7 +916,7 @@ DEFINE_REGEX( SECTION_COLLISIONBOXES,
 // Syntax: startDelay, stopDelay, startFunction  stopFunction affectEngine needsEngine
 #define E_SECTIONS_COMMANDS_COMMANDS2_INERTIA_AFFECT_ENGINE_PART                  \
     E_CAPTURE_OPTIONAL(                                   /* #1                */ \
-        E_CAPTURE( E_REAL_NUMBER )                        /* #2 Start delay    */ \
+        E_CAPTURE( E_STRING_ALNUM_HYPHENS_USCORES_ONLY )  /* #2 Start delay    */ \
         E_CAPTURE_OPTIONAL(                               /* #3                */ \
             E_CAPTURE( E_DELIMITER )                                              \
             E_CAPTURE( E_REAL_NUMBER )                    /* #5 Stop delay     */ \
@@ -1256,11 +1256,11 @@ DEFINE_REGEX( SECTION_EXHAUSTS,
     E_DELIMITER_COMMA
     E_CAPTURE( E_NODE_ID )   // Direction node
     E_CAPTURE_OPTIONAL(
-        E_DELIMITER_COMMA
+        E_DELIMITER
         E_CAPTURE( E_REAL_NUMBER ) // #4 Factor
 
         E_CAPTURE_OPTIONAL( 
-            E_DELIMITER_SPACE
+            E_DELIMITER
             E_CAPTURE( E_STRING_NO_SPACES ) // #6 Material name
         )
     )
@@ -1352,7 +1352,7 @@ DEFINE_REGEX( SECTION_FLARES,
 
             E_CAPTURE_OPTIONAL(
                 E_CAPTURE( E_DELIMITER )
-                E_CAPTURE( E_DECIMAL_NUMBER )  // #18 Blink delay
+                E_CAPTURE( E_REAL_NUMBER )  // #18 Blink delay
 
                 E_CAPTURE_OPTIONAL(
                     E_CAPTURE( E_DELIMITER )
@@ -1437,9 +1437,9 @@ DEFINE_REGEX( FLEXBODIES_SUBSECTION_PROPLIKE_LINE,
 
 DEFINE_REGEX( FLEXBODIES_SUBSECTION_FORSET_LINE,
     // Compatibility rules:
-    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.com/repository/view/2497
+    // 1. Tolerate colon ":" as keyword/numbers separator, observed in http://www.rigsofrods.org/repository/view/2497
     // 2. Tolerate missing keyword/numbers separator
-    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.com/repository/view/5282)
+    //      (example: "forset12,34,56", observed in: http://www.rigsofrods.org/repository/view/5282)
     "forset"
     E_CAPTURE_OPTIONAL( E_DELIMITER E_OR E_DELIMITER_COLON ) // #1 Delimiter
     E_CAPTURE( ".*$" )                                       // #2 Entire line
@@ -1959,9 +1959,9 @@ DEFINE_REGEX( SPECIAL_PROPS,
     E_OR
     E_CAPTURE( "^rightmirror.*$" )
     E_OR
-    E_CAPTURE( "^dashboard.*$" )
+    E_CAPTURE( ".*dashboard.*$" )
     E_OR
-    E_CAPTURE( "^dashboard-rh.*$" )
+    E_CAPTURE( ".*dashboard-rh.*$" )
     E_OR
     E_CAPTURE( "^spinprop.*$" ) 
     E_OR

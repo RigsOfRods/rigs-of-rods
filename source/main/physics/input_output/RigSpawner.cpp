@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -39,6 +39,7 @@
 #include "Airfoil.h"
 #include "Application.h"
 #include "AutoPilot.h"
+#include "VehicleAI.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BitFlags.h"
@@ -66,7 +67,6 @@
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "ThreadPool.h"
 #include "TorqueCurve.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
@@ -79,6 +79,7 @@
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
 
+
 using namespace RoR;
 
 /* -------------------------------------------------------------------------- */
@@ -87,10 +88,9 @@ using namespace RoR;
 
 void RigSpawner::Setup( 
 	Beam *rig,
-	boost::shared_ptr<RigDef::File> file,
+	std::shared_ptr<RigDef::File> file,
 	Ogre::SceneNode *parent,
 	Ogre::Vector3 const & spawn_position,
-	Ogre::Quaternion const & spawn_rotation,
     int cache_entry_number
 )
 {
@@ -101,7 +101,6 @@ void RigSpawner::Setup(
     m_cache_entry_number = cache_entry_number;
 	m_parent_scene_node = parent;
 	m_spawn_position = spawn_position;
-	m_spawn_rotation = spawn_rotation;
 	m_current_keyword = RigDef::File::KEYWORD_INVALID;
 	m_enable_background_loading = BSETTING("Background Loading", false);
 	m_wing_area = 0.f;
@@ -337,6 +336,10 @@ void RigSpawner::InitializeRig()
 
 	m_rig->beamHash = "";
 
+#ifdef USE_ANGELSCRIPT
+	m_rig->vehicle_ai = new VehicleAI(m_rig);
+#endif // USE_ANGELSCRIPT
+
 	/* Init code from Beam::Beam() */
 
 	m_rig->airbrakeval = 0;
@@ -447,6 +450,8 @@ void RigSpawner::InitializeRig()
         );
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
+
+	
 }
 
 void RigSpawner::FinalizeRig()
@@ -528,7 +533,7 @@ void RigSpawner::FinalizeRig()
 		m_rig->wings[m_rig->wingstart].fa->enableInducedDrag(span,m_wing_area, false);
 		m_rig->wings[m_rig->free_wing-1].fa->enableInducedDrag(span,m_wing_area, true);
 		//wash calculator
-		WashCalculator(m_spawn_rotation);
+		WashCalculator();
 	}
 	//add the cab visual
 	if (m_rig->free_texcoord>0 && m_rig->free_cab>0)
@@ -760,21 +765,20 @@ void RigSpawner::FinalizeRig()
 /* Processing functions and utilities.
 /* -------------------------------------------------------------------------- */
 
-void RigSpawner::WashCalculator(Ogre::Quaternion const & rot)
+void RigSpawner::WashCalculator()
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    Ogre::Quaternion invrot=rot.Inverse();
 	//we will compute wash
 	int w,p;
 	for (p=0; p<m_rig->free_aeroengine; p++)
 	{
-		Ogre::Vector3 prop=invrot*m_rig->nodes[m_rig->aeroengines[p]->getNoderef()].RelPosition;
+		Ogre::Vector3 prop=m_rig->nodes[m_rig->aeroengines[p]->getNoderef()].RelPosition;
 		float radius=m_rig->aeroengines[p]->getRadius();
 		for (w=0; w<m_rig->free_wing; w++)
 		{
 			//left wash
-			Ogre::Vector3 wcent=invrot*((m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition+m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition)/2.0);
+			Ogre::Vector3 wcent=((m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition+m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition)/2.0);
 			//check if wing is near enough along X (less than 15m back)
 			if (wcent.x>prop.x && wcent.x<prop.x+15.0)
 			{
@@ -782,8 +786,8 @@ void RigSpawner::WashCalculator(Ogre::Quaternion const & rot)
 				if (wcent.y>prop.y-radius && wcent.y<prop.y+radius)
 				{
 					//okay, compute wash coverage ratio along Z
-					float wleft=(invrot*m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition).z;
-					float wright=(invrot*m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition).z;
+					float wleft=(m_rig->nodes[m_rig->wings[w].fa->nfld].RelPosition).z;
+					float wright=(m_rig->nodes[m_rig->wings[w].fa->nfrd].RelPosition).z;
 					float pleft=prop.z+radius;
 					float pright=prop.z-radius;
 					float aleft=wleft;
@@ -1818,7 +1822,7 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 	}
 }
 
-void RigSpawner::ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def)
+void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -2153,10 +2157,10 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		}
 
 		/* Arg #2: option1 (lower limit) */
-		prop.animOpt1[anim_index] = anim_itor->lower_limit; /* Handles default */
+		prop.constraints[anim_index].lower_limit = anim_itor->lower_limit; /* Handles default */
 
 		/* Arg #3: option2 (upper limit) */
-		prop.animOpt2[anim_index] = anim_itor->upper_limit; /* Handles default */
+		prop.constraints[anim_index].upper_limit = anim_itor->upper_limit; /* Handles default */
 
 		/* Arg #4: source */
 		if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_AIRSPEED)) { /* (NOTE: code formatting relaxed) */
@@ -2320,35 +2324,33 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 		{
 			BITMASK_SET_1(prop.animMode[anim_index], ANIM_MODE_AUTOANIMATE);
 
+			// Flag whether default lower and/or upper animation limit constraints are effective
+			const bool use_default_lower_limit = (anim_itor->lower_limit == 0.f);
+			const bool use_default_upper_limit = (anim_itor->upper_limit == 0.f);
+
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_X)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.rotaX;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.rotaX;
-				prop.animOpt4[anim_index] = prop.rotaX;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_itor->lower_limit + prop.rotaX);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_itor->upper_limit + prop.rotaX);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_Y)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.rotaY;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.rotaY;
-				prop.animOpt4[anim_index] = prop.rotaY;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_itor->lower_limit + prop.rotaY);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_itor->upper_limit + prop.rotaY);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_Z)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.rotaZ;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.rotaZ;
-				prop.animOpt4[anim_index] = prop.rotaZ;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_itor->lower_limit + prop.rotaZ);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_itor->upper_limit + prop.rotaZ);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_X)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.orgoffsetX;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.orgoffsetX;
-				prop.animOpt4[anim_index] = prop.orgoffsetX;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_itor->lower_limit + prop.orgoffsetX);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_itor->upper_limit + prop.orgoffsetX);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_Y)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.orgoffsetY;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.orgoffsetY;
-				prop.animOpt4[anim_index] = prop.orgoffsetY;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_itor->lower_limit + prop.orgoffsetY);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_itor->upper_limit + prop.orgoffsetY);
 			}
 			if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_OFFSET_Z)) {
-				prop.animOpt1[anim_index] = anim_itor->lower_limit + prop.orgoffsetZ;
-				prop.animOpt2[anim_index] = anim_itor->upper_limit + prop.orgoffsetZ;
-				prop.animOpt4[anim_index] = prop.orgoffsetZ;
+				prop.constraints[anim_index].lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_itor->lower_limit + prop.orgoffsetZ);
+				prop.constraints[anim_index].upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_itor->upper_limit + prop.orgoffsetZ);
 			}
 		}
 		if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_NO_FLIP)) 
@@ -2428,7 +2430,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	/* Backwards compatibility */
 	if (blink_delay == -2) 
 	{
-		if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER)
+		if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER)
 		{
 			blink_delay = -1; /* Default blink */
 		}
@@ -2640,14 +2642,6 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
 			}
-			if (def.options.double_sided)
-			{
-				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-				if (def.HasSpecularMap())
-				{
-					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-				}
-			}
 		}
 		else
 		{
@@ -2671,14 +2665,6 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 					return;
 				}
 				material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-			}
-			if (def.options.double_sided)
-			{
-				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-				if (def.HasSpecularMap())
-				{
-					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-				}
 			}
 		}
 	}
@@ -2710,13 +2696,17 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 			}
 			material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
 
-			if (def.options.double_sided)
+		}
+	}
+
+	if (def.type != RigDef::ManagedMaterial::TYPE_INVALID)
+	{
+		if (def.options.double_sided)
+		{
+			material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
+			if (def.HasSpecularMap())
 			{
-				material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-				if (def.HasSpecularMap())
-				{
-					material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
-				}
+				material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->setCullingMode(Ogre::CULL_NONE);
 			}
 		}
 	}
@@ -2964,7 +2954,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	beam.commandShort = def.min_length;
 	beam.commandLong = def.max_length;
 	beam.maxtiestress = def.max_stress;
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, beam.type != BEAM_INVISIBLE_HYDRO);
 
 	/* Register tie */
 	tie_t tie;
@@ -3896,7 +3886,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 beam_t & RigSpawner::AddBeam(
 	node_t & node_1, 
 	node_t & node_2, 
-	boost::shared_ptr<RigDef::BeamDefaults> & beam_defaults,
+	std::shared_ptr<RigDef::BeamDefaults> & beam_defaults,
 	int detacher_group
 )
 {
@@ -4022,7 +4012,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
 
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, (hydro_type == BEAM_INVISIBLE_HYDRO));
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	m_rig->hydro[m_rig->free_hydro] = beam_index;
 	m_rig->free_hydro++;
@@ -4183,7 +4173,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 
 	/* Create beam visuals, but don't attach them to scene graph */
 	/* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
 
 	beam.shock = & shock;
 	shock.beamid = beam_index;
@@ -4201,8 +4191,8 @@ void RigSpawner::FetchAxisNodes(
     axis_node_1 = GetNodePointer(axis_node_1_id);
 	axis_node_2 = GetNodePointer(axis_node_2_id);
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -4304,7 +4294,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		outer_node.friction_coef = def.node_defaults->friction;
 		outer_node.volume_coef   = def.node_defaults->volume;
 		outer_node.surface_coef  = def.node_defaults->surface;
-		outer_node.iswheel       = m_rig->free_wheel*2+1;
+		outer_node.iswheel       = WHEEL_FLEXBODY;
 		AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
 		contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
@@ -4323,7 +4313,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 		inner_node.friction_coef = def.node_defaults->friction;
 		inner_node.volume_coef   = def.node_defaults->volume;
 		inner_node.surface_coef  = def.node_defaults->surface;
-		inner_node.iswheel       = m_rig->free_wheel*2+2;
+		inner_node.iswheel       = WHEEL_FLEXBODY;
 		AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
 		contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
@@ -4520,8 +4510,8 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 	node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -4585,8 +4575,8 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         return;
     }
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -4723,7 +4713,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	float wheel_radius,
 	RigDef::Wheels::Propulsion propulsion,
 	RigDef::Wheels::Braking braking,
-	boost::shared_ptr<RigDef::NodeDefaults> node_defaults,
+	std::shared_ptr<RigDef::NodeDefaults> node_defaults,
 	float wheel_mass,
 	bool set_param_iswheel, /* Default: true */
 	float wheel_width       /* Default: -1.f */
@@ -4790,7 +4780,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point, node_defaults);
 		outer_node.mass    = wheel_mass / (2.f * num_rays);
-		outer_node.iswheel = (set_param_iswheel) ? (m_rig->free_wheel * 2) + 1 : 0;
+		outer_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
 		outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
 		outer_node.wheelid = m_rig->free_wheel;
 		AdjustNodeBuoyancy(outer_node, node_defaults);
@@ -4806,7 +4796,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point, node_defaults);
 		inner_node.mass    = wheel_mass / (2.f * num_rays);
-		inner_node.iswheel = (set_param_iswheel) ? (m_rig->free_wheel * 2) + 2 : 0;
+		inner_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
 		inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
 		inner_node.wheelid = m_rig->free_wheel; 
 		AdjustNodeBuoyancy(inner_node, node_defaults);
@@ -4842,7 +4832,7 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 	return wheel_index;
 }
 
-void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -4850,7 +4840,7 @@ void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boos
 	node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
 }
 
-void RigSpawner::AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults)
+void RigSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -4907,7 +4897,7 @@ void RigSpawner::BuildWheelBeams(
 	float tyre_damping,
 	float rim_spring,
 	float rim_damping,
-	boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+	std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
 	RigDef::Node::Ref const & rigidity_node_id,
 	float max_extension // = 0.f
 )
@@ -5011,8 +5001,8 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 		return -1;
 	}
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -5209,8 +5199,8 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		return -1;
 	}
 
-	Ogre::Vector3 pos_1 = m_spawn_rotation.Inverse() * (axis_node_1->AbsPosition - m_spawn_position);
-	Ogre::Vector3 pos_2 = m_spawn_rotation.Inverse() * (axis_node_2->AbsPosition - m_spawn_position);
+	Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+	Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
 	/* Enforce the "second node must have a larger Z coordinate than the first" constraint */
 	if (pos_1.z > pos_2.z)
@@ -5250,7 +5240,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
 		outer_node.mass    = node_mass;
-		outer_node.iswheel = (m_rig->free_wheel * 2) + 1;
+		outer_node.iswheel = WHEEL_2;
 		outer_node.id      = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid = m_rig->free_wheel;
 
@@ -5260,7 +5250,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
 		inner_node.mass    = node_mass;
-		inner_node.iswheel = (m_rig->free_wheel * 2) + 2;
+		inner_node.iswheel = WHEEL_2; 
 		inner_node.id      = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid = m_rig->free_wheel;
 
@@ -5284,7 +5274,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & outer_node = GetFreeNode();
 		InitNode(outer_node, ray_point);
 		outer_node.mass          = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
-		outer_node.iswheel       = (m_rig->free_wheel * 2) + 1;
+		outer_node.iswheel       = WHEEL_2;
 		outer_node.id            = -1; // Orig: hardcoded (addWheel2)
 		outer_node.wheelid       = m_rig->free_wheel;
 		outer_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
@@ -5301,7 +5291,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 		node_t & inner_node = GetFreeNode();
 		InitNode(inner_node, ray_point);
 		inner_node.mass          = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
-		inner_node.iswheel       = (m_rig->free_wheel * 2) + 2;
+		inner_node.iswheel       = WHEEL_2;
 		inner_node.id            = -1; // Orig: hardcoded (addWheel2)
 		inner_node.wheelid       = m_rig->free_wheel;
 		inner_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
@@ -5514,7 +5504,7 @@ unsigned int RigSpawner::AddWheelBeam(
 	node_t *node_2, 
 	float spring, 
 	float damping, 
-	boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+	std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
 	float max_contraction,   /* Default: -1.f */
 	float max_extension,     /* Default: -1.f */
 	int type                 /* Default: BEAM_INVISIBLE */
@@ -5796,8 +5786,8 @@ void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
 	}
 	
 		/* Find it */
-	boost::shared_ptr<RigDef::Engturbo> engturbo;
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::shared_ptr<RigDef::Engturbo> engturbo;
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (module_itor->get()->engturbo != nullptr)
@@ -5822,8 +5812,8 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	}
 
 	/* Find it */
-	boost::shared_ptr<RigDef::Engoption> engoption;
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::shared_ptr<RigDef::Engoption> engoption;
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (module_itor->get()->engoption != nullptr)
@@ -5894,7 +5884,7 @@ void RigSpawner::ProcessHelp()
     SetCurrentKeyword(RigDef::File::KEYWORD_HELP);
 	unsigned int material_count = 0;
 
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		auto module = module_itor->get();
@@ -6089,7 +6079,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 	CreateBeamVisuals(beam, beam_index, def.defaults, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
 }
 
-void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults)
+void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -6218,7 +6208,7 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<Ri
 	beam.maxnegstress       = -(deformation_threshold);
 }
 
-void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate)
+void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -6446,12 +6436,12 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 	node.id = static_cast<int>(def.id.Num());
 
 	/* Positioning */
-	Ogre::Vector3 node_position = m_spawn_position + m_spawn_rotation * def.position;
+	Ogre::Vector3 node_position = m_spawn_position + def.position;
 	node.AbsPosition = node_position; 
 	node.RelPosition = node_position - m_rig->origin;
-	node.smoothpos   = node_position;
 		
 	node.wetstate = DRY; // orig = hardcoded (init_node)
+	node.iswheel = NOWHEEL;
 	node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
 	node.friction_coef = def.node_defaults->friction;
 	node.volume_coef = def.node_defaults->volume;
@@ -6634,7 +6624,7 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    std::map< Ogre::String, boost::shared_ptr<RigDef::File::Module> >::iterator result 
+    std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
 		= m_file->modules.find(module_name);
 
 	if (result != m_file->modules.end())
@@ -6657,7 +6647,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	}
 			
 	/* Node */
-	Ogre::Vector3 node_pos = m_spawn_position + m_spawn_rotation * def.position;
+	Ogre::Vector3 node_pos = m_spawn_position + def.position;
 	node_t & camera_node = GetAndInitFreeNode(node_pos);
 	camera_node.contactless = true; // Orig: hardcoded in BTS_CINECAM
 	camera_node.wheelid = -1;
@@ -6709,7 +6699,6 @@ void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
     /* Position */
 	node.AbsPosition = position;
 	node.RelPosition = position - m_rig->origin;
-	node.smoothpos = position;
 
 	/* Misc. */
 	node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
@@ -6719,7 +6708,7 @@ void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 void RigSpawner::InitNode(
 	node_t & node, 
 	Ogre::Vector3 const & position,
-	boost::shared_ptr<RigDef::NodeDefaults> node_defaults
+	std::shared_ptr<RigDef::NodeDefaults> node_defaults
 )
 {
 	SPAWNER_PROFILE_SCOPED();

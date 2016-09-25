@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -31,7 +31,7 @@
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin(); \
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin(); \
 	for (; module_itor != m_selected_modules.end(); module_itor++) \
 	{ \
 		std::vector<_CLASS_>::iterator section_itor = module_itor->get()->_FIELD_.begin(); \
@@ -106,7 +106,7 @@ bool Validator::Validate()
 	return valid;
 }
 
-void Validator::Setup(boost::shared_ptr<RigDef::File> file)
+void Validator::Setup(std::shared_ptr<RigDef::File> file)
 {
 	m_file = file;
 	m_selected_modules.push_back(file->root_module);
@@ -139,7 +139,7 @@ bool Validator::CheckSectionSubmeshGroundmodel()
 {
 	Ogre::String *containing_module_name = nullptr;
 
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (! module_itor->get()->submeshes_ground_model_name.empty())
@@ -166,7 +166,7 @@ bool Validator::CheckSection(RigDef::File::Keyword keyword, bool unique, bool re
 {
 	Ogre::String *containing_module_name = nullptr;
 
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (HasModuleKeyword(*module_itor, keyword))
@@ -197,7 +197,7 @@ bool Validator::CheckSection(RigDef::File::Keyword keyword, bool unique, bool re
 	return true;
 }
 
-bool Validator::HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword)
+bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, RigDef::File::Keyword keyword)
 {
 	using namespace RigDef;
 
@@ -253,7 +253,7 @@ bool Validator::HasModuleKeyword(boost::shared_ptr<RigDef::File::Module> module,
 
 bool Validator::AddModule(Ogre::String const & module_name)
 {
-	std::map< Ogre::String, boost::shared_ptr<RigDef::File::Module> >::iterator result 
+	std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
 		= m_file->modules.find(module_name);
 
 	if (result != m_file->modules.end())
@@ -267,8 +267,8 @@ bool Validator::AddModule(Ogre::String const & module_name)
 bool Validator::CheckGearbox()
 {
 	/* Find it */
-	boost::shared_ptr<RigDef::Engine> engine;
-	std::list<boost::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
+	std::shared_ptr<RigDef::Engine> engine;
+	std::list<std::shared_ptr<RigDef::File::Module>>::iterator module_itor = m_selected_modules.begin();
 	for (; module_itor != m_selected_modules.end(); module_itor++)
 	{
 		if (module_itor->get()->engine != nullptr)
@@ -291,7 +291,7 @@ bool Validator::CheckShock2(RigDef::Shock2 & shock2)
 {
 	std::list<Ogre::String> bad_fields;
 
-	/* Keep these in sync with wiki doc: http://www.rigsofrods.com/wiki/pages/Truck_Description_File#Shocks2 */
+	/* Keep these in sync with wiki doc: http://www.rigsofrods.org/wiki/pages/Truck_Description_File#Shocks2 */
 	/* We safely check for value -1.f */
 	if (shock2.spring_in < -0.8f)
 	{

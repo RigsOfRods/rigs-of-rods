@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -71,7 +71,7 @@ public:
 
 	void UpdatePressureTexture(float pressure);
 
-	void UpdateLandVehicleHUD(Beam * vehicle, bool & flipflop);
+	void UpdateLandVehicleHUD(Beam * vehicle);
 
 	void UpdateAerialHUD(Beam * vehicle);
 
@@ -251,10 +251,10 @@ protected:
 	float thrheight;
 	float throffset;
 
+	bool m_flipflop;
+
 	// Truck m_racing_overlay overlay
 	Ogre::SceneNode* m_direction_arrow_node;
-
-protected:
 
 	std::vector<LoadedOverlay> m_loaded_overlays;
 };

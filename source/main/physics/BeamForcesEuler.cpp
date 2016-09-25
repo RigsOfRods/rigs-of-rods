@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -40,7 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "SoundScriptManager.h"
 #include "Water.h"
 #include "TerrainManager.h"
-#include "ThreadPool.h"
+#include "VehicleAI.h"
 
 using namespace Ogre;
 
@@ -51,6 +51,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		water = gEnv->terrainManager->getWater();
 
 	increased_accuracy = false;
+
 
 	//engine callback
 	if (engine)
@@ -76,300 +77,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		it->timer = std::max(0.0f, it->timer - dt);
 	}
 
-	BES_START(BES_CORE_AnimatedProps);
 
-	//animate props
-	// TODO: only calculate animated props every frame and not in the core routine
-	for (int propi=0; propi<free_prop; propi++)
-	{
-		int animnum=0;
-		float rx = 0.0f;
-		float ry = 0.0f;
-		float rz = 0.0f;
 
-		while (props[propi].animFlags[animnum])
-		{
-			if (props[propi].animFlags[animnum])
-			{
-				float cstate = 0.0f;
-				int div = 0.0f;
-				int flagstate = props[propi].animFlags[animnum];
-				float animOpt1 = props[propi].animOpt1[animnum];
-				float animOpt2 = props[propi].animOpt2[animnum];
-				float animOpt3 = props[propi].animOpt3[animnum];
-
-				calcAnimators(flagstate, cstate, div, dt, animOpt1, animOpt2, animOpt3);
-
-				// key triggered animations
-				if ((props[propi].animFlags[animnum] & ANIM_FLAG_EVENT) && props[propi].animKey[animnum] != -1)
-				{
-					if (RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]))
-					{
-						// keystatelock is disabled then set cstate
-						if (props[propi].animKeyState[animnum] == -1.0f)
-						{
-							cstate += RoR::Application::GetInputEngine()->getEventValue(props[propi].animKey[animnum]);
-						} else if (!props[propi].animKeyState[animnum])
-						{
-							// a key was pressed and a toggle was done already, so bypass
-							//toggle now
-							if (!props[propi].lastanimKS[animnum])
-							{
-								props[propi].lastanimKS[animnum] = 1.0f;
-								// use animkey as bool to determine keypress / release state of inputengine
-								props[propi].animKeyState[animnum] = 1.0f;
-							}
-							else
-							{
-								props[propi].lastanimKS[animnum] = 0.0f;
-								// use animkey as bool to determine keypress / release state of inputengine
-								props[propi].animKeyState[animnum] = 1.0f;
-							}
-						} else
-						{
-							// bypas mode, get the last set position and set it
-							cstate +=props[propi].lastanimKS[animnum];
-						}
-					} else
-					{
-						// keyevent exists and keylock is enabled but the key isnt pressed right now = get lastanimkeystatus for cstate and reset keypressed bool animkey
-						if (props[propi].animKeyState[animnum] != -1.0f)
-						{
-							cstate +=props[propi].lastanimKS[animnum];
-							props[propi].animKeyState[animnum] = 0.0f;
-						}
-					}
-				}
-
-				//propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
-				//truck steering
-				if (props[propi].animFlags[animnum] & ANIM_FLAG_STEERING) cstate += hydrodirstate;
-				//aileron
-				if (props[propi].animFlags[animnum] & ANIM_FLAG_AILERONS) cstate += hydroaileronstate;
-				//elevator
-				if (props[propi].animFlags[animnum] & ANIM_FLAG_ELEVATORS) cstate += hydroelevatorstate;
-				//rudder
-				if (props[propi].animFlags[animnum] & ANIM_FLAG_ARUDDER) cstate += hydrorudderstate;
-				//permanent
-				if (props[propi].animFlags[animnum] & ANIM_FLAG_PERMANENT) cstate += 1.0f;
-
-				cstate *= props[propi].animratio[animnum];
-
-				// autoanimate noflip_bouncer
-				if (props[propi].animOpt5[animnum]) cstate *= (props[propi].animOpt5[animnum]);
-
-				//rotate prop
-				if ((props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) || (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) || (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z))
-				{
-					float limiter = 0.0f;
-					if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
-						{
-							props[propi].rot = props[propi].rot * (Quaternion(Degree(0), Vector3::UNIT_Z) * Quaternion(Degree(0), Vector3::UNIT_Y) * Quaternion(Degree(cstate), Vector3::UNIT_X));
-							props[propi].rotaX += cstate;
-							limiter = props[propi].rotaX;
-						}
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
-						{
-							props[propi].rot = props[propi].rot * (Quaternion(Degree(0), Vector3::UNIT_Z) * Quaternion(Degree(cstate), Vector3::UNIT_Y) * Quaternion(Degree(0), Vector3::UNIT_X));
-							props[propi].rotaY += cstate;
-							limiter = props[propi].rotaY;
-						}
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
-						{
-							props[propi].rot = props[propi].rot * (Quaternion(Degree(cstate), Vector3::UNIT_Z) * Quaternion(Degree(0), Vector3::UNIT_Y) * Quaternion(Degree(0), Vector3::UNIT_X));
-							props[propi].rotaZ += cstate;
-							limiter = props[propi].rotaZ;
-						}
-					} else
-					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) rx += cstate;
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) ry += cstate;
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z) rz += cstate;
-					}
-
-					bool limiterchanged = false;
-					// check if a positive custom limit is set to evaluate/calc flip back
-					if (props[propi].animOpt2[animnum] - props[propi].animOpt4[animnum])
-					{
-						if (limiter > props[propi].animOpt2[animnum])
-						{
-							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-							{
-								limiter = props[propi].animOpt2[animnum];				// stop at limit
-								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-								limiterchanged = true;
-							} else
-							{
-								limiter = props[propi].animOpt1[animnum];				// flip to other side at limit
-								limiterchanged = true;
-							}
-						}
-					} else
-					{																	// no custom limit set, use 360�
-						while (limiter > 180.0f)
-						{
-							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-							{
-								limiter = 180.0f;										// stop at limit
-								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-								limiterchanged = true;
-							} else
-							{
-								limiter -= 360.0f;										// flip to other side at limit
-								limiterchanged = true;
-							}
-						}
-					}
-
-					// check if a negative custom limit is set to evaluate/calc flip back
-					if (props[propi].animOpt1[animnum] - props[propi].animOpt4[animnum])
-					{
-						if (limiter < (props[propi].animOpt1[animnum]))
-						{
-							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-							{
-								limiter = props[propi].animOpt1[animnum];				// stop at limit
-								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
-								limiterchanged = true;
-							} else
-							{
-								limiter = props[propi].animOpt2[animnum];				// flip to other side at limit
-								limiterchanged = true;
-							}
-						}
-					} else																// no custom limit set, use 360�
-					{
-						while (limiter < -180.0f)
-						{
-							if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-							{
-								limiter = -180.0f;										// stop at limit
-								props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
-								limiterchanged = true;
-							} else
-							{
-								limiter += 360.0f;										// flip to other side at limit including overflow
-								limiterchanged = true;
-							}
-						}
-					}
-
-					if (limiterchanged)
-					{
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) props[propi].rotaX = limiter;
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) props[propi].rotaY = limiter;
-						if (props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z) props[propi].rotaZ = limiter;
-					}
-				}
-
-				//offset prop
-
-				// TODO Unused Varaible
-				//float ox = props[propi].orgoffsetX;
-
-				// TODO Unused Varaible
-				//float oy = props[propi].orgoffsetY;
-
-				// TODO Unused Varaible
-				//float oz = props[propi].orgoffsetZ;
-
-				if ((props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X) || (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y) || (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z))
-				{
-					float offset = 0.0f;
-					float autooffset = 0.0f;
-
-					if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X) offset = props[propi].orgoffsetX;
-					if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y) offset = props[propi].orgoffsetY;
-					if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z) offset = props[propi].orgoffsetZ;
-
-					offset += cstate;
-					if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-					{
-						autooffset = offset;
-						// check if a positive custom limit is set to evaluate/calc flip back
-						if (props[propi].animOpt2[animnum] - props[propi].animOpt4[animnum])
-						{
-							if (autooffset > props[propi].animOpt2[animnum])
-							{
-								if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-								{
-									autooffset = props[propi].animOpt2[animnum];			// stop at limit
-									props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
-								} else
-									autooffset = props[propi].animOpt1[animnum];			// flip to other side at limit
-							}
-						} else																// no custom limit set, use 10x as default
-						{
-							while (autooffset > 10.0f)
-							{
-								if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-								{
-									autooffset = 10.0f;										// stop at limit
-									props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-								} else
-									autooffset -= 20.0f;									// flip to other side at limit including overflow
-							}
-						}
-						// check if a negative custom limit is set to evaluate/calc flip back
-						if (props[propi].animOpt1[animnum] - props[propi].animOpt4[animnum])
-						{
-							if (autooffset < (props[propi].animOpt1[animnum]))
-							{
-								if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-								{
-									autooffset = props[propi].animOpt1[animnum];			// stop at limit
-									props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if active
-								} else
-									autooffset = props[propi].animOpt2[animnum];			// flip to other side at limit
-							}
-						} else																// no custom limit set, use -10x�
-						{
-							while (autooffset < -10.0f)
-							{
-								if (props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-								{
-									autooffset = -10.0f;									// stop at limit
-									props[propi].animOpt5[animnum] *= -1.0f;				// change cstate multiplier if bounce is set
-								} else
-									autooffset += 20.0f;									// flip to other side at limit including overflow
-							}
-						}
-					}
-
-					if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X)
-					{
-						props[propi].offsetx = offset;
-						if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-							props[propi].orgoffsetX = autooffset;
-					}
-					if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y)
-					{
-						props[propi].offsety = offset;
-						if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-							props[propi].orgoffsetY = autooffset;
-					}
-					if (props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z)
-					{
-						props[propi].offsetz = offset;
-						if (props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-							props[propi].orgoffsetZ = autooffset;
-					}
-				}
-			}
-			animnum++;
-		}
-		//recalc the quaternions with final stacked rotation values ( rx, ry, rz )
-		rx += props[propi].rotaX;
-		ry += props[propi].rotaY;
-		rz += props[propi].rotaZ;
-		props[propi].rot = Quaternion(Degree(rz), Vector3::UNIT_Z) * Quaternion(Degree(ry), Vector3::UNIT_Y) * Quaternion(Degree(rx), Vector3::UNIT_X);
-	}
-
-	BES_STOP(BES_CORE_AnimatedProps);
-
-	if (state==ACTIVATED) //force feedback sensors
+	if (this == BeamFactory::getSingleton().getCurrentTruck()) //force feedback sensors
 	{
 		if (doUpdate)
 		{
@@ -916,6 +626,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	//auto shock adjust
 	if (free_active_shock && doUpdate)
 	{
+		stabsleep -= dt * maxsteps;
+
 		Vector3 dir = nodes[cameranodepos[0]].RelPosition-nodes[cameranoderoll[0]].RelPosition;
 		dir.normalise();
 		float roll = asin(dir.dotProduct(Vector3::UNIT_Y));
@@ -1244,7 +956,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 						if (bbeam_dir*beams[bbeam].autoMovingMode > 0)
 							v = 1;
 
-						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
+						if (beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !canwork)) continue;
 
 						if (v > 0.0f && beams[bbeam].commandEngineCoupling > 0.0f)
 							requestpower = true;
@@ -1297,7 +1009,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 				float v = 0.0f;
 				int rota = std::abs(commandkey[i].rotators[j]) - 1;
 
-				if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->running) || !canwork)) continue;
+				if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork)) continue;
 
 				if (rotaInertia)
 				{
@@ -1323,10 +1035,11 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 
 		if (engine)
 		{
-			engine->hydropump = work;
-			engine->prime     = requested;
+			engine->setHydroPumpWork(work);
+			engine->setPrime(requested);
 		}
-		if (doUpdate && state==ACTIVATED)
+
+		if (doUpdate && this == BeamFactory::getSingleton().getCurrentTruck())
 		{
 #ifdef USE_OPENAL
 			if (active > 0)
@@ -1398,7 +1111,6 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		float clen = it->beam->L / it->beam->refL;
 		if (clen > it->beam->commandShort)
 		{
-			float dl = it->beam->L;
 			it->beam->L *= (1.0 - it->beam->commandRatioShort * dt / it->beam->L);
 		} else
 		{
@@ -1424,19 +1136,26 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			if (nbuff)
 			{
 				for (int i=0; i<free_node; i++)
-					nbuff[i].pos = nodes[i].AbsPosition;
+				{
+					nbuff[i].position = nodes[i].AbsPosition;
+					nbuff[i].velocity = nodes[i].Velocity;
+					nbuff[i].forces   = nodes[i].Forces;
+				}
+			}
 
-				// store beams
-				beam_simple_t *bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
+			// store beams
+			beam_simple_t *bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
+			if (bbuff)
+			{
 				for (int i=0; i<free_beam; i++)
 				{
 					bbuff[i].broken = beams[i].broken;
 					bbuff[i].disabled = beams[i].disabled;
 				}
-
-				replay->writeDone();
-				replayTimer = 0.0f;
 			}
+
+			replay->writeDone();
+			replayTimer = 0.0f;
 		}
 	}
 
@@ -1446,9 +1165,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
 	if (dt==0.0) return false;
-	if (state >= SLEEPING) return false;
-	if (deleting) return false;
 	if (m_reset_request) return false;
+	if (state != SIMULATED) return false;
 
 	BES_START(BES_CORE_WholeTruckCalc);
 
@@ -1695,7 +1413,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
-	for (int i=0; i<interTruckBeams.size(); i++)
+	for (int i=0; i<static_cast<int>(interTruckBeams.size()); i++)
 	{
 		if (!interTruckBeams[i]->disabled && interTruckBeams[i]->p2truck)
 		{
@@ -1872,7 +1590,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 		if (!nodes[i].contactless)
 		{
 			nodes[i].collTestTimer += dt;
-			if (nodes[i].contacted || nodes[i].collTestTimer>0.005 || (nodes[i].iswheel && (high_res_wheelnode_collisions || nodes[i].collTestTimer>0.0025)) || increased_accuracy)
+			if (nodes[i].contacted || nodes[i].collTestTimer>0.005 || ((nodes[i].iswheel || nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || nodes[i].collTestTimer>0.0025)) || increased_accuracy)
 			{
 				float ns = 0;
 				ground_model_t *gm = 0; // this is used as result storage, so we can use it later on
@@ -2020,16 +1738,17 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::forwardCommands()
 {
+	Beam *current_truck = BeamFactory::getSingleton().getCurrentTruck();
 	Beam** trucks = BeamFactory::getSingleton().getTrucks();
 	int numtrucks = BeamFactory::getSingleton().getTruckCount();
 
 	// forward things to trailers
-	if (numtrucks > 1 && state==ACTIVATED && forwardcommands)
+	if (numtrucks > 1 && this == current_truck && forwardcommands)
 	{
 		for (int i=0; i<numtrucks; i++)
 		{
 			if (!trucks[i]) continue;
-			if (trucks[i]->state==DESACTIVATED && trucks[i]->importcommands)
+			if (trucks[i] != current_truck && trucks[i]->importcommands)
 			{
 				// forward commands
 				for (int j=1; j<=MAX_COMMANDS; j++)

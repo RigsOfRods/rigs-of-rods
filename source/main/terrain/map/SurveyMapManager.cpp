@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -56,6 +56,16 @@ SurveyMapManager::SurveyMapManager() :
 	init();
 }
 
+SurveyMapManager::~SurveyMapManager()
+{
+	gEnv->surveyMap = nullptr;
+
+	for (SurveyMapEntity *e : mMapEntities)
+	{
+		if (e) delete e;
+	}
+}
+
 void SurveyMapManager::init()
 {
 	mMapSize = gEnv->terrainManager->getMaxTerrainSize();
@@ -93,7 +103,7 @@ SurveyMapEntity *SurveyMapManager::getMapEntityByName(String name)
 	{
 		return mNamedEntities[name];
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool SurveyMapManager::getVisibility()
@@ -406,7 +416,7 @@ void SurveyMapManager::Update(Beam ** vehicles, int num_vehicles)
 		SurveyMapEntity *e = getMapEntityByName("Truck"+TOSTRING(vehicles[t]->trucknum));
 		if (e)
 		{
-			e->setState(DESACTIVATED);
+			e->setState(SIMULATED);
 			e->setVisibility(true);
 			e->setPosition(vehicles[t]->getPosition().x, vehicles[t]->getPosition().z);
 			e->setRotation(Radian(vehicles[t]->getHeadingDirectionAngle()));

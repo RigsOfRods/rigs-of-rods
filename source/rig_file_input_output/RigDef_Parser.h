@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -31,9 +31,9 @@
 #include "RigDef_File.h"
 #include "RigDef_SequentialImporter.h"
 
+#include <memory>
 #include <string>
-#include <boost/regex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <regex>
 
 namespace RigDef
 {
@@ -117,7 +117,7 @@ public:
 		return m_messages;
 	}
 
-	boost::shared_ptr<RigDef::File> GetFile()
+	std::shared_ptr<RigDef::File> GetFile()
 	{
 		return m_definition;
 	}
@@ -346,7 +346,7 @@ protected:
 
 	unsigned int _ParseCabOptions(Ogre::String const & options_str);
 
-	void _CheckInvalidTrailingText(Ogre::String const & line, boost::smatch const & results, unsigned int index);
+	void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
 
 	/** Keyword scan function. 
 	*/
@@ -354,7 +354,7 @@ protected:
 
     /** Keyword scan utility function. 
 	*/
-    File::Keyword FindKeywordMatch(boost::smatch& search_results);
+    File::Keyword FindKeywordMatch(std::smatch& search_results);
 
 	/** Adds a message to parser report.
 	*/
@@ -362,7 +362,7 @@ protected:
 
 	/** Helper - parses stuff common to ROTATORS & ROTATORS2
 	*/
-	void _ParseRotatorsCommon(Rotator & rotator, boost::smatch & results, unsigned int inertia_start_index);
+	void _ParseRotatorsCommon(Rotator & rotator, std::smatch & results, unsigned int inertia_start_index);
 
 	/** Nodes and Nodes2 are unified with this parser.
 	*/
@@ -382,7 +382,7 @@ protected:
 
 	/** Commands and Commands2 are unified with this parser.
 	*/
-	void _ParseSectionsCommandsCommands2(Ogre::String const & line, boost::regex const & regex, unsigned int format_version);
+	void _ParseSectionsCommandsCommands2(Ogre::String const & line, std::regex const & regex, unsigned int format_version);
 
 	Node::Ref _ParseNodeRef(std::string const & node_id_str);
 
@@ -412,44 +412,44 @@ protected:
 	/**
 	* @return True if there could be more results, false if end was hit.
 	*/
-	bool _ParseOptionalInertia(Inertia & inertia, boost::smatch & results, unsigned int start_index);
+	bool _ParseOptionalInertia(Inertia & inertia, std::smatch & results, unsigned int start_index);
 
 /* -------------------------------------------------------------------------- */
 
 	/* RoR defaults */
 
-	boost::shared_ptr<Inertia>           m_ror_default_inertia;
-	boost::shared_ptr<BeamDefaults>      m_ror_beam_defaults;
-	boost::shared_ptr<NodeDefaults>      m_ror_node_defaults;
+	std::shared_ptr<Inertia>             m_ror_default_inertia;
+	std::shared_ptr<BeamDefaults>        m_ror_beam_defaults;
+	std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
 	float                                m_ror_minimass;
 	SkeletonSettings                     m_ror_skeleton_settings;
 
 	/* Data from user directives */
 	/* Each affected section-struct has a shared_ptr to it's respective defaults */
-	boost::shared_ptr<Inertia>           m_user_default_inertia;
-	boost::shared_ptr<BeamDefaults>      m_user_beam_defaults;
-	boost::shared_ptr<NodeDefaults>      m_user_node_defaults;
+	std::shared_ptr<Inertia>             m_user_default_inertia;
+	std::shared_ptr<BeamDefaults>        m_user_beam_defaults;
+	std::shared_ptr<NodeDefaults>        m_user_node_defaults;
 	int                                  m_current_detacher_group;
 	ManagedMaterialsOptions              m_current_managed_material_options;
 
 	/* Parser state */
-	boost::shared_ptr<File::Module>      m_root_module;
-	boost::shared_ptr<File::Module>      m_current_module;
+	std::shared_ptr<File::Module>        m_root_module;
+	std::shared_ptr<File::Module>        m_current_module;
 
 	File::Section                        m_current_section;        ///< Parser state.
 	File::Subsection                     m_current_subsection;     ///< Parser state.
 	bool                                 m_in_block_comment;       ///< Parser state.
 	bool                                 m_in_description_section; ///< Parser state.
     bool                                 m_any_named_node_defined; ///< Parser state.
-	boost::shared_ptr<Submesh>           m_current_submesh;        ///< Parser state.
-	boost::shared_ptr<CameraRail>        m_current_camera_rail;    ///< Parser state.
-	boost::shared_ptr<Flexbody>          m_last_flexbody;
+	std::shared_ptr<Submesh>             m_current_submesh;        ///< Parser state.
+	std::shared_ptr<CameraRail>          m_current_camera_rail;    ///< Parser state.
+	std::shared_ptr<Flexbody>            m_last_flexbody;
 	unsigned int                         m_num_contiguous_blank_lines; ///< Parser state; Num. blank lines right above the current one
 
     SequentialImporter                   m_sequential_importer;
 
 	unsigned int                         m_current_line_number; ///< Only for reports. Initialised to 1
-	boost::shared_ptr<RigDef::File>      m_definition;
+	std::shared_ptr<RigDef::File>        m_definition;
 	std::list<Message>                   m_messages;
     int                                  m_messages_num_errors;
     int                                  m_messages_num_warnings;

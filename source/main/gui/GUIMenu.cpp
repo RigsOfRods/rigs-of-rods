@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -56,7 +56,6 @@ GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 	, m_gui_manager_interface(gui_manager_interface)
 {
 	setSingleton(this);
-	pthread_mutex_init(&m_update_lock, NULL);
 
 	/* -------------------------------------------------------------------------------- */
 	/* MENU BAR */
@@ -178,7 +177,6 @@ GUI_MainMenu::GUI_MainMenu(GuiManagerInterface* gui_manager_interface) :
 
 GUI_MainMenu::~GUI_MainMenu()
 {
-	pthread_mutex_destroy(&m_update_lock);
 	m_menubar_widget->setVisible(false);
 	m_menubar_widget->_shutdown();
 	m_menubar_widget = nullptr;
@@ -186,7 +184,7 @@ GUI_MainMenu::~GUI_MainMenu()
 
 UTFString GUI_MainMenu::getUserString(user_info_t &user, int num_vehicles)
 {
-	UTFString tmp = ChatSystem::getColouredName(user);
+	UTFString tmp = RoR::ChatSystem::GetColouredName(user.username, user.colournum);
 
 	tmp = tmp + U(": ");
 
@@ -229,7 +227,7 @@ void GUI_MainMenu::addUserToMenu(user_info_t &user)
 	{
 		if (!trucks[j]) continue;
 
-		if (trucks[j]->getSourceID() == user.uniqueid)
+		if (trucks[j]->m_source_id == user.uniqueid)
 		{
 			// match, found truck :)
 			matches.push_back(j);
@@ -260,7 +258,7 @@ void GUI_MainMenu::vehiclesListUpdate()
 {
 	m_vehicles_menu_widget->removeAllItems();
 	
-	if (!gEnv->network)
+	if (!gEnv->multiplayer)
 	{
 		// single player mode: add vehicles simply, no users
 		int numTrucks = BeamFactory::getSingleton().getTruckCount();
@@ -280,21 +278,18 @@ void GUI_MainMenu::vehiclesListUpdate()
 		}
 	} else
 	{
+#ifdef USE_SOCKETW
 		// sort the list according to the network users
 
-		// add self first
-		user_info_t *local_user = gEnv->network->getLocalUserData();
-		addUserToMenu(*local_user);
+		user_info_t local_user = RoR::Networking::GetLocalUserData();
+		addUserToMenu(local_user);
 
-		// get network clients
-		client_t c[MAX_PEERS];
-		gEnv->network->getClientInfos(c);
-		// iterate over them
-		for (int i = 0; i < MAX_PEERS; i++)
+		auto users = RoR::Networking::GetUserInfos();
+		for (auto user : users)
 		{
-			if (!c[i].used) continue;
-			addUserToMenu(c[i].user);
+			addUserToMenu(user);
 		}
+#endif // USE_SOCKETW
 	}
 }
 
@@ -314,7 +309,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		int truck = PARSEINT(id.substr(6));
 		if (truck >= 0 && truck < BeamFactory::getSingleton().getTruckCount())
 		{
-			BeamFactory::getSingleton().setCurrentTruck(-1);
 			BeamFactory::getSingleton().setCurrentTruck(truck);
 		}
 	}
@@ -324,7 +318,9 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		int user_uid = PARSEINT(id.substr(5));
 
 		// cannot whisper with self...
-		if (user_uid == gEnv->network->getUID()) return;
+#ifdef USE_SOCKETW
+		if (user_uid == RoR::Networking::GetUID()) return;
+#endif // USE_SOCKETW
 
 		//RoR::Application::GetConsole()->startPrivateChat(user_uid);
 		//TODO: Separate Chat and console
@@ -334,11 +330,8 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 
 	if (miname == _L("Get new vehicle") && gEnv->player)
 	{
-		if (gEnv->frameListener->loading_state == NONE_LOADED) return;
-		// get out first
-		if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1) BeamFactory::getSingleton().setCurrentTruck(-1);
-		gEnv->frameListener->reload_pos = gEnv->player->getPosition();
-		gEnv->frameListener->loading_state = RELOADING;
+		if (gEnv->frameListener->m_loading_state == NONE_LOADED) return;
+		gEnv->frameListener->m_loading_state = RELOADING;
 		Application::GetGuiManager()->getMainSelector()->Show(LT_AllBeam);
 
 	} else if (miname == _L("Reload current vehicle") && gEnv->player)
@@ -350,7 +343,7 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		}
 	} else if (miname == _L("Save Scenery") || miname == _L("Load Scenery"))
 	{
-		if (gEnv->frameListener->loading_state != ALL_LOADED)
+		if (gEnv->frameListener->m_loading_state != ALL_LOADED)
 		{
 			LOG("you need to open a map before trying to save or load its scenery.");
 			return;
@@ -461,11 +454,6 @@ void GUI_MainMenu::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _ite
 		if (BeamFactory::getSingleton().getCurrentTruck() != 0)
 			Application::GetGuiManager()->ShowVehicleDescription();
 	}
-	else if (id == "rig-editor-enter")
-	{
-		RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
-		RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-	}
 
 	//LOG(" menu button pressed: " + _item->getCaption());
 }
@@ -505,17 +493,13 @@ void GUI_MainMenu::updatePositionUponMousePosition(int x, int y)
 	if (m_vehicle_list_needs_update)
 	{
 		vehiclesListUpdate();
-		MUTEX_LOCK(&m_update_lock);
 		m_vehicle_list_needs_update = false;
-		MUTEX_UNLOCK(&m_update_lock);
 	}
 }
 
 void GUI_MainMenu::triggerUpdateVehicleList()
 {
-	MUTEX_LOCK(&m_update_lock);
 	m_vehicle_list_needs_update = true;
-	MUTEX_UNLOCK(&m_update_lock);
 }
 
 void GUI_MainMenu::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -31,7 +31,6 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "Console.h"
-#include "GUI_RigEditorMenubar.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
@@ -86,9 +85,9 @@ void GUIManager::destroy()
 
 void GUIManager::createGui()
 {
-	String gui_logfilename = SSETTING("Log Path", "") + "mygui.log";
+	String gui_logfilename = SSETTING("Log Path", "") + "MyGUI.log";
 	mPlatform = new MyGUI::OgrePlatform();
-	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->sceneManager, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME); // use cache resource group so preview images are working
+	mPlatform->initialise(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->sceneManager, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, gui_logfilename); // use cache resource group so preview images are working
 	mGUI = new MyGUI::Gui();
 
 	// empty init
@@ -474,14 +473,6 @@ void GUIManager::pushMessageChatBox(Ogre::String txt)
 	m_gui_ChatBox->pushMsg(txt);
 }
 
-void GUIManager::SetNetChat(ChatSystem *c)
-{
-	if (m_gui_ChatBox.get() == nullptr)
-		m_gui_ChatBox = std::unique_ptr<GUI::GameChatBox>(new GUI::GameChatBox());
-
-	m_gui_ChatBox->setNetChat(c);
-}
-
 void GUIManager::ShowVehicleDescription()
 {
 	if (m_vehicle_description.get() == nullptr)
@@ -513,6 +504,10 @@ void GUIManager::hideGUI(bool hidden)
 			m_gui_SimUtils->HideNotification();
 			m_gui_SimUtils->HideFPSBox();
 			m_gui_SimUtils->HideTruckInfoBox();
+			if (m_gui_ChatBox.get() != nullptr)
+			{
+				m_gui_ChatBox->Hide();
+			}
 		}
 		m_gui_SimUtils->DisableNotifications(hidden);
 	}

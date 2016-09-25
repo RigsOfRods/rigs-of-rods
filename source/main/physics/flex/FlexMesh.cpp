@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -22,7 +22,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 #include "ApproxMath.h"
-#include "ResourceBuffer.h"
 #include "BeamData.h"
 
 using namespace Ogre;
@@ -45,7 +44,7 @@ FlexMesh::FlexMesh(
 	, rim_ratio(rimratio)
 {
 	/// Create the mesh via the MeshManager
-	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,new ResourceBuffer());
+	msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	/// Create submeshes
 	subface = msh->createSubMesh();
@@ -230,38 +229,48 @@ FlexMesh::FlexMesh(
 	//msh->buildEdgeList();
 }
 
+FlexMesh::~FlexMesh()
+{
+	if (vertices          != nullptr) { free (vertices); }
+	if (shadownorvertices != nullptr) { free (shadownorvertices); }
+	if (shadowposvertices != nullptr) { free (shadowposvertices); }
+	if (nodeIDs           != nullptr) { free (nodeIDs); }
+	if (facefaces         != nullptr) { free (facefaces); }
+	if (bandfaces         != nullptr) { free (bandfaces); }
+}
+
 Vector3 FlexMesh::updateVertices()
 {
-	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+	Vector3 center = (nodes[nodeIDs[0]].AbsPosition + nodes[nodeIDs[1]].AbsPosition) / 2.0;
 
 	//optimization possible here : just copy bands on face
 
-	covertices[0].vertex=nodes[nodeIDs[0]].smoothpos-center;
+	covertices[0].vertex=nodes[nodeIDs[0]].AbsPosition-center;
 	//normals
-	covertices[0].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+	covertices[0].normal=approx_normalise(nodes[nodeIDs[0]].AbsPosition-nodes[nodeIDs[1]].AbsPosition);
 
-	covertices[1].vertex=nodes[nodeIDs[1]].smoothpos-center;
+	covertices[1].vertex=nodes[nodeIDs[1]].AbsPosition-center;
 	//normals
 	covertices[1].normal=-covertices[0].normal;
 
 	for (int i=0; i<nbrays*2; i++)
 	{
-		covertices[2+i].vertex=nodes[nodeIDs[2+i]].smoothpos-center;
+		covertices[2+i].vertex=nodes[nodeIDs[2+i]].AbsPosition-center;
 		//normals
 		if ((i%2)==0)
 		{
-			covertices[2+i].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+			covertices[2+i].normal=approx_normalise(nodes[nodeIDs[0]].AbsPosition-nodes[nodeIDs[1]].AbsPosition);
 		} else
 		{
 			covertices[2+i].normal=-covertices[2+i-1].normal;
 		}
 		if (is_rimmed)
 		{
-			covertices[2+4*nbrays+i].vertex=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center;
+			covertices[2+4*nbrays+i].vertex=nodes[nodeIDs[2+4*nbrays+i]].AbsPosition-center;
 			//normals
 			if ((i%2)==0)
 			{
-				covertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos);
+				covertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].AbsPosition-nodes[nodeIDs[2+4*nbrays+i+1]].AbsPosition);
 			} else
 			{
 				covertices[2+4*nbrays+i].normal=-covertices[2+4*nbrays+i-1].normal;
@@ -281,38 +290,38 @@ Vector3 FlexMesh::updateVertices()
 
 Vector3 FlexMesh::updateShadowVertices()
 {
-	Vector3 center = (nodes[nodeIDs[0]].smoothpos + nodes[nodeIDs[1]].smoothpos) / 2.0;
+	Vector3 center = (nodes[nodeIDs[0]].AbsPosition + nodes[nodeIDs[1]].AbsPosition) / 2.0;
 
-	coshadowposvertices[0].vertex=nodes[nodeIDs[0]].smoothpos-center;
+	coshadowposvertices[0].vertex=nodes[nodeIDs[0]].AbsPosition-center;
 	//normals
-	coshadownorvertices[0].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+	coshadownorvertices[0].normal=approx_normalise(nodes[nodeIDs[0]].AbsPosition-nodes[nodeIDs[1]].AbsPosition);
 
-	coshadowposvertices[1].vertex=nodes[nodeIDs[1]].smoothpos-center;
+	coshadowposvertices[1].vertex=nodes[nodeIDs[1]].AbsPosition-center;
 	//normals
 	coshadownorvertices[1].normal=-coshadownorvertices[0].normal;
 
 	for (int i=0; i<nbrays*2; i++)
 	{
-		coshadowposvertices[2+i].vertex=nodes[nodeIDs[2+i]].smoothpos-center;
+		coshadowposvertices[2+i].vertex=nodes[nodeIDs[2+i]].AbsPosition-center;
 
-		coshadownorvertices[2+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-center);
+		coshadownorvertices[2+i].normal=approx_normalise(nodes[nodeIDs[2+i]].AbsPosition-center);
 		//normals
 		if ((i%2)==0)
 		{
-			coshadownorvertices[2+i].normal=approx_normalise(nodes[nodeIDs[0]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+			coshadownorvertices[2+i].normal=approx_normalise(nodes[nodeIDs[0]].AbsPosition-nodes[nodeIDs[1]].AbsPosition);
 		} else
 		{
 			coshadownorvertices[2+i].normal=-coshadownorvertices[2+i-1].normal;
 		}
 		if (is_rimmed)
 		{
-			coshadowposvertices[2+4*nbrays+i].vertex=nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center;
+			coshadowposvertices[2+4*nbrays+i].vertex=nodes[nodeIDs[2+4*nbrays+i]].AbsPosition-center;
 
-			coshadownorvertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].smoothpos-center);
+			coshadownorvertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].AbsPosition-center);
 			//normals
 			if ((i%2)==0)
 			{
-				coshadownorvertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].smoothpos-nodes[nodeIDs[2+4*nbrays+i+1]].smoothpos);
+				coshadownorvertices[2+4*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+4*nbrays+i]].AbsPosition-nodes[nodeIDs[2+4*nbrays+i+1]].AbsPosition);
 			} else
 			{
 				coshadownorvertices[2+4*nbrays+i].normal=-coshadownorvertices[2+4*nbrays+i-1].normal;
@@ -321,10 +330,10 @@ Vector3 FlexMesh::updateShadowVertices()
 			coshadowposvertices[2+2*nbrays+i].vertex=coshadowposvertices[2+4*nbrays+i].vertex;
 			if ((i%2)==0)
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[0]].smoothpos);
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].AbsPosition-nodes[nodeIDs[0]].AbsPosition);
 			} else
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].AbsPosition-nodes[nodeIDs[1]].AbsPosition);
 			}
 		} else
 		{
@@ -332,10 +341,10 @@ Vector3 FlexMesh::updateShadowVertices()
 			coshadowposvertices[2+2*nbrays+i].vertex=coshadowposvertices[2+i].vertex;
 			if ((i%2)==0)
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[0]].smoothpos);
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].AbsPosition-nodes[nodeIDs[0]].AbsPosition);
 			} else
 			{
-				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].smoothpos-nodes[nodeIDs[1]].smoothpos);
+				coshadownorvertices[2+2*nbrays+i].normal=approx_normalise(nodes[nodeIDs[2+i]].AbsPosition-nodes[nodeIDs[1]].AbsPosition);
 			}
 		}
 

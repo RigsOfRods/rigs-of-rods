@@ -1,0 +1,424 @@
+import * from "managed_mats.material"
+
+//author: derbymutt (Alexander Scheiner)
+material RoR/Submesh/Body :  RoR/Managed_Mats/Base
+{
+    receive_shadows on 
+
+    technique BaseTechnique
+    {
+        pass MainShader
+        {
+			alpha_rejection greater 125
+            diffuse 0.0 0.0 0.0 1.0
+            specular 0.1 0.1 0.1 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware none
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals on
+            polygon_mode solid
+            //scene_blend one zero
+            //scene_blend_op add
+			scene_blend alpha_blend
+            shading gouraud
+            texture_unit diffuse
+            {
+                texture_alias diffuse
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op alpha_blend
+            }
+        }
+
+		pass emissive
+		{
+			diffuse 1.0 1.0 1.0 1.0
+			emissive 0.25 0.25 0.25 1.0
+			ambient 1.0 1.0 1.0 1.0
+			scene_blend alpha_blend
+			depth_check on
+			depth_func less_equal
+			depth_bias 12
+            depth_write on
+			alpha_rejection greater 1
+			texture_unit emissive
+			{
+				texture_alias emissive
+			}
+		}
+
+		pass BaseRender
+		{
+			//Ambient, diffuse, emissive stuff here
+			scene_blend modulate
+			cull_hardware none
+			ambient 1 1 1 1
+			diffuse 1 1 1 1 
+			lighting on
+			
+			alpha_rejection greater 250
+ 
+			texture_unit Diffuse_Map
+			{
+				texture_alias Lighting
+			}
+		}
+		pass Reflections
+		{
+			scene_blend add
+			alpha_rejection greater 1
+			specular 0.05 0.05 0.05 0.1 0.5
+            diffuse 0.0 0.0 0.0 0.50
+			ambient 0.0 0.0 0.0 0.0
+			lighting on
+			depth_check on
+            depth_func less_equal
+			depth_bias 0
+            depth_write off
+			cull_hardware clockwise
+			cull_software back
+			transparent_sorting on
+			texture_unit diffuse
+			{
+				texture_alias reflective
+				// use alpha from this texture
+				alpha_op_ex source1 src_texture src_texture
+				// and colour from last pass
+				colour_op_ex source2 src_texture src_texture
+			}
+			texture_unit envmap
+			{
+				cubic_texture EnvironmentTexture combinedUVW
+				tex_address_mode wrap
+                scale 1 1
+				env_map cubic_reflection
+
+				tex_coord_set 0
+				// alpha blend colour with colour from last pass
+				colour_op_ex modulate src_texture src_current 1
+            }
+		}
+    }
+}
+material RoR/Submesh/Body/Alpha :  RoR/Managed_Mats/Base
+{
+    receive_shadows on 
+
+    technique BaseTechnique
+    {
+        pass MainShader
+        {
+			alpha_rejection greater 125
+            diffuse 0.0 0.0 0.0 1.0
+            specular 0.1 0.1 0.1 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware none
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals on
+            polygon_mode solid
+            //scene_blend one zero
+            //scene_blend_op add
+			scene_blend alpha_blend
+            shading gouraud
+            texture_unit diffuse
+            {
+                texture_alias diffuse
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op alpha_blend
+            }
+        }
+
+		pass emissive
+		{
+			diffuse 1.0 1.0 1.0 1.0
+			emissive 0.25 0.25 0.25 1.0
+			ambient 1.0 1.0 1.0 1.0
+			scene_blend alpha_blend
+			depth_check on
+			depth_func less_equal
+			depth_bias 12
+            depth_write on
+			alpha_rejection greater 1
+			texture_unit emissive
+			{
+				texture_alias emissive
+			}
+		}
+
+		pass BaseRender
+		{
+			//Ambient, diffuse, emissive stuff here
+			scene_blend modulate
+			cull_hardware none
+			ambient 1 1 1 1
+			diffuse 1 1 1 1 
+			lighting on
+			
+			alpha_rejection greater 250
+ 
+			texture_unit Diffuse_Map
+			{
+				texture_alias Lighting
+			}
+		}
+		pass Metallic
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 1
+			specular 0.0 0.0 0.0 1.0 0.5
+            diffuse 0.0 0.0 0.0 0.50
+			lighting on
+			alpha_to_coverage on
+			shading gouraud
+			depth_check on
+            depth_func equal
+            depth_write on
+			cull_hardware clockwise
+			texture_unit diffuse
+			{
+				texture_alias reflective
+				// use alpha from this texture
+				alpha_op_ex source1 src_texture src_texture
+				// and colour from last pass
+				colour_op_ex source2 src_texture src_texture
+			}
+
+			texture_unit envmap
+			{
+				cubic_texture EnvironmentTexture combinedUVW
+				colour_op_ex blend_manual src_texture src_current 0.5
+				tex_address_mode wrap
+                scale 1 1
+				env_map cubic_reflection
+
+				tex_coord_set 0
+				// alpha blend colour with colour from last pass
+				colour_op_ex blend_diffuse_alpha src_texture src_current
+            }
+		}
+    }
+}
+material RoR/Submesh/Wheels:  RoR/Managed_Mats/Base
+{
+    receive_shadows on 
+
+    technique BaseTechnique
+    {
+        pass MainShader
+        {
+			alpha_rejection greater 1
+            diffuse 0.0 0.0 0.0 1.0
+            specular 0.1 0.1 0.1 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware none
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals on
+            polygon_mode solid
+            //scene_blend one zero
+            //scene_blend_op add
+			scene_blend alpha_blend
+            shading gouraud
+            texture_unit diffuse
+            {
+                texture_alias diffuse
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op alpha_blend
+            }
+        }
+
+		pass fake
+		{
+			diffuse 0.0 0.0 0.0 0.0
+			scene_blend alpha_blend
+		}
+
+		pass BaseRender
+		{
+			//Ambient, diffuse, emissive stuff here
+			scene_blend modulate
+			ambient 1 1 1 1
+			diffuse 1 1 1 1 
+			lighting on
+			
+			alpha_rejection greater 1
+ 
+			texture_unit Diffuse_Map
+			{
+				texture_alias Lighting
+			}
+		}
+		pass Reflections
+		{
+			scene_blend add
+			alpha_rejection greater 1
+			specular 0.05 0.05 0.05 0.1 0.5
+            diffuse 0.0 0.0 0.0 0.50
+			ambient 0.0 0.0 0.0 0.0
+			lighting on
+			depth_check on
+            depth_func less_equal
+			depth_bias 0
+            depth_write off
+			cull_hardware clockwise
+			cull_software back
+			transparent_sorting on
+			texture_unit diffuse
+			{
+				texture_alias reflective
+				// use alpha from this texture
+				alpha_op_ex source1 src_texture src_texture
+				// and colour from last pass
+				colour_op_ex source2 src_texture src_texture
+			}
+			texture_unit envmap
+			{
+				cubic_texture EnvironmentTexture combinedUVW
+				tex_address_mode wrap
+                scale 1 1
+				env_map cubic_reflection
+
+				tex_coord_set 0
+				// alpha blend colour with colour from last pass
+				colour_op_ex modulate src_texture src_current 1
+            }
+		}
+		pass Lighting2
+		{
+			alpha_rejection greater 128
+			diffuse 1.0 1.0 1.0 0.5
+			lighting on
+			shading phong
+			scene_blend one zero
+			scene_blend modulate
+			cull_hardware clockwise
+		}
+    }
+}
+
+material RoR/Submesh/Wheels/Alpha :  RoR/Managed_Mats/Base
+{
+    receive_shadows on 
+
+    technique BaseTechnique
+    {
+        pass MainShader
+        {
+			alpha_rejection greater 1
+            diffuse 0.0 0.0 0.0 1.0
+            specular 0.1 0.1 0.1 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware none
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals on
+            polygon_mode solid
+            //scene_blend one zero
+            //scene_blend_op add
+			scene_blend alpha_blend
+            shading gouraud
+            texture_unit diffuse
+            {
+                texture_alias diffuse
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op alpha_blend
+            }
+        }
+
+		pass fake
+		{
+			diffuse 0.0 0.0 0.0 0.0
+			scene_blend alpha_blend
+		}
+
+		pass BaseRender
+		{
+			//Ambient, diffuse, emissive stuff here
+			scene_blend modulate
+			ambient 1 1 1 1
+			diffuse 1 1 1 1 
+			lighting on
+			
+			alpha_rejection greater 1
+ 
+			texture_unit Diffuse_Map
+			{
+				texture_alias Lighting
+			}
+		}
+		pass Metallic
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 1
+			specular 0.0 0.0 0.0 1.0 0.5
+            diffuse 0.0 0.0 0.0 0.50
+			lighting on
+			alpha_to_coverage on
+			shading gouraud
+			depth_check on
+            depth_func equal
+            depth_write on
+			cull_hardware clockwise
+			texture_unit diffuse
+			{
+				texture_alias reflective
+				// use alpha from this texture
+				alpha_op_ex source1 src_texture src_texture
+				// and colour from last pass
+				colour_op_ex source2 src_texture src_texture
+			}
+
+			texture_unit envmap
+			{
+				cubic_texture EnvironmentTexture combinedUVW
+				colour_op_ex blend_manual src_texture src_current 0.5
+				tex_address_mode wrap
+                scale 1 1
+				env_map cubic_reflection
+
+				tex_coord_set 0
+				// alpha blend colour with colour from last pass
+				colour_op_ex blend_diffuse_alpha src_texture src_current
+            }
+		}
+		pass Lighting2
+		{
+			alpha_rejection greater 128
+			diffuse 1.0 1.0 1.0 0.5
+			lighting on
+			shading phong
+			scene_blend one zero
+			scene_blend modulate
+			cull_hardware clockwise
+		}
+    }
+}

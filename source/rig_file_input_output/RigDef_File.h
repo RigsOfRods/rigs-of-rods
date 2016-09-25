@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -45,8 +45,8 @@
 #include "RigDef_Node.h"
 
 #include <list>
+#include <memory>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <OgreString.h>
 #include <OgreVector3.h>
 #include <OgreStringConverter.h>
@@ -425,7 +425,7 @@ struct Beam
 	float extension_break_limit;
 	bool _has_extension_break_limit;
 	int detacher_group;
-	boost::shared_ptr<BeamDefaults> defaults;
+	std::shared_ptr<BeamDefaults> defaults;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -469,8 +469,8 @@ struct Cinecam
 	Node::Ref nodes[8];
 	float spring;
 	float damping;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
-	boost::shared_ptr<NodeDefaults> node_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<NodeDefaults> node_defaults;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -795,8 +795,8 @@ struct BaseWheel
 	Wheels::Propulsion propulsion;
 	Node::Ref reference_arm_node;
 	float mass;
-	boost::shared_ptr<NodeDefaults> node_defaults;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<NodeDefaults> node_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 };
 
 /** The actual wheel */
@@ -1044,7 +1044,7 @@ struct Shock
 	float long_bound;          ///< Maximum extension. The longest length a shock can be, as a proportion of its original length. "0" means the shock will not be able to extend at all. "1" means the shock will be able to double its length. Higher values allow for longer extension.
 	float precompression;      ///< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0. 
 	unsigned int options;      ///< Bit flags.
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
 
@@ -1077,7 +1077,7 @@ struct Shock2
 	float long_bound;                 ///< Maximum extension limit, in percentage ( 1.00 = 100% )
 	float precompression;             ///< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
 	unsigned int options;             ///< Bit flags.
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
 
@@ -1144,8 +1144,8 @@ struct Hydro
 	float lenghtening_factor;
 	std::string options;
 	Inertia inertia;
-	boost::shared_ptr<Inertia> inertia_defaults;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<Inertia> inertia_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
 
@@ -1216,8 +1216,8 @@ struct Animator
 	float short_limit;
 	float long_limit;
 	AeroAnimator aero_animator;
-	boost::shared_ptr<Inertia> inertia_defaults;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<Inertia> inertia_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
 
@@ -1249,8 +1249,8 @@ struct Command2
 	Inertia inertia;
 	float affect_engine;
 	bool needs_engine;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
-	boost::shared_ptr<Inertia> inertia_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<Inertia> inertia_defaults;
 	int detacher_group;
 
 	inline bool HasOption(unsigned int option) const
@@ -1281,7 +1281,7 @@ struct Rotator
 	unsigned int spin_left_key;
 	unsigned int spin_right_key;
 	Inertia inertia;
-	boost::shared_ptr<Inertia> inertia_defaults;
+	std::shared_ptr<Inertia> inertia_defaults;
 	float engine_coupling;
 	bool needs_engine;
 };
@@ -1408,7 +1408,7 @@ struct Trigger
 	float expansion_trigger_limit;
 	unsigned int options;
 	float boundary_timer;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 	int shortbound_trigger_action;
 	int longbound_trigger_action;
@@ -1426,10 +1426,10 @@ struct Lockgroup
 		nodes.reserve(20);
 	}
 
-	static const unsigned int LOCKGROUP_DEFAULT        = -1;
-	static const unsigned int LOCKGROUP_NOLOCK         = 9999;
+	static const int LOCKGROUP_DEFAULT        = -1;
+	static const int LOCKGROUP_NOLOCK         = 9999;
 
-	unsigned int number;
+	int number;
 	std::vector<Node::Ref> nodes;
 };
 
@@ -1657,7 +1657,7 @@ struct Rope
 	Node::Ref end_node;
 	bool invisible;
 	bool _has_invisible_set;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 };
 
@@ -1828,7 +1828,7 @@ struct Tie
 	float max_length;
 	Options options;
 	float max_stress;
-	boost::shared_ptr<BeamDefaults> beam_defaults;
+	std::shared_ptr<BeamDefaults> beam_defaults;
 	int detacher_group;
 	unsigned int group;
 	bool _group_set;
@@ -1990,29 +1990,29 @@ struct File
 		/* Sections*/
 		std::vector<Airbrake>              airbrakes;
 		std::vector<Animator>              animators;
-		boost::shared_ptr<AntiLockBrakes>  anti_lock_brakes;
+		std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
 		std::vector<Axle>                  axles;
 		std::vector<Beam>                  beams;
-		boost::shared_ptr<Brakes>          brakes;
+		std::shared_ptr<Brakes>            brakes;
 		std::vector<Camera>                cameras;
 		std::vector<CameraRail>            camera_rails;
 		std::vector<CollisionBox>          collision_boxes;
 		std::vector<Cinecam>               cinecam;
 		std::vector<Command2>              commands_2; /* sections 'commands' & 'commands2' are unified */
-		boost::shared_ptr<CruiseControl>   cruise_control;
+		std::shared_ptr<CruiseControl>     cruise_control;
 		std::vector<Node::Ref>             contacters;
-		boost::shared_ptr<Engine>          engine;
-		boost::shared_ptr<Engoption>       engoption;
-		boost::shared_ptr<Engturbo>        engturbo;
+		std::shared_ptr<Engine>            engine;
+		std::shared_ptr<Engoption>         engoption;
+		std::shared_ptr<Engturbo>          engturbo;
 		std::vector<Exhaust>               exhausts;
-		boost::shared_ptr<ExtCamera>       ext_camera;
+		std::shared_ptr<ExtCamera>         ext_camera;
 		std::vector<Node::Ref>              fixes;
 		std::vector<Flare2>                flares_2;
-		std::vector<boost::shared_ptr<Flexbody>>	flexbodies;
+		std::vector<std::shared_ptr<Flexbody>>	flexbodies;
 		std::vector<FlexBodyWheel>         flex_body_wheels;
 		std::vector<Fusedrag>              fusedrag;
-		boost::shared_ptr<Globals>         globals;
-		boost::shared_ptr<GuiSettings>     gui_settings;
+		std::shared_ptr<Globals>           globals;
+		std::shared_ptr<GuiSettings>       gui_settings;
 		std::vector<Hook>                  hooks;
 		std::vector<Hydro>                 hydros;
 		std::vector<Lockgroup>             lockgroups;
@@ -2033,19 +2033,17 @@ struct File
 		std::vector<Screwprop>             screwprops;
 		std::vector<Shock>                 shocks;
 		std::vector<Shock2>                shocks_2;
-		boost::shared_ptr<
-			SkeletonSettings
-		>                                  skeleton_settings;
+		std::shared_ptr<SkeletonSettings>  skeleton_settings;
 		std::vector<SlideNode>             slidenodes;
-		boost::shared_ptr<SlopeBrake>      slope_brake;
+		std::shared_ptr<SlopeBrake>        slope_brake;
 		std::vector<SoundSource>           soundsources;
 		std::vector<SoundSource2>          soundsources2;
-		boost::shared_ptr<SpeedLimiter>    speed_limiter;
+		std::shared_ptr<SpeedLimiter>      speed_limiter;
 		Ogre::String                       submeshes_ground_model_name;
 		std::vector<Submesh>               submeshes;
 		std::vector<Tie>                   ties;
-		boost::shared_ptr<TorqueCurve>     torque_curve;
-		boost::shared_ptr<TractionControl> traction_control;
+		std::shared_ptr<TorqueCurve>       torque_curve;
+		std::shared_ptr<TractionControl>   traction_control;
 		std::vector<Trigger>               triggers;
 		std::vector<Turbojet>              turbojets;
 		std::vector<Turboprop2>            turboprops_2;
@@ -2285,12 +2283,12 @@ struct File
 	bool _minimum_mass_set;
 
 	/* Vehicle sections */
-	boost::shared_ptr<Module> root_module;
-	std::map< Ogre::String, boost::shared_ptr<Module> > modules;
+	std::shared_ptr<Module> root_module;
+	std::map< Ogre::String, std::shared_ptr<Module> > modules;
 
 	/* File sections */
 	std::vector<Author> authors;
-	boost::shared_ptr<Fileinfo> file_info;
+	std::shared_ptr<Fileinfo> file_info;
 };
 
 } // namespace RigParser

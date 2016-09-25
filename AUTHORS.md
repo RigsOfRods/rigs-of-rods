@@ -16,7 +16,7 @@ Rigs of Rods is licensed under GPLv3 or later by the following authors (in no pa
 | ?                              | 88Toyota                | ?                      | ?                                |
 | ?                              | synthead                | ?                      | ?                                |
 | ?                              | theshark                | ?                      | ?                                |
-
+| Hiradur                        | Hiradur                 | Niklas Kersten         | n.my-surname@xyz.de              |
 
 ##### Additional authors not found on the Rigs of Rods forum
 
@@ -44,7 +44,6 @@ If you are one of the previous authors and happen to come across this list pleas
 ##### authors of the source code since reboot (move to git)
 | GitHub nickname                | RoR forum nickname      | real name              | email                            |
 |--------------------------------|-------------------------|------------------------|----------------------------------|
-| Hiradur                        | Hiradur                 | Niklas Kersten         | n\<surname\>.dev@gmail.com       |
 | only-a-ptr                     | only_a_ptr              | Petr Ohlídal           | my-name@my-surname.cz            |
 | Aperion                        | Aperion                 | <uncompleted>          | <uncompleted>                    |
 | Max98                          | max98                   | Moncef Ben Slimane     | moncefbenslimane{at}yahoo{dot}fr |

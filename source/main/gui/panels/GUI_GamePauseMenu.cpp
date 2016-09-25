@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -94,10 +94,11 @@ void CLASS::Show()
 	gEnv->frameListener->setSimPaused(true);
 	BeamFactory::getSingleton().MuteAllTrucks();
 
-	if (gEnv->network)
+	m_rig_editor->setEnabled(false);
+
+	if (gEnv->multiplayer)
 	{
 		m_back_to_menu->setEnabled(false);
-		m_rig_editor->setEnabled(false);
 		m_change_map->setEnabled(false);
 	}
 }
@@ -140,9 +141,6 @@ void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_RIG_EDITOR);
-	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
 }
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)

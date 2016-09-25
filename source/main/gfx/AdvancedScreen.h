@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -26,6 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
+#include <thread>
+
 #define SET_BIT(var, pos)   ((var) |= (1<<(pos)))
 #define CLEAR_BIT(var, pos) ((var) &= ~(1<<(pos)))
 #define SET_LSB(var)        ((var) |= 1)
@@ -40,34 +42,6 @@ void save(Ogre::uchar *data, Ogre::uchar *databuf, int mWidth, int mHeight, Ogre
 
 	OGRE_FREE(data, Ogre::MEMCATEGORY_RENDERSYS);
 	OGRE_FREE(databuf, Ogre::MEMCATEGORY_RENDERSYS);
-}
-
-struct wrap {
-	Ogre::uchar *data;
-	Ogre::uchar *databuf;
-	int mWidth;
-	int mHeight;
-	Ogre::PixelFormat pf;
-	Ogre::String filename;
-
-    wrap(Ogre::uchar *data, Ogre::uchar *databuf, int mWidth, int mHeight, Ogre::PixelFormat pf, Ogre::String filename) :
-		data(data),
-		databuf(databuf),
-		mWidth(mWidth),
-		mHeight(mHeight),
-		pf(pf),
-		filename(filename)
-	{
-	}
-};
-
-void* save_img(void *arg)
-{
-	std::auto_ptr< wrap > img(static_cast< wrap* >(arg));
-	save(img->data, img->databuf, img->mWidth, img->mHeight, img->pf, img->filename);
-
-	pthread_exit(NULL);
-	return NULL;
 }
 
 // this only works with lossless image compression (png)
@@ -148,13 +122,7 @@ public:
 		//float used_per = ((float)(dsize * 8 + 40) / (float)isize) * 100.0f;
 		//LOG("used " + TOSTRING(used_per) + " %");
 
-		//save it
-		wrap* img = new wrap(data, databuf, mWidth, mHeight, pf, filename);
-		pthread_t pt;
-		pthread_create(&pt, NULL, save_img, img);
-
-		// C++11 alternative
-		//std::thread{save, data, databuf, mWidth, mHeight, pf, filename}.detach();
+		std::thread (save, data, databuf, mWidth, mHeight, pf, filename).detach();
 	}
 
 protected:

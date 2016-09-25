@@ -5,7 +5,7 @@
 	Copyright 2009      Lefteris Stamatogiannakis
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -26,13 +26,14 @@
 
 #include "BeamData.h" // for collision_box_t
 
-#include <pthread.h>
 #include <OgrePrerequisites.h>
 #include <OgreString.h>
 #include <OgreEntity.h>
 #include <OgreVector3.h>
 #include <OgreSceneNode.h>
 #include <OgreQuaternion.h>
+
+#include <mutex>
 
 struct eventsource_t
 {
@@ -148,9 +149,9 @@ private:
 
 	Ogre::Vector3 calcCollidedSide(const Ogre::Vector3& pos, const Ogre::Vector3& lo, const Ogre::Vector3& hi);
 
-	pthread_mutex_t scriptcallback_mutex;
-
 public:
+
+	std::mutex m_scriptcallback_mutex;
 
 	bool forcecam;
 	Ogre::Vector3 forcecampos;
@@ -175,7 +176,6 @@ public:
 
 	void clearEventCache();
 	void finishLoadingTerrain();
-	void primitiveCollision(node_t *node, Ogre::Vector3 &normal, Ogre::Vector3 &force, Ogre::Vector3 &velocity, float dt, ground_model_t* gm, float* nso, float penetration=0, float reaction=-1.0f);
 	void printStats();
 
 	int addCollisionBox(Ogre::SceneNode *tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, int event_filter = EVENT_ALL, int scripthandler = -1);
@@ -200,3 +200,6 @@ public:
 		const Ogre::Quaternion &orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3 &scale = Ogre::Vector3::UNIT_SCALE);
 	void resizeMemory(long newSize);
 };
+
+
+void primitiveCollision(node_t *node, Ogre::Vector3 &force, const Ogre::Vector3 &velocity, const Ogre::Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration=0, float reaction=-1.0f);

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -80,7 +80,9 @@ struct hook_t;
 struct ground_model_t;
 struct client_t;
 struct authorinfo_t;
+struct header_t;
 struct user_info_t;
+struct stream_register_t;
 
 namespace MOC
 {
@@ -140,7 +142,7 @@ class MapTextureCreator;
 class MaterialFunctionMapper;
 class MaterialReplacer;
 class MeshObject;
-class Mirrors;
+class Mirror;
 class Network;
 class OverlayWrapper;
 class OutProtocol;
@@ -181,6 +183,7 @@ class TruckHUD;
 class Turbojet;
 class Turboprop;
 class VideoCamera;
+class VehicleAI;
 class Water;
 
 #ifdef USE_SOCKETW

@@ -22,7 +22,7 @@ if(WIN32)
 	# use precompiled stuff
 	set(wxWidgets_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/WxWidgets" CACHE PATH "The wxWidgets include path to use")
 	set(wxWidgets_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/WxWidgets/Release" CACHE PATH "The wxWidgets lib path to use")
-	set(wxWidgets_LIBRARIES    "wxbase29u.lib;wxmsw29u_core.lib;wxmsw29u_html.lib;wxbase29u_net.lib;wxmsw29u_adv.lib;wxpng.lib;wxtiff.lib;wxjpeg.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;" CACHE STRING "The wxWidgets lib to link against")
+	set(wxWidgets_LIBRARIES    "wxbase31u.lib;wxmsw31u_core.lib;wxmsw31u_html.lib;wxbase31u_net.lib;wxmsw31u_adv.lib;wxpng.lib;wxtiff.lib;wxjpeg.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;" CACHE STRING "The wxWidgets lib to link against")
 	add_definitions("-D_UNICODE -D_CRT_SECURE_NO_WARNINGS -DUNICODE")
 	include_directories(${wxWidgets_INCLUDE_DIRS})
 	link_directories (${wxWidgets_LIBRARY_DIRS})
@@ -37,12 +37,7 @@ else(WIN32)
 endif(WIN32)
 
 IF(WIN32)
-   include_directories(${Boost_INCLUDE_DIRS})
-   link_directories   (${Boost_LIBRARY_DIRS})
-   include_directories(${PThread_INCLUDE_DIRS})
-   link_directories   (${PThread_LIBRARY_DIRS})
-
-   set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
+   set(OS_LIBS "dinput8.lib;dxguid.lib")
    set(OS_SOURCE "icon.rc")
 
    # disable some annoying VS warnings:
@@ -59,8 +54,6 @@ IF(WIN32)
       set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DELAYLOAD:OpenCL.dll")
       set(OS_LIBS ${OS_LIBS} Delayimp.lib)
    endif(ROR_USE_OPENCL)
-   
-   setup_lib(CRASHRPT)
 ELSEIF(UNIX)
    find_package(PkgConfig)
    PKG_CHECK_MODULES  (GTK gtk+-2.0 REQUIRED)
@@ -69,14 +62,12 @@ ELSEIF(UNIX)
    PKG_CHECK_MODULES  (Ogre OGRE REQUIRED)
    PKG_CHECK_MODULES  (Ois OIS REQUIRED)
 
-   set(OS_LIBS "")
+   set(OS_LIBS "-lboost_system")
 
 ENDIF(WIN32)
 
 setup_lib(OPENCL)
 setup_lib(OPENAL)
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories   (${Boost_LIBRARY_DIRS})
 include_directories(${Ogre_INCLUDE_DIRS})
 link_directories   (${Ogre_LIBRARY_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
@@ -100,7 +91,7 @@ ELSE(WIN32)
 	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/Settings.cpp ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp ../main/utils/Utils.cpp ../main/utils/ConfigFile.cpp)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(RoRConfig ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(RoRConfig ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES} version_info)
 
 
 

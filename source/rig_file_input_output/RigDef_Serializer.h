@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -43,7 +43,7 @@ class Serializer
 
 public:
 
-	Serializer(boost::shared_ptr<RigDef::File> rig_def, Ogre::String const & file_path);
+	Serializer(std::shared_ptr<RigDef::File> rig_def, Ogre::String const & file_path);
 
 	virtual ~Serializer();
 
@@ -156,7 +156,7 @@ protected:
 
 	std::ofstream                     m_stream;
 	Ogre::String                      m_file_path;
-	boost::shared_ptr<RigDef::File>   m_rig_def;
+	std::shared_ptr<RigDef::File>   m_rig_def;
 	int                               m_float_precision;
 	int                               m_float_width;
 	int                               m_bool_width;

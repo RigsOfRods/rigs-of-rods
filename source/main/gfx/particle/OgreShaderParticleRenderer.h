@@ -220,6 +220,8 @@ namespace Ogre {
 		virtual const LightList& getLights(void) const;
 
 	private:
+        const String rendererTypeName = "shader";
+
 		/// allocate hardware buffers and prepare them for filling particles
 		bool allocateBuffers(size_t iNumParticles);
 
@@ -249,6 +251,8 @@ namespace Ogre {
         ParticleSystemRenderer* createInstance( const String& name );
         /// @copydoc FactoryObj::destroyInstance
         void destroyInstance( ParticleSystemRenderer* inst);
+    private:
+        const String rendererTypeName = "shader";
     };
 }
 

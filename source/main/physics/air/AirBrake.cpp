@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -20,7 +20,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "AirBrake.h"
 
 #include "BeamData.h"
-#include "ResourceBuffer.h"
 
 #include <Ogre.h>
 
@@ -39,7 +38,7 @@ Airbrake::Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *
 	char meshname[256];
 	sprintf(meshname, "airbrakemesh-%s-%i", basename, num);
 	/// Create the mesh via the MeshManager
-    msh = MeshManager::getSingleton().createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, new ResourceBuffer());
+    msh = MeshManager::getSingleton().createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	union
 	{
@@ -140,34 +139,37 @@ Airbrake::Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *
 	char entname[256];
 	sprintf(entname, "airbrakenode-%s-%i", basename, num);
 	ec = gEnv->sceneManager->createEntity(entname, meshname);
-	snode=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+	snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 	snode->attachObject(ec);
 
 	updatePosition(0.0);
+
+	free (vertices);
+	free (faces);
 }
 
 Airbrake::~Airbrake()
 {
-	ec->setVisible(false);
-	delete ec;
-	snode->setVisible(false);
-	delete snode;
+	if (!msh.isNull()) msh->unload();
+
+	if (ec) ec->setVisible(false);
+	if (snode) snode->setVisible(false);
 }
 
 void Airbrake::updatePosition(float amount)
 {
 	ratio=amount;
 	if (!snode) return;
-	Vector3 normal=(nodey->smoothpos-noderef->smoothpos).crossProduct(nodex->smoothpos-noderef->smoothpos);
+	Vector3 normal=(nodey->AbsPosition-noderef->AbsPosition).crossProduct(nodex->AbsPosition-noderef->AbsPosition);
 	normal.normalise();
 	//position
-	Vector3 mposition=noderef->smoothpos+offset.x*(nodex->smoothpos-noderef->smoothpos)+offset.y*(nodey->smoothpos-noderef->smoothpos);
+	Vector3 mposition=noderef->AbsPosition+offset.x*(nodex->AbsPosition-noderef->AbsPosition)+offset.y*(nodey->AbsPosition-noderef->AbsPosition);
 	snode->setPosition(mposition+normal*offset.z);
 	//orientation
-	Vector3 refx=nodex->smoothpos-noderef->smoothpos;
+	Vector3 refx=nodex->AbsPosition-noderef->AbsPosition;
 	refx.normalise();
 	Vector3 refy=refx.crossProduct(normal);
-	Quaternion orientation=Quaternion(Degree(-ratio*maxangle), (nodex->smoothpos-noderef->smoothpos).normalisedCopy())*Quaternion(refx, normal, refy);
+	Quaternion orientation=Quaternion(Degree(-ratio*maxangle), (nodex->AbsPosition-noderef->AbsPosition).normalisedCopy())*Quaternion(refx, normal, refy);
 	snode->setOrientation(orientation);
 }
 

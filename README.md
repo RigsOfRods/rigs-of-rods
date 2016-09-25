@@ -1,10 +1,16 @@
-# Rigs of Rods 
+# Rigs of Rods
 
-[![Build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)
 [![Join the chat at https://gitter.im/RigsOfRods/rigs-of-rods](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RigsOfRods/rigs-of-rods?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+|  Build status 	|                                                                                                                                                                             	|
+|---------------	|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| Linux:        	| [![travis build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
+| Windows:      	| [![appveyor build Status](https://ci.appveyor.com/api/projects/status/github/RigsOfRods/rigs-of-rods?svg=true)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
+
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
 For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
+
 
 #### Trailer:
 
@@ -15,13 +21,12 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * Linux
 * OS X
 
-
 ## Further documentation
-* Website: http://www.rigsofrods.com/
-* Wiki: http://www.rigsofrods.com/wiki/
-* Developer Wiki: http://www.rigsofrods.com/wiki/pages/Developer_Wiki_Portal
-* Forum: http://www.rigsofrods.com/forum/
-* Mod Repository: http://www.rigsofrods.com/repository/
+* Website: https://rigsofrods.org/
+* Wiki: http://docs.rigsofrods.org/
+* Developer Wiki: http://developer.rigsofrods.org/
+* Forum: https://forum.rigsofrods.org/
+* Mod Repository: https://repository.rigsofrods.org/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
 * [doc/](doc/)
@@ -73,10 +78,10 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 | Page Up/Down                   | aircrafts: increase/decrease throttle                |
 | F1/F2                          | helicopters: lift up/down                            |
 | Print Screen                   | create screenshot in $user/ folder                   |
- 
- 
+
+
 ## Content/Mods
-Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.rigsofrods.com/repository/). The [Showroom Subforum](http://www.rigsofrods.com/forums/103-Showrooms-and-WIP) may contain additional content not found in the Mod Repository.  
+Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.repository.rigsofrods.org/). The [Showroom Subforum](http://forum.rigsofrods.org/forum-6.html) may contain additional content not found in the Mod Repository.  
 If you want to get going quickly have a look at modpacks which can be found in the Mod Repository as well.
 
 
@@ -93,17 +98,17 @@ If you want to get going quickly have a look at modpacks which can be found in t
         * ``` RoR.exe -map aspen ```
     * note: do not add .terrn file format extension
 * -truck \<truckfile\>
-    * loads a truck on startup. Example: 
+    * loads a truck on startup. Example:
         * ``` RoR.exe -map oahu -truck semi.truck ```
         * ``` RoR.exe -map oahu -truck an-12.airplane ```
 * -enter
     * enter selected truck by -truck option on startup
-* -setup 
-    * displays OGRE3D settings dialog instead of loading settings from ogre.cfg 
+* -setup
+    * displays OGRE3D settings dialog instead of loading settings from ogre.cfg
 * -help
     * displays help for command line arguments
 
-	
+
 ## Compiling
 For instructions refer to [BUILDING.md](BUILDING.md)
 
@@ -119,7 +124,7 @@ Rigs of Rods went open source under GPLv2 or later on the 8th of February, 2009.
 Rigs of Rods is now licensed under GPLv3 or later:
 ```
 Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as 
+it under the terms of the GNU General Public License version 3, as
 published by the Free Software Foundation.
 
 Rigs of Rods is distributed in the hope that it will be useful,

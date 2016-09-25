@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -60,13 +60,14 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Water.h"
 
+#include <thread>
+
 using namespace Ogre;
 using namespace RoR;
 
 /* class that implements the interface for the scripts */
 GameScript::GameScript(ScriptEngine *se) :
 	  mse(se)
-	, apiThread()
 {
 }
 
@@ -319,6 +320,14 @@ void GameScript::destroyObject(const String &instanceName)
 	if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
 	{
 		gEnv->terrainManager->getObjectManager()->unloadObject(instanceName);
+	}
+}
+
+void GameScript::moveObjectVisuals(const String &instanceName, const Vector3 &pos)
+{
+	if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
+	{
+		gEnv->terrainManager->getObjectManager()->moveObjectVisuals(instanceName,pos);
 	}
 }
 
@@ -591,23 +600,6 @@ static size_t curlWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void
 }
 #endif //USE_CURL
 
-void *onlineAPIThread(void *_params)
-{
-	// copy over params
-	GameScript::OnlineAPIParams_t params = *(GameScript::OnlineAPIParams_t *)_params;
-
-	// call the function
-	params.cls->useOnlineAPIDirectly(params);
-
-	// free the params
-	params.dict->Release();
-	free(_params);
-	_params = NULL;
-
-	pthread_exit(NULL);
-	return NULL;
-}
-
 int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 {
 #ifdef USE_CURL
@@ -827,12 +819,15 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 
 	// create the thread
 	LOG("creating thread for online API usage...");
-	int rc = pthread_create(&apiThread, NULL, onlineAPIThread, (void *)params);
-	if (rc)
-	{
-		LOG("useOnlineAPI/pthread error code: " + TOSTRING(rc));
-		return 1;
-	}
+
+	std::thread ([params](){
+		// call the function
+		params->cls->useOnlineAPIDirectly(*params);
+
+		// free the params
+		params->dict->Release();
+		free(params);
+	}).detach();
 
 	return 0;
 }
@@ -876,11 +871,41 @@ int GameScript::deleteScriptVariable(const String &arg)
 
 int GameScript::sendGameCmd(const String& message)
 {
-	if (!gEnv->network)
+#ifdef USE_SOCKETW
+	if (gEnv->multiplayer)
 	{
-		return -11;
-	} else 
-	{
-		return gEnv->network->sendScriptMessage(const_cast<char*>(message.c_str()), (unsigned int)message.size());
+
+		RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
+		return 0;
 	}
+#endif // USE_SOCKETW
+
+	return -11;
+}
+
+VehicleAI *GameScript::getCurrentTruckAI()
+{
+	Beam* b = BeamFactory::getSingleton().getCurrentTruck();
+	if (b)
+		return b->vehicle_ai;
+	return nullptr;
+}
+
+VehicleAI *GameScript::getTruckAIByNum(int num)
+{
+	Beam* b = BeamFactory::getSingleton().getTruck(num);
+	if(b)
+		return b->vehicle_ai;
+	return nullptr;
+}
+
+Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
+{
+	Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X)*Quaternion(Degree(rot.y), Vector3::UNIT_Y)*Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+	return BeamFactory::getSingleton().CreateLocalRigInstance(pos, rotation,truckName);
+}
+
+void GameScript::showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2)
+{
+	RoR::Application::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
 }

@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -20,12 +20,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "RoRPrerequisites.h"
+
 #include "ConfigFile.h"
-#include "IManager.h"
 
-#include "OgreTerrainPSSMMaterialGenerator.h"
-
-class TerrainManager : public IManager
+class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
 
@@ -69,9 +68,6 @@ public:
 	// preloaded trucks
 	void loadPreloadedTrucks();
 	bool hasPreloadedTrucks();
-
-	size_t getMemoryUsage();
-	void freeResources();
 
 	static const int UNLIMITED_SIGHTRANGE = 4999;
 

@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -147,13 +147,10 @@ Collisions::Collisions() :
 		debugmo = gEnv->sceneManager->createManualObject();
 		debugmo->begin("tracks/debug/collision/triangle", RenderOperation::OT_TRIANGLE_LIST);
 	}
-
-	pthread_mutex_init(&scriptcallback_mutex, NULL);
 }
 
 Collisions::~Collisions()
 {
-	pthread_mutex_destroy(&scriptcallback_mutex);
 }
 
 void Collisions::resizeMemory(long newSize)
@@ -231,7 +228,7 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
 	if (this->collision_version != LATEST_GROUND_MODEL_VERSION)
 	{
 		// message box
-		String url = "http://wiki.rigsofrods.com/index.php?title=Error_Old_ground_model#"+TOSTRING(this->collision_version)+"to"+TOSTRING(LATEST_GROUND_MODEL_VERSION);
+		String url = "http://wiki.rigsofrods.org/index.php?title=Error_Old_ground_model#"+TOSTRING(this->collision_version)+"to"+TOSTRING(LATEST_GROUND_MODEL_VERSION);
 		ErrorUtils::ShowOgreWebError(_L("Configuration error"), _L("Your ground configuration is too old, please copy skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"), url);
 		ErrorUtils::ShowStoredOgreWebErrors();
 		exit(124);
@@ -868,21 +865,20 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 {
 	bool handled = false;
 
+#ifdef USE_ANGELSCRIPT
 	// check if this box is active anymore
 	if (!eventsources[cbox->eventsourcenum].enabled)
 		return false;
 	
-	MUTEX_LOCK(&scriptcallback_mutex);
+	std::lock_guard<std::mutex> lock(m_scriptcallback_mutex);
 	// this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
 	if (last_called_cbox != cbox)
 	{
-#ifdef USE_ANGELSCRIPT
 		if (!ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
 			handled = true;
-#endif //USE_ANGELSCRIPT
 		last_called_cbox = cbox;
 	}
-	MUTEX_UNLOCK(&scriptcallback_mutex);
+#endif //USE_ANGELSCRIPT
 
 	return handled;
 }
@@ -1077,7 +1073,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
 			if ((*cell)[k] != (int)UNUSED_CELLELEMENT && (*cell)[k] < MAX_COLLISION_BOXES)
 			{
 				collision_box_t *cbox = &collision_boxes[(*cell)[k]];
-				if (node->AbsPosition > cbox->lo - node->collRadius && node->AbsPosition < cbox->hi + node->collRadius)
+				if (node->AbsPosition > cbox->lo && node->AbsPosition < cbox->hi)
 				{
 					if (cbox->refined || cbox->selfrotated)
 					{
@@ -1091,7 +1087,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
 							Pos=Pos+cbox->selfcenter;
 						}
 						// now test with the inner box
-						if (Pos > cbox->relo - node->collRadius && Pos < cbox->rehi + node->collRadius)
+						if (Pos > cbox->relo && Pos < cbox->rehi)
 						{
 							if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
 							{
@@ -1112,17 +1108,17 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
 								smoky=true;
 								//*nso=ns;
 								// determine which side collided
-								float min=Pos.z-(cbox->relo - node->collRadius).z;
+								float min=Pos.z-(cbox->relo).z;
 								Vector3 normal=Vector3(0,0,-1);
-								float t=(cbox->rehi + node->collRadius).z-Pos.z;
+								float t=(cbox->rehi).z-Pos.z;
 								if (t<min){min=t; normal=Vector3(0,0,1);}; //north
-								t=Pos.x-(cbox->relo - node->collRadius).x;
+								t=Pos.x-(cbox->relo).x;
 								if (t<min) {min=t; normal=Vector3(-1,0,0);}; //west
-								t=(cbox->rehi + node->collRadius).x-Pos.x;
+								t=(cbox->rehi).x-Pos.x;
 								if (t<min) {min=t; normal=Vector3(1,0,0);}; //east
-								t=Pos.y-(cbox->relo - node->collRadius).y;
+								t=Pos.y-(cbox->relo).y;
 								if (t<min) {min=t; normal=Vector3(0,-1,0);}; //down
-								t=(cbox->rehi + node->collRadius).y-Pos.y;
+								t=(cbox->rehi).y-Pos.y;
 								if (t<min) {min=t; normal=Vector3(0,1,0);}; //up
 
 								// we need the normal, and the depth
@@ -1373,7 +1369,7 @@ bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, f
 	return false;
 }
 
-void Collisions::primitiveCollision(node_t *node, Vector3 &force, Vector3 &velocity, Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration, float reaction)
+void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration, float reaction)
 {
 	// normal velocity
 

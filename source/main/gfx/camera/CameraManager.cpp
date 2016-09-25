@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -51,8 +51,6 @@ CameraManager::CameraManager(DOFManager *dof) :
 	, m_config_exit_vehicle_keep_fixedfreecam(false)
 	, mRotateSpeed(100.0f)
 {
-	gEnv->cameraManager = this;
-
 	createGlobalBehaviors();
 
 	ctx.mCurrTruck = 0;
@@ -64,7 +62,7 @@ CameraManager::CameraManager(DOFManager *dof) :
 		ctx.mDof->setFocusMode(DOFManager::Auto);
 	}
 
-	m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", false);
+	m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
 	m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
 }
 
@@ -163,6 +161,10 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
 {
 	if (newBehaviorID == currentBehaviorID)
 	{
+		if (old_vehicle != new_vehicle)
+		{
+			currentBehavior->notifyContextChange(ctx);
+		}
 		return;
 	}
 
@@ -264,17 +266,17 @@ bool CameraManager::gameControlsLocked()
 	return (currentBehaviorID == CAMERA_BEHAVIOR_FREE);
 }
 
-size_t CameraManager::getMemoryUsage()
-{
-	// TODO
-	return 0;
-}
-
 void CameraManager::OnReturnToMainMenu()
 {
 	ctx.mCurrTruck = nullptr;
 	currentBehavior = nullptr;
 	currentBehaviorID = -1;
+}
+
+void CameraManager::NotifyContextChange()
+{
+	if ( !currentBehavior ) return;
+	currentBehavior->notifyContextChange(ctx);
 }
 
 void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
@@ -283,7 +285,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 	if (new_vehicle == nullptr)
 	{
 		ctx.mCurrTruck = nullptr;
-		if (! (this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam))
+		if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
+		     !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
+		     !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
 		{
 			this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
 		}
@@ -291,7 +295,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
 	}
 
 	// Getting in vehicle
-	if (! (this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam))
+	if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
+		 !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
+		 !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
 	{
 		// Change camera
 		switch (new_vehicle->GetCameraContext()->behavior)

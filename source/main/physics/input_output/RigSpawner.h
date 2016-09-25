@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -95,10 +95,9 @@ public:
 
 	void Setup( 
 		Beam *rig,
-		boost::shared_ptr<RigDef::File> file,
+		std::shared_ptr<RigDef::File> file,
 		Ogre::SceneNode *parent,
 		Ogre::Vector3 const & spawn_position,
-		Ogre::Quaternion const & spawn_rotation,
         int cache_entry_number = -1
 		);
 
@@ -114,7 +113,7 @@ public:
 	* Adds a vehicle module to the validated configuration.
 	* @param module_name A module from the validated rig-def file.
 	*/
-	void AddModule(boost::shared_ptr<RigDef::File::Module> module)
+	void AddModule(std::shared_ptr<RigDef::File::Module> module)
 	{
 		m_selected_modules.push_back(module);
 	}
@@ -269,7 +268,7 @@ protected:
 	/**
 	* Section 'flexbodies'.
 	*/
-	void ProcessFlexbody(boost::shared_ptr<RigDef::Flexbody> def);
+	void ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def);
 
 	/**
 	* Section 'flexbodywheels'.
@@ -484,7 +483,7 @@ protected:
 	beam_t & AddBeam(
 		node_t & node_1, 
 		node_t & node_2, 
-		boost::shared_ptr<RigDef::BeamDefaults> & defaults,
+		std::shared_ptr<RigDef::BeamDefaults> & defaults,
 		int detacher_group
 	);
 
@@ -509,7 +508,7 @@ protected:
 	*/
 	unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
-	void CreateBeamVisuals(beam_t & beam, int beam_index, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate);
+	void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate);
 
 	Rail *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
@@ -764,7 +763,7 @@ protected:
 	void InitNode(
 		node_t & node, 
 		Ogre::Vector3 const & position,
-		boost::shared_ptr<RigDef::NodeDefaults> node_defaults
+		std::shared_ptr<RigDef::NodeDefaults> node_defaults
 	);
 
 	/**
@@ -832,7 +831,7 @@ protected:
 
 	beam_t *FindBeamInRig(unsigned int node_a, unsigned int node_b);
 
-	void SetBeamDeformationThreshold(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults);
+	void SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
 	void UpdateCollcabContacterNodes();
 
@@ -846,14 +845,14 @@ protected:
 	*/
 	int FindLowestContactingNodeInRig();
 
-	//void SetBeamPlasticCoefficient(beam_t & beam, boost::shared_ptr<RigDef::BeamDefaults> beam_defaults);
+	//void SetBeamPlasticCoefficient(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
 	/**
 	* Checks a section only appears in one module and reports a warning if not.
 	*/
 	void CheckSectionSingleModule(
 		Ogre::String const & section_name,
-		std::list<boost::shared_ptr<RigDef::File::Module>> & found_items	
+		std::list<std::shared_ptr<RigDef::File::Module>> & found_items	
 	);
 
 	/**
@@ -905,7 +904,7 @@ protected:
 		float wheel_radius,
 		RigDef::Wheels::Propulsion propulsion,
 		RigDef::Wheels::Braking braking,
-		boost::shared_ptr<RigDef::NodeDefaults> node_defaults,
+		std::shared_ptr<RigDef::NodeDefaults> node_defaults,
 		float wheel_mass,
 		bool set_param_iswheel = true,
 		float wheel_width = -1.f
@@ -923,7 +922,7 @@ protected:
 		float tyre_damping,
 		float rim_spring,
 		float rim_damping,
-		boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+		std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
 		RigDef::Node::Ref const & rigidity_node_id,
 		float max_extension = 0.f
 	);
@@ -936,7 +935,7 @@ protected:
 		node_t *node_2,
 		float spring,
 		float damping,
-		boost::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+		std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
 		float max_contraction = -1.f,
 		float max_extension = -1.f,
 		int type = BEAM_INVISIBLE /* Anonymous enum in BeamData.h */
@@ -960,7 +959,7 @@ protected:
 	/**
 	* From SerializedRig::wash_calculator()
 	*/
-	void WashCalculator(Ogre::Quaternion const & rot);
+	void WashCalculator();
 
 	void FetchAxisNodes(
 		node_t* & axis_node_1, 
@@ -980,12 +979,12 @@ protected:
 	/** 
 	* For specified nodes
 	*/
-	void AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, boost::shared_ptr<RigDef::NodeDefaults> defaults);
+	void AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults);
 
 	/** 
 	* For generated nodes
 	*/
-	void AdjustNodeBuoyancy(node_t & node, boost::shared_ptr<RigDef::NodeDefaults> defaults);
+	void AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults);
 
 	/**
 	* Ported from SerializedRig::loadTruck() [v0.4.0.7]
@@ -997,10 +996,10 @@ protected:
 	*/
 	void InitializeRig();
 
-	boost::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
+	std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
     int m_cache_entry_number;
 	Beam *m_rig; //!< The output rig.
-	std::list<boost::shared_ptr<RigDef::File::Module>> m_selected_modules;
+	std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
 	std::map<Ogre::String, unsigned int> m_named_nodes;
 	
 	bool m_enable_background_loading;
@@ -1016,7 +1015,6 @@ protected:
 
 	Ogre::SceneNode *m_parent_scene_node;
 	Ogre::Vector3 m_spawn_position;
-	Ogre::Quaternion m_spawn_rotation;
 	float m_wing_area;
 	int m_airplane_left_light;
 	int m_airplane_right_light;

@@ -3,7 +3,7 @@ This source file is part of Rigs of Rods
 Copyright 2005-2012 Pierre-Michel Ricordel
 Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.com/
+For more information, see http://www.rigsofrods.org/
 
 Rigs of Rods is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3, as
@@ -29,9 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "LoadingWindow.h"
 #include "MeshObject.h"
 #include "ProceduralManager.h"
-#include "ResourceBuffer.h"
 #include "Road2.h"
-#include "ScopeLog.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapEntity.h"
@@ -65,6 +63,8 @@ inline float getTerrainHeight(Real x, Real z, void *unused=0)
 
 
 TerrainObjectManager::TerrainObjectManager(TerrainManager *terrainManager) :
+	background_loading(BSETTING("Background Loading", false)),
+	use_rt_shader_system(BSETTING("Use RTShader System", false)),
 	terrainManager(terrainManager)
 {
 	//prepare for baking
@@ -73,6 +73,10 @@ TerrainObjectManager::TerrainObjectManager(TerrainManager *terrainManager) :
 
 TerrainObjectManager::~TerrainObjectManager()
 {
+	for (MeshObject* mo : meshObjects)
+	{
+		if (mo) delete mo;
+	}
 #ifdef USE_PAGED
 	for (std::vector<paged_geometry_t>::iterator it=pagedGeometry.begin(); it!=pagedGeometry.end(); it++)
 	{
@@ -92,6 +96,10 @@ TerrainObjectManager::~TerrainObjectManager()
 	{
 		gEnv->sceneManager->destroyStaticGeometry("bakeSG");
 		bakesg = nullptr;
+	}
+	if (proceduralManager != nullptr)
+	{
+		delete proceduralManager;
 	}
 	gEnv->sceneManager->destroyAllEntities();
 }
@@ -128,7 +136,10 @@ void TerrainObjectManager::proceduralTests()
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 {
-	proceduralManager = new ProceduralManager();
+	if (proceduralManager == nullptr)
+	{
+		proceduralManager = new ProceduralManager();
+	}
 
 	objcounter = 0;
 	free_localizer = 0;
@@ -632,11 +643,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		// finish it and start new object
 		if (proceduralManager) proceduralManager->addObject(po);
 	}
-
-	if (proceduralManager)
-	{
-		delete proceduralManager;
-	}
 }
 
 void TerrainObjectManager::postLoad()
@@ -670,6 +676,23 @@ void removeCollisionBox(int number)
 	if (gEnv->collisions) gEnv->collisions->removeCollisionBox(number);
 }
 
+void TerrainObjectManager::moveObjectVisuals(const String &instancename, const Ogre::Vector3 &pos)
+{
+	if (loadedObjects.find(instancename) == loadedObjects.end())
+	{
+		LOG(instancename+ " not found!");
+		return;
+	}
+
+	loadedObject_t obj = loadedObjects[instancename];
+
+	if (!obj.enabled)
+		return;
+
+	obj.sceneNode->setPosition(pos);
+
+}
+
 void TerrainObjectManager::unloadObject(const String &instancename)
 {
 	if (loadedObjects.find(instancename) == loadedObjects.end())
@@ -696,8 +719,6 @@ void TerrainObjectManager::unloadObject(const String &instancename)
 
 void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
-	ScopeLog log("object_"+name);
-
 	if (type == "grid")
 	{
 		// some fast grid object hacks :)
@@ -767,12 +788,12 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		objcounter++;
 
 		SceneNode *tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		bool background_loading = BSETTING("Background Loading", false);
 
 		MeshObject *mo = NULL;
 		if (String(mesh) != "none")
 		{
 			mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
+			meshObjects.push_back(mo);
 		}
 
 		//mo->setQueryFlags(OBJECTS_MASK);
@@ -786,10 +807,18 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		// register in map
 		loadedObject_t *obj = &loadedObjects[instancename];
 		obj->instanceName = instancename;
-		obj->loadType     = 0;
 		obj->enabled      = true;
 		obj->sceneNode    = tenode;
 		obj->collTris.clear();
+
+		object_t object;
+		object.name = name; 
+		object.position = pos;
+		object.rotation = rot;
+		object.initial_position = pos;
+		object.initial_rotation = rot;
+		object.node = tenode; 
+		objects.push_back(object);
 
 		if (mo && uniquifyMaterial && !instancename.empty())
 		{
@@ -1021,7 +1050,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 			{
 				char mat[256]="";
 				sscanf(ptline, "generateMaterialShaders %s", mat);
-				if (BSETTING("Use RTShader System", false))
+				if (use_rt_shader_system)
 				{
 					Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(String(mat), Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 					Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(mat));
@@ -1039,7 +1068,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 					AnimationStateSet *s = mo->getEntity()->getAllAnimationStates();
 					if (!s->hasAnimationState(String(animname)))
 					{
-						LOG("ODEF: animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
+						LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
 						continue;
 					}
 					animated_object_t ao;
@@ -1058,7 +1087,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 					}
 					if (!ao.anim)
 					{
-						LOG("ODEF: animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
+						LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
 						continue;
 					}
 					ao.anim->setEnabled(true);
@@ -1074,14 +1103,14 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
 				if (m.getPointer() == 0)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
 					continue;
 				}
 				String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
 				Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
 				if (!background)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
@@ -1090,22 +1119,23 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				char tmpTextName[256]="", tmpMatName[256]="";
 				sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
 				sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber);			// Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
-				TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED , PF_X8R8G8B8, Ogre::TU_STATIC|Ogre::TU_AUTOMIPMAP, new ResourceBuffer());
+				TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED , PF_X8R8G8B8, Ogre::TU_STATIC|Ogre::TU_AUTOMIPMAP);
 				if (texture.getPointer() == 0)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
-				float x=0, y=0, w=0, h=0;
-				float a=0, r=0, g=0, b=0;
+				float x = 0, y = 0, w = 0, h = 0;
+				float a = 0, r = 0, g = 0, b = 0;
+				int fs = 40, fdpi = 144;
 				char fontname[256]="";
 				char text[256]="";
 				char option='l';
-				int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, fontname, text);
-				if (res < 11)
+				int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, &fs, &fdpi, fontname, text);
+				if (res < 13)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
@@ -1120,7 +1150,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				Font* font = (Font *)FontManager::getSingleton().getByName(String(fontname)).getPointer();
 				if (!font)
 				{
-					LOG("ODEF: problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
+					LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
 					continue;
 				}
 
@@ -1134,7 +1164,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				h = background->getHeight() * h;
 
 				Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
-				WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), option);
+				WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), fs, fdpi, option);
 
 				// we can save it to disc for debug purposes:
 				//SaveImage(texture, "test.png");
@@ -1144,6 +1174,83 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 				mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
 
 				mo->getEntity()->setMaterialName(String(tmpMatName));
+				continue;
+			}
+
+			if (!strncmp("spotlight", ptline, 9))
+			{
+				Vector3 lpos, ldir;
+				float lrange = 10, innerAngle = 45, outerAngle = 45;
+				ColourValue lcol;
+				String lname = "spotlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
+
+				int res = sscanf(ptline, "spotlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
+					&lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange, &innerAngle, &outerAngle);
+				if (res < 12)
+				{
+					LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
+					continue;
+				}
+
+				Light* spotLight = gEnv->sceneManager->createLight(lname);
+
+				spotLight->setType(Light::LT_SPOTLIGHT);
+				spotLight->setPosition(lpos);
+				spotLight->setDirection(ldir);
+				spotLight->setAttenuation(lrange, 1.0, 0.3, 0.0);
+				spotLight->setDiffuseColour(lcol);
+				spotLight->setSpecularColour(lcol);
+				spotLight->setSpotlightRange(Degree(innerAngle), Degree(outerAngle));
+
+				BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+				lflare->createBillboard(lpos, lcol);
+				lflare->setMaterialName("tracks/flare");
+				lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+				float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
+				lflare->setDefaultDimensions(fsize, fsize);
+
+				SceneNode *sn = tenode->createChildSceneNode();
+				sn->attachObject(spotLight);
+				sn->attachObject(lflare);
+				continue;
+			}
+
+			if (!strncmp("pointlight", ptline, 10))
+			{
+				Vector3 lpos, ldir;
+				float lrange = 10;
+				ColourValue lcol;
+				String lname = "pointlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
+
+				int res = sscanf(ptline, "pointlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
+					&lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange);
+				if (res < 10)
+				{
+					LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
+					continue;
+				}
+
+				Light* pointlight = gEnv->sceneManager->createLight(lname);
+
+				pointlight->setType(Light::LT_POINT);
+				pointlight->setPosition(lpos);
+				pointlight->setDirection(ldir);
+				pointlight->setAttenuation(lrange, 1.0, 0.3, 0.0);
+				pointlight->setDiffuseColour(lcol);
+				pointlight->setSpecularColour(lcol);
+
+				BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+				lflare->createBillboard(lpos, lcol);
+				lflare->setMaterialName("tracks/flare");
+				lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+				float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
+				lflare->setDefaultDimensions(fsize, fsize);
+
+				SceneNode *sn = tenode->createChildSceneNode();
+				sn->attachObject(pointlight);
+				sn->attachObject(lflare);
 				continue;
 			}
 
@@ -1200,7 +1307,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
 	// in netmode, don't load other trucks!
-	if (gEnv->network != nullptr)
+	if (gEnv->multiplayer)
 	{
 		return;
 	}
@@ -1226,7 +1333,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
 			SurveyMapEntity *e = gEnv->surveyMap->createNamedMapEntity("Truck"+TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
 			if (e)
 			{
-				e->setState(DESACTIVATED);
+				e->setState(SIMULATED);
 				e->setVisibility(true);
 				e->setPosition(truck_preload[i].px, truck_preload[i].pz);
 				e->setRotation(-Radian(b->getHeadingDirectionAngle()));
@@ -1238,28 +1345,17 @@ void TerrainObjectManager::loadPreloadedTrucks()
 
 }
 
-bool TerrainObjectManager::update( float dt )
+bool TerrainObjectManager::update(float dt)
 {
 #ifdef USE_PAGED
 	// paged geometry
-	for (std::vector<paged_geometry_t>::iterator it=pagedGeometry.begin();it!=pagedGeometry.end();it++)
+	for (auto it : pagedGeometry)
 	{
-		if (it->geom) it->geom->update();
+		if (it.geom) it.geom->update();
 	}
 #endif //USE_PAGED
 
 	updateAnimatedObjects(dt);
 	
 	return true;
-}
-
-size_t TerrainObjectManager::getMemoryUsage()
-{
-	// very rough estamation
-	return (sizeof(loadedObject_t) * loadedObjects.size());
-}
-
-void TerrainObjectManager::freeResources()
-{
-	// TODO
 }

@@ -4,7 +4,7 @@
 	Copyright 2007-2012 Thomas Fischer
 	Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.com/
+	For more information, see http://www.rigsofrods.org/
 
 	Rigs of Rods is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License version 3, as
@@ -24,14 +24,13 @@
 #include "ApproxMath.h"
 #include "FlexFactory.h"
 #include "MaterialReplacer.h"
-#include "ResourceBuffer.h"
 #include "RigLoadingProfilerControl.h"
 #include "Skin.h"
 #include "BeamData.h"
 
-using namespace Ogre;
+#include <Ogre.h>
 
-//#define FLEX_COMPAT_v0_38_67
+using namespace Ogre;
 
 FlexBody::FlexBody(
     RoR::FlexBodyCacheData* preloaded_from_cache,
@@ -75,48 +74,27 @@ FlexBody::FlexBody(
 	Vector3 normal = Vector3::UNIT_Y;
 	Vector3 position = Vector3::ZERO;
 	Quaternion orientation = Quaternion::ZERO;
-#ifdef FLEX_COMPAT_v0_38_67
-    const bool compat_mode = true;
-#else
-    const bool compat_mode = false;
-#endif
+
 	if (ref >= 0)
 	{
-        if (compat_mode)
-        { // v0.38.67
-            normal=(m_nodes[ny].smoothpos-m_nodes[ref].smoothpos).crossProduct(m_nodes[nx].smoothpos-m_nodes[ref].smoothpos);
-		    normal.normalise();
-		    //position
-		    position=m_nodes[ref].smoothpos+offset.x*(m_nodes[nx].smoothpos-m_nodes[ref].smoothpos)+offset.y*(m_nodes[ny].smoothpos-m_nodes[ref].smoothpos);
-		    position=(position+normal*offset.z);
-		    //orientation
-		    Vector3 refx=m_nodes[nx].smoothpos-m_nodes[ref].smoothpos;
-		    refx.normalise();
-		    Vector3 refy=refx.crossProduct(normal);
-		    orientation=Quaternion(refx, normal, refy)*rot;
-        }
-        else
-        { // v0.4.0.7
-		    Vector3 diffX = m_nodes[nx].smoothpos-m_nodes[ref].smoothpos;
-		    Vector3 diffY = m_nodes[ny].smoothpos-m_nodes[ref].smoothpos;
+		Vector3 diffX = m_nodes[nx].AbsPosition-m_nodes[ref].AbsPosition;
+		Vector3 diffY = m_nodes[ny].AbsPosition-m_nodes[ref].AbsPosition;
 
-		    normal = fast_normalise(diffY.crossProduct(diffX));
+		normal = fast_normalise(diffY.crossProduct(diffX));
 
-		    // position
-		    position = m_nodes[ref].smoothpos + offset.x*diffX + offset.y*diffY;
-		    position = position + offset.z*normal;
+		// position
+		position = m_nodes[ref].AbsPosition + offset.x * diffX + offset.y * diffY;
+		position = position + offset.z * normal;
 
-		    // orientation
-		    Vector3 refX = fast_normalise(diffX);
-		    Vector3 refY = refX.crossProduct(normal);
-		    orientation  = Quaternion(refX, normal, refY) * rot;
-        }
-	} 
-    else
+		// orientation
+		Vector3 refX = fast_normalise(diffX);
+		Vector3 refY = refX.crossProduct(normal);
+		orientation  = Quaternion(refX, normal, refY) * rot;
+	} else
 	{
 		// special case!
 		normal = Vector3::UNIT_Y;
-		position=m_nodes[0].smoothpos+offset;
+		position = m_nodes[0].AbsPosition + offset;
 		orientation = rot;
 	}
     FLEXBODY_PROFILER_ENTER("Find mesh resource");
@@ -354,8 +332,7 @@ FlexBody::FlexBody(
 			    m_num_submesh_vbufs++;
 		    }
 	    }
-    }
-    else
+    } else
     {
         m_vertex_count            = preloaded_from_cache->header.vertex_count;
         m_uses_shared_vertex_data = preloaded_from_cache->header.UsesSharedVertexData();
@@ -501,199 +478,96 @@ FlexBody::FlexBody(
 
         FLEXBODY_PROFILER_ENTER("Locate nodes")
 	    m_locators = new Locator_t[m_vertex_count];
-        int vertex_count = m_vertex_count;
-        if (compat_mode)
-        { // v0.38.67
-            for (int i = 0; i<vertex_count; ++i)
-            {
-                //search nearest node as the local origin
-		        float mindist=100000.0;
-		        int minnode=-1;
+		for (int i=0; i<(int)m_vertex_count; i++)
+		{
+			//search nearest node as the local origin
+			float closest_node_distance = 1000000.0;
+			int closest_node_index = -1;
+			auto end  = node_indices.end();
+			auto itor = node_indices.begin();
+			for (; itor != end; ++itor)
+			{
+				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
+				if (node_distance < closest_node_distance)
+				{
+					closest_node_distance = node_distance;
+					closest_node_index = *itor;
+				}
+			}
+			if (closest_node_index==-1)
+			{
+				LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
+			}
+			m_locators[i].ref=closest_node_index;            
 
-                auto end  = node_indices.end();
-                auto itor = node_indices.begin();
-                for (; itor != end; ++itor)
-                {
-                    float dist=(vertices[i]-m_nodes[*itor].smoothpos).length();
-			        if (dist<mindist) 
-                    {
-                        mindist=dist;
-                        minnode=*itor;
-                    }
-                }
-		        if (minnode==-1) { LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found"); }
-		        m_locators[i].ref=minnode;
+			//search the second nearest node as the X vector
+			closest_node_distance=1000000.0;
+			closest_node_index=-1;
+			itor = node_indices.begin();
+			for (; itor != end; ++itor)
+			{
+				if (*itor == m_locators[i].ref)
+				{
+					continue;
+				}
+				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
+				if (node_distance < closest_node_distance)
+				{
+					closest_node_distance = node_distance;
+					closest_node_index = *itor;
+				}
+			}
+			if (closest_node_index==-1)
+			{
+				LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
+			}
+			m_locators[i].nx=closest_node_index;
 
-                //search the second nearest node as the X vector
-		        mindist=100000.0;
-		        minnode=-1;
-                auto end_x  = node_indices.end();
-                auto itor_x = node_indices.begin();
-                for (; itor_x != end_x; ++itor_x)
-                {
-                    int node_idx = *itor_x;
-                    if (node_idx==m_locators[i].ref) continue;
-			        float dist=(vertices[i]-m_nodes[node_idx].smoothpos).length();
-			        if (dist<mindist) 
-                    {
-                        mindist=dist;
-                        minnode=node_idx;
-                    }
-                }
+			//search another close, orthogonal node as the Y vector
+			closest_node_distance=1000000.0;
+			closest_node_index=-1;
+			itor = node_indices.begin();
+			Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition);
+			for (; itor != end; ++itor)
+			{
+				if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
+				{
+					continue;
+				}
+				float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
+				if (node_distance < closest_node_distance)
+				{
+					Vector3 vt = fast_normalise(m_nodes[*itor].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition);
+					float cost = vx.dotProduct(vt);
+					if (cost>0.707 || cost<-0.707)
+					{
+						continue; //rejection, fails the orthogonality criterion (+-45 degree)
+					}
+					closest_node_distance = node_distance;
+					closest_node_index = *itor;
+				}
+			}
+			if (closest_node_index==-1)
+			{
+				LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
+			}
+			m_locators[i].ny=closest_node_index;
 
-		        if (minnode==-1) 
-                {
-                    LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
-                }
-		        m_locators[i].nx=minnode;
+			Matrix3 mat;
+			Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
+			Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
 
-		        //search another close, orthogonal node as the Y vector
-		        mindist=100000.0;
-		        minnode=-1;
-		        Vector3 vx=m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		        vx.normalise();
+			mat.SetColumn(0, diffX);
+			mat.SetColumn(1, diffY);
+			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
 
-                auto end_y  = node_indices.end();
-                auto itor_y = node_indices.begin();
-                for (; itor_y != end_y; ++itor_y)
-                {
-                    int k = *itor_y;
-                    if (k==m_locators[i].ref || k==m_locators[i].nx) 
-                    {
-                        continue;
-                    }
-			        Vector3 vt=m_nodes[k].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-			        vt.normalise();
-			        float cost=vx.dotProduct(vt);
-			        if (cost>0.707 || cost<-0.707)
-                    { 
-                        continue; //rejection, fails the orthogonality criterion (+-45 degree)
-                    }
-			        float dist=(vertices[i]-m_nodes[k].smoothpos).length();
-			        if (dist<mindist) 
-                    {
-                        mindist=dist;
-                        minnode=k;
-                    }
-                }
+			mat = mat.Inverse();
 
-		        if (minnode==-1)
-                {
-                    LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
-                }
-		        m_locators[i].ny=minnode;
-        
-		        Vector3 vz=(m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos).crossProduct(m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-		        vz.normalise();
-		        Matrix3 mat;
-		        mat.SetColumn(0, m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-		        mat.SetColumn(1, m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-		        mat.SetColumn(2, vz);
-		        mat=mat.Inverse();
+			//compute coordinates in the newly formed Euclidean basis
+			m_locators[i].coords = mat * (vertices[i] - m_nodes[m_locators[i].ref].AbsPosition);
 
-		        //compute coordinates in the newly formed euclidian basis
-		        m_locators[i].coords=mat*(vertices[i]-m_nodes[m_locators[i].ref].smoothpos);
-
-		        //thats it!
-
-            }
-        }
-        else
-        { // v0.4.0.7
-	        for (int i=0; i<(int)m_vertex_count; i++)
-	        {
-		        //search nearest node as the local origin
-		        float closest_node_distance = 1000000.0;
-		        int closest_node_index = -1;
-                auto end  = node_indices.end();
-                auto itor = node_indices.begin();
-                for (; itor != end; ++itor)
-                {
-                    float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
-                    if (node_distance < closest_node_distance)
-                    {
-                        closest_node_distance = node_distance;
-                        closest_node_index = *itor;
-                    }
-                }
-                if (closest_node_index==-1)
-                {
-                    LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
-                }
-                m_locators[i].ref=closest_node_index;            
-
-		        //search the second nearest node as the X vector
-		        closest_node_distance=1000000.0;
-		        closest_node_index=-1;
-                itor = node_indices.begin();
-                for (; itor != end; ++itor)
-                {
-                    if (*itor == m_locators[i].ref)
-                    {
-                        continue;
-                    }
-                    float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
-                    if (node_distance < closest_node_distance)
-                    {
-                        closest_node_distance = node_distance;
-                        closest_node_index = *itor;
-                    }
-                }
-                if (closest_node_index==-1)
-                {
-                    LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
-                }
-                m_locators[i].nx=closest_node_index;
-
-		        //search another close, orthogonal node as the Y vector
-                closest_node_distance=1000000.0;
-		        closest_node_index=-1;
-                itor = node_indices.begin();
-                Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
-                for (; itor != end; ++itor)
-                {
-                    if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
-                    {
-                        continue;
-                    }
-                    float node_distance = vertices[i].squaredDistance(m_nodes[*itor].smoothpos);
-                    if (node_distance < closest_node_distance)
-                    {
-                        Vector3 vt = fast_normalise(m_nodes[*itor].smoothpos - m_nodes[m_locators[i].ref].smoothpos);
-                        float cost = vx.dotProduct(vt);
-                        if (cost>0.707 || cost<-0.707)
-                        {
-                            continue; //rejection, fails the orthogonality criterion (+-45 degree)
-                        }
-                        closest_node_distance = node_distance;
-                        closest_node_index = *itor;
-                    }
-                }
-                if (closest_node_index==-1)
-                {
-                    LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
-                }
-                m_locators[i].ny=closest_node_index;
-
-		        // If something unexpected happens here, then
-		        // replace fast_normalise(a) with a.normalisedCopy()
-
-		        Matrix3 mat;
-		        Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		        Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-
-		        mat.SetColumn(0, diffX);
-		        mat.SetColumn(1, diffY);
-		        mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
-
-		        mat = mat.Inverse();
-
-		        //compute coordinates in the newly formed Euclidean basis
-		        m_locators[i].coords= mat * (vertices[i] - m_nodes[m_locators[i].ref].smoothpos);
-
-		        // that's it!
-	        }
-        }
+			// that's it!
+		}
         TIMER_SNAPSHOT_REF(stat_located_time);
 
     } // if (preloaded_from_cache == nullptr)
@@ -727,41 +601,20 @@ FlexBody::FlexBody(
     if (preloaded_from_cache == nullptr)
     {
         FLEXBODY_PROFILER_ENTER("Transform normals")
-        if (compat_mode)
-        { // v0.38.67
-        	for (int i=0; i<(int)m_vertex_count; i++)
-	        {
-		        Vector3 vz=(m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos).crossProduct(m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-		        vz.normalise();
-		        Matrix3 mat;
-		        mat.SetColumn(0, m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-		        mat.SetColumn(1, m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos);
-		        mat.SetColumn(2, vz);
-		        mat=mat.Inverse();
+		for (int i=0; i<(int)m_vertex_count; i++)
+		{
+			Matrix3 mat;
+			Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
+			Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
 
-		        //compute coordinates in the euclidian basis
-		        m_src_normals[i]=mat*(orientation*m_src_normals[i]);
-	        }
-        }
-        else
-        { // v0.4.0.7
-	        // If something unexpected happens here, then
-	        // replace fast_normalise(a) with a.normalisedCopy()
-	        for (int i=0; i<(int)m_vertex_count; i++)
-	        {
-		        Matrix3 mat;
-		        Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
-		        Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos-m_nodes[m_locators[i].ref].smoothpos;
+			mat.SetColumn(0, diffX);
+			mat.SetColumn(1, diffY);
+			mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
 
-		        mat.SetColumn(0, diffX);
-		        mat.SetColumn(1, diffY);
-		        mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+			mat = mat.Inverse();
 
-		        mat = mat.Inverse();
-
-		        // compute coordinates in the Euclidean basis
-		        m_src_normals[i] = mat*(orientation * m_src_normals[i]);
-	        }
+			// compute coordinates in the Euclidean basis
+			m_src_normals[i] = mat*(orientation * m_src_normals[i]);
         }
     }
 
@@ -860,61 +713,7 @@ void FlexBody::printMeshInfo(Mesh* mesh)
 	}
 }
 
-#ifdef FLEX_COMPAT_v0_38_67
-bool FlexBody::flexitPrepare(Beam* b)
-{
-	if (m_is_faulty) return false;
-	if (!m_is_enabled) return false;
-	if (m_has_texture_blend) updateBlend();
-	
-	// compute the local center
-	Vector3 flexit_normal;
-	Vector3 center;
-	if(m_node_center >= 0)
-	{
-		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
-		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
-
-		flexit_normal = diffY.crossProduct(diffX);
-		flexit_normal.normalise();
-		
-		center= m_nodes[m_node_center].smoothpos + m_center_offset.x* diffX + m_center_offset.y* diffY;
-		center += flexit_normal*m_center_offset.z;
-	} 
-    else
-	{
-		flexit_normal = Vector3::UNIT_Y;
-		center = m_nodes[0].smoothpos;
-	}
-
-    flexit_center = center;
-
-	return Flexable::flexitPrepare(b);
-}
-
-void FlexBody::flexitCompute()
-{
-    Ogre::Vector3 center = flexit_center;
-	for (int i=0; i<(int)m_vertex_count; i++)
-	{
-		Locator_t *loc=&m_locators[i];
-		Matrix3 mat;
-		mat.SetColumn(0, m_nodes[loc->nx].smoothpos-m_nodes[loc->ref].smoothpos);
-		mat.SetColumn(1, m_nodes[loc->ny].smoothpos-m_nodes[loc->ref].smoothpos);
-
-		Vector3 vz=(m_nodes[loc->nx].smoothpos-m_nodes[loc->ref].smoothpos).crossProduct(m_nodes[loc->ny].smoothpos-m_nodes[loc->ref].smoothpos);
-		vz.normalise();
-		mat.SetColumn(2, vz);
-
-		m_dst_pos[i]=mat*loc->coords+m_nodes[loc->ref].smoothpos-center;
-		m_dst_normals[i]=mat*m_src_normals[i];
-		m_dst_normals[i].normalise(); //painfull but necessary!
-	}
-}
-
-#else // #ifndef FLEX_COMPAT_v0_38_67
-
-bool FlexBody::flexitPrepare(Beam* b)
+bool FlexBody::flexitPrepare()
 {
 	if (m_is_faulty) return false;
 	if (!m_is_enabled) return false;
@@ -925,34 +724,34 @@ bool FlexBody::flexitPrepare(Beam* b)
 
 	if (m_node_center >= 0)
 	{
-		Vector3 diffX = m_nodes[m_node_x].smoothpos - m_nodes[m_node_center].smoothpos;
-		Vector3 diffY = m_nodes[m_node_y].smoothpos - m_nodes[m_node_center].smoothpos;
+		Vector3 diffX = m_nodes[m_node_x].AbsPosition - m_nodes[m_node_center].AbsPosition;
+		Vector3 diffY = m_nodes[m_node_y].AbsPosition - m_nodes[m_node_center].AbsPosition;
 		flexit_normal = fast_normalise(diffY.crossProduct(diffX));
 
-		flexit_center = m_nodes[m_node_center].smoothpos + m_center_offset.x*diffX + m_center_offset.y*diffY;
-		flexit_center += m_center_offset.z*flexit_normal;
+		flexit_center = m_nodes[m_node_center].AbsPosition + m_center_offset.x * diffX + m_center_offset.y * diffY;
+		flexit_center += m_center_offset.z * flexit_normal;
 	} else
 	{
 		flexit_normal = Vector3::UNIT_Y;
-		flexit_center = m_nodes[0].smoothpos;
+		flexit_center = m_nodes[0].AbsPosition;
 	}
 
-	return Flexable::flexitPrepare(b);
+	return true;
 }	
 
 void FlexBody::flexitCompute()
 {
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
+		Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
 		Vector3 nCross = fast_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
 
 		m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
 		m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
 		m_dst_pos[i].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
 
-		m_dst_pos[i] += m_nodes[m_locators[i].ref].smoothpos - flexit_center;
+		m_dst_pos[i] += m_nodes[m_locators[i].ref].AbsPosition - flexit_center;
 
 		m_dst_normals[i].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
 		m_dst_normals[i].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
@@ -964,20 +763,18 @@ void FlexBody::flexitCompute()
 	for (int i=0; i<(int)m_vertex_count; i++)
 	{
 		Matrix3 mat;
-		Vector3 diffX = m_nodes[m_locators[i].nx].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
-		Vector3 diffY = m_nodes[m_locators[i].ny].smoothpos - m_nodes[m_locators[i].ref].smoothpos;
+		Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
+		Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
 
 		mat.SetColumn(0, diffX);
 		mat.SetColumn(1, diffY);
-		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].smoothpos-m_nodes[loc.ref].smoothpos);
+		mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
 
-		m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].smoothpos - flexit_center;
+		m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].AbsPosition - flexit_center;
 		m_dst_normals[i] = fast_normalise(mat * m_src_normals[i]);
 	}
 #endif
 }
-
-#endif // #ifdef FLEX_COMPAT_v0_38_67
 
 Vector3 FlexBody::flexitFinal()
 {
