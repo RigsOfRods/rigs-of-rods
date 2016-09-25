@@ -88,7 +88,6 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 	maxampl(0),
 	free_wavetrain(0),
 	visible(true),
-	haswaves(BSETTING("Waves", false)),
 	mScale(1.0f),
 	vRtt1(0),
 	vRtt2(0), 

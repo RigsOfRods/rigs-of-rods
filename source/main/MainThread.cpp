@@ -465,22 +465,22 @@ bool MainThread::SetupGameplayLoop()
 	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
 
-	if (BSETTING("HDR", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
+	if (App::GetGfxEnableHdr() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
 
 	if (BSETTING("DOF", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
 
-	if (BSETTING("Glow", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
+	if (App::GetGfxEnableGlow() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
 
 	if (BSETTING("Motion blur", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
 
-	if (BSETTING("HeatHaze", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+	if (App::GetGfxUseHeathaze() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
 
-	if (BSETTING("Sunburn", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
+	if (App::GetGfxEnableSunburn() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
 
 	/*if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))

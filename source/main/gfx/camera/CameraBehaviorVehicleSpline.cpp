@@ -61,7 +61,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext &ctx
 
 	targetPitch = 0.0f;
 
-	if ( camPitching )
+	if ( App::GfxExtCamMode() == App::GFX_EXTCAM_MODE_PITCHING )
 	{
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}

@@ -135,6 +135,15 @@ GfxShadowType        GetGfxShadowType();
 GfxExtCamMode        GetGfxExternCamMode();
 GfxTexFilter         GetGfxTexFiltering();
 GfxVegetation        GetGfxVegetationMode();
+bool                 GetGfxEnableSunburn();
+bool                 GetGfxWaterUseWaves();
+int                  GetGfxMinimapMode  ();
+int                  GetGfxParticlesMode();
+bool                 GetGfxEnableGlow   ();
+bool                 GetGfxEnableHdr    ();
+bool                 GetGfxUseHeathaze  ();
+int                  GetGfxEnvmapMode   ();
+int                  GetGfxSkidmarksMode();
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -165,6 +174,15 @@ void SetGfxShadowType    (GfxShadowType v);
 void SetGfxExternCamMode (GfxExtCamMode v);
 void SetGfxTexFiltering  (GfxTexFilter  v);
 void SetGfxVegetationMode(GfxVegetation v);
+void SetGfxEnableSunburn (bool          v);
+void SetGfxWaterUseWaves (bool          v);
+void SetGfxEnableGlow    (bool          v);
+void SetGfxEnableHdr     (bool          v);
+void SetGfxUseHeathaze   (bool          v);
+void SetGfxEnvmapMode    (int           v);
+void SetGfxSkidmarksMode (int           v);
+void SetGfxMinimapMode   (int           v);
+void SetGfxParticlesMode (int           v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

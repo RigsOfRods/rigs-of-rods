@@ -520,6 +520,29 @@ inline void App__SetVegetationMode(std::string const & s)
     if (s == "Full (best looking, slower)") { App::SetGfxVegetationMode(App::GFX_VEGETATION_FULL);   return; }
 }
 
+inline void App__SetEnvMapUpdateRate(std::string const & s)
+{
+    int rate = Ogre::StringConverter::parseInt(s);
+    if (rate < 0) { rate = 0; }
+    if (rate > 6) { rate = 6; }
+    App::SetGfxEnvmapMode(rate);
+}
+
+inline void App__SetEnvMapEnabled(std::string const & s)
+{
+    bool enabled = Ogre::StringConverter::parseBool(s);
+    if (!enabled)
+    {
+        App::SetGfxEnvmapMode(0);
+    }
+    else if (App::GetGfxEnvmapMode() == 0)
+    {
+        App::SetGfxEnvmapMode(1);
+    }
+
+}
+
+
 #define STR2BOOL_(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
@@ -548,6 +571,16 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }
     else if (name == "Texture Filtering"       ) { App__SetTexFiltering              (value);  return true; }
     else if (name == "Vegetation"              ) { App__SetVegetationMode            (value);  return true; }
+    else if (name == "Sunburn"                 ) { App::SetGfxEnableSunburn(     STR2BOOL_(value)); return true; }
+    else if (name == "Waves"                   ) { App::SetGfxWaterUseWaves(     STR2BOOL_(value)); return true; }
+    else if (name == "disableOverViewMap"      ) { App::SetGfxMinimapMode  ((int)STR2BOOL_(value)); return true; }
+    else if (name == "Particles"               ) { App::SetGfxParticlesMode((int)STR2BOOL_(value)); return true; }
+    else if (name == "Glow"                    ) { App::SetGfxEnableGlow   (     STR2BOOL_(value)); return true; }
+    else if (name == "HDR"                     ) { App::SetGfxEnableHdr    (     STR2BOOL_(value)); return true; }
+    else if (name == "HeatHaze"                ) { App::SetGfxUseHeathaze  (     STR2BOOL_(value)); return true; }
+    else if (name == "Skidmarks"               ) { App::SetGfxSkidmarksMode((int)STR2BOOL_(value)); return true; }
+    else if (name == "EnvmapUpdateRate"        ) { App__SetEnvMapUpdateRate               (value);  return true; }
+    else if (name == "Envmap"                  ) { App__SetEnvMapEnabled                  (value);  return true; }
 
     return false;
 }

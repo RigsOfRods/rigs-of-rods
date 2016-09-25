@@ -44,9 +44,7 @@ private:
 	Ogre::Camera *mCameras[NUM_FACES];
 	Ogre::RenderTarget *mRenderTargets[NUM_FACES];
 	bool mInitiated;
-	bool mIsDynamic;
 	int mRound;
-	int updateRate;
 };
 
 #endif // __Environment_Map_H_

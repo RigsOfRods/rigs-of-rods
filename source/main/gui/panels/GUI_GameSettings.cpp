@@ -213,6 +213,7 @@ void CLASS::LoadSettings()
 
 void CLASS::UpdateControls()
 {
+    using namespace RoR;
 
 	int valuecounter = 0; // Going to be usefull for selections
 
@@ -464,7 +465,7 @@ void CLASS::UpdateControls()
 	else
 		m_digital_speedo->setStateCheck(false);
 
-	if (GameSettingsMap["Particles"] == "Yes")
+	if (App::GetGfxParticlesMode() == 1)
 		m_psystem->setStateCheck(true);
 	else
 		m_psystem->setStateCheck(false);
@@ -479,12 +480,12 @@ void CLASS::UpdateControls()
 	else
 		m_mirrors->setStateCheck(false);
 
-	if (GameSettingsMap["Sunburn"] == "Yes")
+	if (App::GetGfxEnableSunburn())
 		m_sunburn->setStateCheck(true);
 	else
 		m_sunburn->setStateCheck(false);
 
-	if (GameSettingsMap["HDR"] == "Yes")
+	if (App::GetGfxEnableHdr())
 		m_hdr->setStateCheck(true);
 	else
 		m_hdr->setStateCheck(false);
@@ -494,17 +495,17 @@ void CLASS::UpdateControls()
 	else
 		m_mblur->setStateCheck(false);
 
-	if (GameSettingsMap["Skidmarks"] == "Yes")
+	if (App::GetGfxSkidmarksMode() == 1)
 		m_skidmarks->setStateCheck(true);
 	else
 		m_skidmarks->setStateCheck(false);
 
-	if (GameSettingsMap["Envmap"] == "Yes")
+	if (App::GetGfxEnvmapMode() > 0)
 		m_hq_ref->setStateCheck(true);
 	else
 		m_hq_ref->setStateCheck(false);
 
-	if (GameSettingsMap["Glow"] == "Yes")
+	if (App::GetGfxEnableGlow())
 		m_glow->setStateCheck(true);
 	else
 		m_glow->setStateCheck(false);
@@ -514,7 +515,7 @@ void CLASS::UpdateControls()
 	else
 		m_dof->setStateCheck(false);
 
-	if (GameSettingsMap["Waves"] == "Yes")
+	if (RoR::App::GetGfxWaterUseWaves())
 		m_e_waves->setStateCheck(true);
 	else
 		m_e_waves->setStateCheck(false);

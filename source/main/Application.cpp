@@ -99,15 +99,15 @@ static int              g_gfx_extcam_mode;       ///< Config: STR   External Cam
 static int              g_gfx_texture_filter;    ///< Config: STR   Texture Filtering
 static int              g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
   //   std::string      g_gfx_water_mode;        ///< Config: STR   Water effects
-  //   bool             g_gfx_enable_sunburn;    ///< Config: BOOL  Sunburn
-  //   bool             g_gfx_water_waves;       ///< Config: BOOL  Waves
-  //   bool             g_gfx_minimap_mode;      ///< Config: BOOL  disableOverViewMap
-  //   bool             g_gfx_particles_mode;    ///< Config: BOOL  Particles
-  //   bool             g_gfx_enable_glow;       ///< Config: BOOL  Glow
-  //   bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
-  //   bool             g_gfx_enable_heathaze;   ///< Config: BOOL  HeatHaze
-  //   bool             g_gfx_envmap_mode;       ///< Config: BOOL  Envmap
-  //   bool             g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
+static bool             g_gfx_enable_sunburn;    ///< Config: BOOL  Sunburn
+static bool             g_gfx_water_waves;       ///< Config: BOOL  Waves
+static int              g_gfx_minimap_mode;      ///< Config: BOOL  disableOverViewMap
+static int              g_gfx_particles_mode;    ///< Config: BOOL  Particles
+static bool             g_gfx_enable_glow;       ///< Config: BOOL  Glow
+static bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
+static bool             g_gfx_enable_heathaze;   ///< Config: BOOL  HeatHaze
+static int              g_gfx_envmap_mode;       ///< Config: BOOL  Envmap & INT EnvmapUpdateRate
+static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
   //   float            g_gfx_sight_range;       ///< Config: FLOAT SightRange
   //   float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
   //   float            g_gfx_fov_internal;      ///< Config: FLOAT FOV Internal
@@ -157,6 +157,15 @@ GfxShadowType   GetGfxShadowType()      { return (GfxShadowType)g_gfx_shadow_typ
 GfxExtCamMode   GetGfxExternCamMode()   { return (GfxExtCamMode)g_gfx_extcam_mode; }
 GfxTexFilter    GetGfxTexFiltering()    { return (GfxTexFilter) g_gfx_texture_filter; }
 GfxVegetation   GetGfxVegetationMode()  { return (GfxVegetation)g_gfx_vegetation_mode; }
+bool            GetGfxEnableSunburn()   { return g_gfx_enable_sunburn ; }
+bool            GetGfxWaterUseWaves()   { return g_gfx_water_waves    ; }
+int             GetGfxMinimapMode  ()   { return g_gfx_minimap_mode   ; }
+int             GetGfxParticlesMode()   { return g_gfx_particles_mode ; }
+bool            GetGfxEnableGlow   ()   { return g_gfx_enable_glow    ; }
+bool            GetGfxEnableHdr    ()   { return g_gfx_enable_hdr     ; }
+bool            GetGfxUseHeathaze  ()   { return g_gfx_enable_heathaze; }
+int             GetGfxEnvmapMode   ()   { return g_gfx_envmap_mode    ; }
+int             GetGfxSkidmarksMode()   { return g_gfx_skidmarks_mode ; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -187,6 +196,15 @@ void SetGfxShadowType     (GfxShadowType  v) { SetVarInt     (g_gfx_shadow_type 
 void SetGfxExternCamMode  (GfxExtCamMode  v) { SetVarInt     (g_gfx_extcam_mode      , "gfx_extcam_mode"      , (int)v); }
 void SetGfxTexFiltering   (GfxTexFilter   v) { SetVarInt     (g_gfx_texture_filter   , "gfx_texture_filter"   , (int)v); }
 void SetGfxVegetationMode (GfxVegetation  v) { SetVarInt     (g_gfx_vegetation_mode  , "gfx_vegetation_mode"  , (int)v); }
+void SetGfxEnableSunburn  (bool           v) { SetVarBool    (g_gfx_enable_sunburn   , "gfx_enable_sunburn"   , v); }
+void SetGfxWaterUseWaves  (bool           v) { SetVarBool    (g_gfx_water_waves      , "gfx_water_waves"      , v); }
+void SetGfxEnableGlow     (bool           v) { SetVarBool    (g_gfx_enable_glow      , "gfx_enable_glow"      , v); }
+void SetGfxEnableHdr      (bool           v) { SetVarBool    (g_gfx_enable_hdr       , "gfx_enable_hdr"       , v); }
+void SetGfxUseHeathaze    (bool           v) { SetVarBool    (g_gfx_enable_heathaze  , "gfx_enable_heathaze"  , v); }
+void SetGfxEnvmapMode     (int            v) { SetVarInt     (g_gfx_envmap_mode      , "gfx_envmap_mode"      , v); }
+void SetGfxSkidmarksMode  (int            v) { SetVarInt     (g_gfx_skidmarks_mode   , "gfx_skidmarks_mode"   , v); }
+void SetGfxMinimapMode    (int            v) { SetVarInt     (g_gfx_minimap_mode     , "gfx_minimap_mode"     , v); }
+void SetGfxParticlesMode  (int            v) { SetVarInt     (g_gfx_particles_mode   , "gfx_particles_mode"   , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };

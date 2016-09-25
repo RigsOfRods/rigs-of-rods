@@ -40,7 +40,6 @@ waternoise(0)
 , CurrentConfigFile(configFile)
 {
 	waterHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));
-	haswaves = BSETTING("Waves", false);
 
 	mRenderCamera->setNearClipDistance(0.1f);
 
@@ -148,7 +147,7 @@ void HydraxWater::setVisible(bool value)
 
 float HydraxWater::getHeightWaves(Vector3 pos)
 {
-	if (!haswaves)
+	if (!RoR::App::GetGfxWaterUseWaves())
 	{
 		return waterHeight;
 	}
@@ -158,7 +157,7 @@ float HydraxWater::getHeightWaves(Vector3 pos)
 
 Vector3 HydraxWater::getVelocity(Vector3 pos)
 {
-	if (!haswaves) return Vector3(0, 0, 0);
+	if (!RoR::App::GetGfxWaterUseWaves()) return Vector3(0, 0, 0);
 
 	return Vector3(0, 0, 0); //TODO
 }

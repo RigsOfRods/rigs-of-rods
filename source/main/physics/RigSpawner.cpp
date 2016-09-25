@@ -255,7 +255,7 @@ void RigSpawner::InitializeRig()
 	
 	m_rig->collrange=DEFAULT_COLLISION_RANGE;
 	m_rig->masscount=0;
-	m_rig->disable_smoke = !SETTINGS.getBooleanSetting("Particles", true);
+	m_rig->disable_smoke = App::GetGfxParticlesMode() == 0;
 	m_rig->smokeId=0;
 	m_rig->smokeRef=0;
 	m_rig->editorId=-1;
@@ -423,7 +423,7 @@ void RigSpawner::InitializeRig()
 	}
 
 	m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
-	m_rig->cparticle_enabled = BSETTING("Particles", true);
+	m_rig->cparticle_enabled = App::GetGfxParticlesMode() == 1;
 
     DustManager& dustman = BeamFactory::getSingleton().GetParticleManager();
     m_rig->dustp   = dustman.getDustPool("dust");

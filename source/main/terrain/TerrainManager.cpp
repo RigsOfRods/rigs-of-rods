@@ -48,6 +48,7 @@
 
 #include <Terrain/OgreTerrainPaging.h>
 
+using namespace RoR;
 using namespace Ogre;
 
 TerrainManager::TerrainManager() :
@@ -184,7 +185,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	gravity        = m_terrain_config.GetFloat("Gravity", "General", -9.81);
 
 	// parse author info
-	ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
+	Ogre::ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
 
 	authors.clear();
 
@@ -257,7 +258,7 @@ void TerrainManager::loadTerrain(String filename)
 	initTerrainCollisions();
 
 	// init the survey map
-	if (!BSETTING("disableOverViewMap", false))
+	if (RoR::App::GetGfxMinimapMode() == 1)
 	{
 		PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
 		initSurveyMap();
@@ -311,12 +312,12 @@ void TerrainManager::initSubSystems()
 	//PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
 	//initWater();
 
-	if (BSETTING("HDR", false))
+	if (App::GetGfxEnableHdr())
 	{
 		PROGRESS_WINDOW(35, _L("Initializing HDR Subsystem"));
 		initHDR();
 	}
-	if (BSETTING("Glow", false))
+	if (RoR::App::GetGfxEnableGlow())
 	{
 		PROGRESS_WINDOW(37, _L("Initializing Glow Subsystem"));
 		initGlow();
@@ -326,7 +327,7 @@ void TerrainManager::initSubSystems()
 		PROGRESS_WINDOW(39, _L("Initializing Motion Blur Subsystem"));
 		initMotionBlur();
 	}
-	if (BSETTING("Sunburn", false))
+	if (RoR::App::GetGfxEnableSunburn())
 	{
 		PROGRESS_WINDOW(41, _L("Initializing Sunburn Subsystem"));
 		initSunburn();
@@ -668,7 +669,7 @@ void TerrainManager::loadTerrainObjects()
 {
 	try
 	{
-		ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Objects");
+		Ogre::ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Objects");
 
 		while (objectsIterator.hasMoreElements())
 		{
@@ -723,7 +724,7 @@ void TerrainManager::initScripting()
 	{
 		try
 		{
-			ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Scripts");
+			Ogre::ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Scripts");
 			while (objectsIterator.hasMoreElements())
 			{
 				String sname = objectsIterator.peekNextKey();

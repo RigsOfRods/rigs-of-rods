@@ -21,6 +21,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DustManager.h"
 
+#include "Application.h"
 #include "DustPool.h"
 #include "Settings.h"
 
@@ -32,7 +33,7 @@ void DustManager::CheckAndInit()
     {
         return;
     }
-	mEnabled = BSETTING("Particles", true);
+	mEnabled = RoR::App::GetGfxParticlesMode() == 1;
 
 	if (mEnabled)
 	{

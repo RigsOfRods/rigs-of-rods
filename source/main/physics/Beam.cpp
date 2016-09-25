@@ -5422,7 +5422,7 @@ Beam::Beam(
 	, watercontactold(false)
 {
 	high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
-	useSkidmarks = BSETTING("Skidmarks", false);
+	useSkidmarks = RoR::App::GetGfxSkidmarksMode() == 1;
 	LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
 	/* struct <rig_t> parameters */
