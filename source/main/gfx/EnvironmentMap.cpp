@@ -86,7 +86,7 @@ Envmap::Envmap() :
 		}
 	}
 
-	if (BSETTING("EnvMapDebug", false))
+	if (App::GetDiagEnvmap())
 	{
 		// create fancy mesh for debugging the envmap
 		Overlay *overlay = OverlayManager::getSingleton().create("EnvMapDebugOverlay");

@@ -27,6 +27,7 @@
 
 #include "GUI_DebugOptions.h"
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 #include "Utils.h"
 #include "RoRVersion.h"
@@ -89,9 +90,9 @@ void CLASS::Hide()
 
 void CLASS::UpdateControls()
 {
-	m_debug_truck_mass->setStateCheck(Settings::getSingleton().getBooleanSetting("Debug Truck Mass", false));
+	m_debug_truck_mass->setStateCheck(App::GetDiagTruckMass());
 
-	m_debug_collision_meshes->setStateCheck(Settings::getSingleton().getBooleanSetting("Debug Collisions", false));
+	m_debug_collision_meshes->setStateCheck(App::GetDiagCollisions());
 
 	m_ingame_console->setStateCheck(Settings::getSingleton().getBooleanSetting("Enable Ingame Console", false));
 

@@ -125,7 +125,7 @@ Collisions::Collisions() :
 {
 	hFinder = gEnv->terrainManager->getHeightFinder();
 
-	debugMode = BSETTING("Debug Collisions", false);
+	debugMode = RoR::App::GetDiagCollisions(); // TODO: make interactive
 	for (int i=0; i < HASH_POWER; i++)
 	{
 		hashmask = hashmask << 1;

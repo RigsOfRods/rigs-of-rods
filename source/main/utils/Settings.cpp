@@ -547,6 +547,10 @@ inline void App__SetEnvMapEnabled(std::string const & s)
 #define STR2FLOAT(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define STR2INT32(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
 
+#define CONF_DIAG_IMPORT_NODES "RigImporter_Debug_TraverseAndLogAllNodes"
+#define CONF_DIAG_IMPORT_STATS "RigImporter_PrintNodeStatsToLog"
+#define CONF_DIAG_IMPORT_MSG   "RigImporter_PrintMessagesToLog"
+
 bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const & value)
 {
     // Process and erase settings which propagate to global vars.
@@ -581,6 +585,13 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Skidmarks"               ) { App::SetGfxSkidmarksMode((int)STR2BOOL_(value)); return true; }
     else if (name == "EnvmapUpdateRate"        ) { App__SetEnvMapUpdateRate               (value);  return true; }
     else if (name == "Envmap"                  ) { App__SetEnvMapEnabled                  (value);  return true; }
+    // Diag
+    else if (name == CONF_DIAG_IMPORT_NODES    ) { App::SetDiagRigLogNodeImport (STR2BOOL_(value)); return true; }
+    else if (name == CONF_DIAG_IMPORT_STATS    ) { App::SetDiagRigLogNodeStats  (STR2BOOL_(value)); return true; }
+    else if (name == CONF_DIAG_IMPORT_MSG      ) { App::SetDiagRigLogMessages   (STR2BOOL_(value)); return true; }
+    else if (name == "Debug Collisions"        ) { App::SetDiagCollisions       (STR2BOOL_(value)); return true; }
+    else if (name == "Debug Truck Mass"        ) { App::SetDiagTruckMass        (STR2BOOL_(value)); return true; }
+    else if (name == "EnvMapDebug"             ) { App::SetDiagEnvmap           (STR2BOOL_(value)); return true; }
 
     return false;
 }

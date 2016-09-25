@@ -76,6 +76,12 @@ static std::string      g_mp_player_name;        // Replaces old SSETTING("Nickn
 
 // Diagnostic
 static bool             g_diag_trace_globals;
+static bool             g_diag_rig_log_node_import; ///< Config: BOOL RigImporter_Debug_TraverseAndLogAllNodes
+static bool             g_diag_rig_log_node_stats ; ///< Config: BOOL RigImporter_PrintNodeStatsToLog
+static bool             g_diag_rig_log_messages   ; ///< Config: BOOL RigImporter_PrintMessagesToLog
+static bool             g_diag_collisions         ; ///< Config: BOOL Debug Collisions
+static bool             g_diag_truck_mass         ; ///< Config: BOOL Debug Truck Mass
+static bool             g_diag_envmap             ; ///< Config: BOOL EnvMapDebug
 
 // System
 static std::string      g_sys_process_dir;       ///< No ending slash.
@@ -166,6 +172,12 @@ bool            GetGfxEnableHdr    ()   { return g_gfx_enable_hdr     ; }
 bool            GetGfxUseHeathaze  ()   { return g_gfx_enable_heathaze; }
 int             GetGfxEnvmapMode   ()   { return g_gfx_envmap_mode    ; }
 int             GetGfxSkidmarksMode()   { return g_gfx_skidmarks_mode ; }
+bool            GetDiagRigLogNodeImport () { return g_diag_rig_log_node_import; }
+bool            GetDiagRigLogNodeStats  () { return g_diag_rig_log_node_stats ; }
+bool            GetDiagRigLogMessages   () { return g_diag_rig_log_messages   ; }
+bool            GetDiagCollisions       () { return g_diag_collisions         ; }
+bool            GetDiagTruckMass        () { return g_diag_truck_mass         ; }
+bool            GetDiagEnvmap           () { return g_diag_envmap             ; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -205,6 +217,12 @@ void SetGfxEnvmapMode     (int            v) { SetVarInt     (g_gfx_envmap_mode 
 void SetGfxSkidmarksMode  (int            v) { SetVarInt     (g_gfx_skidmarks_mode   , "gfx_skidmarks_mode"   , v); }
 void SetGfxMinimapMode    (int            v) { SetVarInt     (g_gfx_minimap_mode     , "gfx_minimap_mode"     , v); }
 void SetGfxParticlesMode  (int            v) { SetVarInt     (g_gfx_particles_mode   , "gfx_particles_mode"   , v); }
+void SetDiagRigLogNodeImport (bool        v) { SetVarBool    (g_diag_rig_log_node_import  , "diag_rig_log_node_import"  , v); }
+void SetDiagRigLogNodeStats  (bool        v) { SetVarBool    (g_diag_rig_log_node_stats   , "diag_rig_log_node_stats"   , v); }
+void SetDiagRigLogMessages   (bool        v) { SetVarBool    (g_diag_rig_log_messages     , "diag_rig_log_messages"     , v); }
+void SetDiagCollisions       (bool        v) { SetVarBool    (g_diag_collisions           , "diag_collisions"           , v); }
+void SetDiagTruckMass        (bool        v) { SetVarBool    (g_diag_truck_mass           , "diag_truck_mass"           , v); }
+void SetDiagEnvmap           (bool        v) { SetVarBool    (g_diag_envmap               , "diag_envmap"               , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };

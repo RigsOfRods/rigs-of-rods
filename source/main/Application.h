@@ -144,6 +144,12 @@ bool                 GetGfxEnableHdr    ();
 bool                 GetGfxUseHeathaze  ();
 int                  GetGfxEnvmapMode   ();
 int                  GetGfxSkidmarksMode();
+bool                 GetDiagRigLogNodeImport ();
+bool                 GetDiagRigLogNodeStats  ();
+bool                 GetDiagRigLogMessages   ();
+bool                 GetDiagCollisions       ();
+bool                 GetDiagTruckMass        ();
+bool                 GetDiagEnvmap           ();
 
 // Setters
 void SetActiveAppState   (State    v);
@@ -183,6 +189,12 @@ void SetGfxEnvmapMode    (int           v);
 void SetGfxSkidmarksMode (int           v);
 void SetGfxMinimapMode   (int           v);
 void SetGfxParticlesMode (int           v);
+void SetDiagRigLogNodeImport (bool      v);
+void SetDiagRigLogNodeStats  (bool      v);
+void SetDiagRigLogMessages   (bool      v);
+void SetDiagCollisions       (bool      v);
+void SetDiagTruckMass    (bool          v);
+void SetDiagEnvmap       (bool          v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

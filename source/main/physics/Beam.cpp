@@ -818,7 +818,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 {
 	BES_GFX_START(BES_GFX_calc_masses2);
 
-	bool debugMass = BSETTING("Debug Truck Mass", false);
+	bool debugMass = App::GetDiagTruckMass();
 
 	//reset
 	for (int i=0; i<free_node; i++)
@@ -5689,7 +5689,7 @@ bool Beam::LoadTruck(
 	LOG(report_text);
 
     auto* importer = parser.GetSequentialImporter();
-    if (importer->IsEnabled() && BSETTING("RigImporter_PrintMessagesToLog", false))
+    if (importer->IsEnabled() && App::GetDiagRigLogMessages())
     {
         report_num_errors   += importer->GetMessagesNumErrors();
         report_num_warnings += importer->GetMessagesNumWarnings();
@@ -5762,11 +5762,11 @@ bool Beam::LoadTruck(
     // Extra information to RoR.log
     if (importer->IsEnabled())
     {
-        if (BSETTING("RigImporter_PrintNodeStatsToLog", false))
+        if (App::GetDiagRigLogNodeStats())
         {
             LOG(importer->GetNodeStatistics());
         }
-        if (BSETTING("RigImporter_Debug_TraverseAndLogAllNodes", false))
+        if (App::GetDiagRigLogNodeImport())
         {
             LOG(importer->IterateAndPrintAllNodes());
         }
