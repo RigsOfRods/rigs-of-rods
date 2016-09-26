@@ -105,8 +105,6 @@ protected:
 
 	bool m_is_pace_reset_pressed;
 
-	bool m_is_position_storage_enabled;
-
 	int m_stats_on;
 
 	Ogre::Vector3 m_reload_pos;

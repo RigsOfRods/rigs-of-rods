@@ -587,10 +587,7 @@ void CLASS::UpdateControls()
 	else
 		m_sightrange_indicator->setCaption(Ogre::StringConverter::toString(sight_range) + " m");		
 
-	if (GameSettingsMap["Replay mode"] == "Yes")
-		m_enable_replay->setStateCheck(true);
-	else
-		m_enable_replay->setStateCheck(false);
+	m_enable_replay->setStateCheck(App::GetSimReplayEnabled());
 
 	if (App::GetAppScreenshotFormat() == "png")
 		m_hq_screenshots->setStateCheck(true);

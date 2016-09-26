@@ -262,7 +262,7 @@ void MainThread::Go()
     App::State previous_application_state = App::GetActiveAppState();
     App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
 
-    if (! App::GetPendingTerrain().empty())
+    if (! App::GetSimNextTerrain().empty())
     {
         App::SetPendingAppState(App::APP_STATE_SIMULATION);
     }
@@ -528,12 +528,12 @@ bool MainThread::SetupGameplayLoop()
 	// Loading map
 	// ============================================================================
 
-	if (App::GetPendingTerrain().empty())
+	if (App::GetSimNextTerrain().empty())
 	{
 		CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
 		if (selected_map != nullptr)
 		{
-            App::SetPendingTerrain(selected_map->fname);
+            App::SetSimNextTerrain(selected_map->fname);
 		}
 		else
 		{
@@ -554,23 +554,21 @@ bool MainThread::SetupGameplayLoop()
 	// Loading vehicle
 	// ========================================================================
 
-	Ogre::String preselected_truck = SSETTING("Preselected Truck", "");
-	if (!preselected_truck.empty() && preselected_truck != "none")
+	if (App::GetSimNextVehicle() != "")
 	{
-		Ogre::String preselected_truck_config = SSETTING("Preselected TruckConfig", "");
-		if (preselected_truck_config != "")
-		{
-			LOG("Preselected Truck Config: " + (preselected_truck_config));
-		}
-		LOG("Preselected Truck: " + (preselected_truck));
 
-		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truck_config);
-		bool enterTruck = (BSETTING("Enter Preselected Truck", false));
+		if (App::GetSimNextVehConfig() != "")
+		{
+			LOG("Preselected Truck Config: " + App::GetSimNextVehConfig());
+		}
+		LOG("Preselected Truck: " + App::GetSimNextVehicle());
+
+		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, App::GetSimNextVehConfig());
 
 		Vector3 pos = gEnv->player->getPosition();
 		Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
-		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, preselected_truck, -1, nullptr, false, &truckConfig);
+		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, App::GetSimNextVehicle(), -1, nullptr, false, &truckConfig);
 
 		if (b != nullptr)
 		{
@@ -582,9 +580,10 @@ bool MainThread::SetupGameplayLoop()
 			b->updateFlexbodiesFinal();
 			b->updateVisual();
 
-			if (enterTruck && b->free_node > 0)
+			if (App::GetSimNextVehEnter() && b->free_node > 0)
 			{
 				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
+                App::SetSimNextVehEnter(false);
 			}
 			if (b->engine)
 			{
@@ -641,7 +640,7 @@ void MainThread::EnterMainMenuLoop()
 
 	while (App::GetPendingAppState() == App::APP_STATE_NONE)
 	{
-		startTime = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+		startTime = App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
 		// no more actual rendering?
 		if (m_no_rendering)
@@ -657,9 +656,9 @@ void MainThread::EnterMainMenuLoop()
 			CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
 			if (selected_map != nullptr)
 			{
-                RoR::App::GetGuiManager()->GetMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
+                App::GetGuiManager()->GetMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
                 App::SetPendingAppState(App::APP_STATE_SIMULATION);
-                App::SetPendingTerrain(selected_map->fname);
+                App::SetSimNextTerrain(selected_map->fname);
 			}
 		}
 
@@ -852,8 +851,8 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 bool MainThread::LoadTerrain()
 {
 	// check if the resource is loaded
-	Ogre::String terrain_file = App::GetPendingTerrain();
-    App::SetPendingTerrain("");
+	Ogre::String terrain_file = App::GetSimNextTerrain();
+    App::SetSimNextTerrain("");
 	if (! RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
 	{
 		// fallback for terrains, add .terrn if not found and retry
@@ -882,7 +881,7 @@ bool MainThread::LoadTerrain()
 
 	gEnv->terrainManager = new TerrainManager();
 	gEnv->terrainManager->loadTerrain(terrain_file);
-    App::SetActiveTerrain(terrain_file);
+    App::SetSimActiveTerrain(terrain_file);
 
 #ifdef USE_MYGUI
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();
@@ -1011,7 +1010,7 @@ void MainThread::JoinMultiplayerServer()
     String terrain_name = RoR::Networking::GetTerrainName();
     if (terrain_name != "any")
     {
-        App::SetPendingTerrain(terrain_name);
+        App::SetSimNextTerrain(terrain_name);
         App::SetPendingAppState(App::APP_STATE_SIMULATION);
     }
     else

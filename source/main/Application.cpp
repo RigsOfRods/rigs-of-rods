@@ -65,10 +65,17 @@ static bool             g_app_multithread;       ///< Config: STR Multi-threadin
 static std::string      g_app_screenshot_format; ///< Config: STR Screenshot Format
 
 // Simulation
-static std::string      g_sim_terrain_active;
-static std::string      g_sim_terrain_pending;   // Replaces old SSETTING("Preselected Map") See 'Settings.h'
 static SimState         g_sim_state_active;      ///< Current state
 static SimState         g_sim_state_pending;     ///< Requested state change
+static std::string      g_sim_active_terrain;
+static std::string      g_sim_next_terrain;      ///< Config: STR  Preselected Map
+static bool             g_sim_replay_enabled;    ///< Config: BOOL Replay mode            
+static int              g_sim_replay_length;     ///< Config: INT  Replay length          
+static int              g_sim_replay_stepping;   ///< Config: INT  Replay Steps per second
+static bool             g_sim_position_storage;  ///< Config: BOOL Position Storage       
+static std::string      g_sim_next_vehicle;      ///< Config: STR  Preselected Truck  
+static std::string      g_sim_next_veh_config;   ///< Config: STR  Preselected TruckConfig
+static bool             g_sim_next_veh_enter;    ///< Config: STR  Enter Preselected Truck
 
 // Multiplayer
 static MpState          g_mp_state_active;       ///< Current state
@@ -149,8 +156,8 @@ void SetVarSimState (App::SimState&   var, const char* var_name, App::SimState  
 // Getters
 State           GetActiveAppState()     { return g_app_state_active;      }
 State           GetPendingAppState()    { return g_app_state_pending;     }
-STR_CREF        GetActiveTerrain()      { return g_sim_terrain_active;    }
-STR_CREF        GetPendingTerrain()     { return g_sim_terrain_pending;   }
+STR_CREF        GetSimActiveTerrain()   { return g_sim_active_terrain;    }
+STR_CREF        GetSimNextTerrain()     { return g_sim_next_terrain;      }
 SimState        GetActiveSimState()     { return g_sim_state_active;      }
 SimState        GetPendingSimState()    { return g_sim_state_pending;     }
 MpState         GetActiveMpState()      { return g_mp_state_active;       }
@@ -200,12 +207,19 @@ float           GetAudioMasterVolume    () { return g_audio_master_volume;      
 bool            GetAudioEnableCreak     () { return g_audio_enable_creak ;      }
 STR_CREF        GetAudioDeviceName      () { return g_audio_device_name  ;      }
 bool            GetAudioMenuMusic       () { return g_audio_menu_music   ;      }
+bool            GetSimReplayEnabled     () { return g_sim_replay_enabled;       }
+int             GetSimReplayLength      () { return g_sim_replay_length;        }
+int             GetSimReplayStepping    () { return g_sim_replay_stepping;      }
+bool            GetSimPositionStorage   () { return g_sim_position_storage;     }
+STR_CREF        GetSimNextVehicle       () { return g_sim_next_vehicle;         }
+STR_CREF        GetSimNextVehConfig     () { return g_sim_next_veh_config;      }
+bool            GetSimNextVehEnter      () { return g_sim_next_veh_enter;       }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
 void SetPendingAppState   (State    v) { SetVarAppState(g_app_state_pending    , "app_state_pending"    , v); }
-void SetActiveTerrain     (STR_CREF v) { SetVarStr     (g_sim_terrain_active   , "sim_terrain_active"   , v); }
-void SetPendingTerrain    (STR_CREF v) { SetVarStr     (g_sim_terrain_pending  , "sim_terrain_pending"  , v); }
+void SetSimActiveTerrain  (STR_CREF v) { SetVarStr     (g_sim_active_terrain   , "sim_active_terrain"   , v); }
+void SetSimNextTerrain    (STR_CREF v) { SetVarStr     (g_sim_next_terrain     , "sim_next_terrain"     , v); }
 void SetActiveSimState    (SimState v) { SetVarSimState(g_sim_state_active     , "sim_state_active"     , v); }
 void SetPendingSimState   (SimState v) { SetVarSimState(g_sim_state_pending    , "sim_state_pending"    , v); }
 void SetActiveMpState     (MpState  v) { SetVarMpState (g_mp_state_active      , "mp_state_active"      , v); }
@@ -255,6 +269,13 @@ void SetAudioMasterVolume  (float         v) { SetVarFloat   (g_audio_master_vol
 void SetAudioEnableCreak   (bool          v) { SetVarBool    (g_audio_enable_creak        , "audio_enable_creak"        , v); }
 void SetAudioDeviceName    (STR_CREF      v) { SetVarStr     (g_audio_device_name         , "audio_device_name"         , v); }
 void SetAudioMenuMusic     (bool          v) { SetVarBool    (g_audio_menu_music          , "audio_menu_music"          , v); }
+void SetSimReplayEnabled   (bool          v) { SetVarBool    (g_sim_replay_enabled        , "sim_replay_enabled"        , v); }
+void SetSimReplayLength    (int           v) { SetVarInt     (g_sim_replay_length         , "sim_replay_length"         , v); }
+void SetSimReplayStepping  (int           v) { SetVarInt     (g_sim_replay_stepping       , "sim_replay_stepping"       , v); }
+void SetSimPositionStorage (bool          v) { SetVarBool    (g_sim_position_storage      , "sim_position_storage"      , v); }
+void SetSimNextVehicle     (STR_CREF      v) { SetVarStr     (g_sim_next_vehicle          , "sim_next_vehicle"          , v); }
+void SetSimNextVehConfig   (STR_CREF      v) { SetVarStr     (g_sim_next_veh_config       , "sim_next_veh_config"       , v); }
+void SetSimNextVehEnter    (bool          v) { SetVarBool    (g_sim_next_veh_enter        , "sim_next_veh_enter"        , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -376,6 +397,8 @@ void Init()
 
     g_sim_state_active     = SIM_STATE_NONE;
     g_sim_state_pending    = SIM_STATE_NONE;
+    g_sim_replay_stepping  = 240;
+    g_sim_replay_length    = 1000;
 
     g_diag_trace_globals   = false; // Don't init to 'true', logger is not ready at startup.
 

@@ -263,15 +263,15 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         }
         else if (args.OptionId() == OPT_TRUCK) 
         {
-            SETTINGS.setSetting("Preselected Truck", String(args.OptionArg()));
+            App::SetSimNextVehicle(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_TRUCKCONFIG) 
         {
-            SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
+            App::SetSimNextVehConfig(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_MAP) 
         {
-            RoR::App::SetPendingTerrain(args.OptionArg());
+            RoR::App::SetSimNextTerrain(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_NOCRASHCRPT) 
         {
@@ -314,7 +314,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         } 
         else if (args.OptionId() == OPT_ENTERTRUCK) 
         {
-            SETTINGS.setSetting("Enter Preselected Truck", "Yes");
+            App::SetSimNextVehEnter(true);
         } 
         else if (args.OptionId() == OPT_SETUP) 
         {
@@ -570,7 +570,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
         RoR::App::SetPendingMpState(RoR::App::MP_STATE_CONNECTED);
         return true;
     }
-    else if (name == "Preselected Map"         ) { App::SetPendingTerrain            (value);  return true; }
+    else if (name == "Preselected Map"         ) { App::SetSimNextTerrain            (value);  return true; }
     else if (name == "Nickname"                ) { App::SetMpPlayerName              (value);  return true; }
     else if (name == "Server name"             ) { App::SetMpServerHost              (value);  return true; }
     else if (name == "Server port"             ) { App::SetMpServerPort    (STR2INT32(value)); return true; }
@@ -612,6 +612,13 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "EnvMapDebug"             ) { App::SetDiagEnvmap           (STR2BOOL_(value)); return true; }
     // App
     else if (name == "Screenshot Format"       ) { App__SetScreenshotFormat               (value);  return true; }
+    else if (name == "Replay mode"             ) { App::SetSimReplayEnabled     (STR2BOOL_(value)); return true; }
+    else if (name == "Replay length"           ) { App::SetSimReplayLength      (STR2INT32(value)); return true; }
+    else if (name == "Replay Steps per second" ) { App::SetSimReplayStepping    (STR2INT32(value)); return true; }
+    else if (name == "Position Storage"        ) { App::SetSimPositionStorage   (STR2BOOL_(value)); return true; }
+    else if (name == "Preselected Truck"       ) { App::SetSimNextVehicle                 (value);  return true; }
+    else if (name == "Preselected TruckConfig" ) { App::SetSimNextVehConfig               (value);  return true; }
+    else if (name == "Enter Preselected Truck" ) { App::SetSimNextVehEnter      (STR2BOOL_(value)); return true; }
 
     return false;
 }

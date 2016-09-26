@@ -116,8 +116,8 @@ MainThread*          GetMainThreadLogic();
 
 State                GetActiveAppState();
 State                GetPendingAppState();
-STR_CREF             GetActiveTerrain();
-STR_CREF             GetPendingTerrain();
+STR_CREF             GetSimActiveTerrain();
+STR_CREF             GetSimNextTerrain();
 MpState              GetActiveMpState();
 MpState              GetPendingMpState();
 SimState             GetActiveSimState();
@@ -167,13 +167,20 @@ float                GetAudioMasterVolume    ();
 bool                 GetAudioEnableCreak     ();
 STR_CREF             GetAudioDeviceName      ();
 bool                 GetAudioMenuMusic       ();
+bool                 GetSimReplayEnabled     ();
+int                  GetSimReplayLength      ();
+int                  GetSimReplayStepping    ();
+bool                 GetSimPositionStorage   ();
+STR_CREF             GetSimNextVehicle       ();
+STR_CREF             GetSimNextVehConfig     ();
+bool                 GetSimNextVehEnter      ();
 
 
 // Setters
 void SetActiveAppState   (State    v);
 void SetPendingAppState  (State    v);
-void SetActiveTerrain    (STR_CREF v);
-void SetPendingTerrain   (STR_CREF v);
+void SetSimActiveTerrain (STR_CREF v);
+void SetSimNextTerrain   (STR_CREF v);
 void SetActiveMpState    (MpState  v);
 void SetPendingMpState   (MpState  v);
 void SetActiveSimState   (SimState v);
@@ -223,6 +230,13 @@ void SetAudioMasterVolume    (float          v);
 void SetAudioEnableCreak     (bool           v);
 void SetAudioDeviceName      (STR_CREF       v);
 void SetAudioMenuMusic       (bool           v);
+void SetSimReplayEnabled     (bool           v);
+void SetSimReplayLength      (int            v);
+void SetSimReplayStepping    (int            v);
+void SetSimPositionStorage   (bool           v);
+void SetSimNextVehicle       (STR_CREF       v);
+void SetSimNextVehConfig     (STR_CREF       v);
+void SetSimNextVehEnter      (bool           v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

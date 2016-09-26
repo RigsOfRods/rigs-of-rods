@@ -5476,14 +5476,13 @@ Beam::Beam(
 	changedCamera();
 
 	// setup replay mode
-	bool enablereplay = BSETTING("Replay mode", false);
 
-	if (enablereplay && !_networked && !networking)
+	if (App::GetSimReplayEnabled() && !_networked && !networking)
 	{
-		replaylen = ISETTING("Replay length", 10000);
+		replaylen = App::GetSimReplayLength();
 		replay = new Replay(this, replaylen);
 
-		int steps = ISETTING("Replay Steps per second", 240);
+		int steps = App::GetSimReplayStepping();
 
 		if (steps <= 0)
 			replayPrecision = 0.0f;
@@ -5492,7 +5491,7 @@ Beam::Beam(
 	}
 
 	// add storage
-	bool enablePosStor = BSETTING("Position Storage", false);
+	bool enablePosStor = App::GetSimPositionStorage();
 	if (enablePosStor)
 	{
 		posStorage = new PositionStorage(free_node, 10);
