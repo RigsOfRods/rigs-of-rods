@@ -105,6 +105,12 @@ static float            g_input_ff_stress;       ///< Config: FSETTING Force Fee
 static int              g_input_grab_mode ;      ///< Config: BOOL Input Grab
 static bool             g_input_use_arcade;      ///< Config: BOOL ArcadeControls
 
+// Audio
+static float            g_audio_master_volume;   ///< Config: FLOAT Sound Volume
+static bool             g_audio_enable_creak ;   ///< Config: BOOL  Creak Sound
+static std::string      g_audio_device_name  ;   ///< Config: STR   AudioDevice
+static bool             g_audio_menu_music   ;   ///< Config: BOOL  MainMenuMusic 
+
 // Graphics
 static int              g_gfx_shadow_type;       ///< Config: STR   Shadow technique
 static int              g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
@@ -190,6 +196,10 @@ bool            GetAppMultithread       () { return g_app_multithread;          
 STR_CREF        GetAppScreenshotFormat  () { return g_app_screenshot_format;    }
 InputGrabMode   GetInputGrabMode        () { return (InputGrabMode)g_input_grab_mode ; }
 bool            GetInputUseArcade       () { return g_input_use_arcade;         }
+float           GetAudioMasterVolume    () { return g_audio_master_volume;      }
+bool            GetAudioEnableCreak     () { return g_audio_enable_creak ;      }
+STR_CREF        GetAudioDeviceName      () { return g_audio_device_name  ;      }
+bool            GetAudioMenuMusic       () { return g_audio_menu_music   ;      }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -241,6 +251,10 @@ void SetAppMultithread       (bool        v) { SetVarBool    (g_app_multithread 
 void SetAppScreenshotFormat  (STR_CREF    v) { SetVarStr     (g_app_screenshot_format     , "app_screenshot_format"     , v); }
 void SetInputGrabMode      (InputGrabMode v) { SetVarInt     (g_input_grab_mode           , "input_grab_mode"           , (int)v); }
 void SetInputUseArcade     (bool          v) { SetVarBool    (g_input_use_arcade          , "input_use_arcade"          , v); }
+void SetAudioMasterVolume  (float         v) { SetVarFloat   (g_audio_master_volume       , "audio_master_volume"       , v); }
+void SetAudioEnableCreak   (bool          v) { SetVarBool    (g_audio_enable_creak        , "audio_enable_creak"        , v); }
+void SetAudioDeviceName    (STR_CREF      v) { SetVarStr     (g_audio_device_name         , "audio_device_name"         , v); }
+void SetAudioMenuMusic     (bool          v) { SetVarBool    (g_audio_menu_music          , "audio_menu_music"          , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };

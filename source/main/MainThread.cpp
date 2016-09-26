@@ -316,7 +316,7 @@ void MainThread::Go()
 				#endif // USE_MUMBLE
 			}
 
-			if (BSETTING("MainMenuMusic", true))
+			if (App::GetAudioMenuMusic())
 			{
 				SoundScriptManager::getSingleton().createInstance("tracks/main_menu_tune", -1, nullptr);
 				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
@@ -607,7 +607,7 @@ bool MainThread::SetupGameplayLoop()
     App::CreateOverlayWrapper();
     App::GetOverlayWrapper()->SetupDirectionArrow();
 
-	if (BSETTING("MainMenuMusic", true))
+	if (App::GetAudioMenuMusic())
     {
 		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
     }

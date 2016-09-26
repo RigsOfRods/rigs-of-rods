@@ -598,6 +598,11 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Skidmarks"               ) { App::SetGfxSkidmarksMode((int)STR2BOOL_(value)); return true; }
     else if (name == "EnvmapUpdateRate"        ) { App__SetEnvMapUpdateRate               (value);  return true; }
     else if (name == "Envmap"                  ) { App__SetEnvMapEnabled                  (value);  return true; }
+    // Audio
+    else if (name == "Sound Volume"            ) { App::SetAudioMasterVolume(    STR2FLOAT(value)/100.f); return true; }
+    else if (name == "Creak Sound"             ) { App::SetAudioEnableCreak(     STR2BOOL_(value)); return true; }
+    else if (name == "MainMenuMusic"           ) { App::SetAudioMenuMusic  (     STR2BOOL_(value)); return true; }
+    else if (name == "AudioDevice"             ) { App::SetAudioDeviceName                (value);  return true; }
     // Diag
     else if (name == CONF_DIAG_IMPORT_NODES    ) { App::SetDiagRigLogNodeImport (STR2BOOL_(value)); return true; }
     else if (name == CONF_DIAG_IMPORT_STATS    ) { App::SetDiagRigLogNodeStats  (STR2BOOL_(value)); return true; }

@@ -208,10 +208,7 @@ bool ContentManager::init(void)
 	SoundScriptManager::getSingleton().setLoadingBaseSounds(true);
 #endif // USE_OPENAL
 
-	if (SSETTING("AudioDevice", "") != "No Output")
-		AddResourcePack(ResourcePack::SOUNDS);
-
-
+    AddResourcePack(ResourcePack::SOUNDS);
 
 	// streams path, to be processed later by the cache system
 	LOG("RoR|ContentManager: Loading filesystems");

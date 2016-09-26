@@ -365,10 +365,7 @@ void CLASS::UpdateControls()
 	else
 		m_d_cam_pitch->setStateCheck(false);
 
-	if (GameSettingsMap["Creak Sound"] == "No")
-		m_d_creak_sound->setStateCheck(true);
-	else
-		m_d_creak_sound->setStateCheck(false);
+	m_d_creak_sound->setStateCheck(App::GetAudioEnableCreak());
 
 	//Fov
 	m_fovexternal->setCaption(GameSettingsMap["FOV External"]);
@@ -563,7 +560,7 @@ void CLASS::UpdateControls()
 		{
 			m_audio_dev->addItem(Ogre::String(devices));
 		}
-		if (Ogre::String(devices) == GameSettingsMap["AudioDevice"])
+		if (Ogre::String(devices) == App::GetAudioDeviceName())
 			m_audio_dev->setIndexSelected(valuecounter);
 
 		devices += strlen(devices) + 1; //next device
@@ -621,10 +618,7 @@ void CLASS::UpdateControls()
 	else
 		m_skidmarks_quality->setIndexSelected(0);
 
-	if (GameSettingsMap["MainMenuMusic"] == "Yes")
-		m_main_menu_music->setStateCheck(true);
-	else
-		m_main_menu_music->setStateCheck(false);
+	m_main_menu_music->setStateCheck(App::GetAudioMenuMusic());
 }
 
 void CLASS::OnArcadeModeCheck(MyGUI::WidgetPtr _sender)

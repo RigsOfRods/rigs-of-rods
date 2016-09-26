@@ -163,6 +163,10 @@ bool                 GetAppMultithread       ();
 STR_CREF             GetAppScreenshotFormat  ();
 InputGrabMode        GetInputGrabMode        ();
 bool                 GetInputUseArcade       ();
+float                GetAudioMasterVolume    ();
+bool                 GetAudioEnableCreak     ();
+STR_CREF             GetAudioDeviceName      ();
+bool                 GetAudioMenuMusic       ();
 
 
 // Setters
@@ -215,6 +219,10 @@ void SetAppMultithread       (bool      v);
 void SetAppScreenshotFormat  (STR_CREF  v);
 void SetInputGrabMode        (InputGrabMode  v);
 void SetInputUseArcade       (bool           v);
+void SetAudioMasterVolume    (float          v);
+void SetAudioEnableCreak     (bool           v);
+void SetAudioDeviceName      (STR_CREF       v);
+void SetAudioMenuMusic       (bool           v);
 
 void SetMainThreadLogic  (MainThread* obj);
 
