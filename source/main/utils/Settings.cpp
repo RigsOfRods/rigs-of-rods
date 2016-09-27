@@ -519,6 +519,15 @@ inline void App__SetSimGearboxMode(std::string const & s)
     if (s == "Fully Manual: stick shift with ranges") { App::SetSimGearboxMode(App::SIM_GEARBOX_MANUAL_RANGES); return; }
 }
 
+inline void App__SetGfxFlaresMode(std::string const & s)
+{
+    if (s == "None (fastest)")                    { App::SetGfxFlaresMode(App::GFX_FLARES_NONE);                    return; }
+    if (s == "No light sources")                  { App::SetGfxFlaresMode(App::GFX_FLARES_NO_LIGHTSOURCES);         return; }
+    if (s == "Only current vehicle, main lights") { App::SetGfxFlaresMode(App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY);  return; }
+    if (s == "All vehicles, main lights")         { App::SetGfxFlaresMode(App::GFX_FLARES_ALL_VEHICLES_HEAD_ONLY);  return; }
+    if (s == "All vehicles, all lights")          { App::SetGfxFlaresMode(App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS); return; }
+}
+
 inline void App__SetScreenshotFormat(std::string const & s)
 {
     if (s.size() >= 3) { App::SetAppScreenshotFormat(s.substr(0, 3)); }
@@ -599,6 +608,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Skidmarks"               ) { App::SetGfxSkidmarksMode((int)STR2BOOL_(value)); return true; }
     else if (name == "EnvmapUpdateRate"        ) { App__SetEnvMapUpdateRate               (value);  return true; }
     else if (name == "Envmap"                  ) { App__SetEnvMapEnabled                  (value);  return true; }
+    else if (name == "Lights"                  ) { App__SetGfxFlaresMode                  (value);  return true; }
+    
     // Audio
     else if (name == "Sound Volume"            ) { App::SetAudioMasterVolume(    STR2FLOAT(value)/100.f); return true; }
     else if (name == "Creak Sound"             ) { App::SetAudioEnableCreak(     STR2BOOL_(value)); return true; }
@@ -741,32 +752,5 @@ bool Settings::SetupAllPaths()
     }
 #endif
     return false;
-}
-
-int Settings::GetFlaresMode(int default_value /*=2*/)
-{
-	if (m_flares_mode == -1) // -1: unknown, -2: default, 0+: mode ID
-	{
-		auto itor = settings.find("Lights");
-		if (itor == settings.end())
-		{
-			m_flares_mode = -2;
-		}
-		else
-		{
-			if      (itor->second == "None (fastest)")                    { m_flares_mode = 0; }
-			else if (itor->second == "No light sources")                  { m_flares_mode = 1; }
-			else if (itor->second == "Only current vehicle, main lights") { m_flares_mode = 2; }
-			else if (itor->second == "All vehicles, main lights")         { m_flares_mode = 3; }
-			else if (itor->second == "All vehicles, all lights")          { m_flares_mode = 4; }
-
-			else                                                          { m_flares_mode = -2; }
-		}
-	}
-	if (m_flares_mode == -2)
-	{
-		return default_value;
-	}
-	return m_flares_mode;
 }
 

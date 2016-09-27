@@ -439,7 +439,7 @@ void RigSpawner::InitializeRig()
 	m_rig->rotaInertia  = new CmdKeyInertia();
 
 	// Lights mode
-	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(); // Default = 2 (All vehicles, main lights)
+	m_rig->m_flares_mode = App::GetGfxFlaresMode();
 
     m_flex_factory = RoR::FlexFactory(
         m_rig->materialFunctionMapper, 
@@ -1119,7 +1119,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 			previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
 
 			//we want also to add positional lights for first wing
-			if (m_generate_wing_position_lights && m_rig->flaresMode>0)
+			if (m_generate_wing_position_lights && (m_rig->m_flares_mode != App::GFX_FLARES_NONE))
 			{
 				if (! CheckPropLimit(4))
 				{
@@ -1980,7 +1980,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
 		}
 	}
-	else if (m_rig->flaresMode > 0)
+	else if (m_rig->m_flares_mode != App::GFX_FLARES_NONE)
 	{
 		if(def.special == RigDef::Prop::SPECIAL_BEACON)
 		{
@@ -2382,10 +2382,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->flaresMode == 0)
-	{
-		return;
-	}
+    if (m_rig->m_flares_mode == App::GFX_FLARES_NONE) { return; }
 
 	int blink_delay = def.blink_delay_milis;
 	float size = def.size;
@@ -2467,7 +2464,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	flare.isVisible = true;
 	flare.light = nullptr;
 
-	if (m_rig->flaresMode >= 2 && size > 0.001)
+	if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
 	{
 		//if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
 		if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
@@ -2482,7 +2479,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 			flare.light->setCastShadows(false);
 		}
 	}
-	if (m_rig->flaresMode >= 4 && size > 0.001)
+	if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
 	{
 		//else if (type == 'f' && !usingDefaultMaterial && flaresMode >=4 && size > 0.001)
 		if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
@@ -6572,7 +6569,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	}
 
 	/* Cabin light */
-	if (m_rig->flaresMode >= 2 && m_rig->cablight == nullptr)
+	if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && m_rig->cablight == nullptr)
 	{
 		std::stringstream light_name;
 		light_name << "cabinlight-" << m_rig->truckname;

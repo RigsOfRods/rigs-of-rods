@@ -120,6 +120,7 @@ static std::string      g_audio_device_name  ;   ///< Config: STR   AudioDevice
 static bool             g_audio_menu_music   ;   ///< Config: BOOL  MainMenuMusic 
 
 // Graphics
+static int              g_gfx_flares_mode;       ///< Config: STR   Lights
 static int              g_gfx_shadow_type;       ///< Config: STR   Shadow technique
 static int              g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
   //   std::string      g_gfx_sky_effects;       ///< Config: STR   Sky effects
@@ -149,6 +150,7 @@ static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
 typedef const char* (*EnumToStringFn)(int);
 
 const char* SimGearboxModeToString(int v);
+const char* GfxFlaresModeToString (int v);
 
 void SetVarStr      (std::string&     var, const char* var_name, STR_CREF        new_value);
 void SetVarInt      (int&             var, const char* var_name, int             new_value);
@@ -221,6 +223,7 @@ STR_CREF        GetSimNextVehicle       () { return g_sim_next_vehicle;         
 STR_CREF        GetSimNextVehConfig     () { return g_sim_next_veh_config;      }
 bool            GetSimNextVehEnter      () { return g_sim_next_veh_enter;       }
 SimGearboxMode  GetSimGearboxMode       () { return (SimGearboxMode)g_sim_gearbox_mode; }
+GfxFlaresMode   GetGfxFlaresMode        () { return (GfxFlaresMode)g_gfx_flares_mode; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -284,6 +287,7 @@ void SetSimNextVehicle     (STR_CREF      v) { SetVarStr     (g_sim_next_vehicle
 void SetSimNextVehConfig   (STR_CREF      v) { SetVarStr     (g_sim_next_veh_config       , "sim_next_veh_config"       , v); }
 void SetSimNextVehEnter    (bool          v) { SetVarBool    (g_sim_next_veh_enter        , "sim_next_veh_enter"        , v); }
 void SetSimGearboxMode     (SimGearboxMode v){ SetVarEnum    (g_sim_gearbox_mode          , "sim_gearbox_mode",      (int)v, SimGearboxModeToString); }
+void SetGfxFlaresMode      (GfxFlaresMode v) { SetVarEnum    (g_gfx_flares_mode           , "gfx_flares_mode",       (int)v, GfxFlaresModeToString ); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -414,6 +418,7 @@ void Init()
     g_gfx_extcam_mode      = GFX_EXTCAM_MODE_PITCHING;
     g_gfx_texture_filter   = GFX_TEXFILTER_TRILINEAR;
     g_gfx_vegetation_mode  = GFX_VEGETATION_NONE;
+    g_gfx_flares_mode      = GFX_FLARES_ALL_VEHICLES_HEAD_ONLY;
 }
 
 
@@ -522,6 +527,19 @@ const char* SimGearboxModeToString(int v)
     case SIM_GEARBOX_MANUAL_STICK : return "MANUAL_STICK";
     case SIM_GEARBOX_MANUAL_RANGES: return "MANUAL_RANGES";
     default                       : return "~invalid~";
+    }
+}
+
+const char* GfxFlaresModeToString(int v)
+{
+    switch ((GfxFlaresMode)v)
+    {
+    case GFX_FLARES_NONE                   : return "NONE"                   ;
+    case GFX_FLARES_NO_LIGHTSOURCES        : return "NO_LIGHTSOURCES"        ;
+    case GFX_FLARES_CURR_VEHICLE_HEAD_ONLY : return "CURR_VEHICLE_HEAD_ONLY" ;
+    case GFX_FLARES_ALL_VEHICLES_HEAD_ONLY : return "ALL_VEHICLES_HEAD_ONLY" ;
+    case GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS: return "ALL_VEHICLES_ALL_LIGHTS";
+    default                                : return "~invalid~";
     }
 }
 

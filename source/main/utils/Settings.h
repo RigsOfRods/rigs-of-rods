@@ -81,7 +81,6 @@ public:
 	void checkGUID();
 	void createGUID();
 
-	int GetFlaresMode(int default_value = 2);
     /// Process command line arguments into settings.
     void ProcessCommandLine(int argc, char *argv[]);
 
@@ -111,7 +110,6 @@ protected:
 	settings_map_t settings;
 
 	int generateBinaryHash();
-	int m_flares_mode; // -1: unknown, -2: default, 0+: mode ID
 };
 
 #endif // __Settings_H_

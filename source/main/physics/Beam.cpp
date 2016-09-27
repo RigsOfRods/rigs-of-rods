@@ -2904,12 +2904,10 @@ void Beam::updateFlares(float dt, bool isCurrent)
 	if (mTimeUntilNextToggle > -1)
 		mTimeUntilNextToggle -= dt;
 
-	if (flaresMode == 0)
-		return;
+    if (m_flares_mode == App::GFX_FLARES_NONE) { return; }
 
 	bool enableAll = true;
-	if (flaresMode == 2 && !isCurrent)
-		enableAll = false;
+    if ((m_flares_mode == App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
 
 	BES_GFX_START(BES_GFX_updateFlares);
 
@@ -4371,11 +4369,9 @@ void Beam::cruisecontrolToggle()
 
 void Beam::beaconsToggle()
 {
-	bool enableLight = true;
-	if (flaresMode==0)
-		return;
-	if (flaresMode==1)
-		enableLight=false;
+    if (m_flares_mode == App::GFX_FLARES_NONE) { return; }
+
+    const bool enableLight = (m_flares_mode != App::GFX_FLARES_NO_LIGHTSOURCES);
 
 	bool beacon_light_is_active = !m_beacon_light_is_active;
 	for (int i=0; i<free_prop; i++)

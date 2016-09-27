@@ -102,6 +102,15 @@ enum GfxVegetation
     GFX_VEGETATION_FULL,
 };
 
+enum GfxFlaresMode
+{
+    GFX_FLARES_NONE,                    ///< None (fastest)
+    GFX_FLARES_NO_LIGHTSOURCES,         ///< No light sources
+    GFX_FLARES_CURR_VEHICLE_HEAD_ONLY,  ///< Only current vehicle, main lights
+    GFX_FLARES_ALL_VEHICLES_HEAD_ONLY,  ///< All vehicles, main lights
+    GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS, ///< All vehicles, all lights
+};
+
 enum InputGrabMode
 {
     INPUT_GRAB_NONE,
@@ -184,6 +193,7 @@ STR_CREF             GetSimNextVehicle       ();
 STR_CREF             GetSimNextVehConfig     ();
 bool                 GetSimNextVehEnter      ();
 SimGearboxMode       GetSimGearboxMode       ();
+GfxFlaresMode        GetGfxFlaresMode        ();
 
 
 // Setters
@@ -248,6 +258,7 @@ void SetSimNextVehicle       (STR_CREF       v);
 void SetSimNextVehConfig     (STR_CREF       v);
 void SetSimNextVehEnter      (bool           v);
 void SetSimGearboxMode       (SimGearboxMode v);
+void SetGfxFlaresMode        (GfxFlaresMode  v);
 
 void SetMainThreadLogic  (MainThread* obj);
 
