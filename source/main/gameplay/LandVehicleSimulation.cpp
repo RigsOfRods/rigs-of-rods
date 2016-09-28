@@ -214,7 +214,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 			}
 
 			// arcade controls are only working with auto-clutch!
-			if (!arcadeControls || curr_truck->engine->getAutoMode() > BeamEngine::SEMIAUTO)
+			if (!arcadeControls || (curr_truck->engine->getAutoMode() >= App::SIM_GEARBOX_MANUAL))
 			{
 				// classic mode, realistic
 				curr_truck->engine->autoSetAcc(accl);
@@ -252,7 +252,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 					if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() > 0)
 					{
 						// we are on the brake, jump to reverse gear
-						if (curr_truck->engine->getAutoMode() == BeamEngine::AUTOMATIC)
+						if (curr_truck->engine->getAutoMode() == App::SIM_GEARBOX_AUTO)
 						{
 							curr_truck->engine->autoShiftSet(BeamEngine::REAR);
 						} 
@@ -263,7 +263,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 					} else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && curr_truck->engine->getGear() < 0)
 					{
 						// we are on the gas pedal, jump to first gear when we were in rear gear
-						if (curr_truck->engine->getAutoMode() == BeamEngine::AUTOMATIC)
+						if (curr_truck->engine->getAutoMode() == App::SIM_GEARBOX_AUTO)
 						{									
 							curr_truck->engine->autoShiftSet(BeamEngine::DRIVE);
 						} 
@@ -277,7 +277,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 			// IMI
 			// gear management -- it might, should be transferred to a standalone function of Beam or RoRFrameListener
-			if (curr_truck->engine->getAutoMode() == BeamEngine::AUTOMATIC)
+			if (curr_truck->engine->getAutoMode() == App::SIM_GEARBOX_AUTO)
 			{
 				if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
 				{
@@ -321,11 +321,11 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 const char* msg = nullptr;
                 switch(curr_truck->engine->getAutoMode())
                 {
-                    case BeamEngine::AUTOMATIC:     msg = "Automatic shift";                       break;
-                    case BeamEngine::SEMIAUTO:      msg = "Manual shift - Auto clutch";            break;
-                    case BeamEngine::MANUAL:        msg = "Fully Manual: sequential shift";        break;
-                    case BeamEngine::MANUAL_STICK:  msg = "Fully manual: stick shift";             break;
-                    case BeamEngine::MANUAL_RANGES: msg = "Fully Manual: stick shift with ranges"; break;
+                    case App::SIM_GEARBOX_AUTO:          msg = "Automatic shift";                       break;
+                    case App::SIM_GEARBOX_SEMI_AUTO:     msg = "Manual shift - Auto clutch";            break;
+                    case App::SIM_GEARBOX_MANUAL:        msg = "Fully Manual: sequential shift";        break;
+                    case App::SIM_GEARBOX_MANUAL_STICK:  msg = "Fully manual: stick shift";             break;
+                    case App::SIM_GEARBOX_MANUAL_RANGES: msg = "Fully Manual: stick shift with ranges"; break;
                 }
                 RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "cog.png", 3000);
                 RoR::App::GetGuiManager()->PushNotification("Gearbox Mode:", msg);
@@ -338,7 +338,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
 			int shiftmode = curr_truck->engine->getAutoMode();
 
-			if (shiftmode <= BeamEngine::MANUAL) // auto, semi auto and sequential shifting
+			if (shiftmode <= App::SIM_GEARBOX_MANUAL) // auto, semi auto and sequential shifting
 			{
 				if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
 				{
@@ -346,20 +346,20 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				} 
 				else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
 				{
-					if (shiftmode  > BeamEngine::SEMIAUTO ||
-						shiftmode == BeamEngine::SEMIAUTO  && !arcadeControls ||
-						shiftmode == BeamEngine::SEMIAUTO  && curr_truck->engine->getGear() > 0 ||
-						shiftmode == BeamEngine::AUTOMATIC)
+					if (shiftmode  > App::SIM_GEARBOX_SEMI_AUTO ||
+						shiftmode == App::SIM_GEARBOX_SEMI_AUTO  && !arcadeControls ||
+						shiftmode == App::SIM_GEARBOX_SEMI_AUTO  && curr_truck->engine->getGear() > 0 ||
+						shiftmode == App::SIM_GEARBOX_AUTO)
 					{
 						curr_truck->engine->shift(-1);
 					}
 				} 
-				else if (shiftmode != BeamEngine::AUTOMATIC && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
+				else if (shiftmode != App::SIM_GEARBOX_AUTO && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
 				{
 					curr_truck->engine->shiftTo(0);
 				}
 			} 
-			else //if (shiftmode > BeamEngine::MANUAL) // h-shift or h-shift with ranges shifting
+			else //if (shiftmode > App::SIM_GEARBOX_MANUAL) // h-shift or h-shift with ranges shifting
 			{
 				bool gear_changed = false;
 				bool found        = false;
@@ -368,7 +368,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				int gearoffset      = std::max(0, curgear - curgearrange * 6);
 
 				// one can select range only if in neutral
-				if (shiftmode==BeamEngine::MANUAL_RANGES && curgear == 0)
+				if (shiftmode==App::SIM_GEARBOX_MANUAL_RANGES && curgear == 0)
 				{
 					//  maybe this should not be here, but should experiment
 					if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
@@ -403,7 +403,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 				} 
 				else if (curgear > 0 && curgear < 19)
 				{
-					if (shiftmode==BeamEngine::MANUAL)
+					if (shiftmode==App::SIM_GEARBOX_MANUAL)
 					{
 						gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + curgear -1);
 					} else
@@ -426,7 +426,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 					} 
 					else
 					{
-						if (shiftmode == BeamEngine::MANUAL_STICK)
+						if (shiftmode == App::SIM_GEARBOX_MANUAL_STICK)
 						{
 							for (int i=1; i < 19 && !found; i++)
 							{
@@ -437,7 +437,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 								}
 							}
 						} 
-						else // BeamEngine::MANUALMANUAL_RANGES
+						else // App::SIM_GEARBOX_MANUALMANUAL_RANGES
 						{
 							for (int i=1; i < 7 && !found; i++)
 							{
@@ -454,10 +454,10 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 						curr_truck->engine->shiftTo(0);
 					}
 				} // end of if (gear_changed)
-			} // end of shitmode > BeamEngine::MANUAL
+			} // end of shitmode > App::SIM_GEARBOX_MANUAL
 
 			if (curr_truck->engine->hasContact() &&
-				curr_truck->engine->getAutoMode()  == BeamEngine::AUTOMATIC &&
+				curr_truck->engine->getAutoMode()  == App::SIM_GEARBOX_AUTO &&
 				curr_truck->engine->getAutoShift() != BeamEngine::NEUTRAL &&
 				std::abs(curr_truck->WheelSpeed) < 0.1f)
 			{
@@ -469,8 +469,8 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 					if (curr_truck->engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->WheelSpeed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
 					    curr_truck->engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->WheelSpeed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
 					{
-						// anti roll back in BeamEngine::AUTOMATIC (DRIVE, TWO, ONE) mode
-						// anti roll forth in BeamEngine::AUTOMATIC (REAR) mode
+						// anti roll back in App::SIM_GEARBOX_AUTO (DRIVE, TWO, ONE) mode
+						// anti roll forth in App::SIM_GEARBOX_AUTO (REAR) mode
 						float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
 						float engine_force = std::abs(curr_truck->engine->getTorque());
 						float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);

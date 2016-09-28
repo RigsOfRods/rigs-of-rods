@@ -63,6 +63,15 @@ enum SimState
     SIM_STATE_EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
 };
 
+enum SimGearboxMode
+{
+    SIM_GEARBOX_AUTO,          ///< Automatic shift
+    SIM_GEARBOX_SEMI_AUTO,     ///< Manual shift - Auto clutch
+    SIM_GEARBOX_MANUAL,        ///< Fully Manual: sequential shift
+    SIM_GEARBOX_MANUAL_STICK,  ///< Fully manual: stick shift
+    SIM_GEARBOX_MANUAL_RANGES, ///< Fully Manual: stick shift with ranges
+};
+
 enum GfxShadowType
 {
     GFX_SHADOW_TYPE_NONE,
@@ -174,6 +183,7 @@ bool                 GetSimPositionStorage   ();
 STR_CREF             GetSimNextVehicle       ();
 STR_CREF             GetSimNextVehConfig     ();
 bool                 GetSimNextVehEnter      ();
+SimGearboxMode       GetSimGearboxMode       ();
 
 
 // Setters
@@ -237,6 +247,7 @@ void SetSimPositionStorage   (bool           v);
 void SetSimNextVehicle       (STR_CREF       v);
 void SetSimNextVehConfig     (STR_CREF       v);
 void SetSimNextVehEnter      (bool           v);
+void SetSimGearboxMode       (SimGearboxMode v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

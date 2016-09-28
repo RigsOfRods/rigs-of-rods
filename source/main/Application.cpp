@@ -76,6 +76,7 @@ static bool             g_sim_position_storage;  ///< Config: BOOL Position Stor
 static std::string      g_sim_next_vehicle;      ///< Config: STR  Preselected Truck  
 static std::string      g_sim_next_veh_config;   ///< Config: STR  Preselected TruckConfig
 static bool             g_sim_next_veh_enter;    ///< Config: STR  Enter Preselected Truck
+static int              g_sim_gearbox_mode;      ///< Config: STR  GearboxMode
 
 // Multiplayer
 static MpState          g_mp_state_active;       ///< Current state
@@ -145,8 +146,13 @@ static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
 
 
 // Helpers (forward decl.)
+typedef const char* (*EnumToStringFn)(int);
+
+const char* SimGearboxModeToString(int v);
+
 void SetVarStr      (std::string&     var, const char* var_name, STR_CREF        new_value);
 void SetVarInt      (int&             var, const char* var_name, int             new_value);
+void SetVarEnum     (int&             var, const char* var_name, int             new_value,   EnumToStringFn to_str_fn );
 void SetVarBool     (bool&            var, const char* var_name, bool            new_value);
 void SetVarFloat    (float&           var, const char* var_name, float           new_value);
 void SetVarAppState (App::State&      var, const char* var_name, App::State      new_value);
@@ -214,6 +220,7 @@ bool            GetSimPositionStorage   () { return g_sim_position_storage;     
 STR_CREF        GetSimNextVehicle       () { return g_sim_next_vehicle;         }
 STR_CREF        GetSimNextVehConfig     () { return g_sim_next_veh_config;      }
 bool            GetSimNextVehEnter      () { return g_sim_next_veh_enter;       }
+SimGearboxMode  GetSimGearboxMode       () { return (SimGearboxMode)g_sim_gearbox_mode; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -276,6 +283,7 @@ void SetSimPositionStorage (bool          v) { SetVarBool    (g_sim_position_sto
 void SetSimNextVehicle     (STR_CREF      v) { SetVarStr     (g_sim_next_vehicle          , "sim_next_vehicle"          , v); }
 void SetSimNextVehConfig   (STR_CREF      v) { SetVarStr     (g_sim_next_veh_config       , "sim_next_veh_config"       , v); }
 void SetSimNextVehEnter    (bool          v) { SetVarBool    (g_sim_next_veh_enter        , "sim_next_veh_enter"        , v); }
+void SetSimGearboxMode     (SimGearboxMode v){ SetVarEnum    (g_sim_gearbox_mode          , "sim_gearbox_mode",      (int)v, SimGearboxModeToString); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -441,6 +449,12 @@ void SetVarInt (int& var, const char* var_name, int new_value)
     var = new_value;
 }
 
+void SetVarEnum (int& var, const char* var_name, int new_value, EnumToStringFn enum_to_str_fn)
+{
+    LogVarUpdate(var_name, (*enum_to_str_fn)(var), (*enum_to_str_fn)(new_value));
+    var = new_value;
+}
+
 void SetVarBool (bool& var, const char* var_name, bool new_value)
 {
     LogVarUpdate(var_name, (var ? "True" : "False"), (new_value ? "True" : "False"));
@@ -495,6 +509,19 @@ const char* SimStateToStr(App::SimState s)
     case App::SIM_STATE_SELECTING  : return "SELECTING";
     case App::SIM_STATE_EDITOR_MODE: return "EDITOR_MODE";
     default                        : return "~invalid~";
+    }
+}
+
+const char* SimGearboxModeToString(int v)
+{
+    switch ((SimGearboxMode)v)
+    {
+    case SIM_GEARBOX_AUTO         : return "AUTO";
+    case SIM_GEARBOX_SEMI_AUTO    : return "SEMI_AUTO";
+    case SIM_GEARBOX_MANUAL       : return "MANUAL";
+    case SIM_GEARBOX_MANUAL_STICK : return "MANUAL_STICK";
+    case SIM_GEARBOX_MANUAL_RANGES: return "MANUAL_RANGES";
+    default                       : return "~invalid~";
     }
 }
 

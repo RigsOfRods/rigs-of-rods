@@ -228,16 +228,6 @@ int DetectBasePaths()
 } // namespace System
 } // namespace RoR
 
-Settings::Settings():
-	m_flares_mode(-1),
-	m_gearbox_mode(-1)
-{
-}
-
-Settings::~Settings()
-{
-}
-
 //RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED
 
 void Settings::ProcessCommandLine(int argc, char *argv[])
@@ -520,6 +510,15 @@ inline void App__SetVegetationMode(std::string const & s)
     if (s == "Full (best looking, slower)") { App::SetGfxVegetationMode(App::GFX_VEGETATION_FULL);   return; }
 }
 
+inline void App__SetSimGearboxMode(std::string const & s)
+{
+    if (s == "Automatic shift")                       { App::SetSimGearboxMode(App::SIM_GEARBOX_AUTO         ); return; }
+    if (s == "Manual shift - Auto clutch")            { App::SetSimGearboxMode(App::SIM_GEARBOX_SEMI_AUTO    ); return; }
+    if (s == "Fully Manual: sequential shift")        { App::SetSimGearboxMode(App::SIM_GEARBOX_MANUAL       ); return; }
+    if (s == "Fully manual: stick shift")             { App::SetSimGearboxMode(App::SIM_GEARBOX_MANUAL_STICK ); return; }
+    if (s == "Fully Manual: stick shift with ranges") { App::SetSimGearboxMode(App::SIM_GEARBOX_MANUAL_RANGES); return; }
+}
+
 inline void App__SetScreenshotFormat(std::string const & s)
 {
     if (s.size() >= 3) { App::SetAppScreenshotFormat(s.substr(0, 3)); }
@@ -575,6 +574,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Server name"             ) { App::SetMpServerHost              (value);  return true; }
     else if (name == "Server port"             ) { App::SetMpServerPort    (STR2INT32(value)); return true; }
     else if (name == "Server password"         ) { App::SetMpServerPassword          (value);  return true; }
+    // Sim
+    else if (name == "GearboxMode"             ) { App__SetSimGearboxMode            (value);  return true; }
     // Input
     else if (name == "Force Feedback"          ) { App::SetInputFFEnabled  (STR2BOOL_(value)); return true; }
     else if (name == "Force Feedback Camera"   ) { App::SetInputFFCamera   (STR2FLOAT(value)); return true; }
@@ -769,29 +770,3 @@ int Settings::GetFlaresMode(int default_value /*=2*/)
 	return m_flares_mode;
 }
 
-int Settings::GetGearBoxMode(int default_value /*=0*/)
-{
-	if (m_gearbox_mode == -1) // -1: unknown, -2: default, 0+: mode ID
-	{
-		auto itor = settings.find("GearboxMode");
-		if (itor == settings.end())
-		{
-			m_gearbox_mode = -2;
-		}
-		else
-		{
-			if (itor->second == "Automatic shift")	{ m_gearbox_mode = 0; }
-			else if (itor->second == "Manual shift - Auto clutch")	{ m_gearbox_mode = 1; }
-			else if (itor->second == "Fully Manual: sequential shift")	{ m_gearbox_mode = 2; }
-			else if (itor->second == "Fully manual: stick shift")	{ m_gearbox_mode = 3; }
-			else if (itor->second == "Fully Manual: stick shift with ranges")	{ m_gearbox_mode = 4; }
-
-			else { m_gearbox_mode = -2; }
-		}
-	}
-	if (m_gearbox_mode == -2)
-	{
-		return default_value;
-	}
-	return m_gearbox_mode;
-}

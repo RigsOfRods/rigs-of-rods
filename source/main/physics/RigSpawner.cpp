@@ -473,7 +473,7 @@ void RigSpawner::FinalizeRig()
 		}
 
 		//Gearbox
-		m_rig->engine->setAutoMode(Settings::getSingleton().GetGearBoxMode());
+		m_rig->engine->setAutoMode(App::GetSimGearboxMode());
 	}
 	
 	//calculate gwps height offset
@@ -5791,16 +5791,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
 		m_rig->trucknum
 	);
 
-	/* Are there any startup shifter settings? */
-	Ogre::String gearbox_mode = SSETTING("gearbox_mode", "Automatic shift");
-	if (gearbox_mode == "Manual shift - Auto clutch")
-		m_rig->engine->setAutoMode(BeamEngine::SEMIAUTO);
-	else if (gearbox_mode == "Fully Manual: sequential shift")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL);
-	else if (gearbox_mode == "Fully Manual: stick shift")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL_STICK);
-	else if (gearbox_mode == "Fully Manual: stick shift with ranges")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL_RANGES);
+    m_rig->engine->setAutoMode(App::GetSimGearboxMode());
 };
 
 void RigSpawner::ProcessHelp()

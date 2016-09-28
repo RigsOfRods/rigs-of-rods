@@ -82,8 +82,6 @@ public:
 	void createGUID();
 
 	int GetFlaresMode(int default_value = 2);
-	int GetGearBoxMode(int default_value = 0);
-
     /// Process command line arguments into settings.
     void ProcessCommandLine(int argc, char *argv[]);
 
@@ -105,10 +103,6 @@ public:
 	}
 protected:
 
-	Settings();
-	~Settings();
-	Settings(const Settings&);
-	Settings& operator= (const Settings&);
 	static Settings* myInstance;
 
 	// members
@@ -117,12 +111,7 @@ protected:
 	settings_map_t settings;
 
 	int generateBinaryHash();
-
-	// ------------------------------------------------------------
-	// Cached config data
-
 	int m_flares_mode; // -1: unknown, -2: default, 0+: mode ID
-	int m_gearbox_mode;
 };
 
 #endif // __Settings_H_
