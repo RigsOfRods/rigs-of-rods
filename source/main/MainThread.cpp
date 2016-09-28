@@ -233,7 +233,7 @@ void MainThread::Go()
 	RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), m_frame_listener);
 
 #ifdef _WIN32
-    if (App::GetInputFFEnabled()) // Force feedback
+    if (App::GetIoFFbackEnabled()) // Force feedback
     {
         if (RoR::App::GetInputEngine()->getForceFeedbackDevice())
         {
@@ -242,7 +242,7 @@ void MainThread::Go()
         else
         {
             LOG("No force feedback device detected, disabling force feedback");
-            App::SetInputFFEnabled(false);
+            App::SetIoFFbackEnabled(false);
         }
     }
 #endif // _WIN32

@@ -554,11 +554,11 @@ inline void App__SetEnvMapEnabled(std::string const & s)
     }
 }
 
-inline void App__SetInputGrabMode(std::string const & s)
+inline void App__SetIoInputGrabMode(std::string const & s)
 {
-    if (s == "Dynamically") { App::SetInputGrabMode(App::INPUT_GRAB_DYNAMIC); return; }
-    if (s == "None"       ) { App::SetInputGrabMode(App::INPUT_GRAB_NONE);    return; }
-    else                    { App::SetInputGrabMode(App::INPUT_GRAB_ALL);     return; }
+    if (s == "Dynamically") { App::SetIoInputGrabMode(App::INPUT_GRAB_DYNAMIC); return; }
+    if (s == "None"       ) { App::SetIoInputGrabMode(App::INPUT_GRAB_NONE);    return; }
+    else                    { App::SetIoInputGrabMode(App::INPUT_GRAB_ALL);     return; }
 }
 
 
@@ -585,14 +585,14 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Server password"         ) { App::SetMpServerPassword          (value);  return true; }
     // Sim
     else if (name == "GearboxMode"             ) { App__SetSimGearboxMode            (value);  return true; }
-    // Input
-    else if (name == "Force Feedback"          ) { App::SetInputFFEnabled  (STR2BOOL_(value)); return true; }
-    else if (name == "Force Feedback Camera"   ) { App::SetInputFFCamera   (STR2FLOAT(value)); return true; }
-    else if (name == "Force Feedback Centering") { App::SetInputFFCentering(STR2FLOAT(value)); return true; }
-    else if (name == "Force Feedback Gain"     ) { App::SetInputFFGain     (STR2FLOAT(value)); return true; }
-    else if (name == "Force Feedback Stress"   ) { App::SetInputFFStress   (STR2FLOAT(value)); return true; }
-    else if (name == "Input Grab"              ) { App__SetInputGrabMode             (value);  return true; }
-    else if (name == "ArcadeControls"          ) { App::SetInputUseArcade  (STR2BOOL_(value)); return true; }
+    // Input+Output
+    else if (name == "Force Feedback"          ) { App::SetIoFFbackEnabled      (STR2BOOL_(value)); return true; }
+    else if (name == "Force Feedback Camera"   ) { App::SetIoFFbackCameraGain   (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Centering") { App::SetIoFFbackCenterGain   (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Gain"     ) { App::SetIoFFbackMasterGain   (STR2FLOAT(value)); return true; }
+    else if (name == "Force Feedback Stress"   ) { App::SetIoFFbackStressGain   (STR2FLOAT(value)); return true; }
+    else if (name == "Input Grab"              ) { App__SetIoInputGrabMode                (value);  return true; }
+    else if (name == "ArcadeControls"          ) { App::SetIoArcadeControls     (STR2BOOL_(value)); return true; }
     // Gfx
     else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
     else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }

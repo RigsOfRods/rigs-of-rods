@@ -111,7 +111,7 @@ enum GfxFlaresMode
     GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS, ///< All vehicles, all lights
 };
 
-enum InputGrabMode
+enum IoInputGrabMode
 {
     INPUT_GRAB_NONE,
     INPUT_GRAB_ALL,
@@ -151,11 +151,11 @@ STR_CREF             GetSysConfigDir();
 STR_CREF             GetSysCacheDir();
 STR_CREF             GetSysLogsDir();
 STR_CREF             GetSysResourcesDir();
-bool                 GetInputFFEnabled();
-float                GetInputFFCamera();
-float                GetInputFFCentering();
-float                GetInputFFGain();
-float                GetInputFFStress();
+bool                 GetIoFFbackEnabled   ();
+float                GetIoFFbackCameraGain();
+float                GetIoFFbackCenterGain();
+float                GetIoFFbackMasterGain();
+float                GetIoFFbackStressGain();
 GfxShadowType        GetGfxShadowType();
 GfxExtCamMode        GetGfxExternCamMode();
 GfxTexFilter         GetGfxTexFiltering();
@@ -179,8 +179,8 @@ STR_CREF             GetAppLanguage          ();
 STR_CREF             GetAppLocale            ();
 bool                 GetAppMultithread       ();
 STR_CREF             GetAppScreenshotFormat  ();
-InputGrabMode        GetInputGrabMode        ();
-bool                 GetInputUseArcade       ();
+IoInputGrabMode      GetIoInputGrabMode      ();
+bool                 GetIoArcadeControls     ();
 float                GetAudioMasterVolume    ();
 bool                 GetAudioEnableCreak     ();
 STR_CREF             GetAudioDeviceName      ();
@@ -217,11 +217,11 @@ void SetSysConfigDir     (STR_CREF v);
 void SetSysCacheDir      (STR_CREF v);
 void SetSysLogsDir       (STR_CREF v);
 void SetSysResourcesDir  (STR_CREF v);
-void SetInputFFEnabled   (bool     v);
-void SetInputFFCamera    (float    v);
-void SetInputFFCentering (float    v);
-void SetInputFFGain      (float    v);
-void SetInputFFStress    (float    v);
+void SetIoFFbackEnabled   (bool     v);
+void SetIoFFbackCameraGain(float    v);
+void SetIoFFbackCenterGain(float    v);
+void SetIoFFbackMasterGain(float    v);
+void SetIoFFbackStressGain(float    v);
 void SetGfxShadowType    (GfxShadowType v);
 void SetGfxExternCamMode (GfxExtCamMode v);
 void SetGfxTexFiltering  (GfxTexFilter  v);
@@ -245,8 +245,8 @@ void SetAppLanguage          (STR_CREF  v);
 void SetAppLocale            (STR_CREF  v);
 void SetAppMultithread       (bool      v);
 void SetAppScreenshotFormat  (STR_CREF  v);
-void SetInputGrabMode        (InputGrabMode  v);
-void SetInputUseArcade       (bool           v);
+void SetIoInputGrabMode      (IoInputGrabMode v);
+void SetIoArcadeControls     (bool           v);
 void SetAudioMasterVolume    (float          v);
 void SetAudioEnableCreak     (bool           v);
 void SetAudioDeviceName      (STR_CREF       v);

@@ -113,9 +113,9 @@ void CLASS::UpdateControls()
 	m_disable_crash_reporting->setStateCheck(Settings::getSingleton().getBooleanSetting("NoCrashRpt", true));
 
 
-	if (App::GetInputGrabMode() == App::INPUT_GRAB_DYNAMIC)
+	if (App::GetIoInputGrabMode() == App::INPUT_GRAB_DYNAMIC)
 		m_input_grabing->setIndexSelected(1);
-	else if (App::GetInputGrabMode() == App::INPUT_GRAB_NONE)
+	else if (App::GetIoInputGrabMode() == App::INPUT_GRAB_NONE)
 		m_input_grabing->setIndexSelected(2);
 	else 
 		m_input_grabing->setIndexSelected(0);

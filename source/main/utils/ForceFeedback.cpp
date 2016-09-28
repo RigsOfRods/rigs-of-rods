@@ -79,8 +79,8 @@ void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dirco
 	}
 
 	OIS::ConstantEffect* hydroConstForce = dynamic_cast<OIS::ConstantEffect*>(m_hydro_effect->getForceEffect());
-    float stress_gain = App::GetInputFFStress();
-    float centering_gain = App::GetInputFFCentering();
+    float stress_gain = App::GetIoFFbackStressGain();
+    float centering_gain = App::GetIoFFbackCenterGain();
 	float ff=-stress*stress_gain+dircommand*100.0*centering_gain*wspeed*wspeed;
 	if (ff>10000) ff=10000;
 	if (ff<-10000) ff=-10000;
@@ -95,7 +95,7 @@ void ForceFeedback::SetEnabled(bool b)
 
     if (b != m_enabled)
     {
-        float gain = (b) ? App::GetInputFFGain() : 0.f;
+        float gain = (b) ? App::GetIoFFbackMasterGain() : 0.f;
         m_device->setMasterGain(gain);
     }
     m_enabled = b;

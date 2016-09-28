@@ -114,11 +114,11 @@ using namespace RoR;
 
 void RoRFrameListener::updateForceFeedback(float dt)
 {
-    if (!App::GetInputFFEnabled()) { return; }
+    if (!App::GetIoFFbackEnabled()) { return; }
     if (!RoR::App::GetInputEngine()->getForceFeedbackDevice())
     {
         LOG("No force feedback device detected, disabling force feedback");
-        App::SetInputFFEnabled(false);
+        App::SetIoFFbackEnabled(false);
         return;
     }
 

@@ -105,14 +105,14 @@ static std::string      g_sys_resources_dir;     ///< No ending slash. Config: S
 static std::string      g_sys_profiler_dir     ; ///< No ending slash. Config: STR Profiler output dir
 static std::string      g_sys_screenshot_dir   ; ///< No ending slash.
 
-// Input
-static bool             g_input_ff_enabled;      ///< Config: BSETTING Force Feedback
-static float            g_input_ff_camera;       ///< Config: FSETTING Force Feedback Camera
-static float            g_input_ff_centering;    ///< Config: FSETTING Force Feedback Centering
-static float            g_input_ff_gain;         ///< Config: FSETTING Force Feedback Gain
-static float            g_input_ff_stress;       ///< Config: FSETTING Force Feedback Stress
-static int              g_input_grab_mode ;      ///< Config: BOOL Input Grab
-static bool             g_input_use_arcade;      ///< Config: BOOL ArcadeControls
+// Input - Output
+static bool             g_io_ffback_enabled;     ///< Config: BOOL  Force Feedback
+static float            g_io_ffback_camera_gain; ///< Config: FLOAT Force Feedback Camera
+static float            g_io_ffback_center_gain; ///< Config: FLOAT Force Feedback Centering
+static float            g_io_ffback_master_gain; ///< Config: FLOAT Force Feedback Gain
+static float            g_io_ffback_stress_gain; ///< Config: FLOAT Force Feedback Stress
+static int              g_io_input_grab_mode;    ///< Config: BOOL  Input Grab
+static bool             g_io_arcade_controls;    ///< Config: BOOL  ArcadeControls
 
 // Audio
 static float            g_audio_master_volume;   ///< Config: FLOAT Sound Volume
@@ -152,6 +152,7 @@ typedef const char* (*EnumToStringFn)(int);
 
 const char* SimGearboxModeToString(int v);
 const char* GfxFlaresModeToString (int v);
+const char* IoInputGrabModeToStr  (int v);
 
 void SetVarStr      (std::string&     var, const char* var_name, STR_CREF        new_value);
 void SetVarInt      (int&             var, const char* var_name, int             new_value);
@@ -182,11 +183,11 @@ STR_CREF        GetSysConfigDir()       { return g_sys_config_dir;        }
 STR_CREF        GetSysCacheDir()        { return g_sys_cache_dir;         }
 STR_CREF        GetSysLogsDir()         { return g_sys_logs_dir;          }
 STR_CREF        GetSysResourcesDir()    { return g_sys_resources_dir;     }
-bool            GetInputFFEnabled()     { return g_input_ff_enabled;      }
-float           GetInputFFCamera()      { return g_input_ff_camera;       }
-float           GetInputFFCentering()   { return g_input_ff_centering;    }
-float           GetInputFFGain()        { return g_input_ff_gain;         }
-float           GetInputFFStress()      { return g_input_ff_stress;       }
+bool            GetIoFFbackEnabled()    { return g_io_ffback_enabled;     }
+float           GetIoFFbackCameraGain() { return g_io_ffback_camera_gain; }
+float           GetIoFFbackCenterGain() { return g_io_ffback_center_gain; }
+float           GetIoFFbackMasterGain() { return g_io_ffback_master_gain; }
+float           GetIoFFbackStressGain() { return g_io_ffback_stress_gain; }
 GfxShadowType   GetGfxShadowType()      { return (GfxShadowType)g_gfx_shadow_type; }
 GfxExtCamMode   GetGfxExternCamMode()   { return (GfxExtCamMode)g_gfx_extcam_mode; }
 GfxTexFilter    GetGfxTexFiltering()    { return (GfxTexFilter) g_gfx_texture_filter; }
@@ -210,8 +211,8 @@ STR_CREF        GetAppLanguage          () { return g_app_language;             
 STR_CREF        GetAppLocale            () { return g_app_locale;               }
 bool            GetAppMultithread       () { return g_app_multithread;          }
 STR_CREF        GetAppScreenshotFormat  () { return g_app_screenshot_format;    }
-InputGrabMode   GetInputGrabMode        () { return (InputGrabMode)g_input_grab_mode ; }
-bool            GetInputUseArcade       () { return g_input_use_arcade;         }
+IoInputGrabMode   GetIoInputGrabMode      () { return (IoInputGrabMode)g_io_input_grab_mode ; }
+bool            GetIoArcadeControls     () { return g_io_arcade_controls;         }
 float           GetAudioMasterVolume    () { return g_audio_master_volume;      }
 bool            GetAudioEnableCreak     () { return g_audio_enable_creak ;      }
 STR_CREF        GetAudioDeviceName      () { return g_audio_device_name  ;      }
@@ -247,11 +248,11 @@ void SetSysConfigDir      (STR_CREF v) { SetVarStr     (g_sys_config_dir       ,
 void SetSysCacheDir       (STR_CREF v) { SetVarStr     (g_sys_cache_dir        , "sys_cache_dir"        , v); }
 void SetSysLogsDir        (STR_CREF v) { SetVarStr     (g_sys_logs_dir         , "sys_logs_dir"         , v); }
 void SetSysResourcesDir   (STR_CREF v) { SetVarStr     (g_sys_resources_dir    , "sys_resources_dir"    , v); }
-void SetInputFFEnabled    (bool     v) { SetVarBool    (g_input_ff_enabled     , "input_ff_enabled"     , v); }
-void SetInputFFCamera     (float    v) { SetVarFloat   (g_input_ff_camera      , "input_ff_camera"      , v); }
-void SetInputFFCentering  (float    v) { SetVarFloat   (g_input_ff_centering   , "input_ff_centering"   , v); }
-void SetInputFFGain       (float    v) { SetVarFloat   (g_input_ff_gain        , "input_ff_gain"        , v); }
-void SetInputFFStress     (float    v) { SetVarFloat   (g_input_ff_stress      , "input_ff_stress"      , v); }
+void SetIoFFbackEnabled   (bool     v) { SetVarBool    (g_io_ffback_enabled    , "io_ffback_enabled"    , v); }
+void SetIoFFbackCameraGain(float    v) { SetVarFloat   (g_io_ffback_camera_gain, "io_ffback_camera_gain", v); }
+void SetIoFFbackCenterGain(float    v) { SetVarFloat   (g_io_ffback_center_gain, "io_ffback_center_gain", v); }
+void SetIoFFbackMasterGain(float    v) { SetVarFloat   (g_io_ffback_master_gain, "io_ffback_master_gain", v); }
+void SetIoFFbackStressGain(float    v) { SetVarFloat   (g_io_ffback_stress_gain, "io_ffback_stress_gain", v); }
 void SetGfxShadowType     (GfxShadowType  v) { SetVarInt     (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v); }
 void SetGfxExternCamMode  (GfxExtCamMode  v) { SetVarInt     (g_gfx_extcam_mode      , "gfx_extcam_mode"      , (int)v); }
 void SetGfxTexFiltering   (GfxTexFilter   v) { SetVarInt     (g_gfx_texture_filter   , "gfx_texture_filter"   , (int)v); }
@@ -275,8 +276,8 @@ void SetAppLanguage          (STR_CREF    v) { SetVarStr     (g_app_language    
 void SetAppLocale            (STR_CREF    v) { SetVarStr     (g_app_locale                , "app_locale"                , v); }
 void SetAppMultithread       (bool        v) { SetVarBool    (g_app_multithread           , "app_multithread"           , v); }
 void SetAppScreenshotFormat  (STR_CREF    v) { SetVarStr     (g_app_screenshot_format     , "app_screenshot_format"     , v); }
-void SetInputGrabMode      (InputGrabMode v) { SetVarInt     (g_input_grab_mode           , "input_grab_mode"           , (int)v); }
-void SetInputUseArcade     (bool          v) { SetVarBool    (g_input_use_arcade          , "input_use_arcade"          , v); }
+void SetIoInputGrabMode      (IoInputGrabMode v) { SetVarEnum(g_io_input_grab_mode        , "io_input_grab_mode",    (int)v, IoInputGrabModeToStr); }
+void SetIoArcadeControls     (bool        v) { SetVarBool    (g_io_arcade_controls        , "io_arcade_controls"        , v); }
 void SetAudioMasterVolume  (float         v) { SetVarFloat   (g_audio_master_volume       , "audio_master_volume"       , v); }
 void SetAudioEnableCreak   (bool          v) { SetVarBool    (g_audio_enable_creak        , "audio_enable_creak"        , v); }
 void SetAudioDeviceName    (STR_CREF      v) { SetVarStr     (g_audio_device_name         , "audio_device_name"         , v); }
@@ -543,6 +544,17 @@ const char* GfxFlaresModeToString(int v)
     case GFX_FLARES_ALL_VEHICLES_HEAD_ONLY : return "ALL_VEHICLES_HEAD_ONLY" ;
     case GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS: return "ALL_VEHICLES_ALL_LIGHTS";
     default                                : return "~invalid~";
+    }
+}
+
+const char* IoInputGrabModeToStr(int v)
+{
+    switch ((IoInputGrabMode)v)
+    {
+    case INPUT_GRAB_NONE   : return "NONE"   ;
+    case INPUT_GRAB_ALL    : return "ALL"    ;
+    case INPUT_GRAB_DYNAMIC: return "DYNAMIC";
+    default                : return "~invalid~";
     }
 }
 

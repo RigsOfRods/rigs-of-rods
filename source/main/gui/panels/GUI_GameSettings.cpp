@@ -355,7 +355,7 @@ void CLASS::UpdateControls()
 	}
 
 	//Few GameSettingsMap
-	if (App::GetInputUseArcade())
+	if (App::GetIoArcadeControls())
 		m_arc_mode->setStateCheck(true);
 	else
 		m_arc_mode->setStateCheck(false);
