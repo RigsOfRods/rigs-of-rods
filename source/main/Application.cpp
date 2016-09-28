@@ -113,6 +113,11 @@ static float            g_io_ffback_master_gain; ///< Config: FLOAT Force Feedba
 static float            g_io_ffback_stress_gain; ///< Config: FLOAT Force Feedback Stress
 static int              g_io_input_grab_mode;    ///< Config: BOOL  Input Grab
 static bool             g_io_arcade_controls;    ///< Config: BOOL  ArcadeControls
+static int              g_io_outgauge_mode;      ///< Config: INT   OutGauge Mode
+static std::string      g_io_outgauge_ip;        ///< Config: STR   OutGauge IP
+static int              g_io_outgauge_port;      ///< Config: INT   OutGauge Port
+static float            g_io_outgauge_delay;     ///< Config: FLOAT OutGauge Delay
+static int              g_io_outgauge_id;        ///< Config: INT   OutGauge ID
 
 // Audio
 static float            g_audio_master_volume;   ///< Config: FLOAT Sound Volume
@@ -227,6 +232,11 @@ bool            GetSimNextVehEnter      () { return g_sim_next_veh_enter;       
 SimGearboxMode  GetSimGearboxMode       () { return (SimGearboxMode)g_sim_gearbox_mode; }
 GfxFlaresMode   GetGfxFlaresMode        () { return (GfxFlaresMode)g_gfx_flares_mode; }
 STR_CREF        GetSysScreenshotDir     () { return g_sys_screenshot_dir;       }
+int             GetIoOutGaugeMode       () { return g_io_outgauge_mode;         }
+STR_CREF        GetIoOutGaugeIp         () { return g_io_outgauge_ip;           }
+int             GetIoOutGaugePort       () { return g_io_outgauge_port;         }
+float           GetIoOutGaugeDelay      () { return g_io_outgauge_delay;        }
+int             GetIoOutGaugeId         () { return g_io_outgauge_id;           }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -292,6 +302,11 @@ void SetSimNextVehEnter    (bool          v) { SetVarBool    (g_sim_next_veh_ent
 void SetSimGearboxMode     (SimGearboxMode v){ SetVarEnum    (g_sim_gearbox_mode          , "sim_gearbox_mode",      (int)v, SimGearboxModeToString); }
 void SetGfxFlaresMode      (GfxFlaresMode v) { SetVarEnum    (g_gfx_flares_mode           , "gfx_flares_mode",       (int)v, GfxFlaresModeToString ); }
 void SetSysScreenshotDir   (STR_CREF      v) { SetVarStr     (g_sys_screenshot_dir        , "sys_screenshot_dir"        , v); }
+void SetIoOutGaugeMode     (int           v) { SetVarInt     (g_io_outgauge_mode          , "io_outgauge_mode"          , v); }
+void SetIoOutGaugeIp       (STR_CREF      v) { SetVarStr     (g_io_outgauge_ip            , "io_outgauge_ip"            , v); }
+void SetIoOutGaugePort     (int           v) { SetVarInt     (g_io_outgauge_port          , "io_outgauge_port"          , v); }
+void SetIoOutGaugeDelay    (float         v) { SetVarFloat   (g_io_outgauge_delay         , "io_outgauge_delay"         , v); }
+void SetIoOutGaugeId       (int           v) { SetVarInt     (g_io_outgauge_id            , "io_outgauge_id"            , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -423,6 +438,12 @@ void Init()
     g_gfx_texture_filter   = GFX_TEXFILTER_TRILINEAR;
     g_gfx_vegetation_mode  = GFX_VEGETATION_NONE;
     g_gfx_flares_mode      = GFX_FLARES_ALL_VEHICLES_HEAD_ONLY;
+
+    g_io_outgauge_ip       = "192.168.1.100";
+    g_io_outgauge_port     = 1337;
+    g_io_outgauge_delay    = 10.f;
+    g_io_outgauge_mode     = 0; // 0 = disabled, 1 = enabled
+    g_io_outgauge_id       = 0;
 }
 
 

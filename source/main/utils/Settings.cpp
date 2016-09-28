@@ -593,6 +593,11 @@ bool Settings::ParseGlobalVarSetting(std::string const & name, std::string const
     else if (name == "Force Feedback Stress"   ) { App::SetIoFFbackStressGain   (STR2FLOAT(value)); return true; }
     else if (name == "Input Grab"              ) { App__SetIoInputGrabMode                (value);  return true; }
     else if (name == "ArcadeControls"          ) { App::SetIoArcadeControls     (STR2BOOL_(value)); return true; }
+    else if (name == "OutGauge Mode"           ) { App::SetIoOutGaugeMode       (STR2INT32(value)); return true; }
+    else if (name == "OutGauge IP"             ) { App::SetIoOutGaugeIp                   (value);  return true; }
+    else if (name == "OutGauge Port"           ) { App::SetIoOutGaugePort       (STR2INT32(value)); return true; }
+    else if (name == "OutGauge Delay"          ) { App::SetIoOutGaugeDelay      (STR2FLOAT(value)); return true; }
+    else if (name == "OutGauge ID"             ) { App::SetIoOutGaugeId         (STR2INT32(value)); return true; }
     // Gfx
     else if (name == "Shadow technique"        ) { App__SetShadowTech                (value);  return true; }
     else if (name == "External Camera Mode"    ) { App__SetExtcamMode                (value);  return true; }

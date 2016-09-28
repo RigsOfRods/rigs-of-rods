@@ -195,6 +195,11 @@ bool                 GetSimNextVehEnter      ();
 SimGearboxMode       GetSimGearboxMode       ();
 GfxFlaresMode        GetGfxFlaresMode        ();
 STR_CREF             GetSysScreenshotDir     ();
+int                  GetIoOutGaugeMode       ();
+STR_CREF             GetIoOutGaugeIp         ();
+int                  GetIoOutGaugePort       ();
+float                GetIoOutGaugeDelay      ();
+int                  GetIoOutGaugeId         ();
 
 
 // Setters
@@ -261,6 +266,11 @@ void SetSimNextVehEnter      (bool           v);
 void SetSimGearboxMode       (SimGearboxMode v);
 void SetGfxFlaresMode        (GfxFlaresMode  v);
 void SetSysScreenshotDir     (STR_CREF       v);
+void SetIoOutGaugeMode       (int            v);
+void SetIoOutGaugeIp         (STR_CREF       v);
+void SetIoOutGaugePort       (int            v);
+void SetIoOutGaugeDelay      (float          v);
+void SetIoOutGaugeId         (int            v);
 
 void SetMainThreadLogic  (MainThread* obj);
 
