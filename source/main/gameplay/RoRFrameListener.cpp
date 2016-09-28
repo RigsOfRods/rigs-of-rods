@@ -317,7 +317,7 @@ bool RoRFrameListener::updateEvents(float dt)
 		date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
 #endif
 
-		String fn_prefix = SSETTING("User Path", "") + String("screenshot_");
+		String fn_prefix = App::GetSysScreenshotDir() + PATH_SLASH + String("screenshot_");
 		String fn_name = date.str() + String("_");
 		String fn_suffix = String(".") + App::GetAppScreenshotFormat();
 

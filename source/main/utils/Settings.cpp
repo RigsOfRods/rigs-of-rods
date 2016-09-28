@@ -725,11 +725,14 @@ int Settings::generateBinaryHash()
 bool Settings::SetupAllPaths()
 {
     using namespace RoR;
+
+    // User directories
     std::string user_dir = App::GetSysUserDir();
-        
-    App::SetSysConfigDir(user_dir + PATH_SLASH + "config");
-    App::SetSysCacheDir (user_dir + PATH_SLASH + "cache" );
-    
+    App::SetSysConfigDir     (user_dir + PATH_SLASH + "config");
+    App::SetSysCacheDir      (user_dir + PATH_SLASH + "cache" );
+    App::SetSysScreenshotDir (user_dir + PATH_SLASH + "screenshots" );
+
+    // Resources dir
     std::string process_dir = App::GetSysProcessDir();
     std::string resources_dir = process_dir + PATH_SLASH + "resources";
     if (FolderExists(resources_dir))

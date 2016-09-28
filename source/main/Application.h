@@ -194,6 +194,7 @@ STR_CREF             GetSimNextVehConfig     ();
 bool                 GetSimNextVehEnter      ();
 SimGearboxMode       GetSimGearboxMode       ();
 GfxFlaresMode        GetGfxFlaresMode        ();
+STR_CREF             GetSysScreenshotDir     ();
 
 
 // Setters
@@ -259,6 +260,7 @@ void SetSimNextVehConfig     (STR_CREF       v);
 void SetSimNextVehEnter      (bool           v);
 void SetSimGearboxMode       (SimGearboxMode v);
 void SetGfxFlaresMode        (GfxFlaresMode  v);
+void SetSysScreenshotDir     (STR_CREF       v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

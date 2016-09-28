@@ -103,6 +103,7 @@ static std::string      g_sys_cache_dir;         ///< No ending slash. Config: S
 static std::string      g_sys_logs_dir;          ///< No ending slash. Config: STR Log Path
 static std::string      g_sys_resources_dir;     ///< No ending slash. Config: STR Resources Path
 static std::string      g_sys_profiler_dir     ; ///< No ending slash. Config: STR Profiler output dir
+static std::string      g_sys_screenshot_dir   ; ///< No ending slash.
 
 // Input
 static bool             g_input_ff_enabled;      ///< Config: BSETTING Force Feedback
@@ -224,6 +225,7 @@ STR_CREF        GetSimNextVehConfig     () { return g_sim_next_veh_config;      
 bool            GetSimNextVehEnter      () { return g_sim_next_veh_enter;       }
 SimGearboxMode  GetSimGearboxMode       () { return (SimGearboxMode)g_sim_gearbox_mode; }
 GfxFlaresMode   GetGfxFlaresMode        () { return (GfxFlaresMode)g_gfx_flares_mode; }
+STR_CREF        GetSysScreenshotDir     () { return g_sys_screenshot_dir;       }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -288,6 +290,7 @@ void SetSimNextVehConfig   (STR_CREF      v) { SetVarStr     (g_sim_next_veh_con
 void SetSimNextVehEnter    (bool          v) { SetVarBool    (g_sim_next_veh_enter        , "sim_next_veh_enter"        , v); }
 void SetSimGearboxMode     (SimGearboxMode v){ SetVarEnum    (g_sim_gearbox_mode          , "sim_gearbox_mode",      (int)v, SimGearboxModeToString); }
 void SetGfxFlaresMode      (GfxFlaresMode v) { SetVarEnum    (g_gfx_flares_mode           , "gfx_flares_mode",       (int)v, GfxFlaresModeToString ); }
+void SetSysScreenshotDir   (STR_CREF      v) { SetVarStr     (g_sys_screenshot_dir        , "sys_screenshot_dir"        , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
