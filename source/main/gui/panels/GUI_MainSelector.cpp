@@ -716,6 +716,11 @@ void CLASS::OnSelectionDone()
 			this->Hide(false); // Hide without fade-out effect
 		}
 	}
+    else if ((m_loader_type == LT_Terrain) && (App::GetActiveMpState() == App::MP_STATE_CONNECTED))
+    {
+        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+        this->Hide(false);
+    }
 	else
 	{
 		// we show the skin loader, set final skin and exit!

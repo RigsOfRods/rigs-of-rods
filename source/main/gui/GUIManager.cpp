@@ -369,9 +369,10 @@ void GUIManager::FrictionSettingsUpdateCollisions()
 void GUIManager::ReflectGameState()
 {
     const auto app_state = App::GetActiveAppState();
+    const auto mp_state  = App::GetActiveMpState();
     if (app_state == App::APP_STATE_MAIN_MENU)
     {
-        m_impl->panel_GameMainMenu       .SetVisible(true);
+        m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
         m_impl->panel_TopMenubar         .SetVisible(false);
         m_impl->panel_ChatBox            .SetVisible(false);
@@ -382,7 +383,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SpawnerReport      .SetVisible(false);
         m_impl->panel_SimUtils           .SetBaseVisible(false);
-        m_impl->panel_MpClientList       .SetVisible(false);
+        m_impl->panel_MpClientList       .SetVisible(mp_state == App::MP_STATE_CONNECTED);
         return;
     }
     if (app_state == App::APP_STATE_SIMULATION)
@@ -390,7 +391,6 @@ void GUIManager::ReflectGameState()
         m_impl->panel_TopMenubar         .SetVisible(true);
         m_impl->panel_TopMenubar         .ReflectMultiplayerState();
         m_impl->panel_SimUtils           .SetBaseVisible(true);
-
         m_impl->panel_GameMainMenu       .SetVisible(false);
         return;
     }

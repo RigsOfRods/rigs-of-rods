@@ -269,10 +269,6 @@ void MainThread::Go()
     if (App::GetPendingMpState() == App::MP_STATE_CONNECTED)
     {
         this->JoinMultiplayerServer();
-        if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
-        {
-            App::SetPendingAppState(App::APP_STATE_SIMULATION);
-        }
     }
     m_base_resource_loaded = false;
     for (;;)
@@ -977,27 +973,27 @@ void MainThread::JoinMultiplayerServer()
 {
 #ifdef USE_SOCKETW
 
-    RoR::App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
-    RoR::App::GetGuiManager()->SetVisible_GameMainMenu(false);
+    auto gui = App::GetGuiManager();
+    gui->SetVisible_MultiplayerSelector(false);
+    gui->SetVisible_GameMainMenu(false);
 
-    App::GetGuiManager()->GetLoadingWindow()->setAutotrack(_L("Trying to connect to server ..."));
+    gui->GetLoadingWindow()->setAutotrack(_L("Connecting to server ..."));
 
-    if (!RoR::Networking::Connect())
+    if (!Networking::Connect())
     {
         LOG("connection failed. server down?");
-        App::GetGuiManager()->SetVisible_LoadingWindow(false);
-        App::GetGuiManager()->ShowMessageBox("Connection failed",
-            RoR::Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
+        gui->SetVisible_LoadingWindow(false);
+        gui->SetVisible_GameMainMenu(true);
 
-        RoR::App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        gui->ShowMessageBox("Connection failed", Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
         return;
     }
 
-    App::GetGuiManager()->SetVisible_LoadingWindow(false);
-    RoR::App::GetGuiManager()->SetVisible_MpClientList(true);
-    App::GetGuiManager()->GetMpClientList()->update();
+    gui->SetVisible_LoadingWindow(false);
+    gui->SetVisible_MpClientList(true);
+    gui->GetMpClientList()->update();
 
-    RoR::ChatSystem::SendStreamSetup();
+    ChatSystem::SendStreamSetup();
 
 #ifdef USE_MUMBLE
     if (! m_is_mumble_created)
@@ -1007,7 +1003,7 @@ void MainThread::JoinMultiplayerServer()
     }
 #endif // USE_MUMBLE
 
-    String terrain_name = RoR::Networking::GetTerrainName();
+    String terrain_name = Networking::GetTerrainName();
     if (terrain_name != "any")
     {
         App::SetSimNextTerrain(terrain_name);
@@ -1016,8 +1012,8 @@ void MainThread::JoinMultiplayerServer()
     else
     {
         // Connected -> go directly to map selector
-        RoR::App::GetGuiManager()->GetMainSelector()->Reset();
-        RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+        gui->GetMainSelector()->Reset();
+        gui->GetMainSelector()->Show(LT_Terrain);
     }
 #endif //SOCKETW
 }
