@@ -56,7 +56,6 @@ public:
     void SetVisible_GameSettings        (bool visible);
     void SetVisible_GamePauseMenu       (bool visible);
     void SetVisible_DebugOptions        (bool visible);
-    void SetVisible_SimUtils            (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
     void SetVisible_ChatBox             (bool visible);
     void SetVisible_SpawnerReport       (bool visible);
@@ -74,7 +73,6 @@ public:
     bool IsVisible_GameSettings         ();
     bool IsVisible_GamePauseMenu        ();
     bool IsVisible_DebugOptions         ();
-    bool IsVisible_SimUtils             ();
     bool IsVisible_MessageBox           ();
     bool IsVisible_MultiplayerSelector  ();
     bool IsVisible_MpClientList         ();

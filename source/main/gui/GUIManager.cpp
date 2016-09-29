@@ -98,7 +98,6 @@ void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbo
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePauseMenu      .SetVisible(v); }
 void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
-void GUIManager::SetVisible_SimUtils            (bool v) { m_impl->panel_SimUtils           .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
 void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
 void GUIManager::SetVisible_SpawnerReport       (bool v) { m_impl->panel_SpawnerReport      .SetVisible(v); }
@@ -115,7 +114,6 @@ bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAb
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_GamePauseMenu        () { return m_impl->panel_GamePauseMenu      .IsVisible(); }
 bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
-bool GUIManager::IsVisible_SimUtils             () { return m_impl->panel_SimUtils           .IsVisible(); }
 bool GUIManager::IsVisible_MessageBox           () { return m_impl->panel_MessageBox         .IsVisible(); }
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
 bool GUIManager::IsVisible_MainSelector         () { return m_impl->panel_MainSelector       .IsVisible(); }
@@ -242,7 +240,7 @@ void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
 
 void GUIManager::HideNotification()
 {
-    m_impl->panel_SimUtils.HideNotification();
+    m_impl->panel_SimUtils.HideNotificationBox();
 }
 
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
@@ -356,7 +354,7 @@ void GUIManager::hideGUI(bool hidden)
 {
     if (! hidden) { return; }
 
-    m_impl->panel_SimUtils.HideNotification();
+    m_impl->panel_SimUtils.HideNotificationBox();
     m_impl->panel_SimUtils.SetFPSBoxVisible(false); // This doesn't really make sense, but nobody complained ... ~only_a_ptr, 2016/09
     m_impl->panel_SimUtils.SetTruckInfoBoxVisible(false);
     m_impl->panel_ChatBox.Hide();
@@ -374,6 +372,7 @@ void GUIManager::ReflectGameState()
     if (app_state == App::APP_STATE_MAIN_MENU)
     {
         m_impl->panel_GameMainMenu       .SetVisible(true);
+
         m_impl->panel_TopMenubar         .SetVisible(false);
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_DebugOptions       .SetVisible(false);
@@ -382,7 +381,7 @@ void GUIManager::ReflectGameState()
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SpawnerReport      .SetVisible(false);
-        m_impl->panel_SimUtils           .SetVisible(false);
+        m_impl->panel_SimUtils           .SetBaseVisible(false);
         m_impl->panel_MpClientList       .SetVisible(false);
         return;
     }
@@ -390,6 +389,8 @@ void GUIManager::ReflectGameState()
     {
         m_impl->panel_TopMenubar         .SetVisible(true);
         m_impl->panel_TopMenubar         .ReflectMultiplayerState();
+        m_impl->panel_SimUtils           .SetBaseVisible(true);
+
         m_impl->panel_GameMainMenu       .SetVisible(false);
         return;
     }

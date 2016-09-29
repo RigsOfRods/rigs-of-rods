@@ -28,6 +28,8 @@
 /*
 	Notice:
 	This GUI is a little bit different from the others, so don't take as example.
+
+    This GUI class is a set of small independent info boxes. The main widget is invisible and un-clickable.
 */
 #include "GUI_SimUtils.h"
 
@@ -78,36 +80,27 @@ CLASS::CLASS()
 	alpha = 1.0f;
 
 	m_notifications_disabled = false;
-
-	ShowMain(); //It's invisible and unclickable, so no worrys
 }
 
 CLASS::~CLASS()
 {
-	HideMain();
-	//delete(MAIN_WIDGET);
+	this->SetBaseVisible(false);
 }
 
-void CLASS::ShowMain()
+void CLASS::SetBaseVisible(bool v)
 {
-	//Kinda of initialization
-	MAIN_WIDGET->setVisible(true);
-}
-
-void CLASS::SetVisible(bool v)
-{
-	//Kinda of initialization
+	if (!v)
+    {
+        this->SetFPSBoxVisible(false);
+        this->SetTruckInfoBoxVisible(false);
+        this->HideNotificationBox();
+    }
 	MAIN_WIDGET->setVisible(v);
 }
 
-bool CLASS::IsVisible()
+bool CLASS::IsBaseVisible()
 {
     return MAIN_WIDGET->getVisible();
-}
-
-void CLASS::HideMain()
-{
-	MAIN_WIDGET->setVisible(false);
 }
 
 void CLASS::SetFPSBoxVisible(bool v)
@@ -133,7 +126,7 @@ void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 	pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 }
 
-void CLASS::HideNotification()
+void CLASS::HideNotificationBox()
 {
 	m_notification->setVisible(false);
 }

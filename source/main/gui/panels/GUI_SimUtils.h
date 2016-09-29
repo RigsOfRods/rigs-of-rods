@@ -52,11 +52,8 @@ public:
 	SimUtils();
 	~SimUtils();
 
-	void ShowMain();
-	void HideMain();
-
-    void SetVisible(bool v);
-    bool IsVisible();
+    void SetBaseVisible(bool v);
+    bool IsBaseVisible();
 	
 	void SetFPSBoxVisible(bool v);
     bool IsFPSBoxVisible() { return b_fpsbox; }
@@ -68,8 +65,7 @@ public:
 	void framestep(float dt);
 
 	void PushNotification(Ogre::String Title, Ogre::String text);
-	void HideNotification();
-
+	void HideNotificationBox();
 	void DisableNotifications(bool disabled);
 	
 private:
