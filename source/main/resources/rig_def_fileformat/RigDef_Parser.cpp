@@ -4084,7 +4084,10 @@ std::string Parser::GetArgManagedTex(int index)
 
 int Parser::TokenizeCurrentLine()
 {
-    LOGSTREAM << "TokenizeCurrentLine() lineNum:"<<m_current_line_number;
+    LOGSTREAM << "TokenizeCurrentLine() lineNum:"<<m_current_line_number 
+        << ", section:" << File::SectionToString(m_current_section) 
+        << ", TEXT {{"<<m_current_line<<"}}";
+
     int cur_arg = 0;
     const char* cur_char = m_current_line;
     int arg_len = 0;
@@ -4133,7 +4136,7 @@ int Parser::TokenizeCurrentLine()
 
 void Parser::ProcessOgreStream(Ogre::DataStream* stream)
 {
-    char raw_line_buf[LINE_BUFFER_LENGTH];
+    char raw_line_buf[LINE_BUFFER_LENGTH] = {0};
     while (!stream->eof())
     {
         try
@@ -4146,13 +4149,6 @@ void Parser::ProcessOgreStream(Ogre::DataStream* stream)
             msg += ex.getFullDescription();
             this->AddMessage(Message::TYPE_FATAL_ERROR, msg.c_str());
             break;
-        }
-
-        // debug check
-        if (raw_line_buf[LINE_BUFFER_LENGTH - 1] != '\0')
-        {
-            LOGSTREAM << " @@@@@@@@@ SERIOUS @@@@@@@@@@ raw string from truckfile is not NUL-terminated! fixing...";
-            raw_line_buf[LINE_BUFFER_LENGTH - 1] = 0;
         }
 
         this->ProcessRawLine(raw_line_buf);
