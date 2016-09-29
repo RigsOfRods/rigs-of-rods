@@ -3826,14 +3826,26 @@ std::string Parser::ProcessMessagesToString()
     return report.str();
 }
 
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "  -- PARSER DBG --  "
+#define CHECK_OVERFLOW()     if (index >= m_num_args) { LOGSTREAM << "@@@ ERROR @@@ Overflow in arguments array!! index:" << index << ", num_args:" << m_num_args; }
+
+
 std::string Parser::GetArgStr(int index)
 {
-    return std::string(m_args[index].start, m_args[index].length);
+    LOGSTREAM << "GetArgStr() line_num:"<< m_current_line_number << ", index:"<<index;
+    CHECK_OVERFLOW()
+    std::string ret(m_args[index].start, m_args[index].length);
+    LOGSTREAM << ">> result: " << ret;
+    return ret;
 }
 
 char Parser::GetArgChar(int index)
 {
-    return *(m_args[index].start);
+    LOGSTREAM << "GetArgChar() line_num:"<< m_current_line_number << ", index:"<<index;
+    CHECK_OVERFLOW()
+    char c= *(m_args[index].start);
+    LOGSTREAM << ">> result: " << c;
+    return c;
 }
 
 MeshWheel::Side Parser::GetArgWheelSide(int index)
@@ -3854,6 +3866,8 @@ MeshWheel::Side Parser::GetArgWheelSide(int index)
 
 long Parser::GetArgLong(int index)
 {
+    LOGSTREAM << "GetArgLong() line_num:"<< m_current_line_number << ", index:"<<index;
+    CHECK_OVERFLOW()
     errno = 0;
     char* out_end = nullptr;
     const int MSG_LEN = 200;
@@ -3876,6 +3890,7 @@ long Parser::GetArgLong(int index)
         snprintf(msg, MSG_LEN, "Integer argument [%d] has invalid trailing characters", index + 1);
         this->AddMessage(Message::TYPE_WARNING, msg);
     }
+    LOGSTREAM << ">> result: " << res;
     return res;
 }
 
@@ -3954,6 +3969,8 @@ Flare2::Type Parser::GetArgFlareType(int index)
 
 float Parser::GetArgFloat(int index)
 {
+    LOGSTREAM << "GetArgFloat() line_num:"<< m_current_line_number << ", index:"<<index;
+    CHECK_OVERFLOW()
     errno = 0;
     char* out_end = nullptr;
     float res = std::strtod(m_args[index].start, &out_end);
@@ -3981,11 +3998,15 @@ float Parser::GetArgFloat(int index)
         snprintf(msg_buf, MSG_LEN, "Argument [%d] (type: float) has invalid trailing characters (\"%s\")", index + 1, arg);
         this->AddMessage(Message::TYPE_WARNING, msg_buf);
     }
+    LOGSTREAM << ">> result: " << res;
     return static_cast<float>(res);
 }
 
 float Parser::ParseArgFloat(const char* str)
 {
+    LOGSTREAM << "ParseArgFloat() line_num:"<< m_current_line_number;
+    LOGSTREAM << "ParseArgFloat() argument:"<< str;
+
     errno = 0;
     float res = std::strtod(str, nullptr);
     if (errno != 0)
@@ -3995,6 +4016,7 @@ float Parser::ParseArgFloat(const char* str)
         this->AddMessage(Message::TYPE_ERROR, msg);
         return 0.f; // Compatibility
     }
+    LOGSTREAM << ">> result:"<< res;
     return static_cast<float>(res);
 }
 
@@ -4005,6 +4027,8 @@ float Parser::ParseArgFloat(std::string const & str)
 
 unsigned Parser::ParseArgUint(const char* str)
 {
+        LOGSTREAM << "ParseArgUint() line_num:"<< m_current_line_number;
+    LOGSTREAM << "ParseArgUint() argument:"<< str;
     errno = 0;
     long res = std::strtol(str, nullptr, 10);
     if (errno != 0)
@@ -4014,6 +4038,7 @@ unsigned Parser::ParseArgUint(const char* str)
         this->AddMessage(Message::TYPE_ERROR, msg);
         return 0.f; // Compatibility
     }
+    LOGSTREAM << ">> result:"<< res;
     return static_cast<unsigned>(res);
 }
 
@@ -4061,6 +4086,10 @@ std::string Parser::GetArgManagedTex(int index)
 
 int Parser::TokenizeCurrentLine()
 {
+    LOGSTREAM << "TokenizeCurrentLine() lineNum:"<<m_current_line_number 
+        << ", section:" << File::SectionToString(m_current_section) 
+        << ", TEXT {{"<<m_current_line<<"}}";
+
     int cur_arg = 0;
     const char* cur_char = m_current_line;
     int arg_len = 0;
@@ -4091,12 +4120,25 @@ int Parser::TokenizeCurrentLine()
     }
 
     m_num_args = cur_arg;
+
+    // debug check
+    std::stringstream msg;
+    msg <<">> numArgs:"<<m_num_args;
+    for (int i = 0; i < m_num_args; ++i)
+    {
+        std::string s(m_args[i].start, m_args[i].length);
+        msg << "\n\t[" << std::setw(2) << i << "] "
+            << "Start:"<<std::setw(3) << (m_args[i].start - m_current_line) 
+            << ", Len:"<<std::setw(2)<<m_args[i].length 
+            << ", Text: \"" << s << "\"";
+    }
+    LOGSTREAM << msg.str();
     return cur_arg;
 }
 
 void Parser::ProcessOgreStream(Ogre::DataStream* stream)
 {
-    char raw_line_buf[LINE_BUFFER_LENGTH];
+    char raw_line_buf[LINE_BUFFER_LENGTH] = {0};
     while (!stream->eof())
     {
         try
