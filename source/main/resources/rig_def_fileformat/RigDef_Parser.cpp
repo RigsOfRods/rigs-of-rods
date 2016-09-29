@@ -2400,8 +2400,8 @@ void Parser::ParseCinecam()
     cinecam.nodes[6]   = this->GetArgNodeRef( 9);
     cinecam.nodes[7]   = this->GetArgNodeRef(10);
     
-    if (m_num_args > 10) { cinecam.spring  = this->GetArgFloat(11); }
-    if (m_num_args > 11) { cinecam.damping = this->GetArgFloat(12); }
+    if (m_num_args > 11) { cinecam.spring  = this->GetArgFloat(11); }
+    if (m_num_args > 12) { cinecam.damping = this->GetArgFloat(12); }
     
     if (m_sequential_importer.IsEnabled())
     {
