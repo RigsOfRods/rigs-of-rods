@@ -1677,6 +1677,8 @@ void Parser::ParseFusedrag()
         
         if (m_num_args > 3) { fusedrag.airfoil_name = this->GetArgStr(3); }
     }
+
+    m_current_module->fusedrag.push_back(fusedrag);
 }
 
 void Parser::_ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str)
