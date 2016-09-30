@@ -240,7 +240,7 @@ void CLASS::SaveConfig()
 			return;
 
 		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.
-		Settings::getSingleton().saveSettings();
+		Settings::getSingleton().SaveSettings();
 	}
 }
 

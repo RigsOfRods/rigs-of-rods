@@ -368,6 +368,8 @@ void MainThread::Go()
 	// Cleanup
 	// ========================================================================
 
+    App::GetSettings().SaveSettings(); // Save RoR.cfg
+
 	RoR::App::GetGuiManager()->GetMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW

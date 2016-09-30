@@ -982,15 +982,7 @@ void CLASS::SaveSettings()
 		Ogre::Root::getSingleton().saveConfig();
 	}
 
-	// now save the GameSettingsMap
-	for (it = GameSettingsMap.begin(); it != GameSettingsMap.end(); it++)
-	{
-		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash" || it->first.c_str() == "Program Path")
-			return;
-
-		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.
-		Settings::getSingleton().saveSettings();
-	}
+	// ******* TODO ******** Re-implement
 
 	//Apply fullscreen
 	//Not working correctly

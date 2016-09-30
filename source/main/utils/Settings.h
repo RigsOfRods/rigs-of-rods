@@ -75,8 +75,8 @@ public:
 	void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 	
 	void loadSettings(Ogre::String configFile, bool overwrite=false);
-	void saveSettings();
-	void saveSettings(Ogre::String configFile);
+
+    void SaveSettings();
 
     /// Process command line arguments into settings.
     void ProcessCommandLine(int argc, char *argv[]);
@@ -99,12 +99,18 @@ public:
 	}
 protected:
 
+    // Helpers
+    void SetMpNetworkEnable(std::string const & s);
+
 	static Settings* myInstance;
 
 	// members
 	// TODO: use wide char / UTFString ...
 	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
 	settings_map_t settings;
+
+    // Cached config values
+    bool m_network_enable;
 };
 
 #endif // __Settings_H_
