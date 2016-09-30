@@ -91,6 +91,7 @@ static const unsigned int m_packet_buffer_size = 20;
 static Ogre::UTFString m_error_msg;
 static Ogre::UTFString m_thread_error_msg;
 static bool            m_thread_failed;
+static bool            m_socket_broken;
 
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 
@@ -140,6 +141,7 @@ void NetFatalError(Ogre::UTFString errormsg)
     // Workaround: leave the socket in broken state -> impossible to re-connect. Fix later.
     //socket.set_timeout(1, 1000);
     //socket.disconnect();
+    m_socket_broken = true; // Flag to enable "Please restart RoR" error dialog.
 }
 
 void SetNetQuality(int quality)
@@ -446,6 +448,17 @@ void ConnectionFailed(Ogre::UTFString const & msg)
 
 bool Connect()
 {
+    // Temporary workaround for unrecoverable error
+    if (m_socket_broken)
+    {
+        RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
+        RoR::App::SetPendingMpState(App::MP_STATE_NONE);
+        m_error_msg = "Connection failed."
+            "\n\nNetworking is unable to recover from previous error (abrupt disconnect)."
+            "\n\nPlease restart Rigs of Rods.";
+        return false;
+    }
+
     // Reset errors
     m_thread_error_msg.clear();
     m_error_msg.clear();
