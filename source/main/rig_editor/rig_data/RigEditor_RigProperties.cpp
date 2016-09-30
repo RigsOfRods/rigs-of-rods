@@ -32,6 +32,7 @@ namespace RigEditor {
 struct RigModuleData
 {
     std::string                                module_name;
+    std::string                                submesh_groundmodel;
 
     // LAND VEHICLE window
     std::shared_ptr<RigDef::Engine>            engine;
@@ -40,7 +41,9 @@ struct RigModuleData
     // STUBS (data only stored and exported, no editing)
 
     std::shared_ptr<RigDef::Engturbo>          engturbo;
+    std::vector    <RigDef::Particle>          particles;
     std::vector    <RigDef::Pistonprop>        pistonprops;
+    std::vector    <RigDef::Ropable>           ropables;
     std::vector    <RigDef::Rotator>           rotators;
     std::vector    <RigDef::Rotator2>          rotators_2;
     std::vector    <RigDef::SlideNode>         slidenodes;
@@ -48,6 +51,7 @@ struct RigModuleData
     std::vector    <RigDef::SoundSource>       soundsources;
     std::vector    <RigDef::SoundSource2>      soundsources_2;
     std::shared_ptr<RigDef::SpeedLimiter>      speed_limiter;
+    std::vector    <RigDef::Submesh>           submeshes;
     std::shared_ptr<RigDef::TorqueCurve>       torque_curve;
     std::shared_ptr<RigDef::TractionControl>   traction_control;
     std::vector    <RigDef::Turbojet>          turbojets;
@@ -57,29 +61,36 @@ struct RigModuleData
 
     void BuildFromModule(std::shared_ptr<RigDef::File::Module> m)
     {
-        module_name     = m->name;
+        module_name         = m->name;
 
         // Engine + Engoption
-        engine          = m->engine;
-        engoption       = m->engoption;
-
-        // Stubs
-        engturbo        = m->engturbo;
-        traction_control= m->traction_control;
-        torque_curve    = m->torque_curve;
-        speed_limiter   = m->speed_limiter;
-        slope_brake     = m->slope_brake;
+        engine              = m->engine;
+        engoption           = m->engoption;
+                            
+        // Stubs            
+        engturbo            = m->engturbo;
+        traction_control    = m->traction_control;
+        torque_curve        = m->torque_curve;
+        speed_limiter       = m->speed_limiter;
+        slope_brake         = m->slope_brake;
+        submesh_groundmodel = m->submeshes_ground_model_name;
         
-        rotators       .assign(m->rotators.begin(),          m->rotators.end());
-        rotators_2     .assign(m->rotators_2.begin(),        m->rotators_2.end());
-        wings          .assign(m->wings.begin(),             m->wings.end());
-        videocameras   .assign(m->videocameras.begin(),      m->videocameras.end());
-        turboprops_2   .assign(m->turboprops_2.begin(),      m->turboprops_2.end());
-        pistonprops    .assign(m->pistonprops.begin(),       m->pistonprops.end());
-        turbojets      .assign(m->turbojets.begin(),         m->turbojets.end());
-        soundsources   .assign(m->soundsources.begin(),      m->soundsources.end());
-        soundsources_2 .assign(m->soundsources2.begin(),     m->soundsources2.end());
-        slidenodes     .assign(m->slidenodes.begin(),        m->slidenodes.end());
+        rotators       .assign( m->rotators      .begin(),   m->rotators       .end() );
+        rotators_2     .assign( m->rotators_2    .begin(),   m->rotators_2     .end() );
+        wings          .assign( m->wings         .begin(),   m->wings          .end() );
+        videocameras   .assign( m->videocameras  .begin(),   m->videocameras   .end() );
+        turboprops_2   .assign( m->turboprops_2  .begin(),   m->turboprops_2   .end() );
+        pistonprops    .assign( m->pistonprops   .begin(),   m->pistonprops    .end() );
+        turbojets      .assign( m->turbojets     .begin(),   m->turbojets      .end() );
+        soundsources   .assign( m->soundsources  .begin(),   m->soundsources   .end() );
+        soundsources_2 .assign( m->soundsources2 .begin(),   m->soundsources2  .end() );
+        slidenodes     .assign( m->slidenodes    .begin(),   m->slidenodes     .end() );
+        submeshes      .assign( m->submeshes     .begin(),   m->submeshes      .end() );
+        ropables       .assign( m->ropables      .begin(),   m->ropables       .end() );
+        particles      .assign( m->particles     .begin(),   m->particles      .end() );
+
+        //COPYPASTE
+        //               .assign( m-      .begin(),   m-       .end() );
     }
 
     void ExportToModule(std::shared_ptr<RigDef::File::Module> m)

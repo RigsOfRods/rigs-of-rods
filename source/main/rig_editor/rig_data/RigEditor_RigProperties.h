@@ -72,7 +72,6 @@ protected:
     bool                          m_forward_commands;
     bool                          m_import_commands;
     bool                          m_is_rescuer;
-    bool                          m_slidenodes_connect_instant; // Stub!
 
     // AUDIO & VIDEO tab
 
@@ -88,6 +87,7 @@ protected:
     float                         m_minimass;
     bool                          m_enable_advanced_deform;
     bool                          m_rollon;
+    bool                          m_slidenodes_connect_instant; // Stub!
 
     // GUI tab
 

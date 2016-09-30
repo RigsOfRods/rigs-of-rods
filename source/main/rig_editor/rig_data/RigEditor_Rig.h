@@ -86,7 +86,7 @@
     nodecollision                 ~
     nodes                         Node
     nodes2                        Node
-    particles                     ~
+    particles                     [STUB] RigModuleData
     pistonprops                   [STUB] RigModuleData
     prop_camera_mode              ~
     props                         ~
@@ -94,7 +94,7 @@
     rescuer                       RigProperties
     rigidifiers                   ~
     rollon                        RigProperties
-    ropables                      ~
+    ropables                      [STUB] RigModuleData
     ropes                         ~
     rotators                      [STUB] RigModuleData
     rotators2                     [STUB] RigModuleData
@@ -117,8 +117,8 @@
     soundsources                  [STUB] RigModuleData
     soundsources2                 [STUB] RigModuleData
     speedlimiter                  [STUB] RigModuleData
-    submesh                       ~
-    submesh_groundmodel           ~
+    submesh                       [STUB] RigModuleData
+    submesh_groundmodel           [STUB] RigModuleData
     ties                          ~
     <title>                       RigProperties
     torquecurve                   [STUB] RigModuleData
