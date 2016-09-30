@@ -160,7 +160,7 @@ void CLASS::Import(RigEditor::RigProperties* data)
     m_checkbox_importcommands        ->setStateSelected(data->m_import_commands);
     m_checkbox_rescuer               ->setStateSelected(data->m_is_rescuer);
     m_checkbox_disable_default_sounds->setStateSelected(data->m_disable_default_sounds);
-    m_checkbox_use_advanced_deform   ->setStateSelected(data->m_enable_advanced_deformation);
+    m_checkbox_use_advanced_deform   ->setStateSelected(data->m_enable_advanced_deform);
     m_checkbox_rollon                ->setStateSelected(data->m_rollon);
 
     // Section 'extcamera'
@@ -298,7 +298,7 @@ void CLASS::Export(RigEditor::RigProperties* data)
     data->m_import_commands               = m_checkbox_importcommands->getStateSelected();
     data->m_is_rescuer                    = m_checkbox_rescuer->getStateSelected();
     data->m_disable_default_sounds        = m_checkbox_disable_default_sounds->getStateSelected();
-    data->m_enable_advanced_deformation   = m_checkbox_use_advanced_deform->getStateSelected();
+    data->m_enable_advanced_deform   = m_checkbox_use_advanced_deform->getStateSelected();
     data->m_rollon                        = m_checkbox_rollon->getStateSelected();
 
     // Section 'extcamera'

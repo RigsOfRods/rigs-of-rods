@@ -21,6 +21,116 @@
     @file   RigEditor_Rig.h
     @date   06/2014
     @author Petr Ohlidal
+
+
+    TRUCKFILE SUPPORT CHECKLIST:
+    ----------------------------
+
+    TRUCKFILE KEYWORD           | EDITOR CLASS  
+
+    advdrag                       ~
+    add_animation                 ~
+    airbrakes                     ~
+    animators                     ~
+    AntiLockBrakes                ~
+    author                        RigProperties
+    axles                         ~
+    beams                         Beam
+    brakes                        ~
+    camerarail                    ~
+    cameras                       ~
+    cinecam                       CineCamera
+    collisionboxes                ~
+    commands                      Beam
+    commands2                     Beam
+    comment                       ~
+    contacters                    ~
+    cruisecontrol                 ~
+    description                   RigProperties
+    detacher_group                ~
+    disabledefaultsounds          ~
+    enable_advanced_deformation   RigProperties
+    engine                        RigModuleData / RigDef::Engine
+    engoption                     RigModuleData / RigDef::Engoption
+    engturbo                      [STUB] RigModuleData
+    envmap                        ~
+    exhausts                      ~
+    extcamera                     RigProperties / RigDef::ExtCamera
+    forwardcommands               RigProperties
+    fileformatversion             ~
+    fileinfo                      RigProperties / RigDef::Fileinfo
+    fixes                         ~
+    flares                        ~
+    flares2                       ~
+    flexbodies                    ~
+    flexbody_camera_mode          ~
+    flexbodywheels                FlexBodyWheel
+    forset                        ~
+    fusedrag                      ~
+    globals                       RigProperties
+    guid                          RigProperties
+    guisettings                   RigProperties / RigDef::GuiSettings
+    help                          RigProperties
+    hideInChooser                 ~
+    hookgroup                     ~
+    hooks                         ~
+    hydros                        Beam
+    importcommands                RigProperties
+    lockgroups                    ~
+    lockgroup_default_nolock      ~
+    managedmaterials              ~
+    materialflarebindings         ~
+    meshwheels                    MeshWheel
+    meshwheels2                   MeshWheel2
+    minimass                      RigProperties
+    nodecollision                 ~
+    nodes                         Node
+    nodes2                        Node
+    particles                     ~
+    pistonprops                   [STUB] RigModuleData
+    prop_camera_mode              ~
+    props                         ~
+    railgroups                    ~
+    rescuer                       RigProperties
+    rigidifiers                   ~
+    rollon                        RigProperties
+    ropables                      ~
+    ropes                         ~
+    rotators                      [STUB] RigModuleData
+    rotators2                     [STUB] RigModuleData
+    screwprops                    ~
+    sectionconfig                 ~
+    section                       ~
+    set_beam_defaults             ~
+    set_beam_defaults_scale       ~
+    set_collision_range           ~
+    set_inertia_defaults          ~
+    set_managedmaterials_options  ~
+    set_node_defaults             ~
+    set_shadows                   ~
+    set_skeleton_settings         RigProperties
+    shocks                        Beam
+    shocks2                       Beam
+    slidenode_connect_instantly   [STUB] RigProperties
+    slidenodes                    [STUB] RigModuleData
+    SlopeBrake                    [STUB] RigModuleData
+    soundsources                  [STUB] RigModuleData
+    soundsources2                 [STUB] RigModuleData
+    speedlimiter                  [STUB] RigModuleData
+    submesh                       ~
+    submesh_groundmodel           ~
+    ties                          ~
+    <title>                       RigProperties
+    torquecurve                   [STUB] RigModuleData
+    TractionControl               [STUB] RigModuleData
+    triggers                      ~
+    turbojets                     [STUB] RigModuleData
+    turboprops                    [STUB] RigModuleData
+    turboprops2                   [STUB] RigModuleData
+    videocamera                   [STUB] RigModuleData
+    wheels                        LandVehicleWheel
+    wheels2                       LandVehicleWheel
+    wings                         [STUB] RigModuleData
 */
 
 #pragma once

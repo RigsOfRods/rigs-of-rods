@@ -48,15 +48,18 @@ public:
 
     ~RigProperties();
 
-    std::shared_ptr<RigDef::Engine>    GetEngine();
-    std::shared_ptr<RigDef::Engoption> GetEngoption();
-    inline void SetEngine(std::shared_ptr<RigDef::Engine> engine) { m_engine = engine; }
-    inline void SetEngoption(std::shared_ptr<RigDef::Engoption> engoption) { m_engoption = engoption; }
+    std::shared_ptr<RigDef::Engine>               GetEngine();
+    std::shared_ptr<RigDef::Engoption>            GetEngoption();
+
+    void    SetEngine     (std::shared_ptr<RigDef::Engine> engine);
+    void    SetEngoption  (std::shared_ptr<RigDef::Engoption> engoption);
 
 protected:	
 
     void Import(std::shared_ptr<RigDef::File> def_file);
     void Export(std::shared_ptr<RigDef::File> def_file);
+
+    RigModuleData*                m_root_data;
 
     // BASIC tab
     
@@ -69,6 +72,7 @@ protected:
     bool                          m_forward_commands;
     bool                          m_import_commands;
     bool                          m_is_rescuer;
+    bool                          m_slidenodes_connect_instant; // Stub!
 
     // AUDIO & VIDEO tab
 
@@ -82,7 +86,7 @@ protected:
     float                         m_globals_dry_mass;
     float                         m_globals_load_mass;
     float                         m_minimass;
-    bool                          m_enable_advanced_deformation;
+    bool                          m_enable_advanced_deform;
     bool                          m_rollon;
 
     // GUI tab
@@ -90,12 +94,7 @@ protected:
     Ogre::String                  m_help_panel_material_name;
     RigDef::GuiSettings           m_gui_settings;
 
-    // LAND VEHICLE window
-
-    std::shared_ptr<RigDef::Engine>      m_engine;
-    std::shared_ptr<RigDef::Engoption>   m_engoption;
 };
 
 } // namespace RigEditor
-
 } // namespace RoR
