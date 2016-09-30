@@ -88,6 +88,8 @@ protected:
     bool                          m_enable_advanced_deform;
     bool                          m_rollon;
     bool                          m_slidenodes_connect_instant; // Stub!
+    float                         m_collision_range;            // Stub!
+    bool                          m_collision_range_defined;    // Stub!   
 
     // GUI tab
 

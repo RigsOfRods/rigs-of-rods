@@ -40,6 +40,14 @@ struct RigModuleData
 
     // STUBS (data only stored and exported, no editing)
 
+    std::vector    <RigDef::Airbrake>          airbrakes;
+    std::vector    <RigDef::Animator>          animators;
+    std::shared_ptr<RigDef::AntiLockBrakes>    anti_lock_brakes;
+    std::vector    <RigDef::Axle>              axles;
+    std::shared_ptr<RigDef::Brakes>            brakes;
+    std::vector    <RigDef::Camera>            cameras;
+    std::vector    <RigDef::CameraRail>        camera_rails;
+    std::vector    <RigDef::CollisionBox>      collision_boxes;
     std::shared_ptr<RigDef::Engturbo>          engturbo;
     std::vector    <RigDef::Particle>          particles;
     std::vector    <RigDef::Pistonprop>        pistonprops;
@@ -74,6 +82,8 @@ struct RigModuleData
         speed_limiter       = m->speed_limiter;
         slope_brake         = m->slope_brake;
         submesh_groundmodel = m->submeshes_ground_model_name;
+        anti_lock_brakes    = m->anti_lock_brakes;
+        brakes              = m->brakes;
         
         rotators       .assign( m->rotators      .begin(),   m->rotators       .end() );
         rotators_2     .assign( m->rotators_2    .begin(),   m->rotators_2     .end() );
@@ -88,6 +98,12 @@ struct RigModuleData
         submeshes      .assign( m->submeshes     .begin(),   m->submeshes      .end() );
         ropables       .assign( m->ropables      .begin(),   m->ropables       .end() );
         particles      .assign( m->particles     .begin(),   m->particles      .end() );
+        airbrakes      .assign( m->airbrakes     .begin(),   m->airbrakes      .end() );
+        animators      .assign( m->animators     .begin(),   m->animators      .end() );
+        axles          .assign( m->axles         .begin(),   m->axles          .end() );
+        cameras        .assign( m->cameras       .begin(),   m->cameras        .end() );
+        camera_rails   .assign( m->camera_rails  .begin(),   m->camera_rails   .end() );
+        collision_boxes.assign( m->collision_boxes.begin(),  m->collision_boxes.end() );
 
         //COPYPASTE
         //               .assign( m-      .begin(),   m-       .end() );
@@ -130,6 +146,8 @@ void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
     m_enable_advanced_deform     = def_file->enable_advanced_deformation;
     m_disable_default_sounds     = def_file->disable_default_sounds;
     m_slidenodes_connect_instant = def_file->slide_nodes_connect_instantly;
+    m_collision_range            = def_file->collision_range;
+    m_collision_range_defined    = def_file->_collision_range_set;
 
     auto desc_end = def_file->description.end();
     for (auto itor = def_file->description.begin(); itor != desc_end; ++itor )
@@ -184,6 +202,8 @@ void RigProperties::Export(std::shared_ptr<RigDef::File> def_file)
     def_file->enable_advanced_deformation   = m_enable_advanced_deform;
     def_file->disable_default_sounds        = m_disable_default_sounds;
     def_file->slide_nodes_connect_instantly = m_slidenodes_connect_instant;
+    def_file->collision_range               = m_collision_range;
+    def_file->_collision_range_set          = m_collision_range_defined;
 
     def_file->file_info 
         = std::shared_ptr<RigDef::Fileinfo>(new RigDef::Fileinfo(m_fileinfo));

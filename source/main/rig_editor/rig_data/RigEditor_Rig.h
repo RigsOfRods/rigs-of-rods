@@ -28,19 +28,18 @@
 
     TRUCKFILE KEYWORD           | EDITOR CLASS  
 
-    advdrag                       ~
     add_animation                 ~
-    airbrakes                     ~
-    animators                     ~
-    AntiLockBrakes                ~
+    airbrakes                     [STUB] RigModuleData
+    animators                     [STUB] RigModuleData
+    AntiLockBrakes                [STUB] RigModuleData
     author                        RigProperties
-    axles                         ~
+    axles                         [STUB] RigModuleData
     beams                         Beam
-    brakes                        ~
-    camerarail                    ~
-    cameras                       ~
+    brakes                        [STUB] RigModuleData
+    camerarail                    [STUB] RigModuleData
+    cameras                       [STUB] RigModuleData
     cinecam                       CineCamera
-    collisionboxes                ~
+    collisionboxes                [STUB] RigModuleData
     commands                      Beam
     commands2                     Beam
     comment                       ~
@@ -95,7 +94,7 @@
     rigidifiers                   ~
     rollon                        RigProperties
     ropables                      [STUB] RigModuleData
-    ropes                         ~
+    ropes                         -- TODO -- beam type
     rotators                      [STUB] RigModuleData
     rotators2                     [STUB] RigModuleData
     screwprops                    ~
@@ -103,7 +102,7 @@
     section                       ~
     set_beam_defaults             ~
     set_beam_defaults_scale       ~
-    set_collision_range           ~
+    set_collision_range           [STUB] RigProperties
     set_inertia_defaults          ~
     set_managedmaterials_options  ~
     set_node_defaults             ~
@@ -119,11 +118,11 @@
     speedlimiter                  [STUB] RigModuleData
     submesh                       [STUB] RigModuleData
     submesh_groundmodel           [STUB] RigModuleData
-    ties                          ~
+    ties                          --TODO-- beam type
     <title>                       RigProperties
     torquecurve                   [STUB] RigModuleData
     TractionControl               [STUB] RigModuleData
-    triggers                      ~
+    triggers                      --TODO-- beam type
     turbojets                     [STUB] RigModuleData
     turboprops                    [STUB] RigModuleData
     turboprops2                   [STUB] RigModuleData
