@@ -360,7 +360,7 @@ bool RoRFrameListener::updateEvents(float dt)
 			as->addData("User_Language", App::GetAppLanguage());
 			as->addData("RoR_VersionString", String(ROR_VERSION_STRING));
 			as->addData("RoR_ProtocolVersion", String(RORNET_VERSION));
-			as->addData("RoR_BinaryHash", SSETTING("BinaryHash", ""));
+			as->addData("RoR_BinaryHash", "");
 			as->addData("MP_ServerName", App::GetMpServerHost());
 			as->addData("MP_ServerPort", TOSTRING(App::GetMpServerPort()));
 			as->addData("MP_NetworkEnabled", (App::GetActiveMpState() == App::MP_STATE_CONNECTED) ? "Yes" : "No");

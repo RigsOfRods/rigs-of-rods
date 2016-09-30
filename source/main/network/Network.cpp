@@ -545,8 +545,6 @@ bool Connect()
     strcpy(c.clientname, "RoR");
     Ogre::String lang = App::GetAppLocale();
     strncpy(c.language, lang.c_str(), std::min<int>((int)lang.size(), 10));
-    Ogre::String guid = SSETTING("GUID", "");
-    strncpy(c.clientGUID, guid.c_str(), std::min<int>((int)guid.size(), 10));
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(user_info_t), (char*)&c))
     {

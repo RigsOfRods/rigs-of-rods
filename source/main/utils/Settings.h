@@ -78,9 +78,6 @@ public:
 	void saveSettings();
 	void saveSettings(Ogre::String configFile);
 
-	void checkGUID();
-	void createGUID();
-
     /// Process command line arguments into settings.
     void ProcessCommandLine(int argc, char *argv[]);
 
@@ -108,8 +105,6 @@ protected:
 	// TODO: use wide char / UTFString ...
 	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
 	settings_map_t settings;
-
-	int generateBinaryHash();
 };
 
 #endif // __Settings_H_
