@@ -142,31 +142,6 @@ void Settings::setUTFSetting(UTFString key, UTFString value)
 	settings[key] = value;
 }
 
-void Settings::checkGUID()
-{
-	if (getSetting("GUID", "").empty())
-		createGUID();
-}
-
-void Settings::createGUID()
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	GUID *g = new GUID();
-	CoCreateGuid(g);
-
-	char buf[120];
-	sprintf(buf,"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", g->Data1,g->Data2,g->Data3,UINT(g->Data4[0]),UINT(g->Data4[1]),UINT(g->Data4[2]),UINT(g->Data4[3]),UINT(g->Data4[4]),UINT(g->Data4[5]),UINT(g->Data4[6]),UINT(g->Data4[7]));
-	delete g;
-
-	String guid = String(buf);
-
-	// save in settings
-	setSetting("GUID", guid);
-	saveSettings();
-
-#endif //OGRE_PLATFORM
-}
-
 void Settings::loadSettings(String configFile, bool overwrite)
 {
 	ConfigFile cfg;
@@ -185,9 +160,6 @@ void Settings::loadSettings(String configFile, bool overwrite)
 		}
 		settings[s_name] = s_value;
 	}
-	// add a GUID if not there
-	checkGUID();
-	generateBinaryHash();
 
 	// generate hash of the token
 	String usertoken = SSETTING("User Token", "");
@@ -202,47 +174,6 @@ void Settings::loadSettings(String configFile, bool overwrite)
 	}
 
 	setSetting("User Token Hash", String(usertokensha1result));
-}
-
-int Settings::generateBinaryHash()
-{
-#ifndef NOOGRE
-	char program_path[1024]="";
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// note: we enforce usage of the non-UNICODE interfaces (since its easier to integrate here)
-	if (!GetModuleFileNameA(NULL, program_path, 512))
-	{
-		ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program space path"));
-		return 1;
-	}
-	GetShortPathNameA(program_path, program_path, 512); //this is legal
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	//true program path is impossible to get from POSIX functions
-	//lets hack!
-	pid_t pid = getpid();
-	char procpath[256];
-	sprintf(procpath, "/proc/%d/exe", pid);
-	int ch = readlink(procpath,program_path,240);
-	if (ch != -1)
-	{
-		program_path[ch] = 0;
-	} else return 1;
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	// TO BE DONE
-#endif //OGRE_PLATFORM
-	// now hash ourself
-	{
-		char hash_result[250];
-		memset(hash_result, 0, 249);
-		RoR::CSHA1 sha1;
-		sha1.HashFile(program_path);
-		sha1.Final();
-		sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-		setSetting("BinaryHash", String(hash_result));
-	}
-#endif //NOOGRE
-	return 0;
 }
 
 bool Settings::get_system_paths(char *program_path, char *user_path)

@@ -57,9 +57,6 @@ public:
 	bool setupPaths();
 	void loadSettings(Ogre::String configFile, bool overwrite=false);
 
-	void checkGUID();
-	void createGUID();
-
 	std::map<Ogre::String, Ogre::String> GetSettingMap()
 	{
 		return settings;
@@ -78,8 +75,6 @@ protected:
 	void path_add(char* path, const char* dirname);
 
 	bool get_system_paths(char *program_path, char *user_path);
-	int generateBinaryHash();
-
 
 };
 
