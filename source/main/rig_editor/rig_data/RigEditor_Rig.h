@@ -28,7 +28,6 @@
 
     TRUCKFILE KEYWORD           | EDITOR CLASS  
 
-    add_animation                 ~
     airbrakes                     [STUB] RigModuleData
     animators                     [STUB] RigModuleData
     AntiLockBrakes                [STUB] RigModuleData
@@ -43,53 +42,48 @@
     commands                      Beam
     commands2                     Beam
     comment                       ~
-    contacters                    ~
-    cruisecontrol                 ~
+    contacters                    [STUB] RigModuleData
+    cruisecontrol                 [STUB] RigModuleData
     description                   RigProperties
-    detacher_group                ~
-    disabledefaultsounds          ~
+    disabledefaultsounds          RigProperties
     enable_advanced_deformation   RigProperties
     engine                        RigModuleData / RigDef::Engine
     engoption                     RigModuleData / RigDef::Engoption
     engturbo                      [STUB] RigModuleData
-    envmap                        ~
-    exhausts                      ~
+    exhausts                      [STUB] RigModuleData
     extcamera                     RigProperties / RigDef::ExtCamera
     forwardcommands               RigProperties
-    fileformatversion             ~
+    fileformatversion             <Internal>
     fileinfo                      RigProperties / RigDef::Fileinfo
-    fixes                         ~
-    flares                        ~
-    flares2                       ~
-    flexbodies                    ~
-    flexbody_camera_mode          ~
+    fixes                         [STUB] RigModuleData
+    flares                        -- WIP --
+    flares2                       -- WIP --
+    flexbodies                    [STUB] RigModuleData
     flexbodywheels                FlexBodyWheel
-    forset                        ~
-    fusedrag                      ~
+    fusedrag                      [STUB] RigModuleData
     globals                       RigProperties
     guid                          RigProperties
     guisettings                   RigProperties / RigDef::GuiSettings
     help                          RigProperties
-    hideInChooser                 ~
+    hideInChooser                 RigProperties
     hookgroup                     ~
-    hooks                         ~
+    hooks                         [STUB] RigModuleData
     hydros                        Beam
     importcommands                RigProperties
-    lockgroups                    ~
-    lockgroup_default_nolock      ~
-    managedmaterials              ~
-    materialflarebindings         ~
+    lockgroups                    [STUB] RigModuleData
+    lockgroup_default_nolock      [STUB] RigProperties
+    managedmaterials              [STUB] RigModuleData
+    materialflarebindings         [STUB] RigModuleData
     meshwheels                    MeshWheel
     meshwheels2                   MeshWheel2
     minimass                      RigProperties
-    nodecollision                 ~
+    nodecollision                 [STUB] RigModuleData
     nodes                         Node
     nodes2                        Node
     particles                     [STUB] RigModuleData
     pistonprops                   [STUB] RigModuleData
-    prop_camera_mode              ~
-    props                         ~
-    railgroups                    ~
+    props                         [STUB] RigModuleData
+    railgroups                    [STUB] RigModuleData
     rescuer                       RigProperties
     rigidifiers                   ~
     rollon                        RigProperties

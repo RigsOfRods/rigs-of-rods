@@ -48,9 +48,21 @@ struct RigModuleData
     std::vector    <RigDef::Camera>            cameras;
     std::vector    <RigDef::CameraRail>        camera_rails;
     std::vector    <RigDef::CollisionBox>      collision_boxes;
+    std::shared_ptr<RigDef::CruiseControl>     cruise_control;
+    std::vector    <RigDef::Node::Ref>         contacters;
     std::shared_ptr<RigDef::Engturbo>          engturbo;
+    std::vector    <RigDef::Exhaust>           exhausts;
+    std::vector    <RigDef::Node::Ref>         fixes;
+    std::vector    <RigDef::Fusedrag>          fusedrag;
+    std::vector    <RigDef::Hook>              hooks;
+    std::vector    <RigDef::Lockgroup>         lockgroups;
+    std::vector    <RigDef::ManagedMaterial>       managed_mats;
+    std::vector    <RigDef::MaterialFlareBinding>  mat_flare_bindings;
+    std::vector    <RigDef::NodeCollision>         node_collisions;
     std::vector    <RigDef::Particle>          particles;
     std::vector    <RigDef::Pistonprop>        pistonprops;
+    std::vector    <RigDef::Prop>              props;
+    std::vector    <RigDef::RailGroup>         railgroups;
     std::vector    <RigDef::Ropable>           ropables;
     std::vector    <RigDef::Rotator>           rotators;
     std::vector    <RigDef::Rotator2>          rotators_2;
@@ -66,6 +78,8 @@ struct RigModuleData
     std::vector    <RigDef::Turboprop2>        turboprops_2;
     std::vector    <RigDef::VideoCamera>       videocameras;
     std::vector    <RigDef::Wing>              wings;
+
+    std::vector<std::shared_ptr<RigDef::Flexbody>>  flexbodies;
 
     void BuildFromModule(std::shared_ptr<RigDef::File::Module> m)
     {
@@ -84,6 +98,7 @@ struct RigModuleData
         submesh_groundmodel = m->submeshes_ground_model_name;
         anti_lock_brakes    = m->anti_lock_brakes;
         brakes              = m->brakes;
+        cruise_control      = m->cruise_control;
         
         rotators       .assign( m->rotators      .begin(),   m->rotators       .end() );
         rotators_2     .assign( m->rotators_2    .begin(),   m->rotators_2     .end() );
@@ -104,6 +119,19 @@ struct RigModuleData
         cameras        .assign( m->cameras       .begin(),   m->cameras        .end() );
         camera_rails   .assign( m->camera_rails  .begin(),   m->camera_rails   .end() );
         collision_boxes.assign( m->collision_boxes.begin(),  m->collision_boxes.end() );
+        contacters     .assign( m->contacters    .begin(),   m->contacters     .end() );
+        exhausts       .assign( m->exhausts      .begin(),   m->exhausts       .end() );
+        fixes          .assign( m->fixes         .begin(),   m->fixes          .end() );
+        flexbodies     .assign( m->flexbodies    .begin(),   m->flexbodies     .end() );
+        fusedrag       .assign( m->fusedrag      .begin(),   m->fusedrag       .end() );
+        hooks          .assign( m->hooks         .begin(),   m->hooks          .end() );
+        lockgroups     .assign( m->lockgroups    .begin(),   m->lockgroups     .end() );
+        props          .assign( m->props         .begin(),   m->props          .end() );
+        railgroups     .assign( m->railgroups    .begin(),   m->railgroups     .end() );
+
+        managed_mats      .assign( m->managed_materials      .begin(),  m->managed_materials      .end() );
+        mat_flare_bindings.assign( m->material_flare_bindings.begin(),  m->material_flare_bindings.end() );
+        node_collisions   .assign( m->node_collisions        .begin(),  m->node_collisions        .end() );
 
         //COPYPASTE
         //               .assign( m-      .begin(),   m-       .end() );
@@ -148,6 +176,7 @@ void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
     m_slidenodes_connect_instant = def_file->slide_nodes_connect_instantly;
     m_collision_range            = def_file->collision_range;
     m_collision_range_defined    = def_file->_collision_range_set;
+    m_lockgroup_default_nolock   = def_file->lockgroup_default_nolock;
 
     auto desc_end = def_file->description.end();
     for (auto itor = def_file->description.begin(); itor != desc_end; ++itor )
@@ -191,19 +220,20 @@ void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
 
 void RigProperties::Export(std::shared_ptr<RigDef::File> def_file)
 {
-    def_file->name                          = m_title;           
-    def_file->guid                          = m_guid;            
-    def_file->hide_in_chooser               = m_hide_in_chooser; 
+    def_file->name                          = m_title;
+    def_file->guid                          = m_guid;
+    def_file->hide_in_chooser               = m_hide_in_chooser;
     def_file->forward_commands              = m_forward_commands;
-    def_file->import_commands               = m_import_commands; 
-    def_file->rescuer                       = m_is_rescuer;      
-    def_file->rollon                        = m_rollon;          
-    def_file->minimum_mass                  = m_minimass;  
+    def_file->import_commands               = m_import_commands;
+    def_file->rescuer                       = m_is_rescuer;
+    def_file->rollon                        = m_rollon;
+    def_file->minimum_mass                  = m_minimass;
     def_file->enable_advanced_deformation   = m_enable_advanced_deform;
     def_file->disable_default_sounds        = m_disable_default_sounds;
     def_file->slide_nodes_connect_instantly = m_slidenodes_connect_instant;
     def_file->collision_range               = m_collision_range;
     def_file->_collision_range_set          = m_collision_range_defined;
+    def_file->lockgroup_default_nolock      = m_lockgroup_default_nolock;
 
     def_file->file_info 
         = std::shared_ptr<RigDef::Fileinfo>(new RigDef::Fileinfo(m_fileinfo));

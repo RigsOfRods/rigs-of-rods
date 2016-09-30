@@ -89,7 +89,8 @@ protected:
     bool                          m_rollon;
     bool                          m_slidenodes_connect_instant; // Stub!
     float                         m_collision_range;            // Stub!
-    bool                          m_collision_range_defined;    // Stub!   
+    bool                          m_collision_range_defined;    // Stub!
+    bool                          m_lockgroup_default_nolock;   // Stub!
 
     // GUI tab
 
