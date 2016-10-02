@@ -48,6 +48,8 @@ public:
         TYPE_COMMAND_HYDRO,    //!< Called 'command' in RoR jargon
         TYPE_SHOCK_ABSORBER,   //!< Called 'shock' in RoR jargon
         TYPE_SHOCK_ABSORBER_2, //!< Section 'shocks2'
+        TYPE_ROPE,             //!< Section 'ropes'
+        TYPE_TRIGGER,          //!< Section 'triggers'
         TYPE_CINECAM           //!< Section 'cinecam' - generated
     };
 
@@ -89,6 +91,16 @@ public:
     inline RigDef::Shock2* GetDefinitionShock2() const     
     { 
         return (GetType() == Beam::TYPE_SHOCK_ABSORBER_2) ? reinterpret_cast<RigDef::Shock2*>(m_source) : nullptr; 
+    }
+
+    inline RigDef::Rope* GetDefinitionRope() const
+    { 
+        return (GetType() == Beam::TYPE_ROPE) ? reinterpret_cast<RigDef::Rope*>(m_source) : nullptr;
+    }
+
+    inline RigDef::Trigger* GetDefinitionTrigger() const
+    {
+        return (GetType() == Beam::TYPE_TRIGGER) ? reinterpret_cast<RigDef::Trigger*>(m_source) : nullptr; 
     }
 
 protected:

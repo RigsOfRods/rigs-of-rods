@@ -332,6 +332,62 @@ void Rig::Build(
         nodes[1]->m_linked_beams.push_back(&m_beams.back());
     }
 
+    // ##### Process section "ropes" #####
+
+    if (report != nullptr)
+    {
+        report->SetCurrentSectionName("ropes");
+    }
+    auto ropes_end = module->ropes.end();
+    for (auto itor = module->ropes.begin(); itor != ropes_end; ++itor)
+    {
+        Node* nodes[] = {
+            FindNode(itor->root_node, report),
+            FindNode(itor->end_node,  report)
+        };
+
+        if (nodes[0] == nullptr || nodes[1] == nullptr)
+        {
+            continue; // Error already logged by FindNode()
+        }
+            
+        // Save
+        auto def_ptr = new RigDef::Rope(*itor);
+        Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_ROPE, nodes[0], nodes[1]);
+        m_beams.push_back(beam);
+        m_beams.back().SetColor(m_config->shock_absorber_2_beam_color_rgb);
+        nodes[0]->m_linked_beams.push_back(&m_beams.back());
+        nodes[1]->m_linked_beams.push_back(&m_beams.back());
+    }
+
+    // ##### Process section "triggers" #####
+
+    if (report != nullptr)
+    {
+        report->SetCurrentSectionName("triggers");
+    }
+    auto triggers_end = module->triggers.end();
+    for (auto itor = module->triggers.begin(); itor != triggers_end; ++itor)
+    {
+        Node* nodes[] = {
+            FindNode(itor->nodes[0], report),
+            FindNode(itor->nodes[1],  report)
+        };
+
+        if (nodes[0] == nullptr || nodes[1] == nullptr)
+        {
+            continue; // Error already logged by FindNode()
+        }
+            
+        // Save
+        auto def_ptr = new RigDef::Trigger(*itor);
+        Beam beam(static_cast<void*>(def_ptr), Beam::TYPE_TRIGGER, nodes[0], nodes[1]);
+        m_beams.push_back(beam);
+        m_beams.back().SetColor(m_config->shock_absorber_2_beam_color_rgb);
+        nodes[0]->m_linked_beams.push_back(&m_beams.back());
+        nodes[1]->m_linked_beams.push_back(&m_beams.back());
+    }
+
     // ##### Process cine cameras (section "cinecam") #####
     auto cinecam_itor_end = module->cinecam.end();
     if (report != nullptr)

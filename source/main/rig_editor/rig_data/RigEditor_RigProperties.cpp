@@ -66,12 +66,14 @@ struct RigModuleData
     std::vector    <RigDef::Ropable>           ropables;
     std::vector    <RigDef::Rotator>           rotators;
     std::vector    <RigDef::Rotator2>          rotators_2;
+    std::vector    <RigDef::Screwprop>         screwprops;
     std::vector    <RigDef::SlideNode>         slidenodes;
     std::shared_ptr<RigDef::SlopeBrake>        slope_brake;
     std::vector    <RigDef::SoundSource>       soundsources;
     std::vector    <RigDef::SoundSource2>      soundsources_2;
     std::shared_ptr<RigDef::SpeedLimiter>      speed_limiter;
     std::vector    <RigDef::Submesh>           submeshes;
+    std::vector    <RigDef::Tie>               ties;
     std::shared_ptr<RigDef::TorqueCurve>       torque_curve;
     std::shared_ptr<RigDef::TractionControl>   traction_control;
     std::vector    <RigDef::Turbojet>          turbojets;
@@ -128,13 +130,12 @@ struct RigModuleData
         lockgroups     .assign( m->lockgroups    .begin(),   m->lockgroups     .end() );
         props          .assign( m->props         .begin(),   m->props          .end() );
         railgroups     .assign( m->railgroups    .begin(),   m->railgroups     .end() );
+        screwprops     .assign( m->screwprops    .begin(),   m->screwprops     .end() );
+        ties           .assign( m->ties          .begin(),   m->ties           .end() );
 
         managed_mats      .assign( m->managed_materials      .begin(),  m->managed_materials      .end() );
         mat_flare_bindings.assign( m->material_flare_bindings.begin(),  m->material_flare_bindings.end() );
         node_collisions   .assign( m->node_collisions        .begin(),  m->node_collisions        .end() );
-
-        //COPYPASTE
-        //               .assign( m-      .begin(),   m-       .end() );
     }
 
     void ExportToModule(std::shared_ptr<RigDef::File::Module> m)

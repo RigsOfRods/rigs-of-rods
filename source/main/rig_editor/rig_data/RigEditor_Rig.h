@@ -88,18 +88,13 @@
     rigidifiers                   ~
     rollon                        RigProperties
     ropables                      [STUB] RigModuleData
-    ropes                         -- TODO -- beam type
+    ropes                         [STUB] Beam
     rotators                      [STUB] RigModuleData
     rotators2                     [STUB] RigModuleData
-    screwprops                    ~
+    screwprops                    [STUB] RigModuleData
     sectionconfig                 ~
     section                       ~
-    set_beam_defaults             ~
-    set_beam_defaults_scale       ~
     set_collision_range           [STUB] RigProperties
-    set_inertia_defaults          ~
-    set_managedmaterials_options  ~
-    set_node_defaults             ~
     set_shadows                   ~
     set_skeleton_settings         RigProperties
     shocks                        Beam
@@ -112,11 +107,11 @@
     speedlimiter                  [STUB] RigModuleData
     submesh                       [STUB] RigModuleData
     submesh_groundmodel           [STUB] RigModuleData
-    ties                          --TODO-- beam type
+    ties                          [STUB] RigModuleData
     <title>                       RigProperties
     torquecurve                   [STUB] RigModuleData
     TractionControl               [STUB] RigModuleData
-    triggers                      --TODO-- beam type
+    triggers                      [STUB] Beam
     turbojets                     [STUB] RigModuleData
     turboprops                    [STUB] RigModuleData
     turboprops2                   [STUB] RigModuleData
