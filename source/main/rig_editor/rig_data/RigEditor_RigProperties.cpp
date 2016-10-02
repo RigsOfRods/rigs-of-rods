@@ -71,7 +71,7 @@ struct RigModuleData
     std::shared_ptr<RigDef::SlopeBrake>        slope_brake;
     std::vector    <RigDef::SoundSource>       soundsources;
     std::vector    <RigDef::SoundSource2>      soundsources_2;
-    std::shared_ptr<RigDef::SpeedLimiter>      speed_limiter;
+                    RigDef::SpeedLimiter       speed_limiter;
     std::vector    <RigDef::Submesh>           submeshes;
     std::vector    <RigDef::Tie>               ties;
     std::shared_ptr<RigDef::TorqueCurve>       torque_curve;
@@ -140,7 +140,56 @@ struct RigModuleData
 
     void ExportToModule(std::shared_ptr<RigDef::File::Module> m)
     {
-        // TODO!
+        m->name                        = module_name;
+
+        // --- Engine + Engoption ---
+        m->engine                      = engine              ;
+        m->engoption                   = engoption           ;
+        // ---------- Stubs -----------
+        m->engturbo                    = engturbo            ;
+        m->traction_control            = traction_control    ;
+        m->torque_curve                = torque_curve        ;
+        m->speed_limiter               = speed_limiter       ;
+        m->slope_brake                 = slope_brake         ;
+        m->submeshes_ground_model_name = submesh_groundmodel ;
+        m->anti_lock_brakes            = anti_lock_brakes    ;
+        m->brakes                      = brakes              ;
+        m->cruise_control              = cruise_control      ;
+        
+        m->rotators       .assign( rotators       .begin(),   rotators       .end() );
+        m->rotators_2     .assign( rotators_2     .begin(),   rotators_2     .end() );
+        m->wings          .assign( wings          .begin(),   wings          .end() );
+        m->videocameras   .assign( videocameras   .begin(),   videocameras   .end() );
+        m->turboprops_2   .assign( turboprops_2   .begin(),   turboprops_2   .end() );
+        m->pistonprops    .assign( pistonprops    .begin(),   pistonprops    .end() );
+        m->turbojets      .assign( turbojets      .begin(),   turbojets      .end() );
+        m->soundsources   .assign( soundsources   .begin(),   soundsources   .end() );
+        m->soundsources2  .assign( soundsources_2 .begin(),   soundsources_2 .end() );
+        m->slidenodes     .assign( slidenodes     .begin(),   slidenodes     .end() );
+        m->submeshes      .assign( submeshes      .begin(),   submeshes      .end() );
+        m->ropables       .assign( ropables       .begin(),   ropables       .end() );
+        m->particles      .assign( particles      .begin(),   particles      .end() );
+        m->airbrakes      .assign( airbrakes      .begin(),   airbrakes      .end() );
+        m->animators      .assign( animators      .begin(),   animators      .end() );
+        m->axles          .assign( axles          .begin(),   axles          .end() );
+        m->cameras        .assign( cameras        .begin(),   cameras        .end() );
+        m->camera_rails   .assign( camera_rails   .begin(),   camera_rails   .end() );
+        m->collision_boxes.assign( collision_boxes.begin(),   collision_boxes.end() );
+        m->contacters     .assign( contacters     .begin(),   contacters     .end() );
+        m->exhausts       .assign( exhausts       .begin(),   exhausts       .end() );
+        m->fixes          .assign( fixes          .begin(),   fixes          .end() );
+        m->flexbodies     .assign( flexbodies     .begin(),   flexbodies     .end() );
+        m->fusedrag       .assign( fusedrag       .begin(),   fusedrag       .end() );
+        m->hooks          .assign( hooks          .begin(),   hooks          .end() );
+        m->lockgroups     .assign( lockgroups     .begin(),   lockgroups     .end() );
+        m->props          .assign( props          .begin(),   props          .end() );
+        m->railgroups     .assign( railgroups     .begin(),   railgroups     .end() );
+        m->screwprops     .assign( screwprops     .begin(),   screwprops     .end() );
+        m->ties           .assign( ties           .begin(),   ties           .end() );
+
+        m->managed_materials      .assign( managed_mats      .begin(),  managed_mats      .end() );
+        m->material_flare_bindings.assign( mat_flare_bindings.begin(),  mat_flare_bindings.end() );
+        m->node_collisions        .assign( node_collisions   .begin(),  node_collisions   .end() );
     }
 };
 
@@ -176,7 +225,6 @@ void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
     m_disable_default_sounds     = def_file->disable_default_sounds;
     m_slidenodes_connect_instant = def_file->slide_nodes_connect_instantly;
     m_collision_range            = def_file->collision_range;
-    m_collision_range_defined    = def_file->_collision_range_set;
     m_lockgroup_default_nolock   = def_file->lockgroup_default_nolock;
 
     auto desc_end = def_file->description.end();
@@ -233,7 +281,6 @@ void RigProperties::Export(std::shared_ptr<RigDef::File> def_file)
     def_file->disable_default_sounds        = m_disable_default_sounds;
     def_file->slide_nodes_connect_instantly = m_slidenodes_connect_instant;
     def_file->collision_range               = m_collision_range;
-    def_file->_collision_range_set          = m_collision_range_defined;
     def_file->lockgroup_default_nolock      = m_lockgroup_default_nolock;
 
     def_file->file_info 

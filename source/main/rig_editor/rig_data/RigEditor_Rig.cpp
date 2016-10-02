@@ -1266,6 +1266,12 @@ std::shared_ptr<RigDef::File> Rig::Export()
         case Beam::TYPE_STEERING_HYDRO:
             module->hydros.push_back(* static_cast<RigDef::Hydro*>(def)); // Copy definition
             break;
+        case Beam::TYPE_ROPE:
+            module->ropes.push_back(* static_cast<RigDef::Rope*>(def)); // Copy definition
+            break;
+        case Beam::TYPE_TRIGGER:
+            module->triggers.push_back(* static_cast<RigDef::Trigger*>(def)); // Copy definition
+            break;
         case Beam::TYPE_CINECAM:
             break; // Generated beam; do nothing
         default:
