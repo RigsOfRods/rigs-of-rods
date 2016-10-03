@@ -119,6 +119,8 @@ void Parser::ProcessCurrentLine()
     File::Section new_section = File::SECTION_INVALID;
     File::Subsection new_subsection = File::SUBSECTION_INVALID;
 
+    this->TokenizeCurrentLine();
+
     // Detect keywords on current line 
     // NOTE: Please maintain alphabetical order 
     if (scan_for_keyword)
@@ -790,8 +792,6 @@ void Parser::ProcessCurrentLine()
         return;
     }
 
-    this->TokenizeCurrentLine();
-
     // Parse current section, if any 
     // NOTE: Please maintain alphabetical order 
     switch (m_current_section)
@@ -1150,7 +1150,6 @@ void Parser::ParseWing()
 
 void Parser::ParseSetCollisionRange()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     float value = this->GetArgFloat(1);
@@ -1266,7 +1265,6 @@ void Parser::ParseTractionControl()
 
 void Parser::ParseSubmeshGroundModel()
 {
-    this->TokenizeCurrentLine();
     if (!this->CheckNumArguments(2)) { return; } // Items: keyword, arg
 
     m_current_module->submeshes_ground_model_name = this->GetArgStr(1);
@@ -1274,7 +1272,6 @@ void Parser::ParseSubmeshGroundModel()
 
 void Parser::ParseSpeedLimiter()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     SpeedLimiter& sl = m_current_module->speed_limiter;
@@ -1348,7 +1345,6 @@ void Parser::LogParsedDirectiveSetNodeDefaultsData(float load_weight, float fric
 
 void Parser::ParseDirectiveSetNodeDefaults()
 {
-    this->TokenizeCurrentLine();
     if (!this->CheckNumArguments(2)) { return; }
 
     float load_weight   =                    this->GetArgFloat(1);
@@ -1427,7 +1423,6 @@ void Parser::_ParseNodeOptions(unsigned int & options, const std::string & optio
 
 void Parser::ParseDirectiveSetManagedMaterialsOptions()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
     
     // This is what v0.3x's parser did.
@@ -1443,7 +1438,6 @@ void Parser::ParseDirectiveSetManagedMaterialsOptions()
 
 void Parser::ParseDirectiveSetBeamDefaultsScale()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(5)) { return; }
     
     BeamDefaults* b = new BeamDefaults(*m_user_beam_defaults);
@@ -1458,7 +1452,6 @@ void Parser::ParseDirectiveSetBeamDefaultsScale()
 
 void Parser::ParseDirectiveSetBeamDefaults()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     BeamDefaults d(*m_user_beam_defaults);
@@ -1498,7 +1491,6 @@ void Parser::ParseDirectivePropCameraMode()
         return;
     }
 
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     this->_ParseCameraSettings(m_current_module->props.back().camera_settings, this->GetArgStr(1));
@@ -1627,7 +1619,6 @@ void Parser::ParseGuiSettings()
 
 void Parser::ParseGuid()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
     
     if (! m_definition->guid.empty())
@@ -1708,7 +1699,6 @@ void Parser::ParseDirectiveFlexbodyCameraMode()
         return;
     }
 
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
     this->_ParseCameraSettings(m_last_flexbody->camera_settings, this->GetArgStr(1));
@@ -1942,7 +1932,6 @@ void Parser::ParseFileFormatVersion()
 
 void Parser::ParseDirectiveDetacherGroup()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, param
 
     if (this->GetArgStr(1) == "end")
@@ -2943,7 +2932,6 @@ Node::Ref Parser::_ParseNodeRef(std::string const & node_id_str)
 
 void Parser::ParseDirectiveSetInertiaDefaults()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
 
     float start_delay = this->GetArgFloat(1);
@@ -3027,7 +3015,6 @@ void Parser::ParseRotatorsUnified()
 
 void Parser::ParseFileinfo()
 {
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
 
     if (m_current_module != m_root_module)
@@ -3594,7 +3581,6 @@ void Parser::ParseAuthor()
         this->AddMessage(Message::TYPE_WARNING, "Inline-section 'author' has global effect and should not appear in a module");
     }
 
-    this->TokenizeCurrentLine();
     if (! this->CheckNumArguments(2)) { return; }
 
     Author author;
