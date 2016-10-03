@@ -85,7 +85,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIManager.h"
 
 // DEBUG UTILITY
-//#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
+#include "RoR_RigInspector.h"
 
 #define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
@@ -6045,6 +6045,8 @@ bool Beam::LoadTruck(
 	m_is_cinecam_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
 
 	TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, trucknum);
+
+    RigInspector::InspectRig(this, "RigInspector_NewParser.log");
 
 	return true;
 }
