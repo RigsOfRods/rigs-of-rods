@@ -1136,7 +1136,7 @@ void Parser::ParseWing()
     Wing wing;
 
     for (int i = 0; i <  8; i++) { wing.nodes[i]        = this->GetArgNodeRef     (i);  }
-    for (int i = 8; i < 16; i++) { wing.tex_coords[i]   = this->GetArgFloat       (i);  }
+    for (int i = 8; i < 16; i++) { wing.tex_coords[i-8] = this->GetArgFloat       (i);  }
 
     if (m_num_args > 16)         { wing.control_surface = this->GetArgWingSurface (16); }
     if (m_num_args > 17)         { wing.chord_point     = this->GetArgFloat       (17); }
