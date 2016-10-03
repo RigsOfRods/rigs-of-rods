@@ -57,6 +57,28 @@
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
 }
 
+#define PROCESS_MSTRUCT_IN_ANY_MODULE(_KEYWORD_, _FIELD_, _FUNCTION_)                      \
+{                                                                                          \
+    SetCurrentKeyword(_KEYWORD_);                                                          \
+    auto module_itor = m_selected_modules.begin();                                         \
+    auto module_end  = m_selected_modules.end();                                           \
+    for (; module_itor != module_end; ++module_itor)                                       \
+    {                                                                                      \
+        try {                                                                              \
+            _FUNCTION_(module_itor->get()->_FIELD_);                                       \
+        }                                                                                  \
+        catch (Exception ex)                                                               \
+        {                                                                                  \
+            AddMessage(Message::TYPE_ERROR, ex.what());                                    \
+        }                                                                                  \
+        catch (...)                                                                        \
+        {                                                                                  \
+            AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");           \
+        }                                                                                  \
+    }                                                                                      \
+    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
+}
+
 #define PROCESS_SECTION_IN_ALL_MODULES(_KEYWORD_, _FIELD_, _FUNCTION_)                     \
 {                                                                                          \
     SetCurrentKeyword(_KEYWORD_);                                                          \
@@ -79,6 +101,35 @@
             catch (...)                                                                    \
             {                                                                              \
                 AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");       \
+            }                                                                              \
+        }                                                                                  \
+    }                                                                                      \
+    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
+}
+
+#define PROCESS_SECTION_IN_ALL_MODULES_COND(_KEYWORD_, _FIELD_, _COND_, _FUNCTION_)        \
+{                                                                                          \
+    SetCurrentKeyword(_KEYWORD_);                                                          \
+    auto module_itor=m_selected_modules.begin();                                           \
+    for(; module_itor != m_selected_modules.end(); ++module_itor)                          \
+    {                                                                                      \
+        auto itor = module_itor->get()->_FIELD_.begin();                                   \
+        auto endi = module_itor->get()->_FIELD_.end();                                     \
+        for (; itor != endi; ++itor)                                                       \
+        {                                                                                  \
+            if (_COND_)                                                                    \
+            {                                                                              \
+                try{                                                                       \
+                    this->_FUNCTION_(*itor);                                               \
+                }                                                                          \
+                catch(Exception& ex)                                                       \
+                {                                                                          \
+                    AddMessage(Message::TYPE_ERROR,ex.what());                             \
+                }                                                                          \
+                catch(...)                                                                 \
+                {                                                                          \
+                    AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");   \
+                }                                                                          \
             }                                                                              \
         }                                                                                  \
     }                                                                                      \
@@ -148,7 +199,7 @@ rig_t *RigSpawner::SpawnRig()
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
 
 	// Section 'brakes' in any module
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, brakes, ProcessBrakes);
+	PROCESS_MSTRUCT_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, brakes, ProcessBrakes);
 
 	// Section 'guisettings' in any module
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
@@ -178,10 +229,10 @@ rig_t *RigSpawner::SpawnRig()
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELS2, wheels_2, ProcessWheel2);
 
 	// Section 'meshwheels'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS, mesh_wheels, ProcessMeshWheel);
+	PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS, mesh_wheels, (!itor->_is_meshwheel2), ProcessMeshWheel);
 
 	// Section 'meshwheels2'
-	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MESHWHEELS2, mesh_wheels_2, ProcessMeshWheel2);
+	PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS2, mesh_wheels, (itor->_is_meshwheel2), ProcessMeshWheel2);
 
 	// Section 'flexbodywheels'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
@@ -295,7 +346,7 @@ rig_t *RigSpawner::SpawnRig()
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_CRUISECONTROL, cruise_control, ProcessCruiseControl);
 
 	// Section 'speedlimiter' in any module.
-	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SPEEDLIMITER, speed_limiter, ProcessSpeedLimiter);
+	PROCESS_MSTRUCT_IN_ANY_MODULE(RigDef::File::KEYWORD_SPEEDLIMITER, speed_limiter, ProcessSpeedLimiter);
 
 	// Section 'collisionboxes'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COLLISIONBOXES, collision_boxes, ProcessCollisionBox);
