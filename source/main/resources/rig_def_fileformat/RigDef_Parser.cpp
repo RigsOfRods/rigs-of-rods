@@ -1477,6 +1477,7 @@ void Parser::ParseDirectiveSetBeamDefaults()
     if (d.deformation_threshold < 0.f) { d.deformation_threshold = BEAM_DEFORM;           }
     if (d.breaking_threshold    < 0.f) { d.breaking_threshold    = BEAM_BREAK;            }
     if (d.visual_beam_diameter  < 0.f) { d.visual_beam_diameter  = DEFAULT_BEAM_DIAMETER; }
+    if (d.plastic_deform_coef   < 0.f) { d.plastic_deform_coef   = 0.f;                   }
 
     m_user_beam_defaults = std::shared_ptr<BeamDefaults>( new BeamDefaults(d) );
     return;
