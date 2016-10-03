@@ -1969,7 +1969,7 @@ void Parser::ParseDirectiveAddAnimation()
         return;
     }
 
-    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 13); // "add_animation" = 13 characters
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 14, ","); // "add_animation " = 14 characters
 
     if (tokens.size() < 4)
     {
@@ -1984,8 +1984,10 @@ void Parser::ParseDirectiveAddAnimation()
 
     for (auto itor = tokens.begin() + 3; itor != tokens.end(); ++itor)
     {
-        Ogre::StringVector entry = Ogre::StringUtil::split(*itor);
+        Ogre::StringVector entry = Ogre::StringUtil::split(*itor, ":");
         Ogre::StringUtil::trim(entry[0]);
+        if (entry.size() > 1) Ogre::StringUtil::trim(entry[1]); 
+
         const int WARN_LEN = 500;
         char warn_msg[WARN_LEN] = "";
 
@@ -2000,7 +2002,7 @@ void Parser::ParseDirectiveAddAnimation()
         }
         else if (entry.size() == 2 && (entry[0] == "mode" || entry[0] == "event" || entry[0] == "source"))
         {
-            Ogre::StringVector values = Ogre::StringUtil::split(entry[1]);
+            Ogre::StringVector values = Ogre::StringUtil::split(entry[1], "|");
             if (entry[0] == "mode")
             {
                 for (auto itor = values.begin(); itor != values.end(); ++itor)
@@ -2025,50 +2027,43 @@ void Parser::ParseDirectiveAddAnimation()
             }
             else if (entry[0] == "source")
             {
-                // Cannot be combined with "|"
-                Ogre::StringUtil::trim(entry[1]);
-                if (entry[1] == "event")
-                {
-                    animation.source |= Animation::SOURCE_EVENT;
-                    continue;
-                }
-
                 for (auto itor = values.begin(); itor != values.end(); ++itor)
                 {
                     std::string value = *itor;
                     Ogre::StringUtil::trim(value);
 
-                         if (entry[1] == "airspeed")      { animation.source |= Animation::SOURCE_AIRSPEED;          }
-                    else if (entry[1] == "vvi")           { animation.source |= Animation::SOURCE_VERTICAL_VELOCITY; }
-                    else if (entry[1] == "altimeter100k") { animation.source |= Animation::SOURCE_ALTIMETER_100K;    }
-                    else if (entry[1] == "altimeter10k")  { animation.source |= Animation::SOURCE_ALTIMETER_10K;     }
-                    else if (entry[1] == "altimeter1k")   { animation.source |= Animation::SOURCE_ALTIMETER_1K;      }
-                    else if (entry[1] == "aoa")           { animation.source |= Animation::SOURCE_ANGLE_OF_ATTACK;   }
-                    else if (entry[1] == "flap")          { animation.source |= Animation::SOURCE_FLAP;              }
-                    else if (entry[1] == "airbrake")      { animation.source |= Animation::SOURCE_AIR_BRAKE;         }
-                    else if (entry[1] == "roll")          { animation.source |= Animation::SOURCE_ROLL;              }
-                    else if (entry[1] == "pitch")         { animation.source |= Animation::SOURCE_PITCH;             }
-                    else if (entry[1] == "brake")         { animation.source |= Animation::SOURCE_BRAKES;            }
-                    else if (entry[1] == "accel")         { animation.source |= Animation::SOURCE_ACCEL;             }
-                    else if (entry[1] == "clutch")        { animation.source |= Animation::SOURCE_CLUTCH;            }
-                    else if (entry[1] == "speedo")        { animation.source |= Animation::SOURCE_SPEEDO;            }
-                    else if (entry[1] == "tacho")         { animation.source |= Animation::SOURCE_TACHO;             }
-                    else if (entry[1] == "turbo")         { animation.source |= Animation::SOURCE_TURBO;             }
-                    else if (entry[1] == "pbrake")        { animation.source |= Animation::SOURCE_PARKING;           }
-                    else if (entry[1] == "shifterman1")   { animation.source |= Animation::SOURCE_SHIFT_LEFT_RIGHT;  }
-                    else if (entry[1] == "shifterman2")   { animation.source |= Animation::SOURCE_SHIFT_BACK_FORTH;  }
-                    else if (entry[1] == "sequential")    { animation.source |= Animation::SOURCE_SEQUENTIAL_SHIFT;  }
-                    else if (entry[1] == "shifterlin")    { animation.source |= Animation::SOURCE_SHIFTERLIN;        }
-                    else if (entry[1] == "torque")        { animation.source |= Animation::SOURCE_TORQUE;            }
-                    else if (entry[1] == "heading")       { animation.source |= Animation::SOURCE_HEADING;           }
-                    else if (entry[1] == "difflock")      { animation.source |= Animation::SOURCE_DIFFLOCK;          }
-                    else if (entry[1] == "rudderboat")    { animation.source |= Animation::SOURCE_BOAT_RUDDER;       }
-                    else if (entry[1] == "throttleboat")  { animation.source |= Animation::SOURCE_BOAT_THROTTLE;     }
-                    else if (entry[1] == "steeringwheel") { animation.source |= Animation::SOURCE_STEERING_WHEEL;    }
-                    else if (entry[1] == "aileron")       { animation.source |= Animation::SOURCE_AILERON;           }
-                    else if (entry[1] == "elevator")      { animation.source |= Animation::SOURCE_ELEVATOR;          }
-                    else if (entry[1] == "rudderair")     { animation.source |= Animation::SOURCE_AIR_RUDDER;        }
-                    else if (entry[1] == "permanent")     { animation.source |= Animation::SOURCE_PERMANENT;         }
+                         if (value == "airspeed")      { animation.source |= Animation::SOURCE_AIRSPEED;          }
+                    else if (value == "vvi")           { animation.source |= Animation::SOURCE_VERTICAL_VELOCITY; }
+                    else if (value == "altimeter100k") { animation.source |= Animation::SOURCE_ALTIMETER_100K;    }
+                    else if (value == "altimeter10k")  { animation.source |= Animation::SOURCE_ALTIMETER_10K;     }
+                    else if (value == "altimeter1k")   { animation.source |= Animation::SOURCE_ALTIMETER_1K;      }
+                    else if (value == "aoa")           { animation.source |= Animation::SOURCE_ANGLE_OF_ATTACK;   }
+                    else if (value == "flap")          { animation.source |= Animation::SOURCE_FLAP;              }
+                    else if (value == "airbrake")      { animation.source |= Animation::SOURCE_AIR_BRAKE;         }
+                    else if (value == "roll")          { animation.source |= Animation::SOURCE_ROLL;              }
+                    else if (value == "pitch")         { animation.source |= Animation::SOURCE_PITCH;             }
+                    else if (value == "brakes")        { animation.source |= Animation::SOURCE_BRAKES;            }
+                    else if (value == "accel")         { animation.source |= Animation::SOURCE_ACCEL;             }
+                    else if (value == "clutch")        { animation.source |= Animation::SOURCE_CLUTCH;            }
+                    else if (value == "speedo")        { animation.source |= Animation::SOURCE_SPEEDO;            }
+                    else if (value == "tacho")         { animation.source |= Animation::SOURCE_TACHO;             }
+                    else if (value == "turbo")         { animation.source |= Animation::SOURCE_TURBO;             }
+                    else if (value == "pbrake")        { animation.source |= Animation::SOURCE_PARKING;           }
+                    else if (value == "shifterman1")   { animation.source |= Animation::SOURCE_SHIFT_LEFT_RIGHT;  }
+                    else if (value == "shifterman2")   { animation.source |= Animation::SOURCE_SHIFT_BACK_FORTH;  }
+                    else if (value == "sequential")    { animation.source |= Animation::SOURCE_SEQUENTIAL_SHIFT;  }
+                    else if (value == "shifterlin")    { animation.source |= Animation::SOURCE_SHIFTERLIN;        }
+                    else if (value == "torque")        { animation.source |= Animation::SOURCE_TORQUE;            }
+                    else if (value == "heading")       { animation.source |= Animation::SOURCE_HEADING;           }
+                    else if (value == "difflock")      { animation.source |= Animation::SOURCE_DIFFLOCK;          }
+                    else if (value == "rudderboat")    { animation.source |= Animation::SOURCE_BOAT_RUDDER;       }
+                    else if (value == "throttleboat")  { animation.source |= Animation::SOURCE_BOAT_THROTTLE;     }
+                    else if (value == "steeringwheel") { animation.source |= Animation::SOURCE_STEERING_WHEEL;    }
+                    else if (value == "aileron")       { animation.source |= Animation::SOURCE_AILERON;           }
+                    else if (value == "elevator")      { animation.source |= Animation::SOURCE_ELEVATOR;          }
+                    else if (value == "rudderair")     { animation.source |= Animation::SOURCE_AIR_RUDDER;        }
+                    else if (value == "permanent")     { animation.source |= Animation::SOURCE_PERMANENT;         }
+                    else if (value == "event")         { animation.source |= Animation::SOURCE_EVENT;             }
 
                     else
                     {
