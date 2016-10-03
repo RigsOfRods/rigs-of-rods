@@ -3123,13 +3123,13 @@ void Parser::ParseProps()
         prop.special_prop_dashboard.offset = (prop.special == Prop::SPECIAL_DASHBOARD_LEFT)
             ? Ogre::Vector3(-0.67, -0.61, 0.24)
             : Ogre::Vector3( 0.67, -0.61, 0.24); // Defaults
-        if (m_num_args >= 14)
+        if (m_num_args > 13)
         {
             prop.special_prop_dashboard.mesh_name = this->GetArgStr(10);
             prop.special_prop_dashboard.offset = Ogre::Vector3(
                 this->GetArgFloat(11), this->GetArgFloat(12), this->GetArgFloat(13));
         }
-        if (m_num_args >= 15)
+        if (m_num_args > 14)
         {
             prop.special_prop_dashboard.rotation_angle = this->GetArgFloat(14);
         }
