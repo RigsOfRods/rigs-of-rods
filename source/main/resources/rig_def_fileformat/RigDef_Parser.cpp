@@ -2259,10 +2259,7 @@ void Parser::ParseCommandsUnified()
 {
     const bool is_commands2 = (m_current_section == File::SECTION_COMMANDS_2);
     const int max_args = (is_commands2 ? 8 : 7);
-    if (!this->CheckNumArguments(max_args))
-    {
-        return;
-    }
+    if (! this->CheckNumArguments(max_args)) { return; }
 
     Command2 command2;
     command2.beam_defaults     = m_user_beam_defaults;
@@ -2355,6 +2352,8 @@ void Parser::ParseCommandsUnified()
 
     if (m_num_args > pos) { command2.affect_engine = this->GetArgFloat(pos++);}
     if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
+
+    m_current_module->commands_2.push_back(command2);
 }
 
 void Parser::ParseCollisionBox()
@@ -2787,6 +2786,8 @@ void Parser::ParseSlidenodes()
 
 void Parser::ParseShock2()
 {
+    if (! this->CheckNumArguments(13)) { return; }
+
     Shock2 shock_2;
     shock_2.beam_defaults  = m_user_beam_defaults;
     shock_2.detacher_group = m_current_detacher_group;
@@ -2837,7 +2838,6 @@ void Parser::ParseShock2()
     }
 
     m_current_module->shocks_2.push_back(shock_2);
-    
 }
 
 void Parser::ParseShock()
@@ -2855,6 +2855,7 @@ void Parser::ParseShock()
     shock.short_bound    = this->GetArgFloat  (4);
     shock.long_bound     = this->GetArgFloat  (5);
     shock.precompression = this->GetArgFloat  (6);
+
     shock.options = 0u;
     if (m_num_args > 7)
     {
@@ -2973,7 +2974,7 @@ void Parser::ParseRotatorsUnified()
 {
     if (! this->CheckNumArguments(13)) { return; }
 
-    Rotator rotator;
+    Rotator2 rotator;
     rotator.inertia_defaults = m_user_default_inertia;
     
     rotator.axis_nodes[0]           = this->GetArgNodeRef( 0);
@@ -2990,27 +2991,24 @@ void Parser::ParseRotatorsUnified()
     rotator.spin_left_key           = this->GetArgInt    (11);
     rotator.spin_right_key          = this->GetArgInt    (12);
     
+    int offset = 0;
+
     if (m_current_section == File::SECTION_ROTATORS_2)
     {
-        Rotator2* rotator2 = static_cast<Rotator2*>(&rotator);
+        if (! this->CheckNumArguments(16)) { return; }
 
-        if (m_num_args > 13) { rotator2->rotating_force  = this->GetArgFloat(13); }
-        if (m_num_args > 14) { rotator2->tolerance       = this->GetArgFloat(14); }
-        if (m_num_args > 15) { rotator2->description     = this->GetArgStr  (15); }
-        this->ParseOptionalInertia(rotator2->inertia, 16);
-        if (m_num_args > 20) { rotator2->engine_coupling = this->GetArgFloat(20); }
-        if (m_num_args > 21) { rotator2->needs_engine    = this->GetArgBool (21); }
-        
-        m_current_module->rotators_2.push_back(*rotator2);
+        if (m_num_args > 13) { rotator.rotating_force  = this->GetArgFloat(13); }
+        if (m_num_args > 14) { rotator.tolerance       = this->GetArgFloat(14); }
+        if (m_num_args > 15) { rotator.description     = this->GetArgStr  (15); }
+
+        offset = 3;
     }
-    else
-    {
-        this->ParseOptionalInertia(rotator.inertia, 13);
-        if (m_num_args > 17) { rotator.engine_coupling = this->GetArgFloat(17); }
-        if (m_num_args > 18) { rotator.needs_engine    = this->GetArgBool (18); }
-        
-        m_current_module->rotators.push_back(rotator);
-    }
+
+    this->ParseOptionalInertia(rotator.inertia, 13 + offset);
+    if (m_num_args > 17 + offset) { rotator.engine_coupling = this->GetArgFloat(17 + offset); }
+    if (m_num_args > 18 + offset) { rotator.needs_engine    = this->GetArgBool (18 + offset); }
+
+    m_current_module->rotators.push_back(rotator);
 }
 
 void Parser::ParseFileinfo()
