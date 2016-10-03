@@ -3097,17 +3097,17 @@ void Parser::ParseProps()
     prop.mesh_name      = this->GetArgStr    ( 9);
 
     bool is_dash = false;
-         if (prop.mesh_name.find("leftmirror"  )) { prop.special = Prop::SPECIAL_MIRROR_LEFT; }
-    else if (prop.mesh_name.find("rightmirror" )) { prop.special = Prop::SPECIAL_MIRROR_RIGHT; }
-    else if (prop.mesh_name.find("lightbar"    )) { prop.special = Prop::SPECIAL_LIGHTBAR; }
-    else if (prop.mesh_name.find("seat"        )) { prop.special = Prop::SPECIAL_DRIVER_SEAT; }
-    else if (prop.mesh_name.find("seat2"       )) { prop.special = Prop::SPECIAL_DRIVER_SEAT_2; }
-    else if (prop.mesh_name.find("redbeacon"   )) { prop.special = Prop::SPECIAL_REDBEACON; }
-    else if (prop.mesh_name.find("pale"        )) { prop.special = Prop::SPECIAL_PALE; }
-    else if (prop.mesh_name.find("spinprop"    )) { prop.special = Prop::SPECIAL_SPINPROP; }
-    else if (prop.mesh_name.find("beacon"      )) { prop.special = Prop::SPECIAL_BEACON; }
-    else if (prop.mesh_name.find("dashboard-rh")) { prop.special = Prop::SPECIAL_DASHBOARD_RIGHT; is_dash = true; }
-    else if (prop.mesh_name.find("dashboard"   )) { prop.special = Prop::SPECIAL_DASHBOARD_LEFT;  is_dash = true; }
+         if (prop.mesh_name.find("leftmirror"  ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_LEFT; }
+    else if (prop.mesh_name.find("rightmirror" ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_RIGHT; }
+    else if (prop.mesh_name.find("lightbar"    ) != std::string::npos) { prop.special = Prop::SPECIAL_LIGHTBAR; }
+    else if (prop.mesh_name.find("seat"        ) != std::string::npos) { prop.special = Prop::SPECIAL_DRIVER_SEAT; }
+    else if (prop.mesh_name.find("seat2"       ) != std::string::npos) { prop.special = Prop::SPECIAL_DRIVER_SEAT_2; }
+    else if (prop.mesh_name.find("redbeacon"   ) != std::string::npos) { prop.special = Prop::SPECIAL_REDBEACON; }
+    else if (prop.mesh_name.find("pale"        ) != std::string::npos) { prop.special = Prop::SPECIAL_PALE; }
+    else if (prop.mesh_name.find("spinprop"    ) != std::string::npos) { prop.special = Prop::SPECIAL_SPINPROP; }
+    else if (prop.mesh_name.find("beacon"      ) != std::string::npos) { prop.special = Prop::SPECIAL_BEACON; }
+    else if (prop.mesh_name.find("dashboard-rh") != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_RIGHT; is_dash = true; }
+    else if (prop.mesh_name.find("dashboard"   ) != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_LEFT;  is_dash = true; }
 
     if ((prop.special == Prop::SPECIAL_BEACON) && (m_num_args >= 14))
     {
