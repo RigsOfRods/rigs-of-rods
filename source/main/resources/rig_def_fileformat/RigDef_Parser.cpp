@@ -100,7 +100,7 @@ void Parser::ProcessCurrentLine()
         m_in_block_comment = true;
         return;        
     }
-    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/')) // Comment line
+    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/') || m_in_block_comment) // Comment line
     {
         return;
     }
