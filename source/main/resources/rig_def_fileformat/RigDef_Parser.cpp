@@ -2774,6 +2774,9 @@ void Parser::ParseSlidenodes()
                 break;
             }
             break;
+        default:
+            slidenode.rail_node_ranges.push_back( _ParseNodeRef(*itor));
+            break;
         }
     }
     
