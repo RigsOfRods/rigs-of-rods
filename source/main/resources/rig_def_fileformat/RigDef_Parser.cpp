@@ -3082,19 +3082,19 @@ void Parser::ParseRailGroups()
 
 void Parser::ParseProps()
 {
-    if (!this->CheckNumArguments(10)) { return; }
+    if (! this->CheckNumArguments(10)) { return; }
 
     Prop prop;
-    prop.reference_node = this->GetArgNodeRef( 0);
-    prop.x_axis_node    = this->GetArgNodeRef( 1);
-    prop.y_axis_node    = this->GetArgNodeRef( 2);
-    prop.offset.x       = this->GetArgFloat  ( 3);
-    prop.offset.y       = this->GetArgFloat  ( 4);
-    prop.offset.z       = this->GetArgFloat  ( 5);
-    prop.rotation.x     = this->GetArgFloat  ( 6);
-    prop.rotation.y     = this->GetArgFloat  ( 7);
-    prop.rotation.z     = this->GetArgFloat  ( 8);
-    prop.mesh_name      = this->GetArgStr    ( 9);
+    prop.reference_node = this->GetArgNodeRef(0);
+    prop.x_axis_node    = this->GetArgNodeRef(1);
+    prop.y_axis_node    = this->GetArgNodeRef(2);
+    prop.offset.x       = this->GetArgFloat  (3);
+    prop.offset.y       = this->GetArgFloat  (4);
+    prop.offset.z       = this->GetArgFloat  (5);
+    prop.rotation.x     = this->GetArgFloat  (6);
+    prop.rotation.y     = this->GetArgFloat  (7);
+    prop.rotation.z     = this->GetArgFloat  (8);
+    prop.mesh_name      = this->GetArgStr    (9);
 
     bool is_dash = false;
          if (prop.mesh_name.find("leftmirror"  ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_LEFT; }
