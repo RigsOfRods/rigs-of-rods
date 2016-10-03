@@ -3117,19 +3117,13 @@ void Parser::ParseProps()
     }
     else if (is_dash)
     {
-        prop.special_prop_dashboard.offset = (prop.special == Prop::SPECIAL_DASHBOARD_LEFT)
-            ? Ogre::Vector3(-0.67, -0.61, 0.24)
-            : Ogre::Vector3( 0.67, -0.61, 0.24); // Defaults
+        if (m_num_args > 10) prop.special_prop_dashboard.mesh_name = this->GetArgStr(10);
         if (m_num_args > 13)
         {
-            prop.special_prop_dashboard.mesh_name = this->GetArgStr(10);
-            prop.special_prop_dashboard.offset = Ogre::Vector3(
-                this->GetArgFloat(11), this->GetArgFloat(12), this->GetArgFloat(13));
+            prop.special_prop_dashboard.offset = Ogre::Vector3(this->GetArgFloat(11), this->GetArgFloat(12), this->GetArgFloat(13));
+            prop.special_prop_dashboard._offset_is_set = true;
         }
-        if (m_num_args > 14)
-        {
-            prop.special_prop_dashboard.rotation_angle = this->GetArgFloat(14);
-        }
+        if (m_num_args > 14) prop.special_prop_dashboard.rotation_angle = this->GetArgFloat(14);
     }
 
     m_current_module->props.push_back(prop);
