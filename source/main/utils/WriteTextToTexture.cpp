@@ -154,7 +154,7 @@ void WriteToTexture(const String& str, TexturePtr destTexture, Image::Box destRe
 					size_t textwidth = 0;
 					size_t wordwidth = 0;
 
-					while (l < str.size() && str[l] != '\n)')
+					while (l < str.size() && str[l] != '\n')
 					{
 						wordwidth = 0;
 
