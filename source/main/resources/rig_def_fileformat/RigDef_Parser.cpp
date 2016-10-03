@@ -2199,17 +2199,18 @@ void Parser::ParseEngturbo()
     engturbo.tinertiaFactor = this->GetArgFloat( 1);
     engturbo.nturbos        = this->GetArgInt  ( 2);
     engturbo.param1         = this->GetArgFloat( 3);
-    engturbo.param2         = this->GetArgFloat( 4);
-    engturbo.param3         = this->GetArgFloat( 5);
-    engturbo.param4         = this->GetArgFloat( 6);
-    engturbo.param5         = this->GetArgFloat( 7);
-    engturbo.param6         = this->GetArgFloat( 8);
-    engturbo.param7         = this->GetArgFloat( 9);
-    engturbo.param8         = this->GetArgFloat(10);
-    engturbo.param9         = this->GetArgFloat(11);
-    engturbo.param10        = this->GetArgFloat(12);
-    engturbo.param11        = this->GetArgFloat(13);
-    
+
+    if (m_num_args >  4) { engturbo.param2  = this->GetArgFloat( 4); }
+    if (m_num_args >  5) { engturbo.param3  = this->GetArgFloat( 5); }
+    if (m_num_args >  6) { engturbo.param4  = this->GetArgFloat( 6); }
+    if (m_num_args >  7) { engturbo.param5  = this->GetArgFloat( 7); }
+    if (m_num_args >  8) { engturbo.param6  = this->GetArgFloat( 8); }
+    if (m_num_args >  9) { engturbo.param7  = this->GetArgFloat( 9); }
+    if (m_num_args > 10) { engturbo.param8  = this->GetArgFloat(10); }
+    if (m_num_args > 11) { engturbo.param9  = this->GetArgFloat(11); }
+    if (m_num_args > 12) { engturbo.param10 = this->GetArgFloat(12); }
+    if (m_num_args > 13) { engturbo.param11 = this->GetArgFloat(13); }
+
     if (engturbo.nturbos > 4)
     {
         this->AddMessage(Message::TYPE_WARNING, "You cannot have more than 4 turbos. Fallback: using 4 instead.");
