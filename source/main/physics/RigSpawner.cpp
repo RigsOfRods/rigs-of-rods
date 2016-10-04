@@ -6131,7 +6131,7 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigD
 			default_deform = BEAM_DEFORM;
 		}
 
-		if (beam_defaults->plastic_deform_coef >= 0.f)
+		if (beam_defaults->_is_plastic_deform_coef_user_defined && beam_defaults->plastic_deform_coef >= 0.f)
 		{
 			beam_creak = 0.f;
 		}
