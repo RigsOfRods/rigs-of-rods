@@ -3498,20 +3498,20 @@ void Parser::ParseBeams()
 
 void Parser::ParseAnimator()
 {
-    if (! this->CheckNumArguments(4)) { return; }
+    auto args = Ogre::StringUtil::split(m_current_line, ",");
+    if (args.size() < 4) { return; }
 
     Animator animator;
     animator.inertia_defaults   = m_user_default_inertia;
     animator.beam_defaults      = m_user_beam_defaults;
     animator.detacher_group     = m_current_detacher_group;
 
-    animator.nodes[0]           = this->GetArgNodeRef(0);
-    animator.nodes[1]           = this->GetArgNodeRef(1);
-    animator.lenghtening_factor = this->GetArgFloat  (2);
+    animator.nodes[0]           = this->_ParseNodeRef(args[0]);
+    animator.nodes[1]           = this->_ParseNodeRef(args[1]);
+    animator.lenghtening_factor = this->ParseArgFloat(args[2]);
 
-    // Parse options 
-    // Just use the split/trim/compare method 
-    Ogre::StringVector attrs = Ogre::StringUtil::split(this->GetArgStr(3), "|");
+    // Parse options; Just use the split/trim/compare method
+    Ogre::StringVector attrs = Ogre::StringUtil::split(args[3], "|");
 
     auto itor = attrs.begin();
     auto endi = attrs.end();
