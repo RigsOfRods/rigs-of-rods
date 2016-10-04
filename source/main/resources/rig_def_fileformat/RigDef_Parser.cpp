@@ -68,8 +68,7 @@ inline bool StrEqualsNocase(std::string const & s1, std::string const & s2)
 
 #define STR_PARSE_BOOL(_STR_) Ogre::StringConverter::parseBool(_STR_)
 
-Parser::Parser():
-    m_ror_minimass(0)
+Parser::Parser()
 {
     // Push defaults 
     m_ror_default_inertia = std::shared_ptr<Inertia>(new Inertia);
