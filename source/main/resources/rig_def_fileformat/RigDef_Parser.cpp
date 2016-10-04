@@ -1660,6 +1660,8 @@ void Parser::ParseFusedrag()
     
     if (this->GetArgStr(2) == "autocalc")
     {
+        fusedrag.autocalc = true;
+
         // Fusedrag autocalculation from truck size
         if (m_num_args > 3) { fusedrag.area_coefficient = this->GetArgFloat(3); }
         if (m_num_args > 4) { fusedrag.airfoil_name     = this->GetArgStr  (4); }
