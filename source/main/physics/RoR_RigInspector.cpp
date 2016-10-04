@@ -920,8 +920,8 @@ void RigInspector::InspectStructRig(std::ofstream & f, Beam* rig)
 	f<<"\n\t tc_pulse_state:"<<rig->tc_pulse_state;
 	f<<"\n\t tc_present:"<<rig->tc_present;
 	f<<"\n\t tc_notoggle:"<<rig->tc_notoggle;
-	f<<"\n\t tcalb_timer:"<<rig->tc_timer;
-    f<<"\n\t tcalb_timer:"<<rig->alb_timer;
+	f<<"\n\t tc_timer:"<<rig->tc_timer;
+	f<<"\n\t alb_timer:"<<rig->alb_timer;
 	f<<"\n\t antilockbrake:"<<rig->antilockbrake;
 	f<<"\n\t tractioncontrol:"<<rig->tractioncontrol;
 	f<<"\n\t animTimer:"<<rig->animTimer;
