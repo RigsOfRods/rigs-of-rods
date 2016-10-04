@@ -3098,15 +3098,15 @@ void Parser::ParseProps()
     bool is_dash = false;
          if (prop.mesh_name.find("leftmirror"  ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_LEFT; }
     else if (prop.mesh_name.find("rightmirror" ) != std::string::npos) { prop.special = Prop::SPECIAL_MIRROR_RIGHT; }
-    else if (prop.mesh_name.find("lightbar"    ) != std::string::npos) { prop.special = Prop::SPECIAL_LIGHTBAR; }
-    else if (prop.mesh_name.find("seat"        ) != std::string::npos) { prop.special = Prop::SPECIAL_DRIVER_SEAT; }
-    else if (prop.mesh_name.find("seat2"       ) != std::string::npos) { prop.special = Prop::SPECIAL_DRIVER_SEAT_2; }
-    else if (prop.mesh_name.find("redbeacon"   ) != std::string::npos) { prop.special = Prop::SPECIAL_REDBEACON; }
-    else if (prop.mesh_name.find("pale"        ) != std::string::npos) { prop.special = Prop::SPECIAL_PALE; }
-    else if (prop.mesh_name.find("spinprop"    ) != std::string::npos) { prop.special = Prop::SPECIAL_SPINPROP; }
-    else if (prop.mesh_name.find("beacon"      ) != std::string::npos) { prop.special = Prop::SPECIAL_BEACON; }
     else if (prop.mesh_name.find("dashboard-rh") != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_RIGHT; is_dash = true; }
     else if (prop.mesh_name.find("dashboard"   ) != std::string::npos) { prop.special = Prop::SPECIAL_DASHBOARD_LEFT;  is_dash = true; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "spinprop") ) { prop.special = Prop::SPECIAL_SPINPROP; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "pale")     ) { prop.special = Prop::SPECIAL_PALE; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "seat")     ) { prop.special = Prop::SPECIAL_DRIVER_SEAT; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "seat2")    ) { prop.special = Prop::SPECIAL_DRIVER_SEAT_2; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "beacon")   ) { prop.special = Prop::SPECIAL_BEACON; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "redbeacon")) { prop.special = Prop::SPECIAL_REDBEACON; }
+    else if (Ogre::StringUtil::startsWith(prop.mesh_name, "lightb")   ) { prop.special = Prop::SPECIAL_LIGHTBAR; } // Previously: 'strncmp("lightbar", meshname, 6)'
 
     if ((prop.special == Prop::SPECIAL_BEACON) && (m_num_args >= 14))
     {
