@@ -3314,6 +3314,7 @@ void Parser::ParseMinimass()
     if (m_definition->_minimum_mass_set)
     {
         this->AddMessage(Message::TYPE_WARNING, "Minimass defined more than once.");
+        return;
     }
 
     m_definition->minimum_mass = this->GetArgFloat(0);
