@@ -2049,7 +2049,7 @@ void Parser::ParseDirectiveAddAnimation()
                     else if (value == "speedo")        { animation.source |= Animation::SOURCE_SPEEDO;            }
                     else if (value == "tacho")         { animation.source |= Animation::SOURCE_TACHO;             }
                     else if (value == "turbo")         { animation.source |= Animation::SOURCE_TURBO;             }
-                    else if (value == "pbrake")        { animation.source |= Animation::SOURCE_PARKING;           }
+                    else if (value == "parking")       { animation.source |= Animation::SOURCE_PARKING;           }
                     else if (value == "shifterman1")   { animation.source |= Animation::SOURCE_SHIFT_LEFT_RIGHT;  }
                     else if (value == "shifterman2")   { animation.source |= Animation::SOURCE_SHIFT_BACK_FORTH;  }
                     else if (value == "sequential")    { animation.source |= Animation::SOURCE_SEQUENTIAL_SHIFT;  }
