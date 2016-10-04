@@ -3008,8 +3008,6 @@ void Parser::ParseRotatorsUnified()
 
     if (m_current_section == File::SECTION_ROTATORS_2)
     {
-        if (! this->CheckNumArguments(16)) { return; }
-
         if (m_num_args > 13) { rotator.rotating_force  = this->GetArgFloat(13); }
         if (m_num_args > 14) { rotator.tolerance       = this->GetArgFloat(14); }
         if (m_num_args > 15) { rotator.description     = this->GetArgStr  (15); }
@@ -3021,7 +3019,14 @@ void Parser::ParseRotatorsUnified()
     if (m_num_args > 17 + offset) { rotator.engine_coupling = this->GetArgFloat(17 + offset); }
     if (m_num_args > 18 + offset) { rotator.needs_engine    = this->GetArgBool (18 + offset); }
 
-    m_current_module->rotators.push_back(rotator);
+    if (m_current_section == File::SECTION_ROTATORS_2)
+    {
+        m_current_module->rotators_2.push_back(rotator);
+    }
+    else
+    {
+        m_current_module->rotators.push_back(rotator);
+    }
 }
 
 void Parser::ParseFileinfo()
