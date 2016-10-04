@@ -181,6 +181,7 @@ set( SOURCE_FILES
   physics/Differentials.{h,cpp}
   physics/RigSpawner.{h,cpp}
   physics/RigSpawner_ProcessControl.cpp
+  physics/RoR_RigInspector.{h,cpp}
   physics/SlideNode.{h,cpp}
   physics/air/AeroEngine.h
   physics/air/AirBrake.{h,cpp}
