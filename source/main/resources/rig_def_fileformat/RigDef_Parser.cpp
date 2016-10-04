@@ -3479,8 +3479,14 @@ void Parser::ParseBeams()
     
     if ((m_num_args > 3) && (beam.options & Beam::OPTION_s_SUPPORT))
     {
+        float support_break_limit = 0.0f;
+        float support_break_factor = this->GetArgInt(3);
+        if (support_break_factor > 0.0f)
+        {
+            support_break_limit = support_break_factor;
+        }
+        beam.extension_break_limit = support_break_limit;
         beam._has_extension_break_limit = true;
-        beam.extension_break_limit = this->GetArgFloat(3);        
     }
 
     m_current_module->beams.push_back(beam);
