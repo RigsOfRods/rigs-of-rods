@@ -2730,6 +2730,8 @@ void Parser::ParseSlidenodes()
     SlideNode slidenode;
     slidenode.slide_node = this->_ParseNodeRef(args[0]);
     
+    bool in_rail_node_list = true;
+
     for (auto itor = args.begin() + 1; itor != args.end(); ++itor)
     {
         char c = toupper(itor->at(0));
@@ -2737,23 +2739,29 @@ void Parser::ParseSlidenodes()
         {
         case 'S':
             slidenode.spring_rate = this->ParseArgFloat(itor->substr(1));
+            in_rail_node_list = false;
             break;
         case 'B':
             slidenode.break_force = this->ParseArgFloat(itor->substr(1));
             slidenode._break_force_set = true;
+            in_rail_node_list = false;
             break;
         case 'T':
             slidenode.tolerance = this->ParseArgFloat(itor->substr(1));
+            in_rail_node_list = false;
             break;
         case 'R':
             slidenode.attachment_rate = this->ParseArgFloat(itor->substr(1));
+            in_rail_node_list = false;
             break;
         case 'G':
             slidenode.railgroup_id = this->ParseArgFloat(itor->substr(1));
             slidenode._railgroup_id_set = true;
+            in_rail_node_list = false;
             break;
         case 'D':
             slidenode.max_attachment_distance = this->ParseArgFloat(itor->substr(1));
+            in_rail_node_list = false;
             break;
         case 'C':
             switch (itor->at(1))
@@ -2774,9 +2782,11 @@ void Parser::ParseSlidenodes()
                 this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid option: ") + itor->at(1));
                 break;
             }
+            in_rail_node_list = false;
             break;
         default:
-            slidenode.rail_node_ranges.push_back( _ParseNodeRef(*itor));
+            if (in_rail_node_list)
+                slidenode.rail_node_ranges.push_back( _ParseNodeRef(*itor));
             break;
         }
     }
