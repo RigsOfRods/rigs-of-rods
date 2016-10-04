@@ -1581,7 +1581,8 @@ void Parser::ParseHelp()
         this->AddMessage(Message::TYPE_WARNING, "Secton defined more than once.");
     }
 
-    m_current_module->help_panel_material_name = this->GetArgStr(1);
+    m_current_module->help_panel_material_name = m_current_line;
+    Ogre::StringUtil::trim(m_current_module->help_panel_material_name);
 }
 
 void Parser::ParseGuiSettings()
