@@ -2623,7 +2623,13 @@ void Parser::ParseTriggers()
             }
         }
     }
-    if (m_num_args > 7) { trigger.boundary_timer = this->GetArgFloat(7); }
+
+    if (m_num_args > 7)
+    {
+        float boundary_timer = this->GetArgFloat(7);
+        if (boundary_timer > 0.0f)
+            trigger.boundary_timer = boundary_timer;
+    }
 
     // Handle actions
     if (trigger.IsHookToggleTrigger())
