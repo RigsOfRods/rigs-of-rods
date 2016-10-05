@@ -1238,20 +1238,34 @@ void Parser::ParseTractionControl()
     if (tokens.size() > 2) { tc.fade_speed       = this->ParseArgFloat(tokens[2].c_str()); }
     if (tokens.size() > 3) { tc.pulse_per_sec    = this->ParseArgFloat(tokens[3].c_str()); }
 
-    if (tokens.size() > 4)
+    for (unsigned int i=4; i<tokens.size(); i++)
     {
-        Ogre::StringVector attrs = Ogre::StringUtil::split(tokens[4], "&");
-        auto itor = attrs.begin();
-        auto endi = attrs.end();
-        for (; itor != endi; ++itor)
+        Ogre::StringVector args2 = Ogre::StringUtil::split(tokens[i], ":");
+        Ogre::StringUtil::trim(args2[0]);
+        Ogre::StringUtil::toLowerCase(args2[0]);
+
+        if (args2[0] == "mode" && args2.size() == 2)
         {
-            std::string attr = *itor;
-            Ogre::StringUtil::trim(attr);
-            Ogre::StringUtil::toLowerCase(attr);
-                 if (strncmp(attr.c_str(), "nodash", 6)   == 0) { tc.attr_no_dashboard = true;  }
-            else if (strncmp(attr.c_str(), "notoggle", 8) == 0) { tc.attr_no_toggle    = true;  }
-            else if (strncmp(attr.c_str(), "on", 2)       == 0) { tc.attr_is_on        = true;  }
-            else if (strncmp(attr.c_str(), "off", 3)      == 0) { tc.attr_is_on        = false; }
+            Ogre::StringVector attrs = Ogre::StringUtil::split(args2[1], "&");
+            auto itor = attrs.begin();
+            auto endi = attrs.end();
+            for (; itor != endi; ++itor)
+            {
+                std::string attr = *itor;
+                Ogre::StringUtil::trim(attr);
+                Ogre::StringUtil::toLowerCase(attr);
+                     if (strncmp(attr.c_str(), "nodash", 6)   == 0) { tc.attr_no_dashboard = true;  }
+                else if (strncmp(attr.c_str(), "notoggle", 8) == 0) { tc.attr_no_toggle    = true;  }
+                else if (strncmp(attr.c_str(), "on", 2)       == 0) { tc.attr_is_on        = true;  }
+                else if (strncmp(attr.c_str(), "off", 3)      == 0) { tc.attr_is_on        = false; }
+            }
+        }
+        else
+        {
+            this->AddMessage(Message::TYPE_ERROR, "TractionControl Mode: missing");
+            tc.attr_no_dashboard = false;
+            tc.attr_no_toggle = false;
+            tc.attr_is_on = true;
         }
     }
 
@@ -1259,6 +1273,7 @@ void Parser::ParseTractionControl()
     {
         this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'TractionControl' in a module, using last one ...");
     }
+
     m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(tc) );
 }
 
