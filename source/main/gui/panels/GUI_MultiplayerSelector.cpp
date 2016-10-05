@@ -54,6 +54,9 @@ CLASS::CLASS()
 
 	m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
 
+	m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
+	m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
+
 	CenterToScreen();
 
 	init();
