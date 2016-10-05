@@ -1295,7 +1295,7 @@ void RigInspector::PrintRopable(std::ofstream & f, ropable_t * ptr)
 			<<" node="<<ECHO_NODE(data.node)
 			<<" group="<<data.group
 			<<" multilock="<<data.multilock
-			<<" used="<<data.used;
+			<<" IsInUse()="<<data.IsInUse();
 	}
 }
 

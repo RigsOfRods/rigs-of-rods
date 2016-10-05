@@ -269,10 +269,18 @@ struct hook_t
 
 struct ropable_t
 {
-	node_t *node;
-	int group;
-	bool multilock;
-	int used;
+    ropable_t(): use_counter(0) {}
+
+    node_t*   node;
+    int       group;
+    bool      multilock;
+
+    inline void IncrementUseCount() { ++use_counter; }
+    inline void DecrementUseCount() { use_counter = (use_counter != 0) ? use_counter-1 : 0; }
+    inline bool IsInUse()           { return use_counter != 0; }
+
+private:
+    unsigned  use_counter;
 };
 
 struct rope_t
