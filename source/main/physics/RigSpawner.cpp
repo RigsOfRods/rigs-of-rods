@@ -2984,6 +2984,7 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 	/* Register rope */
 	rope_t rope;
 	rope.beam = & beam;
+	rope.locked = UNLOCKED;
 	rope.lockedto = & m_rig->nodes[0]; // Orig: hardcoded in BTS_ROPES
 	rope.group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
 	m_rig->ropes.push_back(rope);

@@ -2282,6 +2282,8 @@ void Parser::ParseEngine()
 
 void Parser::ParseContacter()
 {
+    if (! this->CheckNumArguments(1)) { return; }
+
     m_current_module->contacters.push_back(this->GetArgNodeRef(0));
 }
 
