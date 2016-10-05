@@ -3097,10 +3097,10 @@ void Parser::ParseRopes()
     Rope rope;
     rope.beam_defaults  = m_user_beam_defaults;
     rope.detacher_group = m_current_detacher_group;
-    rope.root_node      = this->GetArgNodeRef(1);
-    rope.end_node       = this->GetArgNodeRef(2);
+    rope.root_node      = this->GetArgNodeRef(0);
+    rope.end_node       = this->GetArgNodeRef(1);
     
-    if (m_num_args > 2) { rope.invisible  = (this->GetArgChar(3) == 'i'); }
+    if (m_num_args > 2) { rope.invisible  = (this->GetArgChar(2) == 'i'); }
 
     m_current_module->ropes.push_back(rope);
 }
