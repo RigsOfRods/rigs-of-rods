@@ -613,7 +613,6 @@ bool Connect()
 
     return true;
 }
-
 void Disconnect()
 {
     LOG("[RoR|Networking] Disconnect() disconnecting...");
@@ -621,13 +620,12 @@ void Disconnect()
     m_shutdown = true; // Instruct Send/Recv threads to shut down.
 
     m_send_packet_available_cv.notify_one();
+
     m_send_thread.join();
     LOG("[RoR|Networking] Disconnect() sender thread stopped...");
 
     SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
     socket.set_timeout(1, 1000);
-    
-    m_recv_thread.join();
     socket.disconnect();
 
     m_shutdown = false;
