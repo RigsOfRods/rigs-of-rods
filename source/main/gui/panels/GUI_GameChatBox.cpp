@@ -137,7 +137,11 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 
 void CLASS::Update(float dt)
 {
-	if (!autoHide)
+	if (App::GetActiveMpState() != App::MP_STATE_CONNECTED)
+	{
+		MAIN_WIDGET->setVisible(false);
+		return;
+	} else if (!autoHide)
 	{
 		MAIN_WIDGET->setVisible(true);
 		return;
