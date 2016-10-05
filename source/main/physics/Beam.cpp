@@ -85,7 +85,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GUIManager.h"
 
 // DEBUG UTILITY
-//#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
+#include "RoR_RigInspector.h"
 
 #define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
@@ -3983,7 +3983,7 @@ void Beam::tieToggle(int group)
 			// tie is locked and should get unlocked and stop tying
 			it->tied  = false;
 			it->tying = false;
-			if (it->lockedto) it->lockedto->used--;
+			if (it->lockedto) { it->lockedto->DecrementUseCount(); }
 			// disable the ties beam
 			it->beam->p2 = &nodes[0];
 			it->beam->p2truck = false;
@@ -4019,7 +4019,7 @@ void Beam::tieToggle(int group)
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
 						// if the ropable is not multilock and used, then discard this ropable
-						if (!itr->multilock && itr->used)
+						if (!itr->multilock && itr->IsInUse())
 							continue;
 
 						//skip if tienode is ropable too (no selflock)
@@ -4053,7 +4053,7 @@ void Beam::tieToggle(int group)
 					it->tied  = true;
 					it->tying = true;
 					it->lockedto = locktedto;
-					it->lockedto->used++;
+					it->lockedto->IncrementUseCount();
 					addInterTruckBeam(it->beam);
 				}
 			}
@@ -4081,7 +4081,7 @@ void Beam::ropeToggle(int group)
 			// we unlock ropes
 			it->locked = UNLOCKED;
 			// remove node locking
-			if (it->lockedto_ropable) it->lockedto_ropable->used--;
+            if (it->lockedto_ropable) { it->lockedto_ropable->DecrementUseCount(); }
 			it->lockedto = &nodes[0];
 			it->lockedtruck = 0;
 		} else
@@ -4101,7 +4101,7 @@ void Beam::ropeToggle(int group)
 				for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 				{
 					// if the ropable is not multilock and used, then discard this ropable
-					if (!itr->multilock && itr->used)
+					if (!itr->multilock && itr->IsInUse())
 						continue;
 
 					// calculate the distance and record the nearest ropable
@@ -4123,7 +4123,7 @@ void Beam::ropeToggle(int group)
 				it->lockedtruck = shtruck;
 				it->locked      = PRELOCK;
 				it->lockedto_ropable = rop;
-				it->lockedto_ropable->used++;
+				it->lockedto_ropable->IncrementUseCount();
 			}
 		}
 	}
@@ -4262,7 +4262,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
 						// if the ropable is not multilock and used, then discard this ropable
-						if (!itr->multilock && itr->used)
+						if (!itr->multilock && itr->IsInUse())
 							continue;
 
 						// calculate the distance and record the nearest ropable
@@ -5649,10 +5649,7 @@ bool Beam::LoadTruck(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_CREATE);
 	parser.Prepare();
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_PREPARE);
-	while(! ds->eof())
-	{
-		parser.ParseLine(ds->getLine());
-	}
+    parser.ProcessOgreStream(ds.getPointer());
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_RUN);
 	parser.Finalize();
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_FINALIZE);
@@ -6048,6 +6045,8 @@ bool Beam::LoadTruck(
 	m_is_cinecam_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
 
 	TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, trucknum);
+
+    RigInspector::InspectRig(this, "RigInspector_NewParser.log");
 
 	return true;
 }

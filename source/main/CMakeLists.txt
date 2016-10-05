@@ -179,6 +179,9 @@ set( SOURCE_FILES
   physics/BeamSlideNode.cpp
   physics/CmdKeyInertia.{h,cpp}
   physics/Differentials.{h,cpp}
+  physics/RigSpawner.{h,cpp}
+  physics/RigSpawner_ProcessControl.cpp
+  physics/RoR_RigInspector.{h,cpp}
   physics/SlideNode.{h,cpp}
   physics/air/AeroEngine.h
   physics/air/AirBrake.{h,cpp}
@@ -198,9 +201,6 @@ set( SOURCE_FILES
   physics/flex/FlexMeshWheel.{h,cpp}
   physics/flex/FlexObj.{h,cpp}
   physics/flex/Locator_t.h
-  physics/input_output/ForceFeedback.{h,cpp}
-  physics/input_output/RigSpawner.{h,cpp}
-  physics/input_output/RigSpawner_ProcessControl.cpp
   physics/mplatform/MPlatformBase.{h,cpp}
   physics/mplatform/MPlatformFD.{h,cpp}
   physics/utils/BeamStats.{h,cpp}
@@ -210,6 +210,15 @@ set( SOURCE_FILES
   resources/CacheSystem.{h,cpp}
   resources/CacheSystemTable.h
   resources/ContentManager.{h,cpp}
+  resources/rig_def_fileformat/RigDef_File.{h,cpp}
+  resources/rig_def_fileformat/RigDef_Limits.h
+  resources/rig_def_fileformat/RigDef_Node.{h,cpp}
+  resources/rig_def_fileformat/RigDef_Parser.{h,cpp}
+  resources/rig_def_fileformat/RigDef_Prerequisites.h
+  resources/rig_def_fileformat/RigDef_Regexes.h
+  resources/rig_def_fileformat/RigDef_SequentialImporter.{h,cpp}
+  resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
+  resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
   terrain/IHeightFinder.h
   terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
   terrain/TerrainGeometryManager.{h,cpp}
@@ -223,6 +232,7 @@ set( SOURCE_FILES
   utils/ConfigFile.{h,cpp}
   utils/ErrorUtils.{h,cpp}
   utils/FileSystemInfo.h
+  utils/ForceFeedback.{h,cpp}
   utils/IBehavior.h
   utils/IBehaviorManager.h
   utils/ImprovedConfigFile.h
@@ -244,15 +254,6 @@ set( SOURCE_FILES
   utils/ZeroedMemoryAllocator.h
   utils/profiler/Profiler.{h,cpp}
   utils/profiler/RigLoadingProfilerControl.h
-  ../rig_file_input_output/RigDef_File.{h,cpp}
-  ../rig_file_input_output/RigDef_Limits.h
-  ../rig_file_input_output/RigDef_Node.{h,cpp}
-  ../rig_file_input_output/RigDef_Parser.{h,cpp}
-  ../rig_file_input_output/RigDef_Prerequisites.h
-  ../rig_file_input_output/RigDef_Regexes.h
-  ../rig_file_input_output/RigDef_SequentialImporter.{h,cpp}
-  ../rig_file_input_output/RigDef_Serializer.{h,cpp}
-  ../rig_file_input_output/RigDef_Validator.{h,cpp}
   )
 
 if(ROR_USE_ANGELSCRIPT)
@@ -379,8 +380,6 @@ include_directories(${Ois_INCLUDE_DIRS})
 
 target_include_directories( ${BINNAME} PRIVATE
  .
- ../common
- ../rig_file_input_output
  audio
  datatypes
  gameplay
@@ -400,12 +399,12 @@ target_include_directories( ${BINNAME} PRIVATE
  physics/air
  physics/collision
  physics/flex
- physics/input_output
  physics/mplatform
  physics/threading
  physics/utils
  physics/water
  resources
+ resources/rig_def_fileformat
  rig_editor
  rig_editor/rig_data
  scripting

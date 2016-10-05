@@ -1009,7 +1009,7 @@ void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    int couple_node_index = (def._couple_node_set) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+    int couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
 
 	BuildAerialEngine(
 		GetNodeIndexOrThrow(def.reference_node),
@@ -1932,38 +1932,38 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 	/* SPECIAL PROPS */
 
 	/* Rear view mirror (left) */
-	if (def.special == RigDef::Prop::SPECIAL_LEFT_REAR_VIEW_MIRROR)
+	if (def.special == RigDef::Prop::SPECIAL_MIRROR_LEFT)
 	{
 		prop.mirror = 1;
 	}
 
 	/* Rear view mirror (right) */
-	if (def.special == RigDef::Prop::SPECIAL_RIGHT_REAR_VIEW_MIRROR)
+	if (def.special == RigDef::Prop::SPECIAL_MIRROR_RIGHT)
 	{
 		prop.mirror = -1;
 	}
 
 	/* Custom steering wheel */
 	Ogre::Vector3 steering_wheel_offset = Ogre::Vector3::ZERO;
-	if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_LEFT_HANDED)
+	if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_LEFT)
 	{
 		steering_wheel_offset = Ogre::Vector3(-0.67, -0.61,0.24);
 	}
-	if (def.special == RigDef::Prop::SPECIAL_STEERING_WHEEL_RIGHT_HANDED)
+	if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_RIGHT)
 	{
 		steering_wheel_offset = Ogre::Vector3(0.67, -0.61,0.24);
 	}
 	if (steering_wheel_offset != Ogre::Vector3::ZERO)
 	{
-		if (def.special_prop_steering_wheel._offset_is_set)
+		if (def.special_prop_dashboard._offset_is_set)
 		{
-			steering_wheel_offset = def.special_prop_steering_wheel.offset;
+			steering_wheel_offset = def.special_prop_dashboard.offset;
 		}
-		prop.wheelrotdegree = def.special_prop_steering_wheel.rotation_angle;
+		prop.wheelrotdegree = def.special_prop_dashboard.rotation_angle;
 		prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 		prop.wheelpos = steering_wheel_offset;
 		prop.wheelmo = new MeshObject(
-			def.special_prop_steering_wheel.mesh_name,
+			def.special_prop_dashboard.mesh_name,
 			"",
 			prop.wheel,
 			m_rig->usedSkin,
@@ -2731,7 +2731,7 @@ void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 			msg << "Invalid node '" << itor->ToString() << "'";
 			continue;
 		}
-		m_rig->nodes[node_result.first].collisionBoundingBoxID = m_rig->collisionBoundingBoxes.size();
+		m_rig->nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_rig->collisionBoundingBoxes.size());
 	}
 
 	m_rig->collisionBoundingBoxes.resize(m_rig->collisionBoundingBoxes.size() + 1);
@@ -2823,14 +2823,8 @@ void RigSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    m_rig->sl_enabled = true;
-	m_rig->sl_speed_limit = def.max_speed;
-	if (def.max_speed <= 0.f)
-	{
-		std::stringstream msg;
-		msg << "Invalid parameter 'max_speed' (" << def.max_speed 
-			<< ") must be positive nonzero number. Using it anyway (compatibility)";
-	}
+    m_rig->sl_enabled     = def.is_enabled;
+    m_rig->sl_speed_limit = def.max_speed;
 }
 
 void RigSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
@@ -2921,8 +2915,7 @@ void RigSpawner::ProcessRopable(RigDef::Ropable & def)
     ropable_t ropable;
 	ropable.node = GetNodePointerOrThrow(def.node);
 	ropable.group = def.group;
-	ropable.used = 0; // Hardcoded in BTS_ROPABLES
-	ropable.multilock = def.multilock;
+	ropable.multilock = def.has_multilock;
 	m_rig->ropables.push_back(ropable);
 }
 
@@ -2943,7 +2936,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	beam.k = def.beam_defaults->GetScaledSpringiness();
 	beam.d = def.beam_defaults->GetScaledDamping();
-	beam.type = (def.options == RigDef::Tie::OPTIONS_INVISIBLE) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+	beam.type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
 	beam.L = def.max_reach_length;
 	beam.refL = def.max_reach_length;
 	beam.Lhydro = def.max_reach_length;
@@ -2991,7 +2984,9 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 	/* Register rope */
 	rope_t rope;
 	rope.beam = & beam;
+	rope.locked = UNLOCKED;
 	rope.lockedto = & m_rig->nodes[0]; // Orig: hardcoded in BTS_ROPES
+	rope.lockedto_ropable = nullptr;
 	rope.group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
 	m_rig->ropes.push_back(rope);
 }
@@ -3268,7 +3263,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	hook->lockgroup = def.option_lockgroup;
 	hook->timer     = 0.f; // Hardcoded in BTS_HOOKS
 	hook->timer_preset = def.option_timer;
-	hook->beam->commandShort = def.option_minimum_range_meters;
+	hook->beam->commandShort = def.option_min_range_meters;
 	hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
 	hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
 	hook->is_hook_visible = false;
@@ -3408,7 +3403,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	int beam_index = m_rig->free_beam;
 	beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
 	beam.type = hydro_type;
-	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant);
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
 	SetBeamSpring(beam, 0.f);
 	SetBeamDamping(beam, 0.f);
 	CalculateBeamLength(beam);
@@ -3594,7 +3589,7 @@ void RigSpawner::_ProcessKeyInertia(
 		{
 			stop_function = inertia.stop_function;
 		}
-		if (inertia._start_delay_factor_set && inertia._stop_delay_factor_set)
+		if (inertia.start_delay_factor != 0.f && inertia.stop_delay_factor != 0.f)
 		{
 			key_inertia->setCmdKeyDelay(
 				contract_key,
@@ -3612,7 +3607,7 @@ void RigSpawner::_ProcessKeyInertia(
 				stop_function
 			);
 		}
-		else if (inertia_defaults._start_delay_factor_set || inertia_defaults._stop_delay_factor_set)
+		else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
 		{
 			key_inertia->setCmdKeyDelay(
 				contract_key,
@@ -3658,24 +3653,12 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 	beam.type = BEAM_HYDRO;
 
 	/* Options */
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_i_INVISIBLE)) {
-		beam.type = BEAM_INVISIBLE_HYDRO;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_r_ROPE)) {
-		beam.bounded = ROPE;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_p_PRESS_ONCE)) {
-		beam.isOnePressMode = 1;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_o_PRESS_ONCE_CENTER)) {
-		beam.isOnePressMode = 2;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_f_NOT_FASTER)) {
-		beam.isForceRestricted = true;
-	}
-	if (BITMASK_IS_1(def.options, RigDef::Command2::OPTION_c_AUTO_CENTER)) {
-		beam.isCentering = true;
-	}
+	if (def.option_i_invisible)     { beam.type = BEAM_INVISIBLE_HYDRO; }
+	if (def.option_r_rope)          { beam.bounded = ROPE; }
+	if (def.option_p_1press)        { beam.isOnePressMode = 1; }
+	if (def.option_o_1press_center) { beam.isOnePressMode = 2; }
+	if (def.option_f_not_faster)    { beam.isForceRestricted = true; }
+	if (def.option_c_auto_center)   { beam.isCentering = true; }
 
 	beam.commandRatioShort     = def.shorten_rate;
 	beam.commandRatioLong      = def.lengthen_rate;
@@ -3899,13 +3882,13 @@ beam_t & RigSpawner::AddBeam(
 	beam.disabled = false;
 
 	/* Breaking threshold (strength) */
-	float strength = beam_defaults->breaking_threshold_constant;
+	float strength = beam_defaults->breaking_threshold;
 	beam.strength = strength;
 
 	/* Deformation */
 	SetBeamDeformationThreshold(beam, beam_defaults);
 
-	float plastic_coef = beam_defaults->plastic_deformation_coefficient;
+	float plastic_coef = beam_defaults->plastic_deform_coef;
 	beam.plastic_coef = plastic_coef;
 
 	return beam;
@@ -4077,7 +4060,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	
 	int beam_index = m_rig->free_beam;
 	beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
 	beam.type                 = hydro_type;
 	beam.bounded              = SHOCK2;
 	beam.k                    = def.spring_in;
@@ -4158,7 +4141,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 	beam.type       = hydro_type;
 	beam.k          = def.spring_rate;
 	beam.d          = def.damping;
-	SetBeamStrength(beam, def.beam_defaults->breaking_threshold_constant * 4.f);
+	SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
 
 	/* Length + pre-compression */
 	CalculateBeamLength(beam);
@@ -4504,9 +4487,15 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
 void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 {
+	if (meshwheel_def._is_meshwheel2)
+	{
+		this->ProcessMeshWheel2(meshwheel_def);
+		return;
+	}
+
 	SPAWNER_PROFILE_SCOPED();
 
-    unsigned int base_node_index = m_rig->free_node;
+	unsigned int base_node_index = m_rig->free_node;
 	node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
 	node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
@@ -4519,7 +4508,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 		node_t *swap = axis_node_1;
 		axis_node_1 = axis_node_2;
 		axis_node_2 = swap;
-	}	
+	}
 
 	unsigned int wheel_index = BuildWheelObjectAndNodes(
 		meshwheel_def.num_rays,
@@ -4561,7 +4550,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
 		);
 }
 
-void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
+void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -4602,8 +4591,8 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 
 	/* --- Beams --- */
 	/* Use data from directive 'set_beam_defaults' for the tiretread beams */
-	float tyre_spring = def.tyre_springiness;
-	float tyre_damp = def.tyre_damping;
+	float tyre_spring = def.spring;
+	float tyre_damp = def.damping;
 	float rim_spring = def.beam_defaults->springiness;
 	float rim_damp = def.beam_defaults->damping_constant;
 
@@ -5345,7 +5334,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 			beam.type = BEAM_VIRTUAL;
 			beam.k = wheel_2_def.rim_springiness;
 			beam.d = wheel_2_def.rim_damping;
-			SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold_constant);
+			SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
 		}
 
 		/* --- Tyre --- */
@@ -5568,7 +5557,7 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
 	beam_t & beam = GetFreeBeam();
 	InitBeam(beam, node_1, node_2);
 	beam.type = BEAM_INVISIBLE;
-	SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold_constant);
+	SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
 	SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
 	return index;
 }
@@ -5687,27 +5676,11 @@ void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 	} 
 	m_rig->tc_pulse_time = 1 / pulse;
 
-	/* #5: mode */
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_ON))
-	{
-		m_rig->tc_mode = 1;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_OFF))
-	{
-		m_rig->tc_mode = 0;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_TOGGLE))
-	{
-		m_rig->tc_notoggle = true;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_DASHBOARD))
-	{
-		m_rig->tc_present = false;
-	}
-	else
-	{
-		m_rig->tc_present = true;
-	}
+    /* #4: mode */
+    m_rig->tc_mode = static_cast<int>(def.attr_is_on);
+    m_rig->tc_present = def.attr_is_on;
+    m_rig->tc_notoggle = def.attr_no_toggle;
+    if (def.attr_no_dashboard) { m_rig->tc_present = false; } // Override
 };
 
 void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
@@ -5738,42 +5711,23 @@ void RigSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 	} 
 	m_rig->alb_pulse_time = 1 / pulse;
 
-	/* #4: mode */
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_ON))
-	{
-		m_rig->alb_mode = 1;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_OFF))
-	{
-		m_rig->alb_mode = 0;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_TOGGLE))
-	{
-		m_rig->alb_notoggle = true;
-	}
-	if (BITMASK_IS_1(def.mode, RigDef::AntiLockBrakes::MODE_NO_DASHBOARD))
-	{
-		m_rig->alb_present = false;
-	}
-	else
-	{
-		m_rig->alb_present = true;
-	}
+    /* #4: mode */
+    m_rig->alb_mode = static_cast<int>(def.attr_is_on);
+    m_rig->alb_present = def.attr_is_on;
+    m_rig->alb_notoggle = def.attr_no_toggle;
+    if (def.attr_no_dashboard) { m_rig->alb_present = false; } // Override
 }
 
 void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 {
-	SPAWNER_PROFILE_SCOPED();
+    SPAWNER_PROFILE_SCOPED();
 
     m_rig->brakeforce = def.default_braking_force;
-	if (def._parking_brake_force_set)
-	{
-		m_rig->hbrakeforce = def.parking_brake_force;
-	}
-	else
-	{
-		m_rig->hbrakeforce = 2.f * m_rig->brakeforce;
-	}
+    m_rig->hbrakeforce = 2.f * m_rig->brakeforce;
+    if (def.parking_brake_force != -1.f)
+    {
+        m_rig->hbrakeforce = def.parking_brake_force;
+    }
 };
 
 void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
@@ -5826,7 +5780,7 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
 	m_rig->engine->setOptions(
 		engoption->inertia,
 		engoption->type,
-		(engoption->_clutch_force_use_default) ? -1.f : engoption->clutch_force,
+		engoption->clutch_force,
 		engoption->shift_time,
 		engoption->clutch_time,
 		engoption->post_shift_time,
@@ -5908,25 +5862,15 @@ void RigSpawner::ProcessHelp()
 
 void RigSpawner::ProcessFileInfo()
 {
-	SPAWNER_PROFILE_SCOPED();
+    SPAWNER_PROFILE_SCOPED();
 
     if (m_file->file_info != nullptr)
-	{
-		if (m_file->file_info->_has_unique_id)
-		{
-			strncpy(m_rig->uniquetruckid, m_file->file_info->unique_id.c_str(), 254);
-		}
-
-		if (m_file->file_info->_has_category_id)
-		{
-			m_rig->categoryid = m_file->file_info->category_id;
-		}
-
-		if (m_file->file_info->_has_file_version_set)
-		{
-			m_rig->truckversion = m_file->file_info->file_version;
-		}
-	}
+    {
+        // Do it the 0.3x way ... no error check!
+        strncpy(m_rig->uniquetruckid, m_file->file_info->unique_id.c_str(), 254);
+        m_rig->categoryid = m_file->file_info->category_id;
+        m_rig->truckversion = m_file->file_info->file_version;
+    }
 }
 
 void RigSpawner::ProcessAuthors()
@@ -6182,14 +6126,13 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigD
 	// Old 'set_beam_defaults'
 	if (beam_defaults->_is_user_defined)
 	{
-		default_deform = beam_defaults->deformation_threshold_constant;
+		default_deform = beam_defaults->deformation_threshold;
 		if (!beam_defaults->_enable_advanced_deformation && default_deform < BEAM_DEFORM)
 		{
 			default_deform = BEAM_DEFORM;
 		}
 
-		bool plastic_coef_user_defined = BITMASK_IS_1(beam_defaults->_user_specified_fields, RigDef::BeamDefaults::PARAM_PLASTIC_DEFORM_COEFFICIENT);
-		if (plastic_coef_user_defined && beam_defaults->plastic_deformation_coefficient >= 0.f)
+		if (beam_defaults->_is_plastic_deform_coef_user_defined && beam_defaults->plastic_deform_coef >= 0.f)
 		{
 			beam_creak = 0.f;
 		}
