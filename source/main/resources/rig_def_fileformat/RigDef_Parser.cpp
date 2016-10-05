@@ -2440,11 +2440,16 @@ void Parser::ParseBrakes()
 {
     if (!this->CheckNumArguments(1)) { return; }
 
-    m_current_module->brakes.default_braking_force = this->GetArgFloat(0);
+    if (m_current_module->brakes == nullptr)
+    {
+        m_current_module->brakes = std::shared_ptr<Brakes>( new Brakes() );
+    }
+
+    m_current_module->brakes->default_braking_force = this->GetArgFloat(0);
 
     if (m_num_args > 1)
     {
-        m_current_module->brakes.parking_brake_force = this->GetArgFloat(1);
+        m_current_module->brakes->parking_brake_force = this->GetArgFloat(1);
     }
 }
 

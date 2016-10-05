@@ -1933,7 +1933,7 @@ struct File
 		std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
 		std::vector<Axle>                  axles;
 		std::vector<Beam>                  beams;
-		Brakes                             brakes;
+		std::shared_ptr<Brakes>            brakes;
 		std::vector<Camera>                cameras;
 		std::vector<CameraRail>            camera_rails;
 		std::vector<CollisionBox>          collision_boxes;

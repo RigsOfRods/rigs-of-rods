@@ -199,7 +199,7 @@ rig_t *RigSpawner::SpawnRig()
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TORQUECURVE, torque_curve, ProcessTorqueCurve);
 
 	// Section 'brakes' in any module
-	PROCESS_MSTRUCT_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, brakes, ProcessBrakes);
+	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_BRAKES, brakes, ProcessBrakes);
 
 	// Section 'guisettings' in any module
 	PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GUISETTINGS, gui_settings, ProcessGuiSettings);
