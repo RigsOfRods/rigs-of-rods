@@ -446,6 +446,16 @@ static const char* CONF_FLARES_CURR_HEAD   = "Only current vehicle, main lights"
 static const char* CONF_FLARES_ALL_HEADS   = "All vehicles, main lights";
 static const char* CONF_FLARES_ALL_LIGHTS  = "All vehicles, all lights";
 
+static const char* CONF_WATER_BASIC        = "Basic (fastest)";
+static const char* CONF_WATER_REFLECT      = "Reflection";
+static const char* CONF_WATER_FULL_FAST    = "Reflection + refraction (speed optimized)";
+static const char* CONF_WATER_FULL_HQ      = "Reflection + refraction (quality optimized)";
+static const char* CONF_WATER_HYDRAX       = "Hydrax";
+
+static const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
+static const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
+static const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
+
 static const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
 static const char* CONF_INPUT_GRAB_NONE    = "None";
 static const char* CONF_INPUT_GRAB_ALL     = "All";
@@ -503,6 +513,22 @@ inline void App__SetGfxFlaresMode(std::string const & s)
     if (s == CONF_FLARES_CURR_HEAD )  { App::SetGfxFlaresMode(App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY);  return; }
     if (s == CONF_FLARES_ALL_HEADS )  { App::SetGfxFlaresMode(App::GFX_FLARES_ALL_VEHICLES_HEAD_ONLY);  return; }
     if (s == CONF_FLARES_ALL_LIGHTS)  { App::SetGfxFlaresMode(App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS); return; }
+}
+
+inline void App__SetGfxWaterMode(std::string const & s)
+{
+    if (s == CONF_WATER_BASIC    )    { App::SetGfxWaterMode(App::GFX_WATER_BASIC    ); return; }
+    if (s == CONF_WATER_REFLECT  )    { App::SetGfxWaterMode(App::GFX_WATER_REFLECT  ); return; }
+    if (s == CONF_WATER_FULL_FAST)    { App::SetGfxWaterMode(App::GFX_WATER_FULL_FAST); return; }
+    if (s == CONF_WATER_FULL_HQ  )    { App::SetGfxWaterMode(App::GFX_WATER_FULL_HQ  ); return; }
+    if (s == CONF_WATER_HYDRAX   )    { App::SetGfxWaterMode(App::GFX_WATER_HYDRAX   ); return; }
+}
+
+inline void App__SetGfxSkyMode(std::string const & s)
+{
+    if (s == CONF_SKY_SANDSTORM)      { App::SetGfxSkyMode(App::GFX_SKY_SANDSTORM); return; }
+    if (s == CONF_SKY_CAELUM   )      { App::SetGfxSkyMode(App::GFX_SKY_CAELUM);    return; }
+    if (s == CONF_SKY_SKYX     )      { App::SetGfxSkyMode(App::GFX_SKY_SKYX);      return; }
 }
 
 inline void App__SetScreenshotFormat(std::string const & s)
@@ -577,6 +603,12 @@ static const char* CONF_GFX_SKIDMARKS   = "Skidmarks";
 static const char* CONF_ENVMAP_RATE     = "EnvmapUpdateRate";
 static const char* CONF_ENVMAP_ENABLED  = "Envmap";
 static const char* CONF_GFX_LIGHTS      = "Lights";
+static const char* CONF_GFX_WATER_MODE  = "Water effects";
+static const char* CONF_GFX_SIGHT_RANGE = "SightRange";
+static const char* CONF_GFX_FOV_EXTERN  = "FOV External";
+static const char* CONF_GFX_FOV_INTERN  = "FOV Internal";
+static const char* CONF_GFX_FPS_LIMIT   = "FPS-Limiter";
+static const char* CONF_GFX_SKY_EFFECTS = "Sky effects";
 // Audio
 static const char* CONF_SOUND_VOLUME    = "Sound Volume";
 static const char* CONF_SOUND_CREAK     = "Creak Sound";
@@ -599,9 +631,9 @@ static const char* CONF_NEXTTRUCK       = "Preselected Truck";
 static const char* CONF_NEXTTRUCK_CFG   = "Preselected TruckConfig";
 static const char* CONF_NEXTTRUCK_ENTER = "Enter PreselectedTruck";
 
-#define I(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
+#define I(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
 #define F(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
-#define B(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
+#define B(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define M(_VAL_)  ((int)B(_VAL_))
 #define P(_VAL_)  (F(_VAL_) / 100.f)
 #define S(_VAL_)  (_VAL_)
@@ -648,6 +680,12 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_ENVMAP_RATE     ) { App__SetEnvMapUpdateRate     (S(v)); return true; }
     if (k == CONF_ENVMAP_ENABLED  ) { App__SetEnvMapEnabled        (S(v)); return true; }
     if (k == CONF_GFX_LIGHTS      ) { App__SetGfxFlaresMode        (S(v)); return true; }
+    if (k == CONF_GFX_WATER_MODE  ) { App__SetGfxWaterMode         (S(v)); return true; }
+    if (k == CONF_GFX_SIGHT_RANGE ) { App::SetGfxSightRange        (F(v)); return true; }
+    if (k == CONF_GFX_FOV_EXTERN  ) { App::SetGfxFovExternal       (F(v)); return true; }
+    if (k == CONF_GFX_FOV_INTERN  ) { App::SetGfxFovInternal       (F(v)); return true; }
+    if (k == CONF_GFX_FPS_LIMIT   ) { App::SetGfxFpsLimit          (I(v)); return true; }
+    if (k == CONF_GFX_SKY_EFFECTS ) { App__SetGfxSkyMode           (S(v)); return true; }
     // Audio
     if (k == CONF_SOUND_VOLUME    ) { App::SetAudioMasterVolume    (P(v)); return true; }
     if (k == CONF_SOUND_CREAK     ) { App::SetAudioEnableCreak     (B(v)); return true; }
@@ -674,9 +712,11 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
 }
 
 #undef I
-#undef S
 #undef F
 #undef B
+#undef M
+#undef P
+#undef S
 
 void Settings::loadSettings(String configFile, bool overwrite)
 {
@@ -783,6 +823,16 @@ inline const char* GfxFlaresToStr(App::GfxFlaresMode v) { switch(v)
     }
 }
 
+inline const char* GfxWaterToStr(App::GfxWaterMode v) { switch(v)
+    {
+    case App::GFX_WATER_BASIC    : return CONF_WATER_BASIC    ;
+    case App::GFX_WATER_REFLECT  : return CONF_WATER_REFLECT  ;
+    case App::GFX_WATER_FULL_FAST: return CONF_WATER_FULL_FAST;
+    case App::GFX_WATER_FULL_HQ  : return CONF_WATER_FULL_HQ  ;
+    case App::GFX_WATER_HYDRAX   : return CONF_WATER_HYDRAX   ;
+    }
+}
+
 inline const char* App__IoInputGrabToStr   () { return IoInputGrabToStr   (App::GetIoInputGrabMode   ()); }
 inline const char* App__GfxShadowTechToStr () { return GfxShadowTechToStr (App::GetGfxShadowType     ()); }
 inline const char* App__GfxExtcamModeToStr () { return GfxExtcamModeToStr (App::GetGfxExternCamMode  ()); }
@@ -790,6 +840,7 @@ inline const char* App__GfxTexFilterToStr  () { return GfxTexFilterToStr  (App::
 inline const char* App__GfxVegetationToStr () { return GfxVegetationToStr (App::GetGfxVegetationMode ()); }
 inline const char* App__SimGearboxToStr    () { return SimGearboxToStr    (App::GetSimGearboxMode    ()); }
 inline const char* App__GfxFlaresToStr     () { return GfxFlaresToStr     (App::GetGfxFlaresMode     ()); }
+inline const char* App__GfxWaterToStr      () { return GfxWaterToStr      (App::GetGfxWaterMode      ()); }
 inline int         App__GetEnvMapRate      () { return std::min(6, std::max(0, App::GetGfxEnvmapMode())); }
 
 #define _(_V_) (_V_)
@@ -851,6 +902,12 @@ void Settings::SaveSettings()
     f << CONF_ENVMAP_RATE     << "=" << _(App__GetEnvMapRate          ()) << endl;
     f << CONF_ENVMAP_ENABLED  << "=" << Y(App::GetGfxEnvmapMode       ()) << endl;
     f << CONF_GFX_LIGHTS      << "=" << _(App__GfxFlaresToStr         ()) << endl;
+    f << CONF_GFX_WATER_MODE  << "=" << _(App__GfxWaterToStr          ()) << endl;
+    f << CONF_GFX_SIGHT_RANGE << "=" << _(App::GetGfxSightRange       ()) << endl;
+    f << CONF_GFX_FOV_EXTERN  << "=" << _(App::GetGfxFovExternal      ()) << endl;
+    f << CONF_GFX_FOV_INTERN  << "=" << _(App::GetGfxFovInternal      ()) << endl;
+    f << CONF_GFX_FPS_LIMIT   << "=" << _(App::GetGfxFpsLimit         ()) << endl;
+    f << CONF_GFX_SKY_EFFECTS << "=" << _(App::GetGfxSkyMode          ()) << endl;
     f                                                                     << endl;
     f << "; Audio"                                                        << endl;
     f << CONF_SOUND_VOLUME    << "=" << _(App::GetAudioMasterVolume   ()) << endl;

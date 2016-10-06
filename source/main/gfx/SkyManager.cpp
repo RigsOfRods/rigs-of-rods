@@ -102,9 +102,7 @@ void SkyManager::loadScript(String script, int fogStart, int fogEnd)
 		if (fogStart != -1 && fogEnd != -1 && fogStart < fogEnd)
 		{
 			// setting farclip (hacky)
-			Settings::getSingleton().setSetting("SightRange", StringConverter::toString((float)(fogEnd/0.8)));
-			float far_clip = FSETTING("SightRange",4500);
-			gEnv->mainCamera->setFarClipDistance(far_clip);
+			gEnv->mainCamera->setFarClipDistance(fogEnd/0.8);
 			// custom boundaries
 			mCaelumSystem->setManageSceneFog(FOG_LINEAR);
 			mCaelumSystem->setManageSceneFogStart(fogStart);

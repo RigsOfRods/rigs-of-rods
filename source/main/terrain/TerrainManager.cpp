@@ -82,7 +82,7 @@ TerrainManager::TerrainManager() :
 	, version(1)
 	, water_line(0.0f)
 {
-	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
+	use_caelum = App::GetGfxSkyMode() == 1;
 }
 
 TerrainManager::~TerrainManager()
@@ -347,16 +347,14 @@ void TerrainManager::initCamera()
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 	gEnv->mainCamera->setPosition(start_position);
 
-	far_clip = FSETTING("SightRange", 4500);
+	far_clip = App::GetGfxSightRange();
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
 	else
 	{
-		String waterSettingsString = SSETTING("Water effects", "Hydrax");
-
 		// disabled in global config
-		if (waterSettingsString != "Hydrax")
+		if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
 			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
 		else
 			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
@@ -599,10 +597,9 @@ void TerrainManager::fixCompositorClearColor()
 
 void TerrainManager::initWater()
 {
-	String waterSettingsString = SSETTING("Water effects", "Hydrax");
-
 	// disabled in global config
-	if (waterSettingsString == "None") return;
+	if (App::GetGfxWaterMode() == App::GFX_WATER_BASIC) return;
+
 	// disabled in map config
     bool has_water = m_terrain_config.GetBool("Water", "General", false);
     if (!has_water)
@@ -610,7 +607,7 @@ void TerrainManager::initWater()
         return;
     }
 
-	if (waterSettingsString == "Hydrax")
+	if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
 	{
 		// try to load hydrax config
 		String hydraxConfig = m_terrain_config.GetStringEx("HydraxConfigFile", "General");

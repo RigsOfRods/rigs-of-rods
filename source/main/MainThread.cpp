@@ -446,10 +446,10 @@ bool MainThread::SetupGameplayLoop()
 	// Loading settings resources
 	// ============================================================================
 
-	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
+	if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
 
-	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
+	if (App::GetGfxSkyMode() == 1 && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
 
 	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
@@ -624,7 +624,7 @@ void MainThread::EnterMainMenuLoop()
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
 	unsigned long minTimePerFrame    = 0;
-	unsigned long fpsLimit           = ISETTING("FPS-Limiter", 0); 
+	unsigned long fpsLimit           = App::GetGfxFpsLimit();
 
 	if (fpsLimit < 10 || fpsLimit >= 200)
 	{
@@ -698,7 +698,7 @@ void MainThread::EnterGameplayLoop()
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
 	unsigned long minTimePerFrame    = 0;
-	unsigned long fpsLimit           = ISETTING("FPS-Limiter", 0);
+	unsigned long fpsLimit           = App::GetGfxFpsLimit();
 
 	if (fpsLimit < 10 || fpsLimit >= 200)
 	{

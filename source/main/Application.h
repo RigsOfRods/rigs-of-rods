@@ -111,6 +111,22 @@ enum GfxFlaresMode
     GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS, ///< All vehicles, all lights
 };
 
+enum GfxWaterMode
+{
+    GFX_WATER_BASIC,      ///< Basic (fastest)
+    GFX_WATER_REFLECT,    ///< Reflection
+    GFX_WATER_FULL_FAST,  ///< Reflection + refraction (speed optimized)
+    GFX_WATER_FULL_HQ,    ///< Reflection + refraction (quality optimized)
+    GFX_WATER_HYDRAX,     ///< HydraX
+};
+
+enum GfxSkyMode
+{
+    GFX_SKY_SANDSTORM,  ///< Sandstorm (fastest)
+    GFX_SKY_CAELUM,     ///< Caelum (best looking, slower)
+    GFX_SKY_SKYX,       ///< SkyX (best looking, slower)
+};
+
 enum IoInputGrabMode
 {
     INPUT_GRAB_NONE,
@@ -200,6 +216,13 @@ STR_CREF             GetIoOutGaugeIp         ();
 int                  GetIoOutGaugePort       ();
 float                GetIoOutGaugeDelay      ();
 int                  GetIoOutGaugeId         ();
+GfxSkyMode           GetGfxSkyMode           ();
+GfxWaterMode         GetGfxWaterMode         ();
+float                GetGfxSightRange        ();
+float                GetGfxFovExternal       ();
+float                GetGfxFovInternal       ();
+int                  GetGfxFpsLimit          ();
+bool                 GetDiagVideoCameras     ();
 
 
 // Setters
@@ -271,6 +294,13 @@ void SetIoOutGaugeIp         (STR_CREF       v);
 void SetIoOutGaugePort       (int            v);
 void SetIoOutGaugeDelay      (float          v);
 void SetIoOutGaugeId         (int            v);
+void SetGfxSkyMode           (GfxSkyMode     v);
+void SetGfxWaterMode         (GfxWaterMode   v);
+void SetGfxSightRange        (float          v);
+void SetGfxFovExternal       (float          v);
+void SetGfxFovInternal       (float          v);
+void SetGfxFpsLimit          (int            v);
+void SetDiagVideoCameras     (bool           v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

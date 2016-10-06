@@ -94,11 +94,12 @@ static bool             g_diag_rig_log_messages   ; ///< Config: BOOL RigImporte
 static bool             g_diag_collisions         ; ///< Config: BOOL Debug Collisions
 static bool             g_diag_truck_mass         ; ///< Config: BOOL Debug Truck Mass
 static bool             g_diag_envmap             ; ///< Config: BOOL EnvMapDebug
+static bool             g_diag_videocameras;        ///< Config: BOOL VideoCameraDebug
 
 // System
 static std::string      g_sys_process_dir;       ///< No ending slash.
 static std::string      g_sys_user_dir;          ///< No ending slash.
-static std::string      g_sys_config_dir;        ///< No ending slash. Config: STR Config Root"
+static std::string      g_sys_config_dir;        ///< No ending slash. Config: STR Config Root
 static std::string      g_sys_cache_dir;         ///< No ending slash. Config: STR Cache Path
 static std::string      g_sys_logs_dir;          ///< No ending slash. Config: STR Log Path
 static std::string      g_sys_resources_dir;     ///< No ending slash. Config: STR Resources Path
@@ -129,10 +130,10 @@ static bool             g_audio_menu_music   ;   ///< Config: BOOL  MainMenuMusi
 static int              g_gfx_flares_mode;       ///< Config: STR   Lights
 static int              g_gfx_shadow_type;       ///< Config: STR   Shadow technique
 static int              g_gfx_extcam_mode;       ///< Config: STR   External Camera Mode
-  //   std::string      g_gfx_sky_effects;       ///< Config: STR   Sky effects
+static int              g_gfx_sky_mode;          ///< Config: STR   Sky effects
 static int              g_gfx_texture_filter;    ///< Config: STR   Texture Filtering
 static int              g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
-  //   std::string      g_gfx_water_mode;        ///< Config: STR   Water effects
+static int              g_gfx_water_mode;        ///< Config: STR   Water effects
 static bool             g_gfx_enable_sunburn;    ///< Config: BOOL  Sunburn
 static bool             g_gfx_water_waves;       ///< Config: BOOL  Waves
 static int              g_gfx_minimap_mode;      ///< Config: BOOL  disableOverViewMap
@@ -142,10 +143,10 @@ static bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
 static bool             g_gfx_enable_heathaze;   ///< Config: BOOL  HeatHaze
 static int              g_gfx_envmap_mode;       ///< Config: BOOL  Envmap & INT EnvmapUpdateRate
 static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
-  //   float            g_gfx_sight_range;       ///< Config: FLOAT SightRange
-  //   float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
-  //   float            g_gfx_fov_internal;      ///< Config: FLOAT FOV Internal
-  //   int              g_gfx_fps_limit;         ///< Config: INT   FPS-Limiter
+static float            g_gfx_sight_range;       ///< Config: FLOAT SightRange
+static float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
+static float            g_gfx_fov_internal;      ///< Config: FLOAT FOV Internal
+static int              g_gfx_fps_limit;         ///< Config: INT   FPS-Limiter
 
 // ================================================================================
 // Access functions
@@ -158,6 +159,8 @@ typedef const char* (*EnumToStringFn)(int);
 const char* SimGearboxModeToString(int v);
 const char* GfxFlaresModeToString (int v);
 const char* IoInputGrabModeToStr  (int v);
+const char* GfxWaterModeToString  (int v);
+const char* GfxSkyModeToString    (int v);
 
 void SetVarStr      (std::string&     var, const char* var_name, STR_CREF        new_value);
 void SetVarInt      (int&             var, const char* var_name, int             new_value);
@@ -237,6 +240,13 @@ STR_CREF        GetIoOutGaugeIp         () { return g_io_outgauge_ip;           
 int             GetIoOutGaugePort       () { return g_io_outgauge_port;         }
 float           GetIoOutGaugeDelay      () { return g_io_outgauge_delay;        }
 int             GetIoOutGaugeId         () { return g_io_outgauge_id;           }
+GfxSkyMode      GetGfxSkyMode           () { return (GfxSkyMode)g_gfx_sky_mode;     }
+GfxWaterMode    GetGfxWaterMode         () { return (GfxWaterMode)g_gfx_water_mode; }
+float           GetGfxSightRange        () { return g_gfx_sight_range  ;        }
+float           GetGfxFovExternal       () { return g_gfx_fov_external ;        }
+float           GetGfxFovInternal       () { return g_gfx_fov_internal ;        }
+int             GetGfxFpsLimit          () { return g_gfx_fps_limit    ;        }
+bool            GetDiagVideoCameras     () { return g_diag_videocameras;        }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
@@ -307,6 +317,13 @@ void SetIoOutGaugeIp       (STR_CREF      v) { SetVarStr     (g_io_outgauge_ip  
 void SetIoOutGaugePort     (int           v) { SetVarInt     (g_io_outgauge_port          , "io_outgauge_port"          , v); }
 void SetIoOutGaugeDelay    (float         v) { SetVarFloat   (g_io_outgauge_delay         , "io_outgauge_delay"         , v); }
 void SetIoOutGaugeId       (int           v) { SetVarInt     (g_io_outgauge_id            , "io_outgauge_id"            , v); }
+void SetGfxSkyMode         (GfxSkyMode    v) { SetVarEnum    (g_gfx_sky_mode              , "gfx_sky_mode",          (int)v, GfxSkyModeToString   ); }
+void SetGfxWaterMode       (GfxWaterMode  v) { SetVarEnum    (g_gfx_water_mode            , "gfx_water_mode",        (int)v, GfxWaterModeToString ); }
+void SetGfxSightRange      (float         v) { SetVarFloat   (g_gfx_sight_range           , "gfx_sight_range"           , v); }
+void SetGfxFovExternal     (float         v) { SetVarFloat   (g_gfx_fov_external          , "gfx_fov_external"          , v); }
+void SetGfxFovInternal     (float         v) { SetVarFloat   (g_gfx_fov_internal          , "gfx_fov_internal"          , v); }
+void SetGfxFpsLimit        (int           v) { SetVarInt     (g_gfx_fps_limit             , "gfx_fps_limit"             , v); }
+void SetDiagVideoCameras   (bool          v) { SetVarBool    (g_diag_videocameras         , "diag_videocamera"          , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -438,6 +455,12 @@ void Init()
     g_gfx_texture_filter   = GFX_TEXFILTER_TRILINEAR;
     g_gfx_vegetation_mode  = GFX_VEGETATION_NONE;
     g_gfx_flares_mode      = GFX_FLARES_ALL_VEHICLES_HEAD_ONLY;
+    g_gfx_water_mode       = GFX_WATER_FULL_FAST;
+    g_gfx_sky_mode         = GFX_SKY_SANDSTORM;
+    g_gfx_sight_range      = 3000.f; // Previously either 2000 or 4500 (inconsistent)
+    g_gfx_fov_external     = 60.f;
+    g_gfx_fov_internal     = 75.f;
+    g_gfx_fps_limit        = 0; // Unlimited
 
     g_io_outgauge_ip       = "192.168.1.100";
     g_io_outgauge_port     = 1337;
@@ -565,6 +588,30 @@ const char* GfxFlaresModeToString(int v)
     case GFX_FLARES_ALL_VEHICLES_HEAD_ONLY : return "ALL_VEHICLES_HEAD_ONLY" ;
     case GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS: return "ALL_VEHICLES_ALL_LIGHTS";
     default                                : return "~invalid~";
+    }
+}
+
+const char* GfxWaterModeToString (int v)
+{
+    switch((GfxWaterMode)v)
+    {
+    case GFX_WATER_BASIC     : return "BASIC";
+    case GFX_WATER_REFLECT   : return "REFLECT";
+    case GFX_WATER_FULL_FAST : return "FULL_FAST";
+    case GFX_WATER_FULL_HQ   : return "FULL_HQ";
+    case GFX_WATER_HYDRAX    : return "HYDRAX";
+    default                  : return "~invalid~";
+    }
+}
+
+const char* GfxSkyModeToString (int v)
+{
+    switch((GfxSkyMode)v)
+    {
+    case GFX_SKY_SANDSTORM: return "SANDSTORM";
+    case GFX_SKY_CAELUM   : return "CAELUM";
+    case GFX_SKY_SKYX     : return "SKYX";
+    default               : return "~invalid~";
     }
 }
 

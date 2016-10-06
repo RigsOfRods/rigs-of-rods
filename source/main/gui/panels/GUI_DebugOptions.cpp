@@ -98,7 +98,7 @@ void CLASS::UpdateControls()
 
 	m_debug_envmap->setStateCheck(Settings::getSingleton().getBooleanSetting("EnvMapDebug", false));
 
-	m_debug_videocameras->setStateCheck(Settings::getSingleton().getBooleanSetting("VideoCameraDebug", false));
+	m_debug_videocameras->setStateCheck(App::GetDiagVideoCameras());
 
 	m_trigger_debug->setStateCheck(Settings::getSingleton().getBooleanSetting("Trigger Debug", false));
 
@@ -169,11 +169,9 @@ void CLASS::OnDebugEnvMapCheck(MyGUI::WidgetPtr _sender)
 
 void CLASS::OnDebugVideoCameraCheck(MyGUI::WidgetPtr _sender)
 {
-	m_debug_videocameras->setStateCheck(!m_debug_videocameras->getStateCheck());
-	if (m_debug_videocameras->getStateCheck() == false)
-		DebugOptionsMap["VideoCameraDebug"] = "No";
-	else
-		DebugOptionsMap["VideoCameraDebug"] = "Yes";
+    const bool val = !m_debug_videocameras->getStateCheck();
+    m_debug_videocameras->setStateCheck(val);
+    App::SetDiagVideoCameras(val);
 }
 
 void CLASS::OnDebugTriggerCheck(MyGUI::WidgetPtr _sender)

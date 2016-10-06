@@ -40,6 +40,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <stack>
 
 using namespace Ogre;
+using namespace RoR;
 
 CameraManager::CameraManager(DOFManager *dof) : 
 	  currentBehavior(nullptr)
@@ -89,8 +90,8 @@ bool CameraManager::update(float dt) // Called every frame
 	ctx.mDt         = dt;
 	ctx.mRotScale   = Degree(mRotScale);
 	ctx.mTransScale = mTransScale;
-	ctx.fovInternal = Degree(FSETTING("FOV Internal", 75.0f)); // FIXME: No reason for this to be done per frame.
-	ctx.fovExternal = Degree(FSETTING("FOV External", 60.0f)); // FIXME: No reason for this to be done per frame.
+	ctx.fovInternal = Degree(App::GetGfxFovInternal());
+	ctx.fovExternal = Degree(App::GetGfxFovExternal());
 
 	if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
 	{

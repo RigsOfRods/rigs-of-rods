@@ -452,14 +452,12 @@ bool RoRFrameListener::updateEvents(float dt)
 	}
 
 	// camera FOV settings
-	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f) || RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f))
-	{
-		int fov = gEnv->mainCamera->getFOVy().valueDegrees();
-
-		if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_FOV_LESS))
-			fov--;
-		else
-			fov++;
+    const bool fov_less = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f);
+    const bool fov_more = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f);
+    if (fov_less || fov_more)
+    {
+        float fov = gEnv->mainCamera->getFOVy().valueDegrees();
+        fov = (fov_less) ? (fov - 1.f) : (fov + 1.f);
 
 		if (fov >= 10 && fov <= 160)
 		{
@@ -475,10 +473,10 @@ bool RoRFrameListener::updateEvents(float dt)
 				gEnv->cameraManager->hasActiveBehavior() &&
 				gEnv->cameraManager->getCurrentBehavior() == RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
 			{
-				SETTINGS.setSetting("FOV Internal", TOSTRING(fov));
+				App::SetGfxFovInternal(fov);
 			} else
 			{
-				SETTINGS.setSetting("FOV External", TOSTRING(fov));
+				App::SetGfxFovExternal(fov);
 			}
 		} else
 		{
@@ -1132,8 +1130,7 @@ bool RoRFrameListener::updateEvents(float dt)
 
 #ifdef USE_CAELUM
 		
-		static const bool caelum_enabled = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
-		//OLD if (caelum_enabled && (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED))
+		static const bool caelum_enabled = App::GetGfxSkyMode() == 1;
         if (caelum_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
 		{
 			Real time_factor = 1000.0f;

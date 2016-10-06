@@ -33,6 +33,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 int VideoCamera::counter = 0;
 
@@ -45,7 +46,7 @@ VideoCamera::VideoCamera(rig_t *truck) :
 	, rttTex(0)
 	, rwMirror(0)
 {
-	debugMode = SETTINGS.getBooleanSetting("VideoCameraDebug", false);
+	debugMode = App::GetDiagVideoCameras();
 }
 
 void VideoCamera::init()

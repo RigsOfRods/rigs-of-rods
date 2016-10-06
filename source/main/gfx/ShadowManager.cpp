@@ -45,7 +45,6 @@ void ShadowManager::loadConfiguration()
 
 int ShadowManager::updateShadowTechnique()
 {
-	float shadowFarDistance = FSETTING("SightRange", 2000);
 	float scoef = 0.5;
 	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 	gEnv->sceneManager->setShowDebugShadows(false);
@@ -54,7 +53,7 @@ int ShadowManager::updateShadowTechnique()
 
 	if (type == RoR::App::GFX_SHADOW_TYPE_TEXTURE)
 	{
-		gEnv->sceneManager->setShadowFarDistance(shadowFarDistance);
+		gEnv->sceneManager->setShadowFarDistance(RoR::App::GetGfxSightRange());
 		processTextureShadows();
 	}
 	else if (type == RoR::App::GFX_SHADOW_TYPE_PSSM)

@@ -397,13 +397,14 @@ void CLASS::UpdateControls()
 	}
 
 	//Sky effects
-	Ogre::String skytype = GameSettingsMap["Sky effects"];
-	if (skytype == "Caelum (best looking, slower)")
-		m_sky_type->setIndexSelected(1);
-	else if (skytype == "SkyX (best looking, slower)" && BSETTING("DevMode", false))
-		m_sky_type->setIndexSelected(2);
+
+	int sky_mode = App::GetGfxSkyMode();
+	if (sky_mode == 1)
+		m_sky_type->setIndexSelected(1); // Caelum
+	else if (sky_mode == 2 && BSETTING("DevMode", false))
+		m_sky_type->setIndexSelected(2); // SkyX, experimental
 	else
-		m_sky_type->setIndexSelected(0);
+		m_sky_type->setIndexSelected(0); // Sandstorm
 
 	//Shadow technique
 	App::GfxShadowType shadow_type = App::GetGfxShadowType();
@@ -415,14 +416,14 @@ void CLASS::UpdateControls()
 		m_shadow_type->setIndexSelected(0);
 
 	//Water effects
-	Ogre::String watertype = GameSettingsMap["Water effects"];
-	if (watertype == "Reflection")
+    const auto watertype = App::GetGfxWaterMode();
+	if (watertype == App::GFX_WATER_REFLECT)
 		m_water_type->setIndexSelected(1);
-	else if (watertype == "Reflection + refraction (speed optimized)")
+	else if (watertype == App::GFX_WATER_FULL_FAST)
 		m_water_type->setIndexSelected(2);
-	else if (watertype == "Reflection + refraction (quality optimized)")
+	else if (watertype == App::GFX_WATER_FULL_HQ)
 		m_water_type->setIndexSelected(3);
-	else if (watertype == "Hydrax")
+	else if (watertype == App::GFX_WATER_HYDRAX)
 		m_water_type->setIndexSelected(4);
 	else
 		m_water_type->setIndexSelected(0);

@@ -23,6 +23,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <Ogre.h>
 
+#include "Application.h"
 #include "MaterialFunctionMapper.h"
 #include "MaterialReplacer.h"
 #include "Settings.h"
@@ -30,6 +31,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode *sceneNode, Skin *s, bool backgroundLoading)
 		: mr(0)
@@ -119,7 +121,7 @@ void MeshObject::setVisible(bool b)
 
 void MeshObject::postProcess()
 {
-	static const float sightrange = FSETTING("SightRange", 2000);
+	static const float sightrange = App::GetGfxSightRange();
 
 	loaded = true;
 	if (!sceneNode) return;
