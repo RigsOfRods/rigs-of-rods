@@ -156,6 +156,8 @@ bool compareByAudibility(std::pair<int, float> a, std::pair<int, float> b)
 // called when the camera moves
 void SoundManager::recomputeAllSources()
 {
+	// Creates this issue: https://github.com/RigsOfRods/rigs-of-rods/issues/1054
+#if 0
 	if (!audio_device) return;
 
 	for (int i=0; i < audio_buffers_in_use_count; i++)
@@ -191,6 +193,7 @@ void SoundManager::recomputeAllSources()
 			}
 		}
 	}
+#endif
 }
 
 void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vector3 *vvec)
