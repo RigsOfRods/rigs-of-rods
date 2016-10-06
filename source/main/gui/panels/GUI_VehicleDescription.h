@@ -43,9 +43,6 @@ public:
 	VehicleDescription();
 	~VehicleDescription();
 
-	void Show();
-	void Hide();
-
 	bool IsVisible();
     void SetVisible(bool v);
 
@@ -54,7 +51,6 @@ private:
 	void CenterToScreen();
 	void LoadText();
 
-	Beam* currTruck;
 	static const unsigned int COMMANDS_VISIBLE = 50;
 };
 

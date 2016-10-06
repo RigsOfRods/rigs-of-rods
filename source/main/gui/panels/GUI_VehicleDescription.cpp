@@ -56,12 +56,15 @@ CLASS::CLASS()
 
 CLASS::~CLASS()
 {
-	currTruck = nullptr;
 	m_vehicle_desc->setCaptionWithReplacing("");
 }
 
 void CLASS::LoadText()
 {
+	Beam* currTruck = BeamFactory::getSingleton().getCurrentTruck();
+
+	if (currTruck == nullptr) return;
+
 	m_vehicle_title->setMaxTextLength(33);
 	m_vehicle_title->setCaptionWithReplacing(currTruck->getTruckName());
 
@@ -129,18 +132,6 @@ void CLASS::LoadText()
 	m_vehicle_desc->setCaption(Ogre::String(txt));
 }
 
-void CLASS::Show()
-{
-	MAIN_WIDGET->setVisible(true);
-	currTruck = BeamFactory::getSingleton().getCurrentTruck();
-	LoadText();
-}
-
-void CLASS::Hide()
-{
-	MAIN_WIDGET->setVisible(false);
-}
-
 bool CLASS::IsVisible()
 {
 	return MAIN_WIDGET->getVisible();
@@ -148,10 +139,10 @@ bool CLASS::IsVisible()
 
 void CLASS::SetVisible(bool vis)
 {
-    if (vis)
-        this->Show();
-    else
-        this->Hide();
+	if (vis && !IsVisible())
+		LoadText();
+
+	MAIN_WIDGET->setVisible(vis);
 }
 
 void CLASS::CenterToScreen()
@@ -165,5 +156,5 @@ void CLASS::CenterToScreen()
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
 	if (_name == "close")
-		Hide();
+		SetVisible(false);
 }

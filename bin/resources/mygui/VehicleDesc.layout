@@ -4,7 +4,6 @@
         <Property key="Caption" value="Vehicle Description"/>
         <Widget type="EditBox" skin="WordWrapEmpty" position="0 5 405 25" align="HStretch Top" name="vehicle_title">
             <Property key="FontName" value="DefaultBig"/>
-            <Property key="Caption" value="TEST"/>
         </Widget>
         <Widget type="EditBox" skin="WordWrapEmpty" position="0 40 405 365" name="vehicle_desc">
             <Property key="MaxTextLength" value="99999"/>
