@@ -3271,7 +3271,6 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	hook->beam->commandShort = def.option_minimum_range_meters;
 	hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
 	hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
-	hook->is_hook_visible = false;
 	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
 	{
 		hook->autolock = true;
@@ -3284,13 +3283,9 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	{
 		hook->beam->bounded = NOSHOCK;
 	}
-	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
+	if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
 	{
-		hook->is_hook_visible = true;
-		if (hook->beam->mSceneNode->numAttachedObjects() == 0)
-		{
-			hook->beam->mSceneNode->attachObject(hook->beam->mEntity);
-		}
+		hook->beam->type = BEAM_INVISIBLE_HYDRO;
 	}
 }
 
@@ -6523,7 +6518,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		hook.timer             = 0.0f;
 		hook.timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
 		hook.autolock          = false;
-		hook.is_hook_visible   = false;
 		m_rig->hooks.push_back(hook);
 	}
 	AdjustNodeBuoyancy(node, def, def.node_defaults);
