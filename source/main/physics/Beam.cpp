@@ -3523,13 +3523,13 @@ void Beam::updateVisual(float dt)
 		{
 			beams[i].mSceneNode->detachAllObjects();
 		}
-		if (!beams[i].disabled && beams[i].mSceneNode)
+		else if (!beams[i].disabled && beams[i].mSceneNode)
 		{
-			if (beams[i].mSceneNode->numAttachedObjects() == 0)
-				beams[i].mSceneNode->attachObject(beams[i].mEntity);
-
 			if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
 			{
+				if (beams[i].mSceneNode->numAttachedObjects() == 0)
+					beams[i].mSceneNode->attachObject(beams[i].mEntity);
+
 				beams[i].mSceneNode->setPosition(beams[i].p1->AbsPosition.midPoint(beams[i].p2->AbsPosition));
 				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->AbsPosition-beams[i].p2->AbsPosition));
 				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->AbsPosition-beams[i].p2->AbsPosition).length(), beams[i].diameter);
