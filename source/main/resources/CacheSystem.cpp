@@ -223,18 +223,14 @@ String CacheSystem::getCacheConfigFilename(bool full)
 // we implement this on our own, since we cannot reply on the ogre version
 bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
 {
-	String group;
-	bool exists=true;
 	try
 	{
-		group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-	}catch(...)
+		String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
+		return !group.empty();
+	} catch(...)
 	{
-		exists=false;
+		return false;
 	}
-	if (group.empty())
-		exists = false;
-	return exists;
 }
 
 CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
@@ -1794,12 +1790,12 @@ int CacheSystem::getCategoryUsage(int category)
 
 void CacheSystem::readCategoryTitles()
 {
-	LOG("Loading category titles from "+configlocation+"categories.cfg");
 	String filename = configlocation + String("categories.cfg");
+	LOG("Loading category titles from " + filename);
 	FILE *fd = fopen(filename.c_str(), "r");
 	if (!fd)
 	{
-		LOG("error opening file: "+configlocation+"categories.cfg");
+		LOG("error opening file: " + filename);
 		return;
 	}
 	char line[1024] = {};
