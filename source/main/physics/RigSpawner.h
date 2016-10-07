@@ -1023,6 +1023,7 @@ protected:
 	float m_fuse_y_min;
 	float m_fuse_y_max;
 	bool  m_generate_wing_position_lights;
+	int   m_first_wing_index;
 
     RoR::FlexFactory m_flex_factory;
 };

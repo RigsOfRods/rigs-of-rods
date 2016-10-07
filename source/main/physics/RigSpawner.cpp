@@ -108,6 +108,7 @@ void RigSpawner::Setup(
 	m_fuse_z_max = -1000.0f;
 	m_fuse_y_min = 1000.0f;
 	m_fuse_y_max = -1000.0f;
+	m_first_wing_index = -1;
 
 	m_generate_wing_position_lights = true;
 	// TODO: Handle modules
@@ -220,8 +221,6 @@ void RigSpawner::InitializeRig()
 	m_rig->free_screwprop = 0;
 
 	memset(m_rig->guid, 0, 128);
-	
-	m_rig->wingstart=-1;
 	
 	m_rig->realtruckname = "";
 	m_rig->loading_finished=false;
@@ -515,7 +514,7 @@ void RigSpawner::FinalizeRig()
 	}
 	
 	//wing closure
-	if (m_rig->wingstart!=-1)
+	if (m_first_wing_index!=-1)
 	{
 		if (m_rig->autopilot != nullptr) 
 		{
@@ -527,10 +526,10 @@ void RigSpawner::FinalizeRig()
 				);
 		}
 		//inform wing segments
-		float span=GetNode(m_rig->wings[m_rig->wingstart].fa->nfrd).RelPosition.distance(GetNode(m_rig->wings[m_rig->free_wing-1].fa->nfld).RelPosition);
+		float span=GetNode(m_rig->wings[m_first_wing_index].fa->nfrd).RelPosition.distance(GetNode(m_rig->wings[m_rig->free_wing-1].fa->nfld).RelPosition);
 		
 		//parser_warning(c, "Full Wing "+TOSTRING(wingstart)+"-"+TOSTRING(free_wing-1)+" SPAN="+TOSTRING(span)+" AREA="+TOSTRING(wingarea), PARSER_INFO);
-		m_rig->wings[m_rig->wingstart].fa->enableInducedDrag(span,m_wing_area, false);
+		m_rig->wings[m_first_wing_index].fa->enableInducedDrag(span,m_wing_area, false);
 		m_rig->wings[m_rig->free_wing-1].fa->enableInducedDrag(span,m_wing_area, true);
 		//wash calculator
 		WashCalculator();
@@ -1063,112 +1062,85 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 
 void RigSpawner::ProcessWing(RigDef::Wing & def)
 {
-	SPAWNER_PROFILE_SCOPED();
+    SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckWingLimit(1))
-	{
-		return;
-	}
+    // Perform checks
+    if (! this->CheckWingLimit(1)) { return; }
 
-	std::stringstream wing_name;
-	wing_name << "wing-" << m_rig->truckname << "-" << m_rig->free_wing;
-	std::stringstream wing_obj_name;
-	wing_obj_name << "wingobj-" << m_rig->truckname << "-" << m_rig->free_wing;
+    if ((m_first_wing_index != -1) && (m_rig->wings[m_rig->free_wing - 1].fa == nullptr))
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Unable to process wing, previous wing has no Airfoil");
+        return;
+    }
 
-	unsigned int wing_index = m_rig->free_wing;
-	m_rig->free_wing++;
-	wing_t & wing = m_rig->wings[wing_index];
+    // Try loading the mesh (may fail)
+    Ogre::Entity* entity = nullptr;
+    char wing_name[200];
+    char wing_obj_name[200];
+    sprintf(wing_name,     "wing-%s-%d",    m_rig->truckname, m_rig->free_wing);
+    sprintf(wing_obj_name, "wingobj-%s-%d", m_rig->truckname, m_rig->free_wing);
 
-	int node_indices[8];
-	for (unsigned int i = 0; i < 8; i++)
-	{
-		node_indices[i] = GetNodeIndexOrThrow(def.nodes[i]);
-	}
+    // Create airfoil
+    int node_indices[8];
+    for (unsigned int i = 0; i < 8; i++)
+    {
+        node_indices[i] = this->GetNodeIndexOrThrow(def.nodes[i]);
+    }
 
-	wing.fa = new FlexAirfoil(
-		wing_name.str(),
-		m_rig->nodes,
-		node_indices[0],
-		node_indices[1],
-		node_indices[2],
-		node_indices[3],
-		node_indices[4],
-		node_indices[5],
-		node_indices[6],
-		node_indices[7],
-		m_rig->texname,
-		Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
-		Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
-		Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
-		Ogre::Vector2(def.tex_coords[6], def.tex_coords[7]),
-		def.control_surface,
-		def.chord_point,
-		def.min_deflection,
-		def.max_deflection,
-		def.airfoil,
-		def.efficacy_coef,
-		m_rig->aeroengines,
-		m_rig->state != NETWORKED
-	);
-					
-	Ogre::Entity *entity = nullptr;
-	try
-	{
-		entity = gEnv->sceneManager->createEntity(wing_obj_name.str(), wing_name.str());
-	}
-	catch (...)
-	{
-		AddMessage(Message::TYPE_ERROR, "Failed to load mesh (flexbody wing): " + wing_name.str());
-		// Revert wing processing
-		delete wing.fa;
-		std::memset(&wing, 0, sizeof(wing));
-		--m_rig->free_wing;
-		return;
-	}
-	m_rig->deletion_Entities.emplace_back(entity);
-	MaterialFunctionMapper::replaceSimpleMeshMaterials(entity, Ogre::ColourValue(0.5, 1, 0));
-	if (m_rig->materialFunctionMapper) 
-	{
-		m_rig->materialFunctionMapper->replaceMeshMaterials(entity);
-	}
-	if (m_rig->materialReplacer) 
-	{
-		m_rig->materialReplacer->replaceMeshMaterials(entity);
-	}
-	if (m_rig->usedSkin) 
-	{
-		m_rig->usedSkin->replaceMeshMaterials(entity);
-	}
-	wing.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-	wing.cnode->attachObject(entity);
-					
-	//induced drag
-	if (m_rig->wingstart==-1) 
-	{
-		m_rig->wingstart=wing_index;
-		m_wing_area=ComputeWingArea(
-			GetNode(wing.fa->nfld).AbsPosition, 
-			GetNode(wing.fa->nfrd).AbsPosition, 
-			GetNode(wing.fa->nbld).AbsPosition, 
-			GetNode(wing.fa->nbrd).AbsPosition
-		);
-	}
+    auto flex_airfoil = new FlexAirfoil(
+        wing_name,
+        m_rig->nodes,
+        node_indices[0],
+        node_indices[1],
+        node_indices[2],
+        node_indices[3],
+        node_indices[4],
+        node_indices[5],
+        node_indices[6],
+        node_indices[7],
+        m_rig->texname,
+        Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
+        Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
+        Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
+        Ogre::Vector2(def.tex_coords[6], def.tex_coords[7]),
+        def.control_surface,
+        def.chord_point,
+        def.min_deflection,
+        def.max_deflection,
+        def.airfoil,
+        def.efficacy_coef,
+        m_rig->aeroengines,
+        m_rig->state != NETWORKED
+    );
+
+    try
+    {
+        entity = gEnv->sceneManager->createEntity(wing_obj_name, wing_name);
+        m_rig->deletion_Entities.emplace_back(entity);
+    }
+    catch (...)
+    {
+        this->AddMessage(Message::TYPE_ERROR, std::string("Failed to load mesh (flexbody wing): ") + wing_name);
+        delete flex_airfoil;
+        return;
+    }
+
+    // induced drag
+    if (m_first_wing_index == -1)
+    {
+        m_first_wing_index = m_rig->free_wing;
+        m_wing_area=ComputeWingArea(
+            this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
+            this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
+        );
+    }
 	else
 	{
-		wing_t & previous_wing = m_rig->wings[wing_index - 1];
-		if (previous_wing.fa == nullptr)
-		{
-			AddMessage(Message::TYPE_ERROR, "Unable to process wing, previous wing has no Airfoil");
-			// Revert wing processing
-			delete wing.fa;
-			std::memset(&wing, 0, sizeof(wing));
-			--m_rig->free_wing;
-			return;
-		}
+		wing_t & previous_wing = m_rig->wings[m_rig->free_wing - 1];
 
 		if (node_indices[1] != previous_wing.fa->nfld)
 		{
-			wing_t & start_wing    = m_rig->wings[m_rig->wingstart];
+			wing_t & start_wing    = m_rig->wings[m_first_wing_index];
 
 			//discontinuity
 			//inform wing segments
@@ -1352,24 +1324,42 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 				m_generate_wing_position_lights = false; // Already done
 			}
 
-			m_rig->wingstart=wing_index;
+			m_first_wing_index = m_rig->free_wing;
 			m_wing_area=ComputeWingArea(
-				GetNode(wing.fa->nfld).AbsPosition, 
-				GetNode(wing.fa->nfrd).AbsPosition, 
-				GetNode(wing.fa->nbld).AbsPosition, 
-				GetNode(wing.fa->nbrd).AbsPosition
+				this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
+				this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
 			);
 		}
 		else 
 		{
 			m_wing_area+=ComputeWingArea(
-				GetNode(wing.fa->nfld).AbsPosition, 
-				GetNode(wing.fa->nfrd).AbsPosition, 
-				GetNode(wing.fa->nbld).AbsPosition, 
-				GetNode(wing.fa->nbrd).AbsPosition
+				this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
+				this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
 			);
 		}
 	}
+
+    // Adjust material
+    MaterialFunctionMapper::replaceSimpleMeshMaterials(entity, Ogre::ColourValue(0.5, 1, 0));
+	if (m_rig->materialFunctionMapper) 
+	{
+		m_rig->materialFunctionMapper->replaceMeshMaterials(entity);
+	}
+	if (m_rig->materialReplacer) 
+	{
+		m_rig->materialReplacer->replaceMeshMaterials(entity);
+	}
+	if (m_rig->usedSkin) 
+	{
+		m_rig->usedSkin->replaceMeshMaterials(entity);
+	}
+
+    // Add new wing to rig
+    m_rig->wings[m_rig->free_wing].fa = flex_airfoil;
+    m_rig->wings[m_rig->free_wing].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_rig->wings[m_rig->free_wing].cnode->attachObject(entity);
+
+    ++m_rig->free_wing;
 }
 
 float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const & x, Ogre::Vector3 const & y, Ogre::Vector3 const & aref)
