@@ -2954,7 +2954,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 	beam.commandShort = def.min_length;
 	beam.commandLong = def.max_length;
 	beam.maxtiestress = def.max_stress;
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, beam.type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	/* Register tie */
 	tie_t tie;
@@ -3271,7 +3271,6 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	hook->beam->commandShort = def.option_minimum_range_meters;
 	hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
 	hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
-	hook->is_hook_visible = false;
 	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
 	{
 		hook->autolock = true;
@@ -3284,13 +3283,9 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 	{
 		hook->beam->bounded = NOSHOCK;
 	}
-	if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
+	if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
 	{
-		hook->is_hook_visible = true;
-		if (hook->beam->mSceneNode->numAttachedObjects() == 0)
-		{
-			hook->beam->mSceneNode->attachObject(hook->beam->mEntity);
-		}
+		hook->beam->type = BEAM_INVISIBLE_HYDRO;
 	}
 }
 
@@ -3417,7 +3412,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 	beam.bounded = SHOCK2;
 	beam.shock = &shock;
 
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	if (m_rig->triggerdebug)
 	{
@@ -3711,8 +3706,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 		extend_command->description = def.description;
 	}
 
-	bool attach_to_scene = (beam.type != BEAM_VIRTUAL && beam.type != BEAM_INVISIBLE && beam.type != BEAM_INVISIBLE_HYDRO);
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, attach_to_scene);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	m_rig->free_commands++;
 	m_rig->hascommands = 1;
@@ -3868,7 +3862,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 	SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
 	SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
 	SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
 	{
@@ -4012,7 +4006,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 	beam.hydroFlags           = hydro_flags;
 	beam.hydroRatio           = def.lenghtening_factor;
 
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	m_rig->hydro[m_rig->free_hydro] = beam_index;
 	m_rig->free_hydro++;
@@ -4091,7 +4085,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 	beam.refL       *= def.precompression;
 	beam.Lhydro     *= def.precompression;
 
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	shock_t & shock  = GetFreeShock();
 	shock.flags      = shock_flags;
@@ -4173,7 +4167,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 
 	/* Create beam visuals, but don't attach them to scene graph */
 	/* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-	CreateBeamVisuals(beam, beam_index, def.beam_defaults, hydro_type != BEAM_INVISIBLE_HYDRO);
+	CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
 	beam.shock = & shock;
 	shock.beamid = beam_index;
@@ -5528,7 +5522,7 @@ unsigned int RigSpawner::AddWheelBeam(
 	if (type != BEAM_VIRTUAL)
 	{
 		/* Create visuals, but don't attach to scene-graph (compatibility with show-skeleton function) */
-		CreateBeamVisuals(beam, index, beam_defaults, false);
+		CreateBeamVisuals(beam, index, beam_defaults);
 	}
 
 	return index;
@@ -6076,7 +6070,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
 		beam.longbound = def.extension_break_limit;
 	}
 
-	CreateBeamVisuals(beam, beam_index, def.defaults, BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE));
+	CreateBeamVisuals(beam, beam_index, def.defaults);
 }
 
 void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
@@ -6208,7 +6202,7 @@ void RigSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigD
 	beam.maxnegstress       = -(deformation_threshold);
 }
 
-void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate)
+void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
 {
 	SPAWNER_PROFILE_SCOPED();
 
@@ -6233,12 +6227,6 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_pt
 	{
 		beam.mEntity->setMaterialName(beam_defaults->beam_material_name);
 	}
-
-	/* Attach visuals */
-	if (activate)
-	{
-		beam.mSceneNode->attachObject(beam.mEntity);
-	}	
 }
 
 void RigSpawner::CalculateBeamLength(beam_t & beam)
@@ -6510,7 +6498,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		beam.commandLong       = 1.0f;
 		beam.maxtiestress      = HOOK_FORCE_DEFAULT;
 		SetBeamDeformationThreshold(beam, def.beam_defaults);
-		CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
+		CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 			
 		// Logic cloned from SerializedRig.cpp, section BTS_NODES
 		hook_t hook;
@@ -6530,7 +6518,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 		hook.timer             = 0.0f;
 		hook.timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
 		hook.autolock          = false;
-		hook.is_hook_visible   = false;
 		m_rig->hooks.push_back(hook);
 	}
 	AdjustNodeBuoyancy(node, def, def.node_defaults);
@@ -6669,7 +6656,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 		CalculateBeamLength(beam);
 		beam.k = def.spring;
 		beam.d = def.damping;
-		CreateBeamVisuals(beam, beam_index, def.beam_defaults, false);
+		CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 	}
 
 	/* Cabin light */

@@ -508,7 +508,7 @@ protected:
 	*/
 	unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
-	void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults, bool activate);
+	void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
 	Rail *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 

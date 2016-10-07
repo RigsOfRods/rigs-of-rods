@@ -1800,10 +1800,6 @@ void Beam::calcHooks()
 				it->beam->p2truck  = it->lockTruck != 0;
 				it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
 				it->beam->disabled = false;
-				if (it->beam->mSceneNode->numAttachedObjects() == 0 && it->is_hook_visible)
-				{
-					it->beam->mSceneNode->attachObject(it->beam->mEntity);
-				}
 				addInterTruckBeam(it->beam);
 			} else
 			{
