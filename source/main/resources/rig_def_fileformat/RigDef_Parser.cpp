@@ -689,8 +689,7 @@ void Parser::ProcessCurrentLine()
                 break;
 
             case (File::KEYWORD_TURBOPROPS2):
-                AddMessage(line, Message::TYPE_WARNING, "Turboprops2 are not supported, ignoring...");
-                new_section = File::SECTION_NONE;
+                new_section = File::SECTION_TURBOPROPS_2;
                 line_finished = true;
                 break;
 
@@ -1059,6 +1058,7 @@ void Parser::ProcessCurrentLine()
             break;
 
         case (File::SECTION_TURBOPROPS):
+        case (File::SECTION_TURBOPROPS_2):
             ParseTurbopropsUnified();
             line_finished = true;
             break;
@@ -2572,7 +2572,9 @@ void Parser::ParseCameras()
 
 void Parser::ParseTurbopropsUnified()
 {
-    if (! this->CheckNumArguments(8)) { return; }
+    bool is_turboprop_2 = m_current_section == File::SECTION_TURBOPROPS_2;
+
+    if (! this->CheckNumArguments(is_turboprop_2 ? 9 : 8)) { return; }
 
     Turboprop2 turboprop;
     
@@ -2580,10 +2582,20 @@ void Parser::ParseTurbopropsUnified()
     turboprop.axis_node          = this->GetArgNodeRef(1);
     turboprop.blade_tip_nodes[0] = this->GetArgNodeRef(2);
     turboprop.blade_tip_nodes[1] = this->GetArgNodeRef(3);
-    turboprop.blade_tip_nodes[2] = this->GetArgNodeRef(4);
-    turboprop.blade_tip_nodes[3] = this->GetArgNodeRef(5);
-    turboprop.turbine_power_kW   = this->GetArgFloat  (6);
-    turboprop.airfoil            = this->GetArgStr    (7);
+    turboprop.blade_tip_nodes[2] = this->GetArgNullableNode(4);
+    turboprop.blade_tip_nodes[3] = this->GetArgNullableNode(5);
+
+    int offset = 0;
+
+    if (is_turboprop_2)
+    {
+        turboprop.couple_node = this->GetArgNullableNode(6);
+
+        offset = 1;
+    }
+
+    turboprop.turbine_power_kW   = this->GetArgFloat  (6 + offset);
+    turboprop.airfoil            = this->GetArgStr    (7 + offset);
     
     m_current_module->turboprops_2.push_back(turboprop);
 }

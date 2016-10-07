@@ -988,15 +988,17 @@ void RigSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    int couple_node_index = (def.couple_node.IsValidAnyState())	? GetNodeIndexOrThrow(def.couple_node) : -1;
+    int p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
+    int p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
+    int couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
 
 	BuildAerialEngine(
 		GetNodeIndexOrThrow(def.reference_node),
 		GetNodeIndexOrThrow(def.axis_node),
 		GetNodeIndexOrThrow(def.blade_tip_nodes[0]),
 		GetNodeIndexOrThrow(def.blade_tip_nodes[1]),
-		GetNodeIndexOrThrow(def.blade_tip_nodes[2]),
-		GetNodeIndexOrThrow(def.blade_tip_nodes[3]),
+		p3_node_index,
+		p4_node_index,
 		couple_node_index,
 		true,
 		def.airfoil,
