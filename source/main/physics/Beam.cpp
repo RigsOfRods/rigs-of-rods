@@ -3955,19 +3955,21 @@ void Beam::removeInterTruckBeam(beam_t* beam)
 void Beam::disjoinInterTruckBeams()
 {
 	interTruckBeams.clear();
-	auto interTruckLinks = BeamFactory::getSingleton().interTruckLinks;
-	for (auto it = interTruckLinks.begin(); it != interTruckLinks.end();)
+	auto interTruckLinks = &BeamFactory::getSingleton().interTruckLinks;
+	for (auto it = interTruckLinks->begin(); it != interTruckLinks->end();)
 	{
-		if (it->second.second == this)
+		auto truck_pair = it->second;
+		if (this == truck_pair.first || this == truck_pair.second)
 		{
 			it->first->p2truck = false;
 			it->first->disabled = true;
-			interTruckLinks.erase(it++);
+			interTruckLinks->erase(it++);
+			auto other_truck = (this != truck_pair.first) ? truck_pair.first : truck_pair.second;
+			other_truck->determineLinkedBeams();
 		} else {
 			++it;
 		}
 	}
-	determineLinkedBeams();
 }
 
 void Beam::tieToggle(int group)
@@ -4069,14 +4071,14 @@ void Beam::tieToggle(int group)
 					// now trigger the tying action
 					it->locked_truck = shtruck;
 					it->beam->p2 = shorter;
-					it->beam->p2truck = shtruck != 0;
+					it->beam->p2truck = shtruck != this;
 					it->beam->stress = 0;
 					it->beam->L = it->beam->refL;
 					it->tied  = true;
 					it->tying = true;
 					it->lockedto = locktedto;
 					it->lockedto->in_use = true;
-					if (shtruck != this)
+					if (it->beam->p2truck)
 					{
 						addInterTruckBeam(it->beam, this, shtruck);
 						// update skeletonview on the tied truck
