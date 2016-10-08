@@ -355,6 +355,7 @@ struct rope_t
 
 struct tie_t
 {
+	Beam* locked_truck;
 	beam_t *beam;
 	ropable_t *lockedto;
 	int group;

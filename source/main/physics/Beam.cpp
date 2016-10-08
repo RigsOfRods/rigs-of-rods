@@ -4008,7 +4008,13 @@ void Beam::tieToggle(int group)
 			it->beam->p2 = &nodes[0];
 			it->beam->p2truck = false;
 			it->beam->disabled = true;
-			removeInterTruckBeam(it->beam);
+			if (it->locked_truck != this)
+			{
+				removeInterTruckBeam(it->beam);
+				// update skeletonview on the untied truck
+				it->locked_truck->m_request_skeletonview_change = -1;
+			}
+			it->locked_truck = nullptr;
 		}
 	}
 
@@ -4061,6 +4067,7 @@ void Beam::tieToggle(int group)
 					// enable the beam and visually display the beam
 					it->beam->disabled = false;
 					// now trigger the tying action
+					it->locked_truck = shtruck;
 					it->beam->p2 = shorter;
 					it->beam->p2truck = shtruck != 0;
 					it->beam->stress = 0;
@@ -4069,7 +4076,12 @@ void Beam::tieToggle(int group)
 					it->tying = true;
 					it->lockedto = locktedto;
 					it->lockedto->in_use = true;
-					addInterTruckBeam(it->beam, this, shtruck);
+					if (shtruck != this)
+					{
+						addInterTruckBeam(it->beam, this, shtruck);
+						// update skeletonview on the tied truck
+						shtruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+					}
 				}
 			}
 		}
