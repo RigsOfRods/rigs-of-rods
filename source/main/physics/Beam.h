@@ -506,19 +506,17 @@ public:
 
 	/**
 	* Sets visibility of all beams on this vehicle
-	* @param visible Toggle
-	* @param linked Apply to linked vehicles also?
+	* @param visibility
 	*/
-	void setBeamVisibility(bool visible, bool linked=true);
+	void setBeamVisibility(bool visible);
 
 	bool beamsVisible; //!< Are beams visible? @see setBeamVisibility
 
 	/**
 	* Sets visibility of all meshes on this vehicle
-	* @param visible Toggle
-	* @param linked Apply to linked vehicles also?
+	* @param visibility
 	*/
-	void setMeshVisibility(bool visible, bool linked=true);
+	void setMeshVisibility(bool visible);
 
 	bool meshesVisible; //!< Are meshes visible? @see setMeshVisibility
 
@@ -646,8 +644,12 @@ protected:
 
 	bool high_res_wheelnode_collisions;
 
-	void addInterTruckBeam(beam_t* beam);
+	void addInterTruckBeam(beam_t* beam, Beam* a, Beam* b);
 	void removeInterTruckBeam(beam_t* beam);
+	/**
+	* Destroys all inter truck beams which are connected with this truck
+	*/
+	void disjoinInterTruckBeams();
 
 	// this is for managing the blinkers on the truck:
 	blinktype blinkingtype;

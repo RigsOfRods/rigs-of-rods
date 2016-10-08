@@ -1800,7 +1800,7 @@ void Beam::calcHooks()
 				it->beam->p2truck  = it->lockTruck != 0;
 				it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
 				it->beam->disabled = false;
-				addInterTruckBeam(it->beam);
+				addInterTruckBeam(it->beam, this, it->lockTruck);
 			} else
 			{
 				if (it->beam->L < it->beam->commandShort)

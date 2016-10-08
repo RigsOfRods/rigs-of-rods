@@ -101,6 +101,8 @@ Beam::~Beam()
 
 	// TODO: IMPROVE below: delete/destroy prop entities, etc
 
+	this->disjoinInterTruckBeams();
+
 	// hide everything, prevents deleting stuff while drawing
 	this->setBeamVisibility(false);
 	this->setMeshVisibility(false);
@@ -936,6 +938,8 @@ void Beam::determineLinkedBeams()
 
 	lookup_table.insert(std::pair< Beam*, bool>(this, false));
 
+	auto interTruckLinks = BeamFactory::getSingleton().interTruckLinks;
+
 	while (found)
 	{
 		found = false;
@@ -944,14 +948,17 @@ void Beam::determineLinkedBeams()
 		{
 			if (!it_beam->second)
 			{
-				for (std::vector<hook_t>::iterator it_hook=it_beam->first->hooks.begin(); it_hook != it_beam->first->hooks.end(); ++it_hook)
+				auto truck = it_beam->first;
+				for (auto it = interTruckLinks.begin(); it != interTruckLinks.end(); it++)
 				{
-					if (it_hook->lockTruck)
+					auto truck_pair = it->second;
+					if (truck == truck_pair.first || truck == truck_pair.second)
 					{
-						ret = lookup_table.insert(std::pair< Beam*, bool>(it_hook->lockTruck, false));
+						auto other_truck = (truck != truck_pair.first) ? truck_pair.first : truck_pair.second;
+						ret = lookup_table.insert(std::pair< Beam*, bool>(other_truck, false));
 						if (ret.second)
 						{
-							linkedBeams.push_back(it_hook->lockTruck);
+							linkedBeams.push_back(other_truck);
 							found = true;
 						}
 					}
@@ -1566,7 +1573,6 @@ void Beam::SyncReset()
 
 	for (int i=0; i<free_beam; i++)
 	{
-		beams[i].broken=0;
 		beams[i].maxposstress=default_beam_deform[i];
 		beams[i].maxnegstress=-default_beam_deform[i];
 		beams[i].minmaxposnegstress=default_beam_deform[i];
@@ -1574,17 +1580,14 @@ void Beam::SyncReset()
 		beams[i].plastic_coef=default_beam_plastic_coef[i];
 		beams[i].L=beams[i].refL;
 		beams[i].stress=0.0;
+		beams[i].broken=false;
 		beams[i].disabled=false;
 	}
 
-	//this is a hook assistance beam and needs to be disabled after reset
-	for (std::vector <hook_t>::iterator it = hooks.begin(); it!=hooks.end(); it++)
+	disjoinInterTruckBeams();
+
+	for (std::vector <hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
 	{
-		if (it->lockTruck)
-		{
-			it->lockTruck->hideSkeleton(true);
-		}
-		it->beam->mSceneNode->detachAllObjects();
 		it->beam->disabled = true;
 		it->locked        = UNLOCKED;
 		it->lockNode      = 0;
@@ -1594,14 +1597,24 @@ void Beam::SyncReset()
 		it->beam->L       = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 		removeInterTruckBeam(it->beam);
 	}
-
-	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++) it->lockedto=0;
+	for (std::vector <rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
+	{
+		it->locked = UNLOCKED;
+		if (it->lockedto_ropable) it->lockedto_ropable->in_use = false;
+		it->lockedto = &nodes[0];
+		it->lockedtruck = 0;
+	}
 	for (std::vector <tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
 	{
+		it->tied  = false;
+		it->tying = false;
+		if (it->lockedto) it->lockedto->in_use = false;
+		it->beam->p2 = &nodes[0];
+		it->beam->p2truck = false;
 		it->beam->disabled = true;
-		it->beam->p2       = &nodes[0];
-		it->beam->mSceneNode->detachAllObjects();
+		removeInterTruckBeam(it->beam);
 	}
+
 	for (int i=0; i<free_aeroengine; i++) aeroengines[i]->reset();
 	for (int i=0; i<free_screwprop; i++) screwprops[i]->reset();
 	for (int i=0; i<free_rotator; i++) rotators[i].angle = 0.0;
@@ -3519,21 +3532,20 @@ void Beam::updateVisual(float dt)
 
 	for (int i=0; i<free_beam; i++)
 	{
-		if (beams[i].broken && beams[i].mSceneNode)
+		if (!beams[i].mSceneNode) continue;
+
+		if (beams[i].disabled || beams[i].broken)
 		{
 			beams[i].mSceneNode->detachAllObjects();
 		}
-		else if (!beams[i].disabled && beams[i].mSceneNode)
+		else if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
 		{
-			if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
-			{
-				if (beams[i].mSceneNode->numAttachedObjects() == 0)
-					beams[i].mSceneNode->attachObject(beams[i].mEntity);
+			if (beams[i].mSceneNode->numAttachedObjects() == 0)
+				beams[i].mSceneNode->attachObject(beams[i].mEntity);
 
-				beams[i].mSceneNode->setPosition(beams[i].p1->AbsPosition.midPoint(beams[i].p2->AbsPosition));
-				beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->AbsPosition-beams[i].p2->AbsPosition));
-				beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->AbsPosition-beams[i].p2->AbsPosition).length(), beams[i].diameter);
-			}
+			beams[i].mSceneNode->setPosition(beams[i].p1->AbsPosition.midPoint(beams[i].p2->AbsPosition));
+			beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->AbsPosition-beams[i].p2->AbsPosition));
+			beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->AbsPosition-beams[i].p2->AbsPosition).length(), beams[i].diameter);
 		}
 	}
 
@@ -3827,7 +3839,7 @@ void Beam::setMeshWireframe(SceneNode *node, bool value)
 	}
 }
 
-void Beam::setBeamVisibility(bool visible, bool linked)
+void Beam::setBeamVisibility(bool visible)
 {
 	for (int i=0; i < free_beam; i++)
 	{
@@ -3838,18 +3850,9 @@ void Beam::setBeamVisibility(bool visible, bool linked)
 	}
 
 	beamsVisible = visible;
-
-	if (linked)
-	{
-		// apply to the locked truck
-		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
-		{
-			(*it)->setBeamVisibility(visible, false);
-		}
-	}
 }
 
-void Beam::setMeshVisibility(bool visible, bool linked)
+void Beam::setMeshVisibility(bool visible)
 {
 	for (int i=0; i < free_prop; i++)
 	{
@@ -3881,15 +3884,6 @@ void Beam::setMeshVisibility(bool visible, bool linked)
 	}
 
 	meshesVisible = visible;
-
-	if (linked)
-	{
-		// apply to the locked truck
-		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
-		{
-			(*it)->setMeshVisibility(visible, false);
-		}
-	}
 }
 
 void Beam::cabFade(float amount)
@@ -3931,13 +3925,18 @@ void Beam::cabFade(float amount)
 	}
 }
 
-void Beam::addInterTruckBeam(beam_t* beam)
+void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
 {
 	auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
 	if (pos == interTruckBeams.end())
 	{
 		interTruckBeams.push_back(beam);
 	}
+
+	std::pair<Beam*, Beam*> truck_pair(a, b);
+	BeamFactory::getSingleton().interTruckLinks[beam] = truck_pair;
+
+	determineLinkedBeams();
 }
 
 void Beam::removeInterTruckBeam(beam_t* beam)
@@ -3946,6 +3945,30 @@ void Beam::removeInterTruckBeam(beam_t* beam)
 	if (pos != interTruckBeams.end())
 	{
 		interTruckBeams.erase(pos);
+	}
+
+	BeamFactory::getSingleton().interTruckLinks.erase(beam);
+
+	determineLinkedBeams();
+}
+
+void Beam::disjoinInterTruckBeams()
+{
+	interTruckBeams.clear();
+	auto interTruckLinks = &BeamFactory::getSingleton().interTruckLinks;
+	for (auto it = interTruckLinks->begin(); it != interTruckLinks->end();)
+	{
+		auto truck_pair = it->second;
+		if (this == truck_pair.first || this == truck_pair.second)
+		{
+			it->first->p2truck = false;
+			it->first->disabled = true;
+			interTruckLinks->erase(it++);
+			auto other_truck = (this != truck_pair.first) ? truck_pair.first : truck_pair.second;
+			other_truck->determineLinkedBeams();
+		} else {
+			++it;
+		}
 	}
 }
 
@@ -3977,17 +4000,23 @@ void Beam::tieToggle(int group)
 		// if tied, untie it. And the other way round
 		if (it->tied)
 		{
+			istied = !it->beam->disabled;
+
 			// tie is locked and should get unlocked and stop tying
 			it->tied  = false;
 			it->tying = false;
-			if (it->lockedto) it->lockedto->used--;
+			if (it->lockedto) it->lockedto->in_use = false;
 			// disable the ties beam
 			it->beam->p2 = &nodes[0];
 			it->beam->p2truck = false;
 			it->beam->disabled = true;
-			it->beam->mSceneNode->detachAllObjects();
-			istied = true;
-			removeInterTruckBeam(it->beam);
+			if (it->locked_truck != this)
+			{
+				removeInterTruckBeam(it->beam);
+				// update skeletonview on the untied truck
+				it->locked_truck->m_request_skeletonview_change = -1;
+			}
+			it->locked_truck = nullptr;
 		}
 	}
 
@@ -4016,7 +4045,7 @@ void Beam::tieToggle(int group)
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
 						// if the ropable is not multilock and used, then discard this ropable
-						if (!itr->multilock && itr->used)
+						if (!itr->multilock && itr->in_use)
 							continue;
 
 						//skip if tienode is ropable too (no selflock)
@@ -4040,15 +4069,21 @@ void Beam::tieToggle(int group)
 					// enable the beam and visually display the beam
 					it->beam->disabled = false;
 					// now trigger the tying action
+					it->locked_truck = shtruck;
 					it->beam->p2 = shorter;
-					it->beam->p2truck = shtruck != 0;
+					it->beam->p2truck = shtruck != this;
 					it->beam->stress = 0;
 					it->beam->L = it->beam->refL;
 					it->tied  = true;
 					it->tying = true;
 					it->lockedto = locktedto;
-					it->lockedto->used++;
-					addInterTruckBeam(it->beam);
+					it->lockedto->in_use = true;
+					if (it->beam->p2truck)
+					{
+						addInterTruckBeam(it->beam, this, shtruck);
+						// update skeletonview on the tied truck
+						shtruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+					}
 				}
 			}
 		}
@@ -4075,7 +4110,7 @@ void Beam::ropeToggle(int group)
 			// we unlock ropes
 			it->locked = UNLOCKED;
 			// remove node locking
-			if (it->lockedto_ropable) it->lockedto_ropable->used--;
+			if (it->lockedto_ropable) it->lockedto_ropable->in_use = false;
 			it->lockedto = &nodes[0];
 			it->lockedtruck = 0;
 		} else
@@ -4095,7 +4130,7 @@ void Beam::ropeToggle(int group)
 				for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 				{
 					// if the ropable is not multilock and used, then discard this ropable
-					if (!itr->multilock && itr->used)
+					if (!itr->multilock && itr->in_use)
 						continue;
 
 					// calculate the distance and record the nearest ropable
@@ -4117,7 +4152,7 @@ void Beam::ropeToggle(int group)
 				it->lockedtruck = shtruck;
 				it->locked      = PRELOCK;
 				it->lockedto_ropable = rop;
-				it->lockedto_ropable->used++;
+				it->lockedto_ropable->in_use = true;
 			}
 		}
 	}
@@ -4172,27 +4207,8 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 
 		Beam* lastLockTruck = it->lockTruck; // memorize current value
 
-		//this is a locked or prelocked hook and its not a locking attempt
-		if ((it->locked == LOCKED || it->locked == PRELOCK) && mode != HOOK_LOCK)
-		{
-			// we unlock ropes
-			it->locked = UNLOCKED;
-			if (it->group <= -2)
-			{
-				it->timer = it->timer_preset;	//timer reset for autolock nodes
-			}
-			it->lockNode  = 0;
-			it->lockTruck = 0;
-			//disable hook-assistance beam
-			it->beam->mSceneNode->detachAllObjects();
-			it->beam->p2       = &nodes[0];
-			it->beam->p2truck  = false;
-			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-			it->beam->disabled = true;
-			removeInterTruckBeam(it->beam);
-		}
 		// do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
-		else if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
+		if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
 		{
 			// we lock hooks
 			// search new remote ropable to lock to
@@ -4256,7 +4272,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 					for (std::vector <ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr!=trucks[t]->ropables.end(); itr++)
 					{
 						// if the ropable is not multilock and used, then discard this ropable
-						if (!itr->multilock && itr->used)
+						if (!itr->multilock && itr->in_use)
 							continue;
 
 						// calculate the distance and record the nearest ropable
@@ -4278,6 +4294,24 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 					}
 				}
 			}
+		}
+		// this is a locked or prelocked hook and its not a locking attempt or the locked truck was removed (p2truck == false)
+		else if ((it->locked == LOCKED || it->locked == PRELOCK) && mode != HOOK_LOCK || !it->beam->p2truck)
+		{
+			// we unlock ropes
+			it->locked = UNLOCKED;
+			if (it->group <= -2)
+			{
+				it->timer = it->timer_preset;	//timer reset for autolock nodes
+			}
+			it->lockNode  = 0;
+			it->lockTruck = 0;
+			//disable hook-assistance beam
+			it->beam->p2       = &nodes[0];
+			it->beam->p2truck  = false;
+			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+			it->beam->disabled = true;
+			removeInterTruckBeam(it->beam);
 		}
 
 		// update skeletonview on the (un)hooked truck

@@ -339,7 +339,7 @@ struct ropable_t
 	node_t *node;
 	int group;
 	bool multilock;
-	int used;
+	bool in_use;
 };
 
 struct rope_t
@@ -355,6 +355,7 @@ struct rope_t
 
 struct tie_t
 {
+	Beam* locked_truck;
 	beam_t *beam;
 	ropable_t *lockedto;
 	int group;
