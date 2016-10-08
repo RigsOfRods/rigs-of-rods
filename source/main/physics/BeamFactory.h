@@ -155,6 +155,9 @@ public:
 
 	void SyncWithSimThread();
 
+	// A list of all beams interconnecting two trucks
+	std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
+
 protected:
 
 	int CreateRemoteInstance(stream_register_trucks_t *reg);

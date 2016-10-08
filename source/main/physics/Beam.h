@@ -646,8 +646,12 @@ protected:
 
 	bool high_res_wheelnode_collisions;
 
-	void addInterTruckBeam(beam_t* beam);
+	void addInterTruckBeam(beam_t* beam, Beam* a, Beam* b);
 	void removeInterTruckBeam(beam_t* beam);
+	/**
+	* Destroys all inter truck beams which are connected with this truck
+	*/
+	void disjoinInterTruckBeams();
 
 	// this is for managing the blinkers on the truck:
 	blinktype blinkingtype;
