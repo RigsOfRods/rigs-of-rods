@@ -1583,10 +1583,6 @@ void Beam::SyncReset()
 
 	for (std::vector <hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
 	{
-		if (it->lockTruck)
-		{
-			it->lockTruck->hideSkeleton(true);
-		}
 		it->beam->disabled = true;
 		it->locked        = UNLOCKED;
 		it->lockNode      = 0;
@@ -3836,7 +3832,7 @@ void Beam::setMeshWireframe(SceneNode *node, bool value)
 	}
 }
 
-void Beam::setBeamVisibility(bool visible, bool linked)
+void Beam::setBeamVisibility(bool visible)
 {
 	for (int i=0; i < free_beam; i++)
 	{
@@ -3847,18 +3843,9 @@ void Beam::setBeamVisibility(bool visible, bool linked)
 	}
 
 	beamsVisible = visible;
-
-	if (linked)
-	{
-		// apply to the locked truck
-		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
-		{
-			(*it)->setBeamVisibility(visible, false);
-		}
-	}
 }
 
-void Beam::setMeshVisibility(bool visible, bool linked)
+void Beam::setMeshVisibility(bool visible)
 {
 	for (int i=0; i < free_prop; i++)
 	{
@@ -3890,15 +3877,6 @@ void Beam::setMeshVisibility(bool visible, bool linked)
 	}
 
 	meshesVisible = visible;
-
-	if (linked)
-	{
-		// apply to the locked truck
-		for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
-		{
-			(*it)->setMeshVisibility(visible, false);
-		}
-	}
 }
 
 void Beam::cabFade(float amount)
