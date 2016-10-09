@@ -270,13 +270,19 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		//first, evaluate torque from inter-differential locking
 		for (int i=0; i<proped_wheels/2-1; i++)
 		{
-			float speed1=(wheels[proppairs[i*2]].speed+wheels[proppairs[i*2+1]].speed)*0.5f;
-			float speed2=(wheels[proppairs[i*2+2]].speed+wheels[proppairs[i*2+3]].speed)*0.5f;
-			float torque=(speed1-speed2)*10000.0f;
-			intertorque[i*2]-=torque*0.5f;
-			intertorque[i*2+1]-=torque*0.5f;
-			intertorque[i*2+2]+=torque*0.5f;
-			intertorque[i*2+3]+=torque*0.5f;
+			if (wheels[proppairs[i*2+0]].detached) wheels[proppairs[i*2+0]].speed = wheels[proppairs[i*2+1]].speed;
+			if (wheels[proppairs[i*2+1]].detached) wheels[proppairs[i*2+1]].speed = wheels[proppairs[i*2+0]].speed;
+			if (wheels[proppairs[i*2+2]].detached) wheels[proppairs[i*2+2]].speed = wheels[proppairs[i*2+3]].speed;
+			if (wheels[proppairs[i*2+3]].detached) wheels[proppairs[i*2+3]].speed = wheels[proppairs[i*2+2]].speed;
+
+			float speed1 = (wheels[proppairs[i*2+0]].speed + wheels[proppairs[i*2+1]].speed) * 0.5f;
+			float speed2 = (wheels[proppairs[i*2+2]].speed + wheels[proppairs[i*2+3]].speed) * 0.5f;
+			float torque = (speed1-speed2) * 10000.0f;
+
+			intertorque[i*2+0] -= torque * 0.5f;
+			intertorque[i*2+1] -= torque * 0.5f;
+			intertorque[i*2+2] += torque * 0.5f;
+			intertorque[i*2+3] += torque * 0.5f;
 		}
 	}
 
@@ -286,6 +292,23 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	for (int i=1; i<free_axle; i++)
 	{
 		if (!axles[i]) continue;
+
+		if (wheels[axles[i-1]->wheel_1].detached) wheels[axles[i-1]->wheel_1].speed = wheels[axles[i-1]->wheel_2].speed;
+		if (wheels[axles[i-0]->wheel_1].detached) wheels[axles[i-0]->wheel_1].speed = wheels[axles[i-0]->wheel_2].speed;
+		if (wheels[axles[i-1]->wheel_2].detached) wheels[axles[i-1]->wheel_2].speed = wheels[axles[i-1]->wheel_1].speed;
+		if (wheels[axles[i-0]->wheel_2].detached) wheels[axles[i-0]->wheel_2].speed = wheels[axles[i-0]->wheel_1].speed;
+
+		if (wheels[axles[i-1]->wheel_1].detached && wheels[axles[i-1]->wheel_2].detached)
+		{
+			wheels[axles[i-1]->wheel_1].speed = wheels[axles[i-0]->wheel_1].speed;
+			wheels[axles[i-1]->wheel_2].speed = wheels[axles[i-0]->wheel_2].speed;
+		}
+		if (wheels[axles[i-0]->wheel_1].detached && wheels[axles[i-0]->wheel_2].detached)
+		{
+			wheels[axles[i-0]->wheel_1].speed = wheels[axles[i-1]->wheel_1].speed;
+			wheels[axles[i-0]->wheel_2].speed = wheels[axles[i-1]->wheel_2].speed;
+		}
+
 		Ogre::Real axle_torques[2] = {0.0f, 0.0f};
 		differential_data_t diff_data =
 		{
@@ -322,6 +345,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		if (!axles[i]) continue;
 		Ogre::Real axle_torques[2] = {0.0f, 0.0f};
 		wheel_t *axle_wheels[2] = { &wheels[axles[i]->wheel_1], &wheels[axles[i]->wheel_2] };
+
+		if (axle_wheels[0]->detached) axle_wheels[0]->speed = axle_wheels[1]->speed;
+		if (axle_wheels[1]->detached) axle_wheels[1]->speed = axle_wheels[0]->speed;
 
 		differential_data_t diff_data =
 		{
@@ -477,9 +503,11 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		{
 			// differential locking
 			if (i%2)
-				total_torque -= (wheels[i].speed - wheels[i-1].speed) * 10000.0;
+				if (!wheels[i].detached && !wheels[i-1].detached)
+					total_torque -= (wheels[i].speed - wheels[i-1].speed) * 10000.0;
 			else
-				total_torque -= (wheels[i].speed - wheels[i+1].speed) * 10000.0;
+				if (!wheels[i].detached && !wheels[i+1].detached)
+					total_torque -= (wheels[i].speed - wheels[i+1].speed) * 10000.0;
 			// inter differential locking
 			total_torque += intertorque[propcounter];
 			propcounter++;
