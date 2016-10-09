@@ -3656,6 +3656,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 	beam.commandLong           = def.max_extension;
 	beam.commandEngineCoupling = def.affect_engine;
 	beam.commandNeedsEngine    = def.needs_engine;
+	beam.playsSound            = def.plays_sound;
 
 	/* set the middle of the command, so its not required to recalculate this everytime ... */
 	if (def.max_extension > def.max_contraction)

@@ -75,6 +75,7 @@ Command2::Command2():
 	affect_engine(1),
 	detacher_group(0),
 	needs_engine(true),
+	plays_sound(true),
 	option_i_invisible(false),
 	option_r_rope(false),
 	option_c_auto_center(false),

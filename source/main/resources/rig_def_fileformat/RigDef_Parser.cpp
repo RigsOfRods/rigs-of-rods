@@ -2384,6 +2384,7 @@ void Parser::ParseCommandsUnified()
 
     if (m_num_args > pos) { command2.affect_engine = this->GetArgFloat(pos++);}
     if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
+    if (m_num_args > pos) { command2.plays_sound   = this->GetArgBool (pos++);}
 
     m_current_module->commands_2.push_back(command2);
 }

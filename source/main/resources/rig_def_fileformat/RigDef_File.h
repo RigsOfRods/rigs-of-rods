@@ -1201,6 +1201,7 @@ struct Command2
 	Inertia inertia;
 	float affect_engine;
 	bool needs_engine;
+	bool plays_sound;
 	std::shared_ptr<BeamDefaults> beam_defaults;
 	std::shared_ptr<Inertia> inertia_defaults;
 	int detacher_group;

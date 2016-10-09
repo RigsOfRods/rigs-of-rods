@@ -971,22 +971,25 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 							requestpower = true;
 
 #ifdef USE_OPENAL
-						// command sounds
-						if (vst == 1)
+						if (beams[bbeam].playsSound)
 						{
-							// just started
-							SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-							vst = 0;
-						} else if (vst == -1)
-						{
-							// just stopped
-							SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-							vst = 0;
-						} else if (vst == 0)
-						{
-							// already running, modulate
-							SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+							// command sounds
+							if (vst == 1)
+							{
+								// just started
+								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
+								SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+								vst = 0;
+							} else if (vst == -1)
+							{
+								// just stopped
+								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+								vst = 0;
+							} else if (vst == 0)
+							{
+								// already running, modulate
+								SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+							}
 						}
 #endif //USE_OPENAL
 						float cf = 1.0f;
