@@ -262,9 +262,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		engine_torque = engine->getTorque() / proped_wheels;
 
 	int propcounter = 0;
-	float newspeeds[MAX_WHEELS];
-
-	float intertorque[MAX_WHEELS] = {}; //bad initialization
+	float newspeeds[MAX_WHEELS] = {};
+	float intertorque[MAX_WHEELS] = {};
 	//old-style viscous code
 	if (free_axle == 0)
 	{
@@ -485,6 +484,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			total_torque += intertorque[propcounter];
 			propcounter++;
 		}
+
+		if (wheels[i].detached) continue;
 
 		// application to wheel
 		Vector3 axis = wheels[i].refnode1->RelPosition - wheels[i].refnode0->RelPosition;
@@ -1391,6 +1392,14 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 									{
 										LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(beams[i].detacher_group)+  ", trucknum: " + TOSTRING(trucknum));
 									}
+								}
+							}
+							// cycle once through all wheels
+							for (int j = 0; j < free_wheel; j++)
+							{
+								if (wheels[j].detacher_group == beams[i].detacher_group)
+								{
+									wheels[j].detached = true;
 								}
 							}
 						}

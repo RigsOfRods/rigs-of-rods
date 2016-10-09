@@ -442,6 +442,11 @@ protected:
 	void ProcessVideoCamera(RigDef::VideoCamera & def);
 
 	/**
+	* Section 'wheeldetachers' in all modules.
+	*/
+	void ProcessWheelDetacher(RigDef::WheelDetacher & def);
+
+	/**
 	* Section 'wheels' in all modules.
 	*/
 	void ProcessWheel(RigDef::Wheel & def);

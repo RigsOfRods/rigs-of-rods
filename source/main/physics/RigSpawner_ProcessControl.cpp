@@ -237,6 +237,11 @@ rig_t *RigSpawner::SpawnRig()
 	// Section 'flexbodywheels'
 	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
 
+	// ---------------------------- WheelDetachers ----------------------------
+
+	// Section 'wheeldetachers'
+	PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_WHEELDETACHERS, wheeldetachers, ProcessWheelDetacher);
+
 	// ---------------------------- User-defined beams ----------------------------
 	//              (may reference any generated/user-defined node)
 

@@ -721,6 +721,21 @@ struct SlopeBrake
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section WHEELDETACHERS                                                     */
+/* -------------------------------------------------------------------------- */
+
+struct WheelDetacher
+{
+	WheelDetacher():
+		wheel_id(0),
+		detacher_group(0)
+	{}
+
+	int wheel_id;
+	int detacher_group;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Section WHEELS                                                             */
 /* -------------------------------------------------------------------------- */
 
@@ -1988,6 +2003,7 @@ struct File
 		std::vector<Turbojet>              turbojets;
 		std::vector<Turboprop2>            turboprops_2;
 		std::vector<VideoCamera>           videocameras;
+		std::vector<WheelDetacher>         wheeldetachers;
 		std::vector<Wheel>                 wheels;
 		std::vector<Wheel2>                wheels_2;
 		std::vector<Wing>                  wings;
@@ -2101,6 +2117,7 @@ struct File
 		KEYWORD_TURBOPROPS,
 		KEYWORD_TURBOPROPS2,
 		KEYWORD_VIDEOCAMERA,
+		KEYWORD_WHEELDETACHERS,
 		KEYWORD_WHEELS,
 		KEYWORD_WHEELS2,
 		KEYWORD_WINGS,
@@ -2173,6 +2190,7 @@ struct File
 		SECTION_TURBOPROPS,
 		SECTION_TURBOPROPS_2,
 		SECTION_VIDEO_CAMERA,
+		SECTION_WHEELDETACHERS,
 		SECTION_WHEELS,
 		SECTION_WHEELS_2,
 		SECTION_WINGS,

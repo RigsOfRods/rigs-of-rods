@@ -293,6 +293,8 @@ protected:
 
     void ParseVideoCamera();
 
+    void ParseWheelDetachers();
+
     void ParseWheel();
 
     void ParseWheel2();

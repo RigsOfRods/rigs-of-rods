@@ -292,6 +292,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("turboprops")                                 \
     E_KEYWORD_BLOCK("turboprops2")                                \
     E_KEYWORD_BLOCK("videocamera")                                \
+    E_KEYWORD_BLOCK("wheeldetachers")                             \
     E_KEYWORD_BLOCK("wheels")                                     \
     E_KEYWORD_BLOCK("wheels2")                                    \
     E_KEYWORD_BLOCK("wings")

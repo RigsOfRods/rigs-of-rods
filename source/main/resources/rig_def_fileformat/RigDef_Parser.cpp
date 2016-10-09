@@ -698,6 +698,11 @@ void Parser::ProcessCurrentLine()
                 line_finished = true;
                 break;
 
+            case (File::KEYWORD_WHEELDETACHERS):
+                new_section = File::SECTION_WHEELDETACHERS;
+                line_finished = true;
+                break;
+
             case (File::KEYWORD_WHEELS):
                 new_section = File::SECTION_WHEELS;
                 line_finished = true;
@@ -1068,6 +1073,11 @@ void Parser::ProcessCurrentLine()
             line_finished = true;
             break;
 
+        case (File::SECTION_WHEELDETACHERS):
+            ParseWheelDetachers();
+            line_finished = true;
+            break;
+
         case (File::SECTION_WHEELS):
             ParseWheel();
             line_finished = true;
@@ -1221,6 +1231,18 @@ void Parser::ParseWheel()
     }
 
     m_current_module->wheels.push_back(wheel);
+}
+
+void Parser::ParseWheelDetachers()
+{
+    if (! this->CheckNumArguments(2)) { return; }
+
+    WheelDetacher wheeldetacher;
+
+    wheeldetacher.wheel_id       = this->GetArgInt(0);
+    wheeldetacher.detacher_group = this->GetArgInt(1);
+
+    m_current_module->wheeldetachers.push_back(wheeldetacher);
 }
 
 void Parser::ParseTractionControl()

@@ -5596,6 +5596,19 @@ void RigSpawner::ProcessWheel(RigDef::Wheel & def)
 	AddWheel(def);
 };
 
+void RigSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
+{
+	SPAWNER_PROFILE_SCOPED();
+
+	if (def.wheel_id > m_rig->free_wheel - 1)
+	{
+		AddMessage(Message::TYPE_ERROR, std::string("Invalid wheel_id: ") + TOSTRING(def.wheel_id));
+		return;
+	}
+
+	m_rig->wheels[def.wheel_id].detacher_group = def.detacher_group;
+};
+
 void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
 {
 	SPAWNER_PROFILE_SCOPED();
