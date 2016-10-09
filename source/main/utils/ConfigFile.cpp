@@ -28,6 +28,7 @@
 #include "ConfigFile.h"
 #include "Utils.h"
 
+#include <OgreConfigFile.h>
 #include <OgreString.h>
 #include <OgreStringConverter.h>
 
@@ -61,4 +62,22 @@ Ogre::String ConfigFile::GetStringEx(Ogre::String const & key, Ogre::String cons
         return defaultValue;
     }
     return RoR::Utils::SanitizeUtf8String(setting);
+}
+
+void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::StringUtil::BLANK */)
+{
+    SettingsMultiMap *set = mSettings[section];
+    if (!set)
+    {
+        // new section
+        set = new SettingsMultiMap();
+        mSettings[section] = set;
+    }
+    if (set->count(key))
+    {
+        // known key, delete old first
+        set->erase(key);
+    }
+    // add key
+    set->insert(std::multimap<Ogre::String, Ogre::String>::value_type(key, value));
 }

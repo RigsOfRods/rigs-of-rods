@@ -416,49 +416,49 @@ void Settings::setUTFSetting(UTFString key, UTFString value)
 	settings[key] = value;
 }
 
-static const char* CONF_GFX_SHADOW_TEX     = "Texture shadows";
-static const char* CONF_GFX_SHADOW_PSSM    = "Parallel-split Shadow Maps";
-static const char* CONF_GFX_SHADOW_NONE    = "None";
+const char* CONF_GFX_SHADOW_TEX     = "Texture shadows";
+const char* CONF_GFX_SHADOW_PSSM    = "Parallel-split Shadow Maps";
+const char* CONF_GFX_SHADOW_NONE    = "None";
 
-static const char* CONF_EXTCAM_PITCHING    = "Pitching";
-static const char* CONF_EXTCAM_STATIC      = "Static";
-static const char* CONF_EXTCAM_NONE        = "None";
+const char* CONF_EXTCAM_PITCHING    = "Pitching";
+const char* CONF_EXTCAM_STATIC      = "Static";
+const char* CONF_EXTCAM_NONE        = "None";
 
 const char* CONF_TEXFILTER_NONE     = "None (fastest)";
-static const char* CONF_TEXFILTER_BILI     = "Bilinear";
-static const char* CONF_TEXFILTER_TRILI    = "Trilinear";
-static const char* CONF_TEXFILTER_ANISO    = "Anisotropic (best looking)";
+const char* CONF_TEXFILTER_BILI     = "Bilinear";
+const char* CONF_TEXFILTER_TRILI    = "Trilinear";
+const char* CONF_TEXFILTER_ANISO    = "Anisotropic (best looking)";
 
-static const char* CONF_VEGET_NONE         = "None (fastest)";
-static const char* CONF_VEGET_20PERC       = "20%";
-static const char* CONF_VEGET_50PERC       = "50%";
-static const char* CONF_VEGET_FULL         = "Full (best looking, slower)";
+const char* CONF_VEGET_NONE         = "None (fastest)";
+const char* CONF_VEGET_20PERC       = "20%";
+const char* CONF_VEGET_50PERC       = "50%";
+const char* CONF_VEGET_FULL         = "Full (best looking, slower)";
 
-static const char* CONF_GEARBOX_AUTO       = "Automatic shift";
-static const char* CONF_GEARBOX_SEMIAUTO   = "Manual shift - Auto clutch";
-static const char* CONF_GEARBOX_MANUAL     = "Fully Manual: sequential shift";
-static const char* CONF_GEARBOX_MAN_STICK  = "Fully manual: stick shift";
-static const char* CONF_GEARBOX_MAN_RANGES = "Fully Manual: stick shift with ranges";
+const char* CONF_GEARBOX_AUTO       = "Automatic shift";
+const char* CONF_GEARBOX_SEMIAUTO   = "Manual shift - Auto clutch";
+const char* CONF_GEARBOX_MANUAL     = "Fully Manual: sequential shift";
+const char* CONF_GEARBOX_MAN_STICK  = "Fully manual: stick shift";
+const char* CONF_GEARBOX_MAN_RANGES = "Fully Manual: stick shift with ranges";
 
-static const char* CONF_FLARES_NONE        = "None (fastest)";
-static const char* CONF_FLARES_NO_LIGHT    = "No light sources";
-static const char* CONF_FLARES_CURR_HEAD   = "Only current vehicle, main lights";
-static const char* CONF_FLARES_ALL_HEADS   = "All vehicles, main lights";
-static const char* CONF_FLARES_ALL_LIGHTS  = "All vehicles, all lights";
+const char* CONF_FLARES_NONE        = "None (fastest)";
+const char* CONF_FLARES_NO_LIGHT    = "No light sources";
+const char* CONF_FLARES_CURR_HEAD   = "Only current vehicle, main lights";
+const char* CONF_FLARES_ALL_HEADS   = "All vehicles, main lights";
+const char* CONF_FLARES_ALL_LIGHTS  = "All vehicles, all lights";
 
-static const char* CONF_WATER_BASIC        = "Basic (fastest)";
-static const char* CONF_WATER_REFLECT      = "Reflection";
-static const char* CONF_WATER_FULL_FAST    = "Reflection + refraction (speed optimized)";
-static const char* CONF_WATER_FULL_HQ      = "Reflection + refraction (quality optimized)";
-static const char* CONF_WATER_HYDRAX       = "Hydrax";
+const char* CONF_WATER_BASIC        = "Basic (fastest)";
+const char* CONF_WATER_REFLECT      = "Reflection";
+const char* CONF_WATER_FULL_FAST    = "Reflection + refraction (speed optimized)";
+const char* CONF_WATER_FULL_HQ      = "Reflection + refraction (quality optimized)";
+const char* CONF_WATER_HYDRAX       = "Hydrax";
 
-static const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
-static const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
-static const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
+const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
+const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
+const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
 
-static const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
-static const char* CONF_INPUT_GRAB_NONE    = "None";
-static const char* CONF_INPUT_GRAB_ALL     = "All";
+const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
+const char* CONF_INPUT_GRAB_NONE    = "None";
+const char* CONF_INPUT_GRAB_ALL     = "All";
 
 inline void App__SetIoInputGrabMode(std::string const & s)
 {
@@ -524,7 +524,7 @@ inline void App__SetGfxWaterMode(std::string const & s)
     if (s == CONF_WATER_HYDRAX   )    { App::SetGfxWaterMode(App::GFX_WATER_HYDRAX   ); return; }
 }
 
-inline void App__SetGfxSkyMode(std::string const & s)
+void App__SetGfxSkyMode(std::string const & s)
 {
     if (s == CONF_SKY_SANDSTORM)      { App::SetGfxSkyMode(App::GFX_SKY_SANDSTORM); return; }
     if (s == CONF_SKY_CAELUM   )      { App::SetGfxSkyMode(App::GFX_SKY_CAELUM);    return; }

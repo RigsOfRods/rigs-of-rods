@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
     <Widget type="Window" skin="WindowCX" position="192 314 640 395" align="Center" layer="Middle" name="_Main">
         <Property key="Caption" value="Settings"/>
@@ -6,7 +6,7 @@
         <Widget type="TabControl" skin="TabControl" position="0 0 630 315" name="tabCtrl">
             <Widget type="TabItem" skin="" position="2 24 624 287">
                 <Property key="Caption" value="General"/>
-                <Widget type="EditBox" skin="WordWrapEmpty" position="15 20 195 20">
+                <Widget type="EditBox" skin="WordWrapEmpty" position="15 20 195 20" name="lang_label">
                     <Property key="Caption" value="Language:"/>
                 </Widget>
                 <Widget type="ComboBox" skin="ComboBox" position="210 15 405 30" name="lang">
@@ -62,9 +62,8 @@
             </Widget>
             <Widget type="TabItem" skin="" position="2 24 624 287">
                 <Property key="Caption" value="Render System"/>
-                <Widget type="EditBox" skin="WordWrapEmpty" position="10 15 120 20" align="Left Top">
+                <Widget type="EditBox" skin="WordWrapEmpty" position="10 15 120 20" align="Left Top" name="render_sys_label">
                     <Property key="Caption" value="Render System:"/>
-                    <Property key="TextAlign" value="Left Top"/>
                 </Widget>
                 <Widget type="ComboBox" skin="ComboBox" position="130 10 485 30" align="Right Top" name="render_sys">
                     <Property key="ReadOnly" value="true"/>
@@ -199,7 +198,8 @@
                     <Property key="Caption" value="Light Source Effects"/>
                 </Widget>
                 <Widget type="ComboBox" skin="ComboBox" position="215 40 400 30" name="light_source_effects">
-                    <Property key="AddItem" value="No light sources"/>
+                    <Property key="AddItem" value="Flares disabled"/>
+                    <Property key="AddItem" value="Flares enabled, no light sources"/>
                     <Property key="AddItem" value="Only current vehicle, main lights"/>
                     <Property key="AddItem" value="All vehicles, main lights"/>
                     <Property key="AddItem" value="All vehicles, all lights"/>
@@ -249,9 +249,6 @@
                 <Widget type="Button" skin="CheckBox" position="15 100 230 20" name="disable_intra_collision">
                     <Property key="Caption" value="Disable intra-vehicle collisions"/>
                 </Widget>
-                <Widget type="Button" skin="CheckBox" position="15 125 225 20" name="enable_async_physics">
-                    <Property key="Caption" value="Enable Asynchronous Physics"/>
-                </Widget>
             </Widget>
             <Widget type="TabItem" skin="" position="2 24 624 287">
                 <Property key="Caption" value="Audio"/>
@@ -278,7 +275,7 @@
                     <Property key="Caption" value="Enable Main Menu Music"/>
                 </Widget>
             </Widget>
-            <Widget type="TabItem" skin="" position="2 24 624 287">
+            <Widget type="TabItem" skin="" position="2 24 624 287" name="inputmap_tab">
                 <Property key="Caption" value="Controls"/>
                 <Widget type="MultiListBox" skin="MultiListBox" position="0 -5 625 260" name="keymapping">
                     <Widget type="MultiListItem" skin="" position="0 0 460 231" name="key_name">

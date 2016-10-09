@@ -35,6 +35,9 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_lang, "lang");
 	MyGUI::ComboBox* m_lang;
 
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_lang_label, "lang_label");
+    MyGUI::TextBox* m_lang_label;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_gearbox_mode, "gearbox_mode");
 	MyGUI::ComboBox* m_gearbox_mode;
 
@@ -170,9 +173,6 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_disable_intra_collision, "disable_intra_collision");
 	MyGUI::Button* m_disable_intra_collision;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_enable_async_physics, "enable_async_physics");
-	MyGUI::Button* m_enable_async_physics;
-
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_d_creak_sound, "d_creak_sound");
 	MyGUI::Button* m_d_creak_sound;
 
@@ -199,6 +199,9 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_keymap_group, "keymap_group");
 	MyGUI::ComboBox* m_keymap_group;
+
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_inputmap_tab, "inputmap_tab");
+    MyGUI::TabItem* m_inputmap_tab;
 
 /* FIXME
     ATTRIBUTE_FIELD_WIDGET_NAME(GameSettingsLayout, m_change_key, "change_key");
