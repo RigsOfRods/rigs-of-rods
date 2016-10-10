@@ -50,6 +50,9 @@ struct wheel_t
 	float lastSlip;
 	int lastContactType;
 	ground_model_t *lastGroundModel;
+
+	int detacher_group;
+	bool detached;
 	
 	//skidmarks v2
 	bool isSkiding;

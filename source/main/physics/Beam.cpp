@@ -1619,7 +1619,7 @@ void Beam::SyncReset()
 	for (int i=0; i<free_screwprop; i++) screwprops[i]->reset();
 	for (int i=0; i<free_rotator; i++) rotators[i].angle = 0.0;
 	for (int i=0; i<free_wing; i++) wings[i].fa->broken = false;
-	for (int i=0; i<free_wheel; i++) wheels[i].speed = 0.0;
+	for (int i=0; i<free_wheel; i++) { wheels[i].speed = 0.0; wheels[i].detached = false; } 
 	if (buoyance) buoyance->setsink(0);
 	refpressure = 50.0;
 	addPressure(0.0);
@@ -5677,10 +5677,7 @@ bool Beam::LoadTruck(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_CREATE);
 	parser.Prepare();
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_PREPARE);
-	while(! ds->eof())
-	{
-		parser.ParseLine(ds->getLine());
-	}
+    parser.ProcessOgreStream(ds.getPointer());
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_RUN);
 	parser.Finalize();
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_FINALIZE);

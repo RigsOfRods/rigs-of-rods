@@ -262,22 +262,27 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		engine_torque = engine->getTorque() / proped_wheels;
 
 	int propcounter = 0;
-	float newspeeds[MAX_WHEELS];
-
-	float intertorque[MAX_WHEELS] = {}; //bad initialization
+	float newspeeds[MAX_WHEELS] = {};
+	float intertorque[MAX_WHEELS] = {};
 	//old-style viscous code
 	if (free_axle == 0)
 	{
 		//first, evaluate torque from inter-differential locking
 		for (int i=0; i<proped_wheels/2-1; i++)
 		{
-			float speed1=(wheels[proppairs[i*2]].speed+wheels[proppairs[i*2+1]].speed)*0.5f;
-			float speed2=(wheels[proppairs[i*2+2]].speed+wheels[proppairs[i*2+3]].speed)*0.5f;
-			float torque=(speed1-speed2)*10000.0f;
-			intertorque[i*2]-=torque*0.5f;
-			intertorque[i*2+1]-=torque*0.5f;
-			intertorque[i*2+2]+=torque*0.5f;
-			intertorque[i*2+3]+=torque*0.5f;
+			if (wheels[proppairs[i*2+0]].detached) wheels[proppairs[i*2+0]].speed = wheels[proppairs[i*2+1]].speed;
+			if (wheels[proppairs[i*2+1]].detached) wheels[proppairs[i*2+1]].speed = wheels[proppairs[i*2+0]].speed;
+			if (wheels[proppairs[i*2+2]].detached) wheels[proppairs[i*2+2]].speed = wheels[proppairs[i*2+3]].speed;
+			if (wheels[proppairs[i*2+3]].detached) wheels[proppairs[i*2+3]].speed = wheels[proppairs[i*2+2]].speed;
+
+			float speed1 = (wheels[proppairs[i*2+0]].speed + wheels[proppairs[i*2+1]].speed) * 0.5f;
+			float speed2 = (wheels[proppairs[i*2+2]].speed + wheels[proppairs[i*2+3]].speed) * 0.5f;
+			float torque = (speed1-speed2) * 10000.0f;
+
+			intertorque[i*2+0] -= torque * 0.5f;
+			intertorque[i*2+1] -= torque * 0.5f;
+			intertorque[i*2+2] += torque * 0.5f;
+			intertorque[i*2+3] += torque * 0.5f;
 		}
 	}
 
@@ -287,6 +292,23 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 	for (int i=1; i<free_axle; i++)
 	{
 		if (!axles[i]) continue;
+
+		if (wheels[axles[i-1]->wheel_1].detached) wheels[axles[i-1]->wheel_1].speed = wheels[axles[i-1]->wheel_2].speed;
+		if (wheels[axles[i-0]->wheel_1].detached) wheels[axles[i-0]->wheel_1].speed = wheels[axles[i-0]->wheel_2].speed;
+		if (wheels[axles[i-1]->wheel_2].detached) wheels[axles[i-1]->wheel_2].speed = wheels[axles[i-1]->wheel_1].speed;
+		if (wheels[axles[i-0]->wheel_2].detached) wheels[axles[i-0]->wheel_2].speed = wheels[axles[i-0]->wheel_1].speed;
+
+		if (wheels[axles[i-1]->wheel_1].detached && wheels[axles[i-1]->wheel_2].detached)
+		{
+			wheels[axles[i-1]->wheel_1].speed = wheels[axles[i-0]->wheel_1].speed;
+			wheels[axles[i-1]->wheel_2].speed = wheels[axles[i-0]->wheel_2].speed;
+		}
+		if (wheels[axles[i-0]->wheel_1].detached && wheels[axles[i-0]->wheel_2].detached)
+		{
+			wheels[axles[i-0]->wheel_1].speed = wheels[axles[i-1]->wheel_1].speed;
+			wheels[axles[i-0]->wheel_2].speed = wheels[axles[i-1]->wheel_2].speed;
+		}
+
 		Ogre::Real axle_torques[2] = {0.0f, 0.0f};
 		differential_data_t diff_data =
 		{
@@ -323,6 +345,9 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		if (!axles[i]) continue;
 		Ogre::Real axle_torques[2] = {0.0f, 0.0f};
 		wheel_t *axle_wheels[2] = { &wheels[axles[i]->wheel_1], &wheels[axles[i]->wheel_2] };
+
+		if (axle_wheels[0]->detached) axle_wheels[0]->speed = axle_wheels[1]->speed;
+		if (axle_wheels[1]->detached) axle_wheels[1]->speed = axle_wheels[0]->speed;
 
 		differential_data_t diff_data =
 		{
@@ -478,13 +503,17 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 		{
 			// differential locking
 			if (i%2)
-				total_torque -= (wheels[i].speed - wheels[i-1].speed) * 10000.0;
+				if (!wheels[i].detached && !wheels[i-1].detached)
+					total_torque -= (wheels[i].speed - wheels[i-1].speed) * 10000.0;
 			else
-				total_torque -= (wheels[i].speed - wheels[i+1].speed) * 10000.0;
+				if (!wheels[i].detached && !wheels[i+1].detached)
+					total_torque -= (wheels[i].speed - wheels[i+1].speed) * 10000.0;
 			// inter differential locking
 			total_torque += intertorque[propcounter];
 			propcounter++;
 		}
+
+		if (wheels[i].detached) continue;
 
 		// application to wheel
 		Vector3 axis = wheels[i].refnode1->RelPosition - wheels[i].refnode0->RelPosition;
@@ -971,22 +1000,25 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 							requestpower = true;
 
 #ifdef USE_OPENAL
-						// command sounds
-						if (vst == 1)
+						if (beams[bbeam].playsSound)
 						{
-							// just started
-							SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-							SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-							vst = 0;
-						} else if (vst == -1)
-						{
-							// just stopped
-							SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-							vst = 0;
-						} else if (vst == 0)
-						{
-							// already running, modulate
-							SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+							// command sounds
+							if (vst == 1)
+							{
+								// just started
+								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
+								SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+								vst = 0;
+							} else if (vst == -1)
+							{
+								// just stopped
+								SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
+								vst = 0;
+							} else if (vst == 0)
+							{
+								// already running, modulate
+								SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
+							}
 						}
 #endif //USE_OPENAL
 						float cf = 1.0f;
@@ -1388,6 +1420,14 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 									{
 										LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(beams[i].detacher_group)+  ", trucknum: " + TOSTRING(trucknum));
 									}
+								}
+							}
+							// cycle once through all wheels
+							for (int j = 0; j < free_wheel; j++)
+							{
+								if (wheels[j].detacher_group == beams[i].detacher_group)
+								{
+									wheels[j].detached = true;
 								}
 							}
 						}

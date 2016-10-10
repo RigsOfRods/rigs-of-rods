@@ -52,7 +52,8 @@ struct beam_t
 	int animFlags;
 	int hydroFlags;
 	short isOnePressMode;
-	short autoMovingMode;
+	char autoMovingMode;
+	bool playsSound;
 	bool pressedCenterMode;
 	bool isForceRestricted;
 	bool commandNeedsEngine;

@@ -128,7 +128,6 @@ struct rig_t
 	bool hideInChooser;
 
 	char guid[128];
-	int wingstart;
 
 	Ogre::String realtruckname;
 	bool loading_finished;

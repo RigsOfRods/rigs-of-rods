@@ -322,7 +322,7 @@ protected:
 	/**
 	* Section 'meshwheels2'.
 	*/
-	void ProcessMeshWheel2(RigDef::MeshWheel2 & def);
+	void ProcessMeshWheel2(RigDef::MeshWheel & def);
 
 	/**
 	* Section 'minimass'.
@@ -440,6 +440,11 @@ protected:
 	* Section 'videocamera'.
 	*/
 	void ProcessVideoCamera(RigDef::VideoCamera & def);
+
+	/**
+	* Section 'wheeldetachers' in all modules.
+	*/
+	void ProcessWheelDetacher(RigDef::WheelDetacher & def);
 
 	/**
 	* Section 'wheels' in all modules.
@@ -1023,6 +1028,7 @@ protected:
 	float m_fuse_y_min;
 	float m_fuse_y_max;
 	bool  m_generate_wing_position_lights;
+	int   m_first_wing_index;
 
     RoR::FlexFactory m_flex_factory;
 };
