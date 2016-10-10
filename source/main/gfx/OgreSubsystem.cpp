@@ -90,7 +90,6 @@ bool OgreSubsystem::Configure()
 	return true;
 }
 
-
 bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
 {
 	Ogre::ConfigFile cfg;
@@ -105,10 +104,17 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
 		return false;
 	}
 
+	Ogre::String pluginDir = cfg.getSetting("PluginFolder");
 	Ogre::StringVector pluginList = cfg.getMultiSetting("Plugin");
+
+	if (pluginDir.empty())
+	{
+		pluginDir = RoR::App::GetSysProcessDir();
+	}
+
 	for ( Ogre::StringVector::iterator it = pluginList.begin(); it != pluginList.end(); ++it )
 	{
-		Ogre::String pluginFilename = App::GetSysProcessDir() + PATH_SLASH + (*it); // Always use process directory
+		Ogre::String pluginFilename = pluginDir + PATH_SLASH + (*it);
 		try
 		{
 			m_ogre_root->loadPlugin(pluginFilename);
