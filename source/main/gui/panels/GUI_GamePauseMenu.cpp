@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2016 Petr Ohlidal & contributors
 
 	For more information, see http://www.rigsofrods.org/
 
@@ -19,8 +19,8 @@
 	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-	@file   
+/**
+	@file
 	@author Moncef Ben Slimane
 	@date   11/2014
 */
@@ -99,6 +99,12 @@ void CLASS::Show()
 
 	const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
 	m_change_map->setEnabled(!online);
+
+    // Adjust screen position
+    MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
+    int margin = (parentSize.width / 15);
+    int top = parentSize.height - this->GetHeight() - margin;
+    this->SetPosition(margin, top);
 }
 
 void CLASS::Hide()
@@ -110,7 +116,7 @@ void CLASS::Hide()
 	//MAIN_WIDGET->setVisibleSmooth(false);
 	MAIN_WIDGET->setVisible(false);
 
-	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+	if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
 	{
 		gEnv->player->setPhysicsEnabled(true);
 	}
@@ -146,5 +152,5 @@ void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
     RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
 }
 
-void CLASS::SetVisible(bool v) { if (v) { this->Show(); } else { MAIN_WIDGET->setVisible(false); } }
+void CLASS::SetVisible(bool v) { if (v) { this->Show(); } else { this->Hide(); } }
 bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }
