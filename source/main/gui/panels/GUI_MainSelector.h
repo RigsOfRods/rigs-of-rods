@@ -47,7 +47,6 @@ public:
 	bool IsVisible();
 	void Reset();
 	void Cancel();
-    void SetVisible(bool v);
 
 	CacheEntry *GetSelectedEntry() { return m_selected_entry; }
 	Skin *GetSelectedSkin() { return m_selected_skin; }

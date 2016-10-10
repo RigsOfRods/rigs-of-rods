@@ -969,13 +969,6 @@ void CLASS::Show(LoaderType type)
     }
 }
 
-void CLASS::SetVisible(bool v)
-{
-    m_selection_done = true;
-    this->BindKeys(false);
-    MAIN_WIDGET->setVisible(false);
-}
-
 void CLASS::Hide(bool smooth)
 {
 	m_selection_done = true;
