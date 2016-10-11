@@ -299,7 +299,7 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
 
-	if (SSETTING("Sky effects", "Sandstorm (fastest)") == "Sandstorm (fastest)") //Caelum has its own fog management
+	if (!use_caelum) //Caelum has its own fog management
 	{
 		PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
 		initFog();
