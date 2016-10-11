@@ -450,12 +450,12 @@ void Init()
 
     g_diag_trace_globals   = false; // Don't init to 'true', logger is not ready at startup.
 
-    g_gfx_shadow_type      = GFX_SHADOW_TYPE_PSSM;
+    g_gfx_shadow_type      = GFX_SHADOW_TYPE_NONE;
     g_gfx_extcam_mode      = GFX_EXTCAM_MODE_PITCHING;
     g_gfx_texture_filter   = GFX_TEXFILTER_TRILINEAR;
     g_gfx_vegetation_mode  = GFX_VEGETATION_NONE;
     g_gfx_flares_mode      = GFX_FLARES_ALL_VEHICLES_HEAD_ONLY;
-    g_gfx_water_mode       = GFX_WATER_FULL_FAST;
+    g_gfx_water_mode       = GFX_WATER_BASIC;
     g_gfx_sky_mode         = GFX_SKY_SANDSTORM;
     g_gfx_sight_range      = 3000.f; // Previously either 2000 or 4500 (inconsistent)
     g_gfx_fov_external     = 60.f;
