@@ -222,15 +222,6 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
 {
     for (int i=0; i<free_collcab; i++)
     {
-        if (intra_collcabrate[i].rate > 0)
-        {
-            intra_collcabrate[i].distance++;
-            intra_collcabrate[i].rate--;
-            continue;
-        }
-        intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
-        intra_collcabrate[i].distance = 0;
-
         int tmpv = collcabs[i]*3;
         const auto no = &nodes[cabs[tmpv]];
         const auto na = &nodes[cabs[tmpv+1]];
@@ -239,8 +230,6 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
         intraPointCD.query(no->AbsPosition
                 , na->AbsPosition
                 , nb->AbsPosition, collrange);
-
-        bool collision = false;
 
         if (intraPointCD.hit_count > 0)
         {
@@ -264,8 +253,6 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
                 const bool is_colliding = InsideTriangleTest(local_point, collrange);
                 if (is_colliding)
                 {
-                    collision = true;
-
                     const auto coord = local_point.barycentric;
                     auto distance = local_point.distance;
                     auto normal   = triangle.normal();
@@ -284,14 +271,6 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
                             coord.beta, coord.gamma, normal, dt, submesh_ground_model);
                 }
             }
-        }
-
-        if (collision)
-        {
-            intra_collcabrate[i].rate = 0;
-        } else
-        {
-            intra_collcabrate[i].rate++;
         }
     }
 }
