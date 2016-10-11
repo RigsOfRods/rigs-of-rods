@@ -113,6 +113,7 @@ enum GfxFlaresMode
 
 enum GfxWaterMode
 {
+    GFX_WATER_NONE,       ///< None
     GFX_WATER_BASIC,      ///< Basic (fastest)
     GFX_WATER_REFLECT,    ///< Reflection
     GFX_WATER_FULL_FAST,  ///< Reflection + refraction (speed optimized)

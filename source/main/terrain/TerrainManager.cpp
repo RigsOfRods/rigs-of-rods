@@ -596,7 +596,7 @@ void TerrainManager::fixCompositorClearColor()
 void TerrainManager::initWater()
 {
 	// disabled in global config
-	if (App::GetGfxWaterMode() == App::GFX_WATER_BASIC) return;
+	if (App::GetGfxWaterMode() == App::GFX_WATER_NONE) return;
 
 	// disabled in map config
     bool has_water = m_terrain_config.GetBool("Water", "General", false);

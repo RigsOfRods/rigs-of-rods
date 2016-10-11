@@ -446,6 +446,7 @@ const char* CONF_FLARES_CURR_HEAD   = "Only current vehicle, main lights";
 const char* CONF_FLARES_ALL_HEADS   = "All vehicles, main lights";
 const char* CONF_FLARES_ALL_LIGHTS  = "All vehicles, all lights";
 
+const char* CONF_WATER_NONE         = "None";
 const char* CONF_WATER_BASIC        = "Basic (fastest)";
 const char* CONF_WATER_REFLECT      = "Reflection";
 const char* CONF_WATER_FULL_FAST    = "Reflection + refraction (speed optimized)";
@@ -517,6 +518,7 @@ void App__SetGfxFlaresMode(std::string const & s)
 
 void App__SetGfxWaterMode(std::string const & s)
 {
+    if (s == CONF_WATER_NONE     )    { App::SetGfxWaterMode(App::GFX_WATER_NONE     ); return; }
     if (s == CONF_WATER_BASIC    )    { App::SetGfxWaterMode(App::GFX_WATER_BASIC    ); return; }
     if (s == CONF_WATER_REFLECT  )    { App::SetGfxWaterMode(App::GFX_WATER_REFLECT  ); return; }
     if (s == CONF_WATER_FULL_FAST)    { App::SetGfxWaterMode(App::GFX_WATER_FULL_FAST); return; }
