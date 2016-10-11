@@ -437,28 +437,26 @@ void TerrainManager::initFog()
 
 void TerrainManager::initVegetation()
 {
-	// get vegetation mode
-	String vegetationMode = SSETTING("Vegetation", "None (fastest)");
+	paged_mode = App::GetGfxVegetationMode();
 
-	paged_mode = 0;
-	paged_detail_factor = 0.0f;
-
-	if        (vegetationMode == "None (fastest)")
+	switch (paged_mode)
 	{
-		paged_mode = 0;
-		paged_detail_factor = 0.001f;
-	} else if (vegetationMode == "20%")
-	{
-		paged_mode = 1;
-		paged_detail_factor = 0.2f;
-	} else if (vegetationMode == "50%")
-	{
-		paged_mode = 2;
-		paged_detail_factor = 0.5f;
-	} else if (vegetationMode == "Full (best looking, slower)")
-	{
-		paged_mode = 3;
-		paged_detail_factor = 1.0f;
+		case 0:
+			paged_detail_factor = 0.001f;
+			break;
+		case 1:
+			paged_detail_factor = 0.2f;
+			break;
+		case 2:
+			paged_detail_factor = 0.5f;
+			break;
+		case 3:
+			paged_detail_factor = 1.0f;
+			break;
+		default:
+			paged_mode = 0;
+			paged_detail_factor = 0.0f;
+			break;
 	}
 }
 
