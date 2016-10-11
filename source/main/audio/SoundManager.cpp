@@ -27,6 +27,8 @@
 #include "Sound.h"
 #include "Settings.h"
 
+#include <OgreResourceGroupManager.h>
+
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #pragma GCC diagnostic ignored "-Wfloat-equal"
