@@ -1396,16 +1396,16 @@ void Parser::ParseDirectiveSetNodeDefaults()
     m_user_node_defaults->volume      = (volume      < 0) ? m_ror_node_defaults->volume      : volume;
     m_user_node_defaults->surface     = (surface     < 0) ? m_ror_node_defaults->surface     : surface;
 
-    if (!opt_str.empty())
-    {
-        this->_ParseNodeOptions(m_user_node_defaults->options, opt_str);
-    }
+    this->_ParseNodeOptions(m_user_node_defaults->options, opt_str);
+
     this->LogParsedDirectiveSetNodeDefaultsData(
         load_weight, friction, volume, surface, m_user_node_defaults->options);
 }
 
 void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
 {
+	options = 0;
+
     for (unsigned int i = 0; i < options_str.length(); i++)
     {
         const char c = options_str.at(i);
