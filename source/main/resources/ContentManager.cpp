@@ -221,7 +221,6 @@ bool ContentManager::init(void)
 
 	// config, flat
 	ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysConfigDir(), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("User Path", "")+"alwaysload", "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	// packs, to be processed later by the cache system
 
 	// add scripts folder
