@@ -257,8 +257,9 @@ Beam *BeamFactory::CreateLocalRigInstance(
     LOADRIG_PROFILER_CHECKPOINT(ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS);
 
     LOG(rig_loading_profiler.Report());
+
 #ifdef ROR_PROFILE_RIG_LOADING
-    std::string out_path = SSETTING("Profiler output dir", "") + ROR_PROFILE_RIG_LOADING_OUTFILE;
+    std::string out_path = RoR::App::GetSysUserDir() + PATH_SLASH + "profiler" + PATH_SLASH + ROR_PROFILE_RIG_LOADING_OUTFILE;
     ::Profiler::DumpHtml(out_path.c_str());
 #endif
 	return b;
