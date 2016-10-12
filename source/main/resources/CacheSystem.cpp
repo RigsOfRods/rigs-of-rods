@@ -2096,7 +2096,7 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
 	for (FileInfoList::iterator listitem = list->begin(); listitem!= list->end(); ++listitem,i++)
 	{
 		if (!listitem->archive) continue;
-		String dirname = listitem->archive->getName() + SSETTING("dirsep", "\\") + listitem->filename;
+		String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
 		// update loader
 		int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
@@ -2173,7 +2173,7 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
 	for (FileInfoList::iterator listitem = list->begin(); listitem!= list->end(); ++listitem, i++)
 	{
 		if (!listitem->archive) continue;
-		String dirname = listitem->archive->getName() + SSETTING("dirsep", "\\") + listitem->filename;
+		String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
 		int progress = ((float)i/(float)filecount)*100;
 #ifdef USE_MYGUI
 		RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));

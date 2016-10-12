@@ -327,10 +327,6 @@ bool ContentManager::resourceCollision(Ogre::Resource *resource, Ogre::ResourceM
 
 void ContentManager::exploreZipFolders(Ogre::String rg)
 {
-	String dirsep="/";
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	dirsep="\\";
-#endif
 	ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
 
 	FileInfoListPtr files= rgm.findResourceFileInfo(rg, "*.skinzip"); //search for skins
@@ -338,7 +334,7 @@ void ContentManager::exploreZipFolders(Ogre::String rg)
 	for (; iterFiles!= files->end(); ++iterFiles)
 	{
 		if (!iterFiles->archive) continue;
-		String fullpath = iterFiles->archive->getName() + dirsep;
+		String fullpath = iterFiles->archive->getName() + PATH_SLASH;
 		rgm.addResourceLocation(fullpath + iterFiles->filename, "Zip", rg);
 	}
 	// DO NOT initialize ...
@@ -346,10 +342,6 @@ void ContentManager::exploreZipFolders(Ogre::String rg)
 
 void ContentManager::exploreFolders(Ogre::String rg)
 {
-	String dirsep="/";
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	dirsep="\\";
-#endif
 	ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
 
 	FileInfoListPtr files= rgm.findResourceFileInfo(rg, "*", true); // searching for dirs
@@ -359,7 +351,7 @@ void ContentManager::exploreFolders(Ogre::String rg)
 		if (!iterFiles->archive) continue;
 		if (iterFiles->filename==String(".svn")) continue;
 		// trying to get the full path
-		String fullpath = iterFiles->archive->getName() + dirsep;
+		String fullpath = iterFiles->archive->getName() + PATH_SLASH;
 		rgm.addResourceLocation(fullpath+iterFiles->filename, "FileSystem", rg);
 	}
 	LOG("initialiseResourceGroups: "+rg);
