@@ -61,6 +61,9 @@ public:
 	{
 		return settings;
 	}
+    std::string GetProgramPath() { return m_program_path; }
+    std::string GetUserPath()    { return m_user_path; }
+
 protected:
 
 	static Settings* myInstance;
@@ -69,6 +72,8 @@ protected:
 	// TODO: use wide char / UTFString ...
 	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
 	settings_map_t settings;
+    std::string m_program_path;
+    std::string m_user_path;
 
 	// methods
 	void path_descend(char* path);

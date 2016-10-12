@@ -253,10 +253,8 @@ bool Settings::get_system_paths(char *program_path, char *user_path)
 bool Settings::setupPaths()
 {
 	char program_path[1024] = {};
-	char resources_path[1024] = {};
 	//char streams_path[1024] = {};
 	char user_path[1024] = {};
-	char config_root[1024] = {};
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	const char *dsStr = "\\";
 #else
@@ -272,140 +270,17 @@ bool Settings::setupPaths()
 		sprintf(user_path, "%s%sconfig%s",program_path, dsStr, dsStr);
 	}
 
-	// check for resource folder: first the normal version (in the executables directory)
-	strcpy(resources_path, program_path);
-	path_add(resources_path, "resources");
-	if (! FolderExists(resources_path))
-	{
-		// if not existing: check one dir up (dev version)
-		strcpy(resources_path, program_path);
-		path_descend(resources_path);
-		path_add(resources_path, "resources");
-		if (! FolderExists(resources_path))
-		{
-			// 3rd fallback: check the installation path
-#ifndef _WIN32
-			// linux fallback
-			// TODO: use installation patch values from CMake
-			strcpy(resources_path, "/usr/share/rigsofrods/resources/");
-#endif // !_WIN32
-
-			if (! FolderExists(resources_path))
-			{
-				ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
-				exit(1);
-			}
-		}
-	}
-
 	// change working directory to executable path
 #ifdef _WIN32
 	_chdir(program_path);
 #endif // _WIN32
 
-	//setup config files names
-	char plugins_fname[1024] = {};
-
-#ifdef _WIN32
-	// under windows, the plugins.cfg is in the installation directory
-	strcpy(plugins_fname, program_path);
-#else
-	// under linux, the plugins.cfg is somewhere in /usr/share/rigsofrods/resources
-	// we will test both locations: program and resource path
-	char tmppp[1024] = "";
-	strcpy(tmppp, resources_path);	
-	strcat(tmppp, "plugins.cfg");
-	if(FileExists(tmppp))
-	{
-		strcpy(plugins_fname, resources_path);
-	} else
-	{
-		strcpy(tmppp, program_path);	
-		strcat(tmppp, "plugins.cfg");
-		if(FileExists(tmppp))
-			strcpy(plugins_fname, program_path);
-	}
-	
-#endif // _WIN32
-
-
-#ifdef _DEBUG
-	strcat(plugins_fname, "plugins_d.cfg");
-#else
-	strcat(plugins_fname, "plugins.cfg");
-#endif
-
-	char ogreconf_fname[1024] = {};
-	strcpy(ogreconf_fname, user_path);
-	path_add(ogreconf_fname, "config");
-	strcpy(config_root, ogreconf_fname); //setting the config root here
-	strcat(ogreconf_fname, "ogre.cfg");
-
-	char ogrelog_fname[1024] = {};
-	strcpy(ogrelog_fname, user_path);
-	path_add(ogrelog_fname, "logs");
-
-    settings["Log dir"] = ogrelog_fname;
-
-    char profiler_out_dir[1000];
-    strcpy(profiler_out_dir, user_path);
-    path_add(profiler_out_dir, "profiler");
-    settings["Profiler output dir"] = profiler_out_dir;
-
-	char ogrelog_path[1024] = {};
-	strcpy(ogrelog_path, ogrelog_fname);
-	strcat(ogrelog_fname, "RoR.log");
 
 	// now update our settings with the results:
 
-	settings["dirsep"] = String(dsStr);
-	settings["Config Root"] = String(config_root);
-	settings["Cache Path"] = String(user_path) + "cache" + String(dsStr);
-
 	// only set log path if it was not set before
-	settings["Log Path"] = String(ogrelog_path);
-	settings["Resources Path"] = String(resources_path);
-	settings["User Path"] = String(user_path);
-	settings["Program Path"] = String(program_path);
-	settings["plugins.cfg"] = String(plugins_fname);
-	settings["ogre.cfg"] = String(ogreconf_fname);
-	settings["ogre.log"] = String(ogrelog_fname);
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	// XXX maybe use StringUtil::standardisePath here?
-	// windows is case insensitive, so norm here
-	StringUtil::toLowerCase(settings["Config Root"]);
-	StringUtil::toLowerCase(settings["Cache Path"]);
-	StringUtil::toLowerCase(settings["Log Path"]);
-	StringUtil::toLowerCase(settings["Resources Path"]);
-	StringUtil::toLowerCase(settings["Program Path"]);
-#endif
-	// now enable the user to override that:
-	if (FileExists("config.cfg"))
-	{
-		loadSettings("config.cfg", true);
-
-		// fix up time things...
-		settings["Config Root"] = settings["User Path"]+String(dsStr)+"config"+String(dsStr);
-		settings["Cache Path"]  = settings["User Path"]+String(dsStr)+"cache"+String(dsStr);
-		settings["Log Path"]    = settings["User Path"]+String(dsStr)+"logs"+String(dsStr);
-		settings["ogre.cfg"]    = settings["User Path"]+String(dsStr)+"config"+String(dsStr)+"ogre.cfg";
-		settings["ogre.log"]    = settings["User Path"]+String(dsStr)+"logs"+String(dsStr)+"RoR.log";
-	}
-
-	if (!settings["Enforce Log Path"].empty())
-	{
-		settings["Log Path"] = settings["Enforce Log Path"];
-		settings["ogre.log"] = settings["Log Path"]+String(dsStr)+"RoR.log";
-	}
-
-	printf(" * log path:         %s\n", settings["Log Path"].c_str());
-	printf(" * config path:      %s\n", settings["Config Root"].c_str());
-	printf(" * user path:        %s\n", settings["User Path"].c_str());
-	printf(" * program path:     %s\n", settings["Program Path"].c_str());
-	printf(" * used plugins.cfg: %s\n", settings["plugins.cfg"].c_str());
-	printf(" * used ogre.cfg:    %s\n", settings["ogre.cfg"].c_str());
-	printf(" * used ogre.log:    %s\n", settings["ogre.log"].c_str());
+    m_user_path = user_path;
+    m_program_path = program_path;
 
 	return true;
 }

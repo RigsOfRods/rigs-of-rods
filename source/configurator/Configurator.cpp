@@ -767,8 +767,8 @@ bool MyApp::checkUserPath()
 
 bool MyApp::filesystemBootstrap()
 {
-	UserPath = conv(SSETTING("User Path", ""));
-	ProgramPath = conv(SSETTING("Program Path", ""));
+	UserPath    = conv(SETTINGS.GetUserPath());
+	ProgramPath = conv(SETTINGS.GetProgramPath());
 
 
 	checkUserPath();
@@ -2337,12 +2337,6 @@ bool MyDialog::LoadConfig()
 		settings[sname] = svalue;
 	}
 
-
-	// enforce default settings
-	if(settings["Allow NVPerfHUD"] == "") settings["Allow NVPerfHUD"] = "No";
-	if(settings["Floating-point mode"] == "") settings["Floating-point mode"] = "Fastest";
-	if(settings["Colour Depth"] == "") settings["Colour Depth"] = "32";
-
 	// then update the controls!
 	updateSettingsControls();
 	return false;
@@ -2492,7 +2486,7 @@ void MyDialog::OnButPlay(wxCommandEvent& event)
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	char tmp[4096] = "";
-	strcpy(tmp, SSETTING("Program Path", "").c_str());
+	strcpy(tmp, SETTINGS.GetProgramPath().c_str());
 	strcat(tmp, "RoR");
 	execl(tmp, "", (char *) 0);
 #endif
@@ -2771,7 +2765,7 @@ void MyDialog::OnButRegenCache(wxCommandEvent& event)
 #endif
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	char tmp[4096] = "";
-	strcpy(tmp, SSETTING("Program Path", "").c_str());
+	strcpy(tmp, SETTINGS.GetProgramPath().c_str());
 	strcat(tmp, "RoR -checkcache");
 	execl(tmp, "", (char *) 0);
 #endif
