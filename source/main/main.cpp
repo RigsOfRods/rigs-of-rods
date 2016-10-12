@@ -141,9 +141,7 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        // Load main config file "RoR.cfg"
-        Ogre::String conf_filepath = App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg";
-        App::GetSettings().loadSettings(conf_filepath);
+        App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
 
         MainThread main_obj;
         main_obj.Go();

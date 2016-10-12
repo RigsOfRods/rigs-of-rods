@@ -133,7 +133,7 @@ public:
 	void setSetting(Ogre::String key, Ogre::String value);
 	void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 	
-	void loadSettings(Ogre::String configFile, bool overwrite=false);
+	void LoadSettings(std::string filepath);
 
     void SaveSettings();
 

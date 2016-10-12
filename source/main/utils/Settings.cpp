@@ -714,33 +714,34 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
 #undef P
 #undef S
 
-void Settings::loadSettings(String configFile, bool overwrite)
+void Settings::LoadSettings(std::string filepath)
 {
-	ConfigFile cfg;
-	cfg.load(configFile, "=:\t", false);
+    ConfigFile cfg;
+    try
+    {
+        cfg.load(filepath, "=:\t", false);
 
-	// load all settings into a map!
-	ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
-	String s_value, s_name;
-	while (i.hasMoreElements())
-	{
-		s_name  = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
-		s_value = RoR::Utils::SanitizeUtf8String(i.getNext());
-
-        // Purge unwanted entries
-        if (s_name == "Program Path") { continue; }
-
-        if (this->ParseGlobalVarSetting(s_name, s_value))
+        // load all settings into a map!
+        ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
+        String s_value, s_name;
+        while (i.hasMoreElements())
         {
-            continue;
-        }
+            s_name  = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
+            s_value = RoR::Utils::SanitizeUtf8String(i.getNext());
 
-		if (!overwrite && !settings[s_name].empty())
-		{
-			continue;
-		}
-		settings[s_name] = s_value;
-	}
+            // Purge unwanted entries
+            if (s_name == "Program Path") { continue; }
+
+            // Process and clear GVar values
+            if (this->ParseGlobalVarSetting(s_name, s_value))
+            {
+                continue;
+            }
+
+            settings[s_name] = s_value;
+        }
+    }
+    catch (Ogre::FileNotFoundException e) {} // Just continue with defaults...
 
 	// generate hash of the token
 	String usertoken = SSETTING("User Token", "");
