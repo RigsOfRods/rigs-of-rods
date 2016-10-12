@@ -57,16 +57,16 @@ static CacheSystem*     g_cache_system;
 static MainThread*      g_main_thread_logic;
 
 // App
-static State            g_app_state_active;      ///< Current state
-static State            g_app_state_pending;     ///< Requested state change
+static int              g_app_state_active;      ///< Current state
+static int              g_app_state_pending;     ///< Requested state change
 static std::string      g_app_language;          ///< Config: STR Language
 static std::string      g_app_locale;            ///< Config: STR Language Short
 static bool             g_app_multithread;       ///< Config: STR Multi-threading
 static std::string      g_app_screenshot_format; ///< Config: STR Screenshot Format
 
 // Simulation
-static SimState         g_sim_state_active;      ///< Current state
-static SimState         g_sim_state_pending;     ///< Requested state change
+static int              g_sim_state_active;      ///< Current state
+static int              g_sim_state_pending;     ///< Requested state change
 static std::string      g_sim_active_terrain;
 static std::string      g_sim_next_terrain;      ///< Config: STR  Preselected Map
 static bool             g_sim_replay_enabled;    ///< Config: BOOL Replay mode            
@@ -79,8 +79,8 @@ static bool             g_sim_next_veh_enter;    ///< Config: STR  Enter Presele
 static int              g_sim_gearbox_mode;      ///< Config: STR  GearboxMode
 
 // Multiplayer
-static MpState          g_mp_state_active;       ///< Current state
-static MpState          g_mp_state_pending;      ///< Requested state change
+static int              g_mp_state_active;       ///< Current state
+static int              g_mp_state_pending;      ///< Requested state change
 static std::string      g_mp_server_host;        // Replaces old SSETTING("Server name")     See 'Settings.h'
 static int              g_mp_server_port;        // Replaces old ISETTING("Server port")     See 'Settings.h'
 static std::string      g_mp_server_password;    // Replaces old SSETTING("Server password") See 'Settings.h'
@@ -161,25 +161,27 @@ const char* GfxFlaresModeToString (int v);
 const char* IoInputGrabModeToStr  (int v);
 const char* GfxWaterModeToString  (int v);
 const char* GfxSkyModeToString    (int v);
+const char* GfxShadowModeToStr    (int v);
+const char* GfxTexFilterToStr     (int v);
+const char* AppStateToStr         (int v);
+const char* SimStateToStr         (int v);
+const char* MpStateToStr          (int v);
 
 void SetVarStr      (std::string&     var, const char* var_name, STR_CREF        new_value);
 void SetVarInt      (int&             var, const char* var_name, int             new_value);
 void SetVarEnum     (int&             var, const char* var_name, int             new_value,   EnumToStringFn to_str_fn );
 void SetVarBool     (bool&            var, const char* var_name, bool            new_value);
 void SetVarFloat    (float&           var, const char* var_name, float           new_value);
-void SetVarAppState (App::State&      var, const char* var_name, App::State      new_value);
-void SetVarMpState  (App::MpState&    var, const char* var_name, App::MpState    new_value);
-void SetVarSimState (App::SimState&   var, const char* var_name, App::SimState   new_value);
 
 // Getters
-State           GetActiveAppState()     { return g_app_state_active;      }
-State           GetPendingAppState()    { return g_app_state_pending;     }
+State           GetActiveAppState()     { return (State)g_app_state_active;      }
+State           GetPendingAppState()    { return (State)g_app_state_pending;     }
 STR_CREF        GetSimActiveTerrain()   { return g_sim_active_terrain;    }
 STR_CREF        GetSimNextTerrain()     { return g_sim_next_terrain;      }
-SimState        GetActiveSimState()     { return g_sim_state_active;      }
-SimState        GetPendingSimState()    { return g_sim_state_pending;     }
-MpState         GetActiveMpState()      { return g_mp_state_active;       }
-MpState         GetPendingMpState()     { return g_mp_state_pending;      }
+SimState        GetActiveSimState()     { return (SimState)g_sim_state_active;   }
+SimState        GetPendingSimState()    { return (SimState)g_sim_state_pending;  }
+MpState         GetActiveMpState()      { return (MpState)g_mp_state_active;     }
+MpState         GetPendingMpState()     { return (MpState)g_mp_state_pending;    }
 STR_CREF        GetMpServerHost()       { return g_mp_server_host;        }
 STR_CREF        GetMpServerPassword()   { return g_mp_server_password;    }
 int             GetMpServerPort()       { return g_mp_server_port;        }
@@ -249,14 +251,14 @@ int             GetGfxFpsLimit          () { return g_gfx_fps_limit    ;        
 bool            GetDiagVideoCameras     () { return g_diag_videocameras;        }
 
 // Setters
-void SetActiveAppState    (State    v) { SetVarAppState(g_app_state_active     , "app_state_active"     , v); }
-void SetPendingAppState   (State    v) { SetVarAppState(g_app_state_pending    , "app_state_pending"    , v); }
+void SetActiveAppState    (State    v) { SetVarEnum    (g_app_state_active     , "app_state_active"     , (int)v, AppStateToStr); }
+void SetPendingAppState   (State    v) { SetVarEnum    (g_app_state_pending    , "app_state_pending"    , (int)v, AppStateToStr); }
 void SetSimActiveTerrain  (STR_CREF v) { SetVarStr     (g_sim_active_terrain   , "sim_active_terrain"   , v); }
 void SetSimNextTerrain    (STR_CREF v) { SetVarStr     (g_sim_next_terrain     , "sim_next_terrain"     , v); }
-void SetActiveSimState    (SimState v) { SetVarSimState(g_sim_state_active     , "sim_state_active"     , v); }
-void SetPendingSimState   (SimState v) { SetVarSimState(g_sim_state_pending    , "sim_state_pending"    , v); }
-void SetActiveMpState     (MpState  v) { SetVarMpState (g_mp_state_active      , "mp_state_active"      , v); }
-void SetPendingMpState    (MpState  v) { SetVarMpState (g_mp_state_pending     , "mp_state_pending"     , v); }
+void SetActiveSimState    (SimState v) { SetVarEnum    (g_sim_state_active     , "sim_state_active"     , (int)v, SimStateToStr); }
+void SetPendingSimState   (SimState v) { SetVarEnum    (g_sim_state_pending    , "sim_state_pending"    , (int)v, SimStateToStr); }
+void SetActiveMpState     (MpState  v) { SetVarEnum    (g_mp_state_active      , "mp_state_active"      , (int)v, MpStateToStr ); }
+void SetPendingMpState    (MpState  v) { SetVarEnum    (g_mp_state_pending     , "mp_state_pending"     , (int)v, MpStateToStr ); }
 void SetMpServerHost      (STR_CREF v) { SetVarStr     (g_mp_server_host       , "mp_server_host"       , v); }
 void SetMpServerPassword  (STR_CREF v) { SetVarStr     (g_mp_server_password   , "mp_server_password"   , v); }
 void SetMpServerPort      (int      v) { SetVarInt     (g_mp_server_port       , "mp_server_port"       , v); }
@@ -273,9 +275,9 @@ void SetIoFFbackCameraGain(float    v) { SetVarFloat   (g_io_ffback_camera_gain,
 void SetIoFFbackCenterGain(float    v) { SetVarFloat   (g_io_ffback_center_gain, "io_ffback_center_gain", v); }
 void SetIoFFbackMasterGain(float    v) { SetVarFloat   (g_io_ffback_master_gain, "io_ffback_master_gain", v); }
 void SetIoFFbackStressGain(float    v) { SetVarFloat   (g_io_ffback_stress_gain, "io_ffback_stress_gain", v); }
-void SetGfxShadowType     (GfxShadowType  v) { SetVarInt     (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v); }
+void SetGfxShadowType     (GfxShadowType  v) { SetVarEnum    (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v, GfxShadowModeToStr); }
 void SetGfxExternCamMode  (GfxExtCamMode  v) { SetVarInt     (g_gfx_extcam_mode      , "gfx_extcam_mode"      , (int)v); }
-void SetGfxTexFiltering   (GfxTexFilter   v) { SetVarInt     (g_gfx_texture_filter   , "gfx_texture_filter"   , (int)v); }
+void SetGfxTexFiltering   (GfxTexFilter   v) { SetVarEnum    (g_gfx_texture_filter   , "gfx_texture_filter"   , (int)v, GfxTexFilterToStr ); }
 void SetGfxVegetationMode (GfxVegetation  v) { SetVarInt     (g_gfx_vegetation_mode  , "gfx_vegetation_mode"  , (int)v); }
 void SetGfxEnableSunburn  (bool           v) { SetVarBool    (g_gfx_enable_sunburn   , "gfx_enable_sunburn"   , v); }
 void SetGfxWaterUseWaves  (bool           v) { SetVarBool    (g_gfx_water_waves      , "gfx_water_waves"      , v); }
@@ -525,9 +527,9 @@ void SetVarFloat(float& var, const char* var_name, float new_value)
     var = new_value;
 }
 
-const char* AppStateToStr(App::State s)
+const char* AppStateToStr(int v)
 {
-    switch (s)
+    switch ((State)v)
     {
     case App::APP_STATE_NONE:                return "NONE";
     case App::APP_STATE_BOOTSTRAP:           return "BOOTSTRAP";
@@ -541,9 +543,9 @@ const char* AppStateToStr(App::State s)
     }
 }
 
-const char* MpStateToStr(App::MpState s)
+const char* MpStateToStr(int v)
 {
-    switch (s)
+    switch ((MpState)v)
     {
     case App::MP_STATE_NONE:      return "NONE";
     case App::MP_STATE_DISABLED:  return "DISABLED";
@@ -552,9 +554,9 @@ const char* MpStateToStr(App::MpState s)
     }
 }
 
-const char* SimStateToStr(App::SimState s)
+const char* SimStateToStr(int v)
 {
-    switch (s)
+    switch ((SimState)v)
     {
     case App::SIM_STATE_NONE       : return "NONE";
     case App::SIM_STATE_RUNNING    : return "RUNNING";
@@ -627,22 +629,27 @@ const char* IoInputGrabModeToStr(int v)
     }
 }
 
-void SetVarAppState (App::State& var, const char* var_name, App::State new_value)
+const char* GfxShadowModeToStr(int v)
 {
-    LogVarUpdate(var_name, AppStateToStr(var), AppStateToStr(new_value));
-    var = new_value;
+    switch((GfxShadowType)v)
+    {
+    case GFX_SHADOW_TYPE_NONE   : return "NONE";
+    case GFX_SHADOW_TYPE_TEXTURE: return "TEXTURE";
+    case GFX_SHADOW_TYPE_PSSM   : return "PSSM";
+    default                     : return "~invalid~";
+    }
 }
 
-void SetVarMpState (App::MpState& var, const char* var_name, App::MpState new_value)
+const char* GfxTexFilterToStr(int v)
 {
-    LogVarUpdate(var_name, MpStateToStr(var), MpStateToStr(new_value));
-    var = new_value;
-}
-
-void SetVarSimState (App::SimState& var, const char* var_name, App::SimState new_value)
-{
-    LogVarUpdate(var_name, SimStateToStr(var), SimStateToStr(new_value));
-    var = new_value;
+    switch ((GfxTexFilter)v)
+    {
+    case GFX_TEXFILTER_NONE       : return "NONE";
+    case GFX_TEXFILTER_BILINEAR   : return "BILINEAR";
+    case GFX_TEXFILTER_TRILINEAR  : return "TRILINEAR";
+    case GFX_TEXFILTER_ANISOTROPIC: return "ANISOTROPIC";
+    default                       : return "~invalid~";
+    }
 }
 
 } // namespace Application
