@@ -78,9 +78,11 @@ static const char* OGRECFG_FSAA       = "FSAA";
 #define INIT_CHECKBOX_NOTICE(_VAR_) _VAR_->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnCheckboxRestartNotice);
 
 CLASS::CLASS():
-    m_is_initialized(false)
+    m_is_initialized(false),
+    m_is_keymap_loaded(false),
+    isFrameActivated(false),
+    ShowRestartNotice(false)
 {
-	ShowRestartNotice = false;
 
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
@@ -577,7 +579,7 @@ void CLASS::SaveSettings()
     else
         App::GetSettings().setSetting("SpeedUnit", "5");
 
-    if (isKeyMapLoaded)
+    if (m_is_keymap_loaded)
     {
         App::GetInputEngine()->saveMapping("input.map", RoR::App::GetOgreSubsystem()->GetMainHWND());
     }
@@ -659,8 +661,9 @@ void CLASS::OnTabChange(MyGUI::TabControl* _sender, size_t _index)
 	MyGUI::TabItemPtr tab = _sender->getItemAt(_index);
 	if (!tab) return;
 
-	if (_index == 6)
-		LoadKeyMap();
+    //## Disabled until keymapping is fixed
+	//if (_index == 6)
+	//	LoadKeyMap();
 }
 
 void CLASS::LoadKeyMap()
@@ -711,7 +714,7 @@ void CLASS::LoadKeyMap()
 			}
 		}
 	}
-	isKeyMapLoaded = true;
+	m_is_keymap_loaded = true;
 	m_keymapping->setIndexSelected(0);
 }
 
