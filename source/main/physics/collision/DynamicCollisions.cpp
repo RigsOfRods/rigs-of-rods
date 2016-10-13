@@ -228,8 +228,11 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
             intra_collcabrate[i].rate--;
             continue;
         }
-        intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
-        intra_collcabrate[i].distance = 0;
+        if (intra_collcabrate[i].distance > 0)
+        {
+            intra_collcabrate[i].rate = std::min(intra_collcabrate[i].distance, 12);
+            intra_collcabrate[i].distance = 0;
+        }
 
         int tmpv = collcabs[i]*3;
         const auto no = &nodes[cabs[tmpv]];
@@ -288,7 +291,7 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
 
         if (collision)
         {
-            intra_collcabrate[i].rate = 0;
+            intra_collcabrate[i].rate = -20000;
         } else
         {
             intra_collcabrate[i].rate++;
