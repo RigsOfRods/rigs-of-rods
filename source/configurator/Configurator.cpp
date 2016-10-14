@@ -22,7 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "ImprovedConfigFile.h"
 #include "OISKeyboard.h"
 #include "RoRVersion.h"
-#include "Settings.h"
+#include "conf_file.h"
 #include "rornet.h"
 #include "Utils.h" // RoR utils
 #include "wxValueChoice.h" // a control we wrote
@@ -767,8 +767,8 @@ bool MyApp::checkUserPath()
 
 bool MyApp::filesystemBootstrap()
 {
-	UserPath = conv(SSETTING("User Path", ""));
-	ProgramPath = conv(SSETTING("Program Path", ""));
+	UserPath    = conv(SETTINGS.GetUserPath());
+	ProgramPath = conv(SETTINGS.GetProgramPath());
 
 
 	checkUserPath();
@@ -1332,8 +1332,8 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	dText = new wxStaticText(graphicsPanel, -1, _("Screenshot Format:"), wxPoint(10, y));
 	screenShotFormat=new wxValueChoice(graphicsPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
-	screenShotFormat->AppendValueItem(wxT("jpg (smaller, default)"), _("jpg (smaller, default)"));
-	screenShotFormat->AppendValueItem(wxT("png (bigger, no quality loss)"), _("png (bigger, no quality loss)"));
+	screenShotFormat->AppendValueItem(wxT("jpg"), _("jpg (smaller, default)"));
+	screenShotFormat->AppendValueItem(wxT("png"), _("png (bigger, no quality loss)"));
 	screenShotFormat->SetToolTip(_("In what Format should screenshots be saved?"));
 
 
@@ -2159,7 +2159,7 @@ void MyDialog::getSettingsControls()
 #ifdef USE_OPENAL
 	settings["AudioDevice"] = sound->getSelectedValueAsSTDString();
 	settings["Creak Sound"] = (creaksound->GetValue()) ? "No" : "Yes";
-	settings["Sound Volume"] = TOSTRING(soundVolume->GetValue());
+	settings["Sound Volume"] = TOSTRING(soundVolume->GetValue() / 100.0f);
 #endif //USE_OPENAL
 
 	// save language, if one is set
@@ -2212,11 +2212,11 @@ void MyDialog::updateSettingsControls()
 
 #ifdef USE_OPENAL
 	st = settings["Sound Volume"];
-	long volume = 100;
+	double volume = 1.0f;
 	if (st.length()>0)
 	{
-		if(conv(st).ToLong(&volume))
-			soundVolume->SetValue(volume);
+		if(conv(st).ToDouble(&volume))
+			soundVolume->SetValue(volume * 100.0f);
 	}
 	st = settings["Creak Sound"]; if (st.length()>0) creaksound->SetValue(st=="No");
 	sound->setSelectedValue(settings["AudioDevice"]);
@@ -2332,16 +2332,10 @@ bool MyDialog::LoadConfig()
 		svalue = i.getNext();
 		Ogre::StringUtil::trim(svalue);
 		// filter out some things that shouldnt be in there (since we cannot use RoR normally anymore after those)
-		if(sname == Ogre::String("Benchmark") || sname == Ogre::String("streamCacheGenerationOnly")|| sname == Ogre::String("regen-cache-only"))
+		if(sname == Ogre::String("regen-cache-only"))
 			continue;
 		settings[sname] = svalue;
 	}
-
-
-	// enforce default settings
-	if(settings["Allow NVPerfHUD"] == "") settings["Allow NVPerfHUD"] = "No";
-	if(settings["Floating-point mode"] == "") settings["Floating-point mode"] = "Fastest";
-	if(settings["Colour Depth"] == "") settings["Colour Depth"] = "32";
 
 	// then update the controls!
 	updateSettingsControls();
@@ -2492,7 +2486,7 @@ void MyDialog::OnButPlay(wxCommandEvent& event)
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	char tmp[4096] = "";
-	strcpy(tmp, SSETTING("Program Path", "").c_str());
+	strcpy(tmp, SETTINGS.GetProgramPath().c_str());
 	strcat(tmp, "RoR");
 	execl(tmp, "", (char *) 0);
 #endif
@@ -2771,7 +2765,7 @@ void MyDialog::OnButRegenCache(wxCommandEvent& event)
 #endif
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	char tmp[4096] = "";
-	strcpy(tmp, SSETTING("Program Path", "").c_str());
+	strcpy(tmp, SETTINGS.GetProgramPath().c_str());
 	strcat(tmp, "RoR -checkcache");
 	execl(tmp, "", (char *) 0);
 #endif

@@ -28,6 +28,8 @@
 /*
 	Notice:
 	This GUI is a little bit different from the others, so don't take as example.
+
+    This GUI class is a set of small independent info boxes. The main widget is invisible and un-clickable.
 */
 #include "GUI_SimUtils.h"
 
@@ -78,49 +80,39 @@ CLASS::CLASS()
 	alpha = 1.0f;
 
 	m_notifications_disabled = false;
-
-	ShowMain(); //It's invisible and unclickable, so no worrys
 }
 
 CLASS::~CLASS()
 {
-	HideMain();
-	//delete(MAIN_WIDGET);
+	this->SetBaseVisible(false);
 }
 
-void CLASS::ShowMain()
+void CLASS::SetBaseVisible(bool v)
 {
-	//Kinda of initialization
-	MAIN_WIDGET->setVisible(true);
+	if (!v)
+    {
+        this->SetFPSBoxVisible(false);
+        this->SetTruckInfoBoxVisible(false);
+        this->HideNotificationBox();
+    }
+	MAIN_WIDGET->setVisible(v);
 }
 
-void CLASS::HideMain()
+bool CLASS::IsBaseVisible()
 {
-	MAIN_WIDGET->setVisible(false);
+    return MAIN_WIDGET->getVisible();
 }
 
-void CLASS::ToggleFPSBox()
+void CLASS::SetFPSBoxVisible(bool v)
 {
-	b_fpsbox = !b_fpsbox;
-	m_fpscounter_box->setVisible(b_fpsbox);
+	b_fpsbox = v;
+	m_fpscounter_box->setVisible(v);
 }
 
-void CLASS::HideFPSBox()
+void CLASS::SetTruckInfoBoxVisible(bool v)
 {
-	if (b_fpsbox)
-		ToggleFPSBox();
-}
-
-void CLASS::ToggleTruckInfoBox()
-{
-	b_truckinfo = !b_truckinfo;
-	m_truckinfo_box->setVisible(b_truckinfo);
-}
-
-void CLASS::HideTruckInfoBox()
-{
-	if (b_truckinfo)
-		ToggleTruckInfoBox();
+	b_truckinfo = v;
+	m_truckinfo_box->setVisible(v);
 }
 
 void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
@@ -134,7 +126,7 @@ void CLASS::PushNotification(Ogre::String Title, Ogre::String text)
 	pushTime = Ogre::Root::getSingleton().getTimer()->getMilliseconds();
 }
 
-void CLASS::HideNotification()
+void CLASS::HideNotificationBox()
 {
 	m_notification->setVisible(false);
 }
@@ -175,7 +167,7 @@ void CLASS::UpdateStats(float dt, Beam *truck)
 
 	if (b_fpsbox)
 	{
-		const Ogre::RenderTarget::FrameStats& stats = Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
+		const Ogre::RenderTarget::FrameStats& stats = App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
 		m_cur_fps->setCaptionWithReplacing(_L("Current FPS: ") + TOUTFSTRING(stats.lastFPS));
 		m_avg_fps->setCaptionWithReplacing(_L("Average FPS: ") + TOUTFSTRING(stats.avgFPS));
 		m_worst_fps->setCaptionWithReplacing(_L("Worst FPS: ") + TOUTFSTRING(stats.worstFPS));

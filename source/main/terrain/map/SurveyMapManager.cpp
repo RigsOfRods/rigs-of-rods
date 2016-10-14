@@ -152,8 +152,8 @@ void SurveyMapManager::updateMapEntityPositions()
 
 void SurveyMapManager::updateRenderMetrics()
 {
-	if (RoR::Application::GetOgreSubsystem()->GetRenderWindow())
-		RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
+	if (RoR::App::GetOgreSubsystem()->GetRenderWindow())
+		RoR::App::GetOgreSubsystem()->GetRenderWindow()->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
 }
 
 void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/, bool permanent /*= true*/)
@@ -276,12 +276,12 @@ void SurveyMapManager::update(Ogre::Real dt)
 		mVelocity = curr_truck->nodes[0].Velocity.length();
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
 	{
 		toggleMapView();
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
 	{
 		mMapEntitiesVisible = !mMapEntitiesVisible;
 	}
@@ -291,15 +291,15 @@ void SurveyMapManager::update(Ogre::Real dt)
 	switch (mMapMode)
 	{
 	case SURVEY_MAP_SMALL:
-		if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+		if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
 		{
 			toggleMapAlpha();
 		}
-		if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
+		if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
 		{
 			setMapZoomRelative(1.0f);
 		}
-		if (RoR::Application::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
+		if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
 		{
 			setMapZoomRelative(-1.0f);
 		}
@@ -349,7 +349,7 @@ void SurveyMapManager::update(Ogre::Real dt)
 				setAlpha(mAlpha);
 			}
 
-			if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+			if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
 			{
 				toggleMapAlpha();
 			}

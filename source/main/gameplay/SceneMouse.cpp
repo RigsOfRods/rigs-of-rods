@@ -91,7 +91,7 @@ SceneMouse::~SceneMouse()
 
 void SceneMouse::releaseMousePick()
 {
-	if (Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+	if (App::GetActiveSimState() == App::SIM_STATE_PAUSED) { return; } // Do nothing when paused
 
 	// hide mouse line
 	if (pickLineNode)
@@ -199,7 +199,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
 void SceneMouse::update(float dt)
 {
-	if (Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+    if (App::GetActiveSimState() == App::SIM_STATE_PAUSED) { return; } // Do nothing when paused
 
 	if (mouseGrabState == 1 && grab_truck)
 	{
@@ -220,7 +220,7 @@ void SceneMouse::update(float dt)
 
 bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+    if (App::GetActiveSimState() == App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
 
 	const OIS::MouseState ms = _arg.state;
 
@@ -274,7 +274,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
 bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-	if (Application::GetGuiManager()->GetPauseMenuVisible()) return true; //Stop everything when pause menu is visible
+	if (App::GetActiveSimState() == App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
 
 	if (mouseGrabState == 1)
 	{

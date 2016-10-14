@@ -45,13 +45,14 @@ public:
 
 	void Show();
 	void Hide();
+    void SetVisible(bool v);
+    bool IsVisible();
 
 private:
 	void eventMouseButtonClickBackButton(MyGUI::WidgetPtr _sender);
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void initMisc();
 	void CenterToScreen();
-	bool IsVisible();
 };
 
 } // namespace GUI

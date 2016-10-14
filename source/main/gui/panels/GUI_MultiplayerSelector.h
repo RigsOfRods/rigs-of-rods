@@ -45,14 +45,17 @@ public:
 
 	void Show();
 	void Hide();
+    void SetVisibleImmediately(bool visible);
+    inline void SetVisible(bool v) { SetVisibleImmediately(v); }
+    bool IsVisible();
 
 private:
 	void eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender);
-	void eventMouseButtonClickConfigButton(MyGUI::WidgetPtr _sender);
+    void eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender);
 
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void CenterToScreen();
-	bool IsVisible();
+	
 	void init();
 };
 

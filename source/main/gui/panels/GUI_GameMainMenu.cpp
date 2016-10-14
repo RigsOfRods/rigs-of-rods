@@ -29,6 +29,7 @@
 
 #include "Application.h"
 #include "GUIManager.h"
+#include "GUI_MainSelector.h"
 #include "MainThread.h"
 
 #include <MyGUI.h>
@@ -61,13 +62,11 @@ CLASS::CLASS()
 	win->setCaption(_L("Main Menu"));
 	win->setMovable(false);
 
-	if (!BSETTING("DevMode", false))
-	{
-		m_multi_player->setEnabled(false);
-		m_rig_editor->setEnabled(false);
-	}
+#ifndef USE_SOCKETW
+    m_multi_player->setEnabled(false);
+#endif
 
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()
@@ -96,36 +95,38 @@ void CLASS::Hide()
 
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+    this->Hide();
+    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowSettingGui(true);
+	App::GetGuiManager()->SetVisible_GameSettings(true);
 	Hide();
 }
 
 void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowAboutGUI(true);
+	App::GetGuiManager()->SetVisible_GameAbout(true);
 	Hide();
 }
 
 void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-	Application::GetMainThreadLogic()->RequestShutdown();
+	App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
 }
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 {
-	Application::GetGuiManager()->ShowMultiPlayerSelector(true);
+	App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
 	Hide();
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
 }
+
+void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }
+bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }
 

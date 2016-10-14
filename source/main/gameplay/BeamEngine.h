@@ -1,26 +1,27 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal & contributors
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#pragma once
-#ifndef __BeamEngine_H_
-#define __BeamEngine_H_
 
+#pragma once
+
+#include "Application.h"
 #include "RoRPrerequisites.h"
 
 /**
@@ -44,7 +45,7 @@ public:
 	float getSmoke();
 	float getTorque();
 	float getTurboPSI();
-	int getAutoMode();
+	RoR::App::SimGearboxMode getAutoMode();
 
 	/**
 	* Sets current engine state; Needed mainly for smoke.
@@ -59,7 +60,7 @@ public:
 	void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
 
 	void setAcc(float val);
-	void setAutoMode(int mode);
+	void setAutoMode(RoR::App::SimGearboxMode mode);
 	void setClutch(float clutch);
 
 	/**
@@ -180,11 +181,12 @@ public:
 	*/
 	void updateAudio(int doUpdate);
 
-	enum shiftmodes {AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES};
 	enum autoswitch {REAR, NEUTRAL, DRIVE, TWO, ONE, MANUALMODE};
 	enum turbomode {OLD, NEW};
 
 protected:
+
+	enum shiftmodes {AUTOMATIC, SEMIAUTO, MANUAL, MANUAL_STICK, MANUAL_RANGES};
 
 	// gear stuff
 	float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
@@ -277,11 +279,10 @@ protected:
 	// air pressure
 	TorqueCurve *torqueCurve;
 	float apressure;
+
 	int automode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
 
 	int trucknum;
 
 	bool is_Electric;
 };
-
-#endif // __BeamEngine_H_

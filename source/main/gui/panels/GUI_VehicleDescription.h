@@ -43,17 +43,14 @@ public:
 	VehicleDescription();
 	~VehicleDescription();
 
-	void Show();
-	void Hide();
-
-	bool getVisible();
+	bool IsVisible();
+    void SetVisible(bool v);
 
 private:
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void CenterToScreen();
 	void LoadText();
 
-	Beam* currTruck;
 	static const unsigned int COMMANDS_VISIBLE = 50;
 };
 

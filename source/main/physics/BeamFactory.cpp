@@ -30,6 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Collisions.h"
 #include "DynamicCollisions.h"
 #include "GUIManager.h"
+#include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "MainThread.h"
 #include "Mirrors.h"
@@ -53,7 +54,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #endif // __APPLE__ || __FREEBSD__
 
 #ifdef USE_MYGUI
-#include "GUIMenu.h"
 #include "DashBoardManager.h"
 #endif // USE_MYGUI
 
@@ -148,7 +148,7 @@ BeamFactory::BeamFactory() :
 	for (int t=0; t < MAX_TRUCKS; t++)
 		m_trucks[t] = 0;
 
-	if (BSETTING("Multi-threading", true))
+	if (RoR::App::GetAppMultithread())
 	{
 		// Create thread pool
 		int numThreadsInPool = ISETTING("NumThreadsInThreadPool", 0);
@@ -183,6 +183,7 @@ BeamFactory::BeamFactory() :
 BeamFactory::~BeamFactory()
 {
 	delete gEnv->threadPool;
+    m_particle_manager.Shutdown();
 }
 
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
@@ -219,7 +220,7 @@ Beam *BeamFactory::CreateLocalRigInstance(
 		fname.c_str(),
         &rig_loading_profiler,
 		false, // networked
-		gEnv->multiplayer, // networking
+		(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED), // networking
 		spawnbox,
 		ismachine,
 		truckconfig,
@@ -245,19 +246,20 @@ Beam *BeamFactory::CreateLocalRigInstance(
 	}
 
 #ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+	RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	// add own username to truck
-	if (gEnv->multiplayer)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		b->updateNetworkInfo();
 	}
     LOADRIG_PROFILER_CHECKPOINT(ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS);
 
     LOG(rig_loading_profiler.Report());
+
 #ifdef ROR_PROFILE_RIG_LOADING
-    std::string out_path = SSETTING("Profiler output dir", "") + ROR_PROFILE_RIG_LOADING_OUTFILE;
+    std::string out_path = RoR::App::GetSysUserDir() + PATH_SLASH + "profiler" + PATH_SLASH + ROR_PROFILE_RIG_LOADING_OUTFILE;
     ::Profiler::DumpHtml(out_path.c_str());
 #endif
 	return b;
@@ -275,14 +277,14 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 
 	UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->pushMessageChatBox(message);
+	RoR::App::GetGuiManager()->pushMessageChatBox(message);
 #endif // USE_MYGUI
 #endif // USE_SOCKETW
 
 	// check if we got this truck installed
 	String filename = String(reg->name);
 	String group = "";
-	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(filename, group))
+	if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename, group))
 	{
 		LOG("wont add remote stream (truck not existing): '"+filename+"'");
 		return -1;
@@ -315,7 +317,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 		reg->name,
         &p,
 		true, // networked
-		gEnv->multiplayer, // networking
+		(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED), // networking
 		nullptr, // spawnbox
 		false, // ismachine
 		&truckconfig,
@@ -334,7 +336,7 @@ int BeamFactory::CreateRemoteInstance(stream_register_trucks_t *reg)
 	b->updateNetworkInfo();
 
 #ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+	RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 
 	return 1;
@@ -751,7 +753,7 @@ void BeamFactory::DeleteTruck(Beam *b)
 	delete b;
 
 #ifdef USE_MYGUI
-	GUI_MainMenu::getSingleton().triggerUpdateVehicleList();
+	RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 #endif // USE_MYGUI
 }
 

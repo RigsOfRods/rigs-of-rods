@@ -36,9 +36,10 @@ namespace RoR
 
 class ContentManager : public Ogre::ResourceLoadingListener, public ZeroedMemoryAllocator
 {
-	friend class RoR::Application; // Manages lifecycle of this class
-
 public:
+
+    ContentManager();
+    ~ContentManager();
 
 	struct ResourcePack
 	{
@@ -95,9 +96,6 @@ public:
 	void InitManagedMaterials();
 
 protected:
-
-	ContentManager();
-	~ContentManager();
 
 	void exploreFolders(Ogre::String rg);
 	void exploreZipFolders(Ogre::String rg);

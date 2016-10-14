@@ -2,7 +2,7 @@
 	This source file is part of Rigs of Rods
 	Copyright 2005-2012 Pierre-Michel Ricordel
 	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+	Copyright 2013-2016 Petr Ohlidal & contributors
 
 	For more information, see http://www.rigsofrods.org/
 
@@ -19,8 +19,8 @@
 	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-	@file   
+/**
+	@file
 	@author Moncef Ben Slimane
 	@date   11/2014
 */
@@ -38,6 +38,7 @@
 #include "Character.h"
 #include "CameraManager.h"
 #include "BeamFactory.h"
+#include "OgreSubsystem.h"
 
 #include <MyGUI.h>
 
@@ -65,6 +66,9 @@ CLASS::CLASS()
 	m_back_to_menu->setCaption(_L("Back to menu"));
 	m_rig_editor->setCaption(_L("Rig Editor"));
 	m_quit_game->setCaption(_L("Quit to Desktop"));
+
+    MAIN_WIDGET->setVisible(false);
+    m_rig_editor->setEnabled(false);
 }
 
 CLASS::~CLASS()
@@ -86,21 +90,22 @@ void CLASS::Show()
 {
 	MAIN_WIDGET->setVisibleSmooth(true);
 
-	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+	if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
 	{
 		gEnv->player->setPhysicsEnabled(false);
 	}
 
-	gEnv->frameListener->setSimPaused(true);
 	BeamFactory::getSingleton().MuteAllTrucks();
+	App::SetPendingSimState(App::SIM_STATE_PAUSED);
 
-	m_rig_editor->setEnabled(false);
+	const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
+	m_change_map->setEnabled(!online);
 
-	if (gEnv->multiplayer)
-	{
-		m_back_to_menu->setEnabled(false);
-		m_change_map->setEnabled(false);
-	}
+    // Adjust screen position
+    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    int margin = (viewport->getActualHeight() / 15);
+    int top = viewport->getActualHeight() - this->GetHeight() - margin;
+    this->SetPosition(margin, top);
 }
 
 void CLASS::Hide()
@@ -112,12 +117,12 @@ void CLASS::Hide()
 	//MAIN_WIDGET->setVisibleSmooth(false);
 	MAIN_WIDGET->setVisible(false);
 
-	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+	if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
 	{
 		gEnv->player->setPhysicsEnabled(true);
 	}
 
-	gEnv->frameListener->setSimPaused(false);
+	App::SetActiveSimState(App::SIM_STATE_RUNNING); // TODO: Use the 'pending' mechanism
 	BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 
@@ -128,15 +133,14 @@ void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
 {
-	//TODO: FIXME
 	Hide();
-	Application::GetMainThreadLogic()->ChangeMap();
+	RoR::App::SetPendingAppState(RoR::App::APP_STATE_CHANGE_MAP);
 }
 
 void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 {
 	Hide();
-	Application::GetMainThreadLogic()->BackToMenu();
+	App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
@@ -145,7 +149,9 @@ void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
 {
-	Hide();
-	Application::GetMainThreadLogic()->RequestShutdown();
-	Application::GetMainThreadLogic()->RequestExitCurrentLoop();
+    Hide();
+    RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
 }
+
+void CLASS::SetVisible(bool v) { if (v) { this->Show(); } else { this->Hide(); } }
+bool CLASS::IsVisible()        { return MAIN_WIDGET->getVisible(); }

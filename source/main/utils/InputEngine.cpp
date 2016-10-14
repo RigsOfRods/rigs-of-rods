@@ -37,7 +37,7 @@
 #include <OgreException.h>
 
 #ifndef NOOGRE
-#include "Console.h"
+
 #include "GUIManager.h"
 #include "Language.h"
 #else
@@ -908,16 +908,10 @@ eventInfo_t eventInfo[] = {
 		_L("reset the simulation pace")
 	},
 	{
-		"COMMON_CONSOLEDISPLAY",
-		EV_COMMON_CONSOLEDISPLAY,
+		"COMMON_CONSOLE_TOGGLE",
+		EV_COMMON_CONSOLE_TOGGLE,
 		"Keyboard EXPL+GRAVE",
 		_L("show / hide the console")
-	},
-	{
-		"COMMON_CONSOLEMODE",
-		EV_COMMON_CONSOLEMODE,
-		"Keyboard EXPL+CTRL+GRAVE",
-		_L("toggle appearance of console")
 	},
 	{
 		"COMMON_ENTER_CHATMODE",
@@ -1810,7 +1804,7 @@ eventInfo_t eventInfo[] = {
 #endif
 
 #ifndef NOOGRE
-#include "Console.h"
+
 #endif
 
 using namespace std;
@@ -1877,9 +1871,8 @@ void InputEngine::destroy()
 }
 
 
-bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabMode, bool captureKbd)
+bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captureKbd)
 {
-	grabMode = _grabMode;
 	
 #ifndef NOOGRE
 	LOG("*** Initializing OIS ***");
@@ -1902,9 +1895,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 #endif // LINUX
 		
 		pl.insert(OIS::ParamList::value_type("WINDOW", hwnd));
-		if (grabMode == GRAB_ALL)
-		{
-		} else if (grabMode == GRAB_DYNAMICALLY || grabMode == GRAB_NONE)
+		if (RoR::App::GetIoInputGrabMode() != RoR::App::INPUT_GRAB_ALL)
 		{
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 			pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "false"));
@@ -2024,11 +2015,11 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, int _grabM
 		// set the mouse to the middle of the screen, hackish!
 #if _WIN32
 		// under linux, this will not work and the cursor will never reach (0,0)
-		if (mMouse && RoR::Application::GetOgreSubsystem()->GetRenderWindow())
+		if (mMouse && RoR::App::GetOgreSubsystem()->GetRenderWindow())
 		{
 			OIS::MouseState &mutableMouseState = const_cast<OIS::MouseState &>(mMouse->getMouseState());
-			mutableMouseState.X.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getWidth()  * 0.5f;
-			mutableMouseState.Y.abs = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
+			mutableMouseState.X.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth()  * 0.5f;
+			mutableMouseState.Y.abs = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight() * 0.5f;
 		}
 #endif // _WIN32
 	}
@@ -2189,7 +2180,7 @@ void InputEngine::windowResized(Ogre::RenderWindow* rw)
 	ms.width = width;
 	ms.height = height;
 #ifdef USE_MYGUI
-	RoR::Application::GetGuiManager()->windowResized(rw);
+	RoR::App::GetGuiManager()->windowResized(rw);
 #endif //MYGUI
 }
 
@@ -2277,7 +2268,7 @@ bool InputEngine::povMoved( const OIS::JoyStickEvent &arg, int )
 bool InputEngine::keyPressed( const OIS::KeyEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (RoR::Application::GetGuiManager()->keyPressed(arg))
+	if (RoR::App::GetGuiManager()->keyPressed(arg))
 		return true;
 #endif //MYGUI
 
@@ -2292,7 +2283,7 @@ bool InputEngine::keyPressed( const OIS::KeyEvent &arg )
 bool InputEngine::keyReleased( const OIS::KeyEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (RoR::Application::GetGuiManager()->keyReleased(arg))
+	if (RoR::App::GetGuiManager()->keyReleased(arg))
 		return true;
 #endif //MYGUI
 	//LOG("*** keyReleased");
@@ -2306,7 +2297,7 @@ bool InputEngine::keyReleased( const OIS::KeyEvent &arg )
 bool InputEngine::mouseMoved( const OIS::MouseEvent &arg )
 {
 #ifdef USE_MYGUI
-	if (RoR::Application::GetGuiManager()->mouseMoved(arg))
+	if (RoR::App::GetGuiManager()->mouseMoved(arg))
 		return true;
 #endif //MYGUI
 	//LOG("*** mouseMoved");
@@ -2318,7 +2309,7 @@ bool InputEngine::mouseMoved( const OIS::MouseEvent &arg )
 bool InputEngine::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 #ifdef USE_MYGUI
-	if (RoR::Application::GetGuiManager()->mousePressed(arg, id))
+	if (RoR::App::GetGuiManager()->mousePressed(arg, id))
 		return true;
 #endif //MYGUI
 	//LOG("*** mousePressed");
@@ -2330,7 +2321,7 @@ bool InputEngine::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID i
 bool InputEngine::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
 #ifdef USE_MYGUI
-	if (RoR::Application::GetGuiManager()->mouseReleased(arg, id))
+	if (RoR::App::GetGuiManager()->mouseReleased(arg, id))
 		return true;
 #endif //MYGUI
 	//LOG("*** mouseReleased");
@@ -3755,22 +3746,11 @@ void InputEngine::initAllKeys()
 
 void InputEngine::setupDefault(Ogre::String inputhwnd /* = "" */)
 {
-	// setup input
-	int inputGrabMode=GRAB_ALL;
-	String inputGrabSetting = SSETTING("Input Grab", "All");
-
-	if     (inputGrabSetting == "All")
-		inputGrabMode = GRAB_ALL;
-	else if (inputGrabSetting == "Dynamically")
-		inputGrabMode = GRAB_DYNAMICALLY;
-	else if (inputGrabSetting == "None")
-		inputGrabMode = GRAB_NONE;
-
 	// start input engine
 	size_t hWnd = 0;
-	RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
+	RoR::App::GetOgreSubsystem()->GetRenderWindow()->getCustomAttribute("WINDOW", &hWnd);
 
-	this->setup(TOSTRING(hWnd), true, true, inputGrabMode);
+	this->setup(TOSTRING(hWnd), true, true);
 
 }
 

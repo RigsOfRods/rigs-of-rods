@@ -19,11 +19,13 @@
 	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 #include "MainThread.h"
 #include "Language.h"
 #include "ErrorUtils.h"
 #include "Utils.h"
+#include "PlatformUtils.h"
 #include "Settings.h"
 #include "rornet.h"
 #include "RoRVersion.h"
@@ -31,76 +33,6 @@
 #include <OgreException.h>
 
 using namespace Ogre;
-
-// simpleopt by http://code.jellycan.com/simpleopt/
-// license: MIT
-#include "SimpleOpt.h"
-
-// option identifiers
-enum {
-	OPT_HELP,
-	OPT_MAP,
-	OPT_TRUCK,
-	OPT_SETUP,
-	OPT_CMD,
-	OPT_WDIR,
-	OPT_ETM,
-	OPT_CONFIG,
-	OPT_VER,
-	OPT_CHECKCACHE,
-	OPT_TRUCKCONFIG,
-	OPT_ENTERTRUCK,
-	OPT_BENCH,
-	OPT_STREAMCACHEGEN,
-	OPT_BENCHNUM,
-	OPT_USERPATH,
-	OPT_BENCHPOS,
-	OPT_BENCHPOSERR,
-	OPT_NOCRASHCRPT,
-	OPT_STATE,
-	OPT_INCLUDEPATH,
-	OPT_LOGPATH,
-	OPT_ADVLOG,
-	OPT_REPOMODE,
-	OPT_VEHICLEOUT,
-	OPT_NOCACHE,
-	OPT_IMGPATH,
-	OPT_JOINMPSERVER
-};
-
-// option array
-CSimpleOpt::SOption cmdline_options[] = {
-	{ OPT_MAP,            ("-map"),         SO_REQ_SEP },
-	{ OPT_MAP,            ("-terrain"),     SO_REQ_SEP },
-	{ OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
-	{ OPT_ENTERTRUCK,     ("-enter"),       SO_NONE },
-	{ OPT_CMD,            ("-cmd"),         SO_REQ_SEP },
-	{ OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
-	{ OPT_SETUP,          ("-setup"),       SO_NONE    },
-	{ OPT_CONFIG,         ("-config"),      SO_NONE    },
-	{ OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP    },
-	{ OPT_HELP,           ("--help"),       SO_NONE    },
-	{ OPT_HELP,           ("-help"),        SO_NONE    },
-	{ OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
-	{ OPT_VER,            ("-version"),     SO_NONE    },
-	{ OPT_USERPATH,       ("-userpath"),   SO_REQ_SEP    },
-	{ OPT_BENCH,          ("-benchmark"),   SO_REQ_SEP    },
-	{ OPT_BENCHPOS,       ("-benchmark-final-position"),   SO_REQ_SEP    },
-	{ OPT_BENCHPOSERR,    ("-benchmark-final-position-error"),   SO_REQ_SEP    },
-	{ OPT_BENCHNUM,       ("-benchmarktrucks"),       SO_REQ_SEP },
-	{ OPT_BENCHNUM,       ("-benchmark-trucks"),       SO_REQ_SEP },
-	{ OPT_STREAMCACHEGEN, ("-streamcachegen"),   SO_NONE    },
-	{ OPT_ADVLOG,         ("-advlog"),   SO_NONE    },
-	{ OPT_STATE,          ("-state"),     SO_REQ_SEP    },
-	{ OPT_INCLUDEPATH,    ("-includepath"),     SO_REQ_SEP    },
-	{ OPT_LOGPATH,        ("-logpath"),       SO_REQ_SEP },
-	{ OPT_NOCACHE,        ("-nocache"),       SO_NONE },
-	{ OPT_VEHICLEOUT,     ("-vehicleout"),       SO_REQ_SEP },
-	{ OPT_IMGPATH,        ("-imgpath"),       SO_REQ_SEP },
-	{ OPT_JOINMPSERVER,	  ("-joinserver"),		SO_REQ_CMB },
-	
-SO_END_OF_OPTIONS
-};
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -112,6 +44,9 @@ SO_END_OF_OPTIONS
 #include "windows.h"
 #include "ShellAPI.h"
 #endif //OGRE_PLATFORM_WIN32
+
+// Global instance of GlobalEnvironment used throughout the game.
+GlobalEnvironment *gEnv; 
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,122 +67,95 @@ void showVersion()
 
 int main(int argc, char *argv[])
 {
+    using namespace RoR;
+
+    try
+    {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	//start working dir is highly unpredictable in MacOSX (typically you start in "/"!)
-	//oh, thats quite hacked - thomas
-	char str[256];
-	strcpy(str, argv[0]);
-	char *pt=str+strlen(str);
-	while (*pt!='/') pt--;
-	*pt=0;
-	chdir(str);
-	chdir("../../..");
-	getwd(str);
-	printf("GETWD=%s\n", str);
+        //start working dir is highly unpredictable in MacOSX (typically you start in "/"!)
+        //oh, thats quite hacked - thomas
+        // TODO: Is this even required anymore? ~only_a_ptr, 09/2016
+        char str[256];
+        strcpy(str, argv[0]);
+        char *pt=str+strlen(str);
+        while (*pt!='/') pt--;
+        *pt=0;
+        chdir(str);
+        chdir("../../..");
+        getwd(str);
+        printf("GETWD=%s\n", str);
 #endif
 
-	RoR::MainThread main_thread_object;
+        gEnv = new GlobalEnvironment(); // Instantiate global environment. TODO: Eliminate gEnv
+        App::Init();
+        
+    // ----------------------------------
+    // Detect system paths
+    
+    int res = RoR::System::DetectBasePaths(); // Updates globals
+    if (res == -1)
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program space path"));
+        return -1;
+    }
+    else if (res == -2)
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user space path"));
+        return -1;
+    }
 
-//MacOSX adds an extra argument in the for of -psn_0_XXXXXX when the app is double clicked
-#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE
-	CSimpleOpt args(argc, argv, cmdline_options);
-	while (args.Next()) {
-		if (args.LastError() == SO_SUCCESS) {
-			if (args.OptionId() == OPT_HELP) {
-				showUsage();
-				return 0;
-			} else if (args.OptionId() == OPT_TRUCK) {
-				SETTINGS.setSetting("Preselected Truck", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_TRUCKCONFIG) {
-				SETTINGS.setSetting("Preselected TruckConfig", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_MAP) {
-				SETTINGS.setSetting("Preselected Map", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_CMD) {
-				SETTINGS.setSetting("cmdline CMD", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCH) {
-				SETTINGS.setSetting("Benchmark", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHNUM) {
-				SETTINGS.setSetting("BenchmarkTrucks", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHPOS) {
-				SETTINGS.setSetting("BenchmarkFinalPosition", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_BENCHPOSERR) {
-				SETTINGS.setSetting("BenchmarkFinalPositionError", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_NOCRASHCRPT) {
-				SETTINGS.setSetting("NoCrashRpt", "Yes");
-			} else if (args.OptionId() == OPT_USERPATH) {
-				SETTINGS.setSetting("userpath", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_CONFIG) {
-				SETTINGS.setSetting("configfile", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_IMGPATH) {
-				SETTINGS.setSetting("OPT_IMGPATH", String(args.OptionArg()));
-			} else if (args.OptionId() == OPT_WDIR) {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-				SetCurrentDirectory(args.OptionArg());
-#endif
-			} else if (args.OptionId() == OPT_STATE) {
-				SETTINGS.setSetting("StartState", args.OptionArg());
-			} else if (args.OptionId() == OPT_NOCACHE) {
-				SETTINGS.setSetting("NOCACHE", "Yes");
-			} else if (args.OptionId() == OPT_LOGPATH) {
-				SETTINGS.setSetting("Enforce Log Path", args.OptionArg());
-			} else if (args.OptionId() == OPT_ADVLOG) {
-				SETTINGS.setSetting("Advanced Logging", "Yes");
-			} else if (args.OptionId() == OPT_INCLUDEPATH) {
-				SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
-			} else if (args.OptionId() == OPT_STREAMCACHEGEN) {
-				SETTINGS.setSetting("streamCacheGenerationOnly", "Yes");
-			} else if (args.OptionId() == OPT_CHECKCACHE) {
-				// just regen cache and exit
-				SETTINGS.setSetting("regen-cache-only", "Yes");
-			} else if (args.OptionId() == OPT_ENTERTRUCK) {
-				SETTINGS.setSetting("Enter Preselected Truck", "Yes");
-			} else if (args.OptionId() == OPT_SETUP) {
-				SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-			} else if (args.OptionId() == OPT_VEHICLEOUT) {
-				SETTINGS.setSetting("vehicleOutputFile", args.OptionArg());
-			} else if (args.OptionId() == OPT_JOINMPSERVER) {
-				SETTINGS.setSetting("Network enable", "Yes");
+    // --------------------------------
+    // Create OGRE default logger early.
 
-				String server_args = args.OptionArg();
-				const int colon = server_args.rfind(":");
+    App::SetSysLogsDir(App::GetSysUserDir() + PATH_SLASH + "logs");
+    
+    auto ogre_log_manager = OGRE_NEW LogManager();
+    Ogre::String log_filepath = App::GetSysLogsDir() + PATH_SLASH + "RoR.log";
+    ogre_log_manager->createLog(log_filepath, true, true);
+    App::SetDiagTraceGlobals(true); // We have logger -> we can trace.
+    
+    // --------------------------------
+    // Setup program paths
 
-				// Windows URI Scheme retuns rorserver://server:port/
-				if (server_args.find("rorserver://") != String::npos)
-				{
-					SETTINGS.setSetting("Server name", server_args.substr(12, colon - 12));
-					SETTINGS.setSetting("Server port", server_args.substr(colon + 1, server_args.length() - colon - 2));
-				} else
-				{
-					SETTINGS.setSetting("Server name", server_args.substr(0, colon));
-					SETTINGS.setSetting("Server port", server_args.substr(colon + 1, server_args.length()));
-				}
-			} else if (args.OptionId() == OPT_VER) {
-				showVersion();
-				return 0;
-			}
-		} 
-		else 
-		{
-			showUsage();
-			return 1;
-		}
-	}
+    if (! Settings::SetupAllPaths()) // Updates globals
+    {
+        ErrorUtils::ShowError(_L("Startup error"), _L("Resources folder not found. Check if correctly installed."));
+        return -1;
+    }
+
+    // -------------------------------
+    // Process command-line arguments
+    
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
+        RoR::App::GetSettings().ProcessCommandLine(argc, argv);
 #endif
 
-	try 
-	{
-		main_thread_object.Go();
-	} 
-	catch (Ogre::Exception& e)
-	{
-		ErrorUtils::ShowError(_L("An exception has occured!"), e.getFullDescription());
-	}
-	catch (std::runtime_error& e)
-	{
-		ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
-	}
+        if (App::GetPendingAppState() == App::APP_STATE_PRINT_HELP_EXIT)
+        {
+            showUsage();
+            return 0;
+        }
+        else if (App::GetPendingAppState() == App::APP_STATE_PRINT_VERSION_EXIT)
+        {
+            showVersion();
+            return 0;
+        }
 
-	return 0;
+        App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
+
+        MainThread main_obj;
+        main_obj.Go();
+    }
+    catch (Ogre::Exception& e)
+    {
+        ErrorUtils::ShowError(_L("An exception has occured!"), e.getFullDescription());
+    }
+    catch (std::runtime_error& e)
+    {
+        ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
+    }
+
+    return 0;
 }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32

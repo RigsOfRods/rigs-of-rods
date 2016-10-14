@@ -38,9 +38,11 @@ namespace RoR
 
 class SceneMouse : public ZeroedMemoryAllocator
 {
-	friend class Application; // Manages lifecycle of this class
 
 public:
+
+    SceneMouse();
+    ~SceneMouse();
 
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
@@ -53,9 +55,6 @@ public:
 	bool isMouseGrabbed() { return mouseGrabState != 0; };
 
 protected:
-
-	SceneMouse();
-	~SceneMouse();
 
 	Ogre::ManualObject *pickLine;
 	Ogre::SceneNode *pickLineNode;

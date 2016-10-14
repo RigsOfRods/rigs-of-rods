@@ -19,8 +19,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TerrainGeometryManager.h"
 
+#include "Application.h"
 #include "Language.h"
-#include "LoadingWindow.h"
+#include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
 #include "TerrainManager.h"
 #include "ShadowManager.h"
 #include "OgreTerrainPSSMMaterialGenerator.h"
@@ -279,13 +281,15 @@ void TerrainGeometryManager::initTerrain()
 
 	configureTerrainDefaults();
 
+    auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
+
 	for (long x = pageMinX; x <= pageMaxX; ++x)
 	{
 		for (long z = pageMinZ; z <= pageMaxZ; ++z)
 		{
-			LoadingWindow::getSingleton().setProgress(23, _L("preparing terrain page ") + XZSTR(x,z));
+			loading_win->setProgress(23, _L("preparing terrain page ") + XZSTR(x,z));
 			defineTerrain(x, z, m_is_flat);
-			LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page ") + XZSTR(x,z));
+			loading_win->setProgress(23, _L("loading terrain page ") + XZSTR(x,z));
 
 			/*
 			Terrain *terrain = mTerrainGroup->getTerrain(x, z);
@@ -296,7 +300,7 @@ void TerrainGeometryManager::initTerrain()
 	}
 
 	// sync load since we want everything in place when we start
-	LoadingWindow::getSingleton().setProgress(23, _L("loading terrain pages"));
+	loading_win->setProgress(23, _L("loading terrain pages"));
 	mTerrainGroup->loadAllTerrains(true);
 
 	Terrain* terrain = mTerrainGroup->getTerrain(0, 0);
@@ -317,10 +321,9 @@ void TerrainGeometryManager::initTerrain()
 			{
 				Terrain *terrain = mTerrainGroup->getTerrain(x, z);
 				if (!terrain) continue;
-				//ShadowManager::getSingleton().updatePSSM(terrain);
-				LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page layers ") + XZSTR(x,z));
+				loading_win->setProgress(23, _L("loading terrain page layers ") + XZSTR(x,z));
 				loadLayers(x, z, terrain);
-				LoadingWindow::getSingleton().setProgress(23, _L("loading terrain page blend maps ") + XZSTR(x,z));
+				loading_win->setProgress(23, _L("loading terrain page blend maps ") + XZSTR(x,z));
 				initBlendMaps(x, z, terrain);
 			}
 		}
@@ -328,7 +331,7 @@ void TerrainGeometryManager::initTerrain()
 		// always save the results when it was imported
 		if (!disableCaching)
 		{
-			LoadingWindow::getSingleton().setProgress(23, _L("saving all terrain pages ..."));
+			loading_win->setProgress(23, _L("saving all terrain pages ..."));
 			mTerrainGroup->saveAllTerrains(false);
 		}
 	} else

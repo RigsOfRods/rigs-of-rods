@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 #include "BeamData.h"
 #include <vector>
@@ -208,7 +209,7 @@ struct rig_t
 	char helpmat[256];
 	int cinecameranodepos[MAX_CAMERAS]; //!< Cine-camera node indexes
 	int freecinecamera; //!< Number of cine-cameras (lowest free index)
-	int flaresMode;
+	RoR::App::GfxFlaresMode m_flares_mode;
 	Ogre::Light *cablight;
 	Ogre::SceneNode *cablightNode;
 	std::vector<Ogre::Entity*> deletion_Entities; //!< For unloading vehicle; filled at spawn.

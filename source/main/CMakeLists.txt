@@ -77,7 +77,6 @@ set( SOURCE_FILES
   gfx/Mirrors.{h,cpp}
   gfx/MovableText.{h,cpp}
   gfx/OgreSubsystem.{h,cpp}
-  gfx/PreviewRenderer.{h,cpp}
   gfx/ShadowManager.{h,cpp}
   gfx/Skidmark.{h,cpp}
   gfx/SkyManager.{h,cpp}
@@ -125,25 +124,23 @@ set( SOURCE_FILES
   gfx/particle/FireExtinguisherAffectorFactory.h
   gfx/particle/OgreParticleCustomParam.h
   gfx/particle/OgreShaderParticleRenderer.{h,cpp}
-  gui/Console.{h,cpp}
   gui/Dashboard.{h,cpp}
   gui/DashBoardManager.{h,cpp}
-  gui/GUIFriction.{h,cpp}
   gui/GUIInputManager.{h,cpp}
   gui/GUIManager.{h,cpp}
-  gui/GUIMenu.{h,cpp}
-  gui/GUIMp.{h,cpp}
-  gui/GuiManagerInterface.h
-  gui/LoadingWindow.{h,cpp}
   gui/OverlayWrapper.{h,cpp}
   gui/RTTLayer.{h,cpp}
-  gui/TextureToolWindow.{h,cpp}
   gui/TruckHUD.{h,cpp}
   gui/mygui/Attribute.h
   gui/mygui/BaseLayout.h
   gui/mygui/Dialog.{h,cpp}
   gui/mygui/GuiPanelBase.h
   gui/mygui/WrapsAttribute.h
+  gui/panels/GUI_GameConsole.{h,cpp}
+  gui/panels/GUI_LoadingWindow.{h,cpp}
+  gui/panels/GUI_FrictionSettings.{h,cpp}  
+  gui/panels/GUI_TopMenubar.{h,cpp}
+  gui/panels/GUI_TextureToolWindow.{h,cpp}    
   gui/panels/GUI_DebugOptions.{h,cpp}
   gui/panels/GUI_DebugOptionsLayout.{h,cpp}
   gui/panels/GUI_GameAbout.{h,cpp}
@@ -163,6 +160,7 @@ set( SOURCE_FILES
   gui/panels/GUI_MessageBoxLayout.{h,cpp}
   gui/panels/GUI_MultiplayerSelector.{h,cpp}
   gui/panels/GUI_MultiplayerSelectorLayout.{h,cpp}
+  gui/panels/GUI_MultiplayerClientList.{h,cpp} 
   gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}

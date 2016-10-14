@@ -1,31 +1,34 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal & contributors
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "Water.h"
 
 #include "Application.h"
-#include "DustManager.h"
+#include "BeamFactory.h"
 #include "OgreSubsystem.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 //Some ugly code here..
 Entity* pPlaneEnt;
@@ -49,7 +52,7 @@ public:
 		// Hide plane
 		pPlaneEnt->setVisible(false);
 		//hide Water spray
-		DustManager::getSingleton().setVisible(false);
+        BeamFactory::getSingleton().GetParticleManager().setVisible(false);
 	}
 
 	void postRenderTargetUpdate(const RenderTargetEvent& evt)
@@ -58,7 +61,7 @@ public:
 		pPlaneEnt->setVisible(true);
 		waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
 		//restore Water spray;
-		DustManager::getSingleton().setVisible(true);
+		BeamFactory::getSingleton().GetParticleManager().setVisible(true);
 	}
 };
 
@@ -88,7 +91,6 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 	maxampl(0),
 	free_wavetrain(0),
 	visible(true),
-	haswaves(BSETTING("Waves", false)),
 	mScale(1.0f),
 	vRtt1(0),
 	vRtt2(0), 
@@ -112,24 +114,16 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 		mScale = 1.5f;
 
 	// disable waves in multiplayer
-	if (gEnv->multiplayer)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    {
 		haswaves = false;
-
-	// and the type
-	String waterSettingsString = SSETTING("Water effects", "Reflection + refraction (speed optimized)");
-	if (waterSettingsString == "Basic (fastest)")
-		mType = WATER_BASIC;
-	if (waterSettingsString == "Reflection")
-		mType = WATER_REFLECT;
-	else if (waterSettingsString == "Reflection + refraction (speed optimized)")
-		mType = WATER_FULL_SPEED;
-	else if (waterSettingsString == "Reflection + refraction (quality optimized)")
-		mType = WATER_FULL_QUALITY;
+    }
 
 	if (haswaves)
 	{
 		char line[1024] = {};
-		FILE *fd = fopen((SSETTING("Config Root", "")+"wavefield.cfg").c_str(), "r");
+        std::string filepath = RoR::App::GetSysConfigDir() + PATH_SLASH + "wavefield.cfg";
+		FILE *fd = fopen(filepath.c_str(), "r");
 		if (fd)
 		{
 			while (!feof(fd))
@@ -156,7 +150,7 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 		}
 	}
 
-	processWater(mType);
+	this->processWater();
 }
 
 Water::~Water()
@@ -218,12 +212,15 @@ Water::~Water()
 	}
 }
 
-void Water::processWater(int mType)
+void Water::processWater()
 {
 	waterPlane.normal = Vector3::UNIT_Y;
 	waterPlane.d = 0;
 
-	if (mType == WATER_FULL_QUALITY || mType == WATER_FULL_SPEED || mType == WATER_REFLECT)
+    const auto type = App::GetGfxWaterMode();
+    const bool full_gfx = type == App::GFX_WATER_FULL_HQ || type == App::GFX_WATER_FULL_FAST;
+
+	if (full_gfx || type == App::GFX_WATER_REFLECT)
 	{
 		// Check prerequisites first
 		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
@@ -252,7 +249,7 @@ void Water::processWater(int mType)
 		refractionPlane.normal = -Vector3::UNIT_Y;
 		refractionPlane.d =  0.15;
 
-		if (mType == WATER_FULL_QUALITY || mType == WATER_FULL_SPEED)
+		if (full_gfx)
 		{
 			TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
 			rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
@@ -261,8 +258,8 @@ void Water::processWater(int mType)
 				mRefractCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
 				mRefractCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 				mRefractCam->setAspectRatio(
-					(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-					(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
+					(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+					(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
 				vRtt1 = rttTex1->addViewport(mRefractCam);
 				vRtt1->setClearEveryFrame(true);
@@ -295,15 +292,15 @@ void Water::processWater(int mType)
 			mReflectCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
 			mReflectCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
 			mReflectCam->setAspectRatio(
-				(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-				(Real)RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
+				(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
+				(Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
 			vRtt2 = rttTex2->addViewport(mReflectCam);
 			vRtt2->setClearEveryFrame(true);
 			vRtt2->setBackgroundColour(fade);
 
 			MaterialPtr mat;
-			if (mType == WATER_FULL_QUALITY || mType == WATER_FULL_SPEED)
+			if (full_gfx)
 			{
 				mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
 				mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
@@ -336,7 +333,7 @@ void Water::processWater(int mType)
 			mapSize.x * mScale, mapSize.z * mScale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
 		pPlaneEnt = gEnv->sceneManager->createEntity("plane", "ReflectPlane");
-		if (mType == WATER_FULL_QUALITY || mType == WATER_FULL_SPEED)
+		if (full_gfx)
 			pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
 		else
 			pPlaneEnt->setMaterialName("Examples/FresnelReflection");
@@ -411,8 +408,11 @@ void Water::setFadeColour(ColourValue ambient)
 
 void Water::moveTo(float centerheight)
 {
-	if (mType==WATER_FULL_QUALITY || mType==WATER_FULL_SPEED || mType==WATER_REFLECT)
-		updateReflectionPlane(centerheight);
+    const auto type = App::GetGfxWaterMode();
+    if (type == App::GFX_WATER_FULL_HQ || type == App::GFX_WATER_FULL_FAST || type == App::GFX_WATER_REFLECT)
+    {
+        this->updateReflectionPlane(centerheight);
+    }
 }
 
 void Water::showWave(Vector3 refpos)
@@ -526,7 +526,8 @@ void Water::update()
 #endif
 
 	framecounter++;
-	if (mType==WATER_FULL_SPEED)
+    const auto gfx_type = App::GetGfxWaterMode();
+	if (gfx_type == App::GFX_WATER_FULL_FAST)
 	{
 		if (framecounter%2)
 		{
@@ -547,7 +548,7 @@ void Water::update()
 		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefractioninverted");
 		//else if(!underwater && underWaterModeChanged)
 		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
-	} else if (mType==WATER_FULL_QUALITY)
+	} else if (gfx_type == App::GFX_WATER_FULL_HQ)
 	{
 		mReflectCam->setOrientation(mRenderCamera->getOrientation());
 		mReflectCam->setPosition(mRenderCamera->getPosition());
@@ -564,7 +565,7 @@ void Water::update()
 		//	pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
 
 	}
-	else if (mType==WATER_REFLECT)
+	else if (gfx_type == App::GFX_WATER_REFLECT)
 	{
 		mReflectCam->setOrientation(mRenderCamera->getOrientation());
 		mReflectCam->setPosition(mRenderCamera->getPosition());

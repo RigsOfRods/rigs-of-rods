@@ -59,7 +59,7 @@ CLASS::CLASS()
 	m_button1->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButton1ClickSaveButton);
 	m_button2->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButton2ClickSaveButton);
 
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()
@@ -102,6 +102,11 @@ void CLASS::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1
 		m_button2->setCaptionWithReplacing(mButton2);
 
 	Show(); //Last thing to be done
+}
+
+bool CLASS::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
 }
 
 int CLASS::getResult()

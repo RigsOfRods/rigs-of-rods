@@ -58,7 +58,7 @@ CLASS::CLASS()
     initMisc();
 	CenterToScreen();
 	
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()
@@ -74,7 +74,6 @@ void CLASS::Show()
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	Application::GetGuiManager()->ShowMainMenu(true);
 }
 
 void CLASS::CenterToScreen()
@@ -206,3 +205,5 @@ void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
 	if (_name == "close")
 		Hide();
 }
+
+void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }

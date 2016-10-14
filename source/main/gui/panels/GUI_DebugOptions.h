@@ -45,6 +45,8 @@ public:
 
 	void Show();
 	void Hide();
+    bool IsVisible();
+    void SetVisible(bool v);
 
 private:
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);

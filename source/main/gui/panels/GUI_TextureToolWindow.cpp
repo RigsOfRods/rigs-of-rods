@@ -19,18 +19,22 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef USE_MYGUI
 
-#include "TextureToolWindow.h"
+#include "GUI_TextureToolWindow.h"
 
 #include <Ogre.h>
 
 #include "Application.h"
-#include "Console.h"
-#include "Settings.h"
+#include "GUI_GameConsole.h"
 #include "Language.h"
+#include "Settings.h"
 #include "Utils.h"
 
+namespace RoR {
+namespace GUI {
+
 using namespace Ogre;
-using namespace RoR;
+
+#define MAIN_WIDGET ((MyGUI::Window*)mMainWidget)
 
 TextureToolWindow::TextureToolWindow()
 {
@@ -49,10 +53,22 @@ TextureToolWindow::TextureToolWindow()
 	mCBo->eventComboChangePosition += MyGUI::newDelegate(this, &TextureToolWindow::eventSelectTexture2);
 
 	mChkDynamic->eventMouseButtonClick += MyGUI::newDelegate(this, &TextureToolWindow::eventClickDynamicButton);
+
+    MAIN_WIDGET->setVisible(false);
 }
 
 TextureToolWindow::~TextureToolWindow()
 {
+}
+
+void TextureToolWindow::SetVisible(bool v)
+{
+    MAIN_WIDGET->setVisible(v);
+}
+
+bool TextureToolWindow::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
 }
 
 void TextureToolWindow::show()
@@ -106,18 +122,18 @@ void TextureToolWindow::saveTexture( String texName, bool usePNG )
 		tex->convertToImage(img);
 
 		// Save to disk!
-		String outname = SSETTING("User Path", "") + texName;
+		String outname = App::GetSysUserDir() + PATH_SLASH + texName;
 		if (usePNG) outname += ".png";
 
 		img.save(outname);
 
 		UTFString msg = _L("saved texture as ") + outname;
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, msg, "information.png");
+		RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, msg, "information.png");
 	}
 	catch(Exception &e)
 	{
 		UTFString str = "Exception while saving image: " + e.getFullDescription();
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
+		RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
 	}
 }
 
@@ -194,7 +210,7 @@ void TextureToolWindow::updateControls( String texName )
 	catch(Exception &e)
 	{
 		UTFString str = "Exception while opening texture:" + e.getFullDescription();
-		RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
+		RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_MSGTYPE_INFO, str, "error.png");
 	}
 }
 
@@ -231,5 +247,8 @@ void TextureToolWindow::eventSelectTexture( MyGUI::WidgetPtr _sender )
 {
 	updateControls(mCBo->getItemNameAt(mCBo->getIndexSelected()));
 }
+
+} // namespace GUI
+} // namespace RoR
 
 #endif // USE_MYGUI

@@ -29,7 +29,6 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_RigSpawnerReportWindowLayout.h"
-#include "GuiManagerInterface.h"
 #include "GuiPanelBase.h"
 
 namespace RoR
@@ -43,9 +42,12 @@ class RigSpawnerReportWindow: public RigSpawnerReportWindowLayout, public GuiPan
 
 public:
 
-	RigSpawnerReportWindow(GuiManagerInterface* gui_manager_interface);
+	RigSpawnerReportWindow();
 
 	void SetRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
+
+    void SetVisible(bool v);
+    bool IsVisible();
 
 private:
 

@@ -21,15 +21,19 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DustManager.h"
 
+#include "Application.h"
 #include "DustPool.h"
 #include "Settings.h"
 
 using namespace Ogre;
 
-DustManager::DustManager() : mEnabled(false)
+void DustManager::CheckAndInit()
 {
-	setSingleton(this);
-	mEnabled = BSETTING("Particles", true);
+    if (m_is_initialised)
+    {
+        return;
+    }
+	mEnabled = RoR::App::GetGfxParticlesMode() == 1;
 
 	if (mEnabled)
 	{
@@ -40,9 +44,10 @@ DustManager::DustManager() : mEnabled(false)
 		dustpools["splash"] = new DustPool("tracks/Splash", 20);
 		dustpools["ripple"] = new DustPool("tracks/Ripple", 20);
 	}
+    m_is_initialised = true;
 }
 
-DustManager::~DustManager()
+void DustManager::Shutdown()
 {
 	// delete all created dustpools and remove them
 	std::map < Ogre::String , DustPool * >::iterator it;

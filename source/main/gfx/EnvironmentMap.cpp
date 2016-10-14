@@ -28,21 +28,19 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #	include <OgreOverlayElement.h>
 #endif
 
+#include "Application.h"
 #include "Beam.h"
 #include "Settings.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
+using namespace RoR;
 using namespace Ogre;
 
 Envmap::Envmap() :
 	  mInitiated(false)
-	, mIsDynamic(false)
 	, mRound(0)
-	, updateRate(1)
 {
-	mIsDynamic = BSETTING("Envmap", false);
-	updateRate = ISETTING("EnvmapUpdateRate", 1);
 
 	TexturePtr texture = TextureManager::getSingleton().createManual("EnvironmentTexture",
 		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_CUBE_MAP, 256, 256, 0,
@@ -88,10 +86,7 @@ Envmap::Envmap() :
 		}
 	}
 
-	updateRate = std::max(0, updateRate);
-	updateRate = std::min(updateRate, 6);
-
-	if (BSETTING("EnvMapDebug", false))
+	if (App::GetDiagEnvmap())
 	{
 		// create fancy mesh for debugging the envmap
 		Overlay *overlay = OverlayManager::getSingleton().create("EnvMapDebugOverlay");
@@ -228,7 +223,7 @@ Envmap::~Envmap()
 
 void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 {
-	if (!mIsDynamic || !beam)
+	if (App::GetGfxEnvmapMode() == 0 || !beam)
 	{
 		if (!mInitiated)
 		{
@@ -258,7 +253,8 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 		beam->setBeamVisibility(false);
 	}
 
-	for (int i=0; i < updateRate; i++)
+    const int update_rate = App::GetGfxEnvmapMode();
+	for (int i=0; i < update_rate; i++)
 	{
 		// caelum needs to know that we changed the cameras
 	#ifdef USE_CAELUM
@@ -291,7 +287,6 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 
 void Envmap::init(Vector3 center)
 {
-	if (mIsDynamic) return;
 
 	// capture all images at once
 	for (int i=0; i < NUM_FACES; i++)

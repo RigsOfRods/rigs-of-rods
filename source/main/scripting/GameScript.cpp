@@ -45,7 +45,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamFactory.h"
 #include "Character.h"
 #include "Collisions.h"
-#include "Console.h"
+#include "GUI_GameConsole.h"
 #include "GUIManager.h"
 #include "IHeightFinder.h"
 #include "Language.h"
@@ -93,7 +93,8 @@ void GameScript::setTrucksForcedActive(bool forceActive)
 double GameScript::getTime()
 {
 	double result = 0.0l;
-	if (gEnv->frameListener) result = gEnv->frameListener->getTime();
+    auto fl = mse->GetFrameListener();
+    if (fl != nullptr) { result = fl->getTime(); }
 	return result;
 }
 
@@ -104,7 +105,8 @@ void GameScript::setPersonPosition(const Vector3 &vec)
 
 void GameScript::loadTerrain(const String &terrain)
 {
-	if (gEnv->frameListener) RoR::Application::GetMainThreadLogic()->LoadTerrain(terrain);
+    RoR::App::SetSimNextTerrain(terrain);
+    RoR::App::GetMainThreadLogic()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -158,20 +160,12 @@ bool GameScript::getCaelumAvailable()
 
 float GameScript::stopTimer()
 {
-	float result = 0.0f;
-	if (gEnv->frameListener != nullptr)
-	{
-		result = gEnv->frameListener->StopRaceTimer();
-	}
-	return result;
+    return mse->GetFrameListener()->StopRaceTimer();
 }
 
 void GameScript::startTimer()
 {
-	if (gEnv->frameListener != nullptr)
-	{
-		gEnv->frameListener->StartRaceTimer();
-	}
+    return mse->GetFrameListener()->StartRaceTimer();
 }
 
 void GameScript::setWaterHeight(float value)
@@ -206,14 +200,12 @@ Beam *GameScript::getCurrentTruck()
 
 float GameScript::getGravity()
 {
-	float result = 0.0f;
-	if (gEnv->frameListener) result = gEnv->terrainManager->getGravity();
-	return result;
+	return gEnv->terrainManager->getGravity();
 }
 
 void GameScript::setGravity(float value)
 {
-	if (gEnv->terrainManager) gEnv->terrainManager->setGravity(value);
+	gEnv->terrainManager->setGravity(value);
 }
 
 Beam *GameScript::getTruckByNum(int num)
@@ -252,8 +244,8 @@ void GameScript::registerForEvent(int eventValue)
 void GameScript::flashMessage(String &txt, float time, float charHeight)
 {
 #ifdef USE_MYGUI
-	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
-	RoR::Application::GetGuiManager()->PushNotification("Script:", txt);
+	RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
+	RoR::App::GetGuiManager()->PushNotification("Script:", txt);
 #endif // USE_MYGUI
 }
 
@@ -261,14 +253,14 @@ void GameScript::message(String &txt, String &icon, float timeMilliseconds, bool
 {
 	//TODO: Notification system
 #ifdef USE_MYGUI
-	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
-	RoR::Application::GetGuiManager()->PushNotification("Script:", txt);
+	RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
+	RoR::App::GetGuiManager()->PushNotification("Script:", txt);
 #endif // USE_MYGUI
 }
 
 void GameScript::setDirectionArrow(String &text, Vector3 &vec)
 {
-	if (gEnv->frameListener) gEnv->frameListener->setDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
+	mse->GetFrameListener()->setDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
 int GameScript::getChatFontSize()
@@ -300,7 +292,7 @@ void GameScript::showChooser(const String &type, const String &instance, const S
 	
 	if (ntype != LT_None)
 	{
-		if (gEnv->frameListener) gEnv->frameListener->showLoad(ntype, instance, box);
+		mse->GetFrameListener()->showLoad(ntype, instance, box);
 	}
 #endif //USE_MYGUI
 }
@@ -356,7 +348,7 @@ void GameScript::spawnObject(const String &objectName, const String &instanceNam
 
 void GameScript::hideDirectionArrow()
 {
-	if (gEnv->frameListener) gEnv->frameListener->setDirectionArrow(0, Vector3::ZERO);
+	mse->GetFrameListener()->setDirectionArrow(0, Vector3::ZERO);
 }
 
 int GameScript::setMaterialAmbient(const String &materialName, float red, float green, float blue)
@@ -651,18 +643,25 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileName", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileName.c_str(), CURLFORM_END);
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_FileHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainFileHash.c_str(), CURLFORM_END);
 	//curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ModHash", CURLFORM_COPYCONTENTS, gEnv->frameListener->terrainModHash.c_str(), CURLFORM_END);
+    int port = App::GetMpServerPort();
+    std::string server_port_str = "-";
+    if (port != 0)
+    {
+        server_port_str = TOSTRING(port);
+    }
+    const bool mp_connected = (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, SSETTING("Nickname", "Anonymous").c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, SSETTING("Language", "English").c_str(), CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::GetMpPlayerName().c_str(), CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::GetAppLanguage().c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionString", CURLFORM_COPYCONTENTS, ROR_VERSION_STRING, CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_ProtocolVersion", CURLFORM_COPYCONTENTS, RORNET_VERSION, CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_BinaryHash", CURLFORM_COPYCONTENTS, SSETTING("BinaryHash", "-").c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_GUID", CURLFORM_COPYCONTENTS, SSETTING("GUID", "-").c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_ServerName", CURLFORM_COPYCONTENTS, SSETTING("Server name", "-").c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_ServerPort", CURLFORM_COPYCONTENTS, SSETTING("Server port", "-").c_str(), CURLFORM_END);
-	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_NetworkEnabled", CURLFORM_COPYCONTENTS, SSETTING("Network enable", "No").c_str(), CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_BinaryHash", CURLFORM_COPYCONTENTS, "-", CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_GUID", CURLFORM_COPYCONTENTS, "-", CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_ServerName", CURLFORM_COPYCONTENTS, App::GetMpServerHost().c_str(), CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_ServerPort", CURLFORM_COPYCONTENTS, server_port_str.c_str(), CURLFORM_END);
+	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_NetworkEnabled", CURLFORM_COPYCONTENTS, (mp_connected) ? "Yes" : "No", CURLFORM_END);
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "APIProtocolVersion", CURLFORM_COPYCONTENTS, "2", CURLFORM_END);
 
 	if (BeamFactory::getSingleton().getCurrentTruck())
@@ -690,7 +689,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count",     CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);
 	}
 
-	const RenderTarget::FrameStats& stats = RoR::Application::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
+	const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
 	curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "AVG_FPS", CURLFORM_COPYCONTENTS, TOSTRING(stats.avgFPS).c_str(), CURLFORM_END);
 
 
@@ -763,11 +762,11 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	LOG("online API result: " + result);
 
 #ifdef USE_MYGUI
-	Console *con = RoR::Application::GetConsole();
+	Console *con = RoR::App::GetConsole();
 	if (con)
 	{
 		con->putMessage(Console::CONSOLE_MSGTYPE_HIGHSCORE, Console::CONSOLE_SYSTEM_NOTICE, ANSI_TO_UTF(result));
-		RoR::Application::GetGuiManager()->PushNotification("Script:", ANSI_TO_UTF(result));
+		RoR::App::GetGuiManager()->PushNotification("Script:", ANSI_TO_UTF(result));
 	}
 #endif // USE_MYGUI
 #endif //USE_CURL
@@ -796,9 +795,9 @@ int GameScript::useOnlineAPI(const String &apiquery, const AngelScript::CScriptD
 	result           = "asynchronous";
 
 #ifdef USE_MYGUI
-	Console *con = RoR::Application::GetConsole();
+	Console *con = RoR::App::GetConsole();
 	if (con) con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
-	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("using Online API..."));
+	RoR::App::GetGuiManager()->PushNotification("Notice:", _L("using Online API..."));
 #endif // USE_MYGUI
 
 	// fix the String objects in the dict
@@ -872,7 +871,7 @@ int GameScript::deleteScriptVariable(const String &arg)
 int GameScript::sendGameCmd(const String& message)
 {
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 
 		RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
@@ -907,5 +906,5 @@ Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::
 
 void GameScript::showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2)
 {
-	RoR::Application::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+	RoR::App::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
 }

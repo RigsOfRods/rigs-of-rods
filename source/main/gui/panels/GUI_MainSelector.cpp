@@ -29,11 +29,14 @@
 #include "Utils.h"
 #include "Language.h"
 #include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
+#include "InputEngine.h"
 #include "Application.h"
 #include "CacheSystem.h"
+#include "ContentManager.h"
 #include "SkinManager.h"
-#include "LoadingWindow.h"
 #include "RoRFrameListener.h"
+#include "MainThread.h"
 
 #include <MyGUI.h>
 
@@ -43,14 +46,14 @@ using namespace GUI;
 #define CLASS        MainSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS(RoR::SkinManager* skin_manager) :
+CLASS::CLASS() :
   m_keys_bound(false)
 , m_selected_skin(nullptr)
 , m_selected_entry(nullptr)
 , m_selection_done(true)
-, m_skin_manager(skin_manager)
 {
 	MAIN_WIDGET->setVisible(false);
+    m_skin_manager = RoR::App::GetContentManager()->GetSkinManager();
 
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
@@ -238,9 +241,17 @@ void CLASS::Cancel()
 	m_selected_entry = nullptr;
 	m_selection_done = true;
 	Hide();
+
+    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    {
+        RoR::App::GetMainThreadLogic()->LeaveMultiplayerServer();
+    }
+
 	//Do this on cancel only
-	if (gEnv->frameListener->m_loading_state == NONE_LOADED)
-		Application::GetGuiManager()->ShowMainMenu(true);
+	if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
+    {
+		App::GetGuiManager()->SetVisible_GameMainMenu(true);
+    }
 }
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
@@ -365,7 +376,7 @@ void CLASS::UpdateGuiData()
 	}
 
 	int ts = getTimeStamp();
-	std::vector<CacheEntry> *entries = RoR::Application::GetCacheSystem()->getEntries();
+	std::vector<CacheEntry> *entries = RoR::App::GetCacheSystem()->getEntries();
 	std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
 	for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
 	{
@@ -415,7 +426,7 @@ void CLASS::UpdateGuiData()
 		m_entries.push_back(*it);
 	}
 	int tally_categories = 0, current_category = 0;
-	std::map<int, Category_Entry> *cats = RoR::Application::GetCacheSystem()->getCategories();
+	std::map<int, Category_Entry> *cats = RoR::App::GetCacheSystem()->getCategories();
 
 	std::vector<std::pair<int, Category_Entry> > sorted_cats(cats->begin(), cats->end());
 	std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Category_Entry>());
@@ -668,7 +679,7 @@ void CLASS::OnEntrySelected(int entryID)
 		}
 		return;
 	}
-	CacheEntry *entry = RoR::Application::GetCacheSystem()->getEntry(entryID);
+	CacheEntry *entry = RoR::App::GetCacheSystem()->getEntry(entryID);
 	if (!entry) return;
 	m_selected_entry = entry;
 	this->UpdateControls(m_selected_entry);
@@ -690,7 +701,7 @@ void CLASS::OnSelectionDone()
 
 		//Only load vehicles via the selector
 		if (m_loader_type != LT_Terrain)
-			RoR::Application::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
+			RoR::App::GetCacheSystem()->checkResourceLoaded(*m_selected_entry);
 
 		m_current_skins.clear();
 		m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
@@ -702,9 +713,14 @@ void CLASS::OnSelectionDone()
 		else
 		{
 			m_selected_skin = 0;
-			Hide();
+			this->Hide(false); // Hide without fade-out effect
 		}
 	}
+    else if ((m_loader_type == LT_Terrain) && (App::GetActiveMpState() == App::MP_STATE_CONNECTED))
+    {
+        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+        this->Hide(false);
+    }
 	else
 	{
 		// we show the skin loader, set final skin and exit!
@@ -927,8 +943,8 @@ void CLASS::Show(LoaderType type)
 
 	m_selected_skin = 0;
 	m_SearchLine->setCaption("");
-	RoR::Application::GetInputEngine()->resetKeys();
-	LoadingWindow::getSingleton().hide();
+	RoR::App::GetInputEngine()->resetKeys();
+    App::GetGuiManager()->SetVisible_LoadingWindow(false);
 	m_vehicle_configs.clear();
 	//MyGUI::InputManager::getInstance().setKeyFocusWidget(mMainWidget);
 	MyGUI::InputManager::getInstance().setKeyFocusWidget(m_SearchLine);
@@ -943,17 +959,28 @@ void CLASS::Show(LoaderType type)
 
 	BindKeys();
 
-	if (type == LT_Terrain && gEnv->multiplayer)
-		m_Cancel->setEnabled(false);
-	else
-		m_Cancel->setEnabled(true);
+	if (type == LT_Terrain && (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED))
+    {
+        m_Cancel->setCaption(_L("Cancel (disconnect)"));
+    }
+    else
+    {
+        m_Cancel->setCaption(_L("Cancel"));
+    }
 }
 
-void CLASS::Hide()
+void CLASS::Hide(bool smooth)
 {
 	m_selection_done = true;
-	RoR::Application::GetGuiManager()->UnfocusGui();
-	MAIN_WIDGET->setVisibleSmooth(false);
+	RoR::App::GetGuiManager()->UnfocusGui();
+    if (smooth)
+    {
+        MAIN_WIDGET->setVisibleSmooth(false);
+    }
+    else
+    {
+        MAIN_WIDGET->setVisible(false);
+    }
 	MAIN_WIDGET->setEnabledSilent(false);
 	BindKeys(false);
 }

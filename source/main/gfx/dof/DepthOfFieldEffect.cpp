@@ -54,8 +54,8 @@ DepthOfFieldEffect::DepthOfFieldEffect() :
 	mFocalDepth(100.0),
 	mNearDepth(10.0)
 {
-	mWidth = RoR::Application::GetOgreSubsystem()->GetViewport()->getActualWidth();
-	mHeight = RoR::Application::GetOgreSubsystem()->GetViewport()->getActualHeight();
+	mWidth = RoR::App::GetOgreSubsystem()->GetViewport()->getActualWidth();
+	mHeight = RoR::App::GetOgreSubsystem()->GetViewport()->getActualHeight();
 	
 	mDepthTexture.setNull();
 	mDepthMaterial.setNull();
@@ -153,7 +153,7 @@ void DepthOfFieldEffect::destroyDepthRenderTexture()
 
 void DepthOfFieldEffect::addCompositor()
 {
-	mCompositor = CompositorManager::getSingleton().addCompositor(RoR::Application::GetOgreSubsystem()->GetViewport(), "DoF_Compositor_test");
+	mCompositor = CompositorManager::getSingleton().addCompositor(RoR::App::GetOgreSubsystem()->GetViewport(), "DoF_Compositor_test");
 	mCompositor->addListener(this);
 
 	mCompositor->setEnabled(true);
@@ -164,7 +164,7 @@ void DepthOfFieldEffect::removeCompositor()
 	mCompositor->setEnabled(false);
 
 	mCompositor->removeListener(this);
-	CompositorManager::getSingleton().removeCompositor(RoR::Application::GetOgreSubsystem()->GetViewport(), "DoF_Compositor_test");
+	CompositorManager::getSingleton().removeCompositor(RoR::App::GetOgreSubsystem()->GetViewport(), "DoF_Compositor_test");
 }
 
 void DepthOfFieldEffect::notifyMaterialSetup(uint32 passId, MaterialPtr& material)
@@ -256,7 +256,7 @@ DOFManager::DOFManager()
 	mDepthOfFieldEffect = new DepthOfFieldEffect();
 	mLens = new Lens(gEnv->mainCamera->getFOVy(), 2.8f);
 
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+	RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
 
 	//mRaySceneQuery = gEnv->sceneManager->createRayQuery(Ogre::Ray());
 	//mRaySceneQuery->setSortByDistance(true);
@@ -284,7 +284,7 @@ DOFManager::~DOFManager()
 
 void DOFManager::cleanup()
 {
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
+	RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
 
 	delete mLens;
 	mLens = NULL;
@@ -304,12 +304,12 @@ void DOFManager::setEnabled(bool enabled)
 	{
 		// turn on
 		mDepthOfFieldEffect->setEnabled(true);
-		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+		RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
 	} else if (!enabled && mDepthOfFieldEffect->getEnabled())
 	{
 		// turn off
 		mDepthOfFieldEffect->setEnabled(false);
-		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
+		RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
 	}
 }
 

@@ -21,14 +21,16 @@
 
 #include "TerrainManager.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "Collisions.h"
 #include "Dashboard.h"
 #include "EnvironmentMap.h"
 #include "ErrorUtils.h"
-#include "GUIFriction.h"
 #include "GlowMaterialListener.h"
+#include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
@@ -46,6 +48,7 @@
 
 #include <Terrain/OgreTerrainPaging.h>
 
+using namespace RoR;
 using namespace Ogre;
 
 TerrainManager::TerrainManager() :
@@ -79,7 +82,7 @@ TerrainManager::TerrainManager() :
 	, version(1)
 	, water_line(0.0f)
 {
-	use_caelum = SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)";
+	use_caelum = App::GetGfxSkyMode() == 1;
 }
 
 TerrainManager::~TerrainManager()
@@ -146,10 +149,9 @@ TerrainManager::~TerrainManager()
 
 // some shortcut to remove ugly code
 #ifdef USE_MYGUI
-#include "LoadingWindow.h"
-#define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); LoadingWindow::getSingleton().setProgress(x, y); }
+#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 #else
-#define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
+#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
 #endif //USE_MYGUI
 
 void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
@@ -183,7 +185,7 @@ void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr &ds)
 	gravity        = m_terrain_config.GetFloat("Gravity", "General", -9.81);
 
 	// parse author info
-	ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
+	Ogre::ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
 
 	authors.clear();
 
@@ -256,7 +258,7 @@ void TerrainManager::loadTerrain(String filename)
 	initTerrainCollisions();
 
 	// init the survey map
-	if (!BSETTING("disableOverViewMap", false))
+	if (RoR::App::GetGfxMinimapMode() == 1)
 	{
 		PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
 		initSurveyMap();
@@ -297,7 +299,7 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
 
-	if (SSETTING("Sky effects", "Sandstorm (fastest)") == "Sandstorm (fastest)") //Caelum has its own fog management
+	if (!use_caelum) //Caelum has its own fog management
 	{
 		PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
 		initFog();
@@ -310,12 +312,12 @@ void TerrainManager::initSubSystems()
 	//PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
 	//initWater();
 
-	if (BSETTING("HDR", false))
+	if (App::GetGfxEnableHdr())
 	{
 		PROGRESS_WINDOW(35, _L("Initializing HDR Subsystem"));
 		initHDR();
 	}
-	if (BSETTING("Glow", false))
+	if (RoR::App::GetGfxEnableGlow())
 	{
 		PROGRESS_WINDOW(37, _L("Initializing Glow Subsystem"));
 		initGlow();
@@ -325,7 +327,7 @@ void TerrainManager::initSubSystems()
 		PROGRESS_WINDOW(39, _L("Initializing Motion Blur Subsystem"));
 		initMotionBlur();
 	}
-	if (BSETTING("Sunburn", false))
+	if (RoR::App::GetGfxEnableSunburn())
 	{
 		PROGRESS_WINDOW(41, _L("Initializing Sunburn Subsystem"));
 		initSunburn();
@@ -345,16 +347,14 @@ void TerrainManager::initCamera()
 	gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
 	gEnv->mainCamera->setPosition(start_position);
 
-	far_clip = FSETTING("SightRange", 4500);
+	far_clip = App::GetGfxSightRange();
 
 	if (far_clip < UNLIMITED_SIGHTRANGE)
 		gEnv->mainCamera->setFarClipDistance(far_clip);
 	else
 	{
-		String waterSettingsString = SSETTING("Water effects", "Hydrax");
-
 		// disabled in global config
-		if (waterSettingsString != "Hydrax")
+		if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
 			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
 		else
 			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
@@ -437,28 +437,26 @@ void TerrainManager::initFog()
 
 void TerrainManager::initVegetation()
 {
-	// get vegetation mode
-	String vegetationMode = SSETTING("Vegetation", "None (fastest)");
+	paged_mode = App::GetGfxVegetationMode();
 
-	paged_mode = 0;
-	paged_detail_factor = 0.0f;
-
-	if        (vegetationMode == "None (fastest)")
+	switch (paged_mode)
 	{
-		paged_mode = 0;
-		paged_detail_factor = 0.001f;
-	} else if (vegetationMode == "20%")
-	{
-		paged_mode = 1;
-		paged_detail_factor = 0.2f;
-	} else if (vegetationMode == "50%")
-	{
-		paged_mode = 2;
-		paged_detail_factor = 0.5f;
-	} else if (vegetationMode == "Full (best looking, slower)")
-	{
-		paged_mode = 3;
-		paged_detail_factor = 1.0f;
+		case 0:
+			paged_detail_factor = 0.001f;
+			break;
+		case 1:
+			paged_detail_factor = 0.2f;
+			break;
+		case 2:
+			paged_detail_factor = 0.5f;
+			break;
+		case 3:
+			paged_detail_factor = 1.0f;
+			break;
+		default:
+			paged_mode = 0;
+			paged_detail_factor = 0.0f;
+			break;
 	}
 }
 
@@ -597,10 +595,9 @@ void TerrainManager::fixCompositorClearColor()
 
 void TerrainManager::initWater()
 {
-	String waterSettingsString = SSETTING("Water effects", "Hydrax");
-
 	// disabled in global config
-	if (waterSettingsString == "None") return;
+	if (App::GetGfxWaterMode() == App::GFX_WATER_NONE) return;
+
 	// disabled in map config
     bool has_water = m_terrain_config.GetBool("Water", "General", false);
     if (!has_water)
@@ -608,7 +605,7 @@ void TerrainManager::initWater()
         return;
     }
 
-	if (waterSettingsString == "Hydrax")
+	if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
 	{
 		// try to load hydrax config
 		String hydraxConfig = m_terrain_config.GetStringEx("HydraxConfigFile", "General");
@@ -667,7 +664,7 @@ void TerrainManager::loadTerrainObjects()
 {
 	try
 	{
-		ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Objects");
+		Ogre::ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Objects");
 
 		while (objectsIterator.hasMoreElements())
 		{
@@ -718,11 +715,11 @@ void TerrainManager::initScripting()
 	bool loaded = false;
 
 	// only load terrain scripts while not in multiplayer
-	if (!gEnv->multiplayer)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		try
 		{
-			ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Scripts");
+			Ogre::ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Scripts");
 			while (objectsIterator.hasMoreElements())
 			{
 				String sname = objectsIterator.peekNextKey();
@@ -791,10 +788,7 @@ IHeightFinder* TerrainManager::getHeightFinder()
 
 SkyManager* TerrainManager::getSkyManager()
 { 
-	if (gEnv->frameListener->m_loading_state == TERRAIN_LOADED || gEnv->frameListener->m_loading_state == ALL_LOADED)
-		return sky_manager;
-	else
-		return nullptr;
+    return sky_manager;
 }
 
 void TerrainManager::loadPreloadedTrucks()

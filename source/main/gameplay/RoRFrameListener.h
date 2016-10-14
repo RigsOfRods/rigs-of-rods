@@ -18,10 +18,10 @@ You should have received a copy of the GNU General Public License
 along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifndef __RoRFrameListener_H_
-#define __RoRFrameListener_H_
+
 
 #include "RoRPrerequisites.h"
+#include "ForceFeedback.h"
 
 #include <Ogre.h>
 
@@ -49,8 +49,6 @@ public:
 	void showLoad(int type, const Ogre::String &instance, const Ogre::String &box);
 	void windowResized(Ogre::RenderWindow* rw); // TODO: make this private, it's public for legacy reasons.
 
-	void setSimPaused(bool state);
-
 	void StartRaceTimer();
 
 	float StopRaceTimer();
@@ -60,8 +58,6 @@ public:
 	bool IsRaceInProgress() { return m_race_in_progress; }
 
 	void SetReloadPos(Ogre::Vector3 position) { m_reload_pos = position; }
-
-	int m_loading_state;
 
 protected:
 
@@ -73,7 +69,7 @@ protected:
 	void updateForceFeedback(float dt);
 
 	DOFManager *m_dof;
-	ForceFeedback *m_forcefeedback;
+	RoR::ForceFeedback m_forcefeedback;
 	HeatHaze *m_heathaze;
 
 	CacheEntry *m_last_cache_selection;
@@ -99,7 +95,6 @@ protected:
 	bool m_hide_gui;
 	bool m_truck_info_on;
 	bool m_pressure_pressed;
-	bool m_is_sim_paused;
 
 	float m_netcheck_gui_timer;
 	
@@ -110,11 +105,7 @@ protected:
 
 	bool m_is_pace_reset_pressed;
 
-	bool m_is_position_storage_enabled;
-
 	int m_stats_on;
-
-	char m_screenshot_format[256];
 
 	Ogre::Vector3 m_reload_pos;
 	Ogre::Quaternion m_reload_dir;
@@ -122,4 +113,3 @@ protected:
 	void finalizeTruckSpawning(Beam *local_truck, Beam *previous_truck);
 };
 
-#endif // __RoRFrameListener_H_

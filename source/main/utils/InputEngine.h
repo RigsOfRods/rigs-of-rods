@@ -44,12 +44,6 @@
 #define MAX_JOYSTICK_SLIDERS 4
 #define MAX_JOYSTICK_AXIS 32
 
-enum grabtypes {
-	GRAB_ALL=0,
-	GRAB_DYNAMICALLY,
-	GRAB_NONE
-};
-
 enum eventtypes
 {
 	ET_NONE=0,
@@ -223,8 +217,7 @@ enum events
 	EV_COMMON_DECELERATE_SIMULATION, //!< decelerate the simulation speed
 	EV_COMMON_RESET_SIMULATION_PACE, //!< reset the simulation speed
 	EV_COMMON_AUTOLOCK, //!< unlock autolock hook node
-	EV_COMMON_CONSOLEDISPLAY, //!< show / hide the console
-	EV_COMMON_CONSOLEMODE, //!< toggle appearance of console
+	EV_COMMON_CONSOLE_TOGGLE, //!< show / hide the console
 	EV_COMMON_ENTER_CHATMODE, //!< enter the chat mode
 	EV_COMMON_ENTER_OR_EXIT_TRUCK, //!< enter or exit a truck
 	EV_COMMON_ENTER_NEXT_TRUCK, //!< enter next truck
@@ -454,10 +447,10 @@ class InputEngine :
 	public OIS::JoyStickListener,
 	public ZeroedMemoryAllocator
 {
-	
-	friend class RoR::Application; // Manages lifecycle of this class
-
 public:
+
+    InputEngine();
+    ~InputEngine();
 
 	void Capture();
 
@@ -470,7 +463,7 @@ public:
 	bool getEventBoolValueBounce(int eventID, float time=0.2f);
 	float getEventBounceTime(int eventID);
 	// we need to use hwnd here, as we are also using this in the configurator
-	bool setup(Ogre::String hwnd, bool capture=false, bool capturemouse=false, int grabMode=0, bool captureKbd=true);
+	bool setup(Ogre::String hwnd, bool capture=false, bool capturemouse=false, bool captureKbd=true);
 	Ogre::String getKeyForCommand(int eventID);
 	bool isKeyDown(OIS::KeyCode mod);
 	bool isKeyDownValueBounce(OIS::KeyCode mod, float time=0.2f);
@@ -546,9 +539,6 @@ public:
 
 protected:
 
-	InputEngine();
-	~InputEngine();
-	InputEngine(const InputEngine&);
 	InputEngine& operator= (const InputEngine&);
 
 	//OIS Input devices
@@ -603,7 +593,6 @@ protected:
 	bool mappingLoaded;
 
 	bool inputsChanged;
-	int grabMode;
 
 	event_trigger_t newEvent();
 };

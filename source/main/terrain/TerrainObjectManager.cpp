@@ -26,7 +26,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "Language.h"
-#include "LoadingWindow.h"
+#include "GUIManager.h"
+#include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
@@ -177,7 +178,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 		if (progress-lastprogress > 20)
 		{
 #ifdef USE_MYGUI
-			LoadingWindow::getSingleton().setProgress(progress, _L("Loading Terrain Objects"));
+			RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
 #endif //MYGUI
 			lastprogress = progress;
 		}
@@ -292,7 +293,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
 			paged_geometry_t paged;
 			paged.geom = new PagedGeometry();
-			paged.geom->setTempDir(SSETTING("User Path", "") + "cache" + SSETTING("dirsep", "\\"));
+			paged.geom->setTempDir(SSETTING("User Path", "") + "cache" + PATH_SLASH); // TODO: eliminate "User Path"
 			paged.geom->setCamera(gEnv->mainCamera);
 			paged.geom->setPageSize(50);
 			paged.geom->setInfinite();
@@ -539,7 +540,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 			String group = "";
 			String truckname(type);
 
-			if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(truckname, group))
+			if (!RoR::App::GetCacheSystem()->checkResourceLoaded(truckname, group))
 			{
 				LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
 				continue;
@@ -764,7 +765,7 @@ void TerrainObjectManager::loadObject(const Ogre::String &name, const Ogre::Vect
 		odefFound = true;
 	}
 	
-	if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
+	if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
 		if (!odefFound)
 		{
 			LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
@@ -1307,7 +1308,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
 	// in netmode, don't load other trucks!
-	if (gEnv->multiplayer)
+	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		return;
 	}

@@ -50,52 +50,40 @@ public:
 
 	void Exit();
 
-	void RequestShutdown();
-
-	void RequestRestart();
-
-	void RequestExitCurrentLoop();
-
-	void SetNextApplicationState(Application::State next_app_state)
-	{
-		m_next_application_state = next_app_state;
-	}
-
 	static void ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle);
 	
 	void RegenCache();
 
-	void BackToMenu();
-	void ChangeMap();
-	/**
-	* @return True if everything was prepared OK and simulation may start.
-	*/
-	bool SetupGameplayLoop(Ogre::String preselected_map);
+    void JoinMultiplayerServer();
+    void LeaveMultiplayerServer();
+
+	/// @return True if everything was prepared OK and simulation may start.
+	bool SetupGameplayLoop();
 
 	void UnloadTerrain();
+
+    RoRFrameListener* GetFrameListener() { return m_frame_listener; }
 
 protected:
 
 	void EnterMainMenuLoop();
 
 	void MainMenuLoopUpdate(float seconds_since_last_frame);
-	
+
 	void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
 	void EnterGameplayLoop();
 
-	void LoadTerrain(Ogre::String const & terrain_file);
+	bool LoadTerrain(); ///< Reads GVar 'sim_terrain_pending'
 
 	void ShowSurveyMap(bool hide);
 
 	bool               m_no_rendering;
-	bool               m_exit_loop_requested;
-	bool               m_shutdown_requested;
 	bool               m_restart_requested;
 	unsigned long      m_start_time;
-	Application::State m_next_application_state;
-	Application::State m_application_state;
-	bool			   m_base_resource_loaded;
+	bool               m_base_resource_loaded;
+    bool               m_is_mumble_created;
+    RoRFrameListener*  m_frame_listener;
 
 	std::map<std::string, bool> isLoadedMap;
 };

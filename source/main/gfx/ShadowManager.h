@@ -27,16 +27,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreShadowCameraSetupPSSM.h>
 #include <OgreTerrainMaterialGeneratorA.h>
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 
 #include "OgreTerrainPSSMMaterialGenerator.h"
-
-
-enum {
-	SHADOWS_NONE,
-	SHADOWS_TEXTURE,
-	SHADOWS_PSSM
-};
 
 //Store datas using structs
 struct PSSM_Shadows_Data

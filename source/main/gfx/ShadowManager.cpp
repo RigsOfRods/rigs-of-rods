@@ -40,30 +40,23 @@ ShadowManager::~ShadowManager()
 
 void ShadowManager::loadConfiguration()
 {
-	Ogre::String s = SSETTING("Shadow technique", "Parallel-split Shadow Maps");
-	if (s == "Texture shadows")
-		ShadowsType = SHADOWS_TEXTURE;
-	else if (s == "Parallel-split Shadow Maps")
-		ShadowsType = SHADOWS_PSSM;
-	else
-		ShadowsType = SHADOWS_NONE;
-
-	updateShadowTechnique();
+    this->updateShadowTechnique(); // Config handled by RoR::App
 }
 
 int ShadowManager::updateShadowTechnique()
 {
-	float shadowFarDistance = FSETTING("SightRange", 2000);
 	float scoef = 0.5;
 	gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
 	gEnv->sceneManager->setShowDebugShadows(false);
 
-	if (ShadowsType == SHADOWS_TEXTURE)
+    RoR::App::GfxShadowType type = RoR::App::GetGfxShadowType();
+
+	if (type == RoR::App::GFX_SHADOW_TYPE_TEXTURE)
 	{
-		gEnv->sceneManager->setShadowFarDistance(shadowFarDistance);
+		gEnv->sceneManager->setShadowFarDistance(RoR::App::GetGfxSightRange());
 		processTextureShadows();
 	}
-	else if (ShadowsType == SHADOWS_PSSM)
+	else if (type == RoR::App::GFX_SHADOW_TYPE_PSSM)
 	{
 		processPSSM();
 		if (gEnv->sceneManager->getShowDebugShadows())
@@ -177,7 +170,7 @@ void ShadowManager::updatePSSM()
 
 void ShadowManager::updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile)
 {
-	if (ShadowsType == SHADOWS_PSSM)
+	if (RoR::App::GetGfxShadowType() == RoR::App::GFX_SHADOW_TYPE_PSSM)
 	{
 		Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
 		matProfile->setReceiveDynamicShadowsDepth(true);

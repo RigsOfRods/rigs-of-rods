@@ -42,19 +42,19 @@
 #include "VehicleAI.h"
 #include "Beam.h"
 #include "BeamEngine.h"
+#include "BeamFactory.h"
 #include "BitFlags.h"
 #include "Buoyance.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
-#include "Console.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
-#include "DustManager.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "MaterialFunctionMapper.h"
 #include "MaterialReplacer.h"
@@ -255,7 +255,7 @@ void RigSpawner::InitializeRig()
 	
 	m_rig->collrange=DEFAULT_COLLISION_RANGE;
 	m_rig->masscount=0;
-	m_rig->disable_smoke = !SETTINGS.getBooleanSetting("Particles", true);
+	m_rig->disable_smoke = App::GetGfxParticlesMode() == 0;
 	m_rig->smokeId=0;
 	m_rig->smokeRef=0;
 	m_rig->editorId=-1;
@@ -423,13 +423,15 @@ void RigSpawner::InitializeRig()
 	}
 
 	m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
-	m_rig->cparticle_enabled = BSETTING("Particles", true);
-	m_rig->dustp   = DustManager::getSingleton().getDustPool("dust");
-	m_rig->dripp   = DustManager::getSingleton().getDustPool("drip");
-	m_rig->sparksp = DustManager::getSingleton().getDustPool("sparks");
-	m_rig->clumpp  = DustManager::getSingleton().getDustPool("clump");
-	m_rig->splashp = DustManager::getSingleton().getDustPool("splash");
-	m_rig->ripplep = DustManager::getSingleton().getDustPool("ripple");
+	m_rig->cparticle_enabled = App::GetGfxParticlesMode() == 1;
+
+    DustManager& dustman = BeamFactory::getSingleton().GetParticleManager();
+    m_rig->dustp   = dustman.getDustPool("dust");
+    m_rig->dripp   = dustman.getDustPool("drip");
+    m_rig->sparksp = dustman.getDustPool("sparks");
+    m_rig->clumpp  = dustman.getDustPool("clump");
+    m_rig->splashp = dustman.getDustPool("splash");
+    m_rig->ripplep = dustman.getDustPool("ripple");
 
 	m_rig->materialFunctionMapper = new MaterialFunctionMapper();
 	m_rig->cmdInertia   = new CmdKeyInertia();
@@ -437,7 +439,7 @@ void RigSpawner::InitializeRig()
 	m_rig->rotaInertia  = new CmdKeyInertia();
 
 	// Lights mode
-	m_rig->flaresMode = Settings::getSingleton().GetFlaresMode(); // Default = 2 (All vehicles, main lights)
+	m_rig->m_flares_mode = App::GetGfxFlaresMode();
 
     m_flex_factory = RoR::FlexFactory(
         m_rig->materialFunctionMapper, 
@@ -471,7 +473,7 @@ void RigSpawner::FinalizeRig()
 		}
 
 		//Gearbox
-		m_rig->engine->setAutoMode(Settings::getSingleton().GetGearBoxMode());
+		m_rig->engine->setAutoMode(App::GetSimGearboxMode());
 	}
 	
 	//calculate gwps height offset
@@ -566,7 +568,7 @@ void RigSpawner::FinalizeRig()
 		{
 			
 #ifdef USE_MYGUI
-			RoR::Console *console = RoR::Application::GetConsole();
+			RoR::Console *console = RoR::App::GetConsole();
 			if (console) console->putMessage(
 				Console::CONSOLE_MSGTYPE_INFO, 
 				Console::CONSOLE_SYSTEM_ERROR, 
@@ -575,7 +577,7 @@ void RigSpawner::FinalizeRig()
 				30000, 
 				true
 			);
-			RoR::Application::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
+			RoR::App::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
 #endif // USE_MYGUI
 
 			Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";
@@ -720,39 +722,6 @@ void RigSpawner::FinalizeRig()
 	UpdateCollcabContacterNodes();
 
     m_flex_factory.SaveFlexbodiesToCache();
-
-#if 0 // hashing + scope_log disabled
-
-   // now generate the hash of it
-	{
-		// copy whole truck into a string
-		Ogre::String code;
-		ds->seek(0); // from start
-		code.resize(ds->size());
-		ds->read(&code[0], ds->size());
-
-		// and build the hash over it
-		char hash_result[250];
-		memset(hash_result, 0, 249);
-		RoR::CSHA1 sha1;
-		sha1.UpdateHash((uint8_t *)code.c_str(), (uint32_t)code.size());
-		sha1.Final();
-		sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-		beamHash = String(hash_result);
-	}
-
-
-
-
-	// WARNING: this must come LAST
- 	if (!SSETTING("vehicleOutputFile", "").empty())
-	{
-		// serialize the truck in a special format :)
-		String fn = SSETTING("vehicleOutputFile", "");
-		serialize(fn, &scope_log);
-	}
-	
-#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1150,7 +1119,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 			previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
 
 			//we want also to add positional lights for first wing
-			if (m_generate_wing_position_lights && m_rig->flaresMode>0)
+			if (m_generate_wing_position_lights && (m_rig->m_flares_mode != App::GFX_FLARES_NONE))
 			{
 				if (! CheckPropLimit(4))
 				{
@@ -2011,7 +1980,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
 		}
 	}
-	else if (m_rig->flaresMode > 0)
+	else if (m_rig->m_flares_mode != App::GFX_FLARES_NONE)
 	{
 		if(def.special == RigDef::Prop::SPECIAL_BEACON)
 		{
@@ -2369,7 +2338,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 			// we are using keys as source
 			prop.animFlags[anim_index] |= ANIM_FLAG_EVENT;
 
-			int event_id = RoR::Application::GetInputEngine()->resolveEventName(anim_itor->event);
+			int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_itor->event);
 			if (event_id == -1)
 			{
 				AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_itor->event);
@@ -2413,10 +2382,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->flaresMode == 0)
-	{
-		return;
-	}
+    if (m_rig->m_flares_mode == App::GFX_FLARES_NONE) { return; }
 
 	int blink_delay = def.blink_delay_milis;
 	float size = def.size;
@@ -2498,7 +2464,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 	flare.isVisible = true;
 	flare.light = nullptr;
 
-	if (m_rig->flaresMode >= 2 && size > 0.001)
+	if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
 	{
 		//if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
 		if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
@@ -2513,7 +2479,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 			flare.light->setCastShadows(false);
 		}
 	}
-	if (m_rig->flaresMode >= 4 && size > 0.001)
+	if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
 	{
 		//else if (type == 'f' && !usingDefaultMaterial && flaresMode >=4 && size > 0.001)
 		if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
@@ -5822,16 +5788,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
 		m_rig->trucknum
 	);
 
-	/* Are there any startup shifter settings? */
-	Ogre::String gearbox_mode = SSETTING("gearbox_mode", "Automatic shift");
-	if (gearbox_mode == "Manual shift - Auto clutch")
-		m_rig->engine->setAutoMode(BeamEngine::SEMIAUTO);
-	else if (gearbox_mode == "Fully Manual: sequential shift")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL);
-	else if (gearbox_mode == "Fully Manual: stick shift")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL_STICK);
-	else if (gearbox_mode == "Fully Manual: stick shift with ranges")
-		m_rig->engine->setAutoMode(BeamEngine::MANUAL_RANGES);
+    m_rig->engine->setAutoMode(App::GetSimGearboxMode());
 };
 
 void RigSpawner::ProcessHelp()
@@ -6612,7 +6569,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 	}
 
 	/* Cabin light */
-	if (m_rig->flaresMode >= 2 && m_rig->cablight == nullptr)
+	if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && m_rig->cablight == nullptr)
 	{
 		std::stringstream light_name;
 		light_name << "cabinlight-" << m_rig->truckname;

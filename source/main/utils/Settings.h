@@ -23,6 +23,12 @@
     @file
     @date   4th of January 2009
     @author Thomas Fischer
+    @description This is a global configuration hub.
+        Values from both config file and command line are propagated here
+            and accessed ad-hoc by macros like SSETTING(), BSETTING() etc...
+            See 'ProcessCommandLine()' for details.
+        NOTE: Since 09/2016, this class is being superceded by GlobalEnvironment.
+            See 'ParseGlobalVarSetting()' for details.
 */
 
 #pragma once
@@ -33,6 +39,15 @@
 
 #include "Singleton.h"
 
+namespace RoR{
+namespace System {
+
+std::string    GetParentDirectory(const char* src_buff);
+int            DetectBasePaths();
+
+} // namespace System
+} // namespace RoR
+
 // some shortcuts to improve code readability
 #define SETTINGS          Settings::getSingleton()
 #define SSETTING(x, y)    Settings::getSingleton().getSetting(x, y)            //<! get string setting
@@ -40,6 +55,65 @@
 #define BSETTING(x, y)    Settings::getSingleton().getBooleanSetting(x, y)     //<! get boolean setting
 #define ISETTING(x, y)    Settings::getSingleton().getIntegerSetting(x, y)     //<! get int setting
 #define FSETTING(x, y)    Settings::getSingleton().getFloatSetting(x, y)       //<! get float setting
+
+// ---------------------
+// Config value strings
+
+extern const char* CONF_GFX_SHADOW_TEX     ;
+extern const char* CONF_GFX_SHADOW_PSSM    ;
+extern const char* CONF_GFX_SHADOW_NONE    ;
+
+extern const char* CONF_EXTCAM_PITCHING    ;
+extern const char* CONF_EXTCAM_STATIC      ;
+extern const char* CONF_EXTCAM_NONE        ;
+
+extern const char* CONF_TEXFILTER_BILI     ;
+extern const char* CONF_TEXFILTER_TRILI    ;
+extern const char* CONF_TEXFILTER_ANISO    ;
+
+extern const char* CONF_VEGET_NONE         ;
+extern const char* CONF_VEGET_20PERC       ;
+extern const char* CONF_VEGET_50PERC       ;
+extern const char* CONF_VEGET_FULL         ;
+
+extern const char* CONF_GEARBOX_AUTO       ;
+extern const char* CONF_GEARBOX_SEMIAUTO   ;
+extern const char* CONF_GEARBOX_MANUAL     ;
+extern const char* CONF_GEARBOX_MAN_STICK  ;
+extern const char* CONF_GEARBOX_MAN_RANGES ;
+
+extern const char* CONF_FLARES_NONE        ;
+extern const char* CONF_FLARES_NO_LIGHT    ;
+extern const char* CONF_FLARES_CURR_HEAD   ;
+extern const char* CONF_FLARES_ALL_HEADS   ;
+extern const char* CONF_FLARES_ALL_LIGHTS  ;
+
+extern const char* CONF_WATER_BASIC        ;
+extern const char* CONF_WATER_REFLECT      ;
+extern const char* CONF_WATER_FULL_FAST    ;
+extern const char* CONF_WATER_FULL_HQ      ;
+extern const char* CONF_WATER_HYDRAX       ;
+
+extern const char* CONF_SKY_CAELUM         ;
+extern const char* CONF_SKY_SKYX           ;
+extern const char* CONF_SKY_SANDSTORM      ;
+
+extern const char* CONF_INPUT_GRAB_DYNAMIC ;
+extern const char* CONF_INPUT_GRAB_NONE    ;
+extern const char* CONF_INPUT_GRAB_ALL     ;
+
+// ---------------------
+// Config string -> GVar
+
+void App__SetIoInputGrabMode(std::string const & s);
+void App__SetShadowTech     (std::string const & s);
+void App__SetExtcamMode     (std::string const & s);
+void App__SetTexFiltering   (std::string const & s);
+void App__SetVegetationMode (std::string const & s);
+void App__SetSimGearboxMode (std::string const & s);
+void App__SetGfxFlaresMode  (std::string const & s);
+void App__SetGfxWaterMode   (std::string const & s);
+void App__SetGfxSkyMode     (std::string const & s);
 
 class Settings : public RoRSingleton<Settings>, public ZeroedMemoryAllocator
 {
@@ -59,16 +133,18 @@ public:
 	void setSetting(Ogre::String key, Ogre::String value);
 	void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 	
-	bool setupPaths();
-	void loadSettings(Ogre::String configFile, bool overwrite=false);
-	void saveSettings();
-	void saveSettings(Ogre::String configFile);
+	void LoadSettings(std::string filepath);
 
-	void checkGUID();
-	void createGUID();
+    void SaveSettings();
 
-	int GetFlaresMode(int default_value = 2);
-	int GetGearBoxMode(int default_value = 0);
+    /// Process command line arguments into settings.
+    void ProcessCommandLine(int argc, char *argv[]);
+
+    /// Process and erase settings which propagate to global vars.
+    /// @return True if the value was processed, false if it remains in settings.
+    bool ParseGlobalVarSetting(std::string const & name, std::string const & value);
+
+    static bool SetupAllPaths();
 
 #ifdef USE_ANGELSCRIPT
 	// we have to add this to be able to use the class as reference inside scripts
@@ -82,10 +158,9 @@ public:
 	}
 protected:
 
-	Settings();
-	~Settings();
-	Settings(const Settings&);
-	Settings& operator= (const Settings&);
+    // Helpers
+    void SetMpNetworkEnable(std::string const & s);
+
 	static Settings* myInstance;
 
 	// members
@@ -93,18 +168,8 @@ protected:
 	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
 	settings_map_t settings;
 
-	// methods
-	void path_descend(char* path);
-	void path_add(char* path, const char* dirname);
-
-	bool get_system_paths(char *program_path, char *user_path);
-	int generateBinaryHash();
-
-	// ------------------------------------------------------------
-	// Cached config data
-
-	int m_flares_mode; // -1: unknown, -2: default, 0+: mode ID
-	int m_gearbox_mode;
+    // Cached config values
+    bool m_network_enable;
 };
 
 #endif // __Settings_H_

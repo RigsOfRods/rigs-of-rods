@@ -33,6 +33,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 int VideoCamera::counter = 0;
 
@@ -45,7 +46,7 @@ VideoCamera::VideoCamera(rig_t *truck) :
 	, rttTex(0)
 	, rwMirror(0)
 {
-	debugMode = SETTINGS.getBooleanSetting("VideoCameraDebug", false);
+	debugMode = App::GetDiagVideoCameras();
 }
 
 void VideoCamera::init()
@@ -180,12 +181,14 @@ void VideoCamera::setActive(bool state)
 
 void VideoCamera::update(float dt)
 {
-	if (RoR::Application::GetGuiManager()->GetPauseMenuVisible()) return; //Stop everything when pause menu is visible
+    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return; } // Do nothing when paused
 
 #ifdef USE_CAELUM
 	// caelum needs to know that we changed the cameras
-	if (gEnv->sky && gEnv->frameListener->m_loading_state == TERRAIN_LOADED)
+	if (gEnv->sky && RoR::App::GetActiveAppState() == RoR::App::APP_STATE_SIMULATION)
+    {
 		gEnv->sky->notifyCameraChanged(mVidCam);
+    }
 		
 #endif // USE_CAELUM
 

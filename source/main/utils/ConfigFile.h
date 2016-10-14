@@ -70,6 +70,8 @@ public:
     }
     Ogre::String GetStringEx(Ogre::String const & key, Ogre::String const & section, Ogre::String const & defaultValue = "");
 
+    void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK);
+
 private:
     //Block access to Ogre::ConfigFile::getSetting() - not UTF8 safe!
     Ogre::String getSetting(Ogre::String, Ogre::String);

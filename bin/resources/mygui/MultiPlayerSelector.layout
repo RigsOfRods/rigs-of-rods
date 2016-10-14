@@ -1,47 +1,66 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowCSX" position="125 240 820 480" layer="Middle" name="_Main">
+    <Widget type="Window" skin="WindowCSX" position="10 10 820 480" layer="Middle" name="_Main">
         <Property key="Caption" value="Multiplayer"/>
-        <Widget type="EditBox" skin="WordWrapEmpty" position="10 5 170 20">
-            <Property key="Caption" value="Available Servers:"/>
-        </Widget>
-        <Widget type="Button" skin="Button" position="700 405 100 35" name="joinbutton">
-            <Property key="Caption" value="Join"/>
-        </Widget>
-        <Widget type="MultiListBox" skin="MultiListBox" position="5 25 795 375" name="servers_list">
-            <Widget type="MultiListItem" skin="skin_Default" position="0 0 284 346" name="server_name">
-                <Property key="ItemResizingPolicy" value="Fixed"/>
-                <Property key="ItemWidth" value="284"/>
-                <Property key="Caption" value="Name"/>
+        <Property key="MinSize" value="350 200"/>
+        <Widget type="TabControl" skin="TabControl" position="0 0 810 445" name="tab_control">
+            <Widget type="TabItem" skin="" position="2 24 804 417" name="tab_online">
+                <Property key="Caption" value="Online"/>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="10 5 170 20">
+                    <Property key="Caption" value="Available Servers:"/>
+                </Widget>
+                <Widget type="Button" skin="Button" position="700 380 100 35" align="Right Bottom" name="joinbutton">
+                    <Property key="Caption" value="Join"/>
+                </Widget>
+                <Widget type="MultiListBox" skin="MultiListBox" position="5 25 800 355" align="HStretch VStretch" name="servers_list">
+                    <Widget type="MultiListItem" skin="skin_Default" position="0 0 284 326" name="server_name">
+                        <Property key="ItemResizingPolicy" value="Fixed"/>
+                        <Property key="ItemWidth" value="284"/>
+                        <Property key="Caption" value="Name"/>
+                    </Widget>
+                    <Widget type="MultiListItem" skin="skin_Default" position="284 0 296 326" name="server_map">
+                        <Property key="Caption" value="Map name"/>
+                        <Property key="ItemResizingPolicy" value="Fixed"/>
+                        <Property key="ItemWidth" value="296"/>
+                    </Widget>
+                    <Widget type="MultiListItem" skin="skin_Default" position="580 0 67 326" name="server_slots">
+                        <Property key="Caption" value="Players"/>
+                        <Property key="ItemWidth" value="67"/>
+                        <Property key="ItemResizingPolicy" value="Fixed"/>
+                    </Widget>
+                    <Widget type="MultiListItem" skin="skin_Default" position="647 0 140 326" name="server_ip">
+                        <Property key="ItemResizingPolicy" value="Fixed"/>
+                        <Property key="ItemWidth" value="140"/>
+                        <Property key="Caption" value="IP Address"/>
+                    </Widget>
+                </Widget>
+                <Widget type="EditBox" skin="WordWrapEmpty" position="860 5 115 20" align="Right Top" name="ror_net_ver">
+                    <Property key="Caption" value="RoR_Net 2.37"/>
+                    <Property key="TextAlign" value="Right Top"/>
+                </Widget>
             </Widget>
-            <Widget type="MultiListItem" skin="skin_Default" position="284 0 140 346" name="server_ip">
-                <Property key="ItemResizingPolicy" value="Fixed"/>
-                <Property key="ItemWidth" value="140"/>
-                <Property key="Caption" value="IP Address"/>
+            <Widget type="TabItem" skin="" position="2 24 804 417" name="tab_enter_ip">
+                <Property key="Caption" value="Enter IP"/>
+                <Widget type="EditBox" skin="EditBox" position="105 5 305 25" align="HStretch Top" name="entertab_ip_editbox"/>
+                <Widget type="TextBox" skin="TextBox" position="5 5 90 20" name="entertab_ip_label">
+                    <Property key="Caption" value="IP address:"/>
+                    <Property key="TextAlign" value="Right VCenter"/>
+                </Widget>
+                <Widget type="TextBox" skin="TextBox" position="5 35 90 20" name="entertab_port_label">
+                    <Property key="Caption" value="Port:"/>
+                    <Property key="TextAlign" value="Right VCenter"/>
+                </Widget>
+                <Widget type="EditBox" skin="EditBox" position="105 35 305 25" align="HStretch Top" name="entertab_port_editbox"/>
+                <Widget type="Button" skin="Button" position="630 375 170 35" align="Right Bottom" name="entertab_button_connect">
+                    <Property key="Caption" value="Connect!"/>
+                </Widget>
             </Widget>
-            <Widget type="MultiListItem" skin="skin_Default" position="424 0 296 346" name="server_map">
-                <Property key="Caption" value="Map name"/>
-                <Property key="ItemResizingPolicy" value="Fixed"/>
-                <Property key="ItemWidth" value="296"/>
-            </Widget>
-            <Widget type="MultiListItem" skin="skin_Default" position="720 0 67 346" name="server_slots">
-                <Property key="Caption" value="Players"/>
-                <Property key="ItemWidth" value="67"/>
-                <Property key="ItemResizingPolicy" value="Fixed"/>
-            </Widget>
-        </Widget>
-        <Widget type="Button" skin="Button" position="595 405 100 35" name="settingsbutton">
-            <Property key="Caption" value="Settings"/>
-        </Widget>
-        <Widget type="EditBox" skin="WordWrapEmpty" position="680 5 115 20" name="ror_net_ver">
-            <Property key="Caption" value="RoR_Net 2.37"/>
-            <Property key="TextAlign" value="Right Top"/>
         </Widget>
     </Widget>
     <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+        <Property key="IncludeDirectory" value="D:\Projects\git\rigs-of-rods-0-4\source\main\gui\panels"/>
         <Property key="PanelName" value="MultiplayerSelectorLayout"/>
         <Property key="PanelNamespace" value="m"/>
-        <Property key="SourceDirectory" value="C:\Users\Max\Documents\GitHub\ror_nextstable_gui\source\main\gui\panels"/>
+        <Property key="SourceDirectory" value="D:\Projects\git\rigs-of-rods-0-4\source\main\gui\panels"/>
     </CodeGeneratorSettings>
 </MyGUI>

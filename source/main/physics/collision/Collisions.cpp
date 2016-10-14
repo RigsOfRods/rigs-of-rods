@@ -19,6 +19,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Collisions.h"
 
+#include "Application.h"
 #include "ApproxMath.h"
 #include "BeamFactory.h"
 #include "ErrorUtils.h"
@@ -124,7 +125,7 @@ Collisions::Collisions() :
 {
 	hFinder = gEnv->terrainManager->getHeightFinder();
 
-	debugMode = BSETTING("Debug Collisions", false);
+	debugMode = RoR::App::GetDiagCollisions(); // TODO: make interactive
 	for (int i=0; i < HASH_POWER; i++)
 	{
 		hashmask = hashmask << 1;
@@ -177,7 +178,7 @@ void Collisions::resizeMemory(long newSize)
 
 int Collisions::loadDefaultModels()
 {
-	return loadGroundModelsConfigFile(SSETTING("Config Root", "config\\")+"ground_models.cfg");
+	return loadGroundModelsConfigFile(RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg");
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

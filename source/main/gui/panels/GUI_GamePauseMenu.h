@@ -50,6 +50,8 @@ public:
 	void Hide();
 	void SetPosition(int pixels_left, int pixels_top);
 	int GetHeight();
+    void SetVisible(bool v);
+    bool IsVisible();
 	
 private:
 	void eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender);

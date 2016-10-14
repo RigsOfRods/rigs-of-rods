@@ -30,12 +30,7 @@ using namespace Ogre;
 
 CameraBehaviorVehicle::CameraBehaviorVehicle() :
 	  CameraBehaviorOrbit()
-	, camPitching(true)
 {
-	if ( SSETTING("External Camera Mode", "Pitching") == "Static" )
-	{
-		camPitching = false;
-	}
 }
 
 void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
@@ -45,7 +40,7 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 	targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	targetPitch     = 0.0f;
 
-	if ( camPitching )
+	if ( RoR::App::GetGfxExternCamMode() == RoR::App::GFX_EXTCAM_MODE_PITCHING)
 	{
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
@@ -85,7 +80,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 {
 	const OIS::MouseState ms = _arg.state;
 
-	if ( ms.buttonDown(OIS::MB_Middle) && RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
+	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
 		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
 		{

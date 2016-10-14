@@ -46,6 +46,7 @@ public:
 	void Show();
 	void Hide();
 	bool IsVisible();
+	void SetVisible(bool value);
 	void pushMsg(Ogre::String txt);
 	void Update(float dt);
 

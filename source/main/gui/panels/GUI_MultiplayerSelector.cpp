@@ -34,6 +34,7 @@
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
+#include "MainThread.h"
 
 #include <MyGUI.h>
 
@@ -49,15 +50,18 @@ CLASS::CLASS()
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
 	
 	m_joinbutton->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickJoinButton);
-	m_settingsbutton->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickConfigButton);
+    m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseClickEntertabConnect);
 
 	m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
+
+	m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
+	m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
 
 	CenterToScreen();
 
 	init();
 
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()
@@ -78,7 +82,11 @@ void CLASS::Show()
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
-	Application::GetGuiManager()->ShowMainMenu(true);
+}
+
+void CLASS::SetVisibleImmediately(bool visible)
+{
+    MAIN_WIDGET->setVisible(visible);
 }
 
 void CLASS::CenterToScreen()
@@ -99,13 +107,22 @@ void CLASS::eventMouseButtonClickJoinButton(MyGUI::WidgetPtr _sender)
 
 }
 
-void CLASS::eventMouseButtonClickConfigButton(MyGUI::WidgetPtr _sender)
+void CLASS::eventMouseClickEntertabConnect(MyGUI::WidgetPtr _sender)
 {
-
+    this->Hide();
+    App::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
+    App::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
+    App::GetMainThreadLogic()->JoinMultiplayerServer();
 }
 
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
-	if (_name == "close")
-		Hide();
+    if (_name == "close")
+    {
+        this->Hide();
+        if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
+        {
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+    }
 }

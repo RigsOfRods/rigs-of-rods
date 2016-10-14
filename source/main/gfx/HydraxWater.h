@@ -19,8 +19,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#ifndef __HydraxWater_H_
-#define __HydraxWater_H_
 
 #include "Hydrax.h"
 #include "IWater.h"
@@ -63,10 +61,8 @@ protected:
 	float waveHeight;
 	float waterHeight;
 	Ogre::Camera * mRenderCamera;
-	bool haswaves;
 	Hydrax::Noise::Perlin *waternoise;
 	Hydrax::Module::ProjectedGrid *mModule;
 	Ogre::String CurrentConfigFile;
 };
 
-#endif // __HydraxWater_H_

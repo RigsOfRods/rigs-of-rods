@@ -1,27 +1,33 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal & contributors
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifdef USE_OPENAL
 
-#include "Sound.h"
 #include "SoundManager.h"
+
+#include "Application.h"
+#include "Sound.h"
 #include "Settings.h"
+
+#include <OgreResourceGroupManager.h>
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -42,6 +48,7 @@ bool _checkALErrors(const char *filename, int linenum)
 }
 #define hasALErrors() _checkALErrors(__FILE__, __LINE__)
 
+using namespace RoR;
 using namespace Ogre;
 
 const float SoundManager::MAX_DISTANCE       = 500.0f;
@@ -55,7 +62,7 @@ SoundManager::SoundManager() :
 	, sound_context(NULL)
 	, audio_device(NULL)
 {
-	String device = SSETTING("AudioDevice", "");
+	String device = App::GetAudioDeviceName();
 
 	if (device == "")
 		audio_device = alcOpenDevice(NULL);
@@ -105,8 +112,6 @@ SoundManager::SoundManager() :
 	{
 		hardware_sources_map[i] = -1;
 	}
-
-	master_volume = FSETTING("Sound Volume", 100.0f) / 100.0f;
 }
 
 SoundManager::~SoundManager()
@@ -213,19 +218,20 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
 		// this is a potentially audible m_audio_sources[source_index]
 		if (audio_sources[source_index]->hardware_index != -1)
 		{
-			// m_audio_sources[source_index] already playing
-			// update the AL settings
-			switch (reason)
-			{
-			case Sound::REASON_PLAY: alSourcePlay(hardware_sources[audio_sources[source_index]->hardware_index]); break;
-			case Sound::REASON_STOP: alSourceStop(hardware_sources[audio_sources[source_index]->hardware_index]); break;
-			case Sound::REASON_GAIN: alSourcef(hardware_sources[audio_sources[source_index]->hardware_index], AL_GAIN, vfl * master_volume); break;
-			case Sound::REASON_LOOP: alSourcei(hardware_sources[audio_sources[source_index]->hardware_index], AL_LOOPING, (vfl > 0.5) ? AL_TRUE : AL_FALSE); break;
-			case Sound::REASON_PTCH: alSourcef(hardware_sources[audio_sources[source_index]->hardware_index], AL_PITCH, vfl); break;
-			case Sound::REASON_POSN: alSource3f(hardware_sources[audio_sources[source_index]->hardware_index], AL_POSITION, vvec->x, vvec->y, vvec->z); break;
-			case Sound::REASON_VLCT: alSource3f(hardware_sources[audio_sources[source_index]->hardware_index], AL_VELOCITY, vvec->x, vvec->y, vvec->z); break;
-			default: break;
-			}
+            ALuint hw_source = hardware_sources[audio_sources[source_index]->hardware_index];
+            // m_audio_sources[source_index] already playing
+            // update the AL settings
+            switch (reason)
+            {
+            case Sound::REASON_PLAY: alSourcePlay(hw_source);                                                  break;
+            case Sound::REASON_STOP: alSourceStop(hw_source);                                                  break;
+            case Sound::REASON_GAIN: alSourcef   (hw_source, AL_GAIN,     vfl * App::GetAudioMasterVolume());  break;
+            case Sound::REASON_LOOP: alSourcei   (hw_source, AL_LOOPING, (vfl > 0.5) ? AL_TRUE : AL_FALSE);    break;
+            case Sound::REASON_PTCH: alSourcef   (hw_source, AL_PITCH,    vfl);                                break;
+            case Sound::REASON_POSN: alSource3f  (hw_source, AL_POSITION, vvec->x, vvec->y, vvec->z);          break;
+            case Sound::REASON_VLCT: alSource3f  (hw_source, AL_VELOCITY, vvec->x, vvec->y, vvec->z);          break;
+            default: break;
+            }
 		} else
 		{
 			// try to make it play by the hardware
@@ -273,18 +279,23 @@ void SoundManager::assign(int source_index, int hardware_index)
 	audio_sources[source_index]->hardware_index = hardware_index;
 	hardware_sources_map[hardware_index] = source_index;
 
-	// the hardware source is supposed to be stopped!
-	alSourcei(hardware_sources[hardware_index], AL_BUFFER, audio_sources[source_index]->buffer);
-	alSourcef(hardware_sources[hardware_index], AL_GAIN, audio_sources[source_index]->gain*master_volume);
-	alSourcei(hardware_sources[hardware_index], AL_LOOPING, (audio_sources[source_index]->loop)?AL_TRUE:AL_FALSE);
-	alSourcef(hardware_sources[hardware_index], AL_PITCH, audio_sources[source_index]->pitch);
-	alSource3f(hardware_sources[hardware_index], AL_POSITION, audio_sources[source_index]->position.x,audio_sources[source_index]->position.y,audio_sources[source_index]->position.z);
-	alSource3f(hardware_sources[hardware_index], AL_VELOCITY, audio_sources[source_index]->velocity.x,audio_sources[source_index]->velocity.y,audio_sources[source_index]->velocity.z);
-	if (audio_sources[source_index]->should_play)
-	{
-		alSourcePlay(hardware_sources[hardware_index]);
-	}
-	hardware_sources_in_use_count++;
+    ALuint hw_source = hardware_sources[hardware_index];
+    Sound* audio_source = audio_sources[source_index];
+
+    // the hardware source is supposed to be stopped!
+    alSourcei (hw_source, AL_BUFFER,   audio_source->buffer);
+    alSourcef (hw_source, AL_GAIN,     audio_source->gain * App::GetAudioMasterVolume());
+    alSourcei (hw_source, AL_LOOPING, (audio_source->loop)?AL_TRUE:AL_FALSE);
+    alSourcef (hw_source, AL_PITCH,    audio_source->pitch);
+    alSource3f(hw_source, AL_POSITION, audio_source->position.x,audio_source->position.y,audio_source->position.z);
+    alSource3f(hw_source, AL_VELOCITY, audio_source->velocity.x,audio_source->velocity.y,audio_source->velocity.z);
+
+    if (audio_source->should_play)
+    {
+        alSourcePlay(hw_source);
+    }
+
+    hardware_sources_in_use_count++;
 }
 
 void SoundManager::retire(int source_index)
@@ -308,15 +319,15 @@ void SoundManager::resumeAllSounds()
 {
 	if (!audio_device) return;
 	// no mutex needed
-	alListenerf(AL_GAIN, master_volume);
+	alListenerf(AL_GAIN, App::GetAudioMasterVolume());
 }
 
 void SoundManager::setMasterVolume(float v)
 {
 	if (!audio_device) return;
 	// no mutex needed
-	master_volume = v;
-	alListenerf(AL_GAIN, master_volume);
+	App::SetAudioMasterVolume(v);
+	alListenerf(AL_GAIN, v);
 }
 
 Sound* SoundManager::createSound(String filename)

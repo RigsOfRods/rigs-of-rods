@@ -133,9 +133,10 @@ public:
 
 class CacheSystem : public ZeroedMemoryAllocator
 {
-	friend class RoR::Application;
+public:
 
-public:	
+	CacheSystem();
+	~CacheSystem();
 
 	enum CacheValidityState
 	{
@@ -194,11 +195,6 @@ protected:
 	// ================================================================================
 	// Functions
 	// ================================================================================
-
-	CacheSystem();
-	~CacheSystem();
-	CacheSystem(const CacheSystem&);
-	CacheSystem& operator= (const CacheSystem&);
 	
 	int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
@@ -228,7 +224,6 @@ protected:
 	void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
 	void deleteFileCache(char *filename); // removed files from cache
 	void writeGeneratedCache();
-	void writeStreamCache();
 	
 	// adds a zip to the cache
 	void loadSingleZip(Ogre::FileInfo f, bool unload=true, bool ownGroup=true);

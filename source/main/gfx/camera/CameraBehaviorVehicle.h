@@ -43,7 +43,6 @@ public:
 
 protected:
 
-	bool camPitching;
 };
 
 #endif // __CAMERA_BEHAVIOR_VEHICLE_ORBIT_H_

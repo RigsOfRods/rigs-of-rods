@@ -31,24 +31,20 @@
 #include "GUI_MainSelectorLayout.h"
 
 
-namespace RoR
-{
-
-namespace GUI
-{
+namespace RoR {
+namespace GUI {
 
 class MainSelector : public MainSelectorLayout
 {
 
 public:
-	MainSelector(RoR::SkinManager* skin_manager);
+	MainSelector();
 	~MainSelector();
 
 	bool IsFinishedSelecting();
 	void Show(LoaderType type);
-	void Hide();
+	void Hide(bool smooth = true);
 	bool IsVisible();
-	void BackToMenu();
 	void Reset();
 	void Cancel();
 
@@ -98,5 +94,4 @@ private:
 };
 
 } // namespace GUI
-
 } // namespace RoR

@@ -36,7 +36,6 @@
 #include "Character.h"
 #include "CharacterFactory.h"
 #include "ChatSystem.h"
-#include "Console.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
 #include "DepthOfFieldEffect.h"
@@ -44,14 +43,13 @@
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
 #include "GlobalEnvironment.h"
-#include "GUIFriction.h"
 #include "GUIManager.h"
-#include "GUIMenu.h"
-#include "GUIMp.h"
+#include "GUI_LoadingWindow.h"
+#include "GUI_MainSelector.h"
+#include "GUI_MultiplayerClientList.h"
 #include "Heathaze.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "LoadingWindow.h"
 #include "MumbleIntegration.h"
 #include "Mirrors.h"
 #include "Network.h"
@@ -80,23 +78,18 @@
 #include <chrono>
 #include <thread>
 
-// Global instance of GlobalEnvironment used throughout the game.
-GlobalEnvironment *gEnv; 
-
 using namespace RoR;
 using namespace Ogre; // The _L() macro won't compile without.
 
 MainThread::MainThread():
 	m_no_rendering(false),
-	m_shutdown_requested(false),
 	m_restart_requested(false),
 	m_start_time(0),
-	m_exit_loop_requested(false),
 	m_base_resource_loaded(false),
-	m_application_state(Application::STATE_NONE),
-	m_next_application_state(Application::STATE_NONE)
+    m_is_mumble_created(false),
+    m_frame_listener(nullptr)
 {
-	RoR::Application::SetMainThreadLogic(this);
+	RoR::App::SetMainThreadLogic(this);
 }
 
 void MainThread::Go()
@@ -105,33 +98,24 @@ void MainThread::Go()
 	// Bootstrap
 	// ================================================================================
 
-	m_application_state = Application::STATE_BOOTSTRAP;
-
-	gEnv = new GlobalEnvironment(); // Instantiate global environment
-
-	if (! Application::GetSettings().setupPaths() )
-	{
-		throw std::runtime_error("[RoR] MainThread::go(): Failed to setup file paths");
-	}
-
-	Application::StartOgreSubsystem();
+	App::StartOgreSubsystem();
 #ifdef ROR_USE_OGRE_1_9
 	Ogre::OverlaySystem* overlay_system = new OverlaySystem(); //Overlay init
 #endif
 
-	Application::CreateContentManager();
+	App::CreateContentManager();
 
 	LanguageEngine::getSingleton().setup();
 
 	// Add startup resources
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
-	RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
+	RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
+	RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
+	RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
 	// Setup rendering (menu + simulation)
-	Ogre::SceneManager* scene_manager = RoR::Application::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+	Ogre::SceneManager* scene_manager = RoR::App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
 	gEnv->sceneManager = scene_manager;
 #ifdef ROR_USE_OGRE_1_9
 	if (overlay_system) {
@@ -146,7 +130,7 @@ void MainThread::Go()
 	camera->setFarClipDistance( 1000.0*1.733 );
 	camera->setFOVy(Ogre::Degree(60));
 	camera->setAutoAspectRatio(true);
-	RoR::Application::GetOgreSubsystem()->GetViewport()->setCamera(camera);
+	RoR::App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
 	gEnv->mainCamera = camera;
 
 	// SHOW BOOTSTRAP SCREEN
@@ -177,13 +161,13 @@ void MainThread::Go()
 	scene_manager->addSpecialCaseRenderQueue(Ogre::RENDER_QUEUE_OVERLAY);
 	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_INCLUDE);
 
-	Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
+	App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
 
-	RoR::Application::CreateCacheSystem();
+	RoR::App::CreateCacheSystem();
 
-	RoR::Application::GetCacheSystem()->setLocation(SSETTING("Cache Path", ""), SSETTING("Config Root", ""));
+	RoR::App::GetCacheSystem()->setLocation(App::GetSysCacheDir() + PATH_SLASH, App::GetSysConfigDir() + PATH_SLASH);
 
-	Application::GetContentManager()->init();
+	App::GetContentManager()->init();
 
 	// HIDE BOOTSTRAP SCREEN
 
@@ -193,10 +177,7 @@ void MainThread::Go()
 	scene_manager->clearSpecialCaseRenderQueues();
 	scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_EXCLUDE);
 	
-	Application::CreateGuiManagerIfNotExists();
-
-	// create console, must be done early
-	Application::CreateConsoleIfNotExists();
+	App::CreateGuiManagerIfNotExists();
 
 	// Load and show menu wallpaper
 	MyGUI::VectorWidgetPtr v = MyGUI::LayoutManager::getInstance().loadLayout("wallpaper.layout");
@@ -218,75 +199,53 @@ void MainThread::Go()
 
 #endif
 
-	RoR::Application::CreateInputEngine();
-	RoR::Application::GetInputEngine()->setupDefault(RoR::Application::GetOgreSubsystem()->GetMainHWND());
+	RoR::App::CreateInputEngine();
+	RoR::App::GetInputEngine()->setupDefault(RoR::App::GetOgreSubsystem()->GetMainHWND());
 
 	// Initialize "managed materials"
 	// These are base materials referenced by user content
 	// They must be initialized before any content is loaded, including mod-cache update.
 	// Otherwise material links are unresolved and loading ends with an exception
 	// TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
-	Application::GetContentManager()->InitManagedMaterials();
+	App::GetContentManager()->InitManagedMaterials();
 
 	if (BSETTING("regen-cache-only", false)) //Can be usefull so we will leave it here -max98
 		MainThread::RegenCache(); 
 
-	RoR::Application::GetCacheSystem()->Startup();
-
-	// Init singletons. TODO: Move under Application
-	LoadingWindow::getSingleton();
-	RoR::Application::GetGuiManager()->InitMainSelector(Application::GetContentManager()->GetSkinManager());
-	GUI_Friction::getSingleton();
+	RoR::App::GetCacheSystem()->Startup();
 
 	// Create legacy RoRFrameListener
-
-	gEnv->frameListener = new RoRFrameListener();
+	m_frame_listener = new RoRFrameListener();
 
 #ifdef USE_ANGELSCRIPT
-	ScriptEngine::getSingleton().SetFrameListener(gEnv->frameListener);
+	ScriptEngine::getSingleton().SetFrameListener(m_frame_listener);
 #endif
 
 #ifdef USE_MPLATFORM
-	gEnv->frameListener->m_platform = new MPlatform_FD();
-	if (gEnv->frameListener->m_platform) 
+	m_frame_listener->m_platform = new MPlatform_FD();
+	if (m_frame_listener->m_platform) 
 	{
 		m_platform->connect();
 	}
 #endif
 
-	new GUI_MainMenu(Application::GetGuiManagerInterface()); /* Top menubar */
-	gEnv->frameListener->windowResized(RoR::Application::GetOgreSubsystem()->GetRenderWindow());
-	RoRWindowEventUtilities::addWindowEventListener(RoR::Application::GetOgreSubsystem()->GetRenderWindow(), gEnv->frameListener);
+	m_frame_listener->windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
+	RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), m_frame_listener);
 
 #ifdef _WIN32
-	// force feedback
-	if (BSETTING("Force Feedback", true))
-	{
-		//check if a device has been detected
-		if (RoR::Application::GetInputEngine()->getForceFeedbackDevice())
-		{
-			//retrieve gain values
-			float ogain   = FSETTING("Force Feedback Gain",      100) / 100.0f;
-			float stressg = FSETTING("Force Feedback Stress",    100) / 100.0f;
-			float centg   = FSETTING("Force Feedback Centering", 0  ) / 100.0f;
-			float camg    = FSETTING("Force Feedback Camera",    100) / 100.0f;
-
-			gEnv->frameListener->m_forcefeedback = new ForceFeedback(RoR::Application::GetInputEngine()->getForceFeedbackDevice(), ogain, stressg, centg, camg);
-		}
-	}
+    if (App::GetIoFFbackEnabled()) // Force feedback
+    {
+        if (RoR::App::GetInputEngine()->getForceFeedbackDevice())
+        {
+            m_frame_listener->m_forcefeedback.Setup();
+        }
+        else
+        {
+            LOG("No force feedback device detected, disabling force feedback");
+            App::SetIoFFbackEnabled(false);
+        }
+    }
 #endif // _WIN32
-
-	String screenshotFormatString = SSETTING("Screenshot Format", "jpg (smaller, default)");
-	if     (screenshotFormatString == "jpg (smaller, default)")
-		strcpy(gEnv->frameListener->m_screenshot_format, "jpg");
-	else if (screenshotFormatString =="png (bigger, no quality loss)")
-		strcpy(gEnv->frameListener->m_screenshot_format, "png");
-	else
-		strncpy(gEnv->frameListener->m_screenshot_format, screenshotFormatString.c_str(), 10);
-
-	gEnv->multiplayer = BSETTING("Network enable", false);
-
-	String preselected_map = SSETTING("Preselected Map", "");
 
 	// initiate player colours
 	PlayerColours::getSingleton();
@@ -296,163 +255,125 @@ void MainThread::Go()
 
 	new BeamFactory();
 
-	// notice: all factories must be available before starting the network!
-#ifdef USE_SOCKETW
-	
-	if (gEnv->multiplayer)
-	{
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-
-		LoadingWindow::getSingleton().setAutotrack(_L("Trying to connect to server ..."));
-
-		bool connres = RoR::Networking::Connect();
-
-		if (!connres)
-		{
-			LOG("connection failed. server down?");
-			ErrorUtils::ShowError(_L("Unable to connect to server"), _L("Unable to connect to the server. It may be offline or you have network problems."));
-			//fatal
-			exit(1);
-		}
-
-		LoadingWindow::getSingleton().hide();
-
-		new GUI_Multiplayer();
-		GUI_Multiplayer::getSingleton().update();
-
-		String terrain_name = RoR::Networking::GetTerrainName();
-		if (terrain_name != "any")
-		{
-			preselected_map = terrain_name;
-		}
-
-		RoR::ChatSystem::SendStreamSetup();
-
-#ifdef USE_MUMBLE
-		new MumbleIntegration();
-#endif // USE_MUMBLE
-	}
-#endif //SOCKETW	
-
 	// ========================================================================
 	// Main loop (switches application states)
 	// ========================================================================
 
-	Application::State previous_application_state(m_application_state);
-	m_next_application_state = Application::STATE_MAIN_MENU;
-	if (! preselected_map.empty())
-	{
-		LOG("Preselected Map: " + (preselected_map));
-		m_next_application_state = Application::STATE_SIMULATION;
-	}
-	m_base_resource_loaded = false;
-	while (! m_shutdown_requested)
-	{
-		if (m_next_application_state == Application::STATE_MAIN_MENU)
-		{
-			// ================================================================
-			// Main menu
-			// ================================================================
+    App::State previous_application_state = App::GetActiveAppState();
+    App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
 
-			m_application_state = Application::STATE_MAIN_MENU;
-			m_next_application_state = Application::STATE_MAIN_MENU;
+    if (! App::GetSimNextTerrain().empty())
+    {
+        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+    }
+    if (App::GetPendingMpState() == App::MP_STATE_CONNECTED)
+    {
+        this->JoinMultiplayerServer();
+    }
+    m_base_resource_loaded = false;
+    for (;;)
+    {
+        if (App::GetPendingAppState() == App::APP_STATE_SHUTDOWN)
+        {
+            break;
+        }
+        else if (App::GetPendingAppState() == App::APP_STATE_MAIN_MENU)
+        {
+            App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
+            App::SetPendingAppState(App::APP_STATE_NONE);
 
-			OgreSubsystem* ror_ogre_subsystem = RoR::Application::GetOgreSubsystem();
+			OgreSubsystem* ror_ogre_subsystem = RoR::App::GetOgreSubsystem();
 			assert(ror_ogre_subsystem != nullptr);
 
-			if (previous_application_state == Application::STATE_SIMULATION)
+			if (previous_application_state == App::APP_STATE_SIMULATION)
 			{
-				Application::GetGuiManager()->killSimUtils();
+                if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
+                {
+                    RoR::Networking::Disconnect();
+                    App::GetGuiManager()->SetVisible_MpClientList(false);
+                }
 				UnloadTerrain();
 				m_base_resource_loaded = true;
 				gEnv->cameraManager->OnReturnToMainMenu();
 				/* Hide top menu */
-				GUI_MainMenu* top_menu = GUI_MainMenu::getSingletonPtr();
-				if (top_menu != nullptr)
-				{
-					top_menu->setVisible(false);
-				}
+                App::GetGuiManager()->SetVisible_TopMenubar(false);
 				/* Restore wallpaper */
 				menu_wallpaper_widget->setVisible(true);
 
 				/* Set Mumble to non-positional audio */
 				#ifdef USE_MUMBLE
-					  MumbleIntegration::getSingleton().update(Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f),
-							  	  	  	  	  	  	  	  	  	  Vector3::ZERO, Ogre::Vector3(0.0f, 0.0f, 1.0f), Ogre::Vector3(0.0f, 1.0f, 0.0f));
+                    MumbleIntegration::getSingleton().update(
+                        Ogre::Vector3::ZERO,
+                        Ogre::Vector3(0.0f, 0.0f, 1.0f),
+                        Ogre::Vector3(0.0f, 1.0f, 0.0f),
+                        Ogre::Vector3::ZERO,
+                        Ogre::Vector3(0.0f, 0.0f, 1.0f),
+                        Ogre::Vector3(0.0f, 1.0f, 0.0f));
 				#endif // USE_MUMBLE
 			}
 
-			if (BSETTING("MainMenuMusic", true))
+			if (App::GetAudioMenuMusic())
 			{
 				SoundScriptManager::getSingleton().createInstance("tracks/main_menu_tune", -1, nullptr);
 				SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
 			}
 
-			if (gEnv->multiplayer || BSETTING("SkipMainMenu", false))
+            App::GetGuiManager()->ReflectGameState();
+			if (App::GetPendingMpState() == App::MP_STATE_CONNECTED || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
-				RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
-			}
-			else
-			{
-				RoR::Application::GetGuiManager()->ShowMainMenu(true);
+                RoR::App::GetGuiManager()->SetVisible_GameMainMenu(false);
+				RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
 			}
 
 			EnterMainMenuLoop();
-			
-			previous_application_state = Application::STATE_MAIN_MENU;
-			m_application_state = Application::STATE_NONE;
 		}
-		if (m_next_application_state == Application::STATE_SIMULATION)
+		else if (App::GetPendingAppState() == App::APP_STATE_SIMULATION)
 		{
-			// ================================================================
-			// Simulation
-			// ================================================================
-
-			if (SetupGameplayLoop(preselected_map))
+			if (SetupGameplayLoop())
 			{
-				previous_application_state = Application::STATE_SIMULATION;
-				EnterGameplayLoop();	
+                App::SetActiveAppState(App::APP_STATE_SIMULATION);
+                App::SetPendingAppState(App::APP_STATE_NONE);
+                App::GetGuiManager()->ReflectGameState();
+                EnterGameplayLoop();
 			}
 			else
 			{
-				m_next_application_state = Application::STATE_MAIN_MENU;
+                App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
 			}
 		}
-		else if (m_next_application_state == Application::STATE_CHANGEMAP)
+		else if (App::GetPendingAppState() == App::APP_STATE_CHANGE_MAP)
 		{
 			//Sim -> change map -> sim
 			//                  -> back to menu
 
-			if (previous_application_state == Application::STATE_SIMULATION)
+            App::SetActiveAppState(App::APP_STATE_CHANGE_MAP);
+            App::SetPendingAppState(App::APP_STATE_NONE);
+			if (previous_application_state == App::APP_STATE_SIMULATION)
 			{
-				Application::GetGuiManager()->killSimUtils();
 				UnloadTerrain();
-				m_base_resource_loaded = true;	
+				m_base_resource_loaded = true;
 				
 			}
 			menu_wallpaper_widget->setVisible(true);
-			previous_application_state = Application::STATE_CHANGEMAP;
-			m_next_application_state = Application::STATE_CHANGEMAP;
 
-			RoR::Application::GetGuiManager()->getMainSelector()->Show(LT_Terrain);
+			RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
 			//It's the same thing so..
 			EnterMainMenuLoop();
 		}
-	}
+        previous_application_state = App::GetActiveAppState();
+	} // End of app state loop
 
 	// ========================================================================
 	// Cleanup
 	// ========================================================================
 
-	LoadingWindow::freeSingleton();
-	RoR::Application::GetGuiManager()->getMainSelector()->~MainSelector();
+    App::GetSettings().SaveSettings(); // Save RoR.cfg
+
+	RoR::App::GetGuiManager()->GetMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
 	{
 		RoR::Networking::Disconnect();
 	}
@@ -462,29 +383,29 @@ void MainThread::Go()
 	//TODO: we could also try to destroy SoundScriptManager, but we don't care!
 
 #ifdef USE_MPLATFORM
-	if (gEnv->frameListener->mplatform != nullptr)
+	if (m_frame_listener->mplatform != nullptr)
 	{
-		if (gEnv->frameListener->mplatform->disconnect())
+		if (m_frame_listener->mplatform->disconnect())
 		{
-			delete(gEnv->frameListener->mplatform);
-			gEnv->frameListener->mplatform = nullptr;
+			delete(m_frame_listener->mplatform);
+			m_frame_listener->mplatform = nullptr;
 		}
 	}
 #endif
 
 	scene_manager->destroyCamera(camera);
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
+	RoR::App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 #ifdef ROR_USE_OGRE_1_9
 	// Produces a segfault
 	// delete overlay_system;
 #endif
 
-	Application::DestroyOverlayWrapper();
+	App::DestroyOverlayWrapper();
 
-	Application::DestroyContentManager();
+	App::DestroyContentManager();
 
-	delete gEnv->frameListener;
-	gEnv->frameListener = nullptr;
+	delete m_frame_listener;
+    m_frame_listener = nullptr;
 
 	delete gEnv->cameraManager;
 	gEnv->cameraManager = nullptr;
@@ -494,8 +415,9 @@ void MainThread::Go()
 
 }
 
-bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
+bool MainThread::SetupGameplayLoop()
 {
+    auto* loading_window = App::GetGuiManager()->GetLoadingWindow();
 	if (!m_base_resource_loaded)
 	{
 		LOG("Loading base resources");
@@ -504,55 +426,55 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 		// Loading base resources
 		// ============================================================================
 
-		LoadingWindow::getSingleton().setProgress(0, _L("Loading base resources"));
+		loading_window->setProgress(0, _L("Loading base resources"));
 
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
 
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
 	}
 
 	// ============================================================================
 	// Loading settings resources
 	// ============================================================================
 
-	if (SSETTING("Water effects", "Reflection + refraction (speed optimized)") == "Hydrax" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
+	if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
 
-	if (SSETTING("Sky effects", "Caelum (best looking, slower)") == "Caelum (best looking, slower)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+	if (App::GetGfxSkyMode() == 1 && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
 
-	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
+	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
 
-	if (BSETTING("HDR", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
+	if (App::GetGfxEnableHdr() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
 
-	if (BSETTING("DOF", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
+	if (BSETTING("DOF", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
 
-	if (BSETTING("Glow", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
+	if (App::GetGfxEnableGlow() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
 
-	if (BSETTING("Motion blur", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
+	if (BSETTING("Motion blur", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
 
-	if (BSETTING("HeatHaze", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
+	if (App::GetGfxUseHeathaze() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
 
-	if (BSETTING("Sunburn", false) && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
+	if (App::GetGfxEnableSunburn() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
 
-	/*if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
-		RoR::Application::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
+	/*if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
+		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
 		*/
 
 	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
@@ -561,25 +483,17 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 	// Setup
 	// ============================================================================
 
-	Application::CreateOverlayWrapper();
-	Application::GetOverlayWrapper()->SetupDirectionArrow();
-
-	gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
-
-	if (!m_base_resource_loaded)
-	{
-		new DustManager(); // setup particle manager singleton. TODO: Move under Application
-	}
+    BeamFactory::getSingleton().GetParticleManager().CheckAndInit();
 
 	int colourNum = -1;
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
 	{
 		wchar_t tmp[255] = L"";
 		UTFString format = _L("Press %ls to start chatting");
-		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::Application::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
-		Application::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
+		swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
+		App::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
 
 		user_info_t info = RoR::Networking::GetLocalUserData();
 		colourNum = info.colournum;
@@ -590,93 +504,69 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 	gEnv->player = CharacterFactory::getSingleton().createLocal(colourNum);
 
 	// heathaze effect
-	if (BSETTING("HeatHaze", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+	if (BSETTING("HeatHaze", false) && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
 	{
-		gEnv->frameListener->m_heathaze = new HeatHaze();
-		gEnv->frameListener->m_heathaze->setEnable(true);
+		m_frame_listener->m_heathaze = new HeatHaze();
+		m_frame_listener->m_heathaze->setEnable(true);
 	}
 
 	// depth of field effect
-	if (BSETTING("DOF", false) && RoR::Application::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
+	if (BSETTING("DOF", false) && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
 	{
-		gEnv->frameListener->m_dof = new DOFManager();
+		m_frame_listener->m_dof = new DOFManager();
 	}
 
 	if (!m_base_resource_loaded)
 	{
 		// init camera manager after mygui and after we have a character
-		gEnv->cameraManager = new CameraManager(gEnv->frameListener->m_dof);
+		gEnv->cameraManager = new CameraManager(m_frame_listener->m_dof);
 	}
 	
 	// ============================================================================
 	// Loading map
 	// ============================================================================
 
-	Ogre::String map_file_name;
-	if (preselected_map.empty())
+	if (App::GetSimNextTerrain().empty())
 	{
-		CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
+		CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
 		if (selected_map != nullptr)
 		{
-			map_file_name = selected_map->fname;
-			RoR::Application::GetCacheSystem()->checkResourceLoaded(*selected_map);
-			LOG("Loading map resources");
+            App::SetSimNextTerrain(selected_map->fname);
 		}
 		else
 		{
-			LOG("No map selected. Exit.");
+			LOG("No map selected. Returning to menu.");
+            App::GetGuiManager()->SetVisible_LoadingWindow(false);
 			return false;
 		}
 	}
-	else
-	{
-		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
-		{
-			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn2", "");
-			preselected_map = Ogre::StringUtil::replaceAll(preselected_map, ".terrn", "");
-			preselected_map = preselected_map + ".terrn2";
-			// fallback to old terrain name with .terrn
-			if (! RoR::Application::GetCacheSystem()->checkResourceLoaded(preselected_map))
-			{
-				LOG("Terrain not found: " + preselected_map);
-				ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + preselected_map);
-				exit(123);
-			}
-		}
-		// set the terrain cache entry
-		CacheEntry ce = RoR::Application::GetCacheSystem()->getResourceInfo(preselected_map);
-		map_file_name = preselected_map;
-	}
-		
-	if (map_file_name.empty())
-	{
-		LOG("No map selected. Exit.");
-		return false;
-	}
-	
-	LoadTerrain(map_file_name);
+
+    if(! LoadTerrain())
+    {
+        LOG("Could not load map. Returning to menu.");
+        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+        return false;
+    }
 
 	// ========================================================================
 	// Loading vehicle
 	// ========================================================================
 
-	Ogre::String preselected_truck = SSETTING("Preselected Truck", "");
-	if (!preselected_truck.empty() && preselected_truck != "none")
+	if (App::GetSimNextVehicle() != "")
 	{
-		Ogre::String preselected_truck_config = SSETTING("Preselected TruckConfig", "");
-		if (preselected_truck_config != "")
-		{
-			LOG("Preselected Truck Config: " + (preselected_truck_config));
-		}
-		LOG("Preselected Truck: " + (preselected_truck));
 
-		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, preselected_truck_config);
-		bool enterTruck = (BSETTING("Enter Preselected Truck", false));
+		if (App::GetSimNextVehConfig() != "")
+		{
+			LOG("Preselected Truck Config: " + App::GetSimNextVehConfig());
+		}
+		LOG("Preselected Truck: " + App::GetSimNextVehicle());
+
+		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, App::GetSimNextVehConfig());
 
 		Vector3 pos = gEnv->player->getPosition();
 		Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
-		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, preselected_truck, -1, nullptr, false, &truckConfig);
+		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, App::GetSimNextVehicle(), -1, nullptr, false, &truckConfig);
 
 		if (b != nullptr)
 		{
@@ -688,9 +578,10 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 			b->updateFlexbodiesFinal();
 			b->updateVisual();
 
-			if (enterTruck && b->free_node > 0)
+			if (App::GetSimNextVehEnter() && b->free_node > 0)
 			{
 				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
+                App::SetSimNextVehEnter(false);
 			}
 			if (b->engine)
 			{
@@ -701,17 +592,26 @@ bool MainThread::SetupGameplayLoop(Ogre::String preselected_map)
 
 	gEnv->terrainManager->loadPreloadedTrucks();
 
+	// ========================================================================
+	// Extra setup
+	// ========================================================================
+
 	if (ISETTING("OutGauge Mode", 0) > 0)
 	{
 		new OutProtocol();
 	}
 
-	if (BSETTING("MainMenuMusic", true))
-		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
-		//SoundScriptManager::getSingleton().modulate(nullptr, SS_MOD_MUSIC_VOLUME, 0);
+    App::CreateOverlayWrapper();
+    App::GetOverlayWrapper()->SetupDirectionArrow();
 
-	Application::CreateSceneMouse();
-	Application::GetGuiManager()->initSimUtils();
+	if (App::GetAudioMenuMusic())
+    {
+		SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
+    }
+
+	App::CreateSceneMouse();
+
+    gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
 	return true;
 }
@@ -724,7 +624,7 @@ void MainThread::EnterMainMenuLoop()
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
 	unsigned long minTimePerFrame    = 0;
-	unsigned long fpsLimit           = ISETTING("FPS-Limiter", 0); 
+	unsigned long fpsLimit           = App::GetGfxFpsLimit();
 
 	if (fpsLimit < 10 || fpsLimit >= 200)
 	{
@@ -736,9 +636,9 @@ void MainThread::EnterMainMenuLoop()
 		minTimePerFrame = 1000 / fpsLimit;
 	}
 
-	while (!m_exit_loop_requested)
+	while (App::GetPendingAppState() == App::APP_STATE_NONE)
 	{
-		startTime = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+		startTime = App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
 		// no more actual rendering?
 		if (m_no_rendering)
@@ -749,28 +649,28 @@ void MainThread::EnterMainMenuLoop()
 
 		MainMenuLoopUpdate(timeSinceLastFrame);
 
-		if (RoR::Application::GetGuiManager()->getMainSelector()->IsFinishedSelecting())
+		if (RoR::App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
 		{
-			CacheEntry* selected_map = RoR::Application::GetGuiManager()->getMainSelector()->GetSelectedEntry();
+			CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
 			if (selected_map != nullptr)
 			{
-				SetNextApplicationState(Application::STATE_SIMULATION);
-				RequestExitCurrentLoop();
+                App::GetGuiManager()->GetMainSelector()->Reset(); // TODO: Eliminate this mechanism ~ only_a_ptr 09/2016
+                App::SetPendingAppState(App::APP_STATE_SIMULATION);
+                App::SetSimNextTerrain(selected_map->fname);
 			}
 		}
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 		RoRWindowEventUtilities::messagePump();
 #endif
-		Ogre::RenderWindow* rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
+		Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
 		if (rw->isClosed())
 		{
-			RequestExitCurrentLoop();
-			RequestShutdown();
+			App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
 			continue;
 		}
 
-		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+		RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
 		if (!rw->isActive() && rw->isVisible())
 			rw->update(); // update even when in background !
@@ -784,12 +684,8 @@ void MainThread::EnterMainMenuLoop()
 			std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 		}
 
-		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
+		timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
-
-	/* CLEANUP */
-
-	m_exit_loop_requested = false;
 }
 
 void MainThread::EnterGameplayLoop()
@@ -797,12 +693,12 @@ void MainThread::EnterGameplayLoop()
 	/* SETUP */
 	RoR::Mirrors::Init();
 
-	Application::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(gEnv->frameListener);
+	App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(m_frame_listener);
 
 	unsigned long timeSinceLastFrame = 1;
 	unsigned long startTime          = 0;
 	unsigned long minTimePerFrame    = 0;
-	unsigned long fpsLimit           = ISETTING("FPS-Limiter", 0);
+	unsigned long fpsLimit           = App::GetGfxFpsLimit();
 
 	if (fpsLimit < 10 || fpsLimit >= 200)
 	{
@@ -816,9 +712,9 @@ void MainThread::EnterGameplayLoop()
 
 	/* LOOP */
 
-	while(! m_exit_loop_requested)
+	while(App::GetPendingAppState() == App::APP_STATE_NONE)
 	{
-		startTime = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+		startTime = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
 		// no more actual rendering?
 		if (m_no_rendering)
@@ -830,15 +726,22 @@ void MainThread::EnterGameplayLoop()
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 		RoRWindowEventUtilities::messagePump();
 #endif
-		Ogre::RenderWindow* rw = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
+		Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
 		if (rw->isClosed())
 		{
-			m_shutdown_requested = true;
-			printf(">SH\n");
-			return;
+            App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
+			continue;
 		}
 
-		RoR::Application::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+		RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+
+        if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && RoR::Networking::CheckError())
+        {
+            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
+            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
+            App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+            App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+        }
 
 		if (!rw->isActive() && rw->isVisible())
 			rw->update(); // update even when in background !
@@ -850,37 +753,19 @@ void MainThread::EnterGameplayLoop()
 			std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 		}
 
-
-		timeSinceLastFrame = RoR::Application::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
+		timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
 	}
 
 	/* RESTORE ENVIRONMENT */
 
-	m_exit_loop_requested = false;
-	Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
+	App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(m_frame_listener);
 }
 
 void MainThread::Exit()
 {
-	RoR::Application::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(gEnv->frameListener);
-	delete gEnv->frameListener;
-	gEnv->frameListener = nullptr;
-}
-
-void MainThread::RequestShutdown()
-{
-	m_shutdown_requested = true;
-}
-
-void MainThread::RequestRestart()
-{
-	m_shutdown_requested = true;
-	Go();
-}
-
-void MainThread::RequestExitCurrentLoop()
-{
-	m_exit_loop_requested = true;
+	RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(m_frame_listener);
+	delete m_frame_listener;
+	m_frame_listener = nullptr;
 }
 
 void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -894,21 +779,20 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 		seconds_since_last_frame=1.0/20.0; 
 	}
 
-	if (RoR::Application::GetOgreSubsystem()->GetRenderWindow()->isClosed())
+	if (RoR::App::GetOgreSubsystem()->GetRenderWindow()->isClosed())
 	{
-		RequestExitCurrentLoop();
-		RequestShutdown();
+		App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
 		return;
 	}
 
 #ifdef USE_SOCKETW
-	if (gEnv->multiplayer)
+	if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
 	{
-		GUI_Multiplayer::getSingleton().update();
+        App::GetGuiManager()->GetMpClientList()->update();
 	}
 #endif // USE_SOCKETW
 
-	RoR::Application::GetInputEngine()->Capture();
+	RoR::App::GetInputEngine()->Capture();
 
 	MainMenuLoopUpdateEvents(seconds_since_last_frame);
 
@@ -924,78 +808,82 @@ void MainThread::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 		return;
 	}
 
-	RoR::Application::GetInputEngine()->updateKeyBounces(seconds_since_last_frame);
+	RoR::App::GetInputEngine()->updateKeyBounces(seconds_since_last_frame);
 
-	if (! RoR::Application::GetInputEngine()->getInputsChanged())
+	if (! RoR::App::GetInputEngine()->getInputsChanged())
 	{
 		return;
 	}
 
-	if (RoR::Application::GetOverlayWrapper() != nullptr)
+	if (RoR::App::GetOverlayWrapper() != nullptr)
 	{
-		RoR::Application::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
+		RoR::App::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !gEnv->frameListener->m_hide_gui)
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_frame_listener->m_hide_gui)
 	{
 		//TODO: Separate Chat and console
 	}
 
-	if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
+	if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
 	{
 		//TODO: Go back to menu 
-		RequestExitCurrentLoop();
-		RequestShutdown();
+		App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
 		return;
 	}
+
+    auto gui_man = App::GetGuiManager();
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE, 5.f))
+    {
+        gui_man->SetVisible_Console(!gui_man->IsVisible_Console());
+    }
 
 	// TODO: screenshot
 
 	// FOV settings disabled in menu
 
 	// FIXME: full screen/windowed screen switching
-	//if (RoR::Application::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f)) {}
+	//if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f)) {}
 }
 
-void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
+bool MainThread::LoadTerrain()
 {
 	// check if the resource is loaded
-	Ogre::String terrain_file = a_terrain_file;
-	if (! RoR::Application::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
+	Ogre::String terrain_file = App::GetSimNextTerrain();
+    App::SetSimNextTerrain("");
+	if (! RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
 	{
 		// fallback for terrains, add .terrn if not found and retry
 		terrain_file = Ogre::StringUtil::replaceAll(terrain_file, ".terrn2", "");
 		terrain_file = Ogre::StringUtil::replaceAll(terrain_file, ".terrn", "");
 		terrain_file = terrain_file + ".terrn2";
-		if (!RoR::Application::GetCacheSystem()->checkResourceLoaded(terrain_file))
+		if (!RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file))
 		{
 			LOG("Terrain not found: " + terrain_file);
-			ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + terrain_file);
-			exit(123);
+            Ogre::UTFString title(_L("Terrain loading error"));
+            Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
+            App::GetGuiManager()->ShowMessageBox(title.asUTF8(), msg.asUTF8(), true, "OK", true, false, "");
+            return false;
 		}
 	}
 
-	LoadingWindow::getSingleton().setProgress(0, _L("Loading Terrain"));
+	App::GetGuiManager()->GetLoadingWindow()->setProgress(0, _L("Loading Terrain"));
 
-	LOG("Loading new terrain format: " + terrain_file);
+	LOG("Loading terrain: " + terrain_file);
 
 	if (gEnv->terrainManager != nullptr)
 	{
 		// remove old terrain
-		delete(gEnv->terrainManager);
+		delete(gEnv->terrainManager); // TODO: do it when leaving simulation.
 	}
 
 	gEnv->terrainManager = new TerrainManager();
 	gEnv->terrainManager->loadTerrain(terrain_file);
+    App::SetSimActiveTerrain(terrain_file);
 
 #ifdef USE_MYGUI
-	if (GUI_Friction::getSingletonPtr())
-	{
-		GUI_Friction::getSingleton().setCollisions(gEnv->collisions);
-	}
+    App::GetGuiManager()->FrictionSettingsUpdateCollisions();
 #endif //USE_MYGUI
-
-	gEnv->frameListener->m_loading_state = TERRAIN_LOADED;
 	
 	if (gEnv->player != nullptr)
 	{
@@ -1017,49 +905,38 @@ void MainThread::LoadTerrain(Ogre::String const & a_terrain_file)
 	}
 
 	// hide loading window
-	LoadingWindow::getSingleton().hide();
+	App::GetGuiManager()->SetVisible_LoadingWindow(false);
 	// hide wallpaper
 	MyGUI::Window *w = MyGUI::Gui::getInstance().findWidget<MyGUI::Window>("wallpaper");
 	if (w != nullptr)
 	{
 		w->setVisibleSmooth(false);
 	}
+    return true;
 }
 
-void MainThread::BackToMenu()
-{
-	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_MAIN_MENU);
-	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-}
-
-void MainThread::ChangeMap()
-{
-	RoR::Application::GetMainThreadLogic()->SetNextApplicationState(Application::STATE_CHANGEMAP);
-	RoR::Application::GetMainThreadLogic()->RequestExitCurrentLoop();
-
-}
 void MainThread::UnloadTerrain()
 {
 #ifdef USE_MYGUI
 	if (gEnv->surveyMap) gEnv->surveyMap->setVisibility(false);
 #endif //USE_MYGUI
+    auto loading_window = App::GetGuiManager()->GetLoadingWindow();
 
-	gEnv->frameListener->m_loading_state = NONE_LOADED;
-	LoadingWindow::getSingleton().setProgress(0, _L("Unloading Terrain"));
+	loading_window->setProgress(0, _L("Unloading Terrain"));
 	
-	RoR::Application::GetGuiManager()->getMainSelector()->Reset();
+	RoR::App::GetGuiManager()->GetMainSelector()->Reset();
 
 	//First of all..
-	OverlayWrapper* ow = RoR::Application::GetOverlayWrapper();
-	gEnv->frameListener->StopRaceTimer();
+	OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
+	m_frame_listener->StopRaceTimer();
 	ow->HideRacingOverlay();
 	ow->HideDirectionOverlay();
 
-	LoadingWindow::getSingleton().setProgress(15, _L("Unloading Terrain"));
+	loading_window->setProgress(15, _L("Unloading Terrain"));
 
 	//Unload all vehicules
 	BeamFactory::getSingleton().removeAllTrucks();
-	LoadingWindow::getSingleton().setProgress(30, _L("Unloading Terrain"));
+	loading_window->setProgress(30, _L("Unloading Terrain"));
 
 	if (gEnv->player != nullptr)
 	{
@@ -1067,7 +944,7 @@ void MainThread::UnloadTerrain()
 		delete(gEnv->player);
 		gEnv->player = nullptr;
 	}
-	LoadingWindow::getSingleton().setProgress(45, _L("Unloading Terrain"));
+	loading_window->setProgress(45, _L("Unloading Terrain"));
 
 	if (gEnv->terrainManager != nullptr)
 	{
@@ -1075,15 +952,15 @@ void MainThread::UnloadTerrain()
 		delete(gEnv->terrainManager);
 		gEnv->terrainManager = nullptr;
 	}
-	LoadingWindow::getSingleton().setProgress(60, _L("Unloading Terrain"));
+	loading_window->setProgress(60, _L("Unloading Terrain"));
 
-	Application::DeleteSceneMouse();
-	LoadingWindow::getSingleton().setProgress(75, _L("Unloading Terrain"));
+	App::DeleteSceneMouse();
+	loading_window->setProgress(75, _L("Unloading Terrain"));
 
 	//Reinit few things
-	LoadingWindow::getSingleton().setProgress(100, _L("Unloading Terrain"));
+	loading_window->setProgress(100, _L("Unloading Terrain"));
 	// hide loading window
-	LoadingWindow::getSingleton().hide();
+    App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
 void MainThread::ShowSurveyMap(bool be_visible)
@@ -1092,6 +969,68 @@ void MainThread::ShowSurveyMap(bool be_visible)
 	{
 		gEnv->surveyMap->setVisibility(be_visible);
 	}
+}
+
+void MainThread::JoinMultiplayerServer()
+{
+#ifdef USE_SOCKETW
+
+    auto gui = App::GetGuiManager();
+    gui->SetVisible_MultiplayerSelector(false);
+    gui->SetVisible_GameMainMenu(false);
+
+    gui->GetLoadingWindow()->setAutotrack(_L("Connecting to server ..."));
+
+    if (!Networking::Connect())
+    {
+        LOG("connection failed. server down?");
+        gui->SetVisible_LoadingWindow(false);
+        gui->SetVisible_GameMainMenu(true);
+
+        gui->ShowMessageBox("Connection failed", Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
+        return;
+    }
+
+    gui->SetVisible_LoadingWindow(false);
+    gui->SetVisible_MpClientList(true);
+    gui->GetMpClientList()->update();
+
+    ChatSystem::SendStreamSetup();
+
+#ifdef USE_MUMBLE
+    if (! m_is_mumble_created)
+    {
+        new MumbleIntegration();
+        m_is_mumble_created = true;
+    }
+#endif // USE_MUMBLE
+
+    String terrain_name = Networking::GetTerrainName();
+    if (terrain_name != "any")
+    {
+        App::SetSimNextTerrain(terrain_name);
+        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+    }
+    else
+    {
+        // Connected -> go directly to map selector
+        gui->GetMainSelector()->Reset();
+        gui->GetMainSelector()->Show(LT_Terrain);
+    }
+#endif //SOCKETW
+}
+
+void MainThread::LeaveMultiplayerServer()
+{
+#ifdef USE_SOCKETW
+    if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
+    {
+        App::GetGuiManager()->GetLoadingWindow()->setAutotrack(_L("Disconnecting, wait 10 seconds ..."));
+        RoR::Networking::Disconnect();
+        App::GetGuiManager()->SetVisible_MpClientList(false);
+        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+    }
+#endif //SOCKETW
 }
 
 void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_vehicle)
@@ -1109,9 +1048,9 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 
 	if (previous_vehicle)
 	{
-		if (RoR::Application::GetOverlayWrapper())
+		if (RoR::App::GetOverlayWrapper())
 		{
-			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(false, previous_vehicle);
+			RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, previous_vehicle);
 		}
 
 #ifdef USE_OPENAL
@@ -1119,6 +1058,8 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 		SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_PUMP);
 #endif // OPENAL
 	}
+
+    auto frame_listener = App::GetMainThreadLogic()->GetFrameListener();
 
 	if (current_vehicle == nullptr)
 	{
@@ -1142,35 +1083,29 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			gEnv->player->setPosition(position);
 		}
 
-		// force feedback
-		if (gEnv->frameListener->m_forcefeedback)
-		{
-			gEnv->frameListener->m_forcefeedback->setEnabled(false);
-		}
+		frame_listener->m_forcefeedback.SetEnabled(false);
 
 		// hide truckhud
-		if (RoR::Application::GetOverlayWrapper()) RoR::Application::GetOverlayWrapper()->truckhud->show(false);
+		if (RoR::App::GetOverlayWrapper()) RoR::App::GetOverlayWrapper()->truckhud->show(false);
 
 		TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
-	} else
+	}
+    else
 	{
 		// getting inside
-		if (RoR::Application::GetOverlayWrapper() && ! gEnv->frameListener->m_hide_gui)
+		if (RoR::App::GetOverlayWrapper() && ! frame_listener->m_hide_gui)
 		{
-			RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
+			RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
 		}
 
 		// hide unused items
-		if (RoR::Application::GetOverlayWrapper() && current_vehicle->free_active_shock==0)
+		if (RoR::App::GetOverlayWrapper() && current_vehicle->free_active_shock==0)
 		{
 			(OverlayManager::getSingleton().getOverlayElement("tracks/rollcorneedle"))->hide();
 		}
 
 		// force feedback
-		if (gEnv->frameListener->m_forcefeedback)
-		{
-			gEnv->frameListener->m_forcefeedback->setEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
-		}
+		frame_listener->m_forcefeedback.SetEnabled(current_vehicle->driveable==TRUCK); //only for trucks so far
 
 		// attach player to truck
 		if (gEnv->player)
@@ -1178,7 +1113,7 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 			gEnv->player->setBeamCoupling(true, current_vehicle);
 		}
 
-		if (RoR::Application::GetOverlayWrapper())
+		if (RoR::App::GetOverlayWrapper())
 		{
 			try
 			{
@@ -1234,14 +1169,14 @@ void MainThread::ChangedCurrentVehicle(Beam *previous_vehicle, Beam *current_veh
 void MainThread::RegenCache()
 {
 	//TODO: Move to somewhere else than MainThread maybe? -max98
-	RoR::Application::GetCacheSystem()->Startup(true); // true = force regeneration
+	RoR::App::GetCacheSystem()->Startup(true); // true = force regeneration
 
 	if (BSETTING("regen-cache-only", false)) //Only if game run just for regen
 	{
 		// Get stats
-		int num_new = RoR::Application::GetCacheSystem()->newFiles;
-		int num_changed = RoR::Application::GetCacheSystem()->changedFiles;
-		int num_deleted = RoR::Application::GetCacheSystem()->deletedFiles;
+		int num_new = RoR::App::GetCacheSystem()->newFiles;
+		int num_changed = RoR::App::GetCacheSystem()->changedFiles;
+		int num_deleted = RoR::App::GetCacheSystem()->deletedFiles;
 
 		// Report
 		Ogre::UTFString str = _L("Cache regeneration done.\n");

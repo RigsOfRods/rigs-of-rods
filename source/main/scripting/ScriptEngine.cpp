@@ -42,7 +42,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "OgreAngelscript.h"
 #include "Beam.h"
 #include "Collisions.h"
-#include "Console.h"
+#include "GUI_GameConsole.h"
 #include "LocalStorage.h"
 #include "Settings.h"
 #include "Application.h"
@@ -90,7 +90,7 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
 	callbacks["eventCallback"] = std::vector<int>();
 
 	// create our own log
-	scriptLog = LogManager::getSingleton().createLog(SSETTING("Log Path", "")+"/Angelscript.log", false);
+	scriptLog = LogManager::getSingleton().createLog(App::GetSysLogsDir() + PATH_SLASH + "Angelscript.log", false);
 	
 	scriptLog->logMessage("ScriptEngine initialized");
 
@@ -114,7 +114,7 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
 #endif // OGRE_VERSION
 {
 #ifdef USE_MYGUI
-	Console *c = RoR::Application::GetConsole();
+	Console *c = RoR::App::GetConsole();
 	if (c) c->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_LOGMESSAGE_SCRIPT, message, "page_white_code.png");
 #endif // USE_MYGUI
 }
@@ -164,7 +164,7 @@ void ScriptEngine::exploreScripts()
 void ScriptEngine::LineCallback(AngelScript::asIScriptContext *ctx, unsigned long *timeOut)
 {
 	// If the time out is reached we abort the script
-	if (RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() > *timeOut)
+	if (RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() > *timeOut)
 	{
 		ctx->Abort();
 	}
@@ -896,20 +896,7 @@ int ScriptEngine::loadScript(String _scriptName)
 	AngelScript::asIScriptModule *mod = 0;
 	// try to load bytecode
 	bool cached = false;
-	{
-		// the code below should load a compilation result but it crashes for some reason atm ...
-		//AngelScript::asIScriptModule *mod = engine->GetModule("RoRScript", AngelScript::asGM_ALWAYS_CREATE);
-		/*
-		String fn = SSETTING("Cache Path") + "script" + hash + "_" + scriptName + "c";
-		CBytecodeStream bstream(fn);
-		if (bstream.Existing())
-		{
-			// CRASHES here :(
-			int res = mod->LoadByteCode(&bstream);
-			cached = !res;
-		}
-		*/
-	}
+
 	if (!cached)
 	{
 		// not cached so dynamically load and compile it
@@ -939,9 +926,9 @@ int ScriptEngine::loadScript(String _scriptName)
 		// save the bytecode
 		scriptHash = builder.getHash();
 		{
-			String fn = SSETTING("Cache Path", "") + "script" + scriptHash + "_" + scriptName + "c";
-			SLOG("saving script bytecode to file " + fn);
-			CBytecodeStream bstream(fn);
+			String filepath = App::GetSysCacheDir() + PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
+			SLOG("saving script bytecode to file " + filepath);
+			CBytecodeStream bstream(filepath);
 			mod->SaveByteCode(&bstream);
 		}
 	}
@@ -1011,7 +998,7 @@ int ScriptEngine::loadScript(String _scriptName)
 
 	// Set the timeout before executing the function. Give the function 1 sec
 	// to return before we'll abort it.
-	timeOut = RoR::Application::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
+	timeOut = RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
 
 	SLOG("Executing main()");
 	result = context->Execute();

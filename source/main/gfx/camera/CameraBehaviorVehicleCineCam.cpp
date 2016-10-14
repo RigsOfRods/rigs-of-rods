@@ -84,9 +84,9 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
 
 	current_vehicle->prepareInside(true);
 
-	if ( RoR::Application::GetOverlayWrapper() )
+	if ( RoR::App::GetOverlayWrapper() )
 	{
-		RoR::Application::GetOverlayWrapper()->showDashboardOverlays(
+		RoR::App::GetOverlayWrapper()->showDashboardOverlays(
 			(current_vehicle->driveable == AIRPLANE), 
 			current_vehicle
 		);
@@ -111,9 +111,9 @@ void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext
 	
 	current_vehicle->prepareInside(false);
 
-	if ( RoR::Application::GetOverlayWrapper() != nullptr )
+	if ( RoR::App::GetOverlayWrapper() != nullptr )
 	{
-		RoR::Application::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
+		RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
 	}
 
 	current_vehicle->GetCameraContext()->last_cinecam_index = current_vehicle->currentcamera;

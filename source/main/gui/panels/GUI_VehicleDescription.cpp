@@ -27,16 +27,14 @@ along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GUI_VehicleDescription.h"
 
-#include "RoRPrerequisites.h"
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "GUIManager.h"
+#include "InputEngine.h"
 #include "Utils.h"
-#include "RoRVersion.h"
 #include "rornet.h"
 #include "Language.h"
-#include "GUIManager.h"
-#include "Application.h"
-
 
 #include <MyGUI.h>
 
@@ -53,17 +51,20 @@ CLASS::CLASS()
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
 
 	CenterToScreen();
-	Hide();
+	MAIN_WIDGET->setVisible(false);
 }
 
 CLASS::~CLASS()
 {
-	currTruck = nullptr;
 	m_vehicle_desc->setCaptionWithReplacing("");
 }
 
 void CLASS::LoadText()
 {
+	Beam* currTruck = BeamFactory::getSingleton().getCurrentTruck();
+
+	if (currTruck == nullptr) return;
+
 	m_vehicle_title->setMaxTextLength(33);
 	m_vehicle_title->setCaptionWithReplacing(currTruck->getTruckName());
 
@@ -104,11 +105,11 @@ void CLASS::LoadText()
 		Ogre::String keyStr = "";
 
 		sprintf(commandID, "COMMANDS_%02d", i);
-		int eventID = RoR::Application::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-		Ogre::String keya = RoR::Application::GetInputEngine()->getEventCommand(eventID);
+		int eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+		Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
 		sprintf(commandID, "COMMANDS_%02d", i + 1);
-		eventID = RoR::Application::GetInputEngine()->resolveEventName(Ogre::String(commandID));
-		Ogre::String keyb = RoR::Application::GetInputEngine()->getEventCommand(eventID);
+		eventID = RoR::App::GetInputEngine()->resolveEventName(Ogre::String(commandID));
+		Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
 
 		// cut off expl
 		if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+") keya = keya.substr(5);
@@ -131,21 +132,17 @@ void CLASS::LoadText()
 	m_vehicle_desc->setCaption(Ogre::String(txt));
 }
 
-void CLASS::Show()
-{
-	MAIN_WIDGET->setVisible(true);
-	currTruck = BeamFactory::getSingleton().getCurrentTruck();
-	LoadText();
-}
-
-void CLASS::Hide()
-{
-	MAIN_WIDGET->setVisible(false);
-}
-
-bool CLASS::getVisible()
+bool CLASS::IsVisible()
 {
 	return MAIN_WIDGET->getVisible();
+}
+
+void CLASS::SetVisible(bool vis)
+{
+	if (vis && !IsVisible())
+		LoadText();
+
+	MAIN_WIDGET->setVisible(vis);
 }
 
 void CLASS::CenterToScreen()
@@ -159,5 +156,5 @@ void CLASS::CenterToScreen()
 void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
 {
 	if (_name == "close")
-		Hide();
+		SetVisible(false);
 }

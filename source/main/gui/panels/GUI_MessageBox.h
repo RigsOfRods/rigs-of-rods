@@ -50,6 +50,8 @@ public:
 	// return 2: button2 pressed.
 	int getResult();
 
+    bool IsVisible();
+
 private:
 	void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
 	void eventMouseButton1ClickSaveButton(MyGUI::WidgetPtr _sender);

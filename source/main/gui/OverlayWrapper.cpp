@@ -68,7 +68,7 @@ OverlayWrapper::OverlayWrapper():
 	m_visible_overlays(0),
 	m_flipflop(false)
 {
-	win = RoR::Application::GetOgreSubsystem()->GetRenderWindow();
+	win = RoR::App::GetOgreSubsystem()->GetRenderWindow();
 	init();
 }
 
@@ -828,7 +828,7 @@ bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButton
 
 void OverlayWrapper::SetupDirectionArrow()
 {
-	if (RoR::Application::GetOverlayWrapper() != nullptr)
+	if (RoR::App::GetOverlayWrapper() != nullptr)
 	{
 		// setup direction arrow
 		Ogre::Entity *arrow_entity = gEnv->sceneManager->createEntity("dirArrowEntity", "arrow2.mesh");
@@ -843,7 +843,7 @@ void OverlayWrapper::SetupDirectionArrow()
 		m_direction_arrow_node->setScale(0.1, 0.1, 0.1);
 		m_direction_arrow_node->setPosition(Vector3(-0.6, +0.4, -1));
 		m_direction_arrow_node->setFixedYawAxis(true, Vector3::UNIT_Y);
-		RoR::Application::GetOverlayWrapper()->m_direction_arrow_overlay->add3D(m_direction_arrow_node);
+		RoR::App::GetOverlayWrapper()->m_direction_arrow_overlay->add3D(m_direction_arrow_node);
 	}
 }
 

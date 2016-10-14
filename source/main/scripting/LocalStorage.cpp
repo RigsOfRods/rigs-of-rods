@@ -20,6 +20,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // Created on 18th May 2011.
 
 #include "LocalStorage.h"
+
+#include "Application.h"
 #include "Settings.h"
 
 int LocalStorage::refCount = 0;
@@ -41,7 +43,7 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
 
 	sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
 	
-	filename = SSETTING("Cache Path", "") + fileName_in + ".asdata";
+	filename = RoR::App::GetSysCacheDir() + PATH_SLASH + fileName_in + ".asdata";
 	separators = "=";
 	loadDict();
 	

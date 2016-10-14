@@ -27,6 +27,7 @@
 
 #include "GUI_DebugOptions.h"
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 #include "Utils.h"
 #include "RoRVersion.h"
@@ -84,20 +85,20 @@ void CLASS::Show()
 
 void CLASS::Hide()
 {
-	MAIN_WIDGET->setVisibleSmooth(false);
+	MAIN_WIDGET->setVisible(false);
 }
 
 void CLASS::UpdateControls()
 {
-	m_debug_truck_mass->setStateCheck(Settings::getSingleton().getBooleanSetting("Debug Truck Mass", false));
+	m_debug_truck_mass->setStateCheck(App::GetDiagTruckMass());
 
-	m_debug_collision_meshes->setStateCheck(Settings::getSingleton().getBooleanSetting("Debug Collisions", false));
+	m_debug_collision_meshes->setStateCheck(App::GetDiagCollisions());
 
 	m_ingame_console->setStateCheck(Settings::getSingleton().getBooleanSetting("Enable Ingame Console", false));
 
 	m_debug_envmap->setStateCheck(Settings::getSingleton().getBooleanSetting("EnvMapDebug", false));
 
-	m_debug_videocameras->setStateCheck(Settings::getSingleton().getBooleanSetting("VideoCameraDebug", false));
+	m_debug_videocameras->setStateCheck(App::GetDiagVideoCameras());
 
 	m_trigger_debug->setStateCheck(Settings::getSingleton().getBooleanSetting("Trigger Debug", false));
 
@@ -112,14 +113,14 @@ void CLASS::UpdateControls()
 	m_disable_crash_reporting->setStateCheck(Settings::getSingleton().getBooleanSetting("NoCrashRpt", true));
 
 
-	if (DebugOptionsMap["Input Grab"] == "Dynamically")
+	if (App::GetIoInputGrabMode() == App::INPUT_GRAB_DYNAMIC)
 		m_input_grabing->setIndexSelected(1);
-	else if (DebugOptionsMap["Input Grab"] == "None")
+	else if (App::GetIoInputGrabMode() == App::INPUT_GRAB_NONE)
 		m_input_grabing->setIndexSelected(2);
 	else 
 		m_input_grabing->setIndexSelected(0);
 
-	m_preselected_map->setCaption(DebugOptionsMap["Preselected Map"]);
+	m_preselected_map->setCaption(RoR::App::GetSimNextTerrain());
 	m_preselected_truck->setCaption(DebugOptionsMap["Preselected Truck"]);
 }
 
@@ -168,11 +169,9 @@ void CLASS::OnDebugEnvMapCheck(MyGUI::WidgetPtr _sender)
 
 void CLASS::OnDebugVideoCameraCheck(MyGUI::WidgetPtr _sender)
 {
-	m_debug_videocameras->setStateCheck(!m_debug_videocameras->getStateCheck());
-	if (m_debug_videocameras->getStateCheck() == false)
-		DebugOptionsMap["VideoCameraDebug"] = "No";
-	else
-		DebugOptionsMap["VideoCameraDebug"] = "Yes";
+    const bool val = !m_debug_videocameras->getStateCheck();
+    m_debug_videocameras->setStateCheck(val);
+    App::SetDiagVideoCameras(val);
 }
 
 void CLASS::OnDebugTriggerCheck(MyGUI::WidgetPtr _sender)
@@ -235,12 +234,22 @@ void CLASS::SaveConfig()
 	// now save the GameSettingsMap
 	for (it = DebugOptionsMap.begin(); it != DebugOptionsMap.end(); it++)
 	{
-		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash" || it->first.c_str() == "Config Root" || it->first.c_str() == "Cache Path" || it->first.c_str() == "Log Path" || it->first.c_str() == "Resources Path" || it->first.c_str() == "Program Path")
+		if (it->first.c_str() == "User Token" || it->first.c_str() == "User Token Hash")
 			return;
 
 		Settings::getSingleton().setSetting(it->first.c_str(), it->second.c_str()); //Avoid restarting the game in few cases.
-		Settings::getSingleton().saveSettings();
+		Settings::getSingleton().SaveSettings();
 	}
+}
+
+void CLASS::SetVisible(bool v)
+{
+    MAIN_WIDGET->setVisible(false);
+}
+
+bool CLASS::IsVisible()
+{
+    return MAIN_WIDGET->getVisible();
 }
 
 void CLASS::eventMouseButtonClickSaveButton(MyGUI::WidgetPtr _sender)

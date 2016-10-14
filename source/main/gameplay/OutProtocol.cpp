@@ -1,24 +1,27 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2016 Petr Ohlidal & contributors
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "OutProtocol.h"
 
+#include "Application.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
 #include "RoRVersion.h"
@@ -27,6 +30,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 OutProtocol::OutProtocol(void) : 
 	  delay(0.1f)
@@ -36,9 +40,9 @@ OutProtocol::OutProtocol(void) :
 	, timer(0)
 	, working(false)
 {
-	delay *= FSETTING("OutGauge Delay", 10);
-	mode   = ISETTING("OutGauge Mode", 0);
-	id     = ISETTING("OutGauge ID", 0);
+	delay *= App::GetIoOutGaugeDelay();
+	mode   = App::GetIoOutGaugeMode();
+	id     = App::GetIoOutGaugeId();
 
 	if ( mode > 0 )
 	{
@@ -63,28 +67,24 @@ void OutProtocol::startup()
 {
 #ifdef _WIN32
 	SWBaseSocket::SWBaseError error;
-
-	// get some settings
-	String ipstr = SSETTING("OutGauge IP", "192.168.1.100");
-	int port     = ISETTING("OutGauge Port", 1337);
 	
 	// startup winsock
 	WSADATA wsd;
 	if ( WSAStartup(MAKEWORD(2, 2), &wsd) != 0 )
 	{
-		LOG("error starting up winsock");
+		LOG("[RoR|OutGauge] Error starting up winsock. OutGauge disabled.");
 		return;
 	}
 
 	// open a new socket
 	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 )
 	{
-		LOG(String("error creating socket for OutGauge: ").append(strerror(errno)));
+		LOG(String("[RoR|OutGauge] Error creating socket for OutGauge: ").append(strerror(errno)));
 		return;
 	}
 
 	// get the IP of the remote side, this function is compatible with windows 2000
-	hostent *remoteHost = gethostbyname(ipstr.c_str());
+	hostent *remoteHost = gethostbyname(App::GetIoOutGaugeIp().c_str());
 	char *ip = inet_ntoa(*(struct in_addr *)*remoteHost->h_addr_list);
 
 	// init socket data
@@ -92,16 +92,16 @@ void OutProtocol::startup()
 	memset(&sendaddr, 0, sizeof(sendaddr));
 	sendaddr.sin_family      = AF_INET;
 	sendaddr.sin_addr.s_addr = inet_addr(ip);
-	sendaddr.sin_port        = htons(port);
+	sendaddr.sin_port        = htons(App::GetIoOutGaugePort());
 
 	// connect
 	if ( connect(sockfd, (struct sockaddr *) &sendaddr, sizeof(sendaddr)) == SOCKET_ERROR )
 	{
-		LOG(String("error connecting socket for OutGauge: ").append(strerror(errno)));
+		LOG(String("[RoR|OutGauge] Error connecting socket for OutGauge: ").append(strerror(errno)));
 		return;
 	}
 
-	LOG("OutGauge connected successfully");
+	LOG("[RoR|OutGauge] Connected successfully");
 	working = true;
 #else
 	// TODO: fix linux

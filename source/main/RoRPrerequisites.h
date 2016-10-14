@@ -66,6 +66,12 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
 #endif
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#   define PATH_SLASH '\\'
+#else
+#   define PATH_SLASH '/'
+#endif
+
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
 #ifndef AS_USE_NAMESPACE
@@ -125,16 +131,6 @@ enum VisibilityMasks {
 };
 
 extern GlobalEnvironment *gEnv;
-
-enum GameStates
-{
-	NONE_LOADED    = 0,
-	TERRAIN_LOADED = 1, //!< Simulate terrain & wait for user to select vehicle.
-	ALL_LOADED     = 2, //!< Run simulation.
-	EXITING        = 3, //!< No effect, filled at exit, never checked.
-	RELOADING      = 5, //!< Loading new rig.
-	PAUSE          = 6
-};
 
 enum LoaderType 
 { 

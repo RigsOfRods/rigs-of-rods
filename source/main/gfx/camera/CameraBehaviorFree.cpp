@@ -22,8 +22,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 #include "Application.h"
-#include "Console.h"
 #include "GUIManager.h"
+#include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "Language.h"
 
@@ -38,60 +38,60 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext &ctx)
 	Vector3 mTrans(Vector3::ZERO);
 	Real mTransScale(ctx.mTransScale * 10.0f * ctx.mDt);
 
-	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
+	if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) )
 	{
 		mRotScale   *= 3.0f;
 		mTransScale *= 3.0f;
 	}
-	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) )
+	if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) )
 	{
 		mRotScale   *= 6.0f;
 		mTransScale *= 20.0f;
 	}
-	if ( RoR::Application::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
+	if ( RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) )
 	{
 		mRotScale   *= 0.1f;
 		mTransScale *= 0.1f;
 	}
 
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT) )
 	{
 		mTrans.x -= mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT) )
 	{
 		mTrans.x += mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD) )
 	{
 		mTrans.z -= mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS) )
 	{
 		mTrans.z += mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP) )
 	{
 		mTrans.y += mTransScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN) )
 	{
 		mTrans.y -= mTransScale;
 	}
 
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT) )
 	{
 		mRotX -= mRotScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT) )
 	{
 		mRotX += mRotScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP) )
 	{
 		mRotY += mRotScale;
 	}
-	if ( RoR::Application::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN) )
+	if ( RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN) )
 	{
 		mRotY -= mRotScale;
 	}
@@ -121,7 +121,7 @@ bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext &ctx, con
 void CameraBehaviorFree::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
 #ifdef USE_MYGUI
-	RoR::Application::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
-	RoR::Application::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
+	RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
+	RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
 #endif // USE_MYGUI
 }

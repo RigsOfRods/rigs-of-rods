@@ -27,6 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
+#include "DustManager.h" // Particle systems manager
 #include "Network.h"
 #include "Singleton.h"
 
@@ -155,6 +156,8 @@ public:
 
 	void SyncWithSimThread();
 
+	DustManager& GetParticleManager() { return m_particle_manager; }
+
 	// A list of all beams interconnecting two trucks
 	std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
 
@@ -186,6 +189,8 @@ protected:
 	float m_dt_remainder;
 
 	float m_simulation_speed; // slow motion < 1.0 < fast motion
+
+    DustManager m_particle_manager;
 
 	void LogParserMessages();
 	void LogSpawnerMessages();

@@ -38,11 +38,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI_FontManager.h>
 #endif // USE_MYGUI
 
+#include "Application.h"
 #include "Settings.h"
 
 #include <Ogre.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 LanguageEngine::LanguageEngine() : working(false), myguiConfigFilename("MyGUI_FontsEnglish.xml")
 {
@@ -75,12 +77,13 @@ void LanguageEngine::setup()
 	// also it must happen after loading all basic resources!
 	reader = new moFileLib::moFileReader();
 
-	String language = SSETTING("Language", "English");
-	String language_short = SSETTING("Language Short", "en").substr(0, 2); // only first two characters are important
+	String language = App::GetAppLanguage();
+	String language_short = App::GetAppLocale().substr(0, 2); // only first two characters are important
 
 	// Load a .mo-File.
 	LOG("*** Loading Language ***");
-	String langfile = SSETTING("Program Path", "") + String("languages/") + language_short + String("/LC_MESSAGES/ror.mo");
+    std::string lang_dir =  App::GetSysProcessDir() + PATH_SLASH + "languages" + PATH_SLASH;
+	String langfile = lang_dir + language_short + String("/LC_MESSAGES/ror.mo");
 	if (reader->ReadFile(langfile.c_str()) != moFileLib::moFileReader::EC_SUCCESS )
 	{
 		LOG("* error loading language file " + langfile);
@@ -89,7 +92,7 @@ void LanguageEngine::setup()
 	working=true;
 
 	// add resource path
-	ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("Program Path", "") + String("languages/") + language_short + String("/LC_MESSAGES"), "FileSystem", "LanguageFolder");
+	ResourceGroupManager::getSingleton().addResourceLocation(lang_dir + language_short + String("/LC_MESSAGES"), "FileSystem", "LanguageFolder");
 
 	ResourceGroupManager::getSingleton().initialiseResourceGroup("LanguageFolder");
 
@@ -107,10 +110,11 @@ void LanguageEngine::setup()
 	else
 		LOG("unable to read system locale!");
 
-	if (!SSETTING("Language Short", "en").empty())
+	String language_short = App::GetAppLocale().substr(0, 2); // only first two characters are important
+	if (!language_short.empty())
 	{
-		LOG("setting new locale to " + SSETTING("Language Short", "en"));
-		char *newlocale = setlocale(LC_ALL, SSETTING("Language Short", "en").c_str());
+		LOG("setting new locale to " + language_short);
+		char *newlocale = setlocale(LC_ALL, language_short.c_str());
 		if (newlocale)
 			LOG("new locale is: " + String(newlocale));
 		else

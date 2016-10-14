@@ -27,7 +27,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #	include <OgreOverlayElement.h>
 #endif
 
-#include "Console.h"
+
 #include "TruckHUD.h"
 
 using namespace Ogre;
