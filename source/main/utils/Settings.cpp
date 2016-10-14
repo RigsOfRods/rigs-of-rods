@@ -631,7 +631,6 @@ static const char* CONF_NEXTTRUCK_ENTER = "Enter PreselectedTruck";
 #define F(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
 #define B(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
 #define M(_VAL_)  ((int)B(_VAL_))
-#define P(_VAL_)  (F(_VAL_) / 100.f)
 #define S(_VAL_)  (_VAL_)
 
 bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & v)
@@ -683,7 +682,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_GFX_FPS_LIMIT   ) { App::SetGfxFpsLimit          (I(v)); return true; }
     if (k == CONF_GFX_SKY_EFFECTS ) { App__SetGfxSkyMode           (S(v)); return true; }
     // Audio
-    if (k == CONF_SOUND_VOLUME    ) { App::SetAudioMasterVolume    (P(v)); return true; }
+    if (k == CONF_SOUND_VOLUME    ) { App::SetAudioMasterVolume    (F(v)); return true; }
     if (k == CONF_SOUND_CREAK     ) { App::SetAudioEnableCreak     (B(v)); return true; }
     if (k == CONF_MUSIC_MAIN_MENU ) { App::SetAudioMenuMusic       (B(v)); return true; }
     if (k == CONF_AUDIO_DEVICE    ) { App::SetAudioDeviceName      (S(v)); return true; }
@@ -711,7 +710,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
 #undef F
 #undef B
 #undef M
-#undef P
 #undef S
 
 void Settings::LoadSettings(std::string filepath)

@@ -2159,7 +2159,7 @@ void MyDialog::getSettingsControls()
 #ifdef USE_OPENAL
 	settings["AudioDevice"] = sound->getSelectedValueAsSTDString();
 	settings["Creak Sound"] = (creaksound->GetValue()) ? "No" : "Yes";
-	settings["Sound Volume"] = TOSTRING(soundVolume->GetValue());
+	settings["Sound Volume"] = TOSTRING(soundVolume->GetValue() / 100.0f);
 #endif //USE_OPENAL
 
 	// save language, if one is set
@@ -2212,11 +2212,11 @@ void MyDialog::updateSettingsControls()
 
 #ifdef USE_OPENAL
 	st = settings["Sound Volume"];
-	long volume = 100;
+	double volume = 1.0f;
 	if (st.length()>0)
 	{
-		if(conv(st).ToLong(&volume))
-			soundVolume->SetValue(volume);
+		if(conv(st).ToDouble(&volume))
+			soundVolume->SetValue(volume * 100.0f);
 	}
 	st = settings["Creak Sound"]; if (st.length()>0) creaksound->SetValue(st=="No");
 	sound->setSelectedValue(settings["AudioDevice"]);
