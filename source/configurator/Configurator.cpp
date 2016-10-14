@@ -1332,8 +1332,8 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	dText = new wxStaticText(graphicsPanel, -1, _("Screenshot Format:"), wxPoint(10, y));
 	screenShotFormat=new wxValueChoice(graphicsPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
-	screenShotFormat->AppendValueItem(wxT("jpg (smaller, default)"), _("jpg (smaller, default)"));
-	screenShotFormat->AppendValueItem(wxT("png (bigger, no quality loss)"), _("png (bigger, no quality loss)"));
+	screenShotFormat->AppendValueItem(wxT("jpg"), _("jpg (smaller, default)"));
+	screenShotFormat->AppendValueItem(wxT("png"), _("png (bigger, no quality loss)"));
 	screenShotFormat->SetToolTip(_("In what Format should screenshots be saved?"));
 
 
