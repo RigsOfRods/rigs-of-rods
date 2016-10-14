@@ -38,6 +38,7 @@
 #include "Character.h"
 #include "CameraManager.h"
 #include "BeamFactory.h"
+#include "OgreSubsystem.h"
 
 #include <MyGUI.h>
 
@@ -101,9 +102,9 @@ void CLASS::Show()
 	m_change_map->setEnabled(!online);
 
     // Adjust screen position
-    MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
-    int margin = (parentSize.width / 15);
-    int top = parentSize.height - this->GetHeight() - margin;
+    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    int margin = (viewport->getActualHeight() / 15);
+    int top = viewport->getActualHeight() - this->GetHeight() - margin;
     this->SetPosition(margin, top);
 }
 
