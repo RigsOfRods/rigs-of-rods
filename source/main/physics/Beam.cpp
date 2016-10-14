@@ -970,7 +970,13 @@ void Beam::determineLinkedBeams()
 
 int Beam::getWheelNodeCount()
 {
-	return free_node-first_wheel_node;
+	int wheel_nodes = 0;
+	for (int i=0; i<free_node; i++)
+	{
+		if (nodes[i].iswheel != NOWHEEL)
+			wheel_nodes++;
+	}
+	return wheel_nodes;
 }
 
 void Beam::calcNodeConnectivityGraph()
