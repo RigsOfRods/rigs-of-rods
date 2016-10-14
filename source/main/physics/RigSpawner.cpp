@@ -5518,28 +5518,6 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
 	return index;
 }
 
-RigDef::Wheel RigSpawner::DowngradeWheel2(RigDef::Wheel2 & wheel_2)
-{
-	SPAWNER_PROFILE_SCOPED();
-
-    RigDef::Wheel wheel;
-	wheel.radius = wheel_2.tyre_radius;
-	wheel.width = wheel_2.width;
-	wheel.num_rays = wheel_2.num_rays;
-	wheel.nodes[0] = wheel_2.nodes[0];
-	wheel.nodes[1] = wheel_2.nodes[1];
-	wheel.rigidity_node = wheel_2.rigidity_node;
-	wheel.braking = wheel_2.braking;
-	wheel.propulsion = wheel_2.propulsion;
-	wheel.reference_arm_node = wheel_2.reference_arm_node;
-	wheel.mass = wheel_2.mass;
-	wheel.springiness = wheel_2.tyre_springiness;
-	wheel.damping = wheel_2.tyre_damping;
-	wheel.face_material_name = wheel_2.face_material_name;
-	wheel.band_material_name = wheel_2.band_material_name;
-	return wheel;
-}
-
 void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 {
 	SPAWNER_PROFILE_SCOPED();
