@@ -89,13 +89,13 @@ void CLASS::Show()
 {
 	MAIN_WIDGET->setVisibleSmooth(true);
 
-	if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+	if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
 	{
 		gEnv->player->setPhysicsEnabled(false);
 	}
 
-	App::SetPendingSimState(App::SIM_STATE_PAUSED);
 	BeamFactory::getSingleton().MuteAllTrucks();
+	App::SetPendingSimState(App::SIM_STATE_PAUSED);
 
 	const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
 	m_change_map->setEnabled(!online);
