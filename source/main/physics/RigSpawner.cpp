@@ -5328,7 +5328,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	wheel.nbnodes = 2 * wheel_2_def.num_rays;
 	wheel.refnode0 = axis_node_1;
 	wheel.refnode1 = axis_node_2;
-	wheel.radius = wheel_2_def.rim_radius;
+	wheel.radius = wheel_2_def.tyre_radius;
 	wheel.arm = GetNodePointer(wheel_2_def.reference_arm_node);
 
 	if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
@@ -5544,17 +5544,9 @@ void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->enable_wheel2)
-	{
-		unsigned int node_base_index = m_rig->free_node;
-		unsigned int wheel_index = AddWheel2(def);
-		CreateWheelVisuals(wheel_index, def, node_base_index);
-	}
-	else
-	{
-		RigDef::Wheel wheel_def = DowngradeWheel2(def);
-        	AddWheel(wheel_def);
-	}
+	unsigned int node_base_index = m_rig->free_node;
+	unsigned int wheel_index = AddWheel2(def);
+	CreateWheelVisuals(wheel_index, def, node_base_index);
 };
 
 void RigSpawner::ProcessWheel(RigDef::Wheel & def)

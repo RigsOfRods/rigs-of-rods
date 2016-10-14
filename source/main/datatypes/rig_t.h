@@ -194,7 +194,6 @@ struct rig_t
 	CmdKeyInertia *rotaInertia;
 	CmdKeyInertia *hydroInertia;
 	CmdKeyInertia *cmdInertia;
-	bool enable_wheel2; //!< If false, wheels2 are downgraded to wheels1 (needed for multiplayer)
 	float truckmass;
 	float loadmass;
 	char texname[1024]; //!< Material name
