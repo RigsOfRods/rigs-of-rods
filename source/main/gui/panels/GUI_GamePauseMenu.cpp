@@ -27,18 +27,13 @@
 
 #include "GUI_GamePauseMenu.h"
 
-#include "RoRPrerequisites.h"
-#include "Utils.h"
-#include "Language.h"
-#include "GlobalEnvironment.h"
 #include "Application.h"
-#include "GUIManager.h"
-#include "RoRFrameListener.h"
-#include "MainThread.h"
-#include "Character.h"
-#include "CameraManager.h"
 #include "BeamFactory.h"
+#include "Character.h"
+#include "GlobalEnvironment.h"
+#include "Language.h"
 #include "OgreSubsystem.h"
+#include "RoRPrerequisites.h"
 
 #include <MyGUI.h>
 
