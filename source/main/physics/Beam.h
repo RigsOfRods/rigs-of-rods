@@ -501,6 +501,7 @@ public:
 	std::map<int, int> m_stream_results;
 
 	Ogre::Timer netTimer;
+	unsigned long lastNetUpdateTime;
 
 	void receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
 
