@@ -707,7 +707,6 @@ void CLASS::OnSelectionDone()
 		m_skin_manager->GetUsableSkins(m_selected_entry->guid, this->m_current_skins);
 		if (!m_current_skins.empty())
 		{
-			Hide();
 			Show(LT_SKIN);
 		}
 		else
