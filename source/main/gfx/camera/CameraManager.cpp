@@ -42,7 +42,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 using namespace Ogre;
 using namespace RoR;
 
-CameraManager::CameraManager(DOFManager *dof) : 
+CameraManager::CameraManager() : 
 	  currentBehavior(nullptr)
 	, currentBehaviorID(-1)
 	, mTransScale(1.0f)
@@ -55,11 +55,12 @@ CameraManager::CameraManager(DOFManager *dof) :
 	createGlobalBehaviors();
 
 	ctx.mCurrTruck = 0;
-	ctx.mDof = dof;
+	ctx.mDof = 0;
 	ctx.mDebug = BSETTING("Camera Debug", false);
 
-	if ( ctx.mDof )
+	if (BSETTING("DOF", false))
 	{
+		ctx.mDof = new DOFManager();
 		ctx.mDof->setFocusMode(DOFManager::Auto);
 	}
 
@@ -75,6 +76,8 @@ CameraManager::~CameraManager()
 	}
 
 	globalBehaviors.clear();
+
+	delete ctx.mDof;
 }
 
 bool CameraManager::update(float dt) // Called every frame

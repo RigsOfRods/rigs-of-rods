@@ -38,7 +38,6 @@
 #include "ChatSystem.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
@@ -412,7 +411,6 @@ void MainThread::Go()
 
 	delete gEnv;
 	gEnv = nullptr;
-
 }
 
 bool MainThread::SetupGameplayLoop()
@@ -510,16 +508,10 @@ bool MainThread::SetupGameplayLoop()
 		m_frame_listener->m_heathaze->setEnable(true);
 	}
 
-	// depth of field effect
-	if (BSETTING("DOF", false) && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
-	{
-		m_frame_listener->m_dof = new DOFManager();
-	}
-
-	if (!m_base_resource_loaded)
+	if (gEnv->cameraManager == nullptr)
 	{
 		// init camera manager after mygui and after we have a character
-		gEnv->cameraManager = new CameraManager(m_frame_listener->m_dof);
+		gEnv->cameraManager = new CameraManager();
 	}
 	
 	// ============================================================================

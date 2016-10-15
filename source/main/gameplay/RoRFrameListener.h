@@ -68,7 +68,6 @@ protected:
 
 	void updateForceFeedback(float dt);
 
-	DOFManager *m_dof;
 	RoR::ForceFeedback m_forcefeedback;
 	HeatHaze *m_heathaze;
 
