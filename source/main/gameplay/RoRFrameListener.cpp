@@ -458,6 +458,7 @@ bool RoRFrameListener::updateEvents(float dt)
     {
         float fov = gEnv->mainCamera->getFOVy().valueDegrees();
         fov = (fov_less) ? (fov - 1.f) : (fov + 1.f);
+		fov = Round(fov);
 
 		if (fov >= 10 && fov <= 160)
 		{
