@@ -821,11 +821,6 @@ protected:
 	*/
 	void InitBeam(beam_t & beam, node_t *node_1, node_t *node_2);
 
-	/**
-	* Transforms wheel from 'wheels2' section format to 'wheels' section format.
-	*/
-	RigDef::Wheel DowngradeWheel2(RigDef::Wheel2 & wheel_2);
-
 	void CalculateBeamLength(beam_t & beam);
 
 	void SetBeamStrength(beam_t & beam, float strength);

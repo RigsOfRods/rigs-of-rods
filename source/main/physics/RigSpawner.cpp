@@ -5328,7 +5328,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 	wheel.nbnodes = 2 * wheel_2_def.num_rays;
 	wheel.refnode0 = axis_node_1;
 	wheel.refnode1 = axis_node_2;
-	wheel.radius = wheel_2_def.rim_radius;
+	wheel.radius = wheel_2_def.tyre_radius;
 	wheel.arm = GetNodePointer(wheel_2_def.reference_arm_node);
 
 	if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
@@ -5518,43 +5518,13 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
 	return index;
 }
 
-RigDef::Wheel RigSpawner::DowngradeWheel2(RigDef::Wheel2 & wheel_2)
-{
-	SPAWNER_PROFILE_SCOPED();
-
-    RigDef::Wheel wheel;
-	wheel.radius = wheel_2.tyre_radius;
-	wheel.width = wheel_2.width;
-	wheel.num_rays = wheel_2.num_rays;
-	wheel.nodes[0] = wheel_2.nodes[0];
-	wheel.nodes[1] = wheel_2.nodes[1];
-	wheel.rigidity_node = wheel_2.rigidity_node;
-	wheel.braking = wheel_2.braking;
-	wheel.propulsion = wheel_2.propulsion;
-	wheel.reference_arm_node = wheel_2.reference_arm_node;
-	wheel.mass = wheel_2.mass;
-	wheel.springiness = wheel_2.tyre_springiness;
-	wheel.damping = wheel_2.tyre_damping;
-	wheel.face_material_name = wheel_2.face_material_name;
-	wheel.band_material_name = wheel_2.band_material_name;
-	return wheel;
-}
-
 void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 {
 	SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->enable_wheel2)
-	{
-		unsigned int node_base_index = m_rig->free_node;
-		unsigned int wheel_index = AddWheel2(def);
-		CreateWheelVisuals(wheel_index, def, node_base_index);
-	}
-	else
-	{
-		RigDef::Wheel wheel_def = DowngradeWheel2(def);
-        	AddWheel(wheel_def);
-	}
+	unsigned int node_base_index = m_rig->free_node;
+	unsigned int wheel_index = AddWheel2(def);
+	CreateWheelVisuals(wheel_index, def, node_base_index);
 };
 
 void RigSpawner::ProcessWheel(RigDef::Wheel & def)

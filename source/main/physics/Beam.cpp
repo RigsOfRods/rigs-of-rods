@@ -5445,11 +5445,6 @@ Beam::Beam(
 	{
 		driveable = MACHINE;
 	}
-	enable_wheel2 = true; // since 0.38 enabled wheels2 by default
-	if (_networked || networking)
-	{
-		enable_wheel2 = false;
-	}
 
 	/* class <Beam> parameters */
 	realtruckfilename = Ogre::String(fname);
@@ -5506,7 +5501,7 @@ Beam::Beam(
 	first_wheel_node = free_node;
 	for (int i=0; i<free_node; i++)
 	{
-		if (nodes[i].iswheel == WHEEL_DEFAULT || nodes[i].iswheel == WHEEL_2)
+		if (nodes[i].iswheel == WHEEL_DEFAULT)
 		{
 			first_wheel_node = i;
 			break;
