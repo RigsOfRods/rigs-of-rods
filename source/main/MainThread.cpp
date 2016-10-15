@@ -269,7 +269,6 @@ void MainThread::Go()
     {
         this->JoinMultiplayerServer();
     }
-    m_base_resource_loaded = false;
     for (;;)
     {
         if (App::GetPendingAppState() == App::APP_STATE_SHUTDOWN)
@@ -289,7 +288,6 @@ void MainThread::Go()
                     App::GetGuiManager()->SetVisible_MpClientList(false);
                 }
 				UnloadTerrain();
-				m_base_resource_loaded = true;
 				gEnv->cameraManager->OnReturnToMainMenu();
 				/* Hide top menu */
                 App::GetGuiManager()->SetVisible_TopMenubar(false);
@@ -348,7 +346,6 @@ void MainThread::Go()
 			if (previous_application_state == App::APP_STATE_SIMULATION)
 			{
 				UnloadTerrain();
-				m_base_resource_loaded = true;
 				
 			}
 			menu_wallpaper_widget->setVisible(true);
@@ -435,6 +432,8 @@ bool MainThread::SetupGameplayLoop()
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+
+		m_base_resource_loaded = true;
 	}
 
 	// ============================================================================
