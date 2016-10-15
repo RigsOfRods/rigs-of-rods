@@ -914,11 +914,9 @@ void MainThread::UnloadTerrain()
 	
 	RoR::App::GetGuiManager()->GetMainSelector()->Reset();
 
-	//First of all..
-	OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
 	m_frame_listener->StopRaceTimer();
-	ow->HideRacingOverlay();
-	ow->HideDirectionOverlay();
+
+	RoR::App::DestroyOverlayWrapper();
 
 	loading_window->setProgress(15, _L("Unloading Terrain"));
 
