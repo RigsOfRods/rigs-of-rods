@@ -606,7 +606,12 @@ void Beam::pushNetwork(char* data, int size)
 
 void Beam::calcNetwork()
 {
-	if (netcounter < 4) return;
+	if (netcounter < 1) return;
+
+	if (netcounter == 1)
+	{
+		memcpy((char*)oob1, oob2, sizeof(oob_t));
+	}
 
 	BES_GFX_START(BES_GFX_calcNetwork);
 
