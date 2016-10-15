@@ -985,6 +985,9 @@ void BeamFactory::update(float dt)
 				else if (m_trucks[t]->state == SLEEPING && m_trucks[t]->netTimer.getMilliseconds() < 10000)
 					// Also send update messages for 'SLEEPING' trucks during the first 10 seconds of lifetime
 					m_trucks[t]->sendStreamData();
+				else if (m_trucks[t]->state == SLEEPING && m_trucks[t]->netTimer.getMilliseconds() - m_trucks[t]->lastNetUpdateTime > 5000)
+					// Also send update messages for 'SLEEPING' trucks periodically every 5 seconds
+					m_trucks[t]->sendStreamData();
 			}
 			break;
 		}

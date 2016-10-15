@@ -606,7 +606,12 @@ void Beam::pushNetwork(char* data, int size)
 
 void Beam::calcNetwork()
 {
-	if (netcounter < 4) return;
+	if (netcounter < 1) return;
+
+	if (netcounter == 1)
+	{
+		memcpy((char*)oob1, oob2, sizeof(oob_t));
+	}
 
 	BES_GFX_START(BES_GFX_calcNetwork);
 
@@ -1767,6 +1772,8 @@ void Beam::sendStreamData()
 {
 	BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
+	lastNetUpdateTime = netTimer.getMilliseconds();
+
 	//look if the packet is too big first
 	int final_packet_size = sizeof(oob_t) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
 	if (final_packet_size > 8192)
@@ -5369,6 +5376,7 @@ Beam::Beam(
 	, interPointCD()
 	, intraPointCD()
 	, isInside(false)
+	, lastNetUpdateTime(0)
 	, lastposition(pos)
 	, leftMirrorAngle(0.52)
 	, lights(1)
