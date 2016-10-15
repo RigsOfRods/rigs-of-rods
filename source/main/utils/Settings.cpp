@@ -929,7 +929,7 @@ void Settings::SaveSettings()
     f                                                                     << endl;
     f << "; Application"                                                  << endl;
     f << CONF_SCREENSHOT_FMT  << "=" << _(App::GetAppScreenshotFormat ()) << endl;
-    f << CONF_REPLAY_MODE     << "=" << _(App::GetSimReplayEnabled    ()) << endl;
+    f << CONF_REPLAY_MODE     << "=" << B(App::GetSimReplayEnabled    ()) << endl;
     f << CONF_REPLAY_LENGTH   << "=" << _(App::GetSimReplayLength     ()) << endl;
     f << CONF_REPLAY_STEPPING << "=" << _(App::GetSimReplayStepping   ()) << endl;
     f << CONF_POS_STORAGE     << "=" << B(App::GetSimPositionStorage  ()) << endl;
