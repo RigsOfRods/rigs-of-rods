@@ -281,9 +281,6 @@ void MainThread::Go()
             App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
             App::SetPendingAppState(App::APP_STATE_NONE);
 
-			OgreSubsystem* ror_ogre_subsystem = RoR::App::GetOgreSubsystem();
-			assert(ror_ogre_subsystem != nullptr);
-
 			if (previous_application_state == App::APP_STATE_SIMULATION)
 			{
                 if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)

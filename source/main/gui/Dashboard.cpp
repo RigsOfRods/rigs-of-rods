@@ -91,7 +91,6 @@ DashboardListener::DashboardListener() :
 	  consolevisible(false)
 	, fpsDisplayed(false)
 	, fpsOverlay(0)
-	, truckHUD(false)
 	, truckhHUDvisible(false)
 {
 }

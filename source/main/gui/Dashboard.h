@@ -74,7 +74,6 @@ private:
 	Ogre::Overlay *truckHUDOverlay;
 	bool consolevisible;
 	bool fpsDisplayed;
-	bool truckHUD;
 	bool truckhHUDvisible;
 };
 
