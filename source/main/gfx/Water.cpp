@@ -113,41 +113,32 @@ Water::Water(const Ogre::ConfigFile &mTerrainConfig) :
 	if (mapSize.x < 1500 && mapSize.z < 1500)
 		mScale = 1.5f;
 
-	// disable waves in multiplayer
-	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
-    {
-		haswaves = false;
-    }
-
-	if (haswaves)
+	char line[1024] = {};
+	std::string filepath = RoR::App::GetSysConfigDir() + PATH_SLASH + "wavefield.cfg";
+	FILE *fd = fopen(filepath.c_str(), "r");
+	if (fd)
 	{
-		char line[1024] = {};
-        std::string filepath = RoR::App::GetSysConfigDir() + PATH_SLASH + "wavefield.cfg";
-		FILE *fd = fopen(filepath.c_str(), "r");
-		if (fd)
+		while (!feof(fd))
 		{
-			while (!feof(fd))
-			{
-				int res = fscanf(fd," %[^\n\r]",line);
-				if (line[0] == ';') continue;
-				float wl,amp,mx,dir;
-				res = sscanf(line,"%f, %f, %f, %f",&wl,&amp,&mx,&dir);
-				if (res < 4) continue;
-				wavetrains[free_wavetrain].wavelength=wl;
-				wavetrains[free_wavetrain].amplitude=amp;
-				wavetrains[free_wavetrain].maxheight=mx;
-				wavetrains[free_wavetrain].direction=dir/57.0;
-				wavetrains[free_wavetrain].dir_sin=sin(wavetrains[free_wavetrain].direction);
-				wavetrains[free_wavetrain].dir_cos=cos(wavetrains[free_wavetrain].direction);
-				free_wavetrain++;
-			}
-			fclose(fd);
+			int res = fscanf(fd," %[^\n\r]",line);
+			if (line[0] == ';') continue;
+			float wl,amp,mx,dir;
+			res = sscanf(line,"%f, %f, %f, %f",&wl,&amp,&mx,&dir);
+			if (res < 4) continue;
+			wavetrains[free_wavetrain].wavelength=wl;
+			wavetrains[free_wavetrain].amplitude=amp;
+			wavetrains[free_wavetrain].maxheight=mx;
+			wavetrains[free_wavetrain].direction=dir/57.0;
+			wavetrains[free_wavetrain].dir_sin=sin(wavetrains[free_wavetrain].direction);
+			wavetrains[free_wavetrain].dir_cos=cos(wavetrains[free_wavetrain].direction);
+			free_wavetrain++;
 		}
-		for (int i=0; i<free_wavetrain; i++)
-		{
-			wavetrains[i].wavespeed=1.25*sqrt(wavetrains[i].wavelength);
-			maxampl+=wavetrains[i].maxheight;
-		}
+		fclose(fd);
+	}
+	for (int i=0; i<free_wavetrain; i++)
+	{
+		wavetrains[i].wavespeed=1.25*sqrt(wavetrains[i].wavelength);
+		maxampl+=wavetrains[i].maxheight;
 	}
 
 	this->processWater();
@@ -490,7 +481,7 @@ void Water::update()
 			pBottomNode->setPosition(bottomPos);
 			ForceUpdate = false; //Happens only once
 		}
-		if (haswaves) showWave(pWaterNode->getPosition());
+		if (RoR::App::GetGfxWaterUseWaves() && RoR::App::GetActiveMpState() == RoR::App::MP_STATE_DISABLED) showWave(pWaterNode->getPosition());
 	}
 
 	bool underwater = isCameraUnderWater();
@@ -594,7 +585,7 @@ void Water::setHeight(float value)
 float Water::getHeightWaves(Vector3 pos)
 {
 	// no waves?
-	if (!haswaves)
+	if (!RoR::App::GetGfxWaterUseWaves() || RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
 	{
 		// constant height, sea is flat as pancake
 		return wHeight;
@@ -625,7 +616,7 @@ bool Water::isUnderWater(Vector3 pos)
 {
 	float waterheight = wHeight;
 
-	if (haswaves)
+	if (RoR::App::GetGfxWaterUseWaves() && RoR::App::GetActiveMpState() == RoR::App::MP_STATE_DISABLED)
 	{
 		float waveheight = getWaveHeight(pos);
 
@@ -640,7 +631,7 @@ bool Water::isUnderWater(Vector3 pos)
 
 Vector3 Water::getVelocity(Vector3 pos)
 {
-	if (!haswaves) return Vector3::ZERO;
+	if (!RoR::App::GetGfxWaterUseWaves() || RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED) return Vector3::ZERO;
 
 	float waveheight = getWaveHeight(pos);
 

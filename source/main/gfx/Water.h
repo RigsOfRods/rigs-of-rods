@@ -74,7 +74,6 @@ private:
 	static const int WAVEREZ = 100;
 	static const int MAX_WAVETRAINS = 10;
 
-	bool haswaves;
 	bool visible;
 	float *wbuffer;
 	float wHeight, orgHeight, wbHeight;
