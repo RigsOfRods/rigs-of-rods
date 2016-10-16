@@ -422,6 +422,7 @@ public:
 	int currentcamera;
 	int m_custom_camera_node;
 	
+	int wheel_node_count;
 	int first_wheel_node;
 	int netbuffersize;
 	int nodebuffersize;
