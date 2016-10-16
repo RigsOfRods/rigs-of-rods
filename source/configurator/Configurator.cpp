@@ -1465,7 +1465,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	// FPS-Limiter
 	dText = new wxStaticText(advancedPanel, -1, _("FPS-Limiter:"), wxPoint(10, y+3));
-	fpsLimiter=new wxSlider(advancedPanel, scroll_fps_limiter, 200, 10, 200, wxPoint(x_row1, y), wxSize(200, -1));
+	fpsLimiter=new wxSlider(advancedPanel, scroll_fps_limiter, 0, 0, 200, wxPoint(x_row1, y), wxSize(200, -1));
 	fpsLimiter->SetToolTip(_("sets the maximum frames per second"));
 	fpsLimiterText = new wxStaticText(advancedPanel, -1, _("Unlimited"), wxPoint(x_row1 + 210, y+3));
 	y+=35;
@@ -2041,7 +2041,7 @@ void MyDialog::SetDefaults()
 	flaresMode->SetSelection(2);         // all trucks
 	fovext->SetValue(wxT("60"));
 	fovint->SetValue(wxT("75"));
-	fpsLimiter->SetValue(200);           // 200 = unlimited
+	fpsLimiter->SetValue(0);           // 0 = unlimited
 	gearBoxMode->SetSelection(0);
 	glow->SetValue(false);
 	hdr->SetValue(false);
@@ -2202,7 +2202,7 @@ void MyDialog::updateSettingsControls()
 			sightRange->SetValue(sightrange);
 	}
 
-	long fpslimit = 200;
+	long fpslimit = 0;
 	st = settings["FPS-Limiter"];
 	if (st.length()>0)
 	{
@@ -2866,7 +2866,7 @@ void MyDialog::OnScrollFPSLimiter(wxScrollEvent & event)
 {
 	wxString s;
 	int v = fpsLimiter->GetValue();
-	if (v == fpsLimiter->GetMax())
+	if (v == fpsLimiter->GetMin())
 	{
 		s = _("Unlimited");
 	} else
