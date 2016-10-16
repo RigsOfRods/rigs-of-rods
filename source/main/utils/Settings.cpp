@@ -412,7 +412,7 @@ void Settings::setUTFSetting(UTFString key, UTFString value)
 
 const char* CONF_GFX_SHADOW_TEX     = "Texture shadows";
 const char* CONF_GFX_SHADOW_PSSM    = "Parallel-split Shadow Maps";
-const char* CONF_GFX_SHADOW_NONE    = "None";
+const char* CONF_GFX_SHADOW_NONE    = "No shadows (fastest)";
 
 const char* CONF_EXTCAM_PITCHING    = "Pitching";
 const char* CONF_EXTCAM_STATIC      = "Static";
