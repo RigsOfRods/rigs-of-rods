@@ -452,7 +452,7 @@ bool MainThread::SetupGameplayLoop()
 	if (App::GetGfxSkyMode() == 1 && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
 
-	if (SSETTING("Vegetation", "None (fastest)") != "None (fastest)" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
+	if (App::GetGfxVegetationMode() != App::GFX_VEGETATION_NONE && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
 
 	if (App::GetGfxEnableHdr() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
