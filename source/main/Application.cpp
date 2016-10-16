@@ -159,6 +159,7 @@ typedef const char* (*EnumToStringFn)(int);
 const char* SimGearboxModeToString(int v);
 const char* GfxFlaresModeToString (int v);
 const char* IoInputGrabModeToStr  (int v);
+const char* GfxVegetationModeToStr(int v);
 const char* GfxWaterModeToString  (int v);
 const char* GfxSkyModeToString    (int v);
 const char* GfxShadowModeToStr    (int v);
@@ -278,7 +279,7 @@ void SetIoFFbackStressGain(float    v) { SetVarFloat   (g_io_ffback_stress_gain,
 void SetGfxShadowType     (GfxShadowType  v) { SetVarEnum    (g_gfx_shadow_type      , "gfx_shadow_mode"      , (int)v, GfxShadowModeToStr); }
 void SetGfxExternCamMode  (GfxExtCamMode  v) { SetVarInt     (g_gfx_extcam_mode      , "gfx_extcam_mode"      , (int)v); }
 void SetGfxTexFiltering   (GfxTexFilter   v) { SetVarEnum    (g_gfx_texture_filter   , "gfx_texture_filter"   , (int)v, GfxTexFilterToStr ); }
-void SetGfxVegetationMode (GfxVegetation  v) { SetVarInt     (g_gfx_vegetation_mode  , "gfx_vegetation_mode"  , (int)v); }
+void SetGfxVegetationMode (GfxVegetation  v) { SetVarEnum    (g_gfx_vegetation_mode  , "gfx_vegetation_mode"  , (int)v, GfxVegetationModeToStr); }
 void SetGfxEnableSunburn  (bool           v) { SetVarBool    (g_gfx_enable_sunburn   , "gfx_enable_sunburn"   , v); }
 void SetGfxWaterUseWaves  (bool           v) { SetVarBool    (g_gfx_water_waves      , "gfx_water_waves"      , v); }
 void SetGfxEnableGlow     (bool           v) { SetVarBool    (g_gfx_enable_glow      , "gfx_enable_glow"      , v); }
@@ -590,6 +591,18 @@ const char* GfxFlaresModeToString(int v)
     case GFX_FLARES_ALL_VEHICLES_HEAD_ONLY : return "ALL_VEHICLES_HEAD_ONLY" ;
     case GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS: return "ALL_VEHICLES_ALL_LIGHTS";
     default                                : return "~invalid~";
+    }
+}
+
+const char* GfxVegetationModeToStr (int v)
+{
+    switch((GfxWaterMode)v)
+    {
+    case GFX_VEGETATION_NONE   : return "NONE";
+    case GFX_VEGETATION_20PERC : return "20%";
+    case GFX_VEGETATION_50PERC : return "50%";
+    case GFX_VEGETATION_FULL   : return "FULL";
+    default                    : return "~invalid~";
     }
 }
 
