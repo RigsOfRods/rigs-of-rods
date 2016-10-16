@@ -350,8 +350,8 @@ void CLASS::UpdateControls()
     m_d_creak_sound->setStateCheck(App::GetAudioEnableCreak());
 
     // FOV
-    m_fovexternal->setCaption(TOSTRING(App::GetGfxFovExternal()));
-    m_fovinternal->setCaption(TOSTRING(App::GetGfxFovInternal()));
+    m_fovexternal->setCaption(TOSTRING(App::GetSettings().GetConfFovExternal()));
+    m_fovinternal->setCaption(TOSTRING(App::GetSettings().GetConfFovInternal()));
 
     // ogre.cfg
     std::string rs_name = Ogre::Root::getSingleton().getRenderSystem()->getName();
@@ -527,8 +527,6 @@ void CLASS::SaveSettings()
 
     // Combo boxes
     App__SetSimGearboxMode   (_(m_gearbox_mode         ->getCaption()));
-    App::SetGfxFovExternal   (F(m_fovexternal          ->getCaption()));
-    App::SetGfxFovInternal   (F(m_fovinternal          ->getCaption()));
     App__SetTexFiltering     (_(m_tex_filter           ->getCaption()));
     App__SetGfxSkyMode       (_(m_sky_type             ->getCaption()));
     App__SetShadowTech       (_(m_shadow_type          ->getCaption()));
@@ -538,6 +536,10 @@ void CLASS::SaveSettings()
     App::SetAudioDeviceName  (_(m_audio_dev            ->getCaption()));
 
     App::GetSettings().setSetting("SpeedUnit", m_speed_unit->getCaption());
+
+    // Editboxes
+    App::GetSettings().SetConfFovExternal   (F(m_fovexternal->getCaption()));
+    App::GetSettings().SetConfFovInternal   (F(m_fovinternal->getCaption()));
 
     // Checkboxes
     App::SetGfxParticlesMode((int)m_psystem                ->getStateCheck());

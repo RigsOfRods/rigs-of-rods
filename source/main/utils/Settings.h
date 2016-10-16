@@ -32,8 +32,6 @@
 */
 
 #pragma once
-#ifndef __Settings_H_
-#define __Settings_H_
 
 #include "RoRPrerequisites.h"
 
@@ -156,20 +154,33 @@ public:
 	{
 		return settings;
 	}
-protected:
 
-    // Helpers
-    void SetMpNetworkEnable(std::string const & s);
+    // Conf setters
+    void SetConfNetworkEnable     (bool        v);
+    void SetConfFovExternal       (float       v);
+    void SetConfFovInternal       (float       v);
+    void SetConfPreselectedMap    (std::string v);
+
+    // Conf getters
+    int GetConfFovExternal        () { m_conf_values.fov_external; }
+    int GetConfFovInternal        () { m_conf_values.fov_internal; }
+
+protected:
 
 	static Settings* myInstance;
 
 	// members
-	// TODO: use wide char / UTFString ...
 	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
 	settings_map_t settings;
 
-    // Cached config values
-    bool m_network_enable;
+    // Stored conf. file values
+    struct
+    {
+        bool          network_enable;
+        std::string   preselected_map;
+        int           fov_external;
+        int           fov_internal;
+    }
+    m_conf_values;
 };
 
-#endif // __Settings_H_
