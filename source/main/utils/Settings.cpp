@@ -569,6 +569,7 @@ static const char* CONF_MP_PORT         = "Server port";
 static const char* CONF_MP_PASSWORD     = "Server password";
 // Sim
 static const char* CONF_SIM_GEARBOX     = "GearboxMode";
+static const char* CONF_SIM_MULTITHREAD = "Multi-threading";
 static const char* CONF_SIM_NEXT_TERRN  = "Preselected Map";
 // Input-Output
 static const char* CONF_FF_ENABLED      = "Force Feedback";
@@ -645,6 +646,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_MP_PASSWORD     ) { App::SetMpServerPassword     (S(v)); return true; }
     // Sim
     if (k == CONF_SIM_GEARBOX     ) { App__SetSimGearboxMode       (S(v)); return true; }
+    if (k == CONF_SIM_MULTITHREAD ) { App::SetAppMultithread       (B(v)); return true; }
     if (k == CONF_SIM_NEXT_TERRN  ) { App::SetSimNextTerrain       (S(v)); return true; }
     // Input&Output
     if (k == CONF_FF_ENABLED      ) { App::SetIoFFbackEnabled      (B(v)); return true; }
@@ -874,6 +876,7 @@ void Settings::SaveSettings()
     f                                                                     << endl;
     f << "; Simulation"                                                   << endl;
     f << CONF_SIM_GEARBOX     << "=" << _(App__SimGearboxToStr        ()) << endl;
+    f << CONF_SIM_MULTITHREAD << "=" << B(App::GetAppMultithread      ()) << endl;
     f << CONF_SIM_NEXT_TERRN  << "=" << _(App::GetSimNextTerrain      ()) << endl;
     f                                                                     << endl;
     f << "; Input/Output"                                                 << endl;
