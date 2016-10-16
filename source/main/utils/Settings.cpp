@@ -532,25 +532,12 @@ void App__SetScreenshotFormat(std::string const & s)
     if (s.size() >= 3) { App::SetAppScreenshotFormat(s.substr(0, 3)); }
 }
 
-void App__SetEnvMapUpdateRate(std::string const & s)
+void App__SetGfxEnvmapRate(std::string const & s)
 {
     int rate = Ogre::StringConverter::parseInt(s);
     if (rate < 0) { rate = 0; }
     if (rate > 6) { rate = 6; }
-    App::SetGfxEnvmapMode(rate);
-}
-
-void App__SetEnvMapEnabled(std::string const & s)
-{
-    bool enabled = Ogre::StringConverter::parseBool(s);
-    if (!enabled)
-    {
-        App::SetGfxEnvmapMode(0);
-    }
-    else if (App::GetGfxEnvmapMode() == 0)
-    {
-        App::SetGfxEnvmapMode(1);
-    }
+    App::SetGfxEnvmapRate(rate);
 }
 
 void Settings::SetMpNetworkEnable(std::string const & s)
@@ -672,8 +659,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_GFX_HDR         ) { App::SetGfxEnableHdr         (B(v)); return true; }
     if (k == CONF_GFX_HEATHAZE    ) { App::SetGfxUseHeathaze       (B(v)); return true; }
     if (k == CONF_GFX_SKIDMARKS   ) { App::SetGfxSkidmarksMode     (M(v)); return true; }
-    if (k == CONF_ENVMAP_RATE     ) { App__SetEnvMapUpdateRate     (S(v)); return true; }
-    if (k == CONF_ENVMAP_ENABLED  ) { App__SetEnvMapEnabled        (S(v)); return true; }
+    if (k == CONF_ENVMAP_RATE     ) { App__SetGfxEnvmapRate        (S(v)); return true; }
+    if (k == CONF_ENVMAP_ENABLED  ) { App::SetGfxEnvmapEnabled     (B(v)); return true; }
     if (k == CONF_GFX_LIGHTS      ) { App__SetGfxFlaresMode        (S(v)); return true; }
     if (k == CONF_GFX_WATER_MODE  ) { App__SetGfxWaterMode         (S(v)); return true; }
     if (k == CONF_GFX_SIGHT_RANGE ) { App::SetGfxSightRange        (F(v)); return true; }
@@ -845,7 +832,7 @@ inline const char* App__SimGearboxToStr    () { return SimGearboxToStr    (App::
 inline const char* App__GfxFlaresToStr     () { return GfxFlaresToStr     (App::GetGfxFlaresMode     ()); }
 inline const char* App__GfxWaterToStr      () { return GfxWaterToStr      (App::GetGfxWaterMode      ()); }
 inline const char* App__GfxSkyToStr        () { return GfxSkyToStr        (App::GetGfxSkyMode        ()); }
-inline int         App__GetEnvMapRate      () { return std::min(6, std::max(0, App::GetGfxEnvmapMode())); }
+inline int         App__GetEnvmapRate      () { return std::min(6, std::max(0, App::GetGfxEnvmapRate())); }
 
 #define _(_V_) (_V_)
 #define B(_V_) (_V_ ? "Yes" : "No")
@@ -903,8 +890,8 @@ void Settings::SaveSettings()
     f << CONF_GFX_HDR         << "=" << B(App::GetGfxEnableHdr        ()) << endl;
     f << CONF_GFX_HEATHAZE    << "=" << B(App::GetGfxUseHeathaze      ()) << endl;
     f << CONF_GFX_SKIDMARKS   << "=" << Y(App::GetGfxSkidmarksMode    ()) << endl;
-    f << CONF_ENVMAP_RATE     << "=" << _(App__GetEnvMapRate          ()) << endl;
-    f << CONF_ENVMAP_ENABLED  << "=" << Y(App::GetGfxEnvmapMode       ()) << endl;
+    f << CONF_ENVMAP_ENABLED  << "=" << B(App::GetGfxEnvmapEnabled    ()) << endl;
+    f << CONF_ENVMAP_RATE     << "=" << _(App::GetGfxEnvmapRate       ()) << endl;
     f << CONF_GFX_LIGHTS      << "=" << _(App__GfxFlaresToStr         ()) << endl;
     f << CONF_GFX_WATER_MODE  << "=" << _(App__GfxWaterToStr          ()) << endl;
     f << CONF_GFX_SIGHT_RANGE << "=" << _(App::GetGfxSightRange       ()) << endl;
