@@ -553,15 +553,6 @@ void App__SetEnvMapEnabled(std::string const & s)
     }
 }
 
-void Settings::SetMpNetworkEnable(std::string const & s)
-{
-    if (Ogre::StringConverter::parseBool(s) == true)
-    {
-        App::SetPendingMpState(RoR::App::MP_STATE_CONNECTED);
-        m_network_enable = true;
-    }
-}
-
 static const char* CONF_MP_NET_ENABLE   = "Network enable";
 static const char* CONF_MP_NICKNAME     = "Nickname";
 static const char* CONF_MP_HOSTNAME     = "Server name";
@@ -638,14 +629,14 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // Process and erase settings which propagate to global vars.
 
     // Multiplayer
-    if (k == CONF_MP_NET_ENABLE   ) { this->SetMpNetworkEnable     (S(v)); return true; }
+    if (k == CONF_MP_NET_ENABLE   ) { this->SetConfNetworkEnable   (B(v)); return true; }
     if (k == CONF_MP_NICKNAME     ) { App::SetMpPlayerName         (S(v)); return true; }
     if (k == CONF_MP_HOSTNAME     ) { App::SetMpServerHost         (S(v)); return true; }
     if (k == CONF_MP_PORT         ) { App::SetMpServerPort         (I(v)); return true; }
     if (k == CONF_MP_PASSWORD     ) { App::SetMpServerPassword     (S(v)); return true; }
     // Sim
     if (k == CONF_SIM_GEARBOX     ) { App__SetSimGearboxMode       (S(v)); return true; }
-    if (k == CONF_SIM_NEXT_TERRN  ) { App::SetSimNextTerrain       (S(v)); return true; }
+    if (k == CONF_SIM_NEXT_TERRN  ) { this->SetConfPreselectedMap  (S(v)); return true; }
     // Input&Output
     if (k == CONF_FF_ENABLED      ) { App::SetIoFFbackEnabled      (B(v)); return true; }
     if (k == CONF_FF_CAMERA       ) { App::SetIoFFbackCameraGain   (F(v)); return true; }
@@ -677,8 +668,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_GFX_LIGHTS      ) { App__SetGfxFlaresMode        (S(v)); return true; }
     if (k == CONF_GFX_WATER_MODE  ) { App__SetGfxWaterMode         (S(v)); return true; }
     if (k == CONF_GFX_SIGHT_RANGE ) { App::SetGfxSightRange        (F(v)); return true; }
-    if (k == CONF_GFX_FOV_EXTERN  ) { App::SetGfxFovExternal       (F(v)); return true; }
-    if (k == CONF_GFX_FOV_INTERN  ) { App::SetGfxFovInternal       (F(v)); return true; }
+    if (k == CONF_GFX_FOV_EXTERN  ) { this->SetConfFovExternal     (F(v)); return true; }
+    if (k == CONF_GFX_FOV_INTERN  ) { this->SetConfFovInternal     (F(v)); return true; }
     if (k == CONF_GFX_FPS_LIMIT   ) { App::SetGfxFpsLimit          (I(v)); return true; }
     if (k == CONF_GFX_SKY_EFFECTS ) { App__SetGfxSkyMode           (S(v)); return true; }
     // Audio
@@ -705,6 +696,11 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
 
     return false;
 }
+
+void Settings::SetConfNetworkEnable  (bool        v) { m_conf_values.network_enable = v;       if (v) { App::SetPendingMpState(App::MP_STATE_CONNECTED); } }
+void Settings::SetConfFovExternal    (float       v) { m_conf_values.fov_external = (int)v;    App::SetGfxFovExternal(v); }
+void Settings::SetConfFovInternal    (float       v) { m_conf_values.fov_internal = (int)v;    App::SetGfxFovInternal(v); }
+void Settings::SetConfPreselectedMap (std::string v) { m_conf_values.preselected_map = v;      App::SetSimNextTerrain(v); }
 
 #undef I
 #undef F
@@ -862,11 +858,11 @@ void Settings::SaveSettings()
         return;
     }
 
-    f << "; Rigs of Rods configuration file"                             << endl;
-    f << "; -------------------------------"                             << endl;
-    f                                                                    << endl;
-    f << "; Multiplayer"                                                 << endl;
-    f << CONF_MP_NET_ENABLE   << "=" << B(m_network_enable              ) << endl;
+    f << "; Rigs of Rods configuration file"                              << endl;
+    f << "; -------------------------------"                              << endl;
+    f                                                                     << endl;
+    f << "; Multiplayer"                                                  << endl;
+    f << CONF_MP_NET_ENABLE   << "=" << B(m_conf_values.network_enable  ) << endl;
     f << CONF_MP_NICKNAME     << "=" << _(App::GetMpPlayerName        ()) << endl;
     f << CONF_MP_HOSTNAME     << "=" << _(App::GetMpServerHost        ()) << endl;
     f << CONF_MP_PORT         << "=" << _(App::GetMpServerPort        ()) << endl;
@@ -874,7 +870,7 @@ void Settings::SaveSettings()
     f                                                                     << endl;
     f << "; Simulation"                                                   << endl;
     f << CONF_SIM_GEARBOX     << "=" << _(App__SimGearboxToStr        ()) << endl;
-    f << CONF_SIM_NEXT_TERRN  << "=" << _(App::GetSimNextTerrain      ()) << endl;
+    f << CONF_SIM_NEXT_TERRN  << "=" << _(m_conf_values.preselected_map ) << endl;
     f                                                                     << endl;
     f << "; Input/Output"                                                 << endl;
     f << CONF_FF_ENABLED      << "=" << B(App::GetIoFFbackEnabled     ()) << endl;
@@ -908,8 +904,8 @@ void Settings::SaveSettings()
     f << CONF_GFX_LIGHTS      << "=" << _(App__GfxFlaresToStr         ()) << endl;
     f << CONF_GFX_WATER_MODE  << "=" << _(App__GfxWaterToStr          ()) << endl;
     f << CONF_GFX_SIGHT_RANGE << "=" << _(App::GetGfxSightRange       ()) << endl;
-    f << CONF_GFX_FOV_EXTERN  << "=" << _(App::GetGfxFovExternal      ()) << endl;
-    f << CONF_GFX_FOV_INTERN  << "=" << _(App::GetGfxFovInternal      ()) << endl;
+    f << CONF_GFX_FOV_EXTERN  << "=" << _(m_conf_values.fov_external    ) << endl;
+    f << CONF_GFX_FOV_INTERN  << "=" << _(m_conf_values.fov_internal    ) << endl;
     f << CONF_GFX_FPS_LIMIT   << "=" << _(App::GetGfxFpsLimit         ()) << endl;
     f << CONF_GFX_SKY_EFFECTS << "=" << _(App__GfxSkyToStr            ()) << endl;
     f                                                                     << endl;
