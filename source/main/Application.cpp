@@ -441,6 +441,7 @@ void Init()
     g_app_language         = "English";
     g_app_locale           = "en";
     g_app_screenshot_format= "jpg";
+	g_app_multithread      = true;
 
     g_mp_state_active      = MP_STATE_DISABLED;
     g_mp_state_pending     = MP_STATE_NONE;
