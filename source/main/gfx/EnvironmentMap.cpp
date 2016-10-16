@@ -223,7 +223,7 @@ Envmap::~Envmap()
 
 void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 {
-	if (App::GetGfxEnvmapMode() == 0 || !beam)
+	if (!App::GetGfxEnvmapEnabled() || !beam)
 	{
 		if (!mInitiated)
 		{
@@ -253,7 +253,7 @@ void Envmap::update(Ogre::Vector3 center, Beam *beam /* = 0 */)
 		beam->setBeamVisibility(false);
 	}
 
-    const int update_rate = App::GetGfxEnvmapMode();
+    const int update_rate = App::GetGfxEnvmapRate();
 	for (int i=0; i < update_rate; i++)
 	{
 		// caelum needs to know that we changed the cameras

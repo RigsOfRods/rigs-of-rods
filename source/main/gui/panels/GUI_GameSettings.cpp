@@ -419,14 +419,13 @@ void CLASS::UpdateControls()
     m_sunburn                  ->setStateCheck( App::GetGfxEnableSunburn());
     m_hdr                      ->setStateCheck( App::GetGfxEnableHdr());
     m_skidmarks                ->setStateCheck( App::GetGfxSkidmarksMode() == 1);
-    m_hq_ref                   ->setStateCheck( App::GetGfxEnvmapMode() > 0);
+    m_hq_ref                   ->setStateCheck( App::GetGfxEnvmapEnabled());
     m_glow                     ->setStateCheck( App::GetGfxEnableGlow());
     m_e_waves                  ->setStateCheck( App::GetGfxWaterUseWaves());
     m_disable_multithreading   ->setStateCheck(!App::GetAppMultithread());
     m_enable_replay            ->setStateCheck( App::GetSimReplayEnabled());
     m_hq_screenshots           ->setStateCheck( App::GetAppScreenshotFormat() == "png");
     m_main_menu_music          ->setStateCheck( App::GetAudioMenuMusic());
-    m_hq_ref                   ->setStateCheck( App::GetGfxEnvmapMode() > 0);
 
     m_sh_pf_opti               ->setStateCheck(BSETTING("Shadow optimizations", true ));
     m_dof                      ->setStateCheck(BSETTING("DOF",                  false));
@@ -545,7 +544,7 @@ void CLASS::SaveSettings()
     App::SetGfxEnableSunburn     (m_sunburn                ->getStateCheck());
     App::SetGfxEnableHdr         (m_hdr                    ->getStateCheck());
     App::SetGfxSkidmarksMode((int)m_skidmarks              ->getStateCheck());
-    App::SetGfxEnvmapMode   ((int)m_hq_ref                 ->getStateCheck());
+    App::SetGfxEnvmapEnabled     (m_hq_ref                 ->getStateCheck());
     App::SetGfxEnableGlow        (m_glow                   ->getStateCheck());
     App::SetGfxWaterUseWaves     (m_e_waves                ->getStateCheck());
     App::SetAppMultithread       (m_disable_multithreading ->getStateCheck());

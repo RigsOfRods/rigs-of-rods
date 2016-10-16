@@ -141,7 +141,8 @@ static int              g_gfx_particles_mode;    ///< Config: BOOL  Particles
 static bool             g_gfx_enable_glow;       ///< Config: BOOL  Glow
 static bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
 static bool             g_gfx_enable_heathaze;   ///< Config: BOOL  HeatHaze
-static int              g_gfx_envmap_mode;       ///< Config: BOOL  Envmap & INT EnvmapUpdateRate
+static bool             g_gfx_envmap_enabled;    ///< Config: BOOL  Envmap
+static int              g_gfx_envmap_rate;       ///< Config: INT   EnvmapUpdateRate
 static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
 static float            g_gfx_sight_range;       ///< Config: FLOAT SightRange
 static float            g_gfx_fov_external;      ///< Config: FLOAT FOV External
@@ -210,7 +211,8 @@ int             GetGfxParticlesMode()   { return g_gfx_particles_mode ; }
 bool            GetGfxEnableGlow   ()   { return g_gfx_enable_glow    ; }
 bool            GetGfxEnableHdr    ()   { return g_gfx_enable_hdr     ; }
 bool            GetGfxUseHeathaze  ()   { return g_gfx_enable_heathaze; }
-int             GetGfxEnvmapMode   ()   { return g_gfx_envmap_mode    ; }
+bool            GetGfxEnvmapEnabled()   { return g_gfx_envmap_enabled ; }
+int             GetGfxEnvmapRate   ()   { return g_gfx_envmap_rate    ; }
 int             GetGfxSkidmarksMode()   { return g_gfx_skidmarks_mode ; }
 bool            GetDiagRigLogNodeImport () { return g_diag_rig_log_node_import; }
 bool            GetDiagRigLogNodeStats  () { return g_diag_rig_log_node_stats ; }
@@ -285,7 +287,8 @@ void SetGfxWaterUseWaves  (bool           v) { SetVarBool    (g_gfx_water_waves 
 void SetGfxEnableGlow     (bool           v) { SetVarBool    (g_gfx_enable_glow      , "gfx_enable_glow"      , v); }
 void SetGfxEnableHdr      (bool           v) { SetVarBool    (g_gfx_enable_hdr       , "gfx_enable_hdr"       , v); }
 void SetGfxUseHeathaze    (bool           v) { SetVarBool    (g_gfx_enable_heathaze  , "gfx_enable_heathaze"  , v); }
-void SetGfxEnvmapMode     (int            v) { SetVarInt     (g_gfx_envmap_mode      , "gfx_envmap_mode"      , v); }
+void SetGfxEnvmapEnabled  (bool           v) { SetVarBool    (g_gfx_envmap_enabled   , "gfx_envmap_enabled"   , v); }
+void SetGfxEnvmapRate     (int            v) { SetVarInt     (g_gfx_envmap_rate      , "gfx_envmap_rate"      , v); }
 void SetGfxSkidmarksMode  (int            v) { SetVarInt     (g_gfx_skidmarks_mode   , "gfx_skidmarks_mode"   , v); }
 void SetGfxMinimapMode    (int            v) { SetVarInt     (g_gfx_minimap_mode     , "gfx_minimap_mode"     , v); }
 void SetGfxParticlesMode  (int            v) { SetVarInt     (g_gfx_particles_mode   , "gfx_particles_mode"   , v); }
