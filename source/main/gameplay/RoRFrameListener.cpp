@@ -152,7 +152,6 @@ void RoRFrameListener::updateForceFeedback(float dt)
 
 RoRFrameListener::RoRFrameListener() :
 	m_dir_arrow_pointed(Vector3::ZERO),
-	m_dof(0),
 	m_heathaze(0),
 	m_hide_gui(false),
 	m_is_dir_arrow_visible(false),

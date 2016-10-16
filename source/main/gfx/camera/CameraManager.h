@@ -35,7 +35,7 @@ class CameraManager : public IBehaviorManager
 
 public:
 
-	CameraManager(DOFManager *dof);
+	CameraManager();
 	~CameraManager();
 
 	class CameraContext

@@ -74,6 +74,8 @@ OverlayWrapper::OverlayWrapper():
 
 OverlayWrapper::~OverlayWrapper()
 {
+	HideRacingOverlay();
+	HideDirectionOverlay();
 	if (truckhud != nullptr)
 	{
 		delete truckhud;
@@ -412,7 +414,6 @@ int OverlayWrapper::init()
 
 	truckhud = new TruckHUD();
 	truckhud->show(false);
-
 
 	return 0;
 }

@@ -5921,16 +5921,7 @@ bool Beam::LoadTruck(
 			// load default for a truck
 			if (driveable == TRUCK)
 			{
-				//Temporary will fix later. TOFIX
-				Ogre::String test01 = Settings::getSingleton().getSetting("DigitalSpeedo", "No");
-				bool test02;
-
-				if (test01 == "Yes")
-					test02 = true;
-				else
-					test02 = false;
-
-				if (test02)
+				if (Settings::getSingleton().getSetting("DigitalSpeedo", "No") == "Yes")
 				{
 					if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
 					{

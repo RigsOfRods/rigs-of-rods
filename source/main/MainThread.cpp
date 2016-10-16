@@ -38,7 +38,6 @@
 #include "ChatSystem.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "ErrorUtils.h"
 #include "ForceFeedback.h"
@@ -270,7 +269,6 @@ void MainThread::Go()
     {
         this->JoinMultiplayerServer();
     }
-    m_base_resource_loaded = false;
     for (;;)
     {
         if (App::GetPendingAppState() == App::APP_STATE_SHUTDOWN)
@@ -282,9 +280,6 @@ void MainThread::Go()
             App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
             App::SetPendingAppState(App::APP_STATE_NONE);
 
-			OgreSubsystem* ror_ogre_subsystem = RoR::App::GetOgreSubsystem();
-			assert(ror_ogre_subsystem != nullptr);
-
 			if (previous_application_state == App::APP_STATE_SIMULATION)
 			{
                 if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
@@ -293,7 +288,6 @@ void MainThread::Go()
                     App::GetGuiManager()->SetVisible_MpClientList(false);
                 }
 				UnloadTerrain();
-				m_base_resource_loaded = true;
 				gEnv->cameraManager->OnReturnToMainMenu();
 				/* Hide top menu */
                 App::GetGuiManager()->SetVisible_TopMenubar(false);
@@ -352,7 +346,6 @@ void MainThread::Go()
 			if (previous_application_state == App::APP_STATE_SIMULATION)
 			{
 				UnloadTerrain();
-				m_base_resource_loaded = true;
 				
 			}
 			menu_wallpaper_widget->setVisible(true);
@@ -412,7 +405,6 @@ void MainThread::Go()
 
 	delete gEnv;
 	gEnv = nullptr;
-
 }
 
 bool MainThread::SetupGameplayLoop()
@@ -440,6 +432,8 @@ bool MainThread::SetupGameplayLoop()
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
 		RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+
+		m_base_resource_loaded = true;
 	}
 
 	// ============================================================================
@@ -510,16 +504,10 @@ bool MainThread::SetupGameplayLoop()
 		m_frame_listener->m_heathaze->setEnable(true);
 	}
 
-	// depth of field effect
-	if (BSETTING("DOF", false) && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
-	{
-		m_frame_listener->m_dof = new DOFManager();
-	}
-
-	if (!m_base_resource_loaded)
+	if (gEnv->cameraManager == nullptr)
 	{
 		// init camera manager after mygui and after we have a character
-		gEnv->cameraManager = new CameraManager(m_frame_listener->m_dof);
+		gEnv->cameraManager = new CameraManager();
 	}
 	
 	// ============================================================================
@@ -926,11 +914,9 @@ void MainThread::UnloadTerrain()
 	
 	RoR::App::GetGuiManager()->GetMainSelector()->Reset();
 
-	//First of all..
-	OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
 	m_frame_listener->StopRaceTimer();
-	ow->HideRacingOverlay();
-	ow->HideDirectionOverlay();
+
+	RoR::App::DestroyOverlayWrapper();
 
 	loading_window->setProgress(15, _L("Unloading Terrain"));
 
