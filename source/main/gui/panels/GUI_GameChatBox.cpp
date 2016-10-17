@@ -184,6 +184,9 @@ void CLASS::Update(float dt)
 
 void CLASS::SetVisible(bool value)
 {
-	MAIN_WIDGET->setVisible(value);
+	if (value)
+		this->Show();
+	else 
+		this->Hide();
 }
 
