@@ -437,4 +437,9 @@ public:
 	 *  @return reference to Beam object
 	 */
 	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
+
+	/**
+	*  Quits the game
+	*/
+	void quitGame();
 };
