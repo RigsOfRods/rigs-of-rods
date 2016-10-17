@@ -153,6 +153,10 @@ float TerrainGeometryManager::getHeightAtWorldPosition(float x, float z)
 {
 	Vector3 terrPos;
 	getTerrainPositionAlign(x, 0.0f, z, mAlign, &terrPos);
+
+	if (terrPos.x <= 0.0f || terrPos.y <= 0.0f || terrPos.x >= 1.0f || terrPos.y >= 1.0f)
+		return 0.0f; 
+
 	return getHeightAtTerrainPosition(terrPos.x, terrPos.y);
 }
 
@@ -161,8 +165,8 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
 	if (m_is_flat)
 		return 0.0f;
 	else
-		return mTerrainGroup->getHeightAtWorldPosition(x, 1000, z);
-		//return getHeightAtWorldPosition(x, z);
+		//return mTerrainGroup->getHeightAtWorldPosition(x, 1000, z);
+		return getHeightAtWorldPosition(x, z);
 }
 
 Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, float precision)
