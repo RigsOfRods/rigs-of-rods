@@ -160,7 +160,11 @@ BeamFactory::BeamFactory() :
 		{
 			int logical_cpus = hardware_concurrency();
 			int physical_cpus = getNumberOfCPUCores();
-			m_num_cpu_cores = std::max(physical_cpus, logical_cpus - 1);
+
+			if (physical_cpus < 6 && logical_cpus > physical_cpus)
+				m_num_cpu_cores = logical_cpus - 1;
+			else
+				m_num_cpu_cores = physical_cpus - 1;
 		}
 
 		bool disableThreadPool = BSETTING("DisableThreadPool", false);
