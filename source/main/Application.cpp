@@ -136,7 +136,7 @@ static int              g_gfx_vegetation_mode;   ///< Config: STR   Vegetation
 static int              g_gfx_water_mode;        ///< Config: STR   Water effects
 static bool             g_gfx_enable_sunburn;    ///< Config: BOOL  Sunburn
 static bool             g_gfx_water_waves;       ///< Config: BOOL  Waves
-static int              g_gfx_minimap_mode;      ///< Config: BOOL  disableOverViewMap
+static bool             g_gfx_minimap_disabled;  ///< Config: BOOL  disableOverViewMap
 static int              g_gfx_particles_mode;    ///< Config: BOOL  Particles
 static bool             g_gfx_enable_glow;       ///< Config: BOOL  Glow
 static bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
@@ -206,7 +206,6 @@ GfxTexFilter    GetGfxTexFiltering()    { return (GfxTexFilter) g_gfx_texture_fi
 GfxVegetation   GetGfxVegetationMode()  { return (GfxVegetation)g_gfx_vegetation_mode; }
 bool            GetGfxEnableSunburn()   { return g_gfx_enable_sunburn ; }
 bool            GetGfxWaterUseWaves()   { return g_gfx_water_waves    ; }
-int             GetGfxMinimapMode  ()   { return g_gfx_minimap_mode   ; }
 int             GetGfxParticlesMode()   { return g_gfx_particles_mode ; }
 bool            GetGfxEnableGlow   ()   { return g_gfx_enable_glow    ; }
 bool            GetGfxEnableHdr    ()   { return g_gfx_enable_hdr     ; }
@@ -214,6 +213,7 @@ bool            GetGfxUseHeathaze  ()   { return g_gfx_enable_heathaze; }
 bool            GetGfxEnvmapEnabled()   { return g_gfx_envmap_enabled ; }
 int             GetGfxEnvmapRate   ()   { return g_gfx_envmap_rate    ; }
 int             GetGfxSkidmarksMode()   { return g_gfx_skidmarks_mode ; }
+bool            GetGfxMinimapDisabled() { return g_gfx_minimap_disabled; }
 bool            GetDiagRigLogNodeImport () { return g_diag_rig_log_node_import; }
 bool            GetDiagRigLogNodeStats  () { return g_diag_rig_log_node_stats ; }
 bool            GetDiagRigLogMessages   () { return g_diag_rig_log_messages   ; }
@@ -290,8 +290,8 @@ void SetGfxUseHeathaze    (bool           v) { SetVarBool    (g_gfx_enable_heath
 void SetGfxEnvmapEnabled  (bool           v) { SetVarBool    (g_gfx_envmap_enabled   , "gfx_envmap_enabled"   , v); }
 void SetGfxEnvmapRate     (int            v) { SetVarInt     (g_gfx_envmap_rate      , "gfx_envmap_rate"      , v); }
 void SetGfxSkidmarksMode  (int            v) { SetVarInt     (g_gfx_skidmarks_mode   , "gfx_skidmarks_mode"   , v); }
-void SetGfxMinimapMode    (int            v) { SetVarInt     (g_gfx_minimap_mode     , "gfx_minimap_mode"     , v); }
 void SetGfxParticlesMode  (int            v) { SetVarInt     (g_gfx_particles_mode   , "gfx_particles_mode"   , v); }
+void SetGfxMinimapDisabled   (bool        v) { SetVarBool    (g_gfx_minimap_disabled , "gfx_minimap_disabled" , v); }
 void SetDiagRigLogNodeImport (bool        v) { SetVarBool    (g_diag_rig_log_node_import  , "diag_rig_log_node_import"  , v); }
 void SetDiagRigLogNodeStats  (bool        v) { SetVarBool    (g_diag_rig_log_node_stats   , "diag_rig_log_node_stats"   , v); }
 void SetDiagRigLogMessages   (bool        v) { SetVarBool    (g_diag_rig_log_messages     , "diag_rig_log_messages"     , v); }

@@ -655,7 +655,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_GFX_VEGETATION  ) { App__SetVegetationMode       (S(v)); return true; }
     if (k == CONF_GFX_SUNBURN     ) { App::SetGfxEnableSunburn     (B(v)); return true; }
     if (k == CONF_GFX_WAVES       ) { App::SetGfxWaterUseWaves     (B(v)); return true; }
-    if (k == CONF_MINIMAP_OFF     ) { App::SetGfxMinimapMode       (B(v)); return true; }
+    if (k == CONF_MINIMAP_OFF     ) { App::SetGfxMinimapDisabled   (B(v)); return true; }
     if (k == CONF_GFX_PARTICLES   ) { App::SetGfxParticlesMode     (M(v)); return true; }
     if (k == CONF_GFX_GLOW        ) { App::SetGfxEnableGlow        (B(v)); return true; }
     if (k == CONF_GFX_HDR         ) { App::SetGfxEnableHdr         (B(v)); return true; }
@@ -914,7 +914,7 @@ void Settings::SaveSettings()
     f << CONF_GFX_VEGETATION  << "=" << _(App__GfxVegetationToStr     ()) << endl;
     f << CONF_GFX_SUNBURN     << "=" << B(App::GetGfxEnableSunburn    ()) << endl;
     f << CONF_GFX_WAVES       << "=" << B(App::GetGfxWaterUseWaves    ()) << endl;
-    f << CONF_MINIMAP_OFF     << "=" << B(App::GetGfxMinimapMode      ()) << endl;
+    f << CONF_MINIMAP_OFF     << "=" << B(App::GetGfxMinimapDisabled  ()) << endl;
     f << CONF_GFX_PARTICLES   << "=" << Y(App::GetGfxParticlesMode    ()) << endl;
     f << CONF_GFX_GLOW        << "=" << B(App::GetGfxEnableGlow       ()) << endl;
     f << CONF_GFX_HDR         << "=" << B(App::GetGfxEnableHdr        ()) << endl;
