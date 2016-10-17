@@ -77,6 +77,7 @@ enum {
 
 enum {
 	UNLOCKED,       //!< lock not locked
+	PREUNLOCK,      //!< preunlocking, inter truck beam deletion in progress
 	PRELOCK,        //!< prelocking, attraction forces in action
 	LOCKED          //!< lock locked.
 };

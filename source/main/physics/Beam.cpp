@@ -4303,10 +4303,10 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			}
 		}
 		// this is a locked or prelocked hook and its not a locking attempt or the locked truck was removed (p2truck == false)
-		else if ((it->locked == LOCKED || it->locked == PRELOCK) && mode != HOOK_LOCK || !it->beam->p2truck)
+		else if ((it->locked == LOCKED || it->locked == PRELOCK) && (mode != HOOK_LOCK || !it->beam->p2truck))
 		{
 			// we unlock ropes
-			it->locked = UNLOCKED;
+			it->locked = PREUNLOCK;
 			if (it->group <= -2)
 			{
 				it->timer = it->timer_preset;	//timer reset for autolock nodes
@@ -4318,7 +4318,6 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 			it->beam->p2truck  = false;
 			it->beam->L        = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
 			it->beam->disabled = true;
-			removeInterTruckBeam(it->beam);
 		}
 
 		// update skeletonview on the (un)hooked truck

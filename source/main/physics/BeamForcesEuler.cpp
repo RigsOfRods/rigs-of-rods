@@ -1884,6 +1884,11 @@ void Beam::calcHooks()
 				}
 			}
 		}
+		if (it->locked == PREUNLOCK)
+		{
+			it->locked = UNLOCKED;
+			removeInterTruckBeam(it->beam);
+		}
 	}
 	BES_STOP(BES_CORE_Hooks);
 }
