@@ -78,11 +78,9 @@ TerrainManager::TerrainManager() :
 	, paged_mode(0)
 	, start_position(Vector3::ZERO)
 	, terrain_name("")
-	, use_caelum(false)
 	, version(1)
 	, water_line(0.0f)
 {
-	use_caelum = App::GetGfxSkyMode() == 1;
 }
 
 TerrainManager::~TerrainManager()
@@ -299,7 +297,7 @@ void TerrainManager::initSubSystems()
 	PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
 	initLight();
 
-	if (!use_caelum) //Caelum has its own fog management
+	if (App::GetGfxSkyMode() != App::GFX_SKY_CAELUM) //Caelum has its own fog management
 	{
 		PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
 		initFog();
@@ -365,7 +363,7 @@ void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
 	// Caelum skies
-	if (use_caelum)
+	if (App::GetGfxSkyMode() == App::GFX_SKY_CAELUM)
 	{
 		sky_manager = new SkyManager();
 		gEnv->sky = sky_manager;
@@ -404,7 +402,7 @@ void TerrainManager::initSkySubSystem()
 
 void TerrainManager::initLight()
 {
-	if (use_caelum)
+	if (App::GetGfxSkyMode() == App::GFX_SKY_CAELUM)
 	{
 #ifdef USE_CAELUM
 		main_light = sky_manager->getMainLight();
