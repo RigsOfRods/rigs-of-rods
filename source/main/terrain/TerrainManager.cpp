@@ -258,7 +258,7 @@ void TerrainManager::loadTerrain(String filename)
 	initTerrainCollisions();
 
 	// init the survey map
-	if (RoR::App::GetGfxMinimapMode() == 1)
+	if (!RoR::App::GetGfxMinimapDisabled())
 	{
 		PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
 		initSurveyMap();
