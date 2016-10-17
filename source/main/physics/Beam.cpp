@@ -975,13 +975,7 @@ void Beam::determineLinkedBeams()
 
 int Beam::getWheelNodeCount()
 {
-	int wheel_nodes = 0;
-	for (int i=0; i<free_node; i++)
-	{
-		if (nodes[i].iswheel != NOWHEEL)
-			wheel_nodes++;
-	}
-	return wheel_nodes;
+	return wheel_node_count;
 }
 
 void Beam::calcNodeConnectivityGraph()
@@ -5503,6 +5497,14 @@ Beam::Beam(
 	if (enablePosStor)
 	{
 		posStorage = new PositionStorage(free_node, 10);
+	}
+
+	// calculate the number of wheel nodes
+	wheel_node_count = 0;
+	for (int i=0; i<free_node; i++)
+	{
+		if (nodes[i].iswheel != NOWHEEL)
+			wheel_node_count++;
 	}
 
 	// search first_wheel_node
