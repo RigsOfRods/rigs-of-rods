@@ -713,7 +713,7 @@ void TerrainManager::initScripting()
 	bool loaded = false;
 
 	// only load terrain scripts while not in multiplayer
-	if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+	if (RoR::App::GetActiveMpState() != RoR::App::MP_STATE_CONNECTED)
 	{
 		try
 		{
