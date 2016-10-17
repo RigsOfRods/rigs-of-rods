@@ -242,16 +242,11 @@ void CLASS::Cancel()
 	m_selection_done = true;
 	Hide();
 
-    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
-    {
-        RoR::App::GetMainThreadLogic()->LeaveMultiplayerServer();
-    }
-
-	//Do this on cancel only
 	if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
-    {
+	{
+		RoR::App::GetMainThreadLogic()->LeaveMultiplayerServer();
 		App::GetGuiManager()->SetVisible_GameMainMenu(true);
-    }
+	}
 }
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
