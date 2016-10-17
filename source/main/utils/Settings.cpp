@@ -745,83 +745,110 @@ void Settings::LoadSettings(std::string filepath)
 	setSetting("User Token Hash", String(usertokensha1result));
 }
 
-inline const char* IoInputGrabToStr(App::IoInputGrabMode v) { switch (v)
+inline const char* IoInputGrabToStr(App::IoInputGrabMode v)
+{
+    switch (v)
     {
     case App::INPUT_GRAB_DYNAMIC: return CONF_INPUT_GRAB_DYNAMIC;
-    case App::INPUT_GRAB_NONE:    return CONF_INPUT_GRAB_NONE   ;
-    case App::INPUT_GRAB_ALL:     return CONF_INPUT_GRAB_ALL    ;
+    case App::INPUT_GRAB_NONE   : return CONF_INPUT_GRAB_NONE   ;
+    case App::INPUT_GRAB_ALL    : return CONF_INPUT_GRAB_ALL    ;
+    default                     : return ""                     ;
     }
 }
 
-inline const char* GfxShadowTechToStr(App::GfxShadowType v) { switch (v)
+inline const char* GfxShadowTechToStr(App::GfxShadowType v)
+{
+    switch (v)
     {
     case App::GFX_SHADOW_TYPE_TEXTURE: return CONF_GFX_SHADOW_TEX  ;
     case App::GFX_SHADOW_TYPE_PSSM   : return CONF_GFX_SHADOW_PSSM ;
     case App::GFX_SHADOW_TYPE_NONE   : return CONF_GFX_SHADOW_NONE ;
+    default                          : return ""                   ;
     }
 }
 
-inline const char* GfxExtcamModeToStr(App::GfxExtCamMode v) { switch (v)
+inline const char* GfxExtcamModeToStr(App::GfxExtCamMode v)
+{
+    switch (v)
     {
     case App::GFX_EXTCAM_MODE_PITCHING: return CONF_EXTCAM_PITCHING;
     case App::GFX_EXTCAM_MODE_STATIC  : return CONF_EXTCAM_STATIC  ;
     case App::GFX_EXTCAM_MODE_NONE    : return CONF_EXTCAM_NONE    ;
+    default                           : return ""                  ;
     }
 }
 
-inline const char* GfxTexFilterToStr(App::GfxTexFilter v) { switch (v)
+inline const char* GfxTexFilterToStr(App::GfxTexFilter v)
+{
+    switch (v)
     {
-    case App::GFX_TEXFILTER_NONE       : return CONF_TEXFILTER_NONE ;		    
+    case App::GFX_TEXFILTER_NONE       : return CONF_TEXFILTER_NONE ;
     case App::GFX_TEXFILTER_BILINEAR   : return CONF_TEXFILTER_BILI ;
     case App::GFX_TEXFILTER_TRILINEAR  : return CONF_TEXFILTER_TRILI;
     case App::GFX_TEXFILTER_ANISOTROPIC: return CONF_TEXFILTER_ANISO;
+    default                            : return ""                  ;
     }
 }
 
-inline const char* GfxVegetationToStr(App::GfxVegetation v) { switch (v)
+inline const char* GfxVegetationToStr(App::GfxVegetation v)
+{
+    switch (v)
     {
     case App::GFX_VEGETATION_NONE  : return CONF_VEGET_NONE  ;
     case App::GFX_VEGETATION_20PERC: return CONF_VEGET_20PERC;
     case App::GFX_VEGETATION_50PERC: return CONF_VEGET_50PERC;
     case App::GFX_VEGETATION_FULL  : return CONF_VEGET_FULL  ;
+    default                        : return ""               ;
     }
 }
 
-inline const char* SimGearboxToStr(App::SimGearboxMode v) { switch (v)
+inline const char* SimGearboxToStr(App::SimGearboxMode v)
+{
+    switch (v)
     {
     case App::SIM_GEARBOX_AUTO         : return CONF_GEARBOX_AUTO      ;
     case App::SIM_GEARBOX_SEMI_AUTO    : return CONF_GEARBOX_SEMIAUTO  ;
     case App::SIM_GEARBOX_MANUAL       : return CONF_GEARBOX_MANUAL    ;
     case App::SIM_GEARBOX_MANUAL_STICK : return CONF_GEARBOX_MAN_STICK ;
     case App::SIM_GEARBOX_MANUAL_RANGES: return CONF_GEARBOX_MAN_RANGES;
+    default                            : return ""                     ;
     }
 }
 
-inline const char* GfxFlaresToStr(App::GfxFlaresMode v) { switch(v)
+inline const char* GfxFlaresToStr(App::GfxFlaresMode v)
+{
+    switch(v)
     {
     case App::GFX_FLARES_NONE                   : return CONF_FLARES_NONE      ;
     case App::GFX_FLARES_NO_LIGHTSOURCES        : return CONF_FLARES_NO_LIGHT  ;
     case App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY : return CONF_FLARES_CURR_HEAD ;
     case App::GFX_FLARES_ALL_VEHICLES_HEAD_ONLY : return CONF_FLARES_ALL_HEADS ;
     case App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS: return CONF_FLARES_ALL_LIGHTS;
+    default                                     : return ""                    ;
     }
 }
 
-inline const char* GfxWaterToStr(App::GfxWaterMode v) { switch(v)
+inline const char* GfxWaterToStr(App::GfxWaterMode v)
+{
+    switch(v)
     {
     case App::GFX_WATER_BASIC    : return CONF_WATER_BASIC    ;
     case App::GFX_WATER_REFLECT  : return CONF_WATER_REFLECT  ;
     case App::GFX_WATER_FULL_FAST: return CONF_WATER_FULL_FAST;
     case App::GFX_WATER_FULL_HQ  : return CONF_WATER_FULL_HQ  ;
     case App::GFX_WATER_HYDRAX   : return CONF_WATER_HYDRAX   ;
+    default                      : return ""                  ;
     }
 }
 
-inline const char* GfxSkyToStr(App::GfxSkyMode v) { switch(v)
+inline const char* GfxSkyToStr(App::GfxSkyMode v)
+{
+    switch(v)
     {
     case App::GFX_SKY_CAELUM   : return CONF_SKY_CAELUM   ;
     case App::GFX_SKY_SKYX     : return CONF_SKY_SKYX     ;
     case App::GFX_SKY_SANDSTORM: return CONF_SKY_SANDSTORM;
+    default                    : return ""                ;
     }
 }
 
