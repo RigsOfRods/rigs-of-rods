@@ -369,6 +369,7 @@ public:
 	Beam* spawnTruck(Ogre::String &truckName, Ogre::Vector3 &pos, Ogre::Vector3 &rot);
 
 	void showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2);
+	void backToMenu();
 	void quitGame();
 protected:
 

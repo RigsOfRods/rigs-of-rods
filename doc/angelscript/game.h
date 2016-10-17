@@ -439,6 +439,11 @@ public:
 	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
 
 	/**
+	*  Back to menu
+	*/
+	void backToMenu();
+
+	/**
 	*  Quits the game
 	*/
 	void quitGame();

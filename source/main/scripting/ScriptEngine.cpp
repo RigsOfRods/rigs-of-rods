@@ -515,6 +515,7 @@ void ScriptEngine::init()
 	result = engine->RegisterObjectMethod("GameScriptClass", "void showMessageBox(string &in, string &in, bool button1, string &in, bool AllowClose, bool button2,string &in)", AngelScript::asMETHOD(GameScript, showMessageBox), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "BeamClass @spawnTruck(string &in, vector3 &in, vector3 &in)", AngelScript::asMETHOD(GameScript, spawnTruck), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
 	
+	result = engine->RegisterObjectMethod("GameScriptClass", "void backToMenu()", AngelScript::asMETHOD(GameScript, backToMenu), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
 	result = engine->RegisterObjectMethod("GameScriptClass", "void quitGame()", AngelScript::asMETHOD(GameScript, quitGame), AngelScript::asCALL_THISCALL); MYASSERT(result >= 0);
 
 
