@@ -352,12 +352,13 @@ void GUIManager::pushMessageChatBox(Ogre::String txt)
 
 void GUIManager::hideGUI(bool hidden)
 {
-    if (! hidden) { return; }
-
-    m_impl->panel_SimUtils.HideNotificationBox();
-    m_impl->panel_SimUtils.SetFPSBoxVisible(false); // This doesn't really make sense, but nobody complained ... ~only_a_ptr, 2016/09
-    m_impl->panel_SimUtils.SetTruckInfoBoxVisible(false);
-    m_impl->panel_ChatBox.Hide();
+    if (hidden)
+    {
+        m_impl->panel_SimUtils.HideNotificationBox();
+        m_impl->panel_SimUtils.SetFPSBoxVisible(false);
+        m_impl->panel_SimUtils.SetTruckInfoBoxVisible(false);
+        m_impl->panel_ChatBox.Hide();
+    }
     m_impl->panel_SimUtils.DisableNotifications(hidden);
 }
 
