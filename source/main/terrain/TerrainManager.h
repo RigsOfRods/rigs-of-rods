@@ -99,7 +99,6 @@ protected:
 	Ogre::String terrain_name;
 	Ogre::Vector3 start_position;
 	std::vector<authorinfo_t> authors;
-	bool use_caelum;
 	float gravity;
 	float paged_detail_factor;
 	float water_line;
