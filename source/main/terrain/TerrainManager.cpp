@@ -354,7 +354,7 @@ void TerrainManager::initCamera()
 	else
 	{
 		// disabled in global config
-		if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
+		if (App::GetGfxWaterMode() != App::GFX_WATER_HYDRAX)
 			gEnv->mainCamera->setFarClipDistance(0); //Unlimited
 		else
 			gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
