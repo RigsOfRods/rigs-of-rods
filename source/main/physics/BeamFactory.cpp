@@ -574,7 +574,7 @@ void BeamFactory::UpdateSleepingState(float dt)
 
 			m_trucks[t]->sleeptime += dt;
 
-			if (m_trucks[t]->sleeptime >= 1.0f)
+			if (m_trucks[t]->sleeptime >= 10.0f)
 			{
 				m_trucks[t]->state = SLEEPING;
 			}
@@ -585,13 +585,11 @@ void BeamFactory::UpdateSleepingState(float dt)
 	if (current_truck && current_truck->state == SLEEPING)
 	{
 		current_truck->state = SIMULATED;
-		current_truck->sleeptime = 0.0f;
 	}
-
-	for (int t=0; t<m_free_truck; t++)
+	if (current_truck && current_truck->state == SIMULATED)
 	{
-		if (m_trucks[t] && m_trucks[t]->state == SIMULATED)
-			this->RecursiveActivation(t);
+		current_truck->sleeptime = 0.0f;
+		this->RecursiveActivation(m_current_truck);
 	}
 }
 
