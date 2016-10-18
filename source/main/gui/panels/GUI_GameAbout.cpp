@@ -74,6 +74,10 @@ void CLASS::Show()
 void CLASS::Hide()
 {
 	MAIN_WIDGET->setVisibleSmooth(false);
+	if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
+	{
+		App::GetGuiManager()->SetVisible_GameMainMenu(true);
+	}
 }
 
 void CLASS::CenterToScreen()
@@ -206,4 +210,11 @@ void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
 		Hide();
 }
 
-void CLASS::SetVisible(bool v) { MAIN_WIDGET->setVisible(v); }
+void CLASS::SetVisible(bool v)
+{
+	if (v)
+		Show();
+	else
+		Hide();
+}
+
