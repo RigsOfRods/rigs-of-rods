@@ -908,3 +908,16 @@ void GameScript::showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool 
 {
 	RoR::App::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
 }
+void GameScript::backToMenu()
+{
+	App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+}
+void GameScript::quitGame()
+{
+	RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
+}
+
+float GameScript::getFPS()
+{
+	return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().lastFPS;
+}

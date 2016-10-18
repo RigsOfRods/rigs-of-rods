@@ -437,4 +437,20 @@ public:
 	 *  @return reference to Beam object
 	 */
 	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
+
+	/**
+	*  Gets the Curent frames per second (FPS)
+	*  @return The Current FPS
+	*/
+	void getFPS();
+
+	/**
+	*  Back to menu
+	*/
+	void backToMenu();
+
+	/**
+	*  Quits the game
+	*/
+	void quitGame();
 };
