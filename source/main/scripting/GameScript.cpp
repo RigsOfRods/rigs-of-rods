@@ -916,3 +916,8 @@ void GameScript::quitGame()
 {
 	RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
 }
+
+float GameScript::getFPS()
+{
+	return App::GetOgreSubsystem()->GetRenderWindow()->getStatistics().lastFPS;
+}

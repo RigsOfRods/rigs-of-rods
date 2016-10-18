@@ -371,6 +371,7 @@ public:
 	void showMessageBox(Ogre::String &mTitle, Ogre::String &mText, bool button1, Ogre::String &mButton1, bool AllowClose, bool button2, Ogre::String &mButton2);
 	void backToMenu();
 	void quitGame();
+	float getFPS();
 protected:
 
 	ScriptEngine *mse;          //!< local script engine pointer, used as proxy mostly
