@@ -120,26 +120,6 @@ public:
 
 	void recalcGravityMasses();
 
-	/** 
-	* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
-	*/
-	bool truckIntersectionAABB(int a, int b);
-
-	/** 
-	* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
-	*/
-	bool predictTruckIntersectionAABB(int a, int b);
-
-	/** 
-	* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
-	*/
-	bool truckIntersectionCollAABB(int a, int b);
-
-	/** 
-	* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
-	*/
-	bool predictTruckIntersectionCollAABB(int a, int b);
-
 	void activateAllTrucks();
 	void sendAllTrucksSleeping();
 	void setTrucksForcedActive(bool forced) { m_forced_active = forced; };
@@ -162,6 +142,31 @@ public:
 	std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
 
 protected:
+
+	/** 
+	* Returns whether or not the two (scaled) bounding boxes intersect.
+	*/
+	bool intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f);
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
+	*/
+	bool truckIntersectionAABB(int a, int b, float scale = 1.0f);
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
+	*/
+	bool predictTruckIntersectionAABB(int a, int b, float scale = 1.0f);
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
+	*/
+	bool truckIntersectionCollAABB(int a, int b, float scale = 1.0f);
+
+	/** 
+	* Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
+	*/
+	bool predictTruckIntersectionCollAABB(int a, int b, float scale = 1.0f);
 
 	int CreateRemoteInstance(stream_register_trucks_t *reg);
 	void RemoveStreamSource(int sourceid);
@@ -195,7 +200,7 @@ protected:
 	void LogParserMessages();
 	void LogSpawnerMessages();
 
-	void RecursiveActivation(int j);
+	void RecursiveActivation(int j, std::bitset<MAX_TRUCKS> &visited);
 	void UpdateSleepingState(float dt);
 
 	int GetMostRecentTruckSlot();

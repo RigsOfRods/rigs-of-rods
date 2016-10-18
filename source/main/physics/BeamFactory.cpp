@@ -481,83 +481,105 @@ Beam *BeamFactory::getBeam(int source_id, int stream_id)
 	return nullptr;
 }
 
-bool BeamFactory::truckIntersectionAABB(int a, int b)
+bool BeamFactory::intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale)
 {
-	return m_trucks[a]->boundingBox.intersects(m_trucks[b]->boundingBox);
+	if (scale != 1.0f)
+	{
+		Vector3 a_center = a.getCenter();
+		Vector3 a_half_size = a.getHalfSize();
+		a.setMaximum(a_center + a_half_size * scale);
+		a.setMinimum(a_center - a_half_size * scale);
+
+		Vector3 b_center = b.getCenter();
+		Vector3 b_half_size = b.getHalfSize();
+		b.setMaximum(b_center + b_half_size * scale);
+		b.setMinimum(b_center - b_half_size * scale);
+	}
+
+	return a.intersects(b);
 }
 
-bool BeamFactory::predictTruckIntersectionAABB(int a, int b)
+bool BeamFactory::truckIntersectionAABB(int a, int b, float scale)
 {
-	return m_trucks[a]->predictedBoundingBox.intersects(m_trucks[b]->predictedBoundingBox);
+	return intersectionAABB(m_trucks[a]->boundingBox, m_trucks[b]->boundingBox, scale);
 }
 
-bool BeamFactory::truckIntersectionCollAABB(int a, int b)
+bool BeamFactory::predictTruckIntersectionAABB(int a, int b, float scale)
+{
+	return intersectionAABB(m_trucks[a]->predictedBoundingBox, m_trucks[b]->predictedBoundingBox, scale);
+}
+
+bool BeamFactory::truckIntersectionCollAABB(int a, int b, float scale)
 {
 	if (m_trucks[a]->collisionBoundingBoxes.empty() && m_trucks[b]->collisionBoundingBoxes.empty())
 	{
-		return truckIntersectionAABB(a, b);
+		return truckIntersectionAABB(a, b, scale);
 	} else if (m_trucks[a]->collisionBoundingBoxes.empty())
 	{
 		for (std::vector<AxisAlignedBox>::iterator it = m_trucks[b]->collisionBoundingBoxes.begin(); it != m_trucks[b]->collisionBoundingBoxes.end(); ++it)
-			if (it->intersects(m_trucks[a]->boundingBox))
+			if (intersectionAABB(*it, m_trucks[a]->boundingBox, scale))
 				return true;
 	} else if (m_trucks[b]->collisionBoundingBoxes.empty())
 	{
 		for (std::vector<AxisAlignedBox>::iterator it = m_trucks[a]->collisionBoundingBoxes.begin(); it != m_trucks[a]->collisionBoundingBoxes.end(); ++it)
-			if (it->intersects(m_trucks[b]->boundingBox))
+			if (intersectionAABB(*it, m_trucks[b]->boundingBox, scale))
 				return true;
 	} else
 	{
 		for (std::vector<AxisAlignedBox>::iterator it_a = m_trucks[a]->collisionBoundingBoxes.begin(); it_a != m_trucks[a]->collisionBoundingBoxes.end(); ++it_a)
 			for (std::vector<AxisAlignedBox>::iterator it_b = m_trucks[b]->collisionBoundingBoxes.begin(); it_b != m_trucks[b]->collisionBoundingBoxes.end(); ++it_b)
-				if (it_a->intersects(*it_b))
+				if (intersectionAABB(*it_a, *it_b, scale))
 					return true;
 	}
 
 	return false;
 }
 
-bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b)
+bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b, float scale)
 {
 	if (m_trucks[a]->predictedCollisionBoundingBoxes.empty() && m_trucks[b]->predictedCollisionBoundingBoxes.empty())
 	{
-		return predictTruckIntersectionAABB(a, b);
+		return predictTruckIntersectionAABB(a, b, scale);
 	} else if (m_trucks[a]->predictedCollisionBoundingBoxes.empty())
 	{
 		for (std::vector<AxisAlignedBox>::iterator it = m_trucks[b]->predictedCollisionBoundingBoxes.begin(); it != m_trucks[b]->predictedCollisionBoundingBoxes.end(); ++it)
-			if (it->intersects(m_trucks[a]->predictedBoundingBox))
+			if (intersectionAABB(*it, m_trucks[a]->predictedBoundingBox, scale))
 				return true;
 	} else if (m_trucks[b]->predictedCollisionBoundingBoxes.empty())
 	{
 		for (std::vector<AxisAlignedBox>::iterator it = m_trucks[a]->predictedCollisionBoundingBoxes.begin(); it != m_trucks[a]->predictedCollisionBoundingBoxes.end(); ++it)
-			if (it->intersects(m_trucks[b]->predictedBoundingBox))
+			if (intersectionAABB(*it, m_trucks[b]->predictedBoundingBox, scale))
 				return true;
 	} else
 	{
 		for (std::vector<AxisAlignedBox>::iterator it_a = m_trucks[a]->predictedCollisionBoundingBoxes.begin(); it_a != m_trucks[a]->predictedCollisionBoundingBoxes.end(); ++it_a)
 			for (std::vector<AxisAlignedBox>::iterator it_b = m_trucks[b]->predictedCollisionBoundingBoxes.begin(); it_b != m_trucks[b]->predictedCollisionBoundingBoxes.end(); ++it_b)
-				if (it_a->intersects(*it_b))
+				if (intersectionAABB(*it_a, *it_b, scale))
 					return true;
 	}
 
 	return false;
 }
 
-void BeamFactory::RecursiveActivation(int j)
+void BeamFactory::RecursiveActivation(int j, std::bitset<MAX_TRUCKS> &visited)
 {
 	if (!m_trucks[j] || m_trucks[j]->state != SIMULATED) return;
 
+	visited.set(j, true);
+
 	for (int t=0; t < m_free_truck; t++)
 	{
-		if (t == j || !m_trucks[t]) continue;
-		if (predictTruckIntersectionCollAABB(t, j))
+		if (t == j || !m_trucks[t] || visited[t]) continue;
+		if (m_trucks[t]->state == SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
 		{
 			m_trucks[t]->sleeptime = 0.0f;
-			if (m_trucks[t]->state == SLEEPING)
-			{
-				m_trucks[t]->state = SIMULATED;
-				this->RecursiveActivation(t);
-			}
+			this->RecursiveActivation(t, visited);
+		}
+		if (m_trucks[t]->state == SLEEPING && predictTruckIntersectionCollAABB(t, j))
+		{
+			m_trucks[t]->sleeptime = 0.0f;
+			m_trucks[t]->state = SIMULATED;
+			this->RecursiveActivation(t, visited);
 		}
 	}
 }
@@ -574,7 +596,7 @@ void BeamFactory::UpdateSleepingState(float dt)
 
 			m_trucks[t]->sleeptime += dt;
 
-			if (m_trucks[t]->sleeptime >= 1.0f)
+			if (m_trucks[t]->sleeptime >= 10.0f)
 			{
 				m_trucks[t]->state = SLEEPING;
 			}
@@ -585,13 +607,12 @@ void BeamFactory::UpdateSleepingState(float dt)
 	if (current_truck && current_truck->state == SLEEPING)
 	{
 		current_truck->state = SIMULATED;
-		current_truck->sleeptime = 0.0f;
 	}
-
-	for (int t=0; t<m_free_truck; t++)
+	if (current_truck && current_truck->state == SIMULATED)
 	{
-		if (m_trucks[t] && m_trucks[t]->state == SIMULATED)
-			this->RecursiveActivation(t);
+		current_truck->sleeptime = 0.0f;
+		std::bitset<MAX_TRUCKS> visited;
+		this->RecursiveActivation(m_current_truck, visited);
 	}
 }
 
