@@ -3943,7 +3943,13 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
 	std::pair<Beam*, Beam*> truck_pair(a, b);
 	BeamFactory::getSingleton().interTruckLinks[beam] = truck_pair;
 
-	determineLinkedBeams();
+	a->determineLinkedBeams();
+	for (auto truck : a->linkedBeams)
+		truck->determineLinkedBeams();
+
+	b->determineLinkedBeams();
+	for (auto truck : b->linkedBeams)
+		truck->determineLinkedBeams();
 }
 
 void Beam::removeInterTruckBeam(beam_t* beam)
@@ -3954,9 +3960,20 @@ void Beam::removeInterTruckBeam(beam_t* beam)
 		interTruckBeams.erase(pos);
 	}
 
-	BeamFactory::getSingleton().interTruckLinks.erase(beam);
+	auto it = BeamFactory::getSingleton().interTruckLinks.find(beam);
+	if (it != BeamFactory::getSingleton().interTruckLinks.end())
+	{
+		auto truck_pair = it->second;
+		BeamFactory::getSingleton().interTruckLinks.erase(it);
 
-	determineLinkedBeams();
+		truck_pair.first->determineLinkedBeams();
+		for (auto truck : truck_pair.first->linkedBeams)
+			truck->determineLinkedBeams();
+
+		truck_pair.second->determineLinkedBeams();
+		for (auto truck : truck_pair.second->linkedBeams)
+			truck->determineLinkedBeams();
+	}
 }
 
 void Beam::disjoinInterTruckBeams()
@@ -3971,8 +3988,14 @@ void Beam::disjoinInterTruckBeams()
 			it->first->p2truck = false;
 			it->first->disabled = true;
 			interTruckLinks->erase(it++);
-			auto other_truck = (this != truck_pair.first) ? truck_pair.first : truck_pair.second;
-			other_truck->determineLinkedBeams();
+
+			truck_pair.first->determineLinkedBeams();
+			for (auto truck : truck_pair.first->linkedBeams)
+				truck->determineLinkedBeams();
+
+			truck_pair.second->determineLinkedBeams();
+			for (auto truck : truck_pair.second->linkedBeams)
+				truck->determineLinkedBeams();
 		} else {
 			++it;
 		}
