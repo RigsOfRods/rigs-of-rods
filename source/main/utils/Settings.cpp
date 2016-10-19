@@ -251,15 +251,15 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         }
         else if (args.OptionId() == OPT_TRUCK) 
         {
-            App::SetSimNextVehicle(args.OptionArg());
+            App::SetDiagPreselectedVehicle(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_TRUCKCONFIG) 
         {
-            App::SetSimNextVehConfig(args.OptionArg());
+            App::SetDiagPreselectedVehConfig(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_MAP) 
         {
-            RoR::App::SetSimNextTerrain(args.OptionArg());
+            RoR::App::SetDiagPreselectedTerrain(args.OptionArg());
         } 
         else if (args.OptionId() == OPT_NOCRASHCRPT) 
         {
@@ -298,7 +298,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         } 
         else if (args.OptionId() == OPT_ENTERTRUCK) 
         {
-            App::SetSimNextVehEnter(true);
+            App::SetDiagPreselectedVehEnter(true);
         } 
         else if (args.OptionId() == OPT_SETUP) 
         {
@@ -557,7 +557,6 @@ static const char* CONF_MP_PASSWORD     = "Server password";
 // Sim
 static const char* CONF_SIM_GEARBOX     = "GearboxMode";
 static const char* CONF_SIM_MULTITHREAD = "Multi-threading";
-static const char* CONF_SIM_NEXT_TERRN  = "Preselected Map";
 // Input-Output
 static const char* CONF_FF_ENABLED      = "Force Feedback";
 static const char* CONF_FF_CAMERA       = "Force Feedback Camera";
@@ -605,15 +604,16 @@ static const char* CONF_LOG_RIG_IMPORT  = "RigImporter_PrintMessagesToLog";
 static const char* CONF_COLLISION_DBG   = "Debug Collisions";
 static const char* CONF_TRUCKMASS_DBG   = "Debug TruckMass";
 static const char* CONF_ENVMAP_DEBUG    = "EnvMapDebug";
+static const char* CONF_PRESELECTED_TERRAIN     = "Preselected Map";
+static const char* CONF_PRESELECTED_TRUCK       = "Preselected Truck";
+static const char* CONF_PRESELECTED_TRUCK_CFG   = "Preselected TruckConfig";
+static const char* CONF_PRESELECTED_TRUCK_ENTER = "Enter PreselectedTruck";
 // App
 static const char* CONF_SCREENSHOT_FMT  = "Screenshot Format";
 static const char* CONF_REPLAY_MODE     = "Replay mode";
 static const char* CONF_REPLAY_LENGTH   = "Replay length";
 static const char* CONF_REPLAY_STEPPING = "Replay Steps per second";
 static const char* CONF_POS_STORAGE     = "Position Storage";
-static const char* CONF_NEXTTRUCK       = "Preselected Truck";
-static const char* CONF_NEXTTRUCK_CFG   = "Preselected TruckConfig";
-static const char* CONF_NEXTTRUCK_ENTER = "Enter PreselectedTruck";
 
 #define I(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
 #define F(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
@@ -634,7 +634,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // Sim
     if (k == CONF_SIM_GEARBOX     ) { App__SetSimGearboxMode       (S(v)); return true; }
     if (k == CONF_SIM_MULTITHREAD ) { App::SetAppMultithread       (B(v)); return true; }
-    if (k == CONF_SIM_NEXT_TERRN  ) { App::SetSimNextTerrain       (S(v)); return true; }
     // Input&Output
     if (k == CONF_FF_ENABLED      ) { App::SetIoFFbackEnabled      (B(v)); return true; }
     if (k == CONF_FF_CAMERA       ) { App::SetIoFFbackCameraGain   (F(v)); return true; }
@@ -682,15 +681,16 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_COLLISION_DBG   ) { App::SetDiagCollisions       (B(v)); return true; }
     if (k == CONF_TRUCKMASS_DBG   ) { App::SetDiagTruckMass        (B(v)); return true; }
     if (k == CONF_ENVMAP_DEBUG    ) { App::SetDiagEnvmap           (B(v)); return true; }
+    if (k == CONF_PRESELECTED_TERRAIN     ) { App::SetDiagPreselectedTerrain   (S(v)); return true; }
+    if (k == CONF_PRESELECTED_TRUCK       ) { App::SetDiagPreselectedVehicle   (S(v)); return true; }
+    if (k == CONF_PRESELECTED_TRUCK_CFG   ) { App::SetDiagPreselectedVehConfig (S(v)); return true; }
+    if (k == CONF_PRESELECTED_TRUCK_ENTER ) { App::SetDiagPreselectedVehEnter  (B(v)); return true; }
     // App
     if (k == CONF_SCREENSHOT_FMT  ) { App__SetScreenshotFormat     (S(v)); return true; }
     if (k == CONF_REPLAY_MODE     ) { App::SetSimReplayEnabled     (B(v)); return true; }
     if (k == CONF_REPLAY_LENGTH   ) { App::SetSimReplayLength      (I(v)); return true; }
     if (k == CONF_REPLAY_STEPPING ) { App::SetSimReplayStepping    (I(v)); return true; }
     if (k == CONF_POS_STORAGE     ) { App::SetSimPositionStorage   (B(v)); return true; }
-    if (k == CONF_NEXTTRUCK       ) { App::SetSimNextVehicle       (S(v)); return true; }
-    if (k == CONF_NEXTTRUCK_CFG   ) { App::SetSimNextVehConfig     (S(v)); return true; }
-    if (k == CONF_NEXTTRUCK_ENTER ) { App::SetSimNextVehEnter      (B(v)); return true; }
 
     return false;
 }
@@ -891,7 +891,6 @@ void Settings::SaveSettings()
     f << "; Simulation"                                                   << endl;
     f << CONF_SIM_GEARBOX     << "=" << _(App__SimGearboxToStr        ()) << endl;
     f << CONF_SIM_MULTITHREAD << "=" << B(App::GetAppMultithread      ()) << endl;
-    f << CONF_SIM_NEXT_TERRN  << "=" << _(App::GetSimNextTerrain      ()) << endl;
     f                                                                     << endl;
     f << "; Input/Output"                                                 << endl;
     f << CONF_FF_ENABLED      << "=" << B(App::GetIoFFbackEnabled     ()) << endl;
@@ -943,6 +942,10 @@ void Settings::SaveSettings()
     f << CONF_COLLISION_DBG   << "=" << B(App::GetDiagCollisions      ()) << endl;
     f << CONF_TRUCKMASS_DBG   << "=" << B(App::GetDiagTruckMass       ()) << endl;
     f << CONF_ENVMAP_DEBUG    << "=" << B(App::GetDiagEnvmap          ()) << endl;
+    f << CONF_PRESELECTED_TERRAIN     << "=" << _(App::GetDiagPreselectedTerrain  ()) << endl;
+    f << CONF_PRESELECTED_TRUCK       << "=" << _(App::GetDiagPreselectedVehicle  ()) << endl;
+    f << CONF_PRESELECTED_TRUCK_CFG   << "=" << _(App::GetDiagPreselectedVehConfig()) << endl;
+    f << CONF_PRESELECTED_TRUCK_ENTER << "=" << B(App::GetDiagPreselectedVehEnter ()) << endl;
     f                                                                     << endl;
     f << "; Application"                                                  << endl;
     f << CONF_SCREENSHOT_FMT  << "=" << _(App::GetAppScreenshotFormat ()) << endl;
@@ -950,9 +953,6 @@ void Settings::SaveSettings()
     f << CONF_REPLAY_LENGTH   << "=" << _(App::GetSimReplayLength     ()) << endl;
     f << CONF_REPLAY_STEPPING << "=" << _(App::GetSimReplayStepping   ()) << endl;
     f << CONF_POS_STORAGE     << "=" << B(App::GetSimPositionStorage  ()) << endl;
-    f << CONF_NEXTTRUCK       << "=" << _(App::GetSimNextVehicle      ()) << endl;
-    f << CONF_NEXTTRUCK_CFG   << "=" << _(App::GetSimNextVehConfig    ()) << endl;
-    f << CONF_NEXTTRUCK_ENTER << "=" << B(App::GetSimNextVehEnter     ()) << endl;
 
     // Append misc legacy entries
     f << endl << "; Misc" << endl;

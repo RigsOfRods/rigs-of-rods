@@ -68,14 +68,11 @@ static std::string      g_app_screenshot_format; ///< Config: STR Screenshot For
 static int              g_sim_state_active;      ///< Current state
 static int              g_sim_state_pending;     ///< Requested state change
 static std::string      g_sim_active_terrain;
-static std::string      g_sim_next_terrain;      ///< Config: STR  Preselected Map
+static std::string      g_sim_next_terrain;
 static bool             g_sim_replay_enabled;    ///< Config: BOOL Replay mode            
 static int              g_sim_replay_length;     ///< Config: INT  Replay length          
 static int              g_sim_replay_stepping;   ///< Config: INT  Replay Steps per second
 static bool             g_sim_position_storage;  ///< Config: BOOL Position Storage       
-static std::string      g_sim_next_vehicle;      ///< Config: STR  Preselected Truck  
-static std::string      g_sim_next_veh_config;   ///< Config: STR  Preselected TruckConfig
-static bool             g_sim_next_veh_enter;    ///< Config: STR  Enter Preselected Truck
 static int              g_sim_gearbox_mode;      ///< Config: STR  GearboxMode
 
 // Multiplayer
@@ -95,6 +92,10 @@ static bool             g_diag_collisions         ; ///< Config: BOOL Debug Coll
 static bool             g_diag_truck_mass         ; ///< Config: BOOL Debug Truck Mass
 static bool             g_diag_envmap             ; ///< Config: BOOL EnvMapDebug
 static bool             g_diag_videocameras;        ///< Config: BOOL VideoCameraDebug
+static std::string      g_diag_preselected_terrain;    ///< Config: STR  Preselected Map
+static std::string      g_diag_preselected_vehicle;    ///< Config: STR  Preselected Truck  
+static std::string      g_diag_preselected_veh_config; ///< Config: STR  Preselected TruckConfig
+static bool             g_diag_preselected_veh_enter;  ///< Config: STR  Enter Preselected Truck
 
 // System
 static std::string      g_sys_process_dir;       ///< No ending slash.
@@ -234,9 +235,6 @@ bool            GetSimReplayEnabled     () { return g_sim_replay_enabled;       
 int             GetSimReplayLength      () { return g_sim_replay_length;        }
 int             GetSimReplayStepping    () { return g_sim_replay_stepping;      }
 bool            GetSimPositionStorage   () { return g_sim_position_storage;     }
-STR_CREF        GetSimNextVehicle       () { return g_sim_next_vehicle;         }
-STR_CREF        GetSimNextVehConfig     () { return g_sim_next_veh_config;      }
-bool            GetSimNextVehEnter      () { return g_sim_next_veh_enter;       }
 SimGearboxMode  GetSimGearboxMode       () { return (SimGearboxMode)g_sim_gearbox_mode; }
 GfxFlaresMode   GetGfxFlaresMode        () { return (GfxFlaresMode)g_gfx_flares_mode; }
 STR_CREF        GetSysScreenshotDir     () { return g_sys_screenshot_dir;       }
@@ -252,6 +250,10 @@ float           GetGfxFovExternal       () { return g_gfx_fov_external ;        
 float           GetGfxFovInternal       () { return g_gfx_fov_internal ;        }
 int             GetGfxFpsLimit          () { return g_gfx_fps_limit    ;        }
 bool            GetDiagVideoCameras     () { return g_diag_videocameras;        }
+STR_CREF        GetDiagPreselectedTerrain  () { return g_diag_preselected_terrain   ; }
+STR_CREF        GetDiagPreselectedVehicle  () { return g_diag_preselected_vehicle   ; }
+STR_CREF        GetDiagPreselectedVehConfig() { return g_diag_preselected_veh_config; }
+bool            GetDiagPreselectedVehEnter () { return g_diag_preselected_veh_enter ; }
 
 // Setters
 void SetActiveAppState    (State    v) { SetVarEnum    (g_app_state_active     , "app_state_active"     , (int)v, AppStateToStr); }
@@ -312,9 +314,6 @@ void SetSimReplayEnabled   (bool          v) { SetVarBool    (g_sim_replay_enabl
 void SetSimReplayLength    (int           v) { SetVarInt     (g_sim_replay_length         , "sim_replay_length"         , v); }
 void SetSimReplayStepping  (int           v) { SetVarInt     (g_sim_replay_stepping       , "sim_replay_stepping"       , v); }
 void SetSimPositionStorage (bool          v) { SetVarBool    (g_sim_position_storage      , "sim_position_storage"      , v); }
-void SetSimNextVehicle     (STR_CREF      v) { SetVarStr     (g_sim_next_vehicle          , "sim_next_vehicle"          , v); }
-void SetSimNextVehConfig   (STR_CREF      v) { SetVarStr     (g_sim_next_veh_config       , "sim_next_veh_config"       , v); }
-void SetSimNextVehEnter    (bool          v) { SetVarBool    (g_sim_next_veh_enter        , "sim_next_veh_enter"        , v); }
 void SetSimGearboxMode     (SimGearboxMode v){ SetVarEnum    (g_sim_gearbox_mode          , "sim_gearbox_mode",      (int)v, SimGearboxModeToString); }
 void SetGfxFlaresMode      (GfxFlaresMode v) { SetVarEnum    (g_gfx_flares_mode           , "gfx_flares_mode",       (int)v, GfxFlaresModeToString ); }
 void SetSysScreenshotDir   (STR_CREF      v) { SetVarStr     (g_sys_screenshot_dir        , "sys_screenshot_dir"        , v); }
@@ -330,6 +329,10 @@ void SetGfxFovExternal     (float         v) { SetVarFloat   (g_gfx_fov_external
 void SetGfxFovInternal     (float         v) { SetVarFloat   (g_gfx_fov_internal          , "gfx_fov_internal"          , v); }
 void SetGfxFpsLimit        (int           v) { SetVarInt     (g_gfx_fps_limit             , "gfx_fps_limit"             , v); }
 void SetDiagVideoCameras   (bool          v) { SetVarBool    (g_diag_videocameras         , "diag_videocamera"          , v); }
+void SetDiagPreselectedTerrain  (STR_CREF  v) { SetVarStr     (g_diag_preselected_terrain   , "diag_preselected_terrain"   , v); }
+void SetDiagPreselectedVehicle  (STR_CREF  v) { SetVarStr     (g_diag_preselected_vehicle   , "diag_preselected_vehicle"   , v); }
+void SetDiagPreselectedVehConfig(STR_CREF  v) { SetVarStr     (g_diag_preselected_veh_config, "diag_preselected_veh_config", v); }
+void SetDiagPreselectedVehEnter (bool      v) { SetVarBool    (g_diag_preselected_veh_enter , "diag_preselected_veh_enter" , v); }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
