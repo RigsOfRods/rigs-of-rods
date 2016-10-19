@@ -261,7 +261,7 @@ void MainThread::Go()
     App::State previous_application_state = App::GetActiveAppState();
     App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
 
-    if (! App::GetSimNextTerrain().empty())
+    if (! App::GetDiagPreselectedTerrain().empty())
     {
         App::SetPendingAppState(App::APP_STATE_SIMULATION);
     }
@@ -316,8 +316,11 @@ void MainThread::Go()
 			if (App::GetPendingMpState() == App::MP_STATE_CONNECTED || BSETTING("SkipMainMenu", false))
 			{
 				// Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
-                RoR::App::GetGuiManager()->SetVisible_GameMainMenu(false);
-				RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+				if (App::GetDiagPreselectedTerrain() == "")
+				{
+					RoR::App::GetGuiManager()->SetVisible_GameMainMenu(false);
+					RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+				}
 			}
 
 			EnterMainMenuLoop();
@@ -350,7 +353,14 @@ void MainThread::Go()
 			}
 			menu_wallpaper_widget->setVisible(true);
 
-			RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+			if (App::GetDiagPreselectedTerrain() == "")
+			{
+				RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+			}
+			else
+			{
+                RoR::App::GetGuiManager()->SetVisible_GameMainMenu(true);
+			}
 			//It's the same thing so..
 			EnterMainMenuLoop();
 		}
@@ -514,6 +524,11 @@ bool MainThread::SetupGameplayLoop()
 	// Loading map
 	// ============================================================================
 
+	if (App::GetDiagPreselectedTerrain() != "")
+	{
+            App::SetSimNextTerrain(App::GetDiagPreselectedTerrain());
+	}
+
 	if (App::GetSimNextTerrain().empty())
 	{
 		CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
@@ -540,21 +555,21 @@ bool MainThread::SetupGameplayLoop()
 	// Loading vehicle
 	// ========================================================================
 
-	if (App::GetSimNextVehicle() != "")
+	if (App::GetDiagPreselectedVehicle() != "")
 	{
 
-		if (App::GetSimNextVehConfig() != "")
+		if (App::GetDiagPreselectedVehConfig() != "")
 		{
-			LOG("Preselected Truck Config: " + App::GetSimNextVehConfig());
+			LOG("Preselected Truck Config: " + App::GetDiagPreselectedVehConfig());
 		}
-		LOG("Preselected Truck: " + App::GetSimNextVehicle());
+		LOG("Preselected Truck: " + App::GetDiagPreselectedVehicle());
 
-		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, App::GetSimNextVehConfig());
+		const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, App::GetDiagPreselectedVehConfig());
 
 		Vector3 pos = gEnv->player->getPosition();
 		Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
-		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, App::GetSimNextVehicle(), -1, nullptr, false, &truckConfig);
+		Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(pos, rot, App::GetDiagPreselectedVehicle(), -1, nullptr, false, &truckConfig);
 
 		if (b != nullptr)
 		{
@@ -566,10 +581,9 @@ bool MainThread::SetupGameplayLoop()
 			b->updateFlexbodiesFinal();
 			b->updateVisual();
 
-			if (App::GetSimNextVehEnter() && b->free_node > 0)
+			if (App::GetDiagPreselectedVehEnter() && b->free_node > 0)
 			{
 				BeamFactory::getSingleton().setCurrentTruck(b->trucknum);
-                App::SetSimNextVehEnter(false);
 			}
 			if (b->engine)
 			{
@@ -1000,8 +1014,15 @@ void MainThread::JoinMultiplayerServer()
     else
     {
         // Connected -> go directly to map selector
-        gui->GetMainSelector()->Reset();
-        gui->GetMainSelector()->Show(LT_Terrain);
+		if (App::GetDiagPreselectedTerrain() == "")
+		{
+			gui->GetMainSelector()->Reset();
+			gui->GetMainSelector()->Show(LT_Terrain);
+		}
+		else
+		{
+			App::SetPendingAppState(App::APP_STATE_SIMULATION);
+		}
     }
 #endif //SOCKETW
 }

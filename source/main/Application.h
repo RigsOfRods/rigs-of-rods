@@ -207,9 +207,6 @@ bool                 GetSimReplayEnabled     ();
 int                  GetSimReplayLength      ();
 int                  GetSimReplayStepping    ();
 bool                 GetSimPositionStorage   ();
-STR_CREF             GetSimNextVehicle       ();
-STR_CREF             GetSimNextVehConfig     ();
-bool                 GetSimNextVehEnter      ();
 SimGearboxMode       GetSimGearboxMode       ();
 GfxFlaresMode        GetGfxFlaresMode        ();
 STR_CREF             GetSysScreenshotDir     ();
@@ -225,6 +222,10 @@ float                GetGfxFovExternal       ();
 float                GetGfxFovInternal       ();
 int                  GetGfxFpsLimit          ();
 bool                 GetDiagVideoCameras     ();
+STR_CREF             GetDiagPreselectedTerrain  ();
+STR_CREF             GetDiagPreselectedVehicle  ();
+STR_CREF             GetDiagPreselectedVehConfig();
+bool                 GetDiagPreselectedVehEnter ();
 
 
 // Setters
@@ -286,9 +287,6 @@ void SetSimReplayEnabled     (bool           v);
 void SetSimReplayLength      (int            v);
 void SetSimReplayStepping    (int            v);
 void SetSimPositionStorage   (bool           v);
-void SetSimNextVehicle       (STR_CREF       v);
-void SetSimNextVehConfig     (STR_CREF       v);
-void SetSimNextVehEnter      (bool           v);
 void SetSimGearboxMode       (SimGearboxMode v);
 void SetGfxFlaresMode        (GfxFlaresMode  v);
 void SetSysScreenshotDir     (STR_CREF       v);
@@ -304,6 +302,10 @@ void SetGfxFovExternal       (float          v);
 void SetGfxFovInternal       (float          v);
 void SetGfxFpsLimit          (int            v);
 void SetDiagVideoCameras     (bool           v);
+void SetDiagPreselectedTerrain  (STR_CREF       v);
+void SetDiagPreselectedVehicle  (STR_CREF       v);
+void SetDiagPreselectedVehConfig(STR_CREF       v);
+void SetDiagPreselectedVehEnter (bool           v);
 
 void SetMainThreadLogic  (MainThread* obj);
 

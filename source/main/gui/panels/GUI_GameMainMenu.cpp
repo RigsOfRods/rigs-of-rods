@@ -96,7 +96,14 @@ void CLASS::Hide()
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+	if (App::GetDiagPreselectedTerrain() == "")
+	{
+		App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+	}
+	else
+	{
+        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+	}
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
