@@ -608,11 +608,19 @@ void BeamFactory::UpdateSleepingState(float dt)
 	{
 		current_truck->state = SIMULATED;
 	}
+
+	std::bitset<MAX_TRUCKS> visited;
+	// Recursivly activate all trucks which can be reached from current_truck
 	if (current_truck && current_truck->state == SIMULATED)
 	{
 		current_truck->sleeptime = 0.0f;
-		std::bitset<MAX_TRUCKS> visited;
 		this->RecursiveActivation(m_current_truck, visited);
+	}
+	// Snowball effect (activate all trucks which might soon get hit by a moving truck)
+	for (int t=0; t<m_free_truck; t++)
+	{
+		if (m_trucks[t] && m_trucks[t]->state == SIMULATED && m_trucks[t]->sleeptime == 0.0f)
+			this->RecursiveActivation(t, visited);
 	}
 }
 
