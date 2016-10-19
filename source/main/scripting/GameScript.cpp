@@ -20,7 +20,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "GameScript.h"
 
 #ifdef USE_CURL
-#define CURL_STATICLIB
 #include <stdio.h>
 #include <curl/curl.h>
 //#include <curl/types.h>
@@ -603,7 +602,6 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 	// construct post fields
 	struct curl_httppost *formpost=NULL;
 	struct curl_httppost *lastptr=NULL;
-	curl_global_init(CURL_GLOBAL_ALL);
 
 	std::map<String, AngelScript::CScriptDictionary::valueStruct>::const_iterator it;
 	for (it = params.dict->dict.begin(); it != params.dict->dict.end(); it++)

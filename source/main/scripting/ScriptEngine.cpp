@@ -31,7 +31,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // AS addons end
 
 #ifdef USE_CURL
-#define CURL_STATICLIB
 #include <stdio.h>
 #include <curl/curl.h>
 //#include <curl/types.h>

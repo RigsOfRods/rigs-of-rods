@@ -45,6 +45,10 @@ using namespace Ogre;
 #include "ShellAPI.h"
 #endif //OGRE_PLATFORM_WIN32
 
+#ifdef USE_CURL
+#   include <curl/curl.h>
+#endif //USE_CURL
+
 // Global instance of GlobalEnvironment used throughout the game.
 GlobalEnvironment *gEnv; 
 
@@ -68,6 +72,10 @@ void showVersion()
 int main(int argc, char *argv[])
 {
     using namespace RoR;
+
+#ifdef USE_CURL
+    curl_global_init(CURL_GLOBAL_ALL); // MUST init before any threads are started
+#endif
 
     try
     {

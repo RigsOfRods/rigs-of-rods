@@ -46,6 +46,7 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"
+#include "GUI_MultiplayerSelector.h"
 #include "Heathaze.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -800,10 +801,14 @@ void MainThread::MainMenuLoopUpdate(float seconds_since_last_frame)
 	}
 
 #ifdef USE_SOCKETW
-	if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
-	{
+    if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
+    {
         App::GetGuiManager()->GetMpClientList()->update();
-	}
+    }
+    else if (App::GetGuiManager()->GetMpSelector()->IsRefreshThreadRunning())
+    {
+        App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
+    }
 #endif // USE_SOCKETW
 
 	RoR::App::GetInputEngine()->Capture();

@@ -3,16 +3,16 @@
     <Widget type="Window" skin="WindowCSX" position="10 10 820 480" layer="Middle" name="_Main">
         <Property key="Caption" value="Multiplayer"/>
         <Property key="MinSize" value="350 200"/>
-        <Widget type="TabControl" skin="TabControl" position="0 0 810 445" name="tab_control">
+        <Widget type="TabControl" skin="TabControl" position="0 0 810 445" align="Stretch" name="tab_control">
             <Widget type="TabItem" skin="" position="2 24 804 417" name="tab_online">
                 <Property key="Caption" value="Online"/>
                 <Widget type="EditBox" skin="WordWrapEmpty" position="10 5 170 20">
                     <Property key="Caption" value="Available Servers:"/>
                 </Widget>
-                <Widget type="Button" skin="Button" position="700 380 100 35" align="Right Bottom" name="joinbutton">
+                <Widget type="Button" skin="Button" position="645 380 155 35" align="Right Bottom" name="join_button">
                     <Property key="Caption" value="Join"/>
                 </Widget>
-                <Widget type="MultiListBox" skin="MultiListBox" position="5 25 800 355" align="HStretch VStretch" name="servers_list">
+                <Widget type="MultiListBox" skin="MultiListBox" position="5 25 795 355" align="HStretch VStretch" name="servers_list">
                     <Widget type="MultiListItem" skin="skin_Default" position="0 0 284 326" name="server_name">
                         <Property key="ItemResizingPolicy" value="Fixed"/>
                         <Property key="ItemWidth" value="284"/>
@@ -37,6 +37,15 @@
                 <Widget type="EditBox" skin="WordWrapEmpty" position="860 5 115 20" align="Right Top" name="ror_net_ver">
                     <Property key="Caption" value="RoR_Net 2.37"/>
                     <Property key="TextAlign" value="Right Top"/>
+                </Widget>
+                <Widget type="Button" skin="Button" position="5 380 165 35" align="Left Bottom" name="refresh_button">
+                    <Property key="Caption" value="Refresh"/>
+                </Widget>
+                <Widget type="TextBox" skin="TextBox" position="235 185 345 20" align="HStretch VStretch" name="status_label">
+                    <Property key="Caption" value="* * * * UPDATING * * * *"/>
+                    <Property key="TextColour" value="1 0.832031 0"/>
+                    <Property key="TextAlign" value="HCenter VCenter"/>
+                    <Property key="Visible" value="false"/>
                 </Widget>
             </Widget>
             <Widget type="TabItem" skin="" position="2 24 804 417" name="tab_enter_ip">
