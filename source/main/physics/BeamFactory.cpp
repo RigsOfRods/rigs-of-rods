@@ -563,7 +563,7 @@ bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b, float scale)
 
 void BeamFactory::RecursiveActivation(int j, std::bitset<MAX_TRUCKS> &visited)
 {
-	if (!m_trucks[j] || m_trucks[j]->state != SIMULATED) return;
+	if (visited[j] || !m_trucks[j] || m_trucks[j]->state != SIMULATED) return;
 
 	visited.set(j, true);
 
