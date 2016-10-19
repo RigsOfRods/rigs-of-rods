@@ -540,13 +540,25 @@ void App__SetGfxEnvmapRate(std::string const & s)
     App::SetGfxEnvmapRate(rate);
 }
 
-void Settings::SetMpNetworkEnable(std::string const & s)
+void Settings::SetMpNetworkEnable(bool enable)
 {
-    if (Ogre::StringConverter::parseBool(s) == true)
+    m_network_enable = enable;
+    if (m_network_enable)
     {
         App::SetPendingMpState(RoR::App::MP_STATE_CONNECTED);
-        m_network_enable = true;
     }
+}
+
+void Settings::SetGfxFovExternal(float fov)
+{
+	m_fov_external = fov;
+	App::SetGfxFovExternal(m_fov_external);
+}
+
+void Settings::SetGfxFovInternal(float fov)
+{
+	m_fov_internal = fov;
+	App::SetGfxFovInternal(m_fov_internal);
 }
 
 static const char* CONF_MP_NET_ENABLE   = "Network enable";
@@ -626,7 +638,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // Process and erase settings which propagate to global vars.
 
     // Multiplayer
-    if (k == CONF_MP_NET_ENABLE   ) { this->SetMpNetworkEnable     (S(v)); return true; }
+    if (k == CONF_MP_NET_ENABLE   ) { this->SetMpNetworkEnable     (B(v)); return true; }
     if (k == CONF_MP_NICKNAME     ) { App::SetMpPlayerName         (S(v)); return true; }
     if (k == CONF_MP_HOSTNAME     ) { App::SetMpServerHost         (S(v)); return true; }
     if (k == CONF_MP_PORT         ) { App::SetMpServerPort         (I(v)); return true; }
@@ -666,8 +678,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_GFX_LIGHTS      ) { App__SetGfxFlaresMode        (S(v)); return true; }
     if (k == CONF_GFX_WATER_MODE  ) { App__SetGfxWaterMode         (S(v)); return true; }
     if (k == CONF_GFX_SIGHT_RANGE ) { App::SetGfxSightRange        (F(v)); return true; }
-    if (k == CONF_GFX_FOV_EXTERN  ) { App::SetGfxFovExternal       (F(v)); return true; }
-    if (k == CONF_GFX_FOV_INTERN  ) { App::SetGfxFovInternal       (F(v)); return true; }
+    if (k == CONF_GFX_FOV_EXTERN  ) { this->SetGfxFovExternal      (F(v)); return true; }
+    if (k == CONF_GFX_FOV_INTERN  ) { this->SetGfxFovInternal      (F(v)); return true; }
     if (k == CONF_GFX_FPS_LIMIT   ) { App::SetGfxFpsLimit          (I(v)); return true; }
     if (k == CONF_GFX_SKY_EFFECTS ) { App__SetGfxSkyMode           (S(v)); return true; }
     // Audio
@@ -925,8 +937,8 @@ void Settings::SaveSettings()
     f << CONF_GFX_LIGHTS      << "=" << _(App__GfxFlaresToStr         ()) << endl;
     f << CONF_GFX_WATER_MODE  << "=" << _(App__GfxWaterToStr          ()) << endl;
     f << CONF_GFX_SIGHT_RANGE << "=" << _(App::GetGfxSightRange       ()) << endl;
-    f << CONF_GFX_FOV_EXTERN  << "=" << _(App::GetGfxFovExternal      ()) << endl;
-    f << CONF_GFX_FOV_INTERN  << "=" << _(App::GetGfxFovInternal      ()) << endl;
+    f << CONF_GFX_FOV_EXTERN  << "=" << _(m_fov_external                ) << endl;
+    f << CONF_GFX_FOV_INTERN  << "=" << _(m_fov_internal                ) << endl;
     f << CONF_GFX_FPS_LIMIT   << "=" << _(App::GetGfxFpsLimit         ()) << endl;
     f << CONF_GFX_SKY_EFFECTS << "=" << _(App__GfxSkyToStr            ()) << endl;
     f                                                                     << endl;

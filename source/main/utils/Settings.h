@@ -159,7 +159,9 @@ public:
 protected:
 
     // Helpers
-    void SetMpNetworkEnable(std::string const & s);
+    void SetMpNetworkEnable(bool enable);
+    void SetGfxFovExternal(float fov);
+    void SetGfxFovInternal(float fov);
 
 	static Settings* myInstance;
 
@@ -170,6 +172,8 @@ protected:
 
     // Cached config values
     bool m_network_enable;
+    float m_fov_internal;
+    float m_fov_external;
 };
 
 #endif // __Settings_H_
