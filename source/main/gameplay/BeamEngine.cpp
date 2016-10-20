@@ -506,9 +506,12 @@ void BeamEngine::update(float dt, int doUpdate)
 #ifdef USE_OPENAL
 					SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
-					curGear += shiftval;
-					curGear = std::max(-1, curGear);
-					curGear = std::min(curGear, numGears);
+					if (autoselect != NEUTRAL)
+					{
+						curGear += shiftval;
+						curGear = std::max(-1, curGear);
+						curGear = std::min(curGear, numGears);
+					}
 					shiftval = 0;
 				}
 			}
