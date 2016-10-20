@@ -1569,27 +1569,6 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
 							LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) + 
 									" / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
 						}
-
-						// detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
-						// only perform this check if this is a master detacher beams (positive detacher group id > 0)
-						if (interTruckBeams[i]->detacher_group > 0)
-						{
-							// cycle once through the other beams
-							for (int j = 0; j < free_beam; j++)
-							{
-								// beam[i] detacher group# == checked beams detacher group# -> delete & disable checked beam
-								// do this with all master(positive id) and minor(negative id) beams of this detacher group
-								if (abs(beams[j].detacher_group) == interTruckBeams[i]->detacher_group)
-								{
-									beams[j].broken     = true;
-									beams[j].disabled   = true;
-									if (beambreakdebug)
-									{
-										LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(interTruckBeams[i]->detacher_group)+  ", trucknum: " + TOSTRING(trucknum));
-									}
-								}
-							}
-						}
 					} else
 					{
 						interTruckBeams[i]->strength = 2.0f * interTruckBeams[i]->minmaxposnegstress;
