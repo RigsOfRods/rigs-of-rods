@@ -110,7 +110,6 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + newline;
 	AuthorsText = AuthorsText + orange + "Current Developers:" + newline;
 	AuthorsText = AuthorsText + color1 + "Petr Ohlidal (only_a_ptr):" + white + " Core Developer, active" + newline;
-	AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul, active" + newline;
 	AuthorsText = AuthorsText + color1 + "ulteq:" + white + " Various features, multithreading, lots of fixes, active" + newline;
 	AuthorsText = AuthorsText + color1 + "mikadou:" + white + " Modernized thread pool, cmake, various fixes, active" + newline;
 
@@ -142,6 +141,7 @@ void CLASS::initMisc()
 	AuthorsText = AuthorsText + color1 + "skybon:" + white + " Web services, fixes, utilities" + newline;
 	AuthorsText = AuthorsText + color1 + "AnotherFoxGuy:" + white + " Various fixes" + newline;
 	AuthorsText = AuthorsText + color1 + "Niklas Kersten (Hiradur):" + white + " Various fixes and tweaks, retired" + newline;
+	AuthorsText = AuthorsText + color1 + "Moncef Ben Slimane (max98):" + white + " Few fixes, Few improvements, GUI Overhaul" + newline;
 
 	//Core Content Contributors
 	AuthorsText = AuthorsText + newline;
