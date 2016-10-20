@@ -124,12 +124,12 @@ unsigned int getNumberOfCPUCores()
 	// Detect hyper-threads  
 	bool hyperThreads = cpuFeatures & (1 << 28) && cores < logical;
 
-	LOG("BEAMFACTORY: " + TOSTRING(logical) + " Logical CPUs" + " found");
-	LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU Cores" + " found");
+	LOG("BEAMFACTORY: " + TOSTRING(logical) + " logical CPU cores" + " found");
+	LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU cores" + " found");
 	LOG("BEAMFACTORY: Hyper-Threading " + TOSTRING(hyperThreads));
 #else
 	unsigned cores = hardware_concurrency();
-	LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU Cores" + " found");
+	LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU cores" + " found");
 #endif
 	return cores;
 }
