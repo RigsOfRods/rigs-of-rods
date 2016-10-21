@@ -814,7 +814,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 			if (hydroInertia)
 				cstate=hydroInertia->calcCmdKeyDelay(cstate,i,dt);
 
-			if (!(beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED))
+			if (!(beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
 				hydrodirwheeldisplay=cstate;
 
 			float factor = 1.0-cstate*beams[hydro[i]].hydroRatio;
