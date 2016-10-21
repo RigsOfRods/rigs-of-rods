@@ -2567,6 +2567,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 		std::stringstream msg;
 		msg << "Managed material '" << def.name << "' already exists (probably because the vehicle was already spawned before)";
 		AddMessage(Message::TYPE_WARNING, msg.str());
+		return;
 	}
 
 	Ogre::MaterialPtr material;
