@@ -1433,12 +1433,12 @@ struct ManagedMaterial
 
 	bool HasDamagedDiffuseMap()
 	{
-		return damaged_diffuse_map.length() != 0;
+		return (damaged_diffuse_map.length() != 0 && damaged_diffuse_map[0] != '-');
 	}
 
 	bool HasSpecularMap()
 	{
-		return specular_map.length() != 0;
+		return (specular_map.length() != 0 && specular_map[0] != '-');
 	}
 };
 
