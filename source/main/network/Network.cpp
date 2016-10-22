@@ -78,7 +78,7 @@ static std::atomic<bool> m_recv_stopped;
 
 static std::mutex m_users_mutex;
 static std::mutex m_userdata_mutex;
-static std::mutex m_thread_err_mutex;
+static std::mutex m_error_message_mutex;
 static std::mutex m_recv_packetqueue_mutex;
 static std::mutex m_send_packetqueue_mutex;
 
@@ -89,26 +89,30 @@ static std::deque <send_packet_t> m_send_packet_buffer;
 
 static const unsigned int m_packet_buffer_size = 20;
 
-static Ogre::UTFString m_error_msg;
-static Ogre::UTFString m_thread_error_msg;
-static bool            m_thread_failed;
-static bool            m_socket_broken;
+static std::atomic<bool> m_net_fatal_error;
+static std::atomic<bool> m_socket_broken;
+static Ogre::UTFString   m_error_message;
 
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 
 static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
 
-Ogre::UTFString const & GetErrorMessage()
+Ogre::UTFString GetErrorMessage()
 {
-    return m_error_msg;
+    std::lock_guard<std::mutex> lock(m_error_message_mutex);
+    return m_error_message;
+}
+
+void SetErrorMessage(Ogre::UTFString msg)
+{
+    std::lock_guard<std::mutex> lock(m_error_message_mutex);
+    m_error_message = msg;
 }
 
 bool CheckError()
 {
-    std::lock_guard<std::mutex> lock(m_thread_err_mutex);
-    if (m_thread_failed)
+    if (m_net_fatal_error)
     {
-        m_error_msg = m_thread_error_msg;
         RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
         return true;
     }
@@ -133,12 +137,13 @@ void DebugPacket(const char *name, header_t *header, char *buffer)
 void NetFatalError(Ogre::UTFString errormsg)
 {
     LOG("[RoR|Networking] NetFatalError(): " + errormsg.asUTF8());
-    std::lock_guard<std::mutex> lock(m_thread_err_mutex);
-    m_thread_error_msg = errormsg;
-    m_thread_failed = true;
-    m_shutdown = true; // Atomic - stop the other thread.
 
-    // IMPORTANT: Disconnecting here terminates the application for some reason (Windows 7).
+    SetErrorMessage(errormsg);
+    m_net_fatal_error = true;
+
+    m_shutdown = true;
+
+    // IMPORTANT: Disconnecting here terminates the application for some reason
     // Workaround: leave the socket in broken state -> impossible to re-connect. Fix later.
     //socket.set_timeout(1, 1000);
     //socket.disconnect();
@@ -446,8 +451,9 @@ void RecvThread()
 
 void ConnectionFailed(Ogre::UTFString const & msg)
 {
-    m_error_msg = "Error connecting to server: [" + App::GetMpServerHost() 
-        + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
+    Ogre::UTFString message = "Error connecting to server: [" + App::GetMpServerHost() 
+                            + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
+    SetErrorMessage(message);
     RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
     RoR::App::SetPendingMpState(App::MP_STATE_NONE);
 }
@@ -459,16 +465,16 @@ bool Connect()
     {
         RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
         RoR::App::SetPendingMpState(App::MP_STATE_NONE);
-        m_error_msg = "Connection failed."
+        Ogre::UTFString msg = "Connection failed."
             "\n\nNetworking is unable to recover from previous error (abrupt disconnect)."
             "\n\nPlease restart Rigs of Rods.";
+        SetErrorMessage(msg);
         return false;
     }
 
     // Reset errors
-    m_thread_error_msg.clear();
-    m_error_msg.clear();
-    m_thread_failed = false;
+    SetErrorMessage("");
+    m_net_fatal_error = false;
 
     m_username = App::GetMpPlayerName();
 
