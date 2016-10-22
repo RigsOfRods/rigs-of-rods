@@ -547,6 +547,7 @@ bool MainThread::SetupGameplayLoop()
     if(! LoadTerrain())
     {
         LOG("Could not load map. Returning to menu.");
+        LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
