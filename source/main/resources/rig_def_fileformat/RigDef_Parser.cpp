@@ -3464,6 +3464,8 @@ void Parser::ParseManagedMaterials()
     const std::string type_str = this->GetArgStr(1);
     if (type_str == "mesh_standard" || type_str == "mesh_transparent")
     {
+        if (! this->CheckNumArguments(3)) { return; }
+
         managed_mat.type = (type_str == "mesh_standard")
             ? ManagedMaterial::TYPE_MESH_STANDARD
             : ManagedMaterial::TYPE_MESH_TRANSPARENT;
@@ -3474,6 +3476,8 @@ void Parser::ParseManagedMaterials()
     }
     else if (type_str == "flexmesh_standard" || type_str == "flexmesh_transparent")
     {
+        if (! this->CheckNumArguments(3)) { return; }
+
         managed_mat.type = (type_str == "flexmesh_standard")
             ? ManagedMaterial::TYPE_FLEXMESH_STANDARD
             : ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT;
@@ -3485,8 +3489,20 @@ void Parser::ParseManagedMaterials()
     }
     else
     {
-        this->AddMessage(Message::TYPE_ERROR, type_str + " is an invalid effect");
-        return;
+        bool exists = false;
+        for (auto mat : m_current_module->managed_materials)
+        {
+            if (mat.name == managed_mat.name)
+            {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists)
+        {
+            this->AddMessage(Message::TYPE_WARNING, type_str + " is an unkown effect");
+            return;
+        }
     }
 
     m_current_module->managed_materials.push_back(managed_mat);
