@@ -74,6 +74,7 @@ static std::thread m_send_thread;
 static std::thread m_recv_thread;
 
 static std::atomic<bool> m_shutdown;
+static std::atomic<bool> m_recv_stopped;
 
 static std::mutex m_users_mutex;
 static std::mutex m_userdata_mutex;
@@ -228,12 +229,15 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
             LOG("NET receive error 1: " + TOSTRING(recvnum));
             return -1;
         }
+        else if (m_shutdown)
+        {
+            break;
+        }
         hlen += recvnum;
     }
 
     if (m_shutdown)
     {
-        LOG_THREAD("[RoR|Networking] ReceiveMessage() Shutdown!");
         return RECVMESSAGE_RETVAL_SHUTDOWN;
     }
 
@@ -257,6 +261,10 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
                 LOG_THREAD("NET receive error 2: "+ TOSTRING(recvnum));
                 return -1;
             }
+            else if (m_shutdown)
+            {
+                break;
+            }
             hlen += recvnum;
         }
     }
@@ -274,13 +282,12 @@ void SendThread()
     while (!m_shutdown)
     {
         std::unique_lock<std::mutex> queue_lock(m_send_packetqueue_mutex);
-        while (m_send_packet_buffer.empty())
+        while (!m_shutdown && m_send_packet_buffer.empty())
         {
-            if (m_shutdown) { return; }
             m_send_packet_available_cv.wait(queue_lock);
         }
 
-        while (!m_send_packet_buffer.empty())
+        while (!m_shutdown && !m_send_packet_buffer.empty())
         {
             send_packet_t packet = m_send_packet_buffer.front();
             m_send_packet_buffer.pop_front();
@@ -310,17 +317,13 @@ void RecvThread()
         //LOG("Received data: " + TOSTRING(header.command) + ", source: " + TOSTRING(header.source) + ":" + TOSTRING(header.streamid) + ", size: " + TOSTRING(header.size));
         if (err != 0)
         {
-            if (err == RECVMESSAGE_RETVAL_SHUTDOWN)
-            {
-                LOG_THREAD("[RoR|Networking] RecvThread: Shutdown!");
-            }
-            else
+            if (err != RECVMESSAGE_RETVAL_SHUTDOWN)
             {
                 std::stringstream s;
                 s << "[RoR|Networking] RecvThread: Error while receiving data: " << err << ", tid: " <<std::this_thread::get_id();
                 NetFatalError(s.str());
             }
-            return; // Die!
+            break;
         }
 
         if (header.command == MSG2_STREAM_REGISTER)
@@ -434,6 +437,9 @@ void RecvThread()
 
         QueueStreamData(header, buffer);
     }
+
+    m_recv_stopped = true;
+
     LOG_THREAD("[RoR|Networking] RecvThread stopped");
 }
 
@@ -613,18 +619,28 @@ bool Connect()
 
     return true;
 }
+
 void Disconnect()
 {
     LOG("[RoR|Networking] Disconnect() disconnecting...");
 
     m_shutdown = true; // Instruct Send/Recv threads to shut down.
+    m_recv_stopped = false;
 
     m_send_packet_available_cv.notify_one();
 
     m_send_thread.join();
     LOG("[RoR|Networking] Disconnect() sender thread stopped...");
 
-    SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
+    while (!m_recv_stopped)
+    {
+        SendNetMessage(MSG2_USER_LEAVE, 0, 0, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+
+    m_recv_thread.join();
+    LOG("[RoR|Networking] Disconnect() receiver thread stopped...");
+
     socket.set_timeout(1, 1000);
     socket.disconnect();
 
