@@ -497,6 +497,7 @@ FlexBody::FlexBody(
 			if (closest_node_index==-1)
 			{
 				LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
+				closest_node_index = 0;
 			}
 			m_locators[i].ref=closest_node_index;            
 
@@ -520,6 +521,7 @@ FlexBody::FlexBody(
 			if (closest_node_index==-1)
 			{
 				LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
+				closest_node_index = 0;
 			}
 			m_locators[i].nx=closest_node_index;
 
@@ -550,6 +552,7 @@ FlexBody::FlexBody(
 			if (closest_node_index==-1)
 			{
 				LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
+				closest_node_index = 0;
 			}
 			m_locators[i].ny=closest_node_index;
 
