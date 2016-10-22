@@ -291,7 +291,7 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
 
         if (collision)
         {
-            intra_collcabrate[i].rate = 0;
+            intra_collcabrate[i].rate = -20000;
         } else
         {
             intra_collcabrate[i].rate++;
