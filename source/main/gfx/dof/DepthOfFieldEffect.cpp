@@ -388,7 +388,7 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 				if ( currTruck )
 				{
 					lookAt = currTruck->getPosition();
-				} else
+				} else if (gEnv->player)
 				{
 					lookAt = gEnv->player->getPosition();
 				}
