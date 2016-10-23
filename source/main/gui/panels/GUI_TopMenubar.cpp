@@ -504,6 +504,7 @@ void TopMenubar::ReflectMultiplayerState()
     m_item_activate_all->setEnabled(!online);
     m_item_never_sleep ->setEnabled(!online);
     m_item_sleep_all   ->setEnabled(!online);
+    triggerUpdateVehicleList();
 }
 
 } // namespace GUI
