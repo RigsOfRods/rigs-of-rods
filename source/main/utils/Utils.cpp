@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2013+     Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -28,8 +28,12 @@
 #include <Ogre.h>
 
 #ifndef _WIN32
-#include <iconv.h>
-#endif // _WIN32
+#   include <iconv.h>
+#endif
+
+#ifdef _WIN32
+#   include <windows.h> // Sleep()
+#endif
 
 using namespace Ogre;
 

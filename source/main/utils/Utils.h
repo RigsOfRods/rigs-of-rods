@@ -37,10 +37,6 @@
 #include <MyGUI.h>
 #endif //USE_MYGUI
 
-#if _WIN32
-# include <windows.h> // Sleep()
-#endif // _WIN32
-
 
 // from http://stahlforce.com/dev/index.php?tool=csc01
 Ogre::String hexdump(void *pAddressIn, long  lSize);

@@ -35,8 +35,11 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_tab_online, "tab_online");
 	MyGUI::TabItem* m_tab_online;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_joinbutton, "joinbutton");
-	MyGUI::Button* m_joinbutton;
+	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_join_button, "join_button");
+	MyGUI::Button* m_join_button;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_refresh_button, "refresh_button");
+	MyGUI::Button* m_refresh_button;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_servers_list, "servers_list");
 	MyGUI::MultiListBox* m_servers_list;
@@ -64,6 +67,9 @@ protected:
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_entertab_ip_label, "entertab_ip_label");
 	MyGUI::TextBox* m_entertab_ip_label;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_status_label, "status_label");
+	MyGUI::TextBox* m_status_label;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(MultiplayerSelectorLayout, m_entertab_port_label, "entertab_port_label");
 	MyGUI::TextBox* m_entertab_port_label;
