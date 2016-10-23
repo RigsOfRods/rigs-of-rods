@@ -72,6 +72,7 @@ Dashboard::Dashboard() :
 Dashboard::~Dashboard()
 {
 	gEnv->sceneManager->destroyCamera("DashCam");
+    Ogre::TextureManager::getSingleton().remove("dashtexture");
 }
 
 void Dashboard::setEnable(bool en)
