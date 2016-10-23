@@ -3491,20 +3491,8 @@ void Parser::ParseManagedMaterials()
     }
     else
     {
-        bool exists = false;
-        for (auto mat : m_current_module->managed_materials)
-        {
-            if (mat.name == managed_mat.name)
-            {
-                exists = true;
-                break;
-            }
-        }
-        if (!exists)
-        {
-            this->AddMessage(Message::TYPE_WARNING, type_str + " is an unkown effect");
-            return;
-        }
+        this->AddMessage(Message::TYPE_WARNING, type_str + " is an unkown effect");
+        return;
     }
 
     if (!RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.diffuse_map))
