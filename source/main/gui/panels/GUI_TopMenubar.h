@@ -58,23 +58,21 @@ public:
 
 	void updatePositionUponMousePosition(int x, int y);
 
-	Ogre::UTFString getUserString(user_info_t &user, int num_vehicles);
-
-	void addUserToMenu(user_info_t &user);
-
 	void triggerUpdateVehicleList();
 
 	void ReflectMultiplayerState();
 
 protected:
 
-	void onVehicleMenu(MyGUI::MenuControl* _sender, MyGUI::MenuItem* _item);
-
 	void onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item);
+
+	void addUserToMenu(user_info_t &user);
 
 	void vehiclesListUpdate();
 
 	void MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender);
+
+	Ogre::UTFString getUserString(user_info_t &user, int num_vehicles);
 
 	std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
 	MyGUI::PopupMenuPtr              m_vehicles_menu_widget;

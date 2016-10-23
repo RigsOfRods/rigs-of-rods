@@ -28,6 +28,8 @@
 #include "CharacterFactory.h"
 #include "ChatSystem.h"
 #include "ErrorUtils.h"
+#include "GUIManager.h"
+#include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
@@ -387,6 +389,9 @@ void RecvThread()
                     m_users.erase(user);
                 }
             }
+#ifdef USE_MYGUI
+            RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+#endif // USE_MYGUI
         }
         else if (header.command == MSG2_USER_INFO || header.command == MSG2_USER_JOIN)
         {
@@ -428,6 +433,9 @@ void RecvThread()
                         LOG(Ogre::UTFString(user_info.username) + _L(" joined the game"));
                     }
                 }
+#ifdef USE_MYGUI
+                RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+#endif // USE_MYGUI
             }
             continue;
         }

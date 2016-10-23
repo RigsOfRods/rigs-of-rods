@@ -292,12 +292,6 @@ void TopMenubar::vehiclesListUpdate()
 	}
 }
 
-void TopMenubar::onVehicleMenu(MyGUI::MenuControl* _sender, MyGUI::MenuItem* _item)
-{
-	// not working :(
-	//vehiclesListUpdate();
-}
-
 void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 {
 	UTFString miname = UTFString(_item->getCaption().asWStr());
@@ -510,6 +504,7 @@ void TopMenubar::ReflectMultiplayerState()
     m_item_activate_all->setEnabled(!online);
     m_item_never_sleep ->setEnabled(!online);
     m_item_sleep_all   ->setEnabled(!online);
+    triggerUpdateVehicleList();
 }
 
 } // namespace GUI
