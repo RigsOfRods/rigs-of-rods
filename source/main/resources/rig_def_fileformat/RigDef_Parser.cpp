@@ -27,7 +27,9 @@
 
 #include "RigDef_Parser.h"
 
+#include "Application.h"
 #include "BeamConstants.h"
+#include "CacheSystem.h"
 #include "RigDef_File.h"
 #include "RigDef_Regexes.h"
 #include "BitFlags.h"
@@ -3503,6 +3505,21 @@ void Parser::ParseManagedMaterials()
             this->AddMessage(Message::TYPE_WARNING, type_str + " is an unkown effect");
             return;
         }
+    }
+
+    if (!RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.diffuse_map))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.diffuse_map);
+    }
+    if (managed_mat.HasDamagedDiffuseMap() && !RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.damaged_diffuse_map))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.damaged_diffuse_map);
+        managed_mat.damaged_diffuse_map = "-";
+    }
+    if (managed_mat.HasSpecularMap() && !RoR::App::GetCacheSystem()->resourceExistsInAllGroups(managed_mat.specular_map))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Missing texture file: " + managed_mat.specular_map);
+        managed_mat.specular_map = "-";
     }
 
     m_current_module->managed_materials.push_back(managed_mat);
