@@ -547,6 +547,7 @@ bool MainThread::SetupGameplayLoop()
     if(! LoadTerrain())
     {
         LOG("Could not load map. Returning to menu.");
+        LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
@@ -673,6 +674,17 @@ void MainThread::EnterMainMenuLoop()
 		}
 
 		RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+
+		if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && RoR::Networking::CheckError())
+		{
+			Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
+			Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
+			App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+			App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+
+			RoR::App::GetGuiManager()->GetMainSelector()->Hide();
+			RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+		}
 
 		if (!rw->isActive() && rw->isVisible())
 			rw->update(); // update even when in background !
