@@ -650,6 +650,10 @@ void Disconnect()
     socket.set_timeout(1, 1000);
     socket.disconnect();
 
+    m_users.clear();
+    m_recv_packet_buffer.clear();
+    m_send_packet_buffer.clear();
+
     m_shutdown = false;
     RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
     RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
