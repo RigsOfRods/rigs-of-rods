@@ -123,6 +123,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+	App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
+
     // -------------------------------
     // Process command-line arguments
     
@@ -140,8 +142,6 @@ int main(int argc, char *argv[])
             showVersion();
             return 0;
         }
-
-        App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
 
         MainThread main_obj;
         main_obj.Go();
