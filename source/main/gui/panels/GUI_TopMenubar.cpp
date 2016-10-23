@@ -292,12 +292,6 @@ void TopMenubar::vehiclesListUpdate()
 	}
 }
 
-void TopMenubar::onVehicleMenu(MyGUI::MenuControl* _sender, MyGUI::MenuItem* _item)
-{
-	// not working :(
-	//vehiclesListUpdate();
-}
-
 void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 {
 	UTFString miname = UTFString(_item->getCaption().asWStr());
