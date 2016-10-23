@@ -810,8 +810,16 @@ float BeamEngine::getRPM()
 void BeamEngine::toggleAutoMode()
 {
 	automode = (automode + 1) % (MANUAL_RANGES + 1);
-	autoselect = (automode == AUTOMATIC) ? DRIVE : MANUALMODE;
-	curGear = (automode < MANUAL) ? 1 : 0;
+
+	if (automode == AUTOMATIC)
+	{
+		if (curGear >  0) autoselect = DRIVE;
+		if (curGear <  0) autoselect = REAR;
+		if (curGear == 0) autoselect = NEUTRAL;
+	} else
+	{
+		autoselect = MANUALMODE;
+	}
 
 	if (automode == MANUAL_RANGES)
 	{
