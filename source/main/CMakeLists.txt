@@ -225,21 +225,6 @@ set( SOURCE_FILES
   terrain/map/SurveyMapManager.{h,cpp}
   terrain/map/SurveyMapTextureCreator.{h,cpp}
   threadpool/ThreadPool.h
-  utils/json/allocator.h
-  utils/json/assertions.h
-  utils/json/autolink.h
-  utils/json/config.h
-  utils/json/features.h
-  utils/json/forwards.h
-  utils/json/json.h
-  utils/json/json_reader.cpp
-  utils/json/json_tool.h
-  utils/json/json_value.cpp
-  utils/json/json_writer.cpp
-  utils/json/reader.h
-  utils/json/value.h
-  utils/json/version.h
-  utils/json/writer.h
   utils/CollisionTools.{h,cpp}
   utils/ConfigFile.{h,cpp}
   utils/ErrorUtils.{h,cpp}
@@ -457,6 +442,7 @@ ENDIF(WIN32)
 setup_lib(PAGED)
 setup_lib(CAELUM)
 setup_lib(ANGELSCRIPT)
+setup_lib(JSONCPP)
 
 if(ROR_USE_ANGELSCRIPT)
   # CLEAR_FPU_STACK prevents angelscript from breaking our physics engine

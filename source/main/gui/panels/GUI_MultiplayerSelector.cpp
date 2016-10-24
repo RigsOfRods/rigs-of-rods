@@ -36,7 +36,10 @@
 #include "Application.h"
 #include "MainThread.h"
 
+#ifdef USE_JSONCPP
 #include "json/json.h"
+#endif //USE_JSONCPP
+
 #include <MyGUI.h>
 #include <thread>
 #include <future>
@@ -56,6 +59,7 @@ const MyGUI::Colour status_failure_color(1.f, 0.175439f, 0.175439f);
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
+#ifdef USE_JSONCPP
 /// Private impl. to minimze header deps ("json.h", <thread>, <future>)
 struct ServerlistData
 {
@@ -120,30 +124,31 @@ Json::Value FetchServerlist()
     return result;
 }
 
-#endif
+#endif //USE_CURL
+#endif //USE_JSONCPP
 
-CLASS::CLASS():
-    m_serverlist_data(nullptr),
-    m_is_refreshing(false)
+CLASS::CLASS() :
+	m_serverlist_data(nullptr),
+	m_is_refreshing(false)
 {
 	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
-	
+
 	m_join_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineBtnPress);
-    m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinDirectBtnPress);
-    m_servers_list->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineListItem);
+	m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinDirectBtnPress);
+	m_servers_list->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineListItem);
 
 	m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
 
 	m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
 	m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
 
-#ifdef USE_CURL
-    m_refresh_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackRefreshOnlineBtnPress);
+#if defined(USE_CURL) && defined(USE_JSONCPP)
+	m_refresh_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackRefreshOnlineBtnPress);
 #else
-    m_refresh_button->setEnabled(false);
-    m_updating_label->setVisible(true);
-    m_updating_label->setCaption("---- Serverlist not supported in this version ----");
+	m_refresh_button->setEnabled(false);
+	m_status_label->setVisible(true);
+	m_status_label->setCaption("---- Serverlist not supported in this version ----");
 #endif
 
 	CenterToScreen();
@@ -162,7 +167,7 @@ void CLASS::SetVisible(bool visible)
 
 void CLASS::RefreshServerlist()
 {
-#ifdef USE_CURL
+#if defined(USE_CURL) && defined(USE_JSONCPP)
     m_servers_list->removeAllItems();
     m_status_label->setVisible(true);
     m_status_label->setCaption("* * * * UPDATING * * * *");
@@ -176,7 +181,7 @@ void CLASS::RefreshServerlist()
     std::packaged_task<Json::Value()> task(FetchServerlist);
     m_serverlist_data->future_json = task.get_future();
     std::thread(std::move(task)).detach(); // launch on a thread
-#endif // USE_CURL
+#endif // defined(USE_CURL) && defined(USE_JSONCPP)
 }
 
 void CLASS::CenterToScreen()
@@ -206,6 +211,7 @@ void CLASS::CallbackJoinOnlineListItem(MyGUI::MultiListBox* _sender, size_t inde
 
 void CLASS::CheckAndProcessRefreshResult()
 {
+#ifdef USE_JSONCPP
     std::future_status status = m_serverlist_data->future_json.wait_for(std::chrono::seconds(0));
     if (status != std::future_status::ready)
     {
@@ -236,10 +242,12 @@ void CLASS::CheckAndProcessRefreshResult()
     m_status_label->setVisible(false);
     m_refresh_button->setEnabled(true);
     m_is_refreshing = false;
+#endif // USE_JSONCPP
 }
 
 void CLASS::ServerlistJoin(size_t sel_index)
 {
+#ifdef USE_JSONCPP
     if (sel_index != MyGUI::ITEM_NONE)
     {
         Json::Value& json = *m_servers_list->getItemDataAt<Json::Value>(sel_index);
@@ -247,6 +255,7 @@ void CLASS::ServerlistJoin(size_t sel_index)
         App::SetMpServerPort(json["port"].asInt());
         App::GetMainThreadLogic()->JoinMultiplayerServer();
     }
+#endif // USE_JSONCPP
 }
 
 void CLASS::CallbackJoinOnlineBtnPress(MyGUI::WidgetPtr _sender)
