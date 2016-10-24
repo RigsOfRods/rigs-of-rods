@@ -239,6 +239,15 @@ ELSEIF(UNIX)
       set(ROR_USE_MYGUI OFF)
    endif(MYGUI_FOUND)
 
+   # JsonCpp
+   find_path(JSONCPP_INCLUDE_DIRS "json/json.h")
+   if(JSONCPP_INCLUDE_DIRS)
+      find_library(JSONCPP_LIBRARIES "jsoncpp")
+      set(ROR_USE_JSONCPP ON)
+   else()
+      set(ROR_USE_JSONCPP OFF)
+   endif(JSONCPP_INCLUDE_DIRS)
+
    # SocketW
    find_path(SOCKETW_INCLUDE_DIRS "SocketW.h")
    if(SOCKETW_INCLUDE_DIRS)
