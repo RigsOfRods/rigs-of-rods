@@ -59,14 +59,13 @@ const MyGUI::Colour status_failure_color(1.f, 0.175439f, 0.175439f);
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-#ifdef USE_JSONCPP
 /// Private impl. to minimze header deps ("json.h", <thread>, <future>)
 struct ServerlistData
 {
+#ifdef USE_JSONCPP
     std::future<Json::Value> future_json;
+#endif //USE_JSONCPP
 };
-
-#ifdef USE_CURL
 
 // From example: https://gist.github.com/whoshuu/2dc858b8730079602044
 size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data) {
@@ -74,6 +73,7 @@ size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data) {
     return size * nmemb;
 }
 
+#if defined(USE_CURL) && defined(USE_JSONCPP)
 /// Returns JSON in format { "success":bool, "message":str, "data":$response_string }
 Json::Value FetchServerlist()
 {
@@ -123,9 +123,7 @@ Json::Value FetchServerlist()
     result["data"] = parse_output;
     return result;
 }
-
-#endif //USE_CURL
-#endif //USE_JSONCPP
+#endif // defined(USE_CURL) && defined(USE_JSONCPP)
 
 CLASS::CLASS() :
 	m_serverlist_data(nullptr),
