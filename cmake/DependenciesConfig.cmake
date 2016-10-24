@@ -6,6 +6,7 @@ set(ROR_USE_PAGED        "TRUE" CACHE BOOL "use paged geometry")
 set(ROR_USE_CAELUM       "TRUE" CACHE BOOL "use caelum sky")
 set(ROR_USE_ANGELSCRIPT  "TRUE" CACHE BOOL "use angel script")
 set(ROR_USE_CURL         "TRUE" CACHE BOOL "use curl, required for communication with online services")
+set(ROR_USE_JSONCPP      "FALSE" CACHE BOOL "use jsoncpp")
 
 
 # some obsolete options:
@@ -72,11 +73,11 @@ endmacro(importLib)
 	endif(NOT ROR_DEPENDENCIES_DIR)
 
 	#### REQUIRED COMPONENTS
-	
+
 	set(ROR_OGRE_VERSION_18     "FALSE" CACHE BOOL "Enable this if you are building with ogre 1.8")
-	
+
 	if(ROR_OGRE_VERSION_18)
-		
+
 		set(Ogre_INCLUDE_DIRS
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
@@ -88,9 +89,9 @@ endmacro(importLib)
 		importLib(OgrePaging Ogre)
 		importLib(OgreRTShaderSystem Ogre)
 		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem" CACHE STRING "The Ogre libs to link against")
-			
+
 	else()
-	
+
 		set(Ogre_INCLUDE_DIRS
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/;"
 			"${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/Ogre/Terrain;"
@@ -105,7 +106,7 @@ endmacro(importLib)
 		importLib(OgreRTShaderSystem Ogre)
 		importLib(OgreOverlay Ogre)
 		set(Ogre_LIBRARIES "OgreMain;OgreTerrain;OgrePaging;OgreRTShaderSystem;OgreOverlay" CACHE STRING "The Ogre libs to link against")
-		
+
 	endif()
 
 	set(Ois_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/ois" CACHE PATH "The OIS include path to use")
@@ -176,6 +177,12 @@ endmacro(importLib)
 		importLib(angelscript angelscript)
 		set(ANGELSCRIPT_LIBRARIES    "angelscript" CACHE STRING "The AngelScript libs to link against")
 	endif(ROR_USE_ANGELSCRIPT)
+
+	if(ROR_USE_JSONCPP)
+		set(JSONCPP_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/JsonCpp" CACHE PATH "The JsonCpp include path to use")
+		importLib(JsonCpp JsonCpp)
+		set(JSONCPP_LIBRARIES    "JsonCpp" CACHE STRING "The JsonCpp lib to link against")
+	endif(ROR_USE_JSONCPP)
 
 ELSEIF(UNIX)
    find_package(PkgConfig)
