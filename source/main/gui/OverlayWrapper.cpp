@@ -477,9 +477,6 @@ void OverlayWrapper::showPressureOverlay(bool show)
 void OverlayWrapper::showDashboardOverlays(bool show, Beam *truck)
 {
 	if (!m_truck_dashboard_needles_overlay || !m_truck_dashboard_overlay) return;
-	int mode = -1;
-	if (truck)
-		mode = truck->driveable;
 
 	// check if we use the new style dashboards
 	if (truck && truck->dash && truck->dash->wasLoaded())
@@ -490,40 +487,42 @@ void OverlayWrapper::showDashboardOverlays(bool show, Beam *truck)
 	
 	if (show)
 	{
+		int mode = truck ? truck->driveable : -1;
+
 		if (mode==TRUCK)
 		{
 			m_truck_dashboard_needles_mask_overlay->show();
 			m_truck_dashboard_needles_overlay->show();
 			m_truck_dashboard_overlay->show();
-		};
-		if (mode==AIRPLANE)
+		}
+		else if (mode==AIRPLANE)
 		{
 			m_aerial_dashboard_needles_overlay->show();
 			m_aerial_dashboard_overlay->show();
-			//mouseOverlay->show();
-		};
-		if (mode==BOAT)
+		}
+		else if (mode==BOAT)
 		{
 			m_marine_dashboard_needles_overlay->show();
 			m_marine_dashboard_overlay->show();
-		};
-		if (mode==MACHINE)
+		}
+		else if (mode==MACHINE)
 		{
 			m_machine_dashboard_overlay->show();
-		};
+		}
 	}
 	else
 	{
-		m_machine_dashboard_overlay->hide();
 		m_truck_dashboard_needles_mask_overlay->hide();
 		m_truck_dashboard_needles_overlay->hide();
 		m_truck_dashboard_overlay->hide();
-		//for the airplane
+
 		m_aerial_dashboard_needles_overlay->hide();
 		m_aerial_dashboard_overlay->hide();
-		//mouseOverlay->hide();
+
 		m_marine_dashboard_needles_overlay->hide();
 		m_marine_dashboard_overlay->hide();
+
+		m_machine_dashboard_overlay->hide();
 	}
 }
 
