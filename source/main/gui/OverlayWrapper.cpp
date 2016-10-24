@@ -507,11 +507,6 @@ void OverlayWrapper::showDashboardOverlays(bool show, Beam *truck)
 			m_marine_dashboard_needles_overlay->show();
 			m_marine_dashboard_overlay->show();
 		};
-		if (mode==BOAT)
-		{
-			m_marine_dashboard_needles_overlay->show();
-			m_marine_dashboard_overlay->show();
-		};
 		if (mode==MACHINE)
 		{
 			m_machine_dashboard_overlay->show();
