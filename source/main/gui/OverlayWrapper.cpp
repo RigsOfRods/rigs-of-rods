@@ -62,6 +62,8 @@
 
 using namespace Ogre;
 
+bool g_is_scaled = false;
+
 OverlayWrapper::OverlayWrapper():
 	m_direction_arrow_node(nullptr),
 	mTimeUntilNextToggle(0),
@@ -86,12 +88,14 @@ OverlayWrapper::~OverlayWrapper()
 
 void OverlayWrapper::resizePanel(OverlayElement *oe)
 {
+	if (g_is_scaled) return;
 	oe->setHeight(oe->getHeight()*(Real)win->getWidth()/(Real)win->getHeight());
 	oe->setTop(oe->getTop()*(Real)win->getWidth()/(Real)win->getHeight());
 }
 
 void OverlayWrapper::reposPanel(OverlayElement *oe)
 {
+	if (g_is_scaled) return;
 	oe->setTop(oe->getTop()*(Real)win->getWidth()/(Real)win->getHeight());
 }
 
@@ -415,6 +419,8 @@ int OverlayWrapper::init()
 
 	truckhud = new TruckHUD();
 	truckhud->show(false);
+
+	g_is_scaled = true;
 
 	return 0;
 }
