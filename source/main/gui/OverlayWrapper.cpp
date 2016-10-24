@@ -74,6 +74,7 @@ OverlayWrapper::OverlayWrapper():
 
 OverlayWrapper::~OverlayWrapper()
 {
+	showDashboardOverlays(false, nullptr);
 	HideRacingOverlay();
 	HideDirectionOverlay();
 	if (truckhud != nullptr)
