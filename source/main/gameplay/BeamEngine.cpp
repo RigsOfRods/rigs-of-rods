@@ -52,6 +52,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
 	, hydropump(0.0f)
 	, idleRPM(std::min(minRPM, 800.0f))
 	, inertia(10.0f)
+	, kickdownDelayCounter(0)
 	, maxIdleMixture(0.2f)
 	, maxRPM(std::abs(maxRPM))
 	, minIdleMixture(0.0f)
@@ -625,6 +626,7 @@ void BeamEngine::update(float dt, int doUpdate)
 			{
 				if ((autoselect == DRIVE && curGear < numGears && curClutch > 0.99f) || (autoselect == TWO && curGear < std::min(2, numGears)))
 				{
+					kickdownDelayCounter = 100;
 					shift(1);
 				}
 			} else if (curGear > 1 && refWheelRevolutions * gearsRatio[curGear] < maxRPM && (curEngineRPM < minRPM || (curEngineRPM < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
@@ -742,6 +744,13 @@ void BeamEngine::update(float dt, int doUpdate)
 					upShiftDelayCounter = 0;
 				}
 			}
+
+			if (newGear < curGear && kickdownDelayCounter > 0)
+			{
+				newGear = curGear;
+			}
+			kickdownDelayCounter = std::max(0, kickdownDelayCounter - 1);
+
 			if (newGear < curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 6.0f ||
 				newGear > curGear && std::abs(curWheelRevolutions * (gearsRatio[newGear + 1] - gearsRatio[curGear + 1])) > oneThirdRPMRange / 3.0f)
 			{
