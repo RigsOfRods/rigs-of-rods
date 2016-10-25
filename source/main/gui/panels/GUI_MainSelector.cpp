@@ -124,7 +124,8 @@ void CLASS::BindKeys(bool bind)
 
 void CLASS::NotifyWindowChangeCoord(MyGUI::Window* _sender)
 {
-	ResizePreviewImage();
+	if (m_Preview->isVisible())
+		this->ResizePreviewImage();
 }
 
 void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
@@ -880,6 +881,7 @@ void CLASS::SetPreviewImage(Ogre::String texture)
 	}
 	catch (...)
 	{
+		Ogre::LogManager::getSingleton().stream() << "[RoR|SelectorGUI] Failed to load preview image: " << texture;
 		m_Preview->setVisible(false);
 	}
 }
@@ -887,7 +889,17 @@ void CLASS::SetPreviewImage(Ogre::String texture)
 void CLASS::ResizePreviewImage()
 {
 	MyGUI::IntSize imgSize(0, 0);
-	Ogre::TexturePtr t = Ogre::TextureManager::getSingleton().load(m_preview_image_texture, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+	Ogre::TexturePtr t;
+	try
+	{
+		t = Ogre::TextureManager::getSingleton().load(m_preview_image_texture, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+	}
+	catch (...)
+	{
+		Ogre::LogManager::getSingleton().stream() << "[RoR|SelectorGUI] Failed to load preview image: " << m_preview_image_texture;
+		m_preview_image_texture.clear();
+		m_Preview->setVisible(false);
+	}
 	if (!t.isNull())
 	{
 		imgSize.width = (int)t->getWidth() * 10;
