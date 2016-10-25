@@ -248,6 +248,7 @@ protected:
 	float halfRPMRange;
 	float shiftBehaviour;
 	int upShiftDelayCounter;
+	int kickdownDelayCounter;
 	std::deque<float> rpms;
 	std::deque<float> accs;
 	std::deque<float> brakes;
