@@ -124,7 +124,8 @@ void CLASS::BindKeys(bool bind)
 
 void CLASS::NotifyWindowChangeCoord(MyGUI::Window* _sender)
 {
-	ResizePreviewImage();
+	if (m_Preview->isVisible())
+		ResizePreviewImage();
 }
 
 void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode _key, MyGUI::Char _char)
@@ -880,6 +881,7 @@ void CLASS::SetPreviewImage(Ogre::String texture)
 	}
 	catch (...)
 	{
+		Ogre::LogManager::getSingleton().stream() << "[RoR|SelectorGUI] Failed to load preview image: " << m_preview_image_texture;
 		m_Preview->setVisible(false);
 	}
 }
