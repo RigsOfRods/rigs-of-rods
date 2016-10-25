@@ -6,7 +6,7 @@ set(ROR_USE_PAGED        "TRUE" CACHE BOOL "use paged geometry")
 set(ROR_USE_CAELUM       "TRUE" CACHE BOOL "use caelum sky")
 set(ROR_USE_ANGELSCRIPT  "TRUE" CACHE BOOL "use angel script")
 set(ROR_USE_CURL         "TRUE" CACHE BOOL "use curl, required for communication with online services")
-set(ROR_USE_JSONCPP      "FALSE" CACHE BOOL "use jsoncpp")
+set(ROR_USE_JSONCPP      "TRUE" CACHE BOOL "use jsoncpp")
 
 
 # some obsolete options:
