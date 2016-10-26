@@ -37,6 +37,11 @@ RigSpawnerReportWindow::RigSpawnerReportWindow():
 	MyGUI::Window* main_window = m_rig_spawner_report_window->castType<MyGUI::Window>();
 	main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &RigSpawnerReportWindow::WindowButtonClicked);
 
+	// Center on screen
+	MyGUI::IntSize windowSize = main_window->getSize();
+	MyGUI::IntSize parentSize = main_window->getParentSize();
+	main_window->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
+
 	// Start hidden
 	main_window->setVisible(false);
 }
