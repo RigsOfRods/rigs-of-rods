@@ -38,6 +38,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 	if ((curr_truck->engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
 		(curr_truck->engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
 		(curr_truck->engine->getGear() > 0 && curr_truck->parkingbrake) ||
+		(curr_truck->engine->getGear() < 0) ||
 		(curr_truck->cc_target_speed < curr_truck->cc_target_speed_lower_limit) ||
 		!curr_truck->engine->isRunning() ||
 		!curr_truck->engine->hasContact())
@@ -46,27 +47,43 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 		return;
 	}
 
+	float acc = curr_truck->engine->getAccToHoldRPM(curr_truck->engine->getRPM());
+
 	if (curr_truck->engine->getGear() > 0)
 	{
 		// Try to maintain the target speed
-		if (curr_truck->cc_target_speed > curr_truck->WheelSpeed)
-		{
-			float accl = (curr_truck->cc_target_speed - curr_truck->WheelSpeed) * 2.0f;
-			accl = std::max(curr_truck->engine->getAcc(), accl);
-			accl = std::min(accl, 1.0f);
-			curr_truck->engine->autoSetAcc(accl);
-		}
+		float torque = (curr_truck->engine->getEngineTorque() + curr_truck->engine->getBrakingTorque()) * 0.8f;
+		float forceRatio = curr_truck->getTotalMass(true) / torque;
+		acc += (curr_truck->cc_target_speed - curr_truck->WheelSpeed) * forceRatio * 0.25;
+		acc = std::max(-2.0f, acc);
+		acc = std::min(acc, +2.0f);
 	} else if (curr_truck->engine->getGear() == 0) // out of gear
 	{
 		// Try to maintain the target rpm
-		if (curr_truck->cc_target_rpm > curr_truck->engine->getRPM())
-		{
-			float accl = (curr_truck->cc_target_rpm - curr_truck->engine->getRPM()) * 0.01f;
-			accl = std::max(curr_truck->engine->getAcc(), accl);
-			accl = std::min(accl, 1.0f);
-			curr_truck->engine->autoSetAcc(accl);
-		}
+		float rpmRatio = 1.0f / (curr_truck->engine->getMaxRPM() - curr_truck->engine->getMinRPM());
+		acc += (curr_truck->cc_target_rpm - curr_truck->engine->getRPM()) * rpmRatio * 2.0f;
 	}
+
+	curr_truck->cc_accs.push_front(acc);
+
+	float avgAcc = 0.0f;
+
+	for (unsigned int i=0; i < curr_truck->cc_accs.size(); i++)
+	{
+		avgAcc += curr_truck->cc_accs[i];
+	}
+
+	if (curr_truck->cc_accs.size() > 10)
+	{
+		curr_truck->cc_accs.pop_back();
+	}
+
+	avgAcc /= curr_truck->cc_accs.size();
+
+	float accl = avgAcc;
+	accl = std::max(curr_truck->engine->getAcc(), accl);
+	accl = std::min(accl, 1.0f);
+	curr_truck->engine->autoSetAcc(accl);
 
 	if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_ACCL))
 	{

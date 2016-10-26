@@ -172,6 +172,7 @@ struct rig_t
 	float cc_target_rpm;
 	float cc_target_speed;
 	float cc_target_speed_lower_limit;
+	std::deque<float> cc_accs;
 
 	// Speed Limiter
 	bool sl_enabled; //!< Speed limiter;
