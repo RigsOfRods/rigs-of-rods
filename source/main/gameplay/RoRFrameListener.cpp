@@ -1317,6 +1317,9 @@ bool RoRFrameListener::updateEvents(float dt)
 					Beam *local_truck = BeamFactory::getSingleton().CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
 
 					finalizeTruckSpawning(local_truck, current_truck);
+				} else if (gEnv->player)
+				{
+					gEnv->player->unwindMovement(0.1f);
 				}
 
 				m_reload_box = 0;
