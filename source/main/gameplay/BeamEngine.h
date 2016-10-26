@@ -143,6 +143,7 @@ public:
 	float getTurboPower();
 	float getEnginePower(float rpm);
 	float getEngineTorque() { return engineTorque; };
+	float getBrakingTorque() { return brakingTorque; };
 	float getIdleMixture();
 	float getIdleRPM() { return idleRPM; };
 	float getMaxRPM() { return maxRPM; };

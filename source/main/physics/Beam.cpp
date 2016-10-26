@@ -4393,6 +4393,7 @@ void Beam::cruisecontrolToggle()
 	{
 		cc_target_speed = 0;
 		cc_target_rpm   = 0;
+		cc_accs.clear();
 	}
 }
 
