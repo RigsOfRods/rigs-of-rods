@@ -53,6 +53,8 @@ public:
 
 	void move(Ogre::Vector3 offset);
 
+	void unwindMovement(float distance);
+
 	void update(float dt);
 	void updateCharacterColour();
 	void updateCharacterRotation();
@@ -91,7 +93,7 @@ protected:
 	Ogre::String mLastAnimMode;
 	Ogre::String myName;
 	Ogre::UTFString networkUsername;
-	Ogre::Vector3 mLastPosition;
+	std::deque<Ogre::Vector3> mLastPosition;
 
 	void setAnimationMode(Ogre::String mode, float time=0);
 

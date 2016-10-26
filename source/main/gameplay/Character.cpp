@@ -49,7 +49,6 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
 	, mCamera(gEnv->mainCamera)
 	, mCharacterNode(0)
 	, mHideOwnNetLabel(BSETTING("HideOwnNetLabel", false))
-	, mLastPosition(Vector3::ZERO)
 	, mMoveableText(0)
 	, networkAuthLevel(0)
 	, networkUsername("")
@@ -192,6 +191,7 @@ void Character::updateLabels()
 void Character::setPosition(Vector3 position)
 {
 	mCharacterNode->setPosition(position);
+	mLastPosition.clear();
 #ifdef USE_MYGUI
 	if (gEnv->surveyMap && gEnv->surveyMap->getMapEntityByName(myName))
 	{
@@ -312,23 +312,32 @@ void Character::update(float dt)
 		}
 
 		// Obstacle detection
-		Vector3 diff = mCharacterNode->getPosition() - mLastPosition;
-		if (diff.squaredLength() < 25.0f)
+		if (mLastPosition.size() > 0)
 		{
-			const int numstep = 100;
-			Vector3 base = mLastPosition + Vector3::UNIT_Y * 0.5f;
-			for (int i=1; i<numstep; i++)
+			Vector3 lastPosition = mLastPosition.front();
+			Vector3 diff = mCharacterNode->getPosition() - lastPosition;
+			if (diff.squaredLength() < 25.0f)
 			{
-				Vector3 query = base + diff * ((float)i / numstep);
-				if (gEnv->collisions->collisionCorrect(&query, false))
+				const int numstep = 100;
+				Vector3 base = lastPosition + Vector3::UNIT_Y * 0.5f;
+				for (int i=1; i<numstep; i++)
 				{
-					position = mLastPosition + diff * ((float)(i-1) / numstep);;
-					break;
+					Vector3 query = base + diff * ((float)i / numstep);
+					if (gEnv->collisions->collisionCorrect(&query, false))
+					{
+						position = lastPosition + diff * ((float)(i-1) / numstep);;
+						break;
+					}
 				}
 			}
 		}
 
-		mLastPosition = position;
+		mLastPosition.push_front(position);
+
+		if (mLastPosition.size() > 10)
+		{
+			mLastPosition.pop_back();
+		}
 
 		// ground contact
 		float pheight = gEnv->terrainManager->getHeightFinder()->getHeightAt(position.x,position.z);
@@ -533,6 +542,23 @@ void Character::updateMapIcon()
 		createMapEntity();
 	}
 #endif // USE_MYGUI
+}
+
+void Character::unwindMovement(float distance)
+{
+	if (mLastPosition.size() == 0) return;
+
+	Vector3 curPos = getPosition();
+	Vector3 oldPos = curPos;
+
+	for (Vector3 pos : mLastPosition)
+	{
+		oldPos = pos;
+		if (oldPos.distance(curPos) > distance)
+			break;
+	}
+
+	setPosition(oldPos);
 }
 
 void Character::move(Vector3 offset)
