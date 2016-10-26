@@ -316,7 +316,8 @@ void Character::update(float dt)
 		{
 			Vector3 lastPosition = mLastPosition.front();
 			Vector3 diff = mCharacterNode->getPosition() - lastPosition;
-			if (diff.squaredLength() < 25.0f)
+			Vector3 h_diff = Vector3(diff.x, 0.0f, diff.z);
+			if (depth <= 0.0f || h_diff.squaredLength() > 0.0f)
 			{
 				const int numstep = 100;
 				Vector3 base = lastPosition + Vector3::UNIT_Y * 0.5f;
