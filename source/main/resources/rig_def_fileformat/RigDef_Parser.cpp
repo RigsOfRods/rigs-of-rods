@@ -3779,8 +3779,9 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
 
 File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
 {
-    // Quick check - keyword never starts with a digit
-    if (isdigit(line[0])) // Note: line comes in trimmed
+    // Quick check - keyword always starts with ASCII letter
+    char c = line[0]; // Note: line comes in trimmed
+    if (! ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
     {
         return File::KEYWORD_INVALID;
     }

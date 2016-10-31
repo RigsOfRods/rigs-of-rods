@@ -3,6 +3,64 @@
 #include <regex>
 #include <iostream>
 
+    enum Keyword
+    {
+    KEYWORD_ADD_ANIMATION = 1,                KEYWORD_AIRBRAKES,                    
+    KEYWORD_ANIMATORS,                        KEYWORD_ANTI_LOCK_BRAKES,             
+    KEYWORD_AXLES,                            KEYWORD_AUTHOR,                       
+    KEYWORD_BACKMESH,                         KEYWORD_BEAMS,                        
+    KEYWORD_BRAKES,                           KEYWORD_CAB,                          
+    KEYWORD_CAMERARAIL,                       KEYWORD_CAMERAS,                      
+    KEYWORD_CINECAM,                          KEYWORD_COLLISIONBOXES,               
+    KEYWORD_COMMANDS,                         KEYWORD_COMMANDS2,                    
+    KEYWORD_CONTACTERS,                       KEYWORD_CRUISECONTROL,                
+    KEYWORD_DESCRIPTION,                      KEYWORD_DETACHER_GROUP,               
+    KEYWORD_DISABLEDEFAULTSOUNDS,             KEYWORD_ENABLE_ADVANCED_DEFORMATION,  
+    KEYWORD_END,                              KEYWORD_END_SECTION,                  
+    KEYWORD_ENGINE,                           KEYWORD_ENGOPTION,                    
+    KEYWORD_ENGTURBO,                         KEYWORD_ENVMAP,                       
+    KEYWORD_EXHAUSTS,                         KEYWORD_EXTCAMERA,                    
+    KEYWORD_FILEFORMATVERSION,                KEYWORD_FILEINFO,                     
+    KEYWORD_FIXES,                            KEYWORD_FLARES,                       
+    KEYWORD_FLARES2,                          KEYWORD_FLEXBODIES,                   
+    KEYWORD_FLEXBODY_CAMERA_MODE,             KEYWORD_FLEXBODYWHEELS,               
+    KEYWORD_FORWARDCOMMANDS,                  KEYWORD_FUSEDRAG,                     
+    KEYWORD_GLOBALS,                          KEYWORD_GUID,                         
+    KEYWORD_GUISETTINGS,                      KEYWORD_HELP,                         
+    KEYWORD_HIDE_IN_CHOOSER,                  KEYWORD_HOOKGROUP,                    
+    KEYWORD_HOOKS,                            KEYWORD_HYDROS,                       
+    KEYWORD_IMPORTCOMMANDS,                   KEYWORD_LOCKGROUPS,                   
+    KEYWORD_LOCKGROUP_DEFAULT_NOLOCK,         KEYWORD_MANAGEDMATERIALS,             
+    KEYWORD_MATERIALFLAREBINDINGS,            KEYWORD_MESHWHEELS,                   
+    KEYWORD_MESHWHEELS2,                      KEYWORD_MINIMASS,                     
+    KEYWORD_NODECOLLISION,                    KEYWORD_NODES,                        
+    KEYWORD_NODES2,                           KEYWORD_PARTICLES,                    
+    KEYWORD_PISTONPROPS,                      KEYWORD_PROP_CAMERA_MODE,             
+    KEYWORD_PROPS,                            KEYWORD_RAILGROUPS,                   
+    KEYWORD_RESCUER,                          KEYWORD_RIGIDIFIERS,                  
+    KEYWORD_ROLLON,                           KEYWORD_ROPABLES,                     
+    KEYWORD_ROPES,                            KEYWORD_ROTATORS,                     
+    KEYWORD_ROTATORS2,                        KEYWORD_SCREWPROPS,                   
+    KEYWORD_SECTION,                          KEYWORD_SECTIONCONFIG,                
+    KEYWORD_SET_BEAM_DEFAULTS,                KEYWORD_SET_BEAM_DEFAULTS_SCALE,      
+    KEYWORD_SET_COLLISION_RANGE,              KEYWORD_SET_INERTIA_DEFAULTS,         
+    KEYWORD_SET_MANAGEDMATERIALS_OPTIONS,     KEYWORD_SET_NODE_DEFAULTS,            
+    KEYWORD_SET_SHADOWS,                      KEYWORD_SET_SKELETON_SETTINGS,        
+    KEYWORD_SHOCKS,                           KEYWORD_SHOCKS2,                      
+    KEYWORD_SLIDENODE_CONNECT_INSTANTLY,      KEYWORD_SLIDENODES,                   
+    KEYWORD_SLOPE_BRAKE,                      KEYWORD_SOUNDSOURCES,                 
+    KEYWORD_SOUNDSOURCES2,                    KEYWORD_SPEEDLIMITER,                 
+    KEYWORD_SUBMESH,                          KEYWORD_SUBMESH_GROUNDMODEL,          
+    KEYWORD_TEXCOORDS,                        KEYWORD_TIES,                         
+    KEYWORD_TORQUECURVE,                      KEYWORD_TRACTION_CONTROL,             
+    KEYWORD_TRIGGERS,                         KEYWORD_TURBOJETS,                    
+    KEYWORD_TURBOPROPS,                       KEYWORD_TURBOPROPS2,                  
+    KEYWORD_VIDEOCAMERA,                      KEYWORD_WHEELDETACHERS,               
+    KEYWORD_WHEELS,                           KEYWORD_WHEELS2,                      
+    KEYWORD_WINGS,                        
+    KEYWORD_INVALID = 0xFFFFFFFF
+    };
+
 // Example truckfile
 const char* trucklines[] = {
 "2012 Saf-T-Liner HDX (FPS)           ",
@@ -1495,7 +1553,7 @@ unsigned FindKeywordMatch(std::smatch& search_results)
     return INT_MAX;
 }
 
-static void Bench_sol1_Regex(benchmark::State& state)
+static void Bench_sol1__Regex(benchmark::State& state)
 {
     std::smatch results;
     while (state.KeepRunning()) 
@@ -1508,7 +1566,7 @@ static void Bench_sol1_Regex(benchmark::State& state)
         }
     }
 }
-BENCHMARK(Bench_sol1_Regex);
+BENCHMARK(Bench_sol1__Regex);
 
 static void Bench_sol1b_RegexPreCond(benchmark::State& state)
 {
@@ -1521,7 +1579,8 @@ static void Bench_sol1b_RegexPreCond(benchmark::State& state)
         {
             // precondition
             char c = lines_vec[i][0];
-            if ((c >= (int)'0' && c <= (int)'9'))
+            //if ((c >= (int)'0' && c <= (int)'9'))
+            if (! ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
             {
                 continue;
             }
@@ -1534,7 +1593,7 @@ static void Bench_sol1b_RegexPreCond(benchmark::State& state)
 }
 BENCHMARK(Bench_sol1b_RegexPreCond);
 
-static void Bench_sol1b_RegexPreCondIsdigit(benchmark::State& state)
+static void Bench_sol1c_RegexPreCondIsdigit(benchmark::State& state)
 {
     using namespace std;
     std::smatch results;
@@ -1556,8 +1615,231 @@ static void Bench_sol1b_RegexPreCondIsdigit(benchmark::State& state)
         }
     }
 }
-BENCHMARK(Bench_sol1b_RegexPreCondIsdigit);
+BENCHMARK(Bench_sol1c_RegexPreCondIsdigit);
     // Scores ~2x worse than non-isdigit() test (Win7/MSVC2015/IntelCore i5-3570K@3.4Ghz) --only_a_ptr, 10/2016
+
+static void Bench_sol1d_RegexPreCondIsAlpha(benchmark::State& state)
+{
+    using namespace std;
+    std::smatch results;
+    while (state.KeepRunning()) 
+    {
+        int count = (int) lines_vec.size();
+        for (int i = 0; i < count; ++i)
+        {
+            // precondition - use isdigit()
+            char c = lines_vec[i][0];
+            if (!isalpha(c))
+            {
+                continue;
+            }
+            // end precond.
+
+            std::regex_search(lines_vec[i], results, IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
+            keyword = FindKeywordMatch(results);
+        }
+    }
+}
+BENCHMARK(Bench_sol1d_RegexPreCondIsAlpha);
+    // Scores ~2x worse than non-isdigit() test (Win7/MSVC2015/IntelCore i5-3570K@3.4Ghz) --only_a_ptr, 10/2016
+
+// ################################# Solution 2 - switch ######################################
+
+#ifndef WIN32 
+  #define stricmp strcasecmp
+  #define strnicmp strncasecmp
+#endif
+
+// Compare both upper&lower-case ASCII character
+#define CASE(_LOWER_)               case(_LOWER_): case((_LOWER_)-32)
+// Match line against keyword (start with 2nd character)
+#define MATCH(_STR_, _KWORD_)       if (stricmp(line+1, _STR_+1) == 0) return _KWORD_;
+
+Keyword IdentifyKeywordSwitch(const char* line)
+{
+    switch (line[0])
+    {
+    CASE('a'):
+        MATCH("add_animation",                KEYWORD_ADD_ANIMATION               );
+        MATCH("airbrakes",                    KEYWORD_AIRBRAKES                   );
+        MATCH("animators",                    KEYWORD_ANIMATORS                   );
+        MATCH("AntiLockBrakes",               KEYWORD_ANTI_LOCK_BRAKES            );
+        MATCH("axles",                        KEYWORD_AXLES                       );
+        MATCH("author",                       KEYWORD_AUTHOR                      );
+        break;
+    CASE('b'):
+        MATCH("backmesh",                     KEYWORD_BACKMESH                    );
+        MATCH("beams",                        KEYWORD_BEAMS                       );
+        MATCH("brakes",                       KEYWORD_BRAKES                      );
+        break;
+    CASE('c'):
+        MATCH("cab",                          KEYWORD_CAB                         );
+        MATCH("camerarail",                   KEYWORD_CAMERARAIL                  );
+        MATCH("cameras",                      KEYWORD_CAMERAS                     );
+        MATCH("cinecam",                      KEYWORD_CINECAM                     );
+        MATCH("collisionboxes",               KEYWORD_COLLISIONBOXES              );
+        MATCH("commands",                     KEYWORD_COMMANDS                    );
+        MATCH("commands2",                    KEYWORD_COMMANDS2                   );
+        MATCH("contacters",                   KEYWORD_CONTACTERS                  );
+        MATCH("cruisecontrol",                KEYWORD_CRUISECONTROL               );
+        break;
+    CASE('d'):
+        MATCH("description",                  KEYWORD_DESCRIPTION                 );
+        MATCH("detacher_group",               KEYWORD_DETACHER_GROUP              );
+        MATCH("disabledefaultsounds",         KEYWORD_DISABLEDEFAULTSOUNDS        );
+        break;
+    CASE('e'):
+        MATCH("enable_advanced_deformation",  KEYWORD_ENABLE_ADVANCED_DEFORMATION );
+        MATCH("end",                          KEYWORD_END                         );
+        MATCH("end_section",                  KEYWORD_END_SECTION                 );
+        MATCH("engine",                       KEYWORD_ENGINE                      );
+        MATCH("engoption",                    KEYWORD_ENGOPTION                   );
+        MATCH("engturbo",                     KEYWORD_ENGTURBO                    );
+        MATCH("envmap",                       KEYWORD_ENVMAP                      );
+        MATCH("exhausts",                     KEYWORD_EXHAUSTS                    );
+        MATCH("extcamera",                    KEYWORD_EXTCAMERA                   );
+        break;
+    CASE('f'):
+        MATCH("fileformatversion",            KEYWORD_FILEFORMATVERSION           );
+        MATCH("fileinfo",                     KEYWORD_FILEINFO                    );
+        MATCH("fixes",                        KEYWORD_FIXES                       );
+        MATCH("flares",                       KEYWORD_FLARES                      );
+        MATCH("flares2",                      KEYWORD_FLARES2                     );
+        MATCH("flexbodies",                   KEYWORD_FLEXBODIES                  );
+        MATCH("flexbody_camera_mode",         KEYWORD_FLEXBODY_CAMERA_MODE        );
+        MATCH("flexbodywheels",               KEYWORD_FLEXBODYWHEELS              );
+        MATCH("forwardcommands",              KEYWORD_FORWARDCOMMANDS             );
+        MATCH("fusedrag",                     KEYWORD_FUSEDRAG                    );
+        break;
+    CASE('g'):
+        MATCH("globals",                      KEYWORD_GLOBALS                     );
+        MATCH("guid",                         KEYWORD_GUID                        );
+        MATCH("guisettings",                  KEYWORD_GUISETTINGS                 );
+        break;
+    CASE('h'):
+        MATCH("help",                         KEYWORD_HELP                        );
+        MATCH("hideInChooser",                KEYWORD_HIDE_IN_CHOOSER             );
+        MATCH("hookgroup",                    KEYWORD_HOOKGROUP                   );
+        MATCH("hooks",                        KEYWORD_HOOKS                       );
+        MATCH("hydros",                       KEYWORD_HYDROS                      );
+        break;
+    CASE('i'):
+        MATCH("importcommands",               KEYWORD_IMPORTCOMMANDS              );
+        break;
+    CASE('l'):
+        MATCH("lockgroups",                   KEYWORD_LOCKGROUPS                  );
+        MATCH("lockgroup_default_nolock",     KEYWORD_LOCKGROUP_DEFAULT_NOLOCK    );
+        break;
+    CASE('m'):
+        MATCH("managedmaterials",             KEYWORD_MANAGEDMATERIALS            );
+        MATCH("materialflarebindings",        KEYWORD_MATERIALFLAREBINDINGS       );
+        MATCH("meshwheels",                   KEYWORD_MESHWHEELS                  );
+        MATCH("meshwheels2",                  KEYWORD_MESHWHEELS2                 );
+        MATCH("minimass",                     KEYWORD_MINIMASS                    );
+        break;
+    CASE('n'):
+        MATCH("nodecollision",                KEYWORD_NODECOLLISION               );
+        MATCH("nodes",                        KEYWORD_NODES                       );
+        MATCH("nodes2",                       KEYWORD_NODES2                      );
+        break;
+    CASE('p'):
+        MATCH("particles",                    KEYWORD_PARTICLES                   );
+        MATCH("pistonprops",                  KEYWORD_PISTONPROPS                 );
+        MATCH("prop_camera_mode",             KEYWORD_PROP_CAMERA_MODE            );
+        MATCH("props",                        KEYWORD_PROPS                       );
+        break;
+    CASE('r'):
+        MATCH("railgroups",                   KEYWORD_RAILGROUPS                  );
+        MATCH("rescuer",                      KEYWORD_RESCUER                     );
+        MATCH("rigidifiers",                  KEYWORD_RIGIDIFIERS                 );
+        MATCH("rollon",                       KEYWORD_ROLLON                      );
+        MATCH("ropables",                     KEYWORD_ROPABLES                    );
+        MATCH("ropes",                        KEYWORD_ROPES                       );
+        MATCH("rotators",                     KEYWORD_ROTATORS                    );
+        MATCH("rotators2",                    KEYWORD_ROTATORS2                   );
+        break;
+    CASE('s'):
+        MATCH("screwprops",                   KEYWORD_SCREWPROPS                  );
+        MATCH("section",                      KEYWORD_SECTION                     );
+        MATCH("sectionconfig",                KEYWORD_SECTIONCONFIG               );
+        MATCH("set_beam_defaults",            KEYWORD_SET_BEAM_DEFAULTS           );
+        MATCH("set_beam_defaults_scale",      KEYWORD_SET_BEAM_DEFAULTS_SCALE     );
+        MATCH("set_collision_range",          KEYWORD_SET_COLLISION_RANGE         );
+        MATCH("set_inertia_defaults",         KEYWORD_SET_INERTIA_DEFAULTS        );
+        MATCH("set_managedmaterials_options", KEYWORD_SET_MANAGEDMATERIALS_OPTIONS);
+        MATCH("set_node_defaults",            KEYWORD_SET_NODE_DEFAULTS           );
+        MATCH("set_shadows",                  KEYWORD_SET_SHADOWS                 );
+        MATCH("set_skeleton_settings",        KEYWORD_SET_SKELETON_SETTINGS       );
+        MATCH("shocks",                       KEYWORD_SHOCKS                      );
+        MATCH("shocks2",                      KEYWORD_SHOCKS2                     );
+        MATCH("slidenode_connect_instantly",  KEYWORD_SLIDENODE_CONNECT_INSTANTLY );
+        MATCH("slidenodes",                   KEYWORD_SLIDENODES                  );
+        MATCH("SlopeBrake",                   KEYWORD_SLOPE_BRAKE                 );
+        MATCH("soundsources",                 KEYWORD_SOUNDSOURCES                );
+        MATCH("soundsources2",                KEYWORD_SOUNDSOURCES2               );
+        MATCH("speedlimiter",                 KEYWORD_SPEEDLIMITER                );
+        MATCH("submesh",                      KEYWORD_SUBMESH                     );
+        MATCH("submesh_groundmodel",          KEYWORD_SUBMESH_GROUNDMODEL         );
+        break;
+    CASE('t'):
+        MATCH("texcoords",                    KEYWORD_TEXCOORDS                   );
+        MATCH("ties",                         KEYWORD_TIES                        );
+        MATCH("torquecurve",                  KEYWORD_TORQUECURVE                 );
+        MATCH("TractionControl",              KEYWORD_TRACTION_CONTROL            );
+        MATCH("triggers",                     KEYWORD_TRIGGERS                    );
+        MATCH("turbojets",                    KEYWORD_TURBOJETS                   );
+        MATCH("turboprops",                   KEYWORD_TURBOPROPS                  );
+        MATCH("turboprops2",                  KEYWORD_TURBOPROPS2                 );
+        break;
+    CASE('v'):
+        MATCH("videocamera",                  KEYWORD_VIDEOCAMERA                 );
+        break;
+    CASE('w'):
+        MATCH("wheeldetachers",               KEYWORD_WHEELDETACHERS              );
+        MATCH("wheels",                       KEYWORD_WHEELS                      );
+        MATCH("wheels2",                      KEYWORD_WHEELS2                     );
+        MATCH("wings",                        KEYWORD_WINGS                       );
+        break;
+
+    default:
+        return KEYWORD_INVALID;
+    }
+}
+
+static void Bench_sol2__Switch(benchmark::State& state)
+{
+    while (state.KeepRunning()) 
+    {
+        int count = sizeof(trucklines)/sizeof(const char*);
+        for (int i = 0; i < count; ++i)
+        {
+            keyword = (int) IdentifyKeywordSwitch(trucklines[i]);
+        }
+    }
+}
+BENCHMARK(Bench_sol2__Switch);
+
+static void Bench_sol2b_SwitchPreCond(benchmark::State& state)
+{
+    while (state.KeepRunning()) 
+    {
+        int count = sizeof(trucklines)/sizeof(const char*);
+        for (int i = 0; i < count; ++i)
+        {
+            // precondition
+            char c = trucklines[i][0];
+            if (! ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+            {
+                keyword = (int) KEYWORD_INVALID;
+                continue;
+            }
+            // precondition
+
+            keyword = (int) IdentifyKeywordSwitch(trucklines[i]);
+        }
+    }
+}
+BENCHMARK(Bench_sol2b_SwitchPreCond);
 
 int main(int argc, char** argv)
 {
