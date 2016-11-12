@@ -5102,7 +5102,7 @@ void Beam::updateDashBoards(float dt)
 			float alt = nodes[0].AbsPosition.y * 1.1811f; // MAGIC
 			dash->setFloat(DD_ALTITUDE, alt);
 
-			char altc[10];
+			char altc[11];
 			sprintf(altc, "%03u", (int)(nodes[0].AbsPosition.y / 30.48f)); // MAGIC
 			dash->setChar(DD_ALTITUDE_STRING, altc);
 		}
