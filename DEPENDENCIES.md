@@ -16,7 +16,8 @@ Rigs of Rods uses 3rd party libraries licensed under the following licenses:
 | pthreads                        | Threads                                              | LGPLv2.1                   |
 | boost                           | advanced C++ functions                               | Boost Software License 1.0 |
 | wxWidgets                       | cross-platform GUI system                            | wxWindows 3.1              |
-| UTFCpp                          | UTF-8 validation/conversion                          | Boost Software License 1.0 | 
+| UTFCpp                          | UTF-8 validation/conversion                          | Boost Software License 1.0 |
+| CrashRpt                        | Crash reporting system                               | BSD New                    |
 
 
 
@@ -52,20 +53,20 @@ The zlib/libpng License
 
 Copyright (c) 2005-2010 Phillip Castaneda (pjcast -- www.wreckedgames.com)
 
-This software is provided 'as-is', without any express or implied warranty. In no 
-event will the authors be held liable for any damages arising from the use of this 
+This software is provided 'as-is', without any express or implied warranty. In no
+event will the authors be held liable for any damages arising from the use of this
 software.
 
-Permission is granted to anyone to use this software for any purpose, including 
-commercial applications, and to alter it and redistribute it freely, subject to the 
+Permission is granted to anyone to use this software for any purpose, including
+commercial applications, and to alter it and redistribute it freely, subject to the
 following restrictions:
 
-    1. The origin of this software must not be misrepresented; you must not claim that 
-		you wrote the original software. If you use this software in a product, 
-		an acknowledgment in the product documentation would be appreciated 
+    1. The origin of this software must not be misrepresented; you must not claim that
+		you wrote the original software. If you use this software in a product,
+		an acknowledgment in the product documentation would be appreciated
 		but is not required.
 
-    2. Altered source versions must be plainly marked as such, and must not be 
+    2. Altered source versions must be plainly marked as such, and must not be
 		misrepresented as being the original software.
 
     3. This notice may not be removed or altered from any source distribution.
@@ -244,12 +245,12 @@ DEALINGS IN THE SOFTWARE.
 
                        WXWINDOWS LIBRARY LICENCE
      TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-  
+
   This library is free software; you can redistribute it and/or modify it
   under the terms of the GNU Library General Public Licence as published by
   the Free Software Foundation; either version 2 of the Licence, or (at
   your option) any later version.
-  
+
   This library is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library
@@ -282,11 +283,25 @@ DEALINGS IN THE SOFTWARE.
   accordingly.
 
   4. If you write modifications of your own for this library, it is your
-  choice whether to permit this exception to apply to your modifications. 
+  choice whether to permit this exception to apply to your modifications.
   If you do not wish that, you must delete the exception notice from such
   code and/or adjust the licensing conditions notice accordingly.
   ```
+### CrashRpt		
+```		
+Copyright (c) <YEAR>, <OWNER>		
+All rights reserved.		
 
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:		
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.		
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.		
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.		
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.		
+```
 
 ## Fonts:
 ```
@@ -334,7 +349,7 @@ Fonts, only if the fonts are renamed to names not containing either
 the words "Tavmjong Bah" or the word "Arev".
 
 This License becomes null and void to the extent applicable to Fonts
-or Font Software that has been modified and is distributed under the 
+or Font Software that has been modified and is distributed under the
 "Tavmjong Bah Arev" names.
 
 The Font Software may be sold as part of a larger software package but
@@ -378,7 +393,7 @@ with others.
 
 The OFL allows the licensed fonts to be used, studied, modified and
 redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
+fonts, including any derivative works, can be bundled, embedded,
 redistributed and/or sold with any software provided that any reserved
 names are not used by derivative works. The fonts and derivatives,
 however, cannot be released under any other type of license. The

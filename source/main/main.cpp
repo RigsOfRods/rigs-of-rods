@@ -34,6 +34,91 @@
 
 using namespace Ogre;
 
+#ifdef USE_CRASHRPT
+// see http://crashrpt.sourceforge.net/
+#include "crashrpt.h"
+
+// Define the crash callback
+int CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
+{
+	// Return CR_CB_DODEFAULT to generate error report
+	return CR_CB_DODEFAULT;
+}
+
+void install_crashrpt()
+{
+	// Install CrashRpt support
+	CR_INSTALL_INFO info;
+	memset(&info, 0, sizeof(CR_INSTALL_INFO));
+	info.cb = sizeof(CR_INSTALL_INFO);
+	info.pszAppName = "Rigs of Rods";
+	info.pszAppVersion = ROR_VERSION_STRING;
+	info.pszEmailSubject = "Error Report for Rigs of Rods";
+	info.pszEmailTo = "error-report@rigsofrods.org";
+	info.pszUrl = "http://crashfix.rigsofrods.org/index.php/crashReport/uploadExternal";
+	info.uPriorities[CR_HTTP] = 1;                      // Use HTTP.
+	info.uPriorities[CR_SMTP] = CR_NEGATIVE_PRIORITY;   // Not user SMTP.
+	info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY;  // Not use Simple MAPI.  
+	info.dwFlags = CR_INST_AUTO_THREAD_HANDLERS; // Install the per-thread exception handlers automatically
+	info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS; // Install all available exception handlers
+	info.dwFlags |= CR_INST_SHOW_ADDITIONAL_INFO_FIELDS; // Makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
+	info.pszPrivacyPolicyURL = "http://docs.rigsofrods.org/legal/crash-report-privacy-policy/"; // URL for the Privacy Policy link
+
+	crSetCrashCallback(CrashCallback, NULL);
+
+	int nInstResult = crInstall(&info);
+	if (nInstResult != 0)
+	{
+		// Something goes wrong!
+		TCHAR szErrorMsg[512];
+		szErrorMsg[0] = 0;
+
+		crGetLastErrorMsg(szErrorMsg, 512);
+		printf("%s\n", szErrorMsg);
+
+
+		ErrorUtils::ShowError(_L("Exception handling registration problem"), String(szErrorMsg));
+
+		assert(nInstResult == 0);
+	}
+
+	// logs
+	crAddFile2((RoR::App::GetSysLogsDir() + PATH_SLASH + "RoR.log").c_str(), "RoR.log", "Rigs of Rods Log", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((RoR::App::GetSysLogsDir() + PATH_SLASH + "mygui.log").c_str(), "mygui.log", "Rigs of Rods GUI Log", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((RoR::App::GetSysLogsDir() + PATH_SLASH + "configlog.txt").c_str(), "configlog.txt", "Rigs of Rods Configurator Log", CR_AF_FILE_MUST_EXIST);
+
+	// cache
+	crAddFile2((RoR::App::GetSysCacheDir() + PATH_SLASH + "mods.cache").c_str(), "mods.cache", "Rigs of Rods Cache File", CR_AF_FILE_MUST_EXIST);
+
+	// configs
+	crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg").c_str(), "ground_models.cfg", "Rigs of Rods Ground Configuration", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "input.map").c_str(), "input.map", "Rigs of Rods Input Configuration", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "ogre.cfg").c_str(), "ogre.cfg", "Rigs of Rods Renderer Configuration", CR_AF_FILE_MUST_EXIST);
+	crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg").c_str(), "RoR.cfg", "Rigs of Rods Configuration", CR_AF_FILE_MUST_EXIST);
+
+	crAddProperty("Version", ROR_VERSION_STRING);
+	crAddProperty("protocol_version", RORNET_VERSION);
+	crAddProperty("build_date", __DATE__);
+	crAddProperty("build_time", __TIME__);
+
+	crAddProperty("System_GUID", SSETTING("GUID", "None").c_str());
+	crAddProperty("Multiplayer", RoR::App::GetActiveMpState() ? "1" : "0");
+
+	crAddScreenshot2(CR_AS_MAIN_WINDOW, 0);
+}
+
+void uninstall_crashrpt()
+{
+	crUninstall();
+}
+
+void test_crashrpt()
+{
+	//generate a null pointer exception.
+	crEmulateCrash(CR_SEH_EXCEPTION);
+}
+#endif
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -151,6 +236,11 @@ int main(int argc, char *argv[])
             return 0;
         }
 
+#ifdef USE_CRASHRPT
+		install_crashrpt();
+		//test_crashrpt();
+#endif //USE_CRASHRPT
+
         MainThread main_obj;
         main_obj.Go();
     }
@@ -162,6 +252,10 @@ int main(int argc, char *argv[])
     {
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
     }
+
+#ifdef USE_CRASHRPT
+	uninstall_crashrpt();
+#endif //USE_CRASHRPT
 
     return 0;
 }
