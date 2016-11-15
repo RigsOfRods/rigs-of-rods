@@ -32,35 +32,35 @@ using namespace Ogre;
 // OgreScriptBuilder
 int OgreScriptBuilder::LoadScriptSection(const char *filename)
 {
-	// Open the script file
-	string scriptFile = filename;
+    // Open the script file
+    string scriptFile = filename;
 
-	DataStreamPtr ds;
-	try
-	{
-		ds = ResourceGroupManager::getSingleton().openResource(scriptFile, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+    DataStreamPtr ds;
+    try
+    {
+        ds = ResourceGroupManager::getSingleton().openResource(scriptFile, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
 
-	} catch(Ogre::Exception e)
-	{
-		LOG("exception upon loading script file: " + e.getFullDescription());
-		return -1;
-	}
+    } catch(Ogre::Exception e)
+    {
+        LOG("exception upon loading script file: " + e.getFullDescription());
+        return -1;
+    }
 
-	// Read the entire file
-	string code;
-	code.resize(ds->size());
-	ds->read(&code[0], ds->size());
+    // Read the entire file
+    string code;
+    code.resize(ds->size());
+    ds->read(&code[0], ds->size());
 
-	// hash it
-	{
-		char hash_result[250];
-		memset(hash_result, 0, 249);
-		RoR::CSHA1 sha1;
-		sha1.UpdateHash((uint8_t *)code.c_str(), (uint32_t)code.size());
-		sha1.Final();
-		sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-		hash = String(hash_result);
-	}
+    // hash it
+    {
+        char hash_result[250];
+        memset(hash_result, 0, 249);
+        RoR::CSHA1 sha1;
+        sha1.UpdateHash((uint8_t *)code.c_str(), (uint32_t)code.size());
+        sha1.Final();
+        sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
+        hash = String(hash_result);
+    }
 
-	return ProcessScriptSection(code.c_str(), filename);
+    return ProcessScriptSection(code.c_str(), filename);
 }

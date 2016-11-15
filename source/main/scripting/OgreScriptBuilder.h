@@ -34,10 +34,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class OgreScriptBuilder : public AngelScript::CScriptBuilder, public ZeroedMemoryAllocator
 {
 public:
-	Ogre::String getHash() { return hash; };
+    Ogre::String getHash() { return hash; };
 protected:
-	Ogre::String hash;
-	int LoadScriptSection(const char *filename);
+    Ogre::String hash;
+    int LoadScriptSection(const char *filename);
 };
 
 #endif //OGRESCRIPTBUILDER_H__
