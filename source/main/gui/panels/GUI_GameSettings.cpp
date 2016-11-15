@@ -573,10 +573,12 @@ void CLASS::SaveSettings()
     // Adjustments
     if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX) { App::SetGfxSightRange(5000.f); }
 
+	/* @only-a-ptr Wut?
     if (m_skidmarks_quality->getCaption() == "Normal")
         App::GetSettings().setSetting("SpeedUnit", "0");
     else
         App::GetSettings().setSetting("SpeedUnit", "5");
+    */
 
     if (m_is_keymap_loaded)
     {
