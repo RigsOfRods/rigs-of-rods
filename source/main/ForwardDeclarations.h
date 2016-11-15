@@ -1,49 +1,49 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2015 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2015 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /**
-	@file   ForwardDeclarations.h
-	@brief  Global forward declarations.
-	@author Petr Ohlidal
-	@date   12/2013
+    @file   ForwardDeclarations.h
+    @brief  Global forward declarations.
+    @author Petr Ohlidal
+    @date   12/2013
 */
 
 #pragma once
 
 namespace RoR
 {
-	class  ContentManager;
-	class  GUIManager;
+    class  ContentManager;
+    class  GUIManager;
     struct GuiManagerImpl;
-	class  GuiManagerInterface;
-	class  MainThread;
-	class  OgreSubsystem;
-	struct PlatformUtils;
+    class  GuiManagerInterface;
+    class  MainThread;
+    class  OgreSubsystem;
+    struct PlatformUtils;
     class  RigLoadingProfiler;
-	class  SceneMouse;
-	class  SkinManager;
-	class  Console;
+    class  SceneMouse;
+    class  SkinManager;
+    class  Console;
 
-	namespace GUI
-	{
+    namespace GUI
+    {
         class  OpenSaveFileDialog;
         class  Dialog;
         class  MainSelector;
@@ -51,12 +51,12 @@ namespace RoR
         class  MpClientList;
         class  MultiplayerSelector;
         class  FrictionSettings;
-	}
+    }
 }
 
 namespace MyGUI
 {
-	class  OgrePlatform;
+    class  OgrePlatform;
 }
 
 struct node_t;
@@ -91,14 +91,14 @@ struct stream_register_t;
 
 namespace MOC
 {
-	class CollisionTools;
+    class CollisionTools;
 }
 
 namespace Ogre
 {
-	class MovableText;
-	class TerrainGroup;
-	class ConfigFile;
+    class MovableText;
+    class TerrainGroup;
+    class ConfigFile;
 }
 
 class AeroEngine;

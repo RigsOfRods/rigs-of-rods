@@ -1,32 +1,29 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created on 30th of April 2010 by Thomas Fischer
+
+/**
+    @file
+    @author  Thomas Fischer, 30.4.2010
+*/
 
 #pragma once
-
-// Defines whether Checked Iterators are enabled. If defined as 1, unsafe iterator use causes a runtime error. If defined as 0, checked iterators are disabled.
-// TBD - tdev
-// needs to be consistent across _ALL_ libs and code, thus disabled
-//#ifdef _WIN32
-//#define _SECURE_SCL 0
-//#endif // _WIN32
 
 // OGRE version
 #include <OgrePrerequisites.h>
@@ -61,9 +58,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI_Prerequest.h> // Forward declarations
 
 #if MYGUI_VERSION >= 0x030201
-#	define MYGUI_GET_SCANCODE(KEY) (KEY.getValue())
+#   define MYGUI_GET_SCANCODE(KEY) (KEY.getValue())
 #else
-#	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
+#   define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
 #endif
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -111,43 +108,35 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 # define MYASSERT(x)         assert(x)
 #endif //FEAT_DEBUG_ASSERT
 
-
-// replace standard allocations with nedmalloc
-//#define REPLACE_SYSTEM_ALLOCATOR
-//#include "nedmalloc.h"
-//CAUTION, do not try to use normal free on nedmalloc'ed memory and the other way round
-// if you are not sure that this replacement is consistent, better leave it out.
-
-
 // some platform fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #define strnlen(str,len) strlen(str)
 #endif
 
 enum VisibilityMasks {
-	DEPTHMAP_ENABLED  = BITMASK(1),
-	DEPTHMAP_DISABLED = BITMASK(2),
-	HIDE_MIRROR       = BITMASK(3),
+    DEPTHMAP_ENABLED  = BITMASK(1),
+    DEPTHMAP_DISABLED = BITMASK(2),
+    HIDE_MIRROR       = BITMASK(3),
 };
 
 extern GlobalEnvironment *gEnv;
 
-enum LoaderType 
-{ 
-	LT_None, 
-	LT_Terrain, 
-	LT_Vehicle,
-	LT_Truck, 
-	LT_Car, 
-	LT_Boat,
-	LT_Airplane, 
-	LT_Trailer,
-	LT_Train, 
-	LT_Load, 
-	LT_Extension, 
-	LT_Network,
-	LT_NetworkWithBoat, 
-	LT_Heli, 
-	LT_SKIN,
-	LT_AllBeam 
+enum LoaderType
+{
+    LT_None,
+    LT_Terrain,
+    LT_Vehicle,
+    LT_Truck,
+    LT_Car,
+    LT_Boat,
+    LT_Airplane,
+    LT_Trailer,
+    LT_Train,
+    LT_Load,
+    LT_Extension,
+    LT_Network,
+    LT_NetworkWithBoat,
+    LT_Heli,
+    LT_SKIN,
+    LT_AllBeam
 };
