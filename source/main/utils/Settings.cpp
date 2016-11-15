@@ -626,6 +626,7 @@ static const char* CONF_REPLAY_MODE     = "Replay mode";
 static const char* CONF_REPLAY_LENGTH   = "Replay length";
 static const char* CONF_REPLAY_STEPPING = "Replay Steps per second";
 static const char* CONF_POS_STORAGE     = "Position Storage";
+static const char* CONF_LANGUAGE_SHORT  = "Language Short";
 
 #define I(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
 #define F(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
@@ -703,6 +704,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_REPLAY_LENGTH   ) { App::SetSimReplayLength      (I(v)); return true; }
     if (k == CONF_REPLAY_STEPPING ) { App::SetSimReplayStepping    (I(v)); return true; }
     if (k == CONF_POS_STORAGE     ) { App::SetSimPositionStorage   (B(v)); return true; }
+    if (k == CONF_LANGUAGE_SHORT  ) { App::SetAppLocale            (S(v)); return true; }
 
     return false;
 }
@@ -965,6 +967,7 @@ void Settings::SaveSettings()
     f << CONF_REPLAY_LENGTH   << "=" << _(App::GetSimReplayLength     ()) << endl;
     f << CONF_REPLAY_STEPPING << "=" << _(App::GetSimReplayStepping   ()) << endl;
     f << CONF_POS_STORAGE     << "=" << B(App::GetSimPositionStorage  ()) << endl;
+    f << CONF_LANGUAGE_SHORT  << "=" << _(App::GetAppLocale           ()) << endl;
 
     // Append misc legacy entries
     f << endl << "; Misc" << endl;
