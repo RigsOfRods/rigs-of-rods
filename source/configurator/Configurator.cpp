@@ -1773,6 +1773,7 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 	filterOptions["VSync Interval"]=true;
 	filterOptions["sRGB Gamma Conversion"]=true;
 	filterOptions["Colour Depth"]=true;
+	filterOptions["Allow DirectX9Ex"]=false;
 
 	if(renderer->GetCount() == 0)
 	{
