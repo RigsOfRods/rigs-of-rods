@@ -31,34 +31,34 @@ template <class T>
 class InterThreadStoreVector
 {
 public:
-	
-	void push(T v)
-	{
-		std::lock_guard<std::mutex> lock(m_vector_mutex);
-		store.push_back(v);
-	}
+    
+    void push(T v)
+    {
+        std::lock_guard<std::mutex> lock(m_vector_mutex);
+        store.push_back(v);
+    }
 
-	size_t size()
-	{
-		std::lock_guard<std::mutex> lock(m_vector_mutex);
-		return store.size();
-	}
+    size_t size()
+    {
+        std::lock_guard<std::mutex> lock(m_vector_mutex);
+        return store.size();
+    }
 
-	
-	int pull(std::vector < T > &res)
-	{
-		std::lock_guard<std::mutex> lock(m_vector_mutex);
-		int results = 0;
-		res = store;
-		results = (int)res.size();
-		store.clear();
-		return results;
-	}
+    
+    int pull(std::vector < T > &res)
+    {
+        std::lock_guard<std::mutex> lock(m_vector_mutex);
+        int results = 0;
+        res = store;
+        results = (int)res.size();
+        store.clear();
+        return results;
+    }
 
 protected:
 
-	std::mutex m_vector_mutex;
-	std::vector < T > store;
+    std::mutex m_vector_mutex;
+    std::vector < T > store;
 };
 
 #endif // __InterThreadStoreVector_H_

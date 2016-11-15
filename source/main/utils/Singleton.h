@@ -32,31 +32,31 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 template <class T>
 class RoRSingleton
 {
-	static T* _instance;
+    static T* _instance;
 protected:
-	RoRSingleton(){}
-	virtual ~RoRSingleton() { _instance = 0; }
-	void _free() { delete this; }
-	RoRSingleton(const RoRSingleton&); // not implemented
-	const RoRSingleton& operator=(const RoRSingleton&); // not implemented
+    RoRSingleton(){}
+    virtual ~RoRSingleton() { _instance = 0; }
+    void _free() { delete this; }
+    RoRSingleton(const RoRSingleton&); // not implemented
+    const RoRSingleton& operator=(const RoRSingleton&); // not implemented
 public:
-	inline static T& getSingleton()
-	{
-		if (!_instance) _instance = new T;
-		return *_instance;
-	}
-	inline static T* getSingletonPtr()
-	{
-		if (!_instance) _instance = new T;
-		return _instance;
-	}
-	inline static T* getSingletonPtrNoCreation()
-	{
-		return _instance;
-	}
+    inline static T& getSingleton()
+    {
+        if (!_instance) _instance = new T;
+        return *_instance;
+    }
+    inline static T* getSingletonPtr()
+    {
+        if (!_instance) _instance = new T;
+        return _instance;
+    }
+    inline static T* getSingletonPtrNoCreation()
+    {
+        return _instance;
+    }
 
-	static bool singletonExists(void) { return (_instance != 0); }
-	static void freeSingleton() { getSingletonPtr()->_free(); }
+    static bool singletonExists(void) { return (_instance != 0); }
+    static void freeSingleton() { getSingletonPtr()->_free(); }
 };
 
 template <class T>
@@ -66,32 +66,32 @@ T* RoRSingleton<T>::_instance = 0;
 template <class T>
 class RoRSingletonNoCreation
 {
-	static T* _instance;
+    static T* _instance;
 protected:
-	RoRSingletonNoCreation(){}
-	virtual ~RoRSingletonNoCreation() { _instance = 0; }
-	void _free() { delete this; }
-	RoRSingletonNoCreation(const RoRSingletonNoCreation&); // not implemented
-	const RoRSingletonNoCreation& operator=(const RoRSingletonNoCreation&); // not implemented
-	void setSingleton(T*i) { _instance = i; }
+    RoRSingletonNoCreation(){}
+    virtual ~RoRSingletonNoCreation() { _instance = 0; }
+    void _free() { delete this; }
+    RoRSingletonNoCreation(const RoRSingletonNoCreation&); // not implemented
+    const RoRSingletonNoCreation& operator=(const RoRSingletonNoCreation&); // not implemented
+    void setSingleton(T*i) { _instance = i; }
 public:
-	inline static T& getSingleton()
-	{
-		MYASSERT(_instance);
-		return *_instance;
-	}
-	inline static T* getSingletonPtr()
-	{
-		MYASSERT(_instance);
-		return _instance;
-	}
-	inline static T* getSingletonPtrNoCreation()
-	{
-		return _instance;
-	}
+    inline static T& getSingleton()
+    {
+        MYASSERT(_instance);
+        return *_instance;
+    }
+    inline static T* getSingletonPtr()
+    {
+        MYASSERT(_instance);
+        return _instance;
+    }
+    inline static T* getSingletonPtrNoCreation()
+    {
+        return _instance;
+    }
 
-	static bool singletonExists(void) { return (_instance != 0); }
-	static void freeSingleton() { getSingletonPtr()->_free(); }
+    static bool singletonExists(void) { return (_instance != 0); }
+    static void freeSingleton() { getSingletonPtr()->_free(); }
 };
 
 template <class T>

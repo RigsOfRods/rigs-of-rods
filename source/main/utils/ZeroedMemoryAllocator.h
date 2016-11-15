@@ -32,51 +32,51 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class ZeroedMemoryAllocator
 {
 public:
-	ZeroedMemoryAllocator()
-	{
-	}
-	
-	virtual ~ZeroedMemoryAllocator()
-	{
-	}
+    ZeroedMemoryAllocator()
+    {
+    }
+    
+    virtual ~ZeroedMemoryAllocator()
+    {
+    }
 
-	/**
-	 * Memory allocator for a single class instance.
-	 * @param size the amount of bytes to allocate.
-	 * @return the given amounts of bytes zeroed.
-	 */
-	inline void *operator new(size_t size)
-	{
-		return calloc(size, sizeof(unsigned char));
-	}
+    /**
+     * Memory allocator for a single class instance.
+     * @param size the amount of bytes to allocate.
+     * @return the given amounts of bytes zeroed.
+     */
+    inline void *operator new(size_t size)
+    {
+        return calloc(size, sizeof(unsigned char));
+    }
 
-	/**
-	 * Memory allocator for an array of class instances.
-	 * @param size the amount of bytes to allocate.
-	 * @return the given amounts of bytes zeroed.
-	 */
-	inline void *operator new[](size_t size)
-	{
-		return calloc(size, sizeof(unsigned char));
-	}
+    /**
+     * Memory allocator for an array of class instances.
+     * @param size the amount of bytes to allocate.
+     * @return the given amounts of bytes zeroed.
+     */
+    inline void *operator new[](size_t size)
+    {
+        return calloc(size, sizeof(unsigned char));
+    }
 
-	/**
-	 * Memory release for a single class instance.
-	 * @param ptr  the memory to free.
-	 */
-	inline void operator delete(void *ptr)
-	{
-		free(ptr);
-	}
+    /**
+     * Memory release for a single class instance.
+     * @param ptr  the memory to free.
+     */
+    inline void operator delete(void *ptr)
+    {
+        free(ptr);
+    }
 
-	/**
-	 * Memory release for an array of class instances.
-	 * @param ptr  the memory to free.
-	 */
-	inline void operator delete[](void *ptr)
-	{
-		free(ptr);
-	}
+    /**
+     * Memory release for an array of class instances.
+     * @param ptr  the memory to free.
+     */
+    inline void operator delete[](void *ptr)
+    {
+        free(ptr);
+    }
 };
 
 #endif // ZEROMEMORYALLOCATOR_H__

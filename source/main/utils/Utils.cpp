@@ -39,58 +39,58 @@ using namespace Ogre;
 
 String hexdump(void *pAddressIn, long  lSize)
 {
-	char szBuf[100];
-	long lIndent = 1;
-	long lOutLen, lIndex, lIndex2, lOutLen2;
-	long lRelPos;
-	struct { char *pData; unsigned long lSize; } buf;
-	unsigned char *pTmp,ucTmp;
-	unsigned char *pAddress = (unsigned char *)pAddressIn;
+    char szBuf[100];
+    long lIndent = 1;
+    long lOutLen, lIndex, lIndex2, lOutLen2;
+    long lRelPos;
+    struct { char *pData; unsigned long lSize; } buf;
+    unsigned char *pTmp,ucTmp;
+    unsigned char *pAddress = (unsigned char *)pAddressIn;
 
-	buf.pData   = (char *)pAddress;
-	buf.lSize   = lSize;
+    buf.pData   = (char *)pAddress;
+    buf.lSize   = lSize;
 
-	String result = "";
-	
-	while (buf.lSize > 0)
-	{
-		pTmp     = (unsigned char *)buf.pData;
-		lOutLen  = (int)buf.lSize;
-		if (lOutLen > 16)
-		  lOutLen = 16;
+    String result = "";
+    
+    while (buf.lSize > 0)
+    {
+        pTmp     = (unsigned char *)buf.pData;
+        lOutLen  = (int)buf.lSize;
+        if (lOutLen > 16)
+          lOutLen = 16;
 
-		// create a 64-character formatted output line:
-		sprintf(szBuf, " >                            "
-					 "                      "
-					 "    %08lX", (long unsigned int)(pTmp-pAddress));
-		lOutLen2 = lOutLen;
+        // create a 64-character formatted output line:
+        sprintf(szBuf, " >                            "
+                     "                      "
+                     "    %08lX", (long unsigned int)(pTmp-pAddress));
+        lOutLen2 = lOutLen;
 
-		for (lIndex = 1+lIndent, lIndex2 = 53-15+lIndent, lRelPos = 0;
-		  lOutLen2;
-		  lOutLen2--, lIndex += 2, lIndex2++
-			)
-		{
-			ucTmp = *pTmp++;
+        for (lIndex = 1+lIndent, lIndex2 = 53-15+lIndent, lRelPos = 0;
+          lOutLen2;
+          lOutLen2--, lIndex += 2, lIndex2++
+            )
+        {
+            ucTmp = *pTmp++;
 
-			sprintf(szBuf + lIndex, "%02X ", (unsigned short)ucTmp);
-			if (!isprint(ucTmp))  ucTmp = '.'; // nonprintable char
-			szBuf[lIndex2] = ucTmp;
+            sprintf(szBuf + lIndex, "%02X ", (unsigned short)ucTmp);
+            if (!isprint(ucTmp))  ucTmp = '.'; // nonprintable char
+            szBuf[lIndex2] = ucTmp;
 
-			if (!(++lRelPos & 3))     // extra blank after 4 bytes
-			{  lIndex++; szBuf[lIndex+2] = ' '; }
-		}
+            if (!(++lRelPos & 3))     // extra blank after 4 bytes
+            {  lIndex++; szBuf[lIndex+2] = ' '; }
+        }
 
-		if (!(lRelPos & 3)) lIndex--;
+        if (!(lRelPos & 3)) lIndex--;
 
-		szBuf[lIndex  ]   = '<';
-		szBuf[lIndex+1]   = ' ';
+        szBuf[lIndex  ]   = '<';
+        szBuf[lIndex+1]   = ' ';
 
-		result += String(szBuf) + "\n";
+        result += String(szBuf) + "\n";
 
-		buf.pData   += lOutLen;
-		buf.lSize   -= lOutLen;
-	}
-	return result;
+        buf.pData   += lOutLen;
+        buf.lSize   -= lOutLen;
+    }
+    return result;
 }
 
 UTFString tryConvertUTF(const char *buffer)
@@ -101,70 +101,70 @@ UTFString tryConvertUTF(const char *buffer)
 
 UTFString formatBytes(double bytes)
 {
-	wchar_t tmp[128] = L"";
-	const wchar_t *si_prefix[] = { L"B", L"KB", L"MB", L"GB", L"TB", L"EB", L"ZB", L"YB" };
-	int base = 1024;
-	int c = std::min((int)(log(bytes)/log((float)base)), (int)sizeof(si_prefix) - 1);
-	swprintf(tmp, 128, L"%1.2f %ls", bytes / pow((float)base, c), si_prefix[c]);
-	return UTFString(tmp);
+    wchar_t tmp[128] = L"";
+    const wchar_t *si_prefix[] = { L"B", L"KB", L"MB", L"GB", L"TB", L"EB", L"ZB", L"YB" };
+    int base = 1024;
+    int c = std::min((int)(log(bytes)/log((float)base)), (int)sizeof(si_prefix) - 1);
+    swprintf(tmp, 128, L"%1.2f %ls", bytes / pow((float)base, c), si_prefix[c]);
+    return UTFString(tmp);
 }
 
 // replace non-ASCII characters with underscores to prevent std::string problems
 String getASCIIFromCharString(char *str, int maxlen)
 {
-	char *ptr = str;
-	for (int i=0; i < maxlen; i++, ptr++)
-	{
-		if (*ptr == 0) break;
-		if (*ptr < 32 || *ptr > 126)
-		{
-			*ptr = 95;
-		}
-	}
-	str[maxlen] = 0;
-	return std::string(str);
+    char *ptr = str;
+    for (int i=0; i < maxlen; i++, ptr++)
+    {
+        if (*ptr == 0) break;
+        if (*ptr < 32 || *ptr > 126)
+        {
+            *ptr = 95;
+        }
+    }
+    str[maxlen] = 0;
+    return std::string(str);
 }
 
 // replace non-ASCII characters with underscores to prevent std::string problems
 String getASCIIFromOgreString(String s, int maxlen)
 {
-	char str[1024] = "";
-	strncpy(str, s.c_str(), 1023);
-	char *ptr = str;
-	for (int i=0; i < maxlen; i++, ptr++)
-	{
-		if (*ptr == 0) break;
-		if (*ptr < 32 || *ptr > 126)
-		{
-			*ptr = 95;
-		}
-	}
-	str[maxlen] = 0;
-	return std::string(str);
+    char str[1024] = "";
+    strncpy(str, s.c_str(), 1023);
+    char *ptr = str;
+    for (int i=0; i < maxlen; i++, ptr++)
+    {
+        if (*ptr == 0) break;
+        if (*ptr < 32 || *ptr > 126)
+        {
+            *ptr = 95;
+        }
+    }
+    str[maxlen] = 0;
+    return std::string(str);
 }
 
 int getTimeStamp()
 {
-	return (int)time(NULL); //this will overflow in 2038
+    return (int)time(NULL); //this will overflow in 2038
 }
 
 
 String getVersionString(bool multiline)
 {
-	char tmp[1024] = "";
-	if (multiline)
-	{
-		sprintf(tmp, "Rigs of Rods\n"
-			" version: %s\n"
-			" protocol version: %s\n"
-			" build time: %s, %s\n"
-			, ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
-	} else
-	{
-		sprintf(tmp, "Rigs of Rods version %s, protocol version: %s, build time: %s, %s", ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
-	}
+    char tmp[1024] = "";
+    if (multiline)
+    {
+        sprintf(tmp, "Rigs of Rods\n"
+            " version: %s\n"
+            " protocol version: %s\n"
+            " build time: %s, %s\n"
+            , ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
+    } else
+    {
+        sprintf(tmp, "Rigs of Rods version %s, protocol version: %s, build time: %s, %s", ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
+    }
 
-	return String(tmp);
+    return String(tmp);
 }
 
 int isPowerOfTwo (unsigned int x)
@@ -175,59 +175,59 @@ int isPowerOfTwo (unsigned int x)
 // same as: return preg_replace("/[^A-Za-z0-9-_.]/", "_", $s);
 String stripNonASCII(String s)
 {
-	char filename[9046] = "";
-	sprintf(filename, "%s", s.c_str());
-	for (size_t i=0;i<s.size(); i++)
-	{
-		bool replace = true;
-		if     (filename[i] >= 48 && filename[i] <= 57) replace = false; // 0-9
-		else if (filename[i] >= 65 && filename[i] <= 90) replace = false; // A-Z
-		else if (filename[i] >= 97 && filename[i] <= 122) replace = false; // a-z
-		else if (filename[i] == 45 || filename[i] == 95 || filename[i] == 46) replace = false; // -_.
-		if (replace)
-			filename[i]='_';
-	}
-	return String(filename);
+    char filename[9046] = "";
+    sprintf(filename, "%s", s.c_str());
+    for (size_t i=0;i<s.size(); i++)
+    {
+        bool replace = true;
+        if     (filename[i] >= 48 && filename[i] <= 57) replace = false; // 0-9
+        else if (filename[i] >= 65 && filename[i] <= 90) replace = false; // A-Z
+        else if (filename[i] >= 97 && filename[i] <= 122) replace = false; // a-z
+        else if (filename[i] == 45 || filename[i] == 95 || filename[i] == 46) replace = false; // -_.
+        if (replace)
+            filename[i]='_';
+    }
+    return String(filename);
 }
 
 
 AxisAlignedBox getWorldAABB(SceneNode* node)
 {
-	AxisAlignedBox aabb;
+    AxisAlignedBox aabb;
 
-	// merge with attached objects
-	for (int i=0; i<node->numAttachedObjects(); ++i)
-	{
-		MovableObject* o = node->getAttachedObject(i);
-		aabb.merge(o->getWorldBoundingBox(true));
-	}
+    // merge with attached objects
+    for (int i=0; i<node->numAttachedObjects(); ++i)
+    {
+        MovableObject* o = node->getAttachedObject(i);
+        aabb.merge(o->getWorldBoundingBox(true));
+    }
 
-	// merge with child nodes
-	for (int i=0; i<node->numChildren(); ++i)
-	{
-		SceneNode* child = static_cast<SceneNode*>(node->getChild(i));
-		aabb.merge( getWorldAABB(child) );
-	}
+    // merge with child nodes
+    for (int i=0; i<node->numChildren(); ++i)
+    {
+        SceneNode* child = static_cast<SceneNode*>(node->getChild(i));
+        aabb.merge( getWorldAABB(child) );
+    }
 
-	return aabb;
+    return aabb;
 }
 
 void fixRenderWindowIcon (RenderWindow *rw)
 {
 #ifdef _WIN32
-	size_t hWnd = 0;
-	rw->getCustomAttribute("WINDOW", &hWnd);
+    size_t hWnd = 0;
+    rw->getCustomAttribute("WINDOW", &hWnd);
 
-	char buf[MAX_PATH];
-	::GetModuleFileNameA(0, (LPCH)&buf, MAX_PATH);
+    char buf[MAX_PATH];
+    ::GetModuleFileNameA(0, (LPCH)&buf, MAX_PATH);
 
-	HINSTANCE instance = ::GetModuleHandleA(buf);
-	HICON hIcon = ::LoadIconA(instance, MAKEINTRESOURCEA(101));
-	if (hIcon)
-	{
-		::SendMessageA((HWND)hWnd, WM_SETICON, 1, (LPARAM)hIcon);
-		::SendMessageA((HWND)hWnd, WM_SETICON, 0, (LPARAM)hIcon);
-	}
+    HINSTANCE instance = ::GetModuleHandleA(buf);
+    HICON hIcon = ::LoadIconA(instance, MAKEINTRESOURCEA(101));
+    if (hIcon)
+    {
+        ::SendMessageA((HWND)hWnd, WM_SETICON, 1, (LPARAM)hIcon);
+        ::SendMessageA((HWND)hWnd, WM_SETICON, 0, (LPARAM)hIcon);
+    }
 #endif // _WIN32
 }
 
@@ -243,88 +243,88 @@ std::wstring ANSI_TO_WCHAR(const String source)
 
 void trimUTFString( UTFString &str, bool left, bool right)
 {
-	static const String delims = " \t\r";
-	if (right)
-		str.erase(str.find_last_not_of(delims)+1); // trim right
-	if (left)
-		str.erase(0, str.find_first_not_of(delims)); // trim left
+    static const String delims = " \t\r";
+    if (right)
+        str.erase(str.find_last_not_of(delims)+1); // trim right
+    if (left)
+        str.erase(0, str.find_first_not_of(delims)); // trim left
 }
 
 Real Round(Real value, unsigned short ndigits /* = 0 */)
 {
-	Real f = 1.0f;
+    Real f = 1.0f;
 
-	while (ndigits--)
-		f = f * 10.0f;
+    while (ndigits--)
+        f = f * 10.0f;
 
-	value *= f;
+    value *= f;
 
-	if (value >= 0.0f)
-		value = std::floor(value + 0.5f);
-	else
-		value = std::ceil(value - 0.5f);
+    if (value >= 0.0f)
+        value = std::floor(value + 0.5f);
+    else
+        value = std::ceil(value - 0.5f);
 
-	value /= f;
+    value /= f;
 
-	return value;
+    return value;
 }
 
 Real Round(Real value, int valueN, unsigned short ndigits /* = 0 */)
 {
-	Real f = 1.0f;
+    Real f = 1.0f;
 
-	while (ndigits--)
-		f = f * 10.0f;
+    while (ndigits--)
+        f = f * 10.0f;
 
-	value *= f;
+    value *= f;
 
-	if (value >= 0.0f)
-		value = std::floor(value + valueN);
-	else
-		value = std::ceil(value - valueN);
+    if (value >= 0.0f)
+        value = std::floor(value + valueN);
+    else
+        value = std::ceil(value - valueN);
 
-	value /= f;
+    value /= f;
 
-	return value;
+    return value;
 }
 
 void generateHashFromDataStream(DataStreamPtr &ds, Ogre::String &hash)
 {
-	size_t location = ds->tell();
-	// copy whole file into a buffer
-	uint8_t *buf = 0;
-	ds->seek(0); // from start
-	// alloc buffer
-	uint32_t bufSize = ds->size();
-	buf = (uint8_t *)malloc(bufSize+1);
-	// read into buffer
-	ds->read(buf, bufSize);
+    size_t location = ds->tell();
+    // copy whole file into a buffer
+    uint8_t *buf = 0;
+    ds->seek(0); // from start
+    // alloc buffer
+    uint32_t bufSize = ds->size();
+    buf = (uint8_t *)malloc(bufSize+1);
+    // read into buffer
+    ds->read(buf, bufSize);
 
-	// and build the hash over it
-	char hash_result[250];
-	memset(hash_result, 0, 249);
+    // and build the hash over it
+    char hash_result[250];
+    memset(hash_result, 0, 249);
 
-	{
-		RoR::CSHA1 sha1;
-		sha1.UpdateHash(buf, bufSize);
-		sha1.Final();
-		sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-	}
+    {
+        RoR::CSHA1 sha1;
+        sha1.UpdateHash(buf, bufSize);
+        sha1.Final();
+        sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
+    }
 
-	// revert DS to previous position
-	ds->seek(location);
-	// release memory
-	free(buf);
-	buf = 0;
-	
-	hash = String(hash_result);
+    // revert DS to previous position
+    ds->seek(location);
+    // release memory
+    free(buf);
+    buf = 0;
+    
+    hash = String(hash_result);
 }
 
 void generateHashFromFile(String filename, Ogre::String &hash)
 {
-	// no exception handling in here
-	DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-	generateHashFromDataStream(ds, hash);
+    // no exception handling in here
+    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+    generateHashFromDataStream(ds, hash);
 }
 
 namespace RoR
@@ -332,37 +332,37 @@ namespace RoR
 
 namespace Utils
 {
-	std::string TrimBlanksAndLinebreaks(std::string const & input)
-	{
-		int substr_start = 0;
-		int substr_count = input.length();
-		while (substr_start < substr_count)
-		{
-			char c = input.at(substr_start);
-			if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-			{
-				++substr_start;
-				--substr_count;
-			}
-			else
-			{
-				break;
-			}
-		}
-		while (substr_count > 0)
-		{
-			char c = input.at(substr_count - 1);
-			if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-			{
-				--substr_count;
-			}
-			else
-			{
-				break;
-			}
-		}
-		return input.substr(substr_start, substr_count);
-	}
+    std::string TrimBlanksAndLinebreaks(std::string const & input)
+    {
+        int substr_start = 0;
+        int substr_count = input.length();
+        while (substr_start < substr_count)
+        {
+            char c = input.at(substr_start);
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+            {
+                ++substr_start;
+                --substr_count;
+            }
+            else
+            {
+                break;
+            }
+        }
+        while (substr_count > 0)
+        {
+            char c = input.at(substr_count - 1);
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+            {
+                --substr_count;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return input.substr(substr_start, substr_count);
+    }
 
     std::string SanitizeUtf8String(std::string const& str_in)
     {

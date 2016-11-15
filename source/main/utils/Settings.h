@@ -117,23 +117,23 @@ void App__SetGfxSkyMode     (std::string const & s);
 
 class Settings : public RoRSingleton<Settings>, public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<Settings>;
+    friend class RoRSingleton<Settings>;
 
 public:
 
-	Ogre::String getSetting(Ogre::String key, Ogre::String defaultValue);
-	Ogre::UTFString getUTFSetting(Ogre::UTFString key, Ogre::UTFString defaultValue);
-	bool getBooleanSetting(Ogre::String key, bool defaultValue);
-	float getFloatSetting(Ogre::String key, float defaultValue);
-	int getIntegerSetting(Ogre::String key, int defaultValue);
-	
-	Ogre::String getSettingScriptSafe(const Ogre::String &key);
-	void setSettingScriptSafe(const Ogre::String &key, const Ogre::String &value);
+    Ogre::String getSetting(Ogre::String key, Ogre::String defaultValue);
+    Ogre::UTFString getUTFSetting(Ogre::UTFString key, Ogre::UTFString defaultValue);
+    bool getBooleanSetting(Ogre::String key, bool defaultValue);
+    float getFloatSetting(Ogre::String key, float defaultValue);
+    int getIntegerSetting(Ogre::String key, int defaultValue);
+    
+    Ogre::String getSettingScriptSafe(const Ogre::String &key);
+    void setSettingScriptSafe(const Ogre::String &key, const Ogre::String &value);
 
-	void setSetting(Ogre::String key, Ogre::String value);
-	void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
-	
-	void LoadSettings(std::string filepath);
+    void setSetting(Ogre::String key, Ogre::String value);
+    void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
+    
+    void LoadSettings(std::string filepath);
 
     void SaveSettings();
 
@@ -147,15 +147,15 @@ public:
     static bool SetupAllPaths();
 
 #ifdef USE_ANGELSCRIPT
-	// we have to add this to be able to use the class as reference inside scripts
-	void addRef(){};
-	void release(){};
+    // we have to add this to be able to use the class as reference inside scripts
+    void addRef(){};
+    void release(){};
 #endif
 
-	std::map<Ogre::String, Ogre::String> GetSettingMap()
-	{
-		return settings;
-	}
+    std::map<Ogre::String, Ogre::String> GetSettingMap()
+    {
+        return settings;
+    }
 protected:
 
     // Helpers
@@ -163,12 +163,12 @@ protected:
     void SetGfxFovExternal(float fov);
     void SetGfxFovInternal(float fov);
 
-	static Settings* myInstance;
+    static Settings* myInstance;
 
-	// members
-	// TODO: use wide char / UTFString ...
-	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
-	settings_map_t settings;
+    // members
+    // TODO: use wide char / UTFString ...
+    typedef std::map<Ogre::String, Ogre::String> settings_map_t;
+    settings_map_t settings;
 
     // Cached config values
     bool m_network_enable;

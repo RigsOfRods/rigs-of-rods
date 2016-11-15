@@ -69,38 +69,38 @@ void trimUTFString(Ogre::UTFString &str, bool left = true, bool right = true);
 #ifdef USE_MYGUI
 inline MyGUI::UString convertToMyGUIString(char *charstr)
 {
-	return MyGUI::UString(ANSI_TO_WCHAR(charstr));
+    return MyGUI::UString(ANSI_TO_WCHAR(charstr));
 }
 
 inline MyGUI::UString convertToMyGUIString(wchar_t *charstr, int len)
 {
-	return MyGUI::UString(charstr, len);
+    return MyGUI::UString(charstr, len);
 }
 
 inline MyGUI::UString convertToMyGUIString(std::wstring str)
 {
-	return MyGUI::UString(str);
+    return MyGUI::UString(str);
 }
 
 inline MyGUI::UString convertToMyGUIString(Ogre::UTFString str)
 {
-	return MyGUI::UString(str.asWStr());
+    return MyGUI::UString(str.asWStr());
 }
 inline Ogre::UTFString convertFromMyGUIString(MyGUI::UString str)
 {
-	return Ogre::UTFString(str.asWStr());
+    return Ogre::UTFString(str.asWStr());
 }
 #endif // USE_MYGUI
 
 
 inline void replaceString(std::string &str, std::string searchString, std::string replaceString)
 {
-	std::string::size_type pos = 0;
-	while ( (pos = str.find(searchString, pos)) != std::string::npos )
-	{
-		str.replace( pos, searchString.size(), replaceString );
-		pos++;
-	}
+    std::string::size_type pos = 0;
+    while ( (pos = str.find(searchString, pos)) != std::string::npos )
+    {
+        str.replace( pos, searchString.size(), replaceString );
+        pos++;
+    }
 }
 
 Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
@@ -119,9 +119,9 @@ namespace Utils
 }
 namespace Color
 {
-	const Ogre::UTFString CommandColour       = Ogre::UTFString("#00FF00");
-	const Ogre::UTFString NormalColour        = Ogre::UTFString("#FFFFFF");
-	const Ogre::UTFString WhisperColour       = Ogre::UTFString("#FFCC00");
-	const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
+    const Ogre::UTFString CommandColour       = Ogre::UTFString("#00FF00");
+    const Ogre::UTFString NormalColour        = Ogre::UTFString("#FFFFFF");
+    const Ogre::UTFString WhisperColour       = Ogre::UTFString("#FFCC00");
+    const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
 }
 }
