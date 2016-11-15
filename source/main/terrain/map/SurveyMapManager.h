@@ -35,83 +35,83 @@ class SurveyMapManager : public wraps::BaseLayout // TODO: public IManager ...
 {
 public:
 
-	SurveyMapManager();
-	~SurveyMapManager();
+    SurveyMapManager();
+    ~SurveyMapManager();
 
-	SurveyMapEntity *createMapEntity(Ogre::String type);
-	SurveyMapEntity *createNamedMapEntity(Ogre::String name, Ogre::String type);
-	SurveyMapEntity *getMapEntityByName(Ogre::String name);
-	void deleteMapEntity(SurveyMapEntity *entity);
-	bool getMapEntitiesVisible() { return mMapEntitiesVisible; };
+    SurveyMapEntity *createMapEntity(Ogre::String type);
+    SurveyMapEntity *createNamedMapEntity(Ogre::String name, Ogre::String type);
+    SurveyMapEntity *getMapEntityByName(Ogre::String name);
+    void deleteMapEntity(SurveyMapEntity *entity);
+    bool getMapEntitiesVisible() { return mMapEntitiesVisible; };
 
-	void setAlpha(float alpha, bool permanent = true);
-	float getAlpha() { return mMainWidget->getAlpha(); }
+    void setAlpha(float alpha, bool permanent = true);
+    float getAlpha() { return mMainWidget->getAlpha(); }
 
-	void setVisibility(bool value);
-	bool getVisibility();
+    void setVisibility(bool value);
+    bool getVisibility();
 
-	void setMapZoom(Ogre::Real zoomValue, bool update = true, bool permanent = true);
-	void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true, bool permanent = true);
-	Ogre::Real getMapZoom() { return mMapZoom; }
+    void setMapZoom(Ogre::Real zoomValue, bool update = true, bool permanent = true);
+    void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true, bool permanent = true);
+    Ogre::Real getMapZoom() { return mMapZoom; }
 
-	void setMapCenter(Ogre::Vector2 position, bool update = true);
-	void setMapCenter(Ogre::Vector3 position, bool update = true);
-	void setMapCenter(Ogre::Vector2 position, float maxOffset, bool update = true);
-	void setMapCenter(Ogre::Vector3 position, float maxOffset, bool update = true);
-	Ogre::Vector2 getMapCenter() { return mMapCenter; };
+    void setMapCenter(Ogre::Vector2 position, bool update = true);
+    void setMapCenter(Ogre::Vector3 position, bool update = true);
+    void setMapCenter(Ogre::Vector2 position, float maxOffset, bool update = true);
+    void setMapCenter(Ogre::Vector3 position, float maxOffset, bool update = true);
+    Ogre::Vector2 getMapCenter() { return mMapCenter; };
 
-	void setMapTexture(Ogre::String name);
+    void setMapTexture(Ogre::String name);
 
-	Ogre::Vector3 getMapSize() { return mMapSize; };
-	int getMapMode() { return mMapMode; };
+    Ogre::Vector3 getMapSize() { return mMapSize; };
+    int getMapMode() { return mMapMode; };
 
-	void windowResized();
-	void setWindowPosition(int x, int y, float size);
-	Ogre::Vector2 getWindowSize() { return Ogre::Vector2(realw, realh); };
+    void windowResized();
+    void setWindowPosition(int x, int y, float size);
+    Ogre::Vector2 getWindowSize() { return Ogre::Vector2(realw, realh); };
 
-	void toggleMapView();
-	void toggleMapAlpha();
+    void toggleMapView();
+    void toggleMapAlpha();
 
-	void update(Ogre::Real dt);
+    void update(Ogre::Real dt);
 
-	static Ogre::String getTypeByDriveable(int driveable);
+    static Ogre::String getTypeByDriveable(int driveable);
 
-	enum SurveyMapTypes { SURVEY_MAP_NONE, SURVEY_MAP_SMALL, SURVEY_MAP_BIG, SURVEY_MAP_END};
+    enum SurveyMapTypes { SURVEY_MAP_NONE, SURVEY_MAP_SMALL, SURVEY_MAP_BIG, SURVEY_MAP_END};
 
-	void Update(Beam ** vehicles, int num_vehicles);
+    void Update(Beam ** vehicles, int num_vehicles);
 
 protected:
 
-	void init();
+    void init();
 
-	Ogre::Real mAlpha, mMapZoom;
+    Ogre::Real mAlpha, mMapZoom;
 
-	Ogre::Vector2 mMapCenter;
-	Ogre::Vector3 mMapSize;
+    Ogre::Vector2 mMapCenter;
+    Ogre::Vector3 mMapSize;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
-	MyGUI::StaticImage* mMapTexture;
+    ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
+    MyGUI::StaticImage* mMapTexture;
 
-	SurveyMapTextureCreator* mMapTextureCreator;
-	bool mMapTextureNeedsUpdate;
+    SurveyMapTextureCreator* mMapTextureCreator;
+    bool mMapTextureNeedsUpdate;
 
-	std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
-	std::set<SurveyMapEntity *> mMapEntities;
-	bool mMapEntitiesVisible;
+    std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
+    std::set<SurveyMapEntity *> mMapEntities;
+    bool mMapEntitiesVisible;
 
-	void updateMapEntityPositions();
-	void setMapEntitiesVisibility(bool visibility);
+    void updateMapEntityPositions();
+    void setMapEntitiesVisibility(bool visibility);
 
-	int mMapMode;
-	float mVelocity;
+    int mMapMode;
+    float mVelocity;
 
-	float mMapCenterThreshold;
+    float mMapCenterThreshold;
 
-	int realw, realh;
-	int rWinLeft, rWinTop;
-	unsigned int rWinWidth, rWinHeight, rWinDepth;
+    int realw, realh;
+    int rWinLeft, rWinTop;
+    unsigned int rWinWidth, rWinHeight, rWinDepth;
 
-	void updateRenderMetrics();
+    void updateRenderMetrics();
 };
 
 #endif // __MAP_CONTROL_H_

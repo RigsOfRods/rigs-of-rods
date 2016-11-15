@@ -30,35 +30,35 @@ class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public Zeroed
 {
 public:
 
-	SurveyMapTextureCreator();
+    SurveyMapTextureCreator();
 
-	Ogre::String getMaterialName();
-	Ogre::String getCameraName();
-	Ogre::String getTextureName();
+    Ogre::String getMaterialName();
+    Ogre::String getCameraName();
+    Ogre::String getTextureName();
 
-	void setStaticGeometry(Ogre::StaticGeometry *staticGeometry);
+    void setStaticGeometry(Ogre::StaticGeometry *staticGeometry);
 
-	void update();
+    void update();
 
 protected:
 
-	bool init();
+    bool init();
 
-	void preRenderTargetUpdate();
+    void preRenderTargetUpdate();
     void postRenderTargetUpdate();
 
-	Ogre::Camera *mCamera;
-	Ogre::MaterialPtr mMaterial;
-	Ogre::RenderTarget *mRttTex;
-	Ogre::StaticGeometry *mStatics;
-	Ogre::TextureUnitState *mTextureUnitState;
-	Ogre::Viewport *mViewport;
+    Ogre::Camera *mCamera;
+    Ogre::MaterialPtr mMaterial;
+    Ogre::RenderTarget *mRttTex;
+    Ogre::StaticGeometry *mStatics;
+    Ogre::TextureUnitState *mTextureUnitState;
+    Ogre::Viewport *mViewport;
 
-	Ogre::Real mMapZoom;
-	Ogre::Vector2 mMapCenter;
-	Ogre::Vector3 mMapSize;
+    Ogre::Real mMapZoom;
+    Ogre::Vector2 mMapCenter;
+    Ogre::Vector3 mMapSize;
 
-	static int mCounter;
+    static int mCounter;
 };
 
 #endif // __SurveyMapTextureCreator_H_

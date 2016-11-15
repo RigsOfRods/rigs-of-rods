@@ -33,50 +33,50 @@ class SurveyMapEntity : public wraps::BaseLayout, public ZeroedMemoryAllocator
 {
 public:
 
-	SurveyMapEntity(SurveyMapManager *ctrl, Ogre::String type, MyGUI::StaticImagePtr parent);
+    SurveyMapEntity(SurveyMapManager *ctrl, Ogre::String type, MyGUI::StaticImagePtr parent);
 
-	Ogre::String getDescription();
-	bool getVisibility();
-	int getState();
+    Ogre::String getDescription();
+    bool getVisibility();
+    int getState();
 
-	void setDescription(Ogre::String s);
-	void setPosition(Ogre::Vector3 pos);
-	void setPosition(float x, float z);
-	void setRotation(Ogre::Quaternion q);
-	void setRotation(Ogre::Radian r);
-	void setState(int state);
-	void setVisibility(bool value);
+    void setDescription(Ogre::String s);
+    void setPosition(Ogre::Vector3 pos);
+    void setPosition(float x, float z);
+    void setRotation(Ogre::Quaternion q);
+    void setRotation(Ogre::Radian r);
+    void setState(int state);
+    void setVisibility(bool value);
 
-	void update();
+    void update();
 
 private:
 
-	void setRotation(Ogre::Real);
+    void setRotation(Ogre::Real);
 
-	MyGUI::StaticImagePtr mParent;
+    MyGUI::StaticImagePtr mParent;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mCaption, "mCaption");
-	MyGUI::StaticText *mCaption;
+    ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mCaption, "mCaption");
+    MyGUI::StaticText *mCaption;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mIcon, "mIcon");
-	MyGUI::StaticImage *mIcon;
-	MyGUI::RotatingSkin *mIconRotating;
+    ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapEntity, mIcon, "mIcon");
+    MyGUI::StaticImage *mIcon;
+    MyGUI::RotatingSkin *mIconRotating;
 
-	enum EntityStates {Activated, Deactivated, Sleeping, Networked, MaxEntityStates};
-	
-	EntityStates mState;
-	SurveyMapManager *mMapControl;
-	MyGUI::IntSize mIconSize;
-	Ogre::Real mRotation;
-	Ogre::Real mX, mZ;
-	Ogre::String mDescription;
-	Ogre::String mType;
-	bool mIsStatic;
+    enum EntityStates {Activated, Deactivated, Sleeping, Networked, MaxEntityStates};
+    
+    EntityStates mState;
+    SurveyMapManager *mMapControl;
+    MyGUI::IntSize mIconSize;
+    Ogre::Real mRotation;
+    Ogre::Real mX, mZ;
+    Ogre::String mDescription;
+    Ogre::String mType;
+    bool mIsStatic;
 
-	void init();
-	void updateIcon();
+    void init();
+    void updateIcon();
 
-	static Ogre::String entityStates[MaxEntityStates];
+    static Ogre::String entityStates[MaxEntityStates];
 };
 
 #endif // __MAP_ENTITY_H_
