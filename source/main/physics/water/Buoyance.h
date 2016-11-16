@@ -28,29 +28,29 @@ class Buoyance : public ZeroedMemoryAllocator
 {
 public:
 
-	Buoyance();
-	~Buoyance();
+    Buoyance();
+    ~Buoyance();
 
-	void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
+    void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
 
-	void setsink(int v);
+    void setsink(int v);
 
-	enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
+    enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
 
 private:
 
-	//compute tetrahedron volume
-	inline float computeVolume(Ogre::Vector3 o, Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c);
+    //compute tetrahedron volume
+    inline float computeVolume(Ogre::Vector3 o, Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c);
 
-	//compute pressure and drag force on a submerged triangle
-	Ogre::Vector3 computePressureForceSub(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
-	
-	//compute pressure and drag forces on a random triangle
-	Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
-	
-	DustPool *splashp, *ripplep;
-	int sink;
-	bool update;
+    //compute pressure and drag force on a submerged triangle
+    Ogre::Vector3 computePressureForceSub(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
+    
+    //compute pressure and drag forces on a random triangle
+    Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
+    
+    DustPool *splashp, *ripplep;
+    int sink;
+    bool update;
 };
 
 #endif // __Buoyance_H_

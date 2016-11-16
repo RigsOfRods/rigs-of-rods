@@ -68,30 +68,30 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
  */
 //! @{
 static inline Ogre::Vector3 nearestPoint(const Ogre::Vector3& pt1,
-		const Ogre::Vector3& pt2,
-		const Ogre::Vector3& tp)
+        const Ogre::Vector3& pt2,
+        const Ogre::Vector3& tp)
 {	
-	const Ogre::Vector3 a = tp - pt1;
-	const Ogre::Vector3 b = fast_normalise(pt2-pt1);
+    const Ogre::Vector3 a = tp - pt1;
+    const Ogre::Vector3 b = fast_normalise(pt2-pt1);
 
-	return pt1 + (a.dotProduct(b)) * b;
+    return pt1 + (a.dotProduct(b)) * b;
 }
 
 static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
-		const Ogre::Vector3& pt2,
-		const Ogre::Vector3& tp)
+        const Ogre::Vector3& pt2,
+        const Ogre::Vector3& tp)
 {	
-	Ogre::Vector3 a = tp - pt1;
-	Ogre::Vector3 b = pt2 - pt1;
-	Ogre::Real len = fast_length(b);
+    Ogre::Vector3 a = tp - pt1;
+    Ogre::Vector3 b = pt2 - pt1;
+    Ogre::Real len = fast_length(b);
 
-	b = fast_normalise(b);
-	len = std::max(0.0f, std::min(a.dotProduct(b), len));	
-	b *= len;
-	
-	a = pt1;
-	a += b;
-	return a;
+    b = fast_normalise(b);
+    len = std::max(0.0f, std::min(a.dotProduct(b), len));	
+    b *= len;
+    
+    a = pt1;
+    a += b;
+    return a;
 }
 //! @}
 
@@ -120,20 +120,20 @@ class Rail : public ZeroedMemoryAllocator
 {
 // Members /////////////////////////////////////////////////////////////////////
 private:
-	/* no private members */
+    /* no private members */
 public:
-	Rail* prev;
-	beam_t* curBeam;
-	Rail* next;
-	
+    Rail* prev;
+    beam_t* curBeam;
+    Rail* next;
+    
 // Methods /////////////////////////////////////////////////////////////////////
 private:
-	/* no private methods */
+    /* no private methods */
 public:
-	Rail();
-	Rail( beam_t* newBeam );
-	Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
-	Rail( Rail& other );
+    Rail();
+    Rail( beam_t* newBeam );
+    Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
+    Rail( Rail& other );
 };
 
 /**
@@ -143,46 +143,46 @@ class RailGroup : public ZeroedMemoryAllocator
 {
 // Members /////////////////////////////////////////////////////////////////////
 public:
-	/* no public members */
+    /* no public members */
 private:
-	Rail*     mStart; //!< Beginning Rail in the Group
-		
-	//! Identification, for anonymous rails (defined inline) the ID will be
-	//! > 7000000, for Rail groups defined int he rail group section the Id
-	//! needs to be less than 7000000
-	unsigned int mId;
-	
-	static unsigned int nextId;
+    Rail*     mStart; //!< Beginning Rail in the Group
+        
+    //! Identification, for anonymous rails (defined inline) the ID will be
+    //! > 7000000, for Rail groups defined int he rail group section the Id
+    //! needs to be less than 7000000
+    unsigned int mId;
+    
+    static unsigned int nextId;
 
 // Methods /////////////////////////////////////////////////////////////////////
 public:
-	RailGroup(Rail* start): mStart(start), mId(nextId) { MYASSERT(mStart); nextId++; }
-	RailGroup(Rail* start, unsigned int id): mStart(start), mId(id) { MYASSERT(mStart); }
+    RailGroup(Rail* start): mStart(start), mId(nextId) { MYASSERT(mStart); nextId++; }
+    RailGroup(Rail* start, unsigned int id): mStart(start), mId(id) { MYASSERT(mStart); }
 
-	const Rail* getStartRail() const { return mStart; }
-	unsigned int getID() const { return mId; }
-	
-	/** clears up all the allocated memory this is intentionally not made into a
-	 * destructor to avoid issues like copying Rails when storing in a container
-	 *  it is assumed that if next is not null then next->prev is not null either
-	 */
-	void cleanUp()
-	{
-		Rail* cur = mStart;
-		if ( cur->prev ) cur->prev = cur->prev->next = NULL;
-		while( cur->next )
-		{
-			cur = cur->next;
-			delete cur->prev;
-			cur->prev = NULL;
-		}
-		
-		delete cur;
-		cur = NULL;
-	}
-	
+    const Rail* getStartRail() const { return mStart; }
+    unsigned int getID() const { return mId; }
+    
+    /** clears up all the allocated memory this is intentionally not made into a
+     * destructor to avoid issues like copying Rails when storing in a container
+     *  it is assumed that if next is not null then next->prev is not null either
+     */
+    void cleanUp()
+    {
+        Rail* cur = mStart;
+        if ( cur->prev ) cur->prev = cur->prev->next = NULL;
+        while( cur->next )
+        {
+            cur = cur->next;
+            delete cur->prev;
+            cur->prev = NULL;
+        }
+        
+        delete cur;
+        cur = NULL;
+    }
+    
 private:
-	/* no private members */
+    /* no private members */
 };
 
 /**
@@ -193,47 +193,47 @@ class RailBuilder : public ZeroedMemoryAllocator
 {
 // Members /////////////////////////////////////////////////////////////////////
 public:
-	/* no public members */
+    /* no public members */
 private:
-	Rail*    mStart;    //! Start of the Rail series
-	Rail*    mFront;    //! Front of the Rail, not necessarily the start
-	Rail*     mBack;    //! Last rail in the series
-	bool      mLoop;    //! Check if rail is to be looped
-	bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
-	
+    Rail*    mStart;    //! Start of the Rail series
+    Rail*    mFront;    //! Front of the Rail, not necessarily the start
+    Rail*     mBack;    //! Last rail in the series
+    bool      mLoop;    //! Check if rail is to be looped
+    bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
+    
 // Methods /////////////////////////////////////////////////////////////////////
 public:
-	// pass a rail value, this class does not manage memory
-	RailBuilder();
-	RailBuilder(Rail* start);
-	~RailBuilder();
-		
-	/**
-	 *
-	 * @param next beam attaches to the last beam in the end of the series
-	 */
-	void pushBack(beam_t* next);
-	/**
-	 *
-	 * @param prev adds another beam to the front of the rail series
-	 */
-	void pushFront(beam_t* prev);
-	
-	//! wrapper method
-	void loopRail(bool doLoop);	
-	void loopRail();
-	void unLoopRail();
-	
-	/**
-	 *
-	 * @return the completed rail, if called before instance goes out of reference
-	 * the internal memory is null referenced, if not the memorey is reclaimed
-	 */
-	Rail* getCompletedRail();
-	
+    // pass a rail value, this class does not manage memory
+    RailBuilder();
+    RailBuilder(Rail* start);
+    ~RailBuilder();
+        
+    /**
+     *
+     * @param next beam attaches to the last beam in the end of the series
+     */
+    void pushBack(beam_t* next);
+    /**
+     *
+     * @param prev adds another beam to the front of the rail series
+     */
+    void pushFront(beam_t* prev);
+    
+    //! wrapper method
+    void loopRail(bool doLoop);	
+    void loopRail();
+    void unLoopRail();
+    
+    /**
+     *
+     * @return the completed rail, if called before instance goes out of reference
+     * the internal memory is null referenced, if not the memorey is reclaimed
+     */
+    Rail* getCompletedRail();
+    
 private:
-	/* no private methods */
-	
+    /* no private methods */
+    
 };
 
 /**
@@ -244,7 +244,7 @@ class SlideNode : public ZeroedMemoryAllocator
 
 // Members /////////////////////////////////////////////////////////////////////
 public:
-	/* no public  members */
+    /* no public  members */
 private:
     node_t*     mSlidingNode; //!< pointer to node that is sliding
     beam_t*     mSlidingBeam; //!< pointer to current beam sliding on
@@ -314,7 +314,7 @@ public:
      */
     unsigned int getRailID() const
     {
-    	return mCurRailGroup ? mCurRailGroup->getID() : std::numeric_limits<unsigned int>::infinity();
+        return mCurRailGroup ? mCurRailGroup->getID() : std::numeric_limits<unsigned int>::infinity();
     }
 
     /**
@@ -323,9 +323,9 @@ public:
      */
     void reset()
     {
-    	mCurRailGroup = mOrgRailGroup;
-    	resetFlag( MASK_SLIDE_BROKEN );
-    	ResetPositions();
+        mCurRailGroup = mOrgRailGroup;
+        resetFlag( MASK_SLIDE_BROKEN );
+        ResetPositions();
     }
 
     /**
@@ -339,8 +339,8 @@ public:
      */
     void setDefaultRail(RailGroup* toAttach)
     {
-    	mOrgRailGroup = mCurRailGroup = toAttach;
-		ResetPositions();
+        mOrgRailGroup = mCurRailGroup = toAttach;
+        ResetPositions();
     }
 
     /**
@@ -349,54 +349,54 @@ public:
      */
     void attachToRail(RailGroup* toAttach)
     {
-		mCurRailGroup = toAttach;
-		ResetPositions();
-		mCurThreshold = (mSlidingBeam ? getLenTo(mSlidingBeam) : mInitThreshold);
+        mCurRailGroup = toAttach;
+        ResetPositions();
+        mCurThreshold = (mSlidingBeam ? getLenTo(mSlidingBeam) : mInitThreshold);
     }
 
 
 
     //! distance from a beam before corrective forces take effect
-	void setThreshold( Ogre::Real threshold ) { mInitThreshold = mCurThreshold = fabs( threshold ); }
-	//! spring force used to calculate corrective forces
-	void setSpringRate( Ogre::Real rate ){ mSpringRate = fabs( rate); }
-	//! Force required to break the Node from the Rail
-	void setBreakForce( Ogre::Real breakRate ) { mBreakForce = fabs( breakRate); }
-	//! how long it will take for springs to fully attach to the Rail
-	void setAttachmentRate( Ogre::Real rate ) { mAttachRate = fabs( rate); }
-	//! maximum distance this spring node is allowed to reach out for a Rail
-	void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist); }
-	
-	//! Distance away from beam before corrective forces begin to act on the node
-	Ogre::Real getThreshold () const { return mCurThreshold; }
-	//! spring force used to calculate corrective forces
-	Ogre::Real getSpringRate() const { return mSpringRate; }
-	//! Force required to break the Node from the Rail
-	Ogre::Real getBreakForce() const { return mBreakForce; }
-	//! how long it will take for springs to fully attach to the Rail
-	Ogre::Real getAttachmentRate() const { return mAttachRate; }
-	//! maximum distance this spring node is allowed to reach out for a Rail
-	Ogre::Real getAttachmentDistance() const { return mAttachDist; }
+    void setThreshold( Ogre::Real threshold ) { mInitThreshold = mCurThreshold = fabs( threshold ); }
+    //! spring force used to calculate corrective forces
+    void setSpringRate( Ogre::Real rate ){ mSpringRate = fabs( rate); }
+    //! Force required to break the Node from the Rail
+    void setBreakForce( Ogre::Real breakRate ) { mBreakForce = fabs( breakRate); }
+    //! how long it will take for springs to fully attach to the Rail
+    void setAttachmentRate( Ogre::Real rate ) { mAttachRate = fabs( rate); }
+    //! maximum distance this spring node is allowed to reach out for a Rail
+    void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist); }
+    
+    //! Distance away from beam before corrective forces begin to act on the node
+    Ogre::Real getThreshold () const { return mCurThreshold; }
+    //! spring force used to calculate corrective forces
+    Ogre::Real getSpringRate() const { return mSpringRate; }
+    //! Force required to break the Node from the Rail
+    Ogre::Real getBreakForce() const { return mBreakForce; }
+    //! how long it will take for springs to fully attach to the Rail
+    Ogre::Real getAttachmentRate() const { return mAttachRate; }
+    //! maximum distance this spring node is allowed to reach out for a Rail
+    Ogre::Real getAttachmentDistance() const { return mAttachDist; }
 
 
-	/**
-	 * Allows slide node to attach to a rail it was not assigned to.
-	 * @param attachMask bit field for attachment rules
-	 */
-	void setAttachRule( unsigned int attachFlag ) { setFlag(attachFlag); }
-	
-	/**
-	 * @param attachFlag
-	 * @return
-	 */
-	bool getAttachRule( unsigned int attachFlag) { return getFlag(attachFlag); }
-	
+    /**
+     * Allows slide node to attach to a rail it was not assigned to.
+     * @param attachMask bit field for attachment rules
+     */
+    void setAttachRule( unsigned int attachFlag ) { setFlag(attachFlag); }
+    
+    /**
+     * @param attachFlag
+     * @return
+     */
+    bool getAttachRule( unsigned int attachFlag) { return getFlag(attachFlag); }
+    
 
-	/**
-	 * @param group
-	 * @param point
-	 * @return value is always positive, if group is null return infinity.
-	 */
+    /**
+     * @param group
+     * @param point
+     * @return value is always positive, if group is null return infinity.
+     */
     static Ogre::Real getLenTo( const RailGroup* group, const Ogre::Vector3& point );
 
     /**

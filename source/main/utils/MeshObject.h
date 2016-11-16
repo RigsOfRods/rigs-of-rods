@@ -31,45 +31,45 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class MeshObject : public Ogre::ResourceBackgroundQueue::Listener, public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
 public:
-	MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode *sceneNode=0, Skin *s=0, bool backgroundLoading=false);
-	~MeshObject();
+    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode *sceneNode=0, Skin *s=0, bool backgroundLoading=false);
+    ~MeshObject();
 
-	void setSimpleMaterialColour(Ogre::ColourValue c);
-	void setMaterialFunctionMapper(MaterialFunctionMapper *m, MaterialReplacer *mr);
-	void setMaterialName(Ogre::String m);
-	void setCastShadows(bool b);
-	void setMeshEnabled(bool e);
-	void setVisible(bool b);
-	Ogre::MeshPtr getMesh() { return mesh; };
-	Ogre::Entity *getEntity() { return ent; };
+    void setSimpleMaterialColour(Ogre::ColourValue c);
+    void setMaterialFunctionMapper(MaterialFunctionMapper *m, MaterialReplacer *mr);
+    void setMaterialName(Ogre::String m);
+    void setCastShadows(bool b);
+    void setMeshEnabled(bool e);
+    void setVisible(bool b);
+    Ogre::MeshPtr getMesh() { return mesh; };
+    Ogre::Entity *getEntity() { return ent; };
 
 protected:
-	MaterialReplacer *mr;
-	Ogre::String meshName;
-	Ogre::String entityName;
-	Ogre::SceneNode *sceneNode;
-	Ogre::Entity *ent;
-	Ogre::MeshPtr mesh;
-	Ogre::BackgroundProcessTicket ticket;
-	bool backgroundLoading;
-	bool loaded;
-	
-	Ogre::ColourValue simpleMatColour;
-	bool enableSimpleMaterial;
-	Ogre::String materialName;
-	Skin *skin;
-	bool castshadows;
-	MaterialFunctionMapper *mfm;
-	bool enabled;
-	bool visible;
+    MaterialReplacer *mr;
+    Ogre::String meshName;
+    Ogre::String entityName;
+    Ogre::SceneNode *sceneNode;
+    Ogre::Entity *ent;
+    Ogre::MeshPtr mesh;
+    Ogre::BackgroundProcessTicket ticket;
+    bool backgroundLoading;
+    bool loaded;
+    
+    Ogre::ColourValue simpleMatColour;
+    bool enableSimpleMaterial;
+    Ogre::String materialName;
+    Skin *skin;
+    bool castshadows;
+    MaterialFunctionMapper *mfm;
+    bool enabled;
+    bool visible;
 
-	void postProcess();
-	void loadMesh();
+    void postProcess();
+    void loadMesh();
 
-	void operationCompleted(Ogre::BackgroundProcessTicket ticket, const Ogre::BackgroundProcessResult& result);
-	void loadingComplete(Ogre::Resource *r);
-	void preparingComplete(Ogre::Resource *r);
-	void unloadingComplete(Ogre::Resource *r);
+    void operationCompleted(Ogre::BackgroundProcessTicket ticket, const Ogre::BackgroundProcessResult& result);
+    void loadingComplete(Ogre::Resource *r);
+    void preparingComplete(Ogre::Resource *r);
+    void unloadingComplete(Ogre::Resource *r);
 };
 
 #endif // __MeshObject_H_

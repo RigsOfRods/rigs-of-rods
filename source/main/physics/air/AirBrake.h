@@ -28,36 +28,36 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class Airbrake : public ZeroedMemoryAllocator
 {
-	friend class RigInspector; // Debug utility class
+    friend class RigInspector; // Debug utility class
 
 private:
 
-	typedef struct
-	{
-		Ogre::Vector3 vertex;
-		Ogre::Vector3 normal;
-		Ogre::Vector2 texcoord;
-	} CoVertice_t;
+    typedef struct
+    {
+        Ogre::Vector3 vertex;
+        Ogre::Vector3 normal;
+        Ogre::Vector2 texcoord;
+    } CoVertice_t;
 
-	Ogre::MeshPtr msh;
-	Ogre::SceneNode *snode;
-	node_t *noderef;
-	node_t *nodex;
-	node_t *nodey;
-	node_t *nodea;
-	Ogre::Vector3 offset;
-	float ratio;
-	float maxangle;
-	float area;
+    Ogre::MeshPtr msh;
+    Ogre::SceneNode *snode;
+    node_t *noderef;
+    node_t *nodex;
+    node_t *nodey;
+    node_t *nodea;
+    Ogre::Vector3 offset;
+    float ratio;
+    float maxangle;
+    float area;
 
-	Ogre::Entity *ec;
+    Ogre::Entity *ec;
 
 public:
-	Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *ndy, node_t *nda, Ogre::Vector3 pos, float width, float length, float maxang, char* texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
-	~Airbrake();
+    Airbrake(char* basename, int num, node_t *ndref, node_t *ndx, node_t *ndy, node_t *nda, Ogre::Vector3 pos, float width, float length, float maxang, char* texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
+    ~Airbrake();
 
-	void updatePosition(float amount);
-	void applyForce();
+    void updatePosition(float amount);
+    void applyForce();
 };
 
 #endif // __AIRBRAKE_H_

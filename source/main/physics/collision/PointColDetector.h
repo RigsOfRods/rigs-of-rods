@@ -27,52 +27,52 @@ class PointColDetector : public ZeroedMemoryAllocator
 {
 public:
 
-	typedef struct _pointid {
-		int nodeid;
-		int truckid;
-	} pointid_t;
+    typedef struct _pointid {
+        int nodeid;
+        int truckid;
+    } pointid_t;
 
-	std::vector< Ogre::Vector3 > *object_list;
-	std::vector< pointid_t* > hit_list;
-	int hit_count;
+    std::vector< Ogre::Vector3 > *object_list;
+    std::vector< pointid_t* > hit_list;
+    int hit_count;
 
-	PointColDetector();
-	~PointColDetector();
+    PointColDetector();
+    ~PointColDetector();
 
-	void update(Beam* truck, bool ignorestate = false);
-	void update(Beam* truck, Beam** trucks, const int numtrucks, bool ignorestate = false);
-	void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
+    void update(Beam* truck, bool ignorestate = false);
+    void update(Beam* truck, Beam** trucks, const int numtrucks, bool ignorestate = false);
+    void query(const Ogre::Vector3 &vec1, const Ogre::Vector3 &vec2, const Ogre::Vector3 &vec3, const float enlargeBB=0.0f);
 
 private:
 
-	typedef struct _refelem {
-		pointid_t* pidref;
-		float* point;
-	} refelem_t;
+    typedef struct _refelem {
+        pointid_t* pidref;
+        float* point;
+    } refelem_t;
 
-	typedef struct _kdnode {
-		float min;
-		int end;
-		float max;
-		refelem_t* ref;
-		float middle;
-		int begin;
-	} kdnode_t;
+    typedef struct _kdnode {
+        float min;
+        int end;
+        float max;
+        refelem_t* ref;
+        float middle;
+        int begin;
+    } kdnode_t;
 
-	int object_list_size;
-	std::vector< Beam* > m_trucks;
+    int object_list_size;
+    std::vector< Beam* > m_trucks;
 
-	std::vector< refelem_t > ref_list;
-	std::vector< pointid_t > pointid_list;
-	std::vector< kdnode_t > kdtree;
+    std::vector< refelem_t > ref_list;
+    std::vector< pointid_t > pointid_list;
+    std::vector< kdnode_t > kdtree;
 
-	Ogre::Vector3 bbmin;
-	Ogre::Vector3 bbmax;
+    Ogre::Vector3 bbmin;
+    Ogre::Vector3 bbmax;
 
-	void queryrec(int kdindex, int axis);
-	void build_kdtree_incr(int axis, int index);
-	void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
-	void update_structures_for_contacters();
+    void queryrec(int kdindex, int axis);
+    void build_kdtree_incr(int axis, int index);
+    void partintwo(const int start, const int median, const int end, const int axis, float &minex, float &maxex);
+    void update_structures_for_contacters();
 };
 
 #endif // __PointColDetector_H_

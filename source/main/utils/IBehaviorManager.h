@@ -28,20 +28,20 @@ class IBehaviorManager : public ZeroedMemoryAllocator
 {
 public:
 
-	virtual ~IBehaviorManager() {}
+    virtual ~IBehaviorManager() {}
 
-	virtual bool update(float dt) = 0;
+    virtual bool update(float dt) = 0;
 
-	virtual void switchBehavior(int newBehavior, bool reset = true) = 0;
-	virtual void switchToNextBehavior(bool force = true) = 0;
-	virtual void toggleBehavior(int behavior) = 0;
+    virtual void switchBehavior(int newBehavior, bool reset = true) = 0;
+    virtual void switchToNextBehavior(bool force = true) = 0;
+    virtual void toggleBehavior(int behavior) = 0;
 
-	virtual bool gameControlsLocked() = 0;
-	virtual bool hasActiveBehavior() = 0;
-	virtual bool hasActiveCharacterBehavior() = 0;
-	virtual bool hasActiveVehicleBehavior() = 0;
+    virtual bool gameControlsLocked() = 0;
+    virtual bool hasActiveBehavior() = 0;
+    virtual bool hasActiveCharacterBehavior() = 0;
+    virtual bool hasActiveVehicleBehavior() = 0;
 
-	virtual int getCurrentBehavior() = 0;
+    virtual int getCurrentBehavior() = 0;
 };
 
 #endif // __I_BehaviorManager_H__

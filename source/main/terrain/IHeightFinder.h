@@ -28,10 +28,10 @@ class IHeightFinder
 {
 public:
 
-	virtual ~IHeightFinder() {}
+    virtual ~IHeightFinder() {}
 
-	virtual float getHeightAt(float x, float z) = 0;
-	virtual Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f) = 0;
+    virtual float getHeightAt(float x, float z) = 0;
+    virtual Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f) = 0;
 };
 
 #endif // __I_HeightFinder_H_

@@ -31,206 +31,206 @@ using namespace Ogre;
 String SurveyMapEntity::entityStates[MaxEntityStates] = {"activated", "deactivated", "sleeping", "networked"};
 
 SurveyMapEntity::SurveyMapEntity(SurveyMapManager *ctrl, String type, MyGUI::StaticImagePtr parent) :
-	  mMapControl(ctrl)
-	, mType(type)
-	, mParent(parent)
-	, mRotation(0)
-	, mState(Sleeping)
-	, mX(0)
-	, mZ(0)
+      mMapControl(ctrl)
+    , mType(type)
+    , mParent(parent)
+    , mRotation(0)
+    , mState(Sleeping)
+    , mX(0)
+    , mZ(0)
 {
-	initialiseByAttributes(this, parent);
+    initialiseByAttributes(this, parent);
 
-	if (mIcon)
-		mIconRotating = mIcon->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(false);
-	else
-		mIconRotating = nullptr;
+    if (mIcon)
+        mIconRotating = mIcon->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(false);
+    else
+        mIconRotating = nullptr;
 
-	init();
+    init();
 }
 
 void SurveyMapEntity::init()
 {
-	// check if static only icon
-	String imageFile = "icon_" + mType + ".dds";
-	String group = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
+    // check if static only icon
+    String imageFile = "icon_" + mType + ".dds";
+    String group = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
 
-	if (ResourceGroupManager::getSingleton().resourceExists(group, imageFile))
-	{
-		//LOG("static map icon found: " + imageFile);
-		mIsStatic = true;
-	} else
-	{
-		LOG("static map icon not found: " + imageFile);
-		mIsStatic = false;
-	}
+    if (ResourceGroupManager::getSingleton().resourceExists(group, imageFile))
+    {
+        //LOG("static map icon found: " + imageFile);
+        mIsStatic = true;
+    } else
+    {
+        LOG("static map icon not found: " + imageFile);
+        mIsStatic = false;
+    }
 
-	setVisibility(false);
+    setVisibility(false);
 
-	updateIcon();
-	update();
+    updateIcon();
+    update();
 }
 
 void SurveyMapEntity::setPosition(Vector3 pos)
 {
-	setPosition(pos.x, pos.z);
+    setPosition(pos.x, pos.z);
 }
 
 void SurveyMapEntity::setPosition(float x, float z)
 {
-	bool needsUpdate = false;
+    bool needsUpdate = false;
 
-	if (fabs(x - mX) > 0.00001f || fabs(z - mZ) > 0.00001f)
-	{
-		needsUpdate = true;
-	}
+    if (fabs(x - mX) > 0.00001f || fabs(z - mZ) > 0.00001f)
+    {
+        needsUpdate = true;
+    }
 
-	mX = x;
-	mZ = z;
+    mX = x;
+    mZ = z;
 
-	if (needsUpdate)
-	{
-		update();
-	}
+    if (needsUpdate)
+    {
+        update();
+    }
 }
 
 void SurveyMapEntity::setRotation(Quaternion q)
 {
-	setRotation(Math::HALF_PI - q.getYaw().valueRadians());
+    setRotation(Math::HALF_PI - q.getYaw().valueRadians());
 }
 
 void SurveyMapEntity::setRotation(Radian r)
 {
-	setRotation(r.valueRadians());
+    setRotation(r.valueRadians());
 }
 
 void SurveyMapEntity::setRotation(Real r)
 {
-	mRotation = r;
-	if (mIconRotating)
-	{
-		mIconRotating->setAngle(-r);
-	}
-	updateIcon();
+    mRotation = r;
+    if (mIconRotating)
+    {
+        mIconRotating->setAngle(-r);
+    }
+    updateIcon();
 }
 
 bool SurveyMapEntity::getVisibility()
 {
-	return mMainWidget->getVisible();
+    return mMainWidget->getVisible();
 }
 
 void SurveyMapEntity::setVisibility(bool value)
 {
-	mMainWidget->setVisible(value);
+    mMainWidget->setVisible(value);
 }
 
 void SurveyMapEntity::setState(int truckstate)
 {
-	if (mIsStatic) return;
+    if (mIsStatic) return;
 
-	EntityStates mapstate = Sleeping;
-	
-	switch (truckstate)
-	{
-		case SIMULATED:
-			mapstate = Activated;
-			break;
-		case NETWORKED:
-			mapstate = Networked;
-		default:
-			mapstate = Sleeping;
-			break;
-	}
+    EntityStates mapstate = Sleeping;
+    
+    switch (truckstate)
+    {
+        case SIMULATED:
+            mapstate = Activated;
+            break;
+        case NETWORKED:
+            mapstate = Networked;
+        default:
+            mapstate = Sleeping;
+            break;
+    }
 
-	if (mState != mapstate)
-	{
-		mState = mapstate;
-		updateIcon();
-		update();
-	}
+    if (mState != mapstate)
+    {
+        mState = mapstate;
+        updateIcon();
+        update();
+    }
 }
 
 int SurveyMapEntity::getState()
 {
-	return mState;
+    return mState;
 }
 
 void SurveyMapEntity::update()
 {
-	if (!mMainWidget->getVisible()) return;
+    if (!mMainWidget->getVisible()) return;
 
-	if (!mMapControl->getMapEntitiesVisible())
-	{
-		mMainWidget->setVisible(false);
-		mIcon->setVisible(false);
-		return;
-	}
+    if (!mMapControl->getMapEntitiesVisible())
+    {
+        mMainWidget->setVisible(false);
+        mIcon->setVisible(false);
+        return;
+    }
 
-	Vector2 terrainSize = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
-	float wscale = mMapControl->getWindowSize().length() / terrainSize.length();
+    Vector2 terrainSize = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
+    float wscale = mMapControl->getWindowSize().length() / terrainSize.length();
 
-	// TODO: Fix the icon positions based on the overview map size and zoom value
-	// TODO: Split visibility calculation and position update into two functions
-	
-	mMainWidget->setPosition(
-		mX / mMapControl->getMapSize().x * mParent->getWidth() - mMainWidget->getWidth() / 2,
-		mZ / mMapControl->getMapSize().z * mParent->getHeight() - mMainWidget->getHeight() / 2
-	);
-	mIcon->setCoord(
-		mMainWidget->getWidth() / 2 - mIconSize.width * wscale / 2,
-		mMainWidget->getHeight() / 2 - mIconSize.height * wscale / 2,
-		mIconSize.width * wscale,
-		mIconSize.height * wscale
-	);
+    // TODO: Fix the icon positions based on the overview map size and zoom value
+    // TODO: Split visibility calculation and position update into two functions
+    
+    mMainWidget->setPosition(
+        mX / mMapControl->getMapSize().x * mParent->getWidth() - mMainWidget->getWidth() / 2,
+        mZ / mMapControl->getMapSize().z * mParent->getHeight() - mMainWidget->getHeight() / 2
+    );
+    mIcon->setCoord(
+        mMainWidget->getWidth() / 2 - mIconSize.width * wscale / 2,
+        mMainWidget->getHeight() / 2 - mIconSize.height * wscale / 2,
+        mIconSize.width * wscale,
+        mIconSize.height * wscale
+    );
 
-	mIcon->setVisible(true);
-	mCaption->setVisible(wscale > 0.5f);
-	mMainWidget->setVisible(wscale > 0.5f);
+    mIcon->setVisible(true);
+    mCaption->setVisible(wscale > 0.5f);
+    mMainWidget->setVisible(wscale > 0.5f);
 }
 
 void SurveyMapEntity::setDescription(String s)
 {
-	mDescription = s;
-	mCaption->setCaption(mDescription);
+    mDescription = s;
+    mCaption->setCaption(mDescription);
 }
 
 String SurveyMapEntity::getDescription()
 {
-	return mDescription;
+    return mDescription;
 }
 
 void SurveyMapEntity::updateIcon()
 {
-	// check if static only icon
-	String imageFile = "icon_" + mType + "_" + entityStates[mState] + ".dds";
+    // check if static only icon
+    String imageFile = "icon_" + mType + "_" + entityStates[mState] + ".dds";
 
-	if (mIsStatic)
-	{
-		imageFile = "icon_" + mType + ".dds";
-	}
+    if (mIsStatic)
+    {
+        imageFile = "icon_" + mType + ".dds";
+    }
 
-	// set image texture to load it into memory, so TextureManager::getByName will have it loaded if files exist
-	mIcon->setImageTexture(imageFile);
+    // set image texture to load it into memory, so TextureManager::getByName will have it loaded if files exist
+    mIcon->setImageTexture(imageFile);
 
-	TexturePtr texture = (TexturePtr)(TextureManager::getSingleton().getByName(imageFile));
-	if (texture.isNull())
-	{
-		imageFile = "icon_missing.dds";
-		texture = (TexturePtr)(TextureManager::getSingleton().getByName(imageFile));
-	}
+    TexturePtr texture = (TexturePtr)(TextureManager::getSingleton().getByName(imageFile));
+    if (texture.isNull())
+    {
+        imageFile = "icon_missing.dds";
+        texture = (TexturePtr)(TextureManager::getSingleton().getByName(imageFile));
+    }
 
-	if (!texture.isNull())
-	{
-		mIconSize.width  = (int)texture->getWidth();
-		mIconSize.height = (int)texture->getHeight();
-		mIcon->setSize(mIconSize);
-	}
-	
-	if (mIconRotating)
-	{
-		mIconRotating->setCenter(MyGUI::IntPoint(mIcon->getWidth()/2, mIcon->getHeight()/2));
-		mIconRotating->setAngle(mRotation);
-	}
+    if (!texture.isNull())
+    {
+        mIconSize.width  = (int)texture->getWidth();
+        mIconSize.height = (int)texture->getHeight();
+        mIcon->setSize(mIconSize);
+    }
+    
+    if (mIconRotating)
+    {
+        mIconRotating->setCenter(MyGUI::IntPoint(mIcon->getWidth()/2, mIcon->getHeight()/2));
+        mIconRotating->setAngle(mRotation);
+    }
 }
 
 #endif // USE_MYGUI

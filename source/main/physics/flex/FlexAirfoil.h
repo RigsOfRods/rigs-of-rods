@@ -29,129 +29,129 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
-	friend class RigInspector; // Debug utility class
+    friend class RigInspector; // Debug utility class
 
 public:
 
-	FlexAirfoil(Ogre::String const & wname, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, char* texband, Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, AeroEngine** tps, bool break_able);
-	~FlexAirfoil();
+    FlexAirfoil(Ogre::String const & wname, node_t *nds, int pnfld, int pnfrd, int pnflu, int pnfru, int pnbld, int pnbrd, int pnblu, int pnbru, char* texband, Ogre::Vector2 texlf, Ogre::Vector2 texrf, Ogre::Vector2 texlb, Ogre::Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, AeroEngine** tps, bool break_able);
+    ~FlexAirfoil();
 
-	Ogre::Vector3 updateVertices();
-	Ogre::Vector3 updateShadowVertices();
-	void setControlDeflection(float val);
+    Ogre::Vector3 updateVertices();
+    Ogre::Vector3 updateShadowVertices();
+    void setControlDeflection(float val);
 
-	Ogre::Vector3 flexit();
+    Ogre::Vector3 flexit();
 
-	void enableInducedDrag(float span, float area, bool l);
+    void enableInducedDrag(float span, float area, bool l);
 
-	void addwash(int propid, float ratio);
+    void addwash(int propid, float ratio);
 
-	void updateForces();
+    void updateForces();
 
-	float aoa;
-	char type;
-	int nfld;
-	int nfrd;
-	int nflu;
-	int nfru;
-	int nbld;
-	int nbrd;
-	int nblu;
-	int nbru;
+    float aoa;
+    char type;
+    int nfld;
+    int nfrd;
+    int nflu;
+    int nfru;
+    int nbld;
+    int nbrd;
+    int nblu;
+    int nbru;
 
-	//	int innan;
-	bool broken;
-	bool breakable;
-	float liftcoef;
+    //	int innan;
+    bool broken;
+    bool breakable;
+    float liftcoef;
 
-	char debug[256];
+    char debug[256];
 
 private:
 
-	float airfoilpos[90];
-	typedef struct
-	{
-		Ogre::Vector3 vertex;
-		Ogre::Vector3 normal;
-	//	Ogre::Vector3 color;
-		Ogre::Vector2 texcoord;
-	} CoVertice_t;
+    float airfoilpos[90];
+    typedef struct
+    {
+        Ogre::Vector3 vertex;
+        Ogre::Vector3 normal;
+    //	Ogre::Vector3 color;
+        Ogre::Vector2 texcoord;
+    } CoVertice_t;
 
-	typedef struct
-	{
-		Ogre::Vector3 vertex;
-	} posVertice_t;
+    typedef struct
+    {
+        Ogre::Vector3 vertex;
+    } posVertice_t;
 
-	typedef struct
-	{
-		Ogre::Vector3 normal;
-	//	Ogre::Vector3 color;
-		Ogre::Vector2 texcoord;
-	} norVertice_t;
+    typedef struct
+    {
+        Ogre::Vector3 normal;
+    //	Ogre::Vector3 color;
+        Ogre::Vector2 texcoord;
+    } norVertice_t;
 
-	Ogre::MeshPtr msh;
-	Ogre::SubMesh* subface;
-	Ogre::SubMesh* subband;
+    Ogre::MeshPtr msh;
+    Ogre::SubMesh* subface;
+    Ogre::SubMesh* subband;
 
-	Ogre::SubMesh* subcup;
-	Ogre::SubMesh* subcdn;
+    Ogre::SubMesh* subcup;
+    Ogre::SubMesh* subcdn;
 
-	Ogre::VertexDeclaration* decl;
-	Ogre::HardwareVertexBufferSharedPtr vbuf;
+    Ogre::VertexDeclaration* decl;
+    Ogre::HardwareVertexBufferSharedPtr vbuf;
 
-	size_t nVertices;
-	size_t vbufCount;
-	//shadow
-	union
-	{
-		float *shadowposvertices;
-		posVertice_t *coshadowposvertices;
-	};
-	union
-	{
-		float *shadownorvertices;
-		norVertice_t *coshadownorvertices;
-	};
-	union
-	{
-		float *vertices;
-		CoVertice_t *covertices;
-	};
-
-
-	size_t faceibufCount;
-	size_t bandibufCount;
-	size_t cupibufCount;
-	size_t cdnibufCount;
-	unsigned short *facefaces;
-	unsigned short *bandfaces;
-	unsigned short *cupfaces;
-	unsigned short *cdnfaces;
-	node_t *nodes;
+    size_t nVertices;
+    size_t vbufCount;
+    //shadow
+    union
+    {
+        float *shadowposvertices;
+        posVertice_t *coshadowposvertices;
+    };
+    union
+    {
+        float *shadownorvertices;
+        norVertice_t *coshadownorvertices;
+    };
+    union
+    {
+        float *vertices;
+        CoVertice_t *covertices;
+    };
 
 
-	float sref;
+    size_t faceibufCount;
+    size_t bandibufCount;
+    size_t cupibufCount;
+    size_t cdnibufCount;
+    unsigned short *facefaces;
+    unsigned short *bandfaces;
+    unsigned short *cupfaces;
+    unsigned short *cdnfaces;
+    node_t *nodes;
 
-	float deflection;
-	float chordratio;
-	bool hascontrol;
-	bool isstabilator;
-	bool stabilleft;
-	float lratio;
-	float rratio;
-	float mindef;
-	float maxdef;
-	float thickness;
-	bool useInducedDrag;
-	float idSpan;
-	float idArea;
-	bool idLeft;
 
-	Airfoil *airfoil;
-	AeroEngine **aeroengines;
-	int free_wash;
-	int washpropnum[MAX_AEROENGINES];
-	float washpropratio[MAX_AEROENGINES];
+    float sref;
+
+    float deflection;
+    float chordratio;
+    bool hascontrol;
+    bool isstabilator;
+    bool stabilleft;
+    float lratio;
+    float rratio;
+    float mindef;
+    float maxdef;
+    float thickness;
+    bool useInducedDrag;
+    float idSpan;
+    float idArea;
+    bool idLeft;
+
+    Airfoil *airfoil;
+    AeroEngine **aeroengines;
+    int free_wash;
+    int washpropnum[MAX_AEROENGINES];
+    float washpropratio[MAX_AEROENGINES];
 };
 
 #endif // __FlexAirfoil_H__

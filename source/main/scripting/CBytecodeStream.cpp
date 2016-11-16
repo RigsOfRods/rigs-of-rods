@@ -23,28 +23,28 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 CBytecodeStream::CBytecodeStream(std::string filename) : f(0)
 {
-	f = fopen(filename.c_str(), "wb");
+    f = fopen(filename.c_str(), "wb");
 }
 
 CBytecodeStream::~CBytecodeStream()
 {
-	if (f)
-		fclose(f);
+    if (f)
+        fclose(f);
 }
 
 void CBytecodeStream::Write(const void *ptr, AngelScript::asUINT size)
 {
-	if (!f) return;
-	size_t result = fwrite(ptr, size, 1, f);
+    if (!f) return;
+    size_t result = fwrite(ptr, size, 1, f);
 }
 
 void CBytecodeStream::Read(void *ptr, AngelScript::asUINT size)
 {
-	if (!f) return;
-	size_t result = fread(ptr, size, 1, f);
+    if (!f) return;
+    size_t result = fread(ptr, size, 1, f);
 }
 
 bool CBytecodeStream::Existing()
 {
-	return (f != 0);
+    return (f != 0);
 }

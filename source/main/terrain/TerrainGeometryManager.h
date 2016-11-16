@@ -38,79 +38,79 @@ class TerrainGeometryManager : public ZeroedMemoryAllocator, public IHeightFinde
 {
 public:
 
-	TerrainGeometryManager(TerrainManager *terrainManager);
-	~TerrainGeometryManager();
+    TerrainGeometryManager(TerrainManager *terrainManager);
+    ~TerrainGeometryManager();
 
-	void loadOgreTerrainConfig(Ogre::String filename);
+    void loadOgreTerrainConfig(Ogre::String filename);
 
-	Ogre::TerrainGroup *getTerrainGroup() { return mTerrainGroup; };
+    Ogre::TerrainGroup *getTerrainGroup() { return mTerrainGroup; };
 
-	float getHeightAt(float x, float z);
-	float getHeightAtPoint(long x, long z);
-	float getHeightAtTerrainPosition(float x, float z);
-	float getHeightAtWorldPosition(float x, float z);
-	void getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align, Ogre::Vector3* outWSpos);
+    float getHeightAt(float x, float z);
+    float getHeightAtPoint(long x, long z);
+    float getHeightAtTerrainPosition(float x, float z);
+    float getHeightAtWorldPosition(float x, float z);
+    void getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align, Ogre::Vector3* outWSpos);
 
-	Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
+    Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
 
-	Ogre::String getCompositeMaterialName();
+    Ogre::String getCompositeMaterialName();
 
-	Ogre::Vector3 getMaxTerrainSize();
-	Ogre::Vector3 getTerrainPosition();
+    Ogre::Vector3 getMaxTerrainSize();
+    Ogre::Vector3 getTerrainPosition();
 
-	bool update(float dt);
-	void updateLightMap();
+    bool update(float dt);
+    void updateLightMap();
 
 protected:
 
-	RoR::ConfigFile m_terrain_config;
-	Ogre::String baseName;
-	Ogre::String pageConfigFormat;
-	TerrainManager *terrainManager;
-	TerrainObjectManager *objectManager;
-	bool disableCaching;
-	bool mTerrainsImported;
+    RoR::ConfigFile m_terrain_config;
+    Ogre::String baseName;
+    Ogre::String pageConfigFormat;
+    TerrainManager *terrainManager;
+    TerrainObjectManager *objectManager;
+    bool disableCaching;
+    bool mTerrainsImported;
 
-	int mapsizex, mapsizey, mapsizez, pageSize, terrainSize, worldSize;
-	int pageMinX, pageMaxX, pageMinZ, pageMaxZ;
-	int terrainLayers;
+    int mapsizex, mapsizey, mapsizez, pageSize, terrainSize, worldSize;
+    int pageMinX, pageMaxX, pageMinZ, pageMaxZ;
+    int terrainLayers;
 
-	Ogre::Vector3 terrainPos;
+    Ogre::Vector3 terrainPos;
 
-	bool m_is_flat;
-	Ogre::Terrain* mTerrain;
+    bool m_is_flat;
+    Ogre::Terrain* mTerrain;
 
-	Ogre::Terrain::Alignment mAlign;
-	Ogre::Vector3 mPos;
-	Ogre::Real mBase;
-	Ogre::Real mScale;
-	Ogre::uint16 mSize;
-	Ogre::Real mWorldSize;
-	float* mHeightData;
+    Ogre::Terrain::Alignment mAlign;
+    Ogre::Vector3 mPos;
+    Ogre::Real mBase;
+    Ogre::Real mScale;
+    Ogre::uint16 mSize;
+    Ogre::Real mWorldSize;
+    float* mHeightData;
 
-	// terrain engine specific
-	Ogre::TerrainGroup *mTerrainGroup;
-	Ogre::TerrainPaging* mTerrainPaging;
-	Ogre::PageManager* mPageManager;
+    // terrain engine specific
+    Ogre::TerrainGroup *mTerrainGroup;
+    Ogre::TerrainPaging* mTerrainPaging;
+    Ogre::PageManager* mPageManager;
 
-	typedef struct blendLayerInfo_t {
-		Ogre::String blendMapTextureFilename;
-		char blendMode;
-		float alpha;
-	} blendLayerInfo_t;
+    typedef struct blendLayerInfo_t {
+        Ogre::String blendMapTextureFilename;
+        char blendMode;
+        float alpha;
+    } blendLayerInfo_t;
 
-	std::vector<blendLayerInfo_t> blendInfo;
+    std::vector<blendLayerInfo_t> blendInfo;
 
-	bool getTerrainImage(int x, int y, Ogre::Image& img);
-	bool loadTerrainConfig(Ogre::String filename);
-	void configureTerrainDefaults();
-	void defineTerrain(int x, int y, bool flat=false);
-	void initBlendMaps(int x, int y, Ogre::Terrain* t );
-	void initTerrain();
-	void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
-	Ogre::String getPageConfigFilename(int x, int z);
-	Ogre::String getPageHeightmap(int x, int z);
-	Ogre::DataStreamPtr getPageConfig(int x, int z);
+    bool getTerrainImage(int x, int y, Ogre::Image& img);
+    bool loadTerrainConfig(Ogre::String filename);
+    void configureTerrainDefaults();
+    void defineTerrain(int x, int y, bool flat=false);
+    void initBlendMaps(int x, int y, Ogre::Terrain* t );
+    void initTerrain();
+    void loadLayers(int x, int y, Ogre::Terrain *terrain = 0);
+    Ogre::String getPageConfigFilename(int x, int z);
+    Ogre::String getPageHeightmap(int x, int z);
+    Ogre::DataStreamPtr getPageConfig(int x, int z);
 };
 
 #endif // __TerrainGeometryManager_H_

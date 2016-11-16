@@ -582,11 +582,11 @@ CSimpleOptTempl<SOCHAR>::Init(
     m_pszClump       = NULL;
 
 #ifdef SO_MAX_ARGS
-	if (m_argc > SO_MAX_ARGS) {
+    if (m_argc > SO_MAX_ARGS) {
         m_nLastError = SO_ARG_INVALID_DATA;
         m_nLastArg = 0;
-		return false;
-	}
+        return false;
+    }
 #else
     if (m_rgShuffleBuf) {
         free(m_rgShuffleBuf);

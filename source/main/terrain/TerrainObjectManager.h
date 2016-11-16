@@ -37,110 +37,110 @@ class TerrainObjectManager : public ZeroedMemoryAllocator
 {
 public:
 
-	TerrainObjectManager(TerrainManager *terrainManager);
-	~TerrainObjectManager();
+    TerrainObjectManager(TerrainManager *terrainManager);
+    ~TerrainObjectManager();
 
-	void loadObjectConfigFile(Ogre::String filename);
+    void loadObjectConfigFile(Ogre::String filename);
 
-	void loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
-	void moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
-	void unloadObject(const Ogre::String &instancename);
+    void loadObject(const Ogre::String &name, const Ogre::Vector3 &pos, const Ogre::Vector3 &rot, Ogre::SceneNode *bakeNode, const Ogre::String &instancename, const Ogre::String &type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    void moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
+    void unloadObject(const Ogre::String &instancename);
 
-	void loadPreloadedTrucks();
-	bool hasPreloadedTrucks() { return !truck_preload.empty(); };
+    void loadPreloadedTrucks();
+    bool hasPreloadedTrucks() { return !truck_preload.empty(); };
 
-	void postLoad();
+    void postLoad();
 
-	bool updateAnimatedObjects(float dt);
+    bool updateAnimatedObjects(float dt);
 
-	typedef struct localizer_t
-	{
-		int type;
-		Ogre::Vector3 position;
-		Ogre::Quaternion rotation;
-	} localizer_t;
+    typedef struct localizer_t
+    {
+        int type;
+        Ogre::Vector3 position;
+        Ogre::Quaternion rotation;
+    } localizer_t;
 
-	typedef struct object_t
-	{
-		Ogre::String name;
-		Ogre::Vector3 position;
-		Ogre::Vector3 rotation;
-		Ogre::Vector3 initial_position;
-		Ogre::Vector3 initial_rotation;
-		Ogre::SceneNode *node;
-	} object_t;
+    typedef struct object_t
+    {
+        Ogre::String name;
+        Ogre::Vector3 position;
+        Ogre::Vector3 rotation;
+        Ogre::Vector3 initial_position;
+        Ogre::Vector3 initial_rotation;
+        Ogre::SceneNode *node;
+    } object_t;
 
-	std::vector<object_t> getObjects() { return objects; };
+    std::vector<object_t> getObjects() { return objects; };
 
-	bool update(float dt);
+    bool update(float dt);
 
 protected:
 
-	TerrainManager *terrainManager;
+    TerrainManager *terrainManager;
 
-	typedef struct
-	{
-		Ogre::Entity *ent;
-		Ogre::SceneNode *node;
-		Ogre::AnimationState *anim;
-		float speedfactor;
-	} animated_object_t;
+    typedef struct
+    {
+        Ogre::Entity *ent;
+        Ogre::SceneNode *node;
+        Ogre::AnimationState *anim;
+        float speedfactor;
+    } animated_object_t;
 
-	Ogre::StaticGeometry *bakesg;
-	ProceduralManager *proceduralManager;
+    Ogre::StaticGeometry *bakesg;
+    ProceduralManager *proceduralManager;
 
-	Road *road;
-	Ogre::SceneNode *bakeNode;
+    Road *road;
+    Ogre::SceneNode *bakeNode;
 
-	typedef struct
-	{
-		float px;
-		float py;
-		float pz;
-		Ogre::Quaternion rotation;
-		char name[256];
-		bool ismachine;
-		bool freePosition;
-	} truck_prepare_t;
+    typedef struct
+    {
+        float px;
+        float py;
+        float pz;
+        Ogre::Quaternion rotation;
+        char name[256];
+        bool ismachine;
+        bool freePosition;
+    } truck_prepare_t;
 
-	std::vector<truck_prepare_t> truck_preload;
+    std::vector<truck_prepare_t> truck_preload;
 
-	bool background_loading;
-	bool use_rt_shader_system;
+    bool background_loading;
+    bool use_rt_shader_system;
 
 #ifdef USE_PAGED
-	typedef struct
-	{
-		Forests::PagedGeometry *geom;
-		void *loader;
-	} paged_geometry_t;
+    typedef struct
+    {
+        Forests::PagedGeometry *geom;
+        void *loader;
+    } paged_geometry_t;
 
-	std::vector<paged_geometry_t> pagedGeometry;
-	Forests::TreeLoader2D *treeLoader;
+    std::vector<paged_geometry_t> pagedGeometry;
+    Forests::TreeLoader2D *treeLoader;
 #endif //USE_PAGED
 
-	localizer_t localizers[64];
+    localizer_t localizers[64];
 
-	int objcounter;
-	int free_localizer;
+    int objcounter;
+    int free_localizer;
 
-	std::vector<animated_object_t> animatedObjects;
-	std::vector<MeshObject*> meshObjects;
+    std::vector<animated_object_t> animatedObjects;
+    std::vector<MeshObject*> meshObjects;
 
-	typedef struct loadedObject_t
-	{
-		Ogre::SceneNode *sceneNode;
-		Ogre::String instanceName;
-		bool enabled;
-		std::vector <int> collBoxes;
-		std::vector <int> collTris;
-	} loadedObject_t;
+    typedef struct loadedObject_t
+    {
+        Ogre::SceneNode *sceneNode;
+        Ogre::String instanceName;
+        bool enabled;
+        std::vector <int> collBoxes;
+        std::vector <int> collTris;
+    } loadedObject_t;
 
-	std::map< std::string, loadedObject_t> loadedObjects;
+    std::map< std::string, loadedObject_t> loadedObjects;
 
-	std::vector< object_t > objects;
+    std::vector< object_t > objects;
 
-	void proceduralTests();
+    void proceduralTests();
 };
 
 #endif // __TerrainObjectManager_H_

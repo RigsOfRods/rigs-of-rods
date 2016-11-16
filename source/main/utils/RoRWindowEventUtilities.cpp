@@ -24,10 +24,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // same as original but with user triggerable events
 void RoRWindowEventUtilities::triggerResize(Ogre::RenderWindow *win)
 {
-	WindowEventListeners::iterator index,
-			start = _msListeners.lower_bound(win),
-			end = _msListeners.upper_bound(win);
-	win->windowMovedOrResized();
-	for (index = start; index != end; ++index)
-		(index->second)->windowResized(win);
+    WindowEventListeners::iterator index,
+            start = _msListeners.lower_bound(win),
+            end = _msListeners.upper_bound(win);
+    win->windowMovedOrResized();
+    for (index = start; index != end; ++index)
+        (index->second)->windowResized(win);
 }

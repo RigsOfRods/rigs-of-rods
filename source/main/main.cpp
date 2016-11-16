@@ -1,22 +1,22 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Application.h"
@@ -58,14 +58,14 @@ extern "C" {
 
 void showUsage()
 {
-	ErrorUtils::ShowInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
+    ErrorUtils::ShowInfo(_L("Command Line Arguments"), _L("--help (this)\n-map <map> (loads map on startup)\n-truck <truck> (loads truck on startup)\n-setup shows the ogre configurator\n-version shows the version information\n-enter enters the selected truck\n-userpath <path> sets the user directory\nFor example: RoR.exe -map oahu -truck semi"));
 }
 
 void showVersion()
 {
-	ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
+    ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
 #ifdef __GNUC__
-	printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif //__GNUC__
 }
 
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-	App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
+    App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
 
     // -------------------------------
     // Process command-line arguments
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 {
-	return main(__argc, __argv);
+    return main(__argc, __argv);
 }
 #endif
 

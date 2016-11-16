@@ -1406,7 +1406,7 @@ void Parser::ParseDirectiveSetNodeDefaults()
 
 void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
 {
-	options = 0;
+    options = 0;
 
     for (unsigned int i = 0; i < options_str.length(); i++)
     {
@@ -1510,7 +1510,7 @@ void Parser::ParseDirectiveSetBeamDefaults()
     if (m_num_args > 6) { d.beam_material_name     = this->GetArgStr  (6); }
     if (m_num_args > 7) { d.plastic_deform_coef    = this->GetArgFloat(7); }
 
-	if (m_num_args > 7 && d.plastic_deform_coef >= 0.0f) { d._is_plastic_deform_coef_user_defined = true; }
+    if (m_num_args > 7 && d.plastic_deform_coef >= 0.0f) { d._is_plastic_deform_coef_user_defined = true; }
 
     if (d.springiness           < 0.f) { d.springiness           = DEFAULT_SPRING;                              }
     if (d.damping_constant      < 0.f) { d.damping_constant      = DEFAULT_DAMP;                                }

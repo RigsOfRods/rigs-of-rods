@@ -62,27 +62,27 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<LanguageEngine>;
+    friend class RoRSingleton<LanguageEngine>;
 
 public:
     void setup();
-	void postSetup();
-	Ogre::UTFString lookUp(Ogre::String name);
+    void postSetup();
+    Ogre::UTFString lookUp(Ogre::String name);
 
-	Ogre::String getMyGUIFontConfigFilename();
+    Ogre::String getMyGUIFontConfigFilename();
 
 protected:
-	LanguageEngine();
-	~LanguageEngine();
-	LanguageEngine(const LanguageEngine&);
-	LanguageEngine& operator= (const LanguageEngine&);
-	Ogre::String myguiConfigFilename;
-	static LanguageEngine* myInstance;
-	bool working;
+    LanguageEngine();
+    ~LanguageEngine();
+    LanguageEngine(const LanguageEngine&);
+    LanguageEngine& operator= (const LanguageEngine&);
+    Ogre::String myguiConfigFilename;
+    static LanguageEngine* myInstance;
+    bool working;
 #ifdef USE_MOFILEREADER
-	moFileLib::moFileReader *reader;
+    moFileLib::moFileReader *reader;
 #endif // MOFILEREADER
-	void setupCodeRanges(Ogre::String codeRangesFilename, Ogre::String codeRangesGroupname);
+    void setupCodeRanges(Ogre::String codeRangesFilename, Ogre::String codeRangesGroupname);
 };
 
 #endif // NOLANG

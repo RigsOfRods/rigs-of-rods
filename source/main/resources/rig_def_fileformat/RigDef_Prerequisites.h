@@ -27,7 +27,7 @@
 
 namespace Ogre
 {
-    class DataStream;
+	class DataStream;
 }
 
 namespace RigDef

@@ -1,27 +1,27 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2013-2016 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2013-2016 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
-	@file   Application.h
-	@author Petr Ohlidal
-	@date   05/2014
-	@brief  Central state/object manager and communications hub.
+    @file   Application.h
+    @author Petr Ohlidal
+    @date   05/2014
+    @brief  Central state/object manager and communications hub.
 */
 
 #pragma once

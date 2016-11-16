@@ -27,13 +27,13 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class Flexable
 {
 public:
-	virtual ~Flexable() {};
+    virtual ~Flexable() {};
 
-	virtual bool flexitPrepare() = 0;
-	virtual void flexitCompute() = 0;
-	virtual Ogre::Vector3 flexitFinal() = 0;
+    virtual bool flexitPrepare() = 0;
+    virtual void flexitCompute() = 0;
+    virtual Ogre::Vector3 flexitFinal() = 0;
 
-	virtual void setVisible(bool visible) = 0;
+    virtual void setVisible(bool visible) = 0;
 };
 
 #endif // __Flexable_H_

@@ -29,7 +29,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 class RoRWindowEventUtilities : public Ogre::WindowEventUtilities, public ZeroedMemoryAllocator
 {
 public:
-	static void triggerResize(Ogre::RenderWindow* window);
+    static void triggerResize(Ogre::RenderWindow* window);
 };
 
 #endif //RORWINDOWEVENTUTILITIES_H__
