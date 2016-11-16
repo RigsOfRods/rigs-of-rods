@@ -29,18 +29,18 @@ class Airfoil : public ZeroedMemoryAllocator
 {
 public:
 
-	/**
-	* Parses the airfoil from file.
-	* @param fname File name (X-Plane's .AFL file format)
-	*/
-	Airfoil(Ogre::String const & fname);
-	~Airfoil();
+    /**
+    * Parses the airfoil from file.
+    * @param fname File name (X-Plane's .AFL file format)
+    */
+    Airfoil(Ogre::String const & fname);
+    ~Airfoil();
 
-	void getparams(float a, float cratio, float cdef, float* ocl, float* ocd, float* ocm);
+    void getparams(float a, float cratio, float cdef, float* ocl, float* ocd, float* ocm);
 
 private:
 
-	float cl[3601];
-	float cd[3601];
-	float cm[3601];
+    float cl[3601];
+    float cd[3601];
+    float cm[3601];
 };
