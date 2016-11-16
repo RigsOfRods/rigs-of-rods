@@ -537,6 +537,7 @@ void CLASS::SaveSettings()
     App::SetAudioDeviceName  (_(m_audio_dev            ->getCaption()));
 
     App::GetSettings().setSetting("SpeedUnit", m_speed_unit->getCaption());
+	App::SetAudioMasterVolume(m_volume_slider->getScrollPosition());
 
     // Checkboxes
     App::SetGfxParticlesMode((int)m_psystem                ->getStateCheck());
