@@ -1,31 +1,27 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2009 Lefteris Stamatogiannakis
+    This source file is part of Rigs of Rods
+    Copyright 2009 Lefteris Stamatogiannakis
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-/*
- * File:   ApproxMath.h
- * Author: estama
- *
- * Created on April 6, 2009, 2:57 AM
- */
+
+/// @file
+/// @author estama
+/// @date   April 6, 2009, 2:57 AM
 
 #pragma once
-#ifndef __APPROXMATH_H_
-#define __APPROXMATH_H_
 
 #include "RoRPrerequisites.h"
 
@@ -167,4 +163,3 @@ inline float fast_length(Ogre::Vector3 v)
     return fast_sqrt(v.squaredLength());
 }
 
-#endif // __APPROXMATH_H_
