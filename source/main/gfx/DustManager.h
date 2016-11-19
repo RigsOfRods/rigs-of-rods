@@ -1,23 +1,26 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by Thomas Fischer thomas{AT}thomasfischer{DOT}biz, 12th of October 2009
+
+/// @file
+/// @author Thomas Fischer
+/// @date   12th of October 2009
 
 #pragma once
 
@@ -29,26 +32,26 @@ class DustManager : public ZeroedMemoryAllocator
 {
 public:
 
-    DustManager(): 
+    DustManager():
         mEnabled(false),
         m_is_initialised(false)
-    {}
-	
+    {
+    }
+
     void CheckAndInit();
     void Shutdown();
 
-	DustPool *getGroundModelDustPool(ground_model_t *g);
-	
-	void update();
+    DustPool* getGroundModelDustPool(ground_model_t* g);
 
-	void setVisible(bool visible);
+    void update();
 
-	DustPool *getDustPool(Ogre::String name);
-	
+    void setVisible(bool visible);
+
+    DustPool* getDustPool(Ogre::String name);
+
 protected:
 
-	bool mEnabled;
+    bool mEnabled;
     bool m_is_initialised;
-	std::map < Ogre::String , DustPool * > dustpools;
+    std::map<Ogre::String, DustPool *> dustpools;
 };
-

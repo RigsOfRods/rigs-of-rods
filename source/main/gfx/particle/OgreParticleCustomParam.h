@@ -4,17 +4,21 @@
 
 #include <OgreParticle.h>
 
-namespace Ogre
+namespace Ogre {
+/// custom visual data for shader renderer
+class ParticleCustomParam : public ParticleVisualData
 {
-	/// custom visual data for shader renderer
-	class ParticleCustomParam : public ParticleVisualData
-	{
-	public:
-		ParticleCustomParam() : paramValue(0, 0, 0, 0) {}
-		virtual ~ParticleCustomParam() {}
+public:
+    ParticleCustomParam() : paramValue(0, 0, 0, 0)
+    {
+    }
 
-		Vector4		paramValue;
-	};
+    virtual ~ParticleCustomParam()
+    {
+    }
+
+    Vector4 paramValue;
+};
 }
 
 #endif // __OGRE_PARTICLE_CUSTOM_PARAM_H__

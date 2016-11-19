@@ -1,27 +1,28 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created by thomas{AT}thomasfischer{DOT}biz, 5th of July 2010
+
+/// @file
+/// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
+/// @date   5th of July 2010
 
 #pragma once
-#ifndef __ShadowManager_H_
-#define __ShadowManager_H_
 
 #include <OgreTerrain.h>
 #include <OgreShadowCameraSetupPSSM.h>
@@ -35,41 +36,38 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 //Store datas using structs
 struct PSSM_Shadows_Data
 {
-	Ogre::ShadowCameraSetupPtr mPSSMSetup;
-	bool mDepthShadows;
-	int ShadowsTextureNum;
-	int Quality;
-	float lambda;
+    Ogre::ShadowCameraSetupPtr mPSSMSetup;
+    bool mDepthShadows;
+    int ShadowsTextureNum;
+    int Quality;
+    float lambda;
 };
 
 class ShadowManager : public ZeroedMemoryAllocator
 {
 public:
 
-	ShadowManager();
-	~ShadowManager();
+    ShadowManager();
+    ~ShadowManager();
 
-	void loadConfiguration();
+    void loadConfiguration();
 
-	void updatePSSM();
+    void updatePSSM();
 
-	void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
+    void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
 
-	int getShadowsType() { return ShadowsType; }
+    int getShadowsType() { return ShadowsType; }
 
 protected:
 
-	void processTextureShadows();
+    void processTextureShadows();
 
-	void processPSSM();
-	void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
+    void processPSSM();
+    void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 
-	int updateShadowTechnique();
+    int updateShadowTechnique();
 
-	int ShadowsType;
+    int ShadowsType;
 
-	PSSM_Shadows_Data PSSM_Shadows;
+    PSSM_Shadows_Data PSSM_Shadows;
 };
-
-
-#endif // __ShadowManager_H_
