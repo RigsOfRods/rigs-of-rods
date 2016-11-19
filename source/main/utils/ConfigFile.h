@@ -31,8 +31,7 @@
 #include <OgreColourValue.h>
 #include <OgreString.h>
 
-namespace RoR
-{
+namespace RoR {
 
 /** Adds direct parsing of custom types.
 */
@@ -40,35 +39,40 @@ class ConfigFile: public Ogre::ConfigFile
 {
 public:
 
-    Ogre::ColourValue GetColourValue(Ogre::String const & key, Ogre::ColourValue const & defaultValue = Ogre::ColourValue())
+    Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::ColourValue const& defaultValue = Ogre::ColourValue())
     {
         return this->GetColourValue(key, Ogre::StringUtil::BLANK, defaultValue);
     }
-    Ogre::ColourValue GetColourValue(Ogre::String const & key, Ogre::String const & section, Ogre::ColourValue const & defaultValue = Ogre::ColourValue());
 
-    float GetFloat(Ogre::String const & key, float defaultValue = 0.f)
+    Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue = Ogre::ColourValue());
+
+    float GetFloat(Ogre::String const& key, float defaultValue = 0.f)
     {
         return this->GetFloat(key, Ogre::StringUtil::BLANK, defaultValue);
     }
-    float GetFloat(Ogre::String const & key, Ogre::String const & section, float defaultValue = 0.f);
 
-    bool GetBool(Ogre::String const & key, bool defaultValue = false)
+    float GetFloat(Ogre::String const& key, Ogre::String const& section, float defaultValue = 0.f);
+
+    bool GetBool(Ogre::String const& key, bool defaultValue = false)
     {
         return this->GetBool(key, Ogre::StringUtil::BLANK, defaultValue);
     }
-    bool GetBool(Ogre::String const & key, Ogre::String const & section, bool defaultValue = false);
 
-    int GetInt(Ogre::String const & key, int defaultValue = 0)
+    bool GetBool(Ogre::String const& key, Ogre::String const& section, bool defaultValue = false);
+
+    int GetInt(Ogre::String const& key, int defaultValue = 0)
     {
         return this->GetInt(key, Ogre::StringUtil::BLANK, defaultValue);
     }
-    int GetInt(Ogre::String const & key, Ogre::String const & section, int defaultValue = 0);
 
-    Ogre::String GetString(Ogre::String const & key, Ogre::String const & defaultValue = "")
+    int GetInt(Ogre::String const& key, Ogre::String const& section, int defaultValue = 0);
+
+    Ogre::String GetString(Ogre::String const& key, Ogre::String const& defaultValue = "")
     {
         return this->GetStringEx(key, Ogre::StringUtil::BLANK, defaultValue);
     }
-    Ogre::String GetStringEx(Ogre::String const & key, Ogre::String const & section, Ogre::String const & defaultValue = "");
+
+    Ogre::String GetStringEx(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue = "");
 
     void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK);
 

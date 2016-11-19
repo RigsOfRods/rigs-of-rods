@@ -1,27 +1,29 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013+     Petr Ohlidal & contributors
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-// created: 12th of January 2009, thomas fischer thomas{AT}thomasfischer{DOT}biz
+
+/// @file
+/// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
+/// @date    12th of January 2009
 
 #pragma once
-#ifndef __language_h__
-#define __language_h__
 
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
@@ -57,33 +59,32 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 # define _L(str) gettext(str)
 #endif //MOFILEREADER
 
-
 #define MOFILENAME "ror"
 
 class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<LanguageEngine>;
+    friend class RoRSingleton<LanguageEngine>;
 
 public:
     void setup();
-	void postSetup();
-	Ogre::UTFString lookUp(Ogre::String name);
+    void postSetup();
+    Ogre::UTFString lookUp(Ogre::String name);
 
-	Ogre::String getMyGUIFontConfigFilename();
+    Ogre::String getMyGUIFontConfigFilename();
 
 protected:
-	LanguageEngine();
-	~LanguageEngine();
-	LanguageEngine(const LanguageEngine&);
-	LanguageEngine& operator= (const LanguageEngine&);
-	Ogre::String myguiConfigFilename;
-	static LanguageEngine* myInstance;
-	bool working;
+    LanguageEngine();
+    ~LanguageEngine();
+    LanguageEngine(const LanguageEngine&);
+    LanguageEngine& operator=(const LanguageEngine&);
+    Ogre::String myguiConfigFilename;
+    static LanguageEngine* myInstance;
+    bool working;
 #ifdef USE_MOFILEREADER
-	moFileLib::moFileReader *reader;
+    moFileLib::moFileReader* reader;
 #endif // MOFILEREADER
-	void setupCodeRanges(Ogre::String codeRangesFilename, Ogre::String codeRangesGroupname);
+    void setupCodeRanges(Ogre::String codeRangesFilename, Ogre::String codeRangesGroupname);
 };
 
 #endif // NOLANG
-#endif // __language_h__
+
