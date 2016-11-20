@@ -7,6 +7,7 @@ set(ROR_USE_CAELUM       "TRUE" CACHE BOOL "use caelum sky")
 set(ROR_USE_ANGELSCRIPT  "TRUE" CACHE BOOL "use angel script")
 set(ROR_USE_CURL         "TRUE" CACHE BOOL "use curl, required for communication with online services")
 set(ROR_USE_JSONCPP      "TRUE" CACHE BOOL "use jsoncpp")
+set(ROR_USE_CRASHRPT 	 "FALSE" CACHE BOOL "use crash report tool")
 
 
 # some obsolete options:
@@ -168,8 +169,8 @@ endmacro(importLib)
 
 	if(ROR_USE_CRASHRPT)
 		set(CRASHRPT_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/CrashRpt" CACHE PATH "The CrashRpt include path to use")
-		set(CRASHRPT_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/CrashRpt" CACHE PATH "The CrashRpt lib path to use")
-		set(CRASHRPT_LIBRARIES    "CrashRpt1300.lib" CACHE STRING "The CrashRpt lib to link against")
+		importLib(CrashRpt CrashRpt)
+		set(CRASHRPT_LIBRARIES    "CrashRpt" CACHE STRING "The CrashRpt lib to link against")
 	endif(ROR_USE_CRASHRPT)
 
 	if(ROR_USE_ANGELSCRIPT)
