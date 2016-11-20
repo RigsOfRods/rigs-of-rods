@@ -28,11 +28,13 @@
 
 #pragma once
 
-#include <OgrePlatform.h>
 #include <OgreString.h>
 
-namespace RoR
-{
+#ifdef USE_CRASHRPT
+#   include "crashrpt.h" // see http://crashrpt.sourceforge.net/
+#endif
+
+namespace RoR {
 
 struct PlatformUtils
 {
@@ -46,5 +48,11 @@ struct PlatformUtils
 
 	static bool FolderExists(Ogre::String const & path);
 };
+
+#ifdef USE_CRASHRPT
+int CALLBACK CrashRptCallback(CR_CRASH_CALLBACK_INFO* pInfo);
+void InstallCrashRpt();
+void UninstallCrashRpt();
+#endif
 
 } // namespace RoR

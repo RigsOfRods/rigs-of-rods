@@ -46,6 +46,10 @@ std::string    GetParentDirectory(const char* src_buff);
 int            DetectBasePaths();
 
 } // namespace System
+
+void ShowCommandLineUsage();
+void ShowVersion();
+
 } // namespace RoR
 
 // some shortcuts to improve code readability

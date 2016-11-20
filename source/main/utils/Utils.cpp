@@ -21,6 +21,7 @@
 
 #include "Utils.h"
 
+#include "ErrorUtils.h"
 #include "rornet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
@@ -147,7 +148,6 @@ int getTimeStamp()
 {
 	return (int)time(NULL); //this will overflow in 2038
 }
-
 
 String getVersionString(bool multiline)
 {
@@ -327,11 +327,9 @@ void generateHashFromFile(String filename, Ogre::String &hash)
 	generateHashFromDataStream(ds, hash);
 }
 
-namespace RoR
-{
+namespace RoR {
+namespace Utils {
 
-namespace Utils
-{
 	std::string TrimBlanksAndLinebreaks(std::string const & input)
 	{
 		int substr_start = 0;
@@ -371,6 +369,6 @@ namespace Utils
         utf8::replace_invalid(str_in.begin(), str_in.end(), std::back_inserter(str_out));
         return str_out;
     }
-}
 
-}
+} // namespace Utils
+} // namespace RoR

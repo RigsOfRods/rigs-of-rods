@@ -39,10 +39,9 @@
 #include <mach-o/dyld.h>
 #endif
 
-#define _L
-
 #include "Application.h"
 #include "ErrorUtils.h"
+#include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
@@ -97,8 +96,34 @@ CSimpleOpt::SOption cmdline_options[] = {
     SO_END_OF_OPTIONS
 };
 
-using namespace RoR;
+namespace RoR {
+
+void ShowCommandLineUsage()
+{
+    ErrorUtils::ShowInfo(
+        _L("Command Line Arguments"), 
+        _L("--help (this)"                              "\n"
+            "-map <map> (loads map on startup)"         "\n"
+            "-truck <truck> (loads truck on startup)"   "\n"
+            "-setup shows the ogre configurator"        "\n"
+            "-version shows the version information"    "\n"
+            "-enter enters the selected truck"          "\n"
+            "-userpath <path> sets the user directory"  "\n"
+            "For example: RoR.exe -map oahu -truck semi"));
+}
+
+void ShowVersion()
+{
+    ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
+#ifdef __GNUC__
+    printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#endif //__GNUC__
+}
+
+}
+
 using namespace Ogre;
+using namespace RoR;
 
 bool FileExists(const char *path)
 {
