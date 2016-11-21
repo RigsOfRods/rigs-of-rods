@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013+     Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,11 +19,9 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-    @file
-    @author Moncef Ben Slimane
-    @date   11/2014
-*/
+/// @file
+/// @author Moncef Ben Slimane
+/// @date   11/2014
 
 #include "GUI_MultiplayerSelector.h"
 
@@ -126,32 +124,32 @@ Json::Value FetchServerlist()
 #endif // defined(USE_CURL) && defined(USE_JSONCPP)
 
 CLASS::CLASS() :
-	m_serverlist_data(nullptr),
-	m_is_refreshing(false)
+    m_serverlist_data(nullptr),
+    m_is_refreshing(false)
 {
-	MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-	win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
+    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
+    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
 
-	m_join_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineBtnPress);
-	m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinDirectBtnPress);
-	m_servers_list->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineListItem);
+    m_join_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineBtnPress);
+    m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinDirectBtnPress);
+    m_servers_list->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineListItem);
 
-	m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
+    m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
 
-	m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
-	m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
+    m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
+    m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
 
 #if defined(USE_CURL) && defined(USE_JSONCPP)
-	m_refresh_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackRefreshOnlineBtnPress);
+    m_refresh_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackRefreshOnlineBtnPress);
 #else
-	m_refresh_button->setEnabled(false);
-	m_status_label->setVisible(true);
-	m_status_label->setCaption("---- Serverlist not supported in this version ----");
+    m_refresh_button->setEnabled(false);
+    m_status_label->setVisible(true);
+    m_status_label->setCaption("---- Serverlist not supported in this version ----");
 #endif
 
-	CenterToScreen();
+    CenterToScreen();
 
-	MAIN_WIDGET->setVisible(false);
+    MAIN_WIDGET->setVisible(false);
 }
 
 void CLASS::SetVisible(bool visible)
@@ -184,15 +182,15 @@ void CLASS::RefreshServerlist()
 
 void CLASS::CenterToScreen()
 {
-	MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
-	MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
+    MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
+    MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
 
-	MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
+    MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
 }
 
 bool CLASS::IsVisible()
 {
-	return MAIN_WIDGET->getVisible();
+    return MAIN_WIDGET->getVisible();
 }
 
 

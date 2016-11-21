@@ -11,58 +11,54 @@
 #include "ForwardDeclarations.h"
 #include "BaseLayout.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace GUI {
 
-namespace GUI
-{
-	
 ATTRIBUTE_CLASS_LAYOUT(MainSelectorLayout, "SelectorWindow.layout");
 class MainSelectorLayout : public wraps::BaseLayout
 {
 
 public:
 
-	MainSelectorLayout(MyGUI::Widget* _parent = nullptr);
-	virtual ~MainSelectorLayout();
+    MainSelectorLayout(MyGUI::Widget* _parent = nullptr);
+    virtual ~MainSelectorLayout();
 
 protected:
 
-	//%LE Widget_Declaration list start
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Type, "Type");
-	MyGUI::ComboBox* m_Type;
+    //%LE Widget_Declaration list start
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Type, "Type");
+    MyGUI::ComboBox* m_Type;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Model, "Model");
-	MyGUI::ListBox* m_Model;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Model, "Model");
+    MyGUI::ListBox* m_Model;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_SearchLine, "SearchLine");
-	MyGUI::EditBox* m_SearchLine;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_SearchLine, "SearchLine");
+    MyGUI::EditBox* m_SearchLine;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryName, "EntryName");
-	MyGUI::TextBox* m_EntryName;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryName, "EntryName");
+    MyGUI::TextBox* m_EntryName;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryDescription, "EntryDescription");
-	MyGUI::TextBox* m_EntryDescription;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_EntryDescription, "EntryDescription");
+    MyGUI::TextBox* m_EntryDescription;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Config, "Config");
-	MyGUI::ComboBox* m_Config;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Config, "Config");
+    MyGUI::ComboBox* m_Config;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_PreviewBox, "PreviewBox");
-	MyGUI::Widget* m_PreviewBox;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_PreviewBox, "PreviewBox");
+    MyGUI::Widget* m_PreviewBox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Preview, "Preview");
-	MyGUI::ImageBox* m_Preview;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Preview, "Preview");
+    MyGUI::ImageBox* m_Preview;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Ok, "Ok");
-	MyGUI::Button* m_Ok;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Ok, "Ok");
+    MyGUI::Button* m_Ok;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Cancel, "Cancel");
-	MyGUI::Button* m_Cancel;
+    ATTRIBUTE_FIELD_WIDGET_NAME(MainSelectorLayout, m_Cancel, "Cancel");
+    MyGUI::Button* m_Cancel;
 
-	//%LE Widget_Declaration list end
+    //%LE Widget_Declaration list end
 };
 
 } // namespace GUI
-
 } // namespace RoR
 

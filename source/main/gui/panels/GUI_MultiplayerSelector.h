@@ -19,13 +19,11 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+/// @file
+/// @author Moncef Ben Slimane
+/// @date   12/2014
 
-/**
-    @file
-    @author Moncef Ben Slimane
-    @date   11/2014
-*/
+#pragma once
 
 #include "ForwardDeclarations.h"
 #include "GUI_MultiplayerSelectorLayout.h"
